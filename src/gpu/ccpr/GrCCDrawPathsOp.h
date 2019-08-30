@@ -44,7 +44,7 @@ public:
         }
         fProcessors.visitProxies(fn);
     }
-    void onPrepare(GrOpFlushState*) override {}
+    void onPrepare(GrOpFlushState*) override;
 
     void addToOwningPerOpsTaskPaths(sk_sp<GrCCPerOpsTaskPaths> owningPerOpsTaskPaths);
 

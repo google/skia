@@ -124,7 +124,8 @@ public:
     GrOpsRenderPass* getOpsRenderPass(
             GrRenderTarget*, GrSurfaceOrigin, const SkRect&,
             const GrOpsRenderPass::LoadAndStoreInfo&,
-            const GrOpsRenderPass::StencilLoadAndStoreInfo&) override;
+            const GrOpsRenderPass::StencilLoadAndStoreInfo&,
+            const SkTArray<GrTextureProxy*, true>& sampledProxies) override;
 
     void invalidateBoundRenderTarget() {
         fHWBoundRenderTargetUniqueID.makeInvalid();
@@ -244,7 +245,8 @@ private:
 
     bool onWritePixels(GrSurface*, int left, int top, int width, int height,
                        GrColorType surfaceColorType, GrColorType srcColorType,
-                       const GrMipLevel texels[], int mipLevelCount) override;
+                       const GrMipLevel texels[], int mipLevelCount,
+                       bool prepForTexSampling) override;
 
     bool onTransferPixelsTo(GrTexture*, int left, int top, int width, int height,
                             GrColorType textureColorType, GrColorType bufferColorType,

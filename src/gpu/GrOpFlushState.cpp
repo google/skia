@@ -84,8 +84,9 @@ void GrOpFlushState::reset() {
     fBaseDrawToken = GrDeferredUploadToken::AlreadyFlushedToken();
 }
 
-void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload) {
-    GrDeferredTextureUploadWritePixelsFn wp = [this](GrTextureProxy* dstProxy, int left, int top,
+void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload,
+                              bool shouldPrepareSurfaceForSampling) {
+    GrDeferredTextureUploadWritePixelsFn wp = [this, shouldPrepareSurfaceForSampling](GrTextureProxy* dstProxy, int left, int top,
                                                      int width, int height, GrColorType colorType,
                                                      const void* buffer, size_t rowBytes) {
         GrSurface* dstSurface = dstProxy->peekSurface();
@@ -112,7 +113,8 @@ void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload) {
             buffer = tmpPixels.get();
         }
         return this->fGpu->writePixels(dstSurface, left, top, width, height, colorType,
-                                       supportedWrite.fColorType, buffer, rowBytes);
+                                       supportedWrite.fColorType, buffer, rowBytes,
+                                       shouldPrepareSurfaceForSampling);
     };
     upload(wp);
 }

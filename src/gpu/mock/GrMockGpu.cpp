@@ -55,7 +55,8 @@ sk_sp<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions,
 GrOpsRenderPass* GrMockGpu::getOpsRenderPass(
                                 GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
                                 const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
-                                const GrOpsRenderPass::StencilLoadAndStoreInfo&) {
+                                const GrOpsRenderPass::StencilLoadAndStoreInfo&,
+                                const SkTArray<GrTextureProxy*, true>& sampledProxies) {
     return new GrMockOpsRenderPass(this, rt, origin, colorInfo);
 }
 

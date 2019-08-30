@@ -305,6 +305,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     auto fixedDynamicState = target->makeFixedDynamicState(kMaxTextures);
     for (unsigned i = 0; i < numActiveProxies; ++i) {
         fixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
+        target->sampledProxyArray()->push_back(proxies[i].get());
     }
 
     FlushInfo flushInfo;
@@ -413,6 +414,7 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
         // Update the proxies used in the GP to match.
         for (unsigned i = gp->numTextureSamplers(); i < numActiveProxies; ++i) {
             flushInfo->fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
+            target->sampledProxyArray()->push_back(proxies[i].get());
         }
         if (this->usesDistanceFields()) {
             if (this->isLCD()) {
