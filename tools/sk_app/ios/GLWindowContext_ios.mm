@@ -10,17 +10,17 @@
 #include "tools/sk_app/GLWindowContext.h"
 #include "tools/sk_app/ios/WindowContextFactory_ios.h"
 
-#include <OpenGLES/ES3/gl.h>
-#include <UIKit/UIKit.h>
+#import <OpenGLES/ES3/gl.h>
+#import <UIKit/UIKit.h>
 
 using sk_app::DisplayParams;
 using sk_app::window_context_factory::IOSWindowInfo;
 using sk_app::GLWindowContext;
 
-@interface RasterView : MainView
+@interface GLView : MainView
 @end
 
-@implementation RasterView
+@implementation GLView
 + (Class) layerClass {
     return [CAEAGLLayer class];
 }
@@ -44,7 +44,7 @@ public:
 private:
     sk_app::Window_ios*  fWindow;
     UIViewController*    fViewController;
-    RasterView*          fRasterView;
+    GLView*              fGLView;
     EAGLContext*         fGLContext;
     GLuint               fFramebuffer;
     GLuint               fRenderbuffer;
@@ -64,9 +64,9 @@ GLWindowContext_ios::GLWindowContext_ios(const IOSWindowInfo& info, const Displa
 }
 
 GLWindowContext_ios::~GLWindowContext_ios() {
-    this->onDestroyContext();
-    [fRasterView removeFromSuperview];
-    [fRasterView release];
+    this->destroyContext();
+    [fGLView removeFromSuperview];
+    [fGLView release];
 }
 
 sk_sp<const GrGLInterface> GLWindowContext_ios::onInitializeContext() {
@@ -74,8 +74,8 @@ sk_sp<const GrGLInterface> GLWindowContext_ios::onInitializeContext() {
     SkASSERT(!fGLContext);
 
     CGRect frameRect = [fViewController.view frame];
-    fRasterView = [[[RasterView alloc] initWithFrame:frameRect] initWithWindow:fWindow];
-    [fViewController.view addSubview:fRasterView];
+    fGLView = [[[GLView alloc] initWithFrame:frameRect] initWithWindow:fWindow];
+    [fViewController.view addSubview:fGLView];
 
     fGLContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
 
@@ -92,7 +92,7 @@ sk_sp<const GrGLInterface> GLWindowContext_ios::onInitializeContext() {
     }
 
     // Set up EAGLLayer
-    CAEAGLLayer* eaglLayer = (CAEAGLLayer*)fRasterView.layer;
+    CAEAGLLayer* eaglLayer = (CAEAGLLayer*)fGLView.layer;
     eaglLayer.drawableProperties = @{kEAGLDrawablePropertyRetainedBacking : @NO,
                                      kEAGLDrawablePropertyColorFormat     : kEAGLColorFormatRGBA8 };
     eaglLayer.opaque = YES;
