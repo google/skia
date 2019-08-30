@@ -14,7 +14,6 @@
 class GrCaps;
 class GrDrawingManager;
 class GrRenderTask;
-class GrTextureProxy;
 
 /*
  * This class is a shallow view of the drawing manager. It is passed to render tasks when setting up
@@ -27,7 +26,7 @@ public:
             : fDrawingManager(drawingManager) {}
 
     GrRenderTask* newTextureResolveRenderTask(
-            sk_sp<GrTextureProxy> proxy, GrTextureResolveFlags flags, const GrCaps& caps) const {
+            sk_sp<GrSurfaceProxy> proxy, GrTextureResolveFlags flags, const GrCaps& caps) const {
         SkASSERT(fDrawingManager);
         return fDrawingManager->newTextureResolveRenderTask(std::move(proxy), flags, caps);
     }
