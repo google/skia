@@ -640,6 +640,10 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
 
 void SkPDFFont::emitSubset(SkPDFDocument* doc) const {
     SkASSERT(fFontType != SkPDFFont().fFontType); // not default value
+    SkAutoTime auto_time("emitSubset duration");
+    SkString family_name;
+    fTypeface->getFamilyName(&family_name);
+    SkDebugf("emitSubset family: %s font format: %d", family_name.c_str(), fFontType);
     switch (fFontType) {
         case SkAdvancedTypefaceMetrics::kType1CID_Font:
         case SkAdvancedTypefaceMetrics::kTrueType_Font:
