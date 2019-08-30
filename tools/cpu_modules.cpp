@@ -5,9 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "modules/particles/include/SkParticleBinding.h"
 #include "modules/particles/include/SkParticleDrawable.h"
-#include "modules/particles/include/SkParticleEffect.h"
-#include "modules/particles/include/SkParticleSerialization.h"
 #include "modules/particles/include/SkReflected.h"
 
 // Doesn't do anything important; just exists to show we can use modules/particles without the GPU
