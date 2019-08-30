@@ -97,7 +97,7 @@ public:
     void update(double now);
     void draw(SkCanvas* canvas);
 
-    bool isAlive() const { return fSpawnTime >= 0; }
+    bool isAlive() const { return fEffectAge >= 0 && fEffectAge <= 1; }
     int getCount() const { return fCount; }
 
     static void RegisterParticleTypes();
@@ -110,7 +110,7 @@ private:
     SkRandom fRandom;
 
     bool   fLooping;
-    double fSpawnTime;
+    float  fEffectAge;
 
     int    fCount;
     double fLastTime;

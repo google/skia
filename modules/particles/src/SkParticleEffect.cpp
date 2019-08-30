@@ -125,7 +125,7 @@ SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params, const S
         : fParams(std::move(params))
         , fRandom(random)
         , fLooping(false)
-        , fSpawnTime(-1.0)
+        , fEffectAge(-1.0)
         , fCount(0)
         , fLastTime(-1.0)
         , fSpawnRemainder(0.0f) {
@@ -134,7 +134,8 @@ SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params, const S
 
 void SkParticleEffect::start(double now, bool looping) {
     fCount = 0;
-    fLastTime = fSpawnTime = now;
+    fLastTime = now;
+    fEffectAge = 0.0f;
     fSpawnRemainder = 0.0f;
     fLooping = looping;
 }
@@ -155,10 +156,17 @@ void SkParticleEffect::update(double now) {
         this->setCapacity(fParams->fMaxCount);
     }
 
-    float effectAge = static_cast<float>((now - fSpawnTime) / fParams->fEffectDuration);
-    effectAge = fLooping ? fmodf(effectAge, 1.0f) : SkTPin(effectAge, 0.0f, 1.0f);
+    fEffectAge += deltaTime / fParams->fEffectDuration;
+    if (fEffectAge > 1) {
+        if (fLooping) {
+            fEffectAge = fmodf(fEffectAge, 1.0f);
+        } else {
+            // Effect is dead if we've reached the end (and are not looping)
+            return;
+        }
+    }
 
-    float updateParams[2] = { deltaTime, effectAge };
+    float updateParams[2] = { deltaTime, fEffectAge };
 
     // Advance age for existing particles, and remove any that have reached their end of life
     for (int i = 0; i < fCount; ++i) {
@@ -255,11 +263,6 @@ void SkParticleEffect::update(double now) {
               oldHeadingY = fParticles.fData[SkParticles::kHeadingY][i];
         fParticles.fData[SkParticles::kHeadingX][i] = oldHeadingX * c - oldHeadingY * s;
         fParticles.fData[SkParticles::kHeadingY][i] = oldHeadingX * s + oldHeadingY * c;
-    }
-
-    // Mark effect as dead if we've reached the end (and are not looping)
-    if (!fLooping && (now - fSpawnTime) > fParams->fEffectDuration) {
-        fSpawnTime = -1.0;
     }
 }
 
