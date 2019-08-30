@@ -64,7 +64,7 @@ extern "C" bool complex_clips_draw_from_canvas_state(SkCanvasState* state,
 
     SkRegion localRegion;
     for (int32_t i = 0; i < regionRects; ++i) {
-        localRegion.op(rectCoords[0], rectCoords[1], rectCoords[2], rectCoords[3],
+        localRegion.op({rectCoords[0], rectCoords[1], rectCoords[2], rectCoords[3]},
                        SkRegion::kUnion_Op);
         rectCoords += 4;
     }
