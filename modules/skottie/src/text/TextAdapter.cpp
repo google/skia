@@ -8,6 +8,8 @@
 #include "modules/skottie/src/text/TextAdapter.h"
 
 #include "include/core/SkFontMgr.h"
+#include "modules/skottie/src/SkottieJson.h"
+#include "modules/skottie/src/text/RangeSelector.h"
 #include "modules/skottie/src/text/TextAnimator.h"
 #include "modules/sksg/include/SkSGDraw.h"
 #include "modules/sksg/include/SkSGGroup.h"
@@ -19,12 +21,78 @@
 namespace skottie {
 namespace internal {
 
-TextAdapter::TextAdapter(sk_sp<sksg::Group> root, sk_sp<SkFontMgr> fontmgr, sk_sp<Logger> logger,
-                         bool hasAnimators)
-    : fRoot(std::move(root))
+sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
+                                     const AnimationBuilder* abuilder,
+                                     sk_sp<SkFontMgr> fontmgr, sk_sp<Logger> logger) {
+    // General text node format:
+    // "t": {
+    //    "a": [], // animators (see TextAnimator)
+    //    "d": {
+    //        "k": [
+    //            {
+    //                "s": {
+    //                    "f": "Roboto-Regular",
+    //                    "fc": [
+    //                        0.42,
+    //                        0.15,
+    //                        0.15
+    //                    ],
+    //                    "j": 1,
+    //                    "lh": 60,
+    //                    "ls": 0,
+    //                    "s": 50,
+    //                    "t": "text align right",
+    //                    "tr": 0
+    //                },
+    //                "t": 0
+    //            }
+    //        ]
+    //    },
+    //    "m": {}, // "more options" (TODO)
+    //    "p": {}  // "path options" (TODO)
+    // },
+
+    const skjson::ObjectValue* jt = jlayer["t"];
+    const skjson::ObjectValue* jd = jt ? static_cast<const skjson::ObjectValue*>((*jt)["d"])
+                                       : nullptr;
+    if (!jd) {
+        abuilder->log(Logger::Level::kError, &jlayer, "Invalid text layer.");
+        return nullptr;
+    }
+
+    std::vector<sk_sp<TextAnimator>> animators;
+    if (const skjson::ArrayValue* janimators = (*jt)["a"]) {
+        animators.reserve(janimators->size());
+
+        for (const skjson::ObjectValue* janimator : *janimators) {
+            if (auto animator = TextAnimator::Make(janimator, abuilder)) {
+                animators.push_back(std::move(animator));
+            }
+        }
+    }
+
+    auto adapter = sk_sp<TextAdapter>(new TextAdapter(std::move(fontmgr),
+                                                      std::move(logger),
+                                                      std::move(animators)));
+    auto* raw_adapter = adapter.get();
+
+    abuilder->bindProperty<TextValue>(*jd,
+        [raw_adapter] (const TextValue& txt) {
+            raw_adapter->fText = txt;
+        });
+
+    abuilder->dispatchTextProperty(adapter);
+
+    return adapter;
+}
+
+TextAdapter::TextAdapter(sk_sp<SkFontMgr> fontmgr,
+                         sk_sp<Logger> logger,
+                         std::vector<sk_sp<TextAnimator>>&& animators)
+    : fRoot(sksg::Group::Make())
     , fFontMgr(std::move(fontmgr))
-    , fLogger(std::move(logger))
-    , fHasAnimators(hasAnimators) {}
+    , fAnimators(std::move(animators))
+    , fLogger(std::move(logger)) {}
 
 TextAdapter::~TextAdapter() = default;
 
@@ -118,7 +186,7 @@ void TextAdapter::buildDomainMaps(const Shaper::Result& shape_result) {
     }
 }
 
-void TextAdapter::apply() {
+void TextAdapter::onSync() {
     if (!fText.fHasFill && !fText.fHasStroke) {
         return;
     }
@@ -130,7 +198,7 @@ void TextAdapter::apply() {
         fText.fAscent,
         fText.fHAlign,
         fText.fVAlign,
-        fHasAnimators ? Shaper::Flags::kFragmentGlyphs : Shaper::Flags::kNone,
+        fAnimators.empty() ? Shaper::Flags::kNone : Shaper::Flags::kFragmentGlyphs,
     };
     const auto shape_result = Shaper::Shape(fText.fText, text_desc, fText.fBox, fFontMgr);
 
@@ -155,7 +223,7 @@ void TextAdapter::apply() {
         this->addFragment(frag);
     }
 
-    if (fHasAnimators) {
+    if (!fAnimators.empty()) {
         // Range selectors require fragment domain maps.
         this->buildDomainMaps(shape_result);
     }
@@ -177,25 +245,21 @@ void TextAdapter::apply() {
     fRoot->addChild(sksg::Draw::Make(sksg::Rect::Make(shape_result.computeBounds()),
                                      std::move(bounds_color)));
 #endif
-}
 
-void TextAdapter::applyAnimators(const std::vector<sk_sp<TextAnimator>>& animators) {
     if (fFragments.empty()) {
         return;
     }
 
-    const auto& txt_val = this->getText();
-
     // Seed props from the current text value.
     TextAnimator::AnimatedProps seed_props;
-    seed_props.fill_color   = txt_val.fFillColor;
-    seed_props.stroke_color = txt_val.fStrokeColor;
+    seed_props.fill_color   = fText.fFillColor;
+    seed_props.stroke_color = fText.fStrokeColor;
 
     TextAnimator::ModulatorBuffer buf;
     buf.resize(fFragments.size(), { seed_props, 0 });
 
     // Apply all animators to the modulator buffer.
-    for (const auto& animator : animators) {
+    for (const auto& animator : fAnimators) {
         animator->modulateProps(fMaps, buf);
     }
 

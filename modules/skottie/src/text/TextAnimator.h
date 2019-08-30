@@ -9,7 +9,6 @@
 #define SkottieTextAnimator_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/sksg/include/SkSGScene.h"
 
@@ -21,7 +20,6 @@ namespace internal {
 
 class AnimationBuilder;
 class RangeSelector;
-class TextAdapter;
 
 class TextAnimator final : public SkNVRefCnt<TextAnimator> {
 public:
@@ -74,25 +72,6 @@ private:
     AnimatedProps fTextProps;
     bool          fHasFillColor   : 1,
                   fHasStrokeColor : 1;
-};
-
-class TextAnimatorList final : public sksg::GroupAnimator {
-public:
-    static sk_sp<TextAnimatorList> Make(const skjson::ArrayValue&,
-                                        const AnimationBuilder*,
-                                        sk_sp<TextAdapter>);
-    ~TextAnimatorList() override;
-
-protected:
-    void onTick(float) override;
-
-private:
-    TextAnimatorList(sk_sp<TextAdapter>, sksg::AnimatorList&&, std::vector<sk_sp<TextAnimator>>&&);
-
-    const std::vector<sk_sp<TextAnimator>> fAnimators;
-    const sk_sp<TextAdapter>               fAdapter;
-
-    using INHERITED = sksg::GroupAnimator;
 };
 
 } // namespace internal

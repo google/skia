@@ -10,8 +10,8 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPoint.h"
 #include "include/private/SkNx.h"
+#include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/text/RangeSelector.h"
-#include "modules/skottie/src/text/TextAdapter.h"
 #include "src/utils/SkJSON.h"
 
 namespace skottie {
@@ -150,11 +150,7 @@ TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
                            const skjson::ObjectValue& jprops,
                            const AnimationBuilder* abuilder)
     : fSelectors(std::move(selectors)) {
-
-    // It's *probably* OK to capture a raw pointer to this animator, because the lambda
-    // life time is limited to |ascope|, which is also the container for the TextAnimatorList
-    // owning us. But for peace of mind (and future-proofing) let's grab a ref.
-    auto animator = sk_ref_sp(this);
+    auto* animator = this;
 
     abuilder->bindProperty<VectorValue>(jprops["p"],
         [animator](const VectorValue& p) {
@@ -186,47 +182,6 @@ TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
         [animator](const ScalarValue& t) {
             animator->fTextProps.tracking = t;
         });
-}
-
-sk_sp<TextAnimatorList> TextAnimatorList::Make(const skjson::ArrayValue& janimators,
-                                               const AnimationBuilder* abuilder,
-                                               sk_sp<TextAdapter> adapter) {
-    AnimationBuilder::AutoScope ascope(abuilder);
-    std::vector<sk_sp<TextAnimator>> animators;
-    animators.reserve(janimators.size());
-
-    for (const skjson::ObjectValue* janimator : janimators) {
-        if (auto animator = TextAnimator::Make(janimator, abuilder)) {
-            animators.push_back(std::move(animator));
-        }
-    }
-
-    auto local_animator_scope = ascope.release();
-
-    if (animators.empty()) {
-        return nullptr;
-    }
-
-    return sk_sp<TextAnimatorList>(new TextAnimatorList(std::move(adapter),
-                                                        std::move(local_animator_scope),
-                                                        std::move(animators)));
-}
-
-TextAnimatorList::TextAnimatorList(sk_sp<TextAdapter> adapter,
-                                   sksg::AnimatorList&& alist,
-                                   std::vector<sk_sp<TextAnimator>>&& tanimators)
-    : INHERITED(std::move(alist))
-    , fAnimators(std::move(tanimators))
-    , fAdapter(std::move(adapter)) {}
-
-TextAnimatorList::~TextAnimatorList() = default;
-
-void TextAnimatorList::onTick(float t) {
-    // First, update all locally-scoped animated props.
-    this->INHERITED::onTick(t);
-
-    // Then push the final property values to the text adapter.
-    fAdapter->applyAnimators(fAnimators);
 }
 
 } // namespace internal
