@@ -103,8 +103,6 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             }
         }
         SkASSERT(found);
-        fExtraEmitCodeCode += "        this->invokeChild(" + to_string(index) + ", fChildren[" +
-                              to_string(index) + "], args);\n";
         this->write("%s");
         fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kChildProcessor,
                                                    index));
