@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc4cf78c_3a821ef7",
+        "filename": "include/gpu/GrGpuResource.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-30T19:27:56Z",
+      "side": 1,
+      "message": "Woah, blast from the past.",
+      "range": {
+        "startLine": 34,
+        "startChar": 7,
+        "endLine": 34,
+        "endChar": 18
+      },
+      "revId": "a7c16770087ed35bf5d34678e67b23266f20e81d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26896434_ee860ba1",
+        "filename": "src/gpu/GrResourceCache.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-08-30T19:27:56Z",
+      "side": 1,
+      "message": "I think we may change the budgeting status of resources.... I suppose we could keep them out of the scratch map until that happens, but I\u0027m not sure it simplifies anything since it would add extra logic to the code that changes budgeting status. Maybe the real the thing to tackle is removing budget status changing.",
+      "range": {
+        "startLine": 289,
+        "startChar": 66,
+        "endLine": 290,
+        "endChar": 46
+      },
+      "revId": "a7c16770087ed35bf5d34678e67b23266f20e81d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
