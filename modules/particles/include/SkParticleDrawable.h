@@ -20,7 +20,7 @@ public:
     REFLECTED_ABSTRACT(SkParticleDrawable, SkReflected)
 
     virtual void draw(SkCanvas* canvas, const SkParticles& particles, int count,
-                      const SkPaint* paint) = 0;
+                      const SkPaint& paint) = 0;
 
     static void RegisterDrawableTypes();
 
