@@ -414,6 +414,12 @@ inline void GrCCDrawPathsOp::recordInstance(
     SkASSERT(fInstanceRanges.back().fAtlasProxy == atlasProxy);
 }
 
+void GrCCDrawPathsOp::onPrepare(GrOpFlushState* flushState) {
+    for (const InstanceRange& range : fInstanceRanges) {
+        flushState->sampledProxyArray()->push_back(range.fAtlasProxy);
+    }
+}
+
 void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     SkASSERT(fOwningPerOpsTaskPaths);
 

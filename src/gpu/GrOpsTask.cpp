@@ -394,6 +394,7 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 #endif
 
+    flushState->setSampledProxyArray(&fSampledProxies);
     // Loop over the ops that haven't yet been prepared.
     for (const auto& chain : fOpChains) {
         if (chain.shouldExecute()) {
@@ -412,15 +413,13 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
             flushState->setOpArgs(nullptr);
         }
     }
+    flushState->setSampledProxyArray(nullptr);
 }
 
-static GrOpsRenderPass* create_command_buffer(GrGpu* gpu,
-                                              GrRenderTarget* rt,
-                                              GrSurfaceOrigin origin,
-                                              const SkRect& bounds,
-                                              GrLoadOp colorLoadOp,
-                                              const SkPMColor4f& loadClearColor,
-                                              GrLoadOp stencilLoadOp) {
+static GrOpsRenderPass* create_command_buffer(
+        GrGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
+        GrLoadOp colorLoadOp, const SkPMColor4f& loadClearColor, GrLoadOp stencilLoadOp,
+        const SkTArray<GrTextureProxy*, true>& sampledProxies) {
     const GrOpsRenderPass::LoadAndStoreInfo kColorLoadStoreInfo {
         colorLoadOp,
         GrStoreOp::kStore,
@@ -437,7 +436,8 @@ static GrOpsRenderPass* create_command_buffer(GrGpu* gpu,
         GrStoreOp::kStore,
     };
 
-    return gpu->getOpsRenderPass(rt, origin, bounds, kColorLoadStoreInfo, stencilLoadAndStoreInfo);
+    return gpu->getOpsRenderPass(rt, origin, bounds, kColorLoadStoreInfo, stencilLoadAndStoreInfo,
+                                 sampledProxies);
 }
 
 // TODO: this is where GrOp::renderTarget is used (which is fine since it
@@ -466,7 +466,8 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
                                                     fTarget->getBoundsRect(),
                                                     fColorLoadOp,
                                                     fLoadClearColor,
-                                                    fStencilLoadOp);
+                                                    fStencilLoadOp,
+                                                    fSampledProxies);
     flushState->setOpsRenderPass(renderPass);
     renderPass->begin();
 

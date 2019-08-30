@@ -327,6 +327,7 @@ private:
         const auto proxies = fAtlas->getProxies();
         for (int i = 0; i < numActiveProxies; ++i) {
             flushInfo.fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
+            target->sampledProxyArray()->push_back(proxies[i].get());
         }
 
         // Setup GrGeometryProcessor
@@ -777,6 +778,7 @@ private:
         if (gp->numTextureSamplers() != numAtlasTextures) {
             for (int i = gp->numTextureSamplers(); i < numAtlasTextures; ++i) {
                 flushInfo->fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
+                target->sampledProxyArray()->push_back(proxies[i].get());
             }
             // During preparation the number of atlas pages has increased.
             // Update the proxies used in the GP to match.

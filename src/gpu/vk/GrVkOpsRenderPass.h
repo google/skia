@@ -58,7 +58,8 @@ public:
 
     void set(GrRenderTarget*, GrSurfaceOrigin,
              const GrOpsRenderPass::LoadAndStoreInfo&,
-             const GrOpsRenderPass::StencilLoadAndStoreInfo&);
+             const GrOpsRenderPass::StencilLoadAndStoreInfo&,
+             const SkTArray<GrTextureProxy*, true>& sampledProxies);
     void reset();
 
     void submit();
@@ -96,8 +97,6 @@ private:
                 const GrMesh[],
                 int meshCount,
                 const SkRect& bounds) override;
-
-    void appendSampledTexture(GrTexture*);
 
     // GrMesh::SendToGpuImpl methods. These issue the actual Vulkan draw commands.
     // Marked final as a hint to the compiler to not use virtual dispatch.
@@ -147,10 +146,6 @@ private:
         SkRect fBounds;
         bool fIsEmpty = true;
         LoadStoreState fLoadStoreState = LoadStoreState::kUnknown;
-        // Array of images that will be sampled and thus need to be transferred to sampled layout
-        // before submitting the secondary command buffers. This must happen after we do any predraw
-        // uploads or copies.
-        SkTArray<sk_sp<GrVkTexture>> fSampledTextures;
 
         GrVkSecondaryCommandBuffer* currentCmdBuf() {
             return fCommandBuffer.get();

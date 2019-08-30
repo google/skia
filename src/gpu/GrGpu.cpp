@@ -407,7 +407,7 @@ bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int hei
 
 bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int height,
                         GrColorType surfaceColorType, GrColorType srcColorType,
-                        const GrMipLevel texels[], int mipLevelCount) {
+                        const GrMipLevel texels[], int mipLevelCount, bool prepForTexSampling) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(surface);
     SkASSERT(this->caps()->isFormatTexturableAndUploadable(surfaceColorType,
@@ -438,7 +438,7 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
 
     this->handleDirtyContext();
     if (this->onWritePixels(surface, left, top, width, height, surfaceColorType, srcColorType,
-                            texels, mipLevelCount)) {
+                            texels, mipLevelCount, prepForTexSampling)) {
         SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
         this->didWriteToSurface(surface, kTopLeft_GrSurfaceOrigin, &rect, mipLevelCount);
         fStats.incTextureUploads();

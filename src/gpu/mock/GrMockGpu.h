@@ -24,9 +24,11 @@ public:
 
     ~GrMockGpu() override {}
 
-    GrOpsRenderPass* getOpsRenderPass(GrRenderTarget*, GrSurfaceOrigin, const SkRect&,
-                                      const GrOpsRenderPass::LoadAndStoreInfo&,
-                                      const GrOpsRenderPass::StencilLoadAndStoreInfo&) override;
+    GrOpsRenderPass* getOpsRenderPass(
+            GrRenderTarget*, GrSurfaceOrigin, const SkRect&,
+            const GrOpsRenderPass::LoadAndStoreInfo&,
+            const GrOpsRenderPass::StencilLoadAndStoreInfo&,
+            const SkTArray<GrTextureProxy*, true>& sampledProxies) override;
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
     bool waitFence(GrFence, uint64_t) override { return true; }
@@ -94,7 +96,8 @@ private:
 
     bool onWritePixels(GrSurface* surface, int left, int top, int width, int height,
                        GrColorType surfaceColorType, GrColorType srcColorType,
-                       const GrMipLevel texels[], int mipLevelCount) override {
+                       const GrMipLevel texels[], int mipLevelCount,
+                       bool prepForTexSampling) override {
         return true;
     }
 
