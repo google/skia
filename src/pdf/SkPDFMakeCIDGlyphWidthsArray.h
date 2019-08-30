@@ -17,7 +17,7 @@ class SkTypeface;
    format that can specify individual widths for consecutive CIDs or
    one width for a range of CIDs". */
 std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkTypeface& typeface,
-                                                         const SkPDFGlyphUse* subset,
+                                                         const SkPDFGlyphUse& subset,
                                                          SkScalar* defaultAdvance);
 
 #endif  // SkPDFMakeCIDGlyphWidthsArray_DEFINED
