@@ -23,6 +23,8 @@ class SkImage;
  */
 class GrProxyProvider {
 public:
+    using UseAllocator = GrSurfaceProxy::UseAllocator;
+
     GrProxyProvider(GrImageContext*);
 
     ~GrProxyProvider();
@@ -56,8 +58,10 @@ public:
      * each call that might result in a cache hit must provide the same colorType as the call that
      * caused a cache miss and created the proxy.
      */
-    sk_sp<GrTextureProxy> findOrCreateProxyByUniqueKey(const GrUniqueKey&, GrColorType colorType,
-                                                       GrSurfaceOrigin);
+    sk_sp<GrTextureProxy> findOrCreateProxyByUniqueKey(const GrUniqueKey&,
+                                                       GrColorType colorType,
+                                                       GrSurfaceOrigin,
+                                                       UseAllocator = UseAllocator::kYes);
 
     /*
      * Create an un-mipmapped texture proxy with data. The SkImage must be a raster backend image.
@@ -87,18 +91,32 @@ public:
     /*
      * Create a GrSurfaceProxy without any data.
      */
-    sk_sp<GrTextureProxy> createProxy(const GrBackendFormat&, const GrSurfaceDesc&, GrRenderable,
-                                      int renderTargetSampleCnt, GrSurfaceOrigin, GrMipMapped,
-                                      SkBackingFit, SkBudgeted, GrProtected,
-                                      GrInternalSurfaceFlags);
+    sk_sp<GrTextureProxy> createProxy(const GrBackendFormat&,
+                                      const GrSurfaceDesc&,
+                                      GrRenderable,
+                                      int renderTargetSampleCnt,
+                                      GrSurfaceOrigin,
+                                      GrMipMapped,
+                                      SkBackingFit,
+                                      SkBudgeted,
+                                      GrProtected,
+                                      GrInternalSurfaceFlags,
+                                      UseAllocator useAllocator = UseAllocator::kYes);
 
     sk_sp<GrTextureProxy> createProxy(
-            const GrBackendFormat& format, const GrSurfaceDesc& desc, GrRenderable renderable,
-            int renderTargetSampleCnt, GrSurfaceOrigin origin, SkBackingFit fit,
-            SkBudgeted budgeted, GrProtected isProtected,
-            GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone) {
+            const GrBackendFormat& format,
+            const GrSurfaceDesc& desc,
+            GrRenderable renderable,
+            int renderTargetSampleCnt,
+            GrSurfaceOrigin origin,
+            SkBackingFit fit,
+            SkBudgeted budgeted,
+            GrProtected isProtected,
+            GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone,
+            UseAllocator useAllocator = UseAllocator::kYes) {
         return this->createProxy(format, desc, renderable, renderTargetSampleCnt, origin,
-                                 GrMipMapped::kNo, fit, budgeted, isProtected, surfaceFlags);
+                                 GrMipMapped::kNo, fit, budgeted, isProtected, surfaceFlags,
+                                 useAllocator);
     }
 
     /*
@@ -148,7 +166,7 @@ public:
                                                                    const GrVkDrawableInfo&);
 
     using LazyInstantiationKeyMode = GrSurfaceProxy::LazyInstantiationKeyMode;
-    using LazyInstantiationResult = GrSurfaceProxy::LazyInstantiationResult;
+    using LazyCallbackResult = GrSurfaceProxy::LazyCallbackResult;
     using LazyInstantiateCallback = GrSurfaceProxy::LazyInstantiateCallback;
 
     struct TextureInfo {
@@ -156,7 +174,6 @@ public:
         GrTextureType fTextureType;
     };
 
-    using LazyInstantiationType = GrSurfaceProxy::LazyInstantiationType;
     /**
      * Creates a texture proxy that will be instantiated by a user-supplied callback during flush.
      * (Stencil is not supported by this method.) The width and height must either both be greater
@@ -167,23 +184,19 @@ public:
      * It also must support being passed in a null GrResourceProvider. When this happens, the
      * callback should cleanup any resources it captured and return an empty sk_sp<GrTextureProxy>.
      */
-    sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrBackendFormat&,
-                                          const GrSurfaceDesc&, GrRenderable,
-                                          int renderTargetSampleCnt, GrSurfaceOrigin,
-                                          GrMipMapped, GrMipMapsStatus, GrInternalSurfaceFlags,
-                                          SkBackingFit, SkBudgeted, GrProtected,
-                                          LazyInstantiationType);
-
-    sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrBackendFormat&,
-                                          const GrSurfaceDesc&, GrRenderable,
-                                          int renderTargetSampleCnt, GrSurfaceOrigin, GrMipMapped,
-                                          GrMipMapsStatus, GrInternalSurfaceFlags, SkBackingFit,
-                                          SkBudgeted, GrProtected);
-
-    sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrBackendFormat&,
-                                          const GrSurfaceDesc&, GrRenderable,
-                                          int renderTargetSampleCnt, GrSurfaceOrigin, GrMipMapped,
-                                          GrMipMapsStatus, SkBackingFit, SkBudgeted, GrProtected);
+    sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&,
+                                          const GrBackendFormat&,
+                                          const GrSurfaceDesc&,
+                                          GrRenderable,
+                                          int renderTargetSampleCnt,
+                                          GrSurfaceOrigin,
+                                          GrMipMapped,
+                                          GrMipMapsStatus,
+                                          GrInternalSurfaceFlags,
+                                          SkBackingFit,
+                                          SkBudgeted,
+                                          GrProtected,
+                                          UseAllocator);
 
     /** A null TextureInfo indicates a non-textureable render target. */
     sk_sp<GrRenderTargetProxy> createLazyRenderTargetProxy(LazyInstantiateCallback&&,
@@ -192,9 +205,13 @@ public:
                                                            int renderTargetSampleCnt,
                                                            GrSurfaceOrigin origin,
                                                            GrInternalSurfaceFlags,
-                                                           const TextureInfo*, GrMipMapsStatus,
-                                                           SkBackingFit, SkBudgeted, GrProtected,
-                                                           bool wrapsVkSecondaryCB);
+                                                           const TextureInfo*,
+                                                           GrMipMapsStatus,
+                                                           SkBackingFit,
+                                                           SkBudgeted,
+                                                           GrProtected,
+                                                           bool wrapsVkSecondaryCB,
+                                                           UseAllocator useAllocator);
 
     /**
      * Fully lazy proxies have unspecified width and height. Methods that rely on those values
@@ -203,7 +220,8 @@ public:
     static sk_sp<GrTextureProxy> MakeFullyLazyProxy(LazyInstantiateCallback&&,
                                                     const GrBackendFormat&, GrRenderable,
                                                     int renderTargetSampleCnt, GrProtected,
-                                                    GrSurfaceOrigin, GrPixelConfig, const GrCaps&);
+                                                    GrSurfaceOrigin, GrPixelConfig, const GrCaps&,
+                                                    UseAllocator);
 
     // 'proxy' is about to be used as a texture src or drawn to. This query can be used to
     // determine if it is going to need a texture domain or a full clear.
@@ -281,7 +299,8 @@ private:
     bool isAbandoned() const;
 
     // GrColorType is used to determine the proxy's texture swizzle.
-    sk_sp<GrTextureProxy> createWrapped(sk_sp<GrTexture> tex, GrColorType, GrSurfaceOrigin origin);
+    sk_sp<GrTextureProxy> createWrapped(sk_sp<GrTexture> tex, GrColorType, GrSurfaceOrigin origin,
+                                        UseAllocator useAllocator);
 
     struct UniquelyKeyedProxyHashTraits {
         static const GrUniqueKey& GetKey(const GrTextureProxy& p) { return p.getUniqueKey(); }
