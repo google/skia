@@ -72,13 +72,16 @@ void GrOnFlushResourceProvider::processInvalidUniqueKey(const GrUniqueKey& key) 
 }
 
 sk_sp<GrTextureProxy> GrOnFlushResourceProvider::findOrCreateProxyByUniqueKey(
-        const GrUniqueKey& key, GrColorType colorType, GrSurfaceOrigin origin) {
+        const GrUniqueKey& key,
+        GrColorType colorType,
+        GrSurfaceOrigin origin,
+        UseAllocator useAllocator) {
     auto proxyProvider = fDrawingMgr->getContext()->priv().proxyProvider();
-    return proxyProvider->findOrCreateProxyByUniqueKey(key, colorType, origin);
+    return proxyProvider->findOrCreateProxyByUniqueKey(key, colorType, origin, useAllocator);
 }
 
 bool GrOnFlushResourceProvider::instatiateProxy(GrSurfaceProxy* proxy) {
-    SkASSERT(proxy->priv().ignoredByResourceAllocator());
+    SkASSERT(proxy->canSkipResourceAllocator());
 
     // TODO: this class should probably just get a GrDirectContext
     auto direct = fDrawingMgr->getContext()->priv().asDirectContext();
@@ -88,9 +91,7 @@ bool GrOnFlushResourceProvider::instatiateProxy(GrSurfaceProxy* proxy) {
 
     auto resourceProvider = direct->priv().resourceProvider();
 
-    if (GrSurfaceProxy::LazyState::kNot != proxy->lazyInstantiationState()) {
-        // DDL TODO: Decide if we ever plan to have these proxies use the GrDeinstantiateTracker
-        // to support unistantiating them at the end of a flush.
+    if (proxy->isLazy()) {
         return proxy->priv().doLazyInstantiation(resourceProvider);
     }
 

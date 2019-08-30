@@ -170,9 +170,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                 bool expectedMipMapability = isTexturable && caps->mipMapSupport() &&
                                               !caps->isFormatCompressed(combo.fFormat);
 
-                sk_sp<GrTextureProxy> proxy = proxyProvider->createMipMapProxy(
-                            combo.fFormat, desc, GrRenderable::kNo, 1, origin,
-                            SkBudgeted::kNo, GrProtected::kNo);
+                sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
+                        combo.fFormat, desc, GrRenderable::kNo, 1, origin, GrMipMapped::kYes,
+                        SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo);
                 REPORTER_ASSERT(reporter, SkToBool(proxy.get()) == expectedMipMapability,
                                 "ct:%s format:%s, tex:%d, expectedMipMapability:%d",
                                 GrColorTypeToStr(combo.fColorType),
@@ -577,7 +577,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                     if (texture->getUniqueKey().isValid()) {
                         mode = GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced;
                     }
-                    return GrSurfaceProxy::LazyInstantiationResult{std::move(texture), mode};
+                    return GrSurfaceProxy::LazyCallbackResult{std::move(texture), true, mode};
                 };
                 GrSurfaceDesc desc;
                 desc.fWidth = w;
@@ -594,7 +594,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                         GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
                         GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags ::kNone,
                         SkBackingFit::kExact, budgeted, GrProtected::kNo,
-                        GrSurfaceProxy::LazyInstantiationType::kSingleUse);
+                        GrSurfaceProxy::UseAllocator::kYes);
                 rtc->drawTexture(GrNoClip(), proxy, GrSamplerState::Filter::kNearest,
                                  SkBlendMode::kSrcOver, SkPMColor4f(), SkRect::MakeWH(w, h),
                                  SkRect::MakeWH(w, h), GrAA::kNo, GrQuadAAFlags::kNone,
@@ -618,34 +618,6 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 // Now that the draw is fully consumed by the GPU, the texture should be idle.
                 REPORTER_ASSERT(reporter, idleIDs.find(2) != idleIDs.end());
 
-                // Make a proxy that should deinstantiate even if we keep a ref on it.
-                auto deinstantiateLazyCB = [&make, &context](GrResourceProvider* rp) {
-                    auto texture = make(context, 3);
-                    auto mode = GrSurfaceProxy::LazyInstantiationKeyMode::kSynced;
-                    if (texture->getUniqueKey().isValid()) {
-                        mode = GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced;
-                    }
-                    return GrSurfaceProxy::LazyInstantiationResult{std::move(texture), mode};
-                };
-                proxy = context->priv().proxyProvider()->createLazyProxy(
-                        deinstantiateLazyCB, backendFormat, desc, renderable, 1,
-                        GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
-                        GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags ::kNone,
-                        SkBackingFit::kExact, budgeted, GrProtected::kNo,
-                        GrSurfaceProxy::LazyInstantiationType::kDeinstantiate);
-                rtc->drawTexture(GrNoClip(), std::move(proxy), GrSamplerState::Filter::kNearest,
-                                 SkBlendMode::kSrcOver, SkPMColor4f(), SkRect::MakeWH(w, h),
-                                 SkRect::MakeWH(w, h), GrAA::kNo, GrQuadAAFlags::kNone,
-                                 SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(), nullptr);
-                // At this point the proxy shouldn't even be instantiated, there is no texture with
-                // id 3.
-                REPORTER_ASSERT(reporter, idleIDs.find(3) == idleIDs.end());
-                context->flush();
-                context->priv().getGpu()->testingOnly_flushGpuAndSync();
-                // Now that the draw is fully consumed, we should have deinstantiated the proxy and
-                // the texture it made should be idle.
-                REPORTER_ASSERT(reporter, idleIDs.find(3) != idleIDs.end());
-
                 // Make sure we make the call during various shutdown scenarios where the texture
                 // might persist after context is destroyed, abandoned, etc. We test three
                 // variations of each scenario. One where the texture is just created. Another,
@@ -659,7 +631,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 if (api == GrBackendApi::kVulkan) {
                     continue;
                 }
-                int id = 4;
+                int id = 3;
                 enum class DrawType {
                     kNoDraw,
                     kDraw,

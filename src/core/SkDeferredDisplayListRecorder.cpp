@@ -167,7 +167,7 @@ bool SkDeferredDisplayListRecorder::init() {
                 // prior to the proxy backing the DLL's surface. Steal its GrRenderTarget.
                 SkASSERT(lazyProxyData->fReplayDest->peekSurface());
                 auto surface = sk_ref_sp<GrSurface>(lazyProxyData->fReplayDest->peekSurface());
-                return GrSurfaceProxy::LazyInstantiationResult(std::move(surface));
+                return GrSurfaceProxy::LazyCallbackResult(std::move(surface));
             },
             fCharacterization.backendFormat(),
             desc,
@@ -179,7 +179,8 @@ bool SkDeferredDisplayListRecorder::init() {
             SkBackingFit::kExact,
             SkBudgeted::kYes,
             fCharacterization.isProtected(),
-            fCharacterization.vulkanSecondaryCBCompatible());
+            fCharacterization.vulkanSecondaryCBCompatible(),
+            GrSurfaceProxy::UseAllocator::kYes);
 
     if (!proxy) {
         return false;
