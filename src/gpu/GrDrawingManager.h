@@ -54,7 +54,7 @@ public:
     // list of render tasks and make it depend on the target texture proxy. It is up to the caller
     // to add any dependencies on the new render task.
     GrRenderTask* newTextureResolveRenderTask(
-            sk_sp<GrTextureProxy>, GrTextureResolveFlags, const GrCaps&);
+            sk_sp<GrSurfaceProxy>, GrTextureResolveFlags, const GrCaps&);
 
     // Create a new render task which copies the pixels from the srcProxy into the dstBuffer. This
     // is used to support the asynchronous readback API. The srcRect is the region of the srcProxy
