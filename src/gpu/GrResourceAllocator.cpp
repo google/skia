@@ -7,11 +7,9 @@
 
 #include "src/gpu/GrResourceAllocator.h"
 
-#include "src/gpu/GrDeinstantiateProxyTracker.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrRenderTargetProxy.h"
-#include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrSurfaceProxy.h"
@@ -75,14 +73,15 @@ GrResourceAllocator::~GrResourceAllocator() {
 void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end,
                                       ActualUse actualUse
                                       SkDEBUGCODE(, bool isDirectDstRead)) {
+    SkASSERT(start <= end);
+    SkASSERT(!fAssigned);  // We shouldn't be adding any intervals after (or during) assignment
 
     if (proxy->canSkipResourceAllocator()) {
         // If the proxy is still not instantiated at this point but will need stencil, it will
         // attach its own stencil buffer upon onFlush instantiation.
         if (proxy->isInstantiated()) {
-            int minStencilSampleCount = (proxy->asRenderTargetProxy())
-                    ? proxy->asRenderTargetProxy()->numStencilSamples()
-                    : 0;
+            auto rt = proxy->asRenderTargetProxy();
+            int minStencilSampleCount = rt ? rt->numStencilSamples() : 0;
             if (minStencilSampleCount) {
                 if (!GrSurfaceProxyPriv::AttachStencilIfNeeded(
                         fResourceProvider, proxy->peekSurface(), minStencilSampleCount)) {
@@ -94,74 +93,56 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
         return;
     }
 
-    SkASSERT(!proxy->priv().ignoredByResourceAllocator());
-
-    SkASSERT(start <= end);
-    SkASSERT(!fAssigned);      // We shouldn't be adding any intervals after (or during) assignment
-
     // If a proxy is read only it must refer to a texture with specific content that cannot be
     // recycled. We don't need to assign a texture to it and no other proxy can be instantiated
     // with the same texture.
     if (proxy->readOnly()) {
-        // Since we aren't going to add an interval we won't revisit this proxy in assign(). So it
-        // must already be instantiated or it must be a lazy proxy that we will instantiate below.
-        SkASSERT(proxy->isInstantiated() ||
-                 GrSurfaceProxy::LazyState::kNot != proxy->lazyInstantiationState());
-    } else {
-        if (Interval* intvl = fIntvlHash.find(proxy->uniqueID().asUInt())) {
-            // Revise the interval for an existing use
-#ifdef SK_DEBUG
-            if (0 == start && 0 == end) {
-                // This interval is for the initial upload to a deferred proxy. Due to the vagaries
-                // of how deferred proxies are collected they can appear as uploads multiple times
-                // in a single opsTasks' list and as uploads in several opsTasks.
-                SkASSERT(0 == intvl->start());
-            } else if (isDirectDstRead) {
-                // Direct reads from the render target itself should occur w/in the existing
-                // interval
-                SkASSERT(intvl->start() <= start && intvl->end() >= end);
-            } else {
-                SkASSERT(intvl->end() <= start && intvl->end() <= end);
-            }
-#endif
-            if (ActualUse::kYes == actualUse) {
-                intvl->addUse();
-            }
-            intvl->extendEnd(end);
-            return;
-        }
-        Interval* newIntvl;
-        if (fFreeIntervalList) {
-            newIntvl = fFreeIntervalList;
-            fFreeIntervalList = newIntvl->next();
-            newIntvl->setNext(nullptr);
-            newIntvl->resetTo(proxy, start, end);
+        if (proxy->isLazy() && !proxy->priv().doLazyInstantiation(fResourceProvider)) {
+            fLazyInstantiationError = true;
         } else {
-            newIntvl = fIntervalAllocator.make<Interval>(proxy, start, end);
+            // Since we aren't going to add an interval we won't revisit this proxy in assign(). So
+            // must already be instantiated or it must be a lazy proxy that we instantiated above.
+            SkASSERT(proxy->isInstantiated());
         }
-
+        return;
+    }
+    if (Interval* intvl = fIntvlHash.find(proxy->uniqueID().asUInt())) {
+        // Revise the interval for an existing use
+#ifdef SK_DEBUG
+        if (0 == start && 0 == end) {
+            // This interval is for the initial upload to a deferred proxy. Due to the vagaries
+            // of how deferred proxies are collected they can appear as uploads multiple times
+            // in a single opsTasks' list and as uploads in several opsTasks.
+            SkASSERT(0 == intvl->start());
+        } else if (isDirectDstRead) {
+            // Direct reads from the render target itself should occur w/in the existing
+            // interval
+            SkASSERT(intvl->start() <= start && intvl->end() >= end);
+        } else {
+            SkASSERT(intvl->end() <= start && intvl->end() <= end);
+        }
+#endif
         if (ActualUse::kYes == actualUse) {
-            newIntvl->addUse();
+            intvl->addUse();
         }
-        fIntvlList.insertByIncreasingStart(newIntvl);
-        fIntvlHash.add(newIntvl);
+        intvl->extendEnd(end);
+        return;
+    }
+    Interval* newIntvl;
+    if (fFreeIntervalList) {
+        newIntvl = fFreeIntervalList;
+        fFreeIntervalList = newIntvl->next();
+        newIntvl->setNext(nullptr);
+        newIntvl->resetTo(proxy, start, end);
+    } else {
+        newIntvl = fIntervalAllocator.make<Interval>(proxy, start, end);
     }
 
-    // Because readOnly proxies do not get a usage interval we must instantiate them here (since it
-    // won't occur in GrResourceAllocator::assign)
-    if (proxy->readOnly()) {
-        // FIXME: remove this once we can do the lazy instantiation from assign instead.
-        if (GrSurfaceProxy::LazyState::kNot != proxy->lazyInstantiationState()) {
-            if (proxy->priv().doLazyInstantiation(fResourceProvider)) {
-                if (proxy->priv().lazyInstantiationType() ==
-                    GrSurfaceProxy::LazyInstantiationType::kDeinstantiate) {
-                    fDeinstantiateTracker->addProxy(proxy);
-                }
-            } else {
-                fLazyInstantiationError = true;
-            }
-        }
+    if (ActualUse::kYes == actualUse) {
+        newIntvl->addUse();
     }
+    fIntvlList.insertByIncreasingStart(newIntvl);
+    fIntvlHash.add(newIntvl);
 }
 
 GrResourceAllocator::Interval* GrResourceAllocator::IntervalList::popHead() {
@@ -448,17 +429,12 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
             continue;
         }
 
-        if (GrSurfaceProxy::LazyState::kNot != cur->proxy()->lazyInstantiationState()) {
+        if (cur->proxy()->isLazy()) {
             if (!cur->proxy()->priv().doLazyInstantiation(fResourceProvider)) {
                 *outError = AssignError::kFailedProxyInstantiation;
-            } else {
-                if (GrSurfaceProxy::LazyInstantiationType::kDeinstantiate ==
-                    cur->proxy()->priv().lazyInstantiationType()) {
-                    fDeinstantiateTracker->addProxy(cur->proxy());
-                }
             }
-        } else if (sk_sp<GrSurface> surface = this->findSurfaceFor(
-                cur->proxy(), minStencilSampleCount)) {
+        } else if (sk_sp<GrSurface> surface =
+                           this->findSurfaceFor(cur->proxy(), minStencilSampleCount)) {
             // TODO: make getUniqueKey virtual on GrSurfaceProxy
             GrTextureProxy* texProxy = cur->proxy()->asTextureProxy();
 

@@ -185,7 +185,7 @@ static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrRecordingContext
                                                                  GrRenderable::kNo);
 
     return proxyProvider->createProxy(format, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
-                                      fit, SkBudgeted::kYes, GrProtected::kNo);
+                                      GrMipMapped::kNo, fit, SkBudgeted::kYes, GrProtected::kNo);
 }
 
 namespace {
