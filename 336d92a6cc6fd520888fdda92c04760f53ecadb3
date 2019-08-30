@@ -22,6 +22,30 @@
       "revId": "336d92a6cc6fd520888fdda92c04760f53ecadb3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "307dc1a3_602e6acb",
+        "filename": "src/gpu/ccpr/GrOctoBounds.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-08-30T19:31:36Z",
+      "side": 1,
+      "message": "No problem at all. If this gives us trouble again we can just quit calling it altogether outside of the unit test. Nothing else in the octo bounds actually rely on this epsilon.",
+      "parentUuid": "b67cdd1a_d693f0b4",
+      "range": {
+        "startLine": 130,
+        "startChar": 37,
+        "endLine": 130,
+        "endChar": 42
+      },
+      "revId": "336d92a6cc6fd520888fdda92c04760f53ecadb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
