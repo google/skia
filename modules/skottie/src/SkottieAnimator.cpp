@@ -14,6 +14,7 @@
 #include "modules/sksg/include/SkSGScene.h"
 
 #include <memory>
+#include <type_traits>
 #include <vector>
 
 namespace skottie {
@@ -24,6 +25,19 @@ namespace {
 class KeyframeAnimatorBase : public sksg::Animator {
 public:
     size_t count() const { return fRecs.size(); }
+
+    bool isConstant() const {
+        SkASSERT(!fRecs.empty());
+        const auto constant_vidx = fRecs[0].vidx0;
+
+        for (const auto& rec : fRecs) {
+            if (rec.vidx0 != constant_vidx || rec.vidx1 != constant_vidx) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
 protected:
     KeyframeAnimatorBase() = default;
@@ -349,7 +363,13 @@ static inline bool BindPropertyImpl(const skjson::ObjectValue* jprop,
         return false;
     }
 
-    ascope->push_back(std::move(animator));
+    if (animator->isConstant()) {
+        // If all keyframes are constant, there is no reason to treat this
+        // as an animated property - apply immediately and discard the animator.
+        animator->tick(0);
+    } else {
+        ascope->push_back(std::move(animator));
+    }
 
     return true;
 }
