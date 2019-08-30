@@ -79,14 +79,14 @@ public:
     REFLECTED(SkCircleDrawable, SkParticleDrawable)
 
     void draw(SkCanvas* canvas, const SkParticles& particles, int count,
-              const SkPaint* paint) override {
+              const SkPaint& paint) override {
         SkPoint center = { SkIntToScalar(fRadius), SkIntToScalar(fRadius) };
         DrawAtlasArrays arrays(particles, count, center);
         for (int i = 0; i < count; ++i) {
             arrays.fRects[i].setIWH(fImage->width(), fImage->height());
         }
         canvas->drawAtlas(fImage, arrays.fXforms.get(), arrays.fRects.get(), arrays.fColors.get(),
-                          count, SkBlendMode::kModulate, nullptr, paint);
+                          count, SkBlendMode::kModulate, nullptr, &paint);
     }
 
     void visitFields(SkFieldVisitor* v) override {
@@ -120,7 +120,7 @@ public:
     REFLECTED(SkImageDrawable, SkParticleDrawable)
 
     void draw(SkCanvas* canvas, const SkParticles& particles, int count,
-              const SkPaint* paint) override {
+              const SkPaint& paint) override {
         SkRect baseRect = getBaseRect();
         SkPoint center = { baseRect.width() * 0.5f, baseRect.height() * 0.5f };
         DrawAtlasArrays arrays(particles, count, center);
@@ -135,7 +135,7 @@ public:
             arrays.fRects[i] = baseRect.makeOffset(col * baseRect.width(), row * baseRect.height());
         }
         canvas->drawAtlas(fImage, arrays.fXforms.get(), arrays.fRects.get(), arrays.fColors.get(),
-                          count, SkBlendMode::kModulate, nullptr, paint);
+                          count, SkBlendMode::kModulate, nullptr, &paint);
     }
 
     void visitFields(SkFieldVisitor* v) override {
