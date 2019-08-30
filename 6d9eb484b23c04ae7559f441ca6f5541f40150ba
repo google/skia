@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c11d8a33_9689ae7e",
+        "filename": "tools/gpu/mtl/SkMTKViewConfig.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-08-30T18:27:17Z",
+      "side": 1,
+      "message": "why do I have to pass a ViewLayer instead of just returning an SkSurface or at least a Canvas I can draw into?",
+      "range": {
+        "startLine": 13,
+        "startChar": 61,
+        "endLine": 13,
+        "endChar": 77
+      },
+      "revId": "6d9eb484b23c04ae7559f441ca6f5541f40150ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9c063f6_a7d1d8b1",
+        "filename": "tools/skui/ViewLayer.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-08-30T18:27:17Z",
+      "side": 1,
+      "message": "Who do we expect to want to implement this ViewLayer? I don\u0027t see what value-add we have by acting as an intermediate.",
+      "revId": "6d9eb484b23c04ae7559f441ca6f5541f40150ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
