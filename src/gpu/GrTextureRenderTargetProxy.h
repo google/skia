@@ -31,14 +31,14 @@ private:
     GrTextureRenderTargetProxy(const GrCaps&, const GrBackendFormat&, const GrSurfaceDesc&,
                                int sampleCnt, GrSurfaceOrigin, GrMipMapped, GrMipMapsStatus,
                                const GrSwizzle& textureSwizzle, const GrSwizzle& outputSwizzle,
-                               SkBackingFit, SkBudgeted, GrProtected, GrInternalSurfaceFlags);
+                               SkBackingFit, SkBudgeted, GrProtected, GrInternalSurfaceFlags, UseAllocator);
 
     // Lazy-callback version
-    GrTextureRenderTargetProxy(const GrCaps&, LazyInstantiateCallback&&, LazyInstantiationType,
+    GrTextureRenderTargetProxy(const GrCaps&, LazyInstantiateCallback&&,
                                const GrBackendFormat&, const GrSurfaceDesc& desc, int sampleCnt,
                                GrSurfaceOrigin, GrMipMapped, GrMipMapsStatus,
                                const GrSwizzle& textureSwizzle, const GrSwizzle& outputSwizzle,
-                               SkBackingFit, SkBudgeted, GrProtected, GrInternalSurfaceFlags);
+                               SkBackingFit, SkBudgeted, GrProtected, GrInternalSurfaceFlags, UseAllocator);
 
     // Wrapped version
     GrTextureRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin, const GrSwizzle& textureSwizzle,

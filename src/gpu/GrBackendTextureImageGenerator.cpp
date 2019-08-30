@@ -162,7 +162,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
             [refHelper = fRefHelper, releaseProcHelper, semaphore = fSemaphore,
              backendTexture = fBackendTexture, grColorType](GrResourceProvider* resourceProvider)
-                    -> GrSurfaceProxy::LazyInstantiationResult {
+                    -> GrSurfaceProxy::LazyCallbackResult {
                 if (semaphore) {
                     resourceProvider->priv().gpu()->waitSemaphore(semaphore);
                 }
@@ -197,11 +197,11 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
                 }
                 // We use keys to avoid re-wrapping the GrBackendTexture in a GrTexture. This is
                 // unrelated to the whatever SkImage key may be assigned to the proxy.
-                return {std::move(tex), GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
+                return {std::move(tex), true, GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
             },
             backendFormat, desc, GrRenderable::kNo, 1, fSurfaceOrigin, mipMapped, mipMapsStatus,
             GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
-            GrProtected::kNo);
+            GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
     if (!proxy) {
         return nullptr;
     }
