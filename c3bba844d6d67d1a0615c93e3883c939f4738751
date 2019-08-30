@@ -34,6 +34,24 @@
       "revId": "c3bba844d6d67d1a0615c93e3883c939f4738751",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "914565a9_9884ecc7",
+        "filename": "tools/sk_app/Window.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-08-30T18:15:36Z",
+      "side": 1,
+      "message": "We actually support ANGLE on Linux (ES on GL), and do test that on bots with DM, but don\u0027t support it in viewer.",
+      "parentUuid": "1dbc7b97_4e168891",
+      "revId": "c3bba844d6d67d1a0615c93e3883c939f4738751",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
