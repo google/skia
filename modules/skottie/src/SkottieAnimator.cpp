@@ -14,6 +14,7 @@
 #include "modules/sksg/include/SkSGScene.h"
 
 #include <memory>
+#include <type_traits>
 #include <vector>
 
 namespace skottie {
@@ -349,7 +350,14 @@ static inline bool BindPropertyImpl(const skjson::ObjectValue* jprop,
         return false;
     }
 
-    ascope->push_back(std::move(animator));
+    if (std::is_same<T, TextValue>::value && animator->count() == 1) {
+        // Text values are "special: they're always encoded as keyframes, even when static.
+        // To avoid keeping unneeded animators around, we catch single-keyframe text here
+        // and handle as static: immediately apply the value, then discard the animator.
+        animator->tick(0);
+    } else {
+        ascope->push_back(std::move(animator));
+    }
 
     return true;
 }
