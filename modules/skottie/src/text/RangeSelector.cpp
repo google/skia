@@ -306,6 +306,14 @@ sk_sp<RangeSelector> RangeSelector::Make(const skjson::ObjectValue* jrange,
             selector->fEaseHi = xe;
         });
 
+    // Optional square "smoothness" prop.
+    if (selector->fShape == Shape::kSquare) {
+        abuilder->bindProperty<ScalarValue>((*jrange)["sm"],
+            [selector](const ScalarValue& sm) {
+                selector->fSmoothness = sm;
+            });
+    }
+
     return selector;
 }
 
@@ -382,13 +390,13 @@ void RangeSelector::modulateCoverage(const TextAnimator::DomainMaps& maps,
         // We achieve this by moving the range edges outward by |smoothness|/2, and adjusting
         // the generator cubic ramp size.
 
-        // TODO: support actual smoothness prop.
-        static constexpr float kSmoothness = 1.0f;
+        // smoothness is percentage-based [0..100]
+        const auto smoothness = SkTPin<float>(fSmoothness / 100, 0, 1);
 
-        r0  -= kSmoothness / 2;
-        len += kSmoothness;
+        r0  -= smoothness / 2;
+        len += smoothness;
 
-        gen.crs += kSmoothness / len;
+        gen.crs += smoothness / len;
     }
 
     SkASSERT(len > 0);
