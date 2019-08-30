@@ -546,10 +546,13 @@ void GrGpu::resetTextureBindings() {
     this->onResetTextureBindings();
 }
 
-void GrGpu::resolveRenderTarget(GrRenderTarget* target) {
+void GrGpu::resolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect) {
     SkASSERT(target);
+    // The proxy will often track a tighter resolve rect than GrRenderTarget, but it should never be
+    // the other way around.
+    SkASSERT(target->getResolveRect().contains(resolveRect));
     this->handleDirtyContext();
-    this->onResolveRenderTarget(target);
+    this->onResolveRenderTarget(target, resolveRect);
 }
 
 void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const SkIRect* bounds,
