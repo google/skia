@@ -299,7 +299,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[], int num
             onFlushRenderTask->visitTargetAndSrcProxies_debugOnly(
                     [](GrSurfaceProxy* p, GrMipMapped mipMapped) {
                 SkASSERT(!p->asTextureProxy() || !p->asTextureProxy()->texPriv().isDeferred());
-                SkASSERT(GrSurfaceProxy::LazyState::kNot == p->lazyInstantiationState());
+                SkASSERT(!p->isLazy());
                 if (GrMipMapped::kYes == mipMapped) {
                     // The onFlush callback is responsible for regenerating mips if needed.
                     SkASSERT(p->asTextureProxy() && !p->asTextureProxy()->mipMapsAreDirty());
@@ -326,8 +326,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[], int num
     bool flushed = false;
 
     {
-        GrResourceAllocator alloc(resourceProvider, flushState.deinstantiateProxyTracker()
-                                  SkDEBUGCODE(, fDAG.numRenderTasks()));
+        GrResourceAllocator alloc(resourceProvider SkDEBUGCODE(, fDAG.numRenderTasks()));
         for (int i = 0; i < fDAG.numRenderTasks(); ++i) {
             if (fDAG.renderTask(i)) {
                 fDAG.renderTask(i)->gatherProxyIntervals(&alloc);
@@ -383,8 +382,6 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[], int num
 
     GrSemaphoresSubmitted result = gpu->finishFlush(proxies, numProxies, access, info,
                                                     externalRequests);
-
-    flushState.deinstantiateProxyTracker()->deinstantiateAllProxies();
 
     // Give the cache a chance to purge resources that become purgeable due to flushing.
     if (flushed) {
