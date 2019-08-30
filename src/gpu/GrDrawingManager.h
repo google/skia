@@ -50,11 +50,11 @@ public:
     sk_sp<GrOpsTask> newOpsTask(sk_sp<GrRenderTargetProxy>, bool managedOpsTask);
 
     // Create a new, specialized, render task that will regenerate mipmap levels and/or resolve
-    // MSAA (depending on GrTextureResolveFlags). This method will add the new render task to the
-    // list of render tasks and make it depend on the target texture proxy. It is up to the caller
-    // to add any dependencies on the new render task.
+    // MSAA (depending on ResolveFlags). This method will add the new render task to the list of
+    // render tasks and make it depend on the target texture proxy. It is up to the caller to add
+    // any dependencies on the new render task.
     GrRenderTask* newTextureResolveRenderTask(
-            sk_sp<GrTextureProxy>, GrTextureResolveFlags, const GrCaps&);
+            sk_sp<GrSurfaceProxy>, GrSurfaceProxy::ResolveFlags, const GrCaps&);
 
     // Create a new render task which copies the pixels from the srcProxy into the dstBuffer. This
     // is used to support the asynchronous readback API. The srcRect is the region of the srcProxy

@@ -300,6 +300,10 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[], int num
                     [](GrSurfaceProxy* p, GrMipMapped mipMapped) {
                 SkASSERT(!p->asTextureProxy() || !p->asTextureProxy()->texPriv().isDeferred());
                 SkASSERT(GrSurfaceProxy::LazyState::kNot == p->lazyInstantiationState());
+                if (p->requiresManualMSAAResolve()) {
+                    // The onFlush callback is responsible for ensuring MSAA gets resolved.
+                    SkASSERT(p->asRenderTargetProxy() && !p->asRenderTargetProxy()->isMSAADirty());
+                }
                 if (GrMipMapped::kYes == mipMapped) {
                     // The onFlush callback is responsible for regenerating mips if needed.
                     SkASSERT(p->asTextureProxy() && !p->asTextureProxy()->mipMapsAreDirty());
@@ -515,19 +519,30 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
     GrSemaphoresSubmitted result = this->flush(proxies, numProxies, access, info,
                                                GrPrepareForExternalIORequests());
     for (int i = 0; i < numProxies; ++i) {
-        if (!proxies[i]->isInstantiated()) {
+        GrSurfaceProxy* proxy = proxies[i];
+        if (!proxy->isInstantiated()) {
             return result;
         }
-        GrSurface* surface = proxies[i]->peekSurface();
-        if (auto* rt = surface->asRenderTarget()) {
-            gpu->resolveRenderTarget(rt);
+        // In the flushSurfaces case, we need to resolve MSAA immediately after flush. This is
+        // because the client will call through to this method when drawing into a target created by
+        // wrapBackendTextureAsRenderTarget, and will expect the original texture to be fully
+        // resolved upon return.
+        if (proxy->requiresManualMSAAResolve()) {
+            auto* rtProxy = proxy->asRenderTargetProxy();
+            SkASSERT(rtProxy);
+            if (rtProxy->isMSAADirty()) {
+                SkASSERT(rtProxy->peekRenderTarget());
+                gpu->resolveRenderTarget(rtProxy->peekRenderTarget());
+                rtProxy->markMSAAResolved();
+            }
         }
         // If, after a flush, any of the proxies of interest have dirty mipmaps, regenerate them in
         // case their backend textures are being stolen.
         // (This special case is exercised by the ReimportImageTextureWithMipLevels test.)
         // FIXME: It may be more ideal to plumb down a "we're going to steal the backends" flag.
-        if (auto* textureProxy = proxies[i]->asTextureProxy()) {
+        if (auto* textureProxy = proxy->asTextureProxy()) {
             if (textureProxy->mipMapsAreDirty()) {
+                SkASSERT(textureProxy->peekTexture());
                 gpu->regenerateMipMapLevels(textureProxy->peekTexture());
                 textureProxy->markMipMapsClean();
             }
@@ -666,20 +681,20 @@ sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(sk_sp<GrRenderTargetProxy> rtp, bo
 }
 
 GrRenderTask* GrDrawingManager::newTextureResolveRenderTask(
-        sk_sp<GrTextureProxy> textureProxy, GrTextureResolveFlags flags, const GrCaps& caps) {
-    SkDEBUGCODE(auto* previousTaskBeforeMipsResolve = textureProxy->getLastRenderTask();)
+        sk_sp<GrSurfaceProxy> proxy, GrSurfaceProxy::ResolveFlags flags, const GrCaps& caps) {
+    SkDEBUGCODE(auto* previousTaskBeforeMipsResolve = proxy->getLastRenderTask();)
 
     // Unlike in the "new opsTask" case, we do not want to close the active opsTask, nor (if we are
     // in sorting and opsTask reduction mode) the render tasks that depend on the proxy's current
     // state. This is because those opsTasks can still receive new ops and because if they refer to
-    // the mipmapped version of 'textureProxy', they will then come to depend on the render task
-    // being created here.
+    // the mipmapped version of 'proxy', they will then come to depend on the render task being
+    // created here.
     //
     // Add the new textureResolveTask before the fActiveOpsTask (if not in
     // sorting/opsTask-splitting-reduction mode) because it will depend upon this resolve task.
     // NOTE: Putting it here will also reduce the amount of work required by the topological sort.
     auto* resolveTask = static_cast<GrTextureResolveRenderTask*>(fDAG.addBeforeLast(
-            sk_make_sp<GrTextureResolveRenderTask>(std::move(textureProxy), flags)));
+            sk_make_sp<GrTextureResolveRenderTask>(std::move(proxy), flags)));
     resolveTask->init(caps);
 
     // GrTextureResolveRenderTask::init should have closed the texture proxy's previous task.

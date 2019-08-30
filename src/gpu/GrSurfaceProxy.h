@@ -33,6 +33,16 @@ public:
     virtual ~GrSurfaceProxy();
 
     /**
+     * Indicates "resolutions" that need to be done on a surface before its pixels can be accessed.
+     * If both types of resolve are requested, the MSAA resolve will happen first.
+     */
+    enum class ResolveFlags {
+        kNone = 0,
+        kMSAA = 1 << 0,  // Blit and resolve an internal MSAA render buffer into the texture.
+        kMipMaps = 1 << 1,  // Regenerate all mipmap levels.
+    };
+
+    /**
      * Some lazy proxy callbacks want to set their own (or no key) on the GrSurfaces they return.
      * Others want the GrSurface's key to be kept in sync with the proxy's key. This enum controls
      * the key relationship between proxies and their targets.
@@ -415,5 +425,7 @@ private:
     // This pointer is unreffed. GrRenderTasks own a ref on their surface proxies.
     GrRenderTask*          fLastRenderTask;
 };
+
+GR_MAKE_BITFIELD_CLASS_OPS(GrSurfaceProxy::ResolveFlags)
 
 #endif
