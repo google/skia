@@ -78,7 +78,7 @@ protected:
     GrRenderTargetProxy(const GrCaps&, const GrBackendFormat&, const GrSurfaceDesc&,
                         int sampleCount, GrSurfaceOrigin, const GrSwizzle& textureSwizzle,
                         const GrSwizzle& outputSwizzle, SkBackingFit, SkBudgeted, GrProtected,
-                        GrInternalSurfaceFlags);
+                        GrInternalSurfaceFlags, UseAllocator useAllocator);
 
     enum class WrapsVkSecondaryCB : bool { kNo = false, kYes = true };
 
@@ -92,11 +92,12 @@ protected:
     //
     // The minimal knowledge version is used for CCPR where we are generating an atlas but we do not
     // know the final size until flush time.
-    GrRenderTargetProxy(LazyInstantiateCallback&&, LazyInstantiationType lazyType,
+    GrRenderTargetProxy(LazyInstantiateCallback&&,
                         const GrBackendFormat&, const GrSurfaceDesc&, int sampleCount,
                         GrSurfaceOrigin, const GrSwizzle& textureSwizzle,
                         const GrSwizzle& outputSwizzle, SkBackingFit, SkBudgeted, GrProtected,
-                        GrInternalSurfaceFlags, WrapsVkSecondaryCB wrapsVkSecondaryCB);
+                        GrInternalSurfaceFlags, WrapsVkSecondaryCB wrapsVkSecondaryCB,
+                        UseAllocator useAllocator);
 
     // Wrapped version
     GrRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin, const GrSwizzle& textureSwizzle,

@@ -51,7 +51,7 @@ private:
 };
 
 sk_sp<GrTextureProxy> GrCCAtlas::MakeLazyAtlasProxy(
-        const LazyInstantiateAtlasCallback& callback, CoverageType coverageType, const GrCaps& caps) {
+        const LazyInstantiateAtlasCallback& callback, CoverageType coverageType, const GrCaps& caps, GrSurfaceProxy::UseAllocator useAllocator) {
     GrPixelConfig pixelConfig;
     int sampleCount;
 
@@ -79,7 +79,7 @@ sk_sp<GrTextureProxy> GrCCAtlas::MakeLazyAtlasProxy(
     };
     sk_sp<GrTextureProxy> proxy = GrProxyProvider::MakeFullyLazyProxy(
             std::move(instantiate), format, GrRenderable::kYes, sampleCount, GrProtected::kNo,
-            kTextureOrigin, pixelConfig, caps);
+            kTextureOrigin, pixelConfig, caps, useAllocator);
 
     return proxy;
 }
@@ -125,9 +125,7 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
                 }
                 return fBackingTexture;
             },
-            fCoverageType, caps);
-
-    fTextureProxy->priv().setIgnoredByResourceAllocator();
+            fCoverageType, caps, GrSurfaceProxy::UseAllocator::kNo);
 }
 
 GrCCAtlas::~GrCCAtlas() {

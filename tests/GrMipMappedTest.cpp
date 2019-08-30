@@ -154,7 +154,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
                 return;
             }
 
-            if (GrSurfaceProxy::LazyState::kNot != genProxy->lazyInstantiationState()) {
+            if (genProxy->isLazy()) {
                 genProxy->priv().doLazyInstantiation(context->priv().resourceProvider());
             } else if (!genProxy->isInstantiated()) {
                 genProxy->instantiate(context->priv().resourceProvider());

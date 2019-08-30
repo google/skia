@@ -26,22 +26,23 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrBackendForm
                                          GrSurfaceOrigin origin, const GrSwizzle& textureSwizzle,
                                          const GrSwizzle& outputSwizzle, SkBackingFit fit,
                                          SkBudgeted budgeted, GrProtected isProtected,
-                                         GrInternalSurfaceFlags surfaceFlags)
+                                         GrInternalSurfaceFlags surfaceFlags,
+                                         UseAllocator useAllocator)
         : INHERITED(format, desc, GrRenderable::kYes, origin, textureSwizzle, fit, budgeted,
-                    isProtected, surfaceFlags)
+                    isProtected, surfaceFlags, useAllocator)
         , fSampleCnt(sampleCount)
         , fWrapsVkSecondaryCB(WrapsVkSecondaryCB::kNo)
         , fOutputSwizzle(outputSwizzle) {}
 
 // Lazy-callback version
 GrRenderTargetProxy::GrRenderTargetProxy(
-        LazyInstantiateCallback&& callback, LazyInstantiationType lazyType,
+        LazyInstantiateCallback&& callback,
         const GrBackendFormat& format, const GrSurfaceDesc& desc, int sampleCount,
         GrSurfaceOrigin origin, const GrSwizzle& textureSwizzle, const GrSwizzle& outputSwizzle,
         SkBackingFit fit, SkBudgeted budgeted, GrProtected isProtected,
-        GrInternalSurfaceFlags surfaceFlags, WrapsVkSecondaryCB wrapsVkSecondaryCB)
-        : INHERITED(std::move(callback), lazyType, format, desc, GrRenderable::kYes, origin,
-                    textureSwizzle, fit, budgeted, isProtected, surfaceFlags)
+        GrInternalSurfaceFlags surfaceFlags, WrapsVkSecondaryCB wrapsVkSecondaryCB, UseAllocator useAllocator)
+        : INHERITED(std::move(callback), format, desc, GrRenderable::kYes, origin,
+                    textureSwizzle, fit, budgeted, isProtected, surfaceFlags, useAllocator)
         , fSampleCnt(sampleCount)
         , fWrapsVkSecondaryCB(wrapsVkSecondaryCB)
         , fOutputSwizzle(outputSwizzle) {}
@@ -71,7 +72,7 @@ int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {
 }
 
 bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
-    if (LazyState::kNot != this->lazyInstantiationState()) {
+    if (this->isLazy()) {
         return false;
     }
     if (!this->instantiateImpl(resourceProvider, fSampleCnt, fNumStencilSamples, GrRenderable::kYes,

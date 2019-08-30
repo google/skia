@@ -20,9 +20,9 @@ GrTextureProxy::GrTextureProxy(const GrBackendFormat& format, const GrSurfaceDes
                                GrSurfaceOrigin origin, GrMipMapped mipMapped,
                                GrMipMapsStatus mipMapsStatus, const GrSwizzle& textureSwizzle,
                                SkBackingFit fit, SkBudgeted budgeted, GrProtected isProtected,
-                               GrInternalSurfaceFlags surfaceFlags)
+                               GrInternalSurfaceFlags surfaceFlags, UseAllocator useAllocator)
         : INHERITED(format, srcDesc, GrRenderable::kNo, origin, textureSwizzle, fit, budgeted,
-                    isProtected, surfaceFlags)
+                    isProtected, surfaceFlags, useAllocator)
         , fMipMapped(mipMapped)
         , fMipMapsStatus(mipMapsStatus)
           SkDEBUGCODE(, fInitialMipMapsStatus(fMipMapsStatus))
@@ -30,14 +30,14 @@ GrTextureProxy::GrTextureProxy(const GrBackendFormat& format, const GrSurfaceDes
         , fDeferredUploader(nullptr) {}
 
 // Lazy-callback version
-GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback, LazyInstantiationType lazyType,
+GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
                                const GrBackendFormat& format, const GrSurfaceDesc& desc,
                                GrSurfaceOrigin origin, GrMipMapped mipMapped,
                                GrMipMapsStatus mipMapsStatus, const GrSwizzle& texSwizzle,
                                SkBackingFit fit, SkBudgeted budgeted, GrProtected isProtected,
-                               GrInternalSurfaceFlags surfaceFlags)
-        : INHERITED(std::move(callback), lazyType, format, desc, GrRenderable::kNo, origin,
-                    texSwizzle, fit, budgeted, isProtected, surfaceFlags)
+                               GrInternalSurfaceFlags surfaceFlags, UseAllocator useAllocator)
+        : INHERITED(std::move(callback), format, desc, GrRenderable::kNo, origin,
+                    texSwizzle, fit, budgeted, isProtected, surfaceFlags, useAllocator)
         , fMipMapped(mipMapped)
         , fMipMapsStatus(mipMapsStatus)
           SkDEBUGCODE(, fInitialMipMapsStatus(fMipMapsStatus))
@@ -76,7 +76,7 @@ GrTextureProxy::~GrTextureProxy() {
 }
 
 bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
-    if (LazyState::kNot != this->lazyInstantiationState()) {
+    if (this->isLazy()) {
         return false;
     }
     if (!this->instantiateImpl(resourceProvider, 1, /* needsStencil = */ false, GrRenderable::kNo,
