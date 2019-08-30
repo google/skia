@@ -68,7 +68,6 @@ static sk_sp<SkData> subset_harfbuzz(sk_sp<SkData> fontData,
         return nullptr;
     }
     hb_set_t* glyphs = hb_subset_input_glyph_set(input.get());
-    hb_set_add(glyphs, 0);
     glyphUsage.getSetValues([&glyphs](unsigned gid) { hb_set_add(glyphs, gid);});
 
     hb_subset_input_set_retain_gids(input.get(), true);
@@ -99,9 +98,6 @@ static sk_sp<SkData> subset_sfntly(sk_sp<SkData> fontData,
     // Generate glyph id array in format needed by sfntly.
     // TODO(halcanary): sfntly should take a more compact format.
     std::vector<unsigned> subset;
-    if (!glyphUsage.has(0)) {
-        subset.push_back(0);  // Always include glyph 0.
-    }
     glyphUsage.getSetValues([&subset](unsigned v) { subset.push_back(v); });
 
     unsigned char* subsetFont{nullptr};
