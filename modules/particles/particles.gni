@@ -8,6 +8,7 @@ _src = get_path_info("src", "abspath")
 
 skia_particle_sources = [
   "$_src/SkCurve.cpp",
+  "$_src/SkParticleBinding.cpp",
   "$_src/SkParticleDrawable.cpp",
   "$_src/SkParticleEffect.cpp",
   "$_src/SkReflected.cpp",

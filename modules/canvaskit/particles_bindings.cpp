@@ -8,7 +8,6 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkTypes.h"
 #include "include/utils/SkRandom.h"
-#include "modules/particles/include/SkParticleDrawable.h"
 #include "modules/particles/include/SkParticleEffect.h"
 #include "modules/particles/include/SkParticleSerialization.h"
 
@@ -29,9 +28,7 @@ EMSCRIPTEN_BINDINGS(Particles) {
     function("MakeParticles", optional_override([](std::string json)->sk_sp<SkParticleEffect> {
         static bool didInit = false;
         if (!didInit) {
-            REGISTER_REFLECTED(SkReflected);
-            SkParticleBinding::RegisterBindingTypes();
-            SkParticleDrawable::RegisterDrawableTypes();
+            SkParticleEffect::RegisterParticleTypes();
             didInit = true;
         }
         SkRandom r;
