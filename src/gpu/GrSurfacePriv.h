@@ -17,9 +17,6 @@
     implemented privately in GrSurface with a inline public method here). */
 class GrSurfacePriv {
 public:
-    bool hasPendingRead() const { return fSurface->hasPendingRead(); }
-    bool hasPendingWrite() const { return fSurface->hasPendingWrite(); }
-    bool hasPendingIO() const { return fSurface->hasPendingIO(); }
     bool hasUniqueRef() const { return fSurface->internalHasUniqueRef(); }
 
     GrInternalSurfaceFlags flags() const { return fSurface->fSurfaceFlags; }
