@@ -167,7 +167,7 @@ GrBackendTexture GrVkTexture::getBackendTexture() const {
 }
 
 GrVkGpu* GrVkTexture::getVkGpu() const {
-    SkASSERT(!this->wasDestroyed());
+    SkASSERT(!this->wasDestroyed1());
     return static_cast<GrVkGpu*>(this->getGpu());
 }
 
@@ -199,7 +199,7 @@ void GrVkTexture::callIdleProcsOnBehalfOfResource() {
     this->resource()->resetIdleProcs();
 }
 
-void GrVkTexture::willRemoveLastRefOrPendingIO() {
+void GrVkTexture::willRemoveLastRef() {
     if (!fIdleProcs.count()) {
         return;
     }

@@ -133,7 +133,7 @@ void GrResourceCache::insertResource(GrGpuResource* resource) {
     ASSERT_SINGLE_OWNER
     SkASSERT(resource);
     SkASSERT(!this->isInCache(resource));
-    SkASSERT(!resource->wasDestroyed());
+    SkASSERT(!resource->wasDestroyed1());
     SkASSERT(!resource->resourcePriv().isPurgeable());
 
     // We must set the timestamp before adding to the array in case the timestamp wraps and we wind
@@ -209,13 +209,13 @@ void GrResourceCache::abandonAll() {
 
     while (fNonpurgeableResources.count()) {
         GrGpuResource* back = *(fNonpurgeableResources.end() - 1);
-        SkASSERT(!back->wasDestroyed());
+        SkASSERT(!back->wasDestroyed1());
         back->cacheAccess().abandon();
     }
 
     while (fPurgeableQueue.count()) {
         GrGpuResource* top = fPurgeableQueue.peek();
-        SkASSERT(!top->wasDestroyed());
+        SkASSERT(!top->wasDestroyed1());
         top->cacheAccess().abandon();
     }
 
@@ -246,13 +246,13 @@ void GrResourceCache::releaseAll() {
 
     while (fNonpurgeableResources.count()) {
         GrGpuResource* back = *(fNonpurgeableResources.end() - 1);
-        SkASSERT(!back->wasDestroyed());
+        SkASSERT(!back->wasDestroyed1());
         back->cacheAccess().release();
     }
 
     while (fPurgeableQueue.count()) {
         GrGpuResource* top = fPurgeableQueue.peek();
-        SkASSERT(!top->wasDestroyed());
+        SkASSERT(!top->wasDestroyed1());
         top->cacheAccess().release();
     }
 
@@ -280,19 +280,19 @@ void GrResourceCache::refResource(GrGpuResource* resource) {
 
 class GrResourceCache::AvailableForScratchUse {
 public:
-    AvailableForScratchUse(bool rejectPendingIO) : fRejectPendingIO(rejectPendingIO) { }
+    AvailableForScratchUse() { }
 
     bool operator()(const GrGpuResource* resource) const {
         SkASSERT(!resource->getUniqueKey().isValid() &&
                  resource->resourcePriv().getScratchKey().isValid());
+
+        // It seems like we should just assert there is no ref and it is a scratch
+        // otherwise why is it in the scratchmap?
         if (resource->internalHasRef() || !resource->cacheAccess().isScratch()) {
             return false;
         }
-        return !fRejectPendingIO || !resource->internalHasPendingIO();
+        return true;
     }
-
-private:
-    bool fRejectPendingIO;
 };
 
 GrGpuResource* GrResourceCache::findAndRefScratchResource(const GrScratchKey& scratchKey,
@@ -301,8 +301,9 @@ GrGpuResource* GrResourceCache::findAndRefScratchResource(const GrScratchKey& sc
     SkASSERT(scratchKey.isValid());
 
     GrGpuResource* resource;
+    // TODO: remove these conditions!
     if (flags & (ScratchFlags::kPreferNoPendingIO | ScratchFlags::kRequireNoPendingIO)) {
-        resource = fScratchMap.find(scratchKey, AvailableForScratchUse(true));
+        resource = fScratchMap.find(scratchKey, AvailableForScratchUse());
         if (resource) {
             this->refAndMakeResourceMRU(resource);
             this->validate();
@@ -319,7 +320,7 @@ GrGpuResource* GrResourceCache::findAndRefScratchResource(const GrScratchKey& sc
             return nullptr;
         }
     }
-    resource = fScratchMap.find(scratchKey, AvailableForScratchUse(false));
+    resource = fScratchMap.find(scratchKey, AvailableForScratchUse());
     if (resource) {
         this->refAndMakeResourceMRU(resource);
         this->validate();
@@ -417,45 +418,29 @@ void GrResourceCache::refAndMakeResourceMRU(GrGpuResource* resource) {
     this->validate();
 }
 
-void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t flags) {
+void GrResourceCache::notifyRefCntReachedZero(GrGpuResource* resource) {
     ASSERT_SINGLE_OWNER
     SkASSERT(resource);
-    SkASSERT(!resource->wasDestroyed());
-    SkASSERT(flags);
+    SkASSERT(!resource->wasDestroyed1());
     SkASSERT(this->isInCache(resource));
     // This resource should always be in the nonpurgeable array when this function is called. It
     // will be moved to the queue if it is newly purgeable.
     SkASSERT(fNonpurgeableResources[*resource->cacheAccess().accessCacheIndex()] == resource);
 
-    if (SkToBool(ResourceAccess::kRefCntReachedZero_RefNotificationFlag & flags)) {
 #ifdef SK_DEBUG
-        // When the timestamp overflows validate() is called. validate() checks that resources in
-        // the nonpurgeable array are indeed not purgeable. However, the movement from the array to
-        // the purgeable queue happens just below in this function. So we mark it as an exception.
-        if (resource->resourcePriv().isPurgeable()) {
-            fNewlyPurgeableResourceForValidation = resource;
-        }
-#endif
-        resource->cacheAccess().setTimestamp(this->getNextTimestamp());
-        SkDEBUGCODE(fNewlyPurgeableResourceForValidation = nullptr);
-        if (!resource->resourcePriv().isPurgeable() &&
-            resource->resourcePriv().budgetedType() == GrBudgetedType::kBudgeted) {
-            SkASSERT(resource->resourcePriv().hasPendingIO_debugOnly());
-            ++fNumBudgetedResourcesFlushWillMakePurgeable;
-        }
-    } else {
-        // If this is budgeted and just became purgeable by dropping the last pending IO
-        // then it clearly no longer needs a flush to become purgeable.
-        if (resource->resourcePriv().budgetedType() == GrBudgetedType::kBudgeted &&
-            resource->resourcePriv().isPurgeable()) {
-            SkASSERT(fNumBudgetedResourcesFlushWillMakePurgeable > 0);
-            fNumBudgetedResourcesFlushWillMakePurgeable--;
-        }
+    // When the timestamp overflows validate() is called. validate() checks that resources in
+    // the nonpurgeable array are indeed not purgeable. However, the movement from the array to
+    // the purgeable queue happens just below in this function. So we mark it as an exception.
+    if (resource->resourcePriv().isPurgeable()) {
+        fNewlyPurgeableResourceForValidation = resource;
     }
+#endif
+    resource->cacheAccess().setTimestamp(this->getNextTimestamp());
+    SkDEBUGCODE(fNewlyPurgeableResourceForValidation = nullptr);
 
-    if (!SkToBool(ResourceAccess::kAllCntsReachedZero_RefNotificationFlag & flags)) {
-        SkASSERT(!resource->resourcePriv().isPurgeable());
-        return;
+    if (!resource->resourcePriv().isPurgeable() &&
+        resource->resourcePriv().budgetedType() == GrBudgetedType::kBudgeted) {
+        ++fNumBudgetedResourcesFlushWillMakePurgeable;
     }
 
     if (!resource->resourcePriv().isPurgeable()) {
@@ -862,9 +847,6 @@ void GrResourceCache::validate() const {
         void update(GrGpuResource* resource) {
             fBytes += resource->gpuMemorySize();
 
-            // No resource should ever have pendingIO any more
-            SkASSERT(!resource->internalHasPendingIO());
-
             if (!resource->resourcePriv().isPurgeable()) {
                 ++fLocked;
             }
@@ -925,11 +907,10 @@ void GrResourceCache::validate() const {
         SkASSERT(!fNonpurgeableResources[i]->resourcePriv().isPurgeable() ||
                  fNewlyPurgeableResourceForValidation == fNonpurgeableResources[i]);
         SkASSERT(*fNonpurgeableResources[i]->cacheAccess().accessCacheIndex() == i);
-        SkASSERT(!fNonpurgeableResources[i]->wasDestroyed());
+        SkASSERT(!fNonpurgeableResources[i]->wasDestroyed1());
         if (fNonpurgeableResources[i]->resourcePriv().budgetedType() == GrBudgetedType::kBudgeted &&
             !fNonpurgeableResources[i]->cacheAccess().hasRef() &&
             fNewlyPurgeableResourceForValidation != fNonpurgeableResources[i]) {
-            SkASSERT(fNonpurgeableResources[i]->resourcePriv().hasPendingIO_debugOnly());
             ++numBudgetedResourcesFlushWillMakePurgeable;
         }
         stats.update(fNonpurgeableResources[i]);
@@ -937,7 +918,7 @@ void GrResourceCache::validate() const {
     for (int i = 0; i < fPurgeableQueue.count(); ++i) {
         SkASSERT(fPurgeableQueue.at(i)->resourcePriv().isPurgeable());
         SkASSERT(*fPurgeableQueue.at(i)->cacheAccess().accessCacheIndex() == i);
-        SkASSERT(!fPurgeableQueue.at(i)->wasDestroyed());
+        SkASSERT(!fPurgeableQueue.at(i)->wasDestroyed1());
         stats.update(fPurgeableQueue.at(i));
         purgeableBytes += fPurgeableQueue.at(i)->gpuMemorySize();
     }

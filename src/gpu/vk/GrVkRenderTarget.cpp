@@ -396,6 +396,6 @@ const GrVkImageView* GrVkRenderTarget::stencilAttachmentView() const {
 }
 
 GrVkGpu* GrVkRenderTarget::getVkGpu() const {
-    SkASSERT(!this->wasDestroyed());
+    SkASSERT(!this->wasDestroyed1());
     return static_cast<GrVkGpu*>(this->getGpu());
 }

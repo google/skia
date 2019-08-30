@@ -157,7 +157,7 @@ void GrBufferAllocPool::validate(bool unusedBlockAllowed) const {
     }
     for (int i = 0; !wasDestroyed && i < fBlocks.count(); ++i) {
         GrBuffer* buffer = fBlocks[i].fBuffer.get();
-        if (!buffer->isCpuBuffer() && static_cast<GrGpuBuffer*>(buffer)->wasDestroyed()) {
+        if (!buffer->isCpuBuffer() && static_cast<GrGpuBuffer*>(buffer)->wasDestroyed1()) {
             wasDestroyed = true;
         } else {
             size_t bytes = fBlocks[i].fBuffer->size() - fBlocks[i].fBytesFree;

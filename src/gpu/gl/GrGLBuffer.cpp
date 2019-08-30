@@ -122,7 +122,7 @@ GrGLBuffer::GrGLBuffer(GrGLGpu* gpu, size_t size, GrGpuBufferType intendedType,
 }
 
 inline GrGLGpu* GrGLBuffer::glGpu() const {
-    SkASSERT(!this->wasDestroyed());
+    SkASSERT(!this->wasDestroyed1());
     return static_cast<GrGLGpu*>(this->getGpu());
 }
 
@@ -133,7 +133,7 @@ inline const GrGLCaps& GrGLBuffer::glCaps() const {
 void GrGLBuffer::onRelease() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
-    if (!this->wasDestroyed()) {
+    if (!this->wasDestroyed1()) {
         VALIDATE();
         // make sure we've not been abandoned or already released
         if (fBufferID) {
@@ -158,7 +158,7 @@ void GrGLBuffer::onAbandon() {
 
 void GrGLBuffer::onMap() {
     SkASSERT(fBufferID);
-    SkASSERT(!this->wasDestroyed());
+    SkASSERT(!this->wasDestroyed1());
     VALIDATE();
     SkASSERT(!this->isMapped());
 
@@ -243,7 +243,7 @@ void GrGLBuffer::onUnmap() {
 
 bool GrGLBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
     SkASSERT(fBufferID);
-    if (this->wasDestroyed()) {
+    if (this->wasDestroyed1()) {
         return false;
     }
 

@@ -35,7 +35,7 @@ sk_sp<GrVkVertexBuffer> GrVkVertexBuffer::Make(GrVkGpu* gpu, size_t size, bool d
 }
 
 void GrVkVertexBuffer::onRelease() {
-    if (!this->wasDestroyed()) {
+    if (!this->wasDestroyed1()) {
         this->vkRelease(this->getVkGpu());
     }
 
@@ -48,19 +48,19 @@ void GrVkVertexBuffer::onAbandon() {
 }
 
 void GrVkVertexBuffer::onMap() {
-    if (!this->wasDestroyed()) {
+    if (!this->wasDestroyed1()) {
         this->GrGpuBuffer::fMapPtr = this->vkMap(this->getVkGpu());
     }
 }
 
 void GrVkVertexBuffer::onUnmap() {
-    if (!this->wasDestroyed()) {
+    if (!this->wasDestroyed1()) {
         this->vkUnmap(this->getVkGpu());
     }
 }
 
 bool GrVkVertexBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
-    if (!this->wasDestroyed()) {
+    if (!this->wasDestroyed1()) {
         return this->vkUpdateData(this->getVkGpu(), src, srcSizeInBytes);
     } else {
         return false;
@@ -68,6 +68,6 @@ bool GrVkVertexBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
 }
 
 GrVkGpu* GrVkVertexBuffer::getVkGpu() const {
-    SkASSERT(!this->wasDestroyed());
+    SkASSERT(!this->wasDestroyed1());
     return static_cast<GrVkGpu*>(this->getGpu());
 }

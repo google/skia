@@ -40,7 +40,7 @@ GrVkTransferBuffer::GrVkTransferBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& des
 }
 
 void GrVkTransferBuffer::onRelease() {
-    if (!this->wasDestroyed()) {
+    if (!this->wasDestroyed1()) {
         this->vkRelease(this->getVkGpu());
     }
 

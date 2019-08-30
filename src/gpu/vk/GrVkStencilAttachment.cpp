@@ -97,6 +97,6 @@ void GrVkStencilAttachment::onAbandon() {
 }
 
 GrVkGpu* GrVkStencilAttachment::getVkGpu() const {
-    SkASSERT(!this->wasDestroyed());
+    SkASSERT(!this->wasDestroyed1());
     return static_cast<GrVkGpu*>(this->getGpu());
 }
