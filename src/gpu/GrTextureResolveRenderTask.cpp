@@ -19,6 +19,7 @@ void GrTextureResolveRenderTask::init(const GrCaps& caps) {
         GrRenderTargetProxy* renderTargetProxy = fTarget->asRenderTargetProxy();
         SkASSERT(renderTargetProxy);
         SkASSERT(renderTargetProxy->isMSAADirty());
+        fMSAAResolveRect = renderTargetProxy->msaaDirtyRect();
         renderTargetProxy->markMSAAResolved();
     }
 
@@ -55,7 +56,7 @@ bool GrTextureResolveRenderTask::onExecute(GrOpFlushState* flushState) {
         GrRenderTarget* renderTarget = fTarget->peekRenderTarget();
         SkASSERT(renderTarget);
         if (renderTarget->needsResolve()) {
-            flushState->gpu()->resolveRenderTarget(renderTarget);
+            flushState->gpu()->resolveRenderTarget(renderTarget, fMSAAResolveRect);
         }
     }
 
