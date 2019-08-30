@@ -123,7 +123,11 @@ void GrOctoBounds::validateBoundsAreTight() const {
 
 void GrOctoBounds::validateBoundsAreTight(const std::function<void(
         bool cond, const char* file, int line, const char* code)>& validateFn) const {
-    constexpr static float epsilon = 1e-3f;
+    // The octobounds calculated in GrCCPerFlushResources::renderShapeInAtlas use FMAs to compute
+    // M * (x,y) and T45 * M * (x,y) in parallel. This leads to a not-insignificant floating point
+    // difference between (T45 * M * (x,y)) stored in fBounds45, and T45 * (M * (x,y)) calculated
+    // here from fBounds with the Get_xy45 functions.
+    constexpr static float epsilon = 1e-2f;
 
     float l=fBounds.left(), l45=fBounds45.left();
     float t=fBounds.top(), t45=fBounds45.top();
