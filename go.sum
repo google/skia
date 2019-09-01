@@ -768,6 +768,8 @@ go.skia.org/infra v0.0.0-20190829200647-21be13a74527 h1:1tEGY0xHOjikLP0gG/71uC+T
 go.skia.org/infra v0.0.0-20190829200647-21be13a74527/go.mod h1:ovNVnIdZHrmRYKn8YkeB/KwtZlhAeEySVATKeTYdb/k=
 go.skia.org/infra v0.0.0-20190830231633-962a2ce7cf32 h1:ozJD3THbaupNRuAqiwLmB9elTsA7zFM/sHKUAiEWH9o=
 go.skia.org/infra v0.0.0-20190830231633-962a2ce7cf32/go.mod h1:pdgIxG/y5PQ8ZhU0rYQ3WVPz8TYFaqDtOGwoKc/r3yU=
+go.skia.org/infra v0.0.0-20190831175839-7bb3623d9a50 h1:FMu3ZjbiWHy26aHHMxDi6KO67UUbkODVVRLpo5enuhc=
+go.skia.org/infra v0.0.0-20190831175839-7bb3623d9a50/go.mod h1:7r2amhSruQ1B4I5hW6q1ukASBEtQtuRI3pYXVeeNsCE=
 go.skia.org/skia v0.0.0-20190503181046-70aab823547a h1:+9xKwnzXTkTu+2ZVhffRu0A60Jx/gOETiNlKkzqbnRY=
 go.skia.org/skia v0.0.0-20190503181046-70aab823547a/go.mod h1:oVrxmr1FXbVQ7PeGtZ28Kg5wPvB+bNsnw1n2j5rtfTY=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
@@ -1201,6 +1203,7 @@ k8s.io/api v0.0.0-20190826194732-9f642ccb7a30/go.mod h1:wKwR91YLONtsDxeJMXqvshPV
 k8s.io/api v0.0.0-20190829034738-40d3837b7e3d/go.mod h1:Ik8tfB+q7IZDY6j3l3XfCxTl8s2knJz66H5FNYIj4oI=
 k8s.io/api v0.0.0-20190830034750-63b8484e5766/go.mod h1:ZPzpiABYnAONRNqslkGU1hppe1VEXgsEJlFRIbP75G8=
 k8s.io/api v0.0.0-20190830074751-c43c3e1d5a79/go.mod h1:ZPzpiABYnAONRNqslkGU1hppe1VEXgsEJlFRIbP75G8=
+k8s.io/api v0.0.0-20190831074750-7364b6bdad65/go.mod h1:u09ZxrpPFcoUNEQM2GsqT/KpglKAtXdEcK+tSMilQ3Q=
 k8s.io/apimachinery v0.0.0-20190424212440-527a9d33701e/go.mod h1:5CBnzrKYGHzv9ZsSKmQ8wHt4XI4/TUBPDwYM9FlZMyw=
 k8s.io/apimachinery v0.0.0-20190425132440-17f84483f500/go.mod h1:5CBnzrKYGHzv9ZsSKmQ8wHt4XI4/TUBPDwYM9FlZMyw=
 k8s.io/apimachinery v0.0.0-20190430211124-5bae42371a56/go.mod h1:5CBnzrKYGHzv9ZsSKmQ8wHt4XI4/TUBPDwYM9FlZMyw=
@@ -1238,6 +1241,7 @@ k8s.io/apimachinery v0.0.0-20190827074644-f378a67c6af3/go.mod h1:EZoIMuAgG/4v58Y
 k8s.io/apimachinery v0.0.0-20190828114620-4147c925140e/go.mod h1:OOC7vMsHyCzra5xu6r1bRXkXMH76iww9BeHOAAJof4U=
 k8s.io/apimachinery v0.0.0-20190830034626-e709f673dfd9/go.mod h1:OOC7vMsHyCzra5xu6r1bRXkXMH76iww9BeHOAAJof4U=
 k8s.io/apimachinery v0.0.0-20190830234655-7e74522506c1/go.mod h1:OOC7vMsHyCzra5xu6r1bRXkXMH76iww9BeHOAAJof4U=
+k8s.io/apimachinery v0.0.0-20190831074630-461753078381/go.mod h1:nL6pwRT8NgfF8TT68DBI8uEePRt89cSvoXUVqbkWHq4=
 k8s.io/client-go v0.0.0-20190425172711-65184652c889/go.mod h1:PeVFCnjeDy6EwLN+wdDIZd1DwDY6jnkpQt9psMo5YRU=
 k8s.io/gengo v0.0.0-20190128074634-0689ccc1d7d6/go.mod h1:ezvh/TsK7cY6rbqRK0oQQ8IAqLxYwwyPxAX1Pzy0ii0=
 k8s.io/gengo v0.0.0-20190327210449-e17681d19d3a/go.mod h1:ezvh/TsK7cY6rbqRK0oQQ8IAqLxYwwyPxAX1Pzy0ii0=
