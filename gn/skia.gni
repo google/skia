@@ -12,6 +12,7 @@ declare_args() {
   skia_enable_tools = is_skia_dev_build
   skia_use_icu = !is_fuchsia && !is_ios
   skia_use_harfbuzz = true
+  skia_use_metal = false
 }
 declare_args() {
   # TODO: set skia_pdf_subset_harfbuzz to skia_use_harfbuzz.
