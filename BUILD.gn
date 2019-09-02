@@ -1382,6 +1382,7 @@ if (skia_enable_tools) {
           "$gen_path/${app_name}.dSYM",
         ]
         testonly = true
+        pool = "//gn/toolchain:dsymutil_pool($default_toolchain)"
       }
 
       bundle_data("${app_name}_bundle_symbols") {
