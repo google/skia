@@ -12,7 +12,13 @@ declare_args() {
   skia_enable_tools = is_skia_dev_build
   skia_use_icu = !is_fuchsia && !is_ios
   skia_use_harfbuzz = true
+  skia_use_metal = false
+  if (is_ios) {
+    skia_ios_identity = ".*Google.*"
+    skia_ios_profile = "Google Development"
+  }
 }
+
 declare_args() {
   # TODO: set skia_pdf_subset_harfbuzz to skia_use_harfbuzz.
   skia_pdf_subset_harfbuzz = false
