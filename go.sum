@@ -227,6 +227,7 @@ github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7a
 github.com/gogo/protobuf v1.2.0/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/gogo/protobuf v1.2.1/go.mod h1:hp+jE20tsWTFYpLwKvXlhS1hjn+gTNwPg2I6zVXpSg4=
 github.com/gogo/protobuf v1.2.2-0.20190723190241-65acae22fc9d/go.mod h1:SlYgWuQ5SjCEi6WLHjHCa1yvBfUnHcTbrrZtXPKa29o=
+github.com/gogo/protobuf v1.3.0/go.mod h1:SlYgWuQ5SjCEi6WLHjHCa1yvBfUnHcTbrrZtXPKa29o=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b h1:VKtxabqXZkF25pY9ekfRL6a582T4P37/31XEstQ5p58=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/groupcache v0.0.0-20160516000752-02826c3e7903/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=
@@ -770,6 +771,8 @@ go.skia.org/infra v0.0.0-20190830231633-962a2ce7cf32 h1:ozJD3THbaupNRuAqiwLmB9el
 go.skia.org/infra v0.0.0-20190830231633-962a2ce7cf32/go.mod h1:pdgIxG/y5PQ8ZhU0rYQ3WVPz8TYFaqDtOGwoKc/r3yU=
 go.skia.org/infra v0.0.0-20190831175839-7bb3623d9a50 h1:FMu3ZjbiWHy26aHHMxDi6KO67UUbkODVVRLpo5enuhc=
 go.skia.org/infra v0.0.0-20190831175839-7bb3623d9a50/go.mod h1:7r2amhSruQ1B4I5hW6q1ukASBEtQtuRI3pYXVeeNsCE=
+go.skia.org/infra v0.0.0-20190902024935-c7e7ff9898c9 h1:EktxSRa478h8rDuQW4lBkuLqE31FFxThB7RPrwjRZCA=
+go.skia.org/infra v0.0.0-20190902024935-c7e7ff9898c9/go.mod h1:AdstEBNVYizcC8dBGNWH8EuXu0+4AsmKskM9ZZyY+UA=
 go.skia.org/skia v0.0.0-20190503181046-70aab823547a h1:+9xKwnzXTkTu+2ZVhffRu0A60Jx/gOETiNlKkzqbnRY=
 go.skia.org/skia v0.0.0-20190503181046-70aab823547a/go.mod h1:oVrxmr1FXbVQ7PeGtZ28Kg5wPvB+bNsnw1n2j5rtfTY=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
