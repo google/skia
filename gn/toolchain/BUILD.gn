@@ -260,6 +260,8 @@ template("gcc_like_toolchain") {
       rpath = "-Wl,-soname,$soname"
       if (is_mac) {
         rpath = "-Wl,-install_name,@rpath/$soname"
+      } else if (is_ios) {
+        rpath = ""
       }
 
       rspfile = "{{output}}.rsp"
