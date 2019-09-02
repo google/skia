@@ -258,7 +258,7 @@ template("gcc_like_toolchain") {
       soname = "{{target_output_name}}{{output_extension}}"
 
       rpath = "-Wl,-soname,$soname"
-      if (is_mac) {
+      if (is_mac || is_ios) {
         rpath = "-Wl,-install_name,@rpath/$soname"
       }
 
