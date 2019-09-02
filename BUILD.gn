@@ -35,7 +35,6 @@ declare_args() {
   skia_use_piex = !is_win
   skia_use_wuffs = false
   skia_use_zlib = true
-  skia_use_metal = false
   skia_use_dawn = false
   skia_use_libheif = is_skia_dev_build
   skia_use_x11 = is_linux
@@ -2638,6 +2637,14 @@ if (skia_enable_tools) {
       if (target_cpu == "x64") {
         sources += [ "src/core/SkCpu.cpp" ]
       }
+    }
+  }
+
+  if (is_ios && skia_use_metal) {
+    test_app("minimal_ios_mtl_skia_app") {
+      deps = [
+        "experimental/minimal_ios_mtl_skia_app:minimal_ios_mtl_skia_main",
+      ]
     }
   }
 }
