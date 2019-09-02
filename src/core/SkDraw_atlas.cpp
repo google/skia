@@ -19,6 +19,8 @@
 #include "include/core/SkMatrix.h"
 #include "src/core/SkScan.h"
 
+#include "src/core/SkPathRaw.h"
+
 static void fill_rect(const SkMatrix& ctm, const SkRasterClip& rc,
                       const SkRect& r, SkBlitter* blitter) {
     if (ctm.rectStaysRect()) {
@@ -26,10 +28,9 @@ static void fill_rect(const SkMatrix& ctm, const SkRasterClip& rc,
         ctm.mapRect(&dr, r);
         SkScan::FillRect(dr, rc, blitter);
     } else {
-        SkPath path;
-        path.addRect(r);
-        path.transform(ctm);
-        SkScan::FillPath(path, rc, blitter);
+        SkPathRaw_Rect raw(r);
+        ctm.mapPoints(raw.fPts.begin(), 4);
+        SkScan::FillPathRaw(raw, rc, blitter);
     }
 }
 
