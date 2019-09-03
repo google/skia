@@ -24,6 +24,7 @@
 #include "include/core/SkPathMeasure.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
@@ -554,7 +555,18 @@ struct PosTan {
     SkScalar px, py, tx, ty;
 };
 
-// These objects have private destructors / delete mthods - I don't think
+// SimpleRRect is simpler than passing a (complex) SkRRect over the wire to JS.
+struct SimpleRRect {
+    SkRect rect;
+    SkScalar rx;
+    SkScalar ry;
+};
+
+SkRRect toRRect(const SimpleRRect& r) {
+    return SkRRect::MakeRectXY(r.rect, r.rx, r.ry);
+}
+
+// These objects have private destructors / delete methods - I don't think
 // we need to do anything other than tell emscripten to do nothing.
 namespace emscripten {
     namespace internal {
@@ -767,6 +779,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.drawAtlas(atlas, dstXforms, srcRects, colors, count, mode, nullptr, paint);
         }), allow_raw_pointers())
         .function("drawCircle", select_overload<void (SkScalar, SkScalar, SkScalar, const SkPaint& paint)>(&SkCanvas::drawCircle))
+        .function("drawDRRect",optional_override([](SkCanvas& self, const SimpleRRect& o, const SimpleRRect& i, const SkPaint& paint) {
+            self.drawDRRect(toRRect(o), toRRect(i), paint);
+        }))
         .function("drawImage", select_overload<void (const sk_sp<SkImage>&, SkScalar, SkScalar, const SkPaint*)>(&SkCanvas::drawImage), allow_raw_pointers())
         .function("drawImageRect", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
                                                         SkRect src, SkRect dst,
@@ -782,6 +797,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
         // Of note, picture is *not* what is colloquially thought of as a "picture", what we call
         // a bitmap. An SkPicture is a series of draw commands.
         .function("drawPicture",  select_overload<void (const sk_sp<SkPicture>&)>(&SkCanvas::drawPicture))
+        .function("drawRRect",optional_override([](SkCanvas& self, const SimpleRRect& r, const SkPaint& paint) {
+            self.drawRRect(toRRect(r), paint);
+        }))
         .function("drawRect", &SkCanvas::drawRect)
         .function("drawRoundRect", &SkCanvas::drawRoundRect)
         .function("drawShadow", optional_override([](SkCanvas& self, const SkPath& path,
@@ -1288,6 +1306,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .field("fTop",    &SkRect::fTop)
         .field("fRight",  &SkRect::fRight)
         .field("fBottom", &SkRect::fBottom);
+
+    value_object<SimpleRRect>("SkRRect")
+        .field("rect", &SimpleRRect::rect)
+        .field("rx",   &SimpleRRect::rx)
+        .field("ry",   &SimpleRRect::ry);
 
     value_object<SkIRect>("SkIRect")
         .field("fLeft",   &SkIRect::fLeft)
