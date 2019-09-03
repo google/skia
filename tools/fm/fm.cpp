@@ -358,7 +358,7 @@ int main(int argc, char** argv) {
     sk_gpu_test::MemoryCache memoryCache;
     if (!FLAGS_writeShaders.isEmpty()) {
         baseOptions.fPersistentCache = &memoryCache;
-        baseOptions.fDisallowGLSLBinaryCaching = true;
+        baseOptions.fShaderCacheStrategy = GrContextOptions::ShaderCacheStrategy::kBackendSource;
     }
 
     SkTHashMap<SkString, skiagm::GMFactory> gm_factories;
