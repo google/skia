@@ -8,14 +8,89 @@ if (!defined(is_skia_standalone)) {
 is_skia_dev_build = is_skia_standalone && !is_official_build
 
 declare_args() {
+  skia_android_serial = ""
+  skia_compile_processors = false
+  skia_enable_ccpr = true
+  skia_enable_discrete_gpu = true
+  skia_enable_flutter_defines = false
+  skia_enable_fontmgr_empty = false
+  skia_enable_fontmgr_fuchsia = is_fuchsia
+  skia_enable_fontmgr_win = is_win
+  skia_enable_fontmgr_win_gdi = is_win
   skia_enable_gpu = true
+  skia_enable_pdf = true
+  skia_enable_sksl_interpreter = is_skia_dev_build
+  skia_enable_skvm_jit =
+      is_skia_dev_build && ((target_cpu == "x64" && (is_linux || is_mac)) ||
+                            (target_cpu == "arm64" && is_android))
   skia_enable_tools = is_skia_dev_build
-  skia_use_icu = !is_fuchsia && !is_ios
+  skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
+  skia_generate_workarounds = false
+  skia_include_multiframe_procs = false
+  skia_lex = false
+  skia_llvm_lib = "LLVM"
+  skia_llvm_path = ""
+  skia_pdf_subset_harfbuzz = false  # TODO: set skia_pdf_subset_harfbuzz to skia_use_harfbuzz.
+  skia_qt_path = getenv("QT_PATH")
+  skia_skqp_global_error_tolerance = 0
+  skia_tools_require_resources = false
+  skia_use_angle = false
+  skia_use_dawn = false
+  skia_use_egl = false
+  skia_use_expat = true
+  skia_use_experimental_xform = false
+  skia_use_ffmpeg = false
+  skia_use_fixed_gamma_text = is_android
+  skia_use_fontconfig = is_linux
+  skia_use_fonthost_mac = is_mac
+  skia_use_freetype = is_android || is_fuchsia || is_linux
   skia_use_harfbuzz = true
+  skia_use_icu = !is_fuchsia && !is_ios
+  skia_use_libheif = is_skia_dev_build
+  skia_use_libjpeg_turbo = true
+  skia_use_libpng = true
+  skia_use_libwebp = !is_fuchsia
+  skia_use_lua = is_skia_dev_build && !is_ios
+  skia_use_metal = false
+  skia_use_opencl = false
+  skia_use_piex = !is_win
+  skia_use_wuffs = false
+  skia_use_x11 = is_linux
+  skia_use_xps = true
+  skia_use_zlib = true
+
+  if (is_ios) {
+    skia_ios_identity = ".*Google.*"
+    skia_ios_profile = "Google Development"
+  }
+
+  if (is_mac) {
+    skia_gl_standard = "gl"
+  } else if (is_ios) {
+    skia_gl_standard = "gles"
+  } else {
+    skia_gl_standard = ""
+  }
+
+  if (is_android) {
+    skia_use_vulkan = defined(ndk_api) && ndk_api >= 24
+  } else if (is_fuchsia) {
+    skia_use_vulkan = fuchsia_use_vulkan
+  } else {
+    skia_use_vulkan = defined(skia_moltenvk_path) && skia_moltenvk_path != ""
+  }
 }
+
 declare_args() {
-  # TODO: set skia_pdf_subset_harfbuzz to skia_use_harfbuzz.
-  skia_pdf_subset_harfbuzz = false
+  skia_enable_atlas_text = is_skia_dev_build && skia_enable_gpu
+  skia_enable_fontmgr_android = skia_use_expat && skia_use_freetype
+  skia_enable_fontmgr_custom =
+      is_linux && skia_use_freetype && !skia_use_fontconfig
+  skia_enable_fontmgr_custom_empty = is_fuchsia && skia_use_freetype
+  skia_enable_nvpr = !skia_enable_flutter_defines
+  skia_enable_spirv_validation = is_skia_dev_build && is_debug && !skia_use_dawn
+  skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
+  skia_use_sfntly = skia_use_icu
 }
 
 # Our tools require static linking (they use non-exported symbols), and the GPU backend.
