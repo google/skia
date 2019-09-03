@@ -141,7 +141,7 @@ const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
 #ifdef SK_VULKAN
     "Vulkan",
 #endif
-#if defined(SK_METAL) && defined(SK_BUILD_FOR_MAC)
+#ifdef SK_METAL
     "Metal",
 #endif
     "Raster"
@@ -163,10 +163,10 @@ static sk_app::Window::BackendType get_backend_type(const char* str) {
         return sk_app::Window::kANGLE_BackendType;
     } else
 #endif
-#if defined(SK_METAL) && defined(SK_BUILD_FOR_MAC)
-        if (0 == strcmp(str, "mtl")) {
-            return sk_app::Window::kMetal_BackendType;
-        } else
+#ifdef SK_METAL
+    if (0 == strcmp(str, "mtl")) {
+        return sk_app::Window::kMetal_BackendType;
+    } else
 #endif
     if (0 == strcmp(str, "gl")) {
         return sk_app::Window::kNativeGL_BackendType;
@@ -1556,7 +1556,7 @@ void Viewer::drawImGui() {
                 ImGui::SameLine();
                 ImGui::RadioButton("Vulkan", &newBackend, sk_app::Window::kVulkan_BackendType);
 #endif
-#if defined(SK_METAL) && defined(SK_BUILD_FOR_MAC)
+#if defined(SK_METAL)
                 ImGui::SameLine();
                 ImGui::RadioButton("Metal", &newBackend, sk_app::Window::kMetal_BackendType);
 #endif
