@@ -726,8 +726,7 @@ bool SkGpuDevice::shouldTileImageID(uint32_t imageID,
     // assumption here is that sw bitmap size is a good proxy for its size as
     // a texture
     size_t bmpSize = area * sizeof(SkPMColor);  // assume 32bit pixels
-    size_t cacheSize;
-    fContext->getResourceCacheLimits(nullptr, &cacheSize);
+    size_t cacheSize = fContext->getResourceCacheLimit();
     if (bmpSize < cacheSize / 2) {
         return false;
     }

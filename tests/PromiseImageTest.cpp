@@ -421,21 +421,25 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
 
     // Make the cache full. This tests that we don't preemptively purge cached textures for
     // fulfillment due to cache pressure.
-    static constexpr int kMaxResources = 10;
-    static constexpr int kMaxBytes = 100;
-    ctx->setResourceCacheLimits(kMaxResources, kMaxBytes);
-    sk_sp<GrTexture> textures[2 * kMaxResources];
-    for (int i = 0; i < 2 * kMaxResources; ++i) {
+    static constexpr int kMaxBytes = 1;
+    ctx->setResourceCacheLimit(kMaxBytes);
+    SkTArray<sk_sp<GrTexture>> textures;
+    for (int i = 0; i < 5; ++i) {
         GrSurfaceDesc desc;
         desc.fConfig = kRGBA_8888_GrPixelConfig;
         desc.fWidth = desc.fHeight = 100;
         auto format = ctx->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                   GrRenderable::kNo);
-        textures[i] = ctx->priv().resourceProvider()->createTexture(
+        textures.emplace_back(ctx->priv().resourceProvider()->createTexture(
                 desc, format, GrRenderable::kNo, 1, SkBudgeted::kYes, GrProtected::kNo,
-                GrResourceProvider::Flags::kNoPendingIO);
+                GrResourceProvider::Flags::kNoPendingIO));
         REPORTER_ASSERT(reporter, textures[i]);
     }
+
+    size_t bytesUsed;
+
+    ctx->getResourceCacheUsage(nullptr, &bytesUsed);
+    REPORTER_ASSERT(reporter, bytesUsed > kMaxBytes);
 
     // Relying on the asserts in the promiseImageChecker to ensure that fulfills and releases are
     // properly ordered.
