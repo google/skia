@@ -1286,7 +1286,7 @@ if (skia_enable_tools) {
         script = "//gn/call.py"
         args = [
           "dsymutil",
-          "$gen_path/$app_name",
+          rebase_path("$gen_path/$app_name"),
         ]
         outputs = [
           "$gen_path/${app_name}.dSYM",
