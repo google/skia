@@ -1,0 +1,180 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc08f98a_433074c2",
+        "filename": "src/gpu/GrOpFlushState.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-03T15:52:34Z",
+      "side": 1,
+      "message": "re-line-break ?",
+      "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "433f292c_1c7883a9",
+        "filename": "src/gpu/GrOpFlushState.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-03T15:52:34Z",
+      "side": 1,
+      "message": "de-indent ?",
+      "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b18e265_f5747fb5",
+        "filename": "src/gpu/GrOpFlushState.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-03T15:52:34Z",
+      "side": 1,
+      "message": "// This field is only transiently set during flush. Each renderTask will set it to point to an array of proxies it uses before it is executed.\n\n?",
+      "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bdac1361_2fc3b101",
+        "filename": "src/gpu/GrOpsTask.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-03T15:52:34Z",
+      "side": 1,
+      "message": "At some point we gather all the proxies used by an opsTask to determine reuseability. It seems like we should be able to use this array there as well.",
+      "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e612ad2b_0f2d7f92",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-03T15:52:34Z",
+      "side": 1,
+      "message": "// The CCPR ops don\u0027t visit their atlas proxies. Add them here so that ...\n\n?",
+      "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65e8d0f0_d3586aa7",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-03T15:52:34Z",
+      "side": 1,
+      "message": "// The text ops do not visit the atlas proxies. Explicitly add them here.\n\n?",
+      "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f1c5402_9600c792",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-03T15:52:34Z",
+      "side": 1,
+      "message": "Isn\u0027t this a duplicate of the above ?",
+      "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53d10a97_3cacfad3",
+        "filename": "src/gpu/ops/GrMeshDrawOp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-03T15:52:34Z",
+      "side": 1,
+      "message": "rm ?",
+      "range": {
+        "startLine": 163,
+        "startChar": 74,
+        "endLine": 163,
+        "endChar": 79
+      },
+      "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd46069d_3f79de1a",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-03T15:52:34Z",
+      "side": 1,
+      "message": "// The small path renderer does not ... ?",
+      "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf852791_4cf2957c",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 781,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-03T15:52:34Z",
+      "side": 1,
+      "message": "necessary ?",
+      "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

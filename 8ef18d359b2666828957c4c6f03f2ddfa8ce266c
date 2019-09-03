@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9cd4d952_110ea93b",
+        "filename": "src/gpu/vk/GrVkOpsRenderPass.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 611,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-03T15:52:34Z",
+      "side": 0,
+      "message": "Do we not have to check this guy too ?",
+      "range": {
+        "startLine": 611,
+        "startChar": 32,
+        "endLine": 611,
+        "endChar": 55
+      },
+      "revId": "8ef18d359b2666828957c4c6f03f2ddfa8ce266c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
