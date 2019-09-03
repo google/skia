@@ -68,7 +68,8 @@ public:
         // Currently we don't allow RGB_888X to be renderable because we don't have a way to
         // handle blends that reference dst alpha when the values in the dst alpha channel are
         // uninitialized.
-        if (ct == GrColorType::kRGB_888x) {
+        // We also disallow RG88 just because
+        if (ct == GrColorType::kRGB_888x || ct == GrColorType::kRG_88) {
             return false;
         }
         return this->isFormatRenderable(format, sampleCount);
