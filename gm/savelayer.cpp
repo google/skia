@@ -47,17 +47,18 @@
 
 static void save_layer_unclipped(SkCanvas* canvas,
                                  SkScalar l, SkScalar t, SkScalar r, SkScalar b) {
+    SkPaint paint;
+    paint.setAlphaf(0.25f);
     SkRect rect = SkRect::MakeLTRB(l, t, r, b);
-    canvas->saveLayer({ &rect, nullptr, nullptr, nullptr, nullptr,
+    canvas->saveLayer({ &rect, &paint, nullptr, nullptr, nullptr,
                         (SkCanvas::SaveLayerFlags) SkCanvasPriv::kDontClipToLayer_SaveLayerFlag });
 }
 
 static void do_draw(SkCanvas* canvas) {
     SkPaint paint;
-    SkRandom rand;
+    paint.setColor(0xFFFF0000);
 
     for (int i = 0; i < 20; ++i) {
-        paint.setColor(ToolUtils::color_to_565(rand.nextU() | (0xFF << 24)));
         canvas->drawRect({ 15, 15, 290, 40 }, paint);
         canvas->translate(0, 30);
     }
@@ -65,23 +66,13 @@ static void do_draw(SkCanvas* canvas) {
 
 class UnclippedSaveLayerGM : public skiagm::GM {
 public:
-    enum class Mode {
-        kClipped,
-        kUnclipped
-    };
-
-    UnclippedSaveLayerGM(Mode mode) : fMode(mode) { this->setBGColor(SK_ColorWHITE); }
+    UnclippedSaveLayerGM() { this->setBGColor(SK_ColorWHITE); }
 
 protected:
     bool runAsBench() const override { return true; }
 
     SkString onShortName() override {
-        if (Mode::kClipped == fMode) {
-            return SkString("savelayer_unclipped");
-        } else {
-            SkASSERT(Mode::kUnclipped == fMode);
-            return SkString("savelayer_clipped");
-        }
+        return SkString("savelayer_unclipped");
     }
 
     SkISize onISize() override { return SkISize::Make(320, 640); }
@@ -94,27 +85,17 @@ protected:
 
         canvas->clipRect({ L, T, R, B });
 
-        for (int i = 0; i < 100; ++i) {
-            SkAutoCanvasRestore acr(canvas, true);
-            if (Mode::kClipped == fMode) {
-                save_layer_unclipped(canvas, L, T, R, T + 20);
-                save_layer_unclipped(canvas, L, B - 20, R, B);
-            } else {
-                SkASSERT(Mode::kUnclipped == fMode);
-                canvas->saveLayer({ L, T, R, B }, nullptr);
-            }
+        SkAutoCanvasRestore acr(canvas, true);
+        save_layer_unclipped(canvas, L, T, R, T + 100);
+        save_layer_unclipped(canvas, L, B - 100, R, B);
 
-            do_draw(canvas);
-        }
+        do_draw(canvas);
     }
 
 private:
-    Mode fMode;
-
     typedef skiagm::GM INHERITED;
 };
-DEF_GM(return new UnclippedSaveLayerGM(UnclippedSaveLayerGM::Mode::kClipped);)
-DEF_GM(return new UnclippedSaveLayerGM(UnclippedSaveLayerGM::Mode::kUnclipped);)
+DEF_GM(return new UnclippedSaveLayerGM;)
 
 DEF_SIMPLE_GM(picture_savelayer, canvas, 320, 640) {
     SkPaint paint1, paint2, paint3;
