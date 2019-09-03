@@ -321,12 +321,13 @@ void GrVkGpu::disconnect(DisconnectType type) {
 GrOpsRenderPass* GrVkGpu::getOpsRenderPass(
             GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
-            const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo) {
+            const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
+            const SkTArray<GrTextureProxy*, true>& sampledProxies) {
     if (!fCachedOpsRenderPass) {
         fCachedOpsRenderPass.reset(new GrVkOpsRenderPass(this));
     }
 
-    fCachedOpsRenderPass->set(rt, origin, colorInfo, stencilInfo);
+    fCachedOpsRenderPass->set(rt, origin, colorInfo, stencilInfo, sampledProxies);
     return fCachedOpsRenderPass.get();
 }
 
@@ -411,7 +412,8 @@ sk_sp<GrGpuBuffer> GrVkGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
 
 bool GrVkGpu::onWritePixels(GrSurface* surface, int left, int top, int width, int height,
                             GrColorType surfaceColorType, GrColorType srcColorType,
-                            const GrMipLevel texels[], int mipLevelCount) {
+                            const GrMipLevel texels[], int mipLevelCount,
+                            bool prepForTexSampling) {
     GrVkTexture* vkTex = static_cast<GrVkTexture*>(surface->asTexture());
     if (!vkTex) {
         return false;
@@ -445,6 +447,12 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
         SkASSERT(mipLevelCount <= vkTex->texturePriv().maxMipMapLevel() + 1);
         success = this->uploadTexDataOptimal(vkTex, left, top, width, height, srcColorType, texels,
                                              mipLevelCount);
+    }
+
+    if (prepForTexSampling) {
+        vkTex->setImageLayout(this, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                              VK_ACCESS_SHADER_READ_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                              false);
     }
 
     return success;

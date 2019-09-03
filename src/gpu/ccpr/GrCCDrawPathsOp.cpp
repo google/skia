@@ -414,6 +414,15 @@ inline void GrCCDrawPathsOp::recordInstance(
     SkASSERT(fInstanceRanges.back().fAtlasProxy == atlasProxy);
 }
 
+void GrCCDrawPathsOp::onPrepare(GrOpFlushState* flushState) {
+    // The CCPR ops don't know their atlas textures until after the preFlush calls have been
+    // executed at the start GrDrawingManger::flush. Thus the proxies are not added during the
+    // normal visitProxies calls doing addDrawOp. Therefore, the atlas proxies are added now.
+    for (const InstanceRange& range : fInstanceRanges) {
+        flushState->sampledProxyArray()->push_back(range.fAtlasProxy);
+    }
+}
+
 void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     SkASSERT(fOwningPerOpsTaskPaths);
 

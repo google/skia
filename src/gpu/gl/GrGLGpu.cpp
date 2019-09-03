@@ -834,7 +834,8 @@ static bool check_write_and_transfer_input(GrGLTexture* glTex) {
 
 bool GrGLGpu::onWritePixels(GrSurface* surface, int left, int top, int width, int height,
                             GrColorType surfaceColorType, GrColorType srcColorType,
-                            const GrMipLevel texels[], int mipLevelCount) {
+                            const GrMipLevel texels[], int mipLevelCount,
+                            bool prepForTexSampling) {
     auto glTex = static_cast<GrGLTexture*>(surface->asTexture());
 
     if (!check_write_and_transfer_input(glTex)) {
@@ -2247,7 +2248,8 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
 GrOpsRenderPass* GrGLGpu::getOpsRenderPass(
         GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
         const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
-        const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo) {
+        const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
+        const SkTArray<GrTextureProxy*, true>& sampledProxies) {
     if (!fCachedOpsRenderPass) {
         fCachedOpsRenderPass.reset(new GrGLOpsRenderPass(this));
     }

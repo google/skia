@@ -57,6 +57,10 @@ public:
     void onPrepare(GrOpFlushState* flushState) override;
     bool onExecute(GrOpFlushState* flushState) override;
 
+    void addSampledTexture(GrTextureProxy* proxy) {
+        fSampledProxies.push_back(proxy);
+    }
+
     void addOp(std::unique_ptr<GrOp> op, GrTextureResolveManager textureResolveManager,
                const GrCaps& caps) {
         auto addDependency = [ textureResolveManager, &caps, this ] (
@@ -80,12 +84,14 @@ public:
                    GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
         auto addDependency = [ textureResolveManager, &caps, this ] (
                 GrTextureProxy* p, GrMipMapped mipmapped) {
+            this->addSampledTexture(p);
             this->addDependency(p, mipmapped, textureResolveManager, caps);
         };
 
         op->visitProxies(addDependency);
         clip.visitProxies(addDependency);
         if (dstProxy.proxy()) {
+            this->addSampledTexture(dstProxy.proxy());
             addDependency(dstProxy.proxy(), GrMipMapped::kNo);
         }
 
@@ -261,6 +267,9 @@ private:
     SkArenaAlloc fClipAllocator{4096};
     SkDEBUGCODE(int fNumClips;)
 
+    // TODO: We could look into this being a set if we find we're adding a lot of duplicates that is
+    // causing slow downs.
+    SkTArray<GrTextureProxy*, true> fSampledProxies;
 };
 
 #endif

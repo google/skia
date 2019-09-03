@@ -36,7 +36,7 @@ public:
     InlineUpload(GrOpFlushState* state, const GrDeferredTextureUploadFn& upload)
             : fFlushState(state), fUpload(upload) {}
 
-    void execute(const Args& args) override { fFlushState->doUpload(fUpload); }
+    void execute(const Args& args) override { fFlushState->doUpload(fUpload, true); }
 
 private:
     GrOpFlushState* fFlushState;
@@ -183,13 +183,6 @@ void GrVkOpsRenderPass::submit() {
 
         // We don't want to actually submit the secondary command buffer if it is wrapped.
         if (this->wrapsSecondaryCommandBuffer()) {
-            // If we have any sampled images set their layout now.
-            for (int j = 0; j < cbInfo.fSampledTextures.count(); ++j) {
-                cbInfo.fSampledTextures[j]->setImageLayout(
-                        fGpu, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_ACCESS_SHADER_READ_BIT,
-                        VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, false);
-            }
-
             // There should have only been one secondary command buffer in the wrapped case so it is
             // safe to just return here.
             SkASSERT(fCommandBufferInfos.count() == 1);
@@ -234,13 +227,6 @@ void GrVkOpsRenderPass::submit() {
                                           false);
             }
 
-            // If we have any sampled images set their layout now.
-            for (int j = 0; j < cbInfo.fSampledTextures.count(); ++j) {
-                cbInfo.fSampledTextures[j]->setImageLayout(
-                        fGpu, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_ACCESS_SHADER_READ_BIT,
-                        VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, false);
-            }
-
             SkIRect iBounds;
             cbInfo.fBounds.roundOut(&iBounds);
 
@@ -253,7 +239,8 @@ void GrVkOpsRenderPass::submit() {
 
 void GrVkOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin,
                             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
-                            const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo) {
+                            const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
+                            const SkTArray<GrTextureProxy*, true>& sampledProxies) {
     SkASSERT(!fRenderTarget);
     SkASSERT(fCommandBufferInfos.empty());
     SkASSERT(-1 == fCurrentCmdInfo);
@@ -265,6 +252,16 @@ void GrVkOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin,
 #endif
 
     this->INHERITED::set(rt, origin);
+
+    for (int i = 0; i < sampledProxies.count(); ++i) {
+        if (sampledProxies[i]->isInstantiated()) {
+            GrVkTexture* vkTex = static_cast<GrVkTexture*>(sampledProxies[i]->peekTexture());
+            SkASSERT(vkTex);
+            vkTex->setImageLayout(
+                    fGpu, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_ACCESS_SHADER_READ_BIT,
+                    VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, false);
+        }
+    }
 
     if (this->wrapsSecondaryCommandBuffer()) {
         this->initWrapped();
@@ -577,6 +574,15 @@ GrVkPipelineState* GrVkOpsRenderPass::prepareDrawState(
     return pipelineState;
 }
 
+#ifdef SK_DEBUG
+void check_sampled_texture(GrTexture* tex, GrRenderTarget* rt, GrVkGpu* gpu) {
+    SkASSERT(!tex->isProtected() || (rt->isProtected() && gpu->protectedContext()));
+    GrVkTexture* vkTex = static_cast<GrVkTexture*>(tex);
+    SkASSERT(vkTex->currentLayout() == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+}
+#endif
+
+
 void GrVkOpsRenderPass::onDraw(const GrPrimitiveProcessor& primProc,
                                     const GrPipeline& pipeline,
                                     const GrPipeline::FixedDynamicState* fixedDynamicState,
@@ -590,29 +596,31 @@ void GrVkOpsRenderPass::onDraw(const GrPrimitiveProcessor& primProc,
 
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
 
+#ifdef SK_DEBUG
     if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
         for (int m = 0, i = 0; m < meshCount; ++m) {
             for (int s = 0; s < primProc.numTextureSamplers(); ++s, ++i) {
                 auto texture = dynamicStateArrays->fPrimitiveProcessorTextures[i]->peekTexture();
-                this->appendSampledTexture(texture);
+                check_sampled_texture(texture, fRenderTarget, fGpu);
             }
         }
     } else {
         for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
             auto texture = fixedDynamicState->fPrimitiveProcessorTextures[i]->peekTexture();
-            this->appendSampledTexture(texture);
+            check_sampled_texture(texture, fRenderTarget, fGpu);
         }
     }
     GrFragmentProcessor::Iter iter(pipeline);
     while (const GrFragmentProcessor* fp = iter.next()) {
         for (int i = 0; i < fp->numTextureSamplers(); ++i) {
             const GrFragmentProcessor::TextureSampler& sampler = fp->textureSampler(i);
-            this->appendSampledTexture(sampler.peekTexture());
+            check_sampled_texture(sampler.peekTexture(), fRenderTarget, fGpu);
         }
     }
     if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
-        this->appendSampledTexture(dstTexture);
+        check_sampled_texture(dstTexture, fRenderTarget, fGpu);
     }
+#endif
 
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
     GrVkPipelineState* pipelineState = this->prepareDrawState(primProc, pipeline, fixedDynamicState,
@@ -654,13 +662,6 @@ void GrVkOpsRenderPass::onDraw(const GrPrimitiveProcessor& primProc,
 
     cbInfo.fBounds.join(bounds);
     cbInfo.fIsEmpty = false;
-}
-
-void GrVkOpsRenderPass::appendSampledTexture(GrTexture* tex) {
-    SkASSERT(!tex->isProtected() || (fRenderTarget->isProtected() && fGpu->protectedContext()));
-    GrVkTexture* vkTex = static_cast<GrVkTexture*>(tex);
-
-    fCommandBufferInfos[fCurrentCmdInfo].fSampledTextures.push_back(sk_ref_sp(vkTex));
 }
 
 void GrVkOpsRenderPass::sendInstancedMeshToGpu(GrPrimitiveType,

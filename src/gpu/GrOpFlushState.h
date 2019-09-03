@@ -36,7 +36,11 @@ public:
         executed. */
     void preExecuteDraws();
 
-    void doUpload(GrDeferredTextureUploadFn&);
+    /** Called to upload data to a texture using the GrDeferredTextureUploadFn. If the uploaded
+        surface needs to be prepared for being sampled in a draw after the upload, the caller
+        should pass in true for shouldPrepareSurfaceForSampling. This feature is needed for Vulkan
+        when doing inline uploads to reset the image layout back to sampled. */
+    void doUpload(GrDeferredTextureUploadFn&, bool shouldPrepareSurfaceForSampling = false);
 
     /** Called as ops are executed. Must be called in the same order as the ops were prepared. */
     void executeDrawsAndUploadsForMeshDrawOp(
@@ -70,6 +74,14 @@ public:
         SkASSERT(fOpArgs);
         SkASSERT(fOpArgs->fOp);
         return *fOpArgs;
+    }
+
+    void setSampledProxyArray(SkTArray<GrTextureProxy*, true>* sampledProxies) {
+        fSampledProxies = sampledProxies;
+    }
+
+    SkTArray<GrTextureProxy*, true>* sampledProxyArray() override {
+        return fSampledProxies;
     }
 
     /** Overrides of GrDeferredUploadTarget. */
@@ -151,6 +163,10 @@ private:
     // Info about the op that is currently preparing or executing using the flush state or null if
     // an op is not currently preparing of executing.
     OpArgs* fOpArgs = nullptr;
+
+    // This field is only transiently set during flush. Each GrOpsTask will set it to point to an
+    // array of proxies it uses before call onPrepare and onExecute.
+    SkTArray<GrTextureProxy*, true>* fSampledProxies;
 
     GrGpu* fGpu;
     GrResourceProvider* fResourceProvider;
