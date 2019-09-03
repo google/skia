@@ -19,6 +19,7 @@
 
 class GrVkGpu;
 class GrVkRenderPass;
+class SkReader32;
 
 class GrVkPipelineStateBuilder : public GrGLSLProgramBuilder {
 public:
@@ -91,7 +92,7 @@ private:
                                 Desc*);
 
     // returns number of shader stages
-    int loadShadersFromCache(const SkData& cached, VkShaderModule outShaderModules[],
+    int loadShadersFromCache(SkReader32* cached, VkShaderModule outShaderModules[],
                              VkPipelineShaderStageCreateInfo* outStageInfo);
 
     void storeShadersInCache(const SkSL::String shaders[], const SkSL::Program::Inputs inputs[],

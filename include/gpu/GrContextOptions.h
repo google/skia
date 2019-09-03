@@ -31,6 +31,12 @@ struct SK_API GrContextOptions {
         kDefault
     };
 
+    enum class ShaderCacheStrategy {
+        kSkSL,
+        kBackendSource,
+        kBackendBinary,
+    };
+
     /**
      * Abstract class which stores Skia data in a cache that persists between sessions. Currently,
      * Skia stores compiled shader binaries (only when glProgramBinary / glGetProgramBinary are
@@ -182,18 +188,21 @@ struct SK_API GrContextOptions {
     PersistentCache* fPersistentCache = nullptr;
 
     /**
-     * This affects the usage of the PersistentCache. If this is set to true GLSL shader strings
-     * rather than GL program binaries will be cached. It is intended to be used when the driver's
-     * binary loading/storing is believed to have bugs. Caching GLSL strings still saves a
-     * significant amount of CPU work when a GL program is created.
+     * This affects the usage of the PersistentCache. We can cache SkSL, backend source (GLSL), or
+     * backend binaries (GL program binaries). By default we cache binaries, but if the driver's
+     * binary loading/storing is believed to have bugs, this can be limited to caching GLSL.
+     * Caching GLSL strings still saves CPU work when a GL program is created.
      */
-     bool fDisallowGLSLBinaryCaching = false;
+    ShaderCacheStrategy fShaderCacheStrategy = ShaderCacheStrategy::kBackendBinary;
 
-     /**
-      * If present, use this object to report shader compilation failures. If not, report failures
-      * via SkDebugf and assert.
-      */
-     ShaderErrorHandler* fShaderErrorHandler = nullptr;
+    // Legacy flag until clients are updated to use fShaderCacheStrategy
+    bool fDisallowGLSLBinaryCaching = false;
+
+    /**
+     * If present, use this object to report shader compilation failures. If not, report failures
+     * via SkDebugf and assert.
+     */
+    ShaderErrorHandler* fShaderErrorHandler = nullptr;
 
     /**
      * Specifies the number of samples Ganesh should use when performing internal draws with MSAA or
@@ -228,11 +237,6 @@ struct SK_API GrContextOptions {
      * Render everything in wireframe
      */
     bool fWireframeMode = false;
-
-    /**
-     * Similar to fDisallowGLSLBinaryCaching. If set to true, SkSL shader strings will be cached.
-     */
-    bool fCacheSKSL = false;
 
     /**
      * Enforces clearing of all textures when they're created.

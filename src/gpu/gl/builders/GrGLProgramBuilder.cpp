@@ -146,6 +146,7 @@ void GrGLProgramBuilder::addInputVars(const SkSL::Program::Inputs& inputs) {
 
 static constexpr SkFourByteTag kSKSL_Tag = SkSetFourByteTag('S', 'K', 'S', 'L');
 static constexpr SkFourByteTag kGLSL_Tag = SkSetFourByteTag('G', 'L', 'S', 'L');
+static constexpr SkFourByteTag kGLPB_Tag = SkSetFourByteTag('G', 'L', 'P', 'B');
 
 void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs, GrGLuint programID,
                                             const SkSL::String shaders[], bool isSkSL) {
@@ -159,6 +160,8 @@ void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs,
         GL_CALL(GetProgramiv(programID, GL_PROGRAM_BINARY_LENGTH, &length));
         if (length > 0) {
             SkWriter32 writer;
+            writer.write32(kGLPB_Tag);
+
             writer.writePad(&inputs, sizeof(inputs));
             writer.write32(length);
 
@@ -221,58 +224,58 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         &fGS.fCompilerString,
         &fFS.fCompilerString,
     };
-#if GR_TEST_UTILS
     SkSL::String cached_sksl[kGrShaderTypeCount];
-#endif
     if (cached) {
-        if (fGpu->glCaps().programBinarySupport()) {
-            // binary cache hit, just hand the binary to GL
-            SkReader32 reader(fCached->data(), fCached->size());
-            reader.read(&inputs, sizeof(inputs));
-            GrGLsizei length = reader.readInt();
-            const void* binary = reader.skip(length);
-            GrGLenum binaryFormat = reader.readU32();
-            GrGLClearErr(this->gpu()->glInterface());
-            GR_GL_CALL_NOERRCHECK(this->gpu()->glInterface(),
-                                  ProgramBinary(programID, binaryFormat, const_cast<void*>(binary),
-                                                length));
-            if (GR_GL_GET_ERROR(this->gpu()->glInterface()) == GR_GL_NO_ERROR) {
-                if (checkLinked) {
-                    cached = this->checkLinkStatus(programID, errorHandler, nullptr, nullptr);
+        SkReader32 reader(fCached->data(), fCached->size());
+        SkFourByteTag shaderType = reader.readU32();
+
+        switch (shaderType) {
+            case kGLPB_Tag: {
+                // Program binary cache hit. We may opt not to use this if we don't trust program
+                // binaries on this driver
+                if (!fGpu->glCaps().programBinarySupport()) {
+                    cached = false;
+                    break;
                 }
-                if (cached) {
-                    this->addInputVars(inputs);
-                    this->computeCountsAndStrides(programID, primProc, false);
+                reader.read(&inputs, sizeof(inputs));
+                GrGLsizei length = reader.readInt();
+                const void* binary = reader.skip(length);
+                GrGLenum binaryFormat = reader.readU32();
+                GrGLClearErr(this->gpu()->glInterface());
+                GR_GL_CALL_NOERRCHECK(this->gpu()->glInterface(),
+                                      ProgramBinary(programID, binaryFormat,
+                                                    const_cast<void*>(binary), length));
+                if (GR_GL_GET_ERROR(this->gpu()->glInterface()) == GR_GL_NO_ERROR) {
+                    if (checkLinked) {
+                        cached = this->checkLinkStatus(programID, errorHandler, nullptr, nullptr);
+                    }
+                    if (cached) {
+                        this->addInputVars(inputs);
+                        this->computeCountsAndStrides(programID, primProc, false);
+                    }
+                } else {
+                    cached = false;
                 }
-            } else {
-                cached = false;
+                usedProgramBinaries = cached;
+                break;
             }
-            usedProgramBinaries = cached;
-#if GR_TEST_UTILS
-        } else if (fGpu->getContext()->priv().options().fCacheSKSL) {
-            // Only switch to the stored SkSL if it unpacks correctly
-            if (kSKSL_Tag == GrPersistentCacheUtils::UnpackCachedShaders(fCached.get(),
-                                                                         cached_sksl,
-                                                                         &inputs, 1)) {
+
+            case kGLSL_Tag:
+                // Source cache hit, we don't need to compile the SkSL->GLSL
+                GrPersistentCacheUtils::UnpackCachedShaders(&reader, glsl, &inputs, 1);
+                break;
+
+            case kSKSL_Tag:
+                // SkSL cache hit, this should only happen in tools overriding the generated SkSL
+                GrPersistentCacheUtils::UnpackCachedShaders(&reader, cached_sksl, &inputs, 1);
                 for (int i = 0; i < kGrShaderTypeCount; ++i) {
                     sksl[i] = &cached_sksl[i];
                 }
-            }
-#endif
-        } else {
-            // source cache hit, we don't need to compile the SkSL->GLSL
-            // It's unlikely, but if we get the wrong kind of shader back, don't use the strings
-            if (kGLSL_Tag != GrPersistentCacheUtils::UnpackCachedShaders(fCached.get(),
-                                                                         glsl,
-                                                                         &inputs, 1)) {
-                for (int i = 0; i < kGrShaderTypeCount; ++i) {
-                    glsl[i].clear();
-                }
-            }
+                break;
         }
     }
-    if (!cached || !fGpu->glCaps().programBinarySupport()) {
-        // either a cache miss, or we can't store binaries in the cache
+    if (!usedProgramBinaries) {
+        // either a cache miss, or we got something other than binaries from the cache
         if (glsl[kFragment_GrShaderType].empty()) {
             // Don't have cached GLSL, need to compile SkSL->GLSL
             if (fFS.fForceHighPrecision) {
@@ -368,14 +371,13 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     // black-list caching these programs in all cases. See: anglebug.com/3619
     if (!cached && !primProc.isPathRendering()) {
         bool isSkSL = false;
-#if GR_TEST_UTILS
-        if (fGpu->getContext()->priv().options().fCacheSKSL) {
+        if (fGpu->getContext()->priv().options().fShaderCacheStrategy ==
+                GrContextOptions::ShaderCacheStrategy::kSkSL) {
             for (int i = 0; i < kGrShaderTypeCount; ++i) {
                 glsl[i] = GrShaderUtils::PrettyPrint(*sksl[i]);
             }
             isSkSL = true;
         }
-#endif
         this->storeShaderInCache(inputs, programID, glsl, isSkSL);
     }
     return this->createProgram(programID);

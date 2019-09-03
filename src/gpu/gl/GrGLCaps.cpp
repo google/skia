@@ -3604,14 +3604,12 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
     if (options.fDoManualMipmapping) {
         fDoManualMipmapping = true;
     }
+    if (options.fShaderCacheStrategy < GrContextOptions::ShaderCacheStrategy::kBackendBinary) {
+        fProgramBinarySupport = false;
+    }
     if (options.fDisallowGLSLBinaryCaching) {
         fProgramBinarySupport = false;
     }
-#if GR_TEST_UTILS
-    if (options.fCacheSKSL) {
-        fProgramBinarySupport = false;
-    }
-#endif
 }
 
 bool GrGLCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {

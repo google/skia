@@ -101,16 +101,13 @@ bool GrVkPipelineStateBuilder::installVkShaderModule(VkShaderStageFlagBits stage
 static constexpr SkFourByteTag kSPIRV_Tag = SkSetFourByteTag('S', 'P', 'R', 'V');
 static constexpr SkFourByteTag kSKSL_Tag = SkSetFourByteTag('S', 'K', 'S', 'L');
 
-int GrVkPipelineStateBuilder::loadShadersFromCache(const SkData& cached,
+int GrVkPipelineStateBuilder::loadShadersFromCache(SkReader32* cached,
                                                    VkShaderModule outShaderModules[],
                                                    VkPipelineShaderStageCreateInfo* outStageInfo) {
     SkSL::String shaders[kGrShaderTypeCount];
     SkSL::Program::Inputs inputs[kGrShaderTypeCount];
 
-    if (kSPIRV_Tag != GrPersistentCacheUtils::UnpackCachedShaders(&cached, shaders,
-                                                                  inputs, kGrShaderTypeCount)) {
-        return 0;
-    }
+    GrPersistentCacheUtils::UnpackCachedShaders(cached, shaders, inputs, kGrShaderTypeCount);
 
     SkAssertResult(this->installVkShaderModule(VK_SHADER_STAGE_VERTEX_BIT,
                                                fVS,
@@ -206,21 +203,22 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
     SkASSERT(!this->fragColorIsInOut());
 
     sk_sp<SkData> cached;
+    SkReader32 reader;
+    SkFourByteTag shaderType = 0;
     auto persistentCache = fGpu->getContext()->priv().getPersistentCache();
     if (persistentCache) {
         sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->shaderKeyLength());
         cached = persistentCache->load(*key);
-    }
-    bool binaryCache = true;
-#if GR_TEST_UTILS
-    binaryCache = !fGpu->getContext()->priv().options().fCacheSKSL;
-#endif
-    int numShaderStages = 0;
-    if (cached && binaryCache) {
-        numShaderStages = this->loadShadersFromCache(*cached, shaderModules, shaderStageInfo);
+        if (cached) {
+            reader.setMemory(cached->data(), cached->size());
+            shaderType = reader.readU32();
+        }
     }
 
-    if (!numShaderStages) {
+    int numShaderStages = 0;
+    if (kSPIRV_Tag == shaderType) {
+        numShaderStages = this->loadShadersFromCache(&reader, shaderModules, shaderStageInfo);
+    } else {
         numShaderStages = 2; // We always have at least vertex and fragment stages.
         SkSL::String shaders[kGrShaderTypeCount];
         SkSL::Program::Inputs inputs[kGrShaderTypeCount];
@@ -230,17 +228,14 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
             &fGS.fCompilerString,
             &fFS.fCompilerString,
         };
-#if GR_TEST_UTILS
         SkSL::String cached_sksl[kGrShaderTypeCount];
-        if (cached) {
-            if (kSKSL_Tag == GrPersistentCacheUtils::UnpackCachedShaders(
-                    cached.get(), cached_sksl, inputs, kGrShaderTypeCount)) {
-                for (int i = 0; i < kGrShaderTypeCount; ++i) {
-                    sksl[i] = &cached_sksl[i];
-                }
+        if (kSKSL_Tag == shaderType) {
+            GrPersistentCacheUtils::UnpackCachedShaders(&reader, cached_sksl, inputs,
+                                                        kGrShaderTypeCount);
+            for (int i = 0; i < kGrShaderTypeCount; ++i) {
+                sksl[i] = &cached_sksl[i];
             }
         }
-#endif
 
         bool success = this->createVkShaderModule(VK_SHADER_STAGE_VERTEX_BIT,
                                                   *sksl[kVertex_GrShaderType],
@@ -286,14 +281,13 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
 
         if (persistentCache && !cached) {
             bool isSkSL = false;
-#if GR_TEST_UTILS
-            if (fGpu->getContext()->priv().options().fCacheSKSL) {
+            if (fGpu->getContext()->priv().options().fShaderCacheStrategy ==
+                    GrContextOptions::ShaderCacheStrategy::kSkSL) {
                 for (int i = 0; i < kGrShaderTypeCount; ++i) {
                     shaders[i] = GrShaderUtils::PrettyPrint(*sksl[i]);
                 }
                 isSkSL = true;
             }
-#endif
             this->storeShadersInCache(shaders, inputs, isSkSL);
         }
     }
