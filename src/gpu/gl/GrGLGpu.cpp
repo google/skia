@@ -2507,15 +2507,16 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
             // make sure we go through flushRenderTarget() since we've modified
             // the bound DRAW FBO ID.
             fHWBoundRenderTargetUniqueID.makeInvalid();
-            const SkIRect dirtyRect = rt->getResolveRect();
-            // The dirty rect tracked on the RT is always stored in the native coordinates of the
-            // surface. Choose kTopLeft so no adjustments are made
-            static constexpr auto kDirtyRectOrigin = kTopLeft_GrSurfaceOrigin;
+            // The dirty rect tracked on the RT is always stored relative to the surface's origin.
+            const SkIRect& originRelativeResolveRect = rt->getResolveRect();
             if (GrGLCaps::kES_Apple_MSFBOType == this->glCaps().msFBOType()) {
                 // Apple's extension uses the scissor as the blit bounds.
                 GrScissorState scissorState;
-                scissorState.set(dirtyRect);
-                this->flushScissor(scissorState, rt->width(), rt->height(), kDirtyRectOrigin);
+                scissorState.set(originRelativeResolveRect);
+                // 'originRelativeResolveRect' is already in the target's native coordinates.
+                // Choose kTopLeft so no adjustments are made.
+                this->flushScissor(scissorState, rt->width(), rt->height(),
+                                   kTopLeft_GrSurfaceOrigin);
                 this->disableWindowRectangles();
                 GL_CALL(ResolveMultisampleFramebuffer());
             } else {
@@ -2527,12 +2528,11 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
                     r = target->width();
                     t = target->height();
                 } else {
-                    GrGLIRect rect;
-                    rect.setRelativeTo(rt->height(), dirtyRect, kDirtyRectOrigin);
-                    l = rect.fLeft;
-                    b = rect.fBottom;
-                    r = rect.fLeft + rect.fWidth;
-                    t = rect.fBottom + rect.fHeight;
+                    // 'originRelativeResolveRect' is already in the target's native coordinates.
+                    l = originRelativeResolveRect.left();
+                    b = originRelativeResolveRect.top();
+                    r = originRelativeResolveRect.right();
+                    t = originRelativeResolveRect.bottom();
                 }
 
                 // BlitFrameBuffer respects the scissor, so disable it.
