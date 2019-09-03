@@ -17,6 +17,7 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkGlyphRun.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkLatticeIter.h"
@@ -36,20 +37,60 @@ SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfac
     : fInfo(info)
     , fSurfaceProps(surfaceProps)
 {
-    fOrigin = {0, 0};
+    fToGlobal.reset();
+    fToGlobalInv.reset();
     fCTM.reset();
 }
 
-void SkBaseDevice::setOrigin(const SkMatrix& globalCTM, int x, int y) {
-    fOrigin.set(x, y);
-    fCTM = globalCTM;
-    fCTM.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
+void SkBaseDevice::setBasis(const SkMatrix& globalCTM, const SkMatrix& layerMatrix) {
+    fCTM = layerMatrix;
+    // Fast path when globalCTM and layerMatrix are the same, or we can't invert the layerMatrix.
+    if (globalCTM.cheapEqualTo(layerMatrix) || !layerMatrix.invert(&fToGlobal)) {
+        fToGlobal = SkMatrix::I();
+        fToGlobalInv = SkMatrix::I();
+    } else {
+        // globalCTM != layerMatrix && layerMatrix^-1 stored successfully in fToGlobal so set
+        // fToGlobal = globalCTM * layerMatrix^-1
+        fToGlobal.postConcat(globalCTM);
+        if (!fToGlobal.invert(&fToGlobalInv)) {
+            // FIXME fallback case? assert?... print debug error?
+            fToGlobalInv = SkMatrix::I();
+        }
+    }
+}
+
+bool SkBaseDevice::isBasisSimple(SkIPoint* origin) const {
+    if (fToGlobal.isTranslate() && SkScalarIsInt(fToGlobal.getTranslateX()) &&
+        SkScalarIsInt(fToGlobal.getTranslateY())) {
+        origin->fX = SkScalarFloorToInt(fToGlobal.getTranslateX());
+        origin->fY = SkScalarFloorToInt(fToGlobal.getTranslateY());
+        return true;
+    } else {
+        return false;
+    }
+}
+
+SkMatrix SkBaseDevice::getRelativeBasis(const SkBaseDevice& inputDevice) const {
+    // To get the transform from the input's space to this space, map through the shared global
+    // space, e.g. relative = this.ToGlobal^-1 * input.ToGlobal.
+    return SkMatrix::Concat(fToGlobalInv, inputDevice.fToGlobal);
+}
+
+bool SkBaseDevice::getRelativeOrigin(const SkBaseDevice& inputDevice, SkIPoint* offset) const {
+    SkIPoint srcOrigin, dstOrigin;
+    if (this->isBasisSimple(&dstOrigin) && inputDevice.isBasisSimple(&srcOrigin)) {
+        *offset = srcOrigin - dstOrigin;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void SkBaseDevice::setGlobalCTM(const SkMatrix& ctm) {
     fCTM = ctm;
-    if (fOrigin.fX | fOrigin.fY) {
-        fCTM.postTranslate(-SkIntToScalar(fOrigin.fX), -SkIntToScalar(fOrigin.fY));
+    if (!fToGlobalInv.isIdentity()) {
+        // Map from the global CTM state to this device's coordinate system.
+        fCTM.postConcat(fToGlobalInv);
     }
 }
 
@@ -270,6 +311,8 @@ void SkBaseDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry images[], in
     SkASSERT(!paint.getPathEffect());
 
     SkPaint entryPaint = paint;
+    // FIXME this->ctm() isn't global, it has origin offset -> so if we could get the global CTM
+    // then we can keep setGlobalCTM and restore() as operating in global space.
     const SkMatrix baseCTM = this->ctm();
     int clipIndex = 0;
     for (int i = 0; i < count; ++i) {
@@ -283,7 +326,8 @@ void SkBaseDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry images[], in
         SkASSERT(images[i].fMatrixIndex < 0 || preViewMatrices);
         if (images[i].fMatrixIndex >= 0) {
             this->save();
-            this->setGlobalCTM(SkMatrix::Concat(
+            // FIXME this needs to be setCTM() to be consistent with this->getCTM() above (not global)
+            this->setCTM(SkMatrix::Concat(
                     baseCTM, preViewMatrices[images[i].fMatrixIndex]));
             needsRestore = true;
         }
@@ -303,6 +347,7 @@ void SkBaseDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry images[], in
         this->drawImageRect(images[i].fImage.get(), &images[i].fSrcRect, images[i].fDstRect,
                             entryPaint, constraint);
         if (needsRestore) {
+            // FIXME (but then this needs to restore with a global CTM...)
             this->restore(baseCTM);
         }
     }
@@ -316,13 +361,38 @@ void SkBaseDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, Sk
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SkBaseDevice::drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
+void SkBaseDevice::drawDevice(SkBaseDevice* device, const SkMatrix& transform,
+                              const SkPaint& paint) {
+    auto special = device->snapSpecial();
+    if (special) {
+        this->drawSpecial(std::move(special), this->getRelativeBasis(*device), paint);
+    }
+}
+void SkBaseDevice::drawSpecial(SkSpecialImage*, const SkMatrix&, const SkPaint&,
                                SkImage*, const SkMatrix&) {}
 sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(const SkBitmap&) { return nullptr; }
 sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(const SkImage*) { return nullptr; }
 sk_sp<SkSpecialImage> SkBaseDevice::snapSpecial(const SkIRect&, bool) { return nullptr; }
 sk_sp<SkSpecialImage> SkBaseDevice::snapSpecial() {
     return this->snapSpecial(SkIRect::MakeWH(this->width(), this->height()));
+}
+
+SK_USE_FLUENT_IMAGE_FILTER_TYPES
+skif::FilterResult<For::kOutput> SkBaseDevice::filterDevice(const SkImageFilter* filter) {
+    SkColorType colorType = this->imageInfo().colorType();
+    SkColorSpace* colorSpace = this->imageInfo().colorSpace();
+    if (colorType == kUnknown_SkColorType) {
+        colorType = kRGBA_8888_SkColorType;
+    }
+
+    // TODO (michaelludwig) - Once image filter implementations have been updated to actually take
+    // into account the origin of the source image, it may be worth exploring passing in a subset
+    // of the entire device. But since the device was most likely made to fit the required bounds of
+    // the filter, using the whole surface isn't a big deal.
+    skif::FilterResult<For::kInput> source(this->snapSpecial(), {0, 0});
+    skif::Context ctx(this->ctm(), this->devClipBounds(), this->getImageFilterCache(), colorType,
+                      colorSpace, source);
+    return as_IFB(filter)->filterImage(ctx);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
