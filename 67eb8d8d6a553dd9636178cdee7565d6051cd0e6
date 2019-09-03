@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0fbeda8e_a6cca488",
+        "filename": "tools/gpu/mtl/SkMTKViewConfig.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-09-03T17:03:35Z",
+      "side": 1,
+      "message": "can we remove the comment and just add comments to the methods now that you have a CL that uses these methods?",
+      "revId": "67eb8d8d6a553dd9636178cdee7565d6051cd0e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
