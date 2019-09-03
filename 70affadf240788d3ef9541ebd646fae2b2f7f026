@@ -46,6 +46,30 @@
       "revId": "70affadf240788d3ef9541ebd646fae2b2f7f026",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "437a8b9a_73cf7d61",
+        "filename": "gn/skia.gni",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-09-03T17:17:39Z",
+      "side": 1,
+      "message": "I think it would be preferable to redefine them in minimal_ios_mtl_skia_app/BUILD.gn rather than move them here.",
+      "parentUuid": "e37d39b1_4bf5b99f",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 3
+      },
+      "revId": "70affadf240788d3ef9541ebd646fae2b2f7f026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
