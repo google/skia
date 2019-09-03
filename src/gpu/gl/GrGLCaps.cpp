@@ -2297,7 +2297,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             {
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = GrColorType::kRG_88;
-                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;// explicitly disallow renderability
                 this->setColorTypeFormat(GrColorType::kRG_88, GrGLFormat::kRG8);
 
                 // External IO ColorTypes:
