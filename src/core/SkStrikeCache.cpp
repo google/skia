@@ -491,6 +491,10 @@ size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
 
         // Only delete if the strike is not pinned.
         if (node->fPinner == nullptr || node->fPinner->canDelete()) {
+            if (node->fPinner != nullptr) {
+            SkDebugf("====== Delete strike glyph count %d - %x\n",
+                     node->fStrike.countCachedGlyphs(), node->getDescriptor().getChecksum());
+            }
             bytesFreed += node->fStrike.getMemoryUsed();
             countFreed += 1;
             this->internalDetachCache(node);
