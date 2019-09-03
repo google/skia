@@ -22,6 +22,30 @@
       "revId": "70affadf240788d3ef9541ebd646fae2b2f7f026",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e37d39b1_4bf5b99f",
+        "filename": "gn/skia.gni",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 6360
+      },
+      "writtenOn": "2019-09-03T16:27:18Z",
+      "side": 1,
+      "message": "So they are visible outside of BUILD.gn",
+      "parentUuid": "6a41b959_0ad906e5",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 3
+      },
+      "revId": "70affadf240788d3ef9541ebd646fae2b2f7f026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
