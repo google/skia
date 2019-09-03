@@ -70,6 +70,30 @@
       "revId": "70affadf240788d3ef9541ebd646fae2b2f7f026",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9d10ced_1ec05ad1",
+        "filename": "gn/skia.gni",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-09-03T20:49:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "437a8b9a_73cf7d61",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 3
+      },
+      "revId": "70affadf240788d3ef9541ebd646fae2b2f7f026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
