@@ -55,43 +55,23 @@ sk_sp<SkData> DDLPromiseImageHelper::deflateSKP(const SkPicture* inputPicture) {
     return inputPicture->serialize(&procs);
 }
 
-// needed until we have SkRG_88_ColorType;
 static GrBackendTexture create_yuva_texture(GrContext* context, const SkPixmap& pm,
                                             const SkYUVAIndex yuvaIndices[4], int texIndex) {
     SkASSERT(texIndex >= 0 && texIndex <= 3);
+
+#ifdef SK_DEBUG
     int channelCount = 0;
     for (int i = 0; i < SkYUVAIndex::kIndexCount; ++i) {
         if (yuvaIndices[i].fIndex == texIndex) {
             ++channelCount;
         }
     }
-    // Need to create an RG texture for two-channel planes
-    GrBackendTexture tex;
     if (2 == channelCount) {
-        const GrCaps* caps = context->priv().caps();
-        GrGpu* gpu = context->priv().getGpu();
-
-        SkASSERT(kRGBA_8888_SkColorType == pm.colorType());
-        SkAutoTMalloc<char> pixels(2 * pm.width()*pm.height());
-        char* currPixel = pixels;
-        for (int y = 0; y < pm.height(); ++y) {
-            for (int x = 0; x < pm.width(); ++x) {
-                SkColor color = pm.getColor(x, y);
-                currPixel[0] = SkColorGetR(color);
-                currPixel[1] = SkColorGetG(color);
-                currPixel += 2;
-            }
-        }
-
-        GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRG_88,
-                                                               GrRenderable::kNo);
-        tex = gpu->createBackendTexture(pm.width(), pm.height(), format,
-                                        GrMipMapped::kNo, GrRenderable::kNo,
-                                        pixels, 2 * pm.width(), nullptr, GrProtected::kNo);
-    } else {
-        tex = context->priv().createBackendTexture(&pm, 1, GrRenderable::kNo, GrProtected::kNo);
+        SkASSERT(kRG_88_SkColorType == pm.colorType());
     }
-    return tex;
+#endif
+
+    return context->priv().createBackendTexture(&pm, 1, GrRenderable::kNo, GrProtected::kNo);
 }
 
 void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
@@ -281,7 +261,7 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
         newImageInfo.setYUVData(std::move(yuvData), yuvaIndices, yuvColorSpace);
 
         // determine colortypes from index data
-        // for testing we only ever use A8 or RGBA8888
+        // for testing we only ever use A8, RG_88
         SkColorType colorTypes[SkYUVASizeInfo::kMaxCount] = {
             kUnknown_SkColorType, kUnknown_SkColorType,
             kUnknown_SkColorType, kUnknown_SkColorType
@@ -295,7 +275,7 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
             if (kUnknown_SkColorType == colorTypes[texIdx]) {
                 colorTypes[texIdx] = kAlpha_8_SkColorType;
             } else {
-                colorTypes[texIdx] = kRGBA_8888_SkColorType;
+                colorTypes[texIdx] = kRG_88_SkColorType;
             }
         }
 
