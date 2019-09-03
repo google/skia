@@ -878,7 +878,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
                 constexpr GrColorType ct = GrColorType::kRG_88;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
-                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;// explicitly disallow renderability
             }
         }
     }
