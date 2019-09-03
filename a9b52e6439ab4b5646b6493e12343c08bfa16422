@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a76a9aa2_bf5042ba",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-03T17:52:11Z",
+      "side": 1,
+      "message": "nit: simpler?",
+      "range": {
+        "startLine": 558,
+        "startChar": 18,
+        "endLine": 558,
+        "endChar": 24
+      },
+      "revId": "a9b52e6439ab4b5646b6493e12343c08bfa16422",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
