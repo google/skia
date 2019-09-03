@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "924dd640_82355c16",
+        "filename": "src/gpu/GrOpFlushState.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-03T17:56:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dc08f98a_433074c2",
+      "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "433f292c_1c7883a9",
         "filename": "src/gpu/GrOpFlushState.h",
         "patchSetId": 3
@@ -33,6 +51,24 @@
       "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "001c1524_210e666b",
+        "filename": "src/gpu/GrOpFlushState.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-03T17:56:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "433f292c_1c7883a9",
+      "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "37dcfbf3_7cdc9e8e",
+        "filename": "src/gpu/GrOpFlushState.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-03T17:56:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b18e265_f5747fb5",
+      "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bdac1361_2fc3b101",
         "filename": "src/gpu/GrOpsTask.h",
         "patchSetId": 3
@@ -67,6 +121,24 @@
       "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "124b4fb6_9ba6c10e",
+        "filename": "src/gpu/GrOpsTask.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-03T17:56:24Z",
+      "side": 1,
+      "message": "Discussed offline. not doing anything for now.",
+      "parentUuid": "bdac1361_2fc3b101",
+      "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "6b2fb78e_f9f27d3d",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-03T17:56:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e612ad2b_0f2d7f92",
+      "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "65e8d0f0_d3586aa7",
         "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
         "patchSetId": 3
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "dd3f0ff1_f3bdeaf6",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-03T17:56:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "65e8d0f0_d3586aa7",
+      "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5f1c5402_9600c792",
         "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
         "patchSetId": 3
@@ -118,6 +226,24 @@
       "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66bbbc54_60961b89",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-03T17:56:24Z",
+      "side": 1,
+      "message": "Discussed offline, but to document, no we may have added more atlas after the first call above. That is why the array here starts at gp-\u003enumTextureSamplers(). So we need the second call to push_back sampled proxies similar to what we do for the primitiveProcessorTextures",
+      "parentUuid": "5f1c5402_9600c792",
+      "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -144,6 +270,30 @@
     },
     {
       "key": {
+        "uuid": "04c1960f_e2cb6d96",
+        "filename": "src/gpu/ops/GrMeshDrawOp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-03T17:56:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "53d10a97_3cacfad3",
+      "range": {
+        "startLine": 163,
+        "startChar": 74,
+        "endLine": 163,
+        "endChar": 79
+      },
+      "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd46069d_3f79de1a",
         "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
         "patchSetId": 3
@@ -161,6 +311,24 @@
     },
     {
       "key": {
+        "uuid": "a7288e21_f3f6b9ba",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-03T17:56:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd46069d_3f79de1a",
+      "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cf852791_4cf2957c",
         "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
         "patchSetId": 3
@@ -175,6 +343,24 @@
       "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2b6d315_2fdd0429",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 781,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-03T17:56:24Z",
+      "side": 1,
+      "message": "same as above",
+      "parentUuid": "cf852791_4cf2957c",
+      "revId": "36362d73a7cb1949dfb09f87f4e4301e62e2c9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
