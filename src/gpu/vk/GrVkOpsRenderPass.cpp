@@ -386,7 +386,9 @@ void GrVkOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& colo
     // means we missed an opportunity higher up the stack to set the load op to be a clear. However,
     // there are situations where higher up we couldn't discard the previous ops and set a clear
     // load op (e.g. if we needed to execute a wait op). Thus we also have the empty check here.
-    SkASSERT(!cbInfo.fIsEmpty || clip.scissorEnabled());
+    // TODO: Make the waitOp a RenderTask instead so we can clear out the GrOpsTask for a clear. We
+    // can then reenable this assert assuming we can't get messed up by a waitOp.
+    //SkASSERT(!cbInfo.fIsEmpty || clip.scissorEnabled());
 
     // We always do a sub rect clear with clearAttachments since we are inside a render pass
     VkClearRect clearRect;
