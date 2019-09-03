@@ -37,6 +37,8 @@ SkScalar scale_from_font_units(int16_t val, uint16_t emSize) {
     return from_font_units(SkIntToScalar(val), emSize);
 }
 
+// Unfortunately poppler does not appear to respect the default width setting.
+#if defined(SK_PDF_CAN_USE_DW)
 int16_t findMode(SkSpan<const int16_t> advances) {
     if (advances.empty()) {
         return 0;
@@ -62,7 +64,7 @@ int16_t findMode(SkSpan<const int16_t> advances) {
 
     return currentCount > currentModeCount ? previousAdvance : currentModeAdvance;
 }
-
+#endif
 } // namespace
 
 /** Retrieve advance data for glyphs. Used by the PDF backend. */
@@ -111,6 +113,7 @@ std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkTypeface& typef
     });
     auto glyphs = paths.glyphs(SkMakeSpan(glyphIDs));
 
+#if defined(SK_PDF_CAN_USE_DW)
     std::vector<int16_t> advances;
     advances.reserve(glyphs.size());
     for (const SkGlyph* glyph : glyphs) {
@@ -119,14 +122,19 @@ std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkTypeface& typef
     std::sort(advances.begin(), advances.end());
     int16_t modeAdvance = findMode(SkMakeSpan(advances));
     *defaultAdvance = scale_from_font_units(modeAdvance, emSize);
+#else
+    *defaultAdvance = 0;
+#endif
 
     for (size_t i = 0; i < glyphs.size(); ++i) {
         int16_t advance = (int16_t)glyphs[i]->advanceX();
 
+#if defined(SK_PDF_CAN_USE_DW)
         // a. Skipping don't cares or defaults is a win (trivial)
         if (advance == modeAdvance) {
             continue;
         }
+#endif
 
         // b. 2+ repeats create run as long as possible, else start range
         {
@@ -153,10 +161,12 @@ std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkTypeface& typef
             size_t j = i + 1; // j is always one past the last output
             for (; j < glyphs.size(); ++j) {
                 advance = (int16_t)glyphs[j]->advanceX();
+#if defined(SK_PDF_CAN_USE_DW)
                 // c. end range if default seen
                 if (advance == modeAdvance) {
                     break;
                 }
+#endif
 
                 int dontCares = glyphs[j]->getGlyphID() - glyphs[j - 1]->getGlyphID() - 1;
                 // d. end range if 4+ don't cares
