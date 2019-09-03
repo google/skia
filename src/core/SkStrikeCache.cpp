@@ -265,6 +265,16 @@ auto SkStrikeCache::findAndDetachStrike(const SkDescriptor& desc) -> Node* {
 
     for (Node* node = internalGetHead(); node != nullptr; node = node->fNext) {
         if (node->fStrike.getDescriptor() == desc) {
+            if (node->fPinner != nullptr) {
+                uint32_t descChecksum = node->getDescriptor().getChecksum();
+                auto it = fThreadMap.find(descChecksum);
+                if (it != fThreadMap.end()) {
+                    if (it->second != &node->fStrike) {
+                        SkDebugf("====== find - second strike found\n");
+                    }
+                }
+            }
+
             this->internalDetachCache(node);
             return node;
         }
@@ -373,7 +383,21 @@ auto SkStrikeCache::createStrike(
         scaler->getFontMetrics(&fontMetrics);
     }
 
-    return new Node{this, desc, std::move(scaler), fontMetrics, std::move(pinner)};
+    auto p = new Node{this, desc, std::move(scaler), fontMetrics, std::move(pinner)};
+
+    SkASSERT(p->getDescriptor().getChecksum() == desc.getChecksum());
+    if (pinner != nullptr) {
+        auto it = fThreadMap.find(p->getDescriptor().getChecksum());
+        if (it == fThreadMap.end()) {
+            fThreadMap[p->getDescriptor().getChecksum()] = &p->fStrike;
+            SkDebugf("====== create - %x\n", p->getDescriptor().getChecksum());
+        } else {
+            SkDebugf("====== create - duplicate strike\n");
+        }
+        SkASSERT(fThreadMap.find(p->getDescriptor().getChecksum()) != fThreadMap.end());
+    }
+
+    return p;
 }
 
 void SkStrikeCache::purgeAll() {
@@ -491,6 +515,23 @@ size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
 
         // Only delete if the strike is not pinned.
         if (node->fPinner == nullptr || node->fPinner->canDelete()) {
+            if (node->fPinner != nullptr) {
+            SkDebugf("====== Delete strike glyph count %d - %x\n",
+                     node->fStrike.countCachedGlyphs(), node->getDescriptor().getChecksum());
+            }
+            if (node->fPinner != nullptr) {
+                uint32_t descChecksum = node->getDescriptor().getChecksum();
+                auto it = fThreadMap.find(descChecksum);
+                if (it == fThreadMap.end()) {
+                    SkDebugf("====== destroy - missing thread entry - %x\n",
+                             node->getDescriptor().getChecksum());
+                } else {
+                    if (it->second != &node->fStrike) {
+                        SkDebugf("====== destroy - second strike found\n");
+                    }
+                }
+            }
+
             bytesFreed += node->fStrike.getMemoryUsed();
             countFreed += 1;
             this->internalDetachCache(node);
