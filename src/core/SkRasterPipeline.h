@@ -33,6 +33,8 @@
  * vary depending on CPU feature detection.
  */
 
+ //    M(load_rg88)                    M(store_rg88)                  \
+
 #define SK_RASTER_PIPELINE_STAGES(M)                               \
     M(callback) M(interpreter)                                     \
     M(move_src_dst) M(move_dst_src)                                \
@@ -47,13 +49,13 @@
     M(load_a8)     M(load_a8_dst)   M(store_a8)    M(gather_a8)    \
     M(load_565)    M(load_565_dst)  M(store_565)   M(gather_565)   \
     M(load_4444)   M(load_4444_dst) M(store_4444)  M(gather_4444)  \
+    M(load_rg88)   M(load_rg88_dst) M(store_rg88)  M(gather_rg88)  \
     M(load_f16)    M(load_f16_dst)  M(store_f16)   M(gather_f16)   \
     M(load_af16)                    M(store_af16)                  \
     M(load_rgf16)                   M(store_rgf16)                 \
     M(load_f32)    M(load_f32_dst)  M(store_f32)   M(gather_f32)   \
     M(load_rgf32)                   M(store_rgf32)                 \
     M(load_8888)   M(load_8888_dst) M(store_8888)  M(gather_8888)  \
-    M(load_rg88)                    M(store_rg88)                  \
     M(load_a16)                     M(store_a16)                   \
     M(load_rg1616)                  M(store_rg1616)                \
     M(load_16161616)                M(store_16161616)              \
