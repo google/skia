@@ -250,11 +250,9 @@ static void draw(GrContext* context) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorStressTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    int maxNum;
-    size_t maxBytes;
-    context->getResourceCacheLimits(&maxNum, &maxBytes);
+    size_t maxBytes = context->getResourceCacheLimit();
 
-    context->setResourceCacheLimits(0, 0); // We'll always be overbudget
+    context->setResourceCacheLimit(0); // We'll always be overbudget
 
     draw(context);
     draw(context);
@@ -262,7 +260,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorStressTest, reporter, ctxInf
     draw(context);
     context->flush();
 
-    context->setResourceCacheLimits(maxNum, maxBytes);
+    context->setResourceCacheLimit(maxBytes);
 }
 
 sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* caps,
@@ -305,12 +303,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorOverBudgetTest, reporter, ct
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     GrResourceProvider* resourceProvider = context->priv().resourceProvider();
 
-    int origMaxNum;
-    size_t origMaxBytes;
-    context->getResourceCacheLimits(&origMaxNum, &origMaxBytes);
+    size_t origMaxBytes = context->getResourceCacheLimit();
 
     // Force the resource allocator to always believe it is over budget
-    context->setResourceCacheLimits(0, 0);
+    context->setResourceCacheLimit(0);
 
     const ProxyParams params  = { 64, GrRenderable::kNo, GrColorType::kRGBA_8888,
                                   SkBackingFit::kExact, 1, kTopLeft_GrSurfaceOrigin,
@@ -350,7 +346,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorOverBudgetTest, reporter, ct
         REPORTER_ASSERT(reporter, 1 == startIndex && 2 == stopIndex);
     }
 
-    context->setResourceCacheLimits(origMaxNum, origMaxBytes);
+    context->setResourceCacheLimit(origMaxBytes);
 }
 
 // This test is used to make sure we are tracking the current task index during the assign call in
@@ -365,12 +361,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorCurOpsTaskIndexTest,
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     GrResourceProvider* resourceProvider = context->priv().resourceProvider();
 
-    int origMaxNum;
-    size_t origMaxBytes;
-    context->getResourceCacheLimits(&origMaxNum, &origMaxBytes);
+    size_t origMaxBytes = context->getResourceCacheLimit();
 
     // Force the resource allocator to always believe it is over budget
-    context->setResourceCacheLimits(0, 0);
+    context->setResourceCacheLimit(0);
 
     ProxyParams params;
     params.fFit = SkBackingFit::kExact;
@@ -449,6 +443,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorCurOpsTaskIndexTest,
     cleanup_backend(ctxInfo.grContext(), backEndTex);
     cleanup_backend(ctxInfo.grContext(), backEndTex2);
 
-    context->setResourceCacheLimits(origMaxNum, origMaxBytes);
+    context->setResourceCacheLimit(origMaxBytes);
 }
 

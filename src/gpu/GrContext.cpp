@@ -298,20 +298,29 @@ bool GrContext::supportsDistanceFieldText() const {
 
 //////////////////////////////////////////////////////////////////////////////
 
-// DDL TODO: remove 'maxResources'
 void GrContext::getResourceCacheLimits(int* maxResources, size_t* maxResourceBytes) const {
     ASSERT_SINGLE_OWNER
     if (maxResources) {
-        *maxResources = fResourceCache->getMaxResourceCount();
+        *maxResources = -1;
     }
     if (maxResourceBytes) {
-        *maxResourceBytes = fResourceCache->getMaxResourceBytes();
+        *maxResourceBytes = this->getResourceCacheLimit();
     }
 }
 
-void GrContext::setResourceCacheLimits(int maxResources, size_t maxResourceBytes) {
+size_t GrContext::getResourceCacheLimit() const {
     ASSERT_SINGLE_OWNER
-    fResourceCache->setLimits(maxResources, maxResourceBytes);
+    return fResourceCache->getMaxResourceBytes();
+}
+
+void GrContext::setResourceCacheLimits(int unused, size_t maxResourceBytes) {
+    ASSERT_SINGLE_OWNER
+    this->setResourceCacheLimit(maxResourceBytes);
+}
+
+void GrContext::setResourceCacheLimit(size_t maxResourceBytes) {
+    ASSERT_SINGLE_OWNER
+    fResourceCache->setLimit(maxResourceBytes);
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -142,9 +142,7 @@ public:
     }
 
     SkSurfaceCharacterization createCharacterization(GrContext* context) const {
-        int maxResourceCount;
-        size_t maxResourceBytes;
-        context->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
+        size_t maxResourceBytes = context->getResourceCacheLimit();
 
         // Note that Ganesh doesn't make use of the SkImageInfo's alphaType
         SkImageInfo ii = SkImageInfo::Make(fWidth, fHeight, fColorType,
@@ -413,11 +411,9 @@ void DDLSurfaceCharacterizationTestImpl(GrContext* context, skiatest::Reporter* 
 
         sk_sp<SkSurface> s = params.make(context, &backend);
 
-        int maxResourceCount;
-        size_t maxResourceBytes;
-        context->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
+        size_t maxResourceBytes = context->getResourceCacheLimit();
 
-        context->setResourceCacheLimits(maxResourceCount, maxResourceBytes/2);
+        context->setResourceCacheLimit(maxResourceBytes/2);
         REPORTER_ASSERT(reporter, !s->draw(ddl.get()));
 
         // DDL TODO: once proxies/ops can be de-instantiated we can re-enable these tests.
