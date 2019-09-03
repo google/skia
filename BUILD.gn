@@ -1410,8 +1410,10 @@ if (skia_enable_tools) {
           ":${app_name}_bundle_executable",
           ":${app_name}_bundle_info_plist",
           ":${app_name}_bundle_resources",
-          ":${app_name}_bundle_symbols",
         ]
+        if (is_debug) {
+          deps += [ ":${app_name}_bundle_symbols" ]
+        }
         if (has_skps) {
           deps += [ ":${app_name}_bundle_skps" ]
         }
