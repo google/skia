@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a41b959_0ad906e5",
+        "filename": "gn/skia.gni",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-09-03T15:47:09Z",
+      "side": 1,
+      "message": "Why move these? All the other backends are defined in ./BUILD.gn, and the code signing is not related to the skia library.",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 3
+      },
+      "revId": "70affadf240788d3ef9541ebd646fae2b2f7f026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
