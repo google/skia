@@ -305,7 +305,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     displayParams.fMSAASampleCount = FLAGS_msaa;
     SetCtxOptionsFromCommonFlags(&displayParams.fGrContextOptions);
     displayParams.fGrContextOptions.fPersistentCache = &fPersistentCache;
-    displayParams.fGrContextOptions.fDisallowGLSLBinaryCaching = true;
+    displayParams.fGrContextOptions.fShaderCacheStrategy =
+            GrContextOptions::ShaderCacheStrategy::kBackendSource;
     displayParams.fGrContextOptions.fShaderErrorHandler = &gShaderErrorHandler;
     displayParams.fGrContextOptions.fSuppressPrints = true;
     displayParams.fGrContextOptions.fInternalMultisampleCount = FLAGS_internalSamples;
@@ -2013,8 +2014,11 @@ void Viewer::drawImGui() {
             // HACK: If we get here when SKSL caching isn't enabled, and we're on a backend other
             // than GL, we need to force it on. Just do that on the first frame after the backend
             // switch, then resume normal operation.
-            if (!backendIsGL && !params.fGrContextOptions.fCacheSKSL) {
-                params.fGrContextOptions.fCacheSKSL = true;
+            if (!backendIsGL &&
+                params.fGrContextOptions.fShaderCacheStrategy !=
+                        GrContextOptions::ShaderCacheStrategy::kSkSL) {
+                params.fGrContextOptions.fShaderCacheStrategy =
+                        GrContextOptions::ShaderCacheStrategy::kSkSL;
                 paramsChanged = true;
                 fPersistentCache.reset();
             } else if (ImGui::CollapsingHeader("Shaders")) {
@@ -2033,8 +2037,11 @@ void Viewer::drawImGui() {
                             entry.fKeyString.appendf("%02x", digest.data[i]);
                         }
 
-                        entry.fShaderType = GrPersistentCacheUtils::UnpackCachedShaders(
-                                data.get(), entry.fShader, entry.fInputs, kGrShaderTypeCount);
+                        SkReader32 reader(data->data(), data->size());
+                        entry.fShaderType = reader.readU32();
+                        GrPersistentCacheUtils::UnpackCachedShaders(&reader, entry.fShader,
+                                                                    entry.fInputs,
+                                                                    kGrShaderTypeCount);
                     };
                     fCachedGLSL.reset();
                     fPersistentCache.foreach(collectShaders);
@@ -2047,7 +2054,12 @@ void Viewer::drawImGui() {
                 bool doSave = ImGui::Button("Save");
                 if (backendIsGL) {
                     ImGui::SameLine();
-                    if (ImGui::Checkbox("SkSL", &params.fGrContextOptions.fCacheSKSL)) {
+                    bool sksl = params.fGrContextOptions.fShaderCacheStrategy ==
+                                GrContextOptions::ShaderCacheStrategy::kSkSL;
+                    if (ImGui::Checkbox("SkSL", &sksl)) {
+                        params.fGrContextOptions.fShaderCacheStrategy = sksl
+                                ? GrContextOptions::ShaderCacheStrategy::kSkSL
+                                : GrContextOptions::ShaderCacheStrategy::kBackendSource;
                         paramsChanged = true;
                         doLoad = true;
                         fDeferredActions.push_back([=]() { fPersistentCache.reset(); });
@@ -2083,7 +2095,8 @@ void Viewer::drawImGui() {
                 if (doSave) {
                     // The hovered item (if any) gets a special shader to make it identifiable
                     auto shaderCaps = ctx->priv().caps()->shaderCaps();
-                    bool sksl = params.fGrContextOptions.fCacheSKSL;
+                    bool sksl = params.fGrContextOptions.fShaderCacheStrategy ==
+                                GrContextOptions::ShaderCacheStrategy::kSkSL;
 
                     SkSL::String highlight;
                     if (!sksl) {

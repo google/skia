@@ -37,25 +37,22 @@ static inline sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
     return writer.snapshotAsData();
 }
 
-static inline SkFourByteTag UnpackCachedShaders(const SkData* data,
-                                                SkSL::String shaders[],
-                                                SkSL::Program::Inputs inputs[],
-                                                int numInputs) {
-    SkReader32 reader(data->data(), data->size());
-    SkFourByteTag shaderType = reader.readU32();
+static inline void UnpackCachedShaders(SkReader32* reader,
+                                       SkSL::String shaders[],
+                                       SkSL::Program::Inputs inputs[],
+                                       int numInputs) {
     for (int i = 0; i < kGrShaderTypeCount; ++i) {
         size_t stringLen = 0;
-        const char* string = reader.readString(&stringLen);
+        const char* string = reader->readString(&stringLen);
         shaders[i] = SkSL::String(string, stringLen);
 
         // GL, for example, only wants one set of Inputs
         if (i < numInputs) {
-            reader.read(&inputs[i], sizeof(inputs[i]));
+            reader->read(&inputs[i], sizeof(inputs[i]));
         } else {
-            reader.skip(sizeof(SkSL::Program::Inputs));
+            reader->skip(sizeof(SkSL::Program::Inputs));
         }
     }
-    return shaderType;
 }
 
 }
