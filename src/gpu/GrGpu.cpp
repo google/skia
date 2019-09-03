@@ -529,8 +529,14 @@ bool GrGpu::regenerateMipMapLevels(GrTexture* texture) {
     SkASSERT(texture);
     SkASSERT(this->caps()->mipMapSupport());
     SkASSERT(texture->texturePriv().mipMapped() == GrMipMapped::kYes);
-    SkASSERT(texture->texturePriv().mipMapsAreDirty());
     SkASSERT(!texture->asRenderTarget() || !texture->asRenderTarget()->needsResolve());
+    if (!texture->texturePriv().mipMapsAreDirty()) {
+        // This can happen when the proxy expects MSAA to be dirty, but the actual target is not.
+        // This may be caused by things the drawing manager could not predict, i.e., ops that don't
+        // actually draw anything, exceptional issues causing us to abort a draw, etc.
+        // NOTE: This goes away once we quit tracking dirty state on the render target.
+        return true;
+    }
     if (texture->readOnly()) {
         return false;
     }
@@ -546,10 +552,26 @@ void GrGpu::resetTextureBindings() {
     this->onResetTextureBindings();
 }
 
-void GrGpu::resolveRenderTarget(GrRenderTarget* target) {
+void GrGpu::resolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
+                                GrSurfaceOrigin origin) {
     SkASSERT(target);
+    if (!target->needsResolve()) {
+        // This can happen when the proxy expects MSAA to be dirty, but the actual target is not.
+        // This may be caused by things the drawing manager could not predict, i.e., ops that don't
+        // actually draw anything, exceptional issues causing us to abort a draw, etc.
+        // NOTE: This goes away once we quit tracking dirty state on the render target.
+        return;
+    }
+    SkIRect originRelativeResolveRect = resolveRect;
+    if (kBottomLeft_GrSurfaceOrigin == origin) {
+        originRelativeResolveRect.fTop = target->height() - resolveRect.bottom();
+        originRelativeResolveRect.fBottom = target->height() - resolveRect.top();
+    }
+    // The proxy will often track a tighter resolve rect than GrRenderTarget, but it should never be
+    // the other way around.
+    SkASSERT(target->getResolveRect().contains(originRelativeResolveRect));
     this->handleDirtyContext();
-    this->onResolveRenderTarget(target);
+    this->onResolveRenderTarget(target, originRelativeResolveRect);
 }
 
 void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const SkIRect* bounds,
