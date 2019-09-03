@@ -265,6 +265,18 @@ auto SkStrikeCache::findAndDetachStrike(const SkDescriptor& desc) -> Node* {
 
     for (Node* node = internalGetHead(); node != nullptr; node = node->fNext) {
         if (node->fStrike.getDescriptor() == desc) {
+            if (node->fPinner != nullptr) {
+                uint32_t descChecksum = node->getDescriptor().getChecksum();
+                auto it = fThreadMap.find(descChecksum);
+                if (it == fThreadMap.end()) {
+                    SkDebugf("====== find - missing thread entry\n");
+                } else {
+                    if (it->second != std::this_thread::get_id()) {
+                        SkDebugf("====== find - thread mismatch\n");
+                    }
+                }
+            }
+
             this->internalDetachCache(node);
             return node;
         }
@@ -371,6 +383,17 @@ auto SkStrikeCache::createStrike(
         fontMetrics = *maybeMetrics;
     } else {
         scaler->getFontMetrics(&fontMetrics);
+    }
+
+    if (pinner != nullptr) {
+        auto it = fThreadMap.find(desc.getChecksum());
+        if (it == fThreadMap.end()) {
+            fThreadMap[desc.getChecksum()] = std::this_thread::get_id();
+        } else {
+            if (it->second != std::this_thread::get_id()) {
+                SkDebugf("====== create - thread mismatch\n");
+            }
+        }
     }
 
     return new Node{this, desc, std::move(scaler), fontMetrics, std::move(pinner)};
@@ -491,6 +514,22 @@ size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
 
         // Only delete if the strike is not pinned.
         if (node->fPinner == nullptr || node->fPinner->canDelete()) {
+            if (node->fPinner != nullptr) {
+            SkDebugf("====== Delete strike glyph count %d - %x\n",
+                     node->fStrike.countCachedGlyphs(), node->getDescriptor().getChecksum());
+            }
+            if (node->fPinner != nullptr) {
+                uint32_t descChecksum = node->getDescriptor().getChecksum();
+                auto it = fThreadMap.find(descChecksum);
+                if (it == fThreadMap.end()) {
+                    SkDebugf("====== destroy - missing thread entry\n");
+                } else {
+                    if (it->second != std::this_thread::get_id()) {
+                        SkDebugf("====== destroy - thread mismatch\n");
+                    }
+                }
+            }
+
             bytesFreed += node->fStrike.getMemoryUsed();
             countFreed += 1;
             this->internalDetachCache(node);
