@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkTypes.h"
-#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
 #include "include/core/SkCanvas.h"
 #include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
@@ -14,6 +12,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "include/utils/SkCanvasStateUtils.h"
 #include "tests/CanvasStateHelpers.h"
 
@@ -72,4 +71,3 @@ extern "C" bool complex_clips_draw_from_canvas_state(SkCanvasState* state,
     complex_clips_draw(canvas.get(), left, top, right, bottom, clipOp, localRegion);
     return true;
 }
-#endif // SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG

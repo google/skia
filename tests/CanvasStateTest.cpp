@@ -30,7 +30,6 @@
 class SkCanvasState;
 
 // dlopen and the library flag are only used for tests which require this flag.
-#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
 #include <dlfcn.h>
 
 static DEFINE_string(library, "",
@@ -190,7 +189,6 @@ DEF_TEST(CanvasState_test_complex_layers, reporter) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
 DEF_TEST(CanvasState_test_complex_clips, reporter) {
     const int WIDTH = 400;
     const int HEIGHT = 400;
@@ -293,7 +291,6 @@ DEF_TEST(CanvasState_test_complex_clips, reporter) {
 
     compare(reporter, images[0].get(), images[1].get());
 }
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -312,10 +309,6 @@ DEF_TEST(CanvasState_test_soft_clips, reporter) {
 }
 
 DEF_TEST(CanvasState_test_saveLayer_clip, reporter) {
-#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
-    static_assert(SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag ==
-                  SkCanvasPriv::kDontClipToLayer_SaveLayerFlag, "");
-#endif
     const int WIDTH = 100;
     const int HEIGHT = 100;
     const int LAYER_WIDTH = 50;
