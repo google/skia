@@ -221,9 +221,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         &fGS.fCompilerString,
         &fFS.fCompilerString,
     };
-#if GR_TEST_UTILS
     SkSL::String cached_sksl[kGrShaderTypeCount];
-#endif
     if (cached) {
         if (fGpu->glCaps().programBinarySupport()) {
             // binary cache hit, just hand the binary to GL
@@ -248,8 +246,8 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
                 cached = false;
             }
             usedProgramBinaries = cached;
-#if GR_TEST_UTILS
-        } else if (fGpu->getContext()->priv().options().fCacheSKSL) {
+        } else if (fGpu->getContext()->priv().options().fShaderCacheStrategy ==
+                   GrContextOptions::ShaderCacheStrategy::kSkSL) {
             // Only switch to the stored SkSL if it unpacks correctly
             if (kSKSL_Tag == GrPersistentCacheUtils::UnpackCachedShaders(fCached.get(),
                                                                          cached_sksl,
@@ -258,7 +256,6 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
                     sksl[i] = &cached_sksl[i];
                 }
             }
-#endif
         } else {
             // source cache hit, we don't need to compile the SkSL->GLSL
             // It's unlikely, but if we get the wrong kind of shader back, don't use the strings
@@ -368,14 +365,13 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     // black-list caching these programs in all cases. See: anglebug.com/3619
     if (!cached && !primProc.isPathRendering()) {
         bool isSkSL = false;
-#if GR_TEST_UTILS
-        if (fGpu->getContext()->priv().options().fCacheSKSL) {
+        if (fGpu->getContext()->priv().options().fShaderCacheStrategy ==
+                GrContextOptions::ShaderCacheStrategy::kSkSL) {
             for (int i = 0; i < kGrShaderTypeCount; ++i) {
                 glsl[i] = GrShaderUtils::PrettyPrint(*sksl[i]);
             }
             isSkSL = true;
         }
-#endif
         this->storeShaderInCache(inputs, programID, glsl, isSkSL);
     }
     return this->createProgram(programID);

@@ -211,10 +211,8 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
         sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->shaderKeyLength());
         cached = persistentCache->load(*key);
     }
-    bool binaryCache = true;
-#if GR_TEST_UTILS
-    binaryCache = !fGpu->getContext()->priv().options().fCacheSKSL;
-#endif
+    bool binaryCache = fGpu->getContext()->priv().options().fShaderCacheStrategy ==
+                       GrContextOptions::ShaderCacheStrategy::kBackendBinary;
     int numShaderStages = 0;
     if (cached && binaryCache) {
         numShaderStages = this->loadShadersFromCache(*cached, shaderModules, shaderStageInfo);
@@ -230,7 +228,6 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
             &fGS.fCompilerString,
             &fFS.fCompilerString,
         };
-#if GR_TEST_UTILS
         SkSL::String cached_sksl[kGrShaderTypeCount];
         if (cached) {
             if (kSKSL_Tag == GrPersistentCacheUtils::UnpackCachedShaders(
@@ -240,7 +237,6 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
                 }
             }
         }
-#endif
 
         bool success = this->createVkShaderModule(VK_SHADER_STAGE_VERTEX_BIT,
                                                   *sksl[kVertex_GrShaderType],
@@ -286,14 +282,13 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
 
         if (persistentCache && !cached) {
             bool isSkSL = false;
-#if GR_TEST_UTILS
-            if (fGpu->getContext()->priv().options().fCacheSKSL) {
+            if (fGpu->getContext()->priv().options().fShaderCacheStrategy ==
+                    GrContextOptions::ShaderCacheStrategy::kSkSL) {
                 for (int i = 0; i < kGrShaderTypeCount; ++i) {
                     shaders[i] = GrShaderUtils::PrettyPrint(*sksl[i]);
                 }
                 isSkSL = true;
             }
-#endif
             this->storeShadersInCache(shaders, inputs, isSkSL);
         }
     }

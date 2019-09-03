@@ -77,3 +77,6 @@ Milestone 78
 
   * Add SkColor4f variant to experimental_DrawEdgeAAQuad for SkiaRenderer.
     https://review.skia.org/237492
+
+  * Changed GrContextOptions' fDisallowGLSLBinaryCaching to fShaderCacheStrategy,
+    and allow caching SkSL.
