@@ -991,38 +991,31 @@ void SkGpuDevice::drawSprite(const SkBitmap& bitmap,
         return;
     }
 
-    this->drawSpecial(srcImg.get(), left, top, paint, nullptr, SkMatrix::I());
+    this->drawSpecial(srcImg.get(), SkMatrix::MakeTrans(left, top), paint);
 }
 
 
-void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const SkPaint& paint,
-                              SkImage* clipImage, const SkMatrix& clipMatrix) {
+void SkGpuDevice::drawSpecial(SkSpecialImage* special, const SkMatrix& transform,
+                              const SkPaint& paint, SkImage* clipImage,
+                              const SkMatrix& clipMatrix) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawSpecial", fContext.get());
 
-    sk_sp<SkSpecialImage> result;
-    if (paint.getImageFilter()) {
-        SkIPoint offset = { 0, 0 };
+    SkASSERT(!paint.getImageFilter());
 
-        result = this->filterTexture(special, left, top, &offset, paint.getImageFilter());
-        if (!result) {
-            return;
-        }
-
-        left += offset.fX;
-        top += offset.fY;
-    } else {
-        result = sk_ref_sp(special);
-    }
-
-    SkASSERT(result->isTextureBacked());
-    sk_sp<GrTextureProxy> proxy = result->asTextureProxyRef(this->context());
+    SkASSERT(special->isTextureBacked());
+    sk_sp<GrTextureProxy> proxy = special->asTextureProxyRef(this->context());
     if (!proxy) {
         return;
     }
 
     const GrPixelConfig config = proxy->config();
 
+    // This is meant to recreate the original global CTM so that (I think...), but what we want is
+    // for the mask filter to have its local matrix to map from its local space to the input
+    // geometry space, except that this is pre-transforming the geometry into device space. So in
+    // order to match the new input space, the local matrix must also be the CTM. So why isn't it
+    // just the CTM of the device? Is it also trying to handle the moving of the image's origin here?
     SkMatrix ctm = this->ctm();
     ctm.postTranslate(-SkIntToScalar(left), -SkIntToScalar(top));
 
@@ -1033,6 +1026,8 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
 
     tmpUnfiltered.setImageFilter(nullptr);
 
+    // This does not need to shift by the special image's subset's top left corner because we
+    // pass the subset() rect as the texture coordinates directly.
     auto fp = GrSimpleTextureEffect::Make(std::move(proxy), SkMatrix::I());
     fp = GrColorSpaceXformEffect::Make(std::move(fp), result->getColorSpace(), result->alphaType(),
                                        fRenderTargetContext->colorSpaceInfo().colorSpace());
@@ -1052,9 +1047,8 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
         return;
     }
 
-    const SkIRect& subset = result->subset();
-    SkRect dstRect = SkRect::Make(SkIRect::MakeXYWH(left, top, subset.width(), subset.height()));
-    SkRect srcRect = SkRect::Make(subset);
+    SkRect dstRect = SkRect::MakeIWH(special->width(), special->height());
+    SkRect srcRect = SkRect::Make(result->subset());
     if (clipImage) {
         // Add the image as a simple texture effect applied to coverage. Accessing content outside
         // of the clip image should behave as if it were a decal (i.e. zero coverage). However, to
@@ -1263,24 +1257,6 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial(const SkIRect& subset, bool force
                                                std::move(proxy),
                                                this->imageInfo().refColorSpace(),
                                                &this->surfaceProps());
-}
-
-void SkGpuDevice::drawDevice(SkBaseDevice* device,
-                             int left, int top, const SkPaint& paint) {
-    SkASSERT(!paint.getImageFilter());
-
-    ASSERT_SINGLE_OWNER
-    // clear of the source device must occur before CHECK_SHOULD_DRAW
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawDevice", fContext.get());
-
-    // drawDevice is defined to be in device coords.
-    SkGpuDevice* dev = static_cast<SkGpuDevice*>(device);
-    sk_sp<SkSpecialImage> srcImg(dev->snapSpecial(SkIRect::MakeWH(dev->width(), dev->height())));
-    if (!srcImg) {
-        return;
-    }
-
-    this->drawSpecial(srcImg.get(), left, top, paint, nullptr, SkMatrix::I());
 }
 
 void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,

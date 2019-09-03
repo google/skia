@@ -550,8 +550,10 @@ void SkBitmapDevice::drawVertices(const SkVertices* vertices, const SkVertices::
                               vertices->indexCount(), paint, bones, boneCount);
 }
 
-void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& origPaint) {
+void SkBitmapDevice::drawDevice(SkBaseDevice* device, const SkPaint& origPaint) {
     SkASSERT(!origPaint.getImageFilter());
+
+    SkMatrix devTransform = this->getRelativeBasis(device);
 
     // todo: can we unify with similar adjustment in SkGpuDevice?
     SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
@@ -568,10 +570,16 @@ void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPain
         draw.fRC = &fRCStack.rc();
         SkPaint paint(origPaint);
         paint.setShader(src->fBitmap.makeShader());
-        draw.drawBitmap(*src->fCoverage.get(),
-                        SkMatrix::MakeTrans(SkIntToScalar(x),SkIntToScalar(y)), nullptr, paint);
+        // fMatrix on SkDraw set to I(), and this takes transform?
+        draw.drawBitmap(*src->fCoverage.get(), this->getRelativeBasis(*device), nullptr, paint);
     } else {
-        this->drawSprite(src->fBitmap, x, y, *paint);
+        SkIPoint origin;
+        if (this->getRelativeOrigin(*device, &origin)) {
+            this->drawSprite(src->fBitmap, origin.fX, origin.fY, *paint);
+        } else {
+            // Non-axis-aligned draw
+            this->drawBitmap(src->fBitmap, this->getRelativeBasis(*device), nullptr, paint);
+        }
     }
 }
 
@@ -808,4 +816,8 @@ SkBaseDevice::ClipType SkBitmapDevice::onGetClipType() const {
     } else {
         return ClipType::kComplex;
     }
+}
+
+SkIRect SkBitmapDevice::onDevClipBounds() const {
+    return fRCStack.rc().getBounds();
 }

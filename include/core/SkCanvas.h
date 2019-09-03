@@ -2533,8 +2533,6 @@ private:
         const SkMatrix& matrix() const;
         SkIRect clipBounds() const;
         const SkPaint&  paint() const;
-        int             x() const;
-        int             y() const;
 
     private:
         // used to embed the SkDrawIter object directly in our instance, w/o
@@ -2667,7 +2665,7 @@ private:
     void internalDrawPaint(const SkPaint& paint);
     void internalSaveLayer(const SaveLayerRec&, SaveLayerStrategy);
     void internalSaveBehind(const SkRect*);
-    void internalDrawDevice(SkBaseDevice*, int x, int y, const SkPaint*, SkImage* clipImage,
+    void internalDrawDevice(SkBaseDevice*, const SkPaint*, SkImage* clipImage,
                             const SkMatrix& clipMatrix);
 
     // shared by save() and saveLayer()

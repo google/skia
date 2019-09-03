@@ -103,12 +103,15 @@ protected:
                       const SkPaint& paint) override;
     void drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int count,
                    SkBlendMode, const SkPaint&) override;
-    void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) override;
+    // This is overridden so that coverage can be preserved when copying to another device.
+    void drawDevice(SkBaseDevice*, const SkPaint&) override;
 
     ///////////////////////////////////////////////////////////////////////////
 
-    void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
-                     SkImage*, const SkMatrix&) override;
+    void drawSpecial(SkSpecialImage* image, const SkMatrix& transform, const SkPaint& paint,
+                             SkImage* clipImage = nullptr,
+                             const SkMatrix& clipMatrix = SkMatrix::I()) override;
+
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
     sk_sp<SkSpecialImage> snapSpecial(const SkIRect&, bool = false) override;
@@ -132,6 +135,7 @@ protected:
     void onAsRgnClip(SkRegion*) const override;
     void validateDevBounds(const SkIRect& r) override;
     ClipType onGetClipType() const override;
+    SkIRect onDevClipBounds() const override;
 
     virtual void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
                             const SkPaint&);

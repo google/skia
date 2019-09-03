@@ -15,6 +15,8 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/SkNoncopyable.h"
 
+#include "src/core/SkImageFilterTypes.h"
+
 class SkBitmap;
 struct SkDrawShadowRec;
 class SkGlyphRun;
@@ -49,8 +51,9 @@ public:
      */
     void getGlobalBounds(SkIRect* bounds) const {
         SkASSERT(bounds);
-        const SkIPoint& origin = this->getOrigin();
-        bounds->setXYWH(origin.x(), origin.y(), this->width(), this->height());
+        SkRect localBounds = SkRect::MakeIWH(this->width(), this->height());
+        fToGlobal.mapRect(&localBounds);
+        *bounds = localBounds.roundOut();
     }
 
     SkIRect getGlobalBounds() const {
@@ -58,6 +61,14 @@ public:
         this->getGlobalBounds(&bounds);
         return bounds;
     }
+
+    /**
+     *  Returns the bounding box of the current clip, in this device's
+     *  coordinate space. No pixels outside of these bounds will be touched by
+     *  draws unless the clip is further modified (at which point this will
+     *  return the updated bounds).
+     */
+    SkIRect devClipBounds() const { return this->onDevClipBounds(); }
 
     int width() const {
         return this->imageInfo().width();
@@ -91,10 +102,34 @@ public:
     bool peekPixels(SkPixmap*);
 
     /**
-     *  Return the device's origin: its offset in device coordinates from
-     *  the default origin in its canvas' matrix/clip
+     *  Return the device's basis matrix: this maps from the device's coordinate space into the root
+     *  canvas' space.
      */
-    const SkIPoint& getOrigin() const { return fOrigin; }
+    const SkMatrix& getBasis() const { return fToGlobal; }
+    /**
+     *  Return the inverse of getBasis(), mapping from the root canvas' space into this device's
+     *  coordinate space.
+     */
+    const SkMatrix& getBasisInv() const { return fToGlobalInv; }
+    /**
+     *  True if the basis matrix of the device is a pixel-aligned translation, so its axes are
+     *  aligned with the root canvas space. If true is returned, 'origin' is updated to store the
+     *  origin of the device.
+     */
+    bool isBasisSimple(SkIPoint* origin) const;
+    /**
+     *  Get the transformation from the input device's to this device's coordinate space. This
+     *  transform can be used to draw the input device into this device, such that once this device
+     *  is drawn to the root device, the net effect will have the input device's content drawn
+     *  transformed by its global CTM.
+     */
+    SkMatrix getRelativeBasis(const SkBaseDevice&) const;
+    /**
+     *  Like getRelativeBasis(), but can be used if both this device and the input device have
+     *  simple basis matrices. In that case, this returns true and 'offset' is set to the integral
+     *  X and Y translations that would be in getRelativeBasis().
+     */
+    bool getRelativeOrigin(const SkBaseDevice&, SkIPoint* offset) const;
 
     virtual void* getRasterHandle() const { return nullptr; }
 
@@ -152,6 +187,10 @@ protected:
         kComplex
     };
     virtual ClipType onGetClipType() const = 0;
+
+    // This should strive to be as tight as possible, ideally not just mapping
+    // the global clip bounds by fToGlobal^-1.
+    virtual SkIRect onDevClipBounds() const = 0;
 
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
@@ -236,17 +275,32 @@ protected:
                                     const SkPaint& paint, SkCanvas::SrcRectConstraint);
 
     /** The SkDevice passed will be an SkDevice which was returned by a call to
-        onCreateDevice on this device with kNeverTile_TileExpectation.
+        onCreateDevice on this device with kNeverTile_TileExpectation. This ignores the current
+        CTM, and should draw 'dev' with the relative matrix between their two basis matrices.
+        The paint will not have an image filter on it.
+
+        This defaults to drawSpecial(), using dev->snapSpecial(). Override drawDevice() if there
+        is device-specific info that is not captured in a special image.
      */
-    virtual void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) = 0;
+    virtual void drawDevice(SkBaseDevice* dev, const SkPaint&);
 
     void drawGlyphRunRSXform(const SkFont&, const SkGlyphID[], const SkRSXform[], int count,
                              SkPoint origin, const SkPaint& paint);
 
     virtual void drawDrawable(SkDrawable*, const SkMatrix*, SkCanvas*);
 
-    virtual void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
-                             SkImage* clipImage, const SkMatrix& clipMatrix);
+    // Filter the device's current contents. The returned result covers devClipBounds() if it
+    // is drawn back into this device at its reported device-space origin. The filter uses the
+    // device's current CTM, which must be compatible with the filter's capabilities.
+    skif::FilterResult<skif::Usage::kOutput> filterDevice(const SkImageFilter* filter);
+
+    // Draw the special 'image' into this device. 'transform' is the full transform into this
+    // device's coordinate space, so its current CTM should be ignored when drawing. It can be
+    // assumed that the paint does not have an image filter.
+    virtual void drawSpecial(SkSpecialImage* image, const SkMatrix& transform, const SkPaint& paint,
+                             SkImage* clipImage = nullptr,
+                             const SkMatrix& clipMatrix = SkMatrix::I());
+
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkImage*);
     // Get a view of the entire device's current contents as an image.
@@ -354,8 +408,17 @@ private:
      */
     virtual GrRenderTargetContext* accessRenderTargetContext() { return nullptr; }
 
-    // just called by SkCanvas when built as a layer
-    void setOrigin(const SkMatrix& ctm, int x, int y);
+    // just called by SkCanvas when built as a layer. 'globalCTM' is the total matrix of the canvas,
+    // 'layerMatrix' is the CTM to use when drawing into this device. This will set 'fToGlobal' to
+    // globalCTM x layerMatrix^-1, such that drawing this device's snapped image with 'fToGlobal'
+    // will result in a net transform of 'globalCTM'. Similarly, transforming global geometry by
+    // fToGlobal^-1 will map the coordinates into this device's space.
+    void setBasis(const SkMatrix& globalCTM, const SkMatrix& layerMatrix);
+
+    void setOrigin(const SkMatrix& globalCTM, int x, int y) {
+        // The layer matrix must map the global (x,y) to (0,0), hence the negative signs.
+        this->setBasis(globalCTM, SkMatrix::MakeTrans(-x, -y));
+    }
 
     /** Causes any deferred drawing to the device to be completed.
      */
@@ -369,9 +432,11 @@ private:
         *const_cast<SkImageInfo*>(&fInfo) = fInfo.makeWH(w, h);
     }
 
-    SkIPoint             fOrigin;
     const SkImageInfo    fInfo;
     const SkSurfaceProps fSurfaceProps;
+    SkMatrix             fToGlobal;    // FIXME this is only needed when splatting back, so that's a relatively
+    // rare operation, maybe worth just keeping fToGlobalInv?
+    SkMatrix             fToGlobalInv; // Cached since it must be applied every CTM change.
     SkMatrix             fCTM;
 
     typedef SkRefCnt INHERITED;
@@ -413,6 +478,9 @@ protected:
     ClipType onGetClipType() const override {
         return ClipType::kRect;
     }
+    SkIRect onDevClipBounds() const override {
+        return SkIRect::MakeWH(this->width(), this->height());
+    }
 
     void drawPaint(const SkPaint& paint) override {}
     void drawPoints(SkCanvas::PointMode, size_t, const SkPoint[], const SkPaint&) override {}
@@ -423,7 +491,6 @@ protected:
     void drawSprite(const SkBitmap&, int, int, const SkPaint&) override {}
     void drawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&, const SkPaint&,
                         SkCanvas::SrcRectConstraint) override {}
-    void drawDevice(SkBaseDevice*, int, int, const SkPaint&) override {}
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {}
     void drawVertices(const SkVertices*, const SkVertices::Bone[], int, SkBlendMode,
                       const SkPaint&) override {}
