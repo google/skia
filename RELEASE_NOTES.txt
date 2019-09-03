@@ -81,4 +81,6 @@ Milestone 78
   * Deprecated maxCount resource cache limit for Ganesh.
     This hasn't been relevant for a long time.
 
-
+  * Changed GrContextOptions' fDisallowGLSLBinaryCaching to fShaderCacheStrategy,
+    and allow caching SkSL.
+    https://review.skia.org/238856

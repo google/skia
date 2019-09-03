@@ -1526,7 +1526,9 @@ Error GPUPersistentCacheTestingSink::draw(const Src& src, SkBitmap* dst, SkWStre
     sk_gpu_test::MemoryCache memoryCache;
     GrContextOptions contextOptions = this->baseContextOptions();
     contextOptions.fPersistentCache = &memoryCache;
-    contextOptions.fDisallowGLSLBinaryCaching = (fCacheType == 2);
+    if (fCacheType == 2) {
+        contextOptions.fShaderCacheStrategy = GrContextOptions::ShaderCacheStrategy::kBackendSource;
+    }
     // anglebug.com/3619
     contextOptions.fGpuPathRenderers =
             contextOptions.fGpuPathRenderers & ~GpuPathRenderers::kStencilAndCover;
