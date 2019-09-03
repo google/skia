@@ -1441,6 +1441,13 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
 
         bool supportsBGRAColorType = GR_IS_GR_GL(standard) &&
                 (version >= GR_GL_VER(1, 2) || ctxInfo.hasExtension("GL_EXT_bgra"));
+
+        SkDebugf("BGRA supported: %s - standard %s - version %d %d - GL_EXT_bgra present: %s\n",
+            supportsBGRAColorType ? "yes" : "no",
+            (standard == kGL_GrGLStandard) ? "GL" : ((standard == kGLES_GrGLStandard) ? "GLES" : "other"),
+            (version >> 16) & 0xFFFF, version & 0xFFFF,
+            ctxInfo.hasExtension("GL_EXT_bgra") ? "yes" : "no");
+
         info.fColorTypeInfoCount = supportsBGRAColorType ? 3 : 2;
         info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
         int ctIdx = 0;
