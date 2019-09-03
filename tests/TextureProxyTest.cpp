@@ -250,10 +250,8 @@ static void invalidation_test(GrContext* context, skiatest::Reporter* reporter) 
     rasterImg = nullptr;        // this invalidates the uniqueKey
 
     // this forces the cache to respond to the inval msg
-    int maxNum;
-    size_t maxBytes;
-    context->getResourceCacheLimits(&maxNum, &maxBytes);
-    context->setResourceCacheLimits(maxNum-1, maxBytes);
+    size_t maxBytes = context->getResourceCacheLimit();
+    context->setResourceCacheLimit(maxBytes-1);
 
     REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());

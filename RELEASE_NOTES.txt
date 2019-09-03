@@ -77,3 +77,8 @@ Milestone 78
 
   * Add SkColor4f variant to experimental_DrawEdgeAAQuad for SkiaRenderer.
     https://review.skia.org/237492
+
+  * Deprecated maxCount resource cache limit for Ganesh.
+    This hasn't been relevant for a long time.
+
+
