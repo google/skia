@@ -47,17 +47,18 @@
 
 static void save_layer_unclipped(SkCanvas* canvas,
                                  SkScalar l, SkScalar t, SkScalar r, SkScalar b) {
+    SkPaint paint;
+    paint.setAlphaf(0.25f);
     SkRect rect = SkRect::MakeLTRB(l, t, r, b);
-    canvas->saveLayer({ &rect, nullptr, nullptr, nullptr, nullptr,
+    canvas->saveLayer({ &rect, &paint, nullptr, nullptr, nullptr,
                         (SkCanvas::SaveLayerFlags) SkCanvasPriv::kDontClipToLayer_SaveLayerFlag });
 }
 
 static void do_draw(SkCanvas* canvas) {
     SkPaint paint;
-    SkRandom rand;
+    paint.setColor(0xFFFF0000);
 
     for (int i = 0; i < 20; ++i) {
-        paint.setColor(ToolUtils::color_to_565(rand.nextU() | (0xFF << 24)));
         canvas->drawRect({ 15, 15, 290, 40 }, paint);
         canvas->translate(0, 30);
     }
@@ -87,6 +88,7 @@ protected:
     SkISize onISize() override { return SkISize::Make(320, 640); }
 
     void onDraw(SkCanvas* canvas) override {
+        canvas->drawColor(0xFF888888);
         const SkScalar L = 10;
         const SkScalar T = 10;
         const SkScalar R = 310;
@@ -94,18 +96,16 @@ protected:
 
         canvas->clipRect({ L, T, R, B });
 
-        for (int i = 0; i < 100; ++i) {
-            SkAutoCanvasRestore acr(canvas, true);
-            if (Mode::kClipped == fMode) {
-                save_layer_unclipped(canvas, L, T, R, T + 20);
-                save_layer_unclipped(canvas, L, B - 20, R, B);
-            } else {
-                SkASSERT(Mode::kUnclipped == fMode);
-                canvas->saveLayer({ L, T, R, B }, nullptr);
-            }
-
-            do_draw(canvas);
+        SkAutoCanvasRestore acr(canvas, true);
+        if (Mode::kClipped == fMode) {
+            save_layer_unclipped(canvas, L, T, R, T + 100);
+            save_layer_unclipped(canvas, L, B - 100, R, B);
+        } else {
+            SkASSERT(Mode::kUnclipped == fMode);
+            canvas->saveLayer({ L, T, R, B }, nullptr);
         }
+
+        do_draw(canvas);
     }
 
 private:
