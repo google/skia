@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e96722ee_29a3ab25",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-09-03T21:46:46Z",
+      "side": 1,
+      "message": "Not sure if its worth making this debug only (#ifdef SK_DEBUG). Can you add a comment that this is for debugging only?",
+      "range": {
+        "startLine": 276,
+        "startChar": 4,
+        "endLine": 276,
+        "endChar": 33
+      },
+      "revId": "b211d336ce4716f34a386db3f586fb0d9413cfc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
