@@ -81,4 +81,7 @@ Milestone 78
   * Deprecated maxCount resource cache limit for Ganesh.
     This hasn't been relevant for a long time.
 
+  * Added kRG_88_SkColorType. This is intended to help support YUV uses case (e.g., NV12).
+    As such, it the addition is focused on allowing creation of SkPixmaps and SkImages and not
+    SkSurfaces (i.e., who wants to render to RG?)
 
