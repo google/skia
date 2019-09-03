@@ -273,6 +273,8 @@ private:
     // we cache them here.
     SkTHashTable<SkGlyph*, SkPackedGlyphID, GlyphMapHashTraits> fGlyphMap;
 
+    uint32_t fGlyphsSentSoFar{0};
+
     SkArenaAlloc fAlloc{256};
 };
 
@@ -591,11 +593,14 @@ void SkStrikeServer::RemoteStrike::writePendingGlyphs(Serializer* serializer) {
     serializer->emplace<bool>(this->hasPendingGlyphs());
     SkASSERT(this->hasPendingGlyphs());
 
+    serializer->emplace<uint32_t>(fGlyphsSentSoFar);
+
     // Write the desc.
     serializer->emplace<StrikeSpec>(fContext->getTypeface()->uniqueID(), fDiscardableHandleId);
     serializer->writeDescriptor(*fDescriptor.getDesc());
 
     serializer->emplace<bool>(fHaveSentFontMetrics);
+    fGlyphsSentSoFar = fGlyphMap.count();
     if (!fHaveSentFontMetrics) {
         // Write FontMetrics if not sent before.
         SkFontMetrics fontMetrics;
@@ -745,7 +750,7 @@ SkStrikeClient::SkStrikeClient(sk_sp<DiscardableHandleManager> discardableManage
                                SkStrikeCache* strikeCache)
         : fDiscardableHandleManager(std::move(discardableManager))
         , fStrikeCache{strikeCache ? strikeCache : SkStrikeCache::GlobalStrikeCache()}
-        , fIsLogging{isLogging} {}
+        , fIsLogging{true} {}
 
 SkStrikeClient::~SkStrikeClient() = default;
 
@@ -806,11 +811,15 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
 
         if (!has_glyphs) continue;
 
+        uint32_t glyphsSentSoFar;
+        if (!deserializer.read<uint32_t>(&glyphsSentSoFar)) READ_FAILURE
+
         StrikeSpec spec;
         if (!deserializer.read<StrikeSpec>(&spec)) READ_FAILURE
 
         SkAutoDescriptor sourceAd;
         if (!deserializer.readDescriptor(&sourceAd)) READ_FAILURE
+        uint32_t descChecksum = sourceAd.getDesc()->getChecksum();
 
         bool fontMetricsInitialized;
         if (!deserializer.read(&fontMetricsInitialized)) READ_FAILURE
@@ -837,6 +846,10 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
         // be an existing strike.
         if (fontMetricsInitialized && strike == nullptr) READ_FAILURE
         if (strike == nullptr) {
+            if (glyphsSentSoFar != 0) {
+                SkDebugf("====== New strike expecting %d glyphs - %x\n",
+                        glyphsSentSoFar, descChecksum);
+            }
             // Note that we don't need to deserialize the effects since we won't be generating any
             // glyphs here anyway, and the desc is still correct since it includes the serialized
             // effects.
@@ -848,6 +861,11 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
                                                                 fDiscardableHandleManager));
             auto proxyContext = static_cast<SkScalerContextProxy*>(strike->getScalerContext());
             proxyContext->initCache(strike.get(), fStrikeCache);
+        } else {
+            if (glyphsSentSoFar != SkTo<uint32_t>(strike->countCachedGlyphs())) {
+                SkDebugf("====== Renderer expects %d glyphs got %d glyphs - %x\n",
+                         glyphsSentSoFar, strike->countCachedGlyphs(), descChecksum);
+            }
         }
 
         if (!deserializer.read<uint64_t>(&glyphImagesCount)) READ_FAILURE

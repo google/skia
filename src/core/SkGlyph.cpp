@@ -38,6 +38,7 @@ void SkGlyph::zeroMetrics() {
     fHeight   = 0;
     fTop      = 0;
     fLeft     = 0;
+    fImage    = nullptr;
 }
 
 static size_t bits_to_bytes(size_t bits) {
