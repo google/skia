@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ddca9fcc_34b1600a",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1207,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-09-03T19:25:43Z",
+      "side": 1,
+      "message": "We need a linker step as well.",
+      "range": {
+        "startLine": 1207,
+        "startChar": 12,
+        "endLine": 1207,
+        "endChar": 28
+      },
+      "revId": "5a8162a03eaca425ccfdb488a4c11de1586563f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d8df3d2_1595d7a5",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1339,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-09-03T19:25:43Z",
+      "side": 1,
+      "message": "Add a BUILD.gn in the resources directory and bundle it that way?",
+      "range": {
+        "startLine": 1339,
+        "startChar": 13,
+        "endLine": 1339,
+        "endChar": 22
+      },
+      "revId": "5a8162a03eaca425ccfdb488a4c11de1586563f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
