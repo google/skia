@@ -30,10 +30,6 @@ class GrGLOpsRenderPass;
 class GrPipeline;
 class GrSwizzle;
 
-#ifdef SK_DEBUG
-#define PROGRAM_CACHE_STATS
-#endif
-
 class GrGLGpu final : public GrGpu, private GrMesh::SendToGpuImpl {
 public:
     static sk_sp<GrGpu> Make(sk_sp<const GrGLInterface>, const GrContextOptions&, GrContext*);
@@ -329,10 +325,6 @@ private:
 
         struct Entry;
 
-        // binary search for entry matching desc. returns index into fEntries that matches desc or ~
-        // of the index of where it should be inserted.
-        int search(const GrProgramDesc& desc) const;
-
         struct DescHash {
             uint32_t operator()(const GrProgramDesc& desc) const {
                 return SkOpts::hash_fn(desc.asKey(), desc.keyLength(), 0);
@@ -341,12 +333,7 @@ private:
 
         SkLRUCache<GrProgramDesc, std::unique_ptr<Entry>, DescHash> fMap;
 
-        GrGLGpu*                    fGpu;
-#ifdef PROGRAM_CACHE_STATS
-        int                         fTotalRequests;
-        int                         fCacheMisses;
-        int                         fHashMisses; // cache hit but hash table missed
-#endif
+        GrGLGpu* fGpu;
     };
 
     void flushColorWrite(bool writeColor);
