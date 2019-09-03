@@ -51,6 +51,10 @@ MetalWindowContext_mac::~MetalWindowContext_mac() {
 bool MetalWindowContext_mac::onInitializeContext() {
     SkASSERT(nil != fMainView);
 
+    fMetalLayer = [CAMetalLayer layer];
+    fMetalLayer.device = fDevice;
+    fMetalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+
     NSRect frameRect = [fMainView frame];
     fMetalLayer.drawableSize = frameRect.size;
     fMetalLayer.frame = frameRect;

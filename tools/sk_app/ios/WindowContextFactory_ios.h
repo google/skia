@@ -33,10 +33,7 @@ inline std::unique_ptr<WindowContext> MakeVulkanForIOS(const IOSWindowInfo&, con
     return nullptr;
 }
 
-inline std::unique_ptr<WindowContext> MakeMetalForIOS(const IOSWindowInfo&, const DisplayParams&) {
-    // No Metal support on iOS yet.
-    return nullptr;
-}
+std::unique_ptr<WindowContext> MakeMetalForIOS(const IOSWindowInfo&, const DisplayParams&);
 
 std::unique_ptr<WindowContext> MakeGLForIOS(const IOSWindowInfo&, const DisplayParams&);
 

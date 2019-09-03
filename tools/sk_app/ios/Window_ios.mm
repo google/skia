@@ -83,11 +83,11 @@ bool Window_ios::attach(BackendType attachType) {
         case kRaster_BackendType:
             fWindowContext = MakeRasterForIOS(info, fRequestedDisplayParams);
             break;
-//#ifdef SK_METAL
-//        case kMetal_BackendType:
-//            fWindowContext = MakeMetalForMac(info, fRequestedDisplayParams);
-//            break;
-//#endif
+#ifdef SK_METAL
+        case kMetal_BackendType:
+            fWindowContext = MakeMetalForIOS(info, fRequestedDisplayParams);
+            break;
+#endif
         case kNativeGL_BackendType:
         default:
             fWindowContext = MakeGLForIOS(info, fRequestedDisplayParams);

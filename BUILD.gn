@@ -2421,7 +2421,7 @@ if (skia_enable_tools) {
       if (is_mac) {
         sources += [ "tools/sk_app/mac/MetalWindowContext_mac.mm" ]
       } else if (is_ios) {
-        #        sources += [ "tools/sk_app/mac/MetalWindowContext_ios.mm" ]
+        sources += [ "tools/sk_app/ios/MetalWindowContext_ios.mm" ]
       }
     }
 
