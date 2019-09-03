@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f53597a1_15510572",
+        "filename": "example/HelloWorld.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-09-03T15:16:26Z",
+      "side": 1,
+      "message": "\u0027update\u0027 alone implies to me something that\u0027s called repeatedly, and it seems a little generic. Maybe \u0027updateWindow\u0027?",
+      "range": {
+        "startLine": 28,
+        "startChar": 9,
+        "endLine": 28,
+        "endChar": 15
+      },
+      "revId": "4c45293a5cce70d0ded3a2c6e2670f1d78332aab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

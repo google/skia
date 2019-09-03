@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ee5c48b_21b29b5a",
+        "filename": "example/HelloWorld.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-09-03T15:16:26Z",
+      "side": 0,
+      "message": "I believe onBackendCreated() was added because of Android -- the creation of the backend was delayed relative to setting up the window. Based on the code below, that may have changed but I\u0027d test to be sure.",
+      "range": {
+        "startLine": 23,
+        "startChar": 9,
+        "endLine": 23,
+        "endChar": 25
+      },
+      "revId": "b1f411ac053dca8e9ec3762708aed9840af56307",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
