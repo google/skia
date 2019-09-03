@@ -210,17 +210,24 @@ public:
     /**
      * Updates the pixels in a rectangle of a surface.  No sRGB/linear conversions are performed.
      *
-     * @param surface           The surface to write to.
-     * @param left              left edge of the rectangle to write (inclusive)
-     * @param top               top edge of the rectangle to write (inclusive)
-     * @param width             width of rectangle to write in pixels.
-     * @param height            height of rectangle to write in pixels.
-     * @param surfaceColorType  the color type for this use of the surface.
-     * @param srcColorType      the color type of the source buffer.
-     * @param texels            array of mipmap levels containing texture data. Row bytes must be a
-     *                          multiple of srcColorType's bytes-per-pixel. Must be tight to level
-     *                          width if !caps->writePixelsRowBytesSupport().
-     * @param mipLevelCount     number of levels in 'texels'
+     * @param surface            The surface to write to.
+     * @param left               left edge of the rectangle to write (inclusive)
+     * @param top                top edge of the rectangle to write (inclusive)
+     * @param width              width of rectangle to write in pixels.
+     * @param height             height of rectangle to write in pixels.
+     * @param surfaceColorType   the color type for this use of the surface.
+     * @param srcColorType       the color type of the source buffer.
+     * @param texels             array of mipmap levels containing texture data. Row bytes must be a
+     *                           multiple of srcColorType's bytes-per-pixel. Must be tight to level
+     *                           width if !caps->writePixelsRowBytesSupport().
+     * @param mipLevelCount      number of levels in 'texels'
+     * @param prepForTexSampling After doing write pixels should the surface be prepared for texture
+     *                           sampling. This is currently only used by Vulkan for inline uploads
+     *                           to set that layout back to sampled after doing the upload. Inline
+     *                           uploads currently can happen between draws in a single op so it is
+     *                           not trivial to break up the GrOpsTask into two tasks when we see
+     *                           an inline upload. However, once we are able to support doing that
+     *                           we can remove this parameter.
      *
      * @return true if the write succeeded, false if not. The read can fail
      *              because of the surface doesn't support writing (e.g. read only),
@@ -229,17 +236,17 @@ public:
      */
     bool writePixels(GrSurface* surface, int left, int top, int width, int height,
                      GrColorType surfaceColorType, GrColorType srcColorType,
-                     const GrMipLevel texels[], int mipLevelCount);
+                     const GrMipLevel texels[], int mipLevelCount, bool prepForTexSampling = false);
 
     /**
      * Helper for the case of a single level.
      */
     bool writePixels(GrSurface* surface, int left, int top, int width, int height,
                      GrColorType surfaceColorType, GrColorType srcColorType, const void* buffer,
-                     size_t rowBytes) {
+                     size_t rowBytes, bool prepForTexSampling = false) {
         GrMipLevel mipLevel = {buffer, rowBytes};
         return this->writePixels(surface, left, top, width, height, surfaceColorType, srcColorType,
-                                 &mipLevel, 1);
+                                 &mipLevel, 1, prepForTexSampling);
     }
 
     /**
@@ -315,7 +322,8 @@ public:
     virtual GrOpsRenderPass* getOpsRenderPass(
             GrRenderTarget* renderTarget, GrSurfaceOrigin, const SkRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo&,
-            const GrOpsRenderPass::StencilLoadAndStoreInfo&) = 0;
+            const GrOpsRenderPass::StencilLoadAndStoreInfo&,
+            const SkTArray<GrTextureProxy*, true>& sampledProxies) = 0;
 
     // Called by GrDrawingManager when flushing.
     // Provides a hook for post-flush actions (e.g. Vulkan command buffer submits). This will also
@@ -573,7 +581,8 @@ private:
     // overridden by backend-specific derived class to perform the surface write
     virtual bool onWritePixels(GrSurface*, int left, int top, int width, int height,
                                GrColorType surfaceColorType, GrColorType srcColorType,
-                               const GrMipLevel texels[], int mipLevelCount) = 0;
+                               const GrMipLevel texels[], int mipLevelCount,
+                               bool prepForTexSampling) = 0;
 
     // overridden by backend-specific derived class to perform the texture transfer
     virtual bool onTransferPixelsTo(GrTexture*, int left, int top, int width, int height,

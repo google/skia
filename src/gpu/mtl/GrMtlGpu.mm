@@ -152,7 +152,8 @@ void GrMtlGpu::destroyResources() {
 GrOpsRenderPass* GrMtlGpu::getOpsRenderPass(
             GrRenderTarget* renderTarget, GrSurfaceOrigin origin, const SkRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
-            const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo) {
+            const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
+            const SkTArray<GrTextureProxy*, true>& sampledProxies) {
     return new GrMtlOpsRenderPass(this, renderTarget, origin, colorInfo, stencilInfo);
 }
 
@@ -948,7 +949,8 @@ bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcR
 
 bool GrMtlGpu::onWritePixels(GrSurface* surface, int left, int top, int width, int height,
                              GrColorType surfaceColorType, GrColorType srcColorType,
-                             const GrMipLevel texels[], int mipLevelCount) {
+                             const GrMipLevel texels[], int mipLevelCount,
+                             bool prepForTexSampling) {
     GrMtlTexture* mtlTexture = static_cast<GrMtlTexture*>(surface->asTexture());
     // TODO: In principle we should be able to support pure rendertargets as well, but
     // until we find a use case we'll only support texture rendertargets.

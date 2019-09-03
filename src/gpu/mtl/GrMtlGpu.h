@@ -81,9 +81,11 @@ public:
     bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                        const SkIPoint& dstPoint) override;
 
-    GrOpsRenderPass* getOpsRenderPass(GrRenderTarget*, GrSurfaceOrigin, const SkRect& bounds,
-                                      const GrOpsRenderPass::LoadAndStoreInfo&,
-                                      const GrOpsRenderPass::StencilLoadAndStoreInfo&) override;
+    GrOpsRenderPass* getOpsRenderPass(
+            GrRenderTarget*, GrSurfaceOrigin, const SkRect& bounds,
+            const GrOpsRenderPass::LoadAndStoreInfo&,
+            const GrOpsRenderPass::StencilLoadAndStoreInfo&,
+            const SkTArray<GrTextureProxy*, true>& sampledProxies) override;
 
     SkSL::Compiler* shaderCompiler() const { return fCompiler.get(); }
 
@@ -168,7 +170,8 @@ private:
 
     bool onWritePixels(GrSurface*, int left, int top, int width, int height,
                        GrColorType surfaceColorType, GrColorType bufferColorType,
-                       const GrMipLevel[], int mipLevelCount) override;
+                       const GrMipLevel[], int mipLevelCount,
+                       bool prepForTexSampling) override;
 
     bool onTransferPixelsTo(GrTexture*, int left, int top, int width, int height,
                             GrColorType textureColorType, GrColorType bufferColorType, GrGpuBuffer*,
