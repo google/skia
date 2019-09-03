@@ -106,6 +106,7 @@ var CanvasKit = {
 		concat: function() {},
 		drawArc: function() {},
 		drawCircle: function() {},
+		drawDRRect:  function() {},
 		drawImage: function() {},
 		drawImageRect: function() {},
 		drawLine: function() {},
@@ -113,14 +114,15 @@ var CanvasKit = {
 		drawPaint: function() {},
 		drawPath: function() {},
 		drawPicture: function() {},
+		drawRRect:  function() {},
 		drawRect: function() {},
 		drawRoundRect: function() {},
 		drawShadow: function() {},
 		drawText: function() {},
-		getSaveCount: function() {},
 		drawTextBlob: function() {},
 		drawVertices: function() {},
 		flush: function() {},
+		getSaveCount: function() {},
 		getTotalMatrix: function() {},
 		makeSurface: function() {},
 		restore: function() {},
@@ -279,6 +281,12 @@ var CanvasKit = {
 		fTop: {},
 		fRight: {},
 		fBottom: {},
+	},
+
+	SkRRect: {
+		rect: {},
+		rx: {},
+		ry: {},
 	},
 
 	SkSurface: {

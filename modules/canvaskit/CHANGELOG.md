@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - `SkCanvas.drawCircle()`, `SkCanvas.getSaveCount()`
  - `SkPath.offset()`, `SkPath.drawOval`
+ - `SkRRect` support (`SkCanvas.drawRRect`, `SkCanvas.drawDRRect`)
 
 ### Changed
  - `MakeSkVertices` uses a builder to save a copy.

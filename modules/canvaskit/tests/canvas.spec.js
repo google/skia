@@ -162,4 +162,99 @@ describe('CanvasKit\'s Canvas Behavior', function() {
         }));
     });
 
+    it('draws rrects', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const path = starPath(CanvasKit);
+
+            const paint = new CanvasKit.SkPaint();
+
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
+            paint.setStrokeWidth(3.0);
+            paint.setAntiAlias(true);
+            paint.setColor(CanvasKit.BLACK);
+
+            canvas.clear(CanvasKit.WHITE);
+
+            canvas.drawRRect({
+                rect: CanvasKit.LTRBRect(10, 10, 50, 50),
+                rx: 5,
+                ry: 10,
+            }, paint);
+
+            canvas.drawRRect({
+                rect: CanvasKit.LTRBRect(60, 10, 110, 50),
+                rx: 10,
+                ry: 5,
+            }, paint);
+
+            canvas.drawRRect({
+                rect: CanvasKit.LTRBRect(10, 60, 210, 260),
+                rx: 0,
+                ry: 30,
+            }, paint);
+
+            canvas.drawRRect({
+                rect: CanvasKit.LTRBRect(50, 90, 160, 210),
+                rx: 30,
+                ry: 30,
+            }, paint);
+
+            surface.flush();
+            path.delete();
+            paint.delete();
+
+            reportSurface(surface, 'rrect_canvas', done);
+        }));
+    });
+
+    it('draws between two rrects', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const path = starPath(CanvasKit);
+
+            const paint = new CanvasKit.SkPaint();
+
+            paint.setStyle(CanvasKit.PaintStyle.Fill);
+            paint.setStrokeWidth(3.0);
+            paint.setAntiAlias(true);
+            paint.setColor(CanvasKit.BLACK);
+
+            canvas.clear(CanvasKit.WHITE);
+
+
+            const outer = {
+                rect: CanvasKit.LTRBRect(10, 60, 210, 260),
+                rx: 10,
+                ry: 5,
+            };
+
+            const inner = {
+                rect: CanvasKit.LTRBRect(50, 90, 160, 210),
+                rx: 30,
+                ry: 30,
+            };
+
+            canvas.drawDRRect(outer, inner, paint);
+
+            surface.flush();
+            path.delete();
+            paint.delete();
+
+            reportSurface(surface, 'drawDRRect_canvas', done);
+        }));
+    });
+
 });
