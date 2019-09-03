@@ -1441,6 +1441,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
 
         bool supportsBGRAColorType = GR_IS_GR_GL(standard) &&
                 (version >= GR_GL_VER(1, 2) || ctxInfo.hasExtension("GL_EXT_bgra"));
+
         info.fColorTypeInfoCount = supportsBGRAColorType ? 3 : 2;
         info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
         int ctIdx = 0;
