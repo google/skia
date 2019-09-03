@@ -8,6 +8,7 @@
 #ifndef SkStrikeCache_DEFINED
 #define SkStrikeCache_DEFINED
 
+#include <thread>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -161,6 +162,8 @@ private:
     int32_t            fCacheCountLimit{SK_DEFAULT_FONT_CACHE_COUNT_LIMIT};
     int32_t            fCacheCount{0};
     int32_t            fPointSizeLimit{SK_DEFAULT_FONT_CACHE_POINT_SIZE_LIMIT};
+
+    std::unordered_map<uint32_t, SkStrike*> fThreadMap;
 };
 
 using SkExclusiveStrikePtr = SkStrikeCache::ExclusiveStrikePtr;
