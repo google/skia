@@ -103,7 +103,7 @@ public:
 
     bool isFullyLazy() const {
         bool result = fHeight <= 0;
-        SkASSERT(result == fWidth <= 0);
+        SkASSERT(result == (fWidth <= 0));
         SkASSERT(!result || this->isLazy());
         return result;
     }
