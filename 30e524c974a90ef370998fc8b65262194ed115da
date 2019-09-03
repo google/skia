@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "64a5089b_0a3c0e57",
+        "filename": "src/gpu/dawn/GrDawnStagingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-03T14:22:45Z",
+      "side": 1,
+      "message": "we have a GrNextPow2 function if that\u0027s all you need here.",
+      "range": {
+        "startLine": 21,
+        "startChar": 3,
+        "endLine": 24,
+        "endChar": 5
+      },
+      "revId": "30e524c974a90ef370998fc8b65262194ed115da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "966a511e_8ed68054",
+        "filename": "src/gpu/dawn/GrDawnStagingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-03T14:22:45Z",
+      "side": 1,
+      "message": "are you expecting this callback to be thread safe at all?",
+      "range": {
+        "startLine": 49,
+        "startChar": 25,
+        "endLine": 49,
+        "endChar": 39
+      },
+      "revId": "30e524c974a90ef370998fc8b65262194ed115da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36d55031_084a6030",
+        "filename": "src/gpu/dawn/GrDawnStagingManager.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-03T14:22:45Z",
+      "side": 1,
+      "message": "nit: align these with fManager",
+      "range": {
+        "startLine": 44,
+        "startChar": 26,
+        "endLine": 46,
+        "endChar": 29
+      },
+      "revId": "30e524c974a90ef370998fc8b65262194ed115da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
