@@ -39,6 +39,7 @@ HashAndEncode::HashAndEncode(const SkBitmap& bitmap) : fSize(bitmap.info().dimen
                                         srcAlpha = skcms_AlphaFormat_Opaque;       break;
         case kRGB_101010x_SkColorType:  srcFmt = skcms_PixelFormat_RGBA_1010102;
                                         srcAlpha = skcms_AlphaFormat_Opaque;       break;
+        case kRG_88_SkColorType:        return;
     }
 
     skcms_ICCProfile srcProfile = *skcms_sRGB_profile();

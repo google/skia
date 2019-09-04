@@ -257,6 +257,8 @@ GrPixelConfig SkColorType2GrPixelConfig(const SkColorType type) {
             return kRGBA_half_GrPixelConfig;
         case kRGBA_F32_SkColorType:
             return kRGBA_float_GrPixelConfig;
+        case kRG_88_SkColorType:
+            return kRG_88_GrPixelConfig;
     }
     SkASSERT(0);    // shouldn't get here
     return kUnknown_GrPixelConfig;

@@ -47,7 +47,7 @@ void test_wrapping(GrContext* context, skiatest::Reporter* reporter,
         return;
     }
 
-    if (GrRenderable::kYes == renderable) {
+    if (GrRenderable::kYes == renderable && context->colorTypeSupportedAsSurface(skColorType)) {
         sk_sp<SkSurface> surf = SkSurface::MakeFromBackendTexture(context,
                                                                   backendTex,
                                                                   kTopLeft_GrSurfaceOrigin,
@@ -176,7 +176,7 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
     SkAssertResult(actual.tryAlloc(ii));
     actual.erase(SkColors::kTransparent);
 
-    if (GrRenderable::kYes == renderable) {
+    if (GrRenderable::kYes == renderable && context->colorTypeSupportedAsSurface(skColorType)) {
         sk_sp<SkSurface> surf = SkSurface::MakeFromBackendTexture(context,
                                                                   backendTex,
                                                                   kTopLeft_GrSurfaceOrigin,
@@ -426,6 +426,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
         { kRGBA_F16Norm_SkColorType, kRGBA_half_Clamped_GrPixelConfig, SkColors::kLtGray   },
         { kRGBA_F16_SkColorType,     kRGBA_half_GrPixelConfig,         SkColors::kYellow   },
         { kRGBA_F32_SkColorType,     kRGBA_float_GrPixelConfig,        SkColors::kGray     },
+        { kRG_88_SkColorType,        kRG_88_GrPixelConfig,             SkColors::kRed      },
     };
 
     GR_STATIC_ASSERT(kLastEnum_SkColorType == SK_ARRAY_COUNT(combinations));
@@ -571,7 +572,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
         { GrColorType::kRGBA_F16_Clamped, GR_GL_RGBA16F,              SkColors::kLtGray    },
         { GrColorType::kRGBA_F16,         GR_GL_RGBA16F,              SkColors::kYellow    },
 
-        { GrColorType::kRG_88,            GR_GL_RG8,                  { 0.5f, 0.5f, 0, 0 } },
+        { GrColorType::kRG_88,            GR_GL_RG8,                  { 1, 0.5f, 0, 1 }    },
         { GrColorType::kAlpha_F16,        GR_GL_R16F,                 { 1.0f, 0, 0, 0.5f } },
         { GrColorType::kAlpha_F16,        GR_GL_LUMINANCE16F,         kGrayCol             },
 
@@ -707,7 +708,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
         { GrColorType::kRGBA_F16,         VK_FORMAT_R16G16B16A16_SFLOAT,      SkColors::kYellow   },
 
         // These backend formats don't have SkColorType equivalents
-        { GrColorType::kRG_88,            VK_FORMAT_R8G8_UNORM,               { 0.5f, 0.5f, 0, 0 }},
+        { GrColorType::kRG_88,            VK_FORMAT_R8G8_UNORM,               { 1, 0.5f, 0, 1 }   },
         { GrColorType::kAlpha_F16,        VK_FORMAT_R16_SFLOAT,               { 1.0f, 0, 0, 0.5f }},
 
         { GrColorType::kR_16,             VK_FORMAT_R16_UNORM,                SkColors::kRed      },

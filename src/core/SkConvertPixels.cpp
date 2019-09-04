@@ -86,6 +86,7 @@ static bool convert_to_alpha8(const SkImageInfo& dstInfo,       void* vdst, size
 
         case kGray_8_SkColorType:
         case kRGB_565_SkColorType:
+        case kRG_88_SkColorType:
         case kRGB_888x_SkColorType:
         case kRGB_101010x_SkColorType: {
             for (int y = 0; y < srcInfo.height(); ++y) {

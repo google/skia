@@ -178,20 +178,9 @@ DEF_TEST(Bitmap_eraseColor_Premul, r) {
 
 // Test that SkBitmap::ComputeOpaque() is correct for various colortypes.
 DEF_TEST(Bitmap_compute_is_opaque, r) {
-    SkColorType colorTypes[] = {
-        kAlpha_8_SkColorType,
-        kRGB_565_SkColorType,
-        kARGB_4444_SkColorType,
-        kRGBA_8888_SkColorType,
-        kRGB_888x_SkColorType,
-        kBGRA_8888_SkColorType,
-        kRGBA_1010102_SkColorType,
-        kRGB_101010x_SkColorType,
-        kGray_8_SkColorType,
-        kRGBA_F16_SkColorType,
-        kRGBA_F32_SkColorType,
-    };
-    for (auto ct : colorTypes) {
+
+    for (int i = 1; i <= kLastEnum_SkColorType; ++i) {
+        SkColorType ct = (SkColorType) i;
         SkBitmap bm;
         SkAlphaType at = SkColorTypeIsAlwaysOpaque(ct) ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
         bm.allocPixels(SkImageInfo::Make(13, 17, ct, at));
@@ -342,6 +331,7 @@ DEF_TEST(getalphaf, reporter) {
     } recs[] = {
         { kRGB_565_SkColorType,     opaque },
         { kGray_8_SkColorType,      opaque },
+        { kRG_88_SkColorType,       opaque },
         { kRGB_888x_SkColorType,    opaque },
         { kRGB_101010x_SkColorType, opaque },
 

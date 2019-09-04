@@ -203,7 +203,7 @@ static bool fill_buffer_with_color(GrPixelConfig config, int width, int height,
             break;
         }
         case kRG_88_GrPixelConfig: {
-            uint16_t rg88 = (r << 8) | g;
+            uint16_t rg88 = (g << 8) | r;
 
             sk_memset16((uint16_t*) dest, rg88, width * height);
             break;

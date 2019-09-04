@@ -100,6 +100,7 @@ float SkPixmap::getAlphaf(int x, int y) const {
         case kUnknown_SkColorType:
             return 0;
         case kGray_8_SkColorType:
+        case kRG_88_SkColorType:
         case kRGB_565_SkColorType:
         case kRGB_888x_SkColorType:
         case kRGB_101010x_SkColorType:
@@ -266,6 +267,12 @@ SkColor SkPixmap::getColor(int x, int y) const {
             SkPMColor c = SkPixel4444ToPixel32(value);
             return toColor(c);
         }
+        case kRG_88_SkColorType: {
+            uint16_t value = *this->addr16(x, y);
+            return (uint32_t)( ((value >>  0) & 0xff) ) << 16
+                 | (uint32_t)( ((value >>  8) & 0xff) ) <<  8
+                 | 0xff000000;
+        }
         case kRGB_888x_SkColorType: {
             uint32_t value = *this->addr32(x, y);
             return SkSwizzle_RB(value | 0xff000000);
@@ -359,6 +366,7 @@ bool SkPixmap::computeIsOpaque() const {
         } break;
         case kRGB_565_SkColorType:
         case kGray_8_SkColorType:
+        case kRG_88_SkColorType:
         case kRGB_888x_SkColorType:
         case kRGB_101010x_SkColorType:
             return true;

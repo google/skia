@@ -90,3 +90,7 @@ Milestone 78
   * Changed GrContextOptions' fDisallowGLSLBinaryCaching to fShaderCacheStrategy,
     and allow caching SkSL.
     https://review.skia.org/238856
+
+  * Added kRG_88_SkColorType. This is intended to help support YUV uses case (e.g., NV12).
+    As such, it the addition is focused on allowing creation of SkPixmaps and SkImages and not
+    SkSurfaces (i.e., who wants to render to RG?)

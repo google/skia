@@ -523,7 +523,7 @@ static void extract_planes(const SkBitmap& bm, SkYUVColorSpace yuvColorSpace, Pl
     }
 }
 
-// Create a 2x2 downsampled SkBitmap. It is stored in an RGBA texture. It can optionally be
+// Create a 2x2 downsampled SkBitmap. It is stored in an RG texture. It can optionally be
 // uv (i.e., for P016, P010 and NV12) or vu (i.e., NV21).
 static SkBitmap make_quarter_2_channel(const SkBitmap& fullY,
                                        const SkBitmap& quarterU,
@@ -531,10 +531,9 @@ static SkBitmap make_quarter_2_channel(const SkBitmap& fullY,
                                        bool uv) {
     SkBitmap result;
 
-    // There isn't a RG color type. Approx w/ RGBA.
     result.allocPixels(SkImageInfo::Make(fullY.width()/2,
                                          fullY.height()/2,
-                                         kRGBA_8888_SkColorType,
+                                         kRG_88_SkColorType,
                                          kUnpremul_SkAlphaType));
 
     for (int y = 0; y < fullY.height()/2; ++y) {
@@ -543,13 +542,9 @@ static SkBitmap make_quarter_2_channel(const SkBitmap& fullY,
             uint8_t v8 = *quarterV.getAddr8(x, y);
 
             if (uv) {
-                // NOT premul!
-                // U and 0 swapped to match RGBA layout
-                *result.getAddr32(x, y) = SkColorSetARGB(0xFF, 0, v8, u8);
+                *result.getAddr16(x, y) = (v8 << 8) | u8;
             } else {
-                // NOT premul!
-                // V and 0 swapped to match RGBA layout
-                *result.getAddr32(x, y) = SkColorSetARGB(0xFF, 0, u8, v8);
+                *result.getAddr16(x, y) = (u8 << 8) | v8;
             }
         }
     }
@@ -698,6 +693,24 @@ static uint8_t look_up(float x1, float y1, const SkBitmap& bm, SkColorChannel ch
     if (kAlpha_8_SkColorType == bm.colorType() || kGray_8_SkColorType == bm.colorType()) {
         SkASSERT(SkColorChannel::kA == channel || SkColorChannel::kR == channel);
         result = *bm.getAddr8(x, y);
+    } else if (kRG_88_SkColorType == bm.colorType()) {
+        SkASSERT(SkColorChannel::kR == channel || SkColorChannel::kG == channel);
+        SkColor c = bm.getColor(x, y);
+
+        switch (channel) {
+            case SkColorChannel::kR:
+                result = SkColorGetR(c);
+                break;
+            case SkColorChannel::kG:
+                result = SkColorGetG(c);
+                break;
+            case SkColorChannel::kB:
+                result = 0;
+                break;
+            case SkColorChannel::kA:
+                result = 255;
+                break;
+        }
     } else if (kRGBA_8888_SkColorType == bm.colorType()) {
         SkColor c = *bm.getAddr32(x, y);
 
@@ -918,36 +931,12 @@ static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
     canvas->drawString(rowLabel, 0, y, font, paint);
 }
 
-static void make_RG_88(const GrCaps* caps,
-                       const SkBitmap& bm, YUVFormat yuvFormat,
-                       SkAutoTMalloc<uint8_t>* pixels,
-                       GrBackendFormat* format, size_t* rowBytes) {
-    SkASSERT(kNV12_YUVFormat == yuvFormat || kNV21_YUVFormat == yuvFormat);
-    SkASSERT(kRGBA_8888_SkColorType == bm.colorType());     // uv stored in rg
-
-    *rowBytes = bm.width() * 2 * sizeof(uint8_t);
-    pixels->reset(*rowBytes * bm.height());
-    uint8_t* currPixel = pixels->get();
-    for (int y = 0; y < bm.height(); ++y) {
-        for (int x = 0; x < bm.width(); ++x) {
-            SkColor color = bm.getColor(x, y);
-            uint8_t u8 = SkColorGetR(color);
-            uint8_t v8 = SkColorGetG(color);
-
-            currPixel[0] = u8;
-            currPixel[1] = v8;
-            currPixel += 2;
-        }
-    }
-    *format = caps->getDefaultBackendFormat(GrColorType::kRG_88, GrRenderable::kNo);
-}
-
 static void make_RG_1616(const GrCaps* caps,
                          const SkBitmap& bm, YUVFormat yuvFormat,
                          SkAutoTMalloc<uint8_t>* pixels,
                          GrBackendFormat* format, size_t* rowBytes) {
     SkASSERT(kP016_YUVFormat == yuvFormat || kP010_YUVFormat == yuvFormat);
-    SkASSERT(kRGBA_8888_SkColorType == bm.colorType());     // uv stored in rg
+    SkASSERT(kRG_88_SkColorType == bm.colorType());     // uv stored in rg
 
     uint16_t u16, v16;
     *rowBytes = bm.width() * 2 * sizeof(uint16_t);
@@ -1053,8 +1042,6 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkBitmap& 
         }
     }
 
-    GrBackendTexture tex;
-
     if (format_uses_16_bpp(yuvFormat) || 2 == channelCount) {
         // Due to the limitations of SkPixmap these cases need to be handled separately
         const GrCaps* caps = context->priv().caps();
@@ -1068,7 +1055,10 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkBitmap& 
             if (format_uses_16_bpp(yuvFormat)) {
                 make_RG_1616(caps, bm, yuvFormat, &pixels, &format, &rowBytes);
             } else {
-                make_RG_88(caps, bm, yuvFormat, &pixels, &format, &rowBytes);
+                SkASSERT(kRG_88_SkColorType == bm.colorType());
+
+                return context->priv().createBackendTexture(&bm.pixmap(), 1,
+                                                            GrRenderable::kNo, GrProtected::kNo);
             }
         } else {
             if (kRGBA_8888_SkColorType == bm.colorType()) {
@@ -1078,17 +1068,15 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkBitmap& 
             }
         }
 
-        // TODO: SkColorType needs to be expanded to allow this to be done via the
-        // GrContext::createBackendTexture API
-        tex = gpu->createBackendTexture(bm.width(), bm.height(), format,
-                                        GrMipMapped::kNo, GrRenderable::kNo,
-                                        pixels, rowBytes, nullptr, GrProtected::kNo);
-    } else {
-        tex = context->priv().createBackendTexture(&bm.pixmap(), 1,
-                                                   GrRenderable::kNo, GrProtected::kNo);
+        // TODO: SkColorType needs to be expanded to allow RG_1616, RGBA_16 and R_16 to be done
+        // via GrContext::createBackendTexture
+        return gpu->createBackendTexture(bm.width(), bm.height(), format,
+                                         GrMipMapped::kNo, GrRenderable::kNo,
+                                         pixels, rowBytes, nullptr, GrProtected::kNo);
     }
 
-    return tex;
+    return context->priv().createBackendTexture(&bm.pixmap(), 1,
+                                                GrRenderable::kNo, GrProtected::kNo);
 }
 
 static sk_sp<SkColorFilter> yuv_to_rgb_colorfilter() {

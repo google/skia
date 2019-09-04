@@ -61,6 +61,7 @@ const char* colortype_name(SkColorType ct) {
         case kRGBA_F16Norm_SkColorType: return "RGBA_F16Norm";
         case kRGBA_F16_SkColorType:     return "RGBA_F16";
         case kRGBA_F32_SkColorType:     return "RGBA_F32";
+        case kRG_88_SkColorType:        return "RG_88";
     }
     SkASSERT(false);
     return "unexpected colortype";
@@ -81,6 +82,7 @@ const char* colortype_depth(SkColorType ct) {
         case kRGBA_F16Norm_SkColorType: return "F16Norm";  // TODO: "F16"?
         case kRGBA_F16_SkColorType:     return "F16";
         case kRGBA_F32_SkColorType:     return "F32";
+        case kRG_88_SkColorType:        return "88";
     }
     SkASSERT(false);
     return "unexpected colortype";

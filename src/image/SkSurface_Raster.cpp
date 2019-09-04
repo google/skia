@@ -42,6 +42,10 @@ bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
         return false;
     }
 
+    if (info.colorType() == kRG_88_SkColorType) {
+        return false;
+    }
+
     if (kIgnoreRowBytesValue == rowBytes) {
         return true;
     }
