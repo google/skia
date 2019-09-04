@@ -25,15 +25,20 @@ MaskEffect::~MaskEffect() {
 void MaskEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
     SkAutoCanvasRestore acr(canvas, false);
 
-    canvas->saveLayer(this->bounds(), nullptr);
-    // Note: the paint overrides in ctx don't apply to the mask.
+    SkPaint mask_paint;
+    if (ctx) {
+        // Apply all context overrides on the top mask layer.
+        ctx->modulatePaint(canvas->getTotalMatrix(), &mask_paint);
+    }
+
+    canvas->saveLayer(this->bounds(), &mask_paint);
     fMaskNode->render(canvas);
 
     SkPaint p;
     p.setBlendMode(fMaskMode == Mode::kNormal ? SkBlendMode::kSrcIn : SkBlendMode::kSrcOut);
     canvas->saveLayer(this->bounds(), &p);
 
-    this->INHERITED::onRender(canvas, ctx);
+    this->INHERITED::onRender(canvas, nullptr);
 }
 
 const RenderNode* MaskEffect::onNodeAt(const SkPoint& p) const {
