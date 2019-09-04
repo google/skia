@@ -1983,16 +1983,27 @@ STAGE(store_8888, const SkRasterPipeline_MemoryCtx* ctx) {
 }
 
 STAGE(load_rg88, const SkRasterPipeline_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<const uint16_t>(ctx, dx,dy);
+    auto ptr = ptr_at_xy<const uint16_t>(ctx, dx, dy);
+    from_88(load<U16>(ptr, tail), &r, &g);
     b = 0;
     a = 1;
-    from_88(load<U16>(ptr, tail), &r,&g);
+}
+STAGE(load_rg88_dst, const SkRasterPipeline_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<const uint16_t>(ctx, dx, dy);
+    from_88(load<U16>(ptr, tail), &dr, &dg);
+    db = 0;
+    da = 1;
+}
+STAGE(gather_rg88, const SkRasterPipeline_GatherCtx* ctx) {
+    const uint16_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, r, g);
+    from_88(gather(ptr, ix), &r, &g);
+    b = 0;
+    a = 1;
 }
 STAGE(store_rg88, const SkRasterPipeline_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<uint16_t>(ctx, dx,dy);
-
-    U16 px = pack( to_unorm(r, 255)
-                 | to_unorm(g, 255) <<  8);
+    auto ptr = ptr_at_xy<uint16_t>(ctx, dx, dy);
+    U16 px = pack( to_unorm(r, 255) | to_unorm(g, 255) <<  8 );
     store(ptr, px, tail);
 }
 
@@ -3604,12 +3615,24 @@ SI void store_88_(uint16_t* ptr, size_t tail, U16 r, U16 g) {
 }
 
 STAGE_PP(load_rg88, const SkRasterPipeline_MemoryCtx* ctx) {
+    load_88_(ptr_at_xy<const uint16_t>(ctx, dx, dy), tail, &r, &g);
     b = 0;
     a = 255;
-    load_88_(ptr_at_xy<const uint16_t>(ctx, dx,dy), tail, &r,&g);
+}
+STAGE_PP(load_rg88_dst, const SkRasterPipeline_MemoryCtx* ctx) {
+    load_88_(ptr_at_xy<const uint16_t>(ctx, dx, dy), tail, &dr, &dg);
+    db = 0;
+    da = 255;
 }
 STAGE_PP(store_rg88, const SkRasterPipeline_MemoryCtx* ctx) {
     store_88_(ptr_at_xy<uint16_t>(ctx, dx, dy), tail, r, g);
+}
+STAGE_GP(gather_rg88, const SkRasterPipeline_GatherCtx* ctx) {
+    const uint16_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, x, y);
+    from_88(gather<U16>(ptr, ix), &r, &g);
+    b = 0;
+    a = 255;
 }
 
 // ~~~~~~ 8-bit memory loads and stores ~~~~~~ //
