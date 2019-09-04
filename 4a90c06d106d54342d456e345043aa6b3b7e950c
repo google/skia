@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f53c3bc6_6a1bd1b2",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 754,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-04T18:21:17Z",
+      "side": 1,
+      "message": "Not used, left over?",
+      "range": {
+        "startLine": 747,
+        "startChar": 0,
+        "endLine": 754,
+        "endChar": 9
+      },
+      "revId": "4a90c06d106d54342d456e345043aa6b3b7e950c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c180b4bc_e97c4aaf",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 762,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-04T18:21:17Z",
+      "side": 1,
+      "message": "Not really needed, since we know it was on the line (or it shouldn\u0027t have been added to the line in the constructor).",
+      "range": {
+        "startLine": 756,
+        "startChar": 0,
+        "endLine": 762,
+        "endChar": 9
+      },
+      "revId": "4a90c06d106d54342d456e345043aa6b3b7e950c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
