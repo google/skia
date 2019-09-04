@@ -87,7 +87,7 @@ protected:
         kTargetDirty,
     };
 
-    virtual ExpectedOutcome onMakeClosed(const GrCaps&) = 0;
+    virtual ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect* targetUpdateBounds) = 0;
 
     sk_sp<GrSurfaceProxy> fTarget;
 
