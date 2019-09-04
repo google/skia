@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f6e1131_5c12f59c",
+        "filename": "modules/skparagraph/src/FontCollection.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-04T14:45:11Z",
+      "side": 1,
+      "message": "Is this change really needed? I believe the idea is to prefer the style if there is a tie (multiple faces in the same family have the character). Did this fix something? If so, I\u0027m curious as to what and why.",
+      "range": {
+        "startLine": 137,
+        "startChar": 19,
+        "endLine": 137,
+        "endChar": 32
+      },
+      "revId": "a55322718b551ccd630af299f11d334b7cc41c56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6219bfa_3ebe566a",
+        "filename": "modules/skparagraph/src/FontCollection.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-04T14:45:11Z",
+      "side": 1,
+      "message": "Can remove",
+      "range": {
+        "startLine": 142,
+        "startChar": 0,
+        "endLine": 144,
+        "endChar": 2
+      },
+      "revId": "a55322718b551ccd630af299f11d334b7cc41c56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a99da684_35a27fe4",
+        "filename": "modules/skparagraph/src/FontResolver.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-04T14:45:11Z",
+      "side": 1,
+      "message": "Can remove?",
+      "range": {
+        "startLine": 239,
+        "startChar": 0,
+        "endLine": 240,
+        "endChar": 56
+      },
+      "revId": "a55322718b551ccd630af299f11d334b7cc41c56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89486109_f16f0690",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-04T14:45:11Z",
+      "side": 1,
+      "message": "Can remove, the default constructor for SkString creates an empty.",
+      "range": {
+        "startLine": 505,
+        "startChar": 106,
+        "endLine": 505,
+        "endChar": 108
+      },
+      "revId": "a55322718b551ccd630af299f11d334b7cc41c56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
