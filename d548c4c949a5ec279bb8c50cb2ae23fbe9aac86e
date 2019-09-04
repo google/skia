@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1839a8cc_3f03edd6",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2511,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-04T15:24:40Z",
+      "side": 1,
+      "message": "This all seems correct to me, but I find the variable name and comment confusing. It sounds like it\u0027s relative to some GrSurfaceOrigin, but it\u0027s really just in the texture\u0027s coord system. I\u0027d remove the comment at 2510, call the var resolveRect, and leave the updated comments on 2516 and 2531.",
+      "range": {
+        "startLine": 2511,
+        "startChar": 27,
+        "endLine": 2511,
+        "endChar": 52
+      },
+      "revId": "d548c4c949a5ec279bb8c50cb2ae23fbe9aac86e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
