@@ -325,8 +325,8 @@ public:
 
 private:
     T*      fArray;
-    int     fReserve;
-    int     fCount;
+    int     fReserve;   // size of the allocation in fArray (#elements)
+    int     fCount;     // logical number of elements (fCount <= fReserve)
 
     /**
      *  Adjusts the number of elements in the array.

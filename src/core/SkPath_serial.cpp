@@ -121,7 +121,7 @@ size_t SkPath::writeToMemory(void* storage) const {
     buffer.write32(vbs);
     buffer.write(fPathRef->points(), pts * sizeof(SkPoint));
     buffer.write(fPathRef->conicWeights(), cnx * sizeof(SkScalar));
-    buffer.write(fPathRef->verbsMemBegin(), vbs * sizeof(uint8_t));
+    buffer.write(fPathRef->verbsBegin(), vbs * sizeof(uint8_t));
     buffer.padToAlign4();
 
     SkASSERT(buffer.pos() == size);
