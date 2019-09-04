@@ -22,6 +22,7 @@ PATH_PATTERNS = [
   r'.*\.gn$',
   r'.*\.gni$',
   r'.*\.h$',
+  r'.*\.storyboard$',
 ]
 
 # These paths are always added to the inclusion list. Note that they may not
