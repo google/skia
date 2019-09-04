@@ -504,6 +504,9 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
 void GrOpsTask::setColorLoadOp(GrLoadOp op, const SkPMColor4f& color) {
     fColorLoadOp = op;
     fLoadClearColor = color;
+    if (GrLoadOp::kClear == fColorLoadOp) {
+        fContentBounds.setWH(fTarget->width(), fTarget->height());
+    }
 }
 
 bool GrOpsTask::resetForFullscreenClear(CanDiscardPreviousOps canDiscardPreviousOps) {
@@ -540,6 +543,7 @@ void GrOpsTask::discard() {
     if (this->isEmpty()) {
         fColorLoadOp = GrLoadOp::kDiscard;
         fStencilLoadOp = GrLoadOp::kDiscard;
+        fContentBounds.setEmpty();
     }
 }
 
@@ -719,6 +723,7 @@ void GrOpsTask::recordOp(
         clip = fClipAllocator.make<GrAppliedClip>(std::move(*clip));
         SkDEBUGCODE(fNumClips++;)
     }
+    fContentBounds.join(op->bounds());
     fOpChains.emplace_back(std::move(op), processorAnalysis, clip, dstProxy);
 }
 
