@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "429cc22d_3fd6559d",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 881,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-04T01:01:08Z",
+      "side": 1,
+      "message": "Having a higher level query for disabling SkSurface rendering for a given GrColorType seems like a good idea to me. However, the current system doesn\u0027t prohibit make GrColorTypes that we want to \"render\" to outside of SkSuface. Each backend still stores whether a given backend format is renderable in general (GL has canFormatBeFBOAttachment, Vk has a format renderable flag, etc.). So at least in you are inside some backend specific class they have queries to know what they can do with a format. If we want a function that is backend agnostic code it seems like we just need to add new virtuals and the backends just don\u0027t take the current ColorTypeInfo::kRenderable_Flag into concideration.",
+      "parentUuid": "c6aca8cc_625efcf1",
+      "range": {
+        "startLine": 881,
+        "startChar": 15,
+        "endLine": 881,
+        "endChar": 100
+      },
+      "revId": "79a6bbfb3625922a833ed45d29e8bbd64d0a34a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "82d16922_ab14ac64",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 21
