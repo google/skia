@@ -315,6 +315,8 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info) {
             return transform_scanline_101010x;
         case kAlpha_8_SkColorType:
             return transform_scanline_A8_to_GrayAlpha;
+        case kRG_88_SkColorType:
+            return nullptr;
     }
     SkASSERT(false);
     return nullptr;

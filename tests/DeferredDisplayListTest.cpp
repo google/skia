@@ -144,6 +144,10 @@ public:
     SkSurfaceCharacterization createCharacterization(GrContext* context) const {
         size_t maxResourceBytes = context->getResourceCacheLimit();
 
+        if (!context->colorTypeSupportedAsSurface(fColorType)) {
+            return SkSurfaceCharacterization();
+        }
+
         // Note that Ganesh doesn't make use of the SkImageInfo's alphaType
         SkImageInfo ii = SkImageInfo::Make(fWidth, fHeight, fColorType,
                                            kPremul_SkAlphaType, fColorSpace);
