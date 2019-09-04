@@ -114,7 +114,7 @@ void Window_ios::onInval() {
     sk_app::Window_ios* fWindow;
 }
 
-- (WindowViewController*)initWithWindow:(sk_app::Window_ios *)initWindow {
+- (WindowViewController*)initWithWindow: (sk_app::Window_ios *)initWindow {
     fWindow = initWindow;
 
     return self;
@@ -128,6 +128,10 @@ void Window_ios::onInval() {
     // nothing yet
 }
 
+- (void)viewWillTransitionToSize: (CGSize)size
+       withTransitionCoordinator: (id<UIViewControllerTransitionCoordinator>)coordinator {
+    // handle rotations here
+}
 @end
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -136,13 +140,34 @@ void Window_ios::onInval() {
     sk_app::Window_ios* fWindow;
 }
 
-- (MainView*)initWithWindow:(sk_app::Window_ios *)initWindow {
+- (MainView*)initWithWindow: (sk_app::Window_ios *)initWindow {
     self = [super init];
 
     fWindow = initWindow;
 
     return self;
 }
+
+- (void)touchesBegan: (NSSet<UITouch *> *)touches
+           withEvent: (UIEvent *)event {
+
+}
+
+- (void)touchesMoved: (NSSet<UITouch *> *)touches
+           withEvent: (UIEvent *)event {
+
+}
+
+- (void)touchesEnded: (NSSet<UITouch *> *)touches
+           withEvent: (UIEvent *)event {
+
+}
+
+- (void)touchesCancelled: (NSSet<UITouch *> *)touches
+               withEvent: (UIEvent *)event {
+
+}
+
 
 @end
 
