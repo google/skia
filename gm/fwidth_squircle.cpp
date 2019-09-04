@@ -156,28 +156,30 @@ private:
             const GrCaps&, const GrAppliedClip*, bool hasMixedSampledCoverage, GrClampType) override {
         return GrProcessorSet::EmptySetAnalysis();
     }
-    void onPrepare(GrOpFlushState*) override {}
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         SkPoint vertices[4] = {
             {-1, -1},
             {+1, -1},
             {-1, +1},
             {+1, +1},
         };
-        sk_sp<const GrBuffer> vertexBuffer(flushState->resourceProvider()->createBuffer(
-                sizeof(vertices), GrGpuBufferType::kVertex, kStatic_GrAccessPattern, vertices));
-        if (!vertexBuffer) {
+        fVertexBuffer = flushState->resourceProvider()->createBuffer(
+                sizeof(vertices), GrGpuBufferType::kVertex, kStatic_GrAccessPattern, vertices);
+    }
+    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        if (!fVertexBuffer) {
             return;
         }
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrcOver,
                             flushState->drawOpArgs().fOutputSwizzle);
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setNonIndexedNonInstanced(4);
-        mesh.setVertexData(std::move(vertexBuffer));
+        mesh.setVertexData(std::move(fVertexBuffer));
         flushState->opsRenderPass()->draw(FwidthSquircleTestProcessor(fViewMatrix), pipeline,
                                           nullptr, nullptr, &mesh, 1, SkRect::MakeIWH(100, 100));
     }
 
+    sk_sp<GrBuffer> fVertexBuffer;
     const SkMatrix fViewMatrix;
 
     friend class ::GrOpMemoryPool; // for ctor
