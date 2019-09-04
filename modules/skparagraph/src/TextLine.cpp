@@ -566,6 +566,10 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
     std::tie(found, startIndex, endIndex) = run->findLimitingClusters(textRange);
     if (!found) {
         SkASSERT(textRange.empty());
+        result.pos = 0;
+        result.size = run->size();
+        result.clippingNeeded = false;
+        result.fTextShift = 0;
         result.clip = SkRect::MakeEmpty();
         return result;
     }
@@ -598,7 +602,6 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
     auto leftCorrection = start->sizeToChar(textRange.start);
     auto rightCorrection = end->sizeFromChar(textRange.end - 1);
     result.clip.fLeft += leftCorrection;
-    result.fTextShift -= leftCorrection;
     result.clip.fRight -= rightCorrection;
     result.clippingNeeded = leftCorrection != 0 || rightCorrection != 0;
 
