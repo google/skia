@@ -104,7 +104,7 @@ public:
     void setClippedBounds(const SkRect& clippedBounds) {
         fBounds = clippedBounds;
         // The clipped bounds already incorporate any effect of the bounds flags.
-        fBoundsFlags = 0;
+        fBoundsFlags = kIntersectedWithClip_BoundsFlag;
     }
 
     bool hasAABloat() const {
@@ -115,6 +115,10 @@ public:
     bool hasZeroArea() const {
         SkASSERT(fBoundsFlags != kUninitialized_BoundsFlag);
         return SkToBool(fBoundsFlags & kZeroArea_BoundsFlag);
+    }
+
+    bool areBoundsIntersectedWithClip() const {
+        return SkToBool(fBoundsFlags & kIntersectedWithClip_BoundsFlag);
     }
 
 #ifdef SK_DEBUG
@@ -299,7 +303,7 @@ private:
     void setBoundsFlags(HasAABloat aabloat, IsZeroArea zeroArea) {
         fBoundsFlags = 0;
         fBoundsFlags |= (HasAABloat::kYes == aabloat) ? kAABloat_BoundsFlag : 0;
-        fBoundsFlags |= (IsZeroArea ::kYes == zeroArea) ? kZeroArea_BoundsFlag : 0;
+        fBoundsFlags |= (IsZeroArea::kYes == zeroArea) ? kZeroArea_BoundsFlag : 0;
     }
 
     enum {
@@ -307,9 +311,10 @@ private:
     };
 
     enum BoundsFlags {
-        kAABloat_BoundsFlag                     = 0x1,
-        kZeroArea_BoundsFlag                    = 0x2,
-        SkDEBUGCODE(kUninitialized_BoundsFlag   = 0x4)
+        kAABloat_BoundsFlag                    = 0x1,
+        kZeroArea_BoundsFlag                   = 0x2,
+        kIntersectedWithClip_BoundsFlag        = 0x4,
+        SkDEBUGCODE(kUninitialized_BoundsFlag  = 0x8)
     };
 
     std::unique_ptr<GrOp>               fNextInChain;
