@@ -21,7 +21,6 @@
       '../../experimental/Networking/SkSockets.h',
       '../../experimental/c-api-example/skia-c-example.c',
       '../../experimental/ffmpeg',
-      '../../experimental/minimal_ios_mtl_skia_app/BUILD.gn',
       '../../experimental/svg/model',
       '../../experimental/tools/coreGraphicsPdf2png.cpp',
       '../../experimental/wasm-skp-debugger/debugger_bindings.cpp',
