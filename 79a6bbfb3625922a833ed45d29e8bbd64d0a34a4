@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "c6aca8cc_625efcf1",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 881,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-04T00:05:53Z",
+      "side": 1,
+      "message": "I\u0027d like Greg\u0027s take on this but my thought is that GrCaps subclasses should generally report what is possible internally and disables for color types used in public types (Image, Surface, Bitmap, Pixmap) should happen at a higher level. Maybe we need some cross-backend color type or imageinfo support checking that is further filtered by GrCaps for particular contexts/devices.\n\nI think disallowing renderability across the board might force us out of fast paths for tasks unrelated to clients making a SkSurface, e.g. rendering to gen mip maps, rescales, ... I\u0027m not making a hard claim about any of these in particular, just the general idea that we can render for internal reasons unrelated to client \"renderability\" and it might be useful to separate these conceptually.\n\nCC Greg",
+      "range": {
+        "startLine": 881,
+        "startChar": 15,
+        "endLine": 881,
+        "endChar": 100
+      },
+      "revId": "79a6bbfb3625922a833ed45d29e8bbd64d0a34a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "82d16922_ab14ac64",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 21
