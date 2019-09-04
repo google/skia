@@ -63,6 +63,30 @@
       "revId": "a128ca962c56276f33477de17ac610ecf534e67f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de61223a_bc31ba19",
+        "filename": "src/gpu/vk/GrVkOpsRenderPass.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-04T22:43:36Z",
+      "side": 1,
+      "message": "So most ops clip to the proxy bounds, but for clears that are suppose to go outside of the proxy bounds (used for blurs that may sample outside the proxy bounds of an approx surface), we have a special absClear which makes sure we don\u0027t do that clip.",
+      "parentUuid": "9d26105d_be11fee2",
+      "range": {
+        "startLine": 204,
+        "startChar": 3,
+        "endLine": 204,
+        "endChar": 78
+      },
+      "revId": "a128ca962c56276f33477de17ac610ecf534e67f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
