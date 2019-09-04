@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "412705ff_1174ac1f",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-04T18:12:31Z",
+      "side": 1,
+      "message": "If we are going to do this can we also add Gray_8 as well for consistency? I believe it is the only other color type we disable rendering on regardless of backend format (it doesn\u0027t set the kRenderable flag in GrCaps).\n\nThough it is different in that we are disabling rendering in all cases for Gray_8. If my reading of this is right we still want to support GrRTContexts for RG and just disable surface.\n\nThis comment shouldn\u0027t block anything, just trying to get a discussion on how we want to use the renderable flag in GrCaps vs this check.",
+      "range": {
+        "startLine": 250,
+        "startChar": 7,
+        "endLine": 250,
+        "endChar": 46
+      },
+      "revId": "50297a4a0333016c652750daa6aff3b1512d8bd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
