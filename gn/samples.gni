@@ -21,6 +21,7 @@ samples_sources = [
   "$_samplecode/SampleAnimBlur.cpp",
   "$_samplecode/SampleArc.cpp",
   "$_samplecode/SampleAtlas.cpp",
+  "$_samplecode/SampleBackdropBounds.cpp",
   "$_samplecode/SampleBitmapRect.cpp",
   "$_samplecode/SampleCCPRGeometry.cpp",
   "$_samplecode/SampleCamera.cpp",
