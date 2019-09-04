@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "fa76ad41_baa3ca73",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 881,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-04T12:59:17Z",
+      "side": 1,
+      "message": "Right, but could you make a GrRenderTargetContext with the backend format + color type if this flag was not set? That seems like a useful thing to be able to do internally (e.g. to issue a draw for some read/write pixels conversion) that is separable from whether we want to allow SkSurfaces with a color type.",
+      "parentUuid": "429cc22d_3fd6559d",
+      "range": {
+        "startLine": 881,
+        "startChar": 15,
+        "endLine": 881,
+        "endChar": 100
+      },
+      "revId": "79a6bbfb3625922a833ed45d29e8bbd64d0a34a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "82d16922_ab14ac64",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 21
