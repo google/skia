@@ -91,6 +91,75 @@
       "revId": "a55322718b551ccd630af299f11d334b7cc41c56",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33a53aaf_0bce68d9",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-04T14:56:46Z",
+      "side": 1,
+      "message": "Remove? (If this is really helpful, might want to wrap in an \u0027if (false) {\u0027 so that it keeps compiling but gets optimized out.)",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 2
+      },
+      "revId": "a55322718b551ccd630af299f11d334b7cc41c56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5cc9ef81_2bd209cf",
+        "filename": "samplecode/SampleParagraph.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1347,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-04T14:56:46Z",
+      "side": 1,
+      "message": "Any reason to keep this commented out?",
+      "range": {
+        "startLine": 1347,
+        "startChar": 0,
+        "endLine": 1347,
+        "endChar": 2
+      },
+      "revId": "a55322718b551ccd630af299f11d334b7cc41c56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca6a3d27_881ed94f",
+        "filename": "tests/SkParagraphTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1986,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-04T14:56:46Z",
+      "side": 1,
+      "message": "It isn\u0027t clear why this is commented out. The first block below is very similar to the block above, and the second block below is just commented out (here and in the next diff in this file).",
+      "range": {
+        "startLine": 1986,
+        "startChar": 0,
+        "endLine": 1986,
+        "endChar": 2
+      },
+      "revId": "a55322718b551ccd630af299f11d334b7cc41c56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
