@@ -7,6 +7,11 @@ if (!defined(is_skia_standalone)) {
 }
 is_skia_dev_build = is_skia_standalone && !is_official_build
 
+if (is_fuchsia) {
+  import("//build/fuchsia/sdk.gni")
+  import("//build/vulkan/config.gni")
+}
+
 declare_args() {
   skia_android_serial = ""
   skia_compile_processors = false
