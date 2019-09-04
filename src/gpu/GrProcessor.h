@@ -47,8 +47,8 @@ public:
     size_t size() const { return sizeof(uint32_t) * fCount; }
 
 private:
-    SkTArray<uint8_t, true>* fData; // unowned ptr to the larger key.
-    int fCount;                     // number of uint32_ts added to fData by the processor.
+    SkTArray<uint8_t, true>* fData;  // unowned ptr to the larger key.
+    int fCount;                      // number of uint32_ts added to fData by the processor.
 };
 
 /** Provides custom shader code to the Ganesh shading pipeline. GrProcessor objects *must* be
@@ -177,6 +177,7 @@ public:
         kMappedNormalsFP_ClassID,
         kLightingFP_ClassID,
         kLinearStrokeProcessor_ClassID,
+        kColorFixFilterEffect_ClassID,
     };
 
     virtual ~GrProcessor() = default;
@@ -213,12 +214,8 @@ public:
     void* operator new(size_t size);
     void operator delete(void* target);
 
-    void* operator new(size_t size, void* placement) {
-        return ::operator new(size, placement);
-    }
-    void operator delete(void* target, void* placement) {
-        ::operator delete(target, placement);
-    }
+    void* operator new(size_t size, void* placement) { return ::operator new(size, placement); }
+    void operator delete(void* target, void* placement) { ::operator delete(target, placement); }
 
     /** Helper for down-casting to a GrProcessor subclass */
     template <typename T> const T& cast() const { return *static_cast<const T*>(this); }
