@@ -6,7 +6,6 @@
 import("gn/flutter_defines.gni")
 import("gn/fuchsia_defines.gni")
 import("gn/shared_sources.gni")
-import("gn/skia.gni")
 
 if (is_fuchsia) {
   import("//build/fuchsia/sdk.gni")
@@ -16,6 +15,8 @@ if (is_fuchsia) {
 if (skia_use_dawn) {
   import("third_party/externals/dawn/scripts/dawn_features.gni")
 }
+
+import("gn/skia.gni")
 
 if (defined(skia_settings)) {
   import(skia_settings)
