@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c18b98f7_3eb6adb4",
+        "filename": "modules/skparagraph/src/FontCollection.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-09-04T16:50:59Z",
+      "side": 1,
+      "message": "When I reverse engineered Minikin trying to match their results, this was what I noticed.\nI returned it back, it was correct before.",
+      "parentUuid": "1f6e1131_5c12f59c",
+      "range": {
+        "startLine": 137,
+        "startChar": 19,
+        "endLine": 137,
+        "endChar": 32
+      },
+      "revId": "a55322718b551ccd630af299f11d334b7cc41c56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b6219bfa_3ebe566a",
         "filename": "modules/skparagraph/src/FontCollection.cpp",
         "patchSetId": 17
@@ -45,6 +69,30 @@
       "revId": "a55322718b551ccd630af299f11d334b7cc41c56",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "603bec6d_1ba6e08b",
+        "filename": "modules/skparagraph/src/FontCollection.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-09-04T16:50:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b6219bfa_3ebe566a",
+      "range": {
+        "startLine": 142,
+        "startChar": 0,
+        "endLine": 144,
+        "endChar": 2
+      },
+      "revId": "a55322718b551ccd630af299f11d334b7cc41c56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -94,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "119b10c9_4a85a635",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-09-04T16:50:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "89486109_f16f0690",
+      "range": {
+        "startLine": 505,
+        "startChar": 106,
+        "endLine": 505,
+        "endChar": 108
+      },
+      "revId": "a55322718b551ccd630af299f11d334b7cc41c56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "33a53aaf_0bce68d9",
         "filename": "modules/skparagraph/src/TextLine.cpp",
         "patchSetId": 17
@@ -114,6 +186,30 @@
       "revId": "a55322718b551ccd630af299f11d334b7cc41c56",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff3ce096_2672894b",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-09-04T16:50:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33a53aaf_0bce68d9",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 2
+      },
+      "revId": "a55322718b551ccd630af299f11d334b7cc41c56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -140,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "6fb83f9a_d521e17a",
+        "filename": "samplecode/SampleParagraph.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1347,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-09-04T16:50:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5cc9ef81_2bd209cf",
+      "range": {
+        "startLine": 1347,
+        "startChar": 0,
+        "endLine": 1347,
+        "endChar": 2
+      },
+      "revId": "a55322718b551ccd630af299f11d334b7cc41c56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ca6a3d27_881ed94f",
         "filename": "tests/SkParagraphTest.cpp",
         "patchSetId": 17
@@ -160,6 +280,30 @@
       "revId": "a55322718b551ccd630af299f11d334b7cc41c56",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93f6fe27_9ce05a60",
+        "filename": "tests/SkParagraphTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1986,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-09-04T16:50:59Z",
+      "side": 1,
+      "message": "I made it closer to Flutter. The commented part is what it was before.",
+      "parentUuid": "ca6a3d27_881ed94f",
+      "range": {
+        "startLine": 1986,
+        "startChar": 0,
+        "endLine": 1986,
+        "endChar": 2
+      },
+      "revId": "a55322718b551ccd630af299f11d334b7cc41c56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
