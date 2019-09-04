@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42d96316_411f4799",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-09-04T23:21:47Z",
+      "side": 1,
+      "message": "This was the fix. Our tracking of which strikes on the client were getting incorrect in this case, since we assume |fRemoteStrikesToSend| remain locked after this while we need to assume all strikes are unlocked after writeStrikeData.\n\nThe rest is just git cl format.",
+      "range": {
+        "startLine": 440,
+        "startChar": 8,
+        "endLine": 440,
+        "endChar": 37
+      },
+      "revId": "05d8f50be357b983b02f313ee2f1b9f17f1108b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
