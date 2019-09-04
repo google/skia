@@ -314,6 +314,13 @@ DEF_TEST(SkRemoteGlyphCache_StrikeDeletionServer, reporter) {
     // handles.
     std::vector<uint8_t> fontData;
     server.writeStrikeData(&fontData);
+
+    // Another analysis pass, to ensure that deleting handles after a complete cache hit still
+    // works. This is a regression test for crbug.com/999682.
+    cache_diff_canvas.drawTextBlob(serverBlob.get(), 0, 0, paint);
+    server.writeStrikeData(&fontData);
+    REPORTER_ASSERT(reporter, discardableManager->handleCount() == 1u);
+
     discardableManager->unlockAndDeleteAll();
     cache_diff_canvas.drawTextBlob(serverBlob.get(), 0, 0, paint);
     REPORTER_ASSERT(reporter, discardableManager->handleCount() == 2u);
