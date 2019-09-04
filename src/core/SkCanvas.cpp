@@ -54,6 +54,8 @@
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
 #define RETURN_ON_FALSE(pred)   do { if (!(pred)) return; } while (0)
 
+SK_USE_FLUENT_IMAGE_FILTER_TYPES
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -209,6 +211,8 @@ namespace {
 // Encapsulate state needed to restore from saveBehind()
 struct BackImage {
     sk_sp<SkSpecialImage> fImage;
+    // This is the top left corner of the image, relative to the top level device that the image was
+    // snapped from.
     SkIPoint              fLoc;
 };
 }
@@ -285,8 +289,6 @@ public:
         return false;
     }
 
-    int getX() const { return fDevice->getOrigin().x(); }
-    int getY() const { return fDevice->getOrigin().y(); }
     const SkPaint* getPaint() const { return fPaint; }
 
     SkBaseDevice*   fDevice;
@@ -365,7 +367,6 @@ public:
     // paint. It's used to determine the size of the offscreen layer for filters.
     // If null, the clip will be used instead.
     AutoLayerForImageFilter(SkCanvas* canvas, const SkPaint& origPaint,
-                            bool skipLayerForImageFilter = false,
                             const SkRect* rawBounds = nullptr) {
         fCanvas = canvas;
         fPaint = &origPaint;
@@ -380,7 +381,7 @@ public:
             fPaint = paint;
         }
 
-        if (!skipLayerForImageFilter && fPaint->getImageFilter()) {
+        if (fPaint->getImageFilter()) {
             /**
              *  We implement ImageFilters for a given draw by creating a layer, then applying the
              *  imagefilter to the pixels of that layer (its backing surface/image), and then
@@ -441,25 +442,21 @@ private:
 
 ////////// macros to place around the internal draw calls //////////////////
 
+// FIXME until drawImage and drawBitmap use something other than AutoLayerForImageFilter, probably
+// do have to keep the skip layer thing aroung.
 #define DRAW_BEGIN_DRAWBITMAP(paint, skipLayerForFilter, bounds)    \
     this->predrawNotify();                                          \
     AutoLayerForImageFilter draw(this, paint, skipLayerForFilter, bounds); \
     {   SkDrawIter iter(this);
 
-
-#define DRAW_BEGIN_DRAWDEVICE(paint)                                \
-    this->predrawNotify();                                          \
-    AutoLayerForImageFilter draw(this, paint, true);                \
-    {   SkDrawIter iter(this);
-
 #define DRAW_BEGIN(paint, bounds)                                   \
     this->predrawNotify();                                          \
-    AutoLayerForImageFilter draw(this, paint, false, bounds);       \
+    AutoLayerForImageFilter draw(this, paint, bounds);              \
     {   SkDrawIter iter(this);
 
 #define DRAW_BEGIN_CHECK_COMPLETE_OVERWRITE(paint, bounds, auxOpaque)  \
-    this->predrawNotify(bounds, &paint, auxOpaque);                 \
-    AutoLayerForImageFilter draw(this, paint, false, bounds);       \
+    this->predrawNotify(bounds, &paint, auxOpaque);                    \
+    AutoLayerForImageFilter draw(this, paint, bounds);                 \
     {   SkDrawIter iter(this);
 
 #define DRAW_END    }
@@ -626,7 +623,7 @@ SkIRect SkCanvas::getTopLayerBounds() const {
     if (!d) {
         return SkIRect::MakeEmpty();
     }
-    return SkIRect::MakeXYWH(d->getOrigin().x(), d->getOrigin().y(), d->width(), d->height());
+    return d->getGlobalBounds();
 }
 
 SkBaseDevice* SkCanvas::getDevice() const {
@@ -885,12 +882,34 @@ int SkCanvas::only_axis_aligned_saveBehind(const SkRect* bounds) {
 void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filter,
                                     SkBaseDevice* dst, const SkIPoint& dstOrigin,
                                     const SkMatrix& ctm) {
+    // FIXME this gets trickier/ might just need to redo entirely to fit new patterning
     SkPaint p;
     SkIRect snapBounds = SkIRect::MakeXYWH(dstOrigin.x() - src->getOrigin().x(),
                                            dstOrigin.y() - src->getOrigin().y(),
                                            dst->width(), dst->height());
     int x = 0;
     int y = 0;
+
+    // FIXME can we just do this better? I feel like we can? I just have to avoid the use of
+    // applyCTMForBackdrop and go from there with basically following the draw + filter plan I laid out.
+    // Since that plan had to work even if the layer itself had a different basis, it doesn't really
+    // require that we not have everything split apart.
+
+    //
+    // So, what would we do?
+    //
+    // If no filter, then yeah, just do dst->drawSpecial() with the original snap bounds (which looks correct).
+    //
+    // If there is a filter, then we have to decompose the CTM if there's a mismatch in capabilities.
+    //
+    // So CTM represents the global matrix (possibly munged for a prior filter). So what are the
+    // target bounds that we want to cover? It should be the size of the dst
+    //
+    //  Normally, we need to cover dst's (0,0)xw,h -> I think this is the fastest path, and won't be
+    // too bad a review. I can do it when I'm not so tired, and then I won't need to worry about
+    // difficulties with maintaining ABI compatibility for canvas state.
+    //
+    //
 
     if (filter) {
         // Calculate expanded snap bounds
@@ -951,6 +970,84 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     const SkRect* bounds = rec.fBounds;
     const SkPaint* paint = rec.fPaint;
     SaveLayerFlags saveLayerFlags = rec.fSaveLayerFlags;
+
+    // How save layer should work:
+    // 1. Check to see if there is a forward filter. If so:
+    //    a. look at the CTM of the current device, since this is what could affect the CTM complexity.
+    //      If it doesn't align with filter's support, then decompose the global CTM (at this point we
+    //      can effectively ignore the current device's basis matrix since it didn't help us).
+    //    b. now we have to calculate a layer size for the new layer, based on what the filter needs
+    //      The new layer must be the size of the filter layer bounds (reverse-mapped) needed to
+    //      cover the the clip bounds relative to the new layer space.
+    //    c. So in order to calc b), we need the clip bounds relative to the new layer space, which
+    //      could just be remainder^-1 * globalClipBounds if we have to. It could also be the
+    //      current device's clip bounds mapped to local space, if that is tighter. And if we tracked it,
+    //      it could be the original local-local bounds mapped into the layer space directly.
+    //      - since globalClipBounds is what we use right now, might as well use that for now.
+    //     d. So c) feeds into b) and gives us a pessimistic layer size.  If we know the bounds
+    //      of the content, then map that into the layer space and intersect it with results of b)
+    //      This is the tight layer bounds that we need.
+    //      - what happens if this has negative coordinates? the device itself needs to start locally
+    //        at (0, 0). Should this the top-left corner of the layer bounds be immediately pushed
+    //        into its CTM? That's basically like post-concatenating the origin onto the layer matrix.
+    //        Or should it be part of the remainder matrix? Then it's a pre-translation on that
+    //        matrix -> except we need it to be taken into account when writing into the device, so
+    //        it has to be part of the layer matrix.
+    //
+    // 2. At this point, we should make the device, it needs to be sized to cover d) and have the
+    //    appropriate globalCTM and layer matrix.
+    //
+    // 3. Then we check if the rec has a backdrop filter, or other need for the previous contents.
+    //   a. If we do, then the old top level device has to be drawn into the new device.
+    //   b. InitWithPrev is equivalent to identity backdrop filter
+    //   c. Use the backdrop filter's reverse filter bounds on the layer's bounds to determine what
+    //      it needs in order to cover the layer's pixels (in the identity case, this is just the
+    //      layer's bounds).
+    //   d. Map c) back into the old device's space to get the conservative snap bounds.
+    //   e. Use d) to snap an image from the old device, and draw it into a temporary surface that
+    //      is the size of c) (in the identity case, have an optimization that draws directly into
+    //      the new surface).
+    //   f. When not identity, use the tmp surface's snapSpecial() as the source image into the
+    //      backdrop filter.
+    //   g. Draw the filtered results from f) into the actual new device and clean up the tmp surface
+    //
+    // The new device should then have the backdrop filtered content, and can then drawn into
+    // like any other layer device. Now the complication comes when the backdrop filter doesn't
+    // support the CTM that the new device wants as a layer matrix (e.g. a rotated CTM for a save
+    // layer with no regular filter that forced it to decompose.).  In that case, there's a temp
+    // device that has the same global CTM as the new device, but has been decomposed to support
+    // the backdrop filter. Then g) must re-apply the additional matrices that  go from the tmp
+    // surface to the actual layer space of the new device. So not too complicated, it at least
+    // doesnt add extra steps.
+
+    //
+    // So two thinking points:
+    //  1. decomposing the globalCTM must handle perspective, and push the perspective into the
+    //     remainder matrix, while choosing an appropriate scale to minimize up/down-scaling distortions
+    //     without creating excessive local buffers. When doing 3c, must also be careful not to
+    //     pick excessive bounds.
+    //  2. I am not loving how to handle the negative coordinates calculated for layer bounds. But
+    //     maybe everything actually works out okay that way. Like if I first thought we wanted
+    //     (0,0)x(w,h) and then the filter says you need (-3,-3)x(w+6,h+6) the device is created
+    //     to be (w+6,h+6) size and its layer matrix has a Trans(-3,-3) post concated to it.
+    //     ->Nooo, this is meant to be fixed, that Trans(-3,-3) would have been part of the origin,
+    //       so it actually needs to be built into the remainder matrix.
+    //       - but given how we specify the basis, I think it works out that way?
+    //       - I think we'd need both a post-concat Trans(-origin) on the local matrix so that something
+    //         at logical (-3,-3) in the original layer space went to (0,0). But then the remainder
+    //         matrix needs to take the (0,0) back to origin so that it transforms it appropriately to the globalCTM.
+
+    // On the other hand, if filter bounds with the layer matrix, showed us (-3,-3)x(w+6,h+6)
+    // but we set up a device that was (0,0)x(w+6,h+6) and a matrix that was Trans(-origin)xlayer,
+    // then the equivalent reverse bounds w/ updated layer matrix/target output, will then report
+    // (0,0)x(w+6,h+6) and if we take Trans(-origin)xlayer out of the global CTM, it should actually
+    // automatically put in the preTrans(origin) for us. So I worried, but the only thing that's needed
+    // is to update the decomposed layer matrix to account for the layer bounds origin.
+    //
+    //
+
+    // The current iteration of setBasis doesn't really let us figure out how to insert the origin
+    // modifications. But if we updated setBasis to take the origin of the layer's bounds into account
 
     // If we have a backdrop filter, then we must apply it to the entire layer (clip-bounds)
     // regardless of any hint-rect from the caller. skbug.com/8783
@@ -1089,27 +1186,28 @@ int SkCanvas::saveLayerAlpha(const SkRect* bounds, U8CPU alpha) {
 }
 
 void SkCanvas::internalSaveBehind(const SkRect* localBounds) {
-    SkIRect devBounds;
-    if (localBounds) {
-        SkRect tmp;
-        fMCRec->fMatrix.mapRect(&tmp, *localBounds);
-        if (!devBounds.intersect(tmp.round(), this->getDeviceClipBounds())) {
-            devBounds.setEmpty();
-        }
-    } else {
-        devBounds = this->getDeviceClipBounds();
-    }
-    if (devBounds.isEmpty()) {
-        return;
-    }
-
     SkBaseDevice* device = this->getTopDevice();
     if (nullptr == device) {   // Do we still need this check???
         return;
     }
 
-    // need the bounds relative to the device itself
-    devBounds.offset(-device->fOrigin.fX, -device->fOrigin.fY);
+    // Map the local bounds into the top device's coordinate space (this is not
+    // necessarily the full global CTM transform).
+    SkIRect devBounds;
+    if (localBounds) {
+        SkRect tmp;
+        // The device's CTM maps from local into its space, whereas fMCRec->fMatrix maps all the
+        // way to the root space, which we don't want in this case.
+        device->ctm().mapRect(&tmp, *localBounds);
+        if (!devBounds.intersect(tmp.round(), device->devClipBounds())) {
+            devBounds.setEmpty();
+        }
+    } else {
+        devBounds = device->devClipBounds();
+    }
+    if (devBounds.isEmpty()) {
+        return;
+    }
 
     // This is getting the special image from the current device, which is then drawn into (both by
     // a client, and the drawClippedToSaveBehind below). Since this is not saving a layer, with its
@@ -1153,10 +1251,10 @@ void SkCanvas::internalRestore() {
     if (backImage) {
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kDstOver);
-        const int x = backImage->fLoc.x();
-        const int y = backImage->fLoc.y();
-        this->getTopDevice()->drawSpecial(backImage->fImage.get(), x, y, paint,
-                                          nullptr, SkMatrix::I());
+        // Drawing the back image back into the device it was snapped from, which means the
+        // transform only has to be the translation for the image's top left corner.
+        const SkMatrix originMatrix = SkMatrix::MakeTrans(backImage->fLoc.x(), backImage->fLoc.y());
+        this->getTopDevice()->drawSpecial(backImage->fImage.get(), originMatrix, paint);
     }
 
     /*  Time to draw the layer's offscreen. We can't call the public drawSprite,
@@ -1165,14 +1263,11 @@ void SkCanvas::internalRestore() {
     */
     if (layer) {
         if (fMCRec) {
-            const SkIPoint& origin = layer->fDevice->getOrigin();
             layer->fDevice->setImmutable();
-            this->internalDrawDevice(layer->fDevice.get(), origin.x(), origin.y(),
-                                     layer->fPaint.get(),
+            // At this point, 'layer' has been removed from the device stack, so the devices that
+            // internalDrawDevice sees are the destinations that 'layer' is drawn into.
+            this->internalDrawDevice(layer->fDevice.get(), layer->fPaint.get(),
                                      layer->fClipImage.get(), layer->fClipMatrix);
-            // restore what we smashed in internalSaveLayer
-            this->internalSetMatrix(layer->fStashedMatrix);
-            // reset this, since internalDrawDevice will have set it to true
             delete layer;
         } else {
             // we're at the root
@@ -1250,7 +1345,15 @@ void* SkCanvas::accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoi
         *rowBytes = pmap.rowBytes();
     }
     if (origin) {
-        *origin = this->getTopDevice()->getOrigin();
+        // If the caller requested the origin, they presumably are expecting the returned pixels to
+        // be axis-aligned with the root canvas. If the top level device isn't axis aligned, that's
+        // not the case. Until we update accessTopLayerPixels() to accept a basis matrix instead of
+        // an origin, just don't expose the pixels in that case. Note that this means that
+        // layers with non-simple basis matrices can still report their pixels if the caller does
+        // not ask for the origin (e.g. just to dump its output to a file, etc).
+        if (!this->getTopDevice()->isBasisSimple(origin)) {
+            return nullptr;
+        }
     }
     return pmap.writable_addr();
 }
@@ -1270,36 +1373,61 @@ static void check_drawdevice_colorspaces(SkColorSpace* src, SkColorSpace* dst) {
     SkASSERT(src == dst);
 }
 
-void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y, const SkPaint* paint,
+void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, const SkPaint* paint,
                                   SkImage* clipImage, const SkMatrix& clipMatrix) {
-    SkPaint tmp;
-    if (nullptr == paint) {
-        paint = &tmp;
+    // The paint may need to be modified if it has a filter that must be evaluated; or if the filter
+    // can be converted instead to a color filter (similar to AutoLayerForImageFilter, except this
+    // time the layering was already explicit).
+    SkPaint dflt;
+    SkTCopyOnFirstWrite<SkPaint> finalPaint(paint ? *paint : dflt);
+
+    skif::FilterResult<For::kOutput> srcImage;
+    if (finalPaint->getImageFilter()) {
+        auto cf = image_to_color_filter(*finalPaint);
+        if (cf) {
+            // Remove image filter and change paint's CF to cf (which already has the paint's
+            // composed into it, if that was also non-null). Since the IF is gone, this can use the
+            // srcDev's snapped image directly.
+            srcImage = skif::FilterResult<For::kOutput>(srcDev->snapSpecial(), {0, 0});
+            finalPaint.writable()->setColorFilter(std::move(cf));
+            finalPaint.writable()->setImageFilter(nullptr);
+        } else {
+            // Compute the image filter in the srcDev's coordinate space, and use the resulting
+            // image as the source drawn into each dst device (so also remove the paint's image
+            // filter since it has now been applied).
+            srcImage = srcDev->filterDevice(finalPaint->getImageFilter());
+            finalPaint.writable()->setImageFilter(nullptr);
+        }
+    } else {
+        // No modifications to paint, draw the entire srcDev
+        srcImage = skif::FilterResult<For::kOutput>(srcDev->snapSpecial(), {0, 0});
     }
 
-    DRAW_BEGIN_DRAWDEVICE(*paint)
+    if (!srcImage.image()) {
+        return;
+    }
 
+    // Use SkDrawIter directly, and don't use AutoLayerForImageFilter since this is responsible for
+    // image filters that already have a layer.
+    SkDrawIter iter(this);
     while (iter.next()) {
         SkBaseDevice* dstDev = iter.fDevice;
         check_drawdevice_colorspaces(dstDev->imageInfo().colorSpace(),
                                      srcDev->imageInfo().colorSpace());
-        paint = &draw.paint();
-        SkImageFilter* filter = paint->getImageFilter();
-        SkIPoint pos = { x - iter.getX(), y - iter.getY() };
-        if (filter || clipImage) {
-            sk_sp<SkSpecialImage> specialImage = srcDev->snapSpecial();
-            if (specialImage) {
-                check_drawdevice_colorspaces(dstDev->imageInfo().colorSpace(),
-                                             specialImage->getColorSpace());
-                dstDev->drawSpecial(specialImage.get(), pos.x(), pos.y(), *paint,
-                                    clipImage, clipMatrix);
-            }
-        } else {
-            dstDev->drawDevice(srcDev, pos.x(), pos.y(), *paint);
-        }
-    }
 
-    DRAW_END
+        // Calculate the relative basis transform between the dst device and srcDev. If the dst
+        // device is the root, then this transform will equal the basis matrix of srcDev, otherwise
+        // it will be the transform that maps from srcDev to dst, instead of srcDev to the root.
+        SkMatrix toDst = SkMatrix::Concat(dstDev->getBasisInv(), srcDev->getBasis());
+        // Include any translation of the special image, w/ respect to the src device, which can
+        // result from filters that expand/move pixels into "negative" coordinates.
+        toDst.preTranslate(srcImage.origin().fX, srcImage.origin().fY);
+
+        // This should pass if the src device correctly snapped an image in its color space, and
+        // image filters properly maintained the destination color space.
+        check_drawdevice_colorspaces(dstDev->imageInfo().colorSpace(), srcImage->getColorSpace());
+        dstDev->drawSpecial(srcImage.image(), toDst, *finalPaint, clipImage, clipMatrix);
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2133,9 +2261,22 @@ void SkCanvas::onDrawBehind(const SkPaint& paint) {
         // (i.e. ignores the ctm). However, it is going to first translate by -origin,
         // but we don't want that, so we undo that before calling in.
         SkRegion rgn(bounds.makeOffset(dev->fOrigin.fX, dev->fOrigin.fY));
+        // So translated from above, clipRegion ignores the global CTM, so it's relative to the
+        // root canvas space. Thus device's clipRegion applies (-ox,-oy) to map into device space.
+        // In this case, though, rgn is already in device space so applying (-ox,-oy) is wrong and
+        // that's why we add (ox,oy) to the region first.
+        //
+        // And that means we'd apply toGlobal to it instead of (ox, oy). That's valid and lossless
+        // when just a translation, but causes problems if we have more to the basis. There's no
+        // point to convert the region to a path since the undoing that clipRegion would do would
+        // still give us nice rectangles.
+        //
+        // And realistically, this clipRegion is just a single rectangle that needs to be in device
+        // space. So maybe there's a better way to add such a clip for the device? Like clipDevRect(irect).
+        // and then we just pass in bounds direcly.
         dev->clipRegion(rgn, SkClipOp::kIntersect);
         dev->drawPaint(draw.paint());
-        dev->restore(fMCRec->fMatrix);
+        dev->restore(fMCRec->fMatrix); // Is this the right CTM? Or is this the "global" CTM? It is the global CTM, but restore() then calls setGlobalCTM so it does the right thing.
     }
 
     DRAW_END
@@ -2258,6 +2399,9 @@ bool SkCanvas::canDrawBitmapAsSprite(SkScalar x, SkScalar y, int w, int h, const
         return false;
     }
 
+    // Drawing the bitmap as a sprite really just requires the layer's CTM to be appropriate translation.
+    // I think this passes currently because we munge the global CTM with the filter hacks. But when that
+    // goes away, drawing needs to look at the device's state itself.
     const SkMatrix& ctm = this->getTotalMatrix();
     if (!SkTreatAsSprite(ctm, SkISize::Make(w, h), paint)) {
         return false;
@@ -2324,6 +2468,7 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
         if (special) {
             SkPoint pt;
             iter.fDevice->ctm().mapXY(x, y, &pt);
+            // FIXME temporarily I think this can just be updated to have a translation matrix.
             iter.fDevice->drawSpecial(special.get(),
                                       SkScalarRoundToInt(pt.fX),
                                       SkScalarRoundToInt(pt.fY), pnt,
@@ -2402,6 +2547,7 @@ void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, cons
         if (special) {
             SkPoint pt;
             iter.fDevice->ctm().mapXY(x, y, &pt);
+            // FIXME same as drawImage
             iter.fDevice->drawSpecial(special.get(),
                                       SkScalarRoundToInt(pt.fX),
                                       SkScalarRoundToInt(pt.fY), pnt,
@@ -2907,9 +3053,6 @@ SkIRect SkCanvas::LayerIter::clipBounds() const {
     return fImpl->fDevice->getGlobalBounds();
 }
 
-int SkCanvas::LayerIter::x() const { return fImpl->getX(); }
-int SkCanvas::LayerIter::y() const { return fImpl->getY(); }
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkCanvas::ImageSetEntry::ImageSetEntry() = default;
@@ -2991,6 +3134,11 @@ SkRasterHandleAllocator::Handle SkCanvas::accessTopRasterHandle() const {
         SkRasterHandleAllocator::Handle handle = dev->getRasterHandle();
         SkIPoint origin = dev->getOrigin();
         SkMatrix ctm = this->getTotalMatrix();
+        // FIXME This maps the total matrix into the top device's local layer space, and maps
+        // the global clip bounds into the device space as well. Should be able to do the same effect
+        // by just getting the layer matrix and the device's devclipbounds, right?
+        // unless this is used when the the device is out of sync, so its layer matrix and clip can't be trusted?
+        //   -> hence forcing to match the state that the canvas is tracking directly?
         ctm.preTranslate(SkIntToScalar(-origin.x()), SkIntToScalar(-origin.y()));
 
         SkIRect clip = fMCRec->fRasterClip.getBounds();

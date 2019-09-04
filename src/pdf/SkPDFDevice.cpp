@@ -966,16 +966,19 @@ void SkPDFDevice::drawFormXObject(SkPDFIndirectReference xObject, SkDynamicMemor
     content->writeText(" Do\n");
 }
 
-void SkPDFDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& paint) {
+void SkPDFDevice::drawDevice(SkBaseDevice* device, const SkPaint& paint) {
     SkASSERT(!paint.getImageFilter());
 
+    // The transform that draws 'device' into this device to match the global CTM
+    SkMatrix devTransform = this->getRelativeBasis(*device);
     // Check if the source device is really a bitmapdevice (because that's what we returned
     // from createDevice (likely due to an imagefilter)
     SkPixmap pmap;
     if (device->peekPixels(&pmap)) {
         SkBitmap bitmap;
         bitmap.installPixels(pmap);
-        this->drawSprite(bitmap, x, y, paint);
+        this->internalDrawImageRect(SkKeyedImage(bitmap), nullptr, SkRect::Make(bitmap.bounds()),
+                                    paint, devTransform);
         return;
     }
 
@@ -986,14 +989,14 @@ void SkPDFDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& 
         return;
     }
 
-    SkMatrix matrix = SkMatrix::MakeTrans(SkIntToScalar(x), SkIntToScalar(y));
-    ScopedContentEntry content(this, &this->cs(), matrix, paint);
+    ScopedContentEntry content(this, &this->cs(), devTransform, paint);
     if (!content) {
         return;
     }
     if (content.needShape()) {
-        SkISize dim = device->imageInfo().dimensions();
-        content.setShape(to_path(SkRect::Make(SkIRect::MakeXYWH(x, y, dim.width(), dim.height()))));
+        SkPath shape = to_path(SkRect::MakeIWH(device->width(), device->height()));
+        shape.transform(devTransform);
+        content.setShape(shape);
     }
     if (!content.needSource()) {
         return;
@@ -1708,42 +1711,23 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
 #include "include/core/SkImageFilter.h"
 #include "src/core/SkSpecialImage.h"
 
-void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, int x, int y, const SkPaint& paint,
-                              SkImage* clipImage, const SkMatrix& clipMatrix) {
+void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, const SkMatrix& transform,
+                              const SkPaint& paint, SkImage* clipImage,
+                              const SkMatrix& clipMatrix) {
     if (this->hasEmptyClip()) {
         return;
     }
     SkASSERT(!srcImg->isTextureBacked());
+    SkASSERT(!paint.getImageFilter());
 
     //TODO: clipImage support
 
     SkBitmap resultBM;
-
-    SkImageFilter* filter = paint.getImageFilter();
-    if (filter) {
-        SkIPoint offset = SkIPoint::Make(0, 0);
-        SkMatrix matrix = this->ctm();
-        matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
-        const SkIRect clipBounds =
-            this->cs().bounds(this->bounds()).roundOut().makeOffset(-x, -y);
-        sk_sp<SkImageFilterCache> cache(this->getImageFilterCache());
-        // TODO: Should PDF be operating in a specified color type/space? For now, run the filter
-        // in the same color space as the source (this is different from all other backends).
-        SkImageFilter_Base::Context ctx(matrix, clipBounds, cache.get(), kN32_SkColorType,
-                                        srcImg->getColorSpace(), srcImg);
-
-        sk_sp<SkSpecialImage> resultImg(as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset));
-        if (resultImg) {
-            SkPaint tmpUnfiltered(paint);
-            tmpUnfiltered.setImageFilter(nullptr);
-            if (resultImg->getROPixels(&resultBM)) {
-                this->drawSprite(resultBM, x + offset.x(), y + offset.y(), tmpUnfiltered);
-            }
-        }
-    } else {
-        if (srcImg->getROPixels(&resultBM)) {
-            this->drawSprite(resultBM, x, y, paint);
-        }
+    if (srcImg->getROPixels(&resultBM)) {
+        // Call internalDrawImageRect directly so that we can override the CTM, since 'transform'
+        // is the full matrix to use for the image draw.
+        this->internalDrawImageRect(SkKeyedImage(resultBM), nullptr,
+                                    SkRect::Make(resultBM.bounds()), paint, transform);
     }
 }
 
