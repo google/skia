@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "f61a698a_dbbaabdb",
+        "filename": "src/gpu/ops/GrFillRRectOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-09-04T20:32:01Z",
+      "side": 1,
+      "message": "Is there a reason this was moved? If not I\u0027d prefer not to move it in this CL, just to it\u0027s easier to review.",
+      "revId": "a128ca962c56276f33477de17ac610ecf534e67f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4feecfd9_47239629",
         "filename": "src/gpu/vk/GrVkOpsRenderPass.cpp",
         "patchSetId": 2
@@ -13,6 +30,30 @@
       "writtenOn": "2019-09-04T18:49:30Z",
       "side": 1,
       "message": "Chris I just want to point on this is what will need to get updated once you\u0027re tracking the correct bounds and can pass them into the GrOpsRenderPass. On a related note, make sure when you\u0027re tracking the bounds for clears, if we are doing a true full screen clear it has the bounds as the size of the GrSurface and not necessarily the GrSurfaceProxy :)",
+      "range": {
+        "startLine": 204,
+        "startChar": 3,
+        "endLine": 204,
+        "endChar": 78
+      },
+      "revId": "a128ca962c56276f33477de17ac610ecf534e67f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d26105d_be11fee2",
+        "filename": "src/gpu/vk/GrVkOpsRenderPass.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-09-04T20:32:01Z",
+      "side": 1,
+      "message": "Oh! Right. Thanks!\n\nWhat about draws then? I think ops automatically clip their bounds to the proxy size, which won\u0027t necessarily be true if we are drawing to an approx surface.",
+      "parentUuid": "4feecfd9_47239629",
       "range": {
         "startLine": 204,
         "startChar": 3,
