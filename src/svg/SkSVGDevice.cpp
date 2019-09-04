@@ -30,6 +30,7 @@
 #include "src/core/SkClipStack.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
+#include "src/core/SkMakeUnique.h"
 #include "src/core/SkUtils.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/xml/SkXMLWriter.h"
@@ -136,7 +137,6 @@ struct Resources {
         : fPaintServer(svg_color(paint.getColor())) {}
 
     SkString fPaintServer;
-    SkString fClip;
     SkString fColorFilter;
 };
 
@@ -195,7 +195,6 @@ class SkSVGDevice::ResourceBucket : ::SkNoncopyable {
 public:
     ResourceBucket()
             : fGradientCount(0)
-            , fClipCount(0)
             , fPathCount(0)
             , fImageCount(0)
             , fPatternCount(0)
@@ -203,10 +202,6 @@ public:
 
     SkString addLinearGradient() {
         return SkStringPrintf("gradient_%d", fGradientCount++);
-    }
-
-    SkString addClip() {
-        return SkStringPrintf("clip_%d", fClipCount++);
     }
 
     SkString addPath() {
@@ -225,7 +220,6 @@ public:
 
 private:
     uint32_t fGradientCount;
-    uint32_t fClipCount;
     uint32_t fPathCount;
     uint32_t fImageCount;
     uint32_t fPatternCount;
@@ -251,19 +245,13 @@ public:
     AutoElement(const char name[], const std::unique_ptr<SkXMLWriter>& writer)
         : AutoElement(name, writer.get()) {}
 
-    AutoElement(const char name[], const std::unique_ptr<SkXMLWriter>& writer,
+    AutoElement(const char name[], SkSVGDevice* svgdev,
                 ResourceBucket* bucket, const MxCp& mc, const SkPaint& paint)
-        : fWriter(writer.get())
+        : fWriter(svgdev->fWriter.get())
         , fResourceBucket(bucket) {
 
+        svgdev->syncClipStack(*mc.fClipStack);
         Resources res = this->addResources(mc, paint);
-
-        if (!res.fClip.isEmpty()) {
-            // The clip is in device space. Apply it via a <g> wrapper to avoid local transform
-            // interference.
-            fClipGroup.reset(new AutoElement("g", fWriter));
-            fClipGroup->addAttribute("clip-path",res.fClip);
-        }
 
         fWriter->startElement(name);
 
@@ -304,7 +292,6 @@ public:
 
 private:
     Resources addResources(const MxCp&, const SkPaint& paint);
-    void addClipResources(const MxCp&, Resources* resources);
     void addShaderResources(const SkPaint& paint, Resources* resources);
     void addGradientShaderResources(const SkShader* shader, const SkPaint& paint,
                                     Resources* resources);
@@ -321,7 +308,6 @@ private:
 
     SkXMLWriter*               fWriter;
     ResourceBucket*            fResourceBucket;
-    std::unique_ptr<AutoElement> fClipGroup;
 };
 
 void SkSVGDevice::AutoElement::addPaint(const SkPaint& paint, const Resources& resources) {
@@ -379,20 +365,10 @@ void SkSVGDevice::AutoElement::addPaint(const SkPaint& paint, const Resources& r
 Resources SkSVGDevice::AutoElement::addResources(const MxCp& mc, const SkPaint& paint) {
     Resources resources(paint);
 
-    // FIXME: this is a weak heuristic and we end up with LOTS of redundant clips.
-    bool hasClip   = !mc.fClipStack->isWideOpen();
-    bool hasShader = SkToBool(paint.getShader());
-
-    if (hasClip || hasShader) {
+    if (paint.getShader()) {
         AutoElement defs("defs", fWriter);
 
-        if (hasClip) {
-            this->addClipResources(mc, &resources);
-        }
-
-        if (hasShader) {
-            this->addShaderResources(paint, &resources);
-        }
+        this->addShaderResources(paint, &resources);
     }
 
     if (const SkColorFilter* cf = paint.getColorFilter()) {
@@ -402,6 +378,7 @@ Resources SkSVGDevice::AutoElement::addResources(const MxCp& mc, const SkPaint& 
             this->addColorFilterResources(*cf, &resources);
         }
     }
+
     return resources;
 }
 
@@ -563,36 +540,6 @@ void SkSVGDevice::AutoElement::addShaderResources(const SkPaint& paint, Resource
     // TODO: other shader types?
 }
 
-void SkSVGDevice::AutoElement::addClipResources(const MxCp& mc, Resources* resources) {
-    SkASSERT(!mc.fClipStack->isWideOpen());
-
-    SkPath clipPath;
-    (void) mc.fClipStack->asPath(&clipPath);
-
-    SkString clipID = fResourceBucket->addClip();
-    {
-        // clipPath is in device space, but since we're only pushing transform attributes
-        // to the leaf nodes, so are all our elements => SVG userSpaceOnUse == device space.
-        AutoElement clipPathElement("clipPath", fWriter);
-        clipPathElement.addAttribute("id", clipID);
-
-        SkRect clipRect = SkRect::MakeEmpty();
-        if (clipPath.isEmpty() || clipPath.isRect(&clipRect)) {
-            AutoElement rectElement("rect", fWriter);
-            rectElement.addRectAttributes(clipRect);
-        } else {
-            AutoElement pathElement("path", fWriter);
-            pathElement.addPathAttributes(clipPath);
-
-            if (clipPath.getFillType() == SkPath::kEvenOdd_FillType) {
-                pathElement.addAttribute("clip-rule", "evenodd"); // Default: nonzero
-            }
-        }
-    }
-
-    resources->fClip.printf("url(#%s)", clipID.c_str());
-}
-
 SkString SkSVGDevice::AutoElement::addLinearGradientDef(const SkShader::GradientInfo& info,
                                                         const SkShader* shader) {
     SkASSERT(fResourceBucket);
@@ -724,10 +671,87 @@ SkSVGDevice::SkSVGDevice(const SkISize& size, std::unique_ptr<SkXMLWriter> write
     fRootElement->addAttribute("height", size.height());
 }
 
-SkSVGDevice::~SkSVGDevice() = default;
+SkSVGDevice::~SkSVGDevice() {
+    // Pop order is important.
+    while (!fClipStack.empty()) {
+        fClipStack.pop_back();
+    }
+}
+
+void SkSVGDevice::syncClipStack(const SkClipStack& cs) {
+    SkClipStack::B2TIter iter(cs);
+
+    const SkClipStack::Element* elem;
+    size_t rec_idx = 0;
+
+    // First, find/preserve the common bottom.
+    while ((elem = iter.next()) && (rec_idx < fClipStack.size())) {
+        if (fClipStack[SkToInt(rec_idx)].fGenID != elem->getGenID()) {
+            break;
+        }
+        rec_idx++;
+    }
+
+    // Discard out-of-date stack top.
+    while (fClipStack.size() > rec_idx) {
+        fClipStack.pop_back();
+    }
+
+    auto define_clip = [this](const SkClipStack::Element* e) {
+        const auto cid = SkStringPrintf("cl_%x", e->getGenID());
+
+        AutoElement clip_path("clipPath", fWriter);
+        clip_path.addAttribute("id", cid);
+
+        // TODO: handle non-intersect clips.
+
+        switch (e->getDeviceSpaceType()) {
+        case SkClipStack::Element::DeviceSpaceType::kEmpty: {
+            // TODO: can we skip this?
+            AutoElement rect("rect", fWriter);
+        } break;
+        case SkClipStack::Element::DeviceSpaceType::kRect: {
+            AutoElement rect("rect", fWriter);
+            rect.addRectAttributes(e->getDeviceSpaceRect());
+        } break;
+        case SkClipStack::Element::DeviceSpaceType::kRRect: {
+            // TODO: complex rrect handling?
+            const auto& rr   = e->getDeviceSpaceRRect();
+            const auto radii = rr.getSimpleRadii();
+
+            AutoElement rrect("rect", fWriter);
+            rrect.addRectAttributes(rr.rect());
+            rrect.addAttribute("rx", radii.x());
+            rrect.addAttribute("ry", radii.y());
+        } break;
+        case SkClipStack::Element::DeviceSpaceType::kPath: {
+            const auto& p = e->getDeviceSpacePath();
+            AutoElement path("path", fWriter);
+            path.addPathAttributes(p);
+            if (p.getFillType() == SkPath::kEvenOdd_FillType) {
+                path.addAttribute("clip-rule", "evenodd");
+            }
+        } break;
+        }
+
+        return cid;
+    };
+
+    // Rebuild the top.
+    while (elem) {
+        const auto cid = define_clip(elem);
+
+        auto clip_grp = skstd::make_unique<AutoElement>("g", fWriter);
+        clip_grp->addAttribute("clip-path", SkStringPrintf("url(#%s)", cid.c_str()));
+
+        fClipStack.push_back({ std::move(clip_grp), elem->getGenID() });
+
+        elem = iter.next();
+    }
+}
 
 void SkSVGDevice::drawPaint(const SkPaint& paint) {
-    AutoElement rect("rect", fWriter, fResourceBucket.get(), MxCp(this), paint);
+    AutoElement rect("rect", this, fResourceBucket.get(), MxCp(this), paint);
     rect.addRectAttributes(SkRect::MakeWH(SkIntToScalar(this->width()),
                                           SkIntToScalar(this->height())));
 }
@@ -773,7 +797,7 @@ void SkSVGDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
                 path.rewind();
                 path.moveTo(pts[i]);
                 path.lineTo(pts[i+1]);
-                AutoElement elem("path", fWriter, fResourceBucket.get(), MxCp(this), paint);
+                AutoElement elem("path", this, fResourceBucket.get(), MxCp(this), paint);
                 elem.addPathAttributes(path);
             }
             break;
@@ -781,7 +805,7 @@ void SkSVGDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
             if (count > 1) {
                 path.addPoly(pts, SkToInt(count), false);
                 path.moveTo(pts[0]);
-                AutoElement elem("path", fWriter, fResourceBucket.get(), MxCp(this), paint);
+                AutoElement elem("path", this, fResourceBucket.get(), MxCp(this), paint);
                 elem.addPathAttributes(path);
             }
             break;
@@ -791,11 +815,11 @@ void SkSVGDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
 void SkSVGDevice::drawRect(const SkRect& r, const SkPaint& paint) {
     std::unique_ptr<AutoElement> svg;
     if (RequiresViewportReset(paint)) {
-      svg.reset(new AutoElement("svg", fWriter, fResourceBucket.get(), MxCp(this), paint));
+      svg.reset(new AutoElement("svg", this, fResourceBucket.get(), MxCp(this), paint));
       svg->addRectAttributes(r);
     }
 
-    AutoElement rect("rect", fWriter, fResourceBucket.get(), MxCp(this), paint);
+    AutoElement rect("rect", this, fResourceBucket.get(), MxCp(this), paint);
 
     if (svg) {
       rect.addAttribute("x", 0);
@@ -808,7 +832,7 @@ void SkSVGDevice::drawRect(const SkRect& r, const SkPaint& paint) {
 }
 
 void SkSVGDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
-    AutoElement ellipse("ellipse", fWriter, fResourceBucket.get(), MxCp(this), paint);
+    AutoElement ellipse("ellipse", this, fResourceBucket.get(), MxCp(this), paint);
     ellipse.addAttribute("cx", oval.centerX());
     ellipse.addAttribute("cy", oval.centerY());
     ellipse.addAttribute("rx", oval.width() / 2);
@@ -819,12 +843,12 @@ void SkSVGDevice::drawRRect(const SkRRect& rr, const SkPaint& paint) {
     SkPath path;
     path.addRRect(rr);
 
-    AutoElement elem("path", fWriter, fResourceBucket.get(), MxCp(this), paint);
+    AutoElement elem("path", this, fResourceBucket.get(), MxCp(this), paint);
     elem.addPathAttributes(path);
 }
 
 void SkSVGDevice::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutable) {
-    AutoElement elem("path", fWriter, fResourceBucket.get(), MxCp(this), paint);
+    AutoElement elem("path", this, fResourceBucket.get(), MxCp(this), paint);
     elem.addPathAttributes(path);
 
     // TODO: inverse fill types?
@@ -864,7 +888,7 @@ void SkSVGDevice::drawBitmapCommon(const MxCp& mc, const SkBitmap& bm, const SkP
     }
 
     {
-        AutoElement imageUse("use", fWriter, fResourceBucket.get(), mc, paint);
+        AutoElement imageUse("use", this, fResourceBucket.get(), mc, paint);
         imageUse.addAttribute("xlink:href", SkStringPrintf("#%s", imageID.c_str()));
     }
 }
@@ -994,7 +1018,7 @@ void SkSVGDevice::drawGlyphRunAsPath(const SkGlyphRun& glyphRun, const SkPoint& 
 
 void SkSVGDevice::drawGlyphRunAsText(const SkGlyphRun& glyphRun, const SkPoint& origin,
                                      const SkPaint& runPaint) {
-    AutoElement elem("text", fWriter, fResourceBucket.get(), MxCp(this), runPaint);
+    AutoElement elem("text", this, fResourceBucket.get(), MxCp(this), runPaint);
     elem.addTextAttributes(glyphRun.font());
 
     SVGTextBuilder builder(origin, glyphRun);
