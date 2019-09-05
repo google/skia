@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f4f9781_0d4e9f30",
+        "filename": "src/effects/imagefilters/SkMatrixConvolutionImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 7517
+      },
+      "writtenOn": "2019-09-05T18:16:10Z",
+      "side": 1,
+      "message": "Why fall through for kClamp mode?",
+      "range": {
+        "startLine": 291,
+        "startChar": 8,
+        "endLine": 292,
+        "endChar": 27
+      },
+      "revId": "607c057de9a5690d37c6b015ef395f7c69bed89c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
