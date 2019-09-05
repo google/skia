@@ -77,7 +77,7 @@ def create_asset(chrome_src_path, browser_executable, target_dir,
         shutil.copyfile(os.path.join(src, f), os.path.join(target_dir, f))
 
   # Copy over private SKPs from Google storage into the target_dir.
-  subprocess.check_call([
+  subprocess.call([
         'gsutil', 'cp', os.path.join(PRIVATE_SKPS_GS, '*'), target_dir])
 
 
