@@ -12,7 +12,6 @@
 #include "include/core/SkScalar.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/gl/GrGLIRect.h"
 
 class GrGLCaps;
 class GrGLGpu;
