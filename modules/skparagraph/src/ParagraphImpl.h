@@ -62,12 +62,12 @@ public:
 
     size_t preceding(size_t offset) {
         auto pos = ubrk_preceding(fIterator.get(), offset);
-        return eof() ? 0 : pos;
+        return pos == icu::BreakIterator::DONE ? 0 : pos;
     }
 
     size_t following(size_t offset) {
         auto pos = ubrk_following(fIterator.get(), offset);
-        return eof() ? fSize : pos;
+        return pos == icu::BreakIterator::DONE ? fSize : pos;
     }
 
     int32_t status() { return ubrk_getRuleStatus(fIterator.get()); }
@@ -104,7 +104,8 @@ public:
                                           unsigned end,
                                           RectHeightStyle rectHeightStyle,
                                           RectWidthStyle rectWidthStyle) override;
-    std::vector<TextBox> GetRectsForPlaceholders() override;
+    std::vector<TextBox> getRectsForPlaceholders() override;
+    void getLineMetrics(std::vector<LineMetrics>&) override;
     PositionWithAffinity getGlyphPositionAtCoordinate(SkScalar dx, SkScalar dy) override;
     SkRange<size_t> getWordBoundary(unsigned offset) override;
     bool didExceedMaxLines() override {
@@ -115,7 +116,7 @@ public:
 
     TextLine& addLine(SkVector offset, SkVector advance, TextRange text, TextRange textWithSpaces,
                       ClusterRange clusters, ClusterRange clustersWithGhosts, SkScalar AddLineToParagraph,
-                      LineMetrics sizes);
+                      InternalLineMetrics sizes);
 
     SkSpan<const char> text() const { return SkSpan<const char>(fText.c_str(), fText.size()); }
     InternalState state() const { return fState; }
@@ -152,7 +153,7 @@ public:
     bool strutHeightOverride() const {
         return paragraphStyle().getStrutStyle().getHeightOverride();
     }
-    LineMetrics strutMetrics() const { return fStrutMetrics; }
+    InternalLineMetrics strutMetrics() const { return fStrutMetrics; }
 
     Measurement measurement() {
         return {
@@ -162,6 +163,7 @@ public:
             fWidth,
             fMaxIntrinsicWidth,
             fMinIntrinsicWidth,
+            fLongestLine,
         };
     }
     void setMeasurement(Measurement m) {
@@ -171,6 +173,7 @@ public:
         fWidth = m.fWidth;
         fMaxIntrinsicWidth = m.fMaxIntrinsicWidth;
         fMinIntrinsicWidth = m.fMinIntrinsicWidth;
+        fLongestLine = m.fLongestLine;
     }
 
     SkSpan<const char> text(TextRange textRange);
@@ -198,6 +201,15 @@ public:
     bool shapeTextIntoEndlessLine();
     void breakShapedTextIntoLines(SkScalar maxWidth);
     void paintLinesIntoPicture();
+
+    void updateText(size_t from, SkString text) override;
+    void updateFontSize(size_t from, size_t to, SkScalar fontSize) override;
+    void setTextAlign(TextAlign textAlign) override;
+    void setForegroundPaint(SkPaint paint) override;
+    void setBackgroundPaint(SkPaint paint) override;
+
+    InternalLineMetrics computeEmptyMetrics();
+    InternalLineMetrics getStrutMetrics() const { return fStrutMetrics; }
 
 private:
     friend class ParagraphBuilder;
@@ -234,14 +246,14 @@ private:
     SkTArray<TextLine, true> fLines;    // kFormatted   (cached: width, max lines, ellipsis, text align)
     sk_sp<SkPicture> fPicture;          // kRecorded    (cached: text styles)
 
-    LineMetrics fStrutMetrics;
+    InternalLineMetrics fStrutMetrics;
     FontResolver fFontResolver;
 
     SkScalar fOldWidth;
     SkScalar fOldHeight;
     SkScalar fMaxWidthWithTrailingSpaces;
 
-    TextBreaker fWordBreaker;
+    std::vector<size_t> fWords;
 };
 }  // namespace textlayout
 }  // namespace skia

@@ -37,7 +37,7 @@ TextLine::TextLine(ParagraphImpl* master,
                    ClusterRange clusters,
                    ClusterRange clustersWithGhosts,
                    SkScalar widthWithSpaces,
-                   LineMetrics sizes)
+                   InternalLineMetrics sizes)
         : fMaster(master)
         , fBlockRange(blocks)
         , fTextRange(text)
@@ -543,7 +543,8 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
                                                         const Run* run,
                                                         SkScalar runOffsetInLine,
                                                         SkScalar textOffsetInRunInLine,
-                                                        bool includeGhostSpaces) const {
+                                                        bool includeGhostSpaces,
+                                                        bool limitToClusters) const {
     SkASSERT(intersectedSize(run->textRange(), textRange) >= 0);
 
     ClipContext result = { run, 0, run->size(), 0, SkRect::MakeEmpty(), false };
@@ -560,16 +561,16 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
     bool found;
     ClusterIndex startIndex;
     ClusterIndex endIndex;
-    std::tie(found, startIndex, endIndex) = run->findLimitingClusters(textRange);
+    std::tie(found, startIndex, endIndex) = run->findLimitingClusters(textRange, limitToClusters);
     if (!found) {
-        SkASSERT(textRange.empty());
+        SkASSERT(textRange.empty() || limitToClusters);
         return result;
     }
 
     auto start = &fMaster->cluster(startIndex);
     auto end = &fMaster->cluster(endIndex);
     result.pos = start->startPos();
-    result.size = end->endPos() - start->startPos();
+    result.size = (end->isHardBreak() ? end->startPos() : end->endPos()) - start->startPos();
 
     auto textStartInRun = run->positionX(start->startPos());
     auto textStartInLine = runOffsetInLine + textOffsetInRunInLine;
@@ -584,7 +585,7 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
     result.clip =
             SkRect::MakeXYWH(0,
                              sizes().runTop(run),
-                             run->calculateWidth(start->startPos(), end->endPos(), needsClipping),
+                             run->calculateWidth(result.pos, result.pos + result.size, needsClipping),
                              run->calculateHeight());
 
     // Correct the width in case the text edges don't match clusters
@@ -654,7 +655,7 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
 
     if (run->fEllipsis) {
         // Extra efforts to get the ellipsis text style
-        ClipContext clipContext = this->measureTextInsideOneRun(run->textRange(), run, runOffset, 0, false);
+        ClipContext clipContext = this->measureTextInsideOneRun(run->textRange(), run, runOffset, 0, false, false);
         TextRange testRange(run->fFirstChar, run->fFirstChar + 1);
         for (BlockIndex index = fBlockRange.start; index < fBlockRange.end; ++index) {
            auto block = fMaster->styles().begin() + index;
@@ -713,7 +714,7 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
         // We have the style and the text
         auto textRange = TextRange(start, start + size);
         // Measure the text
-        ClipContext clipContext = this->measureTextInsideOneRun(textRange, run, runOffset, textOffsetInRun, false);
+        ClipContext clipContext = this->measureTextInsideOneRun(textRange, run, runOffset, textOffsetInRun, false, false);
         if (clipContext.clip.height() == 0) {
             continue;
         }
@@ -763,6 +764,46 @@ void TextLine::iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisi
 
 SkVector TextLine::offset() const {
     return fOffset + SkVector::Make(fShift, 0);
+}
+
+LineMetrics TextLine::getMetrics() const {
+    LineMetrics result;
+
+    // Fill out the metrics
+    result.fStartIndex = fTextRange.start;
+    result.fEndIndex = fTextWithWhitespacesRange.end;
+    result.fEndExcludingWhitespaces = fTextRange.end;
+    result.fEndIncludingNewline = fTextWithWhitespacesRange.end; // TODO: implement
+    result.fHardBreak = fMaster->cluster(fGhostClusterRange.end).isHardBreak();
+    result.fAscent = fMaxRunMetrics.ascent();
+    result.fDescent = fMaxRunMetrics.descent();
+    result.fUnscaledAscent = fMaxRunMetrics.ascent(); // TODO: implement
+    result.fHeight = fAdvance.fY;
+    result.fWidth = fAdvance.fX;
+    result.fLeft = fOffset.fX;
+    result.fBaseline = fMaxRunMetrics.baseline();
+    result.fLineNumber = this - fMaster->lines().begin();
+
+    // Fill out the style parts
+    this->iterateThroughVisualRuns(false,
+        [this, &result]
+        (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
+        if (run->placeholder() != nullptr) {
+            *runWidthInLine = run->advance().fX;
+            return true;
+        }
+        *runWidthInLine = this->iterateThroughSingleRunByStyles(
+        run, runOffsetInLine, textRange, StyleType::kForeground,
+        [&result, &run](TextRange textRange, const TextStyle& style, const ClipContext& context) {
+            SkFontMetrics fontMetrics;
+            run->fFont.getMetrics(&fontMetrics);
+            StyleMetrics styleMetrics(&style, fontMetrics);
+            result.fLineMetrics.emplace(textRange.start, styleMetrics);
+        });
+        return true;
+    });
+
+    return result;
 }
 }  // namespace textlayout
 }  // namespace skia

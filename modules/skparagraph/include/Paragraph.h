@@ -3,6 +3,7 @@
 #define Paragraph_DEFINED
 
 #include "modules/skparagraph/include/FontCollection.h"
+#include "modules/skparagraph/include/Metrics.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/include/TextStyle.h"
 
@@ -31,6 +32,8 @@ public:
 
     SkScalar getIdeographicBaseline() { return fIdeographicBaseline; }
 
+    SkScalar getLongestLine() { return fLongestLine; }
+
     virtual bool didExceedMaxLines() = 0;
 
     virtual void layout(SkScalar width) = 0;
@@ -44,7 +47,7 @@ public:
                                                   RectHeightStyle rectHeightStyle,
                                                   RectWidthStyle rectWidthStyle) = 0;
 
-    virtual std::vector<TextBox> GetRectsForPlaceholders() = 0;
+    virtual std::vector<TextBox> getRectsForPlaceholders() = 0;
 
     // Returns the index of the glyph that corresponds to the provided coordinate,
     // with the top left corner as the origin, and +y direction as down
@@ -58,6 +61,14 @@ public:
 
     virtual void markDirty() = 0;
 
+    virtual void updateText(size_t from, SkString text) = 0;
+    virtual void updateFontSize(size_t from, size_t to, SkScalar fontSize) = 0;
+    virtual void setTextAlign(TextAlign textAlign) = 0;
+    virtual void setForegroundPaint(SkPaint paint) = 0;
+    virtual void setBackgroundPaint(SkPaint paint) = 0;
+
+    virtual void getLineMetrics(std::vector<LineMetrics>&) = 0;
+
 protected:
     sk_sp<FontCollection> fFontCollection;
     ParagraphStyle fParagraphStyle;
@@ -69,6 +80,7 @@ protected:
     SkScalar fWidth;
     SkScalar fMaxIntrinsicWidth;
     SkScalar fMinIntrinsicWidth;
+    SkScalar fLongestLine;
 };
 }  // namespace textlayout
 }  // namespace skia

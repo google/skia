@@ -246,7 +246,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderParagraph, reporter) {
     canvas.drawRects(SK_ColorGREEN, boxes);
     REPORTER_ASSERT(reporter, boxes.size() == 1);
 
-    boxes = paragraph->GetRectsForPlaceholders();
+    boxes = paragraph->getRectsForPlaceholders();
     canvas.drawRects(SK_ColorRED, boxes);
 
     boxes = paragraph->getRectsForRange(4, 17, rect_height_style, rect_width_style);
@@ -309,7 +309,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderBaselineParagraph, reporter) {
     paragraph->layout(TestCanvasWidth);
     paragraph->paint(canvas.get(), 0, 0);
 
-    auto boxes = paragraph->GetRectsForPlaceholders();
+    auto boxes = paragraph->getRectsForPlaceholders();
     canvas.drawRects(SK_ColorRED, boxes);
 
     REPORTER_ASSERT(reporter, boxes.size() == 1);
@@ -365,7 +365,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderAboveBaselineParagraph, reporter) {
     paragraph->layout(TestCanvasWidth);
     paragraph->paint(canvas.get(), 0, 0);
 
-    auto boxes = paragraph->GetRectsForPlaceholders();
+    auto boxes = paragraph->getRectsForPlaceholders();
     canvas.drawRects(SK_ColorRED, boxes);
 
     REPORTER_ASSERT(reporter, boxes.size() == 1);
@@ -421,7 +421,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderBelowBaselineParagraph, reporter) {
     paragraph->layout(TestCanvasWidth);
     paragraph->paint(canvas.get(), 0, 0);
 
-    auto boxes = paragraph->GetRectsForPlaceholders();
+    auto boxes = paragraph->getRectsForPlaceholders();
     canvas.drawRects(SK_ColorRED, boxes);
 
     REPORTER_ASSERT(reporter, boxes.size() == 1);
@@ -480,7 +480,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderBottomParagraph, reporter) {
     RectHeightStyle rect_height_style = RectHeightStyle::kTight;
     RectWidthStyle rect_width_style = RectWidthStyle::kTight;
 
-    auto boxes = paragraph->GetRectsForPlaceholders();
+    auto boxes = paragraph->getRectsForPlaceholders();
     canvas.drawRects(SK_ColorRED, boxes);
     REPORTER_ASSERT(reporter, boxes.size() == 1);
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 90.921f - 0.5f, EPSILON50));
@@ -534,7 +534,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderTopParagraph, reporter) {
     RectHeightStyle rect_height_style = RectHeightStyle::kTight;
     RectWidthStyle rect_width_style = RectWidthStyle::kTight;
 
-    auto boxes = paragraph->GetRectsForPlaceholders();
+    auto boxes = paragraph->getRectsForPlaceholders();
     canvas.drawRects(SK_ColorRED, boxes);
     REPORTER_ASSERT(reporter, boxes.size() == 1);
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 90.921f - 0.5f, EPSILON50));
@@ -588,7 +588,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderMiddleParagraph, reporter) {
     RectHeightStyle rect_height_style = RectHeightStyle::kTight;
     RectWidthStyle rect_width_style = RectWidthStyle::kTight;
 
-    auto boxes = paragraph->GetRectsForPlaceholders();
+    auto boxes = paragraph->getRectsForPlaceholders();
     canvas.drawRects(SK_ColorRED, boxes);
     REPORTER_ASSERT(reporter, boxes.size() == 1);
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 90.921f - 0.5f, EPSILON50));
@@ -641,7 +641,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderIdeographicBaselineParagraph, reporter) {
     RectHeightStyle rect_height_style = RectHeightStyle::kTight;
     RectWidthStyle rect_width_style = RectWidthStyle::kTight;
 
-    auto boxes = paragraph->GetRectsForPlaceholders();
+    auto boxes = paragraph->getRectsForPlaceholders();
     canvas.drawRects(SK_ColorRED, boxes);
     REPORTER_ASSERT(reporter, boxes.size() == 1);
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 162.5f - 0.5f, EPSILON50));
@@ -771,7 +771,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderBreakParagraph, reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 47.292f - 0.5f, EPSILON50));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 249, EPSILON100));
 
-    boxes = paragraph->GetRectsForPlaceholders();
+    boxes = paragraph->getRectsForPlaceholders();
     canvas.drawRects(SK_ColorRED, boxes);
 
     boxes = paragraph->getRectsForRange(4, 45, rect_height_style, rect_width_style);
@@ -882,7 +882,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderGetRectsParagraph, reporter) {
     RectHeightStyle rect_height_style = RectHeightStyle::kMax;
     RectWidthStyle rect_width_style = RectWidthStyle::kTight;
 
-    auto boxes = paragraph->GetRectsForPlaceholders();
+    auto boxes = paragraph->getRectsForPlaceholders();
     canvas.drawRects(SK_ColorRED, boxes);
 
     REPORTER_ASSERT(reporter, boxes.size() == 34);
@@ -1297,7 +1297,7 @@ DEF_TEST(SkParagraph_LeftAlignParagraph, reporter) {
     REPORTER_ASSERT(reporter, impl->getGlyphPositionAtCoordinate(1, 1).position == 0);
     REPORTER_ASSERT(reporter, impl->getGlyphPositionAtCoordinate(1, 35).position == 68);
     REPORTER_ASSERT(reporter, impl->getGlyphPositionAtCoordinate(1, 70).position == 134);
-    REPORTER_ASSERT(reporter, impl->getGlyphPositionAtCoordinate(2000, 35).position == 134);
+    REPORTER_ASSERT(reporter, impl->getGlyphPositionAtCoordinate(2000, 35).position == 134);//
 }
 
 // Checked: NO DIFF
@@ -1549,14 +1549,13 @@ DEF_TEST(SkParagraph_JustifyAlignParagraph, reporter) {
                     SkScalarNearlyEqual(impl->lines()[12].offset().fY, expected_y, EPSILON100));
 
     auto calculate = [](const TextLine& line) -> SkScalar {
-        return TestCanvasWidth - 100 - (line.offset().fX + line.width());
+        return line.offset().fX;
     };
 
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(calculate(impl->lines()[0]), 0, EPSILON100));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(calculate(impl->lines()[1]), 0, EPSILON100));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(calculate(impl->lines()[2]), 0, EPSILON100));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(calculate(impl->lines()[3]), 0, EPSILON100));
-    REPORTER_ASSERT(reporter, calculate(impl->lines()[13]) > 0);
 
     REPORTER_ASSERT(reporter,
                     paragraph_style.getTextAlign() == impl->paragraphStyle().getTextAlign());
@@ -2080,19 +2079,19 @@ DEF_TEST(SkParagraph_GetGlyphPositionAtCoordinateParagraph, reporter) {
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(301, 2.2f).position == 11);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(302, 2.6f).position == 11);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(301, 2.1f).position == 11);
-    REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(100000, 20).position == 18);
+    REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(100000, 20).position == 18);//
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(450, 20).position == 16);
-    REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(100000, 90).position == 36);
+    REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(100000, 90).position == 36);//
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(-100000, 90).position == 18);
     REPORTER_ASSERT(reporter,
                     paragraph->getGlyphPositionAtCoordinate(20, -80).position == 1);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(1, 90).position == 18);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(1, 170).position == 36);
-    REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(10000, 180).position == 72);
+    REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(10000, 180).position == 72);//
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(70, 180).position == 56);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(1, 270).position == 72);
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(35, 90).position == 19);
-    REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(10000, 10000).position == 77);
+    REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(10000, 10000).position == 77);//
     REPORTER_ASSERT(reporter, paragraph->getGlyphPositionAtCoordinate(85, 10000).position == 75);
 }
 
@@ -2181,9 +2180,9 @@ DEF_TEST(SkParagraph_GetRectsForRangeParagraph, reporter) {
         auto result = paragraph->getRectsForRange(19, 22, heightStyle, widthStyle);
         canvas.drawRects(SK_ColorBLUE, result);
         REPORTER_ASSERT(reporter, result.size() == 1);
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.left(), 450.1875f, EPSILON100));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.left(), 450.1875f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.top(), 0.40625f, EPSILON100));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.right(), 519.47266f, EPSILON100));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.right(), 519.47266f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.bottom(), 59, EPSILON100));
     }
     {
@@ -2318,9 +2317,9 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingMiddle, reporter) {
         auto result = paragraph->getRectsForRange(8, 21, heightStyle, widthStyle);
         canvas.drawRects(SK_ColorGREEN, result);
         REPORTER_ASSERT(reporter, result.size() == 1);
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.left(), 190.00781f, EPSILON100));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.left(), 190.00781f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.top(), 16.946615f, EPSILON100));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.right(), 508.0625f, EPSILON50));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.right(), 508.0625f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.bottom(), 88.473305f, EPSILON100));
     }
     {
@@ -2328,7 +2327,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingMiddle, reporter) {
         canvas.drawRects(SK_ColorRED, result);
         REPORTER_ASSERT(reporter, result.size() == 8);
 
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.left(), 190.00781f, EPSILON100));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.left(), 190.00781f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.top(), 88.473305f, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.right(), 525.687f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.bottom(), 168.47331f, EPSILON100));
@@ -2340,10 +2339,10 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingMiddle, reporter) {
 
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[2].rect.left(), 0, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[2].rect.top(), 168.47331f, EPSILON100));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[2].rect.right(), 531.574f, EPSILON50));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[2].rect.right(), 531.574f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[2].rect.bottom(), 248.47331f, EPSILON100));
 
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[3].rect.left(), 531.574f, EPSILON50));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[3].rect.left(), 531.574f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[3].rect.top(), 168.47331f, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[3].rect.right(), 570.02344f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[3].rect.bottom(), 248.47331f, EPSILON100));
@@ -2362,12 +2361,12 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingMiddle, reporter) {
         auto result = paragraph->getRectsForRange(19, 22, heightStyle, widthStyle);
         canvas.drawRects(SK_ColorBLUE, result);
         REPORTER_ASSERT(reporter, result.size() == 2); // DIFF
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.left(), 463.72656f, EPSILON50));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.left(), 463.72656f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.top(), 16.946615f, EPSILON100));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.right(), 530.23047f, EPSILON50));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.right(), 530.23047f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.bottom(), 88.473305f, EPSILON100));
 
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[1].rect.left(), 530.23047f, EPSILON50));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[1].rect.left(), 530.23047f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[1].rect.top(), 16.946615f, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[1].rect.right(), 570.02344f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[1].rect.bottom(), 88.473305f, EPSILON100));
@@ -2483,9 +2482,9 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingTop, reporter) {
         auto result = paragraph->getRectsForRange(19, 22, heightStyle, widthStyle);
         canvas.drawRects(SK_ColorBLACK, result);
         REPORTER_ASSERT(reporter, result.size() == 2); // DIFF
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.left(), 463.72656f, EPSILON50));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.left(), 463.72656f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.top(), 16.946615f, EPSILON100));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.right(), 530.23047f, EPSILON50));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.right(), 530.23047f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.bottom(), 80, EPSILON100));
 
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[1].rect.left(), 530.23047f, EPSILON50));
@@ -2570,7 +2569,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingBottom, reporter) {
         canvas.drawRects(SK_ColorMAGENTA, result);
         REPORTER_ASSERT(reporter, result.size() == 8);
 
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.left(), 190.007f, EPSILON100));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.left(), 190.007f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.top(), 96.946f, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.right(), 525.687f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.bottom(), 176.946f, EPSILON100));
@@ -2580,7 +2579,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingBottom, reporter) {
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[1].rect.right(), 570.023f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[1].rect.bottom(), 176.946f, EPSILON100));
 
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[2].rect.left(), 0, EPSILON100));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[2].rect.left(), 0, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[2].rect.top(), 176.946f, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[2].rect.right(), 531.574f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[2].rect.bottom(), 256.946f, EPSILON100));
@@ -2590,12 +2589,12 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingBottom, reporter) {
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[3].rect.right(), 570.023f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[3].rect.bottom(), 256.946f, EPSILON100));
 
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[4].rect.left(), 0, EPSILON100));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[4].rect.left(), 0, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[4].rect.top(), 256.946f, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[4].rect.right(), 570.023f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[4].rect.bottom(), 336.946f, EPSILON100));
 
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[5].rect.left(), 0, EPSILON100));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[5].rect.left(), 0, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[5].rect.top(), 336.946f, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[5].rect.right(), 570.023f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[5].rect.bottom(), 416.946f, EPSILON100));
@@ -2604,12 +2603,12 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingBottom, reporter) {
         auto result = paragraph->getRectsForRange(19, 22, heightStyle, widthStyle);
         canvas.drawRects(SK_ColorBLACK, result);
         REPORTER_ASSERT(reporter, result.size() == 2); // DIFF
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.left(), 463.726f, EPSILON50));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.left(), 463.726f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.top(), 16.946f, EPSILON100));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.right(), 530.230f, EPSILON50));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.right(), 530.230f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.bottom(), 96.946f, EPSILON100));
 
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[1].rect.left(), 530.230f, EPSILON50));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[1].rect.left(), 530.230f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[1].rect.top(), 16.946f, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[1].rect.right(), 570.023f, EPSILON20));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[1].rect.bottom(), 96.946f, EPSILON100));
@@ -2676,8 +2675,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeCombiningCharacter, reporter) {
         auto second = paragraph->getRectsForRange(15, 16, heightStyle, widthStyle);
         auto third = paragraph->getRectsForRange(16, 17, heightStyle, widthStyle);
         auto last = paragraph->getRectsForRange(14, 17, heightStyle, widthStyle);
-        REPORTER_ASSERT(reporter, first.size() == 0 && second.size() == 0 &&
-                                  third.size() == 1 && last.size() == 1);
+        REPORTER_ASSERT(reporter, first.size() == 0 && second.size() == 0 && third.size() == 1 && last.size() == 1);
         REPORTER_ASSERT(reporter, third[0].rect == last[0].rect);
     }
 }
@@ -3303,8 +3301,8 @@ DEF_TEST(SkParagraph_NewlineParagraph, reporter) {
     REPORTER_ASSERT(reporter, impl->lines()[2].offset().fY == 140);
     REPORTER_ASSERT(reporter, impl->lines()[3].offset().fY == 210);
     REPORTER_ASSERT(reporter, impl->lines()[4].offset().fY == 280);  // Empty line
-    REPORTER_ASSERT(reporter, impl->lines()[5].offset().fY == 350);
-    REPORTER_ASSERT(reporter, impl->lines()[6].offset().fY == 420);
+    REPORTER_ASSERT(reporter, impl->lines()[5].offset().fY == 296);
+    REPORTER_ASSERT(reporter, impl->lines()[6].offset().fY == 366);
 }
 
 // TODO: Fix underline
@@ -3388,7 +3386,7 @@ DEF_TEST(SkParagraph_EmojiMultiLineRectsParagraph, reporter) {
     canvas.drawRects(SK_ColorRED, result);
 
     result = paragraph->getRectsForRange(122, 132, rect_height_style, rect_width_style);
-    REPORTER_ASSERT(reporter, result.size() == 1);
+    REPORTER_ASSERT(reporter, result.size() == 0); // There is no single glyph
     canvas.drawRects(SK_ColorBLUE, result);
 
     auto pos = paragraph->getGlyphPositionAtCoordinate(610, 100).position;
@@ -4557,7 +4555,7 @@ DEF_TEST(SkParagraph_EmptyParagraphWithLineBreak, reporter) {
     auto paragraph = builder.Build();
     paragraph->layout(TestCanvasWidth);
     paragraph->paint(canvas.get(), 0, 0);
-    auto result = paragraph->GetRectsForPlaceholders();
+    auto result = paragraph->getRectsForPlaceholders();
 }
 
 DEF_TEST(SkParagraph_PlaceholderOnly, reporter) {
@@ -4573,7 +4571,7 @@ DEF_TEST(SkParagraph_PlaceholderOnly, reporter) {
 
     auto paragraph = builder.Build();
     paragraph->layout(TestCanvasWidth);
-    auto result = paragraph->GetRectsForPlaceholders();
+    auto result = paragraph->getRectsForPlaceholders();
     paragraph->paint(canvas.get(), 0, 0);
 }
 

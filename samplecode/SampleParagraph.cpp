@@ -1222,22 +1222,36 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
-        const char* text = "The same text many times";
 
-        for (size_t i = 0; i < 10; i++) {
-            ParagraphStyle paragraph_style;
-            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+        auto text = "\U0001f469\U0000200D\U0001f469\U0000200D\U0001f466\U0001f469\U0000200D\U0001f469\U0000200D\U0001f467\U0000200D\U0001f467\U0001f1fa\U0001f1f8";
             TextStyle text_style;
-            text_style.setFontFamilies({SkString("Roboto")});
+            text_style.setFontFamilies({SkString("Ahem")});
             text_style.setColor(SK_ColorBLACK);
-            text_style.setFontSize(10 + 2 * (i % 10));
-            builder.pushStyle(text_style);
+            text_style.setFontSize(60);
+            text_style.setLetterSpacing(0);
+            text_style.setWordSpacing(0);
+            ParagraphStyle paragraph_style;
+            paragraph_style.setTextStyle(text_style);
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
             builder.addText(text);
-            builder.pop();
             auto paragraph = builder.Build();
-            paragraph->layout(500);
-            paragraph->paint(canvas, 0, 40 * (i % 10));
-        }
+            paragraph->layout(1000);
+            paragraph->paint(canvas, 0, 0);
+
+            SkColor colors[] = { SK_ColorRED, SK_ColorBLACK, SK_ColorBLUE, SK_ColorTRANSPARENT, SK_ColorTRANSPARENT };
+            SkPoint queries[] = {{ 1, 3},{1, 5}, {1, 9}, { 1, 17}, {1, 33}};
+            SkPaint paint;
+            paint.setColor(SK_ColorRED);
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setAntiAlias(true);
+            paint.setStrokeWidth(5);
+            for (auto& query : queries) {
+                auto rects = paragraph->getRectsForRange(query.fX, query.fY, RectHeightStyle::kTight, RectWidthStyle::kTight);
+                paint.setColor(colors[&query - &queries[0]]);
+                for (auto& rect: rects) {
+                    canvas->drawRect(rect.rect, paint);
+                }
+            }
     }
 
 private:
