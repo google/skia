@@ -563,7 +563,7 @@ void ByteCodeGenerator::write(ByteCodeInstruction i, int count) {
 
 static ByteCodeInstruction vector_instruction(ByteCodeInstruction base, int count) {
     SkASSERT(count >= 1 && count <= 4);
-    return ((ByteCodeInstruction) ((int) base + count - 1));
+    return ((ByteCodeInstruction) ((int) base + 1 - count));
 }
 
 void ByteCodeGenerator::writeTypedInstruction(const Type& type, ByteCodeInstruction s,
@@ -578,7 +578,7 @@ void ByteCodeGenerator::writeTypedInstruction(const Type& type, ByteCodeInstruct
             break;
         case TypeCategory::kFloat: {
             if (count > 4) {
-                this->write((ByteCodeInstruction)((int)f + 4), count);
+                this->write((ByteCodeInstruction)((int)f + 1), count);
                 this->write8(count);
             } else {
                 this->write(vector_instruction(f, count));
@@ -876,7 +876,8 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
             case SpecialIntrinsic::kDot: {
                 SkASSERT(c.fArguments.size() == 2);
                 SkASSERT(count == SlotCount(c.fArguments[1]->fType));
-                this->write((ByteCodeInstruction)((int)ByteCodeInstruction::kMultiplyF + count-1));
+                this->write((ByteCodeInstruction)((int)ByteCodeInstruction::kMultiplyF + 1 -
+                                                       count));
                 for (int i = count; i > 1; --i) {
                     this->write(ByteCodeInstruction::kAddF);
                 }
@@ -893,7 +894,7 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
             case ByteCodeInstruction::kTan:
                 SkASSERT(c.fArguments.size() > 0);
                 this->write((ByteCodeInstruction) ((int) found->second.fValue.fInstruction +
-                            count - 1));
+                            1 - count));
                 break;
             case ByteCodeInstruction::kInverse2x2: {
                 SkASSERT(c.fArguments.size() > 0);

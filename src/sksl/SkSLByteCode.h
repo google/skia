@@ -18,8 +18,10 @@ namespace SkSL {
 class  ExternalValue;
 struct FunctionDeclaration;
 
-#define VECTOR(name) name, name ## 2, name ## 3, name ## 4
-#define VECTOR_MATRIX(name) name, name ## 2, name ## 3, name ## 4, name ## N
+// there are many spots in the code where we assume that instructions are listed in descending
+// count order
+#define VECTOR(name) name ## 4, name ## 3, name ## 2, name
+#define VECTOR_MATRIX(name) name ## 4, name ## 3, name ## 2, name, name ## N
 
 enum class ByteCodeInstruction : uint16_t {
     // B = bool, F = float, I = int, S = signed, U = unsigned
@@ -37,11 +39,11 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR(kCompareIEQ),
     VECTOR(kCompareINEQ),
     VECTOR_MATRIX(kCompareFEQ),
+    VECTOR_MATRIX(kCompareFNEQ),
     VECTOR(kCompareFGT),
     VECTOR(kCompareFGTEQ),
     VECTOR(kCompareFLT),
     VECTOR(kCompareFLTEQ),
-    VECTOR_MATRIX(kCompareFNEQ),
     VECTOR(kCompareSGT),
     VECTOR(kCompareSGTEQ),
     VECTOR(kCompareSLT),
@@ -59,7 +61,9 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR(kDivideU),
     // Duplicates the top stack value
     VECTOR_MATRIX(kDup),
-    kInverse2x2, kInverse3x3, kInverse4x4,
+    kInverse2x2,
+    kInverse3x3,
+    kInverse4x4,
     // kLoad/kLoadGlobal are followed by a byte indicating the local/global slot to load
     VECTOR(kLoad),
     VECTOR(kLoadGlobal),
