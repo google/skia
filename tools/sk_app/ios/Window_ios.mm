@@ -128,6 +128,10 @@ void Window_ios::onInval() {
     // nothing yet
 }
 
+- (void)viewWillTransitionToSize:(CGSize)size
+       withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    // handle rotations here
+}
 @end
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -136,8 +140,54 @@ void Window_ios::onInval() {
     sk_app::Window_ios* fWindow;
 }
 
+- (IBAction)panGestureAction:(UIGestureRecognizer*)sender {
+    CGPoint location = [sender locationInView:self];
+    switch (sender.state) {
+        case UIGestureRecognizerStateBegan:
+            fWindow->onMouse(location.x, location.y,
+                             skui::InputState::kDown,skui::ModifierKey::kNone);
+            break;
+        case UIGestureRecognizerStateChanged:
+            fWindow->onMouse(location.x, location.y,
+                             skui::InputState::kMove, skui::ModifierKey::kNone);
+            break;
+        case UIGestureRecognizerStateEnded:
+            fWindow->onMouse(location.x, location.y,
+                             skui::InputState::kUp, skui::ModifierKey::kNone);
+            break;
+        case UIGestureRecognizerStateCancelled:
+            fWindow->onMouse(location.x, location.y,
+                             skui::InputState::kUp, skui::ModifierKey::kNone);
+            break;
+        default:
+            break;
+    }
+}
+
+- (IBAction)tapGestureAction:(UIGestureRecognizer*)sender {
+    CGPoint location = [sender locationInView:self];
+    switch (sender.state) {
+        case UIGestureRecognizerStateEnded:
+            fWindow->onMouse(location.x, location.y,
+                             skui::InputState::kDown, skui::ModifierKey::kNone);
+            fWindow->onMouse(location.x, location.y,
+                             skui::InputState::kUp, skui::ModifierKey::kNone);
+            break;
+        default:
+            break;
+    }
+}
+
 - (MainView*)initWithWindow:(sk_app::Window_ios *)initWindow {
     self = [super init];
+
+    UIPanGestureRecognizer* panGestureRecognizer = [[UIPanGestureRecognizer alloc] init];
+    [panGestureRecognizer addTarget:self action:@selector(panGestureAction:)];
+    [self addGestureRecognizer:panGestureRecognizer];
+
+    UITapGestureRecognizer* tapGestureRecognizer = [[UITapGestureRecognizer alloc] init];
+    [tapGestureRecognizer addTarget:self action:@selector(tapGestureAction:)];
+    [self addGestureRecognizer:tapGestureRecognizer];
 
     fWindow = initWindow;
 
