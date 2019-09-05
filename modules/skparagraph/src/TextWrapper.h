@@ -49,7 +49,7 @@ class TextWrapper {
         inline Cluster* startCluster() const { return fStart.cluster(); }
         inline Cluster* endCluster() const { return fEnd.cluster(); }
         inline Cluster* breakCluster() const { return fBreak.cluster(); }
-        inline LineMetrics& metrics() { return fMetrics; }
+        inline InternalLineMetrics& metrics() { return fMetrics; }
         inline size_t startPos() const { return fStart.position(); }
         inline size_t endPos() const { return fEnd.position(); }
         bool endOfCluster() { return fEnd.position() == fEnd.cluster()->endPos(); }
@@ -65,12 +65,16 @@ class TextWrapper {
             stretch.clean();
         }
 
+        void setMetrics(const InternalLineMetrics& metrics) { fMetrics = metrics; }
+
         void extend(Cluster* cluster) {
             if (fStart.cluster() == nullptr) {
                 fStart = ClusterPos(cluster, cluster->startPos());
             }
             fEnd = ClusterPos(cluster, cluster->endPos());
-            fMetrics.add(cluster->run());
+            if (!cluster->run()->isPlaceholder()) {
+                fMetrics.add(cluster->run());
+            }
             fWidth += cluster->width();
         }
 
@@ -126,7 +130,7 @@ class TextWrapper {
         ClusterPos fStart;
         ClusterPos fEnd;
         ClusterPos fBreak;
-        LineMetrics fMetrics;
+        InternalLineMetrics fMetrics;
         SkScalar fWidth;
         SkScalar fWidthWithGhostSpaces;
     };
@@ -143,15 +147,16 @@ public:
                                                   size_t endClip,
                                                   SkVector offset,
                                                   SkVector advance,
-                                                  LineMetrics metrics,
+                                                  InternalLineMetrics metrics,
                                                   bool addEllipsis)>;
     void breakTextIntoLines(ParagraphImpl* parent,
                             SkScalar maxWidth,
                             const AddLineToParagraph& addLine);
 
-    inline SkScalar height() const { return fHeight; }
-    inline SkScalar minIntrinsicWidth() const { return fMinIntrinsicWidth; }
-    inline SkScalar maxIntrinsicWidth() const { return fMaxIntrinsicWidth; }
+    SkScalar height() const { return fHeight; }
+    SkScalar minIntrinsicWidth() const { return fMinIntrinsicWidth; }
+    SkScalar maxIntrinsicWidth() const { return fMaxIntrinsicWidth; }
+    bool exceededMaxLines() const { return fExceededMaxLines; }
 
 private:
     TextStretch fWords;
@@ -163,6 +168,7 @@ private:
     bool fTooLongCluster;
 
     bool fHardLineBreak;
+    bool fExceededMaxLines;
 
     SkScalar fHeight;
     SkScalar fMinIntrinsicWidth;
