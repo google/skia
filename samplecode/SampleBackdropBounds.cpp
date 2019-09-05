@@ -17,15 +17,11 @@
 
 #include "tools/ToolUtils.h"
 
-namespace {
-
-} // anonymous namespace
-
 static constexpr float kLineHeight = 16.f;
 static constexpr float kLineInset = 8.f;
 
 static float print_size(SkCanvas* canvas, const char* prefix, const SkIRect& rect,
-                       float x, float y, const SkFont& font, const SkPaint& paint) {
+                        float x, float y, const SkFont& font, const SkPaint& paint) {
     canvas->drawString(prefix, x, y, font, paint);
     y += kLineHeight;
     SkString sz;
@@ -34,8 +30,9 @@ static float print_size(SkCanvas* canvas, const char* prefix, const SkIRect& rec
     return y + kLineHeight;
 }
 
-static float print_info(SkCanvas* canvas, const SkIRect& origLayerBounds, const SkIRect& localLayerBounds,
-                        const SkIRect& filterInputBounds, const SkIRect& devLayerBounds) {
+static float print_info(SkCanvas* canvas, const SkIRect& origLayerBounds,
+                        const SkIRect& localLayerBounds, const SkIRect& filterInputBounds,
+                        const SkIRect& devLayerBounds) {
     SkFont font(nullptr, 12);
     SkPaint text;
     text.setAntiAlias(true);
@@ -113,7 +110,6 @@ public:
         SkIRect filterInputBounds = layerBounds;
         filterInputBounds.outset(5, 5);
         canvas->drawRect(SkRect::Make(filterInputBounds), line_paint(1.f, SK_ColorBLUE));
-
 
         // The destination bounds that must be snapped in order to transform and fill the
         // filterInputBounds
