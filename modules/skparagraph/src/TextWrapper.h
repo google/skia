@@ -49,7 +49,7 @@ class TextWrapper {
         inline Cluster* startCluster() const { return fStart.cluster(); }
         inline Cluster* endCluster() const { return fEnd.cluster(); }
         inline Cluster* breakCluster() const { return fBreak.cluster(); }
-        inline LineMetrics& metrics() { return fMetrics; }
+        inline InternalLineMetrics& metrics() { return fMetrics; }
         inline size_t startPos() const { return fStart.position(); }
         inline size_t endPos() const { return fEnd.position(); }
         bool endOfCluster() { return fEnd.position() == fEnd.cluster()->endPos(); }
@@ -64,6 +64,8 @@ class TextWrapper {
             fWidth += stretch.fWidth;
             stretch.clean();
         }
+
+        void setMetrics(const InternalLineMetrics& metrics) { fMetrics = metrics; }
 
         void extend(Cluster* cluster) {
             if (fStart.cluster() == nullptr) {
@@ -126,7 +128,7 @@ class TextWrapper {
         ClusterPos fStart;
         ClusterPos fEnd;
         ClusterPos fBreak;
-        LineMetrics fMetrics;
+        InternalLineMetrics fMetrics;
         SkScalar fWidth;
         SkScalar fWidthWithGhostSpaces;
     };
@@ -143,7 +145,7 @@ public:
                                                   size_t endClip,
                                                   SkVector offset,
                                                   SkVector advance,
-                                                  LineMetrics metrics,
+                                                  InternalLineMetrics metrics,
                                                   bool addEllipsis)>;
     void breakTextIntoLines(ParagraphImpl* parent,
                             SkScalar maxWidth,

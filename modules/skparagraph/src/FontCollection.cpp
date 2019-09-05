@@ -115,7 +115,7 @@ sk_sp<SkTypeface> FontCollection::matchDefaultTypeface(SkFontStyle fontStyle, co
         }
 
         sk_sp<SkTypeface> match(set->matchStyle(fontStyle));
-        if (match) {
+        if (match || manager == fTestFontManager) {
             typeface = std::move(match);
             break;
         }

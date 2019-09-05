@@ -1222,22 +1222,23 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
-        const char* text = "The same text many times";
+        const char* text = "aaaaaaaaaaaaaaaaaaaa";
 
-        for (size_t i = 0; i < 10; i++) {
             ParagraphStyle paragraph_style;
-            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
             TextStyle text_style;
             text_style.setFontFamilies({SkString("Roboto")});
             text_style.setColor(SK_ColorBLACK);
-            text_style.setFontSize(10 + 2 * (i % 10));
-            builder.pushStyle(text_style);
-            builder.addText(text);
-            builder.pop();
-            auto paragraph = builder.Build();
-            paragraph->layout(500);
-            paragraph->paint(canvas, 0, 40 * (i % 10));
-        }
+            text_style.setFontSize(14.0);
+            paragraph_style.setTextStyle(text_style);
+            ParagraphBuilderImpl builder2(paragraph_style, getFontCollection());
+            builder2.addText(text);
+            auto paragraph2 = builder2.Build();
+            paragraph2->layout(SK_ScalarInfinity);
+            paragraph2->layout(paragraph2->getMaxIntrinsicWidth());
+            auto len = strlen(text);
+            auto boxes = paragraph2->getRectsForRange(len, len + 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
+
+            paragraph2->paint(canvas, 0, 100);
     }
 
 private:
