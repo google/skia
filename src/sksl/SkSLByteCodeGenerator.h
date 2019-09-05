@@ -94,7 +94,7 @@ public:
      * Based on 'type', writes the s (signed), u (unsigned), or f (float) instruction.
      */
     void writeTypedInstruction(const Type& type, ByteCodeInstruction s, ByteCodeInstruction u,
-                               ByteCodeInstruction f, int count);
+                               ByteCodeInstruction f, int count, bool writeCount = true);
 
     static int SlotCount(const Type& type);
 
