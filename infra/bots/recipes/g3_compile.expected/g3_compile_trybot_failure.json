@@ -33,19 +33,6 @@
     ]
   },
   {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "rmtree",
-      "[CLEANUP]/g3_try_tmp_1"
-    ],
-    "infra_step": true,
-    "name": "rmtree [CLEANUP]/g3_try_tmp_1"
-  },
-  {
     "failure": {
       "failure": {},
       "humanReason": "Step('Trigger and wait for g3 compile task') (retcode: 1)"

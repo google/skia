@@ -550,15 +550,15 @@ time.sleep(60)
     # TODO(borenet): When all of our devices are on Android 6.0 and up, we can
     # switch to using tar to zip up the results before pulling.
     with self.m.step.nest('adb pull'):
-      with self.m.tempfile.temp_dir('adb_pull') as tmp:
-        self._adb('pull %s' % device, 'pull', device, tmp)
-        paths = self.m.file.glob_paths(
-            'list pulled files',
-            tmp,
-            self.m.path.basename(device) + self.m.path.sep + '*',
-            test_data=['%d.png' % i for i in (1, 2)])
-        for p in paths:
-          self.m.file.copy('copy %s' % self.m.path.basename(p), p, host)
+      tmp = self.m.path.mkdtemp('adb_pull')
+      self._adb('pull %s' % device, 'pull', device, tmp)
+      paths = self.m.file.glob_paths(
+          'list pulled files',
+          tmp,
+          self.m.path.basename(device) + self.m.path.sep + '*',
+          test_data=['%d.png' % i for i in (1, 2)])
+      for p in paths:
+        self.m.file.copy('copy %s' % self.m.path.basename(p), p, host)
 
   def read_file_on_device(self, path, **kwargs):
     rv = self._adb('read %s' % path,

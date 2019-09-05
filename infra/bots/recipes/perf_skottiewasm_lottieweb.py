@@ -21,7 +21,6 @@ DEPS = [
   'recipe_engine/properties',
   'recipe_engine/python',
   'recipe_engine/step',
-  'recipe_engine/tempfile',
   'recipe_engine/time',
   'run',
   'vars',
@@ -136,26 +135,26 @@ def RunSteps(api):
     api.step('npm install', cmd=['npm', 'install'])
 
   perf_results = {}
-  with api.tempfile.temp_dir('g3_try') as output_dir:
-    # Run the perf_app_cmd on each lottie file and parse the trace files.
-    for _, lottie_file in enumerate(lottie_files):
-      lottie_filename = api.path.basename(lottie_file)
-      if not lottie_filename.endswith('.json'):
-        continue
-      output_file = output_dir.join(lottie_filename)
-      with api.context(cwd=perf_app_dir, env={'DISPLAY': ':0'}):
-        # This is occasionally flaky due to skbug.com/9207, adding retries.
-        attempts = 3
-        # Add output and input arguments to the cmd.
-        api.run.with_retry(api.step, 'Run perf cmd line app', attempts,
-                           cmd=perf_app_cmd + [
-                               '--input', lottie_file,
-                               '--output', output_file,
-                           ], infra_step=True)
+  output_dir = api.path.mkdtemp('g3_try')
+  # Run the perf_app_cmd on each lottie file and parse the trace files.
+  for _, lottie_file in enumerate(lottie_files):
+    lottie_filename = api.path.basename(lottie_file)
+    if not lottie_filename.endswith('.json'):
+      continue
+    output_file = output_dir.join(lottie_filename)
+    with api.context(cwd=perf_app_dir, env={'DISPLAY': ':0'}):
+      # This is occasionally flaky due to skbug.com/9207, adding retries.
+      attempts = 3
+      # Add output and input arguments to the cmd.
+      api.run.with_retry(api.step, 'Run perf cmd line app', attempts,
+                         cmd=perf_app_cmd + [
+                             '--input', lottie_file,
+                             '--output', output_file,
+                         ], infra_step=True)
 
-      perf_results[lottie_filename] = {
-          'gl': parse_trace(output_file, lottie_filename, api, renderer),
-      }
+    perf_results[lottie_filename] = {
+        'gl': parse_trace(output_file, lottie_filename, api, renderer),
+    }
 
   # Construct contents of the output JSON.
   perf_json = {

@@ -67,22 +67,6 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "rmtree",
-      "[CLEANUP]/read_file_on_device_tmp_1"
-    ],
-    "infra_step": true,
-    "name": "read file.txt.rmtree [CLEANUP]/read_file_on_device_tmp_1",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
       "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
       "foo@127.0.0.1",
       "if exist \"file.txt\" del \"file.txt\"",
@@ -351,22 +335,6 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "rmtree",
-      "[CLEANUP]/read_file_on_device_tmp_2"
-    ],
-    "infra_step": true,
-    "name": "read C:\\Users\\chrome-bot\\botdata\\SKP_VERSION.rmtree [CLEANUP]/read_file_on_device_tmp_2",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
       "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
       "foo@127.0.0.1",
       "if exist \"C:\\Users\\chrome-bot\\botdata\\SKP_VERSION\" del \"C:\\Users\\chrome-bot\\botdata\\SKP_VERSION\"",
@@ -540,22 +508,6 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "rmtree",
-      "[CLEANUP]/read_file_on_device_tmp_3"
-    ],
-    "infra_step": true,
-    "name": "read C:\\Users\\chrome-bot\\botdata\\SK_IMAGE_VERSION.rmtree [CLEANUP]/read_file_on_device_tmp_3",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
       "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
       "foo@127.0.0.1",
       "if exist \"C:\\Users\\chrome-bot\\botdata\\SK_IMAGE_VERSION\" del \"C:\\Users\\chrome-bot\\botdata\\SK_IMAGE_VERSION\"",
@@ -721,22 +673,6 @@
     ],
     "infra_step": true,
     "name": "read C:\\Users\\chrome-bot\\botdata\\SVG_VERSION.read SVG_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "rmtree",
-      "[CLEANUP]/read_file_on_device_tmp_4"
-    ],
-    "infra_step": true,
-    "name": "read C:\\Users\\chrome-bot\\botdata\\SVG_VERSION.rmtree [CLEANUP]/read_file_on_device_tmp_4",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
