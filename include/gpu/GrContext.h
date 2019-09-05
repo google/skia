@@ -447,6 +447,12 @@ public:
 
     void deleteBackendTexture(GrBackendTexture);
 
+    // This interface allows clients to pre-compile shaders and populate the runtime program cache.
+    // The key and data blobs should be the ones passed to the PersistentCache, in either GLSL or
+    // SkSL format.
+    // TODO: Document this process better, and explain the pitfalls.
+    bool precompileShader(const SkData& key, const SkData& data);
+
 #ifdef SK_ENABLE_DUMP_GPU
     /** Returns a string with detailed information about the context & GPU, in JSON format. */
     SkString dump() const;
