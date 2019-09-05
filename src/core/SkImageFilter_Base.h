@@ -86,15 +86,6 @@ public:
      * DEPRECATED - Should draw the results of filterImage() directly with the remainder matrix.
      */
     sk_sp<SkImageFilter> applyCTM(const SkMatrix& ctm, SkMatrix* remainder) const;
-    /**
-     * Similar to SkApplyCTMToFilter except this assumes the input content is an existing backdrop
-     * image to be filtered. As such,  the input to this filter will also be transformed by B^-1 if
-     * the filter can't support complex CTMs, since backdrop content is already in device space and
-     * must be transformed back into the CTM's local space.
-     *
-     * DEPRECATED - Should draw the results of filterImage() directly with the remainder matrix.
-     */
-    sk_sp<SkImageFilter> applyCTMForBackdrop(const SkMatrix& ctm, SkMatrix* remainder) const;
 
     uint32_t uniqueID() const { return fUniqueID; }
 
