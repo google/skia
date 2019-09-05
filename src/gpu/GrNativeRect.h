@@ -7,16 +7,16 @@
 
 
 
-#ifndef GrGLIRect_DEFINED
-#define GrGLIRect_DEFINED
+#ifndef GrNativeRect_DEFINED
+#define GrNativeRect_DEFINED
 
+#include "include/core/SkRect.h"
 #include "include/gpu/GrTypes.h"
 
 /**
- * Helper struct for dealing with the fact that Ganesh and GL use different
- * window coordinate systems (top-down vs bottom-up)
+ * Helper struct for dealing with bottom-up surface origins (bottom-up instead of top-down).
  */
-struct GrGLIRect {
+struct GrNativeRect {
     int fX;
     int fY;
     int fWidth;
@@ -28,11 +28,11 @@ struct GrGLIRect {
     const int* asInts() const {
         return &fX;
 
-        GR_STATIC_ASSERT(0 == offsetof(GrGLIRect, fX));
-        GR_STATIC_ASSERT(4 == offsetof(GrGLIRect, fY));
-        GR_STATIC_ASSERT(8 == offsetof(GrGLIRect, fWidth));
-        GR_STATIC_ASSERT(12 == offsetof(GrGLIRect, fHeight));
-        GR_STATIC_ASSERT(16 == sizeof(GrGLIRect));  // For an array of GrGLIRect.
+        GR_STATIC_ASSERT(0 == offsetof(GrNativeRect, fX));
+        GR_STATIC_ASSERT(4 == offsetof(GrNativeRect, fY));
+        GR_STATIC_ASSERT(8 == offsetof(GrNativeRect, fWidth));
+        GR_STATIC_ASSERT(12 == offsetof(GrNativeRect, fHeight));
+        GR_STATIC_ASSERT(16 == sizeof(GrNativeRect));  // For an array of GrNativeRect.
     }
     int* asInts() { return &fX; }
 
@@ -77,11 +77,11 @@ struct GrGLIRect {
     bool isInvalid() const { return fX == -1 && fWidth == -1 && fY == -1
         && fHeight == -1; }
 
-    bool operator ==(const GrGLIRect& that) const {
-        return 0 == memcmp(this, &that, sizeof(GrGLIRect));
+    bool operator ==(const GrNativeRect& that) const {
+        return 0 == memcmp(this, &that, sizeof(GrNativeRect));
     }
 
-    bool operator !=(const GrGLIRect& that) const {return !(*this == that);}
+    bool operator !=(const GrNativeRect& that) const {return !(*this == that);}
 };
 
 #endif
