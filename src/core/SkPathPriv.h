@@ -66,9 +66,9 @@ public:
         if (verbCount == 0)
             return false;
         int moveCount = 0;
-        auto verbs = path.fPathRef->verbs();
+        auto verbs = path.fPathRef->verbsBegin();
         for (int i = 0; i < verbCount; i++) {
-            switch (verbs[~i]) { // verbs are stored backwards; we use [~i] to get the i'th verb
+            switch (verbs[i]) {
                 case SkPath::Verb::kMove_Verb:
                     moveCount += 1;
                     if (moveCount > 1) {
@@ -123,13 +123,13 @@ public:
     public:
         Verbs(const SkPath& path) : fPathRef(path.fPathRef.get()) {}
         struct Iter {
-            void operator++() { --fVerb; } // verbs are laid out backwards in memory.
+            void operator++() { fVerb++; }
             bool operator!=(const Iter& b) { return fVerb != b.fVerb; }
             SkPath::Verb operator*() { return static_cast<SkPath::Verb>(*fVerb); }
             const uint8_t* fVerb;
         };
-        Iter begin() { return Iter{fPathRef->verbs() - 1}; }
-        Iter end() { return Iter{fPathRef->verbs() - fPathRef->countVerbs() - 1}; }
+        Iter begin() { return Iter{fPathRef->verbsBegin()}; }
+        Iter end() { return Iter{fPathRef->verbsEnd()}; }
     private:
         Verbs(const Verbs&) = delete;
         Verbs& operator=(const Verbs&) = delete;
@@ -137,11 +137,10 @@ public:
     };
 
     /**
-     * Returns a pointer to the verb data. Note that the verbs are stored backwards in memory and
-     * thus the returned pointer is the last verb.
+     * Returns a pointer to the verb data.
      */
     static const uint8_t* VerbData(const SkPath& path) {
-        return path.fPathRef->verbsMemBegin();
+        return path.fPathRef->verbsBegin();
     }
 
     /** Returns a raw pointer to the path points */
@@ -289,8 +288,8 @@ public:
 // Roughly the same as SkPath::Iter(path, true), but does not return moves or closes
 //
 class SkPathEdgeIter {
-    const uint8_t*  fVerbsStart;
-    const uint8_t*  fVerbs; // reverse
+    const uint8_t*  fVerbs;
+    const uint8_t*  fVerbsStop;
     const SkPoint*  fPts;
     const SkPoint*  fMoveToPtr;
     const SkScalar* fConicWeights;
@@ -338,8 +337,8 @@ public:
         };
 
         for (;;) {
-            SkASSERT(fVerbs >= fVerbsStart);
-            if (fVerbs == fVerbsStart) {
+            SkASSERT(fVerbs <= fVerbsStop);
+            if (fVerbs == fVerbsStop) {
                 return fNeedsCloseLine
                     ? closeline()
                     : Result{ nullptr, Edge(kIllegalEdgeValue) };
@@ -347,7 +346,7 @@ public:
 
             SkDEBUGCODE(fIsConic = false;)
 
-            const auto v = *--fVerbs;
+            const auto v = *fVerbs++;
             switch (v) {
                 case SkPath::kMove_Verb: {
                     if (fNeedsCloseLine) {
