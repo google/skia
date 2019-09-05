@@ -18,16 +18,11 @@ namespace SkSL {
 class  ExternalValue;
 struct FunctionDeclaration;
 
-#define VECTOR(name) name ## 4, name ## 3, name ## 2, name
-#define VECTOR_MATRIX(name) name ## 4, name ## 3, name ## 2, name, name ## N
+#define VECTOR(name) name, name ## 2, name ## 3, name ## 4
+#define VECTOR_MATRIX(name) name, name ## 2, name ## 3, name ## 4, name ## N
 
 enum class ByteCodeInstruction : uint16_t {
     // B = bool, F = float, I = int, S = signed, U = unsigned
-    // All binary VECTOR instructions (kAddF, KSubtractI, kCompareIEQ, etc.) are followed by a byte
-    // indicating the count, even though it is redundant due to the count appearing in the opcode.
-    // This is because the original opcodes are lost after we preprocess it into threaded code, and
-    // we need to still be able to access the count so as to permit the implementation to use opcode
-    // fallthrough.
     VECTOR_MATRIX(kAddF),
     VECTOR(kAddI),
     kAndB,
@@ -42,11 +37,11 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR(kCompareIEQ),
     VECTOR(kCompareINEQ),
     VECTOR_MATRIX(kCompareFEQ),
-    VECTOR_MATRIX(kCompareFNEQ),
     VECTOR(kCompareFGT),
     VECTOR(kCompareFGTEQ),
     VECTOR(kCompareFLT),
     VECTOR(kCompareFLTEQ),
+    VECTOR_MATRIX(kCompareFNEQ),
     VECTOR(kCompareSGT),
     VECTOR(kCompareSGTEQ),
     VECTOR(kCompareSLT),
@@ -58,18 +53,14 @@ enum class ByteCodeInstruction : uint16_t {
     VECTOR(kConvertFtoI),
     VECTOR(kConvertStoF),
     VECTOR(kConvertUtoF),
-    // Followed by a (redundant) byte indicating the count
     VECTOR(kCos),
     VECTOR_MATRIX(kDivideF),
     VECTOR(kDivideS),
     VECTOR(kDivideU),
-    // Duplicates the top stack value. Followed by a (redundant) byte indicating the count.
+    // Duplicates the top stack value
     VECTOR_MATRIX(kDup),
-    kInverse2x2,
-    kInverse3x3,
-    kInverse4x4,
-    // kLoad/kLoadGlobal are followed by a byte indicating the count, and a byte indicating the
-    // local/global slot to load
+    kInverse2x2, kInverse3x3, kInverse4x4,
+    // kLoad/kLoadGlobal are followed by a byte indicating the local/global slot to load
     VECTOR(kLoad),
     VECTOR(kLoadGlobal),
     // As kLoad/kLoadGlobal, then a count byte (1-4), and then one byte per swizzle component (0-3).
@@ -108,7 +99,6 @@ enum class ByteCodeInstruction : uint16_t {
     // Takes a single value from the top of the stack, and converts to a CxR matrix with that value
     // replicated along the diagonal (and zero elsewhere), per the GLSL matrix construction rules.
     kScalarToMatrix,
-    // Followed by a (redundant) byte indicating the count
     VECTOR(kSin),
     VECTOR(kSqrt),
     // kStore/kStoreGlobal are followed by a byte indicating the local/global slot to store
@@ -131,7 +121,6 @@ enum class ByteCodeInstruction : uint16_t {
     kSwizzle,
     VECTOR_MATRIX(kSubtractF),
     VECTOR(kSubtractI),
-    // Followed by a (redundant) byte indicating the count
     VECTOR(kTan),
     // Followed by a byte indicating external value to write
     VECTOR(kWriteExternal),
@@ -171,19 +160,12 @@ struct ByteCodeFunction {
     int fConditionCount = 0;
     int fLoopCount = 0;
     int fReturnCount = 0;
-    bool fPreprocessed = 0;
     std::vector<uint8_t> fCode;
 
     /**
      * Print bytecode disassembly to stdout.
      */
     void disassemble() const;
-
-    /**
-     * Replace each opcode with the corresponding entry from the labels array. Each address is
-     * stored as a 16-bit offset relative to base.
-     */
-    void preprocess(const void* labels[], const void* base);
 };
 
 struct SK_API ByteCode {
