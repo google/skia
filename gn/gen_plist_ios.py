@@ -29,6 +29,7 @@ with open(os.path.join(out, app + '_Info.plist'), 'w') as f:
       <integer>1</integer>
       <integer>2</integer>
     </array>
+    <key>UILaunchStoryboardName</key> <string>LaunchScreen</string>
   </dict>
 </plist>
 '''.format(app=app))

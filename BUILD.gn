@@ -1197,6 +1197,108 @@ if (skia_enable_tools) {
     }
   }
 
+  # Template to compile .xib and .storyboard files.
+  #
+  # Arguments
+  #
+  #     sources:
+  #         list of string, sources to compile
+  #
+  #     ibtool_flags:
+  #         (optional) list of string, additional flags to pass to the ibtool
+  template("compile_ib_files") {
+    action_foreach(target_name) {
+      forward_variables_from(invoker,
+                             [
+                               "testonly",
+                               "visibility",
+                             ])
+      assert(defined(invoker.sources),
+             "sources must be specified for $target_name")
+      assert(defined(invoker.output_extension),
+             "output_extension must be specified for $target_name")
+
+      ibtool_flags = []
+      if (defined(invoker.ibtool_flags)) {
+        ibtool_flags = invoker.ibtool_flags
+      }
+
+      _output_extension = invoker.output_extension
+
+      script = "//gn/compile_ib_files.py"
+      sources = invoker.sources
+      outputs = [
+        "$target_gen_dir/$target_name/{{source_name_part}}.$_output_extension",
+      ]
+      args = [
+        "--input",
+        "{{source}}",
+        "--output",
+        rebase_path(
+            "$target_gen_dir/$target_name/{{source_name_part}}.$_output_extension",
+            root_build_dir),
+      ]
+
+      #    if (!use_system_xcode) {
+      #      args += [
+      #        "--developer_dir",
+      #        hermetic_xcode_path,
+      #      ]
+      #    }
+      args += ibtool_flags
+    }
+  }
+
+  template("bundle_data_ib_file") {
+    assert(defined(invoker.source),
+           "source needs to be defined for $target_name")
+
+    _source_extension = get_path_info(invoker.source, "extension")
+    assert(_source_extension == "xib" || _source_extension == "storyboard",
+           "source must be a .xib or .storyboard for $target_name")
+
+    _target_name = target_name
+    if (_source_extension == "xib") {
+      _compile_ib_file = target_name + "_compile_xib"
+      _output_extension = "nib"
+    } else {
+      _compile_ib_file = target_name + "_compile_storyboard"
+      _output_extension = "storyboardc"
+    }
+
+    compile_ib_files(_compile_ib_file) {
+      sources = [
+        invoker.source,
+      ]
+      output_extension = _output_extension
+      visibility = [ ":$_target_name" ]
+      ibtool_flags = [
+        #        "--minimum-deployment-target",
+        #        ios_deployment_target,
+        "--auto-activate-custom-fonts",
+        "--target-device",
+        "iphone",
+        "--target-device",
+        "ipad",
+      ]
+    }
+
+    bundle_data(_target_name) {
+      forward_variables_from(invoker, "*", [ "source" ])
+
+      if (!defined(public_deps)) {
+        public_deps = []
+      }
+      public_deps += [ ":$_compile_ib_file" ]
+
+      sources = get_target_outputs(":$_compile_ib_file")
+
+      outputs = [
+        "{{bundle_resources_dir}}/{{source_file_part}}",
+      ]
+    }
+  }
+
   template("test_app") {
     if (is_ios) {
       app_name = target_name
@@ -1233,6 +1335,9 @@ if (skia_enable_tools) {
           # iOS reserves the folders 'Resources' and 'resources' so store one level deeper
           "{{bundle_resources_dir}}/data/resources",
         ]
+      }
+      bundle_data_ib_file("${app_name}_bundle_launchscreen") {
+        source = "platform_tools/ios/app/LaunchScreen.storyboard"
       }
       if (has_skps) {
         bundle_data("${app_name}_bundle_skps") {
@@ -1315,6 +1420,7 @@ if (skia_enable_tools) {
         deps = [
           ":${app_name}_bundle_executable",
           ":${app_name}_bundle_info_plist",
+          ":${app_name}_bundle_launchscreen",
           ":${app_name}_bundle_resources",
           ":${app_name}_bundle_symbols",
         ]
