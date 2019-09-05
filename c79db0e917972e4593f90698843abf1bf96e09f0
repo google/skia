@@ -1,0 +1,239 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc0c9464_8a4b4f32",
+        "filename": "samplecode/SampleBackdropBounds.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-05T16:31:45Z",
+      "side": 1,
+      "message": "rm ?",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 24
+      },
+      "revId": "c79db0e917972e4593f90698843abf1bf96e09f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ad16bbc_6142f7d7",
+        "filename": "samplecode/SampleBackdropBounds.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-05T16:31:45Z",
+      "side": 1,
+      "message": "add a \u0027 \u0027 ?",
+      "revId": "c79db0e917972e4593f90698843abf1bf96e09f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29c358b3_553f7219",
+        "filename": "samplecode/SampleBackdropBounds.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-05T16:31:45Z",
+      "side": 1,
+      "message": "\\n ?",
+      "revId": "c79db0e917972e4593f90698843abf1bf96e09f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dea66a2e_283e47c1",
+        "filename": "samplecode/SampleBackdropBounds.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-05T16:31:45Z",
+      "side": 1,
+      "message": "extra line ?",
+      "revId": "c79db0e917972e4593f90698843abf1bf96e09f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7c8ffef_93f04040",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 888,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-05T16:31:45Z",
+      "side": 1,
+      "message": "snap bounds ?\n\n\"all the following snapBounds\" ?",
+      "range": {
+        "startLine": 888,
+        "startChar": 47,
+        "endLine": 888,
+        "endChar": 58
+      },
+      "revId": "c79db0e917972e4593f90698843abf1bf96e09f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a046540_ba043e68",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 891,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-05T16:31:45Z",
+      "side": 1,
+      "message": "Can this go lower ?",
+      "range": {
+        "startLine": 891,
+        "startChar": 4,
+        "endLine": 891,
+        "endChar": 14
+      },
+      "revId": "c79db0e917972e4593f90698843abf1bf96e09f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e83a8866_3f140464",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 892,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-05T16:31:45Z",
+      "side": 1,
+      "message": "Isn\u0027t this method called DrawDeviceWithFilter ?",
+      "range": {
+        "startLine": 892,
+        "startChar": 8,
+        "endLine": 892,
+        "endChar": 15
+      },
+      "revId": "c79db0e917972e4593f90698843abf1bf96e09f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0db157b2_c43646f9",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 893,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-05T16:31:45Z",
+      "side": 1,
+      "message": "non-filtered ?",
+      "range": {
+        "startLine": 893,
+        "startChar": 15,
+        "endLine": 893,
+        "endChar": 22
+      },
+      "revId": "c79db0e917972e4593f90698843abf1bf96e09f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5760de5_2f3a9dc8",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 947,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-05T16:31:45Z",
+      "side": 1,
+      "message": "the conservative ?",
+      "range": {
+        "startLine": 947,
+        "startChar": 10,
+        "endLine": 947,
+        "endChar": 22
+      },
+      "revId": "c79db0e917972e4593f90698843abf1bf96e09f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c8a98c3_6c4cfc7a",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1011,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-05T16:31:45Z",
+      "side": 1,
+      "message": ":( That is a painful sentence to read",
+      "range": {
+        "startLine": 1009,
+        "startChar": 0,
+        "endLine": 1011,
+        "endChar": 84
+      },
+      "revId": "c79db0e917972e4593f90698843abf1bf96e09f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56e7417c_9a1f158e",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1025,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-05T16:31:45Z",
+      "side": 1,
+      "message": "looseImage ?",
+      "range": {
+        "startLine": 1025,
+        "startChar": 13,
+        "endLine": 1025,
+        "endChar": 25
+      },
+      "revId": "c79db0e917972e4593f90698843abf1bf96e09f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
