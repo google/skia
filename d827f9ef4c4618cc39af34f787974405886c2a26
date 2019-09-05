@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12891087_1218b7aa",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-09-05T17:33:17Z",
+      "side": 1,
+      "message": "Is this still the case? It looks like it was moved to a different CL.",
+      "range": {
+        "startLine": 14,
+        "startChar": 66,
+        "endLine": 17,
+        "endChar": 0
+      },
+      "revId": "d827f9ef4c4618cc39af34f787974405886c2a26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
