@@ -33,6 +33,7 @@
 #include "src/gpu/GrTextureResolveRenderTask.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/GrTransferFromRenderTask.h"
+#include "src/gpu/GrWaitRenderTask.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/gpu/text/GrTextContext.h"
 #include "src/image/SkSurface_Gpu.h"
@@ -700,6 +701,50 @@ GrRenderTask* GrDrawingManager::newTextureResolveRenderTask(
     SkASSERT(resolveTask->fTarget->getLastRenderTask() == resolveTask);
 
     return resolveTask;
+}
+
+void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
+                                         std::unique_ptr<sk_sp<GrSemaphore>[]> semaphores,
+                                         int numSemaphores) {
+    SkDEBUGCODE(this->validate());
+    SkASSERT(fContext);
+
+    const GrCaps& caps = *fContext->priv().caps();
+
+    sk_sp<GrWaitRenderTask> waitTask = sk_make_sp<GrWaitRenderTask>(proxy, std::move(semaphores),
+                                                                    numSemaphores);
+    if (fReduceOpsTaskSplitting) {
+        GrRenderTask* lastTask = proxy->getLastRenderTask();
+        if (lastTask && !lastTask->isClosed()) {
+            // We directly add the waitTask as a dependency instead of using the proxy version of
+            // addDependecy. The waitTask will never need to trigger and resolves or mip map
+            // generation which is the main advantage of going through the proxy version.
+            // Additionaly we'd have to temporarily set the wait task as the lastRenderTask on the
+            // proxy, add the dependency, and then reset the lastRenderTask to lastTask.
+            lastTask->addDependency(waitTask.get());
+        } else {
+            proxy->setLastRenderTask(waitTask.get());
+        }
+        fDAG.add(waitTask);
+    } else {
+        if (fActiveOpsTask && (fActiveOpsTask->fTarget == proxy)) {
+            SkASSERT(proxy->getLastRenderTask() == fActiveOpsTask);
+            fDAG.addBeforeLast(waitTask);
+            // We directly add the waitTask as a dependency instead of using the proxy version of
+            // addDependecy. The waitTask will never need to trigger and resolves or mip map
+            // generation which is the main advantage of going through the proxy version.
+            // Additionaly we'd have to temporarily set the wait task as the lastRenderTask on the
+            // proxy, add the dependency, and then reset the lastRenderTask to FActiveOpsTask.
+            fActiveOpsTask->addDependency(waitTask.get());
+        } else {
+            proxy->setLastRenderTask(waitTask.get());
+            this->closeRenderTasksForNewRenderTask(proxy.get());
+            fDAG.add(waitTask);
+        }
+    }
+    waitTask->makeClosed(caps);
+
+    SkDEBUGCODE(this->validate());
 }
 
 void GrDrawingManager::newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy,

@@ -56,6 +56,13 @@ public:
     GrRenderTask* newTextureResolveRenderTask(
             sk_sp<GrSurfaceProxy>, GrSurfaceProxy::ResolveFlags, const GrCaps&);
 
+    // Create a new render task that will cause the gpu to wait on semaphores before executing any
+    // more RenderTasks to proxy. It is possible for this wait to also block additional work (even
+    // to other proxies) that has already been recorded or recorded later. The only guarentee is
+    // that future work to the passed in proxy will wait on the semaphores to be signaled.
+    void newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy, std::unique_ptr<sk_sp<GrSemaphore>[]>,
+                           int numSemaphores);
+
     // Create a new render task which copies the pixels from the srcProxy into the dstBuffer. This
     // is used to support the asynchronous readback API. The srcRect is the region of the srcProxy
     // to be copied. The surfaceColorType says how we should interpret the data when reading back
