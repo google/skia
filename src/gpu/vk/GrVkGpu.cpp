@@ -2477,13 +2477,10 @@ void adjust_bounds_to_granularity(SkIRect* dstBounds, const SkIRect& srcBounds,
     }
 }
 
-void GrVkGpu::submitSecondaryCommandBuffer(
-        std::unique_ptr<GrVkSecondaryCommandBuffer> buffer,
-        const GrVkRenderPass* renderPass,
-        const VkClearValue* colorClear,
-        GrVkRenderTarget* target, GrSurfaceOrigin origin,
-        const SkIRect& bounds) {
-
+void GrVkGpu::beginRenderPass(const GrVkRenderPass* renderPass,
+                              const VkClearValue* colorClear,
+                              GrVkRenderTarget* target, GrSurfaceOrigin origin,
+                              const SkIRect& bounds) {
     SkASSERT (!target->wrapsSecondaryCommandBuffer());
     const SkIRect* pBounds = &bounds;
     SkIRect flippedBounds;
@@ -2520,17 +2517,23 @@ void GrVkGpu::submitSecondaryCommandBuffer(
     clears[1].depthStencil.stencil = 0;
 
     fCurrentCmdBuffer->beginRenderPass(this, renderPass, clears, *target, *pBounds, true);
-    fCurrentCmdBuffer->executeCommands(this, std::move(buffer));
-    fCurrentCmdBuffer->endRenderPass(this);
+}
 
+void GrVkGpu::endRenderPass(GrRenderTarget* target, GrSurfaceOrigin origin,
+                            const SkIRect& bounds) {
+    fCurrentCmdBuffer->endRenderPass(this);
     this->didWriteToSurface(target, origin, &bounds);
 }
 
-void GrVkGpu::submit(GrOpsRenderPass* renderPass) {
-        SkASSERT(fCachedOpsRenderPass.get() == renderPass);
+void GrVkGpu::submitSecondaryCommandBuffer(std::unique_ptr<GrVkSecondaryCommandBuffer> buffer) {
+    fCurrentCmdBuffer->executeCommands(this, std::move(buffer));
+}
 
-        fCachedOpsRenderPass->submit();
-        fCachedOpsRenderPass->reset();
+void GrVkGpu::submit(GrOpsRenderPass* renderPass) {
+    SkASSERT(fCachedOpsRenderPass.get() == renderPass);
+
+    fCachedOpsRenderPass->submit();
+    fCachedOpsRenderPass->reset();
 }
 
 GrFence SK_WARN_UNUSED_RESULT GrVkGpu::insertFence() {
