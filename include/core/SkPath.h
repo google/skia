@@ -1685,8 +1685,7 @@ private:
 
     size_t writeToMemoryAsRRect(void* buffer) const;
     size_t readAsRRect(const void*, size_t);
-    size_t readFromMemory_LE3(const void*, size_t);
-    size_t readFromMemory_EQ4(const void*, size_t);
+    size_t readFromMemory_EQ4Or5(const void*, size_t);
 
     friend class Iter;
     friend class SkPathPriv;
