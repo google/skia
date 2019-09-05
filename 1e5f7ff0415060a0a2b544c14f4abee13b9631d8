@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "93ecbc6d_54349b5f",
+        "filename": "src/gpu/ops/GrFillRRectOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-09-05T16:34:51Z",
+      "side": 1,
+      "message": "Line break?",
+      "range": {
+        "startLine": 441,
+        "startChar": 0,
+        "endLine": 442,
+        "endChar": 59
+      },
+      "revId": "1e5f7ff0415060a0a2b544c14f4abee13b9631d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "504db835_ae87a249",
+        "filename": "src/gpu/ops/GrFillRRectOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 754,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-09-05T16:34:51Z",
+      "side": 1,
+      "message": "I think we should either std::move all 3 buffers, or none.\n\nIs it ok that we invalidate the op after a call to onExecute (by making the buffers null)? Or should we just up the ref counts when adding buffers to the mesh?",
+      "range": {
+        "startLine": 754,
+        "startChar": 50,
+        "endLine": 754,
+        "endChar": 65
+      },
+      "revId": "1e5f7ff0415060a0a2b544c14f4abee13b9631d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0fc22ba_57bcefdb",
+        "filename": "tests/GrMeshTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-09-05T16:34:51Z",
+      "side": 1,
+      "message": "Would it be very difficult to make this two lambdas? prepareFn and executeFn?",
+      "revId": "1e5f7ff0415060a0a2b544c14f4abee13b9631d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
