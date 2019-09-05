@@ -1814,7 +1814,7 @@ void GrGLGpu::flushScissor(const GrScissorState& scissorState, int rtWidth, int 
         // disable the scissor test.
         if (!scissor.contains(rtWidth, rtHeight)) {
             if (fHWScissorSettings.fRect != scissor) {
-                scissor.pushToGLScissor(this->glInterface());
+                GL_CALL(Scissor(scissor.fX, scissor.fY, scissor.fWidth, scissor.fHeight));
                 fHWScissorSettings.fRect = scissor;
             }
             if (kYes_TriState != fHWScissorSettings.fEnabled) {
@@ -2204,7 +2204,7 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
                                         GR_GL_RENDERBUFFER, 0));
     }
 
-    GL_CALL(ReadPixels(readRect.fLeft, readRect.fBottom, readRect.fWidth, readRect.fHeight,
+    GL_CALL(ReadPixels(readRect.fX, readRect.fY, readRect.fWidth, readRect.fHeight,
                        externalFormat, externalType, offsetOrPtr));
 
     if (reattachStencil) {
@@ -2309,7 +2309,7 @@ void GrGLGpu::flushFramebufferSRGB(bool enable) {
 void GrGLGpu::flushViewport(int width, int height) {
     GrGLIRect viewport = {0, 0, width, height};
     if (fHWViewport != viewport) {
-        viewport.pushToGLViewport(this->glInterface());
+        GL_CALL(Viewport(viewport.fX, viewport.fY, viewport.fWidth, viewport.fHeight));
         fHWViewport = viewport;
     }
 }
@@ -2529,10 +2529,10 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
                 } else {
                     GrGLIRect rect;
                     rect.setRelativeTo(rt->height(), dirtyRect, kDirtyRectOrigin);
-                    l = rect.fLeft;
-                    b = rect.fBottom;
-                    r = rect.fLeft + rect.fWidth;
-                    t = rect.fBottom + rect.fHeight;
+                    l = rect.fX;
+                    b = rect.fY;
+                    r = rect.fX + rect.fWidth;
+                    t = rect.fY + rect.fHeight;
                 }
 
                 // BlitFrameBuffer respects the scissor, so disable it.
@@ -3090,7 +3090,8 @@ void GrGLGpu::bindFramebuffer(GrGLenum target, GrGLuint fboid) {
     if (this->caps()->workarounds().restore_scissor_on_fbo_change) {
         // The driver forgets the correct scissor when modifying the FBO binding.
         if (!fHWScissorSettings.fRect.isInvalid()) {
-            fHWScissorSettings.fRect.pushToGLScissor(this->glInterface());
+            const GrGLIRect& r = fHWScissorSettings.fRect;
+            GL_CALL(Scissor(r.fX, r.fY, r.fWidth, r.fHeight));
         }
     }
 
