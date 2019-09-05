@@ -205,12 +205,6 @@ private:
                                             VkRenderPass compatibleRenderPass);
 
     private:
-        enum {
-            // We may actually have kMaxEntries+1 PipelineStates in context because we create a new
-            // PipelineState before evicting from the cache.
-            kMaxEntries = 128,
-        };
-
         struct Entry;
 
         struct DescHash {

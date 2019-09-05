@@ -4,6 +4,12 @@ This file includes a list of high level updates for each milestone release.
 
 -----
 
+Milestone 79
+
+  * Make the size of program/pipeline caches configurable via
+    GrContextOptions::fRuntimeProgramCacheSize
+    https://review.skia.org/239756
+
 Milestone 78
 
   * Added RELEASE_NOTES.txt file
