@@ -135,11 +135,7 @@ public:
         this->internalResolveRenderTarget(target, true);
     }
 
-    void submitSecondaryCommandBuffer(std::unique_ptr<GrVkSecondaryCommandBuffer>,
-                                      const GrVkRenderPass*,
-                                      const VkClearValue* colorClear,
-                                      GrVkRenderTarget*, GrSurfaceOrigin,
-                                      const SkIRect& bounds);
+    void submitSecondaryCommandBuffer(std::unique_ptr<GrVkSecondaryCommandBuffer>);
 
     void submit(GrOpsRenderPass*) override;
 
@@ -179,6 +175,12 @@ public:
     };
 
     void storeVkPipelineCacheData() override;
+
+    void beginRenderPass(const GrVkRenderPass*,
+                         const VkClearValue* colorClear,
+                         GrVkRenderTarget*, GrSurfaceOrigin,
+                         const SkIRect& bounds);
+    void endRenderPass(GrRenderTarget* target, GrSurfaceOrigin origin, const SkIRect& bounds);
 
 private:
     GrVkGpu(GrContext*, const GrContextOptions&, const GrVkBackendContext&,
