@@ -504,6 +504,9 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
 void GrOpsTask::setColorLoadOp(GrLoadOp op, const SkPMColor4f& color) {
     fColorLoadOp = op;
     fLoadClearColor = color;
+    if (GrLoadOp::kClear == fColorLoadOp) {
+        fContentBounds.setWH(fTarget->width(), fTarget->height());
+    }
 }
 
 bool GrOpsTask::resetForFullscreenClear(CanDiscardPreviousOps canDiscardPreviousOps) {
@@ -540,6 +543,7 @@ void GrOpsTask::discard() {
     if (this->isEmpty()) {
         fColorLoadOp = GrLoadOp::kDiscard;
         fStencilLoadOp = GrLoadOp::kDiscard;
+        fContentBounds.setEmpty();
     }
 }
 
@@ -676,6 +680,10 @@ void GrOpsTask::recordOp(
         fOpMemoryPool->release(std::move(op));
         return;
     }
+
+    // Account for this draw's bounds before we attempt to combine and return early.
+    // NOTE: The caller should have already called "op->setClippedBounds()" by now, if applicable.
+    fContentBounds.join(op->bounds());
 
     // Check if there is an op we can combine with by linearly searching back until we either
     // 1) check every op

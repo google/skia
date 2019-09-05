@@ -542,7 +542,7 @@ bool GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int wi
             case GrVkRenderTarget::kAutoResolves_ResolveType:
                 break;
             case GrVkRenderTarget::kCanResolve_ResolveType:
-                this->resolveRenderTargetNoFlush(rt);
+                SkASSERT(!rt->needsResolve());
                 break;
             default:
                 SK_ABORT("Unknown resolve type");
@@ -617,21 +617,24 @@ void GrVkGpu::resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect&
     fCurrentCmdBuffer->resolveImage(this, *src->msaaImage(), *dstImage, 1, &resolveInfo);
 }
 
-void GrVkGpu::internalResolveRenderTarget(GrRenderTarget* target, bool requiresSubmit) {
+void GrVkGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
+                                    GrSurfaceOrigin resolveOrigin) {
     if (target->needsResolve()) {
         SkASSERT(target->numSamples() > 1);
         GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(target);
         SkASSERT(rt->msaaImage());
 
-        const SkIRect& srcRect = rt->getResolveRect();
-
-        this->resolveImage(target, rt, srcRect, SkIPoint::Make(srcRect.fLeft, srcRect.fTop));
+        auto nativeResolveRect = GrNativeRect::MakeRelativeTo(
+                resolveOrigin, target->height(), resolveRect);
+        this->resolveImage(target, rt, nativeResolveRect.asSkIRect(),
+                           SkIPoint::Make(nativeResolveRect.fX, nativeResolveRect.fY));
 
         rt->flagAsResolved();
 
-        if (requiresSubmit) {
-            this->submitCommandBuffer(kSkip_SyncQueue);
-        }
+        // This resolve is called when we are preparing an msaa surface for external I/O. It is
+        // called after flushing, so we need to make sure we submit the command buffer after doing
+        // the resolve so that the resolve actually happens.
+        this->submitCommandBuffer(kSkip_SyncQueue);
     }
 }
 
@@ -2297,7 +2300,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
             case GrVkRenderTarget::kAutoResolves_ResolveType:
                 break;
             case GrVkRenderTarget::kCanResolve_ResolveType:
-                this->resolveRenderTargetNoFlush(rt);
+                SkASSERT(!rt->needsResolve());
                 break;
             default:
                 SK_ABORT("Unknown resolve type");
