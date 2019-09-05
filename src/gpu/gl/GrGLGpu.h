@@ -14,10 +14,10 @@
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMesh.h"
+#include "src/gpu/GrNativeRect.h"
 #include "src/gpu/GrWindowRectsState.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/gl/GrGLContext.h"
-#include "src/gpu/gl/GrGLIRect.h"
 #include "src/gpu/gl/GrGLPathRendering.h"
 #include "src/gpu/gl/GrGLProgram.h"
 #include "src/gpu/gl/GrGLRenderTarget.h"
@@ -446,8 +446,8 @@ private:
 
     // last scissor / viewport scissor state seen by the GL.
     struct {
-        TriState    fEnabled;
-        GrGLIRect   fRect;
+        TriState fEnabled;
+        GrNativeRect fRect;
         void invalidate() {
             fEnabled = kUnknown_TriState;
             fRect.invalidate();
@@ -493,7 +493,7 @@ private:
         GrWindowRectsState   fWindowState;
     } fHWWindowRectsState;
 
-    GrGLIRect                   fHWViewport;
+    GrNativeRect fHWViewport;
 
     /**
      * Tracks vertex attrib array state.
