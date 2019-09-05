@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66377a12_ed66cdd6",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 733,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-09-05T18:41:35Z",
+      "side": 1,
+      "message": "Is this not a case where we would want to split fActiveOpsTask and issue a wait?\n\nOr maybe add an op to fActiveOpsTask that jams the wait inline between other ops?",
+      "revId": "4e259e5ada2386150311116f8c3407cdb10d45f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44ecc3dd_fd436df0",
+        "filename": "src/gpu/GrWaitRenderTask.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-09-05T18:41:35Z",
+      "side": 1,
+      "message": "I think this is the third place we have this code block duplicated with the comment. Do you think we should move it into the base class?\n\nEither let the base class do it automatically if we return false, or else have a base class method called something like \"addDummyIntervalForTarget\"?",
+      "revId": "4e259e5ada2386150311116f8c3407cdb10d45f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
