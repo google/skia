@@ -88,12 +88,13 @@ ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
 
 ParagraphImpl::~ParagraphImpl() = default;
 
-void ParagraphImpl::layout(SkScalar width) {
+void ParagraphImpl::layout(SkScalar rawWidth) {
+    auto floorWidth = SkScalarFloorToScalar(rawWidth);
     if (fState < kShaped) {
         // Layout marked as dirty for performance/testing reasons
         this->fRuns.reset();
         this->fClusters.reset();
-    } else if (fState >= kLineBroken && (fOldWidth != width || fOldHeight != fHeight)) {
+    } else if (fState >= kLineBroken && (fOldWidth != floorWidth || fOldHeight != fHeight)) {
         // We can use the results from SkShaper but have to break lines again
         fState = kShaped;
     }
@@ -106,20 +107,20 @@ void ParagraphImpl::layout(SkScalar width) {
             SkFont font;
             SkScalar height;
             fFontResolver.getFirstFont(&font, &height);
-            LineMetrics lineMetrics(font, paragraphStyle().getStrutStyle().getForceStrutHeight());
+            InternalLineMetrics lineMetrics(font, paragraphStyle().getStrutStyle().getForceStrutHeight());
             // Set the important values that are not zero
-            fWidth = 0;
+            fWidth = floorWidth;
             fHeight = lineMetrics.height() * (height == 0 || height == 1 ? 1 : height);
             fAlphabeticBaseline = lineMetrics.alphabeticBaseline();
             fIdeographicBaseline = lineMetrics.ideographicBaseline();
-            this->fOldWidth = width;
+            this->fOldWidth = floorWidth;
             this->fOldHeight = this->fHeight;
             return;
         }
         if (fState < kShaped) {
             fState = kShaped;
         } else {
-            layout(width);
+            layout(floorWidth);
             return;
         }
 
@@ -135,7 +136,7 @@ void ParagraphImpl::layout(SkScalar width) {
     }
 
     if (fState >= kLineBroken)  {
-        if (fOldWidth != width || fOldHeight != fHeight) {
+        if (fOldWidth != floorWidth || fOldHeight != fHeight) {
             fState = kMarked;
         }
     }
@@ -144,7 +145,7 @@ void ParagraphImpl::layout(SkScalar width) {
         this->resetContext();
         this->resolveStrut();
         this->fLines.reset();
-        this->breakShapedTextIntoLines(width);
+        this->breakShapedTextIntoLines(floorWidth);
         fState = kLineBroken;
 
     }
@@ -155,8 +156,11 @@ void ParagraphImpl::layout(SkScalar width) {
         fState = kFormatted;
     }
 
-    this->fOldWidth = width;
+    this->fOldWidth = floorWidth;
     this->fOldHeight = this->fHeight;
+
+    fMinIntrinsicWidth = SkScalarRoundToScalar(fMinIntrinsicWidth);
+    fMaxIntrinsicWidth = SkScalarRoundToScalar(fMaxIntrinsicWidth);
 }
 
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
@@ -178,6 +182,7 @@ void ParagraphImpl::resetContext() {
     fIdeographicBaseline = 0;
     fMaxIntrinsicWidth = 0;
     fMinIntrinsicWidth = 0;
+    fLongestLine = 0;
     fMaxWidthWithTrailingSpaces = 0;
 }
 
@@ -456,7 +461,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                 size_t endPos,
                 SkVector offset,
                 SkVector advance,
-                LineMetrics metrics,
+                InternalLineMetrics metrics,
                 bool addEllipsis) {
                 // Add the line
                 // TODO: Take in account clipped edges
@@ -464,11 +469,17 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                 if (addEllipsis) {
                     line.createEllipsis(maxWidth, fParagraphStyle.getEllipsis(), true);
                 }
+
+                fLongestLine = advance.fX;
             });
     fHeight = textWrapper.height();
-    fWidth = maxWidth;  // fTextWrapper.width();
-    fMinIntrinsicWidth = textWrapper.minIntrinsicWidth();
+    fWidth = maxWidth;
     fMaxIntrinsicWidth = textWrapper.maxIntrinsicWidth();
+    fMinIntrinsicWidth = textWrapper.minIntrinsicWidth();
+    if (!fLines.empty() && fLines.back().ellipsis() != nullptr) {
+        fMaxIntrinsicWidth += fLines.back().ellipsis()->advance().fX;
+        fMinIntrinsicWidth = fMaxIntrinsicWidth;
+    }
     fAlphabeticBaseline = fLines.empty() ? 0 : fLines.front().alphabeticBaseline();
     fIdeographicBaseline = fLines.empty() ? 0 : fLines.front().ideographicBaseline();
 }
@@ -518,12 +529,12 @@ void ParagraphImpl::resolveStrut() {
     if (strutStyle.getHeightOverride()) {
         auto strutHeight = metrics.fDescent - metrics.fAscent + metrics.fLeading;
         auto strutMultiplier = strutStyle.getHeight() * strutStyle.getFontSize();
-        fStrutMetrics = LineMetrics(
+        fStrutMetrics = InternalLineMetrics(
                 metrics.fAscent / strutHeight * strutMultiplier,
                 metrics.fDescent / strutHeight * strutMultiplier,
                 strutStyle.getLeading() < 0 ? 0 : strutStyle.getLeading() * strutStyle.getFontSize());
     } else {
-        fStrutMetrics = LineMetrics(
+        fStrutMetrics = InternalLineMetrics(
                 metrics.fAscent,
                 metrics.fDescent,
                 strutStyle.getLeading() < 0 ? 0 : strutStyle.getLeading() * strutStyle.getFontSize());
@@ -557,7 +568,7 @@ TextLine& ParagraphImpl::addLine(SkVector offset,
                                  ClusterRange clusters,
                                  ClusterRange clustersWithGhosts,
                                  SkScalar widthWithSpaces,
-                                 LineMetrics sizes) {
+                                 InternalLineMetrics sizes) {
     // Define a list of styles that covers the line
     auto blocks = findAllBlocks(text);
 
@@ -783,7 +794,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     return results;
 }
 
-std::vector<TextBox> ParagraphImpl::GetRectsForPlaceholders() {
+std::vector<TextBox> ParagraphImpl::getRectsForPlaceholders() {
   std::vector<TextBox> boxes;
   if (fText.isEmpty()) {
       boxes.emplace_back(SkRect::MakeXYWH(0, 0, 0, fHeight), fParagraphStyle.getTextDirection());
@@ -847,7 +858,13 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                 if (dx >= context.clip.fRight) {
                     // We have to keep looking but just in case keep the last one as the closes
                     // so far
-                    result = { SkToS32(context.run->fClusterIndexes[context.pos + context.size - 1]) + 1, kUpstream };
+                    auto index = context.pos + context.size;
+                    if (index < context.run->size()) {
+                        result = { SkToS32(context.run->fClusterIndexes[index]), kUpstream };
+                    } else {
+                        // Take the last cluster on that line
+                        result = { SkToS32(line.clusters().end), kUpstream };
+                    }
                     return true;
                 }
 
@@ -856,7 +873,8 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                 // TODO: binary search
                 size_t found = context.pos;
                 for (size_t i = context.pos; i < context.pos + context.size; ++i) {
-                    if (context.run->positionX(i) + context.fTextShift > dx) {
+                    auto end = SkScalarRoundToScalar(context.run->positionX(i) + context.fTextShift);
+                    if (end /*context.run->positionX(i) + context.fTextShift*/ > dx) {
                         break;
                     }
                     found = i;
@@ -889,7 +907,7 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                     center = (codepointStart + codepointEnd) / 2 + context.fTextShift;
                 }
 
-                if ((dx <= center) == context.run->leftToRight()) {
+                if ((dx < center) == context.run->leftToRight()) {
                     result = { SkToS32(codepointIndex), kDownstream };
                 } else {
                     result = { SkToS32(codepointIndex + 1), kUpstream };
@@ -919,10 +937,23 @@ SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
         }
     }
 
-    auto start = fWordBreaker.preceding(offset + 1);
-    auto end = fWordBreaker.following(start);
+    int32_t start = fWordBreaker.preceding(offset + 1);
+    if (start == icu::BreakIterator::DONE) {
+        start = offset;
+    }
+    int32_t end = fWordBreaker.next();
+    if (end == icu::BreakIterator::DONE) {
+        end = offset;
+    }
 
-    return { start, end };
+    return { SkToU32(start), SkToU32(end) };
+}
+
+void ParagraphImpl::getLineMetrics(std::vector<LineMetrics>& metrics) {
+    metrics.clear();
+    for (auto& line : fLines) {
+        metrics.emplace_back(line.getMetrics());
+    }
 }
 
 SkSpan<const char> ParagraphImpl::text(TextRange textRange) {
@@ -996,6 +1027,57 @@ void ParagraphImpl::setState(InternalState state) {
         break;
     }
 
+}
+
+void ParagraphImpl::updateText(size_t from, SkString text) {
+  fText.remove(from, from + text.size());
+  fText.insert(from, text);
+  fState = kUnknown;
+  fOldWidth = 0;
+  fOldHeight = 0;
+}
+
+void ParagraphImpl::updateFontSize(size_t from, size_t to, SkScalar fontSize) {
+
+  auto defaultStyle = fParagraphStyle.getTextStyle();
+  defaultStyle.setFontSize(fontSize);
+  fParagraphStyle.setTextStyle(defaultStyle);
+
+  for (auto& textStyle : fTextStyles) {
+    textStyle.fStyle.setFontSize(fontSize);
+  }
+
+  fState = kUnknown;
+  fOldWidth = 0;
+  fOldHeight = 0;
+}
+
+void ParagraphImpl::setTextAlign(TextAlign textAlign) {
+  fParagraphStyle.setTextAlign(textAlign);
+
+  if (fState >= kLineBroken) {
+    fState = kLineBroken;
+  }
+}
+
+void ParagraphImpl::setForegroundPaint(SkPaint paint) {
+  auto defaultStyle = fParagraphStyle.getTextStyle();
+  defaultStyle.setForegroundColor(paint);
+  fParagraphStyle.setTextStyle(defaultStyle);
+
+  for (auto& textStyle : fTextStyles) {
+    textStyle.fStyle.setForegroundColor(paint);
+  }
+}
+
+void ParagraphImpl::setBackgroundPaint(SkPaint paint) {
+  auto defaultStyle = fParagraphStyle.getTextStyle();
+  defaultStyle.setBackgroundColor(paint);
+  fParagraphStyle.setTextStyle(defaultStyle);
+
+  for (auto& textStyle : fTextStyles) {
+    textStyle.fStyle.setBackgroundColor(paint);
+  }
 }
 
 }  // namespace textlayout

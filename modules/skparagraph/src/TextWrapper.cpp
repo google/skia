@@ -12,9 +12,11 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
     fClusters.startFrom(fEndLine.startCluster(), fEndLine.startPos());
     fClip.startFrom(fEndLine.startCluster(), fEndLine.startPos());
     for (auto cluster = fEndLine.endCluster(); cluster < endOfClusters; ++cluster) {
-        if (fWords.width() + fClusters.width() + cluster->width() > maxWidth) {
+        if (maxWidth > 0.0f &&
+            SkScalarRoundToScalar(fWords.width() + fClusters.width() + cluster->width()) > maxWidth) {
             if (cluster->isWhitespaces()) {
                 // It's the end of the word
+                fClusters.extend(cluster);
                 fMinIntrinsicWidth = SkTMax(fMinIntrinsicWidth, getClustersTrimmedWidth());
                 fWords.extend(fClusters);
                 break;
@@ -31,7 +33,7 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
             // Walk further to see if there is a too long word, cluster or glyph
             SkScalar nextWordLength = fClusters.width();
             for (auto further = cluster; further != endOfClusters; ++further) {
-                if (further->isSoftBreak() || further->isHardBreak()) {
+                if (further->isSoftBreak() || further->isHardBreak() || further->isWhitespaces()) {
                     break;
                 }
                 nextWordLength += further->width();
@@ -110,7 +112,11 @@ SkScalar TextWrapper::getClustersTrimmedWidth() {
         width -= cluster->width();
     }
     if (cluster >= fClusters.startCluster()) {
-        width -= (cluster->width() - cluster->trimmedWidth(cluster->endPos()));
+        if (cluster->isWhitespaces()) {
+            width -= cluster->width();
+        } else {
+            width -= (cluster->width() - cluster->trimmedWidth(cluster->endPos()));
+        }
     }
     return width;
 }
@@ -141,6 +147,10 @@ std::tuple<Cluster*, size_t, SkScalar> TextWrapper::trimStartSpaces(Cluster* end
 void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                                      SkScalar maxWidth,
                                      const AddLineToParagraph& addLine) {
+    fHeight = 0;
+    fMinIntrinsicWidth = 0;
+    fMaxIntrinsicWidth = 0;
+
     auto span = parent->clusters();
     if (span.size() == 0) {
       return;
@@ -149,18 +159,23 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     auto& ellipsisStr = parent->paragraphStyle().getEllipsis();
     auto align = parent->paragraphStyle().getTextAlign();
 
-    fHeight = 0;
-    fMinIntrinsicWidth = 0;
-    fMaxIntrinsicWidth = 0;
+    SkScalar softLineMaxIntrinsicWidth = 0;
     fEndLine = TextStretch(span.begin(), span.begin(), parent->strutForceHeight());
     auto end = span.end() - 1;
     auto start = span.begin();
-    LineMetrics maxRunMetrics;
+    InternalLineMetrics maxRunMetrics;
     while (fEndLine.endCluster() != end) {
+
         reset();
 
         lookAhead(maxWidth, end);
         moveForward();
+
+        if (maxWidth == 0.0f) {
+            // We have all we need
+            fMaxIntrinsicWidth = fMinIntrinsicWidth;
+            return;
+        }
 
         // Do not trim end spaces on the naturally last line of the left aligned text
         trimEndSpaces(align);
@@ -200,14 +215,13 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
             parent->strutMetrics().updateLineMetrics(fEndLine.metrics());
         }
 
-        fMaxIntrinsicWidth = SkMaxScalar(fMaxIntrinsicWidth, fEndLine.width());
         // TODO: keep start/end/break info for text and runs but in a better way that below
         TextRange text(fEndLine.startCluster()->textRange().start, fEndLine.endCluster()->textRange().end);
         TextRange textWithSpaces(fEndLine.startCluster()->textRange().start, startLine->textRange().start);
         if (fEndLine.breakCluster()->isHardBreak()) {
             textWithSpaces.end = fEndLine.breakCluster()->textRange().start;
         } else if (startLine == end) {
-            textWithSpaces.end = fEndLine.breakCluster()->textRange().end;
+            textWithSpaces.end = parent->text().size();//fEndLine.breakCluster()->textRange().end;
         }
         ClusterRange clusters(fEndLine.startCluster() - start, fEndLine.endCluster() - start + 1);
         ClusterRange clustersWithGhosts(fEndLine.startCluster() - start, startLine - start);
@@ -221,9 +235,13 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
 
         parent->lines().back().setMaxRunMetrics(maxRunMetrics);
 
+        softLineMaxIntrinsicWidth += widthWithSpaces;
+        fMaxIntrinsicWidth = SkMaxScalar(fMaxIntrinsicWidth, softLineMaxIntrinsicWidth);
+        if (fHardLineBreak) {
+            softLineMaxIntrinsicWidth = 0;
+        }
         // Start a new line
         fHeight += fEndLine.metrics().height();
-
         if (!fHardLineBreak || startLine != end) {
             fEndLine.clean();
         }
