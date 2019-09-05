@@ -26,11 +26,13 @@ enum SerializationOffsets {
 
 enum SerializationVersions {
     // kPathPrivFirstDirection_Version = 1,
-    kPathPrivLastMoveToIndex_Version = 2,
-    kPathPrivTypeEnumVersion = 3,
-    kJustPublicData_Version = 4,    // introduced Feb/2018
+    // kPathPrivLastMoveToIndex_Version = 2,
+    // kPathPrivTypeEnumVersion = 3,
+    kJustPublicData_Version = 4,            // introduced Feb/2018
+    kVerbsAreStoredForward_Version = 5,     // introduced Sept/2019
 
-    kCurrent_Version = kJustPublicData_Version
+    kMin_Version     = kJustPublicData_Version,
+    kCurrent_Version = kVerbsAreStoredForward_Version
 };
 
 enum SerializationType {
@@ -121,7 +123,7 @@ size_t SkPath::writeToMemory(void* storage) const {
     buffer.write32(vbs);
     buffer.write(fPathRef->points(), pts * sizeof(SkPoint));
     buffer.write(fPathRef->conicWeights(), cnx * sizeof(SkScalar));
-    buffer.write(fPathRef->verbsMemBegin(), vbs * sizeof(uint8_t));
+    buffer.write(fPathRef->verbsBegin(), vbs * sizeof(uint8_t));
     buffer.padToAlign4();
 
     SkASSERT(buffer.pos() == size);
@@ -145,11 +147,12 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
         return 0;
     }
     unsigned version = extract_version(packed);
-    if (version <= kPathPrivTypeEnumVersion) {
-        return this->readFromMemory_LE3(storage, length);
+    if (version < kMin_Version || version > kCurrent_Version) {
+        return 0;
     }
-    if (version == kJustPublicData_Version) {
-        return this->readFromMemory_EQ4(storage, length);
+
+    if (version == kJustPublicData_Version || version == kVerbsAreStoredForward_Version) {
+        return this->readFromMemory_EQ4Or5(storage, length);
     }
     return 0;
 }
@@ -192,14 +195,17 @@ size_t SkPath::readAsRRect(const void* storage, size_t length) {
     return buffer.pos();
 }
 
-size_t SkPath::readFromMemory_EQ4(const void* storage, size_t length) {
+size_t SkPath::readFromMemory_EQ4Or5(const void* storage, size_t length) {
     SkRBuffer buffer(storage, length);
     uint32_t packed;
     if (!buffer.readU32(&packed)) {
         return 0;
     }
 
-    SkASSERT(extract_version(packed) == 4);
+    bool verbsAreReversed = true;
+    if (extract_version(packed) == kVerbsAreStoredForward_Version) {
+        verbsAreReversed = false;
+    }
 
     switch (extract_serializationtype(packed)) {
         case SerializationType::kRRect:
@@ -234,11 +240,17 @@ size_t SkPath::readFromMemory_EQ4(const void* storage, size_t length) {
         }                               \
     } while (0)
 
+    int verbsStep = 1;
+    if (verbsAreReversed) {
+        verbs += vbs - 1;
+        verbsStep = -1;
+    }
+
     SkPath tmp;
     tmp.setFillType(extract_filltype(packed));
     tmp.incReserve(pts);
-    for (int i = vbs - 1; i >= 0; --i) {
-        switch (verbs[i]) {
+    for (int i = 0; i < vbs; ++i) {
+        switch (*verbs) {
             case kMove_Verb:
                 CHECK_POINTS_CONICS(1, 0);
                 tmp.moveTo(*points++);
@@ -268,6 +280,7 @@ size_t SkPath::readFromMemory_EQ4(const void* storage, size_t length) {
             default:
                 return 0;   // bad verb
         }
+        verbs += verbsStep;
     }
 #undef CHECK_POINTS_CONICS
     if (pts || cnx) {
@@ -277,51 +290,3 @@ size_t SkPath::readFromMemory_EQ4(const void* storage, size_t length) {
     *this = std::move(tmp);
     return buffer.pos();
 }
-
-size_t SkPath::readFromMemory_LE3(const void* storage, size_t length) {
-    SkRBuffer buffer(storage, length);
-
-    int32_t packed;
-    if (!buffer.readS32(&packed)) {
-        return 0;
-    }
-
-    unsigned version = extract_version(packed);
-    SkASSERT(version <= 3);
-
-    FillType fillType = extract_filltype(packed);
-    if (version >= kPathPrivTypeEnumVersion) {
-        switch (extract_serializationtype(packed)) {
-            case SerializationType::kRRect:
-                return this->readAsRRect(storage, length);
-            case SerializationType::kGeneral:
-                // Fall through to general path deserialization
-                break;
-            default:
-                return 0;
-        }
-    }
-    if (version >= kPathPrivLastMoveToIndex_Version && !buffer.readS32(&fLastMoveToIndex)) {
-        return 0;
-    }
-
-    // These are written into the serialized data but we no longer use them in the deserialized
-    // path. If convexity is corrupted it may cause the GPU backend to make incorrect
-    // rendering choices, possibly crashing. We set them to unknown so that they'll be recomputed if
-    // requested.
-    fConvexity = kUnknown_Convexity;
-    fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
-
-    fFillType = fillType;
-    fIsVolatile = 0;
-    SkPathRef* pathRef = SkPathRef::CreateFromBuffer(&buffer);
-    if (!pathRef) {
-        return 0;
-    }
-
-    fPathRef.reset(pathRef);
-    SkDEBUGCODE(this->validate();)
-    buffer.skipToAlign4();
-    return buffer.pos();
-}
-
