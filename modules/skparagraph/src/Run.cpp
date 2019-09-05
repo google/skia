@@ -209,7 +209,7 @@ void Run::shift(const Cluster* cluster, SkScalar offset) {
     }
 }
 
-void Run::updateMetrics(LineMetrics* endlineMetrics) {
+void Run::updateMetrics(InternalLineMetrics* endlineMetrics) {
 
     // Difference between the placeholder baseline and the line bottom
     SkScalar baselineAdjustment = 0;

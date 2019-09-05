@@ -1222,22 +1222,35 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
-        const char* text = "The same text many times";
+        const char* text = "••••••••••";
 
-        for (size_t i = 0; i < 10; i++) {
             ParagraphStyle paragraph_style;
-            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
             TextStyle text_style;
             text_style.setFontFamilies({SkString("Roboto")});
             text_style.setColor(SK_ColorBLACK);
-            text_style.setFontSize(10 + 2 * (i % 10));
-            builder.pushStyle(text_style);
+            text_style.setFontSize(16.0);
+            paragraph_style.setTextStyle(text_style);
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
             builder.addText(text);
-            builder.pop();
             auto paragraph = builder.Build();
-            paragraph->layout(500);
-            paragraph->paint(canvas, 0, 40 * (i % 10));
-        }
+            paragraph->layout(SK_ScalarMax);
+            paragraph->paint(canvas, 0, 0);
+            auto result = paragraph->getRectsForRange(65, 66, RectHeightStyle::kTight, RectWidthStyle::kTight);
+            SkPaint paint;
+            paint.setColor(SK_ColorRED);
+            paint.setStyle(SkPaint::kStroke_Style);
+            for (auto r : result) {
+                canvas->drawRect(r.rect, paint);
+            }
+            paragraph->layout(paragraph->getMaxIntrinsicWidth());
+            auto pos = paragraph->getWordBoundary(0);
+            paragraph->paint(canvas, 0, 100);
+            result = paragraph->getRectsForRange(65, 66, RectHeightStyle::kTight, RectWidthStyle::kTight);
+            paint.setColor(SK_ColorBLUE);
+            for (auto r : result) {
+                r.rect.offset(0, 100);
+                canvas->drawRect(r.rect, paint);
+            }
     }
 
 private:
