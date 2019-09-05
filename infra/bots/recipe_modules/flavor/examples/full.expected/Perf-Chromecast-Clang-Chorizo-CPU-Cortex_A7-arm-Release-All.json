@@ -767,22 +767,6 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "rmtree",
-      "[CLEANUP]/adb_pull_tmp_1"
-    ],
-    "infra_step": true,
-    "name": "adb pull.rmtree [CLEANUP]/adb_pull_tmp_1",
-    "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@"
-    ]
-  },
-  {
-    "cmd": [
       "ssh",
       "-oConnectTimeout=15",
       "-oBatchMode=yes",
