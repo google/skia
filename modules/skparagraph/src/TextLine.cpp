@@ -37,7 +37,7 @@ TextLine::TextLine(ParagraphImpl* master,
                    ClusterRange clusters,
                    ClusterRange clustersWithGhosts,
                    SkScalar widthWithSpaces,
-                   LineMetrics sizes)
+                   InternalLineMetrics sizes)
         : fMaster(master)
         , fBlockRange(blocks)
         , fTextRange(text)
@@ -763,6 +763,46 @@ void TextLine::iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisi
 
 SkVector TextLine::offset() const {
     return fOffset + SkVector::Make(fShift, 0);
+}
+
+LineMetrics TextLine::getMetrics() const {
+    LineMetrics result;
+
+    // Fill out the metrics
+    result.fStartIndex = fTextRange.start;
+    result.fEndIndex = fTextWithWhitespacesRange.end;
+    result.fEndExcludingWhitespaces = fTextRange.end;
+    result.fEndIncludingNewline = fTextWithWhitespacesRange.end; // TODO: implement
+    result.fHardBreak = fMaster->cluster(fGhostClusterRange.end).isHardBreak();
+    result.fAscent = fMaxRunMetrics.ascent();
+    result.fDescent = fMaxRunMetrics.descent();
+    result.fUnscaledAscent = fMaxRunMetrics.ascent(); // TODO: implement
+    result.fHeight = fAdvance.fY;
+    result.fWidth = fAdvance.fX;
+    result.fLeft = fOffset.fX;
+    result.fBaseline = fMaxRunMetrics.baseline();
+    result.fLineNumber = this - fMaster->lines().begin();
+
+    // Fill out the style parts
+    this->iterateThroughVisualRuns(false,
+        [this, &result]
+        (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
+        if (run->placeholder() != nullptr) {
+            *runWidthInLine = run->advance().fX;
+            return true;
+        }
+        *runWidthInLine = this->iterateThroughSingleRunByStyles(
+        run, runOffsetInLine, textRange, StyleType::kForeground,
+        [this, &result, &run](TextRange textRange, const TextStyle& style, const ClipContext& context) {
+            SkFontMetrics fontMetrics;
+            run->fFont.getMetrics(&fontMetrics);
+            StyleMetrics styleMetrics(&style, fontMetrics);
+            result.fLineMetrics.emplace(textRange.start, styleMetrics);
+        });
+        return true;
+    });
+
+    return result;
 }
 }  // namespace textlayout
 }  // namespace skia

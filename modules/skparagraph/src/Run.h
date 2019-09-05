@@ -39,7 +39,7 @@ struct RunShifts {
     SkSTArray<128, SkScalar, true> fShifts;
 };
 
-class LineMetrics;
+class InternalLineMetrics;
 class Run {
 public:
     Run() = default;
@@ -107,7 +107,7 @@ public:
 
     bool isEllipsis() const { return fEllipsis; }
 
-    void updateMetrics(LineMetrics* endlineMetrics);
+    void updateMetrics(InternalLineMetrics* endlineMetrics);
 
     void setClusterRange(size_t from, size_t to) { fClusterRange = ClusterRange(from, to); }
     SkRect clip() const {
@@ -151,7 +151,7 @@ public:
 private:
     friend class ParagraphImpl;
     friend class TextLine;
-    friend class LineMetrics;
+    friend class InternalLineMetrics;
     friend class ParagraphCache;
 
     ParagraphImpl* fMaster;
@@ -293,23 +293,23 @@ private:
     BreakType fBreakType;
 };
 
-class LineMetrics {
+class InternalLineMetrics {
 public:
 
-    LineMetrics() { clean(); }
-    LineMetrics(bool forceStrut) {
+    InternalLineMetrics() { clean(); }
+    InternalLineMetrics(bool forceStrut) {
         clean();
         fForceStrut = forceStrut;
     }
 
-    LineMetrics(SkScalar a, SkScalar d, SkScalar l) {
+    InternalLineMetrics(SkScalar a, SkScalar d, SkScalar l) {
         fAscent = a;
         fDescent = d;
         fLeading = l;
         fForceStrut = false;
     }
 
-    LineMetrics(const SkFont& font, bool forceStrut) {
+    InternalLineMetrics(const SkFont& font, bool forceStrut) {
         SkFontMetrics metrics;
         font.getMetrics(&metrics);
         fAscent = metrics.fAscent;
@@ -330,7 +330,7 @@ public:
 
     }
 
-    void add(LineMetrics other) {
+    void add(InternalLineMetrics other) {
         fAscent = SkTMin(fAscent, other.fAscent);
         fDescent = SkTMax(fDescent, other.fDescent);
         fLeading = SkTMax(fLeading, other.fLeading);
@@ -344,7 +344,7 @@ public:
 
     SkScalar delta() const { return height() - ideographicBaseline(); }
 
-    void updateLineMetrics(LineMetrics& metrics) {
+    void updateLineMetrics(InternalLineMetrics& metrics) {
         metrics.fAscent = SkTMin(metrics.fAscent, fAscent);
         metrics.fDescent = SkTMax(metrics.fDescent, fDescent);
         metrics.fLeading = SkTMax(metrics.fLeading, fLeading);

@@ -5,6 +5,7 @@
 #include "modules/skparagraph/include/FontCollection.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/include/TextStyle.h"
+#include "modules/skparagraph/include/Metrics.h"
 
 class SkCanvas;
 
@@ -44,7 +45,7 @@ public:
                                                   RectHeightStyle rectHeightStyle,
                                                   RectWidthStyle rectWidthStyle) = 0;
 
-    virtual std::vector<TextBox> GetRectsForPlaceholders() = 0;
+    virtual std::vector<TextBox> getRectsForPlaceholders() = 0;
 
     // Returns the index of the glyph that corresponds to the provided coordinate,
     // with the top left corner as the origin, and +y direction as down
@@ -57,6 +58,8 @@ public:
     virtual size_t lineNumber() = 0;
 
     virtual void markDirty() = 0;
+
+    virtual void getLineMetrics(std::vector<LineMetrics>&) = 0;
 
 protected:
     sk_sp<FontCollection> fFontCollection;

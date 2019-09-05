@@ -106,7 +106,7 @@ void ParagraphImpl::layout(SkScalar width) {
             SkFont font;
             SkScalar height;
             fFontResolver.getFirstFont(&font, &height);
-            LineMetrics lineMetrics(font, paragraphStyle().getStrutStyle().getForceStrutHeight());
+            InternalLineMetrics lineMetrics(font, paragraphStyle().getStrutStyle().getForceStrutHeight());
             // Set the important values that are not zero
             fWidth = 0;
             fHeight = lineMetrics.height() * (height == 0 || height == 1 ? 1 : height);
@@ -456,7 +456,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                 size_t endPos,
                 SkVector offset,
                 SkVector advance,
-                LineMetrics metrics,
+                InternalLineMetrics metrics,
                 bool addEllipsis) {
                 // Add the line
                 // TODO: Take in account clipped edges
@@ -518,12 +518,12 @@ void ParagraphImpl::resolveStrut() {
     if (strutStyle.getHeightOverride()) {
         auto strutHeight = metrics.fDescent - metrics.fAscent + metrics.fLeading;
         auto strutMultiplier = strutStyle.getHeight() * strutStyle.getFontSize();
-        fStrutMetrics = LineMetrics(
+        fStrutMetrics = InternalLineMetrics(
                 metrics.fAscent / strutHeight * strutMultiplier,
                 metrics.fDescent / strutHeight * strutMultiplier,
                 strutStyle.getLeading() < 0 ? 0 : strutStyle.getLeading() * strutStyle.getFontSize());
     } else {
-        fStrutMetrics = LineMetrics(
+        fStrutMetrics = InternalLineMetrics(
                 metrics.fAscent,
                 metrics.fDescent,
                 strutStyle.getLeading() < 0 ? 0 : strutStyle.getLeading() * strutStyle.getFontSize());
@@ -557,7 +557,7 @@ TextLine& ParagraphImpl::addLine(SkVector offset,
                                  ClusterRange clusters,
                                  ClusterRange clustersWithGhosts,
                                  SkScalar widthWithSpaces,
-                                 LineMetrics sizes) {
+                                 InternalLineMetrics sizes) {
     // Define a list of styles that covers the line
     auto blocks = findAllBlocks(text);
 
@@ -783,7 +783,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     return results;
 }
 
-std::vector<TextBox> ParagraphImpl::GetRectsForPlaceholders() {
+std::vector<TextBox> ParagraphImpl::getRectsForPlaceholders() {
   std::vector<TextBox> boxes;
   if (fText.isEmpty()) {
       boxes.emplace_back(SkRect::MakeXYWH(0, 0, 0, fHeight), fParagraphStyle.getTextDirection());
@@ -923,6 +923,13 @@ SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
     auto end = fWordBreaker.following(start);
 
     return { start, end };
+}
+
+void ParagraphImpl::getLineMetrics(std::vector<LineMetrics>& metrics) {
+    metrics.clear();
+    for (auto& line : fLines) {
+        metrics.emplace_back(line.getMetrics());
+    }
 }
 
 SkSpan<const char> ParagraphImpl::text(TextRange textRange) {
