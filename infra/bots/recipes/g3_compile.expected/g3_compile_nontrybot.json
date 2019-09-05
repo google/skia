@@ -15,7 +15,7 @@
       "    arg_names, **additional_args)",
       "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/property_invoker.py\", in _invoke_with_properties",
       "    return callable_obj(*props, **additional_args)",
-      "  File \"RECIPE_REPO[skia]/infra/bots/recipes/g3_compile.py\", line 22, in RunSteps",
+      "  File \"RECIPE_REPO[skia]/infra/bots/recipes/g3_compile.py\", line 21, in RunSteps",
       "    raise Exception('%s can only be run as a trybot.' % buildername)",
       "Exception: Build-Debian9-Clang-TAP-Presubmit-G3_Framework can only be run as a trybot."
     ]

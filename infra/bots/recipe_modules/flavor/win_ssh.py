@@ -69,16 +69,16 @@ class WinSSHFlavor(ssh.SSHFlavor):
 
   def read_file_on_device(self, path, **kwargs):
     with self.m.step.nest('read %s' % path):
-      with self.m.tempfile.temp_dir('read_file_on_device') as tmp:
-        host_path = tmp.join(ntpath.basename(path))
-        device_path = self.scp_device_path(path)
-        ok = self._run('scp %s %s' % (device_path, host_path),
-                       cmd=['scp', device_path, host_path],
-                       infra_step=True, **kwargs)
-        # TODO(dogben): Should readfile respect fail_build_on_failure and
-        # abort_on_failure?
-        if ok:
-          return self.m.run.readfile(host_path)
+      tmp = self.m.path.mkdtemp('read_file_on_device')
+      host_path = tmp.join(ntpath.basename(path))
+      device_path = self.scp_device_path(path)
+      ok = self._run('scp %s %s' % (device_path, host_path),
+                     cmd=['scp', device_path, host_path],
+                     infra_step=True, **kwargs)
+      # TODO(dogben): Should readfile respect fail_build_on_failure and
+      # abort_on_failure?
+      if ok:
+        return self.m.run.readfile(host_path)
 
   def remove_file_on_device(self, path):
     self._cmd('rm %s' % path, 'if exist "%s" del "%s"' % (path, path))
