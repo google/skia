@@ -6,6 +6,7 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
 #include "modules/skparagraph/include/DartTypes.h"
+#include "modules/skparagraph/include/Metrics.h"
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/Run.h"
 #include "src/core/SkSpan.h"
@@ -37,7 +38,7 @@ public:
              ClusterRange clusters,
              ClusterRange clustersWithGhosts,
              SkScalar widthWithSpaces,
-             LineMetrics sizes);
+             InternalLineMetrics sizes);
 
     void setMaster(ParagraphImpl* master) { fMaster = master; }
 
@@ -46,7 +47,7 @@ public:
     ClusterRange clusters() const { return fClusterRange; }
     ClusterRange clustersWithSpaces() { return fGhostClusterRange; }
     Run* ellipsis() const { return fEllipsis.get(); }
-    LineMetrics sizes() const { return fSizes; }
+    InternalLineMetrics sizes() const { return fSizes; }
     bool empty() const { return fTextRange.empty(); }
 
     SkScalar height() const { return fAdvance.fY; }
@@ -80,14 +81,17 @@ public:
 
     TextAlign assumedTextAlign() const;
 
-    void setMaxRunMetrics(const LineMetrics& metrics) { fMaxRunMetrics = metrics; }
-    LineMetrics getMaxRunMetrics() const { return fMaxRunMetrics; }
+    void setMaxRunMetrics(const InternalLineMetrics& metrics) { fMaxRunMetrics = metrics; }
+    InternalLineMetrics getMaxRunMetrics() const { return fMaxRunMetrics; }
 
     ClipContext measureTextInsideOneRun(TextRange textRange,
                                         const Run* run,
                                         SkScalar runOffsetInLine,
                                         SkScalar textOffsetInRunInLine,
-                                        bool includeGhostSpaces) const;
+                                        bool includeGhostSpaces,
+                                        bool limitToClusters) const;
+
+    LineMetrics getMetrics() const;
 
 private:
 
@@ -99,11 +103,8 @@ private:
     void paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
     void paintDecorations(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
 
-    void computeDecorationPaint(SkPaint& paint, SkRect clip, const TextStyle& style,
+    void computeDecorationPaint(SkPaint& paint, SkRect clip, const TextStyle& style, SkScalar thickness,
                                 SkPath& path) const;
-
-    SkScalar computeDecorationThickness(const TextStyle& style) const;
-    SkScalar computeDecorationPosition(const TextStyle& style) const;
 
     bool contains(const Cluster* cluster) const {
         return fTextRange.contains(cluster->textRange());
@@ -122,8 +123,8 @@ private:
     SkScalar fShift;                    // Left right
     SkScalar fWidthWithSpaces;
     std::shared_ptr<Run> fEllipsis;     // In case the line ends with the ellipsis
-    LineMetrics fSizes;                 // Line metrics as a max of all run metrics and struts
-    LineMetrics fMaxRunMetrics;         // No struts - need it for GetRectForRange(max height)
+    InternalLineMetrics fSizes;                 // Line metrics as a max of all run metrics and struts
+    InternalLineMetrics fMaxRunMetrics;         // No struts - need it for GetRectForRange(max height)
     bool fHasBackground;
     bool fHasShadows;
     bool fHasDecorations;

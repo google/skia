@@ -1230,21 +1230,216 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
-        const char* text = "The same text many times";
 
-        for (size_t i = 0; i < 10; i++) {
-            ParagraphStyle paragraph_style;
-            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+        auto text = "\U0001f469\U0000200D\U0001f469\U0000200D\U0001f466\U0001f469\U0000200D\U0001f469\U0000200D\U0001f467\U0000200D\U0001f467\U0001f1fa\U0001f1f8";
             TextStyle text_style;
-            text_style.setFontFamilies({SkString("Roboto")});
+            text_style.setFontFamilies({SkString("Ahem")});
             text_style.setColor(SK_ColorBLACK);
-            text_style.setFontSize(10 + 2 * (i % 10));
-            builder.pushStyle(text_style);
+            text_style.setFontSize(60);
+            text_style.setLetterSpacing(0);
+            text_style.setWordSpacing(0);
+            ParagraphStyle paragraph_style;
+            paragraph_style.setTextStyle(text_style);
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
             builder.addText(text, strlen(text));
-            builder.pop();
             auto paragraph = builder.Build();
-            paragraph->layout(500);
-            paragraph->paint(canvas, 0, 40 * (i % 10));
+            paragraph->layout(1000);
+            paragraph->paint(canvas, 0, 0);
+
+            SkColor colors[] = { SK_ColorRED, SK_ColorBLACK, SK_ColorBLUE, SK_ColorTRANSPARENT, SK_ColorTRANSPARENT };
+            SkPoint queries[] = {{ 1, 3},{1, 5}, {1, 9}, { 1, 17}, {1, 33}};
+            SkPaint paint;
+            paint.setColor(SK_ColorRED);
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setAntiAlias(true);
+            paint.setStrokeWidth(5);
+            for (auto& query : queries) {
+                auto rects = paragraph->getRectsForRange(query.fX, query.fY, RectHeightStyle::kTight, RectWidthStyle::kTight);
+                paint.setColor(colors[&query - &queries[0]]);
+                for (auto& rect: rects) {
+                    canvas->drawRect(rect.rect, paint);
+                }
+            }
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
+class ParagraphView12 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph12"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+
+        const char* text = "Atwater Peel Sherbrooke Bonaventure Angrignon Peel Côte-des-Neiges";
+        TextStyle text_style;
+        text_style.setFontFamilies({SkString("Ahem")});
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontSize(16);
+        //text_style.setLetterSpacing(-0.41);
+        StrutStyle strut_style;
+        strut_style.setStrutEnabled(false);
+        ParagraphStyle paragraph_style;
+        paragraph_style.setStrutStyle(strut_style);
+        paragraph_style.setTextStyle(text_style);
+        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+        builder.addText(text);
+        auto paragraph = builder.Build();
+        paragraph->layout(1095.000000);
+        auto result = paragraph->getRectsForRange(65, 66, RectHeightStyle::kTight, RectWidthStyle::kTight);
+        paragraph->paint(canvas, 0, 0);
+
+        SkPaint paint;
+        paint.setColor(SK_ColorRED);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(1);
+        canvas->drawRect(result.front().rect, paint);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
+class ParagraphView13 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph13"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+
+        const char* text = "This\n"
+                           "is a wrapping test. It should wrap at manual newlines, and if softWrap is true, also at spaces.";
+        TextStyle text_style;
+        text_style.setFontFamilies({SkString("Ahem")});
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontSize(10);
+
+        auto relayout = [&](size_t lines, bool ellipsis,
+                SkScalar width, SkScalar height, SkScalar minWidth, SkScalar maxWidth, SkColor bg) {
+            ParagraphStyle paragraph_style;
+            SkPaint paint;
+            paint.setColor(bg);
+            text_style.setForegroundColor(paint);
+            paragraph_style.setTextStyle(text_style);
+            paragraph_style.setMaxLines(lines);
+            if (ellipsis) {
+                paragraph_style.setEllipsis(u"\u2026");
+            }
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+            builder.addText(text);
+            auto paragraph = builder.Build();
+            paragraph->layout(50);
+            paragraph->paint(canvas, 0, 0);
+            canvas->translate(0, paragraph->getHeight() + 10);
+
+            SkASSERT(width == paragraph->getMaxWidth());
+            SkASSERT(height == paragraph->getHeight());
+            SkASSERT(minWidth == paragraph->getMinIntrinsicWidth());
+            SkASSERT(maxWidth == paragraph->getMaxIntrinsicWidth());
+        };
+
+        SkPaint paint;
+        paint.setColor(SK_ColorLTGRAY);
+        canvas->drawRect(SkRect::MakeXYWH(0, 0, 50, 500), paint);
+
+        relayout(1, false, 50, 10, 950, 950, SK_ColorRED);
+        relayout(3, false, 50, 30,  50, 950, SK_ColorBLUE);
+        relayout(std::numeric_limits<size_t>::max(), false, 50, 200,  50, 950, SK_ColorGREEN);
+
+        relayout(1, true, 50, 10, 950, 950, SK_ColorYELLOW);
+        relayout(3, true, 50, 30,  50, 950, SK_ColorMAGENTA);
+        relayout(std::numeric_limits<size_t>::max(), true, 50, 20,  950, 950, SK_ColorCYAN);
+
+        relayout(1, false, 50, 10, 950, 950, SK_ColorRED);
+        relayout(3, false, 50, 30,  50, 950, SK_ColorBLUE);
+        relayout(std::numeric_limits<size_t>::max(), false, 50, 200,  50, 950, SK_ColorGREEN);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
+class ParagraphView14 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph14"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+        TextStyle text_style;
+        text_style.setFontFamilies({SkString("Ahem")});
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontSize(25);
+        text_style.setDecoration((TextDecoration)(TextDecoration::kUnderline | TextDecoration::kOverline | TextDecoration::kLineThrough));
+        text_style.setDecorationColor(SK_ColorBLUE);
+        text_style.setDecorationStyle(TextDecorationStyle::kWavy);
+        text_style.setDecorationThicknessMultiplier(4.0f);
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextStyle(text_style);
+        paragraph_style.setTextDirection(TextDirection::kRtl);
+        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+        builder.pushStyle(text_style);
+        builder.addText("Hello, wor!\nabcd.");
+        auto paragraph = builder.Build();
+        paragraph->layout(300);
+        paragraph->paint(canvas, 0, 0);
+        SkPaint paint;
+        paint.setColor(SK_ColorRED);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(1);
+        canvas->drawRect(SkRect::MakeXYWH(0, 0, 300, 100), paint);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
+class ParagraphView15 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph15"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+        TextStyle text_style;
+        text_style.setFontFamilies({SkString("Ahem")});
+        text_style.setColor(SK_ColorBLACK);
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextStyle(text_style);
+        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+        text_style.setFontSize(16);
+        builder.pushStyle(text_style);
+        builder.addText("C ");
+        text_style.setFontSize(20);
+        builder.pushStyle(text_style);
+        builder.addText("He");
+        builder.pop();
+        PlaceholderStyle placeholderStyle;
+        placeholderStyle.fHeight = 55.0f;
+        placeholderStyle.fWidth = 50.0f;
+        placeholderStyle.fBaseline = TextBaseline::kAlphabetic;
+        placeholderStyle.fAlignment = PlaceholderAlignment::kBottom;
+        builder.addPlaceholder(placeholderStyle);
+        text_style.setFontSize(16);
+        builder.pushStyle(text_style);
+        builder.addText("hello world! sieze the day!");
+        auto paragraph = builder.Build();
+        paragraph->layout(400);
+        paragraph->paint(canvas, 0, 0);
+        SkPaint paint;
+        paint.setColor(SK_ColorRED);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(1);
+        canvas->drawRect(SkRect::MakeXYWH(0, 0, 400, 200), paint);
+
+        auto phs = paragraph->getRectsForPlaceholders();
+        for (auto& ph : phs) {
+            paint.setStyle(SkPaint::kFill_Style);
+            paint.setColor(SK_ColorYELLOW);
+            canvas->drawRect(ph.rect, paint);
         }
     }
 
@@ -1265,4 +1460,7 @@ DEF_SAMPLE(return new ParagraphView8();)
 DEF_SAMPLE(return new ParagraphView9();)
 DEF_SAMPLE(return new ParagraphView10();)
 DEF_SAMPLE(return new ParagraphView11();)
-
+DEF_SAMPLE(return new ParagraphView12();)
+DEF_SAMPLE(return new ParagraphView13();)
+DEF_SAMPLE(return new ParagraphView14();)
+DEF_SAMPLE(return new ParagraphView15();)
