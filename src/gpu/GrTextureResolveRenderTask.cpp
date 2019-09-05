@@ -19,6 +19,7 @@ void GrTextureResolveRenderTask::init(const GrCaps& caps) {
         GrRenderTargetProxy* renderTargetProxy = fTarget->asRenderTargetProxy();
         SkASSERT(renderTargetProxy);
         SkASSERT(renderTargetProxy->isMSAADirty());
+        fMSAAResolveRect = renderTargetProxy->msaaDirtyRect();
         renderTargetProxy->markMSAAResolved();
     }
 
@@ -52,19 +53,20 @@ void GrTextureResolveRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc
 bool GrTextureResolveRenderTask::onExecute(GrOpFlushState* flushState) {
     // Resolve msaa before regenerating mipmaps.
     if (GrSurfaceProxy::ResolveFlags::kMSAA & fResolveFlags) {
-        GrRenderTarget* renderTarget = fTarget->peekRenderTarget();
-        SkASSERT(renderTarget);
-        if (renderTarget->needsResolve()) {
-            flushState->gpu()->resolveRenderTarget(renderTarget);
+        GrRenderTarget* rt = fTarget->peekRenderTarget();
+        SkIRect sadness = fMSAAResolveRect;  // Hack to fix blurs and see if everything else works.
+        if (fMSAAResolveRect.right() == fTarget->width()) {
+            sadness.fRight = rt->width();
         }
+        if (fMSAAResolveRect.bottom() == fTarget->height()) {
+            sadness.fBottom = rt->height();
+        }
+        flushState->gpu()->resolveRenderTarget(fTarget->peekRenderTarget(), sadness,
+                                               fTarget->origin());
     }
 
     if (GrSurfaceProxy::ResolveFlags::kMipMaps & fResolveFlags) {
-        GrTexture* texture = fTarget->peekTexture();
-        SkASSERT(texture);
-        if (texture->texturePriv().mipMapsAreDirty()) {
-            flushState->gpu()->regenerateMipMapLevels(texture);
-        }
+        flushState->gpu()->regenerateMipMapLevels(fTarget->peekTexture());
     }
 
     return true;
