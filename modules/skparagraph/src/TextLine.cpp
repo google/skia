@@ -37,7 +37,7 @@ TextLine::TextLine(ParagraphImpl* master,
                    ClusterRange clusters,
                    ClusterRange clustersWithGhosts,
                    SkScalar widthWithSpaces,
-                   LineMetrics sizes)
+                   InternalLineMetrics sizes)
         : fMaster(master)
         , fBlockRange(blocks)
         , fTextRange(text)
@@ -88,6 +88,14 @@ TextLine::TextLine(ParagraphImpl* master,
     auto firstRunIndex = start.runIndex();
     for (auto index : logicalOrder) {
         fRunsInVisualOrder.push_back(firstRunIndex + index);
+    }
+
+    // TODO: This is the fix for flutter. Must be removed...
+    for (auto cluster = &start; cluster != &end; ++cluster) {
+        if (!cluster->run()->isPlaceholder()) {
+            fShift += cluster->getHalfLetterSpacing();
+            break;
+        }
     }
 }
 
@@ -226,9 +234,7 @@ void TextLine::paintText(SkCanvas* canvas, TextRange textRange, const TextStyle&
 
 void TextLine::paintBackground(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const {
     if (style.hasBackground()) {
-        canvas->save();
         canvas->drawRect(context.clip, style.getBackground());
-        canvas->restore();
     }
 }
 
@@ -259,27 +265,66 @@ void TextLine::paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyl
     }
 }
 
+static const float kDoubleDecorationSpacing = 3.0f;
 void TextLine::paintDecorations(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const {
     if (style.getDecorationType() == TextDecoration::kNoDecoration) {
         return;
     }
+
+    canvas->save();
+    //canvas->clipRect(context.clip);
+
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    if (style.getDecorationColor() == SK_ColorTRANSPARENT) {
+        paint.setColor(style.getColor());
+    } else {
+        paint.setColor(style.getDecorationColor());
+    }
+    paint.setAntiAlias(true);
+
+    SkFontMetrics fontMetrics;
+    TextStyle combined = style;
+    combined.setTypeface(context.run->fFont.refTypeface());
+    combined.getFontMetrics(&fontMetrics);
+    SkScalar thickness;
+    if ((fontMetrics.fFlags & SkFontMetrics::FontMetricsFlags::kUnderlineThicknessIsValid_Flag) &&
+         fontMetrics.fUnderlineThickness > 0) {
+        thickness = fontMetrics.fUnderlineThickness;
+    } else {
+        thickness = style.getFontSize() / 14.0f;
+    }
+
+    paint.setStrokeWidth(thickness * style.getDecorationThicknessMultiplier());
 
     for (auto decoration : AllTextDecorations) {
         if ((style.getDecorationType() & decoration) == 0) {
             continue;
         }
 
-        SkScalar thickness = computeDecorationThickness(style);
-        SkScalar position = computeDecorationPosition(style);
+        SkScalar position = 0;
         switch (decoration) {
             case TextDecoration::kUnderline:
-                position = - context.run->correctAscent() + thickness;
+                if ((fontMetrics.fFlags & SkFontMetrics::FontMetricsFlags::kUnderlinePositionIsValid_Flag) &&
+                     fontMetrics.fUnderlinePosition > 0) {
+                    position = fontMetrics.fUnderlinePosition;
+                } else {
+                    position = thickness;
+                }
+                position += - context.run->correctAscent();
                 break;
             case TextDecoration::kOverline:
                 position = 0;
                 break;
             case TextDecoration::kLineThrough: {
-                position = (context.run->correctDescent() - context.run->correctAscent() - thickness) / 2;
+                if ((fontMetrics.fFlags & SkFontMetrics::FontMetricsFlags::kStrikeoutThicknessIsValid_Flag) &&
+                     fontMetrics.fStrikeoutThickness > 0) {
+                    paint.setStrokeWidth(fontMetrics.fStrikeoutThickness * style.getDecorationThicknessMultiplier());
+                }
+                position = (fontMetrics.fFlags & SkFontMetrics::FontMetricsFlags::kStrikeoutThicknessIsValid_Flag)
+                            ? fontMetrics.fStrikeoutPosition
+                            : fontMetrics.fXHeight / -2;
+                position += - context.run->correctAscent();
                 break;
             }
             default:
@@ -292,10 +337,8 @@ void TextLine::paintDecorations(SkCanvas* canvas, TextRange textRange, const Tex
         SkScalar y = context.clip.top() + position;
 
         // Decoration paint (for now) and/or path
-        SkPaint paint;
         SkPath path;
-        this->computeDecorationPaint(paint, context.clip, style, path);
-        paint.setStrokeWidth(thickness * style.getDecorationThicknessMultiplier());
+        this->computeDecorationPaint(paint, context.clip, style, thickness, path);
 
         switch (style.getDecorationStyle()) {
             case TextDecorationStyle::kWavy:
@@ -304,7 +347,7 @@ void TextLine::paintDecorations(SkCanvas* canvas, TextRange textRange, const Tex
                 break;
             case TextDecorationStyle::kDouble: {
                 canvas->drawLine(x, y, x + width, y, paint);
-                SkScalar bottom = y + thickness * 2;
+                SkScalar bottom = y + kDoubleDecorationSpacing;
                 canvas->drawLine(x, bottom, x + width, bottom, paint);
                 break;
             }
@@ -317,41 +360,15 @@ void TextLine::paintDecorations(SkCanvas* canvas, TextRange textRange, const Tex
                 break;
         }
     }
-}
 
-SkScalar TextLine::computeDecorationThickness(const TextStyle& style) const {
-    SkFontMetrics fontMetrics;
-    style.getFontMetrics(&fontMetrics);
-    if ((fontMetrics.fFlags & SkFontMetrics::FontMetricsFlags::kUnderlineThicknessIsValid_Flag) &&
-         fontMetrics.fUnderlineThickness > 0) {
-        return fontMetrics.fUnderlineThickness;
-    } else {
-        return style.getFontSize() / 14.0f;
-    }
-}
-
-SkScalar TextLine::computeDecorationPosition(const TextStyle& style) const {
-    SkFontMetrics fontMetrics;
-    style.getFontMetrics(&fontMetrics);
-    if ((fontMetrics.fFlags & SkFontMetrics::FontMetricsFlags::kUnderlinePositionIsValid_Flag) &&
-         fontMetrics.fUnderlinePosition > 0) {
-        return fontMetrics.fUnderlinePosition;
-    } else {
-        return style.getFontSize() / 14.0f;
-    }
+    canvas->restore();
 }
 
 void TextLine::computeDecorationPaint(SkPaint& paint,
                                       SkRect clip,
                                       const TextStyle& style,
+                                      SkScalar thickness,
                                       SkPath& path) const {
-    paint.setStyle(SkPaint::kStroke_Style);
-    if (style.getDecorationColor() == SK_ColorTRANSPARENT) {
-        paint.setColor(style.getColor());
-    } else {
-        paint.setColor(style.getDecorationColor());
-    }
-
     SkScalar scaleFactor = style.getFontSize() / 14.f;
 
     switch (style.getDecorationStyle()) {
@@ -388,16 +405,26 @@ void TextLine::computeDecorationPaint(SkPaint& paint,
         case TextDecorationStyle::kWavy: {
             int wave_count = 0;
             SkScalar x_start = 0;
-            SkScalar wavelength = scaleFactor * style.getDecorationThicknessMultiplier();
-            auto width = clip.width();
+            SkScalar quarterWave = thickness * style.getDecorationThicknessMultiplier();
             path.moveTo(0, 0);
-            while (x_start + wavelength * 2 < width) {
-                path.rQuadTo(wavelength,
-                             wave_count % 2 != 0 ? wavelength : -wavelength,
-                             wavelength * 2,
+            while (x_start + quarterWave * 2 < clip.width()) {
+                path.rQuadTo(quarterWave,
+                             wave_count % 2 != 0 ? quarterWave : -quarterWave,
+                             quarterWave * 2,
                              0);
-                x_start += wavelength * 2;
+                x_start += quarterWave * 2;
                 ++wave_count;
+            }
+
+            // The rest of the wave
+            auto remaining = clip.width() - x_start;
+            if (remaining > 0) {
+                double x1 = remaining / 2;
+                double y1 = remaining / 2 * (wave_count % 2 == 0 ? -1 : 1);
+                double x2 = remaining;
+                double y2 = (remaining - remaining * remaining / (quarterWave * 2)) *
+                            (wave_count % 2 == 0 ? -1 : 1);
+                path.rQuadTo(x1, y1, x2, y2);
             }
             break;
         }
@@ -543,7 +570,8 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
                                                         const Run* run,
                                                         SkScalar runOffsetInLine,
                                                         SkScalar textOffsetInRunInLine,
-                                                        bool includeGhostSpaces) const {
+                                                        bool includeGhostSpaces,
+                                                        bool limitToClusters) const {
     SkASSERT(intersectedSize(run->textRange(), textRange) >= 0);
 
     ClipContext result = { run, 0, run->size(), 0, SkRect::MakeEmpty(), false };
@@ -560,16 +588,16 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
     bool found;
     ClusterIndex startIndex;
     ClusterIndex endIndex;
-    std::tie(found, startIndex, endIndex) = run->findLimitingClusters(textRange);
+    std::tie(found, startIndex, endIndex) = run->findLimitingClusters(textRange, limitToClusters);
     if (!found) {
-        SkASSERT(textRange.empty());
+        SkASSERT(textRange.empty() || limitToClusters);
         return result;
     }
 
     auto start = &fMaster->cluster(startIndex);
     auto end = &fMaster->cluster(endIndex);
     result.pos = start->startPos();
-    result.size = end->endPos() - start->startPos();
+    result.size = (end->isHardBreak() ? end->startPos() : end->endPos()) - start->startPos();
 
     auto textStartInRun = run->positionX(start->startPos());
     auto textStartInLine = runOffsetInLine + textOffsetInRunInLine;
@@ -579,12 +607,10 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
     // EOL (when we expect the last cluster clipped without any spaces)
     // Anything else (when we want the cluster width contain all the spaces -
     // coming from letter spacing or word spacing or justification)
-    auto range = includeGhostSpaces ? fGhostClusterRange : fClusterRange;
-    bool needsClipping = (run->leftToRight() ? endIndex == range.end  - 1 : startIndex == range.end);
     result.clip =
             SkRect::MakeXYWH(0,
                              sizes().runTop(run),
-                             run->calculateWidth(start->startPos(), end->endPos(), needsClipping),
+                             run->calculateWidth(result.pos, result.pos + result.size, false),
                              run->calculateHeight());
 
     // Correct the width in case the text edges don't match clusters
@@ -654,7 +680,7 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
 
     if (run->fEllipsis) {
         // Extra efforts to get the ellipsis text style
-        ClipContext clipContext = this->measureTextInsideOneRun(run->textRange(), run, runOffset, 0, false);
+        ClipContext clipContext = this->measureTextInsideOneRun(run->textRange(), run, runOffset, 0, false, false);
         TextRange testRange(run->fFirstChar, run->fFirstChar + 1);
         for (BlockIndex index = fBlockRange.start; index < fBlockRange.end; ++index) {
            auto block = fMaster->styles().begin() + index;
@@ -713,7 +739,7 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
         // We have the style and the text
         auto textRange = TextRange(start, start + size);
         // Measure the text
-        ClipContext clipContext = this->measureTextInsideOneRun(textRange, run, runOffset, textOffsetInRun, false);
+        ClipContext clipContext = this->measureTextInsideOneRun(textRange, run, runOffset, textOffsetInRun, false, false);
         if (clipContext.clip.height() == 0) {
             continue;
         }
@@ -763,6 +789,46 @@ void TextLine::iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisi
 
 SkVector TextLine::offset() const {
     return fOffset + SkVector::Make(fShift, 0);
+}
+
+LineMetrics TextLine::getMetrics() const {
+    LineMetrics result;
+
+    // Fill out the metrics
+    result.fStartIndex = fTextRange.start;
+    result.fEndIndex = fTextWithWhitespacesRange.end;
+    result.fEndExcludingWhitespaces = fTextRange.end;
+    result.fEndIncludingNewline = fTextWithWhitespacesRange.end; // TODO: implement
+    result.fHardBreak = fMaster->cluster(fGhostClusterRange.end).isHardBreak();
+    result.fAscent = fMaxRunMetrics.ascent();
+    result.fDescent = fMaxRunMetrics.descent();
+    result.fUnscaledAscent = fMaxRunMetrics.ascent(); // TODO: implement
+    result.fHeight = fAdvance.fY;
+    result.fWidth = fAdvance.fX;
+    result.fLeft = fOffset.fX;
+    result.fBaseline = fMaxRunMetrics.baseline();
+    result.fLineNumber = this - fMaster->lines().begin();
+
+    // Fill out the style parts
+    this->iterateThroughVisualRuns(false,
+        [this, &result]
+        (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
+        if (run->placeholder() != nullptr) {
+            *runWidthInLine = run->advance().fX;
+            return true;
+        }
+        *runWidthInLine = this->iterateThroughSingleRunByStyles(
+        run, runOffsetInLine, textRange, StyleType::kForeground,
+        [&result, &run](TextRange textRange, const TextStyle& style, const ClipContext& context) {
+            SkFontMetrics fontMetrics;
+            run->fFont.getMetrics(&fontMetrics);
+            StyleMetrics styleMetrics(&style, fontMetrics);
+            result.fLineMetrics.emplace(textRange.start, styleMetrics);
+        });
+        return true;
+    });
+
+    return result;
 }
 }  // namespace textlayout
 }  // namespace skia
