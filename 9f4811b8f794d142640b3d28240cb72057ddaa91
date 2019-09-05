@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db6003fb_a3d3ada6",
+        "filename": "include/private/SkPathRef.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-05T17:03:07Z",
+      "side": 1,
+      "message": "Can we not just remove the this method?",
+      "revId": "9f4811b8f794d142640b3d28240cb72057ddaa91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ee953e3_f2bb932b",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-05T17:03:07Z",
+      "side": 1,
+      "message": "seems weird to have one * tight with uint8_t and the other tight with fVerbsStop. I\u0027d put them on separate lines or move the first one tight with fVerbs.",
+      "range": {
+        "startLine": 291,
+        "startChar": 4,
+        "endLine": 291,
+        "endChar": 40
+      },
+      "revId": "9f4811b8f794d142640b3d28240cb72057ddaa91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
