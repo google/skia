@@ -111,6 +111,7 @@ enum class TextBaseline {
     kAlphabetic,
     kIdeographic,
 };
+
 }  // namespace textlayout
 }  // namespace skia
 

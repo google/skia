@@ -81,30 +81,49 @@ void Run::copyTo(SkTextBlobBuilder& builder, size_t pos, size_t size, SkVector o
     }
 }
 
-std::tuple<bool, ClusterIndex, ClusterIndex> Run::findLimitingClusters(TextRange text) const {
-    auto less = [](const Cluster& c1, const Cluster& c2) {
-        return c1.textRange().end <= c2.textRange().start;
-    };
+std::tuple<bool, ClusterIndex, ClusterIndex> Run::findLimitingClusters(TextRange text, bool onlyInnerClusters) const {
 
     if (text.width() == 0) {
-
-        auto found = std::lower_bound(fMaster->clusters().begin() + fClusterRange.start,
-                                      fMaster->clusters().begin() + fClusterRange.end,
-                                      Cluster(text),
-                                      less);
-        return std::make_tuple(found != nullptr,
-                               found - fMaster->clusters().begin(),
-                               found - fMaster->clusters().begin());
+        for (auto i = fClusterRange.start; i != fClusterRange.end; ++i) {
+            auto& cluster = fMaster->cluster(i);
+            if (cluster.textRange().end >= text.end && cluster.textRange().start <= text.start) {
+                return std::make_tuple(true, i, i);
+            }
+        }
+        return std::make_tuple(false, 0, 0);
+    }
+    Cluster* start = nullptr;
+    Cluster* end = nullptr;
+    if (onlyInnerClusters) {
+        for (auto i = fClusterRange.start; i != fClusterRange.end; ++i) {
+            auto& cluster = fMaster->cluster(i);
+            if (cluster.textRange().start >= text.start && start == nullptr) {
+                start = &cluster;
+            }
+            if (cluster.textRange().end <= text.end) {
+                end = &cluster;
+            } else {
+                break;
+            }
+        }
+    } else {
+        for (auto i = fClusterRange.start; i != fClusterRange.end; ++i) {
+            auto& cluster = fMaster->cluster(i);
+            if (cluster.textRange().end > text.start && start == nullptr) {
+                start = &cluster;
+            }
+            if (cluster.textRange().start < text.end) {
+                end = &cluster;
+            } else {
+                break;
+            }
+        }
     }
 
-    auto start = std::lower_bound(fMaster->clusters().begin() + fClusterRange.start,
-                              fMaster->clusters().begin() + fClusterRange.end,
-                              Cluster(TextRange(text.start, text.start + 1)),
-                              less);
-    auto end   = std::lower_bound(start,
-                              fMaster->clusters().begin() + fClusterRange.end,
-                              Cluster(TextRange(text.end - 1, text.end)),
-                              less);
+    if (start == nullptr || end == nullptr) {
+        return std::make_tuple(false, 0, 0);
+    }
+
     if (!leftToRight()) {
         std::swap(start, end);
     }
@@ -190,6 +209,7 @@ SkScalar Run::addSpacesEvenly(SkScalar space, Cluster* cluster) {
     fAdvance.fX += shift;
     // Increment the cluster width
     cluster->space(shift, space);
+    cluster->setHalfLetterSpacing(space / 2);
 
     return shift;
 }
@@ -209,7 +229,7 @@ void Run::shift(const Cluster* cluster, SkScalar offset) {
     }
 }
 
-void Run::updateMetrics(LineMetrics* endlineMetrics) {
+void Run::updateMetrics(InternalLineMetrics* endlineMetrics) {
 
     // Difference between the placeholder baseline and the line bottom
     SkScalar baselineAdjustment = 0;
@@ -239,23 +259,21 @@ void Run::updateMetrics(LineMetrics* endlineMetrics) {
 
         case PlaceholderAlignment::kBelowBaseline:
             fFontMetrics.fAscent = baselineAdjustment;
-            fFontMetrics.fDescent = baselineAdjustment +height;
+            fFontMetrics.fDescent = baselineAdjustment + height;
             break;
 
         case PlaceholderAlignment::kTop:
-            fFontMetrics.fAscent = - endlineMetrics->alphabeticBaseline();
-            fFontMetrics.fDescent = height - endlineMetrics->alphabeticBaseline();
+            fFontMetrics.fDescent = height + fFontMetrics.fAscent;
             break;
 
         case PlaceholderAlignment::kBottom:
-            fFontMetrics.fDescent = endlineMetrics->deltaBaselines();
-            fFontMetrics.fAscent = - height + endlineMetrics->deltaBaselines();
+            fFontMetrics.fAscent = fFontMetrics.fDescent - height;
             break;
 
         case PlaceholderAlignment::kMiddle:
-            double mid = (endlineMetrics->ascent() + endlineMetrics->descent())/ 2;
-            fFontMetrics.fDescent = mid + height/2;
-            fFontMetrics.fAscent =  mid - height/2;
+            auto mid = (-fFontMetrics.fDescent - fFontMetrics.fAscent)/2.0;
+            fFontMetrics.fDescent = height/2.0 - mid;
+            fFontMetrics.fAscent =  - height/2.0 - mid;
             break;
     }
 
@@ -341,6 +359,7 @@ Cluster::Cluster(ParagraphImpl* master,
         , fWidth(width)
         , fSpacing(0)
         , fHeight(height)
+        , fHalfLetterSpacing(0.0)
         , fWhiteSpaces(false)
         , fBreakType(None) {
 }
