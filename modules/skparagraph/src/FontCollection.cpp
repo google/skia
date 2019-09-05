@@ -75,7 +75,7 @@ sk_sp<SkTypeface> FontCollection::matchTypeface(const char familyName[], SkFontS
 
     sk_sp<SkTypeface> typeface = nullptr;
     for (const auto& manager : this->getFontManagerOrder()) {
-        SkFontStyleSet* set = manager->matchFamily(familyName);
+        SkFontStyleSet* set = manager->matchFamily( manager == fTestFontManager ? "Ahem" : familyName);
         if (nullptr == set || set->count() == 0) {
             continue;
         }
@@ -85,13 +85,15 @@ sk_sp<SkTypeface> FontCollection::matchTypeface(const char familyName[], SkFontS
         }
 
         sk_sp<SkTypeface> match(set->matchStyle(fontStyle));
-        if (match) {
+        if (match || manager == fTestFontManager) {
             typeface = std::move(match);
             break;
         }
     }
 
-    fTypefaces.set(familyKey, typeface);
+    if (typeface != nullptr && typeface.get() != nullptr) {
+        fTypefaces.set(familyKey, typeface);
+    }
     return typeface;
 }
 
@@ -115,13 +117,15 @@ sk_sp<SkTypeface> FontCollection::matchDefaultTypeface(SkFontStyle fontStyle, co
         }
 
         sk_sp<SkTypeface> match(set->matchStyle(fontStyle));
-        if (match) {
+        if (match || manager == fTestFontManager) {
             typeface = std::move(match);
             break;
         }
     }
 
-    fTypefaces.set(familyKey, typeface);
+    if (typeface != nullptr && typeface.get() != nullptr) {
+        fTypefaces.set(familyKey, typeface);
+    }
     return typeface;
 }
 
