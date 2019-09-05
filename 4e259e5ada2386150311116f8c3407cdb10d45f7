@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2f5b42a4_858ecadc",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 733,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-05T18:48:48Z",
+      "side": 1,
+      "message": "Most of these comments are relative to how vulkan works.\n\nSo on a higher level logical level we have a trade off decision to make here. If we stop/split the current task with the wait in between, that will cause us to have to start two RenderPasses (i.e. loading and storing into memory an additional time). But it does mean that we would only force draws to wait that are required to wait. If we move the wait to the front of the opList then we will force extra draws to be blocked by the semaphore, but we do get to keep the render pass together.\n\nNow on the practical side of things, the wait semaphore gets sent to the GPU during the submit call of the primary command buffer. Which means that we actually will end up blocking all commands that are set during the flush regardless of where this wait render task actually is. So given that, we gain more benefit from not breaking up the render pass into two parts.",
+      "parentUuid": "66377a12_ed66cdd6",
+      "revId": "4e259e5ada2386150311116f8c3407cdb10d45f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "44ecc3dd_fd436df0",
         "filename": "src/gpu/GrWaitRenderTask.cpp",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2019-09-05T18:41:35Z",
       "side": 1,
       "message": "I think this is the third place we have this code block duplicated with the comment. Do you think we should move it into the base class?\n\nEither let the base class do it automatically if we return false, or else have a base class method called something like \"addDummyIntervalForTarget\"?",
+      "revId": "4e259e5ada2386150311116f8c3407cdb10d45f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a80f20e_77fb0198",
+        "filename": "src/gpu/GrWaitRenderTask.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-05T18:48:48Z",
+      "side": 1,
+      "message": "I believe at one point Rob had mentioned he has a plan for fixing all these up once he gets back around to having time to look at it.",
+      "parentUuid": "44ecc3dd_fd436df0",
       "revId": "4e259e5ada2386150311116f8c3407cdb10d45f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
