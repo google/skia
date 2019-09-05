@@ -15,6 +15,7 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
         if (fWords.width() + fClusters.width() + cluster->width() > maxWidth) {
             if (cluster->isWhitespaces()) {
                 // It's the end of the word
+                fClusters.extend(cluster);
                 fMinIntrinsicWidth = SkTMax(fMinIntrinsicWidth, getClustersTrimmedWidth());
                 fWords.extend(fClusters);
                 break;
@@ -155,7 +156,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     fEndLine = TextStretch(span.begin(), span.begin(), parent->strutForceHeight());
     auto end = span.end() - 1;
     auto start = span.begin();
-    LineMetrics maxRunMetrics;
+    InternalLineMetrics maxRunMetrics;
     while (fEndLine.endCluster() != end) {
         reset();
 
