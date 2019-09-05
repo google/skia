@@ -178,6 +178,34 @@ void Window_ios::onInval() {
     }
 }
 
+- (IBAction)pinchGestureAction:(UIGestureRecognizer*)sender {
+//    CGPoint location = [sender locationInView:self];
+//    switch (sender.state) {
+//        case UIGestureRecognizerStateEnded:
+//            fWindow->onMouse(location.x, location.y,
+//                             skui::InputState::kDown, skui::ModifierKey::kNone);
+//            fWindow->onMouse(location.x, location.y,
+//                             skui::InputState::kUp, skui::ModifierKey::kNone);
+//            break;
+//        default:
+//            break;
+//    }
+}
+
+- (IBAction)swipeGestureAction:(UIGestureRecognizer*)sender {
+    //    CGPoint location = [sender locationInView:self];
+    //    switch (sender.state) {
+    //        case UIGestureRecognizerStateEnded:
+    //            fWindow->onMouse(location.x, location.y,
+    //                             skui::InputState::kDown, skui::ModifierKey::kNone);
+    //            fWindow->onMouse(location.x, location.y,
+    //                             skui::InputState::kUp, skui::ModifierKey::kNone);
+    //            break;
+    //        default:
+    //            break;
+    //    }
+}
+
 - (MainView*)initWithWindow:(sk_app::Window_ios *)initWindow {
     self = [super init];
 
@@ -188,6 +216,14 @@ void Window_ios::onInval() {
     UITapGestureRecognizer* tapGestureRecognizer = [[UITapGestureRecognizer alloc] init];
     [tapGestureRecognizer addTarget:self action:@selector(tapGestureAction:)];
     [self addGestureRecognizer:tapGestureRecognizer];
+
+    UIPinchGestureRecognizer* pinchGestureRecognizer = [[UIPinchGestureRecognizer alloc] init];
+    [pinchGestureRecognizer addTarget:self action:@selector(pinchGestureAction:)];
+    [self addGestureRecognizer:pinchGestureRecognizer];
+
+    UISwipeGestureRecognizer* swipeGestureRecognizer = [[UISwipeGestureRecognizer alloc] init];
+    [swipeGestureRecognizer addTarget:self action:@selector(swipeGestureAction:)];
+    [self addGestureRecognizer:swipeGestureRecognizer];
 
     fWindow = initWindow;
 
