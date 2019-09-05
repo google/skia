@@ -2797,12 +2797,14 @@ static void test_transform(skiatest::Reporter* reporter) {
         p2.addRect({ 10, 20, 30, 40 });
         uint32_t id1 = p1.getGenerationID();
         uint32_t id2 = p2.getGenerationID();
+        REPORTER_ASSERT(reporter, id1 != id2);
         SkMatrix matrix;
         matrix.setScale(2, 2);
         p1.transform(matrix, &p2);
+        REPORTER_ASSERT(reporter, id1 == p1.getGenerationID());
+        REPORTER_ASSERT(reporter, id2 != p2.getGenerationID());
         p1.transform(matrix);
         REPORTER_ASSERT(reporter, id1 != p1.getGenerationID());
-        REPORTER_ASSERT(reporter, id2 != p2.getGenerationID());
     }
 }
 
@@ -4174,7 +4176,8 @@ static void test_contains(skiatest::Reporter* reporter) {
 class PathRefTest_Private {
 public:
     static size_t GetFreeSpace(const SkPathRef& ref) {
-        return ref.fFreeSpace;
+        return   (ref.fPoints.reserved() - ref.fPoints.count()) * sizeof(SkPoint)
+               + (ref.fVerbs.reserved()  - ref.fVerbs.count())  * sizeof(uint8_t);
     }
 
     static void TestPathRef(skiatest::Reporter* reporter) {
