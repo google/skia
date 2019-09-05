@@ -10,45 +10,47 @@
 #ifndef GrGLIRect_DEFINED
 #define GrGLIRect_DEFINED
 
-#include "include/gpu/gl/GrGLInterface.h"
-#include "src/gpu/gl/GrGLUtil.h"
+#include "include/core/SkRect.h"
+#include "include/gpu/GrTypes.h"
 
 /**
  * Helper struct for dealing with the fact that Ganesh and GL use different
  * window coordinate systems (top-down vs bottom-up)
  */
 struct GrGLIRect {
-    GrGLint   fLeft;
-    GrGLint   fBottom;
-    GrGLsizei fWidth;
-    GrGLsizei fHeight;
+    int fX;
+    int fY;
+    int fWidth;
+    int fHeight;
+
+    static GrGLIRect MakeRelativeTo(GrSurfaceOrigin org, int rtHeight, const SkIRect& devRect) {
+        GrGLIRect glRect;
+        glRect.setRelativeTo(org, rtHeight, devRect);
+        return glRect;
+    }
+
+    static GrGLIRect MakeRelativeTo(GrSurfaceOrigin origin, int surfaceHeight, int leftOffset,
+                                    int topOffset, int width, int height) {
+        GrGLIRect glRect;
+        glRect.setRelativeTo(origin, surfaceHeight, leftOffset, topOffset, width, height);
+        return glRect;
+    }
 
     /**
      *  cast-safe way to treat the rect as an array of (4) ints.
      */
     const int* asInts() const {
-        return &fLeft;
+        return &fX;
 
-        GR_STATIC_ASSERT(0 == offsetof(GrGLIRect, fLeft));
-        GR_STATIC_ASSERT(4 == offsetof(GrGLIRect, fBottom));
+        GR_STATIC_ASSERT(0 == offsetof(GrGLIRect, fX));
+        GR_STATIC_ASSERT(4 == offsetof(GrGLIRect, fY));
         GR_STATIC_ASSERT(8 == offsetof(GrGLIRect, fWidth));
         GR_STATIC_ASSERT(12 == offsetof(GrGLIRect, fHeight));
-        GR_STATIC_ASSERT(16 == sizeof(GrGLIRect)); // For an array of GrGLIRect.
+        GR_STATIC_ASSERT(16 == sizeof(GrGLIRect));  // For an array of GrGLIRect.
     }
-    int* asInts() { return &fLeft; }
+    int* asInts() { return &fX; }
 
-    void pushToGLViewport(const GrGLInterface* gl) const {
-        GR_GL_CALL(gl, Viewport(fLeft, fBottom, fWidth, fHeight));
-    }
-
-    void pushToGLScissor(const GrGLInterface* gl) const {
-        GR_GL_CALL(gl, Scissor(fLeft, fBottom, fWidth, fHeight));
-    }
-
-    void setFromGLViewport(const GrGLInterface* gl) {
-        GR_STATIC_ASSERT(sizeof(GrGLIRect) == 4*sizeof(GrGLint));
-        GR_GL_GetIntegerv(gl, GR_GL_VIEWPORT, (GrGLint*) this);
-    }
+    SkIRect asSkIRect() const { return SkIRect::MakeXYWH(fX, fY, fWidth, fHeight); }
 
     // sometimes we have a SkIRect from the client that we
     // want to simultaneously make relative to GL's viewport
@@ -56,23 +58,19 @@ struct GrGLIRect {
     // The GL's viewport will always be the full size of the
     // current render target so we just pass in the rtHeight
     // here.
-    void setRelativeTo(int rtHeight, const SkIRect& devRect, GrSurfaceOrigin org) {
-        this->setRelativeTo(rtHeight, devRect.x(), devRect.y(), devRect.width(), devRect.height(),
-                            org);
+    void setRelativeTo(GrSurfaceOrigin org, int rtHeight, const SkIRect& devRect) {
+        this->setRelativeTo(org, rtHeight, devRect.x(), devRect.y(), devRect.width(),
+                            devRect.height());
     }
 
-    void setRelativeTo(int fullHeight,
-                       int leftOffset,
-                       int topOffset,
-                       int width,
-                       int height,
-                       GrSurfaceOrigin origin) {
-        fLeft = leftOffset;
+    void setRelativeTo(GrSurfaceOrigin origin, int surfaceHeight, int leftOffset, int topOffset,
+                       int width, int height) {
+        fX = leftOffset;
         fWidth = width;
         if (kBottomLeft_GrSurfaceOrigin == origin) {
-            fBottom = fullHeight - topOffset - height;
+            fY = surfaceHeight - topOffset - height;
         } else {
-            fBottom = topOffset;
+            fY = topOffset;
         }
         fHeight = height;
 
@@ -81,14 +79,14 @@ struct GrGLIRect {
     }
 
     bool contains(int width, int height) const {
-        return fLeft <= 0 &&
-               fBottom <= 0 &&
-               fLeft + fWidth >= width &&
-               fBottom + fHeight >= height;
+        return fX <= 0 &&
+               fY <= 0 &&
+               fX + fWidth >= width &&
+               fY + fHeight >= height;
     }
 
-    void invalidate() {fLeft = fWidth = fBottom = fHeight = -1;}
-    bool isInvalid() const { return fLeft == -1 && fWidth == -1 && fBottom == -1
+    void invalidate() {fX = fWidth = fY = fHeight = -1;}
+    bool isInvalid() const { return fX == -1 && fWidth == -1 && fY == -1
         && fHeight == -1; }
 
     bool operator ==(const GrGLIRect& glRect) const {
