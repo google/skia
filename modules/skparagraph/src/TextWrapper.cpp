@@ -155,7 +155,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     fEndLine = TextStretch(span.begin(), span.begin(), parent->strutForceHeight());
     auto end = span.end() - 1;
     auto start = span.begin();
-    LineMetrics maxRunMetrics;
+    InternalLineMetrics maxRunMetrics;
     while (fEndLine.endCluster() != end) {
         reset();
 
