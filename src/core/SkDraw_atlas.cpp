@@ -29,6 +29,7 @@ static void fill_rect(const SkMatrix& ctm, const SkRasterClip& rc,
         scratchPath->rewind();
         scratchPath->addRect(r);
         scratchPath->transform(ctm);
+        scratchPath->setConvexity(SkPath::kConvex_Convexity);
         SkScan::FillPath(*scratchPath, rc, blitter);
     }
 }
