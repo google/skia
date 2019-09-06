@@ -42,6 +42,9 @@ public:
     void onUIStateChanged(const SkString& stateName, const SkString& stateValue) override;
     bool onKey(skui::Key key, skui::InputState state, skui::ModifierKey modifiers) override;
     bool onChar(SkUnichar c, skui::ModifierKey modifiers) override;
+    bool onPinch(skui::InputState state, float scale, float x, float y) override;
+    bool onFling(skui::InputState state) override;
+    bool onPress() override;
 
     struct SkFontFields {
         bool fTypeface = false;

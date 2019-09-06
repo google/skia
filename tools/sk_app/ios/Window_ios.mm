@@ -138,26 +138,61 @@ void Window_ios::onInval() {
 
 @implementation MainView {
     sk_app::Window_ios* fWindow;
+    // variables for managing flick/pan
+    bool fInFling;
+    bool fInPan;
+    CGPoint fPanStart;
 }
 
 - (IBAction)panGestureAction:(UIGestureRecognizer*)sender {
     CGPoint location = [sender locationInView:self];
+    CGPoint velocity = [(UIPanGestureRecognizer*)sender velocityInView:self];
     switch (sender.state) {
         case UIGestureRecognizerStateBegan:
-            fWindow->onMouse(location.x, location.y,
-                             skui::InputState::kDown,skui::ModifierKey::kNone);
+            if (velocity.x > 500) {
+                fWindow->onFling(skui::InputState::kRight);
+                fInFling = true;
+            } else if (velocity.x < -500) {
+                fWindow->onFling(skui::InputState::kLeft);
+                fInFling = true;
+            } else {
+                fPanStart = location;
+            }
             break;
         case UIGestureRecognizerStateChanged:
-            fWindow->onMouse(location.x, location.y,
-                             skui::InputState::kMove, skui::ModifierKey::kNone);
+            if (!fInFling) {
+                if (!fInPan && velocity.x > 500) {
+                    fWindow->onFling(skui::InputState::kRight);
+                    fInFling = true;
+                } else if (!fInPan && velocity.x < -500) {
+                    fWindow->onFling(skui::InputState::kLeft);
+                    fInFling = true;
+                } else {
+                    if (!fInPan) {
+                        fWindow->onMouse(fPanStart.x, fPanStart.y,
+                                         skui::InputState::kDown, skui::ModifierKey::kNone);
+                        fInPan = true;
+                    }
+                    fWindow->onMouse(location.x, location.y,
+                                     skui::InputState::kMove, skui::ModifierKey::kNone);
+                }
+            }
             break;
         case UIGestureRecognizerStateEnded:
-            fWindow->onMouse(location.x, location.y,
-                             skui::InputState::kUp, skui::ModifierKey::kNone);
+            if (!fInFling) {
+                fWindow->onMouse(location.x, location.y,
+                                 skui::InputState::kUp, skui::ModifierKey::kNone);
+            }
+            fInFling = false;
+            fInPan = false;
             break;
         case UIGestureRecognizerStateCancelled:
-            fWindow->onMouse(location.x, location.y,
-                             skui::InputState::kUp, skui::ModifierKey::kNone);
+            if (!fInFling) {
+                fWindow->onMouse(location.x, location.y,
+                                 skui::InputState::kUp, skui::ModifierKey::kNone);
+            }
+            fInFling = false;
+            fInPan = false;
             break;
         default:
             break;
@@ -178,16 +213,67 @@ void Window_ios::onInval() {
     }
 }
 
+- (IBAction)pinchGestureAction:(UIGestureRecognizer*)sender {
+    CGPoint location = [sender locationInView:self];
+    UIPinchGestureRecognizer* pinchGestureRecognizer = (UIPinchGestureRecognizer*) sender;
+    float scale = pinchGestureRecognizer.scale;
+    switch (sender.state) {
+        case UIGestureRecognizerStateBegan:
+            fWindow->onPinch(skui::InputState::kDown, scale, location.x, location.y);
+            break;
+        case UIGestureRecognizerStateChanged:
+            fWindow->onPinch(skui::InputState::kMove, scale, location.x, location.y);
+            break;
+        case UIGestureRecognizerStateEnded:
+            fWindow->onPinch(skui::InputState::kUp, scale, location.x, location.y);
+            break;
+        case UIGestureRecognizerStateCancelled:
+            fWindow->onPinch(skui::InputState::kUp, scale, location.x, location.y);
+            break;
+        default:
+            break;
+    }
+}
+
+- (IBAction)swipeRightGestureAction:(UIGestureRecognizer*)sender {
+    if (UIGestureRecognizerStateEnded == sender.state) {
+        fWindow->onFling(skui::InputState::kRight);
+    }
+}
+
+- (IBAction)swipeLeftGestureAction:(UIGestureRecognizer*)sender {
+    if (UIGestureRecognizerStateEnded == sender.state) {
+        fWindow->onFling(skui::InputState::kLeft);
+    }
+}
+
 - (MainView*)initWithWindow:(sk_app::Window_ios *)initWindow {
     self = [super init];
 
     UIPanGestureRecognizer* panGestureRecognizer = [[UIPanGestureRecognizer alloc] init];
+    panGestureRecognizer.maximumNumberOfTouches = 1;
     [panGestureRecognizer addTarget:self action:@selector(panGestureAction:)];
     [self addGestureRecognizer:panGestureRecognizer];
+    fInFling = false;
+    fInPan = false;
 
     UITapGestureRecognizer* tapGestureRecognizer = [[UITapGestureRecognizer alloc] init];
     [tapGestureRecognizer addTarget:self action:@selector(tapGestureAction:)];
     [self addGestureRecognizer:tapGestureRecognizer];
+
+    UIPinchGestureRecognizer* pinchGestureRecognizer = [[UIPinchGestureRecognizer alloc] init];
+    [pinchGestureRecognizer addTarget:self action:@selector(pinchGestureAction:)];
+    [self addGestureRecognizer:pinchGestureRecognizer];
+
+//    UISwipeGestureRecognizer* swipeRightGestureRecognizer = [[UISwipeGestureRecognizer alloc] init];
+//    swipeRightGestureRecognizer.direction = UISwipeGestureRecognizerDirectionRight;
+//    [swipeRightGestureRecognizer addTarget:self action:@selector(swipeRightGestureAction:)];
+//    [self addGestureRecognizer:swipeRightGestureRecognizer];
+//
+//    UISwipeGestureRecognizer* swipeLeftGestureRecognizer = [[UISwipeGestureRecognizer alloc] init];
+//    swipeLeftGestureRecognizer.direction = UISwipeGestureRecognizerDirectionLeft;
+//    [swipeLeftGestureRecognizer addTarget:self action:@selector(swipeLeftGestureAction:)];
+//    [self addGestureRecognizer:swipeLeftGestureRecognizer];
 
     fWindow = initWindow;
 
