@@ -26,9 +26,12 @@ static void fill_rect(const SkMatrix& ctm, const SkRasterClip& rc,
         ctm.mapRect(&dr, r);
         SkScan::FillRect(dr, rc, blitter);
     } else {
+        SkPoint pts[4];
+        r.toQuad(pts);
+        ctm.mapPoints(pts, pts, 4);
+
         scratchPath->rewind();
-        scratchPath->addRect(r);
-        scratchPath->transform(ctm);
+        scratchPath->addPoly(pts, 4, true);
         SkScan::FillPath(*scratchPath, rc, blitter);
     }
 }
