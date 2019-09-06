@@ -535,18 +535,6 @@ bool GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int wi
         if (rt->wrapsSecondaryCommandBuffer()) {
             return false;
         }
-        // resolve the render target if necessary
-        switch (rt->getResolveType()) {
-            case GrVkRenderTarget::kCantResolve_ResolveType:
-                return false;
-            case GrVkRenderTarget::kAutoResolves_ResolveType:
-                break;
-            case GrVkRenderTarget::kCanResolve_ResolveType:
-                SkASSERT(!rt->needsResolve());
-                break;
-            default:
-                SK_ABORT("Unknown resolve type");
-        }
         srcImage = rt;
     } else {
         srcImage = static_cast<GrVkTexture*>(surface->asTexture());
@@ -619,23 +607,19 @@ void GrVkGpu::resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect&
 
 void GrVkGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
                                     GrSurfaceOrigin resolveOrigin) {
-    if (target->needsResolve()) {
-        SkASSERT(target->numSamples() > 1);
-        GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(target);
-        SkASSERT(rt->msaaImage());
+    SkASSERT(target->numSamples() > 1);
+    GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(target);
+    SkASSERT(rt->msaaImage());
 
-        auto nativeResolveRect = GrNativeRect::MakeRelativeTo(
-                resolveOrigin, target->height(), resolveRect);
-        this->resolveImage(target, rt, nativeResolveRect.asSkIRect(),
-                           SkIPoint::Make(nativeResolveRect.fX, nativeResolveRect.fY));
+    auto nativeResolveRect = GrNativeRect::MakeRelativeTo(
+            resolveOrigin, target->height(), resolveRect);
+    this->resolveImage(target, rt, nativeResolveRect.asSkIRect(),
+                       SkIPoint::Make(nativeResolveRect.fX, nativeResolveRect.fY));
 
-        rt->flagAsResolved();
-
-        // This resolve is called when we are preparing an msaa surface for external I/O. It is
-        // called after flushing, so we need to make sure we submit the command buffer after doing
-        // the resolve so that the resolve actually happens.
-        this->submitCommandBuffer(kSkip_SyncQueue);
-    }
+    // This resolve is called when we are preparing an msaa surface for external I/O. It is
+    // called after flushing, so we need to make sure we submit the command buffer after doing
+    // the resolve so that the resolve actually happens.
+    this->submitCommandBuffer(kSkip_SyncQueue);
 }
 
 bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, int left, int top, int width, int height,
@@ -2292,18 +2276,6 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
         // stop and start the VkRenderPass which we don't have access to.
         if (rt->wrapsSecondaryCommandBuffer()) {
             return false;
-        }
-        // resolve the render target if necessary
-        switch (rt->getResolveType()) {
-            case GrVkRenderTarget::kCantResolve_ResolveType:
-                return false;
-            case GrVkRenderTarget::kAutoResolves_ResolveType:
-                break;
-            case GrVkRenderTarget::kCanResolve_ResolveType:
-                SkASSERT(!rt->needsResolve());
-                break;
-            default:
-                SK_ABORT("Unknown resolve type");
         }
         image = rt;
     } else {

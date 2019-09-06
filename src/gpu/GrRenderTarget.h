@@ -39,44 +39,6 @@ public:
      */
     int numSamples() const { return fSampleCnt; }
 
-    /**
-     * Call to indicate the multisample contents were modified such that the
-     * render target needs to be resolved before it can be used as texture. Gr
-     * tracks this for its own drawing and thus this only needs to be called
-     * when the render target has been modified outside of Gr. This has no
-     * effect on wrapped backend render targets.
-     *
-     * @param rect  a rect bounding the area needing resolve. NULL indicates
-     *              the whole RT needs resolving.
-     */
-    void flagAsNeedingResolve(const SkIRect* rect = nullptr);
-
-    /**
-     * Call to indicate that GrRenderTarget was externally resolved. This may
-     * allow Gr to skip a redundant resolve step.
-     */
-    void flagAsResolved();
-
-    /**
-     * @return true if the GrRenderTarget requires MSAA resolving
-     */
-    bool needsResolve() const { return !fResolveRect.isEmpty(); }
-
-    /**
-     * Returns a rect bounding the region needing resolving.
-     */
-    const SkIRect& getResolveRect() const { return fResolveRect; }
-
-    // a MSAA RT may require explicit resolving , it may auto-resolve (e.g. FBO
-    // 0 in GL), or be unresolvable because the client didn't give us the
-    // resolve destination.
-    enum ResolveType {
-        kCanResolve_ResolveType,
-        kAutoResolves_ResolveType,
-        kCantResolve_ResolveType,
-    };
-    virtual ResolveType getResolveType() const = 0;
-
     virtual GrBackendRenderTarget getBackendRenderTarget() const = 0;
 
     // Checked when this object is asked to attach a stencil buffer.
@@ -107,7 +69,6 @@ private:
     int fSampleCnt;
     int fSamplePatternKey;
     sk_sp<GrStencilAttachment> fStencilAttachment;
-    SkIRect fResolveRect;
 
     typedef GrSurface INHERITED;
 };
