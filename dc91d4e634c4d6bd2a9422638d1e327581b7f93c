@@ -22,6 +22,30 @@
       "revId": "dc91d4e634c4d6bd2a9422638d1e327581b7f93c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "739579d7_e25d81ef",
+        "filename": "include/gpu/GrGpuResource.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-06T16:29:01Z",
+      "side": 1,
+      "message": "err copy cons and op\u003d.",
+      "parentUuid": "7c0c681a_c9316f16",
+      "range": {
+        "startLine": 77,
+        "startChar": 3,
+        "endLine": 77,
+        "endChar": 36
+      },
+      "revId": "dc91d4e634c4d6bd2a9422638d1e327581b7f93c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
