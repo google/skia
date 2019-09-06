@@ -116,19 +116,10 @@ public:
      */
     void releaseAll();
 
-    enum class ScratchFlags {
-        kNone = 0,
-        /** Preferentially returns scratch resources with no pending IO. */
-        kPreferNoPendingIO = 0x1,
-        /** Will not return any resources that match but have pending IO. */
-        kRequireNoPendingIO = 0x2,
-    };
-
     /**
      * Find a resource that matches a scratch key.
      */
-    GrGpuResource* findAndRefScratchResource(const GrScratchKey& scratchKey, size_t resourceSize,
-                                             ScratchFlags);
+    GrGpuResource* findAndRefScratchResource(const GrScratchKey& scratchKey);
 
 #ifdef SK_DEBUG
     // This is not particularly fast and only used for validation, so debug only.
@@ -376,8 +367,6 @@ private:
 
     bool                                fPreferVRAMUseOverFlushes = false;
 };
-
-GR_MAKE_BITFIELD_CLASS_OPS(GrResourceCache::ScratchFlags);
 
 class GrResourceCache::ResourceAccess {
 private:

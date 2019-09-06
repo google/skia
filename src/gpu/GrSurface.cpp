@@ -15,45 +15,6 @@
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/SkGr.h"
 
-size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, GrRenderable renderable,
-                                int renderTargetSampleCnt, bool binSize) {
-    size_t size;
-
-    int width  = binSize ? GrResourceProvider::MakeApprox(desc.fWidth)  : desc.fWidth;
-    int height = binSize ? GrResourceProvider::MakeApprox(desc.fHeight) : desc.fHeight;
-
-    if (renderable == GrRenderable::kYes) {
-        // We own one color value for each MSAA sample.
-        SkASSERT(renderTargetSampleCnt >= 1);
-        int colorValuesPerPixel = renderTargetSampleCnt;
-        if (renderTargetSampleCnt > 1) {
-            // Worse case, we own the resolve buffer so that is one more sample per pixel.
-            colorValuesPerPixel += 1;
-        }
-        SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
-        SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig));
-        size_t colorBytes = (size_t) width * height * GrBytesPerPixel(desc.fConfig);
-
-        // This would be a nice assert to have (i.e., we aren't creating 0 width/height surfaces).
-        // Unfortunately Chromium seems to want to do this.
-        //SkASSERT(colorBytes > 0);
-
-        size = colorValuesPerPixel * colorBytes;
-        size += colorBytes/3; // in case we have to mipmap
-    } else {
-        SkASSERT(renderTargetSampleCnt == 1);
-        if (GrPixelConfigIsCompressed(desc.fConfig)) {
-            size = GrCompressedFormatDataSize(desc.fConfig, width, height);
-        } else {
-            size = (size_t)width * height * GrBytesPerPixel(desc.fConfig);
-        }
-
-        size += size/3;  // in case we have to mipmap
-    }
-
-    return size;
-}
-
 size_t GrSurface::ComputeSize(GrPixelConfig config,
                               int width,
                               int height,
