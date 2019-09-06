@@ -1487,12 +1487,17 @@ bool Compiler::toH(Program& program, String name, OutputStream& out) {
     return result;
 }
 
+#endif
+
+#ifndef SKSL_STANDALONE
 bool Compiler::toPipelineStage(const Program& program, String* out,
-                               std::vector<FormatArg>* outFormatArgs) {
+                               std::vector<FormatArg>* outFormatArgs,
+                               std::vector<GLSLFunction>* outFunctions) {
     SkASSERT(program.fIsOptimized);
     fSource = program.fSource.get();
     StringStream buffer;
-    PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer, outFormatArgs);
+    PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer, outFormatArgs,
+                                  outFunctions);
     bool result = cg.generateCode();
     fSource = nullptr;
     if (result) {
@@ -1500,7 +1505,6 @@ bool Compiler::toPipelineStage(const Program& program, String* out,
     }
     return result;
 }
-
 #endif
 
 std::unique_ptr<ByteCode> Compiler::toByteCode(Program& program) {

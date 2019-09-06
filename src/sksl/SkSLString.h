@@ -13,6 +13,10 @@
 #include <stdarg.h>
 #include <string>
 
+#ifndef SKSL_STANDALONE
+#include "include/core/SkString.h"
+#endif
+
 namespace SkSL {
 
 // Represents a (not necessarily null-terminated) slice of a string.
@@ -38,6 +42,10 @@ struct StringFragment {
     bool operator==(StringFragment s) const;
     bool operator!=(StringFragment s) const;
     bool operator<(StringFragment s) const;
+
+#ifndef SKSL_STANDALONE
+    operator SkString() const { return SkString(fChars, fLength); }
+#endif
 
     const char* fChars;
     size_t fLength;
@@ -94,6 +102,10 @@ public:
     friend String operator+(const char* s1, const String& s2);
     friend bool operator==(const char* s1, const String& s2);
     friend bool operator!=(const char* s1, const String& s2);
+
+#ifndef SKSL_STANDALONE
+    operator SkString() const { return SkString(c_str()); }
+#endif
 
 private:
     typedef std::string INHERITED;
