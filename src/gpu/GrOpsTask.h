@@ -229,10 +229,7 @@ private:
 
     void forwardCombine(const GrCaps&);
 
-    ExpectedOutcome onMakeClosed(const GrCaps& caps) override {
-        this->forwardCombine(caps);
-        return (this->isNoOp()) ? ExpectedOutcome::kTargetUnchanged : ExpectedOutcome::kTargetDirty;
-    }
+    ExpectedOutcome onMakeClosed(const GrCaps& caps, SkIRect* targetUpdateBounds) override;
 
     friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive
 
@@ -270,6 +267,8 @@ private:
     // TODO: We could look into this being a set if we find we're adding a lot of duplicates that is
     // causing slow downs.
     SkTArray<GrTextureProxy*, true> fSampledProxies;
+
+    SkRect fTotalBounds = SkRect::MakeEmpty();
 };
 
 #endif
