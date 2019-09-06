@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42cced05_cf391519",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-09-06T16:02:45Z",
+      "side": 1,
+      "message": "If/when we move to a pure-builder mode, then the tear-off object will only need listeners in its destructor -- since it can never be edited in the middle of its life. And the builder itself won\u0027t have listeners at all.",
+      "range": {
+        "startLine": 474,
+        "startChar": 16,
+        "endLine": 474,
+        "endChar": 40
+      },
+      "revId": "3bfc3b325d1f550197dfb985f13f97c8028be168",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
