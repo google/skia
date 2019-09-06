@@ -174,10 +174,6 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
     desc.fHeight = fHeight;
     desc.fConfig = fConfig;
 
-    // The explicit resource allocator requires that any resources it pulls out of the
-    // cache have no pending IO.
-    GrResourceProvider::Flags resourceProviderFlags = GrResourceProvider::Flags::kNoPendingIO;
-
     sk_sp<GrSurface> surface;
     if (GrMipMapped::kYes == mipMapped) {
         SkASSERT(SkBackingFit::kExact == fFit);
@@ -211,11 +207,11 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
     } else {
         if (SkBackingFit::kApprox == fFit) {
             surface = resourceProvider->createApproxTexture(desc, fFormat, renderable, sampleCnt,
-                                                            fIsProtected, resourceProviderFlags);
+                                                            fIsProtected);
         } else {
             surface =
                     resourceProvider->createTexture(desc, fFormat, renderable, sampleCnt, fBudgeted,
-                                                    fIsProtected, resourceProviderFlags);
+                                                    fIsProtected);
         }
     }
     if (!surface) {

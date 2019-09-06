@@ -123,7 +123,7 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
                     desc.fConfig = pixelConfig;
                     fBackingTexture = resourceProvider->createTexture(
                             desc, format, GrRenderable::kYes, sampleCount, SkBudgeted::kYes,
-                            GrProtected::kNo, GrResourceProvider::Flags::kNoPendingIO);
+                            GrProtected::kNo);
                 }
                 return fBackingTexture;
             },
