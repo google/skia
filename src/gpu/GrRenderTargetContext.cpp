@@ -342,7 +342,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
     }
 }
 
-void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect) {
+void GrRenderTargetContextPriv::absClear(const SkIRect* providedClearRect) {
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
     SkDEBUGCODE(fRenderTargetContext->validate();)
@@ -351,14 +351,14 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect) {
 
     AutoCheckFlush acf(fRenderTargetContext->drawingManager());
 
-    SkIRect rtRect = SkIRect::MakeWH(fRenderTargetContext->fRenderTargetProxy->worstCaseWidth(),
-                                     fRenderTargetContext->fRenderTargetProxy->worstCaseHeight());
+    GrRenderTargetProxy* rtProxy = fRenderTargetContext->fRenderTargetProxy.get();
+    SkIRect finalClearRect = SkIRect::MakeWH(rtProxy->worstCaseWidth(), rtProxy->worstCaseHeight());
 
-    if (clearRect) {
-        if (clearRect->contains(rtRect)) {
-            clearRect = nullptr; // full screen
+    if (providedClearRect) {
+        if (providedClearRect->contains(finalClearRect)) {
+            providedClearRect = nullptr; // full screen
         } else {
-            if (!rtRect.intersect(*clearRect)) {
+            if (!finalClearRect.intersect(*providedClearRect)) {
                 return;
             }
         }
@@ -370,7 +370,7 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect) {
     // This makes sure to always add an op to the list, instead of marking the clear as a load op.
     // This code follows very similar logic to internalClear() below, but critical differences are
     // highlighted in line related to absClear()'s unique behavior.
-    if (clearRect) {
+    if (providedClearRect) {
         if (fRenderTargetContext->caps()->performPartialClearsAsDraws()) {
             GrPaint paint;
             clear_to_grpaint(kColor, &paint);
@@ -381,13 +381,13 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect) {
             fRenderTargetContext->addDrawOp(
                     GrFixedClip::Disabled(),
                     GrFillRectOp::MakeNonAARect(fRenderTargetContext->fContext, std::move(paint),
-                                                SkMatrix::I(), SkRect::Make(rtRect)));
+                                                SkMatrix::I(), SkRect::Make(finalClearRect)));
         } else {
             // Must use the ClearOp factory that takes a boolean (false) instead of a surface
             // proxy. The surface proxy variant would intersect the clip rect with its logical
             // bounds, which is not desired in this special case.
             fRenderTargetContext->addOp(GrClearOp::Make(
-                    fRenderTargetContext->fContext, rtRect, kColor, /* fullscreen */ false));
+                    fRenderTargetContext->fContext, finalClearRect, kColor, /*fullscreen*/ false));
         }
     } else {
         if (fRenderTargetContext->getOpsTask()->resetForFullscreenClear(
@@ -406,7 +406,7 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect) {
                         GrFixedClip::Disabled(),
                         GrFillRectOp::MakeNonAARect(fRenderTargetContext->fContext,
                                                     std::move(paint), SkMatrix::I(),
-                                                    SkRect::Make(rtRect)));
+                                                    SkRect::Make(finalClearRect)));
             } else {
                 // Nothing special about this path in absClear compared to internalClear()
                 fRenderTargetContext->addOp(GrClearOp::Make(
@@ -414,6 +414,12 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect) {
                         /* fullscreen */ true));
             }
         }
+    }
+
+    if (rtProxy->requiresManualMSAAResolve()) {
+        // Explicitly mark the total clear rect as dirty on the proxy. The automatic mechanisms in
+        // place will not mark anything dirty outside the proxy's width and height.
+        rtProxy->markMSAADirtyNoBoundsCheck(finalClearRect);
     }
 }
 
