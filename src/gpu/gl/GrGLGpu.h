@@ -319,10 +319,6 @@ private:
                                 const GrPipeline&, bool hasPointSize);
 
     private:
-        // We may actually have kMaxEntries+1 shaders in the GL context because we create a new
-        // shader before evicting from the cache.
-        static const int kMaxEntries = 128;
-
         struct Entry;
 
         struct DescHash {

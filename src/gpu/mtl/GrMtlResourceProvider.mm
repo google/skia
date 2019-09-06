@@ -7,6 +7,8 @@
 
 #include "src/gpu/mtl/GrMtlResourceProvider.h"
 
+#include "include/gpu/GrContextOptions.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlPipelineState.h"
@@ -107,7 +109,8 @@ struct GrMtlResourceProvider::PipelineStateCache::Entry {
 };
 
 GrMtlResourceProvider::PipelineStateCache::PipelineStateCache(GrMtlGpu* gpu)
-    : fMap(kMaxEntries)
+    // Temporary hack to keep this as large as Chrome wants, until they update GrContextOptions
+    : fMap(SkTMax(gpu->getContext()->priv().options().fRuntimeProgramCacheSize, 1024))
     , fGpu(gpu)
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     , fTotalRequests(0)

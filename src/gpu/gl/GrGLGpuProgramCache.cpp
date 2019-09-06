@@ -7,6 +7,8 @@
 
 #include "src/gpu/gl/GrGLGpu.h"
 
+#include "include/gpu/GrContextOptions.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/gl/builders/GrGLProgramBuilder.h"
@@ -19,7 +21,7 @@ struct GrGLGpu::ProgramCache::Entry {
 };
 
 GrGLGpu::ProgramCache::ProgramCache(GrGLGpu* gpu)
-    : fMap(kMaxEntries)
+    : fMap(gpu->getContext()->priv().options().fRuntimeProgramCacheSize)
     , fGpu(gpu) {}
 
 GrGLGpu::ProgramCache::~ProgramCache() {}

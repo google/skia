@@ -6,7 +6,9 @@
  */
 
 
+#include "include/gpu/GrContextOptions.h"
 #include "src/core/SkOpts.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrStencilSettings.h"
@@ -38,7 +40,7 @@ struct GrVkResourceProvider::PipelineStateCache::Entry {
 };
 
 GrVkResourceProvider::PipelineStateCache::PipelineStateCache(GrVkGpu* gpu)
-    : fMap(kMaxEntries)
+    : fMap(gpu->getContext()->priv().options().fRuntimeProgramCacheSize)
     , fGpu(gpu)
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     , fTotalRequests(0)
