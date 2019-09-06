@@ -97,7 +97,7 @@ public:
                             desc.fConfig = kRGB_565_GrPixelConfig;
                             sk_sp<GrTexture> texture = rp->createTexture(
                                     desc, format, GrRenderable::kNo, 1, SkBudgeted::kYes,
-                                    GrProtected::kNo, GrResourceProvider::Flags::kNoPendingIO);
+                                    GrProtected::kNo);
                             REPORTER_ASSERT(fTest->fReporter, texture);
                             return texture;
                         }
@@ -347,8 +347,7 @@ private:
                         return {};
                     }
                     return {rp->createTexture(desc, format, GrRenderable::kNo, 1, SkBudgeted::kNo,
-                                              GrProtected::kNo,
-                                              GrResourceProvider::Flags::kNoPendingIO),
+                                              GrProtected::kNo),
                             true, GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
                 },
                 format, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
