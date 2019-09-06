@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57fdb9b4_83ad548b",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-06T15:45:29Z",
+      "side": 1,
+      "message": "absClear can get here when called with a nullptr clearRect. In that case we need this bounds to be the worstCase width and height right?",
+      "range": {
+        "startLine": 508,
+        "startChar": 8,
+        "endLine": 508,
+        "endChar": 64
+      },
+      "revId": "67458fefaa1d7455eafef9648d4cc819653bae97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "175040f8_4f7775ee",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-06T15:45:29Z",
+      "side": 1,
+      "message": "Just to confirm I\u0027m reading this all right, we are always setting the targetUpdateBounds to be clipped by the actual size of the GrRTProxy right?\n\nSo if we have an absClear that has a clearRect which clears outside proxy bounds, we clipped that extra off, but fTotalBounds will still contain the extra bounds right?\n\nAnd we are only using targetUpdateBounds for the rect needed for resolves/mips right? Do we ever need to make sure we resolve outside the proxy bounds? Like are we ever doing blurs on MSAA render targets where we would abs clear the msaa surface and then need to resolve that into another texture. I guess in this case both the MSAA and resolve would have needed to be approx? What would happen in MSAA surface happen to be exact but the resolve was approx? Does that ever happen?",
+      "range": {
+        "startLine": 769,
+        "startChar": 43,
+        "endLine": 769,
+        "endChar": 55
+      },
+      "revId": "67458fefaa1d7455eafef9648d4cc819653bae97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbf998c9_47452fa0",
+        "filename": "src/gpu/dawn/GrDawnGpu.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-06T15:45:29Z",
+      "side": 1,
+      "message": "just put this all on one line?",
+      "range": {
+        "startLine": 148,
+        "startChar": 97,
+        "endLine": 149,
+        "endChar": 5
+      },
+      "revId": "67458fefaa1d7455eafef9648d4cc819653bae97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
