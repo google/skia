@@ -278,12 +278,10 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
         sk_sp<GrTexture> texture;
         if (fit == SkBackingFit::kApprox) {
             texture = resourceProvider->createApproxTexture(
-                    desc, format, p.fRenderable, p.fSampleCnt, GrProtected::kNo,
-                    GrResourceProvider::Flags::kNoPendingIO);
+                    desc, format, p.fRenderable, p.fSampleCnt, GrProtected::kNo);
         } else {
             texture = resourceProvider->createTexture(desc, format, p.fRenderable, p.fSampleCnt,
-                                                      SkBudgeted::kNo, GrProtected::kNo,
-                                                      GrResourceProvider::Flags::kNoPendingIO);
+                                                      SkBudgeted::kNo, GrProtected::kNo);
         }
         return GrSurfaceProxy::LazyCallbackResult(std::move(texture));
     };

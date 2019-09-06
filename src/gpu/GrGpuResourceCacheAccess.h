@@ -55,7 +55,7 @@ private:
     /** Called by the cache to assign a new unique key. */
     void setUniqueKey(const GrUniqueKey& key) { fResource->fUniqueKey = key; }
 
-    /** Is the resource ref'ed (not counting pending IOs). */
+    /** Is the resource ref'ed */
     bool hasRef() const { return fResource->hasRef(); }
 
     /** Called by the cache to make the unique key invalid. */

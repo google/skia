@@ -285,8 +285,7 @@ public:
         SkASSERT(!resource->getUniqueKey().isValid() &&
                  resource->resourcePriv().getScratchKey().isValid());
 
-        // isScratch() also tests that the resource is budgeted. TODO: why are unbudgeted
-        // scratch resouces in the scratchMap?
+        // isScratch() also tests that the resource is budgeted.
         if (resource->internalHasRef() || !resource->cacheAccess().isScratch()) {
             return false;
         }
@@ -294,32 +293,10 @@ public:
     }
 };
 
-GrGpuResource* GrResourceCache::findAndRefScratchResource(const GrScratchKey& scratchKey,
-                                                          size_t resourceSize,
-                                                          ScratchFlags flags) {
+GrGpuResource* GrResourceCache::findAndRefScratchResource(const GrScratchKey& scratchKey) {
     SkASSERT(scratchKey.isValid());
 
-    GrGpuResource* resource;
-    // TODO: remove these conditions and fuse the two code paths!
-    if (flags & (ScratchFlags::kPreferNoPendingIO | ScratchFlags::kRequireNoPendingIO)) {
-        resource = fScratchMap.find(scratchKey, AvailableForScratchUse());
-        if (resource) {
-            this->refAndMakeResourceMRU(resource);
-            this->validate();
-            return resource;
-        } else if (flags & ScratchFlags::kRequireNoPendingIO) {
-            return nullptr;
-        }
-        // We would prefer to consume more available VRAM rather than flushing
-        // immediately, but on ANGLE this can lead to starving of the GPU.
-        if (fPreferVRAMUseOverFlushes && this->wouldFit(resourceSize)) {
-            // kPrefer is specified, we didn't find a resource without pending io,
-            // but there is still space in our budget for the resource so force
-            // the caller to allocate a new resource.
-            return nullptr;
-        }
-    }
-    resource = fScratchMap.find(scratchKey, AvailableForScratchUse());
+    GrGpuResource* resource = fScratchMap.find(scratchKey, AvailableForScratchUse());
     if (resource) {
         this->refAndMakeResourceMRU(resource);
         this->validate();

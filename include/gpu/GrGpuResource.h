@@ -29,6 +29,8 @@ class SkTraceMemoryDump;
  */
 template <typename DERIVED> class GrIORef : public SkNoncopyable {
 public:
+    bool unique() const { return fRefCnt == 1; }
+
     // Some of the signatures are written to mirror SkRefCnt so that GrGpuResource can work with
     // templated helper classes (e.g. sk_sp). However, we don't require thread safety as
     // GrCacheable objects are not intended to cross thread boundaries.
@@ -63,9 +65,6 @@ protected:
 
     bool internalHasRef() const { return SkToBool(fRefCnt); }
 
-    // TODO: add public 'unique' method
-    bool internalHasUniqueRef() const { return fRefCnt == 1; }
-
     // Privileged method that allows going from ref count = 0 to ref count = 1.
     void addInitialRef() const {
         SkASSERT(fRefCnt >= 0);
@@ -74,6 +73,8 @@ protected:
 
 private:
     mutable int32_t fRefCnt;
+
+    typedef SkNoncopyable INHERITED;
 };
 
 /**

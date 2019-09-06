@@ -147,12 +147,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
 
     if (SkBackingFit::kApprox == fit) {
         tex = resourceProvider->createApproxTexture(desc, format, renderable, renderTargetSampleCnt,
-                                                    isProtected,
-                                                    GrResourceProvider::Flags::kNoPendingIO);
+                                                    isProtected);
     } else {
         tex = resourceProvider->createTexture(desc, format, renderable, renderTargetSampleCnt,
-                                              budgeted, isProtected,
-                                              GrResourceProvider::Flags::kNoPendingIO);
+                                              budgeted, isProtected);
     }
     if (!tex) {
         return nullptr;
@@ -300,7 +298,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
 
                 return LazyCallbackResult(resourceProvider->createTexture(
                         desc, format, GrRenderable::kNo, sampleCnt, budgeted, fit, GrProtected::kNo,
-                        ct, mipLevel, GrResourceProvider::Flags::kNoPendingIO));
+                        ct, mipLevel));
             },
             format, desc, GrRenderable::kNo, sampleCnt, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
             GrMipMapsStatus::kNotAllocated, surfaceFlags, fit, budgeted, GrProtected::kNo,
