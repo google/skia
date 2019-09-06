@@ -179,7 +179,7 @@ public:
     void beginRenderPass(const GrVkRenderPass*,
                          const VkClearValue* colorClear,
                          GrVkRenderTarget*, GrSurfaceOrigin,
-                         const SkIRect& bounds, bool forSecondaryCB);
+                         const SkIRect& bounds);
     void endRenderPass(GrRenderTarget* target, GrSurfaceOrigin origin, const SkIRect& bounds);
 
 private:
