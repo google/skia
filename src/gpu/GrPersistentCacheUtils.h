@@ -20,27 +20,48 @@
 // put the serialization logic here, to be shared by the backend code and the tool code.
 namespace GrPersistentCacheUtils {
 
+// Increment this value whenever the persistent cache format changes
+static constexpr char kCacheVersion = 0;
+static constexpr SkFourByteTag kHeaderTag = SkSetFourByteTag('S', 'P', 'C', kCacheVersion);
+
 static inline sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
                                               const SkSL::String shaders[],
                                               const SkSL::Program::Inputs inputs[],
-                                              int numInputs) {
+                                              int numInputs,
+                                              const SkSL::Program::Settings* settings) {
     // For consistency (so tools can blindly pack and unpack cached shaders), we always write
     // kGrShaderTypeCount inputs. If the backend gives us fewer, we just replicate the last one.
     SkASSERT(numInputs >= 1 && numInputs <= kGrShaderTypeCount);
 
     SkWriter32 writer;
+    writer.write32(kHeaderTag);
     writer.write32(shaderType);
     for (int i = 0; i < kGrShaderTypeCount; ++i) {
         writer.writeString(shaders[i].c_str(), shaders[i].size());
         writer.writePad(&inputs[SkTMin(i, numInputs - 1)], sizeof(SkSL::Program::Inputs));
     }
+    writer.writeBool(SkToBool(settings));
+    if (settings) {
+        writer.writeBool(settings->fFlipY);
+        writer.writeBool(settings->fFragColorIsInOut);
+        writer.writeBool(settings->fForceHighPrecision);
+    }
     return writer.snapshotAsData();
+}
+
+static inline SkFourByteTag UnpackHeader(SkReader32* reader) {
+    if (kHeaderTag != reader->readU32()) {
+        // This is never a valid shader type tag
+        return 0;
+    }
+    return reader->readU32();
 }
 
 static inline void UnpackCachedShaders(SkReader32* reader,
                                        SkSL::String shaders[],
                                        SkSL::Program::Inputs inputs[],
-                                       int numInputs) {
+                                       int numInputs,
+                                       SkSL::Program::Settings* settings = nullptr) {
     for (int i = 0; i < kGrShaderTypeCount; ++i) {
         size_t stringLen = 0;
         const char* string = reader->readString(&stringLen);
@@ -52,6 +73,11 @@ static inline void UnpackCachedShaders(SkReader32* reader,
         } else {
             reader->skip(sizeof(SkSL::Program::Inputs));
         }
+    }
+    if (reader->readBool() && settings) {
+        settings->fFlipY = reader->readBool();
+        settings->fFragColorIsInOut = reader->readBool();
+        settings->fForceHighPrecision = reader->readBool();
     }
 }
 
