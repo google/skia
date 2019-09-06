@@ -652,7 +652,7 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
 
     // We must make a copy of the image if the image is not unique, if the GrTexture owned by the
     // image is not unique, or if the texture wraps an external object.
-    if (!image->unique() || !texture->surfacePriv().hasUniqueRef() ||
+    if (!image->unique() || !texture->unique() ||
         texture->resourcePriv().refsWrappedObjects()) {
         // onMakeSubset will always copy the image.
         image = as_IB(image)->onMakeSubset(ctx, image->bounds());
@@ -670,7 +670,7 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
     }
 
     SkASSERT(!texture->resourcePriv().refsWrappedObjects());
-    SkASSERT(texture->surfacePriv().hasUniqueRef());
+    SkASSERT(texture->unique());
     SkASSERT(image->unique());
 
     // Take a reference to the GrTexture and release the image.

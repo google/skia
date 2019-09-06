@@ -70,7 +70,7 @@ public:
 
     bool isPurgeable() const { return fResource->isPurgeable(); }
 
-    bool hasRef() const { return fResource->hasRef(); }
+    bool hasRef2() const { return fResource->hasRef1(); }
 
 protected:
     ResourcePriv(GrGpuResource* resource) : fResource(resource) {   }

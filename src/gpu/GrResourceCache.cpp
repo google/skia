@@ -269,7 +269,7 @@ void GrResourceCache::releaseAll() {
 void GrResourceCache::refResource(GrGpuResource* resource) {
     SkASSERT(resource);
     SkASSERT(resource->getContext()->priv().getResourceCache() == this);
-    if (resource->cacheAccess().hasRef()) {
+    if (resource->cacheAccess().hasRef3()) {
         resource->ref();
     } else {
         this->refAndMakeResourceMRU(resource);
@@ -406,7 +406,7 @@ void GrResourceCache::refAndMakeResourceMRU(GrGpuResource* resource) {
         fPurgeableBytes -= resource->gpuMemorySize();
         fPurgeableQueue.remove(resource);
         this->addToNonpurgeableArray(resource);
-    } else if (!resource->cacheAccess().hasRef() &&
+    } else if (!resource->cacheAccess().hasRef3() &&
                resource->resourcePriv().budgetedType() == GrBudgetedType::kBudgeted) {
         SkASSERT(fNumBudgetedResourcesFlushWillMakePurgeable > 0);
         fNumBudgetedResourcesFlushWillMakePurgeable--;
@@ -505,7 +505,7 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
         fBudgetedHighWaterBytes = SkTMax(fBudgetedBytes, fBudgetedHighWaterBytes);
         fBudgetedHighWaterCount = SkTMax(fBudgetedCount, fBudgetedHighWaterCount);
 #endif
-        if (!resource->resourcePriv().isPurgeable() && !resource->cacheAccess().hasRef()) {
+        if (!resource->resourcePriv().isPurgeable() && !resource->cacheAccess().hasRef3()) {
             ++fNumBudgetedResourcesFlushWillMakePurgeable;
         }
         this->purgeAsNeeded();
@@ -513,7 +513,7 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
         SkASSERT(resource->resourcePriv().budgetedType() != GrBudgetedType::kUnbudgetedCacheable);
         --fBudgetedCount;
         fBudgetedBytes -= size;
-        if (!resource->resourcePriv().isPurgeable() && !resource->cacheAccess().hasRef()) {
+        if (!resource->resourcePriv().isPurgeable() && !resource->cacheAccess().hasRef3()) {
             --fNumBudgetedResourcesFlushWillMakePurgeable;
         }
     }
@@ -906,7 +906,7 @@ void GrResourceCache::validate() const {
         SkASSERT(*fNonpurgeableResources[i]->cacheAccess().accessCacheIndex() == i);
         SkASSERT(!fNonpurgeableResources[i]->wasDestroyed());
         if (fNonpurgeableResources[i]->resourcePriv().budgetedType() == GrBudgetedType::kBudgeted &&
-            !fNonpurgeableResources[i]->cacheAccess().hasRef() &&
+            !fNonpurgeableResources[i]->cacheAccess().hasRef3() &&
             fNewlyPurgeableResourceForValidation != fNonpurgeableResources[i]) {
             ++numBudgetedResourcesFlushWillMakePurgeable;
         }

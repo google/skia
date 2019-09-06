@@ -51,7 +51,7 @@ GrTexture::GrTexture(GrGpu* gpu, const SkISize& size, GrPixelConfig config, GrPr
 bool GrTexture::StealBackendTexture(sk_sp<GrTexture> texture,
                                     GrBackendTexture* backendTexture,
                                     SkImage::BackendTextureReleaseProc* releaseProc) {
-    if (!texture->surfacePriv().hasUniqueRef()) {
+    if (!texture->unique()) {
         return false;
     }
 

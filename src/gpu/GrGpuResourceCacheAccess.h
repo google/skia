@@ -37,7 +37,7 @@ private:
      */
     void release() {
         fResource->release();
-        if (!fResource->hasRef()) {
+        if (!fResource->hasRef1()) {
             delete fResource;
         }
     }
@@ -47,7 +47,7 @@ private:
      */
     void abandon() {
         fResource->abandon();
-        if (!fResource->hasRef()) {
+        if (!fResource->hasRef1()) {
             delete fResource;
         }
     }
@@ -55,8 +55,8 @@ private:
     /** Called by the cache to assign a new unique key. */
     void setUniqueKey(const GrUniqueKey& key) { fResource->fUniqueKey = key; }
 
-    /** Is the resource ref'ed (not counting pending IOs). */
-    bool hasRef() const { return fResource->hasRef(); }
+    /** Is the resource ref'ed */
+    bool hasRef3() const { return fResource->hasRef1(); }
 
     /** Called by the cache to make the unique key invalid. */
     void removeUniqueKey() { fResource->fUniqueKey.reset(); }

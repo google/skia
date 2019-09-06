@@ -306,7 +306,7 @@ void GrVkImage::Resource::notifyRemovedFromCommandBuffer() const {
         return;
     }
     if (fOwningTexture) {
-        if (fOwningTexture->resourcePriv().hasRef()) {
+        if (fOwningTexture->resourcePriv().hasRef2()) {
             // Wait for the texture to become idle in the cache to call the procs.
             return;
         }
