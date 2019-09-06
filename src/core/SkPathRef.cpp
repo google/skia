@@ -472,16 +472,26 @@ void SkPathRef::addGenIDChangeListener(sk_sp<GenIDChangeListener> listener) {
 
 // we need to be called *before* the genID gets changed or zerod
 void SkPathRef::callGenIDChangeListeners() {
-    SkAutoMutexExclusive lock(fGenIDChangeListenersMutex);
-    for (GenIDChangeListener* listener : fGenIDChangeListeners) {
-        if (!listener->shouldUnregisterFromPath()) {
-            listener->onChange();
+    if (this->unique()) {
+        for (GenIDChangeListener* listener : fGenIDChangeListeners) {
+            if (!listener->shouldUnregisterFromPath()) {
+                listener->onChange();
+            }
+            // Listeners get at most one shot, so whether these triggered or not, blow them away.
+            listener->unref();
         }
-        // Listeners get at most one shot, so whether these triggered or not, blow them away.
-        listener->unref();
+        fGenIDChangeListeners.reset();
+    } else {
+        SkAutoMutexExclusive lock(fGenIDChangeListenersMutex);
+        for (GenIDChangeListener* listener : fGenIDChangeListeners) {
+            if (!listener->shouldUnregisterFromPath()) {
+                listener->onChange();
+            }
+            // Listeners get at most one shot, so whether these triggered or not, blow them away.
+            listener->unref();
+        }
+        fGenIDChangeListeners.reset();
     }
-
-    fGenIDChangeListeners.reset();
 }
 
 SkRRect SkPathRef::getRRect() const {
