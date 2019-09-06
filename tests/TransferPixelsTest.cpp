@@ -121,8 +121,7 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
     desc.fConfig = GrColorTypeToPixelConfig(colorType);
 
     sk_sp<GrTexture> tex = resourceProvider->createTexture(desc, backendFormat, renderable, 1,
-                                                           SkBudgeted::kNo, GrProtected::kNo,
-                                                           GrResourceProvider::Flags::kNoPendingIO);
+                                                           SkBudgeted::kNo, GrProtected::kNo);
     if (!tex) {
         ERRORF(reporter, "Could not create texture");
         return;
