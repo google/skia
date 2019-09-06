@@ -48,6 +48,52 @@
     },
     {
       "key": {
+        "uuid": "bda568bf_522791d9",
+        "filename": "src/gpu/GrRenderTask.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-06T15:59:18Z",
+      "side": 1,
+      "message": "Does it make any sense for the base class here to do the clipping to fTarget width/height and then the subclasses don\u0027t need to worry about that and just return their full bounds?",
+      "range": {
+        "startLine": 55,
+        "startChar": 9,
+        "endLine": 55,
+        "endChar": 98
+      },
+      "revId": "67458fefaa1d7455eafef9648d4cc819653bae97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3c27f34_840394ac",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-06T15:59:18Z",
+      "side": 1,
+      "message": "add a comment here about what is expect to be returned in this variable",
+      "range": {
+        "startLine": 90,
+        "startChar": 55,
+        "endLine": 90,
+        "endChar": 83
+      },
+      "revId": "67458fefaa1d7455eafef9648d4cc819653bae97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fbf998c9_47452fa0",
         "filename": "src/gpu/dawn/GrDawnGpu.h",
         "patchSetId": 10
