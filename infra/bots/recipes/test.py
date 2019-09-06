@@ -269,7 +269,10 @@ def dm_flags(api, bot):
         # Decoding transparent images to 1010102 just looks bad
         blacklist('vk1010102 image _ _')
       else:
-        configs.extend(['gl1010102', 'gltestpersistentcache', 'gltestglslcache'])
+        configs.extend(['gl1010102',
+                        'gltestpersistentcache',
+                        'gltestglslcache',
+                        'gltestprecompile'])
         # Decoding transparent images to 1010102 just looks bad
         blacklist('gl1010102 image _ _')
         # These tests produce slightly different pixels run to run on NV.
@@ -279,6 +282,9 @@ def dm_flags(api, bot):
         blacklist('gltestglslcache gm _ atlastext')
         blacklist('gltestglslcache gm _ dftext')
         blacklist('gltestglslcache gm _ glyph_pos_h_b')
+        blacklist('gltestprecompile gm _ atlastext')
+        blacklist('gltestprecompile gm _ dftext')
+        blacklist('gltestprecompile gm _ glyph_pos_h_b')
 
     # Test rendering to wrapped dsts on a few bots
     # Also test 'glenarrow', which hits F16 surfaces and F16 vertex colors.

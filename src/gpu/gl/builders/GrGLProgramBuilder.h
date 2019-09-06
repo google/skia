@@ -23,6 +23,16 @@ class GrProgramDesc;
 class GrGLSLShaderBuilder;
 class GrShaderCaps;
 
+struct GrGLPrecompiledProgram {
+    GrGLPrecompiledProgram(GrGLuint programID = 0,
+                           SkSL::Program::Inputs inputs = SkSL::Program::Inputs())
+        : fProgramID(programID)
+        , fInputs(inputs) {}
+
+    GrGLuint fProgramID;
+    SkSL::Program::Inputs fInputs;
+};
+
 class GrGLProgramBuilder : public GrGLSLProgramBuilder {
 public:
     /** Generates a shader program.
@@ -33,6 +43,8 @@ public:
      * This function may modify the GrProgramDesc by setting the surface origin
      * key to 0 (unspecified) if it turns out the program does not care about
      * the surface origin.
+     * If a GL program has already been created, the program ID and inputs can
+     * be supplied to skip the shader compilation.
      * @return true if generation was successful.
      */
     static GrGLProgram* CreateProgram(GrRenderTarget*, GrSurfaceOrigin,
@@ -40,7 +52,10 @@ public:
                                       const GrTextureProxy* const primProcProxies[],
                                       const GrPipeline&,
                                       GrProgramDesc*,
-                                      GrGLGpu*);
+                                      GrGLGpu*,
+                                      const GrGLPrecompiledProgram* = nullptr);
+
+    static bool PrecompileProgram(GrGLPrecompiledProgram*, GrGLGpu*, const SkData&);
 
     const GrCaps* caps() const override;
 
@@ -61,14 +76,13 @@ private:
     void computeCountsAndStrides(GrGLuint programID, const GrPrimitiveProcessor& primProc,
                                  bool bindAttribLocations);
     void storeShaderInCache(const SkSL::Program::Inputs& inputs, GrGLuint programID,
-                            const SkSL::String shaders[], bool isSkSL);
-    GrGLProgram* finalize();
+                            const SkSL::String shaders[], bool isSkSL,
+                            const SkSL::Program::Settings& settings);
+    GrGLProgram* finalize(const GrGLPrecompiledProgram*);
     void bindProgramResourceLocations(GrGLuint programID);
     bool checkLinkStatus(GrGLuint programID, GrContextOptions::ShaderErrorHandler* errorHandler,
                          SkSL::String* sksl[], const SkSL::String glsl[]);
     void resolveProgramResourceLocations(GrGLuint programID, bool force);
-    void cleanupProgram(GrGLuint programID, const SkTDArray<GrGLuint>& shaderIDs);
-    void cleanupShaders(const SkTDArray<GrGLuint>& shaderIDs);
 
     // Subclasses create different programs
     GrGLProgram* createProgram(GrGLuint programID);
