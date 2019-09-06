@@ -86,6 +86,13 @@ void GrRenderTask::addDependency(GrRenderTask* dependedOn) {
     SkDEBUGCODE(this->validate());
 }
 
+void GrRenderTask::addDependenciesFromOtherTask(GrRenderTask* otherTask) {
+    SkASSERT(otherTask);
+    for (int i = 0; i < otherTask->fDependencies.count(); ++i) {
+        this->addDependency(otherTask->fDependencies[i]);
+    }
+}
+
 // Convert from a GrSurface-based dependency to a GrRenderTask one
 void GrRenderTask::addDependency(GrSurfaceProxy* dependedOn, GrMipMapped mipMapped,
                                  GrTextureResolveManager textureResolveManager,
