@@ -131,6 +131,7 @@ async function driveBrowser() {
   ];
   if (options.use_gpu) {
     browser_args.push('--ignore-gpu-blacklist');
+    browser_args.push('--ignore-gpu-blocklist');
     browser_args.push('--enable-gpu-rasterization');
   }
   console.log("Running with headless: " + headless + " args: " + browser_args);
