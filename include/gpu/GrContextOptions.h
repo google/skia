@@ -200,9 +200,6 @@ struct SK_API GrContextOptions {
      */
     ShaderCacheStrategy fShaderCacheStrategy = ShaderCacheStrategy::kBackendBinary;
 
-    // Legacy flag until clients are updated to use fShaderCacheStrategy
-    bool fDisallowGLSLBinaryCaching = false;
-
     /**
      * If present, use this object to report shader compilation failures. If not, report failures
      * via SkDebugf and assert.
