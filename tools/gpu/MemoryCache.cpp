@@ -97,7 +97,9 @@ void MemoryCache::writeShadersToDisk(const char* path, GrBackendApi api) {
         // run glslang on the input.
         const char* ext = GrBackendApi::kOpenGL == api ? "frag" : "spv";
         SkReader32 reader(data->data(), data->size());
-        reader.readU32(); // Shader type tag
+        if (0 == GrPersistentCacheUtils::UnpackHeader(&reader)) {
+            continue;
+        }
         GrPersistentCacheUtils::UnpackCachedShaders(&reader, shaders,
                                                     inputsIgnored, kGrShaderTypeCount);
 
