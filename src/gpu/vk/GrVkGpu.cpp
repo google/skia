@@ -535,18 +535,6 @@ bool GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int wi
         if (rt->wrapsSecondaryCommandBuffer()) {
             return false;
         }
-        // resolve the render target if necessary
-        switch (rt->getResolveType()) {
-            case GrVkRenderTarget::kCantResolve_ResolveType:
-                return false;
-            case GrVkRenderTarget::kAutoResolves_ResolveType:
-                break;
-            case GrVkRenderTarget::kCanResolve_ResolveType:
-                SkASSERT(!rt->needsResolve());
-                break;
-            default:
-                SK_ABORT("Unknown resolve type");
-        }
         srcImage = rt;
     } else {
         srcImage = static_cast<GrVkTexture*>(surface->asTexture());
@@ -2292,18 +2280,6 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
         // stop and start the VkRenderPass which we don't have access to.
         if (rt->wrapsSecondaryCommandBuffer()) {
             return false;
-        }
-        // resolve the render target if necessary
-        switch (rt->getResolveType()) {
-            case GrVkRenderTarget::kCantResolve_ResolveType:
-                return false;
-            case GrVkRenderTarget::kAutoResolves_ResolveType:
-                break;
-            case GrVkRenderTarget::kCanResolve_ResolveType:
-                SkASSERT(!rt->needsResolve());
-                break;
-            default:
-                SK_ABORT("Unknown resolve type");
         }
         image = rt;
     } else {
