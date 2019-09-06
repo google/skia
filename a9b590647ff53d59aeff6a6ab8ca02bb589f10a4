@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f1e1de04_a2d6eadb",
+        "filename": "dm/DMSrcSink.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-09-06T18:10:53Z",
+      "side": 1,
+      "message": "I thought so, but then the MemoryCache needs to be stored in the class, and needs to be reset before drawing each sink, but onDraw is const. Once I had to mark it mutable I figured this was probably cleaner - keeps all the logic for the entire process in one function.",
+      "parentUuid": "b9ce0902_d902fc5d",
+      "range": {
+        "startLine": 342,
+        "startChar": 17,
+        "endLine": 342,
+        "endChar": 70
+      },
+      "revId": "a9b590647ff53d59aeff6a6ab8ca02bb589f10a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8c6a9d05_45b443ff",
         "filename": "include/gpu/GrContext.h",
         "patchSetId": 12
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "ef756bf5_f955fade",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-09-06T18:10:53Z",
+      "side": 1,
+      "message": "Re-worded this comment.",
+      "parentUuid": "8c6a9d05_45b443ff",
+      "range": {
+        "startLine": 465,
+        "startChar": 6,
+        "endLine": 465,
+        "endChar": 7
+      },
+      "revId": "a9b590647ff53d59aeff6a6ab8ca02bb589f10a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2939b1eb_098fc6af",
         "filename": "src/gpu/GrPersistentCacheUtils.h",
         "patchSetId": 12
@@ -59,6 +107,30 @@
       "writtenOn": "2019-09-06T17:49:42Z",
       "side": 1,
       "message": "If the cache format changes, then Skia has changed. If Skia changed aren\u0027t we already dead even if the format hasn\u0027t changed? (E.g. maybe someone changed reordered the effect class IDs).",
+      "range": {
+        "startLine": 24,
+        "startChar": 22,
+        "endLine": 24,
+        "endChar": 40
+      },
+      "revId": "a9b590647ff53d59aeff6a6ab8ca02bb589f10a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a4da04a_51d47d19",
+        "filename": "src/gpu/GrPersistentCacheUtils.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-09-06T18:10:53Z",
+      "side": 1,
+      "message": "You\u0027re suggesting that we really don\u0027t need to version tag the cache entries, because if clients don\u0027t do that, all bets are off? If so, I can remove everything related to this part of the CL, which is nice.",
+      "parentUuid": "2939b1eb_098fc6af",
       "range": {
         "startLine": 24,
         "startChar": 22,
