@@ -11,6 +11,7 @@
 #include "include/private/GrContext_Base.h"
 #include "src/gpu/GrBaseContextPriv.h"
 #include "src/sksl/SkSLUtil.h"
+#include "src/sksl/ir/SkSLVarDeclarations.h"
 
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -116,11 +117,13 @@ static SkSL::Layout::CType get_ctype(const SkSL::Context& context, const SkSL::V
 class GrGLSLSkSLFP : public GrGLSLFragmentProcessor {
 public:
     GrGLSLSkSLFP(const SkSL::Context* context, const std::vector<const SkSL::Variable*>* inputVars,
-                 SkSL::String glsl, std::vector<SkSL::Compiler::FormatArg> formatArgs)
+                 SkSL::String glsl, std::vector<SkSL::Compiler::FormatArg> formatArgs,
+                 std::vector<SkSL::Compiler::GLSLFunction> functions)
             : fContext(*context)
             , fInputVars(*inputVars)
             , fGLSL(glsl)
-            , fFormatArgs(formatArgs) {}
+            , fFormatArgs(std::move(formatArgs))
+            , fFunctions(std::move(functions)) {}
 
     GrSLType uniformType(const SkSL::Type& type) {
         if (type == *fContext.fFloat_Type) {
@@ -158,12 +161,21 @@ public:
                                                                    SkSL::String(v->fName).c_str()));
             }
         }
+        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+        for (const auto& f : fFunctions) {
+            fFunctionNames.emplace_back();
+            fragBuilder->emitFunction(f.fReturnType,
+                                      f.fName.c_str(),
+                                      f.fParameters.size(),
+                                      f.fParameters.data(),
+                                      f.fBody.c_str(),
+                                      &fFunctionNames.back());
+        }
         std::vector<SkString> childNames;
         for (int i = 0; i < this->numChildProcessors(); ++i) {
             childNames.push_back(SkStringPrintf("_child%d", i));
             this->invokeChild(i, &childNames[i], args);
         }
-        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         int substringStartIndex = 0;
         int formatArgIndex = 0;
         SkString coords = args.fTransformedCoords.count()
@@ -198,6 +210,9 @@ public:
                                 break;
                             case SkSL::Compiler::FormatArg::Kind::kChildProcessor:
                                 fragBuilder->codeAppend(childNames[arg.fIndex].c_str());
+                                break;
+                            case SkSL::Compiler::FormatArg::Kind::kFunctionName:
+                                fragBuilder->codeAppend(fFunctionNames[arg.fIndex].c_str());
                                 break;
                         }
                         break;
@@ -277,7 +292,9 @@ public:
     // nearly-finished GLSL; still contains printf-style "%s" format tokens
     const SkSL::String fGLSL;
     std::vector<SkSL::Compiler::FormatArg> fFormatArgs;
+    std::vector<SkSL::Compiler::GLSLFunction> fFunctions;
     std::vector<UniformHandle> fUniformHandles;
+    std::vector<SkString> fFunctionNames;
 };
 
 std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, int index, const char* name,
@@ -367,11 +384,13 @@ GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
     const SkSL::Program* specialized = fFactory->getSpecialization(fKey, fInputs.get(), fInputSize);
     SkSL::String glsl;
     std::vector<SkSL::Compiler::FormatArg> formatArgs;
-    if (!fFactory->fCompiler.toPipelineStage(*specialized, &glsl, &formatArgs)) {
+    std::vector<SkSL::Compiler::GLSLFunction> functions;
+    if (!fFactory->fCompiler.toPipelineStage(*specialized, &glsl, &formatArgs, &functions)) {
         printf("%s\n", fFactory->fCompiler.errorText().c_str());
         SkASSERT(false);
     }
-    return new GrGLSLSkSLFP(specialized->fContext.get(), &fFactory->fInputVars, glsl, formatArgs);
+    return new GrGLSLSkSLFP(specialized->fContext.get(), &fFactory->fInputVars, glsl, formatArgs,
+                            functions);
 }
 
 void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
