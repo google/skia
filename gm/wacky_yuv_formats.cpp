@@ -100,11 +100,7 @@ static bool format_has_builtin_alpha(YUVFormat yuvFormat) {
 }
 
 static bool format_cant_be_represented_with_pixmaps(YUVFormat yuvFormat) {
-    return kP016_YUVFormat == yuvFormat ||      // bc missing SkColorType::kRG_1616 and kR_16
-           kP010_YUVFormat == yuvFormat ||      // bc missing SkColorType::kRG_1616 and kR_16
-           kY416_YUVFormat == yuvFormat ||      // bc missing SkColorType::kRGBA_16161616
-           kNV12_YUVFormat == yuvFormat ||      // bc missing SkColorType::kRG_88
-           kNV21_YUVFormat == yuvFormat;        // bc missing SkColorType::kRG_88
+    return kY416_YUVFormat == yuvFormat;        // bc missing SkColorType::kRGBA_16161616
 }
 
 // Helper to setup the SkYUVAIndex array correctly
@@ -640,7 +636,9 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
             break;
         }
         case kP016_YUVFormat:     // fall through
-        case kP010_YUVFormat:     // fall through
+        case kP010_YUVFormat: {
+            break;
+        }
         case kNV12_YUVFormat: {
             SkBitmap uvQuarter = make_quarter_2_channel(planes.fYFull,
                                                         planes.fUQuarter,
@@ -693,7 +691,8 @@ static uint8_t look_up(float x1, float y1, const SkBitmap& bm, SkColorChannel ch
     if (kAlpha_8_SkColorType == bm.colorType() || kGray_8_SkColorType == bm.colorType()) {
         SkASSERT(SkColorChannel::kA == channel || SkColorChannel::kR == channel);
         result = *bm.getAddr8(x, y);
-    } else if (kRG_88_SkColorType == bm.colorType()) {
+    } else if (kRG_88_SkColorType == bm.colorType() ||
+               kRG_1616_SkColorType == bm.colorType()) {
         SkASSERT(SkColorChannel::kR == channel || SkColorChannel::kG == channel);
         SkColor c = bm.getColor(x, y);
 
@@ -931,6 +930,7 @@ static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
     canvas->drawString(rowLabel, 0, y, font, paint);
 }
 
+#if 0
 static void make_RG_1616(const GrCaps* caps,
                          const SkBitmap& bm, YUVFormat yuvFormat,
                          SkAutoTMalloc<uint8_t>* pixels,
@@ -964,6 +964,7 @@ static void make_RG_1616(const GrCaps* caps,
 
     *format = caps->getDefaultBackendFormat(GrColorType::kRG_1616, GrRenderable::kNo);
 }
+#endif
 
 static void make_RGBA_16(const GrCaps* caps,
                          const SkBitmap& bm,
@@ -999,6 +1000,7 @@ static void make_RGBA_16(const GrCaps* caps,
     return;
 }
 
+#if 0
 static void make_R_16(const GrCaps* caps,
                       const SkBitmap& bm,
                       YUVFormat yuvFormat,
@@ -1030,6 +1032,7 @@ static void make_R_16(const GrCaps* caps,
 
     *format = caps->getDefaultBackendFormat(GrColorType::kR_16, GrRenderable::kNo);
 }
+#endif
 
 static GrBackendTexture create_yuva_texture(GrContext* context, const SkBitmap& bm,
                                             SkYUVAIndex yuvaIndices[4], int texIndex,
@@ -1053,7 +1056,10 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkBitmap& 
 
         if (2 == channelCount) {
             if (format_uses_16_bpp(yuvFormat)) {
-                make_RG_1616(caps, bm, yuvFormat, &pixels, &format, &rowBytes);
+                SkASSERT(kRG_1616_SkColorType == bm.colorType());
+
+                return context->priv().createBackendTexture(&bm.pixmap(), 1,
+                                                            GrRenderable::kNo, GrProtected::kNo);
             } else {
                 SkASSERT(kRG_88_SkColorType == bm.colorType());
 
@@ -1064,7 +1070,10 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkBitmap& 
             if (kRGBA_8888_SkColorType == bm.colorType()) {
                 make_RGBA_16(caps, bm, yuvFormat, &pixels, &format, &rowBytes);
             } else {
-                make_R_16(caps, bm, yuvFormat, &pixels, &format, &rowBytes);
+                SkASSERT(kAlpha_16_SkColorType == bm.colorType());
+
+                return context->priv().createBackendTexture(&bm.pixmap(), 1,
+                                                            GrRenderable::kNo, GrProtected::kNo);
             }
         }
 
