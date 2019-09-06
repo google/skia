@@ -29,6 +29,11 @@ static void fill_rect(const SkMatrix& ctm, const SkRasterClip& rc,
         scratchPath->rewind();
         scratchPath->addRect(r);
         scratchPath->transform(ctm);
+        // calling transform() will have cleared the convexity bit. This is just transform being
+        // conservative, since shallow angles *can* flip their sign. This is not a threat for
+        // a path this is just a rectangle, so we explicitly set the convexity (speeding things up
+        // since the scan-converter will ask for this to be computed, and that is expensive).
+        scratchPath->setConvexity(SkPath::kConvex_Convexity);
         SkScan::FillPath(*scratchPath, rc, blitter);
     }
 }
