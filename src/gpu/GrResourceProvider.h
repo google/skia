@@ -40,19 +40,6 @@ class SkTypeface;
  */
 class GrResourceProvider {
 public:
-    /** These flags govern which scratch resources we are allowed to return */
-    enum class Flags {
-        kNone            = 0x0,
-
-        /** If the caller intends to do direct reads/writes to/from the CPU then this flag must be
-         *  set when accessing resources during a GrOpsTask flush. This includes the execution of
-         *  GrOp objects. The reason is that these memory operations are done immediately and
-         *  will occur out of order WRT the operations being flushed.
-         *  Make this automatic: https://bug.skia.org/4156
-         */
-        kNoPendingIO     = 0x1,
-    };
-
     GrResourceProvider(GrGpu*, GrResourceCache*, GrSingleOwner*);
 
     /**
@@ -79,8 +66,7 @@ public:
                                          const GrBackendFormat& format,
                                          GrRenderable renderable,
                                          int renderTargetSampleCnt,
-                                         GrProtected isProtected,
-                                         Flags flags);
+                                         GrProtected isProtected);
 
     /** Create an exact fit texture with no initial data to upload. */
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc,
@@ -88,8 +74,7 @@ public:
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
                                    SkBudgeted budgeted,
-                                   GrProtected isProtected,
-                                   Flags flags = Flags::kNone);
+                                   GrProtected isProtected);
 
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc,
                                    const GrBackendFormat& format,
@@ -109,8 +94,7 @@ public:
                                    SkBackingFit fit,
                                    GrProtected isProtected,
                                    GrColorType srcColorType,
-                                   const GrMipLevel& mipLevel,
-                                   Flags flags);
+                                   const GrMipLevel& mipLevel);
 
     /**
      * Creates a compressed texture. The GrGpu must support the SkImageImage::Compression type.
@@ -296,8 +280,7 @@ private:
                                        const GrBackendFormat& format,
                                        GrRenderable renderable,
                                        int renderTargetSampleCnt,
-                                       GrProtected isProtected,
-                                       Flags flags);
+                                       GrProtected isProtected);
 
     /*
      * Try to find an existing scratch texture that exactly matches 'desc'. If successful
@@ -308,8 +291,7 @@ private:
                                      GrRenderable renderable,
                                      int renderTargetSampleCnt,
                                      SkBudgeted budgeted,
-                                     GrProtected isProtected,
-                                     Flags flags);
+                                     GrProtected isProtected);
 
     GrResourceCache* cache() { return fCache; }
     const GrResourceCache* cache() const { return fCache; }
@@ -341,7 +323,5 @@ private:
     // In debug builds we guard against improper thread handling
     SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)
 };
-
-GR_MAKE_BITFIELD_CLASS_OPS(GrResourceProvider::Flags);
 
 #endif
