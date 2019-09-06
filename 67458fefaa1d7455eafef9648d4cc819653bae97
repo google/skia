@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e3a95c6a_7b6b53ae",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-09-06T17:36:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "57fdb9b4_83ad548b",
+      "range": {
+        "startLine": 508,
+        "startChar": 8,
+        "endLine": 508,
+        "endChar": 64
+      },
+      "revId": "67458fefaa1d7455eafef9648d4cc819653bae97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "175040f8_4f7775ee",
         "filename": "src/gpu/GrOpsTask.cpp",
         "patchSetId": 10
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "4e3b5b85_9ddce52a",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-09-06T17:36:51Z",
+      "side": 1,
+      "message": "Done. See GrRenderTargetContext.cpp in this change, where absClear calls markMSAADirtyNoBoundsCheck.",
+      "parentUuid": "175040f8_4f7775ee",
+      "range": {
+        "startLine": 769,
+        "startChar": 43,
+        "endLine": 769,
+        "endChar": 55
+      },
+      "revId": "67458fefaa1d7455eafef9648d4cc819653bae97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bda568bf_522791d9",
         "filename": "src/gpu/GrRenderTask.cpp",
         "patchSetId": 10
@@ -59,6 +107,30 @@
       "writtenOn": "2019-09-06T15:59:18Z",
       "side": 1,
       "message": "Does it make any sense for the base class here to do the clipping to fTarget width/height and then the subclasses don\u0027t need to worry about that and just return their full bounds?",
+      "range": {
+        "startLine": 55,
+        "startChar": 9,
+        "endLine": 55,
+        "endChar": 98
+      },
+      "revId": "67458fefaa1d7455eafef9648d4cc819653bae97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71f318eb_4181f937",
+        "filename": "src/gpu/GrRenderTask.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-09-06T17:36:51Z",
+      "side": 1,
+      "message": "The problem would be if fTotalBounds is very large and we therefore get an undefined result when converting it from floating point to int. We need to do the clip in floating point, before rounding out to int.\n\nEither that, or switch targetUpdateBounds to float?",
+      "parentUuid": "bda568bf_522791d9",
       "range": {
         "startLine": 55,
         "startChar": 9,
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "66784eea_80d0bd5b",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-09-06T17:36:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3c27f34_840394ac",
+      "range": {
+        "startLine": 90,
+        "startChar": 55,
+        "endLine": 90,
+        "endChar": 83
+      },
+      "revId": "67458fefaa1d7455eafef9648d4cc819653bae97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fbf998c9_47452fa0",
         "filename": "src/gpu/dawn/GrDawnGpu.h",
         "patchSetId": 10
@@ -114,6 +210,30 @@
       "revId": "67458fefaa1d7455eafef9648d4cc819653bae97",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4450cf4d_26b0ebe8",
+        "filename": "src/gpu/dawn/GrDawnGpu.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-09-06T17:36:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fbf998c9_47452fa0",
+      "range": {
+        "startLine": 148,
+        "startChar": 97,
+        "endLine": 149,
+        "endChar": 5
+      },
+      "revId": "67458fefaa1d7455eafef9648d4cc819653bae97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
