@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "045ba163_13bb620c",
+        "filename": "src/gpu/vk/GrVkCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-06T15:06:56Z",
+      "side": 1,
+      "message": "For this change I\u0027m leaving this as true for everything so we can perf data. After that we can go back and refine how we want to set this flag.",
+      "range": {
+        "startLine": 308,
+        "startChar": 9,
+        "endLine": 308,
+        "endChar": 58
+      },
+      "revId": "6826ee69318dc09baabf76082d27dedb3e350154",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
