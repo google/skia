@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d0e7ee3_4cac69af",
+        "filename": "src/core/SkDraw_atlas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-06T18:43:53Z",
+      "side": 1,
+      "message": "Do you mean we can go non-convex but it\u0027s not a security threat, or do you mean that when the input is a rectangle, the rotated output will always end up convex?",
+      "range": {
+        "startLine": 33,
+        "startChar": 69,
+        "endLine": 34,
+        "endChar": 43
+      },
+      "revId": "9d918fa3b08e5afbeb1049100f4f26439758d1ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1dba25d4_e6476c41",
+        "filename": "src/core/SkDraw_atlas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-06T18:43:53Z",
+      "side": 1,
+      "message": "Think it makes sense to have the debug builds of setConvexity() actually check that the computed convexity matches what you\u0027re setting it to?  Or at least compute and check this one here?",
+      "revId": "9d918fa3b08e5afbeb1049100f4f26439758d1ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
