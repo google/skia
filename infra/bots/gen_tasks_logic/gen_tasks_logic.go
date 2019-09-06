@@ -33,7 +33,7 @@ const (
 	ISOLATE_GCLOUD_LINUX_NAME  = "Housekeeper-PerCommit-IsolateGCloudLinux"
 	ISOLATE_SKIMAGE_NAME       = "Housekeeper-PerCommit-IsolateSkImage"
 	ISOLATE_SKP_NAME           = "Housekeeper-PerCommit-IsolateSKP"
-	ISOLATE_MSKP_NAME           = "Housekeeper-PerCommit-IsolateMSKP"
+	ISOLATE_MSKP_NAME          = "Housekeeper-PerCommit-IsolateMSKP"
 	ISOLATE_SVG_NAME           = "Housekeeper-PerCommit-IsolateSVG"
 	ISOLATE_NDK_LINUX_NAME     = "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
 	ISOLATE_SDK_LINUX_NAME     = "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
@@ -617,7 +617,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 		}
 		if os == "Mac10.14" && parts["model"] == "VMware7.1" {
 			// ChOps VMs are at a newer version of MacOS.
-			d["os"] = "Mac-10.14.4"
+			d["os"] = "Mac-10.14.6"
 		}
 		if d["os"] == DEFAULT_OS_WIN {
 			// Upgrades result in a new image but not a new OS version.
