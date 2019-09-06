@@ -46,6 +46,12 @@ public:
                        const GrCaps& caps);
 
     /*
+     * Notify this GrRenderTask that it relies on the contents of all GrRenderTasks which otherTask
+     * depends on.
+     */
+    void addDependenciesFromOtherTask(GrRenderTask* otherTask);
+
+    /*
      * Does this renderTask depend on 'dependedOn'?
      */
     bool dependsOn(const GrRenderTask* dependedOn) const;
