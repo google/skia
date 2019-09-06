@@ -19,6 +19,8 @@
 #include "include/core/SkMatrix.h"
 #include "src/core/SkScan.h"
 
+#include "src/core/SkPathRaw.h"
+
 static void fill_rect(const SkMatrix& ctm, const SkRasterClip& rc,
                       const SkRect& r, SkBlitter* blitter, SkPath* scratchPath) {
     if (ctm.rectStaysRect()) {
