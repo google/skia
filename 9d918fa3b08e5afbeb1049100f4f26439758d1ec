@@ -39,6 +39,24 @@
       "revId": "9d918fa3b08e5afbeb1049100f4f26439758d1ec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79eb5f21_b5dd9b2a",
+        "filename": "src/core/SkDraw_atlas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-09-06T18:49:10Z",
+      "side": 1,
+      "message": "That sounds good. No need to rush this assumption.",
+      "parentUuid": "1dba25d4_e6476c41",
+      "revId": "9d918fa3b08e5afbeb1049100f4f26439758d1ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
