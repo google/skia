@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d74d4c5a_b97a1916",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-09-06T18:32:42Z",
+      "side": 1,
+      "message": "simplify (and speed-up a bit) as invoking the iterator is a bit overkill",
+      "range": {
+        "startLine": 62,
+        "startChar": 11,
+        "endLine": 62,
+        "endChar": 15
+      },
+      "revId": "3db4581eedfa26c6956fc24ec98088e951b2d52d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8b6a0bd_4ed3635d",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-09-06T18:32:42Z",
+      "side": 1,
+      "message": "Just simplifying this helper class -- didn\u0027t need the alternate constructor",
+      "range": {
+        "startLine": 95,
+        "startChar": 4,
+        "endLine": 95,
+        "endChar": 26
+      },
+      "revId": "3db4581eedfa26c6956fc24ec98088e951b2d52d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
