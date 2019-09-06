@@ -136,6 +136,10 @@ public:
                                           GrProtected isProtected) override;
     void deleteBackendTexture(const GrBackendTexture&) override;
 
+    bool precompileShader(const SkData& key, const SkData& data) override {
+        return fProgramCache->precompileShader(key, data);
+    }
+
 #if GR_TEST_UTILS
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
 
@@ -317,6 +321,7 @@ private:
                                 const GrPrimitiveProcessor&,
                                 const GrTextureProxy* const primProcProxies[],
                                 const GrPipeline&, bool hasPointSize);
+        bool precompileShader(const SkData& key, const SkData& data);
 
     private:
         struct Entry;

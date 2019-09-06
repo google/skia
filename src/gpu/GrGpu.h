@@ -454,6 +454,8 @@ public:
      */
     virtual void deleteBackendTexture(const GrBackendTexture&) = 0;
 
+    virtual bool precompileShader(const SkData& key, const SkData& data) { return false; }
+
 #if GR_TEST_UTILS
     /** Check a handle represents an actual texture in the backend API that has not been freed. */
     virtual bool isTestingOnlyBackendTexture(const GrBackendTexture&) const = 0;
