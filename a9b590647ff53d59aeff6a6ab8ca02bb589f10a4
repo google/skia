@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9ce0902_d902fc5d",
+        "filename": "dm/DMSrcSink.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-06T17:49:42Z",
+      "side": 1,
+      "message": "Would this be simpler as a virtual on GPUSink with a do-nothing base implementation?",
+      "range": {
+        "startLine": 342,
+        "startChar": 17,
+        "endLine": 342,
+        "endChar": 70
+      },
+      "revId": "a9b590647ff53d59aeff6a6ab8ca02bb589f10a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c6a9d05_45b443ff",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-06T17:49:42Z",
+      "side": 1,
+      "message": "\", the context/device is created in the same way and the same GrContextOptions are specified\"?",
+      "range": {
+        "startLine": 465,
+        "startChar": 6,
+        "endLine": 465,
+        "endChar": 7
+      },
+      "revId": "a9b590647ff53d59aeff6a6ab8ca02bb589f10a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2939b1eb_098fc6af",
+        "filename": "src/gpu/GrPersistentCacheUtils.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-06T17:49:42Z",
+      "side": 1,
+      "message": "If the cache format changes, then Skia has changed. If Skia changed aren\u0027t we already dead even if the format hasn\u0027t changed? (E.g. maybe someone changed reordered the effect class IDs).",
+      "range": {
+        "startLine": 24,
+        "startChar": 22,
+        "endLine": 24,
+        "endChar": 40
+      },
+      "revId": "a9b590647ff53d59aeff6a6ab8ca02bb589f10a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
