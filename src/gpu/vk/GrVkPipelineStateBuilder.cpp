@@ -138,12 +138,14 @@ int GrVkPipelineStateBuilder::loadShadersFromCache(SkReader32* cached,
 
 void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
                                                    const SkSL::Program::Inputs inputs[],
-                                                   bool isSkSL) {
+                                                   bool isSkSL,
+                                                   const SkSL::Program::Settings& settings) {
     Desc* desc = static_cast<Desc*>(this->desc());
     sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->shaderKeyLength());
     sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedShaders(isSkSL ? kSKSL_Tag : kSPIRV_Tag,
                                                                    shaders,
-                                                                   inputs, kGrShaderTypeCount);
+                                                                   inputs, kGrShaderTypeCount,
+                                                                   &settings);
     this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data);
 }
 
@@ -288,7 +290,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
                 }
                 isSkSL = true;
             }
-            this->storeShadersInCache(shaders, inputs, isSkSL);
+            this->storeShadersInCache(shaders, inputs, isSkSL, settings);
         }
     }
     GrVkPipeline* pipeline = resourceProvider.createPipeline(

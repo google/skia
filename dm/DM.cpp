@@ -943,6 +943,12 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
                         gpuConfig->getColorType(), gpuConfig->getAlphaType(),
                         sk_ref_sp(gpuConfig->getColorSpace()), FLAGS_gpu_threading, grCtxOptions,
                         gpuConfig->getTestPersistentCache());
+            } else if (gpuConfig->getTestPrecompile()) {
+                return new GPUPrecompileTestingSink(
+                        contextType, contextOverrides, gpuConfig->getSurfType(),
+                        gpuConfig->getSamples(), gpuConfig->getUseDIText(),
+                        gpuConfig->getColorType(), gpuConfig->getAlphaType(),
+                        sk_ref_sp(gpuConfig->getColorSpace()), FLAGS_gpu_threading, grCtxOptions);
             } else {
                 return new GPUSink(contextType, contextOverrides, gpuConfig->getSurfType(),
                                    gpuConfig->getSamples(), gpuConfig->getUseDIText(),

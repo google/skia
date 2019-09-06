@@ -20,6 +20,8 @@
 #include "tools/flags/CommonFlagsConfig.h"
 #include "tools/gpu/MemoryCache.h"
 
+#include <functional>
+
 //#define TEST_VIA_SVG
 
 namespace DM {
@@ -336,7 +338,8 @@ public:
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     Error onDraw(const Src&, SkBitmap*, SkWStream*, SkString*,
-                 const GrContextOptions& baseOptions) const;
+                 const GrContextOptions& baseOptions,
+                 std::function<void(GrContext*)> initContext = nullptr) const;
 
     sk_gpu_test::GrContextFactory::ContextType contextType() const { return fContextType; }
     const sk_gpu_test::GrContextFactory::ContextOverrides& contextOverrides() {
@@ -409,6 +412,26 @@ public:
 private:
     int fCacheType;
 
+    typedef GPUSink INHERITED;
+};
+
+class GPUPrecompileTestingSink : public GPUSink {
+public:
+    GPUPrecompileTestingSink(sk_gpu_test::GrContextFactory::ContextType,
+                             sk_gpu_test::GrContextFactory::ContextOverrides,
+                             SkCommandLineConfigGpu::SurfType surfType, int samples,
+                             bool diText, SkColorType colorType, SkAlphaType alphaType,
+                             sk_sp<SkColorSpace> colorSpace, bool threaded,
+                             const GrContextOptions& grCtxOptions);
+
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+
+    const char* fileExtension() const override {
+        // Suppress writing out results from this config - we just want to do our matching test
+        return nullptr;
+    }
+
+private:
     typedef GPUSink INHERITED;
 };
 

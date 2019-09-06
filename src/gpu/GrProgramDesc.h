@@ -42,6 +42,15 @@ public:
     static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrPrimitiveProcessor&,
                       bool hasPointSize, const GrPipeline&, GrGpu*);
 
+    static bool BuildFromData(GrProgramDesc* desc, const void* keyData, size_t keyLength) {
+        if (!SkTFitsIn<int>(keyLength)) {
+            return false;
+        }
+        desc->fKey.reset(SkToInt(keyLength));
+        memcpy(desc->fKey.begin(), keyData, keyLength);
+        return true;
+    }
+
     // Returns this as a uint32_t array to be used as a key in the program cache.
     const uint32_t* asKey() const {
         return reinterpret_cast<const uint32_t*>(fKey.begin());

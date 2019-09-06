@@ -94,3 +94,6 @@ Milestone 78
   * Added kRG_88_SkColorType. This is intended to help support YUV uses case (e.g., NV12).
     As such, it the addition is focused on allowing creation of SkPixmaps and SkImages and not
     SkSurfaces (i.e., who wants to render to RG?)
+
+  * Add GrContext::precompileShader to allow up-front compilation of previously-cached shaders.
+    https://review.skia.org/239438

@@ -451,6 +451,25 @@ public:
 
     void deleteBackendTexture(GrBackendTexture);
 
+    // This interface allows clients to pre-compile shaders and populate the runtime program cache.
+    // The key and data blobs should be the ones passed to the PersistentCache, in SkSL format.
+    //
+    // Steps to use this API:
+    //
+    // 1) Create a GrContext as normal, but set fPersistentCache on GrContextOptions to something
+    //    that will save the cached shader blobs. Set fShaderCacheStrategy to kSkSL. This will
+    //    ensure that the blobs are SkSL, and are suitable for pre-compilation.
+    // 2) Run your application, and save all of the key/data pairs that are fed to the cache.
+    //
+    // 3) Switch over to shipping your application. Include the key/data pairs from above.
+    // 4) At startup (or any convenient time), call precompileShader for each key/data pair.
+    //    This will compile the SkSL to create a GL program, and populate the runtime cache.
+    //
+    // This is only guaranteed to work if the context/device used in step #2 are created in the
+    // same way as the one used in step #4, and the same GrContextOptions are specified.
+    // Using cached shader blobs on a different device or driver are undefined.
+    bool precompileShader(const SkData& key, const SkData& data);
+
 #ifdef SK_ENABLE_DUMP_GPU
     /** Returns a string with detailed information about the context & GPU, in JSON format. */
     SkString dump() const;

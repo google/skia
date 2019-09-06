@@ -508,6 +508,10 @@ void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {
     fGpu->deleteBackendTexture(backendTex);
 }
 
+bool GrContext::precompileShader(const SkData& key, const SkData& data) {
+    return fGpu->precompileShader(key, data);
+}
+
 #ifdef SK_ENABLE_DUMP_GPU
 #include "src/utils/SkJSONWriter.h"
 SkString GrContext::dump() const {
