@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a710901d_4aa5b6fd",
+        "filename": "src/gpu/GrProgramDesc.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-06T17:51:13Z",
+      "side": 1,
+      "message": "seems fine to me",
+      "parentUuid": "66ea1cfa_2bb1e756",
+      "revId": "6fcf4ddff25ae513afceabb967fcdc81b3d0c745",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e6ec2b4e_91848323",
         "filename": "src/gpu/gl/builders/GrGLProgramBuilder.cpp",
         "patchSetId": 11
@@ -30,6 +48,24 @@
       "writtenOn": "2019-09-06T16:16:42Z",
       "side": 1,
       "message": "I realize that caching program binaries after pre-compilation might be useful (to further limit the work on subsequent launches?). I think that makes the whole situation even more complex, though. May not be worth trying to support yet?",
+      "revId": "6fcf4ddff25ae513afceabb967fcdc81b3d0c745",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d06e4158_fba0e1b0",
+        "filename": "src/gpu/gl/builders/GrGLProgramBuilder.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-06T17:51:13Z",
+      "side": 1,
+      "message": "I\u0027m ok with leaving a TODO to consider it.",
+      "parentUuid": "e6ec2b4e_91848323",
       "revId": "6fcf4ddff25ae513afceabb967fcdc81b3d0c745",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
