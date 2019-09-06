@@ -169,7 +169,7 @@ void TouchGesture::touchBegin(void* owner, float x, float y) {
             fState = kTranslate_State;
             break;
         case 2:
-            fState = kZoom_State;
+            this->startZoom();
             break;
         default:
             break;
@@ -202,6 +202,24 @@ float TouchGesture::limitTotalZoom(float scale) const {
         scale = MIN_ZOOM_SCALE / curr;
     }
     return scale;
+}
+
+void TouchGesture::startZoom() {
+    fState = kZoom_State;
+}
+
+void TouchGesture::updateZoom(float scale, float startX, float startY, float lastX, float lastY) {
+    scale = this->limitTotalZoom(scale);
+
+    fLocalM.setTranslate(-startX, -startY);
+    fLocalM.postScale(scale, scale);
+    fLocalM.postTranslate(lastX, lastY);
+}
+
+void TouchGesture::endZoom() {
+    this->flushLocalM();
+    SkASSERT(kZoom_State == fState);
+    fState = kEmpty_State;
 }
 
 void TouchGesture::touchMoved(void* owner, float x, float y) {
@@ -246,13 +264,11 @@ void TouchGesture::touchMoved(void* owner, float x, float y) {
             const Rec& rec1 = fTouches[1];
 
             float scale = this->computePinch(rec0, rec1);
-            scale = this->limitTotalZoom(scale);
-
-            fLocalM.setTranslate(-center(rec0.fStartX, rec1.fStartX),
-                                 -center(rec0.fStartY, rec1.fStartY));
-            fLocalM.postScale(scale, scale);
-            fLocalM.postTranslate(center(rec0.fLastX, rec1.fLastX),
-                                  center(rec0.fLastY, rec1.fLastY));
+            this->updateZoom(scale,
+                             center(rec0.fStartX, rec1.fStartX),
+                             center(rec0.fStartY, rec1.fStartY),
+                             center(rec0.fLastX, rec1.fLastX),
+                             center(rec0.fLastY, rec1.fLastY));
         } break;
         default:
             break;
@@ -286,9 +302,7 @@ void TouchGesture::touchEnd(void* owner) {
             fState = kEmpty_State;
         } break;
         case 2:
-            this->flushLocalM();
-            SkASSERT(kZoom_State == fState);
-            fState = kEmpty_State;
+            this->endZoom();
             break;
         default:
             SkASSERT(kZoom_State == fState);
