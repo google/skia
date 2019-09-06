@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b18dc018_d4a4cc86",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 718,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-06T16:38:03Z",
+      "side": 1,
+      "message": "Yup added the dependency down below",
+      "parentUuid": "f5342c81_30061f95",
+      "range": {
+        "startLine": 718,
+        "startChar": 24,
+        "endLine": 718,
+        "endChar": 48
+      },
+      "revId": "3ca73eb408be2b15346b8ce9aa9a14e1cb1f5d62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0689bfb2_629c704a",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "3ca73eb408be2b15346b8ce9aa9a14e1cb1f5d62",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "199b06db_918fb336",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 719,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-06T16:38:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0689bfb2_629c704a",
+      "range": {
+        "startLine": 719,
+        "startChar": 27,
+        "endLine": 719,
+        "endChar": 59
+      },
+      "revId": "3ca73eb408be2b15346b8ce9aa9a14e1cb1f5d62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "93819e30_872c74ea",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 720,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-06T16:38:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f03e8d6c_f0156a76",
+      "range": {
+        "startLine": 720,
+        "startChar": 70,
+        "endLine": 720,
+        "endChar": 73
+      },
+      "revId": "3ca73eb408be2b15346b8ce9aa9a14e1cb1f5d62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "87567efa_f673d3ae",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 3
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "f36bd680_213f8bb8",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 722,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-06T16:38:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "87567efa_f673d3ae",
+      "range": {
+        "startLine": 722,
+        "startChar": 33,
+        "endLine": 722,
+        "endChar": 37
+      },
+      "revId": "3ca73eb408be2b15346b8ce9aa9a14e1cb1f5d62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "40d10901_ee73ade5",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 3
@@ -111,6 +207,24 @@
     },
     {
       "key": {
+        "uuid": "38c64913_444c9565",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 724,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-06T16:38:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "40d10901_ee73ade5",
+      "revId": "3ca73eb408be2b15346b8ce9aa9a14e1cb1f5d62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cbadc5fb_6a1caf31",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 3
@@ -125,6 +239,24 @@
       "revId": "3ca73eb408be2b15346b8ce9aa9a14e1cb1f5d62",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eaef3cac_da3fbee6",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 736,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-06T16:38:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cbadc5fb_6a1caf31",
+      "revId": "3ca73eb408be2b15346b8ce9aa9a14e1cb1f5d62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -151,6 +283,30 @@
     },
     {
       "key": {
+        "uuid": "c7a4ad0a_474efc15",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 737,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-06T16:38:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "922b7e3f_2af88c11",
+      "range": {
+        "startLine": 737,
+        "startChar": 70,
+        "endLine": 737,
+        "endChar": 73
+      },
+      "revId": "3ca73eb408be2b15346b8ce9aa9a14e1cb1f5d62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5b283623_9e7e7096",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 3
@@ -171,6 +327,30 @@
       "revId": "3ca73eb408be2b15346b8ce9aa9a14e1cb1f5d62",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7071591_adcce8d1",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 739,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-06T16:38:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b283623_9e7e7096",
+      "range": {
+        "startLine": 739,
+        "startChar": 28,
+        "endLine": 739,
+        "endChar": 32
+      },
+      "revId": "3ca73eb408be2b15346b8ce9aa9a14e1cb1f5d62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -197,6 +377,30 @@
     },
     {
       "key": {
+        "uuid": "eddb3e7b_925bbe51",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-06T16:38:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b1d70f34_cb0adacd",
+      "range": {
+        "startLine": 740,
+        "startChar": 79,
+        "endLine": 740,
+        "endChar": 93
+      },
+      "revId": "3ca73eb408be2b15346b8ce9aa9a14e1cb1f5d62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a24f61e2_e7e3c327",
         "filename": "src/gpu/GrDrawingManager.h",
         "patchSetId": 3
@@ -217,6 +421,30 @@
       "revId": "3ca73eb408be2b15346b8ce9aa9a14e1cb1f5d62",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20adc708_0c858da8",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-06T16:38:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a24f61e2_e7e3c327",
+      "range": {
+        "startLine": 60,
+        "startChar": 24,
+        "endLine": 60,
+        "endChar": 32
+      },
+      "revId": "3ca73eb408be2b15346b8ce9aa9a14e1cb1f5d62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -243,6 +471,30 @@
     },
     {
       "key": {
+        "uuid": "4dbd77e1_da572258",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-06T16:38:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "522fcd8a_ee84cfc4",
+      "range": {
+        "startLine": 61,
+        "startChar": 59,
+        "endLine": 61,
+        "endChar": 67
+      },
+      "revId": "3ca73eb408be2b15346b8ce9aa9a14e1cb1f5d62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "43f1233f_5f4247d6",
         "filename": "src/gpu/GrWaitRenderTask.cpp",
         "patchSetId": 3
@@ -263,6 +515,30 @@
       "revId": "3ca73eb408be2b15346b8ce9aa9a14e1cb1f5d62",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "acc856de_150cf02e",
+        "filename": "src/gpu/GrWaitRenderTask.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-06T16:38:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "43f1233f_5f4247d6",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 34
+      },
+      "revId": "3ca73eb408be2b15346b8ce9aa9a14e1cb1f5d62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
