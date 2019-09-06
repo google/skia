@@ -3607,9 +3607,6 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
     if (options.fShaderCacheStrategy < GrContextOptions::ShaderCacheStrategy::kBackendBinary) {
         fProgramBinarySupport = false;
     }
-    if (options.fDisallowGLSLBinaryCaching) {
-        fProgramBinarySupport = false;
-    }
 }
 
 bool GrGLCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
