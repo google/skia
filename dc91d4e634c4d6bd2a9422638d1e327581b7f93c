@@ -46,6 +46,30 @@
       "revId": "dc91d4e634c4d6bd2a9422638d1e327581b7f93c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc7f2ba0_bb89b2e9",
+        "filename": "include/gpu/GrGpuResource.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-06T17:34:12Z",
+      "side": 1,
+      "message": "Isn\u0027t that what SkNoncopyable does for you?",
+      "parentUuid": "739579d7_e25d81ef",
+      "range": {
+        "startLine": 77,
+        "startChar": 3,
+        "endLine": 77,
+        "endChar": 36
+      },
+      "revId": "dc91d4e634c4d6bd2a9422638d1e327581b7f93c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
