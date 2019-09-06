@@ -115,7 +115,7 @@ private:
 
     void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override;
 
-    void addAdditionalRenderPass();
+    void addAdditionalRenderPass(bool mustUseSecondaryCommandBuffer);
 
     std::unique_ptr<GrVkSecondaryCommandBuffer> fCurrentSecondaryCommandBuffer;
     const GrVkRenderPass*                       fCurrentRenderPass;
