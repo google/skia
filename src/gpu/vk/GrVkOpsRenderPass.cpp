@@ -119,10 +119,13 @@ void GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
     vkClearColor.color.float32[2] = clearColor[2];
     vkClearColor.color.float32[3] = clearColor[3];
 
-    fGpu->beginRenderPass(fCurrentRenderPass, &vkClearColor, vkRT, fOrigin, fBounds);
+    if (!fGpu->vkCaps().preferPrimaryOverSecondaryCommandBuffers()) {
+        fCurrentSecondaryCommandBuffer = fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu);
+        fCurrentSecondaryCommandBuffer->begin(fGpu, vkRT->framebuffer(), fCurrentRenderPass);
+    }
 
-    fCurrentSecondaryCommandBuffer = fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu);
-    fCurrentSecondaryCommandBuffer->begin(fGpu, vkRT->framebuffer(), fCurrentRenderPass);
+    fGpu->beginRenderPass(fCurrentRenderPass, &vkClearColor, vkRT, fOrigin, fBounds,
+                          SkToBool(fCurrentSecondaryCommandBuffer));
 }
 
 void GrVkOpsRenderPass::initWrapped() {
@@ -144,9 +147,10 @@ GrVkOpsRenderPass::~GrVkOpsRenderPass() {
 GrGpu* GrVkOpsRenderPass::gpu() { return fGpu; }
 
 GrVkCommandBuffer* GrVkOpsRenderPass::currentCommandBuffer() {
-    // TODO: In the future this function may return the GrVkGpu's primary command buffer.
-    SkASSERT(fCurrentSecondaryCommandBuffer);
-    return fCurrentSecondaryCommandBuffer.get();
+    if (fCurrentSecondaryCommandBuffer) {
+        return fCurrentSecondaryCommandBuffer.get();
+    }
+    return fGpu->currentCommandBuffer();
 }
 
 void GrVkOpsRenderPass::end() {
@@ -332,7 +336,7 @@ void GrVkOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& colo
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrVkOpsRenderPass::addAdditionalRenderPass() {
+void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuffer) {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
 
@@ -358,12 +362,17 @@ void GrVkOpsRenderPass::addAdditionalRenderPass() {
 
     VkClearValue vkClearColor;
     memset(&vkClearColor, 0, sizeof(VkClearValue));
+
+    if (!fGpu->vkCaps().preferPrimaryOverSecondaryCommandBuffers() ||
+        mustUseSecondaryCommandBuffer) {
+        fCurrentSecondaryCommandBuffer = fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu);
+        fCurrentSecondaryCommandBuffer->begin(fGpu, vkRT->framebuffer(), fCurrentRenderPass);
+    }
+
     // We use the same fBounds as the whole GrVkOpsRenderPass since we have no way of tracking the
     // bounds in GrOpsTask for parts before and after inline uploads separately.
-    fGpu->beginRenderPass(fCurrentRenderPass, &vkClearColor, vkRT, fOrigin, fBounds);
-
-    fCurrentSecondaryCommandBuffer = fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu);
-    fCurrentSecondaryCommandBuffer->begin(fGpu, vkRT->framebuffer(), fCurrentRenderPass);
+    fGpu->beginRenderPass(fCurrentRenderPass, &vkClearColor, vkRT, fOrigin, fBounds,
+                          SkToBool(fCurrentSecondaryCommandBuffer));
 }
 
 void GrVkOpsRenderPass::inlineUpload(GrOpFlushState* state,
@@ -378,7 +387,7 @@ void GrVkOpsRenderPass::inlineUpload(GrOpFlushState* state,
     // layout back to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL.
     state->doUpload(upload, true);
 
-    this->addAdditionalRenderPass();
+    this->addAdditionalRenderPass(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -613,6 +622,10 @@ void GrVkOpsRenderPass::executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandl
     bounds.offset = { 0, 0 };
     bounds.extent = { 0, 0 };
 
+    if (!fCurrentSecondaryCommandBuffer) {
+        fGpu->endRenderPass(fRenderTarget, fOrigin, fBounds);
+        this->addAdditionalRenderPass(true);
+    }
     SkASSERT(fCurrentSecondaryCommandBuffer);
 
     GrVkDrawableInfo vkInfo;
