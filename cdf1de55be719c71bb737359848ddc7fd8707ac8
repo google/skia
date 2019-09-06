@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc0afabb_cd593846",
+        "filename": "src/gpu/effects/generated/GrRectBlurEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-06T16:31:33Z",
+      "side": 1,
+      "message": "i",
+      "range": {
+        "startLine": 50,
+        "startChar": 42,
+        "endLine": 50,
+        "endChar": 43
+      },
+      "revId": "cdf1de55be719c71bb737359848ddc7fd8707ac8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71a54d2e_80d43339",
+        "filename": "src/gpu/effects/generated/GrRectBlurEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-06T16:31:33Z",
+      "side": 1,
+      "message": "k",
+      "range": {
+        "startLine": 88,
+        "startChar": 38,
+        "endLine": 88,
+        "endChar": 39
+      },
+      "revId": "cdf1de55be719c71bb737359848ddc7fd8707ac8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
