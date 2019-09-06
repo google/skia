@@ -59,9 +59,7 @@ static void joinNoEmptyChecks(SkRect* dst, const SkRect& src) {
 }
 
 static bool is_degenerate(const SkPath& path) {
-    SkPath::Iter iter(path, false);
-    SkPoint pts[4];
-    return SkPath::kDone_Verb == iter.next(pts);
+    return path.countVerbs() <= 1;
 }
 
 class SkAutoDisableDirectionCheck {
@@ -94,14 +92,17 @@ private:
  */
 class SkAutoPathBoundsUpdate {
 public:
-    SkAutoPathBoundsUpdate(SkPath* path, const SkRect& r) : fRect(r) {
-        this->init(path);
-    }
-
-    SkAutoPathBoundsUpdate(SkPath* path, SkScalar left, SkScalar top,
-                           SkScalar right, SkScalar bottom) {
-        fRect.setLTRB(left, top, right, bottom);
-        this->init(path);
+    SkAutoPathBoundsUpdate(SkPath* path, const SkRect& r) : fPath(path), fRect(r) {
+        // Cannot use fRect for our bounds unless we know it is sorted
+        fRect.sort();
+        // Mark the path's bounds as dirty if (1) they are, or (2) the path
+        // is non-finite, and therefore its bounds are not meaningful
+        fHasValidBounds = path->hasComputedBounds() && path->isFinite();
+        fEmpty = path->isEmpty();
+        if (fHasValidBounds && !fEmpty) {
+            joinNoEmptyChecks(&fRect, fPath->getBounds());
+        }
+        fDegenerate = is_degenerate(*path);
     }
 
     ~SkAutoPathBoundsUpdate() {
@@ -118,20 +119,6 @@ private:
     bool    fHasValidBounds;
     bool    fDegenerate;
     bool    fEmpty;
-
-    void init(SkPath* path) {
-        // Cannot use fRect for our bounds unless we know it is sorted
-        fRect.sort();
-        fPath = path;
-        // Mark the path's bounds as dirty if (1) they are, or (2) the path
-        // is non-finite, and therefore its bounds are not meaningful
-        fHasValidBounds = path->hasComputedBounds() && path->isFinite();
-        fEmpty = path->isEmpty();
-        if (fHasValidBounds && !fEmpty) {
-            joinNoEmptyChecks(&fRect, fPath->getBounds());
-        }
-        fDegenerate = is_degenerate(*path);
-    }
 };
 #define SkAutoPathBoundsUpdate(...) SK_REQUIRE_LOCAL_VAR(SkAutoPathBoundsUpdate)
 
