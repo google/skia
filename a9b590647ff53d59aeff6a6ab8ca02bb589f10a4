@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "2afe79ee_bbfcb9af",
+        "filename": "dm/DMSrcSink.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-06T18:19:14Z",
+      "side": 1,
+      "message": "sgtm, just wanted to check.",
+      "parentUuid": "f1e1de04_a2d6eadb",
+      "range": {
+        "startLine": 342,
+        "startChar": 17,
+        "endLine": 342,
+        "endChar": 70
+      },
+      "revId": "a9b590647ff53d59aeff6a6ab8ca02bb589f10a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8c6a9d05_45b443ff",
         "filename": "include/gpu/GrContext.h",
         "patchSetId": 12
@@ -131,6 +155,30 @@
       "side": 1,
       "message": "You\u0027re suggesting that we really don\u0027t need to version tag the cache entries, because if clients don\u0027t do that, all bets are off? If so, I can remove everything related to this part of the CL, which is nice.",
       "parentUuid": "2939b1eb_098fc6af",
+      "range": {
+        "startLine": 24,
+        "startChar": 22,
+        "endLine": 24,
+        "endChar": 40
+      },
+      "revId": "a9b590647ff53d59aeff6a6ab8ca02bb589f10a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6ffe925_c915d10e",
+        "filename": "src/gpu/GrPersistentCacheUtils.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-06T18:19:14Z",
+      "side": 1,
+      "message": "Yep, that\u0027s what I\u0027m suggesting. In the past I\u0027ve thought about mixing various things into the keys (e.g. GL strings), but then I always come back around to thinking that if we start taking steps to prevent a collision between new and old Skia cache entries then we\u0027re just misleading people (unless we can be really sure it\u0027ll never happen).",
+      "parentUuid": "2a4da04a_51d47d19",
       "range": {
         "startLine": 24,
         "startChar": 22,
