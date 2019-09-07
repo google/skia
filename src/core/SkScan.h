@@ -17,6 +17,7 @@ class SkRasterClip;
 class SkRegion;
 class SkBlitter;
 class SkPath;
+class SkPathRaw;
 
 /** Defines a fixed-point rectangle, identical to the integer SkIRect, but its
     coordinates are treated as SkFixed rather than int32_t.
@@ -69,6 +70,7 @@ public:
 
     // Needed by do_fill_path in SkScanPriv.h
     static void FillPath(const SkPath&, const SkRegion& clip, SkBlitter*);
+    static void FillPath(const SkPathRaw&, const SkRegion& clip, SkBlitter*);
 
 private:
     friend class SkAAClip;

@@ -14,6 +14,7 @@
 #include "src/core/SkAntiRun.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkPathRaw.h"
 
 #define SHIFT   SK_SUPERSAMPLE_SHIFT
 #define SCALE   (1 << SHIFT)
@@ -677,15 +678,18 @@ void SkScan::SAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& 
     bool containedInClip = clipBounds.contains(ir);
     bool isInverse = path.isInverseFillType();
 
+    SkPathRaw raw;
+    SkPathPriv::InitRaw(path, &raw);
+
     // MaskSuperBlitter can't handle drawing outside of ir, so we can't use it
     // if we're an inverse filltype
     if (!isInverse && MaskSuperBlitter::CanHandleRect(ir) && !forceRLE) {
         MaskSuperBlitter superBlit(blitter, ir, clipBounds, isInverse);
         SkASSERT(SkIntToScalar(ir.fTop) <= path.getBounds().fTop);
-        sk_fill_path(path, clipBounds, &superBlit, ir.fTop, ir.fBottom, SHIFT, containedInClip);
+        sk_fill_path(raw, clipBounds, &superBlit, ir.fTop, ir.fBottom, SHIFT, containedInClip);
     } else {
         SuperBlitter superBlit(blitter, ir, clipBounds, isInverse);
-        sk_fill_path(path, clipBounds, &superBlit, ir.fTop, ir.fBottom, SHIFT, containedInClip);
+        sk_fill_path(raw, clipBounds, &superBlit, ir.fTop, ir.fBottom, SHIFT, containedInClip);
     }
 }
 
