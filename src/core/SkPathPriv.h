@@ -10,6 +10,8 @@
 
 #include "include/core/SkPath.h"
 
+class SkPathRaw;
+
 class SkPathPriv {
 public:
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -280,6 +282,8 @@ public:
         }
         return true;
     }
+
+    static void InitRaw(const SkPath&, SkPathRaw* raw);
 };
 
 // Lightweight variant of SkPath::Iter that only returns segments (e.g. lines/conics).
@@ -302,7 +306,8 @@ class SkPathEdgeIter {
     };
 
 public:
-    SkPathEdgeIter(const SkPath& path);
+    SkPathEdgeIter(const SkPath&);
+    SkPathEdgeIter(const SkPathRaw&);
 
     SkScalar conicWeight() const {
         SkASSERT(fIsConic);
