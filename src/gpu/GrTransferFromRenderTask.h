@@ -36,7 +36,7 @@ private:
     void handleInternalAllocationFailure() override {}
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
-    ExpectedOutcome onMakeClosed(const GrCaps&) override {
+    ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect*) override {
         return ExpectedOutcome::kTargetUnchanged;
     }
 
