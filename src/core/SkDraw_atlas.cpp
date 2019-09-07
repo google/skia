@@ -19,6 +19,40 @@
 #include "include/core/SkMatrix.h"
 #include "src/core/SkScan.h"
 
+#include "src/core/SkPathRaw.h"
+
+template <size_t N> class RawPoly : public SkPathRaw {
+    SkPoint fPtStorage[N];
+    uint8_t fVbStorage[N+1];
+
+public:
+    RawPoly() {
+        fPts = { fPtStorage, N };
+        fVerbs = { fVbStorage, N+1 };
+        fConicWeights = { nullptr, 0 };
+        fFillType = kEvenOdd_SkPathFillType;    // or winding
+        fConvexity = kConvex_SkPathConvexityType;
+        fSegmentMask = kLine_SkPathSegmentMask;
+
+        // Computed in setRectMatrix: fBounds, fIsFinite
+
+
+
+        fVbStorage[0] = kMove_SkPathVerb;
+        for (size_t i = 1; i < N; ++i) {
+            fVbStorage[i] = kLine_SkPathVerb;
+        }
+        fVbStorage[N] = kClose_SkPathVerb;
+    }
+
+    void setRectMatrix(const SkRect& r, const SkMatrix& ctm) {
+        r.toQuad(fPtStorage);
+        ctm.mapPoints(fPtStorage, fPtStorage, 4);
+        fBounds.setBounds(fPtStorage, 4);
+        fIsFinite = SkScalarsAreFinite(&fPtStorage[0].fX, 8);
+    }
+};
+
 static void fill_rect(const SkMatrix& ctm, const SkRasterClip& rc,
                       const SkRect& r, SkBlitter* blitter, SkPath* scratchPath) {
     if (ctm.rectStaysRect()) {
@@ -26,13 +60,9 @@ static void fill_rect(const SkMatrix& ctm, const SkRasterClip& rc,
         ctm.mapRect(&dr, r);
         SkScan::FillRect(dr, rc, blitter);
     } else {
-        SkPoint pts[4];
-        r.toQuad(pts);
-        ctm.mapPoints(pts, pts, 4);
-
-        scratchPath->rewind();
-        scratchPath->addPoly(pts, 4, true);
-        SkScan::FillPath(*scratchPath, rc, blitter);
+        RawPoly<4> poly;
+        poly.setRectMatrix(r, ctm);
+        SkScan::FillPathRaw(poly, rc, blitter);
     }
 }
 

@@ -689,3 +689,18 @@ SkPathEdgeIter::SkPathEdgeIter(const SkPath& path) {
     fNeedsCloseLine = false;
     SkDEBUGCODE(fIsConic = false;)
 }
+
+#include "src/core/SkPathRaw.h"
+
+SkPathEdgeIter::SkPathEdgeIter(const SkPathRaw& path) {
+    fMoveToPtr = fPts = path.fPts.begin();
+    fVerbs = path.fVerbs.begin();
+    fVerbsStop = path.fVerbs.end();
+    fConicWeights = path.fConicWeights.begin();
+    if (fConicWeights) {
+        fConicWeights -= 1;  // begin one behind
+    }
+
+    fNeedsCloseLine = false;
+    SkDEBUGCODE(fIsConic = false;)
+}
