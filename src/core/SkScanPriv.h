@@ -12,6 +12,8 @@
 #include "src/core/SkBlitter.h"
 #include "src/core/SkScan.h"
 
+class SkPathRaw;
+
 // controls how much we super-sample (when we use that scan convertion)
 #define SK_SUPERSAMPLE_SHIFT    2
 
@@ -33,7 +35,7 @@ private:
     const SkIRect*      fClipRect;
 };
 
-void sk_fill_path(const SkPath& path, const SkIRect& clipRect,
+void sk_fill_path(const SkPathRaw&, const SkIRect& clipRect,
                   SkBlitter* blitter, int start_y, int stop_y, int shiftEdgesUp,
                   bool pathContainedInClip);
 

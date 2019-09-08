@@ -3806,3 +3806,18 @@ bool SkPath::IsCubicDegenerate(const SkPoint& p1, const SkPoint& p2,
             SkPointPriv::EqualsWithinTolerance(p2, p3) &&
             SkPointPriv::EqualsWithinTolerance(p3, p4);
 }
+
+#include "src/core/SkPathRaw.h"
+
+void SkPathPriv::InitRaw(const SkPath& src, SkPathRaw* dst) {
+    dst->fPts = { src.fPathRef->fPoints.begin(), (size_t)src.fPathRef->fPoints.count() };
+    dst->fVerbs = { src.fPathRef->fVerbs.begin(), (size_t)src.fPathRef->fVerbs.count() };
+    dst->fConicWeights = {
+        src.fPathRef->fConicWeights.begin(), (size_t)src.fPathRef->fConicWeights.count()
+    };
+    dst->fBounds = src.getBounds();
+    dst->fFillType = (SkPathFillType)src.getFillType();
+    dst->fConvexity = (SkPathConvexityType)src.getConvexity();
+    dst->fSegmentMask = (SkPathSegmentMask)src.getSegmentMasks();
+    dst->fIsFinite = src.isFinite();
+}
