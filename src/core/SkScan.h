@@ -17,6 +17,7 @@ class SkRasterClip;
 class SkRegion;
 class SkBlitter;
 class SkPath;
+class SkPathRaw;
 
 /** Defines a fixed-point rectangle, identical to the integer SkIRect, but its
     coordinates are treated as SkFixed rather than int32_t.
@@ -40,6 +41,11 @@ public:
     typedef void (*HairRCProc)(const SkPoint[], int count, const SkRasterClip&, SkBlitter*);
 
     static void FillPath(const SkPath&, const SkIRect&, SkBlitter*);
+    static void FillPath(const SkPath&, const SkRegion& clip, SkBlitter*);
+    static void FillPath(const SkPath&, const SkRasterClip& clip, SkBlitter*);
+
+    static void FillPathRaw(const SkPathRaw&, const SkRasterClip&, SkBlitter*);
+    static void FillPathRaw(const SkPathRaw&, const SkRegion& clip, SkBlitter*);
 
     ///////////////////////////////////////////////////////////////////////////
     // rasterclip
@@ -49,7 +55,6 @@ public:
     static void FillRect(const SkRect&, const SkRasterClip&, SkBlitter*);
     static void AntiFillRect(const SkRect&, const SkRasterClip&, SkBlitter*);
     static void AntiFillXRect(const SkXRect&, const SkRasterClip&, SkBlitter*);
-    static void FillPath(const SkPath&, const SkRasterClip&, SkBlitter*);
     static void AntiFillPath(const SkPath&, const SkRasterClip&, SkBlitter*);
     static void FrameRect(const SkRect&, const SkPoint& strokeSize,
                           const SkRasterClip&, SkBlitter*);
@@ -66,9 +71,6 @@ public:
     static void AntiHairSquarePath(const SkPath&, const SkRasterClip&, SkBlitter*);
     static void HairRoundPath(const SkPath&, const SkRasterClip&, SkBlitter*);
     static void AntiHairRoundPath(const SkPath&, const SkRasterClip&, SkBlitter*);
-
-    // Needed by do_fill_path in SkScanPriv.h
-    static void FillPath(const SkPath&, const SkRegion& clip, SkBlitter*);
 
 private:
     friend class SkAAClip;

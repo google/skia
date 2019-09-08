@@ -14,6 +14,8 @@
 #include "src/core/SkEdge.h"
 #include "src/core/SkEdgeBuilder.h"
 #include "src/core/SkGeometry.h"
+#include "src/core/SkPathPriv.h"
+#include "src/core/SkPathRaw.h"
 #include "src/core/SkQuadClipper.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkRectPriv.h"
@@ -97,7 +99,7 @@ typedef void (*PrePostProc)(SkBlitter* blitter, int y, bool isStartOfScanline);
 #define PREPOST_START   true
 #define PREPOST_END     false
 
-static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
+static void walk_edges(SkEdge* prevHead, SkPathFillType fillType,
                        SkBlitter* blitter, int start_y, int stop_y,
                        PrePostProc proc, int rightClip) {
     validate_sort(prevHead->fNext);
@@ -393,7 +395,7 @@ static SkEdge* sort_edges(SkEdge* list[], int count, SkEdge** last) {
 }
 
 // clipRect has not been shifted up
-void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitter,
+void sk_fill_path(const SkPathRaw& raw, const SkIRect& clipRect, SkBlitter* blitter,
                   int start_y, int stop_y, int shiftEdgesUp, bool pathContainedInClip) {
     SkASSERT(blitter);
 
@@ -404,11 +406,11 @@ void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitte
     shiftedClip.fBottom = SkLeftShift(shiftedClip.fBottom, shiftEdgesUp);
 
     SkBasicEdgeBuilder builder(shiftEdgesUp);
-    int count = builder.buildEdges(path, pathContainedInClip ? nullptr : &shiftedClip);
+    int count = builder.buildEdges(raw, pathContainedInClip ? nullptr : &shiftedClip);
     SkEdge** list = builder.edgeList();
 
     if (0 == count) {
-        if (path.isInverseFillType()) {
+        if (raw.isInverseFillType()) {
             /*
              *  Since we are in inverse-fill, our caller has already drawn above
              *  our top (start_y) and will draw below our bottom (stop_y). Thus
@@ -461,17 +463,17 @@ void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitte
     InverseBlitter  ib;
     PrePostProc     proc = nullptr;
 
-    if (path.isInverseFillType()) {
+    if (raw.isInverseFillType()) {
         ib.setBlitter(blitter, clipRect, shiftEdgesUp);
         blitter = &ib;
         proc = PrePostInverseBlitterProc;
     }
 
     // count >= 2 is required as the convex walker does not handle missing right edges
-    if (path.isConvex() && (nullptr == proc) && count >= 2) {
+    if (raw.isConvex() && (nullptr == proc) && count >= 2) {
         walk_simple_edges(&headEdge, blitter, start_y, stop_y);
     } else {
-        walk_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, proc,
+        walk_edges(&headEdge, raw.getFillType(), blitter, start_y, stop_y, proc,
                 shiftedClip.right());
     }
 }
@@ -614,8 +616,13 @@ static SkIRect conservative_round_to_int(const SkRect& src) {
     };
 }
 
-void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
-                      SkBlitter* blitter) {
+void SkScan::FillPath(const SkPath& path, const SkRegion& origClip, SkBlitter* blitter) {
+    SkPathRaw raw;
+    SkPathPriv::InitRaw(path, &raw);
+    FillPathRaw(raw, origClip, blitter);
+}
+
+void SkScan::FillPathRaw(const SkPathRaw& path, const SkRegion& origClip, SkBlitter* blitter) {
     if (origClip.isEmpty()) {
         return;
     }

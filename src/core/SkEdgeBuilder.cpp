@@ -14,6 +14,7 @@
 #include "src/core/SkGeometry.h"
 #include "src/core/SkLineClipper.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkPathRaw.h"
 #include "src/core/SkSafeMath.h"
 
 SkEdgeBuilder::Combine SkBasicEdgeBuilder::combineVertical(const SkEdge* edge, SkEdge* last) {
@@ -218,7 +219,7 @@ char* SkAnalyticEdgeBuilder::allocEdges(size_t n, size_t* size) {
 }
 
 // TODO: maybe get rid of buildPoly() entirely?
-int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, bool canCullToTheRight) {
+int SkEdgeBuilder::buildPoly(const SkPathRaw& path, const SkIRect* iclip, bool canCullToTheRight) {
     size_t maxEdgeCount = path.countPoints();
     if (iclip) {
         // clipping can turn 1 line into (up to) kMaxClippedLineSegments, since
@@ -286,12 +287,12 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, bool canC
     return SkToInt(edgePtr - (char**)fEdgeList);
 }
 
-int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, bool canCullToTheRight) {
+int SkEdgeBuilder::build(const SkPathRaw& raw, const SkIRect* iclip, bool canCullToTheRight) {
     SkAutoConicToQuads quadder;
     const SkScalar conicTol = SK_Scalar1 / 4;
     bool is_finite = true;
 
-    SkPathEdgeIter iter(path);
+    SkPathEdgeIter iter(raw);
     if (iclip) {
         SkRect clip = this->recoverClip(*iclip);
         SkEdgeClipper clipper(canCullToTheRight);
@@ -384,16 +385,15 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, bool canCullT
     return is_finite ? fList.count() : 0;
 }
 
-int SkEdgeBuilder::buildEdges(const SkPath& path,
-                              const SkIRect* shiftedClip) {
+int SkEdgeBuilder::buildEdges(const SkPathRaw& raw, const SkIRect* shiftedClip) {
     // If we're convex, then we need both edges, even if the right edge is past the clip.
-    const bool canCullToTheRight = !path.isConvex();
+    const bool canCullToTheRight = !raw.isConvex();
 
     // We can use our buildPoly() optimization if all the segments are lines.
     // (Edges are homogenous and stored contiguously in memory, no need for indirection.)
-    const int count = SkPath::kLine_SegmentMask == path.getSegmentMasks()
-        ? this->buildPoly(path, shiftedClip, canCullToTheRight)
-        : this->build    (path, shiftedClip, canCullToTheRight);
+    const int count = kLine_SkPathSegmentMask == raw.getSegmentMasks()
+        ? this->buildPoly(raw, shiftedClip, canCullToTheRight)
+        : this->build    (raw, shiftedClip, canCullToTheRight);
 
     SkASSERT(count >= 0);
 
@@ -402,4 +402,10 @@ int SkEdgeBuilder::buildEdges(const SkPath& path,
         SkASSERT(count != 1);
     }
     return count;
+}
+
+int SkEdgeBuilder::buildEdges(const SkPath& path, const SkIRect* shiftedClip) {
+    SkPathRaw raw;
+    SkPathPriv::InitRaw(path, &raw);
+    return this->buildEdges(raw, shiftedClip);
 }
