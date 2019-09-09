@@ -41,7 +41,7 @@ const (
 
 	DEFAULT_OS_DEBIAN    = "Debian-9.4"
 	DEFAULT_OS_LINUX_GCE = "Debian-9.8"
-	DEFAULT_OS_MAC       = "Mac-10.13.6"
+	DEFAULT_OS_MAC       = "Mac-10.14.6"
 	DEFAULT_OS_WIN       = "Windows-Server-14393"
 
 	// Small is a 2-core machine.
@@ -598,7 +598,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 			"ChromeOS":   "ChromeOS",
 			"Debian9":    DEFAULT_OS_DEBIAN,
 			"Mac":        DEFAULT_OS_MAC,
-			"Mac10.13":   DEFAULT_OS_MAC,
+			"Mac10.13":   "Mac-10.13.6",
 			"Mac10.14":   "Mac-10.14.3",
 			"Ubuntu18":   "Ubuntu-18.04",
 			"Win":        DEFAULT_OS_WIN,
