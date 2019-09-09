@@ -330,11 +330,7 @@ public:
 
 class GPUSink : public Sink {
 public:
-    GPUSink(sk_gpu_test::GrContextFactory::ContextType,
-            sk_gpu_test::GrContextFactory::ContextOverrides,
-            SkCommandLineConfigGpu::SurfType surfType, int samples, bool diText,
-            SkColorType colorType, SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace,
-            bool threaded, const GrContextOptions& grCtxOptions);
+    GPUSink(const SkCommandLineConfigGpu*, const GrContextOptions&);
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     Error onDraw(const Src&, SkBitmap*, SkWStream*, SkString*,
@@ -347,7 +343,7 @@ public:
     }
     SkCommandLineConfigGpu::SurfType surfType() const { return fSurfType; }
     bool useDIText() const { return fUseDIText; }
-    bool serial() const override { return !fThreaded; }
+    bool serial() const override { return true; }
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override {
         SinkFlags::Multisampled ms = fSampleCount > 1 ? SinkFlags::kMultisampled
@@ -365,19 +361,13 @@ private:
     SkColorType                                       fColorType;
     SkAlphaType                                       fAlphaType;
     sk_sp<SkColorSpace>                               fColorSpace;
-    bool                                              fThreaded;
     GrContextOptions                                  fBaseContextOptions;
     sk_gpu_test::MemoryCache                          fMemoryCache;
 };
 
 class GPUThreadTestingSink : public GPUSink {
 public:
-    GPUThreadTestingSink(sk_gpu_test::GrContextFactory::ContextType,
-                         sk_gpu_test::GrContextFactory::ContextOverrides,
-                         SkCommandLineConfigGpu::SurfType surfType, int samples, bool diText,
-                         SkColorType colorType, SkAlphaType alphaType,
-                         sk_sp<SkColorSpace> colorSpace, bool threaded,
-                         const GrContextOptions& grCtxOptions);
+    GPUThreadTestingSink(const SkCommandLineConfigGpu*, const GrContextOptions&);
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 
@@ -394,13 +384,7 @@ private:
 
 class GPUPersistentCacheTestingSink : public GPUSink {
 public:
-    GPUPersistentCacheTestingSink(sk_gpu_test::GrContextFactory::ContextType,
-                                  sk_gpu_test::GrContextFactory::ContextOverrides,
-                                  SkCommandLineConfigGpu::SurfType surfType, int samples,
-                                  bool diText, SkColorType colorType, SkAlphaType alphaType,
-                                  sk_sp<SkColorSpace> colorSpace, bool threaded,
-                                  const GrContextOptions& grCtxOptions,
-                                  int cacheType);
+    GPUPersistentCacheTestingSink(const SkCommandLineConfigGpu*, const GrContextOptions&);
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 
@@ -417,12 +401,7 @@ private:
 
 class GPUPrecompileTestingSink : public GPUSink {
 public:
-    GPUPrecompileTestingSink(sk_gpu_test::GrContextFactory::ContextType,
-                             sk_gpu_test::GrContextFactory::ContextOverrides,
-                             SkCommandLineConfigGpu::SurfType surfType, int samples,
-                             bool diText, SkColorType colorType, SkAlphaType alphaType,
-                             sk_sp<SkColorSpace> colorSpace, bool threaded,
-                             const GrContextOptions& grCtxOptions);
+    GPUPrecompileTestingSink(const SkCommandLineConfigGpu*, const GrContextOptions&);
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 
