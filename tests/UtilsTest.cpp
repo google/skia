@@ -10,9 +10,12 @@
 #include "src/core/SkSpan.h"
 #include "src/core/SkTSearch.h"
 #include "src/core/SkTSort.h"
+#include "src/core/SkZip.h"
 #include "tests/Test.h"
 
 #include <array>
+#include <initializer_list>
+#include <tuple>
 #include <vector>
 
 class RefClass : public SkRefCnt {
@@ -209,5 +212,110 @@ DEF_TEST(SkMakeSpan, reporter) {
         REPORTER_ASSERT(reporter, t[3] == 4);
         t[3] = 100;
         REPORTER_ASSERT(reporter, s[3] == 100);
+    }
+}
+
+DEF_TEST(SkZip, reporter) {
+    uint16_t A[] = {1, 2, 3, 4};
+    const float B[] = {10.f, 20.f, 30.f, 40.f};
+    std::vector<int> C = {{20, 30, 40, 50}};
+    std::array<int, 4> D = {{100, 200, 300, 400}};
+    SkSpan<int> S = SkMakeSpan(C);
+
+    // Check SkZip calls
+    SkZip<uint16_t, const float, int, int, int>
+            z{4, &A[0], &B[0], C.data(), D.data(), S.data()};
+
+    REPORTER_ASSERT(reporter, z.size() == 4);
+    REPORTER_ASSERT(reporter, !z.empty());
+
+    {
+        // Check front
+        auto t = z.front();
+        REPORTER_ASSERT(reporter, std::get<0>(t) == 1);
+        REPORTER_ASSERT(reporter, std::get<1>(t) == 10.f);
+        REPORTER_ASSERT(reporter, std::get<2>(t) == 20);
+        REPORTER_ASSERT(reporter, std::get<3>(t) == 100);
+        REPORTER_ASSERT(reporter, std::get<4>(t) == 20);
+    }
+
+    {
+        // Check back
+        auto t = z.back();
+        REPORTER_ASSERT(reporter, std::get<0>(t) == 4);
+        REPORTER_ASSERT(reporter, std::get<1>(t) == 40.f);
+    }
+
+    {
+        // Check ranged-for
+        int i = 0;
+        for (auto t : z) {
+            uint16_t a; float b; int c; int d; int s;
+            std::tie(a, b, c, d, s) = t;
+            REPORTER_ASSERT(reporter, a == A[i]);
+            REPORTER_ASSERT(reporter, b == B[i]);
+            REPORTER_ASSERT(reporter, c == C[i]);
+            REPORTER_ASSERT(reporter, d == D[i]);
+            REPORTER_ASSERT(reporter, s == S[i]);
+
+            i++;
+        }
+        REPORTER_ASSERT(reporter, i = 4);
+    }
+
+    // Check copy.
+    auto zz{z};
+    {
+        int i = 0;
+        for (auto t : zz) {
+            uint16_t a; float b; int c; int d; int s;
+            std::tie(a, b, c, d, s) = t;
+            REPORTER_ASSERT(reporter, a == A[i]);
+            REPORTER_ASSERT(reporter, b == B[i]);
+            REPORTER_ASSERT(reporter, c == C[i]);
+            REPORTER_ASSERT(reporter, d == D[i]);
+            REPORTER_ASSERT(reporter, s == S[i]);
+
+            i++;
+        }
+        REPORTER_ASSERT(reporter, i = 4);
+    }
+
+    // Check index getter
+    {
+        auto span = z.get<1>();
+        REPORTER_ASSERT(reporter, span[1] == 20.f);
+    }
+
+    // The following mutates the data.
+    {
+        // Check indexing
+        auto t = z[1];
+        REPORTER_ASSERT(reporter, std::get<0>(t) == 2);
+        REPORTER_ASSERT(reporter, std::get<1>(t) == 20.f);
+        REPORTER_ASSERT(reporter, std::get<2>(t) == 30);
+        REPORTER_ASSERT(reporter, std::get<3>(t) == 200);
+        REPORTER_ASSERT(reporter, std::get<4>(t) == 30);
+
+        // Check correct refs returned.
+        REPORTER_ASSERT(reporter, &std::get<0>(t) == &A[1]);
+        REPORTER_ASSERT(reporter, &std::get<1>(t) == &B[1]);
+        REPORTER_ASSERT(reporter, &std::get<2>(t) == &C[1]);
+        REPORTER_ASSERT(reporter, &std::get<3>(t) == &D[1]);
+        REPORTER_ASSERT(reporter, &std::get<4>(t) == &S[1]);
+
+        // Check assignment
+        std::get<0>(t) = 20;
+        // std::get<1>(t) = 300.f; // is const
+        std::get<2>(t) = 300;
+        std::get<3>(t) = 2000;
+        std::get<4>(t) = 300;
+
+        auto t1 = z[1];
+        REPORTER_ASSERT(reporter, std::get<0>(t1) == 20);
+        REPORTER_ASSERT(reporter, std::get<1>(t1) == 20.f);
+        REPORTER_ASSERT(reporter, std::get<2>(t1) == 300);
+        REPORTER_ASSERT(reporter, std::get<3>(t1) == 2000);
+        REPORTER_ASSERT(reporter, std::get<4>(t1) == 300);
     }
 }
