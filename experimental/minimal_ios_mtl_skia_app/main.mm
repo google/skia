@@ -22,13 +22,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static sk_sp<SkSurface> to_surface(MTKView* view, GrContext* grContext) {
-    if (!grContext || view == nil) {
+static sk_sp<SkSurface> to_surface(MTKView* mtkView, GrContext* grContext) {
+    if (!grContext || mtkView == nil) {
         return nullptr;
     }
-    id<CAMetalDrawable> drawable = view.currentDrawable;
-    CGSize size = view.drawableSize;
-    int sampleCount = (int)view.sampleCount;
+    id<CAMetalDrawable> drawable = mtkView.currentDrawable;
+    CGSize size = mtkView.drawableSize;
+    int sampleCount = (int)mtkView.sampleCount;
     int width = (int)size.width;
     int height = (int)size.height;
     GrMtlTextureInfo fbInfo;
@@ -49,65 +49,68 @@ static sk_sp<SkSurface> to_surface(MTKView* view, GrContext* grContext) {
     }
 }
 
-static sk_sp<GrContext> to_context(MTKView* view) {
-    // Configure view:
-    view.depthStencilPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
-    view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
-    view.sampleCount = 1;
-
-    GrContextOptions defaultOpts;  // set different options here.
-    id<MTLCommandQueue> commandQueue = [view.device newCommandQueue];
-    // Create long-lived GrContext:
-    return GrContext::MakeMetal((__bridge void*)view.device,
-                                (__bridge void*)(commandQueue),
-                                defaultOpts);
+static sk_sp<GrContext> to_context(id<MTLDevice> device, const GrContextOptions& opts) {
+    if (device == nil) {
+        return nullptr;
+    }
+    id<MTLCommandQueue> queue = [device newCommandQueue];
+    return GrContext::MakeMetal((__bridge void*)device, (__bridge void*)queue, opts);
 }
+
+static void configure_mtk_view(MTKView* mtkView) {
+    mtkView.depthStencilPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
+    mtkView.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
+    mtkView.sampleCount = 1;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
-@interface AppViewDelegate : NSObject <MTKViewDelegate>
--(nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view;
-@end
+static void config_paint(SkPaint* paint) {
+    if (!paint->getShader()) {
+        // Perform as much work as possible before creating surface.
+        SkColor4f colors[2] = {SkColors::kBlack, SkColors::kWhite};
+        SkPoint points[2] = {{0, -1024}, {0, 1024}};
+        paint->setShader(SkGradientShader::MakeLinear(points, colors, nullptr, nullptr, 2,
+                                                      SkTileMode::kClamp, 0, nullptr));
+    }
+}
 
-@implementation AppViewDelegate {
-    sk_sp<GrContext> fGrContext;
+static void draw_example(SkSurface* surface, const SkPaint& paint, double rotation) {
+    SkCanvas* canvas = surface->getCanvas();
+    canvas->translate(surface->width() * 0.5f, surface->height() * 0.5f);
+    canvas->rotate(rotation);
+    canvas->drawPaint(paint);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+@interface AppViewDelegate : NSObject <MTKViewDelegate> {
+@public
+    GrContext* fGrContext;
     SkPaint fPaint;
 }
+@end
 
--(nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view {
-    self = [super init];
-    if (view.device == nil) {
-        view.device = MTLCreateSystemDefaultDevice();
-    }
-    fGrContext = to_context(view);
-    view.delegate = self;
-    return self;
-}
-
+@implementation AppViewDelegate
 - (void)drawInMTKView:(nonnull MTKView *)view {
     if (!fGrContext || view == nil) {
         NSLog(@"error: no context");
         return;
     }
-    if (!fPaint.getShader()) {
-        // Perform as much work as possible before creating surface.
-        SkColor4f colors[2] = {SkColors::kGreen, SkColors::kMagenta};
-        SkPoint points[2] = {{0, -1024}, {0, 1024}};
-        fPaint.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, nullptr, 2,
-                                                      SkTileMode::kClamp, 0, nullptr));
-    }
-    float time = (float)(180 * 1e-9 * SkTime::GetNSecs());
+
+    // Do as much as possible before calling to_surface()
+    config_paint(&fPaint);
+    float rotation = (float)(180 * 1e-9 * SkTime::GetNSecs());
+
     // Create surface:
-    int width = (int)view.drawableSize.width;
-    int height = (int)view.drawableSize.height;
-    sk_sp<SkSurface> surface = to_surface(view, fGrContext.get());
+    sk_sp<SkSurface> surface = to_surface(view, fGrContext);
     if (!surface) {
         NSLog(@"error: no sksurface");
         return;
     }
-    SkCanvas* c = surface->getCanvas();
-    c->translate(width * 0.5f, height * 0.5f);
-    c->rotate(time);
-    c->drawPaint(fPaint);
+
+    draw_example(surface.get(), fPaint, rotation);
+
     // Must flush *and* present for this to work!
     surface->flush();
     [view.currentDrawable present];
@@ -120,31 +123,39 @@ static sk_sp<GrContext> to_context(MTKView* view) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-@interface AppViewController : UIViewController
+@interface AppViewController : UIViewController {
+    id<MTLDevice> fMtlDevice;
+    sk_sp<GrContext> fGrContext;
+}
+
 @end
 @implementation AppViewController
-
 - (void)loadView {
     self.view = [[MTKView alloc] initWithFrame:[[UIScreen mainScreen] bounds] device:nil];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    MTKView *mtkView = (MTKView *)self.view;
-    mtkView.device = MTLCreateSystemDefaultDevice();
+    if (!fGrContext) {
+        fMtlDevice = MTLCreateSystemDefaultDevice();
+        GrContextOptions grContextOptions;  // set different options here.
+        fGrContext = to_context(fMtlDevice, grContextOptions);
+    }
+    MTKView* mtkView = (MTKView*)self.view;
+    mtkView.device = fMtlDevice;
     mtkView.backgroundColor = UIColor.blackColor;
-    if(!mtkView.device)
-    {
+    configure_mtk_view(mtkView);
+    if(!self.view || !mtkView.device) {
         NSLog(@"Metal is not supported on this device");
         self.view = [[UIView alloc] initWithFrame:self.view.frame];
         return;
     }
-    AppViewDelegate * viewDelegate = [[AppViewDelegate alloc] initWithMetalKitView:mtkView];
+    AppViewDelegate* viewDelegate = [[AppViewDelegate alloc] init];
+    viewDelegate->fGrContext = fGrContext.get();
     [viewDelegate mtkView:mtkView drawableSizeWillChange:mtkView.bounds.size];
     mtkView.delegate = viewDelegate;
 }
 @end
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
