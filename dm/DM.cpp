@@ -931,29 +931,16 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
             }
             if (gpuConfig->getTestThreading()) {
                 SkASSERT(!gpuConfig->getTestPersistentCache());
-                return new GPUThreadTestingSink(
-                        contextType, contextOverrides, gpuConfig->getSurfType(),
-                        gpuConfig->getSamples(), gpuConfig->getUseDIText(),
-                        gpuConfig->getColorType(), gpuConfig->getAlphaType(),
-                        sk_ref_sp(gpuConfig->getColorSpace()), FLAGS_gpu_threading, grCtxOptions);
+                return new GPUThreadTestingSink(contextType, contextOverrides, gpuConfig,
+                                                FLAGS_gpu_threading, grCtxOptions);
             } else if (gpuConfig->getTestPersistentCache()) {
-                return new GPUPersistentCacheTestingSink(
-                        contextType, contextOverrides, gpuConfig->getSurfType(),
-                        gpuConfig->getSamples(), gpuConfig->getUseDIText(),
-                        gpuConfig->getColorType(), gpuConfig->getAlphaType(),
-                        sk_ref_sp(gpuConfig->getColorSpace()), FLAGS_gpu_threading, grCtxOptions,
-                        gpuConfig->getTestPersistentCache());
+                return new GPUPersistentCacheTestingSink(contextType, contextOverrides, gpuConfig,
+                                                         FLAGS_gpu_threading, grCtxOptions);
             } else if (gpuConfig->getTestPrecompile()) {
-                return new GPUPrecompileTestingSink(
-                        contextType, contextOverrides, gpuConfig->getSurfType(),
-                        gpuConfig->getSamples(), gpuConfig->getUseDIText(),
-                        gpuConfig->getColorType(), gpuConfig->getAlphaType(),
-                        sk_ref_sp(gpuConfig->getColorSpace()), FLAGS_gpu_threading, grCtxOptions);
+                return new GPUPrecompileTestingSink(contextType, contextOverrides, gpuConfig,
+                                                    FLAGS_gpu_threading, grCtxOptions);
             } else {
-                return new GPUSink(contextType, contextOverrides, gpuConfig->getSurfType(),
-                                   gpuConfig->getSamples(), gpuConfig->getUseDIText(),
-                                   gpuConfig->getColorType(), gpuConfig->getAlphaType(),
-                                   sk_ref_sp(gpuConfig->getColorSpace()), FLAGS_gpu_threading,
+                return new GPUSink(contextType, contextOverrides, gpuConfig, FLAGS_gpu_threading,
                                    grCtxOptions);
             }
         }

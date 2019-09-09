@@ -1335,22 +1335,17 @@ static DEFINE_bool(programBinaryCache, true, "Use in-memory program binary cache
 
 GPUSink::GPUSink(GrContextFactory::ContextType ct,
                  GrContextFactory::ContextOverrides overrides,
-                 SkCommandLineConfigGpu::SurfType surfType,
-                 int samples,
-                 bool diText,
-                 SkColorType colorType,
-                 SkAlphaType alphaType,
-                 sk_sp<SkColorSpace> colorSpace,
+                 const SkCommandLineConfigGpu* config,
                  bool threaded,
                  const GrContextOptions& grCtxOptions)
         : fContextType(ct)
         , fContextOverrides(overrides)
-        , fSurfType(surfType)
-        , fSampleCount(samples)
-        , fUseDIText(diText)
-        , fColorType(colorType)
-        , fAlphaType(alphaType)
-        , fColorSpace(std::move(colorSpace))
+        , fSurfType(config->getSurfType())
+        , fSampleCount(config->getSamples())
+        , fUseDIText(config->getUseDIText())
+        , fColorType(config->getColorType())
+        , fAlphaType(config->getAlphaType())
+        , fColorSpace(sk_ref_sp(config->getColorSpace()))
         , fThreaded(threaded)
         , fBaseContextOptions(grCtxOptions) {
     if (FLAGS_programBinaryCache) {
@@ -1465,16 +1460,10 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
 
 GPUThreadTestingSink::GPUThreadTestingSink(GrContextFactory::ContextType ct,
                                            GrContextFactory::ContextOverrides overrides,
-                                           SkCommandLineConfigGpu::SurfType surfType,
-                                           int samples,
-                                           bool diText,
-                                           SkColorType colorType,
-                                           SkAlphaType alphaType,
-                                           sk_sp<SkColorSpace> colorSpace,
+                                           const SkCommandLineConfigGpu* config,
                                            bool threaded,
                                            const GrContextOptions& grCtxOptions)
-        : INHERITED(ct, overrides, surfType, samples, diText, colorType, alphaType,
-                    std::move(colorSpace), threaded, grCtxOptions)
+        : INHERITED(ct, overrides, config, threaded, grCtxOptions)
         , fExecutor(SkExecutor::MakeFIFOThreadPool(FLAGS_gpuThreads)) {
     SkASSERT(fExecutor);
 }
@@ -1510,18 +1499,11 @@ Error GPUThreadTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* wStre
 GPUPersistentCacheTestingSink::GPUPersistentCacheTestingSink(
         GrContextFactory::ContextType ct,
         GrContextFactory::ContextOverrides overrides,
-        SkCommandLineConfigGpu::SurfType surfType,
-        int samples,
-        bool diText,
-        SkColorType colorType,
-        SkAlphaType alphaType,
-        sk_sp<SkColorSpace> colorSpace,
+        const SkCommandLineConfigGpu* config,
         bool threaded,
-        const GrContextOptions& grCtxOptions,
-        int cacheType)
-        : INHERITED(ct, overrides, surfType, samples, diText, colorType, alphaType,
-                    std::move(colorSpace), threaded, grCtxOptions)
-        , fCacheType(cacheType) {}
+        const GrContextOptions& grCtxOptions)
+    : INHERITED(ct, overrides, config, threaded, grCtxOptions)
+    , fCacheType(config->getTestPersistentCache()) {}
 
 Error GPUPersistentCacheTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* wStream,
                                           SkString* log) const {
@@ -1561,16 +1543,10 @@ Error GPUPersistentCacheTestingSink::draw(const Src& src, SkBitmap* dst, SkWStre
 GPUPrecompileTestingSink::GPUPrecompileTestingSink(
         GrContextFactory::ContextType ct,
         GrContextFactory::ContextOverrides overrides,
-        SkCommandLineConfigGpu::SurfType surfType,
-        int samples,
-        bool diText,
-        SkColorType colorType,
-        SkAlphaType alphaType,
-        sk_sp<SkColorSpace> colorSpace,
+        const SkCommandLineConfigGpu* config,
         bool threaded,
         const GrContextOptions& grCtxOptions)
-    : INHERITED(ct, overrides, surfType, samples, diText, colorType, alphaType,
-                std::move(colorSpace), threaded, grCtxOptions) {}
+    : INHERITED(ct, overrides, config, threaded, grCtxOptions) {}
 
 Error GPUPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* wStream,
                                      SkString* log) const {
