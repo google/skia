@@ -1,11 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
-// This is an example of a minimal iOS application that uses Skia to draw to
-// a Metal drawable.
-
-// Much of this code is copied from the default application created by XCode.
-
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
@@ -16,6 +11,8 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/mtl/GrMtlTypes.h"
 
+#include "modules/skottie/include/Skottie.h"
+
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
 #import <UIKit/UIKit.h>
@@ -23,16 +20,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 static sk_sp<SkSurface> to_surface(MTKView* mtkView, GrContext* grContext) {
-    if (!grContext || mtkView == nil) {
+    if (!mtkView.currentDrawable.texture || !grContext || !mtkView) {
         return nullptr;
     }
-    id<CAMetalDrawable> drawable = mtkView.currentDrawable;
+    SkASSERT(MTLPixelFormatDepth32Float_Stencil8 == mtkView.depthStencilPixelFormat);
+    SkASSERT(MTLPixelFormatBGRA8Unorm == mtkView.colorPixelFormat);
     CGSize size = mtkView.drawableSize;
     int sampleCount = (int)mtkView.sampleCount;
     int width = (int)size.width;
     int height = (int)size.height;
+
     GrMtlTextureInfo fbInfo;
-    fbInfo.fTexture.retain((__bridge const void*)(drawable.texture));
+    fbInfo.fTexture.retain((__bridge const void*)(mtkView.currentDrawable.texture));
     sk_sp<SkColorSpace> colorSpace = nullptr;
     const SkSurfaceProps surfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
     if (sampleCount == 1) {
@@ -65,96 +64,172 @@ static void configure_mtk_view(MTKView* mtkView) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static void config_paint(SkPaint* paint) {
-    if (!paint->getShader()) {
-        // Perform as much work as possible before creating surface.
-        SkColor4f colors[2] = {SkColors::kBlack, SkColors::kWhite};
-        SkPoint points[2] = {{0, -1024}, {0, 1024}};
-        paint->setShader(SkGradientShader::MakeLinear(points, colors, nullptr, nullptr, 2,
-                                                      SkTileMode::kClamp, 0, nullptr));
-    }
-}
-
-static void draw_example(SkSurface* surface, const SkPaint& paint, double rotation) {
-    SkCanvas* canvas = surface->getCanvas();
-    canvas->translate(surface->width() * 0.5f, surface->height() * 0.5f);
-    canvas->rotate(rotation);
-    canvas->drawPaint(paint);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-@interface AppViewDelegate : NSObject <MTKViewDelegate> {
+@interface SkottieViewDelegate : NSObject <MTKViewDelegate> {
 @public
+    sk_sp<skottie::Animation> fAnimation;
     GrContext* fGrContext;
-    SkPaint fPaint;
+    double fStartTime;
+    double fTime;
+    float fScale;
+    SkPoint fOffset;
+    bool fPaused;
 }
 @end
 
-@implementation AppViewDelegate
+@implementation SkottieViewDelegate
 - (void)drawInMTKView:(nonnull MTKView *)view {
-    if (!fGrContext || view == nil) {
+    if (!view.currentDrawable || !view.currentDrawable.texture) {
+        return;
+    }
+    if (!fGrContext) {
         NSLog(@"error: no context");
         return;
     }
-
-    // Do as much as possible before calling to_surface()
-    config_paint(&fPaint);
-    float rotation = (float)(180 * 1e-9 * SkTime::GetNSecs());
-
-    // Create surface:
+    if (0 == fScale) {
+        [self mtkView:view drawableSizeWillChange:view.drawableSize];
+    }
+    if (!fPaused) {
+        fTime = SkTime::GetNSecs();
+        fAnimation->seekFrameTime(std::fmod(1e-9 * (fTime - fStartTime),
+                                            fAnimation->duration()), nullptr);
+    }
     sk_sp<SkSurface> surface = to_surface(view, fGrContext);
     if (!surface) {
         NSLog(@"error: no sksurface");
         return;
     }
-
-    draw_example(surface.get(), fPaint, rotation);
-
-    // Must flush *and* present for this to work!
+    SkCanvas* canvas = surface->getCanvas();
+    canvas->translate(fOffset.x(), fOffset.y());
+    canvas->scale(fScale, fScale);
+    canvas->clear(SK_ColorTRANSPARENT);
+    canvas->drawRect(SkRect::MakeSize(fAnimation->size()), SkPaint(SkColors::kWhite));
+    fAnimation->render(canvas);
     surface->flush();
     [view.currentDrawable present];
 }
 
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size {
-    // change anything on size change?
+    if (fAnimation) {
+        const SkSize& animSize = fAnimation->size();
+        fScale = std::min(size.width  / animSize.width(),
+                          size.height / animSize.height());
+        fOffset = {((float)size.width  - animSize.width()  * fScale) * 0.5f,
+                   ((float)size.height - animSize.height() * fScale) * 0.5f};
+    }
 }
 @end
 
 ////////////////////////////////////////////////////////////////////////////////
 
-@interface AppViewController : UIViewController {
-    id<MTLDevice> fMtlDevice;
-    sk_sp<GrContext> fGrContext;
+static SkottieViewDelegate* create_skottie_view_delegate(NSString* path) {
+    NSData *content = [NSData dataWithContentsOfFile:path];
+    if (!content) {
+        NSLog(@"'%@' not found", path);
+        return nil;
+    }
+    skottie::Animation::Builder builder;
+    SkottieViewDelegate* viewDelegate = [[SkottieViewDelegate alloc] init];
+    viewDelegate->fAnimation = builder.make((const char*)content.bytes, content.length);
+    if (!viewDelegate->fAnimation) {
+        return nil;
+    }
+    viewDelegate->fStartTime = SkTime::GetNSecs();
+    viewDelegate->fTime = viewDelegate->fStartTime;
+    viewDelegate->fPaused = false;
+    viewDelegate->fScale = 0;
+    return viewDelegate;
 }
 
+
+@interface AppViewController : UIViewController
 @end
-@implementation AppViewController
+
+@implementation AppViewController {
+    id<MTLDevice> fMtlDevice;
+    sk_sp<GrContext> fGrContext;
+    std::vector<SkottieViewDelegate*> fDelegates;
+}
+
 - (void)loadView {
-    self.view = [[MTKView alloc] initWithFrame:[[UIScreen mainScreen] bounds] device:nil];
+    self.view = [[UIView alloc] init];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     if (!fGrContext) {
         fMtlDevice = MTLCreateSystemDefaultDevice();
+        if(!fMtlDevice) {
+            NSLog(@"Metal is not supported on this device");
+            return;
+        }
         GrContextOptions grContextOptions;  // set different options here.
         fGrContext = to_context(fMtlDevice, grContextOptions);
     }
-    MTKView* mtkView = (MTKView*)self.view;
-    mtkView.device = fMtlDevice;
-    mtkView.backgroundColor = UIColor.blackColor;
-    configure_mtk_view(mtkView);
-    if(!self.view || !mtkView.device) {
-        NSLog(@"Metal is not supported on this device");
-        self.view = [[UIView alloc] initWithFrame:self.view.frame];
-        return;
+
+    CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
+    CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
+    CGRect scrollViewBounds = {{0, statusBarFrame.size.height},
+                               {mainScreenBounds.size.width,
+                                mainScreenBounds.size.height - statusBarFrame.size.height}};
+
+    UIStackView* stack = [[UIStackView alloc] initWithFrame:scrollViewBounds];
+    stack.axis = UILayoutConstraintAxisVertical;
+    stack.distribution = UIStackViewDistributionEqualSpacing;
+
+    float screenWidth = [[UIScreen mainScreen] bounds].size.width;
+    NSBundle* mainBundle = [NSBundle mainBundle];
+    NSArray<NSString*>* paths = [mainBundle pathsForResourcesOfType:@"json"
+                                            inDirectory:@"skottie"];
+    float totalHeight = 2;
+    for (NSUInteger i = 0; i < paths.count; ++i) {
+        SkottieViewDelegate* viewDelegate = create_skottie_view_delegate(paths[i]);
+        if (!viewDelegate) {
+            continue;
+        }
+        fDelegates.push_back(viewDelegate);
+        float height = screenWidth * viewDelegate->fAnimation->size().height()
+                                   / viewDelegate->fAnimation->size().width();
+        CGSize size = {screenWidth, height};
+        viewDelegate->fGrContext = fGrContext.get();
+        MTKView* mtkView = [[MTKView alloc] initWithFrame:{{0, 0}, size} device:fMtlDevice];
+        configure_mtk_view(mtkView);
+        mtkView.delegate = viewDelegate;
+        [mtkView.heightAnchor constraintEqualToConstant:height].active = true;
+        [mtkView.widthAnchor constraintEqualToConstant:screenWidth].active = true;
+        [stack addArrangedSubview:mtkView];
+        totalHeight += height + 2;
     }
-    AppViewDelegate* viewDelegate = [[AppViewDelegate alloc] init];
-    viewDelegate->fGrContext = fGrContext.get();
-    [viewDelegate mtkView:mtkView drawableSizeWillChange:mtkView.bounds.size];
-    mtkView.delegate = viewDelegate;
+    UIView* bar = [[UIView alloc] initWithFrame:statusBarFrame];
+    bar.backgroundColor = [UIColor whiteColor];
+
+    UIScrollView* scrollView = [[UIScrollView alloc] initWithFrame:scrollViewBounds];
+
+    [stack setFrame:{{0, 0}, {screenWidth, totalHeight}}];
+    [scrollView setContentSize:{screenWidth, totalHeight}];
+    [scrollView addSubview:stack];
+
+    [self.view setBounds:mainScreenBounds];
+    [self.view addSubview:bar];
+    [self.view addSubview:scrollView];
+
+    UITapGestureRecognizer* tapGestureRecognizer = [[UITapGestureRecognizer alloc] init];
+    [tapGestureRecognizer addTarget:self action:@selector(handleTap:)];
+    [self.view addGestureRecognizer:tapGestureRecognizer];
 }
+
+- (void)handleTap:(UIGestureRecognizer*)sender {
+    if (sender.state == UIGestureRecognizerStateEnded) {
+        //CGPoint loc = [sender locationInView:self];
+        for (size_t i = 0; i < self->fDelegates.size(); ++i) {
+            SkottieViewDelegate* d = self->fDelegates[i];
+            d->fPaused = !d->fPaused;
+            if (!d->fPaused) {
+                d->fStartTime += (SkTime::GetNSecs() - d->fTime);
+            }
+        }
+    }
+}
+
 @end
 
 ////////////////////////////////////////////////////////////////////////////////
