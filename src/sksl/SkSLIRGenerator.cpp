@@ -306,8 +306,8 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
                     }
                     name += "[" + to_string(count) + "]";
                 } else {
-                    count = -1;
-                    name += "[]";
+                    fErrors.error(size->fOffset, "array size must be specified");
+                    return nullptr;
                 }
                 type = (Type*) fSymbolTable->takeOwnership(
                                                  std::unique_ptr<Symbol>(new Type(name,
@@ -968,8 +968,8 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                 }
                 name += "[" + to_string(count) + "]";
             } else {
-                count = -1;
-                name += "[]";
+                fErrors.error(intf.fOffset, "array size must be specified");
+                return nullptr;
             }
             type = (Type*) symbols->takeOwnership(std::unique_ptr<Symbol>(
                                                                          new Type(name,
@@ -978,12 +978,8 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                                                                                   (int) count)));
             sizes.push_back(std::move(converted));
         } else {
-            type = (Type*) symbols->takeOwnership(std::unique_ptr<Symbol>(
-                                                                       new Type(type->name() + "[]",
-                                                                                Type::kArray_Kind,
-                                                                                *type,
-                                                                                -1)));
-            sizes.push_back(nullptr);
+            fErrors.error(intf.fOffset, "array size must be specified");
+            return nullptr;
         }
     }
     Variable* var = (Variable*) old->takeOwnership(std::unique_ptr<Symbol>(
