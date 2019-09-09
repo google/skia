@@ -93,7 +93,9 @@ struct FunctionDeclaration : public Symbol {
             }
         }
         if (fReturnType.kind() == Type::kGeneric_Kind) {
-            SkASSERT(genericIndex != -1);
+            if (genericIndex == -1) {
+                return false;
+            }
             *outReturnType = fReturnType.coercibleTypes()[genericIndex];
         } else {
             *outReturnType = &fReturnType;
