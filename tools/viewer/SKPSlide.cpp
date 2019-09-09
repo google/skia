@@ -49,7 +49,9 @@ static sk_sp<SkPicture> read_picture(const char path[]) {
 
 void SKPSlide::load(SkScalar, SkScalar) {
     fPic = read_picture(fPath.c_str());
-    fCullRect = fPic->cullRect().roundOut();
+    if (fPic) {
+        fCullRect = fPic->cullRect().roundOut();
+    }
 }
 
 void SKPSlide::unload() {

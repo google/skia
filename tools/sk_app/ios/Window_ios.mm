@@ -43,7 +43,7 @@ bool Window_ios::initWindow() {
         return true;
     }
 
-    // Create a delegate to track certain events
+    // Create a view controller to track certain events
     WindowViewController* viewController = [[WindowViewController alloc] initWithWindow:this];
     if (nil == viewController) {
         return false;
@@ -145,7 +145,7 @@ void Window_ios::onInval() {
     switch (sender.state) {
         case UIGestureRecognizerStateBegan:
             fWindow->onMouse(location.x, location.y,
-                             skui::InputState::kDown,skui::ModifierKey::kNone);
+                             skui::InputState::kDown, skui::ModifierKey::kNone);
             break;
         case UIGestureRecognizerStateChanged:
             fWindow->onMouse(location.x, location.y,
@@ -178,16 +178,69 @@ void Window_ios::onInval() {
     }
 }
 
+- (IBAction)pinchGestureAction:(UIGestureRecognizer*)sender {
+    CGPoint location = [sender locationInView:self];
+    UIPinchGestureRecognizer* pinchGestureRecognizer = (UIPinchGestureRecognizer*) sender;
+    float scale = pinchGestureRecognizer.scale;
+    switch (sender.state) {
+        case UIGestureRecognizerStateBegan:
+            fWindow->onPinch(skui::InputState::kDown, scale, location.x, location.y);
+            break;
+        case UIGestureRecognizerStateChanged:
+            fWindow->onPinch(skui::InputState::kMove, scale, location.x, location.y);
+            break;
+        case UIGestureRecognizerStateEnded:
+            fWindow->onPinch(skui::InputState::kUp, scale, location.x, location.y);
+            break;
+        case UIGestureRecognizerStateCancelled:
+            fWindow->onPinch(skui::InputState::kUp, scale, location.x, location.y);
+            break;
+        default:
+            break;
+    }
+}
+
+- (IBAction)swipeRightGestureAction:(UIGestureRecognizer*)sender {
+    if (UIGestureRecognizerStateEnded == sender.state) {
+        fWindow->onFling(skui::InputState::kRight);
+    }
+}
+
+- (IBAction)swipeLeftGestureAction:(UIGestureRecognizer*)sender {
+    if (UIGestureRecognizerStateEnded == sender.state) {
+        fWindow->onFling(skui::InputState::kLeft);
+    }
+}
+
 - (MainView*)initWithWindow:(sk_app::Window_ios *)initWindow {
     self = [super init];
 
     UIPanGestureRecognizer* panGestureRecognizer = [[UIPanGestureRecognizer alloc] init];
+    panGestureRecognizer.maximumNumberOfTouches = 1;
     [panGestureRecognizer addTarget:self action:@selector(panGestureAction:)];
     [self addGestureRecognizer:panGestureRecognizer];
 
     UITapGestureRecognizer* tapGestureRecognizer = [[UITapGestureRecognizer alloc] init];
     [tapGestureRecognizer addTarget:self action:@selector(tapGestureAction:)];
     [self addGestureRecognizer:tapGestureRecognizer];
+
+    UIPinchGestureRecognizer* pinchGestureRecognizer = [[UIPinchGestureRecognizer alloc] init];
+    [pinchGestureRecognizer addTarget:self action:@selector(pinchGestureAction:)];
+    [self addGestureRecognizer:pinchGestureRecognizer];
+
+    UISwipeGestureRecognizer* swipeRightGestureRecognizer = [[UISwipeGestureRecognizer alloc] init];
+    swipeRightGestureRecognizer.direction = UISwipeGestureRecognizerDirectionRight;
+    [swipeRightGestureRecognizer addTarget:self action:@selector(swipeRightGestureAction:)];
+    [self addGestureRecognizer:swipeRightGestureRecognizer];
+
+    UISwipeGestureRecognizer* swipeLeftGestureRecognizer = [[UISwipeGestureRecognizer alloc] init];
+    swipeLeftGestureRecognizer.direction = UISwipeGestureRecognizerDirectionLeft;
+    [swipeLeftGestureRecognizer addTarget:self action:@selector(swipeLeftGestureAction:)];
+    [self addGestureRecognizer:swipeLeftGestureRecognizer];
+
+    // disable pan recognition until swipes fail
+    [panGestureRecognizer requireGestureRecognizerToFail:swipeLeftGestureRecognizer];
+    [panGestureRecognizer requireGestureRecognizerToFail:swipeRightGestureRecognizer];
 
     fWindow = initWindow;
 
