@@ -381,7 +381,7 @@ GrGLProgram* GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* precompi
         GL_CALL(LinkProgram(programID));
         if (checkLinked) {
             if (!this->checkLinkStatus(programID, errorHandler, sksl, glsl)) {
-                GL_CALL(DeleteProgram(programID));
+                cleanup_program(fGpu, programID, shadersToDelete);
                 return nullptr;
             }
         }
