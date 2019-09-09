@@ -109,8 +109,7 @@ struct GrMtlResourceProvider::PipelineStateCache::Entry {
 };
 
 GrMtlResourceProvider::PipelineStateCache::PipelineStateCache(GrMtlGpu* gpu)
-    // Temporary hack to keep this as large as Chrome wants, until they update GrContextOptions
-    : fMap(SkTMax(gpu->getContext()->priv().options().fRuntimeProgramCacheSize, 1024))
+    : fMap(gpu->getContext()->priv().options().fRuntimeProgramCacheSize)
     , fGpu(gpu)
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     , fTotalRequests(0)
