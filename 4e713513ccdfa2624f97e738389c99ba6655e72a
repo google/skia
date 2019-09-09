@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "abf3e5f5_f3358809",
+        "filename": "gm/blurrect.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-09T20:27:14Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 262,
+        "startChar": 29,
+        "endLine": 262,
+        "endChar": 39
+      },
+      "revId": "4e713513ccdfa2624f97e738389c99ba6655e72a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee1565d0_d8e54b6f",
+        "filename": "src/gpu/effects/GrRectBlurEffect.fp",
+        "patchSetId": 11
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-09T20:27:14Z",
+      "side": 1,
+      "message": "indent and newline seem odd here",
+      "range": {
+        "startLine": 145,
+        "startChar": 0,
+        "endLine": 146,
+        "endChar": 18
+      },
+      "revId": "4e713513ccdfa2624f97e738389c99ba6655e72a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
