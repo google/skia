@@ -2481,7 +2481,7 @@ void adjust_bounds_to_granularity(SkIRect* dstBounds, const SkIRect& srcBounds,
 void GrVkGpu::beginRenderPass(const GrVkRenderPass* renderPass,
                               const VkClearValue* colorClear,
                               GrVkRenderTarget* target, GrSurfaceOrigin origin,
-                              const SkIRect& bounds) {
+                              const SkIRect& bounds, bool forSecondaryCB) {
     SkASSERT (!target->wrapsSecondaryCommandBuffer());
     auto nativeBounds = GrNativeRect::MakeRelativeTo(origin, target->height(), bounds);
 
@@ -2511,7 +2511,8 @@ void GrVkGpu::beginRenderPass(const GrVkRenderPass* renderPass,
     clears[1].depthStencil.depth = 0.0f;
     clears[1].depthStencil.stencil = 0;
 
-    fCurrentCmdBuffer->beginRenderPass(this, renderPass, clears, *target, adjustedBounds, true);
+    fCurrentCmdBuffer->beginRenderPass(this, renderPass, clears, *target, adjustedBounds,
+                                       forSecondaryCB);
 }
 
 void GrVkGpu::endRenderPass(GrRenderTarget* target, GrSurfaceOrigin origin,
