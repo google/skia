@@ -97,6 +97,10 @@ bool Sample::mouse(SkPoint point, skui::InputState clickState, skui::ModifierKey
                 return result;
             }
             return false;
+        default:
+            // Ignore other cases
+            SkASSERT(false);
+            break;
     }
     SkASSERT(false);
     return false;
