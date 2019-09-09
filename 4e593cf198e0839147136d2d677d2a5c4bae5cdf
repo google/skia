@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "863121ed_9f0e9611",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-09-09T21:04:36Z",
+      "side": 1,
+      "message": "Might be good to add a comment or something -- it\u0027s unclear otherwise.",
+      "parentUuid": "f81d3fe1_424a2825",
+      "range": {
+        "startLine": 103,
+        "startChar": 32,
+        "endLine": 103,
+        "endChar": 35
+      },
+      "revId": "4e593cf198e0839147136d2d677d2a5c4bae5cdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "282e771c_8583dedc",
         "filename": "src/core/SkGlyph.h",
         "patchSetId": 1
