@@ -101,12 +101,16 @@ float SkPixmap::getAlphaf(int x, int y) const {
             return 0;
         case kGray_8_SkColorType:
         case kRG_88_SkColorType:
+        case kRG_1616_SkColorType:
         case kRGB_565_SkColorType:
         case kRGB_888x_SkColorType:
         case kRGB_101010x_SkColorType:
             return 1;
         case kAlpha_8_SkColorType:
             value = static_cast<const uint8_t*>(srcPtr)[0] * (1.0f/255);
+            break;
+        case kAlpha_16_SkColorType:
+            value = static_cast<const uint16_t*>(srcPtr)[0] * (1.0f/65535);
             break;
         case kARGB_4444_SkColorType: {
             uint16_t u16 = static_cast<const uint16_t*>(srcPtr)[0];
@@ -259,6 +263,10 @@ SkColor SkPixmap::getColor(int x, int y) const {
         case kAlpha_8_SkColorType: {
             return SkColorSetA(0, *this->addr8(x, y));
         }
+        case kAlpha_16_SkColorType: {
+            uint16_t value = *this->addr16(x, y);
+            return SkColorSetA(0, value * (255 / 65535.0f));
+        }
         case kRGB_565_SkColorType: {
             return SkPixel16ToColor(*this->addr16(x, y));
         }
@@ -271,6 +279,12 @@ SkColor SkPixmap::getColor(int x, int y) const {
             uint16_t value = *this->addr16(x, y);
             return (uint32_t)( ((value >>  0) & 0xff) ) << 16
                  | (uint32_t)( ((value >>  8) & 0xff) ) <<  8
+                 | 0xff000000;
+        }
+        case kRG_1616_SkColorType: {
+            uint32_t value = *this->addr32(x, y);
+            return (uint32_t)( ((value >>  0) & 0xffff) * (255/65535.0f) ) << 16
+                 | (uint32_t)( ((value >> 16) & 0xffff) * (255/65535.0f) ) <<  8
                  | 0xff000000;
         }
         case kRGB_888x_SkColorType: {
@@ -364,9 +378,23 @@ bool SkPixmap::computeIsOpaque() const {
             }
             return true;
         } break;
+        case kAlpha_16_SkColorType: {
+            unsigned a = 0xFFFF;
+            for (int y = 0; y < height; ++y) {
+                const uint16_t* row = this->addr16(0, y);
+                for (int x = 0; x < width; ++x) {
+                    a &= row[x];
+                }
+                if (0xFFFF != a) {
+                    return false;
+                }
+            }
+            return true;
+        } break;
         case kRGB_565_SkColorType:
         case kGray_8_SkColorType:
         case kRG_88_SkColorType:
+        case kRG_1616_SkColorType:
         case kRGB_888x_SkColorType:
         case kRGB_101010x_SkColorType:
             return true;

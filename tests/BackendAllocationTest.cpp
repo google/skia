@@ -427,6 +427,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
         { kRGBA_F16_SkColorType,     kRGBA_half_GrPixelConfig,         SkColors::kYellow   },
         { kRGBA_F32_SkColorType,     kRGBA_float_GrPixelConfig,        SkColors::kGray     },
         { kRG_88_SkColorType,        kRG_88_GrPixelConfig,             SkColors::kRed      },
+        { kRG_1616_SkColorType,      kRG_1616_GrPixelConfig,           SkColors::kGreen    },
+        { kAlpha_16_SkColorType,     kR_16_GrPixelConfig,              kTransCol           },
     };
 
     GR_STATIC_ASSERT(kLastEnum_SkColorType == SK_ARRAY_COUNT(combinations));

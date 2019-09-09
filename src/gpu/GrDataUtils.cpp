@@ -262,10 +262,10 @@ static bool fill_buffer_with_color(GrPixelConfig config, int width, int height,
             break;
         }
         case kRG_1616_GrPixelConfig: {
-            uint16_t r16 = SkScalarRoundToInt(colorf.fR * 65535.0f);
-            uint16_t g16 = SkScalarRoundToInt(colorf.fG * 65535.0f);
+            uint32_t r16 = SkScalarRoundToInt(colorf.fR * 65535.0f);
+            uint32_t g16 = SkScalarRoundToInt(colorf.fG * 65535.0f);
 
-            uint32_t rg1616 = r16 << 16 | g16;
+            uint32_t rg1616 = (g16 << 16) | r16;
 
             sk_memset32((uint32_t*) dest, rg1616, width * height);
             break;

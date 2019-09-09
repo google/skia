@@ -1089,8 +1089,8 @@ static constexpr SkColorType GrColorTypeToSkColorType(GrColorType ct) {
         case GrColorType::kAlpha_8xxx:       return kUnknown_SkColorType;
         case GrColorType::kAlpha_F32xxx:     return kUnknown_SkColorType;
         case GrColorType::kGray_8xxx:        return kUnknown_SkColorType;
-        case GrColorType::kR_16:             return kUnknown_SkColorType;
-        case GrColorType::kRG_1616:          return kUnknown_SkColorType;
+        case GrColorType::kR_16:             return kAlpha_16_SkColorType;
+        case GrColorType::kRG_1616:          return kRG_1616_SkColorType;
         // Experimental (for Y416 and mutant P016/P010)
         case GrColorType::kRGBA_16161616:    return kUnknown_SkColorType;
         case GrColorType::kRG_F16:           return kUnknown_SkColorType;
@@ -1114,6 +1114,8 @@ static constexpr GrColorType SkColorTypeToGrColorType(SkColorType ct) {
         case kRGB_101010x_SkColorType:  return GrColorType::kUnknown;
         case kRGBA_F32_SkColorType:     return GrColorType::kRGBA_F32;
         case kRG_88_SkColorType:        return GrColorType::kRG_88;
+        case kAlpha_16_SkColorType:     return GrColorType::kR_16;
+        case kRG_1616_SkColorType:      return GrColorType::kRG_1616;
     }
     SkUNREACHABLE;
 }
