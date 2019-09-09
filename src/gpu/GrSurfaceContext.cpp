@@ -211,7 +211,7 @@ bool GrSurfaceContext::readPixels(const GrPixelInfo& origDstInfo, void* dst, siz
     if (convert) {
         return GrConvertPixels(dstInfo, dst, rowBytes, tmpInfo, readDst, readRB, flip);
     }
-    return true;
+   return true;
 }
 
 bool GrSurfaceContext::writePixels(const GrPixelInfo& origSrcInfo, const void* src, size_t rowBytes,
