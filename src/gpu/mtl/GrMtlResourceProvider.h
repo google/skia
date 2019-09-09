@@ -62,12 +62,6 @@ private:
                                              GrPrimitiveType);
 
     private:
-        enum {
-            // We may actually have kMaxEntries+1 PipelineStates in context because we create a new
-            // PipelineState before evicting from the cache.
-            kMaxEntries = 1024,
-        };
-
         struct Entry;
 
         struct DescHash {
