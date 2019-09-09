@@ -27,6 +27,10 @@ public:
     bool isBeingTouched() { return kEmpty_State != fState; }
     bool isFling(SkPoint* dir);
 
+    void startZoom();
+    void updateZoom(float scale, float startX, float startY, float lastX, float lastY);
+    void endZoom();
+
     const SkMatrix& localM();
     const SkMatrix& globalM() const { return fGlobalM; }
 
