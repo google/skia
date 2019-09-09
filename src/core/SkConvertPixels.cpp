@@ -84,9 +84,22 @@ static bool convert_to_alpha8(const SkImageInfo& dstInfo,       void* vdst, size
             return false;
         }
 
+        case kAlpha_16_SkColorType: {
+            auto src16 = (const uint16_t*) src;
+            for (int y = 0; y < srcInfo.height(); y++) {
+                for (int x = 0; x < srcInfo.width(); x++) {
+                    dst[x] = src16[x] >> 8;
+                }
+                dst = SkTAddOffset<uint8_t>(dst, dstRB);
+                src16 = SkTAddOffset<const uint16_t>(src16, srcRB);
+            }
+            return true;
+        }
+
         case kGray_8_SkColorType:
         case kRGB_565_SkColorType:
         case kRG_88_SkColorType:
+        case kRG_1616_SkColorType:
         case kRGB_888x_SkColorType:
         case kRGB_101010x_SkColorType: {
             for (int y = 0; y < srcInfo.height(); ++y) {

@@ -435,7 +435,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTest, reporter, ctxInfo) {
                      GrColorType::kRGBA_F16,
                      GrColorType::kRGBA_F16_Clamped,
                      GrColorType::kRGBA_F32,
-                     GrColorType::kR_16,
+                     GrColorType::kAlpha_16,
                      GrColorType::kRG_1616,
                      GrColorType::kRGBA_16161616,
                      GrColorType::kRG_F16,
@@ -453,6 +453,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTest, reporter, ctxInfo) {
     for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
         for (auto colorType : {
                 GrColorType::kAlpha_8,
+                GrColorType::kAlpha_16,
                 GrColorType::kBGR_565,
                 GrColorType::kABGR_4444,
                 GrColorType::kRGBA_8888,
@@ -466,7 +467,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTest, reporter, ctxInfo) {
                 GrColorType::kRGBA_F16,
                 GrColorType::kRGBA_F16_Clamped,
                 GrColorType::kRGBA_F32,
-                GrColorType::kR_16,
                 GrColorType::kRG_1616,
                 GrColorType::kRGBA_16161616,
                 GrColorType::kRG_F16,
