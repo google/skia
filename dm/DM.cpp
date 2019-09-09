@@ -61,7 +61,6 @@ static DEFINE_bool2(pathOpsExtended, x, false, "Run extended pathOps tests.");
 static DEFINE_string(matrix, "1 0 0 1",
                     "2x2 scale+skew matrix to apply or upright when using "
                     "'matrix' or 'upright' in config.");
-static DEFINE_bool(gpu_threading, false, "Allow GPU work to run on multiple threads?");
 
 static DEFINE_string(blacklist, "",
         "Space-separated config/src/srcOptions/name quadruples to blacklist. "
@@ -921,40 +920,21 @@ static sk_sp<SkColorSpace> rgb_to_gbr() {
 static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLineConfig* config) {
     if (FLAGS_gpu) {
         if (const SkCommandLineConfigGpu* gpuConfig = config->asConfigGpu()) {
-            GrContextFactory::ContextType contextType = gpuConfig->getContextType();
-            GrContextFactory::ContextOverrides contextOverrides = gpuConfig->getContextOverrides();
             GrContextFactory testFactory(grCtxOptions);
-            if (!testFactory.get(contextType, contextOverrides)) {
+            if (!testFactory.get(gpuConfig->getContextType(), gpuConfig->getContextOverrides())) {
                 info("WARNING: can not create GPU context for config '%s'. "
                      "GM tests will be skipped.\n", gpuConfig->getTag().c_str());
                 return nullptr;
             }
             if (gpuConfig->getTestThreading()) {
                 SkASSERT(!gpuConfig->getTestPersistentCache());
-                return new GPUThreadTestingSink(
-                        contextType, contextOverrides, gpuConfig->getSurfType(),
-                        gpuConfig->getSamples(), gpuConfig->getUseDIText(),
-                        gpuConfig->getColorType(), gpuConfig->getAlphaType(),
-                        sk_ref_sp(gpuConfig->getColorSpace()), FLAGS_gpu_threading, grCtxOptions);
+                return new GPUThreadTestingSink(gpuConfig, grCtxOptions);
             } else if (gpuConfig->getTestPersistentCache()) {
-                return new GPUPersistentCacheTestingSink(
-                        contextType, contextOverrides, gpuConfig->getSurfType(),
-                        gpuConfig->getSamples(), gpuConfig->getUseDIText(),
-                        gpuConfig->getColorType(), gpuConfig->getAlphaType(),
-                        sk_ref_sp(gpuConfig->getColorSpace()), FLAGS_gpu_threading, grCtxOptions,
-                        gpuConfig->getTestPersistentCache());
+                return new GPUPersistentCacheTestingSink(gpuConfig, grCtxOptions);
             } else if (gpuConfig->getTestPrecompile()) {
-                return new GPUPrecompileTestingSink(
-                        contextType, contextOverrides, gpuConfig->getSurfType(),
-                        gpuConfig->getSamples(), gpuConfig->getUseDIText(),
-                        gpuConfig->getColorType(), gpuConfig->getAlphaType(),
-                        sk_ref_sp(gpuConfig->getColorSpace()), FLAGS_gpu_threading, grCtxOptions);
+                return new GPUPrecompileTestingSink(gpuConfig, grCtxOptions);
             } else {
-                return new GPUSink(contextType, contextOverrides, gpuConfig->getSurfType(),
-                                   gpuConfig->getSamples(), gpuConfig->getUseDIText(),
-                                   gpuConfig->getColorType(), gpuConfig->getAlphaType(),
-                                   sk_ref_sp(gpuConfig->getColorSpace()), FLAGS_gpu_threading,
-                                   grCtxOptions);
+                return new GPUSink(gpuConfig, grCtxOptions);
             }
         }
     }
@@ -1368,7 +1348,7 @@ static void gather_tests() {
             continue;
         }
         if (test.needsGpu && FLAGS_gpu) {
-            (FLAGS_gpu_threading ? gParallelTests : gSerialTests).push_back(test);
+            gSerialTests.push_back(test);
         } else if (!test.needsGpu && FLAGS_cpu) {
             gParallelTests.push_back(test);
         }
