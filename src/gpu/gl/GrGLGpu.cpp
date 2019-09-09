@@ -1321,8 +1321,6 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
     rtIDs->fRTFBOOwnership = GrBackendObjectOwnership::kOwned;
     rtIDs->fTexFBOID = 0;
 
-    GrGLenum status;
-
     GrGLenum colorRenderbufferFormat = 0; // suppress warning
 
     if (desc.fFormat == GrGLFormat::kUnknown) {
@@ -1367,13 +1365,6 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
                                         GR_GL_COLOR_ATTACHMENT0,
                                         GR_GL_RENDERBUFFER,
                                         rtIDs->fMSColorRenderbufferID));
-        if (!this->glCaps().isFormatVerifiedColorAttachment(desc.fFormat)) {
-            GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
-            if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
-                goto FAILED;
-            }
-            fGLContext->caps()->markFormatAsValidColorAttachment(desc.fFormat);
-        }
     }
     this->bindFramebuffer(GR_GL_FRAMEBUFFER, rtIDs->fTexFBOID);
 
@@ -1390,13 +1381,6 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
                                      desc.fTarget,
                                      desc.fID,
                                      0));
-    }
-    if (!this->glCaps().isFormatVerifiedColorAttachment(desc.fFormat)) {
-        GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
-        if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
-            goto FAILED;
-        }
-        fGLContext->caps()->markFormatAsValidColorAttachment(desc.fFormat);
     }
 
     return true;

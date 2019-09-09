@@ -221,21 +221,6 @@ public:
     void setStencilFormatIndexForFormat(GrGLFormat, int index);
 
     /**
-     * Call to note that a GrGLFormat has been verified as a valid color attachment. This may save
-     * future calls to glCheckFramebufferStatus using isFormatVerifiedColorAttachment().
-     */
-    void markFormatAsValidColorAttachment(GrGLFormat format) {
-        this->getFormatInfo(format).fVerifiedColorAttachment = true;
-    }
-
-    /**
-     * Call to check whether a format has been verified as a valid color attachment.
-     */
-    bool isFormatVerifiedColorAttachment(GrGLFormat format) const {
-        return this->getFormatInfo(format).fVerifiedColorAttachment;
-    }
-
-    /**
      * Reports the type of MSAA FBO support.
      */
     MSFBOType msFBOType() const { return fMSFBOType; }
@@ -673,10 +658,6 @@ private:
         int fStencilFormatIndex = kUnknown_StencilIndex;
 
         SkTDArray<int> fColorSampleCounts;
-
-        // verification of color attachment validity is done while flushing. Although only ever
-        // used in the (sole) rendering thread it can cause races if it is glommed into fFlags.
-        bool fVerifiedColorAttachment = false;
 
         std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
         int fColorTypeInfoCount = 0;
