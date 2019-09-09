@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0884fdf_cfa0c954",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-09-09T20:58:01Z",
+      "side": 1,
+      "message": "Is this supposed to be GlyphIDLen?",
+      "range": {
+        "startLine": 103,
+        "startChar": 32,
+        "endLine": 103,
+        "endChar": 35
+      },
+      "revId": "4e593cf198e0839147136d2d677d2a5c4bae5cdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "282e771c_8583dedc",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-09-09T20:58:01Z",
+      "side": 1,
+      "message": "Same here.",
+      "range": {
+        "startLine": 108,
+        "startChar": 36,
+        "endLine": 108,
+        "endChar": 39
+      },
+      "revId": "4e593cf198e0839147136d2d677d2a5c4bae5cdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
