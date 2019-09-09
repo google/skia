@@ -153,6 +153,7 @@
   {
     "cmd": [
       "ninja",
+      "-v",
       "-C",
       "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-ParentRevision/Release"
     ],
@@ -162,6 +163,19 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "ninja"
+  },
+  {
+    "cmd": [
+      "ls",
+      "-R",
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-ParentRevision/Release"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "list out_dir"
   },
   {
     "cmd": [
