@@ -140,11 +140,12 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
             printf("matrixmultiply %dx%d %dx%d", lCols, lRows, rCols, lCols);
             break;
         }
+        VECTOR_DISASSEMBLE(kMix, "mix")
         VECTOR_MATRIX_DISASSEMBLE(kMultiplyF, "multiplyf")
         VECTOR_DISASSEMBLE(kMultiplyI, "multiplyi")
         VECTOR_MATRIX_DISASSEMBLE_NO_COUNT(kNegateF, "negatef")
         VECTOR_DISASSEMBLE_NO_COUNT(kNegateI, "negatei")
-        case ByteCodeInstruction::kNotB: printf("notb"); break;
+        VECTOR_DISASSEMBLE_NO_COUNT(kNotB, "notb")
         case ByteCodeInstruction::kOrB: printf("orb"); break;
         VECTOR_MATRIX_DISASSEMBLE_NO_COUNT(kPop, "pop")
         case ByteCodeInstruction::kPushImmediate: {
@@ -555,11 +556,12 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
         &&kLoadExtendedGlobal,
         &&kMatrixToMatrix,
         &&kMatrixMultiply,
+        VECTOR_LABELS(kMix),
         VECTOR_MATRIX_LABELS(kNegateF),
         VECTOR_LABELS(kNegateI),
         VECTOR_MATRIX_LABELS(kMultiplyF),
         VECTOR_LABELS(kMultiplyI),
-        &&kNotB,
+        VECTOR_LABELS(kNotB),
         &&kOrB,
         VECTOR_MATRIX_LABELS(kPop),
         &&kPushImmediate,
@@ -643,11 +645,12 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
     CHECK_LABEL(kLoadExtendedGlobal);
     CHECK_LABEL(kMatrixToMatrix);
     CHECK_LABEL(kMatrixMultiply);
+    CHECK_VECTOR_LABELS(kMix);
     CHECK_VECTOR_MATRIX_LABELS(kNegateF);
     CHECK_VECTOR_LABELS(kNegateI);
     CHECK_VECTOR_MATRIX_LABELS(kMultiplyF);
     CHECK_VECTOR_LABELS(kMultiplyI);
-    CHECK_LABEL(kNotB);
+    CHECK_VECTOR_LABELS(kNotB);
     CHECK_LABEL(kOrB);
     CHECK_VECTOR_MATRIX_LABELS(kPop);
     CHECK_LABEL(kPushImmediate);
@@ -748,9 +751,11 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
         sp[-1] = sp[-1].fSigned & sp[0].fSigned;
         POP();
         NEXT();
-    LABEL(kNotB)
-        sp[0] = ~sp[0].fSigned;
-        NEXT();
+    LABEL(kNotB4) sp[-3] = ~sp[-3].fSigned;
+    LABEL(kNotB3) sp[-2] = ~sp[-2].fSigned;
+    LABEL(kNotB2) sp[-1] = ~sp[-1].fSigned;
+    LABEL(kNotB)  sp[ 0] = ~sp[ 0].fSigned;
+                  NEXT();
     LABEL(kOrB)
         sp[-1] = sp[-1].fSigned | sp[0].fSigned;
         POP();
@@ -974,6 +979,21 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
         sp -= (lCols * lRows) + (rCols * rRows);
         memcpy(sp + 1, tmp, rCols * lRows * sizeof(VValue));
         sp += (rCols * lRows);
+        NEXT();
+    }
+
+    LABEL(kMix)
+    LABEL(kMix2)
+    LABEL(kMix3)
+    LABEL(kMix4) {
+        int count = READ8();
+        for (int i = count - 1; i >= 0; --i) {
+            // GLSL's arguments are: mix(else, true, cond)
+            sp[-(2 * count + i)] = skvx::if_then_else(sp[-i].fSigned,
+                                                      sp[-(count + i)].fFloat,
+                                                      sp[-(2 * count + i)].fFloat);
+        }
+        sp -= 2 * count;
         NEXT();
     }
 
@@ -1433,11 +1453,12 @@ void ByteCodeFunction::preprocess(const void* labels[]) {
                 READ8();
                 break;
             }
+            VECTOR_PREPROCESS(kMix)
             VECTOR_MATRIX_PREPROCESS(kMultiplyF)
             VECTOR_PREPROCESS(kMultiplyI)
             VECTOR_MATRIX_PREPROCESS_NO_COUNT(kNegateF)
             VECTOR_PREPROCESS_NO_COUNT(kNegateI)
-            case ByteCodeInstruction::kNotB: break;
+            VECTOR_PREPROCESS_NO_COUNT(kNotB)
             case ByteCodeInstruction::kOrB: break;
             VECTOR_MATRIX_PREPROCESS_NO_COUNT(kPop)
             case ByteCodeInstruction::kPushImmediate: READ32(); break;

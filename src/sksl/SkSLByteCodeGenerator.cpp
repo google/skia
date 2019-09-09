@@ -17,14 +17,42 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
     , fContext(*context)
     , fOutput(output)
     , fIntrinsics {
-        { "cos",     ByteCodeInstruction::kCos },
-        { "dot",     SpecialIntrinsic::kDot },
-        { "inverse", ByteCodeInstruction::kInverse2x2 },
-        { "sin",     ByteCodeInstruction::kSin },
-        { "sqrt",    ByteCodeInstruction::kSqrt },
-        { "tan",     ByteCodeInstruction::kTan },
-      } {}
+        { "cos",     { ByteCodeInstruction::kCos,        true  } },
+        { "inverse", { ByteCodeInstruction::kInverse2x2, false } },
+        { "mix",     { ByteCodeInstruction::kMix,        true  } },
+        { "sin",     { ByteCodeInstruction::kSin,        true  } },
+        { "sqrt",    { ByteCodeInstruction::kSqrt,       false } },
+        { "tan",     { ByteCodeInstruction::kTan,        true  } },
 
+        { "lessThan",         { ByteCodeInstruction::kCompareFLT,
+                                ByteCodeInstruction::kCompareSLT,
+                                ByteCodeInstruction::kCompareULT,
+                                true } },
+        { "lessThanEqual",    { ByteCodeInstruction::kCompareFLTEQ,
+                                ByteCodeInstruction::kCompareSLTEQ,
+                                ByteCodeInstruction::kCompareULTEQ,
+                                true } },
+        { "greaterThan",      { ByteCodeInstruction::kCompareFGT,
+                                ByteCodeInstruction::kCompareSGT,
+                                ByteCodeInstruction::kCompareUGT,
+                                true } },
+        { "greaterThanEqual", { ByteCodeInstruction::kCompareFGTEQ,
+                                ByteCodeInstruction::kCompareSGTEQ,
+                                ByteCodeInstruction::kCompareUGTEQ,
+                                true } },
+        { "equal",            { ByteCodeInstruction::kCompareFEQ,
+                                ByteCodeInstruction::kCompareIEQ,
+                                ByteCodeInstruction::kCompareIEQ,
+                                true } },
+        { "notEqual",         { ByteCodeInstruction::kCompareFNEQ,
+                                ByteCodeInstruction::kCompareINEQ,
+                                ByteCodeInstruction::kCompareINEQ,
+                                true } },
+
+        { "any", { ByteCodeInstruction::kOrB,  false } },
+        { "all", { ByteCodeInstruction::kAndB, false } },
+        { "not", { ByteCodeInstruction::kNotB, false } },
+      } {}
 
 int ByteCodeGenerator::SlotCount(const Type& type) {
     if (type.kind() == Type::kOther_Kind) {
@@ -201,13 +229,13 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
 
         VECTOR_UNARY_OP(kNegateF)
         VECTOR_UNARY_OP(kNegateI)
+        VECTOR_UNARY_OP(kNotB)
 
         case ByteCodeInstruction::kInverse2x2:
         case ByteCodeInstruction::kInverse3x3:
         case ByteCodeInstruction::kInverse4x4: return 0;
 
         case ByteCodeInstruction::kClampIndex: return 0;
-        case ByteCodeInstruction::kNotB: return 0;
         case ByteCodeInstruction::kNegateFN: return 0;
 
 #undef VECTOR_UNARY_OP
@@ -345,6 +373,12 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
             return count;
 
         // Miscellaneous
+
+        // kMix does a 3 -> 1 reduction (A, B, M -> A -or- B) for each component
+        case ByteCodeInstruction::kMix:  return -2;
+        case ByteCodeInstruction::kMix2: return -4;
+        case ByteCodeInstruction::kMix3: return -6;
+        case ByteCodeInstruction::kMix4: return -8;
 
         // kCall is net-zero. Max stack depth is adjusted in writeFunctionCall.
         case ByteCodeInstruction::kCall:             return 0;
@@ -577,6 +611,7 @@ void ByteCodeGenerator::writeTypedInstruction(const Type& type, ByteCodeInstruct
                                               ByteCodeInstruction u, ByteCodeInstruction f,
                                               int count, bool writeCount) {
     switch (type_category(type)) {
+        case TypeCategory::kBool:
         case TypeCategory::kSigned:
             this->write(vector_instruction(s, count));
             break;
@@ -884,51 +919,33 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
         return;
     }
     int count = SlotCount(c.fArguments[0]->fType);
-    if (found->second.fIsSpecial) {
-        SpecialIntrinsic special = found->second.fValue.fSpecial;
-        switch (special) {
-            case SpecialIntrinsic::kDot: {
-                SkASSERT(c.fArguments.size() == 2);
-                SkASSERT(count == SlotCount(c.fArguments[1]->fType));
-                this->write(vector_instruction(ByteCodeInstruction::kMultiplyF, count));
-                this->write8(count);
-                for (int i = count; i > 1; --i) {
-                    this->write(ByteCodeInstruction::kAddF);
-                    this->write8(1);
-                }
-                break;
+    switch (found->second.fFloatInstruction) {
+        case ByteCodeInstruction::kInverse2x2: {
+            auto op = ByteCodeInstruction::kInverse2x2;
+            switch (count) {
+                case 4: break;  // float2x2
+                case 9:  op = ByteCodeInstruction::kInverse3x3; break;
+                case 16: op = ByteCodeInstruction::kInverse4x4; break;
+                default: SkASSERT(false);
             }
-            default:
-                SkASSERT(false);
+            this->write(op);
+            break;
         }
-    } else {
-        switch (found->second.fValue.fInstruction) {
-            case ByteCodeInstruction::kCos:
-            case ByteCodeInstruction::kSin:
-            case ByteCodeInstruction::kTan:
-                SkASSERT(c.fArguments.size() > 0);
-                this->write(vector_instruction(found->second.fValue.fInstruction, count));
-                this->write8(count);
-                break;
-            case ByteCodeInstruction::kSqrt:
-                SkASSERT(c.fArguments.size() > 0);
-                this->write(vector_instruction(found->second.fValue.fInstruction, count));
-                break;
-            case ByteCodeInstruction::kInverse2x2: {
-                SkASSERT(c.fArguments.size() > 0);
-                auto op = ByteCodeInstruction::kInverse2x2;
-                switch (count) {
-                    case 4: break;  // float2x2
-                    case 9:  op = ByteCodeInstruction::kInverse3x3; break;
-                    case 16: op = ByteCodeInstruction::kInverse4x4; break;
-                    default: SkASSERT(false);
-                }
-                this->write(op);
-                break;
+        case ByteCodeInstruction::kAndB:
+        case ByteCodeInstruction::kOrB: {
+            // These need to be applied N - 1 times, to fold the result to a single bool
+            for (int i = count; i > 1; --i) {
+                this->write(found->second.fSignedInstruction);
             }
-            default:
-                SkASSERT(false);
+            break;
         }
+        default:
+            this->writeTypedInstruction(c.fArguments[0]->fType,
+                                        found->second.fSignedInstruction,
+                                        found->second.fUnsignedInstruction,
+                                        found->second.fFloatInstruction, count,
+                                        found->second.fWriteCount);
+            break;
     }
 }
 
