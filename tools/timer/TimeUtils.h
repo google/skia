@@ -43,5 +43,19 @@ namespace TimeUtils {
         double diff  = ::fabs(value - half);
         return (float)(ends + (1.0 - diff / half) * (mid - ends));
     }
+
+    static inline float SineWave(double time,
+                                 float periodInSecs,
+                                 float phaseInSecs,
+                                 float min,
+                                 float max) {
+        if (periodInSecs < 0.f) {
+            return (min + max) / 2.f;
+        }
+        double t = NanosToSeconds(time) + phaseInSecs;
+        t *= 2 * M_PI / periodInSecs;
+        float halfAmplitude = (max - min) / 2.f;
+        return halfAmplitude * std::sin(t) + halfAmplitude + min;
+    }
 }  // namespace TimeUtils
 #endif
