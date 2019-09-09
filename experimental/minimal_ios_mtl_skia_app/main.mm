@@ -16,6 +16,9 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/mtl/GrMtlTypes.h"
 
+#include "modules/skottie/include/Skottie.h"
+#include "modules/skottie/utils/SkottieUtils.h"
+
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
 #import <UIKit/UIKit.h>
@@ -65,59 +68,52 @@ static void configure_mtk_view(MTKView* mtkView) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static void config_paint(SkPaint* paint) {
-    if (!paint->getShader()) {
-        // Perform as much work as possible before creating surface.
-        SkColor4f colors[2] = {SkColors::kBlack, SkColors::kWhite};
-        SkPoint points[2] = {{0, -1024}, {0, 1024}};
-        paint->setShader(SkGradientShader::MakeLinear(points, colors, nullptr, nullptr, 2,
-                                                      SkTileMode::kClamp, 0, nullptr));
-    }
-}
-
-static void draw_example(SkSurface* surface, const SkPaint& paint, double rotation) {
-    SkCanvas* canvas = surface->getCanvas();
-    canvas->translate(surface->width() * 0.5f, surface->height() * 0.5f);
-    canvas->rotate(rotation);
-    canvas->drawPaint(paint);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 @interface AppViewDelegate : NSObject <MTKViewDelegate> {
 @public
+    sk_sp<skottie::Animation> fAnimation;
     GrContext* fGrContext;
-    SkPaint fPaint;
+    double fStartTime;
+    float fScale;
+    SkPoint fOffset;
 }
 @end
 
 @implementation AppViewDelegate
 - (void)drawInMTKView:(nonnull MTKView *)view {
-    if (!fGrContext || view == nil) {
+    if (!fGrContext) {
         NSLog(@"error: no context");
         return;
     }
-
-    // Do as much as possible before calling to_surface()
-    config_paint(&fPaint);
-    float rotation = (float)(180 * 1e-9 * SkTime::GetNSecs());
-
-    // Create surface:
+    if (0 == fScale) {
+        [self mtkView:view drawableSizeWillChange:view.drawableSize];
+    }
+    fAnimation->seekFrameTime(std::fmod(1e-9 * (SkTime::GetNSecs() - fStartTime), 
+                                        fAnimation->duration()), nullptr);
     sk_sp<SkSurface> surface = to_surface(view, fGrContext);
     if (!surface) {
         NSLog(@"error: no sksurface");
         return;
     }
-
-    draw_example(surface.get(), fPaint, rotation);
-
-    // Must flush *and* present for this to work!
+    {
+        SkCanvas* canvas = surface->getCanvas();
+        canvas->translate(fOffset.x(), fOffset.y());
+        canvas->scale(fScale, fScale);
+        canvas->clear(SK_ColorTRANSPARENT);
+        canvas->drawRect(SkRect::MakeSize(fAnimation->size()), SkPaint(SkColors::kWhite));
+        fAnimation->render(canvas);
+    }
     surface->flush();
     [view.currentDrawable present];
 }
 
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size {
-    // change anything on size change?
+    if (fAnimation) {
+        const SkSize& animSize = fAnimation->size();
+        fScale = std::min(size.width  / animSize.width(),
+                          size.height / animSize.height());
+        fOffset = {((float)size.width  - animSize.width()  * fScale) * 0.5f,
+                   ((float)size.height - animSize.height() * fScale) * 0.5f};
+    }
 }
 @end
 
@@ -131,13 +127,19 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
 @end
 @implementation AppViewController
 - (void)loadView {
-    self.view = [[MTKView alloc] initWithFrame:[[UIScreen mainScreen] bounds] device:nil];
+    CGRect rect = [[UIScreen mainScreen] bounds];
+    rect.size.height = rect.size.height * 3 / 4;
+    self.view = [[MTKView alloc] initWithFrame:rect device:nil];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     if (!fGrContext) {
         fMtlDevice = MTLCreateSystemDefaultDevice();
+        if(!fMtlDevice) {
+            NSLog(@"Metal is not supported on this device");
+            return;
+        }
         GrContextOptions grContextOptions;  // set different options here.
         fGrContext = to_context(fMtlDevice, grContextOptions);
     }
@@ -145,12 +147,19 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
     mtkView.device = fMtlDevice;
     mtkView.backgroundColor = UIColor.blackColor;
     configure_mtk_view(mtkView);
-    if(!self.view || !mtkView.device) {
-        NSLog(@"Metal is not supported on this device");
-        self.view = [[UIView alloc] initWithFrame:self.view.frame];
-        return;
-    }
     AppViewDelegate* viewDelegate = [[AppViewDelegate alloc] init];
+    {
+        NSBundle* mainBundle = [NSBundle mainBundle];
+        NSString* lottie = [mainBundle pathForResource:@"lottie" ofType:@"json"];
+        NSData *content = [NSData dataWithContentsOfFile:lottie];
+        skottie::Animation::Builder builder;
+        viewDelegate->fAnimation = builder.make((const char*)content.bytes, content.length);
+        if (!viewDelegate->fAnimation) {
+            return;
+        }
+        viewDelegate->fStartTime = SkTime::GetNSecs();
+        viewDelegate->fScale = 0;
+    }
     viewDelegate->fGrContext = fGrContext.get();
     [viewDelegate mtkView:mtkView drawableSizeWillChange:mtkView.bounds.size];
     mtkView.delegate = viewDelegate;
