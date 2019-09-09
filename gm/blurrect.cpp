@@ -10,6 +10,7 @@
 #include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
@@ -21,12 +22,15 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/gpu/GrContext.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkMask.h"
+#include "src/gpu/GrContextPriv.h"
 
 #define STROKE_WIDTH    SkIntToScalar(10)
 
@@ -234,6 +238,214 @@ DEF_SIMPLE_GM(blurrect_gallery, canvas, 1200, 1024) {
         }
 }
 
+namespace skiagm {
+
+class BlurRectCompareGM : public GM {
+protected:
+    SkString onShortName() override { return SkString("blurrect_compare"); }
+
+    SkISize onISize() override { return {1200, 1024}; }
+
+    void onOnceBeforeDraw() override { this->prepareReferenceMasks(); }
+
+    void onDraw(SkCanvas* canvas) override {
+        int32_t ctxID = canvas->getGrContext() ? canvas->getGrContext()->priv().contextID() : 0;
+        if (!fActualMasks[0][0][0] || ctxID != fLastContextUniqueID) {
+            this->prepareActualMasks(canvas);
+            this->prepareMaskDiffernces(canvas);
+            fLastContextUniqueID = ctxID;
+        }
+        canvas->clear(SK_ColorBLACK);
+        static constexpr float kMargin = 30;
+        float totalW = 0;
+        for (auto w : kSizes) {
+            totalW += w + kMargin;
+        }
+        canvas->translate(kMargin, kMargin);
+        for (int mode = 0; mode < 3; ++mode) {
+            canvas->save();
+            for (size_t sigmaIdx = 0; sigmaIdx < kNumSigmas; ++sigmaIdx) {
+                auto sigma = kSigmas[sigmaIdx];
+                for (size_t heightIdx = 0; heightIdx < kNumSizes; ++heightIdx) {
+                    auto h = kSizes[heightIdx];
+                    canvas->save();
+                    for (size_t widthIdx = 0; widthIdx < kNumSizes; ++widthIdx) {
+                        auto w = kSizes[widthIdx];
+                        SkPaint paint;
+                        paint.setColor(SK_ColorWHITE);
+                        SkImage* img;
+                        switch (mode) {
+                            case 0:
+                                img = fReferenceMasks[sigmaIdx][heightIdx][widthIdx].get();
+                                break;
+                            case 1:
+                                img = fActualMasks[sigmaIdx][heightIdx][widthIdx].get();
+                                break;
+                            case 2:
+                                img = fMaskDifferences[sigmaIdx][heightIdx][widthIdx].get();
+                                break;
+                        }
+                        auto pad = PadForSigma(sigma);
+                        canvas->drawImage(img, -pad, -pad, &paint);
+#if 0
+                        SkPaint stroke;
+                        stroke.setColor(SK_ColorRED);
+                        stroke.setStrokeWidth(1.f);
+                        stroke.setStyle(SkPaint::kStroke_Style);
+                        canvas->drawRect(SkRect::MakeWH(w, h), stroke);
+#endif
+                        canvas->translate(w + kMargin, 0.f);
+                    }
+                    canvas->restore();
+                    canvas->translate(0, h + kMargin);
+                }
+            }
+            canvas->restore();
+            canvas->translate(totalW, 0);
+        }
+    }
+private:
+    void prepareReferenceMasks() {
+        // Number of times to subsample (in both X and Y)
+        static constexpr int kNumSubsamples = 8;
+        auto create_reference_mask = [](int w, int h, float sigma) {
+          int pad = PadForSigma(sigma);
+          int maskW = w + 2 * pad;
+          int maskH = h + 2 * pad;
+          // We'll do all our calculations at subpixel resolution, so adjust params
+          w *= kNumSubsamples;
+          h *= kNumSubsamples;
+          sigma *= kNumSubsamples;
+          auto def_integral_approx = [scale = 1.f / (M_SQRT2 * sigma)](float a, float b) {
+            return 0.5f * (std::erf(b * scale) - std::erf(a * scale));
+          };
+          // Do the x-pass. Above/below rect are rows of zero. All rows that intersect the rect are
+          // the same. We evaluate kNumSubsamples subpixels for each pixel in x.
+          std::unique_ptr<float[]> row(new float[maskW * kNumSubsamples]);
+          for (int col = 0; col < maskW * kNumSubsamples; ++col) {
+              // Compute distance to rect left in subpixel units
+              float ldiff = kNumSubsamples * pad - col + 0.5f;
+              float rdiff = ldiff + w;
+              row[col] = def_integral_approx(ldiff, rdiff);
+          }
+          SkBitmap bmp;
+          bmp.allocPixels(SkImageInfo::MakeA8(maskW, maskH));
+          for (int x = 0; x < maskW; ++x) {
+              for (int y = 0; y < maskH; ++y) {
+                  float accum = 0;
+                  for (int ys = 0; ys < kNumSubsamples; ++ys) {
+                      // compute distance to rect top in subpixel units.
+                      float tdiff = kNumSubsamples * pad - (y * kNumSubsamples + ys) + 0.5f;
+                      float bdiff = tdiff + h;
+                      auto w = def_integral_approx(tdiff, bdiff);
+                      for (int xs = 0; xs < kNumSubsamples; ++xs) {
+                          int rowIdx = x * kNumSubsamples + xs;
+                          accum += w * row[rowIdx];
+                      }
+                  }
+                  auto pixelResult = accum / kNumSubsamples / kNumSubsamples;
+                  *bmp.getAddr8(x, y) = SkToU8(sk_float_round2int(255.f * pixelResult));
+              }
+          }
+          return SkImage::MakeFromBitmap(bmp);
+        };
+        for (size_t sigmaIdx = 0; sigmaIdx < kNumSigmas; ++sigmaIdx) {
+            auto sigma = kSigmas[sigmaIdx];
+            for (size_t heightIdx = 0; heightIdx < kNumSizes; ++heightIdx) {
+                auto h = kSizes[heightIdx];
+                for (size_t widthIdx = 0; widthIdx < kNumSizes; ++widthIdx) {
+                    auto w = kSizes[widthIdx];
+                    fReferenceMasks[sigmaIdx][heightIdx][widthIdx] =
+                            create_reference_mask(w, h, sigma);
+                }
+            }
+        }
+    }
+
+    void prepareActualMasks(SkCanvas* canvas) {
+        for (size_t sigmaIdx = 0; sigmaIdx < kNumSigmas; ++sigmaIdx) {
+            auto sigma = kSigmas[sigmaIdx];
+            for (size_t heightIdx = 0; heightIdx < kNumSizes; ++heightIdx) {
+                auto h = kSizes[heightIdx];
+                for (size_t widthIdx = 0; widthIdx < kNumSizes; ++widthIdx) {
+                    auto w = kSizes[widthIdx];
+                    auto pad = PadForSigma(sigma);
+                    auto ii = SkImageInfo::MakeA8(w + 2 * pad, h + 2 * pad);
+                    auto surf = canvas->makeSurface(ii);
+                    if (!surf) {
+                        return;
+                    }
+                    auto rect = SkRect::MakeXYWH(pad, pad, w, h);
+                    SkPaint paint;
+                    paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma));
+                    surf->getCanvas()->drawRect(rect, paint);
+                    fActualMasks[sigmaIdx][heightIdx][widthIdx] = surf->makeImageSnapshot();
+                }
+            }
+        }
+    }
+
+    void prepareMaskDiffernces(SkCanvas* canvas) {
+        for (size_t sigmaIdx = 0; sigmaIdx < kNumSigmas; ++sigmaIdx) {
+            for (size_t heightIdx = 0; heightIdx < kNumSizes; ++heightIdx) {
+                for (size_t widthIdx = 0; widthIdx < kNumSizes; ++widthIdx) {
+                    const auto& r =  fReferenceMasks[sigmaIdx][heightIdx][widthIdx];
+                    const auto& a =     fActualMasks[sigmaIdx][heightIdx][widthIdx];
+                          auto& d = fMaskDifferences[sigmaIdx][heightIdx][widthIdx];
+                    SkASSERT(r->width()  == a->width());
+                    SkASSERT(r->height() == a->height());
+                    auto ii = SkImageInfo::Make(r->width(), r->height(),
+                                                kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+                    auto surf = canvas->makeSurface(ii);
+                    if (!surf) {
+                        return;
+                    }
+                    // We visualize the difference by turning both the alpha masks into opaque green
+                    // images (where alpha becomes the green channel) and then performing a
+                    // SkBlendMode::kDifference between them.
+                    SkPaint filterPaint;
+                    filterPaint.setColor(SK_ColorWHITE);
+                    static constexpr float kGreenifyM[] = {0, 0, 0, 0, 0,
+                                                           0, 0, 0, 5, 0,
+                                                           0, 0, 0, 0, 0,
+                                                           0, 0, 0, 0, 1};
+                    auto greenifyCF = SkColorFilters::Matrix(kGreenifyM);
+                    SkPaint paint;
+                    paint.setBlendMode(SkBlendMode::kSrc);
+                    paint.setColorFilter(std::move(greenifyCF));
+                    surf->getCanvas()->drawImage(a, 0, 0, &paint);
+                    paint.setBlendMode(SkBlendMode::kDifference);
+                    surf->getCanvas()->drawImage(r, 0, 0, &paint);
+                    d = surf->makeImageSnapshot();
+                }
+            }
+        }
+    }
+
+    // Per side padding around mask images for a sigma. Make this overly generous to ensure bugs
+    // related to big blurs are fully visible.
+    static int PadForSigma(float sigma) { return sk_float_ceil2int(3 * sigma); }
+
+    static constexpr int kSizes[] = {1, 2, 4, 8, 16, 32};
+    static constexpr float kSigmas[] = {0.5, 1, 2, 4, 8};
+    static constexpr size_t kNumSizes = SK_ARRAY_COUNT(kSizes);
+    static constexpr size_t kNumSigmas = SK_ARRAY_COUNT(kSigmas);
+
+    sk_sp<SkImage> fReferenceMasks[kNumSigmas][kNumSizes][kNumSizes];
+    sk_sp<SkImage> fActualMasks[kNumSigmas][kNumSizes][kNumSizes];
+    sk_sp<SkImage> fMaskDifferences[kNumSigmas][kNumSizes][kNumSizes];
+    int32_t fLastContextUniqueID;
+};
+
+// Delete these when C++17.
+constexpr int BlurRectCompareGM::kSizes[];
+constexpr float BlurRectCompareGM::kSigmas[];
+constexpr size_t BlurRectCompareGM::kNumSizes;
+constexpr size_t BlurRectCompareGM::kNumSigmas;
+
+}  // namespace skiagm
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new BlurRectGM("blurrects", 0xFF);)
+DEF_GM(return new skiagm::BlurRectCompareGM();)
