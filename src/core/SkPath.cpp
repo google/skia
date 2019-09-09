@@ -17,6 +17,7 @@
 #include "src/core/SkCubicClipper.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkMatrixPriv.h"
+#include "src/core/SkPathMakers.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkSafeMath.h"
@@ -932,84 +933,6 @@ SkPath& SkPath::close() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace {
-
-template <unsigned N>
-class PointIterator {
-public:
-    PointIterator(SkPath::Direction dir, unsigned startIndex)
-        : fCurrent(startIndex % N)
-        , fAdvance(dir == SkPath::kCW_Direction ? 1 : N - 1) { }
-
-    const SkPoint& current() const {
-        SkASSERT(fCurrent < N);
-        return fPts[fCurrent];
-    }
-
-    const SkPoint& next() {
-        fCurrent = (fCurrent + fAdvance) % N;
-        return this->current();
-    }
-
-protected:
-    SkPoint fPts[N];
-
-private:
-    unsigned fCurrent;
-    unsigned fAdvance;
-};
-
-class RectPointIterator : public PointIterator<4> {
-public:
-    RectPointIterator(const SkRect& rect, SkPath::Direction dir, unsigned startIndex)
-        : PointIterator(dir, startIndex) {
-
-        fPts[0] = SkPoint::Make(rect.fLeft, rect.fTop);
-        fPts[1] = SkPoint::Make(rect.fRight, rect.fTop);
-        fPts[2] = SkPoint::Make(rect.fRight, rect.fBottom);
-        fPts[3] = SkPoint::Make(rect.fLeft, rect.fBottom);
-    }
-};
-
-class OvalPointIterator : public PointIterator<4> {
-public:
-    OvalPointIterator(const SkRect& oval, SkPath::Direction dir, unsigned startIndex)
-        : PointIterator(dir, startIndex) {
-
-        const SkScalar cx = oval.centerX();
-        const SkScalar cy = oval.centerY();
-
-        fPts[0] = SkPoint::Make(cx, oval.fTop);
-        fPts[1] = SkPoint::Make(oval.fRight, cy);
-        fPts[2] = SkPoint::Make(cx, oval.fBottom);
-        fPts[3] = SkPoint::Make(oval.fLeft, cy);
-    }
-};
-
-class RRectPointIterator : public PointIterator<8> {
-public:
-    RRectPointIterator(const SkRRect& rrect, SkPath::Direction dir, unsigned startIndex)
-        : PointIterator(dir, startIndex) {
-
-        const SkRect& bounds = rrect.getBounds();
-        const SkScalar L = bounds.fLeft;
-        const SkScalar T = bounds.fTop;
-        const SkScalar R = bounds.fRight;
-        const SkScalar B = bounds.fBottom;
-
-        fPts[0] = SkPoint::Make(L + rrect.radii(SkRRect::kUpperLeft_Corner).fX, T);
-        fPts[1] = SkPoint::Make(R - rrect.radii(SkRRect::kUpperRight_Corner).fX, T);
-        fPts[2] = SkPoint::Make(R, T + rrect.radii(SkRRect::kUpperRight_Corner).fY);
-        fPts[3] = SkPoint::Make(R, B - rrect.radii(SkRRect::kLowerRight_Corner).fY);
-        fPts[4] = SkPoint::Make(R - rrect.radii(SkRRect::kLowerRight_Corner).fX, B);
-        fPts[5] = SkPoint::Make(L + rrect.radii(SkRRect::kLowerLeft_Corner).fX, B);
-        fPts[6] = SkPoint::Make(L, B - rrect.radii(SkRRect::kLowerLeft_Corner).fY);
-        fPts[7] = SkPoint::Make(L, T + rrect.radii(SkRRect::kUpperLeft_Corner).fY);
-    }
-};
-
-} // anonymous namespace
-
 static void assert_known_direction(int dir) {
     SkASSERT(SkPath::kCW_Direction == dir || SkPath::kCCW_Direction == dir);
 }
@@ -1035,7 +958,7 @@ SkPath& SkPath::addRect(const SkRect &rect, Direction dir, unsigned startIndex) 
     const int kVerbs = 5; // moveTo + 3x lineTo + close
     this->incReserve(kVerbs);
 
-    RectPointIterator iter(rect, dir, startIndex);
+    SkPath_RectPointIterator iter(rect, dir, startIndex);
 
     this->moveTo(iter.current());
     this->lineTo(iter.next());
@@ -1193,11 +1116,11 @@ SkPath& SkPath::addRRect(const SkRRect &rrect, Direction dir, unsigned startInde
             : 10; // moveTo + 4x lineTo + 4x conicTo + close
         this->incReserve(kVerbs);
 
-        RRectPointIterator rrectIter(rrect, dir, startIndex);
+        SkPath_RRectPointIterator rrectIter(rrect, dir, startIndex);
         // Corner iterator indices follow the collapsed radii model,
         // adjusted such that the start pt is "behind" the radii start pt.
         const unsigned rectStartIndex = startIndex / 2 + (dir == kCW_Direction ? 0 : 1);
-        RectPointIterator rectIter(bounds, dir, rectStartIndex);
+        SkPath_RectPointIterator rectIter(bounds, dir, rectStartIndex);
 
         this->moveTo(rrectIter.current());
         if (startsWithConic) {
@@ -1296,9 +1219,9 @@ SkPath& SkPath::addOval(const SkRect &oval, Direction dir, unsigned startPointIn
     const int kVerbs = 6; // moveTo + 4x conicTo + close
     this->incReserve(kVerbs);
 
-    OvalPointIterator ovalIter(oval, dir, startPointIndex);
+    SkPath_OvalPointIterator ovalIter(oval, dir, startPointIndex);
     // The corner iterator pts are tracking "behind" the oval/radii pts.
-    RectPointIterator rectIter(oval, dir, startPointIndex + (dir == kCW_Direction ? 0 : 1));
+    SkPath_RectPointIterator rectIter(oval, dir, startPointIndex + (dir == kCW_Direction ? 0 : 1));
     const SkScalar weight = SK_ScalarRoot2Over2;
 
     this->moveTo(ovalIter.current());
