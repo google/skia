@@ -16,6 +16,24 @@
       "revId": "1d1c1ac164e4f18e4703f7cce551e67596eddbdf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d06e18ec_88c19240",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 967,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-09-09T18:57:15Z",
+      "side": 1,
+      "message": "Just a philosophy change over time. In the early days, I tended to want to let the compilation go as long as possible to give better error reporting. I\u0027ve since become more nervous about that because of the likelihood of running into problems down the road and have tended to just bail immediately. I\u0027ve added return nulls to the cases you pointed out to make things consistent.",
+      "parentUuid": "e0dcfc85_a230a175",
+      "revId": "1d1c1ac164e4f18e4703f7cce551e67596eddbdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
