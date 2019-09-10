@@ -252,13 +252,16 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
 
     bool supportsMTLEvent = false;
 #ifdef GR_METAL_SDK_SUPPORTS_EVENTS
-    NSOperatingSystemVersion osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
+    // TODO: this may be redundant
+    if (@available(macOS 10.14, iOS 12.0, *)) {
+        NSOperatingSystemVersion osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
 #ifdef SK_BUILD_FOR_MAC
-    supportsMTLEvent = (osVersion.majorVersion > 10 ||
-                        (osVersion.majorVersion == 10 && osVersion.minorVersion >= 14));
+        supportsMTLEvent = (osVersion.majorVersion > 10 ||
+                            (osVersion.majorVersion == 10 && osVersion.minorVersion >= 14));
 #else
-    supportsMTLEvent = (osVersion.majorVersion >= 12);
+        supportsMTLEvent = (osVersion.majorVersion >= 12);
 #endif
+    }
 #endif
     fFenceSyncSupport = supportsMTLEvent;
     fSemaphoreSupport = supportsMTLEvent;

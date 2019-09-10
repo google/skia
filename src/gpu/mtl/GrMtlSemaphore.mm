@@ -14,9 +14,13 @@
 
 #ifdef GR_METAL_SDK_SUPPORTS_EVENTS
 sk_sp<GrMtlSemaphore> GrMtlSemaphore::Make(GrMtlGpu* gpu, bool isOwned) {
-    id<MTLEvent> event = [gpu->device() newEvent];
-    uint64_t value = 1; // seems like a reasonable starting point
-    return sk_sp<GrMtlSemaphore>(new GrMtlSemaphore(gpu, event, value, isOwned));
+    if (@available(macOS 10.14, iOS 12.0, *)) {
+        id<MTLEvent> event = [gpu->device() newEvent];
+        uint64_t value = 1; // seems like a reasonable starting point
+        return sk_sp<GrMtlSemaphore>(new GrMtlSemaphore(gpu, event, value, isOwned));
+    } else {
+        return nullptr;
+    }
 }
 
 sk_sp<GrMtlSemaphore> GrMtlSemaphore::MakeWrapped(GrMtlGpu* gpu,
@@ -25,10 +29,14 @@ sk_sp<GrMtlSemaphore> GrMtlSemaphore::MakeWrapped(GrMtlGpu* gpu,
                                                   GrWrapOwnership ownership) {
     // The GrMtlSemaphore will have strong ownership at this point.
     // The GrMTLHandle will subsequently only have weak ownership.
-    id<MTLEvent> mtlEvent = (__bridge_transfer id<MTLEvent>)event;
-    auto sema = sk_sp<GrMtlSemaphore>(new GrMtlSemaphore(gpu, mtlEvent, value,
-                                                         kBorrow_GrWrapOwnership != ownership));
-    return sema;
+    if (@available(macOS 10.14, iOS 12.0, *)) {
+        id<MTLEvent> mtlEvent = (__bridge_transfer id<MTLEvent>)event;
+        auto sema = sk_sp<GrMtlSemaphore>(new GrMtlSemaphore(gpu, mtlEvent, value,
+                                                             kBorrow_GrWrapOwnership != ownership));
+        return sema;
+    } else {
+        return nullptr;
+    }
 }
 
 GrMtlSemaphore::GrMtlSemaphore(GrMtlGpu* gpu, id<MTLEvent> event, uint64_t value, bool isOwned)
@@ -38,12 +46,16 @@ GrMtlSemaphore::GrMtlSemaphore(GrMtlGpu* gpu, id<MTLEvent> event, uint64_t value
 }
 
 void GrMtlSemaphore::onRelease() {
-    fEvent = nil;
+    if (@available(macOS 10.14, iOS 12.0, *)) {
+        fEvent = nil;
+    }
     INHERITED::onRelease();
 }
 
 void GrMtlSemaphore::onAbandon() {
-    fEvent = nil;
+    if (@available(macOS 10.14, iOS 12.0, *)) {
+        fEvent = nil;
+    }
     INHERITED::onAbandon();
 }
 
@@ -51,8 +63,10 @@ GrBackendSemaphore GrMtlSemaphore::backendSemaphore() const {
     GrBackendSemaphore backendSemaphore;
     // The GrMtlSemaphore and the GrBackendSemaphore will have strong ownership at this point.
     // Whoever uses the GrBackendSemaphore will subsquently steal this ref (see MakeWrapped, above).
-    GrMTLHandle handle = (__bridge_retained GrMTLHandle)(fEvent);
-    backendSemaphore.initMetal(handle, fValue);
+    if (@available(macOS 10.14, iOS 12.0, *)) {
+        GrMTLHandle handle = (__bridge_retained GrMTLHandle)(fEvent);
+        backendSemaphore.initMetal(handle, fValue);
+    }
     return backendSemaphore;
 }
 #endif
