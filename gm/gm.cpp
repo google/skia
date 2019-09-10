@@ -66,7 +66,6 @@ static void draw_gpu_only_message(SkCanvas* canvas) {
 GM::GM(SkColor bgColor) {
     fMode = kGM_Mode;
     fBGColor = bgColor;
-    fCanvasIsDeferred = false;
     fHaveCalledOnceBeforeDraw = false;
 }
 
