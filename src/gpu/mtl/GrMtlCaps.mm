@@ -931,6 +931,7 @@ static constexpr GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, 
             }
             break;
         case GrColorType::kAlpha_8xxx:
+        case GrColorType::kAlpha_16xxx:
         case GrColorType::kAlpha_F32xxx:
         case GrColorType::kGray_8xxx:
             return kUnknown_GrPixelConfig;
