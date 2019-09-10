@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d08d6987_bfaf83f7",
+        "filename": "src/gpu/dawn/GrDawnStagingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-09-10T17:05:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "64a5089b_0a3c0e57",
+      "range": {
+        "startLine": 21,
+        "startChar": 3,
+        "endLine": 24,
+        "endChar": 5
+      },
+      "revId": "30e524c974a90ef370998fc8b65262194ed115da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "966a511e_8ed68054",
         "filename": "src/gpu/dawn/GrDawnStagingManager.cpp",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "eebb76f2_72d82a3d",
+        "filename": "src/gpu/dawn/GrDawnStagingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-09-10T17:05:39Z",
+      "side": 1,
+      "message": "No, there are no thread safety expectations. It\u0027s asynchronous, but triggered by an explicit call to dawn::Device::Tick() in the main thread.",
+      "parentUuid": "966a511e_8ed68054",
+      "range": {
+        "startLine": 49,
+        "startChar": 25,
+        "endLine": 49,
+        "endChar": 39
+      },
+      "revId": "30e524c974a90ef370998fc8b65262194ed115da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "36d55031_084a6030",
         "filename": "src/gpu/dawn/GrDawnStagingManager.h",
         "patchSetId": 2
@@ -68,6 +116,30 @@
       "revId": "30e524c974a90ef370998fc8b65262194ed115da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3f24dad_f1528589",
+        "filename": "src/gpu/dawn/GrDawnStagingManager.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-09-10T17:05:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "36d55031_084a6030",
+      "range": {
+        "startLine": 44,
+        "startChar": 26,
+        "endLine": 46,
+        "endChar": 29
+      },
+      "revId": "30e524c974a90ef370998fc8b65262194ed115da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
