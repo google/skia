@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46b11164_d8b172ab",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-10T15:47:07Z",
+      "side": 1,
+      "message": "this can\u0027t ever be true in this \u0027if\u0027 statement",
+      "range": {
+        "startLine": 204,
+        "startChar": 17,
+        "endLine": 204,
+        "endChar": 25
+      },
+      "revId": "e78c607073e9f43d1205a4245defbeb6c3e03baf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
