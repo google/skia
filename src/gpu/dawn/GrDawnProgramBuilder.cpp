@@ -587,7 +587,7 @@ dawn::BindGroup GrDawnProgram::setData(GrDawnGpu* gpu, const GrRenderTarget* ren
         GrFragmentProcessor::TextureSampler sampler(sk_ref_sp(proxy));
         setTexture(gpu, sampler.samplerState(), sampler.peekTexture(), &bindings, &binding);
     }
-    fDataManager.uploadUniformBuffers(geom, frag);
+    fDataManager.uploadUniformBuffers(gpu, geom, frag);
     dawn::BindGroupDescriptor descriptor;
     descriptor.layout = fBindGroupLayout;
     descriptor.bindingCount = bindings.size();

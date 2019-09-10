@@ -725,6 +725,8 @@ skia_dawn_sources = [
   "$_src/gpu/dawn/GrDawnRingBuffer.h",
   "$_src/gpu/dawn/GrDawnStencilAttachment.cpp",
   "$_src/gpu/dawn/GrDawnStencilAttachment.h",
+  "$_src/gpu/dawn/GrDawnStagingManager.cpp",
+  "$_src/gpu/dawn/GrDawnStagingManager.h",
   "$_src/gpu/dawn/GrDawnTexture.cpp",
   "$_src/gpu/dawn/GrDawnTexture.h",
   "$_src/gpu/dawn/GrDawnTextureRenderTarget.cpp",

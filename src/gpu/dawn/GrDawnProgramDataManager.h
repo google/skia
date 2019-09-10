@@ -58,7 +58,8 @@ public:
         SK_ABORT("Only supported in NVPR, which is not in Dawn");
     }
 
-    void uploadUniformBuffers(GrDawnRingBuffer::Slice geometryBuffer,
+    void uploadUniformBuffers(GrDawnGpu* gpu,
+                              GrDawnRingBuffer::Slice geometryBuffer,
                               GrDawnRingBuffer::Slice fragmentBuffer) const;
 
     uint32_t geometryUniformSize() const { return fGeometryUniformSize; }

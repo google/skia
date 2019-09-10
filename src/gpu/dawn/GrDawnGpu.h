@@ -12,6 +12,7 @@
 #include "dawn/dawncpp.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/dawn/GrDawnRingBuffer.h"
+#include "src/gpu/dawn/GrDawnStagingManager.h"
 
 class GrDawnOpsRenderPass;
 class GrPipeline;
@@ -94,6 +95,8 @@ public:
                                                    GrPrimitiveType primitiveType);
 
     GrDawnRingBuffer::Slice allocateUniformRingBufferSlice(int size);
+    GrDawnStagingBuffer* getStagingBuffer(size_t size);
+    GrDawnStagingManager* getStagingManager() { return &fStagingManager; }
     dawn::CommandEncoder getCopyEncoder();
     void flushCopyEncoder();
     void appendCommandBuffer(dawn::CommandBuffer commandBuffer);
@@ -173,6 +176,7 @@ private:
     };
 
     SkLRUCache<GrProgramDesc, sk_sp<GrDawnProgram>, ProgramDescHash>    fRenderPipelineCache;
+    GrDawnStagingManager fStagingManager;
 
     typedef GrGpu INHERITED;
 };
