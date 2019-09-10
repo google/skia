@@ -130,6 +130,10 @@ class AndroidFlavor(default.DefaultFlavor):
       # AndroidOne doesn't support ondemand governor. hotplug is similar.
       if device == 'AndroidOne':
         self._set_governor(i, 'hotplug')
+      elif device == 'Pixel3a':
+        # Pixel3a has userspace powersave performance schedutil.
+        # performance seems like a reasonable choice.
+        self._set_governor(i, 'performance')
       else:
         self._set_governor(i, 'ondemand')
 
