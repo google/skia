@@ -579,8 +579,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
         { GrColorType::kR_16,             GR_GL_R16,                  SkColors::kRed       },
         { GrColorType::kRG_1616,          GR_GL_RG16,                 SkColors::kYellow    },
 
-        // Experimental (for Y416 and mutant P016/P010)
-        { GrColorType::kRGBA_16161616,    GR_GL_RGBA16,               SkColors::kLtGray    },
+        // Experimental (for mutant P016/P010)
         { GrColorType::kRG_F16,           GR_GL_RG16F,                SkColors::kYellow    },
 
         { GrColorType::kUnknown,          GR_GL_COMPRESSED_RGB8_ETC2, SkColors::kRed      },
@@ -714,8 +713,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
         { GrColorType::kR_16,             VK_FORMAT_R16_UNORM,                SkColors::kRed      },
         { GrColorType::kRG_1616,          VK_FORMAT_R16G16_UNORM,             SkColors::kYellow   },
 
-        // Experimental (for Y416 and mutant P016/P010)
-        { GrColorType::kRGBA_16161616,    VK_FORMAT_R16G16B16A16_UNORM,       SkColors::kLtGray   },
+        // Experimental (for mutant P016/P010)
         { GrColorType::kRG_F16,           VK_FORMAT_R16G16_SFLOAT,            SkColors::kYellow   },
 
         { GrColorType::kUnknown,          VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK,  SkColors::kRed      },

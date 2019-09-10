@@ -108,10 +108,7 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
             *format = MTLPixelFormatRG16Unorm;
             return true;
 
-        // Experimental (for Y416 and mutant P016/P010)
-        case kRGBA_16161616_GrPixelConfig:
-            *format = MTLPixelFormatRGBA16Unorm;
-            return true;
+        // Experimental (for mutant P016/P010)
         case kRG_half_GrPixelConfig:
             *format = MTLPixelFormatRG16Float;
             return true;

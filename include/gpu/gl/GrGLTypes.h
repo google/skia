@@ -76,7 +76,6 @@ enum class GrGLFormat {
     kCOMPRESSED_ETC1_RGB8,
     kR16,
     kRG16,
-    kRGBA16,
     kRG16F,
     kLUMINANCE16F,
 
