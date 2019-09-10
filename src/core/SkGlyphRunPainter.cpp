@@ -35,6 +35,8 @@
 #include "SkTDArray.h"
 #include "SkTraceEvent.h"
 
+#include <cstdio>
+
 // -- SkGlyphCacheCommon ---------------------------------------------------------------------------
 
 SkVector SkStrikeCommon::PixelRounding(bool isSubpixel, SkAxisAlignment axisAlignment) {
@@ -780,6 +782,20 @@ void GrTextBlob::Run::switchSubRunIfNeededAndAppendGlyph(GrGlyph* glyph,
     fInitialized = true;
     subRun->setMaskFormat(format);
     subRun->setNeedsTransform(needsTransform);
+    if (!needsTransform) {
+        SkASSERT(destRect.top() == (int)destRect.top());
+        SkASSERT(destRect.left() == (int)destRect.left());
+        SkASSERT(destRect.bottom() == (int)destRect.bottom());
+        SkASSERT(destRect.right() == (int)destRect.right());
+
+        // Check in release builds
+        if (destRect.top() != (int)destRect.top() ||
+            destRect.left() != (int)destRect.left() ||
+            destRect.bottom() != (int)destRect.bottom() ||
+            destRect.right() != (int)destRect.right()) {
+            printf("Oh no!\n");
+        }
+    }
     subRun->appendGlyph(glyph, destRect);
 }
 

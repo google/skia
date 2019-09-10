@@ -358,11 +358,28 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
             size_t vertexBytes = result.fGlyphsRegenerated * kVerticesPerGlyph * vertexStride;
             if (args.fClipRect.isEmpty()) {
                 memcpy(currVertex, result.fFirstVertex, vertexBytes);
+
+                float* v = reinterpret_cast<float*>(currVertex);
+                size_t cursor = 0;
+                for (int q = 0; q < result.fGlyphsRegenerated; q++) {
+                    SkASSERT(v[cursor] == (int)v[cursor]);
+                    SkASSERT(v[cursor+1] == (int)v[cursor+1]);
+                    cursor += vertexStride / sizeof(float);
+                }
             } else {
                 SkASSERT(!vmPerspective);
                 clip_quads(args.fClipRect, currVertex, result.fFirstVertex, vertexStride,
                            result.fGlyphsRegenerated);
+
+                float* v = reinterpret_cast<float*>(currVertex);
+                size_t cursor = 0;
+                for (int q = 0; q < result.fGlyphsRegenerated; q++) {
+                    SkASSERT(v[cursor] == (int)v[cursor]);
+                    SkASSERT(v[cursor+1] == (int)v[cursor+1]);
+                    cursor += vertexStride / sizeof(float);
+                }
             }
+
             if (fNeedsGlyphTransform && !args.fViewMatrix.isIdentity()) {
                 // We always do the distance field view matrix transformation after copying rather
                 // than during blob vertex generation time in the blob as handling successive
