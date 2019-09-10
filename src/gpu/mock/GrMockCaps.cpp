@@ -27,7 +27,6 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrMockCaps::getTestingCombin
         { GrColorType::kRGBA_F32,        GrBackendFormat::MakeMock(GrColorType::kRGBA_F32)       },
         { GrColorType::kR_16,            GrBackendFormat::MakeMock(GrColorType::kR_16)           },
         { GrColorType::kRG_1616,         GrBackendFormat::MakeMock(GrColorType::kRG_1616)        },
-        { GrColorType::kRGBA_16161616,   GrBackendFormat::MakeMock(GrColorType::kRGBA_16161616)  },
         { GrColorType::kRG_F16,          GrBackendFormat::MakeMock(GrColorType::kRG_F16)         },
     };
 

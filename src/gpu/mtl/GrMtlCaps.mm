@@ -433,8 +433,7 @@ static constexpr MTLPixelFormat kMtlFormats[] = {
 #ifdef SK_BUILD_FOR_IOS
     MTLPixelFormatETC2_RGB8,
 #endif
-    // Experimental (for Y416 and mutant P016/P010)
-    MTLPixelFormatRGBA16Unorm,
+    // Experimental (for mutant P016/P010)
     MTLPixelFormatRG16Float,
 
     MTLPixelFormatInvalid,
@@ -745,27 +744,7 @@ void GrMtlCaps::initFormatTable() {
     // NO supported colorTypes
 #endif
 
-    // Experimental (for Y416 and mutant P016/P010)
-
-    // Format: RGBA16Unorm
-    {
-        info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA16Unorm)];
-        if (this->isMac()) {
-            info->fFlags = FormatInfo::kAllFlags;
-        } else {
-            info->fFlags = FormatInfo::kTexturable_Flag | FormatInfo::kRenderable_Flag;
-        }
-        info->fColorTypeInfoCount = 1;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
-        int ctIdx = 0;
-        // Format: RGBA16Unorm, Surface: kRGBA_16161616
-        {
-            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
-            ctInfo.fColorType = GrColorType::kRGBA_16161616;
-            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-        }
-    }
-
+    // Experimental (for mutant P016/P010)
     // Format: RG16Float
     {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatRG16Float)];
@@ -967,8 +946,7 @@ GrColorType GrMtlCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& 
         case MTLPixelFormatRGB10A2Unorm:      return GrColorType::kRGBA_1010102;
         case MTLPixelFormatR16Unorm:          return GrColorType::kR_16;
         case MTLPixelFormatRG16Unorm:         return GrColorType::kRG_1616;
-        // Experimental (for Y416 and mutant P016/P010)
-        case MTLPixelFormatRGBA16Unorm:       return GrColorType::kRGBA_16161616;
+        // Experimental (for mutant P016/P010)
         case MTLPixelFormatRG16Float:         return GrColorType::kRG_F16;
         default:                              return GrColorType::kUnknown;
     }

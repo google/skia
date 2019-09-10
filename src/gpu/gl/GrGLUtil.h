@@ -299,7 +299,6 @@ static constexpr GrGLFormat GrGLFormatFromGLEnum(GrGLenum glFormat) {
         case GR_GL_COMPRESSED_ETC1_RGB8: return GrGLFormat::kCOMPRESSED_ETC1_RGB8;
         case GR_GL_R16:                  return GrGLFormat::kR16;
         case GR_GL_RG16:                 return GrGLFormat::kRG16;
-        case GR_GL_RGBA16:               return GrGLFormat::kRGBA16;
         case GR_GL_RG16F:                return GrGLFormat::kRG16F;
 
         default:                         return GrGLFormat::kUnknown;
@@ -328,7 +327,6 @@ static constexpr GrGLenum GrGLFormatToEnum(GrGLFormat format) {
         case GrGLFormat::kCOMPRESSED_ETC1_RGB8: return GR_GL_COMPRESSED_ETC1_RGB8;
         case GrGLFormat::kR16:                  return GR_GL_R16;
         case GrGLFormat::kRG16:                 return GR_GL_RG16;
-        case GrGLFormat::kRGBA16:               return GR_GL_RGBA16;
         case GrGLFormat::kRG16F:                return GR_GL_RG16F;
         case GrGLFormat::kUnknown:              return 0;
     }

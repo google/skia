@@ -649,8 +649,7 @@ static constexpr VkFormat kVkFormats[] = {
     VK_FORMAT_R16G16_UNORM,
     VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM,
     VK_FORMAT_G8_B8R8_2PLANE_420_UNORM,
-    // Experimental (for Y416 and mutant P016/P010)
-    VK_FORMAT_R16G16B16A16_UNORM,
+    // Experimental (for mutant P016/P010)
     VK_FORMAT_R16G16_SFLOAT,
 };
 
@@ -1012,24 +1011,6 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
             }
         }
     }
-    // Format: VK_FORMAT_R16G16B16A16_UNORM
-    {
-        constexpr VkFormat format = VK_FORMAT_R16G16B16A16_UNORM;
-        auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
-        if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
-            info.fColorTypeInfoCount = 1;
-            info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
-            int ctIdx = 0;
-            // Format: VK_FORMAT_R16G16B16A16_UNORM, Surface: kRGBA_16161616
-            {
-                constexpr GrColorType ct = GrColorType::kRGBA_16161616;
-                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = ct;
-                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-            }
-        }
-    }
     // Format: VK_FORMAT_R16G16_SFLOAT
     {
         constexpr VkFormat format = VK_FORMAT_R16G16_SFLOAT;
@@ -1119,7 +1100,6 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     this->setColorType(GrColorType::kRGBA_F32,         { VK_FORMAT_R32G32B32A32_SFLOAT });
     this->setColorType(GrColorType::kR_16,             { VK_FORMAT_R16_UNORM });
     this->setColorType(GrColorType::kRG_1616,          { VK_FORMAT_R16G16_UNORM });
-    this->setColorType(GrColorType::kRGBA_16161616,    { VK_FORMAT_R16G16B16A16_UNORM });
     this->setColorType(GrColorType::kRG_F16,           { VK_FORMAT_R16G16_SFLOAT });
 }
 
@@ -1535,11 +1515,6 @@ static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool h
                 return kRG_1616_GrPixelConfig;
             }
             break;
-        case GrColorType::kRGBA_16161616:
-            if (VK_FORMAT_R16G16B16A16_UNORM == format) {
-                return kRGBA_16161616_GrPixelConfig;
-            }
-            break;
         case GrColorType::kRG_F16:
             if (VK_FORMAT_R16G16_SFLOAT == format) {
                 return kRG_half_GrPixelConfig;
@@ -1583,8 +1558,7 @@ GrColorType GrVkCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& f
         case VK_FORMAT_A2B10G10R10_UNORM_PACK32: return GrColorType::kRGBA_1010102;
         case VK_FORMAT_R16_UNORM:                return GrColorType::kR_16;
         case VK_FORMAT_R16G16_UNORM:             return GrColorType::kRG_1616;
-        // Experimental (for Y416 and mutant P016/P010)
-        case VK_FORMAT_R16G16B16A16_UNORM:       return GrColorType::kRGBA_16161616;
+        // Experimental (for mutant P016/P010)
         case VK_FORMAT_R16G16_SFLOAT:            return GrColorType::kRG_F16;
         default:                                 return GrColorType::kUnknown;
     }
@@ -1693,7 +1667,6 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrVkCaps::getTestingCombinat
         { GrColorType::kRGBA_F32,         GrBackendFormat::MakeVk(VK_FORMAT_R32G32B32A32_SFLOAT)  },
         { GrColorType::kR_16,             GrBackendFormat::MakeVk(VK_FORMAT_R16_UNORM)            },
         { GrColorType::kRG_1616,          GrBackendFormat::MakeVk(VK_FORMAT_R16G16_UNORM)         },
-        { GrColorType::kRGBA_16161616,    GrBackendFormat::MakeVk(VK_FORMAT_R16G16B16A16_UNORM)   },
         { GrColorType::kRG_F16,           GrBackendFormat::MakeVk(VK_FORMAT_R16G16_SFLOAT)        },
     };
 
