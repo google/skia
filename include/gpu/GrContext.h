@@ -247,7 +247,10 @@ public:
      * use maxSurfaceSampleCountForColorType().
      */
     bool colorTypeSupportedAsSurface(SkColorType colorType) const {
-        if (kRG_88_SkColorType == colorType) {
+        if (kRG_88_SkColorType == colorType ||
+            kRG_1616_SkColorType == colorType ||
+            kAlpha_16_SkColorType == colorType ||
+            kGray_8_SkColorType == colorType) {
             return false;
         }
 
