@@ -119,14 +119,9 @@ class SrcModeGM : public skiagm::GM {
         }
     }
 
-    static sk_sp<SkSurface> compat_surface(SkCanvas* canvas, const SkISize& size, bool skipGPU) {
+    static sk_sp<SkSurface> compat_surface(SkCanvas* canvas, const SkISize& size) {
         SkImageInfo info = SkImageInfo::MakeN32Premul(size);
-
-        bool callNewSurface = true;
-        if (canvas->getGrContext() && skipGPU) {
-            callNewSurface = false;
-        }
-        sk_sp<SkSurface> surface = callNewSurface ? canvas->makeSurface(info) : nullptr;
+        sk_sp<SkSurface> surface = canvas->makeSurface(info);
         if (nullptr == surface) {
             // picture canvas will return null, so fall-back to raster
             surface = SkSurface::MakeRaster(info);
@@ -135,7 +130,7 @@ class SrcModeGM : public skiagm::GM {
     }
 
     void onDraw(SkCanvas* canvas) override {
-        auto surf(compat_surface(canvas, this->getISize(), this->isCanvasDeferred()));
+        auto surf(compat_surface(canvas, this->getISize()));
         surf->getCanvas()->drawColor(SK_ColorWHITE);
         this->drawContent(surf->getCanvas());
         surf->draw(canvas, 0, 0, nullptr);
