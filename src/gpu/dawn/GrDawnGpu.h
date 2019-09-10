@@ -62,7 +62,8 @@ public:
     GrOpsRenderPass* getOpsRenderPass(
             GrRenderTarget*, GrSurfaceOrigin, const SkRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo&,
-            const GrOpsRenderPass::StencilLoadAndStoreInfo&) override;
+            const GrOpsRenderPass::StencilLoadAndStoreInfo&,
+            const SkTArray<GrTextureProxy*, true>& sampledProxies) override;
 
     SkSL::Compiler* shaderCompiler() const {
         return fCompiler.get();
@@ -134,8 +135,9 @@ private:
                       size_t rowBytes) override;
 
     bool onWritePixels(GrSurface* surface, int left, int top, int width, int height,
-                       GrColorType surfaceColorType, GrColorType dstColorType,
-                       const GrMipLevel texels[], int mipLevelCount) override;
+                       GrColorType surfaceColorType, GrColorType srcColorType,
+                       const GrMipLevel texels[], int mipLevelCount,
+                       bool prepForTexSampling) override;
 
     bool onTransferPixelsTo(GrTexture*, int left, int top, int width, int height,
                             GrColorType textureColorType, GrColorType bufferColorType,

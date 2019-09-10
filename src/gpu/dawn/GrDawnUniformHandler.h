@@ -47,6 +47,8 @@ private:
                                           int arrayCount,
                                           const char** outName) override;
 
+    void updateUniformVisibility(UniformHandle u, uint32_t visibility) override;
+
     UniformInfoArray     fUniforms;
     UniformInfoArray     fSamplers;
     UniformInfoArray     fTextures;

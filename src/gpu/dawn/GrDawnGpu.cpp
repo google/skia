@@ -119,7 +119,8 @@ void GrDawnGpu::disconnect(DisconnectType type) {
 GrOpsRenderPass* GrDawnGpu::getOpsRenderPass(
             GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
-            const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo) {
+            const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
+            const SkTArray<GrTextureProxy*, true>& sampledProxies) {
     fOpsRenderPass.reset(new GrDawnOpsRenderPass(this, rt, origin, colorInfo, stencilInfo));
     return fOpsRenderPass.get();
 }
@@ -136,8 +137,9 @@ sk_sp<GrGpuBuffer> GrDawnGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrDawnGpu::onWritePixels(GrSurface* surface, int left, int top, int width, int height,
-                              GrColorType textureColorType, GrColorType bufferColorType,
-                              const GrMipLevel texels[], int mipLevelCount) {
+                              GrColorType surfaceColorType, GrColorType srcColorType,
+                              const GrMipLevel texels[], int mipLevelCount,
+                              bool prepForTexSampling) {
     GrDawnTexture* texture = static_cast<GrDawnTexture*>(surface->asTexture());
     if (!texture) {
         SkASSERT(!"uploading to non-texture unimplemented");
