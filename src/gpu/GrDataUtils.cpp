@@ -270,17 +270,7 @@ static bool fill_buffer_with_color(GrPixelConfig config, int width, int height,
             sk_memset32((uint32_t*) dest, rg1616, width * height);
             break;
         }
-        // Experimental (for Y416 and mutant P016/P010)
-        case kRGBA_16161616_GrPixelConfig: {
-            uint64_t r16 = SkScalarRoundToInt(colorf.fR * 65535.0f);
-            uint64_t g16 = SkScalarRoundToInt(colorf.fG * 65535.0f);
-            uint64_t b16 = SkScalarRoundToInt(colorf.fB * 65535.0f);
-            uint64_t a16 = SkScalarRoundToInt(colorf.fA * 65535.0f);
-
-            uint64_t rgba16161616 = (a16 << 48) | (b16 << 32) | (g16 << 16) | r16;
-            sk_memset64((uint64_t*) dest, rgba16161616, width * height);
-            break;
-        }
+        // Experimental (for mutant P016/P010)
         case kRG_half_GrPixelConfig: {
             uint32_t rHalf = SkFloatToHalf(colorf.fR);
             uint32_t gHalf = SkFloatToHalf(colorf.fG);
@@ -377,7 +367,6 @@ static GrSwizzle get_load_and_get_swizzle(GrColorType ct, SkRasterPipeline::Stoc
         case GrColorType::kAlpha_F16:        *load = SkRasterPipeline::load_af16;     break;
         case GrColorType::kRGBA_F16_Clamped: *load = SkRasterPipeline::load_f16;      break;
         case GrColorType::kRG_1616:          *load = SkRasterPipeline::load_rg1616;   break;
-        case GrColorType::kRGBA_16161616:    *load = SkRasterPipeline::load_16161616; break;
 
         case GrColorType::kRGBA_8888_SRGB:   *load = SkRasterPipeline::load_8888;
                                              *isSRGB = true;
@@ -433,7 +422,6 @@ static GrSwizzle get_dst_swizzle_and_store(GrColorType ct, SkRasterPipeline::Sto
         case GrColorType::kRGBA_1010102:     *store = SkRasterPipeline::store_1010102;  break;
         case GrColorType::kRGBA_F16_Clamped: *store = SkRasterPipeline::store_f16;      break;
         case GrColorType::kRG_1616:          *store = SkRasterPipeline::store_rg1616;   break;
-        case GrColorType::kRGBA_16161616:    *store = SkRasterPipeline::store_16161616; break;
 
         case GrColorType::kRGBA_8888_SRGB:   *store = SkRasterPipeline::store_8888;
                                              *isSRGB = true;
