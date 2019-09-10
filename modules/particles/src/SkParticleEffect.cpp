@@ -30,8 +30,11 @@ public:
 
 static const char* kCodeHeader =
 R"(
-layout(ctype=float) in uniform float dt;
-layout(ctype=float) in uniform float effectAge;
+struct Effect {
+  float age;
+  float lifetime;
+  float rate;
+};
 
 struct Particle {
   float  age;
@@ -46,7 +49,17 @@ struct Particle {
 };
 )";
 
-static const char* kDefaultCode =
+static const char* kDefaultEffectCode =
+R"(// float rand; Every read returns a random float [0 .. 1)
+
+void effectSpawn(inout Effect e) {
+}
+
+void effectUpdate(inout Effect e) {
+}
+)";
+
+static const char* kDefaultParticleCode =
 R"(// float rand; Every read returns a random float [0 .. 1)
 
 void spawn(inout Particle p) {
@@ -61,12 +74,14 @@ SkParticleEffectParams::SkParticleEffectParams()
         , fEffectDuration(1.0f)
         , fRate(8.0f)
         , fDrawable(nullptr)
-        , fCode(kDefaultCode) {
+        , fEffectCode(kDefaultEffectCode)
+        , fParticleCode(kDefaultParticleCode) {
     this->rebuild();
 }
 
 void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
-    SkString oldCode = fCode;
+    SkString oldEffectCode = fEffectCode;
+    SkString oldParticleCode = fParticleCode;
 
     v->visit("MaxCount", fMaxCount);
     v->visit("Duration", fEffectDuration);
@@ -74,12 +89,13 @@ void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
 
     v->visit("Drawable", fDrawable);
 
-    v->visit("Code", fCode);
+    v->visit("Code", fParticleCode);
+    v->visit("EffectCode", fEffectCode);
 
     v->visit("Bindings", fBindings);
 
     // TODO: Or, if any change to binding metadata?
-    if (fCode != oldCode) {
+    if (fParticleCode != oldParticleCode || fEffectCode != oldEffectCode) {
         this->rebuild();
     }
 }
@@ -103,7 +119,7 @@ void SkParticleEffectParams::rebuild() {
     }
 
     SkSL::String code(kCodeHeader);
-    code.append(fCode.c_str());
+    code.append(fParticleCode.c_str());
 
     auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind, code, settings);
     if (!program) {
@@ -117,27 +133,32 @@ void SkParticleEffectParams::rebuild() {
         return;
     }
 
-    fByteCode = std::move(byteCode);
-    fExternalValues.swap(externalValues);
+    fParticleByteCode.fByteCode = std::move(byteCode);
+    fParticleByteCode.fExternalValues.swap(externalValues);
+
+    // TODO: Build effect program, too
 }
 
 SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params, const SkRandom& random)
         : fParams(std::move(params))
         , fRandom(random)
         , fLooping(false)
-        , fEffectAge(-1.0)
         , fCount(0)
         , fLastTime(-1.0)
         , fSpawnRemainder(0.0f) {
+    fValues.fAge = -1.0f;
+    fValues.fLifetime = fParams->fEffectDuration;
+    fValues.fRate = 0.0f;
     this->setCapacity(fParams->fMaxCount);
 }
 
 void SkParticleEffect::start(double now, bool looping) {
     fCount = 0;
     fLastTime = now;
-    fEffectAge = 0.0f;
+    fValues.fAge = 0.0f;
     fSpawnRemainder = 0.0f;
     fLooping = looping;
+    // TODO: Run spawn script to set rate and lifetime. Need to handle burst here, too?
 }
 
 void SkParticleEffect::update(double now) {
@@ -156,17 +177,17 @@ void SkParticleEffect::update(double now) {
         this->setCapacity(fParams->fMaxCount);
     }
 
-    fEffectAge += deltaTime / fParams->fEffectDuration;
-    if (fEffectAge > 1) {
+    fValues.fAge += deltaTime / fValues.fLifetime;
+    if (fValues.fAge > 1) {
         if (fLooping) {
-            fEffectAge = fmodf(fEffectAge, 1.0f);
+            fValues.fAge = fmodf(fValues.fAge, 1.0f);
         } else {
             // Effect is dead if we've reached the end (and are not looping)
             return;
         }
     }
 
-    float updateParams[2] = { deltaTime, fEffectAge };
+    float updateParams[2] = { deltaTime, fValues.fAge };
 
     // Advance age for existing particles, and remove any that have reached their end of life
     for (int i = 0; i < fCount; ++i) {
@@ -183,15 +204,25 @@ void SkParticleEffect::update(double now) {
         }
     }
 
+    // Run effectUpdate (if present) to adjust spawn rate and other emitter properties
+    if (const auto& byteCode = fParams->fEffectByteCode.fByteCode) {
+        if (auto fun = byteCode->getFunction("effectUpdate")) {
+            for (const auto& value : fParams->fEffectByteCode.fExternalValues) {
+                value->setRandom(&fRandom);
+            }
+            SkAssertResult(byteCode->run(fun, &fValues.fAge, nullptr, 1, updateParams, 2));
+        }
+    }
+
     auto runProgram = [](const SkParticleEffectParams* params, const char* entry,
                          SkParticles& particles, float updateParams[], int start, int count) {
-        if (const auto& byteCode = params->fByteCode) {
+        if (const auto& byteCode = params->fParticleByteCode.fByteCode) {
             float* args[SkParticles::kNumChannels];
             for (int i = 0; i < SkParticles::kNumChannels; ++i) {
                 args[i] = particles.fData[i].get() + start;
             }
             SkRandom* randomBase = particles.fRandom.get() + start;
-            for (const auto& value : params->fExternalValues) {
+            for (const auto& value : params->fParticleByteCode.fExternalValues) {
                 value->setRandom(randomBase);
             }
             SkAssertResult(byteCode->runStriped(byteCode->getFunction(entry),
@@ -201,7 +232,7 @@ void SkParticleEffect::update(double now) {
     };
 
     // Spawn new particles
-    float desired = fParams->fRate * deltaTime + fSpawnRemainder;
+    float desired = fValues.fRate * deltaTime + fSpawnRemainder;
     int numToSpawn = sk_float_round2int(desired);
     fSpawnRemainder = desired - numToSpawn;
     numToSpawn = SkTPin(numToSpawn, 0, fParams->fMaxCount - fCount);

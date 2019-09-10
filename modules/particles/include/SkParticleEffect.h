@@ -39,6 +39,8 @@ public:
     // See SkParticleDrawable::Make*
     sk_sp<SkParticleDrawable> fDrawable;
 
+    SkString fEffectCode;
+
     // Particle behavior is driven by two SkSL functions defined in the fCode string.
     // Both functions get a mutable Particle struct:
     //
@@ -71,7 +73,7 @@ public:
     // 'void update(inout Particle p)' is called for each particle on every call to the running
     // SkParticleEffect's update() method. It can animate any of the particle's values. Note that
     // the 'lifetime' field has a different meaning in 'update', and should not be used or changed.
-    SkString fCode;
+    SkString fParticleCode;
 
     // External objects accessible by the effect's SkSL code. Each binding is a name and particular
     // kind of object. See SkParticleBinding::Make* for details.
@@ -83,8 +85,13 @@ private:
     friend class SkParticleEffect;
 
     // Cached
-    std::unique_ptr<SkSL::ByteCode> fByteCode;
-    SkTArray<std::unique_ptr<SkParticleExternalValue>> fExternalValues;
+    struct ByteCode {
+        std::unique_ptr<SkSL::ByteCode> fByteCode;
+        SkTArray<std::unique_ptr<SkParticleExternalValue>> fExternalValues;
+    };
+
+    ByteCode fEffectByteCode;
+    ByteCode fParticleByteCode;
 
     void rebuild();
 };
@@ -97,7 +104,7 @@ public:
     void update(double now);
     void draw(SkCanvas* canvas);
 
-    bool isAlive() const { return fEffectAge >= 0 && fEffectAge <= 1; }
+    bool isAlive() const { return fValues.fAge >= 0 && fValues.fAge <= 1; }
     int getCount() const { return fCount; }
 
     static void RegisterParticleTypes();
@@ -110,11 +117,17 @@ private:
     SkRandom fRandom;
 
     bool   fLooping;
-    float  fEffectAge;
-
     int    fCount;
     double fLastTime;
     float  fSpawnRemainder;
+
+    // Effect-associated values exposed to script
+    struct EffectValues {
+        float fAge;
+        float fLifetime;
+        float fRate;
+    };
+    EffectValues fValues;
 
     SkParticles             fParticles;
     SkAutoTMalloc<SkRandom> fStableRandoms;
