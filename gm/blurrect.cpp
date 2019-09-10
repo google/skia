@@ -251,7 +251,11 @@ protected:
 
     void onOnceBeforeDraw() override { this->prepareReferenceMasks(); }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+        if (canvas->imageInfo().colorType() == kUnknown_SkColorType) {
+            *errorMsg = "Not supported when recording, relies on canvas->makeSurface()";
+            return DrawResult::kSkip;
+        }
         int32_t ctxID = canvas->getGrContext() ? canvas->getGrContext()->priv().contextID() : 0;
         if (fRecalcMasksForAnimation || !fActualMasks[0][0][0] || ctxID != fLastContextUniqueID) {
             if (fRecalcMasksForAnimation) {
@@ -316,6 +320,7 @@ protected:
             canvas->restore();
             canvas->translate(totalW + 2 * kMargin, 0);
         }
+        return DrawResult::kOk;
     }
     bool onAnimate(double nanos) override {
         fSigmaAnimationBoost = TimeUtils::SineWave(nanos, 5, 2.5f, 0.f, 2.f);
