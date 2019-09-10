@@ -133,6 +133,7 @@ def RunSteps(api):
 
   try:
     mksp_mode = ('Mskp' in api.vars.builder_name)
+    print "run install from skpbench.py"
     api.flavor.install(skps=not mksp_mode, mskps=mksp_mode)
     skpbench_steps(api)
   finally:

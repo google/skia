@@ -117,6 +117,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
 
   def install(self, skps=False, images=False, lotties=False, svgs=False,
               resources=False, mskps=False):
+    print "Running install from default recipe"
     self._f.install()
 
     # TODO(borenet): Only copy files which have changed.
@@ -134,6 +135,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
     if svgs:
       self._copy_svgs()
     if mskps:
+      print "Copying mskps with code from default recipe"
       self._copy_mskps()
 
   def cleanup_steps(self):
