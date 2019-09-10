@@ -3,7 +3,7 @@
     "cmd": [],
     "name": "ensure xcode",
     "~followup_annotations": [
-      "@@@STEP_TEXT@Ensuring Xcode version 9c40b in [START_DIR]/cache/Xcode.app@@@"
+      "@@@STEP_TEXT@Ensuring Xcode version 10g8 in [START_DIR]/cache/Xcode.app@@@"
     ]
   },
   {
@@ -13,7 +13,7 @@
       "-kind",
       "ios",
       "-xcode-version",
-      "9c40b",
+      "10g8",
       "-output-dir",
       "[START_DIR]/cache/Xcode.app"
     ],
@@ -74,11 +74,12 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-x86_64-Debug-CommandBuffer/Debug",
-      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=9c40b\", \"-Wno-thread-safety-analysis\", \"-O1\"] skia_gl_standard=\"\" target_cpu=\"x86_64\" werror=true"
+      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=10g8\", \"-O1\"] skia_gl_standard=\"\" target_cpu=\"x86_64\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
+      "MACOSX_DEPLOYMENT_TARGET": "10.13",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "gn gen"
@@ -92,6 +93,7 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
+      "MACOSX_DEPLOYMENT_TARGET": "10.13",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "ninja"
