@@ -70,9 +70,6 @@ enum YUVFormat {
     // TODO: we're cheating a bit w/ P010 and just treating it as unorm 16. This means its
     // fully saturated values are 65504 rather than 65535 (that is just .9995 out of 1.0 though).
 
-    // 4:4:4 formats, 64 bpp
-    kY416_YUVFormat,  // 16-bit AVYU values all interleaved (1 texture)
-
     // 4:4:4 formats, 32 bpp
     kAYUV_YUVFormat,  // 8-bit YUVA values all interleaved (1 texture)
     kY410_YUVFormat,  // AVYU w/ 10bpp for YUV and 2 for A all interleaved (1 texture)
@@ -89,20 +86,17 @@ enum YUVFormat {
 
 static bool format_uses_16_bpp(YUVFormat yuvFormat) {
     return kP016_YUVFormat == yuvFormat ||
-           kP010_YUVFormat == yuvFormat ||
-           kY416_YUVFormat == yuvFormat;
+           kP010_YUVFormat == yuvFormat;
 }
 
 static bool format_has_builtin_alpha(YUVFormat yuvFormat) {
-    return kY416_YUVFormat == yuvFormat ||
-           kAYUV_YUVFormat == yuvFormat ||
+    return kAYUV_YUVFormat == yuvFormat ||
            kY410_YUVFormat == yuvFormat;
 }
 
 static bool format_cant_be_represented_with_pixmaps(YUVFormat yuvFormat) {
     return kP016_YUVFormat == yuvFormat ||      // bc missing SkColorType::kRG_1616 and kR_16
            kP010_YUVFormat == yuvFormat ||      // bc missing SkColorType::kRG_1616 and kR_16
-           kY416_YUVFormat == yuvFormat ||      // bc missing SkColorType::kRGBA_16161616
            kNV12_YUVFormat == yuvFormat ||      // bc missing SkColorType::kRG_88
            kNV21_YUVFormat == yuvFormat;        // bc missing SkColorType::kRG_88
 }
@@ -127,17 +121,6 @@ static void setup_yuv_indices(YUVFormat yuvFormat, bool addExtraAlpha, SkYUVAInd
             } else {
                 yuvaIndices[3].fIndex = -1; // No alpha channel
             }
-            break;
-        case kY416_YUVFormat:
-            SkASSERT(!addExtraAlpha); // this format already has an alpha channel
-            yuvaIndices[0].fIndex = 0;
-            yuvaIndices[0].fChannel = SkColorChannel::kG;
-            yuvaIndices[1].fIndex = 0;
-            yuvaIndices[1].fChannel = SkColorChannel::kB;
-            yuvaIndices[2].fIndex = 0;
-            yuvaIndices[2].fChannel = SkColorChannel::kR;
-            yuvaIndices[3].fIndex = 0;
-            yuvaIndices[3].fChannel = SkColorChannel::kA;
             break;
         case kAYUV_YUVFormat:
             SkASSERT(!addExtraAlpha); // this format already has an alpha channel
@@ -558,33 +541,6 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
     int nextLayer = 0;
 
     switch (yuvFormat) {
-        case kY416_YUVFormat: {
-            // Although this is 16 bpp, store the data in an 8 bpp SkBitmap
-            SkBitmap yuvaFull;
-
-            yuvaFull.allocPixels(SkImageInfo::Make(planes.fYFull.width(), planes.fYFull.height(),
-                                                   kRGBA_8888_SkColorType, kUnpremul_SkAlphaType));
-
-            for (int y = 0; y < planes.fYFull.height(); ++y) {
-                for (int x = 0; x < planes.fYFull.width(); ++x) {
-
-                    uint8_t Y = *planes.fYFull.getAddr8(x, y);
-                    uint8_t U = *planes.fUFull.getAddr8(x, y);
-                    uint8_t V = *planes.fVFull.getAddr8(x, y);
-                    uint8_t A = *planes.fAFull.getAddr8(x, y);
-
-                    // NOT premul!
-                    // U and V swapped to match RGBA layout
-                    SkColor c = SkColorSetARGB(A, U, Y, V);
-                    *yuvaFull.getAddr32(x, y) = c;
-                }
-            }
-
-            resultBMs[nextLayer++] = yuvaFull;
-
-            setup_yuv_indices(yuvFormat, false, yuvaIndices);
-            break;
-        }
         case kAYUV_YUVFormat: {
             SkBitmap yuvaFull;
 
@@ -913,7 +869,7 @@ static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaq
 
 static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
     static const char* kYUVFormatNames[] = {
-        "P016", "P010", "Y416", "AYUV", "Y410", "NV12", "NV21", "I420", "YV12"
+        "P016", "P010", "AYUV", "Y410", "NV12", "NV21", "I420", "YV12"
     };
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kYUVFormatNames) == kLast_YUVFormat+1);
 
@@ -963,40 +919,6 @@ static void make_RG_1616(const GrCaps* caps,
     }
 
     *format = caps->getDefaultBackendFormat(GrColorType::kRG_1616, GrRenderable::kNo);
-}
-
-static void make_RGBA_16(const GrCaps* caps,
-                         const SkBitmap& bm,
-                         YUVFormat yuvFormat,
-                         SkAutoTMalloc<uint8_t>* pixels,
-                         GrBackendFormat* format,
-                         size_t* rowBytes) {
-    SkASSERT(kY416_YUVFormat == yuvFormat);
-    SkASSERT(kRGBA_8888_SkColorType == bm.colorType());
-
-    uint16_t y16, u16, v16, a16;
-    *rowBytes = 4 * sizeof(uint16_t) * bm.width();
-    pixels->reset(*rowBytes * bm.height());
-    uint16_t* currPixel = (uint16_t*) pixels->get();
-    for (int y = 0; y < bm.height(); ++y) {
-        for (int x = 0; x < bm.width(); ++x) {
-            SkColor color = bm.getColor(x, y);
-
-            y16 = SkScalarRoundToInt((SkColorGetR(color) / 255.0f) * 65535.0f);
-            u16 = SkScalarRoundToInt((SkColorGetG(color) / 255.0f) * 65535.0f);
-            v16 = SkScalarRoundToInt((SkColorGetB(color) / 255.0f) * 65535.0f);
-            a16 = SkScalarRoundToInt((SkColorGetA(color) / 255.0f) * 65535.0f);
-
-            currPixel[0] = y16;
-            currPixel[1] = u16;
-            currPixel[2] = v16;
-            currPixel[3] = a16;
-            currPixel += 4;
-        }
-    }
-
-    *format = caps->getDefaultBackendFormat(GrColorType::kRGBA_16161616, GrRenderable::kNo);
-    return;
 }
 
 static void make_R_16(const GrCaps* caps,
@@ -1061,11 +983,7 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkBitmap& 
                                                             GrRenderable::kNo, GrProtected::kNo);
             }
         } else {
-            if (kRGBA_8888_SkColorType == bm.colorType()) {
-                make_RGBA_16(caps, bm, yuvFormat, &pixels, &format, &rowBytes);
-            } else {
-                make_R_16(caps, bm, yuvFormat, &pixels, &format, &rowBytes);
-            }
+            make_R_16(caps, bm, yuvFormat, &pixels, &format, &rowBytes);
         }
 
         // TODO: SkColorType needs to be expanded to allow RG_1616, RGBA_16 and R_16 to be done
@@ -1100,7 +1018,6 @@ namespace skiagm {
 // originals
 // P016
 // P010
-// Y416
 // AYUV
 // Y410
 // NV12

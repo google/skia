@@ -3703,7 +3703,6 @@ static GrPixelConfig gl_format_to_pixel_config(GrGLFormat format) {
         case GrGLFormat::kRGBA16F:              return kRGBA_half_GrPixelConfig;
         case GrGLFormat::kR16:                  return kR_16_GrPixelConfig;
         case GrGLFormat::kRG16:                 return kRG_1616_GrPixelConfig;
-        case GrGLFormat::kRGBA16:               return kRGBA_16161616_GrPixelConfig;
         case GrGLFormat::kRG16F:                return kRG_half_GrPixelConfig;
         case GrGLFormat::kUnknown:              return kUnknown_GrPixelConfig;
 

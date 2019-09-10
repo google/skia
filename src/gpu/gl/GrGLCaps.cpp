@@ -2656,76 +2656,6 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         }
     }
 
-    // Format: GR_GL_RGBA16
-    {
-        // For desktop:
-        //    GL 3.0 requires both texture and render support for RGBA16
-        // For ES:
-        //    GL_EXT_texture_norm16 adds support for both texturing and rendering
-        //    There is also the GL_NV_image_formats extension - for further investigation
-        //
-        // This is basically the same as R16F and RG16F except the GL_ARB_texture_rg extension
-        // doesn't add this format
-        bool rgba16161616Supported = false;
-        if (GR_IS_GR_GL(standard)) {
-            if (version >= GR_GL_VER(3, 0)) {
-                rgba16161616Supported = true;
-            }
-        } else if (GR_IS_GR_GL_ES(standard)) {
-            if (ctxInfo.hasExtension("GL_EXT_texture_norm16")) {
-                rgba16161616Supported = true;
-            }
-        } // No WebGL support
-
-        FormatInfo& info = this->getFormatInfo(GrGLFormat::kRGBA16);
-        info.fFormatType = FormatType::kNormalizedFixedPoint;
-        info.fBaseInternalFormat = GR_GL_RGBA;
-        info.fSizedInternalFormat = GR_GL_RGBA16;
-        info.fInternalFormatForTexImage =
-                texImageSupportsSizedInternalFormat ? GR_GL_RGBA16 : GR_GL_RGBA;
-        info.fInternalFormatForRenderbuffer = GR_GL_RGBA16;
-        info.fDefaultExternalType = GR_GL_UNSIGNED_SHORT;
-        if (rgba16161616Supported) {
-            info.fFlags = FormatInfo::kTexturable_Flag | msaaRenderFlags;
-        }
-
-        if (rgba16161616Supported) {
-            // Format: GR_GL_RGBA16, Surface: kRGBA_16161616
-            info.fColorTypeInfoCount = 1;
-            info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
-            int ctIdx = 0;
-            {
-                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = GrColorType::kRGBA_16161616;
-                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-                this->setColorTypeFormat(GrColorType::kRGBA_16161616, GrGLFormat::kRGBA16);
-
-                // External IO ColorTypes:
-                ctInfo.fExternalIOFormatCount = 2;
-                ctInfo.fExternalIOFormats.reset(
-                        new ColorTypeInfo::ExternalIOFormats[ctInfo.fExternalIOFormatCount]());
-                int ioIdx = 0;
-                // Format: GR_GL_RGBA16, Surface: kRGBA_16161616, Data: kRGBA_16161616
-                {
-                    auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
-                    ioFormat.fColorType = GrColorType::kRGBA_16161616;
-                    ioFormat.fExternalType = GR_GL_UNSIGNED_SHORT;
-                    ioFormat.fExternalTexImageFormat = GR_GL_RGBA;
-                    ioFormat.fExternalReadFormat = 0;
-                }
-
-                // Format: GR_GL_RGBA16, Surface: kRGBA_16161616, Data: kRGBA_8888
-                {
-                    auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
-                    ioFormat.fColorType = GrColorType::kRGBA_8888;
-                    ioFormat.fExternalType = GR_GL_UNSIGNED_BYTE;
-                    ioFormat.fExternalTexImageFormat = 0;
-                    ioFormat.fExternalReadFormat = GR_GL_RGBA;
-                }
-            }
-        }
-    }
-
     // Format: GR_GL_RG16F
     {
         bool rg16fTexturesSupported = false;
@@ -3943,11 +3873,6 @@ static GrPixelConfig validate_sized_format(GrGLFormat format,
                 return kRG_1616_GrPixelConfig;
             }
             break;
-        case GrColorType::kRGBA_16161616:
-            if (format == GrGLFormat::kRGBA16) {
-                return kRGBA_16161616_GrPixelConfig;
-            }
-            break;
         case GrColorType::kRG_F16:
             if (format == GrGLFormat::kRG16F) {
                 return kRG_half_GrPixelConfig;
@@ -3999,8 +3924,7 @@ GrColorType GrGLCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& f
         case GrGLFormat::kR16F:         return GrColorType::kAlpha_F16;
         case GrGLFormat::kR16:          return GrColorType::kR_16;
         case GrGLFormat::kRG16:         return GrColorType::kRG_1616;
-        // Experimental (for Y416 and mutant P016/P010)
-        case GrGLFormat::kRGBA16:       return GrColorType::kRGBA_16161616;
+        // Experimental (for mutant P016/P010)
         case GrGLFormat::kRG16F:        return GrColorType::kRG_F16;
         default:                        return GrColorType::kUnknown;
     }
@@ -4095,8 +4019,6 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrGLCaps::getTestingCombinat
           GrBackendFormat::MakeGL(GR_GL_R16, GR_GL_TEXTURE_2D) },
         { GrColorType::kRG_1616,
           GrBackendFormat::MakeGL(GR_GL_RG16, GR_GL_TEXTURE_2D) },
-        { GrColorType::kRGBA_16161616,
-          GrBackendFormat::MakeGL(GR_GL_RGBA16, GR_GL_TEXTURE_2D) },
         { GrColorType::kRG_F16,
           GrBackendFormat::MakeGL(GR_GL_RG16F, GR_GL_TEXTURE_2D) },
     };

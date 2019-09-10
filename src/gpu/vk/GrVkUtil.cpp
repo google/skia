@@ -37,8 +37,7 @@ bool GrVkFormatColorTypePairIsValid(VkFormat format, GrColorType colorType) {
         case VK_FORMAT_R16G16_UNORM:              return GrColorType::kRG_1616 == colorType;
         case VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM: return GrColorType::kRGB_888x == colorType;
         case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:  return GrColorType::kRGB_888x == colorType;
-        // Experimental (for Y416 and mutant P016/P010)
-        case VK_FORMAT_R16G16B16A16_UNORM:        return GrColorType::kRGBA_16161616 == colorType;
+        // Experimental (for mutant P016/P010)
         case VK_FORMAT_R16G16_SFLOAT:             return GrColorType::kRG_F16 == colorType;
         default:                                  return false;
     }
@@ -67,8 +66,7 @@ bool GrVkFormatIsSupported(VkFormat format) {
         case VK_FORMAT_R16G16_UNORM:
         case VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM:
         case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:
-        // Experimental (for Y416 and mutant P016/P010)
-        case VK_FORMAT_R16G16B16A16_UNORM:
+        // Experimental (for mutant P016/P010)
         case VK_FORMAT_R16G16_SFLOAT:
             return true;
         default:
@@ -212,9 +210,7 @@ size_t GrVkBytesPerFormat(VkFormat vkFormat) {
         case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
             return 0;
 
-        // Experimental (for Y416 and mutant P016/P010)
-        case VK_FORMAT_R16G16B16A16_UNORM:
-            return 8;
+        // Experimental (for mutant P016/P010)
         case VK_FORMAT_R16G16_SFLOAT:
             return 4;
 

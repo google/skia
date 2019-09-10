@@ -2030,21 +2030,6 @@ STAGE(store_rg1616, const SkRasterPipeline_MemoryCtx* ctx) {
            | to_unorm(g, 65535) <<  16;
     store(ptr, px, tail);
 }
-STAGE(load_16161616, const SkRasterPipeline_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<const uint64_t>(ctx, dx,dy);
-    from_16161616(load<U64>(ptr, tail), &r,&g, &b, &a);
-}
-STAGE(store_16161616, const SkRasterPipeline_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<uint16_t>(ctx, 4*dx,4*dy);
-
-    U16 R = pack(to_unorm(r, 65535)),
-        G = pack(to_unorm(g, 65535)),
-        B = pack(to_unorm(b, 65535)),
-        A = pack(to_unorm(a, 65535));
-
-    store4(ptr,tail, R,G,B,A);
-}
-
 
 STAGE(load_1010102, const SkRasterPipeline_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<const uint32_t>(ctx, dx,dy);
@@ -4114,8 +4099,6 @@ STAGE_PP(swizzle, void* ctx) {
     NOT_IMPLEMENTED(dither)  // TODO
     NOT_IMPLEMENTED(from_srgb)
     NOT_IMPLEMENTED(to_srgb)
-    NOT_IMPLEMENTED(load_16161616)
-    NOT_IMPLEMENTED(store_16161616)
     NOT_IMPLEMENTED(load_a16)
     NOT_IMPLEMENTED(store_a16)
     NOT_IMPLEMENTED(load_rg1616)
