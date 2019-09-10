@@ -953,8 +953,8 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc,
                                           int renderTargetSampleCnt,
                                           SkBudgeted budgeted,
                                           GrProtected isProtected,
-                                          int mipLevelCount,
-                                          uint32_t levelClearMask) {
+                                          const GrMipLevel texels[],
+                                          int mipLevelCount) {
     VkFormat pixelFormat;
     SkAssertResult(format.asVkFormat(&pixelFormat));
     SkASSERT(!GrVkFormatIsCompressed(pixelFormat));
@@ -975,20 +975,28 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc,
     // This ImageDesc refers to the texture that will be read by the client. Thus even if msaa is
     // requested, this ImageDesc describes the resolved texture. Therefore we always have samples set
     // to 1.
-    SkASSERT(mipLevelCount > 0);
+    int mipLevels = !mipLevelCount ? 1 : mipLevelCount;
     GrVkImage::ImageDesc imageDesc;
     imageDesc.fImageType = VK_IMAGE_TYPE_2D;
     imageDesc.fFormat = pixelFormat;
     imageDesc.fWidth = desc.fWidth;
     imageDesc.fHeight = desc.fHeight;
-    imageDesc.fLevels = mipLevelCount;
+    imageDesc.fLevels = mipLevels;
     imageDesc.fSamples = 1;
     imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
     imageDesc.fUsageFlags = usageFlags;
     imageDesc.fIsProtected = isProtected;
 
-    GrMipMapsStatus mipMapsStatus =
-            mipLevelCount > 1 ? GrMipMapsStatus::kDirty : GrMipMapsStatus::kNotAllocated;
+    GrMipMapsStatus mipMapsStatus = GrMipMapsStatus::kNotAllocated;
+    if (mipLevels > 1) {
+        mipMapsStatus = GrMipMapsStatus::kValid;
+        for (int i = 0; i < mipLevels; ++i) {
+            if (!texels[i].fPixels) {
+                mipMapsStatus = GrMipMapsStatus::kDirty;
+                break;
+            }
+        }
+    }
 
     sk_sp<GrVkTexture> tex;
     if (renderable == GrRenderable::kYes) {
@@ -1002,11 +1010,20 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc,
         return nullptr;
     }
 
-    if (levelClearMask) {
+    auto colorType = GrPixelConfigToColorType(desc.fConfig);
+    if (mipLevelCount) {
+        if (!this->uploadTexDataOptimal(tex.get(), 0, 0, desc.fWidth, desc.fHeight, colorType,
+                                        texels, mipLevelCount)) {
+            tex->unref();
+            return nullptr;
+        }
+    }
+
+    if (this->caps()->shouldInitializeTextures()) {
         SkSTArray<1, VkImageSubresourceRange> ranges;
         bool inRange = false;
         for (uint32_t i = 0; i < tex->mipLevels(); ++i) {
-            if (levelClearMask & (1U << i)) {
+            if (i >= static_cast<uint32_t>(mipLevelCount) || !texels[i].fPixels) {
                 if (inRange) {
                     ranges.back().levelCount++;
                 } else {
@@ -1022,12 +1039,15 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc,
                 inRange = false;
             }
         }
-        SkASSERT(!ranges.empty());
-        static constexpr VkClearColorValue kZeroClearColor = {};
-        tex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                            VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, false);
-        this->currentCommandBuffer()->clearColorImage(this, tex.get(), &kZeroClearColor,
-                                                      ranges.count(), ranges.begin());
+
+        if (!ranges.empty()) {
+            static constexpr VkClearColorValue kZeroClearColor = {};
+            tex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                false);
+            this->currentCommandBuffer()->clearColorImage(this, tex.get(), &kZeroClearColor,
+                                                          ranges.count(), ranges.begin());
+        }
     }
     return tex;
 }

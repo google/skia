@@ -139,8 +139,8 @@ private:
                                      int renderTargetSampleCnt,
                                      SkBudgeted budgeted,
                                      GrProtected,
-                                     int mipLevelCount,
-                                     uint32_t levelClearMask) override;
+                                     const GrMipLevel texels[],
+                                     int mipLevelCount) override;
     sk_sp<GrTexture> onCreateCompressedTexture(int width, int height, const GrBackendFormat&,
                                                SkImage::CompressionType, SkBudgeted,
                                                const void* data) override {

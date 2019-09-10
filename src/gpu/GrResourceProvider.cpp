@@ -45,11 +45,18 @@ GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSin
 // Ensures the row bytes are populated (not 0) and makes a copy to a temporary
 // to make the row bytes tight if necessary. Returns false if the input row bytes are invalid.
 static bool prepare_level(const GrMipLevel& inLevel, size_t bpp, int w, int h, bool rowBytesSupport,
-                          GrMipLevel* outLevel, std::unique_ptr<char[]>* data) {
+                          bool mustInitializeAllLevels, GrMipLevel* outLevel,
+                          std::unique_ptr<char[]>* data) {
     size_t minRB = w * bpp;
     if (!inLevel.fPixels) {
-        outLevel->fPixels = nullptr;
-        outLevel->fRowBytes = 0;
+        if (mustInitializeAllLevels) {
+            data->reset(new char[minRB * h]());
+            outLevel->fPixels = data->get();
+            outLevel->fRowBytes = minRB;
+        } else {
+            outLevel->fPixels = nullptr;
+            outLevel->fRowBytes = 0;
+        }
         return true;
     }
     size_t actualRB = inLevel.fRowBytes ? inLevel.fRowBytes : minRB;
@@ -90,6 +97,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
                                       renderTargetSampleCnt, mipMapped)) {
         return nullptr;
     }
+    bool mustInitializeAllLevels = this->caps()->createTextureMustSpecifyAllLevels();
     bool rowBytesSupport = this->caps()->writePixelsRowBytesSupport();
     SkAutoSTMalloc<14, GrMipLevel> tmpTexels;
     SkAutoSTArray<14, std::unique_ptr<char[]>> tmpDatas;
@@ -100,8 +108,8 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         int h = desc.fHeight;
         size_t bpp = GrBytesPerPixel(desc.fConfig);
         for (int i = 0; i < mipLevelCount; ++i) {
-            if (!prepare_level(texels[i], bpp, w, h, rowBytesSupport, &tmpTexels[i],
-                               &tmpDatas[i])) {
+            if (!prepare_level(texels[i], bpp, w, h, rowBytesSupport, mustInitializeAllLevels,
+                               &tmpTexels[i], &tmpDatas[i])) {
                 return nullptr;
             }
             w = std::max(w / 2, 1);
@@ -154,13 +162,14 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
     GrContext* context = fGpu->getContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
+    bool mustInitialize = this->caps()->createTextureMustSpecifyAllLevels();
     bool rowBytesSupport = this->caps()->writePixelsRowBytesSupport();
 
     size_t bpp = GrBytesPerPixel(desc.fConfig);
     std::unique_ptr<char[]> tmpData;
     GrMipLevel tmpLevel;
-    if (!prepare_level(mipLevel, bpp, desc.fWidth, desc.fHeight, rowBytesSupport, &tmpLevel,
-                       &tmpData)) {
+    if (!prepare_level(mipLevel, bpp, desc.fWidth, desc.fHeight, rowBytesSupport, mustInitialize,
+                       &tmpLevel, &tmpData)) {
         return nullptr;
     }
 
@@ -228,6 +237,17 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         if (tex) {
             return tex;
         }
+    }
+
+    if (fCaps->createTextureMustSpecifyAllLevels()) {
+        size_t rowBytes = GrBytesPerPixel(desc.fConfig) * desc.fWidth;
+        size_t size = rowBytes * desc.fHeight;
+        std::unique_ptr<char[]> zeros(new char[size]());
+        GrMipLevel level;
+        level.fRowBytes = rowBytes;
+        level.fPixels = zeros.get();
+        return fGpu->createTexture(desc, format, renderable, renderTargetSampleCnt, budgeted,
+                                   isProtected, &level, 1);
     }
 
     return fGpu->createTexture(desc, format, renderable, renderTargetSampleCnt, budgeted,
@@ -300,6 +320,16 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         return tex;
     }
 
+    if (this->caps()->createTextureMustSpecifyAllLevels()) {
+        size_t rowBytes = GrBytesPerPixel(copyDesc->fConfig) * copyDesc->fWidth;
+        size_t size = rowBytes * copyDesc->fHeight;
+        std::unique_ptr<char[]> zeros(new char[size]());
+        GrMipLevel level;
+        level.fRowBytes = rowBytes;
+        level.fPixels = zeros.get();
+        return fGpu->createTexture(*copyDesc, format, renderable, renderTargetSampleCnt,
+                                   SkBudgeted::kYes, isProtected, &level, 1);
+    }
     return fGpu->createTexture(*copyDesc, format, renderable, renderTargetSampleCnt,
                                SkBudgeted::kYes, isProtected);
 }
