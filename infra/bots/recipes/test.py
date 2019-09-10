@@ -587,6 +587,10 @@ def dm_flags(api, bot):
     blacklist([      'pic-8888', 'gm', '_', test])
     blacklist(['serialize-8888', 'gm', '_', test])
 
+  # GM requries canvas->makeSurface() to return a valid surface.
+    blacklist([      'pic-8888', 'gm', '_', "blurrect_compare"])
+    blacklist(['serialize-8888', 'gm', '_', "blurrect_compare"])
+
   # GM that not support tiles_rt
   for test in ['complexclip4_bw', 'complexclip4_aa']:
     blacklist([ 'tiles_rt-8888', 'gm', '_', test])
