@@ -69,8 +69,7 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
         { GrColorType::kR_16,             MTLPixelFormatR16Unorm,        SkColors::kRed       },
         { GrColorType::kRG_1616,          MTLPixelFormatRG16Unorm,       SkColors::kYellow    },
 
-        // Experimental (for Y416 and mutant P016/P010)
-        { GrColorType::kRGBA_16161616,    MTLPixelFormatRGBA16Unorm,     SkColors::kLtGray    },
+        // Experimental (for mutant P016/P010)
         { GrColorType::kRG_F16,           MTLPixelFormatRG16Float,       SkColors::kYellow    },
 
 #ifdef SK_BUILD_FOR_IOS

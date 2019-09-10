@@ -295,8 +295,7 @@ static inline int32_t dither_range_type_for_config(GrColorType dstColorType) {
         case GrColorType::kBGRA_8888:
         case GrColorType::kR_16:
         case GrColorType::kRG_1616:
-        // Experimental (for Y416 and mutant P016/P010)
-        case GrColorType::kRGBA_16161616:
+        // Experimental (for mutant P016/P010)
         case GrColorType::kRG_F16:
             return 0;
         case GrColorType::kBGR_565:

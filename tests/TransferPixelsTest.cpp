@@ -437,7 +437,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTest, reporter, ctxInfo) {
                      GrColorType::kRGBA_F32,
                      GrColorType::kR_16,
                      GrColorType::kRG_1616,
-                     GrColorType::kRGBA_16161616,
                      GrColorType::kRG_F16,
              }) {
             basic_transfer_to_test(reporter, ctxInfo.grContext(), colorType, renderable);
@@ -468,7 +467,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTest, reporter, ctxInfo) {
                 GrColorType::kRGBA_F32,
                 GrColorType::kR_16,
                 GrColorType::kRG_1616,
-                GrColorType::kRGBA_16161616,
                 GrColorType::kRG_F16,
         }) {
             basic_transfer_from_test(reporter, ctxInfo, colorType, renderable);
