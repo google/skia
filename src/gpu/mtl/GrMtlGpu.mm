@@ -107,11 +107,13 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
     fCaps = fMtlCaps;
 #ifdef GR_METAL_SDK_SUPPORTS_EVENTS
-    if (fMtlCaps->fenceSyncSupport()) {
-        fSharedEvent = [fDevice newSharedEvent];
-        dispatch_queue_t dispatchQueue = dispatch_queue_create("MTLFenceSync", NULL);
-        fSharedEventListener = [[MTLSharedEventListener alloc] initWithDispatchQueue:dispatchQueue];
-        fLatestEvent = 0;
+    if (@available(macOS 10.14, iOS 12.0, *)) {
+        if (fMtlCaps->fenceSyncSupport()) {
+            fSharedEvent = [fDevice newSharedEvent];
+            dispatch_queue_t dispatchQ = dispatch_queue_create("MTLFenceSync", NULL);
+            fSharedEventListener = [[MTLSharedEventListener alloc] initWithDispatchQueue:dispatchQ];
+            fLatestEvent = 0;
+        }
     }
 #endif
 }
@@ -1048,12 +1050,14 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
 
 GrFence SK_WARN_UNUSED_RESULT GrMtlGpu::insertFence() {
 #ifdef GR_METAL_SDK_SUPPORTS_EVENTS
-    if (this->caps()->fenceSyncSupport()) {
-        GrMtlCommandBuffer* cmdBuffer = this->commandBuffer();
-        ++fLatestEvent;
-        cmdBuffer->encodeSignalEvent(fSharedEvent, fLatestEvent);
+    if (@available(macOS 10.14, iOS 12.0, *)) {
+        if (this->caps()->fenceSyncSupport()) {
+            GrMtlCommandBuffer* cmdBuffer = this->commandBuffer();
+            ++fLatestEvent;
+            cmdBuffer->encodeSignalEvent(fSharedEvent, fLatestEvent);
 
-        return fLatestEvent;
+            return fLatestEvent;
+        }
     }
 #endif
     return 0;
@@ -1061,20 +1065,22 @@ GrFence SK_WARN_UNUSED_RESULT GrMtlGpu::insertFence() {
 
 bool GrMtlGpu::waitFence(GrFence value, uint64_t timeout) {
 #ifdef GR_METAL_SDK_SUPPORTS_EVENTS
-    if (this->caps()->fenceSyncSupport()) {
-        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    if (@available(macOS 10.14, iOS 12.0, *)) {
+        if (this->caps()->fenceSyncSupport()) {
+            dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 
-        // Add listener for this particular value or greater
-        __block dispatch_semaphore_t block_sema = semaphore;
-        [fSharedEvent notifyListener: fSharedEventListener
-                             atValue: value
-                               block: ^(id<MTLSharedEvent> sharedEvent, uint64_t value) {
-                                   dispatch_semaphore_signal(block_sema);
-                               }];
+            // Add listener for this particular value or greater
+            __block dispatch_semaphore_t block_sema = semaphore;
+            [fSharedEvent notifyListener: fSharedEventListener
+                                 atValue: value
+                                   block: ^(id<MTLSharedEvent> sharedEvent, uint64_t value) {
+                                       dispatch_semaphore_signal(block_sema);
+                                   }];
 
-        long result = dispatch_semaphore_wait(semaphore, timeout);
+            long result = dispatch_semaphore_wait(semaphore, timeout);
 
-        return !result;
+            return !result;
+        }
     }
 #endif
     return true;
@@ -1107,17 +1113,21 @@ sk_sp<GrSemaphore> GrMtlGpu::wrapBackendSemaphore(const GrBackendSemaphore& sema
 
 void GrMtlGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore) {
 #ifdef GR_METAL_SDK_SUPPORTS_EVENTS
-    GrMtlSemaphore* mtlSem = static_cast<GrMtlSemaphore*>(semaphore.get());
+    if (@available(macOS 10.14, iOS 12.0, *)) {
+        GrMtlSemaphore* mtlSem = static_cast<GrMtlSemaphore*>(semaphore.get());
 
-    this->commandBuffer()->encodeSignalEvent(mtlSem->event(), mtlSem->value());
+        this->commandBuffer()->encodeSignalEvent(mtlSem->event(), mtlSem->value());
+    }
 #endif
 }
 
 void GrMtlGpu::waitSemaphore(sk_sp<GrSemaphore> semaphore) {
 #ifdef GR_METAL_SDK_SUPPORTS_EVENTS
-    GrMtlSemaphore* mtlSem = static_cast<GrMtlSemaphore*>(semaphore.get());
+    if (@available(macOS 10.14, iOS 12.0, *)) {
+        GrMtlSemaphore* mtlSem = static_cast<GrMtlSemaphore*>(semaphore.get());
 
-    this->commandBuffer()->encodeWaitForEvent(mtlSem->event(), mtlSem->value());
+        this->commandBuffer()->encodeWaitForEvent(mtlSem->event(), mtlSem->value());
+    }
 #endif
 }
 
