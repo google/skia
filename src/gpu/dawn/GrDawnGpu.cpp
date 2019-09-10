@@ -37,10 +37,37 @@
 
 const int kMaxRenderPipelineEntries = 1024;
 
-namespace {
+static dawn::FilterMode to_dawn_filter_mode(GrSamplerState::Filter filter) {
+    switch (filter) {
+        case GrSamplerState::Filter::kNearest:
+            return dawn::FilterMode::Nearest;
+        case GrSamplerState::Filter::kBilerp:
+        case GrSamplerState::Filter::kMipMap:
+            return dawn::FilterMode::Linear;
+        default:
+            SkASSERT(!"unsupported filter mode");
+            return dawn::FilterMode::Nearest;
+    }
+}
+
+static dawn::AddressMode to_dawn_address_mode(GrSamplerState::WrapMode wrapMode) {
+    switch (wrapMode) {
+        case GrSamplerState::WrapMode::kClamp:
+            return dawn::AddressMode::ClampToEdge;
+        case GrSamplerState::WrapMode::kRepeat:
+            return dawn::AddressMode::Repeat;
+        case GrSamplerState::WrapMode::kMirrorRepeat:
+            return dawn::AddressMode::MirrorRepeat;
+        case GrSamplerState::WrapMode::kClampToBorder:
+            SkASSERT(!"unsupported address mode");
+    }
+    SkASSERT(!"unsupported address mode");
+    return dawn::AddressMode::ClampToEdge;
+
+}
 
 // FIXME: taken from GrVkPipelineState; refactor.
-uint32_t get_blend_info_key(const GrPipeline& pipeline) {
+static uint32_t get_blend_info_key(const GrPipeline& pipeline) {
     GrXferProcessor::BlendInfo blendInfo = pipeline.getXferProcessor().getBlendInfo();
 
     static const uint32_t kBlendWriteShift = 1;
@@ -80,8 +107,6 @@ public:
         b.add32(static_cast<uint32_t>(primitiveType));
         return true;
     }
-};
-
 };
 
 sk_sp<GrGpu> GrDawnGpu::Make(const dawn::Device& device,
@@ -641,6 +666,25 @@ sk_sp<GrDawnProgram> GrDawnGpu::getOrCreateRenderPipeline(
         hasDepthStencil, stencilFormat, &desc);
     fRenderPipelineCache.insert(desc, program);
     return program;
+}
+
+dawn::Sampler GrDawnGpu::getOrCreateSampler(const GrSamplerState& samplerState) {
+    auto i = fSamplers.find(samplerState);
+    if (i != fSamplers.end()) {
+        return i->second;
+    }
+    dawn::SamplerDescriptor desc;
+    desc.addressModeU = to_dawn_address_mode(samplerState.wrapModeX());
+    desc.addressModeV = to_dawn_address_mode(samplerState.wrapModeY());
+    desc.addressModeW = dawn::AddressMode::ClampToEdge;
+    desc.magFilter = desc.minFilter = to_dawn_filter_mode(samplerState.filter());
+    desc.mipmapFilter = dawn::FilterMode::Linear;
+    desc.lodMinClamp = 0.0f;
+    desc.lodMaxClamp = 1000.0f;
+    desc.compare = dawn::CompareFunction::Never;
+    dawn::Sampler sampler = device().CreateSampler(&desc);
+    fSamplers.insert(std::pair<GrSamplerState, dawn::Sampler>(samplerState, sampler));
+    return sampler;
 }
 
 GrDawnRingBuffer::Slice GrDawnGpu::allocateUniformRingBufferSlice(int size) {

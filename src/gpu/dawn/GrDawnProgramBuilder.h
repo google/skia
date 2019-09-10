@@ -56,6 +56,7 @@ struct GrDawnProgram : public SkRefCnt {
     }
     std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
+    std::vector<dawn::Sampler> fSamplers;
     std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fFragmentProcessors;
     int fFragmentProcessorCnt;
     dawn::BindGroupLayout fBindGroupLayout;
