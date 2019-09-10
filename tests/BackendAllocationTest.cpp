@@ -160,7 +160,8 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
         rasterColor.fG = color.fA;
         rasterColor.fB = color.fA;
         rasterColor.fA = 1.0f;
-    } else if (kAlpha_8_SkColorType == skColorType) {
+    } else if (kAlpha_8_SkColorType == skColorType ||
+               kAlpha_16_SkColorType == skColorType) {
         // For the GPU backends, alpha implies a single alpha channel.
         rasterColor.fR = 0;
         rasterColor.fG = 0;
@@ -427,6 +428,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
         { kRGBA_F16_SkColorType,     kRGBA_half_GrPixelConfig,         SkColors::kYellow   },
         { kRGBA_F32_SkColorType,     kRGBA_float_GrPixelConfig,        SkColors::kGray     },
         { kRG_88_SkColorType,        kRG_88_GrPixelConfig,             SkColors::kRed      },
+        { kRG_1616_SkColorType,      kRG_1616_GrPixelConfig,           SkColors::kGreen    },
+        { kAlpha_16_SkColorType,     kAlpha_16_GrPixelConfig,          kTransCol           },
     };
 
     GR_STATIC_ASSERT(kLastEnum_SkColorType == SK_ARRAY_COUNT(combinations));
@@ -576,7 +579,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
         { GrColorType::kAlpha_F16,        GR_GL_R16F,                 { 1.0f, 0, 0, 0.5f } },
         { GrColorType::kAlpha_F16,        GR_GL_LUMINANCE16F,         kGrayCol             },
 
-        { GrColorType::kR_16,             GR_GL_R16,                  SkColors::kRed       },
+        { GrColorType::kAlpha_16,         GR_GL_R16,                  kTransCol            },
         { GrColorType::kRG_1616,          GR_GL_RG16,                 SkColors::kYellow    },
 
         // Experimental (for Y416 and mutant P016/P010)
@@ -711,7 +714,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
         { GrColorType::kRG_88,            VK_FORMAT_R8G8_UNORM,               { 1, 0.5f, 0, 1 }   },
         { GrColorType::kAlpha_F16,        VK_FORMAT_R16_SFLOAT,               { 1.0f, 0, 0, 0.5f }},
 
-        { GrColorType::kR_16,             VK_FORMAT_R16_UNORM,                SkColors::kRed      },
+        { GrColorType::kAlpha_16,         VK_FORMAT_R16_UNORM,                kTransCol           },
         { GrColorType::kRG_1616,          VK_FORMAT_R16G16_UNORM,             SkColors::kYellow   },
 
         // Experimental (for Y416 and mutant P016/P010)
@@ -774,6 +777,10 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                     switch (combo.fColorType) {
                         case GrColorType::kAlpha_8:
                             SkASSERT(combo.fFormat == VK_FORMAT_R8_UNORM);
+                            swizzle = GrSwizzle("aaaa");
+                            break;
+                        case GrColorType::kAlpha_16:
+                            SkASSERT(combo.fFormat == VK_FORMAT_R16_UNORM);
                             swizzle = GrSwizzle("aaaa");
                             break;
                         case GrColorType::kABGR_4444:
