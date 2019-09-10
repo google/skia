@@ -14,6 +14,8 @@
 #include "src/gpu/dawn/GrDawnRingBuffer.h"
 #include "src/gpu/dawn/GrDawnStagingManager.h"
 
+#include <unordered_map>
+
 class GrDawnOpsRenderPass;
 class GrPipeline;
 struct GrDawnProgram;
@@ -93,6 +95,8 @@ public:
                                                    const GrTextureProxy* const* primProcProxies,
                                                    bool hasPoints,
                                                    GrPrimitiveType primitiveType);
+
+    dawn::Sampler getOrCreateSampler(const GrSamplerState& samplerState);
 
     GrDawnRingBuffer::Slice allocateUniformRingBufferSlice(int size);
     GrDawnStagingBuffer* getStagingBuffer(size_t size);
@@ -175,7 +179,14 @@ private:
         }
     };
 
+    struct SamplerHash {
+        size_t operator()(const GrSamplerState& samplerState) const {
+            return SkOpts::hash_fn(&samplerState, sizeof(samplerState), 0);
+        }
+    };
+
     SkLRUCache<GrProgramDesc, sk_sp<GrDawnProgram>, ProgramDescHash>    fRenderPipelineCache;
+    std::unordered_map<GrSamplerState, dawn::Sampler, SamplerHash> fSamplers;
     GrDawnStagingManager fStagingManager;
 
     typedef GrGpu INHERITED;
