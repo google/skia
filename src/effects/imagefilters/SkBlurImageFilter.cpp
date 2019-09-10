@@ -132,16 +132,17 @@ void SkBlurImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
 }
 
 #if SK_SUPPORT_GPU
-static GrTextureDomain::Mode to_texture_domain_mode(SkTileMode tileMode) {
+static SkGpuBlurUtils::SrcBoundsMode to_src_bounds_mode(SkTileMode tileMode) {
     switch (tileMode) {
+        using SrcBoundsMode = SkGpuBlurUtils::SrcBoundsMode;
         case SkTileMode::kClamp:
-            return GrTextureDomain::kClamp_Mode;
+            return SrcBoundsMode::kClamp;
         case SkTileMode::kDecal:
-            return GrTextureDomain::kDecal_Mode;
+            return SrcBoundsMode::kDecal;
         case SkTileMode::kMirror:
             // TODO (michaelludwig) - Support mirror mode, treat as repeat for now
         case SkTileMode::kRepeat:
-            return GrTextureDomain::kRepeat_Mode;
+            return SrcBoundsMode::kRepeat;
         default:
             SK_ABORT("Unsupported tile mode.");
     }
@@ -658,7 +659,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
             inputBounds,
             sigma.x(),
             sigma.y(),
-            to_texture_domain_mode(fTileMode),
+            to_src_bounds_mode(fTileMode),
             input->alphaType());
     if (!renderTargetContext) {
         return nullptr;

@@ -81,7 +81,7 @@ public:
                                                      SkIRect::EmptyIRect(),
                                                      xformedSigma,
                                                      xformedSigma,
-                                                     GrTextureDomain::kIgnore_Mode,
+                                                     SkGpuBlurUtils::SrcBoundsMode::kClamp,
                                                      kPremul_SkAlphaType,
                                                      SkBackingFit::kExact);
             if (!rtc2) {
