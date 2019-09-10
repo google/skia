@@ -14,6 +14,8 @@
 #include "src/gpu/dawn/GrDawnTexture.h"
 #include "src/sksl/SkSLCompiler.h"
 
+const int kMaxBindGroupCacheEntries = 4096;
+
 static SkSL::String sksl_to_spirv(const GrDawnGpu* gpu, const char* shaderString,
                                   SkSL::Program::Kind kind, SkSL::Program::Inputs* inputs) {
     SkSL::Program::Settings settings;
@@ -239,14 +241,18 @@ static dawn::DepthStencilStateDescriptor create_depth_stencil_state(
     dawn::DepthStencilStateDescriptor state;
     state.format = depthStencilFormat;
     if (!stencilSettings.isDisabled()) {
-        const GrStencilSettings::Face& front = stencilSettings.front(origin);
-        state.stencilReadMask = front.fTestMask;
-        state.stencilWriteMask = front.fWriteMask;
-        state.stencilFront = to_stencil_state_face(stencilSettings.front(origin));
         if (stencilSettings.isTwoSided()) {
-            state.stencilBack = to_stencil_state_face(stencilSettings.back(origin));
+            auto front = stencilSettings.front(origin);
+            auto back = stencilSettings.front(origin);
+            state.stencilFront = to_stencil_state_face(front);
+            state.stencilBack = to_stencil_state_face(back);
+            state.stencilReadMask = front.fTestMask;
+            state.stencilWriteMask = front.fWriteMask;
         } else {
-            state.stencilBack = state.stencilFront;
+            auto frontAndBack = stencilSettings.frontAndBack();
+            state.stencilBack = state.stencilFront = to_stencil_state_face(frontAndBack);
+            state.stencilReadMask = frontAndBack.fTestMask;
+            state.stencilWriteMask = frontAndBack.fWriteMask;
         }
     }
     return state;
@@ -495,30 +501,78 @@ static void setTexture(GrDawnGpu* gpu, const GrSamplerState& state, GrTexture* t
     bindings->push_back(make_bind_group_binding((*binding)++, textureView));
 }
 
+static void append_texture_sampler_key(GrDawnProgram::BindGroupKey* key,
+                                       GrTexture* texture,
+                                       GrSamplerState samplerState) {
+    GrDawnTexture* tex = static_cast<GrDawnTexture*>(texture);
+    key->append(sizeof(tex), &tex);
+    key->append(sizeof(samplerState), &samplerState);
+}
+
+GrDawnProgram::GrDawnProgram(const GrDawnUniformHandler::UniformInfoArray& uniforms,
+                             uint32_t geometryUniformSize,
+                             uint32_t fragmentUniformSize)
+    : fDataManager(uniforms, geometryUniformSize, fragmentUniformSize)
+    , fBindGroupCache(kMaxBindGroupCacheEntries) {
+}
+
+void GrDawnProgram::buildKey(BindGroupKey* key, const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline, const GrTextureProxy* const primProcTextures[]) {
+    key->append(fDataManager.geometryUniformSize(), fDataManager.geometryUniformData());
+    key->append(fDataManager.fragmentUniformSize(), fDataManager.fragmentUniformData());
+    for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
+        const GrPrimitiveProcessor::TextureSampler& sampler = primProc.textureSampler(i);
+        append_texture_sampler_key(key, primProcTextures[i]->peekTexture(), sampler.samplerState());
+    }
+    GrFragmentProcessor::Iter iter(pipeline);
+    GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
+    const GrFragmentProcessor* fp = iter.next();
+    GrGLSLFragmentProcessor* glslFP = glslIter.next();
+    while (fp && glslFP) {
+        glslFP->setData(fDataManager, *fp);
+        for (int i = 0; i < fp->numTextureSamplers(); ++i) {
+            const GrFragmentProcessor::TextureSampler& sampler = fp->textureSampler(i);
+            append_texture_sampler_key(key, sampler.peekTexture(), sampler.samplerState());
+        }
+        fp = iter.next();
+        glslFP = glslIter.next();
+    }
+    if (GrTextureProxy* proxy = pipeline.dstTextureProxy()) {
+        GrFragmentProcessor::TextureSampler sampler(sk_ref_sp(proxy));
+        append_texture_sampler_key(key, sampler.peekTexture(), sampler.samplerState());
+    }
+}
+
 dawn::BindGroup GrDawnProgram::setData(GrDawnGpu* gpu, const GrRenderTarget* renderTarget,
                                        GrSurfaceOrigin origin,
                                        const GrPrimitiveProcessor& primProc,
                                        const GrPipeline& pipeline,
                                        const GrTextureProxy* const primProcTextures[]) {
+    this->setRenderTargetState(renderTarget, origin);
+    fGeometryProcessor->setData(fDataManager, primProc,
+                                GrFragmentProcessor::CoordTransformIter(pipeline));
+    SkIPoint offset;
+    GrTexture* dstTexture = pipeline.peekDstTexture(&offset);
+    fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
+    BindGroupKey key;
+    this->buildKey(&key, primProc, pipeline, primProcTextures);
+    if (BindGroupValue* value = fBindGroupCache.find(key)) {
+        return value->fBindGroup;
+    }
     std::vector<dawn::BindGroupBinding> bindings;
     GrDawnRingBuffer::Slice geom, frag;
     uint32_t geometryUniformSize = fDataManager.geometryUniformSize();
     uint32_t fragmentUniformSize = fDataManager.fragmentUniformSize();
+    BindGroupValue value;
     if (0 != geometryUniformSize) {
         geom = gpu->allocateUniformRingBufferSlice(geometryUniformSize);
-        bindings.push_back(make_bind_group_binding(GrDawnUniformHandler::kGeometryBinding,
-                                                   geom.fBuffer, geom.fOffset,
-                                                   geometryUniformSize));
+        bindings.push_back(make_bind_group_binding(GrDawnUniformHandler::kGeometryBinding, geom.fBuffer, geom.fOffset, geometryUniformSize));
+        value.fGeometryBuffer = geom.fBuffer;
     }
     if (0 != fragmentUniformSize) {
         frag = gpu->allocateUniformRingBufferSlice(fragmentUniformSize);
-        bindings.push_back(make_bind_group_binding(GrDawnUniformHandler::kFragBinding,
-                                                   frag.fBuffer, frag.fOffset,
-                                                   fragmentUniformSize));
+        bindings.push_back(make_bind_group_binding(GrDawnUniformHandler::kFragBinding, frag.fBuffer, frag.fOffset, fragmentUniformSize));
+        value.fFragmentBuffer = frag.fBuffer;
     }
-    this->setRenderTargetState(renderTarget, origin);
-    fGeometryProcessor->setData(fDataManager, primProc,
-                                GrFragmentProcessor::CoordTransformIter(pipeline));
     int binding = GrDawnUniformHandler::kSamplerBindingBase;
     for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
         auto& sampler = primProc.textureSampler(i);
@@ -530,7 +584,6 @@ dawn::BindGroup GrDawnProgram::setData(GrDawnGpu* gpu, const GrRenderTarget* ren
     const GrFragmentProcessor* fp = iter.next();
     GrGLSLFragmentProcessor* glslFP = glslIter.next();
     while (fp && glslFP) {
-        glslFP->setData(fDataManager, *fp);
         for (int i = 0; i < fp->numTextureSamplers(); ++i) {
             auto& s = fp->textureSampler(i);
             setTexture(gpu, s.samplerState(), s.peekTexture(), &bindings, &binding);
@@ -538,9 +591,6 @@ dawn::BindGroup GrDawnProgram::setData(GrDawnGpu* gpu, const GrRenderTarget* ren
         fp = iter.next();
         glslFP = glslIter.next();
     }
-    SkIPoint offset;
-    GrTexture* dstTexture = pipeline.peekDstTexture(&offset);
-    fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
     if (GrTextureProxy* proxy = pipeline.dstTextureProxy()) {
         GrFragmentProcessor::TextureSampler sampler(sk_ref_sp(proxy));
         setTexture(gpu, sampler.samplerState(), sampler.peekTexture(), &bindings, &binding);
@@ -550,5 +600,7 @@ dawn::BindGroup GrDawnProgram::setData(GrDawnGpu* gpu, const GrRenderTarget* ren
     descriptor.layout = fBindGroupLayout;
     descriptor.bindingCount = bindings.size();
     descriptor.bindings = bindings.data();
-    return gpu->device().CreateBindGroup(&descriptor);
+    value.fBindGroup = gpu->device().CreateBindGroup(&descriptor);
+    fBindGroupCache.insert(key, value);
+    return value.fBindGroup;
 }
