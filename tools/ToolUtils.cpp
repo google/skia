@@ -50,6 +50,7 @@ const char* colortype_name(SkColorType ct) {
     switch (ct) {
         case kUnknown_SkColorType:      return "Unknown";
         case kAlpha_8_SkColorType:      return "Alpha_8";
+        case kAlpha_16_SkColorType:     return "Alpha_16";
         case kRGB_565_SkColorType:      return "RGB_565";
         case kARGB_4444_SkColorType:    return "ARGB_4444";
         case kRGBA_8888_SkColorType:    return "RGBA_8888";
@@ -62,6 +63,7 @@ const char* colortype_name(SkColorType ct) {
         case kRGBA_F16_SkColorType:     return "RGBA_F16";
         case kRGBA_F32_SkColorType:     return "RGBA_F32";
         case kRG_88_SkColorType:        return "RG_88";
+        case kRG_1616_SkColorType:      return "RG_1616";
     }
     SkASSERT(false);
     return "unexpected colortype";
@@ -71,6 +73,7 @@ const char* colortype_depth(SkColorType ct) {
     switch (ct) {
         case kUnknown_SkColorType:      return "Unknown";
         case kAlpha_8_SkColorType:      return "A8";
+        case kAlpha_16_SkColorType:     return "A16";
         case kRGB_565_SkColorType:      return "565";
         case kARGB_4444_SkColorType:    return "4444";
         case kRGBA_8888_SkColorType:    return "8888";
@@ -83,6 +86,7 @@ const char* colortype_depth(SkColorType ct) {
         case kRGBA_F16_SkColorType:     return "F16";
         case kRGBA_F32_SkColorType:     return "F32";
         case kRG_88_SkColorType:        return "88";
+        case kRG_1616_SkColorType:      return "1616";
     }
     SkASSERT(false);
     return "unexpected colortype";
