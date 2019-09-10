@@ -151,35 +151,6 @@ static dawn::StencilOperation to_dawn_stencil_operation(GrStencilOp op) {
     }
 }
 
-static dawn::FilterMode to_dawn_filter_mode(GrSamplerState::Filter filter) {
-    switch (filter) {
-        case GrSamplerState::Filter::kNearest:
-            return dawn::FilterMode::Nearest;
-        case GrSamplerState::Filter::kBilerp:
-        case GrSamplerState::Filter::kMipMap:
-            return dawn::FilterMode::Linear;
-        default:
-            SkASSERT(!"unsupported filter mode");
-            return dawn::FilterMode::Nearest;
-    }
-}
-
-static dawn::AddressMode to_dawn_address_mode(GrSamplerState::WrapMode wrapMode) {
-    switch (wrapMode) {
-        case GrSamplerState::WrapMode::kClamp:
-            return dawn::AddressMode::ClampToEdge;
-        case GrSamplerState::WrapMode::kClampToBorder:
-            // TODO: unsupported
-            return dawn::AddressMode::ClampToEdge;
-        case GrSamplerState::WrapMode::kRepeat:
-            return dawn::AddressMode::Repeat;
-        case GrSamplerState::WrapMode::kMirrorRepeat:
-            return dawn::AddressMode::MirrorRepeat;
-    }
-    SkASSERT(!"unsupported address mode");
-    return dawn::AddressMode::ClampToEdge;
-}
-
 static dawn::PrimitiveTopology to_dawn_primitive_topology(GrPrimitiveType primitiveType) {
     switch (primitiveType) {
         case GrPrimitiveType::kTriangles:
@@ -279,19 +250,6 @@ static dawn::DepthStencilStateDescriptor create_depth_stencil_state(
         }
     }
     return state;
-}
-
-static dawn::Sampler create_sampler(const GrDawnGpu* gpu, const GrSamplerState& samplerState) {
-    dawn::SamplerDescriptor desc;
-    desc.addressModeU = to_dawn_address_mode(samplerState.wrapModeX());
-    desc.addressModeV = to_dawn_address_mode(samplerState.wrapModeY());
-    desc.addressModeW = dawn::AddressMode::ClampToEdge;
-    desc.magFilter = desc.minFilter = to_dawn_filter_mode(samplerState.filter());
-    desc.mipmapFilter = dawn::FilterMode::Linear;
-    desc.lodMinClamp = 0.0f;
-    desc.lodMaxClamp = 1000.0f;
-    desc.compare = dawn::CompareFunction::Never;
-    return gpu->device().CreateSampler(&desc);
 }
 
 static dawn::BindGroupBinding make_bind_group_binding(uint32_t binding, const dawn::Buffer& buffer,
@@ -530,7 +488,7 @@ void GrDawnProgram::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrig
 static void setTexture(GrDawnGpu* gpu, const GrSamplerState& state, GrTexture* texture,
                        std::vector<dawn::BindGroupBinding> *bindings, int* binding) {
     // FIXME: could probably cache samplers in GrDawnProgram
-    dawn::Sampler sampler = create_sampler(gpu, state);
+    dawn::Sampler sampler = gpu->getOrCreateSampler(state);
     bindings->push_back(make_bind_group_binding((*binding)++, sampler));
     GrDawnTexture* tex = static_cast<GrDawnTexture*>(texture);
     dawn::TextureView textureView = tex->textureView();
