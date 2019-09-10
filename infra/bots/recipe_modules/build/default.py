@@ -6,12 +6,16 @@
 from . import util
 
 
-# See mapping of Xcode version to Xcode build version here:
-# https://chromium.googlesource.com/chromium/tools/build/+/master/scripts/slave/recipe_modules/ios/api.py#37
+# XCode build is listed in parentheses after the version at
+# https://developer.apple.com/news/releases/, or on Wikipedia here:
+# https://en.wikipedia.org/wiki/Xcode#Version_comparison_table
+# Use lowercase letters.
 # When updating XCODE_BUILD_VERSION, you will also need to update
 # XCODE_CLANG_VERSION.
-XCODE_BUILD_VERSION = '9c40b'
-XCODE_CLANG_VERSION = '9.0.0'
+XCODE_BUILD_VERSION = '10g8'
+# Wikipedia lists the Clang version here:
+# https://en.wikipedia.org/wiki/Xcode#Toolchain_versions
+XCODE_CLANG_VERSION = '10.0.1'
 
 
 def build_command_buffer(api, chrome_dir, skia_dir, out):
@@ -91,10 +95,6 @@ def compile_fn(api, checkout_root, out_dir):
   if os == 'Mac':
     extra_cflags.append(
         '-DDUMMY_xcode_build_version=%s' % XCODE_BUILD_VERSION)
-    if XCODE_CLANG_VERSION.startswith('9.'):
-      # XCode 9 seems to handle try_acquire_capability wrong.
-      extra_cflags.append('-Wno-thread-safety-analysis')
-
     mac_toolchain_cmd = api.vars.slave_dir.join(
         'mac_toolchain', 'mac_toolchain')
     xcode_app_path = api.vars.cache_dir.join('Xcode.app')
@@ -115,6 +115,17 @@ def compile_fn(api, checkout_root, out_dir):
       api.step('install xcode', install_xcode_cmd)
       api.step('select xcode', [
           'sudo', 'xcode-select', '-switch', xcode_app_path])
+      if 'iOS' in extra_tokens:
+        if target_arch == 'arm':
+          # Can only compile for 32-bit up to iOS 10.
+          env['IPHONEOS_DEPLOYMENT_TARGET'] = '10.0'
+        else:
+          # Our iOS devices are on an older version.
+          # Can't compile for Metal before 11.0.
+          env['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
+      else:
+        # We have some bots on 10.13.
+        env['MACOSX_DEPLOYMENT_TARGET'] = '10.13'
 
   if compiler == 'Clang' and api.vars.is_linux:
     cc  = clang_linux + '/bin/clang'
