@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4aa59d1_08b17634",
+        "filename": "experimental/minimal_ios_mtl_skia_app/main.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-09-10T15:34:46Z",
+      "side": 1,
+      "message": "The Objective-C way is to make each of these a @property and @synthesize them in the @implementation section. In that case I\u0027ve used the Objective-C naming convention as all lowercase for the property name, and a leading _ for the synthesized variable. I think fWhatever might work for the synthesized variable if we want to do that.\n\nAnd this contradicts something I said before, but I believe that was for internal variables. Since we\u0027re subclassing an Obj-C thing I think we should be consistent with the external interface (as opposed to having viewDelegate.view and viewDelegate.fPaint, e.g.). All of this should probably go in our coding style guide as well.",
+      "range": {
+        "startLine": 89,
+        "startChar": 4,
+        "endLine": 90,
+        "endChar": 18
+      },
+      "revId": "be95c08a4ce1bce0e6a09111b2907cd34dc5f3a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
