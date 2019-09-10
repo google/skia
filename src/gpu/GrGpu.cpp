@@ -99,8 +99,8 @@ bool GrGpu::IsACopyNeededForMips(const GrCaps* caps, const GrTextureProxy* texPr
     return false;
 }
 
-static bool validate_levels(int w, int h, const GrMipLevel texels[], int mipLevelCount, int bpp,
-                            const GrCaps* caps, bool mustHaveDataForAllLevels = false) {
+static bool validate_texel_levels(int w, int h, const GrMipLevel* texels, int mipLevelCount,
+                                  int bpp, const GrCaps* caps) {
     SkASSERT(mipLevelCount > 0);
     bool hasBasePixels = texels[0].fPixels;
     int levelsWithPixelsCnt = 0;
@@ -138,10 +138,7 @@ static bool validate_levels(int w, int h, const GrMipLevel texels[], int mipLeve
     if (!hasBasePixels) {
         return levelsWithPixelsCnt == 0;
     }
-    if (levelsWithPixelsCnt == 1 && !mustHaveDataForAllLevels) {
-        return true;
-    }
-    return levelsWithPixelsCnt == mipLevelCount;
+    return levelsWithPixelsCnt == 1 || levelsWithPixelsCnt == mipLevelCount;
 }
 
 sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc,
@@ -151,14 +148,14 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc,
                                       SkBudgeted budgeted,
                                       GrProtected isProtected,
                                       const GrMipLevel texels[],
-                                      int mipLevelCount) {
+                                      int texelLevelCount) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     if (this->caps()->isFormatCompressed(format)) {
         // Call GrGpu::createCompressedTexture.
         return nullptr;
     }
 
-    GrMipMapped mipMapped = mipLevelCount > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
+    GrMipMapped mipMapped = texelLevelCount > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
     if (!this->caps()->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, desc.fConfig,
                                              renderable, renderTargetSampleCnt, mipMapped)) {
         return nullptr;
@@ -170,16 +167,26 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc,
     }
     // Attempt to catch un- or wrongly initialized sample counts.
     SkASSERT(renderTargetSampleCnt > 0 && renderTargetSampleCnt <= 64);
-
-    bool mustHaveDataForAllLevels = this->caps()->createTextureMustSpecifyAllLevels();
-    if (mipLevelCount) {
+    if (texelLevelCount) {
         int bpp = GrBytesPerPixel(desc.fConfig);
-        if (!validate_levels(desc.fWidth, desc.fHeight, texels, mipLevelCount, bpp, this->caps(),
-                             mustHaveDataForAllLevels)) {
+        if (!validate_texel_levels(desc.fWidth, desc.fHeight, texels, texelLevelCount, bpp,
+                                   this->caps())) {
             return nullptr;
         }
-    } else if (mustHaveDataForAllLevels) {
-        return nullptr;
+    }
+
+    int mipLevelCount = SkTMax(1, texelLevelCount);
+    uint32_t levelClearMask = 0;
+    if (this->caps()->shouldInitializeTextures()) {
+        if (texelLevelCount) {
+            for (int i = 0; i < mipLevelCount; ++i) {
+                if (!texels->fPixels) {
+                    levelClearMask |= static_cast<uint32_t>(1 << i);
+                }
+            }
+        } else {
+            levelClearMask = static_cast<uint32_t>((1 << mipLevelCount) - 1);
+        }
     }
 
     this->handleDirtyContext();
@@ -189,20 +196,36 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc,
                                                  renderTargetSampleCnt,
                                                  budgeted,
                                                  isProtected,
-                                                 texels,
-                                                 mipLevelCount);
+                                                 mipLevelCount,
+                                                 levelClearMask);
+
     if (tex) {
+        SkASSERT(tex->backendFormat() == format);
+        SkASSERT(GrRenderable::kNo == renderable || tex->asRenderTarget());
         if (!this->caps()->reuseScratchTextures() && renderable == GrRenderable::kNo) {
             tex->resourcePriv().removeScratchKey();
         }
         fStats.incTextureCreates();
-        if (mipLevelCount) {
-            if (texels[0].fPixels) {
-                fStats.incTextureUploads();
+        bool markMipLevelsClean = false;
+        // Currently if level 0 does not have pixels then no other level may, as enforced by
+        // validate_texel_levels.
+        if (texelLevelCount && texels[0].fPixels) {
+            auto textureColorType = GrPixelConfigToColorType(desc.fConfig);
+            auto dataColorType = textureColorType;
+            if (!this->writePixels(tex.get(), 0, 0, desc.fWidth, desc.fHeight, textureColorType,
+                                   dataColorType, texels, texelLevelCount)) {
+                return nullptr;
             }
+            // Currently if level[1] of mip map has pixel data then so must all other levels.
+            // as enforced by validate_texel_levels.
+            markMipLevelsClean = (texelLevelCount > 1 && !levelClearMask && texels[1].fPixels);
+            fStats.incTextureUploads();
+        } else if (levelClearMask && mipLevelCount > 1) {
+            markMipLevelsClean = true;
         }
-        SkASSERT(tex->backendFormat() == format);
-        SkASSERT(!tex || GrRenderable::kNo == renderable || tex->asRenderTarget());
+        if (markMipLevelsClean) {
+            tex->texturePriv().markMipMapsClean();
+        }
         if (renderTargetSampleCnt > 1 && !this->caps()->msaaResolvesAutomatically()) {
             SkASSERT(GrRenderable::kYes == renderable);
             tex->asRenderTarget()->setRequiresManualMSAAResolve();
@@ -432,7 +455,7 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
     }
 
     size_t bpp = GrColorTypeBytesPerPixel(srcColorType);
-    if (!validate_levels(width, height, texels, mipLevelCount, bpp, this->caps())) {
+    if (!validate_texel_levels(width, height, texels, mipLevelCount, bpp, this->caps())) {
         return false;
     }
 
