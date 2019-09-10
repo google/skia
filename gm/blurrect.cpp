@@ -252,7 +252,8 @@ protected:
     void onOnceBeforeDraw() override { this->prepareReferenceMasks(); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        if (canvas->imageInfo().colorType() == kUnknown_SkColorType) {
+        if (canvas->imageInfo().colorType() == kUnknown_SkColorType ||
+            (canvas->getGrContext() && !canvas->getGrContext()->priv().asDirectContext())) {
             *errorMsg = "Not supported when recording, relies on canvas->makeSurface()";
             return DrawResult::kSkip;
         }
