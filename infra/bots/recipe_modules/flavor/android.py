@@ -347,6 +347,7 @@ if actual_freq != str(freq):
 
 
   def install(self):
+    print "Running install from android recipe"
     self._adb('mkdir ' + self.device_dirs.resource_dir,
               'shell', 'mkdir', '-p', self.device_dirs.resource_dir)
     if 'ASAN' in self.m.vars.extra_tokens:
