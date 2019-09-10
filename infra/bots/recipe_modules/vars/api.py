@@ -84,21 +84,23 @@ class SkiaVarsApi(recipe_api.RecipeApi):
   @property
   def swarming_bot_id(self):
     if not self._swarming_bot_id:
-      self._swarming_bot_id = self.m.python.inline(
+      step_stdout = self.m.python.inline(
           name='get swarming bot id',
           program='''import os
 print os.environ.get('SWARMING_BOT_ID', '')
 ''',
-          stdout=self.m.raw_io.output()).stdout.rstrip()
+          stdout=self.m.raw_io.output()).stdout
+      self._swarming_bot_id = step_stdout.rstrip() if step_stdout else ''
     return self._swarming_bot_id
 
   @property
   def swarming_task_id(self):
     if not self._swarming_task_id:
-      self._swarming_task_id = self.m.python.inline(
+      step_stdout = self.m.python.inline(
           name='get swarming task id',
           program='''import os
 print os.environ.get('SWARMING_TASK_ID', '')
 ''',
-          stdout=self.m.raw_io.output()).stdout.rstrip()
+          stdout=self.m.raw_io.output()).stdout
+      self._swarming_task_id = step_stdout.rstrip() if step_stdout else ''
     return self._swarming_task_id
