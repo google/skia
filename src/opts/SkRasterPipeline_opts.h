@@ -2012,16 +2012,41 @@ STAGE(load_a16, const SkRasterPipeline_MemoryCtx* ctx) {
     r = g = b = 0;
     a = from_short(load<U16>(ptr, tail));
 }
+STAGE(load_a16_dst, const SkRasterPipeline_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<const uint16_t>(ctx, dx, dy);
+    dr = dg = db = 0.0f;
+    da = from_short(load<U16>(ptr, tail));
+}
+STAGE(gather_a16, const SkRasterPipeline_GatherCtx* ctx) {
+    const uint16_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, r, g);
+    r = g = b = 0.0f;
+    a = from_short(gather(ptr, ix));
+}
 STAGE(store_a16, const SkRasterPipeline_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint16_t>(ctx, dx,dy);
 
     U16 px = pack(to_unorm(a, 65535));
     store(ptr, px, tail);
 }
+
 STAGE(load_rg1616, const SkRasterPipeline_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<const uint32_t>(ctx, dx,dy);
     b = 0; a = 1;
     from_1616(load<U32>(ptr, tail), &r,&g);
+}
+STAGE(load_rg1616_dst, const SkRasterPipeline_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<const uint32_t>(ctx, dx, dy);
+    from_1616(load<U32>(ptr, tail), &dr, &dg);
+    db = 0;
+    da = 1;
+}
+STAGE(gather_rg1616, const SkRasterPipeline_GatherCtx* ctx) {
+    const uint32_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, r, g);
+    from_1616(gather(ptr, ix), &r, &g);
+    b = 0;
+    a = 1;
 }
 STAGE(store_rg1616, const SkRasterPipeline_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
@@ -2030,6 +2055,7 @@ STAGE(store_rg1616, const SkRasterPipeline_MemoryCtx* ctx) {
            | to_unorm(g, 65535) <<  16;
     store(ptr, px, tail);
 }
+
 STAGE(load_16161616, const SkRasterPipeline_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<const uint64_t>(ctx, dx,dy);
     from_16161616(load<U64>(ptr, tail), &r,&g, &b, &a);
@@ -4117,9 +4143,13 @@ STAGE_PP(swizzle, void* ctx) {
     NOT_IMPLEMENTED(load_16161616)
     NOT_IMPLEMENTED(store_16161616)
     NOT_IMPLEMENTED(load_a16)
+    NOT_IMPLEMENTED(load_a16_dst)
     NOT_IMPLEMENTED(store_a16)
+    NOT_IMPLEMENTED(gather_a16)
     NOT_IMPLEMENTED(load_rg1616)
+    NOT_IMPLEMENTED(load_rg1616_dst)
     NOT_IMPLEMENTED(store_rg1616)
+    NOT_IMPLEMENTED(gather_rg1616)
     NOT_IMPLEMENTED(load_f16)
     NOT_IMPLEMENTED(load_f16_dst)
     NOT_IMPLEMENTED(store_f16)

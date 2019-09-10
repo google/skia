@@ -42,7 +42,9 @@ bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
         return false;
     }
 
-    if (info.colorType() == kRG_88_SkColorType) {
+    if (info.colorType() == kRG_88_SkColorType ||
+        info.colorType() == kRG_1616_SkColorType ||
+        info.colorType() == kAlpha_16_SkColorType) {
         return false;
     }
 
