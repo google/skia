@@ -1,19 +1,18 @@
 {
-   "MaxCount": 32,
+   "MaxCount": 4000,
    "Drawable": {
-      "Type": "SkImageDrawable",
-      "Path": "resources/images/baby_tux.png",
-      "Columns": 1,
-      "Rows": 1
+      "Type": "SkCircleDrawable",
+      "Radius": 1
    },
    "EffectCode": [
       "// float rand; Every read returns a random float [0 .. 1)",
       "",
       "void effectSpawn(inout Effect effect) {",
-      "  effect.rate = 0.5;",
+      "  effect.lifetime = 1;",
       "}",
       "",
       "void effectUpdate(inout Effect effect) {",
+      "  effect.rate = (sin(radians(effectAge * 1080)) + 0.7) * 200;",
       "}",
       ""
    ],
@@ -21,16 +20,13 @@
       "// float rand; Every read returns a random float [0 .. 1)",
       "",
       "void spawn(inout Particle p) {",
-      "  p.lifetime = 20;",
-      "  float a = radians(10 + 60 * rand);",
-      "  float s = 140 + rand * 60;",
-      "  p.vel.x = cos(a) * s;",
-      "  p.vel.y = -sin(a) * s;",
+      "  p.lifetime = 6;",
+      "  float a = radians(rand * 360);",
+      "  p.pos = float2(cos(a), sin(a)) * 20;",
+      "  p.vel = p.pos;",
       "}",
       "",
       "void update(inout Particle p) {",
-      "  p.vel.y += 50 * dt;",
-      "  p.dir = normalize(p.vel);",
       "}",
       ""
    ],
