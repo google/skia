@@ -78,6 +78,8 @@ public:
         return fColorTypeToFormatTable[idx];
     }
 
+    bool canClearTextureOnCreation() const override { return true; }
+
     GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override;
     GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
 

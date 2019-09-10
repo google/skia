@@ -400,13 +400,13 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc,
                                            int renderTargetSampleCnt,
                                            SkBudgeted budgeted,
                                            GrProtected isProtected,
-                                           int mipLevelCount,
-                                           uint32_t levelClearMask) {
+                                           const GrMipLevel texels[],
+                                           int mipLevelCount) {
     // We don't support protected textures in Metal.
     if (isProtected == GrProtected::kYes) {
         return nullptr;
     }
-    SkASSERT(mipLevelCount > 0);
+    int mipLevels = !mipLevelCount ? 1 : mipLevelCount;
 
     MTLPixelFormat mtlPixelFormat = GrBackendFormatAsMTLPixelFormat(format);
     SkASSERT(mtlPixelFormat != MTLPixelFormatInvalid);
@@ -422,7 +422,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc,
     texDesc.width = desc.fWidth;
     texDesc.height = desc.fHeight;
     texDesc.depth = 1;
-    texDesc.mipmapLevelCount = mipLevelCount;
+    texDesc.mipmapLevelCount = mipLevels;
     texDesc.sampleCount = 1;
     texDesc.arrayLength = 1;
     // Make all textures have private gpu only access. We can use transfer buffers or textures
@@ -431,8 +431,17 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc,
     texDesc.usage = MTLTextureUsageShaderRead;
     texDesc.usage |= (renderable == GrRenderable::kYes) ? MTLTextureUsageRenderTarget : 0;
 
-    GrMipMapsStatus mipMapsStatus =
-            mipLevelCount > 1 ? GrMipMapsStatus::kDirty : GrMipMapsStatus::kNotAllocated;
+    GrMipMapsStatus mipMapsStatus = GrMipMapsStatus::kNotAllocated;
+    if (mipLevels > 1) {
+        mipMapsStatus = GrMipMapsStatus::kValid;
+        for (int i = 0; i < mipLevels; ++i) {
+            if (!texels[i].fPixels) {
+                mipMapsStatus = GrMipMapsStatus::kDirty;
+                break;
+            }
+        }
+    }
+
     if (renderable == GrRenderable::kYes) {
         tex = GrMtlTextureRenderTarget::MakeNewTextureRenderTarget(this, budgeted,
                                                                    desc, renderTargetSampleCnt,
@@ -445,9 +454,24 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc,
         return nullptr;
     }
 
-    if (levelClearMask) {
-        auto colorType = GrPixelConfigToColorType(desc.fConfig);
-        this->clearTexture(tex.get(), colorType, levelClearMask);
+    auto colorType = GrPixelConfigToColorType(desc.fConfig);
+    if (mipLevelCount && texels[0].fPixels) {
+        if (!this->uploadToTexture(tex.get(), 0, 0, desc.fWidth, desc.fHeight, colorType, texels,
+                                   mipLevelCount)) {
+            tex->unref();
+            return nullptr;
+        }
+    }
+
+    if (this->caps()->shouldInitializeTextures()) {
+        uint32_t levelMask = ~0;
+        SkASSERT(mipLevelCount < 32);
+        for (int i = 0; i < mipLevelCount; ++i) {
+            if (!texels[i].fPixels) {
+                levelMask &= ~(1 << i);
+            }
+        }
+        this->clearTexture(tex.get(), colorType, levelMask);
     }
 
     return tex;
