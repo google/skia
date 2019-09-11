@@ -27,8 +27,8 @@ def find_skps(skps):
   return __ADB.check('''\
     for PATHNAME in %s; do
       if [ -d "$PATHNAME" ]; then
-        find "$PATHNAME" -maxdepth 1 -name *.skp
+        find "$PATHNAME" -maxdepth 1 -name '*.skp' -o -name '*.mskp'
       else
         echo "$PATHNAME"
       fi
-    done''' % ' '.join(escapedskps)).splitlines()
+    done''' % ' '.join(escapedskps).splitlines())
