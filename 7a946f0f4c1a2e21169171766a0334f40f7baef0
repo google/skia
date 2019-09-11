@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c3705ab5_71392314",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-11T19:49:28Z",
+      "side": 1,
+      "message": "I think it matches the previous checks as is... fully lazy must be approx but regular lazy need not be?",
+      "parentUuid": "395bf3a4_69c40ba1",
+      "range": {
+        "startLine": 39,
+        "startChar": 54,
+        "endLine": 39,
+        "endChar": 82
+      },
+      "revId": "7a946f0f4c1a2e21169171766a0334f40f7baef0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dec5b778_83f1b381",
         "filename": "src/gpu/GrSurfaceProxy.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "7a946f0f4c1a2e21169171766a0334f40f7baef0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a208092c_b774f831",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-11T19:49:28Z",
+      "side": 1,
+      "message": "Woah, I pasted from a diff after I accidentally removed this function and those are leftover from -/+s indicating removed/added lines... whew.",
+      "parentUuid": "dec5b778_83f1b381",
+      "range": {
+        "startLine": 43,
+        "startChar": 30,
+        "endLine": 43,
+        "endChar": 31
+      },
+      "revId": "7a946f0f4c1a2e21169171766a0334f40f7baef0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
