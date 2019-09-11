@@ -656,7 +656,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                         proj = false;
                         break;
                     case SpvDimRect:
-                        dim = "Rect";
+                        dim = "2DRect";
                         proj = false;
                         break;
                     case SpvDimBuffer:
