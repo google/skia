@@ -110,15 +110,16 @@ public:
      */
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, const GrBackendFormat& format,
                                    GrRenderable renderable, int renderTargetSampleCnt, SkBudgeted,
-                                   GrProtected isProtected, const GrMipLevel texels[],
-                                   int texelLevelCount);
+                                   GrProtected isProtected,
+                                   GrColorType textureColorType, GrColorType srcColorType,
+                                   const GrMipLevel texels[], int texelLevelCount);
 
     /**
      * Simplified createTexture() interface for when there is no initial texel data to upload.
      */
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, const GrBackendFormat& format,
                                    GrRenderable renderable, int renderTargetSampleCnt,
-                                   SkBudgeted budgeted, GrProtected isProtected);
+                                   GrMipMapped, SkBudgeted budgeted, GrProtected isProtected);
 
     sk_sp<GrTexture> createCompressedTexture(int width, int height, const GrBackendFormat&,
                                              SkImage::CompressionType, SkBudgeted, const void* data,
@@ -614,6 +615,15 @@ private:
 #ifdef SK_ENABLE_DUMP_GPU
     virtual void onDumpJSON(SkJSONWriter*) const {}
 #endif
+
+    sk_sp<GrTexture> createTextureCommon(const GrSurfaceDesc& desc,
+                                         const GrBackendFormat& format,
+                                         GrRenderable renderable,
+                                         int renderTargetSampleCnt,
+                                         SkBudgeted budgeted,
+                                         GrProtected isProtected,
+                                         int mipLevelCnt,
+                                         uint32_t levelClearMask);
 
     void resetContext() {
         this->onResetContext(fResetBits);

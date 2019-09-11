@@ -75,6 +75,8 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
                                                    int renderTargetSampleCnt,
                                                    SkBudgeted budgeted,
                                                    GrProtected isProtected,
+                                                   GrColorType textureColorType,
+                                                   GrColorType srcColorType,
                                                    const GrMipLevel texels[],
                                                    int mipLevelCount) {
     ASSERT_SINGLE_OWNER
@@ -109,7 +111,8 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         }
     }
     return fGpu->createTexture(desc, format, renderable, renderTargetSampleCnt, budgeted,
-                               isProtected, tmpTexels.get(), mipLevelCount);
+                               isProtected, textureColorType, srcColorType, tmpTexels.get(),
+                               mipLevelCount);
 }
 
 sk_sp<GrTexture> GrResourceProvider::getExactScratch(const GrSurfaceDesc& desc,
@@ -164,11 +167,12 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         return nullptr;
     }
 
+    // TODO: PASS DATA TO CREATE TEXTURE IN NON-APPROX CASE?
     sk_sp<GrTexture> tex =
             (SkBackingFit::kApprox == fit)
                     ? this->createApproxTexture(desc, format, renderable, renderTargetSampleCnt,
                                                 isProtected)
-                    : this->createTexture(desc, format, renderable, renderTargetSampleCnt, budgeted,
+                    : this->createTexture(desc, format, renderable, renderTargetSampleCnt, GrMipMapped::kNo, budgeted,
                                           isProtected);
     if (!tex) {
         return nullptr;
@@ -209,6 +213,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
                                                    const GrBackendFormat& format,
                                                    GrRenderable renderable,
                                                    int renderTargetSampleCnt,
+                                                   GrMipMapped mipMapped,
                                                    SkBudgeted budgeted,
                                                    GrProtected isProtected) {
     ASSERT_SINGLE_OWNER
@@ -217,7 +222,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
     }
 
     if (!fCaps->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, desc.fConfig, renderable,
-                                      renderTargetSampleCnt, GrMipMapped::kNo)) {
+                                      renderTargetSampleCnt, mipMapped)) {
         return nullptr;
     }
 
@@ -230,8 +235,8 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         }
     }
 
-    return fGpu->createTexture(desc, format, renderable, renderTargetSampleCnt, budgeted,
-                               isProtected);
+    return fGpu->createTexture(desc, format, renderable, renderTargetSampleCnt, mipMapped, budgeted,
+            isProtected);
 }
 
 // Map 'value' to a larger multiple of 2. Values <= 'kMagicTol' will pop up to
@@ -301,7 +306,7 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
     }
 
     return fGpu->createTexture(*copyDesc, format, renderable, renderTargetSampleCnt,
-                               SkBudgeted::kYes, isProtected);
+            GrMipMapped::kNo, SkBudgeted::kYes, isProtected);
 }
 
 sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc,

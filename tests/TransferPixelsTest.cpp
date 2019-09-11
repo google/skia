@@ -121,7 +121,7 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
     desc.fConfig = GrColorTypeToPixelConfig(colorType);
 
     sk_sp<GrTexture> tex = resourceProvider->createTexture(desc, backendFormat, renderable, 1,
-                                                           SkBudgeted::kNo, GrProtected::kNo);
+                                                           GrMipMapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
     if (!tex) {
         ERRORF(reporter, "Could not create texture");
         return;
@@ -280,16 +280,20 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
         return;
     }
 
-    size_t textureDataBpp = GrColorTypeBytesPerPixel(colorType);
+    auto supportedWrite = caps->supportedWritePixelsColorType(colorType, format, colorType);
+    if (supportedWrite.fColorType == GrColorType::kUnknown) {
+        return;
+    }
+    size_t textureDataBpp = GrColorTypeBytesPerPixel(supportedWrite.fColorType);
     size_t textureDataRowBytes = kTextureWidth * textureDataBpp;
     std::unique_ptr<char[]> textureData(new char[kTextureHeight * textureDataRowBytes]);
-    fill_transfer_data(0, 0, kTextureWidth, kTextureHeight, kTextureWidth, colorType,
+    fill_transfer_data(0, 0, kTextureWidth, kTextureHeight, kTextureWidth, supportedWrite.fColorType,
                        textureData.get());
     GrMipLevel data;
     data.fPixels = textureData.get();
     data.fRowBytes = textureDataRowBytes;
     sk_sp<GrTexture> tex = resourceProvider->createTexture(
-            desc, format, renderable, 1, SkBudgeted::kNo, GrProtected::kNo, &data, 1);
+            desc, format, renderable, 1, SkBudgeted::kNo, GrProtected::kNo, colorType, supportedWrite.fColorType, &data, 1);
     if (!tex) {
         return;
     }

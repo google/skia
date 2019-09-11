@@ -142,7 +142,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                             GrProtected::kNo);
                                 } else {
                                     tex = resourceProvider->createTexture(
-                                            desc, format, GrRenderable::kYes, numSamples, budgeted,
+                                            desc, format, GrRenderable::kYes, numSamples, GrMipMapped::kNo, budgeted,
                                             GrProtected::kNo);
                                 }
 
@@ -179,7 +179,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                             GrProtected::kNo);
                                 } else {
                                     tex = resourceProvider->createTexture(
-                                            desc, format, GrRenderable::kNo, numSamples, budgeted,
+                                            desc, format, GrRenderable::kNo, numSamples, GrMipMapped::kNo, budgeted,
                                             GrProtected::kNo);
                                 }
 

@@ -70,6 +70,7 @@ public:
                                    const GrBackendFormat& format,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
+                                   GrMipMapped mipMapped,
                                    SkBudgeted budgeted,
                                    GrProtected isProtected);
 
@@ -79,6 +80,8 @@ public:
                                    int renderTargetSampleCnt,
                                    SkBudgeted budgeted,
                                    GrProtected isProtected,
+                                   GrColorType textureColorType,
+                                   GrColorType srcColorType,
                                    const GrMipLevel texels[],
                                    int mipLevelCount);
 

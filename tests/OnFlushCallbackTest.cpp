@@ -314,7 +314,7 @@ public:
                     desc.fHeight = kAtlasTileSize;
                     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-                    return resourceProvider->createTexture(desc, format, GrRenderable::kYes, 1,
+                    return resourceProvider->createTexture(desc, format, GrRenderable::kYes, 1, GrMipMapped::kNo,
                                                            SkBudgeted::kYes, GrProtected::kNo);
                 },
                 format,

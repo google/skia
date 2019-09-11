@@ -96,7 +96,7 @@ public:
                             desc.fHeight = 567;
                             desc.fConfig = kRGB_565_GrPixelConfig;
                             sk_sp<GrTexture> texture = rp->createTexture(
-                                    desc, format, GrRenderable::kNo, 1, SkBudgeted::kYes,
+                                    desc, format, GrRenderable::kNo, 1, GrMipMapped::kNo, SkBudgeted::kYes,
                                     GrProtected::kNo);
                             REPORTER_ASSERT(fTest->fReporter, texture);
                             return texture;
@@ -239,7 +239,7 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
                                                            GrRenderable::kNo);
 
     auto tex = ctx->priv().resourceProvider()->createTexture(desc, format, GrRenderable::kNo, 1,
-                                                             SkBudgeted::kNo, GrProtected::kNo);
+            GrMipMapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
     using LazyInstantiationResult = GrSurfaceProxy::LazyCallbackResult;
     for (bool doInstantiate : {true, false}) {
         for (bool releaseCallback : {false, true}) {
@@ -346,7 +346,7 @@ private:
                         *testExecuteValue = 1;
                         return {};
                     }
-                    return {rp->createTexture(desc, format, GrRenderable::kNo, 1, SkBudgeted::kNo,
+                    return {rp->createTexture(desc, format, GrRenderable::kNo, 1, GrMipMapped::kNo, SkBudgeted::kNo,
                                               GrProtected::kNo),
                             true, GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
                 },

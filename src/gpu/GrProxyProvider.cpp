@@ -150,7 +150,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
                                                     isProtected);
     } else {
         tex = resourceProvider->createTexture(desc, format, renderable, renderTargetSampleCnt,
-                                              budgeted, isProtected);
+                                              GrMipMapped::kNo, budgeted, isProtected);
     }
     if (!tex) {
         return nullptr;
@@ -386,29 +386,28 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
     }
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-            [desc, format, baseLevel, mipmaps](GrResourceProvider* resourceProvider) {
+            [desc, format, baseLevel, mipmaps, grColorType](GrResourceProvider* resourceProvider) {
                 const int mipLevelCount = mipmaps->countLevels() + 1;
                 std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
 
                 SkPixmap pixmap;
                 SkAssertResult(baseLevel->peekPixels(&pixmap));
 
-                // DDL TODO: Instead of copying all this info into GrMipLevels we should just plumb
-                // the use of SkMipMap down through Ganesh.
                 texels[0].fPixels = pixmap.addr();
                 texels[0].fRowBytes = pixmap.rowBytes();
 
+                auto dataColorType = SkColorTypeToGrColorType(pixmap.colorType());
                 for (int i = 1; i < mipLevelCount; ++i) {
                     SkMipMap::Level generatedMipLevel;
                     mipmaps->getLevel(i - 1, &generatedMipLevel);
                     texels[i].fPixels = generatedMipLevel.fPixmap.addr();
                     texels[i].fRowBytes = generatedMipLevel.fPixmap.rowBytes();
                     SkASSERT(texels[i].fPixels);
+                    SkASSERT(generatedMipLevel.fPixmap.colorType() == pixmap.colorType());
                 }
-
                 return LazyCallbackResult(resourceProvider->createTexture(
                         desc, format, GrRenderable::kNo, 1, SkBudgeted::kYes, GrProtected::kNo,
-                        texels.get(), mipLevelCount));
+                        grColorType, dataColorType, texels.get(), mipLevelCount));
             },
             format, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kYes,
             GrMipMapsStatus::kValid, GrInternalSurfaceFlags::kNone, SkBackingFit::kExact,
