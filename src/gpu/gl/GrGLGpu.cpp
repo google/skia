@@ -1219,6 +1219,54 @@ static GrGLTextureParameters::SamplerOverriddenState set_initial_texture_params(
     return state;
 }
 
+void GrGLGpu::clearify(GrGLTexture* tex, int baseWidth, int baseHeight, GrGLFormat format,
+                       int mipLevelCount, uint32_t levelClearMask) {
+    GrGLenum externalFormat, externalType;
+    size_t bpp;
+    this->glCaps().getTexSubImageZeroFormatTypeAndBpp(format, &externalFormat, &externalType, &bpp);
+    if (this->glCaps().clearTextureSupport()) {
+        for (int i = 0; i < mipLevelCount; ++i) {
+            if (levelClearMask & (1U << i)) {
+                GL_CALL(ClearTexImage(tex->textureID(), i, externalFormat, externalType, nullptr));
+            }
+        }
+    } else if (this->glCaps().canFormatBeFBOColorAttachment(format) &&
+               !this->glCaps().performColorClearsAsDraws()) {
+        this->disableScissor();
+        this->disableWindowRectangles();
+        this->flushColorWrite(true);
+        this->flushClearColor(0, 0, 0, 0);
+        for (int i = 0; i < mipLevelCount; ++i) {
+            if (levelClearMask & (1U << i)) {
+                this->bindSurfaceFBOForPixelOps(tex, i, GR_GL_FRAMEBUFFER, kDst_TempFBOTarget);
+                GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
+                this->unbindSurfaceFBOForPixelOps(tex, i, GR_GL_FRAMEBUFFER);
+            }
+        }
+    } else {
+        std::unique_ptr<char[]> zeros;
+        GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
+        for (int i = 0; i < mipLevelCount; ++i) {
+            if (levelClearMask & (1U << i)) {
+                int levelWidth  = SkTMax(1, baseWidth  >> i);
+                int levelHeight = SkTMax(1, baseHeight >> i);
+                // Levels only get smaller as we proceed. Once we create a zeros use it for all
+                // smaller levels that need clearing.
+                if (!zeros) {
+                    size_t size = levelWidth * levelHeight * bpp;
+                    zeros.reset(new char[size]());
+                }
+                this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, tex->textureID());
+                GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, i, 0, 0, levelWidth, levelHeight,
+                                      externalFormat, externalType, zeros.get()));
+            }
+        }
+    }
+
+
+}
+
+
 sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
                                           const GrBackendFormat& format,
                                           GrRenderable renderable,
@@ -1273,50 +1321,8 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     tex->parameters()->set(&initialState, GrGLTextureParameters::NonsamplerState(),
                            fResetTimestampForTextureParameters);
     if (levelClearMask) {
-        GrGLenum externalFormat, externalType;
-        size_t bpp;
-        this->glCaps().getTexSubImageZeroFormatTypeAndBpp(texDesc.fFormat, &externalFormat,
-                                                          &externalType, &bpp);
-        if (this->glCaps().clearTextureSupport()) {
-            for (int i = 0; i < mipLevelCount; ++i) {
-                if (levelClearMask & (1U << i)) {
-                    GL_CALL(ClearTexImage(tex->textureID(), i, externalFormat, externalType,
-                                          nullptr));
-                }
-            }
-        } else if (this->glCaps().canFormatBeFBOColorAttachment(format.asGLFormat()) &&
-                   !this->glCaps().performColorClearsAsDraws()) {
-            this->disableScissor();
-            this->disableWindowRectangles();
-            this->flushColorWrite(true);
-            this->flushClearColor(0, 0, 0, 0);
-            for (int i = 0; i < mipLevelCount; ++i) {
-                if (levelClearMask & (1U << i)) {
-                    this->bindSurfaceFBOForPixelOps(tex.get(), i, GR_GL_FRAMEBUFFER,
-                                                    kDst_TempFBOTarget);
-                    GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
-                    this->unbindSurfaceFBOForPixelOps(tex.get(), i, GR_GL_FRAMEBUFFER);
-                }
-            }
-        } else {
-            std::unique_ptr<char[]> zeros;
-            GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
-            for (int i = 0; i < mipLevelCount; ++i) {
-                if (levelClearMask & (1U << i)) {
-                    int levelWidth  = SkTMax(1, texDesc.fSize.width()  >> i);
-                    int levelHeight = SkTMax(1, texDesc.fSize.height() >> i);
-                    // Levels only get smaller as we proceed. Once we create a zeros use it for all
-                    // smaller levels that need clearing.
-                    if (!zeros) {
-                        size_t size = levelWidth * levelHeight * bpp;
-                        zeros.reset(new char[size]());
-                    }
-                    this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, tex->textureID());
-                    GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, i, 0, 0, levelWidth, levelHeight,
-                                          externalFormat, externalType, zeros.get()));
-                }
-            }
-        }
+        clearify(tex.get(), texDesc.fSize.width(), texDesc.fSize.height(), texDesc.fFormat,
+                 mipLevelCount, levelClearMask);
     }
     return tex;
 }

@@ -189,6 +189,8 @@ private:
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override;
 
+    void clearify(GrGLTexture* tex, int baseWidth, int baseHeight, GrGLFormat format, int mipLevelCount, uint32_t levelClearMask);
+
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&,
                                      const GrBackendFormat&,
                                      GrRenderable,
