@@ -327,6 +327,7 @@ def main():
   DELIMITER = r'[, ](?!(?:[^(]*\([^)]*\))*[^()]*\))'
   configs = re.split(DELIMITER, FLAGS.config)
   srcs = _path.find_skps(FLAGS.srcs)
+  assert srcs
 
   if FLAGS.adb:
     adb = Adb(FLAGS.device_serial, FLAGS.adb_binary,
