@@ -177,6 +177,34 @@ bool bitmap_to_base64_data_uri(const SkBitmap& bitmap, SkString* dst) {
     return true;
 }
 
+using AccessPixelFn = const float*(const char* floatBuffer, int x, int y);
+
+bool compare_pixels(int width, int height,
+                    const char* floatA, std::function<AccessPixelFn>& atA,
+                    const char* floatB, std::function<AccessPixelFn>& atB,
+                    const float tolRGBA[4], std::function<ComparePixmapsErrorReporter>& error) {
+
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            const float* rgbaA = atA(floatA, x, y);
+            const float* rgbaB = atB(floatB, x, y);
+            float diffs[4];
+            bool bad = false;
+            for (int i = 0; i < 4; ++i) {
+                diffs[i] = rgbaB[i] - rgbaA[i];
+                if (std::abs(diffs[i]) > std::abs(tolRGBA[i])) {
+                    bad = true;
+                }
+            }
+            if (bad) {
+                error(x, y, diffs);
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 bool compare_pixels(const GrPixelInfo& infoA, const char* a, size_t rowBytesA,
                     const GrPixelInfo& infoB, const char* b, size_t rowBytesB,
                     const float tolRGBA[4], std::function<ComparePixmapsErrorReporter>& error) {
@@ -210,34 +238,61 @@ bool compare_pixels(const GrPixelInfo& infoA, const char* a, size_t rowBytesA,
     SkAssertResult(GrConvertPixels(floatInfo, floatA.get(), floatRowBytes, infoA, a, rowBytesA));
     SkAssertResult(GrConvertPixels(floatInfo, floatB.get(), floatRowBytes, infoB, b, rowBytesB));
 
-    auto at = [floatBpp, floatRowBytes](const char* floatBuffer, int x, int y) {
-        return reinterpret_cast<const float*>(floatBuffer + y * floatRowBytes + x * floatBpp);
-    };
-    for (int y = 0; y < infoA.height(); ++y) {
-        for (int x = 0; x < infoA.width(); ++x) {
-            const float* rgbaA = at(floatA.get(), x, y);
-            const float* rgbaB = at(floatB.get(), x, y);
-            float diffs[4];
-            bool bad = false;
-            for (int i = 0; i < 4; ++i) {
-                diffs[i] = rgbaB[i] - rgbaA[i];
-                if (std::abs(diffs[i]) > std::abs(tolRGBA[i])) {
-                    bad = true;
-                }
-            }
-            if (bad) {
-                error(x, y, diffs);
-                return false;
-            }
-        }
-    }
-    return true;
+    auto at = std::function<AccessPixelFn>(
+        [floatBpp, floatRowBytes](const char* floatBuffer, int x, int y) {
+            return reinterpret_cast<const float*>(floatBuffer + y * floatRowBytes + x * floatBpp);
+        });
+
+    return compare_pixels(infoA.width(), infoA.height(),
+                          floatA.get(), at, floatB.get(), at,
+                          tolRGBA, error);
 }
 
 bool compare_pixels(const SkPixmap& a, const SkPixmap& b, const float tolRGBA[4],
                     std::function<ComparePixmapsErrorReporter>& error) {
     return compare_pixels(a.info(), static_cast<const char*>(a.addr()), a.rowBytes(),
                           b.info(), static_cast<const char*>(b.addr()), b.rowBytes(),
+                          tolRGBA, error);
+}
+
+bool check_solid_pixels(const SkColor4f& col, const SkPixmap& pixmap,
+                        const float tolRGBA[4], std::function<ComparePixmapsErrorReporter>& error) {
+
+    size_t floatBpp = GrColorTypeBytesPerPixel(GrColorType::kRGBA_F32);
+
+    std::unique_ptr<char[]> floatA(new char[floatBpp]);
+    // First convert 'col' to be compatible with 'pixmap'
+    {
+        sk_sp<SkColorSpace> srcCS = SkColorSpace::MakeSRGBLinear();
+        GrPixelInfo srcInfo(GrColorType::kRGBA_F32, kUnpremul_SkAlphaType, std::move(srcCS), 1, 1);
+        GrPixelInfo dstInfo(GrColorType::kRGBA_F32, pixmap.alphaType(), pixmap.refColorSpace(), 1, 1);
+
+        SkAssertResult(GrConvertPixels(dstInfo, floatA.get(), floatBpp, srcInfo,
+                                       col.vec(), floatBpp));
+    }
+
+    size_t floatRowBytes = floatBpp * pixmap.width();
+    std::unique_ptr<char[]> floatB(new char[floatRowBytes * pixmap.height()]);
+    // Then convert 'pixmap' to RGBA_F32
+    {
+        GrPixelInfo dstInfo(GrColorType::kRGBA_F32, pixmap.alphaType(), pixmap.refColorSpace(),
+                            pixmap.width(), pixmap.height());
+
+        SkAssertResult(GrConvertPixels(dstInfo, floatB.get(), floatRowBytes, pixmap.info(),
+                                       pixmap.addr(), pixmap.rowBytes()));
+    }
+
+    auto atA = std::function<AccessPixelFn>(
+        [](const char* floatBuffer, int /* x */, int /* y */) {
+            return reinterpret_cast<const float*>(floatBuffer);
+        });
+
+    auto atB = std::function<AccessPixelFn>(
+        [floatBpp, floatRowBytes](const char* floatBuffer, int x, int y) {
+            return reinterpret_cast<const float*>(floatBuffer + y * floatRowBytes + x * floatBpp);
+        });
+
+    return compare_pixels(pixmap.width(), pixmap.height(), floatA.get(), atA, floatB.get(), atB,
                           tolRGBA, error);
 }
 
