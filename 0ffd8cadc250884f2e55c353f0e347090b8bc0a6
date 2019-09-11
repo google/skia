@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b52ec9e_fe2b8e86",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-11T23:03:33Z",
+      "side": 1,
+      "message": "What\u0027s this number?  crbug.com?",
+      "range": {
+        "startLine": 183,
+        "startChar": 13,
+        "endLine": 183,
+        "endChar": 18
+      },
+      "revId": "0ffd8cadc250884f2e55c353f0e347090b8bc0a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ca5138b_07ece9cf",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-11T23:03:33Z",
+      "side": 1,
+      "message": "I think we\u0027d usually put these into the big old list of Clang-specific Wno- flags in gn/BUILD.gn.  Do they have to go here for some reason?\n\nIn fact, we\u0027d usually just fix these issues as they crop up directly, e.g. as we roll Clang.  What\u0027s going on exactly?  Which team and product are you working on?",
+      "range": {
+        "startLine": 187,
+        "startChar": 6,
+        "endLine": 188,
+        "endChar": 30
+      },
+      "revId": "0ffd8cadc250884f2e55c353f0e347090b8bc0a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
