@@ -321,6 +321,10 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "nanobench-pa"
+  },
+  {
     "cmd": [
       "adb",
       "push",
@@ -333,7 +337,10 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push nanobench"
+    "name": "nanobench-pa.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -385,13 +392,4353 @@
       "model",
       "Chorizo",
       "os",
-      "Chromecast"
+      "Chromecast",
+      "--match",
+      "^pa"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "nanobench"
+    "name": "nanobench-pa.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pb"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pb.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pb"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pb.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pc"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pc.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pc"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pc.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pd"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pd.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pd"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pd.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pe"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pe.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pe"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pe.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pf"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pf.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pf"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pf.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pg"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pg.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pg"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pg.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-ph"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-ph.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^ph"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-ph.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pi"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pi.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pi"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pi.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pj"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pj.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pj"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pj.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pk"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pk.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pk"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pk.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pl"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pl.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pl"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pl.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pm"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pm.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pm"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pm.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pn"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pn.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pn"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pn.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-po"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-po.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^po"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-po.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pp"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pp.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pp"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pp.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pq"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pq.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pq"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pq.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pr"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pr.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pr"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pr.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-ps"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-ps.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^ps"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-ps.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pt"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pt.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pt"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pt.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pu"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pu.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pu"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pu.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pv"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pv.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pv"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pv.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pw"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pw.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pw"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pw.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-px"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-px.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^px"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-px.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-py"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-py.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^py"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-py.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pz"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pz.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pz"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pz.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pA"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pA.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pA"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pA.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pB"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pB.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pB"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pB.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pC"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pC.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pC"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pC.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pD"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pD.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pD"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pD.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pE"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pE.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pE"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pE.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pF"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pF.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pF"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pF.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pG"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pG.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pG"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pG.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pH"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pH.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pH"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pH.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pI"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pI.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pI"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pI.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pJ"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pJ.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pJ"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pJ.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pK"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pK.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pK"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pK.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pL"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pL.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pL"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pL.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pM"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pM.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pM"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pM.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pN"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pN.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pN"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pN.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pO"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pO.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pO"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pO.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pP"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pP.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pP"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pP.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pQ"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pQ.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pQ"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pQ.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pR"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pR.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pR"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pR.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pS"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pS.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pS"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pS.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pT"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pT.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pT"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pT.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pU"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pU.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pU"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pU.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pV"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pV.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pV"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pV.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pW"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pW.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pW"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pW.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pX"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pX.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pX"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pX.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pY"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pY.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pY"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pY.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pZ"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/nanobench",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pZ.push nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/nanobench",
+      "--nocpu",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--skps",
+      "/cache/skia/skps",
+      "--pre_log",
+      "--dontReduceOpsTaskSplitting",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_",
+      "~desk_carsvg.skp",
+      "~^path_text_clipped",
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "--match",
+      "^pZ"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "nanobench-pZ.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [

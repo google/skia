@@ -137,6 +137,10 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "nanobench-pa"
+  },
+  {
     "cmd": [
       "[START_DIR]/valgrind/bin/valgrind",
       "--gen-suppressions=all",
@@ -161,9 +165,7 @@
       "1.1",
       "--nocpu",
       "--config",
-      "gl",
-      "glsrgb",
-      "glmsaa8",
+      "glesmsaa4",
       "--loops",
       "1",
       "--samples",
@@ -171,32 +173,2516 @@
       "--keepAlive",
       "true",
       "--match",
-      "~inc0.gif",
-      "~inc1.gif",
-      "~incInterlaced.gif",
-      "~inc0.jpg",
-      "~incGray.jpg",
-      "~inc0.wbmp",
-      "~inc1.wbmp",
-      "~inc0.webp",
-      "~inc1.webp",
-      "~inc0.ico",
-      "~inc1.ico",
-      "~inc0.png",
-      "~inc1.png",
-      "~inc2.png",
-      "~inc12.png",
-      "~inc13.png",
-      "~inc14.png",
-      "~inc0.webp",
-      "~inc1.webp"
+      "^pa"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
       "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
     },
-    "name": "nanobench"
+    "name": "nanobench-pa.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pb"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pb"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pb.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pc"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pc"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pc.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pd"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pd"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pd.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pe"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pe"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pe.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pf"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pf"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pf.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pg"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pg"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pg.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-ph"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^ph"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-ph.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pi"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pi"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pi.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pj"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pj"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pj.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pk"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pk"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pk.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pl"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pl"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pl.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pm"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pm"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pm.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pn"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pn"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pn.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-po"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^po"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-po.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pp"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pp"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pp.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pq"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pq"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pq.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pr"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pr"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pr.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-ps"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^ps"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-ps.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pt"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pt"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pt.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pu"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pu"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pu.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pv"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pv"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pv.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pw"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pw"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pw.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-px"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^px"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-px.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-py"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^py"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-py.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pz"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pz"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pz.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pA"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pA"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pA.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pB"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pB"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pB.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pC"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pC"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pC.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pD"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pD"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pD.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pE"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pE"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pE.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pF"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pF"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pF.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pG"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pG"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pG.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pH"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pH"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pH.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pI"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pI"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pI.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pJ"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pJ"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pJ.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pK"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pK"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pK.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pL"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pL"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pL.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pM"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pM"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pM.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pN"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pN"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pN.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pO"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pO"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pO.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pP"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pP"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pP.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pQ"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pQ"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pQ.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pR"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pR"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pR.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pS"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pS"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pS.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pT"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pT"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pT.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pU"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pU"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pU.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pV"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pV"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pV.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pW"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pW"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pW.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pX"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pX"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pX.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pY"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pY"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pY.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pZ"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/valgrind/bin/valgrind",
+      "--gen-suppressions=all",
+      "--leak-check=full",
+      "--track-origins=yes",
+      "--error-exitcode=1",
+      "--num-callers=40",
+      "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
+      "[START_DIR]/build/nanobench",
+      "-i",
+      "[START_DIR]/skia/resources",
+      "--skps",
+      "[START_DIR]/skp",
+      "--images",
+      "[START_DIR]/skimage/nanobench",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
+      "--match",
+      "^pZ"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "VALGRIND_LIB": "[START_DIR]/valgrind/lib/valgrind"
+    },
+    "name": "nanobench-pZ.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "name": "$result"

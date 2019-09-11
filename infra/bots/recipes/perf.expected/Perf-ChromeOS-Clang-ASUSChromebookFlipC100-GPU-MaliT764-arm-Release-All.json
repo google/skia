@@ -612,6 +612,10 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "nanobench-pa"
+  },
+  {
     "cmd": [
       "scp",
       "[START_DIR]/build/nanobench",
@@ -622,7 +626,10 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    "name": "nanobench-pa.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -641,7 +648,10 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "make nanobench executable"
+    "name": "nanobench-pa.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -669,27 +679,7 @@
       "1.1",
       "--nocpu",
       "--config",
-      "gles",
-      "--match",
-      "~inc0.gif",
-      "~inc1.gif",
-      "~incInterlaced.gif",
-      "~inc0.jpg",
-      "~incGray.jpg",
-      "~inc0.wbmp",
-      "~inc1.wbmp",
-      "~inc0.webp",
-      "~inc1.webp",
-      "~inc0.ico",
-      "~inc1.ico",
-      "~inc0.png",
-      "~inc1.png",
-      "~inc2.png",
-      "~inc12.png",
-      "~inc13.png",
-      "~inc14.png",
-      "~inc0.webp",
-      "~inc1.webp",
+      "glesmsaa4",
       "--outResultsFile",
       "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
       "--properties",
@@ -711,14 +701,5323 @@
       "model",
       "ASUSChromebookFlipC100",
       "os",
-      "ChromeOS"
+      "ChromeOS",
+      "--match",
+      "^pa"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "nanobench"
+    "name": "nanobench-pa.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pb"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pb.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pb.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pb"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pb.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pc"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pc.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pc.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pc"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pc.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pd"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pd.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pd.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pd"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pd.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pe"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pe.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pe.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pe"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pe.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pf"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pf.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pf.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pf"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pf.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pg"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pg.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pg.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pg"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pg.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-ph"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-ph.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-ph.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^ph"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-ph.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pi"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pi.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pi.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pi"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pi.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pj"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pj.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pj.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pj"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pj.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pk"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pk.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pk.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pk"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pk.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pl"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pl.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pl.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pl"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pl.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pm"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pm.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pm.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pm"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pm.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pn"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pn.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pn.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pn"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pn.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-po"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-po.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-po.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^po"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-po.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pp"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pp.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pp.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pp"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pp.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pq"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pq.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pq.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pq"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pq.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pr"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pr.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pr.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pr"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pr.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-ps"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-ps.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-ps.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^ps"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-ps.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pt"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pt.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pt.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pt"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pt.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pu"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pu.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pu.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pu"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pu.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pv"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pv.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pv.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pv"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pv.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pw"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pw.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pw.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pw"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pw.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-px"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-px.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-px.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^px"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-px.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-py"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-py.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-py.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^py"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-py.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pz"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pz.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pz.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pz"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pz.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pA"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pA.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pA.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pA"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pA.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pB"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pB.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pB.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pB"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pB.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pC"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pC.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pC.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pC"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pC.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pD"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pD.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pD.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pD"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pD.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pE"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pE.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pE.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pE"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pE.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pF"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pF.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pF.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pF"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pF.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pG"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pG.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pG.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pG"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pG.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pH"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pH.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pH.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pH"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pH.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pI"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pI.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pI.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pI"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pI.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pJ"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pJ.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pJ.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pJ"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pJ.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pK"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pK.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pK.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pK"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pK.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pL"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pL.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pL.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pL"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pL.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pM"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pM.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pM.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pM"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pM.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pN"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pN.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pN.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pN"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pN.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pO"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pO.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pO.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pO"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pO.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pP"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pP.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pP.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pP"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pP.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pQ"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pQ.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pQ.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pQ"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pQ.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pR"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pR.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pR.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pR"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pR.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pS"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pS.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pS.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pS"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pS.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pT"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pT.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pT.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pT"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pT.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pU"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pU.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pU.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pU"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pU.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pV"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pV.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pV.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pV"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pV.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pW"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pW.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pW.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pW"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pW.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pX"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pX.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pX.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pX"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pX.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pY"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pY.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pY.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pY"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pY.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "nanobench-pZ"
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pZ.scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pZ.make nanobench executable",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "glesmsaa4",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS",
+      "--match",
+      "^pZ"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench-pZ.nanobench",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
