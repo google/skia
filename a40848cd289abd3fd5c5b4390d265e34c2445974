@@ -22,6 +22,30 @@
       "revId": "a40848cd289abd3fd5c5b4390d265e34c2445974",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ede619e_bfd7d852",
+        "filename": "tests/TestUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-11T19:14:15Z",
+      "side": 1,
+      "message": "I gave this a whirl. It could probably be made to work but the generalized lambda capture (for the unique_ptrs) doesn\u0027t seem universally supported yet.",
+      "parentUuid": "24a5a56e_3ef0ab79",
+      "range": {
+        "startLine": 180,
+        "startChar": 35,
+        "endLine": 180,
+        "endChar": 58
+      },
+      "revId": "a40848cd289abd3fd5c5b4390d265e34c2445974",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
