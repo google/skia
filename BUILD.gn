@@ -177,6 +177,17 @@ config("skia_private") {
 config("skia_library") {
   visibility = [ ":*" ]
   defines = [ "SKIA_IMPLEMENTATION=1" ]
+
+  if (is_clang) {
+    cflags = [
+      # TODO(36439): Clang introduced a new warning that is raised when we
+      # attempt to check the size of an array through sizeof() division. If the
+      # type of the sizeof() in the divisor is not the same as that of the array
+      # element, a warning is raised.
+      "-Wno-unknown-warning-option",
+      "-Wno-sizeof-array-div",
+    ]
+  }
 }
 
 skia_library_configs = [
