@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f48951e5_25744734",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-11T19:24:47Z",
+      "side": 1,
+      "message": "Should we drop the callback here to not retry instantiation? I\u0027m not sure b/c releaseCallback could be false.\n\nAlternatively, we could check at line 479 whether width/height are zero and just fail.\n\nOr we could just return here and not modify the width/height? And then make the getters do a max() with 0?",
+      "revId": "7a946f0f4c1a2e21169171766a0334f40f7baef0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
