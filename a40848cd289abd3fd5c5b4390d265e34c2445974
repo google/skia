@@ -46,6 +46,30 @@
       "revId": "a40848cd289abd3fd5c5b4390d265e34c2445974",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a75cdda_35bcf24f",
+        "filename": "tests/TestUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-11T20:11:44Z",
+      "side": 1,
+      "message": "FWIW the problem is the std::function not the capture. You can capture by reference to the unique_ptr, but std::function is copyable. I\u0027m not saying you should do it, but this could be templated on atA and atB and then you don\u0027t need the type erasure of std::function.",
+      "parentUuid": "9ede619e_bfd7d852",
+      "range": {
+        "startLine": 180,
+        "startChar": 35,
+        "endLine": 180,
+        "endChar": 58
+      },
+      "revId": "a40848cd289abd3fd5c5b4390d265e34c2445974",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
