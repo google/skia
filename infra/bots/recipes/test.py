@@ -405,6 +405,10 @@ def dm_flags(api, bot):
     # skbug.com/9171 and 8847
     blacklist('_ test _ InitialTextureClear')
 
+  if 'TecnoSpark3Pro' in bot:
+    # skbug.com/9421
+    blacklist('_ test _ InitialTextureClear')
+
   if 'iOS' in bot:
     blacklist(gl_prefix + ' skp _ _')
 
@@ -1079,6 +1083,7 @@ TEST_BUILDERS = [
   'Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All',
   'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan',
   'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer',
+  'Test-Android-Clang-TecnoSpark3Pro-GPU-PowerVRGE8320-arm-Debug-All-Android',
 ]
 
 
