@@ -141,6 +141,30 @@
       "revId": "0ffd8cadc250884f2e55c353f0e347090b8bc0a6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86b07a7f_09edd53a",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 10168
+      },
+      "writtenOn": "2019-09-11T23:35:20Z",
+      "side": 1,
+      "message": "Oh. Actually, it was just one error after all...\n\nIn this case it\u0027s probably better to just fix it and abandon that patch.\n\n```\n../../third_party/skia/src/core/SkPath.cpp:1541:61: error: expression does not compute the number of elements in this array; element type is \u0027SkPoint\u0027, not \u0027SkScalar\u0027 (aka \u0027float\u0027) [-Werror,-Wsizeof-array-div]\n            for (unsigned index \u003d 0; index \u003c sizeof(mapped) / sizeof(SkScalar); ++index) {\n                                                    ~~~~~~  ^\n../../third_party/skia/src/core/SkPath.cpp:1532:17: note: array \u0027mapped\u0027 declared here\n        SkPoint mapped[2];\n                ^\n1 error generated.\n```",
+      "parentUuid": "4e325428_04eeefcd",
+      "range": {
+        "startLine": 187,
+        "startChar": 6,
+        "endLine": 188,
+        "endChar": 30
+      },
+      "revId": "0ffd8cadc250884f2e55c353f0e347090b8bc0a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
