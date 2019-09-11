@@ -7,6 +7,7 @@
 
 
 import calendar
+import string
 import os
 
 
@@ -85,10 +86,8 @@ def nanobench_flags(api, bot):
         gl_prefix = 'gles'
       # iOS crashes with MSAA (skia:6399)
       # Nexus7 (Tegra3) does not support MSAA.
-      # Pixel3a is hanging on several benchmarks. (skia:9413)
-      if ('iOS'     in bot or
-          'Nexus7'  in bot or
-          'Pixel3a' in bot):
+      if ('iOS'         in bot or
+          'Nexus7'      in bot):
         sample_count = ''
     elif 'Intel' in bot:
       # MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
@@ -142,7 +141,8 @@ def nanobench_flags(api, bot):
       configs = ['gles']
 
   args.append('--config')
-  args.extend(configs)
+  args.append('glesmsaa4')
+  #args.extend(configs)
 
   # By default, we test with GPU threading enabled, unless specifically
   # disabled.
@@ -163,11 +163,11 @@ def nanobench_flags(api, bot):
   verbose = False
 
   match = []
-  if 'Android' in bot:
-    # Segfaults when run as GPU bench. Very large texture?
-    match.append('~blurroundrect')
-    match.append('~patch_grid')  # skia:2847
-    match.append('~desk_carsvg')
+  #if 'Android' in bot:
+  #  # Segfaults when run as GPU bench. Very large texture?
+  #  match.append('~blurroundrect')
+  #  match.append('~patch_grid')  # skia:2847
+  #  match.append('~desk_carsvg')
   if 'Nexus5' in bot:
     match.append('~keymobi_shop_mobileweb_ebay_com.skp')  # skia:5178
   if 'iOS' in bot:
@@ -221,28 +221,36 @@ def nanobench_flags(api, bot):
   if 'AcerChromebook13_CB5_311-GPU-TegraK1' in bot:
     # skia:7551
     match.append('~^shapes_rrect_inner_rrect_50_500x500$')
+  #if (bot ==
+  #    'Perf-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Release-All-Android'):
+  #  # skia:9413
+  #  match.append('~^perlinnoise$')
+  #  match.append('~^picture_nesting_playback_0$')
+  #  match.append('~^picture_nesting_playback_1$')
+  #  match.append('~^picture_nesting_playback_13$')
+  #  match.append('~^picture_nesting_playback_4$')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
-  match.append('~inc0.gif')
-  match.append('~inc1.gif')
-  match.append('~incInterlaced.gif')
-  match.append('~inc0.jpg')
-  match.append('~incGray.jpg')
-  match.append('~inc0.wbmp')
-  match.append('~inc1.wbmp')
-  match.append('~inc0.webp')
-  match.append('~inc1.webp')
-  match.append('~inc0.ico')
-  match.append('~inc1.ico')
-  match.append('~inc0.png')
-  match.append('~inc1.png')
-  match.append('~inc2.png')
-  match.append('~inc12.png')
-  match.append('~inc13.png')
-  match.append('~inc14.png')
-  match.append('~inc0.webp')
-  match.append('~inc1.webp')
+  #match.append('~inc0.gif')
+  #match.append('~inc1.gif')
+  #match.append('~incInterlaced.gif')
+  #match.append('~inc0.jpg')
+  #match.append('~incGray.jpg')
+  #match.append('~inc0.wbmp')
+  #match.append('~inc1.wbmp')
+  #match.append('~inc0.webp')
+  #match.append('~inc1.webp')
+  #match.append('~inc0.ico')
+  #match.append('~inc1.ico')
+  #match.append('~inc0.png')
+  #match.append('~inc1.png')
+  #match.append('~inc2.png')
+  #match.append('~inc12.png')
+  #match.append('~inc13.png')
+  #match.append('~inc14.png')
+  #match.append('~inc0.webp')
+  #match.append('~inc1.webp')
 
   if match:
     args.append('--match')
@@ -333,8 +341,10 @@ def perf_steps(api):
       if not k in keys_blacklist:
         args.extend([k, api.vars.builder_cfg[k]])
 
-  api.run(api.flavor.step, target, cmd=args,
-          abort_on_failure=False)
+  for shard in string.ascii_lowercase + string.ascii_uppercase:
+    api.run(api.flavor.step, '%s-%s' % (target, shard),
+            cmd=args + ['--match', '^' + shard],
+            abort_on_failure=False, timeout=600)
 
   # Copy results to swarming out dir.
   if upload_perf_results(b):
