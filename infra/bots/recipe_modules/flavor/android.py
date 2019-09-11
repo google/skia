@@ -515,9 +515,18 @@ time.sleep(60)
     self.m.python.inline('%s' % cmd[0], """
     import subprocess
     import sys
+    import datetime
+    import time
     bin_dir = sys.argv[1]
     sh      = sys.argv[2]
-    subprocess.check_call(['%s', 'shell', 'sh', bin_dir + sh])
+    start = datetime.datetime.now()
+    p = subprocess.Popen(['%s', 'shell', 'sh', bin_dir + sh])
+    while p.poll() is None:
+      if datetime.datetime.now() - start > datetime.timedelta(minutes=10):
+        p.kill()
+        print "Killed after %%s" %% datetime.datetime.now() - start
+        sys.exit(2)
+      time.sleep(1)
     try:
       sys.exit(int(subprocess.check_output(['%s', 'shell', 'cat',
                                             bin_dir + 'rc'])))
