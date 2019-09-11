@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24a5a56e_3ef0ab79",
+        "filename": "tests/TestUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-11T18:11:23Z",
+      "side": 1,
+      "message": "If we\u0027re using capturing lambas anyway, maybe this should just be:\n\nusing AccessPixelFn \u003d const float*(int x, int y);\n\nand lambas can capture the buffer, solid color, whatever...",
+      "range": {
+        "startLine": 180,
+        "startChar": 35,
+        "endLine": 180,
+        "endChar": 58
+      },
+      "revId": "a40848cd289abd3fd5c5b4390d265e34c2445974",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
