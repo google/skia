@@ -409,21 +409,12 @@ static std::unique_ptr<GrRenderTargetContext> reexpand(
         std::unique_ptr<GrRenderTargetContext> srcRenderTargetContext,
         const SkIRect& localSrcBounds,
         int scaleFactorX, int scaleFactorY,
-        GrTextureDomain::Mode mode,
         int finalW,
         int finalH,
         sk_sp<SkColorSpace> finalCS,
         SkBackingFit fit) {
     const SkIRect srcRect = SkIRect::MakeWH(srcRenderTargetContext->width(),
                                             srcRenderTargetContext->height());
-
-    // Clear one pixel to the right and below, to accommodate bilinear upsampling.
-    // TODO: it seems like we should actually be clamping here rather than darkening
-    // the bottom right edges.
-    SkIRect clearRect = SkIRect::MakeXYWH(srcRect.fLeft, srcRect.fBottom, srcRect.width() + 1, 1);
-    srcRenderTargetContext->priv().absClear(&clearRect);
-    clearRect = SkIRect::MakeXYWH(srcRect.fRight, srcRect.fTop, 1, srcRect.height());
-    srcRenderTargetContext->priv().absClear(&clearRect);
 
     sk_sp<GrTextureProxy> srcProxy = srcRenderTargetContext->asTextureProxyRef();
     if (!srcProxy) {
@@ -443,24 +434,12 @@ static std::unique_ptr<GrRenderTargetContext> reexpand(
     }
 
     GrPaint paint;
-    if (GrTextureDomain::kIgnore_Mode != mode) {
-        // GrTextureDomainEffect does not support kRepeat_Mode with GrSamplerState::Filter.
-        GrTextureDomain::Mode modeForScaling = GrTextureDomain::kRepeat_Mode == mode
-                                                            ? GrTextureDomain::kDecal_Mode
-                                                            : mode;
-
-        SkRect domain = SkRect::Make(localSrcBounds);
-        auto fp = GrTextureDomainEffect::Make(std::move(srcProxy),
-                                                SkMatrix::I(),
-                                                domain,
-                                                modeForScaling,
-                                                GrSamplerState::Filter::kBilerp);
-        paint.addColorFragmentProcessor(std::move(fp));
-    } else {
-        // FIXME:  this should be mitchell, not bilinear.
-        paint.addColorTextureProcessor(std::move(srcProxy), SkMatrix::I(),
-                                       GrSamplerState::ClampBilerp());
-    }
+    SkRect domain = GrTextureDomain::MakeTexelDomain(localSrcBounds, GrTextureDomain::kClamp_Mode,
+                                                     GrTextureDomain::kClamp_Mode);
+    auto fp = GrTextureDomainEffect::Make(std::move(srcProxy), SkMatrix::I(), domain,
+                                          GrTextureDomain::kClamp_Mode,
+                                          GrSamplerState::Filter::kBilerp);
+    paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     GrFixedClip clip(SkIRect::MakeWH(finalW, finalH));
 
@@ -592,7 +571,7 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
     if (scaleFactorX > 1 || scaleFactorY > 1) {
         dstRenderTargetContext =
                 reexpand(context, std::move(dstRenderTargetContext), localSrcBounds, scaleFactorX,
-                         scaleFactorY, mode, finalW, finalH, colorSpace, fit);
+                         scaleFactorY, finalW, finalH, colorSpace, fit);
     }
 
     SkASSERT(!dstRenderTargetContext || dstRenderTargetContext->origin() == srcProxy->origin());
