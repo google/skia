@@ -102,8 +102,8 @@ public:
     bool isLazy() const { return !this->isInstantiated() && SkToBool(fLazyInstantiateCallback); }
 
     bool isFullyLazy() const {
-        bool result = fHeight <= 0;
-        SkASSERT(result == (fWidth <= 0));
+        bool result = fHeight < 0;
+        SkASSERT(result == (fWidth < 0));
         SkASSERT(!result || this->isLazy());
         return result;
     }
