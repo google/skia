@@ -213,11 +213,34 @@ void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
         }
 
         float values[kPrevDomainCount] = {
-            SkScalarToFloat(textureDomain.domain().fLeft * wInv),
-            SkScalarToFloat(textureDomain.domain().fTop * hInv),
-            SkScalarToFloat(textureDomain.domain().fRight * wInv),
-            SkScalarToFloat(textureDomain.domain().fBottom * hInv)
+            SkScalarToFloat(textureDomain.domain().fLeft),
+            SkScalarToFloat(textureDomain.domain().fTop),
+            SkScalarToFloat(textureDomain.domain().fRight),
+            SkScalarToFloat(textureDomain.domain().fBottom)
         };
+
+        // When using kClamp, inset our domain to the border pixel *centers*. If we step out
+        // further, then bilerp will reach outside the domain, and if we clamp right at the domain's
+        // boundary, nearest filtering might choose the exterior pixels.
+        if (GrTextureDomain::kClamp_Mode == fModeX) {
+            values[0] += 0.5;
+            values[2] -= 0.5;
+            if (values[0] > values[2]) {  // Did the inset invert our domain?
+                values[0] = values[2] = SkScalarAve(values[0], values[2]);
+            }
+        }
+        if (GrTextureDomain::kClamp_Mode == fModeY) {
+            values[1] += 0.5;
+            values[3] -= 0.5;
+            if (values[1] > values[3]) {  // Did the inset invert our domain?
+                values[1] = values[3] = SkScalarAve(values[1], values[3]);
+            }
+        }
+
+        values[0] *= wInv;
+        values[1] *= wInv;
+        values[2] *= wInv;
+        values[3] *= wInv;
 
         if (proxy->textureType() == GrTextureType::kRectangle) {
             SkASSERT(values[0] >= 0.0f && values[0] <= proxy->height());
