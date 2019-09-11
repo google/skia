@@ -85,10 +85,8 @@ def nanobench_flags(api, bot):
         gl_prefix = 'gles'
       # iOS crashes with MSAA (skia:6399)
       # Nexus7 (Tegra3) does not support MSAA.
-      # Pixel3a is hanging on several benchmarks. (skia:9413)
       if ('iOS'     in bot or
-          'Nexus7'  in bot or
-          'Pixel3a' in bot):
+          'Nexus7'  in bot):
         sample_count = ''
     elif 'Intel' in bot:
       # MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
@@ -221,6 +219,11 @@ def nanobench_flags(api, bot):
   if 'AcerChromebook13_CB5_311-GPU-TegraK1' in bot:
     # skia:7551
     match.append('~^shapes_rrect_inner_rrect_50_500x500$')
+  if (bot ==
+      'Perf-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Release-All-Android'):
+    # skia:9413
+    match.append('~^path_text$')
+    match.append('~^path_text_clipped_uncached$')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
