@@ -22,6 +22,30 @@
       "revId": "be95c08a4ce1bce0e6a09111b2907cd34dc5f3a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2d5bde4_e75a3087",
+        "filename": "experimental/minimal_ios_mtl_skia_app/main.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-09-11T12:55:39Z",
+      "side": 1,
+      "message": "Acknowledged.\n\nI don\u0027t quite understand how to do that, so I\u0027ll leave that for a later CL.",
+      "parentUuid": "c4aa59d1_08b17634",
+      "range": {
+        "startLine": 89,
+        "startChar": 4,
+        "endLine": 90,
+        "endChar": 18
+      },
+      "revId": "be95c08a4ce1bce0e6a09111b2907cd34dc5f3a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
