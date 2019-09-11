@@ -57,6 +57,8 @@ var CanvasKit = {
 	/** @return {RadialCanvasGradient} */
 	MakeTwoPointConicalGradientShader: function() {},
 	MakeWebGLCanvasSurface: function() {},
+	/** @return {TonalColors} */
+	computeTonalColors: function() {},
 	currentContext: function() {},
 	getColorComponents: function() {},
 	getSkDataBytes: function() {},
