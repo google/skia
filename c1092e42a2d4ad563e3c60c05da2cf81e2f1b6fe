@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9377879e_8e84b427",
+        "filename": "src/core/SkBlurMF.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 891,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-11T20:55:38Z",
+      "side": 1,
+      "message": "I agree that the previous state we were in led to inconsistent edge behavior, both for regular blurs and mask blurs. Now, for masking specifically, if we\u0027re outside the mask image we presumably implicitly have zero coverage so wouldn\u0027t using the kDecal_Mode (now for all edges) be more correct?",
+      "range": {
+        "startLine": 891,
+        "startChar": 77,
+        "endLine": 891,
+        "endChar": 88
+      },
+      "revId": "c1092e42a2d4ad563e3c60c05da2cf81e2f1b6fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
