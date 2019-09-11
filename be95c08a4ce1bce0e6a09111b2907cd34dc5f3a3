@@ -46,6 +46,30 @@
       "revId": "be95c08a4ce1bce0e6a09111b2907cd34dc5f3a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0470b6aa_ef12cda7",
+        "filename": "experimental/minimal_ios_mtl_skia_app/main.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-09-11T13:47:56Z",
+      "side": 1,
+      "message": "The AppDelegate class does it in tools/sk_app/ios/main_ios.mm for \u0027done\u0027 and \u0027window\u0027.",
+      "parentUuid": "f2d5bde4_e75a3087",
+      "range": {
+        "startLine": 89,
+        "startChar": 4,
+        "endLine": 90,
+        "endChar": 18
+      },
+      "revId": "be95c08a4ce1bce0e6a09111b2907cd34dc5f3a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
