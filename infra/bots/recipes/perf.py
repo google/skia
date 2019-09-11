@@ -85,8 +85,10 @@ def nanobench_flags(api, bot):
         gl_prefix = 'gles'
       # iOS crashes with MSAA (skia:6399)
       # Nexus7 (Tegra3) does not support MSAA.
-      if ('iOS'         in bot or
-          'Nexus7'      in bot):
+      # Pixel3a is hanging on several benchmarks. (skia:9413)
+      if ('iOS'     in bot or
+          'Nexus7'  in bot or
+          'Pixel3a' in bot):
         sample_count = ''
     elif 'Intel' in bot:
       # MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
@@ -373,6 +375,7 @@ TEST_BUILDERS = [
   'Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-Android_Vulkan',
   'Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-All-Android',
   'Perf-Android-Clang-P30-GPU-MaliG76-arm64-Release-All-Android_Vulkan',
+  'Perf-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Release-All-Android',
   'Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All',
   'Perf-ChromeOS-Clang-AcerChromebook13_CB5_311-GPU-TegraK1-arm-Release-All',
   'Perf-Chromecast-Clang-Chorizo-CPU-Cortex_A7-arm-Debug-All',
