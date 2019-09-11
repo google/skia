@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8a7d2b8a_98201f6d",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 10168
+      },
+      "writtenOn": "2019-09-11T23:20:27Z",
+      "side": 1,
+      "message": "That\u0027s the ID for the bug on monorail for the Fuchsia project (https://bugs.fuchsia.dev/p/fuchsia/issues/detail?id\u003d36439). This might not have been appropriate here since you might be using a different bug tracker. My bad.",
+      "parentUuid": "9b52ec9e_fe2b8e86",
+      "range": {
+        "startLine": 183,
+        "startChar": 13,
+        "endLine": 183,
+        "endChar": 18
+      },
+      "revId": "0ffd8cadc250884f2e55c353f0e347090b8bc0a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5ca5138b_07ece9cf",
         "filename": "BUILD.gn",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2019-09-11T23:03:33Z",
       "side": 1,
       "message": "I think we\u0027d usually put these into the big old list of Clang-specific Wno- flags in gn/BUILD.gn.  Do they have to go here for some reason?\n\nIn fact, we\u0027d usually just fix these issues as they crop up directly, e.g. as we roll Clang.  What\u0027s going on exactly?  Which team and product are you working on?",
+      "range": {
+        "startLine": 187,
+        "startChar": 6,
+        "endLine": 188,
+        "endChar": 30
+      },
+      "revId": "0ffd8cadc250884f2e55c353f0e347090b8bc0a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "701e307b_6dd80542",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 10168
+      },
+      "writtenOn": "2019-09-11T23:20:27Z",
+      "side": 1,
+      "message": "Sorry I should\u0027ve given more context. I wasn\u0027t sure if you were able to access the bug (https://bugs.fuchsia.dev/p/fuchsia/issues/detail?id\u003d36439).\n\nI work under Fuchsia in the toolchain team and noticed that Clang got a new warning, -Wsizeof-array-div (https://reviews.llvm.org/D67287), which trickled down to our builders and caused our bots to go red since we have `-Wall -Werror`. The warning just points out instances when we have a `sizeof(array) / sizeof(type)` expression, but `type` is not the same size as the element type in `array`.\n\nNormally when a new warning comes in, I try to either clean instances where it appears internally in Fuchsia, but in the case of third party libraries, silence it temporarily since I\u0027m not familiar with other code bases. I mainly did a clean build using the revision that this patch came in and found that this comes up when building skia.\n\nWhen building I stopped at the first instance this warning appeared, so I wasn\u0027t sure if this warning would appear more times, but it could also be the case that it just appears once. I can move this to gn/BUILD.gn if it appears in multiple areas, otherwise I also don\u0027t mind addressing the areas where this warning is diagnosed. In either case, I mainly just want to keep our bots green to make our next rolls smooth and not have any other errors hiding behind new Clang warnings.",
+      "parentUuid": "5ca5138b_07ece9cf",
       "range": {
         "startLine": 187,
         "startChar": 6,
