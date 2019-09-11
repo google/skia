@@ -54,6 +54,7 @@ struct TestCase {
 
 static const TestCase gTests[] = {
     { kAlpha_8_SkColorType,      kPremul_SkAlphaType, kAlpha_SkColorTypeComponentFlag, true  },
+    { kAlpha_16_SkColorType,     kPremul_SkAlphaType, kAlpha_SkColorTypeComponentFlag, false },
     { kRGB_565_SkColorType,      kOpaque_SkAlphaType, kRGB_SkColorTypeComponentFlags,  true  },
     { kARGB_4444_SkColorType,    kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true  },
     { kRGBA_8888_SkColorType,    kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true  },
@@ -65,7 +66,8 @@ static const TestCase gTests[] = {
     { kRGBA_F16Norm_SkColorType, kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true  },
     { kRGBA_F16_SkColorType,     kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true  },
     { kRGBA_F32_SkColorType,     kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true  },
-    { kRG_88_SkColorType,        kOpaque_SkAlphaType, kRG_SkColorTypeComponentFlags,   false }
+    { kRG_88_SkColorType,        kOpaque_SkAlphaType, kRG_SkColorTypeComponentFlags,   false },
+    { kRG_1616_SkColorType,      kOpaque_SkAlphaType, kRG_SkColorTypeComponentFlags,   false },
 };
 
 static void raster_tests(skiatest::Reporter* reporter, const TestCase& test) {

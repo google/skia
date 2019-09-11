@@ -101,7 +101,7 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
 #else
             return false;
 #endif
-        case kR_16_GrPixelConfig:
+        case kAlpha_16_GrPixelConfig:
             *format = MTLPixelFormatR16Unorm;
             return true;
         case kRG_1616_GrPixelConfig:

@@ -617,7 +617,7 @@ static GrPixelConfig mtl_format_to_pixelconfig(MTLPixelFormat format) {
         case MTLPixelFormatR16Float:        return kAlpha_half_GrPixelConfig;
         case MTLPixelFormatRGBA16Float:     return kRGBA_half_GrPixelConfig;
         case MTLPixelFormatRGBA32Float:     return kRGBA_float_GrPixelConfig;
-        case MTLPixelFormatR16Unorm:        return kR_16_GrPixelConfig;
+        case MTLPixelFormatR16Unorm:        return kAlpha_16_GrPixelConfig;
         case MTLPixelFormatRG16Unorm:       return kRG_1616_GrPixelConfig;
         case MTLPixelFormatRGBA16Unorm:     return kRGBA_16161616_GrPixelConfig;
         case MTLPixelFormatRG16Float:       return kRG_half_GrPixelConfig;
