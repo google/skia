@@ -507,12 +507,6 @@ void GrOpsTask::setColorLoadOp(GrLoadOp op, const SkPMColor4f& color) {
 }
 
 bool GrOpsTask::resetForFullscreenClear(CanDiscardPreviousOps canDiscardPreviousOps) {
-    // Mark the color load op as discard (this may be followed by a clearColorOnLoad call to make
-    // the load op kClear, or it may be followed by an explicit op). In the event of an absClear()
-    // after a regular clear(), we could end up with a clear load op and a real clear op in the task
-    // if the load op were not reset here.
-    fColorLoadOp = GrLoadOp::kDiscard;
-
     // If we previously recorded a wait op, we cannot delete the wait op. Until we track the wait
     // ops separately from normal ops, we have to avoid clearing out any ops in this case as well.
     if (fHasWaitOp) {
