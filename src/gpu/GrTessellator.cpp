@@ -88,9 +88,9 @@
 #define LOGGING_ENABLED 0
 
 #if LOGGING_ENABLED
-#define LOG printf
+#define TESS_LOG printf
 #else
-#define LOG(...)
+#define TESS_LOG(...)
 #endif
 
 namespace {
@@ -208,9 +208,9 @@ inline void* emit_vertex(Vertex* v, bool emitCoverage, void* data) {
 }
 
 void* emit_triangle(Vertex* v0, Vertex* v1, Vertex* v2, bool emitCoverage, void* data) {
-    LOG("emit_triangle %g (%g, %g) %d\n", v0->fID, v0->fPoint.fX, v0->fPoint.fY, v0->fAlpha);
-    LOG("              %g (%g, %g) %d\n", v1->fID, v1->fPoint.fX, v1->fPoint.fY, v1->fAlpha);
-    LOG("              %g (%g, %g) %d\n", v2->fID, v2->fPoint.fX, v2->fPoint.fY, v2->fAlpha);
+    TESS_LOG("emit_triangle %g (%g, %g) %d\n", v0->fID, v0->fPoint.fX, v0->fPoint.fY, v0->fAlpha);
+    TESS_LOG("              %g (%g, %g) %d\n", v1->fID, v1->fPoint.fX, v1->fPoint.fY, v1->fAlpha);
+    TESS_LOG("              %g (%g, %g) %d\n", v2->fID, v2->fPoint.fX, v2->fPoint.fY, v2->fAlpha);
 #if TESSELLATOR_WIREFRAME
     data = emit_vertex(v0, emitCoverage, data);
     data = emit_vertex(v1, emitCoverage, data);
@@ -393,9 +393,8 @@ struct Edge {
         fLine = Line(fTop, fBottom);
     }
     bool intersect(const Edge& other, SkPoint* p, uint8_t* alpha = nullptr) const {
-        LOG("intersecting %g -> %g with %g -> %g\n",
-               fTop->fID, fBottom->fID,
-               other.fTop->fID, other.fBottom->fID);
+        TESS_LOG("intersecting %g -> %g with %g -> %g\n",
+                 fTop->fID, fBottom->fID, other.fTop->fID, other.fBottom->fID);
         if (fTop == other.fTop || fBottom == other.fBottom) {
             return false;
         }
@@ -524,8 +523,10 @@ void create_event(SSEdge* e, EventList* events, SkArenaAlloc& alloc) {
     SkPoint p;
     uint8_t alpha;
     if (bisector1.intersect(bisector2, &p, &alpha)) {
-        LOG("found edge event for %g, %g (original %g -> %g), will collapse to %g,%g alpha %d\n",
-            prev->fID, next->fID, e->fEdge->fTop->fID, e->fEdge->fBottom->fID, p.fX, p.fY, alpha);
+        TESS_LOG("found edge event for %g, %g (original %g -> %g), "
+                 "will collapse to %g,%g alpha %d\n",
+                  prev->fID, next->fID, e->fEdge->fTop->fID, e->fEdge->fBottom->fID, p.fX, p.fY,
+                  alpha);
         e->fEvent = alloc.make<Event>(e, p, alpha);
         events->push(e->fEvent);
     }
@@ -548,8 +549,9 @@ void create_event(SSEdge* edge, Vertex* v, SSEdge* other, Vertex* dest, EventLis
     uint8_t alpha = dest->fAlpha;
     if (line.intersect(bisector.fLine, &p) && !c.sweep_lt(p, top->fPoint) &&
                                                c.sweep_lt(p, bottom->fPoint)) {
-        LOG("found p edge event for %g, %g (original %g -> %g), will collapse to %g,%g alpha %d\n",
-            dest->fID, v->fID, top->fID, bottom->fID, p.fX, p.fY, alpha);
+        TESS_LOG("found p edge event for %g, %g (original %g -> %g), "
+                 "will collapse to %g,%g alpha %d\n",
+                 dest->fID, v->fID, top->fID, bottom->fID, p.fX, p.fY, alpha);
         edge->fEvent = alloc.make<Event>(edge, p, alpha);
         events->push(edge->fEvent);
     }
@@ -570,7 +572,7 @@ struct Poly {
 #if LOGGING_ENABLED
         static int gID = 0;
         fID = gID++;
-        LOG("*** created Poly %d\n", fID);
+        TESS_LOG("*** created Poly %d\n", fID);
 #endif
     }
     typedef enum { kLeft_Side, kRight_Side } Side;
@@ -649,8 +651,8 @@ struct Poly {
         }
     };
     Poly* addEdge(Edge* e, Side side, SkArenaAlloc& alloc) {
-        LOG("addEdge (%g -> %g) to poly %d, %s side\n",
-               e->fTop->fID, e->fBottom->fID, fID, side == kLeft_Side ? "left" : "right");
+        TESS_LOG("addEdge (%g -> %g) to poly %d, %s side\n",
+                 e->fTop->fID, e->fBottom->fID, fID, side == kLeft_Side ? "left" : "right");
         Poly* partner = fPartner;
         Poly* poly = this;
         if (side == kRight_Side) {
@@ -693,7 +695,7 @@ struct Poly {
         if (fCount < 3) {
             return data;
         }
-        LOG("emit() %d, size %d\n", fID, fCount);
+        TESS_LOG("emit() %d, size %d\n", fID, fCount);
         for (MonotonePoly* m = fHead; m != nullptr; m = m->fNext) {
             data = m->emit(emitCoverage, data);
         }
@@ -887,13 +889,13 @@ Edge* new_edge(Vertex* prev, Vertex* next, Edge::Type type, Comparator& c, SkAre
 }
 
 void remove_edge(Edge* edge, EdgeList* edges) {
-    LOG("removing edge %g -> %g\n", edge->fTop->fID, edge->fBottom->fID);
+    TESS_LOG("removing edge %g -> %g\n", edge->fTop->fID, edge->fBottom->fID);
     SkASSERT(edges->contains(edge));
     edges->remove(edge);
 }
 
 void insert_edge(Edge* edge, Edge* prev, EdgeList* edges) {
-    LOG("inserting edge %g -> %g\n", edge->fTop->fID, edge->fBottom->fID);
+    TESS_LOG("inserting edge %g -> %g\n", edge->fTop->fID, edge->fBottom->fID);
     SkASSERT(!edges->contains(edge));
     Edge* next = prev ? prev->fRight : edges->fHead;
     edges->insert(edge, prev, next);
@@ -922,7 +924,8 @@ void insert_edge_above(Edge* edge, Vertex* v, Comparator& c) {
         c.sweep_lt(edge->fBottom->fPoint, edge->fTop->fPoint)) {
         return;
     }
-    LOG("insert edge (%g -> %g) above vertex %g\n", edge->fTop->fID, edge->fBottom->fID, v->fID);
+    TESS_LOG("insert edge (%g -> %g) above vertex %g\n",
+             edge->fTop->fID, edge->fBottom->fID, v->fID);
     Edge* prev = nullptr;
     Edge* next;
     for (next = v->fFirstEdgeAbove; next; next = next->fNextEdgeAbove) {
@@ -940,7 +943,8 @@ void insert_edge_below(Edge* edge, Vertex* v, Comparator& c) {
         c.sweep_lt(edge->fBottom->fPoint, edge->fTop->fPoint)) {
         return;
     }
-    LOG("insert edge (%g -> %g) below vertex %g\n", edge->fTop->fID, edge->fBottom->fID, v->fID);
+    TESS_LOG("insert edge (%g -> %g) below vertex %g\n",
+             edge->fTop->fID, edge->fBottom->fID, v->fID);
     Edge* prev = nullptr;
     Edge* next;
     for (next = v->fFirstEdgeBelow; next; next = next->fNextEdgeBelow) {
@@ -955,16 +959,16 @@ void insert_edge_below(Edge* edge, Vertex* v, Comparator& c) {
 
 void remove_edge_above(Edge* edge) {
     SkASSERT(edge->fTop && edge->fBottom);
-    LOG("removing edge (%g -> %g) above vertex %g\n", edge->fTop->fID, edge->fBottom->fID,
-        edge->fBottom->fID);
+    TESS_LOG("removing edge (%g -> %g) above vertex %g\n", edge->fTop->fID, edge->fBottom->fID,
+             edge->fBottom->fID);
     list_remove<Edge, &Edge::fPrevEdgeAbove, &Edge::fNextEdgeAbove>(
         edge, &edge->fBottom->fFirstEdgeAbove, &edge->fBottom->fLastEdgeAbove);
 }
 
 void remove_edge_below(Edge* edge) {
     SkASSERT(edge->fTop && edge->fBottom);
-    LOG("removing edge (%g -> %g) below vertex %g\n", edge->fTop->fID, edge->fBottom->fID,
-        edge->fTop->fID);
+    TESS_LOG("removing edge (%g -> %g) below vertex %g\n",
+             edge->fTop->fID, edge->fBottom->fID, edge->fTop->fID);
     list_remove<Edge, &Edge::fPrevEdgeBelow, &Edge::fNextEdgeBelow>(
         edge, &edge->fTop->fFirstEdgeBelow, &edge->fTop->fLastEdgeBelow);
 }
@@ -982,7 +986,7 @@ void rewind(EdgeList* activeEdges, Vertex** current, Vertex* dst, Comparator& c)
         return;
     }
     Vertex* v = *current;
-    LOG("rewinding active edges from vertex %g to vertex %g\n", v->fID, dst->fID);
+    TESS_LOG("rewinding active edges from vertex %g to vertex %g\n", v->fID, dst->fID);
     while (v != dst) {
         v = v->fPrev;
         for (Edge* e = v->fFirstEdgeBelow; e; e = e->fNextEdgeBelow) {
@@ -1018,9 +1022,9 @@ void set_bottom(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, 
 void merge_edges_above(Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** current,
                        Comparator& c) {
     if (coincident(edge->fTop->fPoint, other->fTop->fPoint)) {
-        LOG("merging coincident above edges (%g, %g) -> (%g, %g)\n",
-            edge->fTop->fPoint.fX, edge->fTop->fPoint.fY,
-            edge->fBottom->fPoint.fX, edge->fBottom->fPoint.fY);
+        TESS_LOG("merging coincident above edges (%g, %g) -> (%g, %g)\n",
+                 edge->fTop->fPoint.fX, edge->fTop->fPoint.fY,
+                 edge->fBottom->fPoint.fX, edge->fBottom->fPoint.fY);
         rewind(activeEdges, current, edge->fTop, c);
         other->fWinding += edge->fWinding;
         disconnect(edge);
@@ -1039,9 +1043,9 @@ void merge_edges_above(Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** 
 void merge_edges_below(Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** current,
                        Comparator& c) {
     if (coincident(edge->fBottom->fPoint, other->fBottom->fPoint)) {
-        LOG("merging coincident below edges (%g, %g) -> (%g, %g)\n",
-            edge->fTop->fPoint.fX, edge->fTop->fPoint.fY,
-            edge->fBottom->fPoint.fX, edge->fBottom->fPoint.fY);
+        TESS_LOG("merging coincident below edges (%g, %g) -> (%g, %g)\n",
+                 edge->fTop->fPoint.fX, edge->fTop->fPoint.fY,
+                 edge->fBottom->fPoint.fX, edge->fBottom->fPoint.fY);
         rewind(activeEdges, current, edge->fTop, c);
         other->fWinding += edge->fWinding;
         disconnect(edge);
@@ -1098,9 +1102,8 @@ bool split_edge(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, 
     if (!edge->fTop || !edge->fBottom || v == edge->fTop || v == edge->fBottom) {
         return false;
     }
-    LOG("splitting edge (%g -> %g) at vertex %g (%g, %g)\n",
-        edge->fTop->fID, edge->fBottom->fID,
-        v->fID, v->fPoint.fX, v->fPoint.fY);
+    TESS_LOG("splitting edge (%g -> %g) at vertex %g (%g, %g)\n",
+             edge->fTop->fID, edge->fBottom->fID, v->fID, v->fPoint.fX, v->fPoint.fY);
     Vertex* top;
     Vertex* bottom;
     int winding = edge->fWinding;
@@ -1171,8 +1174,8 @@ Edge* connect(Vertex* prev, Vertex* next, Edge::Type type, Comparator& c, SkAren
 
 void merge_vertices(Vertex* src, Vertex* dst, VertexList* mesh, Comparator& c,
                     SkArenaAlloc& alloc) {
-    LOG("found coincident verts at %g, %g; merging %g into %g\n", src->fPoint.fX, src->fPoint.fY,
-        src->fID, dst->fID);
+    TESS_LOG("found coincident verts at %g, %g; merging %g into %g\n",
+             src->fPoint.fX, src->fPoint.fY, src->fID, dst->fID);
     dst->fAlpha = SkTMax(src->fAlpha, dst->fAlpha);
     if (src->fPartner) {
         src->fPartner->fPartner = dst;
@@ -1253,7 +1256,7 @@ void compute_bisector(Edge* edge1, Edge* edge2, Vertex* v, SkArenaAlloc& alloc) 
     if (line1.intersect(line2, &p)) {
         uint8_t alpha = edge1->fType == Edge::Type::kOuter ? 255 : 0;
         v->fPartner = alloc.make<Vertex>(p, alpha);
-        LOG("computed bisector (%g,%g) alpha %d for vertex %g\n", p.fX, p.fY, alpha, v->fID);
+        TESS_LOG("computed bisector (%g,%g) alpha %d for vertex %g\n", p.fX, p.fY, alpha, v->fID);
     }
 }
 
@@ -1266,7 +1269,7 @@ bool check_for_intersection(Edge* left, Edge* right, EdgeList* activeEdges, Vert
     uint8_t alpha;
     if (left->intersect(*right, &p, &alpha) && p.isFinite()) {
         Vertex* v;
-        LOG("found intersection, pt is %g, %g\n", p.fX, p.fY);
+        TESS_LOG("found intersection, pt is %g, %g\n", p.fX, p.fY);
         Vertex* top = *current;
         // If the intersection point is above the current vertex, rewind to the vertex above the
         // intersection.
@@ -1317,13 +1320,13 @@ void sanitize_contours(VertexList* contours, int contourCnt, bool approximate) {
             Vertex* next = v->fNext;
             Vertex* nextWrap = next ? next : contour->fHead;
             if (coincident(prev->fPoint, v->fPoint)) {
-                LOG("vertex %g,%g coincident; removing\n", v->fPoint.fX, v->fPoint.fY);
+                TESS_LOG("vertex %g,%g coincident; removing\n", v->fPoint.fX, v->fPoint.fY);
                 contour->remove(v);
             } else if (!v->fPoint.isFinite()) {
-                LOG("vertex %g,%g non-finite; removing\n", v->fPoint.fX, v->fPoint.fY);
+                TESS_LOG("vertex %g,%g non-finite; removing\n", v->fPoint.fX, v->fPoint.fY);
                 contour->remove(v);
             } else if (Line(prev->fPoint, nextWrap->fPoint).dist(v->fPoint) == 0.0) {
-                LOG("vertex %g,%g collinear; removing\n", v->fPoint.fX, v->fPoint.fY);
+                TESS_LOG("vertex %g,%g collinear; removing\n", v->fPoint.fX, v->fPoint.fY);
                 contour->remove(v);
             } else {
                 prev = v;
@@ -1448,17 +1451,18 @@ void merge_sort(VertexList* vertices) {
 void dump_mesh(const VertexList& mesh) {
 #if LOGGING_ENABLED
     for (Vertex* v = mesh.fHead; v; v = v->fNext) {
-        LOG("vertex %g (%g, %g) alpha %d", v->fID, v->fPoint.fX, v->fPoint.fY, v->fAlpha);
+        TESS_LOG("vertex %g (%g, %g) alpha %d", v->fID, v->fPoint.fX, v->fPoint.fY, v->fAlpha);
         if (Vertex* p = v->fPartner) {
-            LOG(", partner %g (%g, %g) alpha %d\n", p->fID, p->fPoint.fX, p->fPoint.fY, p->fAlpha);
+            TESS_LOG(", partner %g (%g, %g) alpha %d\n",
+                    p->fID, p->fPoint.fX, p->fPoint.fY, p->fAlpha);
         } else {
-            LOG(", null partner\n");
+            TESS_LOG(", null partner\n");
         }
         for (Edge* e = v->fFirstEdgeAbove; e; e = e->fNextEdgeAbove) {
-            LOG("  edge %g -> %g, winding %d\n", e->fTop->fID, e->fBottom->fID, e->fWinding);
+            TESS_LOG("  edge %g -> %g, winding %d\n", e->fTop->fID, e->fBottom->fID, e->fWinding);
         }
         for (Edge* e = v->fFirstEdgeBelow; e; e = e->fNextEdgeBelow) {
-            LOG("  edge %g -> %g, winding %d\n", e->fTop->fID, e->fBottom->fID, e->fWinding);
+            TESS_LOG("  edge %g -> %g, winding %d\n", e->fTop->fID, e->fBottom->fID, e->fWinding);
         }
     }
 #endif
@@ -1468,15 +1472,15 @@ void dump_skel(const SSEdgeList& ssEdges) {
 #if LOGGING_ENABLED
     for (SSEdge* edge : ssEdges) {
         if (edge->fEdge) {
-            LOG("skel edge %g -> %g",
+            TESS_LOG("skel edge %g -> %g",
                 edge->fPrev->fVertex->fID,
                 edge->fNext->fVertex->fID);
             if (edge->fEdge->fTop && edge->fEdge->fBottom) {
-                LOG(" (original %g -> %g)\n",
-                    edge->fEdge->fTop->fID,
-                    edge->fEdge->fBottom->fID);
+                TESS_LOG(" (original %g -> %g)\n",
+                         edge->fEdge->fTop->fID,
+                         edge->fEdge->fBottom->fID);
             } else {
-                LOG("\n");
+                TESS_LOG("\n");
             }
         }
     }
@@ -1525,7 +1529,7 @@ bool connected(Vertex* v) {
 }
 
 bool simplify(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
-    LOG("simplifying complex polygons\n");
+    TESS_LOG("simplifying complex polygons\n");
     EdgeList activeEdges;
     bool found = false;
     for (Vertex* v = mesh->fHead; v != nullptr; v = v->fNext) {
@@ -1536,7 +1540,8 @@ bool simplify(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
         Edge* rightEnclosingEdge;
         bool restartChecks;
         do {
-            LOG("\nvertex %g: (%g,%g), alpha %d\n", v->fID, v->fPoint.fX, v->fPoint.fY, v->fAlpha);
+            TESS_LOG("\nvertex %g: (%g,%g), alpha %d\n",
+                     v->fID, v->fPoint.fX, v->fPoint.fY, v->fAlpha);
             restartChecks = false;
             find_enclosing_edges(v, &activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
             v->fLeftEnclosingEdge = leftEnclosingEdge;
@@ -1582,7 +1587,7 @@ bool simplify(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
 // Stage 5: Tessellate the simplified mesh into monotone polygons.
 
 Poly* tessellate(const VertexList& vertices, SkArenaAlloc& alloc) {
-    LOG("\ntessellating simple polygons\n");
+    TESS_LOG("\ntessellating simple polygons\n");
     EdgeList activeEdges;
     Poly* polys = nullptr;
     for (Vertex* v = vertices.fHead; v != nullptr; v = v->fNext) {
@@ -1590,7 +1595,7 @@ Poly* tessellate(const VertexList& vertices, SkArenaAlloc& alloc) {
             continue;
         }
 #if LOGGING_ENABLED
-        LOG("\nvertex %g: (%g,%g), alpha %d\n", v->fID, v->fPoint.fX, v->fPoint.fY, v->fAlpha);
+        TESS_LOG("\nvertex %g: (%g,%g), alpha %d\n", v->fID, v->fPoint.fX, v->fPoint.fY, v->fAlpha);
 #endif
         Edge* leftEnclosingEdge;
         Edge* rightEnclosingEdge;
@@ -1605,15 +1610,19 @@ Poly* tessellate(const VertexList& vertices, SkArenaAlloc& alloc) {
             rightPoly = rightEnclosingEdge ? rightEnclosingEdge->fLeftPoly : nullptr;
         }
 #if LOGGING_ENABLED
-        LOG("edges above:\n");
+        TESS_LOG("edges above:\n");
         for (Edge* e = v->fFirstEdgeAbove; e; e = e->fNextEdgeAbove) {
-            LOG("%g -> %g, lpoly %d, rpoly %d\n", e->fTop->fID, e->fBottom->fID,
-                e->fLeftPoly ? e->fLeftPoly->fID : -1, e->fRightPoly ? e->fRightPoly->fID : -1);
+            TESS_LOG("%g -> %g, lpoly %d, rpoly %d\n",
+                     e->fTop->fID, e->fBottom->fID,
+                     e->fLeftPoly ? e->fLeftPoly->fID : -1,
+                     e->fRightPoly ? e->fRightPoly->fID : -1);
         }
-        LOG("edges below:\n");
+        TESS_LOG("edges below:\n");
         for (Edge* e = v->fFirstEdgeBelow; e; e = e->fNextEdgeBelow) {
-            LOG("%g -> %g, lpoly %d, rpoly %d\n", e->fTop->fID, e->fBottom->fID,
-                e->fLeftPoly ? e->fLeftPoly->fID : -1, e->fRightPoly ? e->fRightPoly->fID : -1);
+            TESS_LOG("%g -> %g, lpoly %d, rpoly %d\n",
+                     e->fTop->fID, e->fBottom->fID,
+                     e->fLeftPoly ? e->fLeftPoly->fID : -1,
+                     e->fRightPoly ? e->fRightPoly->fID : -1);
         }
 #endif
         if (v->fFirstEdgeAbove) {
@@ -1678,10 +1687,12 @@ Poly* tessellate(const VertexList& vertices, SkArenaAlloc& alloc) {
             v->fLastEdgeBelow->fRightPoly = rightPoly;
         }
 #if LOGGING_ENABLED
-        LOG("\nactive edges:\n");
+        TESS_LOG("\nactive edges:\n");
         for (Edge* e = activeEdges.fHead; e != nullptr; e = e->fRight) {
-            LOG("%g -> %g, lpoly %d, rpoly %d\n", e->fTop->fID, e->fBottom->fID,
-                e->fLeftPoly ? e->fLeftPoly->fID : -1, e->fRightPoly ? e->fRightPoly->fID : -1);
+            TESS_LOG("%g -> %g, lpoly %d, rpoly %d\n",
+                     e->fTop->fID, e->fBottom->fID,
+                     e->fLeftPoly ? e->fLeftPoly->fID : -1,
+                     e->fRightPoly ? e->fRightPoly->fID : -1);
         }
 #endif
     }
@@ -1690,7 +1701,7 @@ Poly* tessellate(const VertexList& vertices, SkArenaAlloc& alloc) {
 
 void remove_non_boundary_edges(const VertexList& mesh, SkPath::FillType fillType,
                                SkArenaAlloc& alloc) {
-    LOG("removing non-boundary edges\n");
+    TESS_LOG("removing non-boundary edges\n");
     EdgeList activeEdges;
     for (Vertex* v = mesh.fHead; v != nullptr; v = v->fNext) {
         if (!connected(v)) {
@@ -1782,12 +1793,12 @@ void ss_connect(Vertex* v, Vertex* dest, Comparator& c, SkArenaAlloc& alloc) {
     if (v == dest) {
         return;
     }
-    LOG("ss_connecting vertex %g to vertex %g\n", v->fID, dest->fID);
+    TESS_LOG("ss_connecting vertex %g to vertex %g\n", v->fID, dest->fID);
     if (v->fSynthetic) {
         connect(v, dest, Edge::Type::kConnector, c, alloc, 0);
     } else if (v->fPartner) {
-        LOG("setting %g's partner to %g ", v->fPartner->fID, dest->fID);
-        LOG("and %g's partner to null\n", v->fID);
+        TESS_LOG("setting %g's partner to %g ", v->fPartner->fID, dest->fID);
+        TESS_LOG("and %g's partner to null\n", v->fID);
         v->fPartner->fPartner = dest;
         v->fPartner = nullptr;
     }
@@ -1807,9 +1818,9 @@ void Event::apply(VertexList* mesh, Comparator& c, EventList* events, SkArenaAll
     Vertex* dest = create_sorted_vertex(fPoint, fAlpha, mesh, prev, c, alloc);
     dest->fSynthetic = true;
     SSVertex* ssv = alloc.make<SSVertex>(dest);
-    LOG("collapsing %g, %g (original edge %g -> %g) to %g (%g, %g) alpha %d\n",
-        prev->fID, next->fID, fEdge->fEdge->fTop->fID, fEdge->fEdge->fBottom->fID,
-        dest->fID, fPoint.fX, fPoint.fY, fAlpha);
+    TESS_LOG("collapsing %g, %g (original edge %g -> %g) to %g (%g, %g) alpha %d\n",
+             prev->fID, next->fID, fEdge->fEdge->fTop->fID, fEdge->fEdge->fBottom->fID, dest->fID,
+             fPoint.fX, fPoint.fY, fAlpha);
     fEdge->fEdge = nullptr;
 
     ss_connect(prev, dest, c, alloc);
@@ -1857,7 +1868,7 @@ bool is_overlap_edge(Edge* e) {
 // join two filled regions, which represent overlap regions, and collapses them.
 bool collapse_overlap_regions(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc,
                               EventComparator comp) {
-    LOG("\nfinding overlap regions\n");
+    TESS_LOG("\nfinding overlap regions\n");
     EdgeList activeEdges;
     EventList events(comp);
     SSVertexMap ssVertices;
@@ -1880,12 +1891,13 @@ bool collapse_overlap_regions(VertexList* mesh, Comparator& c, SkArenaAlloc& all
                 e->fWinding -= prev->fWinding;
             }
             if (leftOverlap && rightOverlap) {
-                LOG("found interior overlap edge %g -> %g, disconnecting\n",
-                    e->fTop->fID, e->fBottom->fID);
+                TESS_LOG("found interior overlap edge %g -> %g, disconnecting\n",
+                         e->fTop->fID, e->fBottom->fID);
                 disconnect(e);
             } else if (leftOverlap || rightOverlap) {
-                LOG("found overlap edge %g -> %g%s\n", e->fTop->fID, e->fBottom->fID,
-                    isOuterBoundary ? ", is outer boundary" : "");
+                TESS_LOG("found overlap edge %g -> %g%s\n",
+                         e->fTop->fID, e->fBottom->fID,
+                         isOuterBoundary ? ", is outer boundary" : "");
                 Vertex* prevVertex = e->fWinding < 0 ? e->fBottom : e->fTop;
                 Vertex* nextVertex = e->fWinding < 0 ? e->fTop : e->fBottom;
                 SSVertex* ssPrev = ssVertices[prevVertex];
@@ -1918,15 +1930,15 @@ bool collapse_overlap_regions(VertexList* mesh, Comparator& c, SkArenaAlloc& all
     }
     bool complex = events.size() > 0;
 
-    LOG("\ncollapsing overlap regions\n");
-    LOG("skeleton before:\n");
+    TESS_LOG("\ncollapsing overlap regions\n");
+    TESS_LOG("skeleton before:\n");
     dump_skel(ssEdges);
     while (events.size() > 0) {
         Event* event = events.top();
         events.pop();
         event->apply(mesh, c, &events, alloc);
     }
-    LOG("skeleton after:\n");
+    TESS_LOG("skeleton after:\n");
     dump_skel(ssEdges);
     for (SSEdge* edge : ssEdges) {
         if (Edge* e = edge->fEdge) {
@@ -1950,7 +1962,7 @@ bool inversion(Vertex* prev, Vertex* next, Edge* origEdge, Comparator& c) {
 
 void stroke_boundary(EdgeList* boundary, VertexList* innerMesh, VertexList* outerMesh,
                      Comparator& c, SkArenaAlloc& alloc) {
-    LOG("\nstroking boundary\n");
+    TESS_LOG("\nstroking boundary\n");
     // A boundary with fewer than 3 edges is degenerate.
     if (!boundary->fHead || !boundary->fHead->fRight || !boundary->fHead->fRight->fRight) {
         return;
@@ -1977,7 +1989,7 @@ void stroke_boundary(EdgeList* boundary, VertexList* innerMesh, VertexList* oute
         Line outer(e->fLine);
         outer.fC += radius;
         SkPoint innerPoint, outerPoint;
-        LOG("stroking vertex %g (%g, %g)\n", v->fID, v->fPoint.fX, v->fPoint.fY);
+        TESS_LOG("stroking vertex %g (%g, %g)\n", v->fID, v->fPoint.fX, v->fPoint.fY);
         if (!prevEdge->fLine.nearParallel(e->fLine) && prevInner.intersect(inner, &innerPoint) &&
             prevOuter.intersect(outer, &outerPoint)) {
             float cosAngle = normal.dot(prevNormal);
@@ -2036,10 +2048,10 @@ void stroke_boundary(EdgeList* boundary, VertexList* innerMesh, VertexList* oute
                     !outerPoint1.isFinite() || !outerPoint2.isFinite()) {
                     continue;
                 }
-                LOG("inner (%g, %g), (%g, %g), ",
-                    innerPoint1.fX, innerPoint1.fY, innerPoint2.fX, innerPoint2.fY);
-                LOG("outer (%g, %g), (%g, %g)\n",
-                    outerPoint1.fX, outerPoint1.fY, outerPoint2.fX, outerPoint2.fY);
+                TESS_LOG("inner (%g, %g), (%g, %g), ",
+                         innerPoint1.fX, innerPoint1.fY, innerPoint2.fX, innerPoint2.fY);
+                TESS_LOG("outer (%g, %g), (%g, %g)\n",
+                         outerPoint1.fX, outerPoint1.fY, outerPoint2.fX, outerPoint2.fY);
                 Vertex* innerVertex1 = alloc.make<Vertex>(innerPoint1, 255);
                 Vertex* innerVertex2 = alloc.make<Vertex>(innerPoint2, 255);
                 Vertex* outerVertex1 = alloc.make<Vertex>(outerPoint1, 0);
@@ -2059,8 +2071,8 @@ void stroke_boundary(EdgeList* boundary, VertexList* innerMesh, VertexList* oute
                 outerVertices.append(outerVertex1);
                 outerVertices.append(outerVertex2);
             } else {
-                LOG("inner (%g, %g), ", innerPoint.fX, innerPoint.fY);
-                LOG("outer (%g, %g)\n", outerPoint.fX, outerPoint.fY);
+                TESS_LOG("inner (%g, %g), ", innerPoint.fX, innerPoint.fY);
+                TESS_LOG("outer (%g, %g)\n", outerPoint.fX, outerPoint.fY);
                 Vertex* innerVertex = alloc.make<Vertex>(innerPoint, 255);
                 Vertex* outerVertex = alloc.make<Vertex>(outerPoint, 0);
                 innerVertex->fPartner = outerVertex;
@@ -2107,7 +2119,7 @@ void stroke_boundary(EdgeList* boundary, VertexList* innerMesh, VertexList* oute
 }
 
 void extract_boundary(EdgeList* boundary, Edge* e, SkPath::FillType fillType, SkArenaAlloc& alloc) {
-    LOG("\nextracting boundary\n");
+    TESS_LOG("\nextracting boundary\n");
     bool down = apply_fill_type(fillType, e->fWinding);
     Vertex* start = down ? e->fTop : e->fBottom;
     do {
@@ -2164,9 +2176,9 @@ void contours_to_mesh(VertexList* contours, int contourCnt, bool antialias,
     for (int i = 0; i < contourCnt; ++i) {
         Vertex* v = contours[i].fHead;
         SkASSERT(v);
-        LOG("path.moveTo(%20.20g, %20.20g);\n", v->fPoint.fX, v->fPoint.fY);
+        TESS_LOG("path.moveTo(%20.20g, %20.20g);\n", v->fPoint.fX, v->fPoint.fY);
         for (v = v->fNext; v; v = v->fNext) {
-            LOG("path.lineTo(%20.20g, %20.20g);\n", v->fPoint.fX, v->fPoint.fY);
+            TESS_LOG("path.lineTo(%20.20g, %20.20g);\n", v->fPoint.fX, v->fPoint.fY);
         }
     }
 #endif
@@ -2203,7 +2215,7 @@ Poly* contours_to_polys(VertexList* contours, int contourCnt, SkPath::FillType f
     sort_mesh(&mesh, c, alloc);
     merge_coincident_vertices(&mesh, c, alloc);
     simplify(&mesh, c, alloc);
-    LOG("\nsimplified mesh:\n");
+    TESS_LOG("\nsimplified mesh:\n");
     dump_mesh(mesh);
     if (antialias) {
         VertexList innerMesh;
@@ -2214,32 +2226,32 @@ Poly* contours_to_polys(VertexList* contours, int contourCnt, SkPath::FillType f
         bool was_complex = merge_coincident_vertices(outerMesh, c, alloc);
         was_complex = simplify(&innerMesh, c, alloc) || was_complex;
         was_complex = simplify(outerMesh, c, alloc) || was_complex;
-        LOG("\ninner mesh before:\n");
+        TESS_LOG("\ninner mesh before:\n");
         dump_mesh(innerMesh);
-        LOG("\nouter mesh before:\n");
+        TESS_LOG("\nouter mesh before:\n");
         dump_mesh(*outerMesh);
         EventComparator eventLT(EventComparator::Op::kLessThan);
         EventComparator eventGT(EventComparator::Op::kGreaterThan);
         was_complex = collapse_overlap_regions(&innerMesh, c, alloc, eventLT) || was_complex;
         was_complex = collapse_overlap_regions(outerMesh, c, alloc, eventGT) || was_complex;
         if (was_complex) {
-            LOG("found complex mesh; taking slow path\n");
+            TESS_LOG("found complex mesh; taking slow path\n");
             VertexList aaMesh;
-            LOG("\ninner mesh after:\n");
+            TESS_LOG("\ninner mesh after:\n");
             dump_mesh(innerMesh);
-            LOG("\nouter mesh after:\n");
+            TESS_LOG("\nouter mesh after:\n");
             dump_mesh(*outerMesh);
             connect_partners(outerMesh, c, alloc);
             connect_partners(&innerMesh, c, alloc);
             sorted_merge(&innerMesh, outerMesh, &aaMesh, c);
             merge_coincident_vertices(&aaMesh, c, alloc);
             simplify(&aaMesh, c, alloc);
-            LOG("combined and simplified mesh:\n");
+            TESS_LOG("combined and simplified mesh:\n");
             dump_mesh(aaMesh);
             outerMesh->fHead = outerMesh->fTail = nullptr;
             return tessellate(aaMesh, alloc);
         } else {
-            LOG("no complex polygons; taking fast path\n");
+            TESS_LOG("no complex polygons; taking fast path\n");
             return tessellate(innerMesh, alloc);
         }
     } else {
@@ -2347,7 +2359,7 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
         return 0;
     }
 
-    LOG("emitting %d verts\n", count);
+    TESS_LOG("emitting %d verts\n", count);
     void* end = polys_to_triangles(polys, fillType, antialias, verts);
     end = outer_mesh_to_triangles(outerMesh, true, end);
 
