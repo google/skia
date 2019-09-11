@@ -1,6 +1,6 @@
 {
    "MaxCount": 4096,
-   "Duration": 1,
+   "Duration": 2,
    "Rate": 1000,
    "Drawable": {
       "Type": "SkCircleDrawable",
@@ -9,13 +9,20 @@
    "Code": [
       "// float rand; Every read returns a random float [0 .. 1)",
       "",
+      "void effectUpdate(inout float rate) {",
+      "  rate = 0;",
+      "  burst(0.0, 2000);",
+      "  burst(0.5, 2000);",
+      "}",
+      "",
       "void spawn(inout Particle p) {",
-      "  p.lifetime = mix(1, 3, rand);",
+      "  p.lifetime = 1;//mix(1, 3, rand);",
       "  float a = radians(mix(250, 290, rand));",
       "  float s = mix(10, 30, rand);",
       "  p.vel.x = cos(a) * s;",
       "  p.vel.y = sin(a) * s;",
       "  p.pos = text(rand).xy;",
+      "  if (effectAge >= 0.5) { p.pos = text2(rand).xy; }",
       "}",
       "",
       "void update(inout Particle p) {",
@@ -30,6 +37,12 @@
          "Type": "SkTextBinding",
          "Name": "text",
          "Text": "SKIA",
+         "FontSize": 96
+      },
+      {
+         "Type": "SkTextBinding",
+         "Name": "text2",
+         "Text": "ROCKS",
          "FontSize": 96
       }
    ]

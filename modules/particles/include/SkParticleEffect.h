@@ -20,6 +20,7 @@
 class SkCanvas;
 class SkFieldVisitor;
 class SkParticleBinding;
+class SkParticleBurst;
 class SkParticleDrawable;
 class SkParticleExternalValue;
 
@@ -85,6 +86,7 @@ private:
     // Cached
     std::unique_ptr<SkSL::ByteCode> fByteCode;
     SkTArray<std::unique_ptr<SkParticleExternalValue>> fExternalValues;
+    std::unique_ptr<SkParticleBurst> fBurst;
 
     void rebuild();
 };
@@ -115,6 +117,10 @@ private:
     int    fCount;
     double fLastTime;
     float  fSpawnRemainder;
+    float  fLastEffectAge;
+
+    // Initially comes from effect params, can then be modified by script
+    float  fRate;
 
     SkParticles             fParticles;
     SkAutoTMalloc<SkRandom> fStableRandoms;

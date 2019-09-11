@@ -28,6 +28,43 @@ public:
     }
 };
 
+// Callable function to trigger a burst of particles at a single point in time.
+// Invoked from effectUpdate() as burst(time, count)
+class SkParticleBurst : public SkParticleExternalValue {
+public:
+    SkParticleBurst(SkSL::Compiler& compiler)
+        : INHERITED("burst", compiler, *compiler.context().fVoid_Type)
+        , fBurstCount(nullptr) {}
+
+    bool canCall() const override { return true; }
+    int callParameterCount() const override { return 2; }
+    void getCallParameterTypes(const SkSL::Type** outTypes) const override {
+        outTypes[0] = fCompiler.context().fFloat_Type.get();
+        outTypes[1] = fCompiler.context().fFloat_Type.get();
+    }
+
+    void call(int /*unusedIndex*/, float* arguments, float* outReturn) override {
+        if (fBurstCount) {
+            if (fLastEffectAge <= arguments[0] && arguments[0] < fEffectAge) {
+                *fBurstCount += static_cast<int>(arguments[1]);
+            }
+        }
+    }
+
+    void setParameters(float lastEffectAge, float effectAge, int* burstCount) {
+        fLastEffectAge = lastEffectAge;
+        fEffectAge = effectAge;
+        fBurstCount = burstCount;
+    }
+
+private:
+    float fLastEffectAge;
+    float fEffectAge;
+    int*  fBurstCount;
+
+    typedef SkParticleExternalValue INHERITED;
+};
+
 static const char* kCodeHeader =
 R"(
 layout(ctype=float) in uniform float dt;
@@ -48,6 +85,9 @@ struct Particle {
 
 static const char* kDefaultCode =
 R"(// float rand; Every read returns a random float [0 .. 1)
+
+void effectUpdate(inout float rate) {
+}
 
 void spawn(inout Particle p) {
 }
@@ -94,6 +134,9 @@ void SkParticleEffectParams::rebuild() {
     compiler.registerExternalValue(rand.get());
     externalValues.push_back(std::move(rand));
 
+    auto burst = skstd::make_unique<SkParticleBurst>(compiler);
+    compiler.registerExternalValue(burst.get());
+
     for (const auto& binding : fBindings) {
         if (binding) {
             auto value = binding->toValue(compiler);
@@ -118,6 +161,7 @@ void SkParticleEffectParams::rebuild() {
     }
 
     fByteCode = std::move(byteCode);
+    fBurst = std::move(burst);
     fExternalValues.swap(externalValues);
 }
 
@@ -128,7 +172,9 @@ SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params, const S
         , fEffectAge(-1.0)
         , fCount(0)
         , fLastTime(-1.0)
-        , fSpawnRemainder(0.0f) {
+        , fSpawnRemainder(0.0f)
+        , fLastEffectAge(0.0f)
+        , fRate(fParams->fRate) {
     this->setCapacity(fParams->fMaxCount);
 }
 
@@ -137,6 +183,7 @@ void SkParticleEffect::start(double now, bool looping) {
     fLastTime = now;
     fEffectAge = 0.0f;
     fSpawnRemainder = 0.0f;
+    fLastEffectAge = 0.0f;
     fLooping = looping;
 }
 
@@ -164,6 +211,9 @@ void SkParticleEffect::update(double now) {
             // Effect is dead if we've reached the end (and are not looping)
             return;
         }
+    // Loop should only happen once (at effect loop), but debugging can cause very long deltaTime
+    while (fEffectAge < fLastEffectAge) {
+        fLastEffectAge -= 1.0f;
     }
 
     float updateParams[2] = { deltaTime, fEffectAge };
@@ -183,6 +233,22 @@ void SkParticleEffect::update(double now) {
         }
     }
 
+    // Run effectUpdate (if present) to adjust spawn rate and possibly trigger bursts
+    int burstCount = 0;
+    if (const auto& byteCode = fParams->fByteCode) {
+        if (auto fun = byteCode->getFunction("effectUpdate")) {
+            for (const auto& value : fParams->fExternalValues) {
+                value->setRandom(&fRandom);
+            }
+            fParams->fBurst->setRandom(&fRandom);
+            fParams->fBurst->setParameters(fLastEffectAge, effectAge, &burstCount);
+            SkAssertResult(byteCode->run(fun, &fRate, nullptr, 1, updateParams, 2));
+            fParams->fBurst->setParameters(fLastEffectAge, effectAge, nullptr);
+        }
+    }
+
+    fLastEffectAge = effectAge;
+
     auto runProgram = [](const SkParticleEffectParams* params, const char* entry,
                          SkParticles& particles, float updateParams[], int start, int count) {
         if (const auto& byteCode = params->fByteCode) {
@@ -201,10 +267,10 @@ void SkParticleEffect::update(double now) {
     };
 
     // Spawn new particles
-    float desired = fParams->fRate * deltaTime + fSpawnRemainder;
+    float desired = fRate * deltaTime + fSpawnRemainder;
     int numToSpawn = sk_float_round2int(desired);
     fSpawnRemainder = desired - numToSpawn;
-    numToSpawn = SkTPin(numToSpawn, 0, fParams->fMaxCount - fCount);
+    numToSpawn = SkTPin(numToSpawn + burstCount, 0, fParams->fMaxCount - fCount);
     if (numToSpawn) {
         const int spawnBase = fCount;
 
