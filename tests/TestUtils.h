@@ -75,3 +75,9 @@ bool compare_pixels(const GrPixelInfo& infoA, const char* a, size_t rowBytesA,
 /** Convenience version of above that takes SkPixmap inputs. */
 bool compare_pixels(const SkPixmap& a, const SkPixmap& b, const float tolRGBA[4],
                     std::function<ComparePixmapsErrorReporter>& error);
+
+/**
+ * Convenience version that checks that 'pixmap' is a solid field of 'col'
+ */
+bool check_solid_pixels(const SkColor4f& col, const SkPixmap& pixmap,
+                        const float tolRGBA[4], std::function<ComparePixmapsErrorReporter>& error);

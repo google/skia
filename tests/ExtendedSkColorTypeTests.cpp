@@ -12,6 +12,7 @@
 
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
+#include "tools/ToolUtils.h"
 
 static constexpr int kSize = 32;
 
@@ -151,14 +152,14 @@ static void raster_tests(skiatest::Reporter* reporter, const TestCase& test) {
 
 static void compare_pixmaps(skiatest::Reporter* reporter,
                             const SkPixmap& expected, const SkPixmap& actual,
-                            SkColorType nativeCT, const char* label) {
+                            SkColorType ct, const char* label) {
     const float tols[4] = {0.0f, 0.0f, 0.0f, 0};
 
     auto error = std::function<ComparePixmapsErrorReporter>(
-        [reporter, nativeCT, label](int x, int y, const float diffs[4]) {
+        [reporter, ct, label](int x, int y, const float diffs[4]) {
             SkASSERT(x >= 0 && y >= 0);
-            ERRORF(reporter, "%d %s - mismatch at %d, %d (%f, %f, %f %f)",
-                   nativeCT, label, x, y,
+            ERRORF(reporter, "%s %s - mismatch at %d, %d (%f, %f, %f %f)",
+                   ToolUtils::colortype_name(ct), label, x, y,
                    diffs[0], diffs[1], diffs[2], diffs[3]);
         });
 
