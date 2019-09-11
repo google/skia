@@ -577,6 +577,18 @@ SkRRect toRRect(const SimpleRRect& r) {
     return rr;
 }
 
+struct TonalColors {
+    SkColor ambientColor;
+    SkColor spotColor;
+};
+
+TonalColors computeTonalColors(const TonalColors& in) {
+    TonalColors out;
+    SkShadowUtils::ComputeTonalColors(in.ambientColor, in.spotColor,
+        &out.ambientColor, &out.spotColor);
+    return out;
+}
+
 // These objects have private destructors / delete methods - I don't think
 // we need to do anything other than tell emscripten to do nothing.
 namespace emscripten {
@@ -624,6 +636,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     constant("gpu", true);
 #endif
+    function("computeTonalColors", &computeTonalColors);
     function("_decodeImage", optional_override([](uintptr_t /* uint8_t*  */ iptr,
                                                   size_t length)->sk_sp<SkImage> {
         uint8_t* imgData = reinterpret_cast<uint8_t*>(iptr);
@@ -1335,6 +1348,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .field("fTop",    &SkIRect::fTop)
         .field("fRight",  &SkIRect::fRight)
         .field("fBottom", &SkIRect::fBottom);
+
+    value_object<TonalColors>("TonalColors")
+        .field("ambient", &TonalColors::ambientColor)
+        .field("spot",    &TonalColors::spotColor);
 
     value_object<SimpleImageInfo>("SkImageInfo")
         .field("width",     &SimpleImageInfo::width)

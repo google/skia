@@ -47,4 +47,23 @@ describe('Core canvas behavior', function() {
         }));
     });
 
+    it('can compute tonal colors', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const input = {
+                ambient: CanvasKit.BLUE,
+                spot: CanvasKit.RED,
+            };
+            const out = CanvasKit.computeTonalColors(input);
+
+            expect(out.ambient).toEqual(CanvasKit.Color(0,0,0,1));
+
+            const [r,g,b,a] = CanvasKit.getColorComponents(out.spot);
+            expect(r).toEqual(44);
+            expect(g).toEqual(0);
+            expect(b).toEqual(0);
+            expect(a).toBeCloseTo(0.969, 2);
+            done();
+        }));
+    })
+
 });
