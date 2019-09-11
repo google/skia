@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "77613038_4942e85a",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-11T20:55:59Z",
+      "side": 1,
+      "message": "Offline conversation: we\u0027re going with fully must be kApprox and partially must be kExact.",
+      "parentUuid": "c3705ab5_71392314",
+      "range": {
+        "startLine": 39,
+        "startChar": 54,
+        "endLine": 39,
+        "endChar": 82
+      },
+      "revId": "7a946f0f4c1a2e21169171766a0334f40f7baef0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dec5b778_83f1b381",
         "filename": "src/gpu/GrSurfaceProxy.cpp",
         "patchSetId": 2
