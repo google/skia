@@ -238,6 +238,53 @@ DEF_TEST(Gif, reporter) {
     // "libgif warning [interlace DGifGetLine]"
 }
 
+#ifndef SK_HAS_WUFFS_LIBRARY
+DEF_TEST(Codec_GifInterlacedTruncated, r) {
+    // Check that gInterlacedGIF is exactly 102 bytes long, and that the final
+    // 30 bytes, in the half-open range [72, 102), consists of 0x1b (indicating
+    // a block of 27 bytes), then those 27 bytes, then 0x00 (end of the blocks)
+    // then 0x3b (end of the GIF).
+    if ((sizeof(gInterlacedGIF) != 102) ||
+        (gInterlacedGIF[72] != 0x1b) ||
+        (gInterlacedGIF[100] != 0x00) ||
+        (gInterlacedGIF[101] != 0x3b)) {
+        ERRORF(r, "Invalid gInterlacedGIF data");
+        return;
+    }
+
+    // We want to test the GIF codec's output on some (but not all) of the
+    // LZW-compressed data. As is, there is only one block of LZW-compressed
+    // data, 27 bytes long. Some GIF implementations output intermediate rows
+    // only on block boundaries, so truncating to a prefix of gInterlacedGIF
+    // isn't enough. We also have to modify the block size down from 0x1b so
+    // that the edited version still contains a complete block. In this case,
+    // it's a block of 10 bytes.
+    unsigned char data[83];
+    memcpy(data, gInterlacedGIF, sizeof(data));
+    data[72] = sizeof(data) - 73;
+
+    // Just like test_interlaced_gif_data, check that we get a 9x9 image.
+    SkBitmap bm;
+    bool imageDecodeSuccess = decode_memory(data, sizeof(data), &bm);
+    REPORTER_ASSERT(r, imageDecodeSuccess);
+    REPORTER_ASSERT(r, bm.width() == 9);
+    REPORTER_ASSERT(r, bm.height() == 9);
+
+    // For an interlaced, non-transparent image, we thicken or replicate the
+    // rows of earlier interlace passes so that, when e.g. decoding a GIF
+    // sourced from a slow network connection, we show a richer intermediate
+    // image while waiting for the complete image. This replication is
+    // sometimes described as a "Haeberli inspired technique".
+    //
+    // For a 9 pixel high image, interlacing shuffles the row order to be: 0,
+    // 8, 4, 2, 6, 1, 3, 5, 7. Even though truncating to 10 bytes of
+    // LZW-compressed data only explicitly contains completed rows 0 and 8, we
+    // still expect row 7 to be set, due to replication, and therefore not
+    // transparent black (zero).
+    REPORTER_ASSERT(r, bm.getColor(0, 7) != 0);
+}
+#endif
+
 // Regression test for decoding a gif image with sampleSize of 4, which was
 // previously crashing.
 DEF_TEST(Gif_Sampled, r) {
