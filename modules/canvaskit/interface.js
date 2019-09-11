@@ -793,6 +793,22 @@ CanvasKit.XYWHRect = function(x, y, w, h) {
   };
 }
 
+// RRectXY returns an RRect with the given rect and a radiusX and radiusY for
+// all 4 corners.
+CanvasKit.RRectXY = function(rect, rx, ry) {
+  return {
+    rect: rect,
+    rx1: rx,
+    ry1: ry,
+    rx2: rx,
+    ry2: ry,
+    rx3: rx,
+    ry3: ry,
+    rx4: rx,
+    ry4: ry,
+  };
+}
+
 CanvasKit.MakePathFromCmds = function(cmds) {
   var ptrLen = loadCmdsTypedArray(cmds);
   var path = CanvasKit._MakePathFromCmds(ptrLen[0], ptrLen[1]);

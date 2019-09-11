@@ -558,12 +558,23 @@ struct PosTan {
 // SimpleRRect is simpler than passing a (complex) SkRRect over the wire to JS.
 struct SimpleRRect {
     SkRect rect;
-    SkScalar rx;
-    SkScalar ry;
+
+    SkScalar rx1;
+    SkScalar ry1;
+    SkScalar rx2;
+    SkScalar ry2;
+    SkScalar rx3;
+    SkScalar ry3;
+    SkScalar rx4;
+    SkScalar ry4;
 };
 
 SkRRect toRRect(const SimpleRRect& r) {
-    return SkRRect::MakeRectXY(r.rect, r.rx, r.ry);
+    SkVector fRadii[4] = {{r.rx1, r.ry1}, {r.rx2, r.ry2},
+                          {r.rx3, r.ry3}, {r.rx4, r.ry4}};
+    SkRRect rr;
+    rr.setRectRadii(r.rect, fRadii);
+    return rr;
 }
 
 // These objects have private destructors / delete methods - I don't think
@@ -1310,8 +1321,14 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     value_object<SimpleRRect>("SkRRect")
         .field("rect", &SimpleRRect::rect)
-        .field("rx",   &SimpleRRect::rx)
-        .field("ry",   &SimpleRRect::ry);
+        .field("rx1",  &SimpleRRect::rx1)
+        .field("ry1",  &SimpleRRect::ry1)
+        .field("rx2",  &SimpleRRect::rx2)
+        .field("ry2",  &SimpleRRect::ry2)
+        .field("rx3",  &SimpleRRect::rx3)
+        .field("ry3",  &SimpleRRect::ry3)
+        .field("rx4",  &SimpleRRect::rx4)
+        .field("ry4",  &SimpleRRect::ry4);
 
     value_object<SkIRect>("SkIRect")
         .field("fLeft",   &SkIRect::fLeft)
