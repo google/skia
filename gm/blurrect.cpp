@@ -413,7 +413,11 @@ private:
                     auto ii = SkImageInfo::MakeA8(w + 2 * pad, h + 2 * pad);
                     auto surf = canvas->makeSurface(ii);
                     if (!surf) {
-                        return;
+                        // Some GPUs don't have renderable A8 :(
+                        surf = canvas->makeSurface(ii.makeColorType(kRGBA_8888_SkColorType));
+                        if (!surf) {
+                            return;
+                        }
                     }
                     auto rect = SkRect::MakeXYWH(pad, pad, w, h);
                     SkPaint paint;
