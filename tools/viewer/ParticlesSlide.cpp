@@ -72,6 +72,7 @@ public:
             int lines = count_lines(s);
             ImGuiInputTextFlags flags = ImGuiInputTextFlags_CallbackResize;
             if (lines > 1) {
+                ImGui::LabelText("##Label", "%s", name);
                 ImVec2 boxSize(-1.0f, ImGui::GetTextLineHeight() * (lines + 1));
                 ImGui::InputTextMultiline(item(name), s.writable_str(), s.size() + 1, boxSize,
                                           flags, InputTextCallback, &s);

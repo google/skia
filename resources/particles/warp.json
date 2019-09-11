@@ -1,11 +1,20 @@
 {
    "MaxCount": 4096,
-   "Duration": 1,
-   "Rate": 90,
    "Drawable": {
       "Type": "SkCircleDrawable",
       "Radius": 2
    },
+   "EffectCode": [
+      "// float rand; Every read returns a random float [0 .. 1)",
+      "",
+      "void effectSpawn(inout Effect effect) {",
+      "  effect.rate = 90;",
+      "}",
+      "",
+      "void effectUpdate(inout Effect effect) {",
+      "}",
+      ""
+   ],
    "Code": [
       "",
       "// float rand; Every read returns a random float [0 .. 1)",
