@@ -7,6 +7,7 @@
 
 
 import calendar
+import string
 import os
 
 
@@ -85,10 +86,8 @@ def nanobench_flags(api, bot):
         gl_prefix = 'gles'
       # iOS crashes with MSAA (skia:6399)
       # Nexus7 (Tegra3) does not support MSAA.
-      # Pixel3a is hanging on several benchmarks. (skia:9413)
-      if ('iOS'     in bot or
-          'Nexus7'  in bot or
-          'Pixel3a' in bot):
+      if ('iOS'         in bot or
+          'Nexus7'      in bot):
         sample_count = ''
     elif 'Intel' in bot:
       # MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
@@ -142,7 +141,8 @@ def nanobench_flags(api, bot):
       configs = ['gles']
 
   args.append('--config')
-  args.extend(configs)
+  args.append('glesmsaa4')
+  #args.extend(configs)
 
   # By default, we test with GPU threading enabled, unless specifically
   # disabled.
@@ -163,11 +163,11 @@ def nanobench_flags(api, bot):
   verbose = False
 
   match = []
-  if 'Android' in bot:
-    # Segfaults when run as GPU bench. Very large texture?
-    match.append('~blurroundrect')
-    match.append('~patch_grid')  # skia:2847
-    match.append('~desk_carsvg')
+  #if 'Android' in bot:
+  #  # Segfaults when run as GPU bench. Very large texture?
+  #  match.append('~blurroundrect')
+  #  match.append('~patch_grid')  # skia:2847
+  #  match.append('~desk_carsvg')
   if 'Nexus5' in bot:
     match.append('~keymobi_shop_mobileweb_ebay_com.skp')  # skia:5178
   if 'iOS' in bot:
@@ -221,28 +221,36 @@ def nanobench_flags(api, bot):
   if 'AcerChromebook13_CB5_311-GPU-TegraK1' in bot:
     # skia:7551
     match.append('~^shapes_rrect_inner_rrect_50_500x500$')
+  #if (bot ==
+  #    'Perf-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Release-All-Android'):
+  #  # skia:9413
+  #  match.append('~^perlinnoise$')
+  #  match.append('~^picture_nesting_playback_0$')
+  #  match.append('~^picture_nesting_playback_1$')
+  #  match.append('~^picture_nesting_playback_13$')
+  #  match.append('~^picture_nesting_playback_4$')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
-  match.append('~inc0.gif')
-  match.append('~inc1.gif')
-  match.append('~incInterlaced.gif')
-  match.append('~inc0.jpg')
-  match.append('~incGray.jpg')
-  match.append('~inc0.wbmp')
-  match.append('~inc1.wbmp')
-  match.append('~inc0.webp')
-  match.append('~inc1.webp')
-  match.append('~inc0.ico')
-  match.append('~inc1.ico')
-  match.append('~inc0.png')
-  match.append('~inc1.png')
-  match.append('~inc2.png')
-  match.append('~inc12.png')
-  match.append('~inc13.png')
-  match.append('~inc14.png')
-  match.append('~inc0.webp')
-  match.append('~inc1.webp')
+  #match.append('~inc0.gif')
+  #match.append('~inc1.gif')
+  #match.append('~incInterlaced.gif')
+  #match.append('~inc0.jpg')
+  #match.append('~incGray.jpg')
+  #match.append('~inc0.wbmp')
+  #match.append('~inc1.wbmp')
+  #match.append('~inc0.webp')
+  #match.append('~inc1.webp')
+  #match.append('~inc0.ico')
+  #match.append('~inc1.ico')
+  #match.append('~inc0.png')
+  #match.append('~inc1.png')
+  #match.append('~inc2.png')
+  #match.append('~inc12.png')
+  #match.append('~inc13.png')
+  #match.append('~inc14.png')
+  #match.append('~inc0.webp')
+  #match.append('~inc1.webp')
 
   if match:
     args.append('--match')
@@ -333,8 +341,148 @@ def perf_steps(api):
       if not k in keys_blacklist:
         args.extend([k, api.vars.builder_cfg[k]])
 
-  api.run(api.flavor.step, target, cmd=args,
-          abort_on_failure=False)
+  for test in [
+      'polygon',
+      'points',
+      'premul_and_unpremul_alpha_BGRA_8888',
+      'premul_and_unpremul_alpha_RGBA_8888',
+      'poly_utils_icecream_t',
+      'poly_utils_icecream_o',
+      'poly_utils_icecream_i',
+      'poly_utils_icecream_s',
+      'poly_utils_icecream_c',
+      'poly_utils_notch_t',
+      'poly_utils_notch_o',
+      'poly_utils_notch_i',
+      'poly_utils_notch_s',
+      'poly_utils_notch_c',
+      'poly_utils_intersecting_t',
+      'poly_utils_intersecting_o',
+      'poly_utils_intersecting_i',
+      'poly_utils_intersecting_s',
+      'poly_utils_intersecting_c',
+      'poly_utils_circle_t',
+      'poly_utils_circle_o',
+      'poly_utils_circle_i',
+      'poly_utils_circle_s',
+      'poly_utils_circle_c',
+      'poly_utils_star_t',
+      'poly_utils_star_o',
+      'poly_utils_star_i',
+      'poly_utils_star_s',
+      'poly_utils_star_c',
+      'picture_nesting_playback_3280',
+      'picture_nesting_playback_1093',
+      'picture_nesting_playback_364',
+      'picture_nesting_playback_121',
+      'picture_nesting_playback_40',
+      'picture_nesting_playback_13',
+      'picture_nesting_playback_4',
+      'picture_nesting_playback_1',
+      'picture_nesting_playback_0',
+      'perlinnoise',
+      'path_text_clipped_uncached',
+      'path_text_uncached',
+      'path_text',
+      'path_stroke_small_long_line',
+      'path_fill_small_long_line',
+      'path_stroke_small_long_curved',
+      'path_fill_small_long_curved',
+      'path_stroke_small_sawtooth',
+      'path_fill_small_sawtooth',
+      'path_fill_big_convex_aaa',
+      'path_fill_small_convex_aaa',
+      'path_fill_big_concave_aaa',
+      'path_fill_small_concave_aaa',
+      'path_fill_big_nonaacircle',
+      'path_fill_small_nonaacircle',
+      'path_stroke_big_circle',
+      'path_fill_big_circle',
+      'path_stroke_small_circle',
+      'path_fill_small_circle',
+      'path_stroke_big_oval',
+      'path_fill_big_oval',
+      'path_stroke_small_oval',
+      'path_fill_small_oval',
+      'path_fill_big_rotated_rect_aa_45',
+      'path_fill_small_rotated_rect_aa_45',
+      'path_fill_big_rotated_rect_noaa_45',
+      'path_fill_small_rotated_rect_noaa_45',
+      'path_stroke_big_rect',
+      'path_fill_big_rect',
+      'path_stroke_small_rect',
+      'path_fill_small_rect',
+      'path_stroke_big_triangle',
+      'path_fill_big_triangle',
+      'path_stroke_small_triangle',
+      'path_fill_small_triangle',
+      'patch_loop_colors_texs_3.000000x3.000000',
+      'patch_loop_texs_3.000000x3.000000',
+      'patch_loop_colors_3.000000x3.000000',
+      'patch_loop_meshlines_3.000000x3.000000',
+      'patch_loop_colors_texs_1.000000x1.000000',
+      'patch_loop_texs_1.000000x1.000000',
+      'patch_loop_colors_1.000000x1.000000',
+      'patch_loop_meshlines_1.000000x1.000000',
+      'patch_loop_colors_texs_0.100000x0.100000',
+      'patch_loop_texs_0.100000x0.100000',
+      'patch_loop_colors_0.100000x0.100000',
+      'patch_loop_meshlines_0.100000x0.100000',
+      'patch_LOD_Diff_colors_texs_3.000000x3.000000',
+      'patch_LOD_Diff_texs_3.000000x3.000000',
+      'patch_LOD_Diff_colors_3.000000x3.000000',
+      'patch_LOD_Diff_meshlines_3.000000x3.000000',
+      'patch_LOD_Diff_colors_texs_1.000000x1.000000',
+      'patch_LOD_Diff_texs_1.000000x1.000000',
+      'patch_LOD_Diff_colors_1.000000x1.000000',
+      'patch_LOD_Diff_meshlines_1.000000x1.000000',
+      'patch_LOD_Diff_colors_texs_0.100000x0.100000',
+      'patch_LOD_Diff_texs_0.100000x0.100000',
+      'patch_LOD_Diff_colors_0.100000x0.100000',
+      'patch_LOD_Diff_meshlines_0.100000x0.100000',
+      'patch_square_colors_texs_3.000000x3.000000',
+      'patch_square_texs_3.000000x3.000000',
+      'patch_square_colors_3.000000x3.000000',
+      'patch_square_meshlines_3.000000x3.000000',
+      'patch_square_colors_texs_1.000000x1.000000',
+      'patch_square_texs_1.000000x1.000000',
+      'patch_square_colors_1.000000x1.000000',
+      'patch_square_meshlines_1.000000x1.000000',
+      'patch_square_colors_texs_0.100000x0.100000',
+      'patch_square_texs_0.100000x0.100000',
+      'patch_square_colors_0.100000x0.100000',
+      'patch_square_meshlines_0.100000x0.100000',
+      'patch_normal_colors_texs_3.000000x3.000000',
+      'patch_normal_texs_3.000000x3.000000',
+      'patch_normal_colors_3.000000x3.000000',
+      'patch_normal_meshlines_3.000000x3.000000',
+      'patch_normal_colors_texs_1.000000x1.000000',
+      'patch_normal_texs_1.000000x1.000000',
+      'patch_normal_colors_1.000000x1.000000',
+      'patch_normal_meshlines_1.000000x1.000000',
+      'patch_normal_colors_texs_0.100000x0.100000',
+      'patch_normal_texs_0.100000x0.100000',
+      'patch_normal_colors_0.100000x0.100000',
+      'patch_normal_meshlines_0.100000x0.100000',
+      'path_hairline_big_AA_cubic',
+      'path_hairline_small_AA_cubic',
+      'path_hairline_big_noAA_cubic',
+      'path_hairline_small_noAA_cubic',
+      'path_hairline_big_AA_conic',
+      'path_hairline_small_AA_conic',
+      'path_hairline_big_AA_quad',
+      'path_hairline_small_AA_quad',
+      'path_hairline_big_noAA_quad',
+      'path_hairline_small_noAA_quad',
+      'path_hairline_big_AA_line',
+      'path_hairline_small_AA_line',
+      'path_hairline_big_noAA_line',
+      'path_hairline_small_noAA_line'
+  ]:
+    with api.step.nest('%s-p%s' % (target, test)):
+      api.run(api.flavor.step, target,
+              cmd=args + ['--match', '^' + test],
+              abort_on_failure=False)
 
   # Copy results to swarming out dir.
   if upload_perf_results(b):
