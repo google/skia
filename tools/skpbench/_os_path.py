@@ -12,11 +12,11 @@ def join(*pathnames):
 def basename(pathname):
   return pathname.basename(pathname)
 
-def find_skps(skps):
+def find_files(dirs, file_extention):
   pathnames = list()
-  for skp in skps:
-    if (path.isdir(skp)):
-      pathnames.extend(glob.iglob(path.join(skp, '*.skp')))
+  for d in dirs:
+    if (path.isdir(d)):
+      pathnames.extend(glob.iglob(path.join(d, '*.'+file_extention)))
     else:
-      pathnames.append(skp)
+      pathnames.append(d)
   return pathnames
