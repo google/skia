@@ -332,10 +332,12 @@ DEF_TEST(getalphaf, reporter) {
         { kRGB_565_SkColorType,     opaque },
         { kGray_8_SkColorType,      opaque },
         { kRG_88_SkColorType,       opaque },
+        { kRG_1616_SkColorType,     opaque },
         { kRGB_888x_SkColorType,    opaque },
         { kRGB_101010x_SkColorType, opaque },
 
         { kAlpha_8_SkColorType,     nearly },
+        { kAlpha_16_SkColorType,    nearly },
         { kRGBA_8888_SkColorType,   nearly },
         { kBGRA_8888_SkColorType,   nearly },
         { kRGBA_F16_SkColorType,    nearly_half },

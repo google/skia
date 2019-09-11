@@ -713,11 +713,13 @@ void GrMtlCaps::initFormatTable() {
         info->fColorTypeInfoCount = 1;
         info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
         int ctIdx = 0;
-        // Format: R16Unorm, Surface: kR_16
+        // Format: R16Unorm, Surface: kAlpha_16
         {
             auto& ctInfo = info->fColorTypeInfos[ctIdx++];
-            ctInfo.fColorType = GrColorType::kR_16;
+            ctInfo.fColorType = GrColorType::kAlpha_16;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+            ctInfo.fTextureSwizzle = GrSwizzle::RRRR();
+            ctInfo.fOutputSwizzle = GrSwizzle::AAAA();
         }
     }
 
@@ -808,7 +810,7 @@ void GrMtlCaps::initFormatTable() {
     this->setColorType(GrColorType::kRGBA_F16,         { MTLPixelFormatRGBA16Float });
     this->setColorType(GrColorType::kRGBA_F16_Clamped, { MTLPixelFormatRGBA16Float });
     this->setColorType(GrColorType::kRGBA_F32,         { MTLPixelFormatRGBA32Float });
-    this->setColorType(GrColorType::kR_16,             { MTLPixelFormatR16Unorm });
+    this->setColorType(GrColorType::kAlpha_16,         { MTLPixelFormatR16Unorm });
     this->setColorType(GrColorType::kRG_1616,          { MTLPixelFormatRG16Unorm });
     this->setColorType(GrColorType::kRGBA_16161616,    { MTLPixelFormatRGBA16Unorm });
     this->setColorType(GrColorType::kRG_F16,           { MTLPixelFormatRG16Float });
@@ -913,9 +915,9 @@ static constexpr GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, 
                 return kRGBA_float_GrPixelConfig;
             }
             break;
-        case GrColorType::kR_16:
+        case GrColorType::kAlpha_16:
             if (MTLPixelFormatR16Unorm == format) {
-                return kR_16_GrPixelConfig;
+                return kAlpha_16_GrPixelConfig;
             }
             break;
         case GrColorType::kRG_1616:
@@ -968,7 +970,7 @@ GrColorType GrMtlCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& 
         case MTLPixelFormatRGBA8Unorm:        return GrColorType::kRGBA_8888;
         case MTLPixelFormatBGRA8Unorm:        return GrColorType::kBGRA_8888;
         case MTLPixelFormatRGB10A2Unorm:      return GrColorType::kRGBA_1010102;
-        case MTLPixelFormatR16Unorm:          return GrColorType::kR_16;
+        case MTLPixelFormatR16Unorm:          return GrColorType::kAlpha_16;
         case MTLPixelFormatRG16Unorm:         return GrColorType::kRG_1616;
         // Experimental (for Y416 and mutant P016/P010)
         case MTLPixelFormatRGBA16Unorm:       return GrColorType::kRGBA_16161616;
@@ -1083,7 +1085,7 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrMtlCaps::getTestingCombina
         { GrColorType::kRGBA_F16,         GrBackendFormat::MakeMtl(MTLPixelFormatRGBA16Float)     },
         { GrColorType::kRGBA_F16_Clamped, GrBackendFormat::MakeMtl(MTLPixelFormatRGBA16Float)     },
         { GrColorType::kRGBA_F32,         GrBackendFormat::MakeMtl(MTLPixelFormatRGBA32Float)     },
-        { GrColorType::kR_16,             GrBackendFormat::MakeMtl(MTLPixelFormatR16Unorm)        },
+        { GrColorType::kAlpha_16,         GrBackendFormat::MakeMtl(MTLPixelFormatR16Unorm)        },
         { GrColorType::kRG_1616,          GrBackendFormat::MakeMtl(MTLPixelFormatRG16Unorm)       },
         { GrColorType::kRGBA_16161616,    GrBackendFormat::MakeMtl(MTLPixelFormatRGBA16Unorm)     },
         { GrColorType::kRG_F16,           GrBackendFormat::MakeMtl(MTLPixelFormatRG16Float)       },

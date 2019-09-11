@@ -1259,7 +1259,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("Gray_8", SkColorType::kGray_8_SkColorType)
         .value("RGBA_F16", SkColorType::kRGBA_F16_SkColorType)
         .value("RGBA_F32", SkColorType::kRGBA_F32_SkColorType)
-        .value("RG_88", SkColorType::kRG_88_SkColorType);
+        .value("RG_88", SkColorType::kRG_88_SkColorType)
+        .value("Alpha_16", SkColorType::kAlpha_16_SkColorType)
+        .value("RG_1616", SkColorType::kRG_1616_SkColorType);
 
     enum_<SkPath::FillType>("FillType")
         .value("Winding",           SkPath::FillType::kWinding_FillType)

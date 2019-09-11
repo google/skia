@@ -66,7 +66,7 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
         { GrColorType::kRG_88,            MTLPixelFormatRG8Unorm,        { 0.5f, 0.5f, 0, 1 } },
         { GrColorType::kAlpha_F16,        MTLPixelFormatR16Float,        { 1.0f, 0, 0, 0.5f } },
 
-        { GrColorType::kR_16,             MTLPixelFormatR16Unorm,        SkColors::kRed       },
+        { GrColorType::kAlpha_16,         MTLPixelFormatR16Unorm,        kTransCol            },
         { GrColorType::kRG_1616,          MTLPixelFormatRG16Unorm,       SkColors::kYellow    },
 
         // Experimental (for Y416 and mutant P016/P010)
