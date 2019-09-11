@@ -29,16 +29,18 @@
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 
+// Fully lazy proxies are created with width and height < 0. Non fully lazy proxies must be created
+// with positive widths and heights. The width and height are set to 0 after a failed instantiation.
 static bool is_valid_fully_lazy(const GrSurfaceDesc& desc, SkBackingFit fit) {
-    return desc.fWidth <= 0 &&
-           desc.fHeight <= 0 &&
+    return desc.fWidth < 0 &&
+           desc.fHeight < 0 &&
            desc.fConfig != kUnknown_GrPixelConfig &&
            SkBackingFit::kApprox == fit;
 }
 
 static bool is_valid_partially_lazy(const GrSurfaceDesc& desc) {
     return ((desc.fWidth > 0 && desc.fHeight > 0) ||
-            (desc.fWidth <= 0 && desc.fHeight <= 0))  &&
+            (desc.fWidth < 0 && desc.fHeight < 0))  &&
            desc.fConfig != kUnknown_GrPixelConfig;
 }
 
@@ -503,11 +505,10 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
         return false;
     }
 
-    if (fProxy->fWidth <= 0 || fProxy->fHeight <= 0) {
+    if (fProxy->isFullyLazy()) {
         // This was a fully lazy proxy. We need to fill in the width & height. For partially
         // lazy proxies we must preserve the original width & height since that indicates
         // the content area.
-        SkASSERT(fProxy->fWidth <= 0 && fProxy->fHeight <= 0);
         fProxy->fWidth = surface->width();
         fProxy->fHeight = surface->height();
     }
