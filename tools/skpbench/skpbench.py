@@ -326,7 +326,9 @@ def main():
   # Delimiter is ',' or ' ', skip if nested inside parens (e.g. gpu(a=b,c=d)).
   DELIMITER = r'[, ](?!(?:[^(]*\([^)]*\))*[^()]*\))'
   configs = re.split(DELIMITER, FLAGS.config)
-  srcs = _path.find_skps(FLAGS.srcs)
+  srcs = _path.find_files(FLAGS.srcs, "skp")
+  srcs.extend(_path.find_files(FLAGS.srcs, "mskp"))
+  assert len(srcs) > 0
 
   if FLAGS.adb:
     adb = Adb(FLAGS.device_serial, FLAGS.adb_binary,
