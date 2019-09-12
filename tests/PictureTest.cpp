@@ -879,3 +879,33 @@ DEF_TEST(Picture_empty_serial, reporter) {
     REPORTER_ASSERT(reporter, pic2);
 }
 
+
+DEF_TEST(Picture_drawsNothing, r) {
+    // Tests that pic->cullRect().isEmpty() is a good way to test a picture
+    // recorded with an R-tree draws nothing.
+    struct {
+        bool draws_nothing;
+        void (*fn)(SkCanvas*);
+    } cases[] = {
+        {  true, [](SkCanvas* c) {                                                             } },
+        {  true, [](SkCanvas* c) { c->save();                                    c->restore(); } },
+        {  true, [](SkCanvas* c) { c->save(); c->clipRect({0,0,5,5});            c->restore(); } },
+        {  true, [](SkCanvas* c) {            c->clipRect({0,0,5,5});                          } },
+
+        { false, [](SkCanvas* c) {            c->drawRect({0,0,5,5}, SkPaint{});               } },
+        { false, [](SkCanvas* c) { c->save(); c->drawRect({0,0,5,5}, SkPaint{}); c->restore(); } },
+        { false, [](SkCanvas* c) {
+            c->drawRect({0,0, 5, 5}, SkPaint{});
+            c->drawRect({5,5,10,10}, SkPaint{});
+        }},
+    };
+
+    for (const auto& c : cases) {
+        SkPictureRecorder rec;
+        SkRTreeFactory factory;
+        c.fn(rec.beginRecording(10,10, &factory));
+        sk_sp<SkPicture> pic = rec.finishRecordingAsPicture();
+
+        REPORTER_ASSERT(r, pic->cullRect().isEmpty() == c.draws_nothing);
+    }
+}
