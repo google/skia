@@ -12,10 +12,12 @@ import sys
 #  app              path to binary to package, e.g. out/Debug/gen/dm
 app, = sys.argv[1:]
 
-out, app = os.path.split(app)
-
 # Write a minimal Info.plist to name the package and point at the binary.
-with open(os.path.join(out, app + '_Info.plist'), 'w') as f:
+out_directory = app + '.d'
+app = os.path.basename(app)
+if not os.path.exists(out_directory):
+  os.mkdir(out_directory)
+with open(os.path.join(out_directory, 'Info.plist'), 'w') as f:
   f.write('''
 <plist version="1.0">
   <dict>
