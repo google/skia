@@ -170,3 +170,112 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(TextBlobAbnormal, reporter, ctxInfo) {
 DEF_GPUTEST_FOR_NULLGL_CONTEXT(TextBlobStressAbnormal, reporter, ctxInfo) {
     text_blob_cache_inner(reporter, ctxInfo.grContext(), 256, 256, 10, false, true);
 }
+
+static const int kScreenDim = 160;
+
+static SkBitmap renderTrial(SkTextBlob* blob, SkSurface* surface, SkPoint offset) {
+
+    SkPaint paint;
+
+    SkCanvas* canvas = surface->getCanvas();
+    canvas->save();
+    canvas->drawColor(SK_ColorWHITE, SkBlendMode::kSrc);
+    canvas->translate(offset.fX, offset.fY);
+    canvas->drawTextBlob(blob, 0, 0, paint);
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(kScreenDim, kScreenDim);
+    surface->readPixels(bitmap, 0, 0);
+    canvas->restore();
+    return bitmap;
+}
+
+static bool compare_bitmaps(const SkBitmap& expected, const SkBitmap& actual) {
+    SkASSERT(expected.width() == actual.width());
+    SkASSERT(expected.height() == actual.height());
+    for (int i = 0; i < expected.width(); ++i) {
+        for (int j = 0; j < expected.height(); ++j) {
+            SkColor expectedColor = expected.getColor(i, j);
+            SkColor actualColor = actual.getColor(i, j);
+            if (expectedColor != actualColor) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobJaggedGlyph, reporter, ctxInfo) {
+
+    auto grContext = ctxInfo.grContext();
+    const SkImageInfo info =
+            SkImageInfo::Make(kScreenDim, kScreenDim, kN32_SkColorType, kPremul_SkAlphaType);
+    auto surface = SkSurface::MakeRenderTarget(grContext, SkBudgeted::kNo, info);
+
+    auto tf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    SkFont font;
+    font.setTypeface(tf);
+    font.setSubpixel(false);
+    font.setEdging(SkFont::Edging::kAlias);
+    font.setSize(14);
+
+    static char text[] = "HekpqB";
+    static const int maxGlyphLen = sizeof(text) * 4;
+    SkGlyphID glyphs[maxGlyphLen];
+    int glyphCount =
+            tf->charsToGlyphs(text, SkTypeface::Encoding::kUTF8_Encoding, glyphs, sizeof(text)-1);
+
+    SkTextBlobBuilder builder;
+    const auto& runBuffer = builder.allocRun(font, glyphCount, 0, 0);
+    for (int i = 0; i < glyphCount; i++) {
+        runBuffer.glyphs[i] = glyphs[i];
+    }
+    auto blob = builder.make();
+
+    for (int y = 40; y < kScreenDim - 40; y++) {
+        SkBitmap base = renderTrial(blob.get(), surface.get(), {40, y + 0.0f});
+        SkBitmap half = renderTrial(blob.get(), surface.get(), {40, y + 0.5f});
+        SkBitmap unit = renderTrial(blob.get(), surface.get(), {40, y + 1.0f});
+        bool isOk = compare_bitmaps(base, half) || compare_bitmaps(unit, half);
+        REPORTER_ASSERT(reporter, isOk);
+        if (false && !isOk) {
+            {
+                auto data = SkEncodeBitmap(half, SkEncodedImageFormat::kPNG, 0);
+                std::string filename = "half-bad-y" + std::to_string(y) + ".png";
+                SkFILEWStream w{filename.c_str()};
+                w.write(data->data(), data->size());
+                w.fsync();
+            }
+            {
+                auto data = SkEncodeBitmap(base, SkEncodedImageFormat::kPNG, 0);
+                std::string filename = "half-good-y" + std::to_string(y) + ".png";
+                SkFILEWStream w{filename.c_str()};
+                w.write(data->data(), data->size());
+                w.fsync();
+            }
+        }
+    }
+
+    for (int x = 40; x < kScreenDim - 40; x++) {
+        SkBitmap base = renderTrial(blob.get(), surface.get(), {x + 0.0f, 40});
+        SkBitmap half = renderTrial(blob.get(), surface.get(), {x + 0.5f, 40});
+        SkBitmap unit = renderTrial(blob.get(), surface.get(), {x + 1.0f, 40});
+        bool isOk = compare_bitmaps(base, half) || compare_bitmaps(unit, half);
+        REPORTER_ASSERT(reporter, isOk);
+        if (!isOk) {
+            {
+                auto data = SkEncodeBitmap(half, SkEncodedImageFormat::kPNG, 0);
+                std::string filename = "half-bad-x" + std::to_string(x) + ".png";
+                SkFILEWStream w{filename.c_str()};
+                w.write(data->data(), data->size());
+                w.fsync();
+            }
+            {
+                auto data = SkEncodeBitmap(base, SkEncodedImageFormat::kPNG, 0);
+                std::string filename = "half-good-x" + std::to_string(x) + ".png";
+                SkFILEWStream w{filename.c_str()};
+                w.write(data->data(), data->size());
+                w.fsync();
+            }
+        }
+    }
+}
