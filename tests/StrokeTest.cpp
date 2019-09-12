@@ -9,6 +9,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkStrokeRec.h"
+#include "src/core/SkPathPriv.h"
 #include "src/core/SkStroke.h"
 #include "tests/Test.h"
 
@@ -75,7 +76,7 @@ static void test_strokerect(skiatest::Reporter* reporter) {
 
         bool isMiter = SkPaint::kMiter_Join == joins[i];
         SkRect nested[2];
-        REPORTER_ASSERT(reporter, fillPath.isNestedFillRects(nested) == isMiter);
+        REPORTER_ASSERT(reporter, SkPathPriv::IsNestedFillRects(fillPath, nested) == isMiter);
         if (isMiter) {
             SkRect inner(r);
             inner.inset(width/2, width/2);
