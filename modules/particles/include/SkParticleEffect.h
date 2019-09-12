@@ -8,6 +8,8 @@
 #ifndef SkParticleEffect_DEFINED
 #define SkParticleEffect_DEFINED
 
+#include "include/core/SkColor.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/private/SkTArray.h"
@@ -32,12 +34,29 @@ public:
     SkParticleEffectParams();
 
     int   fMaxCount;        // Maximum number of particles per instance of the effect
-    float fEffectDuration;  // How long does the effect last after being played, in seconds?
-    float fRate;            // How many particles are emitted per second?
 
     // What is drawn for each particle? (Image, shape, sprite sheet, etc.)
     // See SkParticleDrawable::Make*
     sk_sp<SkParticleDrawable> fDrawable;
+
+    // Script functions that drive effect behavior. Functions get a mutable Effect struct:
+    //
+    // struct Effect {
+    //   float lifetime;
+    //   float rate;
+    //   float burst;                    // Set to trigger a burst of particles.
+    //
+    //   // Everything below this line controls the state of the effect, which is also the
+    //   // default values for new particles.
+    //   float2 pos   = { 0, 0 };        // Local position, relative to the effect.
+    //   float2 dir   = { 0, -1 };       // Heading. Should be a normalized vector.
+    //   float  scale = 1;               // Size, normalized relative to the drawable's native size
+    //   float2 vel   = { 0, 0 };        // Linear velocity, in (units / second)
+    //   float  spin  = 0;               // Angular velocity, in (radians / second)
+    //   float4 color = { 1, 1, 1, 1 };  // RGBA color
+    //   float  frame = 0;               // Normalized sprite index for multi-frame drawables
+    // };
+    SkString fEffectCode;
 
     // Particle behavior is driven by two SkSL functions defined in the fCode string.
     // Both functions get a mutable Particle struct:
@@ -71,7 +90,7 @@ public:
     // 'void update(inout Particle p)' is called for each particle on every call to the running
     // SkParticleEffect's update() method. It can animate any of the particle's values. Note that
     // the 'lifetime' field has a different meaning in 'update', and should not be used or changed.
-    SkString fCode;
+    SkString fParticleCode;
 
     // External objects accessible by the effect's SkSL code. Each binding is a name and particular
     // kind of object. See SkParticleBinding::Make* for details.
@@ -83,8 +102,13 @@ private:
     friend class SkParticleEffect;
 
     // Cached
-    std::unique_ptr<SkSL::ByteCode> fByteCode;
-    SkTArray<std::unique_ptr<SkParticleExternalValue>> fExternalValues;
+    struct Program {
+        std::unique_ptr<SkSL::ByteCode> fByteCode;
+        SkTArray<std::unique_ptr<SkParticleExternalValue>> fExternalValues;
+    };
+
+    Program fEffectProgram;
+    Program fParticleProgram;
 
     void rebuild();
 };
@@ -97,7 +121,7 @@ public:
     void update(double now);
     void draw(SkCanvas* canvas);
 
-    bool isAlive() const { return fEffectAge >= 0 && fEffectAge <= 1; }
+    bool isAlive() const { return fState.fAge >= 0 && fState.fAge <= 1; }
     int getCount() const { return fCount; }
 
     static void RegisterParticleTypes();
@@ -110,11 +134,32 @@ private:
     SkRandom fRandom;
 
     bool   fLooping;
-    float  fEffectAge;
-
     int    fCount;
     double fLastTime;
     float  fSpawnRemainder;
+
+    // Effect-associated values exposed to script. They are some mix of uniform and inout,
+    // depending on whether we're executing per-feffect or per-particle scripts.
+    struct EffectState {
+        float fDeltaTime;
+        float fAge;
+
+        // Above this line is always uniform. Below is uniform for particles, inout for effect.
+
+        float fLifetime;
+        float fRate;
+        int   fBurst;
+
+        // Properties that determine default values for new particles
+        SkPoint   fPosition;
+        SkVector  fHeading;
+        float     fScale;
+        SkVector  fVelocity;
+        float     fSpin;
+        SkColor4f fColor;
+        float     fFrame;
+    };
+    EffectState fState;
 
     SkParticles             fParticles;
     SkAutoTMalloc<SkRandom> fStableRandoms;
