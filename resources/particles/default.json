@@ -1,14 +1,19 @@
 {
    "MaxCount": 4096,
-   "Duration": 1,
-   "Rate": 1000,
    "Drawable": {
       "Type": "SkCircleDrawable",
       "Radius": 1
    },
-   "Code": [
-      "// float rand; Every read returns a random float [0 .. 1)",
+   "EffectCode": [
+      "void effectSpawn(inout Effect effect) {",
+      "  effect.rate = 1000;",
+      "}",
       "",
+      "void effectUpdate(inout Effect effect) {",
+      "}",
+      ""
+   ],
+   "Code": [
       "void spawn(inout Particle p) {",
       "  p.lifetime = mix(1, 3, rand);",
       "  float a = radians(mix(250, 290, rand));",
