@@ -4078,6 +4078,10 @@ GrBackendFormat GrGLCaps::getBackendFormatFromCompressionType(
         SkImage::CompressionType compressionType) const {
     switch (compressionType) {
         case SkImage::kETC1_CompressionType:
+            // if ETC2 is available default to that format
+            if (this->isFormatTexturable(GrGLFormat::kCOMPRESSED_RGB8_ETC2)) {
+                return GrBackendFormat::MakeGL(GR_GL_COMPRESSED_RGB8_ETC2, GR_GL_TEXTURE_2D);
+            }
             return GrBackendFormat::MakeGL(GR_GL_COMPRESSED_ETC1_RGB8, GR_GL_TEXTURE_2D);
     }
     SK_ABORT("Invalid compression type");
