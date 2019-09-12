@@ -122,8 +122,8 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
                     desc.fHeight = fHeight;
                     desc.fConfig = pixelConfig;
                     fBackingTexture = resourceProvider->createTexture(
-                            desc, format, GrRenderable::kYes, sampleCount, SkBudgeted::kYes,
-                            GrProtected::kNo);
+                            desc, format, GrRenderable::kYes, sampleCount, GrMipMapped::kNo,
+                            SkBudgeted::kYes, GrProtected::kNo);
                 }
                 return fBackingTexture;
             },
