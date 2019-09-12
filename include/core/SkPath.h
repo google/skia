@@ -1756,6 +1756,7 @@ private:
     friend class PathTest_Private; // unit test reversePathTo
     friend class ForceIsRRect_Private; // unit test isRRect
     friend class FuzzPath; // for legacy access to validateRef
+    friend class SkPathRaw;
 };
 
 #endif

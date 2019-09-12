@@ -10,6 +10,8 @@
 
 #include "include/core/SkPath.h"
 
+class SkPathRaw;
+
 class SkPathPriv {
 public:
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -302,7 +304,8 @@ class SkPathEdgeIter {
     };
 
 public:
-    SkPathEdgeIter(const SkPath& path);
+    SkPathEdgeIter(const SkPath&);
+    SkPathEdgeIter(const SkPathRaw&);
 
     SkScalar conicWeight() const {
         SkASSERT(fIsConic);

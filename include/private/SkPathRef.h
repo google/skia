@@ -487,6 +487,7 @@ private:
     friend class ForceIsRRect_Private; // unit test isRRect
     friend class SkPath;
     friend class SkPathPriv;
+    friend class SkPathRaw;
 };
 
 #endif
