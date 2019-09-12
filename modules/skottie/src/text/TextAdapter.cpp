@@ -78,7 +78,7 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
 
     abuilder->bindProperty<TextValue>(*jd,
         [raw_adapter] (const TextValue& txt) {
-            raw_adapter->fText = txt;
+            raw_adapter->setText(txt);
         });
 
     abuilder->dispatchTextProperty(adapter);
@@ -186,11 +186,14 @@ void TextAdapter::buildDomainMaps(const Shaper::Result& shape_result) {
     }
 }
 
-void TextAdapter::onSync() {
-    if (!fText.fHasFill && !fText.fHasStroke) {
-        return;
+void TextAdapter::setText(const TextValue& txt) {
+    if (txt != fText) {
+        fText = txt;
+        fTextDirty = true;
     }
+}
 
+void TextAdapter::reshape() {
     const Shaper::TextDesc text_desc = {
         fText.fTypeface,
         fText.fTextSize,
@@ -245,6 +248,17 @@ void TextAdapter::onSync() {
     fRoot->addChild(sksg::Draw::Make(sksg::Rect::Make(shape_result.computeBounds()),
                                      std::move(bounds_color)));
 #endif
+}
+
+void TextAdapter::onSync() {
+    if (!fText.fHasFill && !fText.fHasStroke) {
+        return;
+    }
+
+    if (fTextDirty) {
+        this->reshape();
+        fTextDirty = false;
+    }
 
     if (fFragments.empty()) {
         return;
