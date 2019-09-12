@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bde05758_9db4fb1c",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1310,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-09-12T20:19:42Z",
+      "side": 1,
+      "message": "I\u0027m not fond about putting this in a separate directory, as often I am looking at the generated files that are going to get packed into the bundle and it\u0027s nice to have them all in one place.",
+      "range": {
+        "startLine": 1310,
+        "startChar": 12,
+        "endLine": 1310,
+        "endChar": 35
+      },
+      "revId": "70acbbf8cd60ed40a04c7ff57464cd3617b27597",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
