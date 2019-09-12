@@ -39,6 +39,7 @@ bench_sources = [
   "$_bench/CubicKLMBench.cpp",
   "$_bench/CubicMapBench.cpp",
   "$_bench/DashBench.cpp",
+  "$_bench/DDLRecorderBench.cpp",
   "$_bench/DisplacementBench.cpp",
   "$_bench/DrawBitmapAABench.cpp",
   "$_bench/DrawLatticeBench.cpp",
