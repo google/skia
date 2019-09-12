@@ -16,6 +16,24 @@
       "revId": "50f377e275c34fc29fd142b62736b7bc553baa9b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8da96d6_afb7fb7e",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-09-12T14:09:35Z",
+      "side": 1,
+      "message": "Done in followup.",
+      "parentUuid": "3a1b32aa_175c4847",
+      "revId": "50f377e275c34fc29fd142b62736b7bc553baa9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
