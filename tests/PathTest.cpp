@@ -2457,7 +2457,7 @@ static void test_isNestedFillRects(skiatest::Reporter* reporter) {
                 path.addRect(-1, -1, 2, 2, SkPath::kCCW_Direction);
             }
             REPORTER_ASSERT(reporter,
-                    tests[testIndex].fIsNestedRect == path.isNestedFillRects(nullptr));
+                            tests[testIndex].fIsNestedRect == SkPathPriv::IsNestedFillRects(path, nullptr));
             if (tests[testIndex].fIsNestedRect) {
                 SkRect expected[2], computed[2];
                 SkPathPriv::FirstDirection expectedDirs[2];
@@ -2472,7 +2472,7 @@ static void test_isNestedFillRects(skiatest::Reporter* reporter) {
                     expectedDirs[0] = SkPathPriv::kCCW_FirstDirection;
                 }
                 expectedDirs[1] = tests[testIndex].fDirection;
-                REPORTER_ASSERT(reporter, path.isNestedFillRects(computed, computedDirs));
+                REPORTER_ASSERT(reporter, SkPathPriv::IsNestedFillRects(path, computed, computedDirs));
                 REPORTER_ASSERT(reporter, expected[0] == computed[0]);
                 REPORTER_ASSERT(reporter, expected[1] == computed[1]);
                 REPORTER_ASSERT(reporter, expectedDirs[0] == SkPathPriv::AsFirstDirection(computedDirs[0]));
@@ -2494,7 +2494,7 @@ static void test_isNestedFillRects(skiatest::Reporter* reporter) {
         if (!rectFirst) {
             path1.addRect(-1, -1, 2, 2, SkPath::kCCW_Direction);
         }
-        REPORTER_ASSERT(reporter, !path1.isNestedFillRects(nullptr));
+        REPORTER_ASSERT(reporter, !SkPathPriv::IsNestedFillRects(path1, nullptr));
 
         // fail, move in the middle
         path1.reset();
@@ -2512,7 +2512,7 @@ static void test_isNestedFillRects(skiatest::Reporter* reporter) {
         if (!rectFirst) {
             path1.addRect(-1, -1, 2, 2, SkPath::kCCW_Direction);
         }
-        REPORTER_ASSERT(reporter, !path1.isNestedFillRects(nullptr));
+        REPORTER_ASSERT(reporter, !SkPathPriv::IsNestedFillRects(path1, nullptr));
 
         // fail, move on the edge
         path1.reset();
@@ -2527,7 +2527,7 @@ static void test_isNestedFillRects(skiatest::Reporter* reporter) {
         if (!rectFirst) {
             path1.addRect(-1, -1, 2, 2, SkPath::kCCW_Direction);
         }
-        REPORTER_ASSERT(reporter, !path1.isNestedFillRects(nullptr));
+        REPORTER_ASSERT(reporter, !SkPathPriv::IsNestedFillRects(path1, nullptr));
 
         // fail, quad
         path1.reset();
@@ -2545,7 +2545,7 @@ static void test_isNestedFillRects(skiatest::Reporter* reporter) {
         if (!rectFirst) {
             path1.addRect(-1, -1, 2, 2, SkPath::kCCW_Direction);
         }
-        REPORTER_ASSERT(reporter, !path1.isNestedFillRects(nullptr));
+        REPORTER_ASSERT(reporter, !SkPathPriv::IsNestedFillRects(path1, nullptr));
 
         // fail, cubic
         path1.reset();
@@ -2563,13 +2563,13 @@ static void test_isNestedFillRects(skiatest::Reporter* reporter) {
         if (!rectFirst) {
             path1.addRect(-1, -1, 2, 2, SkPath::kCCW_Direction);
         }
-        REPORTER_ASSERT(reporter, !path1.isNestedFillRects(nullptr));
+        REPORTER_ASSERT(reporter, !SkPathPriv::IsNestedFillRects(path1, nullptr));
 
         // fail,  not nested
         path1.reset();
         path1.addRect(1, 1, 3, 3, SkPath::kCW_Direction);
         path1.addRect(2, 2, 4, 4, SkPath::kCW_Direction);
-        REPORTER_ASSERT(reporter, !path1.isNestedFillRects(nullptr));
+        REPORTER_ASSERT(reporter, !SkPathPriv::IsNestedFillRects(path1, nullptr));
     }
 
     //  pass, constructed explicitly from manually closed rects specified as moves/lines.
@@ -2584,7 +2584,7 @@ static void test_isNestedFillRects(skiatest::Reporter* reporter) {
     path.lineTo(9, 9);
     path.lineTo(1, 9);
     path.lineTo(1, 1);
-    REPORTER_ASSERT(reporter, path.isNestedFillRects(nullptr));
+    REPORTER_ASSERT(reporter, SkPathPriv::IsNestedFillRects(path, nullptr));
 
     // pass, stroke rect
     SkPath src, dst;
@@ -2593,7 +2593,7 @@ static void test_isNestedFillRects(skiatest::Reporter* reporter) {
     strokePaint.setStyle(SkPaint::kStroke_Style);
     strokePaint.setStrokeWidth(2);
     strokePaint.getFillPath(src, &dst);
-    REPORTER_ASSERT(reporter, dst.isNestedFillRects(nullptr));
+    REPORTER_ASSERT(reporter, SkPathPriv::IsNestedFillRects(dst, nullptr));
 }
 
 static void write_and_read_back(skiatest::Reporter* reporter,

@@ -4,6 +4,8 @@ This file includes a list of high level updates for each milestone release.
 
 -----
 
+  * Remove isRectContour and ksNestedFillRects from public
+
 Milestone 79
 
   * Make the size of program/pipeline caches configurable via

@@ -1042,19 +1042,6 @@ public:
     */
     bool isRect(SkRect* rect, bool* isClosed = nullptr, Direction* direction = nullptr) const;
 
-    /** Returns true if SkPath is equivalent to nested SkRect pair when filled.
-        If false, rect and dirs are unchanged.
-        If true, rect and dirs are written to if not nullptr:
-        setting rect[0] to outer SkRect, and rect[1] to inner SkRect;
-        setting dirs[0] to SkPath::Direction of outer SkRect, and dirs[1] to SkPath::Direction of
-        inner SkRect.
-
-        @param rect  storage for SkRect pair; may be nullptr
-        @param dirs  storage for SkPath::Direction pair; may be nullptr
-        @return      true if SkPath contains nested SkRect pair
-    */
-    bool isNestedFillRects(SkRect rect[2], Direction dirs[2] = nullptr) const;
-
     /** Adds SkRect to SkPath, appending kMove_Verb, three kLine_Verb, and kClose_Verb,
         starting with top-left corner of SkRect; followed by top-right, bottom-right,
         and bottom-left if dir is kCW_Direction; or followed by bottom-left,
@@ -1715,9 +1702,6 @@ private:
     SkDEBUGCODE(void validate() const { SkASSERT(this->isValidImpl()); } )
     bool isValidImpl() const;
     SkDEBUGCODE(void validateRef() const { fPathRef->validate(); } )
-
-    bool isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts,
-                       bool* isClosed, Direction* direction, SkRect* rect) const;
 
     // called by stroker to see if all points (in the last contour) are equal and worthy of a cap
     bool isZeroLengthSincePoint(int startPtIndex) const;

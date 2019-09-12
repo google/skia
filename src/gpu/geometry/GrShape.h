@@ -256,7 +256,7 @@ public:
         }
 
         SkPath::Direction dirs[2];
-        if (!this->path().isNestedFillRects(rects, dirs)) {
+        if (!SkPathPriv::IsNestedFillRects(this->path(), rects, dirs)) {
             return false;
         }
 
