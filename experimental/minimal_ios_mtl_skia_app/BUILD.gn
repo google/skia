@@ -7,6 +7,8 @@ import("../../gn/ios.gni")
 if (is_ios && skia_use_metal) {
   ios_app_bundle("minimal_ios_mtl_skia_app") {
     sources = [
+      "../skottie_ios/SkMetalViewBridge.h",
+      "../skottie_ios/SkMetalViewBridge.mm",
       "main.mm",
     ]
     deps = [

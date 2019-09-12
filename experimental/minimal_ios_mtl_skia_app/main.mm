@@ -6,6 +6,8 @@
 
 // Much of this code is copied from the default application created by XCode.
 
+#include "experimental/skottie_ios/SkMetalViewBridge.h"
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
@@ -22,54 +24,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static sk_sp<SkSurface> to_surface(MTKView* mtkView, GrContext* grContext) {
-    if (!grContext || mtkView == nil) {
-        return nullptr;
-    }
-    id<CAMetalDrawable> drawable = mtkView.currentDrawable;
-    CGSize size = mtkView.drawableSize;
-    int sampleCount = (int)mtkView.sampleCount;
-    int width = (int)size.width;
-    int height = (int)size.height;
-    GrMtlTextureInfo fbInfo;
-    fbInfo.fTexture.retain((__bridge const void*)(drawable.texture));
-    sk_sp<SkColorSpace> colorSpace = nullptr;
-    const SkSurfaceProps surfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
-    if (sampleCount == 1) {
-        GrBackendRenderTarget backendRT(width, height, 1, fbInfo);
-        return SkSurface::MakeFromBackendRenderTarget(grContext, backendRT,
-                                                      kTopLeft_GrSurfaceOrigin,
-                                                      kBGRA_8888_SkColorType,
-                                                      colorSpace, &surfaceProps);
-    } else {
-        GrBackendTexture backendTexture(width, height, GrMipMapped::kNo, fbInfo);
-        return SkSurface::MakeFromBackendTexture(
-                grContext, backendTexture, kTopLeft_GrSurfaceOrigin, sampleCount,
-                kBGRA_8888_SkColorType, colorSpace, &surfaceProps);
-    }
-}
-
-static sk_sp<GrContext> to_context(id<MTLDevice> device, const GrContextOptions& opts) {
-    if (device == nil) {
-        return nullptr;
-    }
-    id<MTLCommandQueue> queue = [device newCommandQueue];
-    return GrContext::MakeMetal((__bridge void*)device, (__bridge void*)queue, opts);
-}
-
-static void configure_mtk_view(MTKView* mtkView) {
-    mtkView.depthStencilPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
-    mtkView.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
-    mtkView.sampleCount = 1;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 static void config_paint(SkPaint* paint) {
     if (!paint->getShader()) {
-        // Perform as much work as possible before creating surface.
-        SkColor4f colors[2] = {SkColors::kBlack, SkColors::kWhite};
-        SkPoint points[2] = {{0, -1024}, {0, 1024}};
+        const SkColor4f colors[2] = {SkColors::kBlack, SkColors::kWhite};
+        const SkPoint points[2] = {{0, -1024}, {0, 1024}};
         paint->setShader(SkGradientShader::MakeLinear(points, colors, nullptr, nullptr, 2,
                                                       SkTileMode::kClamp, 0, nullptr));
     }
@@ -84,26 +42,24 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
 
 ////////////////////////////////////////////////////////////////////////////////
 
-@interface AppViewDelegate : NSObject <MTKViewDelegate> {
-@public
-    GrContext* fGrContext;
-    SkPaint fPaint;
-}
+@interface AppViewDelegate : NSObject <MTKViewDelegate>
+@property (assign, nonatomic) GrContext* grContext;  // non-owning pointer.
 @end
 
-@implementation AppViewDelegate
+@implementation AppViewDelegate {
+    SkPaint fPaint;
+}
+
 - (void)drawInMTKView:(nonnull MTKView *)view {
-    if (!fGrContext || view == nil) {
-        NSLog(@"error: no context");
+    if (![self grContext] || !view) {
         return;
     }
-
-    // Do as much as possible before calling to_surface()
+    // Do as much as possible before creating surface.
     config_paint(&fPaint);
     float rotation = (float)(180 * 1e-9 * SkTime::GetNSecs());
 
     // Create surface:
-    sk_sp<SkSurface> surface = to_surface(view, fGrContext);
+    sk_sp<SkSurface> surface = SkMtkViewToSurface(view, [self grContext]);
     if (!surface) {
         NSLog(@"error: no sksurface");
         return;
@@ -113,7 +69,8 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
 
     // Must flush *and* present for this to work!
     surface->flush();
-    [view.currentDrawable present];
+    surface = nullptr;
+    [[view currentDrawable] present];
 }
 
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size {
@@ -123,37 +80,38 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
 
 ////////////////////////////////////////////////////////////////////////////////
 
-@interface AppViewController : UIViewController {
-    id<MTLDevice> fMtlDevice;
+@interface AppViewController : UIViewController
+@property (strong, nonatomic) id<MTLDevice> metalDevice;
+@end
+
+@implementation AppViewController {
     sk_sp<GrContext> fGrContext;
 }
 
-@end
-@implementation AppViewController
 - (void)loadView {
-    self.view = [[MTKView alloc] initWithFrame:[[UIScreen mainScreen] bounds] device:nil];
+    [self setView:[[MTKView alloc] initWithFrame:[[UIScreen mainScreen] bounds] device:nil]];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     if (!fGrContext) {
-        fMtlDevice = MTLCreateSystemDefaultDevice();
+        [self setMetalDevice:MTLCreateSystemDefaultDevice()];
         GrContextOptions grContextOptions;  // set different options here.
-        fGrContext = to_context(fMtlDevice, grContextOptions);
+        fGrContext = SkMetalDeviceToGrContext([self metalDevice], grContextOptions);
     }
-    MTKView* mtkView = (MTKView*)self.view;
-    mtkView.device = fMtlDevice;
-    mtkView.backgroundColor = UIColor.blackColor;
-    configure_mtk_view(mtkView);
-    if(!self.view || !mtkView.device) {
+    if (![self view] || ![self metalDevice]) {
         NSLog(@"Metal is not supported on this device");
         self.view = [[UIView alloc] initWithFrame:self.view.frame];
         return;
     }
+    MTKView* mtkView = (MTKView*)[self view];
+    [mtkView setDevice:[self metalDevice]];
+    [mtkView setBackgroundColor:[UIColor blackColor]];
+    SkMtkViewConfigForSkia(mtkView);
     AppViewDelegate* viewDelegate = [[AppViewDelegate alloc] init];
-    viewDelegate->fGrContext = fGrContext.get();
-    [viewDelegate mtkView:mtkView drawableSizeWillChange:mtkView.bounds.size];
-    mtkView.delegate = viewDelegate;
+    [viewDelegate setGrContext:fGrContext.get()];
+    [viewDelegate mtkView:mtkView drawableSizeWillChange:[mtkView bounds].size];
+    [mtkView setDelegate:viewDelegate];
 }
 @end
 
@@ -164,56 +122,19 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
 @end
 
 @implementation AppDelegate
-
-- (BOOL)application:(UIApplication *)application
-didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+- (BOOL)application:(UIApplication *)app didFinishLaunchingWithOptions:(NSDictionary*)opts {
     // Override point for customization after application launch.
-    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    self.window.frame = [UIScreen mainScreen].bounds;
-    self.window.rootViewController = [[AppViewController alloc] init];
-    [self.window makeKeyAndVisible];
+    [self setWindow:[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]]];
+    [[self window] setFrame:[[UIScreen mainScreen] bounds]];
+    [[self window] setRootViewController:[[AppViewController alloc] init]];
+    [[self window] makeKeyAndVisible];
     return YES;
-}
-
-- (void)applicationWillResignActive:(UIApplication *)application {
-    // Sent when the application is about to move from active to inactive
-    // state. This can occur for certain types of temporary interruptions (such
-    // as an incoming phone call or SMS message) or when the user quits the
-    // application and it begins the transition to the background state.
-    // Use this method to pause ongoing tasks, disable timers, and invalidate
-    // graphics rendering callbacks. Games should use this method to pause the
-    // game.
-}
-
-- (void)applicationDidEnterBackground:(UIApplication *)application {
-    // Use this method to release shared resources, save user data, invalidate
-    // timers, and store enough application state information to restore your
-    // application to its current state in case it is terminated later.
-    // If your application supports background execution, this method is called
-    // instead of applicationWillTerminate: when the user quits.
-}
-
-- (void)applicationWillEnterForeground:(UIApplication *)application {
-    // Called as part of the transition from the background to the active
-    // state; here you can undo many of the changes made on entering the
-    // background.
-}
-
-- (void)applicationDidBecomeActive:(UIApplication *)application {
-    // Restart any tasks that were paused (or not yet started) while the
-    // application was inactive. If the application was previously in the
-    // background, optionally refresh the user interface.
-}
-
-- (void)applicationWillTerminate:(UIApplication *)application {
-    // Called when the application is about to terminate. Save data if
-    // appropriate. See also applicationDidEnterBackground:.
 }
 @end
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int main(int argc, char * argv[]) {
+int main(int argc, char* argv[]) {
     @autoreleasepool {
         return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));
     }
