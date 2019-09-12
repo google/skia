@@ -64,6 +64,6 @@ describe('Core canvas behavior', function() {
             expect(a).toBeCloseTo(0.969, 2);
             done();
         }));
-    })
+    });
 
 });

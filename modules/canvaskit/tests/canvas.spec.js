@@ -275,4 +275,61 @@ describe('CanvasKit\'s Canvas Behavior', function() {
         }));
     });
 
+    it('draws with color filters', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const path = starPath(CanvasKit);
+
+            const paint = new CanvasKit.SkPaint();
+
+            const blue = CanvasKit.SkColorFilter.MakeBlend(
+                CanvasKit.BLUE, CanvasKit.BlendMode.SrcIn);
+            const red =  CanvasKit.SkColorFilter.MakeBlend(
+                CanvasKit.Color(255, 0, 0, 0.8), CanvasKit.BlendMode.SrcOver);
+            const lerp = CanvasKit.SkColorFilter.MakeLerp(0.6, red, blue);
+
+            paint.setStyle(CanvasKit.PaintStyle.Fill);
+            paint.setAntiAlias(true);
+
+            canvas.clear(CanvasKit.Color(230, 230, 230));
+
+            paint.setColorFilter(blue)
+            canvas.drawRect(CanvasKit.LTRBRect(10, 10, 60, 60), paint);
+            paint.setColorFilter(lerp)
+            canvas.drawRect(CanvasKit.LTRBRect(50, 10, 100, 60), paint);
+            paint.setColorFilter(red)
+            canvas.drawRect(CanvasKit.LTRBRect(90, 10, 140, 60), paint);
+
+            const r = CanvasKit.SkColorMatrix.rotated(0, .707, -.707);
+            const b = CanvasKit.SkColorMatrix.rotated(2, .5, .866);
+            const s = CanvasKit.SkColorMatrix.scaled(0.9, 1.5, 0.8, 0.8);
+            let cm = CanvasKit.SkColorMatrix.concat(r, s);
+            cm = CanvasKit.SkColorMatrix.concat(cm, b);
+            CanvasKit.SkColorMatrix.postTranslate(cm, 20, 0, -10, 0);
+
+            const mat = CanvasKit.SkColorFilter.MakeMatrix(cm);
+
+            const final = CanvasKit.SkColorFilter.MakeCompose(mat, lerp);
+
+            paint.setColorFilter(final)
+            canvas.drawRect(CanvasKit.LTRBRect(10, 70, 140, 120), paint);
+
+            surface.flush();
+            path.delete();
+            paint.delete();
+            blue.delete();
+            red.delete();
+            lerp.delete();
+            final.delete();
+
+            reportSurface(surface, 'colorfilters_canvas', done);
+        }));
+    });
+
 });
