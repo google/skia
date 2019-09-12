@@ -123,6 +123,94 @@ CanvasKit.onRuntimeInitialized = function() {
     ];
   };
 
+  // An SkColorMatrix is a 4x4 color matrix that transforms the 4 color channels
+  //  with a 1x4 matrix that post-translates those 4 channels.
+  // For example, the following is the layout with the scale (S) and post-transform
+  // (PT) items indicated.
+  // RS,  0,  0,  0 | RPT
+  //  0, GS,  0,  0 | GPT
+  //  0,  0, BS,  0 | BPT
+  //  0,  0,  0, AS | APT
+  //
+  // Much of this was hand-transcribed from SkColorMatrix.cpp, because it's easier to
+  // deal with a Float32Array of length 20 than to try to expose the SkColorMatrix object.
+
+  var rScale = 0;
+  var gScale = 6;
+  var bScale = 12;
+  var aScale = 18;
+
+  var rPostTrans = 4;
+  var gPostTrans = 9;
+  var bPostTrans = 14;
+  var aPostTrans = 19;
+
+  CanvasKit.SkColorMatrix = {};
+  CanvasKit.SkColorMatrix.identity = function() {
+    var m = new Float32Array(20);
+    m[rScale] = 1;
+    m[gScale] = 1;
+    m[bScale] = 1;
+    m[aScale] = 1;
+    return m;
+  }
+
+  CanvasKit.SkColorMatrix.scaled = function(rs, gs, bs, as) {
+    var m = new Float32Array(20);
+    m[rScale] = rs;
+    m[gScale] = gs;
+    m[bScale] = bs;
+    m[aScale] = as;
+    return m;
+  }
+
+  var rotateIndices = [
+    [6, 7, 11, 12],
+    [0, 10, 2, 12],
+    [0, 1,  5,  6],
+  ];
+  // axis should be 0, 1, 2 for r, g, b
+  CanvasKit.SkColorMatrix.rotated = function(axis, sine, cosine) {
+    var m = CanvasKit.SkColorMatrix.identity();
+    var indices = rotateIndices[axis];
+    m[indices[0]] = cosine;
+    m[indices[1]] = sine;
+    m[indices[2]] = -sine;
+    m[indices[3]] = cosine;
+    return m;
+  }
+
+  // m is a SkColorMatrix (i.e. a Float32Array), and this sets the 4 "special"
+  // params that will translate the colors after they are multiplied by the 4x4 matrix.
+  CanvasKit.SkColorMatrix.postTranslate = function(m, dr, dg, db, da) {
+    m[rPostTrans] += dr;
+    m[gPostTrans] += dg;
+    m[bPostTrans] += db;
+    m[aPostTrans] += da;
+    return m;
+  }
+
+  // concat returns a new SkColorMatrix that is the result of multiplying outer*inner;
+  CanvasKit.SkColorMatrix.concat = function(outer, inner) {
+    var m = new Float32Array(20);
+    var index = 0;
+    for (var j = 0; j < 20; j += 5) {
+        for (var i = 0; i < 4; i++) {
+            m[index++] =  outer[j + 0] * inner[i + 0] +
+                          outer[j + 1] * inner[i + 5] +
+                          outer[j + 2] * inner[i + 10] +
+                          outer[j + 3] * inner[i + 15];
+        }
+        m[index++] =  outer[j + 0] * inner[4] +
+                      outer[j + 1] * inner[9] +
+                      outer[j + 2] * inner[14] +
+                      outer[j + 3] * inner[19] +
+                      outer[j + 4];
+    }
+
+    return m;
+  }
+
   CanvasKit.SkPath.prototype.addArc = function(oval, startAngle, sweepAngle) {
     // see arc() for the HTMLCanvas version
     // note input angles are degrees.
@@ -571,6 +659,19 @@ CanvasKit.onRuntimeInitialized = function() {
 
     CanvasKit._free(pptr);
     return ok;
+  }
+
+  // colorMatrix is an SkColorMatrix (e.g. Float32Array of length 20)
+  CanvasKit.SkColorFilter.MakeMatrix = function(colorMatrix) {
+    if (!colorMatrix || colorMatrix.length !== 20) {
+      SkDebug('ignoring invalid color matrix');
+      return;
+    }
+    var fptr = copy1dArray(colorMatrix, CanvasKit.HEAPF32);
+    // We know skia memcopies the floats, so we can free our memory after the call returns.
+    var m = CanvasKit.SkColorFilter._makeMatrix(fptr);
+    CanvasKit._free(fptr);
+    return m;
   }
 
   // Returns an array of the widths of the glyphs in this string.

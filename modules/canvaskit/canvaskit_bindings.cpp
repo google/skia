@@ -9,6 +9,7 @@
 #include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
 #include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkFilterQuality.h"
@@ -881,6 +882,18 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }))
         ;
 
+    class_<SkColorFilter>("SkColorFilter")
+        .smart_ptr<sk_sp<SkColorFilter>>("sk_sp<SkColorFilter>>")
+        .class_function("MakeBlend", &SkColorFilters::Blend)
+        .class_function("MakeCompose", &SkColorFilters::Compose)
+        .class_function("MakeLerp", &SkColorFilters::Lerp)
+        .class_function("MakeLinearToSRGBGamma", &SkColorFilters::LinearToSRGBGamma)
+        .class_function("_makeMatrix", optional_override([](uintptr_t /* float* */ fPtr) {
+            float* twentyFloats = reinterpret_cast<float*>(fPtr);
+            return SkColorFilters::Matrix(twentyFloats);
+        }))
+        .class_function("MakeSRGBToLinearGamma", &SkColorFilters::SRGBToLinearGamma);
+
     class_<SkData>("SkData")
         .smart_ptr<sk_sp<SkData>>("sk_sp<SkData>>")
         .function("size", &SkData::size);
@@ -1006,6 +1019,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                     float r, float g, float b, float a) {
             self.setColor({r, g, b, a});
         }))
+        .function("setColorFilter", &SkPaint::setColorFilter)
         .function("setFilterQuality", &SkPaint::setFilterQuality)
         .function("setMaskFilter", &SkPaint::setMaskFilter)
         .function("setPathEffect", &SkPaint::setPathEffect)

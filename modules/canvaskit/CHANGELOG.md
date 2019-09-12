@@ -11,7 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `SkPath.offset()`, `SkPath.drawOval`
  - `SkRRect` support (`SkCanvas.drawRRect`, `SkCanvas.drawDRRect`, `CanvasKit.RRectXY`).
    Advanced users can specify the 8 individual radii, if needed.
- - `CanvasKit.computeTonalColors()`, which returns an SkColor.
+ - `CanvasKit.computeTonalColors()`, which  returns TonalColors, which has an
+   ambient SkColor and a spot SkColor.
+ - `CanvasKit.SkColorFilter` and a variety of factories. `SkPaint.setColorFilter` is the only
+   consumer of these at the moment.
+ - `CanvasKit.SkColorMatrix` with functions `.identity()`, `.scaled()`, `.concat()` and
+   others. Primarily for use with `CanvasKit.SkColorFilter.MakeMatrix`.
 
 ### Changed
  - `MakeSkVertices` uses a builder to save a copy.

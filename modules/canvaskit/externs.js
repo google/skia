@@ -146,6 +146,26 @@ var CanvasKit = {
 		delete: function() {},
 	},
 
+	SkColorFilter: {
+		// public API (from C++ bindings and JS interface)
+		MakeBlend: function() {},
+		MakeCompose: function() {},
+		MakeLerp: function() {},
+		MakeLinearToSRGBGamma: function() {},
+		MakeMatrix: function() {},
+		MakeSRGBToLinearGamma: function() {},
+		// private API (from C++ bindings)
+		_makeMatrix: function() {},
+	},
+
+	SkColorMatrix: {
+		concat: function() {},
+		identity: function() {},
+		postTranslate: function() {},
+		rotated: function() {},
+		scaled: function() {},
+	},
+
 	SkFont: {
 		// public API (from C++ bindings)
 		getScaleX: function() {},
