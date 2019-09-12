@@ -1,16 +1,21 @@
 {
    "MaxCount": 32,
-   "Duration": 1,
-   "Rate": 0.5,
    "Drawable": {
       "Type": "SkImageDrawable",
       "Path": "resources/images/baby_tux.png",
       "Columns": 1,
       "Rows": 1
    },
-   "Code": [
-      "// float rand; Every read returns a random float [0 .. 1)",
+   "EffectCode": [
+      "void effectSpawn(inout Effect effect) {",
+      "  effect.rate = 0.5;",
+      "}",
       "",
+      "void effectUpdate(inout Effect effect) {",
+      "}",
+      ""
+   ],
+   "Code": [
       "void spawn(inout Particle p) {",
       "  p.lifetime = 20;",
       "  float a = radians(10 + 60 * rand);",
