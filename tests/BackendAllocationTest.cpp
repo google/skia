@@ -163,15 +163,17 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
         return;
     }
 
+    SkImageInfo readbackII = SkImageInfo::Make(32, 32, kRGBA_F32_SkColorType,
+                                               kUnpremul_SkAlphaType);
+
     SkAlphaType at = SkColorTypeIsAlwaysOpaque(skColorType) ? kOpaque_SkAlphaType
                                                             : kPremul_SkAlphaType;
-
-    SkImageInfo ii = SkImageInfo::Make(32, 32, skColorType, at);
+    SkImageInfo nativeII = SkImageInfo::Make(32, 32, skColorType, at);
 
     SkColor4f expectedColor = get_expected_color(color, skColorType);
 
     SkAutoPixmapStorage actual;
-    SkAssertResult(actual.tryAlloc(ii));
+    SkAssertResult(actual.tryAlloc(readbackII));
     actual.erase(SkColors::kTransparent);
 
     if (GrRenderable::kYes == renderable && context->colorTypeSupportedAsSurface(skColorType)) {
@@ -203,20 +205,13 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
             // If possible, read back the pixels and check that they're correct
             {
                 bool result = img->readPixels(actual, 0, 0);
-                if (!result) {
-                    // TODO: we need a better way to tell a priori if readPixels will work for an
-                    // arbitrary colorType
-#if 0
-                    ERRORF(reporter, "Couldn't readback from SkImage for colorType: %d\n",
-                            colorType);
-#endif
-                } else {
-                    check_solid_pixmap(reporter, expectedColor, actual, skColorType,
-                                       "SkImage::readPixels");
-                }
+                REPORTER_ASSERT(reporter, result);
+
+                check_solid_pixmap(reporter, expectedColor, actual, skColorType,
+                                   "SkImage::readPixels");
             }
 
-            // Draw the wrapped image into an RGBA surface attempting to access all the
+            // Draw the wrapped image into an RGBA32 surface attempting to access all the
             // mipMap levels.
             {
 #ifdef SK_GL
@@ -232,12 +227,9 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
                 }
 #endif
 
-                SkImageInfo newII = SkImageInfo::Make(32, 32, kRGBA_8888_SkColorType,
-                                                      kPremul_SkAlphaType);
-
                 sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(context,
                                                                     SkBudgeted::kNo,
-                                                                    newII, 1,
+                                                                    readbackII, 1,
                                                                     kTopLeft_GrSurfaceOrigin,
                                                                     nullptr);
                 if (!surf) {
@@ -259,11 +251,12 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
                     canvas->clear(SK_ColorTRANSPARENT);
                     canvas->drawImageRect(img, r, &p);
 
-                    SkImageInfo readbackII = SkImageInfo::Make(rectSize, rectSize,
-                                                               kRGBA_8888_SkColorType,
-                                                               kPremul_SkAlphaType);
+                    SkImageInfo levelReadbackII = SkImageInfo::Make(rectSize, rectSize,
+                                                                    kRGBA_F32_SkColorType,
+                                                                    kUnpremul_SkAlphaType);
+
                     SkAutoPixmapStorage actual2;
-                    SkAssertResult(actual2.tryAlloc(readbackII));
+                    SkAssertResult(actual2.tryAlloc(levelReadbackII));
                     actual2.erase(SkColors::kTransparent);
 
                     bool result = surf->readPixels(actual2, 0, 0);
@@ -322,7 +315,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CharacterizationBackendAllocationTest, report
     for (int ct = 0; ct <= kLastEnum_SkColorType; ++ct) {
         SkColorType colorType = static_cast<SkColorType>(ct);
 
-        SkImageInfo ii = SkImageInfo::Make(32, 32, colorType, kPremul_SkAlphaType);
+        SkAlphaType at = SkColorTypeIsAlwaysOpaque(colorType) ? kOpaque_SkAlphaType
+                                                              : kPremul_SkAlphaType;
+        SkImageInfo nativeII = SkImageInfo::Make(32, 32, colorType, at);
 
         for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {
             for (bool mipMaps : { true, false } ) {
@@ -332,7 +327,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CharacterizationBackendAllocationTest, report
                     // Get a characterization, if possible
                     {
                         sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo,
-                                                                         ii, sampleCount,
+                                                                         nativeII, sampleCount,
                                                                          origin, nullptr, mipMaps);
                         if (!s) {
                             continue;
