@@ -280,6 +280,24 @@ public:
         }
         return true;
     }
+
+    static bool IsRectContour(const SkPath&, bool allowPartial, int* currVerb,
+                              const SkPoint** ptsPtr, bool* isClosed, SkPath::Direction* direction,
+                              SkRect* rect);
+
+    /** Returns true if SkPath is equivalent to nested SkRect pair when filled.
+     If false, rect and dirs are unchanged.
+     If true, rect and dirs are written to if not nullptr:
+     setting rect[0] to outer SkRect, and rect[1] to inner SkRect;
+     setting dirs[0] to SkPath::Direction of outer SkRect, and dirs[1] to SkPath::Direction of
+     inner SkRect.
+
+     @param rect  storage for SkRect pair; may be nullptr
+     @param dirs  storage for SkPath::Direction pair; may be nullptr
+     @return      true if SkPath contains nested SkRect pair
+     */
+    static bool IsNestedFillRects(const SkPath&, SkRect rect[2],
+                                  SkPath::Direction dirs[2] = nullptr);
 };
 
 // Lightweight variant of SkPath::Iter that only returns segments (e.g. lines/conics).

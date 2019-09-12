@@ -703,7 +703,6 @@
 #include "../../docs/examples/Path_isInverseFillType_2.cpp"
 #include "../../docs/examples/Path_isLastContourClosed.cpp"
 #include "../../docs/examples/Path_isLine.cpp"
-#include "../../docs/examples/Path_isNestedFillRects.cpp"
 #include "../../docs/examples/Path_isOval.cpp"
 #include "../../docs/examples/Path_isRRect.cpp"
 #include "../../docs/examples/Path_isRect.cpp"

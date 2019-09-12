@@ -15,6 +15,7 @@
 #include "src/core/SkCachedData.h"
 #include "src/core/SkCoverageModePriv.h"
 #include "src/core/SkDraw.h"
+#include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
@@ -208,7 +209,7 @@ static void draw_nine(const SkMask& mask, const SkIRect& outerR, const SkIPoint&
 }
 
 static int countNestedRects(const SkPath& path, SkRect rects[2]) {
-    if (path.isNestedFillRects(rects)) {
+    if (SkPathPriv::IsNestedFillRects(path, rects)) {
         return 2;
     }
     return path.isRect(&rects[0]);
