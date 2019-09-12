@@ -189,6 +189,30 @@
       "revId": "0ffd8cadc250884f2e55c353f0e347090b8bc0a6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fff9df52_63881c03",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 10168
+      },
+      "writtenOn": "2019-09-12T00:21:09Z",
+      "side": 1,
+      "message": "Awesome. Thanks. I\u0027ll close this patch once yours lands. There\u0027s also nothing really wrong with whatever code this warns on, but it seems to be more of a \u0027quality-of-life\u0027 check.",
+      "parentUuid": "c01d20b3_91016a6e",
+      "range": {
+        "startLine": 187,
+        "startChar": 6,
+        "endLine": 188,
+        "endChar": 30
+      },
+      "revId": "0ffd8cadc250884f2e55c353f0e347090b8bc0a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
