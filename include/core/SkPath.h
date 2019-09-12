@@ -9,6 +9,7 @@
 #define SkPath_DEFINED
 
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPathTypes.h"
 #include "include/private/SkPathRef.h"
 #include "include/private/SkTo.h"
 
@@ -54,8 +55,8 @@ public:
         travel counterclockwise.
     */
     enum Direction : int {
-        kCW_Direction,  //!< contour travels clockwise
-        kCCW_Direction, //!< contour travels counterclockwise
+        kCW_Direction  = kCW_SkPathDirection,
+        kCCW_Direction = kCCW_SkPathDirection
     };
 
     /** Constructs an empty SkPath. By default, SkPath has no verbs, no SkPoint, and no weights.
@@ -160,10 +161,10 @@ public:
         kInverseEvenOdd_FillType fills where the number of contour edges is even.
     */
     enum FillType {
-        kWinding_FillType,        //!< is enclosed by a non-zero sum of contour directions
-        kEvenOdd_FillType,        //!< is enclosed by an odd number of contours
-        kInverseWinding_FillType, //!< is enclosed by a zero sum of contour directions
-        kInverseEvenOdd_FillType, //!< is enclosed by an even number of contours
+        kWinding_FillType        = kWinding_SkPathFillType,
+        kEvenOdd_FillType        = kEvenOdd_SkPathFillType,
+        kInverseWinding_FillType = kInverseWinding_SkPathFillType,
+        kInverseEvenOdd_FillType = kInverseEvenOdd_SkPathFillType
     };
 
     /** Returns FillType, the rule used to fill SkPath. FillType of a new SkPath is
@@ -211,9 +212,9 @@ public:
         if needed by destination SkSurface.
     */
     enum Convexity : uint8_t {
-        kUnknown_Convexity, //!< indicates Convexity has not been determined
-        kConvex_Convexity,  //!< one contour made of a simple geometry without indentations
-        kConcave_Convexity, //!< more than one contour, or a geometry with indentations
+        kUnknown_Convexity = kUnknown_SkPathConvexityType,
+        kConvex_Convexity  = kConvex_SkPathConvexityType,
+        kConcave_Convexity = kConcave_SkPathConvexityType,
     };
 
     /** Computes SkPath::Convexity if required, and returns stored value.
@@ -1365,10 +1366,10 @@ public:
         instance, if SkPath only contains lines, only the kLine_SegmentMask bit is set.
     */
     enum SegmentMask {
-        kLine_SegmentMask  = 1 << 0, //!< contains one or more lines
-        kQuad_SegmentMask  = 1 << 1, //!< contains one or more quads
-        kConic_SegmentMask = 1 << 2, //!< contains one or more conics
-        kCubic_SegmentMask = 1 << 3, //!< contains one or more cubics
+        kLine_SegmentMask  = kLine_SkPathSegmentMask,
+        kQuad_SegmentMask  = kQuad_SkPathSegmentMask,
+        kConic_SegmentMask = kConic_SkPathSegmentMask,
+        kCubic_SegmentMask = kCubic_SkPathSegmentMask,
     };
 
     /** Returns a mask, where each set bit corresponds to a SegmentMask constant
@@ -1386,13 +1387,13 @@ public:
         manage contour, and terminate SkPath.
     */
     enum Verb {
-        kMove_Verb,  //!< starts new contour at next SkPoint
-        kLine_Verb,  //!< adds line from last point to next SkPoint
-        kQuad_Verb,  //!< adds quad from last point
-        kConic_Verb, //!< adds conic from last point
-        kCubic_Verb, //!< adds cubic from last point
-        kClose_Verb, //!< closes contour
-        kDone_Verb,  //!< terminates SkPath
+        kMove_Verb  = kMove_SkPathVerb,
+        kLine_Verb  = kLine_SkPathVerb,
+        kQuad_Verb  = kQuad_SkPathVerb,
+        kConic_Verb = kConic_SkPathVerb,
+        kCubic_Verb = kCubic_SkPathVerb,
+        kClose_Verb = kClose_SkPathVerb,
+        kDone_Verb  = kDone_SkPathVerb,
     };
 
     /** \class SkPath::Iter
