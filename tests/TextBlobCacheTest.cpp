@@ -156,7 +156,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
 }
 
 DEF_GPUTEST_FOR_NULLGL_CONTEXT(TextBlobCache, reporter, ctxInfo) {
-    text_blob_cache_inner(reporter, ctxInfo.grContext(), 1024, 256, 30, true, false);
+    text_blob_cache_inner(reporter, ctxInfo.grContext(), 10 256, 30, true, false);
 }
 
 DEF_GPUTEST_FOR_NULLGL_CONTEXT(TextBlobStressCache, reporter, ctxInfo) {
@@ -169,4 +169,8 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(TextBlobAbnormal, reporter, ctxInfo) {
 
 DEF_GPUTEST_FOR_NULLGL_CONTEXT(TextBlobStressAbnormal, reporter, ctxInfo) {
     text_blob_cache_inner(reporter, ctxInfo.grContext(), 256, 256, 10, false, true);
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobJaggedGlyph, reporter, ctxInfo) {
+    REPORTER_ASSERT(reporter, true);
 }
