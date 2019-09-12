@@ -1431,9 +1431,9 @@ SkPath& SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize 
         values are on integers, place the conic on integers as well.
          */
         if (expectIntegers) {
-            SkScalar* mappedScalars = &mapped[0].fX;
-            for (unsigned index = 0; index < sizeof(mapped) / sizeof(SkScalar); ++index) {
-                mappedScalars[index] = SkScalarRoundToScalar(mappedScalars[index]);
+            for (SkPoint& point : mapped) {
+                point.fX = SkScalarRoundToScalar(point.fX);
+                point.fY = SkScalarRoundToScalar(point.fY);
             }
         }
         this->conicTo(mapped[0], mapped[1], w);
