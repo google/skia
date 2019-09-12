@@ -26,6 +26,12 @@ static void regen_positions(char* vertex, size_t vertexStride, SkScalar transX, 
     for (int i = 0; i < 4; ++i) {
         point->fX += transX;
         point->fY += transY;
+
+        // Is this exactly on half a pixel? Shift a little to avoid problems with drivers that
+        // round arbitrarily during point-sampling.
+        point->fX = SkScalarFloorToScalar(point->fX);
+        point->fY = SkScalarFloorToScalar(point->fY);
+
         point = SkTAddOffset<SkPoint>(point, vertexStride);
     }
 }
