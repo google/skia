@@ -127,24 +127,25 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
             return true;
         }
 
-        // If the text blob only has full pixel glyphs, then fractional part of the position does
-        // not affect the SkGlyphs used.
-        if (anyRunHasSubpixelPosition) {
-            // We can update the positions in the text blob without regenerating the whole
-            // blob, but only for integer translations.
-            // This cool bit of math will determine the necessary translation to apply to the
-            // already generated vertex coordinates to move them to the correct position.
-            SkScalar transX = viewMatrix.getTranslateX() +
-                              viewMatrix.getScaleX() * (x - fInitialX) +
-                              viewMatrix.getSkewX() * (y - fInitialY) -
-                              fInitialViewMatrix.getTranslateX();
-            SkScalar transY = viewMatrix.getTranslateY() +
-                              viewMatrix.getSkewY() * (x - fInitialX) +
-                              viewMatrix.getScaleY() * (y - fInitialY) -
-                              fInitialViewMatrix.getTranslateY();
-            if (!SkScalarIsInt(transX) || !SkScalarIsInt(transY)) {
-                return true;
-            }
+        // TODO(herb): this is not needed for full pixel glyph choice, but is needed to adjust
+        //  the quads properly. Devise a system that regenerates the quads from original data
+        //  using the transform to allow this to be used in general.
+
+        // We can update the positions in the text blob without regenerating the whole
+        // blob, but only for integer translations.
+        // This cool bit of math will determine the necessary translation to apply to the
+        // already generated vertex coordinates to move them to the correct position.
+        // Figure out the translation in view space given a translation in source space.
+        SkScalar transX = viewMatrix.getTranslateX() +
+                          viewMatrix.getScaleX() * (x - fInitialX) +
+                          viewMatrix.getSkewX() * (y - fInitialY) -
+                          fInitialViewMatrix.getTranslateX();
+        SkScalar transY = viewMatrix.getTranslateY() +
+                          viewMatrix.getSkewY() * (x - fInitialX) +
+                          viewMatrix.getScaleY() * (y - fInitialY) -
+                          fInitialViewMatrix.getTranslateY();
+        if (!SkScalarIsInt(transX) || !SkScalarIsInt(transY)) {
+            return true;
         }
     } else if (this->hasDistanceField()) {
         // A scale outside of [blob.fMaxMinScale, blob.fMinMaxScale] would result in a different
