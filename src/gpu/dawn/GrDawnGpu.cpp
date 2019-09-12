@@ -470,8 +470,10 @@ void GrDawnGpu::testingOnly_flushGpuAndSync() {
 
 void GrDawnGpu::flush() {
     this->flushCopyEncoder();
-    fQueue.Submit(fCommandBuffers.size(), &fCommandBuffers.front());
-    fCommandBuffers.clear();
+    if (!fCommandBuffers.empty()) {
+        fQueue.Submit(fCommandBuffers.size(), &fCommandBuffers.front());
+        fCommandBuffers.clear();
+    }
     fStagingManager.mapBusyList();
     fDevice.Tick();
 }
