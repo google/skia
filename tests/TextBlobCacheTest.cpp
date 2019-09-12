@@ -7,6 +7,8 @@
 
 #include "tools/ToolUtils.h"
 
+#include <string>
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkGraphics.h"
@@ -170,4 +172,156 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(TextBlobAbnormal, reporter, ctxInfo) {
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(TextBlobStressAbnormal, reporter, ctxInfo) {
     text_blob_cache_inner(reporter, ctxInfo.grContext(), 256, 256, 10, false, true);
+}
+
+static const int kScreenDim = 160;
+
+static SkBitmap draw_blob(SkTextBlob* blob, SkSurface* surface, SkPoint offset) {
+
+    SkPaint paint;
+
+    SkCanvas* canvas = surface->getCanvas();
+    canvas->save();
+    canvas->drawColor(SK_ColorWHITE, SkBlendMode::kSrc);
+    canvas->translate(offset.fX, offset.fY);
+    canvas->drawTextBlob(blob, 0, 0, paint);
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(kScreenDim, kScreenDim);
+    surface->readPixels(bitmap, 0, 0);
+    canvas->restore();
+    return bitmap;
+}
+
+static bool compare_bitmaps(const SkBitmap& expected, const SkBitmap& actual) {
+    SkASSERT(expected.width() == actual.width());
+    SkASSERT(expected.height() == actual.height());
+    for (int i = 0; i < expected.width(); ++i) {
+        for (int j = 0; j < expected.height(); ++j) {
+            SkColor expectedColor = expected.getColor(i, j);
+            SkColor actualColor = actual.getColor(i, j);
+            if (expectedColor != actualColor) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+static sk_sp<SkTextBlob> make_blob() {
+    auto tf = SkTypeface::MakeFromName("Roboto2-Regular", SkFontStyle());
+    SkFont font;
+    font.setTypeface(tf);
+    font.setSubpixel(false);
+    font.setEdging(SkFont::Edging::kAlias);
+    font.setSize(24);
+
+    static char text[] = "HekpqB";
+    static const int maxGlyphLen = sizeof(text) * 4;
+    SkGlyphID glyphs[maxGlyphLen];
+    int glyphCount =
+            font.textToGlyphs(text, sizeof(text), SkTextEncoding::kUTF8, glyphs, maxGlyphLen);
+
+    SkTextBlobBuilder builder;
+    const auto& runBuffer = builder.allocRun(font, glyphCount, 0, 0);
+    for (int i = 0; i < glyphCount; i++) {
+        runBuffer.glyphs[i] = glyphs[i];
+    }
+    return builder.make();
+}
+
+static const bool kDumpPngs = true;
+// dump pngs needs a "good" and a "bad" directory to put the results in. This allows the use of the
+// skdiff tool to visualize the differences.
+
+void write_png(const std::string& filename, const SkBitmap& bitmap) {
+    auto data = SkEncodeBitmap(bitmap, SkEncodedImageFormat::kPNG, 0);
+    SkFILEWStream w{filename.c_str()};
+    w.write(data->data(), data->size());
+    w.fsync();
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobJaggedGlyph, reporter, ctxInfo) {
+    auto grContext = ctxInfo.grContext();
+    const SkImageInfo info =
+            SkImageInfo::Make(kScreenDim, kScreenDim, kN32_SkColorType, kPremul_SkAlphaType);
+    auto surface = SkSurface::MakeRenderTarget(grContext, SkBudgeted::kNo, info);
+
+    auto blob = make_blob();
+
+    for (int y = 40; y < kScreenDim - 40; y++) {
+        SkBitmap base = draw_blob(blob.get(), surface.get(), {40, y + 0.0f});
+        SkBitmap half = draw_blob(blob.get(), surface.get(), {40, y + 0.5f});
+        SkBitmap unit = draw_blob(blob.get(), surface.get(), {40, y + 1.0f});
+        bool isOk = compare_bitmaps(base, half) || compare_bitmaps(unit, half);
+        REPORTER_ASSERT(reporter, isOk);
+        if (!isOk) {
+            if (kDumpPngs) {
+                {
+                    std::string filename = "bad/half-y" + std::to_string(y) + ".png";
+                    write_png(filename, half);
+                }
+                {
+                    std::string filename = "good/half-y" + std::to_string(y) + ".png";
+                    write_png(filename, base);
+                }
+            }
+            break;
+        }
+    }
+
+    // Testing the x direction across all platforms does not workout, because letter spacing can
+    // change based on non-integer advance widths, but this has been useful for diagnosing problems.
+#if 0
+    blob = make_blob();
+    for (int x = 40; x < kScreenDim - 40; x++) {
+        SkBitmap base = draw_blob(blob.get(), surface.get(), {x + 0.0f, 40});
+        SkBitmap half = draw_blob(blob.get(), surface.get(), {x + 0.5f, 40});
+        SkBitmap unit = draw_blob(blob.get(), surface.get(), {x + 1.0f, 40});
+        bool isOk = compare_bitmaps(base, half) || compare_bitmaps(unit, half);
+        REPORTER_ASSERT(reporter, isOk);
+        if (!isOk) {
+            if (kDumpPngs) {
+                {
+                    std::string filename = "bad/half-x" + std::to_string(x) + ".png";
+                    write_png(filename, half);
+                }
+                {
+                    std::string filename = "good/half-x" + std::to_string(x) + ".png";
+                    write_png(filename, base);
+                }
+            }
+            break;
+        }
+    }
+#endif
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobSmoothScroll, reporter, ctxInfo) {
+    auto grContext = ctxInfo.grContext();
+    const SkImageInfo info =
+            SkImageInfo::Make(kScreenDim, kScreenDim, kN32_SkColorType, kPremul_SkAlphaType);
+    auto surface = SkSurface::MakeRenderTarget(grContext, SkBudgeted::kNo, info);
+
+    auto movingBlob = make_blob();
+
+    for (SkScalar y = 40; y < 50; y += 1.0/8.0) {
+        auto expectedBlob = make_blob();
+        auto expectedBitMap = draw_blob(expectedBlob.get(), surface.get(), {40, y});
+        auto movingBitmap = draw_blob(movingBlob.get(), surface.get(), {40, y});
+        bool isOk = compare_bitmaps(expectedBitMap, movingBitmap);
+        REPORTER_ASSERT(reporter, isOk);
+        if (!isOk) {
+            if (kDumpPngs) {
+                {
+                    std::string filename = "bad/scroll-y" + std::to_string(y) + ".png";
+                    write_png(filename, movingBitmap);
+                }
+                {
+                    std::string filename = "good/scroll-y" + std::to_string(y) + ".png";
+                    write_png(filename, expectedBitMap);
+                }
+            }
+            break;
+        }
+    }
 }
