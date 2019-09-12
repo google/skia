@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "88f6a3a8_9506a30c",
+        "filename": "BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 656,
+      "author": {
+        "id": 6360
+      },
+      "writtenOn": "2019-09-12T12:17:26Z",
+      "side": 1,
+      "message": "We already have SK_GL.",
+      "revId": "393d761f6828285c024a04cb8468b974cde7f308",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
