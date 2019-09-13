@@ -1248,22 +1248,22 @@ static int lpath_getBounds(lua_State* L) {
     return 1;
 }
 
-static const char* fill_type_to_str(SkPath::FillType fill) {
+static const char* fill_type_to_str(SkPathFillType fill) {
     switch (fill) {
-        case SkPath::kEvenOdd_FillType:
+        case SkPathFillType::kEvenOdd:
             return "even-odd";
-        case SkPath::kWinding_FillType:
+        case SkPathFillType::kWinding:
             return "winding";
-        case SkPath::kInverseEvenOdd_FillType:
+        case SkPathFillType::kInverseEvenOdd:
             return "inverse-even-odd";
-        case SkPath::kInverseWinding_FillType:
+        case SkPathFillType::kInverseWinding:
             return "inverse-winding";
     }
     return "unknown";
 }
 
 static int lpath_getFillType(lua_State* L) {
-    SkPath::FillType fill = get_obj<SkPath>(L, 1)->getFillType();
+    SkPathFillType fill = (SkPathFillType)get_obj<SkPath>(L, 1)->getFillType();
     SkLua(L).pushString(fill_type_to_str(fill));
     return 1;
 }
@@ -1310,7 +1310,8 @@ static int lpath_getSegmentTypes(lua_State* L) {
 }
 
 static int lpath_isConvex(lua_State* L) {
-    bool isConvex = SkPath::kConvex_Convexity == get_obj<SkPath>(L, 1)->getConvexity();
+    bool isConvex = SkPathConvexityType::kConvex ==
+                   (SkPathConvexityType)get_obj<SkPath>(L, 1)->getConvexity();
     SkLua(L).pushBool(isConvex);
     return 1;
 }

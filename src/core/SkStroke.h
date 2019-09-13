@@ -62,7 +62,7 @@ public:
      *  Stroke the specified rect, winding it in the specified direction..
      */
     void    strokeRect(const SkRect& rect, SkPath* result,
-                       SkPath::Direction = SkPath::kCW_Direction) const;
+                       SkPathDirection = SkPathDirection::kCW) const;
     void    strokePath(const SkPath& path, SkPath*) const;
 
     ////////////////////////////////////////////////////////////////
