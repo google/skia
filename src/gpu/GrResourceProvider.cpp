@@ -306,36 +306,27 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         return nullptr;
     }
 
-    if (auto tex = this->refScratchTexture(desc, format, renderable, renderTargetSampleCnt,
-                                           isProtected, flags)) {
-        return tex;
-    }
-
-    SkTCopyOnFirstWrite<GrSurfaceDesc> copyDesc(desc);
-
     // bin by some multiple or power of 2 with a reasonable min
-    if (fGpu->caps()->reuseScratchTextures() || renderable == GrRenderable::kYes) {
-        GrSurfaceDesc* wdesc = copyDesc.writable();
-        wdesc->fWidth = MakeApprox(wdesc->fWidth);
-        wdesc->fHeight = MakeApprox(wdesc->fHeight);
-    }
+    GrSurfaceDesc copyDesc(desc);
+    copyDesc.fWidth = MakeApprox(desc.fWidth);
+    copyDesc.fHeight = MakeApprox(desc.fHeight);
 
-    if (auto tex = this->refScratchTexture(*copyDesc, format, renderable, renderTargetSampleCnt,
+    if (auto tex = this->refScratchTexture(copyDesc, format, renderable, renderTargetSampleCnt,
                                            isProtected, flags)) {
         return tex;
     }
 
     if (this->caps()->createTextureMustSpecifyAllLevels()) {
-        size_t rowBytes = GrBytesPerPixel(copyDesc->fConfig) * copyDesc->fWidth;
-        size_t size = rowBytes * copyDesc->fHeight;
+        size_t rowBytes = GrBytesPerPixel(copyDesc.fConfig) * copyDesc.fWidth;
+        size_t size = rowBytes * copyDesc.fHeight;
         std::unique_ptr<char[]> zeros(new char[size]());
         GrMipLevel level;
         level.fRowBytes = rowBytes;
         level.fPixels = zeros.get();
-        return fGpu->createTexture(*copyDesc, format, renderable, renderTargetSampleCnt,
+        return fGpu->createTexture(copyDesc, format, renderable, renderTargetSampleCnt,
                                    SkBudgeted::kYes, isProtected, &level, 1);
     }
-    return fGpu->createTexture(*copyDesc, format, renderable, renderTargetSampleCnt,
+    return fGpu->createTexture(copyDesc, format, renderable, renderTargetSampleCnt,
                                SkBudgeted::kYes, isProtected);
 }
 
