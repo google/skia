@@ -829,14 +829,14 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
                 kOutside = 1
             } dfSign;
 
-            if (workingPath.getFillType() == SkPath::kWinding_FillType) {
+            if (workingPath.getFillType() == SkPathFillType::kWinding) {
                 dfSign = windingNumber ? kInside : kOutside;
-            } else if (workingPath.getFillType() == SkPath::kInverseWinding_FillType) {
+            } else if (workingPath.getFillType() == SkPathFillType::kInverseWinding) {
                 dfSign = windingNumber ? kOutside : kInside;
-            } else if (workingPath.getFillType() == SkPath::kEvenOdd_FillType) {
+            } else if (workingPath.getFillType() == SkPathFillType::kEvenOdd) {
                 dfSign = (windingNumber % 2) ? kInside : kOutside;
             } else {
-                SkASSERT(workingPath.getFillType() == SkPath::kInverseEvenOdd_FillType);
+                SkASSERT(workingPath.getFillType() == SkPathFillType::kInverseEvenOdd);
                 dfSign = (windingNumber % 2) ? kOutside : kInside;
             }
 
