@@ -34,7 +34,7 @@ public:
                      doAA ? "AA" : "BW");
 
         fClipRect.setLTRB(10.5f, 10.5f, 50.5f, 50.5f);
-        fClipPath.addRoundRect(fClipRect, SkIntToScalar(10), SkIntToScalar(10));
+        fClipPath.addRRect(SkRRect::MakeRectXY(fClipRect, SkIntToScalar(10), SkIntToScalar(10)));
         fDrawRect.setWH(100, 100);
 
         SkASSERT(fClipPath.isConvex());
@@ -51,8 +51,7 @@ protected:
             // jostle the clip regions each time to prevent caching
             fClipRect.offset((i % 2) == 0 ? SkIntToScalar(10) : SkIntToScalar(-10), 0);
             fClipPath.reset();
-            fClipPath.addRoundRect(fClipRect,
-                                   SkIntToScalar(5), SkIntToScalar(5));
+            fClipPath.addRRect(SkRRect::MakeRectXY(fClipRect, 5, 5));
             SkASSERT(fClipPath.isConvex());
 
             canvas->save();

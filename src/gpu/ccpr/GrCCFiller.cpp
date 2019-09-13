@@ -135,7 +135,7 @@ void GrCCFiller::PathInfo::tessellateFan(
         // We use "winding" fill type right now because we are producing a coverage count, and must
         // fill in every region that has non-zero wind. The path processor will convert coverage
         // count to the appropriate fill type later.
-        fan.setFillType(SkPath::kWinding_FillType);
+        fan.setFillType(SkPathFillType::kWinding);
     } else {
         // When counting winding numbers in the stencil buffer, it works to just tessellate the
         // Redbook fan with the same fill type as the path.
