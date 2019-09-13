@@ -281,26 +281,17 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         return nullptr;
     }
 
-    if (auto tex = this->refScratchTexture(desc, format, renderable, renderTargetSampleCnt,
-                                           isProtected)) {
-        return tex;
-    }
-
-    SkTCopyOnFirstWrite<GrSurfaceDesc> copyDesc(desc);
-
     // bin by some multiple or power of 2 with a reasonable min
-    if (fGpu->caps()->reuseScratchTextures() || renderable == GrRenderable::kYes) {
-        GrSurfaceDesc* wdesc = copyDesc.writable();
-        wdesc->fWidth = MakeApprox(wdesc->fWidth);
-        wdesc->fHeight = MakeApprox(wdesc->fHeight);
-    }
+    GrSurfaceDesc copyDesc(desc);
+    copyDesc.fWidth = MakeApprox(desc.fWidth);
+    copyDesc.fHeight = MakeApprox(desc.fHeight);
 
-    if (auto tex = this->refScratchTexture(*copyDesc, format, renderable, renderTargetSampleCnt,
+    if (auto tex = this->refScratchTexture(copyDesc, format, renderable, renderTargetSampleCnt,
                                            isProtected)) {
         return tex;
     }
 
-    return fGpu->createTexture(*copyDesc, format, renderable, renderTargetSampleCnt,
+    return fGpu->createTexture(copyDesc, format, renderable, renderTargetSampleCnt,
                                SkBudgeted::kYes, isProtected);
 }
 
