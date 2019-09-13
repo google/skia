@@ -67,7 +67,7 @@ SkRect SkSVGEllipse::resolve(const SkSVGLengthContext& lctx) const {
 }
 
 void SkSVGEllipse::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
-                          const SkPaint& paint, SkPath::FillType) const {
+                          const SkPaint& paint, SkPathFillType) const {
     canvas->drawOval(this->resolve(lctx), paint);
 }
 

@@ -99,7 +99,7 @@ protected:
             SkRect  oval;
             oval.setLTRB(20, 30, 100, 60);
             oval.offset(x, 0);
-            fPath.addRoundRect(oval, SkIntToScalar(8), SkIntToScalar(8));
+            fPath.addRRect(SkRRect::MakeRectXY(oval, 8, 8));
         }
 
         fClickPt.set(SkIntToScalar(200), SkIntToScalar(200));

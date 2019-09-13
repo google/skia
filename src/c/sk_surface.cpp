@@ -56,13 +56,13 @@ static void from_c_matrix(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
 
 const struct {
     sk_path_direction_t fC;
-    SkPath::Direction   fSk;
+    SkPathDirection   fSk;
 } gPathDirMap[] = {
-    { CW_SK_PATH_DIRECTION,  SkPath::kCW_Direction },
-    { CCW_SK_PATH_DIRECTION, SkPath::kCCW_Direction },
+    { CW_SK_PATH_DIRECTION,  SkPathDirection::kCW },
+    { CCW_SK_PATH_DIRECTION, SkPathDirection::kCCW },
 };
 
-static bool from_c_path_direction(sk_path_direction_t cdir, SkPath::Direction* dir) {
+static bool from_c_path_direction(sk_path_direction_t cdir, SkPathDirection* dir) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(gPathDirMap); ++i) {
         if (gPathDirMap[i].fC == cdir) {
             if (dir) {
@@ -202,7 +202,7 @@ void sk_path_close(sk_path_t* cpath) {
 }
 
 void sk_path_add_rect(sk_path_t* cpath, const sk_rect_t* crect, sk_path_direction_t cdir) {
-    SkPath::Direction dir;
+    SkPathDirection dir;
     if (!from_c_path_direction(cdir, &dir)) {
         return;
     }
@@ -210,7 +210,7 @@ void sk_path_add_rect(sk_path_t* cpath, const sk_rect_t* crect, sk_path_directio
 }
 
 void sk_path_add_oval(sk_path_t* cpath, const sk_rect_t* crect, sk_path_direction_t cdir) {
-    SkPath::Direction dir;
+    SkPathDirection dir;
     if (!from_c_path_direction(cdir, &dir)) {
         return;
     }

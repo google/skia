@@ -691,7 +691,7 @@ protected:
 
             // mimic how Chrome does circles
             temp.arcTo(r, 0, 0, false);
-            temp.addOval(r, SkPath::kCCW_Direction);
+            temp.addOval(r, SkPathDirection::kCCW);
             temp.arcTo(r, 360, 0, true);
             temp.close();
 
@@ -825,7 +825,7 @@ public:
                 break;
             case kRoundRect_Type:
                 fName.append("round_rect");
-                fPath.addRoundRect(kBaseRect, kRRRadii[0], kRRRadii[1]);
+                fPath.addRRect(SkRRect::MakeRectXY(kBaseRect, kRRRadii[0], kRRRadii[1]));
                 break;
             case kOval_Type:
                 fName.append("oval");

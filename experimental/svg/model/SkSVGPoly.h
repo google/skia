@@ -30,7 +30,7 @@ protected:
     void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
     void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&,
-                SkPath::FillType) const override;
+                SkPathFillType) const override;
 
     SkPath onAsPath(const SkSVGRenderContext&) const override;
 

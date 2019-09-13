@@ -248,8 +248,8 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
 #endif
     op = gOpInverse[op][one.isInverseFillType()][two.isInverseFillType()];
     bool inverseFill = gOutInverse[op][one.isInverseFillType()][two.isInverseFillType()];
-    SkPath::FillType fillType = inverseFill ? SkPath::kInverseEvenOdd_FillType :
-            SkPath::kEvenOdd_FillType;
+    SkPathFillType fillType = inverseFill ? SkPathFillType::kInverseEvenOdd :
+            SkPathFillType::kEvenOdd;
     SkRect rect1, rect2;
     if (kIntersect_SkPathOp == op && one.isRect(&rect1) && two.isRect(&rect2)) {
         result->reset();

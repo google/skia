@@ -51,9 +51,8 @@ class ShadowsView : public Sample {
         fCirclePath.addCircle(0, 0, 50);
         fRectPath.addRect(SkRect::MakeXYWH(-100, -50, 200, 100));
         fRRPath.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-100, -50, 200, 100), 4, 4));
-        fFunkyRRPath.addRoundRect(SkRect::MakeXYWH(-50, -50, SK_Scalar1 * 100, SK_Scalar1 * 100),
-                                  40 * SK_Scalar1, 20 * SK_Scalar1,
-                                  SkPath::kCW_Direction);
+        fFunkyRRPath.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-50, -50, 100, 100), 40, 20),
+                              SkPathDirection::kCW);
         fCubicPath.cubicTo(100 * SK_Scalar1, 50 * SK_Scalar1,
                            20 * SK_Scalar1, 100 * SK_Scalar1,
                            0 * SK_Scalar1, 0 * SK_Scalar1);

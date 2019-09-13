@@ -15,6 +15,8 @@
 
 #include <initializer_list>
 
+#define SK_SUPPORT_LEGACY_PATH_ENUMS
+
 class SkAutoPathBoundsUpdate;
 class SkData;
 class SkRRect;
@@ -41,6 +43,7 @@ class SkWStream;
 class SK_API SkPath {
 public:
 
+#ifdef SK_SUPPORT_LEGACY_PATH_ENUMS
     /** \enum SkPath::Direction
         Direction describes whether contour is clockwise or counterclockwise.
         When SkPath contains multiple overlapping contours, Direction together with
@@ -58,6 +61,7 @@ public:
         kCW_Direction  = static_cast<int>(SkPathDirection::kCW),
         kCCW_Direction = static_cast<int>(SkPathDirection::kCCW)
     };
+#endif
 
     /** Constructs an empty SkPath. By default, SkPath has no verbs, no SkPoint, and no weights.
         SkPath::FillType is set to kWinding_FillType.
@@ -151,6 +155,7 @@ public:
     */
     bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const;
 
+#ifdef SK_SUPPORT_LEGACY_PATH_ENUMS
     /** \enum SkPath::FillType
         FillType selects the rule used to fill SkPath. SkPath set to kWinding_FillType
         fills if the sum of contour edges is not zero, where clockwise edges add one, and
@@ -166,7 +171,6 @@ public:
         kInverseWinding_FillType = static_cast<int>(SkPathFillType::kInverseWinding),
         kInverseEvenOdd_FillType = static_cast<int>(SkPathFillType::kInverseEvenOdd)
     };
-
     /** Returns FillType, the rule used to fill SkPath. FillType of a new SkPath is
         kWinding_FillType.
 
@@ -175,13 +179,26 @@ public:
     */
     FillType getFillType() const { return (FillType)fFillType; }
 
+    void setFillType(FillType ft) {
+        this->setFillType(static_cast<SkPathFillType>(ft));
+    }
+#else
+    /** Returns FillType, the rule used to fill SkPath. FillType of a new SkPath is
+     kWinding_FillType.
+
+     @return  one of: kWinding_FillType, kEvenOdd_FillType,  kInverseWinding_FillType,
+     kInverseEvenOdd_FillType
+     */
+    SkPathFillType getFillType() const { return (SkPathFillType)fFillType; }
+#endif
+
     /** Sets FillType, the rule used to fill SkPath. While there is no check
         that ft is legal, values outside of FillType are not supported.
 
         @param ft  one of: kWinding_FillType, kEvenOdd_FillType,  kInverseWinding_FillType,
                    kInverseEvenOdd_FillType
     */
-    void setFillType(FillType ft) {
+    void setFillType(SkPathFillType ft) {
         fFillType = SkToU8(ft);
     }
 
@@ -190,7 +207,7 @@ public:
 
         @return  true if FillType is kInverseWinding_FillType or kInverseEvenOdd_FillType
     */
-    bool isInverseFillType() const { return IsInverseFillType((FillType)fFillType); }
+    bool isInverseFillType() const;
 
     /** Replaces FillType with its inverse. The inverse of FillType describes the area
         unmodified by the original FillType.
@@ -199,6 +216,7 @@ public:
         fFillType ^= 2;
     }
 
+#ifdef SK_SUPPORT_LEGACY_PATH_ENUMS
     /** \enum SkPath::Convexity
         SkPath is convex if it contains one contour and contour loops no more than
         360 degrees, and contour angles all have same Direction. Convex SkPath
@@ -228,7 +246,7 @@ public:
         if (convexity != kUnknown_Convexity) {
             return convexity;
         }
-        return this->internalGetConvexity();
+        return (Convexity)this->internalGetConvexity();
     }
 
     /** Returns last computed SkPath::Convexity, or kUnknown_Convexity if
@@ -236,7 +254,9 @@ public:
 
         @return  stored SkPath::Convexity
     */
-    Convexity getConvexityOrUnknown() const { return fConvexity.load(std::memory_order_relaxed); }
+    Convexity getConvexityOrUnknown() const {
+        return (Convexity)fConvexity.load(std::memory_order_relaxed);
+    }
 
     /** Stores convexity so that it is later returned by getConvexity() or getConvexityOrUnknown().
         convexity may differ from getConvexity(), although setting an incorrect value may
@@ -251,7 +271,47 @@ public:
 
         @param convexity  one of: kUnknown_Convexity, kConvex_Convexity, or kConcave_Convexity
     */
-    void setConvexity(Convexity convexity);
+    void setConvexity(Convexity convexity) {
+        this->setConvexity(static_cast<SkPathConvexityType>(convexity));
+    }
+#else
+    /** Computes SkPath::Convexity if required, and returns stored value.
+     SkPath::Convexity is computed if stored value is kUnknown_Convexity,
+     or if SkPath has been altered since SkPath::Convexity was computed or set.
+
+     @return  computed or stored SkPath::Convexity
+     */
+    SkPathConvexityType getConvexity() const {
+        SkPathConvexityType convexity = this->getConvexityOrUnknown();
+        if (convexity != SkPathConvexityType::kUnknown) {
+            return convexity;
+        }
+        return this->internalGetConvexity();
+    }
+
+    /** Returns last computed SkPath::Convexity, or kUnknown_Convexity if
+     SkPath has been altered since SkPath::Convexity was computed or set.
+
+     @return  stored SkPath::Convexity
+     */
+    SkPathConvexityType getConvexityOrUnknown() const {
+        return static_cast<SkPathConvexityType>(fConvexity.load(std::memory_order_relaxed));
+    }
+#endif
+    /** Stores convexity so that it is later returned by getConvexity() or getConvexityOrUnknown().
+     convexity may differ from getConvexity(), although setting an incorrect value may
+     cause incorrect or inefficient drawing.
+
+     If convexity is kUnknown_Convexity: getConvexity() will
+     compute SkPath::Convexity, and getConvexityOrUnknown() will return kUnknown_Convexity.
+
+     If convexity is kConvex_Convexity or kConcave_Convexity, getConvexity()
+     and getConvexityOrUnknown() will return convexity until the path is
+     altered.
+
+     @param convexity  one of: kUnknown_Convexity, kConvex_Convexity, or kConcave_Convexity
+     */
+    void setConvexity(SkPathConvexityType convexity);
 
     /** Computes SkPath::Convexity if required, and returns true if value is kConvex_Convexity.
         If setConvexity() was called with kConvex_Convexity or kConcave_Convexity, and
@@ -260,7 +320,7 @@ public:
         @return  true if SkPath::Convexity stored or computed is kConvex_Convexity
     */
     bool isConvex() const {
-        return kConvex_Convexity == this->getConvexity();
+        return SkPathConvexityType::kConvex == (SkPathConvexityType)this->getConvexity();
     }
 
     /** Returns true if this path is recognized as an oval or circle.
@@ -899,35 +959,7 @@ public:
         @return             reference to SkPath
     */
     SkPath& arcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc,
-                  Direction sweep, SkScalar x, SkScalar y);
-
-    /** Appends arc to SkPath. Arc is implemented by one or more conic weighted to describe
-        part of oval with radii (r.fX, r.fY) rotated by xAxisRotate degrees. Arc curves
-        from last SkPath SkPoint to (xy.fX, xy.fY), choosing one of four possible routes:
-        clockwise or counterclockwise,
-        and smaller or larger.
-
-        Arc sweep is always less than 360 degrees. arcTo() appends line to xy if either
-        radii are zero, or if last SkPath SkPoint equals (xy.fX, xy.fY). arcTo() scales radii r to
-        fit last SkPath SkPoint and xy if both are greater than zero but too small to describe
-        an arc.
-
-        arcTo() appends up to four conic curves.
-        arcTo() implements the functionality of SVG arc, although SVG sweep-flag value is
-        opposite the integer value of sweep; SVG sweep-flag uses 1 for clockwise, while
-        kCW_Direction cast to int is zero.
-
-        @param r            radii on axes before x-axis rotation
-        @param xAxisRotate  x-axis rotation in degrees; positive values are clockwise
-        @param largeArc     chooses smaller or larger arc
-        @param sweep        chooses clockwise or counterclockwise arc
-        @param xy           end of arc
-        @return             reference to SkPath
-    */
-    SkPath& arcTo(const SkPoint r, SkScalar xAxisRotate, ArcSize largeArc, Direction sweep,
-               const SkPoint xy) {
-        return this->arcTo(r.fX, r.fY, xAxisRotate, largeArc, sweep, xy.fX, xy.fY);
-    }
+                  SkPathDirection sweep, SkScalar x, SkScalar y);
 
     /** Appends arc to SkPath, relative to last SkPath SkPoint. Arc is implemented by one or
         more conic, weighted to describe part of oval with radii (rx, ry) rotated by
@@ -956,7 +988,7 @@ public:
         @return             reference to SkPath
     */
     SkPath& rArcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc,
-                   Direction sweep, SkScalar dx, SkScalar dy);
+                   SkPathDirection sweep, SkScalar dx, SkScalar dy);
 
     /** Appends kClose_Verb to SkPath. A closed contour connects the first and last SkPoint
         with line, forming a continuous loop. Open and closed contour draw the same
@@ -970,6 +1002,7 @@ public:
     */
     SkPath& close();
 
+#ifdef SK_SUPPORT_LEGACY_PATH_ENUMS
     /** Returns true if fill is inverted and SkPath with fill represents area outside
         of its geometric bounds.
 
@@ -999,6 +1032,7 @@ public:
         static_assert(3 == kInverseEvenOdd_FillType, "fill_type_mismatch");
         return (FillType)(fill & 1);
     }
+#endif
 
     /** Approximates conic with quad array. Conic is constructed from start SkPoint p0,
         control SkPoint p1, end SkPoint p2, and weight w.
@@ -1041,7 +1075,7 @@ public:
         @param direction  storage set to SkRect direction; may be nullptr
         @return           true if SkPath contains SkRect
     */
-    bool isRect(SkRect* rect, bool* isClosed = nullptr, Direction* direction = nullptr) const;
+    bool isRect(SkRect* rect, bool* isClosed = nullptr, SkPathDirection* dir = nullptr) const;
 
     /** Adds SkRect to SkPath, appending kMove_Verb, three kLine_Verb, and kClose_Verb,
         starting with top-left corner of SkRect; followed by top-right, bottom-right,
@@ -1052,7 +1086,7 @@ public:
         @param dir   SkPath::Direction to wind added contour
         @return      reference to SkPath
     */
-    SkPath& addRect(const SkRect& rect, Direction dir = kCW_Direction);
+    SkPath& addRect(const SkRect& rect, SkPathDirection dir = SkPathDirection::kCW);
 
     /** Adds SkRect to SkPath, appending kMove_Verb, three kLine_Verb, and kClose_Verb.
         If dir is kCW_Direction, SkRect corners are added clockwise; if dir is
@@ -1064,23 +1098,7 @@ public:
         @param start  initial corner of SkRect to add
         @return       reference to SkPath
     */
-    SkPath& addRect(const SkRect& rect, Direction dir, unsigned start);
-
-    /** Adds SkRect (left, top, right, bottom) to SkPath,
-        appending kMove_Verb, three kLine_Verb, and kClose_Verb,
-        starting with top-left corner of SkRect; followed by top-right, bottom-right,
-        and bottom-left if dir is kCW_Direction; or followed by bottom-left,
-        bottom-right, and top-right if dir is kCCW_Direction.
-
-        @param left    smaller x-axis value of SkRect
-        @param top     smaller y-axis value of SkRect
-        @param right   larger x-axis value of SkRect
-        @param bottom  larger y-axis value of SkRect
-        @param dir     SkPath::Direction to wind added contour
-        @return        reference to SkPath
-    */
-    SkPath& addRect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom,
-                    Direction dir = kCW_Direction);
+    SkPath& addRect(const SkRect& rect, SkPathDirection dir, unsigned start);
 
     /** Adds oval to path, appending kMove_Verb, four kConic_Verb, and kClose_Verb.
         Oval is upright ellipse bounded by SkRect oval with radii equal to half oval width
@@ -1091,7 +1109,7 @@ public:
         @param dir   SkPath::Direction to wind ellipse
         @return      reference to SkPath
     */
-    SkPath& addOval(const SkRect& oval, Direction dir = kCW_Direction);
+    SkPath& addOval(const SkRect& oval, SkPathDirection dir = SkPathDirection::kCW);
 
     /** Adds oval to SkPath, appending kMove_Verb, four kConic_Verb, and kClose_Verb.
         Oval is upright ellipse bounded by SkRect oval with radii equal to half oval width
@@ -1103,7 +1121,7 @@ public:
         @param start  index of initial point of ellipse
         @return       reference to SkPath
     */
-    SkPath& addOval(const SkRect& oval, Direction dir, unsigned start);
+    SkPath& addOval(const SkRect& oval, SkPathDirection dir, unsigned start);
 
     /** Adds circle centered at (x, y) of size radius to SkPath, appending kMove_Verb,
         four kConic_Verb, and kClose_Verb. Circle begins at: (x + radius, y), continuing
@@ -1118,7 +1136,7 @@ public:
         @return        reference to SkPath
     */
     SkPath& addCircle(SkScalar x, SkScalar y, SkScalar radius,
-                      Direction dir = kCW_Direction);
+                      SkPathDirection dir = SkPathDirection::kCW);
 
     /** Appends arc to SkPath, as the start of new contour. Arc added is part of ellipse
         bounded by oval, from startAngle through sweepAngle. Both startAngle and
@@ -1136,39 +1154,6 @@ public:
     */
     SkPath& addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle);
 
-    /** Appends SkRRect to SkPath, creating a new closed contour. SkRRect has bounds
-        equal to rect; each corner is 90 degrees of an ellipse with radii (rx, ry). If
-        dir is kCW_Direction, SkRRect starts at top-left of the lower-left corner and
-        winds clockwise. If dir is kCCW_Direction, SkRRect starts at the bottom-left
-        of the upper-left corner and winds counterclockwise.
-
-        If either rx or ry is too large, rx and ry are scaled uniformly until the
-        corners fit. If rx or ry is less than or equal to zero, addRoundRect() appends
-        SkRect rect to SkPath.
-
-        After appending, SkPath may be empty, or may contain: SkRect, oval, or SkRRect.
-
-        @param rect  bounds of SkRRect
-        @param rx    x-axis radius of rounded corners on the SkRRect
-        @param ry    y-axis radius of rounded corners on the SkRRect
-        @param dir   SkPath::Direction to wind SkRRect
-        @return      reference to SkPath
-    */
-    SkPath& addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
-                         Direction dir = kCW_Direction);
-
-    /** Appends SkRRect to SkPath, creating a new closed contour. SkRRect has bounds
-        equal to rect; each corner is 90 degrees of an ellipse with radii from the
-        array.
-
-        @param rect   bounds of SkRRect
-        @param radii  array of 8 SkScalar values, a radius pair for each corner
-        @param dir    SkPath::Direction to wind SkRRect
-        @return       reference to SkPath
-    */
-    SkPath& addRoundRect(const SkRect& rect, const SkScalar radii[],
-                         Direction dir = kCW_Direction);
-
     /** Adds rrect to SkPath, creating a new closed contour. If
         dir is kCW_Direction, rrect starts at top-left of the lower-left corner and
         winds clockwise. If dir is kCCW_Direction, rrect starts at the bottom-left
@@ -1180,7 +1165,7 @@ public:
         @param dir    SkPath::Direction to wind SkRRect
         @return       reference to SkPath
     */
-    SkPath& addRRect(const SkRRect& rrect, Direction dir = kCW_Direction);
+    SkPath& addRRect(const SkRRect& rrect, SkPathDirection dir = SkPathDirection::kCW);
 
     /** Adds rrect to SkPath, creating a new closed contour. If dir is kCW_Direction, rrect
         winds clockwise; if dir is kCCW_Direction, rrect winds counterclockwise.
@@ -1191,7 +1176,7 @@ public:
         @param start  index of initial point of SkRRect
         @return       reference to SkPath
     */
-    SkPath& addRRect(const SkRRect& rrect, Direction dir, unsigned start);
+    SkPath& addRRect(const SkRRect& rrect, SkPathDirection dir, unsigned start);
 
     /** Adds contour created from line array, adding (count - 1) line segments.
         Contour added starts at pts[0], then adds a line for every additional SkPoint
@@ -1651,10 +1636,66 @@ public:
     */
     bool isValid() const { return this->isValidImpl() && fPathRef->isValid(); }
 
+#ifdef SK_SUPPORT_LEGACY_PATH_ENUMS
+    SkPath& arcTo(SkScalar rx, SkScalar ry, SkScalar xRotate, ArcSize largeArc,
+                  Direction sweep, SkScalar x, SkScalar y) {
+        return this->arcTo(rx, ry, xRotate, largeArc, static_cast<SkPathDirection>(sweep), x, y);
+    }
+    SkPath& arcTo(const SkPoint r, SkScalar xAxisRotate, ArcSize largeArc, Direction sweep,
+                  const SkPoint xy) {
+        return this->arcTo(r.fX, r.fY, xAxisRotate, largeArc, sweep, xy.fX, xy.fY);
+    }
+    SkPath& rArcTo(SkScalar rx, SkScalar ry, SkScalar xRotate, ArcSize largeArc,
+                   Direction sweep, SkScalar dx, SkScalar dy) {
+        return this->rArcTo(rx, ry, xRotate, largeArc, static_cast<SkPathDirection>(sweep), dx, dy);
+    }
+    bool isRect(SkRect* rect, bool* isClosed, Direction* direction) const {
+        return this->isRect(rect, isClosed, reinterpret_cast<SkPathDirection*>(direction));
+    }
+    bool isRect(SkRect* rect, bool* isClosed, std::nullptr_t) const {
+        return this->isRect(rect, isClosed, (SkPathDirection*)nullptr);
+    }
+    SkPath& addRect(const SkRect& rect, Direction dir) {
+        return this->addRect(rect, static_cast<SkPathDirection>(dir));
+    }
+    SkPath& addRect(const SkRect& rect, Direction dir, unsigned start) {
+        return this->addRect(rect, static_cast<SkPathDirection>(dir), start);
+    }
+    SkPath& addRect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom,
+                    Direction dir = kCW_Direction) {
+        return this->addRect({left, top, right, bottom}, static_cast<SkPathDirection>(dir));
+    }
+    SkPath& addOval(const SkRect& oval, Direction dir) {
+        return this->addOval(oval, static_cast<SkPathDirection>(dir));
+    }
+    SkPath& addOval(const SkRect& oval, Direction dir, unsigned start) {
+        return this->addOval(oval, static_cast<SkPathDirection>(dir), start);
+    }
+    SkPath& addCircle(SkScalar x, SkScalar y, SkScalar radius, Direction dir) {
+        return this->addCircle(x, y, radius, static_cast<SkPathDirection>(dir));
+    }
+    SkPath& addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
+                         Direction dir = kCW_Direction) {
+        return this->addRRect(SkRRect::MakeRectXY(rect, rx, ry), static_cast<SkPathDirection>(dir));
+    }
+    SkPath& addRoundRect(const SkRect& rect, const SkScalar radii[],
+                         Direction dir = kCW_Direction) {
+        SkRRect rr;
+        rr.setRectRadii(rect, reinterpret_cast<const SkPoint*>(radii));
+        return this->addRRect(rr, static_cast<SkPathDirection>(dir));
+    }
+    SkPath& addRRect(const SkRRect& rrect, Direction dir) {
+        return this->addRRect(rrect, static_cast<SkPathDirection>(dir));
+    }
+    SkPath& addRRect(const SkRRect& rrect, Direction dir, unsigned start) {
+        return this->addRRect(rrect, static_cast<SkPathDirection>(dir), start);
+    }
+#endif
+
 private:
     sk_sp<SkPathRef>               fPathRef;
     int                            fLastMoveToIndex;
-    mutable std::atomic<Convexity> fConvexity;
+    mutable std::atomic<uint8_t>   fConvexity;
     mutable std::atomic<uint8_t>   fFirstDirection; // really an SkPathPriv::FirstDirection
     uint8_t                        fFillType    : 2;
     uint8_t                        fIsVolatile  : 1;
@@ -1695,7 +1736,7 @@ private:
 
     inline bool hasOnlyMoveTos() const;
 
-    Convexity internalGetConvexity() const;
+    SkPathConvexityType internalGetConvexity() const;
 
     /** Asserts if SkPath data is inconsistent.
         Debugging check intended for internal use only.
@@ -1727,7 +1768,7 @@ private:
 
     // Bottlenecks for working with fConvexity and fFirstDirection.
     // Notice the setters are const... these are mutable atomic fields.
-    void    setConvexity(Convexity) const;
+    void    setConvexity(SkPathConvexityType) const;
     void    setFirstDirection(uint8_t) const;
     uint8_t getFirstDirection() const;
 
