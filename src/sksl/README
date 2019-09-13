@@ -55,9 +55,11 @@ Differences from GLSL
 * creating a smaller vector from a larger vector (e.g. float2(float3(1))) is
   intentionally disallowed, as it is just a wordier way of performing a swizzle.
   Use swizzles instead.
-* The last swizzle component, in addition to the normal rgba / xyzw components,
-  can also be the constants '0' or '1'. foo.rgb1 is equivalent to
-  float4(foo.rgb, 1).
+* Swizzle components, in addition to the normal rgba / xyzw components, can also
+  be LTRB (meaning "left/top/right/bottom", for when we store rectangles in
+  vectors), and may also be the constants '0' or '1' to produce a constant 0 or
+  1 in that channel instead of selecting anything from the source vector.
+  foo.rgb1 is equivalent to float4(foo.rgb, 1).
 * All texture functions are named "sample", e.g. sample(sampler2D, float3) is
   equivalent to GLSL's textureProj(sampler2D, float3).
 * Render target width and height are available via sk_Width and sk_Height

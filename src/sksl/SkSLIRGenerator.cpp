@@ -2166,43 +2166,39 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     for (size_t i = 0; i < fields.fLength; i++) {
         switch (fields[i]) {
             case '0':
-                if (i != fields.fLength - 1) {
-                    fErrors.error(base->fOffset,
-                                  "only the last swizzle component can be a constant");
-                }
                 swizzleComponents.push_back(SKSL_SWIZZLE_0);
                 break;
             case '1':
-                if (i != fields.fLength - 1) {
-                    fErrors.error(base->fOffset,
-                                  "only the last swizzle component can be a constant");
-                }
                 swizzleComponents.push_back(SKSL_SWIZZLE_1);
                 break;
-            case 'x': // fall through
-            case 'r': // fall through
+            case 'x':
+            case 'r':
             case 's':
+            case 'L':
                 swizzleComponents.push_back(0);
                 break;
-            case 'y': // fall through
-            case 'g': // fall through
+            case 'y':
+            case 'g':
             case 't':
+            case 'T':
                 if (base->fType.columns() >= 2) {
                     swizzleComponents.push_back(1);
                     break;
                 }
                 // fall through
-            case 'z': // fall through
-            case 'b': // fall through
+            case 'z':
+            case 'b':
             case 'p':
+            case 'R':
                 if (base->fType.columns() >= 3) {
                     swizzleComponents.push_back(2);
                     break;
                 }
                 // fall through
-            case 'w': // fall through
-            case 'a': // fall through
+            case 'w':
+            case 'a':
             case 'q':
+            case 'B':
                 if (base->fType.columns() >= 4) {
                     swizzleComponents.push_back(3);
                     break;

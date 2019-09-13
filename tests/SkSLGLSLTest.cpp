@@ -2300,21 +2300,91 @@ DEF_TEST(SkSLWorkaroundRemovePowWithConstantExponent, r) {
          );
 }
 
+DEF_TEST(SkSLSwizzleLTRB, r) {
+    test(r,
+         "void main() {"
+         "    sk_FragColor = sk_FragColor.BRTL;"
+         "}",
+         *SkSL::ShaderCapsFactory::RemovePowWithConstantExponent(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor = sk_FragColor.wzyx;\n"
+         "}\n",
+         SkSL::Program::kFragment_Kind
+         );
+}
+
 DEF_TEST(SkSLSwizzleConstants, r) {
     test(r,
          "void main() {"
          "    half4 v = half4(half(sqrt(1)));"
-         "    sk_FragColor = v.rgb1;"
-         "    half4 c = half4(1);"
-         "    sk_FragColor = c.rgb0;"
+         "    sk_FragColor = half4(v.x, 1, 1, 1);"
+         "    sk_FragColor = half4(v.1, 1, 1, 1);"
+         "    sk_FragColor = half4(v.xy, 1, 1);"
+         "    sk_FragColor = half4(v.x1, 1, 1);"
+         "    sk_FragColor = half4(v.0y, 1, 1);"
+         "    sk_FragColor = half4(v.10, 1, 1);"
+         "    sk_FragColor = half4(v.xyz, 1);"
+         "    sk_FragColor = half4(v.xy1, 1);"
+         "    sk_FragColor = half4(v.x0z, 1);"
+         "    sk_FragColor = half4(v.x10, 1);"
+         "    sk_FragColor = half4(v.1yz, 1);"
+         "    sk_FragColor = half4(v.0y1, 1);"
+         "    sk_FragColor = half4(v.11z, 1);"
+         "    sk_FragColor = half4(v.101, 1);"
+         "    sk_FragColor = v.xyzw;"
+         "    sk_FragColor = v.xyz1;"
+         "    sk_FragColor = v.xy0w;"
+         "    sk_FragColor = v.xy10;"
+         "    sk_FragColor = v.x1zw;"
+         "    sk_FragColor = v.x0z1;"
+         "    sk_FragColor = v.x11w;"
+         "    sk_FragColor = v.x101;"
+         "    sk_FragColor = v.1yzw;"
+         "    sk_FragColor = v.0yz1;"
+         "    sk_FragColor = v.0y1w;"
+         "    sk_FragColor = v.1y11;"
+         "    sk_FragColor = v.00zw;"
+         "    sk_FragColor = v.00z1;"
+         "    sk_FragColor = v.011w;"
+         "    sk_FragColor = v.1101;"
          "}",
          *SkSL::ShaderCapsFactory::RemovePowWithConstantExponent(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
          "    vec4 v = vec4(sqrt(1.0));\n"
+         "    sk_FragColor = vec4(v.x, 1.0, 1.0, 1.0);\n"
+         "    sk_FragColor = vec4(1, 1.0, 1.0, 1.0);\n"
+         "    sk_FragColor = vec4(v.xy, 1.0, 1.0);\n"
+         "    sk_FragColor = vec4(vec2(v.x, 1), 1.0, 1.0);\n"
+         "    sk_FragColor = vec4(vec2(0, v.y), 1.0, 1.0);\n"
+         "    sk_FragColor = vec4(vec2(1, 0), 1.0, 1.0);\n"
+         "    sk_FragColor = vec4(v.xyz, 1.0);\n"
+         "    sk_FragColor = vec4(vec3(v.xy, 1), 1.0);\n"
+         "    sk_FragColor = vec4(vec3(v.xz, 0).xzy, 1.0);\n"
+         "    sk_FragColor = vec4(vec3(v.x, 1, 0), 1.0);\n"
+         "    sk_FragColor = vec4(vec3(1, v.yz), 1.0);\n"
+         "    sk_FragColor = vec4(vec3(v.y, 0, 1).yxz, 1.0);\n"
+         "    sk_FragColor = vec4(vec3(1, 1, v.z), 1.0);\n"
+         "    sk_FragColor = vec4(vec3(1, 0, 1), 1.0);\n"
+         "    sk_FragColor = v.xyzw;\n"
          "    sk_FragColor = vec4(v.xyz, 1);\n"
-         "    sk_FragColor = vec4(vec4(1.0).xyz, 0);\n"
+         "    sk_FragColor = vec4(v.xyw, 0).xywz;\n"
+         "    sk_FragColor = vec4(v.xy, 1, 0);\n"
+         "    sk_FragColor = vec4(v.xzw, 1).xwyz;\n"
+         "    sk_FragColor = vec4(v.xz, 0, 1).xzyw;\n"
+         "    sk_FragColor = vec4(v.xw, 1, 1).xzwy;\n"
+         "    sk_FragColor = vec4(v.x, 1, 0, 1);\n"
+         "    sk_FragColor = vec4(1, v.yzw);\n"
+         "    sk_FragColor = vec4(v.yz, 0, 1).zxyw;\n"
+         "    sk_FragColor = vec4(v.yw, 0, 1).zxwy;\n"
+         "    sk_FragColor = vec4(v.y, 1, 1, 1).yxzw;\n"
+         "    sk_FragColor = vec4(0, 0, v.zw);\n"
+         "    sk_FragColor = vec4(v.z, 0, 0, 1).yzxw;\n"
+         "    sk_FragColor = vec4(0, 1, 1, v.w);\n"
+         "    sk_FragColor = vec4(1, 1, 0, 1);\n"
          "}\n",
          SkSL::Program::kFragment_Kind
          );

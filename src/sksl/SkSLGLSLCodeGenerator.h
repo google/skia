@@ -83,6 +83,11 @@ public:
     bool generateCode() override;
 
 protected:
+    enum class SwizzleOrder {
+        MASK_FIRST,
+        CONSTANTS_FIRST
+    };
+
     void write(const char* s);
 
     void writeLine();
@@ -153,6 +158,15 @@ protected:
 
     virtual void writeFieldAccess(const FieldAccess& f);
 
+    void writeConstantSwizzle(const Swizzle& swizzle, const String& constants);
+
+    void writeSwizzleMask(const Swizzle& swizzle, const String& mask);
+
+    void writeSwizzleConstructor(const Swizzle& swizzle, const String& constants,
+                                 const String& mask, SwizzleOrder order);
+
+    void writeSwizzleConstructor(const Swizzle& swizzle, const String& constants,
+                                 const String& mask, const String& reswizzle);
     virtual void writeSwizzle(const Swizzle& swizzle);
 
     static Precedence GetBinaryPrecedence(Token::Kind op);
