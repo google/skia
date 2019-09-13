@@ -29,23 +29,18 @@
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 
-static bool is_valid_fully_lazy(const GrSurfaceDesc& desc, SkBackingFit fit) {
-    return desc.fWidth <= 0 &&
-           desc.fHeight <= 0 &&
-           desc.fConfig != kUnknown_GrPixelConfig &&
-           SkBackingFit::kApprox == fit;
-}
-
-static bool is_valid_partially_lazy(const GrSurfaceDesc& desc) {
-    return ((desc.fWidth > 0 && desc.fHeight > 0) ||
-            (desc.fWidth <= 0 && desc.fHeight <= 0))  &&
-           desc.fConfig != kUnknown_GrPixelConfig;
+static bool is_valid_lazy(const GrSurfaceDesc& desc, SkBackingFit fit) {
+    // A "fully" lazy proxy's width and height are not known until instantiation time.
+    // So fully lazy proxies are created with width and height < 0. Regular lazy proxies must be
+    // created with positive widths and heights. The width and height are set to 0 only after a
+    // failed instantiation. The former must be "approximate" fit while the latter can be either.
+    return desc.fConfig != kUnknown_GrPixelConfig &&
+           ((desc.fWidth < 0 && desc.fHeight < 0 && SkBackingFit::kApprox == fit) ||
+            (desc.fWidth > 0 && desc.fHeight > 0));
 }
 
 static bool is_valid_non_lazy(const GrSurfaceDesc& desc) {
-    return desc.fWidth > 0 &&
-           desc.fHeight > 0 &&
-           desc.fConfig != kUnknown_GrPixelConfig;
+    return desc.fWidth > 0 && desc.fHeight > 0 && desc.fConfig != kUnknown_GrPixelConfig;
 }
 #endif
 
@@ -107,7 +102,7 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback,
         , fGpuMemorySize(kInvalidGpuMemorySize) {
     SkASSERT(fFormat.isValid());
     SkASSERT(fLazyInstantiateCallback);
-    SkASSERT(is_valid_fully_lazy(desc, fit) || is_valid_partially_lazy(desc));
+    SkASSERT(is_valid_lazy(desc, fit));
     if (GrPixelConfigIsCompressed(desc.fConfig)) {
         SkASSERT(renderable == GrRenderable::kNo);
         fSurfaceFlags |= GrInternalSurfaceFlags::kReadOnly;
@@ -507,11 +502,10 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
         return false;
     }
 
-    if (fProxy->fWidth <= 0 || fProxy->fHeight <= 0) {
+    if (fProxy->isFullyLazy()) {
         // This was a fully lazy proxy. We need to fill in the width & height. For partially
         // lazy proxies we must preserve the original width & height since that indicates
         // the content area.
-        SkASSERT(fProxy->fWidth <= 0 && fProxy->fHeight <= 0);
         fProxy->fWidth = surface->width();
         fProxy->fHeight = surface->height();
     }
