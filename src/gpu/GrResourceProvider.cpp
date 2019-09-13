@@ -306,6 +306,7 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         return nullptr;
     }
 
+<<<<<<< HEAD   (6d1c0d Avoid use of SkMatrixImageFilter to handle CTM for backdrop )
     if (auto tex = this->refScratchTexture(desc, format, renderable, renderTargetSampleCnt,
                                            isProtected, flags)) {
         return tex;
@@ -313,18 +314,24 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
 
     SkTCopyOnFirstWrite<GrSurfaceDesc> copyDesc(desc);
 
+=======
+>>>>>>> CHANGE (bd2f07 Always create an approx-size texture for approx-fit proxies)
     // bin by some multiple or power of 2 with a reasonable min
-    if (fGpu->caps()->reuseScratchTextures() || renderable == GrRenderable::kYes) {
-        GrSurfaceDesc* wdesc = copyDesc.writable();
-        wdesc->fWidth = MakeApprox(wdesc->fWidth);
-        wdesc->fHeight = MakeApprox(wdesc->fHeight);
-    }
+    GrSurfaceDesc copyDesc(desc);
+    copyDesc.fWidth = MakeApprox(desc.fWidth);
+    copyDesc.fHeight = MakeApprox(desc.fHeight);
 
+<<<<<<< HEAD   (6d1c0d Avoid use of SkMatrixImageFilter to handle CTM for backdrop )
     if (auto tex = this->refScratchTexture(*copyDesc, format, renderable, renderTargetSampleCnt,
                                            isProtected, flags)) {
+=======
+    if (auto tex = this->refScratchTexture(copyDesc, format, renderable, renderTargetSampleCnt,
+                                           isProtected)) {
+>>>>>>> CHANGE (bd2f07 Always create an approx-size texture for approx-fit proxies)
         return tex;
     }
 
+<<<<<<< HEAD   (6d1c0d Avoid use of SkMatrixImageFilter to handle CTM for backdrop )
     if (this->caps()->createTextureMustSpecifyAllLevels()) {
         size_t rowBytes = GrBytesPerPixel(copyDesc->fConfig) * copyDesc->fWidth;
         size_t size = rowBytes * copyDesc->fHeight;
@@ -336,6 +343,9 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
                                    SkBudgeted::kYes, isProtected, &level, 1);
     }
     return fGpu->createTexture(*copyDesc, format, renderable, renderTargetSampleCnt,
+=======
+    return fGpu->createTexture(copyDesc, format, renderable, renderTargetSampleCnt,
+>>>>>>> CHANGE (bd2f07 Always create an approx-size texture for approx-fit proxies)
                                SkBudgeted::kYes, isProtected);
 }
 
