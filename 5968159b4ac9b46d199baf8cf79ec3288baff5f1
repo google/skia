@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5fe309f2_e3edd1f8",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-09-13T20:22:13Z",
+      "side": 1,
+      "message": "Never know a great way to transition return-types from getters, hence the cast.\n\nEasy (as I\u0027ve done in the past) to grep for (NewType) after everyone is transitioned and remove the casts.",
+      "parentUuid": "46c5a633_dc3ab73a",
+      "revId": "5968159b4ac9b46d199baf8cf79ec3288baff5f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f08d0045_87655ef2",
         "filename": "src/gpu/GrDistanceFieldGenFromVector.cpp",
         "patchSetId": 5
