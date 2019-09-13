@@ -120,8 +120,9 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
     desc.fHeight = kTextureHeight;
     desc.fConfig = GrColorTypeToPixelConfig(colorType);
 
-    sk_sp<GrTexture> tex = resourceProvider->createTexture(desc, backendFormat, renderable, 1,
-                                                           SkBudgeted::kNo, GrProtected::kNo);
+    sk_sp<GrTexture> tex =
+            resourceProvider->createTexture(desc, backendFormat, renderable, 1, GrMipMapped::kNo,
+                                            SkBudgeted::kNo, GrProtected::kNo);
     if (!tex) {
         ERRORF(reporter, "Could not create texture");
         return;
@@ -289,7 +290,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     data.fPixels = textureData.get();
     data.fRowBytes = textureDataRowBytes;
     sk_sp<GrTexture> tex = resourceProvider->createTexture(
-            desc, format, renderable, 1, SkBudgeted::kNo, GrProtected::kNo, &data, 1);
+            desc, format, colorType, renderable, 1, SkBudgeted::kNo, GrProtected::kNo, &data, 1);
     if (!tex) {
         return;
     }
