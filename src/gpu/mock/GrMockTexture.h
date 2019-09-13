@@ -194,12 +194,6 @@ private:
                                       numColorSamples,
                                       this->texturePriv().mipMapped());
     }
-
-    void computeScratchKey(GrScratchKey* key) const override {
-        GrTexturePriv::ComputeScratchKey(this->config(), this->width(), this->height(),
-                                         GrRenderable::kYes, this->numSamples(),
-                                         this->texturePriv().mipMapped(), key);
-    }
 };
 
 #endif

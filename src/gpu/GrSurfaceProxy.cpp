@@ -281,7 +281,7 @@ void GrSurfaceProxy::computeScratchKey(GrScratchKey* key) const {
     int height = this->worstCaseHeight();
 
     GrTexturePriv::ComputeScratchKey(this->config(), width, height, renderable, sampleCount,
-                                     mipMapped, key);
+                                     mipMapped, fIsProtected, key);
 }
 
 void GrSurfaceProxy::setLastRenderTask(GrRenderTask* renderTask) {
