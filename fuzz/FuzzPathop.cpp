@@ -25,8 +25,8 @@ DEF_FUZZ(Pathop, fuzz) {
             for (uint8_t i = 0; i < ops && !fuzz->exhausted(); i++) {
                 SkPath path;
                 FuzzEvilPath(fuzz, &path, SkPath::Verb::kDone_Verb);
-                SkPath::FillType ft;
-                fuzz->nextRange(&ft, 0, SkPath::kInverseEvenOdd_FillType);
+                SkPathFillType ft;
+                fuzz->nextRange(&ft, 0, SkPathFillType::kInverseEvenOdd);
                 path.setFillType(ft);
 
                 SkPathOp op;
@@ -41,8 +41,8 @@ DEF_FUZZ(Pathop, fuzz) {
         case 1: {
             SkPath path;
             FuzzEvilPath(fuzz, &path, SkPath::Verb::kDone_Verb);
-            SkPath::FillType ft;
-            fuzz->nextRange(&ft, 0, SkPath::kInverseEvenOdd_FillType);
+            SkPathFillType ft;
+            fuzz->nextRange(&ft, 0, SkPathFillType::kInverseEvenOdd);
             path.setFillType(ft);
 
             SkPath result;
@@ -57,13 +57,13 @@ DEF_FUZZ(Pathop, fuzz) {
         case 2: {
             SkPath path;
             FuzzEvilPath(fuzz, &path, SkPath::Verb::kDone_Verb);
-            SkPath::FillType ft;
-            fuzz->nextRange(&ft, 0, SkPath::kInverseEvenOdd_FillType);
+            SkPathFillType ft;
+            fuzz->nextRange(&ft, 0, SkPathFillType::kInverseEvenOdd);
             path.setFillType(ft);
 
             SkPath path2;
             FuzzEvilPath(fuzz, &path2, SkPath::Verb::kDone_Verb);
-            fuzz->nextRange(&ft, 0, SkPath::kInverseEvenOdd_FillType);
+            fuzz->nextRange(&ft, 0, SkPathFillType::kInverseEvenOdd);
             path.setFillType(ft);
 
             SkPathOp op;
@@ -83,8 +83,8 @@ DEF_FUZZ(Pathop, fuzz) {
         case 3: {
             SkPath path;
             FuzzEvilPath(fuzz, &path, SkPath::Verb::kDone_Verb);
-            SkPath::FillType ft;
-            fuzz->nextRange(&ft, 0, SkPath::kInverseEvenOdd_FillType);
+            SkPathFillType ft;
+            fuzz->nextRange(&ft, 0, SkPathFillType::kInverseEvenOdd);
             path.setFillType(ft);
 
             SkPath result;
@@ -99,8 +99,8 @@ DEF_FUZZ(Pathop, fuzz) {
         case 4: {
             SkPath path;
             FuzzEvilPath(fuzz, &path, SkPath::Verb::kDone_Verb);
-            SkPath::FillType ft;
-            fuzz->nextRange(&ft, 0, SkPath::kInverseEvenOdd_FillType);
+            SkPathFillType ft;
+            fuzz->nextRange(&ft, 0, SkPathFillType::kInverseEvenOdd);
             path.setFillType(ft);
 
             SkRect result;

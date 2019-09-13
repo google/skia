@@ -503,7 +503,7 @@ EMSCRIPTEN_BINDINGS(skia) {
         .function("_rect", &ApplyAddRect)
 
         // Extra features
-        .function("setFillType", &SkPath::setFillType)
+        .function("setFillType", select_overload<void(SkPathFillType)>(&SkPath::setFillType))
         .function("getFillType", &SkPath::getFillType)
         .function("getFillTypeString", &GetFillTypeString)
         .function("getBounds", &SkPath::getBounds)

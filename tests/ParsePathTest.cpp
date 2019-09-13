@@ -60,7 +60,7 @@ DEF_TEST(ParsePath, reporter) {
     test_to_from(reporter, p);
     p.addOval(r);
     test_to_from(reporter, p);
-    p.addRoundRect(r, 4, 4.5f);
+    p.addRRect(SkRRect::MakeRectXY(r, 4, 4.5f));
     test_to_from(reporter, p);
 }
 

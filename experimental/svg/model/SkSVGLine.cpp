@@ -64,7 +64,7 @@ std::tuple<SkPoint, SkPoint> SkSVGLine::resolve(const SkSVGLengthContext& lctx) 
 }
 
 void SkSVGLine::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
-                       const SkPaint& paint, SkPath::FillType) const {
+                       const SkPaint& paint, SkPathFillType) const {
     SkPoint p0, p1;
     std::tie(p0, p1) = this->resolve(lctx);
 
