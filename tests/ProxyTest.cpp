@@ -83,6 +83,17 @@ static void check_texture(skiatest::Reporter* reporter,
     GrSurfaceProxy::UniqueID idBefore = texProxy->uniqueID();
 
     bool preinstantiated = texProxy->isInstantiated();
+    // The instantiated texture should have these dimensions. If the fit is kExact, then
+    // 'worst-case' reports the original WxH. If it is kApprox, make sure that the texture
+    // is that size and didn't reuse one of the kExact surfaces in the provider. This is important
+    // because upstream usage (e.g. SkImage) reports size based on the worst case dimensions and
+    // client code may rely on that if they are creating backend resources.
+    // NOTE: we store these before instantiating, since after instantiation worstCaseWH() just
+    // return the target's dimensions. In this instance, we want to ensure the target's dimensions
+    // are no different from the original approximate (or exact) dimensions.
+    int expectedWidth = texProxy->worstCaseWidth();
+    int expectedHeight = texProxy->worstCaseHeight();
+
     REPORTER_ASSERT(reporter, texProxy->instantiate(provider));
     GrTexture* tex = texProxy->peekTexture();
 
@@ -94,13 +105,9 @@ static void check_texture(skiatest::Reporter* reporter,
         REPORTER_ASSERT(reporter, texProxy->uniqueID().asUInt() != tex->uniqueID().asUInt());
     }
 
-    if (SkBackingFit::kExact == fit) {
-        REPORTER_ASSERT(reporter, tex->width() == texProxy->width());
-        REPORTER_ASSERT(reporter, tex->height() == texProxy->height());
-    } else {
-        REPORTER_ASSERT(reporter, tex->width() >= texProxy->width());
-        REPORTER_ASSERT(reporter, tex->height() >= texProxy->height());
-    }
+    REPORTER_ASSERT(reporter, tex->width() == expectedWidth);
+    REPORTER_ASSERT(reporter, tex->height() == expectedHeight);
+
     REPORTER_ASSERT(reporter, tex->config() == texProxy->config());
 }
 
