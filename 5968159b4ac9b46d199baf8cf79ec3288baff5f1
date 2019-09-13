@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46c5a633_dc3ab73a",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-13T19:58:14Z",
+      "side": 1,
+      "message": "Is there some way to rewrite this to break when you flip the switch? Maybe assign to a FillType local? I\u0027m thinking nobody will remember to clean it up :)",
+      "revId": "5968159b4ac9b46d199baf8cf79ec3288baff5f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f08d0045_87655ef2",
+        "filename": "src/gpu/GrDistanceFieldGenFromVector.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 832,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-13T19:58:14Z",
+      "side": 1,
+      "message": "Ditto.",
+      "revId": "5968159b4ac9b46d199baf8cf79ec3288baff5f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c58b7b5_013442de",
+        "filename": "src/pathops/SkPathOpsAsWinding.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-13T19:58:14Z",
+      "side": 1,
+      "message": "Ditto.",
+      "revId": "5968159b4ac9b46d199baf8cf79ec3288baff5f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60d32ca0_050af907",
+        "filename": "src/pathops/SkPathOpsDebug.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2930,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-13T19:58:14Z",
+      "side": 1,
+      "message": "Ditto.",
+      "revId": "5968159b4ac9b46d199baf8cf79ec3288baff5f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f431b2f_4b7c4e25",
+        "filename": "src/pdf/SkPDFGraphicStackState.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-13T19:58:14Z",
+      "side": 1,
+      "message": "Ditto.",
+      "revId": "5968159b4ac9b46d199baf8cf79ec3288baff5f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14572192_be85cee3",
+        "filename": "src/utils/SkLua.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1266,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-13T19:58:14Z",
+      "side": 1,
+      "message": "Ditto.",
+      "revId": "5968159b4ac9b46d199baf8cf79ec3288baff5f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb6eae4d_f39bebf5",
+        "filename": "src/utils/SkLua.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1314,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-13T19:58:14Z",
+      "side": 1,
+      "message": "Ditto.",
+      "revId": "5968159b4ac9b46d199baf8cf79ec3288baff5f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
