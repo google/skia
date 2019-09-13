@@ -1873,12 +1873,13 @@ ASTNode::ID Parser::postfixExpression() {
     }
     for (;;) {
         switch (this->peek().fKind) {
-            case Token::LBRACKET:   // fall through
-            case Token::DOT:        // fall through
-            case Token::LPAREN:     // fall through
-            case Token::PLUSPLUS:   // fall through
-            case Token::MINUSMINUS: // fall through
+            case Token::LBRACKET:
+            case Token::DOT:
+            case Token::LPAREN:
+            case Token::PLUSPLUS:
+            case Token::MINUSMINUS:
             case Token::COLONCOLON:
+            case Token::FLOAT_LITERAL:
                 result = this->suffix(result);
                 if (!result) {
                     return ASTNode::ID::Invalid();
@@ -1891,7 +1892,7 @@ ASTNode::ID Parser::postfixExpression() {
 }
 
 /* LBRACKET expression? RBRACKET | DOT IDENTIFIER | LPAREN parameters RPAREN |
-   PLUSPLUS | MINUSMINUS | COLONCOLON IDENTIFIER */
+   PLUSPLUS | MINUSMINUS | COLONCOLON IDENTIFIER | FLOAT_LITERAL [IDENTIFIER] */
 ASTNode::ID Parser::suffix(ASTNode::ID base) {
     SkASSERT(base);
     Token next = this->nextToken();
@@ -1925,7 +1926,31 @@ ASTNode::ID Parser::suffix(ASTNode::ID base) {
                 getNode(result).addChild(base);
                 return result;
             }
-            return ASTNode::ID::Invalid();
+        }
+        case Token::FLOAT_LITERAL: {
+            // Swizzles that start with a constant number, e.g. '.000r', will be tokenized as
+            // floating point literals, possibly followed by an identifier. Handle that here.
+            StringFragment field = this->text(next);
+            SkASSERT(field.fChars[0] == '.');
+            ++field.fChars;
+            --field.fLength;
+            for (size_t i = 0; i < field.fLength; ++i) {
+                if (field.fChars[i] != '0' && field.fChars[i] != '1') {
+                    this->error(next, "invalid swizzle");
+                    return ASTNode::ID::Invalid();
+                }
+            }
+            // use the next *raw* token so we don't ignore whitespace - we only care about
+            // identifiers that directly follow the float
+            Token id = this->nextRawToken();
+            if (id.fKind == Token::IDENTIFIER) {
+                field.fLength += id.fLength;
+            } else {
+                this->pushback(id);
+            }
+            CREATE_NODE(result, next.fOffset, ASTNode::Kind::kField, field);
+            getNode(result).addChild(base);
+            return result;
         }
         case Token::LPAREN: {
             CREATE_NODE(result, next.fOffset, ASTNode::Kind::kCall);
