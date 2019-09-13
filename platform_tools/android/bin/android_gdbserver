@@ -49,7 +49,7 @@ for library_file in \
     libEGL.so \
     libGLESv2.so \
     ; do
-    ANDROID_LS=`$ADB $DEVICE_SERIAL shell ls -ld ${SYSTEM_LIBRARY_PATH}/${library_file}`
+    ANDROID_LS=`$ADB $DEVICE_SERIAL shell -x ls -ld ${SYSTEM_LIBRARY_PATH}/${library_file}`
     if [ "${ANDROID_LS:0:1}" == "-" ]; then
       adb_pull_if_needed "${SYSTEM_LIBRARY_PATH}/${library_file}" $GDB_TMP_DIR
     fi
