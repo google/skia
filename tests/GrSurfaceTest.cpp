@@ -34,8 +34,9 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     auto format = context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                   GrRenderable::kYes);
-    sk_sp<GrSurface> texRT1 = resourceProvider->createTexture(
-            desc, format, GrRenderable::kYes, 1, SkBudgeted::kNo, GrProtected::kNo);
+    sk_sp<GrSurface> texRT1 =
+            resourceProvider->createTexture(desc, format, GrRenderable::kYes, 1, GrMipMapped::kNo,
+                                            SkBudgeted::kNo, GrProtected::kNo);
 
     REPORTER_ASSERT(reporter, texRT1.get() == texRT1->asRenderTarget());
     REPORTER_ASSERT(reporter, texRT1.get() == texRT1->asTexture());
@@ -46,8 +47,9 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(texRT1->asRenderTarget()) ==
                     static_cast<GrSurface*>(texRT1->asTexture()));
 
-    sk_sp<GrTexture> tex1 = resourceProvider->createTexture(
-            desc, format, GrRenderable::kNo, 1, SkBudgeted::kNo, GrProtected::kNo);
+    sk_sp<GrTexture> tex1 =
+            resourceProvider->createTexture(desc, format, GrRenderable::kNo, 1, GrMipMapped::kNo,
+                                            SkBudgeted::kNo, GrProtected::kNo);
     REPORTER_ASSERT(reporter, nullptr == tex1->asRenderTarget());
     REPORTER_ASSERT(reporter, tex1.get() == tex1->asTexture());
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1.get()) == tex1->asTexture());
@@ -112,8 +114,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             desc.fWidth = width;
             desc.fHeight = height;
             desc.fConfig = config;
-            return rp->createTexture(desc, format, renderable, 1,
-                                     SkBudgeted::kNo, GrProtected::kNo);
+            return rp->createTexture(desc, format, renderable, 1, GrMipMapped::kNo, SkBudgeted::kNo,
+                                     GrProtected::kNo);
         }
     };
 
@@ -183,8 +185,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                 bool isRenderable = caps->isFormatRenderable(combo.fFormat, 1);
 
                 sk_sp<GrSurface> tex = resourceProvider->createTexture(
-                        desc, combo.fFormat, GrRenderable::kYes, 1, SkBudgeted::kNo,
-                        GrProtected::kNo);
+                        desc, combo.fFormat, GrRenderable::kYes, 1, GrMipMapped::kNo,
+                        SkBudgeted::kNo, GrProtected::kNo);
                 REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
                                 "ct:%s format:%s, tex:%d, isRenderable:%d",
                                 GrColorTypeToStr(combo.fColorType),
@@ -197,8 +199,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                 bool isRenderable = caps->isFormatRenderable(combo.fFormat, 2);
 
                 sk_sp<GrSurface> tex = resourceProvider->createTexture(
-                        desc, combo.fFormat, GrRenderable::kYes, 2, SkBudgeted::kNo,
-                        GrProtected::kNo);
+                        desc, combo.fFormat, GrRenderable::kYes, 2, GrMipMapped::kNo,
+                        SkBudgeted::kNo, GrProtected::kNo);
                 REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
                                 "ct:%s format:%s, tex:%d, isRenderable:%d",
                                 GrColorTypeToStr(combo.fColorType),
@@ -490,7 +492,7 @@ static sk_sp<GrTexture> make_normal_texture(GrContext* context, GrRenderable ren
     auto format =
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888, renderable);
     return context->priv().resourceProvider()->createTexture(
-            desc, format, renderable, 1, SkBudgeted::kNo, GrProtected::kNo);
+            desc, format, renderable, 1, GrMipMapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
 }
 
 DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
