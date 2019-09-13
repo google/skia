@@ -34,7 +34,7 @@ public:
                      doAA ? "AA" : "BW");
 
         fClipRect.setLTRB(10.5f, 10.5f, 50.5f, 50.5f);
-        fClipPath.addRoundRect(fClipRect, SkIntToScalar(10), SkIntToScalar(10));
+        fClipPath.addRRect(SkRRect::MakeRectXY(fClipRect, SkIntToScalar(10), SkIntToScalar(10)));
         fDrawRect.setWH(100, 100);
 
         SkASSERT(fClipPath.isConvex());
