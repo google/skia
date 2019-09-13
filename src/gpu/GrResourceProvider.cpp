@@ -124,9 +124,10 @@ sk_sp<GrTexture> GrResourceProvider::getExactScratch(const GrSurfaceDesc& desc,
                                                      GrRenderable renderable,
                                                      int renderTargetSampleCnt,
                                                      SkBudgeted budgeted,
+                                                     GrMipMapped mipMapped,
                                                      GrProtected isProtected) {
     sk_sp<GrTexture> tex(this->refScratchTexture(desc, format, renderable, renderTargetSampleCnt,
-                                                 isProtected));
+                                                 mipMapped, isProtected));
     if (tex && SkBudgeted::kNo == budgeted) {
         tex->resourcePriv().makeUnbudgeted();
     }
@@ -223,9 +224,9 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
 
     // Compressed textures are read-only so they don't support re-use for scratch.
     // TODO: Support GrMipMapped::kYes in scratch texture lookup here.
-    if (!GrPixelConfigIsCompressed(desc.fConfig) && mipMapped == GrMipMapped::kNo) {
+    if (!GrPixelConfigIsCompressed(desc.fConfig)) {
         sk_sp<GrTexture> tex = this->getExactScratch(
-                desc, format, renderable, renderTargetSampleCnt, budgeted, isProtected);
+                desc, format, renderable, renderTargetSampleCnt, budgeted, mipMapped, isProtected);
         if (tex) {
             return tex;
         }
@@ -288,7 +289,7 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
     copyDesc.fHeight = MakeApprox(desc.fHeight);
 
     if (auto tex = this->refScratchTexture(copyDesc, format, renderable, renderTargetSampleCnt,
-                                           isProtected)) {
+                                           GrMipMapped::kNo, isProtected)) {
         return tex;
     }
 
@@ -300,6 +301,7 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc
                                                        const GrBackendFormat& format,
                                                        GrRenderable renderable,
                                                        int renderTargetSampleCnt,
+                                                       GrMipMapped mipMapped,
                                                        GrProtected isProtected) {
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
@@ -311,7 +313,8 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc
     // to fall back to making a new texture.
     if (fGpu->caps()->reuseScratchTextures() || renderable == GrRenderable::kYes) {
         GrScratchKey key;
-        GrTexturePriv::ComputeScratchKey(desc, renderable, renderTargetSampleCnt, &key);
+        GrTexturePriv::ComputeScratchKey(desc.fConfig, desc.fWidth, desc.fHeight, renderable,
+                                         renderTargetSampleCnt, mipMapped, isProtected, &key);
         GrGpuResource* resource = fCache->findAndRefScratchResource(key);
         if (resource) {
             fGpu->stats()->incNumScratchTexturesReused();
