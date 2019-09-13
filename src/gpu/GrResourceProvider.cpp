@@ -281,11 +281,6 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         return nullptr;
     }
 
-    if (auto tex = this->refScratchTexture(desc, format, renderable, renderTargetSampleCnt,
-                                           isProtected)) {
-        return tex;
-    }
-
     SkTCopyOnFirstWrite<GrSurfaceDesc> copyDesc(desc);
 
     // bin by some multiple or power of 2 with a reasonable min
