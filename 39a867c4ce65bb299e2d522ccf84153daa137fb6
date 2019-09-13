@@ -22,6 +22,30 @@
       "revId": "39a867c4ce65bb299e2d522ccf84153daa137fb6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4761f0d_f3a7a415",
+        "filename": "include/core/SkPathTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-09-13T12:27:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e1d5fb06_fb98cb62",
+      "range": {
+        "startLine": 2,
+        "startChar": 25,
+        "endLine": 2,
+        "endChar": 28
+      },
+      "revId": "39a867c4ce65bb299e2d522ccf84153daa137fb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
