@@ -674,7 +674,7 @@ static SkCodec::Result reset_and_decode_image_config(wuffs_gif__decoder*       d
         return SkCodec::kInternalError;
     }
     while (true) {
-        status = decoder->decode_image_config(imgcfg, b->reader());
+        status = decoder->decode_image_config(imgcfg, b);
         if (status == nullptr) {
             break;
         } else if (status != wuffs_base__suspension__short_read) {
