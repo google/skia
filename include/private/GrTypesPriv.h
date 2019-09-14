@@ -251,12 +251,12 @@ enum class GrFillRule : bool {
 };
 
 inline GrFillRule GrFillRuleForSkPath(const SkPath& path) {
-    switch ((SkPathFillType)path.getFillType()) {
-        case SkPathFillType::kWinding:
-        case SkPathFillType::kInverseWinding:
+    switch (path.getFillType()) {
+        case SkPath::kWinding_FillType:
+        case SkPath::kInverseWinding_FillType:
             return GrFillRule::kNonzero;
-        case SkPathFillType::kEvenOdd:
-        case SkPathFillType::kInverseEvenOdd:
+        case SkPath::kEvenOdd_FillType:
+        case SkPath::kInverseEvenOdd_FillType:
             return GrFillRule::kEvenOdd;
     }
     SkUNREACHABLE;

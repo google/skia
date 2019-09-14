@@ -70,7 +70,7 @@ class AAClipView : public Sample {
 
 //        path.addRect(bounds);
 //        path.addOval(bounds);
-        path.addRRect(SkRRect::MakeRectXY(bounds, 4, 4));
+        path.addRoundRect(bounds, 4, 4);
         aaclip.setPath(path);
         canvas->translate(30, 30);
         drawClip(canvas, aaclip);

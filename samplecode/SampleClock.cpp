@@ -160,7 +160,7 @@ class ClockView : public Sample {
 #ifdef USE_PATH
         path.reset();
         path.arcTo(rect, 0, 0, false);
-        path.addOval(rect, SkPathDirection::kCCW);
+        path.addOval(rect, SkPath::kCCW_Direction);
         path.arcTo(rect, 360, 0, true);
         canvas->drawPath(path, paintFill);
 #else
@@ -170,7 +170,7 @@ class ClockView : public Sample {
 #ifdef USE_PATH
         path.reset();
         path.arcTo(rect, 0, 0, false);
-        path.addOval(rect, SkPathDirection::kCCW);
+        path.addOval(rect, SkPath::kCCW_Direction);
         path.arcTo(rect, 360, 0, true);
         canvas->drawPath(path, paintStroke);
 #else
@@ -180,7 +180,7 @@ class ClockView : public Sample {
 #ifdef USE_PATH
         rect = SkRect::MakeLTRB(-6, -6, 6, 6);
         path.arcTo(rect, 0, 0, false);
-        path.addOval(rect, SkPathDirection::kCCW);
+        path.addOval(rect, SkPath::kCCW_Direction);
         path.arcTo(rect, 360, 0, true);
         canvas->drawPath(path, paintFill);
 #else
@@ -196,7 +196,7 @@ class ClockView : public Sample {
 #ifdef USE_PATH
         path.reset();
         path.arcTo(rect, 0, 0, false);
-        path.addOval(rect, SkPathDirection::kCCW);
+        path.addOval(rect, SkPath::kCCW_Direction);
         path.arcTo(rect, 360, 0, true);
         canvas->drawPath(path, paintStroke);
 #else

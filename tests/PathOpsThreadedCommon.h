@@ -34,7 +34,7 @@ struct PathOpsThreadState {
     skiatest::Reporter* fReporter;
     SkBitmap* fBitmap;
 
-    void outputProgress(const char* pathStr, SkPathFillType);
+    void outputProgress(const char* pathStr, SkPath::FillType);
     void outputProgress(const char* pathStr, SkPathOp);
 };
 

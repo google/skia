@@ -27,7 +27,7 @@ public:
 protected:
     virtual SkString name() { return SkString("FillType"); }
 
-    void showPath(SkCanvas* canvas, int x, int y, SkPathFillType ft,
+    void showPath(SkCanvas* canvas, int x, int y, SkPath::FillType ft,
                   SkScalar scale, const SkPaint& paint) {
 
         const SkRect r = { 0, 0, SkIntToScalar(150), SkIntToScalar(150) };
@@ -45,10 +45,14 @@ protected:
     }
 
     void showFour(SkCanvas* canvas, SkScalar scale, const SkPaint& paint) {
-        showPath(canvas,   0,   0, SkPathFillType::kWinding, scale, paint);
-        showPath(canvas, 200,   0, SkPathFillType::kEvenOdd, scale, paint);
-        showPath(canvas,  00, 200, SkPathFillType::kInverseWinding, scale, paint);
-        showPath(canvas, 200, 200, SkPathFillType::kInverseEvenOdd, scale, paint);
+        showPath(canvas,   0,   0, SkPath::kWinding_FillType,
+                 scale, paint);
+        showPath(canvas, 200,   0, SkPath::kEvenOdd_FillType,
+                 scale, paint);
+        showPath(canvas,  00, 200, SkPath::kInverseWinding_FillType,
+                 scale, paint);
+        showPath(canvas, 200, 200, SkPath::kInverseEvenOdd_FillType,
+                 scale, paint);
     }
 
     virtual void onDrawContent(SkCanvas* canvas) {

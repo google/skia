@@ -112,8 +112,8 @@ protected:
             "Z";
         SkParsePath::FromSVGString(str, &fPath);
 #else
-        fPath.addCircle(0, 0, SkIntToScalar(50), SkPathDirection::kCW);
-        fPath.addCircle(0, SkIntToScalar(-50), SkIntToScalar(30), SkPathDirection::kCW);
+        fPath.addCircle(0, 0, SkIntToScalar(50), SkPath::kCW_Direction);
+        fPath.addCircle(0, SkIntToScalar(-50), SkIntToScalar(30), SkPath::kCW_Direction);
 #endif
 
         scale_to_width(&fPath, fWidth);
@@ -192,11 +192,11 @@ protected:
         fPath.offset(100, 0);
 #endif
 
-        fPath.setFillType(SkPathFillType::kWinding);
+        fPath.setFillType(SkPath::kWinding_FillType);
         drawSet(canvas, &paint);
 
         canvas->translate(0, fPath.getBounds().height() * 5 / 4);
-        fPath.setFillType(SkPathFillType::kEvenOdd);
+        fPath.setFillType(SkPath::kEvenOdd_FillType);
         drawSet(canvas, &paint);
     }
 

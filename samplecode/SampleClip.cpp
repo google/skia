@@ -114,7 +114,7 @@ class ClipView : public Sample {
         SkRect r = { 0, 0, SkIntToScalar(W), SkIntToScalar(H) };
         SkPath clipPath;
         r.inset(SK_Scalar1 / 4, SK_Scalar1 / 4);
-        clipPath.addRRect(SkRRect::MakeRectXY(r, 20, 20));
+        clipPath.addRoundRect(r, SkIntToScalar(20), SkIntToScalar(20));
 
 //        clipPath.toggleInverseFillType();
 

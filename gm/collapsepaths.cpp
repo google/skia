@@ -21,7 +21,7 @@ void test_collapse1(SkCanvas* canvas, const SkPaint& paint) {
     path.moveTo(  370.50653076171875,   73.684051513671875);
     path.lineTo(  525.02093505859375, 208.6413726806640625);
     path.lineTo(    478.403564453125, 213.5998992919921875);
-    path.setFillType(SkPathFillType::kEvenOdd);
+    path.setFillType(SkPath::FillType::kEvenOdd_FillType);
     canvas->drawPath(path, paint);
 }
 
@@ -70,7 +70,7 @@ void test_collapse5(SkCanvas* canvas, const SkPaint& paint) {
     path.moveTo(154.6182708740234375,  188.230926513671875);
     path.lineTo( 430.242095947265625,   546.76605224609375);
     path.lineTo(      373.1005859375,    559.0906982421875);
-    path.setFillType(SkPathFillType::kEvenOdd);
+    path.setFillType(SkPath::FillType::kEvenOdd_FillType);
     canvas->drawPath(path, paint);
 }
 
@@ -83,7 +83,7 @@ void test_collapse6(SkCanvas* canvas, const SkPaint& paint) {
     path.moveTo(39.09362030029296875, 47.59223175048828125);
     path.lineTo(108.7822418212890625,  138.244110107421875);
     path.lineTo(94.33460235595703125,  141.360260009765625);
-    path.setFillType(SkPathFillType::kEvenOdd);
+    path.setFillType(SkPath::FillType::kEvenOdd_FillType);
     canvas->drawPath(path, paint);
 }
 
@@ -96,7 +96,7 @@ void test_collapse7(SkCanvas* canvas, const SkPaint& paint) {
     path.moveTo(40.33458709716796875, 49.10297393798828125);
     path.lineTo(112.2353668212890625,    142.6324462890625);
     path.lineTo(97.32910919189453125, 145.8475189208984375);
-    path.setFillType(SkPathFillType::kEvenOdd);
+    path.setFillType(SkPath::FillType::kEvenOdd_FillType);
     canvas->drawPath(path, paint);
 }
 
@@ -109,7 +109,7 @@ void test_collapse8(SkCanvas* canvas, const SkPaint& paint) {
     path.moveTo( 34.50,  42.00);
     path.lineTo( 96.00, 122.00);
     path.lineTo( 83.25, 124.75);
-    path.setFillType(SkPathFillType::kEvenOdd);
+    path.setFillType(SkPath::FillType::kEvenOdd_FillType);
     canvas->drawPath(path, paint);
 }
 
@@ -125,7 +125,7 @@ void test_collapse9(SkCanvas* canvas, const SkPaint& paint) {
     path.lineTo(SkDoubleToScalar(100.167),  SkDoubleToScalar(140.096));
     path.lineTo(SkDoubleToScalar( 99.0364), SkDoubleToScalar(140.364));
     path.lineTo(SkDoubleToScalar( 94.25),   SkDoubleToScalar(141.50));
-    path.setFillType(SkPathFillType::kEvenOdd);
+    path.setFillType(SkPath::FillType::kEvenOdd_FillType);
     canvas->drawPath(path, paint);
 }
 

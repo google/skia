@@ -8,15 +8,15 @@
 #ifndef SkPathMakers_DEFINED
 #define SkPathMakers_DEFINED
 
-#include "include/core/SkPathTypes.h"
+#include "include/core/SkPath.h"    // just for direction
 #include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
 
 template <unsigned N> class SkPath_PointIterator {
 public:
-    SkPath_PointIterator(SkPathDirection dir, unsigned startIndex)
+    SkPath_PointIterator(SkPath::Direction dir, unsigned startIndex)
     : fCurrent(startIndex % N)
-    , fAdvance(dir == SkPathDirection::kCW ? 1 : N - 1) { }
+    , fAdvance(dir == SkPath::kCW_Direction ? 1 : N - 1) { }
 
     const SkPoint& current() const {
         SkASSERT(fCurrent < N);
@@ -38,7 +38,7 @@ public:
 
 class SkPath_RectPointIterator : public SkPath_PointIterator<4> {
 public:
-    SkPath_RectPointIterator(const SkRect& rect, SkPathDirection dir, unsigned startIndex)
+    SkPath_RectPointIterator(const SkRect& rect, SkPath::Direction dir, unsigned startIndex)
         : SkPath_PointIterator(dir, startIndex) {
 
         fPts[0] = SkPoint::Make(rect.fLeft, rect.fTop);
@@ -50,7 +50,7 @@ public:
 
 class SkPath_OvalPointIterator : public SkPath_PointIterator<4> {
 public:
-    SkPath_OvalPointIterator(const SkRect& oval, SkPathDirection dir, unsigned startIndex)
+    SkPath_OvalPointIterator(const SkRect& oval, SkPath::Direction dir, unsigned startIndex)
         : SkPath_PointIterator(dir, startIndex) {
 
         const SkScalar cx = oval.centerX();
@@ -65,7 +65,7 @@ public:
 
 class SkPath_RRectPointIterator : public SkPath_PointIterator<8> {
 public:
-    SkPath_RRectPointIterator(const SkRRect& rrect, SkPathDirection dir, unsigned startIndex)
+    SkPath_RRectPointIterator(const SkRRect& rrect, SkPath::Direction dir, unsigned startIndex)
         : SkPath_PointIterator(dir, startIndex) {
 
         const SkRect& bounds = rrect.getBounds();

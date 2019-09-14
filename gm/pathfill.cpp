@@ -21,7 +21,7 @@ typedef SkScalar (*MakePathProc)(SkPath*);
 static SkScalar make_frame(SkPath* path) {
     SkRect r = { SkIntToScalar(10), SkIntToScalar(10),
                  SkIntToScalar(630), SkIntToScalar(470) };
-    path->addRRect(SkRRect::MakeRectXY(r, 15, 15));
+    path->addRoundRect(r, SkIntToScalar(15), SkIntToScalar(15));
 
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);

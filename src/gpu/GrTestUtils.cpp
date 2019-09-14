@@ -232,7 +232,7 @@ const SkPath& TestPathConvex(SkRandom* random) {
         gPath[2].lineTo(-50.0f,  31.0f);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gPath); i++) {
-            SkASSERT(SkPathConvexityType::kConvex == (SkPathConvexityType)gPath[i].getConvexity());
+            SkASSERT(SkPath::kConvex_Convexity == gPath[i].getConvexity());
         }
     }
 

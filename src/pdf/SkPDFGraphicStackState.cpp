@@ -104,10 +104,10 @@ static void apply_clip(const SkClipStack& stack, const SkRect& outerBounds, F fn
 
 static void append_clip_path(const SkPath& clipPath, SkWStream* wStream) {
     SkPDFUtils::EmitPath(clipPath, SkPaint::kFill_Style, wStream);
-    SkPathFillType clipFill = (SkPathFillType)clipPath.getFillType();
-    NOT_IMPLEMENTED(clipFill == SkPathFillType::kInverseEvenOdd, false);
-    NOT_IMPLEMENTED(clipFill == SkPathFillType::kInverseWinding, false);
-    if (clipFill == SkPathFillType::kEvenOdd) {
+    SkPath::FillType clipFill = clipPath.getFillType();
+    NOT_IMPLEMENTED(clipFill == SkPath::kInverseEvenOdd_FillType, false);
+    NOT_IMPLEMENTED(clipFill == SkPath::kInverseWinding_FillType, false);
+    if (clipFill == SkPath::kEvenOdd_FillType) {
         wStream->writeText("W* n\n");
     } else {
         wStream->writeText("W n\n");

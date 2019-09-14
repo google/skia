@@ -271,7 +271,7 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         for (int i = 0; i < loops; ++i) {
-            fPath.setConvexity(SkPathConvexityType::kUnknown);
+            fPath.setConvexity(SkPath::kUnknown_Convexity);
             (void)fPath.isConvex();
         }
     }

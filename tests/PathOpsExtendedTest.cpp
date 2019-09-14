@@ -772,12 +772,12 @@ void initializeTests(skiatest::Reporter* reporter, const char* test) {
     }
 }
 
-void PathOpsThreadState::outputProgress(const char* pathStr, SkPathFillType pathFillType) {
+void PathOpsThreadState::outputProgress(const char* pathStr, SkPath::FillType pathFillType) {
     const char testFunction[] = "testSimplify(path);";
     const char* pathPrefix = nullptr;
     const char* nameSuffix = nullptr;
-    if (pathFillType == SkPathFillType::kEvenOdd) {
-        pathPrefix = "    path.setFillType(SkPathFillType::kEvenOdd);\n";
+    if (pathFillType == SkPath::kEvenOdd_FillType) {
+        pathPrefix = "    path.setFillType(SkPath::kEvenOdd_FillType);\n";
         nameSuffix = "x";
     }
     appendTest(pathStr, pathPrefix, nameSuffix, testFunction, false, fPathStr);

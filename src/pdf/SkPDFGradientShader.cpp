@@ -780,7 +780,7 @@ static std::unique_ptr<SkStreamAsset> create_pattern_fill_content(int gsIndex,
     }
     SkPDFUtils::ApplyPattern(patternIndex, &content);
     SkPDFUtils::AppendRectangle(bounds, &content);
-    SkPDFUtils::PaintPath(SkPaint::kFill_Style, SkPathFillType::kEvenOdd, &content);
+    SkPDFUtils::PaintPath(SkPaint::kFill_Style, SkPath::kEvenOdd_FillType, &content);
     return content.detachAsStream();
 }
 
