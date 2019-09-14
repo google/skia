@@ -14,7 +14,7 @@ DEF_SIMPLE_GM(crbug_908646, canvas, 300, 300) {
     SkPaint paint;
     paint.setAntiAlias(true);
     SkPath path;
-    path.setFillType(SkPathFillType::kEvenOdd);
+    path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(50,  50);
     path.lineTo(50,  300);
     path.lineTo(250, 300);

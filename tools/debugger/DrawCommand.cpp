@@ -518,18 +518,18 @@ void DrawCommand::MakeJsonMatrix(SkJSONWriter& writer, const SkMatrix& matrix) {
 
 void DrawCommand::MakeJsonPath(SkJSONWriter& writer, const SkPath& path) {
     writer.beginObject();
-    switch ((SkPathFillType)path.getFillType()) {
-        case SkPathFillType::kWinding:
+    switch (path.getFillType()) {
+        case SkPath::kWinding_FillType:
             writer.appendString(DEBUGCANVAS_ATTRIBUTE_FILLTYPE, DEBUGCANVAS_FILLTYPE_WINDING);
             break;
-        case SkPathFillType::kEvenOdd:
+        case SkPath::kEvenOdd_FillType:
             writer.appendString(DEBUGCANVAS_ATTRIBUTE_FILLTYPE, DEBUGCANVAS_FILLTYPE_EVENODD);
             break;
-        case SkPathFillType::kInverseWinding:
+        case SkPath::kInverseWinding_FillType:
             writer.appendString(DEBUGCANVAS_ATTRIBUTE_FILLTYPE,
                                 DEBUGCANVAS_FILLTYPE_INVERSEWINDING);
             break;
-        case SkPathFillType::kInverseEvenOdd:
+        case SkPath::kInverseEvenOdd_FillType:
             writer.appendString(DEBUGCANVAS_ATTRIBUTE_FILLTYPE,
                                 DEBUGCANVAS_FILLTYPE_INVERSEEVENODD);
             break;

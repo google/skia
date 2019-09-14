@@ -53,7 +53,7 @@ protected:
         kShapeCount
     };
 
-    static void AddShape(SkPath* path, const SkRect& rect, Shapes shape, SkPathDirection dir) {
+    static void AddShape(SkPath* path, const SkRect& rect, Shapes shape, SkPath::Direction dir) {
         switch (shape) {
             case kRect_Shape:
                 path->addRect(rect, dir);
@@ -105,9 +105,9 @@ protected:
                 for (size_t innerRect = 0; innerRect < SK_ARRAY_COUNT(innerRects); ++innerRect) {
                     SkPath path;
 
-                    AddShape(&path, outerRect, (Shapes) outerShape, SkPathDirection::kCW);
+                    AddShape(&path, outerRect, (Shapes) outerShape, SkPath::kCW_Direction);
                     AddShape(&path, innerRects[innerRect], (Shapes) innerShape,
-                             SkPathDirection::kCCW);
+                             SkPath::kCCW_Direction);
 
                     canvas->save();
                     if (fFlipped) {

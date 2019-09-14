@@ -82,7 +82,7 @@ public:
     virtual bool onFilterPath(SkPath* dst, const SkPath& src,
                               SkStrokeRec*, const SkRect*) const override {
         *dst = src;
-        dst->setFillType(SkPathFillType::kInverseWinding);
+        dst->setFillType(SkPath::kInverseWinding_FillType);
         return true;
     }
 

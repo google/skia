@@ -297,8 +297,8 @@ bool SkDashImpl::onAsPoints(PointData* results, const SkPath& src, const SkStrok
                     }
                     if (clampedInitialDashLength < fIntervals[0]) {
                         // This one will not be like the others
-                        results->fFirst.addRect({x - halfWidth, y - halfHeight,
-                                                 x + halfWidth, y + halfHeight});
+                        results->fFirst.addRect(x - halfWidth, y - halfHeight,
+                                                x + halfWidth, y + halfHeight);
                     } else {
                         SkASSERT(curPt < results->fNumPoints);
                         results->fPoints[curPt].set(x, y);
@@ -346,7 +346,8 @@ bool SkDashImpl::onAsPoints(PointData* results, const SkPath& src, const SkStrok
                 halfWidth = SkScalarHalf(rec.getWidth());
                 halfHeight = SkScalarHalf(temp);
             }
-            results->fLast.addRect({x - halfWidth, y - halfHeight, x + halfWidth, y + halfHeight});
+            results->fLast.addRect(x - halfWidth, y - halfHeight,
+                                   x + halfWidth, y + halfHeight);
         }
 
         SkASSERT(curPt == results->fNumPoints);

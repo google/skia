@@ -83,7 +83,7 @@ SkRRect SkSVGRect::resolve(const SkSVGLengthContext& lctx) const {
 }
 
 void SkSVGRect::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
-                       const SkPaint& paint, SkPathFillType) const {
+                       const SkPaint& paint, SkPath::FillType) const {
     canvas->drawRRect(this->resolve(lctx), paint);
 }
 

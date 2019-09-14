@@ -367,7 +367,7 @@ private:
     const SkPath& fPath;
 };
 
-static bool set_result_path(SkPath* result, const SkPath& path, SkPathFillType fillType) {
+static bool set_result_path(SkPath* result, const SkPath& path, SkPath::FillType fillType) {
     *result = path;
     result->setFillType(fillType);
     return true;
@@ -377,13 +377,13 @@ bool SK_API AsWinding(const SkPath& path, SkPath* result) {
     if (!path.isFinite()) {
         return false;
     }
-    SkPathFillType fillType = (SkPathFillType)path.getFillType();
-    if (fillType == SkPathFillType::kWinding
-            || fillType == SkPathFillType::kInverseWinding ) {
+    SkPath::FillType fillType = path.getFillType();
+    if (fillType == SkPath::kWinding_FillType
+            || fillType == SkPath::kInverseWinding_FillType ) {
         return set_result_path(result, path, fillType);
     }
-    fillType = path.isInverseFillType() ? SkPathFillType::kInverseWinding :
-            SkPathFillType::kWinding;
+    fillType = path.isInverseFillType() ? SkPath::kInverseWinding_FillType :
+            SkPath::kWinding_FillType;
     if (path.isEmpty() || path.isConvex()) {
         return set_result_path(result, path, fillType);
     }

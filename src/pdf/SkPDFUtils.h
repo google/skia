@@ -58,7 +58,7 @@ inline void EmitPath(const SkPath& path, SkPaint::Style paintStyle,
     SkPDFUtils::EmitPath(path, paintStyle, true, content, tolerance);
 }
 void ClosePath(SkWStream* content);
-void PaintPath(SkPaint::Style style, SkPathFillType fill,
+void PaintPath(SkPaint::Style style, SkPath::FillType fill,
                       SkWStream* content);
 void StrokePath(SkWStream* content);
 void ApplyGraphicState(int objectIndex, SkWStream* content);

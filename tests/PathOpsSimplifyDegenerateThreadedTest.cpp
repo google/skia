@@ -32,7 +32,7 @@ static void testSimplifyDegeneratesMain(PathOpsThreadState* data) {
                 }
                 SkString pathStr;
                 SkPath path, out;
-                path.setFillType(SkPathFillType::kWinding);
+                path.setFillType(SkPath::kWinding_FillType);
                 path.moveTo(SkIntToScalar(ax), SkIntToScalar(ay));
                 path.lineTo(SkIntToScalar(bx), SkIntToScalar(by));
                 path.lineTo(SkIntToScalar(cx), SkIntToScalar(cy));
@@ -50,12 +50,12 @@ static void testSimplifyDegeneratesMain(PathOpsThreadState* data) {
                     pathStr.appendf("    path.lineTo(%d, %d);\n", ex, ey);
                     pathStr.appendf("    path.lineTo(%d, %d);\n", fx, fy);
                     pathStr.appendf("    path.close();\n");
-                    state.outputProgress(pathStr.c_str(), SkPathFillType::kWinding);
+                    state.outputProgress(pathStr.c_str(), SkPath::kWinding_FillType);
                 }
                 testSimplify(path, false, out, state, pathStr.c_str());
                 path.setFillType(SkPath::kEvenOdd_FillType);
                 if (state.fReporter->verbose()) {
-                    state.outputProgress(pathStr.c_str(), SkPathFillType::kEvenOdd);
+                    state.outputProgress(pathStr.c_str(), SkPath::kEvenOdd_FillType);
                 }
                 testSimplify(path, true, out, state, pathStr.c_str());
             }

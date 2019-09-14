@@ -12,7 +12,7 @@
 #include "tests/Test.h"
 
 static SkRRect path_contains_rrect(skiatest::Reporter* reporter, const SkPath& path,
-                                   SkPathDirection* dir, unsigned* start) {
+                                   SkPath::Direction* dir, unsigned* start) {
     SkRRect out;
     REPORTER_ASSERT(reporter, SkPathPriv::IsRRect(path, &out, dir, start));
     SkPath recreatedPath;
@@ -30,7 +30,7 @@ static SkRRect path_contains_rrect(skiatest::Reporter* reporter, const SkPath& p
         SkPath xformed;
         path.transform(m, &xformed);
         SkRRect xrr = SkRRect::MakeRect(SkRect::MakeEmpty());
-        SkPathDirection xd = SkPathDirection::kCCW;
+        SkPath::Direction xd = SkPath::kCCW_Direction;
         unsigned xs = ~0U;
         REPORTER_ASSERT(reporter, SkPathPriv::IsRRect(xformed, &xrr, &xd, &xs));
         recreatedPath.reset();
@@ -41,7 +41,7 @@ static SkRRect path_contains_rrect(skiatest::Reporter* reporter, const SkPath& p
 }
 
 static SkRRect inner_path_contains_rrect(skiatest::Reporter* reporter, const SkRRect& in,
-                                         SkPathDirection dir, unsigned start) {
+                                         SkPath::Direction dir, unsigned start) {
     switch (in.getType()) {
         case SkRRect::kEmpty_Type:
         case SkRRect::kRect_Type:
@@ -52,7 +52,7 @@ static SkRRect inner_path_contains_rrect(skiatest::Reporter* reporter, const SkR
     }
     SkPath path;
     path.addRRect(in, dir, start);
-    SkPathDirection outDir;
+    SkPath::Direction outDir;
     unsigned outStart;
     SkRRect rrect = path_contains_rrect(reporter, path, &outDir, &outStart);
     REPORTER_ASSERT(reporter, outDir == dir && outStart == start);
@@ -60,7 +60,7 @@ static SkRRect inner_path_contains_rrect(skiatest::Reporter* reporter, const SkR
 }
 
 static void path_contains_rrect_check(skiatest::Reporter* reporter, const SkRRect& in,
-                                      SkPathDirection dir, unsigned start) {
+                                      SkPath::Direction dir, unsigned start) {
     SkRRect out = inner_path_contains_rrect(reporter, in, dir, start);
     if (in != out) {
         SkDebugf("");
@@ -69,7 +69,7 @@ static void path_contains_rrect_check(skiatest::Reporter* reporter, const SkRRec
 }
 
 static void path_contains_rrect_nocheck(skiatest::Reporter* reporter, const SkRRect& in,
-                                        SkPathDirection dir, unsigned start) {
+                                        SkPath::Direction dir, unsigned start) {
     SkRRect out = inner_path_contains_rrect(reporter, in, dir, start);
     if (in == out) {
         SkDebugf("");
@@ -77,7 +77,7 @@ static void path_contains_rrect_nocheck(skiatest::Reporter* reporter, const SkRR
 }
 
 static void path_contains_rrect_check(skiatest::Reporter* reporter, const SkRect& r,
-        SkVector v[4], SkPathDirection dir, unsigned start) {
+        SkVector v[4], SkPath::Direction dir, unsigned start) {
     SkRRect rrect;
     rrect.setRectRadii(r, v);
     path_contains_rrect_check(reporter, rrect, dir, start);
@@ -85,15 +85,15 @@ static void path_contains_rrect_check(skiatest::Reporter* reporter, const SkRect
 
 class ForceIsRRect_Private {
 public:
-    ForceIsRRect_Private(SkPath* path, SkPathDirection dir, unsigned start) {
-        path->fPathRef->setIsRRect(true, dir == SkPathDirection::kCCW, start);
+    ForceIsRRect_Private(SkPath* path, SkPath::Direction dir, unsigned start) {
+        path->fPathRef->setIsRRect(true, dir == SkPath::kCCW_Direction, start);
     }
 };
 
 static void force_path_contains_rrect(skiatest::Reporter* reporter, SkPath& path,
-                                      SkPathDirection dir, unsigned start) {
+                                      SkPath::Direction dir, unsigned start) {
     ForceIsRRect_Private force_rrect(&path, dir, start);
-    SkPathDirection outDir;
+    SkPath::Direction outDir;
     unsigned outStart;
     path_contains_rrect(reporter, path, &outDir, &outStart);
     REPORTER_ASSERT(reporter, outDir == dir && outStart == start);
@@ -124,7 +124,7 @@ static void test_undetected_paths(skiatest::Reporter* reporter) {
     path.lineTo(3.5f, 66);
     path.conicTo(0, 66, 0, 62.5, weight);
     path.close();
-    force_path_contains_rrect(reporter, path, SkPathDirection::kCW, 6);
+    force_path_contains_rrect(reporter, path, SkPath::kCW_Direction, 6);
 
     path.reset();
     path.moveTo(0, 81.5f);
@@ -137,7 +137,7 @@ static void test_undetected_paths(skiatest::Reporter* reporter) {
     path.lineTo(3.5f, 85);
     path.conicTo(0, 85, 0, 81.5f, weight);
     path.close();
-    force_path_contains_rrect(reporter, path, SkPathDirection::kCW, 6);
+    force_path_contains_rrect(reporter, path, SkPath::kCW_Direction, 6);
 
     path.reset();
     path.moveTo(14, 1189);
@@ -150,7 +150,7 @@ static void test_undetected_paths(skiatest::Reporter* reporter) {
     path.lineTo(21, 1196);
     path.conicTo(14, 1196, 14, 1189, weight);
     path.close();
-    force_path_contains_rrect(reporter, path, SkPathDirection::kCW, 6);
+    force_path_contains_rrect(reporter, path, SkPath::kCW_Direction, 6);
 
     path.reset();
     path.moveTo(14, 1743);
@@ -163,14 +163,14 @@ static void test_undetected_paths(skiatest::Reporter* reporter) {
     path.lineTo(21, 1750);
     path.conicTo(14, 1750, 14, 1743, weight);
     path.close();
-    force_path_contains_rrect(reporter, path, SkPathDirection::kCW, 6);
+    force_path_contains_rrect(reporter, path, SkPath::kCW_Direction, 6);
 }
 
 static const SkScalar kWidth = 100.0f;
 static const SkScalar kHeight = 100.0f;
 
 static void test_tricky_radii(skiatest::Reporter* reporter) {
-    for (auto dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
+    for (auto dir : {SkPath::kCW_Direction, SkPath::kCCW_Direction}) {
         for (int start = 0; start < 8; ++start) {
             {
                 // crbug.com/458522
@@ -197,7 +197,7 @@ static void test_tricky_radii(skiatest::Reporter* reporter) {
 }
 
 static void test_empty_crbug_458524(skiatest::Reporter* reporter) {
-    for (auto dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
+    for (auto dir : {SkPath::kCW_Direction, SkPath::kCCW_Direction}) {
         for (int start = 0; start < 8; ++start) {
             SkRRect rr;
             const SkRect bounds = { 3709, 3709, 3709 + 7402, 3709 + 29825 };
@@ -215,7 +215,7 @@ static void test_empty_crbug_458524(skiatest::Reporter* reporter) {
 }
 
 static void test_inset(skiatest::Reporter* reporter) {
-    for (auto dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
+    for (auto dir : {SkPath::kCW_Direction, SkPath::kCCW_Direction}) {
         for (int start = 0; start < 8; ++start) {
             SkRRect rr, rr2;
             SkRect r = { 0, 0, 100, 100 };
@@ -244,7 +244,7 @@ static void test_9patch_rrect(skiatest::Reporter* reporter,
                               const SkRect& rect,
                               SkScalar l, SkScalar t, SkScalar r, SkScalar b,
                               bool checkRadii) {
-    for (auto dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
+    for (auto dir : {SkPath::kCW_Direction, SkPath::kCCW_Direction}) {
         for (int start = 0; start < 8; ++start) {
             SkRRect rr;
             rr.setNinePatch(rect, l, t, r, b);
@@ -268,7 +268,7 @@ static void test_9patch_rrect(skiatest::Reporter* reporter,
 
 // Test out the basic API entry points
 static void test_round_rect_basic(skiatest::Reporter* reporter) {
-    for (auto dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
+    for (auto dir : {SkPath::kCW_Direction, SkPath::kCCW_Direction}) {
         for (int start = 0; start < 8; ++start) {
             //----
             SkRect rect = SkRect::MakeLTRB(0, 0, kWidth, kHeight);
@@ -342,7 +342,7 @@ static void test_round_rect_basic(skiatest::Reporter* reporter) {
 
 // Test out the cases when the RR degenerates to a rect
 static void test_round_rect_rects(skiatest::Reporter* reporter) {
-    for (auto dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
+    for (auto dir : {SkPath::kCW_Direction, SkPath::kCCW_Direction}) {
         for (int start = 0; start < 8; ++start) {
             //----
             SkRect rect = SkRect::MakeLTRB(0, 0, kWidth, kHeight);
@@ -371,7 +371,7 @@ static void test_round_rect_rects(skiatest::Reporter* reporter) {
 
 // Test out the cases when the RR degenerates to an oval
 static void test_round_rect_ovals(skiatest::Reporter* reporter) {
-    for (auto dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
+    for (auto dir : {SkPath::kCW_Direction, SkPath::kCCW_Direction}) {
         for (int start = 0; start < 8; ++start) {
             //----
             SkRect rect = SkRect::MakeLTRB(0, 0, kWidth, kHeight);
@@ -385,7 +385,7 @@ static void test_round_rect_ovals(skiatest::Reporter* reporter) {
 
 // Test out the non-degenerate RR cases
 static void test_round_rect_general(skiatest::Reporter* reporter) {
-    for (auto dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
+    for (auto dir : {SkPath::kCW_Direction, SkPath::kCCW_Direction}) {
         for (int start = 0; start < 8; ++start) {
             //----
             SkRect rect = SkRect::MakeLTRB(0, 0, kWidth, kHeight);
@@ -406,7 +406,7 @@ static void test_round_rect_general(skiatest::Reporter* reporter) {
 }
 
 static void test_round_rect_iffy_parameters(skiatest::Reporter* reporter) {
-    for (auto dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
+    for (auto dir : {SkPath::kCW_Direction, SkPath::kCCW_Direction}) {
         for (int start = 0; start < 8; ++start) {
             SkRect rect = SkRect::MakeLTRB(0, 0, kWidth, kHeight);
             SkPoint radii[4] = { { 50, 100 }, { 100, 50 }, { 50, 100 }, { 100, 50 } };
@@ -432,7 +432,7 @@ static void test_skbug_3239(skiatest::Reporter* reporter) {
     const SkRect rectx = SkRect::MakeLTRB(min, min, max, big);
     const SkRect recty = SkRect::MakeLTRB(min, min, big, max);
 
-    for (auto dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
+    for (auto dir : {SkPath::kCW_Direction, SkPath::kCCW_Direction}) {
         for (int start = 0; start < 8; ++start) {
             SkVector radii[4];
             for (int i = 0; i < 4; ++i) {
@@ -445,7 +445,7 @@ static void test_skbug_3239(skiatest::Reporter* reporter) {
 }
 
 static void test_mix(skiatest::Reporter* reporter) {
-    for (auto dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
+    for (auto dir : {SkPath::kCW_Direction, SkPath::kCCW_Direction}) {
         for (int start = 0; start < 8; ++start) {
             // Test out mixed degenerate and non-degenerate geometry with Conics
             const SkVector radii[4] = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 100, 100 } };

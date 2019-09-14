@@ -56,7 +56,7 @@ protected:
 
           SkRect r = { 100, 100, 356, 356 };
           SkPath clipPath;
-          clipPath.addRRect(SkRRect::MakeRectXY(r, 5, 5));
+          clipPath.addRoundRect(r, SkIntToScalar(5), SkIntToScalar(5));
           canvas->clipPath(clipPath, kIntersect_SkClipOp, true);
           text = "Scaled = 0";
         }

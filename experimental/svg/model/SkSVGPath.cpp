@@ -26,7 +26,7 @@ void SkSVGPath::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
 }
 
 void SkSVGPath::onDraw(SkCanvas* canvas, const SkSVGLengthContext&, const SkPaint& paint,
-                       SkPathFillType fillType) const {
+                       SkPath::FillType fillType) const {
     // the passed fillType follows inheritance rules and needs to be applied at draw time.
     fPath.setFillType(fillType);
     canvas->drawPath(fPath, paint);

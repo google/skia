@@ -239,9 +239,9 @@ public:
 
     Type type() const { return fType; }
 
-    SkPathFillType asFillType() const {
+    SkPath::FillType asFillType() const {
         SkASSERT(fType != Type::kInherit); // should never be called for unresolved values.
-        return fType == Type::kEvenOdd ? SkPathFillType::kEvenOdd : SkPathFillType::kWinding;
+        return fType == Type::kEvenOdd ? SkPath::kEvenOdd_FillType : SkPath::kWinding_FillType;
     }
 
 private:

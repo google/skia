@@ -2927,12 +2927,12 @@ void SkPathOpsDebug::ShowOnePath(const SkPath& path, const char* name, bool incl
         return;
     }
 #endif
-    SkPathFillType fillType = (SkPathFillType)path.getFillType();
-    SkASSERT(fillType >= SkPathFillType::kWinding && fillType <= SkPathFillType::kInverseEvenOdd);
+    SkPath::FillType fillType = path.getFillType();
+    SkASSERT(fillType >= SkPath::kWinding_FillType && fillType <= SkPath::kInverseEvenOdd_FillType);
     if (includeDeclaration) {
         SkDebugf("    SkPath %s;\n", name);
     }
-    SkDebugf("    %s.setFillType(SkPath::%s);\n", name, gFillTypeStr[(unsigned)fillType]);
+    SkDebugf("    %s.setFillType(SkPath::%s);\n", name, gFillTypeStr[fillType]);
     iter.setPath(path);
     showPathContours(iter, name);
 }

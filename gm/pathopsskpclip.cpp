@@ -42,7 +42,7 @@ protected:
             SkIntToScalar(400),
             SkIntToScalar(700)
         };
-        p.addRRect(SkRRect::MakeRectXY(r, 50, 50));
+        p.addRoundRect(r, SkIntToScalar(50), SkIntToScalar(50));
         rec->clipPath(p, true);
         rec->translate(SkIntToScalar(250), SkIntToScalar(250));
         rec->clipPath(p, true);

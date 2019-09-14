@@ -1391,7 +1391,7 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
     {
         SkRect rect;
         bool isClosed;
-        SkPathDirection dir;
+        SkPath::Direction dir;
         if (src.isRect(&rect, &isClosed, &dir) && isClosed) {
             this->strokeRect(rect, dst, dir);
             // our answer should preserve the inverseness of the src
@@ -1498,15 +1498,15 @@ DONE:
     }
 }
 
-static SkPathDirection reverse_direction(SkPathDirection dir) {
-    static const SkPathDirection gOpposite[] = { SkPathDirection::kCCW, SkPathDirection::kCW };
-    return gOpposite[(unsigned)dir];
+static SkPath::Direction reverse_direction(SkPath::Direction dir) {
+    static const SkPath::Direction gOpposite[] = { SkPath::kCCW_Direction, SkPath::kCW_Direction };
+    return gOpposite[dir];
 }
 
-static void addBevel(SkPath* path, const SkRect& r, const SkRect& outer, SkPathDirection dir) {
+static void addBevel(SkPath* path, const SkRect& r, const SkRect& outer, SkPath::Direction dir) {
     SkPoint pts[8];
 
-    if (SkPathDirection::kCW == dir) {
+    if (SkPath::kCW_Direction == dir) {
         pts[0].set(r.fLeft, outer.fTop);
         pts[1].set(r.fRight, outer.fTop);
         pts[2].set(outer.fRight, r.fTop);
@@ -1529,7 +1529,7 @@ static void addBevel(SkPath* path, const SkRect& r, const SkRect& outer, SkPathD
 }
 
 void SkStroke::strokeRect(const SkRect& origRect, SkPath* dst,
-                          SkPathDirection dir) const {
+                          SkPath::Direction dir) const {
     SkASSERT(dst != nullptr);
     dst->reset();
 
@@ -1565,7 +1565,7 @@ void SkStroke::strokeRect(const SkRect& origRect, SkPath* dst,
             addBevel(dst, rect, r, dir);
             break;
         case SkPaint::kRound_Join:
-            dst->addRRect(SkRRect::MakeRectXY(r, radius, radius), dir);
+            dst->addRoundRect(r, radius, radius, dir);
             break;
         default:
             break;

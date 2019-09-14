@@ -79,13 +79,13 @@ DEF_SIMPLE_GM(arcto, canvas, 500, 600) {
             SkScalar ovalHeight = oval.height() / oHeight;
             svgArc.moveTo(oval.fLeft, oval.fTop);
             svgArc.arcTo(oval.width() / 2, ovalHeight, SkIntToScalar(angle), SkPath::kSmall_ArcSize,
-                    SkPathDirection::kCW, oval.right(), oval.bottom());
+                    SkPath::kCW_Direction, oval.right(), oval.bottom());
             canvas->drawPath(svgArc, paint);
             svgArc.reset();
 
             svgArc.moveTo(oval.fLeft + 100, oval.fTop + 100);
             svgArc.arcTo(oval.width() / 2, ovalHeight, SkIntToScalar(angle), SkPath::kLarge_ArcSize,
-                    SkPathDirection::kCCW, oval.right(), oval.bottom() + 100);
+                    SkPath::kCCW_Direction, oval.right(), oval.bottom() + 100);
             canvas->drawPath(svgArc, paint);
             oval.offset(50, 0);
             svgArc.reset();
