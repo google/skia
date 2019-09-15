@@ -272,8 +272,8 @@ static void test_bounds(skiatest::Reporter* reporter,
 
     SkPath pathA, pathB;
 
-    pathA.addRoundRect(rectA, SkIntToScalar(5), SkIntToScalar(5));
-    pathB.addRoundRect(rectB, SkIntToScalar(5), SkIntToScalar(5));
+    pathA.addRRect(SkRRect::MakeRectXY(rectA, 5, 5));
+    pathB.addRRect(SkRRect::MakeRectXY(rectB, 5, 5));
 
     SkClipStack stack;
     SkRect devClipBound;
@@ -288,10 +288,10 @@ static void test_bounds(skiatest::Reporter* reporter,
             bool doInvA = SkToBool(invBits & 1);
             bool doInvB = SkToBool(invBits & 2);
 
-            pathA.setFillType(doInvA ? SkPath::kInverseEvenOdd_FillType :
-                                       SkPath::kEvenOdd_FillType);
-            pathB.setFillType(doInvB ? SkPath::kInverseEvenOdd_FillType :
-                                       SkPath::kEvenOdd_FillType);
+            pathA.setFillType(doInvA ? SkPathFillType::kInverseEvenOdd :
+                                       SkPathFillType::kEvenOdd);
+            pathB.setFillType(doInvB ? SkPathFillType::kInverseEvenOdd :
+                                       SkPathFillType::kEvenOdd);
 
             switch (primType) {
                 case SkClipStack::Element::DeviceSpaceType::kEmpty:

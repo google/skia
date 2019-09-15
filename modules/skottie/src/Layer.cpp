@@ -107,8 +107,8 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
         // "inv" is cumulative with mask info fInvertGeometry
         const auto inverted =
             (mask_info->fInvertGeometry != ParseDefault<bool>((*m)["inv"], false));
-        mask_path->setFillType(inverted ? SkPath::kInverseWinding_FillType
-                                        : SkPath::kWinding_FillType);
+        mask_path->setFillType(inverted ? SkPathFillType::kInverseWinding
+                                        : SkPathFillType::kWinding);
 
         auto mask_paint = sksg::Color::Make(SK_ColorBLACK);
         mask_paint->setAntiAlias(true);

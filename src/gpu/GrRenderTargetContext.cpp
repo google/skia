@@ -1393,7 +1393,7 @@ void GrRenderTargetContext::drawDRRect(const GrClip& clip,
     path.setIsVolatile(true);
     path.addRRect(inner);
     path.addRRect(outer);
-    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.setFillType(SkPathFillType::kEvenOdd);
     this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, GrShape(path));
 }
 
@@ -1493,7 +1493,7 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
     assert_alive(paint);
     this->drawShapeUsingPathRenderer(
             clip, std::move(paint), aa, viewMatrix,
-            GrShape(SkRRect::MakeOval(oval), SkPath::kCW_Direction, 2, false, style));
+            GrShape(SkRRect::MakeOval(oval), SkPathDirection::kCW, 2, false, style));
 }
 
 void GrRenderTargetContext::drawArc(const GrClip& clip,

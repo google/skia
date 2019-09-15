@@ -728,7 +728,7 @@ void SkSVGDevice::syncClipStack(const SkClipStack& cs) {
             const auto& p = e->getDeviceSpacePath();
             AutoElement path("path", fWriter);
             path.addPathAttributes(p);
-            if (p.getFillType() == SkPath::kEvenOdd_FillType) {
+            if (p.getFillType() == SkPathFillType::kEvenOdd) {
                 path.addAttribute("clip-rule", "evenodd");
             }
         } break;

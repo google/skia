@@ -34,7 +34,7 @@ public:
                      doAA ? "AA" : "BW");
 
         fClipRect.setLTRB(10.5f, 10.5f, 50.5f, 50.5f);
-        fClipPath.addRoundRect(fClipRect, SkIntToScalar(10), SkIntToScalar(10));
+        fClipPath.addRRect(SkRRect::MakeRectXY(fClipRect, SkIntToScalar(10), SkIntToScalar(10)));
         fDrawRect.setWH(100, 100);
 
         SkASSERT(fClipPath.isConvex());
@@ -51,8 +51,7 @@ protected:
             // jostle the clip regions each time to prevent caching
             fClipRect.offset((i % 2) == 0 ? SkIntToScalar(10) : SkIntToScalar(-10), 0);
             fClipPath.reset();
-            fClipPath.addRoundRect(fClipRect,
-                                   SkIntToScalar(5), SkIntToScalar(5));
+            fClipPath.addRRect(SkRRect::MakeRectXY(fClipRect, 5, 5));
             SkASSERT(fClipPath.isConvex());
 
             canvas->save();
@@ -125,7 +124,7 @@ protected:
             temp.offset(offset);
 
             SkPath path;
-            path.addRoundRect(temp, SkIntToScalar(3), SkIntToScalar(3));
+            path.addRRect(SkRRect::MakeRectXY(temp, 3, 3));
             SkASSERT(path.isConvex());
 
             canvas->clipPath(path,
@@ -188,7 +187,7 @@ public:
         fRegion.setRect({0, 0, 640, 480});
         fRect.set(fRegion.getBounds());
         fRect.inset(SK_Scalar1/4, SK_Scalar1/4);
-        fPath.addRoundRect(fRect, SkIntToScalar(20), SkIntToScalar(20));
+        fPath.addRRect(SkRRect::MakeRectXY(fRect, 20, 20));
     }
 
 protected:
@@ -219,7 +218,7 @@ public:
         path.addCircle(0, 0, SkIntToScalar(200));
         path.addCircle(0, 0, SkIntToScalar(180));
         // evenodd means we've constructed basically a stroked circle
-        path.setFillType(SkPath::kEvenOdd_FillType);
+        path.setFillType(SkPathFillType::kEvenOdd);
 
         SkIRect bounds;
         path.getBounds().roundOut(&bounds);

@@ -88,8 +88,8 @@ DEF_SIMPLE_GM(blur2rects, canvas, 700, 500) {
         SkRect outer = SkRect::MakeXYWH(10.125f, 10.125f, 100.125f, 100);
         SkRect inner = SkRect::MakeXYWH(20.25f, 20.125f, 80, 80);
         SkPath path;
-        path.addRect(outer, SkPath::kCW_Direction);
-        path.addRect(inner, SkPath::kCCW_Direction);
+        path.addRect(outer, SkPathDirection::kCW);
+        path.addRect(inner, SkPathDirection::kCCW);
 
         canvas->drawPath(path, paint);
         // important to translate by a factional amount to exercise a different "phase"
