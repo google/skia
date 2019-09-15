@@ -318,7 +318,7 @@ emscripten::val EMSCRIPTEN_KEEPALIVE ToPath2D(const SkPath& path) {
 // Path2D API things
 // ======================================================================================
 void ApplyAddRect(SkPath& path, SkScalar x, SkScalar y, SkScalar width, SkScalar height) {
-    path.addRect(x, y, x+width, y+height);
+    path.addRect({x, y, x+width, y+height});
 }
 
 void ApplyAddArc(SkPath& path, SkScalar x, SkScalar y, SkScalar radius,
@@ -356,9 +356,9 @@ void ApplyAddPath(SkPath& orig, const SkPath& newPath,
 }
 
 JSString GetFillTypeString(const SkPath& path) {
-    if (path.getFillType() == SkPath::FillType::kWinding_FillType) {
+    if ((SkPathFillType)path.getFillType() == SkPathFillType::kWinding) {
         return emscripten::val("nonzero");
-    } else if (path.getFillType() == SkPath::FillType::kEvenOdd_FillType) {
+    } else if ((SkPathFillType)path.getFillType() == SkPathFillType::kEvenOdd) {
         return emscripten::val("evenodd");
     } else {
         SkDebugf("warning: can't translate inverted filltype to HTML Canvas\n");
@@ -503,7 +503,7 @@ EMSCRIPTEN_BINDINGS(skia) {
         .function("_rect", &ApplyAddRect)
 
         // Extra features
-        .function("setFillType", &SkPath::setFillType)
+        .function("setFillType", select_overload<void(SkPathFillType)>(&SkPath::setFillType))
         .function("getFillType", &SkPath::getFillType)
         .function("getFillTypeString", &GetFillTypeString)
         .function("getBounds", &SkPath::getBounds)
@@ -564,11 +564,11 @@ EMSCRIPTEN_BINDINGS(skia) {
         .value("XOR",                SkPathOp::kXOR_SkPathOp)
         .value("REVERSE_DIFFERENCE", SkPathOp::kReverseDifference_SkPathOp);
 
-    enum_<SkPath::FillType>("FillType")
-        .value("WINDING",            SkPath::FillType::kWinding_FillType)
-        .value("EVENODD",            SkPath::FillType::kEvenOdd_FillType)
-        .value("INVERSE_WINDING",    SkPath::FillType::kInverseWinding_FillType)
-        .value("INVERSE_EVENODD",    SkPath::FillType::kInverseEvenOdd_FillType);
+    enum_<SkPathFillType>("FillType")
+        .value("WINDING",            SkPathFillType::kWinding)
+        .value("EVENODD",            SkPathFillType::kEvenOdd)
+        .value("INVERSE_WINDING",    SkPathFillType::kInverseWinding)
+        .value("INVERSE_EVENODD",    SkPathFillType::kInverseEvenOdd);
 
     constant("MOVE_VERB",  MOVE);
     constant("LINE_VERB",  LINE);
