@@ -284,22 +284,24 @@ private:
 
     // Attempts to find a resource in the cache that exactly matches the GrSurfaceDesc. Failing that
     // it returns null. If non-null, the resulting texture is always budgeted.
-    sk_sp<GrTexture> refScratchTexture(const GrSurfaceDesc& desc,
-                                       const GrBackendFormat& format,
-                                       GrRenderable renderable,
+    sk_sp<GrTexture> refScratchTexture(const GrSurfaceDesc&,
+                                       const GrBackendFormat&,
+                                       GrRenderable,
                                        int renderTargetSampleCnt,
-                                       GrProtected isProtected);
+                                       GrMipMapped,
+                                       GrProtected);
 
     /*
      * Try to find an existing scratch texture that exactly matches 'desc'. If successful
      * update the budgeting accordingly.
      */
-    sk_sp<GrTexture> getExactScratch(const GrSurfaceDesc& desc,
-                                     const GrBackendFormat& format,
-                                     GrRenderable renderable,
+    sk_sp<GrTexture> getExactScratch(const GrSurfaceDesc&,
+                                     const GrBackendFormat&,
+                                     GrRenderable,
                                      int renderTargetSampleCnt,
-                                     SkBudgeted budgeted,
-                                     GrProtected isProtected);
+                                     SkBudgeted,
+                                     GrMipMapped,
+                                     GrProtected);
 
     GrResourceCache* cache() { return fCache; }
     const GrResourceCache* cache() const { return fCache; }
