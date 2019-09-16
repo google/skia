@@ -14,6 +14,7 @@ module.exports = function(config) {
       { pattern: 'debugger/sample.skp', included:false, served:true},
       '../../modules/pathkit/tests/testReporter.js',
       'debugger/bin/debugger.js',
+      'tests/debuggerinit.js',
       'tests/*.spec.js'
     ],
 
