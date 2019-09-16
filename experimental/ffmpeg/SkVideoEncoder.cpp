@@ -30,7 +30,7 @@ public:
         size_t len = fStorage.size();
         SkASSERT(fPos <= len);
 
-        size_t overwrite = std::min(len - fPos, bytes);
+        size_t overwrite = SkTMin(len - fPos, bytes);
         if (overwrite) {
             SkDebugf("overwrite %zu bytes at %zu offset with %zu remaining\n", overwrite, fPos, bytes - overwrite);
             memcpy(&fStorage[fPos], src, overwrite);
