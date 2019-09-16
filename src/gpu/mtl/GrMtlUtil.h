@@ -116,4 +116,14 @@ static inline MTLPixelFormat GrBackendFormatAsMTLPixelFormat(const GrBackendForm
     return static_cast<MTLPixelFormat>(format.asMtlFormat());
 }
 
+/**
+ * Returns true if the format is compressed.
+ */
+bool GrMtlFormatIsCompressed(MTLPixelFormat mtlFormat);
+
+/**
+ * Maps a MTLPixelFormat into the CompressionType enum if applicable.
+ */
+bool GrMtlFormatToCompressionType(MTLPixelFormat mtlFormat,
+                                  SkImage::CompressionType* compressionType);
 #endif
