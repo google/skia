@@ -2927,12 +2927,12 @@ void SkPathOpsDebug::ShowOnePath(const SkPath& path, const char* name, bool incl
         return;
     }
 #endif
-    SkPath::FillType fillType = path.getFillType();
-    SkASSERT(fillType >= SkPath::kWinding_FillType && fillType <= SkPath::kInverseEvenOdd_FillType);
+    SkPathFillType fillType = (SkPathFillType)path.getFillType();
+    SkASSERT(fillType >= SkPathFillType::kWinding && fillType <= SkPathFillType::kInverseEvenOdd);
     if (includeDeclaration) {
         SkDebugf("    SkPath %s;\n", name);
     }
-    SkDebugf("    %s.setFillType(SkPath::%s);\n", name, gFillTypeStr[fillType]);
+    SkDebugf("    %s.setFillType(SkPath::%s);\n", name, gFillTypeStr[(unsigned)fillType]);
     iter.setPath(path);
     showPathContours(iter, name);
 }
@@ -2963,11 +2963,11 @@ void SkPathOpsDebug::DumpOp(FILE* file, const SkPath& one, const SkPath& two, Sk
             "\nstatic void %s_%d(skiatest::Reporter* reporter, const char* filename) {\n",
             name, ++dumpID);
     fprintf(file, "    SkPath path;\n");
-    fprintf(file, "    path.setFillType((SkPath::FillType) %d);\n", one.getFillType());
+    fprintf(file, "    path.setFillType((SkPathFillType) %d);\n", one.getFillType());
     dump_path(file, one, false, true);
     fprintf(file, "    SkPath path1(path);\n");
     fprintf(file, "    path.reset();\n");
-    fprintf(file, "    path.setFillType((SkPath::FillType) %d);\n", two.getFillType());
+    fprintf(file, "    path.setFillType((SkPathFillType) %d);\n", two.getFillType());
     dump_path(file, two, false, true);
     fprintf(file, "    SkPath path2(path);\n");
     fprintf(file, "    testPathOp(reporter, path1, path2, (SkPathOp) %d, filename);\n", op);
@@ -2986,7 +2986,7 @@ void SkPathOpsDebug::DumpSimplify(FILE* file, const SkPath& path, const char* te
             "\nstatic void %s_%d(skiatest::Reporter* reporter, const char* filename) {\n",
             name, ++dumpID);
     fprintf(file, "    SkPath path;\n");
-    fprintf(file, "    path.setFillType((SkPath::FillType) %d);\n", path.getFillType());
+    fprintf(file, "    path.setFillType((SkPathFillType) %d);\n", path.getFillType());
     dump_path(file, path, false, true);
     fprintf(file, "    testSimplify(reporter, path, filename);\n");
     fprintf(file, "}\n\n");

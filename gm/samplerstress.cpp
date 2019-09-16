@@ -114,7 +114,7 @@ protected:
         temp.setLTRB(115, 75, 144, 110);
 
         SkPath path;
-        path.addRoundRect(temp, SkIntToScalar(5), SkIntToScalar(5));
+        path.addRRect(SkRRect::MakeRectXY(temp, 5, 5));
 
         canvas->clipPath(path, true); // AA is on
 

@@ -183,7 +183,7 @@ protected:
     SkISize onISize() override { return SkISize::Make(kGMWidth, kGMHeight); }
     bool runAsBench() const override { return true; }
 
-    static SkPath GetPath(int index, SkPath::Direction dir) {
+    static SkPath GetPath(int index, SkPathDirection dir) {
         std::unique_ptr<SkPoint[]> data(nullptr);
         const SkPoint* points;
         int numPts;
@@ -238,7 +238,7 @@ protected:
 
         SkPath path;
 
-        if (SkPath::kCW_Direction == dir) {
+        if (SkPathDirection::kCW == dir) {
             path.moveTo(points[0]);
             for (int i = 1; i < numPts; ++i) {
                 path.lineTo(points[i]);
@@ -273,7 +273,7 @@ protected:
 
         SkPoint center;
         {
-            SkPath path = GetPath(index, SkPath::kCW_Direction);
+            SkPath path = GetPath(index, SkPathDirection::kCW);
             if (offset->fX+path.getBounds().width() > kGMWidth) {
                 offset->fX = 0;
                 offset->fY += kMaxPathHeight;
@@ -290,7 +290,7 @@ protected:
         }
 
         const SkColor colors[2] = { SK_ColorBLACK, SK_ColorWHITE };
-        const SkPath::Direction dirs[2] = { SkPath::kCW_Direction, SkPath::kCCW_Direction };
+        const SkPathDirection dirs[2] = { SkPathDirection::kCW, SkPathDirection::kCCW };
         const float scales[] = { 1.0f, 0.75f, 0.5f, 0.25f, 0.1f, 0.01f, 0.001f };
         const SkPaint::Join joins[3] = { SkPaint::kRound_Join,
                                          SkPaint::kBevel_Join,
@@ -374,7 +374,7 @@ protected:
             // inset rings into outsets when adjacent bisector angles converged outside the previous
             // ring due to accumulated error.
             SkPath p3;
-            p3.setFillType(SkPath::kEvenOdd_FillType);
+            p3.setFillType(SkPathFillType::kEvenOdd);
             p3.moveTo(1184.96f, 982.557f);
             p3.lineTo(1183.71f, 982.865f);
             p3.lineTo(1180.99f, 982.734f);

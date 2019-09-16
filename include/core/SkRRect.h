@@ -190,6 +190,12 @@ public:
         return rr;
     }
 
+    static SkRRect MakeRectRadii(const SkRect& rect, const SkPoint radii[]) {
+        SkRRect rr;
+        rr.setRectRadii(rect, radii);
+        return rr;
+    }
+
     /** Sets bounds to oval, x-axis radii to half oval.width(), and all y-axis radii
         to half oval.height(). If oval bounds is empty, sets to kEmpty_Type.
         Otherwise, sets to kOval_Type.

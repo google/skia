@@ -76,7 +76,7 @@ struct BlurTest {
 //Path Draw Procs
 //Beware that paths themselves my draw differently depending on the clip.
 static void draw50x50Rect(SkPath* path) {
-    path->addRect(0, 0, SkIntToScalar(50), SkIntToScalar(50));
+    path->addRect({0, 0, 50, 50});
 }
 
 //Tests
@@ -316,7 +316,7 @@ DEF_TEST(BlurSigmaRange, reporter) {
     // The geometry is offset a smidge to trigger:
     // https://code.google.com/p/chromium/issues/detail?id=282418
     SkPath rectPath;
-    rectPath.addRect(0.3f, 0.3f, 100.3f, 100.3f);
+    rectPath.addRect({0.3f, 0.3f, 100.3f, 100.3f});
 
     SkPoint polyPts[] = {
         { 0.3f, 0.3f },

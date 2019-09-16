@@ -326,7 +326,7 @@ static void invpath_clip(SkCanvas* canvas, const SkPicture* pictures[kNumPicture
 
     // Create a hexagon centered on the middle of the hex grid
     SkPath hex = make_hex_path((kNumHexX / 2.0f) * kHexSide, kNumHexY * kHexSide * kRoot3Over2);
-    hex.setFillType(SkPath::kInverseEvenOdd_FillType);
+    hex.setFillType(SkPathFillType::kInverseEvenOdd);
 
     canvas->clipPath(hex);
 

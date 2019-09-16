@@ -75,19 +75,19 @@ protected:
                         for (int outerCW = 0; outerCW <= 1; ++outerCW) {
                             for (int innerCW = 0; innerCW <= 1; ++innerCW) {
                                 SkPath path;
-                                path.setFillType(doEvenOdd ? SkPath::kEvenOdd_FillType : SkPath::kWinding_FillType);
-                                SkPath::Direction outerDir = outerCW ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
-                                SkPath::Direction innerDir = innerCW ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
+                                path.setFillType(doEvenOdd ? SkPathFillType::kEvenOdd : SkPathFillType::kWinding);
+                                SkPathDirection outerDir = outerCW ? SkPathDirection::kCW : SkPathDirection::kCCW;
+                                SkPathDirection innerDir = innerCW ? SkPathDirection::kCW : SkPathDirection::kCCW;
 
                                 SkRect r = insetFirst ? inset(rect) : rect;
                                 if (outerRR) {
-                                    path.addRoundRect(r, RAD, RAD, outerDir);
+                                    path.addRRect(SkRRect::MakeRectXY(r, RAD, RAD), outerDir);
                                 } else {
                                     path.addRect(r, outerDir);
                                 }
                                 r = insetFirst ? rect : inset(rect);
                                 if (innerRR) {
-                                    path.addRoundRect(r, RAD, RAD, innerDir);
+                                    path.addRRect(SkRRect::MakeRectXY(r, RAD, RAD), innerDir);
                                 } else {
                                     path.addRect(r, innerDir);
                                 }
