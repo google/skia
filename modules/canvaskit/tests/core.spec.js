@@ -18,7 +18,7 @@ describe('Core canvas behavior', function() {
         LoadCanvasKit.then(catchException(done, () => {
             // This is taken from example.html
             const surface = CanvasKit.MakeCanvasSurface('test');
-            expect(surface).toBeTruthy('Could not make surface')
+            expect(surface).toBeTruthy('Could not make surface');
             if (!surface) {
                 done();
                 return;
