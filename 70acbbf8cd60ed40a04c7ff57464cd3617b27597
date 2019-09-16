@@ -22,6 +22,30 @@
       "revId": "70acbbf8cd60ed40a04c7ff57464cd3617b27597",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "090c304e_118e438a",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1310,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-09-16T15:52:16Z",
+      "side": 1,
+      "message": "Okay, I uploaded a much simpler patch which does not do this.",
+      "parentUuid": "bde05758_9db4fb1c",
+      "range": {
+        "startLine": 1310,
+        "startChar": 12,
+        "endLine": 1310,
+        "endChar": 35
+      },
+      "revId": "70acbbf8cd60ed40a04c7ff57464cd3617b27597",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
