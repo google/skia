@@ -43,6 +43,9 @@ static const char* color_type_name(SkColorType colorType) {
         case kRG_88_SkColorType:        return "RG88";
         case kAlpha_16_SkColorType:     return "A16";
         case kRG_1616_SkColorType:      return "RG1616";
+        case kAlpha_F16_SkColorType:    return "A_F16";
+        case kRG_F16_SkColorType:       return "RG_F16";
+        case kRGBA_16161616_SkColorType:return "16161616";
     }
     return "";
 }

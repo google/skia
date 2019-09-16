@@ -66,7 +66,17 @@ struct ColorTypeFilter_8 {
     }
 };
 
-struct ColorTypeFilter_F16 {
+struct ColorTypeFilter_Alpha_F16 {
+    typedef uint16_t Type;
+    static float Expand(uint16_t x) {
+        return SkHalfToFloat(x);
+    }
+    static uint16_t Compact(float x) {
+        return (uint16_t) SkFloatToHalf(x);;
+    }
+};
+
+struct ColorTypeFilter_RGBA_F16 {
     typedef uint64_t Type; // SkHalf x4
     static Sk4f Expand(uint64_t x) {
         return SkHalfToFloat_finite_ftz(x);
@@ -95,6 +105,47 @@ struct ColorTypeFilter_1616 {
     }
     static uint16_t Compact(uint64_t x) {
         return (x & 0xFFFF) | ((x >> 16) & ~0xFFFF);
+    }
+};
+
+struct ColorTypeFilter_F16F16 {
+    typedef uint32_t Type;
+    static Sk2f Expand(uint32_t x) {
+        // TODO: add faster way to do this (e.g., Sk2d SkHalfToFloat_finite_ftz(uint32_t) )
+        float v[2] = { SkHalfToFloat(x & 0xFFFF), SkHalfToFloat(x >> 16) };
+        return Sk2f::Load(v);
+    }
+    static uint32_t Compact(/*const*/ Sk2f& x) {
+        // TODO: add faster way to do this (e.g., SkFloatToHalf_finite_ftz(Sk2f).store(uint32_t*) )
+        float v[2];
+        x.store(v);
+        return SkFloatToHalf(v[0]) | (SkFloatToHalf(v[1]) << 16);
+    }
+};
+
+struct ColorTypeFilter_16161616 {
+    typedef uint64_t Type;
+    static Sk4u Expand(uint64_t x) {
+        // TODO: add a faster way to do this
+#if 1
+        return Sk4u((x      ) & 0xFFFF,
+                    (x >> 16) & 0xFFFF,
+                    (x >> 32) & 0xFFFF,
+                    (x >> 48) & 0xFFFF);
+#else
+        return SkNx_cast<uint32_t>(Sk4h::Load(&x));
+#endif
+    }
+    static uint64_t Compact(const Sk4u& x) {
+#if 1
+        unsigned int v[4];
+        x.store(v);
+        return v[0] | (((uint64_t)v[1]) << 16) | (((uint64_t)v[2]) << 32) | (((uint64_t)v[3]) << 48);
+#else
+        uint64_t r;
+        SkNx_cast<uint16_t>(x).store(&r);
+        return r;
+#endif
     }
 };
 
@@ -136,6 +187,14 @@ Sk4f shift_right(const Sk4f& x, int bits) {
     return x * (1.0f / (1 << bits));
 }
 
+Sk2f shift_right(const Sk2f& x, int bits) {
+    return x * (1.0f / (1 << bits));
+}
+
+float shift_right(const float& x, int bits) {
+    return x * (1.0f / (1 << bits));
+}
+
 template <typename T> T shift_left(const T& x, int bits) {
     return x << bits;
 }
@@ -143,6 +202,16 @@ template <typename T> T shift_left(const T& x, int bits) {
 Sk4f shift_left(const Sk4f& x, int bits) {
     return x * (1 << bits);
 }
+
+Sk2f shift_left(const Sk2f& x, int bits) {
+    return x * (1 << bits);
+}
+
+float shift_left(const float& x, int bits) {
+    return x * (1 << bits);
+}
+
+
 
 //
 //  To produce each mip level, we need to filter down by 1/2 (e.g. 100x100 -> 50,50)
@@ -417,14 +486,14 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
             break;
         case kRGBA_F16Norm_SkColorType:
         case kRGBA_F16_SkColorType:
-            proc_1_2 = downsample_1_2<ColorTypeFilter_F16>;
-            proc_1_3 = downsample_1_3<ColorTypeFilter_F16>;
-            proc_2_1 = downsample_2_1<ColorTypeFilter_F16>;
-            proc_2_2 = downsample_2_2<ColorTypeFilter_F16>;
-            proc_2_3 = downsample_2_3<ColorTypeFilter_F16>;
-            proc_3_1 = downsample_3_1<ColorTypeFilter_F16>;
-            proc_3_2 = downsample_3_2<ColorTypeFilter_F16>;
-            proc_3_3 = downsample_3_3<ColorTypeFilter_F16>;
+            proc_1_2 = downsample_1_2<ColorTypeFilter_RGBA_F16>;
+            proc_1_3 = downsample_1_3<ColorTypeFilter_RGBA_F16>;
+            proc_2_1 = downsample_2_1<ColorTypeFilter_RGBA_F16>;
+            proc_2_2 = downsample_2_2<ColorTypeFilter_RGBA_F16>;
+            proc_2_3 = downsample_2_3<ColorTypeFilter_RGBA_F16>;
+            proc_3_1 = downsample_3_1<ColorTypeFilter_RGBA_F16>;
+            proc_3_2 = downsample_3_2<ColorTypeFilter_RGBA_F16>;
+            proc_3_3 = downsample_3_3<ColorTypeFilter_RGBA_F16>;
             break;
         case kRG_88_SkColorType:
             proc_1_2 = downsample_1_2<ColorTypeFilter_88>;
@@ -465,6 +534,36 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
             proc_3_1 = downsample_3_1<ColorTypeFilter_1010102>;
             proc_3_2 = downsample_3_2<ColorTypeFilter_1010102>;
             proc_3_3 = downsample_3_3<ColorTypeFilter_1010102>;
+            break;
+        case kAlpha_F16_SkColorType:
+            proc_1_2 = downsample_1_2<ColorTypeFilter_Alpha_F16>;
+            proc_1_3 = downsample_1_3<ColorTypeFilter_Alpha_F16>;
+            proc_2_1 = downsample_2_1<ColorTypeFilter_Alpha_F16>;
+            proc_2_2 = downsample_2_2<ColorTypeFilter_Alpha_F16>;
+            proc_2_3 = downsample_2_3<ColorTypeFilter_Alpha_F16>;
+            proc_3_1 = downsample_3_1<ColorTypeFilter_Alpha_F16>;
+            proc_3_2 = downsample_3_2<ColorTypeFilter_Alpha_F16>;
+            proc_3_3 = downsample_3_3<ColorTypeFilter_Alpha_F16>;
+            break;
+        case kRG_F16_SkColorType:
+            proc_1_2 = downsample_1_2<ColorTypeFilter_F16F16>;
+            proc_1_3 = downsample_1_3<ColorTypeFilter_F16F16>;
+            proc_2_1 = downsample_2_1<ColorTypeFilter_F16F16>;
+            proc_2_2 = downsample_2_2<ColorTypeFilter_F16F16>;
+            proc_2_3 = downsample_2_3<ColorTypeFilter_F16F16>;
+            proc_3_1 = downsample_3_1<ColorTypeFilter_F16F16>;
+            proc_3_2 = downsample_3_2<ColorTypeFilter_F16F16>;
+            proc_3_3 = downsample_3_3<ColorTypeFilter_F16F16>;
+            break;
+        case kRGBA_16161616_SkColorType:
+            proc_1_2 = downsample_1_2<ColorTypeFilter_16161616>;
+            proc_1_3 = downsample_1_3<ColorTypeFilter_16161616>;
+            proc_2_1 = downsample_2_1<ColorTypeFilter_16161616>;
+            proc_2_2 = downsample_2_2<ColorTypeFilter_16161616>;
+            proc_2_3 = downsample_2_3<ColorTypeFilter_16161616>;
+            proc_3_1 = downsample_3_1<ColorTypeFilter_16161616>;
+            proc_3_2 = downsample_3_2<ColorTypeFilter_16161616>;
+            proc_3_3 = downsample_3_3<ColorTypeFilter_16161616>;
             break;
         default:
             return nullptr;
