@@ -281,7 +281,8 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
                     desc, format, p.fRenderable, p.fSampleCnt, GrProtected::kNo);
         } else {
             texture = resourceProvider->createTexture(desc, format, p.fRenderable, p.fSampleCnt,
-                                                      SkBudgeted::kNo, GrProtected::kNo);
+                                                      GrMipMapped::kNo, SkBudgeted::kNo,
+                                                      GrProtected::kNo);
         }
         return GrSurfaceProxy::LazyCallbackResult(std::move(texture));
     };
