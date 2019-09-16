@@ -32,7 +32,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
         , fTextureView(view) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == info.fLevelCount));
     this->registerWithCache(budgeted);
-    if (GrVkFormatIsCompressed(info.fFormat)) {
+    if (GrPixelConfigIsCompressed(desc.fConfig)) {
         this->setReadOnly();
     }
 }

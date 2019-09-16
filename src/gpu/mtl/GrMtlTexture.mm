@@ -26,9 +26,6 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
         , fTexture(texture) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
     this->registerWithCache(budgeted);
-    if (GrMtlFormatIsCompressed(texture.pixelFormat)) {
-        this->setReadOnly();
-    }
 }
 
 GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
