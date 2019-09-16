@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fcf5ea25_e6179af5",
+        "filename": "experimental/wasm-skp-debugger/tests/debuggerinit.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-09-16T16:56:26Z",
+      "side": 1,
+      "message": "let",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 3
+      },
+      "revId": "d6c07d270ecc4b3d4f66307d3f634bf5f7349b85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44a4d94f_52a987e2",
+        "filename": "experimental/wasm-skp-debugger/tests/startup.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-09-16T16:56:26Z",
+      "side": 1,
+      "message": "nit: Canvas2D",
+      "range": {
+        "startLine": 17,
+        "startChar": 42,
+        "endLine": 17,
+        "endChar": 54
+      },
+      "revId": "d6c07d270ecc4b3d4f66307d3f634bf5f7349b85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc0a47be_6d689291",
+        "filename": "experimental/wasm-skp-debugger/tests/startup.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-09-16T16:56:26Z",
+      "side": 1,
+      "message": "ubernit: const for player, fileContents",
+      "range": {
+        "startLine": 29,
+        "startChar": 20,
+        "endLine": 29,
+        "endChar": 23
+      },
+      "revId": "d6c07d270ecc4b3d4f66307d3f634bf5f7349b85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
