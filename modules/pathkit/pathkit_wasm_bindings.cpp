@@ -504,7 +504,10 @@ EMSCRIPTEN_BINDINGS(skia) {
 
         // Extra features
         .function("setFillType", select_overload<void(SkPathFillType)>(&SkPath::setFillType))
-        .function("getFillType", &SkPath::getFillType)
+        .function("getFillType", optional_override([](SkPath& self) -> SkPathFillType {
+            // TODO(kjlubick): remove this override when SK_SUPPORT_LEGACY_PATH_ENUMS is removed.
+            return (SkPathFillType) self.getFillType();
+        }))
         .function("getFillTypeString", &GetFillTypeString)
         .function("getBounds", &SkPath::getBounds)
         .function("computeTightBounds", &SkPath::computeTightBounds)
