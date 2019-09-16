@@ -70,6 +70,7 @@ static const struct {
     { "gltestpersistentcache", "gpu", "api=gl,testPersistentCache=1" },
     { "gltestglslcache",       "gpu", "api=gl,testPersistentCache=2" },
     { "gltestprecompile",      "gpu", "api=gl,testPrecompile=true" },
+    { "glestestprecompile",    "gpu", "api=gles,testPrecompile=true" },
     { "angle_d3d11_es2",       "gpu", "api=angle_d3d11_es2" },
     { "angle_d3d11_es3",       "gpu", "api=angle_d3d11_es3" },
     { "angle_d3d9_es2",        "gpu", "api=angle_d3d9_es2" },

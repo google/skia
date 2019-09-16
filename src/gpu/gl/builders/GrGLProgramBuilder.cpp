@@ -247,8 +247,12 @@ GrGLProgram* GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* precompi
     if (precompiledProgram) {
         // This is very similar to when we get program binaries. We even set that flag, as it's
         // used to prevent other compile work later, and to force re-querying uniform locations.
+        // We couldn't bind attribute or program resource locations during the pre-compile, so do
+        // that now. Those APIs don't take effect until the next link, so re-link the program.
         this->addInputVars(precompiledProgram->fInputs);
-        this->computeCountsAndStrides(programID, primProc, false);
+        this->computeCountsAndStrides(programID, primProc, true);
+        this->bindProgramResourceLocations(programID);
+        GL_CALL(LinkProgram(programID));
         usedProgramBinaries = true;
     } else if (cached) {
         SkReader32 reader(fCached->data(), fCached->size());
