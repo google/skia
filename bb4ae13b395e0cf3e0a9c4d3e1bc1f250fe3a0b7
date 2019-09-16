@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0dc97bcd_d00d92ec",
+        "filename": "modules/particles/include/SkParticleEffect.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-16T17:28:06Z",
+      "side": 1,
+      "message": "Is this meant to be a boolean 0/1, or a number of loops to run with 0 being infinite? I didn\u0027t spot anything that stopped looping, it just kept incrementing the fLoopCount variable.",
+      "range": {
+        "startLine": 49,
+        "startChar": 15,
+        "endLine": 49,
+        "endChar": 19
+      },
+      "revId": "bb4ae13b395e0cf3e0a9c4d3e1bc1f250fe3a0b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47786b98_843b201d",
+        "filename": "modules/particles/include/SkParticleEffect.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-16T17:28:06Z",
+      "side": 1,
+      "message": "A later comment in SkParticleEffect.cpp makes it seem like one of rate or burst should be used, if so, that behavior should be documented up here for particle authors.",
+      "range": {
+        "startLine": 50,
+        "startChar": 15,
+        "endLine": 50,
+        "endChar": 19
+      },
+      "revId": "bb4ae13b395e0cf3e0a9c4d3e1bc1f250fe3a0b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f79f87e5_71ce8758",
+        "filename": "modules/particles/include/SkParticleEffect.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-16T17:28:06Z",
+      "side": 1,
+      "message": "What are the units for burst? Particles per frame or second?\n\n - scratch that, it looks like it\u0027s particles to spawn on first frame, so multiple bursts or rate-limited bursts requires setting it to loop and have an age, correct?",
+      "range": {
+        "startLine": 51,
+        "startChar": 15,
+        "endLine": 51,
+        "endChar": 20
+      },
+      "revId": "bb4ae13b395e0cf3e0a9c4d3e1bc1f250fe3a0b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd76cb80_99f15f95",
+        "filename": "modules/particles/include/SkParticleEffect.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-16T17:28:06Z",
+      "side": 1,
+      "message": "nit",
+      "range": {
+        "startLine": 98,
+        "startChar": 59,
+        "endLine": 98,
+        "endChar": 63
+      },
+      "revId": "bb4ae13b395e0cf3e0a9c4d3e1bc1f250fe3a0b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8040b993_08ceb41d",
+        "filename": "modules/particles/include/SkParticleEffect.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-16T17:28:06Z",
+      "side": 1,
+      "message": "Should it not be used at all? or just treated as read-only so you can measure how close to death the particle is with \u0027lifetime - age\u0027? Could we instead have \u0027age\u0027 and \u0027lifetime\u0027 combined into a countdown towards 0?\n\n - addendum, looks like this may be more complicated since it appears age is normalized to 0 to 1 based on lifetime?",
+      "range": {
+        "startLine": 102,
+        "startChar": 83,
+        "endLine": 102,
+        "endChar": 98
+      },
+      "revId": "bb4ae13b395e0cf3e0a9c4d3e1bc1f250fe3a0b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95e9f00f_a7e8a74b",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-16T17:28:06Z",
+      "side": 1,
+      "message": "This would be cool if the script could set fields for a new effect to spawn on its death",
+      "range": {
+        "startLine": 244,
+        "startChar": 37,
+        "endLine": 244,
+        "endChar": 43
+      },
+      "revId": "bb4ae13b395e0cf3e0a9c4d3e1bc1f250fe3a0b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
