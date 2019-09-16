@@ -286,6 +286,11 @@ def dm_flags(api, bot):
         blacklist('gltestprecompile gm _ dftext')
         blacklist('gltestprecompile gm _ glyph_pos_h_b')
 
+    # We also test the SkSL precompile config on Pixel2XL as a representative
+    # Android device - this feature is primarily used by Flutter.
+    if 'Pixel2XL' in bot and 'Vulkan' not in bot:
+      configs.append('glestestprecompile')
+
     # Test rendering to wrapped dsts on a few bots
     # Also test 'glenarrow', which hits F16 surfaces and F16 vertex colors.
     if 'BonusConfigs' in api.vars.extra_tokens:
@@ -1032,6 +1037,7 @@ TEST_BUILDERS = [
   'Test-Android-Clang-Nexus7-CPU-Tegra3-arm-Release-All-Android',
   'Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_Vulkan',
   'Test-Android-Clang-Pixel-GPU-Adreno530-arm-Debug-All-Android_ASAN',
+  'Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All-Android',
   'Test-Android-Clang-Pixel3-GPU-Adreno630-arm64-Debug-All-Android_Vulkan',
   ('Test-ChromeOS-Clang-AcerChromebookR13Convertible-GPU-PowerVRGX6250-'
    'arm-Debug-All'),
