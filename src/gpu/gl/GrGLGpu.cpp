@@ -1298,6 +1298,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
                     this->unbindSurfaceFBOForPixelOps(tex.get(), i, GR_GL_FRAMEBUFFER);
                 }
             }
+            fHWBoundRenderTargetUniqueID.makeInvalid();
         } else {
             std::unique_ptr<char[]> zeros;
             GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
