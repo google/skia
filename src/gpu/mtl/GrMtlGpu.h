@@ -143,9 +143,7 @@ private:
                                      uint32_t levelClearMask) override;
     sk_sp<GrTexture> onCreateCompressedTexture(int width, int height, const GrBackendFormat&,
                                                SkImage::CompressionType, SkBudgeted,
-                                               const void* data) override {
-        return nullptr;
-    }
+                                               const void* data) override;
 
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrColorType,
                                           GrWrapOwnership, GrWrapCacheable, GrIOType) override;
