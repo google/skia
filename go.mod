@@ -7,9 +7,9 @@ require (
 	github.com/flynn/json5 v0.0.0-20160717195620-7620272ed633
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/uuid v1.1.1
-	github.com/unrolled/secure v1.0.3 // indirect
-	go.chromium.org/luci v0.0.0-20190914205813-55da0cd4ce87 // indirect
-	go.skia.org/infra v0.0.0-20190915021605-2cd1d3e375a6
-	golang.org/x/tools v0.0.0-20190914235951-31e00f45c22e // indirect
+	github.com/gopherjs/gopherjs v0.0.0-20190915194858-d3ddacdb130f // indirect
+	github.com/prometheus/procfs v0.0.5 // indirect
+	go.skia.org/infra v0.0.0-20190915123010-19fff1dbcd61
+	golang.org/x/tools v0.0.0-20190916034716-92af9d69eff2 // indirect
 	google.golang.org/api v0.10.0
 )
