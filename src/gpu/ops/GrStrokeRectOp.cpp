@@ -724,7 +724,7 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(GrVertexWriter& vertices,
 
         // The innermost rect has 0 coverage...
         vertices.writeQuad(inset_fan(devInside, SK_ScalarHalf, SK_ScalarHalf),
-                           GrVertexColor(SK_PMColor4fTRANSPARENT, wideColor),
+                           outerColor,
                            maybe_coverage(0.0f));
     } else {
         // When the interior rect has become degenerate we smoosh to a single point
