@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
     for (auto xradius : { 0, 7, 13, 20 } ) {
         for (auto yradius : { 0, 9, 18, 40 } ) {
             SkPath path;
-            path.addRoundRect({10, 10, 36, 46}, xradius, yradius);
+            path.addRRect(SkRRect::MakeRectXY({10, 10, 36, 46}, xradius, yradius));
             paint.setColor(path.isRect(nullptr) ? SK_ColorRED : path.isOval(nullptr) ?
                            SK_ColorBLUE : path.isConvex() ? SK_ColorGRAY : SK_ColorGREEN);
             canvas->drawPath(path, paint);

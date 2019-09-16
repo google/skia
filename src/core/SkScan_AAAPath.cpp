@@ -16,6 +16,7 @@
 #include "src/core/SkEdge.h"
 #include "src/core/SkEdgeBuilder.h"
 #include "src/core/SkGeometry.h"
+#include "src/core/SkPathPriv.h"
 #include "src/core/SkQuadClipper.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScan.h"
@@ -1546,7 +1547,7 @@ static void deferred_blit(SkAnalyticEdge* leftE,
 
 static void aaa_walk_edges(SkAnalyticEdge*  prevHead,
                            SkAnalyticEdge*  nextTail,
-                           SkPath::FillType fillType,
+                           SkPathFillType   fillType,
                            AdditiveBlitter* blitter,
                            int              start_y,
                            int              stop_y,
@@ -1571,9 +1572,9 @@ static void aaa_walk_edges(SkAnalyticEdge*  prevHead,
     }
 
     // returns 1 for evenodd, -1 for winding, regardless of inverse-ness
-    int windingMask = (fillType & 1) ? 1 : -1;
+    int windingMask = (static_cast<int>(fillType) & 1) ? 1 : -1;
 
-    bool isInverse = SkPath::IsInverseFillType(fillType);
+    bool isInverse = SkPathPriv::IsInverseFillType(fillType);
 
     if (isInverse && SkIntToFixed(start_y) != y) {
         int width = SkFixedFloorToInt(rightClip - leftClip);

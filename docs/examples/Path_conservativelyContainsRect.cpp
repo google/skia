@@ -5,7 +5,7 @@
 REG_FIDDLE(Path_conservativelyContainsRect, 256, 140, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPath path;
-    path.addRoundRect({10, 20, 54, 120}, 10, 20);
+    path.addRRect(SkRRect::MakeRectXY({10, 20, 54, 120}, 10, 20));
     SkRect tests[] = {
       { 10, 40, 54, 80 },
       { 25, 20, 39, 120 },

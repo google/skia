@@ -77,8 +77,8 @@ protected:
         fRect.inset(5, 5);
         fRect.offset(25, 25);
 
-        fBasePath.addRoundRect(fBase, SkIntToScalar(5), SkIntToScalar(5));
-        fRectPath.addRoundRect(fRect, SkIntToScalar(5), SkIntToScalar(5));
+        fBasePath.addRRect(SkRRect::MakeRectXY(fBase, 5, 5));
+        fRectPath.addRRect(SkRRect::MakeRectXY(fRect, 5, 5));
         INHERITED::setBGColor(0xFFDDDDDD);
     }
 

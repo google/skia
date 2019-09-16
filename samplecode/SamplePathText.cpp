@@ -278,7 +278,7 @@ public:
 
             SkPath* backpath = &fBackPaths[i];
             backpath->reset();
-            backpath->setFillType(SkPath::kEvenOdd_FillType);
+            backpath->setFillType(SkPathFillType::kEvenOdd);
 
             SkPath::RawIter iter(glyph.fPath);
             SkPath::Verb verb;

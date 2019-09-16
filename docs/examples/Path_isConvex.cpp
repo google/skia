@@ -11,7 +11,7 @@ void draw(SkCanvas* canvas) {
         SkPath path;
         quad[0].fX = x;
         path.addPoly(quad, SK_ARRAY_COUNT(quad), true);
-        path.setConvexity(SkPath::kConvex_Convexity);
+        path.setConvexity(SkPathConvexityType::kConvex);
         canvas->drawPath(path, paint);
         canvas->drawString(path.isConvex() ? "convex" : "not convex", 30, 100, paint);
         canvas->translate(100, 100);

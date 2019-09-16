@@ -47,7 +47,7 @@ enum ShadowMode {
 
 void draw_paths(SkCanvas* canvas, ShadowMode mode) {
     SkTArray<SkPath> paths;
-    paths.push_back().addRoundRect(SkRect::MakeWH(50, 50), 10, 10);
+    paths.push_back().addRRect(SkRRect::MakeRectXY(SkRect::MakeWH(50, 50), 10, 10));
     SkRRect oddRRect;
     oddRRect.setNinePatch(SkRect::MakeWH(50, 50), 9, 13, 6, 16);
     paths.push_back().addRRect(oddRRect);

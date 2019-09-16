@@ -49,7 +49,7 @@ DEF_SIMPLE_GM(path_huge_aa, canvas, 200, 200) {
 
         SkPaint paint;
         SkPath path;
-        path.addRoundRect(SkRect::MakeXYWH(4, 4, w - 8, h - 8), 12, 12);
+        path.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(4, 4, w - 8, h - 8), 12, 12));
 
         canvas->save();
         canvas->clipRect(SkRect::MakeXYWH(4, 4, 64, 64));

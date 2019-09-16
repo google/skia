@@ -6,8 +6,8 @@ REG_FIDDLE(Path_getConvexityOrUnknown, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     auto debugster = [](const char* prefix, const SkPath& path) -> void {
         SkDebugf("%s path convexity is %s\n", prefix,
-            SkPath::kUnknown_Convexity == path.getConvexityOrUnknown() ? "unknown" :
-            SkPath::kConvex_Convexity == path.getConvexityOrUnknown() ? "convex" : "concave"); };
+            SkPathConvexityType::kUnknown == (SkPathConvexityType)path.getConvexityOrUnknown() ? "unknown" :
+            SkPathConvexityType::kConvex == (SkPathConvexityType)path.getConvexityOrUnknown() ? "convex" : "concave"); };
     SkPath path;
     debugster("initial", path);
     path.lineTo(50, 0);

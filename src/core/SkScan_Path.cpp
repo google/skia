@@ -97,14 +97,14 @@ typedef void (*PrePostProc)(SkBlitter* blitter, int y, bool isStartOfScanline);
 #define PREPOST_START   true
 #define PREPOST_END     false
 
-static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
+static void walk_edges(SkEdge* prevHead, SkPathFillType fillType,
                        SkBlitter* blitter, int start_y, int stop_y,
                        PrePostProc proc, int rightClip) {
     validate_sort(prevHead->fNext);
 
     int curr_y = start_y;
     // returns 1 for evenodd, -1 for winding, regardless of inverse-ness
-    int windingMask = (fillType & 1) ? 1 : -1;
+    int windingMask = (static_cast<int>(fillType) & 1) ? 1 : -1;
 
     for (;;) {
         int     w = 0;
