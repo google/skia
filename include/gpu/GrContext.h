@@ -250,6 +250,9 @@ public:
         if (kRG_88_SkColorType == colorType ||
             kRG_1616_SkColorType == colorType ||
             kAlpha_16_SkColorType == colorType ||
+            kAlpha_F16_SkColorType == colorType ||
+            kRG_F16_SkColorType == colorType ||
+            kRGBA_16161616_SkColorType == colorType ||
             kGray_8_SkColorType == colorType) {
             return false;
         }
