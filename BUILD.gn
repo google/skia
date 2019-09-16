@@ -1324,31 +1324,19 @@ if (skia_enable_tools) {
         ]
       }
 
-      has_skps = "True" == exec_script("//gn/checkdir.py",
-                                       [ rebase_path("skps", root_build_dir) ],
-                                       "trim string")
-      bundle_data("${app_name}_bundle_resources") {
-        sources = [
-          "resources",
-        ]
-        outputs = [
-          # iOS reserves the folders 'Resources' and 'resources' so store one level deeper
-          "{{bundle_resources_dir}}/data/resources",
-        ]
+      bundle_data("${app_name}_bundle_resources_and_skps") {
+        sources = [ "resources" ]
+        if ("True" == exec_script("//gn/checkdir.py",
+                                  [ rebase_path("skps", root_build_dir) ],
+                                  "trim string")) {
+          sources += [ "skps" ]
+        }
+        # iOS reserves the folders 'Resources' and 'resources' so store one level deeper
+        outputs = [ "{{bundle_resources_dir}}/data/{{source_file_part}}" ]
       }
+
       bundle_data_ib_file("${app_name}_bundle_launchscreen") {
         source = "platform_tools/ios/app/LaunchScreen.storyboard"
-      }
-      if (has_skps) {
-        bundle_data("${app_name}_bundle_skps") {
-          sources = [
-            "skps",
-          ]
-          outputs = [
-            # Store in same folder as resources
-            "{{bundle_resources_dir}}/data/skps",
-          ]
-        }
       }
 
       executable("${app_name}_generate_executable") {
@@ -1362,19 +1350,6 @@ if (skia_enable_tools) {
         configs += [ ":skia_private" ]
         testonly = true
         output_name = rebase_path("$gen_path/$app_name", root_build_dir)
-      }
-
-      bundle_data("${app_name}_bundle_executable") {
-        public_deps = [
-          ":${app_name}_generate_executable",
-        ]
-        sources = [
-          "$gen_path/$app_name",
-        ]
-        outputs = [
-          "{{bundle_executable_dir}}/$app_name",
-        ]
-        testonly = true
       }
 
       action("${app_name}_dsymutil") {
@@ -1396,15 +1371,17 @@ if (skia_enable_tools) {
         pool = "//gn/toolchain:dsymutil_pool($default_toolchain)"
       }
 
-      bundle_data("${app_name}_bundle_symbols") {
+      bundle_data("${app_name}_bundle_executable_and_symbols") {
         public_deps = [
+          ":${app_name}_generate_executable",
           ":${app_name}_dsymutil",
         ]
         sources = [
+          "$gen_path/${app_name}",
           "$gen_path/${app_name}.dSYM",
         ]
         outputs = [
-          "{{bundle_executable_dir}}/${app_name}.dSYM",
+          "{{bundle_executable_dir}}/{{source_file_part}}",
         ]
         testonly = true
       }
@@ -1418,15 +1395,11 @@ if (skia_enable_tools) {
         bundle_executable_dir = bundle_root_dir
 
         deps = [
-          ":${app_name}_bundle_executable",
+          ":${app_name}_bundle_executable_and_symbols",
           ":${app_name}_bundle_info_plist",
           ":${app_name}_bundle_launchscreen",
-          ":${app_name}_bundle_resources",
-          ":${app_name}_bundle_symbols",
+          ":${app_name}_bundle_resources_and_skps",
         ]
-        if (has_skps) {
-          deps += [ ":${app_name}_bundle_skps" ]
-        }
 
         # should only code sign when running on a device, not the simulator
         if (target_cpu != "x64") {
