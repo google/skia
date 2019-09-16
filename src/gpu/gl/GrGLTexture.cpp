@@ -50,7 +50,7 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const Desc& desc,
         , fParameters(sk_make_sp<GrGLTextureParameters>()) {
     this->init(desc);
     this->registerWithCache(budgeted);
-    if (GrGLFormatIsCompressed(desc.fFormat)) {
+    if (GrPixelConfigIsCompressed(desc.fConfig)) {
         this->setReadOnly();
     }
 }

@@ -745,7 +745,8 @@ void GrMtlCaps::initFormatTable() {
 #ifdef SK_BUILD_FOR_IOS
     // ETC2_RGB8
     info = &fFormatTable[GetFormatIndex(MTLPixelFormatETC2_RGB8)];
-    info->fFlags = FormatInfo::kTexturable_Flag;
+    // GrMtlGpu::onCreateCompressedTexture() not implemented.
+    info->fFlags = 0;
     // NO supported colorTypes
 #endif
 
