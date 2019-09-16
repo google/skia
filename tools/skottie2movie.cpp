@@ -24,6 +24,7 @@ static DEFINE_bool2(loop, l, false, "loop mode for profiling");
 static DEFINE_double(motion_angle, 180, "motion blur angle");
 static DEFINE_double(motion_slope, 0, "motion blur slope");
 static DEFINE_int(motion_samples, 1, "motion blur samples");
+static DEFINE_int(set_dst_width, 0, "set destination width (height will be computed)");
 
 static void produce_frame(SkSurface* surf, skottie::Animation* anim, double frame_time) {
     anim->seekFrameTime(frame_time);
@@ -106,11 +107,17 @@ int main(int argc, char** argv) {
         fps = 240;
     }
 
+    float scale = 1;
+    if (FLAGS_set_dst_width > 0) {
+        scale = FLAGS_set_dst_width / (float)dim.width();
+        dim = { FLAGS_set_dst_width, SkScalarRoundToInt(scale * dim.height()) };
+    }
+
     const int frames = SkScalarRoundToInt(duration * fps);
     const double frame_duration = 1.0 / fps;
 
     if (FLAGS_verbose) {
-        SkDebugf("size %dx%d duration %g, fps %d, frame_duration %g\n",
+        SkDebugf("Size %dx%d duration %g, fps %d, frame_duration %g\n",
                  dim.width(), dim.height(), duration, fps, frame_duration);
     }
 
@@ -127,6 +134,9 @@ int main(int argc, char** argv) {
         if (!surf) {
             surf = SkSurface::MakeRaster(encoder.preferredInfo());
             tmp_surf = surf->makeSurface(surf->width(), surf->height());
+
+                surf->getCanvas()->scale(scale, scale);
+            tmp_surf->getCanvas()->scale(scale, scale);
         }
 
         for (int i = 0; i <= frames; ++i) {
