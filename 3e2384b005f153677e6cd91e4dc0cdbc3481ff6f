@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "960e5330_f9789a98",
+        "filename": "experimental/minimal_ios_mtl_skia_app/BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-09-16T18:05:36Z",
+      "side": 1,
+      "message": "Do you need to define extra_configs and data_sources somewhere in here?",
+      "range": {
+        "startLine": 9,
+        "startChar": 1,
+        "endLine": 25,
+        "endChar": 0
+      },
+      "revId": "3e2384b005f153677e6cd91e4dc0cdbc3481ff6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
