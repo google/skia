@@ -1076,8 +1076,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("toSVGString", &ToSVGString)
         .function("toCmds", &ToCmds)
 
-        .function("setFillType", &SkPath::setFillType)
-        .function("getFillType", &SkPath::getFillType)
+        .function("setFillType", select_overload<void(SkPathFillType)>(&SkPath::setFillType))
+        .function("getFillType", optional_override([](SkPath& self) -> SkPathFillType {
+            // TODO(kjlubick): remove this override when SK_SUPPORT_LEGACY_PATH_ENUMS is removed.
+            return (SkPathFillType) self.getFillType();
+        }))
         .function("getBounds", &SkPath::getBounds)
         .function("computeTightBounds", &SkPath::computeTightBounds)
         .function("equals", &Equals)
@@ -1277,11 +1280,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("Alpha_16", SkColorType::kAlpha_16_SkColorType)
         .value("RG_1616", SkColorType::kRG_1616_SkColorType);
 
-    enum_<SkPath::FillType>("FillType")
-        .value("Winding",           SkPath::FillType::kWinding_FillType)
-        .value("EvenOdd",           SkPath::FillType::kEvenOdd_FillType)
-        .value("InverseWinding",    SkPath::FillType::kInverseWinding_FillType)
-        .value("InverseEvenOdd",    SkPath::FillType::kInverseEvenOdd_FillType);
+    enum_<SkPathFillType>("FillType")
+        .value("Winding",           SkPathFillType::kWinding)
+        .value("EvenOdd",           SkPathFillType::kEvenOdd)
+        .value("InverseWinding",    SkPathFillType::kInverseWinding)
+        .value("InverseEvenOdd",    SkPathFillType::kInverseEvenOdd);
 
     enum_<SkFilterQuality>("FilterQuality")
         .value("None",   SkFilterQuality::kNone_SkFilterQuality)

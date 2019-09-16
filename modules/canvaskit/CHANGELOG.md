@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
  - `MakeSkVertices` uses a builder to save a copy.
+ - Underlying FillType enum (external values are the same).
 
 ### Breaking
  - When `SkPath.arcTo` is given seven arguments, it no longer turns the first four into
