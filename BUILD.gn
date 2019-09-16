@@ -17,6 +17,8 @@ if (defined(skia_settings)) {
   import(skia_settings)
 }
 
+import("gn/ios.gni")
+
 # Skia public API, generally provided by :skia.
 config("skia_public") {
   include_dirs = [ "." ]
@@ -1197,149 +1199,9 @@ if (skia_enable_tools) {
     }
   }
 
-  # Template to compile .xib and .storyboard files.
-  #
-  # Arguments
-  #
-  #     sources:
-  #         list of string, sources to compile
-  #
-  #     ibtool_flags:
-  #         (optional) list of string, additional flags to pass to the ibtool
-  template("compile_ib_files") {
-    action_foreach(target_name) {
-      forward_variables_from(invoker,
-                             [
-                               "testonly",
-                               "visibility",
-                             ])
-      assert(defined(invoker.sources),
-             "sources must be specified for $target_name")
-      assert(defined(invoker.output_extension),
-             "output_extension must be specified for $target_name")
-
-      ibtool_flags = []
-      if (defined(invoker.ibtool_flags)) {
-        ibtool_flags = invoker.ibtool_flags
-      }
-
-      _output_extension = invoker.output_extension
-
-      script = "//gn/compile_ib_files.py"
-      sources = invoker.sources
-      outputs = [
-        "$target_gen_dir/$target_name/{{source_name_part}}.$_output_extension",
-      ]
-      args = [
-        "--input",
-        "{{source}}",
-        "--output",
-        rebase_path(
-            "$target_gen_dir/$target_name/{{source_name_part}}.$_output_extension",
-            root_build_dir),
-      ]
-
-      #    if (!use_system_xcode) {
-      #      args += [
-      #        "--developer_dir",
-      #        hermetic_xcode_path,
-      #      ]
-      #    }
-      args += ibtool_flags
-    }
-  }
-
-  template("bundle_data_ib_file") {
-    assert(defined(invoker.source),
-           "source needs to be defined for $target_name")
-
-    _source_extension = get_path_info(invoker.source, "extension")
-    assert(_source_extension == "xib" || _source_extension == "storyboard",
-           "source must be a .xib or .storyboard for $target_name")
-
-    _target_name = target_name
-    if (_source_extension == "xib") {
-      _compile_ib_file = target_name + "_compile_xib"
-      _output_extension = "nib"
-    } else {
-      _compile_ib_file = target_name + "_compile_storyboard"
-      _output_extension = "storyboardc"
-    }
-
-    compile_ib_files(_compile_ib_file) {
-      sources = [
-        invoker.source,
-      ]
-      output_extension = _output_extension
-      visibility = [ ":$_target_name" ]
-      ibtool_flags = [
-        #        "--minimum-deployment-target",
-        #        ios_deployment_target,
-        "--auto-activate-custom-fonts",
-        "--target-device",
-        "iphone",
-        "--target-device",
-        "ipad",
-      ]
-    }
-
-    bundle_data(_target_name) {
-      forward_variables_from(invoker, "*", [ "source" ])
-
-      if (!defined(public_deps)) {
-        public_deps = []
-      }
-      public_deps += [ ":$_compile_ib_file" ]
-
-      sources = get_target_outputs(":$_compile_ib_file")
-
-      outputs = [
-        "{{bundle_resources_dir}}/{{source_file_part}}",
-      ]
-    }
-  }
-
   template("test_app") {
     if (is_ios) {
-      app_name = target_name
-      gen_path = target_gen_dir
-
-      action("${app_name}_generate_info_plist") {
-        script = "//gn/gen_plist_ios.py"
-        outputs = [
-          "$gen_path/${app_name}_Info.plist",
-        ]
-        args = [ rebase_path("$gen_path/$app_name", root_build_dir) ]
-      }
-
-      bundle_data("${app_name}_bundle_info_plist") {
-        public_deps = [
-          ":${app_name}_generate_info_plist",
-        ]
-        sources = [
-          "$gen_path/${app_name}_Info.plist",
-        ]
-        outputs = [
-          "{{bundle_root_dir}}/Info.plist",
-        ]
-      }
-
-      bundle_data("${app_name}_bundle_resources_and_skps") {
-        sources = [ "resources" ]
-        if ("True" == exec_script("//gn/checkdir.py",
-                                  [ rebase_path("skps", root_build_dir) ],
-                                  "trim string")) {
-          sources += [ "skps" ]
-        }
-        # iOS reserves the folders 'Resources' and 'resources' so store one level deeper
-        outputs = [ "{{bundle_resources_dir}}/data/{{source_file_part}}" ]
-      }
-
-      bundle_data_ib_file("${app_name}_bundle_launchscreen") {
-        source = "platform_tools/ios/app/LaunchScreen.storyboard"
-      }
-
-      executable("${app_name}_generate_executable") {
+      ios_app_bundle(target_name) {
         forward_variables_from(invoker,
                                "*",
                                [
@@ -1347,73 +1209,14 @@ if (skia_enable_tools) {
                                  "visibility",
                                  "is_shared_library",
                                ])
-        configs += [ ":skia_private" ]
         testonly = true
-        output_name = rebase_path("$gen_path/$app_name", root_build_dir)
-      }
-
-      action("${app_name}_dsymutil") {
-        public_deps = [
-          ":${app_name}_generate_executable",
-        ]
-        sources = [
-          "$gen_path/$app_name",
-        ]
-        script = "//gn/call.py"
-        args = [
-          "dsymutil",
-          rebase_path("$gen_path/$app_name"),
-        ]
-        outputs = [
-          "$gen_path/${app_name}.dSYM",
-        ]
-        testonly = true
-        pool = "//gn/toolchain:dsymutil_pool($default_toolchain)"
-      }
-
-      bundle_data("${app_name}_bundle_executable_and_symbols") {
-        public_deps = [
-          ":${app_name}_generate_executable",
-          ":${app_name}_dsymutil",
-        ]
-        sources = [
-          "$gen_path/${app_name}",
-          "$gen_path/${app_name}.dSYM",
-        ]
-        outputs = [
-          "{{bundle_executable_dir}}/{{source_file_part}}",
-        ]
-        testonly = true
-      }
-
-      create_bundle("$app_name") {
-        product_type = "com.apple.product-type.application"
-        testonly = true
-
-        bundle_root_dir = "${root_build_dir}/${target_name}.app"
-        bundle_resources_dir = bundle_root_dir
-        bundle_executable_dir = bundle_root_dir
-
-        deps = [
-          ":${app_name}_bundle_executable_and_symbols",
-          ":${app_name}_bundle_info_plist",
-          ":${app_name}_bundle_launchscreen",
-          ":${app_name}_bundle_resources_and_skps",
-        ]
-
-        # should only code sign when running on a device, not the simulator
-        if (target_cpu != "x64") {
-          code_signing_script = "//gn/codesign_ios.py"
-          code_signing_sources = [ "$target_gen_dir/$app_name" ]
-          code_signing_outputs = [
-            "$bundle_root_dir/_CodeSignature/CodeResources",
-            "$bundle_root_dir/embedded.mobileprovision",
-          ]
-          code_signing_args = [
-            rebase_path("$bundle_root_dir", root_build_dir),
-            skia_ios_identity,
-            skia_ios_profile,
-          ]
+        extra_configs = [ ":skia_private" ]
+        launchscreen = "platform_tools/ios/app/LaunchScreen.storyboard"
+        data_sources = [ "resources" ]
+        if ("True" == exec_script("//gn/checkdir.py",
+                                  [ rebase_path("skps", root_build_dir) ],
+                                  "trim string")) {
+          data_sources += [ "skps" ]
         }
       }
     } else {

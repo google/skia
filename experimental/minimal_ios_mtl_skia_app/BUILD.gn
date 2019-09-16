@@ -1,0 +1,26 @@
+# Copyright 2019 Google LLC.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../../gn/ios.gni")
+
+if (is_ios && skia_use_metal) {
+  ios_app_bundle("minimal_ios_mtl_skia_app") {
+    sources = [
+      "main.mm",
+    ]
+    deps = [
+      "../..:skia",
+    ]
+    cflags_objcc = [
+      "-std=c++14",
+      "-w",
+    ]
+    libs = [
+      "Metal.framework",
+      "MetalKit.framework",
+      "UIKit.framework",
+    ]
+    launchscreen = "../../platform_tools/ios/app/LaunchScreen.storyboard"
+  }
+}
