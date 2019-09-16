@@ -70,6 +70,30 @@
       "revId": "be95c08a4ce1bce0e6a09111b2907cd34dc5f3a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b2865242_eac22510",
+        "filename": "experimental/minimal_ios_mtl_skia_app/main.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-09-16T19:48:53Z",
+      "side": 1,
+      "message": "Cleanup in https://review.skia.org/241042",
+      "parentUuid": "0470b6aa_ef12cda7",
+      "range": {
+        "startLine": 89,
+        "startChar": 4,
+        "endLine": 90,
+        "endChar": 18
+      },
+      "revId": "be95c08a4ce1bce0e6a09111b2907cd34dc5f3a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
