@@ -84,9 +84,9 @@ protected:
         // We're about to be idle in the resource cache. Do our part to trigger the idle callbacks.
         fIdleProcs.reset();
     }
+    void computeScratchKey(GrScratchKey*) const override;
 
 private:
-    void computeScratchKey(GrScratchKey*) const override;
     size_t onGpuMemorySize() const override;
     void markMipMapsDirty();
     void markMipMapsClean();
