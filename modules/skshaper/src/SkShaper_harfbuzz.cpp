@@ -1103,14 +1103,13 @@ void ShapeThenWrap::wrap(char const * const utf8, size_t utf8Bytes,
     ShapedRunGlyphIterator glyphIterator(runs);
     int previousRunIndex = -1;
     while (glyphIterator.current()) {
-        int runIndex = glyphIterator.fRunIndex;
-        size_t glyphIndex = glyphIterator.fGlyphIndex;
+        const ShapedRunGlyphIterator current = glyphIterator;
         ShapedGlyph* nextGlyph = glyphIterator.next();
 
-        if (previousRunIndex != runIndex) {
+        if (previousRunIndex != current.fRunIndex) {
             SkFontMetrics metrics;
-            runs[runIndex].fFont.getMetrics(&metrics);
-            previousRunIndex = runIndex;
+            runs[current.fRunIndex].fFont.getMetrics(&metrics);
+            previousRunIndex = current.fRunIndex;
         }
 
         // Nothing can be written until the baseline is known.
@@ -1118,7 +1117,7 @@ void ShapeThenWrap::wrap(char const * const utf8, size_t utf8Bytes,
             continue;
         }
 
-        int numRuns = runIndex - previousBreak.fRunIndex + 1;
+        int numRuns = current.fRunIndex - previousBreak.fRunIndex + 1;
         SkAutoSTMalloc<4, UBiDiLevel> runLevels(numRuns);
         for (int i = 0; i < numRuns; ++i) {
             runLevels[i] = runs[previousBreak.fRunIndex + i].fLevel;
@@ -1130,38 +1129,46 @@ void ShapeThenWrap::wrap(char const * const utf8, size_t utf8Bytes,
         // until a visible glyph is found and force them to the end of the visual line.
 
         handler->beginLine();
-        for (int i = 0; i < numRuns; ++i) {
-            int logicalIndex = previousBreak.fRunIndex + logicalFromVisual[i];
-            const auto& run = runs[logicalIndex];
-            const RunHandler::RunInfo info = {
-                run.fFont,
-                run.fLevel,
-                run.fAdvance,
-                run.fNumGlyphs,
-                run.fUtf8Range
-            };
-            handler->runInfo(info);
-        }
-        handler->commitRunInfo();
-        for (int i = 0; i < numRuns; ++i) {
-            int logicalIndex = previousBreak.fRunIndex + logicalFromVisual[i];
-            const auto& run = runs[logicalIndex];
-            const RunHandler::RunInfo info = {
-                run.fFont,
-                run.fLevel,
-                run.fAdvance,
-                run.fNumGlyphs,
-                run.fUtf8Range
-            };
 
+        struct SubRun { const ShapedRun& run; size_t startGlyphIndex; size_t endGlyphIndex; };
+        auto makeSubRun = [&runs, &previousBreak, &current, &logicalFromVisual](size_t visualIndex){
+            int logicalIndex = previousBreak.fRunIndex + logicalFromVisual[visualIndex];
+            const auto& run = runs[logicalIndex];
             size_t startGlyphIndex = (logicalIndex == previousBreak.fRunIndex)
                                    ? previousBreak.fGlyphIndex
                                    : 0;
-            size_t endGlyphIndex = (logicalIndex == runIndex)
-                                 ? glyphIndex + 1
+            size_t endGlyphIndex = (logicalIndex == current.fRunIndex)
+                                 ? current.fGlyphIndex + 1
                                  : run.fNumGlyphs;
+            return SubRun{ run, startGlyphIndex, endGlyphIndex };
+        };
+        auto makeRunInfo = [](const SubRun& sub) {
+            uint32_t startUtf8 = sub.run.fGlyphs[sub.startGlyphIndex].fCluster;
+            uint32_t endUtf8 = (sub.endGlyphIndex < sub.run.fNumGlyphs)
+                             ? sub.run.fGlyphs[sub.endGlyphIndex].fCluster
+                             : sub.run.fUtf8Range.end();
 
-            append(handler, info, run, startGlyphIndex, endGlyphIndex);
+            SkVector advance = SkVector::Make(0, 0);
+            for (size_t i = sub.startGlyphIndex; i < sub.endGlyphIndex; ++i) {
+                advance += sub.run.fGlyphs[i].fAdvance;
+            }
+
+            return RunHandler::RunInfo{
+                sub.run.fFont,
+                sub.run.fLevel,
+                advance,
+                sub.endGlyphIndex - sub.startGlyphIndex,
+                RunHandler::Range(startUtf8, endUtf8 - startUtf8)
+            };
+        };
+
+        for (int i = 0; i < numRuns; ++i) {
+            handler->runInfo(makeRunInfo(makeSubRun(i)));
+        }
+        handler->commitRunInfo();
+        for (int i = 0; i < numRuns; ++i) {
+            SubRun sub = makeSubRun(i);
+            append(handler, makeRunInfo(sub), sub.run, sub.startGlyphIndex, sub.endGlyphIndex);
         }
 
         handler->commitLine();
