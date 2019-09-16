@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3eafb030_a4ac7fc8",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1134,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-09-16T21:28:35Z",
+      "side": 1,
+      "message": "Line too long",
+      "range": {
+        "startLine": 1134,
+        "startChar": 100,
+        "endLine": 1134,
+        "endChar": 101
+      },
+      "revId": "977e50a60503be02ada1940498777be2ae1da3a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a45bb57a_694f39d8",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1145,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-09-16T21:28:35Z",
+      "side": 1,
+      "message": "Why not take const SubRun\u0026 instead?",
+      "range": {
+        "startLine": 1145,
+        "startChar": 30,
+        "endLine": 1145,
+        "endChar": 96
+      },
+      "revId": "977e50a60503be02ada1940498777be2ae1da3a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
