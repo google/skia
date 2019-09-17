@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "d584bf5d_14ce652c",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-17T17:57:56Z",
+      "side": 1,
+      "message": "// The resolveTask associated with the activeTask remains open for as long as the activeTask does\n\n?",
+      "revId": "00b395eb90bfe71b3598ecb8bbe72b1dc123036f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e83c4179_762e9720",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-17T17:57:56Z",
+      "side": 1,
+      "message": "for each renderTask,\n\n?",
+      "range": {
+        "startLine": 187,
+        "startChar": 93,
+        "endLine": 187,
+        "endChar": 94
+      },
+      "revId": "00b395eb90bfe71b3598ecb8bbe72b1dc123036f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1240e458_c85a0f5d",
         "filename": "src/gpu/GrTextureResolveRenderTask.cpp",
         "patchSetId": 2
