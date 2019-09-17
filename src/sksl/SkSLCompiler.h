@@ -11,7 +11,6 @@
 #include <set>
 #include <unordered_set>
 #include <vector>
-#include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCFGGenerator.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
@@ -41,6 +40,8 @@
 
 namespace SkSL {
 
+struct ByteCode;
+class ExternalValue;
 class IRGenerator;
 
 /**
