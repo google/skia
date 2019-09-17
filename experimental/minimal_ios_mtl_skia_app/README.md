@@ -4,14 +4,6 @@ How to compile:
 
     cd $SKIA_ROOT_DIRECTORY
 
-    cat >> BUILD.gn <<EOM
-    if (is_ios && skia_use_metal) {
-      group("minimal_ios_mtl_skia_app") {
-        deps = [ "experimental/minimal_ios_mtl_skia_app" ]
-      }
-    }
-    EOM
-
     mkdir -p out/ios_arm64_mtl
     cat > out/ios_arm64_mtl/args.gn <<EOM
     target_os="ios"

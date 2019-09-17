@@ -2448,3 +2448,16 @@ if (skia_enable_tools) {
     }
   }
 }
+
+if (is_ios && skia_use_metal) {
+  group("minimal_ios_mtl_skia_app") {
+    deps = [
+      "experimental/minimal_ios_mtl_skia_app",
+    ]
+  }
+  group("skottie_ios") {
+    deps = [
+      "experimental/skottie_ios",
+    ]
+  }
+}
