@@ -467,12 +467,18 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
             SkASSERT(!set[i].fHasClip || dstClips);
             SkASSERT(set[i].fMatrixIndex < 0 || preViewMatrices);
 
+            SkTCopyOnFirstWrite<SkPaint> entryPaint(paint);
+            if (set[i].fAlpha != 1.f) {
+                auto paintAlpha = paint.getAlphaf();
+                entryPaint.writable()->setAlphaf(paintAlpha * set[i].fAlpha);
+            }
             // Always send GrAA::kYes to preserve seaming across tiling in MSAA
-            this->drawImageQuad(set[i].fImage.get(), &set[i].fSrcRect, &set[i].fDstRect,
-                    set[i].fHasClip ? dstClips + dstClipIndex : nullptr,
-                    GrAA::kYes, SkToGrQuadAAFlags(set[i].fAAFlags),
+            this->drawImageQuad(
+                    set[i].fImage.get(), &set[i].fSrcRect, &set[i].fDstRect,
+                    set[i].fHasClip ? dstClips + dstClipIndex : nullptr, GrAA::kYes,
+                    SkToGrQuadAAFlags(set[i].fAAFlags),
                     set[i].fMatrixIndex < 0 ? nullptr : preViewMatrices + set[i].fMatrixIndex,
-                    paint, constraint);
+                    *entryPaint, constraint);
             dstClipIndex += 4 * set[i].fHasClip;
         }
         return;
@@ -534,10 +540,16 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
             draw();
             base = i + 1;
             n = 0;
-            this->drawImageQuad(image, &set[i].fSrcRect, &set[i].fDstRect, clip, GrAA::kYes,
+            SkTCopyOnFirstWrite<SkPaint> entryPaint(paint);
+            if (set[i].fAlpha != 1.f) {
+                auto paintAlpha = paint.getAlphaf();
+                entryPaint.writable()->setAlphaf(paintAlpha * set[i].fAlpha);
+            }
+            this->drawImageQuad(
+                    image, &set[i].fSrcRect, &set[i].fDstRect, clip, GrAA::kYes,
                     SkToGrQuadAAFlags(set[i].fAAFlags),
                     set[i].fMatrixIndex < 0 ? nullptr : preViewMatrices + set[i].fMatrixIndex,
-                    paint, constraint);
+                    *entryPaint, constraint);
             continue;
         }
 
