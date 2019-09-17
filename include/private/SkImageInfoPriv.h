@@ -43,6 +43,9 @@ static inline uint32_t SkColorTypeComponentFlags(SkColorType ct) {
         case kRG_88_SkColorType:            return kRG_SkColorTypeComponentFlags;
         case kAlpha_16_SkColorType:         return kAlpha_SkColorTypeComponentFlag;
         case kRG_1616_SkColorType:          return kRG_SkColorTypeComponentFlags;
+        case kAlpha_F16_SkColorType:        return kAlpha_SkColorTypeComponentFlag;
+        case kRG_F16_SkColorType:           return kRG_SkColorTypeComponentFlags;
+        case kRGBA_16161616_SkColorType:    return kRGBA_SkColorTypeComponentFlags;
     }
     SkUNREACHABLE;
 }
@@ -80,6 +83,9 @@ static int SkColorTypeShiftPerPixel(SkColorType ct) {
         case kRG_88_SkColorType:            return 1;
         case kAlpha_16_SkColorType:         return 1;
         case kRG_1616_SkColorType:          return 2;
+        case kAlpha_F16_SkColorType:        return 1;
+        case kRG_F16_SkColorType:           return 2;
+        case kRGBA_16161616_SkColorType:    return 3;
     }
     SkUNREACHABLE;
 }
