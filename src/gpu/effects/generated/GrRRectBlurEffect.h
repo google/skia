@@ -75,6 +75,7 @@ public:
             }
             auto rtc2 = SkGpuBlurUtils::GaussianBlur(context,
                                                      std::move(srcProxy),
+                                                     GrColorType::kAlpha_8,
                                                      SkIPoint::Make(0, 0),
                                                      nullptr,
                                                      SkIRect::MakeWH(size.fWidth, size.fHeight),

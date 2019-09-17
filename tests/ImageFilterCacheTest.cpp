@@ -22,9 +22,12 @@ static const int kSmallerSize = 10;
 static const int kPad = 3;
 static const int kFullSize = kSmallerSize + 2 * kPad;
 
-static SkBitmap create_bm() {
+static SkBitmap create_bm1() {
+    SkImageInfo ii = SkImageInfo::Make(kFullSize, kFullSize, kRGBA_8888_SkColorType,
+                                       kPremul_SkAlphaType);
+
     SkBitmap bm;
-    bm.allocN32Pixels(kFullSize, kFullSize, true);
+    bm.allocPixels(ii);
     bm.eraseColor(SK_ColorTRANSPARENT);
     return bm;
 }
@@ -145,7 +148,7 @@ static void test_explicit_purging(skiatest::Reporter* reporter,
 }
 
 DEF_TEST(ImageFilterCache_RasterBacked, reporter) {
-    SkBitmap srcBM = create_bm();
+    SkBitmap srcBM = create_bm1();
 
     const SkIRect& full = SkIRect::MakeWH(kFullSize, kFullSize);
 
@@ -181,7 +184,7 @@ static void test_image_backed(skiatest::Reporter* reporter,
 }
 
 DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
-    SkBitmap srcBM = create_bm();
+    SkBitmap srcBM = create_bm1();
 
     sk_sp<SkImage> srcImage(SkImage::MakeFromBitmap(srcBM));
 
@@ -197,7 +200,7 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
 #include "src/gpu/GrTextureProxy.h"
 
 static sk_sp<GrTextureProxy> create_proxy(GrProxyProvider* proxyProvider) {
-    SkBitmap srcBM = create_bm();
+    SkBitmap srcBM = create_bm1();
     sk_sp<SkImage> srcImage(SkImage::MakeFromBitmap(srcBM));
     return proxyProvider->createTextureProxy(srcImage, 1, SkBudgeted::kYes, SkBackingFit::kExact);
 }
@@ -256,14 +259,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo
     sk_sp<SkSpecialImage> fullImg(SkSpecialImage::MakeDeferredFromGpu(
                                                               context, full,
                                                               kNeedNewImageUniqueID_SpecialImage,
-                                                              srcProxy, nullptr));
+                                                              srcProxy,
+                                                              GrColorType::kRGBA_8888, nullptr));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
     sk_sp<SkSpecialImage> subsetImg(SkSpecialImage::MakeDeferredFromGpu(
                                                                 context, subset,
                                                                 kNeedNewImageUniqueID_SpecialImage,
-                                                                srcProxy, nullptr));
+                                                                srcProxy,
+                                                                GrColorType::kRGBA_8888, nullptr));
 
     test_find_existing(reporter, fullImg, subsetImg);
     test_dont_find_if_diff_key(reporter, fullImg, subsetImg);
