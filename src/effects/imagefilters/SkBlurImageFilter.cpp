@@ -652,6 +652,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
     auto renderTargetContext = SkGpuBlurUtils::GaussianBlur(
             context,
             std::move(inputTexture),
+        input->width(),
             input->subset().topLeft(),
             ctx.colorSpace() ? sk_ref_sp(input->getColorSpace()) : nullptr,
             dstBounds,
