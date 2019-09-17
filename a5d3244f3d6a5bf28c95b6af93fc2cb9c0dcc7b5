@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "15200c77_65d4c225",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-17T18:39:04Z",
+      "side": 1,
+      "message": "Probably worth pointing out the endianness (little, right?) of our 16-bit types somewhere?  A natural sounding use case for them is the 16-bit image formats, but those are usually big-endian.",
+      "revId": "a5d3244f3d6a5bf28c95b6af93fc2cb9c0dcc7b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70e85e23_9e7f6255",
+        "filename": "src/core/SkConvertPixels.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-17T18:39:04Z",
+      "side": 1,
+      "message": "Might be clearer as dst[x] \u003d (src64[x] \u003e\u003e 48) \u003e\u003e 8 ?",
+      "range": {
+        "startLine": 191,
+        "startChar": 29,
+        "endLine": 191,
+        "endChar": 44
+      },
+      "revId": "a5d3244f3d6a5bf28c95b6af93fc2cb9c0dcc7b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6f38f3a_dfaa6777",
+        "filename": "src/core/SkMipMap.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-17T18:39:04Z",
+      "side": 1,
+      "message": "Might be worth even using the 4x code here too.",
+      "revId": "a5d3244f3d6a5bf28c95b6af93fc2cb9c0dcc7b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6087eb2_a3e06fe7",
+        "filename": "src/core/SkMipMap.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-17T18:39:04Z",
+      "side": 1,
+      "message": "Yeah, it probably is better to just use the 4-at-a-time version and ignore two lanes.",
+      "revId": "a5d3244f3d6a5bf28c95b6af93fc2cb9c0dcc7b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
