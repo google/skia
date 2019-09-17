@@ -1425,6 +1425,7 @@ bool Compiler::toSPIRV(Program& program, String* out) {
 }
 
 bool Compiler::toGLSL(Program& program, OutputStream& out) {
+    abort();
     if (!this->optimize(program)) {
         return false;
     }
