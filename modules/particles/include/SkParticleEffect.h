@@ -44,11 +44,12 @@ public:
     // fEffectCode, and get a mutable Effect struct:
     //
     // struct Effect {
-    //   float age;
-    //   float lifetime;
-    //   int   loop;
-    //   float rate;
-    //   int   burst;                    // Set to trigger a burst of particles.
+    //   float age;       // Normalized age of the effect
+    //   float lifetime;  // Effect's duration, in seconds - script should set this in effectSpawn
+    //   int   loop;      // Number of loops that have elapsed (0 on initial spawn)
+    //   float rate;      // Rate to generate new particles (particles / second)
+    //   int   burst;     // Number of particles to emit in a single update
+    //                    // Set during spawn to emit that many at once on each loop
     //
     //   // Everything below this line controls the state of the effect, which is also the
     //   // default values for new particles.
@@ -95,7 +96,7 @@ public:
     //
     // 'void spawn(inout Particle p)' is called once for each particle when it is first created,
     // to set initial values. At a minimum, this should set 'lifetime' to the number of seconds
-    // that the particle will exist. Other parameters will will get default values from the effect.
+    // that the particle will exist. Other parameters will get default values from the effect.
     //
     // 'void update(inout Particle p)' is called for each particle on every call to the running
     // SkParticleEffect's update() method. It can animate any of the particle's values. Note that
