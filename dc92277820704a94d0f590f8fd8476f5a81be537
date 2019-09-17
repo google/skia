@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb466bf4_fe5eca3d",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-17T21:43:31Z",
+      "side": 1,
+      "message": "nit: space here?",
+      "range": {
+        "startLine": 67,
+        "startChar": 17,
+        "endLine": 67,
+        "endChar": 18
+      },
+      "revId": "dc92277820704a94d0f590f8fd8476f5a81be537",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
