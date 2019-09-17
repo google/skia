@@ -186,7 +186,7 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
         }
         case Expression::kSwizzle_Kind: {
             Swizzle* s = (Swizzle*) expr;
-            if (!this->tryRemoveExpressionBefore(iter, s->fBase.get())) {
+            if (s->fBase && !this->tryRemoveExpressionBefore(iter, s->fBase.get())) {
                 return false;
             }
             *iter = fNodes.erase(*iter);
@@ -284,6 +284,16 @@ bool BasicBlock::tryInsertExpression(std::vector<BasicBlock::Node>::iterator* it
                 }
                 ++(*iter);
             }
+            BasicBlock::Node node = { BasicBlock::Node::kExpression_Kind, true, expr, nullptr };
+            *iter = fNodes.insert(*iter, node);
+            return true;
+        }
+        case Expression::kSwizzle_Kind: {
+            Swizzle* s = (Swizzle*) expr->get();
+            if (!this->tryInsertExpression(iter, &s->fBase)) {
+                return false;
+            }
+            ++(*iter);
             BasicBlock::Node node = { BasicBlock::Node::kExpression_Kind, true, expr, nullptr };
             *iter = fNodes.insert(*iter, node);
             return true;

@@ -2369,7 +2369,7 @@ DEF_TEST(SkSLSwizzleConstants, r) {
          "    sk_FragColor = vec4(vec3(v.y, 0, 1).yxz, 1.0);\n"
          "    sk_FragColor = vec4(vec3(1, 1, v.z), 1.0);\n"
          "    sk_FragColor = vec4(vec3(1, 0, 1), 1.0);\n"
-         "    sk_FragColor = v.xyzw;\n"
+         "    sk_FragColor = v;\n"
          "    sk_FragColor = vec4(v.xyz, 1);\n"
          "    sk_FragColor = vec4(v.xyw, 0).xywz;\n"
          "    sk_FragColor = vec4(v.xy, 1, 0);\n"
@@ -2385,6 +2385,41 @@ DEF_TEST(SkSLSwizzleConstants, r) {
          "    sk_FragColor = vec4(v.z, 0, 0, 1).yzxw;\n"
          "    sk_FragColor = vec4(0, 1, 1, v.w);\n"
          "    sk_FragColor = vec4(1, 1, 0, 1);\n"
+         "}\n",
+         SkSL::Program::kFragment_Kind
+         );
+}
+
+DEF_TEST(SkSLSwizzleOpt, r) {
+    test(r,
+         "void main() {"
+         "    half v = half(sqrt(1));"
+         "    sk_FragColor = half4(v).rgba;"
+         "    sk_FragColor = half4(v).rgb0.abgr;"
+         "    sk_FragColor = half4(v).rgba.00ra;"
+         "    sk_FragColor = half4(v).rgba.rrra.00ra.11ab;"
+         "    sk_FragColor = half4(v).abga.gb11;"
+         "    sk_FragColor = half4(half3(v).rrr.000, 1);"
+         "    sk_FragColor = half4(half3(v).000.rrr, 1);"
+         "    sk_FragColor = half4(v).abgr.abgr;"
+         "    sk_FragColor = half4(half4(v).rrrr.bb, 1, 1);"
+         "    sk_FragColor = half4(half4(v).ba.grgr);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    float v = sqrt(1.0);\n"
+         "    sk_FragColor = vec4(v);\n"
+         "    sk_FragColor = vec4(0, vec4(v).zyx);\n"
+         "    sk_FragColor = vec4(0, 0, vec4(v).xw);\n"
+         "    sk_FragColor = vec4(1, 1, vec4(v).wx);\n"
+         "    sk_FragColor = vec4(vec4(v).zy, 1, 1);\n"
+         "    sk_FragColor = vec4(vec3(0, 0, 0), 1.0);\n"
+         "    sk_FragColor = vec4(vec3(0, 0, 0), 1.0);\n"
+         "    sk_FragColor = vec4(v);\n"
+         "    sk_FragColor = vec4(vec4(v).xx, 1.0, 1.0);\n"
+         "    sk_FragColor = vec4(v).wzwz;\n"
          "}\n",
          SkSL::Program::kFragment_Kind
          );

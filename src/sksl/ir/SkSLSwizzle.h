@@ -146,7 +146,7 @@ struct Swizzle : public Expression {
     }
 
     std::unique_ptr<Expression> fBase;
-    const std::vector<int> fComponents;
+    std::vector<int> fComponents;
 
     typedef Expression INHERITED;
 
