@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "10f7c06c_3a6a5926",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-09-17T21:38:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "53f46f99_e349cef9",
+      "range": {
+        "startLine": 7,
+        "startChar": 8,
+        "endLine": 7,
+        "endChar": 19
+      },
+      "revId": "5f2afbd5fd0db4f5bd95bd93675639977a114c25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f244d62e_2d34245d",
         "filename": "/COMMIT_MSG",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "5f2afbd5fd0db4f5bd95bd93675639977a114c25",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56f76aa5_f7bbfe28",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-09-17T21:38:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f244d62e_2d34245d",
+      "range": {
+        "startLine": 12,
+        "startChar": 33,
+        "endLine": 12,
+        "endChar": 40
+      },
+      "revId": "5f2afbd5fd0db4f5bd95bd93675639977a114c25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "cbd3252d_04d49985",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-09-17T21:38:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab67732f_851bb126",
+      "range": {
+        "startLine": 65,
+        "startChar": 6,
+        "endLine": 65,
+        "endChar": 11
+      },
+      "revId": "5f2afbd5fd0db4f5bd95bd93675639977a114c25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "23d7efb6_151c46e0",
         "filename": "src/core/SkSpan.h",
         "patchSetId": 2
@@ -91,6 +163,30 @@
       "revId": "5f2afbd5fd0db4f5bd95bd93675639977a114c25",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22d67df2_c4006c9e",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-09-17T21:38:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23d7efb6_151c46e0",
+      "range": {
+        "startLine": 66,
+        "startChar": 24,
+        "endLine": 66,
+        "endChar": 71
+      },
+      "revId": "5f2afbd5fd0db4f5bd95bd93675639977a114c25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -129,6 +225,30 @@
       "side": 1,
       "message": "Ah, I see you can do this, but then there is no way to store them.",
       "parentUuid": "21f3a8d0_60cac971",
+      "range": {
+        "startLine": 117,
+        "startChar": 17,
+        "endLine": 117,
+        "endChar": 18
+      },
+      "revId": "5f2afbd5fd0db4f5bd95bd93675639977a114c25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "095e3b1a_fb488e5c",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-09-17T21:38:06Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2cd05c91_ada60049",
       "range": {
         "startLine": 117,
         "startChar": 17,
