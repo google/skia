@@ -930,16 +930,16 @@ public:
         SkRect localRect = gridToImage.mapRect(rect);
 
         // drawTextureSet automatically derives appropriate local quad from localRect if clipPtr
-        // is not null.
+        // is not null. Also exercise per-entry alpha combined with YUVA images.
         fSetEntries.push_back(
-                {fImage, localRect, rect, -1, 1.f, this->maskToFlags(edgeAA), hasClip});
+                {fImage, localRect, rect, -1, .5f, this->maskToFlags(edgeAA), hasClip});
         return 0;
     }
 
     void drawBanner(SkCanvas* canvas) override {
         draw_text(canvas, "Texture");
         canvas->translate(0.f, 15.f);
-        draw_text(canvas, "YUV - GPU Only");
+        draw_text(canvas, "YUV + alpha - GPU Only");
     }
 
 private:
