@@ -1927,14 +1927,19 @@ ASTNode::ID Parser::postfixExpression() {
         return ASTNode::ID::Invalid();
     }
     for (;;) {
-        switch (this->peek().fKind) {
+        Token t = this->peek();
+        switch (t.fKind) {
+            case Token::FLOAT_LITERAL:
+                if (this->text(t)[0] != '.') {
+                    return result;
+                }
+                // fall through
             case Token::LBRACKET:
             case Token::DOT:
             case Token::LPAREN:
             case Token::PLUSPLUS:
             case Token::MINUSMINUS:
             case Token::COLONCOLON:
-            case Token::FLOAT_LITERAL:
                 if (!depth.increase()) {
                     return ASTNode::ID::Invalid();
                 }
