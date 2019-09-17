@@ -104,3 +104,8 @@ Milestone 78
   * Added kAlpha_16_SkColorType and kRG_1616_SkColorType. This is intended to help support HDR YUV
     uses case (e.g., P010 and P016). As such, the addition is focused on allowing creation of
     SkPixmaps and SkImages and not SkSurfaces (i.e., who wants to render to render to these?)
+
+  * Added kAlpha_F16_SkColorType, kRG_F16_SkColorType and kRGBA_16161616_SkColorType.
+    This is intended to help support HDR YUV uses case (e.g., P010 and P016). As such,
+    the addition is focused on allowing creation of SkPixmaps and SkImages and not
+    SkSurfaces (i.e., who wants to render to render to these?)
