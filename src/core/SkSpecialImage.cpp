@@ -124,6 +124,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrRecordingContext* conte
                                                rect,
                                                this->uniqueID(),
                                                std::move(proxy),
+                                               SkColorTypeToGrColorType(bmp.colorType()),
                                                sk_ref_sp(this->getColorSpace()),
                                                &this->props(),
                                                this->alphaType());
@@ -211,6 +212,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrRecordingContext* context,
         }
 
         return MakeDeferredFromGpu(context, subset, image->uniqueID(), std::move(proxy),
+                                   SkColorTypeToGrColorType(image->colorType()),
                                    image->refColorSpace(), props);
     } else
 #endif
@@ -236,6 +238,8 @@ public:
     }
 
     SkAlphaType alphaType() const override { return fBitmap.alphaType(); }
+
+    SkColorType colorType() const override { return fBitmap.colorType(); }
 
     size_t getSize() const override { return fBitmap.computeByteSize(); }
 
@@ -374,12 +378,13 @@ static sk_sp<SkImage> wrap_proxy_in_image(GrRecordingContext* context, sk_sp<GrT
 class SkSpecialImage_Gpu : public SkSpecialImage_Base {
 public:
     SkSpecialImage_Gpu(GrRecordingContext* context, const SkIRect& subset,
-                       uint32_t uniqueID, sk_sp<GrTextureProxy> proxy, SkAlphaType at,
+                       uint32_t uniqueID, sk_sp<GrTextureProxy> proxy, SkColorType ct, SkAlphaType at,
                        sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps* props)
         : INHERITED(subset, uniqueID, props)
         , fContext(context)
         , fTextureProxy(std::move(proxy))
-        , fAlphaType(at)
+        , fColorType(ct)
+        , fAlphaType1(at)
         , fColorSpace(std::move(colorSpace))
         , fAddedRasterVersionToCache(false) {
     }
@@ -390,7 +395,9 @@ public:
         }
     }
 
-    SkAlphaType alphaType() const override { return fAlphaType; }
+    SkAlphaType alphaType() const override { return fAlphaType1; }
+
+    SkColorType colorType() const override { return fColorType; }
 
     size_t getSize() const override { return fTextureProxy->gpuMemorySize(); }
 
@@ -472,9 +479,10 @@ public:
                                                    subset,
                                                    this->uniqueID(),
                                                    fTextureProxy,
+                                                   SkColorTypeToGrColorType(fColorType),
                                                    fColorSpace,
                                                    &this->props(),
-                                                   fAlphaType);
+                                                   fAlphaType1);
     }
 
     // TODO: move all the logic here into the subset-flavor GrSurfaceProxy::copy?
@@ -525,7 +533,8 @@ public:
 private:
     GrRecordingContext*       fContext;
     sk_sp<GrTextureProxy>     fTextureProxy;
-    const SkAlphaType         fAlphaType;
+    const SkColorType         fColorType;
+    const SkAlphaType         fAlphaType1;
     sk_sp<SkColorSpace>       fColorSpace;
     mutable std::atomic<bool> fAddedRasterVersionToCache;
 
@@ -536,6 +545,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeDeferredFromGpu(GrRecordingContext* co
                                                           const SkIRect& subset,
                                                           uint32_t uniqueID,
                                                           sk_sp<GrTextureProxy> proxy,
+                                                          GrColorType colorType,
                                                           sk_sp<SkColorSpace> colorSpace,
                                                           const SkSurfaceProps* props,
                                                           SkAlphaType at) {

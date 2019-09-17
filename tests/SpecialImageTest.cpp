@@ -34,9 +34,12 @@ static const int kPad = 3;
 static const int kFullSize = kSmallerSize + 2 * kPad;
 
 // Create a bitmap with red in the center and green around it
-static SkBitmap create_bm() {
+static SkBitmap create_bm1() {
+    SkImageInfo ii = SkImageInfo::Make(kFullSize, kFullSize, kRGBA_8888_SkColorType,
+                                       kPremul_SkAlphaType);
+
     SkBitmap bm;
-    bm.allocN32Pixels(kFullSize, kFullSize, true);
+    bm.allocPixels(ii);
 
     SkCanvas temp(bm);
 
@@ -132,7 +135,7 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
 }
 
 DEF_TEST(SpecialImage_Raster, reporter) {
-    SkBitmap bm = create_bm();
+    SkBitmap bm = create_bm1();
 
     sk_sp<SkSpecialImage> fullSImage(SkSpecialImage::MakeFromRaster(
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
@@ -152,7 +155,7 @@ DEF_TEST(SpecialImage_Raster, reporter) {
 }
 
 static void test_specialimage_image(skiatest::Reporter* reporter) {
-    SkBitmap bm = create_bm();
+    SkBitmap bm = create_bm1();
 
     sk_sp<SkImage> fullImage(SkImage::MakeFromBitmap(bm));
 
@@ -193,7 +196,7 @@ static void test_texture_backed(skiatest::Reporter* reporter,
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-    SkBitmap bm = create_bm();
+    SkBitmap bm = create_bm1();
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
@@ -230,7 +233,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
                                                             context,
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
                                                             kNeedNewImageUniqueID_SpecialImage,
-                                                            std::move(proxy), nullptr));
+                                                            std::move(proxy),
+                                                            SkColorTypeToGrColorType(rasterImage->colorType()),
+                                                            nullptr));
 
         {
             sk_sp<SkSpecialImage> fromGPU(gpuImage->makeTextureImage(context));
@@ -249,7 +254,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-    SkBitmap bm = create_bm();
+    SkBitmap bm = create_bm1();
     sk_sp<SkImage> rasterImage = SkImage::MakeFromBitmap(bm);
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(rasterImage, 1, SkBudgeted::kNo,
@@ -262,7 +267,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
                                                             context,
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
                                                             kNeedNewImageUniqueID_SpecialImage,
-                                                            proxy, nullptr));
+                                                            proxy,
+                                                            SkColorTypeToGrColorType(bm.colorType()),
+                                                            nullptr));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
@@ -270,7 +277,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
         sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeDeferredFromGpu(
                                                                context, subset,
                                                                kNeedNewImageUniqueID_SpecialImage,
-                                                               std::move(proxy), nullptr));
+                                                               std::move(proxy),
+                                                               SkColorTypeToGrColorType(bm.colorType()),
+                                                               nullptr));
         test_image(subSImg1, reporter, context, true);
     }
 

@@ -881,6 +881,7 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* co
     bool isNormalBlur = (kNormal_SkBlurStyle == fBlurStyle);
     auto renderTargetContext = SkGpuBlurUtils::GaussianBlur(context,
                                                             srcProxy,
+                                                            GrColorType::kAlpha_8,
                                                             SkIPoint::Make(0, 0),
                                                             nullptr,
                                                             clipRect,
