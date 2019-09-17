@@ -685,9 +685,7 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
     CHECK_LABEL(kLoopEnd);
     CHECK_LABEL(kLoopBreak);
     CHECK_LABEL(kLoopContinue);
-    if (!f->fPreprocessed) {
-        ((ByteCodeFunction*) f)->preprocess(labels);
-    }
+    f->fPreprocessOnce([f] { ((ByteCodeFunction*)f)->preprocess(labels); });
 #endif
 
     // Needs to be the first N non-negative integers, at least as large as VecWidth
@@ -771,9 +769,7 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
         int target = READ8();
         const ByteCodeFunction* fun = byteCode->fFunctions[target].get();
 #ifdef SKSLC_THREADED_CODE
-        if (!fun->fPreprocessed) {
-            ((ByteCodeFunction*) fun)->preprocess(labels);
-        }
+        fun->fPreprocessOnce([fun] { ((ByteCodeFunction*)fun)->preprocess(labels); });
 #endif
         if (skvx::any(mask())) {
             frames.push_back({ code, ip, stack, fun->fParameterCount });
@@ -1350,7 +1346,6 @@ void ByteCodeFunction::preprocess(const void* labels[]) {
 #ifdef TRACE
     this->disassemble();
 #endif
-    fPreprocessed = true;
     uint8_t* ip = fCode.data();
     while (ip < fCode.data() + fCode.size()) {
         ByteCodeInstruction inst = (ByteCodeInstruction) (intptr_t) READ_INST();
