@@ -149,8 +149,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                             GrProtected::kNo);
                                 } else {
                                     tex = resourceProvider->createTexture(
-                                            desc, format, GrRenderable::kYes, numSamples, budgeted,
-                                            GrProtected::kNo);
+                                            desc, format, GrRenderable::kYes, numSamples,
+                                            GrMipMapped::kNo, budgeted, GrProtected::kNo);
                                 }
 
                                 sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
@@ -186,8 +186,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                             GrProtected::kNo);
                                 } else {
                                     tex = resourceProvider->createTexture(
-                                            desc, format, GrRenderable::kNo, numSamples, budgeted,
-                                            GrProtected::kNo);
+                                            desc, format, GrRenderable::kNo, numSamples,
+                                            GrMipMapped::kNo, budgeted, GrProtected::kNo);
                                 }
 
                                 sk_sp<GrTextureProxy> proxy(proxyProvider->createProxy(
