@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ec4dafb4_c9f153ca",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-17T15:59:26Z",
+      "side": 1,
+      "message": "I think this drawImageQuad() call needs the same entryPaint modification, too.",
+      "range": {
+        "startLine": 542,
+        "startChar": 0,
+        "endLine": 545,
+        "endChar": 39
+      },
+      "revId": "a4019c2b61eb5785c09715103710e71445b8bd2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
