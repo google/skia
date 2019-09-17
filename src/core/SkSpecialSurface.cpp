@@ -151,6 +151,7 @@ public:
                                                    this->subset(),
                                                    kNeedNewImageUniqueID_SpecialImage,
                                                    std::move(fProxy),
+                                                   SkColorTypeToGrColorType(fCanvas->imageInfo().colorType()),
                                                    fCanvas->imageInfo().refColorSpace(),
                                                    &this->props());
     }
