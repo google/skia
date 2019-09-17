@@ -114,6 +114,30 @@
       "revId": "5f2afbd5fd0db4f5bd95bd93675639977a114c25",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2cd05c91_ada60049",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-17T20:22:10Z",
+      "side": 1,
+      "message": "Ah, I see you can do this, but then there is no way to store them.",
+      "parentUuid": "21f3a8d0_60cac971",
+      "range": {
+        "startLine": 117,
+        "startChar": 17,
+        "endLine": 117,
+        "endChar": 18
+      },
+      "revId": "5f2afbd5fd0db4f5bd95bd93675639977a114c25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
