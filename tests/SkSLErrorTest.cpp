@@ -522,3 +522,9 @@ DEF_TEST(SkSLDuplicateOutput, r) {
                  "layout (location=0, index=0) out half4 duplicateOutput;",
                  "error: 1: out location=0, index=0 is reserved for sk_FragColor\n1 error\n");
 }
+
+DEF_TEST(SkSLSpuriousFloat, r) {
+    test_failure(r,
+                 "void main() { float x; x = 1.5 2.5; }",
+                 "error: 1: expected ';', but found '2.5'\n1 error\n");
+}
