@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53f46f99_e349cef9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-17T19:46:24Z",
+      "side": 1,
+      "message": "synchronized",
+      "range": {
+        "startLine": 7,
+        "startChar": 8,
+        "endLine": 7,
+        "endChar": 19
+      },
+      "revId": "5f2afbd5fd0db4f5bd95bd93675639977a114c25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f244d62e_2d34245d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-17T19:46:24Z",
+      "side": 1,
+      "message": "function",
+      "range": {
+        "startLine": 12,
+        "startChar": 33,
+        "endLine": 12,
+        "endChar": 40
+      },
+      "revId": "5f2afbd5fd0db4f5bd95bd93675639977a114c25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab67732f_851bb126",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-17T19:46:24Z",
+      "side": 1,
+      "message": "Should this go in its own SkZip.h header? It seems slightly strange to put it in SkSpan.h, especially since it forces use of tuple which can be quite compile time heavy.",
+      "range": {
+        "startLine": 65,
+        "startChar": 6,
+        "endLine": 65,
+        "endChar": 11
+      },
+      "revId": "5f2afbd5fd0db4f5bd95bd93675639977a114c25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23d7efb6_151c46e0",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-17T19:46:24Z",
+      "side": 1,
+      "message": "Isn\u0027t this just std::tuple\u003cTs\u0026...\u003e ? If I have a pointer to a T and then use operator [] on it the type is T\u0026 is it not? If you\u0027re returning a tuple of references (I think that\u0027s the right thing to do) shouldn\u0027t the tests also test assignment?",
+      "range": {
+        "startLine": 66,
+        "startChar": 24,
+        "endLine": 66,
+        "endChar": 71
+      },
+      "revId": "5f2afbd5fd0db4f5bd95bd93675639977a114c25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21f3a8d0_60cac971",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-17T19:46:24Z",
+      "side": 1,
+      "message": "It seems overly constraining to force these to be pointers when the only real constraint here is  they have a copy constructor and operator[]. I suppose this is so SkZip can be templated on the value types instead of templated on the iterator types the constructor would need to take. I suppose taking more than pointers would mean making the constructor of SkZip something like\n\ntemplate \u003ctypename... Its,\n          typename \u003d std::enable_if\u003cstd::is_same\u003cstd::tuple\u003cdecltype(std::declval\u003cIts\u003e()[0])...\u003e, ReturnTuple\u003e, void\u003e\u003e SkZip(size_t size, Its... its)\n\nSo the constructor takes a bunch of things with operator[] (may just be pointers) which return the right types. Then store a copy of those operator[] things and use.",
+      "range": {
+        "startLine": 117,
+        "startChar": 17,
+        "endLine": 117,
+        "endChar": 18
+      },
+      "revId": "5f2afbd5fd0db4f5bd95bd93675639977a114c25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
