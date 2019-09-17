@@ -29,6 +29,7 @@ namespace SkGpuBlurUtils {
     * Note: one of sigmaX and sigmaY should be non-zero!
     * @param context         The GPU context
     * @param src             The source to be blurred.
+    * @param foo
     * @param proxyOffset     The offset from the top-left corner to valid texels in 'src', which
     *                        should come from the subset of the owning SkSpecialImage.
     * @param colorSpace      Color space of the source (used for the renderTargetContext result,
@@ -44,6 +45,7 @@ namespace SkGpuBlurUtils {
     */
 std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
                                                     sk_sp<GrTextureProxy> src,
+                                                    GrColorType foo,
                                                     const SkIPoint& proxyOffset,
                                                     sk_sp<SkColorSpace> colorSpace,
                                                     const SkIRect& dstBounds,
