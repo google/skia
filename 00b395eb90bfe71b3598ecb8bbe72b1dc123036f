@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1240e458_c85a0f5d",
+        "filename": "src/gpu/GrTextureResolveRenderTask.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-17T17:19:07Z",
+      "side": 1,
+      "message": "I think this could be moved outside of the loop",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 60,
+        "endChar": 24
+      },
+      "revId": "00b395eb90bfe71b3598ecb8bbe72b1dc123036f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63398d86_a484e667",
+        "filename": "tests/GrMipMappedTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 480,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-17T17:19:07Z",
+      "side": 1,
+      "message": "one line ?",
+      "revId": "00b395eb90bfe71b3598ecb8bbe72b1dc123036f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
