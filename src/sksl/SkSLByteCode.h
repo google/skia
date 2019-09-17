@@ -8,6 +8,7 @@
 #ifndef SKSL_BYTECODE
 #define SKSL_BYTECODE
 
+#include "include/private/SkOnce.h"
 #include "src/sksl/SkSLString.h"
 
 #include <memory>
@@ -180,7 +181,7 @@ struct ByteCodeFunction {
     int fConditionCount = 0;
     int fLoopCount = 0;
     int fReturnCount = 0;
-    bool fPreprocessed = 0;
+    mutable SkOnce fPreprocessOnce;
     std::vector<uint8_t> fCode;
 
     /**
