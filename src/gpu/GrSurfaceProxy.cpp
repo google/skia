@@ -162,6 +162,7 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
                                                    int minStencilSampleCount,
                                                    GrRenderable renderable,
                                                    GrMipMapped mipMapped) const {
+    SkASSERT(mipMapped == GrMipMapped::kNo || fFit == SkBackingFit::kExact);
     SkASSERT(!this->isLazy());
     SkASSERT(!fTarget);
     GrSurfaceDesc desc;
@@ -170,44 +171,12 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
     desc.fConfig = fConfig;
 
     sk_sp<GrSurface> surface;
-    if (GrMipMapped::kYes == mipMapped) {
-        SkASSERT(SkBackingFit::kExact == fFit);
-
-        // SkMipMap doesn't include the base level in the level count so we have to add 1
-        int mipCount = SkMipMap::ComputeLevelCount(desc.fWidth, desc.fHeight) + 1;
-        // We should have caught the case where mipCount == 1 when making the proxy and instead
-        // created a non-mipmapped proxy.
-        SkASSERT(mipCount > 1);
-        std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipCount]);
-
-        // We don't want to upload any texel data
-        for (int i = 0; i < mipCount; i++) {
-            texels[i].fPixels = nullptr;
-            texels[i].fRowBytes = 0;
-        }
-        surface = resourceProvider->createTexture(desc, fFormat, renderable, sampleCnt, fBudgeted,
-                                                  fIsProtected, texels.get(), mipCount);
-#ifdef SK_DEBUG
-        if (surface) {
-            const GrTextureProxy* thisTexProxy = this->asTextureProxy();
-            SkASSERT(thisTexProxy);
-
-            GrTexture* texture = surface->asTexture();
-            SkASSERT(texture);
-
-            SkASSERT(GrMipMapped::kYes == texture->texturePriv().mipMapped());
-            SkASSERT(thisTexProxy->fInitialMipMapsStatus == texture->texturePriv().mipMapsStatus());
-        }
-#endif
+    if (SkBackingFit::kApprox == fFit) {
+        surface = resourceProvider->createApproxTexture(desc, fFormat, renderable, sampleCnt,
+                                                        fIsProtected);
     } else {
-        if (SkBackingFit::kApprox == fFit) {
-            surface = resourceProvider->createApproxTexture(desc, fFormat, renderable, sampleCnt,
-                                                            fIsProtected);
-        } else {
-            surface =
-                    resourceProvider->createTexture(desc, fFormat, renderable, sampleCnt, fBudgeted,
-                                                    fIsProtected);
-        }
+        surface = resourceProvider->createTexture(desc, fFormat, renderable, sampleCnt, mipMapped,
+                                                  fBudgeted, fIsProtected);
     }
     if (!surface) {
         return nullptr;

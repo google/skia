@@ -103,22 +103,35 @@ public:
      *                       If mipLevelCount > 1 and texels[i].fPixels != nullptr for any i > 0
      *                       then all levels must have non-null pixels. All levels must have
      *                       non-null pixels if GrCaps::createTextureMustSpecifyAllLevels() is true.
+     * @param textureColorType The color type interpretation of the texture for the purpose of
+     *                       of uploading texel data.
+     * @param srcColorType   The color type of data in texels[].
      * @param texelLevelCount the number of levels in 'texels'. May be 0, 1, or
      *                       floor(max((log2(desc.fWidth), log2(desc.fHeight)))). It must be the
      *                       latter if GrCaps::createTextureMustSpecifyAllLevels() is true.
      * @return  The texture object if successful, otherwise nullptr.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, const GrBackendFormat& format,
-                                   GrRenderable renderable, int renderTargetSampleCnt, SkBudgeted,
-                                   GrProtected isProtected, const GrMipLevel texels[],
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc,
+                                   const GrBackendFormat& format,
+                                   GrRenderable renderable,
+                                   int renderTargetSampleCnt,
+                                   SkBudgeted,
+                                   GrProtected isProtected,
+                                   GrColorType textureColorType,
+                                   GrColorType srcColorType,
+                                   const GrMipLevel texels[],
                                    int texelLevelCount);
 
     /**
      * Simplified createTexture() interface for when there is no initial texel data to upload.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, const GrBackendFormat& format,
-                                   GrRenderable renderable, int renderTargetSampleCnt,
-                                   SkBudgeted budgeted, GrProtected isProtected);
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc,
+                                   const GrBackendFormat& format,
+                                   GrRenderable renderable,
+                                   int renderTargetSampleCnt,
+                                   GrMipMapped,
+                                   SkBudgeted budgeted,
+                                   GrProtected isProtected);
 
     sk_sp<GrTexture> createCompressedTexture(int width, int height, const GrBackendFormat&,
                                              SkImage::CompressionType, SkBudgeted, const void* data,
@@ -614,6 +627,15 @@ private:
 #ifdef SK_ENABLE_DUMP_GPU
     virtual void onDumpJSON(SkJSONWriter*) const {}
 #endif
+
+    sk_sp<GrTexture> createTextureCommon(const GrSurfaceDesc& desc,
+                                         const GrBackendFormat& format,
+                                         GrRenderable renderable,
+                                         int renderTargetSampleCnt,
+                                         SkBudgeted budgeted,
+                                         GrProtected isProtected,
+                                         int mipLevelCnt,
+                                         uint32_t levelClearMask);
 
     void resetContext() {
         this->onResetContext(fResetBits);

@@ -315,7 +315,8 @@ public:
                     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
                     return resourceProvider->createTexture(desc, format, GrRenderable::kYes, 1,
-                                                           SkBudgeted::kYes, GrProtected::kNo);
+                                                           GrMipMapped::kNo, SkBudgeted::kYes,
+                                                           GrProtected::kNo);
                 },
                 format,
                 GrRenderable::kYes,
