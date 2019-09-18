@@ -427,7 +427,7 @@ namespace skvm {
         I32 extract(I32 x, int bits, I32 y);   // (x >> bits) & y
         I32 pack   (I32 x, I32 y, int bits);   // x | (y << bits), assuming (x & (y << bits)) == 0
 
-        void dump(SkWStream*) const;
+        void dump(SkWStream* = nullptr) const;
 
     private:
         struct InstructionHash {
@@ -491,10 +491,10 @@ namespace skvm {
         int loop() const { return fLoop; }
         bool empty() const { return fInstructions.empty(); }
 
-        // If this Program has been JITted, drop it, forcing interpreter fallback.
-        void dropJIT();
+        bool hasJIT() const;  // Has this Program been JITted?
+        void dropJIT();       // If hasJIT(), drop it, forcing interpreter fallback.
 
-        void dump(SkWStream*) const;
+        void dump(SkWStream* = nullptr) const;
 
     private:
         void setupInterpreter(const std::vector<Builder::Instruction>&);
