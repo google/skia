@@ -10,6 +10,7 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
+#include "include/encode/SkPngEncoder.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "src/core/SkMakeUnique.h"
@@ -29,6 +30,8 @@ static DEFINE_double(fps, 30, "Decode frames per second.");
 
 static DEFINE_int(width , 800, "Render width.");
 static DEFINE_int(height, 600, "Render height.");
+
+static DEFINE_int(zlib_level, 6, "PNG compression level (0-9).");
 
 namespace {
 
@@ -52,7 +55,7 @@ public:
     }
 
 protected:
-    Sink(const char* ext) : fExtension(ext) {}
+    explicit Sink(const char* ext) : fExtension(ext) {}
 
     virtual bool saveFrame(const sk_sp<skottie::Animation>& anim, SkFILEWStream*) const = 0;
 
@@ -62,9 +65,11 @@ private:
 
 class PNGSink final : public Sink {
 public:
-    PNGSink()
+    explicit PNGSink(int zlib_level)
         : INHERITED("png")
         , fSurface(SkSurface::MakeRasterN32Premul(FLAGS_width, FLAGS_height)) {
+        fPNGOpts.fZLibLevel = SkTPin<int>(zlib_level, 0, 9);
+
         if (!fSurface) {
             SkDebugf("Could not allocate a %d x %d surface.\n", FLAGS_width, FLAGS_height);
         }
@@ -83,17 +88,15 @@ public:
         canvas->clear(SK_ColorTRANSPARENT);
         anim->render(canvas);
 
-        auto png_data = fSurface->makeImageSnapshot()->encodeToData();
-        if (!png_data) {
-            SkDebugf("Failed to encode frame!\n");
-            return false;
-        }
+        SkPixmap pm;
+        SkAssertResult(fSurface->makeImageSnapshot()->peekPixels(&pm));
 
-        return stream->write(png_data->data(), png_data->size());
+        return SkPngEncoder::Encode(stream, pm, fPNGOpts);
     }
 
 private:
     const sk_sp<SkSurface> fSurface;
+    SkPngEncoder::Options  fPNGOpts;
 
     using INHERITED = Sink;
 };
@@ -176,7 +179,7 @@ int main(int argc, char** argv) {
 
     std::unique_ptr<Sink> sink;
     if (0 == strcmp(FLAGS_format[0], "png")) {
-        sink = skstd::make_unique<PNGSink>();
+        sink = skstd::make_unique<PNGSink>(FLAGS_zlib_level);
     } else if (0 == strcmp(FLAGS_format[0], "skp")) {
         sink = skstd::make_unique<SKPSink>();
     } else {
