@@ -10,7 +10,6 @@
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrTextureProxyPriv.h"
-#include "src/gpu/GrTextureResolveRenderTask.h"
 
 uint32_t GrRenderTask::CreateUniqueID() {
     static std::atomic<uint32_t> nextID{1};
@@ -60,12 +59,6 @@ void GrRenderTask::makeClosed(const GrCaps& caps) {
         if (textureProxy && GrMipMapped::kYes == textureProxy->mipMapped()) {
             textureProxy->markMipMapsDirty();
         }
-    }
-
-    if (fTextureResolveTask) {
-        this->addDependency(fTextureResolveTask);
-        fTextureResolveTask->makeClosed(caps);
-        fTextureResolveTask = nullptr;
     }
 
     this->setFlag(kClosed_Flag);
@@ -153,23 +146,18 @@ void GrRenderTask::addDependency(GrSurfaceProxy* dependedOn, GrMipMapped mipMapp
 
     // Does this proxy have msaa to resolve and/or mipmaps to regenerate?
     if (GrSurfaceProxy::ResolveFlags::kNone != resolveFlags) {
-        if (!fTextureResolveTask) {
-            fTextureResolveTask = textureResolveManager.newTextureResolveRenderTask(caps);
-        }
-        fTextureResolveTask->addProxy(sk_ref_sp(dependedOn), resolveFlags, caps);
-
-        // addProxy() should have closed the texture proxy's previous task.
-        SkASSERT(!dependedOnTask || dependedOnTask->isClosed());
-        SkASSERT(dependedOn->getLastRenderTask() == fTextureResolveTask);
+        // Create a renderTask that resolves the texture's mipmap data.
+        GrRenderTask* textureResolveTask = textureResolveManager.newTextureResolveRenderTask(
+                sk_ref_sp(dependedOn), resolveFlags, caps);
 
 #ifdef SK_DEBUG
-        // addProxy() should have called addDependency (in this instance, recursively) on
-        // fTextureResolveTask.
+        // GrTextureResolveRenderTask::init should have called addDependency (in this instance,
+        // recursively) on the textureResolveTask.
         if (dependedOnTask) {
-            SkASSERT(fTextureResolveTask->dependsOn(dependedOnTask));
+            SkASSERT(textureResolveTask->dependsOn(dependedOnTask));
         }
         if (textureProxy && textureProxy->texPriv().isDeferred()) {
-            SkASSERT(fTextureResolveTask->fDeferredProxies.back() == textureProxy);
+            SkASSERT(textureResolveTask->fDeferredProxies.back() == textureProxy);
         }
 
         // The GrTextureResolveRenderTask factory should have also marked the proxy clean, set the
@@ -180,12 +168,13 @@ void GrRenderTask::addDependency(GrSurfaceProxy* dependedOn, GrMipMapped mipMapp
         if (textureProxy) {
             SkASSERT(!textureProxy->mipMapsAreDirty());
         }
-        SkASSERT(dependedOn->getLastRenderTask() == fTextureResolveTask);
+        SkASSERT(dependedOn->getLastRenderTask() == textureResolveTask);
+        SkASSERT(textureResolveTask->isClosed());
 #endif
-        return;
-    }
 
-    if (textureProxy && textureProxy->texPriv().isDeferred()) {
+        // Fall through and add textureResolveTask as a dependency of "this".
+        dependedOnTask = textureResolveTask;
+    } else if (textureProxy && textureProxy->texPriv().isDeferred()) {
         fDeferredProxies.push_back(textureProxy);
     }
 
