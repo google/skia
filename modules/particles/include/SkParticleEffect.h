@@ -130,7 +130,14 @@ class SkParticleEffect : public SkRefCnt {
 public:
     SkParticleEffect(sk_sp<SkParticleEffectParams> params, const SkRandom& random);
 
-    void start(double now, bool looping = false);
+    void start(double now, bool looping = false,
+               SkPoint position = { 0.0f, 0.0f },
+               SkVector heading = { 0.0f, -1.0f },
+               float scale = 1.0f,
+               SkVector velocity = { 0.0f, 0.0f },
+               float spin = 0.0f,
+               SkColor4f color = { 1.0f, 1.0f, 1.0f, 1.0f },
+               float frame = 0.0f);
     void update(double now);
     void draw(SkCanvas* canvas);
 
@@ -180,6 +187,8 @@ private:
 
     // Cached
     int fCapacity;
+
+    SkTArray<sk_sp<SkParticleEffect>> fSubEffects;
 };
 
 #endif // SkParticleEffect_DEFINED
