@@ -39,6 +39,8 @@ var CanvasKit = {
 	MakeCanvas: function() {},
 	MakeCanvasSurface: function() {},
 	MakeGrContext: function() {},
+	/** @return {CanvasKit.SkAnimatedImage} */
+	MakeAnimatedImageFromEncoded: function() {},
 	/** @return {CanvasKit.SkImage} */
 	MakeImageFromEncoded: function() {},
 	/** @return {LinearCanvasGradient} */
@@ -75,6 +77,7 @@ var CanvasKit = {
 	_MakeSkDashPathEffect: function() {},
 	_MakeSkVertices: function() {},
 	_MakeTwoPointConicalGradientShader: function() {},
+	_decodeAnimatedImage: function() {},
 	_decodeImage: function() {},
 	_drawShapedText: function() {},
 	_getRasterDirectSurface: function() {},
@@ -102,6 +105,12 @@ var CanvasKit = {
 		getBounds: function() {},
 	},
 
+	SkAnimatedImage: {
+		// public API (from C++ bindings)
+		getRepetitionCount: function() {},
+		decodeNextFrame: function() {},
+	},
+
 	SkCanvas: {
 		// public API (from C++ bindings)
 		clear: function() {},
@@ -111,6 +120,7 @@ var CanvasKit = {
 		drawArc: function() {},
 		drawCircle: function() {},
 		drawDRRect:  function() {},
+		drawAnimatedImage: function() {},
 		drawImage: function() {},
 		drawImageRect: function() {},
 		drawLine: function() {},
