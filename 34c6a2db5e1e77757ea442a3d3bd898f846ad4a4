@@ -22,6 +22,30 @@
       "revId": "34c6a2db5e1e77757ea442a3d3bd898f846ad4a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c6fc3a5_4c5cd552",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-18T19:52:39Z",
+      "side": 1,
+      "message": "Oops, this was about an earlier PS, before I realized that GrRTC\u0027s texture calling calls had to handle this because there are callers not funneled through here.",
+      "parentUuid": "c2b78acd_aaeb5797",
+      "range": {
+        "startLine": 171,
+        "startChar": 10,
+        "endLine": 171,
+        "endChar": 92
+      },
+      "revId": "34c6a2db5e1e77757ea442a3d3bd898f846ad4a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
