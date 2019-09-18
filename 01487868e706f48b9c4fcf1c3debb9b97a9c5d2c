@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6f3a442_429f9734",
+        "filename": "modules/skplaintexteditor/gm/editor_gm.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-18T17:06:30Z",
+      "side": 1,
+      "message": "I don\u0027t like the idea of ever drawing the gm as blank since that tends to get triaged and then we can\u0027t tell when some breaking change causes something to become blank.",
+      "range": {
+        "startLine": 14,
+        "startChar": 8,
+        "endLine": 14,
+        "endChar": 12
+      },
+      "revId": "01487868e706f48b9c4fcf1c3debb9b97a9c5d2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9300895a_49c525ca",
+        "filename": "modules/skplaintexteditor/gm/editor_gm.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-18T17:06:30Z",
+      "side": 1,
+      "message": "This typeface (and the portable fontmgr which is often used) probably doesn\u0027t have coverage or at least won\u0027t have interesting shaping information.",
+      "range": {
+        "startLine": 17,
+        "startChar": 41,
+        "endLine": 17,
+        "endChar": 65
+      },
+      "revId": "01487868e706f48b9c4fcf1c3debb9b97a9c5d2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
