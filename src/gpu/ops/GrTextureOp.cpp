@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrTextureOp.h"
 #include <new>
+
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
 #include "include/gpu/GrTexture.h"
@@ -31,6 +31,7 @@
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrTextureDomain.h"
+#include "src/gpu/effects/generated/GrSaturateProcessor.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/geometry/GrQuadBuffer.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
@@ -38,6 +39,7 @@
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrQuadPerEdgeAA.h"
+#include "src/gpu/ops/GrTextureOp.h"
 
 namespace {
 
@@ -146,28 +148,31 @@ public:
                                           sk_sp<GrColorSpaceXform> textureXform,
                                           GrSamplerState::Filter filter,
                                           const SkPMColor4f& color,
+                                          GrTextureOp::Saturate saturate,
                                           GrAAType aaType,
                                           GrQuadAAFlags aaFlags,
                                           const GrQuad& deviceQuad,
                                           const GrQuad& localQuad,
                                           const SkRect* domain) {
         GrOpMemoryPool* pool = context->priv().opMemoryPool();
-        return pool->allocate<TextureOp>(
-                std::move(proxy), std::move(textureXform), filter, color, aaType, aaFlags,
-                deviceQuad, localQuad, domain);
+        return pool->allocate<TextureOp>(std::move(proxy), std::move(textureXform), filter, color,
+                                         saturate, aaType, aaFlags, deviceQuad, localQuad, domain);
     }
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           const GrRenderTargetContext::TextureSetEntry set[],
-                                          int cnt, GrSamplerState::Filter filter, GrAAType aaType,
+                                          int cnt,
+                                          GrSamplerState::Filter filter,
+                                          GrTextureOp::Saturate saturate,
+                                          GrAAType aaType,
                                           SkCanvas::SrcRectConstraint constraint,
                                           const SkMatrix& viewMatrix,
                                           sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
         size_t size = sizeof(TextureOp) + sizeof(Proxy) * (cnt - 1);
         GrOpMemoryPool* pool = context->priv().opMemoryPool();
         void* mem = pool->allocate(size);
-        return std::unique_ptr<GrDrawOp>(new (mem) TextureOp(
-                set, cnt, filter, aaType, constraint, viewMatrix,
-                std::move(textureColorSpaceXform)));
+        return std::unique_ptr<GrDrawOp>(new (mem) TextureOp(set, cnt, filter, saturate, aaType,
+                                                             constraint, viewMatrix,
+                                                             std::move(textureColorSpaceXform)));
     }
 
     ~TextureOp() override {
@@ -263,13 +268,20 @@ private:
 
     // dstQuad should be the geometry transformed by the view matrix. If domainRect
     // is not null it will be used to apply the strict src rect constraint.
-    TextureOp(sk_sp<GrTextureProxy> proxy, sk_sp<GrColorSpaceXform> textureColorSpaceXform,
-              GrSamplerState::Filter filter, const SkPMColor4f& color,
-              GrAAType aaType, GrQuadAAFlags aaFlags,
-              const GrQuad& dstQuad, const GrQuad& srcQuad, const SkRect* domainRect)
+    TextureOp(sk_sp<GrTextureProxy> proxy,
+              sk_sp<GrColorSpaceXform> textureColorSpaceXform,
+              GrSamplerState::Filter filter,
+              const SkPMColor4f& color,
+              GrTextureOp::Saturate saturate,
+              GrAAType aaType,
+              GrQuadAAFlags aaFlags,
+              const GrQuad& dstQuad,
+              const GrQuad& srcQuad,
+              const SkRect* domainRect)
             : INHERITED(ClassID())
             , fQuads(1, true /* includes locals */)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
+            , fSaturate(static_cast<unsigned>(saturate))
             , fFilter(static_cast<unsigned>(filter)) {
         // Clean up disparities between the overall aa type and edge configuration and apply
         // optimizations based on the rect and matrix when appropriate
@@ -295,13 +307,18 @@ private:
                         IsZeroArea::kNo);
         fDomain = static_cast<unsigned>(domainRect != nullptr);
     }
-    TextureOp(const GrRenderTargetContext::TextureSetEntry set[], int cnt,
-              GrSamplerState::Filter filter, GrAAType aaType,
-              SkCanvas::SrcRectConstraint constraint, const SkMatrix& viewMatrix,
+    TextureOp(const GrRenderTargetContext::TextureSetEntry set[],
+              int cnt,
+              GrSamplerState::Filter filter,
+              GrTextureOp::Saturate saturate,
+              GrAAType aaType,
+              SkCanvas::SrcRectConstraint constraint,
+              const SkMatrix& viewMatrix,
               sk_sp<GrColorSpaceXform> textureColorSpaceXform)
             : INHERITED(ClassID())
             , fQuads(cnt, true /* includes locals */)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
+            , fSaturate(static_cast<unsigned>(saturate))
             , fFilter(static_cast<unsigned>(filter)) {
         fProxyCnt = SkToUInt(cnt);
         SkRect bounds = SkRectPriv::MakeLargestInverted();
@@ -454,9 +471,10 @@ private:
         uint32_t extraSamplerKey = gpu->getExtraSamplerKeyForProgram(
                 samplerState, fProxies[0].fProxy->backendFormat());
 
+        auto saturate = static_cast<GrTextureOp::Saturate>(fSaturate);
         sk_sp<GrGeometryProcessor> gp = GrQuadPerEdgeAA::MakeTexturedProcessor(
                 vertexSpec, *target->caps().shaderCaps(), textureType, samplerState, swizzle,
-                extraSamplerKey, std::move(fTextureColorSpaceXform));
+                extraSamplerKey, std::move(fTextureColorSpaceXform), saturate);
 
         // We'll use a dynamic state array for the GP textures when there are multiple ops.
         // Otherwise, we use fixed dynamic state to specify the single op's proxy.
@@ -554,6 +572,9 @@ private:
             }
             upgradeToCoverageAAOnMerge = true;
         }
+        if (fSaturate != that->fSaturate) {
+            return CombineResult::kCannotCombine;
+        }
         if (fFilter != that->fFilter) {
             return CombineResult::kCannotCombine;
         }
@@ -587,12 +608,13 @@ private:
 
     GrQuadBuffer<ColorDomainAndAA> fQuads;
     sk_sp<GrColorSpaceXform> fTextureColorSpaceXform;
+    unsigned fSaturate : 1;
     unsigned fFilter : 2;
     unsigned fAAType : 2;
     unsigned fDomain : 1;
     unsigned fColorType : 2;
     GR_STATIC_ASSERT(GrQuadPerEdgeAA::kColorTypeCount <= 4);
-    unsigned fProxyCnt : 32 - 7;
+    unsigned fProxyCnt : 32 - 8;
     Proxy fProxies[1];
 
     static_assert(GrQuad::kTypeCount <= 4, "GrQuad::Type does not fit in 2 bits");
@@ -609,6 +631,7 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                sk_sp<GrColorSpaceXform> textureXform,
                                GrSamplerState::Filter filter,
                                const SkPMColor4f& color,
+                               Saturate saturate,
                                SkBlendMode blendMode,
                                GrAAType aaType,
                                GrQuadAAFlags aaFlags,
@@ -627,7 +650,7 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
 
     if (blendMode == SkBlendMode::kSrcOver) {
         return TextureOp::Make(context, std::move(proxy), std::move(textureXform), filter, color,
-                               aaType, aaFlags, deviceQuad, localQuad, domain);
+                               saturate, aaType, aaFlags, deviceQuad, localQuad, domain);
     } else {
         // Emulate complex blending using GrFillRectOp
         GrPaint paint;
@@ -649,6 +672,9 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
         }
         fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(textureXform));
         paint.addColorFragmentProcessor(std::move(fp));
+        if (saturate == GrTextureOp::Saturate::kYes) {
+            paint.addColorFragmentProcessor(GrSaturateProcessor::Make());
+        }
 
         return GrFillRectOp::Make(context, std::move(paint), aaType, aaFlags,
                                   deviceQuad, localQuad);
@@ -659,11 +685,12 @@ std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext* context,
                                   const GrRenderTargetContext::TextureSetEntry set[],
                                   int cnt,
                                   GrSamplerState::Filter filter,
+                                  Saturate saturate,
                                   GrAAType aaType,
                                   SkCanvas::SrcRectConstraint constraint,
                                   const SkMatrix& viewMatrix,
                                   sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
-    return TextureOp::Make(context, set, cnt, filter, aaType, constraint, viewMatrix,
+    return TextureOp::Make(context, set, cnt, filter, saturate, aaType, constraint, viewMatrix,
                            std::move(textureColorSpaceXform));
 }
 
@@ -719,8 +746,9 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     aaFlags |= random->nextBool() ? GrQuadAAFlags::kRight : GrQuadAAFlags::kNone;
     aaFlags |= random->nextBool() ? GrQuadAAFlags::kBottom : GrQuadAAFlags::kNone;
     bool useDomain = random->nextBool();
+    auto saturate = random->nextBool() ? GrTextureOp::Saturate::kYes : GrTextureOp::Saturate::kNo;
     return GrTextureOp::Make(context, std::move(proxy), std::move(texXform), filter, color,
-                             SkBlendMode::kSrcOver, aaType, aaFlags,
+                             saturate, SkBlendMode::kSrcOver, aaType, aaFlags,
                              GrQuad::MakeFromRect(rect, viewMatrix), GrQuad(srcRect),
                              useDomain ? &srcRect : nullptr);
 }
