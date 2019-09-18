@@ -931,6 +931,20 @@ CanvasKit.MakeSkDashPathEffect = function(intervals, phase) {
 }
 
 // data is a TypedArray or ArrayBuffer e.g. from fetch().then(resp.arrayBuffer())
+CanvasKit.MakeAnimatedImageFromEncoded = function(data) {
+  data = new Uint8Array(data);
+
+  var iptr = CanvasKit._malloc(data.byteLength);
+  CanvasKit.HEAPU8.set(data, iptr);
+  var img = CanvasKit._decodeAnimatedImage(iptr, data.byteLength);
+  if (!img) {
+    SkDebug('Could not decode animated image');
+    return null;
+  }
+  return img;
+}
+
+// data is a TypedArray or ArrayBuffer e.g. from fetch().then(resp.arrayBuffer())
 CanvasKit.MakeImageFromEncoded = function(data) {
   data = new Uint8Array(data);
 

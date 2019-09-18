@@ -5,12 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "include/android/SkAnimatedImage.h"
+#include "include/codec/SkAndroidCodec.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
+#include "include/core/SkDrawable.h"
 #include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkFilterQuality.h"
 #include "include/core/SkFont.h"
@@ -638,6 +641,16 @@ EMSCRIPTEN_BINDINGS(Skia) {
     constant("gpu", true);
 #endif
     function("computeTonalColors", &computeTonalColors);
+    function("_decodeAnimatedImage", optional_override([](uintptr_t /* uint8_t*  */ iptr,
+                                                  size_t length)->sk_sp<SkAnimatedImage> {
+        uint8_t* imgData = reinterpret_cast<uint8_t*>(iptr);
+        sk_sp<SkData> bytes = SkData::MakeFromMalloc(imgData, length);
+        auto codec = SkAndroidCodec::MakeFromData(bytes);
+        if (nullptr == codec) {
+            return nullptr;
+        }
+        return SkAnimatedImage::Make(std::move(codec));
+    }), allow_raw_pointers());
     function("_decodeImage", optional_override([](uintptr_t /* uint8_t*  */ iptr,
                                                   size_t length)->sk_sp<SkImage> {
         uint8_t* imgData = reinterpret_cast<uint8_t*>(iptr);
@@ -781,6 +794,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }));
 #endif
 
+    class_<SkAnimatedImage>("SkAnimatedImage")
+        .smart_ptr<sk_sp<SkAnimatedImage>>("sk_sp<SkAnimatedImage>")
+        .function("getRepetitionCount", &SkAnimatedImage::getRepetitionCount)
+        .function("decodeNextFrame", &SkAnimatedImage::decodeNextFrame);
+
     class_<SkCanvas>("SkCanvas")
         .constructor<>()
         .function("clear", &SkCanvas::clear)
@@ -807,6 +825,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("drawDRRect",optional_override([](SkCanvas& self, const SimpleRRect& o, const SimpleRRect& i, const SkPaint& paint) {
             self.drawDRRect(toRRect(o), toRRect(i), paint);
         }))
+        .function("drawAnimatedImage",  optional_override([](SkCanvas& self, sk_sp<SkAnimatedImage>& aImg,
+                                                        SkScalar x, SkScalar y)->void {
+            self.drawDrawable(aImg.get(), x, y);
+        }), allow_raw_pointers())
         .function("drawImage", select_overload<void (const sk_sp<SkImage>&, SkScalar, SkScalar, const SkPaint*)>(&SkCanvas::drawImage), allow_raw_pointers())
         .function("drawImageRect", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
                                                         SkRect src, SkRect dst,
@@ -897,6 +919,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
     class_<SkData>("SkData")
         .smart_ptr<sk_sp<SkData>>("sk_sp<SkData>>")
         .function("size", &SkData::size);
+
+    class_<SkDrawable>("SkDrawable")
+        .smart_ptr<sk_sp<SkDrawable>>("sk_sp<SkDrawable>>");
 
     class_<SkFont>("SkFont")
         .constructor<>()

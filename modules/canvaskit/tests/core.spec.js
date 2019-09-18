@@ -66,4 +66,126 @@ describe('Core canvas behavior', function() {
         }));
     });
 
+    it('can decode and draw a png', function(done) {
+        const imgPromise = fetch('/assets/mandrill_512.png')
+            .then((response) => response.arrayBuffer());
+        Promise.all([imgPromise, LoadCanvasKit]).then((values) => {
+            const pngData = values[0];
+            expect(pngData).toBeTruthy();
+            catchException(done, () => {
+                let img = CanvasKit.MakeImageFromEncoded(pngData);
+                expect(img).toBeTruthy();
+                const surface = CanvasKit.MakeCanvasSurface('test');
+                expect(surface).toBeTruthy('Could not make surface')
+                if (!surface) {
+                    done();
+                    return;
+                }
+                const canvas = surface.getCanvas();
+                let paint = new CanvasKit.SkPaint();
+                canvas.drawImage(img, 0, 0, paint);
+
+                paint.delete();
+                img.delete();
+
+                reportSurface(surface, 'drawImage_png', done);
+            })();
+        });
+    });
+
+    it('can decode and draw a jpg', function(done) {
+        const imgPromise = fetch('/assets/mandrill_h1v1.jpg')
+            .then((response) => response.arrayBuffer());
+        Promise.all([imgPromise, LoadCanvasKit]).then((values) => {
+            const jpgData = values[0];
+            expect(jpgData).toBeTruthy();
+            catchException(done, () => {
+                let img = CanvasKit.MakeImageFromEncoded(jpgData);
+                expect(img).toBeTruthy();
+                const surface = CanvasKit.MakeCanvasSurface('test');
+                expect(surface).toBeTruthy('Could not make surface')
+                if (!surface) {
+                    done();
+                    return;
+                }
+                const canvas = surface.getCanvas();
+                let paint = new CanvasKit.SkPaint();
+                canvas.drawImage(img, 0, 0, paint);
+
+                paint.delete();
+                img.delete();
+
+                reportSurface(surface, 'drawImage_jpg', done);
+            })();
+        });
+    });
+
+    it('can decode and draw a (still) gif', function(done) {
+        const imgPromise = fetch('/assets/flightAnim.gif')
+            .then((response) => response.arrayBuffer());
+        Promise.all([imgPromise, LoadCanvasKit]).then((values) => {
+            const gifData = values[0];
+            expect(gifData).toBeTruthy();
+            catchException(done, () => {
+                let img = CanvasKit.MakeImageFromEncoded(gifData);
+                expect(img).toBeTruthy();
+                const surface = CanvasKit.MakeCanvasSurface('test');
+                expect(surface).toBeTruthy('Could not make surface')
+                if (!surface) {
+                    done();
+                    return;
+                }
+                const canvas = surface.getCanvas();
+                let paint = new CanvasKit.SkPaint();
+                canvas.drawImage(img, 0, 0, paint);
+
+                paint.delete();
+                img.delete();
+
+                reportSurface(surface, 'drawImage_gif', done);
+            })();
+        });
+    });
+
+    it('can decode and draw an animated gif', function(done) {
+        const imgPromise = fetch('/assets/flightAnim.gif')
+            .then((response) => response.arrayBuffer());
+        Promise.all([imgPromise, LoadCanvasKit]).then((values) => {
+            const gifData = values[0];
+            expect(gifData).toBeTruthy();
+            catchException(done, () => {
+                let aImg = CanvasKit.MakeAnimatedImageFromEncoded(gifData);
+                expect(aImg).toBeTruthy();
+                expect(aImg.getRepetitionCount()).toEqual(-1); // infinite loop
+
+                const surface = CanvasKit.MakeCanvasSurface('test');
+                expect(surface).toBeTruthy('Could not make surface')
+                if (!surface) {
+                    done();
+                    return;
+                }
+                const canvas = surface.getCanvas();
+                canvas.drawAnimatedImage(aImg, 0, 0);
+
+                let c = aImg.decodeNextFrame();
+                expect(c).not.toEqual(-1);
+                canvas.drawAnimatedImage(aImg, 300, 0);
+                for(let i = 0; i < 10; i++) {
+                    c = aImg.decodeNextFrame();
+                    expect(c).not.toEqual(-1);
+                }
+                canvas.drawAnimatedImage(aImg, 0, 300);
+                for(let i = 0; i < 10; i++) {
+                    c = aImg.decodeNextFrame();
+                    expect(c).not.toEqual(-1);
+                }
+                 canvas.drawAnimatedImage(aImg, 300, 300);
+
+                aImg.delete();
+
+                reportSurface(surface, 'drawDrawable_animated_gif', done);
+            })();
+        });
+    });
+
 });
