@@ -130,7 +130,14 @@ class SkParticleEffect : public SkRefCnt {
 public:
     SkParticleEffect(sk_sp<SkParticleEffectParams> params, const SkRandom& random);
 
-    void start(double now, bool looping = false);
+    void start(double now, bool looping = false,
+               SkPoint position  = { 0.0f, 0.0f },
+               SkVector heading  = { 0.0f, -1.0f },
+               float scale       = 1.0f,
+               SkVector velocity = { 0.0f, 0.0f },
+               float spin        = 0.0f,
+               SkColor4f color   = { 1.0f, 1.0f, 1.0f, 1.0f },
+               float frame       = 0.0f);
     void update(double now);
     void draw(SkCanvas* canvas);
 
@@ -180,6 +187,25 @@ private:
 
     // Cached
     int fCapacity;
+
+    // Private interface used by SkEffectBinding and SkEffectExternalValue to spawn sub effects
+    friend class SkEffectExternalValue;
+    struct SpawnRequest {
+        SpawnRequest(int index, bool loop, sk_sp<SkParticleEffectParams> params)
+            : fIndex(index)
+            , fLoop(loop)
+            , fParams(std::move(params)) {}
+
+        int fIndex;
+        bool fLoop;
+        sk_sp<SkParticleEffectParams> fParams;
+    };
+    void addSpawnRequest(int index, bool loop, sk_sp<SkParticleEffectParams> params) {
+        fSpawnRequests.emplace_back(index, loop, std::move(params));
+    }
+    SkTArray<SpawnRequest> fSpawnRequests;
+
+    SkTArray<sk_sp<SkParticleEffect>> fSubEffects;
 };
 
 #endif // SkParticleEffect_DEFINED

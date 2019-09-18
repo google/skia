@@ -166,7 +166,9 @@ SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params, const S
     this->setCapacity(fParams->fMaxCount);
 }
 
-void SkParticleEffect::start(double now, bool looping) {
+void SkParticleEffect::start(double now, bool looping, SkPoint position, SkVector heading,
+                             float scale, SkVector velocity, float spin, SkColor4f color,
+                             float frame) {
     fCount = 0;
     fLastTime = now;
     fSpawnRemainder = 0.0f;
@@ -183,13 +185,13 @@ void SkParticleEffect::start(double now, bool looping) {
     fState.fRate = 0.0f;
     fState.fBurst = 0;
 
-    fState.fPosition = { 0.0f, 0.0f };
-    fState.fHeading  = { 0.0f, -1.0f };
-    fState.fScale    = 1.0f;
-    fState.fVelocity = { 0.0f, 0.0f };
-    fState.fSpin     = 0.0f;
-    fState.fColor    = { 1.0f, 1.0f, 1.0f, 1.0f };
-    fState.fFrame    = 0.0f;
+    fState.fPosition = position;
+    fState.fHeading  = heading;
+    fState.fScale    = scale;
+    fState.fVelocity = velocity;
+    fState.fSpin     = spin;
+    fState.fColor    = color;
+    fState.fFrame    = frame;
 
     // Defer running effectSpawn until the first update (to reuse the code when looping)
 }
@@ -233,9 +235,23 @@ void SkParticleEffect::update(double now) {
             if (auto fun = byteCode->getFunction("effectSpawn")) {
                 for (const auto& value : fParams->fEffectProgram.fExternalValues) {
                     value->setRandom(&fRandom);
+                    value->setEffect(this);
                 }
                 SkAssertResult(byteCode->run(fun, &fState.fAge, nullptr, 1,
                                              &fState.fDeltaTime, 1));
+
+                // Process any requests to spawn sub-effects
+                for (const auto& spawnReq : fSpawnRequests) {
+                    sk_sp<SkParticleEffect> newEffect(new SkParticleEffect(
+                            std::move(spawnReq.fParams), fRandom));
+                    fRandom.nextU();
+
+                    newEffect->start(now, spawnReq.fLoop, fState.fPosition, fState.fHeading,
+                                     fState.fScale, fState.fVelocity, fState.fSpin, fState.fColor,
+                                     fState.fFrame);
+                    fSubEffects.push_back(std::move(newEffect));
+                }
+                fSpawnRequests.reset();
             }
         }
     }
@@ -292,6 +308,7 @@ void SkParticleEffect::update(double now) {
             SkRandom* randomBase = particles.fRandom.get() + start;
             for (const auto& value : params->fParticleProgram.fExternalValues) {
                 value->setRandom(randomBase);
+                value->setEffect(this);
             }
             SkAssertResult(byteCode->runStriped(byteCode->getFunction(entry),
                                                 args, SkParticles::kNumChannels, count,
@@ -365,13 +382,28 @@ void SkParticleEffect::update(double now) {
         fParticles.fData[SkParticles::kHeadingX][i] = oldHeadingX * c - oldHeadingY * s;
         fParticles.fData[SkParticles::kHeadingY][i] = oldHeadingX * s + oldHeadingY * c;
     }
+
+    // Now update all of our sub-effects, removing any that have died
+    for (int i = 0; i < fSubEffects.count(); ++i) {
+        fSubEffects[i]->update(now);
+        if (!fSubEffects[i]->isAlive()) {
+            fSubEffects[i] = fSubEffects.back();
+            fSubEffects.pop_back();
+        }
+    }
 }
 
 void SkParticleEffect::draw(SkCanvas* canvas) {
-    if (this->isAlive() && fParams->fDrawable) {
-        SkPaint paint;
-        paint.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
-        fParams->fDrawable->draw(canvas, fParticles, fCount, paint);
+    if (this->isAlive()) {
+        if (fParams->fDrawable) {
+            SkPaint paint;
+            paint.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
+            fParams->fDrawable->draw(canvas, fParticles, fCount, paint);
+        }
+
+        for (const auto& subEffect : fSubEffects) {
+            subEffect->draw(canvas);
+        }
     }
 }
 
