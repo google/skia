@@ -17,7 +17,6 @@
 class GrOpFlushState;
 class GrOpsTask;
 class GrResourceAllocator;
-class GrTextureResolveRenderTask;
 
 // This class abstracts a task that targets a single GrSurfaceProxy, participates in the
 // GrDrawingManager's DAG, and implements the onExecute method to modify its target proxy's
@@ -78,9 +77,7 @@ public:
 
     void visitTargetAndSrcProxies_debugOnly(const VisitSurfaceProxyFunc& fn) const {
         this->visitProxies_debugOnly(fn);
-        if (fTarget) {
-            fn(fTarget.get(), GrMipMapped::kNo);
-        }
+        fn(fTarget.get(), GrMipMapped::kNo);
     }
 #endif
 
@@ -188,11 +185,6 @@ private:
     SkSTArray<1, GrRenderTask*, true> fDependencies;
     // 'this' GrRenderTask's output is relied on by the GrRenderTasks in 'fDependents'
     SkSTArray<1, GrRenderTask*, true> fDependents;
-
-    // For performance reasons, we should perform texture resolves back-to-back as much as possible.
-    // (http://skbug.com/9406). To accomplish this, we make and reuse one single resolve task for
-    // each render task, then add it as a dependency during makeClosed().
-    GrTextureResolveRenderTask* fTextureResolveTask = nullptr;
 };
 
 #endif

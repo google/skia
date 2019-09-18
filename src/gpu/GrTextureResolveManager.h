@@ -25,9 +25,11 @@ public:
     explicit GrTextureResolveManager(GrDrawingManager* drawingManager)
             : fDrawingManager(drawingManager) {}
 
-    GrTextureResolveRenderTask* newTextureResolveRenderTask(const GrCaps& caps) const {
+    GrRenderTask* newTextureResolveRenderTask(sk_sp<GrSurfaceProxy> proxy,
+                                              GrSurfaceProxy::ResolveFlags resolveFlags,
+                                              const GrCaps& caps) const {
         SkASSERT(fDrawingManager);
-        return fDrawingManager->newTextureResolveRenderTask(caps);
+        return fDrawingManager->newTextureResolveRenderTask(std::move(proxy), resolveFlags, caps);
     }
 
 private:
