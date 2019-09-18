@@ -284,7 +284,6 @@ static bool fill_buffer_with_color(GrPixelConfig config, int width, int height,
             sk_memset32((uint32_t*) dest, rg1616, width * height);
             break;
         }
-        // Experimental (for Y416 and mutant P016/P010)
         case kRGBA_16161616_GrPixelConfig: {
             uint64_t r16 = SkScalarRoundToInt(colorf.fR * 65535.0f);
             uint64_t g16 = SkScalarRoundToInt(colorf.fG * 65535.0f);

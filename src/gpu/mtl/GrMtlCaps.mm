@@ -436,7 +436,6 @@ static constexpr MTLPixelFormat kMtlFormats[] = {
 #ifdef SK_BUILD_FOR_IOS
     MTLPixelFormatETC2_RGB8,
 #endif
-    // Experimental (for Y416 and mutant P016/P010)
     MTLPixelFormatRGBA16Unorm,
     MTLPixelFormatRG16Float,
 
@@ -749,8 +748,6 @@ void GrMtlCaps::initFormatTable() {
     // NO supported colorTypes
 #endif
 
-    // Experimental (for Y416 and mutant P016/P010)
-
     // Format: RGBA16Unorm
     {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA16Unorm)];
@@ -972,7 +969,6 @@ GrColorType GrMtlCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& 
         case MTLPixelFormatR16Unorm:          return GrColorType::kAlpha_16;
         case MTLPixelFormatR16Float:          return GrColorType::kAlpha_F16;
         case MTLPixelFormatRG16Unorm:         return GrColorType::kRG_1616;
-        // Experimental (for Y416 and mutant P016/P010)
         case MTLPixelFormatRGBA16Unorm:       return GrColorType::kRGBA_16161616;
         case MTLPixelFormatRG16Float:         return GrColorType::kRG_F16;
         default:                              return GrColorType::kUnknown;
