@@ -12,17 +12,17 @@ DEF_TEST(PathOpsInverse, reporter) {
     for (int op = kDifference_SkPathOp; op <= kReverseDifference_SkPathOp; ++op) {
         for (int oneFill = SkPath::kWinding_FillType; oneFill <= SkPath::kInverseEvenOdd_FillType;
                     ++oneFill) {
-            for (int oneDir = SkPath::kCW_Direction; oneDir != SkPath::kCCW_Direction; ++oneDir) {
+            for (int oneDir = SkPathDirection::kCW; oneDir != SkPathDirection::kCCW; ++oneDir) {
                 one.reset();
                 one.setFillType((SkPath::FillType) oneFill);
-                one.addRect(0, 0, 6, 6, (SkPath::Direction) oneDir);
+                one.addRect(0, 0, 6, 6, (SkPathDirection) oneDir);
                 for (int twoFill = SkPath::kWinding_FillType;
                         twoFill <= SkPath::kInverseEvenOdd_FillType; ++twoFill) {
-                    for (int twoDir = SkPath::kCW_Direction; twoDir != SkPath::kCCW_Direction;
+                    for (int twoDir = SkPathDirection::kCW; twoDir != SkPathDirection::kCCW;
                             ++twoDir) {
                         two.reset();
                         two.setFillType((SkPath::FillType) twoFill);
-                        two.addRect(3, 3, 9, 9, (SkPath::Direction) twoDir);
+                        two.addRect(3, 3, 9, 9, (SkPathDirection) twoDir);
                         SkString testName;
                         testName.printf("inverseTest%d", ++testCount);
                         testPathOp(reporter, one, two, (SkPathOp) op, testName.c_str());
