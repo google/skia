@@ -328,6 +328,10 @@ namespace skvm {
             }
 
             // Any hoisted values used inside the loop need to live forever.
+            // TODO: this extends the lifetime of _hoistable_ values used inside the loop.
+            // Ultimately the JIT may or may not decide to actually hoist them, and if it
+            // doesn't, this is extending the lifetime of these values for no good reason,
+            // increasing register pressure, defeating the purpose of that no-hoist fallback.
             if (!inst.hoist) {
                 auto make_immortal = [&](Val arg) {
                     if (fProgram[arg].death != 0) {
