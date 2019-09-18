@@ -427,6 +427,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
             SkIRect::MakeWH(bounds.width(), bounds.height()),
             kNeedNewImageUniqueID_SpecialImage,
             renderTargetContext->asTextureProxyRef(),
+            renderTargetContext->colorSpaceInfo().colorType(),
             renderTargetContext->colorSpaceInfo().refColorSpace());
 }
 #endif
