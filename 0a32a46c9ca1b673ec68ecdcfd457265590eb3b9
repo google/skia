@@ -34,6 +34,24 @@
       "revId": "0a32a46c9ca1b673ec68ecdcfd457265590eb3b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1281a7e_3d60533d",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-18T15:08:56Z",
+      "side": 1,
+      "message": "That\u0027s right! It would probably be a good comment.",
+      "parentUuid": "4767569f_f43d4b46",
+      "revId": "0a32a46c9ca1b673ec68ecdcfd457265590eb3b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
