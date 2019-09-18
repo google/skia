@@ -10,6 +10,7 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
+#include "include/encode/SkPngEncoder.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "src/core/SkMakeUnique.h"
@@ -83,13 +84,16 @@ public:
         canvas->clear(SK_ColorTRANSPARENT);
         anim->render(canvas);
 
-        auto png_data = fSurface->makeImageSnapshot()->encodeToData();
-        if (!png_data) {
-            SkDebugf("Failed to encode frame!\n");
-            return false;
-        }
 
-        return stream->write(png_data->data(), png_data->size());
+        // Set encoding options to favor speed over size.
+        SkPngEncoder::Options options;
+        options.fZLibLevel   = 1;
+        options.fFilterFlags = SkPngEncoder::FilterFlag::kNone;
+
+        sk_sp<SkImage> img = fSurface->makeImageSnapshot();
+        SkPixmap pixmap;
+        return img->peekPixels(&pixmap)
+            && SkPngEncoder::Encode(stream, pixmap, options);
     }
 
 private:
