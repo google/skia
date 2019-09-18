@@ -626,7 +626,11 @@ void GrDrawingManager::validate() const {
 
         for (int i = 0; i < fDAG.numRenderTasks(); ++i) {
             if (fActiveOpsTask != fDAG.renderTask(i)) {
-                SkASSERT(fDAG.renderTask(i)->isClosed());
+                // The resolveTask associated with the activeTask remains open for as long as the
+                // activeTask does.
+                bool isActiveResolveTask =
+                        fActiveOpsTask && fActiveOpsTask->fTextureResolveTask == fDAG.renderTask(i);
+                SkASSERT(isActiveResolveTask || fDAG.renderTask(i)->isClosed());
             }
         }
 
@@ -679,12 +683,9 @@ sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(sk_sp<GrRenderTargetProxy> rtp, bo
     return opsTask;
 }
 
-GrRenderTask* GrDrawingManager::newTextureResolveRenderTask(
-        sk_sp<GrSurfaceProxy> proxy, GrSurfaceProxy::ResolveFlags flags, const GrCaps& caps) {
-    SkDEBUGCODE(auto* previousTaskBeforeMipsResolve = proxy->getLastRenderTask();)
-
+GrTextureResolveRenderTask* GrDrawingManager::newTextureResolveRenderTask(const GrCaps& caps) {
     // Unlike in the "new opsTask" case, we do not want to close the active opsTask, nor (if we are
-    // in sorting and opsTask reduction mode) the render tasks that depend on the proxy's current
+    // in sorting and opsTask reduction mode) the render tasks that depend on any proxy's current
     // state. This is because those opsTasks can still receive new ops and because if they refer to
     // the mipmapped version of 'proxy', they will then come to depend on the render task being
     // created here.
@@ -692,15 +693,8 @@ GrRenderTask* GrDrawingManager::newTextureResolveRenderTask(
     // Add the new textureResolveTask before the fActiveOpsTask (if not in
     // sorting/opsTask-splitting-reduction mode) because it will depend upon this resolve task.
     // NOTE: Putting it here will also reduce the amount of work required by the topological sort.
-    auto* resolveTask = static_cast<GrTextureResolveRenderTask*>(fDAG.addBeforeLast(
-            sk_make_sp<GrTextureResolveRenderTask>(std::move(proxy), flags)));
-    resolveTask->init(caps);
-
-    // GrTextureResolveRenderTask::init should have closed the texture proxy's previous task.
-    SkASSERT(!previousTaskBeforeMipsResolve || previousTaskBeforeMipsResolve->isClosed());
-    SkASSERT(resolveTask->fTarget->getLastRenderTask() == resolveTask);
-
-    return resolveTask;
+    return static_cast<GrTextureResolveRenderTask*>(fDAG.addBeforeLast(
+            sk_make_sp<GrTextureResolveRenderTask>()));
 }
 
 void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
