@@ -7,6 +7,7 @@
 
 #include "include/private/SkMacros.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/core/SkBlendModePriv.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCoreBlitters.h"
@@ -41,6 +42,25 @@ namespace {
             && x.blendMode   == y.blendMode
             && x.shader      == y.shader
             && x.colorFilter == y.colorFilter;
+    }
+
+    static SkString debug_name(const Key& key) {
+        return SkStringPrintf("CT%d-AT%d-Cov%d-Blend%d-Shader%d-CF%d",
+                              key.colorType,
+                              key.alphaType,
+                              key.coverage,
+                              key.blendMode,
+                              SkToBool(key.shader),
+                              SkToBool(key.colorFilter));
+    }
+
+    static bool debug_dump(const Key& key) {
+    #if 0
+        SkDebugf("%s\n", debug_name(key).c_str());
+        return true;
+    #else
+        return false;
+    #endif
     }
 
     static SkLRUCache<Key, skvm::Program>* try_acquire_program_cache() {
@@ -163,13 +183,59 @@ namespace {
             if (key.colorFilter) { TODO; }
             Color src = unpack_8888(uniform32(uniforms, offsetof(Uniforms, paint_color)));
 
-            // Load up the destination color.
+            // There are several orderings here of when we load dst and coverage
+            // and how coverage is applied, and to complicate things, LCD coverage
+            // needs to know dst.a.  We're careful to assert it's loaded in time.
             Color dst;
+            SkDEBUGCODE(bool dst_loaded = false;)
+
+            // load_coverage() returns false when there's no need to apply coverage.
+            auto load_coverage = [&](Color* cov) {
+                switch (key.coverage) {
+                    case Coverage::Full: return false;
+
+                    case Coverage::UniformA8: cov->r = cov->g = cov->b = cov->a =
+                                              uniform8(uniforms, offsetof(Uniforms, coverage));
+                                              return true;
+
+                    case Coverage::MaskA8: cov->r = cov->g = cov->b = cov->a =
+                                           load8(varying<uint8_t>());
+                                           return true;
+
+                    case Coverage::MaskLCD16:
+                        SkASSERT(dst_loaded);
+                        *cov = unpack_565(load16(varying<uint16_t>()));
+                        cov->a = select(lt(src.a, dst.a), min(cov->r, min(cov->g,cov->b))
+                                                        , max(cov->r, max(cov->g,cov->b)));
+                        return true;
+
+                    case Coverage::Mask3D: TODO;
+                }
+                // GCC insists...
+                return false;
+            };
+
+            // The math for some blend modes lets us fold coverage into src before the blend,
+            // obviating the need for the lerp afterwards. This early-coverage strategy tends
+            // to be both faster and require fewer registers.
+            bool lerp_coverage_post_blend = true;
+            if (SkBlendMode_ShouldPreScaleCoverage(key.blendMode,
+                                                   key.coverage == Coverage::MaskLCD16)) {
+                Color cov;
+                if (load_coverage(&cov)) {
+                    src.r = div255(mul(src.r, cov.r));
+                    src.g = div255(mul(src.g, cov.g));
+                    src.b = div255(mul(src.b, cov.b));
+                    src.a = div255(mul(src.a, cov.a));
+                }
+                lerp_coverage_post_blend = false;
+            }
+
+            // Load up the destination color.
+            SkDEBUGCODE(dst_loaded = true;)
             switch (key.colorType) {
                 default: TODO;
-
                 case kRGB_565_SkColorType:   dst = unpack_565 (load16(dst_ptr)); break;
-
                 case kRGBA_8888_SkColorType: dst = unpack_8888(load32(dst_ptr)); break;
                 case kBGRA_8888_SkColorType: dst = unpack_8888(load32(dst_ptr));
                                              std::swap(dst.r, dst.b);
@@ -199,30 +265,9 @@ namespace {
                 } break;
             }
 
-            // Lerp with coverage if needed.
-            bool apply_coverage = true;
+            // Lerp with coverage post-blend if needed.
             Color cov;
-            switch (key.coverage) {
-                case Coverage::Full: apply_coverage = false;
-                                     break;
-
-                case Coverage::UniformA8: cov.r = cov.g = cov.b = cov.a =
-                                          uniform8(uniforms, offsetof(Uniforms, coverage));
-                                          break;
-
-                case Coverage::MaskA8: cov.r = cov.g = cov.b = cov.a =
-                                       load8(varying<uint8_t>());
-                                       break;
-
-                case Coverage::MaskLCD16:
-                    cov = unpack_565(load16(varying<uint16_t>()));
-                    cov.a = select(lt(src.a, dst.a), min(cov.r, min(cov.g,cov.b))
-                                                   , max(cov.r, max(cov.g,cov.b)));
-                    break;
-
-                case Coverage::Mask3D: TODO;
-            }
-            if (apply_coverage) {
+            if (lerp_coverage_post_blend && load_coverage(&cov)) {
                 src.r = mix(dst.r, src.r, cov.r);
                 src.g = mix(dst.g, src.g, cov.g);
                 src.b = mix(dst.b, src.b, cov.b);
@@ -319,7 +364,14 @@ namespace {
                 atexit([]{ SkDebugf("%d calls to done\n", done.load()); });
             }
         #endif
-            return Builder{key}.done();
+            Builder builder{key};
+            skvm::Program program = builder.done(debug_name(key).c_str());
+            if (!program.hasJIT() && debug_dump(key)) {
+                SkDebugf("\nfalling back to interpreter for blitter with this key.\n");
+                builder.dump();
+                program.dump();
+            }
+            return program;
         }
 
         void blitH(int x, int y, int w) override {
