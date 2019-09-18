@@ -299,7 +299,7 @@ static bool fill_buffer_with_color(GrPixelConfig config, int width, int height,
             uint32_t rHalf = SkFloatToHalf(colorf.fR);
             uint32_t gHalf = SkFloatToHalf(colorf.fG);
 
-            uint32_t rgHalf = (rHalf << 16) | gHalf;
+            uint32_t rgHalf = (gHalf << 16) | rHalf;
 
             sk_memset32((uint32_t *) dest, rgHalf, width * height);
             break;

@@ -70,6 +70,10 @@ enum YUVFormat {
     // TODO: we're cheating a bit w/ P010 and just treating it as unorm 16. This means its
     // fully saturated values are 65504 rather than 65535 (that is just .9995 out of 1.0 though).
 
+    // This is laid out the same as kP016 and kP010 but uses F16 unstead of U16. In this case
+    // the 10 bits/channel vs 16 bits/channel distinction isn't relevant.
+    kP016F_YUVFormat,
+
     // 4:4:4 formats, 64 bpp
     kY416_YUVFormat,  // 16-bit AVYU values all interleaved (1 texture)
 
@@ -87,20 +91,19 @@ enum YUVFormat {
     kLast_YUVFormat = kYV12_YUVFormat
 };
 
+#ifdef SK_DEBUG
 static bool format_uses_16_bpp(YUVFormat yuvFormat) {
-    return kP016_YUVFormat == yuvFormat ||
-           kP010_YUVFormat == yuvFormat ||
+    return kP016_YUVFormat == yuvFormat  ||
+           kP010_YUVFormat == yuvFormat  ||
+           kP016F_YUVFormat == yuvFormat ||
            kY416_YUVFormat == yuvFormat;
 }
+#endif
 
 static bool format_has_builtin_alpha(YUVFormat yuvFormat) {
     return kY416_YUVFormat == yuvFormat ||
            kAYUV_YUVFormat == yuvFormat ||
            kY410_YUVFormat == yuvFormat;
-}
-
-static bool format_cant_be_represented_with_pixmaps(YUVFormat yuvFormat) {
-    return kY416_YUVFormat == yuvFormat;        // bc missing SkColorType::kRGBA_16161616
 }
 
 // Helper to setup the SkYUVAIndex array correctly
@@ -110,16 +113,17 @@ static bool format_cant_be_represented_with_pixmaps(YUVFormat yuvFormat) {
 static void setup_yuv_indices(YUVFormat yuvFormat, bool addExtraAlpha, SkYUVAIndex yuvaIndices[4]) {
     switch (yuvFormat) {
         case kP016_YUVFormat: // fall through
-        case kP010_YUVFormat:
+        case kP010_YUVFormat: // fall through
+        case kP016F_YUVFormat:
             yuvaIndices[0].fIndex = 0;
-            yuvaIndices[0].fChannel = SkColorChannel::kA; // bc 16bit is stored in A16 format
+            yuvaIndices[0].fChannel = SkColorChannel::kA; // bc 16bit is stored in A16 or AF16
             yuvaIndices[1].fIndex = 1;
             yuvaIndices[1].fChannel = SkColorChannel::kR;
             yuvaIndices[2].fIndex = 1;
             yuvaIndices[2].fChannel = SkColorChannel::kG;
             if (addExtraAlpha) {
                 yuvaIndices[3].fIndex = 2;
-                yuvaIndices[3].fChannel = SkColorChannel::kA; // bc 16bit is stored in A16 format
+                yuvaIndices[3].fChannel = SkColorChannel::kA; // bc 16bit is stored in A16 or AF16
             } else {
                 yuvaIndices[3].fIndex = -1; // No alpha channel
             }
@@ -129,9 +133,9 @@ static void setup_yuv_indices(YUVFormat yuvFormat, bool addExtraAlpha, SkYUVAInd
             yuvaIndices[0].fIndex = 0;
             yuvaIndices[0].fChannel = SkColorChannel::kG;
             yuvaIndices[1].fIndex = 0;
-            yuvaIndices[1].fChannel = SkColorChannel::kB;
+            yuvaIndices[1].fChannel = SkColorChannel::kR;
             yuvaIndices[2].fIndex = 0;
-            yuvaIndices[2].fChannel = SkColorChannel::kR;
+            yuvaIndices[2].fChannel = SkColorChannel::kB;
             yuvaIndices[3].fIndex = 0;
             yuvaIndices[3].fChannel = SkColorChannel::kA;
             break;
@@ -582,64 +586,29 @@ static SkBitmap make_quarter_2_channel(const SkBitmap& fullY,
     return result;
 }
 
-// Extract one channel of 'src' into a single channel 16 bit result. Optionally, set
-// the lower 6 bits to 0 for the 10bpp formats (i.e., P010).
-static SkBitmap make_single_channel_16(const SkBitmap& src, int channel, bool tenBitsPP) {
-    SkASSERT(0 <= channel && channel <= 3);
+// Create some flavor of a 16bits/channel bitmap from a RGBA_F32 source
+static SkBitmap make_16(const SkBitmap& src, SkColorType dstCT,
+                        std::function<void(uint16_t* dstPixel, const float* srcPixel)> convert) {
     SkASSERT(src.colorType() == kRGBA_F32_SkColorType);
 
     SkBitmap result;
 
-    result.allocPixels(SkImageInfo::Make(src.width(), src.height(),
-                                         kAlpha_16_SkColorType,
+    result.allocPixels(SkImageInfo::Make(src.width(), src.height(), dstCT,
                                          kUnpremul_SkAlphaType));
 
-    const float* pixels = (const float*) src.getAddr(0, 0);
     for (int y = 0; y < src.height(); ++y) {
         for (int x = 0; x < src.width(); ++x) {
-            uint32_t val16 = SkScalarRoundToInt(pixels[channel] * 65535.0f);
+            const float* srcPixel = (const float*) src.getAddr(x, y);
+            uint16_t* dstPixel = (uint16_t*) result.getAddr(x, y);
 
-            if (tenBitsPP) {
-                val16 &= 0xFFC0;
-            }
-
-            *result.getAddr16(x, y) = val16;
-            pixels += 4;
+            convert(dstPixel, srcPixel);
         }
     }
 
     return result;
 }
 
-// Extract the green and blue channels from src into an 16bit per channel
-// RG texture.
-static SkBitmap make_two_channel_16(const SkBitmap& src, bool tenBitsPP) {
-    SkASSERT(src.colorType() == kRGBA_F32_SkColorType);
-
-    SkBitmap result;
-
-    result.allocPixels(SkImageInfo::Make(src.width(), src.height(),
-                                         kRG_1616_SkColorType,
-                                         kUnpremul_SkAlphaType));
-
-    float* pixels = (float*) src.getAddr(0, 0);
-    for (int y = 0; y < src.height(); ++y) {
-        for (int x = 0; x < src.width(); ++x) {
-            uint32_t u16 = SkScalarRoundToInt(pixels[1] * 65535.0f);
-            uint32_t v16 = SkScalarRoundToInt(pixels[2] * 65535.0f);
-
-            if (tenBitsPP) {
-                u16 &= 0xFFC0;
-                v16 &= 0xFFC0;
-            }
-
-            *result.getAddr32(x, y) = (v16 << 16) | u16;
-            pixels += 4;
-        }
-    }
-
-    return result;
-}
+static uint16_t flt_2_uint16(float flt) { return SkScalarRoundToInt(flt * 65535.0f); }
 
 // Recombine the separate planes into some YUV format
 static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
@@ -648,29 +617,13 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
 
     switch (yuvFormat) {
         case kY416_YUVFormat: {
-            // Although this is 16 bpp, store the data in an 8 bpp SkBitmap
-            SkBitmap yuvaFull;
-
-            yuvaFull.allocPixels(SkImageInfo::Make(planes.fYFull.width(), planes.fYFull.height(),
-                                                   kRGBA_8888_SkColorType, kUnpremul_SkAlphaType));
-
-            for (int y = 0; y < planes.fYFull.height(); ++y) {
-                for (int x = 0; x < planes.fYFull.width(); ++x) {
-
-                    uint8_t Y = *planes.fYFull.getAddr8(x, y);
-                    uint8_t U = *planes.fUFull.getAddr8(x, y);
-                    uint8_t V = *planes.fVFull.getAddr8(x, y);
-                    uint8_t A = *planes.fAFull.getAddr8(x, y);
-
-                    // NOT premul!
-                    // U and V swapped to match RGBA layout
-                    SkColor c = SkColorSetARGB(A, U, Y, V);
-                    *yuvaFull.getAddr32(x, y) = c;
-                }
-            }
-
-            resultBMs[nextLayer++] = yuvaFull;
-
+            resultBMs[nextLayer++] = make_16(planes.fFull, kRGBA_16161616_SkColorType,
+                                             [] (uint16_t* dstPixel, const float* srcPixel) {
+                                                 dstPixel[0] = flt_2_uint16(srcPixel[1]); // U
+                                                 dstPixel[1] = flt_2_uint16(srcPixel[0]); // Y
+                                                 dstPixel[2] = flt_2_uint16(srcPixel[2]); // V
+                                                 dstPixel[3] = flt_2_uint16(srcPixel[3]); // A
+                                             });
             setup_yuv_indices(yuvFormat, false, yuvaIndices);
             break;
         }
@@ -730,14 +683,48 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
         }
         case kP016_YUVFormat:     // fall through
         case kP010_YUVFormat: {
-            resultBMs[nextLayer++] = make_single_channel_16(planes.fFull, 0,
-                                                            yuvFormat == kP010_YUVFormat);
-            resultBMs[nextLayer++] = make_two_channel_16(planes.fQuarter,
-                                                         yuvFormat == kP010_YUVFormat);
-
+            resultBMs[nextLayer++] = make_16(planes.fFull, kAlpha_16_SkColorType,
+                                             [tenBitsPP = (yuvFormat == kP010_YUVFormat)]
+                                             (uint16_t* dstPixel, const float* srcPixel) {
+                                                 uint16_t val16 = flt_2_uint16(srcPixel[0]);
+                                                 dstPixel[0] = tenBitsPP ? (val16 & 0xFFC0)
+                                                                         : val16;
+                                              });
+            resultBMs[nextLayer++] = make_16(planes.fQuarter, kRG_1616_SkColorType,
+                                             [tenBitsPP = (yuvFormat == kP010_YUVFormat)]
+                                             (uint16_t* dstPixel, const float* srcPixel) {
+                                                 uint16_t u16 = flt_2_uint16(srcPixel[1]);
+                                                 uint16_t v16 = flt_2_uint16(srcPixel[2]);
+                                                 dstPixel[0] = tenBitsPP ? (u16 & 0xFFC0) : u16;
+                                                 dstPixel[1] = tenBitsPP ? (v16 & 0xFFC0) : v16;
+                                             });
             if (!opaque) {
-                resultBMs[nextLayer] = make_single_channel_16(planes.fFull, 3,
-                                                              yuvFormat == kP010_YUVFormat);
+                resultBMs[nextLayer] = make_16(planes.fFull, kAlpha_16_SkColorType,
+                                               [tenBitsPP = (yuvFormat == kP010_YUVFormat)]
+                                               (uint16_t* dstPixel, const float* srcPixel) {
+                                                   uint16_t val16 = flt_2_uint16(srcPixel[3]);
+                                                   dstPixel[0] = tenBitsPP ? (val16 & 0xFFC0)
+                                                                           : val16;
+                                               });
+            }
+            setup_yuv_indices(yuvFormat, !opaque, yuvaIndices);
+            return;
+        }
+        case kP016F_YUVFormat: {
+            resultBMs[nextLayer++] = make_16(planes.fFull, kAlpha_F16_SkColorType,
+                                             [] (uint16_t* dstPixel, const float* srcPixel) {
+                                                 dstPixel[0] = SkFloatToHalf(srcPixel[0]);
+                                             });
+            resultBMs[nextLayer++] = make_16(planes.fQuarter, kRG_F16_SkColorType,
+                                             [] (uint16_t* dstPixel, const float* srcPixel) {
+                                                 dstPixel[0] = SkFloatToHalf(srcPixel[1]);
+                                                 dstPixel[1] = SkFloatToHalf(srcPixel[2]);
+                                             });
+            if (!opaque) {
+                resultBMs[nextLayer] = make_16(planes.fFull, kAlpha_F16_SkColorType,
+                                               [] (uint16_t* dstPixel, const float* srcPixel) {
+                                                   dstPixel[0] = SkFloatToHalf(srcPixel[3]);
+                                               });
             }
             setup_yuv_indices(yuvFormat, !opaque, yuvaIndices);
             return;
@@ -791,13 +778,18 @@ static uint8_t look_up(float x1, float y1, const SkBitmap& bm, SkColorChannel ch
     int x = SkScalarFloorToInt(x1 * bm.width());
     int y = SkScalarFloorToInt(y1 * bm.height());
 
-    if (kAlpha_8_SkColorType == bm.colorType() || kGray_8_SkColorType == bm.colorType()) {
+    if (kGray_8_SkColorType == bm.colorType()) {
         SkASSERT(SkColorChannel::kA == channel || SkColorChannel::kR == channel);
         result = *bm.getAddr8(x, y);
-    } else if (kAlpha_16_SkColorType == bm.colorType()) {
+    } else if (kAlpha_8_SkColorType == bm.colorType()  ||
+               kAlpha_16_SkColorType == bm.colorType() ||
+               kAlpha_F16_SkColorType == bm.colorType()) {
         SkASSERT(SkColorChannel::kA == channel);
-        result = (*bm.getAddr16(x, y) >> 8);
-    } else if (kRG_88_SkColorType == bm.colorType() || kRG_1616_SkColorType == bm.colorType()) {
+        SkColor c = bm.getColor(x, y);
+        result = SkColorGetA(c);
+    } else if (kRG_88_SkColorType == bm.colorType()   ||
+               kRG_1616_SkColorType == bm.colorType() ||
+               kRG_F16_SkColorType == bm.colorType()) {
         SkASSERT(SkColorChannel::kR == channel || SkColorChannel::kG == channel);
         SkColor c = bm.getColor(x, y);
 
@@ -815,40 +807,25 @@ static uint8_t look_up(float x1, float y1, const SkBitmap& bm, SkColorChannel ch
                 result = 255;
                 break;
         }
-    } else if (kRGBA_8888_SkColorType == bm.colorType()) {
-        SkColor c = *bm.getAddr32(x, y);
+    } else {
+        SkASSERT(kRGBA_1010102_SkColorType == bm.colorType() ||
+                 kRGBA_8888_SkColorType == bm.colorType()    ||
+                 kRGBA_16161616_SkColorType == bm.colorType());
+
+        SkColor c = bm.getColor(x, y);
 
         switch (channel) {
             case SkColorChannel::kR:
-                result = SkColorGetB(c);
+                result = SkColorGetR(c);
                 break;
             case SkColorChannel::kG:
                 result = SkColorGetG(c);
                 break;
             case SkColorChannel::kB:
-                result = SkColorGetR(c);
+                result = SkColorGetB(c);
                 break;
             case SkColorChannel::kA:
                 result = SkColorGetA(c);
-                break;
-        }
-    } else {
-        SkASSERT(kRGBA_1010102_SkColorType == bm.colorType());
-
-        SkColor c = *bm.getAddr32(x, y);
-
-        switch (channel) {
-            case SkColorChannel::kR:
-                result = SkScalarRoundToInt(((c >>  0) & 0x3ff) * (255.0f/1023.0f));
-                break;
-            case SkColorChannel::kG:
-                result = SkScalarRoundToInt(((c >> 10) & 0x3ff) * (255.0f/1023.0f));
-                break;
-            case SkColorChannel::kB:
-                result = SkScalarRoundToInt(((c >> 20) & 0x3ff) * (255.0f/1023.0f));
-                break;
-            case SkColorChannel::kA:
-                result = SkScalarRoundToInt(((c >> 30) & 0x3) * (255.0f/3.0f));
                 break;
         }
     }
@@ -1017,7 +994,7 @@ static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaq
 
 static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
     static const char* kYUVFormatNames[] = {
-        "P016", "P010", "Y416", "AYUV", "Y410", "NV12", "NV21", "I420", "YV12"
+        "P016", "P010", "P016F", "Y416", "AYUV", "Y410", "NV12", "NV21", "I420", "YV12"
     };
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kYUVFormatNames) == kLast_YUVFormat+1);
 
@@ -1035,43 +1012,10 @@ static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
     canvas->drawString(rowLabel, 0, y, font, paint);
 }
 
-static void make_RGBA_16(const GrCaps* caps,
-                         const SkBitmap& bm,
-                         YUVFormat yuvFormat,
-                         SkAutoTMalloc<uint8_t>* pixels,
-                         GrBackendFormat* format,
-                         size_t* rowBytes) {
-    SkASSERT(kY416_YUVFormat == yuvFormat);
-    SkASSERT(kRGBA_8888_SkColorType == bm.colorType());
-
-    uint16_t y16, u16, v16, a16;
-    *rowBytes = 4 * sizeof(uint16_t) * bm.width();
-    pixels->reset(*rowBytes * bm.height());
-    uint16_t* currPixel = (uint16_t*) pixels->get();
-    for (int y = 0; y < bm.height(); ++y) {
-        for (int x = 0; x < bm.width(); ++x) {
-            SkColor color = bm.getColor(x, y);
-
-            y16 = SkScalarRoundToInt((SkColorGetR(color) / 255.0f) * 65535.0f);
-            u16 = SkScalarRoundToInt((SkColorGetG(color) / 255.0f) * 65535.0f);
-            v16 = SkScalarRoundToInt((SkColorGetB(color) / 255.0f) * 65535.0f);
-            a16 = SkScalarRoundToInt((SkColorGetA(color) / 255.0f) * 65535.0f);
-
-            currPixel[0] = y16;
-            currPixel[1] = u16;
-            currPixel[2] = v16;
-            currPixel[3] = a16;
-            currPixel += 4;
-        }
-    }
-
-    *format = caps->getDefaultBackendFormat(GrColorType::kRGBA_16161616, GrRenderable::kNo);
-    return;
-}
-
 static GrBackendTexture create_yuva_texture(GrContext* context, const SkBitmap& bm,
                                             SkYUVAIndex yuvaIndices[4], int texIndex,
                                             YUVFormat yuvFormat) {
+#ifdef SK_DEBUG
     SkASSERT(texIndex >= 0 && texIndex <= 3);
     int channelCount = 0;
     for (int i = 0; i < SkYUVAIndex::kIndexCount; ++i) {
@@ -1083,41 +1027,27 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkBitmap& 
     if (format_uses_16_bpp(yuvFormat) || 2 == channelCount) {
         if (2 == channelCount) {
             if (format_uses_16_bpp(yuvFormat)) {
-                SkASSERT(kRG_1616_SkColorType == bm.colorType());
-
-                return context->priv().createBackendTexture(&bm.pixmap(), 1,
-                                                            GrRenderable::kNo, GrProtected::kNo);
+                if (yuvFormat == kP016F_YUVFormat) {
+                    SkASSERT(kRG_F16_SkColorType == bm.colorType());
+                } else {
+                    SkASSERT(yuvFormat == kP016_YUVFormat || yuvFormat == kP010_YUVFormat);
+                    SkASSERT(kRG_1616_SkColorType == bm.colorType());
+                }
             } else {
                 SkASSERT(kRG_88_SkColorType == bm.colorType());
-
-                return context->priv().createBackendTexture(&bm.pixmap(), 1,
-                                                            GrRenderable::kNo, GrProtected::kNo);
             }
         } else {
-            if (kRGBA_8888_SkColorType == bm.colorType()) {
-                // Due to the limitations of SkPixmap these cases need to be handled separately
-                const GrCaps* caps = context->priv().caps();
-                GrGpu* gpu = context->priv().getGpu();
-
-                SkAutoTMalloc<uint8_t> pixels;
-                GrBackendFormat format;
-                size_t rowBytes;
-
-                make_RGBA_16(caps, bm, yuvFormat, &pixels, &format, &rowBytes);
-
-                // TODO: SkColorType needs to be expanded to allow RGBA_16 to be done
-                // via GrContext::createBackendTexture
-                return gpu->createBackendTexture(bm.width(), bm.height(), format,
-                                                 GrMipMapped::kNo, GrRenderable::kNo,
-                                                 pixels, rowBytes, nullptr, GrProtected::kNo);
+            if (yuvFormat == kY416_YUVFormat) {
+                SkASSERT(kRGBA_16161616_SkColorType == bm.colorType());
+            } else if (yuvFormat == kP016F_YUVFormat) {
+                SkASSERT(kAlpha_F16_SkColorType == bm.colorType());
             } else {
+                SkASSERT(yuvFormat == kP016_YUVFormat || yuvFormat == kP010_YUVFormat);
                 SkASSERT(kAlpha_16_SkColorType == bm.colorType());
-
-                return context->priv().createBackendTexture(&bm.pixmap(), 1,
-                                                            GrRenderable::kNo, GrProtected::kNo);
             }
         }
     }
+#endif
 
     return context->priv().createBackendTexture(&bm.pixmap(), 1,
                                                 GrRenderable::kNo, GrProtected::kNo);
@@ -1144,6 +1074,7 @@ namespace skiagm {
 // originals
 // P016
 // P010
+// P016F
 // Y416
 // AYUV
 // Y410
@@ -1174,8 +1105,8 @@ protected:
     }
 
     SkISize onISize() override {
-        int numCols = 2 * (kLastEnum_SkYUVColorSpace + 1); // opacity x color-space
-        int numRows = 1 + (kLast_YUVFormat + 1);  // origin + # yuv formats
+        int numCols = 2 * (kLastEnum_SkYUVColorSpace + 1); // opacity x #-color-spaces
+        int numRows = 1 + (kLast_YUVFormat + 1);  // original + #-yuv-formats
         int wh = SkScalarCeilToInt(kTileWidthHeight * (fUseDomain ? 1.5f : 1.f));
         return SkISize::Make(kLabelWidth  + numCols * (wh + kPad),
                              kLabelHeight + numRows * (wh + kPad));
@@ -1242,11 +1173,7 @@ protected:
                         }
 
                         int counterMod = counter % 3;
-                        if (format_cant_be_represented_with_pixmaps((YUVFormat) format) &&
-                            counterMod == 2) {
-                            // These formats don't work as pixmaps
-                            counterMod = 1;
-                        } else if (fUseDomain && counterMod == 0) {
+                        if (fUseDomain && counterMod == 0) {
                             // Copies flatten to RGB when they copy the YUVA data, which doesn't
                             // know about the intended domain and the domain padding bleeds in
                             counterMod = 1;

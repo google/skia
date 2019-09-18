@@ -427,6 +427,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
         { kRG_88_SkColorType,        { .25f, .75f, 0, 0 }     },
         { kRG_1616_SkColorType,      SkColors::kGreen         },
         { kAlpha_16_SkColorType,     kTransCol                },
+        { kAlpha_F16_SkColorType,    kTransCol                },
+        { kRG_F16_SkColorType,       { .25f, .75f, 0, 0 }     },
+        { kRGBA_16161616_SkColorType,{ .25f, .5f, .75f, 1 }   },
     };
 
     GR_STATIC_ASSERT(kLastEnum_SkColorType == SK_ARRAY_COUNT(combinations));
@@ -778,6 +781,10 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                             break;
                         case GrColorType::kAlpha_16:
                             SkASSERT(combo.fFormat == VK_FORMAT_R16_UNORM);
+                            swizzle = GrSwizzle("aaaa");
+                            break;
+                        case GrColorType::kAlpha_F16:
+                            SkASSERT(combo.fFormat == VK_FORMAT_R16_SFLOAT);
                             swizzle = GrSwizzle("aaaa");
                             break;
                         case GrColorType::kABGR_4444:

@@ -48,15 +48,15 @@
     M(load_565)    M(load_565_dst)  M(store_565)   M(gather_565)   \
     M(load_4444)   M(load_4444_dst) M(store_4444)  M(gather_4444)  \
     M(load_f16)    M(load_f16_dst)  M(store_f16)   M(gather_f16)   \
-    M(load_af16)                    M(store_af16)                  \
-    M(load_rgf16)                   M(store_rgf16)                 \
+    M(load_af16)   M(load_af16_dst) M(store_af16)  M(gather_af16)  \
+    M(load_rgf16)  M(load_rgf16_dst) M(store_rgf16) M(gather_rgf16) \
     M(load_f32)    M(load_f32_dst)  M(store_f32)   M(gather_f32)   \
     M(load_rgf32)                   M(store_rgf32)                 \
     M(load_8888)   M(load_8888_dst) M(store_8888)  M(gather_8888)  \
     M(load_rg88)   M(load_rg88_dst) M(store_rg88)  M(gather_rg88)  \
     M(load_a16)    M(load_a16_dst)  M(store_a16)   M(gather_a16)   \
     M(load_rg1616) M(load_rg1616_dst) M(store_rg1616) M(gather_rg1616) \
-    M(load_16161616)                M(store_16161616)              \
+    M(load_16161616) M(load_16161616_dst) M(store_16161616) M(gather_16161616) \
     M(load_1010102) M(load_1010102_dst) M(store_1010102) M(gather_1010102) \
     M(alpha_to_gray) M(alpha_to_gray_dst) M(bt709_luminance_or_luma_to_alpha)         \
     M(bilerp_clamp_8888) M(bicubic_clamp_8888)                     \

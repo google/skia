@@ -258,7 +258,7 @@ DEF_TEST(Bitmap_erase, r) {
 }
 
 static void check_alphas(skiatest::Reporter* reporter, const SkBitmap& bm,
-                         bool (*pred)(float expected, float actual)) {
+                         bool (*pred)(float expected, float actual), SkColorType ct) {
     SkASSERT(bm.width() == 16);
     SkASSERT(bm.height() == 16);
 
@@ -268,7 +268,8 @@ static void check_alphas(skiatest::Reporter* reporter, const SkBitmap& bm,
             float expected = alpha / 255.0f;
             float actual = bm.getAlphaf(x, y);
             if (!pred(expected, actual)) {
-                ERRORF(reporter, "got %g, want %g\n", actual, expected);
+                ERRORF(reporter, "%s: got %g, want %g\n",
+                       ToolUtils::colortype_name(ct), actual, expected);
             }
             alpha += 1;
         }
@@ -329,33 +330,35 @@ DEF_TEST(getalphaf, reporter) {
         SkColorType fColorType;
         bool (*fPred)(float, float);
     } recs[] = {
-        { kRGB_565_SkColorType,     opaque },
-        { kGray_8_SkColorType,      opaque },
-        { kRG_88_SkColorType,       opaque },
-        { kRG_1616_SkColorType,     opaque },
-        { kRGB_888x_SkColorType,    opaque },
-        { kRGB_101010x_SkColorType, opaque },
+        { kRGB_565_SkColorType,       opaque },
+        { kGray_8_SkColorType,        opaque },
+        { kRG_88_SkColorType,         opaque },
+        { kRG_1616_SkColorType,       opaque },
+        { kRG_F16_SkColorType,        opaque },
+        { kRGB_888x_SkColorType,      opaque },
+        { kRGB_101010x_SkColorType,   opaque },
 
-        { kAlpha_8_SkColorType,     nearly },
-        { kAlpha_16_SkColorType,    nearly },
-        { kRGBA_8888_SkColorType,   nearly },
-        { kBGRA_8888_SkColorType,   nearly },
-        { kRGBA_F16_SkColorType,    nearly_half },
-        { kRGBA_F32_SkColorType,    nearly },
+        { kAlpha_8_SkColorType,       nearly },
+        { kAlpha_16_SkColorType,      nearly },
+        { kAlpha_F16_SkColorType,     nearly_half },
+        { kRGBA_8888_SkColorType,     nearly },
+        { kBGRA_8888_SkColorType,     nearly },
+        { kRGBA_16161616_SkColorType, nearly },
+        { kRGBA_F16_SkColorType,      nearly_half },
+        { kRGBA_F32_SkColorType,      nearly },
 
-        { kRGBA_1010102_SkColorType, nearly2bit },
+        { kRGBA_1010102_SkColorType,  nearly2bit },
 
-        { kARGB_4444_SkColorType,   nearly4bit },
+        { kARGB_4444_SkColorType,     nearly4bit },
     };
 
     for (const auto& rec : recs) {
         SkBitmap tmp;
         tmp.allocPixels(bm.info().makeColorType(rec.fColorType));
         if (bm.readPixels(tmp.pixmap())) {
-            check_alphas(reporter, tmp, rec.fPred);
+            check_alphas(reporter, tmp, rec.fPred, rec.fColorType);
         } else {
             SkDebugf("can't readpixels\n");
         }
     }
 }
-

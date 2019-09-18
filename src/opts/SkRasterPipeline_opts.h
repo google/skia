@@ -2031,7 +2031,7 @@ STAGE(store_a16, const SkRasterPipeline_MemoryCtx* ctx) {
 }
 
 STAGE(load_rg1616, const SkRasterPipeline_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<const uint32_t>(ctx, dx,dy);
+    auto ptr = ptr_at_xy<const uint32_t>(ctx, dx, dy);
     b = 0; a = 1;
     from_1616(load<U32>(ptr, tail), &r,&g);
 }
@@ -2057,8 +2057,17 @@ STAGE(store_rg1616, const SkRasterPipeline_MemoryCtx* ctx) {
 }
 
 STAGE(load_16161616, const SkRasterPipeline_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<const uint64_t>(ctx, dx,dy);
+    auto ptr = ptr_at_xy<const uint64_t>(ctx, dx, dy);
     from_16161616(load<U64>(ptr, tail), &r,&g, &b, &a);
+}
+STAGE(load_16161616_dst, const SkRasterPipeline_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<const uint64_t>(ctx, dx, dy);
+    from_16161616(load<U64>(ptr, tail), &dr, &dg, &db, &da);
+}
+STAGE(gather_16161616, const SkRasterPipeline_GatherCtx* ctx) {
+    const uint64_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, r, g);
+    from_16161616(gather(ptr, ix), &r, &g, &b, &a);
 }
 STAGE(store_16161616, const SkRasterPipeline_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint16_t>(ctx, 4*dx,4*dy);
@@ -2155,23 +2164,58 @@ STAGE(load_af16, const SkRasterPipeline_MemoryCtx* ctx) {
     b = 0;
     a = from_half(A);
 }
+STAGE(load_af16_dst, const SkRasterPipeline_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<const uint16_t>(ctx, dx, dy);
+
+    U16 A = load<U16>((const uint16_t*)ptr, tail);
+    dr = dg = db = 0.0f;
+    da = from_half(A);
+}
+STAGE(gather_af16, const SkRasterPipeline_GatherCtx* ctx) {
+    const uint16_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, r, g);
+    r = g = b = 0.0f;
+    a = from_half(gather(ptr, ix));
+}
 STAGE(store_af16, const SkRasterPipeline_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint16_t>(ctx, dx,dy);
     store(ptr, to_half(a), tail);
 }
 
 STAGE(load_rgf16, const SkRasterPipeline_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<const uint32_t>(ctx, dx,dy);
+    auto ptr = ptr_at_xy<const uint32_t>(ctx, dx, dy);
 
     U16 R,G;
-    load2((const uint16_t*)ptr,tail, &R,&G);
+    load2((const uint16_t*)ptr, tail, &R, &G);
     r = from_half(R);
     g = from_half(G);
     b = 0;
-    a = from_half(0x3C00); // one
+    a = 1;
+}
+STAGE(load_rgf16_dst, const SkRasterPipeline_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<const uint32_t>(ctx, dx, dy);
+
+    U16 R,G;
+    load2((const uint16_t*)ptr, tail, &R, &G);
+    dr = from_half(R);
+    dg = from_half(G);
+    db = 0;
+    da = 1;
+}
+STAGE(gather_rgf16, const SkRasterPipeline_GatherCtx* ctx) {
+    const uint32_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, r, g);
+    auto px = gather(ptr, ix);
+
+    U16 R,G;
+    load2((const uint16_t*)&px, 0, &R, &G);
+    r = from_half(R);
+    g = from_half(G);
+    b = 0;
+    a = 1;
 }
 STAGE(store_rgf16, const SkRasterPipeline_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
+    auto ptr = ptr_at_xy<uint32_t>(ctx, dx, dy);
     store2((uint16_t*)ptr, tail, to_half(r)
                                , to_half(g));
 }
@@ -4141,7 +4185,9 @@ STAGE_PP(swizzle, void* ctx) {
     NOT_IMPLEMENTED(from_srgb)
     NOT_IMPLEMENTED(to_srgb)
     NOT_IMPLEMENTED(load_16161616)
+    NOT_IMPLEMENTED(load_16161616_dst)
     NOT_IMPLEMENTED(store_16161616)
+    NOT_IMPLEMENTED(gather_16161616)
     NOT_IMPLEMENTED(load_a16)
     NOT_IMPLEMENTED(load_a16_dst)
     NOT_IMPLEMENTED(store_a16)
@@ -4155,9 +4201,13 @@ STAGE_PP(swizzle, void* ctx) {
     NOT_IMPLEMENTED(store_f16)
     NOT_IMPLEMENTED(gather_f16)
     NOT_IMPLEMENTED(load_af16)
+    NOT_IMPLEMENTED(load_af16_dst)
     NOT_IMPLEMENTED(store_af16)
+    NOT_IMPLEMENTED(gather_af16)
     NOT_IMPLEMENTED(load_rgf16)
+    NOT_IMPLEMENTED(load_rgf16_dst)
     NOT_IMPLEMENTED(store_rgf16)
+    NOT_IMPLEMENTED(gather_rgf16)
     NOT_IMPLEMENTED(load_f32)
     NOT_IMPLEMENTED(load_f32_dst)
     NOT_IMPLEMENTED(store_f32)

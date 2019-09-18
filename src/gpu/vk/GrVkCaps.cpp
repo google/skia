@@ -1584,6 +1584,7 @@ GrColorType GrVkCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& f
         case VK_FORMAT_B8G8R8A8_UNORM:           return GrColorType::kBGRA_8888;
         case VK_FORMAT_A2B10G10R10_UNORM_PACK32: return GrColorType::kRGBA_1010102;
         case VK_FORMAT_R16_UNORM:                return GrColorType::kAlpha_16;
+        case VK_FORMAT_R16_SFLOAT:               return GrColorType::kAlpha_F16;
         case VK_FORMAT_R16G16_UNORM:             return GrColorType::kRG_1616;
         // Experimental (for Y416 and mutant P016/P010)
         case VK_FORMAT_R16G16B16A16_UNORM:       return GrColorType::kRGBA_16161616;

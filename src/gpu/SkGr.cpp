@@ -263,9 +263,14 @@ GrPixelConfig SkColorType2GrPixelConfig(const SkColorType type) {
             return kRG_1616_GrPixelConfig;
         case kAlpha_16_SkColorType:
             return kAlpha_16_GrPixelConfig;
+        case kAlpha_F16_SkColorType:
+            return kAlpha_half_GrPixelConfig;
+        case kRG_F16_SkColorType:
+            return kRG_half_GrPixelConfig;
+        case kRGBA_16161616_SkColorType:
+            return kRGBA_16161616_GrPixelConfig;
     }
-    SkASSERT(0);    // shouldn't get here
-    return kUnknown_GrPixelConfig;
+    SkUNREACHABLE;
 }
 
 GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info) {
