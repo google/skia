@@ -16,12 +16,14 @@
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
+#include "src/gpu/ops/GrTextureOp.h"
 
 class GrCaps;
 class GrColorSpaceXform;
 class GrShaderCaps;
 
 namespace GrQuadPerEdgeAA {
+    using Saturate = GrTextureOp::Saturate;
 
     enum class Domain : bool { kNo = false, kYes = true };
     enum class ColorType { kNone, kByte, kHalf, kLast = kHalf };
@@ -84,7 +86,7 @@ namespace GrQuadPerEdgeAA {
     sk_sp<GrGeometryProcessor> MakeTexturedProcessor(
             const VertexSpec& spec, const GrShaderCaps& caps, GrTextureType textureType,
             const GrSamplerState& samplerState, const GrSwizzle& swizzle, uint32_t extraSamplerKey,
-            sk_sp<GrColorSpaceXform> textureColorSpaceXform);
+            sk_sp<GrColorSpaceXform> textureColorSpaceXform, Saturate saturate);
 
     // Fill vertices with the vertex data needed to represent the given quad. The device position,
     // local coords, vertex color, domain, and edge coefficients will be written and/or computed

@@ -261,7 +261,5 @@ bool GrProgramDesc::Build(
     SkASSERT(header->processorFeatures() == processorFeatures);  // Ensure enough bits.
     header->fSnapVerticesToPixelCenters = pipeline.snapVerticesToPixelCenters();
     header->fHasPointSize = hasPointSize ? 1 : 0;
-    header->fClampBlendInput =
-            GrClampType::kManual == GrPixelConfigClampType(renderTarget->config()) ? 1 : 0;
     return true;
 }

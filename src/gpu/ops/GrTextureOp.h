@@ -23,6 +23,12 @@ class SkMatrix;
 namespace GrTextureOp {
 
 /**
+ * Controls whether saturate() is called after the texture is color-converted to ensure all
+ * color values are in 0..1 range.
+ */
+enum class Saturate : bool { kNo = false, kYes = true };
+
+/**
  * Creates an op that draws a sub-quadrilateral of a texture. The passed color is modulated by the
  * texture's color. 'deviceQuad' specifies the device-space coordinates to draw, using 'localQuad'
  * to map into the proxy's texture space. If non-null, 'domain' represents the boundary for the
@@ -33,14 +39,15 @@ namespace GrTextureOp {
  * deconstructed into the texture, filter, modulating color, and blend mode. When blend mode is
  * src over, this will return a GrFillRectOp with a paint that samples the proxy.
  */
-std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                               sk_sp<GrTextureProxy> proxy,
-                               sk_sp<GrColorSpaceXform> textureXform,
-                               GrSamplerState::Filter filter,
-                               const SkPMColor4f& color,
-                               SkBlendMode blendMode,
-                               GrAAType aaType,
-                               GrQuadAAFlags aaFlags,
+std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
+                               sk_sp<GrTextureProxy>,
+                               sk_sp<GrColorSpaceXform>,
+                               GrSamplerState::Filter,
+                               const SkPMColor4f&,
+                               Saturate,
+                               SkBlendMode,
+                               GrAAType,
+                               GrQuadAAFlags,
                                const GrQuad& deviceQuad,
                                const GrQuad& localQuad,
                                const SkRect* domain = nullptr);
@@ -50,6 +57,7 @@ std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext*,
                                   const GrRenderTargetContext::TextureSetEntry[],
                                   int cnt,
                                   GrSamplerState::Filter,
+                                  Saturate,
                                   GrAAType,
                                   SkCanvas::SrcRectConstraint,
                                   const SkMatrix& viewMatrix,

@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/GrRenderTargetContext.h"
+
 #include "include/core/SkDrawable.h"
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/private/GrRecordingContext.h"
@@ -32,7 +34,6 @@
 #include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrStencilAttachment.h"
@@ -676,6 +677,7 @@ void GrRenderTargetContext::drawTexturedQuad(const GrClip& clip,
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
+    SkASSERT(proxy);
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTexturedQuad", fContext);
 
     AutoCheckFlush acf(this->drawingManager());
@@ -693,12 +695,15 @@ void GrRenderTargetContext::drawTexturedQuad(const GrClip& clip,
         const GrClip& finalClip = opt == QuadOptimization::kClipApplied ? GrFixedClip::Disabled()
                                                                         : clip;
         GrAAType aaType = this->chooseAAType(aa);
+        auto clampType = GrColorTypeClampType(this->colorSpaceInfo().colorType());
+        auto saturate = clampType == GrClampType::kManual ? GrTextureOp::Saturate::kYes
+                                                          : GrTextureOp::Saturate::kNo;
         // Use the provided domain, although hypothetically we could detect that the cropped local
         // quad is sufficiently inside the domain and the constraint could be dropped.
-        this->addDrawOp(finalClip, GrTextureOp::Make(fContext, std::move(proxy),
-                                                     std::move(textureXform), filter, color,
-                                                     blendMode, aaType, edgeFlags,
-                                                     croppedDeviceQuad, croppedLocalQuad, domain));
+        this->addDrawOp(finalClip,
+                        GrTextureOp::Make(fContext, std::move(proxy), std::move(textureXform),
+                                          filter, color, saturate, blendMode, aaType, edgeFlags,
+                                          croppedDeviceQuad, croppedLocalQuad, domain));
     }
 }
 
@@ -956,8 +961,11 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetE
         // Can use a single op, avoiding GrPaint creation, and can batch across proxies
         AutoCheckFlush acf(this->drawingManager());
         GrAAType aaType = this->chooseAAType(aa);
-        auto op = GrTextureOp::MakeSet(fContext, set, cnt, filter, aaType, constraint, viewMatrix,
-                                       std::move(texXform));
+        auto clampType = GrColorTypeClampType(this->colorSpaceInfo().colorType());
+        auto saturate = clampType == GrClampType::kManual ? GrTextureOp::Saturate::kYes
+                                                          : GrTextureOp::Saturate::kNo;
+        auto op = GrTextureOp::MakeSet(fContext, set, cnt, filter, saturate, aaType, constraint,
+                                       viewMatrix, std::move(texXform));
         this->addDrawOp(clip, std::move(op));
     }
 }

@@ -57,7 +57,7 @@ SkTArray<GrXPFactoryTestFactory*, true>* GrXPFactoryTestFactory::GetFactories() 
  * manually adjusted.
  */
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
-static const int kFPFactoryCount = 36;
+static const int kFPFactoryCount = 37;
 static const int kGPFactoryCount = 14;
 static const int kXPFactoryCount = 4;
 #else

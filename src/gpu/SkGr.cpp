@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/SkGr.h"
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
@@ -33,16 +35,15 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrXferProcessor.h"
-#include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
+#include "src/gpu/effects/generated/GrSaturateProcessor.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkShaderBase.h"
 
-#if SK_SUPPORT_GPU
 GR_FP_SRC_STRING SKSL_DITHER_SRC = R"(
 // This controls the range of values added to color channels
 layout(key) in int rangeType;
@@ -82,7 +83,6 @@ void main(float x, float y, inout half4 color) {
     color = half4(clamp(color.rgb + value * range, 0.0, color.a), color.a);
 }
 )";
-#endif
 
 GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info) {
     GrSurfaceDesc desc;
@@ -472,6 +472,17 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
         }
     }
 #endif
+    if (GrColorTypeClampType(colorSpaceInfo.colorType()) == GrClampType::kManual) {
+        if (grPaint->numColorFragmentProcessors()) {
+            grPaint->addColorFragmentProcessor(GrSaturateProcessor::Make());
+        } else {
+            auto color = grPaint->getColor4f();
+            grPaint->setColor4f({SkTPin(color.fR, 0.f, 1.f),
+                                 SkTPin(color.fG, 0.f, 1.f),
+                                 SkTPin(color.fB, 0.f, 1.f),
+                                 SkTPin(color.fA, 0.f, 1.f)});
+        }
+    }
     return true;
 }
 
