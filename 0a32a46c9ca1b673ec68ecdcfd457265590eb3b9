@@ -16,6 +16,24 @@
       "revId": "0a32a46c9ca1b673ec68ecdcfd457265590eb3b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4767569f_f43d4b46",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-18T15:07:06Z",
+      "side": 1,
+      "message": "If only part of the contents of the base level are valid you\u0027ll get surprising results if upper levels are generated from the base.",
+      "parentUuid": "296399f9_d895dbef",
+      "revId": "0a32a46c9ca1b673ec68ecdcfd457265590eb3b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
