@@ -166,7 +166,9 @@ SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params, const S
     this->setCapacity(fParams->fMaxCount);
 }
 
-void SkParticleEffect::start(double now, bool looping) {
+void SkParticleEffect::start(double now, bool looping, SkPoint position, SkVector heading,
+                             float scale, SkVector velocity, float spin, SkColor4f color,
+                             float frame) {
     fCount = 0;
     fLastTime = now;
     fSpawnRemainder = 0.0f;
@@ -183,22 +185,18 @@ void SkParticleEffect::start(double now, bool looping) {
     fState.fRate = 0.0f;
     fState.fBurst = 0;
 
-    fState.fPosition = { 0.0f, 0.0f };
-    fState.fHeading  = { 0.0f, -1.0f };
-    fState.fScale    = 1.0f;
-    fState.fVelocity = { 0.0f, 0.0f };
-    fState.fSpin     = 0.0f;
-    fState.fColor    = { 1.0f, 1.0f, 1.0f, 1.0f };
-    fState.fFrame    = 0.0f;
+    fState.fPosition = position;
+    fState.fHeading  = heading;
+    fState.fScale    = scale;
+    fState.fVelocity = velocity;
+    fState.fSpin     = spin;
+    fState.fColor    = color;
+    fState.fFrame    = frame;
 
     // Defer running effectSpawn until the first update (to reuse the code when looping)
 }
 
-void SkParticleEffect::update(double now) {
-    if (!this->isAlive() || !fParams->fDrawable) {
-        return;
-    }
-
+void SkParticleEffect::advanceTime(double now) {
     // TODO: Sub-frame spawning. Tricky with script driven position. Supply variable effect.age?
     // Could be done if effect.age were an external value that offset by particle lane, perhaps.
     fState.fDeltaTime = static_cast<float>(now - fLastTime);
@@ -226,6 +224,22 @@ void SkParticleEffect::update(double now) {
         }
     }
 
+    // Spawns new effects that were requested by any *effect* script (copies default values from
+    // the current effect).
+    auto processEffectSpawnRequests = [this, now]() {
+        for (const auto& spawnReq : fSpawnRequests) {
+            sk_sp<SkParticleEffect> newEffect(new SkParticleEffect(std::move(spawnReq.fParams),
+                                                                   fRandom));
+            fRandom.nextU();
+
+            newEffect->start(now, spawnReq.fLoop, fState.fPosition, fState.fHeading,
+                             fState.fScale, fState.fVelocity, fState.fSpin, fState.fColor,
+                             fState.fFrame);
+            fSubEffects.push_back(std::move(newEffect));
+        }
+        fSpawnRequests.reset();
+    };
+
     // Run optional effectSpawn to set initial spawn rate and other emitter properties.
     // This also runs on each loop point, for looped effects.
     if (runEffectSpawn) {
@@ -233,9 +247,10 @@ void SkParticleEffect::update(double now) {
             if (auto fun = byteCode->getFunction("effectSpawn")) {
                 for (const auto& value : fParams->fEffectProgram.fExternalValues) {
                     value->setRandom(&fRandom);
+                    value->setEffect(this);
                 }
-                SkAssertResult(byteCode->run(fun, &fState.fAge, nullptr, 1,
-                                             &fState.fDeltaTime, 1));
+                SkAssertResult(byteCode->run(fun, &fState.fAge, nullptr, 1, &fState.fDeltaTime, 1));
+                processEffectSpawnRequests();
             }
         }
     }
@@ -265,10 +280,11 @@ void SkParticleEffect::update(double now) {
         if (auto fun = byteCode->getFunction("effectUpdate")) {
             for (const auto& value : fParams->fEffectProgram.fExternalValues) {
                 value->setRandom(&fRandom);
+                value->setEffect(this);
             }
-            SkAssertResult(byteCode->run(fun, &fState.fAge, nullptr, 1,
-                                         &fState.fDeltaTime, 1));
+            SkAssertResult(byteCode->run(fun, &fState.fAge, nullptr, 1, &fState.fDeltaTime, 1));
             burstCount += fState.fBurst;
+            processEffectSpawnRequests();
         }
     }
 
@@ -292,6 +308,7 @@ void SkParticleEffect::update(double now) {
             SkRandom* randomBase = particles.fRandom.get() + start;
             for (const auto& value : params->fParticleProgram.fExternalValues) {
                 value->setRandom(randomBase);
+                value->setEffect(this);
             }
             SkAssertResult(byteCode->runStriped(byteCode->getFunction(entry),
                                                 args, SkParticles::kNumChannels, count,
@@ -367,11 +384,31 @@ void SkParticleEffect::update(double now) {
     }
 }
 
+void SkParticleEffect::update(double now) {
+    if (this->isAlive(false)) {
+        this->advanceTime(now);
+    }
+
+    // Now update all of our sub-effects, removing any that have died
+    for (int i = 0; i < fSubEffects.count(); ++i) {
+        fSubEffects[i]->update(now);
+        if (!fSubEffects[i]->isAlive()) {
+            fSubEffects[i] = fSubEffects.back();
+            fSubEffects.pop_back();
+            --i;
+        }
+    }
+}
+
 void SkParticleEffect::draw(SkCanvas* canvas) {
-    if (this->isAlive() && fParams->fDrawable) {
+    if (this->isAlive(false) && fParams->fDrawable) {
         SkPaint paint;
         paint.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
         fParams->fDrawable->draw(canvas, fParticles, fCount, paint);
+    }
+
+    for (const auto& subEffect : fSubEffects) {
+        subEffect->draw(canvas);
     }
 }
 
