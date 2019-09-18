@@ -75,10 +75,7 @@ void GrRenderTask::prepare(GrOpFlushState* flushState) {
 // Add a GrRenderTask-based dependency
 void GrRenderTask::addDependency(GrRenderTask* dependedOn) {
     SkASSERT(!dependedOn->dependsOn(this));  // loops are bad
-
-    if (this->dependsOn(dependedOn)) {
-        return;  // don't add duplicate dependencies
-    }
+    SkASSERT(!this->dependsOn(dependedOn));  // caller should weed out duplicates
 
     fDependencies.push_back(dependedOn);
     dependedOn->addDependent(this);
@@ -88,10 +85,12 @@ void GrRenderTask::addDependency(GrRenderTask* dependedOn) {
 
 void GrRenderTask::addDependenciesFromOtherTask(GrRenderTask* otherTask) {
     SkASSERT(otherTask);
-    for (int i = 0; i < otherTask->fDependencies.count(); ++i) {
+    for (GrRenderTask* task : otherTask->fDependencies) {
         // The task should not be adding a dependency to itself.
-        SkASSERT(otherTask->fDependencies[i] != this);
-        this->addDependency(otherTask->fDependencies[i]);
+        SkASSERT(task != this);
+        if (!this->dependsOn(task)) {
+            this->addDependency(task);
+        }
     }
 }
 
@@ -113,6 +112,10 @@ void GrRenderTask::addDependency(GrSurfaceProxy* dependedOn, GrMipMapped mipMapp
         SkASSERT(!dependedOn->asTextureProxy() ||
                  !dependedOn->asTextureProxy()->texPriv().isDeferred());
         return;
+    }
+
+    if (this->dependsOn(dependedOnTask)) {
+        return;  // don't add duplicate dependencies
     }
 
     if (dependedOnTask) {
