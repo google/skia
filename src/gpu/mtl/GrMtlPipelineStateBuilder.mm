@@ -140,7 +140,6 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
             return MTLVertexFormatUInt;
         case kUShort_norm_GrVertexAttribType:
             return MTLVertexFormatUShortNormalized;
-        // Experimental (for Y416)
         case kUShort4_norm_GrVertexAttribType:
             return MTLVertexFormatUShort4Normalized;
     }
