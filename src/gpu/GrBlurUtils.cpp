@@ -174,14 +174,24 @@ static sk_sp<GrTextureProxy> create_mask_GPU(GrRecordingContext* context,
                                              const SkMatrix& origViewMatrix,
                                              const GrShape& shape,
                                              int sampleCnt) {
+    // Use GrResourceProvider::MakeApprox to implement our own approximate size matching, but demand
+    // a "SkBackingFit::kExact" size match on the actual render target. We do this because the
+    // filter will reach outside the src bounds, so we need to pre-clear these values to ensure a
+    // "decal" sampling effect (i.e., ensure reads outside the src bounds return alpha=0).
+    //
+    // FIXME: Reads outside the left and top edges will actually clamp to the edge pixel. And in the
+    // event that MakeApprox does not change the size, reads outside the right and/or bottom will do
+    // the same. We should offset our filter within the render target and expand the size as needed
+    // to guarantee at least 1px of padding on all sides.
     auto rtContext = context->priv().makeDeferredRenderTargetContextWithFallback(
-            SkBackingFit::kApprox, maskRect.width(), maskRect.height(), GrColorType::kAlpha_8,
-            nullptr, sampleCnt, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
+            SkBackingFit::kExact, GrResourceProvider::MakeApprox(maskRect.width()),
+            GrResourceProvider::MakeApprox(maskRect.height()), GrColorType::kAlpha_8, nullptr,
+            sampleCnt, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
     if (!rtContext) {
         return nullptr;
     }
 
-    rtContext->priv().absClear(nullptr);
+    rtContext->clear(SK_PMColor4fTRANSPARENT);
 
     GrPaint maskPaint;
     maskPaint.setCoverageSetOpXPFactory(SkRegion::kReplace_Op);
