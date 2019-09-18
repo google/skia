@@ -27,6 +27,7 @@ class GrRenderTargetContext;
 class GrRenderTargetProxy;
 class GrSoftwarePathRenderer;
 class GrTextureContext;
+class GrTextureResolveRenderTask;
 class SkDeferredDisplayList;
 
 class GrDrawingManager {
@@ -49,12 +50,10 @@ public:
     // others). An unmanaged one is created and used by the onFlushCallback.
     sk_sp<GrOpsTask> newOpsTask(sk_sp<GrRenderTargetProxy>, bool managedOpsTask);
 
-    // Create a new, specialized, render task that will regenerate mipmap levels and/or resolve
-    // MSAA (depending on ResolveFlags). This method will add the new render task to the list of
-    // render tasks and make it depend on the target texture proxy. It is up to the caller to add
-    // any dependencies on the new render task.
-    GrRenderTask* newTextureResolveRenderTask(
-            sk_sp<GrSurfaceProxy>, GrSurfaceProxy::ResolveFlags, const GrCaps&);
+    // Create a render task that can resolve MSAA and/or regenerate mipmap levels on proxies. This
+    // method will only add the new render task to the list. It is up to the caller to call
+    // addProxy() on the returned object.
+    GrTextureResolveRenderTask* newTextureResolveRenderTask(const GrCaps&);
 
     // Create a new render task that will cause the gpu to wait on semaphores before executing any
     // more RenderTasks that target proxy. It is possible for this wait to also block additional
