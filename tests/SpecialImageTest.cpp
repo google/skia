@@ -35,8 +35,11 @@ static const int kFullSize = kSmallerSize + 2 * kPad;
 
 // Create a bitmap with red in the center and green around it
 static SkBitmap create_bm() {
+    SkImageInfo ii = SkImageInfo::Make(kFullSize, kFullSize, kRGBA_8888_SkColorType,
+                                       kPremul_SkAlphaType);
+
     SkBitmap bm;
-    bm.allocN32Pixels(kFullSize, kFullSize, true);
+    bm.allocPixels(ii);
 
     SkCanvas temp(bm);
 
@@ -230,7 +233,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
                                                             context,
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
                                                             kNeedNewImageUniqueID_SpecialImage,
-                                                            std::move(proxy), nullptr));
+                                                            std::move(proxy),
+                                                            GrColorType::kRGBA_8888,
+                                                            nullptr));
 
         {
             sk_sp<SkSpecialImage> fromGPU(gpuImage->makeTextureImage(context));
@@ -262,7 +267,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
                                                             context,
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
                                                             kNeedNewImageUniqueID_SpecialImage,
-                                                            proxy, nullptr));
+                                                            proxy,
+                                                            GrColorType::kRGBA_8888,
+                                                            nullptr));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
@@ -270,7 +277,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
         sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeDeferredFromGpu(
                                                                context, subset,
                                                                kNeedNewImageUniqueID_SpecialImage,
-                                                               std::move(proxy), nullptr));
+                                                               std::move(proxy),
+                                                               GrColorType::kRGBA_8888,
+                                                               nullptr));
         test_image(subSImg1, reporter, context, true);
     }
 
