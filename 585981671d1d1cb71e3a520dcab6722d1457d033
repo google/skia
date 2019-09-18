@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8531e20_16cfa9bd",
+        "filename": "experimental/minimal_ios_mtl_skia_app/main.mm",
+        "patchSetId": 8
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-09-18T15:42:38Z",
+      "side": 1,
+      "message": "Unless you want it to be thread-safe you might want to add nonatomic here. atomic is the default, but is slower.",
+      "range": {
+        "startLine": 46,
+        "startChar": 11,
+        "endLine": 46,
+        "endChar": 17
+      },
+      "revId": "585981671d1d1cb71e3a520dcab6722d1457d033",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37e38e25_61a8fe92",
+        "filename": "experimental/minimal_ios_mtl_skia_app/main.mm",
+        "patchSetId": 8
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-09-18T15:42:38Z",
+      "side": 1,
+      "message": "similarly nonatomic here?",
+      "range": {
+        "startLine": 84,
+        "startChar": 11,
+        "endLine": 84,
+        "endChar": 17
+      },
+      "revId": "585981671d1d1cb71e3a520dcab6722d1457d033",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
