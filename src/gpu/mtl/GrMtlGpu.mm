@@ -455,6 +455,91 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc,
     return tex;
 }
 
+sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(int width, int height,
+                                                     const GrBackendFormat& format,
+                                                     SkImage::CompressionType compressionType,
+                                                     SkBudgeted budgeted, const void* data) {
+    SkASSERT(this->caps()->isFormatTexturable(format));
+    SkASSERT(data);
+
+    if (!check_max_blit_width(width)) {
+        return nullptr;
+    }
+
+    MTLPixelFormat mtlPixelFormat = GrBackendFormatAsMTLPixelFormat(format);
+
+    // This TexDesc refers to the texture that will be read by the client. Thus even if msaa is
+    // requested, this TexDesc describes the resolved texture. Therefore we always have samples
+    // set to 1.
+    // Compressed textures with MIP levels or multiple samples are not supported as of now.
+    MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
+    texDesc.textureType = MTLTextureType2D;
+    texDesc.pixelFormat = mtlPixelFormat;
+    texDesc.width = width;
+    texDesc.height = height;
+    texDesc.depth = 1;
+    texDesc.mipmapLevelCount = 1;
+    texDesc.sampleCount = 1;
+    texDesc.arrayLength = 1;
+    // Make all textures have private gpu only access. We can use transfer buffers or textures
+    // to copy to them.
+    texDesc.storageMode = MTLStorageModePrivate;
+    texDesc.usage = MTLTextureUsageShaderRead;
+
+    GrSurfaceDesc desc;
+    desc.fConfig = GrCompressionTypePixelConfig(compressionType);
+    desc.fWidth = width;
+    desc.fHeight = height;
+    auto tex = GrMtlTexture::MakeNewTexture(this, budgeted, desc, texDesc,
+                                            GrMipMapsStatus::kNotAllocated);
+    if (!tex) {
+        return nullptr;
+    }
+
+    // Upload to texture
+    id<MTLTexture> mtlTexture = tex->mtlTexture();
+    SkASSERT(mtlTexture);
+
+    SkImage::CompressionType textureCompressionType;
+    if (!GrMtlFormatToCompressionType(mtlTexture.pixelFormat, &textureCompressionType) ||
+        textureCompressionType != compressionType) {
+        return nullptr;
+    }
+
+    size_t dataSize = GrCompressedDataSize(compressionType, width, height);
+    SkASSERT(dataSize);
+
+    size_t bufferOffset;
+    id<MTLBuffer> transferBuffer = this->resourceProvider().getDynamicBuffer(dataSize,
+                                                                             &bufferOffset);
+    if (!transferBuffer) {
+        return nullptr;
+    }
+    char* buffer = (char*) transferBuffer.contents + bufferOffset;
+
+    MTLOrigin origin = MTLOriginMake(0, 0, 0);
+
+    id<MTLBlitCommandEncoder> blitCmdEncoder = this->commandBuffer()->getBlitCommandEncoder();
+    const size_t rowBytes = GrCompressedRowBytes(compressionType, width);
+
+    // copy data into the buffer, skipping any trailing bytes
+    memcpy(buffer, data, dataSize);
+    [blitCmdEncoder copyFromBuffer: transferBuffer
+                      sourceOffset: bufferOffset
+                 sourceBytesPerRow: rowBytes
+               sourceBytesPerImage: dataSize
+                        sourceSize: MTLSizeMake(width, height, 1)
+                         toTexture: mtlTexture
+                  destinationSlice: 0
+                  destinationLevel: 0
+                 destinationOrigin: origin];
+#ifdef SK_BUILD_FOR_MAC
+    [transferBuffer didModifyRange: NSMakeRange(bufferOffset, dataSize)];
+#endif
+
+    return tex;
+}
+
 static id<MTLTexture> get_texture_from_backend(const GrBackendTexture& backendTex) {
     GrMtlTextureInfo textureInfo;
     if (!backendTex.getMtlTextureInfo(&textureInfo)) {
@@ -627,11 +712,11 @@ static GrPixelConfig mtl_format_to_pixelconfig(MTLPixelFormat format) {
     SkUNREACHABLE;
 }
 
-bool GrMtlGpu::createTestingOnlyMtlTextureInfo(MTLPixelFormat format,
-                                               int w, int h, bool texturable,
-                                               bool renderable, GrMipMapped mipMapped,
-                                               const void* srcData, size_t srcRowBytes,
-                                               const SkColor4f* color, GrMtlTextureInfo* info) {
+bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
+                                                 int w, int h, bool texturable,
+                                                 bool renderable, GrMipMapped mipMapped,
+                                                 const void* srcData, size_t srcRowBytes,
+                                                 const SkColor4f* color, GrMtlTextureInfo* info) {
     SkASSERT(texturable || renderable);
     if (!texturable) {
         SkASSERT(GrMipMapped::kNo == mipMapped);
@@ -652,11 +737,6 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(MTLPixelFormat format,
         return false;
     }
 
-    // TODO: allow uninitialized textures to be truly uninitialized
-    if (!color) {
-        color = &SkColors::kTransparent;
-    }
-
     int mipLevelCount = 1;
     if (GrMipMapped::kYes == mipMapped) {
         mipLevelCount = SkMipMap::ComputeLevelCount(w, h) + 1;
@@ -674,26 +754,27 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(MTLPixelFormat format,
     desc.usage |= renderable ? MTLTextureUsageRenderTarget : 0;
     id<MTLTexture> testTexture = [fDevice newTextureWithDescriptor: desc];
 
-    size_t bytesPerPixel = GrMtlBytesPerFormat(format);
+    if (!srcData && !color) {
+        info->fTexture.reset(GrRetainPtrFromId(testTexture));
 
-    if (!srcRowBytes) {
-        srcRowBytes = w * bytesPerPixel;
-#ifdef SK_BUILD_FOR_MAC
-        if (!srcData) {
-            // On MacOS, the fillBuffer command needs a range with a multiple of 4 bytes
-            srcRowBytes = ((srcRowBytes + 3) & (~3));
-        }
-#endif
+        return true;
     }
+
+    // Create the transfer buffer
+    SkImage::CompressionType compressionType;
+    bool isCompressed = GrMtlFormatToCompressionType(format, &compressionType);
+    size_t bytesPerPixel = GrMtlBytesPerFormat(format);
 
     size_t combinedBufferSize = 0;
     SkTArray<size_t> individualMipOffsets(mipLevelCount);
-    if (srcData) {
-        SkASSERT(1 == mipLevelCount);
+    if (isCompressed) {
+        // Compressed textures currently must be non-MIP mapped.
+        if (mipLevelCount != 1) {
+            return false;
+        }
+        combinedBufferSize = GrCompressedDataSize(compressionType, w, h);
         individualMipOffsets.push_back(0);
-
-        combinedBufferSize = srcRowBytes * h;
-    } else if (color) {
+    } else {
         combinedBufferSize = GrComputeTightCombinedBufferSize(bytesPerPixel, w, h,
                                                               &individualMipOffsets,
                                                               mipLevelCount);
@@ -706,9 +787,6 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(MTLPixelFormat format,
     options |= MTLResourceStorageModeShared;
 #endif
 
-    GrPixelConfig config = mtl_format_to_pixelconfig(format);
-    SkASSERT(kUnknown_GrPixelConfig != config);
-
     id<MTLBuffer> transferBuffer = [fDevice newBufferWithLength: combinedBufferSize
                                                         options: options];
     if (nil == transferBuffer) {
@@ -717,21 +795,34 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(MTLPixelFormat format,
 
     char* buffer = (char*) transferBuffer.contents;
 
+    // Fill buffer with data
     if (srcData) {
-        const size_t trimRowBytes = w * bytesPerPixel;
+        if (isCompressed) {
+            memcpy(buffer, srcData, combinedBufferSize);
+        } else {
+            const size_t trimRowBytes = w * bytesPerPixel;
 
-        SkASSERT(1 == mipLevelCount);
-        if (!srcRowBytes) {
-            srcRowBytes = trimRowBytes;
+            // TODO: support mipmapping
+            SkASSERT(1 == mipLevelCount);
+            if (!srcRowBytes) {
+                srcRowBytes = trimRowBytes;
+            }
+
+            // copy data into the buffer, skipping the trailing bytes
+            const char* src = (const char*) srcData;
+            SkRectMemcpy(buffer, trimRowBytes, src, srcRowBytes, trimRowBytes, h);
         }
-
-        // copy data into the buffer, skipping the trailing bytes
-        const char* src = (const char*) srcData;
-        SkRectMemcpy(buffer, trimRowBytes, src, srcRowBytes, trimRowBytes, h);
     } else if (color) {
-        GrFillInData(config, w, h, individualMipOffsets, buffer, *color);
+        if (isCompressed) {
+            GrFillInCompressedData(compressionType, w, h, buffer, *color);
+        } else {
+            GrPixelConfig config = mtl_format_to_pixelconfig(format);
+            SkASSERT(kUnknown_GrPixelConfig != config);
+            GrFillInData(config, w, h, individualMipOffsets, buffer, *color);
+        }
     }
 
+    // Transfer buffer contents to texture
     int currentWidth = w;
     int currentHeight = h;
     MTLOrigin origin = MTLOriginMake(0, 0, 0);
@@ -740,13 +831,21 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(MTLPixelFormat format,
     id<MTLBlitCommandEncoder> blitCmdEncoder = [cmdBuffer blitCommandEncoder];
 
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
-        const size_t trimRowBytes = currentWidth * bytesPerPixel;
+        size_t trimRowBytes;
+        size_t levelSize;
+        if (isCompressed) {
+            trimRowBytes = GrCompressedRowBytes(compressionType, currentWidth);
+            levelSize = GrCompressedDataSize(compressionType, currentWidth, currentHeight);
+        } else {
+            trimRowBytes = currentWidth * bytesPerPixel;
+            levelSize = trimRowBytes*currentHeight;
+        }
 
         // TODO: can this all be done in one go?
         [blitCmdEncoder copyFromBuffer: transferBuffer
                           sourceOffset: individualMipOffsets[currentMipLevel]
                      sourceBytesPerRow: trimRowBytes
-                   sourceBytesPerImage: trimRowBytes*currentHeight
+                   sourceBytesPerImage: levelSize
                             sourceSize: MTLSizeMake(currentWidth, currentHeight, 1)
                              toTexture: testTexture
                       destinationSlice: 0
@@ -782,10 +881,10 @@ GrBackendTexture GrMtlGpu::createBackendTexture(int w, int h,
 
     const MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
     GrMtlTextureInfo info;
-    if (!this->createTestingOnlyMtlTextureInfo(mtlFormat,
-                                               w, h, true,
-                                               GrRenderable::kYes == renderable, mipMapped,
-                                               pixels, rowBytes, color, &info)) {
+    if (!this->createMtlTextureForBackendSurface(mtlFormat,
+                                                 w, h, true,
+                                                 GrRenderable::kYes == renderable, mipMapped,
+                                                 pixels, rowBytes, color, &info)) {
         return {};
     }
 
@@ -826,8 +925,8 @@ GrBackendRenderTarget GrMtlGpu::createTestingOnlyBackendRenderTarget(int w, int 
     }
 
     GrMtlTextureInfo info;
-    if (!this->createTestingOnlyMtlTextureInfo(format, w, h, false, true,
-                                               GrMipMapped::kNo, nullptr, 0, nullptr, &info)) {
+    if (!this->createMtlTextureForBackendSurface(format, w, h, false, true,
+                                                 GrMipMapped::kNo, nullptr, 0, nullptr, &info)) {
         return {};
     }
 
