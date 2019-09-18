@@ -162,12 +162,13 @@ static ImageDrawMode optimize_sample_area(const SkISize& image, const SkRect* or
 }
 
 /**
- * Checks whether the paint is compatible with using GrRenderTargetContext::drawTexture. It is more
- * efficient than the GrTextureProducer general case.
+ * Checks whether the paint and render target context are compatible with using
+ * GrRenderTargetContext::drawTexture. It is more efficient than the GrTextureProducer general case.
  */
-static bool can_use_draw_texture(const SkPaint& paint) {
+static bool can_use_draw_texture(const SkPaint& paint, const GrRenderTargetContext* rtc) {
     return (!paint.getColorFilter() && !paint.getShader() && !paint.getMaskFilter() &&
-            !paint.getImageFilter() && paint.getFilterQuality() < kMedium_SkFilterQuality);
+            !paint.getImageFilter() && paint.getFilterQuality() < kMedium_SkFilterQuality) &&
+           (GrColorTypeClampType(rtc->colorSpaceInfo().colorType()) != GrClampType::kManual);
 }
 
 // Assumes srcRect and dstRect have already been optimized to fit the proxy
@@ -237,7 +238,7 @@ static void draw_texture_producer(GrContext* context, GrRenderTargetContext* rtc
                                   const SkRect& src, const SkRect& dst, const SkPoint dstClip[4],
                                   const SkMatrix& srcToDst, GrAA aa, GrQuadAAFlags aaFlags,
                                   SkCanvas::SrcRectConstraint constraint, bool attemptDrawTexture) {
-    if (attemptDrawTexture && can_use_draw_texture(paint)) {
+    if (attemptDrawTexture && can_use_draw_texture(paint, rtc)) {
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
         auto proxy = producer->refTextureProxyForParams(GrSamplerState::ClampNearest(), nullptr);
@@ -405,7 +406,7 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         SkAlphaType alphaType = image->alphaType();
         SkColorSpace* colorSpace = as_IB(image)->colorSpace();
 
-        if (attemptDrawTexture && can_use_draw_texture(paint)) {
+        if (attemptDrawTexture && can_use_draw_texture(paint, fRenderTargetContext.get())) {
             draw_texture(fRenderTargetContext.get(), this->clip(), ctm, paint, src,  dst,
                          dstClip, aa, aaFlags, constraint, std::move(proxy), alphaType, colorSpace);
             return;
@@ -459,7 +460,7 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
                                      const SkPoint dstClips[], const SkMatrix preViewMatrices[],
                                      const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
     SkASSERT(count > 0);
-    if (!can_use_draw_texture(paint)) {
+    if (!can_use_draw_texture(paint, fRenderTargetContext.get())) {
         // Send every entry through drawImageQuad() to handle the more complicated paint
         int dstClipIndex = 0;
         for (int i = 0; i < count; ++i) {

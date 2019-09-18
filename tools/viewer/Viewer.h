@@ -91,9 +91,10 @@ public:
     };
 private:
     enum class ColorMode {
-        kLegacy,            // 8888, no color management
-        kColorManaged8888,  // 8888 with color management
-        kColorManagedF16,   // F16 with color management
+        kLegacy,                // 8888, no color management
+        kColorManaged8888,      // 8888 with color management
+        kColorManagedF16,       // F16 with color management
+        kColorManagedF16Norm,   // Normalized F16 with color management
     };
 
     void initSlides();
