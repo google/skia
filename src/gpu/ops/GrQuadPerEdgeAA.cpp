@@ -850,6 +850,7 @@ int VertexSpec::localDimensionality() const {
 
 class QuadPerEdgeAAGeometryProcessor : public GrGeometryProcessor {
 public:
+    using Saturate = GrTextureOp::Saturate;
 
     static sk_sp<GrGeometryProcessor> Make(const VertexSpec& spec) {
         return sk_sp<QuadPerEdgeAAGeometryProcessor>(new QuadPerEdgeAAGeometryProcessor(spec));
@@ -859,33 +860,36 @@ public:
                                            GrTextureType textureType,
                                            const GrSamplerState& samplerState,
                                            const GrSwizzle& swizzle, uint32_t extraSamplerKey,
-                                           sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
+                                           sk_sp<GrColorSpaceXform> textureColorSpaceXform,
+                                           Saturate saturate) {
         return sk_sp<QuadPerEdgeAAGeometryProcessor>(new QuadPerEdgeAAGeometryProcessor(
                 vertexSpec, caps, textureType, samplerState, swizzle, extraSamplerKey,
-                std::move(textureColorSpaceXform)));
+                std::move(textureColorSpaceXform), saturate));
     }
 
     const char* name() const override { return "QuadPerEdgeAAGeometryProcessor"; }
 
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
         // texturing, device-dimensions are single bit flags
-        uint32_t x = fTexDomain.isInitialized() ? 0 : 1;
-        x |= fSampler.isInitialized() ? 0 : 2;
-        x |= fNeedsPerspective ? 0 : 4;
+        uint32_t x = (fTexDomain.isInitialized() ? 0 : 0x1)
+                   | (fSampler.isInitialized()   ? 0 : 0x2)
+                   | (fNeedsPerspective          ? 0 : 0x4)
+                   | (fSaturate == Saturate::kNo ? 0 : 0x8);
         // local coords require 2 bits (3 choices), 00 for none, 01 for 2d, 10 for 3d
         if (fLocalCoord.isInitialized()) {
-            x |= kFloat3_GrVertexAttribType == fLocalCoord.cpuType() ? 8 : 16;
+            x |= kFloat3_GrVertexAttribType == fLocalCoord.cpuType() ? 0x10 : 0x20;
         }
         // similar for colors, 00 for none, 01 for bytes, 10 for half-floats
         if (fColor.isInitialized()) {
-            x |= kUByte4_norm_GrVertexAttribType == fColor.cpuType() ? 32 : 64;
+            x |= kUByte4_norm_GrVertexAttribType == fColor.cpuType() ? 0x40 : 0x80;
         }
         // and coverage mode, 00 for none, 01 for withposition, 10 for withcolor, 11 for
         // position+geomdomain
         SkASSERT(!fGeomDomain.isInitialized() || fCoverageMode == CoverageMode::kWithPosition);
         if (fCoverageMode != CoverageMode::kNone) {
-            x |= fGeomDomain.isInitialized() ?
-                    384 : (CoverageMode::kWithPosition == fCoverageMode ? 128 : 256);
+            x |= fGeomDomain.isInitialized()
+                         ? 0x300
+                         : (CoverageMode::kWithPosition == fCoverageMode ? 0x100 : 0x200);
         }
 
         b->add32(GrColorSpaceXform::XformKey(fTextureColorSpaceXform.get()));
@@ -990,6 +994,14 @@ public:
                         args.fOutputColor, args.fTexSamplers[0], "texCoord", kFloat2_GrSLType,
                         &fTextureColorSpaceXformHelper);
                     args.fFragBuilder->codeAppend(";");
+                    if (gp.fSaturate == Saturate::kYes) {
+                        args.fFragBuilder->codeAppendf("%s = saturate(%s);",
+                                                       args.fOutputColor, args.fOutputColor);
+                    }
+                } else {
+                    // Saturate is only intended for use with a proxy to account for the fact
+                    // that GrTextureOp skips SkPaint conversion, which normally handles this.
+                    SkASSERT(gp.fSaturate == Saturate::kNo);
                 }
 
                 // And lastly, output the coverage calculation code
@@ -1056,8 +1068,10 @@ private:
                                    const GrSamplerState& samplerState,
                                    const GrSwizzle& swizzle,
                                    uint32_t extraSamplerKey,
-                                   sk_sp<GrColorSpaceXform> textureColorSpaceXform)
+                                   sk_sp<GrColorSpaceXform> textureColorSpaceXform,
+                                   Saturate saturate)
             : INHERITED(kQuadPerEdgeAAGeometryProcessor_ClassID)
+            , fSaturate(saturate)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fSampler(textureType, samplerState, swizzle, extraSamplerKey) {
         SkASSERT(spec.hasLocalCoords());
@@ -1122,6 +1136,8 @@ private:
     // The positions attribute may have coverage built into it, so float3 is an ambiguous type
     // and may mean 2d with coverage, or 3d with no coverage
     bool fNeedsPerspective;
+    // Should saturate() be called on the color? Only relevant when created with a texture.
+    Saturate fSaturate = Saturate::kNo;
     CoverageMode fCoverageMode;
 
     // Color space will be null and fSampler.isInitialized() returns false when the GP is configured
@@ -1140,9 +1156,11 @@ sk_sp<GrGeometryProcessor> MakeTexturedProcessor(const VertexSpec& spec, const G
                                                  GrTextureType textureType,
                                                  const GrSamplerState& samplerState,
                                                  const GrSwizzle& swizzle, uint32_t extraSamplerKey,
-                                                 sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
+                                                 sk_sp<GrColorSpaceXform> textureColorSpaceXform,
+                                                 Saturate saturate) {
     return QuadPerEdgeAAGeometryProcessor::Make(spec, caps, textureType, samplerState, swizzle,
-                                                extraSamplerKey, std::move(textureColorSpaceXform));
+                                                extraSamplerKey, std::move(textureColorSpaceXform),
+                                                saturate);
 }
 
 } // namespace GrQuadPerEdgeAA
