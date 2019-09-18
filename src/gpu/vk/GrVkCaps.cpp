@@ -649,7 +649,6 @@ static constexpr VkFormat kVkFormats[] = {
     VK_FORMAT_R16G16_UNORM,
     VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM,
     VK_FORMAT_G8_B8R8_2PLANE_420_UNORM,
-    // Experimental (for Y416 and mutant P016/P010)
     VK_FORMAT_R16G16B16A16_UNORM,
     VK_FORMAT_R16G16_SFLOAT,
 };
@@ -1586,7 +1585,6 @@ GrColorType GrVkCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& f
         case VK_FORMAT_R16_UNORM:                return GrColorType::kAlpha_16;
         case VK_FORMAT_R16_SFLOAT:               return GrColorType::kAlpha_F16;
         case VK_FORMAT_R16G16_UNORM:             return GrColorType::kRG_1616;
-        // Experimental (for Y416 and mutant P016/P010)
         case VK_FORMAT_R16G16B16A16_UNORM:       return GrColorType::kRGBA_16161616;
         case VK_FORMAT_R16G16_SFLOAT:            return GrColorType::kRG_F16;
         default:                                 return GrColorType::kUnknown;
