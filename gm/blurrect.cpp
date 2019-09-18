@@ -421,6 +421,9 @@ private:
                     }
                     auto rect = SkRect::MakeXYWH(pad, pad, w, h);
                     SkPaint paint;
+                    // Color doesn't matter if we're rendering to A8 but does if we promoted to
+                    // RGBA above.
+                    paint.setColor(SK_ColorWHITE);
                     paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma));
                     surf->getCanvas()->drawRect(rect, paint);
                     fActualMasks[sigmaIdx][heightIdx][widthIdx] = surf->makeImageSnapshot();
