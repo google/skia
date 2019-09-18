@@ -388,6 +388,8 @@ skia_gpu_sources = [
   "$_src/gpu/effects/generated/GrRectBlurEffect.h",
   "$_src/gpu/effects/generated/GrRRectBlurEffect.cpp",
   "$_src/gpu/effects/generated/GrRRectBlurEffect.h",
+  "$_src/gpu/effects/generated/GrSaturateProcessor.cpp",
+  "$_src/gpu/effects/generated/GrSaturateProcessor.h",
   "$_src/gpu/effects/generated/GrSimpleTextureEffect.cpp",
   "$_src/gpu/effects/generated/GrSimpleTextureEffect.h",
 
