@@ -330,6 +330,30 @@ size_t GrMtlBytesPerFormat(MTLPixelFormat format) {
     SK_ABORT("Invalid Mtl format");
 }
 
+bool GrMtlFormatIsCompressed(MTLPixelFormat mtlFormat) {
+    switch (mtlFormat) {
+#ifdef SK_BUILD_FOR_IOS
+        case MTLPixelFormatETC2_RGB8:
+            return true;
+#endif
+        default:
+            return false;
+    }
+}
+
+bool GrMtlFormatToCompressionType(MTLPixelFormat mtlFormat,
+                                  SkImage::CompressionType* compressionType) {
+    switch (mtlFormat) {
+#ifdef SK_BUILD_FOR_IOS
+        case MTLPixelFormatETC2_RGB8:
+            *compressionType = SkImage::kETC1_CompressionType;
+            return true;
+#endif
+        default:
+            return false;
+    }
+}
+
 #if GR_TEST_UTILS
 const char* GrMtlFormatToStr(GrMTLPixelFormat mtlFormat) {
     switch (mtlFormat) {

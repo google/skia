@@ -15,6 +15,9 @@
 
 size_t GrCompressedDataSize(SkImage::CompressionType, int w, int h);
 
+// Returns a value that can be used to set rowBytes for a transfer function.
+size_t GrCompressedRowBytes(SkImage::CompressionType, int w);
+
 // Compute the size of the buffer required to hold all the mipLevels of the specified type
 // of data when all rowBytes are tight.
 // Note there may still be padding between the mipLevels to meet alignment requirements.
