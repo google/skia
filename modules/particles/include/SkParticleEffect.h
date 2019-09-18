@@ -130,17 +130,36 @@ class SkParticleEffect : public SkRefCnt {
 public:
     SkParticleEffect(sk_sp<SkParticleEffectParams> params, const SkRandom& random);
 
-    void start(double now, bool looping = false);
+    void start(double now, bool looping = false,
+               SkPoint position  = { 0.0f, 0.0f },
+               SkVector heading  = { 0.0f, -1.0f },
+               float scale       = 1.0f,
+               SkVector velocity = { 0.0f, 0.0f },
+               float spin        = 0.0f,
+               SkColor4f color   = { 1.0f, 1.0f, 1.0f, 1.0f },
+               float frame       = 0.0f);
     void update(double now);
     void draw(SkCanvas* canvas);
 
-    bool isAlive() const { return fState.fAge >= 0 && fState.fAge <= 1; }
+    bool isAlive(bool includeSubEffects = true) const {
+        return (fState.fAge >= 0 && fState.fAge <= 1)
+            || (includeSubEffects && !fSubEffects.empty());
+    }
     int getCount() const { return fCount; }
 
     static void RegisterParticleTypes();
 
 private:
     void setCapacity(int capacity);
+
+    // Helpers to break down update
+    void advanceTime(double now);
+
+    void processEffectSpawnRequests(double now);
+    int runEffectScript(double now, const char* entry);
+
+    void processParticleSpawnRequests(double now, int start);
+    void runParticleScript(double now, const char* entry, int start, int count);
 
     sk_sp<SkParticleEffectParams> fParams;
 
@@ -152,7 +171,7 @@ private:
     float  fSpawnRemainder;
 
     // Effect-associated values exposed to script. They are some mix of uniform and inout,
-    // depending on whether we're executing per-feffect or per-particle scripts.
+    // depending on whether we're executing per-effect or per-particle scripts.
     struct EffectState {
         float fDeltaTime;
 
@@ -180,6 +199,25 @@ private:
 
     // Cached
     int fCapacity;
+
+    // Private interface used by SkEffectBinding and SkEffectExternalValue to spawn sub effects
+    friend class SkEffectExternalValue;
+    struct SpawnRequest {
+        SpawnRequest(int index, bool loop, sk_sp<SkParticleEffectParams> params)
+            : fIndex(index)
+            , fLoop(loop)
+            , fParams(std::move(params)) {}
+
+        int fIndex;
+        bool fLoop;
+        sk_sp<SkParticleEffectParams> fParams;
+    };
+    void addSpawnRequest(int index, bool loop, sk_sp<SkParticleEffectParams> params) {
+        fSpawnRequests.emplace_back(index, loop, std::move(params));
+    }
+    SkTArray<SpawnRequest> fSpawnRequests;
+
+    SkTArray<sk_sp<SkParticleEffect>> fSubEffects;
 };
 
 #endif // SkParticleEffect_DEFINED
