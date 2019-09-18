@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c2b78acd_aaeb5797",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-18T19:21:36Z",
+      "side": 1,
+      "message": "I don\u0027t love this (and the coupled assert in drawTextureQuad). An alternative would be to make that function in turn fall back to a more generic quad draw. Open to other suggestions, too.",
+      "range": {
+        "startLine": 171,
+        "startChar": 10,
+        "endLine": 171,
+        "endChar": 92
+      },
+      "revId": "34c6a2db5e1e77757ea442a3d3bd898f846ad4a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
