@@ -181,12 +181,18 @@ namespace skvm {
     }
 
     void Builder::dump(SkWStream* o) const {
+        SkDebugfStream debug;
+        if (!o) { o = &debug; }
+
         o->writeDecAsText(fProgram.size());
         o->writeText(" values:\n");
         dump_builder_program(fProgram, o);
     }
 
     void Program::dump(SkWStream* o) const {
+        SkDebugfStream debug;
+        if (!o) { o = &debug; }
+
         o->writeDecAsText(fRegs);
         o->writeText(" registers, ");
         o->writeDecAsText(fInstructions.size());
@@ -1333,13 +1339,17 @@ namespace skvm {
         }
     }
 
+    bool Program::hasJIT() const {
+        return fJITBuf != nullptr;
+    }
+
     void Program::dropJIT() {
     #if defined(SKVM_JIT)
         if (fJITBuf) {
             munmap(fJITBuf, fJITSize);
         }
     #else
-        SkASSERT(fJITBuf == nullptr);
+        SkASSERT(!this->hasJIT());
     #endif
 
         fJITBuf   = nullptr;
