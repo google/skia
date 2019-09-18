@@ -85,10 +85,31 @@ enum SkColorType {
     kRGBA_F16Norm_SkColorType, //!< pixel with half floats in [0,1] for red, green, blue, alpha; in 64-bit word
     kRGBA_F16_SkColorType,     //!< pixel with half floats for red, green, blue, alpha; in 64-bit word
     kRGBA_F32_SkColorType,     //!< pixel using C float for red, green, blue, alpha; in 128-bit word
+
+    // The following 6 colortypes are just for reading from - not for rendering to
     kRG_88_SkColorType,        //<! pixel with 8 bits each for red, green; in 16-bit word
-    kAlpha_16_SkColorType,     //<! pixel with alpha in 16-bits
-    kRG_1616_SkColorType,      //<! pixel with 16 bits each for red, green; in 32-bit word
-    kLastEnum_SkColorType     = kRG_1616_SkColorType, //!< last valid value
+
+    // Addressed as an array of little endian int32_ts, pixels of these two types are laid out as:
+    //   ----> increasing memory address
+    //   | A1 A2 | A3 A4 | ...
+    // with each pixel only taking up 16 bits
+    kAlpha_16_SkColorType,     //<! uint16_t
+    kAlpha_F16_SkColorType,    //<! SkHalf
+
+    // Addressed as an array of little endian int32_ts, pixels of these two types are laid out as:
+    //   ----> increasing memory address
+    //   | R1 G1 | R2 G2 | ...
+    // So each pixel takes up 32 bits with red in the LSBs and green in the MSBs
+    kRG_1616_SkColorType,      //<! uint16_t components
+    kRG_F16_SkColorType,       //<! SkHalf components
+
+    // Addressed as an array of little endian int32_ts, pixels of this type would be laid out as:
+    //   ----> increasing memory address
+    //   | R1 G1 | B1 A1 | R2 G2 | B2 A2 | ...
+    // So each pixel takes up 64 bits with the red in the LSBs and the alpha in the MSBs
+    kRGBA_16161616_SkColorType,//<! uint16_t components
+
+    kLastEnum_SkColorType     = kRGBA_16161616_SkColorType, //!< last valid value
 
 #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
     kN32_SkColorType          = kBGRA_8888_SkColorType,//!< native ARGB 32-bit encoding
