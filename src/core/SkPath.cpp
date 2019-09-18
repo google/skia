@@ -761,7 +761,7 @@ SkPath& SkPath::close() {
 ///////////////////////////////////////////////////////////////////////////////
 
 static void assert_known_direction(int dir) {
-    SkASSERT(SkPath::kCW_Direction == dir || SkPath::kCCW_Direction == dir);
+    SkASSERT(SkPathDirection::kCW == dir || SkPathDirection::kCCW == dir);
 }
 
 SkPath& SkPath::addRect(const SkRect& rect, Direction dir) {
@@ -1145,7 +1145,7 @@ SkPath& SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAng
 // http://www.w3.org/TR/SVG/implnote.html#ArcConversionEndpointToCenter
 // Note that arcSweep bool value is flipped from the original implementation.
 SkPath& SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize arcLarge,
-                      SkPath::Direction arcSweep, SkScalar x, SkScalar y) {
+                      SkPathDirection arcSweep, SkScalar x, SkScalar y) {
     this->injectMoveToIfNeeded();
     SkPoint srcPts[2];
     this->getLastPt(&srcPts[0]);
@@ -1270,7 +1270,7 @@ SkPath& SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize 
 }
 
 SkPath& SkPath::rArcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, SkPath::ArcSize largeArc,
-                       SkPath::Direction sweep, SkScalar dx, SkScalar dy) {
+                       SkPathDirection sweep, SkScalar dx, SkScalar dy) {
     SkPoint currentPoint;
     this->getLastPt(&currentPoint);
     return this->arcTo(rx, ry, xAxisRotate, largeArc, sweep,
@@ -3294,7 +3294,7 @@ int SkPath::ConvertConicToQuads(const SkPoint& p0, const SkPoint& p1, const SkPo
     return conic.chopIntoQuadsPOW2(pts, pow2);
 }
 
-bool SkPathPriv::IsSimpleClosedRect(const SkPath& path, SkRect* rect, SkPath::Direction* direction,
+bool SkPathPriv::IsSimpleClosedRect(const SkPath& path, SkRect* rect, SkPathDirection* direction,
                                     unsigned* start) {
     if (path.getSegmentMasks() != SkPath::kLine_SegmentMask) {
         return false;
@@ -3364,22 +3364,22 @@ bool SkPathPriv::IsSimpleClosedRect(const SkPath& path, SkRect* rect, SkPath::Di
     switch (sortFlags) {
         case 0b00:
             rect->setLTRB(rectPts[0].fX, rectPts[0].fY, rectPts[2].fX, rectPts[2].fY);
-            *direction = vec03IsVertical ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
+            *direction = vec03IsVertical ? SkPathDirection::kCW : SkPathDirection::kCCW;
             *start = 0;
             break;
         case 0b01:
             rect->setLTRB(rectPts[2].fX, rectPts[0].fY, rectPts[0].fX, rectPts[2].fY);
-            *direction = vec03IsVertical ? SkPath::kCCW_Direction : SkPath::kCW_Direction;
+            *direction = vec03IsVertical ? SkPathDirection::kCCW : SkPathDirection::kCW;
             *start = 1;
             break;
         case 0b10:
             rect->setLTRB(rectPts[0].fX, rectPts[2].fY, rectPts[2].fX, rectPts[0].fY);
-            *direction = vec03IsVertical ? SkPath::kCCW_Direction : SkPath::kCW_Direction;
+            *direction = vec03IsVertical ? SkPathDirection::kCCW : SkPathDirection::kCW;
             *start = 3;
             break;
         case 0b11:
             rect->setLTRB(rectPts[2].fX, rectPts[2].fY, rectPts[0].fX, rectPts[0].fY);
-            *direction = vec03IsVertical ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
+            *direction = vec03IsVertical ? SkPathDirection::kCW : SkPathDirection::kCCW;
             *start = 2;
             break;
     }
@@ -3560,7 +3560,7 @@ bool SkPath::IsCubicDegenerate(const SkPoint& p1, const SkPoint& p2,
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkPathPriv::IsRectContour(const SkPath& path, bool allowPartial, int* currVerb,
-                               const SkPoint** ptsPtr, bool* isClosed, SkPath::Direction* direction,
+                               const SkPoint** ptsPtr, bool* isClosed, SkPathDirection* direction,
                                SkRect* rect) {
     int corners = 0;
     SkPoint closeXY;  // used to determine if final line falls on a diagonal
@@ -3693,17 +3693,17 @@ bool SkPathPriv::IsRectContour(const SkPath& path, bool allowPartial, int* currV
     }
     if (direction) {
         *direction = directions[0] == ((directions[1] + 1) & 3) ?
-                     SkPath::kCW_Direction : SkPath::kCCW_Direction;
+                     SkPathDirection::kCW : SkPathDirection::kCCW;
     }
     return true;
 }
 
 
-bool SkPathPriv::IsNestedFillRects(const SkPath& path, SkRect rects[2], SkPath::Direction dirs[2]) {
+bool SkPathPriv::IsNestedFillRects(const SkPath& path, SkRect rects[2], SkPathDirection dirs[2]) {
     SkDEBUGCODE(path.validate();)
     int currVerb = 0;
     const SkPoint* pts = path.fPathRef->points();
-    SkPath::Direction testDirs[2];
+    SkPathDirection testDirs[2];
     SkRect testRects[2];
     if (!IsRectContour(path, true, &currVerb, &pts, nullptr, &testDirs[0], &testRects[0])) {
         return false;
