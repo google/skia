@@ -81,10 +81,6 @@ public:
      */
     void clear(const SkIRect* rect, const SkPMColor4f& color, CanClearFullscreen);
 
-    void clear(const SkPMColor4f& color) {
-        return this->clear(nullptr, color, CanClearFullscreen::kYes);
-    }
-
     /**
      *  Draw everywhere (respecting the clip) with the paint.
      */

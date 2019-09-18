@@ -53,12 +53,11 @@ uniform half blurRadius;
         sk_sp<GrTextureProxy> mask(proxyProvider->findOrCreateProxyByUniqueKey(
                 key, GrColorType::kAlpha_8, kBottomLeft_GrSurfaceOrigin));
         if (!mask) {
-            // TODO: this could be SkBackingFit::kApprox, but:
-            //   1) The texture coords would need to be updated.
-            //   2) We would have to use GrTextureDomain::kClamp_Mode for the GaussianBlur.
-            auto rtc = context->priv().makeDeferredRenderTargetContextWithFallback(
-                    SkBackingFit::kExact, size.fWidth, size.fHeight, GrColorType::kAlpha_8,
-                    nullptr);
+            // TODO: this could be approx but the texture coords will need to be updated
+            auto rtc =
+                    context->priv().makeDeferredRenderTargetContextWithFallback(
+                                                SkBackingFit::kExact, size.fWidth,
+                                                size.fHeight, GrColorType::kAlpha_8, nullptr);
             if (!rtc) {
                 return nullptr;
             }
