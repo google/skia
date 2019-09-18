@@ -382,6 +382,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
                 this->setColorMode(ColorMode::kColorManagedF16);
                 break;
             case ColorMode::kColorManagedF16:
+                this->setColorMode(ColorMode::kColorManagedF16Norm);
+                break;
+            case ColorMode::kColorManagedF16Norm:
                 this->setColorMode(ColorMode::kLegacy);
                 break;
         }
@@ -882,6 +885,9 @@ void Viewer::updateTitle() {
         case ColorMode::kColorManagedF16:
             title.append(" ColorManaged F16");
             break;
+        case ColorMode::kColorManagedF16Norm:
+            title.append(" ColorManaged F16 Norm");
+            break;
     }
 
     if (ColorMode::kLegacy != fColorMode) {
@@ -1266,8 +1272,19 @@ void Viewer::drawSlide(SkSurface* surface) {
     }
 
     // Grab some things we'll need to make surfaces (for tiling or general offscreen rendering)
-    SkColorType colorType = (ColorMode::kColorManagedF16 == fColorMode) ? kRGBA_F16_SkColorType
-                                                                        : kN32_SkColorType;
+    SkColorType colorType;
+    switch (fColorMode) {
+        case ColorMode::kLegacy:
+        case ColorMode::kColorManaged8888:
+            colorType = kN32_SkColorType;
+            break;
+        case ColorMode::kColorManagedF16:
+            colorType = kRGBA_F16_SkColorType;
+            break;
+        case ColorMode::kColorManagedF16Norm:
+            colorType = kRGBA_F16Norm_SkColorType;
+            break;
+    }
 
     auto make_surface = [=](int w, int h) {
         SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
@@ -2007,6 +2024,7 @@ void Viewer::drawImGui() {
                 cmButton(ColorMode::kLegacy, "Legacy 8888");
                 cmButton(ColorMode::kColorManaged8888, "Color Managed 8888");
                 cmButton(ColorMode::kColorManagedF16, "Color Managed F16");
+                cmButton(ColorMode::kColorManagedF16Norm, "Color Managed F16 Norm");
 
                 if (newMode != fColorMode) {
                     this->setColorMode(newMode);
