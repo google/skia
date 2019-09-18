@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2dfdb18b_b5318ec6",
+        "filename": "src/gpu/GrBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-18T21:19:01Z",
+      "side": 1,
+      "message": "Maybe use GrResourceProvider::MakeApprox(uint32_t)-\u003euint32_t here? It goes to the next pow2 up to a certain point, and then it uses smaller steps. This also has these render targets match the sizing that a kApprox fit would have been, w/o the proxy content area issues.",
+      "range": {
+        "startLine": 180,
+        "startChar": 34,
+        "endLine": 180,
+        "endChar": 44
+      },
+      "revId": "bacfaf7531aa48b63fc86396991d0e9e573b94cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
