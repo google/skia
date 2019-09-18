@@ -12,17 +12,10 @@
 
 class GrTextureResolveRenderTask final : public GrRenderTask {
 public:
-    GrTextureResolveRenderTask(sk_sp<GrSurfaceProxy> proxy,
-                               GrSurfaceProxy::ResolveFlags resolveFlags)
-            : GrRenderTask(std::move(proxy))
-            , fResolveFlags(resolveFlags) {
-        // Ensure the last render task that operated on the target is closed. That's where msaa and
-        // mipmaps should have been marked dirty.
-        SkASSERT(!fTarget->getLastRenderTask() || fTarget->getLastRenderTask()->isClosed());
-        SkASSERT(GrSurfaceProxy::ResolveFlags::kNone != fResolveFlags);
-    }
+    GrTextureResolveRenderTask() : GrRenderTask(nullptr) {}
+    ~GrTextureResolveRenderTask() override;
 
-    void init(const GrCaps&);
+    void addProxy(sk_sp<GrSurfaceProxy>, GrSurfaceProxy::ResolveFlags, const GrCaps&);
 
 private:
     void onPrepare(GrOpFlushState*) override {}
@@ -40,11 +33,17 @@ private:
     bool onExecute(GrOpFlushState*) override;
 
 #ifdef SK_DEBUG
-    // No non-dst proxies.
-    void visitProxies_debugOnly(const VisitSurfaceProxyFunc& fn) const override {}
+    SkDEBUGCODE(void visitProxies_debugOnly(const VisitSurfaceProxyFunc&) const override;)
 #endif
 
-    const GrSurfaceProxy::ResolveFlags fResolveFlags;
+    struct Resolve {
+        Resolve(sk_sp<GrSurfaceProxy> proxy, GrSurfaceProxy::ResolveFlags flags)
+                : fProxy(std::move(proxy)), fFlags(flags) {}
+        sk_sp<GrSurfaceProxy> fProxy;
+        GrSurfaceProxy::ResolveFlags fFlags;
+    };
+
+    SkSTArray<4, Resolve> fResolves;
 };
 
 #endif

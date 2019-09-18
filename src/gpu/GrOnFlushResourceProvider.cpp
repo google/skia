@@ -49,8 +49,9 @@ void GrOnFlushResourceProvider::addTextureResolveTask(sk_sp<GrTextureProxy> text
         renderTask->makeClosed(*this->caps());
     }
     auto task = static_cast<GrTextureResolveRenderTask*>(fDrawingMgr->fOnFlushRenderTasks.push_back(
-            sk_make_sp<GrTextureResolveRenderTask>(std::move(textureProxy), resolveFlags)).get());
-    task->init(*this->caps());
+            sk_make_sp<GrTextureResolveRenderTask>()).get());
+    task->addProxy(textureProxy, resolveFlags, *this->caps());
+    task->makeClosed(*this->caps());
 }
 
 bool GrOnFlushResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key,
