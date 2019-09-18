@@ -2427,26 +2427,6 @@ if (skia_enable_tools) {
       ]
     }
   }
-
-  if (skia_enable_skvm_jit) {
-    test_app("skvmtool") {
-      defines = [
-        "SKVM_JIT",
-        "SKVM_PERF_DUMPS",
-      ]
-      include_dirs = [ "." ]
-      sources = [
-        "src/core/SkSpinlock.cpp",
-        "src/core/SkThreadID.cpp",
-        "src/core/SkVM.cpp",
-        "tools/SkVMBuilders.cpp",
-        "tools/SkVMTool.cpp",
-      ]
-      if (target_cpu == "x64") {
-        sources += [ "src/core/SkCpu.cpp" ]
-      }
-    }
-  }
 }
 
 if (is_ios && skia_use_metal) {
