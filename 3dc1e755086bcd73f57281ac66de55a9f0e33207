@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e593d7f3_cd6acbc6",
+        "filename": "src/core/SkMipMap.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-18T17:01:12Z",
+      "side": 1,
+      "message": "What\u0027s this cast for?  I\u0027d have expected (uint16_t), or maybe just nothing?",
+      "range": {
+        "startLine": 79,
+        "startChar": 16,
+        "endLine": 79,
+        "endChar": 25
+      },
+      "revId": "3dc1e755086bcd73f57281ac66de55a9f0e33207",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
