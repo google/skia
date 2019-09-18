@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "173793de_e7f73f2a",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1042,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-18T19:24:38Z",
+      "side": 1,
+      "message": "rm?",
+      "revId": "cca78c3626182684478022c1cd3e4764e4a00188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
