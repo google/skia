@@ -1,0 +1,113 @@
+{
+   "MaxCount": 128,
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 2
+   },
+   "EffectCode": [
+      "void effectSpawn(inout Effect effect) {",
+      "  if (effect.loop == 0) {",
+      "    cloud(true);",
+      "  }",
+      "  effect.color = float4(0.1, 0.1, 1.0, 1.0);",
+      "  effect.rate = 10;",
+      "}",
+      "",
+      "void effectUpdate(inout Effect effect) {",
+      "}",
+      ""
+   ],
+   "Code": [
+      "void spawn(inout Particle p) {",
+      "  p.lifetime = 4;",
+      "  p.pos.x = mix(-50, 50, rand);",
+      "  p.vel.y = 50;",
+      "}",
+      "",
+      "void update(inout Particle p) {",
+      "  if (p.pos.y > 150 && p.vel.y > 0) {",
+      "    p.scale = 0;",
+      "    p.vel.y = 0;",
+      "    splash(false);",
+      "  }",
+      "}",
+      ""
+   ],
+   "Bindings": [
+      {
+         "Type": "SkEffectBinding",
+         "Name": "cloud",
+         "MaxCount": 60,
+         "Drawable": {
+            "Type": "SkCircleDrawable",
+            "Radius": 16
+         },
+         "EffectCode": [
+            "void effectSpawn(inout Effect effect) {",
+            "  effect.color = float4(1, 1, 1, 1);",
+            "  effect.rate = 30;",
+            "}",
+            "",
+            "void effectUpdate(inout Effect effect) {",
+            "}",
+            ""
+         ],
+         "Code": [
+            "float2 circle() {",
+            "  float2 xy;",
+            "  do {",
+            "    xy.x = 2 * rand - 1;",
+            "    xy.y = 2 * rand - 1;",
+            "  } while (dot(xy, xy) > 1);",
+            "  return xy;",
+            "}",
+            "",
+            "void spawn(inout Particle p) {",
+            "  p.lifetime = 2.5;",
+            "  p.pos = circle() * float2(50, 10);",
+            "  p.vel.x = mix(-10, 10, rand);",
+            "  p.vel.y = mix(-10, 10, rand);",
+            "}",
+            "",
+            "void update(inout Particle p) {",
+            "  p.color.a = 1 - (length(p.pos) / 150);",
+            "}",
+            ""
+         ],
+         "Bindings": []
+      },
+      {
+         "Type": "SkEffectBinding",
+         "Name": "splash",
+         "MaxCount": 8,
+         "Drawable": {
+            "Type": "SkCircleDrawable",
+            "Radius": 1
+         },
+         "EffectCode": [
+            "void effectSpawn(inout Effect effect) {",
+            "  effect.burst = 8;",
+            "  effect.scale = 1;",
+            "}",
+            "",
+            "void effectUpdate(inout Effect effect) {",
+            "}",
+            ""
+         ],
+         "Code": [
+            "void spawn(inout Particle p) {",
+            "  p.lifetime = rand;",
+            "  float a = radians(mix(-80, 80, rand) - 90);",
+            "  p.vel.x = cos(a) * 20;",
+            "  p.vel.y = sin(a) * 20;",
+            "}",
+            "",
+            "void update(inout Particle p) {",
+            "  p.vel.y += dt * 20;",
+            "}",
+            ""
+         ],
+         "Bindings": []
+      }
+   ]
+}
