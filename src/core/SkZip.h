@@ -76,4 +76,71 @@ private:
     std::tuple<Ts*...> fPointers;
     size_t fSize;
 };
+
+class SkMakeZipDetail {
+    template<typename C> struct Type {
+        using type = typename std::remove_pointer<decltype(std::declval<C>().data())>::type;
+        static type* ptr(C& c) { return c.data(); }
+    };
+    template<typename T, size_t N> struct Type<T(&)[N]> {
+        using type = T;
+        static type* ptr(T* t) { return t; }
+    };
+    template<typename T> struct Type<T*> {
+        using type = T;
+        static type* ptr(T* t) { return t; }
+    };
+
+    template<typename C, typename... Ts> struct PickOneSize {
+        static size_t Size(C& c, Ts... ts) { return c.size(); }
+    };
+    template <typename T, typename... Ts> struct PickOneSize<T*, Ts...> {
+        static size_t Size(T* t, Ts... ts) {
+            return PickOneSize<Ts...>::Size(std::forward<Ts>(ts)...);
+        }
+    };
+    template <typename T, typename... Ts, size_t N> struct PickOneSize<T(&)[N], Ts...> {
+        static size_t Size(T* t, Ts... ts) { return N; }
+    };
+
+#ifdef SK_DEBUG
+    template<typename C> struct DebugSize {
+        static decltype(std::declval<C>().size(), size_t()) Size(const C& c) { return c.size(); }
+    };
+    template<typename T, size_t N> struct DebugSize<T(&)[N]> {
+        static size_t Size(const T(&)[N]) { return N; }
+    };
+    template<typename T> struct DebugSize<T*> {
+        static size_t Size(const T* s) { return SIZE_MAX; }
+    };
+#endif
+
+public:
+    template<typename... Ts>
+    static auto MakeZip(Ts&& ... ts) -> SkZip<typename Type<Ts>::type...> {
+
+        // Pick the first collection that has a size, and use that for the size.
+        size_t size = PickOneSize<Ts...>::Size(std::forward<Ts>(ts)...);
+
+#ifdef SK_DEBUG
+        // Check that all sizes are the same.
+        size_t minSize = SIZE_MAX;
+        size_t maxSize = 0;
+        for (size_t s : {DebugSize<typename std::remove_const<Ts>::type>::Size(ts)...}) {
+            if (s != SIZE_MAX) {
+                minSize = std::min(minSize, s);
+                maxSize = std::max(maxSize, s);
+            }
+        }
+        SkASSERT(minSize == maxSize);
+#endif
+
+        return SkZip<typename Type<Ts>::type...>{size, Type<Ts>::ptr(std::forward<Ts>(ts))...};
+    }
+};
+
+template<typename... Ts>
+inline auto SkMakeZip(Ts&& ... ts) -> decltype(SkMakeZipDetail::MakeZip(std::forward<Ts>(ts)...)) {
+    return SkMakeZipDetail::MakeZip(std::forward<Ts>(ts)...);
+}
 #endif //SkZip_DEFINED
