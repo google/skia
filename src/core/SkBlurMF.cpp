@@ -881,15 +881,14 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* co
     bool isNormalBlur = (kNormal_SkBlurStyle == fBlurStyle);
     auto renderTargetContext = SkGpuBlurUtils::GaussianBlur(context,
                                                             srcProxy,
-                                                            GrColorType::kAlpha_8,
-                                                            kPremul_SkAlphaType,
                                                             SkIPoint::Make(0, 0),
                                                             nullptr,
                                                             clipRect,
                                                             SkIRect::EmptyIRect(),
                                                             xformedSigma,
                                                             xformedSigma,
-                                                            GrTextureDomain::kIgnore_Mode);
+                                                            GrTextureDomain::kIgnore_Mode,
+                                                            kPremul_SkAlphaType);
     if (!renderTargetContext) {
         return nullptr;
     }

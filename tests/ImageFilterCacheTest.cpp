@@ -23,11 +23,8 @@ static const int kPad = 3;
 static const int kFullSize = kSmallerSize + 2 * kPad;
 
 static SkBitmap create_bm() {
-    SkImageInfo ii = SkImageInfo::Make(kFullSize, kFullSize, kRGBA_8888_SkColorType,
-                                       kPremul_SkAlphaType);
-
     SkBitmap bm;
-    bm.allocPixels(ii);
+    bm.allocN32Pixels(kFullSize, kFullSize, true);
     bm.eraseColor(SK_ColorTRANSPARENT);
     return bm;
 }
@@ -259,16 +256,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo
     sk_sp<SkSpecialImage> fullImg(SkSpecialImage::MakeDeferredFromGpu(
                                                               context, full,
                                                               kNeedNewImageUniqueID_SpecialImage,
-                                                              srcProxy,
-                                                              GrColorType::kRGBA_8888, nullptr));
+                                                              srcProxy, nullptr));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
     sk_sp<SkSpecialImage> subsetImg(SkSpecialImage::MakeDeferredFromGpu(
                                                                 context, subset,
                                                                 kNeedNewImageUniqueID_SpecialImage,
-                                                                srcProxy,
-                                                                GrColorType::kRGBA_8888, nullptr));
+                                                                srcProxy, nullptr));
 
     test_find_existing(reporter, fullImg, subsetImg);
     test_dont_find_if_diff_key(reporter, fullImg, subsetImg);

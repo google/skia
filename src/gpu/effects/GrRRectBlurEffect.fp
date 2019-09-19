@@ -77,8 +77,6 @@ uniform half blurRadius;
             auto rtc2 =
                       SkGpuBlurUtils::GaussianBlur(context,
                                                    std::move(srcProxy),
-                                                   GrColorType::kAlpha_8,
-                                                   kPremul_SkAlphaType,
                                                    SkIPoint::Make(0, 0),
                                                    nullptr,
                                                    SkIRect::MakeWH(size.fWidth, size.fHeight),
@@ -86,6 +84,7 @@ uniform half blurRadius;
                                                    xformedSigma,
                                                    xformedSigma,
                                                    GrTextureDomain::kIgnore_Mode,
+                                                   kPremul_SkAlphaType,
                                                    SkBackingFit::kExact);
             if (!rtc2) {
                 return nullptr;

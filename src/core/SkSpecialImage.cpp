@@ -124,7 +124,6 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrRecordingContext* conte
                                                rect,
                                                this->uniqueID(),
                                                std::move(proxy),
-                                               SkColorTypeToGrColorType(bmp.colorType()),
                                                sk_ref_sp(this->getColorSpace()),
                                                &this->props(),
                                                this->alphaType());
@@ -212,7 +211,6 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrRecordingContext* context,
         }
 
         return MakeDeferredFromGpu(context, subset, image->uniqueID(), std::move(proxy),
-                                   SkColorTypeToGrColorType(image->colorType()),
                                    image->refColorSpace(), props);
     } else
 #endif
@@ -238,8 +236,6 @@ public:
     }
 
     SkAlphaType alphaType() const override { return fBitmap.alphaType(); }
-
-    SkColorType colorType() const override { return fBitmap.colorType(); }
 
     size_t getSize() const override { return fBitmap.computeByteSize(); }
 
@@ -378,12 +374,11 @@ static sk_sp<SkImage> wrap_proxy_in_image(GrRecordingContext* context, sk_sp<GrT
 class SkSpecialImage_Gpu : public SkSpecialImage_Base {
 public:
     SkSpecialImage_Gpu(GrRecordingContext* context, const SkIRect& subset,
-                       uint32_t uniqueID, sk_sp<GrTextureProxy> proxy, GrColorType ct,
-                       SkAlphaType at, sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps* props)
+                       uint32_t uniqueID, sk_sp<GrTextureProxy> proxy, SkAlphaType at,
+                       sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps* props)
         : INHERITED(subset, uniqueID, props)
         , fContext(context)
         , fTextureProxy(std::move(proxy))
-        , fColorType(ct)
         , fAlphaType(at)
         , fColorSpace(std::move(colorSpace))
         , fAddedRasterVersionToCache(false) {
@@ -396,8 +391,6 @@ public:
     }
 
     SkAlphaType alphaType() const override { return fAlphaType; }
-
-    SkColorType colorType() const override { return GrColorTypeToSkColorType(fColorType); }
 
     size_t getSize() const override { return fTextureProxy->gpuMemorySize(); }
 
@@ -479,7 +472,6 @@ public:
                                                    subset,
                                                    this->uniqueID(),
                                                    fTextureProxy,
-                                                   fColorType,
                                                    fColorSpace,
                                                    &this->props(),
                                                    fAlphaType);
@@ -533,7 +525,6 @@ public:
 private:
     GrRecordingContext*       fContext;
     sk_sp<GrTextureProxy>     fTextureProxy;
-    const GrColorType         fColorType;
     const SkAlphaType         fAlphaType;
     sk_sp<SkColorSpace>       fColorSpace;
     mutable std::atomic<bool> fAddedRasterVersionToCache;
@@ -545,7 +536,6 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeDeferredFromGpu(GrRecordingContext* co
                                                           const SkIRect& subset,
                                                           uint32_t uniqueID,
                                                           sk_sp<GrTextureProxy> proxy,
-                                                          GrColorType colorType,
                                                           sk_sp<SkColorSpace> colorSpace,
                                                           const SkSurfaceProps* props,
                                                           SkAlphaType at) {
@@ -553,7 +543,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeDeferredFromGpu(GrRecordingContext* co
         return nullptr;
     }
     SkASSERT_RELEASE(rect_fits(subset, proxy->width(), proxy->height()));
-    return sk_make_sp<SkSpecialImage_Gpu>(context, subset, uniqueID, std::move(proxy), colorType,
-                                          at, std::move(colorSpace), props);
+    return sk_make_sp<SkSpecialImage_Gpu>(context, subset, uniqueID, std::move(proxy), at,
+                                          std::move(colorSpace), props);
 }
 #endif
