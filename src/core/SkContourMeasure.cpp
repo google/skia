@@ -13,11 +13,15 @@
 
 #define kMaxTValue  0x3FFFFFFF
 
-static inline SkScalar tValue2Scalar(int t) {
+constexpr static inline SkScalar tValue2Scalar(int t) {
     SkASSERT((unsigned)t <= kMaxTValue);
-    const SkScalar kMaxTReciprocal = 1.0f / kMaxTValue;
+    // 1/kMaxTValue can't be represented as a float, but it's close and the limits work fine.
+    const SkScalar kMaxTReciprocal = 1.0f / (SkScalar)kMaxTValue;
     return t * kMaxTReciprocal;
 }
+
+static_assert(0.0f == tValue2Scalar(         0), "Lower limit should be exact.");
+static_assert(1.0f == tValue2Scalar(kMaxTValue), "Upper limit should be exact.");
 
 SkScalar SkContourMeasure::Segment::getScalarT() const {
     return tValue2Scalar(fTValue);
