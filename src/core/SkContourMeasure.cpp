@@ -15,7 +15,7 @@
 
 static inline SkScalar tValue2Scalar(int t) {
     SkASSERT((unsigned)t <= kMaxTValue);
-    const SkScalar kMaxTReciprocal = 1.0f / kMaxTValue;
+    const SkScalar kMaxTReciprocal = 1.0f / (SkScalar)kMaxTValue;
     return t * kMaxTReciprocal;
 }
 
