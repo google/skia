@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a63a934f_9f0ad133",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-19T16:59:53Z",
+      "side": 1,
+      "message": "I want to make zips of 0 size!!!",
+      "range": {
+        "startLine": 133,
+        "startChar": 8,
+        "endLine": 134,
+        "endChar": 37
+      },
+      "revId": "bbe1c04cc2bbd1b3bd68293d13bfa1c1711cc4c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
