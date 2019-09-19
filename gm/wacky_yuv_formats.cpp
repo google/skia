@@ -106,6 +106,38 @@ static bool format_has_builtin_alpha(YUVFormat yuvFormat) {
            kY410_YUVFormat == yuvFormat;
 }
 
+static bool is_colorType_texturable(const GrCaps* caps, GrColorType ct) {
+    GrBackendFormat format = caps->getDefaultBackendFormat(ct, GrRenderable::kNo);
+    if (!format.isValid()) {
+        return false;
+    }
+
+    return caps->isFormatTexturable(format);
+}
+
+static bool is_format_natively_supported(GrContext* context, YUVFormat yuvFormat) {
+
+    const GrCaps* caps = context->priv().caps();
+
+    switch (yuvFormat) {
+        case kP016_YUVFormat:  // fall through
+        case kP010_YUVFormat:  return is_colorType_texturable(caps, GrColorType::kAlpha_16) &&
+                                      is_colorType_texturable(caps, GrColorType::kRG_1616);
+        case kP016F_YUVFormat: return is_colorType_texturable(caps, GrColorType::kAlpha_F16) &&
+                                      is_colorType_texturable(caps, GrColorType::kRG_F16);
+        case kY416_YUVFormat:  return is_colorType_texturable(caps, GrColorType::kRGBA_16161616);
+        case kAYUV_YUVFormat:  return is_colorType_texturable(caps, GrColorType::kRGBA_8888);
+        case kY410_YUVFormat:  return is_colorType_texturable(caps, GrColorType::kRGBA_1010102);
+        case kNV12_YUVFormat:  // fall through
+        case kNV21_YUVFormat:  return is_colorType_texturable(caps, GrColorType::kGray_8) &&
+                                      is_colorType_texturable(caps, GrColorType::kRG_88);
+        case kI420_YUVFormat: // fall through
+        case kYV12_YUVFormat: return is_colorType_texturable(caps, GrColorType::kGray_8);
+    }
+
+    SkUNREACHABLE;
+}
+
 // Helper to setup the SkYUVAIndex array correctly
 // Skia allows the client to tack an additional alpha plane onto any of the standard opaque
 // formats (via the addExtraAlpha) flag. In this case it is assumed to be a stand-alone single-
@@ -1157,6 +1189,10 @@ protected:
                     if (context) {
                         if (context->abandoned()) {
                             return;
+                        }
+
+                        if (!is_format_natively_supported(context, (YUVFormat) format)) {
+                            continue;
                         }
 
                         GrBackendTexture yuvaTextures[4];
