@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a8ec164_413043cf",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-19T16:38:04Z",
+      "side": 1,
+      "message": "@param sampleCnt\n@param colorType\n\n?",
+      "revId": "297b741a1b25772ada8dee918c2cc118a9c75808",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a5f3de4_5ef325cd",
+        "filename": "src/image/SkSurface_GpuMtl.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-19T16:38:04Z",
+      "side": 1,
+      "message": "Does this need to be in the SK_METAL block ?",
+      "revId": "297b741a1b25772ada8dee918c2cc118a9c75808",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4bc4cc08_8a3f5282",
+        "filename": "src/image/SkSurface_GpuMtl.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-19T16:38:04Z",
+      "side": 1,
+      "message": "rm ?",
+      "revId": "297b741a1b25772ada8dee918c2cc118a9c75808",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
