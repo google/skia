@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "dffceb00_6731ac8a",
+        "filename": "modules/skottie/src/effects/MotionBlurEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-19T21:13:52Z",
+      "side": 1,
+      "message": "OK, gone.",
+      "parentUuid": "56e534bb_01ae0276",
+      "range": {
+        "startLine": 91,
+        "startChar": 4,
+        "endLine": 91,
+        "endChar": 36
+      },
+      "revId": "c89bb4d68ea56349275806128bf7f30713df54ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cc54a422_a049bdc4",
         "filename": "modules/skottie/src/effects/MotionBlurEffect.cpp",
         "patchSetId": 6
@@ -108,6 +132,30 @@
       "side": 1,
       "message": "Oh, did not realize that was optional!  Will remove.",
       "parentUuid": "cc54a422_a049bdc4",
+      "range": {
+        "startLine": 98,
+        "startChar": 8,
+        "endLine": 98,
+        "endChar": 24
+      },
+      "revId": "c89bb4d68ea56349275806128bf7f30713df54ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8cc31c5a_e9f1c895",
+        "filename": "modules/skottie/src/effects/MotionBlurEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-19T21:13:52Z",
+      "side": 1,
+      "message": "Gone.",
+      "parentUuid": "c9b62483_fe4bf757",
       "range": {
         "startLine": 98,
         "startChar": 8,
@@ -179,6 +227,30 @@
       "side": 1,
       "message": "very small potatoes I think. Also, the saveLayer does an initial clear automatically",
       "parentUuid": "e890ced7_215ab6a4",
+      "range": {
+        "startLine": 153,
+        "startChar": 12,
+        "endLine": 153,
+        "endChar": 17
+      },
+      "revId": "c89bb4d68ea56349275806128bf7f30713df54ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "baa1e4c0_33a0bfd9",
+        "filename": "modules/skottie/src/effects/MotionBlurEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-19T21:13:52Z",
+      "side": 1,
+      "message": "Yeah, just for fun I think I\u0027m doing the minimum number of clears.",
+      "parentUuid": "3ee8f93b_8a2eadd2",
       "range": {
         "startLine": 153,
         "startChar": 12,
