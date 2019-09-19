@@ -32,6 +32,7 @@ void MetalCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("lessThanEqual")]      = METAL(LessThanEqual);
     fIntrinsicMap[String("greaterThan")]        = METAL(GreaterThan);
     fIntrinsicMap[String("greaterThanEqual")]   = METAL(GreaterThanEqual);
+    fIntrinsicMap[String("unpremul")]           = SPECIAL(Unpremul);
 }
 
 void MetalCodeGenerator::write(const char* s) {
@@ -69,47 +70,48 @@ void MetalCodeGenerator::writeExtension(const Extension& ext) {
     this->writeLine("#extension " + ext.fName + " : enable");
 }
 
-void MetalCodeGenerator::writeType(const Type& type) {
+String MetalCodeGenerator::getTypeName(const Type& type) {
     switch (type.kind()) {
         case Type::kStruct_Kind:
-            for (const Type* search : fWrittenStructs) {
-                if (*search == type) {
-                    // already written
-                    this->write(type.name());
-                    return;
-                }
-            }
-            fWrittenStructs.push_back(&type);
-            this->writeLine("struct " + type.name() + " {");
-            fIndentation++;
-            this->writeFields(type.fields(), type.fOffset);
-            fIndentation--;
-            this->write("}");
-            break;
+            return type.name();
         case Type::kVector_Kind:
-            this->writeType(type.componentType());
-            this->write(to_string(type.columns()));
-            break;
+            return this->getTypeName(type.componentType()) + to_string(type.columns());
         case Type::kMatrix_Kind:
-            this->writeType(type.componentType());
-            this->write(to_string(type.columns()));
-            this->write("x");
-            this->write(to_string(type.rows()));
-            break;
+            return this->getTypeName(type.componentType()) + to_string(type.columns()) + "x" +
+                   to_string(type.rows());
         case Type::kSampler_Kind:
-            this->write("texture2d<float> "); // FIXME - support other texture types;
-            break;
+            return "texture2d<float>"; // FIXME - support other texture types;
         default:
             if (type == *fContext.fHalf_Type) {
                 // FIXME - Currently only supporting floats in MSL to avoid type coercion issues.
-                this->write(fContext.fFloat_Type->name());
+                return fContext.fFloat_Type->name();
             } else if (type == *fContext.fByte_Type) {
-                this->write("char");
+                return "char";
             } else if (type == *fContext.fUByte_Type) {
-                this->write("uchar");
+                return "uchar";
             } else {
-                this->write(type.name());
+                return type.name();
             }
+    }
+}
+
+void MetalCodeGenerator::writeType(const Type& type) {
+    if (type.kind() == Type::kStruct_Kind) {
+        for (const Type* search : fWrittenStructs) {
+            if (*search == type) {
+                // already written
+                this->write(this->getTypeName(type));
+                return;
+            }
+        }
+        fWrittenStructs.push_back(&type);
+        this->writeLine("struct " + type.name() + " {");
+        fIndentation++;
+        this->writeFields(type.fields(), type.fOffset);
+        fIndentation--;
+        this->write("}");
+    } else {
+        this->write(this->getTypeName(type));
     }
 }
 
@@ -369,6 +371,23 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
             this->writeExpression(*c.fArguments[1], kSequence_Precedence);
             this->write(")))");
             break;
+        case kUnpremul_SpecialIntrinsic: {
+            String tmpVar1 = "unpremul" + to_string(fVarCount++);
+            this->fFunctionHeader += String("    ") +
+                                     this->getTypeName(c.fArguments[0]->fType) + " " + tmpVar1 +
+                                     ";";
+            String tmpVar2 = "unpremulNonZeroAlpha" + to_string(fVarCount++);
+            this->fFunctionHeader += String("    ") +
+                                     this->getTypeName(c.fArguments[0]->fType.componentType()) +
+                                     " " + tmpVar2 + ";";
+            this->write("(" + tmpVar1 + " = ");
+            this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+            this->write(", " + tmpVar2 + " = max(" + tmpVar1 + ".a, " +
+                        to_string(SKSL_UNPREMUL_MIN) + "), " +
+                        this->getTypeName(*fContext.fHalf4_Type) + "(" + tmpVar1 +
+                        ".rgb / " + tmpVar2 + ", " + tmpVar2 + "))");
+            return;
+        }
         default:
             ABORT("unsupported special intrinsic kind");
     }

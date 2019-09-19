@@ -159,8 +159,7 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
         const GrShaderVar gColorXformArgs[] = { GrShaderVar("color", kHalf4_GrSLType) };
         SkString body;
         if (colorXformHelper->applyUnpremul()) {
-            body.append("half nonZeroAlpha = max(color.a, 0.0001);");
-            body.append("color = half4(color.rgb / nonZeroAlpha, nonZeroAlpha);");
+            body.append("color = unpremul(color);");
         }
         if (colorXformHelper->applySrcTF()) {
             body.appendf("color.r = %s(color.r);", srcTFFuncName.c_str());
