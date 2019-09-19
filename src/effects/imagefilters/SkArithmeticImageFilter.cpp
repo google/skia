@@ -272,7 +272,6 @@ SkIRect ArithmeticImageFilterImpl::onFilterBounds(const SkIRect& src,
     if (kReverse_MapDirection == dir) {
         return INHERITED::onFilterBounds(src, ctm, dir, inputRect);
     }
-
     SkASSERT(2 == this->countInputs());
 
     // result(i1,i2) = k1*i1*i2 + k2*i1 + k3*i2 + k4
