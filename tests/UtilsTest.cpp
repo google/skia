@@ -319,3 +319,97 @@ DEF_TEST(SkZip, reporter) {
         REPORTER_ASSERT(reporter, std::get<4>(t1) == 300);
     }
 }
+
+DEF_TEST(SkMakeZip, reporter) {
+    uint16_t A[] = {1, 2, 3, 4};
+    const float B[] = {10.f, 20.f, 30.f, 40.f};
+    std::vector<int> C = {{20, 30, 40, 50}};
+    std::array<int, 4> D = {{100, 200, 300, 400}};
+    SkSpan<int> S = SkMakeSpan(C);
+    {
+        // Check make zip
+        auto zz = SkMakeZip(&A[0], B, C, D, S);
+
+        int i = 0;
+        for (auto t : zz) {
+            uint16_t a; float b; int c; int d; int s;
+            std::tie(a, b ,c ,d, s) = t;
+            REPORTER_ASSERT(reporter, a == A[i]);
+            REPORTER_ASSERT(reporter, b == B[i]);
+            REPORTER_ASSERT(reporter, c == C[i]);
+            REPORTER_ASSERT(reporter, d == D[i]);
+            REPORTER_ASSERT(reporter, s == S[i]);
+
+            i++;
+        }
+        REPORTER_ASSERT(reporter, i = 4);
+    }
+
+    {
+        // Check SkMakeZip in ranged for check OneSize calc of B.
+        int i = 0;
+        for (auto t : SkMakeZip(&A[0], B, C, D, S)) {
+            uint16_t a; float b; int c; int d; int s;
+            std::tie(a, b ,c ,d, s) = t;
+            REPORTER_ASSERT(reporter, a == A[i]);
+            REPORTER_ASSERT(reporter, b == B[i]);
+            REPORTER_ASSERT(reporter, c == C[i]);
+            REPORTER_ASSERT(reporter, d == D[i]);
+            REPORTER_ASSERT(reporter, s == S[i]);
+
+            i++;
+        }
+        REPORTER_ASSERT(reporter, i = 4);
+    }
+
+    {
+        // Check SkMakeZip in ranged for OneSize of C
+        int i = 0;
+        for (auto t : SkMakeZip(&A[0], &B[0], C, D, S)) {
+            uint16_t a; float b; int c; int d; int s;
+            std::tie(a, b ,c ,d, s) = t;
+            REPORTER_ASSERT(reporter, a == A[i]);
+            REPORTER_ASSERT(reporter, b == B[i]);
+            REPORTER_ASSERT(reporter, c == C[i]);
+            REPORTER_ASSERT(reporter, d == D[i]);
+            REPORTER_ASSERT(reporter, s == S[i]);
+
+            i++;
+        }
+        REPORTER_ASSERT(reporter, i = 4);
+    }
+
+    {
+        // Check SkMakeZip in ranged for OneSize for S
+        int i = 0;
+        for (auto t : SkMakeZip(S, A, B, C, D)) {
+            uint16_t a; float b; int c; int d; int s;
+            std::tie(s, a, b, c, d) = t;
+            REPORTER_ASSERT(reporter, a == A[i]);
+            REPORTER_ASSERT(reporter, b == B[i]);
+            REPORTER_ASSERT(reporter, c == C[i]);
+            REPORTER_ASSERT(reporter, d == D[i]);
+            REPORTER_ASSERT(reporter, s == S[i]);
+
+            i++;
+        }
+        REPORTER_ASSERT(reporter, i = 4);
+    }
+
+    {
+        // Check SkMakeZip in ranged for
+        int i = 0;
+        for (auto t : SkMakeZip(C, S, A, B, D)) {
+            uint16_t a; float b; int c; int d; int s;
+            std::tie(c, s, a, b, d) = t;
+            REPORTER_ASSERT(reporter, a == A[i]);
+            REPORTER_ASSERT(reporter, b == B[i]);
+            REPORTER_ASSERT(reporter, c == C[i]);
+            REPORTER_ASSERT(reporter, d == D[i]);
+            REPORTER_ASSERT(reporter, s == S[i]);
+
+            i++;
+        }
+        REPORTER_ASSERT(reporter, i = 4);
+    }
+}
