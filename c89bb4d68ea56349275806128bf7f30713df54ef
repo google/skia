@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9233c8b_3bce5210",
+        "filename": "modules/skottie/src/effects/MotionBlurEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-19T20:24:33Z",
+      "side": 1,
+      "message": "unrelated, but I believe we can drop this and pass nullptr below.",
+      "range": {
+        "startLine": 91,
+        "startChar": 4,
+        "endLine": 91,
+        "endChar": 36
+      },
+      "revId": "c89bb4d68ea56349275806128bf7f30713df54ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc54a422_a049bdc4",
+        "filename": "modules/skottie/src/effects/MotionBlurEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-19T20:24:33Z",
+      "side": 1,
+      "message": "not really used?",
+      "range": {
+        "startLine": 98,
+        "startChar": 8,
+        "endLine": 98,
+        "endChar": 24
+      },
+      "revId": "c89bb4d68ea56349275806128bf7f30713df54ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33dc7a7a_a2be01b1",
+        "filename": "modules/skottie/src/effects/MotionBlurEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-19T20:24:33Z",
+      "side": 1,
+      "message": "we can skip this for the last frame, right?",
+      "range": {
+        "startLine": 153,
+        "startChar": 12,
+        "endLine": 153,
+        "endChar": 17
+      },
+      "revId": "c89bb4d68ea56349275806128bf7f30713df54ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
