@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74d24453_eeed46a9",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-19T17:56:15Z",
+      "side": 1,
+      "message": "While working on later CLs, I am starting to question the usefulness of this \"usage\". My intention was for it to be used with device space and parameter space, since those tended to exist outside of a specific input slot or output. In reality, most parameters are associated with the output slot, and there are cases (such as the tile filter) where a parameter might be an input usage. In the tile filter, its src rect samples the inputs (so should have kInput usage) and its dst rect describes the output size (so should have kOutput usage), but in both cases they exist in the kParameter space.\n\nA less aggressive change would be to keep kInherit as a way to describe arbitrary usage, but remove the static asserts later on that forced parameter and device spaces to only be kInherit. Then if it turns out kInherit is never used once the filters are ported, it can go away.",
+      "range": {
+        "startLine": 91,
+        "startChar": 4,
+        "endLine": 91,
+        "endChar": 12
+      },
+      "revId": "d613e06521c0ba1314186165f1d430d8bdf1d5c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
