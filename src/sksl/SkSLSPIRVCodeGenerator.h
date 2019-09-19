@@ -137,6 +137,7 @@ private:
         kSampledImage_SpecialIntrinsic,
         kSubpassLoad_SpecialIntrinsic,
         kTexture_SpecialIntrinsic,
+        kUnpremul_SpecialIntrinsic,
     };
 
     enum class Precision {
@@ -252,6 +253,9 @@ private:
     SpvId writeFieldAccess(const FieldAccess& f, OutputStream& out);
 
     SpvId writeSwizzle(const Swizzle& swizzle, OutputStream& out);
+
+    SpvId writeSwizzle(const Type& type, const Type& basetype, SpvId base,
+                       const std::vector<int> components, OutputStream& out);
 
     /**
      * Folds the potentially-vector result of a logical operation down to a single bool. If
