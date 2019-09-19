@@ -135,6 +135,9 @@ def compile_fn(api, checkout_root, out_dir):
     extra_ldflags.append('-fuse-ld=lld')
     extra_cflags.append('-DDUMMY_clang_linux_version=%s' %
                         api.run.asset_version('clang_linux', skia_dir))
+    extra_cflags.append('-include')
+    extra_cflags.append('%s' % skia_dir.join('tools',
+                                             'force_older_glibc_math.h'))
     if 'Static' in extra_tokens:
       extra_ldflags.extend(['-static-libstdc++', '-static-libgcc'])
 
