@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ddc7a20a_95f0045e",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-19T18:39:12Z",
+      "side": 1,
+      "message": "Since it is possible to call this with only constexpr things which allows the operations here to be constexpr, I think you can just slap constexpr on everything in here and uses will either work (because they are constexpr) or the compiler will just fail compilation (if things aren\u0027t constexpr). I think everything here is valid c++14 constexpr already...",
+      "range": {
+        "startLine": 143,
+        "startChar": 0,
+        "endLine": 143,
+        "endChar": 11
+      },
+      "revId": "d78a697aec0e743d91608576890dfffb4f7fab39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
