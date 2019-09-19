@@ -140,6 +140,30 @@
       "revId": "c89bb4d68ea56349275806128bf7f30713df54ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ee8f93b_8a2eadd2",
+        "filename": "modules/skottie/src/effects/MotionBlurEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-09-19T20:58:59Z",
+      "side": 1,
+      "message": "very small potatoes I think. Also, the saveLayer does an initial clear automatically",
+      "parentUuid": "e890ced7_215ab6a4",
+      "range": {
+        "startLine": 153,
+        "startChar": 12,
+        "endLine": 153,
+        "endChar": 17
+      },
+      "revId": "c89bb4d68ea56349275806128bf7f30713df54ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
