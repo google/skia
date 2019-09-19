@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5242f49e_4a87d714",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-19T20:46:01Z",
+      "side": 1,
+      "message": "yeah, eww.",
+      "parentUuid": "d7e9e234_841b48c4",
+      "range": {
+        "startLine": 77,
+        "startChar": 8,
+        "endLine": 77,
+        "endChar": 39
+      },
+      "revId": "bc5a5c76538b525ac7d2182a75201c0cff578f0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "45dcacc3_fbd7d5e6",
         "filename": "modules/skottie/src/SkottieTool.cpp",
         "patchSetId": 1
@@ -53,6 +77,23 @@
       "writtenOn": "2019-09-19T20:37:57Z",
       "side": 1,
       "message": "i don\u0027t think this is worth it - picture serialization is very fast.",
+      "revId": "bc5a5c76538b525ac7d2182a75201c0cff578f0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c929ca84_fed0b91f",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-19T20:46:01Z",
+      "side": 1,
+      "message": "This is probably a good situation to use SkTaskGroup.\n\nCan we just create independent `anim` here and have each frame run in one independent whump?",
       "revId": "bc5a5c76538b525ac7d2182a75201c0cff578f0a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
