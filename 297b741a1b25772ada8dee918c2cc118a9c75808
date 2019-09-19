@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7ea4fd3b_84cfbd18",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-09-19T17:08:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a8ec164_413043cf",
+      "revId": "297b741a1b25772ada8dee918c2cc118a9c75808",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a5f3de4_5ef325cd",
         "filename": "src/image/SkSurface_GpuMtl.mm",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "0d8b1fa6_50d6cb03",
+        "filename": "src/image/SkSurface_GpuMtl.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-09-19T17:08:54Z",
+      "side": 1,
+      "message": "It doesn\u0027t hurt to have it here. I think it looks a little cleaner this way.",
+      "parentUuid": "1a5f3de4_5ef325cd",
+      "revId": "297b741a1b25772ada8dee918c2cc118a9c75808",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4bc4cc08_8a3f5282",
         "filename": "src/image/SkSurface_GpuMtl.mm",
         "patchSetId": 2
@@ -50,6 +86,24 @@
       "revId": "297b741a1b25772ada8dee918c2cc118a9c75808",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ca1821b_5ef42d5d",
+        "filename": "src/image/SkSurface_GpuMtl.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-09-19T17:08:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4bc4cc08_8a3f5282",
+      "revId": "297b741a1b25772ada8dee918c2cc118a9c75808",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
