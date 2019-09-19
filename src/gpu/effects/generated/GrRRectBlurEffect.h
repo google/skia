@@ -77,6 +77,8 @@ public:
             }
             auto rtc2 = SkGpuBlurUtils::GaussianBlur(context,
                                                      std::move(srcProxy),
+                                                     rtc->colorSpaceInfo().colorType(),
+                                                     rtc->colorSpaceInfo().alphaType(),
                                                      SkIPoint::Make(0, 0),
                                                      nullptr,
                                                      SkIRect::MakeWH(size.fWidth, size.fHeight),
@@ -84,7 +86,6 @@ public:
                                                      xformedSigma,
                                                      xformedSigma,
                                                      GrTextureDomain::kIgnore_Mode,
-                                                     kPremul_SkAlphaType,
                                                      SkBackingFit::kExact);
             if (!rtc2) {
                 return nullptr;

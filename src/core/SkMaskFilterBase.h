@@ -16,6 +16,10 @@
 #include "include/private/SkNoncopyable.h"
 #include "src/core/SkMask.h"
 
+#if SK_SUPPORT_GPU
+#include "include/private/GrTypesPriv.h"
+#endif
+
 class GrClip;
 struct GrFPArgs;
 class GrFragmentProcessor;
@@ -124,6 +128,8 @@ public:
      */
     virtual sk_sp<GrTextureProxy> filterMaskGPU(GrRecordingContext*,
                                                 sk_sp<GrTextureProxy> srcProxy,
+                                                GrColorType srcColorType,
+                                                SkAlphaType srcAlphaType,
                                                 const SkMatrix& ctm,
                                                 const SkIRect& maskRect) const;
 #endif
