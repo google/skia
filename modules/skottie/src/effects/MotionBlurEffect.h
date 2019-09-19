@@ -23,14 +23,15 @@ public:
 
     SG_ATTRIBUTE(T, float, fT)
 
-protected:
+private:
     const RenderNode* onNodeAt(const SkPoint&) const override;
 
     SkRect onRevalidate(sksg::InvalidationController* ic, const SkMatrix& ctm) override;
 
     void onRender(SkCanvas* canvas, const RenderContext* ctx) const override;
 
-private:
+    void renderToRaster8888Pow2Samples(SkCanvas* canvas, const RenderContext* ctx) const;
+
     MotionBlurEffect(sk_sp<sksg::Animator> animator,
                      sk_sp<sksg::RenderNode> child,
                      size_t sample_count, float phase, float dt);
