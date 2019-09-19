@@ -13,6 +13,7 @@
 #include "include/utils/SkRandom.h"
 #include "include/utils/SkTextUtils.h"
 #include "modules/particles/include/SkCurve.h"
+#include "modules/particles/include/SkParticleEffect.h"
 #include "modules/particles/include/SkReflected.h"
 #include "src/sksl/SkSLCompiler.h"
 
@@ -108,6 +109,54 @@ public:
 
 private:
     SkColorCurve fCurve;
+};
+
+class SkEffectExternalValue : public SkParticleExternalValue {
+public:
+    SkEffectExternalValue(const char* name, SkSL::Compiler& compiler,
+                          sk_sp<SkParticleEffectParams> params)
+        : SkParticleExternalValue(name, compiler, *compiler.context().fVoid_Type)
+        , fParams(std::move(params)) {}
+
+    bool canCall() const override { return true; }
+    int callParameterCount() const override { return 1; }
+    void getCallParameterTypes(const SkSL::Type** outTypes) const override {
+        outTypes[0] = fCompiler.context().fBool_Type.get();
+    }
+
+    void call(int index, float* arguments, float* outReturn) override {
+        bool loop = ((int*)arguments)[0] != 0;
+        fEffect->addSpawnRequest(index, loop, fParams);
+    }
+
+private:
+    sk_sp<SkParticleEffectParams> fParams;
+};
+
+class SkEffectBinding : public SkParticleBinding {
+public:
+    SkEffectBinding(const char* name = "", sk_sp<SkParticleEffectParams> params = nullptr)
+            : SkParticleBinding(name)
+            , fParams(std::move(params)) {
+        if (!fParams) {
+            fParams.reset(new SkParticleEffectParams());
+        }
+    }
+
+    REFLECTED(SkEffectBinding, SkParticleBinding)
+
+    void visitFields(SkFieldVisitor* v) override {
+        SkParticleBinding::visitFields(v);
+        fParams->visitFields(v);
+    }
+
+    std::unique_ptr<SkParticleExternalValue> toValue(SkSL::Compiler& compiler) override {
+        return std::unique_ptr<SkParticleExternalValue>(
+            new SkEffectExternalValue(fName.c_str(), compiler, fParams));
+    }
+
+private:
+    sk_sp<SkParticleEffectParams> fParams;
 };
 
 struct SkPathContours {
@@ -255,6 +304,11 @@ sk_sp<SkParticleBinding> SkParticleBinding::MakeColorCurve(const char* name,
     return sk_sp<SkParticleBinding>(new SkColorCurveBinding(name, curve));
 }
 
+sk_sp<SkParticleBinding> SkParticleBinding::MakeEffectBinding(
+    const char* name, sk_sp<SkParticleEffectParams> params) {
+    return sk_sp<SkParticleBinding>(new SkEffectBinding(name, params));
+}
+
 sk_sp<SkParticleBinding> SkParticleBinding::MakePathBinding(const char* name, const char* path) {
     return sk_sp<SkParticleBinding>(new SkPathBinding(name, path));
 }
@@ -263,6 +317,7 @@ void SkParticleBinding::RegisterBindingTypes() {
     REGISTER_REFLECTED(SkParticleBinding);
     REGISTER_REFLECTED(SkCurveBinding);
     REGISTER_REFLECTED(SkColorCurveBinding);
+    REGISTER_REFLECTED(SkEffectBinding);
     REGISTER_REFLECTED(SkPathBinding);
     REGISTER_REFLECTED(SkTextBinding);
 }

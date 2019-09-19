@@ -1,0 +1,80 @@
+{
+   "MaxCount": 1000,
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 1
+   },
+   "EffectCode": [
+      "void effectSpawn(inout Effect effect) {",
+      "  effect.lifetime = 2;",
+      "  effect.rate = 120;",
+      "  float a = radians(mix(-20, 20, rand) - 90);",
+      "  float s = mix(200, 220, rand);",
+      "  effect.vel.x = cos(a) * s;",
+      "  effect.vel.y = sin(a) * s;",
+      "  effect.color.rgb = float3(rand, rand, rand);",
+      "  effect.pos.x = 0;",
+      "  effect.pos.y = 0;",
+      "}",
+      "",
+      "void effectUpdate(inout Effect effect) {",
+      "  effect.vel.y += dt * 90;",
+      "}",
+      "",
+      "void effectDeath(inout Effect effect) {",
+      "  explode(false);",
+      "}",
+      ""
+   ],
+   "Code": [
+      "void spawn(inout Particle p) {",
+      "  p.lifetime = 0.5;",
+      "  float a = radians(rand * 360);",
+      "  float s = mix(5, 10, rand);",
+      "  p.vel.x = cos(a) * s;",
+      "  p.vel.y = sin(a) * s;",
+      "}",
+      "",
+      "void update(inout Particle p) {",
+      "  p.color.a = 1 - p.age;",
+      "}",
+      ""
+   ],
+   "Bindings": [
+      {
+         "Type": "SkEffectBinding",
+         "Name": "explode",
+         "MaxCount": 50,
+         "Drawable": {
+            "Type": "SkCircleDrawable",
+            "Radius": 3
+         },
+         "EffectCode": [
+            "void effectSpawn(inout Effect effect) {",
+            "  effect.burst = 50;",
+            "  effect.lifetime = 2.5;",
+            "}",
+            "",
+            "void effectUpdate(inout Effect effect) {",
+            "}",
+            ""
+         ],
+         "Code": [
+            "void spawn(inout Particle p) {",
+            "  p.lifetime = 2 + rand * 0.5;",
+            "  float a = radians(rand * 360);",
+            "  float s = mix(90, 100, rand);",
+            "  p.vel.x = cos(a) * s;",
+            "  p.vel.y = sin(a) * s;",
+            "}",
+            "",
+            "void update(inout Particle p) {",
+            "  p.color.a = 1 - p.age;",
+            "  p.vel.y += dt * 50;",
+            "}",
+            ""
+         ],
+         "Bindings": []
+      }
+   ]
+}
