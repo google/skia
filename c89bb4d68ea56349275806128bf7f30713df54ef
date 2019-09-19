@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "56e534bb_01ae0276",
+        "filename": "modules/skottie/src/effects/MotionBlurEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-19T21:02:01Z",
+      "side": 1,
+      "message": "Just something I\u0027ve been meaning to clean up: the inval controller is supposed to be optional, in general, so we shouldn\u0027t need to make one up.  I can certainly do it later.",
+      "parentUuid": "0bc6461b_5315a503",
+      "range": {
+        "startLine": 91,
+        "startChar": 4,
+        "endLine": 91,
+        "endChar": 36
+      },
+      "revId": "c89bb4d68ea56349275806128bf7f30713df54ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cc54a422_a049bdc4",
         "filename": "modules/skottie/src/effects/MotionBlurEffect.cpp",
         "patchSetId": 6
