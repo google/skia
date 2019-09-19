@@ -1204,7 +1204,6 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
                                                rect,
                                                bitmap.getGenerationID(),
                                                std::move(proxy),
-                                               SkColorTypeToGrColorType(bitmap.colorType()),
                                                bitmap.refColorSpace(),
                                                &this->surfaceProps());
 }
@@ -1218,7 +1217,6 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
                                                    SkIRect::MakeWH(image->width(), image->height()),
                                                    image->uniqueID(),
                                                    std::move(proxy),
-                                                   SkColorTypeToGrColorType(image->colorType()),
                                                    image->refColorSpace(),
                                                    &this->surfaceProps());
     } else if (image->peekPixels(&pm)) {
@@ -1264,13 +1262,10 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial(const SkIRect& subset, bool force
         finalSubset = SkIRect::MakeSize(proxy->isize());
     }
 
-    GrColorType ct = SkColorTypeToGrColorType(this->imageInfo().colorType());
-
     return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
                                                finalSubset,
                                                kNeedNewImageUniqueID_SpecialImage,
                                                std::move(proxy),
-                                               ct,
                                                this->imageInfo().refColorSpace(),
                                                &this->surfaceProps());
 }

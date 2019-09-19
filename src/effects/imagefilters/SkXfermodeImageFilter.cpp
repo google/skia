@@ -322,7 +322,6 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::filterImageGPU(
             SkIRect::MakeWH(bounds.width(), bounds.height()),
             kNeedNewImageUniqueID_SpecialImage,
             renderTargetContext->asTextureProxyRef(),
-            renderTargetContext->colorSpaceInfo().colorType(),
             renderTargetContext->colorSpaceInfo().refColorSpace());
 }
 
