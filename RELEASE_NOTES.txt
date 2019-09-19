@@ -3,6 +3,7 @@ Skia Graphics Release Notes
 This file includes a list of high level updates for each milestone release.
 
 -----
+  * Add SkSurface::MakeFromCAMetalLayer
 
   * Remove isRectContour and ksNestedFillRects from public
   * Start to move nested SkPath types (e.g. Direction, Verb) up to root level in SkPathTypes.h

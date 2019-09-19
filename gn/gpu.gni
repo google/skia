@@ -784,6 +784,7 @@ skia_metal_sources = [
   "$_src/gpu/mtl/GrMtlUtil.mm",
   "$_src/gpu/mtl/GrMtlVaryingHandler.h",
   "$_src/gpu/mtl/GrMtlVaryingHandler.mm",
+  "$_src/image/SkSurface_GpuMtl.mm",
 ]
 
 skia_native_gpu_sources = [
