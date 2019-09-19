@@ -84,7 +84,7 @@ static bool convert_to_alpha8(const SkImageInfo& dstInfo,       void* vdst, size
             return false;
         }
 
-        case kAlpha_16_SkColorType: {
+        case kA16_unorm_SkColorType: {
             auto src16 = (const uint16_t*) src;
             for (int y = 0; y < srcInfo.height(); y++) {
                 for (int x = 0; x < srcInfo.width(); x++) {
@@ -98,9 +98,9 @@ static bool convert_to_alpha8(const SkImageInfo& dstInfo,       void* vdst, size
 
         case kGray_8_SkColorType:
         case kRGB_565_SkColorType:
-        case kRG_88_SkColorType:
-        case kRG_1616_SkColorType:
-        case kRG_F16_SkColorType:
+        case kR8G8_unorm_SkColorType:
+        case kR16G16_unorm_SkColorType:
+        case kR16G16_float_SkColorType:
         case kRGB_888x_SkColorType:
         case kRGB_101010x_SkColorType: {
             for (int y = 0; y < srcInfo.height(); ++y) {
@@ -172,7 +172,7 @@ static bool convert_to_alpha8(const SkImageInfo& dstInfo,       void* vdst, size
             return true;
         }
 
-        case kAlpha_F16_SkColorType: {
+        case kA16_float_SkColorType: {
             auto srcF16 = (const uint16_t*) src;
             for (int y = 0; y < srcInfo.height(); y++) {
                 for (int x = 0; x < srcInfo.width(); x++) {
@@ -184,7 +184,7 @@ static bool convert_to_alpha8(const SkImageInfo& dstInfo,       void* vdst, size
             return true;
         }
 
-        case kRGBA_16161616_SkColorType: {
+        case kR16G16B16A16_unorm_SkColorType: {
             auto src64 = (const uint64_t*) src;
             for (int y = 0; y < srcInfo.height(); y++) {
                 for (int x = 0; x < srcInfo.width(); x++) {

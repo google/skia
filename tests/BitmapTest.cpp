@@ -330,26 +330,26 @@ DEF_TEST(getalphaf, reporter) {
         SkColorType fColorType;
         bool (*fPred)(float, float);
     } recs[] = {
-        { kRGB_565_SkColorType,       opaque },
-        { kGray_8_SkColorType,        opaque },
-        { kRG_88_SkColorType,         opaque },
-        { kRG_1616_SkColorType,       opaque },
-        { kRG_F16_SkColorType,        opaque },
-        { kRGB_888x_SkColorType,      opaque },
-        { kRGB_101010x_SkColorType,   opaque },
+        { kRGB_565_SkColorType,            opaque },
+        { kGray_8_SkColorType,             opaque },
+        { kR8G8_unorm_SkColorType,         opaque },
+        { kR16G16_unorm_SkColorType,       opaque },
+        { kR16G16_float_SkColorType,       opaque },
+        { kRGB_888x_SkColorType,           opaque },
+        { kRGB_101010x_SkColorType,        opaque },
 
-        { kAlpha_8_SkColorType,       nearly },
-        { kAlpha_16_SkColorType,      nearly },
-        { kAlpha_F16_SkColorType,     nearly_half },
-        { kRGBA_8888_SkColorType,     nearly },
-        { kBGRA_8888_SkColorType,     nearly },
-        { kRGBA_16161616_SkColorType, nearly },
-        { kRGBA_F16_SkColorType,      nearly_half },
-        { kRGBA_F32_SkColorType,      nearly },
+        { kAlpha_8_SkColorType,            nearly },
+        { kA16_unorm_SkColorType,          nearly },
+        { kA16_float_SkColorType,          nearly_half },
+        { kRGBA_8888_SkColorType,          nearly },
+        { kBGRA_8888_SkColorType,          nearly },
+        { kR16G16B16A16_unorm_SkColorType, nearly },
+        { kRGBA_F16_SkColorType,           nearly_half },
+        { kRGBA_F32_SkColorType,           nearly },
 
-        { kRGBA_1010102_SkColorType,  nearly2bit },
+        { kRGBA_1010102_SkColorType,       nearly2bit },
 
-        { kARGB_4444_SkColorType,     nearly4bit },
+        { kARGB_4444_SkColorType,          nearly4bit },
     };
 
     for (const auto& rec : recs) {

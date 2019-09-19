@@ -42,12 +42,12 @@ bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
         return false;
     }
 
-    if (info.colorType() == kRG_88_SkColorType ||
-        info.colorType() == kRG_1616_SkColorType ||
-        info.colorType() == kRG_F16_SkColorType ||
-        info.colorType() == kAlpha_16_SkColorType ||
-        info.colorType() == kAlpha_F16_SkColorType ||
-        info.colorType() == kRGBA_16161616_SkColorType) {
+    if (info.colorType() == kR8G8_unorm_SkColorType ||
+        info.colorType() == kR16G16_unorm_SkColorType ||
+        info.colorType() == kR16G16_float_SkColorType ||
+        info.colorType() == kA16_unorm_SkColorType ||
+        info.colorType() == kA16_float_SkColorType ||
+        info.colorType() == kR16G16B16A16_unorm_SkColorType) {
         return false;
     }
 

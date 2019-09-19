@@ -67,7 +67,7 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkPixmap& 
         }
     }
     if (2 == channelCount) {
-        SkASSERT(kRG_88_SkColorType == pm.colorType());
+        SkASSERT(kR8G8_unorm_SkColorType == pm.colorType());
     }
 #endif
 
@@ -275,7 +275,7 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
             if (kUnknown_SkColorType == colorTypes[texIdx]) {
                 colorTypes[texIdx] = kAlpha_8_SkColorType;
             } else {
-                colorTypes[texIdx] = kRG_88_SkColorType;
+                colorTypes[texIdx] = kR8G8_unorm_SkColorType;
             }
         }
 
