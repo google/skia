@@ -98,7 +98,7 @@ static bool convert_to_alpha8(const SkImageInfo& dstInfo,       void* vdst, size
 
         case kGray_8_SkColorType:
         case kRGB_565_SkColorType:
-        case kRG_88_SkColorType:
+        case kR8G8_unorm_SkColorType:
         case kRG_1616_SkColorType:
         case kRG_F16_SkColorType:
         case kRGB_888x_SkColorType:
@@ -172,7 +172,7 @@ static bool convert_to_alpha8(const SkImageInfo& dstInfo,       void* vdst, size
             return true;
         }
 
-        case kAlpha_F16_SkColorType: {
+        case kA16_flt_SkColorType: {
             auto srcF16 = (const uint16_t*) src;
             for (int y = 0; y < srcInfo.height(); y++) {
                 for (int x = 0; x < srcInfo.width(); x++) {

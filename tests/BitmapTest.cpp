@@ -332,7 +332,7 @@ DEF_TEST(getalphaf, reporter) {
     } recs[] = {
         { kRGB_565_SkColorType,       opaque },
         { kGray_8_SkColorType,        opaque },
-        { kRG_88_SkColorType,         opaque },
+        { kR8G8_unorm_SkColorType,    opaque },
         { kRG_1616_SkColorType,       opaque },
         { kRG_F16_SkColorType,        opaque },
         { kRGB_888x_SkColorType,      opaque },
@@ -340,7 +340,7 @@ DEF_TEST(getalphaf, reporter) {
 
         { kAlpha_8_SkColorType,       nearly },
         { kAlpha_16_SkColorType,      nearly },
-        { kAlpha_F16_SkColorType,     nearly_half },
+        { kA16_flt_SkColorType,       nearly_half },
         { kRGBA_8888_SkColorType,     nearly },
         { kBGRA_8888_SkColorType,     nearly },
         { kRGBA_16161616_SkColorType, nearly },

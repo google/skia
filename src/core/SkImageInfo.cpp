@@ -25,10 +25,10 @@ int SkColorTypeBytesPerPixel(SkColorType ct) {
         case kRGBA_F16Norm_SkColorType:  return 8;
         case kRGBA_F16_SkColorType:      return 8;
         case kRGBA_F32_SkColorType:      return 16;
-        case kRG_88_SkColorType:         return 2;
+        case kR8G8_unorm_SkColorType:    return 2;
         case kAlpha_16_SkColorType:      return 2;
         case kRG_1616_SkColorType:       return 4;
-        case kAlpha_F16_SkColorType:     return 2;
+        case kA16_flt_SkColorType:       return 2;
         case kRG_F16_SkColorType:        return 4;
         case kRGBA_16161616_SkColorType: return 8;
     }
@@ -74,7 +74,7 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
             break;
         case kAlpha_8_SkColorType:         // fall-through
         case kAlpha_16_SkColorType:        // fall-through
-        case kAlpha_F16_SkColorType:
+        case kA16_flt_SkColorType:
             if (kUnpremul_SkAlphaType == alphaType) {
                 alphaType = kPremul_SkAlphaType;
             }
@@ -92,7 +92,7 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
             }
             break;
         case kGray_8_SkColorType:
-        case kRG_88_SkColorType:
+        case kR8G8_unorm_SkColorType:
         case kRG_1616_SkColorType:
         case kRG_F16_SkColorType:
         case kRGB_565_SkColorType:

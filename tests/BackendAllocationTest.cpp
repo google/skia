@@ -424,10 +424,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
         { kRGBA_F16Norm_SkColorType, SkColors::kLtGray        },
         { kRGBA_F16_SkColorType,     SkColors::kYellow        },
         { kRGBA_F32_SkColorType,     SkColors::kGray          },
-        { kRG_88_SkColorType,        { .25f, .75f, 0, 0 }     },
+        { kR8G8_unorm_SkColorType,   { .25f, .75f, 0, 0 }     },
         { kRG_1616_SkColorType,      SkColors::kGreen         },
         { kAlpha_16_SkColorType,     kTransCol                },
-        { kAlpha_F16_SkColorType,    kTransCol                },
+        { kA16_flt_SkColorType,      kTransCol                },
         { kRG_F16_SkColorType,       { .25f, .75f, 0, 0 }     },
         { kRGBA_16161616_SkColorType,{ .25f, .5f, .75f, 1 }   },
     };

@@ -422,10 +422,10 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
         switch (info.colorType()) {
             case kAlpha_8_SkColorType:      p->append(SkRasterPipeline::gather_a8,      ctx); break;
             case kAlpha_16_SkColorType:     p->append(SkRasterPipeline::gather_a16,     ctx); break;
-            case kAlpha_F16_SkColorType:    p->append(SkRasterPipeline::gather_af16,    ctx); break;
+            case kA16_flt_SkColorType:      p->append(SkRasterPipeline::gather_af16,    ctx); break;
             case kRGB_565_SkColorType:      p->append(SkRasterPipeline::gather_565,     ctx); break;
             case kARGB_4444_SkColorType:    p->append(SkRasterPipeline::gather_4444,    ctx); break;
-            case kRG_88_SkColorType:        p->append(SkRasterPipeline::gather_rg88,    ctx); break;
+            case kR8G8_unorm_SkColorType:   p->append(SkRasterPipeline::gather_rg88,    ctx); break;
             case kRG_1616_SkColorType:      p->append(SkRasterPipeline::gather_rg1616,  ctx); break;
             case kRG_F16_SkColorType:       p->append(SkRasterPipeline::gather_rgf16,  ctx); break;
             case kRGBA_8888_SkColorType:    p->append(SkRasterPipeline::gather_8888,    ctx); break;

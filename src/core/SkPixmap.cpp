@@ -100,7 +100,7 @@ float SkPixmap::getAlphaf(int x, int y) const {
         case kUnknown_SkColorType:
             return 0;
         case kGray_8_SkColorType:
-        case kRG_88_SkColorType:
+        case kR8G8_unorm_SkColorType:
         case kRG_1616_SkColorType:
         case kRG_F16_SkColorType:
         case kRGB_565_SkColorType:
@@ -113,7 +113,7 @@ float SkPixmap::getAlphaf(int x, int y) const {
         case kAlpha_16_SkColorType:
             value = static_cast<const uint16_t*>(srcPtr)[0] * (1.0f/65535);
             break;
-        case kAlpha_F16_SkColorType: {
+        case kA16_flt_SkColorType: {
             SkHalf half = static_cast<const SkHalf*>(srcPtr)[0];
             value = SkHalfToFloat(half);
             break;
@@ -281,7 +281,7 @@ SkColor SkPixmap::getColor(int x, int y) const {
             uint16_t value = *this->addr16(x, y);
             return SkColorSetA(0, value * (255 / 65535.0f));
         }
-        case kAlpha_F16_SkColorType: {
+        case kA16_flt_SkColorType: {
             SkHalf value = *this->addr16(x, y);
             return SkColorSetA(0, 255 * SkHalfToFloat(value));
         }
@@ -293,7 +293,7 @@ SkColor SkPixmap::getColor(int x, int y) const {
             SkPMColor c = SkPixel4444ToPixel32(value);
             return toColor(c);
         }
-        case kRG_88_SkColorType: {
+        case kR8G8_unorm_SkColorType: {
             uint16_t value = *this->addr16(x, y);
             return (uint32_t)( ((value >>  0) & 0xff) ) << 16
                  | (uint32_t)( ((value >>  8) & 0xff) ) <<  8
@@ -432,7 +432,7 @@ bool SkPixmap::computeIsOpaque() const {
             }
             return true;
         }
-        case kAlpha_F16_SkColorType: {
+        case kA16_flt_SkColorType: {
             for (int y = 0; y < height; ++y) {
                 const SkHalf* row = this->addr16(0, y);
                 for (int x = 0; x < width; ++x) {
@@ -445,7 +445,7 @@ bool SkPixmap::computeIsOpaque() const {
         }
         case kRGB_565_SkColorType:
         case kGray_8_SkColorType:
-        case kRG_88_SkColorType:
+        case kR8G8_unorm_SkColorType:
         case kRG_1616_SkColorType:
         case kRG_F16_SkColorType:
         case kRGB_888x_SkColorType:
