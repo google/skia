@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0bc6461b_5315a503",
+        "filename": "modules/skottie/src/effects/MotionBlurEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-19T20:55:37Z",
+      "side": 1,
+      "message": "Ah, yeah, I\u0027m really unclear on how that all works.  Maybe we remove all that as a second step, or are you saying it\u0027s still needed in the general case but not here in the special case?\n\nIn earlier drafts I was hitting asserts in this-\u003ebounds() occasionally, and when I run that example you sent me, it also terminates with that same assert I think.  (I tend to run -Os debug builds.)",
+      "parentUuid": "f9233c8b_3bce5210",
+      "range": {
+        "startLine": 91,
+        "startChar": 4,
+        "endLine": 91,
+        "endChar": 36
+      },
+      "revId": "c89bb4d68ea56349275806128bf7f30713df54ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cc54a422_a049bdc4",
         "filename": "modules/skottie/src/effects/MotionBlurEffect.cpp",
         "patchSetId": 6
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "c9b62483_fe4bf757",
+        "filename": "modules/skottie/src/effects/MotionBlurEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-19T20:55:37Z",
+      "side": 1,
+      "message": "Oh, did not realize that was optional!  Will remove.",
+      "parentUuid": "cc54a422_a049bdc4",
+      "range": {
+        "startLine": 98,
+        "startChar": 8,
+        "endLine": 98,
+        "endChar": 24
+      },
+      "revId": "c89bb4d68ea56349275806128bf7f30713df54ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "33dc7a7a_a2be01b1",
         "filename": "modules/skottie/src/effects/MotionBlurEffect.cpp",
         "patchSetId": 6
@@ -59,6 +107,30 @@
       "writtenOn": "2019-09-19T20:24:33Z",
       "side": 1,
       "message": "we can skip this for the last frame, right?",
+      "range": {
+        "startLine": 153,
+        "startChar": 12,
+        "endLine": 153,
+        "endChar": 17
+      },
+      "revId": "c89bb4d68ea56349275806128bf7f30713df54ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e890ced7_215ab6a4",
+        "filename": "modules/skottie/src/effects/MotionBlurEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-19T20:55:37Z",
+      "side": 1,
+      "message": "Hmm, yeah, we\u0027re overwriting in the final pass.  I\u0027ll move it up so each frame clears for itself.  I think it\u0027ll be small potatoes though.",
+      "parentUuid": "33dc7a7a_a2be01b1",
       "range": {
         "startLine": 153,
         "startChar": 12,
