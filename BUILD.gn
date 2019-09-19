@@ -2427,6 +2427,13 @@ if (skia_enable_tools) {
       ]
     }
   }
+
+  executable("image_diff_metric") {
+    sources = [ "tools/image_diff_metric.cpp" ]
+    deps = [
+      ":skia",
+    ]
+  }
 }
 
 if (is_ios && skia_use_metal) {
