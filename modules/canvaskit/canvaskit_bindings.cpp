@@ -1273,12 +1273,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("Gray_8", SkColorType::kGray_8_SkColorType)
         .value("RGBA_F16", SkColorType::kRGBA_F16_SkColorType)
         .value("RGBA_F32", SkColorType::kRGBA_F32_SkColorType)
-        .value("RG_88", SkColorType::kRG_88_SkColorType)
-        .value("Alpha_16", SkColorType::kAlpha_16_SkColorType)
-        .value("RG_1616", SkColorType::kRG_1616_SkColorType)
-        .value("Alpha_F16", SkColorType::kAlpha_F16_SkColorType)
-        .value("RG_F16", SkColorType::kRG_F16_SkColorType)
-        .value("RGBA_16161616", SkColorType::kRGBA_16161616_SkColorType);
+        .value("R8G8_unorm", SkColorType::kR8G8_unorm_SkColorType)
+        .value("A16_unorm", SkColorType::kA16_unorm_SkColorType)
+        .value("R16G16_unorm", SkColorType::kR16G16_unorm_SkColorType)
+        .value("A16_float", SkColorType::kA16_float_SkColorType)
+        .value("R16G16_float", SkColorType::kR16G16_float_SkColorType)
+        .value("R16G16B16A16_unorm", SkColorType::kR16G16B16A16_unorm_SkColorType);
 
     enum_<SkPath::FillType>("FillType")
         .value("Winding",           SkPath::FillType::kWinding_FillType)

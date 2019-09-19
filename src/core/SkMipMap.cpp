@@ -464,7 +464,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
             proc_3_2 = downsample_3_2<ColorTypeFilter_RGBA_F16>;
             proc_3_3 = downsample_3_3<ColorTypeFilter_RGBA_F16>;
             break;
-        case kRG_88_SkColorType:
+        case kR8G8_unorm_SkColorType:
             proc_1_2 = downsample_1_2<ColorTypeFilter_88>;
             proc_1_3 = downsample_1_3<ColorTypeFilter_88>;
             proc_2_1 = downsample_2_1<ColorTypeFilter_88>;
@@ -474,7 +474,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
             proc_3_2 = downsample_3_2<ColorTypeFilter_88>;
             proc_3_3 = downsample_3_3<ColorTypeFilter_88>;
             break;
-        case kRG_1616_SkColorType:
+        case kR16G16_unorm_SkColorType:
             proc_1_2 = downsample_1_2<ColorTypeFilter_1616>;
             proc_1_3 = downsample_1_3<ColorTypeFilter_1616>;
             proc_2_1 = downsample_2_1<ColorTypeFilter_1616>;
@@ -484,7 +484,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
             proc_3_2 = downsample_3_2<ColorTypeFilter_1616>;
             proc_3_3 = downsample_3_3<ColorTypeFilter_1616>;
             break;
-        case kAlpha_16_SkColorType:
+        case kA16_unorm_SkColorType:
             proc_1_2 = downsample_1_2<ColorTypeFilter_16>;
             proc_1_3 = downsample_1_3<ColorTypeFilter_16>;
             proc_2_1 = downsample_2_1<ColorTypeFilter_16>;
@@ -504,7 +504,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
             proc_3_2 = downsample_3_2<ColorTypeFilter_1010102>;
             proc_3_3 = downsample_3_3<ColorTypeFilter_1010102>;
             break;
-        case kAlpha_F16_SkColorType:
+        case kA16_float_SkColorType:
             proc_1_2 = downsample_1_2<ColorTypeFilter_Alpha_F16>;
             proc_1_3 = downsample_1_3<ColorTypeFilter_Alpha_F16>;
             proc_2_1 = downsample_2_1<ColorTypeFilter_Alpha_F16>;
@@ -514,7 +514,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
             proc_3_2 = downsample_3_2<ColorTypeFilter_Alpha_F16>;
             proc_3_3 = downsample_3_3<ColorTypeFilter_Alpha_F16>;
             break;
-        case kRG_F16_SkColorType:
+        case kR16G16_float_SkColorType:
             proc_1_2 = downsample_1_2<ColorTypeFilter_F16F16>;
             proc_1_3 = downsample_1_3<ColorTypeFilter_F16F16>;
             proc_2_1 = downsample_2_1<ColorTypeFilter_F16F16>;
@@ -524,7 +524,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
             proc_3_2 = downsample_3_2<ColorTypeFilter_F16F16>;
             proc_3_3 = downsample_3_3<ColorTypeFilter_F16F16>;
             break;
-        case kRGBA_16161616_SkColorType:
+        case kR16G16B16A16_unorm_SkColorType:
             proc_1_2 = downsample_1_2<ColorTypeFilter_16161616>;
             proc_1_3 = downsample_1_3<ColorTypeFilter_16161616>;
             proc_2_1 = downsample_2_1<ColorTypeFilter_16161616>;

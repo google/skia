@@ -12,25 +12,25 @@
 
 int SkColorTypeBytesPerPixel(SkColorType ct) {
     switch (ct) {
-        case kUnknown_SkColorType:       return 0;
-        case kAlpha_8_SkColorType:       return 1;
-        case kRGB_565_SkColorType:       return 2;
-        case kARGB_4444_SkColorType:     return 2;
-        case kRGBA_8888_SkColorType:     return 4;
-        case kBGRA_8888_SkColorType:     return 4;
-        case kRGB_888x_SkColorType:      return 4;
-        case kRGBA_1010102_SkColorType:  return 4;
-        case kRGB_101010x_SkColorType:   return 4;
-        case kGray_8_SkColorType:        return 1;
-        case kRGBA_F16Norm_SkColorType:  return 8;
-        case kRGBA_F16_SkColorType:      return 8;
-        case kRGBA_F32_SkColorType:      return 16;
-        case kRG_88_SkColorType:         return 2;
-        case kAlpha_16_SkColorType:      return 2;
-        case kRG_1616_SkColorType:       return 4;
-        case kAlpha_F16_SkColorType:     return 2;
-        case kRG_F16_SkColorType:        return 4;
-        case kRGBA_16161616_SkColorType: return 8;
+        case kUnknown_SkColorType:            return 0;
+        case kAlpha_8_SkColorType:            return 1;
+        case kRGB_565_SkColorType:            return 2;
+        case kARGB_4444_SkColorType:          return 2;
+        case kRGBA_8888_SkColorType:          return 4;
+        case kBGRA_8888_SkColorType:          return 4;
+        case kRGB_888x_SkColorType:           return 4;
+        case kRGBA_1010102_SkColorType:       return 4;
+        case kRGB_101010x_SkColorType:        return 4;
+        case kGray_8_SkColorType:             return 1;
+        case kRGBA_F16Norm_SkColorType:       return 8;
+        case kRGBA_F16_SkColorType:           return 8;
+        case kRGBA_F32_SkColorType:           return 16;
+        case kR8G8_unorm_SkColorType:         return 2;
+        case kA16_unorm_SkColorType:          return 2;
+        case kR16G16_unorm_SkColorType:       return 4;
+        case kA16_float_SkColorType:          return 2;
+        case kR16G16_float_SkColorType:       return 4;
+        case kR16G16B16A16_unorm_SkColorType: return 8;
     }
     SkUNREACHABLE;
 }
@@ -73,8 +73,8 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
             alphaType = kUnknown_SkAlphaType;
             break;
         case kAlpha_8_SkColorType:         // fall-through
-        case kAlpha_16_SkColorType:        // fall-through
-        case kAlpha_F16_SkColorType:
+        case kA16_unorm_SkColorType:       // fall-through
+        case kA16_float_SkColorType:
             if (kUnpremul_SkAlphaType == alphaType) {
                 alphaType = kPremul_SkAlphaType;
             }
@@ -86,15 +86,15 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
         case kRGBA_F16Norm_SkColorType:
         case kRGBA_F16_SkColorType:
         case kRGBA_F32_SkColorType:
-        case kRGBA_16161616_SkColorType:
+        case kR16G16B16A16_unorm_SkColorType:
             if (kUnknown_SkAlphaType == alphaType) {
                 return false;
             }
             break;
         case kGray_8_SkColorType:
-        case kRG_88_SkColorType:
-        case kRG_1616_SkColorType:
-        case kRG_F16_SkColorType:
+        case kR8G8_unorm_SkColorType:
+        case kR16G16_unorm_SkColorType:
+        case kR16G16_float_SkColorType:
         case kRGB_565_SkColorType:
         case kRGB_888x_SkColorType:
         case kRGB_101010x_SkColorType:

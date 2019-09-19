@@ -409,27 +409,27 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
         SkColorType   fColorType;
         SkColor4f     fColor;
     } combinations[] = {
-        { kAlpha_8_SkColorType,      kTransCol                },
-        { kRGB_565_SkColorType,      SkColors::kRed           },
-        { kARGB_4444_SkColorType,    SkColors::kGreen         },
-        { kRGBA_8888_SkColorType,    SkColors::kBlue          },
-        { kRGB_888x_SkColorType,     SkColors::kCyan          },
+        { kAlpha_8_SkColorType,           kTransCol                },
+        { kRGB_565_SkColorType,           SkColors::kRed           },
+        { kARGB_4444_SkColorType,         SkColors::kGreen         },
+        { kRGBA_8888_SkColorType,         SkColors::kBlue          },
+        { kRGB_888x_SkColorType,          SkColors::kCyan          },
         // TODO: readback is busted when alpha = 0.5f (perhaps premul vs. unpremul)
-        { kBGRA_8888_SkColorType,    { 1, 0, 0, 1.0f }        },
+        { kBGRA_8888_SkColorType,         { 1, 0, 0, 1.0f }        },
         // TODO: readback is busted when alpha = 0.5f (perhaps premul vs. unpremul)
-        { kRGBA_1010102_SkColorType, { .25f, .5f, .75f, 1.0f }},
+        { kRGBA_1010102_SkColorType,      { .25f, .5f, .75f, 1.0f }},
         // The kRGB_101010x_SkColorType has no Ganesh correlate
-        { kRGB_101010x_SkColorType,  { 0, 0.5f, 0, 0.5f }     },
-        { kGray_8_SkColorType,       kGrayCol                 },
-        { kRGBA_F16Norm_SkColorType, SkColors::kLtGray        },
-        { kRGBA_F16_SkColorType,     SkColors::kYellow        },
-        { kRGBA_F32_SkColorType,     SkColors::kGray          },
-        { kRG_88_SkColorType,        { .25f, .75f, 0, 0 }     },
-        { kRG_1616_SkColorType,      SkColors::kGreen         },
-        { kAlpha_16_SkColorType,     kTransCol                },
-        { kAlpha_F16_SkColorType,    kTransCol                },
-        { kRG_F16_SkColorType,       { .25f, .75f, 0, 0 }     },
-        { kRGBA_16161616_SkColorType,{ .25f, .5f, .75f, 1 }   },
+        { kRGB_101010x_SkColorType,       { 0, 0.5f, 0, 0.5f }     },
+        { kGray_8_SkColorType,            kGrayCol                 },
+        { kRGBA_F16Norm_SkColorType,      SkColors::kLtGray        },
+        { kRGBA_F16_SkColorType,          SkColors::kYellow        },
+        { kRGBA_F32_SkColorType,          SkColors::kGray          },
+        { kR8G8_unorm_SkColorType,        { .25f, .75f, 0, 0 }     },
+        { kR16G16_unorm_SkColorType,      SkColors::kGreen         },
+        { kA16_unorm_SkColorType,         kTransCol                },
+        { kA16_float_SkColorType,         kTransCol                },
+        { kR16G16_float_SkColorType,      { .25f, .75f, 0, 0 }     },
+        { kR16G16B16A16_unorm_SkColorType,{ .25f, .5f, .75f, 1 }   },
     };
 
     GR_STATIC_ASSERT(kLastEnum_SkColorType == SK_ARRAY_COUNT(combinations));

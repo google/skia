@@ -599,7 +599,7 @@ static SkBitmap make_quarter_2_channel(const SkBitmap& fullY,
 
     result.allocPixels(SkImageInfo::Make(fullY.width()/2,
                                          fullY.height()/2,
-                                         kRG_88_SkColorType,
+                                         kR8G8_unorm_SkColorType,
                                          kUnpremul_SkAlphaType));
 
     for (int y = 0; y < fullY.height()/2; ++y) {
@@ -649,7 +649,7 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
 
     switch (yuvFormat) {
         case kY416_YUVFormat: {
-            resultBMs[nextLayer++] = make_16(planes.fFull, kRGBA_16161616_SkColorType,
+            resultBMs[nextLayer++] = make_16(planes.fFull, kR16G16B16A16_unorm_SkColorType,
                                              [] (uint16_t* dstPixel, const float* srcPixel) {
                                                  dstPixel[0] = flt_2_uint16(srcPixel[1]); // U
                                                  dstPixel[1] = flt_2_uint16(srcPixel[0]); // Y
@@ -715,14 +715,14 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
         }
         case kP016_YUVFormat:     // fall through
         case kP010_YUVFormat: {
-            resultBMs[nextLayer++] = make_16(planes.fFull, kAlpha_16_SkColorType,
+            resultBMs[nextLayer++] = make_16(planes.fFull, kA16_unorm_SkColorType,
                                              [tenBitsPP = (yuvFormat == kP010_YUVFormat)]
                                              (uint16_t* dstPixel, const float* srcPixel) {
                                                  uint16_t val16 = flt_2_uint16(srcPixel[0]);
                                                  dstPixel[0] = tenBitsPP ? (val16 & 0xFFC0)
                                                                          : val16;
                                               });
-            resultBMs[nextLayer++] = make_16(planes.fQuarter, kRG_1616_SkColorType,
+            resultBMs[nextLayer++] = make_16(planes.fQuarter, kR16G16_unorm_SkColorType,
                                              [tenBitsPP = (yuvFormat == kP010_YUVFormat)]
                                              (uint16_t* dstPixel, const float* srcPixel) {
                                                  uint16_t u16 = flt_2_uint16(srcPixel[1]);
@@ -731,7 +731,7 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
                                                  dstPixel[1] = tenBitsPP ? (v16 & 0xFFC0) : v16;
                                              });
             if (!opaque) {
-                resultBMs[nextLayer] = make_16(planes.fFull, kAlpha_16_SkColorType,
+                resultBMs[nextLayer] = make_16(planes.fFull, kA16_unorm_SkColorType,
                                                [tenBitsPP = (yuvFormat == kP010_YUVFormat)]
                                                (uint16_t* dstPixel, const float* srcPixel) {
                                                    uint16_t val16 = flt_2_uint16(srcPixel[3]);
@@ -743,17 +743,17 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
             return;
         }
         case kP016F_YUVFormat: {
-            resultBMs[nextLayer++] = make_16(planes.fFull, kAlpha_F16_SkColorType,
+            resultBMs[nextLayer++] = make_16(planes.fFull, kA16_float_SkColorType,
                                              [] (uint16_t* dstPixel, const float* srcPixel) {
                                                  dstPixel[0] = SkFloatToHalf(srcPixel[0]);
                                              });
-            resultBMs[nextLayer++] = make_16(planes.fQuarter, kRG_F16_SkColorType,
+            resultBMs[nextLayer++] = make_16(planes.fQuarter, kR16G16_float_SkColorType,
                                              [] (uint16_t* dstPixel, const float* srcPixel) {
                                                  dstPixel[0] = SkFloatToHalf(srcPixel[1]);
                                                  dstPixel[1] = SkFloatToHalf(srcPixel[2]);
                                              });
             if (!opaque) {
-                resultBMs[nextLayer] = make_16(planes.fFull, kAlpha_F16_SkColorType,
+                resultBMs[nextLayer] = make_16(planes.fFull, kA16_float_SkColorType,
                                                [] (uint16_t* dstPixel, const float* srcPixel) {
                                                    dstPixel[0] = SkFloatToHalf(srcPixel[3]);
                                                });
@@ -814,14 +814,14 @@ static uint8_t look_up(float x1, float y1, const SkBitmap& bm, SkColorChannel ch
         SkASSERT(SkColorChannel::kA == channel || SkColorChannel::kR == channel);
         result = *bm.getAddr8(x, y);
     } else if (kAlpha_8_SkColorType == bm.colorType()  ||
-               kAlpha_16_SkColorType == bm.colorType() ||
-               kAlpha_F16_SkColorType == bm.colorType()) {
+               kA16_unorm_SkColorType == bm.colorType() ||
+               kA16_float_SkColorType == bm.colorType()) {
         SkASSERT(SkColorChannel::kA == channel);
         SkColor c = bm.getColor(x, y);
         result = SkColorGetA(c);
-    } else if (kRG_88_SkColorType == bm.colorType()   ||
-               kRG_1616_SkColorType == bm.colorType() ||
-               kRG_F16_SkColorType == bm.colorType()) {
+    } else if (kR8G8_unorm_SkColorType == bm.colorType()   ||
+               kR16G16_unorm_SkColorType == bm.colorType() ||
+               kR16G16_float_SkColorType == bm.colorType()) {
         SkASSERT(SkColorChannel::kR == channel || SkColorChannel::kG == channel);
         SkColor c = bm.getColor(x, y);
 
@@ -842,7 +842,7 @@ static uint8_t look_up(float x1, float y1, const SkBitmap& bm, SkColorChannel ch
     } else {
         SkASSERT(kRGBA_1010102_SkColorType == bm.colorType() ||
                  kRGBA_8888_SkColorType == bm.colorType()    ||
-                 kRGBA_16161616_SkColorType == bm.colorType());
+                 kR16G16B16A16_unorm_SkColorType == bm.colorType());
 
         SkColor c = bm.getColor(x, y);
 
@@ -1060,22 +1060,22 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkBitmap& 
         if (2 == channelCount) {
             if (format_uses_16_bpp(yuvFormat)) {
                 if (yuvFormat == kP016F_YUVFormat) {
-                    SkASSERT(kRG_F16_SkColorType == bm.colorType());
+                    SkASSERT(kR16G16_float_SkColorType == bm.colorType());
                 } else {
                     SkASSERT(yuvFormat == kP016_YUVFormat || yuvFormat == kP010_YUVFormat);
-                    SkASSERT(kRG_1616_SkColorType == bm.colorType());
+                    SkASSERT(kR16G16_unorm_SkColorType == bm.colorType());
                 }
             } else {
-                SkASSERT(kRG_88_SkColorType == bm.colorType());
+                SkASSERT(kR8G8_unorm_SkColorType == bm.colorType());
             }
         } else {
             if (yuvFormat == kY416_YUVFormat) {
-                SkASSERT(kRGBA_16161616_SkColorType == bm.colorType());
+                SkASSERT(kR16G16B16A16_unorm_SkColorType == bm.colorType());
             } else if (yuvFormat == kP016F_YUVFormat) {
-                SkASSERT(kAlpha_F16_SkColorType == bm.colorType());
+                SkASSERT(kA16_float_SkColorType == bm.colorType());
             } else {
                 SkASSERT(yuvFormat == kP016_YUVFormat || yuvFormat == kP010_YUVFormat);
-                SkASSERT(kAlpha_16_SkColorType == bm.colorType());
+                SkASSERT(kA16_unorm_SkColorType == bm.colorType());
             }
         }
     }

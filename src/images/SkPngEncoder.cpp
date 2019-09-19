@@ -315,12 +315,12 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info) {
             return transform_scanline_101010x;
         case kAlpha_8_SkColorType:
             return transform_scanline_A8_to_GrayAlpha;
-        case kRG_88_SkColorType:
-        case kRG_1616_SkColorType:
-        case kRG_F16_SkColorType:
-        case kAlpha_16_SkColorType:
-        case kAlpha_F16_SkColorType:
-        case kRGBA_16161616_SkColorType:
+        case kR8G8_unorm_SkColorType:
+        case kR16G16_unorm_SkColorType:
+        case kR16G16_float_SkColorType:
+        case kA16_unorm_SkColorType:
+        case kA16_float_SkColorType:
+        case kR16G16B16A16_unorm_SkColorType:
             return nullptr;
     }
     SkASSERT(false);

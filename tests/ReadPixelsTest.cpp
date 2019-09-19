@@ -622,25 +622,25 @@ DEF_TEST(ReadPixels_ValidConversion, reporter) {
 
 static int min_rgb_channel_bits(SkColorType ct) {
     switch (ct) {
-        case kUnknown_SkColorType:      return 0;
-        case kAlpha_8_SkColorType:      return 8;
-        case kAlpha_16_SkColorType:     return 16;
-        case kAlpha_F16_SkColorType:    return 16;
-        case kRGB_565_SkColorType:      return 5;
-        case kARGB_4444_SkColorType:    return 4;
-        case kRG_88_SkColorType:        return 8;
-        case kRG_1616_SkColorType:      return 16;
-        case kRG_F16_SkColorType:       return 16;
-        case kRGBA_8888_SkColorType:    return 8;
-        case kRGB_888x_SkColorType:     return 8;
-        case kBGRA_8888_SkColorType:    return 8;
-        case kRGBA_1010102_SkColorType: return 10;
-        case kRGB_101010x_SkColorType:  return 10;
-        case kGray_8_SkColorType:       return 8;   // counting gray as "rgb"
-        case kRGBA_F16Norm_SkColorType: return 10;  // just counting the mantissa
-        case kRGBA_F16_SkColorType:     return 10;  // just counting the mantissa
-        case kRGBA_F32_SkColorType:     return 23;  // just counting the mantissa
-        case kRGBA_16161616_SkColorType:return 16;
+        case kUnknown_SkColorType:            return 0;
+        case kAlpha_8_SkColorType:            return 8;
+        case kA16_unorm_SkColorType:          return 16;
+        case kA16_float_SkColorType:          return 16;
+        case kRGB_565_SkColorType:            return 5;
+        case kARGB_4444_SkColorType:          return 4;
+        case kR8G8_unorm_SkColorType:         return 8;
+        case kR16G16_unorm_SkColorType:       return 16;
+        case kR16G16_float_SkColorType:       return 16;
+        case kRGBA_8888_SkColorType:          return 8;
+        case kRGB_888x_SkColorType:           return 8;
+        case kBGRA_8888_SkColorType:          return 8;
+        case kRGBA_1010102_SkColorType:       return 10;
+        case kRGB_101010x_SkColorType:        return 10;
+        case kGray_8_SkColorType:             return 8;   // counting gray as "rgb"
+        case kRGBA_F16Norm_SkColorType:       return 10;  // just counting the mantissa
+        case kRGBA_F16_SkColorType:           return 10;  // just counting the mantissa
+        case kRGBA_F32_SkColorType:           return 23;  // just counting the mantissa
+        case kR16G16B16A16_unorm_SkColorType: return 16;
     }
     SK_ABORT("Unexpected color type.");
 }
