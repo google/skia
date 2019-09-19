@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa92fc75_cd937a4a",
+        "filename": "experimental/tools/pdf-comparison.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-19T20:11:13Z",
+      "side": 1,
+      "message": "Everything in here seems super straight forward except where this comes from. I\u0027d be fine with just a comment stating that this is built from the pdfium repository and which target to build to build it.",
+      "range": {
+        "startLine": 34,
+        "startChar": 15,
+        "endLine": 34,
+        "endChar": 26
+      },
+      "revId": "19ed86d3efc6692a250881dd51f4111b1d76a58a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
