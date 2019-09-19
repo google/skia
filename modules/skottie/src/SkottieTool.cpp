@@ -6,11 +6,13 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkExecutor.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/encode/SkPngEncoder.h"
+#include "include/private/SkSemaphore.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "src/core/SkMakeUnique.h"
@@ -33,80 +35,82 @@ static DEFINE_int(height, 600, "Render height.");
 
 namespace {
 
+SkString frame_name(size_t idx, const char* extension) {
+    const auto frame_file = SkStringPrintf("0%06d.%s", idx, extension);
+    return SkOSPath::Join(FLAGS_writePath[0], frame_file.c_str());
+}
+
 class Sink {
 public:
-    virtual ~Sink() = default;
+    Sink() {}
+    virtual ~Sink() {}
+    virtual bool handleFrame(const sk_sp<skottie::Animation>&,
+                            size_t idx,
+                            SkExecutor*,
+                            SkSemaphore*) = 0;
+private:
     Sink(const Sink&) = delete;
     Sink& operator=(const Sink&) = delete;
-
-    bool handleFrame(const sk_sp<skottie::Animation>& anim, size_t idx) const {
-        const auto frame_file = SkStringPrintf("0%06d.%s", idx, fExtension.c_str());
-        SkFILEWStream stream (SkOSPath::Join(FLAGS_writePath[0], frame_file.c_str()).c_str());
-
-        if (!stream.isValid()) {
-            SkDebugf("Could not open '%s/%s' for writing.\n",
-                     FLAGS_writePath[0], frame_file.c_str());
-            return false;
-        }
-
-        return this->saveFrame(anim, &stream);
-    }
-
-protected:
-    Sink(const char* ext) : fExtension(ext) {}
-
-    virtual bool saveFrame(const sk_sp<skottie::Animation>& anim, SkFILEWStream*) const = 0;
-
-private:
-    const SkString fExtension;
 };
+
+void write_png(SkImage* img, size_t idx) {
+    SkFILEWStream stream(frame_name(idx, "png").c_str());
+    if (stream.isValid()) {
+        SkPngEncoder::Options options;
+        options.fZLibLevel = 1;
+        options.fFilterFlags = SkPngEncoder::FilterFlag::kNone;
+        SkPixmap pixmap;
+        if (img->peekPixels(&pixmap)) {
+            SkPngEncoder::Encode(&stream, pixmap, options);
+        }
+    }
+}
 
 class PNGSink final : public Sink {
 public:
-    PNGSink()
-        : INHERITED("png")
-        , fSurface(SkSurface::MakeRasterN32Premul(FLAGS_width, FLAGS_height)) {
-        if (!fSurface) {
-            SkDebugf("Could not allocate a %d x %d surface.\n", FLAGS_width, FLAGS_height);
+    bool handleFrame(const sk_sp<skottie::Animation>& anim,
+                    size_t idx,
+                    SkExecutor* executor,
+                    SkSemaphore* semaphore) override {
+        SkASSERT(executor);
+        SkASSERT(semaphore);
+        sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(FLAGS_width, FLAGS_height));
+        if (!surface) { return false; }
+        {
+            auto* canvas = surface->getCanvas();
+            SkAutoCanvasRestore acr(canvas, true);
+            canvas->concat(SkMatrix::MakeRectToRect(SkRect::MakeSize(anim->size()),
+                                                    SkRect::MakeIWH(FLAGS_width, FLAGS_height),
+                                                    SkMatrix::kCenter_ScaleToFit));
+            canvas->clear(SK_ColorTRANSPARENT);
+            anim->render(canvas);
         }
+        sk_sp<SkImage> img = surface->makeImageSnapshot();
+        if (!img) { return false; }
+        struct ImgWrtr {
+            sk_sp<SkImage> fImg;
+            size_t fIdx;
+            SkSemaphore* fSemaphore;
+            void operator()(void) {
+                if (fImg) {
+                    write_png(fImg.get(), fIdx);
+                    fImg = nullptr;
+                    fSemaphore->signal();
+                }
+            }
+        };
+        executor->add(ImgWrtr{std::move(img), idx, semaphore});
+        return true;
     }
-
-    bool saveFrame(const sk_sp<skottie::Animation>& anim, SkFILEWStream* stream) const override {
-        if (!fSurface) return false;
-
-        auto* canvas = fSurface->getCanvas();
-        SkAutoCanvasRestore acr(canvas, true);
-
-        canvas->concat(SkMatrix::MakeRectToRect(SkRect::MakeSize(anim->size()),
-                                                SkRect::MakeIWH(FLAGS_width, FLAGS_height),
-                                                SkMatrix::kCenter_ScaleToFit));
-
-        canvas->clear(SK_ColorTRANSPARENT);
-        anim->render(canvas);
-
-
-        // Set encoding options to favor speed over size.
-        SkPngEncoder::Options options;
-        options.fZLibLevel   = 1;
-        options.fFilterFlags = SkPngEncoder::FilterFlag::kNone;
-
-        sk_sp<SkImage> img = fSurface->makeImageSnapshot();
-        SkPixmap pixmap;
-        return img->peekPixels(&pixmap)
-            && SkPngEncoder::Encode(stream, pixmap, options);
-    }
-
-private:
-    const sk_sp<SkSurface> fSurface;
-
-    using INHERITED = Sink;
 };
 
 class SKPSink final : public Sink {
 public:
-    SKPSink() : INHERITED("skp") {}
-
-    bool saveFrame(const sk_sp<skottie::Animation>& anim, SkFILEWStream* stream) const override {
+    bool handleFrame(const sk_sp<skottie::Animation>& anim,
+                     size_t idx,
+                     SkExecutor*,
+                     SkSemaphore* semaphore) override {
+        SkASSERT(semaphore);
         SkPictureRecorder recorder;
 
         auto canvas = recorder.beginRecording(FLAGS_width, FLAGS_height);
@@ -114,15 +118,17 @@ public:
                                                 SkRect::MakeIWH(FLAGS_width, FLAGS_height),
                                                 SkMatrix::kCenter_ScaleToFit));
         anim->render(canvas);
-        recorder.finishRecordingAsPicture()->serialize(stream);
-
+        sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
+        if (!picture) {
+            return false;
+        }
+        SkFILEWStream stream(frame_name(idx, "skp").c_str());
+        if (stream.isValid()) {
+            picture->serialize(&stream);
+        }
+        semaphore->signal();
         return true;
     }
-
-private:
-    const sk_sp<SkSurface> fSurface;
-
-    using INHERITED = Sink;
 };
 
 class Logger final : public skottie::Logger {
@@ -208,10 +214,15 @@ int main(int argc, char** argv) {
                advance = 1 / std::min(anim->duration() * FLAGS_fps, kMaxFrames);
 
     size_t frame_index = 0;
+    std::unique_ptr<SkExecutor> executor = SkExecutor::MakeFIFOThreadPool();
+    SkSemaphore semaphore;
+    int count = 0;
     for (auto t = t0; t <= t1; t += advance) {
         anim->seek(t);
-        sink->handleFrame(anim, frame_index++);
+        if (sink->handleFrame(anim, frame_index++, executor.get(), &semaphore)) {
+            ++count;
+        }
     }
-
+    while (count-- > 0) { semaphore.wait(); }
     return 0;
 }
