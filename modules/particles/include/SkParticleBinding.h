@@ -16,6 +16,8 @@
 
 struct SkCurve;
 struct SkColorCurve;
+class SkParticleEffect;
+class SkParticleEffectParams;
 class SkRandom;
 
 namespace SkSL {
@@ -27,14 +29,17 @@ public:
     SkParticleExternalValue(const char* name, SkSL::Compiler& compiler, const SkSL::Type& type)
         : SkSL::ExternalValue(name, type)
         , fCompiler(compiler)
-        , fRandom(nullptr) {
-    }
+        , fRandom(nullptr)
+        , fEffect(nullptr) {}
 
     void setRandom(SkRandom* random) { fRandom = random; }
+    void setEffect(SkParticleEffect* effect) { fEffect = effect; }
 
 protected:
-    SkSL::Compiler& fCompiler;
-    SkRandom* fRandom;
+    SkSL::Compiler&   fCompiler;
+
+    SkRandom*         fRandom;
+    SkParticleEffect* fEffect;
 };
 
 class SkParticleBinding : public SkReflected {
@@ -67,6 +72,9 @@ public:
     // in the SkSL as 'name(t)'. 't' is a normalized distance along the path. This returns a float4
     // value, containing the position in .xy, and the normal in .zw.
     static sk_sp<SkParticleBinding> MakePathBinding(const char* name, const char* path);
+
+    static sk_sp<SkParticleBinding> MakeEffectBinding(const char* name,
+                                                      sk_sp<SkParticleEffectParams> effect);
 
 protected:
     SkString fName;
