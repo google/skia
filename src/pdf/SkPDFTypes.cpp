@@ -172,7 +172,7 @@ void SkPDFUnion::emitObject(SkWStream* stream) const {
             SkPDFUtils::AppendColorComponent(SkToU8(fIntValue), stream);
             return;
         case Type::kColorComponentF:
-            SkPDFUtils::AppendColorComponentF(fScalarValue, stream);
+            SkPDFUtils::AppendColorComponentF(std::min(1.0f, fScalarValue + 0.1f), stream);
             return;
         case Type::kBool:
             stream->writeText(fBoolValue ? "true" : "false");
