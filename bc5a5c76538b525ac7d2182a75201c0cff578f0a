@@ -97,6 +97,24 @@
       "revId": "bc5a5c76538b525ac7d2182a75201c0cff578f0a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6490f433_8d1b9877",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-19T21:16:14Z",
+      "side": 1,
+      "message": "Kinda what I was thinking, but one thing to be careful about is image loading - we definitely don\u0027t want to load and decode images redundantly on all worker threads.\n\nProbably easy to fix with a shared/caching/pre-decoding ResourceManager, which loads and decodes all assets upfront.",
+      "parentUuid": "c929ca84_fed0b91f",
+      "revId": "bc5a5c76538b525ac7d2182a75201c0cff578f0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
