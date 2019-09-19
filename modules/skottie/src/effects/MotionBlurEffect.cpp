@@ -8,7 +8,11 @@
 #include "modules/skottie/src/effects/MotionBlurEffect.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkPixmap.h"
+#include "include/private/SkVx.h"
 #include "modules/sksg/include/SkSGInvalidationController.h"
+#include "src/core/SkMathPriv.h"
 
 namespace skottie {
 namespace internal {
@@ -48,15 +52,15 @@ const sksg::RenderNode* MotionBlurEffect::onNodeAt(const SkPoint&) const {
 
 SkRect MotionBlurEffect::onRevalidate(sksg::InvalidationController*, const SkMatrix& ctm) {
     SkASSERT(this->children().size() == 1ul);
-    const auto& child = this->children()[0];
+    const sk_sp<RenderNode>& child = this->children()[0];
 
-    auto bounds = SkRect::MakeEmpty();
+    SkRect bounds = SkRect::MakeEmpty();
 
     // Use a local inval controller to suppress descendent invals during sampling
     // (superseded by our local inval bounds).
     sksg::InvalidationController ic;
 
-    auto t = fT + fPhase;
+    float t = fT + fPhase;
 
     for (size_t i = 0; i < fSampleCount; ++i) {
         fAnimator->tick(t);
@@ -72,23 +76,113 @@ SkRect MotionBlurEffect::onRevalidate(sksg::InvalidationController*, const SkMat
     return bounds;
 }
 
+void MotionBlurEffect::renderToRaster8888Pow2Samples(SkCanvas* canvas,
+                                                     const RenderContext* ctx) const {
+    // canvas is raster backed and RGBA 8888 or BGRA 8888, and fSamples is a power of 2.
+    // We can play dirty tricks.
+
+    // Don't worry about "Next"... this is exact.
+    const int shift = SkNextLog2(fSampleCount);
+
+    SkASSERT(this->children().size() == 1ul);
+    const sk_sp<RenderNode>& child = this->children()[0];
+
+    sksg::InvalidationController ic;
+
+    SkRect bounds = this->bounds();
+
+    std::vector<uint64_t> accum;
+
+    float t = fT + fPhase;
+    for (size_t i = 0; i < fSampleCount; ++i) {
+        fAnimator->tick(t);
+        t += fDT;
+
+        if (!child->isVisible()) {
+            continue;
+        }
+
+        child->revalidate(&ic, canvas->getTotalMatrix());
+
+        canvas->saveLayer(&bounds, nullptr);
+        {
+            child->render(canvas, ctx);
+
+            // Before we restore, pluck out the pixels we've drawn in the layer.
+            SkImageInfo info;
+            size_t rowBytes;
+            SkIPoint origin;
+            auto src = (const uint32_t*)canvas->accessTopLayerPixels(&info, &rowBytes, &origin);
+
+            if (accum.empty()) {
+                accum.resize(info.width() * info.height());
+            }
+            uint64_t* dst = accum.data();
+
+            for (int y = 0; y < info.height(); y++) {
+                for (int x = 0; x < info.width(); x++) {
+                    // Expand 8-bit to 16-bit and accumulate.
+                    auto s = skvx::Vec<4, uint8_t >::Load(src + x);
+                    auto d = skvx::Vec<4, uint16_t>::Load(dst);
+
+                    (d + skvx::cast<uint16_t>(s)).store(dst++);
+                }
+                src = (const uint32_t*)( (const char*)src + rowBytes );
+            }
+
+            // Forget all that, draw nothing instead.
+            canvas->clear(0);
+        }
+        canvas->restore();
+    }
+
+    if (!accum.empty()) {
+        canvas->saveLayer(bounds, nullptr);
+        {
+            SkImageInfo info;
+            size_t rowBytes;
+            SkIPoint origin;
+            auto dst = (uint32_t*)canvas->accessTopLayerPixels(&info, &rowBytes, &origin);
+
+            const uint64_t* src = accum.data();
+            for (int y = 0; y < info.height(); y++) {
+                for (int x = 0; x < info.width(); x++) {
+                    auto s = skvx::Vec<4, uint16_t>::Load(src++);
+                    // Divide accumulated subframes through by sample count.
+                    skvx::cast<uint8_t>(s >> shift).store(dst + x);
+                }
+                dst = (uint32_t*)( (char*)dst + rowBytes );
+            }
+        }
+        canvas->restore();
+    }
+}
+
 void MotionBlurEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
     SkASSERT(this->children().size() == 1ul);
     const auto& child = this->children()[0];
+
+    SkPixmap pm;
+    if (canvas->peekPixels(&pm) && (canvas->imageInfo().colorType() == kRGBA_8888_SkColorType ||
+                                    canvas->imageInfo().colorType() == kBGRA_8888_SkColorType   )
+                                && SkIsPow2(fSampleCount)) {
+        this->renderToRaster8888Pow2Samples(canvas, ctx);
+        return;
+    }
 
     SkAutoCanvasRestore acr(canvas, false);
 
     // Accumulate in F16 for more precision.
     canvas->saveLayer(SkCanvas::SaveLayerRec(&this->bounds(), nullptr, SkCanvas::kF16ColorType));
 
-    const auto frame_alpha = 1.0f / fSampleCount;
+    const float frame_alpha = 1.0f / fSampleCount;
 
     // Depending on whether we can defer frame blending,
     // use a local (deferred) RenderContext or an explicit layer for frame/content rendering.
     ScopedRenderContext frame_ctx(canvas, ctx);
     SkPaint             frame_paint;
 
-    const auto isolate_frames = frame_ctx->fBlendMode != SkBlendMode::kSrcOver;
+    const bool isolate_frames = frame_ctx->fBlendMode != SkBlendMode::kSrcOver;
     if (isolate_frames) {
         frame_paint.setAlphaf(frame_alpha);
         frame_paint.setBlendMode(SkBlendMode::kPlus);
@@ -99,7 +193,7 @@ void MotionBlurEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) cons
 
     sksg::InvalidationController ic;
 
-    auto t = fT + fPhase;
+    float t = fT + fPhase;
 
     for (size_t i = 0; i < fSampleCount; ++i) {
         fAnimator->tick(t);
