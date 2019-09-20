@@ -1047,7 +1047,9 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
 
 static SkImageInfo make_layer_info(const SkImageInfo& prev, int w, int h, const SkPaint* paint) {
     SkColorType ct = prev.colorType();
-    if (prev.bytesPerPixel() <= 4) {
+    if (prev.bytesPerPixel() <= 4 &&
+        prev.colorType() != kRGBA_8888_SkColorType &&
+        prev.colorType() != kBGRA_8888_SkColorType) {
         // "Upgrade" A8, G8, 565, 4444, 1010102, 101010x, and 888x to 8888,
         // ensuring plenty of alpha bits for the layer, perhaps losing some color bits in return.
         ct = kN32_SkColorType;
