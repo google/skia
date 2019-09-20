@@ -83,7 +83,7 @@ void MotionBlurEffect::renderToRaster8888Pow2Samples(SkCanvas* canvas,
 
     // Don't worry about "Next"... this is exact.
     const int shift = SkNextLog2(fSampleCount);
-    SkASSERT((1u<<shift) == fSampleCount);
+    SkASSERT((size_t(1)<<shift) == fSampleCount);
 
     SkASSERT(this->children().size() == 1ul);
     const sk_sp<RenderNode>& child = this->children()[0];
