@@ -7,6 +7,7 @@
 
 #include "include/core/SkPicture.h"
 #include "include/core/SkSurface.h"
+#include "include/utils/SkBase64.h"
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkMultiPictureDocument.h"
 #include "tools/SkSharingProc.h"
@@ -27,6 +28,7 @@
 #endif
 
 using JSColor = int32_t;
+using Uint8Array = emscripten::val;
 
 // file signature for SkMultiPictureDocument
 // TODO(nifong): make public and include from SkMultiPictureDocument.h
@@ -43,9 +45,14 @@ SkImageInfo toSkImageInfo(const SimpleImageInfo& sii) {
   return SkImageInfo::Make(sii.width, sii.height, sii.colorType, sii.alphaType);
 }
 
+SimpleImageInfo toSimpleImageInfo(const SkImageInfo& ii) {
+  return (SimpleImageInfo){ii.width(), ii.height(), ii.colorType(), ii.alphaType()};
+}
+
 class SkpDebugPlayer {
   public:
-    SkpDebugPlayer() {}
+    SkpDebugPlayer() :
+    udm(UrlDataManager(SkString("/data"))){}
 
     /* loadSkp deserializes a skp file that has been copied into the shared WASM memory.
      * cptr - a pointer to the data to deserialize.
@@ -119,9 +126,6 @@ class SkpDebugPlayer {
     std::string jsonCommandList(sk_sp<SkSurface> surface) {
       SkDynamicMemoryWStream stream;
       SkJSONWriter writer(&stream, SkJSONWriter::Mode::kFast);
-      // Note that the root url provided here may need to change in the production deployment.
-      // this will be prepended to any links that are created in the json command list.
-      UrlDataManager udm(SkString("/"));
       writer.beginObject(); // root
       frames[fp]->toJSON(writer, udm, getSize(), surface->getCanvas());
       writer.endObject(); // root
@@ -140,7 +144,6 @@ class SkpDebugPlayer {
 
       SkDynamicMemoryWStream stream;
       SkJSONWriter writer(&stream, SkJSONWriter::Mode::kFast);
-      UrlDataManager udm(SkString("/"));
       writer.beginObject(); // root
 
       writer.appendName("ViewMatrix");
@@ -159,6 +162,29 @@ class SkpDebugPlayer {
 
     void changeFrame(int index) {
       fp = index;
+    }
+
+    // Return the png file at the requested index in
+    // the skp file's vector of shared images. this is the set of images referred to by the
+    // filenames like "\\1" in DrawImage commands.
+    // Return type is the PNG data as a base64 encoded string with prepended URI.
+    std::string getImageResource(int index) {
+      sk_sp<SkData> pngData = fImages[index]->encodeToData();
+      size_t len = SkBase64::Encode(pngData->data(), pngData->size(), nullptr);
+      SkString dst;
+      dst.resize(len);
+      SkBase64::Encode(pngData->data(), pngData->size(), dst.writable_str());
+      dst.prepend("data:image/png;base64,");
+      return std::string(dst.c_str());
+    }
+
+    int getImageCount() {
+      return fImages.size();
+    }
+
+    // Get the image info of one of the resource images.
+    SimpleImageInfo getImageInfo(int index) {
+      return toSimpleImageInfo(fImages[index]->imageInfo());
     }
 
   private:
@@ -222,6 +248,7 @@ class SkpDebugPlayer {
             debugDanvas->setClipVizColor(SK_ColorTRANSPARENT);
             frames.push_back(std::move(debugDanvas));
           }
+          fImages = deserialContext->fImages;
       }
 
       // A vector of DebugCanvas, each one initialized to a frame of the animation.
@@ -232,6 +259,18 @@ class SkpDebugPlayer {
       SkIRect fBounds;
       // SKP version of loaded file.
       uint32_t fFileVersion;
+      // image resources from a loaded file
+      std::vector<sk_sp<SkImage>> fImages;
+
+      // The URLDataManager here is a cache that accepts encoded data (pngs) and puts
+      // numbers on them. We have our own collection of images (fImages) that was populated by the
+      // SkSharingDeserialContext when mskp files are loaded. It would be nice to have the mapping
+      // indices between these two caches so the urls displayed in command info match the list
+      // in the resource tab, and to make cross linking possible. One way to do this would be to
+      // look up all of fImages in udm but the exact encoding of the PNG differs and we wouldn't
+      // find anything. TODO(nifong): Unify these two numbering schemes in CollatingCanvas.
+      UrlDataManager udm;
+
 };
 
 #if SK_SUPPORT_GPU
@@ -313,7 +352,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
     .function("jsonCommandList",      &SkpDebugPlayer::jsonCommandList, allow_raw_pointers())
     .function("lastCommandInfo",      &SkpDebugPlayer::lastCommandInfo)
     .function("changeFrame",          &SkpDebugPlayer::changeFrame)
-    .function("getFrameCount",        &SkpDebugPlayer::getFrameCount);
+    .function("getFrameCount",        &SkpDebugPlayer::getFrameCount)
+    .function("getImageResource",     &SkpDebugPlayer::getImageResource)
+    .function("getImageCount",        &SkpDebugPlayer::getImageCount)
+    .function("getImageInfo",         &SkpDebugPlayer::getImageInfo);
 
   // Structs used as arguments or returns to the functions above
   value_object<SkIRect>("SkIRect")
