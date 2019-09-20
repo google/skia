@@ -1531,13 +1531,13 @@ static void set_image_layout(const GrVkInterface* vkInterface, VkCommandBuffer c
 
 bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bool texturable,
                                              bool renderable, GrMipMapped mipMapped,
-                                             const void* srcData, size_t srcRowBytes,
+                                             const SkPixmap srcData[], int numMipLevels,
                                              const SkColor4f* color, GrVkImageInfo* info,
                                              GrProtected isProtected) {
     SkASSERT(texturable || renderable);
     if (!texturable) {
         SkASSERT(GrMipMapped::kNo == mipMapped);
-        SkASSERT(!srcData);
+        SkASSERT(!srcData && !numMipLevels);
     }
 
     if (fProtectedContext != isProtected) {
@@ -1568,9 +1568,15 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
     }
 
     // Figure out the number of mip levels.
-    uint32_t mipLevels = 1;
-    if (GrMipMapped::kYes == mipMapped) {
-        mipLevels = SkMipMap::ComputeLevelCount(w, h) + 1;
+    uint32_t mipLevelCount = 0;
+    if (srcData) {
+        SkASSERT(numMipLevels > 0);
+        mipLevelCount = numMipLevels;
+    } else {
+        mipLevelCount = 1;
+        if (GrMipMapped::kYes == mipMapped) {
+            mipLevelCount = SkMipMap::ComputeLevelCount(w, h) + 1;
+        }
     }
 
     GrVkImage::ImageDesc imageDesc;
@@ -1578,7 +1584,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
     imageDesc.fFormat = vkFormat;
     imageDesc.fWidth = w;
     imageDesc.fHeight = h;
-    imageDesc.fLevels = mipLevels;
+    imageDesc.fLevels = mipLevelCount;
     imageDesc.fSamples = 1;
     imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
     imageDesc.fUsageFlags = usageFlags;
@@ -1825,14 +1831,20 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
     return true;
 }
 
-GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
-                                               const GrBackendFormat& format,
-                                               GrMipMapped mipMapped,
-                                               GrRenderable renderable,
-                                               const void* srcData, size_t rowBytes,
-                                               const SkColor4f* color, GrProtected isProtected) {
-    const GrVkCaps& caps = this->vkCaps();
+GrBackendTexture GrVkGpu::onCreateBackendTexture(int w, int h,
+                                                 const GrBackendFormat& format,
+                                                 GrMipMapped mipMapped,
+                                                 GrRenderable renderable,
+                                                 const SkPixmap srcData[], int numMipLevels,
+                                                 const SkColor4f* color, GrProtected isProtected) {
     this->handleDirtyContext();
+
+    const GrVkCaps& caps = this->vkCaps();
+
+    // GrGpu::createBackendTexture should've ensured these conditions
+    SkASSERT(w >= 1 && w <= caps.maxTextureSize() && h >= 1 && h <= caps.maxTextureSize());
+    SkASSERT(GrGpu::MipMapsAreCorrect(w, h, mipMapped, srcData, numMipLevels));
+    SkASSERT(mipMapped == GrMipMapped::kNo || caps.mipMapSupport());
 
     if (fProtectedContext != isProtected) {
         return GrBackendTexture();
@@ -1848,6 +1860,7 @@ GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
         return GrBackendTexture();
     }
 
+    // TODO: move the texturability check up to GrGpu::createBackendTexture and just assert here
     if (!caps.isVkFormatTexturable(vkFormat)) {
         SkDebugf("Config is not texturable\n");
         return GrBackendTexture();
@@ -1860,8 +1873,8 @@ GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
 
     GrVkImageInfo info;
     if (!this->createVkImageForBackendSurface(vkFormat, w, h, true,
-                                              GrRenderable::kYes == renderable, mipMapped, srcData,
-                                              rowBytes, color, &info, isProtected)) {
+                                              GrRenderable::kYes == renderable, mipMapped,
+                                              srcData, numMipLevels, color, &info, isProtected)) {
         SkDebugf("Failed to create testing only image\n");
         return GrBackendTexture();
     }
