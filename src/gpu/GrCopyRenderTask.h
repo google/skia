@@ -15,7 +15,8 @@ public:
     static sk_sp<GrRenderTask> Make(sk_sp<GrSurfaceProxy> srcProxy,
                                     const SkIRect& srcRect,
                                     sk_sp<GrSurfaceProxy> dstProxy,
-                                    const SkIPoint& dstPoint);
+                                    const SkIPoint& dstPoint,
+                                    const GrCaps*);
 
 private:
     GrCopyRenderTask(sk_sp<GrSurfaceProxy> srcProxy,

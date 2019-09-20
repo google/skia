@@ -805,14 +805,16 @@ bool GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
                                          const SkIPoint& dstPoint) {
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
-    this->closeRenderTasksForNewRenderTask(dstProxy.get());
 
-    GrRenderTask* task = fDAG.add(GrCopyRenderTask::Make(srcProxy, srcRect, dstProxy, dstPoint));
+    this->closeRenderTasksForNewRenderTask(dstProxy.get());
+    const GrCaps& caps = *fContext->priv().caps();
+
+    GrRenderTask* task =
+            fDAG.add(GrCopyRenderTask::Make(srcProxy, srcRect, dstProxy, dstPoint, &caps));
     if (!task) {
         return false;
     }
 
-    const GrCaps& caps = *fContext->priv().caps();
 
     // We always say GrMipMapped::kNo here since we are always just copying from the base layer to
     // another base layer. We don't need to make sure the whole mip map chain is valid.
