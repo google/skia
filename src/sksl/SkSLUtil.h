@@ -27,8 +27,6 @@ class GrShaderCaps;
 
 namespace SkSL {
 
-static constexpr float SKSL_UNPREMUL_MIN = 0.0001f;
-
 class OutputStream;
 class StringStream;
 

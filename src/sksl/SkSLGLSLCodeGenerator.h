@@ -254,8 +254,7 @@ protected:
         kPow,
         kSaturate,
         kTexture,
-        kTranspose,
-        kUnpremul
+        kTranspose
     };
     static std::unordered_map<StringFragment, FunctionClass>* fFunctionClasses;
 

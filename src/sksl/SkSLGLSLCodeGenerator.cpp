@@ -472,7 +472,6 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         (*fFunctionClasses)["saturate"]    = FunctionClass::kSaturate;
         (*fFunctionClasses)["sample"]      = FunctionClass::kTexture;
         (*fFunctionClasses)["transpose"]   = FunctionClass::kTranspose;
-        (*fFunctionClasses)["unpremul"]    = FunctionClass::kUnpremul;
     }
 #ifndef SKSL_STANDALONE
     );
@@ -692,24 +691,6 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                     return;
                 }
                 break;
-            case FunctionClass::kUnpremul:
-                String tmpVar1 = "unpremul" + to_string(fVarCount++);
-                this->fFunctionHeader += String("    ") +
-                                         this->getTypePrecision(c.fArguments[0]->fType) +
-                                         this->getTypeName(c.fArguments[0]->fType) + " " + tmpVar1 +
-                                         ";";
-                String tmpVar2 = "unpremulNonZeroAlpha" + to_string(fVarCount++);
-                this->fFunctionHeader += String("    ") +
-                                         this->getTypePrecision(c.fArguments[0]->fType) + " " +
-                                         this->getTypeName(c.fArguments[0]->fType.componentType()) +
-                                         " " + tmpVar2 + ";";
-                this->write("(" + tmpVar1 + " = ");
-                this->writeExpression(*c.fArguments[0], kSequence_Precedence);
-                this->write(", " + tmpVar2 + " = max(" + tmpVar1 + ".a, " +
-                            to_string(SKSL_UNPREMUL_MIN) + "), " +
-                            this->getTypeName(*fContext.fHalf4_Type) + "(" + tmpVar1 + ".rgb / " +
-                            tmpVar2 + ", " + tmpVar2 + "))");
-                return;
         }
     }
     if (!nameWritten) {
