@@ -2429,7 +2429,9 @@ if (skia_enable_tools) {
   }
 
   executable("image_diff_metric") {
-    sources = [ "tools/image_diff_metric.cpp" ]
+    sources = [
+      "tools/image_diff_metric.cpp",
+    ]
     deps = [
       ":skia",
     ]
