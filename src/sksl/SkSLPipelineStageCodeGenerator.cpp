@@ -10,19 +10,23 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLHCodeGenerator.h"
 
+#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+
 namespace SkSL {
 
 PipelineStageCodeGenerator::PipelineStageCodeGenerator(
-                                                    const Context* context,
-                                                    const Program* program,
-                                                    ErrorReporter* errors,
-                                                    OutputStream* out,
-                                                    std::vector<Compiler::FormatArg>* outFormatArgs)
+                                                  const Context* context,
+                                                  const Program* program,
+                                                  ErrorReporter* errors,
+                                                  OutputStream* out,
+                                                  std::vector<Compiler::FormatArg>* outFormatArgs,
+                                                  std::vector<Compiler::GLSLFunction>* outFunctions)
 : INHERITED(context, program, errors, out)
 , fName("Temp")
 , fFullName(String::printf("Gr%s", fName.c_str()))
 , fSectionAndParameterHelper(program, *errors)
-, fFormatArgs(outFormatArgs) {}
+, fFormatArgs(outFormatArgs)
+, fFunctions(outFunctions) {}
 
 void PipelineStageCodeGenerator::writef(const char* s, va_list va) {
     static constexpr int BUFFER_SIZE = 1024;
@@ -108,7 +112,30 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                                                    index));
         return;
     }
-    INHERITED::writeFunctionCall(c);
+    if (c.fFunction.fBuiltin) {
+        INHERITED::writeFunctionCall(c);
+    } else {
+        this->write("%s");
+        int index = 0;
+        for (const auto& e : fProgram) {
+            if (e.fKind == ProgramElement::kFunction_Kind) {
+                if (&((FunctionDefinition&) e).fDeclaration == &c.fFunction) {
+                    break;
+                }
+                ++index;
+            }
+        }
+        fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kFunctionName,
+                                                   index));
+        this->write("(");
+        const char* separator = "";
+        for (const auto& arg : c.fArguments) {
+            this->write(separator);
+            separator = ", ";
+            this->writeExpression(*arg, kSequence_Precedence);
+        }
+        this->write(")");
+    }
 }
 
 void PipelineStageCodeGenerator::writeIntLiteral(const IntLiteral& i) {
@@ -179,13 +206,38 @@ void PipelineStageCodeGenerator::writeSwitchStatement(const SwitchStatement& s) 
     INHERITED::writeSwitchStatement(s);
 }
 
+static GrSLType glsltype(const Context& context, const Type& type) {
+    if (type == *context.fFloat_Type) {
+        return GrSLType::kFloat_GrSLType;
+    } else if (type == *context.fHalf_Type) {
+        return GrSLType::kHalf_GrSLType;
+    } else if (type == *context.fFloat2_Type) {
+        return GrSLType::kFloat2_GrSLType;
+    } else if (type == *context.fHalf2_Type) {
+        return GrSLType::kHalf2_GrSLType;
+    } else if (type == *context.fFloat4_Type) {
+        return GrSLType::kFloat4_GrSLType;
+    } else if (type == *context.fHalf4_Type) {
+        return GrSLType::kHalf4_GrSLType;
+    } else if (type == *context.fFloat4x4_Type) {
+        return GrSLType::kFloat4x4_GrSLType;
+    } else if (type == *context.fHalf4x4_Type) {
+        return GrSLType::kHalf4x4_GrSLType;
+    } else if (type == *context.fVoid_Type) {
+        return GrSLType::kVoid_GrSLType;
+    }
+    SkASSERT(false);
+    return GrSLType::kVoid_GrSLType;
+}
+
+
 void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     fCurrentFunction = &f.fDeclaration;
+    fFunctionHeader = "";
+    OutputStream* oldOut = fOut;
+    StringStream buffer;
+    fOut = &buffer;
     if (f.fDeclaration.fName == "main") {
-        fFunctionHeader = "";
-        OutputStream* oldOut = fOut;
-        StringStream buffer;
-        fOut = &buffer;
         this->write("%s = %s;\n");
         fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kOutput));
         fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kInput));
@@ -193,12 +245,24 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
             this->writeStatement(*s);
             this->writeLine();
         }
-
         fOut = oldOut;
         this->write(fFunctionHeader);
         this->writef("%s", buffer.str().c_str());
     } else {
-        INHERITED::writeFunction(f);
+        const FunctionDeclaration& decl = f.fDeclaration;
+        Compiler::GLSLFunction result;
+        result.fReturnType = glsltype(fContext, decl.fReturnType);
+        result.fName = decl.fName;
+        for (const Variable* v : decl.fParameters) {
+            result.fParameters.emplace_back(v->fName, glsltype(fContext, v->fType));
+        }
+        for (const auto& s : ((Block&) *f.fBody).fStatements) {
+            this->writeStatement(*s);
+            this->writeLine();
+        }
+        fOut = oldOut;
+        result.fBody = buffer.str();
+        fFunctions->push_back(result);
     }
 }
 
@@ -230,3 +294,4 @@ void PipelineStageCodeGenerator::writeProgramElement(const ProgramElement& p) {
 }
 
 } // namespace
+#endif

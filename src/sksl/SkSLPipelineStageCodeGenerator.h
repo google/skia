@@ -13,13 +13,16 @@
 
 #include <set>
 
+#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+
 namespace SkSL {
 
 class PipelineStageCodeGenerator : public GLSLCodeGenerator {
 public:
     PipelineStageCodeGenerator(const Context* context, const Program* program,
                                ErrorReporter* errors, OutputStream* out,
-                               std::vector<Compiler::FormatArg>* outFormatArgs);
+                               std::vector<Compiler::FormatArg>* outFormatArgs,
+                               std::vector<Compiler::GLSLFunction>* outFunctions);
 
 private:
     void writef(const char* s, va_list va) SKSL_PRINTF_LIKE(2, 0);
@@ -57,11 +60,14 @@ private:
     SectionAndParameterHelper fSectionAndParameterHelper;
     std::set<int> fWrittenTransformedCoords;
     std::vector<Compiler::FormatArg>* fFormatArgs;
+    std::vector<Compiler::GLSLFunction>* fFunctions;
     const FunctionDeclaration* fCurrentFunction;
 
     typedef GLSLCodeGenerator INHERITED;
 };
 
 }
+
+#endif
 
 #endif

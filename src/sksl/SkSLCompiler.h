@@ -18,6 +18,10 @@
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
+#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+#include "src/gpu/GrShaderVar.h"
+#endif
+
 #define SK_FRAGCOLOR_BUILTIN           10001
 #define SK_IN_BUILTIN                  10002
 #define SK_INCOLOR_BUILTIN             10003
@@ -72,7 +76,8 @@ public:
             kCoordX,
             kCoordY,
             kUniform,
-            kChildProcessor
+            kChildProcessor,
+            kFunctionName
         };
 
         FormatArg(Kind kind)
@@ -86,6 +91,18 @@ public:
 
         int fIndex;
     };
+
+#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+    /**
+     * Represents the arguments to GrGLSLShaderBuilder::emitFunction.
+     */
+    struct GLSLFunction {
+        GrSLType fReturnType;
+        SkString fName;
+        std::vector<GrShaderVar> fParameters;
+        SkString fBody;
+    };
+#endif
 
     Compiler(Flags flags = kNone_Flags);
 
@@ -125,8 +142,11 @@ public:
 
     std::unique_ptr<ByteCode> toByteCode(Program& program);
 
+#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     bool toPipelineStage(const Program& program, String* out,
-                         std::vector<FormatArg>* outFormatArgs);
+                         std::vector<FormatArg>* outFormatArgs,
+                         std::vector<GLSLFunction>* outFunctions);
+#endif
 
     /**
      * Takes ownership of the given symbol. It will be destroyed when the compiler is destroyed.
