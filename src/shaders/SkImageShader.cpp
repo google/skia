@@ -228,8 +228,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         return nullptr;
     }
 
-    GrPixelConfig config = proxy->config();
-    bool isAlphaOnly = GrPixelConfigIsAlphaOnly(config);
+    bool isAlphaOnly = SkColorTypeIsAlphaOnly(fImage->colorType());
 
     lmInverse.postScale(scaleAdjust[0], scaleAdjust[1]);
 

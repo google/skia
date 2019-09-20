@@ -441,9 +441,8 @@ public:
         if (!rec) {
             return false;
         }
-        auto sContext = fContext->priv().makeWrappedSurfaceContext(
-                fTextureProxy, GrPixelConfigToColorType(fTextureProxy->config()), this->alphaType(),
-                fColorSpace);
+        auto sContext = fContext->priv().makeWrappedSurfaceContext(fTextureProxy, fColorType,
+                                                                   this->alphaType(), fColorSpace);
         if (!sContext) {
             return false;
         }
