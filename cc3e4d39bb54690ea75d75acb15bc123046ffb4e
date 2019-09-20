@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0be1f051_4848b1d9",
+        "filename": "src/core/SkBlurMF.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 883,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-20T13:11:18Z",
+      "side": 1,
+      "message": "Why so many blank lines?",
+      "revId": "cc3e4d39bb54690ea75d75acb15bc123046ffb4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
