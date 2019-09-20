@@ -7,6 +7,7 @@
 
 #include "experimental/ffmpeg/SkVideoEncoder.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkGraphics.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTime.h"
@@ -30,6 +31,8 @@ static void produce_frame(SkSurface* surf, skottie::Animation* anim, double fram
 }
 
 int main(int argc, char** argv) {
+    SkGraphics::Init();
+
     CommandLineFlags::SetUsage("Converts skottie to a mp4");
     CommandLineFlags::Parse(argc, argv);
 
