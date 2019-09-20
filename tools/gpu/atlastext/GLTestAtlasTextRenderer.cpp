@@ -123,8 +123,6 @@ GLTestAtlasTextRenderer::GLTestAtlasTextRenderer(std::unique_ptr<GLTestContext> 
     }
 
     static constexpr const char kVS[] = R"(
-        precision highp float;
-
         uniform vec4 uDstScaleAndTranslate;
         uniform vec2 uAtlasInvSize;
 
@@ -168,8 +166,6 @@ GLTestAtlasTextRenderer::GLTestAtlasTextRenderer(std::unique_ptr<GLTestContext> 
 
     auto fs = callgl(CreateShader, GR_GL_FRAGMENT_SHADER);
     static constexpr const char kFS[] = R"(
-        precision highp float;
-
         uniform sampler2D uSampler;
 
         in vec2 vTexCoord;
