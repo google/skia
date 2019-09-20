@@ -10,6 +10,8 @@
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
 
+#import <QuartzCore/CAMetalLayer.h>
+
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
@@ -138,3 +140,102 @@ bool GrMtlRenderTarget::completeStencilAttachment() {
     return true;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
+// Called for wrapped non-texture render targets.
+GrMtlDrawableRenderTarget::GrMtlDrawableRenderTarget(GrMtlGpu* gpu,
+                                     const GrSurfaceDesc& desc,
+                                     int sampleCnt,
+                                     id<MTLTexture> colorTexture,
+                                                     CAMetalLayer* layer,
+                                     GrMTLHandle* drawable)
+: GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
+, GrMtlRenderTarget(gpu, desc, sampleCnt, colorTexture, nil)
+, fLayer(layer)
+, fDrawable(drawable)
+, fSampleCount(sampleCnt) {
+    SkASSERT(sampleCnt > 1);
+    this->registerWithCacheWrapped(GrWrapCacheable::kNo);
+}
+
+GrMtlDrawableRenderTarget::GrMtlDrawableRenderTarget(GrMtlGpu* gpu,
+                                     const GrSurfaceDesc& desc,
+                                                     CAMetalLayer* layer,
+                                     GrMTLHandle* drawable)
+: GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
+, GrMtlRenderTarget(gpu, desc, nil)
+, fLayer(layer)
+, fDrawable(drawable)
+, fSampleCount(1) {
+    this->registerWithCacheWrapped(GrWrapCacheable::kNo);
+}
+
+
+sk_sp<GrMtlDrawableRenderTarget> GrMtlDrawableRenderTarget::MakeWrappedRenderTarget(
+                                                                    GrMtlGpu* gpu,
+                                                                    const GrSurfaceDesc& desc,
+                                                                    int sampleCnt,
+                                                                    CAMetalLayer* layer,
+                                                                    GrMTLHandle* drawable) {
+//    SkASSERT(nil != texture);
+//    SkASSERT(1 == texture.mipmapLevelCount);
+//    SkASSERT(MTLTextureUsageRenderTarget & texture.usage);
+
+    GrMtlDrawableRenderTarget* mtlRT;
+    if (sampleCnt > 1) {
+        MTLPixelFormat format;
+        if (!GrPixelConfigToMTLFormat(desc.fConfig, &format)) {
+            return nullptr;
+        }
+        MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
+        texDesc.textureType = MTLTextureType2DMultisample;
+        texDesc.pixelFormat = format;
+        texDesc.width = desc.fWidth;
+        texDesc.height = desc.fHeight;
+        texDesc.depth = 1;
+        texDesc.mipmapLevelCount = 1;
+        texDesc.sampleCount = sampleCnt;
+        texDesc.arrayLength = 1;
+        texDesc.storageMode = MTLStorageModePrivate;
+        texDesc.usage = MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
+
+        id<MTLTexture> colorTexture = [gpu->device() newTextureWithDescriptor:texDesc];
+        if (!colorTexture) {
+            return nullptr;
+        }
+        SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) & colorTexture.usage);
+        mtlRT = new GrMtlDrawableRenderTarget(gpu, desc, sampleCnt, colorTexture, layer, drawable);
+    } else {
+        mtlRT = new GrMtlDrawableRenderTarget(gpu, desc, layer, drawable);
+    }
+
+    return sk_sp<GrMtlDrawableRenderTarget>(mtlRT);
+}
+
+GrBackendRenderTarget GrMtlDrawableRenderTarget::getBackendRenderTarget() const {
+    GrMtlTextureInfo info;
+    info.fLayer.reset(GrRetainPtrFromId(fLayer));
+    return GrBackendRenderTarget(this->width(), this->height(), fSampleCount, info);
+}
+
+GrBackendFormat GrMtlDrawableRenderTarget::backendFormat() const {
+    return GrBackendFormat::MakeMtl(fLayer.pixelFormat);
+}
+
+id<MTLTexture> GrMtlDrawableRenderTarget::mtlColorTexture() const {
+    if (!fColorTexture) {
+        id<CAMetalDrawable> currentDrawable = [fLayer nextDrawable];
+        fColorTexture = currentDrawable.texture;
+        *fDrawable = (__bridge_retained GrMTLHandle) currentDrawable;
+    }
+    return fColorTexture;
+}
+
+id<MTLTexture> GrMtlDrawableRenderTarget::mtlResolveTexture() const {
+    if (!fResolveTexture) {
+        id<CAMetalDrawable> currentDrawable = [fLayer nextDrawable];
+        fResolveTexture = currentDrawable.texture;
+        *fDrawable = (__bridge_retained GrMTLHandle) currentDrawable;
+    }
+    return fResolveTexture;
+}

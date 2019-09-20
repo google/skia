@@ -72,16 +72,40 @@ void MetalWindowContext::destroyContext() {
 sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
     sk_sp<SkSurface> surface;
     if (fContext) {
-        GrMTLHandle drawable;
-        surface = SkSurface::MakeFromCAMetalLayer(fContext.get(), (__bridge GrMTLHandle)fMetalLayer,
-                                                  kTopLeft_GrSurfaceOrigin, fSampleCount,
-                                                  kBGRA_8888_SkColorType,
-                                                  fDisplayParams.fColorSpace,
-                                                  &fDisplayParams.fSurfaceProps,
-                                                  &drawable);
-        // ARC is off in sk_app, so we need to release the CF ref manually
-        fCurrentDrawable = (id<CAMetalDrawable>)drawable;
-        CFRelease(drawable);
+        // Pass in the MetalLayer. When the GPU is ready to render it will grab the
+        // next drawable from the layer and store it in fCurrentDrawable
+        GrMtlTextureInfo fbInfo;
+        if (fSampleCount == 1) {
+            fbInfo.fLayer.retain((__bridge const void*)(fMetalLayer));
+            fbInfo.fDrawable = &fCurrentDrawable;
+
+            GrBackendRenderTarget backendRT(fWidth,
+                                            fHeight,
+                                            fSampleCount,
+                                            fbInfo);
+
+            surface = SkSurface::MakeFromBackendRenderTarget(fContext.get(), backendRT,
+                                                             kTopLeft_GrSurfaceOrigin,
+                                                             kBGRA_8888_SkColorType,
+                                                             fDisplayParams.fColorSpace,
+                                                             &fDisplayParams.fSurfaceProps);
+        } else {
+            // grab drawable directly
+            id<CAMetalDrawable> currentDrawable = [fMetalLayer nextDrawable];
+            fbInfo.fTexture.retain((__bridge const void*)(currentDrawable.texture));
+            fCurrentDrawable = (__bridge GrMTLHandle) currentDrawable;
+            CFRetain(fCurrentDrawable);
+
+            GrBackendTexture backendTexture(fWidth,
+                                            fHeight,
+                                            GrMipMapped::kNo,
+                                            fbInfo);
+
+            surface = SkSurface::MakeFromBackendTexture(
+                    fContext.get(), backendTexture, kTopLeft_GrSurfaceOrigin, fSampleCount,
+                    kBGRA_8888_SkColorType, fDisplayParams.fColorSpace,
+                    &fDisplayParams.fSurfaceProps);
+        }
     }
 
     return surface;
@@ -91,9 +115,11 @@ void MetalWindowContext::swapBuffers() {
     id<MTLCommandBuffer> commandBuffer = [fQueue commandBuffer];
     commandBuffer.label = @"Present";
 
-    [commandBuffer presentDrawable:fCurrentDrawable];
+    id<CAMetalDrawable> currentDrawable = (__bridge id<CAMetalDrawable>)fCurrentDrawable;
+    [commandBuffer presentDrawable:currentDrawable];
     [commandBuffer commit];
-    fCurrentDrawable = nil;
+    // ARC is off in sk_app, so we need to release the CF ref manually
+    CFRelease(fCurrentDrawable);
 }
 
 void MetalWindowContext::setDisplayParams(const DisplayParams& params) {

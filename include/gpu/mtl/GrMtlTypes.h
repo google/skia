@@ -30,6 +30,10 @@ public:
 
     sk_cf_obj<const void*> fTexture;
 
+    // optional, for setting up a render target derived from a CAMetalLayer instead
+    sk_cf_obj<const void*> fLayer;
+    GrMTLHandle*           fDrawable;
+
     bool operator==(const GrMtlTextureInfo& that) const {
         return fTexture == that.fTexture;
     }

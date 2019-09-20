@@ -3,6 +3,7 @@ Skia Graphics Release Notes
 This file includes a list of high level updates for each milestone release.
 
 -----
+  * Add layer and drawable elements to GrMtlTextureInfo
   * Add SkSurface::MakeFromCAMetalLayer
 
   * Remove isRectContour and ksNestedFillRects from public

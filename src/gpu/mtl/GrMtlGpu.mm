@@ -23,6 +23,8 @@
 
 #import <simd/simd.h>
 
+#import <QuartzCore/CAMetalLayer.h>
+
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
@@ -548,12 +550,28 @@ static id<MTLTexture> get_texture_from_backend(const GrBackendTexture& backendTe
     return GrGetMTLTexture(textureInfo.fTexture.get());
 }
 
+static CAMetalLayer* get_layer_from_backend(const GrBackendTexture& backendTex) {
+    GrMtlTextureInfo textureInfo;
+    if (!backendTex.getMtlTextureInfo(&textureInfo)) {
+        return nil;
+    }
+    return (__bridge CAMetalLayer*)(textureInfo.fLayer.get());
+}
+
 static id<MTLTexture> get_texture_from_backend(const GrBackendRenderTarget& backendRT) {
     GrMtlTextureInfo textureInfo;
     if (!backendRT.getMtlTextureInfo(&textureInfo)) {
         return nil;
     }
     return GrGetMTLTexture(textureInfo.fTexture.get());
+}
+
+static CAMetalLayer* get_layer_from_backend(const GrBackendRenderTarget& backendRT) {
+    GrMtlTextureInfo textureInfo;
+    if (!backendRT.getMtlTextureInfo(&textureInfo)) {
+        return nil;
+    }
+    return (__bridge CAMetalLayer*)(textureInfo.fLayer.get());
 }
 
 static inline void init_surface_desc(GrSurfaceDesc* surfaceDesc, id<MTLTexture> mtlTexture,
@@ -563,6 +581,13 @@ static inline void init_surface_desc(GrSurfaceDesc* surfaceDesc, id<MTLTexture> 
     }
     surfaceDesc->fWidth = mtlTexture.width;
     surfaceDesc->fHeight = mtlTexture.height;
+    surfaceDesc->fConfig = config;
+}
+
+static inline void init_surface_desc(GrSurfaceDesc* surfaceDesc, CAMetalLayer* layer,
+                                     GrPixelConfig config) {
+    surfaceDesc->fWidth = [layer drawableSize].width;
+    surfaceDesc->fHeight = [layer drawableSize].height;
     surfaceDesc->fConfig = config;
 }
 
@@ -622,20 +647,36 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendRenderTarget(const GrBackendRenderT
     if (backendRT.sampleCnt() > 1) {
         return nullptr;
     }
-    id<MTLTexture> mtlTexture = get_texture_from_backend(backendRT);
-    if (!mtlTexture) {
-        return nullptr;
-    }
-
     GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendRT.getBackendFormat(),
                                                                     grColorType);
     SkASSERT(kUnknown_GrPixelConfig != config);
-
     GrSurfaceDesc surfDesc;
-    init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kYes, config);
 
-    return GrMtlRenderTarget::MakeWrappedRenderTarget(this, surfDesc, backendRT.sampleCnt(),
-                                                      mtlTexture);
+    id<MTLTexture> mtlTexture = get_texture_from_backend(backendRT);
+    if (mtlTexture) {
+        init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kYes, config);
+
+        return GrMtlRenderTarget::MakeWrappedRenderTarget(this, surfDesc, backendRT.sampleCnt(),
+                                                          mtlTexture);
+    }
+
+    CAMetalLayer* layer = get_layer_from_backend(backendRT);
+    if (layer) {
+        GrMtlTextureInfo textureInfo;
+        if (!backendRT.getMtlTextureInfo(&textureInfo)) {
+            return nullptr;
+        }
+        GrMTLHandle* drawable = textureInfo.fDrawable;
+        SkASSERT(drawable);
+
+        init_surface_desc(&surfDesc, layer, config);
+
+        return GrMtlDrawableRenderTarget::MakeWrappedRenderTarget(this, surfDesc,
+                                                                  backendRT.sampleCnt(),
+                                                                  layer, drawable);
+    }
+
+    return nullptr;
 }
 
 sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendTextureAsRenderTarget(

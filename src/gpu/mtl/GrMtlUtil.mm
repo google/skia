@@ -15,6 +15,7 @@
 #include "src/sksl/SkSLCompiler.h"
 
 #import <Metal/Metal.h>
+#import <QuartzCore/CAMetalLayer.h>
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
@@ -284,7 +285,16 @@ id<MTLTexture> GrGetMTLTextureFromSurface(GrSurface* surface) {
 
 GrMTLPixelFormat GrGetMTLPixelFormatFromMtlTextureInfo(const GrMtlTextureInfo& info) {
     id<MTLTexture> mtlTexture = GrGetMTLTexture(info.fTexture.get());
-    return static_cast<GrMTLPixelFormat>(mtlTexture.pixelFormat);
+    MTLPixelFormat pixelFormat = MTLPixelFormatInvalid;
+    if (mtlTexture) {
+        pixelFormat = mtlTexture.pixelFormat;
+    } else {
+        CAMetalLayer* mtlLayer = (__bridge CAMetalLayer*)(info.fLayer.get());
+        if (mtlLayer) {
+            pixelFormat = mtlLayer.pixelFormat;
+        }
+    }
+    return static_cast<GrMTLPixelFormat>(pixelFormat);
 }
 
 size_t GrMtlBytesPerFormat(MTLPixelFormat format) {
