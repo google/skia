@@ -39,10 +39,10 @@ public:
         fragBuilder->codeAppendf(
                 "    half4 unpremul0;     half unpremulNonZeroAlpha1;half4 inputColor = %s;\n@if "
                 "(%s) {\n    inputColor = (unpremul0 = inputColor, unpremulNonZeroAlpha1 = "
-                "max(unpremul0.a, 0.0001), half4(unpremul0.rgb / unpremulNonZeroAlpha1, "
-                "unpremulNonZeroAlpha1));\n}\n%s = %s * inputColor + %s;\n@if (%s) {\n    %s = "
-                "clamp(%s, 0.0, 1.0);\n} else {\n    %s.w = clamp(%s.w, 0.0, 1.0);\n}\n@if (%s) "
-                "{\n    %s.xyz *= %s.w;\n}\n",
+                "max(unpremul0.a, 9.9999997473787516e-05), half4(unpremul0.rgb / "
+                "unpremulNonZeroAlpha1, unpremulNonZeroAlpha1));\n}\n%s = %s * inputColor + "
+                "%s;\n@if (%s) {\n    %s = clamp(%s, 0.0, 1.0);\n} else {\n    %s.w = clamp(%s.w, "
+                "0.0, 1.0);\n}\n@if (%s) {\n    %s.xyz *= %s.w;\n}\n",
                 args.fInputColor, (_outer.unpremulInput ? "true" : "false"), args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(mVar),
                 args.fUniformHandler->getUniformCStr(vVar),
