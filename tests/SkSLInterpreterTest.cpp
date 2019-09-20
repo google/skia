@@ -209,6 +209,17 @@ DEF_TEST(SkSLInterpreterRemainder, r) {
          0, 2, 4, 0, 0);
 }
 
+DEF_TEST(SkSLInterpreterBitwise, r) {
+    test(r, "void main(inout half4 color) { color.r = half(int(color.r) | 3); }",
+         5, 0, 0, 0, 7, 0, 0, 0);
+    test(r, "void main(inout half4 color) { color.r = half(int(color.r) & 3); }",
+         6, 0, 0, 0, 2, 0, 0, 0);
+    test(r, "void main(inout half4 color) { color.r = half(int(color.r) ^ 3); }",
+         5, 0, 0, 0, 6, 0, 0, 0);
+    test(r, "void main(inout half4 color) { color.r = half(~int(color.r) & 3); }",
+         6, 0, 0, 0, 1, 0, 0, 0);
+}
+
 DEF_TEST(SkSLInterpreterMatrix, r) {
     float in[16];
     float expected[16];
@@ -379,6 +390,10 @@ DEF_TEST(SkSLInterpreterIf, r) {
     test(r, "void main(inout half4 color) { if (color.r != color.g) color.a = 1; }", 2, 2, 0, 0,
          2, 2, 0, 0);
     test(r, "void main(inout half4 color) { if (color.r != color.g) color.a = 1; }", 2, -2, 0, 0,
+         2, -2, 0, 1);
+    test(r, "void main(inout half4 color) { if (!(color.r == color.g)) color.a = 1; }", 2, 2, 0, 0,
+         2, 2, 0, 0);
+    test(r, "void main(inout half4 color) { if (!(color.r == color.g)) color.a = 1; }", 2, -2, 0, 0,
          2, -2, 0, 1);
     test(r, "void main(inout half4 color) { if (color.r == color.g) color.a = 1; else "
          "color.a = 2; }", 1, 1, 0, 0, 1, 1, 0, 1);
