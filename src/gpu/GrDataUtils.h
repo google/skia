@@ -43,6 +43,9 @@ public:
     GrPixelInfo(GrColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs, int w, int h)
             : fColorInfo(ct, at, std::move(cs)), fWidth(w), fHeight(h) {}
 
+    GrPixelInfo(GrColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs, const SkISize& size)
+            : fColorInfo(ct, at, std::move(cs)), fWidth(size.fWidth), fHeight(size.fHeight) {}
+
     GrPixelInfo(const GrPixelInfo&) = default;
     GrPixelInfo(GrPixelInfo&&) = default;
     GrPixelInfo& operator=(const GrPixelInfo&) = default;

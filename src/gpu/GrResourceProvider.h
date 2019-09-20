@@ -303,6 +303,29 @@ private:
                                      GrMipMapped,
                                      GrProtected);
 
+    // Used to perform any conversions necessary to texel data before creating a texture with
+    // existing data or uploading to a scratch texture.
+    using TempLevels = SkAutoSTMalloc<14, GrMipLevel>;
+    using TempLevelDatas = SkAutoSTArray<14, std::unique_ptr<char[]>>;
+    GrColorType prepareLevels(const GrBackendFormat& format,
+                              GrColorType,
+                              const SkISize& baseSize,
+                              const GrMipLevel texels[],
+                              int mipLevelCount,
+                              TempLevels*,
+                              TempLevelDatas*) const;
+
+    // GrResourceProvider may be asked to "create" a new texture with initial pixel data to populate
+    // it. In implementation it may pull an existing texture from GrResourceCache and then write the
+    // pixel data to the texture. It takes a width/height for the base level because we may be
+    // using an approximate-sized scratch texture. On success the texture is returned and nullptr
+    // on failure.
+    sk_sp<GrTexture> writePixels(sk_sp<GrTexture> texture,
+                                 GrColorType colorType,
+                                 const SkISize& baseSize,
+                                 const GrMipLevel texels[],
+                                 int mipLevelCount) const;
+
     GrResourceCache* cache() { return fCache; }
     const GrResourceCache* cache() const { return fCache; }
 
