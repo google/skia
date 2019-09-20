@@ -78,7 +78,7 @@ public:
     };
 
     MetalCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
-                       OutputStream* out)
+                      OutputStream* out)
     : INHERITED(program, errors, out)
     , fReservedWords({"atan2", "rsqrt", "dfdx", "dfdy", "vertex", "fragment"})
     , fLineEnding("\n")
@@ -105,7 +105,6 @@ protected:
     enum SpecialIntrinsic {
         kTexture_SpecialIntrinsic,
         kMod_SpecialIntrinsic,
-        kUnpremul_SpecialIntrinsic,
     };
 
     enum MetalIntrinsic {
@@ -149,8 +148,6 @@ protected:
     void writeGlobalStruct();
 
     void writePrecisionModifier();
-
-    String getTypeName(const Type& type);
 
     void writeType(const Type& type);
 

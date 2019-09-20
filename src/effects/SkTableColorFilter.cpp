@@ -301,7 +301,8 @@ void GLColorTableEffect::emitCode(EmitArgs& args) {
                                  kMaxValue, kMaxValue, kMaxValue, kMaxValue);
 
     } else {
-        fragBuilder->codeAppendf("\t\thalf4 coord = unpremul(%s);\n",
+        fragBuilder->codeAppendf("\t\thalf nonZeroAlpha = max(%s.a, .0001);\n", args.fInputColor);
+        fragBuilder->codeAppendf("\t\thalf4 coord = half4(%s.rgb / nonZeroAlpha, nonZeroAlpha);\n",
                                  args.fInputColor);
         fragBuilder->codeAppendf("\t\tcoord = coord * %f + half4(%f, %f, %f, %f);\n",
                                  kColorScaleFactor,
