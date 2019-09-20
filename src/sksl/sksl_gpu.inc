@@ -102,8 +102,6 @@ $genType smoothstep($genType edge0, $genType edge1, $genType x);
 $genType smoothstep(float edge0, float edge1, $genType x);
 $genHType smoothstep($genHType edge0, $genHType edge1, $genHType x);
 $genHType smoothstep(half edge0, half edge1, $genHType x);
-half4 unpremul(half4 c);
-float4 unpremul(float4 c);
 $genBType isnan($genType x);
 $genBType isnan($genDType x);
 $genBType isinf($genType x);

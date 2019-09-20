@@ -47,7 +47,8 @@ public:
         // calculations to be performed with sufficient precision.
         fragBuilder->codeAppendf("float4 color = %s;", args.fInputColor);
         if (srgbe.alpha() == GrSRGBEffect::Alpha::kPremul) {
-            fragBuilder->codeAppendf("color = unpremul(color);");
+            fragBuilder->codeAppendf("float nonZeroAlpha = max(color.a, 0.0001);");
+            fragBuilder->codeAppendf("color = float4(color.rgb / nonZeroAlpha, color.a);");
         }
         fragBuilder->codeAppendf("color = float4(%s(half(color.r)), %s(half(color.g)), "
                                  "%s(half(color.b)), color.a);",
