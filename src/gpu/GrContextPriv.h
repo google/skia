@@ -126,7 +126,8 @@ public:
             GrMipMapped = GrMipMapped::kNo,
             GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
             const SkSurfaceProps* surfaceProps = nullptr,
-            SkBudgeted budgeted = SkBudgeted::kYes);
+            SkBudgeted budgeted = SkBudgeted::kYes,
+            GrProtected isProtected = GrProtected::kNo);
 
     GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
 

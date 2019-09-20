@@ -1626,7 +1626,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
 
     SkASSERT(cinfo.fInfo.colorType() != kRGBA_1010102_SkColorType);
 
-    auto rtc = fContext->priv().makeDeferredRenderTargetContext(
+    auto rtc = fContext->priv().makeDeferredRenderTargetContextWithFallback(
             fit,
             cinfo.fInfo.width(),
             cinfo.fInfo.height(),
