@@ -42,35 +42,6 @@ GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSin
     fCaps = sk_ref_sp(fGpu->caps());
 }
 
-// Ensures the row bytes are populated (not 0) and makes a copy to a temporary
-// to make the row bytes tight if necessary. Returns false if the input row bytes are invalid.
-static bool prepare_level(const GrMipLevel& inLevel, int w, int h, bool rowBytesSupport,
-                          GrColorType origColorType, GrColorType allowedColorType,
-                          GrMipLevel* outLevel, std::unique_ptr<char[]>* data) {
-    if (!inLevel.fPixels) {
-        outLevel->fPixels = nullptr;
-        outLevel->fRowBytes = 0;
-        return true;
-    }
-    size_t minRB = w * GrColorTypeBytesPerPixel(origColorType);
-    size_t actualRB = inLevel.fRowBytes ? inLevel.fRowBytes : minRB;
-    if (actualRB < minRB) {
-        return false;
-    }
-    if (origColorType == allowedColorType && (actualRB == minRB || rowBytesSupport)) {
-        outLevel->fRowBytes = actualRB;
-        outLevel->fPixels = inLevel.fPixels;
-        return true;
-    }
-    auto tempRB = w * GrColorTypeBytesPerPixel(allowedColorType);
-    data->reset(new char[tempRB * h]);
-    outLevel->fPixels = data->get();
-    outLevel->fRowBytes = minRB;
-    GrPixelInfo srcInfo(origColorType,    kUnpremul_SkAlphaType, nullptr, w, h);
-    GrPixelInfo dstInfo(allowedColorType, kUnpremul_SkAlphaType, nullptr, w, h);
-    return GrConvertPixels(dstInfo, data->get(), tempRB, srcInfo, inLevel.fPixels, actualRB);
-}
-
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
                                                    const GrBackendFormat& format,
                                                    GrColorType colorType,
@@ -93,30 +64,30 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
                                       renderTargetSampleCnt, mipMapped)) {
         return nullptr;
     }
-    auto allowedColorType =
-            this->caps()->supportedWritePixelsColorType(colorType, format, colorType).fColorType;
-    if (allowedColorType == GrColorType::kUnknown) {
-        return nullptr;
+    // Current rule is that you can provide no level data, just the base, or all the levels.
+    bool hasPixels = mipLevelCount && texels[0].fPixels;
+    auto scratch = this->getExactScratch(desc, format, renderable, renderTargetSampleCnt, budgeted,
+                                         mipMapped, isProtected);
+    if (scratch) {
+        if (!hasPixels) {
+            return scratch;
+        }
+        return this->writePixels(std::move(scratch), colorType, {desc.fWidth, desc.fHeight}, texels,
+                                 mipLevelCount);
     }
-    bool rowBytesSupport = this->caps()->writePixelsRowBytesSupport();
     SkAutoSTMalloc<14, GrMipLevel> tmpTexels;
     SkAutoSTArray<14, std::unique_ptr<char[]>> tmpDatas;
-    if (mipLevelCount > 0 && texels) {
-        tmpTexels.reset(mipLevelCount);
-        tmpDatas.reset(mipLevelCount);
-        int w = desc.fWidth;
-        int h = desc.fHeight;
-        for (int i = 0; i < mipLevelCount; ++i) {
-            if (!prepare_level(texels[i], w, h, rowBytesSupport, colorType, allowedColorType,
-                               &tmpTexels[i], &tmpDatas[i])) {
-                return nullptr;
-            }
-            w = std::max(w / 2, 1);
-            h = std::max(h / 2, 1);
+    GrColorType tempColorType = GrColorType::kUnknown;
+    if (hasPixels) {
+        tempColorType = this->prepareLevels(format, colorType, {desc.fWidth, desc.fHeight}, texels,
+                                            mipLevelCount, &tmpTexels, &tmpDatas);
+        if (tempColorType == GrColorType::kUnknown) {
+            return nullptr;
         }
     }
     return fGpu->createTexture(desc, format, renderable, renderTargetSampleCnt, budgeted,
-                               isProtected, colorType, colorType, tmpTexels.get(), mipLevelCount);
+                               isProtected, colorType, tempColorType, tmpTexels.get(),
+                               mipLevelCount);
 }
 
 sk_sp<GrTexture> GrResourceProvider::getExactScratch(const GrSurfaceDesc& desc,
@@ -146,47 +117,26 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
                                                    const GrMipLevel& mipLevel) {
     ASSERT_SINGLE_OWNER
 
-    if (this->isAbandoned()) {
-        return nullptr;
-    }
-
     if (!mipLevel.fPixels) {
         return nullptr;
     }
 
-    if (!fCaps->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, desc.fConfig, renderable,
-                                      renderTargetSampleCnt, GrMipMapped::kNo)) {
-        return nullptr;
-    }
-
-    GrContext* context = fGpu->getContext();
-    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-
-    sk_sp<GrTexture> tex;
     if (SkBackingFit::kApprox == fit) {
-        tex = this->createApproxTexture(desc, format, renderable, renderTargetSampleCnt,
-                                        isProtected);
+        if (this->isAbandoned()) {
+            return nullptr;
+        }
+        if (!fCaps->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, desc.fConfig,
+                                          renderable, renderTargetSampleCnt, GrMipMapped::kNo)) {
+            return nullptr;
+        }
+
+        auto tex = this->createApproxTexture(desc, format, renderable, renderTargetSampleCnt,
+                                             isProtected);
         if (!tex) {
             return nullptr;
         }
-        sk_sp<GrTextureProxy> proxy = proxyProvider->createWrapped(
-                tex, colorType, kTopLeft_GrSurfaceOrigin, GrSurfaceProxy::UseAllocator::kYes);
-        if (!proxy) {
-            return nullptr;
-        }
-        // Here we don't really know the alpha type of the data we want to upload. All we really
-        // care about is that it is not converted. So we use the same alpha type for the data
-        // and the surface context.
-        static constexpr auto kAlphaType = kUnpremul_SkAlphaType;
-        auto sContext =
-                context->priv().makeWrappedSurfaceContext(std::move(proxy), colorType, kAlphaType);
-        if (!sContext) {
-            return nullptr;
-        }
-        GrPixelInfo srcInfo(colorType, kAlphaType, nullptr, desc.fWidth, desc.fHeight);
-        SkAssertResult(
-                sContext->writePixels(srcInfo, mipLevel.fPixels, mipLevel.fRowBytes, {0, 0}));
-        return tex;
+        return this->writePixels(std::move(tex), colorType, {desc.fWidth, desc.fHeight}, &mipLevel,
+                                 1);
     } else {
         return this->createTexture(desc, format, colorType, renderable, renderTargetSampleCnt,
                                    budgeted, isProtected, &mipLevel, 1);
@@ -547,4 +497,87 @@ sk_sp<GrSemaphore> GrResourceProvider::wrapBackendSemaphore(const GrBackendSemap
     return this->isAbandoned() ? nullptr : fGpu->wrapBackendSemaphore(semaphore,
                                                                       wrapType,
                                                                       ownership);
+}
+
+// Ensures the row bytes are populated (not 0) and makes a copy to a temporary
+// to make the row bytes tight if necessary. Returns false if the input row bytes are invalid.
+static bool prepare_level(const GrMipLevel& inLevel,
+                          const SkISize& size,
+                          bool rowBytesSupport,
+                          GrColorType origColorType,
+                          GrColorType allowedColorType,
+                          GrMipLevel* outLevel,
+                          std::unique_ptr<char[]>* data) {
+    if (!inLevel.fPixels) {
+        outLevel->fPixels = nullptr;
+        outLevel->fRowBytes = 0;
+        return true;
+    }
+    size_t minRB = size.fWidth * GrColorTypeBytesPerPixel(origColorType);
+    size_t actualRB = inLevel.fRowBytes ? inLevel.fRowBytes : minRB;
+    if (actualRB < minRB) {
+        return false;
+    }
+    if (origColorType == allowedColorType && (actualRB == minRB || rowBytesSupport)) {
+        outLevel->fRowBytes = actualRB;
+        outLevel->fPixels = inLevel.fPixels;
+        return true;
+    }
+    auto tempRB = size.fWidth * GrColorTypeBytesPerPixel(allowedColorType);
+    data->reset(new char[tempRB * size.fHeight]);
+    outLevel->fPixels = data->get();
+    outLevel->fRowBytes = tempRB;
+    GrPixelInfo srcInfo(origColorType,    kUnpremul_SkAlphaType, nullptr, size);
+    GrPixelInfo dstInfo(allowedColorType, kUnpremul_SkAlphaType, nullptr, size);
+    return GrConvertPixels(dstInfo, data->get(), tempRB, srcInfo, inLevel.fPixels, actualRB);
+}
+
+GrColorType GrResourceProvider::prepareLevels(const GrBackendFormat& format,
+                                              GrColorType colorType,
+                                              const SkISize& baseSize,
+                                              const GrMipLevel texels[],
+                                              int mipLevelCount,
+                                              TempLevels* tempLevels,
+                                              TempLevelDatas* tempLevelDatas) const {
+    SkASSERT(mipLevelCount && texels && texels[0].fPixels);
+
+    auto allowedColorType =
+            this->caps()->supportedWritePixelsColorType(colorType, format, colorType).fColorType;
+    if (allowedColorType == GrColorType::kUnknown) {
+        return GrColorType::kUnknown;
+    }
+    bool rowBytesSupport = this->caps()->writePixelsRowBytesSupport();
+    tempLevels->reset(mipLevelCount);
+    tempLevelDatas->reset(mipLevelCount);
+    auto size = baseSize;
+    for (int i = 0; i < mipLevelCount; ++i) {
+        if (!prepare_level(texels[i], size, rowBytesSupport, colorType, allowedColorType,
+                           &(*tempLevels)[i], &(*tempLevelDatas)[i])) {
+            return GrColorType::kUnknown;
+        }
+        size = {std::max(size.fWidth / 2, 1), std::max(size.fHeight / 2, 1)};
+    }
+    return allowedColorType;
+}
+
+sk_sp<GrTexture> GrResourceProvider::writePixels(sk_sp<GrTexture> texture,
+                                                 GrColorType colorType,
+                                                 const SkISize& baseSize,
+                                                 const GrMipLevel texels[],
+                                                 int mipLevelCount) const {
+    SkASSERT(!this->isAbandoned());
+    SkASSERT(texture);
+    SkASSERT(colorType != GrColorType::kUnknown);
+    SkASSERT(mipLevelCount && texels && texels[0].fPixels);
+
+    SkAutoSTMalloc<14, GrMipLevel> tmpTexels;
+    SkAutoSTArray<14, std::unique_ptr<char[]>> tmpDatas;
+    auto tempColorType = this->prepareLevels(texture->backendFormat(), colorType, baseSize, texels,
+                                             mipLevelCount, &tmpTexels, &tmpDatas);
+    if (tempColorType == GrColorType::kUnknown) {
+        return nullptr;
+    }
+    SkAssertResult(fGpu->writePixels(texture.get(), 0, 0, baseSize.fWidth, baseSize.fHeight,
+                                     colorType, tempColorType, tmpTexels.get(), mipLevelCount));
+    return texture;
 }
