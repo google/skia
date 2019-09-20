@@ -39,6 +39,7 @@ bool GrVkFormatColorTypePairIsValid(VkFormat format, GrColorType colorType) {
         case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:  return GrColorType::kRGB_888x == colorType;
         case VK_FORMAT_R16G16B16A16_UNORM:        return GrColorType::kRGBA_16161616 == colorType;
         case VK_FORMAT_R16G16_SFLOAT:             return GrColorType::kRG_F16 == colorType;
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:   return GrColorType::kRGB_888x == colorType;
         default:                                  return false;
     }
 
