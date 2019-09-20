@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7be002c_4e7d3fd2",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-20T19:11:58Z",
+      "side": 1,
+      "message": "tempRB ?",
+      "range": {
+        "startLine": 529,
+        "startChar": 25,
+        "endLine": 529,
+        "endChar": 31
+      },
+      "revId": "512dcbdc1ed077b2d0d2637084e3cbaf26b41551",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f003402_1788b5a5",
+        "filename": "src/gpu/GrResourceProvider.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-20T19:11:58Z",
+      "side": 1,
+      "message": "Used to ?",
+      "range": {
+        "startLine": 306,
+        "startChar": 6,
+        "endLine": 306,
+        "endChar": 12
+      },
+      "revId": "512dcbdc1ed077b2d0d2637084e3cbaf26b41551",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
