@@ -32,7 +32,7 @@ deps = {
   "third_party/externals/spirv-tools"     : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git@0c4feb643b89d1792b02f7cbef315e9d95633bd7",
   "third_party/externals/swiftshader"     : "https://swiftshader.googlesource.com/SwiftShader@1f89f58faeb8287f29e3e5ba7d03d62f667404a0",
   #"third_party/externals/v8"              : "https://chromium.googlesource.com/v8/v8.git@5f1ae66d5634e43563b2d25ea652dfb94c31a3b4",
-  "third_party/externals/wuffs"           : "https://skia.googlesource.com/external/github.com/google/wuffs.git@6ad7d00a262e862549e4963b4a43d148a8285e50",
+  "third_party/externals/wuffs"           : "https://skia.googlesource.com/external/github.com/google/wuffs.git@65e7b2b6c98a4d35e26bc2fc437e2e00f1393dc2",
   "third_party/externals/zlib"            : "https://chromium.googlesource.com/chromium/src/third_party/zlib@47af7c547f8551bd25424e56354a2ae1e9062859",
 
   "../src": {
