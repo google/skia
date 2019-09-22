@@ -162,6 +162,7 @@ echo "Compiling bitcode"
   is_component_build=false \
   werror=true \
   target_cpu=\"wasm\" \
+  use_PIC=false \
   \
   skia_use_angle = false \
   skia_use_dng_sdk=false \
