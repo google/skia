@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d604e5e5_ed606040",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-09-22T01:17:12Z",
+      "side": 1,
+      "message": "Any way to target Nexus5 (Adreno3xx)?",
+      "range": {
+        "startLine": 450,
+        "startChar": 8,
+        "endLine": 450,
+        "endChar": 49
+      },
+      "revId": "c93013b5988a07ffaec5409d058a60c9bd529070",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
