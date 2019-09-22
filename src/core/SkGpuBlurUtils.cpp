@@ -81,6 +81,9 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
                                  float sigma,
                                  GrTextureDomain::Mode mode,
                                  int bounds[2]) {
+    if (renderTargetContext->caps()->mustClearGaussianConvolveBuffers()) {
+        renderTargetContext->clear(SK_PMColor4fTRANSPARENT);
+    }
     GrPaint paint;
     std::unique_ptr<GrFragmentProcessor> conv(GrGaussianConvolutionFragmentProcessor::Make(
             std::move(proxy), direction, radius, sigma, mode, bounds));
@@ -121,6 +124,9 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingCo
             srcProxy->isProtected() ? GrProtected::kYes : GrProtected::kNo);
     if (!renderTargetContext) {
         return nullptr;
+    }
+    if (renderTargetContext->caps()->mustClearGaussianConvolveBuffers()) {
+        renderTargetContext->clear(SK_PMColor4fTRANSPARENT);
     }
 
     SkMatrix localMatrix = SkMatrix::MakeTrans(-SkIntToScalar(srcOffset.x()),

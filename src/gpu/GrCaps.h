@@ -81,6 +81,8 @@ public:
 
     bool avoidWritePixelsFastPath() const { return fAvoidWritePixelsFastPath; }
 
+    bool mustClearGaussianConvolveBuffers() const { return fMustClearGaussianConvolveBuffers; }
+
     /**
      * Indicates the capabilities of the fixed function blend unit.
      */
@@ -482,6 +484,7 @@ protected:
     bool fDriverBlacklistMSAACCPR                    : 1;
     bool fAvoidStencilBuffers                        : 1;
     bool fAvoidWritePixelsFastPath                   : 1;
+    bool fMustClearGaussianConvolveBuffers           : 1;
 
     // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;
