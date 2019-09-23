@@ -49,17 +49,7 @@ struct SK_API SkYUVASizeInfo {
         return true;
     }
 
-    size_t computeTotalBytes() const {
-        size_t totalBytes = 0;
-
-        for (int i = 0; i < kMaxCount; ++i) {
-            SkASSERT((!fSizes[i].isEmpty() && fWidthBytes[i]) ||
-                     (fSizes[i].isEmpty() && !fWidthBytes[i]));
-            totalBytes += fWidthBytes[i] * fSizes[i].height();
-        }
-
-        return totalBytes;
-    }
+    size_t computeTotalBytes() const;
 
     void computePlanes(void* base, void* planes[kMaxCount]) const;
 

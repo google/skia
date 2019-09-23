@@ -58,7 +58,7 @@ size_t SkImageInfo::computeByteSize(size_t rowBytes) const {
     SkSafeMath safe;
     size_t bytes = safe.add(safe.mul(safe.addInt(this->height(), -1), rowBytes),
                             safe.mul(this->width(), this->bytesPerPixel()));
-    return safe ? bytes : SIZE_MAX;
+    return safe.ok() ? bytes : SIZE_MAX;
 }
 
 SkImageInfo SkImageInfo::MakeS32(int width, int height, SkAlphaType at) {
