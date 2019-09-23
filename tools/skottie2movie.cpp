@@ -14,7 +14,12 @@
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "src/utils/SkOSPath.h"
+
 #include "tools/flags/CommandLineFlags.h"
+#include "tools/flags/CommonFlags.h"
+#include "tools/gpu/GrContextFactory.h"
+
+#include "include/gpu/GrContextOptions.h"
 
 static DEFINE_string2(input, i, "", "skottie animation to render");
 static DEFINE_string2(output, o, "", "mp4 file to create");
@@ -23,6 +28,7 @@ static DEFINE_int_2(fps, f, 25, "fps");
 static DEFINE_bool2(verbose, v, false, "verbose mode");
 static DEFINE_bool2(loop, l, false, "loop mode for profiling");
 static DEFINE_int(set_dst_width, 0, "set destination width (height will be computed)");
+static DEFINE_bool2(gpu, g, false, "use GPU for rendering");
 
 static void produce_frame(SkSurface* surf, skottie::Animation* anim, double frame_time) {
     anim->seekFrameTime(frame_time);
@@ -40,6 +46,11 @@ int main(int argc, char** argv) {
         SkDebugf("-i input_file.json argument required\n");
         return -1;
     }
+
+    auto contextType = sk_gpu_test::GrContextFactory::kGL_ContextType;
+    GrContextOptions grCtxOptions;
+    SetCtxOptionsFromCommonFlags(&grCtxOptions);
+    sk_gpu_test::GrContextFactory factory(grCtxOptions);
 
     SkString assetPath;
     if (FLAGS_assetPath.count() > 0) {
@@ -82,8 +93,12 @@ int main(int argc, char** argv) {
 
     SkVideoEncoder encoder;
 
-    sk_sp<SkSurface> surf, tmp_surf;
+    GrContext* context = nullptr;
+    sk_sp<SkSurface> surf;
     sk_sp<SkData> data;
+
+    // Prealloc the readback buffer for gpu surface
+    SkBitmap gpuBM;
 
     do {
         double loop_start = SkTime::GetSecs();
@@ -91,11 +106,24 @@ int main(int argc, char** argv) {
         encoder.beginRecording(dim, fps);
         // lazily allocate the surfaces
         if (!surf) {
-            surf = SkSurface::MakeRaster(encoder.preferredInfo());
-            tmp_surf = surf->makeSurface(surf->width(), surf->height());
+            if (FLAGS_gpu) {
+                context = factory.getContextInfo(contextType).grContext();
+                surf = SkSurface::MakeRenderTarget(context,
+                                                   SkBudgeted::kNo,
+                                                   encoder.preferredInfo(),
+                                                   0,
+                                                   GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
+                                                   nullptr);
+                if (!surf) {
+                    context = nullptr;
+                }
 
-                surf->getCanvas()->scale(scale, scale);
-            tmp_surf->getCanvas()->scale(scale, scale);
+                gpuBM.allocPixels(encoder.preferredInfo());
+            }
+            if (!surf) {
+                surf = SkSurface::MakeRaster(encoder.preferredInfo());
+            }
+            surf->getCanvas()->scale(scale, scale);
         }
 
         for (int i = 0; i <= frames; ++i) {
@@ -110,7 +138,12 @@ int main(int argc, char** argv) {
             produce_frame(surf.get(), animation.get(), frame_time);
 
             SkPixmap pm;
-            SkAssertResult(surf->peekPixels(&pm));
+            if (context) {
+                pm = gpuBM.pixmap();
+                surf->readPixels(pm, 0, 0);
+            } else {
+                SkAssertResult(surf->peekPixels(&pm));
+            }
             encoder.addFrame(pm);
         }
         data = encoder.endRecording();
