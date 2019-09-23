@@ -226,11 +226,6 @@ def dm_flags(api, bot):
                          'Chorizo' in bot):
       blacklist(['_', 'gm', '_', 'savelayer_clipmask'])
 
-    # skbug.com/9124
-    if 'GPU' in bot and 'Nexus5x' in bot and "Vulkan" in bot:
-      blacklist(['_', 'test', '_', 'ReplaceSurfaceBackendTexture'])
-
-
     # skbug.com/9123
     if 'CommandBuffer' in bot and 'IntelIris5100' in bot:
       blacklist(['_', 'test', '_', 'AsyncReadPixels'])
@@ -1087,7 +1082,6 @@ TEST_BUILDERS = [
   'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA',
   'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA',
   'Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All',
-  'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan',
   'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer',
   'Test-Android-Clang-TecnoSpark3Pro-GPU-PowerVRGE8320-arm-Debug-All-Android',
 ]
