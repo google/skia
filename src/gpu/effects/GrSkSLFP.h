@@ -176,8 +176,6 @@ public:
 
     std::vector<const SkSL::Variable*> fInputVars;
 
-    std::vector<const SkSL::Variable*> fKeyVars;
-
     std::unordered_map<SkSL::String, std::unique_ptr<const SkSL::Program>> fSpecializations;
 
     friend class GrSkSLFP;

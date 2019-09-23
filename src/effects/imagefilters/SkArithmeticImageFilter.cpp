@@ -33,7 +33,7 @@
 
 GR_FP_SRC_STRING SKSL_ARITHMETIC_SRC = R"(
 in uniform float4 k;
-layout(key) const in bool enforcePMColor;
+in uniform bool enforcePMColor;
 in fragmentProcessor child;
 
 void main(inout half4 color) {
