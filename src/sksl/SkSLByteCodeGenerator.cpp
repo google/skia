@@ -628,9 +628,10 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
         }
     }
     int count = std::max(SlotCount(lType), SlotCount(rType));
+    SkDEBUGCODE(TypeCategory tc = type_category(lType));
     switch (op) {
         case Token::Kind::LOGICALAND: {
-            SkASSERT(type_category(lType) == SkSL::TypeCategory::kBool && count == 1);
+            SkASSERT(tc == SkSL::TypeCategory::kBool && count == 1);
             this->write(ByteCodeInstruction::kDup);
             this->write8(1);
             this->write(ByteCodeInstruction::kMaskPush);
@@ -643,7 +644,7 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
             return false;
         }
         case Token::Kind::LOGICALOR: {
-            SkASSERT(type_category(lType) == SkSL::TypeCategory::kBool && count == 1);
+            SkASSERT(tc == SkSL::TypeCategory::kBool && count == 1);
             this->write(ByteCodeInstruction::kDup);
             this->write8(1);
             this->write(ByteCodeInstruction::kNotB);
@@ -761,12 +762,24 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
                                             count);
                 break;
 
-            case Token::Kind::LOGICALNOT:
-                SkASSERT(type_category(lType) == SkSL::TypeCategory::kBool && count == 1);
-                this->write(ByteCodeInstruction::kNotB);
-                break;
             case Token::Kind::LOGICALXOR:
-                SkASSERT(type_category(lType) == SkSL::TypeCategory::kBool && count == 1);
+                SkASSERT(tc == SkSL::TypeCategory::kBool && count == 1);
+                this->write(ByteCodeInstruction::kXorB);
+                break;
+
+            case Token::Kind::BITWISEAND:
+                SkASSERT(count == 1 && (tc == SkSL::TypeCategory::kSigned ||
+                                        tc == SkSL::TypeCategory::kUnsigned));
+                this->write(ByteCodeInstruction::kAndB);
+                break;
+            case Token::Kind::BITWISEOR:
+                SkASSERT(count == 1 && (tc == SkSL::TypeCategory::kSigned ||
+                                        tc == SkSL::TypeCategory::kUnsigned));
+                this->write(ByteCodeInstruction::kOrB);
+                break;
+            case Token::Kind::BITWISEXOR:
+                SkASSERT(count == 1 && (tc == SkSL::TypeCategory::kSigned ||
+                                        tc == SkSL::TypeCategory::kUnsigned));
                 this->write(ByteCodeInstruction::kXorB);
                 break;
 
@@ -1083,6 +1096,17 @@ bool ByteCodeGenerator::writePrefixExpression(const PrefixExpression& p, bool di
                                         ByteCodeInstruction::kNegateF,
                                         SlotCount(p.fOperand->fType),
                                         false);
+            break;
+        }
+        case Token::Kind::LOGICALNOT:
+        case Token::Kind::BITWISENOT: {
+            SkASSERT(SlotCount(p.fOperand->fType) == 1);
+            SkDEBUGCODE(TypeCategory tc = type_category(p.fOperand->fType));
+            SkASSERT((p.fOperator == Token::Kind::LOGICALNOT && tc == TypeCategory::kBool) ||
+                     (p.fOperator == Token::Kind::BITWISENOT && (tc == TypeCategory::kSigned ||
+                                                                 tc == TypeCategory::kUnsigned)));
+            this->writeExpression(*p.fOperand);
+            this->write(ByteCodeInstruction::kNotB);
             break;
         }
         default:
