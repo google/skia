@@ -136,10 +136,15 @@ void GrCCFiller::PathInfo::tessellateFan(
         // fill in every region that has non-zero wind. The path processor will convert coverage
         // count to the appropriate fill type later.
         fan.setFillType(SkPath::kWinding_FillType);
-    } else {
-        // When counting winding numbers in the stencil buffer, it works to just tessellate the
-        // Redbook fan with the same fill type as the path.
-        fan.setFillType(originalPath.getFillType());
+    } else switch (originalPath.getFillType()) {
+        case SkPath::kEvenOdd_FillType:
+        case SkPath::kInverseEvenOdd_FillType:
+            fan.setFillType(SkPath::kEvenOdd_FillType);
+            break;
+        case SkPath::kWinding_FillType:
+        case SkPath::kInverseWinding_FillType:
+            fan.setFillType(SkPath::kEvenOdd_FillType);
+            break;
     }
     SkASSERT(Verb::kBeginPath == verbs[verbsIdx]);
     for (int i = verbsIdx + 1; i < verbs.count(); ++i) {
@@ -175,9 +180,10 @@ void GrCCFiller::PathInfo::tessellateFan(
     }
 
     GrTessellator::WindingVertex* vertices = nullptr;
-    fFanTessellationCount =
-            GrTessellator::PathToVertices(fan, std::numeric_limits<float>::infinity(),
-                                          SkRect::Make(clippedDevIBounds), &vertices);
+    SkASSERT(!fan.isInverseFillType());
+    fFanTessellationCount = GrTessellator::PathToVertices(
+            fan, std::numeric_limits<float>::infinity(), SkRect::Make(clippedDevIBounds),
+            &vertices);
     if (fFanTessellationCount <= 0) {
         SkASSERT(0 == fFanTessellationCount);
         SkASSERT(nullptr == vertices);
