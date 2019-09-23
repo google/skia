@@ -43,7 +43,7 @@ describe('CanvasKit\'s Path Behavior', function() {
 
                 const textPaint = new CanvasKit.SkPaint();
                 // use the built-in monospace typeface.
-                const textFont = new CanvasKit.SkFont(notoSerif, 20);
+                const textFont = new CanvasKit.SkFont(notoSerif, 35);
 
                 canvas.drawRect(CanvasKit.LTRBRect(30, 30, 200, 200), paint);
                 canvas.drawText('This text is not shaped, and overflows the boundry',

@@ -29,7 +29,7 @@ describe('Core canvas behavior', function() {
             const paint = new CanvasKit.SkPaint();
             paint.setStrokeWidth(2.0);
             paint.setAntiAlias(true);
-            paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
+            paint.setColor(CanvasKit.Color(0, 200, 0, 1.0));
             paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
             rcanvas.drawRoundRect(CanvasKit.LTRBRect(5, 35, 45, 80), 15, 10, paint);
