@@ -56,12 +56,6 @@ public:
     // command buffer to finish before creating a new buffer and returning.
     void submitCommandBuffer(SyncQueue sync);
 
-    GrBackendTexture createBackendTexture(int w, int h, const GrBackendFormat&,
-                                          GrMipMapped, GrRenderable,
-                                          const void* pixels, size_t rowBytes,
-                                          const SkColor4f* color,
-                                          GrProtected isProtected) override;
-
     void deleteBackendTexture(const GrBackendTexture&) override;
 
 #if GR_TEST_UTILS
@@ -132,6 +126,11 @@ private:
     }
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
+
+    GrBackendTexture onCreateBackendTexture(int w, int h, const GrBackendFormat&,
+                                            GrMipMapped, GrRenderable,
+                                            const SkPixmap srcData[], int numMipLevels,
+                                            const SkColor4f* color, GrProtected) override;
 
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc,
                                      const GrBackendFormat& format,
@@ -224,9 +223,9 @@ private:
 
     bool createMtlTextureForBackendSurface(MTLPixelFormat,
                                            int w, int h, bool texturable,
-                                           bool renderable, GrMipMapped mipMapped,
-                                           const void* srcData, size_t srcRowBytes,
-                                           const SkColor4f* color, GrMtlTextureInfo* info);
+                                           bool renderable, GrMipMapped,
+                                           const SkPixmap srcData[], int numMipLevels,
+                                           const SkColor4f* color, GrMtlTextureInfo*);
 
     sk_sp<GrMtlCaps> fMtlCaps;
 
