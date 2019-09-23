@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8cc1f5ae_829c8c69",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-23T17:23:20Z",
+      "side": 1,
+      "message": "Is there a difference between -fPic and -fPIC?",
+      "revId": "a3a6678ecb8b800cf9760f590488c199f13b4d90",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
