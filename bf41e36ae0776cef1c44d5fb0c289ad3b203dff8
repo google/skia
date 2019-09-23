@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a547035d_53322e82",
+        "filename": "src/core/SkYUVASizeInfo.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-23T20:17:04Z",
+      "side": 1,
+      "message": "safe.ok() ?",
+      "range": {
+        "startLine": 22,
+        "startChar": 11,
+        "endLine": 22,
+        "endChar": 15
+      },
+      "revId": "bf41e36ae0776cef1c44d5fb0c289ad3b203dff8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
