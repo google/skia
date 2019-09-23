@@ -31,31 +31,33 @@ template <typename DERIVED> class GrIORef : public SkNoncopyable {
 public:
     bool unique() const { return fRefCnt == 1; }
 
-    // Some of the signatures are written to mirror SkRefCnt so that GrGpuResource can work with
-    // templated helper classes (e.g. sk_sp). However, we don't require thread safety as
-    // GrCacheable objects are not intended to cross thread boundaries.
     void ref() const {
         // Only the cache should be able to add the first ref to a resource.
-        SkASSERT(fRefCnt > 0);
-        ++fRefCnt;
+        SkASSERT(this->getRefCnt() > 0);
+        // No barrier required.
+        (void)fRefCnt.fetch_add(+1, std::memory_order_relaxed);
     }
 
     void unref() const {
-        SkASSERT(fRefCnt > 0);
-
-        if (fRefCnt == 1) {
+        SkASSERT(this->getRefCnt() > 0);
+        if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
+            // At this point we better be the only thread accessing this resource.
+            // Trick out the notifyRefCntWillBeZero() call by adding back one more ref.
+            fRefCnt.fetch_add(+1, std::memory_order_relaxed);
             static_cast<const DERIVED*>(this)->notifyRefCntWillBeZero();
-            // TODO: I believe we never add refs at this point any more - simplify
-            // Additionally, merge notifyRefCntWillBeZero and willRemoveLastRef
-            SkASSERT(fRefCnt > 0);
-        }
-        if (--fRefCnt == 0) {
-            static_cast<const DERIVED*>(this)->notifyRefCntIsZero();
+            // notifyRefCntWillBeZero() could have done anything, including re-refing this and
+            // passing on to another thread. Take away the ref-count we re-added above and see
+            // if we're back to zero.
+            // TODO: Consider making it so that refs can't be added and merge
+            //  notifyRefCntWillBeZero()/willRemoveLastRef() with notifyRefCntIsZero().
+            if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
+                static_cast<const DERIVED*>(this)->notifyRefCntIsZero();
+            }
         }
     }
 
 #if GR_TEST_UTILS
-    int32_t testingOnly_getRefCnt() const { return fRefCnt; }
+    int32_t testingOnly_getRefCnt() const { return this->getRefCnt(); }
 #endif
 
 protected:
@@ -63,16 +65,19 @@ protected:
 
     GrIORef() : fRefCnt(1) {}
 
-    bool internalHasRef() const { return SkToBool(fRefCnt); }
+    bool internalHasRef() const { return SkToBool(this->getRefCnt()); }
 
     // Privileged method that allows going from ref count = 0 to ref count = 1.
     void addInitialRef() const {
         SkASSERT(fRefCnt >= 0);
-        ++fRefCnt;
+        // No barrier required.
+        (void)fRefCnt.fetch_add(+1, std::memory_order_relaxed);
     }
 
 private:
-    mutable int32_t fRefCnt;
+    int32_t getRefCnt() const { return fRefCnt.load(std::memory_order_relaxed); }
+
+    mutable std::atomic<int32_t> fRefCnt;
 
     typedef SkNoncopyable INHERITED;
 };
