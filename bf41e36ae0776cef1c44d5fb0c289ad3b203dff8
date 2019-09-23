@@ -22,6 +22,30 @@
       "revId": "bf41e36ae0776cef1c44d5fb0c289ad3b203dff8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91137c06_38a82006",
+        "filename": "src/core/SkYUVASizeInfo.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-09-23T20:35:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a547035d_53322e82",
+      "range": {
+        "startLine": 22,
+        "startChar": 11,
+        "endLine": 22,
+        "endChar": 15
+      },
+      "revId": "bf41e36ae0776cef1c44d5fb0c289ad3b203dff8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
