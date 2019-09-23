@@ -303,7 +303,7 @@ private:
 
     bool fSupportsProtectedMemory = false;
 
-    bool fPreferPrimaryOverSecondaryCommandBuffers = false;
+    bool fPreferPrimaryOverSecondaryCommandBuffers = true;
 
     typedef GrCaps INHERITED;
 };
