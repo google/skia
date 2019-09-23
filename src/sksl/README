@@ -141,7 +141,7 @@ Within an '.fp' fragment processor file:
   'layout(when=foo) uniform int x;' means that this uniform will only be
   emitted when the 'foo' expression is true.
 * 'in' variables support an additional 'key' layout key.
-  'layout(key) uniform int x;' means that this uniform should be included in
+  'layout(key) in uniform int x;' means that this uniform should be included in
   the program's key. Matrix variables additionally support 'key=identity',
   which causes the key to consider only whether or not the matrix is an
   identity matrix.

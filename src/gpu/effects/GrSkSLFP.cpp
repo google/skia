@@ -37,9 +37,6 @@ GrSkSLFPFactory::GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCap
                 if (var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
                     fInputVars.push_back(&var);
                 }
-                if (var.fModifiers.fLayout.fKey) {
-                    fKeyVars.push_back(&var);
-                }
             }
         }
     }
