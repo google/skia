@@ -17,6 +17,23 @@
 namespace skottie {
 namespace internal {
 
+class MotionBlurEffect::AutoInvalBlocker {
+public:
+    AutoInvalBlocker(const MotionBlurEffect* mb, const sk_sp<RenderNode>& child)
+        : fMBNode(const_cast<MotionBlurEffect*>(mb))
+        , fChild(child) {
+        fMBNode->unobserveInval(fChild);
+    }
+
+    ~AutoInvalBlocker() {
+        fMBNode->observeInval(fChild);
+    }
+
+private:
+    MotionBlurEffect*        fMBNode;
+    const sk_sp<RenderNode>& fChild;
+};
+
 sk_sp<MotionBlurEffect> MotionBlurEffect::Make(sk_sp<sksg::Animator> animator,
                                                sk_sp<sksg::RenderNode> child,
                                                size_t samples_per_frame,
@@ -187,6 +204,10 @@ void MotionBlurEffect::renderToRaster8888Pow2Samples(SkCanvas* canvas,
 void MotionBlurEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
     SkASSERT(this->children().size() == 1ul);
     const auto& child = this->children()[0];
+
+    // We're about to mutate/revalidate the subtree for sampling.  Capture the invalidation
+    // at this scope, to prevent dirtying ancestor SG nodes (no way to revalidate the global scene).
+    AutoInvalBlocker aib(this, child);
 
     SkPixmap pm;
     if (canvas->peekPixels(&pm) && (canvas->imageInfo().colorType() == kRGBA_8888_SkColorType ||

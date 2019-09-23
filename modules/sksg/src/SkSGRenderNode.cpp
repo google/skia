@@ -43,6 +43,7 @@ void RenderNode::render(SkCanvas* canvas, const RenderContext* ctx) const {
     if (this->isVisible() && !this->bounds().isEmpty()) {
         this->onRender(canvas, ctx);
     }
+    SkASSERT(!this->hasInval());
 }
 
 const RenderNode* RenderNode::nodeAt(const SkPoint& p) const {
