@@ -168,7 +168,7 @@ GrBicubicEffect::GrBicubicEffect(sk_sp<GrTextureProxy> proxy, const SkMatrix& ma
                                  Direction direction, SkAlphaType alphaType)
         : INHERITED{kGrBicubicEffect_ClassID,
                     ModulateForSamplerOptFlags(
-                            proxy->config(),
+                            alphaType == kOpaque_SkAlphaType,
                             GrTextureDomain::IsDecalSampled(wrapModes, modeX, modeY))}
         , fCoordTransform(matrix, proxy.get())
         , fDomain(proxy.get(), domain, modeX, modeY)

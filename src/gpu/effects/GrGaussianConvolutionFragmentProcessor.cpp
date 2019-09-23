@@ -212,13 +212,14 @@ static void fill_in_1D_gaussian_kernel(float* kernel, int width, float gaussianS
 
 GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
                                                             sk_sp<GrTextureProxy> proxy,
+                                                            SkAlphaType alphaType,
                                                             Direction direction,
                                                             int radius,
                                                             float gaussianSigma,
                                                             GrTextureDomain::Mode mode,
                                                             int bounds[2])
         : INHERITED(kGrGaussianConvolutionFragmentProcessor_ClassID,
-                    ModulateForSamplerOptFlags(proxy->config(),
+                    ModulateForSamplerOptFlags(alphaType == kOpaque_SkAlphaType,
                                                mode == GrTextureDomain::kDecal_Mode))
         , fCoordTransform(proxy.get())
         , fTextureSampler(std::move(proxy))
@@ -296,9 +297,9 @@ std::unique_ptr<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::Tes
 
     int radius = d->fRandom->nextRangeU(1, kMaxKernelRadius);
     float sigma = radius / 3.f;
-
+    SkAlphaType at = static_cast<SkAlphaType>(d->fRandom->nextULessThan(kLastEnum_SkAlphaType + 1));
     return GrGaussianConvolutionFragmentProcessor::Make(
-            d->textureProxy(texIdx),
+            d->textureProxy(texIdx), at,
             dir, radius, sigma, static_cast<GrTextureDomain::Mode>(modeIdx), bounds);
 }
 #endif

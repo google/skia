@@ -282,17 +282,17 @@ protected:
      * callers must determine on their own if the sampling uses a decal strategy in any way, in
      * which case the texture may become transparent regardless of the pixel config.
      */
-    static OptimizationFlags ModulateForSamplerOptFlags(GrPixelConfig config, bool samplingDecal) {
+    static OptimizationFlags ModulateForSamplerOptFlags(bool isOpaque, bool samplingDecal) {
         if (samplingDecal) {
             return kCompatibleWithCoverageAsAlpha_OptimizationFlag;
         } else {
-            return ModulateForClampedSamplerOptFlags(config);
+            return ModulateForClampedSamplerOptFlags(isOpaque);
         }
     }
 
     // As above, but callers should somehow ensure or assert their sampler still uses clamping
-    static OptimizationFlags ModulateForClampedSamplerOptFlags(GrPixelConfig config) {
-        if (GrPixelConfigIsOpaque(config)) {
+    static OptimizationFlags ModulateForClampedSamplerOptFlags(bool isOpaque) {
+        if (isOpaque) {
             return kCompatibleWithCoverageAsAlpha_OptimizationFlag |
                    kPreservesOpaqueInput_OptimizationFlag;
         } else {
