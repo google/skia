@@ -627,6 +627,38 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
             }
         }
     }
+    int count = std::max(SlotCount(lType), SlotCount(rType));
+    switch (op) {
+        case Token::Kind::LOGICALAND: {
+            SkASSERT(type_category(lType) == SkSL::TypeCategory::kBool && count == 1);
+            this->write(ByteCodeInstruction::kDup);
+            this->write8(1);
+            this->write(ByteCodeInstruction::kMaskPush);
+            this->write(ByteCodeInstruction::kBranchIfAllFalse);
+            DeferredLocation falseLocation(this);
+            this->writeExpression(*b.fRight);
+            this->write(ByteCodeInstruction::kAndB);
+            falseLocation.set();
+            this->write(ByteCodeInstruction::kMaskPop);
+            return false;
+        }
+        case Token::Kind::LOGICALOR: {
+            SkASSERT(type_category(lType) == SkSL::TypeCategory::kBool && count == 1);
+            this->write(ByteCodeInstruction::kDup);
+            this->write8(1);
+            this->write(ByteCodeInstruction::kNotB);
+            this->write(ByteCodeInstruction::kMaskPush);
+            this->write(ByteCodeInstruction::kBranchIfAllFalse);
+            DeferredLocation falseLocation(this);
+            this->writeExpression(*b.fRight);
+            this->write(ByteCodeInstruction::kOrB);
+            falseLocation.set();
+            this->write(ByteCodeInstruction::kMaskPop);
+            return false;
+        }
+        default:
+            break;
+    }
     this->writeExpression(*b.fRight);
     if (lVecOrMtx && !rVecOrMtx) {
         for (int i = SlotCount(lType); i > 1; --i) {
@@ -653,7 +685,6 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
         this->write8(lRows);
         this->write8(rCols);
     } else {
-        int count = std::max(SlotCount(lType), SlotCount(rType));
         switch (op) {
             case Token::Kind::EQEQ:
                 this->writeTypedInstruction(lType, ByteCodeInstruction::kCompareIEQ,
@@ -730,17 +761,9 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
                                             count);
                 break;
 
-            case Token::Kind::LOGICALAND:
-                SkASSERT(type_category(lType) == SkSL::TypeCategory::kBool && count == 1);
-                this->write(ByteCodeInstruction::kAndB);
-                break;
             case Token::Kind::LOGICALNOT:
                 SkASSERT(type_category(lType) == SkSL::TypeCategory::kBool && count == 1);
                 this->write(ByteCodeInstruction::kNotB);
-                break;
-            case Token::Kind::LOGICALOR:
-                SkASSERT(type_category(lType) == SkSL::TypeCategory::kBool && count == 1);
-                this->write(ByteCodeInstruction::kOrB);
                 break;
             case Token::Kind::LOGICALXOR:
                 SkASSERT(type_category(lType) == SkSL::TypeCategory::kBool && count == 1);
