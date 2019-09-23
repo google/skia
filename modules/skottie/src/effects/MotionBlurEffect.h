@@ -24,6 +24,8 @@ public:
     SG_ATTRIBUTE(T, float, fT)
 
 private:
+    class AutoInvalBlocker;
+
     const RenderNode* onNodeAt(const SkPoint&) const override;
 
     SkRect onRevalidate(sksg::InvalidationController* ic, const SkMatrix& ctm) override;
