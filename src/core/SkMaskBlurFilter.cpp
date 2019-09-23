@@ -236,21 +236,23 @@ public:
 
 } // namespace
 
-// NB 136 is the largest sigma that will not cause a buffer full of 255 mask values to overflow
-// using the Gauss filter. It also limits the size of buffers used hold intermediate values.
+// NB 135 is the largest sigma that will not cause a buffer full of 255 mask values to overflow
+// using the Gauss filter. It also limits the size of buffers used hold intermediate values. The
+// additional + 1 added to window represents adding one more leading element before subtracting the
+// trailing element.
 // Explanation of maximums:
-//   sum0 = window * 255
-//   sum1 = window * sum0 -> window * window * 255
-//   sum2 = window * sum1 -> window * window * window * 255 -> window^3 * 255
+//   sum0 = (window + 1) * 255
+//   sum1 = (window + 1) * sum0 -> (window + 1) * (window + 1) * 255
+//   sum2 = (window + 1) * sum1 -> (window + 1) * (window + 1) * (window + 1) * 255 -> window^3 * 255
 //
-//   The value window^3 * 255 must fit in a uint32_t. So,
-//      window^3 < 2^32. window = 255.
+//   The value (window + 1)^3 * 255 must fit in a uint32_t. So,
+//      (window + 1)^3 * 255 < 2^32. window = 255.
 //
-//   window = floor(sigma * 3 * sqrt(2 * kPi) / 4 + 0.5)
-//   For window <= 255, the largest value for sigma is 136.
+//   window = floor(sigma * 3 * sqrt(2 * kPi) / 4)
+//   For window <= 255, the largest value for sigma is 135.
 SkMaskBlurFilter::SkMaskBlurFilter(double sigmaW, double sigmaH)
-    : fSigmaW{SkTPin(sigmaW, 0.0, 136.0)}
-    , fSigmaH{SkTPin(sigmaH, 0.0, 136.0)}
+    : fSigmaW{SkTPin(sigmaW, 0.0, 135.0)}
+    , fSigmaH{SkTPin(sigmaH, 0.0, 135.0)}
 {
     SkASSERT(sigmaW >= 0);
     SkASSERT(sigmaH >= 0);
