@@ -1531,13 +1531,13 @@ static void set_image_layout(const GrVkInterface* vkInterface, VkCommandBuffer c
 
 bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bool texturable,
                                              bool renderable, GrMipMapped mipMapped,
-                                             const void* srcData, size_t srcRowBytes,
+                                             const SkPixmap srcData[], int numMipLevels,
                                              const SkColor4f* color, GrVkImageInfo* info,
                                              GrProtected isProtected) {
     SkASSERT(texturable || renderable);
     if (!texturable) {
         SkASSERT(GrMipMapped::kNo == mipMapped);
-        SkASSERT(!srcData);
+        SkASSERT(!srcData && !numMipLevels);
     }
 
     if (fProtectedContext != isProtected) {
@@ -1568,9 +1568,12 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
     }
 
     // Figure out the number of mip levels.
-    uint32_t mipLevels = 1;
-    if (GrMipMapped::kYes == mipMapped) {
-        mipLevels = SkMipMap::ComputeLevelCount(w, h) + 1;
+    uint32_t mipLevelCount = 1;
+    if (srcData) {
+        SkASSERT(numMipLevels > 0);
+        mipLevelCount = numMipLevels;
+    } else if (GrMipMapped::kYes == mipMapped) {
+        mipLevelCount = SkMipMap::ComputeLevelCount(w, h) + 1;
     }
 
     GrVkImage::ImageDesc imageDesc;
@@ -1578,7 +1581,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
     imageDesc.fFormat = vkFormat;
     imageDesc.fWidth = w;
     imageDesc.fHeight = h;
-    imageDesc.fLevels = mipLevels;
+    imageDesc.fLevels = mipLevelCount;
     imageDesc.fSamples = 1;
     imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
     imageDesc.fUsageFlags = usageFlags;
@@ -1627,25 +1630,32 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
 
     // Set image layout and add barrier
     set_image_layout(this->vkInterface(), cmdBuffer, info, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                     mipLevels, VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
+                     mipLevelCount, VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
+
+    const void* srcPixels = nullptr;
+    size_t srcRowBytes = 0;
+    if (srcData) {
+        srcPixels = srcData->addr();
+        srcRowBytes = srcData->rowBytes();
+    }
 
     // TODO: Lift this to GrContext level.
     SkImage::CompressionType compressionType;
     bool isCompressed = GrVkFormatToCompressionType(vkFormat, &compressionType);
     std::unique_ptr<char[]> tempData;
-    if (isCompressed && !srcData) {
-        SkASSERT(color);
+    if (isCompressed) {
+        SkASSERT(!srcData && color);
         size_t size = GrCompressedDataSize(compressionType, w, h);
         tempData.reset(new char[size]);
         GrFillInCompressedData(compressionType, w, h, tempData.get(), *color);
-        srcData = tempData.get();
+        srcPixels = tempData.get();
     }
 
-    if (srcData) {
+    if (srcPixels) {
         size_t bytesPerPixel = GrVkBytesPerFormat(vkFormat);
         SkASSERT(w && h);
 
-        SkTArray<size_t> individualMipOffsets(mipLevels);
+        SkTArray<size_t> individualMipOffsets(mipLevelCount);
 
         SkImage::CompressionType compressionType;
         bool isCompressed = GrVkFormatToCompressionType(vkFormat, &compressionType);
@@ -1660,7 +1670,8 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
             individualMipOffsets.push_back(0);
         } else {
             combinedBufferSize = GrComputeTightCombinedBufferSize(bytesPerPixel, w, h,
-                                                                  &individualMipOffsets, mipLevels);
+                                                                  &individualMipOffsets,
+                                                                  mipLevelCount);
         }
 
         VkBufferCreateInfo bufInfo;
@@ -1692,10 +1703,10 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
 
         bool result;
         if (isCompressed) {
-            result = copy_compressed_src_data(this, bufferAlloc, compressionType, w, h, srcData);
+            result = copy_compressed_src_data(this, bufferAlloc, compressionType, w, h, srcPixels);
         } else {
-            SkASSERT(1 == mipLevels);
-            result = copy_src_data(this, bufferAlloc, vkFormat, w, h, srcData, srcRowBytes);
+            SkASSERT(1 == mipLevelCount);
+            result = copy_src_data(this, bufferAlloc, vkFormat, w, h, srcPixels, srcRowBytes);
         }
         if (!result) {
             GrVkImage::DestroyImageInfo(this, info);
@@ -1706,11 +1717,11 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
             return false;
         }
 
-        SkTArray<VkBufferImageCopy> regions(mipLevels);
+        SkTArray<VkBufferImageCopy> regions(mipLevelCount);
 
         int currentWidth = w;
         int currentHeight = h;
-        for (uint32_t currentMipLevel = 0; currentMipLevel < mipLevels; currentMipLevel++) {
+        for (uint32_t currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
             // Submit copy command
             VkBufferImageCopy& region = regions.push_back();
             memset(&region, 0, sizeof(VkBufferImageCopy));
@@ -1740,18 +1751,18 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
         range.baseArrayLayer = 0;
         range.baseMipLevel = 0;
         range.layerCount = 1;
-        range.levelCount = mipLevels;
+        range.levelCount = mipLevelCount;
         VK_CALL(CmdClearColorImage(cmdBuffer, info->fImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                    &vkColor, 1, &range));
     }
 
-    if (!srcData && renderable) {
+    if (!srcPixels && renderable) {
         SkASSERT(color);
 
         // Change image layout to color-attachment-optimal since if we use this texture as a
         // borrowed texture within Ganesh we are probably going to render to it
         set_image_layout(this->vkInterface(), cmdBuffer, info,
-                         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, mipLevels,
+                         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, mipLevelCount,
                          VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
                          VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
                          VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
@@ -1759,7 +1770,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
         // Change image layout to shader read since if we use this texture as a borrowed
         // texture within Ganesh we require that its layout be set to that
         set_image_layout(this->vkInterface(), cmdBuffer, info,
-                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mipLevels,
+                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mipLevelCount,
                          VK_ACCESS_SHADER_READ_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
     }
 
@@ -1825,20 +1836,22 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
     return true;
 }
 
-GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
-                                               const GrBackendFormat& format,
-                                               GrMipMapped mipMapped,
-                                               GrRenderable renderable,
-                                               const void* srcData, size_t rowBytes,
-                                               const SkColor4f* color, GrProtected isProtected) {
-    const GrVkCaps& caps = this->vkCaps();
+GrBackendTexture GrVkGpu::onCreateBackendTexture(int w, int h,
+                                                 const GrBackendFormat& format,
+                                                 GrMipMapped mipMapped,
+                                                 GrRenderable renderable,
+                                                 const SkPixmap srcData[], int numMipLevels,
+                                                 const SkColor4f* color, GrProtected isProtected) {
     this->handleDirtyContext();
 
-    if (fProtectedContext != isProtected) {
-        return GrBackendTexture();
-    }
+    const GrVkCaps& caps = this->vkCaps();
 
-    if (w > caps.maxTextureSize() || h > caps.maxTextureSize()) {
+    // GrGpu::createBackendTexture should've ensured these conditions
+    SkASSERT(w >= 1 && w <= caps.maxTextureSize() && h >= 1 && h <= caps.maxTextureSize());
+    SkASSERT(GrGpu::MipMapsAreCorrect(w, h, mipMapped, srcData, numMipLevels));
+    SkASSERT(mipMapped == GrMipMapped::kNo || caps.mipMapSupport());
+
+    if (fProtectedContext != isProtected) {
         return GrBackendTexture();
     }
 
@@ -1848,6 +1861,7 @@ GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
         return GrBackendTexture();
     }
 
+    // TODO: move the texturability check up to GrGpu::createBackendTexture and just assert here
     if (!caps.isVkFormatTexturable(vkFormat)) {
         SkDebugf("Config is not texturable\n");
         return GrBackendTexture();
@@ -1860,8 +1874,8 @@ GrBackendTexture GrVkGpu::createBackendTexture(int w, int h,
 
     GrVkImageInfo info;
     if (!this->createVkImageForBackendSurface(vkFormat, w, h, true,
-                                              GrRenderable::kYes == renderable, mipMapped, srcData,
-                                              rowBytes, color, &info, isProtected)) {
+                                              GrRenderable::kYes == renderable, mipMapped,
+                                              srcData, numMipLevels, color, &info, isProtected)) {
         SkDebugf("Failed to create testing only image\n");
         return GrBackendTexture();
     }

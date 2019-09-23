@@ -393,6 +393,5 @@ GrBackendTexture GrContextPriv::createBackendTexture(const SkPixmap srcData[], i
     // TODO: propagate the array of pixmaps interface to GrGpu
     return gpu->createBackendTexture(baseWidth, baseHeight, backendFormat,
                                      GrMipMapped::kNo, // TODO: use real mipmap setting here
-                                     renderable, srcData[0].addr(), srcData[0].rowBytes(),
-                                     nullptr, isProtected);
+                                     renderable, srcData, numLevels, nullptr, isProtected);
 }
