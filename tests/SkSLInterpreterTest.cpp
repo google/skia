@@ -209,6 +209,36 @@ DEF_TEST(SkSLInterpreterRemainder, r) {
          0, 2, 4, 0, 0);
 }
 
+DEF_TEST(SkSLInterpreterAnd, r) {
+    test(r, "void main(inout half4 color) { if (color.r > color.g && color.g > color.b) "
+            "color = half4(color.a); }", 2, 1, 0, 3, 3, 3, 3, 3);
+    test(r, "void main(inout half4 color) { if (color.r > color.g && color.g > color.b) "
+            "color = half4(color.a); }", 1, 1, 0, 3, 1, 1, 0, 3);
+    test(r, "void main(inout half4 color) { if (color.r > color.g && color.g > color.b) "
+            "color = half4(color.a); }", 2, 1, 1, 3, 2, 1, 1, 3);
+    test(r, "int global; bool update() { global = 123; return true; }"
+            "void main(inout half4 color) { global = 0;  if (color.r > color.g && update()) "
+            "color = half4(color.a); color.a = global; }", 2, 1, 1, 3, 3, 3, 3, 123);
+    test(r, "int global; bool update() { global = 123; return true; }"
+            "void main(inout half4 color) { global = 0;  if (color.r > color.g && update()) "
+            "color = half4(color.a); color.a = global; }", 1, 1, 1, 3, 1, 1, 1, 0);
+}
+
+DEF_TEST(SkSLInterpreterOr, r) {
+    test(r, "void main(inout half4 color) { if (color.r > color.g || color.g > color.b) "
+            "color = half4(color.a); }", 2, 1, 0, 3, 3, 3, 3, 3);
+    test(r, "void main(inout half4 color) { if (color.r > color.g || color.g > color.b) "
+            "color = half4(color.a); }", 1, 1, 0, 3, 3, 3, 3, 3);
+    test(r, "void main(inout half4 color) { if (color.r > color.g || color.g > color.b) "
+            "color = half4(color.a); }", 1, 1, 1, 3, 1, 1, 1, 3);
+    test(r, "int global; bool update() { global = 123; return true; }"
+            "void main(inout half4 color) { global = 0;  if (color.r > color.g || update()) "
+            "color = half4(color.a); color.a = global; }", 1, 1, 1, 3, 3, 3, 3, 123);
+    test(r, "int global; bool update() { global = 123; return true; }"
+            "void main(inout half4 color) { global = 0;  if (color.r > color.g || update()) "
+            "color = half4(color.a); color.a = global; }", 2, 1, 1, 3, 3, 3, 3, 0);
+}
+
 DEF_TEST(SkSLInterpreterMatrix, r) {
     float in[16];
     float expected[16];
