@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c236ed6_d38b4581",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-23T19:31:45Z",
+      "side": 1,
+      "message": "Should add a TODO here about how this is here only to match the old behavior and should be removed in the future if possible.",
+      "range": {
+        "startLine": 92,
+        "startChar": 22,
+        "endLine": 92,
+        "endChar": 43
+      },
+      "revId": "aeabc19b96330eac12c323a6745547124e654b8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c47a16d2_19357c00",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-23T19:31:45Z",
+      "side": 1,
+      "message": "Probably a TODO here as well about how these should be either not integers or should take the ceiling of these values, just doing this to match existing behavior.\n\nIn fact, this should be done at all of the places here and below so no one thinks any of it is \u0027correct\u0027 and it is easy to find the places which should be fixed up in the future.",
+      "range": {
+        "startLine": 170,
+        "startChar": 25,
+        "endLine": 170,
+        "endChar": 46
+      },
+      "revId": "aeabc19b96330eac12c323a6745547124e654b8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3b09218_75760a9a",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 885,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-23T19:31:45Z",
+      "side": 1,
+      "message": "Should remove this since it is right above. (Put TODO on \u0027end\u0027 about the \u0027round\u0027 being a hack.)",
+      "range": {
+        "startLine": 885,
+        "startChar": 28,
+        "endLine": 885,
+        "endChar": 78
+      },
+      "revId": "aeabc19b96330eac12c323a6745547124e654b8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
