@@ -7,6 +7,20 @@
 
 #include "include/core/SkYUVASizeInfo.h"
 #include "include/private/SkTemplates.h"
+#include "src/core/SkSafeMath.h"
+
+size_t SkYUVASizeInfo::computeTotalBytes() const {
+    SkSafeMath safe;
+    size_t totalBytes = 0;
+
+    for (int i = 0; i < kMaxCount; ++i) {
+        SkASSERT((!fSizes[i].isEmpty() && fWidthBytes[i]) ||
+                 (fSizes[i].isEmpty() && !fWidthBytes[i]));
+        totalBytes = safe.add(totalBytes, safe.mul(fWidthBytes[i], fSizes[i].height()));
+    }
+
+    return safe.ok() ? totalBytes : SIZE_MAX;
+}
 
 void SkYUVASizeInfo::computePlanes(void* base, void* planes[SkYUVASizeInfo::kMaxCount]) const {
     planes[0] = base;
