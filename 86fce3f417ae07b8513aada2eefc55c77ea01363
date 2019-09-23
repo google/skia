@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e8090f15_76fcf94f",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-09-23T18:30:32Z",
+      "side": 1,
+      "message": "This probably works, but it should be a Perf task name, not a Test task name.",
+      "revId": "86fce3f417ae07b8513aada2eefc55c77ea01363",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
