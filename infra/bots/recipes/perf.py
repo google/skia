@@ -208,7 +208,7 @@ def nanobench_flags(api, bot):
     match.append('~top25desk_ebay_com.skp_1.1')
     match.append('~top25desk_ebay.skp_1.1')
     match.append('~top25desk_ebay.skp_1.1_mpd')
-  if 'Vulkan' in bot and ('Nexus5x' in bot or 'GTX660' in bot):
+  if 'Vulkan' in bot and 'GTX660' in bot:
     # skia:8523 skia:9271
     match.append('~compositing_images')
   if 'MacBook10.1' in bot and 'CommandBuffer' in bot:
@@ -375,7 +375,6 @@ TEST_BUILDERS = [
   'Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android',
   ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-'
    'Android_NoGPUThreads'),
-  'Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-Android_Vulkan',
   'Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-All-Android',
   'Perf-Android-Clang-P30-GPU-MaliG76-arm64-Release-All-Android_Vulkan',
   'Perf-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Release-All-Android',
@@ -399,6 +398,7 @@ TEST_BUILDERS = [
   ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
     'Valgrind_SK_CPU_LIMIT_SSE41'),
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE',
+  'Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-Vulkan',
   'Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All',
   'Perf-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All-Metal',
 ]
