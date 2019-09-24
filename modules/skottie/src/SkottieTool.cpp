@@ -15,6 +15,7 @@
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkOSFile.h"
+#include "src/core/SkTaskGroup.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/flags/CommandLineFlags.h"
 
@@ -30,6 +31,7 @@ static DEFINE_double(fps, 30, "Decode frames per second.");
 
 static DEFINE_int(width , 800, "Render width.");
 static DEFINE_int(height, 600, "Render height.");
+static DEFINE_int(threads, -1, "Number of worker threads (-1 -> cores count).");
 
 namespace {
 
@@ -39,7 +41,7 @@ public:
     Sink(const Sink&) = delete;
     Sink& operator=(const Sink&) = delete;
 
-    bool handleFrame(const sk_sp<skottie::Animation>& anim, size_t idx) const {
+    bool handleFrame(const skottie::Animation* anim, size_t idx) const {
         const auto frame_file = SkStringPrintf("0%06d.%s", idx, fExtension.c_str());
         SkFILEWStream stream (SkOSPath::Join(FLAGS_writePath[0], frame_file.c_str()).c_str());
 
@@ -55,7 +57,7 @@ public:
 protected:
     Sink(const char* ext) : fExtension(ext) {}
 
-    virtual bool saveFrame(const sk_sp<skottie::Animation>& anim, SkFILEWStream*) const = 0;
+    virtual bool saveFrame(const skottie::Animation* anim, SkFILEWStream*) const = 0;
 
 private:
     const SkString fExtension;
@@ -71,7 +73,7 @@ public:
         }
     }
 
-    bool saveFrame(const sk_sp<skottie::Animation>& anim, SkFILEWStream* stream) const override {
+    bool saveFrame(const skottie::Animation* anim, SkFILEWStream* stream) const override {
         if (!fSurface) return false;
 
         auto* canvas = fSurface->getCanvas();
@@ -106,7 +108,7 @@ class SKPSink final : public Sink {
 public:
     SKPSink() : INHERITED("skp") {}
 
-    bool saveFrame(const sk_sp<skottie::Animation>& anim, SkFILEWStream* stream) const override {
+    bool saveFrame(const skottie::Animation* anim, SkFILEWStream* stream) const override {
         SkPictureRecorder recorder;
 
         auto canvas = recorder.beginRecording(FLAGS_width, FLAGS_height);
@@ -158,6 +160,18 @@ private:
                           fWarnings;
 };
 
+std::unique_ptr<Sink> MakeSink(const char* fmt) {
+    if (0 == strcmp(fmt, "png")) {
+        return skstd::make_unique<PNGSink>();
+    }
+    if (0 == strcmp(fmt, "skp")) {
+        return skstd::make_unique<SKPSink>();
+    }
+
+    SkDebugf("Unknown format: %s\n", FLAGS_format[0]);
+    return nullptr;
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
@@ -178,25 +192,26 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    std::unique_ptr<Sink> sink;
-    if (0 == strcmp(FLAGS_format[0], "png")) {
-        sink = skstd::make_unique<PNGSink>();
-    } else if (0 == strcmp(FLAGS_format[0], "skp")) {
-        sink = skstd::make_unique<SKPSink>();
-    } else {
-        SkDebugf("Unknown format: %s\n", FLAGS_format[0]);
+    auto logger = sk_make_sp<Logger>();
+    auto     rp = skottie_utils::CachingResourceProvider::Make(
+                      skottie_utils::FileResourceProvider::Make(SkOSPath::Dirname(FLAGS_input[0]),
+                                                                /*predecode=*/true));
+    auto data   = SkData::MakeFromFileName(FLAGS_input[0]);
+
+    if (!data) {
+        SkDebugf("Could not load %s.\n", FLAGS_input[0]);
         return 1;
     }
 
-    auto logger = sk_make_sp<Logger>();
-
+    // Instantiate an animation on the main thread for two reasons:
+    //   - we need to know its duration upfront
+    //   - we want to only report parsing errors once
     auto anim = skottie::Animation::Builder()
             .setLogger(logger)
-            .setResourceProvider(
-                skottie_utils::FileResourceProvider::Make(SkOSPath::Dirname(FLAGS_input[0])))
-            .makeFromFile(FLAGS_input[0]);
+            .setResourceProvider(rp)
+            .make(static_cast<const char*>(data->data()), data->size());
     if (!anim) {
-        SkDebugf("Could not load animation: '%s'.\n", FLAGS_input[0]);
+        SkDebugf("Could not parse animation: '%s'.\n", FLAGS_input[0]);
         return 1;
     }
 
@@ -205,13 +220,24 @@ int main(int argc, char** argv) {
     static constexpr double kMaxFrames = 10000;
     const auto t0 = SkTPin(FLAGS_t0, 0.0, 1.0),
                t1 = SkTPin(FLAGS_t1,  t0, 1.0),
-               advance = 1 / std::min(anim->duration() * FLAGS_fps, kMaxFrames);
+               dt = 1 / std::min(anim->duration() * FLAGS_fps, kMaxFrames);
 
-    size_t frame_index = 0;
-    for (auto t = t0; t <= t1; t += advance) {
-        anim->seek(t);
-        sink->handleFrame(anim, frame_index++);
-    }
+    const auto frame_count = static_cast<int>((t1 - t0) / dt);
+
+    SkTaskGroup::Enabler enabler(FLAGS_threads);
+    SkTaskGroup{}.batch(frame_count, [&](int i) {
+        thread_local static auto* tl_sink = MakeSink(FLAGS_format[0]).release();
+        thread_local static auto* tl_anim =
+                skottie::Animation::Builder()
+                    .setResourceProvider(rp)
+                    .make(static_cast<const char*>(data->data()), data->size())
+                    .release();
+
+        if (tl_sink && tl_anim) {
+            tl_anim->seek(t0 + dt * i);
+            tl_sink->handleFrame(tl_anim, i);
+        }
+    });
 
     return 0;
 }
