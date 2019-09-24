@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b691e06_5316ddb1",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1062,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-09-24T15:56:45Z",
+      "side": 1,
+      "message": "Needed for coverage",
+      "range": {
+        "startLine": 1062,
+        "startChar": 3,
+        "endLine": 1062,
+        "endChar": 7
+      },
+      "revId": "33dbb4c50dbb8e16f9de2646347552d9c2411b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
