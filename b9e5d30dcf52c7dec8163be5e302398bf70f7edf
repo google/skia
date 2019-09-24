@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "72cdb03c_142f8f24",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-24T22:07:16Z",
+      "side": 1,
+      "message": "Looks like this could be tl_anim directly like tl_sink?",
+      "range": {
+        "startLine": 232,
+        "startChar": 13,
+        "endLine": 232,
+        "endChar": 20
+      },
+      "revId": "b9e5d30dcf52c7dec8163be5e302398bf70f7edf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
