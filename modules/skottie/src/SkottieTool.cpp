@@ -31,7 +31,7 @@ static DEFINE_double(fps, 30, "Decode frames per second.");
 
 static DEFINE_int(width , 800, "Render width.");
 static DEFINE_int(height, 600, "Render height.");
-static DEFINE_int(threads, -1, "Number of worker threads (-1 -> cores count).");
+static DEFINE_int(threads,  0, "Number of worker threads (0 -> cores count).");
 
 namespace {
 
@@ -224,7 +224,7 @@ int main(int argc, char** argv) {
 
     const auto frame_count = static_cast<int>((t1 - t0) / dt);
 
-    SkTaskGroup::Enabler enabler(FLAGS_threads);
+    SkTaskGroup::Enabler enabler(FLAGS_threads - 1);
     SkTaskGroup{}.batch(frame_count, [&](int i) {
         thread_local static auto* tl_sink = MakeSink(FLAGS_format[0]).release();
         thread_local static auto* tl_anim =
