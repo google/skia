@@ -2181,8 +2181,7 @@ void Viewer::drawImGui() {
                         auto data = GrPersistentCacheUtils::PackCachedShaders(entry.fShaderType,
                                                                               entry.fShader,
                                                                               entry.fInputs,
-                                                                              kGrShaderTypeCount,
-                                                                              nullptr);
+                                                                              kGrShaderTypeCount);
                         fPersistentCache.store(*entry.fKey, *data);
 
                         entry.fShader[kFragment_GrShaderType] = backup;
