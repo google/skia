@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5922d9be_52828d12",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 668,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-24T14:42:05Z",
+      "side": 1,
+      "message": "I think it\u0027s also generally okay if we can determine that the shift count is merely uniform, rather than also constant.  All the instruction sets support shifting by a constant, but I think they do also all support shifting by a scalar.  The real thing that\u0027s hit or miss is shifting a vector by a vector.",
+      "revId": "b17ebc67aaa2b7c4d053607a9d4420d8700af128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
