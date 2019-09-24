@@ -434,8 +434,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 // kARGB32_Format. The following if statements use this assumption.
                 SkASSERT(glyph.maskFormat() == SkMask::kSDF_Format || glyph.isColor());
 
-                if (glyph.maskFormat() == SkMask::kSDF_Format
-                           && glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas) {
+                if (glyph.maskFormat() == SkMask::kSDF_Format && glyph.fitsInAtlas()) {
                     // SDF mask will work.
                     fGlyphPos[glyphsWithMaskCount++] = glyphPos;
                 } else if (!glyph.isColor() && glyph.path() != nullptr) {
@@ -554,7 +553,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 // Does the glyph have work to do or is the code able to position the glyph?
                 if (!SkScalarsAreFinite(position.x(), position.y())) {
                     // Do nothing;
-                } else if (glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas) {
+                } else if (glyph.fitsInAtlas()) {
                     fGlyphPos[glyphsWithMaskCount++] = glyphPos;
                 } else if (!glyph.isColor() && glyph.path() != nullptr) {
                     fPaths.push_back(glyphPos);
