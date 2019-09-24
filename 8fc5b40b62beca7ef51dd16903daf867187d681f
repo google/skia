@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0bc647e9_2e8d3b2c",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-24T17:48:47Z",
+      "side": 1,
+      "message": "-1 doesn\u0027t run the fastest on my system (28 cores). The sweet spot is around 10 threads, then it starts to slow down.\n\nBut it\u0027s certainly faster than 1, so it makes sense to default. Done.",
+      "parentUuid": "68b0336f_c1f64d0b",
+      "range": {
+        "startLine": 34,
+        "startChar": 28,
+        "endLine": 34,
+        "endChar": 29
+      },
+      "revId": "8fc5b40b62beca7ef51dd16903daf867187d681f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2c8f303a_a594950c",
         "filename": "modules/skottie/src/SkottieTool.cpp",
         "patchSetId": 5
@@ -45,6 +69,30 @@
       "revId": "8fc5b40b62beca7ef51dd16903daf867187d681f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "265331f5_c5ee124b",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-24T17:48:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c8f303a_a594950c",
+      "range": {
+        "startLine": 227,
+        "startChar": 33,
+        "endLine": 227,
+        "endChar": 61
+      },
+      "revId": "8fc5b40b62beca7ef51dd16903daf867187d681f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
