@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "36228557_cd1e4cd2",
+        "filename": "tools/skottie2movie.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-09-24T15:54:25Z",
+      "side": 1,
+      "message": "I\u0027d remove this (which will let you remove the CommonFlags.h include, and the :common_flags_gpu dependency).",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 48
+      },
+      "revId": "d51490e7e9f04830e51a5abe12f80bc700a15f7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
