@@ -158,8 +158,8 @@ DEF_TEST(SkSLInterpreterAdd, r) {
     test(r, "void main(inout half4 color) { color += half4(1, 2, 3, 4); }", 4, 3, 2, 1, 5, 5, 5, 5);
     test(r, "void main(inout half4 color) { half4 c = color; color += c; }", 0.25, 0.5, 0.75, 1,
          0.5, 1, 1.5, 2);
-    test(r, "void main(inout half4 color) { int a = 1; int b = 3; color.r = a + b; }", 1, 2, 3, 4,
-         4, 2, 3, 4);
+    test(r, "void main(inout half4 color) { color.r = int(color.r) + int(color.g); }", 1, 3, 0, 0,
+         4, 3, 0, 0);
 }
 
 DEF_TEST(SkSLInterpreterSubtract, r) {
@@ -170,8 +170,8 @@ DEF_TEST(SkSLInterpreterSubtract, r) {
          0, 0, 0, 0);
     test(r, "void main(inout half4 color) { color.x = -color.x; }", 4, 3, 2, 1, -4, 3, 2, 1);
     test(r, "void main(inout half4 color) { color = -color; }", 4, 3, 2, 1, -4, -3, -2, -1);
-    test(r, "void main(inout half4 color) { int a = 3; int b = 1; color.r = a - b; }", 0, 0, 0, 0,
-         2, 0, 0, 0);
+    test(r, "void main(inout half4 color) { color.r = int(color.r) - int(color.g); }", 3, 1, 0, 0,
+         2, 1, 0, 0);
 }
 
 DEF_TEST(SkSLInterpreterMultiply, r) {
@@ -181,8 +181,8 @@ DEF_TEST(SkSLInterpreterMultiply, r) {
          20);
     test(r, "void main(inout half4 color) { half4 c = color; color *= c; }", 4, 3, 2, 1,
          16, 9, 4, 1);
-    test(r, "void main(inout half4 color) { int a = 3; int b = -2; color.r = a * b; }", 0, 0, 0, 0,
-         -6, 0, 0, 0);
+    test(r, "void main(inout half4 color) { color.r = int(color.r) * int(color.g); }", 3, -2, 0, 0,
+         -6, -2, 0, 0);
 }
 
 DEF_TEST(SkSLInterpreterDivide, r) {
@@ -192,8 +192,8 @@ DEF_TEST(SkSLInterpreterDivide, r) {
          4, 3);
     test(r, "void main(inout half4 color) { half4 c = color; color /= c; }", 4, 3, 2, 1,
          1, 1, 1, 1);
-    test(r, "void main(inout half4 color) { int a = 8; int b = -2; color.r = a / b; }", 0, 0, 0, 0,
-         -4, 0, 0, 0);
+    test(r, "void main(inout half4 color) { color.r = int(color.r) / int(color.g); }", 8, -2, 0, 0,
+         -4, -2, 0, 0);
 }
 
 DEF_TEST(SkSLInterpreterRemainder, r) {
@@ -201,12 +201,10 @@ DEF_TEST(SkSLInterpreterRemainder, r) {
          1.125, 2, 0, 0);
     test(r, "void main(inout half4 color) { color %= half4(1, 2, 3, 4); }", 9.5, 9.5, 9.5, 9.5,
          0.5, 1.5, 0.5, 1.5);
-    test(r, "void main(inout half4 color) { int a = 8; int b = 3; a %= b; color.r = a; }", 0, 0, 0,
-         0, 2, 0, 0, 0);
-    test(r, "void main(inout half4 color) { int a = 8; int b = 3; color.r = a % b; }", 0, 0, 0, 0,
-         2, 0, 0, 0);
-    test(r, "void main(inout half4 color) { int2 a = int2(8, 10); a %= 6; color.rg = a; }", 0, 0, 0,
-         0, 2, 4, 0, 0);
+    test(r, "void main(inout half4 color) { color.r = int(color.r) % int(color.g); }", 8, 3, 0, 0,
+         2, 3, 0, 0);
+    test(r, "void main(inout half4 color) { color.rg = half2(int2(int(color.r), int(color.g)) % "
+                "int(color.b)); }", 8, 10, 6, 0, 2, 4, 6, 0);
 }
 
 DEF_TEST(SkSLInterpreterAnd, r) {
