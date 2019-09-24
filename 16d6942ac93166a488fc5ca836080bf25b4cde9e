@@ -16,6 +16,24 @@
       "revId": "16d6942ac93166a488fc5ca836080bf25b4cde9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28d42f52_54067ce9",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-24T22:02:17Z",
+      "side": 1,
+      "message": "good point, would also avoid dead code issues. done.",
+      "parentUuid": "543c09d1_2a7b517d",
+      "revId": "16d6942ac93166a488fc5ca836080bf25b4cde9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
