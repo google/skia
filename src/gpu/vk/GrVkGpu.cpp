@@ -1457,23 +1457,26 @@ GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(
 ////////////////////////////////////////////////////////////////////////////////
 
 bool copy_src_data(GrVkGpu* gpu, const GrVkAlloc& alloc, VkFormat vkFormat,
-                   int width, int height,
-                   const void* srcData, size_t srcRowBytes) {
-    SkASSERT(srcData);
+                   const SkTArray<size_t>& individualMipOffsets,
+                   const SkPixmap srcData[], int numMipLevels) {
+    SkASSERT(srcData && numMipLevels);
     SkASSERT(!GrVkFormatIsCompressed(vkFormat));
+    SkASSERT(individualMipOffsets.count() == numMipLevels);
 
-    void* mapPtr = GrVkMemory::MapAlloc(gpu, alloc);
+    char* mapPtr = (char*) GrVkMemory::MapAlloc(gpu, alloc);
     if (!mapPtr) {
         return false;
     }
     size_t bytesPerPixel = GrVkBytesPerFormat(vkFormat);
-    const size_t trimRowBytes = width * bytesPerPixel;
-    if (!srcRowBytes) {
-        srcRowBytes = trimRowBytes;
-    }
-    SkASSERT(trimRowBytes * height <= alloc.fSize);
 
-    SkRectMemcpy(mapPtr, trimRowBytes, srcData, srcRowBytes, trimRowBytes, height);
+    for (int level = 0; level < numMipLevels; ++level) {
+        const size_t trimRB = srcData[level].width() * bytesPerPixel;
+        SkASSERT(individualMipOffsets[level] + trimRB * srcData[level].height() <= alloc.fSize);
+
+        SkRectMemcpy(mapPtr + individualMipOffsets[level], trimRB,
+                     srcData[level].addr(), srcData[level].rowBytes(),
+                     trimRB, srcData[level].height());
+    }
 
     GrVkMemory::FlushMappedAlloc(gpu, alloc, 0, alloc.fSize);
     GrVkMemory::UnmapAlloc(gpu, alloc);
@@ -1539,6 +1542,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
         SkASSERT(GrMipMapped::kNo == mipMapped);
         SkASSERT(!srcData && !numMipLevels);
     }
+    SkASSERT(VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK != vkFormat);
 
     if (fProtectedContext != isProtected) {
         return false;
@@ -1549,11 +1553,6 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
     }
 
     if (renderable && !fVkCaps->isFormatRenderable(vkFormat, 1)) {
-        return false;
-    }
-
-    // Currently we don't support uploading pixel data when mipped.
-    if (srcData && GrMipMapped::kYes == mipMapped) {
         return false;
     }
 
@@ -1653,26 +1652,12 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
 
     if (srcPixels) {
         size_t bytesPerPixel = GrVkBytesPerFormat(vkFormat);
-        SkASSERT(w && h);
 
         SkTArray<size_t> individualMipOffsets(mipLevelCount);
 
-        SkImage::CompressionType compressionType;
-        bool isCompressed = GrVkFormatToCompressionType(vkFormat, &compressionType);
-
-        size_t combinedBufferSize;
-        if (isCompressed) {
-            // Compressed textures currently must be non-MIP mapped.
-            if (mipMapped == GrMipMapped::kYes) {
-                return false;
-            }
-            combinedBufferSize = GrCompressedDataSize(compressionType, w, h);
-            individualMipOffsets.push_back(0);
-        } else {
-            combinedBufferSize = GrComputeTightCombinedBufferSize(bytesPerPixel, w, h,
-                                                                  &individualMipOffsets,
-                                                                  mipLevelCount);
-        }
+        size_t combinedBufferSize = GrComputeTightCombinedBufferSize(bytesPerPixel, w, h,
+                                                                     &individualMipOffsets,
+                                                                     mipLevelCount);
 
         VkBufferCreateInfo bufInfo;
         memset(&bufInfo, 0, sizeof(VkBufferCreateInfo));
@@ -1701,13 +1686,8 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
             return false;
         }
 
-        bool result;
-        if (isCompressed) {
-            result = copy_compressed_src_data(this, bufferAlloc, compressionType, w, h, srcPixels);
-        } else {
-            SkASSERT(1 == mipLevelCount);
-            result = copy_src_data(this, bufferAlloc, vkFormat, w, h, srcPixels, srcRowBytes);
-        }
+        bool result = copy_src_data(this, bufferAlloc, vkFormat, individualMipOffsets,
+                                    srcData, numMipLevels);
         if (!result) {
             GrVkImage::DestroyImageInfo(this, info);
             GrVkMemory::FreeBufferMemory(this, GrVkBuffer::kCopyRead_Type, bufferAlloc);

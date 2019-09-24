@@ -1525,6 +1525,25 @@ static constexpr const char* GrColorTypeToStr(GrColorType ct) {
     }
     SkUNREACHABLE;
 }
+
+static constexpr const char* SkColorTypeToStr(SkColorType ct) {
+    switch (ct) {
+        case kUnknown_SkColorType:           return "kUnknown";
+        case kAlpha_8_SkColorType:           return "kAlpha_8";
+        case kRGB_565_SkColorType:           return "kRGB_565";
+        case kARGB_4444_SkColorType:         return "kARGB_4444";
+        case kRGBA_8888_SkColorType:         return "kRGBA_8888";
+        case kRGB_888x_SkColorType:          return "kRGB_888x";
+        case kBGRA_8888_SkColorType:         return "kBGRA_8888";
+        case kRGBA_1010102_SkColorType:      return "kRGBA_1010102";
+        case kRGB_101010x_SkColorType:       return "kRGB_101010X";
+        case kGray_8_SkColorType:            return "kGray_8";
+        case kRGBA_F16Norm_SkColorType:      return "kRGBA_F16Norm";
+        case kRGBA_F16_SkColorType:          return "kRGBA_F16";
+        case kRGBA_F32_SkColorType:          return "kRGBA_F32";
+    }
+    SkUNREACHABLE;
+}
 #endif
 
 #endif

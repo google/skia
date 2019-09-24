@@ -267,6 +267,9 @@ public:
     // pixmap(s).
     // If numLevels is 1 a non-mipMapped texture will result. If a mipMapped texture is desired
     // the data for all the mipmap levels must be provided.
+    // For the Vulkan backend the layout of the created VkImage will be:
+    //      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+    // regardless of the renderability setting
     GrBackendTexture createBackendTexture(const SkPixmap srcData[], int numLevels,
                                           GrRenderable, GrProtected);
 
