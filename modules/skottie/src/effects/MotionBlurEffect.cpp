@@ -12,6 +12,7 @@
 #include "include/core/SkPixmap.h"
 #include "include/private/SkVx.h"
 #include "modules/sksg/include/SkSGInvalidationController.h"
+#include "src/core/SkCpu.h"
 #include "src/core/SkMathPriv.h"
 
 namespace skottie {
@@ -93,6 +94,51 @@ SkRect MotionBlurEffect::onRevalidate(sksg::InvalidationController*, const SkMat
     return bounds;
 }
 
+template <int K>
+static uint64_t* accum_8888_into_16bit(uint64_t* dst, const uint32_t* src, int n) {
+    while (n >= K) {
+        auto s = skvx::Vec<4*K, uint8_t >::Load(src);
+        auto d = skvx::Vec<4*K, uint16_t>::Load(dst);
+
+        (d + skvx::cast<uint16_t>(s)).store(dst);
+
+        src += K;
+        dst += K;
+        n   -= K;
+    }
+    while (n) {
+        auto s = skvx::Vec<4*1, uint8_t >::Load(src);
+        auto d = skvx::Vec<4*1, uint16_t>::Load(dst);
+
+        (d + skvx::cast<uint16_t>(s)).store(dst);
+
+        src += 1;
+        dst += 1;
+        n   -= 1;
+    }
+    return dst;
+}
+
+#if defined(__clang__) && defined(__x86_64__)
+    __attribute__((target("arch=skylake-avx512")))
+    static uint64_t* accum_8888_into_16bit_skx(uint64_t* dst, const uint32_t* src, int n) {
+        return accum_8888_into_16bit<16>(dst, src, n);
+    }
+
+    __attribute__((target("arch=haswell")))
+    static uint64_t* accum_8888_into_16bit_hsw(uint64_t* dst, const uint32_t* src, int n) {
+        return accum_8888_into_16bit<8>(dst, src, n);
+    }
+#endif
+
+static uint64_t* accum_8888_into_16bit(uint64_t* dst, const uint32_t* src, int n) {
+#if defined(__clang__) && defined(__x86_64__)
+    if (SkCpu::Supports(SkCpu::SKX)) { return accum_8888_into_16bit_skx(dst, src, n); }
+    if (SkCpu::Supports(SkCpu::HSW)) { return accum_8888_into_16bit_hsw(dst, src, n); }
+#endif
+    return accum_8888_into_16bit<4>(dst, src, n);
+}
+
 void MotionBlurEffect::renderToRaster8888Pow2Samples(SkCanvas* canvas,
                                                      const RenderContext* ctx) const {
     // canvas is raster backed and RGBA 8888 or BGRA 8888, and fSamples is a power of 2.
@@ -134,7 +180,8 @@ void MotionBlurEffect::renderToRaster8888Pow2Samples(SkCanvas* canvas,
             needs_clear = true;
             child->render(canvas, ctx);
 
-            // Pluck out the pixels we've drawn in the layer.
+            // Pluck out the pixels we've drawn in the layer,
+            // accumulating the 8-bit color channels to 16-bit.
             const uint32_t* src = layer;
             if (accum.empty()) {
                 accum.resize(info.width() * info.height());
@@ -142,30 +189,8 @@ void MotionBlurEffect::renderToRaster8888Pow2Samples(SkCanvas* canvas,
             uint64_t* dst = accum.data();
 
             for (int y = 0; y < info.height(); y++) {
-                // Expand 8-bit to 16-bit and accumulate.
-                int n = info.width();
-                const auto row = src;
-                while (n >= 4) {
-                    auto s = skvx::Vec<16, uint8_t >::Load(src);
-                    auto d = skvx::Vec<16, uint16_t>::Load(dst);
-
-                    (d + skvx::cast<uint16_t>(s)).store(dst);
-
-                    src += 4;
-                    dst += 4;
-                    n   -= 4;
-                }
-                while (n) {
-                    auto s = skvx::Vec<4, uint8_t >::Load(src);
-                    auto d = skvx::Vec<4, uint16_t>::Load(dst);
-
-                    (d + skvx::cast<uint16_t>(s)).store(dst);
-
-                    src += 1;
-                    dst += 1;
-                    n   -= 1;
-                }
-                src = (const uint32_t*)( (const char*)row + rowBytes );
+                dst = accum_8888_into_16bit(dst, src, info.width());
+                src = (const uint32_t*)( (const char*)src + rowBytes );
             }
         }
 
