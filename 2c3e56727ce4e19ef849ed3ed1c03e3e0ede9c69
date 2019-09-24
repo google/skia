@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "02f2f214_643ce325",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-24T16:52:32Z",
+      "side": 1,
+      "message": "Yeah, wouldn\u0027t worry about this.  There aren\u0027t any vectorized integer divides anyway.  They\u0027re always replaced with a loop over scalar divides.  I wouldn\u0027t think they\u0027ll get any slower.",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 66
+      },
+      "revId": "2c3e56727ce4e19ef849ed3ed1c03e3e0ede9c69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d5f6514_a57df4fc",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-24T16:52:32Z",
+      "side": 1,
+      "message": "Are you assuming this or did you time it?  It\u0027d be very, very strange if it were true.",
+      "range": {
+        "startLine": 292,
+        "startChar": 29,
+        "endLine": 293,
+        "endChar": 80
+      },
+      "revId": "2c3e56727ce4e19ef849ed3ed1c03e3e0ede9c69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b9213d2d_1fe98f0d",
         "filename": "src/sksl/SkSLByteCode.cpp",
         "patchSetId": 1
