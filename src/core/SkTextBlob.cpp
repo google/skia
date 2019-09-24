@@ -212,6 +212,10 @@ SkTextBlobRunIterator::SkTextBlobRunIterator(const SkTextBlob* blob)
     SkDEBUGCODE(fStorageTop = (uint8_t*)blob + blob->fStorageSize;)
 }
 
+bool SkTextBlobRunIterator::done() const {
+    return !fCurrentRun;
+}
+
 void SkTextBlobRunIterator::next() {
     SkASSERT(!this->done());
 
@@ -219,6 +223,39 @@ void SkTextBlobRunIterator::next() {
         SkDEBUGCODE(fCurrentRun->validate(fStorageTop);)
         fCurrentRun = SkTextBlob::RunRecord::Next(fCurrentRun);
     }
+}
+
+uint32_t SkTextBlobRunIterator::glyphCount() const {
+    SkASSERT(!this->done());
+    return fCurrentRun->glyphCount();
+}
+
+const uint16_t* SkTextBlobRunIterator::glyphs() const {
+    SkASSERT(!this->done());
+    return fCurrentRun->glyphBuffer();
+}
+
+const SkScalar* SkTextBlobRunIterator::pos() const {
+    SkASSERT(!this->done());
+    return fCurrentRun->posBuffer();
+}
+
+const SkPoint* SkTextBlobRunIterator::points() const {
+    return fCurrentRun->pointBuffer();
+}
+
+const SkRSXform* SkTextBlobRunIterator::xforms() const {
+    return fCurrentRun->xformBuffer();
+}
+
+const SkPoint& SkTextBlobRunIterator::offset() const {
+    SkASSERT(!this->done());
+    return fCurrentRun->offset();
+}
+
+const SkFont& SkTextBlobRunIterator::font() const {
+    SkASSERT(!this->done());
+    return fCurrentRun->font();
 }
 
 SkTextBlobRunIterator::GlyphPositioning SkTextBlobRunIterator::positioning() const {
@@ -233,6 +270,21 @@ SkTextBlobRunIterator::GlyphPositioning SkTextBlobRunIterator::positioning() con
                   kRSXform_Positioning, "");
 
     return SkTo<GlyphPositioning>(fCurrentRun->positioning());
+}
+
+const uint32_t* SkTextBlobRunIterator::clusters() const {
+    SkASSERT(!this->done());
+    return fCurrentRun->clusterBuffer();
+}
+
+uint32_t SkTextBlobRunIterator::textSize() const {
+    SkASSERT(!this->done());
+    return fCurrentRun->textSize();
+}
+
+const char* SkTextBlobRunIterator::text() const {
+    SkASSERT(!this->done());
+    return fCurrentRun->textBuffer();
 }
 
 bool SkTextBlobRunIterator::isLCD() const {
@@ -919,3 +971,5 @@ int SkTextBlob::getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
 
     return intervalCount;
 }
+
+

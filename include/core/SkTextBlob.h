@@ -393,4 +393,86 @@ private:
     RunBuffer              fCurrentRunBuffer;
 };
 
+/** \class SkTextBlobRunIterator
+    Iterate through all of the text runs of the text blob.  For example:
+      for (SkTextBlobRunIterator it(blob); !it.done(); it.next()) {
+           .....
+      }
+ */
+class SK_API SkTextBlobRunIterator {
+public:
+    /** Constructs SkTextBlobRunIterator for a SkTextBlob.
+
+        @param blob  the SkTextBlob to iterate over.
+        @return      SkTextBlobRunIterator for blob.
+    */
+    SkTextBlobRunIterator(const SkTextBlob* blob);
+
+    enum GlyphPositioning : uint8_t {
+        kDefault_Positioning      = 0, // Default glyph advances -- zero scalars per glyph.
+        kHorizontal_Positioning   = 1, // Horizontal positioning -- one scalar per glyph.
+        kFull_Positioning         = 2, // Point positioning -- two scalars per glyph.
+        kRSXform_Positioning      = 3, // RSXform positioning -- four scalars per glyph.
+    };
+
+    /** Indicates whether the iterator has reached the end of the SkTextBlob.
+
+        @return  true if the iterator is at the end of the SkTextBlob.
+    */
+    bool done() const;
+
+    /** Advances the iterator to the next run within the SkTextBlob.
+    */
+    void next();
+
+    /** Gets the number of glyphs in the current run.
+
+        @return  the number of glyphs in the current run.
+    */
+    uint32_t glyphCount() const;
+
+    /** Gets a pointer to the array of glyphs used in the current run.
+
+        @return  a pointer to the first glyph in the current run.
+     */
+    const uint16_t* glyphs() const;
+
+    const SkScalar* pos() const;
+    // alias for pos()
+    const SkPoint* points() const;
+    // alias for pos()
+    const SkRSXform* xforms() const;
+
+    const SkPoint& offset() const;
+
+    /** Gets the SkFont of the current run.
+
+        @return  a reference to the font used for the current run.
+     */
+    const SkFont& font() const;
+
+    /** Gets the GlyphPositioning of the current run.
+
+        @return  a value corresponding to GlyphPositioning for the current run.
+     */
+    GlyphPositioning positioning() const;
+
+    const uint32_t* clusters() const;
+
+    uint32_t textSize() const;
+
+    /** Gets a pointer to the text of the current run.
+
+        @return  a pointer to the first character in the text field of the current run.
+     */
+    const char* text() const;
+
+    bool isLCD() const;
+
+private:
+    const SkTextBlob::RunRecord* fCurrentRun;
+
+    SkDEBUGCODE(uint8_t* fStorageTop;)
+};
+
 #endif // SkTextBlob_DEFINED
