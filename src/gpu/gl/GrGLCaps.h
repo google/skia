@@ -434,14 +434,12 @@ private:
     bool hasPathRenderingSupport(const GrGLContextInfo&, const GrGLInterface*);
 
     struct FormatWorkarounds {
-        bool fDisableTextureRedForMesa = false;
         bool fDisableSRGBRenderWithMSAAForMacAMD = false;
         bool fDisablePerFormatTextureStorageForCommandBufferES2 = false;
         bool fDisableNonRedSingleChannelTexStorageForANGLEGL = false;
         bool fDisableBGRATextureStorageForIntelWindowsES = false;
         bool fDisableRGB8ForMali400 = false;
         bool fDisableLuminance16F = false;
-        bool fDisableAlpha8Renderable = false;
     };
 
     void applyDriverCorrectnessWorkarounds(const GrGLContextInfo&, const GrContextOptions&,
