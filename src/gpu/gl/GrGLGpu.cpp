@@ -3493,6 +3493,7 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
     }
 }
 
+#ifdef SK_DEBUG
 static GrPixelConfig gl_format_to_pixel_config(GrGLFormat format) {
     switch (format) {
         case GrGLFormat::kRGBA8:                return kRGBA_8888_GrPixelConfig;
@@ -3524,6 +3525,35 @@ static GrPixelConfig gl_format_to_pixel_config(GrGLFormat format) {
         case GrGLFormat::kCOMPRESSED_ETC1_RGB8: return kRGB_ETC1_GrPixelConfig;
     }
     SkUNREACHABLE;
+}#endif
+
+static GrColorType GrGLFormatToGrColorType(GrGLFormat glFormat) {
+    case (glFormat) {
+        case GrGLFormat::kUnknown:              return GrColorType::kUnknown;
+        case GrGLFormat::kRGBA8:                return GrColorType::kRGBA_8888;
+        case GrGLFormat::kR8:                   return GrColorType::kAlpha_8;
+        case GrGLFormat::kALPHA8:               return GrColorType::kAlpha_8;
+        case GrGLFormat::kLUMINANCE8:           return GrColorType::kGray_8;
+        case GrGLFormat::kBGRA8:                return GrColorType::kBGRA_8888;
+        case GrGLFormat::kRGB565:               return GrColorType::kBGR_565;
+        case GrGLFormat::kRGBA16F:              return GrColorType::kRGBA_F16;
+        case GrGLFormat::kR16F:                 return GrColorType::kAlpha_F16;
+        case GrGLFormat::kRGB8:                 return GrColorType::kRGB_888x;
+        case GrGLFormat::kRG8:                  return GrColorType::kRG_88;
+        case GrGLFormat::kRGB10_A2:             return GrColorType::kRGBA_1010102;
+        case GrGLFormat::kRGBA4:                return GrColorType::kABGR_4444;
+        case GrGLFormat::kRGBA32F:              return GrColorType::kRGBA_F32;
+        case GrGLFormat::kSRGB8_ALPHA8:         return GrColorType::kRGBA_8888_SRGB;
+        case GrGLFormat::kCOMPRESSED_RGB8_ETC2: return GrColorType::kRGB_888x;
+        case GrGLFormat::kCOMPRESSED_ETC1_RGB8: return GrColorType::kRGB_888x;
+        case GrGLFormat::kR16:                  return GrColorType::kAlpha_16;
+        case GrGLFormat::kRG16:                 return GrColorType::kRG_1616;
+        case GrGLFormat::kRGBA16:               return GrColorType::kRGBA_16161616;
+        case GrGLFormat::kRG16F:                return GrColorType::kRG_F16;
+        case GrGLFormat::kLUMINANCE16F:         return GrColorType::kAlpha_F16;
+    }
+
+    SkUNREACHABLE;
 }
 
 GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
@@ -3547,13 +3577,18 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
         return GrBackendTexture();  // invalid
     }
 
-    GrPixelConfig config = gl_format_to_pixel_config(glFormat);
-
-    if (config == kUnknown_GrPixelConfig) {
+    GrColorType textureColorType = GrGLFormatToGrColorType(glFormat);
+    if (textureColorType == GrColorType::kUnknown) {
         return GrBackendTexture();  // invalid
     }
 
-    auto textureColorType = GrPixelConfigToColorType(config);
+#ifdef SK_DEBUG
+    {
+        GrPixelConfig config = gl_format_to_pixel_config(glFormat);
+        GrColorType oldTextureColorType = GrPixelConfigToColorType(config);
+        SkASSERT(oldTextureColorType == textureColorType);
+    }
+#endif
 
     // TODO: move the texturability check up to GrGpu::createBackendTexture and just assert here
     if (!this->caps()->isFormatTexturableAndUploadable(textureColorType, format)) {
