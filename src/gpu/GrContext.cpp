@@ -346,10 +346,6 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         return GrBackendTexture();
     }
 
-    if (!backendFormat.isValid()) {
-        return GrBackendTexture();
-    }
-
     return fGpu->createBackendTexture(width, height, backendFormat,
                                       mipMapped, renderable,
                                       nullptr, 0, nullptr, isProtected);
