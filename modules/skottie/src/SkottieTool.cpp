@@ -175,6 +175,11 @@ std::unique_ptr<Sink> MakeSink(const char* fmt) {
 } // namespace
 
 int main(int argc, char** argv) {
+#if defined(SK_BUILD_FOR_IOS)
+    // iOS doesn't support thread_local on versions less than 9.0.
+    SkDebugf("skottie_tool is not supported on iOS.");
+    return 1;
+#else
     CommandLineFlags::Parse(argc, argv);
     SkAutoGraphics ag;
 
@@ -240,4 +245,5 @@ int main(int argc, char** argv) {
     });
 
     return 0;
+#endif
 }
