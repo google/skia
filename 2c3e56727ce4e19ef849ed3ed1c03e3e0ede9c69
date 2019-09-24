@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9213d2d_1fe98f0d",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-09-24T16:46:33Z",
+      "side": 1,
+      "message": "I think this CL makes this comment (where I was unsure about the correctness of this version of mod on integral types) obsolete. You can probably just delete it.",
+      "range": {
+        "startLine": 434,
+        "startChar": 0,
+        "endLine": 434,
+        "endChar": 27
+      },
+      "revId": "2c3e56727ce4e19ef849ed3ed1c03e3e0ede9c69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
