@@ -118,6 +118,10 @@ enum class ByteCodeInstruction : uint16_t {
     // Takes a single value from the top of the stack, and converts to a CxR matrix with that value
     // replicated along the diagonal (and zero elsewhere), per the GLSL matrix construction rules.
     kScalarToMatrix,
+    // Followed by a byte indicating the number of bits to shift
+    kShiftLeft,
+    kShiftRightS,
+    kShiftRightU,
     // Followed by a (redundant) byte indicating the count
     VECTOR(kSin),
     VECTOR(kSqrt),
