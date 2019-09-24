@@ -1,0 +1,251 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d67a5e1c_b5518437",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-24T20:14:11Z",
+      "side": 1,
+      "message": "The name Base is quite generic, the content of this struct is a way to get a pointer and a size, which is kinda like creating a Span from an object through two calls. So this is kinda a Span-er? Or SpanBase?",
+      "range": {
+        "startLine": 89,
+        "startChar": 32,
+        "endLine": 89,
+        "endChar": 36
+      },
+      "revId": "b085b276664364ae67fcfaf3d5ec3eda79d91a16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a94c728b_8a27619f",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-24T20:14:11Z",
+      "side": 1,
+      "message": "Which this class is itself not a container, this \u0027type\u0027 is generally called a \u0027value_type\u0027 in the std. This would be the value_type of the span created from span(Ptr(foo), Size(foo)).",
+      "range": {
+        "startLine": 91,
+        "startChar": 14,
+        "endLine": 91,
+        "endChar": 18
+      },
+      "revId": "b085b276664364ae67fcfaf3d5ec3eda79d91a16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0561c13f_445bbbef",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-24T20:14:11Z",
+      "side": 1,
+      "message": "I know this works, but for uniformity and \u0027obviousness\u0027 can we write this more strictly as\n\nstatic constexpr type* ptr(T(\u0026t)[N]) { return t; }",
+      "range": {
+        "startLine": 92,
+        "startChar": 8,
+        "endLine": 92,
+        "endChar": 54
+      },
+      "revId": "b085b276664364ae67fcfaf3d5ec3eda79d91a16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1c985a2_78b82f71",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-24T20:14:11Z",
+      "side": 1,
+      "message": "Why this \u0027const\u0027?",
+      "range": {
+        "startLine": 93,
+        "startChar": 37,
+        "endLine": 93,
+        "endChar": 42
+      },
+      "revId": "b085b276664364ae67fcfaf3d5ec3eda79d91a16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67fe55bb_1ba27989",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-24T20:14:11Z",
+      "side": 1,
+      "message": "It seems odd that this is lower-case and Size is upper-case. Should probably make this one upper-case.",
+      "range": {
+        "startLine": 97,
+        "startChar": 31,
+        "endLine": 97,
+        "endChar": 34
+      },
+      "revId": "b085b276664364ae67fcfaf3d5ec3eda79d91a16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b11f4ae4_96767d84",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-24T20:14:11Z",
+      "side": 1,
+      "message": "Why this const?",
+      "range": {
+        "startLine": 98,
+        "startChar": 37,
+        "endLine": 98,
+        "endChar": 42
+      },
+      "revId": "b085b276664364ae67fcfaf3d5ec3eda79d91a16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eee8f221_00f92b12",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-24T20:14:11Z",
+      "side": 1,
+      "message": "Why this const especially? I know it is silly, but there could be a const and non-const \u0027size\u0027 implementation and we wanted the non-const one for non-const references.",
+      "range": {
+        "startLine": 103,
+        "startChar": 37,
+        "endLine": 103,
+        "endChar": 42
+      },
+      "revId": "b085b276664364ae67fcfaf3d5ec3eda79d91a16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83990212_e73e8dd7",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-24T20:14:11Z",
+      "side": 1,
+      "message": "Even more generic of a name than \u0027Base\u0027. This is kinda a Span?",
+      "range": {
+        "startLine": 105,
+        "startChar": 31,
+        "endLine": 105,
+        "endChar": 35
+      },
+      "revId": "b085b276664364ae67fcfaf3d5ec3eda79d91a16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2becb9e7_8cf61588",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-24T20:14:11Z",
+      "side": 1,
+      "message": "Just for readability, can we make sure we get these in the same order. Above is (array, pointer, container), below is (pointer, array, container) (which is the order I think we want).",
+      "revId": "b085b276664364ae67fcfaf3d5ec3eda79d91a16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38d02dad_a0bf5de0",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-24T20:14:11Z",
+      "side": 1,
+      "message": "static constexpr size_t Size(T(\u0026t)[N], Ts... ts) { return N; }",
+      "range": {
+        "startLine": 114,
+        "startChar": 8,
+        "endLine": 114,
+        "endChar": 66
+      },
+      "revId": "b085b276664364ae67fcfaf3d5ec3eda79d91a16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50885cd8_c3ad7bfc",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-24T20:14:11Z",
+      "side": 1,
+      "message": "With the above changes, this would look more like\n\nreturn SkZip\u003ctypename Span\u003cTs\u003e::value_type...\u003e{size, Span\u003cTs\u003e::Ptr(std::forward\u003cTs\u003e(ts))...};",
+      "range": {
+        "startLine": 140,
+        "startChar": 8,
+        "endLine": 140,
+        "endChar": 95
+      },
+      "revId": "b085b276664364ae67fcfaf3d5ec3eda79d91a16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
