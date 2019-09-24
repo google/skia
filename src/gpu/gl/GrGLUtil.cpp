@@ -472,9 +472,6 @@ GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
             }
         }
 
-        if (0 == strcmp("Mesa Offscreen", rendererString)) {
-            return kOSMesa_GrGLRenderer;
-        }
         if (strstr(rendererString, "llvmpipe")) {
             return kGalliumLLVM_GrGLRenderer;
         }

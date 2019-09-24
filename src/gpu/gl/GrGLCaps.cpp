@@ -709,7 +709,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                                                 &formatWorkarounds);
     }
 
-    // Requires fTextureRedSupport, fTextureSwizzleSupport, msaa support, ES compatibility have
+    // Requires fTextureSwizzleSupport, msaa support, ES compatibility have
     // already been detected.
     this->initFormatTable(ctxInfo, gli, formatWorkarounds);
 
@@ -1336,15 +1336,11 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     // the device which we query later on.
     bool textureRedSupport = false;
 
-    if (!formatWorkarounds.fDisableTextureRedForMesa) {
-        if (GR_IS_GR_GL(standard)) {
-            textureRedSupport =
-                    version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_ARB_texture_rg");
-        } else if (GR_IS_GR_GL_ES(standard)) {
-            textureRedSupport =
-                    version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_EXT_texture_rg");
-        }
-    }   // No WebGL support
+    if (GR_IS_GR_GL(standard)) {
+        textureRedSupport = version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_ARB_texture_rg");
+    } else if (GR_IS_GR_GL_ES(standard)) {
+        textureRedSupport = version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_EXT_texture_rg");
+    }  // No WebGL support
 
     // Check for [half] floating point texture support
     // NOTE: We disallow floating point textures on ES devices if linear filtering modes are not
@@ -1652,13 +1648,11 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         bool alpha8TexStorageSupported = alpha8SizedEnumSupported && texStorageSupported;
 
         bool alpha8IsRenderable = false;
-        if (!formatWorkarounds.fDisableAlpha8Renderable) {
-            if (alpha8IsValidForGL) {
-                // Core profile removes ALPHA8 support.
-                // OpenGL 3.0+ (and GL_ARB_framebuffer_object) supports ALPHA8 as renderable.
-                alpha8IsRenderable = ctxInfo.version() >= GR_GL_VER(3, 0) ||
-                                     ctxInfo.hasExtension("GL_ARB_framebuffer_object");
-            }
+        if (alpha8IsValidForGL) {
+            // Core profile removes ALPHA8 support.
+            // OpenGL 3.0+ (and GL_ARB_framebuffer_object) supports ALPHA8 as renderable.
+            alpha8IsRenderable = ctxInfo.version() >= GR_GL_VER(3, 0) ||
+                                 ctxInfo.hasExtension("GL_ARB_framebuffer_object");
         }
         info.fInternalFormatForRenderbuffer = GR_GL_ALPHA8;
         info.fDefaultExternalFormat = GR_GL_ALPHA;
@@ -3597,13 +3591,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         kAdreno4xx_other_GrGLRenderer == ctxInfo.renderer()) {
         fSRGBWriteControl = false;
     }
-
-    // ARB_texture_rg is part of OpenGL 3.0, but osmesa doesn't support GL_RED
-    // and GL_RG on FBO textures.
-    formatWorkarounds->fDisableTextureRedForMesa = kOSMesa_GrGLRenderer == ctxInfo.renderer();
-
-    // Osmesa fails if it is used even when GL_ARB_framebuffer_object is present.
-    formatWorkarounds->fDisableAlpha8Renderable = kOSMesa_GrGLRenderer == ctxInfo.renderer();
 
     // MacPro devices with AMD cards fail to create MSAA sRGB render buffers.
 #if defined(SK_BUILD_FOR_MAC)
