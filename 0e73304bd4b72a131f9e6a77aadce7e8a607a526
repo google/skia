@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21d02f16_9d7b209e",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 3550,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-24T17:19:09Z",
+      "side": 1,
+      "message": "!GrGLFormatIsCompressed(glFormat)?",
+      "revId": "0e73304bd4b72a131f9e6a77aadce7e8a607a526",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fea6ffb_15b296be",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 12
+      },
+      "lineNbr": 727,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-24T17:19:09Z",
+      "side": 1,
+      "message": "!GrMtlFormatIsCompressed(format)?",
+      "range": {
+        "startLine": 727,
+        "startChar": 13,
+        "endLine": 727,
+        "endChar": 46
+      },
+      "revId": "0e73304bd4b72a131f9e6a77aadce7e8a607a526",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49b92426_bc42de2f",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 1524,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-24T17:19:09Z",
+      "side": 1,
+      "message": "!GrVkFormatIsCompressed(vkFormat)?",
+      "range": {
+        "startLine": 1524,
+        "startChar": 13,
+        "endLine": 1524,
+        "endChar": 58
+      },
+      "revId": "0e73304bd4b72a131f9e6a77aadce7e8a607a526",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
