@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "baee1790_c8f13d2c",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-24T17:26:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d07bf31f_c5fd2091",
+      "range": {
+        "startLine": 163,
+        "startChar": 31,
+        "endLine": 163,
+        "endChar": 46
+      },
+      "revId": "144ba8353d8cbb114b6d8cadac0e4256d048fd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c0a9bb9c_49e7632f",
         "filename": "modules/skottie/src/SkottieTool.cpp",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "144ba8353d8cbb114b6d8cadac0e4256d048fd1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ed3f382_0ffd2311",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-24T17:26:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c0a9bb9c_49e7632f",
+      "range": {
+        "startLine": 198,
+        "startChar": 64,
+        "endLine": 198,
+        "endChar": 68
+      },
+      "revId": "144ba8353d8cbb114b6d8cadac0e4256d048fd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "79e6a9a5_bc008f84",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-24T17:26:13Z",
+      "side": 1,
+      "message": "Opportunistic. Probably not important, removed.",
+      "parentUuid": "84316eff_d6024dc2",
+      "range": {
+        "startLine": 221,
+        "startChar": 0,
+        "endLine": 224,
+        "endChar": 9
+      },
+      "revId": "144ba8353d8cbb114b6d8cadac0e4256d048fd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6f6fb257_e98ae89e",
         "filename": "modules/skottie/src/SkottieTool.cpp",
         "patchSetId": 4
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "2ab111b3_aa356176",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-24T17:26:13Z",
+      "side": 1,
+      "message": "hehe, dropped upper limit.",
+      "parentUuid": "6f6fb257_e98ae89e",
+      "range": {
+        "startLine": 237,
+        "startChar": 29,
+        "endLine": 237,
+        "endChar": 64
+      },
+      "revId": "144ba8353d8cbb114b6d8cadac0e4256d048fd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e61921b2_fa72c3c9",
         "filename": "modules/skottie/src/SkottieTool.cpp",
         "patchSetId": 4
@@ -108,6 +204,24 @@
       "revId": "144ba8353d8cbb114b6d8cadac0e4256d048fd1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ad1051a_6c930882",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-24T17:26:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e61921b2_fa72c3c9",
+      "revId": "144ba8353d8cbb114b6d8cadac0e4256d048fd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -128,6 +242,24 @@
     },
     {
       "key": {
+        "uuid": "e7ed1785_b0777a78",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-24T17:26:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d0fee43e_bf9eba82",
+      "revId": "144ba8353d8cbb114b6d8cadac0e4256d048fd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ee6db6e1_eec5f1be",
         "filename": "modules/skottie/src/SkottieTool.cpp",
         "patchSetId": 4
@@ -139,6 +271,24 @@
       "writtenOn": "2019-09-24T16:47:19Z",
       "side": 1,
       "message": "Just curious, are you finding value from the thread_local caches, as opposed to creating them each frame?",
+      "revId": "144ba8353d8cbb114b6d8cadac0e4256d048fd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76ac84b8_ca49005d",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-24T17:26:13Z",
+      "side": 1,
+      "message": "Oh, definitely, there\u0027s a non-trivial cost in re-parsing the animation - things slow down ~2x without caching it.\n\nThe sink (mainly the SkSurface allocation) is not as expensive.",
+      "parentUuid": "ee6db6e1_eec5f1be",
       "revId": "144ba8353d8cbb114b6d8cadac0e4256d048fd1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -159,6 +309,24 @@
       "revId": "144ba8353d8cbb114b6d8cadac0e4256d048fd1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b62e4bf_44dab797",
+        "filename": "modules/skottie/utils/SkottieUtils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-09-24T17:26:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cf39156e_e82f8fc1",
+      "revId": "144ba8353d8cbb114b6d8cadac0e4256d048fd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
