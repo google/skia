@@ -346,10 +346,6 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         return GrBackendTexture();
     }
 
-    if (!backendFormat.isValid()) {
-        return GrBackendTexture();
-    }
-
     return fGpu->createBackendTexture(width, height, backendFormat,
                                       mipMapped, renderable,
                                       nullptr, 0, nullptr, isProtected);
@@ -369,9 +365,6 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
     }
 
     const GrBackendFormat format = this->defaultBackendFormat(skColorType, renderable);
-    if (!format.isValid()) {
-        return GrBackendTexture();
-    }
 
     return this->createBackendTexture(width, height, format, mipMapped, renderable, isProtected);
 }
@@ -461,10 +454,6 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
     }
 
     if (this->abandoned()) {
-        return GrBackendTexture();
-    }
-
-    if (!backendFormat.isValid()) {
         return GrBackendTexture();
     }
 
