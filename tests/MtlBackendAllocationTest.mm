@@ -71,10 +71,6 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
 
         { GrColorType::kRGBA_16161616,    MTLPixelFormatRGBA16Unorm,     SkColors::kLtGray    },
         { GrColorType::kRG_F16,           MTLPixelFormatRG16Float,       SkColors::kYellow    },
-
-#ifdef SK_BUILD_FOR_IOS
-        { GrColorType::kUnknown,          MTLPixelFormatETC2_RGB8,       SkColors::kRed       }
-#endif
     };
 
     for (auto combo : combinations) {
@@ -105,10 +101,6 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
                     }
                 }
 
-#ifdef SK_BUILD_FOR_IOS
-                // We current disallow uninitialized compressed textures in the Metal backend
-                if (combo.fFormat != MTLPixelFormatETC2_RGB8)
-#endif
                 {
                     auto uninitCreateMtd = [format](GrContext* context,
                                                     GrMipMapped mipMapped,
