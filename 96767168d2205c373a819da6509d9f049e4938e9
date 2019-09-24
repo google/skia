@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0bf07038_a030611a",
+        "filename": "src/gpu/gl/builders/GrGLProgramBuilder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-24T19:36:21Z",
+      "side": 1,
+      "message": "We usually take mutable things by pointer rather than by non-const ref",
+      "range": {
+        "startLine": 80,
+        "startChar": 28,
+        "endLine": 80,
+        "endChar": 61
+      },
+      "revId": "96767168d2205c373a819da6509d9f049e4938e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
