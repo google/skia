@@ -22,6 +22,30 @@
       "revId": "96767168d2205c373a819da6509d9f049e4938e9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97bb391b_8b83d651",
+        "filename": "src/gpu/gl/builders/GrGLProgramBuilder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-09-24T20:04:45Z",
+      "side": 1,
+      "message": "This is an awkward C++-ism. The settings object isn\u0027t modified in this code path, but I\u0027m limited by the type of the Settings pointer in the new Metadata struct (which needs to be non-const for the Unpack function). In any case, I updated this to match our standard.",
+      "parentUuid": "0bf07038_a030611a",
+      "range": {
+        "startLine": 80,
+        "startChar": 28,
+        "endLine": 80,
+        "endChar": 61
+      },
+      "revId": "96767168d2205c373a819da6509d9f049e4938e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
