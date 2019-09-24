@@ -1,0 +1,164 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d07bf31f_c5fd2091",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-24T16:47:19Z",
+      "side": 1,
+      "message": "Did you mean to use fmt in strcmp()?",
+      "range": {
+        "startLine": 163,
+        "startChar": 31,
+        "endLine": 163,
+        "endChar": 46
+      },
+      "revId": "144ba8353d8cbb114b6d8cadac0e4256d048fd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0a9bb9c_49e7632f",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-24T16:47:19Z",
+      "side": 1,
+      "message": "Might be nice to /*predecode\u003d*/true ?",
+      "range": {
+        "startLine": 198,
+        "startChar": 64,
+        "endLine": 198,
+        "endChar": 68
+      },
+      "revId": "144ba8353d8cbb114b6d8cadac0e4256d048fd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84316eff_d6024dc2",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-24T16:47:19Z",
+      "side": 1,
+      "message": "This is just opportunistic?  Or is it somehow important?  If it\u0027s not super important, it might be clearer to leave it out?  Someone reading SkottieTool.cpp might cargo-cult this if we leave it in...",
+      "range": {
+        "startLine": 221,
+        "startChar": 0,
+        "endLine": 224,
+        "endChar": 9
+      },
+      "revId": "144ba8353d8cbb114b6d8cadac0e4256d048fd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f6fb257_e98ae89e",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-24T16:47:19Z",
+      "side": 1,
+      "message": "One day this is going to seem quaint...",
+      "range": {
+        "startLine": 237,
+        "startChar": 29,
+        "endLine": 237,
+        "endChar": 64
+      },
+      "revId": "144ba8353d8cbb114b6d8cadac0e4256d048fd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e61921b2_fa72c3c9",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-24T16:47:19Z",
+      "side": 1,
+      "message": "You can also do all this with\n\n   SkTaskGroup::Enabler enabled(FLAGS_threads);\n\nI think, letting the SkTaskGroup use the default that sets up.  Though note that uses -1 \u003d\u003d NumCPUs, 0 as a pass-through trivial executor.",
+      "revId": "144ba8353d8cbb114b6d8cadac0e4256d048fd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0fee43e_bf9eba82",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-24T16:47:19Z",
+      "side": 1,
+      "message": "I often even do SkTaskGroup{}.batch(...) as a way to emphasize the tight scope of the task group.",
+      "revId": "144ba8353d8cbb114b6d8cadac0e4256d048fd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee6db6e1_eec5f1be",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-24T16:47:19Z",
+      "side": 1,
+      "message": "Just curious, are you finding value from the thread_local caches, as opposed to creating them each frame?",
+      "revId": "144ba8353d8cbb114b6d8cadac0e4256d048fd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf39156e_e82f8fc1",
+        "filename": "modules/skottie/utils/SkottieUtils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-24T16:47:19Z",
+      "side": 1,
+      "message": "This is probably better as private too?\n\nSince CachingResourceProvider is final, there\u0027s no reason to ever make anything protected.",
+      "revId": "144ba8353d8cbb114b6d8cadac0e4256d048fd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
