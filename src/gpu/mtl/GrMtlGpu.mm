@@ -723,6 +723,11 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
         SkASSERT(!srcData && !numMipLevels);
     }
 
+#ifdef SK_BUILD_FOR_IOS
+    // Compressed formats go through onCreateCompressedBackendTexture
+    SkASSERT(!GrMtlFormatIsCompressed(format));
+#endif
+
     if (texturable && !fMtlCaps->isFormatTexturable(format)) {
         return false;
     }
@@ -764,24 +769,12 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
     }
 
     // Create the transfer buffer
-    SkImage::CompressionType compressionType;
-    bool isCompressed = GrMtlFormatToCompressionType(format, &compressionType);
     size_t bytesPerPixel = GrMtlBytesPerFormat(format);
 
-    size_t combinedBufferSize = 0;
     SkTArray<size_t> individualMipOffsets(mipLevelCount);
-    if (isCompressed) {
-        // Compressed textures currently must be non-MIP mapped.
-        if (mipLevelCount != 1) {
-            return false;
-        }
-        combinedBufferSize = GrCompressedDataSize(compressionType, w, h);
-        individualMipOffsets.push_back(0);
-    } else {
-        combinedBufferSize = GrComputeTightCombinedBufferSize(bytesPerPixel, w, h,
-                                                              &individualMipOffsets,
-                                                              mipLevelCount);
-    }
+    size_t combinedBufferSize = GrComputeTightCombinedBufferSize(bytesPerPixel, w, h,
+                                                                 &individualMipOffsets,
+                                                                 mipLevelCount);
 
     NSUInteger options = 0;  // TODO: consider other options here
 #ifdef SK_BUILD_FOR_MAC
@@ -800,8 +793,6 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
 
     // Fill buffer with data
     if (srcData) {
-        SkASSERT(!isCompressed);   // There is no ETC1 SkColorType
-
         const size_t trimRowBytes = w * bytesPerPixel;
 
         // TODO: support mipmapping
@@ -811,13 +802,9 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
         const char* src = (const char*) srcData->addr();
         SkRectMemcpy(buffer, trimRowBytes, src, srcData->rowBytes(), trimRowBytes, h);
     } else if (color) {
-        if (isCompressed) {
-            GrFillInCompressedData(compressionType, w, h, buffer, *color);
-        } else {
-            GrPixelConfig config = mtl_format_to_pixelconfig(format);
-            SkASSERT(kUnknown_GrPixelConfig != config);
-            GrFillInData(config, w, h, individualMipOffsets, buffer, *color);
-        }
+        GrPixelConfig config = mtl_format_to_pixelconfig(format);
+        SkASSERT(kUnknown_GrPixelConfig != config);
+        GrFillInData(config, w, h, individualMipOffsets, buffer, *color);
     }
 
     // Transfer buffer contents to texture
@@ -829,15 +816,8 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
     id<MTLBlitCommandEncoder> blitCmdEncoder = [cmdBuffer blitCommandEncoder];
 
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
-        size_t trimRowBytes;
-        size_t levelSize;
-        if (isCompressed) {
-            trimRowBytes = GrCompressedRowBytes(compressionType, currentWidth);
-            levelSize = GrCompressedDataSize(compressionType, currentWidth, currentHeight);
-        } else {
-            trimRowBytes = currentWidth * bytesPerPixel;
-            levelSize = trimRowBytes*currentHeight;
-        }
+        size_t trimRowBytes = currentWidth * bytesPerPixel;
+        size_t levelSize = trimRowBytes*currentHeight;
 
         // TODO: can this all be done in one go?
         [blitCmdEncoder copyFromBuffer: transferBuffer

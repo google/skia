@@ -754,7 +754,10 @@ GrBackendTexture GrGpu::createBackendTexture(int w, int h, const GrBackendFormat
         return {};
     }
 
-    SkASSERT(!caps->isFormatCompressed(format) || !srcData);      // There is no ETC1 SkColorType
+    if (caps->isFormatCompressed(format)) {
+        // Compressed formats must go through the createCompressedBackendTexture API
+        return {};
+    }
 
     if (w < 1 || w > caps->maxTextureSize() || h < 1 || h > caps->maxTextureSize()) {
         return {};

@@ -3547,6 +3547,9 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
         return GrBackendTexture();  // invalid
     }
 
+    // Compressed formats go through onCreateCompressedBackendTexture
+    SkASSERT(!GrGLFormatIsCompressed(glFormat));
+
     GrPixelConfig config = gl_format_to_pixel_config(glFormat);
 
     if (config == kUnknown_GrPixelConfig) {
@@ -3570,78 +3573,58 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
 
     SkTDArray<GrMipLevel> texels;
     SkAutoMalloc pixelStorage;
-    SkImage::CompressionType compressionType;
-    if (GrGLFormatToCompressionType(glFormat, &compressionType)) {
-        SkASSERT(!srcData); // there is no ETC1 SkColorType
-        if (!color) {
-            return GrBackendTexture();
+
+    int mipLevelCount = 1;
+    if (srcData) {
+        mipLevelCount = numMipLevels;
+        texels.append(mipLevelCount);
+        for (int i = 0; i < mipLevelCount; ++i) {
+            texels[i] = { srcData[i].addr(), srcData[i].rowBytes() };
+        }
+    } else if (color) {
+        if (GrMipMapped::kYes == mipMapped) {
+            mipLevelCount = SkMipMap::ComputeLevelCount(w, h) + 1;
         }
 
-        // Compressed textures currently must be non-MIP mapped and have an initial color.
-        if (mipMapped == GrMipMapped::kYes) {
-            return GrBackendTexture();
+        texels.append(mipLevelCount);
+        SkTArray<size_t> individualMipOffsets(mipLevelCount);
+
+        size_t bytesPerPixel = GrBytesPerPixel(config);
+
+        size_t totalSize = GrComputeTightCombinedBufferSize(
+                bytesPerPixel, w, h, &individualMipOffsets, mipLevelCount);
+
+        char* tmpPixels = (char*)pixelStorage.reset(totalSize);
+
+        GrFillInData(config, w, h, individualMipOffsets, tmpPixels, *color);
+        for (int i = 0; i < mipLevelCount; ++i) {
+            size_t offset = individualMipOffsets[i];
+
+            int twoToTheMipLevel = 1 << i;
+            int currentWidth = SkTMax(1, w / twoToTheMipLevel);
+
+            texels[i] = {&(tmpPixels[offset]), currentWidth * bytesPerPixel};
         }
-        size_t size = GrCompressedDataSize(compressionType, w, h);
-        const void* srcPixels = pixelStorage.reset(size);
-        GrFillInCompressedData(compressionType, w, h, (char*)srcPixels, *color);
+    }
+    GrSurfaceDesc desc;
+    desc.fWidth = w;
+    desc.fHeight = h;
+    desc.fConfig = config;
 
-        info.fID = this->createCompressedTexture2D(
-                {w, h}, glFormat, compressionType, &initialState, srcPixels);
-        if (!info.fID) {
-            return GrBackendTexture();
-        }
-        info.fFormat = GrGLFormatToEnum(glFormat);
-        info.fTarget = GR_GL_TEXTURE_2D;
-    } else {
-        if (srcData) {
-            texels.append(1);
-            texels[0] = { srcData->addr(), srcData->rowBytes() };
-        } else if (color) {
-            int mipLevelCount = 1;
-            if (GrMipMapped::kYes == mipMapped) {
-                mipLevelCount = SkMipMap::ComputeLevelCount(w, h) + 1;
-            }
-
-            texels.append(mipLevelCount);
-            SkTArray<size_t> individualMipOffsets(mipLevelCount);
-
-            size_t bytesPerPixel = GrBytesPerPixel(config);
-
-            size_t totalSize = GrComputeTightCombinedBufferSize(
-                    bytesPerPixel, w, h, &individualMipOffsets, mipLevelCount);
-
-            char* tmpPixels = (char*)pixelStorage.reset(totalSize);
-
-            GrFillInData(config, w, h, individualMipOffsets, tmpPixels, *color);
-            for (int i = 0; i < mipLevelCount; ++i) {
-                size_t offset = individualMipOffsets[i];
-
-                int twoToTheMipLevel = 1 << i;
-                int currentWidth = SkTMax(1, w / twoToTheMipLevel);
-
-                texels[i] = {&(tmpPixels[offset]), currentWidth * bytesPerPixel};
-            }
-        }
-        GrSurfaceDesc desc;
-        desc.fWidth = w;
-        desc.fHeight = h;
-        desc.fConfig = config;
-
-        info.fTarget = GR_GL_TEXTURE_2D;
-        info.fFormat = GrGLFormatToEnum(glFormat);
-        info.fID = this->createTexture2D({desc.fWidth, desc.fHeight}, glFormat, renderable,
-                                         &initialState, SkTMax(1, texels.count()));
-        if (!info.fID) {
-            return GrBackendTexture();  // invalid
-        }
-        auto srcColorType = GrPixelConfigToColorType(desc.fConfig);
-        if (!texels.empty() &&
-            !this->uploadTexData(glFormat, textureColorType, desc.fWidth, desc.fHeight,
-                                 GR_GL_TEXTURE_2D, 0, 0, desc.fWidth, desc.fHeight, srcColorType,
-                                 texels.begin(), texels.count())) {
-            GL_CALL(DeleteTextures(1, &info.fID));
-            return GrBackendTexture();
-        }
+    info.fTarget = GR_GL_TEXTURE_2D;
+    info.fFormat = GrGLFormatToEnum(glFormat);
+    info.fID = this->createTexture2D({desc.fWidth, desc.fHeight}, glFormat, renderable,
+                                     &initialState, SkTMax(1, texels.count()));
+    if (!info.fID) {
+        return GrBackendTexture();  // invalid
+    }
+    auto srcColorType = GrPixelConfigToColorType(desc.fConfig);
+    if (!texels.empty() &&
+        !this->uploadTexData(glFormat, textureColorType, desc.fWidth, desc.fHeight,
+                             GR_GL_TEXTURE_2D, 0, 0, desc.fWidth, desc.fHeight, srcColorType,
+                             texels.begin(), texels.count())) {
+        GL_CALL(DeleteTextures(1, &info.fID));
+        return GrBackendTexture();
     }
 
     // unbind the texture from the texture unit to avoid asserts

@@ -493,9 +493,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                             kGray_8_SkColorType == combo.fColorType) {
                             continue;
                         }
-                    } else if (GrBackendApi::kMetal == context->backend()) {
-                        // Not yet implemented for Metal
-                        continue;
                     }
 
                     auto createWithColorMtd = [colorType](GrContext* context,
@@ -584,9 +581,6 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
 
         { GrColorType::kRGBA_16161616,    GR_GL_RGBA16,               SkColors::kLtGray    },
         { GrColorType::kRG_F16,           GR_GL_RG16F,                SkColors::kYellow    },
-
-        { GrColorType::kUnknown,          GR_GL_COMPRESSED_RGB8_ETC2, SkColors::kRed      },
-        { GrColorType::kUnknown,          GR_GL_COMPRESSED_ETC1_RGB8, SkColors::kRed      },
     };
 
     for (auto combo : combinations) {
@@ -618,10 +612,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
                     }
                 }
 
-
-                // We current disallow uninitialized compressed textures in the GL backend
-                if (GR_GL_COMPRESSED_RGB8_ETC2 != combo.fFormat &&
-                    GR_GL_COMPRESSED_ETC1_RGB8 != combo.fFormat) {
+                {
                     auto uninitCreateMtd = [format](GrContext* context,
                                                     GrMipMapped mipMapped,
                                                     GrRenderable renderable) {
@@ -709,7 +700,6 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
         { GrColorType::kRGBA_F16_Clamped, VK_FORMAT_R16G16B16A16_SFLOAT,      SkColors::kLtGray   },
         { GrColorType::kRGBA_F16,         VK_FORMAT_R16G16B16A16_SFLOAT,      SkColors::kYellow   },
 
-        // These backend formats don't have SkColorType equivalents
         { GrColorType::kRG_88,            VK_FORMAT_R8G8_UNORM,               { 1, 0.5f, 0, 1 }   },
         { GrColorType::kAlpha_F16,        VK_FORMAT_R16_SFLOAT,               { 1.0f, 0, 0, 0.5f }},
 
@@ -717,8 +707,6 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
         { GrColorType::kRG_1616,          VK_FORMAT_R16G16_UNORM,             SkColors::kYellow   },
         { GrColorType::kRGBA_16161616,    VK_FORMAT_R16G16B16A16_UNORM,       SkColors::kLtGray   },
         { GrColorType::kRG_F16,           VK_FORMAT_R16G16_SFLOAT,            SkColors::kYellow   },
-
-        { GrColorType::kUnknown,          VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK,  SkColors::kRed      },
     };
 
     for (auto combo : combinations) {
@@ -744,8 +732,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
                     }
                 }
 
-                // We current disallow uninitialized compressed textures in the Vulkan backend
-                if (combo.fFormat != VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK) {
+                {
                     auto uninitCreateMtd = [format](GrContext* context,
                                                     GrMipMapped mipMapped,
                                                     GrRenderable renderable) {
