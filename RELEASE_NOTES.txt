@@ -3,6 +3,7 @@ Skia Graphics Release Notes
 This file includes a list of high level updates for each milestone release.
 
 -----
+  * Expose SkTextBlobRunIterator in SkTextBlob.h.
   * Add SkSurface::MakeFromCAMetalLayer
 
   * Remove isRectContour and ksNestedFillRects from public
