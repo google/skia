@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68b0336f_c1f64d0b",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-24T17:33:47Z",
+      "side": 1,
+      "message": "any reason not to default to -1 now?",
+      "range": {
+        "startLine": 34,
+        "startChar": 28,
+        "endLine": 34,
+        "endChar": 29
+      },
+      "revId": "8fc5b40b62beca7ef51dd16903daf867187d681f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c8f303a_a594950c",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-24T17:33:47Z",
+      "side": 1,
+      "message": "It\u0027ll actually map anything \u003c0 to NumCPU, so you probably don\u0027t need the max either:\n\nSkTaskGroup::Enabler::Enabler(int threads) {\n    if (threads) {\n        fThreadPool \u003d SkExecutor::MakeLIFOThreadPool(threads);\n        SkExecutor::SetDefault(fThreadPool.get());\n    }   \n}       \n\nstd::unique_ptr\u003cSkExecutor\u003e SkExecutor::MakeLIFOThreadPool(int threads) {\n    using WorkList \u003d SkTArray\u003cstd::function\u003cvoid(void)\u003e\u003e;\n    return skstd::make_unique\u003cSkThreadPool\u003cWorkList\u003e\u003e(\n        threads \u003e 0 ? threads : num_cores());\n}",
+      "range": {
+        "startLine": 227,
+        "startChar": 33,
+        "endLine": 227,
+        "endChar": 61
+      },
+      "revId": "8fc5b40b62beca7ef51dd16903daf867187d681f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

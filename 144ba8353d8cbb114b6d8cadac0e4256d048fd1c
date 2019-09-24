@@ -295,6 +295,24 @@
     },
     {
       "key": {
+        "uuid": "76e0a69f_ed3a965f",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-24T17:33:47Z",
+      "side": 1,
+      "message": "Just curious... what do you figure a clone() would cost vs. reparse?",
+      "parentUuid": "76ac84b8_ca49005d",
+      "revId": "144ba8353d8cbb114b6d8cadac0e4256d048fd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cf39156e_e82f8fc1",
         "filename": "modules/skottie/utils/SkottieUtils.h",
         "patchSetId": 4
