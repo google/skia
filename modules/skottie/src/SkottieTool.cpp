@@ -226,12 +226,21 @@ int main(int argc, char** argv) {
 
     SkTaskGroup::Enabler enabler(FLAGS_threads - 1);
     SkTaskGroup{}.batch(frame_count, [&](int i) {
+#if defined(SK_BUILD_FOR_IOS)
+        // iOS doesn't support thread_local on versions less than 9.0.
+        auto tl_sink = MakeSink(FLAGS_format[0]);
+        auto    anim = skottie::Animation::Builder()
+                            .setResourceProvider(rp)
+                            .make(static_cast<const char*>(data->data()), data->size());
+        auto* tl_anim = anim.get();
+#else
         thread_local static auto* tl_sink = MakeSink(FLAGS_format[0]).release();
         thread_local static auto* tl_anim =
                 skottie::Animation::Builder()
                     .setResourceProvider(rp)
                     .make(static_cast<const char*>(data->data()), data->size())
                     .release();
+#endif
 
         if (tl_sink && tl_anim) {
             tl_anim->seek(t0 + dt * i);
