@@ -238,7 +238,6 @@ DEF_TEST(Gif, reporter) {
     // "libgif warning [interlace DGifGetLine]"
 }
 
-#ifndef SK_HAS_WUFFS_LIBRARY
 DEF_TEST(Codec_GifInterlacedTruncated, r) {
     // Check that gInterlacedGIF is exactly 102 bytes long, and that the final
     // 30 bytes, in the half-open range [72, 102), consists of 0x1b (indicating
@@ -254,11 +253,12 @@ DEF_TEST(Codec_GifInterlacedTruncated, r) {
 
     // We want to test the GIF codec's output on some (but not all) of the
     // LZW-compressed data. As is, there is only one block of LZW-compressed
-    // data, 27 bytes long. Some GIF implementations output intermediate rows
-    // only on block boundaries, so truncating to a prefix of gInterlacedGIF
-    // isn't enough. We also have to modify the block size down from 0x1b so
-    // that the edited version still contains a complete block. In this case,
-    // it's a block of 10 bytes.
+    // data, 27 bytes long. Wuffs can output partial results from a partial
+    // block, but some other GIF implementations output intermediate rows only
+    // on block boundaries, so truncating to a prefix of gInterlacedGIF isn't
+    // enough. We also have to modify the block size down from 0x1b so that the
+    // edited version still contains a complete block. In this case, it's a
+    // block of 10 bytes.
     unsigned char data[83];
     memcpy(data, gInterlacedGIF, sizeof(data));
     data[72] = sizeof(data) - 73;
@@ -283,7 +283,6 @@ DEF_TEST(Codec_GifInterlacedTruncated, r) {
     // transparent black (zero).
     REPORTER_ASSERT(r, bm.getColor(0, 7) != 0);
 }
-#endif
 
 // Regression test for decoding a gif image with sampleSize of 4, which was
 // previously crashing.
