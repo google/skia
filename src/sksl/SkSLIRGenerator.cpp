@@ -2082,7 +2082,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& 
             }
             break;
         case Token::BITWISENOT:
-            if (base->fType != *fContext.fInt_Type) {
+            if (base->fType != *fContext.fInt_Type && base->fType != *fContext.fUInt_Type) {
                 fErrors.error(expression.fOffset,
                               String("'") + Compiler::OperatorName(expression.getToken().fKind) +
                               "' cannot operate on '" + base->fType.description() + "'");
