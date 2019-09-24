@@ -304,7 +304,11 @@ GrGLProgram* GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* precompi
         }
     }
     if (!usedProgramBinaries) {
-        // either a cache miss, or we got something other than binaries from the cache
+        // Either a cache miss, or we got something other than binaries from the cache
+
+        /*
+           Fragment Shader
+        */
         if (glsl[kFragment_GrShaderType].empty()) {
             // Don't have cached GLSL, need to compile SkSL->GLSL
             if (fFS.fForceHighPrecision) {
@@ -321,18 +325,18 @@ GrGLProgram* GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* precompi
                 return nullptr;
             }
             inputs = fs->fInputs;
-            this->addInputVars(inputs);
-        } else {
-            // we've pulled GLSL and inputs from the cache, but still need to do some setup
-            this->addInputVars(inputs);
-            this->computeCountsAndStrides(programID, primProc, false);
         }
+
+        this->addInputVars(inputs);
         if (!this->compileAndAttachShaders(glsl[kFragment_GrShaderType], programID,
                                            GR_GL_FRAGMENT_SHADER, &shadersToDelete, errorHandler)) {
             cleanup_program(fGpu, programID, shadersToDelete);
             return nullptr;
         }
 
+        /*
+           Vertex Shader
+        */
         if (glsl[kVertex_GrShaderType].empty()) {
             // Don't have cached GLSL, need to compile SkSL->GLSL
             std::unique_ptr<SkSL::Program> vs = GrSkSLtoGLSL(gpu()->glContext(),
@@ -352,12 +356,15 @@ GrGLProgram* GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* precompi
             return nullptr;
         }
 
-        // NVPR actually requires a vertex shader to compile
-        bool useNvpr = primProc.isPathRendering();
-        if (!useNvpr) {
+        // This also binds vertex attribute locations. NVPR doesn't really use vertices,
+        // even though it requires a vertex shader in the program.
+        if (!primProc.isPathRendering()) {
             this->computeCountsAndStrides(programID, primProc, true);
         }
 
+        /*
+           Geometry Shader
+        */
         if (primProc.willUseGeoShader()) {
             if (glsl[kGeometry_GrShaderType].empty()) {
                 // Don't have cached GLSL, need to compile SkSL->GLSL
