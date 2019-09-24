@@ -168,6 +168,9 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
             printf("scalartomatrix %dx%d", cols, rows);
             break;
         }
+        case ByteCodeInstruction::kShiftLeft: printf("shl %d", READ8()); break;
+        case ByteCodeInstruction::kShiftRightS: printf("shrs %d", READ8()); break;
+        case ByteCodeInstruction::kShiftRightU: printf("shru %d", READ8()); break;
         VECTOR_DISASSEMBLE(kSin, "sin")
         VECTOR_DISASSEMBLE_NO_COUNT(kSqrt, "sqrt")
         case ByteCodeInstruction::kStore: printf("store %d", READ8()); break;
@@ -570,6 +573,9 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
         &&kReserve,
         &&kReturn,
         &&kScalarToMatrix,
+        &&kShiftLeft,
+        &&kShiftRightS,
+        &&kShiftRightU,
         VECTOR_LABELS(kSin),
         VECTOR_LABELS(kSqrt),
         VECTOR_LABELS(kStore),
@@ -658,6 +664,9 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
     CHECK_LABEL(kReserve);
     CHECK_LABEL(kReturn);
     CHECK_LABEL(kScalarToMatrix);
+    CHECK_LABEL(kShiftLeft);
+    CHECK_LABEL(kShiftRightS);
+    CHECK_LABEL(kShiftRightU);
     CHECK_VECTOR_LABELS(kSin);
     CHECK_VECTOR_LABELS(kSqrt);
     CHECK_VECTOR_LABELS(kStore);
@@ -1092,6 +1101,16 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
         NEXT();
     }
 
+    LABEL(kShiftLeft)
+        sp[0] = sp[0].fSigned << READ8();
+        NEXT();
+    LABEL(kShiftRightS)
+        sp[0] = sp[0].fSigned >> READ8();
+        NEXT();
+    LABEL(kShiftRightU)
+        sp[0] = sp[0].fUnsigned >> READ8();
+        NEXT();
+
     VECTOR_UNARY_FN_VEC(kSin, sinf)
     VECTOR_UNARY_FN(kSqrt, skvx::sqrt, fFloat)
 
@@ -1448,6 +1467,9 @@ void ByteCodeFunction::preprocess(const void* labels[]) {
             case ByteCodeInstruction::kReserve: READ8(); break;
             case ByteCodeInstruction::kReturn: READ8(); break;
             case ByteCodeInstruction::kScalarToMatrix: READ8(); READ8(); break;
+            case ByteCodeInstruction::kShiftLeft: READ8(); break;
+            case ByteCodeInstruction::kShiftRightS: READ8(); break;
+            case ByteCodeInstruction::kShiftRightU: READ8(); break;
             VECTOR_PREPROCESS(kSin)
             VECTOR_PREPROCESS_NO_COUNT(kSqrt)
 

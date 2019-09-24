@@ -248,6 +248,19 @@ DEF_TEST(SkSLInterpreterBitwise, r) {
          5, 0, 0, 0, 6, 0, 0, 0);
     test(r, "void main(inout half4 color) { color.r = half(~int(color.r) & 3); }",
          6, 0, 0, 0, 1, 0, 0, 0);
+
+    // Shift operators
+    unsigned in = 0x80000011;
+    unsigned out;
+
+    out = 0x00000088;
+    test(r, "int  main(int  x) { return x << 3; }", (float*)&in, 1, (float*)&out);
+
+    out = 0xF0000002;
+    test(r, "int main(int x) { return x >> 3; }", (float*)&in, 1, (float*)&out);
+
+    out = 0x10000002;
+    test(r, "uint main(uint x) { return x >> 3; }", (float*)&in, 1, (float*)&out);
 }
 
 DEF_TEST(SkSLInterpreterMatrix, r) {

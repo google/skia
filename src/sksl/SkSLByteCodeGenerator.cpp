@@ -209,6 +209,9 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
         case ByteCodeInstruction::kClampIndex: return 0;
         case ByteCodeInstruction::kNotB: return 0;
         case ByteCodeInstruction::kNegateFN: return 0;
+        case ByteCodeInstruction::kShiftLeft: return 0;
+        case ByteCodeInstruction::kShiftRightS: return 0;
+        case ByteCodeInstruction::kShiftRightU: return 0;
 
 #undef VECTOR_UNARY_OP
 
@@ -657,6 +660,31 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
             this->write(ByteCodeInstruction::kMaskPop);
             return false;
         }
+        case Token::Kind::SHL:
+        case Token::Kind::SHR: {
+            SkASSERT(count == 1 && (tc == SkSL::TypeCategory::kSigned ||
+                                    tc == SkSL::TypeCategory::kUnsigned));
+            if (!b.fRight->isConstant()) {
+                fErrors.error(b.fRight->fOffset, "Shift amounts must be constant");
+                return false;
+            }
+            int64_t shift = b.fRight->getConstantInt();
+            if (shift < 0 || shift > 31) {
+                fErrors.error(b.fRight->fOffset, "Shift amount out of range");
+                return false;
+            }
+
+            if (op == Token::Kind::SHL) {
+                this->write(ByteCodeInstruction::kShiftLeft);
+            } else {
+                this->write(type_category(lType) == TypeCategory::kSigned
+                                ? ByteCodeInstruction::kShiftRightS
+                                : ByteCodeInstruction::kShiftRightU);
+            }
+            this->write8(shift);
+            return false;
+        }
+
         default:
             break;
     }
