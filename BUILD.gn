@@ -871,6 +871,7 @@ component("skia") {
     "src/codec/SkEncodedInfo.cpp",
     "src/codec/SkMaskSwizzler.cpp",
     "src/codec/SkMasks.cpp",
+    "src/codec/SkParseEncodedOrigin.cpp",
     "src/codec/SkSampledCodec.cpp",
     "src/codec/SkSampler.cpp",
     "src/codec/SkStreamBuffer.cpp",
