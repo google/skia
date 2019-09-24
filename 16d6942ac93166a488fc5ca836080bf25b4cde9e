@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "543c09d1_2a7b517d",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-24T21:52:56Z",
+      "side": 1,
+      "message": "These don\u0027t _fundamentally_ need to be thread local, right?  Couldn\u0027t it just be\n\n#if defined(SK_BUILD_FOR_IOS)\n   ... make sink and anim as stack locals ...\n#else\n   ... make sink and anim as thread locals ...\n#endif\n\n?",
+      "revId": "16d6942ac93166a488fc5ca836080bf25b4cde9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
