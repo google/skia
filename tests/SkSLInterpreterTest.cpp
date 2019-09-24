@@ -247,6 +247,15 @@ DEF_TEST(SkSLInterpreterBitwise, r) {
     test(r, "void main(inout half4 color) { color.r = half(~int(color.r) & 3); }",
          6, 0, 0, 0, 1, 0, 0, 0);
 
+    test(r, "void main(inout half4 color) { color.r = half(uint(color.r) | 3); }",
+         5, 0, 0, 0, 7, 0, 0, 0);
+    test(r, "void main(inout half4 color) { color.r = half(uint(color.r) & 3); }",
+         6, 0, 0, 0, 2, 0, 0, 0);
+    test(r, "void main(inout half4 color) { color.r = half(uint(color.r) ^ 3); }",
+         5, 0, 0, 0, 6, 0, 0, 0);
+    test(r, "void main(inout half4 color) { color.r = half(~uint(color.r) & 3); }",
+         6, 0, 0, 0, 1, 0, 0, 0);
+
     // Shift operators
     unsigned in = 0x80000011;
     unsigned out;
