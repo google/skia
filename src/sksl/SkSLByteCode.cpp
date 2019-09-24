@@ -288,6 +288,46 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
         NEXT();                                       \
     }
 
+// A naive implementation of / or % using vector operations will likely crash with a divide by zero
+// in inactive vector lanes. Using loops is terribly slow compared to a vector divide, but integer
+// division should be rare enough that it's probably not a big deal in practice.
+#define VECTOR_BINARY_MASKED_OP(base, field, op)            \
+    LABEL(base ## 4)                                        \
+        for (int i = 0; i < VecWidth; ++i) {                \
+            if (mask()[i]) {                                \
+                sp[-4].field[i] op ## = sp[0].field[i];     \
+            }                                               \
+        }                                                   \
+        POP();                                              \
+        /* fall through */                                  \
+    LABEL(base ## 3) {                                      \
+        for (int i = 0; i < VecWidth; ++i) {                \
+            if (mask()[i]) {                                \
+                sp[-ip[0]].field[i] op ## = sp[0].field[i]; \
+            }                                               \
+        }                                                   \
+        POP();                                              \
+    }   /* fall through */                                  \
+    LABEL(base ## 2) {                                      \
+        for (int i = 0; i < VecWidth; ++i) {                \
+            if (mask()[i]) {                                \
+                sp[-ip[0]].field[i] op ## = sp[0].field[i]; \
+            }                                               \
+        }                                                   \
+        POP();                                              \
+    }   /* fall through */                                  \
+    LABEL(base) {                                           \
+        for (int i = 0; i < VecWidth; ++i) {                \
+            if (mask()[i]) {                                \
+                sp[-ip[0]].field[i] op ## = sp[0].field[i]; \
+            }                                               \
+        }                                                   \
+        POP();                                              \
+        ++ip;                                               \
+        NEXT();                                             \
+    }
+
+
 #define VECTOR_MATRIX_BINARY_OP(base, field, op)          \
     VECTOR_BINARY_OP(base, field, op)                     \
     LABEL(base ## N) {                                    \
@@ -839,8 +879,8 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
 
     VECTOR_UNARY_FN_VEC(kCos, cosf)
 
-    VECTOR_BINARY_OP(kDivideS, fSigned, /)
-    VECTOR_BINARY_OP(kDivideU, fUnsigned, /)
+    VECTOR_BINARY_MASKED_OP(kDivideS, fSigned, /)
+    VECTOR_BINARY_MASKED_OP(kDivideU, fUnsigned, /)
     VECTOR_MATRIX_BINARY_OP(kDivideF, fFloat, /)
 
     LABEL(kDup4) PUSH(sp[1 - ip[0]]);
@@ -1040,8 +1080,8 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
     }
 
     VECTOR_BINARY_FN(kRemainderF, fFloat, vec_mod<F32>)
-    VECTOR_BINARY_FN(kRemainderS, fSigned, vec_mod<I32>)
-    VECTOR_BINARY_FN(kRemainderU, fUnsigned, vec_mod<U32>)
+    VECTOR_BINARY_MASKED_OP(kRemainderS, fSigned, %)
+    VECTOR_BINARY_MASKED_OP(kRemainderU, fUnsigned, %)
 
     LABEL(kReserve)
         sp += READ8();
