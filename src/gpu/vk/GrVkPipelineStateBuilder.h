@@ -96,7 +96,7 @@ private:
                              VkPipelineShaderStageCreateInfo* outStageInfo);
 
     void storeShadersInCache(const SkSL::String shaders[], const SkSL::Program::Inputs inputs[],
-                             bool isSkSL, const SkSL::Program::Settings& settings);
+                             bool isSkSL);
 
     bool createVkShaderModule(VkShaderStageFlagBits stage,
                               const SkSL::String& sksl,

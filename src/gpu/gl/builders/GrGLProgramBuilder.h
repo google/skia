@@ -77,7 +77,7 @@ private:
                                  bool bindAttribLocations);
     void storeShaderInCache(const SkSL::Program::Inputs& inputs, GrGLuint programID,
                             const SkSL::String shaders[], bool isSkSL,
-                            const SkSL::Program::Settings& settings);
+                            SkSL::Program::Settings* settings);
     GrGLProgram* finalize(const GrGLPrecompiledProgram*);
     void bindProgramResourceLocations(GrGLuint programID);
     bool checkLinkStatus(GrGLuint programID, GrContextOptions::ShaderErrorHandler* errorHandler,
