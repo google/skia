@@ -1825,7 +1825,9 @@ if (skia_enable_tools) {
         "tools/skottie2movie.cpp",
       ]
       deps = [
+        ":common_flags_gpu",
         ":flags",
+        ":gpu_tool_utils",
         ":skia",
         ":video_decoder",
         "modules/skottie",
