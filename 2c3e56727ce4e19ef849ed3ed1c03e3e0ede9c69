@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "2cbf565a_372dd270",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-09-24T16:55:42Z",
+      "side": 1,
+      "message": "I think that was an assumption. This is at least slightly worse, because of the conditional inside the loop, though.",
+      "parentUuid": "4d5f6514_a57df4fc",
+      "range": {
+        "startLine": 292,
+        "startChar": 29,
+        "endLine": 293,
+        "endChar": 80
+      },
+      "revId": "2c3e56727ce4e19ef849ed3ed1c03e3e0ede9c69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b9213d2d_1fe98f0d",
         "filename": "src/sksl/SkSLByteCode.cpp",
         "patchSetId": 1
