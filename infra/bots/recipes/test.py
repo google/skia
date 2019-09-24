@@ -232,8 +232,7 @@ def dm_flags(api, bot):
 
     # skbug.com/9043 - these devices render this test incorrectly
     # when opList splitting reduction is enabled
-    if 'GPU' in bot and 'Vulkan' in bot and ('MoltenVK' in bot or
-                                             'RadeonR9M470X' in bot or
+    if 'GPU' in bot and 'Vulkan' in bot and ('RadeonR9M470X' in bot or
                                              'RadeonHD7770' in bot):
       blacklist(['_', 'tests', '_', 'VkDrawableImportTest'])
 
@@ -749,21 +748,6 @@ def dm_flags(api, bot):
     # skia:9255
     match.append('~WritePixelsNonTextureMSAA_Gpu')
 
-  if 'MoltenVK' in bot:
-    # skbug.com/7959
-    blacklist(['_', 'gm', '_', 'vertices_scaled_shader'])
-    blacklist(['_', 'gm', '_', 'vertices'])
-    match.append('~^InitialTextureClear$')
-    match.append('~^RGB565TextureTest$')
-    match.append('~^RGBA4444TextureTest$')
-    match.append('~^TextureIdleProcFlushTest$')
-    match.append('~^TextureStripAtlasManagerColorFilterTest$')
-    match.append('~^WritePixelsNonTextureMSAA_Gpu$')
-    match.append('~^AsyncReadPixels$')
-    match.append('~^VkBackendAllocationTest$')
-    match.append('~^ColorTypeBackendAllocationTest$')
-    match.append('~^GrTestingBackendTextureUploadTest$')
-
   if 'ANGLE' in bot:
     # skia:7835
     match.append('~BlurMaskBiggerThanDest')
@@ -1056,8 +1040,6 @@ TEST_BUILDERS = [
    '-NativeFonts'),
   'Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All',
   'Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal',
-  ('Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-'
-   'MoltenVK_Vulkan'),
   ('Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All'
    '-CommandBuffer'),
   'Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All',
@@ -1077,6 +1059,7 @@ TEST_BUILDERS = [
   'Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-All-ANGLE',
   'Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All-ANGLE',
   'Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-Vulkan',
+  'Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Release-All-Vulkan',
   'Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE',
   'Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Debug-All-ANGLE',
   'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA',
