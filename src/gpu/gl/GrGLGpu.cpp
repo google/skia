@@ -3551,7 +3551,6 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
     SkASSERT(!GrGLFormatIsCompressed(glFormat));
 
     GrPixelConfig config = gl_format_to_pixel_config(glFormat);
-
     if (config == kUnknown_GrPixelConfig) {
         return GrBackendTexture();  // invalid
     }
@@ -3563,10 +3562,10 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
         return GrBackendTexture();  // invalid
     }
 
-    // Currently we don't support uploading pixel data when mipped.
-    if (srcData && GrMipMapped::kYes == mipMapped) {
-        return GrBackendTexture();  // invalid
-    }
+    GrSurfaceDesc desc;
+    desc.fWidth = w;
+    desc.fHeight = h;
+    desc.fConfig = config;
 
     GrGLTextureInfo info;
     GrGLTextureParameters::SamplerOverriddenState initialState;
@@ -3605,6 +3604,14 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
 
             texels[i] = {&(tmpPixels[offset]), currentWidth * bytesPerPixel};
         }
+        auto srcColorType = GrPixelConfigToColorType(desc.fConfig);
+        if (!texels.empty() &&
+            !this->uploadTexData(glFormat, textureColorType, desc.fWidth, desc.fHeight,
+                                 GR_GL_TEXTURE_2D, 0, 0, desc.fWidth, desc.fHeight, srcColorType,
+                                 texels.begin(), texels.count())) {
+            GL_CALL(DeleteTextures(1, &info.fID));
+            return GrBackendTexture();
+        }
     }
     GrSurfaceDesc desc;
     desc.fWidth = w;
@@ -3625,6 +3632,19 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
                              texels.begin(), texels.count())) {
         GL_CALL(DeleteTextures(1, &info.fID));
         return GrBackendTexture();
+    }
+
+    info.fTarget = GR_GL_TEXTURE_2D;
+    info.fFormat = GrGLFormatToEnum(glFormat);
+    // TODO: Take these as parameters.
+    auto srcColorType = GrPixelConfigToColorType(desc.fConfig);
+    info.fID = this->createTexture2D({desc.fWidth, desc.fHeight},
+                                     glFormat,
+                                     renderable,
+                                     &initialState,
+                                     mipLevelCount);
+    if (!info.fID) {
+        return GrBackendTexture();  // invalid
     }
 
     // unbind the texture from the texture unit to avoid asserts
