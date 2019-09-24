@@ -9,6 +9,7 @@ declare_args() {
   extra_cflags_c = []
   extra_cflags_cc = []
   extra_ldflags = []
+  use_PIC = true
 
   malloc = ""
 }
@@ -88,10 +89,10 @@ config("default") {
       "$win_vc/Tools/MSVC/$win_toolchain_version/lib/$target_cpu",
     ]
   } else {
-    cflags += [
-      "-fstrict-aliasing",
-      "-fPIC",
-    ]
+    if (use_PIC) {
+      cflags += [ "-fPIC" ]
+    }
+    cflags += [ "-fstrict-aliasing" ]
     cflags_cc += [ "-std=c++14" ]
 
     # The main idea is to slim the exported API, but these flags also improve link time on Mac.
