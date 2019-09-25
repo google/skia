@@ -10,7 +10,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
   libglu1-mesa-dev \
   libxi-dev \
   && groupadd -g 2000 skia \
-  && useradd -u 2000 -g 2000 skia
+  && useradd -u 2000 -g 2000 --home /workspace/__cache skia
 
 RUN curl -s "https://cmake.org/files/v3.13/cmake-3.13.1-Linux-x86_64.tar.gz" | tar --strip-components=1 -xz -C /usr/local
 
