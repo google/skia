@@ -51,10 +51,12 @@ void GrRenderTask::makeClosed(const GrCaps& caps) {
         return;
     }
 
-    if (ExpectedOutcome::kTargetDirty == this->onMakeClosed(caps)) {
+    SkIRect targetUpdateBounds;
+    if (ExpectedOutcome::kTargetDirty == this->onMakeClosed(caps, &targetUpdateBounds)) {
+        SkASSERT(SkIRect::MakeWH(fTarget->width(), fTarget->height()).contains(targetUpdateBounds));
         if (fTarget->requiresManualMSAAResolve()) {
             SkASSERT(fTarget->asRenderTargetProxy());
-            fTarget->asRenderTargetProxy()->markMSAADirty();
+            fTarget->asRenderTargetProxy()->markMSAADirty(targetUpdateBounds);
         }
         GrTextureProxy* textureProxy = fTarget->asTextureProxy();
         if (textureProxy && GrMipMapped::kYes == textureProxy->mipMapped()) {
