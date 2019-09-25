@@ -17,7 +17,7 @@
 #include "src/core/SkGlyph.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkScalerContext.h"
-#include "src/core/SkStrikeInterface.h"
+#include "src/core/SkStrikeForGPU.h"
 #include <memory>
 
 /** \class SkGlyphCache
@@ -33,7 +33,7 @@
     The Find*Exclusive() method returns SkExclusiveStrikePtr, which releases exclusive ownership
     when they go out of scope.
 */
-class SkStrike final : public SkStrikeInterface {
+class SkStrike final : public SkStrikeForGPU {
 public:
     SkStrike(const SkDescriptor& desc,
              std::unique_ptr<SkScalerContext> scaler,
