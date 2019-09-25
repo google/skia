@@ -119,13 +119,8 @@ public:
 
     bool onRegenerateMipMapLevels(GrTexture* tex) override;
 
-    void resolveRenderTargetNoFlush(GrRenderTarget* target) {
-        this->internalResolveRenderTarget(target, false);
-    }
-
-    void onResolveRenderTarget(GrRenderTarget* target, ForExternalIO forExternalIO) override {
-        this->internalResolveRenderTarget(target, ForExternalIO::kYes == forExternalIO);
-    }
+    void onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
+                               GrSurfaceOrigin resolveOrigin, ForExternalIO) override;
 
     void submitSecondaryCommandBuffer(std::unique_ptr<GrVkSecondaryCommandBuffer>);
 
@@ -247,8 +242,6 @@ private:
     // wait semaphores to the submission of this command buffer.
     void submitCommandBuffer(SyncQueue sync, GrGpuFinishedProc finishedProc = nullptr,
                              GrGpuFinishedContext finishedContext = nullptr);
-
-    void internalResolveRenderTarget(GrRenderTarget*, bool requiresSubmit);
 
     void copySurfaceAsCopyImage(GrSurface* dst, GrSurface* src, GrVkImage* dstImage,
                                 GrVkImage* srcImage, const SkIRect& srcRect,
