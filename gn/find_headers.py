@@ -39,9 +39,22 @@ except subprocess.CalledProcessError as e:
 
 desc_json = {}
 try:
+  json_file = open("/tmp/gn_desc.json", "w")
+  json_file.write(desc_json_txt)
+  json_file.close()
   desc_json = json.loads(desc_json_txt)
 except ValueError:
-  print desc_json_txt
+  if True:
+    lines = desc_json_txt.splitlines(False) 
+    first_20_slice = lines[0:20]
+    for line in first_20_slice:
+      print line
+    print "\n ...\n\n"
+    last_20_slice = lines[-20:]
+    for line in last_20_slice:
+      print line
+  else:
+    print desc_json_txt
   raise
 
 sources = set()
