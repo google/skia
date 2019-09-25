@@ -29,7 +29,7 @@ GrGLSLProgramBuilder::GrGLSLProgramBuilder(GrRenderTarget* renderTarget, GrSurfa
         , fGS(this)
         , fFS(this)
         , fStageIndex(-1)
-        , fRenderTarget(renderTarget)
+        , fRenderTarget1(renderTarget)
         , fOrigin(origin)
         , fPipeline(pipeline)
         , fPrimProc(primProc)

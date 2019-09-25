@@ -292,7 +292,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
         }
     }
     GrVkPipeline* pipeline = resourceProvider.createPipeline(
-            this->renderTarget()->numSamples(), fPrimProc, fPipeline, stencil, this->origin(),
+            this->renderTarget1()->numSamples(), fPrimProc, fPipeline, stencil, this->origin(),
             shaderStageInfo, numShaderStages, primitiveType, compatibleRenderPass, pipelineLayout);
     for (int i = 0; i < kGrShaderTypeCount; ++i) {
         // This if check should not be needed since calling destroy on a VK_NULL_HANDLE is allowed.
