@@ -8,6 +8,8 @@ import("gn/fuchsia_defines.gni")
 import("gn/shared_sources.gni")
 
 import("gn/skia.gni")
+import("build/fuchsia/fuchsia.gni")
+import("build/fuchsia/fuchsia_download_sdk.gni")
 
 if (skia_use_dawn) {
   import("third_party/externals/dawn/scripts/dawn_features.gni")
@@ -314,12 +316,12 @@ optional("fontmgr_fontconfig") {
 optional("fontmgr_fuchsia") {
   enabled = skia_enable_fontmgr_fuchsia
 
-  deps = []
+  deps = [ "//build/fuchsia:fuchsia" ]
 
-  if (is_fuchsia && using_fuchsia_sdk) {
-    deps += [ "$fuchsia_sdk_root/fidl:fuchsia.fonts" ]
+  if (is_fuchsia && skia_use_fuchsia_sdk) {
+    deps += [ "//build/fuchsia/fidl:fuchsia.fonts" ]
   } else {
-    deps += [ "//sdk/fidl/fuchsia.fonts" ]
+    deps = [ "//sdk/fidl/fuchsia.fonts" ]
   }
   sources = [
     "src/ports/SkFontMgr_fuchsia.cpp",
@@ -500,7 +502,11 @@ optional("gpu") {
   if (skia_generate_workarounds) {
     deps += [ ":workaround_list" ]
   }
-  public_defines = [ "SK_GL" ]
+  if (is_fuchsia) {
+    public_defines = []
+  } else {
+    public_defines = [ "SK_GL" ]
+  }
   public_configs = []
   public_deps = []
 
@@ -515,9 +521,6 @@ optional("gpu") {
     sources += [ "src/gpu/GrPathRendering_none.cpp" ]
   }
 
-  # These paths need to be absolute to match the ones produced by shared_sources.gni.
-  sources -= get_path_info([ "src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ],
-                           "abspath")
   libs = []
   if (is_android) {
     sources += [ "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp" ]
@@ -554,7 +557,7 @@ optional("gpu") {
     }
     if (is_fuchsia) {
       if (using_fuchsia_sdk) {
-        public_deps += [ "$fuchsia_sdk_root/pkg:vulkan" ]
+        public_deps += [ "//build/fuchsia/pkg:vulkan" ]
       } else {
         public_deps += [ "//src/graphics/lib/vulkan" ]
       }
@@ -1165,8 +1168,6 @@ if (skia_enable_tools) {
   }
 
   config("our_vulkan_headers") {
-    # We add this directory to simulate the client already have
-    # vulkan/vulkan_core.h on their path.
     include_dirs = [ "include/third_party/vulkan" ]
   }
 
@@ -1292,11 +1293,17 @@ if (skia_enable_tools) {
       "tools/gpu/TestContext.cpp",
       "tools/gpu/YUVUtils.cpp",
       "tools/gpu/YUVUtils.h",
-      "tools/gpu/atlastext/GLTestAtlasTextRenderer.cpp",
-      "tools/gpu/gl/GLTestContext.cpp",
-      "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp",
       "tools/gpu/mock/MockTestContext.cpp",
     ]
+
+    if (skia_use_gl) {
+      sources += [
+        "tools/gpu/atlastext/GLTestAtlasTextRenderer.cpp",
+        "tools/gpu/gl/GLTestContext.cpp",
+        "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp"
+      ]
+    }
+
     libs = []
 
     if (is_android || skia_use_egl) {
@@ -1529,6 +1536,9 @@ if (skia_enable_tools) {
     if (!(skia_use_freetype && skia_use_fontconfig)) {
       sources -= [ "//tests/FontMgrFontConfigTest.cpp" ]
     }
+    # if (is_fuchsia) {
+    #    sources -= [ "$tests_path/EncodeTest.cpp" ]
+   #  }
     deps = [
       ":experimental_svg_model",
       ":flags",
@@ -1914,6 +1924,9 @@ if (skia_enable_tools) {
         ":tool_utils",
         "//third_party/libmicrohttpd",
       ]
+#      if (!is_fuchsia) {
+#        deps += [ "//third_party/libmicrohttpd" ]
+#      }
     }
   }
 
@@ -2018,7 +2031,6 @@ if (skia_enable_tools) {
       ]
       deps = [
         ":gm",
-        ":gpu_tool_utils",
         ":skia",
         ":tests",
         ":tool_utils",
@@ -2028,11 +2040,9 @@ if (skia_enable_tools) {
       sources = [
         "tools/skqp/src/skqp_main.cpp",
       ]
-      deps = [
-        ":skia",
-        ":skqp_lib",
-        ":tool_utils",
-      ]
+      include_dirs = [ "//" ]
+      lib_dirs = []
+      deps = [ ":skqp_lib", ]
     }
     test_app("jitter_gms") {
       sources = [
@@ -2042,6 +2052,15 @@ if (skia_enable_tools) {
         ":gm",
         ":skia",
         ":skqp_lib",
+      ]
+    }
+  }
+  if (is_fuchsia) {
+    # Build a package repository for skqp on Fuchsia.
+    group("skqp_repo") {
+      testonly = true
+      deps = [
+        "//build/fuchsia/skqp:skqp_repo"
       ]
     }
   }
@@ -2270,8 +2289,10 @@ if (skia_enable_tools) {
       "modules/skottie:utils",
       "modules/sksg",
       "modules/sksg:samples",
-      "//third_party/imgui",
     ]
+    if (!is_fuchsia) {
+      deps += [ "//third_party/imgui" ]
+    }
     if (skia_use_experimental_xform) {
       deps += [ ":experimental_xform" ]
       sources += [ "gm/xform.cpp" ]
