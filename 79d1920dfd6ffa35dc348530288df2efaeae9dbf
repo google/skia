@@ -16,6 +16,24 @@
       "revId": "79d1920dfd6ffa35dc348530288df2efaeae9dbf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a1e7566_b9f3f8c0",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-09-25T17:49:44Z",
+      "side": 1,
+      "message": "GrGLGpu needs the origin when it calls flushScissor.",
+      "parentUuid": "f01120ad_db4774e7",
+      "revId": "79d1920dfd6ffa35dc348530288df2efaeae9dbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
