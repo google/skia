@@ -3,6 +3,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import ("//build/fuchsia/fuchsia.gni")
+
 declare_args() {
   extra_asmflags = []
   extra_cflags = []
@@ -43,6 +45,19 @@ config("default") {
       cflags += [ "/WX" ]
     } else {
       cflags += [ "-Werror" ]
+    }
+  }
+
+  if (is_fuchsia) {
+    ldflags += [ "-v" ]
+    cflags += [ "-v", "--sysroot=" + rebase_path("$skia_fuchsia_sdk_path/arch/$target_cpu/sysroot") ]
+    if (target_cpu == "x64") {
+      cflags += [ "--target=x86_64-${target_os}" ]
+    } else if (target_cpu == "arm64") {
+      cflags += [ "--target=arm64-${target_os}" ]
+    } else {
+      print("Unknown target CPU for Fuchsia target build.")
+      assert(false)
     }
   }
 
