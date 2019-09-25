@@ -27,7 +27,7 @@
 
 static DEFINE_string2(input    , i, nullptr, "Input .json file.");
 static DEFINE_string2(writePath, w, nullptr, "Output directory.  Frames are names [0-9]{6}.png.");
-static DEFINE_string2(format   , f, "png"  , "Output format (png or skp)");
+static DEFINE_string2(format   , f, "png"  , "Output format (png, skp or null)");
 
 static DEFINE_double(t0,   0, "Timeline start [0..1].");
 static DEFINE_double(t1,   1, "Timeline stop [0..1].");
@@ -39,57 +39,57 @@ static DEFINE_int(threads,  0, "Number of worker threads (0 -> cores count).");
 
 namespace {
 
+std::unique_ptr<SkFILEWStream> MakeFrameStream(size_t idx, const char* ext) {
+    const auto frame_file = SkStringPrintf("0%06d.%s", idx, ext);
+    auto stream = skstd::make_unique<SkFILEWStream>(SkOSPath::Join(FLAGS_writePath[0],
+                                                                   frame_file.c_str()).c_str());
+    if (!stream->isValid()) {
+        return nullptr;
+    }
+
+    return stream;
+}
+
 class Sink {
 public:
+    Sink() = default;
     virtual ~Sink() = default;
     Sink(const Sink&) = delete;
     Sink& operator=(const Sink&) = delete;
 
-    bool handleFrame(const skottie::Animation* anim, size_t idx) const {
-        const auto frame_file = SkStringPrintf("0%06d.%s", idx, fExtension.c_str());
-        SkFILEWStream stream (SkOSPath::Join(FLAGS_writePath[0], frame_file.c_str()).c_str());
-
-        if (!stream.isValid()) {
-            SkDebugf("Could not open '%s/%s' for writing.\n",
-                     FLAGS_writePath[0], frame_file.c_str());
-            return false;
-        }
-
-        return this->saveFrame(anim, &stream);
-    }
-
-protected:
-    Sink(const char* ext) : fExtension(ext) {}
-
-    virtual bool saveFrame(const skottie::Animation* anim, SkFILEWStream*) const = 0;
-
-private:
-    const SkString fExtension;
+    virtual SkCanvas* beginFrame(size_t idx) = 0;
+    virtual bool endFrame(size_t idx) = 0;
 };
 
 class PNGSink final : public Sink {
 public:
-    PNGSink()
-        : INHERITED("png")
-        , fSurface(SkSurface::MakeRasterN32Premul(FLAGS_width, FLAGS_height)) {
-        if (!fSurface) {
+    static std::unique_ptr<Sink> Make(const SkMatrix& scale_matrix) {
+        auto surface = SkSurface::MakeRasterN32Premul(FLAGS_width, FLAGS_height);
+        if (!surface) {
             SkDebugf("Could not allocate a %d x %d surface.\n", FLAGS_width, FLAGS_height);
+            return nullptr;
         }
+
+        return std::unique_ptr<Sink>(new PNGSink(std::move(surface), scale_matrix));
     }
 
-    bool saveFrame(const skottie::Animation* anim, SkFILEWStream* stream) const override {
-        if (!fSurface) return false;
+private:
+    PNGSink(sk_sp<SkSurface> surface, const SkMatrix& scale_matrix)
+        : fSurface(std::move(surface)) {
+        fSurface->getCanvas()->concat(scale_matrix);
+    }
 
+    SkCanvas* beginFrame(size_t) override {
         auto* canvas = fSurface->getCanvas();
-        SkAutoCanvasRestore acr(canvas, true);
-
-        canvas->concat(SkMatrix::MakeRectToRect(SkRect::MakeSize(anim->size()),
-                                                SkRect::MakeIWH(FLAGS_width, FLAGS_height),
-                                                SkMatrix::kCenter_ScaleToFit));
-
         canvas->clear(SK_ColorTRANSPARENT);
-        anim->render(canvas);
+        return canvas;
+    }
 
+    bool endFrame(size_t idx) override {
+        auto stream = MakeFrameStream(idx, "png");
+        if (!stream) {
+            return false;
+        }
 
         // Set encoding options to favor speed over size.
         SkPngEncoder::Options options;
@@ -99,36 +99,74 @@ public:
         sk_sp<SkImage> img = fSurface->makeImageSnapshot();
         SkPixmap pixmap;
         return img->peekPixels(&pixmap)
-            && SkPngEncoder::Encode(stream, pixmap, options);
+            && SkPngEncoder::Encode(stream.get(), pixmap, options);
     }
 
 private:
     const sk_sp<SkSurface> fSurface;
-
-    using INHERITED = Sink;
 };
 
 class SKPSink final : public Sink {
 public:
-    SKPSink() : INHERITED("skp") {}
+    static std::unique_ptr<Sink> Make(const SkMatrix& scale_matrix) {
+        return std::unique_ptr<Sink>(new SKPSink(scale_matrix));
+    }
 
-    bool saveFrame(const skottie::Animation* anim, SkFILEWStream* stream) const override {
-        SkPictureRecorder recorder;
+private:
+    explicit SKPSink(const SkMatrix& scale_matrix)
+        : fScaleMatrix(scale_matrix) {}
 
-        auto canvas = recorder.beginRecording(FLAGS_width, FLAGS_height);
-        canvas->concat(SkMatrix::MakeRectToRect(SkRect::MakeSize(anim->size()),
-                                                SkRect::MakeIWH(FLAGS_width, FLAGS_height),
-                                                SkMatrix::kCenter_ScaleToFit));
-        anim->render(canvas);
-        recorder.finishRecordingAsPicture()->serialize(stream);
+    SkCanvas* beginFrame(size_t) override {
+        auto canvas = fRecorder.beginRecording(FLAGS_width, FLAGS_height);
+        canvas->concat(fScaleMatrix);
+        return canvas;
+    }
 
+    bool endFrame(size_t idx) override {
+        auto stream = MakeFrameStream(idx, "skp");
+        if (!stream) {
+            return false;
+        }
+
+        fRecorder.finishRecordingAsPicture()->serialize(stream.get());
+        return true;
+    }
+
+private:
+    const SkMatrix    fScaleMatrix;
+    SkPictureRecorder fRecorder;
+};
+
+class NullSink final : public Sink {
+public:
+    static std::unique_ptr<Sink> Make(const SkMatrix& scale_matrix) {
+        auto surface = SkSurface::MakeRasterN32Premul(FLAGS_width, FLAGS_height);
+        if (!surface) {
+            SkDebugf("Could not allocate a %d x %d surface.\n", FLAGS_width, FLAGS_height);
+            return nullptr;
+        }
+
+        return std::unique_ptr<Sink>(new NullSink(std::move(surface), scale_matrix));
+    }
+
+private:
+    NullSink(sk_sp<SkSurface> surface, const SkMatrix& scale_matrix)
+        : fSurface(std::move(surface)) {
+        fSurface->getCanvas()->concat(scale_matrix);
+    }
+
+    SkCanvas* beginFrame(size_t) override {
+        auto* canvas = fSurface->getCanvas();
+        canvas->clear(SK_ColorTRANSPARENT);
+        return canvas;
+    }
+
+    bool endFrame(size_t) override {
         return true;
     }
 
 private:
     const sk_sp<SkSurface> fSurface;
-
-    using INHERITED = Sink;
 };
 
 class Logger final : public skottie::Logger {
@@ -164,12 +202,18 @@ private:
                           fWarnings;
 };
 
-std::unique_ptr<Sink> MakeSink(const char* fmt) {
+std::unique_ptr<Sink> MakeSink(const char* fmt, const SkSize& animation_size) {
+    auto scale_matrix = SkMatrix::MakeRectToRect(SkRect::MakeSize(animation_size),
+                                                 SkRect::MakeIWH(FLAGS_width, FLAGS_height),
+                                                 SkMatrix::kCenter_ScaleToFit);
     if (0 == strcmp(fmt, "png")) {
-        return skstd::make_unique<PNGSink>();
+        return PNGSink::Make(scale_matrix);
     }
     if (0 == strcmp(fmt, "skp")) {
-        return skstd::make_unique<SKPSink>();
+        return SKPSink::Make(scale_matrix);
+    }
+    if (0 == strcmp(fmt, "null")) {
+        return NullSink::Make(scale_matrix);
     }
 
     SkDebugf("Unknown format: %s\n", FLAGS_format[0]);
@@ -241,22 +285,22 @@ int main(int argc, char** argv) {
 #if defined(SK_BUILD_FOR_IOS)
         // iOS doesn't support thread_local on versions less than 9.0.
         auto tl_sink = MakeSink(FLAGS_format[0]);
-        auto    anim = skottie::Animation::Builder()
+        auto tl_anim = skottie::Animation::Builder()
                             .setResourceProvider(rp)
                             .make(static_cast<const char*>(data->data()), data->size());
-        auto* tl_anim = anim.get();
 #else
-        thread_local static auto* tl_sink = MakeSink(FLAGS_format[0]).release();
         thread_local static auto* tl_anim =
                 skottie::Animation::Builder()
                     .setResourceProvider(rp)
                     .make(static_cast<const char*>(data->data()), data->size())
                     .release();
+        thread_local static auto* tl_sink = MakeSink(FLAGS_format[0], tl_anim->size()).release();
 #endif
 
         if (tl_sink && tl_anim) {
             tl_anim->seek(t0 + dt * i);
-            tl_sink->handleFrame(tl_anim, i);
+            tl_anim->render(tl_sink->beginFrame(i));
+            tl_sink->endFrame(i);
         }
 
         const auto elapsed = std::chrono::steady_clock::now() - start;
