@@ -12,6 +12,7 @@ module.exports = function(config) {
     files: [
       { pattern: 'debugger/bin/debugger.wasm', included:false, served:true},
       { pattern: 'debugger/sample.skp', included:false, served:true},
+      { pattern: 'debugger/anim.mskp', included:false, served:true},
       '../../modules/pathkit/tests/testReporter.js',
       'debugger/bin/debugger.js',
       'tests/debuggerinit.js',
