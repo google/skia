@@ -29,17 +29,137 @@ namespace SK_OPTS_NS {
 
 // This same basic packing scheme is used throughout the file.
 static void decode_packed_coordinates_and_weight(uint32_t packed, int* v0, int* v1, int* w) {
-    // The top 14 bits are the integer coordinate x0 or y0.
-    *v0 = packed >> 18;
+    struct {
+        uint32_t v1 : 14; // Integer coordinate x1 or y1.
+        uint32_t w  :  4; // Interpolating factor between the v0 and v1, a.k.a weight for v1.
+        uint32_t v0 : 14; // Integer coordinate x0 or y0.
+    } unpacked;
+    memcpy(&unpacked, &packed, 4);
 
-    // The bottom 14 bits are the integer coordinate x1 or y1.
-    *v1 = packed & 0x3fff;
-
-    // The middle 4 bits are the interpolating factor between the two, i.e. the weight for v1.
-    *w = (packed >> 14) & 0xf;
+    *v0 = unpacked.v0;
+    *v1 = unpacked.v1;
+    *w  = unpacked.w;
 }
 
-#if 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+#if 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+    // This is the SSSE3 approach doubled up 2x wider, so see below.
+    // I've left comments here only where we differ in an interesting way.
+
+    /*not static*/ inline
+    void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
+                                 const uint32_t* xy, int count, uint32_t* colors) {
+        SkASSERT(count > 0 && colors != nullptr);
+        SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
+        SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
+        SkASSERT(s.fAlphaScale <= 256);
+
+        // Interpolate 4 pairs of pixels instead of 2.
+        auto interpolate_in_x = [](uint32_t A0, uint32_t A1,
+                                   uint32_t B0, uint32_t B1,
+                                   uint32_t C0, uint32_t C1,
+                                   uint32_t D0, uint32_t D1,
+                                   __m256i interlaced_x_weights) {
+
+            __m128i interlaced_A = _mm_unpacklo_epi8(_mm_cvtsi32_si128(A0), _mm_cvtsi32_si128(A1)),
+                    interlaced_B = _mm_unpacklo_epi8(_mm_cvtsi32_si128(B0), _mm_cvtsi32_si128(B1)),
+                    interlaced_C = _mm_unpacklo_epi8(_mm_cvtsi32_si128(C0), _mm_cvtsi32_si128(C1)),
+                    interlaced_D = _mm_unpacklo_epi8(_mm_cvtsi32_si128(D0), _mm_cvtsi32_si128(D1));
+
+            return _mm256_maddubs_epi16(
+                    _mm256_setr_m128i(_mm_unpacklo_epi64(interlaced_A, interlaced_B),
+                                      _mm_unpacklo_epi64(interlaced_C, interlaced_D)),
+                    interlaced_x_weights);
+        };
+
+        // Interpolate 4 output pixels instead of 2.
+        auto interpolate_in_x_and_y = [&](uint32_t A0, uint32_t A1, uint32_t A2, uint32_t A3,
+                                          uint32_t B0, uint32_t B1, uint32_t B2, uint32_t B3,
+                                          uint32_t C0, uint32_t C1, uint32_t C2, uint32_t C3,
+                                          uint32_t D0, uint32_t D1, uint32_t D2, uint32_t D3,
+                                          __m256i interlaced_x_weights,
+                                          int wy) {
+            __m256i top = interpolate_in_x(A0,A1, B0,B1, C0,C1, D0,D1, interlaced_x_weights),
+                    bot = interpolate_in_x(A2,A3, B2,B3, C2,C3, D2,D3, interlaced_x_weights);
+
+            __m256i px = _mm256_add_epi16(_mm256_slli_epi16(top, 4),
+                                          _mm256_mullo_epi16(_mm256_sub_epi16(bot, top),
+                                                             _mm256_set1_epi16(wy)));
+
+            px = _mm256_srli_epi16(px, 8);
+
+            if (s.fAlphaScale < 256) {
+                px = _mm256_srli_epi16(_mm256_mullo_epi16(px, _mm256_set1_epi16(s.fAlphaScale)), 8);
+            }
+            return px;
+        };
+
+        int y0, y1, wy;
+        decode_packed_coordinates_and_weight(*xy++, &y0, &y1, &wy);
+
+        auto row0 = (const uint32_t*)((const uint8_t*)s.fPixmap.addr() + y0 * s.fPixmap.rowBytes()),
+             row1 = (const uint32_t*)((const uint8_t*)s.fPixmap.addr() + y1 * s.fPixmap.rowBytes());
+
+        // TODO: 8 at a time?
+        while (count >= 4) {
+            int x0[4],
+                x1[4];
+            __m128i wx;
+
+            __m128i packed = _mm_loadu_si128((const __m128i*)xy);
+            _mm_storeu_si128((__m128i*)x0, _mm_srli_epi32(packed, 18));
+            _mm_storeu_si128((__m128i*)x1, _mm_and_si128 (packed, _mm_set1_epi32(0x3fff)));
+            wx = _mm_and_si128(_mm_srli_epi32(packed, 14), _mm_set1_epi32(0xf));
+
+            __m128i wr = _mm_shuffle_epi8(wx, _mm_setr_epi8(0,0,0,0,4,4,4,4,8,8,8,8,12,12,12,12)),
+                    wl = _mm_sub_epi8(_mm_set1_epi8(16), wr);
+
+            __m128i interlaced_x_weights_AB = _mm_unpacklo_epi8(wl,wr),
+                    interlaced_x_weights_CD = _mm_unpackhi_epi8(wl,wr);
+
+            __m256i interlaced_x_weights = _mm256_setr_m128i(interlaced_x_weights_AB,
+                                                             interlaced_x_weights_CD);
+
+            enum { A,B,C,D };
+
+            __m256i ABCD = interpolate_in_x_and_y(
+                    row0[x0[A]], row0[x1[A]], row1[x0[A]], row1[x1[A]],
+                    row0[x0[B]], row0[x1[B]], row1[x0[B]], row1[x1[B]],
+                    row0[x0[C]], row0[x1[C]], row1[x0[C]], row1[x1[C]],
+                    row0[x0[D]], row0[x1[D]], row1[x0[D]], row1[x1[D]],
+                    interlaced_x_weights, wy);
+
+            // As always we have to do a little permute dance across the 128-bit line to pack down.
+            __m256i ABCD_xxxx = _mm256_permute4x64_epi64(_mm256_packus_epi16(ABCD, ABCD),
+                                                         0b11'01'10'00);
+
+            _mm_storeu_si128((__m128i*)colors, _mm256_castsi256_si128(ABCD_xxxx));
+            xy     += 4;
+            colors += 4;
+            count  -= 4;
+        }
+
+        // TODO: mask load and mask store for N <= 7?
+        while (count --> 0) {
+            int x0, x1, wx;
+            decode_packed_coordinates_and_weight(*xy++, &x0, &x1, &wx);
+
+            __m256i wr = _mm256_set1_epi8(wx),
+                    wl = _mm256_sub_epi8(_mm256_set1_epi8(16), wr);
+
+            __m256i interlaced_x_weights = _mm256_unpacklo_epi8(wl, wr);
+
+            __m256i A = interpolate_in_x_and_y(row0[x0], row0[x1], row1[x0], row1[x1],
+                                                      0,        0,        0,        0,
+                                                      0,        0,        0,        0,
+                                                      0,        0,        0,        0,
+                                               interlaced_x_weights, wy);
+
+            *colors++ = _mm_cvtsi128_si32(_mm_packus_epi16(_mm256_castsi256_si128(A),
+                                                           _mm_setzero_si128()));
+        }
+    }
+
+#elif 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
 
     /*not static*/ inline
     void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
