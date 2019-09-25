@@ -89,6 +89,31 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GpuDrawPath, reporter, ctxInfo) {
     }
 }
 
+DEF_GPUTEST_FOR_ALL_CONTEXTS(GrDrawCollapsedPath, reporter, ctxInfo) {
+    // From https://bugs.fuchsia.dev/p/fuchsia/issues/detail?id=37330, it's possible for a convex
+    // path to be accepted by AAConvexPathRenderer, then be transformed to something without a
+    // computable first direction by a perspective matrix.
+    SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
+    auto surface(SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo, info));
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(50, 0);
+    path.lineTo(0, 50);
+    path.close();
+
+    SkMatrix m;
+    m.setAll( 0.966006875f   , -0.125156224f  , 72.0899811f,
+             -0.00885376986f , -0.112347461f  , 64.7121124f,
+             -8.94321693e-06f, -0.00173384184f, 0.998692870f);
+    surface->getCanvas()->setMatrix(m);
+    surface->getCanvas()->drawPath(path, paint);
+    surface->flush();
+}
+
 DEF_GPUTEST(GrPathKeys, reporter, /* options */) {
     SkPaint strokePaint;
     strokePaint.setStyle(SkPaint::kStroke_Style);
