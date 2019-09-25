@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "596c2ce6_9eccd31b",
+        "filename": "src/gpu/vk/GrVkGpu.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-25T13:49:11Z",
+      "side": 1,
+      "message": "do we need internalResolveRenderTarget and resolveRenderTargetNoFlush anymore? Can it all just get merged into this one function?",
+      "range": {
+        "startLine": 127,
+        "startChar": 14,
+        "endLine": 127,
+        "endChar": 88
+      },
+      "revId": "29c0c2eb19bd7569f7a078ae51415648cc76d85d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
