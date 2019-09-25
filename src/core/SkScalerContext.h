@@ -210,6 +210,19 @@ private:
 };
 SK_END_REQUIRE_DENSE
 
+// TODO: rename SkScalerContextEffects -> SkStrikeEffects
+struct SkScalerContextEffects {
+    SkScalerContextEffects() : fPathEffect(nullptr), fMaskFilter(nullptr) {}
+    SkScalerContextEffects(SkPathEffect* pe, SkMaskFilter* mf)
+            : fPathEffect(pe), fMaskFilter(mf) {}
+    explicit SkScalerContextEffects(const SkPaint& paint)
+            : fPathEffect(paint.getPathEffect())
+            , fMaskFilter(paint.getMaskFilter()) {}
+
+    SkPathEffect*   fPathEffect;
+    SkMaskFilter*   fMaskFilter;
+};
+
 //The following typedef hides from the rest of the implementation the number of
 //most significant bits to consider when creating mask gamma tables. Two bits
 //per channel was chosen as a balance between fidelity (more bits) and cache

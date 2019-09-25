@@ -21,19 +21,7 @@ class SkGlyph;
 class SkMaskFilter;
 class SkPathEffect;
 class SkTypeface;
-
-// TODO: rename SkScalerContextEffects -> SkStrikeEffects
-struct SkScalerContextEffects {
-    SkScalerContextEffects() : fPathEffect(nullptr), fMaskFilter(nullptr) {}
-    SkScalerContextEffects(SkPathEffect* pe, SkMaskFilter* mf)
-            : fPathEffect(pe), fMaskFilter(mf) {}
-    explicit SkScalerContextEffects(const SkPaint& paint)
-            : fPathEffect(paint.getPathEffect())
-            , fMaskFilter(paint.getMaskFilter()) {}
-
-    SkPathEffect*   fPathEffect;
-    SkMaskFilter*   fMaskFilter;
-};
+struct SkScalerContextEffects;
 
 struct SkGlyphPos {
     size_t index;
