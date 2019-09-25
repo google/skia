@@ -172,16 +172,10 @@ private:
 
     bool onTransferPixelsTo(GrTexture*, int left, int top, int width, int height,
                             GrColorType textureColorType, GrColorType bufferColorType, GrGpuBuffer*,
-                            size_t offset, size_t rowBytes) override {
-        // TODO: not sure this is worth the work since nobody uses it
-        return false;
-    }
+                            size_t offset, size_t rowBytes) override;
     bool onTransferPixelsFrom(GrSurface*, int left, int top, int width, int height,
                               GrColorType surfaceColorType, GrColorType bufferColorType,
-                              GrGpuBuffer*, size_t offset) override {
-        // TODO: Will need to implement this to support async read backs.
-        return false;
-    }
+                              GrGpuBuffer*, size_t offset) override;
 
     bool onRegenerateMipMapLevels(GrTexture*) override;
 
@@ -217,6 +211,9 @@ private:
                          GrColorType dataColorType, const GrMipLevel texels[], int mipLevels);
     // Function that fills texture levels with transparent black based on levelMask.
     bool clearTexture(GrMtlTexture*, GrColorType, uint32_t levelMask);
+    bool readOrTransferPixels(GrSurface* surface, int left, int top, int width, int height,
+                              GrColorType dstColorType, id<MTLBuffer> transferBuffer, size_t offset,
+                              size_t imageBytes, size_t rowBytes);
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(
             const GrRenderTarget*, int width, int height, int numStencilSamples) override;
