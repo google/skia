@@ -1114,14 +1114,17 @@ static bool check_image_info(const GrVkCaps& caps,
         return false;
     }
 
+    if (info.fImageLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR && !caps.supportsSwapchain()) {
+        return false;
+    }
+
     if (info.fYcbcrConversionInfo.isValid()) {
         if (!caps.supportsYcbcrConversion()) {
             return false;
         }
-    }
-
-    if (info.fImageLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR && !caps.supportsSwapchain()) {
-        return false;
+        if (info.fYcbcrConversionInfo.fExternalFormat != 0) {
+            return true;
+        }
     }
 
     SkASSERT(GrVkFormatColorTypePairIsValid(info.fFormat, colorType));
@@ -1129,6 +1132,9 @@ static bool check_image_info(const GrVkCaps& caps,
 }
 
 static bool check_tex_image_info(const GrVkCaps& caps, const GrVkImageInfo& info) {
+    if (info.fYcbcrConversionInfo.isValid() && info.fYcbcrConversionInfo.fExternalFormat != 0) {
+        return true;
+    }
     if (info.fImageTiling == VK_IMAGE_TILING_OPTIMAL) {
         if (!caps.isVkFormatTexturable(info.fFormat)) {
             return false;
