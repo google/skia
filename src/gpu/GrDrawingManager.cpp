@@ -531,7 +531,7 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
             SkASSERT(rtProxy);
             if (rtProxy->isMSAADirty()) {
                 SkASSERT(rtProxy->peekRenderTarget());
-                gpu->resolveRenderTarget(rtProxy->peekRenderTarget());
+                gpu->resolveRenderTarget(rtProxy->peekRenderTarget(), GrGpu::ForExternalIO::kYes);
                 rtProxy->markMSAAResolved();
             }
         }

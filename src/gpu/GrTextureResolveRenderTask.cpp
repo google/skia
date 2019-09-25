@@ -69,7 +69,7 @@ bool GrTextureResolveRenderTask::onExecute(GrOpFlushState* flushState) {
             // peekRenderTarget might be null if there was an instantiation error.
             GrRenderTarget* renderTarget = resolve.fProxy->peekRenderTarget();
             if (renderTarget && renderTarget->needsResolve()) {
-                flushState->gpu()->resolveRenderTarget(renderTarget);
+                flushState->gpu()->resolveRenderTarget(renderTarget, GrGpu::ForExternalIO::kNo);
             }
         }
     }

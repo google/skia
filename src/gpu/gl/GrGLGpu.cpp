@@ -1957,7 +1957,7 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
                 this->flushRenderTargetNoColorWrites(renderTarget);
                 break;
             case GrGLRenderTarget::kCanResolve_ResolveType:
-                this->onResolveRenderTarget(renderTarget);
+                this->onResolveRenderTarget(renderTarget, ForExternalIO::kNo);
                 // we don't track the state of the READ FBO ID.
                 this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, renderTarget->textureFBOID());
                 break;
@@ -2281,7 +2281,7 @@ void GrGLGpu::sendIndexedInstancedMeshToGpu(GrPrimitiveType primitiveType,
     }
 }
 
-void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
+void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, ForExternalIO) {
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(target);
     if (rt->needsResolve()) {
         // Some extensions automatically resolves the texture when it is read.
@@ -2552,7 +2552,7 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
     // out of the "last != next" check.
     GrGLRenderTarget* texRT = static_cast<GrGLRenderTarget*>(texture->asRenderTarget());
     if (texRT) {
-        this->onResolveRenderTarget(texRT);
+        this->onResolveRenderTarget(texRT, ForExternalIO::kNo);
     }
 
     GrGpuResource::UniqueID textureID = texture->uniqueID();

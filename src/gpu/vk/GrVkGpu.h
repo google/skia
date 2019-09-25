@@ -123,11 +123,8 @@ public:
         this->internalResolveRenderTarget(target, false);
     }
 
-    void onResolveRenderTarget(GrRenderTarget* target) override {
-        // This resolve is called when we are preparing an msaa surface for external I/O. It is
-        // called after flushing, so we need to make sure we submit the command buffer after doing
-        // the resolve so that the resolve actually happens.
-        this->internalResolveRenderTarget(target, true);
+    void onResolveRenderTarget(GrRenderTarget* target, ForExternalIO forExternalIO) override {
+        this->internalResolveRenderTarget(target, ForExternalIO::kYes == forExternalIO);
     }
 
     void submitSecondaryCommandBuffer(std::unique_ptr<GrVkSecondaryCommandBuffer>);
