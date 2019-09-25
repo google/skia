@@ -31,7 +31,7 @@
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
-#include "src/core/SkStrikeInterface.h"
+#include "src/core/SkStrikeForGPU.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTraceEvent.h"
 
@@ -61,7 +61,7 @@ SkVector SkStrikeCommon::PixelRounding(bool isSubpixel, SkAxisAlignment axisAlig
 SkGlyphRunListPainter::SkGlyphRunListPainter(const SkSurfaceProps& props,
                                              SkColorType colorType,
                                              SkScalerContextFlags flags,
-                                             SkStrikeCacheInterface* strikeCache)
+                                             SkStrikeForGPUCacheInterface* strikeCache)
         : fDeviceProps{props}
         ,  fBitmapFallbackProps{SkSurfaceProps{props.flags(), kUnknown_SkPixelGeometry}}
         ,  fColorType{colorType}, fScalerContextFlags{flags}
@@ -82,7 +82,7 @@ static SkScalerContextFlags compute_scaler_context_flags(const SkColorSpace* cs)
 SkGlyphRunListPainter::SkGlyphRunListPainter(const SkSurfaceProps& props,
                                              SkColorType colorType,
                                              SkColorSpace* cs,
-                                             SkStrikeCacheInterface* strikeCache)
+                                             SkStrikeForGPUCacheInterface* strikeCache)
         : SkGlyphRunListPainter(props, colorType, compute_scaler_context_flags(cs), strikeCache) {}
 
 #if SK_SUPPORT_GPU
@@ -110,7 +110,7 @@ static bool check_glyph_position(SkPoint position) {
 }
 
 SkSpan<const SkPackedGlyphID> SkGlyphRunListPainter::DeviceSpacePackedGlyphIDs(
-        SkStrikeInterface* strike,
+        SkStrikeForGPU* strike,
         const SkMatrix& viewMatrix,
         const SkPoint& origin,
         int n,
@@ -179,7 +179,8 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 
             auto strike = strikeSpec.findOrCreateExclusiveStrike();
 
-            auto packedGlyphIDs = SourceSpacePackedGlyphIDs(
+            // Used for the side effect for creating the right positions.
+            SourceSpacePackedGlyphIDs(
                     origin,
                     runSize,
                     glyphRun.glyphsIDs().data(),
@@ -187,32 +188,16 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                     fPositions,
                     fPackedGlyphIDs);
 
-            auto glyphPosSpan = strike->prepareForDrawingRemoveEmpty(
-                    packedGlyphIDs.data(),
-                    fPositions,
-                    glyphRun.runSize(),
-                    0,
-                    fGlyphPos);
+            SkBulkGlyphMetricsAndPaths glyphPaths{strikeSpec};
+            auto glyphs = glyphPaths.glyphs(glyphRun.glyphsIDs());
 
             SkTDArray<SkPathPos> pathsAndPositions;
-            pathsAndPositions.setReserve(glyphPosSpan.size());
-            for (const SkGlyphPos& glyphPos : glyphPosSpan) {
-                const SkGlyph& glyph = *glyphPos.glyph;
-                SkPoint position = glyphPos.position;
-                if (check_glyph_position(position)
-                    && !glyph.isEmpty()
-                    && !glyph.isColor()
-                    && glyph.path() != nullptr)
-                {
-                    // Only draw a path if it exists, and this is not a color glyph.
+            pathsAndPositions.setReserve(runSize);
+            for (size_t i = 0; i < runSize; i++) {
+                const SkGlyph& glyph = *glyphs[i];
+                SkPoint position = fPositions[i];
+                if (check_glyph_position(position) && !glyph.isEmpty() && glyph.path() != nullptr) {
                     pathsAndPositions.push_back(SkPathPos{glyph.path(), position});
-                } else {
-                    // TODO: this is here to have chrome layout tests pass. Remove this when
-                    //  fallback for CPU works.
-                    const SkPath* path = strike->preparePath((SkGlyph*) &glyph);
-                    if (check_glyph_position(position) && !glyph.isEmpty() && path != nullptr) {
-                        pathsAndPositions.push_back(SkPathPos{path, position});
-                    }
                 }
             }
 
@@ -322,7 +307,7 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
                 runFont, runPaint, fDeviceProps, fScalerContextFlags, viewMatrix);
 
-        SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+        SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
         SkPackedGlyphID* cursor = fPackedGlyphIDs;
         for (auto glyphID : fARGBGlyphsIDs) {
@@ -347,7 +332,7 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeSourceFallback(
                 runFont, runPaint, fDeviceProps, fScalerContextFlags, maxSourceGlyphDimension);
 
-        SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+        SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
         SkPackedGlyphID* cursor = fPackedGlyphIDs;
         for (auto glyphID : fARGBGlyphsIDs) {
@@ -408,7 +393,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                     SkStrikeSpec::MakeSDFT(
                             runFont, runPaint,fDeviceProps, viewMatrix, options);
 
-            SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+            SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
             auto packedGlyphIDs = SourceSpacePackedGlyphIDs(
                     origin,
@@ -434,11 +419,10 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 // kARGB32_Format. The following if statements use this assumption.
                 SkASSERT(glyph.maskFormat() == SkMask::kSDF_Format || glyph.isColor());
 
-                if (glyph.maskFormat() == SkMask::kSDF_Format
-                           && glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas) {
+                if (SkStrikeForGPU::CanDrawAsSDFT(glyph)) {
                     // SDF mask will work.
                     fGlyphPos[glyphsWithMaskCount++] = glyphPos;
-                } else if (!glyph.isColor() && glyph.path() != nullptr) {
+                } else if (SkStrikeForGPU::CanDrawAsPath(glyph)) {
                     // If not color but too big, use a path.
                     fPaths.push_back(glyphPos);
                 } else {
@@ -477,7 +461,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             SkStrikeSpec strikeSpec = SkStrikeSpec::MakePath(
                             runFont, runPaint, fDeviceProps, fScalerContextFlags);
 
-            SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+            SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
             auto packedGlyphIDs = SourceSpacePackedGlyphIDs(
                     origin,
@@ -499,7 +483,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             for (const SkGlyphPos& glyphPos : glyphPosSpan) {
                 const SkGlyph& glyph = *glyphPos.glyph;
                 SkPoint position = glyphPos.position;
-                if (!glyph.isColor() && glyph.path() != nullptr) {
+                if (SkStrikeForGPU::CanDrawAsPath(glyph)) {
                     // Place paths in fGlyphPos
                     fGlyphPos[glyphsWithPathCount++] = glyphPos;
                 } else {
@@ -525,7 +509,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                     SkStrikeSpec::MakeMask(runFont, runPaint,
                             fDeviceProps, fScalerContextFlags, viewMatrix);
 
-            SkScopedStrike strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+            SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
             auto packedGlyphIDs = DeviceSpacePackedGlyphIDs(
                     strike.get(),
@@ -554,9 +538,9 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 // Does the glyph have work to do or is the code able to position the glyph?
                 if (!SkScalarsAreFinite(position.x(), position.y())) {
                     // Do nothing;
-                } else if (glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas) {
+                } else if (SkStrikeForGPU::CanDrawAsMask(glyph)) {
                     fGlyphPos[glyphsWithMaskCount++] = glyphPos;
-                } else if (!glyph.isColor() && glyph.path() != nullptr) {
+                } else if (SkStrikeForGPU::CanDrawAsPath(glyph)) {
                     fPaths.push_back(glyphPos);
                 } else {
                     addFallback(glyph, origin + glyphRun.positions()[glyphPos.index]);

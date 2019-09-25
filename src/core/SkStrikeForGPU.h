@@ -34,9 +34,9 @@ struct SkPathPos {
     SkPoint position;
 };
 
-class SkStrikeInterface {
+class SkStrikeForGPU {
 public:
-    virtual ~SkStrikeInterface() = default;
+    virtual ~SkStrikeForGPU() = default;
     virtual const SkDescriptor& getDescriptor() const = 0;
 
     // prepareForDrawingRemoveEmpty takes glyphIDs, and position, and returns a list of SkGlyphs
@@ -62,23 +62,29 @@ public:
     virtual SkVector rounding() const = 0;
     virtual SkIPoint subpixelMask() const = 0;
 
-    // Used with SkScopedStrike to take action at the end of a scope.
+    // Used with SkScopedStrikeForGPU to take action at the end of a scope.
     virtual void onAboutToExitScope() = 0;
 
+    // Common categories for glyph types used by GPU.
+    static bool CanDrawAsMask(const SkGlyph& glyph);
+    static bool CanDrawAsSDFT(const SkGlyph& glyph);
+    static bool CanDrawAsPath(const SkGlyph& glyph);
+
+
     struct Deleter {
-        void operator()(SkStrikeInterface* ptr) const {
+        void operator()(SkStrikeForGPU* ptr) const {
             ptr->onAboutToExitScope();
         }
     };
 };
 
-using SkScopedStrike = std::unique_ptr<SkStrikeInterface, SkStrikeInterface::Deleter>;
+using SkScopedStrikeForGPU = std::unique_ptr<SkStrikeForGPU, SkStrikeForGPU::Deleter>;
 
-class SkStrikeCacheInterface {
+class SkStrikeForGPUCacheInterface {
 public:
-    virtual ~SkStrikeCacheInterface() = default;
-    virtual SkScopedStrike findOrCreateScopedStrike(const SkDescriptor& desc,
-                                                    const SkScalerContextEffects& effects,
-                                                    const SkTypeface& typeface) = 0;
+    virtual ~SkStrikeForGPUCacheInterface() = default;
+    virtual SkScopedStrikeForGPU findOrCreateScopedStrike(const SkDescriptor& desc,
+                                                          const SkScalerContextEffects& effects,
+                                                          const SkTypeface& typeface) = 0;
 };
 #endif  //SkStrikeInterface_DEFINED

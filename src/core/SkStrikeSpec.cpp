@@ -219,7 +219,7 @@ void SkStrikeSpec::commonSetup(const SkFont& font, const SkPaint& paint,
     fTypeface = font.refTypefaceOrDefault();
 }
 
-SkScopedStrike SkStrikeSpec::findOrCreateScopedStrike(SkStrikeCacheInterface* cache) const {
+SkScopedStrikeForGPU SkStrikeSpec::findOrCreateScopedStrike(SkStrikeForGPUCacheInterface* cache) const {
     SkScalerContextEffects effects{fPathEffect.get(), fMaskFilter.get()};
     return cache->findOrCreateScopedStrike(*fAutoDescriptor.getDesc(), effects, *fTypeface);
 }
