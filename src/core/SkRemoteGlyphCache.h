@@ -22,7 +22,7 @@
 #include "include/utils/SkNoDrawCanvas.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkMakeUnique.h"
-#include "src/core/SkStrikeInterface.h"
+#include "src/core/SkStrikeForGPU.h"
 #include "src/core/SkTLazy.h"
 
 class Deserializer;

@@ -102,7 +102,7 @@ private:
                              SkGlyphRunPainterInterface* process);
 
     static SkSpan<const SkPackedGlyphID> DeviceSpacePackedGlyphIDs(
-            SkStrikeInterface* strike,
+            SkStrikeForGPU* strike,
             const SkMatrix& viewMatrix,
             const SkPoint& origin,
             int n,
