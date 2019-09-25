@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc8e9311_0b58d6c5",
+        "filename": "experimental/wasm-skp-debugger/tests/mskp_playback.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-09-25T16:28:38Z",
+      "side": 1,
+      "message": "nit: const",
+      "range": {
+        "startLine": 6,
+        "startChar": 4,
+        "endLine": 6,
+        "endChar": 7
+      },
+      "revId": "97a7735dc707e2bbd8f9094fa9b71ee9daa9f6f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb511337_22ea352d",
+        "filename": "experimental/wasm-skp-debugger/tests/mskp_playback.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-09-25T16:28:38Z",
+      "side": 1,
+      "message": "You might want to join this promise and LoadDebugger together and use Promise.all \nhttps://github.com/google/skia/blob/master/modules/canvaskit/tests/skottie.spec.js#L23",
+      "range": {
+        "startLine": 21,
+        "startChar": 12,
+        "endLine": 21,
+        "endChar": 40
+      },
+      "revId": "97a7735dc707e2bbd8f9094fa9b71ee9daa9f6f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc846f50_8d701661",
+        "filename": "experimental/wasm-skp-debugger/tests/mskp_playback.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-09-25T16:28:38Z",
+      "side": 1,
+      "message": "You might want to move catchException down here, as I\u0027ve noticed that sometimes doing what you have here leads to things just timing out on a failure and we lose the stacktrace.\n\nhttps://github.com/google/skia/blob/master/modules/canvaskit/tests/skottie.spec.js#L29",
+      "revId": "97a7735dc707e2bbd8f9094fa9b71ee9daa9f6f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57b1e1d2_806aae33",
+        "filename": "experimental/wasm-skp-debugger/tests/mskp_playback.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-09-25T16:28:38Z",
+      "side": 1,
+      "message": "You probably want to make sure this is truthy.",
+      "range": {
+        "startLine": 35,
+        "startChar": 20,
+        "endLine": 35,
+        "endChar": 33
+      },
+      "revId": "97a7735dc707e2bbd8f9094fa9b71ee9daa9f6f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec5f0091_20b7c586",
+        "filename": "experimental/wasm-skp-debugger/tests/mskp_playback.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-09-25T16:28:38Z",
+      "side": 1,
+      "message": "You probably want to make sure this is truthy.",
+      "range": {
+        "startLine": 39,
+        "startChar": 20,
+        "endLine": 39,
+        "endChar": 27
+      },
+      "revId": "97a7735dc707e2bbd8f9094fa9b71ee9daa9f6f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
