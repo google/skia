@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+
+# Copyright 2018 The Fuchsia Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+#
+# Traverses "root_dir" and produces a .gni file that includes a 
+#
+import argparse
+import os
+import subprocess
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--root_dir', dest='root_dir', action='store', required=True)
+parser.add_argument('--append_file', dest='append_file', action='store', required=True)
+args = parser.parse_args()
+
+root_dir = args.root_dir
+if not os.path.exists(root_dir):
+    print "--root_dir path specified: " + root_dir + " doesn't exist."
+    exit 1
+
+append_file = args.append_file
+if not os.path.exists(append_file):
+    print "--append_file specified: " + append_file + " doesn't exist."
+    exit 1
+out_file = open(append_file, "a")
+
+files = subprocess.check_output(["find", root_dir, "-type", "f"])
+file_lines = files.splitlines()
+
+for file in file_lines:
+	file_split = file.split('/')
+	file_split = file_split[8:]
+        out_file.write('%s=' % '/'.join(file_split))
+        out_file.write('%s\n' % file)
+
+out_file.close()
