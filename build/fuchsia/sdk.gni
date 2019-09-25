@@ -1,0 +1,426 @@
+# Copyright 2019 The Flutter and Fuchsia Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/fuchsia/fuchsia.gni")
+import("//gn/skia.gni")
+
+declare_args() {
+  # The path to where GN targets derived from the Fuchsia SDK are instantiated.
+  # fuchsia_sdk_root = "//build/fuchsia"
+
+  # The Flutter buildroot is outside the Fuchsia root and can only use the SDK.
+  # using_fuchsia_sdk = true  TODO(rosasco): this was moved to //build/fuchsia/fuchsia.gni
+
+  # The following variables are Flutter buildroot specific.
+  # fuchsia_sdk_path = "//fuchsia/sdk/$host_os"
+  fuchsia_toolchain_path = "//fuchsia/toolchain/$host_os"
+}
+
+# _fuchsia_sdk_path = "//fuchsia/sdk/$host_os"
+
+template("_fuchsia_sysroot") {
+  assert(defined(invoker.meta), "The meta.json file path must be specified.")
+  assert(target_cpu == "x64" || target_cpu == "arm64",
+         "We currently only support 'x64' and 'arm64' targets for fuchsia.")
+
+  meta_json = read_file(invoker.meta, "json")
+
+  assert(meta_json.type == "sysroot")
+
+  meta_json_versions = meta_json.versions
+  if (target_cpu == "x64") {
+    defs = meta_json_versions.x64
+  } else {
+    defs = meta_json_versions.arm64
+  }
+
+  _libs = []
+  _lib_dirs = []
+  _include_dirs = []
+
+  foreach(link_lib, defs.link_libs) {
+    if (link_lib != "arch/${target_cpu}/sysroot/lib/Scrt1.o") {
+      _libs += [ rebase_path("$skia_fuchsia_sdk_path/$link_lib") ]
+    }
+  }
+
+  defs_include_dir = defs.include_dir
+  _include_dirs += [ rebase_path("$skia_fuchsia_sdk_path/$defs_include_dir") ]
+
+  config_name = "config_$target_name"
+  config(config_name) {
+    lib_dirs = _lib_dirs
+    libs = _libs
+    include_dirs = _include_dirs
+  }
+
+  group(target_name) {
+    public_configs = [ ":$config_name" ]
+  }
+}
+
+template("_fuchsia_fidl_library") {
+  assert(defined(invoker.meta), "The meta.json file path must be specified.")
+  assert(target_cpu == "x64" || target_cpu == "arm64",
+         "We currently only support 'x64' and 'arm64' targets for fuchsia.")
+
+  meta_json = read_file(invoker.meta, "json")
+
+  assert(meta_json.type == "fidl_library")
+
+  _deps = [ "../pkg:fidl_cpp" ]
+
+  library_name = string_replace(meta_json.name, "fuchsia.", "")
+  library_name_json = "$library_name.json"
+
+  foreach(dep, meta_json.deps) {
+    _deps += [ ":$dep" ]
+  }
+
+  config_name = "config_$target_name"
+  config(config_name) {
+    include_dirs = [ target_gen_dir ]
+  }
+
+  fidl_gen_target_name = "fidlgen_$target_name"
+  action(fidl_gen_target_name) {
+    script = "//build/fuchsia/fidl_gen_cpp.py"
+
+    library_name_slashes = string_replace(library_name, ".", "/")
+
+    inputs = [
+      invoker.meta,
+    ]
+
+    outputs = [
+      "$target_gen_dir/fuchsia/$library_name_slashes/c/fidl.h",
+      "$target_gen_dir/fuchsia/$library_name_slashes/cpp/fidl.h",
+      "$target_gen_dir/fuchsia/$library_name_slashes/cpp/fidl.cc",
+      "$target_gen_dir/fuchsia/$library_name_slashes/cpp/tables.cc",
+    ]
+
+    args = [
+      "--fidlc-bin",
+        rebase_path("$skia_fuchsia_sdk_path/tools/fidlc"),
+      "--fidlgen-bin",
+        rebase_path("$skia_fuchsia_sdk_path/tools/fidlgen"),
+      "--sdk-base",
+        rebase_path("$skia_fuchsia_sdk_path"),
+      "--root",
+      rebase_path(invoker.meta),
+      "--json",
+      rebase_path("$target_gen_dir/$library_name_json"),
+      "--include-base",
+      rebase_path("$target_gen_dir"),
+      "--output-base-cc",
+      rebase_path("$target_gen_dir/fuchsia/$library_name_slashes/cpp/fidl"),
+      "--output-c-header",
+      rebase_path("$target_gen_dir/fuchsia/$library_name_slashes/c/fidl.h"),
+      "--output-c-tables",
+      rebase_path(
+          "$target_gen_dir/fuchsia/$library_name_slashes/cpp/tables.cc"),
+    ]
+  }
+
+  source_set(target_name) {
+    public_configs = [ ":$config_name" ]
+
+    sources = get_target_outputs(":$fidl_gen_target_name")
+
+    deps = [
+      ":$fidl_gen_target_name",
+    ]
+
+    public_deps = _deps
+  }
+}
+
+template("_fuchsia_cc_source_library") {
+  assert(defined(invoker.meta), "The meta.json file path must be specified.")
+
+  meta_json = read_file(invoker.meta, "json")
+
+  assert(meta_json.type == "cc_source_library")
+
+  _output_name = meta_json.name
+  _include_dirs = []
+  _public_headers = []
+  _sources = []
+  _deps = []
+
+  meta_json_include_dir = meta_json.include_dir
+  _include_dirs += [ rebase_path("$skia_fuchsia_sdk_path/$meta_json_include_dir") ]
+
+  foreach(header, meta_json.headers) {
+    rebased_header = []
+    rebased_header = [ rebase_path("$skia_fuchsia_sdk_path/$header") ]
+    _public_headers += rebased_header
+    _sources += rebased_header
+  }
+
+  foreach(source, meta_json.sources) {
+    _sources += [ "$skia_fuchsia_sdk_path/$source" ]
+  }
+
+  config_name = "config_$target_name"
+  config(config_name) {
+    include_dirs = _include_dirs
+  }
+
+  foreach(dep, meta_json.deps) {
+    _deps += [ "../pkg:$dep" ]
+  }
+
+  foreach(dep, meta_json.fidl_deps) {
+    _deps += [ "../fidl:$dep" ]
+  }
+
+  source_set(target_name) {
+    output_name = _output_name
+    public = _public_headers
+    sources = _sources
+    public_configs = [ ":$config_name" ]
+    public_deps = _deps
+  }
+}
+
+template("_fuchsia_cc_prebuilt_library") {
+  assert(defined(invoker.meta), "The meta.json file path must be specified.")
+  meta_json = read_file(invoker.meta, "json")
+
+  _include_dirs = []
+  _deps = []
+  _libs = []
+
+  meta_json_include_dir = meta_json.include_dir
+  _include_dirs += [ "$skia_fuchsia_sdk_path/$meta_json_include_dir" ]
+
+  # TODO(rosasco): is this explicit setting necessary given the
+  #                parsing of //fuchsia/sdk/meta/manifest.json 
+  #                which specifies the vulkan include dir in
+  #                //fuchsia/sdk/vulkan/meta/manifest.json ?
+  if (target_name == "vulkan") {
+    # _include_dirs += [ "//fuchsia/sdk/vulkan/include" ]
+  }
+
+  foreach(dep, meta_json.deps) {
+    _deps += [ ":$dep" ]
+  }
+
+  meta_json_binaries = meta_json.binaries
+  if (target_cpu == "x64") {
+    meta_json_binaries_arch = meta_json_binaries.x64
+  } else {
+    meta_json_binaries_arch = meta_json_binaries.arm64
+  }
+  prebuilt_lib = meta_json_binaries_arch.link
+  _libs = [ "$skia_fuchsia_sdk_path/$prebuilt_lib" ]
+
+  config_name = "config_$target_name"
+  config(config_name) {
+    include_dirs = _include_dirs
+    libs = _libs
+  }
+
+  group(target_name) {
+    public_configs = [ ":$config_name" ]
+    public_deps = _deps
+  }
+}
+
+template("fuchsia_sdk") {
+  assert(defined(invoker.meta), "The meta.json file path must be specified.")
+  assert(defined(invoker.enabled_parts),
+         "A list containing the parts of the SDK to generate targets for.")
+
+  meta_json = read_file(invoker.meta, "json")
+
+  foreach(part, meta_json.parts) {
+    part_meta_json = {
+    }
+
+    part_meta = part.meta
+    part_meta_rebased = "$skia_fuchsia_sdk_path/$part_meta"
+
+    part_meta_json = read_file(part_meta_rebased, "json")
+    subtarget_name = part_meta_json.name
+
+    foreach(enabled_part, invoker.enabled_parts) {
+      if (part.type == "cc_source_library") {
+        if (part.type == enabled_part) {
+          _fuchsia_cc_source_library(subtarget_name) {
+            meta = part_meta_rebased
+          }
+        }
+      } else if (part.type == "sysroot") {
+        if (part.type == enabled_part) {
+          _fuchsia_sysroot(subtarget_name) {
+            meta = part_meta_rebased
+          }
+        }
+      } else if (part.type == "fidl_library") {
+        if (part.type == enabled_part) {
+          _fuchsia_fidl_library(subtarget_name) {
+            meta = part_meta_rebased
+          }
+        }
+      } else if (part.type == "cc_prebuilt_library") {
+        if (part.type == enabled_part) {
+          _fuchsia_cc_prebuilt_library(subtarget_name) {
+            meta = part_meta_rebased
+          }
+        }
+      }
+    }
+  }
+
+  group(target_name) {
+  }
+}
+
+template("fuchsia_package") {
+  assert(defined(invoker.name), "The name of the package must be specified.")
+  assert(defined(invoker.version), "The package version must be specified.")
+
+  pkg_name = invoker.name
+  pkg_version = invoker.version
+
+  #
+  # (1) Create Package ID File.
+  #     TODO(rosasco): This is normally handled by another pm command. Move this
+  #                    into gen_package.py with the other pm commands.
+  #
+  pkg_id_json = {
+    name = pkg_name
+    version = "$pkg_version"
+  }
+  pkg_id_json_path = rebase_path("$target_gen_dir/${target_name}_pkg_id.json")
+  write_file(pkg_id_json_path, pkg_id_json, "json")
+
+  #
+  # (2) Create Package Manifest File.
+  #       A real package manifest should be created in gen_packages.py.
+  #
+  # manifest = [
+  #   # Required.
+  #   "meta/package=${pkg_id_json_path}",
+  # ]
+  # manifest_path = rebase_path("$target_gen_dir/pkg_manifest_${target_name}.txt")
+  # write_file(manifest_path, manifest, "list lines")
+  #
+
+  #
+  # (3) Create Package Metadata Archive
+  #       Handled implicitly by "gen_package.py".
+  #
+
+  #
+  # (4) Create Package Archive
+  #
+  gen_far_target_name = "gen_far_${target_name}"
+
+  #
+  # TODO(rosasco): It would be cleaner if we could return the .far name from
+  #                the action script that generates it.
+  #
+  gen_far_name = "$target_gen_dir/${pkg_name}-${pkg_version}.far"
+
+  action(gen_far_target_name) {
+    script = "//build/fuchsia/gen_package.py"
+
+    pm_binary = rebase_path("$skia_fuchsia_sdk_path/tools/pm")
+
+    inputs = [
+      pm_binary,
+      pkg_id_json_path,
+    ]
+
+    outputs = [
+      gen_far_name,
+    ]
+
+    args = [
+      "--pm-bin",
+      pm_binary,
+      "--pkg-dir",
+      rebase_path(target_gen_dir),
+      "--pkg-name",
+      pkg_name,
+      "--pkg-version",
+      "$pkg_version",
+    ]
+
+    if (defined(invoker.deps)) {
+      deps = invoker.deps
+    }
+    if (defined(invoker.testonly)) {
+      testonly = invoker.testonly
+    }
+  }
+
+  copy(target_name) {
+    if (defined(invoker.testonly)) {
+      testonly = invoker.testonly
+    }
+
+    sources = [
+      gen_far_name,
+    ]
+
+    outputs = [
+      "$root_out_dir/far/$pkg_name.far",
+    ]
+
+    deps = [
+      ":$gen_far_target_name",
+    ]
+  }
+}
+
+template("fuchsia_repo") {
+  assert(defined(invoker.archives),
+         "The list of archives to publish must be specified.")
+  assert(defined(invoker.repo), "The location of the repo should be specified.")
+
+  action(target_name) {
+    if (defined(invoker.testonly)) {
+      testonly = invoker.testonly
+    }
+    script = "//build/fuchsia/gen_repo.py"
+
+    pm_binary = rebase_path("$skia_fuchsia_sdk_path/tools/pm")
+    repo_directory = invoker.repo
+
+    inputs = [
+      pm_binary,
+    ]
+
+    archive_flags = []
+
+    foreach(archive, invoker.archives) {
+      assert(get_path_info(archive, "extension") == "far",
+             "Archive '$archive' does not have the .far extension.")
+      inputs += [ archive ]
+      archive_flags += [
+        "--archive",
+        rebase_path(archive),
+      ]
+    }
+
+    outputs = [
+      repo_directory,
+    ]
+
+    args = [
+             "--pm-bin",
+             pm_binary,
+             "--repo-dir",
+             rebase_path(repo_directory),
+           ] + archive_flags
+
+    if (defined(invoker.deps)) {
+      deps = invoker.deps
+    }
+  }
+}
