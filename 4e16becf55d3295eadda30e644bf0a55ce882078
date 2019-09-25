@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5e38e488_93c3f699",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-25T13:49:21Z",
+      "side": 1,
+      "message": "This const is still here, but the corresponding Data doesn\u0027t have const on it? If it is really needed, can we comment why? I just seems odd to have this one different here since Data and Size are both called with the std::forward\u003cTs\u003e(ts).",
+      "range": {
+        "startLine": 98,
+        "startChar": 37,
+        "endLine": 98,
+        "endChar": 42
+      },
+      "revId": "4e16becf55d3295eadda30e644bf0a55ce882078",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
