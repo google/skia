@@ -4,12 +4,14 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
- * This test confirms that a multi skp can be serialize and deserailzied without error.
+ * This test confirms that a MultiPictureDocument can be serialized and deserailzied without error.
+ * And that the pictures within it are re-created accurately
  */
 
 #include "include/core/SkDocument.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
@@ -66,7 +68,8 @@ static void compareRecords(const SkRecord& tested, const SkRecord& expected,
     }
 }
 
-static void draw_something(SkCanvas* canvas, int seed, sk_sp<SkImage> image) {
+// Covers rects, ovals, paths, images, text
+static void draw_basic(SkCanvas* canvas, int seed, sk_sp<SkImage> image) {
     canvas->drawColor(SK_ColorWHITE);
 
     SkPaint paint;
@@ -108,7 +111,19 @@ static void draw_something(SkCanvas* canvas, int seed, sk_sp<SkImage> image) {
     canvas->drawTextBlob(text.get(), 50, 25, paint2);
 }
 
-// Test serialization and deserialization of multi skp.
+// Covers all of the above and drawing nested sub-pictures.
+static void draw_advanced(SkCanvas* canvas, int seed, sk_sp<SkImage> image, sk_sp<SkPicture> sub) {
+    draw_basic(canvas, seed, image);
+
+    // Use subpicture twice in different places
+    canvas->drawPicture(sub);
+    canvas->save();
+    canvas->translate(seed, seed);
+    canvas->drawPicture(sub);
+    canvas->restore();
+}
+
+// Test serialization and deserialization of multi picture document
 DEF_TEST(Serialize_and_deserialize_multi_skp, reporter) {
     // Create the stream we will serialize into.
     SkDynamicMemoryWStream stream;
@@ -119,7 +134,7 @@ DEF_TEST(Serialize_and_deserialize_multi_skp, reporter) {
     procs.fImageProc = SkSharingSerialContext::serializeImage;
     procs.fImageCtx = &ctx;
 
-    // Create the mulit picture document used for recording frames.
+    // Create the multi picture document used for recording frames.
     sk_sp<SkDocument> multipic = SkMakeMultiPictureDocument(&stream, &procs);
 
     static const int NUM_FRAMES = 12;
@@ -132,15 +147,21 @@ DEF_TEST(Serialize_and_deserialize_multi_skp, reporter) {
     sk_sp<SkImage> image(surface->makeImageSnapshot());
     REPORTER_ASSERT(reporter, image);
 
+    // Make a subpicture to be used in a later step
+    SkPictureRecorder pr;
+    SkCanvas* subCanvas = pr.beginRecording(100, 100);
+    draw_basic(subCanvas, 42, image);
+    sk_sp<SkPicture> sub = pr.finishRecordingAsPicture();
+
     // Create frames, recording them to multipic.
     SkRecord expectedRecords[NUM_FRAMES];
     for (int i=0; i<NUM_FRAMES; i++) {
         SkCanvas* pictureCanvas = multipic->beginPage(WIDTH, HEIGHT);
-        draw_something(pictureCanvas, i, image);
+        draw_advanced(pictureCanvas, i, image, sub);
         multipic->endPage();
         // Also record the same commands to separate SkRecords for later comparison
         SkRecorder canvas(&expectedRecords[i], WIDTH, HEIGHT);
-        draw_something(&canvas, i, image);
+        draw_advanced(&canvas, i, image, sub);
     }
     // Finalize
     multipic->close();
@@ -189,8 +210,9 @@ DEF_TEST(Serialize_and_deserialize_multi_skp, reporter) {
         // friend classes to grab the private record inside frame.fPicture
         SkRecord record;
         // This picture mode is necessary so that we record the command contents of frame.fPicture
-        // not just a 'DrawPicture' command.
-        resultRecorder.reset(&record, bounds, SkRecorder::Playback_DrawPictureMode, nullptr);
+        // not just a 'DrawPicture' command, but don't record pictures within it. We want to assert
+        // that the code under test reffed them like it should have.
+        resultRecorder.reset(&record, bounds, SkRecorder::PlaybackTop_DrawPictureMode, nullptr);
         frame.fPicture->playback(&resultRecorder);
         // Compare the record to the expected one
         compareRecords(record, expectedRecords[i], i, reporter);
