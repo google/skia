@@ -108,10 +108,6 @@ public:
         this->didWriteToSurface(surface, origin, bounds);
     }
 
-    void resolveRenderTargetNoFlush(GrRenderTarget* target) {
-        this->internalResolveRenderTarget(target, false);
-    }
-
 private:
     GrMtlGpu(GrContext* context, const GrContextOptions& options,
              id<MTLDevice> device, id<MTLCommandQueue> queue, MTLFeatureSet featureSet);
@@ -185,11 +181,9 @@ private:
 
     bool onRegenerateMipMapLevels(GrTexture*) override;
 
-    void onResolveRenderTarget(GrRenderTarget* target, ForExternalIO forExternalIO) override {
-        this->internalResolveRenderTarget(target, ForExternalIO::kYes == forExternalIO);
-    }
+    void onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
+                               GrSurfaceOrigin resolveOrigin, ForExternalIO) override;
 
-    void internalResolveRenderTarget(GrRenderTarget* target, bool requiresSubmit);
     void resolveTexture(id<MTLTexture> colorTexture, id<MTLTexture> resolveTexture);
 
     void onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,

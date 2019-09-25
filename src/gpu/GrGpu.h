@@ -189,7 +189,8 @@ public:
     /**
      * Resolves MSAA.
      */
-    void resolveRenderTarget(GrRenderTarget*, ForExternalIO);
+    void resolveRenderTarget(GrRenderTarget*, const SkIRect& resolveRect, GrSurfaceOrigin,
+                             ForExternalIO);
 
     /**
      * Uses the base of the texture to recompute the contents of the other levels.
@@ -634,7 +635,8 @@ private:
                                       GrGpuBuffer* transferBuffer, size_t offset) = 0;
 
     // overridden by backend-specific derived class to perform the resolve
-    virtual void onResolveRenderTarget(GrRenderTarget* target, ForExternalIO) = 0;
+    virtual void onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
+                                       GrSurfaceOrigin resolveOrigin, ForExternalIO) = 0;
 
     // overridden by backend specific derived class to perform mip map level regeneration.
     virtual bool onRegenerateMipMapLevels(GrTexture*) = 0;
