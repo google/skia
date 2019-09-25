@@ -21,7 +21,7 @@ class SkDescriptor;
 class SkGlyph;
 class SkMaskFilter;
 class SkPathEffect;
-class SkStrikeInterface;
+class SkStrikeForGPU;
 class SkTypeface;
 
 // TODO: rename SkScalerContextEffects -> SkStrikeEffects
@@ -90,10 +90,10 @@ struct SkGlyphinator {
             return SkGlyphinator{size, fMultiBuffer, fPositions};
         }
 
-        SkGlyphinator makeForDeviceSpace(SkStrikeInterface* strike,
-                                                const SkMatrix& viewMatrix,
-                                                const SkPoint& origin,
-                                                SkGlyphIDPos glyphPos);
+        SkGlyphinator makeForDeviceSpace(SkStrikeForGPU* strike,
+                                         const SkMatrix& viewMatrix,
+                                         const SkPoint& origin,
+                                         SkGlyphIDPos glyphPos);
 
         SkGlyphinator makeForSourceSpace(const SkPoint& origin, SkGlyphIDPos glyphPos);
     };
@@ -116,7 +116,6 @@ public:
                                  size_t n,
                                  int maxDimension,
                                  SkGlyphPos results[]) = 0;
-
 
     virtual SkGlyphinator prepareForMaskDrawing(
             SkGlyphinator glyphPos, std::vector<size_t>& rejectIndices) = 0;
@@ -164,7 +163,7 @@ public:
 };
 
 inline SkGlyphinator SkGlyphinator::Storage::makeForDeviceSpace(
-        SkStrikeInterface* strike,
+        SkStrikeForGPU* strike,
         const SkMatrix& viewMatrix,
         const SkPoint& origin,
         SkGlyphIDPos glyphPos) {

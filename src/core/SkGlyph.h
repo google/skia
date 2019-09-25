@@ -14,7 +14,6 @@
 #include "include/private/SkFixed.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkMask.h"
-#include "src/core/SkStrikeCommon.h"
 
 class SkArenaAlloc;
 class SkStrike;
@@ -201,9 +200,7 @@ public:
 
     // Bounds
     int maxDimension() const { return std::max(fWidth, fHeight); }
-    bool fitsInAtlas() const {
-        return this->maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas;
-    }
+
     SkIRect iRect() const { return SkIRect::MakeXYWH(fLeft, fTop, fWidth, fHeight); }
     SkRect rect()   const { return SkRect::MakeXYWH(fLeft, fTop, fWidth, fHeight);  }
     int left()   const { return fLeft;   }

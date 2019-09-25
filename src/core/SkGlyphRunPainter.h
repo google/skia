@@ -12,7 +12,6 @@
 #include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkGlyphRun.h"
 #include "src/core/SkScalerContext.h"
-#include "src/core/SkStrikeCommon.h"
 #include "src/core/SkTextBlobPriv.h"
 
 #if SK_SUPPORT_GPU
@@ -23,6 +22,15 @@ class GrRenderTargetContext;
 
 class SkGlyphRunPainterInterface;
 class SkStrikeSpec;
+
+class SkStrikeCommon {
+public:
+    static SkVector PixelRounding(bool isSubpixel, SkAxisAlignment axisAlignment);
+
+    // An atlas consists of plots, and plots hold glyphs. The minimum a plot can be is 256x256.
+    // This means that the maximum size a glyph can be is 256x256.
+    static constexpr uint16_t kSkSideTooBigForAtlas = 256;
+};
 
 class SkGlyphRunListPainter {
 public:

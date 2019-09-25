@@ -192,9 +192,8 @@ SkGlyphinator SkStrike::prepareForMaskDrawing(
     for (size_t i = 0; i < glyphPos.n; i++) {
         SkPoint pos = glyphPos.positions[i];
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            SkGlyph* glyph = this->glyph(glyphPos.glyphs[i].packedID);
-            if (!glyph->isEmpty() && glyph->fitsInAtlas())
-            {
+            const SkGlyph* glyph = this->glyph(glyphPos.glyphs[i].packedID);
+            if (CanDrawAsMask(*glyph)) {
                 glyphPos.glyphs[drawableGlyphs].glyph = glyph;
                 glyphPos.positions[drawableGlyphs] = pos;
                 drawableGlyphs++;
@@ -213,9 +212,8 @@ SkGlyphinator SkStrike::prepareForSDFTDrawing(
     for (size_t i = 0; i < glyphPos.n; i++) {
         SkPoint pos = glyphPos.positions[i];
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            SkGlyph* glyph = this->glyph(glyphPos.glyphs[i].packedID);
-            if (!glyph->isEmpty() && !glyph->isColor() && glyph->fitsInAtlas())
-            {
+            const SkGlyph* glyph = this->glyph(glyphPos.glyphs[i].packedID);
+            if (CanDrawAsSDFT(*glyph)) {
                 glyphPos.glyphs[drawableGlyphs].glyph = glyph;
                 glyphPos.positions[drawableGlyphs] = pos;
                 drawableGlyphs++;
@@ -235,8 +233,7 @@ SkGlyphinator SkStrike::prepareForPathDrawing(
         SkPoint pos = glyphPos.positions[i];
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
             SkGlyph* glyph = this->glyph(glyphPos.glyphs[i].packedID);
-            if (!glyph->isEmpty()
-                && !glyph->isColor())
+            if (!glyph->isEmpty() && !glyph->isColor())
             {
                 glyphPos.glyphs[drawableGlyphs].path = this->preparePath(glyph);
                 glyphPos.positions[drawableGlyphs] = pos;

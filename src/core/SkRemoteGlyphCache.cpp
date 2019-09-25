@@ -646,7 +646,7 @@ void SkStrikeServer::RemoteStrike::writePendingGlyphs(Serializer* serializer) {
 
         writeGlyph(glyph, serializer);
         auto imageSize = glyph.imageSize();
-        if (imageSize > 0 && glyph.fitsInAtlas()) {
+        if (CanDrawAsMask(glyph)) {
             glyph.fImage = serializer->allocate(imageSize, glyph.formatAlignment());
             fContext->getImage(glyph);
         }
@@ -660,9 +660,7 @@ void SkStrikeServer::RemoteStrike::writePendingGlyphs(Serializer* serializer) {
 
         writeGlyph(glyph, serializer);
         auto imageSize = glyph.imageSize();
-        if (imageSize > 0
-            && !glyph.isColor()
-            && glyph.fitsInAtlas()) {
+        if (CanDrawAsSDFT(glyph)) {
             glyph.fImage = serializer->allocate(imageSize, glyph.formatAlignment());
             fContext->getImage(glyph);
         }
@@ -785,7 +783,7 @@ SkGlyphinator SkStrikeServer::RemoteStrike::prepareForMaskDrawing(
             this->ensureScalerContext();
             fContext->getMetrics(glyph);
             SkGlyphSummary newSummary = packedID.value();
-            if (!glyph->fitsInAtlas()) {
+            if (glyph->maxDimension() > SkStrikeCommon::kSkSideTooBigForAtlas) {
                 newSummary |= kTooBig;
             }
             if (glyph->isColor()) {
@@ -819,7 +817,7 @@ SkGlyphinator SkStrikeServer::RemoteStrike::prepareForSDFTDrawing(
             this->ensureScalerContext();
             fContext->getMetrics(glyph);
             SkGlyphSummary newSummary = packedID.value();
-            if (!glyph->fitsInAtlas()) {
+            if (glyph->maxDimension() > SkStrikeCommon::kSkSideTooBigForAtlas) {
                 newSummary |= kTooBig;
             }
             if (glyph->isColor()) {
@@ -1001,7 +999,7 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
             SkTLazy<SkGlyph> glyph;
             if (!ReadGlyph(glyph, &deserializer)) READ_FAILURE
 
-            if (!glyph->isEmpty() && glyph->fitsInAtlas()) {
+            if (SkStrikeForGPU::CanDrawAsMask(*glyph)) {
                 const volatile void* image =
                         deserializer.read(glyph->imageSize(), glyph->formatAlignment());
                 if (!image) READ_FAILURE
@@ -1016,7 +1014,7 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
             SkTLazy<SkGlyph> glyph;
             if (!ReadGlyph(glyph, &deserializer)) READ_FAILURE
 
-            if (!glyph->isEmpty() && glyph->isColor() && glyph->fitsInAtlas()) {
+            if (SkStrikeForGPU::CanDrawAsSDFT(*glyph)) {
                 const volatile void* image =
                         deserializer.read(glyph->imageSize(), glyph->formatAlignment());
                 if (!image) READ_FAILURE
