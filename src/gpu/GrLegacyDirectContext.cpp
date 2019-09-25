@@ -122,6 +122,7 @@ private:
     typedef GrContext INHERITED;
 };
 
+#if SK_GL
 sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface) {
     GrContextOptions defaultOptions;
     return MakeGL(std::move(interface), defaultOptions);
@@ -150,6 +151,7 @@ sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface,
     }
     return context;
 }
+#endif
 
 sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions) {
     GrContextOptions defaultOptions;
