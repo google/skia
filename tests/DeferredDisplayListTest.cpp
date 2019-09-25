@@ -188,6 +188,7 @@ public:
                                         ? GrMipMapped::kNo
                                         : GrMipMapped(fShouldCreateMipMaps);
 
+#ifdef SK_GL
         if (fUsesGLFBO0) {
             if (GrBackendApi::kOpenGL != context->backend()) {
                 return nullptr;
@@ -210,6 +211,7 @@ public:
             SkASSERT(result->isCompatible(c));
             return result;
         }
+#endif
 
         *backend = context->createBackendTexture(fWidth, fHeight, fColorType,
                                                  SkColors::kTransparent,
