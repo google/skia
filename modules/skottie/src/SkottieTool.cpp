@@ -11,6 +11,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/encode/SkPngEncoder.h"
+#include "include/private/SkSpinlock.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "src/core/SkMakeUnique.h"
@@ -19,6 +20,9 @@
 #include "src/utils/SkOSPath.h"
 #include "tools/flags/CommandLineFlags.h"
 
+#include <algorithm>
+#include <chrono>
+#include <numeric>
 #include <vector>
 
 static DEFINE_string2(input    , i, nullptr, "Input .json file.");
@@ -224,8 +228,13 @@ int main(int argc, char** argv) {
 
     const auto frame_count = static_cast<int>((t1 - t0) / dt);
 
+    SkSpinlock lock;
+    std::vector<double> frames_ms;
+    frames_ms.reserve(frame_count);
+
     SkTaskGroup::Enabler enabler(FLAGS_threads - 1);
     SkTaskGroup{}.batch(frame_count, [&](int i) {
+        const auto start = std::chrono::steady_clock::now();
 #if defined(SK_BUILD_FOR_IOS)
         // iOS doesn't support thread_local on versions less than 9.0.
         auto tl_sink = MakeSink(FLAGS_format[0]);
@@ -246,7 +255,17 @@ int main(int argc, char** argv) {
             tl_anim->seek(t0 + dt * i);
             tl_sink->handleFrame(tl_anim, i);
         }
+
+        const auto elapsed = std::chrono::steady_clock::now() - start;
+        double ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
+        lock.acquire();
+            frames_ms.push_back(ms);
+        lock.release();
     });
 
+    std::sort(frames_ms.begin(), frames_ms.end());
+    double sum = std::accumulate(frames_ms.begin(), frames_ms.end(), 0);
+    SkDebugf("frame time min %gms, med %gms, avg %gms, max %gms, sum %gms\n",
+             frames_ms[0], frames_ms[frame_count/2], sum/frame_count, frames_ms.back(), sum);
     return 0;
 }
