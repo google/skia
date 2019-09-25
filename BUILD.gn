@@ -8,6 +8,18 @@ import("gn/fuchsia_defines.gni")
 import("gn/shared_sources.gni")
 
 import("gn/skia.gni")
+import("build/fuchsia/fuchsia.gni")
+
+# TODO(rosasco): Fix this use of "false" here.
+if(false && is_fuchsia && using_fuchsia_sdk &&
+   current_toolchain == default_toolchain) {
+  update_out = exec_script("//build/fuchsia/update_sdk_and_toolchain.py",
+              [ "-sdk_dir=$skia_fuchsia_sdk_path",
+                "-clang_dir=" + rebase_path("//fuchsia/clang") ],
+              "list lines",
+              [ "//build/fuchsia/update_sdk_and_toolchain.py" ])
+  print("$update_out")
+}
 
 if (skia_use_dawn) {
   import("third_party/externals/dawn/scripts/dawn_features.gni")
@@ -320,10 +332,10 @@ optional("fontmgr_fontconfig") {
 optional("fontmgr_fuchsia") {
   enabled = skia_enable_fontmgr_fuchsia
 
-  deps = []
+  deps = [ "//build/fuchsia:fuchsia" ]
 
   if (is_fuchsia && using_fuchsia_sdk) {
-    deps += [ "$fuchsia_sdk_root/fidl:fuchsia.fonts" ]
+    deps += [ "//build/fuchsia/fidl:fuchsia.fonts" ]
   } else {
     deps += [ "//sdk/fidl/fuchsia.fonts" ]
   }
@@ -494,7 +506,11 @@ optional("gpu") {
   if (skia_generate_workarounds) {
     deps += [ ":workaround_list" ]
   }
-  public_defines = [ "SK_GL" ]
+  if (is_fuchsia) {
+    public_defines = []
+  } else {
+    public_defines = [ "SK_GL" ]
+  }
   public_configs = []
   public_deps = []
 
@@ -510,8 +526,12 @@ optional("gpu") {
   }
 
   # These paths need to be absolute to match the ones produced by shared_sources.gni.
-  sources -= get_path_info([ "src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ],
-                           "abspath")
+  # TODO(rosasco): clean up this logic.
+  if (!is_fuchsia) {
+    sources -= get_path_info([ "src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ],
+                             "abspath")
+  }
+
   libs = []
   if (is_android) {
     sources += [ "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp" ]
@@ -548,7 +568,7 @@ optional("gpu") {
     }
     if (is_fuchsia) {
       if (using_fuchsia_sdk) {
-        public_deps += [ "$fuchsia_sdk_root/pkg:vulkan" ]
+        public_deps += [ "//build/fuchsia/pkg:vulkan" ]
       } else {
         public_deps += [ "//src/graphics/lib/vulkan" ]
       }
@@ -1157,26 +1177,29 @@ if (skia_enable_tools) {
   config("our_vulkan_headers") {
     # We add this directory to simulate the client already have
     # vulkan/vulkan_core.h on their path.
-    include_dirs = [ "include/third_party/vulkan" ]
-  }
-
-  source_set("public_headers_warnings_check") {
-    sources = [
-      "tools/public_headers_warnings_check.cpp",
-    ]
-    configs -= [ "//gn:warnings_except_public_headers" ]
-    configs += [ ":our_vulkan_headers" ]
-    deps = [
-      ":skia",
-      ":skia.h",
-      "modules/skottie",
-      "modules/skshaper",
-    ]
-
-    if (skia_use_dawn) {
-      deps += [ "//third_party/dawn:dawn_headers" ]
+    # TODO(rosasco): consider a fuchsia modification here
+    if (!is_fuchsia) {
+      include_dirs = [ "include/third_party/vulkan" ]
     }
   }
+
+#  source_set("public_headers_warnings_check") {
+#    sources = [
+#      "tools/public_headers_warnings_check.cpp",
+#    ]
+#    configs -= [ "//gn:warnings_except_public_headers" ]
+#    configs += [ ":our_vulkan_headers" ]
+#    deps = [
+#      ":skia",
+#      ":skia.h",
+#      "modules/skottie",
+#      "modules/skshaper",
+#    ]
+#
+#    if (skia_use_dawn) {
+#      deps += [ "//third_party/dawn:dawn_headers" ]
+#    }
+#  }
 
   template("test_lib") {
     config(target_name + "_config") {
@@ -1311,12 +1334,14 @@ if (skia_enable_tools) {
       "tools/gpu/TestContext.cpp",
       "tools/gpu/YUVUtils.cpp",
       "tools/gpu/YUVUtils.h",
-      "tools/gpu/atlastext/GLTestAtlasTextRenderer.cpp",
-      "tools/gpu/gl/GLTestContext.cpp",
-      "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp",
       "tools/gpu/mock/MockTestContext.cpp",
     ]
     libs = []
+
+    if (skia_use_gl) {
+      sources += [ "tools/gpu/atlastext/GLTestAtlasTextRenderer.cpp", "tools/gpu/gl/GLTestContext.cpp",
+          "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp" ]
+    }
 
     if (is_android || skia_use_egl) {
       sources += [ "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp" ]
@@ -1508,6 +1533,9 @@ if (skia_enable_tools) {
   import("gn/gm.gni")
   test_lib("gm") {
     sources = gm_sources
+    if (!skia_use_gl) {
+      sources -= [ "$gm_path/atlastext.cpp" ]
+    }
     deps = [
       ":etc1",
       ":flags",
@@ -1542,6 +1570,16 @@ if (skia_enable_tools) {
   import("gn/tests.gni")
   test_lib("tests") {
     sources = tests_sources + pathops_tests_sources
+    if (!skia_use_gl) {
+      sources -= [
+        "$tests_path/BackendAllocationTest.cpp",
+        "$tests_path/EGLImageTest.cpp",
+        "$tests_path/RectangleTextureTest.cpp",
+        "$tests_path/ResourceCacheTest.cpp",
+        "$tests_path/TextureBindingsResetTest.cpp",
+        "$tests_path/VkHardwareBufferTest.cpp",
+        ]
+    }
     if (skia_use_metal) {
       sources += metal_tests_sources
     }
@@ -1550,6 +1588,9 @@ if (skia_enable_tools) {
     }
     if (!(skia_use_freetype && skia_use_fontconfig)) {
       sources -= [ "//tests/FontMgrFontConfigTest.cpp" ]
+    }
+    if (is_fuchsia) {
+       sources -= [ "$tests_path/EncodeTest.cpp" ]
     }
     deps = [
       ":experimental_svg_model",
@@ -1923,8 +1964,10 @@ if (skia_enable_tools) {
         ":gpu_tool_utils",
         ":skia",
         ":tool_utils",
-        "//third_party/libmicrohttpd",
       ]
+      if (!is_fuchsia) {
+        deps += [ "//third_party/libmicrohttpd" ]
+      }
     }
   }
 
@@ -2027,7 +2070,6 @@ if (skia_enable_tools) {
       ]
       deps = [
         ":gm",
-        ":gpu_tool_utils",
         ":skia",
         ":tests",
         ":tool_utils",
@@ -2037,10 +2079,9 @@ if (skia_enable_tools) {
       sources = [
         "tools/skqp/src/skqp_main.cpp",
       ]
+      include_dirs = [ "//" ]
       deps = [
-        ":skia",
         ":skqp_lib",
-        ":tool_utils",
       ]
     }
     test_app("jitter_gms") {
@@ -2282,8 +2323,10 @@ if (skia_enable_tools) {
       "modules/skottie:utils",
       "modules/sksg",
       "modules/sksg:samples",
-      "//third_party/imgui",
     ]
+    if (!is_fuchsia) {
+      deps += [ "//third_party/imgui" ]
+    }
     if (skia_use_experimental_xform) {
       deps += [ ":experimental_xform" ]
       sources += [ "gm/xform.cpp" ]

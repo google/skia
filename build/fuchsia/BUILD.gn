@@ -1,0 +1,32 @@
+# Copyright 2013 The Flutter Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+assert(is_fuchsia)
+
+import ("//build/fuchsia/sdk.gni")
+
+group("fuchsia") {
+  deps = [
+    "fidl",
+    "pkg",
+    "sysroot",
+  ]
+}
+
+fuchsia_package("skqp") {
+  testonly = true
+  name = "skqp"
+  version = 1
+  deps = [
+    "//:skqp",
+    ":fuchsia"
+  ]
+}
+
+fuchsia_repo("skqp_repo") {
+  testonly = true
+  deps = [ ":skqp" ]
+  repo = "$target_gen_dir/skqp_repo"
+  archives = [ "$root_out_dir/far/skqp.far" ]
+}
