@@ -22,6 +22,30 @@
       "revId": "4e16becf55d3295eadda30e644bf0a55ce882078",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "626cf8c4_f59538c0",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-09-25T14:22:50Z",
+      "side": 1,
+      "message": "I\u0027m obviously afflicted with const blindness.",
+      "parentUuid": "5e38e488_93c3f699",
+      "range": {
+        "startLine": 98,
+        "startChar": 37,
+        "endLine": 98,
+        "endChar": 42
+      },
+      "revId": "4e16becf55d3295eadda30e644bf0a55ce882078",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
