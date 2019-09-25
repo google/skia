@@ -34,9 +34,13 @@ GrSkSLFPFactory::GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCap
             SkSL::VarDeclarations& v = (SkSL::VarDeclarations&) e;
             for (const auto& varStatement : v.fVars) {
                 const SkSL::Variable& var = *((SkSL::VarDeclaration&) *varStatement).fVar;
-                if (var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
-                    fInputVars.push_back(&var);
+                if ((var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) ||
+                    (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag)) {
+                    fInAndUniformVars.push_back(&var);
                 }
+                // "in uniform" doesn't make sense outside of .fp files
+                SkASSERT((var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) == 0 ||
+                         (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) == 0);
             }
         }
     }
@@ -51,7 +55,10 @@ const SkSL::Program* GrSkSLFPFactory::getSpecialization(const SkSL::String& key,
 
     std::unordered_map<SkSL::String, SkSL::Program::Settings::Value> inputMap;
     size_t offset = 0;
-    for (const auto& v : fInputVars) {
+    for (const auto& v : fInAndUniformVars) {
+        if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
+            continue;
+        }
         SkSL::String name(v->fName);
         if (&v->fType == fCompiler.context().fInt_Type.get() ||
             &v->fType == fCompiler.context().fShort_Type.get()) {
@@ -113,11 +120,12 @@ static SkSL::Layout::CType get_ctype(const SkSL::Context& context, const SkSL::V
 
 class GrGLSLSkSLFP : public GrGLSLFragmentProcessor {
 public:
-    GrGLSLSkSLFP(const SkSL::Context* context, const std::vector<const SkSL::Variable*>* inputVars,
+    GrGLSLSkSLFP(const SkSL::Context* context,
+                 const std::vector<const SkSL::Variable*>* inAndUniformVars,
                  SkSL::String glsl, std::vector<SkSL::Compiler::FormatArg> formatArgs,
                  std::vector<SkSL::Compiler::GLSLFunction> functions)
             : fContext(*context)
-            , fInputVars(*inputVars)
+            , fInAndUniformVars(*inAndUniformVars)
             , fGLSL(glsl)
             , fFormatArgs(std::move(formatArgs))
             , fFunctions(std::move(functions)) {}
@@ -149,7 +157,7 @@ public:
     }
 
     void emitCode(EmitArgs& args) override {
-        for (const auto& v : fInputVars) {
+        for (const auto& v : fInAndUniformVars) {
             if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag && v->fType !=
                                                                 *fContext.fFragmentProcessor_Type) {
                 fUniformHandles.push_back(args.fUniformHandler->addUniform(
@@ -230,7 +238,7 @@ public:
         size_t offset = 0;
         const GrSkSLFP& outer = _proc.cast<GrSkSLFP>();
         char* inputs = (char*) outer.fInputs.get();
-        for (const auto& v : outer.fFactory->fInputVars) {
+        for (const auto& v : outer.fFactory->fInAndUniformVars) {
             switch (get_ctype(fContext, *v))  {
                 case SkSL::Layout::CType::kSkPMColor: {
                     float f1 = ((uint8_t*) inputs)[offset++] / 255.0;
@@ -285,7 +293,7 @@ public:
     }
 
     const SkSL::Context& fContext;
-    const std::vector<const SkSL::Variable*>& fInputVars;
+    const std::vector<const SkSL::Variable*>& fInAndUniformVars;
     // nearly-finished GLSL; still contains printf-style "%s" format tokens
     const SkSL::String fGLSL;
     std::vector<SkSL::Compiler::FormatArg> fFormatArgs;
@@ -386,8 +394,8 @@ GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
         printf("%s\n", fFactory->fCompiler.errorText().c_str());
         SkASSERT(false);
     }
-    return new GrGLSLSkSLFP(specialized->fContext.get(), &fFactory->fInputVars, glsl, formatArgs,
-                            functions);
+    return new GrGLSLSkSLFP(specialized->fContext.get(), &fFactory->fInAndUniformVars, glsl,
+                            formatArgs, functions);
 }
 
 void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
@@ -397,8 +405,9 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
     size_t offset = 0;
     char* inputs = (char*) fInputs.get();
     const SkSL::Context& context = fFactory->fCompiler.context();
-    for (const auto& v : fFactory->fInputVars) {
-        if (&v->fType == context.fFragmentProcessor_Type.get()) {
+    for (const auto& v : fFactory->fInAndUniformVars) {
+        if (&v->fType == context.fFragmentProcessor_Type.get() ||
+            (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag)) {
             continue;
         }
         switch (get_ctype(context, *v)) {
