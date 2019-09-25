@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d21de5fc_346f5152",
+        "filename": "resources/particles/fireworks.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-09-25T15:30:42Z",
+      "side": 0,
+      "message": "Remove the older (boring) fireworks, renamed the newer fireworks2 (that launched rockets which then burst) to fireworks.json.",
+      "revId": "6abaff3041a3eb140b82d091ef2aa35063b5c69c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8fdf747_c4ecf55a",
+        "filename": "resources/particles/snowfall.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-09-25T15:30:42Z",
+      "side": 0,
+      "message": "This was ugly and didn\u0027t demonstrate anything unique.",
+      "revId": "6abaff3041a3eb140b82d091ef2aa35063b5c69c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a35c390c_224ad8e8",
+        "filename": "resources/particles/sprite_frame.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-09-25T15:30:42Z",
+      "side": 0,
+      "message": "Renamed to reflect that this is demonstrating multi-frame image drawables.",
+      "revId": "6abaff3041a3eb140b82d091ef2aa35063b5c69c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3dd695ac_a8a0b8c8",
+        "filename": "resources/particles/curves.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-09-25T15:30:42Z",
+      "side": 1,
+      "message": "Made this effect a simple example of SkCurveBinding and SkColorCurveBinding",
+      "revId": "2b447b6ce25199ab2e7bf8285dc1caee6fe6b6bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a08d7709_f2862ad7",
+        "filename": "resources/particles/orientation.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-09-25T15:30:42Z",
+      "side": 1,
+      "message": "Better sample image (Android logo), smaller, renamed to reflect that this is really just demonstrating particle orientation.",
+      "revId": "2b447b6ce25199ab2e7bf8285dc1caee6fe6b6bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "959bd0ac_96849f7c",
+        "filename": "resources/particles/raincloud.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-09-25T15:30:42Z",
+      "side": 1,
+      "message": "This is the only (current) usage of flags, though there\u0027s an obvious use case for triggering bursts from effectUpdate (or even from particle update).",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 51
+      },
+      "revId": "2b447b6ce25199ab2e7bf8285dc1caee6fe6b6bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
