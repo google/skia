@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a191d560_f2a17e80",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-25T19:28:58Z",
+      "side": 1,
+      "message": "If this were SkStrikeForGPU::kSkSideTooBigForAtlas, then that would make it obvious that SkGlyphRunListPainter::processARGBFallback is gpu only (it appears to only be called from the gpu only code) and so should be in the #if SK_SUPPORT_GPU block.",
+      "range": {
+        "startLine": 321,
+        "startChar": 16,
+        "endLine": 321,
+        "endChar": 53
+      },
+      "revId": "43a17fe2a7bdb373edc421f4d95a1924db1e5106",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af8675f5_05c0ab75",
+        "filename": "src/core/SkStrikeForGPU.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-25T19:28:58Z",
+      "side": 1,
+      "message": "Should the declaration of this class be behind a #if SK_SUPPORT_GPU? There appear to be a number of visibility knock-on effects here. (Like maybe SkStrikeCacheInterface might want some re-names?)\n\nIt just seems like this is giving up on making this ever work with the cpu, which effectively makes this tied to SkGlyphRunListPainter::processGlyphRunList , the only reason this isn\u0027t internal to that is so that there can be two implementations and the user can pick one. In other words, if we\u0027re making the glyph run list painter bits disjoint, maybe they should just be disjoint (though obviously related). Like SkGlyphRunListPainter, GrGLGlyphRunListPainter, SkPDFGlyphRunListPainter (which more or less currently exists inside the pdf code).",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 22
+      },
+      "revId": "43a17fe2a7bdb373edc421f4d95a1924db1e5106",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
