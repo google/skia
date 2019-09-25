@@ -38,11 +38,11 @@ public:
 
     const GrPrimitiveProcessor& primitiveProcessor() const { return fPrimProc; }
     const GrTextureProxy* const* primProcProxies() const { return fPrimProcProxies; }
-    const GrRenderTarget* renderTarget() const { return fRenderTarget; }
-    GrPixelConfig config() const { return fRenderTarget->config(); }
-    int effectiveSampleCnt() const {
+    const GrRenderTarget* renderTarget1() const { return fRenderTarget1; }
+    GrPixelConfig config1() const { return fRenderTarget1->config(); }
+    int effectiveSampleCnt1() const {
         SkASSERT(GrProcessor::CustomFeatures::kSampleLocations & header().processorFeatures());
-        return fRenderTarget->renderTargetPriv().getSampleLocations().count();
+        return fRenderTarget1->renderTargetPriv().getSampleLocations().count();
     }
     GrSurfaceOrigin origin() const { return fOrigin; }
     const GrPipeline& pipeline() const { return fPipeline; }
@@ -93,7 +93,7 @@ public:
 
     int fStageIndex;
 
-    const GrRenderTarget*        fRenderTarget;
+    const GrRenderTarget*        fRenderTarget1;
     const GrSurfaceOrigin        fOrigin;
     const GrPipeline&            fPipeline;
     const GrPrimitiveProcessor&  fPrimProc;

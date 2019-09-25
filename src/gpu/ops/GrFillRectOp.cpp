@@ -186,6 +186,10 @@ private:
             const GrRenderTargetContext::QuadSetEntry quads[], int quadCount,
             const GrUserStencilSettings*);
 
+    void onPrePrepareDraws() override {
+
+    }
+
     void onPrepareDraws(Target* target) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 

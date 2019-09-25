@@ -275,6 +275,10 @@ static void clip_quads(const SkIRect& clipRect, char* currVertex, const char* bl
     }
 }
 
+void GrAtlasTextOp::onPrePrepareDraws() {
+
+}
+
 void GrAtlasTextOp::onPrepareDraws(Target* target) {
     auto resourceProvider = target->resourceProvider();
 
