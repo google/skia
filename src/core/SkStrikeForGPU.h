@@ -46,9 +46,9 @@ struct SkPathPos {
     SkPoint position;
 };
 
-class SkStrikeInterface {
+class SkStrikeForGPU {
 public:
-    virtual ~SkStrikeInterface() = default;
+    virtual ~SkStrikeForGPU() = default;
     virtual const SkDescriptor& getDescriptor() const = 0;
 
     // prepareForDrawingRemoveEmpty takes glyphIDs, and position, and returns a list of SkGlyphs
@@ -77,14 +77,20 @@ public:
     // Used with SkScopedStrike to take action at the end of a scope.
     virtual void onAboutToExitScope() = 0;
 
+    // Common categories for glyph types used by GPU.
+    static bool CanDrawAsMask(const SkGlyph& glyph);
+    static bool CanDrawAsSDFT(const SkGlyph& glyph);
+    static bool CanDrawAsPath(const SkGlyph& glyph);
+
+
     struct Deleter {
-        void operator()(SkStrikeInterface* ptr) const {
+        void operator()(SkStrikeForGPU* ptr) const {
             ptr->onAboutToExitScope();
         }
     };
 };
 
-using SkScopedStrike = std::unique_ptr<SkStrikeInterface, SkStrikeInterface::Deleter>;
+using SkScopedStrike = std::unique_ptr<SkStrikeForGPU, SkStrikeForGPU::Deleter>;
 
 class SkStrikeCacheInterface {
 public:
