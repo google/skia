@@ -1,0 +1,115 @@
+#!/usr/bin/env python
+
+# Copyright 2019 Google LLC.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+"""
+update_fuchsia_sdk
+
+  Downloads both the Fuchsia SDK and Fuchsia-compatible clang
+  zip archives from chrome infra (CIPD) and extracts them to
+  the arg-provide |sdk_dir| and |clang_dir| respectively.  This
+  provides the complete toolchain required to build Fuchsia binaries
+  from the Fuchsia SDK.
+
+"""
+
+import argparse
+import errno
+import logging
+import os
+import platform
+import shutil
+import subprocess
+import tempfile
+
+def MessageExit(message):
+  logging.error(message)
+  sys.exit(1)
+
+# Verify that "cipd" tool is readily available.
+def CipdLives():
+    err_msg = "Cipd not found, please install. See: " + \
+              "https://commondatastorage.googleapis.com/chrome-infra-docs/flat" + \
+              "/depot_tools/docs/html/depot_tools_tutorial.html#_setting_up"
+    try:
+        subprocess.call(["cipd", "--version"])
+    except OSError as e:
+        if e.errno == errno.ENOENT:
+            MessageExit(err_msg)
+        else:
+            MessageExit("cipd command execution failed.")
+
+# Download and unzip CIPD package archive.
+def DownloadAndUnzip(pkg_name, version, cipd_cache_dir, output_dir):
+  pkg_suffix = pkg_name.replace('/', '-') + ".zip"
+  zip_file = tempfile.NamedTemporaryFile(suffix=pkg_suffix, delete=False)
+  cipd_cmd = "cipd pkg-fetch " + pkg_name + " -version \"" + version + "\" -out " + \
+      zip_file.name + " -cache-dir " + cipd_cache_dir
+  unzip_cmd = "unzip -q " + zip_file.name + " -d " + output_dir
+  os.system(cipd_cmd)
+  os.system(unzip_cmd)
+
+def Main():
+  CipdLives()
+  parser = argparse.ArgumentParser()
+  parser.add_argument("-sdk_dir", type=str,
+          help="Destination directory for the fuchsia SDK.")
+  parser.add_argument("-clang_dir", type=str,
+          help="Destination directory for the fuchsia toolchain.")
+  parser.add_argument("-overwrite_dirs", type=bool, default=False,
+          help="REMOVES existing sdk and clang dirs and makes new ones.  When false " +
+               "  the unzip command issue will require file overwrite confirmation.")
+  parser.add_argument("-cipd_cache_dir", type=str, default="/tmp", required=False,
+          help="Cache directory for CIPD downloads to prevent redundant downloads.")
+  parser.add_argument("-cipd_sdk_version", type=str, default="latest", required=False,
+          help="CIPD sdk version to download, e.g.: git_revision:fce11c6904c888e6d39f71e03806a540852dec41")
+  parser.add_argument("-cipd_clang_version", type=str, default="latest", required=False,
+          help="CIPD clang version to download, e.g.: git_revision:fce11c6904c888e6d39f71e03806a540852dec41")
+  args = parser.parse_args()
+
+  sdk_dir = args.sdk_dir
+  clang_dir = args.clang_dir
+  cipd_sdk_version = args.cipd_sdk_version
+  cipd_clang_version = args.cipd_clang_version
+
+  if args.overwrite_dirs:
+    dirs = [sdk_dir, clang_dir]
+    for curr_dir in dirs:
+      try:
+        if os.path.exists(curr_dir):
+            shutil.rmtree(curr_dir)
+        os.makedirs(curr_dir)
+      except OSError:
+        MessageExit("Creation of the directory %s failed" % curr_dir)
+  else:
+    # Make dirs for sdk and clang.
+    if not os.path.exists(sdk_dir):
+        os.makedirs(sdk_dir)
+    if not os.path.exists(clang_dir):
+        os.makedirs(clang_dir)
+
+    # Verify that existing dirs are writable.
+    if (not os.access(sdk_dir, os.W_OK)) or (not os.path.isdir(sdk_dir)):
+      MessageExit("Can't write to sdk dir " + sdk_dir)
+    if (not os.access(clang_dir, os.W_OK)) or (not os.path.isdir(clang_dir)):
+      MessageExit("Can't write to clang dir " + clang_dir)
+ 
+  ostype = platform.system()
+  if ostype == "Linux":
+    os_string = "linux-amd64"
+  elif ostype == "Darwin":
+    os_string = "mac-amd64"
+  else:
+    MessageExit("Unknown host " + ostype)
+
+  # |sdk_pkg| and |clang_pkg| below are prescribed paths defined by chrome-infra.
+  sdk_pkg = "fuchsia/sdk/core/" + os_string
+  DownloadAndUnzip(sdk_pkg, cipd_sdk_version, args.cipd_cache_dir, sdk_dir)
+  clang_pkg = "fuchsia/clang/" + os_string
+  DownloadAndUnzip(clang_pkg, cipd_clang_version, args.cipd_cache_dir, clang_dir)
+
+if __name__ == "__main__":
+  import sys
+  Main()
