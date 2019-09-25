@@ -3,6 +3,10 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+if (is_fuchsia) {
+  import ("//build/fuchsia/sdk.gni")
+}
+
 declare_args() {
   extra_asmflags = []
   extra_cflags = []
@@ -54,6 +58,22 @@ config("default") {
     } else {
       cflags += [ "-Werror" ]
     }
+  }
+
+  if (is_fuchsia && using_fuchsia_sdk) {
+    ldflags += [ "-v", "--sysroot=" + rebase_path("$fuchsia_sdk_path/arch/$target_cpu/sysroot") ]
+    cflags += [ "--sysroot=" + rebase_path("$fuchsia_sdk_path/arch/$target_cpu/sysroot") ]
+    if (target_cpu == "x64") {
+      target_triple = "--target=x86_64-${target_os}"
+    } else if (target_cpu == "arm64") {
+      target_triple = "--target=aarch64-unknown-${target_os}"
+    } else {
+      print("Unknown target CPU for Fuchsia target build.")
+      assert(false)
+    }
+    ldflags += [ target_triple ]
+    cflags += [ target_triple ]
+    asmflags += [ target_triple ]
   }
 
   if (is_win) {

@@ -1,0 +1,20 @@
+# Copyright 2019 Google LLC. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+assert(is_fuchsia)
+import("//build/fuchsia/sdk.gni")
+
+#
+# Generate ninja targets for cc_source_libraries and cc_prebuilt_libraries
+# in the SDK.  "pkg" is the parent directory within the SDK that contain
+# the "meta.json" files for each library that defines their build
+# dependencies.
+#
+fuchsia_sdk("pkg") {
+  meta = fuchsia_sdk_manifest_path
+  enabled_parts = [
+    "cc_source_library",
+    "cc_prebuilt_library",
+  ]
+}
