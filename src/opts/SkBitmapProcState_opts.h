@@ -212,23 +212,39 @@ static void decode_packed_coordinates_and_weight(uint32_t packed, int* v0, int* 
             const __m128i tl = _mm_cvtsi32_si128(row0[x0]), tr = _mm_cvtsi32_si128(row0[x1]),
                           bl = _mm_cvtsi32_si128(row1[x0]), br = _mm_cvtsi32_si128(row1[x1]);
 
-            // Unpack the left pixels tl and bl to line up with 16-bit allY weights,
-            // scaling them with 16-wx since they're left pixels.
-            __m128i L = _mm_mullo_epi16(_mm_unpacklo_epi8(_mm_unpacklo_epi32(bl, tl),
-                                                          _mm_setzero_si128()),
-                                        _mm_set1_epi16(16-wx));
+            // We want to calculate a sum of 4 pixels weighted in two directions:
+            //
+            //  sum = tl * (16-wy) * (16-wx)
+            //      + bl * (   wy) * (16-wx)
+            //      + tr * (16-wy) * (   wx)
+            //      + br * (   wy) * (   wx)
+            //
+            // (Notice top --> 16-wy, bottom --> wy, left --> 16-wx, right --> wx.)
+            //
+            // We've already prepared allY as a vector containing [wy, 16-wy] as a way
+            // to apply those y-direction weights.  So we'll start on the x-direction
+            // first, grouping into left and right halves, lined up with allY:
+            //
+            //     L = [bl, tl]
+            //     R = [br, tr]
+            //
+            //   sum = horizontalSum( allY * (L*(16-wx) + R*wx) )
+            //
+            // Rewriting that one more step, we can replace a multiply with a shift:
+            //
+            //   sum = horizontalSum( allY * (16*L + (R-L)*wx) )
+            //
+            // That's how we'll actually do this math.
 
-            // Same for the right pixels tr and br but with X weight wx.
-            __m128i R = _mm_mullo_epi16(_mm_unpacklo_epi8(_mm_unpacklo_epi32(br, tr),
-                                                          _mm_setzero_si128()),
-                                        _mm_set1_epi16(   wx));
+            __m128i L = _mm_unpacklo_epi8(_mm_unpacklo_epi32(bl, tl), _mm_setzero_si128()),
+                    R = _mm_unpacklo_epi8(_mm_unpacklo_epi32(br, tr), _mm_setzero_si128());
 
-            // Add the two intermediates, summing across in the X direction,
-            // and finally apply those Y weights that we lined them up for.
-            __m128i sum_in_x = _mm_mullo_epi16(_mm_add_epi16(L, R),
-                                               allY);
+            __m128i inner = _mm_add_epi16(_mm_slli_epi16(L, 4),
+                                          _mm_mullo_epi16(_mm_sub_epi16(R,L), _mm_set1_epi16(wx)));
 
-            // Add the lower and upper register halves to sum in the Y direction.
+            __m128i sum_in_x = _mm_mullo_epi16(inner, allY);
+
+            // sum = horizontalSum( ... )
             __m128i sum = _mm_add_epi16(sum_in_x, _mm_srli_si128(sum_in_x, 8));
 
             // Get back to [0,255] by dividing by maximum weight 16x16 = 256.
