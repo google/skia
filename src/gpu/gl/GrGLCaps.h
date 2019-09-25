@@ -435,8 +435,7 @@ private:
 
     struct FormatWorkarounds {
         bool fDisableSRGBRenderWithMSAAForMacAMD = false;
-        bool fDisablePerFormatTextureStorageForCommandBufferES2 = false;
-        bool fDisableNonRedSingleChannelTexStorageForANGLEGL = false;
+        bool fDisableRGBA16FTexStorageForCrBug1008003 = false;
         bool fDisableBGRATextureStorageForIntelWindowsES = false;
         bool fDisableRGB8ForMali400 = false;
         bool fDisableLuminance16F = false;
