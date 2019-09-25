@@ -12,6 +12,7 @@
 #include <tuple>
 #include <type_traits>
 
+#include "include/core/SkTypes.h"
 #include "include/private/SkTLogic.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
@@ -131,8 +132,8 @@ public:
         size_t maxSize = 0;
         for (size_t s : {Span<Ts>::Size(std::forward<Ts>(ts))...}) {
             if (s != SIZE_MAX) {
-                minSize = std::min(minSize, s);
-                maxSize = std::max(maxSize, s);
+                minSize = SkTMin(minSize, s);
+                maxSize = SkTMax(maxSize, s);
             }
         }
         SkASSERT(minSize == maxSize);
