@@ -1,0 +1,55 @@
+# Copyright 2013 The Flutter Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+assert(is_fuchsia)
+
+import ("//build/fuchsia/sdk.gni")
+
+fuchsia_package("skqp_pkg") {
+  testonly = true
+  name = "skqp"
+  version = 1
+  deps = [
+    "//build/fuchsia", "//:skqp",
+  ]
+
+  skqp_exec = rebase_path("${root_out_dir}/skqp")
+  skqp_path = rebase_path("${target_gen_dir}/build/fuchsia/skqp")
+  sdk_lib_path = rebase_path("${skia_fuchsia_sdk_path}/sdk/arch/${target_cpu}/lib")
+  sdk_sysroot_path = rebase_path("${skia_fuchsia_sdk_path}/sdk/arch/${target_cpu}/sysroot/lib")
+  skqp_component_manifest = rebase_path("//build/fuchsia/skqp/skqp.cmx")
+
+  manifest_entries = [
+    # Binary
+    "bin/skqp=${skqp_exec}",
+
+    # Meta Data
+    "skqp_pkg_id.json=${skqp_path}/skqp_pkg_id.json",
+    "meta/package=${skqp_path}/meta/package",
+    "meta/skqp.cmx=${skqp_component_manifest}",
+
+    # Shared Libs (sdk lib)
+    "lib/libvulkan.so=${sdk_lib_path}/libvulkan.so",
+    "lib/libasyn-default.so=${sdk_lib_path}/libasync-default.so",
+    "lib/libfdio.so=${sdk_lib_path}/libfdio.so",
+    "lib/libtrace-engine.so=${sdk_lib_path}/libtrace-engine.so",
+
+    # Shared Libs (sdk sysroot)
+    "lib/libc.so=${sdk_sysroot_path}/libc.so",
+    "lib/libdl.so=${sdk_sysroot_path}/libdl.so",
+    "lib/libm.so=${sdk_sysroot_path}/libm.so",
+    "lib/libpthread.so=${sdk_sysroot_path}/libpthread.so",
+    "lib/librt.so=${sdk_sysroot_path}/librt.so",
+    "lib/libzircon.so=${sdk_sysroot_path}/libzircon.so",
+  ]
+}
+
+fuchsia_repo("skqp_repo") {
+  testonly = true
+  deps = [ ":skqp_pkg" ]
+
+  # Put repo directory in out dir (not gen dir).
+  repo = "$target_out_dir/skqp_repo"
+  archives = [ "$root_out_dir/far/skqp.far" ]
+}
