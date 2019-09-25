@@ -77,6 +77,12 @@ public:
     // Used with SkScopedStrike to take action at the end of a scope.
     virtual void onAboutToExitScope() = 0;
 
+    // Common categories for glyph types.
+    static bool CanDrawAsMask(const SkGlyph& glyph);
+    static bool CanDrawAsSDFT(const SkGlyph& glyph);
+    static bool CanDrawAsMaskPath(const SkGlyph& glyph);
+
+
     struct Deleter {
         void operator()(SkStrikeInterface* ptr) const {
             ptr->onAboutToExitScope();
