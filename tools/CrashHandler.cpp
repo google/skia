@@ -54,10 +54,13 @@
         // both 32 and 64 bit on bots.  Doesn't matter much: catchsegv is best anyway.
         #include <cxxabi.h>
         #include <dlfcn.h>
+#if !defined(__Fuchsia__)
         #include <execinfo.h>
+#endif
         #include <string.h>
 
         static void handler(int sig) {
+#if !defined(__Fuchsia__)
             void* stack[64];
             const int count = backtrace(stack, SK_ARRAY_COUNT(stack));
             char** symbols = backtrace_symbols(stack, count);
@@ -81,6 +84,7 @@
 
             // Exit NOW.  Don't notify other threads, don't call anything registered with atexit().
             _Exit(sig);
+#endif
         }
 
     #endif

@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+
+#
+# file_exists
+#
+#   Prints "true" if the input |filename| exists.
+#
+import argparse
+import os
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-filename", type=str,
+        help="Filename for which to check existence for.")
+args = parser.parse_args()
+if os.path.exists(args.filename):
+  print "true"

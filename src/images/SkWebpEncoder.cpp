@@ -41,6 +41,17 @@ extern "C" {
 #include "webp/mux.h"
 }
 
+#define SKIA_DLOG_ENABLE 1
+
+#define DLOG(...)                           \
+  do {                                      \
+    if (SKIA_DLOG_ENABLE) {                 \
+      printf(" %s:%d ", __FILE__, __LINE__); \
+      printf(__VA_ARGS__);                  \
+      printf("\n");                         \
+    }                                       \
+  } while (0)
+
 static transform_scanline_proc choose_proc(const SkImageInfo& info) {
     switch (info.colorType()) {
         case kRGBA_8888_SkColorType:
@@ -105,11 +116,13 @@ static int stream_writer(const uint8_t* data, size_t data_size,
 
 bool SkWebpEncoder::Encode(SkWStream* stream, const SkPixmap& pixmap, const Options& opts) {
     if (!SkPixmapIsValid(pixmap)) {
+        DLOG("Invalid pixmap\n");
         return false;
     }
 
     const transform_scanline_proc proc = choose_proc(pixmap.info());
     if (!proc) {
+        DLOG("Invalid transform_scanline_proc\n");
         return false;
     }
 
@@ -121,11 +134,13 @@ bool SkWebpEncoder::Encode(SkWStream* stream, const SkPixmap& pixmap, const Opti
     }
 
     if (nullptr == pixmap.addr()) {
+        DLOG("Null pixmap addr.\n");
         return false;
     }
 
     WebPConfig webp_config;
     if (!WebPConfigPreset(&webp_config, WEBP_PRESET_DEFAULT, opts.fQuality)) {
+        DLOG("WebPConfigPreset failed.\n");
         return false;
     }
 
@@ -183,10 +198,12 @@ bool SkWebpEncoder::Encode(SkWStream* stream, const SkPixmap& pixmap, const Opti
     }
 
     if (!importProc(&pic, &rgb[0], rgbStride)) {
+        DLOG("importProc failed.\n");
         return false;
     }
 
     if (!WebPEncode(&webp_config, &pic)) {
+        DLOG("WebPEncode failed.\n");
         return false;
     }
 
@@ -197,15 +214,18 @@ bool SkWebpEncoder::Encode(SkWStream* stream, const SkPixmap& pixmap, const Opti
 
         SkAutoTCallVProc<WebPMux, WebPMuxDelete> mux(WebPMuxNew());
         if (WEBP_MUX_OK != WebPMuxSetImage(mux, &encoded, 0)) {
+            DLOG("WebPMuxSetImage failed.\n");
             return false;
         }
 
         if (WEBP_MUX_OK != WebPMuxSetChunk(mux, "ICCP", &iccChunk, 0)) {
+            DLOG("WebPMuxSetChunk failed.\n");
             return false;
         }
 
         WebPData assembled;
         if (WEBP_MUX_OK != WebPMuxAssemble(mux, &assembled)) {
+            DLOG("WebPMuxSetAssemble failed.\n");
             return false;
         }
 
