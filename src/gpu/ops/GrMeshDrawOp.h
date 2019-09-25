@@ -72,7 +72,9 @@ protected:
     };
 
 private:
+    void onPrePrepare() final;
     void onPrepare(GrOpFlushState* state) final;
+    virtual void onPrePrepareDraws() = 0;
     virtual void onPrepareDraws(Target*) = 0;
     typedef GrDrawOp INHERITED;
 };
