@@ -16,6 +16,24 @@
       "revId": "e1855838f335677b3f0d103dc6d1db8a97756846",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0e914ba_2fc66940",
+        "filename": "tests/MultiSkpTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-09-25T18:53:50Z",
+      "side": 1,
+      "message": "Renamed to clear that up. It\u0027s not MSKP specific. MSKP is just a file extension really for a serialized MultiPictureDocument containing frames.",
+      "parentUuid": "4ec4d84a_3773b576",
+      "revId": "e1855838f335677b3f0d103dc6d1db8a97756846",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
