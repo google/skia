@@ -64,7 +64,15 @@ public:
     std::unique_ptr<SkStrikePinner> fPinner;
 };
 
+bool gSkUseThreadLocalStrikeCaches_IAcknowledgeThisIsIncrediblyExperimental = false;
+
 SkStrikeCache* SkStrikeCache::GlobalStrikeCache() {
+#if !defined(SK_BUILD_FOR_IOS)
+    if (gSkUseThreadLocalStrikeCaches_IAcknowledgeThisIsIncrediblyExperimental) {
+        static thread_local auto* cache = new SkStrikeCache;
+        return cache;
+    }
+#endif
     static auto* cache = new SkStrikeCache;
     return cache;
 }
