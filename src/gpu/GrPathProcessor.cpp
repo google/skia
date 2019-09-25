@@ -10,7 +10,9 @@
 #include "GrShaderCaps.h"
 #include "SkTo.h"
 #include "gl/GrGLGpu.h"
+#if SK_GL
 #include "gl/GrGLVaryingHandler.h"
+#endif
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLPrimitiveProcessor.h"
 #include "glsl/GrGLSLUniformHandler.h"
@@ -60,10 +62,11 @@ public:
             SkString strVaryingName;
             strVaryingName.printf("TransformedCoord_%d", i);
             GrGLSLVarying v(varyingType);
+#if SK_GL
             GrGLVaryingHandler* glVaryingHandler = (GrGLVaryingHandler*) varyingHandler;
             fInstalledTransforms.push_back().fHandle =
-                    glVaryingHandler->addPathProcessingVarying(strVaryingName.c_str(),
-                                                               &v).toIndex();
+                    glVaryingHandler->addPathProcessingVarying(strVaryingName.c_str(), &v).toIndex();
+#endif
             fInstalledTransforms.back().fType = varyingType;
 
             transformHandler->specifyCoordsForCurrCoordTransform(SkString(v.fsIn()), varyingType);

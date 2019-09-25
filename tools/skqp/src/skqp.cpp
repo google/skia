@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+// <<<<<<< HEAD
 #include "skqp.h"
 
 #include "../../../src/core/SkStreamPriv.h"
@@ -22,10 +23,18 @@
 #include "SkStream.h"
 #include "SkSurface.h"
 #include "Test.h"
+#if SK_GL
 #include "gl/GLTestContext.h"
+#endif
 #include "gm.h"
+#if SK_VULKAN
 #include "vk/VkTestContext.h"
+#endif
 
+// =======
+// TODO(rosasco): #include "tools/fonts/TestFontMgr.h"
+// TODO(rosasco): #include <limits.h>
+// >>>>>>> e906cb33d8... SKQP Build for Fuchsia SDK
 #include <algorithm>
 #include <cinttypes>
 #include <sstream>
@@ -135,8 +144,12 @@ static void get_render_tests(SkQPAssetManager* mgr,
 static std::unique_ptr<sk_gpu_test::TestContext> make_test_context(SkQP::SkiaBackend backend) {
     using U = std::unique_ptr<sk_gpu_test::TestContext>;
     switch (backend) {
+// TODO(halcanary): Fuchsia will have SK_SUPPORT_GPU and SK_VULKAN, but *not* SK_GL.
+// TODO(rosasco): Merge is right ??
+#ifdef SK_GL
         case SkQP::SkiaBackend::kGL:
             return U(sk_gpu_test::CreatePlatformGLTestContext(kGL_GrGLStandard, nullptr));
+#endif
         case SkQP::SkiaBackend::kGLES:
             return U(sk_gpu_test::CreatePlatformGLTestContext(kGLES_GrGLStandard, nullptr));
 #ifdef SK_VULKAN

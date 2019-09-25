@@ -7,6 +7,21 @@ import("gn/flutter_defines.gni")
 import("gn/fuchsia_defines.gni")
 import("gn/shared_sources.gni")
 
+import("gn/skia.gni")
+import("build/fuchsia/fuchsia.gni")
+
+# TODO(rosasco): Fix this use of "false" here.
+if(false && is_fuchsia && using_fuchsia_sdk &&
+   current_toolchain == default_toolchain) {
+  update_out = exec_script("//build/fuchsia/update_sdk_and_toolchain.py",
+              [ "-sdk_dir=$skia_fuchsia_sdk_path",
+                "-clang_dir=" + rebase_path("//fuchsia/clang") ],
+              "list lines",
+              [ "//build/fuchsia/update_sdk_and_toolchain.py" ])
+  print("$update_out")
+}
+
+
 if (is_fuchsia) {
   import("//build/vulkan/config.gni")
 }
@@ -74,7 +89,6 @@ declare_args() {
   skia_enable_fontmgr_custom_empty = is_fuchsia && skia_use_freetype
   skia_enable_fontmgr_android = skia_use_expat && skia_use_freetype
   skia_enable_fontmgr_fuchsia = is_fuchsia
-
   if (is_android) {
     skia_use_vulkan = defined(ndk_api) && ndk_api >= 24
   } else if (is_fuchsia) {
@@ -461,8 +475,30 @@ optional("fontmgr_fontconfig") {
   ]
 }
 
-optional("fontmgr_custom_empty") {
-  enabled = skia_enable_fontmgr_custom_empty
+# <<<<<<< HEAD
+# optional("fontmgr_custom_empty") {
+#   enabled = skia_enable_fontmgr_custom_empty
+# =======
+optional("fontmgr_fuchsia") {
+  enabled = skia_enable_fontmgr_fuchsia
+
+  # TODO(rosasco) make fontmgr_fuchsia SDK specific
+  deps = [ "//build/fuchsia:fuchsia" ]
+
+  if (is_fuchsia && using_fuchsia_sdk) {
+    deps += [ "//build/fuchsia/fidl:fuchsia.fonts" ]
+  } else {
+    deps += [ "//sdk/fidl/fuchsia.fonts" ]
+  }
+  sources = [
+    "src/ports/SkFontMgr_fuchsia.cpp",
+    "src/ports/SkFontMgr_fuchsia.h",
+  ]
+}
+
+optional("fontmgr_wasm") {
+  enabled = target_cpu == "wasm"
+# >>>>>>> e906cb33d8... SKQP Build for Fuchsia SDK
 
   deps = [
     ":typeface_freetype",
@@ -601,7 +637,15 @@ optional("gpu_for_real") {
   if (skia_generate_workarounds) {
     deps += [ ":workaround_list" ]
   }
-  public_defines = []
+# <<<<<<< HEAD
+#   public_defines = []
+# =======
+  if (is_fuchsia) {
+    public_defines = []
+  } else {
+    public_defines = [ "SK_GL" ]
+  }
+# >>>>>>> e906cb33d8... SKQP Build for Fuchsia SDK
   public_configs = []
   public_deps = []
 
@@ -616,8 +660,12 @@ optional("gpu_for_real") {
   }
 
   # These paths need to be absolute to match the ones produced by shared_sources.gni.
-  sources -= get_path_info([ "src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ],
-                           "abspath")
+  # TODO(rosasco): clean up this logic.
+  if (!is_fuchsia) {
+    sources -= get_path_info([ "src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ],
+                             "abspath")
+  }
+
   libs = []
   if (is_android) {
     sources += [ "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp" ]
@@ -653,8 +701,17 @@ optional("gpu_for_real") {
       public_defines += [ "SK_ENABLE_VK_LAYERS" ]
     }
     if (is_fuchsia) {
-      public_deps +=
-          [ "//third_party/vulkan_loader_and_validation_layers:vulkan" ]
+# <<<<<<< HEAD
+#       TODO(rosasco): I believe this is now outdated.
+#       public_deps +=
+#           [ "//third_party/vulkan_loader_and_validation_layers:vulkan" ]
+# =======
+      if (using_fuchsia_sdk) {
+        public_deps += [ "//build/fuchsia/pkg:vulkan" ]
+      } else {
+        public_deps += [ "//src/graphics/lib/vulkan" ]
+      }
+# >>>>>>> e906cb33d8... SKQP Build for Fuchsia SDK
     }
   }
 
@@ -1185,20 +1242,29 @@ if (skia_enable_tools) {
     }
   }
 
-  source_set("public_headers_warnings_check") {
-    sources = [
-      "tools/public_headers_warnings_check.cpp",
-    ]
-    configs -= [ "//gn:warnings_except_public_headers" ]
-    deps = [
-      ":skia",
-      ":skia.h",
-      "modules/skottie",
-    ]
+#  source_set("public_headers_warnings_check") {
+#    sources = [
+#      "tools/public_headers_warnings_check.cpp",
+#    ]
+#    configs -= [ "//gn:warnings_except_public_headers" ]
+#    deps = [
+#      ":skia",
+#      ":skia.h",
+#      "modules/skottie",
+#    ]
+#
+#    # We add this directory to simulate the client already have
+#    # vulkan/vulkan_core.h on their path.
+#    include_dirs = [ "include/third_party/vulkan" ]
+#  }
 
+  config("our_vulkan_headers") {
     # We add this directory to simulate the client already have
     # vulkan/vulkan_core.h on their path.
-    include_dirs = [ "include/third_party/vulkan" ]
+    # TODO(rosasco): consider a fuchsia modification here
+    if (!is_fuchsia) {
+      include_dirs = [ "include/third_party/vulkan" ]
+    }
   }
 
   template("test_lib") {
@@ -1421,13 +1487,14 @@ if (skia_enable_tools) {
       "tools/gpu/MemoryCache.h",
       "tools/gpu/ProxyUtils.cpp",
       "tools/gpu/TestContext.cpp",
-      "tools/gpu/atlastext/GLTestAtlasTextRenderer.cpp",
-      "tools/gpu/gl/GLTestContext.cpp",
-      "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp",
-      "tools/gpu/gl/null/NullGLTestContext.cpp",
       "tools/gpu/mock/MockTestContext.cpp",
     ]
     libs = []
+
+    if (skia_use_gl) {
+      sources += [ "tools/gpu/atlastext/GLTestAtlasTextRenderer.cpp", "tools/gpu/gl/GLTestContext.cpp",
+          "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp", "tools/gpu/gl/null/NullGLTestContext.cpp", ]
+    }
 
     if (is_android || skia_use_egl) {
       sources += [ "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp" ]
@@ -1553,6 +1620,9 @@ if (skia_enable_tools) {
   test_lib("gm") {
     public_include_dirs = [ "gm" ]
     sources = gm_sources
+    if (!skia_use_gl) {
+      sources -= [ "$gm_path/atlastext.cpp" ]
+    }
     deps = [
       ":flags",
       ":skia",
@@ -1570,11 +1640,27 @@ if (skia_enable_tools) {
   test_lib("tests") {
     public_include_dirs = [ "tests" ]
     sources = tests_sources + pathops_tests_sources
+    if (!skia_use_gl) {
+      sources -= [
+        "$tests_path/BackendAllocationTest.cpp",
+        "$tests_path/EGLImageTest.cpp",
+        "$tests_path/RectangleTextureTest.cpp",
+        "$tests_path/ResourceCacheTest.cpp",
+        "$tests_path/TextureBindingsResetTest.cpp",
+        "$tests_path/VkHardwareBufferTest.cpp",
+        ]
+    }
+    if (skia_use_metal) {
+      sources += metal_tests_sources
+    }
     if (!skia_enable_fontmgr_android) {
       sources -= [ "//tests/FontMgrAndroidParserTest.cpp" ]
     }
     if (!(skia_use_freetype && skia_use_fontconfig)) {
       sources -= [ "//tests/FontMgrFontConfigTest.cpp" ]
+    }
+    if (is_fuchsia) {
+       sources -= [ "$tests_path/EncodeTest.cpp" ]
     }
     deps = [
       ":experimental_svg_model",
@@ -1901,9 +1987,16 @@ if (skia_enable_tools) {
         ":gpu_tool_utils",
         ":skia",
         ":tool_utils",
-        "//third_party/libmicrohttpd",
-        "//third_party/libpng",
+# <<<<<<< HEAD
+# TODO(rosasco): can probably restore these now and remove the condition block below.
+#         "//third_party/libmicrohttpd",
+#         "//third_party/libpng",
+# =======
+# >>>>>>> e906cb33d8... SKQP Build for Fuchsia SDK
       ]
+      if (!is_fuchsia) {
+        deps += [ "//third_party/libmicrohttpd", "//third_party/libpng" ]
+      }
     }
   }
 
@@ -2009,7 +2102,6 @@ if (skia_enable_tools) {
       ]
       deps = [
         ":gm",
-        ":gpu_tool_utils",
         ":skia",
         ":tests",
         ":tool_utils",
@@ -2019,11 +2111,16 @@ if (skia_enable_tools) {
       sources = [
         "tools/skqp/src/skqp_main.cpp",
       ]
+      include_dirs = [ "//" ]
+      lib_dirs = []
       deps = [
-        ":skia",
         ":skqp_lib",
-        ":tool_utils",
       ]
+      if (is_fuchsia) {
+      # TODO(rosasco):  resolve libunwind_shared reference  lib_dirs += [
+      #    "${skia_fuchsia_clang_path}/lib",
+      #  ]
+      }
     }
     test_app("jitter_gms") {
       sources = [
@@ -2033,6 +2130,15 @@ if (skia_enable_tools) {
         ":gm",
         ":skia",
         ":skqp_lib",
+      ]
+    }
+  }
+  if (is_fuchsia) {
+    # Build a package repository for skqp on Fuchsia.
+    group("skqp_repo") {
+      testonly = true
+      deps = [
+        "//build/fuchsia/skqp:skqp_repo"
       ]
     }
   }
@@ -2213,7 +2319,6 @@ if (skia_enable_tools) {
       "modules/skottie:utils",
       "modules/sksg",
       "modules/sksg:samples",
-      "//third_party/imgui",
     ]
 
     # NIMA does not build on Windows clang
@@ -2275,6 +2380,8 @@ if (skia_enable_tools) {
         "modules/skottie",
         "modules/skshaper",
       ]
+    if (!is_fuchsia) {
+      deps += [ "//third_party/imgui" ]
     }
   }
 

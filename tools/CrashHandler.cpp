@@ -58,9 +58,12 @@
 
         // We'd use libunwind here too, but it's a pain to get installed for
         // both 32 and 64 bit on bots.  Doesn't matter much: catchsegv is best anyway.
+#if !defined(__Fuchsia__)
         #include <execinfo.h>
+#endif
 
         static void handler(int sig) {
+#if !defined(__Fuchsia__)
             static const int kMax = 64;
             void* stack[kMax];
             const int count = backtrace(stack, kMax);
@@ -70,6 +73,7 @@
 
             // Exit NOW.  Don't notify other threads, don't call anything registered with atexit().
             _Exit(sig);
+#endif
         }
 
     #endif

@@ -369,6 +369,7 @@ public:
                                         ? GrMipMapped::kNo
                                         : GrMipMapped(fShouldCreateMipMaps);
 
+#if SK_GL
         if (fUsesGLFBO0) {
             if (GrBackendApi::kOpenGL != context->backend()) {
                 return nullptr;
@@ -388,6 +389,7 @@ public:
             return SkSurface::MakeFromBackendRenderTarget(context, backendRT, fOrigin,
                                                           fColorType, fColorSpace, &fSurfaceProps);
         }
+#endif
 
         *backend = gpu->createTestingOnlyBackendTexture(nullptr, fWidth, fHeight,
                                                         fColorType, true, mipmapped);
@@ -963,6 +965,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMultipleDDLs, reporter, ctxInfo) {
     }
 }
 
+#if SK_GL
 ////////////////////////////////////////////////////////////////////////////////
 // Check that the texture-specific flags (i.e., for external & rectangle textures) work
 // for promise images. As such, this is a GL-only test.
@@ -1072,3 +1075,4 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLCompatibilityTest, reporter, ctxInfo) {
     }
 
 }
+#endif  // SK_GL
