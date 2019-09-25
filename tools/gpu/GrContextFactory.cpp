@@ -8,7 +8,9 @@
 
 #include "GrContextFactory.h"
 #include "GrContextPriv.h"
+#ifdef SK_GL
 #include "gl/GLTestContext.h"
+#endif
 
 #if SK_ANGLE
     #include "gl/angle/GLTestContext_angle.h"
@@ -150,6 +152,7 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     std::unique_ptr<TestContext> testCtx;
     GrBackendApi backend = ContextTypeBackend(type);
     switch (backend) {
+#if SK_GL
         case GrBackendApi::kOpenGL: {
             GLTestContext* glShareContext = masterContext
                     ? static_cast<GLTestContext*>(masterContext->fTestContext) : nullptr;
@@ -201,6 +204,7 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
             testCtx.reset(glCtx);
             break;
         }
+#endif  // SK_GL
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan: {
             VkTestContext* vkSharedContext = masterContext
@@ -214,6 +218,7 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                 return ContextInfo();
             }
 
+#if SK_GL
             // There is some bug (either in Skia or the NV Vulkan driver) where VkDevice
             // destruction will hang occaisonally. For some reason having an existing GL
             // context fixes this.
@@ -223,6 +228,7 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                     fSentinelGLContext.reset(CreatePlatformGLTestContext(kGLES_GrGLStandard));
                 }
             }
+#endif
             break;
         }
 #endif

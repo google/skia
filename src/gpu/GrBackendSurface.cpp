@@ -20,6 +20,7 @@
 #include "mtl/GrMtlCppUtil.h"
 #endif
 
+#if SK_GL
 GrBackendFormat::GrBackendFormat(GrGLenum format, GrGLenum target)
         : fBackend(GrBackendApi::kOpenGL)
         , fValid(true)
@@ -62,6 +63,7 @@ const GrGLenum* GrBackendFormat::getGLTarget() const {
     }
     return nullptr;
 }
+#endif
 
 GrBackendFormat GrBackendFormat::MakeVk(const GrVkYcbcrConversionInfo& ycbcrInfo) {
 #ifdef SK_BUILD_FOR_ANDROID
@@ -146,8 +148,10 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
     }
 
     switch (fBackend) {
+#if SK_GL
         case GrBackendApi::kOpenGL:
             return fGLFormat == that.fGLFormat;
+#endif
         case GrBackendApi::kVulkan:
 #ifdef SK_VULKAN
             return fVk.fFormat == that.fVk.fFormat &&
@@ -206,6 +210,7 @@ GrBackendTexture::GrBackendTexture(int width,
         , fMtlInfo(mtlInfo) {}
 #endif
 
+#ifdef SK_GL
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    GrMipMapped mipMapped,
@@ -217,6 +222,7 @@ GrBackendTexture::GrBackendTexture(int width,
         , fMipMapped(mipMapped)
         , fBackend(GrBackendApi::kOpenGL)
         , fGLInfo(glInfo) {}
+#endif
 
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
@@ -467,6 +473,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fMtlInfo(mtlInfo) {}
 #endif
 
+#if SK_GL
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              int sampleCnt,
@@ -481,6 +488,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fGLInfo(glInfo) {
     fIsValid = SkToBool(glInfo.fFormat); // the glInfo must have a valid format
 }
+#endif
 
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
@@ -525,10 +533,12 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
     fBackend = that.fBackend;
 
     switch (that.fBackend) {
+#if SK_GL
         case GrBackendApi::kOpenGL:
             fGLInfo = that.fGLInfo;
             break;
         case GrBackendApi::kVulkan:
+#endif
 #ifdef SK_VULKAN
             fVkInfo.assign(that.fVkInfo, this->isValid());
 #endif
@@ -585,6 +595,7 @@ bool GrBackendRenderTarget::getMtlTextureInfo(GrMtlTextureInfo* outInfo) const {
 }
 #endif
 
+#if SK_GL
 bool GrBackendRenderTarget::getGLFramebufferInfo(GrGLFramebufferInfo* outInfo) const {
     if (this->isValid() && GrBackendApi::kOpenGL == fBackend) {
         *outInfo = fGLInfo;
@@ -592,6 +603,7 @@ bool GrBackendRenderTarget::getGLFramebufferInfo(GrGLFramebufferInfo* outInfo) c
     }
     return false;
 }
+#endif
 
 bool GrBackendRenderTarget::getMockRenderTargetInfo(GrMockRenderTargetInfo* outInfo) const {
     if (this->isValid() && GrBackendApi::kMock == fBackend) {
