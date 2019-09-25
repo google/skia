@@ -1,0 +1,18 @@
+# Copyright 2019 Google LLC.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import ("../../gn/skia.gni")
+import ("//build/fuchsia/sdk.gni")
+
+if(is_fuchsia && skia_update_fuchsia_sdk &&
+   current_toolchain == default_toolchain) {
+  cipd_dir = "${fuchsia_sdk_path}/../cipd"
+  update_sdk_out = exec_script("//build/fuchsia/update_fuchsia_sdk",
+              [ "-sdk_dir=" + rebase_path(fuchsia_sdk_path),
+                "-clang_dir=" + rebase_path(fuchsia_toolchain_path),
+                "-cipd_cache_dir=" + rebase_path(cipd_dir),
+                "-cipd_clang_version=git_revision:a6e1de4afc51560df18c95cb616dec51248ed660" ],
+              "list lines",
+              [ "//build/fuchsia/update_fuchsia_sdk" ])
+}
