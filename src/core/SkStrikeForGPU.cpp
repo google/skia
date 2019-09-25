@@ -7,21 +7,21 @@
 
 
 
-#include "src/core/SkStrikeInterface.h"
+#include "src/core/SkStrikeForGPU.h"
 
 #include "src/core/SkGlyphRunPainter.h"
 
-bool SkStrikeInterface::CanDrawAsMask(const SkGlyph& glyph) {
+bool SkStrikeForGPU::CanDrawAsMask(const SkGlyph& glyph) {
     return glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas;
 }
 
-bool SkStrikeInterface::CanDrawAsSDFT(const SkGlyph& glyph) {
+bool SkStrikeForGPU::CanDrawAsSDFT(const SkGlyph& glyph) {
     return glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas
-           && ~glyph.isColor();
+           && glyph.maskFormat() == SkMask::kSDF_Format;
 }
 
-bool SkStrikeInterface::CanDrawAsMaskPath(const SkGlyph& glyph) {
-    SkASSERT(glyph.setPathHasBeenCalled());
+bool SkStrikeForGPU::CanDrawAsPath(const SkGlyph& glyph) {
+    SkASSERT(glyph.isColor() || glyph.setPathHasBeenCalled());
     return !glyph.isColor() && glyph.path() != nullptr;
 }
 

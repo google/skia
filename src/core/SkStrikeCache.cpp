@@ -17,7 +17,7 @@
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkStrike.h"
 
-class SkStrikeCache::Node final : public SkStrikeInterface {
+class SkStrikeCache::Node final : public SkStrikeForGPU {
 public:
     Node(SkStrikeCache* strikeCache,
          const SkDescriptor& desc,
