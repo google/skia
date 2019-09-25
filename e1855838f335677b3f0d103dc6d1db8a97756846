@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ec4d84a_3773b576",
+        "filename": "tests/MultiSkpTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-09-25T17:53:07Z",
+      "side": 1,
+      "message": "It is unclear what we are testing here.  From reading the code it looks like this is testing MultiPictureDocument and the fact that it internally stores its contents as pictures within pictures.  \n\nIf that is true, then this should be a multipicturedocument test not a mskp test case.  If we ever choose to refactor or remove mskp we wouldn\u0027t want to loose the test coverage of multipicturedocument along with it.",
+      "revId": "e1855838f335677b3f0d103dc6d1db8a97756846",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
