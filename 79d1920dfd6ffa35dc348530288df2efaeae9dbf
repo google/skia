@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01120ad_db4774e7",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-25T16:22:07Z",
+      "side": 1,
+      "message": "Should we just handle the origin here so each subclass just sees a native rect?",
+      "revId": "79d1920dfd6ffa35dc348530288df2efaeae9dbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
