@@ -183,8 +183,6 @@ static void decode_packed_coordinates_and_weight(uint32_t packed, int* v0, int* 
 
 #elif 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
 
-    // TODO(mtklein): clean up this code, use decode_packed_coordinates_and_weight(), etc.
-
     /*not static*/ inline
     void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
                                  const uint32_t* xy, int count, uint32_t* colors) {
@@ -201,42 +199,39 @@ static void decode_packed_coordinates_and_weight(uint32_t packed, int* v0, int* 
 
         // We'll put one pixel in the low 4 16-bit lanes to line up with wy,
         // and another in the upper 4 16-bit lanes to line up with 16 - wy.
-        const __m128i allY = _mm_unpacklo_epi64(_mm_set1_epi16(   wy),
-                                                _mm_set1_epi16(16-wy));
+        const __m128i allY = _mm_unpacklo_epi64(_mm_set1_epi16(   wy),   // Bottom pixel goes here.
+                                                _mm_set1_epi16(16-wy));  // Top pixel goes here.
 
         while (count --> 0) {
             int x0, x1, wx;
             decode_packed_coordinates_and_weight(*xy++, &x0, &x1, &wx);
 
-            // Load the 4 pixels we're interpolating.
-            const __m128i a00 = _mm_cvtsi32_si128(row0[x0]),
-                          a01 = _mm_cvtsi32_si128(row0[x1]),
-                          a10 = _mm_cvtsi32_si128(row1[x0]),
-                          a11 = _mm_cvtsi32_si128(row1[x1]);
+            // Load the 4 pixels we're interpolating, in this grid:
+            //    | tl  tr |
+            //    | bl  br |
+            const __m128i tl = _mm_cvtsi32_si128(row0[x0]), tr = _mm_cvtsi32_si128(row0[x1]),
+                          bl = _mm_cvtsi32_si128(row1[x0]), br = _mm_cvtsi32_si128(row1[x1]);
 
-            // Line up low-x pixels a00 and a10 with allY.
-            __m128i a00a10 = _mm_unpacklo_epi8(_mm_unpacklo_epi32(a10, a00),
-                                               _mm_setzero_si128());
+            // Unpack the left pixels tl and bl to line up with 16-bit allY weights,
+            // with the top tl getting 16-wy weight and bottom bl getting wy.
+            __m128i L = _mm_unpacklo_epi8(_mm_unpacklo_epi32(bl, tl),
+                                          _mm_setzero_si128());
+            // Scale by allY, and since these are left pixels, X weight is 16-wx.
+            L = _mm_mullo_epi16(L, allY);
+            L = _mm_mullo_epi16(L, _mm_set1_epi16(16-wx));
 
-            // Scale by allY and 16-wx.
-            a00a10 = _mm_mullo_epi16(a00a10, allY);
-            a00a10 = _mm_mullo_epi16(a00a10, _mm_set1_epi16(16-wx));
+            // Now all the same for the right pixels tr and br, except with X weight wx.
+            __m128i R = _mm_unpacklo_epi8(_mm_unpacklo_epi32(br, tr),
+                                          _mm_setzero_si128());
+            R = _mm_mullo_epi16(R, allY);
+            R = _mm_mullo_epi16(R, _mm_set1_epi16(wx));
 
+            // Add the two intermediates, summing across in the X direction,
+            __m128i sum_in_x = _mm_add_epi16(L, R);
+            // TODO: can't we wait to scale sum_in_x by allY here, saving a multiply?
 
-            // Line up high-x pixels a01 and a11 with allY.
-            __m128i a01a11 = _mm_unpacklo_epi8(_mm_unpacklo_epi32(a11, a01),
-                                               _mm_setzero_si128());
-
-            // Scale by allY and wx.
-            a01a11 = _mm_mullo_epi16(a01a11, allY);
-            a01a11 = _mm_mullo_epi16(a01a11, _mm_set1_epi16(wx));
-
-
-            // Add the two intermediates, summing across in one direction.
-            __m128i halves = _mm_add_epi16(a00a10, a01a11);
-
-            // Add the two halves to each other to sum in the other direction.
-            __m128i sum = _mm_add_epi16(halves, _mm_srli_si128(halves, 8));
+            // Then add the lower and upper register halves to sum in the Y direction.
+            __m128i sum = _mm_add_epi16(sum_in_x, _mm_srli_si128(sum_in_x, 8));
 
             // Get back to [0,255] by dividing by maximum weight 16x16 = 256.
             sum = _mm_srli_epi16(sum, 8);
