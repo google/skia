@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b005815_46becac7",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-25T17:23:18Z",
+      "side": 1,
+      "message": "nit: may want something like\n\nstatic_assert(false, \"The type C is an rvalue.\");",
+      "range": {
+        "startLine": 89,
+        "startChar": 50,
+        "endLine": 89,
+        "endChar": 51
+      },
+      "revId": "0032df52c46b06270b38992c1a7ee53b231d8d4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c3e93ff_485ea52c",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-25T17:23:18Z",
+      "side": 1,
+      "message": "nit: may want to static_assert here that either the type was wrong or there were only pointers.\n\nstatic_assert(false, \"The type C is an rvalue or all Ts were pointers.\");\n\nMight give users in the future some hope of figuring out what is going on.",
+      "range": {
+        "startLine": 108,
+        "startChar": 61,
+        "endLine": 108,
+        "endChar": 62
+      },
+      "revId": "0032df52c46b06270b38992c1a7ee53b231d8d4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
