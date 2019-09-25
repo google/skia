@@ -96,7 +96,12 @@ protected:
         kTargetDirty,
     };
 
-    virtual ExpectedOutcome onMakeClosed(const GrCaps&) = 0;
+    // Performs any work to finalize this renderTask prior to execution. If returning
+    // ExpectedOutcome::kTargetDiry, the caller is also responsible to fill out the area it will
+    // modify in targetUpdateBounds.
+    //
+    // targetUpdateBounds must not extend beyond the proxy bounds.
+    virtual ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect* targetUpdateBounds) = 0;
 
     sk_sp<GrSurfaceProxy> fTarget;
 

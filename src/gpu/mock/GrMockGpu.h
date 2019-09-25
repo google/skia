@@ -118,7 +118,8 @@ private:
 
     bool onRegenerateMipMapLevels(GrTexture*) override { return true; }
 
-    void onResolveRenderTarget(GrRenderTarget* target, ForExternalIO) override {
+    void onResolveRenderTarget(GrRenderTarget* target, const SkIRect&, GrSurfaceOrigin,
+                               ForExternalIO) override {
         target->flagAsResolved();
     }
 

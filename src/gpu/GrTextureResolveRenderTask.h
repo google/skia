@@ -28,7 +28,7 @@ private:
     }
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
-    ExpectedOutcome onMakeClosed(const GrCaps&) override {
+    ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect*) override {
         return ExpectedOutcome::kTargetUnchanged;
     }
 
@@ -43,6 +43,7 @@ private:
                 : fProxy(std::move(proxy)), fFlags(flags) {}
         sk_sp<GrSurfaceProxy> fProxy;
         GrSurfaceProxy::ResolveFlags fFlags;
+        SkIRect fMSAAResolveRect;
     };
 
     SkSTArray<4, Resolve> fResolves;

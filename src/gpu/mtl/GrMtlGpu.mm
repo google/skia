@@ -1053,7 +1053,7 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
                 mtlTexture = rt->mtlColorTexture();
                 break;
             case GrMtlRenderTarget::kCanResolve_ResolveType:
-                this->resolveRenderTargetNoFlush(rt);
+                SkASSERT(!rt->needsResolve());
                 mtlTexture = rt->mtlResolveTexture();
                 break;
             default:
@@ -1188,13 +1188,17 @@ void GrMtlGpu::waitSemaphore(sk_sp<GrSemaphore> semaphore) {
 #endif
 }
 
-void GrMtlGpu::internalResolveRenderTarget(GrRenderTarget* target, bool requiresSubmit) {
+void GrMtlGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect&, GrSurfaceOrigin,
+                                     ForExternalIO forExternalIO) {
     if (target->needsResolve()) {
         this->resolveTexture(static_cast<GrMtlRenderTarget*>(target)->mtlResolveTexture(),
                              static_cast<GrMtlRenderTarget*>(target)->mtlColorTexture());
         target->flagAsResolved();
 
-        if (requiresSubmit) {
+        if (ForExternalIO::kYes == forExternalIO) {
+            // This resolve is called when we are preparing an msaa surface for external I/O. It is
+            // called after flushing, so we need to make sure we submit the command buffer after
+            // doing the resolve so that the resolve actually happens.
             this->submitCommandBuffer(kSkip_SyncQueue);
         }
     }

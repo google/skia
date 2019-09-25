@@ -1957,7 +1957,7 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
                 this->flushRenderTargetNoColorWrites(renderTarget);
                 break;
             case GrGLRenderTarget::kCanResolve_ResolveType:
-                this->onResolveRenderTarget(renderTarget, ForExternalIO::kNo);
+                SkASSERT(!renderTarget->needsResolve());
                 // we don't track the state of the READ FBO ID.
                 this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, renderTarget->textureFBOID());
                 break;
@@ -2281,7 +2281,8 @@ void GrGLGpu::sendIndexedInstancedMeshToGpu(GrPrimitiveType primitiveType,
     }
 }
 
-void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, ForExternalIO) {
+void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
+                                    GrSurfaceOrigin resolveOrigin, ForExternalIO) {
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(target);
     if (rt->needsResolve()) {
         // Some extensions automatically resolves the texture when it is read.
@@ -2294,15 +2295,11 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, ForExternalIO) {
             // make sure we go through flushRenderTarget() since we've modified
             // the bound DRAW FBO ID.
             fHWBoundRenderTargetUniqueID.makeInvalid();
-            const SkIRect dirtyRect = rt->getResolveRect();
-            // The dirty rect tracked on the RT is always stored in the native coordinates of the
-            // surface. Choose kTopLeft so no adjustments are made
-            static constexpr auto kDirtyRectOrigin = kTopLeft_GrSurfaceOrigin;
             if (GrGLCaps::kES_Apple_MSFBOType == this->glCaps().msFBOType()) {
                 // Apple's extension uses the scissor as the blit bounds.
                 GrScissorState scissorState;
-                scissorState.set(dirtyRect);
-                this->flushScissor(scissorState, rt->width(), rt->height(), kDirtyRectOrigin);
+                scissorState.set(resolveRect);
+                this->flushScissor(scissorState, rt->width(), rt->height(), resolveOrigin);
                 this->disableWindowRectangles();
                 GL_CALL(ResolveMultisampleFramebuffer());
             } else {
@@ -2315,7 +2312,7 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, ForExternalIO) {
                     t = target->height();
                 } else {
                     auto rect = GrNativeRect::MakeRelativeTo(
-                            kDirtyRectOrigin, rt->height(), dirtyRect);
+                            resolveOrigin, rt->height(), resolveRect);
                     l = rect.fX;
                     b = rect.fY;
                     r = rect.fX + rect.fWidth;
@@ -2536,6 +2533,7 @@ static void get_gl_swizzle_values(const GrSwizzle& swizzle, GrGLenum glValues[4]
 void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwizzle& swizzle,
                           GrGLTexture* texture) {
     SkASSERT(texture);
+    SkASSERT(!texture->asRenderTarget() || !texture->asRenderTarget()->needsResolve());
 
 #ifdef SK_DEBUG
     if (!this->caps()->npotTextureTileSupport()) {
@@ -2546,14 +2544,6 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
         }
     }
 #endif
-
-    // If we created a rt/tex and rendered to it without using a texture and now we're texturing
-    // from the rt it will still be the last bound texture, but it needs resolving. So keep this
-    // out of the "last != next" check.
-    GrGLRenderTarget* texRT = static_cast<GrGLRenderTarget*>(texture->asRenderTarget());
-    if (texRT) {
-        this->onResolveRenderTarget(texRT, ForExternalIO::kNo);
-    }
 
     GrGpuResource::UniqueID textureID = texture->uniqueID();
     GrGLenum target = texture->target();

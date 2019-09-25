@@ -504,6 +504,9 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
 void GrOpsTask::setColorLoadOp(GrLoadOp op, const SkPMColor4f& color) {
     fColorLoadOp = op;
     fLoadClearColor = color;
+    if (GrLoadOp::kClear == fColorLoadOp) {
+        fTotalBounds.setWH(fTarget->width(), fTarget->height());
+    }
 }
 
 bool GrOpsTask::resetForFullscreenClear(CanDiscardPreviousOps canDiscardPreviousOps) {
@@ -534,6 +537,7 @@ void GrOpsTask::discard() {
     if (this->isEmpty()) {
         fColorLoadOp = GrLoadOp::kDiscard;
         fStencilLoadOp = GrLoadOp::kDiscard;
+        fTotalBounds.setEmpty();
     }
 }
 
@@ -671,6 +675,10 @@ void GrOpsTask::recordOp(
         return;
     }
 
+    // Account for this op's bounds before we attempt to combine.
+    // NOTE: The caller should have already called "op->setClippedBounds()" by now, if applicable.
+    fTotalBounds.join(op->bounds());
+
     // Check if there is an op we can combine with by linearly searching back until we either
     // 1) check every op
     // 2) intersect with something
@@ -747,3 +755,15 @@ void GrOpsTask::forwardCombine(const GrCaps& caps) {
     }
 }
 
+GrRenderTask::ExpectedOutcome GrOpsTask::onMakeClosed(
+        const GrCaps& caps, SkIRect* targetUpdateBounds) {
+    this->forwardCombine(caps);
+    if (!this->isNoOp()) {
+        SkRect clippedContentBounds = SkRect::MakeIWH(fTarget->width(), fTarget->height());
+        if (clippedContentBounds.intersect(fTotalBounds)) {
+            clippedContentBounds.roundOut(targetUpdateBounds);
+            return ExpectedOutcome::kTargetDirty;
+        }
+    }
+    return ExpectedOutcome::kTargetUnchanged;
+}
