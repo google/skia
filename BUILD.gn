@@ -8,6 +8,11 @@ import("gn/fuchsia_defines.gni")
 import("gn/shared_sources.gni")
 import("gn/skia.gni")
 
+if (is_fuchsia) {
+  import("//build/fuchsia/sdk.gni")
+  import("build/fuchsia/fuchsia_download_sdk.gni")
+}
+
 if (skia_use_dawn) {
   import("third_party/externals/dawn/scripts/dawn_features.gni")
 }
@@ -316,9 +321,9 @@ optional("fontmgr_fuchsia") {
   deps = []
 
   if (is_fuchsia && using_fuchsia_sdk) {
-    deps += [ "$fuchsia_sdk_root/fidl:fuchsia.fonts" ]
+    deps += [ "//build/fuchsia/fidl:fuchsia.fonts" ]
   } else {
-    deps += [ "//sdk/fidl/fuchsia.fonts" ]
+    deps = [ "//sdk/fidl/fuchsia.fonts" ]
   }
   sources = [
     "src/ports/SkFontMgr_fuchsia.cpp",
@@ -1167,8 +1172,6 @@ if (skia_enable_tools) {
   }
 
   config("our_vulkan_headers") {
-    # We add this directory to simulate the client already have
-    # vulkan/vulkan_core.h on their path.
     include_dirs = [ "include/third_party/vulkan" ]
   }
 
@@ -1294,11 +1297,15 @@ if (skia_enable_tools) {
       "tools/gpu/TestContext.cpp",
       "tools/gpu/YUVUtils.cpp",
       "tools/gpu/YUVUtils.h",
-      "tools/gpu/atlastext/GLTestAtlasTextRenderer.cpp",
-      "tools/gpu/gl/GLTestContext.cpp",
-      "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp",
       "tools/gpu/mock/MockTestContext.cpp",
     ]
+    if (skia_use_gl) {
+      sources += [
+        "tools/gpu/atlastext/GLTestAtlasTextRenderer.cpp",
+        "tools/gpu/gl/GLTestContext.cpp",
+        "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp",
+      ]
+    }
 
     libs = []
 
@@ -1321,6 +1328,8 @@ if (skia_enable_tools) {
       if (target_cpu != "arm64") {
         libs += [ "OpenGL32.lib" ]
       }
+    } else if (is_fuchsia && using_fuchsia_sdk) {
+      libs += [ "${fuchsia_sdk_path}/arch/${target_cpu}/sysroot/lib/libzircon.so" ]
     }
 
     cflags_objcc = [ "-fobjc-arc" ]
@@ -1341,7 +1350,7 @@ if (skia_enable_tools) {
       public_deps += [ "//third_party/dawn:dawn_headers" ]
       sources += [ "tools/gpu/dawn/DawnTestContext.cpp" ]
     }
-  }
+  }  # test_lib("gpu_tool_utils")
 
   test_lib("flags") {
     sources = [
@@ -1489,6 +1498,9 @@ if (skia_enable_tools) {
   import("gn/gm.gni")
   test_lib("gm") {
     sources = gm_sources
+    if (skia_use_gl) {
+      sources += gl_gm_sources
+    }
     deps = [
       ":etc1",
       ":flags",
@@ -1526,6 +1538,9 @@ if (skia_enable_tools) {
     if (skia_use_metal) {
       sources += metal_tests_sources
       cflags_objcc = [ "-fobjc-arc" ]
+    }
+    if (skia_use_gl) {
+      sources += gl_tests_sources
     }
     if (!skia_enable_fontmgr_android) {
       sources -= [ "//tests/FontMgrAndroidParserTest.cpp" ]
@@ -2028,7 +2043,6 @@ if (skia_enable_tools) {
       ]
       deps = [
         ":gm",
-        ":gpu_tool_utils",
         ":skia",
         ":tests",
         ":tool_utils",
@@ -2038,11 +2052,9 @@ if (skia_enable_tools) {
       sources = [
         "tools/skqp/src/skqp_main.cpp",
       ]
-      deps = [
-        ":skia",
-        ":skqp_lib",
-        ":tool_utils",
-      ]
+      include_dirs = [ "//" ]
+      lib_dirs = []
+      deps = [ ":skqp_lib", ]
     }
     test_app("jitter_gms") {
       sources = [
@@ -2052,6 +2064,15 @@ if (skia_enable_tools) {
         ":gm",
         ":skia",
         ":skqp_lib",
+      ]
+    }
+  }
+  if (is_fuchsia) {
+    # Build a package repository for skqp on Fuchsia.
+    group("skqp_repo") {
+      testonly = true
+      deps = [
+        "//build/fuchsia/skqp:skqp_repo"
       ]
     }
   }
