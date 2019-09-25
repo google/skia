@@ -4,5 +4,6 @@
 
 declare_args() {
   skia_fuchsia_sdk_path = "//fuchsia/sdk"
+  skia_fuchsia_clang_path = "//fuchsia/clang"
   using_fuchsia_sdk = true
 }

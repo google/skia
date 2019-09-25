@@ -37,16 +37,18 @@ template("_fuchsia_sysroot") {
 
   _libs = []
   _lib_dirs = []
-  _include_dirs = []
+  # _include_dirs = []
+  _include_dirs = [ "ROSASCO_SYSROOT" ]
 
   foreach(link_lib, defs.link_libs) {
     if (link_lib != "arch/${target_cpu}/sysroot/lib/Scrt1.o") {
-      _libs += [ "$skia_fuchsia_sdk_path/$link_lib" ]
+      _libs += [ rebase_path("$skia_fuchsia_sdk_path/$link_lib") ]
     }
   }
 
   defs_include_dir = defs.include_dir
-  _include_dirs += [ "$skia_fuchsia_sdk_path/$defs_include_dir" ]
+  _include_dirs += [ rebase_path("$skia_fuchsia_sdk_path/$defs_include_dir") ]
+  print("SYSROOT INCLUDE PATH: " + rebase_path("$skia_fuchsia_sdk_path/$defs_include_dir"))
 
   config_name = "config_$target_name"
   config(config_name) {
@@ -71,7 +73,6 @@ template("_fuchsia_fidl_library") {
 
   _deps = [ "../pkg:fidl_cpp" ]
 
-  print("META JSON: $meta_json.name")
   library_name = string_replace(meta_json.name, "fuchsia.", "")
   library_name_json = "$library_name.json"
 
@@ -103,11 +104,11 @@ template("_fuchsia_fidl_library") {
 
     args = [
       "--fidlc-bin",
-        "$skia_fuchsia_sdk_path/tools/fidlc",
+        rebase_path("$skia_fuchsia_sdk_path/tools/fidlc"),
       "--fidlgen-bin",
-        "$skia_fuchsia_sdk_path/tools/fidlgen",
+        rebase_path("$skia_fuchsia_sdk_path/tools/fidlgen"),
       "--sdk-base",
-        "$skia_fuchsia_sdk_path",
+        rebase_path("$skia_fuchsia_sdk_path"),
       "--root",
       rebase_path(invoker.meta),
       "--json",
@@ -145,17 +146,19 @@ template("_fuchsia_cc_source_library") {
   assert(meta_json.type == "cc_source_library")
 
   _output_name = meta_json.name
-  _include_dirs = []
+  # _include_dirs = []
+  _include_dirs = [ "ROSASCO_CC_SOURCE_LIB" ]
   _public_headers = []
   _sources = []
   _deps = []
 
   meta_json_include_dir = meta_json.include_dir
-  _include_dirs += [ "$skia_fuchsia_sdk_path/$meta_json_include_dir" ]
+  _include_dirs += [ rebase_path("$skia_fuchsia_sdk_path/$meta_json_include_dir") ]
+  print("CC SOURCE LIB INCLUDE PATH: " + rebase_path("$skia_fuchsia_sdk_path/$meta_json_include_dir"))
 
   foreach(header, meta_json.headers) {
     rebased_header = []
-    rebased_header = [ "$skia_fuchsia_sdk_path/$header" ]
+    rebased_header = [ rebase_path("$skia_fuchsia_sdk_path/$header") ]
     _public_headers += rebased_header
     _sources += rebased_header
   }
@@ -190,7 +193,8 @@ template("_fuchsia_cc_prebuilt_library") {
   assert(defined(invoker.meta), "The meta.json file path must be specified.")
   meta_json = read_file(invoker.meta, "json")
 
-  _include_dirs = []
+  # _include_dirs = []
+  _include_dirs = [ "ROSASCO_PREBUILT" ]
   _deps = []
   _libs = []
 

@@ -52,6 +52,7 @@ def main():
 
   fidl_files_by_name = GetFIDLFilesByLibraryName(args.sdk_base, args.root)
 
+  print "fidl_gen_cpp.py:  FIDLC BINARY IS: " + args.fidlc_bin
   fidlc_command = [
     args.fidlc_bin,
     '--c-header',

@@ -10,6 +10,7 @@ import("gn/shared_sources.gni")
 import("gn/skia.gni")
 import("build/fuchsia/fuchsia.gni")
 
+# TODO(rosasco): Fix this use of "false" here.
 if(false && is_fuchsia && using_fuchsia_sdk &&
    current_toolchain == default_toolchain) {
   update_out = exec_script("//build/fuchsia/update_sdk_and_toolchain.py",
