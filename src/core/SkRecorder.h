@@ -43,7 +43,12 @@ public:
     SkRecorder(SkRecord*, int width, int height, SkMiniRecorder* = nullptr);   // legacy version
     SkRecorder(SkRecord*, const SkRect& bounds, SkMiniRecorder* = nullptr);
 
-    enum DrawPictureMode { Record_DrawPictureMode, Playback_DrawPictureMode };
+    enum DrawPictureMode {
+        Record_DrawPictureMode,
+        Playback_DrawPictureMode,
+        // Plays back top level drawPicture calls only, but records pictures within those.
+        PlaybackTop_DrawPictureMode,
+    };
     void reset(SkRecord*, const SkRect& bounds, DrawPictureMode, SkMiniRecorder* = nullptr);
 
     size_t approxBytesUsedBySubPictures() const { return fApproxBytesUsedBySubPictures; }
