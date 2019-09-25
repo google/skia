@@ -8,9 +8,6 @@
       "void effectSpawn(inout Effect effect) {",
       "  effect.rate = 90;",
       "}",
-      "",
-      "void effectUpdate(inout Effect effect) {",
-      "}",
       ""
    ],
    "Code": [

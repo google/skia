@@ -2,26 +2,24 @@
    "MaxCount": 32,
    "Drawable": {
       "Type": "SkImageDrawable",
-      "Path": "resources/images/baby_tux.png",
+      "Path": "resources/images/index8.png",
       "Columns": 1,
       "Rows": 1
    },
    "EffectCode": [
       "void effectSpawn(inout Effect effect) {",
       "  effect.rate = 0.5;",
-      "}",
-      "",
-      "void effectUpdate(inout Effect effect) {",
+      "  effect.scale = 0.1;",
       "}",
       ""
    ],
    "Code": [
       "void spawn(inout Particle p) {",
-      "  p.lifetime = 20;",
-      "  float a = radians(10 + 60 * rand);",
-      "  float s = 140 + rand * 60;",
+      "  p.lifetime = 5;",
+      "  float a = radians(mix(-30, -80, rand));",
+      "  float s = mix(150, 200, rand);",
       "  p.vel.x = cos(a) * s;",
-      "  p.vel.y = -sin(a) * s;",
+      "  p.vel.y = sin(a) * s;",
       "}",
       "",
       "void update(inout Particle p) {",
