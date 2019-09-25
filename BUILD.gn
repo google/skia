@@ -8,6 +8,18 @@ import("gn/fuchsia_defines.gni")
 import("gn/shared_sources.gni")
 
 import("gn/skia.gni")
+import("build/fuchsia/fuchsia.gni")
+
+# TODO(rosasco): Fix this use of "false" here.
+if(false && is_fuchsia && using_fuchsia_sdk &&
+   current_toolchain == default_toolchain) {
+  update_out = exec_script("//build/fuchsia/update_sdk_and_toolchain.py",
+              [ "-sdk_dir=$skia_fuchsia_sdk_path",
+                "-clang_dir=" + rebase_path("//fuchsia/clang") ],
+              "list lines",
+              [ "//build/fuchsia/update_sdk_and_toolchain.py" ])
+  print("$update_out")
+}
 
 if (skia_use_dawn) {
   import("third_party/externals/dawn/scripts/dawn_features.gni")
@@ -320,10 +332,10 @@ optional("fontmgr_fontconfig") {
 optional("fontmgr_fuchsia") {
   enabled = skia_enable_fontmgr_fuchsia
 
-  deps = []
+  deps = [ "//build/fuchsia:fuchsia" ]
 
   if (is_fuchsia && using_fuchsia_sdk) {
-    deps += [ "$fuchsia_sdk_root/fidl:fuchsia.fonts" ]
+    deps += [ "//build/fuchsia/fidl:fuchsia.fonts" ]
   } else {
     deps += [ "//sdk/fidl/fuchsia.fonts" ]
   }
@@ -548,7 +560,7 @@ optional("gpu") {
     }
     if (is_fuchsia) {
       if (using_fuchsia_sdk) {
-        public_deps += [ "$fuchsia_sdk_root/pkg:vulkan" ]
+        public_deps += [ "//build/fuchsia/pkg:vulkan" ]
       } else {
         public_deps += [ "//src/graphics/lib/vulkan" ]
       }
@@ -1157,7 +1169,10 @@ if (skia_enable_tools) {
   config("our_vulkan_headers") {
     # We add this directory to simulate the client already have
     # vulkan/vulkan_core.h on their path.
-    include_dirs = [ "include/third_party/vulkan" ]
+    # TODO(rosasco): consider a fuchsia modification here
+    if (!is_fuchsia) {
+      include_dirs = [ "include/third_party/vulkan" ]
+    }
   }
 
   source_set("public_headers_warnings_check") {
