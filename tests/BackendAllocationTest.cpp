@@ -144,6 +144,65 @@ static void check_mipmaps(GrContext* context, const GrBackendTexture& backendTex
                           SkColorType skColorType, const SkColor4f expectedColors[6],
                           skiatest::Reporter* reporter);
 
+static void check_base_readbacks(GrContext* context, const GrBackendTexture& backendTex,
+                                 SkColorType skColorType, GrRenderable renderable,
+                                 const SkColor4f& color, skiatest::Reporter* reporter) {
+
+    SkAlphaType at = SkColorTypeIsAlwaysOpaque(skColorType) ? kOpaque_SkAlphaType
+                                                            : kPremul_SkAlphaType;
+
+    SkColor4f expectedColor = get_expected_color(color, skColorType);
+
+    SkAutoPixmapStorage actual;
+
+    {
+        SkImageInfo readBackII = SkImageInfo::Make(32, 32, kRGBA_8888_SkColorType,
+                                                   kPremul_SkAlphaType);
+
+        SkAssertResult(actual.tryAlloc(readBackII));
+    }
+
+    if (GrRenderable::kYes == renderable && context->colorTypeSupportedAsSurface(skColorType)) {
+        sk_sp<SkSurface> surf = SkSurface::MakeFromBackendTexture(context,
+                                                                  backendTex,
+                                                                  kTopLeft_GrSurfaceOrigin,
+                                                                  0,
+                                                                  skColorType,
+                                                                  nullptr, nullptr);
+        if (surf) {
+            actual.erase(SkColors::kTransparent);
+            bool result = surf->readPixels(actual, 0, 0);
+            REPORTER_ASSERT(reporter, result);
+
+            check_solid_pixmap(reporter, expectedColor, actual, skColorType,
+                               "SkSurface::readPixels");
+        }
+    }
+
+    {
+        sk_sp<SkImage> img = SkImage::MakeFromTexture(context,
+                                                      backendTex,
+                                                      kTopLeft_GrSurfaceOrigin,
+                                                      skColorType,
+                                                      at,
+                                                      nullptr);
+        if (img) {
+            actual.erase(SkColors::kTransparent);
+            bool result = img->readPixels(actual, 0, 0);
+            if (!result) {
+                // TODO: we need a better way to tell a priori if readPixels will work for an
+                // arbitrary colorType
+#if 0
+                ERRORF(reporter, "Couldn't readback from SkImage for colorType: %d\n", colorType);
+#endif
+            } else {
+                check_solid_pixmap(reporter, expectedColor, actual, skColorType,
+                                   "SkImage::readPixels");
+            }
+        }
+    }
+}
+
 // Test initialization of GrBackendObjects to a specific color (non-static since used in Mtl test)
 void test_color_init(GrContext* context, skiatest::Reporter* reporter,
                      std::function<GrBackendTexture (GrContext*,
@@ -167,60 +226,7 @@ void test_color_init(GrContext* context, skiatest::Reporter* reporter,
         return;
     }
 
-    SkAlphaType at = SkColorTypeIsAlwaysOpaque(skColorType) ? kOpaque_SkAlphaType
-                                                            : kPremul_SkAlphaType;
-
-    SkImageInfo ii = SkImageInfo::Make(32, 32, skColorType, at);
-
-    SkColor4f expectedColor = get_expected_color(color, skColorType);
-
-    SkAutoPixmapStorage actual;
-    SkAssertResult(actual.tryAlloc(ii));
-    actual.erase(SkColors::kTransparent);
-
-    if (GrRenderable::kYes == renderable && context->colorTypeSupportedAsSurface(skColorType)) {
-        sk_sp<SkSurface> surf = SkSurface::MakeFromBackendTexture(context,
-                                                                  backendTex,
-                                                                  kTopLeft_GrSurfaceOrigin,
-                                                                  0,
-                                                                  skColorType,
-                                                                  nullptr, nullptr);
-        if (surf) {
-            bool result = surf->readPixels(actual, 0, 0);
-            REPORTER_ASSERT(reporter, result);
-
-            check_solid_pixmap(reporter, expectedColor, actual, skColorType,
-                               "SkSurface::readPixels");
-
-            actual.erase(SkColors::kTransparent);
-        }
-    }
-
-    {
-        sk_sp<SkImage> img = SkImage::MakeFromTexture(context,
-                                                      backendTex,
-                                                      kTopLeft_GrSurfaceOrigin,
-                                                      skColorType,
-                                                      at,
-                                                      nullptr);
-        if (img) {
-            // If possible, read back the pixels and check that they're correct
-            {
-                bool result = img->readPixels(actual, 0, 0);
-                if (!result) {
-                    // TODO: we need a better way to tell a priori if readPixels will work for an
-                    // arbitrary colorType
-#if 0
-                    ERRORF(reporter, "Couldn't readback from SkImage for colorType: %d\n",
-                            colorType);
-#endif
-                } else {
-                    check_solid_pixmap(reporter, expectedColor, actual, skColorType,
-                                       "SkImage::readPixels");
-                }
-            }
-        }
-    }
+    check_base_readbacks(context, backendTex, skColorType, renderable, color, reporter);
 
     if (mipMapped == GrMipMapped::kYes) {
         SkColor4f expectedColor = get_expected_color(color, skColorType);
