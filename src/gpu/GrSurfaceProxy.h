@@ -392,12 +392,12 @@ protected:
 private:
     // For wrapped resources, 'fFormat', 'fConfig', 'fWidth', 'fHeight', and 'fOrigin; will always
     // be filled in from the wrapped resource.
-    GrBackendFormat        fFormat;
-    GrPixelConfig          fConfig;
+    const GrBackendFormat  fFormat;
+    const GrPixelConfig    fConfig;
     int                    fWidth;
     int                    fHeight;
-    GrSurfaceOrigin        fOrigin;
-    GrSwizzle              fTextureSwizzle;
+    const GrSurfaceOrigin  fOrigin;
+    const GrSwizzle        fTextureSwizzle;
 
     SkBackingFit           fFit;      // always kApprox for lazy-callback resources
                                       // always kExact for wrapped resources

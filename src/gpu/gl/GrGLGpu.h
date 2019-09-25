@@ -258,7 +258,8 @@ private:
     // PIXEL_UNPACK_BUFFER is unbound.
     void unbindCpuToGpuXferBuffer();
 
-    void onResolveRenderTarget(GrRenderTarget* target, ForExternalIO) override;
+    void onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
+                               GrSurfaceOrigin resolveOrigin, ForExternalIO) override;
 
     bool onRegenerateMipMapLevels(GrTexture*) override;
 
