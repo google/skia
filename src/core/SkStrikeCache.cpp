@@ -17,7 +17,7 @@
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkStrike.h"
 
-class SkStrikeCache::Node final : public SkStrikeInterface {
+class SkStrikeCache::Node final : public SkStrikeForGPU {
 public:
     Node(SkStrikeCache* strikeCache,
          const SkDescriptor& desc,
@@ -176,10 +176,10 @@ auto SkStrikeCache::findOrCreateStrike(const SkDescriptor& desc,
     return node;
 }
 
-SkScopedStrike SkStrikeCache::findOrCreateScopedStrike(const SkDescriptor& desc,
-                                                       const SkScalerContextEffects& effects,
-                                                       const SkTypeface& typeface) {
-    return SkScopedStrike{this->findOrCreateStrike(desc, effects, typeface)};
+SkScopedStrikeForGPU SkStrikeCache::findOrCreateScopedStrike(const SkDescriptor& desc,
+                                                             const SkScalerContextEffects& effects,
+                                                             const SkTypeface& typeface) {
+    return SkScopedStrikeForGPU{this->findOrCreateStrike(desc, effects, typeface)};
 }
 
 void SkStrikeCache::PurgeAll() {

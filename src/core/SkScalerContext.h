@@ -20,7 +20,7 @@
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskGamma.h"
-#include "src/core/SkStrikeInterface.h"
+#include "src/core/SkStrikeForGPU.h"
 #include "src/core/SkSurfacePriv.h"
 #include "src/core/SkWriteBuffer.h"
 

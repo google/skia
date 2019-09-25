@@ -38,7 +38,7 @@ public:
     SkGlyphRunListPainter(const SkSurfaceProps& props,
                           SkColorType colorType,
                           SkColorSpace* cs,
-                          SkStrikeCacheInterface* strikeCache);
+                          SkStrikeForGPUCacheInterface* strikeCache);
 
 #if SK_SUPPORT_GPU
     // The following two ctors are used exclusively by the GPU, and will always use the global
@@ -75,7 +75,7 @@ public:
 
 private:
     SkGlyphRunListPainter(const SkSurfaceProps& props, SkColorType colorType,
-                          SkScalerContextFlags flags, SkStrikeCacheInterface* strikeCache);
+                          SkScalerContextFlags flags, SkStrikeForGPUCacheInterface* strikeCache);
 
     struct ScopedBuffers {
         ScopedBuffers(SkGlyphRunListPainter* painter, int size);
@@ -102,7 +102,7 @@ private:
                              SkGlyphRunPainterInterface* process);
 
     static SkSpan<const SkPackedGlyphID> DeviceSpacePackedGlyphIDs(
-            SkStrikeInterface* strike,
+            SkStrikeForGPU* strike,
             const SkMatrix& viewMatrix,
             const SkPoint& origin,
             int n,
@@ -126,7 +126,7 @@ private:
     const SkColorType fColorType;
     const SkScalerContextFlags fScalerContextFlags;
 
-    SkStrikeCacheInterface* const fStrikeCache;
+    SkStrikeForGPUCacheInterface* const fStrikeCache;
 
     int fMaxRunSize{0};
     SkAutoTMalloc<SkPoint> fPositions;
