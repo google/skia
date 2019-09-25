@@ -12,10 +12,10 @@ steps:
   #  args: ['clone', 'https://github.com/google/skia.git', '.']
 
   - name: 'debian:testing-slim'
-    args: ['mkdir', '-p', '--mode=777', '/workspace/__doxygen_staging']
+    args: ['mkdir', '-p', '--mode=0777', '/workspace/__doxygen_staging']
 
   - name: 'debian:testing-slim'
-    args: ['mkdir', '-p', '--mode=777', '/workspace/__cache']
+    args: ['mkdir', '-p', '--mode=0777', '/workspace/__cache']
 
   - name: 'gcr.io/skia-public/doxygen:testing-slim'
     dir: './tools/doxygen'

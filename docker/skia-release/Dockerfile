@@ -9,7 +9,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
   libgl1-mesa-dev \
   libglu1-mesa-dev \
   && groupadd -g 2000 skia \
-  && useradd -u 2000 -g 2000 skia
+  && useradd -u 2000 -g 2000 --home-dir /workspace/__cache skia
 
 USER skia
 
