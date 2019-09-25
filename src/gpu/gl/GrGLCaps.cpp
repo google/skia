@@ -1474,7 +1474,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             info.fFlags |= FormatInfo::kTexturable_Flag | msaaRenderFlags;
         }
 
-        if (texStorageSupported) {
+        if (texStorageSupported || formatWorkarounds.fForceTexStorageForRGAnd16Formats) {
             info.fFlags |= FormatInfo::kUseTexStorage_Flag;
             info.fInternalFormatForTexImageOrStorage = GR_GL_R8;
         } else {
@@ -2325,7 +2325,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         }
         if (rg8Support) {
             info.fFlags |= FormatInfo::kTexturable_Flag | msaaRenderFlags;
-            if (texStorageSupported) {
+            if (texStorageSupported || formatWorkarounds.fForceTexStorageForRGAnd16Formats)  {
                 info.fFlags |= FormatInfo::kUseTexStorage_Flag;
                 info.fInternalFormatForTexImageOrStorage = GR_GL_RG8;
             }
@@ -2630,7 +2630,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             info.fFlags = FormatInfo::kTexturable_Flag | msaaRenderFlags;
         }
 
-        if (texStorageSupported) {
+        if (texStorageSupported || formatWorkarounds.fForceTexStorageForRGAnd16Formats) {
             info.fFlags |= FormatInfo::kUseTexStorage_Flag;
             info.fInternalFormatForTexImageOrStorage = GR_GL_R16;
         } else {
@@ -2698,7 +2698,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             info.fFlags = FormatInfo::kTexturable_Flag | msaaRenderFlags;
         }
 
-        if (texStorageSupported) {
+        if (texStorageSupported || formatWorkarounds.fForceTexStorageForRGAnd16Formats) {
             info.fFlags |= FormatInfo::kUseTexStorage_Flag;
             info.fInternalFormatForTexImageOrStorage = GR_GL_RG16;
         } else {
@@ -2763,7 +2763,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             info.fFlags = FormatInfo::kTexturable_Flag | msaaRenderFlags;
         }
 
-        if (texStorageSupported) {
+        if (texStorageSupported || formatWorkarounds.fForceTexStorageForRGAnd16Formats) {
             info.fFlags |= FormatInfo::kUseTexStorage_Flag;
             info.fInternalFormatForTexImageOrStorage = GR_GL_RGBA16;
         } else {
@@ -3660,6 +3660,19 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // Pixel2XL/Adreno540 and Pixel3/Adreno630
     formatWorkarounds->fDisableLuminance16F = kIntelBroadwell_GrGLRenderer == ctxInfo.renderer() ||
                                               ctxInfo.vendor() == kQualcomm_GrGLVendor;
+
+#ifdef SK_BUILD_FOR_ANDROID
+    // On the Nexus 9 running Android 6.0.1 formats added by GL_EXT_texture_rg and
+    // GL_EXT_texture_norm16 cause errors if they are created with glTexImage2D() with
+    // an unsized internal format. We wouldn't normally do that but Chrome can limit us
+    // artificially to ES2 and we don't usually use glTexStorage() on Android for perforamnce
+    // reasons. We override the decision not to use glTexStorage for these formats with this
+    // workaroud.
+    if (kNVIDIA_GrGLVendor == ctxInfo.vendor() && ctxInfo.version() < GR_GL_VER(3, 0) &&
+        ctxInfo.hasExtension("GL_EXT_texture_storage")) {
+        formatWorkarounds->fForceTexStorageForRGAnd16Formats = true;
+    }
+#endif
 
     // https://github.com/flutter/flutter/issues/38700
     if (kAndroidEmulator_GrGLDriver == ctxInfo.driver()) {
