@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "65e635e3_ab981c50",
+        "filename": "src/core/SkStrikeForGPU.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-25T20:07:24Z",
+      "side": 1,
+      "message": "Maybe somewhere else now?",
+      "range": {
+        "startLine": 26,
+        "startChar": 7,
+        "endLine": 26,
+        "endChar": 29
+      },
+      "revId": "43a17fe2a7bdb373edc421f4d95a1924db1e5106",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "af8675f5_05c0ab75",
         "filename": "src/core/SkStrikeForGPU.h",
         "patchSetId": 2
@@ -41,6 +64,29 @@
         "startChar": 0,
         "endLine": 49,
         "endChar": 22
+      },
+      "revId": "43a17fe2a7bdb373edc421f4d95a1924db1e5106",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e095e07_ed69f965",
+        "filename": "src/core/SkStrikeForGPU.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-25T20:07:24Z",
+      "side": 1,
+      "message": "name?",
+      "range": {
+        "startLine": 93,
+        "startChar": 6,
+        "endLine": 93,
+        "endChar": 20
       },
       "revId": "43a17fe2a7bdb373edc421f4d95a1924db1e5106",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
