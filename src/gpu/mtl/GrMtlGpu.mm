@@ -232,7 +232,6 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
         }
     }
 
-    // TODO: implement some way of reusing transfer buffers?
     size_t bpp = GrColorTypeBytesPerPixel(dataColorType);
 
     SkTArray<size_t> individualMipOffsets(mipLevelCount);
@@ -1032,15 +1031,117 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
                             GrColorType surfaceColorType, GrColorType dstColorType, void* buffer,
                             size_t rowBytes) {
     SkASSERT(surface);
+
+    if (surfaceColorType != dstColorType) {
+        return false;
+    }
+
+    int bpp = GrColorTypeBytesPerPixel(dstColorType);
+    size_t transBufferRowBytes = bpp * width;
+    size_t transBufferImageBytes = transBufferRowBytes * height;
+
+    // TODO: implement some way of reusing buffers instead of making a new one every time.
+    NSUInteger options = 0;
+#ifdef SK_BUILD_FOR_MAC
+    options |= MTLResourceStorageModeManaged;
+#else
+    options |= MTLResourceStorageModeShared;
+#endif
+    id<MTLBuffer> transferBuffer = [fDevice newBufferWithLength: transBufferImageBytes
+                                                        options: options];
+
+    if (!this->readOrTransferPixels(surface, left, top, width, height, dstColorType, transferBuffer,
+                                    0, transBufferImageBytes, transBufferRowBytes)) {
+        return false;
+    }
+
+    id<MTLBlitCommandEncoder> blitCmdEncoder = this->commandBuffer()->getBlitCommandEncoder();
+#ifdef SK_BUILD_FOR_MAC
+    // Sync GPU data back to the CPU
+    [blitCmdEncoder synchronizeResource: transferBuffer];
+#endif
+    this->submitCommandBuffer(kForce_SyncQueue);
+
+    const void* mappedMemory = transferBuffer.contents;
+
+    SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, transBufferRowBytes, height);
+
+    return true;
+}
+
+bool GrMtlGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
+                                  GrColorType textureColorType, GrColorType bufferColorType,
+                                  GrGpuBuffer* transferBuffer, size_t offset, size_t rowBytes) {
+    SkASSERT(texture);
+    SkASSERT(transferBuffer);
+    if (textureColorType != bufferColorType ||
+        GrPixelConfigToColorType(texture->config()) != bufferColorType) {
+        return false;
+    }
+
+    GrMtlTexture* grMtlTexture = static_cast<GrMtlTexture*>(texture);
+    id<MTLTexture> mtlTexture = grMtlTexture->mtlTexture();
+    SkASSERT(mtlTexture);
+
+    GrMtlBuffer* grMtlBuffer = static_cast<GrMtlBuffer*>(transferBuffer);
+    id<MTLBuffer> mtlBuffer = grMtlBuffer->mtlBuffer();
+    SkASSERT(mtlBuffer);
+
+    size_t bpp = GrColorTypeBytesPerPixel(bufferColorType);
+    if (offset % bpp) {
+        return false;
+    }
+    MTLOrigin origin = MTLOriginMake(left, top, 0);
+
+    id<MTLBlitCommandEncoder> blitCmdEncoder = this->commandBuffer()->getBlitCommandEncoder();
+    [blitCmdEncoder copyFromBuffer: mtlBuffer
+                      sourceOffset: offset
+                 sourceBytesPerRow: rowBytes
+               sourceBytesPerImage: rowBytes*height
+                        sourceSize: MTLSizeMake(width, height, 1)
+                         toTexture: mtlTexture
+                  destinationSlice: 0
+                  destinationLevel: 0
+                 destinationOrigin: origin];
+
+    return true;
+}
+
+bool GrMtlGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
+                                    GrColorType surfaceColorType, GrColorType bufferColorType,
+                                    GrGpuBuffer* transferBuffer, size_t offset) {
+    SkASSERT(surface);
+    SkASSERT(transferBuffer);
+
+    if (surfaceColorType != bufferColorType) {
+        return false;
+    }
+
+    // Metal only supports offsets that are aligned to a pixel.
+    int bpp = GrColorTypeBytesPerPixel(bufferColorType);
+    if (offset % bpp) {
+        return false;
+    }
+
+    GrMtlBuffer* grMtlBuffer = static_cast<GrMtlBuffer*>(transferBuffer);
+
+    size_t transBufferRowBytes = bpp * width;
+    size_t transBufferImageBytes = transBufferRowBytes * height;
+
+    return this->readOrTransferPixels(surface, left, top, width, height, bufferColorType,
+                                      grMtlBuffer->mtlBuffer(), offset, transBufferImageBytes,
+                                      transBufferRowBytes);
+}
+
+bool GrMtlGpu::readOrTransferPixels(GrSurface* surface, int left, int top, int width, int height,
+                                    GrColorType dstColorType, id<MTLBuffer> transferBuffer,
+                                    size_t offset, size_t imageBytes, size_t rowBytes) {
     if (!check_max_blit_width(width)) {
         return false;
     }
     if (GrPixelConfigToColorType(surface->config()) != dstColorType) {
         return false;
     }
-
-    int bpp = GrColorTypeBytesPerPixel(dstColorType);
-    size_t transBufferRowBytes = bpp * width;
 
     id<MTLTexture> mtlTexture;
     GrMtlRenderTarget* rt = static_cast<GrMtlRenderTarget*>(surface->asRenderTarget());
@@ -1070,18 +1171,6 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
         return false;
     }
 
-    size_t transBufferImageBytes = transBufferRowBytes * height;
-
-    // TODO: implement some way of reusing buffers instead of making a new one every time.
-    NSUInteger options = 0;
-#ifdef SK_BUILD_FOR_MAC
-    options |= MTLResourceStorageModeManaged;
-#else
-    options |= MTLResourceStorageModeShared;
-#endif
-    id<MTLBuffer> transferBuffer = [fDevice newBufferWithLength: transBufferImageBytes
-                                                        options: options];
-
     id<MTLBlitCommandEncoder> blitCmdEncoder = this->commandBuffer()->getBlitCommandEncoder();
     [blitCmdEncoder copyFromTexture: mtlTexture
                         sourceSlice: 0
@@ -1089,18 +1178,9 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
                        sourceOrigin: MTLOriginMake(left, top, 0)
                          sourceSize: MTLSizeMake(width, height, 1)
                            toBuffer: transferBuffer
-                  destinationOffset: 0
-             destinationBytesPerRow: transBufferRowBytes
-           destinationBytesPerImage: transBufferImageBytes];
-#ifdef SK_BUILD_FOR_MAC
-    // Sync GPU data back to the CPU
-    [blitCmdEncoder synchronizeResource: transferBuffer];
-#endif
-
-    this->submitCommandBuffer(kForce_SyncQueue);
-    const void* mappedMemory = transferBuffer.contents;
-
-    SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, transBufferRowBytes, height);
+                  destinationOffset: offset
+             destinationBytesPerRow: rowBytes
+           destinationBytesPerImage: imageBytes];
 
     return true;
 }

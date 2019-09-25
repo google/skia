@@ -35,13 +35,18 @@ GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedTyp
         : INHERITED(gpu, size, intendedType, accessPattern)
         , fIsDynamic(accessPattern != kStatic_GrAccessPattern)
         , fOffset(0) {
-    // We'll allocate dynamic buffers when we map them, below.
+    // In most cases, we'll allocate dynamic buffers when we map them, below.
     if (!fIsDynamic) {
         // TODO: newBufferWithBytes: used to work with StorageModePrivate buffers -- seems like
         // a bug that it no longer does. If that changes we could use that to pre-load the buffer.
         fMtlBuffer = size == 0 ? nil :
                 [gpu->device() newBufferWithLength: size
                                            options: MTLResourceStorageModePrivate];
+    // Need to pre-allocate dynamic buffer when we're transferring from GPU
+    } else if (GrGpuBufferType::kXferGpuToCpu == intendedType) {
+        fMtlBuffer = this->mtlGpu()->resourceProvider().getDynamicBuffer(size, &fOffset);
+    } else {
+        fMtlBuffer = nil;
     }
     this->registerWithCache(SkBudgeted::kYes);
     VALIDATE();
@@ -110,7 +115,9 @@ void GrMtlBuffer::internalMap(size_t sizeInBytes) {
     VALIDATE();
     SkASSERT(!this->isMapped());
     if (fIsDynamic) {
-        fMtlBuffer = this->mtlGpu()->resourceProvider().getDynamicBuffer(sizeInBytes, &fOffset);
+        if (!fMtlBuffer) {
+            fMtlBuffer = this->mtlGpu()->resourceProvider().getDynamicBuffer(sizeInBytes, &fOffset);
+        }
         fMappedBuffer = fMtlBuffer;
         fMapPtr = static_cast<char*>(fMtlBuffer.contents) + fOffset;
     } else {
