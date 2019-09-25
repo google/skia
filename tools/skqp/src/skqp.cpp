@@ -22,8 +22,12 @@
 #include "src/utils/SkOSPath.h"
 #include "tests/Test.h"
 #include "tools/fonts/TestFontMgr.h"
+#if SK_GL
 #include "tools/gpu/gl/GLTestContext.h"
+#endif
+#if SK_VULKAN
 #include "tools/gpu/vk/VkTestContext.h"
+#endif
 
 #include <limits.h>
 #include <algorithm>
@@ -137,6 +141,8 @@ static std::unique_ptr<sk_gpu_test::TestContext> make_test_context(SkQP::SkiaBac
     switch (backend) {
 // TODO(halcanary): Fuchsia will have SK_SUPPORT_GPU and SK_VULKAN, but *not* SK_GL.
 #ifdef SK_GL
+      // TODO(rosasco): remove this
+#error
         case SkQP::SkiaBackend::kGL:
             return U(sk_gpu_test::CreatePlatformGLTestContext(kGL_GrGLStandard, nullptr));
         case SkQP::SkiaBackend::kGLES:
