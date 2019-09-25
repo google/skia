@@ -1,31 +1,23 @@
 {
-   "MaxCount": 4096,
+   "MaxCount": 1000,
    "Drawable": {
       "Type": "SkCircleDrawable",
       "Radius": 2
    },
    "EffectCode": [
       "void effectSpawn(inout Effect effect) {",
-      "  effect.rate = 400;",
-      "}",
-      "",
-      "void effectUpdate(inout Effect effect) {",
+      "  effect.rate = 200;",
       "}",
       ""
    ],
    "Code": [
       "void spawn(inout Particle p) {",
-      "  p.lifetime = 1 + 2 * rand;",
-      "  p.pos.x = rand * 50;",
-      "  float a = radians(-10 + 20 * rand);",
-      "  float s = 50 + 10 * rand;",
-      "  p.vel.x = sin(a) * s;",
-      "  p.vel.y = -cos(a) * s;",
+      "  p.lifetime = 3 + rand;",
+      "  p.vel.y = -50;",
       "}",
       "",
       "void update(inout Particle p) {",
-      "  p.vel.x += wind(p.age) * dt;",
-      "  p.scale = 3 - (1.5 * p.age);",
+      "  p.pos.x = wave(p.age);",
       "  p.color = color(p.age);",
       "}",
       ""
@@ -33,18 +25,22 @@
    "Bindings": [
       {
          "Type": "SkCurveBinding",
-         "Name": "wind",
+         "Name": "wave",
          "Curve": {
             "XValues": [],
             "Segments": [
                {
                   "Type": "Cubic",
-                  "Ranged": false,
+                  "Ranged": true,
                   "Bidirectional": true,
-                  "A0": 180,
-                  "B0": -90,
-                  "C0": -120,
-                  "D0": -200
+                  "A0": -20,
+                  "B0": 50,
+                  "C0": -30,
+                  "D0": -10,
+                  "A1": 20,
+                  "B1": 60,
+                  "C1": -20,
+                  "D1": 0
                }
             ]
          }

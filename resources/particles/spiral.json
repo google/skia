@@ -10,9 +10,6 @@
       "  effect.rate = 120;",
       "  effect.spin = 6;",
       "}",
-      "",
-      "void effectUpdate(inout Effect effect) {",
-      "}",
       ""
    ],
    "Code": [

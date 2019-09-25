@@ -1,5 +1,5 @@
 {
-   "MaxCount": 4096,
+   "MaxCount": 2000,
    "Drawable": {
       "Type": "SkCircleDrawable",
       "Radius": 1
@@ -7,9 +7,6 @@
    "EffectCode": [
       "void effectSpawn(inout Effect effect) {",
       "  effect.rate = 1000;",
-      "}",
-      "",
-      "void effectUpdate(inout Effect effect) {",
       "}",
       ""
    ],

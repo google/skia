@@ -132,7 +132,7 @@ public:
 
     // Start playing this effect, specifying initial values for the emitter's properties
     void start(double now, bool looping, SkPoint position, SkVector heading, float scale,
-               SkVector velocity, float spin, SkColor4f color, float frame);
+               SkVector velocity, float spin, SkColor4f color, float frame, uint32_t flags);
 
     // Start playing this effect, with default values for the emitter's properties
     void start(double now, bool looping) {
@@ -143,7 +143,8 @@ public:
                     { 0.0f, 0.0f },              // velocity
                     0.0f,                        // spin
                     { 1.0f, 1.0f, 1.0f, 1.0f },  // color
-                    0.0f);                       // sprite frame
+                    0.0f,                        // sprite frame
+                    0);                          // flags
     }
 
     void update(double now);
@@ -199,6 +200,7 @@ private:
         float     fSpin;
         SkColor4f fColor;
         float     fFrame;
+        uint32_t  fFlags;
     };
     EffectState fState;
 
