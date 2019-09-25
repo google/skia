@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd874469_e709df86",
+        "filename": "modules/skparagraph/src/ParagraphBuilderImpl.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-25T17:09:42Z",
+      "side": 1,
+      "message": "I think you want SkDEBUGF instead of SkDebugf. In release we don\u0027t want to spam stdout.",
+      "range": {
+        "startLine": 82,
+        "startChar": 8,
+        "endLine": 82,
+        "endChar": 16
+      },
+      "revId": "577a7c1d333cb0b771c30f8dd54770e4b1eb6aa5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d44afb8e_4a134ddb",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-25T17:09:42Z",
+      "side": 1,
+      "message": "// TODO: This rounding is done to match Flutter tests. Must be removed...",
+      "range": {
+        "startLine": 101,
+        "startChar": 4,
+        "endLine": 101,
+        "endChar": 9
+      },
+      "revId": "577a7c1d333cb0b771c30f8dd54770e4b1eb6aa5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e955ac3_f97bdcbd",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 983,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-25T17:09:42Z",
+      "side": 1,
+      "message": "Can this be called icuTextString or something other than \u0027another\u0027?",
+      "range": {
+        "startLine": 983,
+        "startChar": 11,
+        "endLine": 983,
+        "endChar": 18
+      },
+      "revId": "577a7c1d333cb0b771c30f8dd54770e4b1eb6aa5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7211c47c_d5d0947d",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 988,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-25T17:09:42Z",
+      "side": 1,
+      "message": "Nice to call this wordIter, so it\u0027s more obvious what we\u0027re iterating over.",
+      "range": {
+        "startLine": 988,
+        "startChar": 11,
+        "endLine": 988,
+        "endChar": 15
+      },
+      "revId": "577a7c1d333cb0b771c30f8dd54770e4b1eb6aa5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "caa53281_18c53228",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 990,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-25T17:09:42Z",
+      "side": 1,
+      "message": "SkDEBUGF (here and below), and possibly a \"return {0, 0}\" here?",
+      "range": {
+        "startLine": 990,
+        "startChar": 8,
+        "endLine": 990,
+        "endChar": 16
+      },
+      "revId": "577a7c1d333cb0b771c30f8dd54770e4b1eb6aa5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee71af11_a3bfca65",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 998,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-25T17:09:42Z",
+      "side": 1,
+      "message": "Can just use \"SkFunctionWrapper\u003cdecltype(utext_close), utext_close\u003e\". In SkShaper_harfbuzz.cpp this is actually given a name, like\n\nusing ICUUText \u003d std::unique_ptr\u003cUText, SkFunctionWrapper\u003cdecltype(utext_close), utext_close\u003e\u003e;\n\nso it is possible to write this like\n\nUText sUtf16UText \u003d UTEXT_INITIALIZER;\nICUUText utf16UText(utext_openUnicodeString(\u0026sUtf16UText, \u0026another, \u0026errorCode));\n\nit\u0027s also nice to then just use this \u0027ICUUText utf16UText\u0027 as the actual owner (use .get() on it to get the pointer for calls) to make it more obvious that the owning pointer is what is being used (effectively just don\u0027t use sUtf16UText anywhere outside the expression to create utf16UText).",
+      "range": {
+        "startLine": 998,
+        "startChar": 29,
+        "endLine": 998,
+        "endChar": 40
+      },
+      "revId": "577a7c1d333cb0b771c30f8dd54770e4b1eb6aa5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "712211be_5c03ae19",
+        "filename": "modules/skparagraph/src/Run.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-25T17:09:42Z",
+      "side": 1,
+      "message": "It would be good to provide a name for this parameter here just for readers to know what it may be used for. I suppose \u0027bool onlyInnerClusters\u0027.",
+      "range": {
+        "startLine": 139,
+        "startChar": 81,
+        "endLine": 139,
+        "endChar": 85
+      },
+      "revId": "577a7c1d333cb0b771c30f8dd54770e4b1eb6aa5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
