@@ -5,12 +5,13 @@
 if (!defined(is_skia_standalone)) {
   is_skia_standalone = false
 }
-is_skia_dev_build = is_skia_standalone && !is_official_build
 
-if (is_fuchsia) {
+if (false && is_fuchsia) {
   import("//build/fuchsia/sdk.gni")
   import("//build/vulkan/config.gni")
 }
+
+is_skia_dev_build = is_skia_standalone && !is_official_build
 
 declare_args() {
   skia_android_serial = ""
@@ -49,6 +50,7 @@ declare_args() {
   skia_use_fontconfig = is_linux
   skia_use_fonthost_mac = is_mac
   skia_use_freetype = is_android || is_fuchsia || is_linux
+  skia_use_fuchsia_sdk = is_fuchsia
   skia_use_harfbuzz = true
   skia_use_icu = !is_fuchsia && !is_ios
   skia_use_libheif = is_skia_dev_build
@@ -63,6 +65,7 @@ declare_args() {
   skia_use_x11 = is_linux
   skia_use_xps = true
   skia_use_zlib = true
+  # using_fuchsia_sdk = true
 
   if (is_ios) {
     skia_ios_identity = ".*Google.*"
@@ -80,7 +83,7 @@ declare_args() {
   if (is_android) {
     skia_use_vulkan = defined(ndk_api) && ndk_api >= 24
   } else if (is_fuchsia) {
-    skia_use_vulkan = fuchsia_use_vulkan
+    skia_use_vulkan = true
   } else {
     skia_use_vulkan = defined(skia_moltenvk_path) && skia_moltenvk_path != ""
   }
