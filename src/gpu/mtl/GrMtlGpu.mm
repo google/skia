@@ -1043,29 +1043,11 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     size_t transBufferRowBytes = bpp * width;
 
     id<MTLTexture> mtlTexture;
-    GrMtlRenderTarget* rt = static_cast<GrMtlRenderTarget*>(surface->asRenderTarget());
-    if (rt) {
-        // resolve the render target if necessary
-        switch (rt->getResolveType()) {
-            case GrMtlRenderTarget::kCantResolve_ResolveType:
-                return false;
-            case GrMtlRenderTarget::kAutoResolves_ResolveType:
-                mtlTexture = rt->mtlColorTexture();
-                break;
-            case GrMtlRenderTarget::kCanResolve_ResolveType:
-                SkASSERT(!rt->needsResolve());
-                mtlTexture = rt->mtlResolveTexture();
-                break;
-            default:
-                SK_ABORT("Unknown resolve type");
-        }
-    } else {
-        GrMtlTexture* texture = static_cast<GrMtlTexture*>(surface->asTexture());
-        if (texture) {
-            mtlTexture = texture->mtlTexture();
-        }
+    if (GrMtlRenderTarget* rt = static_cast<GrMtlRenderTarget*>(surface->asRenderTarget())) {
+        mtlTexture = rt->mtlColorTexture();
+    } else if (GrMtlTexture* texture = static_cast<GrMtlTexture*>(surface->asTexture())) {
+        mtlTexture = texture->mtlTexture();
     }
-
     if (!mtlTexture) {
         return false;
     }
@@ -1193,7 +1175,6 @@ void GrMtlGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect&, GrS
     if (target->needsResolve()) {
         this->resolveTexture(static_cast<GrMtlRenderTarget*>(target)->mtlResolveTexture(),
                              static_cast<GrMtlRenderTarget*>(target)->mtlColorTexture());
-        target->flagAsResolved();
 
         if (ForExternalIO::kYes == forExternalIO) {
             // This resolve is called when we are preparing an msaa surface for external I/O. It is
