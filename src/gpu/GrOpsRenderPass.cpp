@@ -42,6 +42,9 @@ static void assert_msaa_and_mips_are_resolved(
     auto assertResolved = [](GrTexture* tex, const GrSamplerState& sampler) {
         SkASSERT(tex);
 
+        // Ensure msaa was resolved ahead of time by the DAG.
+        SkASSERT(!tex->asRenderTarget() || !tex->asRenderTarget()->needsResolve());
+
         // Ensure mipmaps were all resolved ahead of time by the DAG.
         if (GrSamplerState::Filter::kMipMap == sampler.filter() &&
             (tex->width() != 1 || tex->height() != 1)) {

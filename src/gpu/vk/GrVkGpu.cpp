@@ -616,6 +616,8 @@ void GrVkGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resol
     this->resolveImage(target, rt, nativeResolveRect.asSkIRect(),
                        SkIPoint::Make(nativeResolveRect.fX, nativeResolveRect.fY));
 
+    rt->flagAsResolved();
+
     if (ForExternalIO::kYes == forExternalIO) {
         // This resolve is called when we are preparing an msaa surface for external I/O. It is
         // called after flushing, so we need to make sure we submit the command buffer after doing
