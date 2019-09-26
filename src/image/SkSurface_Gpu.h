@@ -57,8 +57,6 @@ public:
 
     SkGpuDevice* getDevice() { return fDevice.get(); }
 
-    static bool Valid(const GrCaps*, const GrBackendFormat&);
-
 private:
     sk_sp<SkGpuDevice> fDevice;
 

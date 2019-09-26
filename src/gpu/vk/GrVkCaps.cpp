@@ -32,7 +32,6 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
      * GrCaps fields
      **************************************************************************/
     fMipMapSupport = true;   // always available in Vulkan
-    fSRGBSupport = true;   // always available in Vulkan
     fNPOTTextureTileSupport = true;  // always available in Vulkan
     fReuseScratchTextures = true; //TODO: figure this out
     fGpuTracingSupport = false; //TODO: figure this out
@@ -357,15 +356,6 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
 
     this->initGrCaps(vkInterface, physDev, properties, memoryProperties, features, extensions);
     this->initShaderCaps(properties, features);
-
-    if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
-#if defined(SK_CPU_X86)
-        // We need to do this before initing the config table since it uses fSRGBSupport
-        if (kImagination_VkVendor == properties.vendorID) {
-            fSRGBSupport = false;
-        }
-#endif
-    }
 
     if (kQualcomm_VkVendor == properties.vendorID) {
         // A "clear" load for the CCPR atlas runs faster on QC than a "discard" load followed by a
@@ -959,9 +949,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     {
         constexpr VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
         auto& info = this->getFormatInfo(format);
-        if (fSRGBSupport) {
-            info.init(interface, physDev, properties, format);
-        }
+        info.init(interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
