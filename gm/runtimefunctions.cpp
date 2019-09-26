@@ -23,7 +23,7 @@
 #include <stddef.h>
 
 static const char* RUNTIME_FUNCTIONS_SRC = R"(
-    layout(ctype=SkRect) uniform half4 gColor;
+    layout(ctype=SkRect) in uniform half4 gColor;
 
     half scale(float x) {
         return half(x) / 255;

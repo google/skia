@@ -66,12 +66,7 @@ bool ByteCodeGenerator::generateCode() {
                     if (declVar->fModifiers.fLayout.fBuiltin >= 0) {
                         continue;
                     }
-                    // if you trip this assert, it means the program has raw 'in' variables. You
-                    // should either specialize the program (Compiler::specialize) to bake in the
-                    // final values of the 'in' variables, or not use 'in' variables (maybe you
-                    // meant to use 'uniform' instead?).
-                    SkASSERT(!(declVar->fModifiers.fFlags & Modifiers::kIn_Flag));
-                    if (declVar->fModifiers.fFlags & Modifiers::kUniform_Flag) {
+                    if (declVar->fModifiers.fFlags & Modifiers::kIn_Flag) {
                         for (int i = SlotCount(declVar->fType); i > 0; --i) {
                             fOutput->fInputSlots.push_back(fOutput->fGlobalCount++);
                         }
