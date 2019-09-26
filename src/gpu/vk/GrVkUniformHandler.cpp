@@ -294,7 +294,8 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(const GrTextu
 void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {
     for (int i = 0; i < fSamplers.count(); ++i) {
         const UniformInfo& sampler = fSamplers[i];
-        SkASSERT(sampler.fVariable.getType() == kTexture2DSampler_GrSLType);
+        SkASSERT(sampler.fVariable.getType() == kTexture2DSampler_GrSLType ||
+                 sampler.fVariable.getType() == kTextureExternalSampler_GrSLType);
         if (visibility == sampler.fVisibility) {
             sampler.fVariable.appendDecl(fProgramBuilder->shaderCaps(), out);
             out->append(";\n");

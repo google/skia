@@ -31,6 +31,8 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                     GrTextureType::k2D, mipMapsStatus)
         , fTextureView(view) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == info.fLevelCount));
+    // We don't support creating external GrVkTextures
+    SkASSERT(!info.fYcbcrConversionInfo.isValid() || !info.fYcbcrConversionInfo.fExternalFormat);
     this->registerWithCache(budgeted);
     if (GrVkFormatIsCompressed(info.fFormat)) {
         this->setReadOnly();
@@ -40,11 +42,11 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
 GrVkTexture::GrVkTexture(GrVkGpu* gpu, const GrSurfaceDesc& desc, const GrVkImageInfo& info,
                          sk_sp<GrVkImageLayout> layout, const GrVkImageView* view,
                          GrMipMapsStatus mipMapsStatus, GrBackendObjectOwnership ownership,
-                         GrWrapCacheable cacheable, GrIOType ioType)
+                         GrWrapCacheable cacheable, GrIOType ioType, bool isExternal)
         : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, info.fProtected)
         , GrVkImage(info, std::move(layout), ownership)
         , INHERITED(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, info.fProtected,
-                    GrTextureType::k2D, mipMapsStatus)
+                    isExternal ? GrTextureType::kExternal : GrTextureType::k2D, mipMapsStatus)
         , fTextureView(view) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == info.fLevelCount));
     if (ioType == kRead_GrIOType) {
@@ -67,6 +69,9 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                     GrTextureType::k2D, mipMapsStatus)
         , fTextureView(view) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == info.fLevelCount));
+    // Since this ctor is only called from GrVkTextureRenderTarget, we can't have a ycbcr conversion
+    // since we don't support that on render targets.
+    SkASSERT(!info.fYcbcrConversionInfo.isValid());
 }
 
 sk_sp<GrVkTexture> GrVkTexture::MakeNewTexture(GrVkGpu* gpu, SkBudgeted budgeted,
@@ -116,8 +121,11 @@ sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(GrVkGpu* gpu,
 
     GrBackendObjectOwnership ownership = kBorrow_GrWrapOwnership == wrapOwnership
             ? GrBackendObjectOwnership::kBorrowed : GrBackendObjectOwnership::kOwned;
+    bool isExternal = info.fYcbcrConversionInfo.isValid() &&
+                      (info.fYcbcrConversionInfo.fExternalFormat != 0);
     return sk_sp<GrVkTexture>(new GrVkTexture(gpu, desc, info, std::move(layout), imageView,
-                                              mipMapsStatus, ownership, cacheable, ioType));
+                                              mipMapsStatus, ownership, cacheable, ioType,
+                                              isExternal));
 }
 
 GrVkTexture::~GrVkTexture() {
