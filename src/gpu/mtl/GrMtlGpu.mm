@@ -712,6 +712,20 @@ static GrPixelConfig mtl_format_to_pixelconfig(MTLPixelFormat format) {
     SkUNREACHABLE;
 }
 
+void copy_src_data(char* dst, size_t bytesPerPixel, const SkTArray<size_t>& individualMipOffsets,
+                   const SkPixmap srcData[], int numMipLevels, size_t bufferSize) {
+    SkASSERT(srcData && numMipLevels);
+    SkASSERT(individualMipOffsets.count() == numMipLevels);
+
+    for (int level = 0; level < numMipLevels; ++level) {
+        const size_t trimRB = srcData[level].width() * bytesPerPixel;
+        SkASSERT(individualMipOffsets[level] + trimRB * srcData[level].height() <= bufferSize);
+        SkRectMemcpy(dst + individualMipOffsets[level], trimRB,
+                     srcData[level].addr(), srcData[level].rowBytes(),
+                     trimRB, srcData[level].height());
+    }
+}
+
 bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
                                                  int w, int h, bool texturable,
                                                  bool renderable, GrMipMapped mipMapped,
@@ -734,11 +748,8 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
     if (renderable && !fMtlCaps->isFormatRenderable(format, 1)) {
         return false;
     }
-    // Currently we don't support uploading pixel data when mipped.
-    if (srcData && GrMipMapped::kYes == mipMapped) {
-        return false;
-    }
-    if(!check_max_blit_width(w)) {
+
+    if (!check_max_blit_width(w)) {
         return false;
     }
 
@@ -793,14 +804,8 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
 
     // Fill buffer with data
     if (srcData) {
-        const size_t trimRowBytes = w * bytesPerPixel;
-
-        // TODO: support mipmapping
-        SkASSERT(1 == mipLevelCount);
-
-        // copy data into the buffer, skipping the trailing bytes
-        const char* src = (const char*) srcData->addr();
-        SkRectMemcpy(buffer, trimRowBytes, src, srcData->rowBytes(), trimRowBytes, h);
+        copy_src_data(buffer, bytesPerPixel, individualMipOffsets,
+                      srcData, numMipLevels, combinedBufferSize);
     } else if (color) {
         GrPixelConfig config = mtl_format_to_pixelconfig(format);
         SkASSERT(kUnknown_GrPixelConfig != config);
