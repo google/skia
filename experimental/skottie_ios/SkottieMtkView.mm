@@ -15,10 +15,10 @@
 @implementation SkottieMtkView {
     sk_sp<skottie::Animation> fAnimation; // owner
     CGSize fSize;
-    double fStartTime;
-    double fTime;
+    double fStartTime; // used when running
+    float fAnimationMoment; // when paused.
     SkMatrix fMatrix;
-    SkRect fAnimRect;
+    SkSize fAnimationSize;
     bool fPaused;
 }
 
@@ -35,14 +35,14 @@
     }
     CGSize size = [self drawableSize];
     if (size.width != fSize.width || size.height != fSize.height) {
-        float aw = fAnimRect.right(),
-              ah = fAnimRect.bottom();
-        if (aw > 0 && ah > 0) {
-            float scale = std::min(size.width / aw, size.height / ah);
-            fMatrix.setScaleTranslate(scale,
-                                      scale,
-                                      ((float)size.width  - aw * scale) * 0.5f,
-                                      ((float)size.height - ah * scale) * 0.5f);
+        // Cache the current matrix; change only if size changes.
+        if (fAnimationSize.width() > 0 && fAnimationSize.height() > 0) {
+            float scale = std::min(size.width / fAnimationSize.width(),
+                                   size.height / fAnimationSize.height());
+            fMatrix.setScaleTranslate(
+                    scale, scale,
+                    ((float)size.width  - fAnimationSize.width()  * scale) * 0.5f,
+                    ((float)size.height - fAnimationSize.height() * scale) * 0.5f);
         } else {
             fMatrix = SkMatrix();
         }
@@ -50,9 +50,7 @@
     }
     SkPaint whitePaint(SkColors::kWhite);
     if (!fPaused) {
-        fTime = SkTime::GetNSecs();
-        fAnimation->seekFrameTime(std::fmod(1e-9 * (fTime - fStartTime),
-                                            fAnimation->duration()), nullptr);
+        fAnimation->seekFrameTime([self currentTime], nullptr);
     }
     sk_sp<SkSurface> surface = SkMtkViewToSurface(self, [self grContext]);
     if (!surface) {
@@ -61,7 +59,7 @@
     }
     SkCanvas* canvas = surface->getCanvas();
     canvas->concat(fMatrix);
-    canvas->drawRect(fAnimRect, whitePaint);
+    canvas->drawRect(SkRect{0, 0, fAnimationSize.width(), fAnimationSize.height()}, whitePaint);
     fAnimation->render(canvas);
     surface->flush();
     surface = nullptr;
@@ -71,25 +69,47 @@
 - (BOOL)loadAnimation:(NSData*) data {
     skottie::Animation::Builder builder;
     fAnimation = builder.make((const char*)[data bytes], (size_t)[data length]);
-    fTime = fStartTime = SkTime::GetNSecs();
+    fStartTime = SkTime::GetNSecs();
+    fAnimationMoment = 0;
     fSize = {0, 0};
-    fAnimRect = fAnimation ? SkRect::MakeSize(fAnimation->size()) : SkRect{0, 0, 0, 0};
+    fAnimationSize = fAnimation ? fAnimation->size() : SkSize{0, 0};
     return fAnimation != nullptr;
 }
 
-- (CGSize)size {
-    if (fAnimation) {
-        const SkSize& s = fAnimation->size();
-        return {(CGFloat)s.width(), (CGFloat)s.height()};
-    }
-    return {0, 0};
+- (float)animationDurationSeconds {
+    return fAnimation ? fAnimation->duration() : 0;
 }
 
-- (BOOL)togglePaused {
-    fPaused = !fPaused;
-    if (!fPaused) {
-        fStartTime += (SkTime::GetNSecs() - fTime);
+- (float)currentTime {
+    if (!fAnimation) {
+        return 0;
     }
+    if (fPaused) {
+        return fAnimationMoment;
+    }
+    return std::fmod(1e-9 * (SkTime::GetNSecs() - fStartTime), fAnimation->duration());
+}
+
+- (void)seek:(float)seconds {
+    if (fAnimation) {
+        if (fPaused) {
+            fAnimationMoment = std::fmod(seconds, fAnimation->duration());
+            fAnimation->seekFrameTime(fAnimationMoment);
+        } else {
+            fStartTime = SkTime::GetNSecs() - 1e9 * seconds;
+        }
+    }
+}
+
+- (CGSize)size { return {(CGFloat)fAnimationSize.width(), (CGFloat)fAnimationSize.height()}; }
+
+- (BOOL)togglePaused {
+    if (fPaused) {
+        fStartTime = SkTime::GetNSecs() - 1e9 * fAnimationMoment;
+    } else {
+        fAnimationMoment = [self currentTime];
+    }
+    fPaused = !fPaused;
     return fPaused;
 }
 @end
