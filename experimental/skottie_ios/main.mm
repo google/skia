@@ -20,7 +20,7 @@ static UIStackView* make_skottie_stack(CGFloat width,
 
     NSBundle* mainBundle = [NSBundle mainBundle];
     NSArray<NSString*>* paths = [mainBundle pathsForResourcesOfType:@"json"
-                                            inDirectory:nil];
+                                            inDirectory:@"data"];
     constexpr CGFloat kSpacing = 2;
     CGFloat totalHeight = kSpacing;
     for (NSUInteger i = 0; i < [paths count]; ++i) {

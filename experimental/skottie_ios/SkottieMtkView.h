@@ -12,8 +12,11 @@ class GrContext;
 @property (assign) GrContext* grContext;  // non-owning pointer.
 - (void)drawRect:(CGRect)rect;
 - (BOOL)loadAnimation:(NSData*)d;
-- (CGSize)size;
+- (void)seek:(float)seconds;
 - (BOOL)togglePaused;
+- (CGSize)size;
+- (float)animationDurationSeconds;
+- (float)currentTime;
 @end
 
 #endif  // SkottieMtkView_DEFINED
