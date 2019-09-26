@@ -734,11 +734,8 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
     if (renderable && !fMtlCaps->isFormatRenderable(format, 1)) {
         return false;
     }
-    // Currently we don't support uploading pixel data when mipped.
-    if (srcData && GrMipMapped::kYes == mipMapped) {
-        return false;
-    }
-    if(!check_max_blit_width(w)) {
+
+    if (!check_max_blit_width(w)) {
         return false;
     }
 
