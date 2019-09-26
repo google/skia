@@ -11,7 +11,6 @@
 #include "include/core/SkMath.h"
 #include "include/core/SkPixmap.h"
 #include "include/private/SkVx.h"
-#include "modules/sksg/include/SkSGInvalidationController.h"
 #include "src/core/SkMathPriv.h"
 
 namespace skottie {
@@ -67,27 +66,19 @@ const sksg::RenderNode* MotionBlurEffect::onNodeAt(const SkPoint&) const {
     return nullptr;
 }
 
-SkRect MotionBlurEffect::onRevalidate(sksg::InvalidationController*, const SkMatrix& ctm) {
-    SkASSERT(this->children().size() == 1ul);
-    const sk_sp<RenderNode>& child = this->children()[0];
+SkRect MotionBlurEffect::seekToSample(size_t sample_idx, const SkMatrix& ctm) const {
+    SkASSERT(sample_idx < fSampleCount);
+    fAnimator->tick(fT + fPhase + fDT * sample_idx);
 
+    SkASSERT(this->children().size() == 1ul);
+    return this->children()[0]->revalidate(nullptr, ctm);
+}
+
+SkRect MotionBlurEffect::onRevalidate(sksg::InvalidationController*, const SkMatrix& ctm) {
     SkRect bounds = SkRect::MakeEmpty();
 
-    // Use a local inval controller to suppress descendent invals during sampling
-    // (superseded by our local inval bounds).
-    sksg::InvalidationController ic;
-
-    float t = fT + fPhase;
-
     for (size_t i = 0; i < fSampleCount; ++i) {
-        fAnimator->tick(t);
-        t += fDT;
-
-        if (!child->isVisible()) {
-            continue;
-        }
-
-        bounds.join(child->revalidate(&ic, ctm));
+        bounds.join(this->seekToSample(i, ctm));
     }
 
     return bounds;
@@ -115,17 +106,13 @@ void MotionBlurEffect::renderToRaster8888Pow2Samples(SkCanvas* canvas,
         SkASSERT(info.colorType() == kRGBA_8888_SkColorType ||
                  info.colorType() == kBGRA_8888_SkColorType);
 
-        float t = fT + fPhase;
         bool needs_clear = false;  // Cleared initially by saveLayer().
         for (size_t i = 0; i < fSampleCount; ++i) {
-            fAnimator->tick(t);
-            t += fDT;
+            this->seekToSample(i, canvas->getTotalMatrix());
 
             if (!child->isVisible()) {
                 continue;
             }
-
-            child->revalidate(nullptr, canvas->getTotalMatrix());
 
             // Draw this subframe.
             if (needs_clear) {
@@ -238,17 +225,12 @@ void MotionBlurEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) cons
                              .modulateBlendMode(SkBlendMode::kPlus);
     }
 
-    float t = fT + fPhase;
-
     for (size_t i = 0; i < fSampleCount; ++i) {
-        fAnimator->tick(t);
-        t += fDT;
+        this->seekToSample(i, canvas->getTotalMatrix());
 
         if (!child->isVisible()) {
             continue;
         }
-
-        child->revalidate(nullptr, canvas->getTotalMatrix());
 
         SkAutoCanvasRestore acr(canvas, false);
         if (isolate_frames) {
