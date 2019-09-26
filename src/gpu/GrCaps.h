@@ -41,15 +41,6 @@ public:
         only for POT textures) */
     bool mipMapSupport() const { return fMipMapSupport; }
 
-    /**
-     * Skia convention is that a device only has sRGB support if it supports sRGB formats for both
-     * textures and framebuffers.
-     */
-    bool srgbSupport() const { return fSRGBSupport; }
-    /**
-     * Is there support for enabling/disabling sRGB writes for sRGB-capable color buffers?
-     */
-    bool srgbWriteControl() const { return fSRGBWriteControl; }
     bool gpuTracingSupport() const { return fGpuTracingSupport; }
     bool oversizedStencilSupport() const { return fOversizedStencilSupport; }
     bool textureBarrierSupport() const { return fTextureBarrierSupport; }
@@ -449,8 +440,6 @@ protected:
 
     bool fNPOTTextureTileSupport                     : 1;
     bool fMipMapSupport                              : 1;
-    bool fSRGBSupport                                : 1;
-    bool fSRGBWriteControl                           : 1;
     bool fReuseScratchTextures                       : 1;
     bool fReuseScratchBuffers                        : 1;
     bool fGpuTracingSupport                          : 1;

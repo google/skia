@@ -406,6 +406,9 @@ public:
 
     bool fbFetchRequiresEnablePerSample() const { return fFBFetchRequiresEnablePerSample; }
 
+    /* Is there support for enabling/disabling sRGB writes for sRGB-capable color buffers? */
+    bool srgbWriteControl() const { return fSRGBWriteControl; }
+
     GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&,
                                                   bool isAlphaChannel) const override;
 
@@ -503,6 +506,7 @@ private:
     bool fProgramParameterSupport : 1;
     bool fSamplerObjectSupport : 1;
     bool fFBFetchRequiresEnablePerSample : 1;
+    bool fSRGBWriteControl : 1;
 
     // Driver workarounds
     bool fDoManualMipmapping : 1;

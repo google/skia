@@ -328,14 +328,6 @@ bool SkSurface_Gpu::onDraw(const SkDeferredDisplayList* ddl) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkSurface_Gpu::Valid(const GrCaps* caps, const GrBackendFormat& format) {
-    if (caps->isFormatSRGB(format)) {
-        return caps->srgbSupport();
-    }
-
-    return true;
-}
-
 sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
                                              const SkSurfaceCharacterization& c,
                                              SkBudgeted budgeted) {
@@ -343,18 +335,12 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
         return nullptr;
     }
 
-    const GrCaps* caps = context->priv().caps();
-
     if (c.usesGLFBO0()) {
         // If we are making the surface we will never use FBO0.
         return nullptr;
     }
 
     if (c.vulkanSecondaryCBCompatible()) {
-        return nullptr;
-    }
-
-    if (!SkSurface_Gpu::Valid(caps, c.backendFormat())) {
         return nullptr;
     }
 
@@ -413,10 +399,6 @@ static bool validate_backend_texture(const GrCaps* caps, const GrBackendTexture&
     }
 
     if (texturable && !caps->isFormatTexturable(backendFormat)) {
-        return false;
-    }
-
-    if (!SkSurface_Gpu::Valid(caps, backendFormat)) {
         return false;
     }
 
@@ -611,10 +593,6 @@ bool validate_backend_render_target(const GrCaps* caps, const GrBackendRenderTar
     if (!caps->isFormatAsColorTypeRenderable(grCT, rt.getBackendFormat(), rt.sampleCnt())) {
         return false;
     }
-    if (!SkSurface_Gpu::Valid(caps, rt.getBackendFormat())) {
-        return false;
-    }
-
     return true;
 }
 
