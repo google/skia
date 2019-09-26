@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12de002e_9daf5df6",
+        "filename": "src/gpu/GrTextureResolveRenderTask.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-09-26T20:09:55Z",
+      "side": 1,
+      "message": "I guess this is what you get when you resolve cherry-pick conflicts on auto pilot ¯\\_(ツ)_/¯",
+      "range": {
+        "startLine": 72,
+        "startChar": 12,
+        "endLine": 72,
+        "endChar": 14
+      },
+      "revId": "830038ccbcf2d9d0d2465e217993041046a4a882",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
