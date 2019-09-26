@@ -26,7 +26,7 @@ class GrContext;
 class GrRenderTargetContext;
 
 const char* SKSL_TEST_SRC = R"(
-    layout(ctype=float) uniform half b;
+    layout(ctype=float) in uniform half b;
 
     void main(inout half4 color) {
         color.a = color.r*0.3 + color.g*0.6 + color.b*0.1;

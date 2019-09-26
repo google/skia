@@ -589,7 +589,7 @@ DEF_TEST(SkSLInterpreterCompound, r) {
         "}\n"
 
         // Uniforms, array-of-structs, dynamic indices
-        "uniform Rect gRects[4];\n"
+        "in uniform Rect gRects[4];\n"
         "Rect get_rect(int i) { return gRects[i]; }\n"
 
         // Kitchen sink (swizzles, inout, SoAoS)
