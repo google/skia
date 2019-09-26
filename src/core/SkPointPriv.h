@@ -124,4 +124,42 @@ public:
     }
 };
 
+// Sk[I]Direction provides a proper type id for directions since Sk[I]Vector is just a typedef of
+// Sk[I]Point. As just a typedef, this made it cumbersome to provide template specializations that
+// behaved differently for directions vs. positions. Now, in these scenarios, the template can
+// specialize on Sk[I]Direction instead, but because these types provide implicit copy and move
+// operators between the regular Sk[I]Vector API they are able to be used easily with the rest of
+// Skia's math code.
+// NOTE: If this proves more generally useful, it may warrant being made public, or taking the
+// time to explicitly separate Sk[I]Vector and Sk[I]Point.
+struct SkIDirection {
+    SkIVector fDir;
+
+    SkIDirection(const SkIVector& dir) : fDir(dir) {}
+    SkIDirection(SkIVector&& dir) : fDir(std::move(dir)) {}
+
+    operator=(const SkIVector& dir) { fDir = dir; }
+    operator=(SkIVector&& dir) { fDir = std::move(dir); }
+
+    operator const SkIVector&() const { return fDir; }
+    operator SkIVector() { return fDir; }
+
+    SkIVector& operator->() { return fDir; }
+    const SkIVector& operator->() const { return fDir; }
+    // FIXME may need to add the math operators too??
+};
+
+struct SkDirection {
+    SkVector fDir;
+
+    SkDirection(const SkVector& dir) : fDir(dir) {}
+    SkDirection(SkVector&& dir) : fDir(std::move(dir)) {}
+
+    operator=(const SkVector& dir) { fDir = dir; }
+    operator=(SkVector&& dir) { fDir = std::move(dir); }
+
+    operator const SkVector&() const { return fDir; }
+    operator SkVector() { return fDir; }
+};
+
 #endif

@@ -8,6 +8,7 @@
 #ifndef SkImageFilterTypes_DEFINED
 #define SkImageFilterTypes_DEFINED
 
+#include "src/core/SkPointPriv.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
 
@@ -22,6 +23,120 @@ class SkSurfaceProps;
 // SkSpecialImage. It is possible to avoid the use of the readability templates, although they are
 // strongly encouraged.
 namespace skif {
+
+template<typename T>
+class ParameterSpace {
+public:
+    explicit ParameterSpace(const T& data) : fData(data) {}
+    explicit ParameterSpace(T&& data) : fData(std::move(data)) {}
+
+    explicit operator const T&() const { return fData; }
+
+private:
+    T fData;
+};
+
+template<typename T>
+class DeviceSpace {
+public:
+    explicit DeviceSpace(const T& data) : fData(data) {}
+    explicit DeviceSpace(T&& data) : fData(std::move(data)) {}
+
+    explicit operator const T&() const { return fData; }
+
+private:
+    T fData;
+};
+
+template<typename T>
+class LayerSpace {};
+
+template<>
+class LayerSpace<SkIDirection> {
+
+    LayerSpace() = default;
+    explicit LayerSpace(const SkIDirection& geometry)
+            : fData(geometry) {}
+    explicit LayerSpace(SkIDirection&& geometry)
+            : fData(std::move(geometry)) {}
+    explicit operator const SkIDirection&() const { return fData; }
+    // Parrot the SkIVector API while preserving coord space and usage
+    int32_t x() const { return fData->fX; }
+    int32_t y() const { return fData->fY; }
+    LayerSpace<SkIDirection> operator-() const { return LayerSpace<SkIDirection>(-fData); }
+    LayerSpace<SkIDirection> operator+(const LayerSpace<SkIDirection>& v) {
+        return LayerSpace<SkIDirection>(fData + v.fData);
+    }
+    LayerSpace<SkIDirection> operator-(const LayerSpace<SkIDirection>& v) {
+        return LayerSpace<SkIDirection>(fData - v.fData);
+    }
+    void operator+=(const LayerSpace<SkIDirection> v) { fData += v.fData; }
+    void operator-=(const LayerSpace<SkIDirection>& v) { fData -= v.fData; }
+private:
+    SkIDirection fData;
+};
+
+template<>
+class LayerSpace<SkDirection> {
+    LayerSpace() = default;
+    explicit LayerSpace(const SkDirection& geometry)
+            : fData(geometry) {}
+    explicit LayerSpace(SkDirection&& geometry)
+            : fData(std::move(geometry)) {}
+    explicit operator const SkDirection&() const { return fData; }
+    // Parrot the SkVector API while preserving coord space and usage
+    SkScalar x() const { return fData->fX; }
+    SkScalar y() const { return fData->fY; }
+    SkScalar length() const { return fData->length(); }
+    LayerSpace<SkDirection> operator-() const { return LayerSpace<SkDirection>(-fData); }
+    LayerSpace<SkDirection> operator*(SkScalar s) const { return LayerSpace<SkDirection>(fData * s); }
+    LayerSpace<SkDirection> operator+(LayerSpace<SkDirection>& v) { return Vector<kCS, kU>(fData + v.fData); }
+    LayerSpace<SkDirection> operator-(LayerSpace<SkDirection>& v) { return Vector<kCS, kU>(fData - v.fData); }
+    void operator*=(SkScalar s) { fData *= s; }
+    void operator+=(const LayerSpace<SkDirection>& v) { fData += v.fData; }
+    void operator-=(const LayerSpace<SkDirection>& v) { fData -= v.fData; }
+    friend LayerSpace<SkDirection> operator*(SkScalar s, const LayerSpace<SkDirection>& b) {
+        return b * s;
+    }
+private:
+    SkVector fData;
+};
+
+template<>
+class LayerSpace<SkIPoint> {
+
+    int32_t x() const { return fData.fX; }
+    int32_t y() const { return fData.fY; }
+
+    LayerSpace<SkIPoint> operator+(const LayerSpace<SkIDirection>& v) { }
+    LayerSpace<SkIPoint> operator-(const LayerSpace<SkIDirection>& v) { }
+
+    void operator+=(const LayerSpace<SkIDirection>& v) {}
+    void operator-=(const LayerSpace<SkIDirection>& v) {}
+
+    LayerSpace<SkIDirection> operator-(const LayerSpace<SkIPoint>& p) {}
+
+private:
+    SkIPoint fData;
+};
+
+template<>
+class LayerSpace<SkPoint> {
+
+};
+
+template<>
+class LayerSpace<SkIRect> {
+
+};
+
+template<>
+class LayerSpace<SkRect> {
+
+};
+
+
+
 
 // Usage is a template tag to improve the readability of filter implementations. It is attached to
 // images and geometry to group a collection of related variables and ensure that moving from one
