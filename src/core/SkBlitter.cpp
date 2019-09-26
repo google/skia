@@ -718,6 +718,13 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
         p->setColor(0x00000000);
     }
 
+    if (paint->getColorFilter() && !paint->getShader()) {
+        // apply the filter to the paint's color, and then remove the filter
+        SkPaint* p = paint.writable();
+        p->setColor(p->getColorFilter()->filterColor4f(p->getColor4f(), nullptr));
+        p->setColorFilter(nullptr);
+    }
+
     if (drawCoverage) {
         if (device.colorType() == kAlpha_8_SkColorType) {
             SkASSERT(!paint->getShader());
