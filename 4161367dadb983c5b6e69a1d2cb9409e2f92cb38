@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "aaaba181_0319402f",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 38
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-09-26T20:42:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b583add_2b68b386",
+      "range": {
+        "startLine": 159,
+        "startChar": 17,
+        "endLine": 159,
+        "endChar": 23
+      },
+      "revId": "4161367dadb983c5b6e69a1d2cb9409e2f92cb38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c29fa0c8_db74b280",
         "filename": "src/core/SkZip.h",
         "patchSetId": 38
@@ -68,6 +92,30 @@
       "revId": "4161367dadb983c5b6e69a1d2cb9409e2f92cb38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86e95f49_e252b3df",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 38
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-09-26T20:42:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c29fa0c8_db74b280",
+      "range": {
+        "startLine": 168,
+        "startChar": 8,
+        "endLine": 168,
+        "endChar": 14
+      },
+      "revId": "4161367dadb983c5b6e69a1d2cb9409e2f92cb38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -94,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "a5560e95_ec2a4d10",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 38
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-09-26T20:42:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "00ccc40a_0f8add37",
+      "range": {
+        "startLine": 181,
+        "startChar": 43,
+        "endLine": 181,
+        "endChar": 44
+      },
+      "revId": "4161367dadb983c5b6e69a1d2cb9409e2f92cb38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "83cc4438_257e1ffb",
         "filename": "tests/UtilsTest.cpp",
         "patchSetId": 38
@@ -114,6 +186,30 @@
       "revId": "4161367dadb983c5b6e69a1d2cb9409e2f92cb38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "977d3771_01a7f5ac",
+        "filename": "tests/UtilsTest.cpp",
+        "patchSetId": 38
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-09-26T20:42:29Z",
+      "side": 1,
+      "message": "Done above in the SkIota tests.",
+      "parentUuid": "83cc4438_257e1ffb",
+      "range": {
+        "startLine": 493,
+        "startChar": 22,
+        "endLine": 493,
+        "endChar": 42
+      },
+      "revId": "4161367dadb983c5b6e69a1d2cb9409e2f92cb38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

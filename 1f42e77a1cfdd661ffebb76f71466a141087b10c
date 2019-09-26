@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3189cf70_8347e286",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 39
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-09-26T20:42:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "141df5d6_05be701b",
+      "range": {
+        "startLine": 32,
+        "startChar": 36,
+        "endLine": 32,
+        "endChar": 37
+      },
+      "revId": "1f42e77a1cfdd661ffebb76f71466a141087b10c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "393af797_5f016144",
         "filename": "src/core/SkZip.h",
         "patchSetId": 39
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "559afd9e_5309c256",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 39
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-09-26T20:42:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "393af797_5f016144",
+      "range": {
+        "startLine": 39,
+        "startChar": 18,
+        "endLine": 39,
+        "endChar": 29
+      },
+      "revId": "1f42e77a1cfdd661ffebb76f71466a141087b10c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b6f6a1f_c87ff809",
         "filename": "src/core/SkZip.h",
         "patchSetId": 39
@@ -62,6 +110,24 @@
       "revId": "1f42e77a1cfdd661ffebb76f71466a141087b10c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "046c7da3_9fbf86fa",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 39
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-09-26T20:42:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b6f6a1f_c87ff809",
+      "revId": "1f42e77a1cfdd661ffebb76f71466a141087b10c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
