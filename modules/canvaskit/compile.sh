@@ -102,15 +102,17 @@ if [[ $@ == *no_canvas* ]]; then
 fi
 
 GN_FONT="skia_enable_fontmgr_empty=false"
+FONT_CFLAGS=""
 BUILTIN_FONT="$BASE_DIR/fonts/NotoMono-Regular.ttf.cpp"
 if [[ $@ == *no_font* ]]; then
-  echo "Omitting the built-in font(s) and font manager"
+  echo "Omitting the built-in font(s), font manager and all code dealing with fonts"
   BUILTIN_FONT=""
+  FONT_CFLAGS="-DSK_NO_FONTS"
   GN_FONT="skia_enable_fontmgr_empty=true"
 elif [[ $@ == *no_embedded_font* ]]; then
   echo "Omitting the built-in font(s)"
-  BUILTIN_FONT=""
-  GN_FONT="skia_enable_fontmgr_custom_empty=true skia_enable_fontmgr_empty=false"
+  BUILTIN_FONT="$BASE_DIR/fonts/nofonts.cpp"
+  GN_FONT="skia_enable_fontmgr_empty=false"
 else
   # Generate the font's binary file (which is covered by .gitignore)
   python tools/embed_resources.py \
@@ -211,6 +213,7 @@ ${EMCXX} \
     -DSK_DISABLE_READBUFFER \
     -DSK_DISABLE_AAA \
     $WASM_GPU \
+    $FONT_CFLAGS \
     -std=c++14 \
     --bind \
     --pre-js $BASE_DIR/preamble.js \

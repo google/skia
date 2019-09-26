@@ -192,12 +192,14 @@ var CanvasKit = {
 	},
 
 	SkFontMgr: {
-		// public API (from C++ bindings)
+		// public API (from C++ and JS bindings)
+		FromData: function() {},
 		RefDefault: function() {},
 		countFamilies: function() {},
 
 		// private API
 		_makeTypefaceFromData: function() {},
+		_fromData: function() {},
 	},
 
 	SkImage: {
