@@ -1509,6 +1509,12 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
         return;
     }
     auto dstCT = SkColorTypeToGrColorType(info.colorType());
+    // TODO: Support reading to gray.
+    if (dstCT == GrColorType::kUnknown ||
+        GrColorTypeComponentFlags(dstCT) & kGray_SkColorTypeComponentFlag) {
+        callback(context, nullptr, 0);
+        return;
+    }
     bool needsRescale = srcRect.width() != info.width() || srcRect.height() != info.height();
     auto colorTypeOfFinalContext = this->colorSpaceInfo().colorType();
     auto backendFormatOfFinalContext = fRenderTargetProxy->backendFormat();
