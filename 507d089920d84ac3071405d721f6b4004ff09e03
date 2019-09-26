@@ -22,6 +22,30 @@
       "revId": "507d089920d84ac3071405d721f6b4004ff09e03",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c79d0e51_500266e4",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 724,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-09-26T19:47:00Z",
+      "side": 1,
+      "message": "Hmmm.\n\nIf there is no filter, we pass down an srgb color\nIf we filter the color first, in the end, we still pass down srgb\n\nIf I pass dst-colorspace to the filterstep, won\u0027t that put the output in that space, and not in srgb?",
+      "parentUuid": "048b1ac4_7e3d1ca6",
+      "range": {
+        "startLine": 724,
+        "startChar": 71,
+        "endLine": 724,
+        "endChar": 80
+      },
+      "revId": "507d089920d84ac3071405d721f6b4004ff09e03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
