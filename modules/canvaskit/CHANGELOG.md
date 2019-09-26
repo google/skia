@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
  - `CanvasKit.MakeAnimatedImageFromEncoded`, `SkCanvas.drawAnimatedImage`.
+ - `CanvasKit.SkFontMgr.FromData` which takes several ArrayBuffers of font data, parses
+   them, reading the metadata (e.g. family names) and stores them into a SkFontMgr.
+
+### Changed
+ - The `no_font` compile option should strip out more dead code related to fonts.
+ - and `no_embedded_font` option now allows creating a `SkFontMgr.FromData` instead of
+   always having an empty one.
 
 ### Fixed
  - Null terminator bug in draw text - skbug.com/9314
