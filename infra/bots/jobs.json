@@ -289,6 +289,8 @@
   "Perf-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All",
   "Perf-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All-Metal",
   "Perf-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All",
+  "Perf-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All",
+  "Perf-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All-Metal",
   "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-All-Android",
   "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android",
   "Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-All-Android",
@@ -594,5 +596,8 @@
   "Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All-Metal",
   "Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All",
   "Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All-Metal",
-  "Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All"
+  "Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All",
+  "Test-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Debug-All",
+  "Test-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All",
+  "Test-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All-Metal"
 ]
