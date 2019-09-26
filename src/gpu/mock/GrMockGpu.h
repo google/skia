@@ -119,9 +119,7 @@ private:
     bool onRegenerateMipMapLevels(GrTexture*) override { return true; }
 
     void onResolveRenderTarget(GrRenderTarget* target, const SkIRect&, GrSurfaceOrigin,
-                               ForExternalIO) override {
-        target->flagAsResolved();
-    }
+                               ForExternalIO) override {}
 
     void onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
                        const GrFlushInfo& info, const GrPrepareForExternalIORequests&) override {

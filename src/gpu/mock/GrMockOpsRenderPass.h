@@ -50,7 +50,6 @@ private:
         if (auto* tex = fRenderTarget->asTexture()) {
             tex->texturePriv().markMipMapsDirty();
         }
-        fRenderTarget->flagAsNeedingResolve();
     }
 
     GrMockGpu* fGpu;
