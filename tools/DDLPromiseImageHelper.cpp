@@ -71,7 +71,7 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkPixmap& 
     }
 #endif
 
-    return context->priv().createBackendTexture(&pm, 1, GrRenderable::kNo, GrProtected::kNo);
+    return context->createBackendTexture(&pm, 1, GrRenderable::kNo, GrProtected::kNo);
 }
 
 void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
@@ -100,7 +100,7 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
 
             const SkBitmap& bm = info.normalBitmap();
 
-            GrBackendTexture backendTex = context->priv().createBackendTexture(
+            GrBackendTexture backendTex = context->createBackendTexture(
                                                         &bm.pixmap(), 1, GrRenderable::kNo,
                                                         GrProtected::kNo);
 

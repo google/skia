@@ -396,9 +396,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
     // that they'd succeed if the texture wasn't kRead. We want to be sure we're failing with
     // kRead for the right reason.
     for (auto ioType : {kRead_GrIOType, kRW_GrIOType}) {
-        auto backendTex = context->priv().createBackendTexture(&srcPixmap, 1,
-                                                               GrRenderable::kYes,
-                                                               GrProtected::kNo);
+        auto backendTex = context->createBackendTexture(&srcPixmap, 1,
+                                                        GrRenderable::kYes,
+                                                        GrProtected::kNo);
 
         auto proxy = proxyProvider->wrapBackendTexture(backendTex, GrColorType::kRGBA_8888,
                                                        kTopLeft_GrSurfaceOrigin,

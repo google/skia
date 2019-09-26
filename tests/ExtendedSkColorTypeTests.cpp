@@ -195,9 +195,9 @@ static void gpu_tests(GrContext* context, skiatest::Reporter* reporter, const Te
         GrBackendTexture backendTex;
 
         if (fullInit) {
-            backendTex = context->priv().createBackendTexture(&nativeExpected, 1,
-                                                              GrRenderable::kNo,
-                                                              GrProtected::kNo);
+            backendTex = context->createBackendTexture(&nativeExpected, 1,
+                                                       GrRenderable::kNo,
+                                                       GrProtected::kNo);
         } else {
             backendTex = context->createBackendTexture(kSize, kSize, test.fColorType,
                                                        SkColors::kWhite, GrMipMapped::kNo,

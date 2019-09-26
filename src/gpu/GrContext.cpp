@@ -11,6 +11,7 @@
 #include "include/private/SkDeferredDisplayList.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkMakeUnique.h"
+#include "src/core/SkMipMap.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
@@ -476,6 +477,33 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
 
     return this->createBackendTexture(width, height, format, swizzledColor, mipMapped, renderable,
                                       isProtected);
+}
+
+GrBackendTexture GrContext::createBackendTexture(const SkPixmap srcData[], int numLevels,
+                                                 GrRenderable renderable, GrProtected isProtected) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
+    if (!this->asDirectContext()) {
+        return {};
+    }
+
+    if (this->abandoned()) {
+        return {};
+    }
+
+    if (!srcData || !numLevels) {
+        return {};
+    }
+
+    int baseWidth = srcData[0].width();
+    int baseHeight = srcData[0].height();
+    SkColorType colorType = srcData[0].colorType();
+
+    GrBackendFormat backendFormat = this->defaultBackendFormat(colorType, renderable);
+
+    return fGpu->createBackendTexture(baseWidth, baseHeight, backendFormat,
+                                      numLevels > 1 ? GrMipMapped::kYes : GrMipMapped::kNo,
+                                      renderable, srcData, numLevels, nullptr, isProtected);
 }
 
 void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {
