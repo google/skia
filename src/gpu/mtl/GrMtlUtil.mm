@@ -353,6 +353,10 @@ bool GrMtlFormatToCompressionType(MTLPixelFormat mtlFormat,
 }
 
 #if GR_TEST_UTILS
+bool GrMtlFormatIsBGRA(GrMTLPixelFormat mtlFormat) {
+    return mtlFormat == MTLPixelFormatBGRA8Unorm;
+}
+
 const char* GrMtlFormatToStr(GrMTLPixelFormat mtlFormat) {
     switch (mtlFormat) {
         case MTLPixelFormatInvalid:         return "Invalid";

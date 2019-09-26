@@ -341,9 +341,9 @@ SkColor SkPixmap::getColor(int x, int y) const {
                   b = ((value >> 20) & 0x3ff) * (1/1023.0f),
                   a = ((value >> 30) & 0x3  ) * (1/   3.0f);
             if (a != 0 && needsUnpremul) {
-                r *= (1.0f/a);
-                g *= (1.0f/a);
-                b *= (1.0f/a);
+                r = SkTPin(r/a, 0.0f, 1.0f);
+                g = SkTPin(g/a, 0.0f, 1.0f);
+                b = SkTPin(b/a, 0.0f, 1.0f);
             }
             return (uint32_t)( r * 255.0f ) << 16
                  | (uint32_t)( g * 255.0f ) <<  8
