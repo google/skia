@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9e82f7b_9692a445",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-26T21:36:58Z",
+      "side": 1,
+      "message": "Should we say something about the texture format being derived from the base pixmaps color type, the rest must have the same color type and have the right sizes?\n\nI suppose we ignore the pixmaps\u0027 alpha types and color spaces?",
+      "revId": "630313a84b5dd139790b93597b5cc1e7b68194f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52318de8_d46d9b63",
+        "filename": "tests/SurfaceTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 854,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-26T21:36:58Z",
+      "side": 1,
+      "message": "what\u0027s this about?",
+      "range": {
+        "startLine": 852,
+        "startChar": 0,
+        "endLine": 854,
+        "endChar": 72
+      },
+      "revId": "630313a84b5dd139790b93597b5cc1e7b68194f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
