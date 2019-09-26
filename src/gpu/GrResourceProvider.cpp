@@ -269,6 +269,9 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc
         if (resource) {
             fGpu->stats()->incNumScratchTexturesReused();
             GrSurface* surface = static_cast<GrSurface*>(resource);
+            if (GrRenderTarget* rt = surface->asRenderTarget()) {
+                rt->flagAsResolved();  // Scratch textures always start without dirty MSAA.
+            }
             return sk_sp<GrTexture>(surface->asTexture());
         }
     }

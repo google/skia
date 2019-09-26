@@ -1949,17 +1949,20 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
     }
 
     if (renderTarget) {
-        if (renderTarget->numSamples() <= 1 ||
-            renderTarget->renderFBOID() == renderTarget->textureFBOID()) {  // Also catches FBO 0.
-            SkASSERT(!renderTarget->requiresManualMSAAResolve());
-            this->flushRenderTargetNoColorWrites(renderTarget);
-        } else if (GrGLRenderTarget::kUnresolvableFBOID == renderTarget->textureFBOID()) {
-            SkASSERT(!renderTarget->requiresManualMSAAResolve());
-            return false;
-        } else {
-            SkASSERT(renderTarget->requiresManualMSAAResolve());
-            // we don't track the state of the READ FBO ID.
-            this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, renderTarget->textureFBOID());
+        // resolve the render target if necessary
+        switch (renderTarget->getResolveType()) {
+            case GrGLRenderTarget::kCantResolve_ResolveType:
+                return false;
+            case GrGLRenderTarget::kAutoResolves_ResolveType:
+                this->flushRenderTargetNoColorWrites(renderTarget);
+                break;
+            case GrGLRenderTarget::kCanResolve_ResolveType:
+                SkASSERT(!renderTarget->needsResolve());
+                // we don't track the state of the READ FBO ID.
+                this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, renderTarget->textureFBOID());
+                break;
+            default:
+                SK_ABORT("Unknown resolve type");
         }
     } else {
         // Use a temporary FBO.
@@ -2280,46 +2283,50 @@ void GrGLGpu::sendIndexedInstancedMeshToGpu(GrPrimitiveType primitiveType,
 
 void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
                                     GrSurfaceOrigin resolveOrigin, ForExternalIO) {
-    // Some extensions automatically resolves the texture when it is read.
-    SkASSERT(this->glCaps().usesMSAARenderBuffers());
-
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(target);
-    SkASSERT(rt->textureFBOID() != rt->renderFBOID());
-    SkASSERT(rt->textureFBOID() != 0 && rt->renderFBOID() != 0);
-    this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->renderFBOID());
-    this->bindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->textureFBOID());
+    if (rt->needsResolve()) {
+        // Some extensions automatically resolves the texture when it is read.
+        if (this->glCaps().usesMSAARenderBuffers()) {
+            SkASSERT(rt->textureFBOID() != rt->renderFBOID());
+            SkASSERT(rt->textureFBOID() != 0 && rt->renderFBOID() != 0);
+            this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->renderFBOID());
+            this->bindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->textureFBOID());
 
-    // make sure we go through flushRenderTarget() since we've modified
-    // the bound DRAW FBO ID.
-    fHWBoundRenderTargetUniqueID.makeInvalid();
-    if (GrGLCaps::kES_Apple_MSFBOType == this->glCaps().msFBOType()) {
-        // Apple's extension uses the scissor as the blit bounds.
-        GrScissorState scissorState;
-        scissorState.set(resolveRect);
-        this->flushScissor(scissorState, rt->width(), rt->height(), resolveOrigin);
-        this->disableWindowRectangles();
-        GL_CALL(ResolveMultisampleFramebuffer());
-    } else {
-        int l, b, r, t;
-        if (GrGLCaps::kResolveMustBeFull_BlitFrambufferFlag &
-            this->glCaps().blitFramebufferSupportFlags()) {
-            l = 0;
-            b = 0;
-            r = target->width();
-            t = target->height();
-        } else {
-            auto rect = GrNativeRect::MakeRelativeTo(
-                    resolveOrigin, rt->height(), resolveRect);
-            l = rect.fX;
-            b = rect.fY;
-            r = rect.fX + rect.fWidth;
-            t = rect.fY + rect.fHeight;
+            // make sure we go through flushRenderTarget() since we've modified
+            // the bound DRAW FBO ID.
+            fHWBoundRenderTargetUniqueID.makeInvalid();
+            if (GrGLCaps::kES_Apple_MSFBOType == this->glCaps().msFBOType()) {
+                // Apple's extension uses the scissor as the blit bounds.
+                GrScissorState scissorState;
+                scissorState.set(resolveRect);
+                this->flushScissor(scissorState, rt->width(), rt->height(), resolveOrigin);
+                this->disableWindowRectangles();
+                GL_CALL(ResolveMultisampleFramebuffer());
+            } else {
+                int l, b, r, t;
+                if (GrGLCaps::kResolveMustBeFull_BlitFrambufferFlag &
+                    this->glCaps().blitFramebufferSupportFlags()) {
+                    l = 0;
+                    b = 0;
+                    r = target->width();
+                    t = target->height();
+                } else {
+                    auto rect = GrNativeRect::MakeRelativeTo(
+                            resolveOrigin, rt->height(), resolveRect);
+                    l = rect.fX;
+                    b = rect.fY;
+                    r = rect.fX + rect.fWidth;
+                    t = rect.fY + rect.fHeight;
+                }
+
+                // BlitFrameBuffer respects the scissor, so disable it.
+                this->disableScissor();
+                this->disableWindowRectangles();
+                GL_CALL(BlitFramebuffer(l, b, r, t, l, b, r, t,
+                                        GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
+            }
         }
-
-        // BlitFrameBuffer respects the scissor, so disable it.
-        this->disableScissor();
-        this->disableWindowRectangles();
-        GL_CALL(BlitFramebuffer(l, b, r, t, l, b, r, t, GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
+        rt->flagAsResolved();
     }
 }
 
@@ -2526,6 +2533,7 @@ static void get_gl_swizzle_values(const GrSwizzle& swizzle, GrGLenum glValues[4]
 void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwizzle& swizzle,
                           GrGLTexture* texture) {
     SkASSERT(texture);
+    SkASSERT(!texture->asRenderTarget() || !texture->asRenderTarget()->needsResolve());
 
 #ifdef SK_DEBUG
     if (!this->caps()->npotTextureTileSupport()) {

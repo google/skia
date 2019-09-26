@@ -73,6 +73,16 @@ public:
         return fSecondaryCommandBuffer;
     }
 
+    // override of GrRenderTarget
+    ResolveType getResolveType() const override {
+        if (this->numSamples() > 1) {
+            SkASSERT(this->requiresManualMSAAResolve());
+            return kCanResolve_ResolveType;
+        }
+        SkASSERT(!this->requiresManualMSAAResolve());
+        return kAutoResolves_ResolveType;
+    }
+
     bool canAttemptStencilAttachment() const override {
         // We don't know the status of the stencil attachment for wrapped external secondary command
         // buffers so we just assume we don't have one.

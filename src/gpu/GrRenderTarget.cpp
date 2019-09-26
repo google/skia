@@ -25,9 +25,27 @@ GrRenderTarget::GrRenderTarget(GrGpu* gpu, const SkISize& size, GrPixelConfig co
         , fSampleCnt(sampleCount)
         , fSamplePatternKey(GrSamplePatternDictionary::kInvalidSamplePatternKey)
         , fStencilAttachment(stencil) {
+    fResolveRect = SkRectPriv::MakeILargestInverted();
 }
 
 GrRenderTarget::~GrRenderTarget() = default;
+
+void GrRenderTarget::flagAsNeedingResolve(const SkIRect* rect) {
+    if (kCanResolve_ResolveType == getResolveType()) {
+        if (rect) {
+            fResolveRect.join(*rect);
+            if (!fResolveRect.intersect({0, 0, this->width(), this->height()})) {
+                fResolveRect.setEmpty();
+            }
+        } else {
+            fResolveRect.setLTRB(0, 0, this->width(), this->height());
+        }
+    }
+}
+
+void GrRenderTarget::flagAsResolved() {
+    fResolveRect = SkRectPriv::MakeILargestInverted();
+}
 
 void GrRenderTarget::onRelease() {
     fStencilAttachment = nullptr;
