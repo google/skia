@@ -8,7 +8,6 @@
 #ifndef SkBitmapProcState_opts_DEFINED
 #define SkBitmapProcState_opts_DEFINED
 
-#include "include/private/SkVx.h"
 #include "src/core/SkBitmapProcState.h"
 
 // SkBitmapProcState optimized Shader, Sample, or Matrix procs.
@@ -29,94 +28,18 @@
 namespace SK_OPTS_NS {
 
 // This same basic packing scheme is used throughout the file.
-template <typename U32, typename Out>
-static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, Out* w) {
-    *v0 = (packed >> 18);       // Integer coordinate x0 or y0.
-    *v1 = (packed & 0x3fff);    // Integer coordinate x1 or y1.
-    *w  = (packed >> 14) & 0xf; // Lerp weight for v1; weight for v0 is 16-w.
+static void decode_packed_coordinates_and_weight(uint32_t packed, int* v0, int* v1, int* w) {
+    // The top 14 bits are the integer coordinate x0 or y0.
+    *v0 = packed >> 18;
+
+    // The bottom 14 bits are the integer coordinate x1 or y1.
+    *v1 = packed & 0x3fff;
+
+    // The middle 4 bits are the interpolating factor between the two, i.e. the weight for v1.
+    *w = (packed >> 14) & 0xf;
 }
 
-#if 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
-    /*not static*/ inline
-    void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
-                                 const uint32_t* xy, int count, uint32_t* colors) {
-        SkASSERT(count > 0 && colors != nullptr);
-        SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
-        SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
-        SkASSERT(s.fAlphaScale <= 256);
-
-        // In a _DX variant only X varies; all samples share y0/y1 coordinates and wy weight.
-        int y0, y1, wy;
-        decode_packed_coordinates_and_weight(*xy++, &y0, &y1, &wy);
-
-        auto row0 = (const int*)s.fPixmap.addr32(0,y0),
-             row1 = (const int*)s.fPixmap.addr32(0,y1);
-
-        auto bilerp = [&](skvx::Vec<8,uint32_t> packed_x_coordinates) -> skvx::Vec<8,uint32_t> {
-            // Decode up to 8 output pixels' x-coordinates and weights.
-            skvx::Vec<8,uint32_t> x0,x1,wx;
-            decode_packed_coordinates_and_weight(packed_x_coordinates, &x0, &x1, &wx);
-
-            // Splat wx to each color channel.
-            wx = (wx <<  0)
-               | (wx <<  8)
-               | (wx << 16)
-               | (wx << 24);
-
-            // Gather the 32 32-bit pixels that we'll bilerp into our 8 output pixels.
-            // We need to drop into explicit AVX2 intrinsics for a moment to gather.
-            __m256i tl = _mm256_i32gather_epi32(row0, skvx::bit_pun<__m256i>(x0), 4),
-                    tr = _mm256_i32gather_epi32(row0, skvx::bit_pun<__m256i>(x1), 4),
-                    bl = _mm256_i32gather_epi32(row1, skvx::bit_pun<__m256i>(x0), 4),
-                    br = _mm256_i32gather_epi32(row1, skvx::bit_pun<__m256i>(x1), 4);
-
-            // Treat 32-bit pixels as 4 8-bit values, and expand to 16-bit for room to multiply.
-            auto to_16x4 = [](auto v) -> skvx::Vec<32, uint16_t> {
-                return skvx::cast<uint16_t>(skvx::bit_pun<skvx::Vec<32, uint8_t>>(v));
-            };
-
-            // Sum up weighted sample pixels.  The naive, redundant math would be,
-            //
-            //   sum = tl * (16-wy) * (16-wx)
-            //       + bl * (   wy) * (16-wx)
-            //       + tr * (16-wy) * (   wx)
-            //       + br * (   wy) * (   wx)
-            //
-            // But we refactor to eliminate a bunch of those common factors.
-            auto lerp = [](auto lo, auto hi, auto w) {
-                return 16*lo + (hi-lo)*w;
-            };
-            skvx::Vec<32, uint16_t> sum = lerp(lerp(to_16x4(tl), to_16x4(bl), wy),
-                                               lerp(to_16x4(tr), to_16x4(br), wy), to_16x4(wx));
-
-            // Get back to [0,255] by dividing by maximum weight 16x16 = 256.
-            sum >>= 8;
-
-            // Scale by [0,256] alpha.
-            sum *= s.fAlphaScale;
-            sum >>= 8;
-
-            // Pack back to 8-bit channels, undoing to_16x4().
-            return skvx::bit_pun<skvx::Vec<8,uint32_t>>(skvx::cast<uint8_t>(sum));
-        };
-
-        while (count >= 8) {
-            bilerp(skvx::Vec<8,uint32_t>::Load(xy)).store(colors);
-            xy     += 8;
-            colors += 8;
-            count  -= 8;
-        }
-        if (count > 0) {
-            __m256i active = skvx::bit_pun<__m256i>( count > skvx::Vec<8,int>{0,1,2,3, 4,5,6,7} ),
-                    coords = _mm256_maskload_epi32((const int*)xy, active),
-                    pixels;
-
-            bilerp(skvx::bit_pun<skvx::Vec<8,uint32_t>>(coords)).store(&pixels);
-            _mm256_maskstore_epi32((int*)colors, active, pixels);
-        }
-    }
-
-#elif 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+#if 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
 
     /*not static*/ inline
     void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
