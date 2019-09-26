@@ -70,12 +70,9 @@ bool GrTextureResolveRenderTask::onExecute(GrOpFlushState* flushState) {
         if (GrSurfaceProxy::ResolveFlags::kMSAA & resolve.fFlags) {
             // peekRenderTarget might be null if there was an instantiation error.
             GrRenderTarget* renderTarget = resolve.fProxy->peekRenderTarget();
-            if (renderTarget && renderTarget->needsResolve()) {
-                flushState->gpu()->resolveRenderTarget(renderTarget, resolve.fMSAAResolveRect,
-                                                       resolve.fProxy->origin(),
-                                                       GrGpu::ForExternalIO::kNo);
-                SkASSERT(!renderTarget->needsResolve());
-            }
+            flushState->gpu()->resolveRenderTarget(renderTarget, resolve.fMSAAResolveRect,
+                                                   resolve.fProxy->origin(),
+                                                   GrGpu::ForExternalIO::kNo);
         }
     }
     // Regenerate all mipmaps back-to-back.
