@@ -595,11 +595,11 @@ CanvasKit.onRuntimeInitialized = function() {
     if (typeof str === 'string') {
       // lengthBytesUTF8 and stringToUTF8Array are defined in the emscripten
       // JS.  See https://kripken.github.io/emscripten-site/docs/api_reference/preamble.js.html#stringToUTF8
-      // Add 1 for null terminator
-      var strLen = lengthBytesUTF8(str) + 1;
-      var strPtr = CanvasKit._malloc(strLen);
-
-      stringToUTF8(str, strPtr, strLen);
+      var strLen = lengthBytesUTF8(str);
+      // Add 1 for null terminator, which we need when copying/converting, but can ignore
+      // when we call into Skia.
+      var strPtr = CanvasKit._malloc(strLen + 1);
+      stringToUTF8(str, strPtr, strLen + 1);
       this._drawSimpleText(strPtr, strLen, x, y, font, paint);
     } else {
       this._drawShapedText(str, x, y, paint);

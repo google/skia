@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - `CanvasKit.MakeAnimatedImageFromEncoded`, `SkCanvas.drawAnimatedImage`.
 
+### Fixed
+ - Null terminator bug in draw text - skbug.com/9314
+
 ## [0.7.0] - 2019-09-18
 
 ### Added
