@@ -3563,11 +3563,6 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
         return GrBackendTexture();  // invalid
     }
 
-    // Currently we don't support uploading pixel data when mipped.
-    if (srcData && GrMipMapped::kYes == mipMapped) {
-        return GrBackendTexture();  // invalid
-    }
-
     GrGLTextureInfo info;
     GrGLTextureParameters::SamplerOverriddenState initialState;
 
@@ -3606,6 +3601,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
             texels[i] = {&(tmpPixels[offset]), currentWidth * bytesPerPixel};
         }
     }
+
     GrSurfaceDesc desc;
     desc.fWidth = w;
     desc.fHeight = h;

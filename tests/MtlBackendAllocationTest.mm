@@ -35,7 +35,7 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
 
     struct {
         GrColorType      fColorType;
-        MTLPixelFormat fFormat;
+        MTLPixelFormat   fFormat;
         SkColor4f        fColor;
     } combinations[] = {
         { GrColorType::kRGBA_8888,        MTLPixelFormatRGBA8Unorm,      SkColors::kRed       },
