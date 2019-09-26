@@ -1206,9 +1206,28 @@ void GrVkCaps::FormatInfo::init(const GrVkInterface* interface,
     }
 }
 
+static bool backend_format_is_external(const GrBackendFormat& format) {
+
+    const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
+    SkASSERT(ycbcrInfo);
+
+    if (ycbcrInfo->isValid() && ycbcrInfo->fExternalFormat != 0) {
+#ifdef SK_DEBUG
+        VkFormat vkFormat;
+        SkAssertResult(format.asVkFormat(&vkFormat));
+        SkASSERT(vkFormat == VK_NULL_HANDLE);
+#endif
+        return true;
+    }
+    return false;
+}
+
 bool GrVkCaps::isFormatSRGB(const GrBackendFormat& format) const {
     VkFormat vkFormat;
     if (!format.asVkFormat(&vkFormat)) {
+        return false;
+    }
+    if (backend_format_is_external(format)) {
         return false;
     }
 
@@ -1220,8 +1239,6 @@ bool GrVkCaps::isFormatCompressed(const GrBackendFormat& format) const {
     if (!format.asVkFormat(&vkFormat)) {
         return false;
     }
-
-    SkASSERT(GrVkFormatIsSupported(vkFormat));
 
     return vkFormat == VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
 }
@@ -1242,6 +1259,9 @@ bool GrVkCaps::isFormatTexturable(const GrBackendFormat& format) const {
     VkFormat vkFormat;
     if (!format.asVkFormat(&vkFormat)) {
         return false;
+    }
+    if (backend_format_is_external(format)) {
+        return true;
     }
     return this->isVkFormatTexturable(vkFormat);
 }
@@ -1350,8 +1370,7 @@ GrCaps::SupportedWrite GrVkCaps::supportedWritePixelsColorType(GrColorType surfa
         return {GrColorType::kUnknown, 0};
     }
 
-
-    if (GrVkFormatNeedsYcbcrSampler(vkFormat)) {
+    if (backend_format_is_external(surfaceFormat) || GrVkFormatNeedsYcbcrSampler(vkFormat)) {
         return {GrColorType::kUnknown, 0};
     }
 
@@ -1412,7 +1431,7 @@ bool GrVkCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
 
     if (ycbcrInfo->isValid() && !GrVkFormatNeedsYcbcrSampler(vkFormat)) {
         // Format may be undefined for external images, which are required to have YCbCr conversion.
-        if (VK_FORMAT_UNDEFINED == vkFormat) {
+        if (VK_FORMAT_UNDEFINED == vkFormat && ycbcrInfo->fExternalFormat != 0) {
             return true;
         }
         return false;
