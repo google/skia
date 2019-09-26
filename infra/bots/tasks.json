@@ -3126,7 +3126,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -3195,7 +3195,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -3274,7 +3274,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -3348,7 +3348,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -3417,7 +3417,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -3486,7 +3486,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -3555,7 +3555,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -3624,7 +3624,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -3693,7 +3693,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -3772,7 +3772,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -3846,7 +3846,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -4010,7 +4010,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -4079,7 +4079,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -4148,7 +4148,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -4217,7 +4217,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -4286,7 +4286,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -4355,7 +4355,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -4544,7 +4544,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -4613,7 +4613,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -4682,7 +4682,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -4751,7 +4751,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -4820,7 +4820,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -4889,7 +4889,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -4958,7 +4958,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -5121,7 +5121,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -5190,7 +5190,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -5259,7 +5259,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -5333,7 +5333,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -5402,7 +5402,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -5481,7 +5481,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -5550,7 +5550,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -5619,7 +5619,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -5688,7 +5688,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -5757,7 +5757,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -5826,7 +5826,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -5900,7 +5900,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -5974,7 +5974,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -6043,7 +6043,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -6112,7 +6112,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -6181,7 +6181,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -6250,7 +6250,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -6319,7 +6319,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -6388,7 +6388,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -6457,7 +6457,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -6631,7 +6631,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -6700,7 +6700,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -6955,7 +6955,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -7024,7 +7024,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -7093,7 +7093,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -7162,7 +7162,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -7231,7 +7231,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -7305,7 +7305,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -7374,7 +7374,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -7443,7 +7443,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -7512,7 +7512,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -7581,7 +7581,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -7650,7 +7650,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -7719,7 +7719,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -7788,7 +7788,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -7857,7 +7857,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -7926,7 +7926,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -7995,7 +7995,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -8064,7 +8064,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -8133,7 +8133,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -8202,7 +8202,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -8271,7 +8271,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -8340,7 +8340,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -8409,7 +8409,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -8473,7 +8473,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -8537,7 +8537,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -8601,7 +8601,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -8665,7 +8665,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -8729,7 +8729,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -8793,7 +8793,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -8857,7 +8857,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -8921,7 +8921,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -8993,7 +8993,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -9065,7 +9065,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -9133,7 +9133,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -9205,7 +9205,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -9277,7 +9277,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -9349,7 +9349,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -9421,7 +9421,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -9493,7 +9493,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -9565,7 +9565,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -9637,7 +9637,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -9709,7 +9709,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -9879,7 +9879,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -9951,7 +9951,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -10023,7 +10023,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -10095,7 +10095,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -10265,7 +10265,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -10337,7 +10337,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -10409,7 +10409,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -10485,7 +10485,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -10561,7 +10561,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -10637,7 +10637,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -10713,7 +10713,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -10788,7 +10788,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -10864,7 +10864,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -10940,7 +10940,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -11016,7 +11016,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -11092,7 +11092,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -11168,7 +11168,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -11249,7 +11249,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -11325,7 +11325,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -11401,7 +11401,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -11477,7 +11477,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -11553,7 +11553,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -11629,7 +11629,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -11705,7 +11705,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -11781,7 +11781,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -11857,7 +11857,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -11928,7 +11928,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -11999,7 +11999,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -12070,7 +12070,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -12141,7 +12141,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -12212,7 +12212,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -12283,7 +12283,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -12354,7 +12354,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -12425,7 +12425,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -12496,7 +12496,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -12567,7 +12567,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -12638,7 +12638,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -12709,7 +12709,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -13852,7 +13852,7 @@
           "go/go/bin"
         ]
       },
-      "idempotent": true,
+      "idempotent": false,
       "isolate": "task_drivers.isolate"
     },
     "Housekeeper-PerCommit-BundleRecipes": {
@@ -13896,7 +13896,7 @@
           "cipd_bin_packages/bin"
         ]
       },
-      "idempotent": true,
+      "idempotent": false,
       "isolate": "recipes.isolate"
     },
     "Housekeeper-PerCommit-CheckGeneratedFiles": {
@@ -14076,7 +14076,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "infra_tests.isolate",
       "max_attempts": 2,
@@ -14187,7 +14187,7 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
+      "idempotent": false,
       "io_timeout_ns": 3600000000000,
       "isolate": "infra_tests.isolate",
       "max_attempts": 2,
@@ -14214,7 +14214,7 @@
         "os:Debian-9.8",
         "pool:Skia"
       ],
-      "idempotent": true,
+      "idempotent": false,
       "isolate": "empty.isolate"
     },
     "Housekeeper-PerCommit-IsolateMSKP": {
@@ -14238,7 +14238,7 @@
         "os:Debian-9.8",
         "pool:Skia"
       ],
-      "idempotent": true,
+      "idempotent": false,
       "isolate": "empty.isolate"
     },
     "Housekeeper-PerCommit-IsolateSKP": {
@@ -14262,7 +14262,7 @@
         "os:Debian-9.8",
         "pool:Skia"
       ],
-      "idempotent": true,
+      "idempotent": false,
       "isolate": "empty.isolate"
     },
     "Housekeeper-PerCommit-IsolateSVG": {
@@ -14286,7 +14286,7 @@
         "os:Debian-9.8",
         "pool:Skia"
       ],
-      "idempotent": true,
+      "idempotent": false,
       "isolate": "empty.isolate"
     },
     "Housekeeper-PerCommit-IsolateSkImage": {
@@ -14310,7 +14310,7 @@
         "os:Debian-9.8",
         "pool:Skia"
       ],
-      "idempotent": true,
+      "idempotent": false,
       "isolate": "empty.isolate"
     },
     "Housekeeper-PerCommit-IsolateWinToolchain": {
@@ -14334,7 +14334,7 @@
         "os:Debian-9.8",
         "pool:Skia"
       ],
-      "idempotent": true,
+      "idempotent": false,
       "isolate": "empty.isolate"
     },
     "Housekeeper-Weekly-RecreateSKPs": {
