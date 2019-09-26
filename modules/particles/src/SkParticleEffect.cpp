@@ -235,7 +235,7 @@ int SkParticleEffect::runEffectScript(double now, const char* entry) {
                 value->setRandom(&fRandom);
                 value->setEffect(this);
             }
-            SkAssertResult(byteCode->run(fun, &fState.fAge, nullptr, 1, &fState.fDeltaTime, 1));
+            SkAssertResult(byteCode->run(fun, &fState.fAge, nullptr, &fState.fDeltaTime, 1));
             this->processEffectSpawnRequests(now);
         }
     }

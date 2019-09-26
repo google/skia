@@ -229,7 +229,7 @@ struct SK_API ByteCode {
      * The return value is stored in 'outReturn' (may be null, to discard the return value).
      * 'uniforms' are mapped to 'uniform' globals, in order.
      */
-    bool SKSL_WARN_UNUSED_RESULT run(const ByteCodeFunction*, float* args, float* outReturn, int N,
+    bool SKSL_WARN_UNUSED_RESULT run(const ByteCodeFunction*, float* args, float* outReturn,
                                      const float* uniforms, int uniformCount) const;
 
     bool SKSL_WARN_UNUSED_RESULT runStriped(const ByteCodeFunction*,
