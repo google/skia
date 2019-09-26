@@ -11,22 +11,31 @@
 #include "modules/sksg/include/SkSGRenderNode.h"
 #include "modules/sksg/include/SkSGScene.h"
 
+namespace sksg { class Transform; }
+
 namespace skottie {
 namespace internal {
 
-class MotionBlurEffect final : public sksg::CustomRenderNode {
+class MotionBlurEffect : public sksg::CustomRenderNode {
 public:
     static sk_sp<MotionBlurEffect> Make(sk_sp<sksg::Animator> animator,
                                         sk_sp<sksg::RenderNode> child,
                                         size_t samples_per_frame,
                                         float shutter_angle, float shutter_phase);
+    static sk_sp<MotionBlurEffect> MakeTransformOnly(sk_sp<sksg::Animator> animator,
+                                                     sk_sp<sksg::Transform> xform,
+                                                     sk_sp<sksg::RenderNode> child,
+                                                     size_t samples_per_frame,
+                                                     float shutter_angle, float shutter_phase);
 
     SG_ATTRIBUTE(T, float, fT)
 
-private:
+protected:
     class AutoInvalBlocker;
 
-    const RenderNode* onNodeAt(const SkPoint&) const override;
+    void seekSample(size_t index) const;
+
+    const RenderNode* onNodeAt(const SkPoint&) const final;
 
     SkRect onRevalidate(sksg::InvalidationController* ic, const SkMatrix& ctm) override;
 
@@ -36,7 +45,7 @@ private:
 
     MotionBlurEffect(sk_sp<sksg::Animator> animator,
                      sk_sp<sksg::RenderNode> child,
-                     size_t sample_count, float phase, float dt);
+                     size_t samples_per_frame, float shutter_angle, float shutter_phase);
 
     const sk_sp<sksg::Animator> fAnimator;
     const size_t                fSampleCount;
@@ -45,6 +54,7 @@ private:
 
     float fT = 0;
 
+private:
     using INHERITED = sksg::CustomRenderNode;
 };
 

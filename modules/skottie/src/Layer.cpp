@@ -474,8 +474,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
 
     // Attach the transform after effects, when needed.
     if (layer_transform_rec.fTransformNode && transform_effects) {
-        layer = sksg::TransformEffect::Make(std::move(layer),
-                                            std::move(layer_transform_rec.fTransformNode));
+        layer = sksg::TransformEffect::Make(std::move(layer), layer_transform_rec.fTransformNode);
     }
 
     // Optional layer opacity.
@@ -487,7 +486,8 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
     // Optional blend mode.
     layer = this->attachBlendMode(*jlayer, std::move(layer));
 
-    const auto has_animators = !fCurrentAnimatorScope->empty();
+    const auto         has_animators = !fCurrentAnimatorScope->empty(),
+        has_transform_only_animators = fCurrentAnimatorScope->size() == transform_animator_count;
 
     sk_sp<sksg::Animator> controller = sk_make_sp<LayerController>(ascope.release(),
                                                                    layer,
@@ -500,7 +500,14 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
         SkASSERT(layerCtx->fMotionBlurAngle >= 0);
 
         // Wrap both the layer node and the controller.
-        auto motion_blur = MotionBlurEffect::Make(std::move(controller), std::move(layer),
+        auto motion_blur = has_transform_only_animators
+                ? MotionBlurEffect::MakeTransformOnly(std::move(controller),
+                                                      std::move(layer_transform_rec.fTransformNode),
+                                                      std::move(layer),
+                                                      layerCtx->fMotionBlurSamples,
+                                                      layerCtx->fMotionBlurAngle,
+                                                      layerCtx->fMotionBlurPhase)
+                : MotionBlurEffect::Make(std::move(controller), std::move(layer),
                                                   layerCtx->fMotionBlurSamples,
                                                   layerCtx->fMotionBlurAngle,
                                                   layerCtx->fMotionBlurPhase);
