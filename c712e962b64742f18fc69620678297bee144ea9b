@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c229546f_af10947d",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-26T15:05:44Z",
+      "side": 0,
+      "message": "While a fun exercise in math and optimization, this function produced discontinuities in coverage when animating between rectangles 1px wide to subpixel rectangles, if they were rotated with respect to the pixel grid. So while technically the right area-of-intersection, it wasn\u0027t actually a useful value to use as coverage.",
+      "range": {
+        "startLine": 305,
+        "startChar": 13,
+        "endLine": 305,
+        "endChar": 31
+      },
+      "revId": "c712e962b64742f18fc69620678297bee144ea9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

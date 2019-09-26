@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "093c64f7_267e0350",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-26T15:05:44Z",
+      "side": 1,
+      "message": "While both point and line degenerate interiors call into the same function, in the same way, we don\u0027t want to use it when the interior is a triangle, which is why the calls to degenerate_coverage(px, py, edges) are not just at the end of this function.",
+      "range": {
+        "startLine": 405,
+        "startChar": 7,
+        "endLine": 405,
+        "endChar": 23
+      },
+      "revId": "740cf60937dee3758f845d84e1370f780da19acf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
