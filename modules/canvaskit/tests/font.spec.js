@@ -191,7 +191,7 @@ describe('CanvasKit\'s Path Behavior', function() {
     });
 
     // https://bugs.chromium.org/p/skia/issues/detail?id=9314
-    fit('does not draw tofu for null terminators at end of text', function(done) {
+    it('does not draw tofu for null terminators at end of text', function(done) {
         Promise.all([LoadCanvasKit, bungeeFontLoaded]).then(catchException(done, () => {
             const surface = CanvasKit.MakeCanvasSurface('test');
             expect(surface).toBeTruthy('Could not make surface')
@@ -228,7 +228,7 @@ describe('CanvasKit\'s Path Behavior', function() {
             font.delete();
             fontPaint.delete();
             fontMgr.delete();
-            reportSurface(surface, 'nullterminators_skbug_9314', null);
+            reportSurface(surface, 'nullterminators_skbug_9314', done);
         }));
     });
 
