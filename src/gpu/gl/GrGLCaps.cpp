@@ -61,6 +61,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fProgramParameterSupport = false;
     fSamplerObjectSupport = false;
     fFBFetchRequiresEnablePerSample = false;
+    fSRGBWriteControl = false;
 
     fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
     fMaxInstancesPerDrawWithoutCrashing = 0;
@@ -323,43 +324,15 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     fSupportsAHardwareBufferImages = true;
 #endif
 
-    // We only enable srgb support if both textures and FBOs support srgb.
     if (GR_IS_GR_GL(standard)) {
-        if (version >= GR_GL_VER(3,0)) {
-            fSRGBSupport = true;
-        } else if (ctxInfo.hasExtension("GL_EXT_texture_sRGB")) {
-            if (ctxInfo.hasExtension("GL_ARB_framebuffer_sRGB") ||
-                ctxInfo.hasExtension("GL_EXT_framebuffer_sRGB")) {
-                fSRGBSupport = true;
-            }
-        }
-        // All the above srgb extensions support toggling srgb writes
-        if (fSRGBSupport) {
-            fSRGBWriteControl = true;
-        }
+        fSRGBWriteControl = version >= GR_GL_VER(3, 0) ||
+                            ctxInfo.hasExtension("GL_ARB_framebuffer_sRGB") ||
+                            ctxInfo.hasExtension("GL_EXT_framebuffer_sRGB");
     } else if (GR_IS_GR_GL_ES(standard)) {
-        fSRGBSupport = version >= GR_GL_VER(3,0) || ctxInfo.hasExtension("GL_EXT_sRGB");
-        // ES through 3.1 requires EXT_srgb_write_control to support toggling
+        // ES through 3.2 requires EXT_srgb_write_control to support toggling
         // sRGB writing for destinations.
         fSRGBWriteControl = ctxInfo.hasExtension("GL_EXT_sRGB_write_control");
-    } else if (GR_IS_GR_WEBGL(standard)) {
-        // sRGB extension should be on most WebGL 1.0 contexts, although
-        // sometimes under 2 names.
-        fSRGBSupport = version >= GR_GL_VER(2,0) || ctxInfo.hasExtension("GL_EXT_sRGB") ||
-                                                    ctxInfo.hasExtension("EXT_sRGB");
-    }
-
-    // This is very conservative, if we're on a platform where N32 is BGRA, and using ES, disable
-    // all sRGB support. Too much code relies on creating surfaces with N32 + sRGB colorspace,
-    // and sBGRA is basically impossible to support on any version of ES (with our current code).
-    // In particular, ES2 doesn't support sBGRA at all, and even in ES3, there is no valid pair
-    // of formats that can be used for TexImage calls to upload BGRA data to sRGBA (which is what
-    // we *have* to use as the internal format, because sBGRA doesn't exist). This primarily
-    // affects Windows.
-    if (kSkia8888_GrPixelConfig == kBGRA_8888_GrPixelConfig &&
-        (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard))) {
-        fSRGBSupport = false;
-    }
+    }  // No WebGL support
 
     /**************************************************************************
     * GrShaderCaps fields
@@ -1185,6 +1158,12 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("BGRA to RGBA readback conversions are slow",
                        fRGBAToBGRAReadbackConversionsAreSlow);
     writer->appendBool("Use buffer data null hint", fUseBufferDataNullHint);
+    writer->appendBool("Clear texture support", fClearTextureSupport);
+    writer->appendBool("Program binary support", fProgramBinarySupport);
+    writer->appendBool("Program parameters support", fProgramParameterSupport);
+    writer->appendBool("Sampler object support", fSamplerObjectSupport);
+    writer->appendBool("FB fetch requires enable per sample", fFBFetchRequiresEnablePerSample);
+    writer->appendBool("sRGB Write Control", fSRGBWriteControl);
 
     writer->appendBool("Intermediate texture for partial updates of unorm textures ever bound to FBOs",
                        fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO);
@@ -2509,28 +2488,61 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kSRGB8_ALPHA8);
         info.fFormatType = FormatType::kNormalizedFixedPoint;
         info.fInternalFormatForRenderbuffer = GR_GL_SRGB8_ALPHA8;
-        bool srgbTexStorageSupported = texStorageSupported;
-        // See comment below about ES 2.0 + GL_EXT_sRGB.
-        if (GR_IS_GR_GL_ES(standard) && version < GR_GL_VER(3, 0)) {
-            // ES 2.0 requires that the external format matches the internal format.
-            info.fDefaultExternalFormat = GR_GL_SRGB_ALPHA;
-            // There is no defined interaction between GL_EXT_sRGB and GL_EXT_texture_storage.
-            srgbTexStorageSupported = false;
-        } else {
-            // On other GLs the expected external format is GL_RGBA, assuming this format
-            // is supported at all.
-            info.fDefaultExternalFormat = GR_GL_RGBA;
-        }
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
         info.fTexSubImageZeroDataBpp = 4;
-        if (fSRGBSupport) {
-            uint32_t srgbRenderFlags =
-                    formatWorkarounds.fDisableSRGBRenderWithMSAAForMacAMD ? nonMSAARenderFlags
-                                                                          : msaaRenderFlags;
 
-            info.fFlags = FormatInfo::kTexturable_Flag | srgbRenderFlags;
+        // We may modify the default external format below.
+        info.fDefaultExternalFormat = GR_GL_RGBA;
+        bool srgb8Alpha8TexStorageSupported = texStorageSupported;
+        bool srgb8Alpha8TextureSupport = false;
+        bool srgb8Alpha8RenderTargetSupport = false;
+        if (GR_IS_GR_GL(standard)) {
+            if (version >= GR_GL_VER(3, 0)) {
+                srgb8Alpha8TextureSupport = true;
+                srgb8Alpha8RenderTargetSupport = true;
+            } else if (ctxInfo.hasExtension("GL_EXT_texture_sRGB")) {
+                srgb8Alpha8TextureSupport = true;
+                if (ctxInfo.hasExtension("GL_ARB_framebuffer_sRGB") ||
+                    ctxInfo.hasExtension("GL_EXT_framebuffer_sRGB")) {
+                    srgb8Alpha8RenderTargetSupport = true;
+                }
+            }
+        } else if (GR_IS_GR_GL_ES(standard)) {
+            if (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_EXT_sRGB")) {
+                srgb8Alpha8TextureSupport = true;
+                srgb8Alpha8RenderTargetSupport = true;
+            }
+            if (version < GR_GL_VER(3, 0)) {
+                // ES 2.0 requires that the external format matches the internal format.
+                info.fDefaultExternalFormat = GR_GL_SRGB_ALPHA;
+                // There is no defined interaction between GL_EXT_sRGB and GL_EXT_texture_storage.
+                srgb8Alpha8TexStorageSupported = false;
+            }
+        } else if (GR_IS_GR_WEBGL(standard)) {
+            // sRGB extension should be on most WebGL 1.0 contexts, although sometimes under 2
+            // names.
+            if (version >= GR_GL_VER(2, 0) || ctxInfo.hasExtension("GL_EXT_sRGB") ||
+                ctxInfo.hasExtension("EXT_sRGB")) {
+                srgb8Alpha8TextureSupport = true;
+                srgb8Alpha8RenderTargetSupport = true;
+            }
+            if (version < GR_GL_VER(2, 0)) {
+                // WebGL 1.0 requires that the external format matches the internal format.
+                info.fDefaultExternalFormat = GR_GL_SRGB_ALPHA;
+                // There is no extension to WebGL 1 that adds glTexStorage.
+                SkASSERT(!srgb8Alpha8TexStorageSupported);
+            }
         }
-        if (srgbTexStorageSupported) {
+
+        if (srgb8Alpha8TextureSupport) {
+            info.fFlags = FormatInfo::kTexturable_Flag;
+            if (srgb8Alpha8RenderTargetSupport) {
+                info.fFlags |= formatWorkarounds.fDisableSRGBRenderWithMSAAForMacAMD
+                                       ? nonMSAARenderFlags
+                                       : msaaRenderFlags;
+            }
+        }
+        if (srgb8Alpha8TexStorageSupported) {
             info.fFlags |= FormatInfo::kUseTexStorage_Flag;
             info.fInternalFormatForTexImageOrStorage = GR_GL_SRGB8_ALPHA8;
         } else {
@@ -2538,7 +2550,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                     texImageSupportsSizedInternalFormat ? GR_GL_SRGB8_ALPHA8 : GR_GL_SRGB_ALPHA;
         }
 
-        if (fSRGBSupport) {
+        if (srgb8Alpha8TextureSupport) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
