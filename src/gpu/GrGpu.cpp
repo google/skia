@@ -581,7 +581,6 @@ bool GrGpu::regenerateMipMapLevels(GrTexture* texture) {
     SkASSERT(texture);
     SkASSERT(this->caps()->mipMapSupport());
     SkASSERT(texture->texturePriv().mipMapped() == GrMipMapped::kYes);
-    SkASSERT(!texture->asRenderTarget() || !texture->asRenderTarget()->needsResolve());
     if (!texture->texturePriv().mipMapsAreDirty()) {
         // This can happen when the proxy expects mipmaps to be dirty, but they are not dirty on the
         // actual target. This may be caused by things that the drawingManager could not predict,
@@ -607,19 +606,6 @@ void GrGpu::resetTextureBindings() {
 void GrGpu::resolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
                                 GrSurfaceOrigin origin, ForExternalIO forExternalIO) {
     SkASSERT(target);
-    if (!target->needsResolve()) {
-        // This can happen when the proxy expects MSAA to be dirty, but it is not dirty on the
-        // actual target. This may be caused by things that the drawingManager could not predict,
-        // i.e., ops that don't draw anything, aborting a draw for exceptional circumstances, etc.
-        // NOTE: This goes away once we quit tracking dirty state on the actual render target.
-        return;
-    }
-#ifdef SK_DEBUG
-    auto nativeResolveRect = GrNativeRect::MakeRelativeTo(origin, target->height(), resolveRect);
-    // The proxy will often track a tighter resolve rect than GrRenderTarget, but it should never be
-    // the other way around.
-    SkASSERT(target->getResolveRect().contains(nativeResolveRect.asSkIRect()));
-#endif
     this->handleDirtyContext();
     this->onResolveRenderTarget(target, resolveRect, origin, forExternalIO);
 }
@@ -630,15 +616,6 @@ void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const 
     SkASSERT(!surface->readOnly());
     // Mark any MIP chain and resolve buffer as dirty if and only if there is a non-empty bounds.
     if (nullptr == bounds || !bounds->isEmpty()) {
-        if (GrRenderTarget* target = surface->asRenderTarget()) {
-            SkIRect flippedBounds;
-            if (kBottomLeft_GrSurfaceOrigin == origin && bounds) {
-                flippedBounds = {bounds->fLeft, surface->height() - bounds->fBottom,
-                                 bounds->fRight, surface->height() - bounds->fTop};
-                bounds = &flippedBounds;
-            }
-            target->flagAsNeedingResolve(bounds);
-        }
         GrTexture* texture = surface->asTexture();
         if (texture && 1 == mipLevels) {
             texture->texturePriv().markMipMapsDirty();
