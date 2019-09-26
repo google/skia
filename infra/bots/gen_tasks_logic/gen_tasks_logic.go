@@ -667,7 +667,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 			if !ok {
 				glog.Fatalf("Entry %q not found in iOS mapping.", parts["model"])
 			}
-			d["device"] = device
+			d["device_type"] = device
 		} else if strings.Contains(parts["extra_config"], "SwiftShader") {
 			if parts["model"] != "GCE" || d["os"] != DEFAULT_OS_DEBIAN || parts["cpu_or_gpu_value"] != "SwiftShader" {
 				glog.Fatalf("Please update defaultSwarmDimensions for SwiftShader %s %s %s.", parts["os"], parts["model"], parts["cpu_or_gpu_value"])
