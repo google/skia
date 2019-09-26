@@ -101,7 +101,7 @@ class SkFontStyleSet_Custom : public SkFontStyleSet {
 public:
     explicit SkFontStyleSet_Custom(const SkString familyName);
 
-    /** Should only be called during the inital build phase. */
+    /** Should only be called during the initial build phase. */
     void appendTypeface(sk_sp<SkTypeface_Custom> typeface);
     int count() override;
     void getStyle(int index, SkFontStyle* style, SkString* name) override;
