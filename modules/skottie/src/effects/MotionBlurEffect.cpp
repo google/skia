@@ -10,8 +10,10 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMath.h"
 #include "include/core/SkPixmap.h"
+#include "include/core/SkSurface.h"
 #include "include/private/SkVx.h"
-#include "modules/sksg/include/SkSGInvalidationController.h"
+#include "modules/sksg/include/SkSGTransform.h"
+#include "modules/sksg/src/SkSGTransformPriv.h"
 #include "src/core/SkMathPriv.h"
 
 namespace skottie {
@@ -34,6 +36,119 @@ private:
     const sk_sp<RenderNode>& fChild;
 };
 
+class TransformOnlyMotionBlurEffect final : public MotionBlurEffect {
+public:
+    TransformOnlyMotionBlurEffect(sk_sp<sksg::Animator> animator,
+                                  sk_sp<sksg::Transform> xform,
+                                  sk_sp<sksg::RenderNode> child,
+                                  size_t samples_per_frame,
+                                  float shutter_angle,
+                                  float shutter_phase)
+        : INHERITED(std::move(animator), std::move(child),
+                    samples_per_frame, shutter_angle, shutter_phase)
+        , fTransformNode(std::move(xform))
+        , fSampleOffsets(fSampleCount) {}
+
+private:
+    SkRect onRevalidate(sksg::InvalidationController* ic, const SkMatrix& ctm) override {
+        SkASSERT(this->children().size() == 1ul);
+        const sk_sp<RenderNode>& child = this->children()[0];
+
+        SkRect bounds = SkRect::MakeEmpty();
+
+        SkMatrix t0;
+
+        for (size_t i = 0; i < fSampleCount; ++i) {
+            this->seekSample(i);
+
+            if (!child->isVisible()) {
+                continue;
+            }
+
+            bounds.join(child->revalidate(nullptr, ctm));
+
+            const auto t = sksg::TransformPriv::As<SkMatrix>(fTransformNode);
+
+            fSampleOffsets[i] = { t.getTranslateX(), t.getTranslateY() };
+
+            if (i == 0) {
+                t0 = t;
+                fIsXlateOnly = !t.hasPerspective();
+            } else {
+                fIsXlateOnly = fIsXlateOnly && !t.hasPerspective()
+                        && SkScalarNearlyEqual(t.getScaleX(), t0.getScaleX())
+                        && SkScalarNearlyEqual(t.getSkewX() , t0.getSkewX())
+                        && SkScalarNearlyEqual(t.getSkewY() , t0.getSkewY())
+                        && SkScalarNearlyEqual(t.getScaleY(), t0.getScaleY());
+            }
+        }
+
+        return bounds;
+    }
+
+    void onRender(SkCanvas* canvas, const RenderContext* ctx) const override {
+        if (!fIsXlateOnly) {
+            this->INHERITED::onRender(canvas, ctx);
+            return;
+        }
+
+        SkASSERT(this->children().size() == 1ul);
+        const sk_sp<RenderNode>& child = this->children()[0];
+
+        AutoInvalBlocker aib(this, child);
+        SkAutoCanvasRestore acr(canvas, false);
+
+        // Accumulate in F16 for more precision.
+        canvas->saveLayer(SkCanvas::SaveLayerRec(&this->bounds(), nullptr,
+                                                 SkCanvas::kF16ColorType));
+
+        SkPaint frame_paint;
+        frame_paint.setAlphaf(1.0f / fSampleCount);
+        frame_paint.setBlendMode(SkBlendMode::kPlus);
+
+        for (size_t i = 0; i < fSampleCount; ++i) {
+            this->seekSample(i);
+
+            if (!child->isVisible()) {
+                continue;
+            }
+
+            auto child_bounds = child->revalidate(nullptr, canvas->getTotalMatrix());
+            canvas->drawImage(this->renderChild(canvas, child_bounds),
+                              child_bounds.x(), child_bounds.y(), &frame_paint);
+        }
+    }
+
+    sk_sp<SkImage> renderChild(SkCanvas* canvas, const SkRect& child_bounds) const {
+        if (fCachedChildImage) {
+            return fCachedChildImage;
+        }
+
+        auto surface = canvas->makeSurface(
+                           canvas->imageInfo().makeWH(SkScalarCeilToInt(child_bounds.width()),
+                                                      SkScalarCeilToInt(child_bounds.height())));
+        if (!surface) {
+            return nullptr;
+        }
+
+        surface->getCanvas()->translate(-child_bounds.x(), -child_bounds.y());
+
+        SkASSERT(this->children().size() == 1ul);
+        this->children()[0]->render(surface->getCanvas());
+        fCachedChildImage = surface->makeImageSnapshot();
+
+        return fCachedChildImage;
+    }
+
+    const sk_sp<sksg::Transform> fTransformNode;
+
+    mutable sk_sp<SkImage>       fCachedChildImage;
+    std::vector<SkVector>        fSampleOffsets;
+    bool                         fIsXlateOnly = false;
+
+    using INHERITED = MotionBlurEffect;
+};
+
 sk_sp<MotionBlurEffect> MotionBlurEffect::Make(sk_sp<sksg::Animator> animator,
                                                sk_sp<sksg::RenderNode> child,
                                                size_t samples_per_frame,
@@ -42,29 +157,46 @@ sk_sp<MotionBlurEffect> MotionBlurEffect::Make(sk_sp<sksg::Animator> animator,
         return nullptr;
     }
 
-    // shutter_angle is [   0 .. 720], mapped to [ 0 .. 2] (frame space)
-    // shutter_phase is [-360 .. 360], mapped to [-1 .. 1] (frame space)
-    const auto samples_duration = shutter_angle / 360,
-                          phase = shutter_phase / 360,
-                             dt = samples_duration / (samples_per_frame - 1);
-
     return sk_sp<MotionBlurEffect>(new MotionBlurEffect(std::move(animator),
                                                         std::move(child),
                                                         samples_per_frame,
-                                                        phase, dt));
+                                                        shutter_angle, shutter_phase));
+}
+
+sk_sp<MotionBlurEffect> MotionBlurEffect::MakeTransformOnly(sk_sp<sksg::Animator> animator,
+                                                            sk_sp<sksg::Transform> xform,
+                                                            sk_sp<sksg::RenderNode> child,
+                                                            size_t samples_per_frame,
+                                                            float shutter_angle,
+                                                            float shutter_phase) {
+    return sk_sp<MotionBlurEffect>(new TransformOnlyMotionBlurEffect(std::move(animator),
+                                                                     std::move(xform),
+                                                                     std::move(child),
+                                                                     samples_per_frame,
+                                                                     shutter_angle,
+                                                                     shutter_phase));
 }
 
 MotionBlurEffect::MotionBlurEffect(sk_sp<sksg::Animator> animator,
                                    sk_sp<sksg::RenderNode> child,
-                                   size_t samples, float phase, float dt)
+                                   size_t samples_per_frame,
+                                   float shutter_angle,
+                                   float shutter_phase)
     : INHERITED({std::move(child)})
     , fAnimator(std::move(animator))
-    , fSampleCount(samples)
-    , fPhase(phase)
-    , fDT(dt) {}
+    , fSampleCount(samples_per_frame)
+    // shutter_phase is [-360 .. 360], mapped to [-1 .. 1] (frame space)
+    , fPhase(shutter_phase / 360)
+    // shutter_angle is [   0 .. 720], mapped to [ 0 .. 2] (frame space)
+    , fDT   (shutter_angle / 360 / (samples_per_frame - 1)) {}
 
 const sksg::RenderNode* MotionBlurEffect::onNodeAt(const SkPoint&) const {
     return nullptr;
+}
+
+void MotionBlurEffect::seekSample(size_t index) const {
+    SkASSERT(index < fSampleCount);
+    fAnimator->tick(fT + fPhase + fDT * index);
 }
 
 SkRect MotionBlurEffect::onRevalidate(sksg::InvalidationController*, const SkMatrix& ctm) {
@@ -73,21 +205,14 @@ SkRect MotionBlurEffect::onRevalidate(sksg::InvalidationController*, const SkMat
 
     SkRect bounds = SkRect::MakeEmpty();
 
-    // Use a local inval controller to suppress descendent invals during sampling
-    // (superseded by our local inval bounds).
-    sksg::InvalidationController ic;
-
-    float t = fT + fPhase;
-
     for (size_t i = 0; i < fSampleCount; ++i) {
-        fAnimator->tick(t);
-        t += fDT;
+        this->seekSample(i);
 
         if (!child->isVisible()) {
             continue;
         }
 
-        bounds.join(child->revalidate(&ic, ctm));
+        bounds.join(child->revalidate(nullptr, ctm));
     }
 
     return bounds;
@@ -115,11 +240,9 @@ void MotionBlurEffect::renderToRaster8888Pow2Samples(SkCanvas* canvas,
         SkASSERT(info.colorType() == kRGBA_8888_SkColorType ||
                  info.colorType() == kBGRA_8888_SkColorType);
 
-        float t = fT + fPhase;
         bool needs_clear = false;  // Cleared initially by saveLayer().
         for (size_t i = 0; i < fSampleCount; ++i) {
-            fAnimator->tick(t);
-            t += fDT;
+            this->seekSample(i);
 
             if (!child->isVisible()) {
                 continue;
@@ -238,11 +361,8 @@ void MotionBlurEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) cons
                              .modulateBlendMode(SkBlendMode::kPlus);
     }
 
-    float t = fT + fPhase;
-
     for (size_t i = 0; i < fSampleCount; ++i) {
-        fAnimator->tick(t);
-        t += fDT;
+        this->seekSample(i);
 
         if (!child->isVisible()) {
             continue;
