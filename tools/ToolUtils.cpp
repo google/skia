@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "tools/ToolUtils.h"
+
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
@@ -25,7 +27,6 @@
 #include "include/private/SkFloatingPoint.h"
 #include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkFontPriv.h"
-#include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/fonts/TestFontMgr.h"
 

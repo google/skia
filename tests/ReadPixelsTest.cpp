@@ -12,6 +12,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkHalf.h"
 #include "include/private/SkImageInfoPriv.h"
+#include "include/utils/SkNWayCanvas.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMathPriv.h"
@@ -20,6 +21,7 @@
 #include "src/gpu/SkGr.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
+#include "tools/ToolUtils.h"
 #include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/ProxyUtils.h"
 
@@ -667,14 +669,19 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
         static constexpr int kH = 16;
         for (int sct = 0; sct <= kLastEnum_SkColorType; ++sct) {
             auto surfCT = static_cast<SkColorType>(sct);
-            auto info = SkImageInfo::Make(kW, kH, surfCT, kPremul_SkAlphaType, nullptr);
+            auto info = SkImageInfo::Make(kW, kH, surfCT, kPremul_SkAlphaType,
+                                          SkColorSpace::MakeSRGB());
             auto surf = SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo, info, 1,
                                                     origin, nullptr);
             if (!surf) {
                 continue;
             }
+            auto refSurf = SkSurface::MakeRaster(info);
             float d = std::sqrt((float)surf->width() * surf->width() +
                                 (float)surf->height() * surf->height());
+            SkNWayCanvas nway(info.width(), info.height());
+            nway.addCanvas(surf->getCanvas());
+            nway.addCanvas(refSurf->getCanvas());
             for (int j = 0; j < surf->height(); ++j) {
                 for (int i = 0; i < surf->width(); ++i) {
                     float r = i / (float)surf->width();
@@ -682,17 +689,21 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
                     float b = std::sqrt((float)i * i + (float)j * j) / d;
                     SkPaint paint;
                     paint.setColor4f(SkColor4f{r, g, b, 1.f}, nullptr);
-                    surf->getCanvas()->drawRect(SkRect::MakeXYWH(i, j, 1, 1), paint);
+                    nway.drawRect(SkRect::MakeXYWH(i, j, 1, 1), paint);
                 }
             }
-            for (const auto& rect : {SkIRect::MakeWH(kW, kH),                  // full size
-                                     SkIRect::MakeLTRB(1, 2, kW - 3, kH - 4),  // partial
-                                     SkIRect::MakeXYWH(1, 1, 0, 0),            // empty: fail
-                                     SkIRect::MakeWH(kW + 1, kH / 2)}) {       // too wide: fail
-                for (int rct = 0; rct <= kLastEnum_SkColorType; ++rct) {
-                    auto readCT = static_cast<SkColorType>(rct);
-                    for (const sk_sp<SkColorSpace>& readCS :
-                         {sk_sp<SkColorSpace>(), SkColorSpace::MakeSRGBLinear()}) {
+            for (int rct = 0; rct <= kLastEnum_SkColorType; ++rct) {
+                auto readCT = static_cast<SkColorType>(rct);
+
+                for (const sk_sp<SkColorSpace>& readCS :
+                     {SkColorSpace::MakeSRGB(), SkColorSpace::MakeSRGBLinear()}) {
+                    auto refImg = refSurf->makeImageSnapshot()->makeColorTypeAndColorSpace(readCT,
+                                                                                           readCS);
+                    // Test full size, partial, empty, and too wide rects.
+                    for (const auto& rect : {SkIRect::MakeWH(kW, kH),
+                                             SkIRect::MakeLTRB(1, 2, kW - 3, kH - 4),
+                                             SkIRect::MakeXYWH(1, 1, 0, 0),
+                                             SkIRect::MakeWH(kW + 1, kH / 2)}) {
                         SkAutoPixmapStorage result;
                         Context context;
                         context.fPixmap = &result;
@@ -714,25 +725,25 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
                             REPORTER_ASSERT(reporter, readCT != kUnknown_SkColorType &&
                                                       !rect.isEmpty());
                         } else {
-                            // TODO: Support reading to kGray.
+                            // TODO: Support reading to kGray, support kRGB_101010x at all in GPU.
                             auto surfBounds = SkIRect::MakeWH(surf->width(), surf->height());
                             if (readCT != kUnknown_SkColorType && readCT != kGray_8_SkColorType &&
-                                !rect.isEmpty() && surfBounds.contains(rect)) {
+                                readCT != kRGB_101010x_SkColorType && !rect.isEmpty() &&
+                                surfBounds.contains(rect)) {
                                 ERRORF(reporter,
-                                       "Async read failed. Surf Color Type: %d, Read CT: %d,"
+                                       "Async read failed. Surf Color Type: %s, Read CT: %s,"
                                        "Rect [%d, %d, %d, %d], origin: %d, CS conversion: %d\n",
-                                       surfCT, readCT, rect.fLeft, rect.fTop, rect.fRight,
-                                       rect.fBottom, origin, (bool)readCS);
+                                       ToolUtils::colortype_name(surfCT),
+                                       ToolUtils::colortype_name(readCT),
+                                       rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, origin,
+                                       (bool)readCS);
                             }
                             continue;
                         }
-                        // We use a synchronous read as the source of truth.
-                        SkAutoPixmapStorage ref;
-                        ref.alloc(info);
-                        memset(ref.writable_addr(), 0xCD, ref.computeByteSize());
-                        if (!surf->readPixels(ref, rect.fLeft, rect.fTop)) {
-                            continue;
-                        }
+                        SkPixmap ref;
+                        refImg->peekPixels(&ref);
+                        SkAssertResult(ref.extractSubset(&ref, rect));
+
                         // When there is no conversion, don't allow a difference.
                         float tol = 0.f;
                         if (readCS || readCT != surfCT) {
@@ -750,12 +761,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
                                 [&](int x, int y, const float diffs[4]) {
                                     SkASSERT(x >= 0 && y >= 0);
                                     ERRORF(reporter,
-                                           "Surf Color Type: %d, Read CT: %d, Rect [%d, %d, %d, %d]"
+                                           "Surf Color Type: %s, Read CT: %s, Rect [%d, %d, %d, %d]"
                                            ", origin: %d, CS conversion: %d\n"
                                            "Error at %d, %d. Diff in floats: (%f, %f, %f %f)",
-                                           surfCT, readCT, rect.fLeft, rect.fTop, rect.fRight,
-                                           rect.fBottom, origin, (bool)readCS, x, y, diffs[0],
-                                           diffs[1], diffs[2], diffs[3]);
+                                           ToolUtils::colortype_name(surfCT),
+                                           ToolUtils::colortype_name(readCT),
+                                           rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, origin,
+                                           (bool)readCS, x, y, diffs[0], diffs[1], diffs[2],
+                                           diffs[3]);
                                 });
                         compare_pixels(ref, result, tols, error);
                     }

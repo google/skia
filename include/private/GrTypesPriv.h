@@ -1525,6 +1525,7 @@ static constexpr const char* GrColorTypeToStr(GrColorType ct) {
     }
     SkUNREACHABLE;
 }
+
 #endif
 
 #endif
