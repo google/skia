@@ -46,7 +46,7 @@
 
 GR_FP_SRC_STRING SKSL_DITHER_SRC = R"(
 // This controls the range of values added to color channels
-layout(key) in int rangeType;
+in int rangeType;
 
 void main(float x, float y, inout half4 color) {
     half value;
