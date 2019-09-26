@@ -23920,7 +23920,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device:iPad6,3",
+        "device_type:iPad6,3",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -23985,7 +23985,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device:iPad6,3",
+        "device_type:iPad6,3",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -24050,7 +24050,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device:iPhone7,2",
+        "device_type:iPhone7,2",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -24115,7 +24115,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device:iPhone7,2",
+        "device_type:iPhone7,2",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -24180,7 +24180,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device:iPhone9,1",
+        "device_type:iPhone9,1",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -46992,7 +46992,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device:iPad6,3",
+        "device_type:iPad6,3",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -47057,7 +47057,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device:iPad6,3",
+        "device_type:iPad6,3",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -47122,7 +47122,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device:iPhone7,2",
+        "device_type:iPhone7,2",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -47187,7 +47187,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device:iPhone7,2",
+        "device_type:iPhone7,2",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -47252,7 +47252,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device:iPhone7,2",
+        "device_type:iPhone7,2",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -47317,7 +47317,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device:iPhone9,1",
+        "device_type:iPhone9,1",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -47382,7 +47382,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device:iPhone9,1",
+        "device_type:iPhone9,1",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
@@ -47447,7 +47447,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device:iPhone9,1",
+        "device_type:iPhone9,1",
         "os:iOS-11.4.1",
         "pool:Skia"
       ],
