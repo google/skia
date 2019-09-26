@@ -73,6 +73,10 @@ using BoneIndices = SkVertices::BoneIndices;
 using BoneWeights = SkVertices::BoneWeights;
 using Bone        = SkVertices::Bone;
 
+#ifndef SK_NO_FONTS
+sk_sp<SkFontMgr> SkFontMgr_New_Custom_Data(const uint8_t** datas, const size_t* sizes, int n);
+#endif
+
 struct SimpleMatrix {
     SkScalar scaleX, skewX,  transX;
     SkScalar skewY,  scaleY, transY;
@@ -378,7 +382,7 @@ JSArray EMSCRIPTEN_KEEPALIVE ToCmds(const SkPath& path) {
 // but that requires us to stick to C code and, AFAIK, doesn't allow us to return nice things like
 // SkPath or SkOpBuilder.
 //
-// So, basically, if we are using C++ and EMSCRIPTEN_BINDINGS, we can't have primative pointers
+// So, basically, if we are using C++ and EMSCRIPTEN_BINDINGS, we can't have primitive pointers
 // in our function type signatures. (this gives an error message like "Cannot call foo due to unbound
 // types Pi, Pf").  But, we can just pretend they are numbers and cast them to be pointers and
 // the compiler is happy.
@@ -605,27 +609,29 @@ namespace emscripten {
         }
 
         template<>
-        void raw_destructor<SkTypeface>(SkTypeface *ptr) {
-        }
-
-        template<>
         void raw_destructor<SkVertices>(SkVertices *ptr) {
         }
 
+#ifndef SK_NO_FONTS
         template<>
         void raw_destructor<SkTextBlob>(SkTextBlob *ptr) {
         }
+
+        template<>
+        void raw_destructor<SkTypeface>(SkTypeface *ptr) {
+        }
+#endif
     }
 }
 
-// Some timesignatures below have uintptr_t instead of a pointer to a primative
+// Some signatures below have uintptr_t instead of a pointer to a primitive
 // type (e.g. SkScalar). This is necessary because we can't use "bind" (EMSCRIPTEN_BINDINGS)
 // and pointers to primitive types (Only bound types like SkPoint). We could if we used
 // cwrap (see https://becominghuman.ai/passing-and-returning-webassembly-array-parameters-a0f572c65d97)
 // but that requires us to stick to C code and, AFAIK, doesn't allow us to return nice things like
 // SkPath or SkCanvas.
 //
-// So, basically, if we are using C++ and EMSCRIPTEN_BINDINGS, we can't have primative pointers
+// So, basically, if we are using C++ and EMSCRIPTEN_BINDINGS, we can't have primitive pointers
 // in our function type signatures. (this gives an error message like "Cannot call foo due to unbound
 // types Pi, Pf").  But, we can just pretend they are numbers and cast them to be pointers and
 // the compiler is happy.
@@ -857,6 +863,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkShadowUtils::DrawShadow(&self, path, zPlaneParams, lightPos, lightRadius,
                                       ambientColor, spotColor, flags);
         }))
+#ifndef SK_NO_FONTS
         .function("_drawShapedText", &drawShapedText)
         .function("_drawSimpleText", optional_override([](SkCanvas& self, uintptr_t /* char* */ sptr,
                                                           size_t len, SkScalar x, SkScalar y, const SkFont& font,
@@ -867,6 +874,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.drawSimpleText(str, len, SkTextEncoding::kUTF8, x, y, font, paint);
         }))
         .function("drawTextBlob", select_overload<void (const sk_sp<SkTextBlob>&, SkScalar, SkScalar, const SkPaint&)>(&SkCanvas::drawTextBlob))
+#endif
         .function("drawVertices", select_overload<void (const sk_sp<SkVertices>&, SkBlendMode, const SkPaint&)>(&SkCanvas::drawVertices))
         .function("flush", &SkCanvas::flush)
         .function("getSaveCount", &SkCanvas::getSaveCount)
@@ -923,6 +931,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     class_<SkDrawable>("SkDrawable")
         .smart_ptr<sk_sp<SkDrawable>>("sk_sp<SkDrawable>>");
 
+#ifndef SK_NO_FONTS
     class_<SkFont>("SkFont")
         .constructor<>()
         .constructor<sk_sp<SkTypeface>>()
@@ -968,15 +977,24 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkFontMgr>("SkFontMgr")
         .smart_ptr<sk_sp<SkFontMgr>>("sk_sp<SkFontMgr>")
+        .class_function("_fromData", optional_override([](uintptr_t /* uint8_t**  */ dPtr,
+                                                          uintptr_t /* size_t*  */ sPtr,
+                                                          int numFonts)->sk_sp<SkFontMgr> {
+            // See comment above for uintptr_t explanation
+            auto datas = reinterpret_cast<const uint8_t**>(dPtr);
+            auto sizes = reinterpret_cast<const size_t*>(sPtr);
+
+            return SkFontMgr_New_Custom_Data(datas, sizes, numFonts);
+        }), allow_raw_pointers())
         .class_function("RefDefault", &SkFontMgr::RefDefault)
 #ifdef SK_DEBUG
         .function("dumpFamilies", optional_override([](SkFontMgr& self) {
             int numFam = self.countFamilies();
-            SkDebugf("There are %d font families\n");
+            SkDebugf("There are %d font families\n", numFam);
             for (int i = 0 ; i< numFam; i++) {
                 SkString s;
                 self.getFamilyName(i, &s);
-                SkDebugf("\t%s", s.c_str());
+                SkDebugf("\t%s\n", s.c_str());
             }
         }))
 #endif
@@ -990,6 +1008,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
         return self.makeFromData(fontData);
     }), allow_raw_pointers());
+#endif
 
     class_<SkImage>("SkImage")
         .smart_ptr<sk_sp<SkImage>>("sk_sp<SkImage>")
@@ -1166,6 +1185,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }), allow_raw_pointers())
         .function("width", &SkSurface::width);
 
+#ifndef SK_NO_FONTS
     class_<SkTextBlob>("SkTextBlob")
         .smart_ptr<sk_sp<SkTextBlob>>("sk_sp<SkTextBlob>>")
         .class_function("_MakeFromRSXform", optional_override([](uintptr_t /* char* */ sptr,
@@ -1187,9 +1207,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return SkTextBlob::MakeFromText(str, len, font, encoding);
         }), allow_raw_pointers());
 
-
     class_<SkTypeface>("SkTypeface")
         .smart_ptr<sk_sp<SkTypeface>>("sk_sp<SkTypeface>");
+#endif
 
     class_<SkVertices>("SkVertices")
         .smart_ptr<sk_sp<SkVertices>>("sk_sp<SkVertices>")
