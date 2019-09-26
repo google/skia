@@ -370,8 +370,6 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
 }
 
 GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization& c) {
-    const GrCaps* caps = this->caps();
-
     if (!this->asDirectContext() || !c.isValid()) {
         return GrBackendTexture();
     }
@@ -391,10 +389,6 @@ GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization
 
     const GrBackendFormat format = this->defaultBackendFormat(c.colorType(), GrRenderable::kYes);
     if (!format.isValid()) {
-        return GrBackendTexture();
-    }
-
-    if (!SkSurface_Gpu::Valid(caps, format)) {
         return GrBackendTexture();
     }
 
@@ -427,10 +421,6 @@ GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization
 
     const GrBackendFormat format = this->defaultBackendFormat(c.colorType(), GrRenderable::kYes);
     if (!format.isValid()) {
-        return GrBackendTexture();
-    }
-
-    if (!SkSurface_Gpu::Valid(this->caps(), format)) {
         return GrBackendTexture();
     }
 
