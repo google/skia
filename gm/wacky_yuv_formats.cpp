@@ -1081,8 +1081,7 @@ static GrBackendTexture create_yuva_texture(GrContext* context, const SkBitmap& 
     }
 #endif
 
-    return context->priv().createBackendTexture(&bm.pixmap(), 1,
-                                                GrRenderable::kNo, GrProtected::kNo);
+    return context->createBackendTexture(&bm.pixmap(), 1, GrRenderable::kNo, GrProtected::kNo);
 }
 
 static sk_sp<SkColorFilter> yuv_to_rgb_colorfilter() {

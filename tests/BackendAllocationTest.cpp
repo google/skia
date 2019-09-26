@@ -707,9 +707,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                                                    int numLevels,
                                                    GrRenderable renderable) {
                         SkASSERT(srcData && numLevels);
-                        auto result = context->priv().createBackendTexture(srcData, numLevels,
-                                                                           renderable,
-                                                                           GrProtected::kNo);
+                        auto result = context->createBackendTexture(srcData, numLevels,
+                                                                    renderable, GrProtected::kNo);
                         check_vk_layout(result, VkLayout::kReadOnlyOptimal);
 #ifdef SK_DEBUG
                         {
