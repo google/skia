@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a3db5bf_5b49d824",
+        "filename": "src/core/SkPixmap.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-26T15:12:44Z",
+      "side": 1,
+      "message": "Clearing an SkPixmap w/ { 0.0f, 0.0f, 1.0f, 0.7f } and then calling getColor on the result didn\u0027t yield the expected result. In that case the float blue channel (\u0027b\u0027) would be greater than 1.0f and then the uint32_t blue channel would overflow into the green channel in the following code.",
+      "revId": "3f9d3f627ceb3e16ecd96c81620e7bbe27da79ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
