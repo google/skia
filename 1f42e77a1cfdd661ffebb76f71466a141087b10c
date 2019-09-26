@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "141df5d6_05be701b",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 39
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-26T19:10:13Z",
+      "side": 1,
+      "message": "I think reference here is just value_type (and this isn\u0027t a LegacyForwardIterator, since LegacyForwardIterator requires reference to be an lvalue reference, for example temporary proxies like this aren\u0027t allowed).",
+      "range": {
+        "startLine": 32,
+        "startChar": 36,
+        "endLine": 32,
+        "endChar": 37
+      },
+      "revId": "1f42e77a1cfdd661ffebb76f71466a141087b10c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "393af797_5f016144",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 39
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-26T19:10:13Z",
+      "side": 1,
+      "message": "pedantic, but this is value_type (it\u0027s supposed to be \u0027reference\u0027?)\n\nalso, this means this is not a LegacyForwardIterator (though can be a LegacyInputIterator since reference isn\u0027t actually an lvalue reference)",
+      "range": {
+        "startLine": 39,
+        "startChar": 18,
+        "endLine": 39,
+        "endChar": 29
+      },
+      "revId": "1f42e77a1cfdd661ffebb76f71466a141087b10c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b6f6a1f_c87ff809",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 39
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-26T19:10:13Z",
+      "side": 1,
+      "message": "Any reason not to add constexpr everywhere?",
+      "revId": "1f42e77a1cfdd661ffebb76f71466a141087b10c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
