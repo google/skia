@@ -50,7 +50,6 @@ describe('CanvasKit\'s Path Behavior', function() {
             const notoSerif = fontMgr.MakeTypefaceFromData(notSerifFontBuffer);
 
             const textPaint = new CanvasKit.SkPaint();
-            // use the built-in monospace typeface.
             const textFont = new CanvasKit.SkFont(notoSerif, 20);
 
             canvas.drawRect(CanvasKit.LTRBRect(30, 30, 200, 200), paint);
@@ -230,6 +229,27 @@ describe('CanvasKit\'s Path Behavior', function() {
             fontPaint.delete();
             fontMgr.delete();
             reportSurface(surface, 'nullterminators_skbug_9314', null);
+        }));
+    });
+
+    it('can make a font mgr with passed in fonts', function(done) {
+        Promise.all([LoadCanvasKit, bungeeFontLoaded, notoSerifFontLoaded]).then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            // CanvasKit.SkFontMgr.FromData([bungeeFontBuffer, notSerifFontBuffer]) also works
+            const fontMgr = CanvasKit.SkFontMgr.FromData(bungeeFontBuffer, notSerifFontBuffer);
+            expect(fontMgr).toBeTruthy();
+            expect(fontMgr.countFamilies()).toBe(2);
+            // in debug mode, let's list them.
+            if (fontMgr.dumpFamilies) {
+                fontMgr.dumpFamilies();
+            }
+            fontMgr.delete();
+            done();
         }));
     });
 
