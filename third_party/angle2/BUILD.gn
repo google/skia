@@ -8,9 +8,9 @@ declare_args() {
 
 angle_root = "../externals/angle2"
 
-import("../third_party.gni")
 import("$angle_root/src/compiler.gni")
 import("$angle_root/src/libGLESv2.gni")
+import("../third_party.gni")
 
 third_party("angle2") {
   public_include_dirs = [ "$angle_root/include" ]

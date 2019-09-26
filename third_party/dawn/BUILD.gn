@@ -13,8 +13,8 @@
 # limitations under the License.
 
 dawn_root = "../externals/dawn"
-import("$dawn_root/scripts/dawn_features.gni")
 import("$dawn_root/generator/dawn_generator.gni")
+import("$dawn_root/scripts/dawn_features.gni")
 
 ###############################################################################
 # Template to wrap the Dawn code generator
