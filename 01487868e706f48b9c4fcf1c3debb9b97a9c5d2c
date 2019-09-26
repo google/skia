@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "0c51d0a5_93e2b1d7",
+        "filename": "modules/skplaintexteditor/gm/editor_gm.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-26T15:08:59Z",
+      "side": 1,
+      "message": "I don\u0027t think there is much to be done about it right now, even returning kSkip result doesn\u0027t actually skip at the moment. On the other hand, if we can\u0027t get data at all maybe draw a big red X instead so it\u0027s obvious an error happened (as opposed to picking up a font which draws nothing).",
+      "parentUuid": "9bd52fcc_298b5c2e",
+      "range": {
+        "startLine": 14,
+        "startChar": 8,
+        "endLine": 14,
+        "endChar": 12
+      },
+      "revId": "01487868e706f48b9c4fcf1c3debb9b97a9c5d2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9300895a_49c525ca",
         "filename": "modules/skplaintexteditor/gm/editor_gm.cpp",
         "patchSetId": 4
@@ -93,6 +117,30 @@
       "revId": "01487868e706f48b9c4fcf1c3debb9b97a9c5d2c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d74d11b4_467f05f6",
+        "filename": "modules/skplaintexteditor/gm/editor_gm.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-26T15:08:59Z",
+      "side": 1,
+      "message": "It\u0027s a lot of tofu, but it\u0027s unlikely to change after initial triage and the native fonts bots to draw something useful for a number of these. Might actually want to make the native fonts bots images have even more fonts on them if possible (thought that is obviously out of scope for this CL).",
+      "parentUuid": "bf512462_13dfe216",
+      "range": {
+        "startLine": 17,
+        "startChar": 41,
+        "endLine": 17,
+        "endChar": 65
+      },
+      "revId": "01487868e706f48b9c4fcf1c3debb9b97a9c5d2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
