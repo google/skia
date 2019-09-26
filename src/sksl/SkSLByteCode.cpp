@@ -1583,7 +1583,7 @@ bool ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
         return false;
     }
 
-    if (uniformCount != (int)fInputSlots.size()) {
+    if (uniformCount != (int)fUniformSlots.size()) {
         return false;
     }
 
@@ -1591,7 +1591,7 @@ bool ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
     if (fGlobalCount > (int)SK_ARRAY_COUNT(globals)) {
         return false;
     }
-    for (uint8_t slot : fInputSlots) {
+    for (uint8_t slot : fUniformSlots) {
         globals[slot].fFloat = *uniforms++;
     }
 
@@ -1663,7 +1663,7 @@ bool ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
 
     if (nargs != f->fParameterCount ||
         outCount != f->fReturnCount ||
-        uniformCount != (int)fInputSlots.size()) {
+        uniformCount != (int)fUniformSlots.size()) {
         return false;
     }
 
@@ -1671,7 +1671,7 @@ bool ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
     if (fGlobalCount > (int)SK_ARRAY_COUNT(globals)) {
         return false;
     }
-    for (uint8_t slot : fInputSlots) {
+    for (uint8_t slot : fUniformSlots) {
         globals[slot].fFloat = *uniforms++;
     }
 

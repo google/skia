@@ -178,6 +178,8 @@ private:
      */
     int getLocation(const Expression& expr, Variable::Storage* storage);
 
+    void gatherInputs(const Type& type, const String& name);
+
     std::unique_ptr<ByteCodeFunction> writeFunction(const FunctionDefinition& f);
 
     void writeVarDeclarations(const VarDeclarations& decl);

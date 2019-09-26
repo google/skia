@@ -156,6 +156,12 @@ public:
     }
     int getCount() const { return fCount; }
 
+    const SkSL::ByteCode* effectCode() const { return fParams->fEffectProgram.fByteCode.get(); }
+    const SkSL::ByteCode* particleCode() const { return fParams->fParticleProgram.fByteCode.get(); }
+
+    float* effectUniforms() { return fEffectUniforms.get(); }
+    float* particleUniforms() { return fParticleUniforms.get(); }
+
     static void RegisterParticleTypes();
 
 private:
@@ -182,10 +188,6 @@ private:
     // Effect-associated values exposed to script. They are some mix of uniform and inout,
     // depending on whether we're executing per-effect or per-particle scripts.
     struct EffectState {
-        float fDeltaTime;
-
-        // Above this line is always uniform. Below is uniform for particles, inout for effect.
-
         float fAge;
         float fLifetime;
         int   fLoopCount;
@@ -209,6 +211,10 @@ private:
 
     // Cached
     int fCapacity;
+    SkAutoTMalloc<float> fEffectUniforms;
+    SkAutoTMalloc<float> fParticleUniforms;
+    int fEffectUniformCount;
+    int fParticleUniformCount;
 
     // Private interface used by SkEffectBinding and SkEffectExternalValue to spawn sub effects
     friend class SkEffectExternalValue;
