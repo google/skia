@@ -54,10 +54,6 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         isMipMapped = false;
     }
 
-    if (!SkSurface_Gpu::Valid(this->caps(), backendFormat)) {
-        return SkSurfaceCharacterization(); // return an invalid characterization
-    }
-
     GrColorType grColorType = SkColorTypeToGrColorType(ii.colorType());
 
     if (!this->caps()->areColorTypeAndFormatCompatible(grColorType, backendFormat)) {

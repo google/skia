@@ -231,8 +231,6 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
 
     fOversizedStencilSupport = true;
 
-    fSRGBSupport = true;   // always available in Metal
-    fSRGBWriteControl = false;
     fMipMapSupport = true;   // always available in Metal
     fNPOTTextureTileSupport = true;  // always available in Metal
 
