@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9bd52fcc_298b5c2e",
+        "filename": "modules/skplaintexteditor/gm/editor_gm.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-09-26T14:56:59Z",
+      "side": 1,
+      "message": "Okay, what do I do about it?",
+      "parentUuid": "d6f3a442_429f9734",
+      "range": {
+        "startLine": 14,
+        "startChar": 8,
+        "endLine": 14,
+        "endChar": 12
+      },
+      "revId": "01487868e706f48b9c4fcf1c3debb9b97a9c5d2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9300895a_49c525ca",
         "filename": "modules/skplaintexteditor/gm/editor_gm.cpp",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2019-09-18T17:06:30Z",
       "side": 1,
       "message": "This typeface (and the portable fontmgr which is often used) probably doesn\u0027t have coverage or at least won\u0027t have interesting shaping information.",
+      "range": {
+        "startLine": 17,
+        "startChar": 41,
+        "endLine": 17,
+        "endChar": 65
+      },
+      "revId": "01487868e706f48b9c4fcf1c3debb9b97a9c5d2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf512462_13dfe216",
+        "filename": "modules/skplaintexteditor/gm/editor_gm.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-09-26T14:56:59Z",
+      "side": 1,
+      "message": "Maybe only enable the english GM?",
+      "parentUuid": "9300895a_49c525ca",
       "range": {
         "startLine": 17,
         "startChar": 41,
