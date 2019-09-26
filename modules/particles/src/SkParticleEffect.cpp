@@ -59,7 +59,7 @@ struct Effect {
   uint   flags;
 };
 
-in uniform float dt;
+uniform float dt;
 )";
 
 static const char* kParticleHeader =
@@ -77,7 +77,7 @@ struct Particle {
   uint   flags;
 };
 
-in uniform Effect effect;
+uniform Effect effect;
 )";
 
 static const char* kDefaultEffectCode =
