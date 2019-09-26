@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "513402d8_10b15e3b",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1209,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-26T18:31:45Z",
+      "side": 1,
+      "message": "Maybe a comment explaining what is going on?",
+      "revId": "577f386afe440124704a19235205cac32117867b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f580b1e1_3b7f9032",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1263,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-26T18:31:45Z",
+      "side": 1,
+      "message": "// We can always read from external formats \n\n?",
+      "revId": "577f386afe440124704a19235205cac32117867b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7575667_923eebe9",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1373,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-26T18:31:45Z",
+      "side": 1,
+      "message": "// We only support reading from external formats \n\n?",
+      "revId": "577f386afe440124704a19235205cac32117867b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
