@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "b0711387_84b292b6",
+        "filename": "src/core/SkStrikeForGPU.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-09-26T15:36:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "65e635e3_ab981c50",
+      "range": {
+        "startLine": 26,
+        "startChar": 7,
+        "endLine": 26,
+        "endChar": 29
+      },
+      "revId": "43a17fe2a7bdb373edc421f4d95a1924db1e5106",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "af8675f5_05c0ab75",
         "filename": "src/core/SkStrikeForGPU.h",
         "patchSetId": 2
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "7a54d617_0f580e1d",
+        "filename": "src/core/SkStrikeForGPU.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-09-26T15:36:01Z",
+      "side": 1,
+      "message": "This is really for sharing between Renderer and GPU. Other things obeying this would probably be a mistake. But it should probably move under the GPU flag.",
+      "parentUuid": "af8675f5_05c0ab75",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 22
+      },
+      "revId": "43a17fe2a7bdb373edc421f4d95a1924db1e5106",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5e095e07_ed69f965",
         "filename": "src/core/SkStrikeForGPU.h",
         "patchSetId": 2
@@ -91,6 +139,30 @@
       "revId": "43a17fe2a7bdb373edc421f4d95a1924db1e5106",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3eb0ea92_13c7dad9",
+        "filename": "src/core/SkStrikeForGPU.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-09-26T15:36:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5e095e07_ed69f965",
+      "range": {
+        "startLine": 93,
+        "startChar": 6,
+        "endLine": 93,
+        "endChar": 20
+      },
+      "revId": "43a17fe2a7bdb373edc421f4d95a1924db1e5106",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
