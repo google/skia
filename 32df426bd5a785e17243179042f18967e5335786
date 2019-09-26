@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e7f4c37a_e03d0d2c",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-26T15:16:56Z",
+      "side": 1,
+      "message": "double-secret private :)  (same in the two others)",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 8
+      },
+      "revId": "32df426bd5a785e17243179042f18967e5335786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83c276d4_a32b0b1b",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-26T15:16:56Z",
+      "side": 1,
+      "message": "Ooh, passing up on an opportunity for something beautiful here, fitting each case on one line...",
+      "range": {
+        "startLine": 209,
+        "startChar": 0,
+        "endLine": 217,
+        "endChar": 5
+      },
+      "revId": "32df426bd5a785e17243179042f18967e5335786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91bcd31a_eae606a4",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-26T15:16:56Z",
+      "side": 1,
+      "message": "Think it makes sense to call these anim and sink, given that they\u0027re not always tl_?",
+      "range": {
+        "startLine": 287,
+        "startChar": 13,
+        "endLine": 287,
+        "endChar": 20
+      },
+      "revId": "32df426bd5a785e17243179042f18967e5335786",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
