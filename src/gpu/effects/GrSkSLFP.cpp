@@ -34,9 +34,16 @@ GrSkSLFPFactory::GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCap
             SkSL::VarDeclarations& v = (SkSL::VarDeclarations&) e;
             for (const auto& varStatement : v.fVars) {
                 const SkSL::Variable& var = *((SkSL::VarDeclaration&) *varStatement).fVar;
-                if (var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
-                    fInputVars.push_back(&var);
+                if ((var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) ||
+                    (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag)) {
+                    fInAndUniformVars.push_back(&var);
                 }
+                // "in uniform" doesn't make sense outside of .fp files
+                SkASSERT((var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) == 0 ||
+                         (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) == 0);
+                // "layout(key)" doesn't make sense outside of .fp files; all 'in' variables are
+                // part of the key
+                SkASSERT(!var.fModifiers.fLayout.fKey);
             }
         }
     }
@@ -51,7 +58,7 @@ const SkSL::Program* GrSkSLFPFactory::getSpecialization(const SkSL::String& key,
 
     std::unordered_map<SkSL::String, SkSL::Program::Settings::Value> inputMap;
     size_t offset = 0;
-    for (const auto& v : fInputVars) {
+    for (const auto& v : fInAndUniformVars) {
         SkSL::String name(v->fName);
         if (&v->fType == fCompiler.context().fInt_Type.get() ||
             &v->fType == fCompiler.context().fShort_Type.get()) {
@@ -113,11 +120,12 @@ static SkSL::Layout::CType get_ctype(const SkSL::Context& context, const SkSL::V
 
 class GrGLSLSkSLFP : public GrGLSLFragmentProcessor {
 public:
-    GrGLSLSkSLFP(const SkSL::Context* context, const std::vector<const SkSL::Variable*>* inputVars,
+    GrGLSLSkSLFP(const SkSL::Context* context,
+                 const std::vector<const SkSL::Variable*>* inAndUniformVars,
                  SkSL::String glsl, std::vector<SkSL::Compiler::FormatArg> formatArgs,
                  std::vector<SkSL::Compiler::GLSLFunction> functions)
             : fContext(*context)
-            , fInputVars(*inputVars)
+            , fInAndUniformVars(*inAndUniformVars)
             , fGLSL(glsl)
             , fFormatArgs(std::move(formatArgs))
             , fFunctions(std::move(functions)) {}
@@ -149,7 +157,7 @@ public:
     }
 
     void emitCode(EmitArgs& args) override {
-        for (const auto& v : fInputVars) {
+        for (const auto& v : fInAndUniformVars) {
             if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag && v->fType !=
                                                                 *fContext.fFragmentProcessor_Type) {
                 fUniformHandles.push_back(args.fUniformHandler->addUniform(
@@ -230,7 +238,7 @@ public:
         size_t offset = 0;
         const GrSkSLFP& outer = _proc.cast<GrSkSLFP>();
         char* inputs = (char*) outer.fInputs.get();
-        for (const auto& v : outer.fFactory->fInputVars) {
+        for (const auto& v : outer.fFactory->fInAndUniformVars) {
             switch (get_ctype(fContext, *v))  {
                 case SkSL::Layout::CType::kSkPMColor: {
                     float f1 = ((uint8_t*) inputs)[offset++] / 255.0;
@@ -285,7 +293,7 @@ public:
     }
 
     const SkSL::Context& fContext;
-    const std::vector<const SkSL::Variable*>& fInputVars;
+    const std::vector<const SkSL::Variable*>& fInAndUniformVars;
     // nearly-finished GLSL; still contains printf-style "%s" format tokens
     const SkSL::String fGLSL;
     std::vector<SkSL::Compiler::FormatArg> fFormatArgs;
@@ -386,8 +394,8 @@ GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
         printf("%s\n", fFactory->fCompiler.errorText().c_str());
         SkASSERT(false);
     }
-    return new GrGLSLSkSLFP(specialized->fContext.get(), &fFactory->fInputVars, glsl, formatArgs,
-                            functions);
+    return new GrGLSLSkSLFP(specialized->fContext.get(), &fFactory->fInAndUniformVars, glsl,
+                            formatArgs, functions);
 }
 
 void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
@@ -397,13 +405,13 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
     size_t offset = 0;
     char* inputs = (char*) fInputs.get();
     const SkSL::Context& context = fFactory->fCompiler.context();
-    for (const auto& v : fFactory->fInputVars) {
+    for (const auto& v : fFactory->fInAndUniformVars) {
         if (&v->fType == context.fFragmentProcessor_Type.get()) {
             continue;
         }
         switch (get_ctype(context, *v)) {
             case SkSL::Layout::CType::kBool:
-                if (v->fModifiers.fLayout.fKey) {
+                if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
                     fKey += inputs[offset];
                     b->add32(inputs[offset]);
                 }
@@ -411,7 +419,7 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                 break;
             case SkSL::Layout::CType::kInt32: {
                 offset = SkAlign4(offset);
-                if (v->fModifiers.fLayout.fKey) {
+                if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
                     fKey += inputs[offset + 0];
                     fKey += inputs[offset + 1];
                     fKey += inputs[offset + 2];
@@ -423,7 +431,7 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
             }
             case SkSL::Layout::CType::kFloat: {
                 offset = SkAlign4(offset);
-                if (v->fModifiers.fLayout.fKey) {
+                if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
                     fKey += inputs[offset + 0];
                     fKey += inputs[offset + 1];
                     fKey += inputs[offset + 2];
@@ -436,7 +444,7 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
             case SkSL::Layout::CType::kSkPMColor:
             case SkSL::Layout::CType::kSkPMColor4f:
             case SkSL::Layout::CType::kSkRect:
-                if (v->fModifiers.fLayout.fKey) {
+                if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
                     for (size_t i = 0; i < sizeof(float) * 4; ++i) {
                         fKey += inputs[offset + i];
                     }
