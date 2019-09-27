@@ -199,10 +199,7 @@ private:
                           fWarnings;
 };
 
-std::unique_ptr<Sink> MakeSink(const char* fmt, const SkSize& animation_size) {
-    auto scale_matrix = SkMatrix::MakeRectToRect(SkRect::MakeSize(animation_size),
-                                                 SkRect::MakeIWH(FLAGS_width, FLAGS_height),
-                                                 SkMatrix::kCenter_ScaleToFit);
+std::unique_ptr<Sink> MakeSink(const char* fmt, const SkMatrix& scale_matrix) {
     if (0 == strcmp(fmt,  "png")) return  PNGSink::Make(scale_matrix);
     if (0 == strcmp(fmt,  "skp")) return  SKPSink::Make(scale_matrix);
     if (0 == strcmp(fmt, "null")) return NullSink::Make(scale_matrix);
@@ -257,6 +254,9 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    const auto scale_matrix = SkMatrix::MakeRectToRect(SkRect::MakeSize(anim->size()),
+                                                       SkRect::MakeIWH(FLAGS_width, FLAGS_height),
+                                                       SkMatrix::kCenter_ScaleToFit);
     logger->report();
 
     static constexpr double kMaxFrames = 10000;
@@ -278,14 +278,14 @@ int main(int argc, char** argv) {
         auto anim = skottie::Animation::Builder()
                             .setResourceProvider(rp)
                             .make(static_cast<const char*>(data->data()), data->size());
-        auto sink = MakeSink(FLAGS_format[0], anim->size());
+        auto sink = MakeSink(FLAGS_format[0], scale_matrix);
 #else
         thread_local static auto* anim =
                 skottie::Animation::Builder()
                     .setResourceProvider(rp)
                     .make(static_cast<const char*>(data->data()), data->size())
                     .release();
-        thread_local static auto* sink = MakeSink(FLAGS_format[0], anim->size()).release();
+        thread_local static auto* sink = MakeSink(FLAGS_format[0], scale_matrix).release();
 #endif
 
         if (sink && anim) {
