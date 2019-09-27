@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3edf5ff6_76c74579",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 775,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-09-27T15:42:41Z",
+      "side": 1,
+      "message": "I tried updating GLPrograms to only pick ops that would intersect the render target, but it was starting to get pretty complicated to change. Most of the shapes and view matrices have hardcoded values that we randomly pick from and some combinations intentionally produce shapes outside the RT. We\u0027d have to update all the random matrix calls to actually try to make random matrices that fit the requirements of the helper functoin (non perspective, rect stays rect, etc.), and then continually loop over picking new matrices still we get a shape and matrix combination that intersects the RT in device space (this also ignores things like random stroking, path effects, etc.).\n\nFor now it didn\u0027t seem worth the time to rewrite all the random op generation code to handle this.",
+      "range": {
+        "startLine": 774,
+        "startChar": 8,
+        "endLine": 775,
+        "endChar": 56
+      },
+      "revId": "7fdf2f9ebb541dd5b87b8c231770d8bfb60b829a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
