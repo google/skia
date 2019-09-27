@@ -79,6 +79,10 @@ void ParagraphBuilderImpl::addText(const char* text) {
     fUtf8.insert(fUtf8.size(), text);
 }
 
+void ParagraphBuilderImpl::addText(const char* text, size_t len) {
+    fUtf8.insert(fUtf8.size(), text, len);
+}
+
 void ParagraphBuilderImpl::addPlaceholder(const PlaceholderStyle& placeholderStyle) {
     addPlaceholder(placeholderStyle, false);
 }

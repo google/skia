@@ -144,6 +144,7 @@ DEF_TEST(SkParagraph_SimpleParagraph, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
     const char* text = "Hello World Text Dialog";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -153,7 +154,7 @@ DEF_TEST(SkParagraph_SimpleParagraph, reporter) {
     text_style.setFontFamilies({SkString("Roboto")});
     text_style.setColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -183,6 +184,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderParagraph, reporter) {
     if (!fontCollection->fontsFound()) return;
 
     const char* text = "012 34";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -198,36 +200,36 @@ DEF_TEST(SkParagraph_InlinePlaceholderParagraph, reporter) {
     text_style.setDecoration(TextDecoration::kUnderline);
     text_style.setDecorationColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
 
     PlaceholderStyle placeholder1(50, 50, PlaceholderAlignment::kBaseline, TextBaseline::kAlphabetic, 0);
     builder.addPlaceholder(placeholder1);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.addPlaceholder(placeholder1);
 
     PlaceholderStyle placeholder2(5, 50, PlaceholderAlignment::kBaseline, TextBaseline::kAlphabetic, 50);
     builder.addPlaceholder(placeholder2);
     builder.addPlaceholder(placeholder1);
     builder.addPlaceholder(placeholder2);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.addPlaceholder(placeholder2);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addPlaceholder(placeholder2);
-    builder.addPlaceholder(placeholder2);
+    builder.addText(text, len);
+    builder.addText(text, len);
     builder.addPlaceholder(placeholder2);
     builder.addPlaceholder(placeholder2);
     builder.addPlaceholder(placeholder2);
-    builder.addPlaceholder(placeholder1);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
+    builder.addPlaceholder(placeholder2);
     builder.addPlaceholder(placeholder2);
     builder.addPlaceholder(placeholder1);
-    builder.addText(text);
-    builder.addText(text);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addPlaceholder(placeholder2);
+    builder.addPlaceholder(placeholder1);
+    builder.addText(text, len);
+    builder.addText(text, len);
 
     builder.pop();
 
@@ -282,6 +284,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderBaselineParagraph, reporter) {
     if (!fontCollection->fontsFound()) return;
 
     const char* text = "012 34";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -297,11 +300,11 @@ DEF_TEST(SkParagraph_InlinePlaceholderBaselineParagraph, reporter) {
     text_style.setDecoration(TextDecoration::kUnderline);
     text_style.setDecorationColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
 
     PlaceholderStyle placeholder(55, 50, PlaceholderAlignment::kBaseline, TextBaseline::kAlphabetic, 38.347f);
     builder.addPlaceholder(placeholder);
-    builder.addText(text);
+    builder.addText(text, len);
 
     builder.pop();
 
@@ -338,6 +341,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderAboveBaselineParagraph, reporter) {
     if (!fontCollection->fontsFound()) return;
 
     const char* text = "012 34";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -353,11 +357,11 @@ DEF_TEST(SkParagraph_InlinePlaceholderAboveBaselineParagraph, reporter) {
     text_style.setDecoration(TextDecoration::kUnderline);
     text_style.setDecorationColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
 
     PlaceholderStyle placeholder(55, 50, PlaceholderAlignment::kAboveBaseline, TextBaseline::kAlphabetic, 903129.129308f);
     builder.addPlaceholder(placeholder);
-    builder.addText(text);
+    builder.addText(text, len);
 
     builder.pop();
 
@@ -394,6 +398,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderBelowBaselineParagraph, reporter) {
     if (!fontCollection->fontsFound()) return;
 
     const char* text = "012 34";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -409,11 +414,11 @@ DEF_TEST(SkParagraph_InlinePlaceholderBelowBaselineParagraph, reporter) {
     text_style.setDecoration(TextDecoration::kUnderline);
     text_style.setDecorationColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
 
     PlaceholderStyle placeholder(55, 50, PlaceholderAlignment::kBelowBaseline, TextBaseline::kAlphabetic, 903129.129308f);
     builder.addPlaceholder(placeholder);
-    builder.addText(text);
+    builder.addText(text, len);
 
     builder.pop();
 
@@ -450,6 +455,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderBottomParagraph, reporter) {
     if (!fontCollection->fontsFound()) return;
 
     const char* text = "012 34";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -465,11 +471,11 @@ DEF_TEST(SkParagraph_InlinePlaceholderBottomParagraph, reporter) {
     text_style.setDecoration(TextDecoration::kUnderline);
     text_style.setDecorationColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
 
     PlaceholderStyle placeholder(55, 50, PlaceholderAlignment::kBottom, TextBaseline::kAlphabetic, 0);
     builder.addPlaceholder(placeholder);
-    builder.addText(text);
+    builder.addText(text, len);
 
     builder.pop();
 
@@ -504,6 +510,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderTopParagraph, reporter) {
     if (!fontCollection->fontsFound()) return;
 
     const char* text = "012 34";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -519,11 +526,11 @@ DEF_TEST(SkParagraph_InlinePlaceholderTopParagraph, reporter) {
     text_style.setDecoration(TextDecoration::kUnderline);
     text_style.setDecorationColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
 
     PlaceholderStyle placeholder(55, 50, PlaceholderAlignment::kTop, TextBaseline::kAlphabetic, 0);
     builder.addPlaceholder(placeholder);
-    builder.addText(text);
+    builder.addText(text, len);
 
     builder.pop();
 
@@ -558,6 +565,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderMiddleParagraph, reporter) {
     if (!fontCollection->fontsFound()) return;
 
     const char* text = "012 34";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -573,11 +581,11 @@ DEF_TEST(SkParagraph_InlinePlaceholderMiddleParagraph, reporter) {
     text_style.setDecoration(TextDecoration::kUnderline);
     text_style.setDecorationColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
 
     PlaceholderStyle placeholder(55, 50, PlaceholderAlignment::kMiddle, TextBaseline::kAlphabetic, 0);
     builder.addPlaceholder(placeholder);
-    builder.addText(text);
+    builder.addText(text, len);
 
     builder.pop();
 
@@ -612,6 +620,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderIdeographicBaselineParagraph, reporter) {
     if (!fontCollection->fontsFound()) return;
 
     const char* text = "給能上目秘使";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -627,10 +636,10 @@ DEF_TEST(SkParagraph_InlinePlaceholderIdeographicBaselineParagraph, reporter) {
     text_style.setDecoration(TextDecoration::kUnderline);
     text_style.setDecorationColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     PlaceholderStyle placeholder(55, 50, PlaceholderAlignment::kBaseline, TextBaseline::kIdeographic, 38.347f);
     builder.addPlaceholder(placeholder);
-    builder.addText(text);
+    builder.addText(text, len);
 
     builder.pop();
 
@@ -665,6 +674,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderBreakParagraph, reporter) {
     if (!fontCollection->fontsFound()) return;
 
     const char* text = "012 34";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -680,7 +690,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderBreakParagraph, reporter) {
     text_style.setDecoration(TextDecoration::kUnderline);
     text_style.setDecorationColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
 
     PlaceholderStyle placeholder1(50, 50, PlaceholderAlignment::kBaseline, TextBaseline::kAlphabetic, 50);
     PlaceholderStyle placeholder2(25, 25, PlaceholderAlignment::kBaseline, TextBaseline::kAlphabetic, 12.5f);
@@ -690,7 +700,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderBreakParagraph, reporter) {
     builder.addPlaceholder(placeholder1);
     builder.addPlaceholder(placeholder2);
     builder.addPlaceholder(placeholder1);
-    builder.addText(text);
+    builder.addText(text, len);
 
     builder.addPlaceholder(placeholder1);
     builder.addPlaceholder(placeholder1);
@@ -714,41 +724,41 @@ DEF_TEST(SkParagraph_InlinePlaceholderBreakParagraph, reporter) {
     builder.addPlaceholder(placeholder2); // 7 + 1
 
     builder.addPlaceholder(placeholder1);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.addPlaceholder(placeholder1);
     builder.addPlaceholder(placeholder2);
 
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
 
     builder.addPlaceholder(placeholder2);
     builder.addPlaceholder(placeholder1);
 
-    builder.addText(text);
+    builder.addText(text, len);
 
     builder.addPlaceholder(placeholder2);
 
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
 
     builder.pop();
 
@@ -800,6 +810,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderGetRectsParagraph, reporter) {
     if (!fontCollection->fontsFound()) return;
 
     const char* text = "012 34";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -815,7 +826,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderGetRectsParagraph, reporter) {
     text_style.setDecoration(TextDecoration::kUnderline);
     text_style.setDecorationColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
 
     PlaceholderStyle placeholder1(50, 50, PlaceholderAlignment::kBaseline, TextBaseline::kAlphabetic, 50);
     PlaceholderStyle placeholder2(5, 20, PlaceholderAlignment::kBaseline, TextBaseline::kAlphabetic, 10);
@@ -844,7 +855,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderGetRectsParagraph, reporter) {
     builder.addPlaceholder(placeholder1);
     builder.addPlaceholder(placeholder1); // 8 + 0
 
-    builder.addText(text);
+    builder.addText(text, len);
 
     builder.addPlaceholder(placeholder1);
     builder.addPlaceholder(placeholder2);
@@ -853,17 +864,17 @@ DEF_TEST(SkParagraph_InlinePlaceholderGetRectsParagraph, reporter) {
     builder.addPlaceholder(placeholder2);
     builder.addPlaceholder(placeholder2); // 1 + 2
 
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);
-    builder.addText(text);  // 11
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);
+    builder.addText(text, len);  // 11
 
     builder.addPlaceholder(placeholder2);
     builder.addPlaceholder(placeholder1);
@@ -871,7 +882,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderGetRectsParagraph, reporter) {
     builder.addPlaceholder(placeholder1);
     builder.addPlaceholder(placeholder2);
 
-    builder.addText(text);
+    builder.addText(text, len);
 
     builder.pop();
 
@@ -926,6 +937,7 @@ DEF_TEST(SkParagraph_SimpleRedParagraph, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
     const char* text = "I am RED";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -935,7 +947,7 @@ DEF_TEST(SkParagraph_SimpleRedParagraph, reporter) {
     text_style.setFontFamilies({SkString("Roboto")});
     text_style.setColor(SK_ColorRED);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -987,7 +999,7 @@ DEF_TEST(SkParagraph_RainbowParagraph, reporter) {
 
     text_style1.setColor(SK_ColorRED);
     builder.pushStyle(text_style1);
-    builder.addText(text1);
+    builder.addText(text1, strlen(text1));
 
     TextStyle text_style2;
     text_style2.setFontFamilies({SkString("Roboto")});
@@ -1001,13 +1013,13 @@ DEF_TEST(SkParagraph_RainbowParagraph, reporter) {
     text_style2.setWordSpacing(30);
     text_style2.setColor(SK_ColorGREEN);
     builder.pushStyle(text_style2);
-    builder.addText(text2);
+    builder.addText(text2, strlen(text2));
 
     TextStyle text_style3;
     text_style3.setFontFamilies({SkString("Homemade Apple")});
     text_style3.setColor(SK_ColorBLACK);
     builder.pushStyle(text_style3);
-    builder.addText(text3);
+    builder.addText(text3, strlen(text3));
 
     TextStyle text_style4;
     text_style4.setFontFamilies({SkString("Roboto")});
@@ -1017,9 +1029,9 @@ DEF_TEST(SkParagraph_RainbowParagraph, reporter) {
             TextDecoration::kUnderline | TextDecoration::kOverline | TextDecoration::kLineThrough));
     text_style4.setColor(SK_ColorBLUE);
     builder.pushStyle(text_style4);
-    builder.addText(text4);
+    builder.addText(text4, strlen(text4));
 
-    builder.addText(text5);
+    builder.addText(text5, strlen(text5));
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -1086,6 +1098,7 @@ DEF_TEST(SkParagraph_DefaultStyleParagraph, reporter) {
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_DefaultStyleParagraph.png");
     const char* text = "No TextStyle! Uh Oh!";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     TextStyle defaultStyle;
@@ -1093,7 +1106,7 @@ DEF_TEST(SkParagraph_DefaultStyleParagraph, reporter) {
     paragraph_style.setTextStyle(defaultStyle);
     paragraph_style.turnHintingOff();
     ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-    builder.addText(text);
+    builder.addText(text, len);
 
     auto paragraph = builder.Build();
     paragraph->layout(TestCanvasWidth);
@@ -1123,6 +1136,7 @@ DEF_TEST(SkParagraph_BoldParagraph, reporter) {
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_BoldParagraph.png");
     const char* text = "This is Red max bold text!";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -1136,7 +1150,7 @@ DEF_TEST(SkParagraph_BoldParagraph, reporter) {
     text_style.setFontStyle(SkFontStyle(SkFontStyle::kBlack_Weight, SkFontStyle::kNormal_Width,
                                         SkFontStyle::kUpright_Slant));
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -1167,6 +1181,7 @@ DEF_TEST(SkParagraph_HeightOverrideParagraph, reporter) {
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_HeightOverrideParagraph.png");
     const char* text = "01234満毎冠行来昼本可\nabcd\n満毎冠行来昼本可";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -1180,7 +1195,7 @@ DEF_TEST(SkParagraph_HeightOverrideParagraph, reporter) {
     text_style.setHeight(3.6345f);
     text_style.setHeightOverride(true);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -1239,6 +1254,7 @@ DEF_TEST(SkParagraph_LeftAlignParagraph, reporter) {
             "velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint "
             "occaecat cupidatat non proident, sunt in culpa qui officia deserunt "
             "mollit anim id est laborum.";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.setMaxLines(14);
@@ -1256,7 +1272,7 @@ DEF_TEST(SkParagraph_LeftAlignParagraph, reporter) {
     text_style.setDecoration(TextDecoration::kUnderline);
     text_style.setDecorationColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -1323,6 +1339,7 @@ DEF_TEST(SkParagraph_RightAlignParagraph, reporter) {
             "velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint "
             "occaecat cupidatat non proident, sunt in culpa qui officia deserunt "
             "mollit anim id est laborum.";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.setMaxLines(14);
@@ -1340,7 +1357,7 @@ DEF_TEST(SkParagraph_RightAlignParagraph, reporter) {
     text_style.setDecoration(TextDecoration::kUnderline);
     text_style.setDecorationColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -1410,6 +1427,7 @@ DEF_TEST(SkParagraph_CenterAlignParagraph, reporter) {
             "velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint "
             "occaecat cupidatat non proident, sunt in culpa qui officia deserunt "
             "mollit anim id est laborum.";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.setMaxLines(14);
@@ -1427,7 +1445,7 @@ DEF_TEST(SkParagraph_CenterAlignParagraph, reporter) {
     text_style.setDecoration(TextDecoration::kUnderline);
     text_style.setDecorationColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -1495,6 +1513,7 @@ DEF_TEST(SkParagraph_JustifyAlignParagraph, reporter) {
             "veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea "
             "commodo consequat. Duis aute irure dolor in reprehenderit in voluptate "
             "velit esse cillum dolore eu fugiat.";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.setMaxLines(14);
@@ -1512,7 +1531,7 @@ DEF_TEST(SkParagraph_JustifyAlignParagraph, reporter) {
     text_style.setDecoration(TextDecoration::kUnderline);
     text_style.setDecorationColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -1571,6 +1590,7 @@ DEF_TEST(SkParagraph_JustifyRTL, reporter) {
             "אאא בּבּבּבּ אאאא בּבּ אאא בּבּבּ אאאאא בּבּבּבּ אאאא בּבּבּבּבּ "
             "אאאאא בּבּבּבּבּ אאאבּבּבּבּבּבּאאאאא בּבּבּבּבּבּאאאאאבּבּבּבּבּבּ אאאאא בּבּבּבּבּ "
             "אאאאא בּבּבּבּבּבּ אאאאא בּבּבּבּבּבּ אאאאא בּבּבּבּבּבּ אאאאא בּבּבּבּבּבּ אאאאא בּבּבּבּבּבּ";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.setMaxLines(14);
@@ -1583,7 +1603,7 @@ DEF_TEST(SkParagraph_JustifyRTL, reporter) {
     text_style.setFontSize(26);
     text_style.setColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -1630,6 +1650,12 @@ DEF_TEST(SkParagraph_DecorationsParagraph, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_DecorationsParagraph.png");
+    const char* text1 = "This text should be";
+    const char* text2 = " decorated even when";
+    const char* text3 = " wrapped around to";
+    const char* text4 = " the next line.";
+    const char* text5 = " Otherwise, bad things happen.";
+
     ParagraphStyle paragraph_style;
     paragraph_style.setMaxLines(14);
     paragraph_style.setTextAlign(TextAlign::kLeft);
@@ -1651,30 +1677,30 @@ DEF_TEST(SkParagraph_DecorationsParagraph, reporter) {
     text_style.setDecorationColor(SK_ColorBLACK);
     text_style.setDecorationThicknessMultiplier(2.0);
     builder.pushStyle(text_style);
-    builder.addText("This text should be");
+    builder.addText(text1, strlen(text1));
 
     text_style.setDecorationStyle(TextDecorationStyle::kDouble);
     text_style.setDecorationColor(SK_ColorBLUE);
     text_style.setDecorationThicknessMultiplier(1.0);
     builder.pushStyle(text_style);
-    builder.addText(" decorated even when");
+    builder.addText(text2, strlen(text2));
 
     text_style.setDecorationStyle(TextDecorationStyle::kDotted);
     text_style.setDecorationColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(" wrapped around to");
+    builder.addText(text3, strlen(text3));
 
     text_style.setDecorationStyle(TextDecorationStyle::kDashed);
     text_style.setDecorationColor(SK_ColorBLACK);
     text_style.setDecorationThicknessMultiplier(3.0);
     builder.pushStyle(text_style);
-    builder.addText(" the next line.");
+    builder.addText(text4, strlen(text4));
 
     text_style.setDecorationStyle(TextDecorationStyle::kWavy);
     text_style.setDecorationColor(SK_ColorRED);
     text_style.setDecorationThicknessMultiplier(1.0);
     builder.pushStyle(text_style);
-    builder.addText(" Otherwise, bad things happen.");
+    builder.addText(text5, strlen(text5));
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -1748,6 +1774,10 @@ DEF_TEST(SkParagraph_ItalicsParagraph, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_ItalicsParagraph.png");
+    const char* text1 = "No italic ";
+    const char* text2 = "Yes Italic ";
+    const char* text3 = "No Italic again.";
+
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
     ParagraphBuilderImpl builder(paragraph_style, fontCollection);
@@ -1757,14 +1787,14 @@ DEF_TEST(SkParagraph_ItalicsParagraph, reporter) {
     text_style.setFontSize(10);
     text_style.setColor(SK_ColorRED);
     builder.pushStyle(text_style);
-    builder.addText("No italic ");
+    builder.addText(text1, strlen(text1));
 
     text_style.setFontStyle(SkFontStyle(SkFontStyle::kNormal_Weight, SkFontStyle::kNormal_Width,
                                         SkFontStyle::kItalic_Slant));
     builder.pushStyle(text_style);
-    builder.addText("Yes Italic ");
+    builder.addText(text2, strlen(text2));
     builder.pop();
-    builder.addText("No Italic again.");
+    builder.addText(text3, strlen(text3));
 
     auto paragraph = builder.Build();
     paragraph->layout(TestCanvasWidth);
@@ -1815,6 +1845,7 @@ DEF_TEST(SkParagraph_ChineseParagraph, reporter) {
             "際輝求佐抗蒼提夜合逃表。注統天言件自謙雅載報紙喪。作画稿愛器灯女書利変探"
             "訃第金線朝開化建。子戦年帝励害表月幕株漠新期刊人秘。図的海力生禁挙保天戦"
             "聞条年所在口。";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.setMaxLines(14);
@@ -1835,7 +1866,7 @@ DEF_TEST(SkParagraph_ChineseParagraph, reporter) {
     text_style.setDecorationColor(SK_ColorBLACK);
     text_style.setDecorationStyle(TextDecorationStyle::kSolid);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -1858,6 +1889,7 @@ DEF_TEST(SkParagraph_ArabicParagraph, reporter) {
     const char* text =
             "من أسر وإعلان الخاصّة وهولندا،, عل قائمة الضغوط بالمطالبة تلك. الصفحة "
             "بمباركة التقليدية قام عن. تصفح";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.setMaxLines(14);
@@ -1877,7 +1909,7 @@ DEF_TEST(SkParagraph_ArabicParagraph, reporter) {
     text_style.setDecorationColor(SK_ColorBLACK);
     text_style.setDecorationStyle(TextDecorationStyle::kSolid);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -1899,6 +1931,7 @@ DEF_TEST(SkParagraph_ArabicRectsParagraph, reporter) {
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_ArabicRectsParagraph.png");
     const char* text = "بمباركة التقليدية قام عن. تصفح يد    ";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -1915,7 +1948,7 @@ DEF_TEST(SkParagraph_ArabicRectsParagraph, reporter) {
     text_style.setDecoration(TextDecoration::kUnderline);
     text_style.setDecorationColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -1946,6 +1979,7 @@ DEF_TEST(SkParagraph_ArabicRectsLTRLeftAlignParagraph, reporter) {
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_ArabicRectsLTRLeftAlignParagraph.png");
     const char* text = "Helloبمباركة التقليدية قام عن. تصفح يد ";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -1962,7 +1996,7 @@ DEF_TEST(SkParagraph_ArabicRectsLTRLeftAlignParagraph, reporter) {
     text_style.setDecoration(TextDecoration::kUnderline);
     text_style.setDecorationColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -1992,6 +2026,7 @@ DEF_TEST(SkParagraph_ArabicRectsLTRRightAlignParagraph, reporter) {
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_ArabicRectsLTRRightAlignParagraph.png");
     const char* text = "Helloبمباركة التقليدية قام عن. تصفح يد ";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -2008,7 +2043,7 @@ DEF_TEST(SkParagraph_ArabicRectsLTRRightAlignParagraph, reporter) {
     text_style.setDecoration(TextDecoration::kUnderline);
     text_style.setDecorationColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -2040,6 +2075,7 @@ DEF_TEST(SkParagraph_GetGlyphPositionAtCoordinateParagraph, reporter) {
     const char* text =
             "12345 67890 12345 67890 12345 67890 12345 67890 12345 67890 12345 "
             "67890 12345";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraphStyle;
     paragraphStyle.setTextAlign(TextAlign::kLeft);
@@ -2057,7 +2093,7 @@ DEF_TEST(SkParagraph_GetGlyphPositionAtCoordinateParagraph, reporter) {
 
     ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
     builder.pushStyle(textStyle);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -2104,6 +2140,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeParagraph, reporter) {
     const char* text =
             "12345,  \"67890\" 12345 67890 12345 67890 12345 67890 12345 67890 12345 "
             "67890 12345";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraphStyle;
     paragraphStyle.setTextAlign(TextAlign::kLeft);
@@ -2118,7 +2155,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeParagraph, reporter) {
 
     ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
     builder.pushStyle(textStyle);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -2201,6 +2238,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeTight, reporter) {
             "(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)("
             "　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)("
             "　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraphStyle;
     paragraphStyle.setTextAlign(TextAlign::kLeft);
@@ -2215,7 +2253,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeTight, reporter) {
 
     ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
     builder.pushStyle(textStyle);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -2266,6 +2304,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingMiddle, reporter) {
             "(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)("
             "　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)("
             "　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraphStyle;
     paragraphStyle.setTextAlign(TextAlign::kLeft);
@@ -2282,7 +2321,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingMiddle, reporter) {
 
     ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
     builder.pushStyle(textStyle);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -2387,6 +2426,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingTop, reporter) {
             "(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)("
             "　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)("
             "　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraphStyle;
     paragraphStyle.setTextAlign(TextAlign::kLeft);
@@ -2403,7 +2443,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingTop, reporter) {
 
     ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
     builder.pushStyle(textStyle);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -2508,6 +2548,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingBottom, reporter) {
             "(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)("
             "　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)("
             "　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)(　´･‿･｀)";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraphStyle;
     paragraphStyle.setTextAlign(TextAlign::kLeft);
@@ -2524,7 +2565,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingBottom, reporter) {
 
     ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
     builder.pushStyle(textStyle);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -2626,6 +2667,8 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeCombiningCharacter, reporter) {
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_GetRectsForRangeIncludeCombiningCharacter.png");
     const char* text = "ดีสวัสดีชาวโลกที่น่ารัก";
+    const size_t len = strlen(text);
+
     ParagraphStyle paragraphStyle;
     paragraphStyle.setTextAlign(TextAlign::kLeft);
     paragraphStyle.setMaxLines(10);
@@ -2641,7 +2684,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeCombiningCharacter, reporter) {
     textStyle.setColor(SK_ColorBLACK);
 
     builder.pushStyle(textStyle);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -2692,6 +2735,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeCenterParagraph, reporter) {
     // Any attempt to substitute one for another leads to errors
     // (for instance, some fonts can use these hard coded characters for something that is visible)
     const char* text = "01234  　 ";   // includes ideographic space and english space.
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraphStyle;
     paragraphStyle.setTextAlign(TextAlign::kCenter);
@@ -2708,7 +2752,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeCenterParagraph, reporter) {
                                        SkFontStyle::kUpright_Slant));
 
     builder.pushStyle(textStyle);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -2785,6 +2829,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeCenterParagraphNewlineCentered, reporter) {
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_GetRectsForRangeCenterParagraphNewlineCentered.png");
     const char* text = "01234\n";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraphStyle;
     paragraphStyle.setTextAlign(TextAlign::kCenter);
@@ -2801,7 +2846,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeCenterParagraphNewlineCentered, reporter) {
                                        SkFontStyle::kUpright_Slant));
 
     builder.pushStyle(textStyle);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -2846,6 +2891,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeCenterMultiLineParagraph, reporter) {
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_GetRectsForRangeCenterMultiLineParagraph.png");
     const char* text = "01234  　 \n0123　        "; // includes ideographic space and english space.
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraphStyle;
     paragraphStyle.setTextAlign(TextAlign::kCenter);
@@ -2862,7 +2908,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeCenterMultiLineParagraph, reporter) {
                                        SkFontStyle::kUpright_Slant));
 
     builder.pushStyle(textStyle);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -2947,6 +2993,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeStrut, reporter) {
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_GetRectsForRangeStrut.png");
     const char* text = "Chinese 字典";
+    const size_t len = strlen(text);
 
     StrutStyle strutStyle;
     strutStyle.setStrutEnabled(true);
@@ -2963,7 +3010,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeStrut, reporter) {
 
     ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
     builder.pushStyle(textStyle);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -2993,6 +3040,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeStrutFallback, reporter) {
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_GetRectsForRangeStrutFallback.png");
     const char* text = "Chinese 字典";
+    const size_t len = strlen(text);
 
     StrutStyle strutStyle;
     strutStyle.setStrutEnabled(false);
@@ -3007,7 +3055,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeStrutFallback, reporter) {
 
     ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
     builder.pushStyle(textStyle);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -3031,6 +3079,9 @@ DEF_TEST(SkParagraph_GetWordBoundaryParagraph, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_GetWordBoundaryParagraph.png");
+    const char* text = "12345  67890 12345 67890 12345 67890 12345 "
+                       "67890 12345 67890 12345 67890 12345";
+    const size_t len = strlen(text);
     ParagraphStyle paragraphStyle;
     paragraphStyle.setTextAlign(TextAlign::kLeft);
     paragraphStyle.setMaxLines(10);
@@ -3046,8 +3097,7 @@ DEF_TEST(SkParagraph_GetWordBoundaryParagraph, reporter) {
 
     ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
     builder.pushStyle(textStyle);
-    builder.addText(
-            "12345  67890 12345 67890 12345 67890 12345 67890 12345 67890 12345 67890 12345");
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -3096,8 +3146,8 @@ DEF_TEST(SkParagraph_GetWordBoundaryParagraph, reporter) {
     boxes = paragraph->getRectsForRange(31, 32, RectHeightStyle::kMax, RectWidthStyle::kTight);
     canvas.drawLines(SK_ColorRED, boxes);
 
-    auto len = static_cast<ParagraphImpl*>(paragraph.get())->text().size();
-    REPORTER_ASSERT(reporter, paragraph->getWordBoundary(len - 1) == SkRange<size_t>(len - 5, len));
+    auto outLen = static_cast<ParagraphImpl*>(paragraph.get())->text().size();
+    REPORTER_ASSERT(reporter, paragraph->getWordBoundary(outLen - 1) == SkRange<size_t>(outLen - 5, outLen));
 }
 
 // Checked: DIFF (unclear)
@@ -3118,44 +3168,47 @@ DEF_TEST(SkParagraph_SpacingParagraph, reporter) {
     text_style.setWordSpacing(0);
     text_style.setColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText("H");
+    builder.addText("H", 1);
     builder.pop();
 
     text_style.setLetterSpacing(10);
     text_style.setWordSpacing(0);
     builder.pushStyle(text_style);
-    builder.addText("H");
+    builder.addText("H", 1);
     builder.pop();
 
     text_style.setLetterSpacing(20);
     text_style.setWordSpacing(0);
     builder.pushStyle(text_style);
-    builder.addText("H");
+    builder.addText("H", 1);
     builder.pop();
 
     text_style.setLetterSpacing(0);
     text_style.setWordSpacing(0);
     builder.pushStyle(text_style);
-    builder.addText("|");
+    builder.addText("|", 1);
     builder.pop();
+
+    const char* hSpace = "H ";
+    const size_t len = strlen(hSpace);
 
     text_style.setLetterSpacing(0);
     text_style.setWordSpacing(20);
     builder.pushStyle(text_style);
-    builder.addText("H ");
+    builder.addText(hSpace, len);
     builder.pop();
 
     text_style.setLetterSpacing(0);
     text_style.setWordSpacing(0);
     builder.pushStyle(text_style);
-    builder.addText("H ");
+    builder.addText(hSpace, len);
     builder.pop();
 
     text_style.setLetterSpacing(0);
     text_style.setLetterSpacing(0);
     text_style.setWordSpacing(20);
     builder.pushStyle(text_style);
-    builder.addText("H ");
+    builder.addText(hSpace, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -3189,6 +3242,7 @@ DEF_TEST(SkParagraph_LongWordParagraph, reporter) {
             "A "
             "veryverylongwordtoseewherethiswillwraporifitwillatallandifitdoesthenthat"
             "wouldbeagoodthingbecausethebreakingisworking.";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -3203,7 +3257,7 @@ DEF_TEST(SkParagraph_LongWordParagraph, reporter) {
     text_style.setColor(SK_ColorBLACK);
     text_style.setHeight(1);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -3240,14 +3294,14 @@ DEF_TEST(SkParagraph_KernScaleParagraph, reporter) {
     text_style.setColor(SK_ColorBLACK);
 
     builder.pushStyle(text_style);
-    builder.addText(text1);
+    builder.addText(text1, strlen(text1));
     builder.pushStyle(text_style);
-    builder.addText("A");
+    builder.addText("A", 1);
     builder.pushStyle(text_style);
-    builder.addText("V");
+    builder.addText("V", 1);
     text_style.setFontSize(14 / scale);
     builder.pushStyle(text_style);
-    builder.addText(text2);
+    builder.addText(text2, strlen(text2));
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -3276,6 +3330,8 @@ DEF_TEST(SkParagraph_NewlineParagraph, reporter) {
     const char* text =
             "line1\nline2 test1 test2 test3 test4 test5 test6 test7\nline3\n\nline4 "
             "test1 test2 test3 test4";
+    const size_t len = strlen(text);
+
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
     ParagraphBuilderImpl builder(paragraph_style, fontCollection);
@@ -3287,7 +3343,7 @@ DEF_TEST(SkParagraph_NewlineParagraph, reporter) {
     text_style.setColor(SK_ColorBLACK);
     text_style.setHeight(1);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -3317,6 +3373,7 @@ DEF_TEST(SkParagraph_EmojiParagraph, reporter) {
       💼👡👠☂🐶🐰🐻🐼🐷🐒🐵🐔🐧🐦🐋🐟🐡🕸🐌🐴🐊🐄🐪🐘🌸🌏🔥🌟🌚🌝💦💧\
       ❄🍕🍔🍟🥝🍱🕶🎩🏈⚽🚴‍♀️🎻🎼🎹🚨🚎🚐⚓🛳🚀🚁🏪🏢🖱⏰📱💾💉📉🛏🔑🔓\
       📁🗓📊❤💯🚫🔻♠♣🕓❗🏳🏁🏳️‍🌈🇮🇹🇱🇷🇺🇸🇬🇧🇨🇳🇧🇴";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -3328,7 +3385,7 @@ DEF_TEST(SkParagraph_EmojiParagraph, reporter) {
     text_style.setDecoration(TextDecoration::kUnderline);
     text_style.setColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -3360,6 +3417,7 @@ DEF_TEST(SkParagraph_EmojiMultiLineRectsParagraph, reporter) {
       "👩‍👩‍👦👩‍👩‍👧‍👧🇺🇸👩‍👩‍👦👩‍👩‍👧‍👧🇺🇸👩‍👩‍👦👩‍👩‍👧‍👧🇺🇸👩‍👩‍👦👩‍👩‍👧‍👧🇺🇸"
       "❄🍕🍔🍟🥝🍱🕶🎩🏈⚽🚴‍♀️🎻🎼🎹🚨🚎🚐⚓🛳🚀🚁🏪🏢🖱⏰📱💾💉📉🛏🔑🔓"
       "📁🗓📊❤💯🚫🔻♠♣🕓❗🏳🏁🏳️‍🌈🇮🇹🇱🇷🇺🇸🇬🇧🇨🇳🇧🇴";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -3370,7 +3428,7 @@ DEF_TEST(SkParagraph_EmojiMultiLineRectsParagraph, reporter) {
     text_style.setFontSize(50);
     text_style.setColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -3421,6 +3479,7 @@ DEF_TEST(SkParagraph_RepeatLayoutParagraph, reporter) {
             "short words short words short words short words short words short words "
             "short words short words short words short words short words short words "
             "end";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -3431,7 +3490,7 @@ DEF_TEST(SkParagraph_RepeatLayoutParagraph, reporter) {
     text_style.setFontSize(31);
     text_style.setColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -3459,6 +3518,7 @@ DEF_TEST(SkParagraph_Ellipsize, reporter) {
             "This is a very long sentence to test if the text will properly wrap "
             "around and go to the next line. Sometimes, short sentence. Longer "
             "sentences are okay too because they are nessecary. Very short. ";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.setMaxLines(1);
@@ -3470,7 +3530,7 @@ DEF_TEST(SkParagraph_Ellipsize, reporter) {
     text_style.setFontFamilies({SkString("Roboto")});
     text_style.setColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -3506,11 +3566,11 @@ DEF_TEST(SkParagraph_UnderlineShiftParagraph, reporter) {
     text_style.setFontFamilies({SkString("Roboto")});
     text_style.setColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text1);
+    builder.addText(text1, strlen(text1));
     text_style.setDecoration(TextDecoration::kUnderline);
     text_style.setDecorationColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text2);
+    builder.addText(text2, strlen(text2));
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -3522,7 +3582,7 @@ DEF_TEST(SkParagraph_UnderlineShiftParagraph, reporter) {
     ParagraphBuilderImpl builder1(paragraph_style, fontCollection);
     text_style.setDecoration(TextDecoration::kNoDecoration);
     builder1.pushStyle(text_style);
-    builder1.addText(text3);
+    builder1.addText(text3, strlen(text3));
     builder1.pop();
 
     auto paragraph1 = builder1.Build();
@@ -3565,6 +3625,7 @@ DEF_TEST(SkParagraph_SimpleShadow, reporter) {
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_SimpleShadow.png");
     const char* text = "Hello World Text Dialog";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -3575,7 +3636,7 @@ DEF_TEST(SkParagraph_SimpleShadow, reporter) {
     text_style.setColor(SK_ColorBLACK);
     text_style.addShadow(TextShadow(SK_ColorBLACK, SkPoint::Make(2.0f, 2.0f), 1.0));
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
 
     auto paragraph = builder.Build();
     paragraph->layout(TestCanvasWidth);
@@ -3602,6 +3663,7 @@ DEF_TEST(SkParagraph_ComplexShadow, reporter) {
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_ComplexShadow.png");
     const char* text = "Text Chunk ";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -3612,22 +3674,22 @@ DEF_TEST(SkParagraph_ComplexShadow, reporter) {
     text_style.setColor(SK_ColorBLACK);
     text_style.addShadow(TextShadow(SK_ColorBLACK, SkPoint::Make(2.0f, 2.0f), 1.0f));
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
 
     text_style.addShadow(TextShadow(SK_ColorRED, SkPoint::Make(2.0f, 2.0f), 5.0f));
     text_style.addShadow(TextShadow(SK_ColorGREEN, SkPoint::Make(10.0f, -5.0f), 3.0f));
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
-    builder.addText(text);
+    builder.addText(text, len);
 
     text_style.addShadow(TextShadow(SK_ColorRED, SkPoint::Make(0.0f, 1.0f), 0.0f));
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
-    builder.addText(text);
+    builder.addText(text, len);
 
     auto paragraph = builder.Build();
     paragraph->layout(TestCanvasWidth);
@@ -3673,6 +3735,7 @@ DEF_TEST(SkParagraph_BaselineParagraph, reporter) {
     const char* text =
             "左線読設Byg後碁給能上目秘使約。満毎冠行来昼本可必図将発確年。今属場育"
             "図情闘陰野高備込制詩西校客。審対江置講今固残必託地集済決維駆年策。立得";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -3689,7 +3752,7 @@ DEF_TEST(SkParagraph_BaselineParagraph, reporter) {
     text_style.setDecorationStyle(TextDecorationStyle::kSolid);
     text_style.setDecorationColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -3737,7 +3800,7 @@ DEF_TEST(SkParagraph_FontFallbackParagraph, reporter) {
     });
     text_style.setColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text1);
+    builder.addText(text1, strlen(text1));
 
     text_style.setFontFamilies({
             SkString("Not a real font"),
@@ -3751,7 +3814,7 @@ DEF_TEST(SkParagraph_FontFallbackParagraph, reporter) {
             SkString("Source Han Serif CN"),
     });
     builder.pushStyle(text_style);
-    builder.addText(text2);
+    builder.addText(text2, strlen(text2));
 
     text_style.setFontFamilies({
             SkString("Not a real font"),
@@ -3765,7 +3828,7 @@ DEF_TEST(SkParagraph_FontFallbackParagraph, reporter) {
             SkString("Noto Sans CJK JP"),
     });
     builder.pushStyle(text_style);
-    builder.addText(text3);
+    builder.addText(text3, strlen(text3));
 
     builder.pop();
 
@@ -3803,6 +3866,7 @@ DEF_TEST(SkParagraph_StrutParagraph1, reporter) {
     TestCanvas canvas("SkParagraph_StrutParagraph1.png");
     // The chinese extra height should be absorbed by the strut.
     const char* text = "01234満毎冠p来É本可\nabcd\n満毎É行p昼本可";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.setMaxLines(10);
@@ -3827,7 +3891,7 @@ DEF_TEST(SkParagraph_StrutParagraph1, reporter) {
     text_style.setColor(SK_ColorBLACK);
     text_style.setHeight(0.5f);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -3907,6 +3971,7 @@ DEF_TEST(SkParagraph_StrutParagraph2, reporter) {
     TestCanvas canvas("SkParagraph_StrutParagraph2.png");
     // The chinese extra height should be absorbed by the strut.
     const char* text = "01234ABCDEFGH\nabcd\nABCDEFGH";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.setMaxLines(10);
@@ -3932,7 +3997,7 @@ DEF_TEST(SkParagraph_StrutParagraph2, reporter) {
     text_style.setColor(SK_ColorBLACK);
     text_style.setHeight(1);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -4014,6 +4079,7 @@ DEF_TEST(SkParagraph_StrutParagraph3, reporter) {
 
     // The chinese extra height should be absorbed by the strut.
     const char* text = "01234満毎p行来昼本可\nabcd\n満毎冠行来昼本可";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.setMaxLines(10);
@@ -4038,7 +4104,7 @@ DEF_TEST(SkParagraph_StrutParagraph3, reporter) {
     text_style.setColor(SK_ColorBLACK);
     text_style.setHeight(1);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -4119,6 +4185,7 @@ DEF_TEST(SkParagraph_StrutForceParagraph, reporter) {
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_StrutForceParagraph.png");
     const char* text = "01234満毎冠行来昼本可\nabcd\n満毎冠行来昼本可";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.setMaxLines(10);
@@ -4144,7 +4211,7 @@ DEF_TEST(SkParagraph_StrutForceParagraph, reporter) {
     text_style.setColor(SK_ColorBLACK);
     text_style.setHeight(1);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -4218,6 +4285,7 @@ DEF_TEST(SkParagraph_StrutDefaultParagraph, reporter) {
     TestCanvas canvas("SkParagraph_StrutDefaultParagraph.png");
 
     const char* text = "01234満毎冠行来昼本可\nabcd\n満毎冠行来昼本可";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.setMaxLines(10);
@@ -4240,7 +4308,7 @@ DEF_TEST(SkParagraph_StrutDefaultParagraph, reporter) {
     text_style.setFontSize(20);
     text_style.setColor(SK_ColorBLACK);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -4284,6 +4352,8 @@ DEF_TEST(SkParagraph_WhitespacesInMultipleFonts, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
     const char* text = "English English 字典 字典 😀😃😄 😀😃😄";
+    const size_t len = strlen(text);
+
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
     ParagraphBuilderImpl builder(paragraph_style, fontCollection);
@@ -4293,7 +4363,7 @@ DEF_TEST(SkParagraph_WhitespacesInMultipleFonts, reporter) {
             {SkString("Roboto"), SkString("Noto Color Emoji"), SkString("Source Han Serif CN")});
     text_style.setFontSize(60);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -4309,6 +4379,7 @@ DEF_TEST(SkParagraph_JSON1, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
     const char* text = "👨‍👩‍👧‍👦";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -4317,7 +4388,7 @@ DEF_TEST(SkParagraph_JSON1, reporter) {
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Noto Color Emoji")});
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -4346,6 +4417,7 @@ DEF_TEST(SkParagraph_JSON2, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
     const char* text = "p〠q";
+    const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
@@ -4356,7 +4428,7 @@ DEF_TEST(SkParagraph_JSON2, reporter) {
     text_style.setColor(SK_ColorBLACK);
     text_style.setFontSize(50);
     builder.pushStyle(text_style);
-    builder.addText(text);
+    builder.addText(text, len);
     builder.pop();
 
     auto paragraph = builder.Build();
@@ -4400,7 +4472,7 @@ DEF_TEST(SkParagraph_CacheText, reporter) {
     auto test = [&](const char* text, int count, bool expectedToBeFound) {
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         builder.pushStyle(text_style);
-        builder.addText(text);
+        builder.addText(text, strlen(text));
         builder.pop();
         auto paragraph = builder.Build();
 
@@ -4430,10 +4502,13 @@ DEF_TEST(SkParagraph_CacheFonts, reporter) {
     TextStyle text_style;
     text_style.setColor(SK_ColorBLACK);
 
+    const char* text = "text";
+    const size_t len = strlen(text);
+
     auto test = [&](int count, bool expectedToBeFound) {
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         builder.pushStyle(text_style);
-        builder.addText("text");
+        builder.addText(text, len);
         builder.pop();
         auto paragraph = builder.Build();
         auto impl = static_cast<ParagraphImpl*>(paragraph.get());
@@ -4478,11 +4553,11 @@ DEF_TEST(SkParagraph_CacheFontRanges, reporter) {
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         text_style.setFontFamilies({SkString(font1)});
         builder.pushStyle(text_style);
-        builder.addText(text1);
+        builder.addText(text1, strlen(text1));
         builder.pop();
         text_style.setFontFamilies({SkString(font2)});
         builder.pushStyle(text_style);
-        builder.addText(text2);
+        builder.addText(text2, strlen(text2));
         builder.pop();
         auto paragraph = builder.Build();
         auto impl = static_cast<ParagraphImpl*>(paragraph.get());
@@ -4515,10 +4590,13 @@ DEF_TEST(SkParagraph_CacheStyles, reporter) {
     text_style.setFontFamilies({SkString("Roboto")});
     text_style.setColor(SK_ColorBLACK);
 
+    const char* text = "text";
+    const size_t len = strlen(text);
+
     auto test = [&](int count, bool expectedToBeFound) {
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         builder.pushStyle(text_style);
-        builder.addText("text");
+        builder.addText(text, len);
         builder.pop();
         auto paragraph = builder.Build();
         auto impl = static_cast<ParagraphImpl*>(paragraph.get());
@@ -4552,12 +4630,32 @@ DEF_TEST(SkParagraph_EmptyParagraphWithLineBreak, reporter) {
     text_style.setFontSize(16);
     text_style.setFontFamilies({SkString("Roboto")});
     ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-    builder.addText("\n");
+    builder.addText("\n", 1);
 
     auto paragraph = builder.Build();
     paragraph->layout(TestCanvasWidth);
     paragraph->paint(canvas.get(), 0, 0);
     auto result = paragraph->GetRectsForPlaceholders();
+}
+
+DEF_TEST(SkParagraph_NullInMiddleOfText, reporter) {
+    sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+    TestCanvas canvas("SkParagraph_NullInMiddleOfText.png");
+
+    const SkString text("null terminator ->\u0000<- on purpose did you see it?");
+
+    ParagraphStyle paragraph_style;
+    TextStyle text_style;
+    text_style.setFontSize(16);
+    text_style.setFontFamilies({SkString("Roboto")});
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    builder.addText(text.c_str(), text.size());
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+    paragraph->paint(canvas.get(), 0, 0);
 }
 
 DEF_TEST(SkParagraph_PlaceholderOnly, reporter) {
@@ -4584,6 +4682,7 @@ DEF_TEST(SkParagraph_Fallbacks, reporter) {
     TestCanvas canvas("SkParagraph_Fallbacks.png");
 
     const char* multiScript = "A1!aÀàĀāƁƀḂⱠꜲꬰəͲἀἏЀЖԠꙐꙮՁخ‎ࡔࠇܦআਉઐଘஇఘಧൺඣᭆᯔᮯ᳇ꠈᜅᩌꪈ༇ꥄꡙꫤ᧰៘꧁꧂ᜰᨏᯤᢆᣭᗗꗃⵞ𐒎߷ጩꬤ𖠺‡₩℻Ⅷ↹⋇⏳ⓖ╋▒◛⚧⑆שׁ🅕㊼龜ポ䷤🂡\n";
+    const size_t len = strlen(multiScript);
 
     const char* androidFonts[] = {
         "sans-serif",
@@ -4608,7 +4707,7 @@ DEF_TEST(SkParagraph_Fallbacks, reporter) {
 
         text_style.setFontFamilies({ SkString(font) });
         builder.pushStyle(text_style);
-        builder.addText(multiScript);
+        builder.addText(multiScript, len);
 
         builder.pop();
 

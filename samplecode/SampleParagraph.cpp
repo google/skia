@@ -90,7 +90,7 @@ protected:
             paraStyle.setTextStyle(defaultStyle);
             ParagraphBuilderImpl builder(paraStyle, fontCollection);
             std::string name = "Paragraph: " + std::to_string(24 * i);
-            builder.addText(name.c_str());
+            builder.addText(name.c_str(), name.length());
             for (auto para : gParagraph) {
                 TextStyle style;
                 style.setFontFamilies({SkString(std::get<0>(para).c_str())});
@@ -133,7 +133,7 @@ protected:
                                    (std::get<5>(para) != fg ? ", foreground" : "") +
                                    (std::get<6>(para) ? ", shadow" : "") +
                                    (test ? ", decorations " + deco : "") + ";";
-                builder.addText(name.c_str());
+                builder.addText(name.c_str(), name.length());
                 builder.pop();
             }
 
@@ -189,23 +189,31 @@ protected:
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
         ParagraphBuilderImpl builder(paraStyle, fontCollection);
 
+        const char* text1 = "RaisedButton";
+        const char* text2 = "(\n";
+        const char* text3 = "  child: ";
+        const char* text4 = "const";
+        const char* text5 = "Text";
+        const char* text6 = "'BUTTON TITLE'";
+        const char* text7 = "),\n";
+
         builder.pushStyle(style(name));
-        builder.addText("RaisedButton");
+        builder.addText(text1, strlen(text1));
         builder.pop();
-        builder.addText("(\n");
-        builder.addText("  child: ");
+        builder.addText(text2, strlen(text2));
+        builder.addText(text3, strlen(text3));
         builder.pushStyle(style(constant));
-        builder.addText("const");
+        builder.addText(text4, strlen(text4));
         builder.pop();
-        builder.addText(" ");
+        builder.addText(" ", 1);
         builder.pushStyle(style(name));
-        builder.addText("Text");
+        builder.addText(text5, strlen(text5));
         builder.pop();
-        builder.addText("(");
+        builder.addText("(", 1);
         builder.pushStyle(style(literal));
-        builder.addText("'BUTTON TITLE'");
+        builder.addText(text6, strlen(text6));
         builder.pop();
-        builder.addText("),\n");
+        builder.addText(text7, strlen(text7));
 
         auto paragraph = builder.Build();
         paragraph->layout(w - 20);
@@ -270,7 +278,7 @@ protected:
 
         for (auto& part : text) {
             builder.pushStyle(style);
-            builder.addText(part);
+            builder.addText(part, strlen(part));
             builder.pop();
         }
 
@@ -309,7 +317,7 @@ protected:
         auto fontCollection = sk_make_sp<FontCollection>();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
         ParagraphBuilderImpl builder(paraStyle, fontCollection);
-        builder.addText(text.c_str());
+        builder.addText(text.c_str(), text.length());
 
         auto paragraph = builder.Build();
         paragraph->layout(w - margin * 2);
@@ -608,28 +616,28 @@ protected:
             ParagraphBuilderImpl builder(paraStyle, getFontCollection());
 
             builder.pushStyle(style0);
-            builder.addText(logo1);
+            builder.addText(logo1, strlen(logo1));
             builder.pop();
             builder.pushStyle(style1);
-            builder.addText(logo2);
+            builder.addText(logo2, strlen(logo2));
             builder.pop();
 
-            builder.addText(" ");
+            builder.addText(" ", 1);
 
             builder.pushStyle(style0);
-            builder.addText(logo3);
+            builder.addText(logo3, strlen(logo3));
             builder.pop();
             builder.pushStyle(style1);
-            builder.addText(logo4);
+            builder.addText(logo4, strlen(logo4));
             builder.pop();
 
-            builder.addText(" ");
+            builder.addText(" ", 1);
 
             builder.pushStyle(style0);
-            builder.addText(logo5);
+            builder.addText(logo5, strlen(logo5));
             builder.pop();
             builder.pushStyle(style1);
-            builder.addText(logo6);
+            builder.addText(logo6, strlen(logo6));
             builder.pop();
 
             auto paragraph = builder.Build();
@@ -858,28 +866,28 @@ protected:
             ParagraphBuilderImpl builder(paraStyle, getFontCollection());
 
             builder.pushStyle(style0);
-            builder.addText(logo1);
+            builder.addText(logo1, strlen(logo1));
             builder.pop();
             builder.pushStyle(style1);
-            builder.addText(logo2);
+            builder.addText(logo2, strlen(logo2));
             builder.pop();
 
-            builder.addText("   ");
+            builder.addText("   ", 3);
 
             builder.pushStyle(style0);
-            builder.addText(logo3);
+            builder.addText(logo3, strlen(logo3));
             builder.pop();
             builder.pushStyle(style1);
-            builder.addText(logo4);
+            builder.addText(logo4, strlen(logo4));
             builder.pop();
 
-            builder.addText("   ");
+            builder.addText("   ", 3);
 
             builder.pushStyle(style0);
-            builder.addText(logo5);
+            builder.addText(logo5, strlen(logo5));
             builder.pop();
             builder.pushStyle(style1);
-            builder.addText(logo6);
+            builder.addText(logo6, strlen(logo6));
             builder.pop();
 
             auto paragraph = builder.Build();
@@ -898,28 +906,28 @@ protected:
             ParagraphBuilderImpl builder(paraStyle, getFontCollection());
 
             builder.pushStyle(style0);
-            builder.addText(logo11);
+            builder.addText(logo11, strlen(logo1));
             builder.pop();
             builder.pushStyle(style1);
-            builder.addText(logo12);
+            builder.addText(logo12, strlen(logo2));
             builder.pop();
 
-            builder.addText("   ");
+            builder.addText("   ", 3);
 
             builder.pushStyle(style0);
-            builder.addText(logo13);
+            builder.addText(logo13, strlen(logo3));
             builder.pop();
             builder.pushStyle(style1);
-            builder.addText(logo14);
+            builder.addText(logo14, strlen(logo4));
             builder.pop();
 
-            builder.addText("   ");
+            builder.addText("   ", 3);
 
             builder.pushStyle(style0);
-            builder.addText(logo15);
+            builder.addText(logo15, strlen(logo5));
             builder.pop();
             builder.pushStyle(style1);
-            builder.addText(logo16);
+            builder.addText(logo16, strlen(logo6));
             builder.pop();
 
             auto paragraph = builder.Build();
@@ -968,7 +976,7 @@ protected:
 
         ParagraphBuilderImpl builder(paragraphStyle, getFontCollection());
         builder.pushStyle(textStyle);
-        builder.addText(line);
+        builder.addText(line, strlen(line));
         builder.pop();
 
         auto paragraph = builder.Build();
@@ -1038,7 +1046,7 @@ protected:
 
         ParagraphBuilderImpl builder(paragraphStyle, getFontCollection());
         builder.pushStyle(textStyle);
-        builder.addText(line);
+        builder.addText(line, strlen(line));
         builder.pop();
 
         auto paragraph = builder.Build();
@@ -1129,7 +1137,7 @@ protected:
 
         ParagraphBuilderImpl builder(paragraphStyle, getFontCollection());
         builder.pushStyle(textStyle);
-        builder.addText(text);
+        builder.addText(text, strlen(text));
         builder.pop();
 
         auto paragraph = builder.Build();
@@ -1199,7 +1207,7 @@ protected:
         text_style.setColor(SK_ColorBLACK);
         text_style.setHeight(1);
         builder.pushStyle(text_style);
-        builder.addText(text);
+        builder.addText(text, strlen(text));
         builder.pop();
 
         auto paragraph = builder.Build();
@@ -1232,7 +1240,7 @@ protected:
             text_style.setColor(SK_ColorBLACK);
             text_style.setFontSize(10 + 2 * (i % 10));
             builder.pushStyle(text_style);
-            builder.addText(text);
+            builder.addText(text, strlen(text));
             builder.pop();
             auto paragraph = builder.Build();
             paragraph->layout(500);
