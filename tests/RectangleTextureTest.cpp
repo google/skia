@@ -185,7 +185,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
                                refPixels, "RectangleTexture-copy-from");
 
         auto rectContext = context->priv().makeWrappedSurfaceContext(
-                std::move(rectProxy), GrColorType::kRGBA_8888, kPremul_SkAlphaType);
+                std::move(rectProxy), {GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr});
         SkASSERT(rectContext);
 
         test_read_pixels(reporter, rectContext.get(), refPixels, "RectangleTexture-read");

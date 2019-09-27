@@ -118,7 +118,7 @@ static void run_test(skiatest::Reporter* reporter, GrContext* context, int array
         SkASSERT(proxy);
 
         auto sContext = context->priv().makeWrappedSurfaceContext(
-                std::move(proxy), SkColorTypeToGrColorType(colorType), kPremul_SkAlphaType);
+                std::move(proxy), colorType, kPremul_SkAlphaType, nullptr);
 
         if (!sContext->readPixels(dstInfo, readBuffer.begin(), 0, {0, 0})) {
             // We only require this to succeed if the format is renderable.

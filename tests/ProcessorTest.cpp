@@ -346,7 +346,8 @@ bool log_pixels(GrColor* pixels, int widthHeight, SkString* dst) {
 
 bool log_texture_proxy(GrContext* context, sk_sp<GrTextureProxy> src, SkString* dst) {
     auto sContext =
-            context->priv().makeWrappedSurfaceContext(src, GrColorType::kRGBA_8888, kLogAlphaType);
+            context->priv().makeWrappedSurfaceContext(src,
+                    {GrColorType::kRGBA_8888, kLogAlphaType, nullptr});
     SkImageInfo ii =
             SkImageInfo::Make(src->width(), src->height(), kRGBA_8888_SkColorType, kLogAlphaType);
     SkBitmap bm;

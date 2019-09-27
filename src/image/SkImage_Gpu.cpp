@@ -599,8 +599,7 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
     }
 
     auto texContext =
-            drawingManager->makeTextureContext(proxy, SkColorTypeToGrColorType(pixmap.colorType()),
-                                               pixmap.alphaType(), cs);
+            drawingManager->makeTextureContext(proxy, pixmap.colorType(), pixmap.alphaType(), cs);
     if (!texContext) {
         return nullptr;
     }

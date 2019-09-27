@@ -187,9 +187,7 @@ bool SkDeferredDisplayListRecorder::init() {
     }
 
     auto c = fContext->priv().makeWrappedSurfaceContext(std::move(proxy),
-                                                        grColorType,
-                                                        kPremul_SkAlphaType,
-                                                        fCharacterization.refColorSpace(),
+                                                        {grColorType, kPremul_SkAlphaType, nullptr},
                                                         &fCharacterization.surfaceProps());
     SkASSERT(c->asRenderTargetContext());
     std::unique_ptr<GrRenderTargetContext> rtc(c.release()->asRenderTargetContext());

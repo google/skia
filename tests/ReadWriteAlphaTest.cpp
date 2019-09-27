@@ -76,7 +76,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
             return;
         }
         auto sContext = context->priv().makeWrappedSurfaceContext(
-                std::move(proxy), GrColorType::kAlpha_8, kPremul_SkAlphaType);
+                std::move(proxy), {GrColorType::kAlpha_8, kPremul_SkAlphaType, nullptr});
 
         sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii));
 
@@ -195,7 +195,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
             }
 
             auto sContext = context->priv().makeWrappedSurfaceContext(
-                    std::move(proxy), info.fColorType, kPremul_SkAlphaType);
+                    std::move(proxy), {info.fColorType, kPremul_SkAlphaType, nullptr});
 
             for (auto rowBytes : kRowBytes) {
                 size_t nonZeroRowBytes = rowBytes ? rowBytes : X_SIZE;

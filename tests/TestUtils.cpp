@@ -79,8 +79,8 @@ void test_copy_from_surface(skiatest::Reporter* reporter, GrContext* context, Gr
                                                           SkBackingFit::kExact, SkBudgeted::kYes);
     SkASSERT(dstProxy);
 
-    auto dstContext = context->priv().makeWrappedSurfaceContext(std::move(dstProxy), colorType,
-                                                                kPremul_SkAlphaType);
+    auto dstContext = context->priv().makeWrappedSurfaceContext(
+            std::move(dstProxy), {colorType, kPremul_SkAlphaType, nullptr});
     SkASSERT(dstContext);
 
     test_read_pixels(reporter, dstContext.get(), expectedPixelValues, testName);

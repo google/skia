@@ -320,7 +320,7 @@ bool GrSurfaceContext::writePixels(const GrPixelInfo& origSrcInfo, const void* s
             return false;
         }
         auto tempCtx = direct->priv().drawingManager()->makeTextureContext(
-                tempProxy, colorType, alphaType, this->colorSpaceInfo().refColorSpace());
+                tempProxy, {colorType, alphaType, this->colorSpaceInfo().refColorSpace()});
         if (!tempCtx) {
             return false;
         }

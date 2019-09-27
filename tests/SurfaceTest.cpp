@@ -785,8 +785,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
         SkImage_Gpu* gpuImage = (SkImage_Gpu*)as_IB(i);
         sk_sp<GrTextureProxy> proxy = gpuImage->asTextureProxyRef(context);
         return context->priv().makeWrappedSurfaceContext(
-                std::move(proxy), SkColorTypeToGrColorType(i->colorType()), kPremul_SkAlphaType,
-                gpuImage->refColorSpace());
+                std::move(proxy), i->colorType(), kPremul_SkAlphaType, gpuImage->refColorSpace());
     };
 
     // Test that non-wrapped RTs are created clear.
