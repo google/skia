@@ -11,6 +11,7 @@
 #include "modules/particles/include/SkParticleSerialization.h"
 #include "modules/particles/include/SkReflected.h"
 #include "src/core/SkOSFile.h"
+#include "src/sksl/SkSLByteCode.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/Resources.h"
 #include "tools/viewer/ImGuiLayer.h"
@@ -306,6 +307,57 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
             ImGui::SameLine();
             ImGui::Text("%4g, %4g %5d %s", fRunning[i].fPosition.fX, fRunning[i].fPosition.fY,
                         fRunning[i].fEffect->getCount(), fRunning[i].fName.c_str());
+            auto uniformsGui = [](const SkSL::ByteCode* code, float* data) {
+                if (!code || !data) {
+                    return;
+                }
+                for (int i = 0; i < code->getUniformCount(); ++i) {
+                    const auto& uni = code->getUniform(i);
+                    float* vals = data + uni.fSlot;
+
+                    if (uni.fType == SkSL::TypeCategory::kBool) {
+                        for (int c = 0; c < uni.fColumns; ++c, vals += uni.fRows) {
+                            ImGui::PushID(c);
+                            for (int r = 0; r < uni.fRows; ++r, ++vals) {
+                                ImGui::PushID(r);
+                                if (r > 0) {
+                                    ImGui::SameLine();
+                                }
+                                ImGui::CheckboxFlags(r == uni.fRows - 1 ? uni.fName.c_str()
+                                                                        : "##Hidden",
+                                                     (unsigned int*)vals, ~0);
+                                ImGui::PopID();
+                            }
+                            ImGui::PopID();
+                        }
+                        continue;
+                    }
+
+                    ImGuiDataType dataType = ImGuiDataType_COUNT;
+                    switch (uni.fType) {
+                        case SkSL::TypeCategory::kSigned:   dataType = ImGuiDataType_S32;   break;
+                        case SkSL::TypeCategory::kUnsigned: dataType = ImGuiDataType_U32;   break;
+                        case SkSL::TypeCategory::kFloat:    dataType = ImGuiDataType_Float; break;
+                        default:                                                            break;
+                    }
+                    SkASSERT(dataType != ImGuiDataType_COUNT);
+                    for (int c = 0; c < uni.fColumns; ++c, vals += uni.fRows) {
+                        ImGui::PushID(c);
+                        ImGui::DragScalarN(uni.fName.c_str(), dataType, vals, uni.fRows, 1.0f);
+                        ImGui::PopID();
+                    }
+                }
+            };
+            if (ImGui::TreeNode("Effect Uniforms")) {
+                uniformsGui(fRunning[i].fEffect->effectCode(),
+                            fRunning[i].fEffect->effectUniforms());
+                ImGui::TreePop();
+            }
+            if (ImGui::TreeNode("Particle Uniforms")) {
+                uniformsGui(fRunning[i].fEffect->particleCode(),
+                            fRunning[i].fEffect->particleUniforms());
+                ImGui::TreePop();
+            }
             if (remove) {
                 fRunning.removeShuffle(i);
             }
