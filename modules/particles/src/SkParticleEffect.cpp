@@ -235,7 +235,10 @@ int SkParticleEffect::runEffectScript(double now, const char* entry) {
                 value->setRandom(&fRandom);
                 value->setEffect(this);
             }
-            SkAssertResult(byteCode->run(fun, &fState.fAge, nullptr, 1, &fState.fDeltaTime, 1));
+            // Size of the EffectState structure, minus deltaTime (which is uniform in effect code)
+            constexpr int EffectStructSize = 19;
+            SkAssertResult(byteCode->run(fun, &fState.fAge, EffectStructSize,
+                                         nullptr, 0, &fState.fDeltaTime, 1));
             this->processEffectSpawnRequests(now);
         }
     }
@@ -280,9 +283,9 @@ void SkParticleEffect::runParticleScript(double now, const char* entry, int star
                 value->setRandom(randomBase);
                 value->setEffect(this);
             }
-            SkAssertResult(byteCode->runStriped(fun, args, SkParticles::kNumChannels, count,
-                                                &fState.fDeltaTime, sizeof(EffectState) / 4,
-                                                nullptr, 0));
+            SkAssertResult(byteCode->runStriped(fun, count, args, SkParticles::kNumChannels,
+                                                nullptr, 0,
+                                                &fState.fDeltaTime, sizeof(EffectState) / 4));
             this->processParticleSpawnRequests(now, start);
         }
     }
