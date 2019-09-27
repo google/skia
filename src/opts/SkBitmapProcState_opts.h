@@ -82,6 +82,40 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
             skvx::Vec<8,uint32_t> tl = gather(row0, x0), tr = gather(row0, x1),
                                   bl = gather(row1, x0), br = gather(row1, x1);
 
+        #if 1
+            // We'll use _mm256_maddubs_epi16() to lerp much like in the SSSE3 code.
+            auto lerp_x = [&](skvx::Vec<8,uint32_t> L, skvx::Vec<8,uint32_t> R) {
+                __m256i l = skvx::bit_pun<__m256i>(L),
+                        r = skvx::bit_pun<__m256i>(R),
+                       wr = skvx::bit_pun<__m256i>(wx),
+                       wl = _mm256_sub_epi8(_mm256_set1_epi8(16), wr);
+
+                // Interlace l,r bytewise and line them up with their weights, then lerp.
+                __m256i lo = _mm256_maddubs_epi16(_mm256_unpacklo_epi8( l, r),
+                                                  _mm256_unpacklo_epi8(wl,wr));
+                __m256i hi = _mm256_maddubs_epi16(_mm256_unpackhi_epi8( l, r),
+                                                  _mm256_unpackhi_epi8(wl,wr));
+
+                // Those _mm256_unpack??_epi8() calls left us in a bit of an odd order:
+                //
+                //    if   l = a b c d | e f g h
+                //   and   r = A B C D | E F G H
+                //
+                // then   lo = a A b B | e E f F   (low  half of each input)
+                //  and   hi = c C d D | g G h H   (high half of each input)
+                //
+                // To get everything back in original order we need to transpose that.
+                __m256i abcd = _mm256_permute2x128_si256(lo, hi, 0x20),
+                        efgh = _mm256_permute2x128_si256(lo, hi, 0x31);
+
+                return skvx::join(skvx::bit_pun<skvx::Vec<16,uint16_t>>(abcd),
+                                  skvx::bit_pun<skvx::Vec<16,uint16_t>>(efgh));
+            };
+
+            skvx::Vec<32, uint16_t> top = lerp_x(tl, tr),
+                                    bot = lerp_x(bl, br),
+                                    sum = 16*top + (bot-top)*wy;
+        #else
             // Treat 32-bit pixels as 4 8-bit values, and expand to 16-bit for room to multiply.
             auto to_16x4 = [](auto v) -> skvx::Vec<32, uint16_t> {
                 return skvx::cast<uint16_t>(skvx::bit_pun<skvx::Vec<32, uint8_t>>(v));
@@ -100,6 +134,7 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
             };
             skvx::Vec<32, uint16_t> sum = lerp(lerp(to_16x4(tl), to_16x4(bl), wy),
                                                lerp(to_16x4(tr), to_16x4(br), wy), to_16x4(wx));
+        #endif
 
             // Get back to [0,255] by dividing by maximum weight 16x16 = 256.
             sum >>= 8;
