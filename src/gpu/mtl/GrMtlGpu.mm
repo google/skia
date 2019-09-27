@@ -1210,3 +1210,16 @@ void GrMtlGpu::resolveTexture(id<MTLTexture> resolveTexture, id<MTLTexture> colo
     SkASSERT(nil != cmdEncoder);
     cmdEncoder.label = @"resolveTexture";
 }
+
+#if GR_TEST_UTILS
+void GrMtlGpu::testingOnly_startCapture() {
+    // TODO: add Metal 3 interface as well
+    MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
+    [captureManager startCaptureWithDevice: fDevice];
+}
+
+void GrMtlGpu::testingOnly_endCapture() {
+    MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
+    [captureManager stopCapture];
+}
+#endif
