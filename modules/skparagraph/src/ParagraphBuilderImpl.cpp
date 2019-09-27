@@ -75,8 +75,8 @@ void ParagraphBuilderImpl::addText(const std::u16string& text) {
     fUtf8.insert(fUtf8.size(), str.c_str());
 }
 
-void ParagraphBuilderImpl::addText(const char* text) {
-    fUtf8.insert(fUtf8.size(), text);
+void ParagraphBuilderImpl::addText(const char* text, size_t len) {
+    fUtf8.insert(fUtf8.size(), text, len);
 }
 
 void ParagraphBuilderImpl::addPlaceholder(const PlaceholderStyle& placeholderStyle) {
