@@ -305,10 +305,10 @@ func CheckoutRoot() string {
 func LoadJson(filename string, dest interface{}) {
 	b, err := ioutil.ReadFile(filename)
 	if err != nil {
-		glog.Fatal(err)
+		glog.Fatalf("Unable to read %q: %s", filename, err)
 	}
 	if err := json.Unmarshal(b, dest); err != nil {
-		glog.Fatal(err)
+		glog.Fatalf("Unable to parse %q: %s", filename, err)
 	}
 }
 
@@ -662,6 +662,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 				"iPadMini4": "iPad5,1",
 				"iPhone6":   "iPhone7,2",
 				"iPhone7":   "iPhone9,1",
+				"iPhone8":   "iPhone10,1",
 				"iPadPro":   "iPad6,3",
 			}[parts["model"]]
 			if !ok {
