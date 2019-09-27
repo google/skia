@@ -133,6 +133,10 @@ if [[ $@ == *primitive_shaper* ]]; then
   SHAPER_TARGETS=""
 fi
 
+PARAGRAPH_JS="--pre-js $BASE_DIR/paragraph.js"
+PARAGRAPH_LIB="$BUILD_DIR/libskparagraph.a"
+PARAGRAPH_BINDINGS="$BASE_DIR/paragraph_bindings.cpp"
+
 # Turn off exiting while we check for ninja (which may not be on PATH)
 set +e
 NINJA=`which ninja`
@@ -193,10 +197,12 @@ echo "Compiling bitcode"
   skia_enable_skshaper=true \
   skia_enable_ccpr=false \
   skia_enable_nvpr=false \
+  skia_enable_skparagraph=true \
   skia_enable_pdf=false"
 
 # Build all the libs, we'll link the appropriate ones down below
-${NINJA} -C ${BUILD_DIR} libskia.a libskottie.a libsksg.a libskshaper.a libparticles.a $SHAPER_TARGETS
+${NINJA} -C ${BUILD_DIR} libskia.a libskottie.a libsksg.a \
+    libskparagraph.a libskshaper.a libparticles.a $SHAPER_TARGETS
 
 export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/externs.js "
 
@@ -219,6 +225,7 @@ ${EMCXX} \
     --pre-js $BASE_DIR/preamble.js \
     --pre-js $BASE_DIR/helper.js \
     --pre-js $BASE_DIR/interface.js \
+    $PARAGRAPH_JS \
     $SKOTTIE_JS \
     $HTML_CANVAS_API \
     --pre-js $BASE_DIR/postamble.js \
@@ -228,8 +235,10 @@ ${EMCXX} \
     $PARTICLES_BINDINGS \
     $SKOTTIE_BINDINGS \
     $MANAGED_SKOTTIE_BINDINGS \
+    $PARAGRAPH_BINDINGS \
     $SKOTTIE_LIB \
     $PARTICLES_LIB \
+    $PARAGRAPH_LIB \
     $BUILD_DIR/libskshaper.a \
     $SHAPER_LIB \
     $BUILD_DIR/libskia.a \
