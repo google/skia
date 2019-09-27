@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5fc5c394_99ced93d",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-27T15:30:20Z",
+      "side": 1,
+      "message": "You can probably just bake the premul in here?",
+      "range": {
+        "startLine": 65,
+        "startChar": 34,
+        "endLine": 65,
+        "endChar": 55
+      },
+      "revId": "485136092c5f957c0e8c88aa1611ff375eea55f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a5b40ba_685b210e",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-27T15:30:20Z",
+      "side": 1,
+      "message": "This seems weird?  Why aren\u0027t we leaving it in the dst color space?  That\u0027s presumably how we\u0027ll want it later?",
+      "revId": "485136092c5f957c0e8c88aa1611ff375eea55f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe629dec_1573dc17",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-27T15:30:20Z",
+      "side": 1,
+      "message": "if this stays in, you can get the unpremul by setting kPremul_SkAlphaType here.",
+      "range": {
+        "startLine": 84,
+        "startChar": 34,
+        "endLine": 84,
+        "endChar": 54
+      },
+      "revId": "485136092c5f957c0e8c88aa1611ff375eea55f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
