@@ -1096,6 +1096,9 @@ func (b *builder) compile(name string, parts map[string]string) string {
 		if strings.Contains(name, "MoltenVK") {
 			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("moltenvk"))
 		}
+		if strings.Contains(name, "iOS") {
+			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("provisioning_profile_ios"))
+		}
 	}
 
 	// Add the task.

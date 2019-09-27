@@ -238,7 +238,8 @@ Google signing identity and provisioning profile. To use a different one set `sk
 to match your code signing identity and `skia_ios_profile` to the name of your provisioning
 profile, e.g. `skia_ios_identity=".*Jane Doe.*" skia_ios_profile="iPad Profile"`. A list of
 identities can be found by typing `security find-identity` on the command line. The name of the
-provisioning profile should be available on the Apple Developer site.
+provisioning profile should be available on the Apple Developer site. Alternatively,
+`skia_ios_profile` can be the absolute path to the mobileprovision file.
 
 For signed packages `ios-deploy` makes installing and running them on a device easy:
 
