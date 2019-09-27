@@ -1574,7 +1574,9 @@ void ByteCodeFunction::preprocess(const void* labels[]) {
 #endif
 }
 
-bool ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int N,
+bool ByteCode::run(const ByteCodeFunction* f,
+                   float* args, int argCount,
+                   float* outReturn, int returnCount,
                    const float* uniforms, int uniformCount) const {
 #if defined(SK_ENABLE_SKSL_INTERPRETER)
     Interpreter::VValue stack[128];
@@ -1583,7 +1585,9 @@ bool ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
         return false;
     }
 
-    if (uniformCount != (int)fInputSlots.size()) {
+    if (argCount != f->fParameterCount ||
+        returnCount != f->fReturnCount ||
+        uniformCount != (int)fInputSlots.size()) {
         return false;
     }
 
@@ -1595,55 +1599,39 @@ bool ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
         globals[slot].fFloat = *uniforms++;
     }
 
-    int baseIndex = 0;
-
-    while (N) {
-        int w = std::min(N, Interpreter::VecWidth);
-
-        // Transpose args into stack
-        {
-            float* src = args;
-            for (int i = 0; i < w; ++i) {
-                float* dst = (float*)stack + i;
-                for (int j = f->fParameterCount; j > 0; --j) {
-                    *dst = *src++;
-                    dst += Interpreter::VecWidth;
-                }
-            }
+    // Transpose args into stack
+    {
+        float* src = args;
+        float* dst = (float*)stack;
+        for (int i = 0; i < argCount; ++i) {
+            *dst = *src++;
+            dst += Interpreter::VecWidth;
         }
-
-        bool stripedOutput = false;
-        float** outArray = outReturn ? &outReturn : nullptr;
-        if (!innerRun(this, f, stack, outArray, globals, stripedOutput, w, baseIndex)) {
-            return false;
-        }
-
-        // Transpose out parameters back
-        {
-            float* dst = args;
-            for (int i = 0; i < w; ++i) {
-                float* src = (float*)stack + i;
-                for (const auto& p : f->fParameters) {
-                    if (p.fIsOutParameter) {
-                        for (int j = p.fSlotCount; j > 0; --j) {
-                            *dst++ = *src;
-                            src += Interpreter::VecWidth;
-                        }
-                    } else {
-                        dst += p.fSlotCount;
-                        src += p.fSlotCount * Interpreter::VecWidth;
-                    }
-                }
-            }
-        }
-
-        args += f->fParameterCount * w;
-        if (outReturn) {
-            outReturn += f->fReturnCount * w;
-        }
-        N -= w;
-        baseIndex += w;
     }
+
+    bool stripedOutput = false;
+    float** outArray = outReturn ? &outReturn : nullptr;
+    if (!innerRun(this, f, stack, outArray, globals, stripedOutput, 1, 0)) {
+        return false;
+    }
+
+    // Transpose out parameters back
+    {
+        float* dst = args;
+        float* src = (float*)stack;
+        for (const auto& p : f->fParameters) {
+            if (p.fIsOutParameter) {
+                for (int i = p.fSlotCount; i > 0; --i) {
+                    *dst++ = *src;
+                    src += Interpreter::VecWidth;
+                }
+            } else {
+                dst += p.fSlotCount;
+                src += p.fSlotCount * Interpreter::VecWidth;
+            }
+        }
+    }
+
     return true;
 #else
     SkDEBUGFAIL("ByteCode interpreter not enabled");
@@ -1651,9 +1639,10 @@ bool ByteCode::run(const ByteCodeFunction* f, float* args, float* outReturn, int
 #endif
 }
 
-bool ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, int N,
-                          const float* uniforms, int uniformCount,
-                          float* outArgs[], int outCount) const {
+bool ByteCode::runStriped(const ByteCodeFunction* f, int N,
+                          float* args[], int argCount,
+                          float* outReturn[], int returnCount,
+                          const float* uniforms, int uniformCount) const {
 #if defined(SK_ENABLE_SKSL_INTERPRETER)
     Interpreter::VValue stack[128];
     int stackNeeded = f->fParameterCount + f->fLocalCount + f->fStackCount;
@@ -1661,8 +1650,8 @@ bool ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
         return false;
     }
 
-    if (nargs != f->fParameterCount ||
-        outCount != f->fReturnCount ||
+    if (argCount != f->fParameterCount ||
+        returnCount != f->fReturnCount ||
         uniformCount != (int)fInputSlots.size()) {
         return false;
     }
@@ -1676,8 +1665,8 @@ bool ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
     }
 
     // innerRun just takes outArgs, so clear it if the count is zero
-    if (outCount == 0) {
-        outArgs = nullptr;
+    if (returnCount == 0) {
+        outReturn = nullptr;
     }
 
     int baseIndex = 0;
@@ -1686,12 +1675,12 @@ bool ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
         int w = std::min(N, Interpreter::VecWidth);
 
         // Copy args into stack
-        for (int i = 0; i < nargs; ++i) {
+        for (int i = 0; i < argCount; ++i) {
             memcpy(stack + i, args[i], w * sizeof(float));
         }
 
         bool stripedOutput = true;
-        if (!innerRun(this, f, stack, outArgs, globals, stripedOutput, w, baseIndex)) {
+        if (!innerRun(this, f, stack, outReturn, globals, stripedOutput, w, baseIndex)) {
             return false;
         }
 
@@ -1707,7 +1696,7 @@ bool ByteCode::runStriped(const ByteCodeFunction* f, float* args[], int nargs, i
         }
 
         // Step each argument pointer ahead
-        for (int i = 0; i < nargs; ++i) {
+        for (int i = 0; i < argCount; ++i) {
             args[i] += w;
         }
         N -= w;

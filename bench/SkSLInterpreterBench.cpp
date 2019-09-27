@@ -12,11 +12,10 @@
 // Benchmarks the interpreter with a function that has a color-filter style signature
 class SkSLInterpreterCFBench : public Benchmark {
 public:
-    SkSLInterpreterCFBench(SkSL::String name, int pixels, bool striped, const char* src)
-        : fName(SkStringPrintf("sksl_interp_cf_%d_%d_%s", pixels, striped ? 1 : 0, name.c_str()))
+    SkSLInterpreterCFBench(SkSL::String name, int pixels, const char* src)
+        : fName(SkStringPrintf("sksl_interp_cf_%d_%s", pixels, name.c_str()))
         , fSrc(src)
-        , fCount(pixels)
-        , fStriped(striped) {}
+        , fCount(pixels) {}
 
 protected:
     const char* onGetName() override {
@@ -45,19 +44,14 @@ protected:
 
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
-            if (fStriped) {
-                float* args[] = {
-                    fPixels.data() + 0 * fCount,
-                    fPixels.data() + 1 * fCount,
-                    fPixels.data() + 2 * fCount,
-                    fPixels.data() + 3 * fCount,
-                };
+            float* args[] = {
+                fPixels.data() + 0 * fCount,
+                fPixels.data() + 1 * fCount,
+                fPixels.data() + 2 * fCount,
+                fPixels.data() + 3 * fCount,
+            };
 
-                SkAssertResult(fByteCode->runStriped(fMain, args, 4, fCount,
-                                                     nullptr, 0, nullptr, 0));
-            } else {
-                SkAssertResult(fByteCode->run(fMain, fPixels.data(), nullptr, fCount, nullptr, 0));
-            }
+            SkAssertResult(fByteCode->runStriped(fMain, fCount, args, 4, nullptr, 0, nullptr, 0));
         }
     }
 
@@ -68,7 +62,6 @@ private:
     const SkSL::ByteCodeFunction* fMain;
 
     int fCount;
-    bool fStriped;
     std::vector<float> fPixels;
 
     typedef Benchmark INHERITED;
@@ -145,89 +138,5 @@ const char* kHighContrastFilterSrc = R"(
     }
 )";
 
-DEF_BENCH(return new SkSLInterpreterCFBench("lumaToAlpha", 256, false, kLumaToAlphaSrc));
-DEF_BENCH(return new SkSLInterpreterCFBench("lumaToAlpha", 256, true, kLumaToAlphaSrc));
-
-DEF_BENCH(return new SkSLInterpreterCFBench("hcf", 256, false, kHighContrastFilterSrc));
-DEF_BENCH(return new SkSLInterpreterCFBench("hcf", 256, true, kHighContrastFilterSrc));
-
-class SkSLInterpreterSortBench : public Benchmark {
-public:
-    SkSLInterpreterSortBench(int groups, int values, const char* src)
-        : fName(SkStringPrintf("sksl_interp_sort_%dx%d", groups, values))
-        , fCode(src)
-        , fGroups(groups)
-        , fValues(values) {
-    }
-
-protected:
-    const char* onGetName() override {
-        return fName.c_str();
-    }
-
-    bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
-    }
-
-    void onDelayedSetup() override {
-        SkSL::Compiler compiler;
-        SkSL::Program::Settings settings;
-        auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind, fCode, settings);
-        SkASSERT(compiler.errorCount() == 0);
-        fByteCode = compiler.toByteCode(*program);
-        SkASSERT(compiler.errorCount() == 0);
-        fMain = fByteCode->getFunction("main");
-
-        fSrc.resize(fGroups * fValues);
-        fDst.resize(fGroups * fValues);
-
-        SkRandom rnd;
-        for (float& x : fSrc) {
-            x = rnd.nextF();
-        }
-
-        // Trigger one run now to check correctness
-        SkAssertResult(fByteCode->run(fMain, fSrc.data(), fDst.data(), fGroups, nullptr, 0));
-        for (int i = 0; i < fGroups; ++i) {
-            for (int j = 1; j < fValues; ++j) {
-                SkASSERT(fDst[i * fValues + j] >= fDst[i * fValues + j - 1]);
-            }
-        }
-    }
-
-    void onDraw(int loops, SkCanvas*) override {
-        for (int i = 0; i < loops; i++) {
-            SkAssertResult(fByteCode->run(fMain, fSrc.data(), fDst.data(), fGroups, nullptr, 0));
-        }
-    }
-
-private:
-    SkString fName;
-    SkSL::String fCode;
-    std::unique_ptr<SkSL::ByteCode> fByteCode;
-    const SkSL::ByteCodeFunction* fMain;
-
-    int fGroups;
-    int fValues;
-    std::vector<float> fSrc;
-    std::vector<float> fDst;
-
-    typedef Benchmark INHERITED;
-};
-
-// Currently, this exceeds the interpreter's stack. Consider it a test case for some eventual
-// bounds checking.
-#if 0
-DEF_BENCH(return new SkSLInterpreterSortBench(1024, 32, R"(
-    float[32] main(float v[32]) {
-        for (int i = 1; i < 32; ++i) {
-            for (int j = i; j > 0 && v[j-1] > v[j]; --j) {
-                float t = v[j];
-                v[j] = v[j-1];
-                v[j-1] = t;
-            }
-        }
-        return v;
-    }
-)"));
-#endif
+DEF_BENCH(return new SkSLInterpreterCFBench("lumaToAlpha", 256, kLumaToAlphaSrc));
+DEF_BENCH(return new SkSLInterpreterCFBench("hcf", 256, kHighContrastFilterSrc));
