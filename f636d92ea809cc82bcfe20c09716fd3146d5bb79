@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "929c3c34_3252cc57",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-27T20:41:52Z",
+      "side": 1,
+      "message": "It doesn\u0027t really matter how ugly this function gets, it will go away once the old bounds code\nis no longer used by clients.",
+      "range": {
+        "startLine": 61,
+        "startChar": 23,
+        "endLine": 61,
+        "endChar": 35
+      },
+      "revId": "f636d92ea809cc82bcfe20c09716fd3146d5bb79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c876abc_dfed6ece",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-27T20:41:52Z",
+      "side": 1,
+      "message": "Once the deprecated onFilterBounds() and onFilterNodeBounds() functions go away, and onGetInputLayerBounds()\u0027s default implementation just calls visitInputLayerBounds(), we could simplify the code such that onGetInputLayerBounds() has this implementation, visit goes away, and subclasses that need to aggregate their children just call INHERITED::onGetInputLayerBounds() and pass in appropriate arguments. A similar approach could work for onGetOutputLayerBounds().\n\nFewer functions is nice, we still have an explicit call to perform aggregation in a subclass\u0027s bounds logic (also nice), but it\u0027s a little more magical in terms of knowing that the INHERITED function does that for you. A bridge to cross later, since they definitely have to be separate while juggling the old and new systems.",
+      "range": {
+        "startLine": 446,
+        "startChar": 46,
+        "endLine": 446,
+        "endChar": 67
+      },
+      "revId": "f636d92ea809cc82bcfe20c09716fd3146d5bb79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53d2fbb6_025c9a7d",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-27T20:41:52Z",
+      "side": 1,
+      "message": "I don\u0027t love having this bool for getting the input bounds w/o recursing to children. Unfortunately, this call in mapContext is a very legitimate use case for getting just this node\u0027s input bounds without recursing to the children.\n\nHowever, I really didn\u0027t like having two separate functions to control node-specific bounds and then node-aggregation logic and some filter types would override one but not the other, or both to be non-default for particular filtering directions. This argument is a lesser evil IMO.",
+      "range": {
+        "startLine": 555,
+        "startChar": 71,
+        "endLine": 555,
+        "endChar": 97
+      },
+      "revId": "f636d92ea809cc82bcfe20c09716fd3146d5bb79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe67573d_99ae42b2",
+        "filename": "src/core/SkPointPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-27T20:41:52Z",
+      "side": 1,
+      "message": "The downside to the template inversion compared to the earlier CL is that we now need a type-id to differentiate between Sk[I]Vector and Sk[I]Point.\n\nAnother way, that would avoid these SkDirection types, would be not use templates at all for the coordinate spaces and define SkLayerSpaceVector explicitly separately from SkLayerSpacePoint. The downside with that is that there is lots of redundant code for the device-space and parameter-space versions (or a weird inconsistency where they remain templates but the layer-space types are not).",
+      "range": {
+        "startLine": 135,
+        "startChar": 7,
+        "endLine": 135,
+        "endChar": 19
+      },
+      "revId": "f636d92ea809cc82bcfe20c09716fd3146d5bb79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
