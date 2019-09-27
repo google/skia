@@ -216,8 +216,12 @@ config("default") {
     } else if (target_cpu == "x64") {
       _target = "x86_64"
     }
-    if (is_watchos && _target == "armv7") {
-      _target = "armv7k"
+    if (is_watchos) {
+      if (_target == "armv7") {
+        _target = "armv7k"
+      } else if (_target == "arm64") {
+        _target = "arm64_32"
+      }
     }
     asmflags += [
       "-isysroot",
