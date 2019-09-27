@@ -20,9 +20,9 @@ namespace SkSL {
 
 #if defined(SK_ENABLE_SKSL_INTERPRETER)
 
-namespace Interpreter {
+struct Interpreter {
 
-constexpr int VecWidth = ByteCode::kVecWidth;
+static constexpr int VecWidth = ByteCode::kVecWidth;
 
 using F32 = skvx::Vec<VecWidth, float>;
 using I32 = skvx::Vec<VecWidth, int32_t>;
@@ -54,7 +54,7 @@ using U32 = skvx::Vec<VecWidth, uint32_t>;
     VECTOR_DISASSEMBLE_NO_COUNT(op, text)            \
     case ByteCodeInstruction::op##N: printf(text "N %d", READ8()); break;
 
-static const uint8_t* disassemble_instruction(const uint8_t* ip) {
+static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
     switch ((ByteCodeInstruction) (intptr_t) READ_INST()) {
         VECTOR_MATRIX_DISASSEMBLE(kAddF, "addf")
         VECTOR_DISASSEMBLE(kAddI, "addi")
@@ -405,18 +405,9 @@ static const uint8_t* disassemble_instruction(const uint8_t* ip) {
 
 union VValue {
     VValue() {}
-
-    VValue(F32 f)
-        : fFloat(f) {
-    }
-
-    VValue(I32 s)
-        : fSigned(s) {
-    }
-
-    VValue(U32 u)
-        : fUnsigned(u) {
-    }
+    VValue(F32 f) : fFloat(f) {}
+    VValue(I32 s) : fSigned(s) {}
+    VValue(U32 u) : fUnsigned(u) {}
 
     F32 fFloat;
     I32 fSigned;
@@ -430,14 +421,13 @@ struct StackFrame {
     int fParameterCount;
 };
 
-template <typename T>
-static T vec_mod(T a, T b) {
+static F32 VecMod(F32 a, F32 b) {
     return a - skvx::trunc(a / b) * b;
 }
 
 #define spf(index)  sp[index].fFloat
 
-static void call_external(const ByteCode* byteCode, const uint8_t*& ip, VValue*& sp,
+static void CallExternal(const ByteCode* byteCode, const uint8_t*& ip, VValue*& sp,
                           int baseIndex, I32 mask) {
     int argumentCount = READ8();
     int returnCount = READ8();
@@ -464,7 +454,7 @@ static void call_external(const ByteCode* byteCode, const uint8_t*& ip, VValue*&
     sp += returnCount - 1;
 }
 
-static void inverse2x2(VValue* sp) {
+static void Inverse2x2(VValue* sp) {
     F32 a = sp[-3].fFloat,
         b = sp[-2].fFloat,
         c = sp[-1].fFloat,
@@ -476,7 +466,7 @@ static void inverse2x2(VValue* sp) {
     sp[ 0].fFloat = a * idet;
 }
 
-static void inverse3x3(VValue* sp) {
+static void Inverse3x3(VValue* sp) {
     F32 a11 = sp[-8].fFloat, a12 = sp[-5].fFloat, a13 = sp[-2].fFloat,
         a21 = sp[-7].fFloat, a22 = sp[-4].fFloat, a23 = sp[-1].fFloat,
         a31 = sp[-6].fFloat, a32 = sp[-3].fFloat, a33 = sp[ 0].fFloat;
@@ -493,7 +483,7 @@ static void inverse3x3(VValue* sp) {
     sp[ 0].fFloat = (a11 * a22 - a12 * a21) * idet;
 }
 
-static void inverse4x4(VValue* sp) {
+static void Inverse4x4(VValue* sp) {
     F32 a00 = spf(-15), a10 = spf(-11), a20 = spf( -7), a30 = spf( -3),
         a01 = spf(-14), a11 = spf(-10), a21 = spf( -6), a31 = spf( -2),
         a02 = spf(-13), a12 = spf( -9), a22 = spf( -5), a32 = spf( -1),
@@ -546,7 +536,7 @@ static void inverse4x4(VValue* sp) {
     spf(  0) = a20 * b03 - a21 * b01 + a22 * b00;
 }
 
-static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack,
+static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack,
                      float* outReturn[], VValue globals[], bool stripedOutput, int N,
                      int baseIndex) {
 #ifdef SKSLC_THREADED_CODE
@@ -828,7 +818,7 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
     }
 
     LABEL(kCallExternal) {
-        call_external(byteCode, ip, sp, baseIndex, mask());
+        CallExternal(byteCode, ip, sp, baseIndex, mask());
         NEXT();
     }
 
@@ -896,15 +886,15 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
     }
 
     LABEL(kInverse2x2) {
-        inverse2x2(sp);
+        Inverse2x2(sp);
         NEXT();
     }
     LABEL(kInverse3x3) {
-        inverse3x3(sp);
+        Inverse3x3(sp);
         NEXT();
     }
     LABEL(kInverse4x4) {
-        inverse4x4(sp);
+        Inverse4x4(sp);
         NEXT();
     }
 
@@ -1077,7 +1067,7 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
         NEXT();
     }
 
-    VECTOR_BINARY_FN(kRemainderF, fFloat, vec_mod<F32>)
+    VECTOR_BINARY_FN(kRemainderF, fFloat, VecMod)
     VECTOR_BINARY_MASKED_OP(kRemainderS, fSigned, %)
     VECTOR_BINARY_MASKED_OP(kRemainderU, fUnsigned, %)
 
@@ -1361,7 +1351,7 @@ static bool innerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
 #endif
 }
 
-} // namespace Interpreter
+}; // class Interpreter
 
 #endif // SK_ENABLE_SKSL_INTERPRETER
 
@@ -1372,7 +1362,7 @@ void ByteCodeFunction::disassemble() const {
     const uint8_t* ip = fCode.data();
     while (ip < fCode.data() + fCode.size()) {
         printf("%d: ", (int)(ip - fCode.data()));
-        ip = Interpreter::disassemble_instruction(ip);
+        ip = Interpreter::DisassembleInstruction(ip);
         printf("\n");
     }
 #endif
@@ -1611,7 +1601,7 @@ bool ByteCode::run(const ByteCodeFunction* f,
 
     bool stripedOutput = false;
     float** outArray = outReturn ? &outReturn : nullptr;
-    if (!innerRun(this, f, stack, outArray, globals, stripedOutput, 1, 0)) {
+    if (!Interpreter::InnerRun(this, f, stack, outArray, globals, stripedOutput, 1, 0)) {
         return false;
     }
 
@@ -1672,7 +1662,7 @@ bool ByteCode::runStriped(const ByteCodeFunction* f, int N,
     int baseIndex = 0;
 
     while (N) {
-        int w = std::min(N, Interpreter::VecWidth);
+        int w = SkTMin(N, Interpreter::VecWidth);
 
         // Copy args into stack
         for (int i = 0; i < argCount; ++i) {
@@ -1680,7 +1670,8 @@ bool ByteCode::runStriped(const ByteCodeFunction* f, int N,
         }
 
         bool stripedOutput = true;
-        if (!innerRun(this, f, stack, outReturn, globals, stripedOutput, w, baseIndex)) {
+        if (!Interpreter::InnerRun(this, f, stack, outReturn, globals, stripedOutput, w,
+                                   baseIndex)) {
             return false;
         }
 
