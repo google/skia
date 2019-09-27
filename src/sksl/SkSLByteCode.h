@@ -199,18 +199,19 @@ struct ByteCodeFunction {
     void preprocess(const void* labels[]);
 };
 
+enum class TypeCategory {
+    kBool,
+    kSigned,
+    kUnsigned,
+    kFloat,
+};
+
 struct SK_API ByteCode {
     static constexpr int kVecWidth = 16;
 
     ByteCode() = default;
     ByteCode(const ByteCode&) = delete;
     ByteCode& operator=(const ByteCode&) = delete;
-
-    int fGlobalCount = 0;
-    // one entry per input slot, contains the global slot to which the input slot maps
-    std::vector<uint8_t> fInputSlots;
-    std::vector<std::unique_ptr<ByteCodeFunction>> fFunctions;
-    std::vector<ExternalValue*> fExternalValues;
 
     const ByteCodeFunction* getFunction(const char* name) const {
         for (const auto& f : fFunctions) {
@@ -238,6 +239,33 @@ struct SK_API ByteCode {
                                             float* args[], int argCount,
                                             float* outReturn[], int returnCount,
                                             const float* uniforms, int uniformCount) const;
+
+    struct InputVariable {
+        SkSL::String fName;
+        TypeCategory fType;
+        int fColumns;
+        int fRows;
+        int fSlot;
+    };
+
+    int getUniformBlockSize() const { return fUniformSlots.size(); }
+    int getUniformCount() const { return fUniforms.size(); }
+    int getUniformLocation(const char* name) const {
+        for (int i = 0; i < (int)fUniforms.size(); ++i) {
+            if (fUniforms[i].fName == name) {
+                return fUniforms[i].fSlot;
+            }
+        }
+        return -1;
+    }
+    const InputVariable& getUniform(int i) const { return fUniforms[i]; }
+
+    int fGlobalCount = 0;
+    std::vector<uint8_t> fUniformSlots;
+    std::vector<InputVariable> fUniforms;
+
+    std::vector<std::unique_ptr<ByteCodeFunction>> fFunctions;
+    std::vector<ExternalValue*> fExternalValues;
 };
 
 }

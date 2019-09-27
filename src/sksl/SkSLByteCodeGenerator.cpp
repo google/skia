@@ -11,6 +11,27 @@
 
 namespace SkSL {
 
+static TypeCategory type_category(const Type& type) {
+    switch (type.kind()) {
+        case Type::Kind::kVector_Kind:
+        case Type::Kind::kMatrix_Kind:
+            return type_category(type.componentType());
+        default:
+            if (type.fName == "bool") {
+                return TypeCategory::kBool;
+            } else if (type.fName == "int" || type.fName == "short") {
+                return TypeCategory::kSigned;
+            } else if (type.fName == "uint" || type.fName == "ushort") {
+                return TypeCategory::kUnsigned;
+            } else {
+                SkASSERT(type.fName == "float" || type.fName == "half");
+                return TypeCategory::kFloat;
+            }
+            ABORT("unsupported type: %s\n", type.description().c_str());
+    }
+}
+
+
 ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
                   ByteCode* output)
     : INHERITED(program, errors, nullptr)
@@ -47,6 +68,26 @@ int ByteCodeGenerator::SlotCount(const Type& type) {
     }
 }
 
+void ByteCodeGenerator::gatherInputs(const Type& type, const String& name) {
+    if (type.kind() == Type::kOther_Kind) {
+        return;
+    } else if (type.kind() == Type::kStruct_Kind) {
+        for (const auto& f : type.fields()) {
+            this->gatherInputs(*f.fType, name + "." + f.fName);
+        }
+    } else if (type.kind() == Type::kArray_Kind) {
+        for (int i = 0; i < type.columns(); ++i) {
+            this->gatherInputs(type.componentType(), String::printf("%s[%d]", name.c_str(), i));
+        }
+    } else {
+        fOutput->fUniforms.push_back({ name, type_category(type), type.rows(), type.columns(),
+                                       fOutput->fGlobalCount });
+        for (int i = type.columns() * type.rows(); i > 0; --i) {
+            fOutput->fUniformSlots.push_back(fOutput->fGlobalCount++);
+        }
+    }
+}
+
 bool ByteCodeGenerator::generateCode() {
     for (const auto& e : fProgram) {
         switch (e.fKind) {
@@ -72,9 +113,7 @@ bool ByteCodeGenerator::generateCode() {
                     // meant to use 'uniform' instead?).
 //                    SkASSERT(!(declVar->fModifiers.fFlags & Modifiers::kIn_Flag));
                     if (declVar->fModifiers.fFlags & Modifiers::kUniform_Flag) {
-                        for (int i = SlotCount(declVar->fType); i > 0; --i) {
-                            fOutput->fInputSlots.push_back(fOutput->fGlobalCount++);
-                        }
+                        this->gatherInputs(declVar->fType, declVar->fName);
                     } else {
                         fOutput->fGlobalCount += SlotCount(declVar->fType);
                     }
@@ -118,33 +157,6 @@ std::unique_ptr<ByteCodeFunction> ByteCodeGenerator::writeFunction(const Functio
     fLocals.clear();
     fFunction = nullptr;
     return result;
-}
-
-enum class TypeCategory {
-    kBool,
-    kSigned,
-    kUnsigned,
-    kFloat,
-};
-
-static TypeCategory type_category(const Type& type) {
-    switch (type.kind()) {
-        case Type::Kind::kVector_Kind:
-        case Type::Kind::kMatrix_Kind:
-            return type_category(type.componentType());
-        default:
-            if (type.fName == "bool") {
-                return TypeCategory::kBool;
-            } else if (type.fName == "int" || type.fName == "short") {
-                return TypeCategory::kSigned;
-            } else if (type.fName == "uint" || type.fName == "ushort") {
-                return TypeCategory::kUnsigned;
-            } else {
-                SkASSERT(type.fName == "float" || type.fName == "half");
-                return TypeCategory::kFloat;
-            }
-            ABORT("unsupported type: %s\n", type.description().c_str());
-    }
 }
 
 // A "simple" Swizzle is based on a variable (or a compound variable like a struct or array), and
