@@ -26,8 +26,13 @@ class GrGLOpsRenderPass : public GrOpsRenderPass {
 public:
     GrGLOpsRenderPass(GrGLGpu* gpu) : fGpu(gpu) {}
 
-    void begin() override;
-    void end() override {}
+    void begin() override {
+        fGpu->beginCommandBuffer(fRenderTarget, fColorLoadAndStoreInfo, fStencilLoadAndStoreInfo);
+    }
+
+    void end() override {
+        fGpu->endCommandBuffer(fRenderTarget, fColorLoadAndStoreInfo, fStencilLoadAndStoreInfo);
+    }
 
     void insertEventMarker(const char* msg) override {
         fGpu->insertEventMarker(msg);
@@ -37,9 +42,8 @@ public:
         state->doUpload(upload);
     }
 
-    void set(GrRenderTarget*, GrSurfaceOrigin,
-             const GrOpsRenderPass::LoadAndStoreInfo&,
-             const GrOpsRenderPass::StencilLoadAndStoreInfo&);
+    void set(GrRenderTarget*, GrSurfaceOrigin, const LoadAndStoreInfo&,
+             const StencilLoadAndStoreInfo&);
 
     void reset() {
         fRenderTarget = nullptr;

@@ -117,8 +117,10 @@ private:
 
     void deleteOps();
 
-    // Must only be called if native stencil buffer clearing is enabled
+    // Load op must not be kClear if caps.performStencilClearsAsDraws() is true.
     void setStencilLoadOp(GrLoadOp op) { fStencilLoadOp = op; }
+    void setStencilStoreOp(GrStoreOp op) { fStencilStoreOp = op; }
+
     // Must only be called if native color buffer clearing is enabled.
     void setColorLoadOp(GrLoadOp op, const SkPMColor4f& color);
     // Sets the clear color to transparent black
@@ -248,6 +250,7 @@ private:
     GrLoadOp fColorLoadOp = GrLoadOp::kLoad;
     SkPMColor4f fLoadClearColor = SK_PMColor4fTRANSPARENT;
     GrLoadOp fStencilLoadOp = GrLoadOp::kLoad;
+    GrStoreOp fStencilStoreOp = GrStoreOp::kDiscard;
 
     uint32_t fLastClipStackGenID;
     SkIRect fLastDevClipBounds;

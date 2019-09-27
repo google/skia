@@ -226,6 +226,10 @@ enum class GrLoadOp {
     kDiscard,
 };
 
+static inline constexpr const char* GrLoadOpName(GrLoadOp op) {
+    return (GrLoadOp::kLoad == op) ? "load" : ((GrLoadOp::kClear == op) ? "clear" : "discard");
+}
+
 /**
  * This enum is used to specify the store operation to be used when an GrOpsTask/GrOpsRenderPass
  * ends execution.
@@ -234,6 +238,10 @@ enum class GrStoreOp {
     kStore,
     kDiscard,
 };
+
+static inline constexpr const char* GrStoreOpName(GrStoreOp op) {
+    return (GrStoreOp::kStore == op) ? "store" : "discard";
+}
 
 /**
  * Used to control antialiasing in draw calls.
