@@ -71,7 +71,6 @@ enum class FormatCompatibilityClass {
     k24_3_1,
     k32_4_1,
     k64_8_1,
-    k128_16_1,
     kETC2_RGB_8_16,
 };
 }  // anonymous namespace
@@ -104,8 +103,6 @@ static FormatCompatibilityClass format_compatibility_class(VkFormat format) {
         case VK_FORMAT_R8G8B8_UNORM:
             return FormatCompatibilityClass::k24_3_1;
 
-        case VK_FORMAT_R32G32B32A32_SFLOAT:
-            return FormatCompatibilityClass::k128_16_1;
         case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
             return FormatCompatibilityClass::kETC2_RGB_8_16;
 
@@ -632,7 +629,6 @@ static constexpr VkFormat kVkFormats[] = {
     VK_FORMAT_A2B10G10R10_UNORM_PACK32,
     VK_FORMAT_B4G4R4A4_UNORM_PACK16,
     VK_FORMAT_R4G4B4A4_UNORM_PACK16,
-    VK_FORMAT_R32G32B32A32_SFLOAT,
     VK_FORMAT_R8G8B8A8_SRGB,
     VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK,
     VK_FORMAT_R16_UNORM,
@@ -927,24 +923,6 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
             }
         }
     }
-    // Format: VK_FORMAT_R32G32B32A32_SFLOAT
-    {
-        constexpr VkFormat format = VK_FORMAT_R32G32B32A32_SFLOAT;
-        auto& info = this->getFormatInfo(format);
-        info.init(interface, physDev, properties, format);
-        if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
-            info.fColorTypeInfoCount = 1;
-            info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
-            int ctIdx = 0;
-            // Format: VK_FORMAT_R32G32B32A32_SFLOAT, Surface: kRGBA_F32
-            {
-                constexpr GrColorType ct = GrColorType::kRGBA_F32;
-                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = ct;
-                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-            }
-        }
-    }
     // Format: VK_FORMAT_R8G8B8A8_SRGB
     {
         constexpr VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
@@ -1105,7 +1083,6 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     this->setColorType(GrColorType::kAlpha_F16,        { VK_FORMAT_R16_SFLOAT });
     this->setColorType(GrColorType::kRGBA_F16,         { VK_FORMAT_R16G16B16A16_SFLOAT });
     this->setColorType(GrColorType::kRGBA_F16_Clamped, { VK_FORMAT_R16G16B16A16_SFLOAT });
-    this->setColorType(GrColorType::kRGBA_F32,         { VK_FORMAT_R32G32B32A32_SFLOAT });
     this->setColorType(GrColorType::kAlpha_16,         { VK_FORMAT_R16_UNORM });
     this->setColorType(GrColorType::kRG_1616,          { VK_FORMAT_R16G16_UNORM });
     this->setColorType(GrColorType::kRGBA_16161616,    { VK_FORMAT_R16G16B16A16_UNORM });
@@ -1535,11 +1512,6 @@ static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool h
                 return kRGBA_half_Clamped_GrPixelConfig;
             }
             break;
-        case GrColorType::kRGBA_F32:
-            if (VK_FORMAT_R32G32B32A32_SFLOAT == format) {
-                return kRGBA_float_GrPixelConfig;
-            }
-            break;
         case GrColorType::kAlpha_16:
             if (VK_FORMAT_R16_UNORM == format) {
                 return kAlpha_16_GrPixelConfig;
@@ -1561,6 +1533,7 @@ static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool h
             }
             break;
         // These have no equivalent:
+        case GrColorType::kRGBA_F32:
         case GrColorType::kAlpha_8xxx:
         case GrColorType::kAlpha_F32xxx:
         case GrColorType::kGray_8xxx:
@@ -1703,7 +1676,6 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrVkCaps::getTestingCombinat
         { GrColorType::kAlpha_F16,        GrBackendFormat::MakeVk(VK_FORMAT_R16_SFLOAT)           },
         { GrColorType::kRGBA_F16,         GrBackendFormat::MakeVk(VK_FORMAT_R16G16B16A16_SFLOAT)  },
         { GrColorType::kRGBA_F16_Clamped, GrBackendFormat::MakeVk(VK_FORMAT_R16G16B16A16_SFLOAT)  },
-        { GrColorType::kRGBA_F32,         GrBackendFormat::MakeVk(VK_FORMAT_R32G32B32A32_SFLOAT)  },
         { GrColorType::kAlpha_16,         GrBackendFormat::MakeVk(VK_FORMAT_R16_UNORM)            },
         { GrColorType::kRG_1616,          GrBackendFormat::MakeVk(VK_FORMAT_R16G16_UNORM)         },
         { GrColorType::kRGBA_16161616,    GrBackendFormat::MakeVk(VK_FORMAT_R16G16B16A16_UNORM)   },

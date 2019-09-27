@@ -54,7 +54,6 @@ enum GrPixelConfig {
     kBGRA_8888_GrPixelConfig,
     kSRGBA_8888_GrPixelConfig,
     kRGBA_1010102_GrPixelConfig,
-    kRGBA_float_GrPixelConfig,
     kAlpha_half_GrPixelConfig,
     kAlpha_half_as_Lum_GrPixelConfig,
     kAlpha_half_as_Red_GrPixelConfig,
@@ -859,8 +858,6 @@ static constexpr size_t GrBytesPerPixel(GrPixelConfig config) {
         case kRGBA_half_Clamped_GrPixelConfig:
         case kRGBA_16161616_GrPixelConfig:
             return 8;
-        case kRGBA_float_GrPixelConfig:
-            return 16;
         case kUnknown_GrPixelConfig:
         case kRGB_ETC1_GrPixelConfig:
             return 0;
@@ -895,7 +892,6 @@ static constexpr bool GrPixelConfigIsOpaque(GrPixelConfig config) {
         case kRGBA_1010102_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
         case kRGBA_half_Clamped_GrPixelConfig:
-        case kRGBA_float_GrPixelConfig:
         case kRGBA_16161616_GrPixelConfig:
         case kUnknown_GrPixelConfig:
             return false;
@@ -926,7 +922,6 @@ static constexpr bool GrPixelConfigIsAlphaOnly(GrPixelConfig config) {
         case kBGRA_8888_GrPixelConfig:
         case kSRGBA_8888_GrPixelConfig:
         case kRGBA_1010102_GrPixelConfig:
-        case kRGBA_float_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
         case kRGBA_half_Clamped_GrPixelConfig:
         case kRGB_ETC1_GrPixelConfig:
@@ -961,7 +956,6 @@ static constexpr bool GrPixelConfigIsFloatingPoint(GrPixelConfig config) {
         case kRG_1616_GrPixelConfig:
         case kRGBA_16161616_GrPixelConfig:
             return false;
-        case kRGBA_float_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
         case kAlpha_half_as_Lum_GrPixelConfig:
         case kAlpha_half_as_Red_GrPixelConfig:
@@ -1370,8 +1364,6 @@ static constexpr GrColorType GrPixelConfigToColorType(GrPixelConfig config) {
             return GrColorType::kRGBA_8888_SRGB;
         case kRGBA_1010102_GrPixelConfig:
             return GrColorType::kRGBA_1010102;
-        case kRGBA_float_GrPixelConfig:
-            return GrColorType::kRGBA_F32;
         case kAlpha_half_GrPixelConfig:
             return GrColorType::kAlpha_F16;
         case kRGBA_half_GrPixelConfig:
@@ -1418,7 +1410,7 @@ static constexpr GrPixelConfig GrColorTypeToPixelConfig(GrColorType colorType) {
         case GrColorType::kRG_88:            return kRG_88_GrPixelConfig;
         case GrColorType::kBGRA_8888:        return kBGRA_8888_GrPixelConfig;
         case GrColorType::kRGBA_1010102:     return kRGBA_1010102_GrPixelConfig;
-        case GrColorType::kRGBA_F32:         return kRGBA_float_GrPixelConfig;
+        case GrColorType::kRGBA_F32:         return kUnknown_GrPixelConfig;
         case GrColorType::kAlpha_F16:        return kAlpha_half_GrPixelConfig;
         case GrColorType::kRGBA_F16:         return kRGBA_half_GrPixelConfig;
         case GrColorType::kRGBA_F16_Clamped: return kRGBA_half_Clamped_GrPixelConfig;
@@ -1483,7 +1475,6 @@ static constexpr const char* GrPixelConfigToStr(GrPixelConfig config) {
         case kBGRA_8888_GrPixelConfig:         return "BGRA8888";
         case kSRGBA_8888_GrPixelConfig:        return "SRGBA8888";
         case kRGBA_1010102_GrPixelConfig:      return "RGBA1010102";
-        case kRGBA_float_GrPixelConfig:        return "RGBAFloat";
         case kAlpha_half_GrPixelConfig:        return "AlphaHalf";
         case kAlpha_half_as_Lum_GrPixelConfig: return "AlphaHalf_asLum";
         case kAlpha_half_as_Red_GrPixelConfig: return "AlphaHalf_asRed";

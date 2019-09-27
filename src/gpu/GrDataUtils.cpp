@@ -243,13 +243,6 @@ static bool fill_buffer_with_color(GrPixelConfig config, int width, int height,
             sk_memset32((uint32_t *) dest, rgba1010102, width * height);
             break;
         }
-        case kRGBA_float_GrPixelConfig: {
-            SkColor4f* destColor = (SkColor4f*) dest;
-            for (int i = 0; i < width * height; ++i) {
-                destColor[i] = colorf;
-            }
-            break;
-        }
         case kAlpha_half_as_Lum_GrPixelConfig:                  // fall through
         case kAlpha_half_as_Red_GrPixelConfig:                  // fall through
         case kAlpha_half_GrPixelConfig: {

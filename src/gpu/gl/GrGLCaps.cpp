@@ -2473,16 +2473,6 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         }
     }
 
-    // Format: RGBA32F
-    {
-        FormatInfo& info = this->getFormatInfo(GrGLFormat::kRGBA32F);
-        info.fFormatType = FormatType::kFloat;
-        info.fInternalFormatForTexImageOrStorage =
-                texImageSupportsSizedInternalFormat ? GR_GL_RGBA32F : GR_GL_RGBA;
-        info.fInternalFormatForRenderbuffer = GR_GL_RGBA32F;
-        // We don't allow texturing or rendering to this format
-    }
-
     // Format: SRGB8_ALPHA8
     {
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kSRGB8_ALPHA8);
@@ -4036,11 +4026,6 @@ static GrPixelConfig validate_sized_format(GrGLFormat format,
                 return kRGBA_half_Clamped_GrPixelConfig;
             }
             break;
-        case GrColorType::kRGBA_F32:
-            if (format == GrGLFormat::kRGBA32F) {
-                return kRGBA_float_GrPixelConfig;
-            }
-            break;
         case GrColorType::kAlpha_16:
             if (format == GrGLFormat::kR16) {
                 return kAlpha_16_GrPixelConfig;
@@ -4063,6 +4048,7 @@ static GrPixelConfig validate_sized_format(GrGLFormat format,
             break;
 
         // These have no equivalent config:
+        case GrColorType::kRGBA_F32:
         case GrColorType::kAlpha_8xxx:
         case GrColorType::kAlpha_F32xxx:
         case GrColorType::kGray_8xxx:
@@ -4198,8 +4184,6 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrGLCaps::getTestingCombinat
           GrBackendFormat::MakeGL(GR_GL_RGBA16F, GR_GL_TEXTURE_2D) },
         { GrColorType::kRGBA_F16_Clamped,
           GrBackendFormat::MakeGL(GR_GL_RGBA16F, GR_GL_TEXTURE_2D) },
-        { GrColorType::kRGBA_F32,
-          GrBackendFormat::MakeGL(GR_GL_RGBA32F, GR_GL_TEXTURE_2D) },
         { GrColorType::kAlpha_16,
           GrBackendFormat::MakeGL(GR_GL_R16, GR_GL_TEXTURE_2D) },
         { GrColorType::kRG_1616,
