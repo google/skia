@@ -41,6 +41,57 @@ public:
     skif::FilterResult<For::kOutput> filterImage(const skif::Context& context) const;
 
     /**
+     *  Calculate the smallest-possible required layer bounds that would provide sufficient
+     *  information to correctly compute the image filter for every pixel in the target output
+     *  bounds. The 'targetOutput' is intended to represent either the root render target bounds, or
+     *  the device-space bounds of the current clip. If the bounds of the content that will be drawn
+     *  into the layer is known, 'knownContentBounds' should be provided, which can also be used to
+     *  restrict the size of the layer if the image filter DAG does not affect transparent black.
+     *
+     *  The returned rect is in the layer space defined by 'mapping', so it directly represents
+     *  the size and location of the SkDevice created to rasterize the content prior to invoking the
+     *  image filter (assuming its CTM and basis matrix are configured to match 'mapping').
+     *
+     *  While this operation transforms an output bounds to an input bounds, it is not necessarily
+     *  the inverse of getOutputBounds(). For instance, a blur needs to have an outset margin when
+     *  reading pixels at the edge (to satisfy its kernel), and it expands its output to include
+     *  every pixel that had some contribution from the input content bounds.
+     *
+     *  @param mapping       The coordinate space mapping from local to layer to root device space
+     *                       that will be used when the filter is later invoked.
+     *  @param targetOutput  The desired output boundary that should be covered by the filter's
+     *                       output (assuming that the filter is then invoked with a suitable input)
+     *  @param layer         The matrix defining the transformation from parameter to layer space.
+     *  @param knownContentBounds
+     *                       Optional, the known layer-space bounds of the nontransparent content
+     *                       that would be rasterized in source input image.
+     */
+    skif::LayerSpace<SkIRect> getInputBounds(
+            const skif::Mapping& mapping, const skif::DeviceSpace<SkRect>& targetOutput,
+            const skif::ParameterSpace<SkRect>* knownContentBounds) const;
+
+    /**
+     *  Calculate the device-space bounds of the output of this filter DAG, if it were to process
+     *  an image layer covering the 'contentBounds'. The 'mapping' defines how the content would
+     *  transformed to layer space when it is drawn, and how the output filter image is then
+     *  transformed to the final device space (which is what's returned).
+     *
+     *  While this operation transforms an input bounds to an output bounds, it is not necessarily
+     *  the inverse of getInputBounds(). For instance, a blur needs to have an outset margin
+     *  when reading pixels at the edge (to satisfy its kernel), and it expands its output to
+     *  include every pixel that had some contribution from the input content bounds.
+     *
+     *  @param mapping       The coordinate space mapping from local to layer to root device space
+     *                       that will be used when the filter is later invoked.
+     *  @param contentBounds The local-space bounds of the nontransparent content that would be
+     *                       drawn into the source image prior to filtering with this DAG,  i.e.
+     *                       the same as 'knownContentBounds' in getInputBounds().
+     *  @param layer         The matrix defining the transformation from parameter to layer space.
+     */
+    skif::DeviceSpace<SkIRect> getOutputBounds(
+            const skif::Mapping& mapping, const skif::ParameterSpace<SkRect>& contentBounds) const;
+
+    /**
      *  Returns whether any edges of the crop rect have been set. The crop
      *  rect is set at construction time, and determines which pixels from the
      *  input image will be processed, and which pixels in the output image will be allowed.
@@ -124,39 +175,11 @@ protected:
     // DEPRECATED - Use the private context-only variant
     virtual sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const = 0;
 
-    /**
-     * This function recurses into its inputs with the given rect (first
-     * argument), calls filterBounds() with the given map direction on each,
-     * and returns the union of those results. If a derived class has special
-     * recursion requirements (e.g., it has an input which does not participate
-     * in bounds computation), it can be overridden here.
-     * In kReverse mode, 'inputRect' is the device-space bounds of the input pixels. In kForward
-     * mode it should always be null. If 'inputRect' is null in kReverse mode the resulting
-     * answer may be incorrect.
-     *
-     * Note that this function is *not* responsible for mapping the rect for
-     * this node's filter bounds requirements (i.e., calling
-     * onFilterNodeBounds()); that is handled by filterBounds().
-     */
+    // DEPRECATED - Override onGetOutputLayerBounds and onGetInputLayerBounds instead. The
+    // node-specific and aggregation functions are no longer separated in the current API. A helper
+    // function is provided to do the default recursion for the common filter case.
     virtual SkIRect onFilterBounds(const SkIRect&, const SkMatrix& ctm,
                                    MapDirection, const SkIRect* inputRect) const;
-
-    /**
-     * Performs a forwards or reverse mapping of the given rect to accommodate
-     * this filter's margin requirements. kForward_MapDirection is used to
-     * determine the destination pixels which would be touched by filtering
-     * the given source rect (e.g., given source bitmap bounds,
-     * determine the optimal bounds of the filtered offscreen bitmap).
-     * kReverse_MapDirection is used to determine which pixels of the
-     * input(s) would be required to fill the given destination rect
-     * (e.g., clip bounds). NOTE: these operations may not be the
-     * inverse of the other. For example, blurring expands the given rect
-     * in both forward and reverse directions. Unlike
-     * onFilterBounds(), this function is non-recursive.
-     * In kReverse mode, 'inputRect' will be the device space bounds of the input pixels. In
-     * kForward mode, 'inputRect' should always be null. If 'inputRect' is null in kReverse mode
-     * the resulting answer may be incorrect.
-     */
     virtual SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
                                        MapDirection, const SkIRect* inputRect) const;
 
@@ -164,6 +187,18 @@ protected:
     sk_sp<SkSpecialImage> filterInput(int index, const Context& ctx, SkIPoint* offset) const {
         return this->getInputFilteredImage(index, ctx).imageAndOffset(offset);
     }
+
+    // Helper function to visit each of this filter's child filters and call their
+    // onGetInputLayerBounds with the provided 'targetOutput' and 'contentBounds'. Automatically
+    // handles null input filters. Returns the union of all children's input bounds.
+    skif::LayerSpace<SkIRect> visitInputLayerBounds(
+            const skif::Mapping& mapping, const skif::LayerSpace<SkIRect>& targetOutput,
+            const skif::LayerSpace<SkIRect>& contentBounds) const;
+    // Helper function to visit each of this filter's child filters and call their
+    // onGetOutputLayerBounds with the provided 'contentBounds'. Automatically handles null input
+    // filters.
+    skif::LayerSpace<SkIRect> visitOutputLayerBounds(
+            const skif::Mapping& mapping, const skif::LayerSpace<SkIRect>& contentBounds) const;
 
     // Helper function to help with recursing through the filter DAG. It invokes filter processing
     // set to null, it returns the dynamic source image on the Context instead.
@@ -306,6 +341,48 @@ private:
      *  bounds as if its input filtered image were transparent black.
      */
     virtual skif::FilterResult<For::kOutput> onFilterImage(const skif::Context& context) const;
+
+    /**
+     *  Calculates the necessary input layer size in order for the final output of the filter to
+     *  cover the target output bounds. The provided 'targetOutputBounds' represents the requested
+     *  input bounds for this node's parent filter node, i.e. this function answers "what does this
+     *  node require for input in order to satisfy (as its own output), the input needs of its
+     *  parent?".
+     *
+     *  This function is responsible for recursing to its child image filters and accounting
+     *  for what they require to meet this filters input requirements. It is up to the filter to
+     *  determine how to aggregate these inputs, but a helper function is provided for the common
+     *  case where the final required layer size is the union of child filter's required inputs,
+     *  evaluated on what this filter requires for itself.
+     *
+     *  Unlike the public getInputBounds(), all internal bounds calculations are done in the
+     *  shared layer space defined by 'mapping'.
+
+     *  The default implementation assumes that current filter requires an input equal to
+     *  'targetOutputBounds', and passes this up to its child filters, and returns the union of
+     *  their required inputs.
+     */
+    virtual skif::LayerSpace<SkIRect> onGetInputLayerBounds(
+            const skif::Mapping& mapping, const skif::LayerSpace<SkIRect>& targetOutput,
+            const skif::LayerSpace<SkIRect>& contentBounds) const;
+
+    /**
+     *  Calculates the output bounds that this filter node would touch when processing an input
+     *  sized to 'contentBounds'. This function is responsible for recursing to its child image
+     *  filters and accounting for what they output. It is up to the filter to determine how to
+     *  aggregate the outputs of its children, but a helper function is provided for the common
+     *  case where the filter acts upon the union of its child outputs.
+     *
+     *  Unlike the public getOutputBounds(), all internal bounds calculations are done in the
+     *  shared layer space defined by 'mapping'.
+     *
+     *  The default implementation assumes that the output of this filter is equal to the union of
+     *  the outputs of its child filters evaluated with 'contentBounds'.
+     */
+    // TODO (michaelludwig) - When layerMatrix = I, this function could be used to implement
+    // onComputeFastBounds() instead of making filters implement the essentially the same calcs x2
+    virtual skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
+            const skif::Mapping& mapping, const skif::LayerSpace<SkIRect>& contentBounds) const;
 
     // The actual implementation of the protected getFilterInputX() functions, but don't expose the
     // flexible templating to subclasses so it can't be abused.
