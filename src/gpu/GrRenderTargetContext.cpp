@@ -205,7 +205,21 @@ GrOpsTask* GrRenderTargetContext::getOpsTask() {
     SkDEBUGCODE(this->validate();)
 
     if (!fOpsTask || fOpsTask->isClosed()) {
-        fOpsTask = this->drawingManager()->newOpsTask(fRenderTargetProxy, fManagedOpsTask);
+        sk_sp<GrOpsTask> newOpList =
+                this->drawingManager()->newOpsTask(fRenderTargetProxy, fManagedOpsTask);
+        if (fNumStencilSamples > 0) {
+            SkASSERT(fOpsTask);
+            // Always load/store stencil between opList splits. (We know this must be a split
+            // because the stencil is already initialized.)
+            // FIXME: In addition to simply reducing the split frequency, we might want to think
+            // about cases where we can safely skip this heavy-handed load/store solution.
+            fOpsTask->setStencilStoreOp(GrStoreOp::kStore);  // Store stencil after previous opList.
+            newOpList->setStencilLoadOp(GrLoadOp::kLoad);  // Load stencil before next opList.
+            if (!this->caps()->discardStencilAfterCommandBuffer()) {
+                newOpList->setStencilStoreOp(GrStoreOp::kStore);
+            }
+        }
+        fOpsTask = std::move(newOpList);
     }
 
     return fOpsTask.get();
@@ -738,7 +752,7 @@ GrOpsTask::CanDiscardPreviousOps GrRenderTargetContext::canDiscardPreviousOpsOnF
 void GrRenderTargetContext::setNeedsStencil(bool multisampled) {
     // Don't clear stencil until after we've changed fNumStencilSamples. This ensures we don't loop
     // forever in the event that there are driver bugs and we need to clear as a draw.
-    bool needsStencilClear = !fNumStencilSamples;
+    bool hasInitializedStencil = fNumStencilSamples > 0;
 
     int numRequiredSamples = this->numSamples();
     if (multisampled && 1 == numRequiredSamples) {
@@ -755,7 +769,7 @@ void GrRenderTargetContext::setNeedsStencil(bool multisampled) {
         fRenderTargetProxy->setNeedsStencil(fNumStencilSamples);
     }
 
-    if (needsStencilClear) {
+    if (!hasInitializedStencil) {
         if (this->caps()->performStencilClearsAsDraws()) {
             // There is a driver bug with clearing stencil. We must use an op to manually clear the
             // stencil buffer before the op that required 'setNeedsStencil'.
@@ -766,6 +780,11 @@ void GrRenderTargetContext::setNeedsStencil(bool multisampled) {
             // altogether. And on tilers, loading the stencil buffer cleared is even faster than
             // preserving the previous contents.
             this->getOpsTask()->setStencilLoadOp(GrLoadOp::kClear);
+        }
+        if (!this->caps()->discardStencilAfterCommandBuffer()) {
+            // Preserve stencil data if we aren't on a tiler. The opList will notice this, track
+            // that the user bits are clean, and potentially skip future clear-on-load ops.
+            this->getOpsTask()->setStencilStoreOp(GrStoreOp::kStore);
         }
     }
 }
@@ -2247,8 +2266,6 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
         fContext->priv().opMemoryPool()->release(std::move(op));
         return;
     }
-
-    SkASSERT((!usesStencil && !appliedClip.hasStencilClip()) || (fNumStencilSamples > 0));
 
     GrClampType clampType = GrColorTypeClampType(this->colorSpaceInfo().colorType());
     // MIXED SAMPLES TODO: If we start using mixed samples for clips we will need to check the clip
