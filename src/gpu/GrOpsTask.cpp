@@ -394,6 +394,9 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 #endif
+    if (this->isNoOp() || (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
+        return;
+    }
 
     flushState->setSampledProxyArray(&fSampledProxies);
     // Loop over the ops that haven't yet been prepared.
@@ -445,7 +448,7 @@ static GrOpsRenderPass* create_command_buffer(
 // is at flush time). However, we need to store the RenderTargetProxy in the
 // Ops and instantiate them here.
 bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
-    if (this->isNoOp()) {
+    if (this->isNoOp() || (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
         return false;
     }
 
@@ -760,8 +763,11 @@ GrRenderTask::ExpectedOutcome GrOpsTask::onMakeClosed(
     this->forwardCombine(caps);
     if (!this->isNoOp()) {
         SkRect clippedContentBounds = SkRect::MakeIWH(fTarget->width(), fTarget->height());
+        // TODO: If we can fix up GLPrograms test to always intersect the fTarget bounds then we can
+        // simply assert here that the bounds intersect.
         if (clippedContentBounds.intersect(fTotalBounds)) {
-            clippedContentBounds.roundOut(targetUpdateBounds);
+            clippedContentBounds.roundOut(&fClippedContentBounds);
+            *targetUpdateBounds = fClippedContentBounds;
             return ExpectedOutcome::kTargetDirty;
         }
     }
