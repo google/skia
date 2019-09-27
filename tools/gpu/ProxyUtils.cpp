@@ -34,44 +34,16 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
     }
 
     sk_sp<GrTextureProxy> proxy;
-    if (kBottomLeft_GrSurfaceOrigin == origin) {
-        // We (soon will) only support using kBottomLeft with wrapped textures.
-        auto backendTex = context->createBackendTexture(
-                width, height, format, SkColors::kTransparent, GrMipMapped::kNo, renderable,
-                GrProtected::kNo);
-        if (!backendTex.isValid()) {
-            return nullptr;
-        }
-
-        // Adopt ownership so our caller doesn't have to worry about deleting the backend texture.
-        if (GrRenderable::kYes == renderable) {
-            proxy = context->priv().proxyProvider()->wrapRenderableBackendTexture(
-                    backendTex, origin, 1, colorType, kAdopt_GrWrapOwnership, GrWrapCacheable::kNo,
-                    nullptr, nullptr);
-        } else {
-            proxy = context->priv().proxyProvider()->wrapBackendTexture(
-                    backendTex, colorType, origin, kAdopt_GrWrapOwnership,
-                    GrWrapCacheable::kNo, kRW_GrIOType);
-        }
-
-        if (!proxy) {
-            context->deleteBackendTexture(backendTex);
-            return nullptr;
-        }
-
-    } else {
-        GrSurfaceDesc desc;
-        desc.fConfig = GrColorTypeToPixelConfig(colorType);
-        desc.fWidth = width;
-        desc.fHeight = height;
-        proxy = context->priv().proxyProvider()->createProxy(format, desc, renderable, 1, origin,
-                                                             GrMipMapped::kNo, SkBackingFit::kExact,
-                                                             SkBudgeted::kYes, GrProtected::kNo);
-        if (!proxy) {
-            return nullptr;
-        }
+    GrSurfaceDesc desc;
+    desc.fConfig = GrColorTypeToPixelConfig(colorType);
+    desc.fWidth = width;
+    desc.fHeight = height;
+    proxy = context->priv().proxyProvider()->createProxy(format, desc, renderable, 1, origin,
+                                                         GrMipMapped::kNo, SkBackingFit::kExact,
+                                                         SkBudgeted::kYes, GrProtected::kNo);
+    if (!proxy) {
+        return nullptr;
     }
-
     auto sContext = context->priv().makeWrappedSurfaceContext(proxy, colorType, alphaType, nullptr);
     if (!sContext) {
         return nullptr;

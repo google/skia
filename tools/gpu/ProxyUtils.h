@@ -23,13 +23,9 @@ inline sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, GrRend
                                                       int width, int height, SkColorType ct,
                                                       SkAlphaType alphaType, GrSurfaceOrigin origin,
                                                       const void* data, size_t rowBytes) {
-    GrColorType grCT = SkColorTypeToGrColorType(ct);
-    if (GrColorType::kUnknown == grCT) {
-        return nullptr;
-    }
 
-    return MakeTextureProxyFromData(context, renderable, width, height, grCT, alphaType, origin,
-                                    data, rowBytes);
+    return MakeTextureProxyFromData(context, renderable, width, height,
+            SkColorTypeToGrColorType(ct), alphaType, origin, data, rowBytes);
 }
 
 }  // namespace sk_gpu_test

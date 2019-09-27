@@ -273,11 +273,14 @@ struct SK_API SkIRect {
         @param dy  offset added to fTop and fBottom
         @return    SkIRect offset by dx and dy, with original width and height
     */
-    SkIRect makeOffset(int32_t dx, int32_t dy) const {
+    constexpr SkIRect makeOffset(int32_t dx, int32_t dy) const {
         return {
             Sk32_sat_add(fLeft,  dx), Sk32_sat_add(fTop,    dy),
             Sk32_sat_add(fRight, dx), Sk32_sat_add(fBottom, dy),
         };
+    }
+    constexpr SkIRect makeOffset(const SkIVector& pt) const {
+        return this->makeOffset(pt.fX, pt.fY);
     }
 
     /** Returns SkIRect, inset by (dx, dy).
