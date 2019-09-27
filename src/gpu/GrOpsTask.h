@@ -269,6 +269,7 @@ private:
     SkTArray<GrTextureProxy*, true> fSampledProxies;
 
     SkRect fTotalBounds = SkRect::MakeEmpty();
+    SkIRect fClippedContentBounds = SkIRect::MakeEmpty();
 };
 
 #endif
