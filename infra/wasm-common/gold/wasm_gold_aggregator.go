@@ -38,14 +38,14 @@ var (
 
 	botId            = flag.String("bot_id", "", "swarming bot id (deprecated/unused)")
 	browser          = flag.String("browser", "Chrome", "Browser Key")
-	buildBucketID    = flag.Int64("buildbucket_build_id", 0, "Buildbucket build id key")
+	buildBucketID    = flag.String("buildbucket_build_id", "", "Buildbucket build id key")
 	builder          = flag.String("builder", "", "Builder, like 'Test-Debian9-EMCC-GCE-CPU-AVX2-wasm-Debug-All-PathKit'")
 	compiledLanguage = flag.String("compiled_language", "wasm", "wasm or asm.js")
 	config           = flag.String("config", "Release", "Configuration (e.g. Debug/Release) key")
 	gitHash          = flag.String("git_hash", "-", "The git commit hash of the version being tested")
 	hostOS           = flag.String("host_os", "Debian9", "OS Key")
-	issue            = flag.Int64("issue", 0, "issue (if tryjob)")
-	patchset         = flag.Int64("patchset", 0, "patchset (if tryjob)")
+	issue            = flag.String("issue", "", "ChangeListID (if tryjob)")
+	patchset         = flag.Int("patchset", 0, "patchset (if tryjob)")
 	taskId           = flag.String("task_id", "", "swarming task id")
 	sourceType       = flag.String("source_type", "pathkit", "Gold Source type, like pathkit,canvaskit")
 )
@@ -176,14 +176,15 @@ func dumpJSON(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dmresults := jsonio.GoldResults{
-		BuildBucketID:      *buildBucketID,
-		Builder:            *builder,
-		GitHash:            *gitHash,
-		GerritChangeListID: *issue,
-		Key:                defaultKeys,
-		GerritPatchSet:     *patchset,
-		Results:            results,
-		TaskID:             *taskId,
+		TryJobID:                    *buildBucketID,
+		ContinuousIntegrationSystem: "buildbucket",
+		Builder:                     *builder,
+		GitHash:                     *gitHash,
+		ChangeListID:                *issue,
+		Key:                         defaultKeys,
+		PatchSetOrder:               *patchset,
+		Results:                     results,
+		TaskID:                      *taskId,
 	}
 	enc := json.NewEncoder(outputFile)
 	enc.SetIndent("", "  ") // Make it human readable.
