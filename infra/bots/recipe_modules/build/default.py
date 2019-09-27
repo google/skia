@@ -274,7 +274,10 @@ def compile_fn(api, checkout_root, out_dir):
   if 'iOS' in extra_tokens:
     # Bots use Chromium signing cert.
     args['skia_ios_identity'] = '".*GS9WA.*"'
-    args['skia_ios_profile'] = '"Upstream Testing Provisioning Profile"'
+    # Get mobileprovision via the CIPD package.
+    args['skia_ios_profile'] = '"%s"' % api.vars.slave_dir.join(
+        'provisioning_profile_ios',
+        'Upstream_Testing_Provisioning_Profile.mobileprovision')
   if 'CheckGeneratedFiles' in extra_tokens:
     args['skia_compile_processors'] = 'true'
     args['skia_generate_workarounds'] = 'true'
