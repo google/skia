@@ -261,7 +261,7 @@ hb_blob_t* skhb_get_table(hb_face_t* face, hb_tag_t tag, void* user_data) {
     SkData* rawData = data.release();
     return hb_blob_create(reinterpret_cast<char*>(rawData->writable_data()), rawData->size(),
                           HB_MEMORY_MODE_WRITABLE, rawData, [](void* ctx) {
-                              ((SkData*)ctx)->unref();
+                              SkSafeUnref(((SkData*)ctx));
                           });
 }
 

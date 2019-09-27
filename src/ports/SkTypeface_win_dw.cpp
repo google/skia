@@ -258,11 +258,24 @@ size_t DWriteFontTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
 }
 
 sk_sp<SkData> DWriteFontTypeface::onCopyTableData(SkFontTableTag tag) const {
-    AutoDWriteTable table(fDWriteFontFace.get(), SkEndian_SwapBE32(tag));
-    if (!table.fExists) {
+    const uint8_t* data;
+    UINT32 size;
+    void* lock;
+    BOOL exists;
+    fDWriteFontFace->TryGetFontTable(SkEndian_SwapBE32(tag),
+            reinterpret_cast<const void **>(&data), &size, &lock, &exists);
+    if (!exists) {
         return nullptr;
     }
-    return SkData::MakeWithCopy(table.fData, table.fSize);
+    struct Context {
+        Context(void* lock, IDWriteFontFace* face) : fLock(lock), fFontFace(SkRefComPtr(face)) {}
+        ~Context() { fFontFace->ReleaseFontTable(fLock); }
+        void* fLock;
+        SkTScopedComPtr<IDWriteFontFace> fFontFace;
+    };
+    return SkData::MakeWithProc(data, size,
+                                [](const void*, void* ctx) { delete (Context*)ctx; },
+                                new Context(lock, fDWriteFontFace.get()));
 }
 
 sk_sp<SkTypeface> DWriteFontTypeface::onMakeClone(const SkFontArguments& args) const {
