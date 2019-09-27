@@ -29,7 +29,6 @@ bool GrVkFormatColorTypePairIsValid(VkFormat format, GrColorType colorType) {
         case VK_FORMAT_R4G4B4A4_UNORM_PACK16:     return GrColorType::kABGR_4444 == colorType;
         case VK_FORMAT_R8_UNORM:                 return GrColorType::kAlpha_8 == colorType ||
                                                          GrColorType::kGray_8 == colorType;
-        case VK_FORMAT_R32G32B32A32_SFLOAT:       return GrColorType::kRGBA_F32 == colorType;
         case VK_FORMAT_R16G16B16A16_SFLOAT:       return GrColorType::kRGBA_F16 == colorType ||
                                                          GrColorType::kRGBA_F16_Clamped == colorType;
         case VK_FORMAT_R16_SFLOAT:                return GrColorType::kAlpha_F16 == colorType;
@@ -60,7 +59,6 @@ bool GrVkFormatIsSupported(VkFormat format) {
         case VK_FORMAT_R4G4B4A4_UNORM_PACK16:
         case VK_FORMAT_R8_UNORM:
         case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
-        case VK_FORMAT_R32G32B32A32_SFLOAT:
         case VK_FORMAT_R16G16B16A16_SFLOAT:
         case VK_FORMAT_R16_SFLOAT:
         case VK_FORMAT_R16_UNORM:
@@ -206,9 +204,6 @@ size_t GrVkBytesPerFormat(VkFormat vkFormat) {
         case VK_FORMAT_R16G16B16A16_SFLOAT:
         case VK_FORMAT_R16G16B16A16_UNORM:
             return 8;
-
-        case VK_FORMAT_R32G32B32A32_SFLOAT:
-            return 16;
 
         case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
             return 0;

@@ -897,8 +897,6 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
         // of the provided color with the same value in such cases.
         { GrColorType::kGray_8,           VK_FORMAT_R8_UNORM,                 kGrayCol            },
 
-        { GrColorType::kRGBA_F32,         VK_FORMAT_R32G32B32A32_SFLOAT,      SkColors::kRed      },
-
         { GrColorType::kRGBA_F16_Clamped, VK_FORMAT_R16G16B16A16_SFLOAT,      SkColors::kLtGray   },
         { GrColorType::kRGBA_F16,         VK_FORMAT_R16G16B16A16_SFLOAT,      SkColors::kYellow   },
 
