@@ -59,8 +59,6 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
         { GrColorType::kAlpha_8,          MTLPixelFormatR8Unorm,         kTransCol            },
         { GrColorType::kGray_8,           MTLPixelFormatR8Unorm,         kGrayCol             },
 
-        { GrColorType::kRGBA_F32,         MTLPixelFormatRGBA32Float,     SkColors::kRed       },
-
         { GrColorType::kRGBA_F16_Clamped, MTLPixelFormatRGBA16Float,     SkColors::kLtGray    },
         { GrColorType::kRGBA_F16,         MTLPixelFormatRGBA16Float,     SkColors::kYellow    },
 
