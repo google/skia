@@ -64,12 +64,23 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
                | (wx << 16)
                | (wx << 24);
 
+            auto gather = [](const int* ptr, skvx::Vec<8,uint32_t> ix) -> skvx::Vec<8,int> {
+            #if 1
+                // Drop into AVX2 intrinsics for vpgatherdd.
+                return skvx::bit_pun<skvx::Vec<8,int>>(
+                        _mm256_i32gather_epi32(ptr, skvx::bit_pun<__m256i>(ix), 4));
+            #else
+                // Portable version... sometimes I don't trust vpgatherdd.
+                return {
+                    ptr[ix[0]], ptr[ix[1]], ptr[ix[2]], ptr[ix[3]],
+                    ptr[ix[4]], ptr[ix[5]], ptr[ix[6]], ptr[ix[7]],
+                };
+            #endif
+            };
+
             // Gather the 32 32-bit pixels that we'll bilerp into our 8 output pixels.
-            // We need to drop into explicit AVX2 intrinsics for a moment to gather.
-            __m256i tl = _mm256_i32gather_epi32(row0, skvx::bit_pun<__m256i>(x0), 4),
-                    tr = _mm256_i32gather_epi32(row0, skvx::bit_pun<__m256i>(x1), 4),
-                    bl = _mm256_i32gather_epi32(row1, skvx::bit_pun<__m256i>(x0), 4),
-                    br = _mm256_i32gather_epi32(row1, skvx::bit_pun<__m256i>(x1), 4);
+            skvx::Vec<8,int> tl = gather(row0, x0), tr = gather(row0, x1),
+                             bl = gather(row1, x0), br = gather(row1, x1);
 
             // Treat 32-bit pixels as 4 8-bit values, and expand to 16-bit for room to multiply.
             auto to_16x4 = [](auto v) -> skvx::Vec<32, uint16_t> {
