@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46ab2c58_fc17cce1",
+        "filename": "src/sksl/SkSLByteCode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-09-27T14:34:04Z",
+      "side": 1,
+      "message": "This is basically the entire change, everything else is just adapting to this...",
+      "range": {
+        "startLine": 232,
+        "startChar": 0,
+        "endLine": 241,
+        "endChar": 0
+      },
+      "revId": "4189a4e0c0445511dd48eb8e97a38edb7334ebe4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
