@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cba39c2e_c84cf8e5",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-09-27T15:48:10Z",
+      "side": 1,
+      "message": "You ever think about doing this (including the shader +\u003d colorfilter) even up a level higher in SkCanvas so even devices don\u0027t have to see color filters?",
+      "range": {
+        "startLine": 162,
+        "startChar": 0,
+        "endLine": 172,
+        "endChar": 5
+      },
+      "revId": "32b404bf62a58ba1107ed91a1c9bed0216893f79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
