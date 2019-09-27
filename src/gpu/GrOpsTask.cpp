@@ -18,8 +18,11 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrResourceAllocator.h"
+#include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/geometry/GrRect.h"
 #include "src/gpu/ops/GrClearOp.h"
@@ -420,7 +423,7 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
 static GrOpsRenderPass* create_command_buffer(
         GrGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
         GrLoadOp colorLoadOp, const SkPMColor4f& loadClearColor, GrLoadOp stencilLoadOp,
-        const SkTArray<GrTextureProxy*, true>& sampledProxies) {
+        GrStoreOp stencilStoreOp, const SkTArray<GrTextureProxy*, true>& sampledProxies) {
     const GrOpsRenderPass::LoadAndStoreInfo kColorLoadStoreInfo {
         colorLoadOp,
         GrStoreOp::kStore,
@@ -434,7 +437,7 @@ static GrOpsRenderPass* create_command_buffer(
     // lower level (inside the VK command buffer).
     const GrOpsRenderPass::StencilLoadAndStoreInfo stencilLoadAndStoreInfo {
         stencilLoadOp,
-        GrStoreOp::kStore,
+        stencilStoreOp,
     };
 
     return gpu->getOpsRenderPass(rt, origin, bounds, kColorLoadStoreInfo, stencilLoadAndStoreInfo,
@@ -452,14 +455,21 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
     SkASSERT(fTarget->peekRenderTarget());
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
-    // TODO: at the very least, we want the stencil store op to always be discard (at this
-    // level). In Vulkan, sub-command buffers would still need to load & store the stencil buffer.
-
     // Make sure load ops are not kClear if the GPU needs to use draws for clears
     SkASSERT(fColorLoadOp != GrLoadOp::kClear ||
              !flushState->gpu()->caps()->performColorClearsAsDraws());
     SkASSERT(fStencilLoadOp != GrLoadOp::kClear ||
              !flushState->gpu()->caps()->performStencilClearsAsDraws());
+
+    GrRenderTarget* renderTarget = fTarget.get()->peekRenderTarget();
+    GrStencilAttachment* stencil = renderTarget->renderTargetPriv().getStencilAttachment();
+    GrLoadOp stencilLoadOp = fStencilLoadOp;
+    if (stencil && GrLoadOp::kClear == stencilLoadOp && !stencil->userBitsAreDirty()) {
+        if (!flushState->caps().preferFullscreenClears()) {
+            stencilLoadOp = GrLoadOp::kLoad;
+        }
+    }
+
     GrOpsRenderPass* renderPass = create_command_buffer(
                                                     flushState->gpu(),
                                                     fTarget->peekRenderTarget(),
@@ -468,6 +478,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
                                                     fColorLoadOp,
                                                     fLoadClearColor,
                                                     fStencilLoadOp,
+                                                    fStencilStoreOp,
                                                     fSampledProxies);
     flushState->setOpsRenderPass(renderPass);
     renderPass->begin();
@@ -497,6 +508,16 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
     renderPass->end();
     flushState->gpu()->submit(renderPass);
     flushState->setOpsRenderPass(nullptr);
+
+    if (stencil && GrStoreOp::kStore == fStencilStoreOp) {
+        // The user stencil bits are always initialized and kept at zero for the duration of a
+        // command buffer. So if we store the stencil, we know we're storing clean user bits.
+        stencil->userBitsCleared();
+    }
+    // FIXME: We don't currently have a way to flag command buffers that don't use stencil at all.
+    // In that case, their store op will be discard, and we currently make the assumption that a
+    // store op of "discard" will not invalidate what's already in main memory. This is probably ok
+    // for now, but certainly something we want to address soon.
 
     return true;
 }
