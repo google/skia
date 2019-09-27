@@ -3,6 +3,8 @@ Skia Graphics Release Notes
 This file includes a list of high level updates for each milestone release.
 
 -----
+  * Add explicit src and dst colorspace parameters to SkColorFilter::filterColor4f()
+
   * Add SkSurface::MakeFromCAMetalLayer
 
   * Remove isRectContour and ksNestedFillRects from public

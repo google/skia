@@ -25,6 +25,7 @@
 #include "src/core/SkAnnotationKeys.h"
 #include "src/core/SkBitmapDevice.h"
 #include "src/core/SkClipOpPriv.h"
+#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkGlyphRun.h"
 #include "src/core/SkImageFilterCache.h"
@@ -163,7 +164,9 @@ static SkTCopyOnFirstWrite<SkPaint> clean_paint(const SkPaint& srcPaint) {
         if (SkShader* shader = paint->getShader()) {
             p->setShader(shader->makeWithColorFilter(paint->refColorFilter()));
         } else {
-            p->setColor4f(cf->filterColor4f(paint->getColor4f(), nullptr), nullptr);
+            SkColorSpace* dstCS = sk_srgb_singleton();  // don't know PDF's space, so use srgb
+            SkColor4f newColor = cf->filterColor4f(p->getColor4f(), sk_srgb_singleton(), dstCS);
+            p->setColor4f(newColor, dstCS);
         }
         p->setColorFilter(nullptr);
     }
