@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3af6f663_c9c82909",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2019-09-27T14:18:05Z",
+      "side": 1,
+      "message": "Here we are dereferencing \u0027anim\u0027...",
+      "revId": "49c073257022f4d37491606af67efe5603510685",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2434a454_15f64922",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2019-09-27T14:18:05Z",
+      "side": 1,
+      "message": "...and we\u0027re also dereferencing \u0027anim\u0027 here...",
+      "revId": "49c073257022f4d37491606af67efe5603510685",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a80beaa_edfed6eb",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2019-09-27T14:18:05Z",
+      "side": 1,
+      "message": "...so if \u0027anim\u0027 is NULL, we\u0027ll have crashed before we get to our NULL check here.\n\n\nIt looks like previously we weren\u0027t dereferencing \u0027tl_anim\u0027 prior to this NULL check, so there wasn\u0027t a concern.\n\nI don\u0027t know if this NULL check is just redundant, because \u0027anim\u0027 can no longer be NULL here (in which case there\u0027s not an issue here), or if we need to be concerned for the NULL \u0027anim\u0027 case.",
+      "revId": "49c073257022f4d37491606af67efe5603510685",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
