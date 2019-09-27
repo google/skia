@@ -255,43 +255,14 @@ static bool check_read(skiatest::Reporter* reporter, const SkBitmap& bitmap, int
     return true;
 }
 
-enum BitmapInit {
-    kFirstBitmapInit = 0,
+enum class TightRowBytes : bool { kNo, kYes };
 
-    kTight_BitmapInit = kFirstBitmapInit,
-    kRowBytes_BitmapInit,
-    kRowBytesOdd_BitmapInit,
-
-    kLastAligned_BitmapInit = kRowBytes_BitmapInit,
-
-#if 0  // THIS CAUSES ERRORS ON WINDOWS AND SOME ANDROID DEVICES
-    kLast_BitmapInit = kRowBytesOdd_BitmapInit
-#else
-    kLast_BitmapInit = kLastAligned_BitmapInit
-#endif
-};
-
-static BitmapInit nextBMI(BitmapInit bmi) {
-    int x = bmi;
-    return static_cast<BitmapInit>(++x);
-}
-
-static void init_bitmap(SkBitmap* bitmap, const SkIRect& rect, BitmapInit init, SkColorType ct,
-                        SkAlphaType at) {
+static void init_bitmap(SkBitmap* bitmap, const SkIRect& rect, TightRowBytes tightRB,
+                        SkColorType ct, SkAlphaType at) {
     SkImageInfo info = SkImageInfo::Make(rect.width(), rect.height(), ct, at);
     size_t rowBytes = 0;
-    switch (init) {
-        case kTight_BitmapInit:
-            break;
-        case kRowBytes_BitmapInit:
-            rowBytes = SkAlign4((info.width() + 16) * info.bytesPerPixel());
-            break;
-        case kRowBytesOdd_BitmapInit:
-            rowBytes = SkAlign4(info.width() * info.bytesPerPixel()) + 3;
-            break;
-        default:
-            SkASSERT(0);
-            break;
+    if (tightRB == TightRowBytes::kNo) {
+        rowBytes = SkAlign4((info.width() + 16) * info.bytesPerPixel());
     }
     bitmap->allocPixels(info, rowBytes);
 }
@@ -360,16 +331,16 @@ bool read_should_succeed(const SkIRect& srcRect, const SkImageInfo& dstInfo,
 }
 
 static void test_readpixels(skiatest::Reporter* reporter, const sk_sp<SkSurface>& surface,
-                            const SkImageInfo& surfaceInfo, BitmapInit lastBitmapInit) {
+                            const SkImageInfo& surfaceInfo) {
     SkCanvas* canvas = surface->getCanvas();
     fill_src_canvas(canvas);
     for (size_t rect = 0; rect < SK_ARRAY_COUNT(gReadPixelsTestRects); ++rect) {
         const SkIRect& srcRect = gReadPixelsTestRects[rect];
-        for (BitmapInit bmi = kFirstBitmapInit; bmi <= lastBitmapInit; bmi = nextBMI(bmi)) {
+        for (auto tightRB : {TightRowBytes::kYes, TightRowBytes::kNo}) {
             for (size_t c = 0; c < SK_ARRAY_COUNT(gReadPixelsConfigs); ++c) {
                 SkBitmap bmp;
-                init_bitmap(&bmp, srcRect, bmi,
-                            gReadPixelsConfigs[c].fColorType, gReadPixelsConfigs[c].fAlphaType);
+                init_bitmap(&bmp, srcRect, tightRB, gReadPixelsConfigs[c].fColorType,
+                            gReadPixelsConfigs[c].fAlphaType);
 
                 // if the bitmap has pixels allocated before the readPixels,
                 // note that and fill them with pattern
@@ -408,8 +379,7 @@ static void test_readpixels(skiatest::Reporter* reporter, const sk_sp<SkSurface>
 DEF_TEST(ReadPixels, reporter) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
     auto surface(SkSurface::MakeRaster(info));
-    // SW readback fails a premul check when reading back to an unaligned rowbytes.
-    test_readpixels(reporter, surface, info, kLastAligned_BitmapInit);
+    test_readpixels(reporter, surface, info);
 }
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, ctxInfo) {
     static const SkImageInfo kImageInfos[] = {
@@ -425,7 +395,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, ctxInfo) {
             if (!surface) {
                 continue;
             }
-            test_readpixels(reporter, surface, ii, kLast_BitmapInit);
+            test_readpixels(reporter, surface, ii);
         }
     }
 }
@@ -435,11 +405,11 @@ static void test_readpixels_texture(skiatest::Reporter* reporter,
                                     const SkImageInfo& surfaceInfo) {
     for (size_t rect = 0; rect < SK_ARRAY_COUNT(gReadPixelsTestRects); ++rect) {
         const SkIRect& srcRect = gReadPixelsTestRects[rect];
-        for (BitmapInit bmi = kFirstBitmapInit; bmi <= kLast_BitmapInit; bmi = nextBMI(bmi)) {
+        for (auto tightRB : {TightRowBytes::kYes, TightRowBytes::kNo}) {
             for (size_t c = 0; c < SK_ARRAY_COUNT(gReadPixelsConfigs); ++c) {
                 SkBitmap bmp;
-                init_bitmap(&bmp, srcRect, bmi,
-                            gReadPixelsConfigs[c].fColorType, gReadPixelsConfigs[c].fAlphaType);
+                init_bitmap(&bmp, srcRect, tightRB, gReadPixelsConfigs[c].fColorType,
+                            gReadPixelsConfigs[c].fAlphaType);
 
                 // if the bitmap has pixels allocated before the readPixels,
                 // note that and fill them with pattern
@@ -647,32 +617,139 @@ static int min_rgb_channel_bits(SkColorType ct) {
     SK_ABORT("Unexpected color type.");
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
-    struct Context {
-        SkPixmap* fPixmap = nullptr;
-        bool fSuceeded = false;
-        bool fCalled = false;
-    };
-    auto callback = [](SkSurface::ReleaseContext context, const void* data, size_t rowBytes) {
-        auto* pm = static_cast<Context*>(context)->fPixmap;
-        static_cast<Context*>(context)->fCalled = true;
-        if ((static_cast<Context*>(context)->fSuceeded = SkToBool(data))) {
-            auto dst = static_cast<char*>(pm->writable_addr());
-            const auto* src = static_cast<const char*>(data);
-            for (int y = 0; y < pm->height(); ++y, src += rowBytes, dst += pm->rowBytes()) {
-                memcpy(dst, src, pm->width() * SkColorTypeBytesPerPixel(pm->colorType()));
+struct GpuReadExpectations {
+    bool fPremulOnly = false;
+    bool fUncontainedRectSuceeds = true;
+};
+
+using GpuReadSurfFn = bool(SkSurface* surface, const SkIPoint& readPt, const SkPixmap& pixels);
+
+static void gpu_read_pixels_test_driver(GrContext* context, skiatest::Reporter* reporter,
+                                        const GpuReadExpectations& expectations,
+                                        const std::function<GpuReadSurfFn>& read) {
+    // Separate this out just to give it some line width to breathe. Note 'refImage' should have
+    // the same image info as surf. We will do a converting readPixels() on it to get the data
+    // to compare the results of 'read' to.
+    auto runTest = [&](SkSurface* surf, SkImage* refImg, const SkImageInfo& readInfo,
+                       const SkIPoint readPt, GrSurfaceOrigin origin) {
+        const bool csConversion =
+                !SkColorSpace::Equals(readInfo.colorSpace(), surf->imageInfo().colorSpace());
+        const auto readCT = readInfo.colorType();
+        const auto readAT = readInfo.alphaType();
+        const auto surfCT = surf->imageInfo().colorType();
+        const auto rect = SkIRect::MakeWH(readInfo.width(), readInfo.height()).makeOffset(readPt);
+        const auto surfBounds = SkIRect::MakeWH(surf->width(), surf->height());
+        const size_t readBpp = SkColorTypeBytesPerPixel(readCT);
+
+        // Make the row bytes in the dst be loose for extra stress.
+        const size_t dstRB = readBpp * readInfo.width() + 10 * readBpp;
+        // This will make the last row tight.
+        const size_t dstSize = readInfo.computeByteSize(dstRB);
+        std::unique_ptr<char[]> dstData(new char[dstSize]);
+        SkPixmap dstPixels(readInfo, dstData.get(), dstRB);
+        // Initialize with an arbitrary value for each byte. Later we will check that only the
+        // correct part of the destination gets overwritten by 'read'.
+        static constexpr char kInitialByte = 0xAB;
+        memset(dstPixels.writable_addr(), kInitialByte, dstPixels.computeByteSize());
+
+        const bool success = read(surf, readPt, dstPixels);
+
+        if (!SkIRect::Intersects(rect, surfBounds)) {
+            REPORTER_ASSERT(reporter, !success);
+        } else if (readCT == kUnknown_SkColorType) {
+            REPORTER_ASSERT(reporter, !success);
+        } else if (readAT == kUnknown_SkAlphaType) {
+            REPORTER_ASSERT(reporter, !success);
+        } else if (!expectations.fUncontainedRectSuceeds && !surfBounds.contains(rect)) {
+            REPORTER_ASSERT(reporter, !success);
+        } else if (expectations.fPremulOnly && readAT == kUnpremul_SkAlphaType) {
+            REPORTER_ASSERT(reporter, !success);
+        } else if (!success) {
+            // TODO: Support reading to kGray, support kRGB_101010x at all in GPU.
+            if (readCT != kGray_8_SkColorType && readCT != kRGB_101010x_SkColorType) {
+                ERRORF(reporter,
+                       "Read failed. Surf Color Type: %s, Read CT: %s, Read AT: %s, "
+                       "Rect [%d, %d, %d, %d], origin: %d, CS conversion: %d\n",
+                       ToolUtils::colortype_name(surfCT), ToolUtils::colortype_name(readCT),
+                       ToolUtils::alphatype_name(readAT), rect.fLeft, rect.fTop, rect.fRight,
+                       rect.fBottom, origin, csConversion);
             }
+            return;
+        }
+
+        // Considering the rect we tried to read and the surface bounds figure  out which pixels in
+        // both src and dst space should actually have been read and written.
+        SkIRect srcReadRect;
+        SkIRect dstWriteRect;
+
+        if (success && srcReadRect.intersect(surfBounds, rect)) {
+            dstWriteRect = srcReadRect.makeOffset(-rect.fLeft, -rect.fTop);
+
+            // A CS conversion allows a 3 value difference and otherwise a 2 value difference. Note
+            // that sometimes read back on GPU can be lossy even when there no conversion at all
+            // because GPU->CPU read may go to a lower bit depth format and then be promoted back to
+            // the original type. For example, GL ES cannot read to 1010102, so we go through 8888.
+            float numer = csConversion ? 3.f : 2.f;
+            int rgbBits = std::min({min_rgb_channel_bits(readCT), min_rgb_channel_bits(surfCT), 8});
+            float tol = numer / (1 << rgbBits);
+            const float tols[4] = {tol, tol, tol, 0};
+            auto error = std::function<ComparePixmapsErrorReporter>([&](int x, int y,
+                                                                        const float diffs[4]) {
+                SkASSERT(x >= 0 && y >= 0);
+                ERRORF(reporter,
+                       "Surf Color Type: %s, Read CT: %s,  Read AT: %s, Rect [%d, %d, %d, %d]"
+                       ", origin: %d, CS conversion: %d\n"
+                       "Error at %d, %d. Diff in floats: (%f, %f, %f %f)",
+                       ToolUtils::colortype_name(surfCT), ToolUtils::colortype_name(readCT),
+                       ToolUtils::alphatype_name(readAT), rect.fLeft, rect.fTop, rect.fRight,
+                       rect.fBottom, origin, csConversion, x, y, diffs[0], diffs[1], diffs[2],
+                       diffs[3]);
+            });
+            SkAutoPixmapStorage ref;
+            ref.alloc(readInfo.makeWH(dstWriteRect.width(), dstWriteRect.height()));
+            refImg->readPixels(ref, srcReadRect.x(), srcReadRect.y());
+            // This is the part of dstPixels that should have been updated.
+            SkPixmap actual;
+            SkAssertResult(dstPixels.extractSubset(&actual, dstWriteRect));
+            compare_pixels(ref, actual, tols, error);
+        } else {
+            // Move the rect outside of the pixel grid so that below
+            // we check that none of the pixels were overwritten.
+            dstWriteRect.setXYWH(surfBounds.width() + 1, surfBounds.height() + 1, 0, 0);
+        }
+        // Now check that the values outside dstWriteRect were not written to, including any
+        // row byte padding.
+        const char* v = dstData.get();
+        auto check = [](char x) { return x == kInitialByte; };
+        bool ok = true;
+        ok |= std::all_of(v, v + dstWriteRect.top() * dstPixels.rowBytes(), check);
+        v += dstWriteRect.top() * dstPixels.rowBytes();
+        for (int y = dstWriteRect.top(); y < dstWriteRect.bottom(); ++y) {
+            ok |= std::all_of(v, v + dstWriteRect.left() * readBpp, check);
+            ok |= std::all_of(v + dstWriteRect.right() * readBpp, v + dstPixels.rowBytes(), check);
+            v += dstPixels.rowBytes();
+        }
+        ok |= std::all_of(v, const_cast<const char*>(dstData.get()) + dstSize, check);
+        if (!ok) {
+            ERRORF(reporter,
+                   "Result pixels modified result outside read rect [%d, %d, %d, %d]. "
+                   "Origin: %d, Surf CT: %s, Read CT: %s, CS conversion: %d",
+                   rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, origin,
+                   ToolUtils::colortype_name(surfCT), ToolUtils::colortype_name(readCT),
+                   csConversion);
         }
     };
+
+    static constexpr int kW = 16;
+    static constexpr int kH = 16;
+
     for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
-        static constexpr int kW = 16;
-        static constexpr int kH = 16;
         for (int sct = 0; sct <= kLastEnum_SkColorType; ++sct) {
             auto surfCT = static_cast<SkColorType>(sct);
             auto info = SkImageInfo::Make(kW, kH, surfCT, kPremul_SkAlphaType,
                                           SkColorSpace::MakeSRGB());
-            auto surf = SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo, info, 1,
-                                                    origin, nullptr);
+            auto surf =
+                    SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 1, origin, nullptr);
             if (!surf) {
                 continue;
             }
@@ -695,87 +772,116 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
             }
             for (int rct = 0; rct <= kLastEnum_SkColorType; ++rct) {
                 auto readCT = static_cast<SkColorType>(rct);
-
                 for (const sk_sp<SkColorSpace>& readCS :
                      {SkColorSpace::MakeSRGB(), SkColorSpace::MakeSRGBLinear()}) {
-                    auto refImg = refSurf->makeImageSnapshot()->makeColorTypeAndColorSpace(readCT,
-                                                                                           readCS);
-                    // Test full size, partial, empty, and too wide rects.
-                    for (const auto& rect : {SkIRect::MakeWH(kW, kH),
-                                             SkIRect::MakeLTRB(1, 2, kW - 3, kH - 4),
-                                             SkIRect::MakeXYWH(1, 1, 0, 0),
-                                             SkIRect::MakeWH(kW + 1, kH / 2)}) {
-                        SkAutoPixmapStorage result;
-                        Context context;
-                        context.fPixmap = &result;
-                        info = SkImageInfo::Make(rect.width(), rect.height(), readCT,
-                                                 kPremul_SkAlphaType, readCS);
-                        result.alloc(info);
-                        memset(result.writable_addr(), 0xAB, result.computeByteSize());
-                        // Rescale quality and linearity don't matter since we're doing a non-
-                        // scaling readback.
-                        surf->asyncRescaleAndReadPixels(info, rect, SkSurface::RescaleGamma::kSrc,
-                                                        kNone_SkFilterQuality, callback, &context);
-                        while (!context.fCalled) {
-                            ctxInfo.grContext()->checkAsyncWorkCompletion();
+                    for (int at = 0; at <= kLastEnum_SkAlphaType; ++at) {
+                        auto readAT = static_cast<SkAlphaType>(at);
+                        // Test full size, partial, empty, and too wide rects.
+                        for (const auto& rect : {
+                                     // entire thing
+                                     SkIRect::MakeWH(kW, kH),
+                                     // larger on all sides
+                                     SkIRect::MakeLTRB(-10, -10, kW + 10, kH + 10),
+                                     // fully contained
+                                     SkIRect::MakeLTRB(kW / 4, kH / 4, 3 * kW / 4, 3 * kH / 4),
+                                     // outside top left
+                                     SkIRect::MakeLTRB(-10, -10, -1, -1),
+                                     // touching top left corner
+                                     SkIRect::MakeLTRB(-10, -10, 0, 0),
+                                     // overlapping top left corner
+                                     SkIRect::MakeLTRB(-10, -10, kW / 4, kH / 4),
+                                     // overlapping top left and top right corners
+                                     SkIRect::MakeLTRB(-10, -10, kW + 10, kH / 4),
+                                     // touching entire top edge
+                                     SkIRect::MakeLTRB(-10, -10, kW + 10, 0),
+                                     // overlapping top right corner
+                                     SkIRect::MakeLTRB(3 * kW / 4, -10, kW + 10, kH / 4),
+                                     // contained in x, overlapping top edge
+                                     SkIRect::MakeLTRB(kW / 4, -10, 3 * kW / 4, kH / 4),
+                                     // outside top right corner
+                                     SkIRect::MakeLTRB(kW + 1, -10, kW + 10, -1),
+                                     // touching top right corner
+                                     SkIRect::MakeLTRB(kW, -10, kW + 10, 0),
+                                     // overlapping top left and bottom left corners
+                                     SkIRect::MakeLTRB(-10, -10, kW / 4, kH + 10),
+                                     // touching entire left edge
+                                     SkIRect::MakeLTRB(-10, -10, 0, kH + 10),
+                                     // overlapping bottom left corner
+                                     SkIRect::MakeLTRB(-10, 3 * kH / 4, kW / 4, kH + 10),
+                                     // contained in y, overlapping left edge
+                                     SkIRect::MakeLTRB(-10, kH / 4, kW / 4, 3 * kH / 4),
+                                     // outside bottom left corner
+                                     SkIRect::MakeLTRB(-10, kH + 1, -1, kH + 10),
+                                     // touching bottom left corner
+                                     SkIRect::MakeLTRB(-10, kH, 0, kH + 10),
+                                     // overlapping bottom left and bottom right corners
+                                     SkIRect::MakeLTRB(-10, 3 * kH / 4, kW + 10, kH + 10),
+                                     // touching entire left edge
+                                     SkIRect::MakeLTRB(0, kH, kW, kH + 10),
+                                     // overlapping bottom right corner
+                                     SkIRect::MakeLTRB(3 * kW / 4, 3 * kH / 4, kW + 10, kH + 10),
+                                     // overlapping top right and bottom right corners
+                                     SkIRect::MakeLTRB(3 * kW / 4, -10, kW + 10, kH + 10),
+                             }) {
+                            auto readInfo = SkImageInfo::Make(rect.width(), rect.height(), readCT,
+                                                              readAT, readCS);
+                            SkIPoint readPt = rect.topLeft();
+                            runTest(surf.get(), refSurf->makeImageSnapshot().get(), readInfo,
+                                    readPt, origin);
                         }
-                        if (rect.isEmpty() || !SkIRect::MakeWH(kW, kH).contains(rect)) {
-                            REPORTER_ASSERT(reporter, !context.fSuceeded);
-                        }
-
-                        bool didCSConversion =
-                                !SkColorSpace::Equals(readCS.get(), surf->imageInfo().colorSpace());
-
-                        if (context.fSuceeded) {
-                            REPORTER_ASSERT(reporter, readCT != kUnknown_SkColorType &&
-                                                      !rect.isEmpty());
-                        } else {
-                            // TODO: Support reading to kGray, support kRGB_101010x at all in GPU.
-                            auto surfBounds = SkIRect::MakeWH(surf->width(), surf->height());
-                            if (readCT != kUnknown_SkColorType && readCT != kGray_8_SkColorType &&
-                                readCT != kRGB_101010x_SkColorType && !rect.isEmpty() &&
-                                surfBounds.contains(rect)) {
-                                ERRORF(reporter,
-                                       "Async read failed. Surf Color Type: %s, Read CT: %s,"
-                                       "Rect [%d, %d, %d, %d], origin: %d, CS conversion: %d\n",
-                                       ToolUtils::colortype_name(surfCT),
-                                       ToolUtils::colortype_name(readCT),
-                                       rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, origin,
-                                       didCSConversion);
-                            }
-                            continue;
-                        }
-                        SkPixmap ref;
-                        refImg->peekPixels(&ref);
-                        SkAssertResult(ref.extractSubset(&ref, rect));
-
-                        // A CS conversion allows a 3 value difference and otherwise a 2 value
-                        // difference. Note that sometimes read back on GPU can be lossy even when
-                        // there no conversion at all because GPU->CPU read may go to a a lower bit
-                        // depth format and then be promoted back to the original type. For example,
-                        // GL ES cannot read to 1010102, so we go through 8888.
-                        float numer = didCSConversion ? 3.f : 2.f;
-                        int rgbBits = std::min({min_rgb_channel_bits(readCT),
-                                                min_rgb_channel_bits(surfCT), 8});
-                        float tol = numer / (1 << rgbBits);
-                        const float tols[4] = {tol, tol, tol, 0};
-                        auto error = std::function<ComparePixmapsErrorReporter>(
-                                [&](int x, int y, const float diffs[4]) {
-                                    SkASSERT(x >= 0 && y >= 0);
-                                    ERRORF(reporter,
-                                           "Surf Color Type: %s, Read CT: %s, Rect [%d, %d, %d, %d]"
-                                           ", origin: %d, CS conversion: %d\n"
-                                           "Error at %d, %d. Diff in floats: (%f, %f, %f %f)",
-                                           ToolUtils::colortype_name(surfCT),
-                                           ToolUtils::colortype_name(readCT),
-                                           rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, origin,
-                                           didCSConversion, x, y, diffs[0], diffs[1], diffs[2],
-                                           diffs[3]);
-                                });
-                        compare_pixels(ref, result, tols, error);
                     }
                 }
             }
         }
     }
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
+    auto reader = [](SkSurface* surface, const SkIPoint& readPt, const SkPixmap& pixels) {
+        struct Context {
+            const SkPixmap* fPixmap = nullptr;
+            bool fSuceeded = false;
+            bool fCalled = false;
+        };
+        auto callback = [](SkSurface::ReleaseContext context, const void* data, size_t rowBytes) {
+            auto* pm = static_cast<Context*>(context)->fPixmap;
+            static_cast<Context*>(context)->fCalled = true;
+            if ((static_cast<Context*>(context)->fSuceeded = SkToBool(data))) {
+                auto dst = static_cast<char*>(pm->writable_addr());
+                const auto* src = static_cast<const char*>(data);
+                for (int y = 0; y < pm->height(); ++y, src += rowBytes, dst += pm->rowBytes()) {
+                    memcpy(dst, src, pm->width() * SkColorTypeBytesPerPixel(pm->colorType()));
+                }
+            }
+        };
+
+        Context context;
+        context.fPixmap = &pixels;
+        auto rect = SkIRect::MakeWH(pixels.width(), pixels.height()).makeOffset(readPt);
+
+        // Rescale quality and linearity don't matter since we're doing a non-
+        // scaling readback.
+        surface->asyncRescaleAndReadPixels(pixels.info(), rect, SkSurface::RescaleGamma::kSrc,
+                                           kNone_SkFilterQuality, callback, &context);
+        while (!context.fCalled) {
+            surface->getCanvas()->getGrContext()->checkAsyncWorkCompletion();
+        }
+        return context.fSuceeded;
+    };
+    GpuReadExpectations expectations;
+    expectations.fUncontainedRectSuceeds = false;
+    expectations.fPremulOnly = true;
+    gpu_read_pixels_test_driver(ctxInfo.grContext(), reporter, expectations,
+                                std::function<GpuReadSurfFn>(reader));
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu2, reporter, ctxInfo) {
+    auto reader = [](SkSurface* surface, const SkIPoint& readPt, const SkPixmap& pixels) {
+        return surface->readPixels(pixels, readPt.fX, readPt.fY);
+    };
+    GpuReadExpectations expectations;
+    expectations.fUncontainedRectSuceeds = true;
+    expectations.fPremulOnly = false;
+    gpu_read_pixels_test_driver(ctxInfo.grContext(), reporter, expectations,
+                                std::function<GpuReadSurfFn>(reader));
 }
