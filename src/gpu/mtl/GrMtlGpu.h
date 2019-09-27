@@ -218,6 +218,11 @@ private:
                                            const SkPixmap srcData[], int numMipLevels,
                                            const SkColor4f* color, GrMtlTextureInfo*);
 
+#if GR_TEST_UTILS
+    void testingOnly_startCapture() override;
+    void testingOnly_endCapture() override;
+#endif
+
     sk_sp<GrMtlCaps> fMtlCaps;
 
     id<MTLDevice> fDevice;

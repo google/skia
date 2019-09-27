@@ -504,6 +504,13 @@ public:
      * This is for testing purposes only.
      */
     virtual void testingOnly_flushGpuAndSync() = 0;
+
+    /**
+     * Inserted as a pair around a block of code to do a GPU frame capture.
+     * Currently only works with the Metal backend.
+     */
+    virtual void testingOnly_startCapture() {}
+    virtual void testingOnly_endCapture() {}
 #endif
 
     // width and height may be larger than rt (if underlying API allows it).
