@@ -67,7 +67,12 @@ public:
     virtual uint32_t getFlags() const { return 0; }
 
     SkColor filterColor(SkColor) const;
-    SkColor4f filterColor4f(const SkColor4f&, SkColorSpace*) const;
+
+    /**
+     * Convert a src color in src colorspace, into a dst color in dst colorspace.
+     */
+    SkColor4f filterColor4f(const SkColor4f& srcColor, SkColorSpace* srcCS,
+                            SkColorSpace* dstCS) const;
 
     /** Construct a colorfilter whose effect is to first apply the inner filter and then apply
      *  this filter, applied to the output of the inner filter.

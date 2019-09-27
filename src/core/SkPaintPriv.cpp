@@ -7,9 +7,18 @@
 
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkPaint.h"
+#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkXfermodePriv.h"
 #include "src/shaders/SkShaderBase.h"
+
+SkColor4f SkPaintPriv::FilterColor(const SkPaint& paint, SkColorSpace* dstCS) {
+    SkColor4f color = paint.getColor4f();
+    if (auto cf = paint.getColorFilter()) {
+        color = cf->filterColor4f(color, sk_srgb_singleton(), dstCS);
+    }
+    return color;
+}
 
 static bool changes_alpha(const SkPaint& paint) {
     SkColorFilter* cf = paint.getColorFilter();
