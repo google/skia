@@ -54,6 +54,16 @@ public:
         fontFace->TryGetFontTable(beTag,
             reinterpret_cast<const void **>(&fData), &fSize, &fLock, &fExists);
     }
+    AutoDWriteTable(AutoDWriteTable&& that)
+        : fData(that.fData), fSize(that.fSize), fExists(that.fExists)
+        , fFontFace(that.fFontFace), fLock(that.fLock)
+    {
+            that.fData = nullptr;
+            that.fSize = 0;
+            that.fExists = false;
+            that.fFontFace = nullptr;
+            that.fLock = nullptr;
+    }
     ~AutoDWriteTable() {
         if (fExists) {
             fFontFace->ReleaseFontTable(fLock);
