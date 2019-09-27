@@ -44,30 +44,30 @@ bool SkColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) con
 }
 
 SkColor SkColorFilter::filterColor(SkColor c) const {
-    SkColorSpace* cs = sk_srgb_singleton();
-    return this->filterColor4f(SkColor4f::FromColor(c), cs, cs).toSkColor();
+    return this->filterColor4f(SkColor4f::FromColor(c), nullptr)
+        .toSkColor();
 }
 
-SkColor4f SkColorFilter::filterColor4f(const SkColor4f& origSrcColor, SkColorSpace* srcCS,
-                                       SkColorSpace* dstCS) const {
-    SkColor4f color = origSrcColor;
-    SkColorSpaceXformSteps(srcCS, kUnpremul_SkAlphaType,
-                           dstCS, kPremul_SkAlphaType).apply(color.vec());
+#include "src/core/SkRasterPipeline.h"
+SkColor4f SkColorFilter::filterColor4f(const SkColor4f& c, SkColorSpace* colorSpace) const {
+    SkPMColor4f dst, src = c.premul();
 
-    constexpr size_t kEnoughForCommonFilters = 512; // big enough for compose+colormatrix
+    // determined experimentally, seems to cover compose+colormatrix
+    constexpr size_t kEnoughForCommonFilters = 512;
     SkSTArenaAlloc<kEnoughForCommonFilters> alloc;
     SkRasterPipeline    pipeline(&alloc);
-    pipeline.append_constant_color(&alloc, color.vec());
+
+    pipeline.append_constant_color(&alloc, src.vec());
+
     SkPaint dummyPaint;
     SkStageRec rec = {
-        &pipeline, &alloc, kRGBA_F32_SkColorType, dstCS, dummyPaint, nullptr, SkMatrix::I()
+        &pipeline, &alloc, kRGBA_F32_SkColorType, colorSpace, dummyPaint, nullptr, SkMatrix::I()
     };
-    this->onAppendStages(rec, color.fA == 1);
-
-    SkPMColor4f dst;
+    this->onAppendStages(rec, c.fA == 1);
     SkRasterPipeline_MemoryCtx dstPtr = { &dst, 0 };
     pipeline.append(SkRasterPipeline::store_f32, &dstPtr);
     pipeline.run(0,0, 1,1);
+
     return dst.unpremul();
 }
 
