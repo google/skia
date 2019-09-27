@@ -22,6 +22,12 @@ enum SkReadPaintResult {
 
 class SkPaintPriv {
 public:
+    /**
+     *  Filter the paint's color by the paint's colorfilter.
+     *  If there is no colorfilter, just return the paint's color.
+     */
+    static SkColor4f FilterColor(const SkPaint&, SkColorSpace* dstColorSpace);
+
     enum ShaderOverrideOpacity {
         kNone_ShaderOverrideOpacity,        //!< there is no overriding shader (bitmap or image)
         kOpaque_ShaderOverrideOpacity,      //!< the overriding shader is opaque

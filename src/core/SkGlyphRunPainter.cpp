@@ -583,15 +583,7 @@ SkGlyphRunListPainter::ensureBuffers(const SkGlyphRun& glyphRun) {
 #if SK_SUPPORT_GPU
 // -- GrTextContext --------------------------------------------------------------------------------
 SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorSpaceInfo& colorSpaceInfo) {
-    SkColor4f filteredColor = paint.getColor4f();
-    if (auto* xform = colorSpaceInfo.colorSpaceXformFromSRGB()) {
-        filteredColor = xform->apply(filteredColor);
-    }
-    if (paint.getColorFilter() != nullptr) {
-        filteredColor = paint.getColorFilter()->filterColor4f(filteredColor,
-                                                              colorSpaceInfo.colorSpace());
-    }
-    return filteredColor.premul();
+    return SkPaintPriv::FilterColor(paint, colorSpaceInfo.colorSpace()).premul();
 }
 
 void GrTextContext::drawGlyphRunList(

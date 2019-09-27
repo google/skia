@@ -44,31 +44,46 @@ bool SkColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) con
 }
 
 SkColor SkColorFilter::filterColor(SkColor c) const {
-    return this->filterColor4f(SkColor4f::FromColor(c), nullptr)
-        .toSkColor();
+    SkColorSpace* cs = sk_srgb_singleton();
+    return this->filterColor4f(SkColor4f::FromColor(c), cs, cs).toSkColor();
 }
 
-#include "src/core/SkRasterPipeline.h"
-SkColor4f SkColorFilter::filterColor4f(const SkColor4f& c, SkColorSpace* colorSpace) const {
-    SkPMColor4f dst, src = c.premul();
+SkColor4f SkColorFilter::filterColor4f(const SkColor4f& origSrcColor, SkColorSpace* srcCS,
+                                       SkColorSpace* dstCS) const {
+    SkColor4f color = origSrcColor;
 
-    // determined experimentally, seems to cover compose+colormatrix
-    constexpr size_t kEnoughForCommonFilters = 512;
+    /*
+     *  Steps to follow
+     *
+     *  1. Convert the color into the dst colorspace (and make it premul)
+     *  2. Run the colorfilter's pipeline on it
+     *  3. Convert that back into unpremul, and then back into the src colorspace
+     */
+
+    // 1. Convert to dst
+    SkColorSpaceXformSteps(srcCS, kUnpremul_SkAlphaType,
+                           dstCS, kUnpremul_SkAlphaType).apply(color.vec());
+    SkPMColor4f dst, src = color.premul();
+
+    // 2. Run the filter's pipeline
+    constexpr size_t kEnoughForCommonFilters = 512; // big enough for compose+colormatrix
     SkSTArenaAlloc<kEnoughForCommonFilters> alloc;
     SkRasterPipeline    pipeline(&alloc);
-
     pipeline.append_constant_color(&alloc, src.vec());
-
     SkPaint dummyPaint;
     SkStageRec rec = {
-        &pipeline, &alloc, kRGBA_F32_SkColorType, colorSpace, dummyPaint, nullptr, SkMatrix::I()
+        &pipeline, &alloc, kRGBA_F32_SkColorType, dstCS, dummyPaint, nullptr, SkMatrix::I()
     };
-    this->onAppendStages(rec, c.fA == 1);
+    this->onAppendStages(rec, color.fA == 1);
     SkRasterPipeline_MemoryCtx dstPtr = { &dst, 0 };
     pipeline.append(SkRasterPipeline::store_f32, &dstPtr);
     pipeline.run(0,0, 1,1);
 
-    return dst.unpremul();
+    // 3. Convert back to src colorspace
+    color = dst.unpremul();
+    SkColorSpaceXformSteps(dstCS, kUnpremul_SkAlphaType,
+                           srcCS, kUnpremul_SkAlphaType).apply(color.vec());
+    return color;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
