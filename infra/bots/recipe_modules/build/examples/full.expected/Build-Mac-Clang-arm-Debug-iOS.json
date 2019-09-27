@@ -53,7 +53,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-arm-Debug-iOS/Debug",
-      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=10g8\", \"-O1\"] skia_ios_identity=\".*GS9WA.*\" skia_ios_profile=\"Upstream Testing Provisioning Profile\" target_cpu=\"arm\" target_os=\"ios\" werror=true"
+      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=10g8\", \"-O1\"] skia_ios_identity=\".*GS9WA.*\" skia_ios_profile=\"[START_DIR]/provisioning_profile_ios/Upstream_Testing_Provisioning_Profile.mobileprovision\" target_cpu=\"arm\" target_os=\"ios\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
