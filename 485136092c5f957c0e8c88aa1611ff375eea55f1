@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "54918aaa_9c8fec29",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-09-27T15:39:14Z",
+      "side": 1,
+      "message": "Agreed. Next PS already \"stays\" in dst colorspace",
+      "parentUuid": "4a5b40ba_685b210e",
+      "revId": "485136092c5f957c0e8c88aa1611ff375eea55f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fe629dec_1573dc17",
         "filename": "src/core/SkColorFilter.cpp",
         "patchSetId": 2
@@ -65,6 +83,30 @@
     },
     {
       "key": {
+        "uuid": "0752f6c3_8c27f070",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-09-27T15:39:14Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "fe629dec_1573dc17",
+      "range": {
+        "startLine": 84,
+        "startChar": 34,
+        "endLine": 84,
+        "endChar": 54
+      },
+      "revId": "485136092c5f957c0e8c88aa1611ff375eea55f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4d0b4da5_20e51fab",
         "filename": "src/gpu/SkGr.cpp",
         "patchSetId": 2
@@ -76,6 +118,30 @@
       "writtenOn": "2019-09-27T15:36:55Z",
       "side": 1,
       "message": "origColor is already in dstCS here (it\u0027s converted on line 340).",
+      "range": {
+        "startLine": 433,
+        "startChar": 62,
+        "endLine": 433,
+        "endChar": 79
+      },
+      "revId": "485136092c5f957c0e8c88aa1611ff375eea55f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e94a3258_02c950fb",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-09-27T15:39:14Z",
+      "side": 1,
+      "message": "ah, didn\u0027t notice, thanks.",
+      "parentUuid": "4d0b4da5_20e51fab",
       "range": {
         "startLine": 433,
         "startChar": 62,
