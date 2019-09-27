@@ -585,14 +585,14 @@ void Animation::render(SkCanvas* canvas, const SkRect* dstR, RenderFlags renderF
         canvas->concat(SkMatrix::MakeRectToRect(srcR, *dstR, SkMatrix::kCenter_ScaleToFit));
     }
 
+    canvas->clipRect(srcR);
+
     if ((fFlags & Flags::kRequiresTopLevelIsolation) &&
         !(renderFlags & RenderFlag::kSkipTopLevelIsolation)) {
         // The animation uses non-trivial blending, and needs
         // to be rendered into a separate/transparent layer.
         canvas->saveLayer(srcR, nullptr);
     }
-
-    canvas->clipRect(srcR);
 
     fScene->render(canvas);
 }
