@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "951d3f36_18a52fc4",
+        "filename": "modules/skparagraph/include/ParagraphBuilder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-09-27T19:10:12Z",
+      "side": 1,
+      "message": "I am OK with these changes - ss long as you go through them in two steps (since TxtLib already using the current API).",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 59
+      },
+      "revId": "bb985c5fdedb37998ecc96c4e2a35b59cb07ac85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
