@@ -291,8 +291,6 @@ If you installed the prebuilt LLVM downloaded from [here](https://releases.llvm.
 Follow the standard Windows path specification and not MinGW convention (e.g.
 `C:\Program Files\LLVM` not ~~`/c/Program Files/LLVM`~~).
 
-The Skia build assumes that the PATHEXT environment variable contains ".EXE".
-
 ### Visual Studio Solutions
 
 If you use Visual Studio, you may want to pass `--ide=vs` to `bin/gn gen` to
