@@ -8,9 +8,9 @@
 #ifndef SKSL_FUNCTIONREFERENCE
 #define SKSL_FUNCTIONREFERENCE
 
-#include "SkSLContext.h"
-#include "SkSLExpression.h"
-#include "SkSLFunctionDeclaration.h"
+#include "src/sksl/SkSLContext.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
 
 namespace SkSL {
 
@@ -28,6 +28,10 @@ struct FunctionReference : public Expression {
         return false;
     }
 
+    std::unique_ptr<Expression> clone() const override {
+        return std::unique_ptr<Expression>(new FunctionReference(fOffset, fFunctions, &fType));
+    }
+
     String description() const override {
         return String("<function>");
     }
@@ -35,7 +39,12 @@ struct FunctionReference : public Expression {
     const std::vector<const FunctionDeclaration*> fFunctions;
 
     typedef Expression INHERITED;
-};
+
+private:
+    FunctionReference(int offset, std::vector<const FunctionDeclaration*> function,
+                      const Type* type)
+    : INHERITED(offset, kFunctionReference_Kind, *type)
+    , fFunctions(function) {}};
 
 } // namespace
 

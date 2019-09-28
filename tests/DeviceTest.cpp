@@ -5,23 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkDevice.h"
-#include "SkImage.h"
-#include "SkImageInfo.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkSpecialImage.h"
-#include "SkTypes.h"
-#include "Test.h"
-class SkColorSpace;
+#include "include/core/SkBitmap.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrTypes.h"
+#include "src/core/SkDevice.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/gpu/SkGpuDevice.h"
+#include "tests/Test.h"
+#include "tools/gpu/GrContextFactory.h"
 
-#if SK_SUPPORT_GPU
-#include "GrContextFactory.h"
-#include "GrTypes.h"
-#include "SkGpuDevice.h"
+class SkColorSpace;
 class GrContext;
-#endif
 
 class DeviceTestingAccess {
 public:
@@ -78,8 +76,6 @@ DEF_TEST(SpecialImage_BitmapDevice, reporter) {
 #endif
 
 
-#if SK_SUPPORT_GPU
-
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_GPUDevice, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
@@ -115,8 +111,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_GPUDevice, reporter, ctxInfo) {
     SkASSERT(SkIRect::MakeWH(kWidth, kHeight) == special->subset());
 
     // Create a gpu-backed special image from a gpu-backed SkImage
-    SkColorSpace* legacyColorSpace = nullptr;
-    image = image->makeTextureImage(context, legacyColorSpace);
+    image = image->makeTextureImage(context);
     special = DeviceTestingAccess::MakeSpecial(gpuDev.get(), image.get());
     SkASSERT(special->isTextureBacked());
     SkASSERT(kWidth == special->width());
@@ -131,5 +126,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_GPUDevice, reporter, ctxInfo) {
     SkASSERT(2*kHeight == special->height());
     SkASSERT(SkIRect::MakeWH(2*kWidth, 2*kHeight) == special->subset());
 }
-
-#endif

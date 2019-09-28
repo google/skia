@@ -5,14 +5,12 @@
 * found in the LICENSE file.
 */
 
-#if SK_SUPPORT_GPU
-
-#include "GrRectanizer_pow2.h"
-#include "GrRectanizer_skyline.h"
-#include "SkRandom.h"
-#include "SkSize.h"
-#include "SkTDArray.h"
-#include "Test.h"
+#include "include/core/SkSize.h"
+#include "include/private/SkTDArray.h"
+#include "include/utils/SkRandom.h"
+#include "src/gpu/GrRectanizer_pow2.h"
+#include "src/gpu/GrRectanizer_skyline.h"
+#include "tests/Test.h"
 
 static const int kWidth = 1024;
 static const int kHeight = 1024;
@@ -63,12 +61,10 @@ DEF_GPUTEST(GpuRectanizer, reporter, factory) {
     SkRandom rand;
 
     for (int i = 0; i < 50; i++) {
-        rects.push(SkISize::Make(rand.nextRangeU(1, kWidth / 2),
-                                 rand.nextRangeU(1, kHeight / 2)));
+        rects.push_back(SkISize::Make(rand.nextRangeU(1, kWidth / 2),
+                                      rand.nextRangeU(1, kHeight / 2)));
     }
 
     test_skyline(reporter, rects);
     test_pow2(reporter, rects);
 }
-
-#endif

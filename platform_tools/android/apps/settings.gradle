@@ -1,2 +1,5 @@
 include ':viewer'
 include ':skqp'
+include ':arcore' //must build out directory first: bin/gn gen out/arm64 --args='ndk="NDKPATH" target_cpu="ABI" is_component_build=true'
+include ':skar_java'
+include ':skottie'

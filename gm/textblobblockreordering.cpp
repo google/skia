@@ -5,11 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
+#include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "tools/ToolUtils.h"
 
-#include "SkCanvas.h"
-#include "SkTextBlob.h"
+#include <string.h>
 
 namespace skiagm {
 class TextBlobBlockReordering : public GM {
@@ -24,16 +36,15 @@ protected:
 
         // make textblob
         // Large text is used to trigger atlas eviction
-        SkPaint paint;
-        paint.setTextSize(56);
+        SkFont font(ToolUtils::create_portable_typeface(), 56);
+        font.setEdging(SkFont::Edging::kAlias);
         const char* text = "AB";
-        sk_tool_utils::set_portable_typeface(&paint);
 
         SkRect bounds;
-        paint.measureText(text, strlen(text), &bounds);
+        font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
 
         SkScalar yOffset = bounds.height();
-        sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, yOffset - 30);
+        ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset - 30);
 
         // build
         fBlob = builder.make();
@@ -51,7 +62,7 @@ protected:
     // GrDrawOp doesn't get combined with the first and third. Ultimately, they will be flushed in
     // the order first, third, and then second.
     void onDraw(SkCanvas* canvas) override {
-        canvas->drawColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
+        canvas->drawColor(SK_ColorGRAY);
 
         SkPaint paint;
         canvas->translate(10, 40);

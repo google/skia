@@ -8,9 +8,9 @@
 #ifndef SkPictureRecorder_DEFINED
 #define SkPictureRecorder_DEFINED
 
-#include "SkBBHFactory.h"
-#include "SkPicture.h"
-#include "SkRefCnt.h"
+#include "include/core/SkBBHFactory.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkRefCnt.h"
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 namespace android {
@@ -26,7 +26,7 @@ class SkPictureRecord;
 class SkRecord;
 class SkRecorder;
 
-class SK_API SkPictureRecorder : SkNoncopyable {
+class SK_API SkPictureRecorder {
 public:
     SkPictureRecorder();
     ~SkPictureRecorder();
@@ -118,7 +118,8 @@ private:
     sk_sp<SkRecord>             fRecord;
     std::unique_ptr<SkMiniRecorder> fMiniRecorder;
 
-    typedef SkNoncopyable INHERITED;
+    SkPictureRecorder(SkPictureRecorder&&) = delete;
+    SkPictureRecorder& operator=(SkPictureRecorder&&) = delete;
 };
 
 #endif

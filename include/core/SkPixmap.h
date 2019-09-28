@@ -8,9 +8,9 @@
 #ifndef SkPixmap_DEFINED
 #define SkPixmap_DEFINED
 
-#include "SkColor.h"
-#include "SkFilterQuality.h"
-#include "SkImageInfo.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkImageInfo.h"
 
 class SkData;
 struct SkMask;
@@ -96,7 +96,7 @@ public:
     */
     void setColorSpace(sk_sp<SkColorSpace> colorSpace);
 
-    /** To be deprecated soon.
+    /** Deprecated.
     */
     bool SK_WARN_UNUSED_RESULT reset(const SkMask& mask);
 
@@ -114,7 +114,7 @@ public:
 
     /** Returns width, height, SkAlphaType, SkColorType, and SkColorSpace.
 
-        @return  reference to ImageInfo
+        @return  reference to SkImageInfo
     */
     const SkImageInfo& info() const { return fInfo; }
 
@@ -149,6 +149,11 @@ public:
     */
     int height() const { return fInfo.height(); }
 
+    /**
+     *  Return the dimensions of the pixmap (from its ImageInfo)
+     */
+    SkISize dimensions() const { return fInfo.dimensions(); }
+
     /** Returns SkColorType, one of:
         kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
         kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
@@ -174,6 +179,16 @@ public:
         @return  SkColorSpace in SkImageInfo, or nullptr
     */
     SkColorSpace* colorSpace() const { return fInfo.colorSpace(); }
+
+    /** Returns smart pointer to SkColorSpace, the range of colors, associated with
+        SkImageInfo. The smart pointer tracks the number of objects sharing this
+        SkColorSpace reference so the memory is released when the owners destruct.
+
+        The returned SkColorSpace is immutable.
+
+        @return  SkColorSpace in SkImageInfo wrapped in a smart pointer
+    */
+    sk_sp<SkColorSpace> refColorSpace() const { return fInfo.refColorSpace(); }
 
     /** Returns true if SkAlphaType is kOpaque_SkAlphaType.
         Does not check if SkColorType allows alpha, or if any pixel value has
@@ -205,7 +220,7 @@ public:
 
     /** Returns minimum memory required for pixel storage.
         Does not include unused memory on last row when rowBytesAsPixels() exceeds width().
-        Returns zero if result does not fit in size_t.
+        Returns SIZE_MAX if result does not fit in size_t.
         Returns zero if height() or width() is 0.
         Returns height() times rowBytes() if colorType() is kUnknown_SkColorType.
 
@@ -248,6 +263,16 @@ public:
         @return   pixel converted to unpremultiplied color
     */
     SkColor getColor(int x, int y) const;
+
+    /** Look up the pixel at (x,y) and return its alpha component, normalized to [0..1].
+        This is roughly equivalent to SkGetColorA(getColor()), but can be more efficent
+        (and more precise if the pixels store more than 8 bits per component).
+
+        @param x  column index, zero or greater, and less than width()
+        @param y  row index, zero or greater, and less than height()
+        @return   alpha converted to normalized float
+     */
+    float getAlphaf(int x, int y) const;
 
     /** Returns readable pixel address at (x, y). Returns nullptr if SkPixelRef is nullptr.
 
@@ -328,7 +353,8 @@ public:
     */
     const uint16_t* addrF16() const {
         SkASSERT(8 == fInfo.bytesPerPixel());
-        SkASSERT(kRGBA_F16_SkColorType == fInfo.colorType());
+        SkASSERT(kRGBA_F16_SkColorType     == fInfo.colorType() ||
+                 kRGBA_F16Norm_SkColorType == fInfo.colorType());
         return reinterpret_cast<const uint16_t*>(fPixels);
     }
 
@@ -420,7 +446,8 @@ public:
         @return   readable unsigned 16-bit pointer to pixel component at (x, y)
     */
     const uint16_t* addrF16(int x, int y) const {
-        SkASSERT(kRGBA_F16_SkColorType == fInfo.colorType());
+        SkASSERT(kRGBA_F16_SkColorType     == fInfo.colorType() ||
+                 kRGBA_F16Norm_SkColorType == fInfo.colorType());
         return reinterpret_cast<const uint16_t*>(this->addr64(x, y));
     }
 
@@ -515,49 +542,13 @@ public:
         return reinterpret_cast<uint16_t*>(writable_addr64(x, y));
     }
 
-    /** Copies a SkRect of pixels to dstPixels. Copy starts at (srcX, srcY), and does not
-        exceed SkPixmap (width(), height()).
-
-        dstInfo specifies width, height, SkColorType, SkAlphaType, and
-        SkColorSpace of destination. dstRowBytes specifics the gap from one destination
-        row to the next. Returns true if pixels are copied. Returns false if
-        dstInfo.addr() equals nullptr, or dstRowBytes is less than dstInfo.minRowBytes().
-
-        Pixels are copied only if pixel conversion is possible. If SkPixmap colorType() is
-        kGray_8_SkColorType, or kAlpha_8_SkColorType; dstInfo.colorType() must match.
-        If SkPixmap colorType() is kGray_8_SkColorType, dstInfo.colorSpace() must match.
-        If SkPixmap alphaType() is kOpaque_SkAlphaType, dstInfo.alphaType() must
-        match. If SkPixmap colorSpace() is nullptr, dstInfo.colorSpace() must match. Returns
-        false if pixel conversion is not possible.
-
-        srcX and srcY may be negative to copy only top or left of source. Returns
-        false if width() or height() is zero or negative. Returns false if:
-        abs(srcX) >= Pixmap width(), or if abs(srcY) >= Pixmap height().
-
-        If behavior is SkTransferFunctionBehavior::kRespect: converts source
-        pixels to a linear space before converting to dstInfo.
-        If behavior is SkTransferFunctionBehavior::kIgnore: source
-        pixels are treated as if they are linear, regardless of how they are encoded.
-
-        @param dstInfo      destination width, height, SkColorType, SkAlphaType, SkColorSpace
-        @param dstPixels    destination pixel storage
-        @param dstRowBytes  destination row length
-        @param srcX         column index whose absolute value is less than width()
-        @param srcY         row index whose absolute value is less than height()
-        @param behavior     one of: SkTransferFunctionBehavior::kRespect,
-                            SkTransferFunctionBehavior::kIgnore
-        @return             true if pixels are copied to dstPixels
-    */
-    bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                    int srcX, int srcY, SkTransferFunctionBehavior behavior) const;
-
     /** Copies a SkRect of pixels to dstPixels. Copy starts at (0, 0), and does not
         exceed SkPixmap (width(), height()).
 
         dstInfo specifies width, height, SkColorType, SkAlphaType, and
         SkColorSpace of destination. dstRowBytes specifics the gap from one destination
         row to the next. Returns true if pixels are copied. Returns false if
-        dstInfo.addr() equals nullptr, or dstRowBytes is less than dstInfo.minRowBytes().
+        dstInfo address equals nullptr, or dstRowBytes is less than dstInfo.minRowBytes().
 
         Pixels are copied only if pixel conversion is possible. If SkPixmap colorType() is
         kGray_8_SkColorType, or kAlpha_8_SkColorType; dstInfo.colorType() must match.
@@ -583,7 +574,7 @@ public:
         dstInfo specifies width, height, SkColorType, SkAlphaType, and
         SkColorSpace of destination. dstRowBytes specifics the gap from one destination
         row to the next. Returns true if pixels are copied. Returns false if
-        dstInfo.addr() equals nullptr, or dstRowBytes is less than dstInfo.minRowBytes().
+        dstInfo address equals nullptr, or dstRowBytes is less than dstInfo.minRowBytes().
 
         Pixels are copied only if pixel conversion is possible. If SkPixmap colorType() is
         kGray_8_SkColorType, or kAlpha_8_SkColorType; dstInfo.colorType() must match.
@@ -604,15 +595,12 @@ public:
         @return             true if pixels are copied to dstPixels
     */
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX,
-                    int srcY) const {
-        return this->readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY,
-                                SkTransferFunctionBehavior::kRespect);
-    }
+                    int srcY) const;
 
     /** Copies a SkRect of pixels to dst. Copy starts at (srcX, srcY), and does not
         exceed SkPixmap (width(), height()). dst specifies width, height, SkColorType,
         SkAlphaType, and SkColorSpace of destination.  Returns true if pixels are copied.
-        Returns false if dst.addr() equals nullptr, or dst.rowBytes() is less than
+        Returns false if dst address equals nullptr, or dst.rowBytes() is less than
         dst SkImageInfo::minRowBytes.
 
         Pixels are copied only if pixel conversion is possible. If SkPixmap colorType() is
@@ -637,7 +625,7 @@ public:
 
     /** Copies pixels inside bounds() to dst. dst specifies width, height, SkColorType,
         SkAlphaType, and SkColorSpace of destination.  Returns true if pixels are copied.
-        Returns false if dst.addr() equals nullptr, or dst.rowBytes() is less than
+        Returns false if dst address equals nullptr, or dst.rowBytes() is less than
         dst SkImageInfo::minRowBytes.
 
         Pixels are copied only if pixel conversion is possible. If SkPixmap colorType() is
@@ -658,7 +646,7 @@ public:
 
     /** Copies SkBitmap to dst, scaling pixels to fit dst.width() and dst.height(), and
         converting pixels to match dst.colorType() and dst.alphaType(). Returns true if
-        pixels are copied. Returns false if dst.addr() is nullptr, or dst.rowBytes() is
+        pixels are copied. Returns false if dst address is nullptr, or dst.rowBytes() is
         less than dst SkImageInfo::minRowBytes.
 
         Pixels are copied only if pixel conversion is possible. If SkPixmap colorType() is
@@ -674,8 +662,8 @@ public:
         filterQuality kNone_SkFilterQuality is fastest, typically implemented with
         nearest neighbor filter. kLow_SkFilterQuality is typically implemented with
         bilerp filter. kMedium_SkFilterQuality is typically implemented with
-        bilerp filter, and Filter_Quality_MipMap when size is reduced.
-        kHigh_SkFilterQuality is slowest, typically implemented with Filter_Quality_BiCubic.
+        bilerp filter, and mip-map filter when size is reduced.
+        kHigh_SkFilterQuality is slowest, typically implemented with bicubic filter.
 
         @param dst            SkImageInfo and pixel address to write to
         @param filterQuality  one of: kNone_SkFilterQuality, kLow_SkFilterQuality,

@@ -8,8 +8,8 @@
 #ifndef GrBitmapTextGeoProc_DEFINED
 #define GrBitmapTextGeoProc_DEFINED
 
-#include "GrProcessor.h"
-#include "GrGeometryProcessor.h"
+#include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrProcessor.h"
 
 class GrGLBitmapTextGeoProc;
 class GrInvariantOutput;
@@ -21,29 +21,32 @@ class GrInvariantOutput;
  */
 class GrBitmapTextGeoProc : public GrGeometryProcessor {
 public:
+    static constexpr int kMaxTextures = 4;
 
-    static sk_sp<GrGeometryProcessor> Make(GrColor color,
+    static sk_sp<GrGeometryProcessor> Make(const GrShaderCaps& caps,
+                                           const SkPMColor4f& color, bool wideColor,
                                            const sk_sp<GrTextureProxy>* proxies,
                                            int numActiveProxies,
                                            const GrSamplerState& p, GrMaskFormat format,
-                                           const SkMatrix& localMatrix, bool usesLocalCoords) {
+                                           const SkMatrix& localMatrix, bool usesW) {
         return sk_sp<GrGeometryProcessor>(
-            new GrBitmapTextGeoProc(color, proxies, numActiveProxies, p, format,
-                                    localMatrix, usesLocalCoords));
+            new GrBitmapTextGeoProc(caps, color, wideColor, proxies, numActiveProxies, p, format,
+                                    localMatrix, usesW));
     }
 
     ~GrBitmapTextGeoProc() override {}
 
     const char* name() const override { return "Texture"; }
 
-    const Attribute* inPosition() const { return fInPosition; }
-    const Attribute* inColor() const { return fInColor; }
-    const Attribute* inTextureCoords() const { return fInTextureCoords; }
+    const Attribute& inPosition() const { return fInPosition; }
+    const Attribute& inColor() const { return fInColor; }
+    const Attribute& inTextureCoords() const { return fInTextureCoords; }
     GrMaskFormat maskFormat() const { return fMaskFormat; }
-    GrColor color() const { return fColor; }
-    bool hasVertexColor() const { return SkToBool(fInColor); }
+    const SkPMColor4f& color() const { return fColor; }
+    bool hasVertexColor() const { return fInColor.isInitialized(); }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
-    bool usesLocalCoords() const { return fUsesLocalCoords; }
+    bool usesW() const { return fUsesW; }
+    const SkISize& atlasSize() const { return fAtlasSize; }
 
     void addNewProxies(const sk_sp<GrTextureProxy>*, int numActiveProxies, const GrSamplerState&);
 
@@ -52,19 +55,21 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override;
 
 private:
-    static constexpr int kMaxTextures = 4;
-
-    GrBitmapTextGeoProc(GrColor, const sk_sp<GrTextureProxy>* proxies, int numProxies,
+    GrBitmapTextGeoProc(const GrShaderCaps&, const SkPMColor4f&, bool wideColor,
+                        const sk_sp<GrTextureProxy>* proxies, int numProxies,
                         const GrSamplerState& params, GrMaskFormat format,
-                        const SkMatrix& localMatrix, bool usesLocalCoords);
+                        const SkMatrix& localMatrix, bool usesW);
 
-    GrColor          fColor;
+    const TextureSampler& onTextureSampler(int i) const override { return fTextureSamplers[i]; }
+
+    SkPMColor4f      fColor;
     SkMatrix         fLocalMatrix;
-    bool             fUsesLocalCoords;
+    bool             fUsesW;
+    SkISize          fAtlasSize;  // size for all textures used with fTextureSamplers[].
     TextureSampler   fTextureSamplers[kMaxTextures];
-    const Attribute* fInPosition;
-    const Attribute* fInColor;
-    const Attribute* fInTextureCoords;
+    Attribute        fInPosition;
+    Attribute        fInColor;
+    Attribute        fInTextureCoords;
     GrMaskFormat     fMaskFormat;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST

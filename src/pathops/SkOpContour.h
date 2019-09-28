@@ -7,9 +7,9 @@
 #ifndef SkOpContour_DEFINED
 #define SkOpContour_DEFINED
 
-#include "SkOpSegment.h"
-#include "SkTDArray.h"
-#include "SkTSort.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkTSort.h"
+#include "src/pathops/SkOpSegment.h"
 
 enum class SkOpRayDir;
 struct SkOpRayHit;
@@ -281,7 +281,7 @@ public:
         fNext = nullptr;
         fCount = 0;
         fDone = false;
-        SkDEBUGCODE(fBounds.set(SK_ScalarMax, SK_ScalarMax, SK_ScalarMin, SK_ScalarMin));
+        SkDEBUGCODE(fBounds.setLTRB(SK_ScalarMax, SK_ScalarMax, SK_ScalarMin, SK_ScalarMin));
         SkDEBUGCODE(fFirstSorted = -1);
         SkDEBUGCODE(fDebugIndent = 0);
     }

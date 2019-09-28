@@ -9,7 +9,7 @@ We assume you have already synced Skia's dependecies and set up Skia's build sys
 
 <!--?prettify lang=sh?-->
 
-    python tools/git-sync-deps
+    python2 tools/git-sync-deps
     bin/gn gen out/Debug
     bin/gn gen out/Release --args='is_debug=false'
 
@@ -78,12 +78,12 @@ Writing a Rendering Test
         ninja -C out/Debug dm
         out/Debug/dm --match newgmtest
 
-4.  Run the GM inside SampleApp:
+4.  Run the GM inside Viewer:
 
     <!--?prettify lang=sh?-->
 
-        ninja -C out/Debug SampleApp
-        out/Debug/SampleApp --slide GM:newgmtest
+        ninja -C out/Debug viewer
+        out/Debug/viewer --slide GM_newgmtest
 
 <span id="bench"></span>
 

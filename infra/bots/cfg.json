@@ -1,17 +1,27 @@
 {
   "gs_bucket_gm": "skia-infra-gm",
+  "gold_hashes_url": "https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt",
   "gs_bucket_nano": "skia-perf",
   "gs_bucket_coverage": "skia-coverage",
   "gs_bucket_calm": "skia-calmbench",
   "pool": "Skia",
+  "project": "skia",
   "no_upload": [
     "ASAN",
+    "AbandonGpuContext",
     "Coverage",
     "MSAN",
+    "OpenCL",
+    "SKQP",
     "TSAN",
     "UBSAN",
-    "Valgrind",
-    "AbandonGpuContext",
-    "SKQP"
-  ]
+    "Valgrind"
+  ],
+  "service_account_compile": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com",
+  "service_account_housekeeper": "skia-external-housekeeper@skia-swarming-bots.iam.gserviceaccount.com",
+  "service_account_recreate_skps": "skia-recreate-skps@skia-swarming-bots.iam.gserviceaccount.com",
+  "service_account_upload_binary": "skia-external-binary-uploader@skia-swarming-bots.iam.gserviceaccount.com",
+  "service_account_upload_calmbench": "skia-external-calmbench-upload@skia-swarming-bots.iam.gserviceaccount.com",
+  "service_account_upload_gm": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com",
+  "service_account_upload_nano": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
 }

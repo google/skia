@@ -20,7 +20,6 @@ DEPS = [
 ]
 
 
-GS_BUCKET_IMAGES = 'skia-infra-gm'
 DM_JSON = 'dm.json'
 VERBOSE_LOG = 'verbose.log'
 
@@ -29,33 +28,24 @@ def RunSteps(api):
   builder_name = api.properties['buildername']
   revision = api.properties['revision']
 
-  results_dir = api.path['start_dir'].join('test', 'dm')
+  results_dir = api.path['start_dir'].join('test')
 
-  # Move dm.json and verbose.log to their own directory.
-  json_file = results_dir.join(DM_JSON)
-  log_file = results_dir.join(VERBOSE_LOG)
-  tmp_dir = api.path['start_dir'].join('tmp_upload')
-  api.file.ensure_directory('makedirs tmp dir', tmp_dir)
-  api.file.copy('copy dm.json', json_file, tmp_dir)
-  api.file.copy('copy verbose.log', log_file, tmp_dir)
-  api.file.remove('rm old dm.json', json_file)
-  api.file.remove('rm old verbose.log', log_file)
-
-  # Upload the images.
-  image_dest_path = 'gs://%s/dm-images-v1' % GS_BUCKET_IMAGES
+  # Upload the images. It is *vital* that the images are uploaded first
+  # so they exist whenever the json is processed.
+  image_dest_path = 'gs://%s/dm-images-v1' % api.properties['gs_bucket']
   for ext in ['.png', '.pdf']:
     files_to_upload = api.file.glob_paths(
-        'find images',
+        'find %s images' % ext,
         results_dir,
         '*%s' % ext,
         test_data=['someimage.png'])
     # For some reason, glob returns results_dir when it should return nothing.
     files_to_upload = [f for f in files_to_upload if str(f).endswith(ext)]
     if len(files_to_upload) > 0:
-      api.gsutil.cp('images', results_dir.join('*%s' % ext),
+      api.gsutil.cp('%s images' % ext, results_dir.join('*%s' % ext),
                        image_dest_path, multithread=True)
 
-  # Upload the JSON summary and verbose.log.
+  # Compute the directory to upload results to
   now = api.time.utcnow()
   summary_dest_path = '/'.join([
       'dm-json-v1',
@@ -77,8 +67,18 @@ def RunSteps(api):
   summary_dest_path = 'gs://%s/%s' % (api.properties['gs_bucket'],
                                       summary_dest_path)
 
-  api.gsutil.cp('JSON and logs', tmp_dir.join('*'), summary_dest_path,
-                   extra_args=['-z', 'json,log'])
+  # Directly upload dm.json and verbose.log if it exists
+  json_file = results_dir.join(DM_JSON)
+  log_file = results_dir.join(VERBOSE_LOG)
+
+  api.gsutil.cp('dm.json', json_file,
+                summary_dest_path + '/' + DM_JSON, extra_args=['-Z'])
+
+  files = api.file.listdir('check for optional verbose.log file',
+                           results_dir, test_data=['dm.json', 'verbose.log'])
+  if log_file in files:
+    api.gsutil.cp('verbose.log', log_file,
+                  summary_dest_path + '/' + VERBOSE_LOG, extra_args=['-Z'])
 
 
 def GenTests(api):
@@ -105,7 +105,7 @@ def GenTests(api):
                    gs_bucket='skia-infra-gm',
                    revision='abc123',
                    path_config='kitchen') +
-    api.step_data('upload images', retcode=1)
+    api.step_data('upload .png images', retcode=1)
   )
 
   yield (
@@ -114,11 +114,11 @@ def GenTests(api):
                    gs_bucket='skia-infra-gm',
                    revision='abc123',
                    path_config='kitchen') +
-    api.step_data('upload images', retcode=1) +
-    api.step_data('upload images (attempt 2)', retcode=1) +
-    api.step_data('upload images (attempt 3)', retcode=1) +
-    api.step_data('upload images (attempt 4)', retcode=1) +
-    api.step_data('upload images (attempt 5)', retcode=1)
+    api.step_data('upload .png images', retcode=1) +
+    api.step_data('upload .png images (attempt 2)', retcode=1) +
+    api.step_data('upload .png images (attempt 3)', retcode=1) +
+    api.step_data('upload .png images (attempt 4)', retcode=1) +
+    api.step_data('upload .png images (attempt 5)', retcode=1)
   )
 
   yield (

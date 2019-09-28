@@ -5,21 +5,26 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkShader.h"
-#include "SkSurface.h"
-
-#include "SkColorMatrixFilter.h"
-#include "SkGradientShader.h"
+#include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkColorMatrix.h"
 
 static sk_sp<SkShader> make_opaque_color() {
-    return SkShader::MakeColorShader(0xFFFF0000);
+    return SkShaders::Color(0xFFFF0000);
 }
 
 static sk_sp<SkShader> make_alpha_color() {
-    return SkShader::MakeColorShader(0x80FF0000);
+    return SkShaders::Color(0x80FF0000);
 }
 
 static sk_sp<SkColorFilter> make_cf_null() {
@@ -29,23 +34,23 @@ static sk_sp<SkColorFilter> make_cf_null() {
 static sk_sp<SkColorFilter> make_cf0() {
     SkColorMatrix cm;
     cm.setSaturation(0.75f);
-    return SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat);
+    return SkColorFilters::Matrix(cm);
 }
 
 static sk_sp<SkColorFilter> make_cf1() {
     SkColorMatrix cm;
     cm.setSaturation(0.75f);
-    auto a = SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat);
+    auto a = SkColorFilters::Matrix(cm);
     // CreateComposedFilter will try to concat these two matrices, resulting in a single
     // filter (which is good for speed). For this test, we want to force a real compose of
     // these two, so our inner filter has a scale-up, which disables the optimization of
     // combining the two matrices.
     cm.setScale(1.1f, 0.9f, 1);
-    return a->makeComposed(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
+    return a->makeComposed(SkColorFilters::Matrix(cm));
 }
 
 static sk_sp<SkColorFilter> make_cf2() {
-    return SkColorFilter::MakeModeFilter(0x8044CC88, SkBlendMode::kSrcATop);
+    return SkColorFilters::Blend(0x8044CC88, SkBlendMode::kSrcATop);
 }
 
 static void draw_into_canvas(SkCanvas* canvas) {
@@ -88,7 +93,6 @@ DEF_SIMPLE_GM(color4f, canvas, 1024, 260) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkColorSpace.h"
 
 DEF_SIMPLE_GM(color4shader, canvas, 360, 480) {
     canvas->translate(10, 10);
@@ -108,9 +112,9 @@ DEF_SIMPLE_GM(color4shader, canvas, 360, 480) {
 
     for (const auto& c4 : colors) {
         sk_sp<SkShader> shaders[] {
-            SkShader::MakeColorShader(c4, nullptr),
-            SkShader::MakeColorShader(c4, srgb),
-            SkShader::MakeColorShader(c4, spin),
+            SkShaders::Color(c4, nullptr),
+            SkShaders::Color(c4, srgb),
+            SkShaders::Color(c4, spin),
         };
 
         canvas->save();

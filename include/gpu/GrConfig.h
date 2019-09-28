@@ -11,7 +11,7 @@
 #ifndef GrConfig_DEFINED
 #define GrConfig_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // preconfig section:
@@ -41,7 +41,7 @@
 #endif
 
 #if !defined(GR_GPU_STATS)
-  #if defined(SK_DEBUG) || defined(SK_DUMP_STATS)
+  #if defined(SK_DEBUG) || defined(SK_DUMP_STATS) || defined(GR_TEST_UTILS)
       #define GR_GPU_STATS    1
   #else
       #define GR_GPU_STATS    0
@@ -51,17 +51,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#if defined(SK_BUILD_FOR_WIN)
-// VC8 doesn't support stdint.h, so we define those types here.
-typedef signed char int8_t;
-typedef unsigned char uint8_t;
-typedef short int16_t;
-typedef unsigned short uint16_t;
-typedef int int32_t;
-typedef unsigned uint32_t;
-typedef __int64 int64_t;
-typedef unsigned __int64 uint64_t;
-#else
 /*
  *  Include stdint.h with defines that trigger declaration of C99 limit/const
  *  macros here before anyone else has a chance to include stdint.h without
@@ -74,7 +63,6 @@ typedef unsigned __int64 uint64_t;
 #define __STDC_CONSTANT_MACROS
 #endif
 #include <stdint.h>
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////

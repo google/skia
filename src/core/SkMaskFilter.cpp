@@ -5,25 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "SkMaskFilterBase.h"
+#include "src/core/SkMaskFilterBase.h"
 
-#include "SkAutoMalloc.h"
-#include "SkBlitter.h"
-#include "SkBlurPriv.h"
-#include "SkCachedData.h"
-#include "SkCoverageModePriv.h"
-#include "SkDraw.h"
-#include "SkPath.h"
-#include "SkRRect.h"
-#include "SkRasterClip.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRRect.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkBlitter.h"
+#include "src/core/SkBlurPriv.h"
+#include "src/core/SkCachedData.h"
+#include "src/core/SkCoverageModePriv.h"
+#include "src/core/SkDraw.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrTextureProxy.h"
-#include "GrFragmentProcessor.h"
-#include "effects/GrXfermodeFragmentProcessor.h"
-#include "text/GrSDFMaskFilter.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
+#include "src/gpu/text/GrSDFMaskFilter.h"
 #endif
 
 SkMaskFilterBase::NinePatch::~NinePatch() {
@@ -125,10 +125,10 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
     }
 
     SkIRect innerR;
-    innerR.set(outerR.left() + cx - mask.fBounds.left(),
-               outerR.top() + cy - mask.fBounds.top(),
-               outerR.right() + (cx + 1 - mask.fBounds.right()),
-               outerR.bottom() + (cy + 1 - mask.fBounds.bottom()));
+    innerR.setLTRB(outerR.left() + cx - mask.fBounds.left(),
+                   outerR.top() + cy - mask.fBounds.top(),
+                   outerR.right() + (cx + 1 - mask.fBounds.right()),
+                   outerR.bottom() + (cy + 1 - mask.fBounds.bottom()));
     if (fillCenter) {
         blitClippedRect(blitter, innerR, clipR);
     }
@@ -141,7 +141,7 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
 
     SkIRect r;
     // top
-    r.set(innerR.left(), outerR.top(), innerR.right(), innerR.top());
+    r.setLTRB(innerR.left(), outerR.top(), innerR.right(), innerR.top());
     if (r.intersect(clipR)) {
         int startY = SkMax32(0, r.top() - outerR.top());
         int stopY = startY + r.height();
@@ -154,7 +154,7 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
         }
     }
     // bottom
-    r.set(innerR.left(), innerR.bottom(), innerR.right(), outerR.bottom());
+    r.setLTRB(innerR.left(), innerR.bottom(), innerR.right(), outerR.bottom());
     if (r.intersect(clipR)) {
         int startY = outerR.bottom() - r.bottom();
         int stopY = startY + r.height();
@@ -167,7 +167,7 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
         }
     }
     // left
-    r.set(outerR.left(), innerR.top(), innerR.left(), innerR.bottom());
+    r.setLTRB(outerR.left(), innerR.top(), innerR.left(), innerR.bottom());
     if (r.intersect(clipR)) {
         SkMask m;
         m.fImage = mask.getAddr8(mask.fBounds.left() + r.left() - outerR.left(),
@@ -178,7 +178,7 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
         blitter->blitMask(m, r);
     }
     // right
-    r.set(innerR.right(), innerR.top(), outerR.right(), innerR.bottom());
+    r.setLTRB(innerR.right(), innerR.top(), outerR.right(), innerR.bottom());
     if (r.intersect(clipR)) {
         SkMask m;
         m.fImage = mask.getAddr8(mask.fBounds.right() - outerR.right() + r.left(),
@@ -323,35 +323,24 @@ SkMaskFilterBase::onAsFragmentProcessor(const GrFPArgs&) const {
 }
 bool SkMaskFilterBase::onHasFragmentProcessor() const { return false; }
 
-bool SkMaskFilterBase::canFilterMaskGPU(const SkRRect& devRRect,
+bool SkMaskFilterBase::canFilterMaskGPU(const GrShape& shape,
+                                        const SkIRect& devSpaceShapeBounds,
                                         const SkIRect& clipBounds,
                                         const SkMatrix& ctm,
-                                        SkRect* maskRect) const {
+                                        SkIRect* maskRect) const {
     return false;
 }
 
-bool SkMaskFilterBase::directFilterMaskGPU(GrContext*,
-                                           GrRenderTargetContext* renderTargetContext,
+bool SkMaskFilterBase::directFilterMaskGPU(GrRecordingContext*,
+                                           GrRenderTargetContext*,
                                            GrPaint&&,
                                            const GrClip&,
                                            const SkMatrix& viewMatrix,
-                                           const SkStrokeRec& strokeRec,
-                                           const SkPath& path) const {
+                                           const GrShape&) const {
     return false;
 }
 
-bool SkMaskFilterBase::directFilterRRectMaskGPU(GrContext*,
-                                                GrRenderTargetContext* renderTargetContext,
-                                                GrPaint&&,
-                                                const GrClip&,
-                                                const SkMatrix& viewMatrix,
-                                                const SkStrokeRec& strokeRec,
-                                                const SkRRect& rrect,
-                                                const SkRRect& devRRect) const {
-    return false;
-}
-
-sk_sp<GrTextureProxy> SkMaskFilterBase::filterMaskGPU(GrContext*,
+sk_sp<GrTextureProxy> SkMaskFilterBase::filterMaskGPU(GrRecordingContext*,
                                                       sk_sp<GrTextureProxy> srcProxy,
                                                       const SkMatrix& ctm,
                                                       const SkIRect& maskRect) const {
@@ -405,8 +394,6 @@ public:
     }
 
     SkMask::Format getFormat() const override { return SkMask::kA8_Format; }
-    void toString(SkString* str) const override;
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeMF)
 
 protected:
 #if SK_SUPPORT_GPU
@@ -427,6 +414,8 @@ protected:
 #endif
 
 private:
+    SK_FLATTENABLE_HOOKS(SkComposeMF)
+
     sk_sp<SkMaskFilter> fOuter;
     sk_sp<SkMaskFilter> fInner;
 
@@ -470,10 +459,6 @@ sk_sp<SkFlattenable> SkComposeMF::CreateProc(SkReadBuffer& buffer) {
     return SkMaskFilter::MakeCompose(std::move(outer), std::move(inner));
 }
 
-void SkComposeMF::toString(SkString* str) const {
-    str->set("SkComposeMF:");
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 class SkCombineMF : public SkMaskFilterBase {
@@ -498,8 +483,7 @@ public:
 
     SkMask::Format getFormat() const override { return SkMask::kA8_Format; }
 
-    void toString(SkString* str) const override;
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkCombineMF)
+    SK_FLATTENABLE_HOOKS(SkCombineMF)
 
 protected:
 #if SK_SUPPORT_GPU
@@ -530,7 +514,7 @@ private:
     typedef SkMaskFilterBase INHERITED;
 };
 
-#include "SkSafeMath.h"
+#include "src/core/SkSafeMath.h"
 
 class DrawIntoMask : public SkDraw {
 public:
@@ -625,10 +609,6 @@ sk_sp<SkFlattenable> SkCombineMF::CreateProc(SkReadBuffer& buffer) {
     return SkMaskFilter::MakeCombine(std::move(dst), std::move(src), mode);
 }
 
-void SkCombineMF::toString(SkString* str) const {
-    str->set("SkCombineMF:");
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 class SkMatrixMF : public SkMaskFilterBase {
@@ -652,11 +632,7 @@ public:
 
     SkMask::Format getFormat() const override { return as_MFB(fFilter)->getFormat(); }
 
-    void toString(SkString* str) const override {
-        str->set("SkMatrixMF:");
-    }
-
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLocalMatrixMF)
+    SK_FLATTENABLE_HOOKS(SkMatrixMF)
 
 protected:
 #if SK_SUPPORT_GPU
@@ -730,10 +706,10 @@ sk_sp<SkMaskFilter> SkMaskFilter::makeWithMatrix(const SkMatrix& lm) const {
     return sk_sp<SkMaskFilter>(new SkMatrixMF(std::move(me), lm));
 }
 
-void SkMaskFilter::InitializeFlattenables() {
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMatrixMF)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeMF)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkCombineMF)
+void SkMaskFilter::RegisterFlattenables() {
+    SK_REGISTER_FLATTENABLE(SkMatrixMF);
+    SK_REGISTER_FLATTENABLE(SkComposeMF);
+    SK_REGISTER_FLATTENABLE(SkCombineMF);
     sk_register_blur_maskfilter_createproc();
 #if SK_SUPPORT_GPU
     gr_register_sdf_maskfilter_createproc();

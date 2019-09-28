@@ -5,14 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkRWBuffer.h"
+#include "include/core/SkRWBuffer.h"
 
-#include "SkAtomics.h"
-#include "SkMalloc.h"
-#include "SkMakeUnique.h"
-#include "SkStream.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkMakeUnique.h"
 
 #include <atomic>
+#include <new>
 
 // Force small chunks to be a page's worth
 static const size_t kMinAllocSize = 4096;

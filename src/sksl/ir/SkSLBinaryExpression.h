@@ -8,10 +8,11 @@
 #ifndef SKSL_BINARYEXPRESSION
 #define SKSL_BINARYEXPRESSION
 
-#include "SkSLExpression.h"
-#include "SkSLExpression.h"
-#include "../SkSLIRGenerator.h"
-#include "../SkSLLexer.h"
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLIRGenerator.h"
+#include "src/sksl/SkSLLexer.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLExpression.h"
 
 namespace SkSL {
 
@@ -36,6 +37,11 @@ struct BinaryExpression : public Expression {
     bool hasSideEffects() const override {
         return Compiler::IsAssignment(fOperator) || fLeft->hasSideEffects() ||
                fRight->hasSideEffects();
+    }
+
+    std::unique_ptr<Expression> clone() const override {
+        return std::unique_ptr<Expression>(new BinaryExpression(fOffset, fLeft->clone(), fOperator,
+                                                                fRight->clone(), fType));
     }
 
     String description() const override {

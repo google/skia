@@ -8,84 +8,38 @@
 #ifndef GrDefaultGeoProcFactory_DEFINED
 #define GrDefaultGeoProcFactory_DEFINED
 
-#include "GrColorSpaceXform.h"
-#include "GrGeometryProcessor.h"
+#include "src/gpu/GrColorSpaceXform.h"
+#include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrShaderCaps.h"
 
 /*
  * A factory for creating default Geometry Processors which simply multiply position by the uniform
  * view matrix and wire through color, coverage, UV coords if requested.
  */
 namespace GrDefaultGeoProcFactory {
-    // Structs for adding vertex attributes
-    struct PositionAttr {
-        SkPoint fPosition;
-    };
-
-    struct PositionCoverageAttr {
-        SkPoint fPosition;
-        float   fCoverage;
-    };
-
-    struct PositionColorAttr {
-        SkPoint fPosition;
-        SkColor fColor;
-    };
-
-    struct PositionColorCoverageAttr {
-        SkPoint fPosition;
-        SkColor fColor;
-        float   fCoverage;
-    };
-
-    struct PositionLocalCoordAttr {
-        SkPoint fPosition;
-        SkPoint fLocalCoord;
-    };
-
-    struct PositionLocalCoordCoverageAttr {
-        SkPoint fPosition;
-        SkPoint fLocalCoord;
-        float   fCoverage;
-    };
-
-    struct PositionColorLocalCoordAttr {
-        SkPoint fPosition;
-        GrColor fColor;
-        SkPoint fLocalCoord;
-    };
-
-    struct PositionColorLocalCoordCoverage {
-        SkPoint fPosition;
-        GrColor fColor;
-        SkPoint fLocalCoord;
-        float   fCoverage;
-    };
-
     struct Color {
         enum Type {
             kPremulGrColorUniform_Type,
             kPremulGrColorAttribute_Type,
+            kPremulWideColorAttribute_Type,
             kUnpremulSkColorAttribute_Type,
         };
-        explicit Color(GrColor color)
+        explicit Color(const SkPMColor4f& color)
                 : fType(kPremulGrColorUniform_Type)
                 , fColor(color)
-                , fLinearize(false)
                 , fColorSpaceXform(nullptr) {}
         Color(Type type)
                 : fType(type)
-                , fColor(GrColor_ILLEGAL)
-                , fLinearize(false)
+                , fColor(SK_PMColor4fILLEGAL)
                 , fColorSpaceXform(nullptr) {
             SkASSERT(type != kPremulGrColorUniform_Type);
         }
 
         Type fType;
-        GrColor fColor;
+        SkPMColor4f fColor;
 
-        // These options only apply to SkColor. Any GrColors are assumed to have been color managed
+        // This only applies to SkColor. Any GrColors are assumed to have been color converted
         // during paint conversion.
-        bool fLinearize;
         sk_sp<GrColorSpaceXform> fColorSpaceXform;
     };
 
@@ -94,6 +48,7 @@ namespace GrDefaultGeoProcFactory {
             kSolid_Type,
             kUniform_Type,
             kAttribute_Type,
+            kAttributeTweakAlpha_Type,
         };
         explicit Coverage(uint8_t coverage) : fType(kUniform_Type), fCoverage(coverage) {}
         Coverage(Type type) : fType(type), fCoverage(0xff) {
@@ -121,7 +76,8 @@ namespace GrDefaultGeoProcFactory {
         const SkMatrix* fMatrix;
     };
 
-    sk_sp<GrGeometryProcessor> Make(const Color&,
+    sk_sp<GrGeometryProcessor> Make(const GrShaderCaps*,
+                                    const Color&,
                                     const Coverage&,
                                     const LocalCoords&,
                                     const SkMatrix& viewMatrix);
@@ -131,7 +87,8 @@ namespace GrDefaultGeoProcFactory {
      * attribute. The view matrix must still be provided to compute correctly transformed
      * coordinates for GrFragmentProcessors. It may fail if the view matrix is not invertible.
      */
-    sk_sp<GrGeometryProcessor> MakeForDeviceSpace(const Color&,
+    sk_sp<GrGeometryProcessor> MakeForDeviceSpace(const GrShaderCaps*,
+                                                  const Color&,
                                                   const Coverage&,
                                                   const LocalCoords&,
                                                   const SkMatrix& viewMatrix);

@@ -15,4 +15,5 @@ class GitApi(recipe_api.RecipeApi):
     """
     git_dir = self.m.path['start_dir'].join('git')
     git_bin = git_dir.join('bin')
-    return self.m.env({'PATH': '%s:%s:%%(PATH)s' % (git_dir, git_bin)})
+    return self.m.env({'PATH': self.m.path.pathsep.join(
+        [str(git_dir), str(git_bin), '%(PATH)s'])})

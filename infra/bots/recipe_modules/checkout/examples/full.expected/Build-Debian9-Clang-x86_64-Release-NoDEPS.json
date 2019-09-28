@@ -1,0 +1,114 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[depot_tools::git]/resources/git_setup.py",
+      "--path",
+      "[START_DIR]/skia",
+      "--url",
+      "https://skia.googlesource.com/skia.git"
+    ],
+    "name": "git setup"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin",
+      "abc123",
+      "--progress"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "PATH": "RECIPE_REPO[depot_tools]:<PATH>"
+    },
+    "infra_step": true,
+    "name": "git fetch"
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "-f",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "infra_step": true,
+    "name": "git checkout"
+  },
+  {
+    "cmd": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "infra_step": true,
+    "name": "read revision",
+    "~followup_annotations": [
+      "@@@STEP_TEXT@<br/>checked out 'deadbeef'<br/>@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-f",
+      "-d",
+      "-x"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "infra_step": true,
+    "name": "git clean"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch",
+      "origin",
+      "refs/changes/89/456789/12"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "infra_step": true,
+    "name": "git fetch (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "FETCH_HEAD"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "infra_step": true,
+    "name": "git checkout (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "rebase",
+      "abc123"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "infra_step": true,
+    "name": "git rebase"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/tmp"
+    ],
+    "infra_step": true,
+    "name": "makedirs tmp_dir"
+  },
+  {
+    "name": "$result"
+  }
+]

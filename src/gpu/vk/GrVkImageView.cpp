@@ -5,18 +5,39 @@
 * found in the LICENSE file.
 */
 
-#include "GrVkImageView.h"
-#include "GrVkGpu.h"
-#include "GrVkUtil.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkImageView.h"
+#include "src/gpu/vk/GrVkSamplerYcbcrConversion.h"
+#include "src/gpu/vk/GrVkUtil.h"
 
-const GrVkImageView* GrVkImageView::Create(const GrVkGpu* gpu, VkImage image, VkFormat format,
-                                           Type viewType, uint32_t miplevels) {
+const GrVkImageView* GrVkImageView::Create(GrVkGpu* gpu, VkImage image, VkFormat format,
+                                           Type viewType, uint32_t miplevels,
+                                           const GrVkYcbcrConversionInfo& ycbcrInfo) {
+
+    void* pNext = nullptr;
+    VkSamplerYcbcrConversionInfo conversionInfo;
+    GrVkSamplerYcbcrConversion* ycbcrConversion = nullptr;
+
+    if (ycbcrInfo.isValid()) {
+        SkASSERT(gpu->vkCaps().supportsYcbcrConversion() && format == ycbcrInfo.fFormat);
+
+        ycbcrConversion =
+                gpu->resourceProvider().findOrCreateCompatibleSamplerYcbcrConversion(ycbcrInfo);
+        if (!ycbcrConversion) {
+            return nullptr;
+        }
+
+        conversionInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO;
+        conversionInfo.pNext = nullptr;
+        conversionInfo.conversion = ycbcrConversion->ycbcrConversion();
+        pNext = &conversionInfo;
+    }
+
     VkImageView imageView;
-
     // Create the VkImageView
     VkImageViewCreateInfo viewInfo = {
         VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,               // sType
-        NULL,                                                   // pNext
+        pNext,                                                  // pNext
         0,                                                      // flags
         image,                                                  // image
         VK_IMAGE_VIEW_TYPE_2D,                                  // viewType
@@ -37,9 +58,20 @@ const GrVkImageView* GrVkImageView::Create(const GrVkGpu* gpu, VkImage image, Vk
         return nullptr;
     }
 
-    return new GrVkImageView(imageView);
+    return new GrVkImageView(imageView, ycbcrConversion);
 }
 
-void GrVkImageView::freeGPUData(const GrVkGpu* gpu) const {
+void GrVkImageView::freeGPUData(GrVkGpu* gpu) const {
     GR_VK_CALL(gpu->vkInterface(), DestroyImageView(gpu->device(), fImageView, nullptr));
+
+    if (fYcbcrConversion) {
+        fYcbcrConversion->unref(gpu);
+    }
 }
+
+void GrVkImageView::abandonGPUData() const {
+    if (fYcbcrConversion) {
+        fYcbcrConversion->unrefAndAbandon();
+    }
+}
+

@@ -8,7 +8,7 @@
 #ifndef RasterWindowContext_DEFINED
 #define RasterWindowContext_DEFINED
 
-#include "WindowContext.h"
+#include "tools/sk_app/WindowContext.h"
 
 namespace sk_app {
 

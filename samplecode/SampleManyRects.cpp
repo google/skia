@@ -4,17 +4,16 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkRandom.h"
-#include "SkShader.h"
-#include "SkView.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
+#include "include/utils/SkRandom.h"
+#include "samplecode/Sample.h"
 
 /**
  * Animated sample used to develop a predecessor of GrDrawOp combining.
  */
-class ManyRectsView : public SampleView {
+class ManyRectsView : public Sample {
 private:
     enum {
         N = 1000,
@@ -24,13 +23,7 @@ public:
     ManyRectsView() {}
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "ManyRects");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("ManyRects"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         SkISize dsize = canvas->getBaseLayerSize();
@@ -66,10 +59,9 @@ protected:
 
 private:
     SkRandom fRandom;
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new ManyRectsView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new ManyRectsView(); )

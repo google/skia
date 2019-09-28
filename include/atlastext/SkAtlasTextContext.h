@@ -8,7 +8,7 @@
 #ifndef SkAtlasTextContext_DEFINED
 #define SkAtlasTextContext_DEFINED
 
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
 
 class SkAtlasTextRenderer;
 class SkInternalAtlasTextContext;

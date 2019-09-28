@@ -8,9 +8,10 @@
 #ifndef SkStream_DEFINED
 #define SkStream_DEFINED
 
-#include "SkData.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
+#include "include/core/SkData.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/private/SkTo.h"
 
 #include <memory.h>
 
@@ -37,9 +38,10 @@ class SkStreamMemory;
  *  no more data (at EOF or hit an error). The caller should *not* call again
  *  in hopes of fulfilling more of the request.
  */
-class SK_API SkStream : public SkNoncopyable {
+class SK_API SkStream {
 public:
     virtual ~SkStream() {}
+    SkStream() {}
 
     /**
      *  Attempts to open the specified file as a stream, returns nullptr on failure.
@@ -151,6 +153,11 @@ public:
 private:
     virtual SkStream* onDuplicate() const { return nullptr; }
     virtual SkStream* onFork() const { return nullptr; }
+
+    SkStream(SkStream&&) = delete;
+    SkStream(const SkStream&) = delete;
+    SkStream& operator=(SkStream&&) = delete;
+    SkStream& operator=(const SkStream&) = delete;
 };
 
 /** SkStreamRewindable is a SkStream for which rewind and duplicate are required. */
@@ -217,9 +224,10 @@ private:
     SkStreamMemory* onFork() const override = 0;
 };
 
-class SK_API SkWStream : SkNoncopyable {
+class SK_API SkWStream {
 public:
     virtual ~SkWStream();
+    SkWStream() {}
 
     /** Called to write bytes to a SkWStream. Returns true on success
         @param buffer the address of at least size bytes to be written to the stream
@@ -268,13 +276,17 @@ public:
      * 'value'.
      */
     static int SizeOfPackedUInt(size_t value);
+
+private:
+    SkWStream(const SkWStream&) = delete;
+    SkWStream& operator=(const SkWStream&) = delete;
 };
 
 class SK_API SkNullWStream : public SkWStream {
 public:
     SkNullWStream() : fBytesWritten(0) {}
 
-    bool write(const void*, size_t n) override { fBytesWritten += n; return true; }
+    bool write(const void* , size_t n) override { fBytesWritten += n; return true; }
     void flush() override {}
     size_t bytesWritten() const override { return fBytesWritten; }
 
@@ -359,7 +371,7 @@ public:
     SkMemoryStream(const void* data, size_t length, bool copyData = false);
 
     /** Creates the stream to read from the specified data */
-    SkMemoryStream(sk_sp<SkData>);
+    SkMemoryStream(sk_sp<SkData> data);
 
     /** Returns a stream with a copy of the input data. */
     static std::unique_ptr<SkMemoryStream> MakeCopy(const void* data, size_t length);
@@ -383,7 +395,7 @@ public:
     void setMemoryOwned(const void* data, size_t length);
 
     sk_sp<SkData> asData() const { return fData; }
-    void setData(sk_sp<SkData>);
+    void setData(sk_sp<SkData> data);
 
     void skipToAlign4();
     const void* getAtPos();
@@ -445,7 +457,9 @@ private:
 
 class SK_API SkDynamicMemoryWStream : public SkWStream {
 public:
-    SkDynamicMemoryWStream();
+    SkDynamicMemoryWStream() = default;
+    SkDynamicMemoryWStream(SkDynamicMemoryWStream&&);
+    SkDynamicMemoryWStream& operator=(SkDynamicMemoryWStream&&);
     ~SkDynamicMemoryWStream() override;
 
     bool write(const void* buffer, size_t size) override;
@@ -463,6 +477,13 @@ public:
     /** Equivalent to writeToStream() followed by reset(), but may save memory use. */
     bool writeToAndReset(SkWStream* dst);
 
+    /** Equivalent to writeToStream() followed by reset(), but may save memory use.
+        When the dst is also a SkDynamicMemoryWStream, the implementation is constant time. */
+    bool writeToAndReset(SkDynamicMemoryWStream* dst);
+
+    /** Prepend this stream to dst, resetting this. */
+    void prependToAndReset(SkDynamicMemoryWStream* dst);
+
     /** Return the contents as SkData, and then reset the stream. */
     sk_sp<SkData> detachAsData();
 
@@ -474,9 +495,9 @@ public:
     void padToAlign4();
 private:
     struct Block;
-    Block*  fHead;
-    Block*  fTail;
-    size_t  fBytesWrittenBeforeTail;
+    Block*  fHead = nullptr;
+    Block*  fTail = nullptr;
+    size_t  fBytesWrittenBeforeTail = 0;
 
 #ifdef SK_DEBUG
     void validate() const;

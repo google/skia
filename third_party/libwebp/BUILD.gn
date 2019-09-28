@@ -39,25 +39,12 @@ if (skia_use_system_libwebp) {
       "../externals/libwebp/src/dsp/dec_sse41.c",
       "../externals/libwebp/src/dsp/enc_sse41.c",
       "../externals/libwebp/src/dsp/lossless_enc_sse41.c",
+      "../externals/libwebp/src/dsp/upsampling_sse41.c",
+      "../externals/libwebp/src/dsp/yuv_sse41.c",
     ]
     if ((current_cpu == "x86" || current_cpu == "x64") &&
         (!is_win || is_clang)) {
       cflags_c = [ "-msse4.1" ]
-    }
-  }
-
-  third_party("libwebp_avx2") {
-    public_include_dirs = [
-      "../externals/libwebp/src",
-      "../externals/libwebp",
-    ]
-    configs += [ ":libwebp_defines" ]
-    sources = [
-      "../externals/libwebp/src/dsp/enc_avx2.c",
-    ]
-    if ((current_cpu == "x86" || current_cpu == "x64") &&
-        (!is_win || is_clang)) {
-      cflags_c = [ "-mavx2" ]
     }
   }
 
@@ -68,7 +55,6 @@ if (skia_use_system_libwebp) {
     ]
 
     deps = [
-      ":libwebp_avx2",
       ":libwebp_sse41",
     ]
     if (is_android) {
@@ -96,6 +82,7 @@ if (skia_use_system_libwebp) {
       "../externals/libwebp/src/dsp/cost.c",
       "../externals/libwebp/src/dsp/cost_mips32.c",
       "../externals/libwebp/src/dsp/cost_mips_dsp_r2.c",
+      "../externals/libwebp/src/dsp/cost_neon.c",
       "../externals/libwebp/src/dsp/cost_sse2.c",
       "../externals/libwebp/src/dsp/cpu.c",
       "../externals/libwebp/src/dsp/dec.c",
@@ -151,7 +138,6 @@ if (skia_use_system_libwebp) {
       "../externals/libwebp/src/enc/backward_references_enc.c",
       "../externals/libwebp/src/enc/config_enc.c",
       "../externals/libwebp/src/enc/cost_enc.c",
-      "../externals/libwebp/src/enc/delta_palettization_enc.c",
       "../externals/libwebp/src/enc/filter_enc.c",
       "../externals/libwebp/src/enc/frame_enc.c",
       "../externals/libwebp/src/enc/histogram_enc.c",

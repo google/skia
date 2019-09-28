@@ -6,16 +6,23 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/gl/GrGLInterface.h"
+#include "tools/sk_app/GLWindowContext.h"
+#include "tools/sk_app/unix/WindowContextFactory_unix.h"
+
 #include <GL/gl.h>
-#include "../GLWindowContext.h"
-#include "WindowContextFactory_unix.h"
-#include "gl/GrGLInterface.h"
 
 using sk_app::window_context_factory::XlibWindowInfo;
 using sk_app::DisplayParams;
 using sk_app::GLWindowContext;
 
 namespace {
+
+static bool gCtxErrorOccurred = false;
+static int ctxErrorHandler(Display *dpy, XErrorEvent *ev) {
+    gCtxErrorOccurred = true;
+    return 0;
+}
 
 class GLWindowContext_xlib : public GLWindowContext {
 public:
@@ -60,11 +67,15 @@ sk_sp<const GrGLInterface> GLWindowContext_xlib::onInitializeContext() {
     SkASSERT(!fGLContext);
     sk_sp<const GrGLInterface> interface;
     bool current = false;
+
     // We attempt to use glXCreateContextAttribsARB as RenderDoc requires that the context be
     // created with this rather than glXCreateContext.
     CreateContextAttribsFn* createContextAttribs = (CreateContextAttribsFn*)glXGetProcAddressARB(
             (const GLubyte*)"glXCreateContextAttribsARB");
     if (createContextAttribs && fFBConfig) {
+        // Install Xlib error handler that will set gCtxErrorOccurred
+        int (*oldHandler)(Display*, XErrorEvent*) = XSetErrorHandler(&ctxErrorHandler);
+
         // Specifying 3.2 allows an arbitrarily high context version (so long as no 3.2 features
         // have been removed).
         for (int minor = 2; minor >= 0 && !fGLContext; --minor) {
@@ -72,12 +83,18 @@ sk_sp<const GrGLInterface> GLWindowContext_xlib::onInitializeContext() {
             // requires a core profile. Edit this code to use RenderDoc.
             for (int profile : {GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
                                 GLX_CONTEXT_CORE_PROFILE_BIT_ARB}) {
+                gCtxErrorOccurred = false;
                 int attribs[] = {
                         GLX_CONTEXT_MAJOR_VERSION_ARB, 3, GLX_CONTEXT_MINOR_VERSION_ARB, minor,
                         GLX_CONTEXT_PROFILE_MASK_ARB, profile,
                         0
                 };
                 fGLContext = createContextAttribs(fDisplay, *fFBConfig, nullptr, True, attribs);
+
+                // Sync to ensure any errors generated are processed.
+                XSync(fDisplay, False);
+                if (gCtxErrorOccurred) { continue; }
+
                 if (fGLContext && profile == GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB &&
                     glXMakeCurrent(fDisplay, fWindow, fGLContext)) {
                     current = true;
@@ -97,6 +114,8 @@ sk_sp<const GrGLInterface> GLWindowContext_xlib::onInitializeContext() {
                 }
             }
         }
+        // Restore the original error handler
+        XSetErrorHandler(oldHandler);
     }
     if (!fGLContext) {
         fGLContext = glXCreateContext(fDisplay, fVisualInfo, nullptr, GL_TRUE);
@@ -108,6 +127,17 @@ sk_sp<const GrGLInterface> GLWindowContext_xlib::onInitializeContext() {
     if (!current && !glXMakeCurrent(fDisplay, fWindow, fGLContext)) {
         return nullptr;
     }
+
+    const char* glxExtensions = glXQueryExtensionsString(fDisplay, DefaultScreen(fDisplay));
+    if (glxExtensions) {
+        if (strstr(glxExtensions, "GLX_EXT_swap_control")) {
+            PFNGLXSWAPINTERVALEXTPROC glXSwapIntervalEXT =
+                    (PFNGLXSWAPINTERVALEXTPROC)glXGetProcAddressARB(
+                            (const GLubyte*)"glXSwapIntervalEXT");
+            glXSwapIntervalEXT(fDisplay, fWindow, fDisplayParams.fDisableVsync ? 0 : 1);
+        }
+    }
+
     glClearStencil(0);
     glClearColor(0, 0, 0, 0);
     glStencilMask(0xffffffff);
@@ -152,10 +182,10 @@ namespace sk_app {
 
 namespace window_context_factory {
 
-WindowContext* NewGLForXlib(const XlibWindowInfo& winInfo, const DisplayParams& params) {
-    WindowContext* ctx = new GLWindowContext_xlib(winInfo, params);
+std::unique_ptr<WindowContext> MakeGLForXlib(const XlibWindowInfo& winInfo,
+                                             const DisplayParams& params) {
+    std::unique_ptr<WindowContext> ctx(new GLWindowContext_xlib(winInfo, params));
     if (!ctx->isValid()) {
-        delete ctx;
         return nullptr;
     }
     return ctx;

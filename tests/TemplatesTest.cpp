@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkTemplates.h"
-#include "Test.h"
+#include "include/private/SkTemplates.h"
+#include "tests/Test.h"
 
 // Tests for some of the helpers in SkTemplates.h
 static void test_automalloc_realloc(skiatest::Reporter* reporter) {
@@ -137,7 +137,7 @@ DEF_TEST(SkAutoTMallocSelfMove, r) {
     REPORTER_ASSERT(r, foo.get());
 
     foo = std::move(foo);
-    REPORTER_ASSERT(r, foo.get());
+    REPORTER_ASSERT(r, foo.get());  // NOLINT(bugprone-use-after-move)
 
 #if defined(__clang__)
     #pragma clang diagnostic pop

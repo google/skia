@@ -5,15 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "CodecPriv.h"
-#include "Resources.h"
-#include "SkAndroidCodec.h"
-#include "SkBitmap.h"
-#include "SkData.h"
-#include "SkImage.h"
-#include "SkStream.h"
-#include "SkTypes.h"
-#include "Test.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
+#include "tests/CodecPriv.h"
+#include "tests/Test.h"
+#include "tools/Resources.h"
 
 static unsigned char gGIFData[] = {
   0x47, 0x49, 0x46, 0x38, 0x37, 0x61, 0x03, 0x00, 0x03, 0x00, 0xe3, 0x08,
@@ -187,6 +188,20 @@ DEF_TEST(Gif, reporter) {
     test_gif_data_no_colormap(reporter, static_cast<void *>(gGIFDataNoColormap),
                               sizeof(gGIFDataNoColormap));
 
+#ifdef SK_HAS_WUFFS_LIBRARY
+    // We are transitioning from an old GIF implementation to a new (Wuffs) GIF
+    // implementation.
+    //
+    // This test (without SK_HAS_WUFFS_LIBRARY) is overly specific to the old
+    // implementation. It claims that, for invalid (truncated) input, we can
+    // still 'decode' all of the pixels because no matter what palette index
+    // each pixel is, they're all equivalently transparent. It's not obvious
+    // that this off-spec behavior is worth preserving. Are real world users
+    // decoding truncated all-transparent GIF images??
+    //
+    // Once the transition is complete, we can remove the #ifdef and delete the
+    // #else branch.
+#else
     // Since there is no color map, we do not even need to parse the image data
     // to know that we should draw transparent. Truncate the file before the
     // data. This should still succeed.
@@ -212,6 +227,7 @@ DEF_TEST(Gif, reporter) {
             }
         }
     }
+#endif
 
     // test short Gif.  80 is missing a few bytes.
     test_gif_data_short(reporter, static_cast<void *>(gGIFData), 80);
@@ -261,23 +277,189 @@ DEF_TEST(Codec_GifTruncated, r) {
     REPORTER_ASSERT(r, !codec);
 }
 
+/*
+For the Codec_GifTruncated2 test, immediately below,
+resources/images/box.gif's first 23 bytes are:
+
+00000000: 4749 4638 3961 c800 3700 203f 002c 0000  GIF89a..7. ?.,..
+00000010: 0000 c800 3700 85                        ....7..
+
+The breakdown:
+
+@000  6 bytes magic "GIF89a"
+@006  7 bytes Logical Screen Descriptor: 0xC8 0x00 ... 0x00
+   - width     =   200
+   - height    =    55
+   - flags     =  0x20
+   - background color index, pixel aspect ratio bytes ignored
+@00D 10 bytes Image Descriptor header: 0x2C 0x00 ... 0x85
+   - origin_x  =     0
+   - origin_y  =     0
+   - width     =   200
+   - height    =    55
+   - flags     =  0x85, local color table, 64 RGB entries
+
+In particular, 23 bytes is after the header, but before the color table.
+*/
+
 DEF_TEST(Codec_GifTruncated2, r) {
+    // Truncate box.gif at 21, 22 and 23 bytes.
+    //
+    // See also Codec_GifTruncated3 in this file, below.
+    //
+    // See also Codec_trunc in CodecAnimTest.cpp for this magic 23.
+    //
+    // See also Codec_GifPreMap in CodecPartialTest.cpp for this magic 23.
+    for (int i = 21; i < 24; i++) {
+        sk_sp<SkData> data(GetResourceAsData("images/box.gif"));
+        if (!data) {
+            return;
+        }
+
+        data = SkData::MakeSubset(data.get(), 0, i);
+        std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(data));
+
+        if (i <= 21) {
+            if (codec) {
+                ERRORF(r, "Invalid data gave non-nullptr codec");
+            }
+            return;
+        }
+
+        if (!codec) {
+            ERRORF(r, "Failed to create codec with partial data (truncated at %d)", i);
+            return;
+        }
+
+#ifdef SK_HAS_WUFFS_LIBRARY
+        // We are transitioning from an old GIF implementation to a new (Wuffs)
+        // GIF implementation.
+        //
+        // The input is truncated in the Image Descriptor, before the local
+        // color table, and before (21) or after (22, 23) the first frame's
+        // XYWH (left / top / width / height) can be decoded. A detailed
+        // breakdown of those 23 bytes is in a comment above this function.
+        //
+        // With the old implementation, this test claimed that "no frame is
+        // complete enough that it has its metadata". In terms of the
+        // underlying file format, this claim is true for truncating at 21
+        // bytes, but not true for 22 or 23.
+        //
+        // At 21 bytes, both the old and new implementation's MakeFromStream
+        // factory method returns a nullptr SkCodec*, because creating a
+        // SkCodec requires knowing the image width and height (as its
+        // constructor takes an SkEncodedInfo argument), and specifically for
+        // GIF, decoding the image width and height requires decoding the first
+        // frame's XYWH, as per
+        // https://raw.githubusercontent.com/google/wuffs/master/test/data/artificial/gif-frame-out-of-bounds.gif.make-artificial.txt
+        //
+        // At 22 or 23 bytes, the first frame is complete enough that we can
+        // fill in all of a SkCodec::FrameInfo's fields (other than
+        // fFullyReceived). Specifically, we can fill in fRequiredFrame and
+        // fAlphaType, even though we haven't yet decoded the frame's RGB
+        // palette entries, as we do know the frame rectangle and that every
+        // palette entry is fully opaque, due to the lack of a Graphic Control
+        // Extension before the Image Descriptor.
+        //
+        // The new implementation correctly reports that the first frame's
+        // metadata is complete enough. The old implementation does not.
+        //
+        // Once the transition is complete, we can remove the #ifdef and delete
+        // the #else code.
+        REPORTER_ASSERT(r, codec->getFrameCount() == 1);
+#else
+        // The old implementation claimed:
+        //
+        // Although we correctly created a codec, no frame is
+        // complete enough that it has its metadata. Returning 0
+        // ensures that Chromium will not try to create a frame
+        // too early.
+        REPORTER_ASSERT(r, codec->getFrameCount() == 0);
+#endif
+    }
+}
+
+#ifdef SK_HAS_WUFFS_LIBRARY
+// This tests that, after truncating the input, the pixels are still
+// zero-initialized. If you comment out the SkSampler::Fill call in
+// SkWuffsCodec::onStartIncrementalDecode, the test could still pass (in a
+// standard configuration) but should fail with the MSAN memory sanitizer.
+DEF_TEST(Codec_GifTruncated3, r) {
     sk_sp<SkData> data(GetResourceAsData("images/box.gif"));
     if (!data) {
         return;
     }
 
-    // This is after the header, but before the color table.
     data = SkData::MakeSubset(data.get(), 0, 23);
-    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(data));
-    if (!codec) {
-        ERRORF(r, "Failed to create codec with partial data");
+    sk_sp<SkImage> image(SkImage::MakeFromEncoded(data));
+
+    if (!image) {
+        ERRORF(r, "Missing image");
         return;
     }
 
-    // Although we correctly created a codec, no frame is
-    // complete enough that it has its metadata. Returning 0
-    // ensures that Chromium will not try to create a frame
-    // too early.
-    REPORTER_ASSERT(r, codec->getFrameCount() == 0);
+    REPORTER_ASSERT(r, image->width() == 200);
+    REPORTER_ASSERT(r, image->height() == 55);
+
+    SkBitmap bm;
+    if (!bm.tryAllocPixels(SkImageInfo::MakeN32Premul(200, 55))) {
+        ERRORF(r, "Failed to allocate pixels");
+        return;
+    }
+
+    bm.eraseColor(SK_ColorTRANSPARENT);
+
+    SkCanvas canvas(bm);
+    canvas.drawImage(image, 0, 0, nullptr);
+
+    for (int i = 0; i < image->width();  ++i)
+    for (int j = 0; j < image->height(); ++j) {
+        SkColor actual = SkUnPreMultiply::PMColorToColor(*bm.getAddr32(i, j));
+        if (actual != SK_ColorTRANSPARENT) {
+            ERRORF(r, "did not initialize pixels! %i, %i is %x", i, j, actual);
+        }
+    }
+}
+#endif
+
+DEF_TEST(Codec_gif_out_of_palette, r) {
+    if (GetResourcePath().isEmpty()) {
+        return;
+    }
+
+    const char* path = "images/out-of-palette.gif";
+    auto data = GetResourceAsData(path);
+    if (!data) {
+        ERRORF(r, "failed to find %s", path);
+        return;
+    }
+
+    auto codec = SkCodec::MakeFromData(std::move(data));
+    if (!codec) {
+        ERRORF(r, "Could not create codec from %s", path);
+        return;
+    }
+
+    SkBitmap bm;
+    bm.allocPixels(codec->getInfo());
+    auto result = codec->getPixels(bm.pixmap());
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess, "Failed to decode %s with error %s",
+                    path, SkCodec::ResultToString(result));
+
+    struct {
+        int     x;
+        int     y;
+        SkColor expected;
+    } pixels[] = {
+        { 0, 0, SK_ColorBLACK },
+        { 1, 0, SK_ColorWHITE },
+        { 0, 1, SK_ColorTRANSPARENT },
+        { 1, 1, SK_ColorTRANSPARENT },
+    };
+    for (auto& pixel : pixels) {
+        auto actual = bm.getColor(pixel.x, pixel.y);
+        REPORTER_ASSERT(r, actual == pixel.expected,
+                        "pixel (%i,%i) mismatch! expected: %x actual: %x",
+                        pixel.x, pixel.y, pixel.expected, actual);
+    }
 }

@@ -8,10 +8,11 @@
 #ifndef SkFontDescriptor_DEFINED
 #define SkFontDescriptor_DEFINED
 
-#include "SkFixed.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkTypeface.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkFixed.h"
+#include "include/private/SkNoncopyable.h"
 
 class SkFontData {
 public:
@@ -54,9 +55,9 @@ public:
     // Does not affect ownership of SkStream.
     static bool Deserialize(SkStream*, SkFontDescriptor* result);
 
-    void serialize(SkWStream*);
+    void serialize(SkWStream*) const;
 
-    SkFontStyle getStyle() { return fStyle; }
+    SkFontStyle getStyle() const { return fStyle; }
     void setStyle(SkFontStyle style) { fStyle = style; }
 
     const char* getFamilyName() const { return fFamilyName.c_str(); }

@@ -5,57 +5,58 @@
  * found in the LICENSE file.
  */
 
-#include "SkPDFUtils.h"
+#include "src/pdf/SkPDFUtils.h"
 
-#include "SkData.h"
-#include "SkFixed.h"
-#include "SkGeometry.h"
-#include "SkImage_Base.h"
-#include "SkPDFResourceDict.h"
-#include "SkPDFTypes.h"
-#include "SkStream.h"
-#include "SkString.h"
+#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/private/SkFixed.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkPathPriv.h"
+#include "src/image/SkImage_Base.h"
+#include "src/pdf/SkPDFResourceDict.h"
+#include "src/pdf/SkPDFTypes.h"
 
 #include <cmath>
 
-sk_sp<SkPDFArray> SkPDFUtils::RectToArray(const SkRect& rect) {
-    auto result = sk_make_sp<SkPDFArray>();
-    result->reserve(4);
-    result->appendScalar(rect.fLeft);
-    result->appendScalar(rect.fTop);
-    result->appendScalar(rect.fRight);
-    result->appendScalar(rect.fBottom);
-    return result;
+const char* SkPDFUtils::BlendModeName(SkBlendMode mode) {
+    // PDF32000.book section 11.3.5 "Blend Mode"
+    switch (mode) {
+        case SkBlendMode::kSrcOver:     return "Normal";
+        case SkBlendMode::kXor:         return "Normal";  // (unsupported mode)
+        case SkBlendMode::kPlus:        return "Normal";  // (unsupported mode)
+        case SkBlendMode::kScreen:      return "Screen";
+        case SkBlendMode::kOverlay:     return "Overlay";
+        case SkBlendMode::kDarken:      return "Darken";
+        case SkBlendMode::kLighten:     return "Lighten";
+        case SkBlendMode::kColorDodge:  return "ColorDodge";
+        case SkBlendMode::kColorBurn:   return "ColorBurn";
+        case SkBlendMode::kHardLight:   return "HardLight";
+        case SkBlendMode::kSoftLight:   return "SoftLight";
+        case SkBlendMode::kDifference:  return "Difference";
+        case SkBlendMode::kExclusion:   return "Exclusion";
+        case SkBlendMode::kMultiply:    return "Multiply";
+        case SkBlendMode::kHue:         return "Hue";
+        case SkBlendMode::kSaturation:  return "Saturation";
+        case SkBlendMode::kColor:       return "Color";
+        case SkBlendMode::kLuminosity:  return "Luminosity";
+        // Other blendmodes are handled in SkPDFDevice::setUpContentEntry.
+        default:                        return nullptr;
+    }
 }
 
-sk_sp<SkPDFArray> SkPDFUtils::MatrixToArray(const SkMatrix& matrix) {
-    SkScalar values[6];
-    if (!matrix.asAffine(values)) {
-        SkMatrix::SetAffineIdentity(values);
-    }
-
-    auto result = sk_make_sp<SkPDFArray>();
-    result->reserve(6);
-    for (size_t i = 0; i < SK_ARRAY_COUNT(values); i++) {
-        result->appendScalar(values[i]);
-    }
-    return result;
+std::unique_ptr<SkPDFArray> SkPDFUtils::RectToArray(const SkRect& r) {
+    return SkPDFMakeArray(r.left(), r.top(), r.right(), r.bottom());
 }
 
-// static
-void SkPDFUtils::AppendTransform(const SkMatrix& matrix, SkWStream* content) {
-    SkScalar values[6];
-    if (!matrix.asAffine(values)) {
-        SkMatrix::SetAffineIdentity(values);
+std::unique_ptr<SkPDFArray> SkPDFUtils::MatrixToArray(const SkMatrix& matrix) {
+    SkScalar a[6];
+    if (!matrix.asAffine(a)) {
+        SkMatrix::SetAffineIdentity(a);
     }
-    for (size_t i = 0; i < SK_ARRAY_COUNT(values); i++) {
-        SkPDFUtils::AppendScalar(values[i], content);
-        content->writeText(" ");
-    }
-    content->writeText("cm\n");
+    return SkPDFMakeArray(a[0], a[1], a[2], a[3], a[4], a[5]);
 }
 
-// static
 void SkPDFUtils::MoveTo(SkScalar x, SkScalar y, SkWStream* content) {
     SkPDFUtils::AppendScalar(x, content);
     content->writeText(" ");
@@ -63,7 +64,6 @@ void SkPDFUtils::MoveTo(SkScalar x, SkScalar y, SkWStream* content) {
     content->writeText(" m\n");
 }
 
-// static
 void SkPDFUtils::AppendLine(SkScalar x, SkScalar y, SkWStream* content) {
     SkPDFUtils::AppendScalar(x, content);
     content->writeText(" ");
@@ -71,10 +71,9 @@ void SkPDFUtils::AppendLine(SkScalar x, SkScalar y, SkWStream* content) {
     content->writeText(" l\n");
 }
 
-// static
-void SkPDFUtils::AppendCubic(SkScalar ctl1X, SkScalar ctl1Y,
-                             SkScalar ctl2X, SkScalar ctl2Y,
-                             SkScalar dstX, SkScalar dstY, SkWStream* content) {
+static void append_cubic(SkScalar ctl1X, SkScalar ctl1Y,
+                         SkScalar ctl2X, SkScalar ctl2Y,
+                         SkScalar dstX, SkScalar dstY, SkWStream* content) {
     SkString cmd("y\n");
     SkPDFUtils::AppendScalar(ctl1X, content);
     content->writeText(" ");
@@ -97,11 +96,10 @@ void SkPDFUtils::AppendCubic(SkScalar ctl1X, SkScalar ctl1Y,
 static void append_quad(const SkPoint quad[], SkWStream* content) {
     SkPoint cubic[4];
     SkConvertQuadToCubic(quad, cubic);
-    SkPDFUtils::AppendCubic(cubic[1].fX, cubic[1].fY, cubic[2].fX, cubic[2].fY,
-                            cubic[3].fX, cubic[3].fY, content);
+    append_cubic(cubic[1].fX, cubic[1].fY, cubic[2].fX, cubic[2].fY,
+                 cubic[3].fX, cubic[3].fY, content);
 }
 
-// static
 void SkPDFUtils::AppendRectangle(const SkRect& rect, SkWStream* content) {
     // Skia has 0,0 at top left, pdf at bottom left.  Do the right thing.
     SkScalar bottom = SkMinScalar(rect.fBottom, rect.fTop);
@@ -116,7 +114,6 @@ void SkPDFUtils::AppendRectangle(const SkRect& rect, SkWStream* content) {
     content->writeText(" re\n");
 }
 
-// static
 void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
                           bool doConsumeDegerates, SkWStream* content,
                           SkScalar tolerance) {
@@ -154,9 +151,9 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
     SkDynamicMemoryWStream currentSegment;
     SkPoint args[4];
     SkPath::Iter iter(path, false);
-    for (SkPath::Verb verb = iter.next(args, doConsumeDegerates);
+    for (SkPath::Verb verb = iter.next(args);
          verb != SkPath::kDone_Verb;
-         verb = iter.next(args, doConsumeDegerates)) {
+         verb = iter.next(args)) {
         // args gets all the points, even the implicit first point.
         switch (verb) {
             case SkPath::kMove_Verb:
@@ -165,29 +162,37 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
                 fillState = kEmpty_SkipFillState;
                 break;
             case SkPath::kLine_Verb:
-                AppendLine(args[1].fX, args[1].fY, &currentSegment);
-                if ((fillState == kEmpty_SkipFillState) && (args[0] != lastMovePt)) {
-                    fillState = kSingleLine_SkipFillState;
-                    break;
+                if (!doConsumeDegerates || !SkPathPriv::AllPointsEq(args, 2)) {
+                    AppendLine(args[1].fX, args[1].fY, &currentSegment);
+                    if ((fillState == kEmpty_SkipFillState) && (args[0] != lastMovePt)) {
+                        fillState = kSingleLine_SkipFillState;
+                        break;
+                    }
+                    fillState = kNonSingleLine_SkipFillState;
                 }
-                fillState = kNonSingleLine_SkipFillState;
                 break;
             case SkPath::kQuad_Verb:
-                append_quad(args, &currentSegment);
-                fillState = kNonSingleLine_SkipFillState;
-                break;
-            case SkPath::kConic_Verb: {
-                SkAutoConicToQuads converter;
-                const SkPoint* quads = converter.computeQuads(args, iter.conicWeight(), tolerance);
-                for (int i = 0; i < converter.countQuads(); ++i) {
-                    append_quad(&quads[i * 2], &currentSegment);
+                if (!doConsumeDegerates || !SkPathPriv::AllPointsEq(args, 3)) {
+                    append_quad(args, &currentSegment);
+                    fillState = kNonSingleLine_SkipFillState;
                 }
-                fillState = kNonSingleLine_SkipFillState;
-            } break;
+                break;
+            case SkPath::kConic_Verb:
+                if (!doConsumeDegerates || !SkPathPriv::AllPointsEq(args, 3)) {
+                    SkAutoConicToQuads converter;
+                    const SkPoint* quads = converter.computeQuads(args, iter.conicWeight(), tolerance);
+                    for (int i = 0; i < converter.countQuads(); ++i) {
+                        append_quad(&quads[i * 2], &currentSegment);
+                    }
+                    fillState = kNonSingleLine_SkipFillState;
+                }
+                break;
             case SkPath::kCubic_Verb:
-                AppendCubic(args[1].fX, args[1].fY, args[2].fX, args[2].fY,
-                            args[3].fX, args[3].fY, &currentSegment);
-                fillState = kNonSingleLine_SkipFillState;
+                if (!doConsumeDegerates || !SkPathPriv::AllPointsEq(args, 4)) {
+                    append_cubic(args[1].fX, args[1].fY, args[2].fX, args[2].fY,
+                                 args[3].fX, args[3].fY, &currentSegment);
+                    fillState = kNonSingleLine_SkipFillState;
+                }
                 break;
             case SkPath::kClose_Verb:
                 ClosePath(&currentSegment);
@@ -204,12 +209,10 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
     }
 }
 
-// static
 void SkPDFUtils::ClosePath(SkWStream* content) {
     content->writeText("h\n");
 }
 
-// static
 void SkPDFUtils::PaintPath(SkPaint::Style style, SkPath::FillType fill,
                            SkWStream* content) {
     if (style == SkPaint::kFill_Style) {
@@ -230,42 +233,62 @@ void SkPDFUtils::PaintPath(SkPaint::Style style, SkPath::FillType fill,
     content->writeText("\n");
 }
 
-// static
 void SkPDFUtils::StrokePath(SkWStream* content) {
     SkPDFUtils::PaintPath(
         SkPaint::kStroke_Style, SkPath::kWinding_FillType, content);
 }
 
-// static
-void SkPDFUtils::DrawFormXObject(int objectIndex, SkWStream* content) {
-    content->writeText("/");
-    content->writeText(SkPDFResourceDict::getResourceName(
-            SkPDFResourceDict::kXObject_ResourceType,
-            objectIndex).c_str());
-    content->writeText(" Do\n");
-}
-
-// static
 void SkPDFUtils::ApplyGraphicState(int objectIndex, SkWStream* content) {
-    content->writeText("/");
-    content->writeText(SkPDFResourceDict::getResourceName(
-            SkPDFResourceDict::kExtGState_ResourceType,
-            objectIndex).c_str());
+    SkPDFWriteResourceName(content, SkPDFResourceType::kExtGState, objectIndex);
     content->writeText(" gs\n");
 }
 
-// static
 void SkPDFUtils::ApplyPattern(int objectIndex, SkWStream* content) {
     // Select Pattern color space (CS, cs) and set pattern object as current
     // color (SCN, scn)
-    SkString resourceName = SkPDFResourceDict::getResourceName(
-            SkPDFResourceDict::kPattern_ResourceType,
-            objectIndex);
-    content->writeText("/Pattern CS/Pattern cs/");
-    content->writeText(resourceName.c_str());
-    content->writeText(" SCN/");
-    content->writeText(resourceName.c_str());
+    content->writeText("/Pattern CS/Pattern cs");
+    SkPDFWriteResourceName(content, SkPDFResourceType::kPattern, objectIndex);
+    content->writeText(" SCN");
+    SkPDFWriteResourceName(content, SkPDFResourceType::kPattern, objectIndex);
     content->writeText(" scn\n");
+}
+
+// return "x/pow(10, places)", given 0<x<pow(10, places)
+// result points to places+2 chars.
+static size_t print_permil_as_decimal(int x, char* result, unsigned places) {
+    result[0] = '.';
+    for (int i = places; i > 0; --i) {
+        result[i] = '0' + x % 10;
+        x /= 10;
+    }
+    int j;
+    for (j = places; j > 1; --j) {
+        if (result[j] != '0') {
+            break;
+        }
+    }
+    result[j + 1] = '\0';
+    return j + 1;
+}
+
+
+static constexpr int int_pow(int base, unsigned exp, int acc = 1) {
+  return exp < 1 ? acc
+                 : int_pow(base * base,
+                           exp / 2,
+                           (exp % 2) ? acc * base : acc);
+}
+
+
+size_t SkPDFUtils::ColorToDecimalF(float value, char result[kFloatColorDecimalCount + 2]) {
+    static constexpr int kFactor = int_pow(10, kFloatColorDecimalCount);
+    int x = sk_float_round2int(value * kFactor);
+    if (x >= kFactor || x <= 0) {  // clamp to 0-1
+        result[0] = x > 0 ? '1' : '0';
+        result[1] = '\0';
+        return 1;
+    }
+    return print_permil_as_decimal(x, result, kFloatColorDecimalCount);
 }
 
 size_t SkPDFUtils::ColorToDecimal(uint8_t value, char result[5]) {
@@ -276,63 +299,7 @@ size_t SkPDFUtils::ColorToDecimal(uint8_t value, char result[5]) {
     }
     // int x = 0.5 + (1000.0 / 255.0) * value;
     int x = SkFixedRoundToInt((SK_Fixed1 * 1000 / 255) * value);
-    result[0] = '.';
-    for (int i = 3; i > 0; --i) {
-        result[i] = '0' + x % 10;
-        x /= 10;
-    }
-    int j;
-    for (j = 3; j > 1; --j) {
-        if (result[j] != '0') {
-            break;
-        }
-    }
-    result[j + 1] = '\0';
-    return j + 1;
-}
-
-void SkPDFUtils::WriteString(SkWStream* wStream, const char* cin, size_t len) {
-    SkDEBUGCODE(static const size_t kMaxLen = 65535;)
-    SkASSERT(len <= kMaxLen);
-
-    size_t extraCharacterCount = 0;
-    for (size_t i = 0; i < len; i++) {
-        if (cin[i] > '~' || cin[i] < ' ') {
-            extraCharacterCount += 3;
-        }
-        if (cin[i] == '\\' || cin[i] == '(' || cin[i] == ')') {
-            ++extraCharacterCount;
-        }
-    }
-    if (extraCharacterCount <= len) {
-        wStream->writeText("(");
-        for (size_t i = 0; i < len; i++) {
-            if (cin[i] > '~' || cin[i] < ' ') {
-                uint8_t c = static_cast<uint8_t>(cin[i]);
-                uint8_t octal[4];
-                octal[0] = '\\';
-                octal[1] = '0' + ( c >> 6        );
-                octal[2] = '0' + ((c >> 3) & 0x07);
-                octal[3] = '0' + ( c       & 0x07);
-                wStream->write(octal, 4);
-            } else {
-                if (cin[i] == '\\' || cin[i] == '(' || cin[i] == ')') {
-                    wStream->writeText("\\");
-                }
-                wStream->write(&cin[i], 1);
-            }
-        }
-        wStream->writeText(")");
-    } else {
-        wStream->writeText("<");
-        for (size_t i = 0; i < len; i++) {
-            uint8_t c = static_cast<uint8_t>(cin[i]);
-            char hexValue[2] = { SkHexadecimalDigits::gUpper[c >> 4],
-                                 SkHexadecimalDigits::gUpper[c & 0xF] };
-            wStream->write(hexValue, 2);
-        }
-        wStream->writeText(">");
-    }
+    return print_permil_as_decimal(x, result, 3);
 }
 
 bool SkPDFUtils::InverseTransformBBox(const SkMatrix& matrix, SkRect* bbox) {
@@ -346,7 +313,7 @@ bool SkPDFUtils::InverseTransformBBox(const SkMatrix& matrix, SkRect* bbox) {
 
 void SkPDFUtils::PopulateTilingPatternDict(SkPDFDict* pattern,
                                            SkRect& bbox,
-                                           sk_sp<SkPDFDict> resources,
+                                           std::unique_ptr<SkPDFDict> resources,
                                            const SkMatrix& matrix) {
     const int kTiling_PatternType = 1;
     const int kColoredTilingPattern_PaintType = 1;
@@ -369,11 +336,60 @@ bool SkPDFUtils::ToBitmap(const SkImage* img, SkBitmap* dst) {
     SkASSERT(img);
     SkASSERT(dst);
     SkBitmap bitmap;
-    if(as_IB(img)->getROPixels(&bitmap, nullptr)) {
+    if(as_IB(img)->getROPixels(&bitmap)) {
         SkASSERT(bitmap.dimensions() == img->dimensions());
         SkASSERT(!bitmap.drawsNothing());
         *dst = std::move(bitmap);
         return true;
     }
     return false;
+}
+
+#ifdef SK_PDF_BASE85_BINARY
+void SkPDFUtils::Base85Encode(std::unique_ptr<SkStreamAsset> stream, SkDynamicMemoryWStream* dst) {
+    SkASSERT(dst);
+    SkASSERT(stream);
+    dst->writeText("\n");
+    int column = 0;
+    while (true) {
+        uint8_t src[4] = {0, 0, 0, 0};
+        size_t count = stream->read(src, 4);
+        SkASSERT(count < 5);
+        if (0 == count) {
+            dst->writeText("~>\n");
+            return;
+        }
+        uint32_t v = ((uint32_t)src[0] << 24) | ((uint32_t)src[1] << 16) |
+                     ((uint32_t)src[2] <<  8) | src[3];
+        if (v == 0 && count == 4) {
+            dst->writeText("z");
+            column += 1;
+        } else {
+            char buffer[5];
+            for (int n = 4; n > 0; --n) {
+                buffer[n] = (v % 85) + '!';
+                v /= 85;
+            }
+            buffer[0] = v + '!';
+            dst->write(buffer, count + 1);
+            column += count + 1;
+        }
+        if (column > 74) {
+            dst->writeText("\n");
+            column = 0;
+        }
+    }
+}
+#endif //  SK_PDF_BASE85_BINARY
+
+void SkPDFUtils::AppendTransform(const SkMatrix& matrix, SkWStream* content) {
+    SkScalar values[6];
+    if (!matrix.asAffine(values)) {
+        SkMatrix::SetAffineIdentity(values);
+    }
+    for (SkScalar v : values) {
+        SkPDFUtils::AppendScalar(v, content);
+        content->writeText(" ");
+    }
+    content->writeText("cm\n");
 }

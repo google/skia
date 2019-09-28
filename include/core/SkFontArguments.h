@@ -5,26 +5,26 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkFontAgruments_DEFINED
-#define SkFontAgruments_DEFINED
+#ifndef SkFontArguments_DEFINED
+#define SkFontArguments_DEFINED
 
-#include "SkScalar.h"
-#include "SkTypes.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 
 /** Represents a set of actual arguments for a font. */
 struct SkFontArguments {
     struct VariationPosition {
         struct Coordinate {
             SkFourByteTag axis;
-            SkScalar value;
+            float value;
         };
         const Coordinate* coordinates;
         int coordinateCount;
     };
-    // deprecated, use VariationCoordinate instead
+    // deprecated, use VariationPosition::Coordinate instead
     struct Axis {
        SkFourByteTag fTag;
-       SkScalar fStyleValue;
+       float fStyleValue;
     };
 
     SkFontArguments() : fCollectionIndex(0), fVariationDesignPosition{nullptr, 0} {}

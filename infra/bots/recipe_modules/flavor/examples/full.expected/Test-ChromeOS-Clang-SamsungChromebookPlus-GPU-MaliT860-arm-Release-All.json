@@ -3,43 +3,65 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nSSH_MACHINE_FILE = os.path.expanduser('~/ssh_machine.json')\nwith open(SSH_MACHINE_FILE, 'r') as f:\n  print f.read()\n"
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[HOME]/ssh_machine.json",
+      "/path/to/tmp/"
     ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
-    },
     "infra_step": true,
-    "name": "read chromeos ip",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@SSH_MACHINE_FILE = os.path.expanduser('~/ssh_machine.json')@@@",
-      "@@@STEP_LOG_LINE@python.inline@with open(SSH_MACHINE_FILE, 'r') as f:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print f.read()@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "read ssh_machine.json"
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "\nimport subprocess\nimport sys\nhost = sys.argv[1]\ndevice   = sys.argv[2]\nprint subprocess.check_output(['scp', host, device])\n",
+      "scp",
       "file.txt",
       "foo@127.0.0.1:file.txt"
     ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
     "infra_step": true,
-    "name": "scp file.txt foo@127.0.0.1:file.txt",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@host = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@device   = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print subprocess.check_output(['scp', host, device])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "scp file.txt foo@127.0.0.1:file.txt"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "cat",
+      "file.txt"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "read file.txt"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "rm",
+      "-f",
+      "file.txt"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm file.txt"
   },
   {
     "cmd": [
@@ -83,7 +105,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "rm device_results_dir"
@@ -102,7 +124,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "mkdir device_results_dir"
@@ -121,32 +143,10 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "mkdir /home/chronos/user/resources"
-  },
-  {
-    "cmd": [
-      "ssh",
-      "-oConnectTimeout=15",
-      "-oBatchMode=yes",
-      "-t",
-      "-t",
-      "foo@127.0.0.1",
-      "sudo",
-      "mount",
-      "-i",
-      "-o",
-      "remount,exec",
-      "/home/chronos"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "remount /home/chronos/user/ as exec"
   },
   {
     "cmd": [
@@ -162,7 +162,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "rm /home/chronos/user/bin"
@@ -181,10 +181,32 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "mkdir /home/chronos/user/bin"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "sudo",
+      "mount",
+      "-i",
+      "-o",
+      "remount,exec",
+      "/home/chronos"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "remount /home/chronos/user/ as exec"
   },
   {
     "cmd": [
@@ -232,7 +254,11 @@
       "[START_DIR]/tmp/SKP_VERSION"
     ],
     "infra_step": true,
-    "name": "write SKP_VERSION"
+    "name": "write SKP_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SKP_VERSION@42@@@",
+      "@@@STEP_LOG_END@SKP_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -247,11 +273,10 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /home/chronos/user/SKP_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "read /home/chronos/user/SKP_VERSION"
   },
   {
     "cmd": [
@@ -267,7 +292,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "rm /home/chronos/user/SKP_VERSION"
@@ -286,7 +311,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "rm /home/chronos/user/skps"
@@ -305,7 +330,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "mkdir /home/chronos/user/skps"
@@ -332,23 +357,16 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "\nimport subprocess\nimport sys\nhost = sys.argv[1]\ndevice   = sys.argv[2]\nprint subprocess.check_output(['scp', host, device])\n",
+      "scp",
       "[START_DIR]/tmp/SKP_VERSION",
       "foo@127.0.0.1:/home/chronos/user/SKP_VERSION"
     ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
     "infra_step": true,
-    "name": "scp [START_DIR]/tmp/SKP_VERSION foo@127.0.0.1:/home/chronos/user/SKP_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@host = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@device   = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print subprocess.check_output(['scp', host, device])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "scp [START_DIR]/tmp/SKP_VERSION foo@127.0.0.1:/home/chronos/user/SKP_VERSION"
   },
   {
     "cmd": [
@@ -376,7 +394,11 @@
       "[START_DIR]/tmp/SK_IMAGE_VERSION"
     ],
     "infra_step": true,
-    "name": "write SK_IMAGE_VERSION"
+    "name": "write SK_IMAGE_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SK_IMAGE_VERSION@42@@@",
+      "@@@STEP_LOG_END@SK_IMAGE_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -391,11 +413,10 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /home/chronos/user/SK_IMAGE_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "read /home/chronos/user/SK_IMAGE_VERSION"
   },
   {
     "cmd": [
@@ -411,7 +432,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "rm /home/chronos/user/SK_IMAGE_VERSION"
@@ -430,7 +451,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "rm /home/chronos/user/images"
@@ -449,7 +470,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "mkdir /home/chronos/user/images"
@@ -476,23 +497,16 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "\nimport subprocess\nimport sys\nhost = sys.argv[1]\ndevice   = sys.argv[2]\nprint subprocess.check_output(['scp', host, device])\n",
+      "scp",
       "[START_DIR]/tmp/SK_IMAGE_VERSION",
       "foo@127.0.0.1:/home/chronos/user/SK_IMAGE_VERSION"
     ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
     "infra_step": true,
-    "name": "scp [START_DIR]/tmp/SK_IMAGE_VERSION foo@127.0.0.1:/home/chronos/user/SK_IMAGE_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@host = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@device   = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print subprocess.check_output(['scp', host, device])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "scp [START_DIR]/tmp/SK_IMAGE_VERSION foo@127.0.0.1:/home/chronos/user/SK_IMAGE_VERSION"
   },
   {
     "cmd": [
@@ -520,7 +534,11 @@
       "[START_DIR]/tmp/SVG_VERSION"
     ],
     "infra_step": true,
-    "name": "write SVG_VERSION"
+    "name": "write SVG_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SVG_VERSION@42@@@",
+      "@@@STEP_LOG_END@SVG_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -535,11 +553,10 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /home/chronos/user/SVG_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "read /home/chronos/user/SVG_VERSION"
   },
   {
     "cmd": [
@@ -555,7 +572,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "rm /home/chronos/user/SVG_VERSION"
@@ -574,7 +591,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "rm /home/chronos/user/svgs"
@@ -593,7 +610,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "mkdir /home/chronos/user/svgs"
@@ -620,71 +637,29 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "\nimport subprocess\nimport sys\nhost = sys.argv[1]\ndevice   = sys.argv[2]\nprint subprocess.check_output(['scp', host, device])\n",
+      "scp",
       "[START_DIR]/tmp/SVG_VERSION",
       "foo@127.0.0.1:/home/chronos/user/SVG_VERSION"
     ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
     "infra_step": true,
-    "name": "scp [START_DIR]/tmp/SVG_VERSION foo@127.0.0.1:/home/chronos/user/SVG_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@host = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@device   = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print subprocess.check_output(['scp', host, device])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "scp [START_DIR]/tmp/SVG_VERSION foo@127.0.0.1:/home/chronos/user/SVG_VERSION"
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "rmtree",
-      "[START_DIR]/[SWARM_OUT_DIR]/dm"
-    ],
-    "infra_step": true,
-    "name": "rmtree dm"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]/dm"
-    ],
-    "infra_step": true,
-    "name": "makedirs dm"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport subprocess\nimport sys\nhost = sys.argv[1]\ndevice   = sys.argv[2]\nprint subprocess.check_output(['scp', host, device])\n",
-      "[START_DIR]/build/out/Release/dm",
+      "scp",
+      "[START_DIR]/build/dm",
       "foo@127.0.0.1:/home/chronos/user/bin/dm"
     ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
     "infra_step": true,
-    "name": "scp [START_DIR]/build/out/Release/dm foo@127.0.0.1:/home/chronos/user/bin/dm",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@host = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@device   = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print subprocess.check_output(['scp', host, device])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "scp [START_DIR]/build/dm foo@127.0.0.1:/home/chronos/user/bin/dm"
   },
   {
     "cmd": [
@@ -700,10 +675,10 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "chmod dm"
+    "name": "make dm executable"
   },
   {
     "cmd": [
@@ -718,7 +693,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "dm"
@@ -729,10 +704,10 @@
       "-u",
       "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)\n",
       "foo@127.0.0.1:/home/chronos/user/dm_out",
-      "[START_DIR]/[SWARM_OUT_DIR]/dm"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
-    "name": "scp -r foo@127.0.0.1:/home/chronos/user/dm_out [START_DIR]/[SWARM_OUT_DIR]/dm",
+    "name": "scp -r foo@127.0.0.1:/home/chronos/user/dm_out [START_DIR]/[SWARM_OUT_DIR]",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
@@ -744,8 +719,6 @@
     ]
   },
   {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "name": "$result"
   }
 ]

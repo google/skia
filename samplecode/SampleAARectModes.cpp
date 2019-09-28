@@ -5,12 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkView.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkShader.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkShader.h"
+#include "samplecode/Sample.h"
 
 static const SkBlendMode gModes[] = {
     SkBlendMode::kClear,
@@ -66,30 +65,19 @@ static sk_sp<SkShader> make_bg_shader() {
     SkMatrix m;
     m.setScale(SkIntToScalar(6), SkIntToScalar(6));
 
-    return SkShader::MakeBitmapShader(bm,
-                                      SkShader::kRepeat_TileMode,
-                                      SkShader::kRepeat_TileMode,
-                                      &m);
+    return bm.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &m);
 }
 
-class AARectsModesView : public SampleView {
+class AARectsModesView : public Sample {
     SkPaint fBGPaint;
-public:
-    AARectsModesView () {
+
+    void onOnceBeforeDraw() override {
         fBGPaint.setShader(make_bg_shader());
     }
 
-protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "AARectsModes");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("AARectsModes"); }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         const SkRect bounds = SkRect::MakeWH(W, H);
         static const SkAlpha gAlphaValue[] = { 0xFF, 0x88, 0x88 };
 
@@ -118,12 +106,5 @@ protected:
             canvas->translate(W * 5 / 4, 0);
         }
     }
-
-private:
-    typedef SampleView INHERITED;
 };
-
-///////////////////////////////////////////////////////////////////////////////
-
-static SkView* MyFactory() { return new AARectsModesView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new AARectsModesView(); )

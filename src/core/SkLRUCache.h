@@ -8,9 +8,9 @@
 #ifndef SkLRUCache_DEFINED
 #define SkLRUCache_DEFINED
 
-#include "SkChecksum.h"
-#include "SkTHash.h"
-#include "SkTInternalLList.h"
+#include "include/private/SkChecksum.h"
+#include "include/private/SkTHash.h"
+#include "src/core/SkTInternalLList.h"
 
 /**
  * A generic LRU cache.

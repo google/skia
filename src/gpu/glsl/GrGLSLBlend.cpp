@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLSLBlend.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "SkBlendModePriv.h"
+#include "src/core/SkBlendModePriv.h"
+#include "src/gpu/glsl/GrGLSLBlend.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //  Advanced (non-coeff) blend helpers
@@ -146,7 +146,7 @@ static void add_lum_function(GrGLSLFragmentBuilder* fsBuilder, SkString* setLumF
     GrShaderVar getLumArgs[] = {
         GrShaderVar("color", kHalf3_GrSLType),
     };
-    SkString getLumBody("return dot(float3(0.3, 0.59, 0.11), color);");
+    SkString getLumBody("return dot(half3(0.3, 0.59, 0.11), color);");
     fsBuilder->emitFunction(kHalf_GrSLType,
                             "luminance",
                             SK_ARRAY_COUNT(getLumArgs), getLumArgs,
@@ -160,9 +160,8 @@ static void add_lum_function(GrGLSLFragmentBuilder* fsBuilder, SkString* setLumF
         GrShaderVar("lumColor", kHalf3_GrSLType),
     };
     SkString setLumBody;
-    setLumBody.printf("half diff = %s(lumColor - hueSat);", getFunction.c_str());
-    setLumBody.append("half3 outColor = hueSat + diff;");
-    setLumBody.appendf("half outLum = %s(outColor);", getFunction.c_str());
+    setLumBody.printf("half outLum = %s(lumColor);", getFunction.c_str());
+    setLumBody.appendf("half3 outColor = outLum - %s(hueSat) + hueSat;", getFunction.c_str());
     setLumBody.append("half minComp = min(min(outColor.r, outColor.g), outColor.b);"
                       "half maxComp = max(max(outColor.r, outColor.g), outColor.b);"
                       "if (minComp < 0.0 && outLum != minComp) {"

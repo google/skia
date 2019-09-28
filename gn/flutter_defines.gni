@@ -3,8 +3,24 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 flutter_defines = [
-  "SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION",
-  "SK_DISABLE_RENDER_TARGET_SORTING",
-  "SK_DONT_OPTIMIZE_SRC_PROFILES_FOR_SPEED",
-  "SK_DONT_OPTIMIZE_DST_PROFILES_FOR_SPEED",
+  "SK_DISABLE_REDUCE_OPLIST_SPLITTING",
+  "SK_LEGACY_SKCODEC_NONE_ENUM",
+  "SK_GL",
+
+  # Flutter always wants this https://github.com/flutter/flutter/issues/11402
+  "SK_ENABLE_DUMP_GPU",
+
+  # Remove software rasterizers to save some code size.
+  "SK_DISABLE_AAA",
+
+  # API staging
+
+  # Flutter doesn't deserialize anything.
+  "SK_DISABLE_READBUFFER",
+  "SK_DISABLE_EFFECT_DESERIALIZATION",
+
+  # Fast low-precision software rendering isn't a priority for Flutter.
+  "SK_DISABLE_LEGACY_SHADERCONTEXT",
+  "SK_DISABLE_LOWP_RASTER_PIPELINE",
+  "SK_FORCE_RASTER_PIPELINE_BLITTER",
 ]

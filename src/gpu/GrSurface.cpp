@@ -5,37 +5,33 @@
  * found in the LICENSE file.
  */
 
-#include "GrSurface.h"
-#include "GrContext.h"
-#include "GrOpList.h"
-#include "GrRenderTarget.h"
-#include "GrResourceProvider.h"
-#include "GrSurfacePriv.h"
-#include "GrTexture.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrSurface.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrRenderTarget.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSurfacePriv.h"
 
-#include "SkGr.h"
-#include "SkMathPriv.h"
+#include "src/core/SkMathPriv.h"
+#include "src/gpu/SkGr.h"
 
-size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2) {
+size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, GrRenderable renderable,
+                                int renderTargetSampleCnt, bool binSize) {
     size_t size;
 
-    int width = useNextPow2
-                ? SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(desc.fWidth))
-                : desc.fWidth;
-    int height = useNextPow2
-                ? SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(desc.fHeight))
-                : desc.fHeight;
+    int width  = binSize ? GrResourceProvider::MakeApprox(desc.fWidth)  : desc.fWidth;
+    int height = binSize ? GrResourceProvider::MakeApprox(desc.fHeight) : desc.fHeight;
 
-    bool isRenderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
-    if (isRenderTarget) {
+    if (renderable == GrRenderable::kYes) {
         // We own one color value for each MSAA sample.
-        SkASSERT(desc.fSampleCnt >= 1);
-        int colorValuesPerPixel = desc.fSampleCnt;
-        if (desc.fSampleCnt > 1) {
+        SkASSERT(renderTargetSampleCnt >= 1);
+        int colorValuesPerPixel = renderTargetSampleCnt;
+        if (renderTargetSampleCnt > 1) {
             // Worse case, we own the resolve buffer so that is one more sample per pixel.
             colorValuesPerPixel += 1;
         }
         SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
+        SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig));
         size_t colorBytes = (size_t) width * height * GrBytesPerPixel(desc.fConfig);
 
         // This would be a nice assert to have (i.e., we aren't creating 0 width/height surfaces).
@@ -45,7 +41,12 @@ size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2) {
         size = colorValuesPerPixel * colorBytes;
         size += colorBytes/3; // in case we have to mipmap
     } else {
-        size = (size_t) width * height * GrBytesPerPixel(desc.fConfig);
+        SkASSERT(renderTargetSampleCnt == 1);
+        if (GrPixelConfigIsCompressed(desc.fConfig)) {
+            size = GrCompressedFormatDataSize(desc.fConfig, width, height);
+        } else {
+            size = (size_t)width * height * GrBytesPerPixel(desc.fConfig);
+        }
 
         size += size/3;  // in case we have to mipmap
     }
@@ -58,16 +59,18 @@ size_t GrSurface::ComputeSize(GrPixelConfig config,
                               int height,
                               int colorSamplesPerPixel,
                               GrMipMapped mipMapped,
-                              bool useNextPow2) {
-    width = useNextPow2
-            ? SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(width))
-            : width;
-    height = useNextPow2
-            ? SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(height))
-            : height;
+                              bool binSize) {
+    size_t colorSize;
+
+    width  = binSize ? GrResourceProvider::MakeApprox(width)  : width;
+    height = binSize ? GrResourceProvider::MakeApprox(height) : height;
 
     SkASSERT(kUnknown_GrPixelConfig != config);
-    size_t colorSize = (size_t)width * height * GrBytesPerPixel(config);
+    if (GrPixelConfigIsCompressed(config)) {
+        colorSize = GrCompressedFormatDataSize(config, width, height);
+    } else {
+        colorSize = (size_t)width * height * GrBytesPerPixel(config);
+    }
     SkASSERT(colorSize > 0);
 
     size_t finalSize = colorSamplesPerPixel * colorSize;
@@ -79,53 +82,6 @@ size_t GrSurface::ComputeSize(GrPixelConfig config,
     }
     return finalSize;
 }
-
-template<typename T> static bool adjust_params(int surfaceWidth,
-                                               int surfaceHeight,
-                                               size_t bpp,
-                                               int* left, int* top, int* width, int* height,
-                                               T** data,
-                                               size_t* rowBytes) {
-    if (!*rowBytes) {
-        *rowBytes = *width * bpp;
-    }
-
-    SkIRect subRect = SkIRect::MakeXYWH(*left, *top, *width, *height);
-    SkIRect bounds = SkIRect::MakeWH(surfaceWidth, surfaceHeight);
-
-    if (!subRect.intersect(bounds)) {
-        return false;
-    }
-    *data = reinterpret_cast<void*>(reinterpret_cast<intptr_t>(*data) +
-            (subRect.fTop - *top) * *rowBytes + (subRect.fLeft - *left) * bpp);
-
-    *left = subRect.fLeft;
-    *top = subRect.fTop;
-    *width = subRect.width();
-    *height = subRect.height();
-    return true;
-}
-
-bool GrSurfacePriv::AdjustReadPixelParams(int surfaceWidth,
-                                          int surfaceHeight,
-                                          size_t bpp,
-                                          int* left, int* top, int* width, int* height,
-                                          void** data,
-                                          size_t* rowBytes) {
-    return adjust_params<void>(surfaceWidth, surfaceHeight, bpp, left, top, width, height, data,
-                               rowBytes);
-}
-
-bool GrSurfacePriv::AdjustWritePixelParams(int surfaceWidth,
-                                           int surfaceHeight,
-                                           size_t bpp,
-                                           int* left, int* top, int* width, int* height,
-                                           const void** data,
-                                           size_t* rowBytes) {
-    return adjust_params<const void>(surfaceWidth, surfaceHeight, bpp, left, top, width, height,
-                                     data, rowBytes);
-}
-
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -166,9 +122,11 @@ bool GrSurface::hasPendingIO() const {
 }
 
 void GrSurface::onRelease() {
+    this->invokeReleaseProc();
     this->INHERITED::onRelease();
 }
 
 void GrSurface::onAbandon() {
+    this->invokeReleaseProc();
     this->INHERITED::onAbandon();
 }

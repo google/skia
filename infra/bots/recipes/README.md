@@ -13,7 +13,7 @@ key/value pairs in the command.
 
 When you change a recipe, you generally need to re-train the simulation test:
 
-	$ python infra/bots/recipes.py test run --train
+	$ python infra/bots/recipes.py test train
 
 Or:
 

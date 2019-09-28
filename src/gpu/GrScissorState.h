@@ -8,7 +8,7 @@
 #ifndef GrScissorState_DEFINED
 #define GrScissorState_DEFINED
 
-#include "SkRect.h"
+#include "include/core/SkRect.h"
 
 class GrScissorState {
 public:

@@ -5,9 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkRasterPipeline.h"
-#include "Test.h"
-#include "../src/jumper/SkJumper.h"
+#include "src/core/SkRasterPipeline.h"
+#include "tests/Test.h"
 
 DEF_TEST(F16Stages, r) {
     // Make sure SkRasterPipeline::load_f16 and store_f16 can handle a range of
@@ -19,8 +18,8 @@ DEF_TEST(F16Stages, r) {
     };
     uint64_t halfs[4] = {0,0,0,0};
 
-    SkJumper_MemoryCtx f32 = { floats, 0 },
-                       f16 = { halfs,  0 };
+    SkRasterPipeline_MemoryCtx f32 = { floats, 0 },
+                               f16 = { halfs,  0 };
 
     {
         SkRasterPipeline_<256> p;

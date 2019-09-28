@@ -5,39 +5,57 @@
  * found in the LICENSE file.
  */
 
-#include "SkOTTable_name.h"
+#include "src/sfnt/SkOTTable_name.h"
 
-#include "SkEndian.h"
-#include "SkStringUtils.h"
-#include "SkTSearch.h"
-#include "SkTemplates.h"
-#include "SkUtils.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkEndian.h"
+#include "src/core/SkStringUtils.h"
+#include "src/core/SkTSearch.h"
+#include "src/core/SkUtils.h"
 
-static SkUnichar SkUTF16BE_NextUnichar(const uint16_t** srcPtr) {
-    SkASSERT(srcPtr && *srcPtr);
+static SkUnichar next_unichar_UTF16BE(const uint8_t** srcPtr, size_t* length) {
+    SkASSERT(srcPtr && *srcPtr && length);
+    SkASSERT(*length > 0);
 
-    const uint16_t* src = *srcPtr;
-    SkUnichar c = SkEndian_SwapBE16(*src++);
+    uint16_t leading;
+    if (*length < sizeof(leading)) {
+        *length = 0;
+        return 0xFFFD;
+    }
+    memcpy(&leading, *srcPtr, sizeof(leading));
+    *srcPtr += sizeof(leading);
+    *length -= sizeof(leading);
+    SkUnichar c = SkEndian_SwapBE16(leading);
 
-    SkASSERT(!SkUTF16_IsLowSurrogate(c));
-    if (SkUTF16_IsHighSurrogate(c)) {
-        unsigned c2 = SkEndian_SwapBE16(*src++);
-        SkASSERT(SkUTF16_IsLowSurrogate(c2));
+    if (SkUTF16_IsTrailingSurrogate(c)) {
+        return 0xFFFD;
+    }
+    if (SkUTF16_IsLeadingSurrogate(c)) {
+        uint16_t trailing;
+        if (*length < sizeof(trailing)) {
+            *length = 0;
+            return 0xFFFD;
+        }
+        memcpy(&trailing, *srcPtr, sizeof(trailing));
+        SkUnichar c2 = SkEndian_SwapBE16(trailing);
+        if (!SkUTF16_IsTrailingSurrogate(c2)) {
+            return 0xFFFD;
+        }
+        *srcPtr += sizeof(trailing);
+        *length -= sizeof(trailing);
 
         c = (c << 10) + c2 + (0x10000 - (0xD800 << 10) - 0xDC00);
     }
-    *srcPtr = src;
     return c;
 }
 
-static void SkStringFromUTF16BE(const uint16_t* utf16be, size_t length, SkString& utf8) {
+static void SkString_from_UTF16BE(const uint8_t* utf16be, size_t length, SkString& utf8) {
+    // Note that utf16be may not be 2-byte aligned.
     SkASSERT(utf16be != nullptr);
 
     utf8.reset();
-    size_t numberOf16BitValues = length / 2;
-    const uint16_t* end = utf16be + numberOf16BitValues;
-    while (utf16be < end) {
-        utf8.appendUnichar(SkUTF16BE_NextUnichar(&utf16be));
+    while (length) {
+        utf8.appendUnichar(next_unichar_UTF16BE(&utf16be, &length));
     }
 }
 
@@ -438,55 +456,70 @@ bool BCP47FromLanguageIdLess(const BCP47FromLanguageId& a, const BCP47FromLangua
 }
 
 bool SkOTTableName::Iterator::next(SkOTTableName::Iterator::Record& record) {
-    const size_t nameRecordsCount = SkEndian_SwapBE16(fName.count);
-    const SkOTTableName::Record* nameRecords = SkTAfter<const SkOTTableName::Record>(&fName);
-    const SkOTTableName::Record* nameRecord;
+    SkOTTableName nameTable;
+    if (fNameTableSize < sizeof(nameTable)) {
+        return false;
+    }
+    memcpy(&nameTable, fNameTable, sizeof(nameTable));
+
+    const uint8_t* nameRecords = fNameTable + sizeof(nameTable);
+    const size_t nameRecordsSize = fNameTableSize - sizeof(nameTable);
+
+    const size_t stringTableOffset = SkEndian_SwapBE16(nameTable.stringOffset);
+    if (fNameTableSize < stringTableOffset) {
+        return false;
+    }
+    const uint8_t* stringTable = fNameTable + stringTableOffset;
+    const size_t stringTableSize = fNameTableSize - stringTableOffset;
 
     // Find the next record which matches the requested type.
+    SkOTTableName::Record nameRecord;
+    const size_t nameRecordsCount = SkEndian_SwapBE16(nameTable.count);
+    const size_t nameRecordsMax = SkTMin(nameRecordsCount, nameRecordsSize / sizeof(nameRecord));
     do {
-        if (fIndex >= nameRecordsCount) {
+        if (fIndex >= nameRecordsMax) {
             return false;
         }
 
-        nameRecord = &nameRecords[fIndex];
+        memcpy(&nameRecord, nameRecords + sizeof(nameRecord)*fIndex, sizeof(nameRecord));
         ++fIndex;
-    } while (fType != -1 && nameRecord->nameID.fontSpecific != fType);
+    } while (fType != -1 && nameRecord.nameID.fontSpecific != fType);
 
-    record.type = nameRecord->nameID.fontSpecific;
-
-    const uint16_t stringTableOffset = SkEndian_SwapBE16(fName.stringOffset);
-    const char* stringTable = SkTAddOffset<const char>(&fName, stringTableOffset);
+    record.type = nameRecord.nameID.fontSpecific;
 
     // Decode the name into UTF-8.
-    const uint16_t nameOffset = SkEndian_SwapBE16(nameRecord->offset);
-    const uint16_t nameLength = SkEndian_SwapBE16(nameRecord->length);
-    const char* nameString = SkTAddOffset<const char>(stringTable, nameOffset);
-    switch (nameRecord->platformID.value) {
+    const size_t nameOffset = SkEndian_SwapBE16(nameRecord.offset);
+    const size_t nameLength = SkEndian_SwapBE16(nameRecord.length);
+    if (stringTableSize < nameOffset + nameLength) {
+        return false; // continue?
+    }
+    const uint8_t* nameString = stringTable + nameOffset;
+    switch (nameRecord.platformID.value) {
         case SkOTTableName::Record::PlatformID::Windows:
             if (SkOTTableName::Record::EncodingID::Windows::UnicodeBMPUCS2
-                   != nameRecord->encodingID.windows.value
+                   != nameRecord.encodingID.windows.value
                 && SkOTTableName::Record::EncodingID::Windows::UnicodeUCS4
-                   != nameRecord->encodingID.windows.value
+                   != nameRecord.encodingID.windows.value
                 && SkOTTableName::Record::EncodingID::Windows::Symbol
-                   != nameRecord->encodingID.windows.value)
+                   != nameRecord.encodingID.windows.value)
             {
                 record.name.reset();
-                break;
+                break; // continue?
             }
         case SkOTTableName::Record::PlatformID::Unicode:
         case SkOTTableName::Record::PlatformID::ISO:
-            SkStringFromUTF16BE((const uint16_t*)nameString, nameLength, record.name);
+            SkString_from_UTF16BE(nameString, nameLength, record.name);
             break;
 
         case SkOTTableName::Record::PlatformID::Macintosh:
             // TODO: need better decoding, especially on Mac.
             if (SkOTTableName::Record::EncodingID::Macintosh::Roman
-                != nameRecord->encodingID.macintosh.value)
+                != nameRecord.encodingID.macintosh.value)
             {
                 record.name.reset();
-                break;
+                break;  // continue?
             }
-            SkStringFromMacRoman((const uint8_t*)nameString, nameLength, record.name);
+            SkStringFromMacRoman(nameString, nameLength, record.name);
             break;
 
         case SkOTTableName::Record::PlatformID::Custom:
@@ -494,27 +527,46 @@ bool SkOTTableName::Iterator::next(SkOTTableName::Iterator::Record& record) {
         default:
             SkASSERT(false);
             record.name.reset();
-            break;
+            break;  // continue?
     }
 
     // Determine the language.
-    const uint16_t languageID = SkEndian_SwapBE16(nameRecord->languageID.languageTagID);
+    const uint16_t languageID = SkEndian_SwapBE16(nameRecord.languageID.languageTagID);
 
     // Handle format 1 languages.
-    if (SkOTTableName::format_1 == fName.format && languageID >= 0x8000) {
+    if (SkOTTableName::format_1 == nameTable.format && languageID >= 0x8000) {
         const uint16_t languageTagRecordIndex = languageID - 0x8000;
 
-        const SkOTTableName::Format1Ext* format1ext =
-            SkTAfter<const SkOTTableName::Format1Ext>(nameRecords, nameRecordsCount);
+        if (nameRecordsSize < sizeof(nameRecord)*nameRecordsCount) {
+            return false; //"und" or break?
+        }
+        const uint8_t* format1extData = nameRecords + sizeof(nameRecord)*nameRecordsCount;
+        size_t format1extSize = nameRecordsSize - sizeof(nameRecord)*nameRecordsCount;
+        SkOTTableName::Format1Ext format1ext;
+        if (format1extSize < sizeof(format1ext)) {
+            return false; // "und" or break?
+        }
+        memcpy(&format1ext, format1extData, sizeof(format1ext));
 
-        if (languageTagRecordIndex < SkEndian_SwapBE16(format1ext->langTagCount)) {
-            const SkOTTableName::Format1Ext::LangTagRecord* languageTagRecord =
-                SkTAfter<const SkOTTableName::Format1Ext::LangTagRecord>(format1ext);
+        const uint8_t* languageTagRecords = format1extData + sizeof(format1ext);
+        size_t languageTagRecordsSize = format1extSize - sizeof(format1ext);
+        if (languageTagRecordIndex < SkEndian_SwapBE16(format1ext.langTagCount)) {
+            SkOTTableName::Format1Ext::LangTagRecord languageTagRecord;
+            if (languageTagRecordsSize < sizeof(languageTagRecord)*(languageTagRecordIndex+1)) {
+                return false; // "und"?
+            }
+            const uint8_t* languageTagData = languageTagRecords
+                                           + sizeof(languageTagRecord)*languageTagRecordIndex;
+            memcpy(&languageTagRecord, languageTagData, sizeof(languageTagRecord));
 
-            uint16_t offset = SkEndian_SwapBE16(languageTagRecord[languageTagRecordIndex].offset);
-            uint16_t length = SkEndian_SwapBE16(languageTagRecord[languageTagRecordIndex].length);
-            const uint16_t* string = SkTAddOffset<const uint16_t>(stringTable, offset);
-            SkStringFromUTF16BE(string, length, record.language);
+            uint16_t languageOffset = SkEndian_SwapBE16(languageTagRecord.offset);
+            uint16_t languageLength = SkEndian_SwapBE16(languageTagRecord.length);
+
+            if (fNameTableSize < stringTableOffset + languageOffset + languageLength) {
+                return false; // "und"?
+            }
+            const uint8_t* languageString = stringTable + languageOffset;
+            SkString_from_UTF16BE(languageString, languageLength, record.language);
             return true;
         }
     }

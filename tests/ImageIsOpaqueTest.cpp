@@ -5,18 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
-#include "Resources.h"
-#include "Test.h"
+#include "include/core/SkTypes.h"
+#include "tests/Test.h"
+#include "tools/Resources.h"
 
-#if SK_SUPPORT_GPU
-#include "GrContext.h"
-#endif
-#include "SkCanvas.h"
-#include "SkImage.h"
-#include "SkSurface.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkSurface.h"
+#include "include/gpu/GrContext.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 static void check_isopaque(skiatest::Reporter* reporter, const sk_sp<SkSurface>& surface,
                            bool expectedOpaque) {
@@ -34,8 +32,6 @@ DEF_TEST(ImageIsOpaqueTest, reporter) {
     check_isopaque(reporter, surfaceOpaque, true);
 }
 
-#if SK_SUPPORT_GPU
-
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageIsOpaqueTest_Gpu, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     SkImageInfo infoTransparent = SkImageInfo::MakeN32Premul(5, 5);
@@ -48,10 +44,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageIsOpaqueTest_Gpu, reporter, ctxInfo) {
     check_isopaque(reporter, surfaceOpaque, true);
 }
 
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkPictureRecorder.h"
+#include "include/core/SkPictureRecorder.h"
 
 static sk_sp<SkPicture> make_picture() {
     SkPictureRecorder recorder;

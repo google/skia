@@ -8,26 +8,23 @@
 #ifndef GrPipeline_DEFINED
 #define GrPipeline_DEFINED
 
-#include "GrColor.h"
-#include "GrFragmentProcessor.h"
-#include "GrNonAtomicRef.h"
-#include "GrPendingProgramElement.h"
-#include "GrProcessorSet.h"
-#include "GrProgramDesc.h"
-#include "GrRect.h"
-#include "GrRenderTargetProxy.h"
-#include "GrScissorState.h"
-#include "GrUserStencilSettings.h"
-#include "GrWindowRectsState.h"
-#include "SkMatrix.h"
-#include "SkRefCnt.h"
-#include "effects/GrCoverageSetOpXP.h"
-#include "effects/GrDisableColorXP.h"
-#include "effects/GrPorterDuffXferProcessor.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRefCnt.h"
+#include "src/gpu/GrColor.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrNonAtomicRef.h"
+#include "src/gpu/GrProcessorSet.h"
+#include "src/gpu/GrProgramDesc.h"
+#include "src/gpu/GrScissorState.h"
+#include "src/gpu/GrUserStencilSettings.h"
+#include "src/gpu/GrWindowRectsState.h"
+#include "src/gpu/effects/GrCoverageSetOpXP.h"
+#include "src/gpu/effects/GrDisableColorXP.h"
+#include "src/gpu/effects/GrPorterDuffXferProcessor.h"
+#include "src/gpu/effects/generated/GrSimpleTextureEffect.h"
+#include "src/gpu/geometry/GrRect.h"
 
 class GrAppliedClip;
-class GrDeviceCoordTexture;
 class GrOp;
 class GrRenderTargetContext;
 
@@ -41,64 +38,73 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     /// @name Creation
 
-    enum Flags {
+    // Pipeline options that the caller may enable.
+    // NOTE: This enum is extended later by GrPipeline::Flags.
+    enum class InputFlags : uint8_t {
+        kNone = 0,
         /**
          * Perform HW anti-aliasing. This means either HW FSAA, if supported by the render target,
          * or smooth-line rendering if a line primitive is drawn and line smoothing is supported by
          * the 3D API.
          */
-        kHWAntialias_Flag = 0x1,
+        kHWAntialias = (1 << 0),
         /**
          * Modifies the vertex shader so that vertices will be positioned at pixel centers.
          */
-        kSnapVerticesToPixelCenters_Flag = 0x2,
-        /** Disables conversion to sRGB from linear when writing to a sRGB destination. */
-        kDisableOutputConversionToSRGB_Flag = 0x4,
-        /** Allows conversion from sRGB to linear when reading from processor's sRGB texture. */
-        kAllowSRGBInputs_Flag = 0x8,
-    };
-
-    static uint32_t SRGBFlagsFromPaint(const GrPaint& paint) {
-        uint32_t flags = 0;
-        if (paint.getAllowSRGBInputs()) {
-            flags |= kAllowSRGBInputs_Flag;
-        }
-        if (paint.getDisableOutputConversionToSRGB()) {
-            flags |= kDisableOutputConversionToSRGB_Flag;
-        }
-        return flags;
-    }
-
-    enum ScissorState : bool {
-        kEnabled = true,
-        kDisabled = false
+        kSnapVerticesToPixelCenters = (1 << 1),  // This value must be last. (See kLastInputFlag.)
     };
 
     struct InitArgs {
-        uint32_t fFlags = 0;
+        InputFlags fInputFlags = InputFlags::kNone;
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
-        GrRenderTargetProxy* fProxy = nullptr;
         const GrCaps* fCaps = nullptr;
-        GrResourceProvider* fResourceProvider = nullptr;
         GrXferProcessor::DstProxy fDstProxy;
+        GrSwizzle fOutputSwizzle;
     };
 
     /**
-     *  Graphics state that can change dynamically without creating a new pipeline.
+     * Some state can be changed between GrMeshes without changing GrPipelines. This is generally
+     * less expensive then using multiple pipelines. Such state is called "dynamic state". It can
+     * be specified in two ways:
+     * 1) FixedDynamicState - use this to specify state that does not vary between GrMeshes.
+     * 2) DynamicStateArrays - use this to specify per mesh values for dynamic state.
      **/
-    struct DynamicState {
-        // Overrides the scissor rectangle (if scissor is enabled in the pipeline).
-        // TODO: eventually this should be the only way to specify a scissor rectangle, as is the
-        // case with the simple constructor.
-        SkIRect fScissorRect;
+    struct FixedDynamicState {
+        explicit FixedDynamicState(const SkIRect& scissorRect) : fScissorRect(scissorRect) {}
+        FixedDynamicState() = default;
+        SkIRect fScissorRect = SkIRect::EmptyIRect();
+        // Must have GrPrimitiveProcessor::numTextureSamplers() entries. Can be null if no samplers
+        // or textures are passed using DynamicStateArrays.
+        GrTextureProxy** fPrimitiveProcessorTextures = nullptr;
+    };
+
+    /**
+     * Any non-null array overrides the FixedDynamicState on a mesh-by-mesh basis. Arrays must
+     * have one entry for each GrMesh.
+     */
+    struct DynamicStateArrays {
+        const SkIRect* fScissorRects = nullptr;
+        // Must have GrPrimitiveProcessor::numTextureSamplers() * num_meshes entries.
+        // Can be null if no samplers or to use the same textures for all meshes via'
+        // FixedDynamicState.
+        GrTextureProxy** fPrimitiveProcessorTextures = nullptr;
     };
 
     /**
      * Creates a simple pipeline with default settings and no processors. The provided blend mode
-     * must be "Porter Duff" (<= kLastCoeffMode). If using ScissorState::kEnabled, the caller must
+     * must be "Porter Duff" (<= kLastCoeffMode). If using GrScissorTest::kEnabled, the caller must
      * specify a scissor rectangle through the DynamicState struct.
      **/
-    GrPipeline(GrRenderTargetProxy*, ScissorState, SkBlendMode);
+    GrPipeline(GrScissorTest scissor, SkBlendMode blend, const GrSwizzle& outputSwizzle,
+               InputFlags flags = InputFlags::kNone,
+               const GrUserStencilSettings* stencil = &GrUserStencilSettings::kUnused)
+            : GrPipeline(scissor, GrPorterDuffXPFactory::MakeNoCoverageXP(blend), outputSwizzle,
+                         flags, stencil) {
+    }
+
+    GrPipeline(GrScissorTest, sk_sp<const GrXferProcessor>, const GrSwizzle& outputSwizzle,
+               InputFlags = InputFlags::kNone,
+               const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
 
     GrPipeline(const InitArgs&, GrProcessorSet&&, GrAppliedClip&&);
 
@@ -109,9 +115,6 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
     /// @name GrFragmentProcessors
-
-    // Make the renderTargetContext's GrOpList be dependent on any GrOpLists in this pipeline
-    void addDependenciesTo(GrOpList* recipient, const GrCaps&) const;
 
     int numColorFragmentProcessors() const { return fNumColorProcessors; }
     int numCoverageFragmentProcessors() const {
@@ -137,12 +140,13 @@ public:
         if (offset) {
             *offset = fDstTextureOffset;
         }
+
         return fDstTextureProxy.get();
     }
 
     GrTexture* peekDstTexture(SkIPoint* offset = nullptr) const {
         if (GrTextureProxy* dstProxy = this->dstTextureProxy(offset)) {
-            return dstProxy->priv().peekTexture();
+            return dstProxy->peekTexture();
         }
 
         return nullptr;
@@ -164,89 +168,74 @@ public:
 
     /// @}
 
-    /**
-     * Retrieves the currently set render-target.
-     *
-     * @return    The currently set render target.
-     */
-    GrRenderTargetProxy* proxy() const { return fProxy.get(); }
-    GrRenderTarget* renderTarget() const { return fProxy.get()->priv().peekRenderTarget(); }
-
     const GrUserStencilSettings* getUserStencil() const { return fUserStencilSettings; }
 
-    const GrScissorState& getScissorState() const { return fScissorState; }
+    bool isScissorEnabled() const {
+        return SkToBool(fFlags & Flags::kScissorEnabled);
+    }
 
     const GrWindowRectsState& getWindowRectsState() const { return fWindowRectsState; }
 
-    bool isHWAntialiasState() const { return SkToBool(fFlags & kHWAntialias_Flag); }
+    bool isHWAntialiasState() const { return SkToBool(fFlags & InputFlags::kHWAntialias); }
     bool snapVerticesToPixelCenters() const {
-        return SkToBool(fFlags & kSnapVerticesToPixelCenters_Flag);
-    }
-    bool getDisableOutputConversionToSRGB() const {
-        return SkToBool(fFlags & kDisableOutputConversionToSRGB_Flag);
-    }
-    bool getAllowSRGBInputs() const {
-        return SkToBool(fFlags & kAllowSRGBInputs_Flag);
+        return SkToBool(fFlags & InputFlags::kSnapVerticesToPixelCenters);
     }
     bool hasStencilClip() const {
-        return SkToBool(fFlags & kHasStencilClip_Flag);
+        return SkToBool(fFlags & Flags::kHasStencilClip);
     }
     bool isStencilEnabled() const {
-        return SkToBool(fFlags & kStencilEnabled_Flag);
+        return SkToBool(fFlags & Flags::kStencilEnabled);
     }
-    bool isBad() const { return SkToBool(fFlags & kIsBad_Flag); }
+    SkDEBUGCODE(bool isBad() const { return SkToBool(fFlags & Flags::kIsBad); })
 
-    GrXferBarrierType xferBarrierType(const GrCaps& caps) const;
+    GrXferBarrierType xferBarrierType(GrTexture*, const GrCaps&) const;
 
-    static SkString DumpFlags(uint32_t flags) {
-        if (flags) {
-            SkString result;
-            if (flags & GrPipeline::kSnapVerticesToPixelCenters_Flag) {
-                result.append("Snap vertices to pixel center.\n");
-            }
-            if (flags & GrPipeline::kHWAntialias_Flag) {
-                result.append("HW Antialiasing enabled.\n");
-            }
-            if (flags & GrPipeline::kDisableOutputConversionToSRGB_Flag) {
-                result.append("Disable output conversion to sRGB.\n");
-            }
-            if (flags & GrPipeline::kAllowSRGBInputs_Flag) {
-                result.append("Allow sRGB Inputs.\n");
-            }
-            return result;
-        }
-        return SkString("No pipeline flags\n");
-    }
+    // Used by Vulkan and Metal to cache their respective pipeline objects
+    uint32_t getBlendInfoKey() const;
+
+    const GrSwizzle& outputSwizzle() const { return fOutputSwizzle; }
 
 private:
-    void markAsBad() { fFlags |= kIsBad_Flag; }
 
-    /** This is a continuation of the public "Flags" enum. */
-    enum PrivateFlags {
-        kHasStencilClip_Flag = 0x10,
-        kStencilEnabled_Flag = 0x20,
-        kIsBad_Flag = 0x40,
+    SkDEBUGCODE(void markAsBad() { fFlags |= Flags::kIsBad; })
+
+    static constexpr uint8_t kLastInputFlag = (uint8_t)InputFlags::kSnapVerticesToPixelCenters;
+
+    /** This is a continuation of the public "InputFlags" enum. */
+    enum class Flags : uint8_t {
+        kHasStencilClip = (kLastInputFlag << 1),
+        kStencilEnabled = (kLastInputFlag << 2),
+        kScissorEnabled = (kLastInputFlag << 3),
+#ifdef SK_DEBUG
+        kIsBad = (kLastInputFlag << 4),
+#endif
     };
 
-    using RenderTargetProxy = GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType>;
-    using DstTextureProxy = GrPendingIOResource<GrTextureProxy, kRead_GrIOType>;
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Flags);
+
+    friend bool operator&(Flags, InputFlags);
+
     using FragmentProcessorArray = SkAutoSTArray<8, std::unique_ptr<const GrFragmentProcessor>>;
 
-    DstTextureProxy fDstTextureProxy;
+    sk_sp<GrTextureProxy> fDstTextureProxy;
     SkIPoint fDstTextureOffset;
-    // MDB TODO: do we still need the destination proxy here?
-    RenderTargetProxy fProxy;
-    GrScissorState fScissorState;
     GrWindowRectsState fWindowRectsState;
     const GrUserStencilSettings* fUserStencilSettings;
-    uint16_t fFlags;
+    Flags fFlags;
     sk_sp<const GrXferProcessor> fXferProcessor;
     FragmentProcessorArray fFragmentProcessors;
 
     // This value is also the index in fFragmentProcessors where coverage processors begin.
     int fNumColorProcessors;
 
-    typedef SkRefCnt INHERITED;
+    GrSwizzle fOutputSwizzle;
 };
+
+GR_MAKE_BITFIELD_CLASS_OPS(GrPipeline::InputFlags);
+GR_MAKE_BITFIELD_CLASS_OPS(GrPipeline::Flags);
+
+inline bool operator&(GrPipeline::Flags flags, GrPipeline::InputFlags inputFlag) {
+    return (flags & (GrPipeline::Flags)inputFlag);
+}
 
 #endif

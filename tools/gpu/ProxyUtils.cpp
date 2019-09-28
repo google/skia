@@ -5,60 +5,79 @@
  * found in the LICENSE file.
  */
 
-#include "ProxyUtils.h"
-#include "GrBackendSurface.h"
-#include "GrContextPriv.h"
-#include "GrDrawingManager.h"
-#include "GrGpu.h"
-#include "GrProxyProvider.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/SkGr.h"
+#include "tools/gpu/ProxyUtils.h"
 
 namespace sk_gpu_test {
 
-sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, bool isRT, int width, int height,
-                                               GrColorType ct, GrSRGBEncoded srgbEncoded,
-                                               GrSurfaceOrigin origin, const void* data,
-                                               size_t rowBytes) {
-    auto config = GrColorTypeToPixelConfig(ct, srgbEncoded);
+sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
+                                               GrRenderable renderable,
+                                               int width,
+                                               int height,
+                                               GrColorType colorType, SkAlphaType alphaType,
+                                               GrSurfaceOrigin origin,
+                                               const void* data, size_t rowBytes) {
+    if (context->priv().abandoned()) {
+        return nullptr;
+    }
+
+    const GrCaps* caps = context->priv().caps();
+
+    const GrBackendFormat format = caps->getDefaultBackendFormat(colorType, renderable);
+    if (!format.isValid()) {
+        return nullptr;
+    }
+
     sk_sp<GrTextureProxy> proxy;
     if (kBottomLeft_GrSurfaceOrigin == origin) {
         // We (soon will) only support using kBottomLeft with wrapped textures.
-        auto backendTex = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
-                nullptr, width, height, config, isRT, GrMipMapped::kNo);
+        auto backendTex = context->createBackendTexture(
+                width, height, format, SkColors::kTransparent, GrMipMapped::kNo, renderable,
+                GrProtected::kNo);
         if (!backendTex.isValid()) {
             return nullptr;
         }
+
         // Adopt ownership so our caller doesn't have to worry about deleting the backend texture.
-        if (isRT) {
-            proxy = context->contextPriv().proxyProvider()->wrapRenderableBackendTexture(
-                    backendTex, origin, 1, kAdopt_GrWrapOwnership);
+        if (GrRenderable::kYes == renderable) {
+            proxy = context->priv().proxyProvider()->wrapRenderableBackendTexture(
+                    backendTex, origin, 1, colorType, kAdopt_GrWrapOwnership, GrWrapCacheable::kNo,
+                    nullptr, nullptr);
         } else {
-            proxy = context->contextPriv().proxyProvider()->wrapBackendTexture(
-                    backendTex, origin, kAdopt_GrWrapOwnership);
+            proxy = context->priv().proxyProvider()->wrapBackendTexture(
+                    backendTex, colorType, origin, kAdopt_GrWrapOwnership,
+                    GrWrapCacheable::kNo, kRW_GrIOType);
         }
 
         if (!proxy) {
-            context->contextPriv().getGpu()->deleteTestingOnlyBackendTexture(backendTex);
+            context->deleteBackendTexture(backendTex);
             return nullptr;
         }
 
     } else {
         GrSurfaceDesc desc;
-        desc.fConfig = config;
+        desc.fConfig = GrColorTypeToPixelConfig(colorType);
         desc.fWidth = width;
         desc.fHeight = height;
-        desc.fFlags = isRT ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
-        proxy = context->contextPriv().proxyProvider()->createProxy(
-                desc, origin, SkBackingFit::kExact, SkBudgeted::kYes);
+        proxy = context->priv().proxyProvider()->createProxy(format, desc, renderable, 1, origin,
+                                                             GrMipMapped::kNo, SkBackingFit::kExact,
+                                                             SkBudgeted::kYes, GrProtected::kNo);
         if (!proxy) {
             return nullptr;
         }
     }
-    auto sContext = context->contextPriv().makeWrappedSurfaceContext(proxy, nullptr);
+
+    auto sContext = context->priv().makeWrappedSurfaceContext(proxy, colorType, alphaType, nullptr);
     if (!sContext) {
         return nullptr;
     }
-    if (!context->contextPriv().writeSurfacePixels(sContext.get(), 0, 0, width, height, ct, nullptr,
-                                                   data, rowBytes)) {
+    if (!sContext->writePixels({colorType, alphaType, nullptr, width, height}, data, rowBytes,
+                               {0, 0}, context)) {
         return nullptr;
     }
     return proxy;

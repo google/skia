@@ -8,11 +8,9 @@
 #ifndef GrVkBufferView_DEFINED
 #define GrVkBufferView_DEFINED
 
-#include "GrTypes.h"
-
-#include "GrVkResource.h"
-
-#include "vk/GrVkDefines.h"
+#include "include/gpu/GrTypes.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/vk/GrVkResource.h"
 
 class GrVkBufferView : public GrVkResource {
 public:
@@ -30,7 +28,7 @@ public:
 private:
     GrVkBufferView(VkBufferView bufferView) : INHERITED(), fBufferView(bufferView) {}
 
-    void freeGPUData(const GrVkGpu* gpu) const override;
+    void freeGPUData(GrVkGpu* gpu) const override;
 
     VkBufferView  fBufferView;
 

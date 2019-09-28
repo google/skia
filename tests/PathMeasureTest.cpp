@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkPathMeasure.h"
-#include "Test.h"
+#include "include/core/SkPathMeasure.h"
+#include "tests/Test.h"
 
 static void test_small_segment3() {
     SkPath path;
@@ -226,4 +226,83 @@ DEF_TEST(PathMeasure_nextctr, reporter) {
     SkPathMeasure meas(path, false);
     // only expect 1 contour, even if we didn't explicitly call getLength() ourselves
     REPORTER_ASSERT(reporter, !meas.nextContour());
+}
+
+#include "include/core/SkContourMeasure.h"
+
+static void test_90_degrees(sk_sp<SkContourMeasure> cm, SkScalar radius,
+                            skiatest::Reporter* reporter) {
+    SkPoint pos;
+    SkVector tan;
+    SkScalar distance = cm->length() / 4;
+    bool success = cm->getPosTan(distance, &pos, &tan);
+
+    REPORTER_ASSERT(reporter, success);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(pos.fX, 0));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(pos.fY, radius));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(tan.fX, -1));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(tan.fY, 0));
+}
+
+static void test_empty_contours(skiatest::Reporter* reporter) {
+    SkPath path;
+
+    path.moveTo(0, 0).lineTo(100, 100).lineTo(200, 100);
+    path.moveTo(2, 2).moveTo(3, 3);                 // zero-length(s)
+    path.moveTo(4, 4).close().close().close();      // zero-length
+    path.moveTo(5, 5).lineTo(5, 5);                 // zero-length
+    path.moveTo(5, 5).lineTo(5, 5).close();         // zero-length
+    path.moveTo(5, 5).lineTo(5, 5).close().close(); // zero-length
+    path.moveTo(6, 6).lineTo(7, 7);
+    path.moveTo(10, 10);                            // zero-length
+
+    SkContourMeasureIter fact(path, false);
+
+    // given the above construction, we expect only 2 contours (the rest are "empty")
+
+    REPORTER_ASSERT(reporter, fact.next());
+    REPORTER_ASSERT(reporter, fact.next());
+    REPORTER_ASSERT(reporter, !fact.next());
+}
+
+static void test_MLM_contours(skiatest::Reporter* reporter) {
+    SkPath path;
+
+    // This odd sequence (with a trailing moveTo) used to return a 2nd contour, which is
+    // wrong, since the contract for a measure is to only return non-zero length contours.
+    path.moveTo(10, 10).lineTo(20, 20).moveTo(30, 30);
+
+    for (bool forceClosed : {false, true}) {
+        SkContourMeasureIter fact(path, forceClosed);
+        REPORTER_ASSERT(reporter, fact.next());
+        REPORTER_ASSERT(reporter, !fact.next());
+    }
+}
+
+DEF_TEST(contour_measure, reporter) {
+    SkPath path;
+    path.addCircle(0, 0, 100);
+    path.addCircle(0, 0, 10);
+
+    SkContourMeasureIter fact(path, false);
+    path.reset();   // we should not need the path avert we created the factory
+
+    auto cm0 = fact.next();
+    auto cm1 = fact.next();
+
+    REPORTER_ASSERT(reporter, cm0->isClosed());
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(cm0->length(), 200 * SK_ScalarPI, 1.5f));
+
+    test_90_degrees(cm0, 100, reporter);
+
+    REPORTER_ASSERT(reporter, cm1->isClosed());
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(cm1->length(), 20 * SK_ScalarPI, 0.5f));
+
+    test_90_degrees(cm1, 10, reporter);
+
+    auto cm2 = fact.next();
+    REPORTER_ASSERT(reporter, !cm2);
+
+    test_empty_contours(reporter);
+    test_MLM_contours(reporter);
 }

@@ -8,8 +8,9 @@
 #ifndef Window_win_DEFINED
 #define Window_win_DEFINED
 
+#include "tools/sk_app/Window.h"
+
 #include <windows.h>
-#include "../Window.h"
 
 namespace sk_app {
 

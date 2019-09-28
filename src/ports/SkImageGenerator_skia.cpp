@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkData.h"
-#include "SkCodecImageGenerator.h"
+#include "include/core/SkData.h"
+#include "src/codec/SkCodecImageGenerator.h"
 
 std::unique_ptr<SkImageGenerator> SkImageGenerator::MakeFromEncodedImpl(sk_sp<SkData> data) {
     return SkCodecImageGenerator::MakeFromEncodedCodec(std::move(data));

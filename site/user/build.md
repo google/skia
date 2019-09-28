@@ -7,8 +7,19 @@ Skia](./download).
 Skia uses [GN](https://chromium.googlesource.com/chromium/src/tools/gn/) to
 configure its builds.
 
-`is_official_build` and Third-party Dependencies
-------------------------------------------------
+  - [`is_official_build` and Third-party Dependencies](#third-party)
+  - [A note on software backend performance](#performance)
+  - [Quickstart](#quick)
+  - [Android](#android)
+  - [ChromeOS](#cros)
+  - [Mac](#macos)
+  - [iOS](#ios)
+  - [Windows](#windows)
+  - [Windows ARM64](#win-arm64)
+  - [CMake](#cmake)
+
+<span id="third-party">`is_official_build` and Third-party Dependencies</span>
+------------------------------------------------------------------------------
 
 Most users of Skia should set `is_official_build=true`, and most developers
 should leave it to its `false` default.
@@ -33,8 +44,8 @@ link Skia against the headers and libaries found on the system paths.
 use `extra_cflags` and `extra_ldflags` to add include or library paths if
 needed.
 
-A note on software backend performance
---------------------------------------
+<span id="performance">A note on software backend performance</span>
+--------------------------------------------------------------------
 
 A number of routines in Skia's software backend have been written to run
 fastest when compiled by Clang.  If you depend on software rasterization, image
@@ -45,8 +56,8 @@ This choice was only a matter of prioritization; there is nothing fundamentally
 wrong with non-Clang compilers.  So if this is a serious issue for you, please
 let us know on the mailing list.
 
-Quickstart
-----------
+<span id="quick">Quickstart</span>
+----------------------------------
 
 Run GN to generate your build files.
 
@@ -55,7 +66,7 @@ Run GN to generate your build files.
 
 If you find you don't have `bin/gn`, make sure you've run
 
-    python tools/git-sync-deps
+    python2 tools/git-sync-deps
 
 GN allows fine-grained settings for developers and special situations.
 
@@ -83,8 +94,8 @@ If some header files are missing, install the corresponding dependencies
 
     tools/install_dependencies.sh
 
-Android
--------
+<span id="android">Android</span>
+---------------------------------
 
 To build Skia for Android you need an [Android
 NDK](https://developer.android.com/ndk/index.html).
@@ -92,9 +103,9 @@ NDK](https://developer.android.com/ndk/index.html).
 If you do not have an NDK and have access to CIPD, you
 can use one of these commands to fetch the NDK our bots use:
 
-    python infra/bots/assets/android_ndk_linux/download.py  -t /tmp/ndk
-    python infra/bots/assets/android_ndk_darwin/download.py -t /tmp/ndk
-    python infra/bots/assets/android_ndk_windows/download.py -t C:/ndk
+    python2 infra/bots/assets/android_ndk_linux/download.py  -t /tmp/ndk
+    python2 infra/bots/assets/android_ndk_darwin/download.py -t /tmp/ndk
+    python2 infra/bots/assets/android_ndk_windows/download.py -t C:/ndk
 
 When generating your GN build files, pass the path to your `ndk` and your
 desired `target_cpu`:
@@ -116,8 +127,9 @@ and run it as normal.  You may find `bin/droid` convenient.
     adb shell "cd /data/local/tmp; ./dm --src gm --config gl"
 
 
-ChromeOS
---------------
+<span id="cros">ChromeOS</span>
+-------------------------------
+
 To cross-compile Skia for arm ChromeOS devices the following is needed:
 
   - Clang 4 or newer
@@ -128,10 +140,10 @@ To compile Skia for an x86 ChromeOS device, one only needs Clang and the lib fil
 
 If you have access to CIPD, you can fetch all of these as follows:
 
-    python infra/bots/assets/clang_linux/download.py  -t /opt/clang
-    python infra/bots/assets/armhf_sysroot/download.py -t /opt/armhf_sysroot
-    python infra/bots/assets/chromebook_arm_gles/download.py -t /opt/chromebook_arm_gles
-    python infra/bots/assets/chromebook_x86_64_gles/download.py -t /opt/chromebook_x86_64_gles
+    python2 infra/bots/assets/clang_linux/download.py  -t /opt/clang
+    python2 infra/bots/assets/armhf_sysroot/download.py -t /opt/armhf_sysroot
+    python2 infra/bots/assets/chromebook_arm_gles/download.py -t /opt/chromebook_arm_gles
+    python2 infra/bots/assets/chromebook_x86_64_gles/download.py -t /opt/chromebook_x86_64_gles
 
 If you don't have authorization to use those assets, then see the README.md files for
 [armhf_sysroot](https://skia.googlesource.com/skia/+/master/infra/bots/assets/armhf_sysroot/README.md),
@@ -206,13 +218,13 @@ To avoid "permission denied" errors, remember to run something like:
 
     sudo mount -i -o remount,exec /home/chronos
 
-Mac
----
+<span id="macos">Mac</span>
+---------------------------
 
 Mac users may want to pass `--ide=xcode` to `bin/gn gen` to generate an Xcode project.
 
-iOS
----
+<span id="ios">iOS</span>
+-------------------------
 
 Run GN to generate your build files.  Set `target_os="ios"` to build for iOS.
 This defaults to `target_cpu="arm64"`.  Choosing `x64` targets the iOS simulator.
@@ -241,27 +253,43 @@ Deploying to a device with an OS older than the current SDK doesn't currently wo
 but can be done on the command line by setting the environment variable IPHONEOS_DEPLOYMENT_TARGET
 to the desired OS version.
 
-Windows
--------
+<span id="windows">Windows</span>
+---------------------------------
 
-Skia can build on Windows with Visual Studio 2017 or Visual Studio 2015 Update 3.
+Skia can build on Windows with Visual Studio 2017 or 2019.
 If GN is unable to locate either of those, it will print an error message. In that
 case, you can pass your `VC` path to GN via `win_vc`.
 
-Skia can be compiled with the free [Build Tools for Visual Studio
-2017](https://www.visualstudio.com/downloads/#build-tools-for-visual-studio-2017).
+Skia can be compiled with the free [Build Tools for Visual Studio 2017 or
+2019](https://www.visualstudio.com/downloads/#build-tools-for-visual-studio-2019).
 
 The bots use a packaged 2017 toolchain, which Googlers can download like this:
 
-    python infra/bots/assets/win_toolchain/download.py -t C:/toolchain
+    python2 infra/bots/assets/win_toolchain/download.py -t C:/toolchain
 
 You can then pass the VC and SDK paths to GN by setting your GN args:
 
-    win_vc = "C:\toolchain\depot_tools\win_toolchain\vs_files\a9e1098bba66d2acccc377d5ee81265910f29272\VC"
-    win_sdk = "C:\toolchain\depot_tools\win_toolchain\vs_files\a9e1098bba66d2acccc377d5ee81265910f29272\win_sdk"
+    win_vc = "C:\toolchain\VC"
+    win_sdk = "C:\toolchain\win_sdk"
 
 This toolchain is the only way we support 32-bit builds, by also setting `target_cpu="x86"`.
-There is also a corresponding 2015 toolchain, downloaded via `infra/bots/assets/win_toolchain_2015`.
+
+The Skia build assumes that the PATHEXT environment variable contains ".EXE".
+
+### **Highly Recommended**: Build with clang-cl
+
+Skia uses generated code that is only optimized when Skia is built with clang. Other compilers get generic
+unoptimized code.
+
+Setting the `cc` and `cxx` gn args is _not_ sufficient to build with clang-cl. These variables
+are ignored on Windows. Instead set the variable `clang_win` to your LLVM installation directory.
+If you installed the prebuilt LLVM downloaded from [here](https://releases.llvm.org/download.html
+"LLVM Download") in the default location that would be:
+
+    clang_win = "C:\Program Files\LLVM"
+
+Follow the standard Windows path specification and not MinGW convention (e.g.
+`C:\Program Files\LLVM` not ~~`/c/Program Files/LLVM`~~).
 
 The Skia build assumes that the PATHEXT environment variable contains ".EXE".
 
@@ -276,7 +304,7 @@ there is a helper script. It requires that all of your GN directories be inside
 the `out` directory. First, create all of your GN configurations as usual.
 Pass `--ide=vs` when running `bin/gn gen` for each one. Then:
 
-    python gn/gn_meta_sln.py
+    python2 gn/gn_meta_sln.py
 
 This creates a new dedicated output directory and solution file
 `out/sln/skia.sln`. It has one solution configuration for each GN configuration,
@@ -284,8 +312,25 @@ and supports building and running any of them. It also adjusts syntax highlighti
 of inactive code blocks based on preprocessor definitions from the selected
 solution configuration.
 
-CMake
------
+<span id="win-arm64">Windows ARM64</span>
+-----------------------------------------
+
+There is early, experimental support for [Windows 10 on ARM](https://docs.microsoft.com/en-us/windows/arm/).
+This currently requires (a recent version of) MSVC, and the `Visual C++ compilers and libraries for ARM64`
+individual component in the Visual Studio Installer. For Googlers, the win_toolchain asset includes the
+ARM64 compiler.
+
+To use that toolchain, set the `target_cpu` GN argument to `"arm64"`. Note that OpenGL is not supported
+by Windows 10 on ARM, so Skia's GL backends are stubbed out, and will not work. ANGLE is supported:
+
+    bin/gn gen out/win-arm64 --args='target_cpu="arm64" skia_use_angle=true'
+
+This will produce a build of Skia that can use the software or ANGLE backends, in DM. Viewer only works
+when launched with `--backend angle`, because the software backend tries to use OpenGL to display the
+window contents.
+
+<span id="cmake">CMake</span>
+-----------------------------
 
 We have added a GN-to-CMake translator mainly for use with IDEs that like CMake
 project descriptions.  This is not meant for any purpose beyond development.

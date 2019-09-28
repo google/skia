@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -10,7 +9,9 @@
 #ifndef SkInterpolator_DEFINED
 #define SkInterpolator_DEFINED
 
-#include "SkScalar.h"
+#include "include/core/SkScalar.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkTo.h"
 
 class SK_API SkInterpolatorBase : SkNoncopyable {
 public:

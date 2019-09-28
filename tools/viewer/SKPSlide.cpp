@@ -5,12 +5,11 @@
 * found in the LICENSE file.
 */
 
-#include "SKPSlide.h"
+#include "tools/viewer/SKPSlide.h"
 
-#include "SkCanvas.h"
-#include "SkCommonFlags.h"
-#include "SkOSFile.h"
-#include "SkStream.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkStream.h"
+#include "src/core/SkOSFile.h"
 
 SKPSlide::SKPSlide(const SkString& name, const SkString& path) : fPath(path) {
     fName = name;

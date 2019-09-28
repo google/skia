@@ -8,7 +8,7 @@
 #ifndef GrCCQuadraticShader_DEFINED
 #define GrCCQuadraticShader_DEFINED
 
-#include "ccpr/GrCCCoverageProcessor.h"
+#include "src/gpu/ccpr/GrCCCoverageProcessor.h"
 
 /**
  * This class renders the coverage of closed quadratic curves using the techniques outlined in
@@ -22,14 +22,17 @@
  */
 class GrCCQuadraticShader : public GrCCCoverageProcessor::Shader {
 public:
-    void emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* wind,
-                       const char** outHull4) const override;
+    void emitSetupCode(
+            GrGLSLVertexGeoBuilder*, const char* pts, const char** outHull4) const override;
 
-    void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
-                        const char* position, const char* coverage,
-                        const char* cornerCoverage) override;
+    void onEmitVaryings(
+            GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code, const char* position,
+            const char* coverage, const char* cornerCoverage, const char* wind) override;
 
-    void onEmitFragmentCode(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const override;
+    void emitFragmentCoverageCode(
+            GrGLSLFPFragmentBuilder*, const char* outputCoverage) const override;
+
+    void emitSampleMaskCode(GrGLSLFPFragmentBuilder*) const override;
 
 private:
     void calcHullCoverage(SkString* code, const char* coordAndGrad, const char* d,
@@ -37,7 +40,6 @@ private:
 
     const GrShaderVar fQCoordMatrix{"qcoord_matrix", kFloat2x2_GrSLType};
     const GrShaderVar fQCoord0{"qcoord0", kFloat2_GrSLType};
-    const GrShaderVar fEdgeDistanceEquation{"edge_distance_equation", kFloat3_GrSLType};
     GrGLSLVarying fCoord_fGrad;
     GrGLSLVarying fEdge_fWind_fCorner;
 };

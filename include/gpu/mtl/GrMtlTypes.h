@@ -8,9 +8,32 @@
 #ifndef GrMtlTypes_DEFINED
 #define GrMtlTypes_DEFINED
 
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
+#include "include/ports/SkCFObject.h"
 
-// This is a placeholder class until we fill it out. This is needed so we can have the mtl include
-// path in our BUILD.gn
+/**
+ * Declares typedefs for Metal types used in Ganesh cpp code
+ */
+typedef unsigned int GrMTLPixelFormat;
+typedef const void*  GrMTLHandle;
+
+///////////////////////////////////////////////////////////////////////////////
+
+#ifdef SK_METAL
+/**
+ * Types for interacting with Metal resources created externally to Skia.
+ * This is used by GrBackendObjects.
+ */
+struct GrMtlTextureInfo {
+public:
+    GrMtlTextureInfo() {}
+
+    sk_cf_obj<const void*> fTexture;
+
+    bool operator==(const GrMtlTextureInfo& that) const {
+        return fTexture == that.fTexture;
+    }
+};
+#endif
 
 #endif

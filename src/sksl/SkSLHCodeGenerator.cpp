@@ -5,15 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLHCodeGenerator.h"
+#include "src/sksl/SkSLHCodeGenerator.h"
 
-#include "SkSLParser.h"
-#include "SkSLUtil.h"
-#include "ir/SkSLEnum.h"
-#include "ir/SkSLFunctionDeclaration.h"
-#include "ir/SkSLFunctionDefinition.h"
-#include "ir/SkSLSection.h"
-#include "ir/SkSLVarDeclarations.h"
+#include "src/sksl/SkSLParser.h"
+#include "src/sksl/SkSLUtil.h"
+#include "src/sksl/ir/SkSLEnum.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
+#include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLSection.h"
+#include "src/sksl/ir/SkSLVarDeclarations.h"
+
+#include <set>
 
 namespace SkSL {
 
@@ -23,28 +25,52 @@ HCodeGenerator::HCodeGenerator(const Context* context, const Program* program,
 , fContext(*context)
 , fName(std::move(name))
 , fFullName(String::printf("Gr%s", fName.c_str()))
-, fSectionAndParameterHelper(*program, *errors) {}
+, fSectionAndParameterHelper(program, *errors) {}
 
 String HCodeGenerator::ParameterType(const Context& context, const Type& type,
                                      const Layout& layout) {
-    if (layout.fCType != "") {
-        return layout.fCType;
-    } else if (type == *context.fFloat_Type || type == *context.fHalf_Type) {
-        return "float";
-    } else if (type == *context.fFloat2_Type || type == *context.fHalf2_Type) {
-        return "SkPoint";
-    } else if (type == *context.fInt4_Type || type == *context.fShort4_Type) {
-        return "SkIRect";
-    } else if (type == *context.fFloat4_Type || type == *context.fHalf4_Type) {
-        return "SkRect";
-    } else if (type == *context.fFloat4x4_Type || type == *context.fHalf4x4_Type) {
-        return "SkMatrix44";
-    } else if (type.kind() == Type::kSampler_Kind) {
-        return "sk_sp<GrTextureProxy>";
-    } else if (type == *context.fFragmentProcessor_Type) {
-        return "std::unique_ptr<GrFragmentProcessor>";
+    Layout::CType ctype = ParameterCType(context, type, layout);
+    if (ctype != Layout::CType::kDefault) {
+        return Layout::CTypeToStr(ctype);
     }
     return type.name();
+}
+
+Layout::CType HCodeGenerator::ParameterCType(const Context& context, const Type& type,
+                                     const Layout& layout) {
+    if (layout.fCType != Layout::CType::kDefault) {
+        return layout.fCType;
+    }
+    if (type.kind() == Type::kNullable_Kind) {
+        return ParameterCType(context, type.componentType(), layout);
+    } else if (type == *context.fFloat_Type || type == *context.fHalf_Type) {
+        return Layout::CType::kFloat;
+    } else if (type == *context.fInt_Type ||
+               type == *context.fShort_Type ||
+               type == *context.fByte_Type) {
+        return Layout::CType::kInt32;
+    } else if (type == *context.fFloat2_Type || type == *context.fHalf2_Type) {
+        return Layout::CType::kSkPoint;
+    } else if (type == *context.fInt2_Type ||
+               type == *context.fShort2_Type ||
+               type == *context.fByte2_Type) {
+        return Layout::CType::kSkIPoint;
+    } else if (type == *context.fInt4_Type ||
+               type == *context.fShort4_Type ||
+               type == *context.fByte4_Type) {
+        return Layout::CType::kSkIRect;
+    } else if (type == *context.fFloat4_Type || type == *context.fHalf4_Type) {
+        return Layout::CType::kSkRect;
+    } else if (type == *context.fFloat3x3_Type || type == *context.fHalf3x3_Type) {
+        return Layout::CType::kSkMatrix;
+    } else if (type == *context.fFloat4x4_Type || type == *context.fHalf4x4_Type) {
+        return Layout::CType::kSkMatrix44;
+    } else if (type.kind() == Type::kSampler_Kind) {
+        return Layout::CType::kGrTextureProxy;
+    } else if (type == *context.fFragmentProcessor_Type) {
+        return Layout::CType::kGrFragmentProcessor;
+    }
+    return Layout::CType::kDefault;
 }
 
 String HCodeGenerator::FieldType(const Context& context, const Type& type,
@@ -54,10 +80,23 @@ String HCodeGenerator::FieldType(const Context& context, const Type& type,
     } else if (type == *context.fFragmentProcessor_Type) {
         // we don't store fragment processors in fields, they get registered via
         // registerChildProcessor instead
-        ASSERT(false);
+        SkASSERT(false);
         return "<error>";
     }
     return ParameterType(context, type, layout);
+}
+
+String HCodeGenerator::AccessType(const Context& context, const Type& type,
+                                  const Layout& layout) {
+    static const std::set<String> primitiveTypes = { "int32_t", "float", "bool", "SkPMColor" };
+
+    String fieldType = FieldType(context, type, layout);
+    bool isPrimitive = primitiveTypes.find(fieldType) != primitiveTypes.end();
+    if (isPrimitive) {
+        return fieldType;
+    } else {
+        return String::printf("const %s&", fieldType.c_str());
+    }
 }
 
 void HCodeGenerator::writef(const char* s, va_list va) {
@@ -73,6 +112,7 @@ void HCodeGenerator::writef(const char* s, va_list va) {
         vsprintf(heap.get(), s, copy);
         fOut->write(heap.get(), length);
     }
+    va_end(copy);
 }
 
 void HCodeGenerator::writef(const char* s, ...) {
@@ -111,13 +151,13 @@ void HCodeGenerator::writeExtraConstructorParams(const char* separator) {
                     lastIdentifierLength = 0;
                     foundBreak = false;
                 }
-                ASSERT(lastIdentifierLength < BUFFER_SIZE);
+                SkASSERT(lastIdentifierLength < BUFFER_SIZE);
                 lastIdentifier[lastIdentifierLength] = c;
                 ++lastIdentifierLength;
             } else {
                 foundBreak = true;
                 if (c == ',') {
-                    ASSERT(lastIdentifierLength < BUFFER_SIZE);
+                    SkASSERT(lastIdentifierLength < BUFFER_SIZE);
                     lastIdentifier[lastIdentifierLength] = 0;
                     this->writef("%s%s", separator, lastIdentifier);
                     separator = ", ";
@@ -127,7 +167,7 @@ void HCodeGenerator::writeExtraConstructorParams(const char* separator) {
             }
         }
         if (lastIdentifierLength) {
-            ASSERT(lastIdentifierLength < BUFFER_SIZE);
+            SkASSERT(lastIdentifierLength < BUFFER_SIZE);
             lastIdentifier[lastIdentifierLength] = 0;
             this->writef("%s%s", separator, lastIdentifier);
         }
@@ -151,7 +191,7 @@ void HCodeGenerator::writeMake() {
                      fFullName.c_str());
         separator = "";
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-            if (param->fType == *fContext.fFragmentProcessor_Type) {
+            if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
                 this->writef("%sstd::move(%s)", separator, String(param->fName).c_str());
             } else {
                 this->writef("%s%s", separator, String(param->fName).c_str());
@@ -196,10 +236,23 @@ void HCodeGenerator::writeConstructor() {
     }
     this->writef(")");
     this->writeSection(INITIALIZERS_SECTION, "\n    , ");
+    const auto transforms = fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION);
+    for (size_t i = 0; i < transforms.size(); ++i) {
+        const Section& s = *transforms[i];
+        String field = CoordTransformName(s.fArgument.c_str(), i);
+        if (s.fArgument.size()) {
+            this->writef("\n    , %s(%s, %s.get())", field.c_str(), s.fText.c_str(),
+                         FieldName(s.fArgument.c_str()).c_str());
+        }
+        else {
+            this->writef("\n    , %s(%s)", field.c_str(), s.fText.c_str());
+        }
+    }
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
         String nameString(param->fName);
         const char* name = nameString.c_str();
-        if (param->fType.kind() == Type::kSampler_Kind) {
+        const Type& type = param->fType.nonnullable();
+        if (type.kind() == Type::kSampler_Kind) {
             this->writef("\n    , %s(std::move(%s)", FieldName(name).c_str(), name);
             for (const Section* s : fSectionAndParameterHelper.getSections(
                                                                           SAMPLER_PARAMS_SECTION)) {
@@ -208,48 +261,65 @@ void HCodeGenerator::writeConstructor() {
                 }
             }
             this->writef(")");
-        } else if (param->fType == *fContext.fFragmentProcessor_Type) {
+        } else if (type == *fContext.fFragmentProcessor_Type) {
             // do nothing
         } else {
             this->writef("\n    , %s(%s)", FieldName(name).c_str(), name);
         }
     }
-    for (const Section* s : fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION)) {
-        String field = FieldName(s->fArgument.c_str());
-        this->writef("\n    , %sCoordTransform(%s, %s.proxy())", field.c_str(), s->fText.c_str(),
-                     field.c_str());
-    }
     this->writef(" {\n");
     this->writeSection(CONSTRUCTOR_CODE_SECTION);
+    int samplerCount = 0;
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
         if (param->fType.kind() == Type::kSampler_Kind) {
-            this->writef("        this->addTextureSampler(&%s);\n",
+            ++samplerCount;
+        } else if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
+            if (param->fType.kind() == Type::kNullable_Kind) {
+                this->writef("        if (%s) {\n", String(param->fName).c_str());
+            } else {
+                this->writef("        SkASSERT(%s);", String(param->fName).c_str());
+            }
+            this->writef("            %s_index = this->numChildProcessors();",
                          FieldName(String(param->fName).c_str()).c_str());
-        } else if (param->fType == *fContext.fFragmentProcessor_Type) {
-            this->writef("        this->registerChildProcessor(std::move(%s));",
+            if (fSectionAndParameterHelper.hasCoordOverrides(*param)) {
+                this->writef("            %s->setComputeLocalCoordsInVertexShader(false);",
+                             String(param->fName).c_str());
+            }
+            this->writef("            this->registerChildProcessor(std::move(%s));",
                          String(param->fName).c_str());
+            if (param->fType.kind() == Type::kNullable_Kind) {
+                this->writef("       }");
+            }
         }
     }
-    for (const Section* s : fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION)) {
-        String field = FieldName(s->fArgument.c_str());
-        this->writef("        this->addCoordTransform(&%sCoordTransform);\n", field.c_str());
+    if (samplerCount) {
+        this->writef("        this->setTextureSamplerCnt(%d);", samplerCount);
+    }
+    for (size_t i = 0; i < transforms.size(); ++i) {
+        const Section& s = *transforms[i];
+        String field = CoordTransformName(s.fArgument.c_str(), i);
+        this->writef("        this->addCoordTransform(&%s);\n", field.c_str());
     }
     this->writef("    }\n");
 }
 
 void HCodeGenerator::writeFields() {
     this->writeSection(FIELDS_SECTION);
-    for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-        if (param->fType == *fContext.fFragmentProcessor_Type) {
-            continue;
-        }
-        this->writef("    %s %s;\n", FieldType(fContext, param->fType,
-                                               param->fModifiers.fLayout).c_str(),
-                     FieldName(String(param->fName).c_str()).c_str());
+    const auto transforms = fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION);
+    for (size_t i = 0; i < transforms.size(); ++i) {
+        const Section& s = *transforms[i];
+        this->writef("    GrCoordTransform %s;\n",
+                     CoordTransformName(s.fArgument.c_str(), i).c_str());
     }
-    for (const Section* s : fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION)) {
-        this->writef("    GrCoordTransform %sCoordTransform;\n",
-                     FieldName(s->fArgument.c_str()).c_str());
+    for (const auto& param : fSectionAndParameterHelper.getParameters()) {
+        String name = FieldName(String(param->fName).c_str());
+        if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
+            this->writef("    int %s_index = -1;\n", name.c_str());
+        } else {
+            this->writef("    %s %s;\n", FieldType(fContext, param->fType,
+                                                   param->fModifiers.fLayout).c_str(),
+                                         name.c_str());
+        }
     }
 }
 
@@ -276,10 +346,11 @@ bool HCodeGenerator::generateCode() {
                  "#define %s_DEFINED\n",
                  fFullName.c_str(),
                  fFullName.c_str());
-    this->writef("#include \"SkTypes.h\"\n");
+    this->writef("#include \"include/core/SkTypes.h\"\n");
     this->writeSection(HEADER_SECTION);
-    this->writef("#include \"GrFragmentProcessor.h\"\n"
-                 "#include \"GrCoordTransform.h\"\n");
+    this->writef("\n"
+                 "#include \"src/gpu/GrCoordTransform.h\"\n"
+                 "#include \"src/gpu/GrFragmentProcessor.h\"\n");
     this->writef("class %s : public GrFragmentProcessor {\n"
                  "public:\n",
                  fFullName.c_str());
@@ -289,30 +360,25 @@ bool HCodeGenerator::generateCode() {
         }
     }
     this->writeSection(CLASS_SECTION);
-    for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-        if (param->fType.kind() == Type::kSampler_Kind ||
-            param->fType.kind() == Type::kOther_Kind) {
-            continue;
-        }
-        String nameString(param->fName);
-        const char* name = nameString.c_str();
-        this->writef("    %s %s() const { return %s; }\n",
-                     FieldType(fContext, param->fType, param->fModifiers.fLayout).c_str(), name,
-                     FieldName(name).c_str());
-    }
     this->writeMake();
     this->writef("    %s(const %s& src);\n"
                  "    std::unique_ptr<GrFragmentProcessor> clone() const override;\n"
-                 "    const char* name() const override { return \"%s\"; }\n"
-                 "private:\n",
+                 "    const char* name() const override { return \"%s\"; }\n",
                  fFullName.c_str(), fFullName.c_str(), fName.c_str());
+    this->writeFields();
+    this->writef("private:\n");
     this->writeConstructor();
     this->writef("    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;\n"
                  "    void onGetGLSLProcessorKey(const GrShaderCaps&,"
                                                 "GrProcessorKeyBuilder*) const override;\n"
-                 "    bool onIsEqual(const GrFragmentProcessor&) const override;\n"
-                 "    GR_DECLARE_FRAGMENT_PROCESSOR_TEST\n");
-    this->writeFields();
+                 "    bool onIsEqual(const GrFragmentProcessor&) const override;\n");
+    for (const auto& param : fSectionAndParameterHelper.getParameters()) {
+        if (param->fType.kind() == Type::kSampler_Kind) {
+            this->writef("    const TextureSampler& onTextureSampler(int) const override;");
+            break;
+        }
+    }
+    this->writef("    GR_DECLARE_FRAGMENT_PROCESSOR_TEST\n");
     this->writef("    typedef GrFragmentProcessor INHERITED;\n"
                 "};\n");
     this->writeSection(HEADER_END_SECTION);

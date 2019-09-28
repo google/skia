@@ -5,17 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkRandom.h"
-#include "SkRefCnt.h"
-#include "SkTSearch.h"
-#include "SkTSort.h"
-#include "SkUtils.h"
-#include "Test.h"
+#include "include/core/SkRefCnt.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkSpan.h"
+#include "src/core/SkTSearch.h"
+#include "src/core/SkTSort.h"
+#include "tests/Test.h"
+
+#include <array>
+#include <vector>
 
 class RefClass : public SkRefCnt {
 public:
-
-
     RefClass(int n) : fN(n) {}
     int get() const { return fN; }
 
@@ -164,119 +165,49 @@ static void test_search(skiatest::Reporter* reporter) {
     }
 }
 
-static void test_utf16(skiatest::Reporter* reporter) {
-    static const SkUnichar gUni[] = {
-        0x10000, 0x18080, 0x20202, 0xFFFFF, 0x101234
-    };
-
-    uint16_t buf[2];
-
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gUni); i++) {
-        size_t count = SkUTF16_FromUnichar(gUni[i], buf);
-        REPORTER_ASSERT(reporter, count == 2);
-        size_t count2 = SkUTF16_CountUnichars(buf, 2 * sizeof(uint16_t));
-        REPORTER_ASSERT(reporter, count2 == 1);
-        const uint16_t* ptr = buf;
-        SkUnichar c = SkUTF16_NextUnichar(&ptr);
-        REPORTER_ASSERT(reporter, c == gUni[i]);
-        REPORTER_ASSERT(reporter, ptr - buf == 2);
-    }
-}
-
 DEF_TEST(Utils, reporter) {
-    static const struct {
-        const char* fUtf8;
-        SkUnichar   fUni;
-    } gTest[] = {
-        { "a",                  'a' },
-        { "\x7f",               0x7f },
-        { "\xC2\x80",           0x80 },
-        { "\xC3\x83",           (3 << 6) | 3    },
-        { "\xDF\xBF",           0x7ff },
-        { "\xE0\xA0\x80",       0x800 },
-        { "\xE0\xB0\xB8",       0xC38 },
-        { "\xE3\x83\x83",       (3 << 12) | (3 << 6) | 3    },
-        { "\xEF\xBF\xBF",       0xFFFF },
-        { "\xF0\x90\x80\x80",   0x10000 },
-        { "\xF3\x83\x83\x83",   (3 << 18) | (3 << 12) | (3 << 6) | 3    }
-    };
-
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gTest); i++) {
-        const char* p = gTest[i].fUtf8;
-        int         n = SkUTF8_CountUnichars(p);
-        SkUnichar   u0 = SkUTF8_ToUnichar(gTest[i].fUtf8);
-        SkUnichar   u1 = SkUTF8_NextUnichar(&p);
-
-        REPORTER_ASSERT(reporter, n == 1);
-        REPORTER_ASSERT(reporter, u0 == u1);
-        REPORTER_ASSERT(reporter, u0 == gTest[i].fUni);
-        REPORTER_ASSERT(reporter,
-                        p - gTest[i].fUtf8 == (int)strlen(gTest[i].fUtf8));
-    }
-
-    test_utf16(reporter);
     test_search(reporter);
     test_autounref(reporter);
     test_autostarray(reporter);
 }
 
-#define ASCII_BYTE         "X"
-#define CONTINUATION_BYTE  "\x80"
-#define LEADING_TWO_BYTE   "\xC4"
-#define LEADING_THREE_BYTE "\xE0"
-#define LEADING_FOUR_BYTE  "\xF0"
-#define INVALID_BYTE       "\xFC"
-static bool valid_utf8(const char* p, size_t l) {
-    return SkUTF8_CountUnichars(p, l) >= 0;
-}
-DEF_TEST(Utils_UTF8_ValidLength, r) {
-    const char* goodTestcases[] = {
-        "",
-        ASCII_BYTE,
-        ASCII_BYTE ASCII_BYTE,
-        LEADING_TWO_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE LEADING_TWO_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE ASCII_BYTE LEADING_TWO_BYTE CONTINUATION_BYTE,
-        LEADING_THREE_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE LEADING_THREE_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE ASCII_BYTE LEADING_THREE_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        LEADING_FOUR_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE LEADING_FOUR_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE ASCII_BYTE LEADING_FOUR_BYTE CONTINUATION_BYTE CONTINUATION_BYTE
-            CONTINUATION_BYTE,
-    };
-    for (const char* testcase : goodTestcases) {
-        REPORTER_ASSERT(r, valid_utf8(testcase, strlen(testcase)));
-    }
-    const char* badTestcases[] = {
-        INVALID_BYTE,
-        INVALID_BYTE CONTINUATION_BYTE,
-        INVALID_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        INVALID_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        LEADING_TWO_BYTE,
-        CONTINUATION_BYTE,
-        CONTINUATION_BYTE CONTINUATION_BYTE,
-        LEADING_THREE_BYTE CONTINUATION_BYTE,
-        CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        LEADING_FOUR_BYTE CONTINUATION_BYTE,
-        CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-
-        ASCII_BYTE INVALID_BYTE,
-        ASCII_BYTE INVALID_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE INVALID_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE INVALID_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE LEADING_TWO_BYTE,
-        ASCII_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE LEADING_THREE_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE LEADING_FOUR_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-
-        // LEADING_FOUR_BYTE LEADING_TWO_BYTE CONTINUATION_BYTE,
-    };
-    for (const char* testcase : badTestcases) {
-        REPORTER_ASSERT(r, !valid_utf8(testcase, strlen(testcase)));
+DEF_TEST(SkMakeSpan, reporter) {
+    // Test constness preservation for SkMakeSpan.
+    {
+        std::vector<int> v = {{1, 2, 3, 4, 5}};
+        auto s = SkMakeSpan(v);
+        REPORTER_ASSERT(reporter, s[3] == 4);
+        s[3] = 100;
+        REPORTER_ASSERT(reporter, s[3] == 100);
     }
 
+    {
+        std::vector<int> t = {{1, 2, 3, 4, 5}};
+        const std::vector<int>& v = t;
+        auto s = SkMakeSpan(v);
+        //s[3] = 100; // Should fail to compile
+        REPORTER_ASSERT(reporter, s[3] == 4);
+        REPORTER_ASSERT(reporter, t[3] == 4);
+        t[3] = 100;
+        REPORTER_ASSERT(reporter, s[3] == 100);
+    }
+
+    {
+        std::array<int, 5> v = {{1, 2, 3, 4, 5}};
+        auto s = SkMakeSpan(v);
+        REPORTER_ASSERT(reporter, s[3] == 4);
+        s[3] = 100;
+        REPORTER_ASSERT(reporter, s[3] == 100);
+    }
+
+    {
+        std::array<int, 5> t = {{1, 2, 3, 4, 5}};
+        const std::array<int, 5>& v = t;
+        auto s = SkMakeSpan(v);
+        //s[3] = 100; // Should fail to compile
+        REPORTER_ASSERT(reporter, s[3] == 4);
+        REPORTER_ASSERT(reporter, t[3] == 4);
+        t[3] = 100;
+        REPORTER_ASSERT(reporter, s[3] == 100);
+    }
 }

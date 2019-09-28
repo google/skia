@@ -8,24 +8,21 @@
 #ifndef SkTrimImpl_DEFINED
 #define SkTrimImpl_DEFINED
 
-#include "SkFlattenablePriv.h"
-#include "SkPathEffect.h"
+#include "include/core/SkPathEffect.h"
 
-#include "SkTrimPathEffect.h"
+#include "include/effects/SkTrimPathEffect.h"
 
 class SkTrimPE : public SkPathEffect {
 public:
     SkTrimPE(SkScalar startT, SkScalar stopT, SkTrimPathEffect::Mode);
 
-    bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
-
-    void toString(SkString* str) const override;
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTrimPE)
-
 protected:
     void flatten(SkWriteBuffer&) const override;
+    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkTrimPE)
+
     const SkScalar               fStartT,
                                  fStopT;
     const SkTrimPathEffect::Mode fMode;

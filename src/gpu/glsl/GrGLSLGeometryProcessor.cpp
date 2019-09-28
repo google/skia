@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLSLGeometryProcessor.h"
+#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 
-#include "GrCoordTransform.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLUniformHandler.h"
-#include "glsl/GrGLSLVarying.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
+#include "src/gpu/glsl/GrGLSLVarying.h"
+#include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
 void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
     GrGPArgs gpArgs;
@@ -77,24 +77,25 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
                                                                               strUniName.c_str(),
                                                                               &uniName).toIndex();
         GrSLType varyingType = kFloat2_GrSLType;
-        if (localMatrix.hasPerspective() || coordTransform->getMatrix().hasPerspective()) {
+        if (localMatrix.hasPerspective() || coordTransform->getMatrix().hasPerspective()
+            || threeComponentLocalCoords) {
             varyingType = kFloat3_GrSLType;
         }
         SkString strVaryingName;
         strVaryingName.printf("TransformedCoords_%d", i);
         GrGLSLVarying v(varyingType);
-        varyingHandler->addVarying(strVaryingName.c_str(), &v);
+        if (coordTransform->computeInVertexShader()) {
+            varyingHandler->addVarying(strVaryingName.c_str(), &v);
 
-        handler->specifyCoordsForCurrCoordTransform(SkString(v.fsIn()), varyingType);
-
-        if (kFloat2_GrSLType == varyingType) {
-            vb->codeAppendf("%s = (%s * %s).xy;", v.vsOut(), uniName, localCoords.c_str());
-            if (threeComponentLocalCoords) {
-                vb->codeAppendf("%s /= %s.z;", v.vsOut(), localCoords.c_str());
+            if (kFloat2_GrSLType == varyingType) {
+                vb->codeAppendf("%s = (%s * %s).xy;", v.vsOut(), uniName, localCoords.c_str());
+            } else {
+                vb->codeAppendf("%s = %s * %s;", v.vsOut(), uniName, localCoords.c_str());
             }
-        } else {
-            vb->codeAppendf("%s = %s * %s;", v.vsOut(), uniName, localCoords.c_str());
         }
+        handler->specifyCoordsForCurrCoordTransform(SkString(uniName),
+                                                    fInstalledTransforms.back().fHandle,
+                                                    GrShaderVar(SkString(v.fsIn()), varyingType));
         ++i;
     }
 }

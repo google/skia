@@ -5,13 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLType.h"
-#include "SkSLContext.h"
+#include "src/sksl/SkSLContext.h"
+#include "src/sksl/ir/SkSLType.h"
 
 namespace SkSL {
 
 int Type::coercionCost(const Type& other) const {
     if (*this == other) {
+        return 0;
+    }
+    if (this->kind() == kNullable_Kind && other.kind() != kNullable_Kind) {
+        int result = this->componentType().coercionCost(other);
+        if (result != INT_MAX) {
+            ++result;
+        }
+        return result;
+    }
+    if (this->fName == "null" && other.kind() == kNullable_Kind) {
         return 0;
     }
     if (this->kind() == kVector_Kind && other.kind() == kVector_Kind) {
@@ -26,17 +36,8 @@ int Type::coercionCost(const Type& other) const {
         }
         return INT_MAX;
     }
-    if (this->isNumber() && other.isFloat()) {
-        return 1;
-    }
-    if (this->isSigned() && other.isSigned()) {
-        return 1;
-    }
-    if (this->isUnsigned() && other.isUnsigned()) {
-        return 1;
-    }
-    if (this->isUnsigned() && other.isSigned() && other.priority() > priority()) {
-        return 1;
+    if (this->isNumber() && other.isNumber() && other.priority() > this->priority()) {
+        return other.priority() - this->priority();
     }
     for (size_t i = 0; i < fCoercibleTypes.size(); i++) {
         if (*fCoercibleTypes[i] == other) {
@@ -47,11 +48,11 @@ int Type::coercionCost(const Type& other) const {
 }
 
 const Type& Type::toCompound(const Context& context, int columns, int rows) const {
-    ASSERT(this->kind() == Type::kScalar_Kind);
+    SkASSERT(this->kind() == Type::kScalar_Kind);
     if (columns == 1 && rows == 1) {
         return *this;
     }
-    if (*this == *context.fFloat_Type) {
+    if (*this == *context.fFloat_Type || *this == *context.fFloatLiteral_Type) {
         switch (rows) {
             case 1:
                 switch (columns) {
@@ -147,7 +148,7 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
                 }
             default: ABORT("unsupported row count (%d)", rows);
         }
-    } else if (*this == *context.fInt_Type) {
+    } else if (*this == *context.fInt_Type || *this == *context.fIntLiteral_Type) {
         switch (rows) {
             case 1:
                 switch (columns) {
@@ -165,6 +166,17 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
                     case 2: return *context.fShort2_Type;
                     case 3: return *context.fShort3_Type;
                     case 4: return *context.fShort4_Type;
+                    default: ABORT("unsupported vector column count (%d)", columns);
+                }
+            default: ABORT("unsupported row count (%d)", rows);
+        }
+    } else if (*this == *context.fByte_Type) {
+        switch (rows) {
+            case 1:
+                switch (columns) {
+                    case 2: return *context.fByte2_Type;
+                    case 3: return *context.fByte3_Type;
+                    case 4: return *context.fByte4_Type;
                     default: ABORT("unsupported vector column count (%d)", columns);
                 }
             default: ABORT("unsupported row count (%d)", rows);
@@ -187,6 +199,17 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
                     case 2: return *context.fUShort2_Type;
                     case 3: return *context.fUShort3_Type;
                     case 4: return *context.fUShort4_Type;
+                    default: ABORT("unsupported vector column count (%d)", columns);
+                }
+            default: ABORT("unsupported row count (%d)", rows);
+        }
+    } else if (*this == *context.fUByte_Type) {
+        switch (rows) {
+            case 1:
+                switch (columns) {
+                    case 2: return *context.fUByte2_Type;
+                    case 3: return *context.fUByte3_Type;
+                    case 4: return *context.fUByte4_Type;
                     default: ABORT("unsupported vector column count (%d)", columns);
                 }
             default: ABORT("unsupported row count (%d)", rows);

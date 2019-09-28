@@ -40,7 +40,11 @@
       "[START_DIR]/tmp/SKP_VERSION"
     ],
     "infra_step": true,
-    "name": "write SKP_VERSION"
+    "name": "write SKP_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SKP_VERSION@42@@@",
+      "@@@STEP_LOG_END@SKP_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -68,7 +72,11 @@
       "[START_DIR]/tmp/SK_IMAGE_VERSION"
     ],
     "infra_step": true,
-    "name": "write SK_IMAGE_VERSION"
+    "name": "write SK_IMAGE_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SK_IMAGE_VERSION@42@@@",
+      "@@@STEP_LOG_END@SK_IMAGE_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -96,7 +104,11 @@
       "[START_DIR]/tmp/SVG_VERSION"
     ],
     "infra_step": true,
-    "name": "write SVG_VERSION"
+    "name": "write SVG_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SVG_VERSION@42@@@",
+      "@@@STEP_LOG_END@SVG_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -105,7 +117,6 @@
       "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
     ],
     "name": "get swarming bot id",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
@@ -119,7 +130,6 @@
       "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
     ],
     "name": "get swarming task id",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
@@ -132,7 +142,7 @@
       "-u",
       "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
       "[START_DIR]",
-      "[START_DIR]/build/out/Debug/nanobench",
+      "[START_DIR]/build/nanobench",
       "-i",
       "[START_DIR]/skia/resources",
       "--skps",
@@ -151,7 +161,15 @@
       "nonrendering",
       "f16",
       "srgb",
-      "565",
+      "esrgb",
+      "narrow",
+      "enarrow",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
       "--match",
       "~^floor2int_undef$",
       "~inc0.gif",
@@ -180,14 +198,12 @@
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/clang_linux/lib",
       "LSAN_OPTIONS": "symbolize=1 print_suppressions=1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]:[START_DIR]/clang_linux/bin",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/clang_linux/bin",
       "UBSAN_OPTIONS": "symbolize=1 print_stacktrace=1"
     },
     "name": "symbolized nanobench"
   },
   {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "name": "$result"
   }
 ]

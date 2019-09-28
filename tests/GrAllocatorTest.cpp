@@ -5,10 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-// This is a GPU-backend specific test
-#if SK_SUPPORT_GPU
-#include "GrAllocator.h"
+#include "src/gpu/GrAllocator.h"
+#include "tests/Test.h"
 
 namespace {
 struct C {
@@ -99,5 +97,3 @@ DEF_TEST(GrAllocator, reporter) {
         check_allocator(allocators[i], 100, 10, reporter);
     }
 }
-
-#endif

@@ -8,7 +8,9 @@
 #ifndef GrContextThreadSafeProxyPriv_DEFINED
 #define GrContextThreadSafeProxyPriv_DEFINED
 
-#include "GrContext.h"
+#include "include/gpu/GrContextThreadSafeProxy.h"
+
+#include "src/gpu/GrCaps.h"
 
 /**
  * Class that adds methods to GrContextThreadSafeProxy that are only intended for use internal to
@@ -17,12 +19,24 @@
  */
 class GrContextThreadSafeProxyPriv {
 public:
-    const GrContextOptions& contextOptions() { return fProxy->fOptions; }
+    // from GrContext_Base
+    uint32_t contextID() const { return fProxy->contextID(); }
 
-    const GrCaps* caps() const { return fProxy->fCaps.get(); }
-    sk_sp<const GrCaps> refCaps() const { return fProxy->fCaps; }
-    uint32_t contextUniqueID() const { return fProxy->fContextUniqueID; }
-    GrBackend backend() const { return fProxy->fBackend; }
+    bool matches(GrContext_Base* candidate) const { return fProxy->matches(candidate); }
+
+    const GrContextOptions& options() const { return fProxy->options(); }
+
+    const GrCaps* caps() const { return fProxy->caps(); }
+    sk_sp<const GrCaps> refCaps() const { return fProxy->refCaps(); }
+
+    sk_sp<GrSkSLFPFactoryCache> fpFactoryCache();
+
+    // GrContextThreadSafeProxyPriv
+    static sk_sp<GrContextThreadSafeProxy> Make(GrBackendApi,
+                                                const GrContextOptions&,
+                                                uint32_t contextID,
+                                                sk_sp<const GrCaps>,
+                                                sk_sp<GrSkSLFPFactoryCache>);
 
 private:
     explicit GrContextThreadSafeProxyPriv(GrContextThreadSafeProxy* proxy) : fProxy(proxy) {}

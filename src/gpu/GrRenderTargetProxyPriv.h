@@ -8,7 +8,7 @@
 #ifndef GrRenderTargetProxyPriv_DEFINED
 #define GrRenderTargetProxyPriv_DEFINED
 
-#include "GrRenderTargetProxy.h"
+#include "src/gpu/GrRenderTargetProxy.h"
 
 /**
  * This class hides the more specialized capabilities of GrRenderTargetProxy.
@@ -16,6 +16,9 @@
 class GrRenderTargetProxyPriv {
 public:
     void setGLRTFBOIDIs0() {
+        // FBO0 should never be wrapped as a texture render target.
+        SkASSERT(!fRenderTargetProxy->requiresManualMSAAResolve());
+        SkASSERT(!fRenderTargetProxy->asTextureProxy());
         fRenderTargetProxy->setGLRTFBOIDIs0();
     }
 

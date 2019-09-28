@@ -5,17 +5,29 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-
-#include "SkShader.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "tools/ToolUtils.h"
 
 // Inspired by svg/as-border-image/svg-as-border-image.html. Draws a four-color checker board bitmap
 // such that it is stretched and repeat tiled with different filter qualities. It is testing whether
 // the bmp filter respects the repeat mode at the tile seams.
 class BmpFilterQualityRepeat : public skiagm::GM {
 public:
-    BmpFilterQualityRepeat() { this->setBGColor(sk_tool_utils::color_to_565(0xFFCCBBAA)); }
+    BmpFilterQualityRepeat() { this->setBGColor(ToolUtils::color_to_565(0xFFCCBBAA)); }
 
 protected:
 
@@ -26,11 +38,11 @@ protected:
         colorBmp.allocN32Pixels(20, 20, true);
         colorBmp.eraseColor(0xFFFF0000);
         canvas.drawBitmap(colorBmp, 0, 0);
-        colorBmp.eraseColor(sk_tool_utils::color_to_565(0xFF008200));
+        colorBmp.eraseColor(ToolUtils::color_to_565(0xFF008200));
         canvas.drawBitmap(colorBmp, 20, 0);
-        colorBmp.eraseColor(sk_tool_utils::color_to_565(0xFFFF9000));
+        colorBmp.eraseColor(ToolUtils::color_to_565(0xFFFF9000));
         canvas.drawBitmap(colorBmp, 0, 20);
-        colorBmp.eraseColor(sk_tool_utils::color_to_565(0xFF2000FF));
+        colorBmp.eraseColor(ToolUtils::color_to_565(0xFF2000FF));
         canvas.drawBitmap(colorBmp, 20, 20);
     }
 
@@ -64,19 +76,20 @@ private:
         lm.setTranslateY(330);
 
         SkPaint textPaint;
-        sk_tool_utils::set_portable_typeface(&textPaint);
         textPaint.setAntiAlias(true);
 
         SkPaint bmpPaint(textPaint);
 
+        SkFont font(ToolUtils::create_portable_typeface());
+
         SkAutoCanvasRestore acr(canvas, true);
 
         for (size_t q = 0; q < SK_ARRAY_COUNT(kQualities); ++q) {
-            constexpr SkShader::TileMode kTM = SkShader::kRepeat_TileMode;
-            bmpPaint.setShader(SkShader::MakeBitmapShader(fBmp, kTM, kTM, &lm));
+            constexpr SkTileMode kTM = SkTileMode::kRepeat;
+            bmpPaint.setShader(fBmp.makeShader(kTM, kTM, &lm));
             bmpPaint.setFilterQuality(kQualities[q].fQuality);
             canvas->drawRect(rect, bmpPaint);
-            canvas->drawString(kQualities[q].fName, 20, 40, textPaint);
+            canvas->drawString(kQualities[q].fName, 20, 40, font, textPaint);
             canvas->translate(250, 0);
         }
 

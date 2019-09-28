@@ -5,47 +5,48 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkBlendMode.h"
-#include "SkBlurDrawLooper.h"
-#include "SkBlurMask.h"
-#include "SkBlurPriv.h"
-#include "SkBlurTypes.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkColorPriv.h"
-#include "SkDrawLooper.h"
-#include "SkEmbossMaskFilter.h"
-#include "SkFloatBits.h"
-#include "SkImageInfo.h"
-#include "SkLayerDrawLooper.h"
-#include "SkMask.h"
-#include "SkMaskFilter.h"
-#include "SkMaskFilterBase.h"
-#include "SkMath.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPerlinNoiseShader.h"
-#include "SkPixmap.h"
-#include "SkPoint.h"
-#include "SkRRect.h"
-#include "SkRectPriv.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
-#include "SkShader.h"
-#include "SkSize.h"
-#include "SkSurface.h"
-#include "SkTypes.h"
-#include "Test.h"
-#include "sk_pixel_iter.h"
-
-#if SK_SUPPORT_GPU
-#include "GrContextFactory.h"
-#endif
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkDrawLooper.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkBlurDrawLooper.h"
+#include "include/effects/SkLayerDrawLooper.h"
+#include "include/effects/SkPerlinNoiseShader.h"
+#include "include/private/SkFloatBits.h"
+#include "src/core/SkBlurMask.h"
+#include "src/core/SkBlurPriv.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkMaskFilterBase.h"
+#include "src/core/SkMathPriv.h"
+#include "src/effects/SkEmbossMaskFilter.h"
+#include "tests/Test.h"
+#include "tools/ToolUtils.h"
+#include "tools/gpu/GrContextFactory.h"
 
 #include <math.h>
 #include <string.h>
+#include <initializer_list>
 #include <utility>
+
+class GrContext;
 
 #define WRITE_CSV 0
 
@@ -181,7 +182,7 @@ static void ground_truth_2d(int width, int height,
                             int* result, int resultCount) {
     SkMask src, dst;
 
-    src.fBounds.set(0, 0, width, height);
+    src.fBounds.setWH(width, height);
     src.fFormat = SkMask::kA8_Format;
     src.fRowBytes = src.fBounds.width();
     src.fImage = SkMask::AllocImage(src.computeTotalImageSize());
@@ -349,9 +350,7 @@ DEF_TEST(BlurSigmaRange, reporter) {
 #if WRITE_CSV
         write_as_csv("RectSpecialCase", sigma, rectSpecialCaseResult, kSize);
         write_as_csv("GeneralCase", sigma, generalCaseResult, kSize);
-#if SK_SUPPORT_GPU
         write_as_csv("GPU", sigma, gpuResult, kSize);
-#endif
         write_as_csv("GroundTruth2D", sigma, groundTruthResult, kSize);
         write_as_csv("BruteForce1D", sigma, bruteForce1DResult, kSize);
 #endif
@@ -500,8 +499,6 @@ DEF_TEST(BlurAsABlur, reporter) {
     }
 }
 
-#if SK_SUPPORT_GPU
-
 // This exercises the problem discovered in crbug.com/570232. The return value from
 // SkBlurMask::BoxBlur wasn't being checked in SkBlurMaskFilter.cpp::GrRRectBlurEffect::Create
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SmallBoxBlurBug, reporter, ctxInfo) {
@@ -518,9 +515,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SmallBoxBlurBug, reporter, ctxInfo) {
 
     canvas->drawRRect(rr, p);
 }
-
-#endif
-
 
 DEF_TEST(BlurredRRectNinePatchComputation, reporter) {
     const SkRect r = SkRect::MakeXYWH(10, 10, 100, 100);
@@ -694,7 +688,7 @@ DEF_TEST(BlurZeroSigma, reporter) {
         paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma));
         surf->getCanvas()->drawRect(r, paint);
 
-        sk_tool_utils::PixelIter iter(surf.get());
+        ToolUtils::PixelIter iter(surf.get());
         SkIPoint  loc;
         while (const SkPMColor* p = (const SkPMColor*)iter.next(&loc)) {
             if (ir.contains(loc.fX, loc.fY)) {
@@ -710,7 +704,6 @@ DEF_TEST(BlurZeroSigma, reporter) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-#if SK_SUPPORT_GPU
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BlurMaskBiggerThanDest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
@@ -742,5 +735,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BlurMaskBiggerThanDest, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, readback.getColor(31, 31) == SK_ColorBLACK);
 }
 
-#endif
+DEF_TEST(zero_blur, reporter) {
+    SkBitmap alpha, bitmap;
+
+    SkPaint paint;
+    paint.setMaskFilter(SkMaskFilter::MakeBlur(kOuter_SkBlurStyle, 3));
+    SkIPoint offset;
+    bitmap.extractAlpha(&alpha, &paint, nullptr, &offset);
+}
 

@@ -8,7 +8,7 @@
 #ifndef SkRadialGradient_DEFINED
 #define SkRadialGradient_DEFINED
 
-#include "SkGradientShaderPriv.h"
+#include "src/shaders/gradients/SkGradientShaderPriv.h"
 
 class SkRadialGradient final : public SkGradientShaderBase {
 public:
@@ -19,18 +19,16 @@ public:
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 
-    void toString(SkString* str) const override;
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkRadialGradient)
-
 protected:
     SkRadialGradient(SkReadBuffer& buffer);
     void flatten(SkWriteBuffer& buffer) const override;
-    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
     void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                               SkRasterPipeline* postPipeline) const override;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkRadialGradient)
+
     const SkPoint fCenter;
     const SkScalar fRadius;
 

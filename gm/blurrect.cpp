@@ -5,11 +5,28 @@
 * found in the LICENSE file.
 */
 
-#include "gm.h"
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkMaskFilter.h"
-#include "SkPath.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkBlurMask.h"
+#include "src/core/SkMask.h"
 
 #define STROKE_WIDTH    SkIntToScalar(10)
 
@@ -53,8 +70,6 @@ static void draw_donut_skewed(SkCanvas* canvas, const SkRect& r, const SkPaint& 
     canvas->drawPath(path, p);
 }
 
-#include "SkGradientShader.h"
-
 /*
  * Spits out a dummy gradient to test blur with shader on paint
  */
@@ -63,7 +78,7 @@ static sk_sp<SkShader> make_radial() {
         { 0, 0 },
         { SkIntToScalar(100), SkIntToScalar(100) }
     };
-    SkShader::TileMode tm = SkShader::kClamp_TileMode;
+    SkTileMode tm = SkTileMode::kClamp;
     const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, };
     const SkScalar pos[] = { SK_Scalar1/4, SK_Scalar1*3/4 };
     SkMatrix scale;
@@ -83,16 +98,14 @@ static sk_sp<SkShader> make_radial() {
 typedef void (*PaintProc)(SkPaint*, SkScalar width);
 
 class BlurRectGM : public skiagm::GM {
-      sk_sp<SkMaskFilter> fMaskFilters[kLastEnum_SkBlurStyle + 1];
-      SkString  fName;
-      SkAlpha   fAlpha;
 public:
-    BlurRectGM(const char name[], U8CPU alpha)
-        : fName(name)
-        , fAlpha(SkToU8(alpha)) {
-    }
+    BlurRectGM(const char name[], U8CPU alpha) : fName(name), fAlpha(SkToU8(alpha)) {}
 
-protected:
+private:
+    sk_sp<SkMaskFilter> fMaskFilters[kLastEnum_SkBlurStyle + 1];
+    const char* fName;
+    SkAlpha fAlpha;
+
     void onOnceBeforeDraw() override {
         for (int i = 0; i <= kLastEnum_SkBlurStyle; ++i) {
             fMaskFilters[i] = SkMaskFilter::MakeBlur((SkBlurStyle)i,
@@ -100,13 +113,9 @@ protected:
         }
     }
 
-    SkString onShortName() override {
-        return fName;
-    }
+    SkString onShortName() override { return SkString(fName); }
 
-    SkISize onISize() override {
-        return SkISize::Make(860, 820);
-    }
+    SkISize onISize() override { return {860, 820}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(STROKE_WIDTH*3/2, STROKE_WIDTH*3/2);
@@ -146,7 +155,6 @@ protected:
         }
     }
 
-private:
     void drawProcs(SkCanvas* canvas, const SkRect& r, const SkPaint& paint,
                    bool doClip, const Proc procs[], size_t procsCount) {
         SkAutoCanvasRestore acr(canvas, true);
@@ -164,8 +172,6 @@ private:
             canvas->translate(0, r.height() * 4/3);
         }
     }
-private:
-    typedef GM INHERITED;
 };
 
 DEF_SIMPLE_GM(blurrect_gallery, canvas, 1200, 1024) {

@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkFloatBits_DEFINED
 #define SkFloatBits_DEFINED
 
-#include "SkTypes.h"
-#include "SkSafe_math.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkSafe_math.h"
+
 #include <float.h>
 
 /** Convert a sign-bit int (i.e. float interpreted as int) into a 2s compliement

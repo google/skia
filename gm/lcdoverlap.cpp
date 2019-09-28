@@ -5,16 +5,21 @@
  * found in the LICENSE file.
  */
 
-
-/*
- * Tests overlapping LCD text
- */
-
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkCanvas.h"
-#include "SkSurface.h"
-#include "SkTextBlob.h"
+#include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "tools/ToolUtils.h"
 
 namespace skiagm {
 
@@ -37,14 +42,12 @@ protected:
         // build text blob
         SkTextBlobBuilder builder;
 
-        SkPaint paint;
-        sk_tool_utils::set_portable_typeface(&paint);
-        paint.setTextSize(32);
+        SkFont      font(ToolUtils::create_portable_typeface(), 32);
         const char* text = "able was I ere I saw elba";
-        paint.setAntiAlias(true);
-        paint.setSubpixelText(true);
-        paint.setLCDRenderText(true);
-        sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, 0);
+        font.setSubpixel(true);
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+        // If we use SkTextBlob::MakeFromText, we get very different positioning ... why?
+        ToolUtils::add_to_text_blob(&builder, text, font, 0, 0);
         fBlob = builder.make();
     }
 

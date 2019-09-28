@@ -1,32 +1,55 @@
 /*
-* Copyright 2016 Google Inc.
-*
-* Use of this source code is governed by a BSD-style license that can be
-* found in the LICENSE file.
-*/
+ * Copyright 2016 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 
 #ifndef GrVkSampler_DEFINED
 #define GrVkSampler_DEFINED
 
-#include "GrVkResource.h"
-
-#include "vk/GrVkDefines.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "src/core/SkOpts.h"
+#include "src/gpu/vk/GrVkResource.h"
+#include "src/gpu/vk/GrVkSamplerYcbcrConversion.h"
+#include <atomic>
 
 class GrSamplerState;
 class GrVkGpu;
 
-
 class GrVkSampler : public GrVkResource {
 public:
-    static GrVkSampler* Create(const GrVkGpu* gpu, const GrSamplerState&, uint32_t maxMipLevel);
+    static GrVkSampler* Create(GrVkGpu* gpu, const GrSamplerState&, const GrVkYcbcrConversionInfo&);
 
     VkSampler sampler() const { return fSampler; }
+    const VkSampler* samplerPtr() const { return &fSampler; }
+
+    struct Key {
+        Key(uint16_t samplerKey, const GrVkSamplerYcbcrConversion::Key& ycbcrKey) {
+            // We must memset here since the GrVkSamplerYcbcrConversion has a 64 bit value which may
+            // force alignment padding to occur in the middle of the Key struct.
+            memset(this, 0, sizeof(Key));
+            fSamplerKey = samplerKey;
+            fYcbcrKey = ycbcrKey;
+        }
+        uint16_t                        fSamplerKey;
+        GrVkSamplerYcbcrConversion::Key fYcbcrKey;
+
+        bool operator==(const Key& that) const {
+            return this->fSamplerKey == that.fSamplerKey &&
+                   this->fYcbcrKey == that.fYcbcrKey;
+        }
+    };
 
     // Helpers for hashing GrVkSampler
-    static uint16_t GenerateKey(const GrSamplerState&, uint32_t maxMipLevel);
+    static Key GenerateKey(const GrSamplerState&, const GrVkYcbcrConversionInfo&);
 
-    static const uint16_t& GetKey(const GrVkSampler& sampler) { return sampler.fKey; }
-    static uint32_t Hash(const uint16_t& key) { return key; }
+    static const Key& GetKey(const GrVkSampler& sampler) { return sampler.fKey; }
+    static uint32_t Hash(const Key& key) {
+        return SkOpts::hash(reinterpret_cast<const uint32_t*>(&key), sizeof(Key));
+    }
+
+    uint32_t uniqueID() const { return fUniqueID; }
 
 #ifdef SK_TRACE_VK_RESOURCES
     void dumpInfo() const override {
@@ -35,12 +58,29 @@ public:
 #endif
 
 private:
-    GrVkSampler(VkSampler sampler, uint16_t key) : INHERITED(), fSampler(sampler), fKey(key) {}
+    GrVkSampler(VkSampler sampler, GrVkSamplerYcbcrConversion* ycbcrConversion, Key key)
+            : INHERITED()
+            , fSampler(sampler)
+            , fYcbcrConversion(ycbcrConversion)
+            , fKey(key)
+            , fUniqueID(GenID()) {}
 
-    void freeGPUData(const GrVkGpu* gpu) const override;
+    void freeGPUData(GrVkGpu* gpu) const override;
+    void abandonGPUData() const override;
 
-    VkSampler  fSampler;
-    uint16_t   fKey;
+    static uint32_t GenID() {
+        static std::atomic<uint32_t> nextID{1};
+        uint32_t id;
+        do {
+            id = nextID++;
+        } while (id == SK_InvalidUniqueID);
+        return id;
+    }
+
+    VkSampler                   fSampler;
+    GrVkSamplerYcbcrConversion* fYcbcrConversion;
+    Key                         fKey;
+    uint32_t                    fUniqueID;
 
     typedef GrVkResource INHERITED;
 };

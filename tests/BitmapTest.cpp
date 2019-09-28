@@ -5,17 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkColor.h"
-#include "SkImageInfo.h"
-#include "SkMallocPixelRef.h"
-#include "SkPixelRef.h"
-#include "SkPixmap.h"
-#include "SkRandom.h"
-#include "SkRefCnt.h"
-#include "SkTypes.h"
-#include "Test.h"
-#include "sk_tool_utils.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMallocPixelRef.h"
+#include "include/core/SkPixelRef.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/utils/SkRandom.h"
+#include "tests/Test.h"
+#include "tools/ToolUtils.h"
+
+#include <initializer_list>
 
 static void test_peekpixels(skiatest::Reporter* reporter) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);
@@ -143,7 +147,7 @@ DEF_TEST(Bitmap_getColor_Swizzle, r) {
     };
     for (SkColorType ct : colorTypes) {
         SkBitmap copy;
-        if (!sk_tool_utils::copy_to(&copy, ct, source)) {
+        if (!ToolUtils::copy_to(&copy, ct, source)) {
             ERRORF(r, "SkBitmap::copy failed %d", (int)ct);
             continue;
         }
@@ -174,29 +178,29 @@ DEF_TEST(Bitmap_eraseColor_Premul, r) {
 
 // Test that SkBitmap::ComputeOpaque() is correct for various colortypes.
 DEF_TEST(Bitmap_compute_is_opaque, r) {
-    struct {
-        SkColorType fCT;
-        SkAlphaType fAT;
-    } types[] = {
-        { kGray_8_SkColorType,    kOpaque_SkAlphaType },
-        { kAlpha_8_SkColorType,   kPremul_SkAlphaType },
-        { kARGB_4444_SkColorType, kPremul_SkAlphaType },
-        { kRGB_565_SkColorType,   kOpaque_SkAlphaType },
-        { kBGRA_8888_SkColorType, kPremul_SkAlphaType },
-        { kRGBA_8888_SkColorType, kPremul_SkAlphaType },
-        { kRGBA_F16_SkColorType,  kPremul_SkAlphaType },
+    SkColorType colorTypes[] = {
+        kAlpha_8_SkColorType,
+        kRGB_565_SkColorType,
+        kARGB_4444_SkColorType,
+        kRGBA_8888_SkColorType,
+        kRGB_888x_SkColorType,
+        kBGRA_8888_SkColorType,
+        kRGBA_1010102_SkColorType,
+        kRGB_101010x_SkColorType,
+        kGray_8_SkColorType,
+        kRGBA_F16_SkColorType,
+        kRGBA_F32_SkColorType,
     };
-    for (auto type : types) {
+    for (auto ct : colorTypes) {
         SkBitmap bm;
-        REPORTER_ASSERT(r, !SkBitmap::ComputeIsOpaque(bm));
-
-        bm.allocPixels(SkImageInfo::Make(13, 17, type.fCT, type.fAT));
+        SkAlphaType at = SkColorTypeIsAlwaysOpaque(ct) ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+        bm.allocPixels(SkImageInfo::Make(13, 17, ct, at));
         bm.eraseColor(SkColorSetARGB(255, 10, 20, 30));
         REPORTER_ASSERT(r, SkBitmap::ComputeIsOpaque(bm));
 
         bm.eraseColor(SkColorSetARGB(128, 255, 255, 255));
         bool isOpaque = SkBitmap::ComputeIsOpaque(bm);
-        bool shouldBeOpaque = (type.fAT == kOpaque_SkAlphaType);
+        bool shouldBeOpaque = (at == kOpaque_SkAlphaType);
         REPORTER_ASSERT(r, isOpaque == shouldBeOpaque);
     }
 }
@@ -263,3 +267,103 @@ DEF_TEST(Bitmap_erase, r) {
         REPORTER_ASSERT(r, bm.getColor(0,0) != 0x00000000);
     }
 }
+
+static void check_alphas(skiatest::Reporter* reporter, const SkBitmap& bm,
+                         bool (*pred)(float expected, float actual)) {
+    SkASSERT(bm.width() == 16);
+    SkASSERT(bm.height() == 16);
+
+    int alpha = 0;
+    for (int y = 0; y < 16; ++y) {
+        for (int x = 0; x < 16; ++x) {
+            float expected = alpha / 255.0f;
+            float actual = bm.getAlphaf(x, y);
+            if (!pred(expected, actual)) {
+                ERRORF(reporter, "got %g, want %g\n", actual, expected);
+            }
+            alpha += 1;
+        }
+    }
+}
+
+static bool unit_compare(float expected, float actual, float tol = 1.0f/(1<<12)) {
+    SkASSERT(expected >= 0 && expected <= 1);
+    SkASSERT(  actual >= 0 &&   actual <= 1);
+    if (expected == 0 || expected == 1) {
+        return actual == expected;
+    } else {
+        return SkScalarNearlyEqual(expected, actual, tol);
+    }
+}
+
+static float unit_discretize(float value, float scale) {
+    SkASSERT(value >= 0 && value <= 1);
+    if (value == 1) {
+        return 1;
+    } else {
+        return sk_float_floor(value * scale + 0.5f) / scale;
+    }
+}
+
+DEF_TEST(getalphaf, reporter) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(16, 16);
+    SkBitmap bm;
+    bm.allocPixels(info);
+
+    int alpha = 0;
+    for (int y = 0; y < 16; ++y) {
+        for (int x = 0; x < 16; ++x) {
+            *bm.getAddr32(x, y) = alpha++ << 24;
+        }
+    }
+
+    auto nearly = [](float expected, float actual) -> bool {
+        return unit_compare(expected, actual);
+    };
+    auto nearly4bit = [](float expected, float actual) -> bool {
+        expected = unit_discretize(expected, 15);
+        return unit_compare(expected, actual);
+    };
+    auto nearly2bit = [](float expected, float actual) -> bool {
+        expected = unit_discretize(expected, 3);
+        return unit_compare(expected, actual);
+    };
+    auto opaque = [](float expected, float actual) -> bool {
+        return actual == 1.0f;
+    };
+
+    auto nearly_half = [](float expected, float actual) -> bool {
+        return unit_compare(expected, actual, 1.0f/(1<<10));
+    };
+
+    const struct {
+        SkColorType fColorType;
+        bool (*fPred)(float, float);
+    } recs[] = {
+        { kRGB_565_SkColorType,     opaque },
+        { kGray_8_SkColorType,      opaque },
+        { kRGB_888x_SkColorType,    opaque },
+        { kRGB_101010x_SkColorType, opaque },
+
+        { kAlpha_8_SkColorType,     nearly },
+        { kRGBA_8888_SkColorType,   nearly },
+        { kBGRA_8888_SkColorType,   nearly },
+        { kRGBA_F16_SkColorType,    nearly_half },
+        { kRGBA_F32_SkColorType,    nearly },
+
+        { kRGBA_1010102_SkColorType, nearly2bit },
+
+        { kARGB_4444_SkColorType,   nearly4bit },
+    };
+
+    for (const auto& rec : recs) {
+        SkBitmap tmp;
+        tmp.allocPixels(bm.info().makeColorType(rec.fColorType));
+        if (bm.readPixels(tmp.pixmap())) {
+            check_alphas(reporter, tmp, rec.fPred);
+        } else {
+            SkDebugf("can't readpixels\n");
+        }
+    }
+}
+

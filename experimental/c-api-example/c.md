@@ -127,5 +127,4 @@ Ubuntu.
             experimental/c-api-example/skia-c-example.c \
             "$SKIA_LIB_DIR"/libskia.* -Wl,-rpath -Wl,"$SKIA_LIB_DIR"
         ./skia-c-example
-        [ $(uname) = Darwin ] && open     skia-c-example.png
-        [ $(uname) = Linux  ] && xdg-open skia-c-example.png
+        bin/sysopen skia-c-example.png

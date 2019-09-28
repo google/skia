@@ -5,11 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkSurface.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSurface.h"
+#include "tools/ToolUtils.h"
 
 #define ZOOM    32
 #define SMALL_W 9
@@ -22,7 +26,7 @@ static sk_sp<SkSurface> new_surface(int width, int height) {
 
 static void draw_pixel_centers(SkCanvas* canvas) {
     SkPaint paint;
-    paint.setColor(sk_tool_utils::color_to_565(0xFF0088FF));
+    paint.setColor(ToolUtils::color_to_565(0xFF0088FF));
     paint.setAntiAlias(true);
 
     for (int y = 0; y < SMALL_H; ++y) {

@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "DecodeFile.h"
-#include "gm.h"
+#include "samplecode/Sample.h"
 
-#include "Resources.h"
-#include "SampleCode.h"
-#include "SkBlurMaskFilter.h"
-#include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkRandom.h"
-#include "SkStream.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkStream.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "include/utils/SkRandom.h"
+#include "samplecode/DecodeFile.h"
+#include "tools/Resources.h"
 
 // Intended to exercise pixel snapping observed with scaled images (and
 // with non-scaled images, but for a different reason):  Bug 1145
 
-class SubpixelTranslateView : public SampleView {
+class SubpixelTranslateView : public Sample {
 public:
     SubpixelTranslateView(const char imageFilename[],
                           float horizontalVelocity,
@@ -42,14 +42,7 @@ protected:
 
     SkPoint fCurPos;
 
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "SubpixelTranslate");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("SubpixelTranslate"); }
 
     void onDrawContent(SkCanvas* canvas) override {
 
@@ -61,8 +54,8 @@ protected:
         };
 
         SkPaint paint;
-        paint.setTextSize(48);
-        paint.setSubpixelText(true);
+        SkFont font(nullptr, 48);
+        font.setSubpixel(true);
 
         paint.setAntiAlias(true);
         for (size_t i = 0; i < SK_ARRAY_COUNT(gQualitys); ++i) {
@@ -71,31 +64,39 @@ protected:
             canvas->drawBitmapRect( fBM, r, &paint );
         }
 
-        canvas->drawString( "AA Scaled", fCurPos.fX + SK_ARRAY_COUNT(gQualitys) * (fSize + 10), fCurPos.fY + fSize/2, paint );
+        canvas->drawString("AA Scaled", fCurPos.fX + SK_ARRAY_COUNT(gQualitys) * (fSize + 10),
+                           fCurPos.fY + fSize/2, font, paint);
 
         paint.setAntiAlias(false);
+        font.setEdging(SkFont::Edging::kAlias);
         for (size_t i = 0; i < SK_ARRAY_COUNT(gQualitys); ++i) {
             paint.setFilterQuality(gQualitys[i]);
             SkRect r = SkRect::MakeXYWH( fCurPos.fX + i * (fSize + 10), fCurPos.fY + fSize + 10, fSize, fSize );
             canvas->drawBitmapRect( fBM, r, &paint );
         }
-        canvas->drawString( "Scaled", fCurPos.fX + SK_ARRAY_COUNT(gQualitys) * (fSize + 10), fCurPos.fY + fSize + 10 + fSize/2, paint );
+        canvas->drawString("Scaled", fCurPos.fX + SK_ARRAY_COUNT(gQualitys) * (fSize + 10),
+                           fCurPos.fY + fSize + 10 + fSize/2, font, paint);
 
         paint.setAntiAlias(true);
+        font.setEdging(SkFont::Edging::kAntiAlias);
         for (size_t i = 0; i < SK_ARRAY_COUNT(gQualitys); ++i) {
             paint.setFilterQuality(gQualitys[i]);
             canvas->drawBitmap( fBM, fCurPos.fX + i * (fBM.width() + 10), fCurPos.fY + 2*(fSize + 10), &paint );
         }
 
-        canvas->drawString( "AA No Scale", fCurPos.fX + SK_ARRAY_COUNT(gQualitys) * (fBM.width() + 10), fCurPos.fY + 2*(fSize + 10) + fSize/2, paint );
+        canvas->drawString("AA No Scale",
+                           fCurPos.fX + SK_ARRAY_COUNT(gQualitys) * (fBM.width() + 10),
+                           fCurPos.fY + 2*(fSize + 10) + fSize/2, font, paint);
 
         paint.setAntiAlias(false);
+        font.setEdging(SkFont::Edging::kAlias);
         for (size_t i = 0; i < SK_ARRAY_COUNT(gQualitys); ++i) {
             paint.setFilterQuality(gQualitys[i]);
             canvas->drawBitmap( fBM, fCurPos.fX + i * (fBM.width() + 10), fCurPos.fY + 2*(fSize + 10) + fBM.height() + 10, &paint );
         }
 
-        canvas->drawString( "No Scale", fCurPos.fX + SK_ARRAY_COUNT(gQualitys) * (fBM.width() + 10), fCurPos.fY + 2*(fSize + 10) + fBM.height() + 10 + fSize/2, paint );
+        canvas->drawString("No Scale", fCurPos.fX + SK_ARRAY_COUNT(gQualitys) * (fBM.width() + 10),
+                           fCurPos.fY + 2*(fSize + 10) + fBM.height() + 10 + fSize/2, font, paint);
 
 
         fCurPos.fX += fHorizontalVelocity;
@@ -103,10 +104,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new SubpixelTranslateView("images/mandrill_256.png", .05f, .05f); }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new SubpixelTranslateView("images/mandrill_256.png", .05f, .05f); )

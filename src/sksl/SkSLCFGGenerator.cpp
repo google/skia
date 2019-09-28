@@ -5,25 +5,26 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLCFGGenerator.h"
+#include "src/sksl/SkSLCFGGenerator.h"
 
-#include "ir/SkSLConstructor.h"
-#include "ir/SkSLBinaryExpression.h"
-#include "ir/SkSLDoStatement.h"
-#include "ir/SkSLExpressionStatement.h"
-#include "ir/SkSLFieldAccess.h"
-#include "ir/SkSLForStatement.h"
-#include "ir/SkSLFunctionCall.h"
-#include "ir/SkSLIfStatement.h"
-#include "ir/SkSLIndexExpression.h"
-#include "ir/SkSLPostfixExpression.h"
-#include "ir/SkSLPrefixExpression.h"
-#include "ir/SkSLReturnStatement.h"
-#include "ir/SkSLSwizzle.h"
-#include "ir/SkSLSwitchStatement.h"
-#include "ir/SkSLTernaryExpression.h"
-#include "ir/SkSLVarDeclarationsStatement.h"
-#include "ir/SkSLWhileStatement.h"
+#include "src/sksl/ir/SkSLBinaryExpression.h"
+#include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLDoStatement.h"
+#include "src/sksl/ir/SkSLExpressionStatement.h"
+#include "src/sksl/ir/SkSLExternalFunctionCall.h"
+#include "src/sksl/ir/SkSLFieldAccess.h"
+#include "src/sksl/ir/SkSLForStatement.h"
+#include "src/sksl/ir/SkSLFunctionCall.h"
+#include "src/sksl/ir/SkSLIfStatement.h"
+#include "src/sksl/ir/SkSLIndexExpression.h"
+#include "src/sksl/ir/SkSLPostfixExpression.h"
+#include "src/sksl/ir/SkSLPrefixExpression.h"
+#include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLSwitchStatement.h"
+#include "src/sksl/ir/SkSLSwizzle.h"
+#include "src/sksl/ir/SkSLTernaryExpression.h"
+#include "src/sksl/ir/SkSLVarDeclarationsStatement.h"
+#include "src/sksl/ir/SkSLWhileStatement.h"
 
 namespace SkSL {
 
@@ -89,7 +90,7 @@ bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterat
     }
     bool result;
     if ((*iter)->fKind == BasicBlock::Node::kExpression_Kind) {
-        ASSERT((*iter)->expression()->get() != e);
+        SkASSERT((*iter)->expression()->get() != e);
         Expression* old = (*iter)->expression()->get();
         do {
             if ((*iter) == fNodes.begin()) {
@@ -101,7 +102,7 @@ bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterat
         result = this->tryRemoveExpression(iter);
         while ((*iter)->fKind != BasicBlock::Node::kExpression_Kind ||
                (*iter)->expression()->get() != old) {
-            ASSERT(*iter != fNodes.end());
+            SkASSERT(*iter != fNodes.end());
             ++(*iter);
         }
     } else {
@@ -116,7 +117,7 @@ bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterat
         result = this->tryRemoveExpression(iter);
         while ((*iter)->fKind != BasicBlock::Node::kStatement_Kind ||
                (*iter)->statement()->get() != old) {
-            ASSERT(*iter != fNodes.end());
+            SkASSERT(*iter != fNodes.end());
             ++(*iter);
         }
     }
@@ -126,6 +127,7 @@ bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterat
 bool BasicBlock::tryRemoveLValueBefore(std::vector<BasicBlock::Node>::iterator* iter,
                                        Expression* lvalue) {
     switch (lvalue->fKind) {
+        case Expression::kExternalValue_Kind: // fall through
         case Expression::kVariableReference_Kind:
             return true;
         case Expression::kSwizzle_Kind:
@@ -166,7 +168,7 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
             if (!this->tryRemoveExpressionBefore(iter, b->fRight.get())) {
                 return false;
             }
-            ASSERT((*iter)->expression()->get() == expr);
+            SkASSERT((*iter)->expression()->get() == expr);
             *iter = fNodes.erase(*iter);
             return true;
         }
@@ -207,7 +209,7 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
                 if (!this->tryRemoveExpressionBefore(iter, arg.get())) {
                     return false;
                 }
-                ASSERT((*iter)->expression()->get() == expr);
+                SkASSERT((*iter)->expression()->get() == expr);
             }
             *iter = fNodes.erase(*iter);
             return true;
@@ -218,7 +220,7 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
                 if (!this->tryRemoveExpressionBefore(iter, arg.get())) {
                     return false;
                 }
-                ASSERT((*iter)->expression()->get() == expr);
+                SkASSERT((*iter)->expression()->get() == expr);
             }
             *iter = fNodes.erase(*iter);
             return true;
@@ -292,7 +294,7 @@ bool BasicBlock::tryInsertExpression(std::vector<BasicBlock::Node>::iterator* it
 }
 
 void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool constantPropagate) {
-    ASSERT(e);
+    SkASSERT(e);
     switch ((*e)->fKind) {
         case Expression::kBinary_Kind: {
             BinaryExpression* b = (BinaryExpression*) e->get();
@@ -348,6 +350,15 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
                                                          constantPropagate, e, nullptr });
             break;
         }
+        case Expression::kExternalFunctionCall_Kind: {
+            ExternalFunctionCall* c = (ExternalFunctionCall*) e->get();
+            for (auto& arg : c->fArguments) {
+                this->addExpression(cfg, &arg, constantPropagate);
+            }
+            cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kExpression_Kind,
+                                                         constantPropagate, e, nullptr });
+            break;
+        }
         case Expression::kFunctionCall_Kind: {
             FunctionCall* c = (FunctionCall*) e->get();
             for (auto& arg : c->fArguments) {
@@ -387,11 +398,13 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
             cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kExpression_Kind,
                                                          constantPropagate, e, nullptr });
             break;
-        case Expression::kAppendStage_Kind:  // fall through
-        case Expression::kBoolLiteral_Kind:  // fall through
-        case Expression::kFloatLiteral_Kind: // fall through
-        case Expression::kIntLiteral_Kind:   // fall through
-        case Expression::kSetting_Kind:      // fall through
+        case Expression::kAppendStage_Kind:   // fall through
+        case Expression::kBoolLiteral_Kind:   // fall through
+        case Expression::kExternalValue_Kind: // fall through
+        case Expression::kFloatLiteral_Kind:  // fall through
+        case Expression::kIntLiteral_Kind:    // fall through
+        case Expression::kNullLiteral_Kind:   // fall through
+        case Expression::kSetting_Kind:       // fall through
         case Expression::kVariableReference_Kind:
             cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kExpression_Kind,
                                                          constantPropagate, e, nullptr });
@@ -415,7 +428,7 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
         case Expression::kFunctionReference_Kind: // fall through
         case Expression::kTypeReference_Kind:     // fall through
         case Expression::kDefined_Kind:
-            ASSERT(false);
+            SkASSERT(false);
             break;
     }
 }
@@ -433,6 +446,7 @@ void CFGGenerator::addLValue(CFG& cfg, std::unique_ptr<Expression>* e) {
         case Expression::kSwizzle_Kind:
             this->addLValue(cfg, &((Swizzle&) **e).fBase);
             break;
+        case Expression::kExternalValue_Kind: // fall through
         case Expression::kVariableReference_Kind:
             break;
         case Expression::kTernary_Kind:
@@ -445,9 +459,13 @@ void CFGGenerator::addLValue(CFG& cfg, std::unique_ptr<Expression>* e) {
             break;
         default:
             // not an lvalue, can't happen
-            ASSERT(false);
+            SkASSERT(false);
             break;
     }
+}
+
+static bool is_true(Expression& expr) {
+    return expr.fKind == Expression::kBoolLiteral_Kind && ((BoolLiteral&) expr).fValue;
 }
 
 void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
@@ -535,7 +553,9 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             fLoopExits.push(loopExit);
             this->addExpression(cfg, &w.fTest, true);
             BlockId test = cfg.fCurrent;
-            cfg.addExit(test, loopExit);
+            if (!is_true(*w.fTest)) {
+                cfg.addExit(test, loopExit);
+            }
             cfg.newBlock();
             this->addStatement(cfg, &w.fStatement);
             cfg.addExit(cfg.fCurrent, loopStart);

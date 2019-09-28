@@ -8,7 +8,7 @@
 #ifndef SKSL_EXTENSION
 #define SKSL_EXTENSION
 
-#include "SkSLProgramElement.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
 
 namespace SkSL {
 
@@ -19,6 +19,10 @@ struct Extension : public ProgramElement {
     Extension(int offset, String name)
     : INHERITED(offset, kExtension_Kind)
     , fName(std::move(name)) {}
+
+    std::unique_ptr<ProgramElement> clone() const override {
+        return std::unique_ptr<ProgramElement>(new Extension(fOffset, fName));
+    }
 
     String description() const override {
         return "#extension " + fName + " : enable";

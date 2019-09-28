@@ -6,84 +6,14 @@
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[START_DIR]/tmp_upload"
-    ],
-    "infra_step": true,
-    "name": "makedirs tmp dir"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/test/dm/dm.json",
-      "[START_DIR]/tmp_upload"
-    ],
-    "infra_step": true,
-    "name": "copy dm.json"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/test/dm/verbose.log",
-      "[START_DIR]/tmp_upload"
-    ],
-    "infra_step": true,
-    "name": "copy verbose.log"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "remove",
-      "[START_DIR]/test/dm/dm.json"
-    ],
-    "infra_step": true,
-    "name": "rm old dm.json"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "remove",
-      "[START_DIR]/test/dm/verbose.log"
-    ],
-    "infra_step": true,
-    "name": "rm old verbose.log"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
       "glob",
-      "[START_DIR]/test/dm",
+      "[START_DIR]/test",
       "*.png"
     ],
     "infra_step": true,
-    "name": "find images",
-    "stdout": "/path/to/tmp/",
+    "name": "find .png images",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/test/dm/someimage.png@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/test/someimage.png@@@",
       "@@@STEP_LOG_END@glob@@@"
     ]
   },
@@ -92,12 +22,11 @@
       "gsutil",
       "-m",
       "cp",
-      "[START_DIR]/test/dm/*.png",
+      "[START_DIR]/test/*.png",
       "gs://skia-infra-gm/dm-images-v1"
     ],
-    "name": "upload images",
+    "name": "upload .png images",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },
@@ -106,10 +35,10 @@
       "gsutil",
       "-m",
       "cp",
-      "[START_DIR]/test/dm/*.png",
+      "[START_DIR]/test/*.png",
       "gs://skia-infra-gm/dm-images-v1"
     ],
-    "name": "upload images (attempt 2)"
+    "name": "upload .png images (attempt 2)"
   },
   {
     "cmd": [
@@ -119,14 +48,13 @@
       "--json-output",
       "/path/to/tmp/json",
       "glob",
-      "[START_DIR]/test/dm",
+      "[START_DIR]/test",
       "*.pdf"
     ],
     "infra_step": true,
-    "name": "find images (2)",
-    "stdout": "/path/to/tmp/",
+    "name": "find .pdf images",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/test/dm/someimage.png@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/test/someimage.png@@@",
       "@@@STEP_LOG_END@glob@@@"
     ]
   },
@@ -134,16 +62,41 @@
     "cmd": [
       "gsutil",
       "cp",
-      "-z",
-      "json,log",
-      "[START_DIR]/tmp_upload/*",
-      "gs://skia-infra-gm/dm-json-v1/2012/05/14/12/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug/1337000001"
+      "-Z",
+      "[START_DIR]/test/dm.json",
+      "gs://skia-infra-gm/dm-json-v1/2012/05/14/12/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug/1337000001/dm.json"
     ],
-    "name": "upload JSON and logs"
+    "name": "upload dm.json"
   },
   {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "listdir",
+      "[START_DIR]/test"
+    ],
+    "infra_step": true,
+    "name": "check for optional verbose.log file",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/test/dm.json@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/test/verbose.log@@@",
+      "@@@STEP_LOG_END@listdir@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "cp",
+      "-Z",
+      "[START_DIR]/test/verbose.log",
+      "gs://skia-infra-gm/dm-json-v1/2012/05/14/12/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug/1337000001/verbose.log"
+    ],
+    "name": "upload verbose.log"
+  },
+  {
+    "name": "$result"
   }
 ]

@@ -8,8 +8,9 @@
 #ifndef SkAtlasTextFont_DEFINED
 #define SkAtlasTextFont_DEFINED
 
-#include "SkRefCnt.h"
-#include "SkTypeface.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypeface.h"
 
 /** Represents a font at a size. TODO: What else do we need here (skewX, scaleX, vertical, ...)? */
 class SK_API SkAtlasTextFont : public SkRefCnt {
@@ -23,6 +24,8 @@ public:
     sk_sp<SkTypeface> refTypeface() const { return fTypeface; }
 
     SkScalar size() const { return fSize; }
+
+    SkFont makeFont() const { return SkFont(fTypeface, fSize); }
 
 private:
     SkAtlasTextFont(sk_sp<SkTypeface> typeface, SkScalar size)

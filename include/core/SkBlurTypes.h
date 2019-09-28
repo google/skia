@@ -8,9 +8,9 @@
 #ifndef SkBlurTypes_DEFINED
 #define SkBlurTypes_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-enum SkBlurStyle {
+enum SkBlurStyle : int {
     kNormal_SkBlurStyle,  //!< fuzzy inside and outside
     kSolid_SkBlurStyle,   //!< solid inside, fuzzy outside
     kOuter_SkBlurStyle,   //!< nothing inside, fuzzy outside

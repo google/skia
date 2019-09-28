@@ -8,10 +8,11 @@
 #ifndef SkAtlasTextTarget_DEFINED
 #define SkAtlasTextTarget_DEFINED
 
+#include "include/core/SkDeque.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+
 #include <memory>
-#include "SkDeque.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
 
 class SkAtlasTextContext;
 class SkAtlasTextFont;
@@ -27,7 +28,9 @@ public:
      * Creates a text drawing target. ‘handle’ is used to identify this rendering surface when
      * draws are flushed to the SkAtlasTextContext's SkAtlasTextRenderer.
      */
-    static std::unique_ptr<SkAtlasTextTarget> Make(sk_sp<SkAtlasTextContext>, int width, int height,
+    static std::unique_ptr<SkAtlasTextTarget> Make(sk_sp<SkAtlasTextContext>,
+                                                   int width,
+                                                   int height,
                                                    void* handle);
 
     /**

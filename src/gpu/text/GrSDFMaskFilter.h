@@ -8,13 +8,13 @@
 #ifndef GrSDFMaskFilter_DEFINED
 #define GrSDFMaskFilter_DEFINED
 
-#include "SkMaskFilter.h"
+#include "include/core/SkMaskFilter.h"
 
 /** \class GrSDFMaskFilter
 
     This mask filter converts an alpha mask to a signed distance field representation
 */
-class SK_API GrSDFMaskFilter : public SkMaskFilter {
+class GrSDFMaskFilter : public SkMaskFilter {
 public:
     static sk_sp<SkMaskFilter> Make();
 };

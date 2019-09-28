@@ -5,19 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "SkScanPriv.h"
-#include "SkBlitter.h"
-#include "SkEdge.h"
-#include "SkEdgeBuilder.h"
-#include "SkGeometry.h"
-#include "SkPath.h"
-#include "SkQuadClipper.h"
-#include "SkRasterClip.h"
-#include "SkRectPriv.h"
-#include "SkRegion.h"
-#include "SkSafe32.h"
-#include "SkTemplates.h"
-#include "SkTSort.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRegion.h"
+#include "include/private/SkMacros.h"
+#include "include/private/SkSafe32.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkBlitter.h"
+#include "src/core/SkEdge.h"
+#include "src/core/SkEdgeBuilder.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkQuadClipper.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkRectPriv.h"
+#include "src/core/SkScanPriv.h"
+#include "src/core/SkTSort.h"
+
+#include <utility>
 
 #define kEDGE_HEAD_Y    SK_MinS32
 #define kEDGE_TAIL_Y    SK_MaxS32
@@ -106,7 +109,6 @@ static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
     for (;;) {
         int     w = 0;
         int     left SK_INIT_TO_AVOID_WARNING;
-        bool    in_interval = false;
         SkEdge* currE = prevHead->fNext;
         SkFixed prevX = prevHead->fX;
 
@@ -120,32 +122,34 @@ static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
             SkASSERT(currE->fLastY >= curr_y);
 
             int x = SkFixedRoundToInt(currE->fX);
+
+            if ((w & windingMask) == 0) { // we're starting interval
+                left = x;
+            }
+
             w += currE->fWinding;
+
             if ((w & windingMask) == 0) { // we finished an interval
-                SkASSERT(in_interval);
                 int width = x - left;
                 SkASSERT(width >= 0);
-                if (width)
+                if (width > 0) {
                     blitter->blitH(left, curr_y, width);
-                in_interval = false;
-            } else if (!in_interval) {
-                left = x;
-                in_interval = true;
+                }
             }
 
             SkEdge* next = currE->fNext;
             SkFixed newX;
 
             if (currE->fLastY == curr_y) {    // are we done with this edge?
-                if (currE->fCurveCount < 0) {
-                    if (((SkCubicEdge*)currE)->updateCubic()) {
-                        SkASSERT(currE->fFirstY == curr_y + 1);
-
+                if (currE->fCurveCount > 0) {
+                    if (((SkQuadraticEdge*)currE)->updateQuadratic()) {
                         newX = currE->fX;
                         goto NEXT_X;
                     }
-                } else if (currE->fCurveCount > 0) {
-                    if (((SkQuadraticEdge*)currE)->updateQuadratic()) {
+                } else if (currE->fCurveCount < 0) {
+                    if (((SkCubicEdge*)currE)->updateCubic()) {
+                        SkASSERT(currE->fFirstY == curr_y + 1);
+
                         newX = currE->fX;
                         goto NEXT_X;
                     }
@@ -166,8 +170,7 @@ static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
             SkASSERT(currE);
         }
 
-        // was our right-edge culled away?
-        if (in_interval) {
+        if ((w & windingMask) != 0) { // was our right-edge culled away?
             int width = rightClip - left;
             if (width > 0) {
                 blitter->blitH(left, curr_y, width);
@@ -207,47 +210,49 @@ static bool update_edge(SkEdge* edge, int last_y) {
     return true;
 }
 
-static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
-                              SkBlitter* blitter, int start_y, int stop_y,
-                              PrePostProc proc) {
+// Unexpected conditions for which we need to return
+#define ASSERT_RETURN(cond)     \
+    do {                        \
+        if (!(cond)) {          \
+            SkASSERT(false);    \
+            return;             \
+        }                       \
+    } while (0)
+
+// Needs Y to only change once (looser than convex in X)
+static void walk_simple_edges(SkEdge* prevHead, SkBlitter* blitter, int start_y, int stop_y) {
     validate_sort(prevHead->fNext);
 
     SkEdge* leftE = prevHead->fNext;
     SkEdge* riteE = leftE->fNext;
     SkEdge* currE = riteE->fNext;
 
-#if 0
-    int local_top = leftE->fFirstY;
-    SkASSERT(local_top == riteE->fFirstY);
-#else
     // our edge choppers for curves can result in the initial edges
     // not lining up, so we take the max.
     int local_top = SkMax32(leftE->fFirstY, riteE->fFirstY);
-#endif
-    SkASSERT(local_top >= start_y);
+    ASSERT_RETURN(local_top >= start_y);
 
-    for (;;) {
+    while (local_top < stop_y) {
         SkASSERT(leftE->fFirstY <= stop_y);
         SkASSERT(riteE->fFirstY <= stop_y);
 
-        if (leftE->fX > riteE->fX || (leftE->fX == riteE->fX &&
-                                      leftE->fDX > riteE->fDX)) {
-            SkTSwap(leftE, riteE);
-        }
-
         int local_bot = SkMin32(leftE->fLastY, riteE->fLastY);
         local_bot = SkMin32(local_bot, stop_y - 1);
-        SkASSERT(local_top <= local_bot);
+        ASSERT_RETURN(local_top <= local_bot);
 
         SkFixed left = leftE->fX;
         SkFixed dLeft = leftE->fDX;
         SkFixed rite = riteE->fX;
         SkFixed dRite = riteE->fDX;
         int count = local_bot - local_top;
-        SkASSERT(count >= 0);
+        ASSERT_RETURN(count >= 0);
+
         if (0 == (dLeft | dRite)) {
             int L = SkFixedRoundToInt(left);
             int R = SkFixedRoundToInt(rite);
+            if (L > R) {
+                std::swap(L, R);
+            }
             if (L < R) {
                 count += 1;
                 blitter->blitRect(L, local_top, R - L, count);
@@ -257,6 +262,9 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
             do {
                 int L = SkFixedRoundToInt(left);
                 int R = SkFixedRoundToInt(rite);
+                if (L > R) {
+                    std::swap(L, R);
+                }
                 if (L < R) {
                     blitter->blitH(L, local_top, R - L);
                 }
@@ -275,26 +283,19 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
 
         if (!update_edge(leftE, local_bot)) {
             if (currE->fFirstY >= stop_y) {
-                break;
+                return; // we're done
             }
             leftE = currE;
             currE = currE->fNext;
+            ASSERT_RETURN(leftE->fFirstY == local_top);
         }
         if (!update_edge(riteE, local_bot)) {
             if (currE->fFirstY >= stop_y) {
-                break;
+                return; // we're done
             }
             riteE = currE;
             currE = currE->fNext;
-        }
-
-        SkASSERT(leftE);
-        SkASSERT(riteE);
-
-        // check our bottom clip
-        SkASSERT(local_top == local_bot + 1);
-        if (local_top >= stop_y) {
-            break;
+            ASSERT_RETURN(riteE->fFirstY == local_top);
         }
     }
 }
@@ -402,8 +403,8 @@ void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitte
     shiftedClip.fTop = SkLeftShift(shiftedClip.fTop, shiftEdgesUp);
     shiftedClip.fBottom = SkLeftShift(shiftedClip.fBottom, shiftEdgesUp);
 
-    SkEdgeBuilder builder;
-    int count = builder.build_edges(path, &shiftedClip, shiftEdgesUp, pathContainedInClip);
+    SkBasicEdgeBuilder builder(shiftEdgesUp);
+    int count = builder.buildEdges(path, pathContainedInClip ? nullptr : &shiftedClip);
     SkEdge** list = builder.edgeList();
 
     if (0 == count) {
@@ -468,7 +469,7 @@ void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitte
 
     // count >= 2 is required as the convex walker does not handle missing right edges
     if (path.isConvex() && (nullptr == proc) && count >= 2) {
-        walk_convex_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, nullptr);
+        walk_simple_edges(&headEdge, blitter, start_y, stop_y);
     } else {
         walk_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, proc,
                 shiftedClip.right());
@@ -555,7 +556,7 @@ static bool clip_to_limit(const SkRegion& orig, SkRegion* reduced) {
     const int32_t limit = 32767 >> 1;
 
     SkIRect limitR;
-    limitR.set(-limit, -limit, limit, limit);
+    limitR.setLTRB(-limit, -limit, limit, limit);
     if (limitR.contains(orig.getBounds())) {
         return false;
     }
@@ -734,39 +735,7 @@ static void sk_fill_triangle(const SkPoint pts[], const SkIRect* clipRect,
     if (clipRect && start_y < clipRect->fTop) {
         start_y = clipRect->fTop;
     }
-    walk_convex_edges(&headEdge, SkPath::kEvenOdd_FillType, blitter, start_y, stop_y, nullptr);
-//    walk_edges(&headEdge, SkPath::kEvenOdd_FillType, blitter, start_y, stop_y, nullptr);
-}
-
-/**
- *  We need to match the rounding behavior of the line edge, which does this:
- *  1. scale by 64 (to get into FDot6)
- *  2. cast to an int
- *  3. round that to an int (undoing the FDot6)
- *  This should (in theory) be the same as sk_float_round2int, except for float values very very
- *  close to 0.5 (like 0.49999997f). For those values, x + 0.5 gives 1.0 instead of 0.9999999,
- *  and therefore they round2int differently as floats than as FDot6 values in the edge code.
- *
- *  A fix is to go into double temporarily, so that 0.49999997f + 0.5 stays < 1.0.
- *
- *  This sample triangle triggers the problem (if we just use SkRect::round() instead of
- *  this double_round version.
- *
- *  {  0.499069244f, 9.63295173f },
- *  {  0.499402374f, 7.88207579f },
- *  { 10.2363272f,   0.49999997f },
- *
- *  Note: this version is basically just more correct than SkRect::round(). If we thought we could
- *  afford the perf hit (assuming going to doubles cost more), then we might replace round()'s
- *  impl with this.
- */
-static SkIRect double_round(const SkRect& r) {
-    return {
-        sk_double_round2int(r.fLeft),
-        sk_double_round2int(r.fTop),
-        sk_double_round2int(r.fRight),
-        sk_double_round2int(r.fBottom),
-    };
+    walk_simple_edges(&headEdge, blitter, start_y, stop_y);
 }
 
 void SkScan::FillTriangle(const SkPoint pts[], const SkRasterClip& clip,
@@ -776,7 +745,7 @@ void SkScan::FillTriangle(const SkPoint pts[], const SkRasterClip& clip,
     }
 
     SkRect  r;
-    r.set(pts, 3);
+    r.setBounds(pts, 3);
     // If r is too large (larger than can easily fit in SkFixed) then we need perform geometric
     // clipping. This is a bit of work, so we just call the general FillPath() to handle it.
     // Use FixedMax/2 as the limit so we can subtract two edges and still store that in Fixed.
@@ -788,7 +757,7 @@ void SkScan::FillTriangle(const SkPoint pts[], const SkRasterClip& clip,
         return;
     }
 
-    SkIRect ir = double_round(r);
+    SkIRect ir = conservative_round_to_int(r);
     if (ir.isEmpty() || !SkIRect::Intersects(ir, clip.getBounds())) {
         return;
     }

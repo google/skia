@@ -8,12 +8,12 @@
 #ifndef GrAAConvexTessellator_DEFINED
 #define GrAAConvexTessellator_DEFINED
 
-#include "SkColor.h"
-#include "SkPaint.h"
-#include "SkPointPriv.h"
-#include "SkScalar.h"
-#include "SkStrokeRec.h"
-#include "SkTDArray.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkPointPriv.h"
 
 class SkCanvas;
 class SkMatrix;
@@ -215,21 +215,22 @@ private:
 
     void lineTo(const SkPoint& p, CurveState curve);
 
-    void lineTo(const SkMatrix& m, SkPoint p, CurveState curve);
+    void lineTo(const SkMatrix& m, const SkPoint& p, CurveState curve);
 
     void quadTo(const SkPoint pts[3]);
 
-    void quadTo(const SkMatrix& m, SkPoint pts[3]);
+    void quadTo(const SkMatrix& m, const SkPoint pts[3]);
 
-    void cubicTo(const SkMatrix& m, SkPoint pts[4]);
+    void cubicTo(const SkMatrix& m, const SkPoint pts[4]);
 
-    void conicTo(const SkMatrix& m, SkPoint pts[3], SkScalar w);
+    void conicTo(const SkMatrix& m, const SkPoint pts[3], SkScalar w);
 
     void terminate(const Ring& lastRing);
 
     // return false on failure/degenerate path
     bool extractFromPath(const SkMatrix& m, const SkPath& path);
     void computeBisectors();
+    void computeNormals();
 
     void fanRing(const Ring& ring);
 

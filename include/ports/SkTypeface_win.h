@@ -8,10 +8,18 @@
 #ifndef SkTypeface_win_DEFINED
 #define SkTypeface_win_DEFINED
 
-#include "../private/SkLeanWindows.h"
-#include "SkTypeface.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
 
 #ifdef SK_BUILD_FOR_WIN
+
+#ifdef UNICODE
+typedef struct tagLOGFONTW LOGFONTW;
+typedef LOGFONTW LOGFONT;
+#else
+typedef struct tagLOGFONTA LOGFONTA;
+typedef LOGFONTA LOGFONT;
+#endif  // UNICODE
 
 /**
  *  Like the other Typeface create methods, this returns a new reference to the

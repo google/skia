@@ -8,20 +8,23 @@
 #ifndef SkPoint_DEFINED
 #define SkPoint_DEFINED
 
-#include "SkMath.h"
-#include "SkScalar.h"
-#include "../private/SkSafe32.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkScalar.h"
+#include "include/private/SkSafe32.h"
 
 struct SkIPoint;
+
+/** SkIVector provides an alternative name for SkIPoint. SkIVector and SkIPoint
+    can be used interchangeably for all purposes.
+*/
 typedef SkIPoint SkIVector;
 
 /** \struct SkIPoint
-    SkIPoint holds two 32 bit integer coordinates.
+    SkIPoint holds two 32-bit integer coordinates.
 */
 struct SkIPoint {
-    int32_t fX; //!< x-axis value used by SkIPoint.
-
-    int32_t fY; //!< y-axis value used by SkIPoint.
+    int32_t fX; //!< x-axis value
+    int32_t fY; //!< y-axis value
 
     /** Sets fX to x, fY to y.
 
@@ -129,7 +132,8 @@ struct SkIPoint {
         return { Sk32_sat_sub(a.fX, b.fX), Sk32_sat_sub(a.fY, b.fY) };
     }
 
-    /** Returns SkIPoint resulting from SkIPoint a offset by ivector b, computed as: (a.fX + b.fX, a.fY + b.fY).
+    /** Returns SkIPoint resulting from SkIPoint a offset by ivector b, computed as:
+        (a.fX + b.fX, a.fY + b.fY).
 
         Can also be used to offset SkIPoint b by ivector a, returning SkIPoint.
         Can also be used to add ivector to ivector, returning ivector.
@@ -144,22 +148,18 @@ struct SkIPoint {
 };
 
 struct SkPoint;
+
+/** SkVector provides an alternative name for SkPoint. SkVector and SkPoint can
+    be used interchangeably for all purposes.
+*/
 typedef SkPoint SkVector;
 
 /** \struct SkPoint
-    SkPoint holds two 32 bit floating point coordinates.
+    SkPoint holds two 32-bit floating point coordinates.
 */
 struct SK_API SkPoint {
-
-    /** x-axis value used by both SkPoint and vector. May contain any value, including
-        infinities and NaN.
-    */
-    SkScalar fX;
-
-    /** y-axis value used by both SkPoint and vector. May contain any value, including
-        infinities and NaN.
-    */
-    SkScalar fY;
+    SkScalar fX; //!< x-axis value
+    SkScalar fY; //!< y-axis value
 
     /** Sets fX to x, fY to y. Used both to set SkPoint and vector.
 
@@ -268,7 +268,7 @@ struct SK_API SkPoint {
         fY += dy;
     }
 
-    /** Returns the Euclidean_Distance from origin, computed as:
+    /** Returns the Euclidean distance from origin, computed as:
 
             sqrt(fX * fX + fY * fY)
 
@@ -278,7 +278,7 @@ struct SK_API SkPoint {
     */
     SkScalar length() const { return SkPoint::Length(fX, fY); }
 
-    /** Returns the Euclidean_Distance from origin, computed as:
+    /** Returns the Euclidean distance from origin, computed as:
 
             sqrt(fX * fX + fY * fY)
 
@@ -381,7 +381,7 @@ struct SK_API SkPoint {
         return {fX * scale, fY * scale};
     }
 
-    /** Multiplies SkPoint by scale. Sets SkPoint to: (fX * scale, fY * scale)
+    /** Multiplies SkPoint by scale. Sets SkPoint to: (fX * scale, fY * scale).
 
         @param scale  scalar to multiply by
         @return       reference to SkPoint
@@ -452,7 +452,8 @@ struct SK_API SkPoint {
         return {a.fX - b.fX, a.fY - b.fY};
     }
 
-    /** Returns SkPoint resulting from SkPoint a offset by vector b, computed as: (a.fX + b.fX, a.fY + b.fY).
+    /** Returns SkPoint resulting from SkPoint a offset by vector b, computed as:
+        (a.fX + b.fX, a.fY + b.fY).
 
         Can also be used to offset SkPoint b by vector a, returning SkPoint.
         Can also be used to add vector to vector, returning vector.
@@ -465,7 +466,7 @@ struct SK_API SkPoint {
         return {a.fX + b.fX, a.fY + b.fY};
     }
 
-    /** Returns the Euclidean_Distance from origin, computed as:
+    /** Returns the Euclidean distance from origin, computed as:
 
             sqrt(x * x + y * y)
 
@@ -477,9 +478,9 @@ struct SK_API SkPoint {
     */
     static SkScalar Length(SkScalar x, SkScalar y);
 
-    /** Scales (vec->fX, vec->fY) so that length() returns one, while preserving ratio of vec->fX to vec->fY,
-        if possible. If original length is nearly zero, sets vec to (0, 0) and returns zero;
-        otherwise, returns length of vec before vec is scaled.
+    /** Scales (vec->fX, vec->fY) so that length() returns one, while preserving ratio of vec->fX
+        to vec->fY, if possible. If original length is nearly zero, sets vec to (0, 0) and returns
+        zero; otherwise, returns length of vec before vec is scaled.
 
         Returned prior length may be SK_ScalarInfinity if it can not be represented by SkScalar.
 
@@ -490,7 +491,7 @@ struct SK_API SkPoint {
     */
     static SkScalar Normalize(SkVector* vec);
 
-    /** Returns the Euclidean_Distance between a and b.
+    /** Returns the Euclidean distance between a and b.
 
         @param a  line end point
         @param b  line end point

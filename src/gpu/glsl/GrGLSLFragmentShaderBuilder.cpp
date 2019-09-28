@@ -5,15 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLSLFragmentShaderBuilder.h"
-#include "GrRenderTarget.h"
-#include "GrRenderTargetPriv.h"
-#include "GrShaderCaps.h"
-#include "gl/GrGLGpu.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "glsl/GrGLSLUniformHandler.h"
-#include "glsl/GrGLSLVarying.h"
-#include "../private/GrGLSL.h"
+#include "src/gpu/GrRenderTarget.h"
+#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
+#include "src/gpu/glsl/GrGLSLVarying.h"
 
 const char* GrGLSLFragmentShaderBuilder::kDstColorName = "_dstColor";
 
@@ -54,8 +53,9 @@ static const char* specific_layout_qualifier_name(GrBlendEquation equation) {
     GR_STATIC_ASSERT(12 == kHSLSaturation_GrBlendEquation - kFirstAdvancedGrBlendEquation);
     GR_STATIC_ASSERT(13 == kHSLColor_GrBlendEquation - kFirstAdvancedGrBlendEquation);
     GR_STATIC_ASSERT(14 == kHSLLuminosity_GrBlendEquation - kFirstAdvancedGrBlendEquation);
+    // There's an illegal GrBlendEquation at the end there, hence the -1.
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kLayoutQualifierNames) ==
-                     kGrBlendEquationCnt - kFirstAdvancedGrBlendEquation);
+                     kGrBlendEquationCnt - kFirstAdvancedGrBlendEquation - 1);
 }
 
 uint8_t GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(GrSurfaceOrigin origin) {
@@ -67,16 +67,8 @@ uint8_t GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(GrSurfaceOrigin origin)
 }
 
 GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* program)
-    : GrGLSLFragmentBuilder(program)
-    , fSetupFragPosition(false)
-    , fHasCustomColorOutput(false)
-    , fCustomColorOutputIndex(-1)
-    , fHasSecondaryOutput(false)
-    , fForceHighPrecision(false) {
+        : GrGLSLFragmentBuilder(program) {
     fSubstageIndices.push_back(0);
-#ifdef SK_DEBUG
-    fHasReadDstColor = false;
-#endif
 }
 
 SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) {
@@ -92,13 +84,112 @@ SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) 
     return coords2D;
 }
 
-const char* GrGLSLFragmentShaderBuilder::dstColor() {
-    SkDEBUGCODE(fHasReadDstColor = true;)
+const char* GrGLSLFragmentShaderBuilder::sampleOffsets() {
+    SkASSERT(CustomFeatures::kSampleLocations & fProgramBuilder->header().processorFeatures());
+    SkDEBUGCODE(fUsedProcessorFeaturesThisStage_DebugOnly |= CustomFeatures::kSampleLocations);
+    SkDEBUGCODE(fUsedProcessorFeaturesAllStages_DebugOnly |= CustomFeatures::kSampleLocations);
+    return "_sampleOffsets";
+}
 
-    const char* override = fProgramBuilder->primitiveProcessor().getDestColorOverride();
-    if (override != nullptr) {
-        return override;
+void GrGLSLFragmentShaderBuilder::maskOffMultisampleCoverage(
+        const char* mask, ScopeFlags scopeFlags) {
+    const GrShaderCaps& shaderCaps = *fProgramBuilder->shaderCaps();
+    if (!shaderCaps.sampleVariablesSupport() && !shaderCaps.sampleVariablesStencilSupport()) {
+        SkDEBUGFAIL("Attempted to mask sample coverage without support.");
+        return;
     }
+    if (const char* extension = shaderCaps.sampleVariablesExtensionString()) {
+        this->addFeature(1 << kSampleVariables_GLSLPrivateFeature, extension);
+    }
+
+    if (!fHasModifiedSampleMask) {
+        fHasModifiedSampleMask = true;
+        if (ScopeFlags::kTopLevel != scopeFlags) {
+            this->codePrependf("gl_SampleMask[0] = ~0;");
+        }
+        if (!(ScopeFlags::kInsideLoop & scopeFlags)) {
+            this->codeAppendf("gl_SampleMask[0] = (%s);", mask);
+            return;
+        }
+    }
+
+    this->codeAppendf("gl_SampleMask[0] &= (%s);", mask);
+}
+
+void GrGLSLFragmentShaderBuilder::applyFnToMultisampleMask(
+        const char* fn, const char* grad, ScopeFlags scopeFlags) {
+    SkASSERT(CustomFeatures::kSampleLocations & fProgramBuilder->header().processorFeatures());
+    SkDEBUGCODE(fUsedProcessorFeaturesThisStage_DebugOnly |= CustomFeatures::kSampleLocations);
+    SkDEBUGCODE(fUsedProcessorFeaturesAllStages_DebugOnly |= CustomFeatures::kSampleLocations);
+
+    int sampleCnt = fProgramBuilder->effectiveSampleCnt();
+    SkASSERT(sampleCnt > 1);
+
+    this->codeAppendf("{");
+
+    if (!grad) {
+        SkASSERT(fProgramBuilder->shaderCaps()->shaderDerivativeSupport());
+        // In order to use HW derivatives, our neighbors within the same primitive must also be
+        // executing the same code. A per-pixel branch makes this pre-condition impossible to
+        // fulfill.
+        SkASSERT(!(ScopeFlags::kInsidePerPixelBranch & scopeFlags));
+        this->codeAppendf("float2 grad = float2(dFdx(%s), dFdy(%s));", fn, fn);
+        this->codeAppendf("float fnwidth = fwidth(%s);", fn);
+        grad = "grad";
+    } else {
+        this->codeAppendf("float fnwidth = abs(%s.x) + abs(%s.y);", grad, grad);
+    }
+
+    this->codeAppendf("int mask = 0;");
+    this->codeAppendf("if (%s*2 < fnwidth) {", fn);  // Are ANY samples inside the implicit fn?
+    this->codeAppendf(    "if (%s*-2 >= fnwidth) {", fn);  // Are ALL samples inside the implicit?
+    this->codeAppendf(        "mask = ~0;");
+    this->codeAppendf(    "} else for (int i = 0; i < %i; ++i) {", sampleCnt);
+    this->codeAppendf(        "float fnsample = dot(%s, _sampleOffsets[i]) + %s;", grad, fn);
+    this->codeAppendf(        "if (fnsample < 0) {");
+    this->codeAppendf(            "mask |= (1 << i);");
+    this->codeAppendf(        "}");
+    this->codeAppendf(    "}");
+    this->codeAppendf("}");
+    this->maskOffMultisampleCoverage("mask", scopeFlags);
+
+    this->codeAppendf("}");
+}
+
+SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor* fp,
+                                                         GrGLSLFragmentProcessor::EmitArgs& args) {
+    this->onBeforeChildProcEmitCode();
+    this->nextStage();
+    if (!args.fFp.computeLocalCoordsInVertexShader() && args.fTransformedCoords.count() > 0) {
+        // we currently only support overriding a single coordinate pair
+        SkASSERT(args.fTransformedCoords.count() == 1);
+        const GrGLSLProgramDataManager::UniformHandle& mat =
+                                                          args.fTransformedCoords[0].fUniformMatrix;
+        if (mat.isValid()) {
+            args.fUniformHandler->updateUniformVisibility(mat, kFragment_GrShaderFlag);
+            this->codeAppendf("_coords = (float3(_coords, 1) * %s).xy;\n",
+                              args.fTransformedCoords[0].fMatrixCode.c_str());
+        }
+    }
+    this->codeAppendf("half4 %s;\n", args.fOutputColor);
+    fp->emitCode(args);
+    this->codeAppendf("return %s;\n", args.fOutputColor);
+    GrShaderVar params[] = { GrShaderVar(args.fInputColor, kHalf4_GrSLType),
+                             GrShaderVar("_coords", kFloat2_GrSLType) };
+    SkString result;
+    this->emitFunction(kHalf4_GrSLType,
+                       "stage",
+                       args.fFp.computeLocalCoordsInVertexShader() ? 1 : 2,
+                       params,
+                       this->code().c_str(),
+                       &result);
+    this->deleteStage();
+    this->onAfterChildProcEmitCode();
+    return result;
+}
+
+const char* GrGLSLFragmentShaderBuilder::dstColor() {
+    SkDEBUGCODE(fHasReadDstColorThisStage_DebugOnly = true;)
 
     const GrShaderCaps* shaderCaps = fProgramBuilder->shaderCaps();
     if (shaderCaps->fbFetchSupport()) {
@@ -183,13 +274,16 @@ void GrGLSLFragmentBuilder::declAppendf(const char* fmt, ...) {
 }
 
 const char* GrGLSLFragmentShaderBuilder::getSecondaryColorOutputName() const {
-    const GrShaderCaps& caps = *fProgramBuilder->shaderCaps();
-    return caps.mustDeclareFragmentShaderOutput() ? DeclaredSecondaryColorOutputName()
-                                                  : "gl_SecondaryFragColorEXT";
+    if (this->hasSecondaryOutput()) {
+        return (fProgramBuilder->shaderCaps()->mustDeclareFragmentShaderOutput())
+                ? DeclaredSecondaryColorOutputName()
+                : "gl_SecondaryFragColorEXT";
+    }
+    return nullptr;
 }
 
 GrSurfaceOrigin GrGLSLFragmentShaderBuilder::getSurfaceOrigin() const {
-    SkASSERT(fProgramBuilder->header().fSurfaceOriginKey);
+    SkASSERT(fProgramBuilder->header().hasSurfaceOriginKey());
     return static_cast<GrSurfaceOrigin>(fProgramBuilder->header().fSurfaceOriginKey-1);
 
     GR_STATIC_ASSERT(0 == kTopLeft_GrSurfaceOrigin);
@@ -197,6 +291,23 @@ GrSurfaceOrigin GrGLSLFragmentShaderBuilder::getSurfaceOrigin() const {
 }
 
 void GrGLSLFragmentShaderBuilder::onFinalize() {
+    SkASSERT(fProgramBuilder->header().processorFeatures()
+                     == fUsedProcessorFeaturesAllStages_DebugOnly);
+
+    if (CustomFeatures::kSampleLocations & fProgramBuilder->header().processorFeatures()) {
+        const SkTArray<SkPoint>& sampleLocations =
+                fProgramBuilder->renderTarget()->renderTargetPriv().getSampleLocations();
+        this->definitions().append("const float2 _sampleOffsets[] = float2[](");
+        for (int i = 0; i < sampleLocations.count(); ++i) {
+            SkPoint offset = sampleLocations[i] - SkPoint::Make(.5f, .5f);
+            if (kBottomLeft_GrSurfaceOrigin == this->getSurfaceOrigin()) {
+                offset.fY = -offset.fY;
+            }
+            this->definitions().appendf("float2(%f, %f)", offset.x(), offset.y());
+            this->definitions().append((i + 1 != sampleLocations.count()) ? ", " : ");");
+        }
+    }
+
     fProgramBuilder->varyingHandler()->getFragDecls(&this->inputs(), &this->outputs());
 }
 

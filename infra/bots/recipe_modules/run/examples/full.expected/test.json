@@ -5,11 +5,10 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "fail",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },
@@ -19,11 +18,10 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "fail again",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },
@@ -34,7 +32,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "do a thing"
   },
@@ -45,7 +43,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "run 0"
   },
@@ -53,7 +51,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
@@ -67,7 +65,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
@@ -75,13 +73,17 @@
       "myfile.txt"
     ],
     "infra_step": true,
-    "name": "write myfile.txt"
+    "name": "write myfile.txt",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@myfile.txt@contents@@@",
+      "@@@STEP_LOG_END@myfile.txt@@@"
+    ]
   },
   {
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
@@ -94,11 +96,11 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/cache/work/skia/infra/bots/assets/my_asset/VERSION",
+      "[START_DIR]\\cache\\work\\skia\\infra\\bots\\assets\\my_asset\\VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -110,7 +112,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "mydir:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "mydir:<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "env"
   },
@@ -120,11 +122,10 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "retry fail",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },
@@ -135,7 +136,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "between_attempts #1"
   },
@@ -145,11 +146,10 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "retry fail (attempt 2)",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },
@@ -160,7 +160,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "between_attempts #2"
   },
@@ -170,11 +170,10 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "retry fail (attempt 3)",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },
@@ -185,7 +184,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "between_attempts #3"
   },
@@ -195,11 +194,10 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "retry fail (attempt 4)",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },
@@ -210,7 +208,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "between_attempts #4"
   },
@@ -220,11 +218,10 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "retry fail (attempt 5)",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },
@@ -234,11 +231,10 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "retry success",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },
@@ -249,7 +245,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "between_attempts #1 (2)"
   },
@@ -259,11 +255,10 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "retry success (attempt 2)",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },
@@ -274,7 +269,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "between_attempts #2 (2)"
   },
@@ -284,14 +279,15 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "retry success (attempt 3)"
   },
   {
-    "name": "$result",
-    "reason": "Failed build steps: fail, fail again, retry fail, retry fail (attempt 2), retry fail (attempt 3), retry fail (attempt 4), retry fail (attempt 5)",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "failure": {},
+      "humanReason": "Failed build steps: fail, fail again, retry fail, retry fail (attempt 2), retry fail (attempt 3), retry fail (attempt 4), retry fail (attempt 5)"
+    },
+    "name": "$result"
   }
 ]

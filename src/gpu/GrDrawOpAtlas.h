@@ -8,23 +8,19 @@
 #ifndef GrDrawOpAtlas_DEFINED
 #define GrDrawOpAtlas_DEFINED
 
-#include "SkIPoint16.h"
-#include "SkTDArray.h"
-#include "SkTInternalLList.h"
+#include <cmath>
 
-#include "ops/GrDrawOp.h"
+#include "include/core/SkSize.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkGlyphRunPainter.h"
+#include "src/core/SkIPoint16.h"
+#include "src/core/SkTInternalLList.h"
+
+#include "src/gpu/ops/GrDrawOp.h"
 
 class GrOnFlushResourceProvider;
 class GrRectanizer;
 
-struct GrDrawOpAtlasConfig {
-    int numPlotsX() const { return fWidth / fPlotWidth; }
-    int numPlotsY() const { return fHeight / fPlotWidth; }
-    int fWidth;
-    int fHeight;
-    int fPlotWidth;
-    int fPlotHeight;
-};
 
 /**
  * This class manages one or more atlas textures on behalf of GrDrawOps. The draw ops that use the
@@ -55,9 +51,13 @@ class GrDrawOpAtlas {
 private:
     static constexpr auto kMaxMultitexturePages = 4;
 
+
 public:
     /** Is the atlas allowed to use more than one texture? */
     enum class AllowMultitexturing : bool { kNo, kYes };
+
+    static constexpr int kMaxPlots = 32; // restricted by the fPlotAlreadyUpdated bitfield
+                                         // in BulkUseTokenUpdater
 
     /**
      * An AtlasID is an opaque handle which callers can use to determine if the atlas contains
@@ -77,7 +77,7 @@ public:
     /**
      * Returns a GrDrawOpAtlas. This function can be called anywhere, but the returned atlas
      * should only be used inside of GrMeshDrawOp::onPrepareDraws.
-     *  @param GrPixelConfig    The pixel config which this atlas will store
+     *  @param GrColorType      The colorType which this atlas will store
      *  @param width            width in pixels of the atlas
      *  @param height           height in pixels of the atlas
      *  @param numPlotsX        The number of plots the atlas should be broken up into in the X
@@ -91,9 +91,11 @@ public:
      *                          eviction occurs
      *  @return                 An initialized GrDrawOpAtlas, or nullptr if creation fails
      */
-    static std::unique_ptr<GrDrawOpAtlas> Make(GrProxyProvider*, GrPixelConfig,
+    static std::unique_ptr<GrDrawOpAtlas> Make(GrProxyProvider*,
+                                               const GrBackendFormat& format,
+                                               GrColorType,
                                                int width, int height,
-                                               int numPlotsX, int numPlotsY,
+                                               int plotWidth, int plotHeight,
                                                AllowMultitexturing allowMultitexturing,
                                                GrDrawOpAtlas::EvictionFunc func, void* data);
 
@@ -173,12 +175,14 @@ public:
             memcpy(fPlotAlreadyUpdated, that.fPlotAlreadyUpdated, sizeof(fPlotAlreadyUpdated));
         }
 
-        void add(AtlasID id) {
+        bool add(AtlasID id) {
             int index = GrDrawOpAtlas::GetPlotIndexFromID(id);
             int pageIdx = GrDrawOpAtlas::GetPageIndexFromID(id);
-            if (!this->find(pageIdx, index)) {
-                this->set(pageIdx, index);
+            if (this->find(pageIdx, index)) {
+                return false;
             }
+            this->set(pageIdx, index);
+            return true;
         }
 
         void reset() {
@@ -205,9 +209,9 @@ public:
         }
 
         static constexpr int kMinItems = 4;
-        static constexpr int kMaxPlots = 32;
         SkSTArray<kMinItems, PlotData, true> fPlotsToUpdate;
-        uint32_t fPlotAlreadyUpdated[kMaxMultitexturePages];
+        uint32_t fPlotAlreadyUpdated[kMaxMultitexturePages]; // TODO: increase this to uint64_t
+                                                             //       to allow more plots per page
 
         friend class GrDrawOpAtlas;
     };
@@ -228,11 +232,6 @@ public:
 
     void compact(GrDeferredUploadToken startTokenForNextFlush);
 
-    static constexpr auto kGlyphMaxDim = 256;
-    static bool GlyphTooLargeForAtlas(int width, int height) {
-        return width > kGlyphMaxDim || height > kGlyphMaxDim;
-    }
-
     static uint32_t GetPageIndexFromID(AtlasID id) {
         return id & 0xff;
     }
@@ -247,8 +246,9 @@ public:
     void setMaxPages_TestingOnly(uint32_t maxPages);
 
 private:
-    GrDrawOpAtlas(GrProxyProvider*, GrPixelConfig, int width, int height, int numPlotsX,
-                  int numPlotsY, AllowMultitexturing allowMultitexturing);
+    GrDrawOpAtlas(GrProxyProvider*, const GrBackendFormat& format, GrColorType, int width,
+                  int height, int plotWidth, int plotHeight,
+                  AllowMultitexturing allowMultitexturing);
 
     /**
      * The backing GrTexture for a GrDrawOpAtlas is broken into a spatial grid of Plots. The Plots
@@ -296,8 +296,8 @@ private:
         void incFlushesSinceLastUsed() { fFlushesSinceLastUse++; }
 
     private:
-        Plot(int pageIndex, int plotIndex, uint64_t genID, int offX, int offY, int width, int height,
-             GrPixelConfig config);
+        Plot(int pageIndex, int plotIndex, uint64_t genID, int offX, int offY,
+             int width, int height, GrColorType colorType);
 
         ~Plot() override;
 
@@ -306,7 +306,8 @@ private:
          * the atlas
          */
         Plot* clone() const {
-            return new Plot(fPageIndex, fPlotIndex, fGenID + 1, fX, fY, fWidth, fHeight, fConfig);
+            return new Plot(fPageIndex, fPlotIndex, fGenID + 1, fX, fY, fWidth, fHeight,
+                            fColorType);
         }
 
         static GrDrawOpAtlas::AtlasID CreateId(uint32_t pageIdx, uint32_t plotIdx,
@@ -336,7 +337,7 @@ private:
         const int fY;
         GrRectanizer* fRects;
         const SkIPoint16 fOffset;  // the offset of the plot in the backing texture
-        const GrPixelConfig fConfig;
+        const GrColorType fColorType;
         const size_t fBytesPerPixel;
         SkIRect fDirtyRect;
         SkDEBUGCODE(bool fDirty);
@@ -384,7 +385,8 @@ private:
         plot->resetRects();
     }
 
-    GrPixelConfig         fPixelConfig;
+    GrBackendFormat       fFormat;
+    GrColorType           fColorType;
     int                   fTextureWidth;
     int                   fTextureHeight;
     int                   fPlotWidth;
@@ -414,6 +416,34 @@ private:
     uint32_t fMaxPages;
 
     uint32_t fNumActivePages;
+};
+
+// There are three atlases (A8, 565, ARGB) that are kept in relation with one another. In
+// general, the A8 dimensions are 2x the 565 and ARGB dimensions with the constraint that an atlas
+// size will always contain at least one plot. Since the ARGB atlas takes the most space, its
+// dimensions are used to size the other two atlases.
+class GrDrawOpAtlasConfig {
+public:
+    // The capabilities of the GPU define maxTextureSize. The client provides maxBytes, and this
+    // represents the largest they want a single atlas texture to be. Due to multitexturing, we
+    // may expand temporarily to use more space as needed.
+    GrDrawOpAtlasConfig(int maxTextureSize, size_t maxBytes);
+
+    // For testing only - make minimum sized atlases -- a single plot for ARGB, four for A8
+    GrDrawOpAtlasConfig() : GrDrawOpAtlasConfig(kMaxAtlasDim, 0) {}
+
+    SkISize atlasDimensions(GrMaskFormat type) const;
+    SkISize plotDimensions(GrMaskFormat type) const;
+
+private:
+    // On some systems texture coordinates are represented using half-precision floating point,
+    // which limits the largest atlas dimensions to 2048x2048.
+    // For simplicity we'll use this constraint for all of our atlas textures.
+    // This can be revisited later if we need larger atlases.
+    static constexpr int kMaxAtlasDim = 2048;
+
+    SkISize fARGBDimensions;
+    int     fMaxTextureSize;
 };
 
 #endif

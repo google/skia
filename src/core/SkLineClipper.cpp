@@ -5,11 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkLineClipper.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkLineClipper.h"
+
+#include <utility>
 
 template <typename T> T pin_unsorted(T value, T limit0, T limit1) {
     if (limit1 < limit0) {
-        SkTSwap(limit0, limit1);
+        using std::swap;
+        swap(limit0, limit1);
     }
     // now the limits are sorted
     SkASSERT(limit0 <= limit1);
@@ -133,10 +137,12 @@ bool SkLineClipper::IntersectLine(const SkPoint src[2], const SkRect& clip,
     }
 
     // check for quick-reject in X again, now that we may have been chopped
-    if ((tmp[index1].fX <= clip.fLeft || tmp[index0].fX >= clip.fRight) &&
-        tmp[index0].fX < tmp[index1].fX) {
-        // only reject if we have a non-zero width
-        return false;
+    if ((tmp[index1].fX <= clip.fLeft || tmp[index0].fX >= clip.fRight)) {
+        // usually we will return false, but we don't if the line is vertical and coincident
+        // with the clip.
+        if (tmp[0].fX != tmp[1].fX || tmp[0].fX < clip.fLeft || tmp[0].fX > clip.fRight) {
+            return false;
+        }
     }
 
     if (tmp[index0].fX < clip.fLeft) {

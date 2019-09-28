@@ -1,0 +1,8 @@
+<menu	xmlns:android="http://schemas.android.com/apk/res/android">
+	<item
+		android:id="@+id/edit_size"
+		android:title="Size" />
+	<item
+		android:id="@+id/edit_text"
+		android:title="Text" />
+</menu>

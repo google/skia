@@ -40,7 +40,11 @@
       "[START_DIR]/tmp/SKP_VERSION"
     ],
     "infra_step": true,
-    "name": "write SKP_VERSION"
+    "name": "write SKP_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SKP_VERSION@42@@@",
+      "@@@STEP_LOG_END@SKP_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -68,7 +72,11 @@
       "[START_DIR]/tmp/SVG_VERSION"
     ],
     "infra_step": true,
-    "name": "write SVG_VERSION"
+    "name": "write SVG_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SVG_VERSION@42@@@",
+      "@@@STEP_LOG_END@SVG_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -92,8 +100,8 @@
       "[START_DIR]/[SWARM_OUT_DIR]",
       "modified",
       "master",
-      "[START_DIR]/build/out/Release/nanobench",
-      "[START_DIR]/build/ParentRevision/out/Release/nanobench",
+      "[START_DIR]/build/nanobench",
+      "[START_DIR]/build/ParentRevision/nanobench",
       "--svgs [START_DIR]/svg --skps [START_DIR]/skp --mpd false",
       "--svgs [START_DIR]/svg --skps [START_DIR]/skp --mpd false",
       "2",
@@ -121,13 +129,11 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "Run calmbench"
   },
   {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "name": "$result"
   }
 ]

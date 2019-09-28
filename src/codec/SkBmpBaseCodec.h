@@ -7,8 +7,8 @@
 #ifndef SkBmpBaseCodec_DEFINED
 #define SkBmpBaseCodec_DEFINED
 
-#include "SkBmpCodec.h"
-#include "SkTemplates.h"
+#include "include/private/SkTemplates.h"
+#include "src/codec/SkBmpCodec.h"
 
 /*
  * Common base class for SkBmpStandardCodec and SkBmpMaskCodec.
@@ -25,7 +25,7 @@ public:
     bool didCreateSrcBuffer() const { return fSrcBuffer != nullptr; }
 
 protected:
-    SkBmpBaseCodec(int width, int height, const SkEncodedInfo& info, std::unique_ptr<SkStream>,
+    SkBmpBaseCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream>,
                    uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder);
 
     uint8_t* srcBuffer() { return reinterpret_cast<uint8_t*>(fSrcBuffer.get()); }

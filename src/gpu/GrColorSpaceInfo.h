@@ -8,17 +8,18 @@
 #ifndef GrColorSpaceInfo_DEFINED
 #define GrColorSpaceInfo_DEFINED
 
-#include "GrColorSpaceXform.h"
-#include "GrTypes.h"
-#include "SkColorSpace.h"
-#include "SkRefCnt.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GrTypes.h"
+#include "src/gpu/GrColorSpaceXform.h"
 
 /** Describes the color space properties of a surface context. */
 class GrColorSpaceInfo {
 public:
-    GrColorSpaceInfo(sk_sp<SkColorSpace>, GrPixelConfig);
+    GrColorSpaceInfo() = default;
+    GrColorSpaceInfo(GrColorType, SkAlphaType, sk_sp<SkColorSpace>);
 
-    bool isGammaCorrect() const { return static_cast<bool>(fColorSpace); }
+    bool isLinearlyBlended() const { return fColorSpace && fColorSpace->gammaIsLinear(); }
 
     SkColorSpace* colorSpace() const { return fColorSpace.get(); }
     sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
@@ -28,14 +29,19 @@ public:
         return sk_ref_sp(this->colorSpaceXformFromSRGB());
     }
 
-    // TODO: Remove or replace with SkColorType
-    GrPixelConfig config() const { return fConfig; }
+    GrColorType colorType() const { return fColorType; }
+    SkAlphaType alphaType() const { return fAlphaType; }
+
+    bool isValid() const {
+        return fColorType != GrColorType::kUnknown && fAlphaType != kUnknown_SkAlphaType;
+    }
 
 private:
     sk_sp<SkColorSpace> fColorSpace;
     mutable sk_sp<GrColorSpaceXform> fColorXformFromSRGB;
-    GrPixelConfig fConfig;
-    mutable bool fInitializedColorSpaceXformFromSRGB;
+    GrColorType fColorType = GrColorType::kUnknown;
+    SkAlphaType fAlphaType = kUnknown_SkAlphaType;
+    mutable bool fInitializedColorSpaceXformFromSRGB = false;
 };
 
 #endif

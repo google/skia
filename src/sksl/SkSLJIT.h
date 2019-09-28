@@ -10,27 +10,26 @@
 
 #ifdef SK_LLVM_AVAILABLE
 
-#include "ir/SkSLAppendStage.h"
-#include "ir/SkSLBinaryExpression.h"
-#include "ir/SkSLBreakStatement.h"
-#include "ir/SkSLContinueStatement.h"
-#include "ir/SkSLExpression.h"
-#include "ir/SkSLDoStatement.h"
-#include "ir/SkSLForStatement.h"
-#include "ir/SkSLFunctionCall.h"
-#include "ir/SkSLFunctionDefinition.h"
-#include "ir/SkSLIfStatement.h"
-#include "ir/SkSLIndexExpression.h"
-#include "ir/SkSLPrefixExpression.h"
-#include "ir/SkSLPostfixExpression.h"
-#include "ir/SkSLProgram.h"
-#include "ir/SkSLReturnStatement.h"
-#include "ir/SkSLStatement.h"
-#include "ir/SkSLSwizzle.h"
-#include "ir/SkSLTernaryExpression.h"
-#include "ir/SkSLVarDeclarationsStatement.h"
-#include "ir/SkSLVariableReference.h"
-#include "ir/SkSLWhileStatement.h"
+#include "src/sksl/ir/SkSLBinaryExpression.h"
+#include "src/sksl/ir/SkSLBreakStatement.h"
+#include "src/sksl/ir/SkSLContinueStatement.h"
+#include "src/sksl/ir/SkSLDoStatement.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLForStatement.h"
+#include "src/sksl/ir/SkSLFunctionCall.h"
+#include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLIfStatement.h"
+#include "src/sksl/ir/SkSLIndexExpression.h"
+#include "src/sksl/ir/SkSLPostfixExpression.h"
+#include "src/sksl/ir/SkSLPrefixExpression.h"
+#include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLStatement.h"
+#include "src/sksl/ir/SkSLSwizzle.h"
+#include "src/sksl/ir/SkSLTernaryExpression.h"
+#include "src/sksl/ir/SkSLVarDeclarationsStatement.h"
+#include "src/sksl/ir/SkSLVariableReference.h"
+#include "src/sksl/ir/SkSLWhileStatement.h"
 
 #include "llvm-c/Analysis.h"
 #include "llvm-c/Core.h"
@@ -45,6 +44,8 @@ class SkRasterPipeline;
 
 namespace SkSL {
 
+struct AppendStage;
+
 /**
  * A just-in-time compiler for SkSL code which uses an LLVM backend. Only available when the
  * skia_llvm_path gn arg is set.
@@ -54,7 +55,8 @@ namespace SkSL {
  * #ifdef SK_LLVM_AVAILABLE
  *   SkSL::Compiler compiler;
  *   SkSL::Program::Settings settings;
- *   std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kCPU_Kind,
+ *   std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
+         SkSL::Program::kPipelineStage_Kind,
  *       "void swap(int x, int y, inout float4 color) {"
  *       "    color.rb = color.br;"
  *       "}",
@@ -304,6 +306,10 @@ private:
     LLVMBasicBlockRef fCurrentBlock;
     LLVMTypeRef fVoidType;
     LLVMTypeRef fInt1Type;
+    LLVMTypeRef fInt1VectorType;
+    LLVMTypeRef fInt1Vector2Type;
+    LLVMTypeRef fInt1Vector3Type;
+    LLVMTypeRef fInt1Vector4Type;
     LLVMTypeRef fInt8Type;
     LLVMTypeRef fInt8PtrType;
     LLVMTypeRef fInt32Type;
@@ -324,14 +330,20 @@ private:
     LLVMValueRef fChannels[CHANNELS];
     // when processing a stage function, this points to the SkSL color parameter (an inout float4)
     const Variable* fColorParam;
-    std::map<const FunctionDeclaration*, LLVMValueRef> fFunctions;
-    std::map<const Variable*, LLVMValueRef> fVariables;
+    std::unordered_map<const FunctionDeclaration*, LLVMValueRef> fFunctions;
+    std::unordered_map<const Variable*, LLVMValueRef> fVariables;
     // LLVM function parameters are read-only, so when modifying function parameters we need to
     // first promote them to variables. This keeps track of which parameters have been promoted.
     std::set<const Variable*> fPromotedParameters;
     std::vector<LLVMBasicBlockRef> fBreakTarget;
     std::vector<LLVMBasicBlockRef> fContinueTarget;
 
+    LLVMValueRef fFoldAnd2Func;
+    LLVMValueRef fFoldOr2Func;
+    LLVMValueRef fFoldAnd3Func;
+    LLVMValueRef fFoldOr3Func;
+    LLVMValueRef fFoldAnd4Func;
+    LLVMValueRef fFoldOr4Func;
     LLVMValueRef fAppendFunc;
     LLVMValueRef fAppendCallbackFunc;
     LLVMValueRef fDebugFunc;

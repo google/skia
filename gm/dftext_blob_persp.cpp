@@ -5,13 +5,29 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkSurface.h"
-#include "SkTextBlob.h"
-#include "SkTypeface.h"
-#include "sk_tool_utils.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTArray.h"
+#include "tools/ToolUtils.h"
+
+#include <initializer_list>
+
+class GrContext;
 
 /**
  * This GM tests reusing the same text blobs with distance fields rendering using various
@@ -24,29 +40,27 @@ public:
 
 protected:
     SkString onShortName() override {
-        SkString name("dftext_blob_persp");
-        name.append(sk_tool_utils::platform_font_manager());
-        return name;
+        return SkString("dftext_blob_persp");
     }
 
     SkISize onISize() override { return SkISize::Make(900, 350); }
 
     void onOnceBeforeDraw() override {
         for (int i = 0; i < 3; ++i) {
-            SkPaint paint;
-            paint.setTextSize(32);
-            paint.setAntiAlias(i > 0);
-            paint.setLCDRenderText(i > 1);
-            paint.setSubpixelText(true);
+            SkFont font;
+            font.setSize(32);
+            font.setEdging(i == 0 ? SkFont::Edging::kAlias :
+                           (i == 1 ? SkFont::Edging::kAntiAlias :
+                            SkFont::Edging::kSubpixelAntiAlias));
+            font.setSubpixel(true);
             SkTextBlobBuilder builder;
-            sk_tool_utils::add_to_text_blob(&builder, "SkiaText", paint, 0, 0);
+            ToolUtils::add_to_text_blob(&builder, "SkiaText", font, 0, 0);
             fBlobs.emplace_back(builder.make());
         }
     }
 
-    virtual void onDraw(SkCanvas* inputCanvas) override {
+    void onDraw(SkCanvas* inputCanvas) override {
     // set up offscreen rendering with distance field text
-#if SK_SUPPORT_GPU
         GrContext* ctx = inputCanvas->getGrContext();
         SkISize size = this->onISize();
         if (!inputCanvas->getBaseLayerSize().isEmpty()) {
@@ -60,9 +74,6 @@ protected:
         SkCanvas* canvas = surface ? surface->getCanvas() : inputCanvas;
         // init our new canvas with the old canvas's matrix
         canvas->setMatrix(inputCanvas->getTotalMatrix());
-#else
-        SkCanvas* canvas = inputCanvas;
-#endif
         SkScalar x = 0, y = 0;
         SkScalar maxH = 0;
         for (auto twm : {TranslateWithMatrix::kNo, TranslateWithMatrix::kYes}) {
@@ -88,7 +99,6 @@ protected:
                 maxH = 0;
             }
         }
-#if SK_SUPPORT_GPU
         // render offscreen buffer
         if (surface) {
             SkAutoCanvasRestore acr(inputCanvas, true);
@@ -96,7 +106,6 @@ protected:
             inputCanvas->resetMatrix();
             inputCanvas->drawImage(surface->makeImageSnapshot().get(), 0, 0, nullptr);
         }
-#endif
     }
 
 private:
@@ -136,7 +145,7 @@ private:
         canvas->restore();
     }
 
-    SkTArray<sk_sp<SkTextBlob>, true> fBlobs;
+    SkTArray<sk_sp<SkTextBlob>> fBlobs;
     typedef skiagm::GM INHERITED;
 };
 

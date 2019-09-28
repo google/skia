@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkCachedData.h"
-#include "SkMaskCache.h"
-#include "SkResourceCache.h"
-#include "Test.h"
+#include "src/core/SkCachedData.h"
+#include "src/core/SkMaskCache.h"
+#include "src/core/SkResourceCache.h"
+#include "tests/Test.h"
 
 enum LockedState {
     kUnlocked,

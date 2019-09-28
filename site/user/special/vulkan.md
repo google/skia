@@ -10,8 +10,7 @@ bugs to vendors as we find them.
 
 Windows and Linux
 -----------------
-To build the Vulkan backend, set `skia_vulkan_sdk` to the path to your Vulkan SDK in `args.gn`.
-This defaults to the environment variable `VULKAN_SDK`.
+To build the Vulkan backend, set `skia_use_vulkan=true` in `args.gn`.
 
 Android
 -------

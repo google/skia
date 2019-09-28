@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkRandom.h"
-#include "SkShader.h"
-#include "SkString.h"
-#include "SkVertices.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/core/SkVertices.h"
+#include "include/utils/SkRandom.h"
 
 // This bench simulates the calls Skia sees from various HTML5 canvas
 // game bench marks
@@ -51,7 +51,7 @@ public:
         case kRotate_Type:
             fName.append("_rot");
             break;
-        };
+        }
 
         if (aligned) {
             fName.append("_aligned");
@@ -141,9 +141,7 @@ protected:
         SkPaint p2;         // for drawVertices path
         p2.setColor(0xFF000000);
         p2.setFilterQuality(kLow_SkFilterQuality);
-        p2.setShader(SkShader::MakeBitmapShader(fAtlas,
-                                                SkShader::kClamp_TileMode,
-                                                SkShader::kClamp_TileMode));
+        p2.setShader(fAtlas.makeShader());
 
         for (int i = 0; i < loops; ++i, ++fNumSaved) {
             if (0 == i % kNumBeforeClear) {

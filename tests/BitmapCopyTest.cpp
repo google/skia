@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkColor.h"
-#include "SkColorSpace.h"
-#include "SkImageInfo.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkSize.h"
-#include "SkTypes.h"
-#include "Test.h"
-#include "sk_tool_utils.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTypes.h"
+#include "tests/Test.h"
+#include "tools/ToolUtils.h"
 
 static void init_src(const SkBitmap& bitmap) {
     if (bitmap.getPixels()) {
@@ -71,7 +71,7 @@ static void setup_src_bitmaps(SkBitmap* srcOpaque, SkBitmap* srcPremul,
                               SkColorType ct) {
     sk_sp<SkColorSpace> colorSpace = nullptr;
     if (kRGBA_F16_SkColorType == ct) {
-        colorSpace = SkColorSpace::MakeSRGBLinear();
+        colorSpace = SkColorSpace::MakeSRGB();
     }
 
     srcOpaque->allocPixels(SkImageInfo::Make(W, H, ct, kOpaque_SkAlphaType, colorSpace));
@@ -90,7 +90,7 @@ DEF_TEST(BitmapCopy_extractSubset, reporter) {
         SkIRect r;
         // Extract a subset which has the same width as the original. This
         // catches a bug where we cloned the genID incorrectly.
-        r.set(0, 1, W, 3);
+        r.setLTRB(0, 1, W, 3);
         bitmap.setIsVolatile(true);
         // Relies on old behavior of extractSubset failing if colortype is unknown
         if (kUnknown_SkColorType != bitmap.colorType() && bitmap.extractSubset(&subset, r)) {
@@ -102,7 +102,7 @@ DEF_TEST(BitmapCopy_extractSubset, reporter) {
             // Test copying an extracted subset.
             for (size_t j = 0; j < SK_ARRAY_COUNT(gPairs); j++) {
                 SkBitmap copy;
-                bool success = sk_tool_utils::copy_to(&copy, gPairs[j].fColorType, subset);
+                bool     success = ToolUtils::copy_to(&copy, gPairs[j].fColorType, subset);
                 if (!success) {
                     // Skip checking that success matches fValid, which is redundant
                     // with the code below.
@@ -128,8 +128,8 @@ DEF_TEST(BitmapCopy_extractSubset, reporter) {
     }
 }
 
-#include "SkColorPriv.h"
-#include "SkUtils.h"
+#include "include/core/SkColorPriv.h"
+#include "src/core/SkUtils.h"
 
 /**
  *  Construct 4x4 pixels where we can look at a color and determine where it should be in the grid.

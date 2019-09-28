@@ -5,22 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkColorData.h"
-#include "SkImageInfoPriv.h"
-#include "SkMathPriv.h"
-#include "SkSurface.h"
-#include "Test.h"
-#include "sk_tool_utils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "src/core/SkMathPriv.h"
+#include "tests/Test.h"
+#include "tools/ToolUtils.h"
 
-#if SK_SUPPORT_GPU
-#include "GrBackendSurface.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrProxyProvider.h"
-#include "GrTest.h"
-#endif
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrProxyProvider.h"
 
 #include <initializer_list>
 
@@ -276,7 +273,7 @@ static bool check_write(skiatest::Reporter* reporter, SkSurface* surf, SkAlphaTy
     return true;
 }
 
-#include "SkMallocPixelRef.h"
+#include "include/core/SkMallocPixelRef.h"
 
 // This is a tricky pattern, because we have to setConfig+rowBytes AND specify
 // a custom pixelRef (which also has to specify its rowBytes), so we have to be
@@ -399,7 +396,6 @@ static void test_write_pixels(skiatest::Reporter* reporter, SkSurface* surface,
                                                        rect.height(), SkToBool(tightBmp)));
                 uint32_t idBefore = surface->generationID();
 
-                // sk_tool_utils::write_pixels(&canvas, bmp, rect.fLeft, rect.fTop, ct, at);
                 surface->writePixels(bmp, rect.fLeft, rect.fTop);
 
                 uint32_t idAfter = surface->generationID();
@@ -434,7 +430,6 @@ DEF_TEST(WritePixels, reporter) {
     }
 }
 
-#if SK_SUPPORT_GPU
 static void test_write_pixels(skiatest::Reporter* reporter, GrContext* context, int sampleCnt) {
     const SkImageInfo ii = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
@@ -455,13 +450,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsMSAA_Gpu, reporter, ctxInfo) {
     test_write_pixels(reporter, ctxInfo.grContext(), 1);
 }
 
-static void test_write_pixels_non_texture(skiatest::Reporter* reporter, GrContext* context,
+static void test_write_pixels_non_texture(skiatest::Reporter* reporter,
+                                          GrContext* context,
                                           int sampleCnt) {
-    GrGpu* gpu = context->contextPriv().getGpu();
 
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
-        GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
-                nullptr, DEV_W, DEV_H, kSkia8888_GrPixelConfig, true, GrMipMapped::kNo);
+        GrBackendTexture backendTex = context->createBackendTexture(
+                DEV_W, DEV_H, kRGBA_8888_SkColorType,
+                SkColors::kTransparent, GrMipMapped::kNo, GrRenderable::kYes, GrProtected::kNo);
         if (!backendTex.isValid()) {
             continue;
         }
@@ -472,7 +468,7 @@ static void test_write_pixels_non_texture(skiatest::Reporter* reporter, GrContex
             auto ii = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
             test_write_pixels(reporter, surface.get(), ii);
         }
-        gpu->deleteTestingOnlyBackendTexture(backendTex);
+        context->deleteBackendTexture(backendTex);
     }
 }
 
@@ -509,7 +505,8 @@ static sk_sp<SkImage> upload(const sk_sp<SkSurface>& surf, SkColor color) {
 // in between uses of the shared backing resource).
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    const GrCaps* caps = context->priv().caps();
 
     static const int kFullSize = 62;
     static const int kHalfSize = 31;
@@ -525,17 +522,19 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
     sk_sp<SkSurface> dest = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, fullII);
 
     {
-        // Seed the resource cached with a scratch texture that will be
-        // reused by writeSurfacePixels
+        // Seed the resource cached with a scratch texture that will be reused by writePixels
         GrSurfaceDesc desc;
-        desc.fFlags = kNone_GrSurfaceFlags;
         desc.fWidth = 32;
         desc.fHeight = 64;
         desc.fConfig = kRGBA_8888_GrPixelConfig;
 
+        const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
+                                                                     GrRenderable::kNo);
+
         sk_sp<GrTextureProxy> temp = proxyProvider->createProxy(
-                desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kApprox, SkBudgeted::kYes);
-        temp->instantiate(context->contextPriv().resourceProvider());
+                format, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
+                SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
+        temp->instantiate(context->priv().resourceProvider());
     }
 
     // Create the surfaces and flush them to ensure there is no lingering pendingIO
@@ -572,6 +571,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
 
     REPORTER_ASSERT(reporter, isCorrect);
 }
-
-
-#endif

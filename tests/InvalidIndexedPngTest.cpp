@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "CodecPriv.h"
-#include "SkBitmap.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "tests/CodecPriv.h"
+#include "tests/Test.h"
 
 // A valid 1x1 indexed PNG.
 unsigned char gPngData[] = {

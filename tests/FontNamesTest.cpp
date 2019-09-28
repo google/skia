@@ -5,13 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkCommandLineFlags.h"
-#include "SkFontMgr.h"
-#include "SkOTTable_name.h"
-#include "SkTypeface.h"
-#include "Test.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkTypeface.h"
+#include "src/sfnt/SkOTTable_name.h"
+#include "tests/Test.h"
+#include "tools/flags/CommandLineFlags.h"
 
 #include <stddef.h>
+
+namespace {
 
 template <size_t R, size_t D> struct Format0NameTable {
     SkOTTableName header;
@@ -30,7 +32,7 @@ template <size_t R, size_t L, size_t D> struct Format1NameTable {
 };
 
 typedef Format0NameTable<1, 9> SimpleFormat0NameTable;
-SimpleFormat0NameTable simpleFormat0NameTable = {
+constexpr SimpleFormat0NameTable simpleFormat0NameTable = {
     /*header*/ {
         /*format*/ SkOTTableName::format_0,
         /*count*/ SkTEndianSwap16<1>::value,
@@ -50,7 +52,7 @@ SimpleFormat0NameTable simpleFormat0NameTable = {
 };
 
 typedef Format1NameTable<1, 1, 19> SimpleFormat1NameTable;
-SimpleFormat1NameTable simpleFormat1NameTable = {
+constexpr SimpleFormat1NameTable simpleFormat1NameTable = {
     /*header*/ {
         /*format*/ SkOTTableName::format_1,
         /*count*/ SkTEndianSwap16<1>::value,
@@ -82,7 +84,8 @@ SimpleFormat1NameTable simpleFormat1NameTable = {
 };
 
 struct FontNamesTest {
-    SkOTTableName* data;
+    const uint8_t* data;
+    size_t size;
     SkOTTableName::Record::NameID nameID;
     size_t nameCount;
     struct {
@@ -90,9 +93,10 @@ struct FontNamesTest {
         const char* language;
     } names[10];
 
-} test[] = {
+} tests[] = {
     {
-        (SkOTTableName*)&simpleFormat0NameTable,
+        reinterpret_cast<const uint8_t*>(&simpleFormat0NameTable),
+        sizeof(simpleFormat0NameTable),
         { SkOTTableName::Record::NameID::Predefined::FontFamilyName },
         1,
         {
@@ -100,7 +104,8 @@ struct FontNamesTest {
         },
     },
     {
-        (SkOTTableName*)&simpleFormat1NameTable,
+        reinterpret_cast<const uint8_t*>(&simpleFormat1NameTable),
+        sizeof(simpleFormat1NameTable),
         { SkOTTableName::Record::NameID::Predefined::FontFamilyName },
         1,
         {
@@ -110,25 +115,27 @@ struct FontNamesTest {
 };
 
 static void test_synthetic(skiatest::Reporter* reporter, bool verbose) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(test); ++i) {
-        SkOTTableName::Iterator iter(*test[i].data, test[i].nameID.predefined.value);
+    for (const auto& test : tests) {
+        SkOTTableName::Iterator iter(test.data, test.size, test.nameID.predefined.value);
         SkOTTableName::Iterator::Record record;
         size_t nameIndex = 0;
-        while (nameIndex < test[i].nameCount && iter.next(record)) {
+        while (nameIndex < test.nameCount && iter.next(record)) {
             REPORTER_ASSERT(reporter,
-                            strcmp(test[i].names[nameIndex].name, record.name.c_str()) == 0,
+                            strcmp(test.names[nameIndex].name, record.name.c_str()) == 0,
                             "Name did not match.");
 
             REPORTER_ASSERT(reporter,
-                            strcmp(test[i].names[nameIndex].language, record.language.c_str()) == 0,
+                            strcmp(test.names[nameIndex].language, record.language.c_str()) == 0,
                             "Language did not match.");
 
-            //printf("%s <%s>\n", record.name.c_str(), record.language.c_str());
+            if (verbose) {
+                SkDebugf("%s <%s>\n", record.name.c_str(), record.language.c_str());
+            }
 
             ++nameIndex;
         }
 
-        REPORTER_ASSERT(reporter, nameIndex == test[i].nameCount, "Fewer names than expected.");
+        REPORTER_ASSERT(reporter, nameIndex == test.nameCount, "Fewer names than expected.");
 
         REPORTER_ASSERT(reporter, !iter.next(record), "More names than expected.");
     }
@@ -176,7 +183,7 @@ static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
             }
 
             SkOTTableName::Iterator::Record record;
-            SkOTTableName::Iterator familyNameIter(*((SkOTTableName*)nameTableData.get()),
+            SkOTTableName::Iterator familyNameIter(nameTableData.get(), nameTableSize,
                 SkOTTableName::Record::NameID::Predefined::FontFamilyName);
             while (familyNameIter.next(record)) {
                 REPORTER_ASSERT(
@@ -188,7 +195,7 @@ static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
                 }
             }
 
-            SkOTTableName::Iterator styleNameIter(*((SkOTTableName*)nameTableData.get()),
+            SkOTTableName::Iterator styleNameIter(nameTableData.get(), nameTableSize,
                 SkOTTableName::Record::NameID::Predefined::FontSubfamilyName);
             while (styleNameIter.next(record)) {
                 REPORTER_ASSERT(
@@ -207,7 +214,9 @@ static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
     }
 }
 
-DEFINE_bool(verboseFontNames, false, "verbose FontNames test.");
+} // namespace
+
+static DEFINE_bool(verboseFontNames, false, "verbose FontNames test.");
 
 DEF_TEST(FontNames, reporter) {
     test_synthetic(reporter, FLAGS_verboseFontNames);

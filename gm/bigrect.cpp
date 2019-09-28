@@ -5,7 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
 
 // Draws big rects with clip (0, 0, 35, 35). The size of the rects is given by big.
 static void draw_big_rect(SkCanvas* canvas, SkScalar big, const SkPaint& rectPaint) {

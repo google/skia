@@ -5,13 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkColorPriv.h"
-#include "SkGaussFilter.h"
-#include "SkMalloc.h"
-#include "SkMaskBlurFilter.h"
-#include "SkNx.h"
-#include "SkTemplates.h"
+#include "src/core/SkMaskBlurFilter.h"
+
+#include "include/core/SkColorPriv.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkNx.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkArenaAlloc.h"
+#include "src/core/SkGaussFilter.h"
 
 #include <cmath>
 #include <climits>
@@ -258,74 +260,58 @@ bool SkMaskBlurFilter::hasNoBlur() const {
     return (3 * fSigmaW <= 1) && (3 * fSigmaH <= 1);
 }
 
-namespace {
-struct LoadBW {
-    static constexpr int StrideOf8 = 1;
-    static SK_ALWAYS_INLINE Sk8h load(const uint8_t* from, int width) {
-        SkASSERT(0 < width && width <= 8);
-        uint8_t buffer[8];
-        sk_bzero(buffer, sizeof(buffer));
-        uint8_t value = *from;
-        for (int i = 0; i < width; ++i) {
-            buffer[i] = (value >> (7 - i)) & 1 ? 0xFF : 0;
-        }
-        auto v = SkNx_cast<uint16_t>(Sk8b::Load(buffer));
-        // Convert from 0-255 to 8.8 encoding.
-        return v << 8;
-    }
-};
-struct LoadA8 {
-    static constexpr int StrideOf8 = 8 * sizeof(uint8_t);
-    static SK_ALWAYS_INLINE Sk8h load(const uint8_t* from, int width) {
-        SkASSERT(0 < width && width <= 8);
-        uint8_t buffer[8];
-        if (width < 8) {
-            sk_bzero(buffer, sizeof(buffer));
-            for (int i = 0; i < width; ++i) {
-                buffer[i] = from[i];
-            }
-            from = buffer;
-        }
-        auto v = SkNx_cast<uint16_t>(Sk8b::Load(from));
-        // Convert from 0-255 to 8.8 encoding.
-        return v << 8;
-    }
-};
-struct LoadARGB {
-    static constexpr int StrideOf8 = 8 * sizeof(uint32_t);
-    static SK_ALWAYS_INLINE Sk8h load(const uint8_t* from, int width) {
-        SkASSERT(0 < width && width <= 8);
-        uint8_t buffer[8];
-        sk_bzero(buffer, sizeof(buffer));
-        for (int i = 0; i < width; ++i) {
-            uint32_t packed = reinterpret_cast<const uint32_t*>(from)[i];
-            buffer[i] = SkGetPackedA32(packed);
-        }
-        auto v = SkNx_cast<uint16_t>(Sk8b::Load(buffer));
-        // Convert from 0-255 to 8.8 encoding.
-        return v << 8;
-    }
-};
-struct LoadLCD {
-    static constexpr int StrideOf8 = 8 * sizeof(uint16_t);
-    static SK_ALWAYS_INLINE Sk8h load(const uint8_t* from, int width) {
-        SkASSERT(0 < width && width <= 8);
-        uint8_t buffer[8];
-        sk_bzero(buffer, sizeof(buffer));
-        for (int i = 0; i < width; ++i) {
-            unsigned packed = reinterpret_cast<const uint16_t*>(from)[i];
-            unsigned r = SkPacked16ToR32(packed);
-            unsigned g = SkPacked16ToG32(packed);
-            unsigned b = SkPacked16ToB32(packed);
-            buffer[i] = (r + g + b) / 3;
-        }
-        auto v = SkNx_cast<uint16_t>(Sk8b::Load(buffer));
-        // Convert from 0-255 to 8.8 encoding.
-        return v << 8;
-    }
-};
+// We favor A8 masks, and if we need to work with another format, we'll convert to A8 first.
+// Each of these converts width (up to 8) mask values to A8.
+static void bw_to_a8(uint8_t* a8, const uint8_t* from, int width) {
+    SkASSERT(0 < width && width <= 8);
 
-static SK_ALWAYS_INLINE void store(uint8_t* to, const Sk8h& v, int width) {
+    uint8_t masks = *from;
+    for (int i = 0; i < width; ++i) {
+        a8[i] = (masks >> (7 - i)) & 1 ? 0xFF
+                                       : 0x00;
+    }
+}
+static void lcd_to_a8(uint8_t* a8, const uint8_t* from, int width) {
+    SkASSERT(0 < width && width <= 8);
+
+    for (int i = 0; i < width; ++i) {
+        unsigned rgb = reinterpret_cast<const uint16_t*>(from)[i],
+                   r = SkPacked16ToR32(rgb),
+                   g = SkPacked16ToG32(rgb),
+                   b = SkPacked16ToB32(rgb);
+        a8[i] = (r + g + b) / 3;
+    }
+}
+static void argb32_to_a8(uint8_t* a8, const uint8_t* from, int width) {
+    SkASSERT(0 < width && width <= 8);
+    for (int i = 0; i < width; ++i) {
+        uint32_t rgba = reinterpret_cast<const uint32_t*>(from)[i];
+        a8[i] = SkGetPackedA32(rgba);
+    }
+}
+using ToA8 = decltype(bw_to_a8);
+
+static Sk8h load(const uint8_t* from, int width, ToA8* toA8) {
+    // Our fast path is a full 8-byte load of A8.
+    // So we'll conditionally handle the two slow paths using tmp:
+    //    - if we have a function to convert another mask to A8, use it;
+    //    - if not but we have less than 8 bytes to load, load them one at a time.
+    uint8_t tmp[8] = {0,0,0,0, 0,0,0,0};
+    if (toA8) {
+        toA8(tmp, from, width);
+        from = tmp;
+    } else if (width < 8) {
+        for (int i = 0; i < width; ++i) {
+            tmp[i] = from[i];
+        }
+        from = tmp;
+    }
+
+    // Load A8 and convert to 8.8 fixed-point.
+    return SkNx_cast<uint16_t>(Sk8b::Load(from)) << 8;
+}
+
+static void store(uint8_t* to, const Sk8h& v, int width) {
     Sk8b b = SkNx_cast<uint8_t>(v >> 8);
     if (width == 8) {
         b.store(to);
@@ -420,7 +406,7 @@ static constexpr uint16_t kHalf = 0x80u;
 // d1 += {v1[6], v1[7], _____, _____, _____, _____, _____, _____}
 // Where we rely on the compiler to generate efficient code for the {____, n, ....} notation.
 
-static SK_ALWAYS_INLINE void blur_x_radius_1(
+static void blur_x_radius_1(
         const Sk8h& s0,
         const Sk8h& g0, const Sk8h& g1, const Sk8h&, const Sk8h&, const Sk8h&,
         Sk8h* d0, Sk8h* d8) {
@@ -441,7 +427,7 @@ static SK_ALWAYS_INLINE void blur_x_radius_1(
 
 }
 
-static SK_ALWAYS_INLINE void blur_x_radius_2(
+static void blur_x_radius_2(
         const Sk8h& s0,
         const Sk8h& g0, const Sk8h& g1, const Sk8h& g2, const Sk8h&, const Sk8h&,
         Sk8h* d0, Sk8h* d8) {
@@ -469,7 +455,7 @@ static SK_ALWAYS_INLINE void blur_x_radius_2(
     *d8 += Sk8h{v2[4], v2[5], v2[6], v2[7], _____, _____, _____, _____};
 }
 
-static SK_ALWAYS_INLINE void blur_x_radius_3(
+static void blur_x_radius_3(
         const Sk8h& s0,
         const Sk8h& gauss0, const Sk8h& gauss1, const Sk8h& gauss2, const Sk8h& gauss3, const Sk8h&,
         Sk8h* d0, Sk8h* d8) {
@@ -506,7 +492,7 @@ static SK_ALWAYS_INLINE void blur_x_radius_3(
     *d8 += Sk8h{v3[2], v3[3], v3[4], v3[5], v3[6], v3[7], _____, _____};
 }
 
-static SK_ALWAYS_INLINE void blur_x_radius_4(
+static void blur_x_radius_4(
         const Sk8h& s0,
         const Sk8h& gauss0,
         const Sk8h& gauss1,
@@ -558,7 +544,7 @@ static SK_ALWAYS_INLINE void blur_x_radius_4(
 using BlurX = decltype(blur_x_radius_1);
 
 // BlurX will only be one of the functions blur_x_radius_(1|2|3|4).
-static SK_ALWAYS_INLINE void blur_row(
+static void blur_row(
         BlurX blur,
         const Sk8h& g0, const Sk8h& g1, const Sk8h& g2, const Sk8h& g3, const Sk8h& g4,
         const uint8_t* src, int srcW,
@@ -569,14 +555,14 @@ static SK_ALWAYS_INLINE void blur_row(
     // Go by multiples of 8 in src.
     int x = 0;
     for (; x <= srcW - 8; x += 8) {
-        blur(LoadA8::load(src, 8), g0, g1, g2, g3, g4, &d0, &d8);
+        blur(load(src, 8, nullptr), g0, g1, g2, g3, g4, &d0, &d8);
 
         store(dst, d0, 8);
 
         d0 = d8;
         d8 = Sk8h{kHalf};
 
-        src += LoadA8::StrideOf8;
+        src += 8;
         dst += 8;
     }
 
@@ -584,7 +570,7 @@ static SK_ALWAYS_INLINE void blur_row(
     int srcTail = srcW - x;
     if (srcTail > 0) {
 
-        blur(LoadA8::load(src, srcTail), g0, g1, g2, g3, g4, &d0, &d8);
+        blur(load(src, srcTail, nullptr), g0, g1, g2, g3, g4, &d0, &d8);
 
         int dstTail = std::min(8, dstW - x);
         store(dst, d0, dstTail);
@@ -602,11 +588,10 @@ static SK_ALWAYS_INLINE void blur_row(
 }
 
 // BlurX will only be one of the functions blur_x_radius_(1|2|3|4).
-static SK_ALWAYS_INLINE void blur_x_rect(
-        BlurX blur,
-        uint16_t* gauss,
-        const uint8_t* src, size_t srcStride, int srcW,
-              uint8_t* dst, size_t dstStride, int dstW, int dstH) {
+static void blur_x_rect(BlurX blur,
+                        uint16_t* gauss,
+                        const uint8_t* src, size_t srcStride, int srcW,
+                        uint8_t* dst, size_t dstStride, int dstW, int dstH) {
 
     Sk8h g0{gauss[0]},
          g1{gauss[1]},
@@ -622,10 +607,9 @@ static SK_ALWAYS_INLINE void blur_x_rect(
     }
 }
 
-SK_ATTRIBUTE(noinline) static void direct_blur_x(
-    int radius, uint16_t* gauss,
-    const uint8_t* src, size_t srcStride, int srcW,
-          uint8_t* dst, size_t dstStride, int dstW, int dstH) {
+static void direct_blur_x(int radius, uint16_t* gauss,
+                          const uint8_t* src, size_t srcStride, int srcW,
+                          uint8_t* dst, size_t dstStride, int dstW, int dstH) {
 
     switch (radius) {
         case 1:
@@ -699,7 +683,7 @@ SK_ATTRIBUTE(noinline) static void direct_blur_x(
 //   d01[0..7]    = d12[0..7] + S[n+0r..n+0r+7]*G[0]
 //   d12[0..7]    =             S[n+0r..n+0r+7]*G[1]
 //   return answer[0..7]
-static SK_ALWAYS_INLINE Sk8h blur_y_radius_1(
+static Sk8h blur_y_radius_1(
         const Sk8h& s0,
         const Sk8h& g0, const Sk8h& g1, const Sk8h&, const Sk8h&, const Sk8h&,
         Sk8h* d01, Sk8h* d12, Sk8h*, Sk8h*, Sk8h*, Sk8h*, Sk8h*, Sk8h*) {
@@ -713,7 +697,7 @@ static SK_ALWAYS_INLINE Sk8h blur_y_radius_1(
     return answer;
 }
 
-static SK_ALWAYS_INLINE Sk8h blur_y_radius_2(
+static Sk8h blur_y_radius_2(
         const Sk8h& s0,
         const Sk8h& g0, const Sk8h& g1, const Sk8h& g2, const Sk8h&, const Sk8h&,
         Sk8h* d01, Sk8h* d12, Sk8h* d23, Sk8h* d34, Sk8h*, Sk8h*, Sk8h*, Sk8h*) {
@@ -730,7 +714,7 @@ static SK_ALWAYS_INLINE Sk8h blur_y_radius_2(
     return answer;
 }
 
-static SK_ALWAYS_INLINE Sk8h blur_y_radius_3(
+static Sk8h blur_y_radius_3(
         const Sk8h& s0,
         const Sk8h& g0, const Sk8h& g1, const Sk8h& g2, const Sk8h& g3, const Sk8h&,
         Sk8h* d01, Sk8h* d12, Sk8h* d23, Sk8h* d34, Sk8h* d45, Sk8h* d56, Sk8h*, Sk8h*) {
@@ -750,7 +734,7 @@ static SK_ALWAYS_INLINE Sk8h blur_y_radius_3(
     return answer;
 }
 
-static SK_ALWAYS_INLINE Sk8h blur_y_radius_4(
+static Sk8h blur_y_radius_4(
     const Sk8h& s0,
     const Sk8h& g0, const Sk8h& g1, const Sk8h& g2, const Sk8h& g3, const Sk8h& g4,
     Sk8h* d01, Sk8h* d12, Sk8h* d23, Sk8h* d34, Sk8h* d45, Sk8h* d56, Sk8h* d67, Sk8h* d78) {
@@ -776,7 +760,8 @@ static SK_ALWAYS_INLINE Sk8h blur_y_radius_4(
 using BlurY = decltype(blur_y_radius_1);
 
 // BlurY will be one of blur_y_radius_(1|2|3|4).
-template <typename Loader> static SK_ALWAYS_INLINE void blur_column(
+static void blur_column(
+        ToA8 toA8,
         BlurY blur, int radius, int width,
         const Sk8h& g0, const Sk8h& g1, const Sk8h& g2, const Sk8h& g3, const Sk8h& g4,
         const uint8_t* src, size_t srcRB, int srcH,
@@ -792,7 +777,7 @@ template <typename Loader> static SK_ALWAYS_INLINE void blur_column(
     };
 
     for (int y = 0; y < srcH; y += 1) {
-        auto s = Loader::load(src, width);
+        auto s = load(src, width, toA8);
         auto b = blur(s,
                       g0, g1, g2, g3, g4,
                       &d01, &d12, &d23, &d34, &d45, &d56, &d67, &d78);
@@ -816,10 +801,10 @@ template <typename Loader> static SK_ALWAYS_INLINE void blur_column(
 }
 
 // BlurY will be one of blur_y_radius_(1|2|3|4).
-template <typename Loader> static SK_ALWAYS_INLINE void blur_y_rect(
-        BlurY blur, int radius, uint16_t *gauss,
-        const uint8_t *src, size_t srcRB, int srcW, int srcH,
-        uint8_t *dst, size_t dstRB) {
+static void blur_y_rect(ToA8 toA8, const int strideOf8,
+                        BlurY blur, int radius, uint16_t *gauss,
+                        const uint8_t *src, size_t srcRB, int srcW, int srcH,
+                        uint8_t *dst, size_t dstRB) {
 
     Sk8h g0{gauss[0]},
          g1{gauss[1]},
@@ -829,51 +814,51 @@ template <typename Loader> static SK_ALWAYS_INLINE void blur_y_rect(
 
     int x = 0;
     for (; x <= srcW - 8; x += 8) {
-        blur_column<Loader>(blur, radius, 8,
-                            g0, g1, g2, g3, g4,
-                            src, srcRB, srcH,
-                            dst, dstRB);
-        src += Loader::StrideOf8;
+        blur_column(toA8, blur, radius, 8,
+                    g0, g1, g2, g3, g4,
+                    src, srcRB, srcH,
+                    dst, dstRB);
+        src += strideOf8;
         dst += 8;
     }
 
     int xTail = srcW - x;
     if (xTail > 0) {
-        blur_column<Loader>(blur, radius, xTail,
-                            g0, g1, g2, g3, g4,
-                            src, srcRB, srcH,
-                            dst, dstRB);
+        blur_column(toA8, blur, radius, xTail,
+                    g0, g1, g2, g3, g4,
+                    src, srcRB, srcH,
+                    dst, dstRB);
     }
 }
 
-template <typename Loader> SK_ATTRIBUTE(noinline) static void direct_blur_y(
-        int radius, uint16_t* gauss,
-        const uint8_t* src, size_t srcRB, int srcW, int srcH,
-              uint8_t* dst, size_t dstRB) {
+static void direct_blur_y(ToA8 toA8, const int strideOf8,
+                          int radius, uint16_t* gauss,
+                          const uint8_t* src, size_t srcRB, int srcW, int srcH,
+                          uint8_t* dst, size_t dstRB) {
 
     switch (radius) {
         case 1:
-            blur_y_rect<Loader>(blur_y_radius_1, 1, gauss,
-                                src, srcRB, srcW, srcH,
-                                dst, dstRB);
+            blur_y_rect(toA8, strideOf8, blur_y_radius_1, 1, gauss,
+                        src, srcRB, srcW, srcH,
+                        dst, dstRB);
             break;
 
         case 2:
-            blur_y_rect<Loader>(blur_y_radius_2, 2, gauss,
-                                src, srcRB, srcW, srcH,
-                                dst, dstRB);
+            blur_y_rect(toA8, strideOf8, blur_y_radius_2, 2, gauss,
+                        src, srcRB, srcW, srcH,
+                        dst, dstRB);
             break;
 
         case 3:
-            blur_y_rect<Loader>(blur_y_radius_3, 3, gauss,
-                                src, srcRB, srcW, srcH,
-                                dst, dstRB);
+            blur_y_rect(toA8, strideOf8, blur_y_radius_3, 3, gauss,
+                        src, srcRB, srcW, srcH,
+                        dst, dstRB);
             break;
 
         case 4:
-            blur_y_rect<Loader>(blur_y_radius_4, 4, gauss,
-                                src, srcRB, srcW, srcH,
-                                dst, dstRB);
+            blur_y_rect(toA8, strideOf8, blur_y_radius_4, 4, gauss,
+                        src, srcRB, srcW, srcH,
+                        dst, dstRB);
             break;
 
         default:
@@ -886,8 +871,8 @@ static SkIPoint small_blur(double sigmaX, double sigmaY, const SkMask& src, SkMa
     SkASSERT(0.01 <= sigmaX && sigmaX < 2);
     SkASSERT(0.01 <= sigmaY && sigmaY < 2);
 
-    SkGaussFilter filterX{sigmaX, SkGaussFilter::Type::Bessel},
-                  filterY{sigmaY, SkGaussFilter::Type::Bessel};
+    SkGaussFilter filterX{sigmaX},
+                  filterY{sigmaY};
 
     int radiusX = filterX.radius(),
         radiusY = filterY.radius();
@@ -930,24 +915,27 @@ static SkIPoint small_blur(double sigmaX, double sigmaY, const SkMask& src, SkMa
     // Blur vertically and copy to destination.
     switch (src.fFormat) {
         case SkMask::kBW_Format:
-            direct_blur_y<LoadBW>(radiusY, gaussFactorsY,
-                                  src.fImage, srcRB, srcW, srcH,
-                                  dst->fImage + radiusX, dstRB);
+            direct_blur_y(bw_to_a8, 1,
+                          radiusY, gaussFactorsY,
+                          src.fImage, srcRB, srcW, srcH,
+                          dst->fImage + radiusX, dstRB);
             break;
         case SkMask::kA8_Format:
-            direct_blur_y<LoadA8>(radiusY, gaussFactorsY,
-                                  src.fImage, srcRB, srcW, srcH,
-                                  dst->fImage + radiusX, dstRB);
+            direct_blur_y(nullptr, 8,
+                          radiusY, gaussFactorsY,
+                          src.fImage, srcRB, srcW, srcH,
+                          dst->fImage + radiusX, dstRB);
             break;
         case SkMask::kARGB32_Format:
-            direct_blur_y<LoadARGB>(radiusY, gaussFactorsY,
-                                    src.fImage, srcRB, srcW, srcH,
-                                    dst->fImage + radiusX, dstRB);
+            direct_blur_y(argb32_to_a8, 32,
+                          radiusY, gaussFactorsY,
+                          src.fImage, srcRB, srcW, srcH,
+                          dst->fImage + radiusX, dstRB);
             break;
         case SkMask::kLCD16_Format:
-            direct_blur_y<LoadLCD>(radiusY, gaussFactorsY,
-                                   src.fImage, srcRB, srcW, srcH,
-                                   dst->fImage + radiusX, dstRB);
+            direct_blur_y(lcd_to_a8, 16, radiusY, gaussFactorsY,
+                          src.fImage, srcRB, srcW, srcH,
+                          dst->fImage + radiusX, dstRB);
             break;
         default:
             SK_ABORT("Unhandled format.");
@@ -960,8 +948,6 @@ static SkIPoint small_blur(double sigmaX, double sigmaY, const SkMask& src, SkMa
 
     return {radiusX, radiusY};
 }
-
-} // namespace
 
 // TODO: assuming sigmaW = sigmaH. Allow different sigmas. Right now the
 // API forces the sigmas to be the same.

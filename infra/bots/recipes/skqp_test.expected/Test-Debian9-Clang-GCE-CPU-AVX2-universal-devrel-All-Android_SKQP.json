@@ -17,7 +17,7 @@
   {
     "cmd": [
       "catchsegv",
-      "[START_DIR]/build/out/devrel/run_testlab",
+      "[START_DIR]/build/run_testlab",
       "--logtostderr",
       "--devices",
       "[START_DIR]/whitelist_devices.json",
@@ -27,13 +27,11 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "run firebase testlab"
   },
   {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "name": "$result"
   }
 ]

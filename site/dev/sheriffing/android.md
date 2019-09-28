@@ -17,7 +17,7 @@ The RoboCop has two primary jobs:
 
 1) Monitor and approve the semi-autonomous [git merges](https://googleplex-android-review.git.corp.google.com/#/q/owner:31977622648%2540project.gserviceaccount.com+status:open) from Skia's repository into the Android source tree. See autoroller documentation <a href="#autoroller_doc">here</a> for details on how to interact with it.
 
-2) Stay on top of incoming Android-related bugs in both the [Skia](https://bugs.chromium.org/p/skia/issues/list?can=2&q=OpSys%3DAndroid&sort=-id&colspec=ID+Type+Status+Priority+Owner+Summary&cells=tiles) and [Android](https://buganizer.corp.google.com/issues?q=componentid:1346%20status:open) bug trackers.  For Skia bugs, this means triaging and assigning all Android bugs that are currently unassigned.  For Android, this means following the [Android guidelines](go/android-buganizer) to verifying that all Skia bugs are TL-triaged (if not reach out to djsollen@).
+2) Stay on top of incoming Android-related bugs in both the [Skia](https://bugs.chromium.org/p/skia/issues/list?can=2&q=OpSys%3DAndroid&sort=-id&colspec=ID+Type+Status+Priority+Owner+Summary&cells=tiles) and [Android](https://buganizer.corp.google.com/issues?q=assignee:skia-android-triage%20status:open) bug trackers.  For Skia bugs, this means triaging and assigning all Android bugs that are currently unassigned.  For Android, this means following the [Android guidelines](go/android-buganizer) to verifying that all Skia bugs are TL-triaged (if not reach out to djsollen@).
 
 The RoboCop's job is NOT to address issues in Perf and Gold. You'll get your chance when you are the general Skia sheriff.
 

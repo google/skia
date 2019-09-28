@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)  // And !SKIA_GDI?
 
-#include "SkFontMgr.h"
-#include "SkTypeface_win.h"
+#include "include/core/SkFontMgr.h"
+#include "include/ports/SkTypeface_win.h"
 
 sk_sp<SkFontMgr> SkFontMgr::Factory() {
     return SkFontMgr_New_DirectWrite();

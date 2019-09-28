@@ -8,17 +8,16 @@
 #ifndef Sk4fGradientPriv_DEFINED
 #define Sk4fGradientPriv_DEFINED
 
-#include "SkColor.h"
-#include "SkHalf.h"
-#include "SkImageInfo.h"
-#include "SkNx.h"
-#include "SkPM4f.h"
-#include "SkPM4fPriv.h"
-#include "SkUtils.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImageInfo.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkHalf.h"
+#include "include/private/SkNx.h"
+#include "src/core/SkUtils.h"
 
 // Templates shared by various 4f gradient flavors.
 
-namespace {
+namespace {  // NOLINT(google-build-namespaces)
 
 enum class ApplyPremul { True, False };
 
@@ -33,7 +32,7 @@ struct PremulTraits<ApplyPremul::False> {
 template <>
 struct PremulTraits<ApplyPremul::True> {
     static Sk4f apply(const Sk4f& c) {
-        const float alpha = c[SkPM4f::A];
+        const float alpha = c[3];
         // FIXME: portable swizzle?
         return c * Sk4f(alpha, alpha, alpha, 1);
     }
@@ -41,7 +40,7 @@ struct PremulTraits<ApplyPremul::True> {
 
 // Struct encapsulating various dest-dependent ops:
 //
-//   - load()       Load a SkPM4f value into Sk4f.  Normally called once per interval
+//   - load()       Load a SkPMColor4f value into Sk4f.  Normally called once per interval
 //                  advance.  Also applies a scale and swizzle suitable for DstType.
 //
 //   - store()      Store one Sk4f to dest.  Optionally handles premul, color space
@@ -51,18 +50,17 @@ struct PremulTraits<ApplyPremul::True> {
 //
 //   - store4x()    Store 4 Sk4f values to dest (opportunistic optimization).
 //
-template <typename dst, ApplyPremul premul>
-struct DstTraits;
 
 template <ApplyPremul premul>
-struct DstTraits<SkPMColor, premul> {
+struct DstTraits {
     using PM   = PremulTraits<premul>;
 
     // For L32, prescaling by 255 saves a per-pixel multiplication when premul is not needed.
-    static Sk4f load(const SkPM4f& c) {
+    static Sk4f load(const SkPMColor4f& c) {
+        Sk4f c4f = swizzle_rb_if_bgra(Sk4f::Load(c.vec()));
         return premul == ApplyPremul::False
-            ? c.to4f_pmorder() * Sk4f(255)
-            : c.to4f_pmorder();
+            ? c4f * Sk4f(255)
+            : c4f;
     }
 
     static void store(const Sk4f& c, SkPMColor* dst, const Sk4f& bias) {
@@ -99,41 +97,6 @@ struct DstTraits<SkPMColor, premul> {
     static Sk4f pre_lerp_bias(const Sk4f& bias) {
         // We can apply the bias before interpolation when the colors are premultiplied.
         return premul == ApplyPremul::False ? bias : 0;
-    }
-};
-
-template <ApplyPremul premul>
-struct DstTraits<SkPM4f, premul> {
-    using PM   = PremulTraits<premul>;
-
-    static Sk4f load(const SkPM4f& c) {
-        return c.to4f();
-    }
-
-    static void store(const Sk4f& c, SkPM4f* dst, const Sk4f& /*bias*/) {
-        PM::apply(c).store(dst->fVec);
-    }
-
-    static void store(const Sk4f& c, SkPM4f* dst, int n) {
-        const Sk4f pmc = PM::apply(c);
-        for (int i = 0; i < n; ++i) {
-            pmc.store(dst[i].fVec);
-        }
-    }
-
-    static void store4x(const Sk4f& c0, const Sk4f& c1,
-                        const Sk4f& c2, const Sk4f& c3,
-                        SkPM4f* dst,
-                        const Sk4f& bias0, const Sk4f& bias1) {
-        store(c0, dst + 0, bias0);
-        store(c1, dst + 1, bias1);
-        store(c2, dst + 2, bias0);
-        store(c3, dst + 3, bias1);
-    }
-
-    static Sk4f pre_lerp_bias(const Sk4f& /*bias*/) {
-        // For 4f dests we never bias.
-        return 0;
     }
 };
 

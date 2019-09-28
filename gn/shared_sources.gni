@@ -5,6 +5,7 @@
 
 import("core.gni")
 import("effects.gni")
+import("effects_imagefilters.gni")
 import("gpu.gni")
 import("opts.gni")
 import("pdf.gni")
@@ -26,7 +27,3 @@ skia_opts = {
   avx_sources = avx
   hsw_sources = hsw
 }
-
-# Skia Chromium defines. These flags will be defined in chromium If these
-# become 'permanent', they should be moved into Chrome's skia build file.
-skia_for_chromium_defines = [ "SK_IGNORE_LINEONLY_AA_CONVEX_PATH_OPTS" ]

@@ -4,11 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkIntersections.h"
-#include "SkLineParameters.h"
-#include "SkPathOpsConic.h"
-#include "SkPathOpsCubic.h"
-#include "SkPathOpsQuad.h"
+#include "src/pathops/SkIntersections.h"
+#include "src/pathops/SkLineParameters.h"
+#include "src/pathops/SkPathOpsConic.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsRect.h"
 
 // cribbed from the float version in SkGeometry.cpp
 static void conic_deriv_coeff(const double src[],
@@ -93,8 +94,8 @@ SkDPoint SkDConic::ptAtT(double t) const {
     }
     double denominator = conic_eval_denominator(fWeight, t);
     SkDPoint result = {
-        conic_eval_numerator(&fPts[0].fX, fWeight, t) / denominator,
-        conic_eval_numerator(&fPts[0].fY, fWeight, t) / denominator
+        sk_ieee_double_divide(conic_eval_numerator(&fPts[0].fX, fWeight, t), denominator),
+        sk_ieee_double_divide(conic_eval_numerator(&fPts[0].fY, fWeight, t), denominator)
     };
     return result;
 }
@@ -156,6 +157,9 @@ SkDConic SkDConic::subDivide(double t1, double t2) const {
     double bx = 2 * dx - (ax + cx) / 2;
     double by = 2 * dy - (ay + cy) / 2;
     double bz = 2 * dz - (az + cz) / 2;
+    if (!bz) {
+        bz = 1; // if bz is 0, weight is 0, control point has no effect: any value will do
+    }
     SkDConic dst = {{{{ax / az, ay / az}, {bx / bz, by / bz}, {cx / cz, cy / cz}}
             SkDEBUGPARAMS(fPts.fDebugGlobalState) },
             SkDoubleToScalar(bz / sqrt(az * cz)) };
@@ -167,4 +171,20 @@ SkDPoint SkDConic::subDivide(const SkDPoint& a, const SkDPoint& c, double t1, do
     SkDConic chopped = this->subDivide(t1, t2);
     *weight = chopped.fWeight;
     return chopped[1];
+}
+
+int SkTConic::intersectRay(SkIntersections* i, const SkDLine& line) const {
+    return i->intersectRay(fConic, line);
+}
+
+bool SkTConic::hullIntersects(const SkDQuad& quad, bool* isLinear) const  {
+    return quad.hullIntersects(fConic, isLinear);
+}
+
+bool SkTConic::hullIntersects(const SkDCubic& cubic, bool* isLinear) const {
+    return cubic.hullIntersects(fConic, isLinear);
+}
+
+void SkTConic::setBounds(SkDRect* rect) const {
+    rect->setBounds(fConic);
 }

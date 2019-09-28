@@ -8,9 +8,9 @@
 #ifndef SkScanPriv_DEFINED
 #define SkScanPriv_DEFINED
 
-#include "SkPath.h"
-#include "SkScan.h"
-#include "SkBlitter.h"
+#include "include/core/SkPath.h"
+#include "src/core/SkBlitter.h"
+#include "src/core/SkScan.h"
 
 // controls how much we super-sample (when we use that scan convertion)
 #define SK_SUPERSAMPLE_SHIFT    2
@@ -90,11 +90,7 @@ static inline bool TryBlitFatAntiRect(SkBlitter* blitter, const SkPath& path, co
         return true; // The intersection is empty. Hence consider it done.
     }
     SkIRect bounds = rect.roundOut();
-#ifdef SK_SUPPORT_LEGACY_THREADED_DAA_BUGS
-    if (bounds.width() < 3 || bounds.height() < 3) {
-#else
     if (bounds.width() < 3) {
-#endif
         return false; // not fat
     }
     blitter->blitFatAntiRect(rect);

@@ -4,32 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Test.h"
-#include "SkOffsetPolygon.h"
-
-static bool is_convex(const SkTDArray<SkPoint>& poly) {
-    if (poly.count() < 3) {
-        return false;
-    }
-
-    SkVector v0 = poly[0] - poly[poly.count() - 1];
-    SkVector v1 = poly[1] - poly[poly.count() - 1];
-    SkScalar winding = v0.cross(v1);
-
-    for (int i = 0; i < poly.count()-1; ++i) {
-        int j = i + 1;
-        int k = (i + 2) % poly.count();
-
-        SkVector v0 = poly[j] - poly[i];
-        SkVector v1 = poly[k] - poly[i];
-        SkScalar perpDot = v0.cross(v1);
-        if (winding*perpDot < 0) {
-            return false;
-        }
-    }
-
-    return true;
-}
+#include "src/utils/SkPolyUtils.h"
+#include "tests/Test.h"
 
 DEF_TEST(InsetConvexPoly, reporter) {
     SkTDArray<SkPoint> rrectPoly;
@@ -55,18 +31,18 @@ DEF_TEST(InsetConvexPoly, reporter) {
     *rrectPoly.push() = SkPoint::Make(-100 - 4.330127f, 50 + 2.5f);
     *rrectPoly.push() = SkPoint::Make(-100 - 3.535534f, 50 + 3.535534f);
     *rrectPoly.push() = SkPoint::Make(-100 - 2.5f, 50 + 4.330127f);
-    REPORTER_ASSERT(reporter, is_convex(rrectPoly));
+    REPORTER_ASSERT(reporter, SkIsConvexPolygon(rrectPoly.begin(), rrectPoly.count()));
 
     // inset a little
     SkTDArray<SkPoint> insetPoly;
-    bool result = SkInsetConvexPolygon(&rrectPoly[0], rrectPoly.count(), 3, &insetPoly);
+    bool result = SkInsetConvexPolygon(rrectPoly.begin(), rrectPoly.count(), 3, &insetPoly);
     REPORTER_ASSERT(reporter, result);
-    REPORTER_ASSERT(reporter, is_convex(insetPoly));
+    REPORTER_ASSERT(reporter, SkIsConvexPolygon(insetPoly.begin(), insetPoly.count()));
 
     // inset to rect
-    result = SkInsetConvexPolygon(&rrectPoly[0], rrectPoly.count(), 10, &insetPoly);
+    result = SkInsetConvexPolygon(rrectPoly.begin(), rrectPoly.count(), 10, &insetPoly);
     REPORTER_ASSERT(reporter, result);
-    REPORTER_ASSERT(reporter, is_convex(insetPoly));
+    REPORTER_ASSERT(reporter, SkIsConvexPolygon(insetPoly.begin(), insetPoly.count()));
     REPORTER_ASSERT(reporter, insetPoly.count() == 4);
     if (insetPoly.count() == 4) {
         REPORTER_ASSERT(reporter, insetPoly[0].equals(-95, 45));
@@ -77,9 +53,9 @@ DEF_TEST(InsetConvexPoly, reporter) {
 
     // just to full inset
     // fails, but outputs a line segment
-    result = SkInsetConvexPolygon(&rrectPoly[0], rrectPoly.count(), 55, &insetPoly);
+    result = SkInsetConvexPolygon(rrectPoly.begin(), rrectPoly.count(), 55, &insetPoly);
     REPORTER_ASSERT(reporter, !result);
-    REPORTER_ASSERT(reporter, !is_convex(insetPoly));
+    REPORTER_ASSERT(reporter, !SkIsConvexPolygon(insetPoly.begin(), insetPoly.count()));
     REPORTER_ASSERT(reporter, insetPoly.count() == 2);
     if (insetPoly.count() == 2) {
         REPORTER_ASSERT(reporter, insetPoly[0].equals(-50, 0));
@@ -87,9 +63,9 @@ DEF_TEST(InsetConvexPoly, reporter) {
     }
 
     // past full inset
-    result = SkInsetConvexPolygon(&rrectPoly[0], rrectPoly.count(), 75, &insetPoly);
+    result = SkInsetConvexPolygon(rrectPoly.begin(), rrectPoly.count(), 75, &insetPoly);
     REPORTER_ASSERT(reporter, !result);
-    REPORTER_ASSERT(reporter, insetPoly.count() == 0);
+    REPORTER_ASSERT(reporter, insetPoly.count() == 1);
 
     // troublesome case
     SkTDArray<SkPoint> clippedRRectPoly;
@@ -120,10 +96,11 @@ DEF_TEST(InsetConvexPoly, reporter) {
     *clippedRRectPoly.push() = SkPoint::Make(381.195313f, 432.207275f);
     *clippedRRectPoly.push() = SkPoint::Make(377.312134f, 432.947998f);
     *clippedRRectPoly.push() = SkPoint::Make(342.289948f, 432.947998f);
-    REPORTER_ASSERT(reporter, is_convex(clippedRRectPoly));
+    REPORTER_ASSERT(reporter, SkIsConvexPolygon(clippedRRectPoly.begin(),
+                                                clippedRRectPoly.count()));
 
-    result = SkInsetConvexPolygon(&clippedRRectPoly[0], clippedRRectPoly.count(), 32.3699417f,
+    result = SkInsetConvexPolygon(clippedRRectPoly.begin(), clippedRRectPoly.count(), 32.3699417f,
                                   &insetPoly);
     REPORTER_ASSERT(reporter, result);
-    REPORTER_ASSERT(reporter, is_convex(insetPoly));
+    REPORTER_ASSERT(reporter, SkIsConvexPolygon(insetPoly.begin(), insetPoly.count()));
 }

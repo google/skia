@@ -1,0 +1,832 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/tmp"
+    ],
+    "infra_step": true,
+    "name": "makedirs tmp_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+    ],
+    "name": "get swarming bot id",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nCHROMECAST_IP_FILE = os.path.expanduser('~/chromecast.txt')\nwith open(CHROMECAST_IP_FILE, 'r') as f:\n  print f.read()\n"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "read chromecast ip",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@CHROMECAST_IP_FILE = os.path.expanduser('~/chromecast.txt')@@@",
+      "@@@STEP_LOG_LINE@python.inline@with open(CHROMECAST_IP_FILE, 'r') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print f.read()@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "adb",
+      "connect",
+      "192.168.1.2:5555"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "adb connect 192.168.1.2:5555"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/cache/skia/resources"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "mkdir /cache/skia/resources"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "mkdir /cache/skia/bin"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    hp = os.path.realpath(os.path.join(host, p, f))\n    if os.stat(hp).st_size > (1.5 * 1024 * 1024):\n      print \"Skipping because it is too big\"\n    else:\n      subprocess.check_call(['adb', 'push',\n                            hp, os.path.join(device, p, f)])\n",
+      "[START_DIR]/skia/resources",
+      "/cache/skia/resources"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/skia/resources/* /cache/skia/resources",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@host   = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@device = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@for d, _, fs in os.walk(host):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  p = os.path.relpath(d, host)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if p != '.' and p.startswith('.'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    continue@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    hp = os.path.realpath(os.path.join(host, p, f))@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if os.stat(hp).st_size > (1.5 * 1024 * 1024):@@@",
+      "@@@STEP_LOG_LINE@python.inline@      print \"Skipping because it is too big\"@@@",
+      "@@@STEP_LOG_LINE@python.inline@    else:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      subprocess.check_call(['adb', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                            hp, os.path.join(device, p, f)])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/skia/infra/bots/assets/skp/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get skp VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "42",
+      "[START_DIR]/tmp/SKP_VERSION"
+    ],
+    "infra_step": true,
+    "name": "write SKP_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SKP_VERSION@42@@@",
+      "@@@STEP_LOG_END@SKP_VERSION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "cat",
+      "/cache/skia/SKP_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "read /cache/skia/SKP_VERSION"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "rm",
+      "-f",
+      "/cache/skia/SKP_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /cache/skia/SKP_VERSION"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "rm",
+      "-r",
+      "/cache/skia/skps"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /cache/skia/skps"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/cache/skia/skps"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "mkdir /cache/skia/skps"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    hp = os.path.realpath(os.path.join(host, p, f))\n    if os.stat(hp).st_size > (1.5 * 1024 * 1024):\n      print \"Skipping because it is too big\"\n    else:\n      subprocess.check_call(['adb', 'push',\n                            hp, os.path.join(device, p, f)])\n",
+      "[START_DIR]/skp",
+      "/cache/skia/skps"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/skp/* /cache/skia/skps",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@host   = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@device = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@for d, _, fs in os.walk(host):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  p = os.path.relpath(d, host)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if p != '.' and p.startswith('.'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    continue@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    hp = os.path.realpath(os.path.join(host, p, f))@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if os.stat(hp).st_size > (1.5 * 1024 * 1024):@@@",
+      "@@@STEP_LOG_LINE@python.inline@      print \"Skipping because it is too big\"@@@",
+      "@@@STEP_LOG_LINE@python.inline@    else:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      subprocess.check_call(['adb', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                            hp, os.path.join(device, p, f)])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/tmp/SKP_VERSION",
+      "/cache/skia/SKP_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/tmp/SKP_VERSION /cache/skia/SKP_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "rmtree",
+      "[START_DIR]/test"
+    ],
+    "infra_step": true,
+    "name": "rmtree test"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/test"
+    ],
+    "infra_step": true,
+    "name": "makedirs test"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "rm",
+      "-r",
+      "/dev/shm/skia/dm_out"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /dev/shm/skia/dm_out"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/dev/shm/skia/dm_out"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "mkdir /dev/shm/skia/dm_out"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport contextlib\nimport math\nimport socket\nimport sys\nimport time\nimport urllib2\n\nHASHES_URL = sys.argv[1]\nRETRIES = 5\nTIMEOUT = 60\nWAIT_BASE = 15\n\nsocket.setdefaulttimeout(TIMEOUT)\nfor retry in range(RETRIES):\n  try:\n    with contextlib.closing(\n        urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:\n      hashes = w.read()\n      with open(sys.argv[2], 'w') as f:\n        f.write(hashes)\n        break\n  except Exception as e:\n    print 'Failed to get uninteresting hashes from %s:' % HASHES_URL\n    print e\n    if retry == RETRIES:\n      raise\n    waittime = WAIT_BASE * math.pow(2, retry)\n    print 'Retry in %d seconds.' % waittime\n    time.sleep(waittime)\n",
+      "https://example.com/hashes.txt",
+      "[START_DIR]/tmp/uninteresting_hashes.txt"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "get uninteresting hashes",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import contextlib@@@",
+      "@@@STEP_LOG_LINE@python.inline@import math@@@",
+      "@@@STEP_LOG_LINE@python.inline@import socket@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@import time@@@",
+      "@@@STEP_LOG_LINE@python.inline@import urllib2@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@HASHES_URL = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@RETRIES = 5@@@",
+      "@@@STEP_LOG_LINE@python.inline@TIMEOUT = 60@@@",
+      "@@@STEP_LOG_LINE@python.inline@WAIT_BASE = 15@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@socket.setdefaulttimeout(TIMEOUT)@@@",
+      "@@@STEP_LOG_LINE@python.inline@for retry in range(RETRIES):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    with contextlib.closing(@@@",
+      "@@@STEP_LOG_LINE@python.inline@        urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      hashes = w.read()@@@",
+      "@@@STEP_LOG_LINE@python.inline@      with open(sys.argv[2], 'w') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@        f.write(hashes)@@@",
+      "@@@STEP_LOG_LINE@python.inline@        break@@@",
+      "@@@STEP_LOG_LINE@python.inline@  except Exception as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print 'Failed to get uninteresting hashes from %s:' % HASHES_URL@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print e@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if retry == RETRIES:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      raise@@@",
+      "@@@STEP_LOG_LINE@python.inline@    waittime = WAIT_BASE * math.pow(2, retry)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print 'Retry in %d seconds.' % waittime@@@",
+      "@@@STEP_LOG_LINE@python.inline@    time.sleep(waittime)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/tmp/uninteresting_hashes.txt",
+      "/cache/skia/uninteresting_hashes.txt"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/tmp/uninteresting_hashes.txt /cache/skia/uninteresting_hashes.txt"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
+    ],
+    "name": "get swarming task id",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[START_DIR]/build/dm",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push dm"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "/cache/skia/bin/dm",
+      "--resourcePath",
+      "/cache/skia/resources",
+      "--skps",
+      "/cache/skia/skps",
+      "--images",
+      "/cache/skia/resources/images/color_wheel.jpg",
+      "--nameByHash",
+      "--dontReduceOpsTaskSplitting",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "builder",
+      "Test-Chromecast-Clang-Chorizo-GPU-Cortex_A7-arm-Release-All",
+      "buildbucket_build_id",
+      "123454321",
+      "task_id",
+      "task_12345",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "configuration",
+      "Release",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast",
+      "style",
+      "default",
+      "--uninterestingHashesFile",
+      "/cache/skia/uninteresting_hashes.txt",
+      "--writePath",
+      "/dev/shm/skia/dm_out",
+      "--dont_write",
+      "pdf",
+      "--randomProcessorTest",
+      "--threads",
+      "0",
+      "--ignoreSigInt",
+      "--nocpu",
+      "--config",
+      "gles",
+      "--src",
+      "tests",
+      "gm",
+      "image",
+      "colorImage",
+      "svg",
+      "--blacklist",
+      "_",
+      "gm",
+      "_",
+      "savelayer_clipmask",
+      "_",
+      "svg",
+      "_",
+      "svgparse_",
+      "_",
+      "image",
+      "gen_platf",
+      "error",
+      "_",
+      "test",
+      "_",
+      "GrShape",
+      "_",
+      "image",
+      "_",
+      "interlaced1.png",
+      "_",
+      "image",
+      "_",
+      "interlaced2.png",
+      "_",
+      "image",
+      "_",
+      "interlaced3.png",
+      "_",
+      "image",
+      "_",
+      ".arw",
+      "_",
+      "image",
+      "_",
+      ".cr2",
+      "_",
+      "image",
+      "_",
+      ".dng",
+      "_",
+      "image",
+      "_",
+      ".nef",
+      "_",
+      "image",
+      "_",
+      ".nrw",
+      "_",
+      "image",
+      "_",
+      ".orf",
+      "_",
+      "image",
+      "_",
+      ".raf",
+      "_",
+      "image",
+      "_",
+      ".rw2",
+      "_",
+      "image",
+      "_",
+      ".pef",
+      "_",
+      "image",
+      "_",
+      ".srw",
+      "_",
+      "image",
+      "_",
+      ".ARW",
+      "_",
+      "image",
+      "_",
+      ".CR2",
+      "_",
+      "image",
+      "_",
+      ".DNG",
+      "_",
+      "image",
+      "_",
+      ".NEF",
+      "_",
+      "image",
+      "_",
+      ".NRW",
+      "_",
+      "image",
+      "_",
+      ".ORF",
+      "_",
+      "image",
+      "_",
+      ".RAF",
+      "_",
+      "image",
+      "_",
+      ".RW2",
+      "_",
+      "image",
+      "_",
+      ".PEF",
+      "_",
+      "image",
+      "_",
+      ".SRW",
+      "_",
+      "gm",
+      "_",
+      "compositor_quads_filter",
+      "--match",
+      "~animated-image-blurs",
+      "~blur_0.01",
+      "~blur_image_filter",
+      "~check_small_sigma_offset",
+      "~imageblur2",
+      "~lighting",
+      "~longpathdash",
+      "~matrixconvolution",
+      "~textblobmixedsizes_df",
+      "~textblobrandomfont",
+      "~bigbitmaprect_",
+      "~DrawBitmapRect",
+      "~drawbitmaprect",
+      "~GM_animated-image-blurs",
+      "~ImageFilterBlurLargeImage",
+      "~savelayer_clipmask",
+      "~TextBlobCache",
+      "~verylarge",
+      "--nonativeFonts",
+      "--verbose"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "dm"
+  },
+  {
+    "cmd": [],
+    "name": "adb pull"
+  },
+  {
+    "cmd": [
+      "adb",
+      "pull",
+      "/dev/shm/skia/dm_out",
+      "[CLEANUP]/adb_pull_tmp_1"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "adb pull.pull /dev/shm/skia/dm_out",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[CLEANUP]/adb_pull_tmp_1",
+      "dm_out/*"
+    ],
+    "infra_step": true,
+    "name": "adb pull.list pulled files",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@glob@[CLEANUP]/adb_pull_tmp_1/1.png@@@",
+      "@@@STEP_LOG_LINE@glob@[CLEANUP]/adb_pull_tmp_1/2.png@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[CLEANUP]/adb_pull_tmp_1/1.png",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "adb pull.copy 1.png",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[CLEANUP]/adb_pull_tmp_1/2.png",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "adb pull.copy 2.png",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "rmtree",
+      "[CLEANUP]/adb_pull_tmp_1"
+    ],
+    "infra_step": true,
+    "name": "adb pull.rmtree [CLEANUP]/adb_pull_tmp_1",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-T",
+      "root@192.168.1.2",
+      "rm",
+      "-r",
+      "/cache/skia/bin"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "Delete executables"
+  },
+  {
+    "cmd": [
+      "adb",
+      "disconnect"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "disconnect"
+  },
+  {
+    "cmd": [
+      "adb",
+      "connect",
+      "192.168.1.2:5555"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "adb connect 192.168.1.2:5555 (2)"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['adb', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
+      "[START_DIR]/build"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "dump log",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@out = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output(['adb', 'logcat', '-d'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@for line in log.split('\\n'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  tokens = line.split()@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':@@@",
+      "@@@STEP_LOG_LINE@python.inline@    addr, path = tokens[-2:]@@@",
+      "@@@STEP_LOG_LINE@python.inline@    local = os.path.join(out, os.path.basename(path))@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if os.path.exists(local):@@@",
+      "@@@STEP_LOG_LINE@python.inline@      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])@@@",
+      "@@@STEP_LOG_LINE@python.inline@      line = line.replace(addr, addr + ' ' + sym.strip())@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print line@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "adb",
+      "disconnect"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "disconnect (2)"
+  },
+  {
+    "cmd": [
+      "adb",
+      "kill-server"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "kill adb server"
+  },
+  {
+    "name": "$result"
+  }
+]

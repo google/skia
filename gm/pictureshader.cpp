@@ -5,22 +5,32 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-
-#include "SkBitmap.h"
-#include "SkPaint.h"
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
-#include "SkShader.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
+#include "tools/ToolUtils.h"
 
 static struct {
-    SkShader::TileMode tmx;
-    SkShader::TileMode tmy;
+    SkTileMode tmx;
+    SkTileMode tmy;
 } kTileConfigs[] = {
-    { SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode },
-    { SkShader::kRepeat_TileMode, SkShader::kClamp_TileMode  },
-    { SkShader::kMirror_TileMode, SkShader::kRepeat_TileMode },
+    { SkTileMode::kRepeat, SkTileMode::kRepeat },
+    { SkTileMode::kRepeat, SkTileMode::kClamp  },
+    { SkTileMode::kMirror, SkTileMode::kRepeat },
 };
 
 class PictureShaderGM : public skiagm::GM {
@@ -144,18 +154,17 @@ private:
 
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);
-        paint.setColor(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
+        paint.setColor(SK_ColorLTGRAY);
 
         canvas->save();
         canvas->concat(matrix);
         canvas->drawRect(SkRect::MakeWH(fSceneSize, fSceneSize), paint);
         canvas->drawRect(SkRect::MakeXYWH(fSceneSize * 1.1f, 0, fSceneSize, fSceneSize), paint);
 
-        auto pictureShader = SkShader::MakePictureShader(fPicture, kTileConfigs[tileMode].tmx,
-                                                         kTileConfigs[tileMode].tmy,
-                                                         fUseLocalMatrixWrapper
-                                                            ? nullptr : &localMatrix,
-                                                         nullptr);
+        auto pictureShader = fPicture->makeShader(kTileConfigs[tileMode].tmx,
+                                                  kTileConfigs[tileMode].tmy,
+                                                  fUseLocalMatrixWrapper ? nullptr : &localMatrix,
+                                                  nullptr);
         paint.setShader(fUseLocalMatrixWrapper
                             ? pictureShader->makeWithLocalMatrix(localMatrix)
                             : pictureShader);
@@ -163,7 +172,7 @@ private:
 
         canvas->translate(fSceneSize * 1.1f, 0);
 
-        auto bitmapShader = SkShader::MakeBitmapShader(fBitmap,
+        auto bitmapShader = fBitmap.makeShader(
                                                        kTileConfigs[tileMode].tmx,
                                                        kTileConfigs[tileMode].tmy,
                                                        fUseLocalMatrixWrapper
@@ -199,23 +208,21 @@ DEF_SIMPLE_GM(tiled_picture_shader, canvas, 400, 400) {
     SkRect r = tile;
     r.inset(4, 4);
     SkPaint p;
-    p.setColor(sk_tool_utils::color_to_565(0xFF303F9F));  // dark blue
+    p.setColor(ToolUtils::color_to_565(0xFF303F9F));  // dark blue
     c->drawRect(r, p);
-    p.setColor(sk_tool_utils::color_to_565(0xFFC5CAE9));  // light blue
+    p.setColor(ToolUtils::color_to_565(0xFFC5CAE9));  // light blue
     p.setStrokeWidth(10);
     c->drawLine(20, 20, 80, 80, p);
 
     sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
 
-    p.setColor(sk_tool_utils::color_to_565(0xFF8BC34A));  // green
+    p.setColor(ToolUtils::color_to_565(0xFF8BC34A));  // green
     canvas->drawPaint(p);
 
     canvas->clipRect(SkRect::MakeXYWH(0, 0, 400, 350));
-    p.setColor(sk_tool_utils::color_to_565(0xFFB6B6B6));  // gray
+    p.setColor(0xFFB6B6B6);  // gray
     canvas->drawPaint(p);
 
-    p.setShader(SkShader::MakePictureShader(std::move(picture), SkShader::kRepeat_TileMode,
-                                            SkShader::kRepeat_TileMode,
-                                            nullptr, nullptr));
+    p.setShader(picture->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat));
     canvas->drawPaint(p);
 }

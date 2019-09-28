@@ -5,23 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "SkCodec.h"
-#include "SkCodecPriv.h"
-#include "SkColorSpacePriv.h"
-#include "SkColorData.h"
-#include "SkData.h"
-#include "SkJpegCodec.h"
-#include "SkMakeUnique.h"
-#include "SkMutex.h"
-#include "SkRawCodec.h"
-#include "SkRefCnt.h"
-#include "SkStream.h"
-#include "SkStreamPriv.h"
-#include "SkSwizzler.h"
-#include "SkTArray.h"
-#include "SkTaskGroup.h"
-#include "SkTemplates.h"
-#include "SkTypes.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkData.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTemplates.h"
+#include "src/codec/SkCodecPriv.h"
+#include "src/codec/SkJpegCodec.h"
+#include "src/codec/SkRawCodec.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkStreamPriv.h"
+#include "src/core/SkTaskGroup.h"
 
 #include "dng_area_task.h"
 #include "dng_color_space.h"
@@ -114,10 +113,10 @@ public:
                 try {
                     task.ProcessOnThread(taskIndex, taskAreas[taskIndex], tileSize, this->Sniffer());
                 } catch (dng_exception& exception) {
-                    SkAutoMutexAcquire lock(mutex);
+                    SkAutoMutexExclusive lock(mutex);
                     exceptions.push_back(exception);
                 } catch (...) {
-                    SkAutoMutexAcquire lock(mutex);
+                    SkAutoMutexExclusive lock(mutex);
                     exceptions.push_back(dng_exception(dng_error_unknown));
                 }
             });
@@ -504,10 +503,6 @@ public:
         }
     }
 
-    const SkEncodedInfo& getEncodedInfo() const {
-        return fEncodedInfo;
-    }
-
     int width() const {
         return fWidth;
     }
@@ -602,8 +597,6 @@ private:
 
     SkDngImage(SkRawStream* stream)
         : fStream(stream)
-        , fEncodedInfo(SkEncodedInfo::Make(SkEncodedInfo::kRGB_Color,
-                                           SkEncodedInfo::kOpaque_Alpha, 8))
     {}
 
     dng_memory_allocator fAllocator;
@@ -615,7 +608,6 @@ private:
 
     int fWidth;
     int fHeight;
-    SkEncodedInfo fEncodedInfo;
     bool fIsScalable;
     bool fIsXtransImage;
 };
@@ -644,15 +636,13 @@ std::unique_ptr<SkCodec> SkRawCodec::MakeFromStream(std::unique_ptr<SkStream> st
             return nullptr;
         }
 
-        sk_sp<SkColorSpace> colorSpace;
-        switch (imageData.color_space) {
-            case ::piex::PreviewImageData::kSrgb:
-                colorSpace = SkColorSpace::MakeSRGB();
-                break;
-            case ::piex::PreviewImageData::kAdobeRgb:
-                colorSpace = SkColorSpace::MakeRGB(g2Dot2_TransferFn,
-                                                   SkColorSpace::kAdobeRGB_Gamut);
-                break;
+        std::unique_ptr<SkEncodedInfo::ICCProfile> profile;
+        if (imageData.color_space == ::piex::PreviewImageData::kAdobeRgb) {
+            skcms_ICCProfile skcmsProfile;
+            skcms_Init(&skcmsProfile);
+            skcms_SetTransferFunction(&skcmsProfile, &SkNamedTransferFn::k2Dot2);
+            skcms_SetXYZD50(&skcmsProfile, &SkNamedGamut::kAdobeRGB);
+            profile = SkEncodedInfo::ICCProfile::Make(skcmsProfile);
         }
 
         //  Theoretically PIEX can return JPEG compressed image or uncompressed RGB image. We only
@@ -670,7 +660,7 @@ std::unique_ptr<SkCodec> SkRawCodec::MakeFromStream(std::unique_ptr<SkStream> st
                 return nullptr;
             }
             return SkJpegCodec::MakeFromStream(std::move(memoryStream), result,
-                                               std::move(colorSpace));
+                                               std::move(profile));
         }
     }
 
@@ -693,17 +683,6 @@ std::unique_ptr<SkCodec> SkRawCodec::MakeFromStream(std::unique_ptr<SkStream> st
 SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
                                         size_t dstRowBytes, const Options& options,
                                         int* rowsDecoded) {
-    SkImageInfo swizzlerInfo = dstInfo;
-    std::unique_ptr<uint32_t[]> xformBuffer = nullptr;
-    if (this->colorXform()) {
-        swizzlerInfo = swizzlerInfo.makeColorType(kRGBA_8888_SkColorType);
-        xformBuffer.reset(new uint32_t[dstInfo.width()]);
-    }
-
-    std::unique_ptr<SkSwizzler> swizzler(SkSwizzler::CreateSwizzler(
-            this->getEncodedInfo(), nullptr, swizzlerInfo, options));
-    SkASSERT(swizzler);
-
     const int width = dstInfo.width();
     const int height = dstInfo.height();
     std::unique_ptr<dng_image> image(fDngImage->render(width, height));
@@ -733,6 +712,20 @@ SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
     buffer.fPixelSize = sizeof(uint8_t);
     buffer.fRowStep = width * 3;
 
+    constexpr auto srcFormat = skcms_PixelFormat_RGB_888;
+    skcms_PixelFormat dstFormat;
+    if (!sk_select_xform_format(dstInfo.colorType(), false, &dstFormat)) {
+        return kInvalidConversion;
+    }
+
+    const skcms_ICCProfile* const srcProfile = this->getEncodedInfo().profile();
+    skcms_ICCProfile dstProfileStorage;
+    const skcms_ICCProfile* dstProfile = nullptr;
+    if (auto cs = dstInfo.colorSpace()) {
+        cs->toProfile(&dstProfileStorage);
+        dstProfile = &dstProfileStorage;
+    }
+
     for (int i = 0; i < height; ++i) {
         buffer.fArea = dng_rect(i, 0, i + 1, width);
 
@@ -743,13 +736,14 @@ SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
             return kIncompleteInput;
         }
 
-        if (this->colorXform()) {
-            swizzler->swizzle(xformBuffer.get(), &srcRow[0]);
-
-            this->applyColorXform(dstRow, xformBuffer.get(), dstInfo.width(), kOpaque_SkAlphaType);
-        } else {
-            swizzler->swizzle(dstRow, &srcRow[0]);
+        if (!skcms_Transform(&srcRow[0], srcFormat, skcms_AlphaFormat_Unpremul, srcProfile,
+                             dstRow,     dstFormat, skcms_AlphaFormat_Unpremul, dstProfile,
+                             dstInfo.width())) {
+            SkDebugf("failed to transform\n");
+            *rowsDecoded = i;
+            return kInternalError;
         }
+
         dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
     }
     return kSuccess;
@@ -758,7 +752,7 @@ SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
 SkISize SkRawCodec::onGetScaledDimensions(float desiredScale) const {
     SkASSERT(desiredScale <= 1.f);
 
-    const SkISize dim = this->getInfo().dimensions();
+    const SkISize dim = this->dimensions();
     SkASSERT(dim.fWidth != 0 && dim.fHeight != 0);
 
     if (!fDngImage->isScalable()) {
@@ -784,7 +778,7 @@ SkISize SkRawCodec::onGetScaledDimensions(float desiredScale) const {
 }
 
 bool SkRawCodec::onDimensionsSupported(const SkISize& dim) {
-    const SkISize fullDim = this->getInfo().dimensions();
+    const SkISize fullDim = this->dimensions();
     const float fullShortEdge = static_cast<float>(SkTMin(fullDim.fWidth, fullDim.fHeight));
     const float shortEdge = static_cast<float>(SkTMin(dim.fWidth, dim.fHeight));
 
@@ -796,7 +790,8 @@ bool SkRawCodec::onDimensionsSupported(const SkISize& dim) {
 SkRawCodec::~SkRawCodec() {}
 
 SkRawCodec::SkRawCodec(SkDngImage* dngImage)
-    : INHERITED(dngImage->width(), dngImage->height(), dngImage->getEncodedInfo(),
-                SkColorSpaceXform::kRGBA_8888_ColorFormat, nullptr,
-                SkColorSpace::MakeSRGB())
+    : INHERITED(SkEncodedInfo::Make(dngImage->width(), dngImage->height(),
+                                    SkEncodedInfo::kRGB_Color,
+                                    SkEncodedInfo::kOpaque_Alpha, 8),
+                skcms_PixelFormat_RGBA_8888, nullptr)
     , fDngImage(dngImage) {}

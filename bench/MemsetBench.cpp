@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkTemplates.h"
-#include "SkUtils.h"
+#include "bench/Benchmark.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkUtils.h"
 
 template <typename T, bool kInline>
 class MemsetBench : public Benchmark {

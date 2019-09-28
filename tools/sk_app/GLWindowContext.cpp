@@ -6,17 +6,17 @@
  * found in the LICENSE file.
  */
 
-#include "GLWindowContext.h"
-#include "GrBackendSurface.h"
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "SkCanvas.h"
-#include "SkImage_Base.h"
-#include "SkMathPriv.h"
-#include "SkSurface.h"
-#include "gl/GrGLDefines.h"
-#include "gl/GrGLUtil.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
+#include "src/core/SkMathPriv.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/gl/GrGLUtil.h"
+#include "src/image/SkImage_Base.h"
+#include "tools/sk_app/GLWindowContext.h"
 
 namespace sk_app {
 
@@ -56,15 +56,12 @@ void GLWindowContext::destroyContext() {
 sk_sp<SkSurface> GLWindowContext::getBackbufferSurface() {
     if (nullptr == fSurface) {
         if (fContext) {
-            GrGLFramebufferInfo fbInfo;
             GrGLint buffer;
-            GR_GL_CALL(fBackendContext.get(), GetIntegerv(GR_GL_FRAMEBUFFER_BINDING,
-                                                          &buffer));
+            GR_GL_CALL(fBackendContext.get(), GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer));
+
+            GrGLFramebufferInfo fbInfo;
             fbInfo.fFBOID = buffer;
-            fbInfo.fFormat =
-                    fContext->contextPriv().caps()->srgbSupport() && fDisplayParams.fColorSpace
-                            ? GR_GL_SRGB8_ALPHA8
-                            : GR_GL_RGBA8;
+            fbInfo.fFormat = GR_GL_RGBA8;
 
             GrBackendRenderTarget backendRT(fWidth,
                                             fHeight,
@@ -87,14 +84,14 @@ void GLWindowContext::swapBuffers() {
     this->onSwapBuffers();
 }
 
-void GLWindowContext::resize(int  w, int h) {
+void GLWindowContext::resize(int w, int h) {
     this->destroyContext();
     this->initializeContext();
 }
 
 void GLWindowContext::setDisplayParams(const DisplayParams& params) {
-    this->destroyContext();
     fDisplayParams = params;
+    this->destroyContext();
     this->initializeContext();
 }
 

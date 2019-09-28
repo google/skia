@@ -8,19 +8,19 @@
 #ifndef GrGLSemaphore_DEFINED
 #define GrGLSemaphore_DEFINED
 
-#include "GrBackendSemaphore.h"
-#include "GrSemaphore.h"
-#include "GrTypesPriv.h"
+#include "include/gpu/GrBackendSemaphore.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrSemaphore.h"
 
 class GrGLGpu;
 
 class GrGLSemaphore : public GrSemaphore {
 public:
-    static sk_sp<GrGLSemaphore> Make(const GrGLGpu* gpu, bool isOwned) {
+    static sk_sp<GrGLSemaphore> Make(GrGLGpu* gpu, bool isOwned) {
         return sk_sp<GrGLSemaphore>(new GrGLSemaphore(gpu, isOwned));
     }
 
-    static sk_sp<GrGLSemaphore> MakeWrapped(const GrGLGpu* gpu,
+    static sk_sp<GrGLSemaphore> MakeWrapped(GrGLGpu* gpu,
                                             GrGLsync sync,
                                             GrWrapOwnership ownership) {
         auto sema = sk_sp<GrGLSemaphore>(new GrGLSemaphore(gpu,
@@ -29,17 +29,20 @@ public:
         return sema;
     }
 
-    ~GrGLSemaphore() override;
-
     GrGLsync sync() const { return fSync; }
     void setSync(const GrGLsync& sync) { fSync = sync; }
 
-private:
-    GrGLSemaphore(const GrGLGpu* gpu, bool isOwned);
-
-    void setBackendSemaphore(GrBackendSemaphore* backendSemaphore) const override {
-        backendSemaphore->initGL(fSync);
+    GrBackendSemaphore backendSemaphore() const override {
+        GrBackendSemaphore backendSemaphore;
+        backendSemaphore.initGL(fSync);
+        return backendSemaphore;
     }
+
+private:
+    GrGLSemaphore(GrGLGpu* gpu, bool isOwned);
+
+    void onRelease() override;
+    void onAbandon() override;
 
     GrGLsync fSync;
     bool     fIsOwned;

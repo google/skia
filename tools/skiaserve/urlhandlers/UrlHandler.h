@@ -7,7 +7,7 @@
 #ifndef UrlHandler_DEFINED
 #define UrlHandler_DEFINED
 
-#include "SkColor.h"
+#include "include/core/SkColor.h"
 
 struct MHD_Connection;
 struct Request;

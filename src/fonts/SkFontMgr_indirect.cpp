@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontMgr.h"
-#include "SkFontMgr_indirect.h"
-#include "SkFontStyle.h"
-#include "SkMutex.h"
-#include "SkOnce.h"
-#include "SkRefCnt.h"
-#include "SkRemotableFontMgr.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkTArray.h"
-#include "SkTypeface.h"
-#include "SkTypes.h"
-#include "SkTemplates.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/ports/SkFontMgr_indirect.h"
+#include "include/ports/SkRemotableFontMgr.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkOnce.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTemplates.h"
 
 class SkData;
 
@@ -69,7 +69,6 @@ void SkFontMgr_Indirect::onGetFamilyName(int index, SkString* familyName) const 
 
 SkFontStyleSet* SkFontMgr_Indirect::onCreateStyleSet(int index) const {
     SK_ABORT("Not implemented");
-    return nullptr;
 }
 
 SkFontStyleSet* SkFontMgr_Indirect::onMatchFamily(const char familyName[]) const {
@@ -81,7 +80,7 @@ SkTypeface* SkFontMgr_Indirect::createTypefaceFromFontId(const SkFontIdentity& i
         return nullptr;
     }
 
-    SkAutoMutexAcquire ama(fDataCacheMutex);
+    SkAutoMutexExclusive ama(fDataCacheMutex);
 
     sk_sp<SkTypeface> dataTypeface;
     int dataTypefaceIndex = 0;

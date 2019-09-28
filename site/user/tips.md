@@ -110,8 +110,11 @@ engines can easily be supported in a like manner.
 <span id="kerning">Does Skia shape text (kerning)?</span>
 ---------------------------------------------------------
 
-No.  Skia provides interfaces to draw glyphs, but does not implement a
-text shaper. Skia's client's often use
+Shaping is the process that translates a span of Unicode text into a span of
+positioned glyphs with the apropriate typefaces.
+
+Skia does not shape text.  Skia provides interfaces to draw glyphs, but does
+not implement a text shaper. Skia's client's often use
 [HarfBuzz](http://www.freedesktop.org/wiki/Software/HarfBuzz/) to
 generate the glyphs and their positions, including kerning.
 
@@ -130,25 +133,22 @@ used to draw those glyphs.
 <!--?prettify lang=cc?-->
 
     void draw(SkCanvas* canvas) {
-        const char text[] = "Skia";
-        const SkScalar radius = 2.0f;
+        const SkScalar sigma = 1.65f;
         const SkScalar xDrop = 2.0f;
         const SkScalar yDrop = 2.0f;
         const SkScalar x = 8.0f;
         const SkScalar y = 52.0f;
         const SkScalar textSize = 48.0f;
         const uint8_t blurAlpha = 127;
-        canvas->drawColor(SK_ColorWHITE);
+        auto blob = SkTextBlob::MakeFromString("Skia", SkFont(nullptr, textSize));
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setTextSize(textSize);
         SkPaint blur(paint);
         blur.setAlpha(blurAlpha);
-        blur.setMaskFilter(SkBlurMaskFilter::Make(
-            kNormal_SkBlurStyle,
-            SkBlurMaskFilter::ConvertRadiusToSigma(radius), 0));
-        canvas->drawText(text, strlen(text), x + xDrop, y + yDrop, blur);
-        canvas->drawText(text, strlen(text), x, y, paint);
+        blur.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma, 0));
+        canvas->drawColor(SK_ColorWHITE);
+        canvas->drawTextBlob(blob.get(), x + xDrop, y + yDrop, blur);
+        canvas->drawTextBlob(blob.get(), x,         y,         paint);
     }
 
 <a href='https://fiddle.skia.org/c/@text_shadow'><img src='https://fiddle.skia.org/i/@text_shadow_raster.png'></a>

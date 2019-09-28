@@ -5,27 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include "GrSimpleMeshDrawOpHelper.h"
-#include "GrAppliedClip.h"
-#include "GrProcessorSet.h"
-#include "GrRect.h"
-#include "GrUserStencilSettings.h"
+#include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrProcessorSet.h"
+#include "src/gpu/GrUserStencilSettings.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/geometry/GrRect.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 GrSimpleMeshDrawOpHelper::GrSimpleMeshDrawOpHelper(const MakeArgs& args, GrAAType aaType,
-                                                   Flags flags)
+                                                   InputFlags inputFlags)
         : fProcessors(args.fProcessorSet)
-        , fPipelineFlags(args.fSRGBFlags)
+        , fPipelineFlags((GrPipeline::InputFlags)inputFlags)
         , fAAType((int)aaType)
-        , fRequiresDstTexture(false)
         , fUsesLocalCoords(false)
-        , fCompatibleWithAlphaAsCoveage(false) {
+        , fCompatibleWithCoverageAsAlpha(false) {
     SkDEBUGCODE(fDidAnalysis = false);
     SkDEBUGCODE(fMadePipeline = false);
     if (GrAATypeIsHW(aaType)) {
-        fPipelineFlags |= GrPipeline::kHWAntialias_Flag;
-    }
-    if (flags & Flags::kSnapVerticesToPixelCenters) {
-        fPipelineFlags |= GrPipeline::kSnapVerticesToPixelCenters_Flag;
+        fPipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
     }
 }
 
@@ -40,9 +37,14 @@ GrDrawOp::FixedFunctionFlags GrSimpleMeshDrawOpHelper::fixedFunctionFlags() cons
                                           : GrDrawOp::FixedFunctionFlags::kNone;
 }
 
+static bool none_as_coverage_aa_compatible(GrAAType aa1, GrAAType aa2) {
+    return (aa1 == GrAAType::kNone && aa2 == GrAAType::kCoverage) ||
+           (aa1 == GrAAType::kCoverage && aa2 == GrAAType::kNone);
+}
+
 bool GrSimpleMeshDrawOpHelper::isCompatible(const GrSimpleMeshDrawOpHelper& that,
                                             const GrCaps& caps, const SkRect& thisBounds,
-                                            const SkRect& thatBounds) const {
+                                            const SkRect& thatBounds, bool noneAsCoverageAA) const {
     if (SkToBool(fProcessors) != SkToBool(that.fProcessors)) {
         return false;
     }
@@ -50,21 +52,31 @@ bool GrSimpleMeshDrawOpHelper::isCompatible(const GrSimpleMeshDrawOpHelper& that
         if (*fProcessors != *that.fProcessors) {
             return false;
         }
-        if (fRequiresDstTexture ||
-            (fProcessors->xferProcessor() && fProcessors->xferProcessor()->xferBarrierType(caps))) {
-            if (GrRectsTouchOrOverlap(thisBounds, thatBounds)) {
-                return false;
-            }
-        }
     }
-    bool result = fPipelineFlags == that.fPipelineFlags && fAAType == that.fAAType;
-    SkASSERT(!result || fCompatibleWithAlphaAsCoveage == that.fCompatibleWithAlphaAsCoveage);
+    bool result = fPipelineFlags == that.fPipelineFlags && (fAAType == that.fAAType ||
+            (noneAsCoverageAA && none_as_coverage_aa_compatible(this->aaType(), that.aaType())));
+    SkASSERT(!result || fCompatibleWithCoverageAsAlpha == that.fCompatibleWithCoverageAsAlpha);
     SkASSERT(!result || fUsesLocalCoords == that.fUsesLocalCoords);
     return result;
 }
 
-GrDrawOp::RequiresDstTexture GrSimpleMeshDrawOpHelper::xpRequiresDstTexture(
-        const GrCaps& caps, const GrAppliedClip* clip, GrPixelConfigIsClamped dstIsClamped,
+GrProcessorSet::Analysis GrSimpleMeshDrawOpHelper::finalizeProcessors(
+        const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
+        GrClampType clampType, GrProcessorAnalysisCoverage geometryCoverage,
+        SkPMColor4f* geometryColor, bool* wideColor) {
+    GrProcessorAnalysisColor color = *geometryColor;
+    auto result = this->finalizeProcessors(
+            caps, clip, hasMixedSampledCoverage, clampType, geometryCoverage, &color);
+    color.isConstant(geometryColor);
+    if (wideColor) {
+        *wideColor = SkPMColor4fNeedsWideColor(*geometryColor, clampType, caps);
+    }
+    return result;
+}
+
+GrProcessorSet::Analysis GrSimpleMeshDrawOpHelper::finalizeProcessors(
+        const GrCaps& caps, const GrAppliedClip* clip, const GrUserStencilSettings* userStencil,
+        bool hasMixedSampledCoverage, GrClampType clampType,
         GrProcessorAnalysisCoverage geometryCoverage, GrProcessorAnalysisColor* geometryColor) {
     SkDEBUGCODE(fDidAnalysis = true);
     GrProcessorSet::Analysis analysis;
@@ -75,30 +87,43 @@ GrDrawOp::RequiresDstTexture GrSimpleMeshDrawOpHelper::xpRequiresDstTexture(
                                ? GrProcessorAnalysisCoverage::kSingleChannel
                                : GrProcessorAnalysisCoverage::kNone;
         }
-        bool isMixedSamples = this->aaType() == GrAAType::kMixedSamples;
-        GrColor overrideColor;
-        analysis = fProcessors->finalize(*geometryColor, coverage, clip, isMixedSamples, caps,
-                                         dstIsClamped, &overrideColor);
+        SkPMColor4f overrideColor;
+        analysis = fProcessors->finalize(*geometryColor, coverage, clip, userStencil,
+                                         hasMixedSampledCoverage, caps, clampType, &overrideColor);
         if (analysis.inputColorIsOverridden()) {
             *geometryColor = overrideColor;
         }
     } else {
         analysis = GrProcessorSet::EmptySetAnalysis();
     }
-    fRequiresDstTexture = analysis.requiresDstTexture();
     fUsesLocalCoords = analysis.usesLocalCoords();
-    fCompatibleWithAlphaAsCoveage = analysis.isCompatibleWithCoverageAsAlpha();
-    return analysis.requiresDstTexture() ? GrDrawOp::RequiresDstTexture::kYes
-                                         : GrDrawOp::RequiresDstTexture::kNo;
+    fCompatibleWithCoverageAsAlpha = analysis.isCompatibleWithCoverageAsAlpha();
+    return analysis;
 }
 
-GrDrawOp::RequiresDstTexture GrSimpleMeshDrawOpHelper::xpRequiresDstTexture(
-        const GrCaps& caps, const GrAppliedClip* clip, GrPixelConfigIsClamped dstIsClamped,
-        GrProcessorAnalysisCoverage geometryCoverage, GrColor* geometryColor) {
-    GrProcessorAnalysisColor color = *geometryColor;
-    auto result = this->xpRequiresDstTexture(caps, clip, dstIsClamped, geometryCoverage, &color);
-    color.isConstant(geometryColor);
-    return result;
+void GrSimpleMeshDrawOpHelper::executeDrawsAndUploads(
+        const GrOp* op, GrOpFlushState* flushState, const SkRect& chainBounds) {
+    if (fProcessors) {
+        flushState->executeDrawsAndUploadsForMeshDrawOp(
+                op, chainBounds, std::move(*fProcessors), fPipelineFlags);
+    } else {
+        flushState->executeDrawsAndUploadsForMeshDrawOp(
+                op, chainBounds, GrProcessorSet::MakeEmptySet(), fPipelineFlags);
+    }
+}
+
+#ifdef SK_DEBUG
+static void dump_pipeline_flags(GrPipeline::InputFlags flags, SkString* result) {
+    if (GrPipeline::InputFlags::kNone != flags) {
+        if (flags & GrPipeline::InputFlags::kSnapVerticesToPixelCenters) {
+            result->append("Snap vertices to pixel center.\n");
+        }
+        if (flags & GrPipeline::InputFlags::kHWAntialias) {
+            result->append("HW Antialiasing enabled.\n");
+        }
+        return;
+    }
+    result->append("No pipeline flags\n");
 }
 
 SkString GrSimpleMeshDrawOpHelper::dumpInfo() const {
@@ -115,43 +140,16 @@ SkString GrSimpleMeshDrawOpHelper::dumpInfo() const {
         case GrAAType::kMSAA:
             result.append(" msaa\n");
             break;
-        case GrAAType::kMixedSamples:
-            result.append(" mixed samples\n");
-            break;
     }
-    result.append(GrPipeline::DumpFlags(fPipelineFlags));
+    dump_pipeline_flags(fPipelineFlags, &result);
     return result;
 }
-
-GrPipeline::InitArgs GrSimpleMeshDrawOpHelper::pipelineInitArgs(
-        GrMeshDrawOp::Target* target) const {
-    GrPipeline::InitArgs args;
-    args.fFlags = this->pipelineFlags();
-    args.fProxy = target->proxy();
-    args.fDstProxy = target->dstProxy();
-    args.fCaps = &target->caps();
-    args.fResourceProvider = target->resourceProvider();
-    return args;
-}
-
-GrPipeline* GrSimpleMeshDrawOpHelper::internalMakePipeline(GrMeshDrawOp::Target* target,
-                                                           const GrPipeline::InitArgs& args) {
-    // A caller really should only call this once as the processor set and applied clip get
-    // moved into the GrPipeline.
-    SkASSERT(!fMadePipeline);
-    SkDEBUGCODE(fMadePipeline = true);
-    if (fProcessors) {
-        return target->allocPipeline(args, std::move(*fProcessors), target->detachAppliedClip());
-    } else {
-        return target->allocPipeline(args, GrProcessorSet::MakeEmptySet(),
-                                     target->detachAppliedClip());
-    }
-}
+#endif
 
 GrSimpleMeshDrawOpHelperWithStencil::GrSimpleMeshDrawOpHelperWithStencil(
         const MakeArgs& args, GrAAType aaType, const GrUserStencilSettings* stencilSettings,
-        Flags flags)
-        : INHERITED(args, aaType, flags)
+        InputFlags inputFlags)
+        : INHERITED(args, aaType, inputFlags)
         , fStencilSettings(stencilSettings ? stencilSettings : &GrUserStencilSettings::kUnused) {}
 
 GrDrawOp::FixedFunctionFlags GrSimpleMeshDrawOpHelperWithStencil::fixedFunctionFlags() const {
@@ -162,22 +160,42 @@ GrDrawOp::FixedFunctionFlags GrSimpleMeshDrawOpHelperWithStencil::fixedFunctionF
     return flags;
 }
 
+GrProcessorSet::Analysis GrSimpleMeshDrawOpHelperWithStencil::finalizeProcessors(
+        const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
+        GrClampType clampType, GrProcessorAnalysisCoverage geometryCoverage,
+        SkPMColor4f* geometryColor, bool* wideColor) {
+    GrProcessorAnalysisColor color = *geometryColor;
+    auto result = this->finalizeProcessors(
+            caps, clip, hasMixedSampledCoverage, clampType, geometryCoverage, &color);
+    color.isConstant(geometryColor);
+    if (wideColor) {
+        *wideColor = SkPMColor4fNeedsWideColor(*geometryColor, clampType, caps);
+    }
+    return result;
+}
+
 bool GrSimpleMeshDrawOpHelperWithStencil::isCompatible(
         const GrSimpleMeshDrawOpHelperWithStencil& that, const GrCaps& caps,
-        const SkRect& thisBounds, const SkRect& thatBounds) const {
-    return INHERITED::isCompatible(that, caps, thisBounds, thatBounds) &&
+        const SkRect& thisBounds, const SkRect& thatBounds, bool noneAsCoverageAA) const {
+    return INHERITED::isCompatible(that, caps, thisBounds, thatBounds, noneAsCoverageAA) &&
            fStencilSettings == that.fStencilSettings;
 }
 
-const GrPipeline* GrSimpleMeshDrawOpHelperWithStencil::makePipeline(
-        GrMeshDrawOp::Target* target) {
-    auto args = INHERITED::pipelineInitArgs(target);
-    args.fUserStencil = fStencilSettings;
-    return this->internalMakePipeline(target, args);
+void GrSimpleMeshDrawOpHelperWithStencil::executeDrawsAndUploads(
+        const GrOp* op, GrOpFlushState* flushState, const SkRect& chainBounds) {
+    if (fProcessors) {
+        flushState->executeDrawsAndUploadsForMeshDrawOp(
+                op, chainBounds, std::move(*fProcessors), fPipelineFlags, fStencilSettings);
+    } else {
+        flushState->executeDrawsAndUploadsForMeshDrawOp(
+                op, chainBounds, GrProcessorSet::MakeEmptySet(), fPipelineFlags, fStencilSettings);
+    }
 }
 
+#ifdef SK_DEBUG
 SkString GrSimpleMeshDrawOpHelperWithStencil::dumpInfo() const {
     SkString result = INHERITED::dumpInfo();
     result.appendf("Stencil settings: %s\n", (fStencilSettings ? "yes" : "no"));
     return result;
 }
+#endif

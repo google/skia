@@ -5,18 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageEncoderPriv.h"
+#include "src/images/SkImageEncoderPriv.h"
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 
-#include "SkBitmap.h"
-#include "SkCGUtils.h"
-#include "SkColorData.h"
-#include "SkData.h"
-#include "SkStream.h"
-#include "SkStreamPriv.h"
-#include "SkTemplates.h"
-#include "SkUnPreMultiply.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkUnPreMultiply.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkTemplates.h"
+#include "include/utils/mac/SkCGUtils.h"
+#include "src/core/SkStreamPriv.h"
+#include "src/utils/mac/SkUniqueCFRef.h"
 
 #ifdef SK_BUILD_FOR_MAC
 #include <ApplicationServices/ApplicationServices.h>
@@ -37,24 +38,24 @@ static void consumer_release(void* info) {
     // we do nothing, since by design we don't "own" the stream (i.e. info)
 }
 
-static CGDataConsumerRef SkStreamToCGDataConsumer(SkWStream* stream) {
+static SkUniqueCFRef<CGDataConsumerRef> SkStreamToCGDataConsumer(SkWStream* stream) {
     CGDataConsumerCallbacks procs;
     procs.putBytes = consumer_put;
     procs.releaseConsumer = consumer_release;
     // we don't own/reference the stream, so it our consumer must not live
     // longer that our caller's ownership of the stream
-    return CGDataConsumerCreate(stream, &procs);
+    return SkUniqueCFRef<CGDataConsumerRef>(CGDataConsumerCreate(stream, &procs));
 }
 
-static CGImageDestinationRef SkStreamToImageDestination(SkWStream* stream,
-                                                        CFStringRef type) {
-    CGDataConsumerRef consumer = SkStreamToCGDataConsumer(stream);
+static SkUniqueCFRef<CGImageDestinationRef> SkStreamToImageDestination(SkWStream* stream,
+                                                                       CFStringRef type) {
+    SkUniqueCFRef<CGDataConsumerRef> consumer = SkStreamToCGDataConsumer(stream);
     if (nullptr == consumer) {
         return nullptr;
     }
-    SkAutoTCallVProc<const void, CFRelease> arconsumer(consumer);
 
-    return CGImageDestinationCreateWithDataConsumer(consumer, type, 1, nullptr);
+    return SkUniqueCFRef<CGImageDestinationRef>(
+            CGImageDestinationCreateWithDataConsumer(consumer.get(), type, 1, nullptr));
 }
 
 /*  Encode bitmaps via CGImageDestination. We setup a DataConsumer which writes
@@ -100,20 +101,18 @@ bool SkEncodeImageWithCG(SkWStream* stream, const SkPixmap& pixmap, SkEncodedIma
             return false;
     }
 
-    CGImageDestinationRef dst = SkStreamToImageDestination(stream, type);
+    SkUniqueCFRef<CGImageDestinationRef> dst = SkStreamToImageDestination(stream, type);
     if (nullptr == dst) {
         return false;
     }
-    SkAutoTCallVProc<const void, CFRelease> ardst(dst);
 
-    CGImageRef image = SkCreateCGImageRef(bm);
+    SkUniqueCFRef<CGImageRef> image(SkCreateCGImageRef(bm));
     if (nullptr == image) {
         return false;
     }
-    SkAutoTCallVProc<CGImage, CGImageRelease> agimage(image);
 
-    CGImageDestinationAddImage(dst, image, nullptr);
-    return CGImageDestinationFinalize(dst);
+    CGImageDestinationAddImage(dst.get(), image.get(), nullptr);
+    return CGImageDestinationFinalize(dst.get());
 }
 
 #endif//defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)

@@ -8,7 +8,7 @@
 #ifndef SkPngPriv_DEFINED
 #define SkPngPriv_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 // We store kAlpha_8 images as GrayAlpha in png. Our private signal is significant bits for gray.
 // If that is set to 1, we assume the gray channel can be ignored, and we output just alpha.

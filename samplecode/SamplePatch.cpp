@@ -5,37 +5,36 @@
  * found in the LICENSE file.
  */
 
-#include "DecodeFile.h"
-#include "SampleCode.h"
-#include "SkAnimTimer.h"
-#include "SkView.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkGraphics.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkRegion.h"
-#include "SkShader.h"
-#include "SkUtils.h"
-#include "SkColorPriv.h"
-#include "SkColorFilter.h"
-#include "SkTime.h"
-#include "SkTypeface.h"
-#include "SkVertices.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkContourMeasure.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTime.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkVertices.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkOpPathEffect.h"
+#include "include/private/SkTDArray.h"
+#include "include/utils/SkRandom.h"
+#include "samplecode/DecodeFile.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkOSFile.h"
+#include "src/utils/SkUTF.h"
+#include "tools/Resources.h"
+#include "tools/timer/TimeUtils.h"
 
-#include "SkOSFile.h"
-#include "SkStream.h"
-
-#include "SkGeometry.h" // private include :(
-
+namespace {
 static sk_sp<SkShader> make_shader0(SkIPoint* size) {
-    SkBitmap    bm;
-
-//    decode_file("/skimages/progressivejpg.jpg", &bm);
-    decode_file("/skimages/logo.png", &bm);
-    size->set(bm.width(), bm.height());
-    return SkShader::MakeBitmapShader(bm, SkShader::kClamp_TileMode,
-                                       SkShader::kClamp_TileMode);
+    SkBitmap bm;
+    decode_file(GetResourceAsData("images/dog.jpg"), &bm);
+    *size = SkIPoint{bm.width(), bm.height()};
+    return bm.makeShader();
 }
 
 static sk_sp<SkShader> make_shader1(const SkIPoint& size) {
@@ -43,10 +42,8 @@ static sk_sp<SkShader> make_shader1(const SkIPoint& size) {
                       { SkIntToScalar(size.fX), SkIntToScalar(size.fY) } };
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED };
     return SkGradientShader::MakeLinear(pts, colors, nullptr,
-                    SK_ARRAY_COUNT(colors), SkShader::kMirror_TileMode);
+                    SK_ARRAY_COUNT(colors), SkTileMode::kMirror);
 }
-
-///////////////////////////////////////////////////////////////////////////////
 
 class Patch {
 public:
@@ -200,52 +197,43 @@ static void drawpatches(SkCanvas* canvas, const SkPaint& paint, int nu, int nv,
     patch->draw(canvas, paint, nu, nv, true, true);
 }
 
-const SkScalar DX = 20;
-const SkScalar DY = 0;
+static constexpr SkScalar DX = 20;
+static constexpr SkScalar DY = 0;
+static constexpr SkScalar kS = 50;
+static constexpr SkScalar kT = 40;
 
-class PatchView : public SampleView {
-    SkScalar    fAngle;
+struct PatchView : public Sample {
     sk_sp<SkShader> fShader0;
     sk_sp<SkShader> fShader1;
-    SkIPoint    fSize0, fSize1;
-    SkPoint     fPts[12];
+    SkScalar fAngle = 0;
+    SkIPoint fSize0 = {0, 0},
+             fSize1 = {0, 0};
+    SkPoint  fPts[12] = {
+        {kS * 0, kT * 1},
+        {kS * 1, kT * 1},
+        {kS * 2, kT * 1},
+        {kS * 3, kT * 1},
+        {kS * 3, kT * 2},
+        {kS * 3, kT * 3},
+        {kS * 3, kT * 4},
+        {kS * 2, kT * 4},
+        {kS * 1, kT * 4},
+        {kS * 0, kT * 4},
+        {kS * 0, kT * 3},
+        {kS * 0, kT * 2},
+    };
 
-public:
-    PatchView() : fAngle(0) {
+    void onOnceBeforeDraw() override {
         fShader0 = make_shader0(&fSize0);
         fSize1 = fSize0;
         if (fSize0.fX == 0 || fSize0.fY == 0) {
             fSize1.set(2, 2);
         }
         fShader1 = make_shader1(fSize1);
-
-        const SkScalar S = SkIntToScalar(50);
-        const SkScalar T = SkIntToScalar(40);
-        fPts[0].set(S*0, T);
-        fPts[1].set(S*1, T);
-        fPts[2].set(S*2, T);
-        fPts[3].set(S*3, T);
-        fPts[4].set(S*3, T*2);
-        fPts[5].set(S*3, T*3);
-        fPts[6].set(S*3, T*4);
-        fPts[7].set(S*2, T*4);
-        fPts[8].set(S*1, T*4);
-        fPts[9].set(S*0, T*4);
-        fPts[10].set(S*0, T*3);
-        fPts[11].set(S*0, T*2);
-
         this->setBGColor(SK_ColorGRAY);
     }
 
-protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt)  override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Patch");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Patch"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         const int nu = 10;
@@ -280,12 +268,12 @@ protected:
 
         paint.setAntiAlias(false);
         paint.setShader(fShader1);
-        if (true) {
+        {
             SkMatrix m;
             m.setSkew(1, 0);
             paint.setShader(paint.getShader()->makeWithLocalMatrix(m));
         }
-        if (true) {
+        {
             SkMatrix m;
             m.setRotate(fAngle);
             paint.setShader(paint.getShader()->makeWithLocalMatrix(m));
@@ -294,30 +282,30 @@ protected:
         drawpatches(canvas, paint, nu, nv, &patch);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
-        fAngle = timer.scaled(60, 360);
+    bool onAnimate(double nanos) override {
+        fAngle = TimeUtils::Scaled(1e-9 * nanos, 60, 360);
         return true;
     }
 
     class PtClick : public Click {
     public:
         int fIndex;
-        PtClick(SkView* view, int index) : Click(view), fIndex(index) {}
+        PtClick(int index) : fIndex(index) {}
     };
 
     static bool hittest(const SkPoint& pt, SkScalar x, SkScalar y) {
         return SkPoint::Length(pt.fX - x, pt.fY - y) < SkIntToScalar(5);
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         x -= DX;
         y -= DY;
         for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); i++) {
             if (hittest(fPts[i], x, y)) {
-                return new PtClick(this, (int)i);
+                return new PtClick((int)i);
             }
         }
-        return this->INHERITED::onFindClickHandler(x, y, modi);
+        return nullptr;
     }
 
     bool onClick(Click* click) override {
@@ -326,10 +314,196 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
+}  // namespace
+DEF_SAMPLE( return new PatchView(); )
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new PatchView; }
-static SkViewRegister reg(MyFactory);
+namespace {
+static sk_sp<SkVertices> make_verts(const SkPath& path, SkScalar width) {
+    auto meas = SkContourMeasureIter(path, false).next();
+    if (!meas) {
+        return nullptr;
+    }
+
+    const SkPoint src[2] = {
+        { 0, -width/2 }, { 0, width/2 },
+    };
+    SkTDArray<SkPoint> pts;
+
+    const SkScalar step = 2;
+    for (SkScalar distance = 0; distance < meas->length(); distance += step) {
+        SkMatrix mx;
+        if (!meas->getMatrix(distance, &mx)) {
+            continue;
+        }
+        SkPoint* dst = pts.append(2);
+        mx.mapPoints(dst, src, 2);
+    }
+
+    int vertCount = pts.count();
+    int indexCount = 0; // no texture
+    unsigned flags = SkVertices::kHasColors_BuilderFlag |
+                     SkVertices::kIsNonVolatile_BuilderFlag;
+    SkVertices::Builder builder(SkVertices::kTriangleStrip_VertexMode,
+                                vertCount, indexCount, flags);
+    memcpy(builder.positions(), pts.begin(), vertCount * sizeof(SkPoint));
+    SkRandom rand;
+    for (int i = 0; i < vertCount; ++i) {
+        builder.colors()[i] = rand.nextU() | 0xFF000000;
+    }
+    SkDebugf("vert count = %d\n", vertCount);
+
+    return builder.detach();
+}
+
+class PseudoInkView : public Sample {
+    enum { N = 100 };
+    SkPath            fPath;
+    sk_sp<SkVertices> fVertices[N];
+    SkPaint           fSkeletonP, fStrokeP, fVertsP;
+    bool              fDirty = true;
+
+public:
+    PseudoInkView() {
+        fSkeletonP.setStyle(SkPaint::kStroke_Style);
+        fSkeletonP.setAntiAlias(true);
+
+        fStrokeP.setStyle(SkPaint::kStroke_Style);
+        fStrokeP.setStrokeWidth(30);
+        fStrokeP.setColor(0x44888888);
+    }
+
+protected:
+    SkString name() override { return SkString("PseudoInk"); }
+
+    bool onAnimate(double nanos) override { return true; }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        if (fDirty) {
+            for (int i = 0; i < N; ++i) {
+                fVertices[i] = make_verts(fPath, 30);
+            }
+            fDirty = false;
+        }
+        for (int i = 0; i < N; ++i) {
+            canvas->drawVertices(fVertices[i], SkBlendMode::kSrc, fVertsP);
+            canvas->translate(1, 1);
+        }
+//        canvas->drawPath(fPath, fStrokeP);
+ //       canvas->drawPath(fPath, fSkeletonP);
+    }
+
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+        Click* click = new Click();
+        fPath.reset();
+        fPath.moveTo(x, y);
+        return click;
+    }
+
+    bool onClick(Click* click) override {
+        switch (click->fState) {
+            case skui::InputState::kMove:
+                fPath.lineTo(click->fCurr);
+                fDirty = true;
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+}  // namespace
+DEF_SAMPLE( return new PseudoInkView(); )
+
+namespace {
+// Show stroking options using patheffects (and pathops)
+// and why strokeandfill is a hacks
+class ManyStrokesView : public Sample {
+    SkPath              fPath;
+    sk_sp<SkPathEffect> fPE[6];
+
+public:
+    ManyStrokesView() {
+        fPE[0] = SkStrokePathEffect::Make(20, SkPaint::kRound_Join, SkPaint::kRound_Cap);
+
+        auto p0 = SkStrokePathEffect::Make(25, SkPaint::kRound_Join, SkPaint::kRound_Cap);
+        auto p1 = SkStrokePathEffect::Make(20, SkPaint::kRound_Join, SkPaint::kRound_Cap);
+        fPE[1] = SkMergePathEffect::Make(p0, p1, SkPathOp::kDifference_SkPathOp);
+
+        fPE[2] = SkMergePathEffect::Make(nullptr, p1, SkPathOp::kDifference_SkPathOp);
+        fPE[3] = SkMergePathEffect::Make(nullptr, p1, SkPathOp::kUnion_SkPathOp);
+        fPE[4] = SkMergePathEffect::Make(p0, nullptr, SkPathOp::kDifference_SkPathOp);
+        fPE[5] = SkMergePathEffect::Make(p0, nullptr, SkPathOp::kIntersect_SkPathOp);
+    }
+
+protected:
+    SkString name() override { return SkString("ManyStrokes"); }
+
+    bool onAnimate(double nanos) override { return true; }
+
+    void dodraw(SkCanvas* canvas, sk_sp<SkPathEffect> pe, SkScalar x, SkScalar y,
+                const SkPaint* ptr = nullptr) {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setPathEffect(pe);
+        canvas->save();
+        canvas->translate(x, y);
+        canvas->drawPath(fPath, ptr ? *ptr : paint);
+
+        paint.setPathEffect(nullptr);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setColor(SK_ColorGREEN);
+        canvas->drawPath(fPath, paint);
+
+        canvas->restore();
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        SkPaint p;
+        p.setColor(0);
+        this->dodraw(canvas, nullptr, 0, 0, &p);
+
+        this->dodraw(canvas, fPE[0], 300, 0);
+        this->dodraw(canvas, fPE[1], 0, 300);
+        this->dodraw(canvas, fPE[2], 300, 300);
+        this->dodraw(canvas, fPE[3], 600, 300);
+        this->dodraw(canvas, fPE[4], 900, 0);
+        this->dodraw(canvas, fPE[5], 900, 300);
+
+        p.setColor(SK_ColorBLACK);
+        p.setStyle(SkPaint::kStrokeAndFill_Style);
+        p.setStrokeJoin(SkPaint::kRound_Join);
+        p.setStrokeCap(SkPaint::kRound_Cap);
+        p.setStrokeWidth(20);
+        this->dodraw(canvas, nullptr, 600, 0, &p);
+    }
+
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+        Click* click = new Click();
+        fPath.reset();
+        fPath.moveTo(x, y);
+        return click;
+    }
+
+    bool onClick(Click* click) override {
+        switch (click->fState) {
+            case skui::InputState::kMove:
+                fPath.lineTo(click->fCurr);
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+}  // namespace
+DEF_SAMPLE( return new ManyStrokesView(); )

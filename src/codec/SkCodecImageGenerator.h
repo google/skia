@@ -7,10 +7,9 @@
 #ifndef SkCodecImageGenerator_DEFINED
 #define SkCodecImageGenerator_DEFINED
 
-#include "SkCodec.h"
-#include "SkColorTable.h"
-#include "SkData.h"
-#include "SkImageGenerator.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageGenerator.h"
 
 class SkCodecImageGenerator : public SkImageGenerator {
 public:
@@ -20,15 +19,19 @@ public:
      */
     static std::unique_ptr<SkImageGenerator> MakeFromEncodedCodec(sk_sp<SkData>);
 
+    static std::unique_ptr<SkImageGenerator> MakeFromCodec(std::unique_ptr<SkCodec>);
+
 protected:
     sk_sp<SkData> onRefEncodedData() override;
 
-    bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options& opts)
-                     override;
+    bool onGetPixels(
+        const SkImageInfo& info, void* pixels, size_t rowBytes, const Options& opts) override;
 
-    bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const override;
+    bool onQueryYUVA8(
+        SkYUVASizeInfo*, SkYUVAIndex[SkYUVAIndex::kIndexCount], SkYUVColorSpace*) const override;
 
-    bool onGetYUV8Planes(const SkYUVSizeInfo&, void* planes[3]) override;
+    bool onGetYUVA8Planes(const SkYUVASizeInfo&, const SkYUVAIndex[SkYUVAIndex::kIndexCount],
+                          void* planes[]) override;
 
 private:
     /*
@@ -38,7 +41,6 @@ private:
 
     std::unique_ptr<SkCodec> fCodec;
     sk_sp<SkData> fData;
-    sk_sp<SkColorTable> fColorTable;
 
     typedef SkImageGenerator INHERITED;
 };

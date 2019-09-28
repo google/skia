@@ -5,10 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkDashPathPriv.h"
-#include "SkPathMeasure.h"
-#include "SkPointPriv.h"
-#include "SkStrokeRec.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/core/SkStrokeRec.h"
+#include "src/core/SkPointPriv.h"
+#include "src/utils/SkDashPathPriv.h"
+
+#include <utility>
 
 static inline int is_even(int x) {
     return !(x & 1);
@@ -83,7 +85,6 @@ static void outset_for_stroke(SkRect* rect, const SkStrokeRec& rec) {
     rect->outset(radius, radius);
 }
 
-#ifndef SK_SUPPORT_LEGACY_DASH_CULL_PATH
 // If line is zero-length, bump out the end by a tiny amount
 // to draw endcaps. The bump factor is sized so that
 // SkPoint::Distance() computes a non-zero length.
@@ -108,7 +109,8 @@ static bool clip_line(SkPoint pts[2], const SkRect& bounds, SkScalar intervalLen
     SkScalar maxXY = (&pts[1].fX)[xyOffset];
     bool swapped = maxXY < minXY;
     if (swapped) {
-        SkTSwap(minXY, maxXY);
+        using std::swap;
+        swap(minXY, maxXY);
     }
 
     SkASSERT(minXY <= maxXY);
@@ -137,7 +139,8 @@ static bool clip_line(SkPoint pts[2], const SkRect& bounds, SkScalar intervalLen
 
     SkASSERT(maxXY >= minXY);
     if (swapped) {
-        SkTSwap(minXY, maxXY);
+        using std::swap;
+        swap(minXY, maxXY);
     }
     (&pts[0].fX)[xyOffset] = minXY;
     (&pts[1].fX)[xyOffset] = maxXY;
@@ -148,138 +151,68 @@ static bool clip_line(SkPoint pts[2], const SkRect& bounds, SkScalar intervalLen
     return true;
 }
 
-static bool contains_inclusive(const SkRect& rect, const SkPoint& pt) {
-    return rect.fLeft <= pt.fX && pt.fX <= rect.fRight &&
-            rect.fTop <= pt.fY && pt.fY <= rect.fBottom;
-}
-
-// Returns true is b is between a and c, that is: a <= b <= c, or a >= b >= c.
-// Can perform this test with one branch by observing that, relative to b,
-// the condition is true only if one side is positive and one side is negative.
-// If the numbers are very small, the optimization may return the wrong result
-// because the multiply may generate a zero where the simple compare does not.
-// For this reason the assert does not fire when all three numbers are near zero.
-static bool between(SkScalar a, SkScalar b, SkScalar c) {
-    SkASSERT(((a <= b && b <= c) || (a >= b && b >= c)) == ((a - b) * (c - b) <= 0)
-            || (SkScalarNearlyZero(a) && SkScalarNearlyZero(b) && SkScalarNearlyZero(c)));
-    return (a - b) * (c - b) <= 0;
-}
-#endif
-
-// Only handles lines for now. If returns true, dstPath is the new (smaller)
-// path. If returns false, then dstPath parameter is ignored.
+// Handles only lines and rects.
+// If cull_path() returns true, dstPath is the new smaller path,
+// otherwise dstPath may have been changed but you should ignore it.
 static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
-                      const SkRect* cullRect, SkScalar intervalLength,
-                      SkPath* dstPath) {
-#ifdef SK_SUPPORT_LEGACY_DASH_CULL_PATH
-    if (nullptr == cullRect) {
-        return false;
-    }
-
-    SkPoint pts[2];
-    if (!srcPath.isLine(pts)) {
-        return false;
-    }
-
-    SkRect bounds = *cullRect;
-    outset_for_stroke(&bounds, rec);
-
-    SkScalar dx = pts[1].x() - pts[0].x();
-    SkScalar dy = pts[1].y() - pts[0].y();
-
-    // just do horizontal lines for now (lazy)
-    if (dy) {
-        return false;
-    }
-
-    SkScalar minX = pts[0].fX;
-    SkScalar maxX = pts[1].fX;
-
-    if (dx < 0) {
-        SkTSwap(minX, maxX);
-    }
-
-    SkASSERT(minX <= maxX);
-    if (maxX < bounds.fLeft || minX > bounds.fRight) {
-        return false;
-    }
-
-    // Now we actually perform the chop, removing the excess to the left and
-    // right of the bounds (keeping our new line "in phase" with the dash,
-    // hence the (mod intervalLength).
-
-    if (minX < bounds.fLeft) {
-        minX = bounds.fLeft - SkScalarMod(bounds.fLeft - minX,
-                                          intervalLength);
-    }
-    if (maxX > bounds.fRight) {
-        maxX = bounds.fRight + SkScalarMod(maxX - bounds.fRight,
-                                           intervalLength);
-    }
-
-    SkASSERT(maxX >= minX);
-    if (dx < 0) {
-        SkTSwap(minX, maxX);
-    }
-    pts[0].fX = minX;
-    pts[1].fX = maxX;
-
-    // If line is zero-length, bump out the end by a tiny amount
-    // to draw endcaps. The bump factor is sized so that
-    // SkPoint::Distance() computes a non-zero length.
-    if (minX == maxX) {
-        pts[1].fX += maxX * FLT_EPSILON * 32;  // 16 instead of 32 does not draw; length stays zero
-    }
-#else // !SK_SUPPORT_LEGACY_DASH_CULL_PATH
-    SkPoint pts[4];
-    if (nullptr == cullRect) {
+                      const SkRect* cullRect, SkScalar intervalLength, SkPath* dstPath) {
+    if (!cullRect) {
+        SkPoint pts[2];
         if (srcPath.isLine(pts) && pts[0] == pts[1]) {
             adjust_zero_length_line(pts);
-        } else {
-            return false;
+            dstPath->moveTo(pts[0]);
+            dstPath->lineTo(pts[1]);
+            return true;
         }
-    } else {
-        SkRect bounds;
-        bool isLine = srcPath.isLine(pts);
-        bool isRect = !isLine && srcPath.isRect(nullptr);
-        if (!isLine && !isRect) {
-            return false;
-        }
-        bounds = *cullRect;
-        outset_for_stroke(&bounds, rec);
-        if (isRect) {
-            // break rect into four lines, and call each one separately
-            SkPath::Iter iter(srcPath, false);
-            SkAssertResult(SkPath::kMove_Verb == iter.next(pts));
-            SkScalar priorLength = 0;
-            while (SkPath::kLine_Verb == iter.next(pts)) {
-                SkVector v = pts[1] - pts[0];
-                // if line is entirely outside clip rect, skip it
-                if (v.fX ? between(bounds.fTop, pts[0].fY, bounds.fBottom) :
-                        between(bounds.fLeft, pts[0].fX, bounds.fRight)) {
-                    bool skipMoveTo = contains_inclusive(bounds, pts[0]);
-                    if (clip_line(pts, bounds, intervalLength,
-                                  SkScalarMod(priorLength, intervalLength))) {
-                        if (0 == priorLength || !skipMoveTo) {
-                            dstPath->moveTo(pts[0]);
-                        }
-                        dstPath->lineTo(pts[1]);
-                    }
-                }
-                // keep track of all prior lengths to set phase of next line
-                priorLength += SkScalarAbs(v.fX ? v.fX : v.fY);
+        return false;
+    }
+
+    SkRect bounds;
+    bounds = *cullRect;
+    outset_for_stroke(&bounds, rec);
+
+    {
+        SkPoint pts[2];
+        if (srcPath.isLine(pts)) {
+            if (clip_line(pts, bounds, intervalLength, 0)) {
+                dstPath->moveTo(pts[0]);
+                dstPath->lineTo(pts[1]);
+                return true;
             }
-            return !dstPath->isEmpty();
-        }
-        SkASSERT(isLine);
-        if (!clip_line(pts, bounds, intervalLength, 0)) {
             return false;
         }
     }
-#endif
-    dstPath->moveTo(pts[0]);
-    dstPath->lineTo(pts[1]);
-    return true;
+
+    if (srcPath.isRect(nullptr)) {
+        // We'll break the rect into four lines, culling each separately.
+        SkPath::Iter iter(srcPath, false);
+
+        SkPoint pts[4];  // Rects are all moveTo and lineTo, so we'll only use pts[0] and pts[1].
+        SkAssertResult(SkPath::kMove_Verb == iter.next(pts));
+
+        SkScalar accum = 0;  // Sum of unculled edge lengths to keep the phase correct.
+        while (iter.next(pts) == SkPath::kLine_Verb) {
+            // Notice this vector v and accum work with the original unclipped length.
+            SkVector v = pts[1] - pts[0];
+
+            if (clip_line(pts, bounds, intervalLength, SkScalarMod(accum, intervalLength))) {
+                // pts[0] may have just been changed by clip_line().
+                // If that's not where we ended the previous lineTo(), we need to moveTo() there.
+                SkPoint last;
+                if (!dstPath->getLastPt(&last) || last != pts[0]) {
+                    dstPath->moveTo(pts[0]);
+                }
+                dstPath->lineTo(pts[1]);
+            }
+
+            // We either just traveled v.fX horizontally or v.fY vertically.
+            SkASSERT(v.fX == 0 || v.fY == 0);
+            accum += SkScalarAbs(v.fX + v.fY);
+        }
+        return !dstPath->isEmpty();
+    }
+
+    return false;
 }
 
 class SpecialLineRec {
@@ -355,6 +288,8 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
                                 int32_t count, SkScalar initialDashLength, int32_t initialDashIndex,
                                 SkScalar intervalLength,
                                 StrokeRecApplication strokeRecApplication) {
+    // we must always have an even number of intervals
+    SkASSERT(is_even(count));
 
     // we do nothing if the src wants to be filled
     SkStrokeRec::Style style = rec->getStyle();
@@ -378,6 +313,14 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
             while (endPhase > intervals[index]) {
                 endPhase -= intervals[index++];
                 SkASSERT(index <= count);
+                if (index == count) {
+                    // We have run out of intervals. endPhase "should" never get to this point,
+                    // but it could if the subtracts underflowed. Hence we will pin it as if it
+                    // perfectly ran through the intervals.
+                    // See crbug.com/875494 (and skbug.com/8274)
+                    endPhase = 0;
+                    break;
+                }
             }
             // if dash ends inside "on", or ends at beginning of "off"
             if (is_even(index) == (endPhase > 0)) {

@@ -4,13 +4,20 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkCanvas.h"
-#include "SkData.h"
-#include "SkImage.h"
-#include "SkImageEncoder.h"
-#include "Resources.h"
+
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "tools/Resources.h"
 
 namespace skiagm {
 
@@ -30,16 +37,17 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkBitmap orig;
         GetResourceAsBitmap("images/mandrill_512_q075.jpg", &orig);
-        sk_sp<SkData> pngData(sk_tool_utils::EncodeImageToData(orig, SkEncodedImageFormat::kPNG, 100));
-        sk_sp<SkData> jpegData(sk_tool_utils::EncodeImageToData(orig, SkEncodedImageFormat::kJPEG, 100));
+        auto pngData = SkEncodeBitmap(orig, SkEncodedImageFormat::kPNG, 100);
+        auto jpgData = SkEncodeBitmap(orig, SkEncodedImageFormat::kJPEG, 100);
 
         sk_sp<SkImage> pngImage = SkImage::MakeFromEncoded(pngData);
-        sk_sp<SkImage> jpegImage = SkImage::MakeFromEncoded(jpegData);
+        sk_sp<SkImage> jpgImage = SkImage::MakeFromEncoded(jpgData);
         canvas->drawImage(pngImage.get(), 0.0f, 0.0f);
-        canvas->drawImage(jpegImage.get(), 512.0f, 0.0f);
+        canvas->drawImage(jpgImage.get(), 512.0f, 0.0f);
 
-        const char text[] = "Images should look identical.";
-        canvas->drawText(text, sizeof(text) - 1, 450.0f, 550.0f, SkPaint());
+        SkFont font;
+        font.setEdging(SkFont::Edging::kAlias);
+        canvas->drawString("Images should look identical.", 450.0f, 550.0f, font, SkPaint());
     }
 
 private:

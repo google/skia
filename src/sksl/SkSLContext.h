@@ -8,8 +8,8 @@
 #ifndef SKSL_CONTEXT
 #define SKSL_CONTEXT
 
-#include "ir/SkSLType.h"
-#include "ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLType.h"
 
 namespace SkSL {
 
@@ -21,23 +21,26 @@ public:
     Context()
     : fInvalid_Type(new Type("<INVALID>"))
     , fVoid_Type(new Type("void"))
-    , fDouble_Type(new Type("double", Type::kFloat_NumberKind, 4))
+    , fNull_Type(new Type("null"))
+    , fFloatLiteral_Type(new Type("$floatLiteral", Type::kFloat_NumberKind, 3))
+    , fIntLiteral_Type(new Type("$intLiteral", Type::kSigned_NumberKind, 1))
+    , fDouble_Type(new Type("double", Type::kFloat_NumberKind, 6, true))
     , fDouble2_Type(new Type("double2", *fDouble_Type, 2))
     , fDouble3_Type(new Type("double3", *fDouble_Type, 3))
     , fDouble4_Type(new Type("double4", *fDouble_Type, 4))
-    , fFloat_Type(new Type("float", Type::kFloat_NumberKind, 3))
+    , fFloat_Type(new Type("float", Type::kFloat_NumberKind, 5, true))
     , fFloat2_Type(new Type("float2", *fFloat_Type, 2))
     , fFloat3_Type(new Type("float3", *fFloat_Type, 3))
     , fFloat4_Type(new Type("float4", *fFloat_Type, 4))
-    , fHalf_Type(new Type("half", Type::kFloat_NumberKind, 2))
+    , fHalf_Type(new Type("half", Type::kFloat_NumberKind, 4))
     , fHalf2_Type(new Type("half2", *fHalf_Type, 2))
     , fHalf3_Type(new Type("half3", *fHalf_Type, 3))
     , fHalf4_Type(new Type("half4", *fHalf_Type, 4))
-    , fUInt_Type(new Type("uint", Type::kUnsigned_NumberKind, 1))
+    , fUInt_Type(new Type("uint", Type::kUnsigned_NumberKind, 2, true))
     , fUInt2_Type(new Type("uint2", *fUInt_Type, 2))
     , fUInt3_Type(new Type("uint3", *fUInt_Type, 3))
     , fUInt4_Type(new Type("uint4", *fUInt_Type, 4))
-    , fInt_Type(new Type("int", Type::kSigned_NumberKind, 1))
+    , fInt_Type(new Type("int", Type::kSigned_NumberKind, 2, true))
     , fInt2_Type(new Type("int2", *fInt_Type, 2))
     , fInt3_Type(new Type("int3", *fInt_Type, 3))
     , fInt4_Type(new Type("int4", *fInt_Type, 4))
@@ -49,6 +52,14 @@ public:
     , fShort2_Type(new Type("short2", *fShort_Type, 2))
     , fShort3_Type(new Type("short3", *fShort_Type, 3))
     , fShort4_Type(new Type("short4", *fShort_Type, 4))
+    , fUByte_Type(new Type("ubyte", Type::kUnsigned_NumberKind, 0))
+    , fUByte2_Type(new Type("ubyte2", *fUByte_Type, 2))
+    , fUByte3_Type(new Type("ubyte3", *fUByte_Type, 3))
+    , fUByte4_Type(new Type("ubyte4", *fUByte_Type, 4))
+    , fByte_Type(new Type("byte", Type::kSigned_NumberKind, 0))
+    , fByte2_Type(new Type("byte2", *fByte_Type, 2))
+    , fByte3_Type(new Type("byte3", *fByte_Type, 3))
+    , fByte4_Type(new Type("byte4", *fByte_Type, 4))
     , fBool_Type(new Type("bool", Type::kNonnumeric_NumberKind, -1))
     , fBool2_Type(new Type("bool2", *fBool_Type, 2))
     , fBool3_Type(new Type("bool3", *fBool_Type, 3))
@@ -80,18 +91,24 @@ public:
     , fDouble4x2_Type(new Type("double4x2", *fDouble_Type, 4, 2))
     , fDouble4x3_Type(new Type("double4x3", *fDouble_Type, 4, 3))
     , fDouble4x4_Type(new Type("double4x4", *fDouble_Type, 4, 4))
-    , fSampler1D_Type(new Type("sampler1D", SpvDim1D, false, false, false, true))
-    , fSampler2D_Type(new Type("sampler2D", SpvDim2D, false, false, false, true))
-    , fSampler3D_Type(new Type("sampler3D", SpvDim3D, false, false, false, true))
-    , fSamplerExternalOES_Type(new Type("samplerExternalOES", SpvDim2D, false, false,
-                                        false, true))
-    , fSamplerCube_Type(new Type("samplerCube", SpvDimCube, false, false, false, true))
-    , fSampler2DRect_Type(new Type("sampler2DRect", SpvDimRect, false, false, false, true))
+    , fTexture1D_Type(new Type("texture1D", SpvDim1D, false, false, false, true))
+    , fTexture2D_Type(new Type("texture2D", SpvDim2D, false, false, false, true))
+    , fTexture3D_Type(new Type("texture3D", SpvDim3D, false, false, false, true))
+    , fTextureExternalOES_Type(new Type("textureExternalOES", SpvDim2D, false, false, false, true))
+    , fTextureCube_Type(new Type("textureCube", SpvDimCube, false, false, false, true))
+    , fTexture2DRect_Type(new Type("texture2DRect", SpvDimRect, false, false, false, true))
+    , fTextureBuffer_Type(new Type("textureBuffer", SpvDimBuffer, false, false, false, true))
+    , fITexture2D_Type(new Type("itexture2D", SpvDim2D, false, false, false, true))
+    , fSampler1D_Type(new Type("sampler1D", *fTexture1D_Type))
+    , fSampler2D_Type(new Type("sampler2D", *fTexture2D_Type))
+    , fSampler3D_Type(new Type("sampler3D", *fTexture3D_Type))
+    , fSamplerExternalOES_Type(new Type("samplerExternalOES", *fTextureExternalOES_Type))
+    , fSamplerCube_Type(new Type("samplerCube", *fTextureCube_Type))
+    , fSampler2DRect_Type(new Type("sampler2DRect", *fTexture2DRect_Type))
     , fSampler1DArray_Type(new Type("sampler1DArray"))
     , fSampler2DArray_Type(new Type("sampler2DArray"))
     , fSamplerCubeArray_Type(new Type("samplerCubeArray"))
-    , fSamplerBuffer_Type(new Type("samplerBuffer", SpvDimBuffer, false, false, false,
-                                   true))
+    , fSamplerBuffer_Type(new Type("samplerBuffer", *fTextureBuffer_Type))
     , fSampler2DMS_Type(new Type("sampler2DMS"))
     , fSampler2DMSArray_Type(new Type("sampler2DMSArray"))
     , fSampler1DShadow_Type(new Type("sampler1DShadow"))
@@ -103,8 +120,9 @@ public:
     , fSamplerCubeArrayShadow_Type(new Type("samplerCubeArrayShadow"))
 
     // Related to below FIXME, gsampler*s don't currently expand to cover integer case.
-    , fISampler2D_Type(new Type("isampler2D", SpvDim2D, false, false, false, true))
+    , fISampler2D_Type(new Type("isampler2D", *fITexture2D_Type))
 
+    , fSampler_Type(new Type("sampler", Type::kSeparateSampler_Kind))
     // FIXME express these as "gimage2D" that expand to image2D, iimage2D, and uimage2D.
     , fImage2D_Type(new Type("image2D", SpvDim2D, false, false, false, true))
     , fIImage2D_Type(new Type("iimage2D", SpvDim2D, false, false, false, true))
@@ -180,11 +198,15 @@ public:
                                      fShort3_Type.get(), fShort4_Type.get() }))
     , fUSVec_Type(new Type("$usvec", { fInvalid_Type.get(), fUShort2_Type.get(),
                                        fUShort3_Type.get(), fUShort4_Type.get() }))
+    , fByteVec_Type(new Type("$bytevec", { fInvalid_Type.get(), fByte2_Type.get(),
+                                     fByte3_Type.get(), fByte4_Type.get() }))
+    , fUByteVec_Type(new Type("$ubytevec", { fInvalid_Type.get(), fUByte2_Type.get(),
+                                       fUByte3_Type.get(), fUByte4_Type.get() }))
     , fBVec_Type(new Type("$bvec", { fInvalid_Type.get(), fBool2_Type.get(),
                                      fBool3_Type.get(), fBool4_Type.get() }))
     , fSkCaps_Type(new Type("$sk_Caps"))
     , fSkArgs_Type(new Type("$sk_Args"))
-    , fFragmentProcessor_Type(new Type("fragmentProcessor"))
+    , fFragmentProcessor_Type(fp_type(fInt_Type.get(), fBool_Type.get()))
     , fSkRasterPipeline_Type(new Type("SkRasterPipeline"))
     , fDefined_Expression(new Defined(*fInvalid_Type)) {}
 
@@ -194,6 +216,9 @@ public:
 
     const std::unique_ptr<Type> fInvalid_Type;
     const std::unique_ptr<Type> fVoid_Type;
+    const std::unique_ptr<Type> fNull_Type;
+    const std::unique_ptr<Type> fFloatLiteral_Type;
+    const std::unique_ptr<Type> fIntLiteral_Type;
 
     const std::unique_ptr<Type> fDouble_Type;
     const std::unique_ptr<Type> fDouble2_Type;
@@ -230,6 +255,16 @@ public:
     const std::unique_ptr<Type> fShort3_Type;
     const std::unique_ptr<Type> fShort4_Type;
 
+    const std::unique_ptr<Type> fUByte_Type;
+    const std::unique_ptr<Type> fUByte2_Type;
+    const std::unique_ptr<Type> fUByte3_Type;
+    const std::unique_ptr<Type> fUByte4_Type;
+
+    const std::unique_ptr<Type> fByte_Type;
+    const std::unique_ptr<Type> fByte2_Type;
+    const std::unique_ptr<Type> fByte3_Type;
+    const std::unique_ptr<Type> fByte4_Type;
+
     const std::unique_ptr<Type> fBool_Type;
     const std::unique_ptr<Type> fBool2_Type;
     const std::unique_ptr<Type> fBool3_Type;
@@ -265,6 +300,15 @@ public:
     const std::unique_ptr<Type> fDouble4x3_Type;
     const std::unique_ptr<Type> fDouble4x4_Type;
 
+    const std::unique_ptr<Type> fTexture1D_Type;
+    const std::unique_ptr<Type> fTexture2D_Type;
+    const std::unique_ptr<Type> fTexture3D_Type;
+    const std::unique_ptr<Type> fTextureExternalOES_Type;
+    const std::unique_ptr<Type> fTextureCube_Type;
+    const std::unique_ptr<Type> fTexture2DRect_Type;
+    const std::unique_ptr<Type> fTextureBuffer_Type;
+    const std::unique_ptr<Type> fITexture2D_Type;
+
     const std::unique_ptr<Type> fSampler1D_Type;
     const std::unique_ptr<Type> fSampler2D_Type;
     const std::unique_ptr<Type> fSampler3D_Type;
@@ -286,6 +330,7 @@ public:
     const std::unique_ptr<Type> fSamplerCubeArrayShadow_Type;
 
     const std::unique_ptr<Type> fISampler2D_Type;
+    const std::unique_ptr<Type> fSampler_Type;
 
     const std::unique_ptr<Type> fImage2D_Type;
     const std::unique_ptr<Type> fIImage2D_Type;
@@ -328,6 +373,8 @@ public:
     const std::unique_ptr<Type> fUVec_Type;
     const std::unique_ptr<Type> fSVec_Type;
     const std::unique_ptr<Type> fUSVec_Type;
+    const std::unique_ptr<Type> fByteVec_Type;
+    const std::unique_ptr<Type> fUByteVec_Type;
 
     const std::unique_ptr<Type> fBVec_Type;
 
@@ -355,8 +402,28 @@ private:
             return "<defined>";
         }
 
+        std::unique_ptr<Expression> clone() const override {
+            return std::unique_ptr<Expression>(new Defined(fType));
+        }
+
         typedef Expression INHERITED;
     };
+
+    static std::unique_ptr<Type> fp_type(const Type* intType, const Type* boolType) {
+        // Build fields for FragmentProcessors, which should parallel the
+        // C++ API for GrFragmentProcessor.
+        Modifiers mods(Layout(), Modifiers::kConst_Flag);
+        std::vector<Type::Field> fields = {
+            Type::Field(mods, "numTextureSamplers", intType),
+            Type::Field(mods, "numCoordTransforms", intType),
+            Type::Field(mods, "numChildProcessors", intType),
+            Type::Field(mods, "usesLocalCoords", boolType),
+            Type::Field(mods, "compatibleWithCoverageAsAlpha", boolType),
+            Type::Field(mods, "preservesOpaqueInput", boolType),
+            Type::Field(mods, "hasConstantOutputForConstantInput", boolType)
+        };
+        return std::unique_ptr<Type>(new Type("fragmentProcessor", fields));
+    }
 };
 
 } // namespace

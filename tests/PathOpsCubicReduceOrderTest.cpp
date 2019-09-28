@@ -4,13 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "PathOpsCubicIntersectionTestData.h"
-#include "PathOpsQuadIntersectionTestData.h"
-#include "PathOpsTestCommon.h"
-#include "SkIntersections.h"
-#include "SkPathOpsRect.h"
-#include "SkReduceOrder.h"
-#include "Test.h"
+#include "src/pathops/SkIntersections.h"
+#include "src/pathops/SkPathOpsRect.h"
+#include "src/pathops/SkReduceOrder.h"
+#include "tests/PathOpsCubicIntersectionTestData.h"
+#include "tests/PathOpsQuadIntersectionTestData.h"
+#include "tests/PathOpsTestCommon.h"
+#include "tests/Test.h"
 
 #if 0 // disable test until stroke reduction is supported
 static bool controls_inside(const SkDCubic& cubic) {

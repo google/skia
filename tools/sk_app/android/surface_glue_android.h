@@ -12,10 +12,10 @@
 
 #include <android/native_window_jni.h>
 
-#include "SkString.h"
+#include "include/core/SkString.h"
 
-#include "../Application.h"
-#include "../Window.h"
+#include "tools/sk_app/Application.h"
+#include "tools/sk_app/Window.h"
 
 namespace sk_app {
 

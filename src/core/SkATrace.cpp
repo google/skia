@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkATrace.h"
+#include "src/core/SkATrace.h"
 
-#include "SkTraceEvent.h"
+#include "src/core/SkTraceEvent.h"
+
+#include "src/core/SkTraceEventCommon.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
 #include <dlfcn.h>
@@ -69,4 +71,13 @@ const uint8_t* SkATrace::getCategoryGroupEnabled(const char* name) {
     static uint8_t yes = SkEventTracer::kEnabledForRecording_CategoryGroupEnabledFlags;
     return &yes;
 }
+
+
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+
+bool SkAndroidFrameworkTraceUtil::gEnableAndroidTracing = false;
+
+#endif //SK_BUILD_FOR_ANDROID_FRAMEWORK
+
+
 

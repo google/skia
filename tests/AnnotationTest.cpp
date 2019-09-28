@@ -5,19 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkAnnotation.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkData.h"
-#include "SkDocument.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
-#include "SkStream.h"
-#include "SkTypes.h"
-#include "Test.h"
+#include "include/core/SkAnnotation.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkData.h"
+#include "include/core/SkDocument.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
+#include "include/docs/SkPDFDocument.h"
+#include "tests/Test.h"
 
 #include <string.h>
 #include <memory>
@@ -52,7 +53,7 @@ DEF_TEST(Annotation_NoDraw, reporter) {
 DEF_TEST(Annotation_PdfLink, reporter) {
     REQUIRE_PDF_DOCUMENT(Annotation_PdfLink, reporter);
     SkDynamicMemoryWStream outStream;
-    sk_sp<SkDocument> doc(SkDocument::MakePDF(&outStream));
+    auto doc = SkPDF::MakeDocument(&outStream);
     SkCanvas* canvas = doc->beginPage(612.0f, 792.0f);
     REPORTER_ASSERT(reporter, canvas);
 
@@ -71,7 +72,7 @@ DEF_TEST(Annotation_PdfLink, reporter) {
 DEF_TEST(Annotation_PdfDefineNamedDestination, reporter) {
     REQUIRE_PDF_DOCUMENT(Annotation_PdfNamedDestination, reporter);
     SkDynamicMemoryWStream outStream;
-    sk_sp<SkDocument> doc(SkDocument::MakePDF(&outStream));
+    auto doc = SkPDF::MakeDocument(&outStream);
     SkCanvas* canvas = doc->beginPage(612.0f, 792.0f);
     REPORTER_ASSERT(reporter, canvas);
 
@@ -88,21 +89,18 @@ DEF_TEST(Annotation_PdfDefineNamedDestination, reporter) {
 }
 
 #if defined(SK_XML)
-    #include "SkSVGCanvas.h"
-    #include "SkXMLWriter.h"
+    #include "include/svg/SkSVGCanvas.h"
 
     DEF_TEST(Annotation_SvgLink, reporter) {
         SkDynamicMemoryWStream outStream;
-        std::unique_ptr<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(&outStream));
         SkRect bounds = SkRect::MakeIWH(400, 400);
-        std::unique_ptr<SkCanvas> canvas = SkSVGCanvas::Make(bounds, xmlWriter.get());
+        std::unique_ptr<SkCanvas> canvas = SkSVGCanvas::Make(bounds, &outStream);
 
         SkRect r = SkRect::MakeXYWH(SkIntToScalar(72), SkIntToScalar(72), SkIntToScalar(288),
                                     SkIntToScalar(72));
         sk_sp<SkData> data(SkData::MakeWithCString("http://www.gooogle.com"));
         SkAnnotateRectWithURL(canvas.get(), r, data.get());
 
-        canvas->flush();
         sk_sp<SkData> out = outStream.detachAsData();
         const char* rawOutput = (const char*)out->data();
 
@@ -112,16 +110,14 @@ DEF_TEST(Annotation_PdfDefineNamedDestination, reporter) {
 
     DEF_TEST(Annotation_SvgLinkNamedDestination, reporter) {
         SkDynamicMemoryWStream outStream;
-        std::unique_ptr<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(&outStream));
         SkRect bounds = SkRect::MakeIWH(400, 400);
-        std::unique_ptr<SkCanvas> canvas = SkSVGCanvas::Make(bounds, xmlWriter.get());
+        std::unique_ptr<SkCanvas> canvas = SkSVGCanvas::Make(bounds, &outStream);
 
         SkRect r = SkRect::MakeXYWH(SkIntToScalar(72), SkIntToScalar(72), SkIntToScalar(288),
                                     SkIntToScalar(72));
         sk_sp<SkData> data(SkData::MakeWithCString("http://www.gooogle.com/#NamedDestination"));
         SkAnnotateLinkToDestination(canvas.get(), r, data.get());
 
-        canvas->flush();
         sk_sp<SkData> out = outStream.detachAsData();
         const char* rawOutput = (const char*)out->data();
 

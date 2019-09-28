@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
-#include "SkRandom.h"
-#include "SkReader32.h"
-#include "SkWriter32.h"
-#include "Test.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkReader32.h"
+#include "src/core/SkWriter32.h"
+#include "tests/Test.h"
 
 static void check_contents(skiatest::Reporter* reporter, const SkWriter32& writer,
                            const void* expected, size_t size) {

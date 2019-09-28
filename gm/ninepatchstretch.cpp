@@ -5,13 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkSurface.h"
-#include "sk_tool_utils.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "tools/ToolUtils.h"
 
 static sk_sp<SkSurface> make_surface(SkCanvas* root, int N) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(N, N);
-    return sk_tool_utils::makeSurface(root, info);
+    return ToolUtils::makeSurface(root, info);
 }
 
 static sk_sp<SkImage> make_image(SkCanvas* root, SkIRect* center) {
@@ -67,7 +78,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        if (nullptr == fBitmap.pixelRef()) {
+        if (nullptr == fBitmap.pixelRef() || !fImage->isValid(canvas->getGrContext())) {
             fImage = make_image(canvas, &fCenter);
             image_to_bitmap(fImage.get(), &fBitmap);
         }

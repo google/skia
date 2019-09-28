@@ -8,8 +8,8 @@
 #ifndef SkPngEncoder_DEFINED
 #define SkPngEncoder_DEFINED
 
-#include "SkEncoder.h"
-#include "SkDataTable.h"
+#include "include/core/SkDataTable.h"
+#include "include/encode/SkEncoder.h"
 
 class SkPngEncoderMgr;
 class SkWStream;
@@ -52,13 +52,6 @@ public:
          *  Our default value matches libpng's default.
          */
         int fZLibLevel = 6;
-
-        /**
-         *  If the input is premultiplied, this controls the unpremultiplication behavior.
-         *  The encoder can convert to linear before unpremultiplying or ignore the transfer
-         *  function and unpremultiply the input as is.
-         */
-        SkTransferFunctionBehavior fUnpremulBehavior = SkTransferFunctionBehavior::kRespect;
 
         /**
          *  Represents comments in the tEXt ancillary chunk of the png.

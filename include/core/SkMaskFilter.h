@@ -8,10 +8,10 @@
 #ifndef SkMaskFilter_DEFINED
 #define SkMaskFilter_DEFINED
 
-#include "SkBlurTypes.h"
-#include "SkCoverageMode.h"
-#include "SkFlattenable.h"
-#include "SkScalar.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCoverageMode.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkScalar.h"
 
 class SkMatrix;
 struct SkRect;
@@ -25,16 +25,11 @@ class SkString;
 class SK_API SkMaskFilter : public SkFlattenable {
 public:
     /** Create a blur maskfilter.
-     *  @param style     The SkBlurStyle to use
-     *  @param sigma     Standard deviation of the Gaussian blur to apply. Must be > 0.
-     *  @param occluder  The rect for which no pixels need be drawn (b.c. it will be overdrawn
-     *                   with some opaque object. This is just a hint which backends are free to
-     *                   ignore.
+     *  @param style      The SkBlurStyle to use
+     *  @param sigma      Standard deviation of the Gaussian blur to apply. Must be > 0.
      *  @param respectCTM if true the blur's sigma is modified by the CTM.
      *  @return The new blur maskfilter
      */
-    static sk_sp<SkMaskFilter> MakeBlur(SkBlurStyle style, SkScalar sigma, const SkRect& occluder,
-                                        bool respectCTM = true);
     static sk_sp<SkMaskFilter> MakeBlur(SkBlurStyle style, SkScalar sigma,
                                         bool respectCTM = true);
 
@@ -59,8 +54,6 @@ public:
      */
     sk_sp<SkMaskFilter> makeWithMatrix(const SkMatrix&) const;
 
-    virtual void toString(SkString* str) const = 0;
-
     static SkFlattenable::Type GetFlattenableType() {
         return kSkMaskFilter_Type;
     }
@@ -77,7 +70,7 @@ public:
     }
 
 private:
-    static void InitializeFlattenables();
+    static void RegisterFlattenables();
     friend class SkFlattenable;
 };
 

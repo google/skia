@@ -5,14 +5,16 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkData.h"
+#include "include/core/SkMath.h"
+#include "include/private/SkPathRef.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkBuffer.h"
+#include "src/core/SkPathPriv.h"
+#include "src/core/SkRRectPriv.h"
+#include "src/core/SkSafeMath.h"
+
 #include <cmath>
-#include "SkBuffer.h"
-#include "SkData.h"
-#include "SkMath.h"
-#include "SkPathPriv.h"
-#include "SkPathRef.h"
-#include "SkRRect.h"
-#include "SkSafeMath.h"
 
 enum SerializationOffsets {
     kType_SerializationShift = 28,       // requires 4 bits
@@ -77,7 +79,7 @@ size_t SkPath::writeToMemoryAsRRect(void* storage) const {
 
     SkWBuffer buffer(storage);
     buffer.write32(packed);
-    rrect.writeToBuffer(&buffer);
+    SkRRectPriv::WriteToBuffer(rrect, &buffer);
     buffer.write32(SkToS32(start));
     buffer.padToAlign4();
     SkASSERT(sizeNeeded == buffer.pos());
@@ -177,7 +179,7 @@ size_t SkPath::readAsRRect(const void* storage, size_t length) {
         default:
             return 0;
     }
-    if (!rrect.readFromBuffer(&buffer)) {
+    if (!SkRRectPriv::ReadFromBuffer(&buffer, &rrect)) {
         return 0;
     }
     if (!buffer.readS32(&start) || start != SkTPin(start, 0, 7)) {

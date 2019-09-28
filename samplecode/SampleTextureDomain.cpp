@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
-#include "SkCanvas.h"
-#include "SkSurface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkBlurMask.h"
 
 static SkBitmap make_bitmap() {
     SkBitmap bm;
@@ -24,7 +24,7 @@ static SkBitmap make_bitmap() {
     return bm;
 }
 
-class TextureDomainView : public SampleView {
+class TextureDomainView : public Sample {
     SkBitmap    fBM;
 
 public:
@@ -33,14 +33,7 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Texture Domain");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    virtual SkString name() { return SkString("Texture Domain"); }
 
     virtual void onDrawContent(SkCanvas* canvas) {
         SkRect srcRect;
@@ -94,10 +87,9 @@ protected:
         canvas->drawBitmapRect(fBM, dstRect, &paint);
     }
 private:
-    typedef SkView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new TextureDomainView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new TextureDomainView(); )

@@ -5,16 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "TestUtils.h"
+#include "tests/TestUtils.h"
 
-#if SK_SUPPORT_GPU
-
-#include "GrProxyProvider.h"
-#include "GrSurfaceContext.h"
-#include "GrSurfaceContextPriv.h"
-#include "GrSurfaceProxy.h"
-#include "GrTextureProxy.h"
-#include "ProxyUtils.h"
+#include "include/encode/SkPngEncoder.h"
+#include "include/utils/SkBase64.h"
+#include "src/core/SkUtils.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/GrSurfaceProxy.h"
+#include "src/gpu/GrTextureContext.h"
+#include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/SkGr.h"
 
 void test_read_pixels(skiatest::Reporter* reporter,
                       GrSurfaceContext* srcContext, uint32_t expectedPixelValues[],
@@ -25,7 +28,7 @@ void test_read_pixels(skiatest::Reporter* reporter,
 
     SkImageInfo ii = SkImageInfo::Make(srcContext->width(), srcContext->height(),
                                        kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    bool read = srcContext->readPixels(ii, pixels.get(), 0, 0, 0);
+    bool read = srcContext->readPixels(ii, pixels.get(), 0, {0, 0});
     if (!read) {
         ERRORF(reporter, "%s: Error reading from texture.", testName);
     }
@@ -47,13 +50,13 @@ void test_write_pixels(skiatest::Reporter* reporter,
     for (int y = 0; y < dstContext->width(); ++y) {
         for (int x = 0; x < dstContext->height(); ++x) {
             pixels.get()[y * dstContext->width() + x] =
-                GrPremulColor(GrColorPackRGBA(x, y, x + y, 2*y));
+                SkColorToPremulGrColor(SkColorSetARGB(2*y, x, y, x + y));
         }
     }
 
     SkImageInfo ii = SkImageInfo::Make(dstContext->width(), dstContext->height(),
                                        kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    bool write = dstContext->writePixels(ii, pixels.get(), 0, 0, 0);
+    bool write = dstContext->writePixels(ii, pixels.get(), 0, {0, 0});
     if (!write) {
         if (expectedToWork) {
             ERRORF(reporter, "%s: Error writing to texture.", testName);
@@ -69,51 +72,220 @@ void test_write_pixels(skiatest::Reporter* reporter,
     test_read_pixels(reporter, dstContext, pixels.get(), testName);
 }
 
-void test_copy_from_surface(skiatest::Reporter* reporter, GrContext* context,
-                            GrSurfaceProxy* proxy, uint32_t expectedPixelValues[],
-                            bool onlyTestRTConfig, const char* testName) {
-    GrSurfaceDesc copyDstDesc;
-    copyDstDesc.fWidth = proxy->width();
-    copyDstDesc.fHeight = proxy->height();
-    copyDstDesc.fConfig = kRGBA_8888_GrPixelConfig;
+void test_copy_from_surface(skiatest::Reporter* reporter, GrContext* context, GrSurfaceProxy* proxy,
+                            GrColorType colorType, uint32_t expectedPixelValues[],
+                            const char* testName) {
+    sk_sp<GrTextureProxy> dstProxy = GrSurfaceProxy::Copy(context, proxy, GrMipMapped::kNo,
+                                                          SkBackingFit::kExact, SkBudgeted::kYes);
+    SkASSERT(dstProxy);
 
-    for (auto flags : { kNone_GrSurfaceFlags, kRenderTarget_GrSurfaceFlag }) {
-        if (kNone_GrSurfaceFlags == flags && onlyTestRTConfig) {
-            continue;
-        }
+    auto dstContext = context->priv().makeWrappedSurfaceContext(std::move(dstProxy), colorType,
+                                                                kPremul_SkAlphaType);
+    SkASSERT(dstContext);
 
-        copyDstDesc.fFlags = flags;
-        auto origin = (kNone_GrSurfaceFlags == flags) ? kTopLeft_GrSurfaceOrigin
-                                                      : kBottomLeft_GrSurfaceOrigin;
-
-        sk_sp<GrSurfaceContext> dstContext(
-                GrSurfaceProxy::TestCopy(context, copyDstDesc, origin, proxy));
-
-        test_read_pixels(reporter, dstContext.get(), expectedPixelValues, testName);
-    }
+    test_read_pixels(reporter, dstContext.get(), expectedPixelValues, testName);
 }
 
-void test_copy_to_surface(skiatest::Reporter* reporter, GrProxyProvider* proxyProvider,
-                          GrSurfaceContext* dstContext, const char* testName) {
-
-    int pixelCnt = dstContext->width() * dstContext->height();
-    SkAutoTMalloc<uint32_t> pixels(pixelCnt);
-    for (int y = 0; y < dstContext->width(); ++y) {
-        for (int x = 0; x < dstContext->height(); ++x) {
-            pixels.get()[y * dstContext->width() + x] =
-                GrPremulColor(GrColorPackRGBA(y, x, x * y, 2*y));
-        }
-    }
-
-    for (auto isRT : {false, true}) {
-        for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
-            auto src = sk_gpu_test::MakeTextureProxyFromData(
-                    dstContext->surfPriv().getContext(), isRT, dstContext->width(),
-                    dstContext->height(), GrColorType::kRGBA_8888, origin, pixels.get(), 0);
-            dstContext->copy(src.get());
-            test_read_pixels(reporter, dstContext, pixels.get(), testName);
+void fill_pixel_data(int width, int height, GrColor* data) {
+    for (int j = 0; j < height; ++j) {
+        for (int i = 0; i < width; ++i) {
+            unsigned int red = (unsigned int)(256.f * (i / (float)width));
+            unsigned int green = (unsigned int)(256.f * (j / (float)height));
+            data[i + j * width] = GrColorPackRGBA(red - (red >> 8), green - (green >> 8),
+                                                  0xff, 0xff);
         }
     }
 }
 
+bool create_backend_texture(GrContext* context, GrBackendTexture* backendTex,
+                            const SkImageInfo& ii, const SkColor4f& color,
+                            GrMipMapped mipMapped, GrRenderable renderable) {
+    // TODO: use the color-init version of createBackendTexture once Metal supports it.
+#if 0
+    *backendTex = context->createBackendTexture(ii.width(), ii.height(), ii.colorType(),
+                                                color, mipMapped, renderable);
+#else
+    SkBitmap bm;
+    bm.allocPixels(ii);
+    sk_memset32(bm.getAddr32(0, 0), color.toSkColor(), ii.width() * ii.height());
+
+    SkASSERT(GrMipMapped::kNo == mipMapped);
+    *backendTex = context->priv().createBackendTexture(&bm.pixmap(), 1, renderable,
+                                                       GrProtected::kNo);
 #endif
+
+    return backendTex->isValid();
+}
+
+void delete_backend_texture(GrContext* context, const GrBackendTexture& backendTex) {
+    GrFlushInfo flushInfo;
+    flushInfo.fFlags = kSyncCpu_GrFlushFlag;
+    context->flush(flushInfo);
+    context->deleteBackendTexture(backendTex);
+}
+
+bool does_full_buffer_contain_correct_color(const GrColor* srcBuffer,
+                                            const GrColor* dstBuffer,
+                                            int width,
+                                            int height) {
+    const GrColor* srcPtr = srcBuffer;
+    const GrColor* dstPtr = dstBuffer;
+    for (int j = 0; j < height; ++j) {
+        for (int i = 0; i < width; ++i) {
+            if (srcPtr[i] != dstPtr[i]) {
+                return false;
+            }
+        }
+        srcPtr += width;
+        dstPtr += width;
+    }
+    return true;
+}
+
+bool bitmap_to_base64_data_uri(const SkBitmap& bitmap, SkString* dst) {
+    SkPixmap pm;
+    if (!bitmap.peekPixels(&pm)) {
+        dst->set("peekPixels failed");
+        return false;
+    }
+
+    // We're going to embed this PNG in a data URI, so make it as small as possible
+    SkPngEncoder::Options options;
+    options.fFilterFlags = SkPngEncoder::FilterFlag::kAll;
+    options.fZLibLevel = 9;
+
+    SkDynamicMemoryWStream wStream;
+    if (!SkPngEncoder::Encode(&wStream, pm, options)) {
+        dst->set("SkPngEncoder::Encode failed");
+        return false;
+    }
+
+    sk_sp<SkData> pngData = wStream.detachAsData();
+    size_t len = SkBase64::Encode(pngData->data(), pngData->size(), nullptr);
+
+    // The PNG can be almost arbitrarily large. We don't want to fill our logs with enormous URLs.
+    // Infra says these can be pretty big, as long as we're only outputting them on failure.
+    static const size_t kMaxBase64Length = 1024 * 1024;
+    if (len > kMaxBase64Length) {
+        dst->printf("Encoded image too large (%u bytes)", static_cast<uint32_t>(len));
+        return false;
+    }
+
+    dst->resize(len);
+    SkBase64::Encode(pngData->data(), pngData->size(), dst->writable_str());
+    dst->prepend("data:image/png;base64,");
+    return true;
+}
+
+bool compare_pixels(const GrPixelInfo& infoA, const char* a, size_t rowBytesA,
+                    const GrPixelInfo& infoB, const char* b, size_t rowBytesB,
+                    const float tolRGBA[4], std::function<ComparePixmapsErrorReporter>& error) {
+    if (infoA.width() != infoB.width() || infoA.height() != infoB.height()) {
+        static constexpr float kDummyDiffs[4] = {};
+        error(-1, -1, kDummyDiffs);
+        return false;
+    }
+
+    SkAlphaType floatAlphaType = infoA.alphaType();
+    // If one is premul and the other is unpremul we do the comparison in premul space.
+    if ((infoA.alphaType() == kPremul_SkAlphaType ||
+         infoB.alphaType() == kPremul_SkAlphaType) &&
+        (infoA.alphaType() == kUnpremul_SkAlphaType ||
+         infoB.alphaType() == kUnpremul_SkAlphaType)) {
+        floatAlphaType = kPremul_SkAlphaType;
+    }
+    sk_sp<SkColorSpace> floatCS;
+    if (SkColorSpace::Equals(infoA.colorSpace(), infoB.colorSpace())) {
+        floatCS = infoA.refColorSpace();
+    } else {
+        floatCS = SkColorSpace::MakeSRGBLinear();
+    }
+    GrPixelInfo floatInfo(GrColorType::kRGBA_F32, floatAlphaType, std::move(floatCS),
+                          infoA.width(), infoA.height());
+
+    size_t floatBpp = GrColorTypeBytesPerPixel(GrColorType::kRGBA_F32);
+    size_t floatRowBytes = floatBpp * infoA.width();
+    std::unique_ptr<char[]> floatA(new char[floatRowBytes * infoA.height()]);
+    std::unique_ptr<char[]> floatB(new char[floatRowBytes * infoA.height()]);
+    SkAssertResult(GrConvertPixels(floatInfo, floatA.get(), floatRowBytes, infoA, a, rowBytesA));
+    SkAssertResult(GrConvertPixels(floatInfo, floatB.get(), floatRowBytes, infoB, b, rowBytesB));
+
+    auto at = [floatBpp, floatRowBytes](const char* floatBuffer, int x, int y) {
+        return reinterpret_cast<const float*>(floatBuffer + y * floatRowBytes + x * floatBpp);
+    };
+    for (int y = 0; y < infoA.height(); ++y) {
+        for (int x = 0; x < infoA.width(); ++x) {
+            const float* rgbaA = at(floatA.get(), x, y);
+            const float* rgbaB = at(floatB.get(), x, y);
+            float diffs[4];
+            bool bad = false;
+            for (int i = 0; i < 4; ++i) {
+                diffs[i] = rgbaB[i] - rgbaA[i];
+                if (std::abs(diffs[i]) > std::abs(tolRGBA[i])) {
+                    bad = true;
+                }
+            }
+            if (bad) {
+                error(x, y, diffs);
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool compare_pixels(const SkPixmap& a, const SkPixmap& b, const float tolRGBA[4],
+                    std::function<ComparePixmapsErrorReporter>& error) {
+    return compare_pixels(a.info(), static_cast<const char*>(a.addr()), a.rowBytes(),
+                          b.info(), static_cast<const char*>(b.addr()), b.rowBytes(),
+                          tolRGBA, error);
+}
+
+#include "src/utils/SkCharToGlyphCache.h"
+
+static SkGlyphID hash_to_glyph(uint32_t value) {
+    return SkToU16(((value >> 16) ^ value) & 0xFFFF);
+}
+
+namespace {
+class UnicharGen {
+    SkUnichar fU;
+    const int fStep;
+public:
+    UnicharGen(int step) : fU(0), fStep(step) {}
+
+    SkUnichar next() {
+        fU += fStep;
+        return fU;
+    }
+};
+}
+
+DEF_TEST(chartoglyph_cache, reporter) {
+    SkCharToGlyphCache cache;
+    const int step = 3;
+
+    UnicharGen gen(step);
+    for (int i = 0; i < 500; ++i) {
+        SkUnichar c = gen.next();
+        SkGlyphID glyph = hash_to_glyph(c);
+
+        int index = cache.findGlyphIndex(c);
+        if (index >= 0) {
+            index = cache.findGlyphIndex(c);
+        }
+        REPORTER_ASSERT(reporter, index < 0);
+        cache.insertCharAndGlyph(~index, c, glyph);
+
+        UnicharGen gen2(step);
+        for (int j = 0; j <= i; ++j) {
+            c = gen2.next();
+            glyph = hash_to_glyph(c);
+            index = cache.findGlyphIndex(c);
+            if ((unsigned)index != glyph) {
+                index = cache.findGlyphIndex(c);
+            }
+            REPORTER_ASSERT(reporter, (unsigned)index == glyph);
+        }
+    }
+}

@@ -10,18 +10,18 @@ point, for the next six weeks, only high priority fixes are checked into the bra
 After the six week period, when another branch is cut, only critical (typically
 security) fixes will be committed to any previous branch.
 
-Skia 2017 schedule:
+Skia 2019 schedule:
 
   Milestone | Branch Date (beginning of day)
   ----------|-------------------------------
-  57        | 01/19/17
-  58        | 03/02/17
-  59        | 04/13/17
-  60        | 05/25/17
-  61        | 07/20/17
-  62        | 08/31/17
-  63        | 10/12/17
-  64        | 11/30/17
+  73        | 01/24/19
+  74        | 03/07/19
+  75        | 04/18/19
+  76        | 05/30/19
+  77        | 07/25/19
+  78        | 09/05/19
+  79        | 10/17/19
+  80        | 12/05/19
 
 The current milestone is included in the headers in
 [SkMilestone.h](https://skia.googlesource.com/skia/+/master/include/core/SkMilestone.h).

@@ -40,7 +40,11 @@
       "[START_DIR]/tmp/SKP_VERSION"
     ],
     "infra_step": true,
-    "name": "write SKP_VERSION"
+    "name": "write SKP_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SKP_VERSION@42@@@",
+      "@@@STEP_LOG_END@SKP_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -68,7 +72,11 @@
       "[START_DIR]/tmp/SK_IMAGE_VERSION"
     ],
     "infra_step": true,
-    "name": "write SK_IMAGE_VERSION"
+    "name": "write SK_IMAGE_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SK_IMAGE_VERSION@42@@@",
+      "@@@STEP_LOG_END@SK_IMAGE_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -96,7 +104,11 @@
       "[START_DIR]/tmp/SVG_VERSION"
     ],
     "infra_step": true,
-    "name": "write SVG_VERSION"
+    "name": "write SVG_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SVG_VERSION@42@@@",
+      "@@@STEP_LOG_END@SVG_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -105,7 +117,6 @@
       "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
     ],
     "name": "get swarming bot id",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
@@ -119,7 +130,6 @@
       "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
     ],
     "name": "get swarming task id",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
@@ -133,7 +143,7 @@
       "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
       "[START_DIR]",
       "catchsegv",
-      "[START_DIR]/build/out/Debug/nanobench",
+      "[START_DIR]/build/nanobench",
       "-i",
       "[START_DIR]/skia/resources",
       "--skps",
@@ -152,14 +162,32 @@
       "--nocpu",
       "--config",
       "vk",
+      "--loops",
+      "1",
+      "--samples",
+      "1",
+      "--keepAlive",
+      "true",
       "--match",
       "~desk_carsvg.skp_1",
+      "~desk_googlehome.skp",
       "~desk_tiger8svg.skp_1",
       "~desk_wowwiki.skp",
+      "~desk_ynevsvg.skp_1.1",
+      "~desk_nostroke_tiger8svg.skp",
+      "~keymobi_booking_com.skp_1",
+      "~keymobi_booking_com.skp_1_mpd",
+      "~keymobi_cnn_article.skp_1",
+      "~keymobi_cnn_article.skp_1_mpd",
+      "~keymobi_forecast_io.skp_1",
+      "~keymobi_forecast_io.skp_1_mpd",
       "~keymobi_sfgate.skp_1",
       "~keymobi_techcrunch_com.skp_1.1",
       "~keymobi_techcrunch.skp_1.1",
       "~keymobi_techcrunch.skp_1.1_mpd",
+      "~svgparse_Seal_of_California.svg_1.1",
+      "~svgparse_NewYork-StateSeal.svg_1.1",
+      "~svgparse_Vermont_state_seal.svg_1",
       "~tabl_gamedeksiam.skp_1.1",
       "~tabl_pravda.skp_1",
       "~top25desk_ebay_com.skp_1.1",
@@ -188,16 +216,14 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "LD_LIBRARY_PATH": "[START_DIR]/linux_vulkan_intel_driver_debug:[START_DIR]/linux_vulkan_sdk/lib",
-      "LIBGL_DRIVERS_PATH": "[START_DIR]/linux_vulkan_intel_driver_debug",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]:[START_DIR]/linux_vulkan_sdk/bin",
-      "VK_ICD_FILENAMES": "[START_DIR]/linux_vulkan_intel_driver_debug/intel_icd.x86_64.json"
+      "LD_LIBRARY_PATH": "[START_DIR]/mesa_intel_driver_linux:[START_DIR]/linux_vulkan_sdk/lib",
+      "LIBGL_DRIVERS_PATH": "[START_DIR]/mesa_intel_driver_linux",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/linux_vulkan_sdk/bin",
+      "VK_ICD_FILENAMES": "[START_DIR]/mesa_intel_driver_linux/intel_icd.x86_64.json"
     },
     "name": "symbolized nanobench"
   },
   {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "name": "$result"
   }
 ]

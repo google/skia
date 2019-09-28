@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkCommandLineFlags.h"
-#include "SkPaint.h"
-#include "SkRandom.h"
-#include "SkRRect.h"
-#include "SkString.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkString.h"
+#include "include/utils/SkRandom.h"
+#include "tools/flags/CommandLineFlags.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <functional>
@@ -19,13 +20,15 @@
 #define ENABLE_COMMAND_LINE_SHAPES_BENCH 0
 
 #if ENABLE_COMMAND_LINE_SHAPES_BENCH
-DEFINE_string(shapesType, "mixed", "Type of shape to use in ShapesBench. Must be one of: "
-                                   "rect, oval, rrect, mixed.");
-DEFINE_string(innerShapesType, "none", "Type of inner shape to use in ShapesBench. Must be one of: "
-                                       "none, rect, oval, rrect, mixed.");
-DEFINE_int32(numShapes, 10000, "Number of shapes to draw in ShapesBench.");
-DEFINE_string(shapesSize, "32x32", "Size of shapes to draw in ShapesBench.");
-DEFINE_bool(shapesPersp, false, "Use slight perspective tilt in ShapesBench?");
+static DEFINE_string(shapesType, "mixed",
+                     "Type of shape to use in ShapesBench. Must be one of: "
+                     "rect, oval, rrect, mixed.");
+static DEFINE_string(innerShapesType, "none",
+                     "Type of inner shape to use in ShapesBench. Must be one of: "
+                     "none, rect, oval, rrect, mixed.");
+static DEFINE_int(numShapes, 10000, "Number of shapes to draw in ShapesBench.");
+static DEFINE_string(shapesSize, "32x32", "Size of shapes to draw in ShapesBench.");
+static DEFINE_bool(shapesPersp, false, "Use slight perspective tilt in ShapesBench?");
 #endif
 
 /*
@@ -96,8 +99,6 @@ public:
         clampShapeSize();
     }
 #endif
-
-    bool isVisual() override { return true; }
 
 private:
     void clampShapeSize() {

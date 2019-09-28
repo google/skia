@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "skdiff.h"
-#include "SkBitmap.h"
-#include "SkColor.h"
-#include "SkColorPriv.h"
-#include "SkTypes.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkTypes.h"
+#include "tools/skdiff/skdiff.h"
 
 /*static*/ char const * const DiffRecord::ResultNames[DiffRecord::kResultCount] = {
     "EqualBits",

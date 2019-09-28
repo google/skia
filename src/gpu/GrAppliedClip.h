@@ -8,11 +8,11 @@
 #ifndef GrAppliedClip_DEFINED
 #define GrAppliedClip_DEFINED
 
-#include "GrFragmentProcessor.h"
-#include "GrScissorState.h"
-#include "GrWindowRectsState.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrScissorState.h"
+#include "src/gpu/GrWindowRectsState.h"
 
-#include "SkClipStack.h"
+#include "src/core/SkClipStack.h"
 
 
 /**
@@ -125,7 +125,7 @@ public:
     }
     bool operator!=(const GrAppliedClip& that) const { return !(*this == that); }
 
-    void visitProxies(const std::function<void(GrSurfaceProxy*)>& func) const {
+    void visitProxies(const GrOp::VisitProxyFunc& func) const {
         for (const std::unique_ptr<GrFragmentProcessor>& fp : fClipCoverageFPs) {
             if (fp) { // This might be called after detach.
                 fp->visitProxies(func);

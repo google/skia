@@ -1,0 +1,270 @@
+/*
+ * Copyright 2018 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+syntax = "proto3";
+
+package pvg;
+
+enum ClipVerb {
+    INTERSECT = 0;
+    DIFFERENCE = 1;
+}
+
+message Point {
+    float x = 1;
+    float y = 2;
+}
+
+message Rect {
+    float left = 1;
+    float top = 2;
+    float right = 3;
+    float bottom = 4;
+}
+
+message Color {
+    float r = 1;
+    float g = 2;
+    float b = 3;
+    float a = 4;    // default to 1.0
+}
+
+message Matrix33 {
+    // m11, m22, m33 default to 1.0
+
+    float m11 = 1; float m12 = 2; float m13 = 3;
+    float m21 = 4; float m22 = 5; float m23 = 6;
+    float m31 = 7; float m32 = 8; float m33 = 9;
+}
+
+message ClipArgs {
+    ClipVerb    verb  = 1;
+    bool        is_aliased = 2;
+}
+
+////////////////////////////////////////////////
+
+enum BlendMode {
+    SRC_OVER    = 0;
+    CLEAR       = 1;
+    SRC         = 2;
+    // ...
+}
+
+enum PaintStyle {
+    FILL     = 0;
+    STROKE   = 1;
+    HAIRLINE = 2;
+}
+
+enum FilterQuality {
+    NONE   = 0;
+    LOW    = 1;
+    MEDIUM = 2;
+    HIGH   = 3;
+}
+
+message Paint {
+    PaintStyle      style           = 1;
+    FilterQuality   filter_quality  = 2;
+    BlendMode       blend_mode      = 3;
+    bool            is_aliased      = 4;
+
+    Color  color                    = 5;
+
+    int32  shader                   = 6;
+    int32  color_filter             = 7;
+    int32  mask_filter              = 8;
+    int32  path_filter              = 9;
+    int32  image_filter             = 10;
+}
+
+////////////////////////////////////////////////
+
+enum Hinting {
+    NONE_Hinting    = 0;
+    SLIGHT_Hinting  = 1;
+    NORMAL_Hinting  = 2;
+    FULL_Hinting    = 3;
+}
+
+message Font {
+    int32   typeface = 1;
+    float   size     = 2;
+    float   scale_x  = 3;   // default = 1.0
+    float   skew_x   = 4;
+
+    Hinting Hinting  = 5;
+
+    bool    force_autohinting   = 6;
+    bool    embedded_bitmaps    = 7;
+    bool    subpixel            = 8;
+    bool    linear_metrics      = 9;
+    bool    embolden            = 10;
+}
+
+////////////////////////////////////////////////
+
+enum PathVerb {
+    MOVE  = 0;
+    LINE  = 1;
+    QUAD  = 2;
+    CUBIC = 3;
+    CONIC = 4;
+}
+
+message PathData {
+    repeated PathVerb verbs         = 1;
+    repeated float    points        = 2;    // count must be even, and correspond to verbs
+    repeated float    conic_weights = 3;    // count must be == # conic verbs
+}
+
+message DefinePath {
+    uint32   id   = 1;
+    PathData data = 2;
+}
+
+////////////////////////////////////////////////
+
+message DefineImage {
+    uint32  id           = 1;
+    bytes   encoded_data = 2;
+}
+
+////////////////////////////////////////////////
+
+enum TileMode {
+    CLAMP_TileMode  = 0;
+    REPEAT_TileMode = 1;
+    MIRROR_TileMode = 2;
+    DECAL_TileMode  = 3;
+}
+
+message GradientCommon {
+    repeated Color colors       = 1;
+    repeated float positions    = 2;    // empty or count == colors.count
+    Matrix33       local_matrix = 3;
+    TileMode       tile_mode    = 4;
+}
+
+message LinearGradient {
+    Point          p0     = 1;
+    Point          p1     = 2;
+    GradientCommon common = 3;
+}
+
+message RadialGradient {
+    Point          center = 1;
+    float          radius = 2;
+    GradientCommon common = 3;
+}
+
+message ImageShader {
+    uint32   image_id       = 1;
+    TileMode tile_mode_x    = 2;
+    TileMode tile_mode_y    = 3;
+    Matrix33 local_matrix   = 4;
+}
+
+message DefineShader {
+    uint32  id      = 1;
+    oneof type {
+        Color           color           = 2;
+        LinearGradient  linear_gradient = 3;
+        RadialGradient  radial_gradient = 4;
+        ImageShader     image           = 5;
+    }
+}
+
+////////////////////////////////////////////////
+
+message Save {}
+
+message SaveLayer {
+    Rect    bounds = 1;
+    Paint   paint  = 2;
+    // ...
+}
+
+message Restore {}
+
+message Concat {
+    Matrix33 matrix = 1;
+}
+
+message ClipRect {
+    Rect     rect = 1;
+    ClipArgs args = 2;
+}
+
+message ClipPath {
+    oneof path {
+        uint32   id   = 1;
+        PathData data = 2;
+    }
+    ClipArgs args = 3;
+}
+
+message DrawPaint {
+    Paint   paint = 1;
+}
+
+message DrawRect {
+    Rect    rect    = 1;
+    Paint   paint   = 2;
+}
+
+message DrawOval {
+    Rect    oval    = 1;
+    Paint   paint   = 2;
+}
+
+message DrawPath {
+    oneof path {
+        uint32   id   = 1;
+        PathData data = 2;
+    }
+    Paint paint = 3;
+}
+
+message DrawImage {
+    uint32  id    = 1;
+    Paint   paint = 2;
+}
+
+message DrawText {
+    repeated uint32 glyphs  = 1;    // uint16? bytes?
+    repeated float  pos_x   = 2;    // must match counts with glyphs
+    repeated float  pos_y   = 3;    // must match counts with glyphs OR have 1 entry
+
+    Font            font    = 4;
+    Paint           paint   = 5;
+}
+
+message CanvasMsg {
+    oneof msg {
+        Save      save       = 1;
+        SaveLayer save_layer = 2;
+        Restore   restore    = 3;
+
+        Concat    concat     = 4;
+
+        ClipRect  clip_rect  = 5;
+        ClipPath  clip_path  = 6;
+
+        DrawPaint draw_paint = 7;
+        DrawRect  draw_rect  = 8;
+        DrawOval  draw_oval  = 9;
+        DrawPath  draw_path  = 10;
+        DrawImage draw_image = 11;
+        DrawText  draw_text  = 12;
+
+        DefineImage  def_image    = 13;
+        DefinePath   def_path     = 14;
+        DefineShader def_shader   = 15;
+    }
+}

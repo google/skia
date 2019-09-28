@@ -5,29 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkView.h"
-#include "SkClipOpPriv.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPath.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkClipOpPriv.h"
 
-class ComplexClipView : public SampleView {
-public:
-    ComplexClipView() {
+class ComplexClipView : public Sample {
+    void onOnceBeforeDraw() override {
         this->setBGColor(0xFFA0DDA0);
     }
 
-protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "ComplexClip");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("ComplexClip"); }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         SkPath path;
         path.moveTo(SkIntToScalar(0),   SkIntToScalar(50));
         path.quadTo(SkIntToScalar(0),   SkIntToScalar(0),   SkIntToScalar(50),  SkIntToScalar(0));
@@ -66,6 +57,9 @@ protected:
         clipB.lineTo(SkIntToScalar(155), SkIntToScalar(100));
         clipB.close();
         SkColor colorB = SK_ColorRED;
+
+        SkFont font;
+        font.setSize(20);
 
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -124,31 +118,23 @@ protected:
                 paint.setColor(colorB);
                 canvas->drawPath(clipB, paint);
 
-                paint.setTextSize(SkIntToScalar(20));
-
                 SkScalar txtX = SkIntToScalar(55);
                 paint.setColor(colorA);
                 const char* aTxt = invA ? "InverseA " : "A ";
-                canvas->drawString(aTxt, txtX, SkIntToScalar(220), paint);
-                txtX += paint.measureText(aTxt, strlen(aTxt));
+                canvas->drawSimpleText(aTxt, strlen(aTxt), SkTextEncoding::kUTF8, txtX, SkIntToScalar(220), font, paint);
+                txtX += font.measureText(aTxt, strlen(aTxt), SkTextEncoding::kUTF8);
                 paint.setColor(SK_ColorBLACK);
-                canvas->drawString(gOps[op].fName,
-                                    txtX, SkIntToScalar(220), paint);
-                txtX += paint.measureText(gOps[op].fName, strlen(gOps[op].fName));
+                canvas->drawSimpleText(gOps[op].fName, strlen(gOps[op].fName), SkTextEncoding::kUTF8,
+                                    txtX, 220, font, paint);
+                txtX += font.measureText(gOps[op].fName, strlen(gOps[op].fName), SkTextEncoding::kUTF8);
                 paint.setColor(colorB);
-                canvas->drawString("B", txtX, SkIntToScalar(220), paint);
+                canvas->drawSimpleText("B", 1, SkTextEncoding::kUTF8, txtX, 220, font, paint);
 
                 canvas->translate(SkIntToScalar(250),0);
             }
         }
         canvas->restore();
     }
-
-private:
-    typedef SampleView INHERITED;
 };
 
-//////////////////////////////////////////////////////////////////////////////
-
-static SkView* MyFactory() { return new ComplexClipView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new ComplexClipView(); )

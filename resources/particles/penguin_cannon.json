@@ -1,0 +1,29 @@
+{
+   "MaxCount": 32,
+   "Duration": 1,
+   "Rate": 0.5,
+   "Drawable": {
+      "Type": "SkImageDrawable",
+      "Path": "resources/images/baby_tux.png",
+      "Columns": 1,
+      "Rows": 1
+   },
+   "Code": [
+      "// float rand; Every read returns a random float [0 .. 1)",
+      "",
+      "void spawn(inout Particle p) {",
+      "  p.lifetime = 20;",
+      "  float a = radians(10 + 60 * rand);",
+      "  float s = 140 + rand * 60;",
+      "  p.vel.x = cos(a) * s;",
+      "  p.vel.y = -sin(a) * s;",
+      "}",
+      "",
+      "void update(inout Particle p) {",
+      "  p.vel.y += 50 * dt;",
+      "  p.dir = normalize(p.vel);",
+      "}",
+      ""
+   ],
+   "Bindings": []
+}

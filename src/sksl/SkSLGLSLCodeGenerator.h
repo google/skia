@@ -12,36 +12,36 @@
 #include <tuple>
 #include <unordered_map>
 
-#include "SkSLCodeGenerator.h"
-#include "SkSLStringStream.h"
-#include "ir/SkSLBinaryExpression.h"
-#include "ir/SkSLBoolLiteral.h"
-#include "ir/SkSLConstructor.h"
-#include "ir/SkSLDoStatement.h"
-#include "ir/SkSLExtension.h"
-#include "ir/SkSLFloatLiteral.h"
-#include "ir/SkSLIfStatement.h"
-#include "ir/SkSLIndexExpression.h"
-#include "ir/SkSLInterfaceBlock.h"
-#include "ir/SkSLIntLiteral.h"
-#include "ir/SkSLFieldAccess.h"
-#include "ir/SkSLForStatement.h"
-#include "ir/SkSLFunctionCall.h"
-#include "ir/SkSLFunctionDeclaration.h"
-#include "ir/SkSLFunctionDefinition.h"
-#include "ir/SkSLPrefixExpression.h"
-#include "ir/SkSLPostfixExpression.h"
-#include "ir/SkSLProgramElement.h"
-#include "ir/SkSLReturnStatement.h"
-#include "ir/SkSLSetting.h"
-#include "ir/SkSLStatement.h"
-#include "ir/SkSLSwitchStatement.h"
-#include "ir/SkSLSwizzle.h"
-#include "ir/SkSLTernaryExpression.h"
-#include "ir/SkSLVarDeclarations.h"
-#include "ir/SkSLVarDeclarationsStatement.h"
-#include "ir/SkSLVariableReference.h"
-#include "ir/SkSLWhileStatement.h"
+#include "src/sksl/SkSLCodeGenerator.h"
+#include "src/sksl/SkSLStringStream.h"
+#include "src/sksl/ir/SkSLBinaryExpression.h"
+#include "src/sksl/ir/SkSLBoolLiteral.h"
+#include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLDoStatement.h"
+#include "src/sksl/ir/SkSLExtension.h"
+#include "src/sksl/ir/SkSLFieldAccess.h"
+#include "src/sksl/ir/SkSLFloatLiteral.h"
+#include "src/sksl/ir/SkSLForStatement.h"
+#include "src/sksl/ir/SkSLFunctionCall.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
+#include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLIfStatement.h"
+#include "src/sksl/ir/SkSLIndexExpression.h"
+#include "src/sksl/ir/SkSLIntLiteral.h"
+#include "src/sksl/ir/SkSLInterfaceBlock.h"
+#include "src/sksl/ir/SkSLPostfixExpression.h"
+#include "src/sksl/ir/SkSLPrefixExpression.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
+#include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLSetting.h"
+#include "src/sksl/ir/SkSLStatement.h"
+#include "src/sksl/ir/SkSLSwitchStatement.h"
+#include "src/sksl/ir/SkSLSwizzle.h"
+#include "src/sksl/ir/SkSLTernaryExpression.h"
+#include "src/sksl/ir/SkSLVarDeclarations.h"
+#include "src/sksl/ir/SkSLVarDeclarationsStatement.h"
+#include "src/sksl/ir/SkSLVariableReference.h"
+#include "src/sksl/ir/SkSLWhileStatement.h"
 
 namespace SkSL {
 
@@ -77,7 +77,8 @@ public:
                       OutputStream* out)
     : INHERITED(program, errors, out)
     , fLineEnding("\n")
-    , fContext(*context) {}
+    , fContext(*context)
+    , fProgramKind(program->fKind) {}
 
     bool generateCode() override;
 
@@ -102,7 +103,9 @@ protected:
 
     void writeType(const Type& type);
 
-    void writeExtension(const Extension& ext);
+    void writeExtension(const String& name);
+
+    void writeExtension(const String& name, bool require);
 
     void writeInterfaceBlock(const InterfaceBlock& intf);
 
@@ -116,7 +119,7 @@ protected:
 
     void writeModifiers(const Modifiers& modifiers, bool globalContext);
 
-    void writeGlobalVars(const VarDeclaration& vs);
+    virtual void writeInputVars();
 
     virtual void writeVarInitializer(const Variable& var, const Expression& value);
 
@@ -148,13 +151,15 @@ protected:
 
     void writeConstructor(const Constructor& c, Precedence parentPrecedence);
 
-    void writeFieldAccess(const FieldAccess& f);
+    virtual void writeFieldAccess(const FieldAccess& f);
 
     virtual void writeSwizzle(const Swizzle& swizzle);
 
     static Precedence GetBinaryPrecedence(Token::Kind op);
 
     virtual void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence);
+    void writeShortCircuitWorkaroundExpression(const BinaryExpression& b,
+                                               Precedence parentPrecedence);
 
     void writeTernaryExpression(const TernaryExpression& t, Precedence parentPrecedence);
 
@@ -188,13 +193,14 @@ protected:
 
     virtual void writeSwitchStatement(const SwitchStatement& s);
 
-    void writeReturnStatement(const ReturnStatement& r);
+    virtual void writeReturnStatement(const ReturnStatement& r);
 
     virtual void writeProgramElement(const ProgramElement& e);
 
     const char* fLineEnding;
     const Context& fContext;
-    StringStream fHeader;
+    StringStream fExtensions;
+    StringStream fGlobals;
     StringStream fExtraFunctions;
     String fFunctionHeader;
     Program::Kind fProgramKind;
@@ -208,12 +214,35 @@ protected:
     std::set<String> fWrittenIntrinsics;
     // true if we have run into usages of dFdx / dFdy
     bool fFoundDerivatives = false;
-    bool fFoundImageDecl = false;
     bool fFoundExternalSamplerDecl = false;
+    bool fFoundRectSamplerDecl = false;
     bool fFoundGSInvocations = false;
     bool fSetupFragPositionGlobal = false;
     bool fSetupFragPositionLocal = false;
     bool fSetupFragCoordWorkaround = false;
+    // if non-empty, replace all texture / texture2D / textureProj / etc. calls with this name
+    String fTextureFunctionOverride;
+
+    // We map function names to function class so we can quickly deal with function calls that need
+    // extra processing
+    enum class FunctionClass {
+        kAbs,
+        kAtan,
+        kDeterminant,
+        kDFdx,
+        kDFdy,
+        kFwidth,
+        kFMA,
+        kFract,
+        kInverse,
+        kInverseSqrt,
+        kMin,
+        kPow,
+        kSaturate,
+        kTexture,
+        kTranspose
+    };
+    static std::unordered_map<StringFragment, FunctionClass>* fFunctionClasses;
 
     typedef CodeGenerator INHERITED;
 };

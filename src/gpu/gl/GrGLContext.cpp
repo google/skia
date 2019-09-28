@@ -5,9 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLContext.h"
-#include "GrGLGLSL.h"
-#include "SkSLCompiler.h"
+#include "src/gpu/gl/GrGLContext.h"
+#include "src/gpu/gl/GrGLGLSL.h"
+#include "src/sksl/SkSLCompiler.h"
+
+#ifdef SK_BUILD_FOR_ANDROID
+#include <sys/system_properties.h>
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -41,24 +45,33 @@ std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> interf
 
     GrGLGetANGLEInfoFromString(renderer, &args.fANGLEBackend, &args.fANGLEVendor,
                                &args.fANGLERenderer);
+
     /*
      * Qualcomm drivers for the 3xx series have a horrendous bug with some drivers. Though they
      * claim to support GLES 3.00, some perfectly valid GLSL300 shaders will only compile with
      * #version 100, and will fail to compile with #version 300 es.  In the long term, we
      * need to lock this down to a specific driver version.
+     * ?????/2019 - Qualcomm has fixed this for Android O+ devices (API 26+)
      * ?????/2015 - This bug is still present in Lollipop pre-mr1
      * 06/18/2015 - This bug does not affect the nexus 6 (which has an Adreno 4xx).
      */
-    if (kAdreno3xx_GrGLRenderer == args.fRenderer) {
-        args.fGLSLGeneration = k110_GrGLSLGeneration;
+#ifdef SK_BUILD_FOR_ANDROID
+    if (!options.fDisableDriverCorrectnessWorkarounds &&
+        kAdreno3xx_GrGLRenderer == args.fRenderer) {
+        char androidAPIVersion[PROP_VALUE_MAX];
+        int strLength = __system_property_get("ro.build.version.sdk", androidAPIVersion);
+        if (strLength == 0 || atoi(androidAPIVersion) < 26) {
+            args.fGLSLGeneration = k110_GrGLSLGeneration;
+        }
     }
+#endif
 
     // Many ES3 drivers only advertise the ES2 image_external extension, but support the _essl3
     // extension, and require that it be enabled to work with ESSL3. Other devices require the ES2
     // extension to be enabled, even when using ESSL3. Some devices appear to only support the ES2
     // extension. As an extreme (optional) solution, we can fallback to using ES2 shading language
     // if we want to prioritize external texture support. skbug.com/7713
-    if (kGLES_GrGLStandard == interface->fStandard &&
+    if (GR_IS_GR_GL_ES(interface->fStandard) &&
         options.fPreferExternalImagesOverES3 &&
         !options.fDisableDriverCorrectnessWorkarounds &&
         interface->hasExtension("GL_OES_EGL_image_external") &&

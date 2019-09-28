@@ -5,17 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "GLTestContext_angle.h"
+#include "tools/gpu/gl/angle/GLTestContext_angle.h"
+
+#define EGL_EGL_PROTOTYPES 1
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
-#include "gl/GrGLDefines.h"
-#include "gl/GrGLUtil.h"
+#include "src/gpu/gl/GrGLDefines.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
-#include "gl/GrGLInterface.h"
-#include "gl/GrGLAssembleInterface.h"
-#include "../ports/SkOSLibrary.h"
+#include "include/core/SkTime.h"
+#include "include/gpu/gl/GrGLAssembleInterface.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "src/core/SkTraceEvent.h"
+#include "src/ports/SkOSLibrary.h"
+#include "third_party/externals/angle2/include/platform/Platform.h"
 
 #include <EGL/egl.h>
 
@@ -107,6 +112,11 @@ private:
     ANGLEBackend                fType;
     ANGLEContextVersion         fVersion;
 
+    angle::ResetDisplayPlatformFunc fResetPlatform = nullptr;
+
+    PFNEGLCREATEIMAGEKHRPROC    fCreateImage = nullptr;
+    PFNEGLDESTROYIMAGEKHRPROC   fDestroyImage = nullptr;
+
 #ifdef SK_BUILD_FOR_WIN
     HWND                        fWindow;
     HDC                         fDeviceContext;
@@ -116,7 +126,52 @@ private:
 
 #ifdef SK_BUILD_FOR_WIN
 ATOM ANGLEGLContext::gWC = 0;
+
+enum class IsWine { kUnknown, kNo, kYes };
+
+static IsWine is_wine() {
+    HMODULE ntdll = GetModuleHandle("ntdll.dll");
+    if (!ntdll) {
+        SkDebugf("No ntdll.dll on Windows?!\n");
+        return IsWine::kUnknown;
+    }
+    return GetProcAddress(ntdll, "wine_get_version") == nullptr ? IsWine::kNo : IsWine::kYes;
+}
+
 #endif
+
+static const unsigned char* ANGLE_getTraceCategoryEnabledFlag(angle::PlatformMethods* platform,
+                                                              const char* category_group) {
+    return SkEventTracer::GetInstance()->getCategoryGroupEnabled(category_group);
+}
+
+static angle::TraceEventHandle ANGLE_addTraceEvent(angle::PlatformMethods* platform,
+                                                   char phase,
+                                                   const unsigned char* category_group_enabled,
+                                                   const char* name,
+                                                   unsigned long long id,
+                                                   double timestamp,
+                                                   int num_args,
+                                                   const char** arg_names,
+                                                   const unsigned char* arg_types,
+                                                   const unsigned long long* arg_values,
+                                                   unsigned char flags) {
+    static_assert(sizeof(unsigned long long) == sizeof(uint64_t), "Non-64-bit trace event args!");
+    return SkEventTracer::GetInstance()->addTraceEvent(
+            phase, category_group_enabled, name, id, num_args, arg_names, arg_types,
+            reinterpret_cast<const uint64_t*>(arg_values), flags);
+}
+
+static void ANGLE_updateTraceEventDuration(angle::PlatformMethods* platform,
+                                           const unsigned char* category_group_enabled,
+                                           const char* name,
+                                           angle::TraceEventHandle handle) {
+    SkEventTracer::GetInstance()->updateTraceEventDuration(category_group_enabled, name, handle);
+}
+
+static double ANGLE_monotonicallyIncreasingTime(angle::PlatformMethods* platform) {
+    return SkTime::GetSecs();
+}
 
 ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
                                ANGLEGLContext* shareContext, void* display)
@@ -128,6 +183,14 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
 #ifdef SK_BUILD_FOR_WIN
     fWindow = nullptr;
     fDeviceContext = nullptr;
+
+    static IsWine gIsWine = is_wine();
+    if (gIsWine == IsWine::kYes && type != ANGLEBackend::kOpenGL) {
+        // D3D backends of ANGLE don't really work well under Wine with our tests and are likely to
+        // crash. This makes it easier to test using the GL ANGLE backend under Wine on Linux
+        // without lots of spurious Wine debug spew and crashes.
+        return;
+    }
 
     if (EGL_NO_DISPLAY == fDisplay) {
         HINSTANCE hInstance = (HINSTANCE)GetModuleHandle(nullptr);
@@ -176,6 +239,24 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
     if (EGL_NO_DISPLAY == fDisplay) {
         SkDebugf("Could not create EGL display!");
         return;
+    }
+
+    // Add ANGLE platform hooks to connect to Skia's tracing implementation
+    angle::GetDisplayPlatformFunc getPlatform = reinterpret_cast<angle::GetDisplayPlatformFunc>(
+            eglGetProcAddress("ANGLEGetDisplayPlatform"));
+    if (getPlatform) {
+        fResetPlatform = reinterpret_cast<angle::ResetDisplayPlatformFunc>(
+                eglGetProcAddress("ANGLEResetDisplayPlatform"));
+        SkASSERT(fResetPlatform);
+
+        angle::PlatformMethods* platformMethods = nullptr;
+        if (getPlatform(fDisplay, angle::g_PlatformMethodNames, angle::g_NumPlatformMethods,
+                        nullptr, &platformMethods)) {
+            platformMethods->addTraceEvent               = ANGLE_addTraceEvent;
+            platformMethods->getTraceCategoryEnabledFlag = ANGLE_getTraceCategoryEnabledFlag;
+            platformMethods->updateTraceEventDuration    = ANGLE_updateTraceEventDuration;
+            platformMethods->monotonicallyIncreasingTime = ANGLE_monotonicallyIncreasingTime;
+        }
     }
 
     EGLint majorVersion;
@@ -261,6 +342,11 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
         break;
     }
 #endif
+    const char* extensions = eglQueryString(fDisplay, EGL_EXTENSIONS);
+    if (strstr(extensions, "EGL_KHR_image")) {
+        fCreateImage = (PFNEGLCREATEIMAGEKHRPROC)eglGetProcAddress("eglCreateImageKHR");
+        fDestroyImage = (PFNEGLDESTROYIMAGEKHRPROC)eglGetProcAddress("eglDestroyImageKHR");
+    }
 
     this->init(std::move(gl));
 }
@@ -274,21 +360,15 @@ GrEGLImage ANGLEGLContext::texture2DToEGLImage(GrGLuint texID) const {
     if (!this->gl()->hasExtension("EGL_KHR_gl_texture_2D_image")) {
         return GR_EGL_NO_IMAGE;
     }
-    GrEGLImage img;
-    GrEGLint attribs[] = { GR_EGL_GL_TEXTURE_LEVEL, 0,
-                           GR_EGL_IMAGE_PRESERVED, GR_EGL_TRUE,
-                           GR_EGL_NONE };
+    EGLint attribs[] = { GR_EGL_GL_TEXTURE_LEVEL, 0,
+                         GR_EGL_IMAGE_PRESERVED, GR_EGL_TRUE,
+                         GR_EGL_NONE };
     // 64 bit cast is to shut Visual C++ up about casting 32 bit value to a pointer.
     GrEGLClientBuffer clientBuffer = reinterpret_cast<GrEGLClientBuffer>((uint64_t)texID);
-    GR_GL_CALL_RET(this->gl(), img,
-                   EGLCreateImage(fDisplay, fContext, GR_EGL_GL_TEXTURE_2D, clientBuffer,
-                                  attribs));
-    return img;
+    return fCreateImage(fDisplay, fContext, GR_EGL_GL_TEXTURE_2D, clientBuffer, attribs);
 }
 
-void ANGLEGLContext::destroyEGLImage(GrEGLImage image) const {
-    GR_GL_CALL(this->gl(), EGLDestroyImage(fDisplay, image));
-}
+void ANGLEGLContext::destroyEGLImage(GrEGLImage image) const { fDestroyImage(fDisplay, image); }
 
 GrGLuint ANGLEGLContext::eglImageToExternalTexture(GrEGLImage image) const {
     GrGLClearErr(this->gl());
@@ -345,6 +425,10 @@ void ANGLEGLContext::destroyGLContext() {
         if (EGL_NO_SURFACE != fSurface) {
             eglDestroySurface(fDisplay, fSurface);
             fSurface = EGL_NO_SURFACE;
+        }
+
+        if (fResetPlatform) {
+            fResetPlatform(fDisplay);
         }
 
         eglTerminate(fDisplay);
@@ -416,6 +500,14 @@ sk_sp<const GrGLInterface> CreateANGLEGLInterface() {
 
 std::unique_ptr<GLTestContext> MakeANGLETestContext(ANGLEBackend type, ANGLEContextVersion version,
                                                     GLTestContext* shareContext, void* display){
+#if defined(SK_BUILD_FOR_WIN) && defined(_M_ARM64)
+    // Windows-on-ARM only has D3D11. This will fail correctly, but it produces huge amounts of
+    // debug output for every unit test from both ANGLE and our context factory.
+    if (ANGLEBackend::kD3D11 != type) {
+        return nullptr;
+    }
+#endif
+
     ANGLEGLContext* angleShareContext = reinterpret_cast<ANGLEGLContext*>(shareContext);
     std::unique_ptr<GLTestContext> ctx(new ANGLEGLContext(type, version,
                                                           angleShareContext, display));

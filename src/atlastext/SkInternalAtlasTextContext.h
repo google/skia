@@ -8,13 +8,13 @@
 #ifndef SkInternalAtlasTextContext_DEFINED
 #define SkInternalAtlasTextContext_DEFINED
 
-#include "GrDeferredUpload.h"
-#include "SkArenaAlloc.h"
-#include "SkArenaAllocList.h"
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
+#include "src/core/SkArenaAlloc.h"
+#include "src/core/SkArenaAllocList.h"
+#include "src/gpu/GrDeferredUpload.h"
 
 class GrContext;
-class GrGlyphCache;
+class GrStrikeCache;
 class GrTextBlobCache;
 
 class SkAtlasTextRenderer;
@@ -33,7 +33,7 @@ public:
     SkAtlasTextRenderer* renderer() const { return fRenderer.get(); }
 
     GrContext* grContext() const { return fGrContext.get(); }
-    GrGlyphCache* glyphCache();
+    GrStrikeCache* glyphCache();
     GrTextBlobCache* textBlobCache();
 
     const GrTokenTracker* tokenTracker() final { return &fTokenTracker; }

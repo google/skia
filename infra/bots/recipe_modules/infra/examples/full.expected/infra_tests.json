@@ -6,9 +6,10 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "GOPATH": "[START_DIR]/gopath",
+      "GOCACHE": "[START_DIR]/cache/go_cache",
+      "GOPATH": "[START_DIR]/cache/gopath",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/cache/gopath/bin:<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "go version"
   },
@@ -19,27 +20,12 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "GOPATH": "[START_DIR]/gopath",
+      "GOCACHE": "[START_DIR]/cache/go_cache",
+      "GOPATH": "[START_DIR]/cache/gopath",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/cache/gopath/bin:<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "env go version"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/go/go/bin/go",
-      "get",
-      "-u",
-      "-t",
-      "go.skia.org/infra/..."
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "GOPATH": "[START_DIR]/gopath",
-      "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
-    },
-    "name": "update go pkgs"
   },
   {
     "cmd": [
@@ -90,8 +76,6 @@
     ]
   },
   {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "name": "$result"
   }
 ]

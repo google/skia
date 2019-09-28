@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkClipStackDevice.h"
-#include "SkDraw.h"
-#include "SkRasterClip.h"
+#include "src/core/SkClipStackDevice.h"
+#include "src/core/SkDraw.h"
+#include "src/core/SkRasterClip.h"
 
 SkIRect SkClipStackDevice::devClipBounds() const {
     SkIRect r = fClipStack.bounds(this->imageInfo().bounds()).roundOut();
@@ -90,19 +90,19 @@ void SkClipStackDevice::onAsRgnClip(SkRegion* rgn) const {
 
 SkBaseDevice::ClipType SkClipStackDevice::onGetClipType() const {
     if (fClipStack.isWideOpen()) {
-        return kRect_ClipType;
+        return ClipType::kRect;
     }
     if (fClipStack.isEmpty(SkIRect::MakeWH(this->width(), this->height()))) {
-        return kEmpty_ClipType;
+        return ClipType::kEmpty;
     } else {
         SkClipStack::BoundsType boundType;
         bool isIntersectionOfRects;
         SkRect bounds;
         fClipStack.getBounds(&bounds, &boundType, &isIntersectionOfRects);
         if (isIntersectionOfRects && SkClipStack::kNormal_BoundsType == boundType) {
-            return kRect_ClipType;
+            return ClipType::kRect;
         } else {
-            return kComplex_ClipType;
+            return ClipType::kComplex;
         }
     }
 }

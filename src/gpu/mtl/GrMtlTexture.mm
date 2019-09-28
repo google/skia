@@ -5,61 +5,81 @@
  * found in the LICENSE file.
  */
 
-#include "GrMtlTexture.h"
+#include "src/gpu/mtl/GrMtlTexture.h"
 
-#include "GrMtlGpu.h"
-#include "GrMtlUtil.h"
-#include "GrTexturePriv.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/mtl/GrMtlGpu.h"
+#include "src/gpu/mtl/GrMtlUtil.h"
 
-sk_sp<GrMtlTexture> GrMtlTexture::CreateNewTexture(GrMtlGpu* gpu, SkBudgeted budgeted,
-                                                   const GrSurfaceDesc& desc, int mipLevels) {
-    MTLPixelFormat format;
-    if (!GrPixelConfigToMTLFormat(desc.fConfig, &format)) {
-        return nullptr;
-    }
-
-    MTLTextureDescriptor* descriptor = [[MTLTextureDescriptor alloc] init];
-    descriptor.textureType = MTLTextureType2D;
-    descriptor.pixelFormat = format;
-    descriptor.width = desc.fWidth;
-    descriptor.height = desc.fHeight;
-    descriptor.depth = 1;
-    descriptor.mipmapLevelCount = mipLevels;
-    descriptor.sampleCount = 1;
-    descriptor.arrayLength = 1;
-    // descriptor.resourceOptions This looks to be set by setting cpuCacheMode and storageModes
-    descriptor.cpuCacheMode = MTLCPUCacheModeWriteCombined;
-    // Shared is not available on MacOS. Is there a reason to want managed to allow mapping?
-    descriptor.storageMode = MTLStorageModePrivate;
-
-    MTLTextureUsage texUsage = MTLTextureUsageShaderRead;
-    if (GrMTLFormatIsSRGB(format, nullptr)) {
-        texUsage |= MTLTextureUsagePixelFormatView;
-    }
-    descriptor.usage = texUsage;
-
-    id<MTLTexture> texture = [gpu->device() newTextureWithDescriptor:descriptor];
-
-    GrMipMapsStatus mipMapsStatus = mipLevels > 1 ? GrMipMapsStatus::kValid
-                                                  : GrMipMapsStatus::kNotAllocated;
-
-    return sk_sp<GrMtlTexture>(new GrMtlTexture(gpu, budgeted, desc, texture, mipMapsStatus));
-}
-
-// This method parallels GrTextureProxy::highestFilterMode
-static inline GrSamplerState::Filter highest_filter_mode(GrPixelConfig config) {
-    return GrSamplerState::Filter::kMipMap;
-}
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
 
 GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            SkBudgeted budgeted,
                            const GrSurfaceDesc& desc,
                            id<MTLTexture> texture,
                            GrMipMapsStatus mipMapsStatus)
-        : GrSurface(gpu, desc)
-        , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
-                    mipMapsStatus)
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
+        , INHERITED(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo,
+                    GrTextureType::k2D, mipMapsStatus)
         , fTexture(texture) {
+    SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
+    this->registerWithCache(budgeted);
+}
+
+GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
+                           Wrapped,
+                           const GrSurfaceDesc& desc,
+                           id<MTLTexture> texture,
+                           GrMipMapsStatus mipMapsStatus,
+                           GrWrapCacheable cacheable,
+                           GrIOType ioType)
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
+        , INHERITED(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo,
+                    GrTextureType::k2D, mipMapsStatus)
+        , fTexture(texture) {
+    SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
+    if (ioType == kRead_GrIOType) {
+        this->setReadOnly();
+    }
+    this->registerWithCacheWrapped(cacheable);
+}
+
+GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
+                           const GrSurfaceDesc& desc,
+                           id<MTLTexture> texture,
+                           GrMipMapsStatus mipMapsStatus)
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
+        , INHERITED(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo,
+                    GrTextureType::k2D, mipMapsStatus)
+        , fTexture(texture) {
+    SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
+}
+
+sk_sp<GrMtlTexture> GrMtlTexture::MakeNewTexture(GrMtlGpu* gpu, SkBudgeted budgeted,
+                                                   const GrSurfaceDesc& desc,
+                                                   MTLTextureDescriptor* texDesc,
+                                                   GrMipMapsStatus mipMapsStatus) {
+    id<MTLTexture> texture = [gpu->device() newTextureWithDescriptor:texDesc];
+    if (!texture) {
+        return nullptr;
+    }
+    SkASSERT(MTLTextureUsageShaderRead & texture.usage);
+    return sk_sp<GrMtlTexture>(new GrMtlTexture(gpu, budgeted, desc, texture, mipMapsStatus));
+}
+
+sk_sp<GrMtlTexture> GrMtlTexture::MakeWrappedTexture(GrMtlGpu* gpu,
+                                                     const GrSurfaceDesc& desc,
+                                                     id<MTLTexture> texture,
+                                                     GrWrapCacheable cacheable,
+                                                     GrIOType ioType) {
+    SkASSERT(nil != texture);
+    SkASSERT(MTLTextureUsageShaderRead & texture.usage);
+    GrMipMapsStatus mipMapsStatus = texture.mipmapLevelCount > 1 ? GrMipMapsStatus::kValid
+                                                                 : GrMipMapsStatus::kNotAllocated;
+    return sk_sp<GrMtlTexture>(new GrMtlTexture(gpu, kWrapped, desc, texture, mipMapsStatus,
+                                                cacheable, ioType));
 }
 
 GrMtlTexture::~GrMtlTexture() {
@@ -72,5 +92,14 @@ GrMtlGpu* GrMtlTexture::getMtlGpu() const {
 }
 
 GrBackendTexture GrMtlTexture::getBackendTexture() const {
-    return GrBackendTexture(); // invalid
+    GrMipMapped mipMapped = fTexture.mipmapLevelCount > 1 ? GrMipMapped::kYes
+                                                          : GrMipMapped::kNo;
+    GrMtlTextureInfo info;
+    info.fTexture.reset(GrRetainPtrFromId(fTexture));
+    return GrBackendTexture(this->width(), this->height(), mipMapped, info);
 }
+
+GrBackendFormat GrMtlTexture::backendFormat() const {
+    return GrBackendFormat::MakeMtl(fTexture.pixelFormat);
+}
+

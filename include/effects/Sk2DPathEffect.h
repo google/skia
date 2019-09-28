@@ -8,15 +8,12 @@
 #ifndef Sk2DPathEffect_DEFINED
 #define Sk2DPathEffect_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkPath.h"
-#include "SkPathEffect.h"
-#include "SkMatrix.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
 
 class SK_API Sk2DPathEffect : public SkPathEffect {
-public:
-    bool filterPath(SkPath*, const SkPath&, SkStrokeRec*, const SkRect*) const override;
-
 protected:
     /** New virtual, to be overridden by subclasses.
         This is called once from filterPath, and provides the
@@ -39,8 +36,7 @@ protected:
     // protected so that subclasses can call this during unflattening
     explicit Sk2DPathEffect(const SkMatrix& mat);
     void flatten(SkWriteBuffer&) const override;
-
-    void toString(SkString* str) const override;
+    bool onFilterPath(SkPath*, const SkPath&, SkStrokeRec*, const SkRect*) const override;
 
 private:
     SkMatrix    fMatrix, fInverse;
@@ -63,12 +59,6 @@ public:
         return sk_sp<SkPathEffect>(new SkLine2DPathEffect(width, matrix));
     }
 
-    virtual bool filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec*, const SkRect*) const override;
-
-    void toString(SkString* str) const override;
-
-    Factory getFactory() const override { return CreateProc; }
 
 protected:
     SkLine2DPathEffect(SkScalar width, const SkMatrix& matrix)
@@ -76,12 +66,12 @@ protected:
             SkASSERT(width >= 0);
         }
     void flatten(SkWriteBuffer&) const override;
+    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
 
     void nextSpan(int u, int v, int ucount, SkPath*) const override;
 
 private:
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
+    SK_FLATTENABLE_HOOKS(SkLine2DPathEffect)
 
     SkScalar fWidth;
 
@@ -98,10 +88,6 @@ public:
         return sk_sp<SkPathEffect>(new SkPath2DPathEffect(matrix, path));
     }
 
-    void toString(SkString* str) const override;
-
-    Factory getFactory() const override { return CreateProc; }
-
 protected:
     SkPath2DPathEffect(const SkMatrix&, const SkPath&);
     void flatten(SkWriteBuffer&) const override;
@@ -109,8 +95,7 @@ protected:
     void next(const SkPoint&, int u, int v, SkPath*) const override;
 
 private:
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
+    SK_FLATTENABLE_HOOKS(SkPath2DPathEffect)
 
     SkPath  fPath;
 

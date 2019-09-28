@@ -8,16 +8,19 @@
 #ifndef SkSurfaceCharacterization_DEFINED
 #define SkSurfaceCharacterization_DEFINED
 
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
 
-#include "SkColorSpace.h"
-#include "SkRefCnt.h"
-#include "SkSurfaceProps.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurfaceProps.h"
 
 class SkColorSpace;
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
+#include "include/gpu/GrBackendSurface.h"
+// TODO: remove the GrContext.h include once Flutter is updated
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrContextThreadSafeProxy.h"
 
 /** \class SkSurfaceCharacterization
     A surface characterization contains all the information Ganesh requires to makes its internal
@@ -31,16 +34,18 @@ public:
     enum class Textureable : bool { kNo = false, kYes = true };
     enum class MipMapped : bool { kNo = false, kYes = true };
     enum class UsesGLFBO0 : bool { kNo = false, kYes = true };
+    // This flag indicates if the surface is wrapping a raw Vulkan secondary command buffer.
+    enum class VulkanSecondaryCBCompatible : bool { kNo = false, kYes = true };
 
     SkSurfaceCharacterization()
             : fCacheMaxResourceBytes(0)
             , fOrigin(kBottomLeft_GrSurfaceOrigin)
-            , fConfig(kUnknown_GrPixelConfig)
-            , fFSAAType(GrFSAAType::kNone)
-            , fStencilCnt(0)
+            , fSampleCnt(0)
             , fIsTextureable(Textureable::kYes)
             , fIsMipMapped(MipMapped::kYes)
             , fUsesGLFBO0(UsesGLFBO0::kNo)
+            , fVulkanSecondaryCBCompatible(VulkanSecondaryCBCompatible::kNo)
+            , fIsProtected(GrProtected::kNo)
             , fSurfaceProps(0, kUnknown_SkPixelGeometry) {
     }
 
@@ -63,88 +68,111 @@ public:
     bool isValid() const { return kUnknown_SkColorType != fImageInfo.colorType(); }
 
     const SkImageInfo& imageInfo() const { return fImageInfo; }
+    const GrBackendFormat& backendFormat() const { return fBackendFormat; }
     GrSurfaceOrigin origin() const { return fOrigin; }
     int width() const { return fImageInfo.width(); }
     int height() const { return fImageInfo.height(); }
     SkColorType colorType() const { return fImageInfo.colorType(); }
-    GrFSAAType fsaaType() const { return fFSAAType; }
-    int stencilCount() const { return fStencilCnt; }
+    int sampleCount() const { return fSampleCnt; }
     bool isTextureable() const { return Textureable::kYes == fIsTextureable; }
     bool isMipMapped() const { return MipMapped::kYes == fIsMipMapped; }
     bool usesGLFBO0() const { return UsesGLFBO0::kYes == fUsesGLFBO0; }
+    bool vulkanSecondaryCBCompatible() const {
+        return VulkanSecondaryCBCompatible::kYes == fVulkanSecondaryCBCompatible;
+    }
+    GrProtected isProtected() const { return fIsProtected; }
     SkColorSpace* colorSpace() const { return fImageInfo.colorSpace(); }
     sk_sp<SkColorSpace> refColorSpace() const { return fImageInfo.refColorSpace(); }
     const SkSurfaceProps& surfaceProps()const { return fSurfaceProps; }
 
+    // Is the provided backend texture compatible with this surface characterization?
+    bool isCompatible(const GrBackendTexture&) const;
+
 private:
     friend class SkSurface_Gpu; // for 'set' & 'config'
+    friend class GrVkSecondaryCBDrawContext; // for 'set' & 'config'
     friend class GrContextThreadSafeProxy; // for private ctor
     friend class SkDeferredDisplayListRecorder; // for 'config'
     friend class SkSurface; // for 'config'
 
-    GrPixelConfig config() const { return fConfig; }
+    SkDEBUGCODE(void validate() const;)
 
     SkSurfaceCharacterization(sk_sp<GrContextThreadSafeProxy> contextInfo,
                               size_t cacheMaxResourceBytes,
                               const SkImageInfo& ii,
+                              const GrBackendFormat& backendFormat,
                               GrSurfaceOrigin origin,
-                              GrPixelConfig config,
-                              GrFSAAType FSAAType, int stencilCnt,
-                              Textureable isTextureable, MipMapped isMipMapped,
+                              int sampleCnt,
+                              Textureable isTextureable,
+                              MipMapped isMipMapped,
                               UsesGLFBO0 usesGLFBO0,
+                              VulkanSecondaryCBCompatible vulkanSecondaryCBCompatible,
+                              GrProtected isProtected,
                               const SkSurfaceProps& surfaceProps)
             : fContextInfo(std::move(contextInfo))
             , fCacheMaxResourceBytes(cacheMaxResourceBytes)
             , fImageInfo(ii)
+            , fBackendFormat(backendFormat)
             , fOrigin(origin)
-            , fConfig(config)
-            , fFSAAType(FSAAType)
-            , fStencilCnt(stencilCnt)
+            , fSampleCnt(sampleCnt)
             , fIsTextureable(isTextureable)
             , fIsMipMapped(isMipMapped)
             , fUsesGLFBO0(usesGLFBO0)
+            , fVulkanSecondaryCBCompatible(vulkanSecondaryCBCompatible)
+            , fIsProtected(isProtected)
             , fSurfaceProps(surfaceProps) {
+        SkDEBUGCODE(this->validate());
     }
 
     void set(sk_sp<GrContextThreadSafeProxy> contextInfo,
              size_t cacheMaxResourceBytes,
              const SkImageInfo& ii,
+             const GrBackendFormat& backendFormat,
              GrSurfaceOrigin origin,
-             GrPixelConfig config,
-             GrFSAAType fsaaType,
-             int stencilCnt,
+             int sampleCnt,
              Textureable isTextureable,
              MipMapped isMipMapped,
              UsesGLFBO0 usesGLFBO0,
+             VulkanSecondaryCBCompatible vulkanSecondaryCBCompatible,
+             GrProtected isProtected,
              const SkSurfaceProps& surfaceProps) {
         SkASSERT(MipMapped::kNo == isMipMapped || Textureable::kYes == isTextureable);
         SkASSERT(Textureable::kNo == isTextureable || UsesGLFBO0::kNo == usesGLFBO0);
+
+        SkASSERT(VulkanSecondaryCBCompatible::kNo == vulkanSecondaryCBCompatible ||
+                 UsesGLFBO0::kNo == usesGLFBO0);
+        SkASSERT(Textureable::kNo == isTextureable ||
+                 VulkanSecondaryCBCompatible::kNo == vulkanSecondaryCBCompatible);
 
         fContextInfo = contextInfo;
         fCacheMaxResourceBytes = cacheMaxResourceBytes;
 
         fImageInfo = ii;
+        fBackendFormat = backendFormat;
         fOrigin = origin;
-        fConfig = config;
-        fFSAAType = fsaaType;
-        fStencilCnt = stencilCnt;
+        fSampleCnt = sampleCnt;
         fIsTextureable = isTextureable;
         fIsMipMapped = isMipMapped;
         fUsesGLFBO0 = usesGLFBO0;
+        fVulkanSecondaryCBCompatible = vulkanSecondaryCBCompatible;
+        fIsProtected = isProtected;
         fSurfaceProps = surfaceProps;
+
+        SkDEBUGCODE(this->validate());
     }
 
     sk_sp<GrContextThreadSafeProxy> fContextInfo;
     size_t                          fCacheMaxResourceBytes;
 
     SkImageInfo                     fImageInfo;
+    GrBackendFormat                 fBackendFormat;
     GrSurfaceOrigin                 fOrigin;
-    GrPixelConfig                   fConfig;
-    GrFSAAType                      fFSAAType;
-    int                             fStencilCnt;
+    int                             fSampleCnt;
     Textureable                     fIsTextureable;
     MipMapped                       fIsMipMapped;
     UsesGLFBO0                      fUsesGLFBO0;
+    VulkanSecondaryCBCompatible     fVulkanSecondaryCBCompatible;
+    GrProtected                     fIsProtected;
     SkSurfaceProps                  fSurfaceProps;
 };
 
@@ -173,6 +201,7 @@ public:
     bool isTextureable() const { return false; }
     bool isMipMapped() const { return false; }
     bool usesGLFBO0() const { return false; }
+    bool vulkanSecondaryCBCompatible() const { return false; }
     SkColorSpace* colorSpace() const { return nullptr; }
     sk_sp<SkColorSpace> refColorSpace() const { return nullptr; }
     const SkSurfaceProps& surfaceProps()const { return fSurfaceProps; }

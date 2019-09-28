@@ -5,11 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SvgSlide.h"
+#include "tools/viewer/SvgSlide.h"
 
-#include "SkCanvas.h"
-#include "SkStream.h"
-#include "SkSVGDOM.h"
+#if defined(SK_XML)
+
+#include "experimental/svg/model/SkSVGDOM.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkStream.h"
 
 SvgSlide::SvgSlide(const SkString& name, const SkString& path)
     : fPath(path) {
@@ -41,3 +43,5 @@ void SvgSlide::draw(SkCanvas* canvas) {
         fDom->render(canvas);
     }
 }
+
+#endif // SK_XML

@@ -5,9 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkGradientShader.h"
-#include "SkPath.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
 
 namespace skiagm {
 
@@ -60,7 +72,7 @@ protected:
                                                      colors,
                                                      pos,
                                                      SK_ARRAY_COUNT(colors),
-                                                     SkShader::kClamp_TileMode));
+                                                     SkTileMode::kClamp));
         paint.setAntiAlias(aa);
 
         showPath(canvas,   0,   0, SkPath::kWinding_FillType,
@@ -89,7 +101,7 @@ protected:
                                                       colors,
                                                       pos,
                                                       SK_ARRAY_COUNT(colors),
-                                                      SkShader::kClamp_TileMode));
+                                                      SkTileMode::kClamp));
         canvas->save();
             canvas->translate(SkIntToScalar(100), SkIntToScalar(100));
             SkMatrix mat;
@@ -125,7 +137,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new FillTypePerspGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new FillTypePerspGM; )
 
 }

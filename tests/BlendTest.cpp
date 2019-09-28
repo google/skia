@@ -5,30 +5,29 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkBlendMode.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkColorSpace.h"
-#include "SkImageInfo.h"
-#include "SkPaint.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkSurface.h"
-#include "SkTypes.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrTexture.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "tests/Test.h"
+#include "tools/gpu/GrContextFactory.h"
 
-#if SK_SUPPORT_GPU
-#include "GrBackendSurface.h"
-#include "GrContext.h"
-#include "GrContextFactory.h"
-#include "GrContextPriv.h"
-#include "GrResourceProvider.h"
-#include "GrTexture.h"
-#include "GrTypes.h"
-#endif
-
+#include <initializer_list>
 #include <vector>
 
 struct Results { int diffs, diffs_0x00, diffs_0xff, diffs_by_1; };
@@ -87,22 +86,22 @@ DEF_TEST(Blend_byte_multiply, r) {
     for (auto multiply : perfect) { REPORTER_ASSERT(r, test(multiply).diffs == 0); }
 }
 
-#if SK_SUPPORT_GPU
 namespace {
 static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
         GrContext* context, int sampleCnt, int width, int height, SkColorType colorType,
-        GrPixelConfig config, GrSurfaceOrigin origin,
-        sk_sp<GrTexture>* backingSurface) {
+        GrSurfaceOrigin origin, sk_sp<GrTexture>* backingSurface) {
     GrSurfaceDesc backingDesc;
-    backingDesc.fFlags = kRenderTarget_GrSurfaceFlag;
     backingDesc.fWidth = width;
     backingDesc.fHeight = height;
-    backingDesc.fConfig = config;
-    backingDesc.fSampleCnt = sampleCnt;
+    auto ct = SkColorTypeToGrColorType(colorType);
+    backingDesc.fConfig = GrColorTypeToPixelConfig(ct);
+    auto format = context->priv().caps()->getDefaultBackendFormat(ct, GrRenderable::kYes);
 
-    auto resourceProvider = context->contextPriv().resourceProvider();
+    auto resourceProvider = context->priv().resourceProvider();
 
-    *backingSurface = resourceProvider->createTexture(backingDesc, SkBudgeted::kNo);
+    *backingSurface = resourceProvider->createTexture(backingDesc, format, GrRenderable::kYes,
+                                                      sampleCnt, SkBudgeted::kNo, GrProtected::kNo,
+                                                      GrResourceProvider::Flags::kNoPendingIO);
     if (!(*backingSurface)) {
         return nullptr;
     }
@@ -122,7 +121,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ES2BlendWithNoTexture, reporter, ctxInfo) 
     GrContext* context = ctxInfo.grContext();
     const int kWidth = 10;
     const int kHeight = 10;
-    const GrPixelConfig kConfig = kRGBA_8888_GrPixelConfig;
     const SkColorType kColorType = kRGBA_8888_SkColorType;
 
     // Build our test cases:
@@ -165,7 +163,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ES2BlendWithNoTexture, reporter, ctxInfo) 
         sk_sp<GrTexture> backingSurface;
         // BGRA forces a framebuffer blit on ES2.
         sk_sp<SkSurface> surface = create_gpu_surface_backend_texture_as_render_target(
-                context, sampleCnt, kWidth, kHeight, kColorType, kConfig, origin, &backingSurface);
+                context, sampleCnt, kWidth, kHeight, kColorType, origin, &backingSurface);
 
         if (!surface && sampleCnt > 1) {
             // Some platforms don't support MSAA.
@@ -206,4 +204,3 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ES2BlendWithNoTexture, reporter, ctxInfo) 
         backingSurface.reset();
     }
 }
-#endif

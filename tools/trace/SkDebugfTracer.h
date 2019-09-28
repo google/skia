@@ -8,9 +8,9 @@
 #ifndef SkDebugfTracer_DEFINED
 #define SkDebugfTracer_DEFINED
 
-#include "SkEventTracer.h"
-#include "SkEventTracingPriv.h"
-#include "SkString.h"
+#include "include/core/SkString.h"
+#include "include/utils/SkEventTracer.h"
+#include "tools/trace/EventTracingPriv.h"
 
 /**
  * A SkEventTracer implementation that logs events using SkDebugf.

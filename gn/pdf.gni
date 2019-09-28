@@ -5,8 +5,10 @@
 
 # Things are easiest for everyone if these source paths are absolute.
 _src = get_path_info("../src", "abspath")
+_include = get_path_info("../include", "abspath")
 
 skia_pdf_sources = [
+  "$_include/docs/SkPDFDocument.h",
   "$_src/pdf/SkBitmapKey.h",
   "$_src/pdf/SkClusterator.cpp",
   "$_src/pdf/SkClusterator.h",
@@ -18,20 +20,18 @@ skia_pdf_sources = [
   "$_src/pdf/SkKeyedImage.h",
   "$_src/pdf/SkPDFBitmap.cpp",
   "$_src/pdf/SkPDFBitmap.h",
-  "$_src/pdf/SkPDFCanon.cpp",
-  "$_src/pdf/SkPDFCanon.h",
-  "$_src/pdf/SkPDFConvertType1FontStream.cpp",
-  "$_src/pdf/SkPDFConvertType1FontStream.h",
   "$_src/pdf/SkPDFDevice.cpp",
   "$_src/pdf/SkPDFDevice.h",
   "$_src/pdf/SkPDFDocument.cpp",
-  "$_src/pdf/SkPDFDocument.h",
+  "$_src/pdf/SkPDFDocumentPriv.h",
   "$_src/pdf/SkPDFFont.cpp",
   "$_src/pdf/SkPDFFont.h",
   "$_src/pdf/SkPDFFormXObject.cpp",
   "$_src/pdf/SkPDFFormXObject.h",
   "$_src/pdf/SkPDFGradientShader.cpp",
   "$_src/pdf/SkPDFGradientShader.h",
+  "$_src/pdf/SkPDFGraphicStackState.cpp",
+  "$_src/pdf/SkPDFGraphicStackState.h",
   "$_src/pdf/SkPDFGraphicState.cpp",
   "$_src/pdf/SkPDFGraphicState.h",
   "$_src/pdf/SkPDFMakeCIDGlyphWidthsArray.cpp",
@@ -44,6 +44,12 @@ skia_pdf_sources = [
   "$_src/pdf/SkPDFResourceDict.h",
   "$_src/pdf/SkPDFShader.cpp",
   "$_src/pdf/SkPDFShader.h",
+  "$_src/pdf/SkPDFSubsetFont.cpp",
+  "$_src/pdf/SkPDFSubsetFont.h",
+  "$_src/pdf/SkPDFTag.cpp",
+  "$_src/pdf/SkPDFTag.h",
+  "$_src/pdf/SkPDFType1Font.cpp",
+  "$_src/pdf/SkPDFType1Font.h",
   "$_src/pdf/SkPDFTypes.cpp",
   "$_src/pdf/SkPDFTypes.h",
   "$_src/pdf/SkPDFUtils.cpp",

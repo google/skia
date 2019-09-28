@@ -8,7 +8,7 @@
 #ifndef SkCanvasVirtualEnforcer_DEFINED
 #define SkCanvasVirtualEnforcer_DEFINED
 
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
 
 // If you would ordinarily want to inherit from Base (eg SkCanvas, SkNWayCanvas), instead
 // inherit from SkCanvasVirtualEnforcer<Base>, which will make the build fail if you forget
@@ -20,6 +20,7 @@ public:
 
 protected:
     void onDrawPaint(const SkPaint& paint) override = 0;
+    void onDrawBehind(const SkPaint&) override {} // make zero after android updates
     void onDrawRect(const SkRect& rect, const SkPaint& paint) override = 0;
     void onDrawRRect(const SkRRect& rrect, const SkPaint& paint) override = 0;
     void onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
@@ -30,16 +31,6 @@ protected:
     void onDrawPath(const SkPath& path, const SkPaint& paint) override = 0;
     void onDrawRegion(const SkRegion& region, const SkPaint& paint) override = 0;
 
-    void onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
-                    const SkPaint& paint) override = 0;
-    void onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
-                       const SkPaint& paint) override = 0;
-    void onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
-                        SkScalar constY, const SkPaint& paint) override = 0;
-    void onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-                          const SkMatrix* matrix, const SkPaint& paint) override = 0;
-    void onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
-                           const SkRect* cullRect, const SkPaint& paint) override = 0;
     void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                         const SkPaint& paint) override = 0;
 
@@ -48,8 +39,8 @@ protected:
                      const SkPaint& paint) override = 0;
     void onDrawPoints(SkCanvas::PointMode mode, size_t count, const SkPoint pts[],
                       const SkPaint& paint) override = 0;
-    void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
-                              const SkPaint& paint) override = 0;
+    void onDrawVerticesObject(const SkVertices*, const SkVertices::Bone bones[], int boneCount,
+                              SkBlendMode, const SkPaint&) override = 0;
 
     void onDrawImage(const SkImage* image, SkScalar dx, SkScalar dy,
                      const SkPaint* paint) override = 0;
@@ -59,6 +50,22 @@ protected:
                          const SkPaint* paint) override = 0;
     void onDrawImageLattice(const SkImage* image, const SkCanvas::Lattice& lattice,
                             const SkRect& dst, const SkPaint* paint) override = 0;
+
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    // This is under active development for Chrome and not used in Android. Hold off on adding
+    // implementations in Android's SkCanvas subclasses until this stabilizes.
+    void onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
+            SkCanvas::QuadAAFlags aaFlags, const SkColor4f& color, SkBlendMode mode) override {}
+    void onDrawEdgeAAImageSet(const SkCanvas::ImageSetEntry imageSet[], int count,
+            const SkPoint dstClips[], const SkMatrix preViewMatrices[], const SkPaint* paint,
+            SkCanvas::SrcRectConstraint constraint) override {}
+#else
+    void onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
+            SkCanvas::QuadAAFlags aaFlags, const SkColor4f& color, SkBlendMode mode) override = 0;
+    void onDrawEdgeAAImageSet(const SkCanvas::ImageSetEntry imageSet[], int count,
+            const SkPoint dstClips[], const SkMatrix preViewMatrices[], const SkPaint* paint,
+            SkCanvas::SrcRectConstraint constraint) override = 0;
+#endif
 
     void onDrawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy,
                       const SkPaint* paint) override = 0;

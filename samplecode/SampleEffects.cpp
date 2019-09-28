@@ -4,15 +4,14 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkColorMatrixFilter.h"
-#include "SkDiscretePathEffect.h"
-#include "SkEmbossMaskFilter.h"
-#include "SkGradientShader.h"
-#include "SkPaint.h"
-#include "SkView.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/effects/SkColorMatrixFilter.h"
+#include "include/effects/SkDiscretePathEffect.h"
+#include "include/effects/SkGradientShader.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkBlurMask.h"
+#include "src/effects/SkEmbossMaskFilter.h"
 
 
 //#define COLOR 0xFFFF8844
@@ -37,7 +36,7 @@ static void paint_proc3(SkPaint* paint) {
     SkColor colors[] = { SK_ColorRED, COLOR, SK_ColorBLUE };
     SkPoint pts[] = { { 3, 0 }, { 7, 5 } };
     paint->setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                                  SkShader::kMirror_TileMode));
+                                                  SkTileMode::kMirror));
 }
 
 static void paint_proc5(SkPaint* paint) {
@@ -56,7 +55,7 @@ const PaintProc gPaintProcs[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class EffectsView : public SampleView {
+class EffectsView : public Sample {
 public:
     SkPath fPath;
     SkPaint fPaint[SK_ARRAY_COUNT(gPaintProcs)];
@@ -91,14 +90,7 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Effects");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    virtual SkString name() { return SkString("Effects"); }
 
     virtual void onDrawContent(SkCanvas* canvas) {
         canvas->scale(3, 3);
@@ -110,10 +102,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new EffectsView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new EffectsView(); )

@@ -9,16 +9,14 @@
 #ifndef GrTexture_DEFINED
 #define GrTexture_DEFINED
 
-#include "GrBackendSurface.h"
-#include "GrSamplerState.h"
-#include "GrSurface.h"
-#include "SkImage.h"
-#include "SkPoint.h"
-#include "SkRefCnt.h"
-#include "../private/GrTypesPriv.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrSurface.h"
+#include "include/private/GrTypesPriv.h"
 
 class GrTexturePriv;
-enum class SkDestinationSurfaceColorMode;
 
 class GrTexture : virtual public GrSurface {
 public:
@@ -31,7 +29,7 @@ public:
      * This function indicates that the texture parameters (wrap mode, filtering, ...) have been
      * changed externally to Skia.
      */
-    virtual void textureParamsModified() = 0;
+    SK_API virtual void textureParamsModified() = 0;
 
     /**
      * This function steals the backend texture from a uniquely owned GrTexture with no pending
@@ -40,7 +38,7 @@ public:
      * Note that if the GrTexture is not uniquely owned (no other refs), or has pending IO, this
      * function will fail.
      */
-    static bool StealBackendTexture(sk_sp<GrTexture>&&,
+    static bool StealBackendTexture(sk_sp<GrTexture>,
                                     GrBackendTexture*,
                                     SkImage::BackendTextureReleaseProc*);
 
@@ -50,15 +48,31 @@ public:
     }
 #endif
 
-    virtual void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) = 0;
-
-    // These match the definitions in SkImage, from whence they came.
-    // TODO: Either move Chrome over to new api or remove their need to call this on GrTexture
-    typedef void* ReleaseCtx;
-    typedef void (*ReleaseProc)(ReleaseCtx);
-    void setRelease(ReleaseProc proc, ReleaseCtx ctx) {
-        sk_sp<GrReleaseProcHelper> helper(new GrReleaseProcHelper(proc, ctx));
-        this->setRelease(std::move(helper));
+    /** See addIdleProc. */
+    enum class IdleState {
+        kFlushed,
+        kFinished
+    };
+    /**
+     * Installs a proc on this texture. It will be called when the texture becomes "idle". There
+     * are two types of idle states as indicated by IdleState. For managed backends (e.g. GL where
+     * a driver typically handles CPU/GPU synchronization of resource access) there is no difference
+     * between the two. They both mean "all work related to the resource has been flushed to the
+     * backend API and the texture is not owned outside the resource cache".
+     *
+     * If the API is unmanaged (e.g. Vulkan) then kFinished has the additional constraint that the
+     * work flushed to the GPU is finished.
+     */
+    virtual void addIdleProc(sk_sp<GrRefCntedCallback> idleProc, IdleState) {
+        // This is the default implementation for the managed case where the IdleState can be
+        // ignored. Unmanaged backends, e.g. Vulkan, must override this to consider IdleState.
+        fIdleProcs.push_back(std::move(idleProc));
+    }
+    /** Helper version of addIdleProc that creates the ref-counted wrapper. */
+    void addIdleProc(GrRefCntedCallback::Callback callback,
+                     GrRefCntedCallback::Context context,
+                     IdleState state) {
+        this->addIdleProc(sk_make_sp<GrRefCntedCallback>(callback, context), state);
     }
 
     /** Access methods that are only to be used within Skia code. */
@@ -66,10 +80,16 @@ public:
     inline const GrTexturePriv texturePriv() const;
 
 protected:
-    GrTexture(GrGpu*, const GrSurfaceDesc&, GrSLType samplerType,
-              GrSamplerState::Filter highestFilterMode, GrMipMapsStatus);
+    GrTexture(GrGpu*, const SkISize&, GrPixelConfig, GrProtected, GrTextureType, GrMipMapsStatus);
 
     virtual bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) = 0;
+
+    SkTArray<sk_sp<GrRefCntedCallback>> fIdleProcs;
+
+    void willRemoveLastRefOrPendingIO() override {
+        // We're about to be idle in the resource cache. Do our part to trigger the idle callbacks.
+        fIdleProcs.reset();
+    }
 
 private:
     void computeScratchKey(GrScratchKey*) const override;
@@ -77,11 +97,9 @@ private:
     void markMipMapsDirty();
     void markMipMapsClean();
 
-    GrSLType                      fSamplerType;
-    GrSamplerState::Filter        fHighestFilterMode;
+    GrTextureType                 fTextureType;
     GrMipMapsStatus               fMipMapsStatus;
     int                           fMaxMipMapLevel;
-    SkDestinationSurfaceColorMode fMipColorMode;
     friend class GrTexturePriv;
 
     typedef GrSurface INHERITED;

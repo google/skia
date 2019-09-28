@@ -60,15 +60,30 @@ __argparse.add_argument('--pr',
   help="comma- or space-separated list of GPU path renderers, including: "
        "[[~]all [~]default [~]dashline [~]nvpr [~]msaa [~]aaconvex "
        "[~]aalinearizing [~]small [~]tess]")
+__argparse.add_argument('--cc',
+  action='store_true', help="allow coverage counting shortcuts to render paths")
 __argparse.add_argument('--nocache',
   action='store_true', help="disable caching of path mask textures")
 __argparse.add_argument('-c', '--config',
   default='gl', help="comma- or space-separated list of GPU configs")
 __argparse.add_argument('-a', '--resultsfile',
   help="optional file to append results into")
-__argparse.add_argument('skps',
+__argparse.add_argument('--ddl',
+  action='store_true', help="record the skp into DDLs before rendering")
+__argparse.add_argument('--ddlNumAdditionalThreads',
+  type=int, default=0,
+  help="number of DDL recording threads in addition to main one")
+__argparse.add_argument('--ddlTilingWidthHeight',
+  type=int, default=0, help="number of tiles along one edge when in DDL mode")
+__argparse.add_argument('--ddlRecordTime',
+  action='store_true', help="report just the cpu time spent recording DDLs")
+__argparse.add_argument('--gpuThreads',
+  type=int, default=-1,
+  help="Create this many extra threads to assist with GPU work, including"
+       " software path rendering. Defaults to two.")
+__argparse.add_argument('srcs',
   nargs='+',
-  help=".skp files or directories to expand for .skp files")
+  help=".skp files or directories to expand for .skp files, and/or .svg files")
 
 FLAGS = __argparse.parse_args()
 if FLAGS.adb:
@@ -118,8 +133,24 @@ class SKPBench:
     ARGV.extend(['--fps', 'true'])
   if FLAGS.pr:
     ARGV.extend(['--pr'] + re.split(r'[ ,]', FLAGS.pr))
+  if FLAGS.cc:
+    ARGV.extend(['--cc', 'true'])
   if FLAGS.nocache:
     ARGV.extend(['--cachePathMasks', 'false'])
+  if FLAGS.gpuThreads != -1:
+    ARGV.extend(['--gpuThreads', str(FLAGS.gpuThreads)])
+
+  # DDL parameters
+  if FLAGS.ddl:
+    ARGV.extend(['--ddl', 'true'])
+  if FLAGS.ddlNumAdditionalThreads:
+    ARGV.extend(['--ddlNumAdditionalThreads',
+                 str(FLAGS.ddlNumAdditionalThreads)])
+  if FLAGS.ddlTilingWidthHeight:
+    ARGV.extend(['--ddlTilingWidthHeight', str(FLAGS.ddlTilingWidthHeight)])
+  if FLAGS.ddlRecordTime:
+    ARGV.extend(['--ddlRecordTime', 'true'])
+
   if FLAGS.adb:
     if FLAGS.device_serial is None:
       ARGV[:0] = [FLAGS.adb_binary, 'shell']
@@ -140,7 +171,7 @@ class SKPBench:
     print('running %i second warmup...' % warmup_time, file=sys.stderr)
     commandline = cls.ARGV + ['--duration', str(warmup_time * 1000),
                               '--config', config,
-                              '--skp', 'warmup']
+                              '--src', 'warmup']
     dump_commandline_if_verbose(commandline)
     output = subprocess.check_output(commandline, stderr=subprocess.STDOUT)
 
@@ -151,8 +182,8 @@ class SKPBench:
         return
     raise Exception('Invalid warmup output:\n%s' % output)
 
-  def __init__(self, skp, config, max_stddev, best_result=None):
-    self.skp = skp
+  def __init__(self, src, config, max_stddev, best_result=None):
+    self.src = src
     self.config = config
     self.max_stddev = max_stddev
     self.best_result = best_result
@@ -175,11 +206,11 @@ class SKPBench:
     self._schedule_hardware_poll()
 
     commandline = self.ARGV + ['--config', self.config,
-                               '--skp', self.skp,
+                               '--src', self.src,
                                '--suppressHeader', 'true']
     if FLAGS.write_path:
       pngfile = _path.join(FLAGS.write_path, self.config,
-                           _path.basename(self.skp) + '.png')
+                           _path.basename(self.src) + '.png')
       commandline.extend(['--png', pngfile])
     dump_commandline_if_verbose(commandline)
     self._proc = subprocess.Popen(commandline, stdout=subprocess.PIPE,
@@ -242,10 +273,10 @@ def emit_result(line, resultsfile=None):
     print(line, file=resultsfile)
     resultsfile.flush()
 
-def run_benchmarks(configs, skps, hardware, resultsfile=None):
+def run_benchmarks(configs, srcs, hardware, resultsfile=None):
   hasheader = False
-  benches = collections.deque([(skp, config, FLAGS.max_stddev)
-                               for skp in skps
+  benches = collections.deque([(src, config, FLAGS.max_stddev)
+                               for src in srcs
                                for config in configs])
   while benches:
     try:
@@ -264,7 +295,7 @@ def run_benchmarks(configs, skps, hardware, resultsfile=None):
                             resultsfile)
               else:
                 print("WARNING: no result for %s with config %s" %
-                      (skpbench.skp, skpbench.config), file=sys.stderr)
+                      (skpbench.src, skpbench.config), file=sys.stderr)
 
             except StddevException:
               retry_max_stddev = skpbench.max_stddev * math.sqrt(2)
@@ -275,7 +306,7 @@ def run_benchmarks(configs, skps, hardware, resultsfile=None):
                        skpbench.best_result.stddev, skpbench.max_stddev,
                        retry_max_stddev),
                       file=sys.stderr)
-              benches.append((skpbench.skp, skpbench.config, retry_max_stddev,
+              benches.append((skpbench.src, skpbench.config, retry_max_stddev,
                               skpbench.best_result))
 
             except HardwareException as exception:
@@ -295,7 +326,7 @@ def main():
   # Delimiter is ',' or ' ', skip if nested inside parens (e.g. gpu(a=b,c=d)).
   DELIMITER = r'[, ](?!(?:[^(]*\([^)]*\))*[^()]*\))'
   configs = re.split(DELIMITER, FLAGS.config)
-  skps = _path.find_skps(FLAGS.skps)
+  srcs = _path.find_skps(FLAGS.srcs)
 
   if FLAGS.adb:
     adb = Adb(FLAGS.device_serial, FLAGS.adb_binary,
@@ -323,9 +354,9 @@ def main():
 
   if FLAGS.resultsfile:
     with open(FLAGS.resultsfile, mode='a+') as resultsfile:
-      run_benchmarks(configs, skps, hardware, resultsfile=resultsfile)
+      run_benchmarks(configs, srcs, hardware, resultsfile=resultsfile)
   else:
-    run_benchmarks(configs, skps, hardware)
+    run_benchmarks(configs, srcs, hardware)
 
 
 if __name__ == '__main__':

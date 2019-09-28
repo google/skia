@@ -101,6 +101,12 @@
    obj:*/libGLX_nvidia.so*
 }
 {
+   nv_driver_bug_5
+   Memcheck:Leak
+   fun:malloc
+   obj:*/libGLX_nvidia.so*
+}
+{
     #Fixed by FontConfig 2.9.0
     #http://cgit.freedesktop.org/fontconfig/commit/?id=1c475d5c8cb265ac939d6b9e097666e300162511
     font_config_bug_1
@@ -275,4 +281,23 @@
     Memcheck:Cond
     fun:_ZN12_GLOBAL__N_120ConvolveHorizontallyILb0EEEvPKhRK21SkConvolutionFilter1DPh
     fun:_Z14BGRAConvolve2DPKhibRK21SkConvolutionFilter1DS3_iPhRK18SkConvolutionProcsb
+}
+#Something odd happening in with SkRasterPipeline in GrConvertPixels. Seems bogus after
+#investigation. MSAN/ASAN have no complaints. Complaining about conditional jump or use
+#of var that is "uninitialized" but it definitely is.
+{
+   grconvertpixels_rasterpipeline
+   Memcheck:Cond
+   ...
+   fun:_ZNK16SkRasterPipeline3runEmmmm
+   fun:_Z15GrConvertPixelsRK11GrPixelInfoPvmS1_PKvmb
+   ...
+}
+{
+   grconvertpixels_rasterpipeline
+   Memcheck:Value8
+   ...
+   fun:_ZNK16SkRasterPipeline3runEmmmm
+   fun:_Z15GrConvertPixelsRK11GrPixelInfoPvmS1_PKvmb
+   ...
 }

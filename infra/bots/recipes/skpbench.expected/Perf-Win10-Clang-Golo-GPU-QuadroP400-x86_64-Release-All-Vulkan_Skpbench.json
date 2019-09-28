@@ -3,13 +3,13 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/tmp"
+      "[START_DIR]\\tmp"
     ],
     "infra_step": true,
     "name": "makedirs tmp_dir"
@@ -18,11 +18,11 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/skia/infra/bots/assets/skp/VERSION",
+      "[START_DIR]\\skia\\infra\\bots\\assets\\skp\\VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -32,27 +32,31 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
       "42",
-      "[START_DIR]/tmp/SKP_VERSION"
+      "[START_DIR]\\tmp\\SKP_VERSION"
     ],
     "infra_step": true,
-    "name": "write SKP_VERSION"
+    "name": "write SKP_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SKP_VERSION@42@@@",
+      "@@@STEP_LOG_END@SKP_VERSION@@@"
+    ]
   },
   {
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_Skpbench/data"
+      "[START_DIR]\\[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"
@@ -61,18 +65,18 @@
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/skia/tools/skpbench/skpbench.py",
-      "[START_DIR]/build/out/Release_x64/skpbench",
+      "[START_DIR]\\skia\\tools\\skpbench\\skpbench.py",
+      "[START_DIR]\\build\\skpbench",
       "--resultsfile",
-      "[START_DIR]/[SWARM_OUT_DIR]/table",
+      "[START_DIR]\\[SWARM_OUT_DIR]\\table",
       "--config",
       "vk",
       "-v5",
-      "[START_DIR]/skp"
+      "[START_DIR]\\skp"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "skpbench"
   },
@@ -83,7 +87,6 @@
       "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
     ],
     "name": "get swarming bot id",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
@@ -97,7 +100,6 @@
       "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
     ],
     "name": "get swarming task id",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
@@ -108,8 +110,8 @@
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/skia/tools/skpbench/skiaperf.py",
-      "[START_DIR]/[SWARM_OUT_DIR]/table",
+      "[START_DIR]\\skia\\tools\\skpbench\\skiaperf.py",
+      "[START_DIR]\\[SWARM_OUT_DIR]\\table",
       "--properties",
       "gitHash",
       "abc123",
@@ -118,7 +120,7 @@
       "swarming_task_id",
       "123456",
       "--outfile",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_Skpbench/data/skpbench_abc123_1337000001.json",
+      "[START_DIR]\\[SWARM_OUT_DIR]\\skpbench_abc123_1337000001.json",
       "--key",
       "arch",
       "x86_64",
@@ -139,13 +141,11 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "Parse skpbench output into Perf json"
   },
   {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "name": "$result"
   }
 ]

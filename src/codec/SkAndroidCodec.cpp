@@ -5,15 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkAndroidCodec.h"
-#include "SkCodec.h"
-#include "SkCodecPriv.h"
-#include "SkMakeUnique.h"
-#include "SkPixmap.h"
-#include "SkPixmapPriv.h"
-#include "SkRawAdapterCodec.h"
-#include "SkSampledCodec.h"
-#include "SkWebpAdapterCodec.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkPixmap.h"
+#include "src/codec/SkAndroidCodecAdapter.h"
+#include "src/codec/SkCodecPriv.h"
+#include "src/codec/SkSampledCodec.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkPixmapPriv.h"
 
 static bool is_valid_sample_size(int sampleSize) {
     // FIXME: As Leon has mentioned elsewhere, surely there is also a maximum sampleSize?
@@ -23,14 +22,14 @@ static bool is_valid_sample_size(int sampleSize) {
 /**
  *  Loads the gamut as a set of three points (triangle).
  */
-static void load_gamut(SkPoint rgb[], const SkMatrix44& xyz) {
+static void load_gamut(SkPoint rgb[], const skcms_Matrix3x3& xyz) {
     // rx = rX / (rX + rY + rZ)
     // ry = rY / (rX + rY + rZ)
     // gx, gy, bx, and gy are calulcated similarly.
     for (int rgbIdx = 0; rgbIdx < 3; rgbIdx++) {
-        float sum = xyz.get(0, rgbIdx) + xyz.get(1, rgbIdx) + xyz.get(2, rgbIdx);
-        rgb[rgbIdx].fX = xyz.get(0, rgbIdx) / sum;
-        rgb[rgbIdx].fY = xyz.get(1, rgbIdx) / sum;
+        float sum = xyz.vals[rgbIdx][0] + xyz.vals[rgbIdx][1] + xyz.vals[rgbIdx][2];
+        rgb[rgbIdx].fX = xyz.vals[rgbIdx][0] / sum;
+        rgb[rgbIdx].fY = xyz.vals[rgbIdx][1] / sum;
     }
 }
 
@@ -46,13 +45,12 @@ static float calculate_area(SkPoint abc[]) {
 
 static constexpr float kSRGB_D50_GamutArea = 0.084f;
 
-static bool is_wide_gamut(const SkColorSpace* colorSpace) {
+static bool is_wide_gamut(const skcms_ICCProfile& profile) {
     // Determine if the source image has a gamut that is wider than sRGB.  If so, we
     // will use P3 as the output color space to avoid clipping the gamut.
-    const SkMatrix44* toXYZD50 = colorSpace->toXYZD50();
-    if (toXYZD50) {
+    if (profile.has_toXYZD50) {
         SkPoint rgb[3];
-        load_gamut(rgb, *toXYZD50);
+        load_gamut(rgb, profile.toXYZD50);
         return calculate_area(rgb) > kSRGB_D50_GamutArea;
     }
 
@@ -90,30 +88,29 @@ std::unique_ptr<SkAndroidCodec> SkAndroidCodec::MakeFromCodec(std::unique_ptr<Sk
     }
 
     switch ((SkEncodedImageFormat)codec->getEncodedFormat()) {
-#ifdef SK_HAS_PNG_LIBRARY
         case SkEncodedImageFormat::kPNG:
         case SkEncodedImageFormat::kICO:
-#endif
-#ifdef SK_HAS_JPEG_LIBRARY
         case SkEncodedImageFormat::kJPEG:
-#endif
+#ifndef SK_HAS_WUFFS_LIBRARY
         case SkEncodedImageFormat::kGIF:
+#endif
         case SkEncodedImageFormat::kBMP:
         case SkEncodedImageFormat::kWBMP:
-#ifdef SK_HAS_HEIF_LIBRARY
         case SkEncodedImageFormat::kHEIF:
-#endif
             return skstd::make_unique<SkSampledCodec>(codec.release(), orientationBehavior);
+#ifdef SK_HAS_WUFFS_LIBRARY
+        case SkEncodedImageFormat::kGIF:
+#endif
 #ifdef SK_HAS_WEBP_LIBRARY
         case SkEncodedImageFormat::kWEBP:
-            return skstd::make_unique<SkWebpAdapterCodec>((SkWebpCodec*) codec.release(),
-                    orientationBehavior);
 #endif
 #ifdef SK_CODEC_DECODES_RAW
         case SkEncodedImageFormat::kDNG:
-            return skstd::make_unique<SkRawAdapterCodec>((SkRawCodec*)codec.release(),
-                    orientationBehavior);
 #endif
+#if defined(SK_HAS_WEBP_LIBRARY) || defined(SK_CODEC_DECODES_RAW) || defined(SK_HAS_WUFFS_LIBRARY)
+            return skstd::make_unique<SkAndroidCodecAdapter>(codec.release(), orientationBehavior);
+#endif
+
         default:
             return nullptr;
     }
@@ -169,34 +166,30 @@ SkAlphaType SkAndroidCodec::computeOutputAlphaType(bool requestedUnpremul) {
 sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputColorType,
                                                             sk_sp<SkColorSpace> prefColorSpace) {
     switch (outputColorType) {
+        case kRGBA_F16_SkColorType:
+        case kRGB_565_SkColorType:
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType: {
-            // If |prefColorSpace| is supported, choose it.
-            SkColorSpaceTransferFn fn;
-            if (prefColorSpace && prefColorSpace->isNumericalTransferFn(&fn)) {
+            // If |prefColorSpace| is supplied, choose it.
+            if (prefColorSpace) {
                 return prefColorSpace;
             }
 
-            SkColorSpace* encodedSpace = fCodec->getInfo().colorSpace();
-            if (encodedSpace->isNumericalTransferFn(&fn)) {
-                // Leave the pixels in the encoded color space.  Color space conversion
-                // will be handled after decode time.
-                return sk_ref_sp(encodedSpace);
-            }
+            const skcms_ICCProfile* encodedProfile = fCodec->getEncodedInfo().profile();
+            if (encodedProfile) {
+                if (auto encodedSpace = SkColorSpace::Make(*encodedProfile)) {
+                    // Leave the pixels in the encoded color space.  Color space conversion
+                    // will be handled after decode time.
+                    return encodedSpace;
+                }
 
-            if (is_wide_gamut(encodedSpace)) {
-                return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                             SkColorSpace::kDCIP3_D65_Gamut);
+                if (is_wide_gamut(*encodedProfile)) {
+                    return SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
+                }
             }
 
             return SkColorSpace::MakeSRGB();
         }
-        case kRGBA_F16_SkColorType:
-            // Note that |prefColorSpace| is ignored, F16 is always linear sRGB.
-            return SkColorSpace::MakeSRGBLinear();
-        case kRGB_565_SkColorType:
-            // Note that |prefColorSpace| is ignored, 565 is always sRGB.
-            return SkColorSpace::MakeSRGB();
         default:
             // Color correction not supported for kGray.
             return nullptr;
@@ -307,7 +300,13 @@ SkISize SkAndroidCodec::getSampledDimensions(int sampleSize) const {
         return fInfo.dimensions();
     }
 
-    return this->onGetSampledDimensions(sampleSize);
+    auto dims = this->onGetSampledDimensions(sampleSize);
+    if (fOrientationBehavior == SkAndroidCodec::ExifOrientationBehavior::kIgnore
+            || !SkPixmapPriv::ShouldSwapWidthHeight(fCodec->getOrigin())) {
+        return dims;
+    }
+
+    return { dims.height(), dims.width() };
 }
 
 bool SkAndroidCodec::getSupportedSubset(SkIRect* desiredSubset) const {

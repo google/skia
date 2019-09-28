@@ -4,33 +4,26 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
+#include "samplecode/Sample.h"
 
-#include "SkBlurMaskFilter.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkColorPriv.h"
-#include "SkColorShader.h"
-#include "SkGradientShader.h"
-#include "SkGraphics.h"
-#include "SkOSFile.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkRegion.h"
-#include "SkShader.h"
-#include "SkShaper.h"
-#include "SkStream.h"
-#include "SkTextBlob.h"
-#include "SkTime.h"
-#include "SkTypeface.h"
-#include "SkUtils.h"
-#include "SkView.h"
-
-extern void skia_set_text_gamma(float blackGamma, float whiteGamma);
-
-#if defined(SK_BUILD_FOR_WIN) && defined(SK_FONTHOST_WIN_GDI)
-extern SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT&);
-#endif
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTime.h"
+#include "include/core/SkTypeface.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/utils/SkRandom.h"
+#include "modules/skshaper/include/SkShaper.h"
+#include "src/core/SkOSFile.h"
+#include "src/shaders/SkColorShader.h"
+#include "src/utils/SkUTF.h"
 
 static const char gText[] =
     "When in the Course of human events it becomes necessary for one people "
@@ -40,32 +33,12 @@ static const char gText[] =
     "a decent respect to the opinions of mankind requires that they should "
     "declare the causes which impel them to the separation.";
 
-class TextBoxView : public SampleView {
+class TextBoxView : public Sample {
 public:
-    TextBoxView() {
-#if defined(SK_BUILD_FOR_WIN) && defined(SK_FONTHOST_WIN_GDI)
-        LOGFONT lf;
-        sk_bzero(&lf, sizeof(lf));
-        lf.lfHeight = 9;
-        SkTypeface* tf0 = SkCreateTypefaceFromLOGFONT(lf);
-        lf.lfHeight = 12;
-        SkTypeface* tf1 = SkCreateTypefaceFromLOGFONT(lf);
-        // we assert that different sizes should not affect which face we get
-        SkASSERT(tf0 == tf1);
-        tf0->unref();
-        tf1->unref();
-#endif
-    }
+    TextBoxView() : fShaper(SkShaper::Make()) {}
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "TextBox");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("TextBox"); }
 
     void drawTest(SkCanvas* canvas, SkScalar w, SkScalar h, SkColor fg, SkColor bg) {
         SkAutoCanvasRestore acr(canvas, true);
@@ -73,23 +46,20 @@ protected:
         canvas->clipRect(SkRect::MakeWH(w, h));
         canvas->drawColor(bg);
 
-        SkShaper shaper(nullptr);
-
         SkScalar margin = 20;
 
         SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setLCDRenderText(true);
         paint.setColor(fg);
 
         for (int i = 9; i < 24; i += 2) {
-            SkTextBlobBuilder builder;
-            paint.setTextSize(SkIntToScalar(i));
-            SkPoint end = shaper.shape(&builder, paint, gText, strlen(gText), true,
-                                       { margin, margin }, w - margin);
-            canvas->drawTextBlob(builder.make(), 0, 0, paint);
+            SkTextBlobBuilderRunHandler builder(gText, { margin, margin });
+            SkFont font(nullptr, SkIntToScalar(i));
+            font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
-            canvas->translate(0, end.y());
+            fShaper->shape(gText, strlen(gText), font, true, w - margin, &builder);
+            canvas->drawTextBlob(builder.makeBlob(), 0, 0, paint);
+
+            canvas->translate(0, builder.endPoint().y());
         }
     }
 
@@ -105,10 +75,10 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    std::unique_ptr<SkShaper> fShaper;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new TextBoxView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new TextBoxView(); )

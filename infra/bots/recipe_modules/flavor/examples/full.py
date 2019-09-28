@@ -5,6 +5,7 @@
 
 DEPS = [
   'flavor',
+  'recipe_engine/platform',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
   'run',
@@ -37,15 +38,26 @@ def RunSteps(api):
   if 'Build' not in api.properties['buildername']:
     try:
       api.flavor.copy_file_to_device('file.txt', 'file.txt')
+      api.flavor.read_file_on_device('file.txt')
+      api.flavor.remove_file_on_device('file.txt')
       api.flavor.create_clean_host_dir('results_dir')
       api.flavor.create_clean_device_dir('device_results_dir')
-      api.flavor.install_everything()
+      if 'Lottie' in api.properties['buildername']:
+        api.flavor.install(lotties=True)
+      elif 'Mskp' in api.properties['buildername']:
+        api.flavor.install(mskps=True)
+      else:
+        api.flavor.install(skps=True, images=True, lotties=False, svgs=True,
+                           resources=True)
       if 'Test' in api.properties['buildername']:
         api.flavor.step('dm', ['dm', '--some-flag'])
         api.flavor.copy_directory_contents_to_host(
             api.flavor.device_dirs.dm_dir, api.flavor.host_dirs.dm_dir)
       elif 'Perf' in api.properties['buildername']:
-        api.flavor.step('nanobench', ['nanobench', '--some-flag'])
+        if 'SkottieTracing' in api.properties['buildername']:
+          api.flavor.step('dm', ['dm', '--some-flag'], skip_binary_push=True)
+        else:
+          api.flavor.step('nanobench', ['nanobench', '--some-flag'])
         api.flavor.copy_directory_contents_to_host(
             api.flavor.device_dirs.perf_data_dir,
             api.flavor.host_dirs.perf_data_dir)
@@ -55,25 +67,31 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
+  'Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android_SkottieTracing',
   'Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android',
   'Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android',
+  'Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench_Mskp',
   'Perf-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All',
-  'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release-All',
+  'Perf-Chromecast-Clang-Chorizo-CPU-Cortex_A7-arm-Release-All',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-ASAN',
+  'Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN',
   'Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android',
   'Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android',
   'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android',
   'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-Android_ASAN',
   'Test-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Coverage',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Lottie',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN',
   'Test-Debian9-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader',
+  'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-OpenCL',
   'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan',
-  'Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug-All-ASAN',
+  'Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-ASAN',
   ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_ProcDump',
+  'Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Debug-All-ANGLE',
 ]
 
 # Default properties used for TEST_BUILDERS.
@@ -92,10 +110,8 @@ def GenTests(api):
       api.test(buildername) +
       api.properties(**defaultProps(buildername))
     )
-    if 'Chromebook' in buildername and not 'Build' in buildername:
-      test += api.step_data(
-          'read chromeos ip',
-          stdout=api.raw_io.output('{"user_ip":"foo@127.0.0.1"}'))
+    if 'Win' in buildername and not 'LenovoYogaC630' in buildername:
+      test += api.platform('win', 64)
     if 'Chromecast' in buildername:
       test += api.step_data(
           'read chromecast ip',
@@ -113,7 +129,8 @@ def GenTests(api):
                      is_testing_exceptions='True')
   )
 
-  builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android'
+  builder = ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All'
+             '-Android')
   yield (
       api.test('failed_infra_step') +
       api.properties(buildername=builder,
@@ -126,7 +143,6 @@ def GenTests(api):
       api.step_data('dump log', retcode=1)
   )
 
-  builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android'
   yield (
       api.test('failed_read_version') +
       api.properties(buildername=builder,
@@ -138,7 +154,6 @@ def GenTests(api):
                     retcode=1)
   )
 
-  builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android'
   yield (
       api.test('retry_adb_command') +
       api.properties(buildername=builder,
@@ -150,7 +165,6 @@ def GenTests(api):
                     retcode=1)
   )
 
-  builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android'
   fail_step_name = 'mkdir /sdcard/revenge_of_the_skiabot/resources'
   yield (
       api.test('retry_adb_command_retries_exhausted') +
@@ -166,7 +180,7 @@ def GenTests(api):
       api.step_data(fail_step_name + ' (attempt 3)', retcode=1)
   )
 
-  builder = 'Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-All'
+  builder = 'Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All'
   fail_step_name = 'install_dm'
   yield (
       api.test('retry_ios_install') +
@@ -189,15 +203,15 @@ def GenTests(api):
       api.step_data(fail_step_name + ' (attempt 2)', retcode=1)
   )
 
-  builder = ('Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-All-' +
-             'Android')
+  builder = ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All'
+             '-Android')
   yield (
     api.test('cpu_scale_failed_once') +
     api.properties(buildername=builder,
                    revision='abc123',
                    path_config='kitchen',
                    swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.step_data('Scale CPU 0 to 0.600000', retcode=1)
+    api.step_data('Scale CPU 4 to 0.600000', retcode=1)
   )
 
   yield (
@@ -208,9 +222,9 @@ def GenTests(api):
                    swarm_out_dir='[SWARM_OUT_DIR]') +
     api.step_data('get swarming bot id',
                   stdout=api.raw_io.output('skia-rpi-022')) +
-    api.step_data('Scale CPU 0 to 0.600000', retcode=1)+
-    api.step_data('Scale CPU 0 to 0.600000 (attempt 2)', retcode=1)+
-    api.step_data('Scale CPU 0 to 0.600000 (attempt 3)', retcode=1)
+    api.step_data('Scale CPU 4 to 0.600000', retcode=1)+
+    api.step_data('Scale CPU 4 to 0.600000 (attempt 2)', retcode=1)+
+    api.step_data('Scale CPU 4 to 0.600000 (attempt 3)', retcode=1)
   )
 
   builder = ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release'

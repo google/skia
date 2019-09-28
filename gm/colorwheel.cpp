@@ -5,11 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkData.h"
-#include "SkImage.h"
-#include "gm.h"
-#include "sk_tool_utils.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
 static void draw_image(SkCanvas* canvas, const char* resource, int x, int y) {
     sk_sp<SkImage> image(GetResourceAsImage(resource));
@@ -31,7 +39,7 @@ static void draw_image(SkCanvas* canvas, const char* resource, int x, int y) {
   background and compression artifacts.
  */
 DEF_SIMPLE_GM(colorwheel, canvas, 256, 256) {
-    sk_tool_utils::draw_checkerboard(canvas);
+    ToolUtils::draw_checkerboard(canvas);
     draw_image(canvas, "images/color_wheel.png", 0, 0);  // top left
     draw_image(canvas, "images/color_wheel.gif", 128, 0);  // top right
     draw_image(canvas, "images/color_wheel.webp", 0, 128);  // bottom left
@@ -39,23 +47,15 @@ DEF_SIMPLE_GM(colorwheel, canvas, 256, 256) {
 }
 
 DEF_SIMPLE_GM(colorwheelnative, canvas, 128, 28) {
-    SkPaint paint;
-    sk_tool_utils::set_portable_typeface(&paint, "sans-serif", SkFontStyle::Bold());
-    paint.setTextSize(18.0f);
+    SkFont font(ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Bold()), 18);
+    font.setEdging(SkFont::Edging::kAlias);
 
-    canvas->clear(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
-    paint.setColor(SK_ColorRED);
-    canvas->drawString("R", 8.0f, 20.0f, paint);
-    paint.setColor(SK_ColorGREEN);
-    canvas->drawString("G", 24.0f, 20.0f, paint);
-    paint.setColor(SK_ColorBLUE);
-    canvas->drawString("B", 40.0f, 20.0f, paint);
-    paint.setColor(SK_ColorCYAN);
-    canvas->drawString("C", 56.0f, 20.0f, paint);
-    paint.setColor(SK_ColorMAGENTA);
-    canvas->drawString("M", 72.0f, 20.0f, paint);
-    paint.setColor(SK_ColorYELLOW);
-    canvas->drawString("Y", 88.0f, 20.0f, paint);
-    paint.setColor(SK_ColorBLACK);
-    canvas->drawString("K", 104.0f, 20.0f, paint);
+    canvas->clear(SK_ColorLTGRAY);
+    canvas->drawString("R", 8.0f,   20.0f, font, SkPaint(SkColors::kRed));
+    canvas->drawString("G", 24.0f,  20.0f, font, SkPaint(SkColors::kGreen));
+    canvas->drawString("B", 40.0f,  20.0f, font, SkPaint(SkColors::kBlue));
+    canvas->drawString("C", 56.0f,  20.0f, font, SkPaint(SkColors::kCyan));
+    canvas->drawString("M", 72.0f,  20.0f, font, SkPaint(SkColors::kMagenta));
+    canvas->drawString("Y", 88.0f,  20.0f, font, SkPaint(SkColors::kYellow));
+    canvas->drawString("K", 104.0f, 20.0f, font, SkPaint(SkColors::kBlack));
 }

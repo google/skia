@@ -7,10 +7,10 @@
 #ifndef SkMaskSwizzler_DEFINED
 #define SkMaskSwizzler_DEFINED
 
-#include "SkMasks.h"
-#include "SkSampler.h"
-#include "SkSwizzler.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "src/codec/SkMasks.h"
+#include "src/codec/SkSampler.h"
+#include "src/codec/SkSwizzler.h"
 
 /*
  *
@@ -22,11 +22,10 @@ class SkMaskSwizzler : public SkSampler {
 public:
 
     /*
-     * Create a new swizzler
      * @param masks Unowned pointer to helper class
      */
     static SkMaskSwizzler* CreateMaskSwizzler(const SkImageInfo& dstInfo,
-                                              const SkImageInfo& srcInfo,
+                                              bool srcIsOpaque,
                                               SkMasks* masks,
                                               uint32_t bitsPerPixel,
                                               const SkCodec::Options& options);
@@ -36,13 +35,8 @@ public:
      */
     void swizzle(void* dst, const uint8_t* SK_RESTRICT src);
 
-    /**
-     * Implement fill using a custom width.
-     */
-    void fill(const SkImageInfo& info, void* dst, size_t rowBytes, uint64_t colorOrIndex,
-            SkCodec::ZeroInitialized zeroInit) override {
-        const SkImageInfo fillInfo = info.makeWH(fDstWidth, info.height());
-        SkSampler::Fill(fillInfo, dst, rowBytes, colorOrIndex, zeroInit);
+    int fillWidth() const override {
+        return fDstWidth;
     }
 
     /**

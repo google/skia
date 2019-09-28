@@ -16,6 +16,19 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+    ],
+    "name": "get swarming bot id",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "/usr/bin/adb.1.0.35",
       "shell",
       "mkdir",
@@ -26,7 +39,7 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "mkdir /sdcard/revenge_of_the_skiabot/resources"
@@ -57,7 +70,11 @@
       "[START_DIR]/tmp/SKP_VERSION"
     ],
     "infra_step": true,
-    "name": "write SKP_VERSION"
+    "name": "write SKP_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SKP_VERSION@42@@@",
+      "@@@STEP_LOG_END@SKP_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -70,11 +87,10 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /sdcard/revenge_of_the_skiabot/SKP_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "read /sdcard/revenge_of_the_skiabot/SKP_VERSION"
   },
   {
     "cmd": [
@@ -88,7 +104,7 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/SKP_VERSION"
@@ -105,7 +121,7 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/skps"
@@ -122,7 +138,7 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "mkdir /sdcard/revenge_of_the_skiabot/skps"
@@ -137,7 +153,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps",
@@ -171,7 +187,7 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "push [START_DIR]/tmp/SKP_VERSION /sdcard/revenge_of_the_skiabot/SKP_VERSION"
@@ -186,7 +202,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_CCPR_Skpbench/data"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"
@@ -195,13 +211,13 @@
     "cmd": [
       "adb.1.0.35",
       "push",
-      "[START_DIR]/build/out/Release/skpbench",
+      "[START_DIR]/build/skpbench",
       "/data/local/tmp/"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "push skpbench"
@@ -222,29 +238,16 @@
       "adb.1.0.35",
       "--pr",
       "ccpr",
+      "--cc",
       "--nocache",
       "/sdcard/revenge_of_the_skiabot/skps/desk_*svg.skp",
       "/sdcard/revenge_of_the_skiabot/skps/desk_chalkboard.skp"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "skpbench"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
-    ],
-    "name": "get swarming bot id",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
   },
   {
     "cmd": [
@@ -253,7 +256,6 @@
       "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
     ],
     "name": "get swarming task id",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
@@ -274,7 +276,7 @@
       "swarming_task_id",
       "123456",
       "--outfile",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_CCPR_Skpbench/data/skpbench_abc123_1337000001.json",
+      "[START_DIR]/[SWARM_OUT_DIR]/skpbench_abc123_1337000001.json",
       "--key",
       "arch",
       "arm64",
@@ -295,7 +297,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "Parse skpbench output into Perf json"
   },
@@ -304,11 +306,11 @@
       "python",
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['/usr/bin/adb.1.0.35', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
-      "[START_DIR]/build/out/Release"
+      "[START_DIR]/build"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "dump log",
@@ -341,14 +343,12 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "kill adb server"
   },
   {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "name": "$result"
   }
 ]

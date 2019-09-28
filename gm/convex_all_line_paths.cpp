@@ -5,20 +5,31 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkOffsetPolygon.h"
-#include "SkPathPriv.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkPathPriv.h"
+
+#include <memory>
 
 static void create_ngon(int n, SkPoint* pts, SkScalar width, SkScalar height) {
-    float angleStep = 360.0f / n, angle = 0.0f, sin, cos;
+    float angleStep = 360.0f / n, angle = 0.0f;
     if ((n % 2) == 1) {
         angle = angleStep/2.0f;
     }
 
     for (int i = 0; i < n; ++i) {
-        sin = SkScalarSinCos(SkDegreesToRadians(angle), &cos);
-        pts[i].fX = -sin * width;
-        pts[i].fY = cos * height;
+        pts[i].fX = -SkScalarSin(SkDegreesToRadians(angle)) * width;
+        pts[i].fY =  SkScalarCos(SkDegreesToRadians(angle)) * height;
         angle += angleStep;
     }
 }
@@ -56,9 +67,9 @@ const SkPoint gPoints3[] = {
 const SkPoint gPoints4[] = {
     { -6.0f, -50.0f },
     { 4.0f, -50.0f },
-    { 5.0f, -25.0f },
+    { 5.0f, -25.0f },  // remove if collinear diagonal points are not concave
     { 6.0f,   0.0f },
-    { 5.0f,  25.0f },
+    { 5.0f,  25.0f },  // remove if collinear diagonal points are not concave
     { 4.0f,  50.0f },
     { -4.0f,  50.0f }
 };
@@ -317,9 +328,8 @@ protected:
             this->drawPath(canvas, i, &offset);
         }
 
-        // Repro for crbug.com/472723 (Missing AA on portions of graphic with GPU rasterization)
         {
-            canvas->translate(356.0f, 50.0f);
+            // Repro for crbug.com/472723 (Missing AA on portions of graphic with GPU rasterization)
 
             SkPaint p;
             p.setAntiAlias(true);
@@ -334,7 +344,55 @@ protected:
             p1.lineTo(59.4380493f, 364.671021f);
             p1.lineTo(385.414276f, 690.647217f);
             p1.lineTo(386.121399f, 689.940125f);
+            canvas->save();
+            canvas->translate(356.0f, 50.0f);
             canvas->drawPath(p1, p);
+            canvas->restore();
+
+            // Repro for crbug.com/869172 (SVG path incorrectly simplified when using GPU
+            // Rasterization). This will only draw anything in the stroke-and-fill version.
+            SkPath p2;
+            p2.moveTo(10.f, 0.f);
+            p2.lineTo(38.f, 0.f);
+            p2.lineTo(66.f, 0.f);
+            p2.lineTo(94.f, 0.f);
+            p2.lineTo(122.f, 0.f);
+            p2.lineTo(150.f, 0.f);
+            p2.lineTo(150.f, 0.f);
+            p2.lineTo(122.f, 0.f);
+            p2.lineTo(94.f, 0.f);
+            p2.lineTo(66.f, 0.f);
+            p2.lineTo(38.f, 0.f);
+            p2.lineTo(10.f, 0.f);
+            p2.close();
+            canvas->save();
+            canvas->translate(0.0f, 500.0f);
+            canvas->drawPath(p2, p);
+            canvas->restore();
+
+            // Repro for crbug.com/856137. This path previously caused GrAAConvexTessellator to turn
+            // inset rings into outsets when adjacent bisector angles converged outside the previous
+            // ring due to accumulated error.
+            SkPath p3;
+            p3.setFillType(SkPath::kEvenOdd_FillType);
+            p3.moveTo(1184.96f, 982.557f);
+            p3.lineTo(1183.71f, 982.865f);
+            p3.lineTo(1180.99f, 982.734f);
+            p3.lineTo(1178.5f, 981.541f);
+            p3.lineTo(1176.35f, 979.367f);
+            p3.lineTo(1178.94f, 938.854f);
+            p3.lineTo(1181.35f, 936.038f);
+            p3.lineTo(1183.96f, 934.117f);
+            p3.lineTo(1186.67f, 933.195f);
+            p3.lineTo(1189.36f, 933.342f);
+            p3.lineTo(1191.58f, 934.38f);
+            p3.close();
+            canvas->save();
+            SkMatrix m;
+            m.setAll(0.0893210843f, 0, 79.1197586f, 0, 0.0893210843f, 300, 0, 0, 1);
+            canvas->concat(m);
+            canvas->drawPath(p3, p);
+            canvas->restore();
         }
     }
 

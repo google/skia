@@ -8,9 +8,10 @@
 #ifndef GrGLSLFragmentShaderBuilder_DEFINED
 #define GrGLSLFragmentShaderBuilder_DEFINED
 
-#include "GrBlend.h"
-#include "GrGLSLShaderBuilder.h"
-#include "GrProcessor.h"
+#include "src/gpu/GrBlend.h"
+#include "src/gpu/GrProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLShaderBuilder.h"
 
 class GrRenderTarget;
 class GrGLSLVarying;
@@ -47,12 +48,48 @@ public:
     /** Appease the compiler; the derived class initializes GrGLSLFragmentBuilder. */
     GrGLSLFPFragmentBuilder() : GrGLSLFragmentBuilder(nullptr) {}
 
-    enum Coordinates {
-        kSkiaDevice_Coordinates,
-        kGLSLWindow_Coordinates,
+    /**
+     * Returns the variable name that holds the array of sample offsets from pixel center to each
+     * sample location. Before this is called, a processor must have advertised that it will use
+     * CustomFeatures::kSampleLocations.
+     */
+    virtual const char* sampleOffsets() = 0;
 
-        kLast_Coordinates = kGLSLWindow_Coordinates
+    enum class ScopeFlags {
+        // Every fragment will always execute this code, and will do it exactly once.
+        kTopLevel = 0,
+        // Either all fragments in a given primitive, or none, will execute this code.
+        kInsidePerPrimitiveBranch = (1 << 0),
+        // Any given fragment may or may not execute this code.
+        kInsidePerPixelBranch = (1 << 1),
+        // This code will be executed more than once.
+        kInsideLoop = (1 << 2)
     };
+
+    /**
+     * Subtracts multisample coverage by AND-ing the sample mask with the provided "mask".
+     * Sample N corresponds to bit "1 << N".
+     *
+     * If the given scope is "kTopLevel" and the sample mask has not yet been modified, this method
+     * assigns the sample mask in place rather than pre-initializing it to ~0 then AND-ing it.
+     *
+     * Requires MSAA and GLSL support for sample variables.
+     */
+    virtual void maskOffMultisampleCoverage(const char* mask, ScopeFlags) = 0;
+
+    /**
+     * Turns off coverage at each sample where the implicit function fn > 0.
+     *
+     * The provided "fn" value represents the implicit function at pixel center. We then approximate
+     * the implicit at each sample by riding the gradient, "grad", linearly from pixel center to
+     * each sample location.
+     *
+     * If "grad" is null, we approximate the gradient using HW derivatives.
+     *
+     * Requires MSAA and GLSL support for sample variables. Also requires HW derivatives if not
+     * providing a gradient.
+     */
+    virtual void applyFnToMultisampleMask(const char* fn, const char* grad, ScopeFlags) = 0;
 
     /**
      * Fragment procs with child procs should call these functions before/after calling emitCode
@@ -61,10 +98,15 @@ public:
     virtual void onBeforeChildProcEmitCode() = 0;
     virtual void onAfterChildProcEmitCode() = 0;
 
+    virtual SkString writeProcessorFunction(GrGLSLFragmentProcessor* fp,
+                                            GrGLSLFragmentProcessor::EmitArgs& args);
+
     virtual const SkString& getMangleString() const = 0;
 
     virtual void forceHighPrecision() = 0;
 };
+
+GR_MAKE_BITFIELD_CLASS_OPS(GrGLSLFPFragmentBuilder::ScopeFlags);
 
 /*
  * This class is used by Xfer processors to build their fragment code.
@@ -102,6 +144,9 @@ public:
     virtual SkString ensureCoords2D(const GrShaderVar&) override;
 
     // GrGLSLFPFragmentBuilder interface.
+    const char* sampleOffsets() override;
+    void maskOffMultisampleCoverage(const char* mask, ScopeFlags) override;
+    void applyFnToMultisampleMask(const char* fn, const char* grad, ScopeFlags) override;
     const SkString& getMangleString() const override { return fMangleString; }
     void onBeforeChildProcEmitCode() override;
     void onAfterChildProcEmitCode() override;
@@ -114,6 +159,8 @@ public:
     void enableAdvancedBlendEquationIfNeeded(GrBlendEquation) override;
 
 private:
+    using CustomFeatures = GrProcessor::CustomFeatures;
+
     // Private public interface, used by GrGLProgramBuilder to build a fragment shader
     void enableCustomOutput();
     void enableSecondaryOutput();
@@ -124,9 +171,13 @@ private:
 #ifdef SK_DEBUG
     // As GLSLProcessors emit code, there are some conditions we need to verify.  We use the below
     // state to track this.  The reset call is called per processor emitted.
-    bool hasReadDstColor() const { return fHasReadDstColor; }
-    void resetVerification() {
-        fHasReadDstColor = false;
+    bool fHasReadDstColorThisStage_DebugOnly = false;
+    CustomFeatures fUsedProcessorFeaturesThisStage_DebugOnly = CustomFeatures::kNone;
+    CustomFeatures fUsedProcessorFeaturesAllStages_DebugOnly = CustomFeatures::kNone;
+
+    void debugOnly_resetPerStageVerification() {
+        fHasReadDstColorThisStage_DebugOnly = false;
+        fUsedProcessorFeaturesThisStage_DebugOnly = CustomFeatures::kNone;
     }
 #endif
 
@@ -159,17 +210,12 @@ private:
      */
     SkString fMangleString;
 
-    bool fSetupFragPosition;
-    bool fHasCustomColorOutput;
-    int fCustomColorOutputIndex;
-    bool fHasSecondaryOutput;
-    bool fForceHighPrecision;
-
-#ifdef SK_DEBUG
-    // some state to verify shaders and effects are consistent, this is reset between effects by
-    // the program creator
-    bool fHasReadDstColor;
-#endif
+    bool fSetupFragPosition = false;
+    bool fHasCustomColorOutput = false;
+    int fCustomColorOutputIndex = -1;
+    bool fHasSecondaryOutput = false;
+    bool fHasModifiedSampleMask = false;
+    bool fForceHighPrecision = false;
 
     friend class GrGLSLProgramBuilder;
     friend class GrGLProgramBuilder;

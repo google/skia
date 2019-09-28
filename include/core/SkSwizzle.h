@@ -8,7 +8,7 @@
 #ifndef SkSwizzle_DEFINED
 #define SkSwizzle_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 /**
   Swizzles byte order of |count| 32-bit pixels, swapping R and B.

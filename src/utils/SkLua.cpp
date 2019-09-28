@@ -5,32 +5,35 @@
  * found in the LICENSE file.
  */
 
-#include "SkLua.h"
+#include "include/utils/SkLua.h"
 
 #if SK_SUPPORT_GPU
-//#include "GrReducedClip.h"
+//#include "src/gpu/GrReducedClip.h"
 #endif
 
-#include "SkBlurImageFilter.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkData.h"
-#include "SkDocument.h"
-#include "SkFontStyle.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
-#include "SkMakeUnique.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPictureRecorder.h"
-#include "SkPixelRef.h"
-#include "SkRRect.h"
-#include "SkShaper.h"
-#include "SkString.h"
-#include "SkSurface.h"
-#include "SkTextBlob.h"
-#include "SkTypeface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkData.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "include/docs/SkPDFDocument.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkImageFilters.h"
+#include "include/private/SkTo.h"
+#include "modules/skshaper/include/SkShaper.h"
+#include "src/core/SkMakeUnique.h"
+#include <new>
 
 extern "C" {
     #include "lua.h"
@@ -53,6 +56,7 @@ template <typename T> const char* get_mtname();
 DEF_MTNAME(SkCanvas)
 DEF_MTNAME(SkColorFilter)
 DEF_MTNAME(DocHolder)
+DEF_MTNAME(SkFont)
 DEF_MTNAME(SkImage)
 DEF_MTNAME(SkImageFilter)
 DEF_MTNAME(SkMatrix)
@@ -408,10 +412,10 @@ static SkColor lua2color(lua_State* L, int index) {
 }
 
 static SkRect* lua2rect(lua_State* L, int index, SkRect* rect) {
-    rect->set(getfield_scalar_default(L, index, "left", 0),
-              getfield_scalar_default(L, index, "top", 0),
-              getfield_scalar(L, index, "right"),
-              getfield_scalar(L, index, "bottom"));
+    rect->setLTRB(getfield_scalar_default(L, index, "left", 0),
+                  getfield_scalar_default(L, index, "top", 0),
+                  getfield_scalar(L, index, "right"),
+                  getfield_scalar(L, index, "bottom"));
     return rect;
 }
 
@@ -553,13 +557,18 @@ static int lcanvas_drawText(lua_State* L) {
         return 0;
     }
 
+    // TODO: restore this logic based on SkFont instead of SkPaint
+#if 0
     if (lua_isstring(L, 2) && lua_isnumber(L, 3) && lua_isnumber(L, 4)) {
         size_t len;
         const char* text = lua_tolstring(L, 2, &len);
-        get_ref<SkCanvas>(L, 1)->drawText(text, len,
-                                          lua2scalar(L, 3), lua2scalar(L, 4),
-                                          *get_obj<SkPaint>(L, 5));
+        get_ref<SkCanvas>(L, 1)->drawSimpleText(
+                text, len, SkTextEncoding::kUTF8,
+                lua2scalar(L, 3), lua2scalar(L, 4),
+                SkFont::LEGACY_ExtractFromPaint(*get_obj<SkPaint>(L, 5)),
+                *get_obj<SkPaint>(L, 5));
     }
+#endif
     return 0;
 }
 
@@ -726,56 +735,6 @@ static int lpaint_setDither(lua_State* L) {
     return 0;
 }
 
-static int lpaint_isFakeBoldText(lua_State* L) {
-    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isFakeBoldText());
-    return 1;
-}
-
-static int lpaint_isLinearText(lua_State* L) {
-    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isLinearText());
-    return 1;
-}
-
-static int lpaint_isSubpixelText(lua_State* L) {
-    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isSubpixelText());
-    return 1;
-}
-
-static int lpaint_setSubpixelText(lua_State* L) {
-    get_obj<SkPaint>(L, 1)->setSubpixelText(lua2bool(L, 2));
-    return 1;
-}
-
-static int lpaint_isDevKernText(lua_State* L) {
-    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isDevKernText());
-    return 1;
-}
-
-static int lpaint_isLCDRenderText(lua_State* L) {
-    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isLCDRenderText());
-    return 1;
-}
-
-static int lpaint_setLCDRenderText(lua_State* L) {
-    get_obj<SkPaint>(L, 1)->setLCDRenderText(lua2bool(L, 2));
-    return 1;
-}
-
-static int lpaint_isEmbeddedBitmapText(lua_State* L) {
-    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isEmbeddedBitmapText());
-    return 1;
-}
-
-static int lpaint_isAutohinted(lua_State* L) {
-    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isAutohinted());
-    return 1;
-}
-
-static int lpaint_isVerticalText(lua_State* L) {
-    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isVerticalText());
-    return 1;
-}
-
 static int lpaint_getAlpha(lua_State* L) {
     SkLua(L).pushScalar(byte2unit(get_obj<SkPaint>(L, 1)->getAlpha()));
     return 1;
@@ -796,41 +755,6 @@ static int lpaint_setColor(lua_State* L) {
     return 0;
 }
 
-static int lpaint_getTextSize(lua_State* L) {
-    SkLua(L).pushScalar(get_obj<SkPaint>(L, 1)->getTextSize());
-    return 1;
-}
-
-static int lpaint_getTextScaleX(lua_State* L) {
-    SkLua(L).pushScalar(get_obj<SkPaint>(L, 1)->getTextScaleX());
-    return 1;
-}
-
-static int lpaint_getTextSkewX(lua_State* L) {
-    SkLua(L).pushScalar(get_obj<SkPaint>(L, 1)->getTextSkewX());
-    return 1;
-}
-
-static int lpaint_setTextSize(lua_State* L) {
-    get_obj<SkPaint>(L, 1)->setTextSize(lua2scalar(L, 2));
-    return 0;
-}
-
-static int lpaint_getTypeface(lua_State* L) {
-    push_ref(L, get_obj<SkPaint>(L, 1)->getTypeface());
-    return 1;
-}
-
-static int lpaint_setTypeface(lua_State* L) {
-    get_obj<SkPaint>(L, 1)->setTypeface(sk_ref_sp(get_ref<SkTypeface>(L, 2)));
-    return 0;
-}
-
-static int lpaint_getHinting(lua_State* L) {
-    SkLua(L).pushU32(get_obj<SkPaint>(L, 1)->getHinting());
-    return 1;
-}
-
 static int lpaint_getFilterQuality(lua_State* L) {
     SkLua(L).pushU32(get_obj<SkPaint>(L, 1)->getFilterQuality());
     return 1;
@@ -840,47 +764,6 @@ static int lpaint_setFilterQuality(lua_State* L) {
     int level = lua2int_def(L, 2, -1);
     if (level >= 0 && level <= 3) {
         get_obj<SkPaint>(L, 1)->setFilterQuality((SkFilterQuality)level);
-    }
-    return 0;
-}
-
-static int lpaint_getFontID(lua_State* L) {
-    SkTypeface* face = get_obj<SkPaint>(L, 1)->getTypeface();
-    SkLua(L).pushU32(SkTypeface::UniqueID(face));
-    return 1;
-}
-
-static const struct {
-    const char*     fLabel;
-    SkPaint::Align  fAlign;
-} gAlignRec[] = {
-    { "left",   SkPaint::kLeft_Align },
-    { "center", SkPaint::kCenter_Align },
-    { "right",  SkPaint::kRight_Align },
-};
-
-static int lpaint_getTextAlign(lua_State* L) {
-    SkPaint::Align align = get_obj<SkPaint>(L, 1)->getTextAlign();
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gAlignRec); ++i) {
-        if (gAlignRec[i].fAlign == align) {
-            lua_pushstring(L, gAlignRec[i].fLabel);
-            return 1;
-        }
-    }
-    return 0;
-}
-
-static int lpaint_setTextAlign(lua_State* L) {
-    if (lua_isstring(L, 2)) {
-        size_t len;
-        const char* label = lua_tolstring(L, 2, &len);
-
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gAlignRec); ++i) {
-            if (!strcmp(gAlignRec[i].fLabel, label)) {
-                get_obj<SkPaint>(L, 1)->setTextAlign(gAlignRec[i].fAlign);
-                break;
-            }
-        }
     }
     return 0;
 }
@@ -912,11 +795,6 @@ static int lpaint_getStrokeJoin(lua_State* L) {
     return 1;
 }
 
-static int lpaint_getTextEncoding(lua_State* L) {
-    SkLua(L).pushU32(get_obj<SkPaint>(L, 1)->getTextEncoding());
-    return 1;
-}
-
 static int lpaint_getStrokeWidth(lua_State* L) {
     SkLua(L).pushScalar(get_obj<SkPaint>(L, 1)->getStrokeWidth());
     return 1;
@@ -932,47 +810,10 @@ static int lpaint_getStrokeMiter(lua_State* L) {
     return 1;
 }
 
-static int lpaint_measureText(lua_State* L) {
-    if (lua_isstring(L, 2)) {
-        size_t len;
-        const char* text = lua_tolstring(L, 2, &len);
-        SkLua(L).pushScalar(get_obj<SkPaint>(L, 1)->measureText(text, len));
-        return 1;
-    }
-    return 0;
-}
-
-struct FontMetrics {
-    SkScalar    fTop;       //!< The greatest distance above the baseline for any glyph (will be <= 0)
-    SkScalar    fAscent;    //!< The recommended distance above the baseline (will be <= 0)
-    SkScalar    fDescent;   //!< The recommended distance below the baseline (will be >= 0)
-    SkScalar    fBottom;    //!< The greatest distance below the baseline for any glyph (will be >= 0)
-    SkScalar    fLeading;   //!< The recommended distance to add between lines of text (will be >= 0)
-    SkScalar    fAvgCharWidth;  //!< the average charactor width (>= 0)
-    SkScalar    fXMin;      //!< The minimum bounding box x value for all glyphs
-    SkScalar    fXMax;      //!< The maximum bounding box x value for all glyphs
-    SkScalar    fXHeight;   //!< the height of an 'x' in px, or 0 if no 'x' in face
-};
-
-static int lpaint_getFontMetrics(lua_State* L) {
-    SkPaint::FontMetrics fm;
-    SkScalar height = get_obj<SkPaint>(L, 1)->getFontMetrics(&fm);
-
-    lua_newtable(L);
-    setfield_scalar(L, "top", fm.fTop);
-    setfield_scalar(L, "ascent", fm.fAscent);
-    setfield_scalar(L, "descent", fm.fDescent);
-    setfield_scalar(L, "bottom", fm.fBottom);
-    setfield_scalar(L, "leading", fm.fLeading);
-    SkLua(L).pushScalar(height);
-    return 2;
-}
-
 static int lpaint_getEffects(lua_State* L) {
     const SkPaint* paint = get_obj<SkPaint>(L, 1);
 
     lua_newtable(L);
-    setfield_bool_if(L, "looper",      !!paint->getLooper());
     setfield_bool_if(L, "pathEffect",  !!paint->getPathEffect());
     setfield_bool_if(L, "maskFilter",  !!paint->getMaskFilter());
     setfield_bool_if(L, "shader",      !!paint->getShader());
@@ -1064,40 +905,17 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
     { "setDither", lpaint_setDither },
     { "getFilterQuality", lpaint_getFilterQuality },
     { "setFilterQuality", lpaint_setFilterQuality },
-    { "isFakeBoldText", lpaint_isFakeBoldText },
-    { "isLinearText", lpaint_isLinearText },
-    { "isSubpixelText", lpaint_isSubpixelText },
-    { "setSubpixelText", lpaint_setSubpixelText },
-    { "isDevKernText", lpaint_isDevKernText },
-    { "isLCDRenderText", lpaint_isLCDRenderText },
-    { "setLCDRenderText", lpaint_setLCDRenderText },
-    { "isEmbeddedBitmapText", lpaint_isEmbeddedBitmapText },
-    { "isAutohinted", lpaint_isAutohinted },
-    { "isVerticalText", lpaint_isVerticalText },
     { "getAlpha", lpaint_getAlpha },
     { "setAlpha", lpaint_setAlpha },
     { "getColor", lpaint_getColor },
     { "setColor", lpaint_setColor },
-    { "getTextSize", lpaint_getTextSize },
-    { "setTextSize", lpaint_setTextSize },
-    { "getTextScaleX", lpaint_getTextScaleX },
-    { "getTextSkewX", lpaint_getTextSkewX },
-    { "getTypeface", lpaint_getTypeface },
-    { "setTypeface", lpaint_setTypeface },
-    { "getHinting", lpaint_getHinting },
-    { "getFontID", lpaint_getFontID },
-    { "getTextAlign", lpaint_getTextAlign },
-    { "setTextAlign", lpaint_setTextAlign },
     { "getStroke", lpaint_getStroke },
     { "setStroke", lpaint_setStroke },
     { "getStrokeCap", lpaint_getStrokeCap },
     { "getStrokeJoin", lpaint_getStrokeJoin },
-    { "getTextEncoding", lpaint_getTextEncoding },
     { "getStrokeWidth", lpaint_getStrokeWidth },
     { "setStrokeWidth", lpaint_setStrokeWidth },
     { "getStrokeMiter", lpaint_getStrokeMiter },
-    { "measureText", lpaint_measureText },
-    { "getFontMetrics", lpaint_getFontMetrics },
     { "getEffects", lpaint_getEffects },
     { "getColorFilter", lpaint_getColorFilter },
     { "setColorFilter", lpaint_setColorFilter },
@@ -1113,10 +931,97 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static const char* mode2string(SkShader::TileMode mode) {
-    static const char* gNames[] = { "clamp", "repeat", "mirror" };
+static int lfont_getSize(lua_State* L) {
+    SkLua(L).pushScalar(get_obj<SkFont>(L, 1)->getSize());
+    return 1;
+}
+
+static int lfont_getScaleX(lua_State* L) {
+    SkLua(L).pushScalar(get_obj<SkFont>(L, 1)->getScaleX());
+    return 1;
+}
+
+static int lfont_getSkewX(lua_State* L) {
+    SkLua(L).pushScalar(get_obj<SkFont>(L, 1)->getSkewX());
+    return 1;
+}
+
+static int lfont_setSize(lua_State* L) {
+    get_obj<SkFont>(L, 1)->setSize(lua2scalar(L, 2));
+    return 0;
+}
+
+static int lfont_getTypeface(lua_State* L) {
+    push_ref(L, get_obj<SkFont>(L, 1)->getTypefaceOrDefault());
+    return 1;
+}
+
+static int lfont_setTypeface(lua_State* L) {
+    get_obj<SkFont>(L, 1)->setTypeface(sk_ref_sp(get_ref<SkTypeface>(L, 2)));
+    return 0;
+}
+
+static int lfont_getHinting(lua_State* L) {
+    SkLua(L).pushU32((unsigned)get_obj<SkFont>(L, 1)->getHinting());
+    return 1;
+}
+
+static int lfont_getFontID(lua_State* L) {
+    SkTypeface* face = get_obj<SkFont>(L, 1)->getTypefaceOrDefault();
+    SkLua(L).pushU32(SkTypeface::UniqueID(face));
+    return 1;
+}
+
+static int lfont_measureText(lua_State* L) {
+    if (lua_isstring(L, 2)) {
+        size_t len;
+        const char* text = lua_tolstring(L, 2, &len);
+        SkLua(L).pushScalar(get_obj<SkFont>(L, 1)->measureText(text, len, SkTextEncoding::kUTF8));
+        return 1;
+    }
+    return 0;
+}
+
+static int lfont_getMetrics(lua_State* L) {
+    SkFontMetrics fm;
+    SkScalar height = get_obj<SkFont>(L, 1)->getMetrics(&fm);
+
+    lua_newtable(L);
+    setfield_scalar(L, "top", fm.fTop);
+    setfield_scalar(L, "ascent", fm.fAscent);
+    setfield_scalar(L, "descent", fm.fDescent);
+    setfield_scalar(L, "bottom", fm.fBottom);
+    setfield_scalar(L, "leading", fm.fLeading);
+    SkLua(L).pushScalar(height);
+    return 2;
+}
+
+static int lfont_gc(lua_State* L) {
+    get_obj<SkFont>(L, 1)->~SkFont();
+    return 0;
+}
+
+static const struct luaL_Reg gSkFont_Methods[] = {
+    { "getSize", lfont_getSize },
+    { "setSize", lfont_setSize },
+    { "getScaleX", lfont_getScaleX },
+    { "getSkewX", lfont_getSkewX },
+    { "getTypeface", lfont_getTypeface },
+    { "setTypeface", lfont_setTypeface },
+    { "getHinting", lfont_getHinting },
+    { "getFontID", lfont_getFontID },
+    { "measureText", lfont_measureText },
+    { "getMetrics", lfont_getMetrics },
+    { "__gc", lfont_gc },
+    { nullptr, nullptr }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+static const char* mode2string(SkTileMode mode) {
+    static const char* gNames[] = { "clamp", "repeat", "mirror", "decal" };
     SkASSERT((unsigned)mode < SK_ARRAY_COUNT(gNames));
-    return gNames[mode];
+    return gNames[static_cast<int>(mode)];
 }
 
 static const char* gradtype2string(SkShader::GradientType t) {
@@ -1136,7 +1041,7 @@ static int lshader_isAImage(lua_State* L) {
     SkShader* shader = get_ref<SkShader>(L, 1);
     if (shader) {
         SkMatrix matrix;
-        SkShader::TileMode modes[2];
+        SkTileMode modes[2];
         if (SkImage* image = shader->isAImage(&matrix, modes)) {
             lua_newtable(L);
             setfield_number(L, "id", image->uniqueID());
@@ -1165,7 +1070,7 @@ static int lshader_asAGradient(lua_State* L) {
 
             lua_newtable(L);
             setfield_string(L,  "type",           gradtype2string(t));
-            setfield_string(L,  "tile",           mode2string(info.fTileMode));
+            setfield_string(L,  "tile",           mode2string((SkTileMode)info.fTileMode));
             setfield_number(L,  "colorCount",     info.fColorCount);
 
             lua_newtable(L);
@@ -1467,7 +1372,7 @@ static int lpath_getVerbs(lua_State* L) {
     bool done = false;
     int i = 0;
     do {
-        switch (iter.next(pts, true)) {
+        switch (iter.next(pts)) {
             case SkPath::kMove_Verb:
                 setarray_string(L, ++i, "move");
                 break;
@@ -1619,7 +1524,7 @@ static int limage_height(lua_State* L) {
 }
 
 static int limage_newShader(lua_State* L) {
-    SkShader::TileMode tmode = SkShader::kClamp_TileMode;
+    SkTileMode tmode = SkTileMode::kClamp;
     const SkMatrix* localM = nullptr;
     push_ref(L, get_ref<SkImage>(L, 1)->makeShader(tmode, tmode, localM));
     return 1;
@@ -1896,7 +1801,7 @@ static int lsk_newDocumentPDF(lua_State* L) {
     if (!file->isValid()) {
         return 0;
     }
-    sk_sp<SkDocument> doc = SkDocument::MakePDF(file.get());
+    auto doc = SkPDF::MakeDocument(file.get());
     if (!doc) {
         return 0;
     }
@@ -1907,7 +1812,7 @@ static int lsk_newDocumentPDF(lua_State* L) {
 static int lsk_newBlurImageFilter(lua_State* L) {
     SkScalar sigmaX = lua2scalar_def(L, 1, 0);
     SkScalar sigmaY = lua2scalar_def(L, 2, 0);
-    sk_sp<SkImageFilter> imf(SkBlurImageFilter::Make(sigmaX, sigmaY, nullptr));
+    sk_sp<SkImageFilter> imf(SkImageFilters::Blur(sigmaX, sigmaY, nullptr));
     if (!imf) {
         lua_pushnil(L);
     } else {
@@ -1926,8 +1831,7 @@ static int lsk_newLinearGradient(lua_State* L) {
 
     SkPoint pts[] = { { x0, y0 }, { x1, y1 } };
     SkColor colors[] = { c0, c1 };
-    sk_sp<SkShader> s(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
-                                                   SkShader::kClamp_TileMode));
+    sk_sp<SkShader> s(SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp));
     if (!s) {
         lua_pushnil(L);
     } else {
@@ -1966,16 +1870,21 @@ static int lsk_newTextBlob(lua_State* L) {
     const char* text = lua_tolstring(L, 1, nullptr);
     SkRect bounds;
     lua2rect(L, 2, &bounds);
+
+    std::unique_ptr<SkShaper> shaper = SkShaper::Make();
+
+    // TODO: restore this logic based on SkFont instead of SkPaint
+#if 0
     const SkPaint& paint = *get_obj<SkPaint>(L, 3);
+    SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
+#else
+    SkFont font;
+#endif
+    SkTextBlobBuilderRunHandler builder(text, { bounds.left(), bounds.top() });
+    shaper->shape(text, strlen(text), font, true, bounds.width(), &builder);
 
-    SkShaper shaper(nullptr);
-
-    SkTextBlobBuilder builder;
-    SkPoint end = shaper.shape(&builder, paint, text, strlen(text), true,
-                               { bounds.left(), bounds.top() }, bounds.width());
-
-    push_ref<SkTextBlob>(L, builder.make());
-    SkLua(L).pushScalar(end.fY);
+    push_ref<SkTextBlob>(L, builder.makeBlob());
+    SkLua(L).pushScalar(builder.endPoint().fY);
     return 2;
 }
 
@@ -2086,6 +1995,7 @@ void SkLua::Load(lua_State* L) {
     REG_CLASS(L, SkCanvas);
     REG_CLASS(L, SkColorFilter);
     REG_CLASS(L, DocHolder);
+    REG_CLASS(L, SkFont);
     REG_CLASS(L, SkImage);
     REG_CLASS(L, SkImageFilter);
     REG_CLASS(L, SkMatrix);

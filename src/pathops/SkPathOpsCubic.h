@@ -8,8 +8,9 @@
 #ifndef SkPathOpsCubic_DEFINED
 #define SkPathOpsCubic_DEFINED
 
-#include "SkPath.h"
-#include "SkPathOpsPoint.h"
+#include "include/core/SkPath.h"
+#include "src/core/SkArenaAlloc.h"
+#include "src/pathops/SkPathOpsTCurve.h"
 
 struct SkDCubicPair;
 
@@ -80,9 +81,12 @@ struct SkDCubic {
     bool hullIntersects(const SkDQuad& c2, bool* isLinear) const;
     bool hullIntersects(const SkDPoint* pts, int ptCount, bool* isLinear) const;
     bool isLinear(int startIndex, int endIndex) const;
+    static int maxIntersections() { return kMaxIntersections; }
     bool monotonicInX() const;
     bool monotonicInY() const;
     void otherPts(int index, const SkDPoint* o1Pts[kPointCount - 1]) const;
+    static int pointCount() { return kPointCount; }
+    static int pointLast() { return kPointLast; }
     SkDPoint ptAtT(double t) const;
     static int RootsReal(double A, double B, double C, double D, double t[3]);
     static int RootsValidT(const double A, const double B, const double C, double D, double s[3]);
@@ -114,6 +118,7 @@ struct SkDCubic {
     }
 
     SkDCubic subDivide(double t1, double t2) const;
+    void subDivide(double t1, double t2, SkDCubic* c) const { *c = this->subDivide(t1, t2); }
 
     static SkDCubic SubDivide(const SkPoint a[kPointCount], double t1, double t2) {
         SkDCubic cubic;
@@ -174,6 +179,62 @@ struct SkDCubicPair {
 #endif
     }
     SkDPoint pts[7];
+};
+
+class SkTCubic : public SkTCurve {
+public:
+    SkDCubic fCubic;
+
+    SkTCubic() {}
+
+    SkTCubic(const SkDCubic& c)
+        : fCubic(c) {
+    }
+
+    ~SkTCubic() override {}
+
+    const SkDPoint& operator[](int n) const override { return fCubic[n]; }
+    SkDPoint& operator[](int n) override { return fCubic[n]; }
+
+    bool collapsed() const override { return fCubic.collapsed(); }
+    bool controlsInside() const override { return fCubic.controlsInside(); }
+    void debugInit() override { return fCubic.debugInit(); }
+#if DEBUG_T_SECT
+    void dumpID(int id) const override { return fCubic.dumpID(id); }
+#endif
+    SkDVector dxdyAtT(double t) const override { return fCubic.dxdyAtT(t); }
+#ifdef SK_DEBUG
+    SkOpGlobalState* globalState() const override { return fCubic.globalState(); }
+#endif
+    bool hullIntersects(const SkDQuad& quad, bool* isLinear) const override;
+    bool hullIntersects(const SkDConic& conic, bool* isLinear) const override;
+
+    bool hullIntersects(const SkDCubic& cubic, bool* isLinear) const override {
+        return cubic.hullIntersects(fCubic, isLinear);
+    }
+
+    bool hullIntersects(const SkTCurve& curve, bool* isLinear) const override {
+        return curve.hullIntersects(fCubic, isLinear);
+    }
+
+    int intersectRay(SkIntersections* i, const SkDLine& line) const override;
+    bool IsConic() const override { return false; }
+    SkTCurve* make(SkArenaAlloc& heap) const override { return heap.make<SkTCubic>(); }
+
+    int maxIntersections() const override { return SkDCubic::kMaxIntersections; }
+
+    void otherPts(int oddMan, const SkDPoint* endPt[2]) const override {
+        fCubic.otherPts(oddMan, endPt);
+    }
+
+    int pointCount() const override { return SkDCubic::kPointCount; }
+    int pointLast() const override { return SkDCubic::kPointLast; }
+    SkDPoint ptAtT(double t) const override { return fCubic.ptAtT(t); }
+    void setBounds(SkDRect* ) const override;
+
+    void subDivide(double t1, double t2, SkTCurve* curve) const override {
+        ((SkTCubic*) curve)->fCubic = fCubic.subDivide(t1, t2);
+    }
 };
 
 #endif

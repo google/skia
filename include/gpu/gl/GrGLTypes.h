@@ -9,8 +9,8 @@
 #ifndef GrGLTypes_DEFINED
 #define GrGLTypes_DEFINED
 
-#include "GrGLConfig.h"
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/gl/GrGLConfig.h"
 
 /**
  * Classifies GL contexts by which standard they implement (currently as OpenGL vs. OpenGL ES).
@@ -19,11 +19,71 @@ enum GrGLStandard {
     kNone_GrGLStandard,
     kGL_GrGLStandard,
     kGLES_GrGLStandard,
+    kWebGL_GrGLStandard,
 };
-static const int kGrGLStandardCnt = 3;
+static const int kGrGLStandardCnt = 4;
+
+// The following allow certain interfaces to be turned off at compile time
+// (for example, to lower code size).
+#if SK_ASSUME_GL_ES
+    #define GR_IS_GR_GL(standard) false
+    #define GR_IS_GR_GL_ES(standard) true
+    #define GR_IS_GR_WEBGL(standard) false
+    #define SK_DISABLE_GL_INTERFACE 1
+    #define SK_DISABLE_WEBGL_INTERFACE 1
+#elif SK_ASSUME_GL
+    #define GR_IS_GR_GL(standard) true
+    #define GR_IS_GR_GL_ES(standard) false
+    #define GR_IS_GR_WEBGL(standard) false
+    #define SK_DISABLE_GL_ES_INTERFACE 1
+    #define SK_DISABLE_WEBGL_INTERFACE 1
+#elif SK_ASSUME_WEBGL
+    #define GR_IS_GR_GL(standard) false
+    #define GR_IS_GR_GL_ES(standard) false
+    #define GR_IS_GR_WEBGL(standard) true
+    #define SK_DISABLE_GL_ES_INTERFACE 1
+    #define SK_DISABLE_GL_INTERFACE 1
+#else
+    #define GR_IS_GR_GL(standard) (kGL_GrGLStandard == standard)
+    #define GR_IS_GR_GL_ES(standard) (kGLES_GrGLStandard == standard)
+    #define GR_IS_GR_WEBGL(standard) (kWebGL_GrGLStandard == standard)
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/**
+ * The supported GL formats represented as an enum. Actual support by GrContext depends on GL
+ * context version and extensions.
+ */
+enum class GrGLFormat {
+    kUnknown,
+
+    kRGBA8,
+    kR8,
+    kALPHA8,
+    kLUMINANCE8,
+    kBGRA8,
+    kRGB565,
+    kRGBA16F,
+    kR16F,
+    kRGB8,
+    kRG8,
+    kRGB10_A2,
+    kRGBA4,
+    kRGBA32F,
+    kSRGB8_ALPHA8,
+    kCOMPRESSED_RGB8_ETC2,
+    kCOMPRESSED_ETC1_RGB8,
+    kR16,
+    kRG16,
+    kRGBA16,
+    kRG16F,
+    kLUMINANCE16F,
+
+    kLast = kLUMINANCE16F
+};
+
+///////////////////////////////////////////////////////////////////////////////
 /**
  * Declares typedefs for all the GL functions used in GrGLInterface
  */
@@ -41,19 +101,15 @@ typedef unsigned char GrGLubyte;
 typedef unsigned short GrGLushort;
 typedef unsigned int GrGLuint;
 typedef uint64_t GrGLuint64;
+typedef unsigned short int GrGLhalf;
 typedef float GrGLfloat;
 typedef float GrGLclampf;
 typedef double GrGLdouble;
 typedef double GrGLclampd;
 typedef void GrGLvoid;
-#ifndef SK_IGNORE_64BIT_OPENGL_CHANGES
 #ifdef _WIN64
 typedef signed long long int GrGLintptr;
 typedef signed long long int GrGLsizeiptr;
-#else
-typedef signed long int GrGLintptr;
-typedef signed long int GrGLsizeiptr;
-#endif
 #else
 typedef signed long int GrGLintptr;
 typedef signed long int GrGLsizeiptr;

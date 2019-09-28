@@ -7,11 +7,11 @@
 #ifndef PathOpsExtendedTest_DEFINED
 #define PathOpsExtendedTest_DEFINED
 
-#include "SkBitmap.h"
-#include "SkPath.h"
-#include "SkPathOpsTypes.h"
-#include "SkStream.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkStream.h"
+#include "src/pathops/SkPathOpsTypes.h"
+#include "tests/Test.h"
 
 struct PathOpsThreadState;
 
@@ -31,6 +31,7 @@ inline int comparePaths(skiatest::Reporter* reporter, const char* filename,
 }
 
 extern bool drawAsciiPaths(const SkPath& one, const SkPath& two, bool drawPaths);
+extern void markTestFlakyForPathKit();
 extern void showOp(const SkPathOp op);
 extern bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
                        const SkPathOp , const char* testName);
@@ -38,15 +39,17 @@ extern bool testPathOpCheck(skiatest::Reporter* reporter, const SkPath& a, const
                             const SkPathOp , const char* testName, bool checkFail);
 extern bool testPathOpFail(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
                            const SkPathOp, const char* testName);
-extern bool testPathOpFuzz(skiatest::Reporter* reporter, const SkPath& a,
-                           const SkPath& b, const SkPathOp , const char* testName);
+extern bool testPathOpFuzz(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
+                           const SkPathOp , const char* testName);
 extern bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& state,
                          const char* pathStr);
 extern bool testSimplify(skiatest::Reporter* reporter, const SkPath& path, const char* filename);
 extern bool testSimplifyCheck(skiatest::Reporter* reporter, const SkPath& path,
                               const char* filename, bool checkFail);
+extern bool testSimplifyFail(skiatest::Reporter* reporter, const SkPath& path,
+                             const char* filename);
 extern bool testSimplifyFuzz(skiatest::Reporter* reporter, const SkPath& path,
-                                       const char* filename);
+                             const char* filename);
 
 void initializeTests(skiatest::Reporter* reporter, const char* testName);
 

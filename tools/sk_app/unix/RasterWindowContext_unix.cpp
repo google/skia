@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "WindowContextFactory_unix.h"
-#include "../RasterWindowContext.h"
-#include "SkSurface.h"
+#include "include/core/SkSurface.h"
+#include "tools/sk_app/RasterWindowContext.h"
+#include "tools/sk_app/unix/WindowContextFactory_unix.h"
 
 using sk_app::RasterWindowContext;
 using sk_app::DisplayParams;
@@ -90,11 +90,11 @@ void RasterWindowContext_xlib::swapBuffers() {
 namespace sk_app {
 namespace window_context_factory {
 
-WindowContext* NewRasterForXlib(const XlibWindowInfo& info, const DisplayParams& params) {
-    WindowContext* ctx = new RasterWindowContext_xlib(info.fDisplay, info.fWindow, info.fWidth,
-                                                      info.fHeight, params);
+std::unique_ptr<WindowContext> MakeRasterForXlib(const XlibWindowInfo& info,
+                                                 const DisplayParams& params) {
+    std::unique_ptr<WindowContext> ctx(new RasterWindowContext_xlib(
+            info.fDisplay, info.fWindow, info.fWidth, info.fHeight, params));
     if (!ctx->isValid()) {
-        delete ctx;
         ctx = nullptr;
     }
     return ctx;

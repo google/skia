@@ -5,12 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkAnimTimer.h"
-#include "SkView.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkString.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkString.h"
+#include "include/effects/SkGradientShader.h"
+#include "samplecode/Sample.h"
 
 static void draw_gradient2(SkCanvas* canvas, const SkRect& rect, SkScalar delta) {
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorMAGENTA };
@@ -30,12 +29,12 @@ static void draw_gradient2(SkCanvas* canvas, const SkRect& rect, SkScalar delta)
     SkPaint paint;
     paint.setShader(SkGradientShader::MakeTwoPointConical(c0, r0, c1, r1, colors,
                                                           pos, SK_ARRAY_COUNT(pos),
-                                                          SkShader::kClamp_TileMode));
+                                                          SkTileMode::kClamp));
     canvas->drawRect(rect, paint);
 }
 
 
-class DegenerateTwoPtRadialsView : public SampleView {
+class DegenerateTwoPtRadialsView : public Sample {
 public:
     DegenerateTwoPtRadialsView() {
         fTime = 0;
@@ -43,13 +42,7 @@ public:
     }
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "DegenerateTwoPtRadials");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("DegenerateTwoPtRadials"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         SkScalar delta = fTime / 15.f;
@@ -69,23 +62,20 @@ protected:
         draw_gradient2(canvas, SkRect::MakeXYWH(l, t, w, h), delta);
         SkString txt;
         txt.appendf("gap at \"tangent\" pt = %f", SkScalarToFloat(delta));
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setColor(SK_ColorBLACK);
-        canvas->drawString(txt, l + w/2 + w*DELTA_SCALE*delta, t + h + SK_Scalar1 * 10, paint);
+        canvas->drawString(txt, l + w / 2 + w * DELTA_SCALE * delta, t + h + SK_Scalar1 * 10,
+                           SkFont(), SkPaint());
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
-        fTime = SkDoubleToScalar(timer.secs() / 15);
+    bool onAnimate(double nanos) override {
+        fTime = SkDoubleToScalar(1e-9 * nanos / 15);
         return true;
     }
 
 private:
     SkScalar           fTime;
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new DegenerateTwoPtRadialsView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new DegenerateTwoPtRadialsView(); )

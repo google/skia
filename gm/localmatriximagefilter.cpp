@@ -5,19 +5,26 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkBlurImageFilter.h"
-#include "SkColorFilterImageFilter.h"
-#include "SkModeColorFilter.h"
-#include "SkMorphologyImageFilter.h"
-#include "SkOffsetImageFilter.h"
-#include "SkSurface.h"
-#include "sk_tool_utils.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkImageFilters.h"
+#include "tools/ToolUtils.h"
+
+#include <utility>
 
 static sk_sp<SkImage> make_image(SkCanvas* rootCanvas) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
-    auto surface(sk_tool_utils::makeSurface(rootCanvas, info));
+    auto        surface(ToolUtils::makeSurface(rootCanvas, info));
 
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -40,20 +47,15 @@ static void show_image(SkCanvas* canvas, SkImage* image, sk_sp<SkImageFilter> fi
 
 typedef sk_sp<SkImageFilter> (*ImageFilterFactory)();
 
-// +[]{...} did not work on windows (VS)
-// (ImageFilterFactory)[]{...} did not work on linux (gcc)
-// hence this cast function
-template <typename T> ImageFilterFactory IFCCast(T arg) { return arg; }
-
 // Show the effect of localmatriximagefilter with various matrices, on various filters
 DEF_SIMPLE_GM(localmatriximagefilter, canvas, 640, 640) {
     sk_sp<SkImage> image0(make_image(canvas));
 
     const ImageFilterFactory factories[] = {
-        IFCCast([]{ return SkBlurImageFilter::Make(8, 8, nullptr); }),
-        IFCCast([]{ return SkDilateImageFilter::Make(8, 8, nullptr); }),
-        IFCCast([]{ return SkErodeImageFilter::Make(8, 8, nullptr); }),
-        IFCCast([]{ return SkOffsetImageFilter::Make(8, 8, nullptr); }),
+        []{ return SkImageFilters::Blur(8, 8, nullptr); },
+        []{ return SkImageFilters::Dilate(8, 8, nullptr); },
+        []{ return SkImageFilters::Erode(8, 8, nullptr); },
+        []{ return SkImageFilters::Offset(8, 8, nullptr); },
     };
 
     const SkMatrix matrices[] = {

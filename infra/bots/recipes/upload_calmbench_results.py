@@ -10,7 +10,6 @@ import calendar
 
 
 DEPS = [
-  'core',
   'flavor',
   'recipe_engine/context',
   'recipe_engine/file',

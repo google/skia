@@ -8,9 +8,9 @@
 #ifndef SKSL_FUNCTIONDEFINITION
 #define SKSL_FUNCTIONDEFINITION
 
-#include "SkSLBlock.h"
-#include "SkSLFunctionDeclaration.h"
-#include "SkSLProgramElement.h"
+#include "src/sksl/ir/SkSLBlock.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
 
 namespace SkSL {
 
@@ -23,6 +23,11 @@ struct FunctionDefinition : public ProgramElement {
     : INHERITED(offset, kFunction_Kind)
     , fDeclaration(declaration)
     , fBody(std::move(body)) {}
+
+    std::unique_ptr<ProgramElement> clone() const override {
+        return std::unique_ptr<ProgramElement>(new FunctionDefinition(fOffset, fDeclaration,
+                                                                      fBody->clone()));
+    }
 
     String description() const override {
         return fDeclaration.description() + " " + fBody->description();

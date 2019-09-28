@@ -8,18 +8,19 @@
 #ifndef GrTestUtils_DEFINED
 #define GrTestUtils_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #if GR_TEST_UTILS
 
-#include "../private/SkTemplates.h"
-#include "GrColor.h"
-#include "GrFPArgs.h"
-#include "GrSamplerState.h"
-#include "SkPathEffect.h"
-#include "SkRandom.h"
-#include "SkShaderBase.h"
-#include "SkStrokeRec.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/private/SkMacros.h"
+#include "include/private/SkTemplates.h"
+#include "include/utils/SkRandom.h"
+#include "src/gpu/GrColor.h"
+#include "src/gpu/GrFPArgs.h"
+#include "src/gpu/GrSamplerState.h"
+#include "src/shaders/SkShaderBase.h"
 
 class GrColorSpaceInfo;
 class GrColorSpaceXform;
@@ -71,10 +72,12 @@ public:
         return sk_sp<SkPathEffect>(new TestDashPathEffect(intervals, count, phase));
     }
 
-    bool filterPath(SkPath* dst, const SkPath&, SkStrokeRec* , const SkRect*) const override;
-    DashType asADash(DashInfo* info) const override;
     Factory getFactory() const override { return nullptr; }
-    void toString(SkString*) const override {}
+    const char* getTypeName() const override { return nullptr; }
+
+protected:
+    bool onFilterPath(SkPath* dst, const SkPath&, SkStrokeRec* , const SkRect*) const override;
+    DashType onAsADash(DashInfo* info) const override;
 
 private:
     TestDashPathEffect(const SkScalar* intervals, int count, SkScalar phase);
@@ -123,7 +126,6 @@ static inline GrColor GrRandomColor(SkRandom* random) {
             break;
         }
     }
-    GrColorIsPMAssert(color);
     return color;
 }
 

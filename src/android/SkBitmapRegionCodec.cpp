@@ -5,11 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkAndroidCodec.h"
-#include "SkBitmapRegionCodec.h"
-#include "SkBitmapRegionDecoderPriv.h"
-#include "SkCodecPriv.h"
-#include "SkPixelRef.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "src/android/SkBitmapRegionCodec.h"
+#include "src/android/SkBitmapRegionDecoderPriv.h"
+#include "src/codec/SkCodecPriv.h"
 
 SkBitmapRegionCodec::SkBitmapRegionCodec(SkAndroidCodec* codec)
     : INHERITED(codec->getInfo().width(), codec->getInfo().height())
@@ -106,10 +105,14 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
 
     SkCodec::Result result = fCodec->getAndroidPixels(decodeInfo, dst, bitmap->rowBytes(),
             &options);
-    if (SkCodec::kSuccess != result && SkCodec::kIncompleteInput != result) {
-        SkCodecPrintf("Error: Could not get pixels.\n");
-        return false;
+    switch (result) {
+        case SkCodec::kSuccess:
+        case SkCodec::kIncompleteInput:
+        case SkCodec::kErrorInInput:
+            return true;
+        default:
+            SkCodecPrintf("Error: Could not get pixels with message \"%s\".\n",
+                          SkCodec::ResultToString(result));
+            return false;
     }
-
-    return true;
 }

@@ -5,59 +5,49 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkArenaAlloc.h"
 #include <algorithm>
-#include <cstddef>
-#include "SkArenaAlloc.h"
-#include "SkTypes.h"
+#include <new>
 
 static char* end_chain(char*) { return nullptr; }
 
-SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t extraSize, Tracking tracking)
+static uint32_t first_allocated_block(uint32_t blockSize, uint32_t firstHeapAllocation) {
+    return firstHeapAllocation > 0 ? firstHeapAllocation :
+           blockSize           > 0 ? blockSize           : 1024;
+}
+
+SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t firstHeapAllocation)
     : fDtorCursor {block}
     , fCursor     {block}
-    , fEnd        {block + SkTo<uint32_t>(size)}
+    , fEnd        {block + ToU32(size)}
     , fFirstBlock {block}
-    , fFirstSize  {SkTo<uint32_t>(size)}
-    , fExtraSize  {SkTo<uint32_t>(extraSize)}
+    , fFirstSize  {ToU32(size)}
+    , fFirstHeapAllocationSize  {first_allocated_block(ToU32(size), ToU32(firstHeapAllocation))}
 {
     if (size < sizeof(Footer)) {
         fEnd = fCursor = fDtorCursor = nullptr;
     }
 
-    if (tracking == kTrack) {
-        fTotalSlop = 0;
-    }
-
     if (fCursor != nullptr) {
         this->installFooter(end_chain, 0);
-        if (fTotalSlop >= 0) {
-            fTotalAlloc += fFirstSize;
-        }
     }
 }
 
 SkArenaAlloc::~SkArenaAlloc() {
-    if (fTotalSlop >= 0) {
-        int32_t lastSlop = fEnd - fCursor;
-        fTotalSlop += lastSlop;
-        SkDebugf("SkArenaAlloc initial: %p %u %u total alloc: %u total slop: %d last slop: %d\n",
-            fFirstBlock, fFirstSize, fExtraSize, fTotalAlloc, fTotalSlop, lastSlop);
-    }
     RunDtorsOnBlock(fDtorCursor);
 }
 
 void SkArenaAlloc::reset() {
     this->~SkArenaAlloc();
-    new (this) SkArenaAlloc{fFirstBlock, fFirstSize, fExtraSize,
-                            fTotalSlop < 0 ? kDontTrack : kTrack};
+    new (this) SkArenaAlloc{fFirstBlock, fFirstSize, fFirstHeapAllocationSize};
 }
 
 void SkArenaAlloc::installFooter(FooterAction* action, uint32_t padding) {
-    SkASSERT(padding < 64);
+    assert(padding < 64);
     int64_t actionInt = (int64_t)(intptr_t)action;
 
     // The top 14 bits should be either all 0s or all 1s. Check this.
-    SkASSERT((actionInt << 6) >> 6 == actionInt);
+    assert((actionInt << 6) >> 6 == actionInt);
     Footer encodedFooter = (actionInt << 6) | padding;
     memmove(fCursor, &encodedFooter, sizeof(Footer));
     fCursor += sizeof(Footer);
@@ -112,17 +102,17 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
     constexpr uint32_t alignof_max_align_t = 8;
     constexpr uint32_t maxSize = std::numeric_limits<uint32_t>::max();
     constexpr uint32_t overhead = headerSize + sizeof(Footer);
-    SkASSERT_RELEASE(size <= maxSize - overhead);
+    AssertRelease(size <= maxSize - overhead);
     uint32_t objSizeAndOverhead = size + overhead;
     if (alignment > alignof_max_align_t) {
         uint32_t alignmentOverhead = alignment - 1;
-        SkASSERT_RELEASE(objSizeAndOverhead <= maxSize - alignmentOverhead);
+        AssertRelease(objSizeAndOverhead <= maxSize - alignmentOverhead);
         objSizeAndOverhead += alignmentOverhead;
     }
 
     uint32_t minAllocationSize;
-    if (fExtraSize <= maxSize / fFib0) {
-        minAllocationSize = fExtraSize * fFib0;
+    if (fFirstHeapAllocationSize <= maxSize / fFib0) {
+        minAllocationSize = fFirstHeapAllocationSize * fFib0;
         fFib0 += fFib1;
         std::swap(fFib0, fFib1);
     } else {
@@ -134,16 +124,11 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
     // heuristic is from the JEMalloc behavior.
     {
         uint32_t mask = allocationSize > (1 << 15) ? (1 << 12) - 1 : 16 - 1;
-        SkASSERT_RELEASE(allocationSize <= maxSize - mask);
+        AssertRelease(allocationSize <= maxSize - mask);
         allocationSize = (allocationSize + mask) & ~mask;
     }
 
     char* newBlock = new char[allocationSize];
-
-    if (fTotalSlop >= 0) {
-        fTotalAlloc += allocationSize;
-        fTotalSlop += fEnd - fCursor;
-    }
 
     auto previousDtor = fDtorCursor;
     fCursor = newBlock;
@@ -169,14 +154,13 @@ restart:
         goto restart;
     }
 
-    SkASSERT((ptrdiff_t)totalSize <= fEnd - objStart);
+    AssertRelease((ptrdiff_t)totalSize <= fEnd - objStart);
 
     // Install a skip footer if needed, thus terminating a run of POD data. The calling code is
     // responsible for installing the footer after the object.
     if (needsSkipFooter) {
-        this->installUint32Footer(SkipPod, SkTo<uint32_t>(fCursor - fDtorCursor), 0);
+        this->installUint32Footer(SkipPod, ToU32(fCursor - fDtorCursor), 0);
     }
 
     return objStart;
 }
-

@@ -6,17 +6,14 @@
  */
 
 
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkPaint.h"
-#include "SkSurface.h"
-#include "SkTableColorFilter.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkTableColorFilter.h"
 
-#include "Resources.h"
-#include "Test.h"
-
-#if SK_SUPPORT_GPU // These are all GPU-backend specific tests
-
+#include "tests/Test.h"
+#include "tools/Resources.h"
 
 // The gradient shader will use the texture strip atlas if it has too many colors. Make sure
 // abandoning the context works.
@@ -36,7 +33,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureStripAtlasManagerGradientTest, reporte
                                                       gColors,
                                                       gPos,
                                                       7,
-                                                      SkShader::kClamp_TileMode));
+                                                      SkTileMode::kClamp));
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
     auto surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));
@@ -72,5 +69,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureStripAtlasManagerColorFilterTest, repo
 
     context->abandonContext();
 }
-
-#endif

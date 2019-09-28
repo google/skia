@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorFilter.h"
-#include "SkFlattenable.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkFlattenable.h"
 
 #ifndef SkOverdrawColorFilter_DEFINED
 #define SkOverdrawColorFilter_DEFINED
@@ -29,24 +29,22 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrContext*, const GrColorSpaceInfo&) const override;
+            GrRecordingContext*, const GrColorSpaceInfo&) const override;
 #endif
 
-    void toString(SkString* str) const override;
-
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer);
-    Factory getFactory() const override { return CreateProc; }
-    static void InitializeFlattenables();
+    static void RegisterFlattenables();
 
 protected:
     void flatten(SkWriteBuffer& buffer) const override;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkOverdrawColorFilter)
+
     SkOverdrawColorFilter(const SkPMColor colors[kNumColors]) {
         memcpy(fColors, colors, kNumColors * sizeof(SkPMColor));
     }
 
-    void onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*, bool) const override;
+    bool onAppendStages(const SkStageRec&, bool) const override;
 
     SkPMColor fColors[kNumColors];
 

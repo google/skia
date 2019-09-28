@@ -10,13 +10,13 @@
 #ifndef SkDraw_DEFINED
 #define SkDraw_DEFINED
 
-#include "SkCanvas.h"
-#include "SkMask.h"
-#include "SkPaint.h"
-#include "SkPixmap.h"
-#include "SkStrokeRec.h"
-#include "SkVertices.h"
-#include "SkScalerContext.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/core/SkVertices.h"
+#include "src/core/SkGlyphRunPainter.h"
+#include "src/core/SkMask.h"
 
 class SkBitmap;
 class SkClipStack;
@@ -26,12 +26,10 @@ class SkMatrix;
 class SkPath;
 class SkRegion;
 class SkRasterClip;
-struct SkDrawProcs;
 struct SkRect;
 class SkRRect;
-struct SkInitOnceData;
 
-class SkDraw {
+class SkDraw : public SkGlyphRunListPainter::BitmapDevicePainter {
 public:
     SkDraw();
 
@@ -62,16 +60,16 @@ public:
     void    drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
                        const SkPaint&) const;
     void    drawSprite(const SkBitmap&, int x, int y, const SkPaint&) const;
-    void    drawText(const char text[], size_t byteLength, SkScalar x,
-                     SkScalar y, const SkPaint& paint, const SkSurfaceProps*) const;
-    void    drawPosText(const char text[], size_t byteLength,
-                        const SkScalar pos[], int scalarsPerPosition,
-                        const SkPoint& offset, const SkPaint&, const SkSurfaceProps*) const;
-    void    drawVertices(SkVertices::VertexMode mode, int count,
+    void    drawGlyphRunList(const SkGlyphRunList& glyphRunList,
+                             SkGlyphRunListPainter* glyphPainter) const;
+    void    drawVertices(SkVertices::VertexMode mode, int vertexCount,
                          const SkPoint vertices[], const SkPoint textures[],
-                         const SkColor colors[], SkBlendMode bmode,
+                         const SkColor colors[], const SkVertices::BoneIndices boneIndices[],
+                         const SkVertices::BoneWeights boneWeights[], SkBlendMode bmode,
                          const uint16_t indices[], int ptCount,
-                         const SkPaint& paint) const;
+                         const SkPaint& paint, const SkVertices::Bone bones[], int boneCount) const;
+    void  drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int count,
+                    SkBlendMode, const SkPaint&);
 
     /**
      *  Overwrite the target with the path's coverage (i.e. its mask).
@@ -85,6 +83,16 @@ public:
                           paint.getStrokeWidth() > 0;
         this->drawPath(src, paint, nullptr, false, !isHairline, customBlitter);
     }
+
+    void paintPaths(SkSpan<const SkPathPos> pathsAndPositions,
+                    SkScalar scale,
+                    const SkPaint& paint) const override;
+
+    void paintMasks(SkSpan<const SkMask> masks, const SkPaint& paint) const override;
+
+    static bool ComputeMaskBounds(const SkRect& devPathBounds, const SkIRect* clipBounds,
+                                  const SkMaskFilter* filter, const SkMatrix* filterMatrix,
+                                  SkIRect* bounds);
 
     /** Helper function that creates a mask from a path and an optional maskfilter.
         Note however, that the resulting mask will not have been actually filtered,
@@ -116,23 +124,25 @@ public:
     static RectType ComputeRectType(const SkPaint&, const SkMatrix&,
                                     SkPoint* strokeSize);
 
-    static bool ShouldDrawTextAsPaths(const SkPaint&, const SkMatrix&, SkScalar sizeLimit = 1024);
-    void        drawText_asPaths(const char text[], size_t byteLength, SkScalar x, SkScalar y,
-                                 const SkPaint&) const;
-    void        drawPosText_asPaths(const char text[], size_t byteLength, const SkScalar pos[],
-                                    int scalarsPerPosition, const SkPoint& offset,
-                                    const SkPaint&, const SkSurfaceProps*) const;
     static SkScalar ComputeResScaleForStroking(const SkMatrix& );
-private:
-    void    drawBitmapAsMask(const SkBitmap&, const SkPaint&) const;
 
-    void    drawPath(const SkPath&, const SkPaint&, const SkMatrix* preMatrix,
-                     bool pathIsMutable, bool drawCoverage,
-                     SkBlitter* customBlitter = nullptr, SkInitOnceData* iData = nullptr) const;
+private:
+    void drawBitmapAsMask(const SkBitmap&, const SkPaint&) const;
+
+    void drawPath(const SkPath&,
+                  const SkPaint&,
+                  const SkMatrix* preMatrix,
+                  bool pathIsMutable,
+                  bool drawCoverage,
+                  SkBlitter* customBlitter = nullptr) const;
 
     void drawLine(const SkPoint[2], const SkPaint&) const;
-    void drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawCoverage,
-                     SkBlitter* customBlitter, bool doFill, SkInitOnceData* iData = nullptr) const;
+
+    void drawDevPath(const SkPath& devPath,
+                     const SkPaint& paint,
+                     bool drawCoverage,
+                     SkBlitter* customBlitter,
+                     bool doFill) const;
     /**
      *  Return the current clip bounds, in local coordinates, with slop to account
      *  for antialiasing or hairlines (i.e. device-bounds outset by 1, and then
@@ -141,27 +151,21 @@ private:
      *  If the matrix cannot be inverted, or the current clip is empty, return
      *  false and ignore bounds parameter.
      */
-    bool SK_WARN_UNUSED_RESULT
-    computeConservativeLocalClipBounds(SkRect* bounds) const;
-
-    /** Returns the current setting for using fake gamma and contrast. */
-    SkScalerContextFlags SK_WARN_UNUSED_RESULT scalerContextFlags() const;
+    bool SK_WARN_UNUSED_RESULT computeConservativeLocalClipBounds(SkRect* bounds) const;
 
 public:
     SkPixmap        fDst;
-    const SkMatrix* fMatrix;        // required
-    const SkRasterClip* fRC;        // required
+    const SkMatrix* fMatrix{nullptr};        // required
+    const SkRasterClip* fRC{nullptr};        // required
 
     // optional, will be same dimensions as fDst if present
-    const SkPixmap* fCoverage = nullptr;
+    const SkPixmap* fCoverage{nullptr};
 
 #ifdef SK_DEBUG
     void validate() const;
 #else
     void validate() const {}
 #endif
-
-    friend class SkThreadedBMPDevice; // to access private method drawPath
 };
 
 #endif

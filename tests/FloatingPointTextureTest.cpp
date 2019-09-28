@@ -12,16 +12,16 @@
  * have been selected to require 32 bits of precision and full IEEE conformance
  */
 
-#include <float.h>
-#include "Test.h"
+#include "tests/Test.h"
 
-#if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrProxyProvider.h"
-#include "GrTextureProxy.h"
-#include "ProxyUtils.h"
-#include "SkHalf.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/SkHalf.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrTextureProxy.h"
+#include "tools/gpu/ProxyUtils.h"
+
+#include <float.h>
 
 static const int DEV_W = 100, DEV_H = 100;
 
@@ -46,40 +46,24 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context, T min, T max, T
     }
 
     for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
-        auto fpProxy = sk_gpu_test::MakeTextureProxyFromData(context, true, DEV_W, DEV_H, colorType,
+        auto fpProxy = sk_gpu_test::MakeTextureProxyFromData(context, GrRenderable::kYes, DEV_W,
+                                                             DEV_H, colorType, kPremul_SkAlphaType,
                                                              origin, controlPixelData.begin(), 0);
         // Floating point textures are NOT supported everywhere
         if (!fpProxy) {
             continue;
         }
 
-        sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
-                                                                            std::move(fpProxy));
+        auto sContext = context->priv().makeWrappedSurfaceContext(std::move(fpProxy), colorType,
+                                                                  kPremul_SkAlphaType);
         REPORTER_ASSERT(reporter, sContext);
 
-        bool result = context->contextPriv().readSurfacePixels(
-                sContext.get(), 0, 0, DEV_W, DEV_H, colorType, nullptr, readBuffer.begin(), 0);
+        bool result = sContext->readPixels({colorType, kPremul_SkAlphaType, nullptr, DEV_W, DEV_H},
+                                           readBuffer.begin(), 0, {0, 0}, context);
         REPORTER_ASSERT(reporter, result);
         REPORTER_ASSERT(reporter,
                         0 == memcmp(readBuffer.begin(), controlPixelData.begin(), readBuffer.bytes()));
     }
-}
-
-static const int RGBA32F_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 4;
-static const float kMaxIntegerRepresentableInSPFloatingPoint = 16777216;  // 2 ^ 24
-
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FloatingPointTextureTest, reporter, ctxInfo) {
-    runFPTest<float>(reporter, ctxInfo.grContext(), FLT_MIN, FLT_MAX, FLT_EPSILON,
-                     kMaxIntegerRepresentableInSPFloatingPoint, RGBA32F_CONTROL_ARRAY_SIZE,
-                     GrColorType::kRGBA_F32);
-}
-
-static const int RG32F_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 2;
-
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FloatingPointTextureTest_RG, reporter, ctxInfo) {
-    runFPTest<float>(reporter, ctxInfo.grContext(), FLT_MIN, FLT_MAX, FLT_EPSILON,
-                     kMaxIntegerRepresentableInSPFloatingPoint, RG32F_CONTROL_ARRAY_SIZE,
-                     GrColorType::kRG_F32);
 }
 
 static const int HALF_ALPHA_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 1 /*alpha-only*/;
@@ -98,5 +82,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatRGBATextureTest, reporter, ctxInfo) 
                       kMaxIntegerRepresentableInHalfFloatingPoint, HALF_RGBA_CONTROL_ARRAY_SIZE,
                       GrColorType::kRGBA_F16);
 }
-
-#endif

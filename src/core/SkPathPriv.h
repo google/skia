@@ -8,7 +8,7 @@
 #ifndef SkPathPriv_DEFINED
 #define SkPathPriv_DEFINED
 
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 
 class SkPathPriv {
 public:
@@ -18,7 +18,7 @@ public:
     static const int kPathRefGenIDBitCnt = 32;
 #endif
 
-    enum FirstDirection {
+    enum FirstDirection : int {
         kCW_FirstDirection,         // == SkPath::kCW_Direction
         kCCW_FirstDirection,        // == SkPath::kCCW_Direction
         kUnknown_FirstDirection,
@@ -86,8 +86,9 @@ public:
         return false;
     }
 
-    static void AddGenIDChangeListener(const SkPath& path, SkPathRef::GenIDChangeListener* listener) {
-        path.fPathRef->addGenIDChangeListener(listener);
+    static void AddGenIDChangeListener(const SkPath& path,
+                                       sk_sp<SkPathRef::GenIDChangeListener> listener) {
+        path.fPathRef->addGenIDChangeListener(std::move(listener));
     }
 
     /**
@@ -158,6 +159,17 @@ public:
         return path.fPathRef->conicWeights();
     }
 
+#ifndef SK_LEGACY_PATH_CONVEXITY
+    /** Returns true if path formed by pts is convex.
+
+        @param pts    SkPoint array of path
+        @param count  number of entries in array
+
+        @return       true if pts represent a convex geometry
+    */
+    static bool IsConvex(const SkPoint pts[], int count);
+#endif
+
     /** Returns true if the underlying SkPathRef has one single owner. */
     static bool TestingOnly_unique(const SkPath& path) {
         return path.fPathRef->unique();
@@ -218,10 +230,6 @@ public:
         return result;
     }
 
-    // For crbug.com/821353 and skbug.com/6886
-    static bool IsBadForDAA(const SkPath& path) { return path.fIsBadForDAA; }
-    static void SetIsBadForDAA(SkPath& path, bool isBadForDAA) { path.fIsBadForDAA = isBadForDAA; }
-
     /**
      *  Sometimes in the drawing pipeline, we have to perform math on path coordinates, even after
      *  the path is in device-coordinates. Tessellation and clipping are two examples. Usually this
@@ -258,6 +266,117 @@ public:
 
         SkASSERT(verb < SK_ARRAY_COUNT(gPtsInVerb));
         return gPtsInVerb[verb];
+    }
+
+    static bool IsAxisAligned(const SkPath& path) {
+        SkRect tmp;
+        return (path.fPathRef->fIsRRect | path.fPathRef->fIsOval) || path.isRect(&tmp);
+    }
+
+    static bool AllPointsEq(const SkPoint pts[], int count) {
+        for (int i = 1; i < count; ++i) {
+            if (pts[0] != pts[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+
+// Lightweight variant of SkPath::Iter that only returns segments (e.g. lines/conics).
+// Does not return kMove or kClose.
+// Always "auto-closes" each contour.
+// Roughly the same as SkPath::Iter(path, true), but does not return moves or closes
+//
+class SkPathEdgeIter {
+    const uint8_t*  fVerbsStart;
+    const uint8_t*  fVerbs; // reverse
+    const SkPoint*  fPts;
+    const SkPoint*  fMoveToPtr;
+    const SkScalar* fConicWeights;
+    SkPoint         fScratch[2];    // for auto-close lines
+    bool            fNeedsCloseLine;
+    SkDEBUGCODE(bool fIsConic);
+
+    enum {
+        kIllegalEdgeValue = 99
+    };
+
+public:
+    SkPathEdgeIter(const SkPath& path);
+
+    SkScalar conicWeight() const {
+        SkASSERT(fIsConic);
+        return *fConicWeights;
+    }
+
+    enum class Edge {
+        kLine  = SkPath::kLine_Verb,
+        kQuad  = SkPath::kQuad_Verb,
+        kConic = SkPath::kConic_Verb,
+        kCubic = SkPath::kCubic_Verb,
+    };
+
+    static SkPath::Verb EdgeToVerb(Edge e) {
+        return SkPath::Verb(e);
+    }
+
+    struct Result {
+        const SkPoint*  fPts;   // points for the segment, or null if done
+        Edge            fEdge;
+
+        // Returns true when it holds an Edge, false when the path is done.
+        operator bool() { return fPts != nullptr; }
+    };
+
+    Result next() {
+        auto closeline = [&]() {
+            fScratch[0] = fPts[-1];
+            fScratch[1] = *fMoveToPtr;
+            fNeedsCloseLine = false;
+            return Result{ fScratch, Edge::kLine };
+        };
+
+        for (;;) {
+            SkASSERT(fVerbs >= fVerbsStart);
+            if (fVerbs == fVerbsStart) {
+                return fNeedsCloseLine
+                    ? closeline()
+                    : Result{ nullptr, Edge(kIllegalEdgeValue) };
+            }
+
+            SkDEBUGCODE(fIsConic = false;)
+
+            const auto v = *--fVerbs;
+            switch (v) {
+                case SkPath::kMove_Verb: {
+                    if (fNeedsCloseLine) {
+                        auto res = closeline();
+                        fMoveToPtr = fPts++;
+                        return res;
+                    }
+                    fMoveToPtr = fPts++;
+                } break;
+                case SkPath::kClose_Verb:
+                    if (fNeedsCloseLine) return closeline();
+                    break;
+                default: {
+                    // Actual edge.
+                    const int pts_count = (v+2) / 2,
+                              cws_count = (v & (v-1)) / 2;
+                    SkASSERT(pts_count == SkPathPriv::PtsInIter(v) - 1);
+
+                    fNeedsCloseLine = true;
+                    fPts           += pts_count;
+                    fConicWeights  += cws_count;
+
+                    SkDEBUGCODE(fIsConic = (v == SkPath::kConic_Verb);)
+                    SkASSERT(fIsConic == (cws_count > 0));
+
+                    return { &fPts[-(pts_count + 1)], Edge(v) };
+                }
+            }
+        }
     }
 };
 

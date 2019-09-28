@@ -4,11 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkIntersections.h"
-#include "SkLineParameters.h"
-#include "SkPathOpsCubic.h"
-#include "SkPathOpsCurve.h"
-#include "SkPathOpsQuad.h"
+#include "src/pathops/SkIntersections.h"
+#include "src/pathops/SkLineParameters.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsCurve.h"
+#include "src/pathops/SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsRect.h"
 
 // from blackpawn.com/texts/pointinpoly
 static bool pointInTriangle(const SkDPoint fPts[3], const SkDPoint& test) {
@@ -396,4 +397,20 @@ void SkDQuad::SetABC(const double* quad, double* a, double* b, double* c) {
     *b -= *c;          // b =     2*B -   C
     *a -= *b;          // a = A - 2*B +   C
     *b -= *c;          // b =     2*B - 2*C
+}
+
+int SkTQuad::intersectRay(SkIntersections* i, const SkDLine& line) const {
+    return i->intersectRay(fQuad, line);
+}
+
+bool SkTQuad::hullIntersects(const SkDConic& conic, bool* isLinear) const  {
+    return conic.hullIntersects(fQuad, isLinear);
+}
+
+bool SkTQuad::hullIntersects(const SkDCubic& cubic, bool* isLinear) const {
+    return cubic.hullIntersects(fQuad, isLinear);
+}
+
+void SkTQuad::setBounds(SkDRect* rect) const {
+    rect->setBounds(fQuad);
 }

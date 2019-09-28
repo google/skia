@@ -5,14 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkCommandLineFlags.h"
-#include "SkFixed.h"
-#include "SkFontMgr_android.h"
-#include "SkFontMgr_android_parser.h"
-#include "SkOSFile.h"
-#include "SkTypeface.h"
-#include "Test.h"
+#include "tests/Test.h"
+
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkTypeface.h"
+#include "include/ports/SkFontMgr_android.h"
+#include "include/private/SkFixed.h"
+#include "src/core/SkOSFile.h"
+#include "src/ports/SkFontMgr_android_parser.h"
+#include "tools/Resources.h"
+#include "tools/flags/CommandLineFlags.h"
 
 #include <cmath>
 #include <cstdio>
@@ -39,8 +42,8 @@ static bool isDIGIT(int c) {
     return ('0' <= c && c <= '9');
 }
 
-void ValidateLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* firstExpectedFile,
-                         skiatest::Reporter* reporter) {
+static void ValidateLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* firstExpectedFile,
+                                skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, fontFamilies[0]->fNames.count() == 5);
     REPORTER_ASSERT(reporter, !strcmp(fontFamilies[0]->fNames[0].c_str(), "sans-serif"));
     REPORTER_ASSERT(reporter,
@@ -72,7 +75,23 @@ void ValidateLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* firstE
     }
 }
 
-void DumpLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* label) {
+static void DumpFiles(const FontFamily& fontFamily) {
+    for (int j = 0; j < fontFamily.fFonts.count(); ++j) {
+        const FontFileInfo& ffi = fontFamily.fFonts[j];
+        SkDebugf("  file (%d) %s#%d", ffi.fWeight, ffi.fFileName.c_str(), ffi.fIndex);
+        for (const auto& coordinate : ffi.fVariationDesignPosition) {
+            SkDebugf(" @'%c%c%c%c'=%f",
+                        (coordinate.axis >> 24) & 0xFF,
+                        (coordinate.axis >> 16) & 0xFF,
+                        (coordinate.axis >>  8) & 0xFF,
+                        (coordinate.axis      ) & 0xFF,
+                        coordinate.value);
+        }
+        SkDebugf("\n");
+    }
+}
+
+static void DumpLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* label) {
     if (!FLAGS_verboseFontMgr) {
         return;
     }
@@ -96,19 +115,13 @@ void DumpLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* label) {
         for (int j = 0; j < fontFamilies[i]->fNames.count(); ++j) {
             SkDebugf("  name %s\n", fontFamilies[i]->fNames[j].c_str());
         }
-        for (int j = 0; j < fontFamilies[i]->fFonts.count(); ++j) {
-            const FontFileInfo& ffi = fontFamilies[i]->fFonts[j];
-            SkDebugf("  file (%d) %s#%d", ffi.fWeight, ffi.fFileName.c_str(), ffi.fIndex);
-            for (const auto& coordinate : ffi.fVariationDesignPosition) {
-                SkDebugf(" @'%c%c%c%c'=%f",
-                         (coordinate.axis >> 24) & 0xFF,
-                         (coordinate.axis >> 16) & 0xFF,
-                         (coordinate.axis >>  8) & 0xFF,
-                         (coordinate.axis      ) & 0xFF,
-                         coordinate.value);
+        DumpFiles(*fontFamilies[i]);
+        fontFamilies[i]->fallbackFamilies.foreach(
+            [](SkString, std::unique_ptr<FontFamily>* fallbackFamily) {
+                SkDebugf("  Fallback for: %s\n", (*fallbackFamily)->fFallbackFor.c_str());
+                DumpFiles(*(*fallbackFamily).get());
             }
-            SkDebugf("\n");
-        }
+        );
     }
     SkDebugf("\n\n");
 }
@@ -244,4 +257,121 @@ DEF_TEST(FontMgrAndroidLegacyMakeTypeface, reporter) {
     sk_sp<SkFontMgr> fm(SkFontMgr_New_Android(&custom));
     sk_sp<SkTypeface> t(fm->legacyMakeTypeface("non-existent-font", SkFontStyle()));
     REPORTER_ASSERT(reporter, nullptr == t);
+}
+
+static bool bitmap_compare(const SkBitmap& ref, const SkBitmap& test) {
+    for (int y = 0; y < test.height(); ++y) {
+        for (int x = 0; x < test.width(); ++x) {
+            SkColor testColor = test.getColor(x, y);
+            SkColor refColor = ref.getColor(x, y);
+            if (refColor != testColor) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+DEF_TEST(FontMgrAndroidSystemVariableTypeface, reporter) {
+    constexpr char fontsXmlFilename[] = "fonts/fonts.xml";
+    SkString basePath = GetResourcePath("fonts/");
+    SkString fontsXml = GetResourcePath(fontsXmlFilename);
+
+    if (!sk_exists(fontsXml.c_str())) {
+        ERRORF(reporter, "file missing: %s\n", fontsXmlFilename);
+        return;
+    }
+
+    SkFontMgr_Android_CustomFonts custom;
+    custom.fSystemFontUse = SkFontMgr_Android_CustomFonts::kOnlyCustom;
+    custom.fBasePath = basePath.c_str();
+    custom.fFontsXml = fontsXml.c_str();
+    custom.fFallbackFontsXml = nullptr;
+    custom.fIsolated = false;
+
+    sk_sp<SkFontMgr> fontMgr(SkFontMgr_New_Android(&custom));
+    // "sans-serif" in "fonts/fonts.xml" is "fonts/Distortable.ttf"
+    sk_sp<SkTypeface> typeface(fontMgr->legacyMakeTypeface("sans-serif", SkFontStyle()));
+
+    SkBitmap bitmapStream;
+    bitmapStream.allocN32Pixels(64, 64);
+    SkCanvas canvasStream(bitmapStream);
+    canvasStream.drawColor(SK_ColorWHITE);
+
+    SkBitmap bitmapClone;
+    bitmapClone.allocN32Pixels(64, 64);
+    SkCanvas canvasClone(bitmapClone);
+    canvasStream.drawColor(SK_ColorWHITE);
+
+    SkPaint paint;
+    paint.setColor(SK_ColorGRAY);
+    paint.setAntiAlias(true);
+    constexpr float kTextSize = 20;
+
+    std::unique_ptr<SkStreamAsset> distortableStream(
+        GetResourceAsStream("fonts/Distortable.ttf"));
+    if (!distortableStream) {
+        return;
+    }
+
+    SkPoint point = SkPoint::Make(20.0f, 20.0f);
+    SkFourByteTag tag = SkSetFourByteTag('w', 'g', 'h', 't');
+
+    for (int i = 0; i < 10; ++i) {
+        SkScalar styleValue =
+            SkDoubleToScalar(0.5 + i * ((2.0 - 0.5) / 10));
+        SkFontArguments::VariationPosition::Coordinate
+            coordinates[] = {{tag, styleValue}};
+        SkFontArguments::VariationPosition
+            position = {coordinates, SK_ARRAY_COUNT(coordinates)};
+
+        SkFont fontStream(
+            fontMgr->makeFromStream(distortableStream->duplicate(),
+                                    SkFontArguments().setVariationDesignPosition(position)),
+            kTextSize);
+        fontStream.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+
+
+        SkFont fontClone(
+            typeface->makeClone(SkFontArguments().setVariationDesignPosition(position)), kTextSize);
+        fontClone.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+
+        constexpr char text[] = "abc";
+
+        canvasStream.drawColor(SK_ColorWHITE);
+        canvasStream.drawString(text, point.fX, point.fY, fontStream, paint);
+
+        canvasClone.drawColor(SK_ColorWHITE);
+        canvasClone.drawString(text, point.fX, point.fY, fontClone, paint);
+
+        bool success = bitmap_compare(bitmapStream, bitmapClone);
+        REPORTER_ASSERT(reporter, success);
+    }
+}
+
+DEF_TEST(FontMgrAndroidSystemFallbackFor, reporter) {
+    constexpr char fontsXmlFilename[] = "fonts/fonts.xml";
+    SkString basePath = GetResourcePath("fonts/");
+    SkString fontsXml = GetResourcePath(fontsXmlFilename);
+
+    if (!sk_exists(fontsXml.c_str())) {
+        ERRORF(reporter, "file missing: %s\n", fontsXmlFilename);
+        return;
+    }
+
+    SkFontMgr_Android_CustomFonts custom;
+    custom.fSystemFontUse = SkFontMgr_Android_CustomFonts::kOnlyCustom;
+    custom.fBasePath = basePath.c_str();
+    custom.fFontsXml = fontsXml.c_str();
+    custom.fFallbackFontsXml = nullptr;
+    custom.fIsolated = false;
+
+    sk_sp<SkFontMgr> fontMgr(SkFontMgr_New_Android(&custom));
+    // "sans-serif" in "fonts/fonts.xml" is "fonts/Distortable.ttf", which doesn't have a '!'
+    // but "TestTTC" has a bold font which does have '!' and is marked as fallback for "sans-serif"
+    // and should take precedence over the same font marked as normal weight next to it.
+    sk_sp<SkTypeface> typeface(fontMgr->matchFamilyStyleCharacter(
+        "sans-serif", SkFontStyle(), nullptr, 0, '!'));
+
+    REPORTER_ASSERT(reporter, typeface->fontStyle() == SkFontStyle::Bold());
 }

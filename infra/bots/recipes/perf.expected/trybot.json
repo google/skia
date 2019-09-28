@@ -40,7 +40,11 @@
       "[START_DIR]/tmp/SKP_VERSION"
     ],
     "infra_step": true,
-    "name": "write SKP_VERSION"
+    "name": "write SKP_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SKP_VERSION@42@@@",
+      "@@@STEP_LOG_END@SKP_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -68,7 +72,11 @@
       "[START_DIR]/tmp/SK_IMAGE_VERSION"
     ],
     "infra_step": true,
-    "name": "write SK_IMAGE_VERSION"
+    "name": "write SK_IMAGE_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SK_IMAGE_VERSION@42@@@",
+      "@@@STEP_LOG_END@SK_IMAGE_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -96,7 +104,11 @@
       "[START_DIR]/tmp/SVG_VERSION"
     ],
     "infra_step": true,
-    "name": "write SVG_VERSION"
+    "name": "write SVG_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SVG_VERSION@42@@@",
+      "@@@STEP_LOG_END@SVG_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -106,10 +118,10 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All/data"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
-    "name": "rmtree data"
+    "name": "rmtree [SWARM_OUT_DIR]"
   },
   {
     "cmd": [
@@ -121,10 +133,10 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All/data"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
-    "name": "makedirs data"
+    "name": "makedirs [SWARM_OUT_DIR]"
   },
   {
     "cmd": [
@@ -133,7 +145,6 @@
       "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
     ],
     "name": "get swarming bot id",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
@@ -147,7 +158,6 @@
       "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
     ],
     "name": "get swarming task id",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
@@ -156,7 +166,12 @@
   },
   {
     "cmd": [
-      "[START_DIR]/build/out/Release_x64/nanobench",
+      "powershell",
+      "-ExecutionPolicy",
+      "Unrestricted",
+      "-File",
+      "RECIPE_MODULE[skia::flavor]/resources/win_run_and_check_log.ps1",
+      "[START_DIR]/build/nanobench",
       "-i",
       "[START_DIR]/skia/resources",
       "--skps",
@@ -197,7 +212,7 @@
       "~inc0.webp",
       "~inc1.webp",
       "--outResultsFile",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All/data/nanobench_abc123_1337000001.json",
+      "[START_DIR]/[SWARM_OUT_DIR]/nanobench_abc123_1337000001.json",
       "--properties",
       "gitHash",
       "abc123",
@@ -227,7 +242,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "nanobench"
   },
@@ -241,14 +256,12 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"
   },
   {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "name": "$result"
   }
 ]

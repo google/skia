@@ -7,10 +7,10 @@
 #ifndef SkPathOpsCurve_DEFINE
 #define SkPathOpsCurve_DEFINE
 
-#include "SkIntersections.h"
+#include "src/pathops/SkIntersections.h"
 
 #ifndef SK_RELEASE
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 #endif
 
 struct SkPathOpsBounds;
@@ -358,12 +358,18 @@ static void (* const CurveDIntersectRay[])(const SkDCurve& , const SkDLine& , Sk
 };
 
 static int line_intercept_h(const SkPoint a[2], SkScalar , SkScalar y, double* roots) {
+    if (a[0].fY == a[1].fY) {
+        return false;
+    }
     SkDLine line;
     roots[0] = SkIntersections::HorizontalIntercept(line.set(a), y);
     return between(0, roots[0], 1);
 }
 
 static int line_intercept_v(const SkPoint a[2], SkScalar , SkScalar x, double* roots) {
+    if (a[0].fX == a[1].fX) {
+        return false;
+    }
     SkDLine line;
     roots[0] = SkIntersections::VerticalIntercept(line.set(a), x);
     return between(0, roots[0], 1);

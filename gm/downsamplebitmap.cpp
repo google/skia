@@ -5,78 +5,53 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
-#include "Resources.h"
-#include "SkGradientShader.h"
-#include "SkTypeface.h"
-#include "SkStream.h"
-#include "SkPaint.h"
+static const char* kFilterQualityNames[] = { "none", "low", "medium", "high" };
 
-static void make_checker(SkBitmap* bm, int size, int numChecks) {
-    bm->allocN32Pixels(size, size);
-    for (int y = 0; y < size; ++y) {
-        for (int x = 0; x < size; ++x) {
-            SkPMColor* s = bm->getAddr32(x, y);
-            int cx = (x * numChecks) / size;
-            int cy = (y * numChecks) / size;
-            if ((cx+cy)%2) {
-                *s = 0xFFFFFFFF;
-            } else {
-                *s = 0xFF000000;
-            }
-        }
-    }
-}
-
-static void setTypeface(SkPaint* paint, const char name[], SkFontStyle style) {
-    sk_tool_utils::set_portable_typeface(paint, name, style);
-}
-
-class DownsampleBitmapGM : public skiagm::GM {
-public:
-    SkBitmap    fBM;
-    SkString    fName;
-    bool        fBitmapMade;
+struct DownsampleBitmapGM : public skiagm::GM {
+    SkBitmap      (*fMakeBitmap)(SkImageInfo);
+    SkString        fName;
     SkFilterQuality fFilterQuality;
 
-    DownsampleBitmapGM(SkFilterQuality filterQuality)
-        : fFilterQuality(filterQuality)
+    DownsampleBitmapGM(SkBitmap (*fn)(SkImageInfo), const char* kind, SkFilterQuality fq)
+        : fMakeBitmap(fn)
+        , fName(SkStringPrintf("downsamplebitmap_%s_%s", kind, kFilterQualityNames[fq]))
+        , fFilterQuality(fq)
     {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
-        fBitmapMade = false;
+        this->setBGColor(0xFFDDDDDD);
     }
 
-    const char* filterQualityToString() {
-        static const char *filterQualityNames[] = {
-            "none", "low", "medium", "high"
-        };
-        return filterQualityNames[fFilterQuality];
-    }
-
-protected:
-
-    SkString onShortName() override {
-        return fName;
-    }
+    SkString onShortName() override { return fName; }
 
     SkISize onISize() override {
-        make_bitmap_wrapper();
-        return SkISize::Make(fBM.width(), 4 * fBM.height());
+        SkBitmap bm = fMakeBitmap(SkImageInfo::MakeN32Premul(1,1)/*whatever*/);
+        return SkISize::Make(bm.width(), 4 * bm.height());
     }
-
-    void make_bitmap_wrapper() {
-        if (!fBitmapMade) {
-            fBitmapMade = true;
-            make_bitmap();
-        }
-    }
-
-    virtual void make_bitmap() = 0;
 
     void onDraw(SkCanvas* canvas) override {
-        make_bitmap_wrapper();
+        SkImageInfo info = canvas->imageInfo();
+        if (!info.colorType()) { info = info.makeColorType(   kN32_SkColorType); }
+        if (!info.alphaType()) { info = info.makeAlphaType(kPremul_SkAlphaType); }
+
+        SkBitmap bm = fMakeBitmap(info);
 
         int curY = 0;
         int curHeight;
@@ -90,107 +65,95 @@ protected:
             paint.setFilterQuality(fFilterQuality);
 
             canvas->save();
-            canvas->translate(0, (SkScalar)curY);
-            canvas->concat(matrix);
-            canvas->drawBitmap(fBM, 0, 0, &paint);
+                canvas->translate(0, (SkScalar)curY);
+                canvas->concat(matrix);
+                canvas->drawBitmap(bm, 0, 0, &paint);
             canvas->restore();
 
-            curHeight = (int) (fBM.height() * curScale + 2);
+            curHeight = (int) (bm.height() * curScale + 2);
             curY += curHeight;
             curScale *= 0.75f;
-        } while (curHeight >= 2 && curY < 4*fBM.height());
+        } while (curHeight >= 2 && curY < 4*bm.height());
     }
-
-private:
-    typedef skiagm::GM INHERITED;
 };
 
-class DownsampleBitmapTextGM: public DownsampleBitmapGM {
-  public:
-      DownsampleBitmapTextGM(float textSize, SkFilterQuality filterQuality)
-      : INHERITED(filterQuality), fTextSize(textSize)
-        {
-            fName.printf("downsamplebitmap_text_%s_%.2fpt", this->filterQualityToString(), fTextSize);
+static SkBitmap convert_bitmap_format(SkBitmap src, SkImageInfo info) {
+    SkBitmap dst;
+    dst.allocPixels(info.makeWH(src.width(), src.height()));
+
+    SkPixmap pm;
+    SkAssertResult(dst.peekPixels(&pm));
+    SkAssertResult(src.readPixels(pm));
+
+    return dst;
+}
+
+
+static SkBitmap make_text(SkImageInfo info) {
+    const SkScalar textSize = 72;
+
+    SkBitmap bm;
+    bm.allocPixels(info.makeWH(int(textSize * 8), int(textSize * 6)));
+    SkCanvas canvas(bm);
+    canvas.drawColor(SK_ColorWHITE);
+
+    SkPaint paint;
+    SkFont font;
+    font.setSubpixel(true);
+    font.setSize(textSize);
+
+    font.setTypeface(ToolUtils::create_portable_typeface("serif", SkFontStyle()));
+    canvas.drawString("Hamburgefons", textSize/2, 1.2f*textSize, font, paint);
+    font.setTypeface(ToolUtils::create_portable_typeface("serif", SkFontStyle::Bold()));
+    canvas.drawString("Hamburgefons", textSize/2, 2.4f*textSize, font, paint);
+    font.setTypeface(ToolUtils::create_portable_typeface("serif", SkFontStyle::Italic()));
+    canvas.drawString("Hamburgefons", textSize/2, 3.6f*textSize, font, paint);
+    font.setTypeface(ToolUtils::create_portable_typeface("serif", SkFontStyle::BoldItalic()));
+    canvas.drawString("Hamburgefons", textSize/2, 4.8f*textSize, font, paint);
+
+    return bm;
+}
+DEF_GM( return new DownsampleBitmapGM(make_text, "text",   kHigh_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapGM(make_text, "text", kMedium_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapGM(make_text, "text",    kLow_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapGM(make_text, "text",   kNone_SkFilterQuality); )
+
+
+static SkBitmap make_checkerboard(SkImageInfo info) {
+    const auto size      = 512;
+    const auto numChecks = 256;
+
+    SkBitmap bm;
+    bm.allocN32Pixels(size,size);
+    for (int y = 0; y < size; ++y) {
+        for (int x = 0; x < size; ++x) {
+            SkPMColor* s = bm.getAddr32(x, y);
+            int cx = (x * numChecks) / size;
+            int cy = (y * numChecks) / size;
+            if ((cx+cy)%2) {
+                *s = 0xFFFFFFFF;
+            } else {
+                *s = 0xFF000000;
+            }
         }
+    }
+    return convert_bitmap_format(bm, info);
+}
+DEF_GM( return new DownsampleBitmapGM(make_checkerboard, "checkerboard",   kHigh_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapGM(make_checkerboard, "checkerboard", kMedium_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapGM(make_checkerboard, "checkerboard",    kLow_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapGM(make_checkerboard, "checkerboard",   kNone_SkFilterQuality); )
 
-  protected:
-      float fTextSize;
 
-      void make_bitmap() override {
-          fBM.allocN32Pixels(int(fTextSize * 8), int(fTextSize * 6));
-          SkCanvas canvas(fBM);
-          canvas.drawColor(SK_ColorWHITE);
-
-          SkPaint paint;
-          paint.setAntiAlias(true);
-          paint.setSubpixelText(true);
-          paint.setTextSize(fTextSize);
-
-          setTypeface(&paint, "serif", SkFontStyle());
-          canvas.drawString("Hamburgefons", fTextSize/2, 1.2f*fTextSize, paint);
-          setTypeface(&paint, "serif", SkFontStyle::Bold());
-          canvas.drawString("Hamburgefons", fTextSize/2, 2.4f*fTextSize, paint);
-          setTypeface(&paint, "serif", SkFontStyle::Italic());
-          canvas.drawString("Hamburgefons", fTextSize/2, 3.6f*fTextSize, paint);
-          setTypeface(&paint, "serif", SkFontStyle::BoldItalic());
-          canvas.drawString("Hamburgefons", fTextSize/2, 4.8f*fTextSize, paint);
-      }
-  private:
-      typedef DownsampleBitmapGM INHERITED;
-};
-
-class DownsampleBitmapCheckerboardGM: public DownsampleBitmapGM {
-  public:
-      DownsampleBitmapCheckerboardGM(int size, int numChecks, SkFilterQuality filterQuality)
-      : INHERITED(filterQuality), fSize(size), fNumChecks(numChecks)
-        {
-            fName.printf("downsamplebitmap_checkerboard_%s_%d_%d", this->filterQualityToString(), fSize, fNumChecks);
-        }
-
-  protected:
-      int fSize;
-      int fNumChecks;
-
-      void make_bitmap() override {
-          make_checker(&fBM, fSize, fNumChecks);
-      }
-  private:
-      typedef DownsampleBitmapGM INHERITED;
-};
-
-class DownsampleBitmapImageGM: public DownsampleBitmapGM {
-  public:
-      explicit DownsampleBitmapImageGM(SkFilterQuality filterQuality)
-        : INHERITED(filterQuality) {
-          fName.printf("downsamplebitmap_image_%s", this->filterQualityToString());
-      }
-
-  protected:
-      int fSize;
-
-      void make_bitmap() override {
-        if (!GetResourceAsBitmap("images/mandrill_512.png", &fBM)) {
-            fBM.allocN32Pixels(1, 1);
-            fBM.eraseARGB(255, 255, 0 , 0); // red == bad
-        }
-        fSize = fBM.height();
-      }
-  private:
-      typedef DownsampleBitmapGM INHERITED;
-};
-
-DEF_GM( return new DownsampleBitmapTextGM(72, kHigh_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, kHigh_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapImageGM(kHigh_SkFilterQuality); )
-
-DEF_GM( return new DownsampleBitmapTextGM(72, kMedium_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, kMedium_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapImageGM(kMedium_SkFilterQuality); )
-
-DEF_GM( return new DownsampleBitmapTextGM(72, kLow_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, kLow_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapImageGM(kLow_SkFilterQuality); )
-
-DEF_GM( return new DownsampleBitmapTextGM(72, kNone_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapCheckerboardGM(512,256, kNone_SkFilterQuality); )
-DEF_GM( return new DownsampleBitmapImageGM(kNone_SkFilterQuality); )
+static SkBitmap make_image(SkImageInfo info) {
+    SkBitmap bm;
+    if (!GetResourceAsBitmap("images/mandrill_512.png", &bm)) {
+        bm.allocN32Pixels(1, 1);
+        bm.eraseARGB(255, 255, 0 , 0); // red == bad
+    }
+    return convert_bitmap_format(bm, info);
+}
+DEF_GM( return new DownsampleBitmapGM(make_image, "image",   kHigh_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapGM(make_image, "image", kMedium_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapGM(make_image, "image",    kLow_SkFilterQuality); )
+DEF_GM( return new DownsampleBitmapGM(make_image, "image",   kNone_SkFilterQuality); )

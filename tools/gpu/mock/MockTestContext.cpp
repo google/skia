@@ -8,9 +8,9 @@
 #ifndef GLTestContext_DEFINED
 #define GLTestContext_DEFINED
 
-#include "MockTestContext.h"
+#include "tools/gpu/mock/MockTestContext.h"
 
-#include "GrContext.h"
+#include "include/gpu/GrContext.h"
 
 namespace {
 
@@ -19,7 +19,7 @@ public:
     MockTestContext() {}
     ~MockTestContext() override {}
 
-    virtual GrBackend backend() override { return kMock_GrBackend; }
+    virtual GrBackendApi backend() override { return GrBackendApi::kMock; }
 
     void testAbandon() override {}
     void submit() override {}

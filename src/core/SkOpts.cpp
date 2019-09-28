@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkCpu.h"
-#include "SkHalf.h"
-#include "SkOnce.h"
-#include "SkOpts.h"
+#include "include/private/SkHalf.h"
+#include "include/private/SkOnce.h"
+#include "src/core/SkCpu.h"
+#include "src/core/SkOpts.h"
 
 #if defined(SK_ARM_HAS_NEON)
     #if defined(SK_ARM_HAS_CRC32)
@@ -36,14 +36,16 @@
     #define SK_OPTS_NS portable
 #endif
 
-#include "SkBlitMask_opts.h"
-#include "SkBlitRow_opts.h"
-#include "SkChecksum_opts.h"
-#include "SkMorphologyImageFilter_opts.h"
-#include "SkRasterPipeline_opts.h"
-#include "SkSwizzler_opts.h"
-#include "SkUtils_opts.h"
-#include "SkXfermode_opts.h"
+#include "src/opts/SkBitmapProcState_opts.h"
+#include "src/opts/SkBlitMask_opts.h"
+#include "src/opts/SkBlitRow_opts.h"
+#include "src/opts/SkChecksum_opts.h"
+#include "src/opts/SkRasterPipeline_opts.h"
+#include "src/opts/SkSwizzler_opts.h"
+#include "src/opts/SkUtils_opts.h"
+#include "src/opts/SkXfermode_opts.h"
+
+#include "src/core/SkCubicSolver.h"
 
 namespace SkOpts {
     // Define default function pointer values here...
@@ -52,11 +54,6 @@ namespace SkOpts {
     // They'll still get a chance to be replaced with even better ones, e.g. using SSE4.1.
 #define DEFINE_DEFAULT(name) decltype(name) name = SK_OPTS_NS::name
     DEFINE_DEFAULT(create_xfermode);
-
-    DEFINE_DEFAULT(dilate_x);
-    DEFINE_DEFAULT(dilate_y);
-    DEFINE_DEFAULT( erode_x);
-    DEFINE_DEFAULT( erode_y);
 
     DEFINE_DEFAULT(blit_mask_d32_a8);
 
@@ -78,8 +75,15 @@ namespace SkOpts {
     DEFINE_DEFAULT(memset32);
     DEFINE_DEFAULT(memset64);
 
+    DEFINE_DEFAULT(rect_memset16);
+    DEFINE_DEFAULT(rect_memset32);
+    DEFINE_DEFAULT(rect_memset64);
+
+    DEFINE_DEFAULT(cubic_solver);
+
     DEFINE_DEFAULT(hash_fn);
 
+    DEFINE_DEFAULT(S32_alpha_D32_filter_DX);
 #undef DEFINE_DEFAULT
 
 #define M(st) (StageFn)SK_OPTS_NS::st,

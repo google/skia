@@ -8,13 +8,11 @@
 #ifndef SkJpegCodec_DEFINED
 #define SkJpegCodec_DEFINED
 
-#include "SkCodec.h"
-#include "SkColorSpace.h"
-#include "SkColorSpaceXform.h"
-#include "SkImageInfo.h"
-#include "SkSwizzler.h"
-#include "SkStream.h"
-#include "SkTemplates.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTemplates.h"
+#include "src/codec/SkSwizzler.h"
 
 class JpegDecoderMgr;
 
@@ -46,9 +44,10 @@ protected:
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes, const Options&,
             int*) override;
 
-    bool onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const override;
+    bool onQueryYUV8(SkYUVASizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const override;
 
-    Result onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) override;
+    Result onGetYUV8Planes(const SkYUVASizeInfo& sizeInfo,
+                           void* planes[SkYUVASizeInfo::kMaxCount]) override;
 
     SkEncodedImageFormat onGetEncodedFormat() const override {
         return SkEncodedImageFormat::kJPEG;
@@ -58,19 +57,14 @@ protected:
 
     bool onDimensionsSupported(const SkISize&) override;
 
-    bool conversionSupported(const SkImageInfo&, SkColorType, bool,
-                             const SkColorSpace*) const override {
-        // This class checks for conversion after creating colorXform.
-        return true;
-    }
+    bool conversionSupported(const SkImageInfo&, bool, bool) override;
 
 private:
-
     /*
-     * Allows SkRawCodec to communicate the color space from the exif data.
+     * Allows SkRawCodec to communicate the color profile from the exif data.
      */
     static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*,
-                                                   sk_sp<SkColorSpace> defaultColorSpace);
+            std::unique_ptr<SkEncodedInfo::ICCProfile> defaultColorProfile);
 
     /*
      * Read enough of the stream to initialize the SkJpegCodec.
@@ -90,12 +84,13 @@ private:
      * codecOut will take ownership of it in the case where we created a codec.
      * Ownership is unchanged when we set decoderMgrOut.
      *
-     * @param defaultColorSpace
-     * If the jpeg does not have an embedded color space, the image data should
-     * be tagged with this color space.
+     * @param defaultColorProfile
+     * If the jpeg does not have an embedded color profile, the image data should
+     * be tagged with this color profile.
      */
     static Result ReadHeader(SkStream* stream, SkCodec** codecOut,
-            JpegDecoderMgr** decoderMgrOut, sk_sp<SkColorSpace> defaultColorSpace);
+            JpegDecoderMgr** decoderMgrOut,
+            std::unique_ptr<SkEncodedInfo::ICCProfile> defaultColorProfile);
 
     /*
      * Creates an instance of the decoder
@@ -106,16 +101,8 @@ private:
      * @param decoderMgr holds decompress struct, src manager, and error manager
      *                   takes ownership
      */
-    SkJpegCodec(int width, int height, const SkEncodedInfo& info, std::unique_ptr<SkStream> stream,
-            JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, SkEncodedOrigin origin);
-
-    /*
-     * Checks if the conversion between the input image and the requested output
-     * image has been implemented.
-     *
-     * Sets the output color space.
-     */
-    bool setOutputColorSpace(const SkImageInfo& dst);
+    SkJpegCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
+            JpegDecoderMgr* decoderMgr, SkEncodedOrigin origin);
 
     void initializeSwizzler(const SkImageInfo& dstInfo, const Options& options,
                             bool needsCMYKToRGB);

@@ -7,8 +7,8 @@
 #ifndef SkPathOpsCommon_DEFINED
 #define SkPathOpsCommon_DEFINED
 
-#include "SkOpAngle.h"
-#include "SkTDArray.h"
+#include "include/private/SkTDArray.h"
+#include "src/pathops/SkOpAngle.h"
 
 class SkOpCoincidence;
 class SkOpContour;
@@ -26,7 +26,5 @@ bool HandleCoincidence(SkOpContourHead* , SkOpCoincidence* );
 bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
              SkDEBUGPARAMS(bool skipAssert)
              SkDEBUGPARAMS(const char* testName));
-SkScalar ScaleFactor(const SkPath& path);
-void ScalePath(const SkPath& path, SkScalar scale, SkPath* scaled);
 
 #endif

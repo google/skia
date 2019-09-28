@@ -5,15 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-#include "Resources.h"
-#include "sk_tool_utils.h"
-#include "SkCanvas.h"
-#include "SkImageSource.h"
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
-#include "SkSerialProcs.h"
-#include "SkSurface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkSerialProcs.h"
+#include "include/core/SkSurface.h"
+#include "tests/Test.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
 static sk_sp<SkImage> picture_to_image(sk_sp<SkPicture> pic) {
     SkIRect r = pic->cullRect().round();
@@ -77,7 +76,7 @@ DEF_TEST(serial_procs_image, reporter) {
         REPORTER_ASSERT(reporter, data);
 
         auto dst_img = picture_to_image(new_pic);
-        REPORTER_ASSERT(reporter, sk_tool_utils::equal_pixels(src_img.get(), dst_img.get()));
+        REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(src_img.get(), dst_img.get()));
     }
 }
 
@@ -163,8 +162,8 @@ DEF_TEST(serial_procs_picture, reporter) {
     // test inside effect
     p0 = make_pic([p1](SkCanvas* c) {
         SkPaint paint;
-        SkShader::TileMode tm = SkShader::kClamp_TileMode;
-        paint.setShader(SkShader::MakePictureShader(p1, tm, tm, nullptr, nullptr));
+        SkTileMode tm = SkTileMode::kClamp;
+        paint.setShader(p1->makeShader(tm, tm));
         c->drawPaint(paint);
     });
     test_pictures(reporter, p0, 1, true);
@@ -176,5 +175,40 @@ DEF_TEST(serial_procs_picture, reporter) {
         c->drawColor(SK_ColorBLUE);
     });
     test_pictures(reporter, p0, 1, true);
+}
+
+static sk_sp<SkPicture> make_picture(sk_sp<SkTypeface> tf0, sk_sp<SkTypeface> tf1) {
+    SkPictureRecorder rec;
+    SkCanvas* canvas = rec.beginRecording(100, 100);
+    SkPaint paint;
+    SkFont font;
+    font.setTypeface(tf0); canvas->drawString("hello", 0, 0, font, paint);
+    font.setTypeface(tf1); canvas->drawString("hello", 0, 0, font, paint);
+    font.setTypeface(tf0); canvas->drawString("hello", 0, 0, font, paint);
+    font.setTypeface(tf1); canvas->drawString("hello", 0, 0, font, paint);
+    return rec.finishRecordingAsPicture();
+}
+
+DEF_TEST(serial_typeface, reporter) {
+    auto tf0 = MakeResourceAsTypeface("fonts/hintgasp.ttf");
+    auto tf1 = MakeResourceAsTypeface("fonts/Roboto2-Regular_NoEmbed.ttf");
+    if (!tf0 || !tf1 || tf0.get() == tf1.get()) {
+        return; // need two different typefaces for this test to make sense.
+    }
+
+    auto pic = make_picture(tf0, tf1);
+
+    int counter = 0;
+    SkSerialProcs procs;
+    procs.fTypefaceProc = [](SkTypeface* tf, void* ctx) -> sk_sp<SkData> {
+        *(int*)ctx += 1;
+        return nullptr;
+    };
+    procs.fTypefaceCtx = &counter;
+    auto data = pic->serialize(&procs);
+
+    // The picture has 2 references to each typeface, but we want the serialized picture to
+    // only have written the data 1 time per typeface.
+    REPORTER_ASSERT(reporter, counter == 2);
 }
 

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkSurface.h"
-#include "SkVertices.h"
-#include "sk_pixel_iter.h"
-#include "Test.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkVertices.h"
+#include "tests/Test.h"
+#include "tools/ToolUtils.h"
 
 static bool equal(const SkVertices* v0, const SkVertices* v1) {
     if (v0->mode() != v1->mode()) {
@@ -91,13 +91,13 @@ DEF_TEST(Vertices, reporter) {
     {
         // This has the maximum number of vertices to be rewritten as indexed triangles without
         // overflowing a 16bit index.
-        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, SK_MaxU16 + 1, 0,
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, UINT16_MAX + 1, 0,
                                     SkVertices::kHasColors_BuilderFlag);
         REPORTER_ASSERT(reporter, builder.isValid());
     }
     {
         // This has too many to be rewritten.
-        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, SK_MaxU16 + 2, 0,
+        SkVertices::Builder builder(SkVertices::kTriangleFan_VertexMode, UINT16_MAX + 2, 0,
                                     SkVertices::kHasColors_BuilderFlag);
         REPORTER_ASSERT(reporter, !builder.isValid());
     }
@@ -136,7 +136,7 @@ DEF_TEST(Vertices_clipping, reporter) {
     SkPoint pts[] = { { -10, 1 }, { -10, 2 }, { 1e9f, 1.5f } };
     fill_triangle(surf->getCanvas(), pts, SK_ColorBLACK);
 
-    sk_tool_utils::PixelIter iter(surf.get());
+    ToolUtils::PixelIter iter(surf.get());
     SkIPoint loc;
     while (void* addr = iter.next(&loc)) {
         SkPMColor c = *(SkPMColor*)addr;

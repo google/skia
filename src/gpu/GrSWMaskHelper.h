@@ -8,15 +8,16 @@
 #ifndef GrSWMaskHelper_DEFINED
 #define GrSWMaskHelper_DEFINED
 
-#include "GrTypesPriv.h"
-#include "SkAutoPixmapStorage.h"
-#include "SkDraw.h"
-#include "SkMatrix.h"
-#include "SkRasterClip.h"
-#include "SkRegion.h"
-#include "SkTypes.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkTypes.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkDraw.h"
+#include "src/core/SkRasterClip.h"
 
 class GrShape;
+class GrRecordingContext;
 class GrTextureProxy;
 
 /**
@@ -50,7 +51,7 @@ public:
     // Draw a single path into the accumuation bitmap using the specified op
     void drawShape(const GrShape&, const SkMatrix& matrix, SkRegion::Op op, GrAA, uint8_t alpha);
 
-    sk_sp<GrTextureProxy> toTextureProxy(GrContext*, SkBackingFit fit);
+    sk_sp<GrTextureProxy> toTextureProxy(GrRecordingContext*, SkBackingFit fit);
 
     // Reset the internal bitmap
     void clear(uint8_t alpha) {

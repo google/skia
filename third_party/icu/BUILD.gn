@@ -3,11 +3,13 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import("../../gn/skia.gni")
+import("../third_party.gni")
+import("icu.gni")
+
 declare_args() {
   skia_use_system_icu = is_official_build
 }
-
-import("../third_party.gni")
 
 if (skia_use_system_icu) {
   system("icu") {
@@ -15,201 +17,80 @@ if (skia_use_system_icu) {
     defines = [ "U_USING_ICU_NAMESPACE=0" ]
   }
 } else {
+  if (target_cpu == "wasm") {
+    data_assembly = "$target_gen_dir/icudtl_dat.cpp"
+  } else {
+    data_assembly = "$target_gen_dir/icudtl_dat.S"
+  }
+  data_dir = "../externals/icu/"
+  if (target_cpu == "wasm") {
+    # Use a super super super stripped down version for wasm,
+    # which is the same thing flutter is using.
+    data_dir += "flutter"
+  } else if (is_android) {
+    data_dir += "android"
+  } else if (is_ios) {
+    data_dir += "ios"
+  } else {
+    data_dir += "common"
+  }
+  action("make_data_assembly") {
+    if (target_cpu == "wasm") {
+      _u_icu_version_major_num = "63"  # defined in source/common/unicode/uvernum.h
+      script = "make_data_cpp.py"
+      inputs = [
+        "$data_dir/icudtl.dat",
+      ]
+      outputs = [
+        data_assembly,
+      ]
+      args = [
+        "icudt${_u_icu_version_major_num}_dat",
+        rebase_path(inputs[0], root_build_dir),
+        rebase_path(data_assembly, root_build_dir),
+      ]
+    } else {
+      script = "../externals/icu/scripts/make_data_assembly.py"
+      inputs = [
+        "$data_dir/icudtl.dat",
+      ]
+      outputs = [
+        "$data_assembly",
+      ]
+      args = [
+        rebase_path(inputs[0], root_build_dir),
+        rebase_path(data_assembly, root_build_dir),
+      ]
+      if (is_mac || is_ios) {
+        args += [ "--mac" ]
+      }
+    }
+  }
+
   third_party("icu") {
     public_include_dirs = [
       "../externals/icu/source/common",
+      "../externals/icu/source/i18n",
       ".",
     ]
-    public_defines = [ "U_USING_ICU_NAMESPACE=0" ]
+    public_defines = [
+      "U_USING_ICU_NAMESPACE=0",
+      "SK_USING_THIRD_PARTY_ICU",
+    ]
     configs -= [ "//gn:no_rtti" ]
     defines = [
       # http://userguide.icu-project.org/howtouseicu
       "U_COMMON_IMPLEMENTATION",
       "U_STATIC_IMPLEMENTATION",
       "U_ENABLE_DYLOAD=0",
+      "U_I18N_IMPLEMENTATION",
     ]
-    sources = [
-      "../externals/icu/source/common/appendable.cpp",
-      "../externals/icu/source/common/bmpset.cpp",
-      "../externals/icu/source/common/brkeng.cpp",
-      "../externals/icu/source/common/brkiter.cpp",
-      "../externals/icu/source/common/bytestream.cpp",
-      "../externals/icu/source/common/bytestrie.cpp",
-      "../externals/icu/source/common/bytestriebuilder.cpp",
-      "../externals/icu/source/common/bytestrieiterator.cpp",
-      "../externals/icu/source/common/caniter.cpp",
-      "../externals/icu/source/common/chariter.cpp",
-      "../externals/icu/source/common/charstr.cpp",
-      "../externals/icu/source/common/cmemory.c",
-      "../externals/icu/source/common/cstring.c",
-      "../externals/icu/source/common/cwchar.c",
-      "../externals/icu/source/common/dictbe.cpp",
-      "../externals/icu/source/common/dictionarydata.cpp",
-      "../externals/icu/source/common/dtintrv.cpp",
-      "../externals/icu/source/common/errorcode.cpp",
-      "../externals/icu/source/common/filteredbrk.cpp",
-      "../externals/icu/source/common/filterednormalizer2.cpp",
-      "../externals/icu/source/common/icudataver.c",
-      "../externals/icu/source/common/icuplug.cpp",
-      "../externals/icu/source/common/listformatter.cpp",
-      "../externals/icu/source/common/loadednormalizer2impl.cpp",
-      "../externals/icu/source/common/locavailable.cpp",
-      "../externals/icu/source/common/locbased.cpp",
-      "../externals/icu/source/common/locdispnames.cpp",
-      "../externals/icu/source/common/locid.cpp",
-      "../externals/icu/source/common/loclikely.cpp",
-      "../externals/icu/source/common/locmap.c",
-      "../externals/icu/source/common/locresdata.cpp",
-      "../externals/icu/source/common/locutil.cpp",
-      "../externals/icu/source/common/messagepattern.cpp",
-      "../externals/icu/source/common/normalizer2.cpp",
-      "../externals/icu/source/common/normalizer2impl.cpp",
-      "../externals/icu/source/common/normlzr.cpp",
-      "../externals/icu/source/common/parsepos.cpp",
-      "../externals/icu/source/common/patternprops.cpp",
-      "../externals/icu/source/common/pluralmap.cpp",
-      "../externals/icu/source/common/propname.cpp",
-      "../externals/icu/source/common/propsvec.c",
-      "../externals/icu/source/common/punycode.cpp",
-      "../externals/icu/source/common/putil.cpp",
-      "../externals/icu/source/common/rbbi.cpp",
-      "../externals/icu/source/common/rbbidata.cpp",
-      "../externals/icu/source/common/rbbinode.cpp",
-      "../externals/icu/source/common/rbbirb.cpp",
-      "../externals/icu/source/common/rbbiscan.cpp",
-      "../externals/icu/source/common/rbbisetb.cpp",
-      "../externals/icu/source/common/rbbistbl.cpp",
-      "../externals/icu/source/common/rbbitblb.cpp",
-      "../externals/icu/source/common/resbund.cpp",
-      "../externals/icu/source/common/resbund_cnv.cpp",
-      "../externals/icu/source/common/resource.cpp",
-      "../externals/icu/source/common/ruleiter.cpp",
-      "../externals/icu/source/common/schriter.cpp",
-      "../externals/icu/source/common/serv.cpp",
-      "../externals/icu/source/common/servlk.cpp",
-      "../externals/icu/source/common/servlkf.cpp",
-      "../externals/icu/source/common/servls.cpp",
-      "../externals/icu/source/common/servnotf.cpp",
-      "../externals/icu/source/common/servrbf.cpp",
-      "../externals/icu/source/common/servslkf.cpp",
-      "../externals/icu/source/common/sharedobject.cpp",
-      "../externals/icu/source/common/simplepatternformatter.cpp",
-      "../externals/icu/source/common/stringpiece.cpp",
-      "../externals/icu/source/common/stringtriebuilder.cpp",
-      "../externals/icu/source/common/uarrsort.c",
-      "../externals/icu/source/common/ubidi.c",
-      "../externals/icu/source/common/ubidi_props.c",
-      "../externals/icu/source/common/ubidiln.c",
-      "../externals/icu/source/common/ubidiwrt.c",
-      "../externals/icu/source/common/ubrk.cpp",
-      "../externals/icu/source/common/ucase.cpp",
-      "../externals/icu/source/common/ucasemap.cpp",
-      "../externals/icu/source/common/ucasemap_titlecase_brkiter.cpp",
-      "../externals/icu/source/common/ucat.c",
-      "../externals/icu/source/common/uchar.c",
-      "../externals/icu/source/common/ucharstrie.cpp",
-      "../externals/icu/source/common/ucharstriebuilder.cpp",
-      "../externals/icu/source/common/ucharstrieiterator.cpp",
-      "../externals/icu/source/common/uchriter.cpp",
-      "../externals/icu/source/common/ucln_cmn.cpp",
-      "../externals/icu/source/common/ucmndata.c",
-      "../externals/icu/source/common/ucnv.c",
-      "../externals/icu/source/common/ucnv2022.cpp",
-      "../externals/icu/source/common/ucnv_bld.cpp",
-      "../externals/icu/source/common/ucnv_cb.c",
-      "../externals/icu/source/common/ucnv_cnv.c",
-      "../externals/icu/source/common/ucnv_ct.c",
-      "../externals/icu/source/common/ucnv_err.c",
-      "../externals/icu/source/common/ucnv_ext.cpp",
-      "../externals/icu/source/common/ucnv_io.cpp",
-      "../externals/icu/source/common/ucnv_lmb.c",
-      "../externals/icu/source/common/ucnv_set.c",
-      "../externals/icu/source/common/ucnv_u16.c",
-      "../externals/icu/source/common/ucnv_u32.c",
-      "../externals/icu/source/common/ucnv_u7.c",
-      "../externals/icu/source/common/ucnv_u8.c",
-      "../externals/icu/source/common/ucnvbocu.cpp",
-      "../externals/icu/source/common/ucnvdisp.c",
-      "../externals/icu/source/common/ucnvhz.c",
-      "../externals/icu/source/common/ucnvisci.c",
-      "../externals/icu/source/common/ucnvlat1.c",
-      "../externals/icu/source/common/ucnvmbcs.cpp",
-      "../externals/icu/source/common/ucnvscsu.c",
-      "../externals/icu/source/common/ucnvsel.cpp",
-      "../externals/icu/source/common/ucol_swp.cpp",
-      "../externals/icu/source/common/udata.cpp",
-      "../externals/icu/source/common/udatamem.c",
-      "../externals/icu/source/common/udataswp.c",
-      "../externals/icu/source/common/uenum.c",
-      "../externals/icu/source/common/uhash.c",
-      "../externals/icu/source/common/uhash_us.cpp",
-      "../externals/icu/source/common/uidna.cpp",
-      "../externals/icu/source/common/uinit.cpp",
-      "../externals/icu/source/common/uinvchar.c",
-      "../externals/icu/source/common/uiter.cpp",
-      "../externals/icu/source/common/ulist.c",
-      "../externals/icu/source/common/ulistformatter.cpp",
-      "../externals/icu/source/common/uloc.cpp",
-      "../externals/icu/source/common/uloc_keytype.cpp",
-      "../externals/icu/source/common/uloc_tag.c",
-      "../externals/icu/source/common/umapfile.c",
-      "../externals/icu/source/common/umath.c",
-      "../externals/icu/source/common/umutex.cpp",
-      "../externals/icu/source/common/unames.cpp",
-      "../externals/icu/source/common/unifiedcache.cpp",
-      "../externals/icu/source/common/unifilt.cpp",
-      "../externals/icu/source/common/unifunct.cpp",
-      "../externals/icu/source/common/uniset.cpp",
-      "../externals/icu/source/common/uniset_closure.cpp",
-      "../externals/icu/source/common/uniset_props.cpp",
-      "../externals/icu/source/common/unisetspan.cpp",
-      "../externals/icu/source/common/unistr.cpp",
-      "../externals/icu/source/common/unistr_case.cpp",
-      "../externals/icu/source/common/unistr_case_locale.cpp",
-      "../externals/icu/source/common/unistr_cnv.cpp",
-      "../externals/icu/source/common/unistr_props.cpp",
-      "../externals/icu/source/common/unistr_titlecase_brkiter.cpp",
-      "../externals/icu/source/common/unorm.cpp",
-      "../externals/icu/source/common/unormcmp.cpp",
-      "../externals/icu/source/common/uobject.cpp",
-      "../externals/icu/source/common/uprops.cpp",
-      "../externals/icu/source/common/ures_cnv.c",
-      "../externals/icu/source/common/uresbund.cpp",
-      "../externals/icu/source/common/uresdata.cpp",
-      "../externals/icu/source/common/uresource.cpp",
-      "../externals/icu/source/common/usc_impl.c",
-      "../externals/icu/source/common/uscript.c",
-      "../externals/icu/source/common/uscript_props.cpp",
-      "../externals/icu/source/common/uset.cpp",
-      "../externals/icu/source/common/uset_props.cpp",
-      "../externals/icu/source/common/usetiter.cpp",
-      "../externals/icu/source/common/ushape.cpp",
-      "../externals/icu/source/common/usprep.cpp",
-      "../externals/icu/source/common/ustack.cpp",
-      "../externals/icu/source/common/ustr_cnv.cpp",
-      "../externals/icu/source/common/ustr_titlecase_brkiter.cpp",
-      "../externals/icu/source/common/ustr_wcs.cpp",
-      "../externals/icu/source/common/ustrcase.cpp",
-      "../externals/icu/source/common/ustrcase_locale.cpp",
-      "../externals/icu/source/common/ustrenum.cpp",
-      "../externals/icu/source/common/ustrfmt.c",
-      "../externals/icu/source/common/ustring.cpp",
-      "../externals/icu/source/common/ustrtrns.cpp",
-      "../externals/icu/source/common/utext.cpp",
-      "../externals/icu/source/common/utf_impl.c",
-      "../externals/icu/source/common/util.cpp",
-      "../externals/icu/source/common/util_props.cpp",
-      "../externals/icu/source/common/utrace.c",
-      "../externals/icu/source/common/utrie.cpp",
-      "../externals/icu/source/common/utrie2.cpp",
-      "../externals/icu/source/common/utrie2_builder.cpp",
-      "../externals/icu/source/common/uts46.cpp",
-      "../externals/icu/source/common/utypes.c",
-      "../externals/icu/source/common/uvector.cpp",
-      "../externals/icu/source/common/uvectr32.cpp",
-      "../externals/icu/source/common/uvectr64.cpp",
-      "../externals/icu/source/common/wintz.c",
-    ]
+    if (target_cpu == "wasm") {
+      # Tell ICU that we are a 32 bit platform, otherwise,
+      # double-conversion-utils.h doesn't know how to operate.
+      defines += [ "__i386__" ]
+    }
+    sources = icu_sources
     if (is_win) {
       deps = [
         ":icudata",
@@ -219,25 +100,27 @@ if (skia_use_system_icu) {
         "U_STATIC_IMPLEMENTATION",
       ]
       libs = [ "Advapi32.lib" ]
-      sources += [ "../externals/icu/source/stubdata/stubdata.c" ]
+      sources += [
+        "../externals/icu/source/stubdata/stubdata.cpp",
+        "SkLoadICU.cpp",
+      ]
     } else {
-      if (is_ios) {
-        sources += [ "../externals/icu/mac/icudtl_dat.S" ]
-      } else {
-        sources += [ "../externals/icu/$current_os/icudtl_dat.S" ]
-      }
-      libs = [ "dl" ]
+      sources += [ "$data_assembly" ]
+      deps = [
+        ":make_data_assembly",
+      ]
     }
   }
-  if (is_win) {
-    copy("icudata") {
-      sources = [
-        "../externals/icu/windows/icudt.dll",
-      ]
-      outputs = [
-        "$root_out_dir/icudt.dll",
-      ]
-      data = outputs
-    }
+
+  copy("icudata") {
+    sources = [
+      "../externals/icu/common/icudtl.dat",
+    ]
+    outputs = [
+      "$root_out_dir/icudtl.dat",
+    ]
+    data = [
+      "$root_out_dir/icudtl.dat",
+    ]
   }
 }

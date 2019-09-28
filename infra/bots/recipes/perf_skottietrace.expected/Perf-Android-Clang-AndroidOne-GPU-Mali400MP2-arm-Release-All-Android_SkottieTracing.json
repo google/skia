@@ -1,0 +1,1022 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/tmp"
+    ],
+    "infra_step": true,
+    "name": "makedirs tmp_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+    ],
+    "name": "get swarming bot id",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/sdcard/revenge_of_the_skiabot/resources"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/resources"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "[START_DIR]/skia/resources",
+      "/sdcard/revenge_of_the_skiabot/resources"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@host   = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@device = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@for d, _, fs in os.walk(host):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  p = os.path.relpath(d, host)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if p != '.' and p.startswith('.'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    continue@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
+      "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/skia/infra/bots/assets/lottie-samples/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get lottie-samples VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "42",
+      "[START_DIR]/tmp/LOTTIE_VERSION"
+    ],
+    "infra_step": true,
+    "name": "write LOTTIE_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@LOTTIE_VERSION@42@@@",
+      "@@@STEP_LOG_END@LOTTIE_VERSION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "cat",
+      "/sdcard/revenge_of_the_skiabot/LOTTIE_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "read /sdcard/revenge_of_the_skiabot/LOTTIE_VERSION"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "rm",
+      "-f",
+      "/sdcard/revenge_of_the_skiabot/LOTTIE_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /sdcard/revenge_of_the_skiabot/LOTTIE_VERSION"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "rm",
+      "-rf",
+      "/sdcard/revenge_of_the_skiabot/lotties"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /sdcard/revenge_of_the_skiabot/lotties"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/sdcard/revenge_of_the_skiabot/lotties"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/lotties"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "[START_DIR]/lottie-samples",
+      "/sdcard/revenge_of_the_skiabot/lotties"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/lottie-samples/* /sdcard/revenge_of_the_skiabot/lotties",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@host   = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@device = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@for d, _, fs in os.walk(host):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  p = os.path.relpath(d, host)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if p != '.' and p.startswith('.'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    continue@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
+      "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "push",
+      "[START_DIR]/tmp/LOTTIE_VERSION",
+      "/sdcard/revenge_of_the_skiabot/LOTTIE_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/tmp/LOTTIE_VERSION /sdcard/revenge_of_the_skiabot/LOTTIE_VERSION"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "rm",
+      "-rf",
+      "/sdcard/revenge_of_the_skiabot/dm_out"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /sdcard/revenge_of_the_skiabot/dm_out"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/sdcard/revenge_of_the_skiabot/dm_out"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/dm_out"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "listdir",
+      "[START_DIR]/lottie-samples"
+    ],
+    "infra_step": true,
+    "name": "list lottie files",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/LICENSE@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/lottie 3!.json@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/lottie(test)'!2.json@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/lottie1.json@@@",
+      "@@@STEP_LOG_END@listdir@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo \"%s\" > '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])\nactual_gov = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()\nif actual_gov != gov:\n  raise Exception('(actual, expected) (%s, %s)'\n                  % (actual_gov, gov))\n",
+      "/opt/infra-android/tools/adb",
+      "0",
+      "hotplug"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "Set CPU 0's governor to hotplug",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@import time@@@",
+      "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@cpu = int(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@gov = sys.argv[3]@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
+      "@@@STEP_LOG_LINE@python.inline@print log@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo \"%s\" > '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])@@@",
+      "@@@STEP_LOG_LINE@python.inline@actual_gov = subprocess.check_output([ADB, 'shell', 'cat '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()@@@",
+      "@@@STEP_LOG_LINE@python.inline@if actual_gov != gov:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %s)'@@@",
+      "@@@STEP_LOG_LINE@python.inline@                  % (actual_gov, gov))@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "push",
+      "[START_DIR]/build/dm",
+      "/data/local/tmp/"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push dm"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "set -x; /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/2.json --match \"^lottie 3!.json$\" --config gles --nocpu; echo $? >/data/local/tmp/rc",
+      "[START_DIR]/tmp/dm.sh"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "write dm.sh",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@dm.sh@set -x; /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/2.json --match \"^lottie 3!.json$\" --config gles --nocpu; echo $? >/data/local/tmp/rc@@@",
+      "@@@STEP_LOG_END@dm.sh@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "push",
+      "[START_DIR]/tmp/dm.sh",
+      "/data/local/tmp/"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push dm.sh"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "logcat",
+      "-c"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "clear log"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
+      "/data/local/tmp/",
+      "dm.sh"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "dm",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@bin_dir = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@sh      = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                                        bin_dir + 'rc'])))@@@",
+      "@@@STEP_LOG_LINE@python.inline@except ValueError:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print \"Couldn't read the return code.  Probably killed for OOM.\"@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "cat",
+      "/sdcard/revenge_of_the_skiabot/dm_out/2.json"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "read /sdcard/revenge_of_the_skiabot/dm_out/2.json"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport json\nimport sys\n\ntrace_output = sys.argv[1]\ntrace_json = json.loads(trace_output)\nlottie_filename = sys.argv[2]\noutput_json_file = sys.argv[3]\n\nperf_results = {}\nframe_max = 0\nframe_min = 0\nframe_cumulative = 0\ncurrent_frame_duration = 0\ntotal_frames = 0\nframe_start = False\nskipped_first_seek = False  # Skip the first seek constructor call.\nfor trace in trace_json:\n  if 'skottie::Animation::seek' in trace['name']:\n    if not skipped_first_seek:\n      skipped_first_seek = True\n      continue\n    if frame_start:\n      raise Exception('We got consecutive Animation::seek without a ' +\n                      'render. Something is wrong.')\n    frame_start = True\n    current_frame_duration = trace['dur']\n  elif 'skottie::Animation::render' in trace['name']:\n    if not frame_start:\n      raise Exception('We got an Animation::render without a seek first. ' +\n                      'Something is wrong.')\n\n    current_frame_duration += trace['dur']\n    frame_start = False\n    total_frames += 1\n    frame_max = max(frame_max, current_frame_duration)\n    frame_min = (min(frame_min, current_frame_duration)\n                 if frame_min else current_frame_duration)\n    frame_cumulative += current_frame_duration\n\nexpected_dm_frames = 25\nif total_frames != expected_dm_frames:\n  raise Exception(\n      'Got ' + str(total_frames) + ' frames instead of ' +\n      str(expected_dm_frames))\nperf_results['frame_max_us'] = frame_max\nperf_results['frame_min_us'] = frame_min\nperf_results['frame_avg_us'] = frame_cumulative/total_frames\n\n# Write perf_results to the output json.\nwith open(output_json_file, 'w') as f:\n  f.write(json.dumps(perf_results))\n",
+      "\n[{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":452,\"dur\":2.57,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void SkCanvas::drawPaint(const SkPaint &)\",\"ts\":473,\"dur\":2.67e+03,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":3.15e+03,\"dur\":2.25,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const\",\"ts\":3.15e+03,\"dur\":216,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void SkCanvas::drawPath(const SkPath &, const SkPaint &)\",\"ts\":3.35e+03,\"dur\":15.1,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":3.37e+03,\"dur\":1.17,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const\",\"ts\":3.37e+03,\"dur\":140,\"tid\":1,\"pid\":0}]\n",
+      "lottie 3!.json",
+      "/path/to/tmp/json"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "parse lottie 3!.json trace",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"frame_avg_us\": 179.71, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"frame_max_us\": 218.25, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"frame_min_us\": 141.17@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import json@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@trace_output = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@trace_json = json.loads(trace_output)@@@",
+      "@@@STEP_LOG_LINE@python.inline@lottie_filename = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@output_json_file = sys.argv[3]@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@perf_results = {}@@@",
+      "@@@STEP_LOG_LINE@python.inline@frame_max = 0@@@",
+      "@@@STEP_LOG_LINE@python.inline@frame_min = 0@@@",
+      "@@@STEP_LOG_LINE@python.inline@frame_cumulative = 0@@@",
+      "@@@STEP_LOG_LINE@python.inline@current_frame_duration = 0@@@",
+      "@@@STEP_LOG_LINE@python.inline@total_frames = 0@@@",
+      "@@@STEP_LOG_LINE@python.inline@frame_start = False@@@",
+      "@@@STEP_LOG_LINE@python.inline@skipped_first_seek = False  # Skip the first seek constructor call.@@@",
+      "@@@STEP_LOG_LINE@python.inline@for trace in trace_json:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if 'skottie::Animation::seek' in trace['name']:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if not skipped_first_seek:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      skipped_first_seek = True@@@",
+      "@@@STEP_LOG_LINE@python.inline@      continue@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if frame_start:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      raise Exception('We got consecutive Animation::seek without a ' +@@@",
+      "@@@STEP_LOG_LINE@python.inline@                      'render. Something is wrong.')@@@",
+      "@@@STEP_LOG_LINE@python.inline@    frame_start = True@@@",
+      "@@@STEP_LOG_LINE@python.inline@    current_frame_duration = trace['dur']@@@",
+      "@@@STEP_LOG_LINE@python.inline@  elif 'skottie::Animation::render' in trace['name']:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if not frame_start:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      raise Exception('We got an Animation::render without a seek first. ' +@@@",
+      "@@@STEP_LOG_LINE@python.inline@                      'Something is wrong.')@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@    current_frame_duration += trace['dur']@@@",
+      "@@@STEP_LOG_LINE@python.inline@    frame_start = False@@@",
+      "@@@STEP_LOG_LINE@python.inline@    total_frames += 1@@@",
+      "@@@STEP_LOG_LINE@python.inline@    frame_max = max(frame_max, current_frame_duration)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    frame_min = (min(frame_min, current_frame_duration)@@@",
+      "@@@STEP_LOG_LINE@python.inline@                 if frame_min else current_frame_duration)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    frame_cumulative += current_frame_duration@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@expected_dm_frames = 25@@@",
+      "@@@STEP_LOG_LINE@python.inline@if total_frames != expected_dm_frames:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception(@@@",
+      "@@@STEP_LOG_LINE@python.inline@      'Got ' + str(total_frames) + ' frames instead of ' +@@@",
+      "@@@STEP_LOG_LINE@python.inline@      str(expected_dm_frames))@@@",
+      "@@@STEP_LOG_LINE@python.inline@perf_results['frame_max_us'] = frame_max@@@",
+      "@@@STEP_LOG_LINE@python.inline@perf_results['frame_min_us'] = frame_min@@@",
+      "@@@STEP_LOG_LINE@python.inline@perf_results['frame_avg_us'] = frame_cumulative/total_frames@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@# Write perf_results to the output json.@@@",
+      "@@@STEP_LOG_LINE@python.inline@with open(output_json_file, 'w') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  f.write(json.dumps(perf_results))@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "rm",
+      "-f",
+      "/sdcard/revenge_of_the_skiabot/dm_out/2.json"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /sdcard/revenge_of_the_skiabot/dm_out/2.json"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "set -x; /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/3.json --match \\^lottie\\(test\\)\\'\\!2\\.json\\$ --config gles --nocpu; echo $? >/data/local/tmp/rc",
+      "[START_DIR]/tmp/dm.sh"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "write dm.sh (2)",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@dm.sh@set -x; /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/3.json --match \\^lottie\\(test\\)\\'\\!2\\.json\\$ --config gles --nocpu; echo $? >/data/local/tmp/rc@@@",
+      "@@@STEP_LOG_END@dm.sh@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "push",
+      "[START_DIR]/tmp/dm.sh",
+      "/data/local/tmp/"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push dm.sh (2)"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "logcat",
+      "-c"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "clear log (2)"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
+      "/data/local/tmp/",
+      "dm.sh"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "dm (2)",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@bin_dir = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@sh      = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                                        bin_dir + 'rc'])))@@@",
+      "@@@STEP_LOG_LINE@python.inline@except ValueError:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print \"Couldn't read the return code.  Probably killed for OOM.\"@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "cat",
+      "/sdcard/revenge_of_the_skiabot/dm_out/3.json"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "read /sdcard/revenge_of_the_skiabot/dm_out/3.json"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport json\nimport sys\n\ntrace_output = sys.argv[1]\ntrace_json = json.loads(trace_output)\nlottie_filename = sys.argv[2]\noutput_json_file = sys.argv[3]\n\nperf_results = {}\nframe_max = 0\nframe_min = 0\nframe_cumulative = 0\ncurrent_frame_duration = 0\ntotal_frames = 0\nframe_start = False\nskipped_first_seek = False  # Skip the first seek constructor call.\nfor trace in trace_json:\n  if 'skottie::Animation::seek' in trace['name']:\n    if not skipped_first_seek:\n      skipped_first_seek = True\n      continue\n    if frame_start:\n      raise Exception('We got consecutive Animation::seek without a ' +\n                      'render. Something is wrong.')\n    frame_start = True\n    current_frame_duration = trace['dur']\n  elif 'skottie::Animation::render' in trace['name']:\n    if not frame_start:\n      raise Exception('We got an Animation::render without a seek first. ' +\n                      'Something is wrong.')\n\n    current_frame_duration += trace['dur']\n    frame_start = False\n    total_frames += 1\n    frame_max = max(frame_max, current_frame_duration)\n    frame_min = (min(frame_min, current_frame_duration)\n                 if frame_min else current_frame_duration)\n    frame_cumulative += current_frame_duration\n\nexpected_dm_frames = 25\nif total_frames != expected_dm_frames:\n  raise Exception(\n      'Got ' + str(total_frames) + ' frames instead of ' +\n      str(expected_dm_frames))\nperf_results['frame_max_us'] = frame_max\nperf_results['frame_min_us'] = frame_min\nperf_results['frame_avg_us'] = frame_cumulative/total_frames\n\n# Write perf_results to the output json.\nwith open(output_json_file, 'w') as f:\n  f.write(json.dumps(perf_results))\n",
+      "\n[{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":452,\"dur\":2.57,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void SkCanvas::drawPaint(const SkPaint &)\",\"ts\":473,\"dur\":2.67e+03,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":3.15e+03,\"dur\":2.25,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const\",\"ts\":3.15e+03,\"dur\":216,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void SkCanvas::drawPath(const SkPath &, const SkPaint &)\",\"ts\":3.35e+03,\"dur\":15.1,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":3.37e+03,\"dur\":1.17,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const\",\"ts\":3.37e+03,\"dur\":140,\"tid\":1,\"pid\":0}]\n",
+      "lottie(test)'!2.json",
+      "/path/to/tmp/json"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "parse lottie(test)'!2.json trace",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"frame_avg_us\": 179.71, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"frame_max_us\": 218.25, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"frame_min_us\": 141.17@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import json@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@trace_output = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@trace_json = json.loads(trace_output)@@@",
+      "@@@STEP_LOG_LINE@python.inline@lottie_filename = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@output_json_file = sys.argv[3]@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@perf_results = {}@@@",
+      "@@@STEP_LOG_LINE@python.inline@frame_max = 0@@@",
+      "@@@STEP_LOG_LINE@python.inline@frame_min = 0@@@",
+      "@@@STEP_LOG_LINE@python.inline@frame_cumulative = 0@@@",
+      "@@@STEP_LOG_LINE@python.inline@current_frame_duration = 0@@@",
+      "@@@STEP_LOG_LINE@python.inline@total_frames = 0@@@",
+      "@@@STEP_LOG_LINE@python.inline@frame_start = False@@@",
+      "@@@STEP_LOG_LINE@python.inline@skipped_first_seek = False  # Skip the first seek constructor call.@@@",
+      "@@@STEP_LOG_LINE@python.inline@for trace in trace_json:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if 'skottie::Animation::seek' in trace['name']:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if not skipped_first_seek:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      skipped_first_seek = True@@@",
+      "@@@STEP_LOG_LINE@python.inline@      continue@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if frame_start:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      raise Exception('We got consecutive Animation::seek without a ' +@@@",
+      "@@@STEP_LOG_LINE@python.inline@                      'render. Something is wrong.')@@@",
+      "@@@STEP_LOG_LINE@python.inline@    frame_start = True@@@",
+      "@@@STEP_LOG_LINE@python.inline@    current_frame_duration = trace['dur']@@@",
+      "@@@STEP_LOG_LINE@python.inline@  elif 'skottie::Animation::render' in trace['name']:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if not frame_start:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      raise Exception('We got an Animation::render without a seek first. ' +@@@",
+      "@@@STEP_LOG_LINE@python.inline@                      'Something is wrong.')@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@    current_frame_duration += trace['dur']@@@",
+      "@@@STEP_LOG_LINE@python.inline@    frame_start = False@@@",
+      "@@@STEP_LOG_LINE@python.inline@    total_frames += 1@@@",
+      "@@@STEP_LOG_LINE@python.inline@    frame_max = max(frame_max, current_frame_duration)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    frame_min = (min(frame_min, current_frame_duration)@@@",
+      "@@@STEP_LOG_LINE@python.inline@                 if frame_min else current_frame_duration)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    frame_cumulative += current_frame_duration@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@expected_dm_frames = 25@@@",
+      "@@@STEP_LOG_LINE@python.inline@if total_frames != expected_dm_frames:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception(@@@",
+      "@@@STEP_LOG_LINE@python.inline@      'Got ' + str(total_frames) + ' frames instead of ' +@@@",
+      "@@@STEP_LOG_LINE@python.inline@      str(expected_dm_frames))@@@",
+      "@@@STEP_LOG_LINE@python.inline@perf_results['frame_max_us'] = frame_max@@@",
+      "@@@STEP_LOG_LINE@python.inline@perf_results['frame_min_us'] = frame_min@@@",
+      "@@@STEP_LOG_LINE@python.inline@perf_results['frame_avg_us'] = frame_cumulative/total_frames@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@# Write perf_results to the output json.@@@",
+      "@@@STEP_LOG_LINE@python.inline@with open(output_json_file, 'w') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  f.write(json.dumps(perf_results))@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "rm",
+      "-f",
+      "/sdcard/revenge_of_the_skiabot/dm_out/3.json"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /sdcard/revenge_of_the_skiabot/dm_out/3.json"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "set -x; /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/4.json --match \\^lottie1\\.json\\$ --config gles --nocpu; echo $? >/data/local/tmp/rc",
+      "[START_DIR]/tmp/dm.sh"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "write dm.sh (3)",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@dm.sh@set -x; /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/4.json --match \\^lottie1\\.json\\$ --config gles --nocpu; echo $? >/data/local/tmp/rc@@@",
+      "@@@STEP_LOG_END@dm.sh@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "push",
+      "[START_DIR]/tmp/dm.sh",
+      "/data/local/tmp/"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push dm.sh (3)"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "logcat",
+      "-c"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "clear log (3)"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
+      "/data/local/tmp/",
+      "dm.sh"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "dm (3)",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@bin_dir = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@sh      = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                                        bin_dir + 'rc'])))@@@",
+      "@@@STEP_LOG_LINE@python.inline@except ValueError:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print \"Couldn't read the return code.  Probably killed for OOM.\"@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "cat",
+      "/sdcard/revenge_of_the_skiabot/dm_out/4.json"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "read /sdcard/revenge_of_the_skiabot/dm_out/4.json"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport json\nimport sys\n\ntrace_output = sys.argv[1]\ntrace_json = json.loads(trace_output)\nlottie_filename = sys.argv[2]\noutput_json_file = sys.argv[3]\n\nperf_results = {}\nframe_max = 0\nframe_min = 0\nframe_cumulative = 0\ncurrent_frame_duration = 0\ntotal_frames = 0\nframe_start = False\nskipped_first_seek = False  # Skip the first seek constructor call.\nfor trace in trace_json:\n  if 'skottie::Animation::seek' in trace['name']:\n    if not skipped_first_seek:\n      skipped_first_seek = True\n      continue\n    if frame_start:\n      raise Exception('We got consecutive Animation::seek without a ' +\n                      'render. Something is wrong.')\n    frame_start = True\n    current_frame_duration = trace['dur']\n  elif 'skottie::Animation::render' in trace['name']:\n    if not frame_start:\n      raise Exception('We got an Animation::render without a seek first. ' +\n                      'Something is wrong.')\n\n    current_frame_duration += trace['dur']\n    frame_start = False\n    total_frames += 1\n    frame_max = max(frame_max, current_frame_duration)\n    frame_min = (min(frame_min, current_frame_duration)\n                 if frame_min else current_frame_duration)\n    frame_cumulative += current_frame_duration\n\nexpected_dm_frames = 25\nif total_frames != expected_dm_frames:\n  raise Exception(\n      'Got ' + str(total_frames) + ' frames instead of ' +\n      str(expected_dm_frames))\nperf_results['frame_max_us'] = frame_max\nperf_results['frame_min_us'] = frame_min\nperf_results['frame_avg_us'] = frame_cumulative/total_frames\n\n# Write perf_results to the output json.\nwith open(output_json_file, 'w') as f:\n  f.write(json.dumps(perf_results))\n",
+      "\n[{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":452,\"dur\":2.57,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void SkCanvas::drawPaint(const SkPaint &)\",\"ts\":473,\"dur\":2.67e+03,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":3.15e+03,\"dur\":2.25,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const\",\"ts\":3.15e+03,\"dur\":216,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void SkCanvas::drawPath(const SkPath &, const SkPaint &)\",\"ts\":3.35e+03,\"dur\":15.1,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":3.37e+03,\"dur\":1.17,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const\",\"ts\":3.37e+03,\"dur\":140,\"tid\":1,\"pid\":0}]\n",
+      "lottie1.json",
+      "/path/to/tmp/json"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "parse lottie1.json trace",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"frame_avg_us\": 179.71, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"frame_max_us\": 218.25, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"frame_min_us\": 141.17@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import json@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@trace_output = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@trace_json = json.loads(trace_output)@@@",
+      "@@@STEP_LOG_LINE@python.inline@lottie_filename = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@output_json_file = sys.argv[3]@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@perf_results = {}@@@",
+      "@@@STEP_LOG_LINE@python.inline@frame_max = 0@@@",
+      "@@@STEP_LOG_LINE@python.inline@frame_min = 0@@@",
+      "@@@STEP_LOG_LINE@python.inline@frame_cumulative = 0@@@",
+      "@@@STEP_LOG_LINE@python.inline@current_frame_duration = 0@@@",
+      "@@@STEP_LOG_LINE@python.inline@total_frames = 0@@@",
+      "@@@STEP_LOG_LINE@python.inline@frame_start = False@@@",
+      "@@@STEP_LOG_LINE@python.inline@skipped_first_seek = False  # Skip the first seek constructor call.@@@",
+      "@@@STEP_LOG_LINE@python.inline@for trace in trace_json:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if 'skottie::Animation::seek' in trace['name']:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if not skipped_first_seek:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      skipped_first_seek = True@@@",
+      "@@@STEP_LOG_LINE@python.inline@      continue@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if frame_start:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      raise Exception('We got consecutive Animation::seek without a ' +@@@",
+      "@@@STEP_LOG_LINE@python.inline@                      'render. Something is wrong.')@@@",
+      "@@@STEP_LOG_LINE@python.inline@    frame_start = True@@@",
+      "@@@STEP_LOG_LINE@python.inline@    current_frame_duration = trace['dur']@@@",
+      "@@@STEP_LOG_LINE@python.inline@  elif 'skottie::Animation::render' in trace['name']:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if not frame_start:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      raise Exception('We got an Animation::render without a seek first. ' +@@@",
+      "@@@STEP_LOG_LINE@python.inline@                      'Something is wrong.')@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@    current_frame_duration += trace['dur']@@@",
+      "@@@STEP_LOG_LINE@python.inline@    frame_start = False@@@",
+      "@@@STEP_LOG_LINE@python.inline@    total_frames += 1@@@",
+      "@@@STEP_LOG_LINE@python.inline@    frame_max = max(frame_max, current_frame_duration)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    frame_min = (min(frame_min, current_frame_duration)@@@",
+      "@@@STEP_LOG_LINE@python.inline@                 if frame_min else current_frame_duration)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    frame_cumulative += current_frame_duration@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@expected_dm_frames = 25@@@",
+      "@@@STEP_LOG_LINE@python.inline@if total_frames != expected_dm_frames:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception(@@@",
+      "@@@STEP_LOG_LINE@python.inline@      'Got ' + str(total_frames) + ' frames instead of ' +@@@",
+      "@@@STEP_LOG_LINE@python.inline@      str(expected_dm_frames))@@@",
+      "@@@STEP_LOG_LINE@python.inline@perf_results['frame_max_us'] = frame_max@@@",
+      "@@@STEP_LOG_LINE@python.inline@perf_results['frame_min_us'] = frame_min@@@",
+      "@@@STEP_LOG_LINE@python.inline@perf_results['frame_avg_us'] = frame_cumulative/total_frames@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@# Write perf_results to the output json.@@@",
+      "@@@STEP_LOG_LINE@python.inline@with open(output_json_file, 'w') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  f.write(json.dumps(perf_results))@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "rm",
+      "-f",
+      "/sdcard/revenge_of_the_skiabot/dm_out/4.json"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /sdcard/revenge_of_the_skiabot/dm_out/4.json"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+    ],
+    "name": "get swarming bot id (2)",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
+    ],
+    "name": "get swarming task id",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "makedirs perf_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import json\nwith open('[START_DIR]/[SWARM_OUT_DIR]/perf_abc123_1337000001.json', 'w') as outfile:\n  json.dump(obj={'gitHash': 'abc123', 'results': {\"lottie(test)'!2.json\": {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie1.json': {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie 3!.json': {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}}, 'swarming_task_id': '', 'renderer': 'skottie', 'key': {'extra_config': 'Android_SkottieTracing', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'Mali400MP2', 'arch': 'arm', 'source_type': 'skottie', 'cpu_or_gpu': 'GPU', 'model': 'AndroidOne', 'configuration': 'Release', 'os': 'Android', 'compiler': 'Clang'}, 'swarming_bot_id': ''}, fp=outfile, indent=4)\n"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "write output JSON",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import json@@@",
+      "@@@STEP_LOG_LINE@python.inline@with open('[START_DIR]/[SWARM_OUT_DIR]/perf_abc123_1337000001.json', 'w') as outfile:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  json.dump(obj={'gitHash': 'abc123', 'results': {\"lottie(test)'!2.json\": {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie1.json': {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}, 'lottie 3!.json': {'gles': {'frame_avg_us': 179.71, 'frame_max_us': 218.25, 'frame_min_us': 141.17}}}, 'swarming_task_id': '', 'renderer': 'skottie', 'key': {'extra_config': 'Android_SkottieTracing', 'bench_type': 'tracing', 'cpu_or_gpu_value': 'Mali400MP2', 'arch': 'arm', 'source_type': 'skottie', 'cpu_or_gpu': 'GPU', 'model': 'AndroidOne', 'configuration': 'Release', 'os': 'Android', 'compiler': 'Clang'}, 'swarming_bot_id': ''}, fp=outfile, indent=4)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['/opt/infra-android/tools/adb', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
+      "[START_DIR]/build"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "dump log",
+    "timeout": 300,
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@out = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output(['/opt/infra-android/tools/adb', 'logcat', '-d'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@for line in log.split('\\n'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  tokens = line.split()@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':@@@",
+      "@@@STEP_LOG_LINE@python.inline@    addr, path = tokens[-2:]@@@",
+      "@@@STEP_LOG_LINE@python.inline@    local = os.path.join(out, os.path.basename(path))@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if os.path.exists(local):@@@",
+      "@@@STEP_LOG_LINE@python.inline@      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])@@@",
+      "@@@STEP_LOG_LINE@python.inline@      line = line.replace(addr, addr + ' ' + sym.strip())@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print line@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "kill-server"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "kill adb server"
+  },
+  {
+    "name": "$result"
+  }
+]

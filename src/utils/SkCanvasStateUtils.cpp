@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvasStateUtils.h"
+#include "include/utils/SkCanvasStateUtils.h"
 
-#include "SkCanvas.h"
-#include "SkCanvasStack.h"
-#include "SkDevice.h"
-#include "SkRasterClip.h"
-#include "SkWriter32.h"
-#include "SkClipOpPriv.h"
+#include "include/core/SkCanvas.h"
+#include "src/core/SkClipOpPriv.h"
+#include "src/core/SkDevice.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkWriter32.h"
+#include "src/utils/SkCanvasStack.h"
 
 /*
  * WARNING: The structs below are part of a stable ABI and as such we explicitly
@@ -233,15 +233,15 @@ static void setup_canvas_from_MC_state(const SkMCState& state, SkCanvas* canvas)
     // of what they sent.
     SkIRect bounds = SkIRect::MakeEmpty();
     if (state.clipRectCount > 0) {
-        bounds.set(state.clipRects[0].left,
-                   state.clipRects[0].top,
-                   state.clipRects[0].right,
-                   state.clipRects[0].bottom);
+        bounds.setLTRB(state.clipRects[0].left,
+                       state.clipRects[0].top,
+                       state.clipRects[0].right,
+                       state.clipRects[0].bottom);
         for (int i = 1; i < state.clipRectCount; ++i) {
-            bounds.join(state.clipRects[i].left,
-                        state.clipRects[i].top,
-                        state.clipRects[i].right,
-                        state.clipRects[i].bottom);
+            bounds.join({state.clipRects[i].left,
+                         state.clipRects[i].top,
+                         state.clipRects[i].right,
+                         state.clipRects[i].bottom});
         }
     }
 
@@ -304,7 +304,7 @@ std::unique_ptr<SkCanvas> SkCanvasStateUtils::MakeFromCanvasState(const SkCanvas
                                                                   state_v1->layers[i].y));
     }
 
-    return std::move(canvas);
+    return canvas;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

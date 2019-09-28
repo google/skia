@@ -8,8 +8,9 @@
 #ifndef Stats_DEFINED
 #define Stats_DEFINED
 
-#include "SkString.h"
-#include "SkTSort.h"
+#include "include/core/SkString.h"
+#include "include/private/SkFloatingPoint.h"
+#include "src/core/SkTSort.h"
 
 #ifdef SK_BUILD_FOR_WIN
     static const char* kBars[] = { ".", "o", "O" };
@@ -18,7 +19,7 @@
 #endif
 
 struct Stats {
-    Stats(const SkTArray<double>& samples) {
+    Stats(const SkTArray<double>& samples, bool want_plot) {
         int n = samples.count();
         if (!n) {
             min = max = mean = var = median = 0;
@@ -42,7 +43,7 @@ struct Stats {
         for (int i = 0 ; i < n; i++) {
             err += (samples[i] - mean) * (samples[i] - mean);
         }
-        var = err / (n-1);
+        var = sk_ieee_double_divide(err, n-1);
 
         SkAutoTMalloc<double> sorted(n);
         memcpy(sorted.get(), samples.begin(), n * sizeof(double));
@@ -50,7 +51,7 @@ struct Stats {
         median = sorted[n/2];
 
         // Normalize samples to [min, max] in as many quanta as we have distinct bars to print.
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; want_plot && i < n; i++) {
             if (min == max) {
                 // All samples are the same value.  Don't divide by zero.
                 plot.append(kBars[0]);

@@ -8,10 +8,10 @@
 #ifndef Benchmark_DEFINED
 #define Benchmark_DEFINED
 
-#include "SkPoint.h"
-#include "SkRefCnt.h"
-#include "SkString.h"
-#include "../tools/Registry.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "tools/Registry.h"
 
 #define DEF_BENCH3(code, N) \
     static BenchRegistry gBench##N([](void*) -> Benchmark* { code; });
@@ -30,16 +30,6 @@
 struct GrContextOptions;
 class SkCanvas;
 class SkPaint;
-
-class SkTriState {
-public:
-    enum State {
-        kDefault,
-        kTrue,
-        kFalse
-    };
-    static const char* Name[];
-};
 
 class Benchmark : public SkRefCnt {
 public:
@@ -87,49 +77,14 @@ public:
     // Bench framework can tune loops to be large enough for stable timing.
     void draw(int loops, SkCanvas*);
 
-    void setForceAlpha(int alpha) {
-        fForceAlpha = alpha;
-    }
-
-    void setDither(SkTriState::State state) {
-        fDither = state;
-    }
-
-    /** Assign masks for paint-flags. These will be applied when setupPaint()
-     *  is called.
-     *
-     *  Performs the following on the paint:
-     *      uint32_t flags = paint.getFlags();
-     *      flags &= ~clearMask;
-     *      flags |= orMask;
-     *      paint.setFlags(flags);
-     */
-    void setPaintMasks(uint32_t orMask, uint32_t clearMask) {
-        fOrMask = orMask;
-        fClearMask = clearMask;
-    }
-
-    /*
-     * Benches which support running in a visual mode can advertise this functionality
-     */
-    virtual bool isVisual() { return false; }
-
-    /*
-     * VisualBench frequently resets the canvas.  As a result we need to bulk call all of the hooks
-     */
-    void preTimingHooks(SkCanvas* canvas) {
-        this->perCanvasPreDraw(canvas);
-        this->preDraw(canvas);
-    }
-
-    void postTimingHooks(SkCanvas* canvas)  {
-        this->postDraw(canvas);
-        this->perCanvasPostDraw(canvas);
-    }
-
     virtual void getGpuStats(SkCanvas*, SkTArray<SkString>* keys, SkTArray<double>* values) {}
 
+    // Count of units (pixels, whatever) being exercised, to scale timing by.
+    int getUnits() const { return fUnits; }
+
 protected:
+    void setUnits(int units) { SkASSERT(units > 0); fUnits = units; }
+
     virtual void setupPaint(SkPaint* paint);
 
     virtual const char* onGetName() = 0;
@@ -146,9 +101,7 @@ protected:
     virtual SkIPoint onGetSize();
 
 private:
-    int     fForceAlpha;
-    SkTriState::State  fDither;
-    uint32_t    fOrMask, fClearMask;
+    int fUnits = 1;
 
     typedef SkRefCnt INHERITED;
 };

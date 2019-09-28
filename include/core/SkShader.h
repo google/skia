@@ -8,18 +8,18 @@
 #ifndef SkShader_DEFINED
 #define SkShader_DEFINED
 
-#include "SkBlendMode.h"
-#include "SkColor.h"
-#include "SkFilterQuality.h"
-#include "SkFlattenable.h"
-#include "SkImageInfo.h"
-#include "SkMatrix.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkTileMode.h"
 
 class SkArenaAlloc;
 class SkBitmap;
 class SkColorFilter;
 class SkColorSpace;
-class SkColorSpaceXformer;
 class SkImage;
 class SkPath;
 class SkPicture;
@@ -39,39 +39,6 @@ class GrFragmentProcessor;
  */
 class SK_API SkShader : public SkFlattenable {
 public:
-    enum TileMode {
-        /** replicate the edge color if the shader draws outside of its
-         *  original bounds
-         */
-        kClamp_TileMode,
-
-        /** repeat the shader's image horizontally and vertically */
-        kRepeat_TileMode,
-
-        /** repeat the shader's image horizontally and vertically, alternating
-         *  mirror images so that adjacent images always seam
-         */
-        kMirror_TileMode,
-
-        /**
-         *  Only draw within the original domain, return transparent-black everywhere else.
-         *  EXPERIMENTAL -- DO NOT USE YET
-         */
-        kDecal_TileMode,
-
-        kLast_TileMode = kDecal_TileMode
-    };
-
-    static constexpr int kTileModeCount = kLast_TileMode + 1;
-
-    /**
-     *  Returns the local matrix.
-     *
-     *  FIXME: This can be incorrect for a Shader with its own local matrix
-     *  that is also wrapped via CreateLocalMatrixShader.
-     */
-    const SkMatrix& getLocalMatrix() const;
-
     /**
      *  Returns true if the shader is guaranteed to produce only opaque
      *  colors, subject to the SkPaint using the shader to apply an opaque
@@ -80,27 +47,14 @@ public:
      */
     virtual bool isOpaque() const { return false; }
 
-#ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
-    /**
-     *  Returns true if this shader is just a bitmap, and if not null, returns the bitmap,
-     *  localMatrix, and tilemodes. If this is not a bitmap, returns false and ignores the
-     *  out-parameters.
-     */
-    bool isABitmap(SkBitmap* outTexture, SkMatrix* outMatrix, TileMode xy[2]) const;
-
-    bool isABitmap() const {
-        return this->isABitmap(nullptr, nullptr, nullptr);
-    }
-#endif
-
     /**
      *  Iff this shader is backed by a single SkImage, return its ptr (the caller must ref this
      *  if they want to keep it longer than the lifetime of the shader). If not, return nullptr.
      */
-    SkImage* isAImage(SkMatrix* localMatrix, TileMode xy[2]) const;
+    SkImage* isAImage(SkMatrix* localMatrix, SkTileMode xy[2]) const;
 
     bool isAImage() const {
-        return this->isAImage(nullptr, nullptr) != nullptr;
+        return this->isAImage(nullptr, (SkTileMode*)nullptr) != nullptr;
     }
 
     /**
@@ -139,7 +93,7 @@ public:
         kRadial_GradientType,
         kSweep_GradientType,
         kConical_GradientType,
-        kLast_GradientType = kConical_GradientType
+        kLast_GradientType = kConical_GradientType,
     };
 
     struct GradientInfo {
@@ -151,20 +105,12 @@ public:
         SkScalar*   fColorOffsets;  //!< The unit offset for color transitions.
         SkPoint     fPoint[2];      //!< Type specific, see above.
         SkScalar    fRadius[2];     //!< Type specific, see above.
-        TileMode    fTileMode;      //!< The tile mode used.
+        SkTileMode  fTileMode;
         uint32_t    fGradientFlags; //!< see SkGradientShader::Flags
     };
 
+    // DEPRECATED. skbug.com/8941
     virtual GradientType asAGradient(GradientInfo* info) const;
-
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    struct ComposeRec {
-        const SkShader*     fShaderA;
-        const SkShader*     fShaderB;
-        SkBlendMode         fBlendMode;
-    };
-    virtual bool asACompose(ComposeRec*) const { return false; }
-#endif
 
     //////////////////////////////////////////////////////////////////////////
     //  Methods to create combinations or variants of shaders
@@ -181,109 +127,28 @@ public:
      */
     sk_sp<SkShader> makeWithColorFilter(sk_sp<SkColorFilter>) const;
 
-    //////////////////////////////////////////////////////////////////////////
-    //  Factory methods for stock shaders
-
-    /**
-     *  Call this to create a new "empty" shader, that will not draw anything.
-     */
-    static sk_sp<SkShader> MakeEmptyShader();
-
-    /**
-     *  Call this to create a new shader that just draws the specified color. This should always
-     *  draw the same as a paint with this color (and no shader).
-     */
-    static sk_sp<SkShader> MakeColorShader(SkColor);
-
-    /**
-     *  Create a shader that draws the specified color (in the specified colorspace).
-     *
-     *  This works around the limitation that SkPaint::setColor() only takes byte values, and does
-     *  not support specific colorspaces.
-     */
-    static sk_sp<SkShader> MakeColorShader(const SkColor4f&, sk_sp<SkColorSpace>);
-
-    /**
-     *  Compose two shaders together, using two operators: mode and lerp. The resulting colors
-     *  are computed by first combining the src and dst shaders using mode, and then linearly
-     *  interpolating between the dst and result colors using lerp.
-     *
-     *      result = dst * (1 - lerp) + (src (mode) dst) * lerp
-     *
-     *  If either shader is nullptr, then this returns nullptr.
-     *  If lerp is NaN then this returns nullptr, otherwise lerp is clamped to [0..1].
-     */
-    static sk_sp<SkShader> MakeCompose(sk_sp<SkShader> dst, sk_sp<SkShader> src,
-                                       SkBlendMode mode, float lerp = 1);
-
-    /*
-     *  DEPRECATED: call MakeCompose.
-     */
-    static sk_sp<SkShader> MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
-                                             SkBlendMode mode) {
-        return MakeCompose(std::move(dst), std::move(src), mode, 1);
-    }
-
-    /**
-     *  Compose two shaders together using a weighted average.
-     *
-     *  result = dst * (1 - lerp) + src * lerp
-     *
-     *  If either shader is nullptr, then this returns nullptr.
-     *  If lerp is NaN then this returns nullptr, otherwise lerp is clamped to [0..1].
-     */
-    static sk_sp<SkShader> MakeMixer(sk_sp<SkShader> dst, sk_sp<SkShader> src, float lerp) {
-        return MakeCompose(std::move(dst), std::move(src), SkBlendMode::kSrc, lerp);
-    }
-
-    /** Call this to create a new shader that will draw with the specified bitmap.
-     *
-     *  If the bitmap cannot be used (e.g. has no pixels, or its dimensions
-     *  exceed implementation limits (currently at 64K - 1)) then SkEmptyShader
-     *  may be returned.
-     *
-     *  If the src is kA8_Config then that mask will be colorized using the color on
-     *  the paint.
-     *
-     *  @param src  The bitmap to use inside the shader
-     *  @param tmx  The tiling mode to use when sampling the bitmap in the x-direction.
-     *  @param tmy  The tiling mode to use when sampling the bitmap in the y-direction.
-     *  @return     Returns a new shader object. Note: this function never returns null.
-    */
-    static sk_sp<SkShader> MakeBitmapShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
-                                            const SkMatrix* localMatrix = nullptr);
-
-    // NOTE: You can create an SkImage Shader with SkImage::newShader().
-
-    /** Call this to create a new shader that will draw with the specified picture.
-     *
-     *  @param src  The picture to use inside the shader (if not NULL, its ref count
-     *              is incremented). The SkPicture must not be changed after
-     *              successfully creating a picture shader.
-     *  @param tmx  The tiling mode to use when sampling the bitmap in the x-direction.
-     *  @param tmy  The tiling mode to use when sampling the bitmap in the y-direction.
-     *  @param tile The tile rectangle in picture coordinates: this represents the subset
-     *              (or superset) of the picture used when building a tile. It is not
-     *              affected by localMatrix and does not imply scaling (only translation
-     *              and cropping). If null, the tile rect is considered equal to the picture
-     *              bounds.
-     *  @return     Returns a new shader object. Note: this function never returns null.
-    */
-    static sk_sp<SkShader> MakePictureShader(sk_sp<SkPicture> src, TileMode tmx, TileMode tmy,
-                                             const SkMatrix* localMatrix, const SkRect* tile);
-
-    /**
-     *  If this shader can be represented by another shader + a localMatrix, return that shader and
-     *  the localMatrix. If not, return nullptr and ignore the localMatrix parameter.
-     */
-    // TODO: clean up clients, move to SkShaderBase.
-    virtual sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const;
-
 private:
     SkShader() = default;
     friend class SkShaderBase;
 
     typedef SkFlattenable INHERITED;
+};
+
+class SK_API SkShaders {
+public:
+    static sk_sp<SkShader> Empty();
+    static sk_sp<SkShader> Color(SkColor);
+    static sk_sp<SkShader> Color(const SkColor4f&, sk_sp<SkColorSpace>);
+    static sk_sp<SkShader> Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                                 const SkMatrix* localMatrix = nullptr);
+    static sk_sp<SkShader> Lerp(float t, sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                                const SkMatrix* localMatrix = nullptr);
+
+    static sk_sp<SkShader> Lerp(sk_sp<SkShader> red, sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                                const SkMatrix* localMatrix = nullptr);
+
+private:
+    SkShaders() = delete;
 };
 
 #endif

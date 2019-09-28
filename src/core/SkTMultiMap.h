@@ -8,8 +8,8 @@
 #ifndef SkTMultiMap_DEFINED
 #define SkTMultiMap_DEFINED
 
-#include "GrTypes.h"
-#include "SkTDynamicHash.h"
+#include "include/gpu/GrTypes.h"
+#include "src/core/SkTDynamicHash.h"
 
 /** A set that contains pointers to instances of T. Instances can be looked up with key Key.
  * Multiple (possibly same) values can have the same key.
@@ -61,6 +61,9 @@ public:
 
     void remove(const Key& key, const T* value) {
         ValueList* list = fHash.find(key);
+        // Temporarily making this safe for remove entries not in the map because of
+        // crbug.com/877915.
+#if 0
         // Since we expect the caller to be fully aware of what is stored, just
         // assert that the caller removes an existing value.
         SkASSERT(list);
@@ -69,8 +72,19 @@ public:
             prev = list;
             list = list->fNext;
         }
-
         this->internalRemove(prev, list, key);
+#else
+        ValueList* prev = nullptr;
+        while (list && list->fValue != value) {
+            prev = list;
+            list = list->fNext;
+        }
+        // Crash in Debug since it'd be great to detect a repro of 877915.
+        SkASSERT(list);
+        if (list) {
+            this->internalRemove(prev, list, key);
+        }
+#endif
     }
 
     T* find(const Key& key) const {

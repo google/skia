@@ -1,0 +1,120 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/cache/docker/pathkit"
+    ],
+    "infra_step": true,
+    "name": "mkdirs out_dir"
+  },
+  {
+    "cmd": [
+      "docker",
+      "run",
+      "--rm",
+      "--volume",
+      "[START_DIR]/cache/work:/SRC",
+      "--volume",
+      "[START_DIR]/cache/docker/pathkit:/OUT",
+      "gcr.io/skia-public/emsdk-release:1.38.27_v1",
+      "/SRC/skia/infra/pathkit/build_pathkit.sh",
+      "debug",
+      "asm.js"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "DOCKER_CONFIG": "/home/chrome-bot/.docker",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "Build PathKit with Docker"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products_whitelist = ['dm', 'dm.exe', 'dm.app', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'hello-opencl', 'hello-opencl.exe', 'nanobench', 'nanobench.exe', 'skpbench', 'skpbench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skiaserve', 'skottie_tool', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk', 'whitelist_devices.json']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products_whitelist:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-EMCC-asmjs-Debug-PathKit/Debug",
+      "[START_DIR]/[SWARM_OUT_DIR]/out/Debug"
+    ],
+    "infra_step": true,
+    "name": "copy build products",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import errno@@@",
+      "@@@STEP_LOG_LINE@python.inline@import glob@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import shutil@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@src = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@dst = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@build_products_whitelist = ['dm', 'dm.exe', 'dm.app', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'hello-opencl', 'hello-opencl.exe', 'nanobench', 'nanobench.exe', 'skpbench', 'skpbench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skiaserve', 'skottie_tool', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk', 'whitelist_devices.json']@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(dst)@@@",
+      "@@@STEP_LOG_LINE@python.inline@except OSError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if e.errno != errno.EEXIST:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    raise@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@for pattern in build_products_whitelist:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  path = os.path.join(src, pattern)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for f in glob.glob(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    dst_path = os.path.join(dst, os.path.relpath(f, src))@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if not os.path.isdir(os.path.dirname(dst_path)):@@@",
+      "@@@STEP_LOG_LINE@python.inline@      os.makedirs(os.path.dirname(dst_path))@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print 'Copying build product %s to %s' % (f, dst_path)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    shutil.move(f, dst_path)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products_whitelist = ['pathkit.*']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products_whitelist:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    # Because Docker usually has some strange permissions (like root\n    # ownership), we'd rather not keep those around. copyfile doesn't\n    # keep the metadata around, so that helps us.\n    shutil.copyfile(f, dst_path)\n",
+      "[START_DIR]/cache/docker/pathkit",
+      "[START_DIR]/[SWARM_OUT_DIR]/out/Debug"
+    ],
+    "infra_step": true,
+    "name": "copy wasm output",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import errno@@@",
+      "@@@STEP_LOG_LINE@python.inline@import glob@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import shutil@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@src = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@dst = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@build_products_whitelist = ['pathkit.*']@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(dst)@@@",
+      "@@@STEP_LOG_LINE@python.inline@except OSError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if e.errno != errno.EEXIST:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    raise@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@for pattern in build_products_whitelist:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  path = os.path.join(src, pattern)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for f in glob.glob(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    dst_path = os.path.join(dst, os.path.relpath(f, src))@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if not os.path.isdir(os.path.dirname(dst_path)):@@@",
+      "@@@STEP_LOG_LINE@python.inline@      os.makedirs(os.path.dirname(dst_path))@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print 'Copying build product %s to %s' % (f, dst_path)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    # Because Docker usually has some strange permissions (like root@@@",
+      "@@@STEP_LOG_LINE@python.inline@    # ownership), we'd rather not keep those around. copyfile doesn't@@@",
+      "@@@STEP_LOG_LINE@python.inline@    # keep the metadata around, so that helps us.@@@",
+      "@@@STEP_LOG_LINE@python.inline@    shutil.copyfile(f, dst_path)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "name": "$result"
+  }
+]

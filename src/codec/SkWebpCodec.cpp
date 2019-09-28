@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkCodecAnimation.h"
-#include "SkCodecAnimationPriv.h"
-#include "SkCodecPriv.h"
-#include "SkColorSpaceXform.h"
-#include "SkMakeUnique.h"
-#include "SkRasterPipeline.h"
-#include "SkSampler.h"
-#include "SkStreamPriv.h"
-#include "SkTemplates.h"
-#include "SkWebpCodec.h"
-#include "../jumper/SkJumper.h"
+#include "src/codec/SkWebpCodec.h"
+
+#include "include/codec/SkCodecAnimation.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
+#include "src/codec/SkCodecAnimationPriv.h"
+#include "src/codec/SkCodecPriv.h"
+#include "src/codec/SkSampler.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkStreamPriv.h"
 
 // A WebP decoder on top of (subset of) libwebp
 // For more information on WebP image format, and libwebp library, see:
@@ -87,15 +87,17 @@ std::unique_ptr<SkCodec> SkWebpCodec::MakeFromStream(std::unique_ptr<SkStream> s
         }
     }
 
-    sk_sp<SkColorSpace> colorSpace = nullptr;
+    std::unique_ptr<SkEncodedInfo::ICCProfile> profile = nullptr;
     {
         WebPChunkIterator chunkIterator;
         SkAutoTCallVProc<WebPChunkIterator, WebPDemuxReleaseChunkIterator> autoCI(&chunkIterator);
         if (WebPDemuxGetChunk(demux, "ICCP", 1, &chunkIterator)) {
-            colorSpace = SkColorSpace::MakeICC(chunkIterator.chunk.bytes, chunkIterator.chunk.size);
+            // FIXME: I think this could be MakeWithoutCopy
+            auto chunk = SkData::MakeWithCopy(chunkIterator.chunk.bytes, chunkIterator.chunk.size);
+            profile = SkEncodedInfo::ICCProfile::Make(std::move(chunk));
         }
-        if (!colorSpace || colorSpace->type() != SkColorSpace::kRGB_Type) {
-            colorSpace = SkColorSpace::MakeSRGB();
+        if (profile && profile->profile()->data_color_space != skcms_Signature_RGB) {
+            profile = nullptr;
         }
     }
 
@@ -169,25 +171,9 @@ std::unique_ptr<SkCodec> SkWebpCodec::MakeFromStream(std::unique_ptr<SkStream> s
 
 
     *result = kSuccess;
-    SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
-    return std::unique_ptr<SkCodec>(new SkWebpCodec(width, height, info, std::move(colorSpace),
-                                           std::move(stream), demux.release(), std::move(data),
-                                           origin));
-}
-
-SkISize SkWebpCodec::onGetScaledDimensions(float desiredScale) const {
-    SkISize dim = this->getInfo().dimensions();
-    // SkCodec treats zero dimensional images as errors, so the minimum size
-    // that we will recommend is 1x1.
-    dim.fWidth = SkTMax(1, SkScalarRoundToInt(desiredScale * dim.fWidth));
-    dim.fHeight = SkTMax(1, SkScalarRoundToInt(desiredScale * dim.fHeight));
-    return dim;
-}
-
-bool SkWebpCodec::onDimensionsSupported(const SkISize& dim) {
-    const SkImageInfo& info = this->getInfo();
-    return dim.width() >= 1 && dim.width() <= info.width()
-            && dim.height() >= 1 && dim.height() <= info.height();
+    SkEncodedInfo info = SkEncodedInfo::Make(width, height, color, alpha, 8, std::move(profile));
+    return std::unique_ptr<SkCodec>(new SkWebpCodec(std::move(info), std::move(stream),
+                                                    demux.release(), std::move(data), origin));
 }
 
 static WEBP_CSP_MODE webp_decode_mode(SkColorType dstCT, bool premultiply) {
@@ -215,8 +201,7 @@ bool SkWebpCodec::onGetValidSubset(SkIRect* desiredSubset) const {
         return false;
     }
 
-    SkIRect dimensions  = SkIRect::MakeSize(this->getInfo().dimensions());
-    if (!dimensions.contains(*desiredSubset)) {
+    if (!this->bounds().contains(*desiredSubset)) {
         return false;
     }
 
@@ -332,85 +317,33 @@ static bool is_8888(SkColorType colorType) {
     }
 }
 
-static void pick_memory_stages(SkColorType ct, SkRasterPipeline::StockStage* load,
-                                               SkRasterPipeline::StockStage* store) {
-    switch(ct) {
-        case kUnknown_SkColorType:
-        case kAlpha_8_SkColorType:
-        case kARGB_4444_SkColorType:
-        case kGray_8_SkColorType:
-        case kRGB_888x_SkColorType:
-        case kRGB_101010x_SkColorType:
-            SkASSERT(false);
-            break;
-        case kRGB_565_SkColorType:
-            if (load) *load = SkRasterPipeline::load_565;
-            if (store) *store = SkRasterPipeline::store_565;
-            break;
-        case kRGBA_8888_SkColorType:
-            if (load) *load = SkRasterPipeline::load_8888;
-            if (store) *store = SkRasterPipeline::store_8888;
-            break;
-        case kBGRA_8888_SkColorType:
-            if (load) *load = SkRasterPipeline::load_bgra;
-            if (store) *store = SkRasterPipeline::store_bgra;
-            break;
-        case kRGBA_1010102_SkColorType:
-            if (load) *load = SkRasterPipeline::load_1010102;
-            if (store) *store = SkRasterPipeline::store_1010102;
-            break;
-        case kRGBA_F16_SkColorType:
-            if (load) *load = SkRasterPipeline::load_f16;
-            if (store) *store = SkRasterPipeline::store_f16;
-            break;
-    }
-}
-
 // Requires that the src input be unpremultiplied (or opaque).
 static void blend_line(SkColorType dstCT, void* dst,
                        SkColorType srcCT, const void* src,
-                       bool needsSrgbToLinear,
                        SkAlphaType dstAt,
                        bool srcHasAlpha,
                        int width) {
-    SkJumper_MemoryCtx dst_ctx = { (void*)dst, 0 },
-                       src_ctx = { (void*)src, 0 };
+    SkRasterPipeline_MemoryCtx dst_ctx = { (void*)dst, 0 },
+                               src_ctx = { (void*)src, 0 };
 
     SkRasterPipeline_<256> p;
-    SkRasterPipeline::StockStage load_dst, store_dst;
-    pick_memory_stages(dstCT, &load_dst, &store_dst);
 
-    // Load the final dst.
-    p.append(load_dst, &dst_ctx);
-    if (needsSrgbToLinear) {
-        p.append(SkRasterPipeline::from_srgb);
-    }
+    p.append_load_dst(dstCT, &dst_ctx);
     if (kUnpremul_SkAlphaType == dstAt) {
-        p.append(SkRasterPipeline::premul);
+        p.append(SkRasterPipeline::premul_dst);
     }
-    p.append(SkRasterPipeline::move_src_dst);
 
-    // Load the src.
-    SkRasterPipeline::StockStage load_src;
-    pick_memory_stages(srcCT, &load_src, nullptr);
-    p.append(load_src, &src_ctx);
-    if (needsSrgbToLinear) {
-        p.append(SkRasterPipeline::from_srgb);
-    }
+    p.append_load(srcCT, &src_ctx);
     if (srcHasAlpha) {
         p.append(SkRasterPipeline::premul);
     }
 
     p.append(SkRasterPipeline::srcover);
 
-    // Convert back to dst.
     if (kUnpremul_SkAlphaType == dstAt) {
         p.append(SkRasterPipeline::unpremul);
     }
-    if (needsSrgbToLinear) {
-        p.append(SkRasterPipeline::to_srgb);
-    }
-    p.append(store_dst, &dst_ctx);
+    p.append_store(dstCT, &dst_ctx);
 
     p.run(0,0, width,1);
 }
@@ -419,8 +352,6 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
                                          const Options& options, int* rowsDecodedPtr) {
     const int index = options.fFrameIndex;
     SkASSERT(0 == index || index < fFrameHolder.size());
-
-    const auto& srcInfo = this->getInfo();
     SkASSERT(0 == index || !options.fSubset);
 
     WebPDecoderConfig config;
@@ -439,14 +370,14 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     SkAssertResult(WebPDemuxGetFrame(fDemux, index + 1, &frame));
 
     const bool independent = index == 0 ? true :
-            (fFrameHolder.frame(index)->getRequiredFrame() == kNone);
+            (fFrameHolder.frame(index)->getRequiredFrame() == kNoFrame);
     // Get the frameRect.  libwebp will have already signaled an error if this is not fully
     // contained by the canvas.
     auto frameRect = SkIRect::MakeXYWH(frame.x_offset, frame.y_offset, frame.width, frame.height);
-    SkASSERT(srcInfo.bounds().contains(frameRect));
-    const bool frameIsSubset = frameRect != srcInfo.bounds();
+    SkASSERT(this->bounds().contains(frameRect));
+    const bool frameIsSubset = frameRect != this->bounds();
     if (independent && frameIsSubset) {
-        SkSampler::Fill(dstInfo, dst, rowBytes, 0, options.fZeroInitialized);
+        SkSampler::Fill(dstInfo, dst, rowBytes, options.fZeroInitialized);
     }
 
     int dstX = frameRect.x();
@@ -455,11 +386,11 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     int subsetHeight = frameRect.height();
     if (options.fSubset) {
         SkIRect subset = *options.fSubset;
-        SkASSERT(this->getInfo().bounds().contains(subset));
+        SkASSERT(this->bounds().contains(subset));
         SkASSERT(SkIsAlign2(subset.fLeft) && SkIsAlign2(subset.fTop));
         SkASSERT(this->getValidSubset(&subset) && subset == *options.fSubset);
 
-        if (!SkIRect::IntersectsNoEmptyCheck(subset, frameRect)) {
+        if (!SkIRect::Intersects(subset, frameRect)) {
             return kSuccess;
         }
 
@@ -490,7 +421,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     // Ignore the frame size and offset when determining if scaling is necessary.
     int scaledWidth = subsetWidth;
     int scaledHeight = subsetHeight;
-    SkISize srcSize = options.fSubset ? options.fSubset->size() : srcInfo.dimensions();
+    SkISize srcSize = options.fSubset ? options.fSubset->size() : this->dimensions();
     if (srcSize != dstInfo.dimensions()) {
         config.options.use_scaling = 1;
 
@@ -518,14 +449,6 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
 
     const bool blendWithPrevFrame = !independent && frame.blend_method == WEBP_MUX_BLEND
         && frame.has_alpha;
-    if (blendWithPrevFrame && options.fPremulBehavior == SkTransferFunctionBehavior::kRespect) {
-        // Blending is done with SkRasterPipeline, which requires a color space that is valid for
-        // rendering.
-        const auto* cs = dstInfo.colorSpace();
-        if (!cs || (!cs->gammaCloseToSRGB() && !cs->gammaIsLinear())) {
-            return kInvalidConversion;
-        }
-    }
 
     SkBitmap webpDst;
     auto webpInfo = dstInfo;
@@ -555,35 +478,8 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
         webpDst.installPixels(webpInfo, dst, rowBytes);
     }
 
-    // Choose the step when we will perform premultiplication.
-    enum {
-        kNone,
-        kBlendLine,
-        kColorXform,
-        kLibwebp,
-    };
-    auto choose_premul_step = [&]() {
-        if (!frame.has_alpha) {
-            // None necessary.
-            return kNone;
-        }
-        if (blendWithPrevFrame) {
-            // Premultiply in blend_line, in a linear space.
-            return kBlendLine;
-        }
-        if (dstInfo.alphaType() != kPremul_SkAlphaType) {
-            // No blending is necessary, so we only need to premultiply if the
-            // client requested it.
-            return kNone;
-        }
-        if (this->colorXform()) {
-            // Premultiply in the colorXform, in a linear space.
-            return kColorXform;
-        }
-        return kLibwebp;
-    };
-    const auto premulStep = choose_premul_step();
-    config.output.colorspace = webp_decode_mode(webpInfo.colorType(), premulStep == kLibwebp);
+    config.output.colorspace = webp_decode_mode(webpInfo.colorType(),
+            frame.has_alpha && dstInfo.alphaType() == kPremul_SkAlphaType && !this->colorXform());
     config.output.is_external_memory = 1;
 
     config.output.u.RGBA.rgba = reinterpret_cast<uint8_t*>(webpDst.getAddr(dstX, dstY));
@@ -614,9 +510,6 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
             return kInvalidInput;
     }
 
-    const bool needsSrgbToLinear = dstInfo.gammaCloseToSRGB() &&
-            options.fPremulBehavior == SkTransferFunctionBehavior::kRespect;
-
     const size_t dstBpp = dstInfo.bytesPerPixel();
     dst = SkTAddOffset<void>(dst, dstBpp * dstX + rowBytes * dstY);
     const size_t srcRowBytes = config.output.u.RGBA.stride;
@@ -635,13 +528,10 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
             xformDst = dst;
         }
 
-        const auto xformAlphaType = (premulStep == kColorXform) ? kPremul_SkAlphaType   :
-                                    (          frame.has_alpha) ? kUnpremul_SkAlphaType :
-                                                                  kOpaque_SkAlphaType   ;
         for (int y = 0; y < rowsDecoded; y++) {
-            this->applyColorXform(xformDst, xformSrc, scaledWidth, xformAlphaType);
+            this->applyColorXform(xformDst, xformSrc, scaledWidth);
             if (blendWithPrevFrame) {
-                blend_line(dstCT, dst, dstCT, xformDst, needsSrgbToLinear,
+                blend_line(dstCT, dst, dstCT, xformDst,
                         dstInfo.alphaType(), frame.has_alpha, scaledWidth);
                 dst = SkTAddOffset<void>(dst, rowBytes);
             } else {
@@ -653,7 +543,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
         const uint8_t* src = config.output.u.RGBA.rgba;
 
         for (int y = 0; y < rowsDecoded; y++) {
-            blend_line(dstCT, dst, webpDst.colorType(), src, needsSrgbToLinear,
+            blend_line(dstCT, dst, webpDst.colorType(), src,
                     dstInfo.alphaType(), frame.has_alpha, scaledWidth);
             src = SkTAddOffset<const uint8_t>(src, srcRowBytes);
             dst = SkTAddOffset<void>(dst, rowBytes);
@@ -663,14 +553,14 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     return result;
 }
 
-SkWebpCodec::SkWebpCodec(int width, int height, const SkEncodedInfo& info,
-                         sk_sp<SkColorSpace> colorSpace, std::unique_ptr<SkStream> stream,
+SkWebpCodec::SkWebpCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
                          WebPDemuxer* demux, sk_sp<SkData> data, SkEncodedOrigin origin)
-    : INHERITED(width, height, info, SkColorSpaceXform::kBGRA_8888_ColorFormat, std::move(stream),
-                std::move(colorSpace), origin)
+    : INHERITED(std::move(info), skcms_PixelFormat_BGRA_8888, std::move(stream),
+                origin)
     , fDemux(demux)
     , fData(std::move(data))
     , fFailed(false)
 {
-    fFrameHolder.setScreenSize(width, height);
+    const auto& eInfo = this->getEncodedInfo();
+    fFrameHolder.setScreenSize(eInfo.width(), eInfo.height());
 }

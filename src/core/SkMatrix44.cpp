@@ -5,7 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkMatrix44.h"
+#include "include/core/SkMatrix44.h"
+#include <type_traits>
+#include <utility>
+
+// Copying SkMatrix44 byte-wise is performance-critical to Blink. This class is
+// contained in several Transform classes, which are copied multiple times
+// during the rendering life cycle. See crbug.com/938563 for reference.
+#if defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
+// std::is_trivially_copyable is not supported for some older clang versions,
+// which (at least as of this patch) are in use for Chromecast.
+static_assert(std::is_trivially_copyable<SkMatrix44>::value,
+              "SkMatrix44 must be trivially copyable");
+#endif
 
 static inline bool eq4(const SkMScalar* SK_RESTRICT a,
                       const SkMScalar* SK_RESTRICT b) {
@@ -17,7 +29,7 @@ bool SkMatrix44::operator==(const SkMatrix44& other) const {
         return true;
     }
 
-    if (this->isTriviallyIdentity() && other.isTriviallyIdentity()) {
+    if (this->isIdentity() && other.isIdentity()) {
         return true;
     }
 
@@ -48,14 +60,13 @@ bool SkMatrix44::operator==(const SkMatrix44& other) const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-int SkMatrix44::computeTypeMask() const {
-    unsigned mask = 0;
-
+void SkMatrix44::recomputeTypeMask() {
     if (0 != perspX() || 0 != perspY() || 0 != perspZ() || 1 != fMat[3][3]) {
-        return kTranslate_Mask | kScale_Mask | kAffine_Mask | kPerspective_Mask;
+        fTypeMask = kTranslate_Mask | kScale_Mask | kAffine_Mask | kPerspective_Mask;
+        return;
     }
 
+    TypeMask mask = kIdentity_Mask;
     if (0 != transX() || 0 != transY() || 0 != transZ()) {
         mask |= kTranslate_Mask;
     }
@@ -68,8 +79,7 @@ int SkMatrix44::computeTypeMask() const {
         0 != fMat[2][0] || 0 != fMat[1][2] || 0 != fMat[2][1]) {
             mask |= kAffine_Mask;
     }
-
-    return mask;
+    fTypeMask = mask;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -136,7 +146,7 @@ void SkMatrix44::setColMajorf(const float src[]) {
     memcpy(dst, src, 16 * sizeof(float));
 #endif
 
-    this->dirtyTypeMask();
+    this->recomputeTypeMask();
 }
 
 void SkMatrix44::setColMajord(const double src[]) {
@@ -149,7 +159,7 @@ void SkMatrix44::setColMajord(const double src[]) {
     }
 #endif
 
-    this->dirtyTypeMask();
+    this->recomputeTypeMask();
 }
 
 void SkMatrix44::setRowMajorf(const float src[]) {
@@ -162,7 +172,7 @@ void SkMatrix44::setRowMajorf(const float src[]) {
         src += 4;
         dst += 1;
     }
-    this->dirtyTypeMask();
+    this->recomputeTypeMask();
 }
 
 void SkMatrix44::setRowMajord(const double src[]) {
@@ -175,7 +185,7 @@ void SkMatrix44::setRowMajord(const double src[]) {
         src += 4;
         dst += 1;
     }
-    this->dirtyTypeMask();
+    this->recomputeTypeMask();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -212,7 +222,7 @@ void SkMatrix44::set3x3(SkMScalar m_00, SkMScalar m_10, SkMScalar m_20,
     fMat[1][0] = m_01; fMat[1][1] = m_11; fMat[1][2] = m_21; fMat[1][3] = 0;
     fMat[2][0] = m_02; fMat[2][1] = m_12; fMat[2][2] = m_22; fMat[2][3] = 0;
     fMat[3][0] = 0;    fMat[3][1] = 0;    fMat[3][2] = 0;    fMat[3][3] = 1;
-    this->dirtyTypeMask();
+    this->recomputeTypeMask();
 }
 
 void SkMatrix44::set3x3RowMajorf(const float src[]) {
@@ -220,7 +230,7 @@ void SkMatrix44::set3x3RowMajorf(const float src[]) {
     fMat[1][0] = src[1]; fMat[1][1] = src[4]; fMat[1][2] = src[7]; fMat[1][3] = 0;
     fMat[2][0] = src[2]; fMat[2][1] = src[5]; fMat[2][2] = src[8]; fMat[2][3] = 0;
     fMat[3][0] = 0;      fMat[3][1] = 0;      fMat[3][2] = 0;      fMat[3][3] = 1;
-    this->dirtyTypeMask();
+    this->recomputeTypeMask();
 }
 
 void SkMatrix44::set3x4RowMajorf(const float src[]) {
@@ -228,8 +238,20 @@ void SkMatrix44::set3x4RowMajorf(const float src[]) {
     fMat[0][1] = src[4]; fMat[1][1] = src[5]; fMat[2][1] = src[6];  fMat[3][1] = src[7];
     fMat[0][2] = src[8]; fMat[1][2] = src[9]; fMat[2][2] = src[10]; fMat[3][2] = src[11];
     fMat[0][3] = 0;      fMat[1][3] = 0;      fMat[2][3] = 0;       fMat[3][3] = 1;
-    this->dirtyTypeMask();
+    this->recomputeTypeMask();
 }
+
+void SkMatrix44::set4x4(SkMScalar m_00, SkMScalar m_10, SkMScalar m_20, SkMScalar m_30,
+                SkMScalar m_01, SkMScalar m_11, SkMScalar m_21, SkMScalar m_31,
+                SkMScalar m_02, SkMScalar m_12, SkMScalar m_22, SkMScalar m_32,
+                SkMScalar m_03, SkMScalar m_13, SkMScalar m_23, SkMScalar m_33) {
+    fMat[0][0] = m_00; fMat[0][1] = m_10; fMat[0][2] = m_20; fMat[0][3] = m_30;
+    fMat[1][0] = m_01; fMat[1][1] = m_11; fMat[1][2] = m_21; fMat[1][3] = m_31;
+    fMat[2][0] = m_02; fMat[2][1] = m_12; fMat[2][2] = m_22; fMat[2][3] = m_32;
+    fMat[3][0] = m_03; fMat[3][1] = m_13; fMat[3][2] = m_23; fMat[3][3] = m_33;
+    this->recomputeTypeMask();
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -254,7 +276,7 @@ void SkMatrix44::preTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz) {
     for (int i = 0; i < 4; ++i) {
         fMat[3][i] = fMat[0][i] * dx + fMat[1][i] * dy + fMat[2][i] * dz + fMat[3][i];
     }
-    this->dirtyTypeMask();
+    this->recomputeTypeMask();
 }
 
 void SkMatrix44::postTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz) {
@@ -272,7 +294,7 @@ void SkMatrix44::postTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz) {
         fMat[3][0] += dx;
         fMat[3][1] += dy;
         fMat[3][2] += dz;
-        this->dirtyTypeMask();
+        this->recomputeTypeMask();
     }
 }
 
@@ -304,7 +326,7 @@ void SkMatrix44::preScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
         fMat[1][i] *= sy;
         fMat[2][i] *= sz;
     }
-    this->dirtyTypeMask();
+    this->recomputeTypeMask();
 }
 
 void SkMatrix44::postScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
@@ -317,7 +339,7 @@ void SkMatrix44::postScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
         fMat[i][1] *= sy;
         fMat[i][2] *= sz;
     }
-    this->dirtyTypeMask();
+    this->recomputeTypeMask();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -417,7 +439,7 @@ void SkMatrix44::setConcat(const SkMatrix44& a, const SkMatrix44& b) {
     if (useStorage) {
         memcpy(fMat, storage, sizeof(storage));
     }
-    this->dirtyTypeMask();
+    this->recomputeTypeMask();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -495,7 +517,7 @@ bool SkMatrix44::invert(SkMatrix44* storage) const {
         return true;
     }
 
-    SkMatrix44 tmp(kUninitialized_Constructor);
+    SkMatrix44 tmp;
     // Use storage if it's available and distinct from this matrix.
     SkMatrix44* inverse = (storage && storage != this) ? storage : &tmp;
     if (this->isScaleTranslate()) {
@@ -677,8 +699,6 @@ bool SkMatrix44::invert(SkMatrix44* storage) const {
     inverse->fMat[3][1] = SkDoubleToMScalar(a00 * b09 - a01 * b07 + a02 * b06);
     inverse->fMat[3][2] = SkDoubleToMScalar(a31 * b01 - a30 * b03 - a32 * b00);
     inverse->fMat[3][3] = SkDoubleToMScalar(a20 * b03 - a21 * b01 + a22 * b00);
-    inverse->dirtyTypeMask();
-
     inverse->setTypeMask(this->getType());
     if (!is_matrix_finite(*inverse)) {
         return false;
@@ -692,15 +712,15 @@ bool SkMatrix44::invert(SkMatrix44* storage) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix44::transpose() {
-    SkTSwap(fMat[0][1], fMat[1][0]);
-    SkTSwap(fMat[0][2], fMat[2][0]);
-    SkTSwap(fMat[0][3], fMat[3][0]);
-    SkTSwap(fMat[1][2], fMat[2][1]);
-    SkTSwap(fMat[1][3], fMat[3][1]);
-    SkTSwap(fMat[2][3], fMat[3][2]);
-
-    if (!this->isTriviallyIdentity()) {
-        this->dirtyTypeMask();
+    if (!this->isIdentity()) {
+        using std::swap;
+        swap(fMat[0][1], fMat[1][0]);
+        swap(fMat[0][2], fMat[2][0]);
+        swap(fMat[0][3], fMat[3][0]);
+        swap(fMat[1][2], fMat[2][1]);
+        swap(fMat[1][3], fMat[3][1]);
+        swap(fMat[2][3], fMat[3][2]);
+        this->recomputeTypeMask();
     }
 }
 
@@ -988,7 +1008,7 @@ SkMatrix44& SkMatrix44::operator=(const SkMatrix& src) {
     if (src.isIdentity()) {
         this->setTypeMask(kIdentity_Mask);
     } else {
-        this->dirtyTypeMask();
+        this->recomputeTypeMask();
     }
     return *this;
 }
@@ -996,7 +1016,7 @@ SkMatrix44& SkMatrix44::operator=(const SkMatrix& src) {
 SkMatrix44::operator SkMatrix() const {
     SkMatrix dst;
 
-    dst[SkMatrix::kMScaleX]  = SkMScalarToScalar(fMat[0][0]);
+    dst[SkMatrix::kMScaleX] = SkMScalarToScalar(fMat[0][0]);
     dst[SkMatrix::kMSkewX]  = SkMScalarToScalar(fMat[1][0]);
     dst[SkMatrix::kMTransX] = SkMScalarToScalar(fMat[3][0]);
 

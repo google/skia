@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "Response.h"
+#include "tools/skiaserve/Response.h"
+
+#include "tools/skiaserve/Request.h"
+
+#include "include/core/SkData.h"
+#include "include/core/SkString.h"
+#include "tools/flags/CommandLineFlags.h"
 
 #include "microhttpd.h"
 
-#include "Request.h"
-
-#include "SkCommandLineFlags.h"
-#include "SkData.h"
-#include "SkString.h"
-
-DEFINE_string(source, "https://debugger-assets.skia.org", "Where to load the web UI from.");
+static DEFINE_string(source, "https://debugger-assets.skia.org", "Where to load the web UI from.");
 
 static SkString generate_template(SkString source) {
     SkString debuggerTemplate;

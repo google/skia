@@ -13,11 +13,12 @@ special coordination with the Blink gardener using these steps:
    detail on running the Blink layout tests\).
 2. Check in your code to the Skia repo.
 3. Ahead of the Skia auto roll including your change, manually push a change to the
-   Blink LayoutTests/TestExpectations [file](https://chromium.googlesource.com/chromium/src/+/master/third_party/WebKit/LayoutTests/TestExpectations),
-   flagging tests expected to fail as a result of your change with \[ NeedsManualRebaseline \].
+   Blink LayoutTests/TestExpectations [file](https://chromium.googlesource.com/chromium/src/+/master/third_party/WebKit/LayoutTests/TestExpectations), flagging tests expected to fail as a result of your change as follows:
+   foo/bar/test-name.html [ Failure Pass ]  # Needs rebaseline
+
 4. Wait for the Skia roll to land successfully.
-5. Check in another change to the Blink TestExpectations file changing the flags to
-   \[ NeedsRebaseline\], which will prompt the automatic rebaseline.
+5. Check in another change to the Blink TestExpectations file removing all the
+  skipped test expectations you add earlier, an run `git cl rebaseline` which will prompt the automatic rebaseline.
 
 
 

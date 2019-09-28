@@ -48,9 +48,9 @@
       "skia@abc123"
     ],
     "cwd": "[START_DIR]/cache/work",
-    "env_prefixes": {
+    "env_suffixes": {
       "PATH": [
-        "RECIPE_PACKAGE_REPO[depot_tools]"
+        "RECIPE_REPO[depot_tools]"
       ]
     },
     "infra_step": true,
@@ -111,52 +111,16 @@
   {
     "cmd": [
       "python",
-      "RECIPE_MODULE[skia::core]/resources/generate_and_upload_doxygen.py"
+      "RECIPE_MODULE[skia::doxygen]/resources/generate_and_upload_doxygen.py"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "generate and upload doxygen"
   },
   {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Housekeeper-PerCommit/data"
-    ],
-    "cwd": "[START_DIR]/cache/work/skia",
-    "infra_step": true,
-    "name": "makedirs perf_dir"
-  },
-  {
-    "cmd": [
-      "python",
-      "RECIPE_MODULE[skia::core]/resources/run_binary_size_analysis.py",
-      "--library",
-      "[START_DIR]/build/out/Release/libskia.so",
-      "--githash",
-      "abc123",
-      "--dest",
-      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Housekeeper-PerCommit/data/nanobench_9046e2e693bb92a76e972b694580e5d17ad10748_1337000001.json"
-    ],
-    "cwd": "[START_DIR]/cache/work/skia",
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
-    },
-    "name": "generate binary size data"
-  },
-  {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "name": "$result"
   }
 ]

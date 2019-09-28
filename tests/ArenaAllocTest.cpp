@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkRefCnt.h"
-#include "SkTypes.h"
-#include "Test.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkArenaAlloc.h"
+#include "tests/Test.h"
 
 #include <memory>
 #include <new>
@@ -172,17 +172,4 @@ DEF_TEST(ArenaAlloc, r) {
     REPORTER_ASSERT(r, created == 128);
     REPORTER_ASSERT(r, destroyed == 128);
 
-    {
-        created = 0;
-        destroyed = 0;
-        SkSTArenaAlloc<64> arena;
-
-        sk_sp<FooRefCnt> f = arena.makeSkSp<FooRefCnt>(4, 5.0f);
-        REPORTER_ASSERT(r, f->x == 4);
-        REPORTER_ASSERT(r, f->y == 5.0f);
-        REPORTER_ASSERT(r, created == 1);
-        REPORTER_ASSERT(r, destroyed == 0);
-    }
-    REPORTER_ASSERT(r, created == 1);
-    REPORTER_ASSERT(r, destroyed == 1);
 }

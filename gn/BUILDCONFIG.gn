@@ -12,16 +12,11 @@ declare_args() {
   is_component_build = false
   ndk = ""
 
-  # It's nice to keep ndk_api set to what Clank targets, but probably no big deal if we can't.
-  if (target_cpu == "x86" || target_cpu == "arm") {
-    ndk_api = 16
-  } else {
-    ndk_api = 21
-  }
+  # Android 5.0, Lollipop
+  ndk_api = 21
 
   linux_soname_version = ""
   sanitize = ""
-  fyi_sanitize = ""
 
   ar = "ar"
   cc = "cc"
@@ -35,11 +30,12 @@ declare_args() {
 
   clang_win = ""
 
-  skia_vulkan_sdk = getenv("VULKAN_SDK")
   skia_moltenvk_path = ""
 
   ncli = ""
   ncli_version = "4.0"
+
+  werror = false
 }
 declare_args() {
   is_debug = !is_official_build
@@ -100,9 +96,6 @@ if (!is_clang && !is_win) {
 if (is_android) {
   ndk_host = ""
   ndk_target = ""
-  ndk_platform = ""
-  ndk_stdlib = ""
-  ndk_gccdir = ""
   ndk_gdbserver = ""
 
   if (host_os == "linux") {
@@ -115,87 +108,31 @@ if (is_android) {
 
   if (target_cpu == "arm64") {
     ndk_target = "aarch64-linux-android"
-    ndk_platform = "android-${ndk_api}/arch-arm64"
-    ndk_stdlib = "arm64-v8a"
-    ndk_gccdir = ndk_target
     ndk_gdbserver = "prebuilt/android-arm64/gdbserver/gdbserver"
   } else if (target_cpu == "arm") {
-    ndk_target = "arm-linux-androideabi"
-    ndk_platform = "android-${ndk_api}/arch-arm"
-    ndk_stdlib = "armeabi-v7a"
-    ndk_gccdir = ndk_target
+    ndk_target = "armv7a-linux-androideabi"
     ndk_gdbserver = "prebuilt/android-arm/gdbserver/gdbserver"
   } else if (target_cpu == "x64") {
     ndk_target = "x86_64-linux-android"
-    ndk_platform = "android-${ndk_api}/arch-x86_64"
-    ndk_stdlib = "x86_64"
-    ndk_gccdir = ndk_stdlib
     ndk_gdbserver = "prebuilt/android-x86_64/gdbserver/gdbserver"
   } else if (target_cpu == "x86") {
     ndk_target = "i686-linux-android"
-    ndk_platform = "android-${ndk_api}/arch-x86"
-    ndk_stdlib = "x86"
-    ndk_gccdir = ndk_stdlib
     ndk_gdbserver = "prebuilt/android-x86/gdbserver/gdbserver"
   }
 }
 
-msvc = ""
-if (is_win) {
-  # By default we look for 2017 (Pro & Community), then 2015. If MSVC is installed in a
+if (target_os == "win") {
+  # By default we look for 2017 (Enterprise, Pro, and Community), then 2015. If MSVC is installed in a
   # non-default location, you can set win_vc to inform us where it is.
-  vc_2017_ent_default =
-      "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC"
-  vc_2017_pro_default =
-      "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional/VC"
-  vc_2017_com_default =
-      "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC"
-  vc_2017_bt_default =
-      "C:/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/VC"
-  vc_2015_default = "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC"
 
   if (win_vc == "") {
-    if ("True" == exec_script("//gn/checkdir.py",
-                              [ "$vc_2017_ent_default" ],
-                              "trim string")) {
-      win_vc = vc_2017_ent_default
-      msvc = 2017
-    } else if ("True" == exec_script("//gn/checkdir.py",
-                              [ "$vc_2017_pro_default" ],
-                              "trim string")) {
-      win_vc = vc_2017_pro_default
-      msvc = 2017
-    } else if ("True" == exec_script("//gn/checkdir.py",
-                                     [ "$vc_2017_com_default" ],
-                                     "trim string")) {
-      win_vc = vc_2017_com_default
-      msvc = 2017
-    } else if ("True" == exec_script("//gn/checkdir.py",
-                                     [ "$vc_2017_bt_default" ],
-                                     "trim string")) {
-      win_vc = vc_2017_bt_default
-      msvc = 2017
-    } else if ("True" == exec_script("//gn/checkdir.py",
-                                     [ "$vc_2015_default" ],
-                                     "trim string")) {
-      win_vc = vc_2015_default
-      msvc = 2015
-    }
+    win_vc = exec_script("//gn/find_msvc.py", [], "trim string")
   }
   assert(win_vc != "")  # Could not find VC installation. Set win_vc to your VC directory.
-
-  if (msvc == "") {
-    if ("True" ==
-        exec_script("//gn/checkdir.py", [ "$win_vc/Tools" ], "trim string")) {
-      msvc = 2017
-    } else {
-      msvc = 2015
-    }
-  }
 }
 
-if (is_win) {
-  if (msvc == 2017 && win_toolchain_version == "") {
+if (target_os == "win") {
+  if (win_toolchain_version == "") {
     win_toolchain_version = exec_script("//gn/highest_version_dir.py",
                                         [
                                           "$win_vc/Tools/MSVC",
@@ -248,7 +185,10 @@ default_configs = [
   "//gn:no_rtti",
 ]
 if (!is_debug) {
-  default_configs += [ "//gn:release" ]
+  default_configs += [
+    "//gn:optimize",
+    "//gn:NDEBUG",
+  ]
 }
 if (!is_official_build) {
   default_configs += [

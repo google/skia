@@ -5,88 +5,45 @@
 * found in the LICENSE file.
 */
 
-#include "SampleSlide.h"
+#include "tools/viewer/SampleSlide.h"
 
-#include "SkCanvas.h"
-#include "SkCommonFlags.h"
-#include "SkKey.h"
-#include "SkOSFile.h"
-#include "SkStream.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkStream.h"
+#include "src/core/SkOSFile.h"
 
 using namespace sk_app;
 
-SampleSlide::SampleSlide(const SkViewFactory* factory)
-    : fViewFactory(factory)
-    , fClick(nullptr) {
-    SkView* view = (*factory)();
-    SampleCode::RequestTitle(view, &fName);
-    view->unref();
+SampleSlide::SampleSlide(const SampleFactory factory) : fSampleFactory(factory) {
+    std::unique_ptr<Sample> sample(factory());
+    fName = sample->name();
 }
 
-SampleSlide::~SampleSlide() { delete fClick; }
+SampleSlide::~SampleSlide() {}
+
+SkISize SampleSlide::getDimensions() const  {
+    return SkISize::Make(SkScalarCeilToInt(fSample->width()), SkScalarCeilToInt(fSample->height()));
+}
+
+bool SampleSlide::animate(double nanos) { return fSample->animate(nanos); }
 
 void SampleSlide::draw(SkCanvas* canvas) {
-    SkASSERT(fView);
-    fView->draw(canvas);
+    SkASSERT(fSample);
+    fSample->draw(canvas);
 }
 
 void SampleSlide::load(SkScalar winWidth, SkScalar winHeight) {
-    fView.reset((*fViewFactory)());
-    fView->setVisibleP(true);
-    fView->setClipToBounds(false);
-    fView->setSize(winWidth, winHeight);
+    fSample.reset(fSampleFactory());
+    fSample->setSize(winWidth, winHeight);
 }
 
 void SampleSlide::unload() {
-    fView.reset();
+    fSample.reset();
 }
 
 bool SampleSlide::onChar(SkUnichar c) {
-    if (!fView) {
-        return false;
-    }
-    SkEvent evt(gCharEvtName);
-    evt.setFast32(c);
-    return fView->doQuery(&evt);
+    return fSample && fSample->onChar(c);
 }
 
-bool SampleSlide::onMouse(SkScalar x, SkScalar y, Window::InputState state,
-                          uint32_t modifiers) {
-    // map to SkView modifiers
-    unsigned modifierKeys = 0;
-    modifierKeys |= (modifiers & Window::kShift_ModifierKey) ? kShift_SkModifierKey : 0;
-    modifierKeys |= (modifiers & Window::kControl_ModifierKey) ? kControl_SkModifierKey : 0;
-    modifierKeys |= (modifiers & Window::kOption_ModifierKey) ? kOption_SkModifierKey : 0;
-    modifierKeys |= (modifiers & Window::kCommand_ModifierKey) ? kCommand_SkModifierKey : 0;
-
-    bool handled = false;
-    switch (state) {
-        case Window::kDown_InputState: {
-            delete fClick;
-            fClick = fView->findClickHandler(SkIntToScalar(x), SkIntToScalar(y), modifierKeys);
-            if (fClick) {
-                SkView::DoClickDown(fClick, x, y, modifierKeys);
-                handled = true;
-            }
-            break;
-        }
-        case Window::kMove_InputState: {
-            if (fClick) {
-                SkView::DoClickMoved(fClick, x, y, modifierKeys);
-                handled = true;
-            }
-            break;
-        }
-        case Window::kUp_InputState: {
-            if (fClick) {
-                SkView::DoClickUp(fClick, x, y, modifierKeys);
-                delete fClick;
-                fClick = nullptr;
-                handled = true;
-            }
-            break;
-        }
-    }
-
-    return handled;
+bool SampleSlide::onMouse(SkScalar x, SkScalar y, skui::InputState state, skui::ModifierKey modifierKeys) {
+    return fSample && fSample->mouse({x, y}, state, modifierKeys);
 }

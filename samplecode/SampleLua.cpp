@@ -5,12 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkView.h"
-#include "SkLua.h"
-#include "SkCanvas.h"
-#include "Resources.h"
-#include "SkData.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/utils/SkLua.h"
+#include "samplecode/Sample.h"
+#include "tools/Resources.h"
 
 extern "C" {
 #include "lua.h"
@@ -35,7 +34,7 @@ static const char gMissingCode[] = ""
     "end"
     ;
 
-class LuaView : public SampleView {
+class LuaView : public Sample {
 public:
     LuaView() : fLua(nullptr) {}
 
@@ -69,13 +68,9 @@ public:
     }
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Lua");
-            return true;
-        }
-        SkUnichar uni;
-        if (SampleCode::CharQ(*evt, &uni)) {
+    SkString name() override { return SkString("Lua"); }
+
+    bool onChar(SkUnichar uni) override {
             lua_State* L = this->ensureLua();
             lua_getglobal(L, gUnicharName);
             if (lua_isfunction(L, -1)) {
@@ -90,8 +85,7 @@ protected:
                     }
                 }
             }
-        }
-        return this->INHERITED::onQuery(evt);
+            return false;
     }
 
     void onDrawContent(SkCanvas* canvas) override {
@@ -114,8 +108,8 @@ protected:
         }
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
-                                              unsigned modi) override {
+    virtual Sample::Click* onFindClickHandler(SkScalar x, SkScalar y,
+                                              skui::ModifierKey modi) override {
         lua_State* L = this->ensureLua();
         lua_getglobal(L, gClickName);
         if (lua_isfunction(L, -1)) {
@@ -126,7 +120,7 @@ protected:
                 SkDebugf("lua err: %s\n", lua_tostring(L, -1));
             } else {
                 if (lua_isboolean(L, -1) && lua_toboolean(L, -1)) {
-                    return new Click(this);
+                    return new Click();
                 }
             }
         }
@@ -136,10 +130,10 @@ protected:
     bool onClick(Click* click) override {
         const char* state = nullptr;
         switch (click->fState) {
-            case Click::kMoved_State:
+            case skui::InputState::kMove:
                 state = "moved";
                 break;
-            case Click::kUp_State:
+            case skui::InputState::kUp:
                 state = "up";
                 break;
             default:
@@ -160,10 +154,9 @@ protected:
 private:
     SkLua* fLua;
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new LuaView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new LuaView(); )

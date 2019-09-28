@@ -5,10 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
-#include "SkDistanceFieldGen.h"
-#include "SkPointPriv.h"
-#include "SkTemplates.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkDistanceFieldGen.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkPointPriv.h"
+
+#include <utility>
 
 struct DFData {
     float   fAlpha;      // alpha value of source texel
@@ -120,7 +124,8 @@ static float edge_distance(const SkPoint& direction, float alpha) {
         dx = SkScalarAbs(dx);
         dy = SkScalarAbs(dy);
         if (dx < dy) {
-            SkTSwap(dx, dy);
+            using std::swap;
+            swap(dx, dy);
         }
 
         // a1 = 0.5*dy/dx is the smaller fractional area chopped off by the edge
@@ -478,7 +483,7 @@ bool SkGenerateDistanceFieldFromA8Image(unsigned char* distanceField,
     unsigned char* currDestPtr = copyPtr + width + 2;
     for (int i = 0; i < height; ++i) {
         *currDestPtr++ = 0;
-        memcpy(currDestPtr, currSrcScanLine, rowBytes);
+        memcpy(currDestPtr, currSrcScanLine, width);
         currSrcScanLine += rowBytes;
         currDestPtr += width;
         *currDestPtr++ = 0;
@@ -486,6 +491,36 @@ bool SkGenerateDistanceFieldFromA8Image(unsigned char* distanceField,
     sk_bzero(currDestPtr, (width+2)*sizeof(char));
 
     return generate_distance_field_from_image(distanceField, copyPtr, width, height);
+}
+
+// assumes a 16-bit lcd mask and 8-bit distance field
+bool SkGenerateDistanceFieldFromLCD16Mask(unsigned char* distanceField,
+                                           const unsigned char* image,
+                                           int w, int h, size_t rowBytes) {
+    SkASSERT(distanceField);
+    SkASSERT(image);
+
+    // create temp data
+    SkAutoSMalloc<1024> copyStorage((w+2)*(h+2)*sizeof(char));
+    unsigned char* copyPtr = (unsigned char*) copyStorage.get();
+
+    // we copy our source image into a padded copy to ensure we catch edge transitions
+    // around the outside
+    const uint16_t* start = reinterpret_cast<const uint16_t*>(image);
+    auto currSrcScanline = SkMask::AlphaIter<SkMask::kLCD16_Format>(start);
+    auto endSrcScanline = SkMask::AlphaIter<SkMask::kLCD16_Format>(start + w);
+    sk_bzero(copyPtr, (w+2)*sizeof(char));
+    unsigned char* currDestPtr = copyPtr + w + 2;
+    for (int i = 0; i < h; ++i, currSrcScanline >>= rowBytes, endSrcScanline >>= rowBytes) {
+        *currDestPtr++ = 0;
+        for (auto src = currSrcScanline; src < endSrcScanline; ++src) {
+            *currDestPtr++ = *src;
+        }
+        *currDestPtr++ = 0;
+    }
+    sk_bzero(currDestPtr, (w+2)*sizeof(char));
+
+    return generate_distance_field_from_image(distanceField, copyPtr, w, h);
 }
 
 // assumes a 1-bit image and 8-bit distance field
@@ -506,6 +541,8 @@ bool SkGenerateDistanceFieldFromBWImage(unsigned char* distanceField,
     unsigned char* currDestPtr = copyPtr + width + 2;
     for (int i = 0; i < height; ++i) {
         *currDestPtr++ = 0;
+
+
         int rowWritesLeft = width;
         const unsigned char *maskPtr = currSrcScanLine;
         while (rowWritesLeft > 0) {
@@ -515,6 +552,8 @@ bool SkGenerateDistanceFieldFromBWImage(unsigned char* distanceField,
             }
         }
         currSrcScanLine += rowBytes;
+
+
         *currDestPtr++ = 0;
     }
     sk_bzero(currDestPtr, (width+2)*sizeof(char));

@@ -5,10 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkGeometry.h"
-#include "SkPointPriv.h"
-#include "SkRandom.h"
-#include "Test.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkPointPriv.h"
+#include "tests/Test.h"
+
 #include <array>
 #include <numeric>
 
@@ -34,6 +35,16 @@ static void testChopCubic(skiatest::Reporter* reporter) {
     int count = SkChopCubicAtMaxCurvature(src, dst, tValues);
     if (false) { // avoid bit rot, suppress warning
         REPORTER_ASSERT(reporter, count);
+    }
+    // Make sure src and dst can be the same pointer.
+    SkPoint pts[7];
+    for (int i = 0; i < 7; ++i) {
+        pts[i].set(i, i);
+    }
+    SkChopCubicAt(pts, pts, .5f);
+    for (int i = 0; i < 7; ++i) {
+        REPORTER_ASSERT(reporter, pts[i].fX == pts[i].fY);
+        REPORTER_ASSERT(reporter, pts[i].fX == i * .5f);
     }
 }
 
@@ -174,9 +185,6 @@ static void test_conic_to_quads(skiatest::Reporter* reporter) {
 
     for (int i = 0; i < N; i += 3) {
         const SkPoint* pts = &triples[i];
-
-        SkRect bounds;
-        bounds.set(pts, 3);
 
         SkScalar w = 1e30f;
         do {
@@ -327,25 +335,46 @@ static void test_classify_cubic(skiatest::Reporter* reporter) {
     check_cubic_around_rect(reporter, 0, 0, 1, +std::numeric_limits<float>::quiet_NaN(), true);
 }
 
+static void test_cubic_cusps(skiatest::Reporter* reporter) {
+    std::array<SkPoint, 4> noCusps[] = {
+        {{{0, 0}, {1, 1}, {2, 2}, {3, 3}}},
+        {{{0, 0}, {1, 0}, {1, 1}, {0, 1}}},
+        {{{0, 0}, {1, 0}, {2, 1}, {2, 2}}},
+        {{{0, 0}, {1, 0}, {1, 1}, {2, 1}}},
+    };
+    for (auto noCusp : noCusps) {
+        REPORTER_ASSERT(reporter, SkFindCubicCusp(noCusp.data()) < 0);
+    }
+    std::array<SkPoint, 4> cusps[] = {
+        {{{0, 0}, {1, 1}, {1, 0}, {0, 1}}},
+        {{{0, 0}, {1, 1}, {0, 1}, {1, 0}}},
+        {{{0, 1}, {1, 0}, {0, 0}, {1, 1}}},
+        {{{0, 1}, {1, 0}, {1, 1}, {0, 0}}},
+    };
+    for (auto cusp : cusps) {
+        REPORTER_ASSERT(reporter, SkFindCubicCusp(cusp.data()) > 0);
+    }
+}
+
 DEF_TEST(Geometry, reporter) {
-    SkPoint pts[3], dst[5];
+    SkPoint pts[5];
 
     pts[0].set(0, 0);
     pts[1].set(100, 50);
     pts[2].set(0, 100);
 
-    int count = SkChopQuadAtMaxCurvature(pts, dst);
+    int count = SkChopQuadAtMaxCurvature(pts, pts);  // Ensure src and dst can be the same pointer.
     REPORTER_ASSERT(reporter, count == 1 || count == 2);
 
     pts[0].set(0, 0);
     pts[1].set(3, 0);
     pts[2].set(3, 3);
-    SkConvertQuadToCubic(pts, dst);
+    SkConvertQuadToCubic(pts, pts);
     const SkPoint cubic[] = {
         { 0, 0, }, { 2, 0, }, { 3, 1, }, { 3, 3 },
     };
     for (int i = 0; i < 4; ++i) {
-        REPORTER_ASSERT(reporter, nearly_equal(cubic[i], dst[i]));
+        REPORTER_ASSERT(reporter, nearly_equal(cubic[i], pts[i]));
     }
 
     testChopCubic(reporter);
@@ -356,4 +385,5 @@ DEF_TEST(Geometry, reporter) {
     test_conic_tangents(reporter);
     test_conic_to_quads(reporter);
     test_classify_cubic(reporter);
+    test_cubic_cusps(reporter);
 }

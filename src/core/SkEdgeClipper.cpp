@@ -5,10 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkMacros.h"
+#include "src/core/SkEdgeClipper.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkLineClipper.h"
 
-#include "SkEdgeClipper.h"
-#include "SkGeometry.h"
-#include "SkLineClipper.h"
+#include <utility>
 
 static bool quick_reject(const SkRect& bounds, const SkRect& clip) {
     return bounds.fTop >= clip.fBottom || bounds.fBottom <= clip.fTop;
@@ -152,7 +154,8 @@ void SkEdgeClipper::clipMonoQuad(const SkPoint srcPts[3], const SkRect& clip) {
     chop_quad_in_Y(pts, clip);
 
     if (pts[0].fX > pts[2].fX) {
-        SkTSwap<SkPoint>(pts[0], pts[2]);
+        using std::swap;
+        swap(pts[0], pts[2]);
         reverse = !reverse;
     }
     SkASSERT(pts[0].fX <= pts[1].fX);
@@ -218,7 +221,7 @@ bool SkEdgeClipper::clipQuad(const SkPoint srcPts[3], const SkRect& clip) {
     fCurrVerb = fVerbs;
 
     SkRect  bounds;
-    bounds.set(srcPts, 3);
+    bounds.setBounds(srcPts, 3);
 
     if (!quick_reject(bounds, clip)) {
         SkPoint monoY[5];
@@ -342,8 +345,9 @@ void SkEdgeClipper::clipMonoCubic(const SkPoint src[4], const SkRect& clip) {
     chop_cubic_in_Y(pts, clip);
 
     if (pts[0].fX > pts[3].fX) {
-        SkTSwap<SkPoint>(pts[0], pts[3]);
-        SkTSwap<SkPoint>(pts[1], pts[2]);
+        using std::swap;
+        swap(pts[0], pts[3]);
+        swap(pts[1], pts[2]);
         reverse = !reverse;
     }
 
@@ -393,7 +397,7 @@ void SkEdgeClipper::clipMonoCubic(const SkPoint src[4], const SkRect& clip) {
 
 static SkRect compute_cubic_bounds(const SkPoint pts[4]) {
     SkRect r;
-    r.set(pts, 4);
+    r.setBounds(pts, 4);
     return r;
 }
 
@@ -453,12 +457,12 @@ void SkEdgeClipper::appendLine(SkPoint p0, SkPoint p1) {
     fCurrPoint += 2;
 }
 
-void SkEdgeClipper::appendVLine(SkScalar x, SkScalar y0, SkScalar y1,
-                                bool reverse) {
+void SkEdgeClipper::appendVLine(SkScalar x, SkScalar y0, SkScalar y1, bool reverse) {
     *fCurrVerb++ = SkPath::kLine_Verb;
 
     if (reverse) {
-        SkTSwap<SkScalar>(y0, y1);
+        using std::swap;
+        swap(y0, y1);
     }
     fCurrPoint[0].set(x, y0);
     fCurrPoint[1].set(x, y1);

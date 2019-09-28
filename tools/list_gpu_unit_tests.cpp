@@ -10,12 +10,11 @@
 #include <string>
 #include <vector>
 
-#include "Test.h"
+#include "tests/Test.h"
 
 int main() {
     std::vector<std::string> tests;
-    for (const skiatest::TestRegistry* r = skiatest::TestRegistry::Head(); r; r = r->next()) {
-        const skiatest::Test& test = r->factory();
+    for (const skiatest::Test& test : skiatest::TestRegistry::Range()) {
         if (test.needsGpu) {
             tests.push_back(std::string(test.name));
         }

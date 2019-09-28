@@ -5,10 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkCanvas.h"
-#include "SkTypeface.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "tools/ToolUtils.h"
 
 /* This test tries to define the effect of using hairline strokes on text.
  * Provides non-hairline images for reference and consistency checks.
@@ -80,57 +88,62 @@ static void drawTestCase(SkCanvas* canvas,
                          SkScalar textScale,
                          SkScalar strokeWidth,
                          SkPaint::Style strokeStyle) {
-        SkPaint paint;
-        paint.setColor(SK_ColorBLACK);
-        paint.setAntiAlias(true);
-        paint.setTextSize(kTextHeight * textScale);
-        sk_tool_utils::set_portable_typeface(&paint);
-        paint.setStrokeWidth(strokeWidth);
-        paint.setStyle(strokeStyle);
+    SkPaint paint;
+    paint.setColor(SK_ColorBLACK);
+    paint.setAntiAlias(true);
+    paint.setStrokeWidth(strokeWidth);
+    paint.setStyle(strokeStyle);
 
-        // This demonstrates that we can not measure the text if
-        // there's a device transform. The canvas total matrix will
-        // end up being a device transform.
-        bool drawRef = !(canvas->getTotalMatrix().getType() &
-                         ~(SkMatrix::kIdentity_Mask | SkMatrix::kTranslate_Mask));
+    SkFont font(ToolUtils::create_portable_typeface(), kTextHeight * textScale);
 
-        SkRect bounds;
-        if (drawRef) {
-            SkScalar advance = paint.measureText(kText, sizeof(kText) - 1, &bounds);
+    // This demonstrates that we can not measure the text if
+    // there's a device transform. The canvas total matrix will
+    // end up being a device transform.
+    bool drawRef = !(canvas->getTotalMatrix().getType() &
+                     ~(SkMatrix::kIdentity_Mask | SkMatrix::kTranslate_Mask));
 
-            paint.setStrokeWidth(0.0f);
-            paint.setStyle(SkPaint::kStroke_Style);
+    SkRect bounds;
+    if (drawRef) {
+        SkScalar advance = font.measureText(kText, sizeof(kText) - 1, SkTextEncoding::kUTF8,
+                                            &bounds, &paint);
 
-            // Green box is the measured text bounds.
-            paint.setColor(SK_ColorGREEN);
-            canvas->drawRect(bounds, paint);
+        paint.setStrokeWidth(0.0f);
+        paint.setStyle(SkPaint::kStroke_Style);
 
-            // Red line is the measured advance from the 0,0 of the text position.
-            paint.setColor(SK_ColorRED);
-            canvas->drawLine(0.0f, 0.0f, advance, 0.0f, paint);
+        // Green box is the measured text bounds.
+        paint.setColor(SK_ColorGREEN);
+        canvas->drawRect(bounds, paint);
+
+        // Red line is the measured advance from the 0,0 of the text position.
+        paint.setColor(SK_ColorRED);
+        canvas->drawLine(0.0f, 0.0f, advance, 0.0f, paint);
+    }
+
+    // Black text is the testcase, eg. the text.
+    paint.setColor(SK_ColorBLACK);
+    paint.setStrokeWidth(strokeWidth);
+    paint.setStyle(strokeStyle);
+    canvas->drawSimpleText(kText, sizeof(kText) - 1, SkTextEncoding::kUTF8,
+                           0.0f, 0.0f, font, paint);
+
+    if (drawRef) {
+        const size_t len = sizeof(kText) - 1;
+        SkGlyphID glyphs[len];
+        const int count = font.textToGlyphs(kText, len, SkTextEncoding::kUTF8, glyphs, len);
+        SkScalar widths[len]; // len is conservative. we really only need 'count'
+        font.getWidthsBounds(glyphs, count, widths, nullptr, &paint);
+
+        paint.setStrokeWidth(0.0f);
+        paint.setStyle(SkPaint::kStroke_Style);
+
+        // Magenta lines are the positions for the characters.
+        paint.setColor(SK_ColorMAGENTA);
+        SkScalar w = bounds.x();
+        for (size_t i = 0; i < sizeof(kText) - 1; ++i) {
+            canvas->drawLine(w, 0.0f, w, 5.0f, paint);
+            w += widths[i];
         }
-
-        // Black text is the testcase, eg. the text.
-        paint.setColor(SK_ColorBLACK);
-        paint.setStrokeWidth(strokeWidth);
-        paint.setStyle(strokeStyle);
-        canvas->drawText(kText, sizeof(kText) - 1, 0.0f, 0.0f, paint);
-
-        if (drawRef) {
-            SkScalar widths[sizeof(kText) - 1];
-            paint.getTextWidths(kText, sizeof(kText) - 1, widths, nullptr);
-
-            paint.setStrokeWidth(0.0f);
-            paint.setStyle(SkPaint::kStroke_Style);
-
-            // Magenta lines are the positions for the characters.
-            paint.setColor(SK_ColorMAGENTA);
-            SkScalar w = bounds.x();
-            for (size_t i = 0; i < sizeof(kText) - 1; ++i) {
-                canvas->drawLine(w, 0.0f, w, 5.0f, paint);
-                w += widths[i];
-            }
-        }
+    }
 }
 
 DEF_SIMPLE_GM(glyph_pos_h_b, c, 800, 600) {

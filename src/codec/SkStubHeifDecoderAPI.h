@@ -32,13 +32,12 @@ struct HeifStream {
 };
 
 struct HeifFrameInfo {
-    int mRotationAngle;
-    int mWidth;
-    int mHeight;
-    int mBytesPerPixel;
-
-    size_t                  mIccSize;
-    std::unique_ptr<char[]> mIccData;
+    uint32_t mWidth;
+    uint32_t mHeight;
+    int32_t  mRotationAngle;           // Rotation angle, clockwise, should be multiple of 90
+    uint32_t mBytesPerPixel;           // Number of bytes for one pixel
+    int64_t mDurationUs;               // Duration of the frame in us
+    std::vector<uint8_t> mIccData;     // ICC data array
 };
 
 struct HeifDecoder {
@@ -47,7 +46,15 @@ struct HeifDecoder {
         return false;
     }
 
+    bool getSequenceInfo(HeifFrameInfo* frameInfo, size_t *frameCount) {
+        return false;
+    }
+
     bool decode(HeifFrameInfo*) {
+        return false;
+    }
+
+    bool decodeSequence(int frameIndex, HeifFrameInfo* frameInfo) {
         return false;
     }
 

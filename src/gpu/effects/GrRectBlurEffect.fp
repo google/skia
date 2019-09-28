@@ -6,14 +6,23 @@
  */
 
 @header {
-    #include "GrProxyProvider.h"
-    #include "SkBlurMask.h"
-    #include "SkScalar.h"
+#include "include/core/SkScalar.h"
+#include "src/core/SkBlurMask.h"
+#include "src/core/SkMathPriv.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrShaderCaps.h"
 }
 
-in uniform float4 rect;
-in float sigma;
+in float4 rect;
+
+layout(key) bool highp = abs(rect.x) > 16000 || abs(rect.y) > 16000 ||
+                         abs(rect.z) > 16000 || abs(rect.w) > 16000;
+
+layout(when= highp) uniform float4 rectF;
+layout(when=!highp) uniform half4  rectH;
+
 in uniform sampler2D blurProfile;
+in uniform half invProfileWidth;
 
 @constructorParams {
     GrSamplerState samplerParams
@@ -22,65 +31,44 @@ in uniform sampler2D blurProfile;
 @samplerParams(blurProfile) {
     samplerParams
 }
-
-// in OpenGL ES, mediump floats have a minimum range of 2^14. If we have coordinates bigger than
-// that, the shader math will end up with infinities and result in the blur effect not working
-// correctly. To avoid this, we switch into highp when the coordinates are too big. As 2^14 is the
-// minimum range but the actual range can be bigger, we might end up switching to highp sooner than
-// strictly necessary, but most devices that have a bigger range for mediump also have mediump being
-// exactly the same as highp (e.g. all non-OpenGL ES devices), and thus incur no additional penalty
-// for the switch.
-layout(key) bool highPrecision = abs(rect.x) > 16000 || abs(rect.y) > 16000 ||
-                                 abs(rect.z) > 16000 || abs(rect.w) > 16000 ||
-                                 abs(rect.z - rect.x) > 16000 || abs(rect.w - rect.y) > 16000;
-
-layout(when=!highPrecision) uniform half4 proxyRectHalf;
-layout(when=highPrecision) uniform float4 proxyRectFloat;
-uniform half profileSize;
-
-
 @class {
-    static sk_sp<GrTextureProxy> CreateBlurProfileTexture(GrProxyProvider* proxyProvider,
-                                                          float sigma) {
-        unsigned int profileSize = SkScalarCeilToInt(6 * sigma);
+static sk_sp<GrTextureProxy> CreateBlurProfileTexture(GrProxyProvider* proxyProvider,
+                                                      float sixSigma) {
+    // The "profile" we are calculating is the integral of a Gaussian with 'sigma' and a half
+    // plane. All such profiles are just scales of each other. So all we really care about is
+    // having enough resolution so that the linear interpolation done in texture lookup doesn't
+    // introduce noticeable artifacts. SkBlurMask::ComputeBlurProfile() produces profiles with
+    // ceil(6 * sigma) entries. We conservatively choose to have 2 texels for each dst pixel.
+    int minProfileWidth = 2 * sk_float_ceil2int(sixSigma);
+    // Bin by powers of 2 with a minimum so we get good profile reuse (remember we can just scale
+    // the texture coords to span the larger profile over a 6 sigma distance).
+    int profileWidth = SkTMax(SkNextPow2(minProfileWidth), 32);
 
-        static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-        GrUniqueKey key;
-        GrUniqueKey::Builder builder(&key, kDomain, 1, "Rect Blur Mask");
-        builder[0] = profileSize;
-        builder.finish();
+    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+    GrUniqueKey key;
+    GrUniqueKey::Builder builder(&key, kDomain, 1, "Rect Blur Mask");
+    builder[0] = profileWidth;
+    builder.finish();
 
-        sk_sp<GrTextureProxy> blurProfile(proxyProvider->findOrCreateProxyByUniqueKey(
-                                                                    key, kTopLeft_GrSurfaceOrigin));
-        if (!blurProfile) {
-            SkImageInfo ii = SkImageInfo::MakeA8(profileSize, 1);
-
-            SkBitmap bitmap;
-            if (!bitmap.tryAllocPixels(ii)) {
-                return nullptr;
-            }
-
-            SkBlurMask::ComputeBlurProfile(bitmap.getAddr8(0, 0), profileSize, sigma);
-            bitmap.setImmutable();
-
-            sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);
-            if (!image) {
-                return nullptr;
-            }
-
-            blurProfile = proxyProvider->createTextureProxy(std::move(image), kNone_GrSurfaceFlags,
-                                                            1, SkBudgeted::kYes,
-                                                            SkBackingFit::kExact);
-            if (!blurProfile) {
-                return nullptr;
-            }
-
-            SkASSERT(blurProfile->origin() == kTopLeft_GrSurfaceOrigin);
-            proxyProvider->assignUniqueKeyToProxy(key, blurProfile.get());
+    sk_sp<GrTextureProxy> blurProfile(proxyProvider->findOrCreateProxyByUniqueKey(
+            key, GrColorType::kAlpha_8, kTopLeft_GrSurfaceOrigin));
+    if (!blurProfile) {
+        SkBitmap bitmap;
+        if (!bitmap.tryAllocPixels(SkImageInfo::MakeA8(profileWidth, 1))) {
+            return nullptr;
         }
-
-        return blurProfile;
+        SkBlurMask::ComputeBlurProfile(bitmap.getAddr8(0, 0), profileWidth, profileWidth / 6.f);
+        bitmap.setImmutable();
+        blurProfile = proxyProvider->createProxyFromBitmap(bitmap, GrMipMapped::kNo);
+        if (!blurProfile) {
+            return nullptr;
+        }
+        SkASSERT(blurProfile->origin() == kTopLeft_GrSurfaceOrigin);
+        proxyProvider->assignUniqueKeyToProxy(key, blurProfile.get());
     }
+
+    return blurProfile;
+}
 }
 
 @make {
@@ -88,63 +76,70 @@ uniform half profileSize;
                                                       const GrShaderCaps& caps,
                                                       const SkRect& rect, float sigma) {
          if (!caps.floatIs32Bits()) {
-             // We promote the rect uniform from half to float when it has large values for
-             // precision. If we don't have full float then fail.
-             if (SkScalarAbs(rect.fLeft) > 16000.f || SkScalarAbs(rect.fTop) > 16000.f ||
-                 SkScalarAbs(rect.fRight) > 16000.f || SkScalarAbs(rect.fBottom) > 16000.f ||
-                 SkScalarAbs(rect.width()) > 16000.f || SkScalarAbs(rect.height()) > 16000.f) {
-                 return nullptr;
+             // We promote the math that gets us into the Gaussian space to full float when the rect
+             // coords are large. If we don't have full float then fail. We could probably clip the
+             // rect to an outset device bounds instead.
+             if (SkScalarAbs(rect.fLeft)  > 16000.f || SkScalarAbs(rect.fTop)    > 16000.f ||
+                 SkScalarAbs(rect.fRight) > 16000.f || SkScalarAbs(rect.fBottom) > 16000.f) {
+                    return nullptr;
              }
          }
-         int doubleProfileSize = SkScalarCeilToInt(12*sigma);
 
-         if (doubleProfileSize >= rect.width() || doubleProfileSize >= rect.height()) {
+         // The profilee straddles the rect edges (half inside, half outside). Thus if the profile
+         // size is greater than the rect width/height then the area at the center of the rect is
+         // influenced by both edges. This is not handled by this effect.
+         float profileSize = 6 * sigma;
+         if (profileSize >= (float) rect.width() || profileSize >= (float) rect.height()) {
              // if the blur sigma is too large so the gaussian overlaps the whole
              // rect in either direction, fall back to CPU path for now.
              return nullptr;
          }
 
-         sk_sp<GrTextureProxy> blurProfile(CreateBlurProfileTexture(proxyProvider, sigma));
-         if (!blurProfile) {
-            return nullptr;
+         auto profile = CreateBlurProfileTexture(proxyProvider, profileSize);
+         if (!profile) {
+             return nullptr;
          }
-
+         // The profile is calculated such that the midpoint is at the rect's edge. To simplify
+         // calculating texture coords in the shader, we inset the rect such that the profile
+         // can be used with one end point aligned to the edges of the rect uniform. The texture
+         // coords should be scaled such that the profile is sampled over a 6 sigma range so inset
+         // by 3 sigma.
+         float halfWidth = profileSize / 2;
+         auto insetR = rect.makeInset(halfWidth, halfWidth);
+         // inverse of the width over which the profile texture should be interpolated outward from
+         // the inset rect.
+         float invWidth = 1.f / profileSize;
          return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(
-            rect, sigma, std::move(blurProfile),
-            GrSamplerState(GrSamplerState::WrapMode::kClamp, GrSamplerState::Filter::kBilerp)));
+                 insetR, std::move(profile), invWidth, GrSamplerState::ClampBilerp()));
      }
 }
 
 void main() {
-    @if (highPrecision) {
-        float2 translatedPos = sk_FragCoord.xy - rect.xy;
-        float width = rect.z - rect.x;
-        float height = rect.w - rect.y;
-        float2 smallDims = float2(width - profileSize, height - profileSize);
-        float center = 2 * floor(profileSize / 2 + 0.25) - 1;
-        float2 wh = smallDims - float2(center, center);
-        half hcoord = ((abs(translatedPos.x - 0.5 * width) - 0.5 * wh.x)) / profileSize;
-        half hlookup = texture(blurProfile, float2(hcoord, 0.5)).a;
-        half vcoord = ((abs(translatedPos.y - 0.5 * height) - 0.5 * wh.y)) / profileSize;
-        half vlookup = texture(blurProfile, float2(vcoord, 0.5)).a;
-        sk_OutColor = sk_InColor * hlookup * vlookup;
-    } else {
-        half2 translatedPos = sk_FragCoord.xy - rect.xy;
-        half width = rect.z - rect.x;
-        half height = rect.w - rect.y;
-        half2 smallDims = half2(width - profileSize, height - profileSize);
-        half center = 2 * floor(profileSize / 2 + 0.25) - 1;
-        half2 wh = smallDims - float2(center, center);
-        half hcoord = ((abs(translatedPos.x - 0.5 * width) - 0.5 * wh.x)) / profileSize;
-        half hlookup = texture(blurProfile, float2(hcoord, 0.5)).a;
-        half vcoord = ((abs(translatedPos.y - 0.5 * height) - 0.5 * wh.y)) / profileSize;
-        half vlookup = texture(blurProfile, float2(vcoord, 0.5)).a;
-        sk_OutColor = sk_InColor * hlookup * vlookup;
-    }
+        // Get the smaller of the signed distance from the frag coord to the left and right edges
+        // and similar for y.
+        // The blur profile computed by SkMaskFilter::ComputeBlurProfile is actually 1 - integral.
+        // The integral is an S-looking shape that is symmetric about 0, so we just  compute x and
+        // "backwards" such that texture coord is 1 at the edge and goes to 0 as we move outward.
+        half x;
+        @if (highp) {
+            x = max(half(rectF.x - sk_FragCoord.x), half(sk_FragCoord.x - rectF.z));
+        } else {
+            x = max(half(rectH.x - sk_FragCoord.x), half(sk_FragCoord.x - rectH.z));
+        }
+        half y;
+        @if (highp) {
+            y = max(half(rectF.y - sk_FragCoord.y), half(sk_FragCoord.y - rectF.w));
+        } else {
+            y = max(half(rectH.y - sk_FragCoord.y), half(sk_FragCoord.y - rectH.w));
+        }
+        half xCoverage = sample(blurProfile, half2(x * invProfileWidth, 0.5)).a;
+        half yCoverage = sample(blurProfile, half2(y * invProfileWidth, 0.5)).a;
+        sk_OutColor = sk_InColor * xCoverage * yCoverage;
 }
 
 @setData(pdman) {
-    pdman.set1f(profileSize, SkScalarCeilToScalar(6 * sigma));
+    float r[] {rect.fLeft, rect.fTop, rect.fRight, rect.fBottom};
+    pdman.set4fv(highp ? rectF : rectH, 1, r);
 }
 
 @optimizationFlags { kCompatibleWithCoverageAsAlpha_OptimizationFlag }

@@ -7,8 +7,8 @@
 #ifndef SkPathOpsPoint_DEFINED
 #define SkPathOpsPoint_DEFINED
 
-#include "SkPathOpsTypes.h"
-#include "SkPoint.h"
+#include "include/core/SkPoint.h"
+#include "src/pathops/SkPathOpsTypes.h"
 
 inline bool AlmostEqualUlps(const SkPoint& pt1, const SkPoint& pt2) {
     return AlmostEqualUlps(pt1.fX, pt2.fX) && AlmostEqualUlps(pt1.fY, pt2.fY);
@@ -18,9 +18,10 @@ struct SkDVector {
     double fX;
     double fY;
 
-    void set(const SkVector& pt) {
+    SkDVector& set(const SkVector& pt) {
         fX = pt.fX;
         fY = pt.fY;
+        return *this;
     }
 
     // only used by testing
@@ -84,10 +85,15 @@ struct SkDVector {
         return fX * fX + fY * fY;
     }
 
-    void normalize() {
-        double inverseLength = 1 / this->length();
+    SkDVector& normalize() {
+        double inverseLength = sk_ieee_double_divide(1, this->length());
         fX *= inverseLength;
         fY *= inverseLength;
+        return *this;
+    }
+
+    bool isFinite() const {
+        return std::isfinite(fX) && std::isfinite(fY);
     }
 };
 
@@ -100,7 +106,9 @@ struct SkDPoint {
         fY = pt.fY;
     }
 
-    friend SkDVector operator-(const SkDPoint& a, const SkDPoint& b);
+    friend SkDVector operator-(const SkDPoint& a, const SkDPoint& b) {
+        return { a.fX - b.fX, a.fY - b.fY };
+    }
 
     friend bool operator==(const SkDPoint& a, const SkDPoint& b) {
         return a.fX == b.fX && a.fY == b.fY;

@@ -11,7 +11,7 @@
 #ifndef GrGLConfig_DEFINED
 #define GrGLConfig_DEFINED
 
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
 
 /**
  * Optional GL config file.
@@ -50,16 +50,6 @@
  * GR_GL_CHECK_ERROR_START: controls the initial value of gCheckErrorGL
  * when GR_GL_CHECK_ERROR is 1.  Defaults to 1.
  *
- * GR_GL_USE_BUFFER_DATA_NULL_HINT: When specifing new data for a vertex/index
- * buffer that replaces old data Ganesh can give a hint to the driver that the
- * previous data will not be used in future draws like this:
- *  glBufferData(GL_..._BUFFER, size, NULL, usage);       //<--hint, NULL means
- *  glBufferSubData(GL_..._BUFFER, 0, lessThanSize, data) //   old data can't be
- *                                                        //   used again.
- * However, this can be an unoptimization on some platforms, esp. Chrome.
- * Chrome's cmd buffer will create a new allocation and memset the whole thing
- * to zero (for security reasons). Defaults to 1 (enabled).
- *
  * GR_GL_CHECK_ALLOC_WITH_GET_ERROR: If set to 1 this will then glTexImage,
  * glBufferData, glRenderbufferStorage, etc will be checked for errors. This
  * amounts to ensuring the error is GL_NO_ERROR, calling the allocating
@@ -76,10 +66,6 @@
  * GR_GL_MUST_USE_VBO: Indicates that all vertices and indices must be rendered
  * from VBOs. Chromium's command buffer doesn't allow glVertexAttribArray with
  * ARARY_BUFFER 0 bound or glDrawElements with ELEMENT_ARRAY_BUFFER 0 bound.
- *
- * GR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE is for compatibility with the new version
- * of the OpenGLES2.0 headers from Khronos.  glShaderSource now takes a const char * const *,
- * instead of a const char
  */
 
 #if !defined(GR_GL_LOG_CALLS)
@@ -106,24 +92,8 @@
     #define GR_GL_CHECK_ERROR_START                     1
 #endif
 
-#if !defined(GR_GL_USE_BUFFER_DATA_NULL_HINT)
-    #define GR_GL_USE_BUFFER_DATA_NULL_HINT             1
-#endif
-
 #if !defined(GR_GL_CHECK_ALLOC_WITH_GET_ERROR)
     #define GR_GL_CHECK_ALLOC_WITH_GET_ERROR            1
-#endif
-
-#if !defined(GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT)
-    #define GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT      0
-#endif
-
-#if !defined(GR_GL_MUST_USE_VBO)
-    #define GR_GL_MUST_USE_VBO                          0
-#endif
-
-#if !defined(GR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE)
-    #define GR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE       0
 #endif
 
 #endif

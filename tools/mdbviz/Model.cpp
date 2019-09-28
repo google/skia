@@ -7,13 +7,13 @@
 
 #include <memory>
 
-#include "Model.h"
+#include "tools/mdbviz/Model.h"
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkDebugCanvas.h"
-#include "SkPicture.h"
-#include "SkStream.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkStream.h"
+#include "tools/debugger/DebugCanvas.h"
 
 Model::Model() : fCurOp(0) {
     SkImageInfo ii = SkImageInfo::MakeN32Premul(1024, 1024);
@@ -21,7 +21,7 @@ Model::Model() : fCurOp(0) {
 }
 
 Model::~Model() {
-    this->resetOpList();
+    this->resetOpsTask();
 }
 
 Model::ErrorCode Model::load(const char* filename) {
@@ -35,14 +35,14 @@ Model::ErrorCode Model::load(const char* filename) {
     }
 
     {
-        std::unique_ptr<SkDebugCanvas> temp(new SkDebugCanvas(
-                                                    SkScalarCeilToInt(pic->cullRect().width()),
-                                                    SkScalarCeilToInt(pic->cullRect().height())));
+        std::unique_ptr<DebugCanvas> temp(
+                new DebugCanvas(SkScalarCeilToInt(pic->cullRect().width()),
+                                SkScalarCeilToInt(pic->cullRect().height())));
 
         temp->setPicture(pic.get());
         pic->playback(temp.get());
         temp->setPicture(nullptr);
-        this->resetOpList();
+        this->resetOpsTask();
         temp->detachCommands(&fOps);
     }
 
@@ -62,22 +62,20 @@ const char* Model::ErrorString(ErrorCode err) {
 }
 
 const char* Model::getOpName(int index) const {
-    return SkDrawCommand::GetCommandString(fOps[index]->getType());
+    return DrawCommand::GetCommandString(fOps[index]->getType());
 }
 
 bool Model::isHierarchyPush(int index) const {
-    SkDrawCommand::OpType type = fOps[index]->getType();
+    DrawCommand::OpType type = fOps[index]->getType();
 
-    return SkDrawCommand::kSave_OpType == type ||
-           SkDrawCommand::kSaveLayer_OpType == type ||
-           SkDrawCommand::kBeginDrawPicture_OpType == type;
+    return DrawCommand::kSave_OpType == type || DrawCommand::kSaveLayer_OpType == type ||
+           DrawCommand::kBeginDrawPicture_OpType == type;
 }
 
 bool Model::isHierarchyPop(int index) const {
-    SkDrawCommand::OpType type = fOps[index]->getType();
+    DrawCommand::OpType type = fOps[index]->getType();
 
-    return SkDrawCommand::kRestore_OpType == type ||
-           SkDrawCommand::kEndDrawPicture_OpType == type;
+    return DrawCommand::kRestore_OpType == type || DrawCommand::kEndDrawPicture_OpType == type;
 }
 
 void Model::setCurOp(int curOp) {
@@ -107,7 +105,7 @@ void Model::drawTo(int index) {
     canvas.restoreToCount(saveCount);
 }
 
-void Model::resetOpList() {
+void Model::resetOpsTask() {
     for (int i = 0; i < fOps.count(); ++i) {
         delete fOps[i];
     }

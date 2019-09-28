@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkImage.h"
-#include "Resources.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "tools/Resources.h"
 
 // This gm draws 8 images that are mostly the same when respecting the
 // EXIF orientation tag. Each one has four quadrants (red, blue, green,
@@ -22,6 +22,9 @@ DEF_SIMPLE_GM(orientation, canvas, 400, 320) {
     for (char i = '1'; i <= '8'; i++) {
         SkString path = SkStringPrintf("images/orientation/%c.jpg", i);
         auto image = GetResourceAsImage(path.c_str());
+        if (!image) {
+            continue;
+        }
         canvas->drawImage(image, 0, 0);
         if ('4' == i) {
             canvas->restore();

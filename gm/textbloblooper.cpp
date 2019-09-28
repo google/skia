@@ -5,46 +5,65 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
+#include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkDrawLooper.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/Sk2DPathEffect.h"
+#include "include/effects/SkColorMatrixFilter.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkLayerDrawLooper.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkBlurMask.h"
+#include "tools/ToolUtils.h"
 
-#include "Sk2DPathEffect.h"
-#include "SkBlurMask.h"
-#include "SkColorMatrixFilter.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkGraphics.h"
-#include "SkLayerDrawLooper.h"
-#include "SkMaskFilter.h"
-#include "SkRandom.h"
-#include "SkTextBlob.h"
+#include <string.h>
 
 namespace skiagm {
 
 constexpr int kWidth = 1250;
 constexpr int kHeight = 700;
 
-// Unlike the variant in sk_tool_utils, this version positions the glyphs on a diagonal
-static void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkPaint& origPaint,
+// Unlike the variant in ToolUtils, this version positions the glyphs on a diagonal
+static void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkFont& font,
                              SkScalar x, SkScalar y) {
-    SkPaint paint(origPaint);
     SkTDArray<uint16_t> glyphs;
 
     size_t len = strlen(text);
-    glyphs.append(paint.textToGlyphs(text, len, nullptr));
-    paint.textToGlyphs(text, len, glyphs.begin());
+    glyphs.append(font.countText(text, len, SkTextEncoding::kUTF8));
+    font.textToGlyphs(text, len, SkTextEncoding::kUTF8, glyphs.begin(), glyphs.count());
 
-    const SkScalar advanceX = paint.getTextSize() * 0.85f;
-    const SkScalar advanceY = paint.getTextSize() * 1.5f;
+    const SkScalar advanceX = font.getSize() * 0.85f;
+    const SkScalar advanceY = font.getSize() * 1.5f;
 
     SkTDArray<SkScalar> pos;
     for (unsigned i = 0; i < len; ++i) {
         *pos.append() = x + i * advanceX;
         *pos.append() = y + i * (advanceY / len);
     }
-
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-    const SkTextBlobBuilder::RunBuffer& run = builder->allocRunPos(paint, glyphs.count());
+    const SkTextBlobBuilder::RunBuffer& run = builder->allocRunPos(font, glyphs.count());
     memcpy(run.glyphs, glyphs.begin(), glyphs.count() * sizeof(uint16_t));
     memcpy(run.pos, pos.begin(), len * sizeof(SkScalar) * 2);
 }
@@ -90,7 +109,7 @@ static sk_sp<SkShader> make_shader(const SkRect& bounds) {
         SK_ColorCYAN, SK_ColorMAGENTA, SK_ColorYELLOW,
     };
     return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                        SkShader::kClamp_TileMode);
+                                        SkTileMode::kClamp);
 }
 
 static void color_filter(SkPaint* paint) {
@@ -141,14 +160,13 @@ protected:
         SkTextBlobBuilder builder;
 
         // LCD
-        SkPaint paint;
-        paint.setTextSize(32);
+        SkFont font;
+        font.setSize(32);
         const char* text = "The quick brown fox jumps over the lazy dog";
-        paint.setSubpixelText(true);
-        paint.setLCDRenderText(true);
-        paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
-        add_to_text_blob(&builder, text, paint, 0, 0);
+        font.setSubpixel(true);
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+        font.setTypeface(ToolUtils::create_portable_typeface());
+        add_to_text_blob(&builder, text, font, 0, 0);
         fBlob = builder.make();
 
         // create a looper which sandwhiches an effect in two normal draws
@@ -225,21 +243,21 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
 
-        canvas->drawColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
+        canvas->drawColor(SK_ColorGRAY);
 
         SkPaint paint;
         canvas->translate(10, 40);
-
-        paint.setTextSize(40);
 
         SkRect bounds = fBlob->bounds();
 
         int y = 0;
         for (int looper = 0; looper < fLoopers.count(); looper++) {
-            paint.setLooper(fLoopers[looper]);
+            SkTextBlob* b = fBlob.get();
             canvas->save();
             canvas->translate(0, SkIntToScalar(y));
-            canvas->drawTextBlob(fBlob, 0, 0, paint);
+            fLoopers[looper]->apply(canvas, paint, [b](SkCanvas* c, const SkPaint& p) {
+                c->drawTextBlob(b, 0, 0, p);
+            });
             canvas->restore();
             y += SkScalarFloorToInt(bounds.height());
         }
@@ -247,7 +265,7 @@ protected:
 
 private:
     sk_sp<SkTextBlob> fBlob;
-    SkTArray<sk_sp<SkDrawLooper>, true> fLoopers;
+    SkTArray<sk_sp<SkDrawLooper>> fLoopers;
 
     typedef GM INHERITED;
 };

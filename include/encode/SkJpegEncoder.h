@@ -8,7 +8,7 @@
 #ifndef SkJpegEncoder_DEFINED
 #define SkJpegEncoder_DEFINED
 
-#include "SkEncoder.h"
+#include "include/encode/SkEncoder.h"
 
 class SkJpegEncoderMgr;
 class SkWStream;
@@ -61,7 +61,6 @@ public:
          *  In the second case, the encoder supports linear or legacy blending.
          */
         AlphaOption fAlphaOption = AlphaOption::kIgnore;
-        SkTransferFunctionBehavior fBlendBehavior = SkTransferFunctionBehavior::kRespect;
     };
 
     /**

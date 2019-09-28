@@ -24,6 +24,12 @@ with open(os.path.join(out, app + '_Info.plist'), 'w') as f:
     <key>CFBundleExecutable</key> <string>{app}</string>
     <key>CFBundleIdentifier</key> <string>com.google.{app}</string>
     <key>CFBundlePackageType</key> <string>APPL</string>
+    <key>LSRequiresIPhoneOS</key> <true/>
+    <key>UIDeviceFamily</key> <array>
+      <integer>1</integer>
+      <integer>2</integer>
+    </array>
+    <key>UILaunchStoryboardName</key> <string>LaunchScreen</string>
   </dict>
 </plist>
 '''.format(app=app))

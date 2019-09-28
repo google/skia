@@ -8,12 +8,16 @@
 #ifndef VulkanWindowContext_DEFINED
 #define VulkanWindowContext_DEFINED
 
-#include "SkTypes.h" // required to pull in any SkUserConfig defines
+#include "include/core/SkTypes.h"
 
 #ifdef SK_VULKAN
 
-#include "vk/GrVkBackendContext.h"
-#include "WindowContext.h"
+#include "include/gpu/vk/GrVkVulkan.h"
+
+#include "include/gpu/vk/GrVkBackendContext.h"
+#include "src/gpu/vk/GrVkInterface.h"
+#include "tools/gpu/vk/VkTestUtils.h"
+#include "tools/sk_app/WindowContext.h"
 
 class GrRenderTarget;
 
@@ -26,7 +30,7 @@ public:
     sk_sp<SkSurface> getBackbufferSurface() override;
     void swapBuffers() override;
 
-    bool isValid() override { return SkToBool(fBackendContext.get()); }
+    bool isValid() override { return fDevice != VK_NULL_HANDLE; }
 
     void resize(int w, int h) override {
         this->createSwapchain(w, h, fDisplayParams);
@@ -41,7 +45,7 @@ public:
     /** Platform specific function that creates a VkSurfaceKHR for a window */
     using CreateVkSurfaceFn = std::function<VkSurfaceKHR(VkInstance)>;
     /** Platform specific function that determines whether presentation will succeed. */
-    using CanPresentFn = GrVkBackendContext::CanPresentFn;
+    using CanPresentFn = sk_gpu_test::CanPresentFn;
 
     VulkanWindowContext(const DisplayParams&, CreateVkSurfaceFn, CanPresentFn,
                         PFN_vkGetInstanceProcAddr, PFN_vkGetDeviceProcAddr);
@@ -52,10 +56,7 @@ private:
 
     struct BackbufferInfo {
         uint32_t        fImageIndex;          // image this is associated with
-        VkSemaphore     fAcquireSemaphore;    // we signal on this for acquisition of image
         VkSemaphore     fRenderSemaphore;     // we wait on this for rendering to be done
-        VkCommandBuffer fTransitionCmdBuffers[2]; // to transition layout between present and render
-        VkFence         fUsageFences[2];      // used to ensure this data is no longer used on GPU
     };
 
     BackbufferInfo* getAvailableBackbuffer();
@@ -63,42 +64,45 @@ private:
     void createBuffers(VkFormat format, SkColorType colorType);
     void destroyBuffers();
 
-    sk_sp<const GrVkBackendContext> fBackendContext;
-
-    // simple wrapper class that exists only to initialize a pointer to NULL
-    template <typename FNPTR_TYPE> class VkPtr {
-    public:
-        VkPtr() : fPtr(NULL) {}
-        VkPtr operator=(FNPTR_TYPE ptr) { fPtr = ptr; return *this; }
-        operator FNPTR_TYPE() const { return fPtr; }
-    private:
-        FNPTR_TYPE fPtr;
-    };
+    VkInstance fInstance = VK_NULL_HANDLE;
+    VkPhysicalDevice fPhysicalDevice = VK_NULL_HANDLE;
+    VkDevice fDevice = VK_NULL_HANDLE;
+    VkDebugReportCallbackEXT fDebugCallback = VK_NULL_HANDLE;
 
     // Create functions
     CreateVkSurfaceFn fCreateVkSurfaceFn;
     CanPresentFn      fCanPresentFn;
 
     // Vulkan GetProcAddr functions
-    VkPtr<PFN_vkGetInstanceProcAddr> fGetInstanceProcAddr;
-    VkPtr<PFN_vkGetDeviceProcAddr> fGetDeviceProcAddr;
+    PFN_vkGetInstanceProcAddr fGetInstanceProcAddr = nullptr;
+    PFN_vkGetDeviceProcAddr fGetDeviceProcAddr = nullptr;
 
     // WSI interface functions
-    VkPtr<PFN_vkDestroySurfaceKHR> fDestroySurfaceKHR;
-    VkPtr<PFN_vkGetPhysicalDeviceSurfaceSupportKHR> fGetPhysicalDeviceSurfaceSupportKHR;
-    VkPtr<PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR> fGetPhysicalDeviceSurfaceCapabilitiesKHR;
-    VkPtr<PFN_vkGetPhysicalDeviceSurfaceFormatsKHR> fGetPhysicalDeviceSurfaceFormatsKHR;
-    VkPtr<PFN_vkGetPhysicalDeviceSurfacePresentModesKHR> fGetPhysicalDeviceSurfacePresentModesKHR;
+    PFN_vkDestroySurfaceKHR fDestroySurfaceKHR = nullptr;
+    PFN_vkGetPhysicalDeviceSurfaceSupportKHR fGetPhysicalDeviceSurfaceSupportKHR = nullptr;
+    PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR fGetPhysicalDeviceSurfaceCapabilitiesKHR =nullptr;
+    PFN_vkGetPhysicalDeviceSurfaceFormatsKHR fGetPhysicalDeviceSurfaceFormatsKHR = nullptr;
+    PFN_vkGetPhysicalDeviceSurfacePresentModesKHR fGetPhysicalDeviceSurfacePresentModesKHR =nullptr;
 
-    VkPtr<PFN_vkCreateSwapchainKHR> fCreateSwapchainKHR;
-    VkPtr<PFN_vkDestroySwapchainKHR> fDestroySwapchainKHR;
-    VkPtr<PFN_vkGetSwapchainImagesKHR> fGetSwapchainImagesKHR;
-    VkPtr<PFN_vkAcquireNextImageKHR> fAcquireNextImageKHR;
-    VkPtr<PFN_vkQueuePresentKHR> fQueuePresentKHR;
-    VkPtr<PFN_vkGetDeviceQueue> fGetDeviceQueue;
+    PFN_vkCreateSwapchainKHR fCreateSwapchainKHR = nullptr;
+    PFN_vkDestroySwapchainKHR fDestroySwapchainKHR = nullptr;
+    PFN_vkGetSwapchainImagesKHR fGetSwapchainImagesKHR = nullptr;
+    PFN_vkAcquireNextImageKHR fAcquireNextImageKHR = nullptr;
+    PFN_vkQueuePresentKHR fQueuePresentKHR = nullptr;
+
+    PFN_vkDestroyInstance fDestroyInstance = nullptr;
+    PFN_vkDeviceWaitIdle fDeviceWaitIdle = nullptr;
+    PFN_vkDestroyDebugReportCallbackEXT fDestroyDebugReportCallbackEXT = nullptr;
+    PFN_vkQueueWaitIdle fQueueWaitIdle = nullptr;
+    PFN_vkDestroyDevice fDestroyDevice = nullptr;
+    PFN_vkGetDeviceQueue fGetDeviceQueue = nullptr;
+
+    sk_sp<const GrVkInterface> fInterface;
 
     VkSurfaceKHR      fSurface;
     VkSwapchainKHR    fSwapchain;
+    uint32_t          fGraphicsQueueIndex;
+    VkQueue           fGraphicsQueue;
     uint32_t          fPresentQueueIndex;
     VkQueue           fPresentQueue;
 
@@ -106,7 +110,6 @@ private:
     VkImage*               fImages;         // images in the swapchain
     VkImageLayout*         fImageLayouts;   // layouts of these images when not color attachment
     sk_sp<SkSurface>*      fSurfaces;       // surfaces client renders to (may not be based on rts)
-    VkCommandPool          fCommandPool;
     BackbufferInfo*        fBackbuffers;
     uint32_t               fCurrentBackbufferIndex;
 };

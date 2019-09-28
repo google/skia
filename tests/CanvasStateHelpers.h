@@ -8,7 +8,7 @@
 #ifndef CanvasStateHelpers_DEFINED
 #define CanvasStateHelpers_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
 class SkCanvas;

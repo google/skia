@@ -5,20 +5,28 @@
  * found in the LICENSE file.
  */
 
-#include "SkottieSlide.h"
+#include "tools/viewer/SkottieSlide.h"
 
-#include "SkAnimTimer.h"
-#include "SkCanvas.h"
-#include "Skottie.h"
+#if defined(SK_ENABLE_SKOTTIE)
 
-static void draw_stats_box(SkCanvas* canvas, const skottie::Animation::Stats& stats) {
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "modules/skottie/include/Skottie.h"
+#include "modules/skottie/utils/SkottieUtils.h"
+#include "src/utils/SkOSPath.h"
+#include "tools/timer/TimeUtils.h"
+
+#include <cmath>
+
+static void draw_stats_box(SkCanvas* canvas, const skottie::Animation::Builder::Stats& stats) {
     static constexpr SkRect kR = { 10, 10, 280, 120 };
     static constexpr SkScalar kTextSize = 20;
 
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(0xffeeeeee);
-    paint.setTextSize(kTextSize);
+
+    SkFont font(nullptr, kTextSize);
 
     canvas->drawRect(kR, paint);
 
@@ -26,24 +34,19 @@ static void draw_stats_box(SkCanvas* canvas, const skottie::Animation::Stats& st
 
     const auto json_size = SkStringPrintf("Json size: %lu bytes",
                                           stats.fJsonSize);
-    canvas->drawText(json_size.c_str(),
-                     json_size.size(), kR.x() + 10, kR.y() + kTextSize * 1, paint);
+    canvas->drawString(json_size, kR.x() + 10, kR.y() + kTextSize * 1, font, paint);
     const auto animator_count = SkStringPrintf("Animator count: %lu",
                                                stats.fAnimatorCount);
-    canvas->drawText(animator_count.c_str(),
-                     animator_count.size(), kR.x() + 10, kR.y() + kTextSize * 2, paint);
+    canvas->drawString(animator_count, kR.x() + 10, kR.y() + kTextSize * 2, font, paint);
     const auto json_parse_time = SkStringPrintf("Json parse time: %.3f ms",
                                                 stats.fJsonParseTimeMS);
-    canvas->drawText(json_parse_time.c_str(),
-                     json_parse_time.size(), kR.x() + 10, kR.y() + kTextSize * 3, paint);
+    canvas->drawString(json_parse_time, kR.x() + 10, kR.y() + kTextSize * 3, font, paint);
     const auto scene_parse_time = SkStringPrintf("Scene build time: %.3f ms",
                                                  stats.fSceneParseTimeMS);
-    canvas->drawText(scene_parse_time.c_str(),
-                     scene_parse_time.size(), kR.x() + 10, kR.y() + kTextSize * 4, paint);
+    canvas->drawString(scene_parse_time, kR.x() + 10, kR.y() + kTextSize * 4, font, paint);
     const auto total_load_time = SkStringPrintf("Total load time: %.3f ms",
                                                 stats.fTotalLoadTimeMS);
-    canvas->drawText(total_load_time.c_str(),
-                     total_load_time.size(), kR.x() + 10, kR.y() + kTextSize * 5, paint);
+    canvas->drawString(total_load_time, kR.x() + 10, kR.y() + kTextSize * 5, font, paint);
 
     paint.setStyle(SkPaint::kStroke_Style);
     canvas->drawRect(kR, paint);
@@ -55,17 +58,57 @@ SkottieSlide::SkottieSlide(const SkString& name, const SkString& path)
 }
 
 void SkottieSlide::load(SkScalar w, SkScalar h) {
-    fAnimation = skottie::Animation::MakeFromFile(fPath.c_str(), nullptr, &fAnimationStats);
-    fWinSize   = SkSize::Make(w, h);
-    fTimeBase  = 0; // force a time reset
+    class Logger final : public skottie::Logger {
+    public:
+        struct LogEntry {
+            SkString fMessage,
+                     fJSON;
+        };
+
+        void log(skottie::Logger::Level lvl, const char message[], const char json[]) override {
+            auto& log = lvl == skottie::Logger::Level::kError ? fErrors : fWarnings;
+            log.push_back({ SkString(message), json ? SkString(json) : SkString() });
+        }
+
+        void report() const {
+            SkDebugf("Animation loaded with %lu error%s, %lu warning%s.\n",
+                     fErrors.size(), fErrors.size() == 1 ? "" : "s",
+                     fWarnings.size(), fWarnings.size() == 1 ? "" : "s");
+
+            const auto& show = [](const LogEntry& log, const char prefix[]) {
+                SkDebugf("%s%s", prefix, log.fMessage.c_str());
+                if (!log.fJSON.isEmpty())
+                    SkDebugf(" : %s", log.fJSON.c_str());
+                SkDebugf("\n");
+            };
+
+            for (const auto& err : fErrors)   show(err, "  !! ");
+            for (const auto& wrn : fWarnings) show(wrn, "  ?? ");
+        }
+
+    private:
+        std::vector<LogEntry> fErrors,
+                              fWarnings;
+    };
+
+    auto logger = sk_make_sp<Logger>();
+    skottie::Animation::Builder builder;
+
+    fAnimation      = builder
+            .setLogger(logger)
+            .setResourceProvider(
+                skottie_utils::FileResourceProvider::Make(SkOSPath::Dirname(fPath.c_str())))
+            .makeFromFile(fPath.c_str());
+    fAnimationStats = builder.getStats();
+    fWinSize        = SkSize::Make(w, h);
+    fTimeBase       = 0; // force a time reset
 
     if (fAnimation) {
-        fAnimation->setShowInval(fShowAnimationInval);
-        SkDebugf("loaded Bodymovin animation v: %s, size: [%f %f], fr: %f\n",
+        SkDebugf("Loaded Bodymovin animation v: %s, size: [%f %f]\n",
                  fAnimation->version().c_str(),
                  fAnimation->size().width(),
-                 fAnimation->size().height(),
-                 fAnimation->frameRate());
+                 fAnimation->size().height());
+        logger->report();
     } else {
         SkDebugf("failed to load Bodymovin animation: %s\n", fPath.c_str());
     }
@@ -89,18 +132,39 @@ void SkottieSlide::draw(SkCanvas* canvas) {
         if (fShowAnimationStats) {
             draw_stats_box(canvas, fAnimationStats);
         }
+        if (fShowAnimationInval) {
+            const auto t = SkMatrix::MakeRectToRect(SkRect::MakeSize(fAnimation->size()),
+                                                    dstR,
+                                                    SkMatrix::kCenter_ScaleToFit);
+            SkPaint fill, stroke;
+            fill.setAntiAlias(true);
+            fill.setColor(0x40ff0000);
+            stroke.setAntiAlias(true);
+            stroke.setColor(0xffff0000);
+            stroke.setStyle(SkPaint::kStroke_Style);
+
+            for (const auto& r : fInvalController) {
+                SkRect bounds;
+                t.mapRect(&bounds, r);
+                canvas->drawRect(bounds, fill);
+                canvas->drawRect(bounds, stroke);
+            }
+        }
     }
 }
 
-bool SkottieSlide::animate(const SkAnimTimer& timer) {
+bool SkottieSlide::animate(double nanos) {
+    SkMSec msec = TimeUtils::NanosToMSec(nanos);
     if (fTimeBase == 0) {
         // Reset the animation time.
-        fTimeBase = timer.msec();
+        fTimeBase = msec;
     }
 
     if (fAnimation) {
-        auto t = timer.msec() - fTimeBase;
-        fAnimation->animationTick(t);
+        fInvalController.reset();
+        const auto t = msec - fTimeBase;
+        const auto d = fAnimation->duration() * 1000;
+        fAnimation->seek(std::fmod(t, d) / d, &fInvalController);
     }
     return true;
 }
@@ -117,12 +181,11 @@ bool SkottieSlide::onChar(SkUnichar c) {
     return INHERITED::onChar(c);
 }
 
-bool SkottieSlide::onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state, uint32_t) {
+bool SkottieSlide::onMouse(SkScalar x, SkScalar y, skui::InputState state, skui::ModifierKey) {
     switch (state) {
-    case sk_app::Window::kUp_InputState:
+    case skui::InputState::kUp:
         fShowAnimationInval = !fShowAnimationInval;
         fShowAnimationStats = !fShowAnimationStats;
-        fAnimation->setShowInval(fShowAnimationInval);
         break;
     default:
         break;
@@ -130,3 +193,5 @@ bool SkottieSlide::onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState st
 
     return false;
 }
+
+#endif // SK_ENABLE_SKOTTIE

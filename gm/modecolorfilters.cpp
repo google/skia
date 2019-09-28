@@ -5,10 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkColorFilter.h"
-#include "SkGradientShader.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
+#include "tools/ToolUtils.h"
 
 #define WIDTH 512
 #define HEIGHT 1024
@@ -20,7 +34,7 @@ static sk_sp<SkShader> make_color_shader(SkColor color) {
     constexpr SkPoint kPts[] = {{0, 0}, {1, 1}};
     SkColor colors[] = {color, color};
 
-    return SkGradientShader::MakeLinear(kPts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(kPts, colors, nullptr, 2, SkTileMode::kClamp);
 }
 
 static sk_sp<SkShader> make_solid_shader() {
@@ -40,22 +54,22 @@ static sk_sp<SkShader> make_bg_shader(int checkSize) {
     SkBitmap bmp;
     bmp.allocN32Pixels(2 * checkSize, 2 * checkSize);
     SkCanvas canvas(bmp);
-    canvas.clear(sk_tool_utils::color_to_565(0xFF800000));
+    canvas.clear(ToolUtils::color_to_565(0xFF800000));
     SkPaint paint;
-    paint.setColor(sk_tool_utils::color_to_565(0xFF000080));
+    paint.setColor(ToolUtils::color_to_565(0xFF000080));
     SkRect rect0 = SkRect::MakeXYWH(0, 0,
                                     SkIntToScalar(checkSize), SkIntToScalar(checkSize));
     SkRect rect1 = SkRect::MakeXYWH(SkIntToScalar(checkSize), SkIntToScalar(checkSize),
                                     SkIntToScalar(checkSize), SkIntToScalar(checkSize));
     canvas.drawRect(rect1, paint);
     canvas.drawRect(rect0, paint);
-    return SkShader::MakeBitmapShader(bmp, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
+    return bmp.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat);
 }
 
 class ModeColorFilterGM : public GM {
 public:
     ModeColorFilterGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFF303030));
+        this->setBGColor(0xFF303030);
     }
 
 protected:
@@ -122,7 +136,7 @@ protected:
         const int kRectsPerRow = SkMax32(this->getISize().fWidth / kRectWidth, 1);
         for (size_t cfm = 0; cfm < SK_ARRAY_COUNT(modes); ++cfm) {
             for (size_t cfc = 0; cfc < SK_ARRAY_COUNT(colors); ++cfc) {
-                paint.setColorFilter(SkColorFilter::MakeModeFilter(colors[cfc], modes[cfm]));
+                paint.setColorFilter(SkColorFilters::Blend(colors[cfc], modes[cfm]));
                 for (size_t s = 0; s < SK_ARRAY_COUNT(shaders); ++s) {
                     paint.setShader(shaders[s]);
                     bool hasShader = nullptr == paint.getShader();
@@ -153,7 +167,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new ModeColorFilterGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new ModeColorFilterGM; )
 
 }

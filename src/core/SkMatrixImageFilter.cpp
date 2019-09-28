@@ -5,16 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkMatrixImageFilter.h"
+#include "src/core/SkMatrixImageFilter.h"
 
-#include "SkCanvas.h"
-#include "SkColorSpaceXformer.h"
-#include "SkImageFilterPriv.h"
-#include "SkReadBuffer.h"
-#include "SkSpecialImage.h"
-#include "SkSpecialSurface.h"
-#include "SkWriteBuffer.h"
-#include "SkRect.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkRect.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/core/SkSpecialSurface.h"
+#include "src/core/SkWriteBuffer.h"
 
 SkMatrixImageFilter::SkMatrixImageFilter(const SkMatrix& transform,
                                          SkFilterQuality filterQuality,
@@ -46,12 +44,11 @@ void SkMatrixImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeInt(fFilterQuality);
 }
 
-sk_sp<SkSpecialImage> SkMatrixImageFilter::onFilterImage(SkSpecialImage* source,
-                                                         const Context& ctx,
+sk_sp<SkSpecialImage> SkMatrixImageFilter::onFilterImage(const Context& ctx,
                                                          SkIPoint* offset) const {
 
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
+    sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));
     if (!input) {
         return nullptr;
     }
@@ -72,7 +69,7 @@ sk_sp<SkSpecialImage> SkMatrixImageFilter::onFilterImage(SkSpecialImage* source,
     SkIRect dstBounds;
     dstRect.roundOut(&dstBounds);
 
-    sk_sp<SkSpecialSurface> surf(input->makeSurface(ctx.outputProperties(), dstBounds.size()));
+    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(dstBounds.size()));
     if (!surf) {
         return nullptr;
     }
@@ -95,15 +92,6 @@ sk_sp<SkSpecialImage> SkMatrixImageFilter::onFilterImage(SkSpecialImage* source,
     offset->fX = dstBounds.fLeft;
     offset->fY = dstBounds.fTop;
     return surf->makeImageSnapshot();
-}
-
-sk_sp<SkImageFilter> SkMatrixImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    SkASSERT(1 == this->countInputs());
-    auto input = xformer->apply(this->getInput(0));
-    if (input.get() != this->getInput(0)) {
-        return SkMatrixImageFilter::Make(fTransform, fFilterQuality, std::move(input));
-    }
-    return this->refMe();
 }
 
 SkRect SkMatrixImageFilter::computeFastBounds(const SkRect& src) const {
@@ -133,35 +121,11 @@ SkIRect SkMatrixImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatr
     matrix.mapRect(&floatBounds, SkRect::Make(src));
     SkIRect result = floatBounds.roundOut();
 
-#ifndef SK_IGNORE_MATRIX_IMAGE_FILTER_FIX
     if (kReverse_MapDirection == dir && kNone_SkFilterQuality != fFilterQuality) {
         // When filtering we might need some pixels in the source that might be otherwise
         // clipped off.
         result.outset(1, 1);
     }
-#endif
 
     return result;
-}
-
-void SkMatrixImageFilter::toString(SkString* str) const {
-    str->appendf("SkMatrixImageFilter: (");
-
-    str->appendf("transform: (%f %f %f %f %f %f %f %f %f)",
-                 fTransform[SkMatrix::kMScaleX],
-                 fTransform[SkMatrix::kMSkewX],
-                 fTransform[SkMatrix::kMTransX],
-                 fTransform[SkMatrix::kMSkewY],
-                 fTransform[SkMatrix::kMScaleY],
-                 fTransform[SkMatrix::kMTransY],
-                 fTransform[SkMatrix::kMPersp0],
-                 fTransform[SkMatrix::kMPersp1],
-                 fTransform[SkMatrix::kMPersp2]);
-
-    str->append("<dt>FilterLevel:</dt><dd>");
-    static const char* gFilterLevelStrings[] = { "None", "Low", "Medium", "High" };
-    str->append(gFilterLevelStrings[fFilterQuality]);
-    str->append("</dd>");
-
-    str->appendf(")");
 }

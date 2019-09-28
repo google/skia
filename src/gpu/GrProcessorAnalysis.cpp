@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "GrProcessorAnalysis.h"
-#include "GrGeometryProcessor.h"
-#include "ops/GrDrawOp.h"
+#include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrProcessorAnalysis.h"
+#include "src/gpu/ops/GrDrawOp.h"
 
 GrColorFragmentProcessorAnalysis::GrColorFragmentProcessorAnalysis(
         const GrProcessorAnalysisColor& input,
@@ -17,10 +17,7 @@ GrColorFragmentProcessorAnalysis::GrColorFragmentProcessorAnalysis(
     fIsOpaque = input.isOpaque();
     fUsesLocalCoords = false;
     fProcessorsToEliminate = 0;
-    GrColor color;
-    if ((fKnowOutputColor = input.isConstant(&color))) {
-        fLastKnownOutputColor = GrColor4f::FromGrColor(color);
-    }
+    fKnowOutputColor = input.isConstant(&fLastKnownOutputColor);
     for (int i = 0; i < cnt; ++i) {
         if (fUsesLocalCoords && !fKnowOutputColor && !fCompatibleWithCoverageAsAlpha &&
             !fIsOpaque) {

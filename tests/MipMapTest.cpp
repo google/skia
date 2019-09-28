@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkMipMap.h"
-#include "SkRandom.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkMipMap.h"
+#include "tests/Test.h"
 
 static void make_bitmap(SkBitmap* bm, int width, int height) {
     bm->allocN32Pixels(width, height);
@@ -23,7 +23,7 @@ DEF_TEST(MipMap, reporter) {
         int width = 1 + rand.nextU() % 1000;
         int height = 1 + rand.nextU() % 1000;
         make_bitmap(&bm, width, height);
-        sk_sp<SkMipMap> mm(SkMipMap::Build(bm, SkDestinationSurfaceColorMode::kLegacy, nullptr));
+        sk_sp<SkMipMap> mm(SkMipMap::Build(bm, nullptr));
 
         REPORTER_ASSERT(reporter, mm->countLevels() == SkMipMap::ComputeLevelCount(width, height));
         REPORTER_ASSERT(reporter, !mm->extractLevel(SkSize::Make(SK_Scalar1, SK_Scalar1),
@@ -60,7 +60,7 @@ static void test_mipmap_generation(int width, int height, int expectedMipLevelCo
     SkBitmap bm;
     bm.allocN32Pixels(width, height);
     bm.eraseColor(SK_ColorWHITE);
-    sk_sp<SkMipMap> mm(SkMipMap::Build(bm, SkDestinationSurfaceColorMode::kLegacy, nullptr));
+    sk_sp<SkMipMap> mm(SkMipMap::Build(bm, nullptr));
 
     const int mipLevelCount = mm->countLevels();
     REPORTER_ASSERT(reporter, mipLevelCount == expectedMipLevelCount);
@@ -90,7 +90,7 @@ DEF_TEST(MipMap_DirectLevelAccess, reporter) {
         SkBitmap bm;
         bm.allocN32Pixels(1, 1);
         bm.eraseColor(SK_ColorWHITE);
-        sk_sp<SkMipMap> mm(SkMipMap::Build(bm, SkDestinationSurfaceColorMode::kLegacy, nullptr));
+        sk_sp<SkMipMap> mm(SkMipMap::Build(bm, nullptr));
 
         REPORTER_ASSERT(reporter, mm == nullptr);
     }
@@ -201,4 +201,11 @@ DEF_TEST(MipMap_ComputeLevelSize, reporter) {
                                                        currentTest.fLevel);
         REPORTER_ASSERT(reporter, currentTest.fExpectedMipMapLevelSize == levelSize);
     }
+}
+
+DEF_TEST(MipMap_F16, reporter) {
+    SkBitmap bmp;
+    bmp.allocPixels(SkImageInfo::Make(10, 10, kRGBA_F16_SkColorType, kPremul_SkAlphaType));
+    bmp.eraseColor(0);
+    sk_sp<SkMipMap> mipmap(SkMipMap::Build(bmp, nullptr));
 }

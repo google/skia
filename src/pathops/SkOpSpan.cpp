@@ -4,10 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkOpCoincidence.h"
-#include "SkOpContour.h"
-#include "SkOpSegment.h"
-#include "SkPathWriter.h"
+#include "src/pathops/SkOpCoincidence.h"
+#include "src/pathops/SkOpContour.h"
+#include "src/pathops/SkOpSegment.h"
+#include "src/pathops/SkPathWriter.h"
 
 bool SkOpPtT::alias() const {
     return this->span()->ptT() != this;
@@ -149,33 +149,43 @@ void SkOpPtT::setDeleted() {
     fDeleted = true;
 }
 
-void SkOpSpanBase::addOpp(SkOpSpanBase* opp) {
+bool SkOpSpanBase::addOpp(SkOpSpanBase* opp) {
     SkOpPtT* oppPrev = this->ptT()->oppPrev(opp->ptT());
     if (!oppPrev) {
-        return;
+        return true;
     }
-    this->mergeMatches(opp);
+    FAIL_IF(!this->mergeMatches(opp));
     this->ptT()->addOpp(opp->ptT(), oppPrev);
     this->checkForCollapsedCoincidence();
+    return true;
 }
 
-bool SkOpSpanBase::collapsed(double s, double e) const {
+SkOpSpanBase::Collapsed SkOpSpanBase::collapsed(double s, double e) const {
     const SkOpPtT* start = &fPtT;
+    const SkOpPtT* startNext = nullptr;
     const SkOpPtT* walk = start;
     double min = walk->fT;
     double max = min;
     const SkOpSegment* segment = this->segment();
+    int safetyNet = 100000;
     while ((walk = walk->next()) != start) {
+        if (!--safetyNet) {
+            return Collapsed::kError;
+        }
+        if (walk == startNext) {
+            return Collapsed::kError;
+        }
         if (walk->segment() != segment) {
             continue;
         }
         min = SkTMin(min, walk->fT);
         max = SkTMax(max, walk->fT);
         if (between(min, s, max) && between(min, e, max)) {
-            return true;
+            return Collapsed::kYes;
         }
+        startNext = start->next();
     }
-    return false;
+    return Collapsed::kNo;
 }
 
 bool SkOpSpanBase::contains(const SkOpSpanBase* span) const {
@@ -294,11 +304,15 @@ void SkOpSpanBase::checkForCollapsedCoincidence() {
 // merge them
 // keep the points, but remove spans so that the segment doesn't have 2 or more
 // spans pointing to the same pt-t loop at different loop elements
-void SkOpSpanBase::mergeMatches(SkOpSpanBase* opp) {
+bool SkOpSpanBase::mergeMatches(SkOpSpanBase* opp) {
     SkOpPtT* test = &fPtT;
     SkOpPtT* testNext;
     const SkOpPtT* stop = test;
+    int safetyHatch = 1000000;
     do {
+        if (!--safetyHatch) {
+            return false;
+        }
         testNext = test->next();
         if (test->deleted()) {
             continue;
@@ -352,6 +366,7 @@ void SkOpSpanBase::mergeMatches(SkOpSpanBase* opp) {
         } while ((inner = inner->next()) != innerStop);
     } while ((test = testNext) != stop);
     this->checkForCollapsedCoincidence();
+    return true;
 }
 
 int SkOpSpan::computeWindSum() {
@@ -359,7 +374,6 @@ int SkOpSpan::computeWindSum() {
     SkOpContour* contourHead = globals->contourHead();
     int windTry = 0;
     while (!this->sortableTop(contourHead) && ++windTry < SkOpGlobalState::kMaxWindingTries) {
-        ;
     }
     return this->windSum();
 }

@@ -7,15 +7,14 @@
       "--json-output",
       "/path/to/tmp/json",
       "glob",
-      "[START_DIR]/perf/perfdata/Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-All-Debug/data",
+      "[START_DIR]/perf",
       "*.json"
     ],
-    "cwd": "[START_DIR]/perf/perfdata/Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-All-Debug/data",
+    "cwd": "[START_DIR]/perf",
     "infra_step": true,
     "name": "find results",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/perf/perfdata/Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-All-Debug/data/nanobench_abc123.json@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/perf/nanobench_abc123.json@@@",
       "@@@STEP_LOG_END@glob@@@"
     ]
   },
@@ -25,15 +24,13 @@
       "cp",
       "-z",
       "json",
-      "[START_DIR]/perf/perfdata/Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-All-Debug/data/nanobench_abc123.json",
+      "[START_DIR]/perf/nanobench_abc123.json",
       "gs://skia-perf/trybot/nano-json-v1/2012/05/14/12/Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-All-Debug/456789/12/nanobench_abc123.json"
     ],
     "infra_step": true,
     "name": "upload"
   },
   {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "name": "$result"
   }
 ]

@@ -9,6 +9,8 @@ declare_args() {
 angle_root = "../externals/angle2"
 
 import("../third_party.gni")
+import("$angle_root/src/compiler.gni")
+import("$angle_root/src/libGLESv2.gni")
 
 third_party("angle2") {
   public_include_dirs = [ "$angle_root/include" ]
@@ -17,16 +19,6 @@ third_party("angle2") {
     ":libGLESv2",
   ]
 }
-
-compiler_gypi = exec_script("//gn/gypi_to_gn.py",
-                            [ rebase_path("$angle_root/src/compiler.gypi") ],
-                            "scope",
-                            [])
-
-gles_gypi = exec_script("//gn/gypi_to_gn.py",
-                        [ rebase_path("$angle_root/src/libGLESv2.gypi") ],
-                        "scope",
-                        [])
 
 config("common") {
   defines = [
@@ -66,8 +58,14 @@ config("common") {
     # Allow noexcept, even though we build without exceptions
     cflags_cc += [ "/wd4577" ]
     if (is_clang) {
-      # utilities.cpp includes an 'unsigned long' <= UINT_MAX check
-      cflags_cc += [ "-Wno-tautological-constant-compare" ]
+      cflags_cc += [
+        # utilities.cpp includes an 'unsigned long' <= UINT_MAX check
+        "-Wno-tautological-constant-compare",
+
+        # With distributed Windows builds, files may lose their case during copy, causing
+        # case-sensitivity mismatch on remote machines.
+        "-Wno-nonportable-include-path",
+      ]
     }
   }
 }
@@ -92,17 +90,16 @@ shared_library("libGLESv2") {
     ":commit_id",
   ]
   libs = []
-  sources = rebase_path(
-          compiler_gypi.angle_preprocessor_sources +
-              compiler_gypi.angle_translator_sources +
-              compiler_gypi.angle_translator_essl_sources +
-              compiler_gypi.angle_translator_glsl_sources +
-              compiler_gypi.angle_translator_hlsl_sources +
-              gles_gypi.libangle_sources + gles_gypi.libangle_common_sources +
-              gles_gypi.libangle_image_util_sources +
-              gles_gypi.libglesv2_sources + gles_gypi.libangle_gl_sources,
+  sources =
+      rebase_path(
+          angle_preprocessor_sources + angle_translator_sources +
+              angle_translator_essl_sources + angle_translator_glsl_sources +
+              angle_translator_hlsl_sources + libangle_sources +
+              libangle_common_sources + libangle_image_util_sources +
+              libglesv2_sources + libangle_gl_sources +
+              angle_system_utils_sources + xxhash_sources,
           ".",
-          "$angle_root/src")
+          angle_root) + [ "$angle_root/src/libANGLE/FrameCapture.cpp" ]
   if (is_win) {
     sources += [ "$angle_root/src/libGLESv2/libGLESv2_autogen.def" ]
   }
@@ -112,23 +109,18 @@ shared_library("libGLESv2") {
       "Xi",
       "Xext",
     ]
-    sources += rebase_path(gles_gypi.libangle_gl_glx_sources +
-                               gles_gypi.libangle_common_linux_sources,
-                           ".",
-                           "$angle_root/src") +
+    sources += rebase_path(libangle_gl_glx_sources, ".", angle_root) +
                [ "$angle_root/src/third_party/libXNVCtrl/NVCtrl.c" ]
   } else if (is_win) {
     defines += [
       # TODO: ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES
     ]
-    sources += rebase_path(gles_gypi.libangle_gl_wgl_sources +
-                               gles_gypi.libangle_d3d_shared_sources +
-                               gles_gypi.libangle_d3d9_sources +
-                               gles_gypi.libangle_d3d11_sources +
-                               gles_gypi.libangle_d3d11_win32_sources +
-                               gles_gypi.libangle_common_win_sources,
-                           ".",
-                           "$angle_root/src")
+    sources +=
+        rebase_path(libangle_gl_wgl_sources + libangle_d3d_shared_sources +
+                        libangle_d3d9_sources + libangle_d3d11_sources +
+                        libangle_d3d11_win32_sources,
+                    ".",
+                    angle_root)
     libs += [
       "d3d9.lib",
       "dxguid.lib",
@@ -148,7 +140,7 @@ shared_library("libEGL") {
   deps = [
     ":libGLESv2",
   ]
-  sources = rebase_path(gles_gypi.libegl_sources, ".", "$angle_root/src")
+  sources = rebase_path(libegl_sources, ".", angle_root)
   if (is_win) {
     sources += [ "$angle_root/src/libEGL/libEGL.def" ]
   }

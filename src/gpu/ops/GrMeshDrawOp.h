@@ -8,16 +8,15 @@
 #ifndef GrMeshDrawOp_DEFINED
 #define GrMeshDrawOp_DEFINED
 
-#include "GrDrawOp.h"
-#include "GrGeometryProcessor.h"
-#include "GrMesh.h"
-#include "GrPendingProgramElement.h"
-
-#include "SkTLList.h"
+#include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrMesh.h"
+#include "src/gpu/ops/GrDrawOp.h"
+#include <type_traits>
 
 class GrAtlasManager;
 class GrCaps;
-class GrGlyphCache;
+class GrStrikeCache;
 class GrOpFlushState;
 
 /**
@@ -35,17 +34,25 @@ protected:
         space for the vertices and flushes the draws to the GrMeshDrawOp::Target. */
     class PatternHelper {
     public:
-        PatternHelper(GrPrimitiveType primitiveType) : fMesh(primitiveType) {}
-        /** Returns the allocated storage for the vertices. The caller should populate the vertices
-            before calling recordDraws(). */
-        void* init(Target*, size_t vertexStride, const GrBuffer*, int verticesPerRepetition,
-                   int indicesPerRepetition, int repeatCount);
+        PatternHelper(Target*, GrPrimitiveType, size_t vertexStride,
+                      sk_sp<const GrBuffer> indexBuffer, int verticesPerRepetition,
+                      int indicesPerRepetition, int repeatCount);
 
-        /** Call after init() to issue draws to the GrMeshDrawOp::Target.*/
-        void recordDraw(Target*, const GrGeometryProcessor*, const GrPipeline*);
+        /** Called to issue draws to the GrMeshDrawOp::Target.*/
+        void recordDraw(Target*, sk_sp<const GrGeometryProcessor>) const;
+        void recordDraw(Target*, sk_sp<const GrGeometryProcessor>,
+                        const GrPipeline::FixedDynamicState*) const;
+
+        void* vertices() const { return fVertices; }
+
+    protected:
+        PatternHelper() = default;
+        void init(Target*, GrPrimitiveType, size_t vertexStride, sk_sp<const GrBuffer> indexBuffer,
+                  int verticesPerRepetition, int indicesPerRepetition, int repeatCount);
 
     private:
-        GrMesh fMesh;
+        void* fVertices = nullptr;
+        GrMesh* fMesh = nullptr;
     };
 
     static const int kVerticesPerQuad = 4;
@@ -54,13 +61,11 @@ protected:
     /** A specialization of InstanceHelper for quad rendering. */
     class QuadHelper : private PatternHelper {
     public:
-        QuadHelper() : INHERITED(GrPrimitiveType::kTriangles) {}
-        /** Finds the cached quad index buffer and reserves vertex space. Returns nullptr on failure
-            and on success a pointer to the vertex data that the caller should populate before
-            calling recordDraws(). */
-        void* init(Target*, size_t vertexStride, int quadsToDraw);
+        QuadHelper() = delete;
+        QuadHelper(Target* target, size_t vertexStride, int quadsToDraw);
 
         using PatternHelper::recordDraw;
+        using PatternHelper::vertices;
 
     private:
         typedef PatternHelper INHERITED;
@@ -68,7 +73,6 @@ protected:
 
 private:
     void onPrepare(GrOpFlushState* state) final;
-    void onExecute(GrOpFlushState* state) final;
     virtual void onPrepareDraws(Target*) = 0;
     typedef GrDrawOp INHERITED;
 };
@@ -78,14 +82,26 @@ public:
     virtual ~Target() {}
 
     /** Adds a draw of a mesh. */
-    virtual void draw(const GrGeometryProcessor*, const GrPipeline*, const GrMesh&) = 0;
+    virtual void recordDraw(
+            sk_sp<const GrGeometryProcessor>, const GrMesh[], int meshCnt,
+            const GrPipeline::FixedDynamicState*, const GrPipeline::DynamicStateArrays*) = 0;
+
+    /**
+     * Helper for drawing GrMesh(es) with zero primProc textures and no dynamic state besides the
+     * scissor clip.
+     */
+    void recordDraw(sk_sp<const GrGeometryProcessor> gp, const GrMesh meshes[], int meshCnt = 1) {
+        static constexpr int kZeroPrimProcTextures = 0;
+        auto fixedDynamicState = this->makeFixedDynamicState(kZeroPrimProcTextures);
+        this->recordDraw(std::move(gp), meshes, meshCnt, fixedDynamicState, nullptr);
+    }
 
     /**
      * Makes space for vertex data. The returned pointer is the location where vertex data
      * should be written. On return the buffer that will hold the data as well as an offset into
      * the buffer (in 'vertexSize' units) where the data will be placed.
      */
-    virtual void* makeVertexSpace(size_t vertexSize, int vertexCount, const GrBuffer**,
+    virtual void* makeVertexSpace(size_t vertexSize, int vertexCount, sk_sp<const GrBuffer>*,
                                   int* startVertex) = 0;
 
     /**
@@ -93,7 +109,7 @@ public:
      * should be written. On return the buffer that will hold the data as well as an offset into
      * the buffer (in uint16_t units) where the data will be placed.
      */
-    virtual uint16_t* makeIndexSpace(int indexCount, const GrBuffer**, int* startIndex) = 0;
+    virtual uint16_t* makeIndexSpace(int indexCount, sk_sp<const GrBuffer>*, int* startIndex) = 0;
 
     /**
      * This is similar to makeVertexSpace. It allows the caller to use up to 'actualVertexCount'
@@ -102,7 +118,7 @@ public:
      * buffer is allocated on behalf of this request.
      */
     virtual void* makeVertexSpaceAtLeast(size_t vertexSize, int minVertexCount,
-                                         int fallbackVertexCount, const GrBuffer**,
+                                         int fallbackVertexCount, sk_sp<const GrBuffer>*,
                                          int* startVertex, int* actualVertexCount) = 0;
 
     /**
@@ -112,57 +128,49 @@ public:
      * buffer is allocated on behalf of this request.
      */
     virtual uint16_t* makeIndexSpaceAtLeast(int minIndexCount, int fallbackIndexCount,
-                                            const GrBuffer**, int* startIndex,
+                                            sk_sp<const GrBuffer>*, int* startIndex,
                                             int* actualIndexCount) = 0;
 
     /** Helpers for ops which over-allocate and then return excess data to the pool. */
     virtual void putBackIndices(int indices) = 0;
     virtual void putBackVertices(int vertices, size_t vertexStride) = 0;
 
-    /**
-     * Allocate space for a pipeline. The target ensures this pipeline lifetime is at least
-     * as long as any deferred execution of draws added via draw().
-     * @tparam Args
-     * @param args
-     * @return
-     */
-    template <typename... Args>
-    GrPipeline* allocPipeline(Args&&... args) {
-        return this->pipelineArena()->make<GrPipeline>(std::forward<Args>(args)...);
+    GrMesh* allocMesh(GrPrimitiveType primitiveType) {
+        return this->allocator()->make<GrMesh>(primitiveType);
     }
 
-    /**
-     * Helper that makes a pipeline targeting the op's render target that incorporates the op's
-     * GrAppliedClip.
-     */
-    GrPipeline* makePipeline(uint32_t pipelineFlags, GrProcessorSet&& processorSet,
-                             GrAppliedClip&& clip) {
-        GrPipeline::InitArgs pipelineArgs;
-        pipelineArgs.fFlags = pipelineFlags;
-        pipelineArgs.fProxy = this->proxy();
-        pipelineArgs.fDstProxy = this->dstProxy();
-        pipelineArgs.fCaps = &this->caps();
-        pipelineArgs.fResourceProvider = this->resourceProvider();
-        return this->allocPipeline(pipelineArgs, std::move(processorSet), std::move(clip));
-    }
+    GrMesh* allocMeshes(int n) { return this->allocator()->makeArray<GrMesh>(n); }
+
+    GrPipeline::DynamicStateArrays* allocDynamicStateArrays(int numMeshes,
+                                                            int numPrimitiveProcessorTextures,
+                                                            bool allocScissors);
+
+    GrPipeline::FixedDynamicState* makeFixedDynamicState(int numPrimitiveProcessorTextures);
 
     virtual GrRenderTargetProxy* proxy() const = 0;
 
+    virtual const GrAppliedClip* appliedClip() = 0;
     virtual GrAppliedClip detachAppliedClip() = 0;
 
     virtual const GrXferProcessor::DstProxy& dstProxy() const = 0;
 
     virtual GrResourceProvider* resourceProvider() const = 0;
+    uint32_t contextUniqueID() const { return this->resourceProvider()->contextUniqueID(); }
 
-    virtual GrGlyphCache* glyphCache() const = 0;
+    virtual GrStrikeCache* glyphCache() const = 0;
     virtual GrAtlasManager* atlasManager() const = 0;
+
+    // This should be called during onPrepare of a GrOp. The caller should add any proxies to the
+    // array it will use that it did not access during a call to visitProxies. This is usually the
+    // case for atlases.
+    virtual SkTArray<GrTextureProxy*, true>* sampledProxyArray() = 0;
 
     virtual const GrCaps& caps() const = 0;
 
     virtual GrDeferredUploadTarget* deferredUploadTarget() = 0;
 
 private:
-    virtual SkArenaAlloc* pipelineArena() = 0;
+    virtual SkArenaAlloc* allocator() = 0;
 };
 
 #endif

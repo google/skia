@@ -1,0 +1,29 @@
+[
+  {
+    "cmd": [],
+    "name": "RECIPE CRASH (Uncaught exception)",
+    "~followup_annotations": [
+      "@@@STEP_EXCEPTION@@@",
+      "The recipe has crashed at point 'Uncaught exception'!",
+      "",
+      "Traceback (most recent call last):",
+      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/engine.py\", in run_steps",
+      "    raw_result = recipe_obj.run_steps(api, engine)",
+      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/recipe_deps.py\", in run_steps",
+      "    properties_def, api=api)",
+      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/property_invoker.py\", in invoke_with_properties",
+      "    arg_names, **additional_args)",
+      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/property_invoker.py\", in _invoke_with_properties",
+      "    return callable_obj(*props, **additional_args)",
+      "  File \"RECIPE_REPO[skia]/infra/bots/recipes/android_compile.py\", line 46, in RunSteps",
+      "    raise Exception('Lunch target in %s is not recognized.' % buildername)",
+      "Exception: Lunch target in Build-Debian9-Clang-unrecognized-Android_Framework is not recognized."
+    ]
+  },
+  {
+    "failure": {
+      "humanReason": "Uncaught Exception: Exception('Lunch target in Build-Debian9-Clang-unrecognized-Android_Framework is not recognized.',)"
+    },
+    "name": "$result"
+  }
+]

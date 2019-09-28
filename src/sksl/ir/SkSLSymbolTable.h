@@ -8,11 +8,11 @@
 #ifndef SKSL_SYMBOLTABLE
 #define SKSL_SYMBOLTABLE
 
-#include <map>
+#include <unordered_map>
 #include <memory>
 #include <vector>
-#include "SkSLErrorReporter.h"
-#include "SkSLSymbol.h"
+#include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/ir/SkSLSymbol.h"
 
 namespace SkSL {
 
@@ -37,15 +37,15 @@ public:
 
     void addWithoutOwnership(StringFragment name, const Symbol* symbol);
 
-    Symbol* takeOwnership(Symbol* s);
+    Symbol* takeOwnership(std::unique_ptr<Symbol> s);
 
-    IRNode* takeOwnership(IRNode* n);
+    IRNode* takeOwnership(std::unique_ptr<IRNode> n);
 
     void markAllFunctionsBuiltin();
 
-    std::map<StringFragment, const Symbol*>::iterator begin();
+    std::unordered_map<StringFragment, const Symbol*>::iterator begin();
 
-    std::map<StringFragment, const Symbol*>::iterator end();
+    std::unordered_map<StringFragment, const Symbol*>::iterator end();
 
     const std::shared_ptr<SymbolTable> fParent;
 
@@ -56,7 +56,7 @@ private:
 
     std::vector<std::unique_ptr<IRNode>> fOwnedNodes;
 
-    std::map<StringFragment, const Symbol*> fSymbols;
+    std::unordered_map<StringFragment, const Symbol*> fSymbols;
 
     ErrorReporter& fErrorReporter;
 };

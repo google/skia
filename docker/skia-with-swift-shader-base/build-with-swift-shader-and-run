@@ -1,0 +1,61 @@
+#!/usr/bin/python
+
+import subprocess
+import os
+import argparse
+
+
+# This script compiles and runs a skia app using Swiftshader in a docker container, making it easy
+# to use Swiftshade w/o having to over-write /usr/local/lib/libEGL.so and related on the
+# host development machine.
+
+# The Skia repo to be compiled will be the one on the host machine, which will
+# default to the one specified by the environment variable $SKIA_ROOT with a fallback to the
+# current working directory.
+
+# Example usage
+
+# Prove SwiftShader is really being used:
+#   build-with-swift-shader-and-run "out/with-swift-shader/fuzz --gpuInfo -t api -n NativeGLCanvas"
+
+# Notice the output says GL_RENDERER Google SwiftShader
+# After running the above, feel free to check out $SKIA_OUT/out/with-swift-shader. It has binaries
+# but if you try to run out/with-swift-shader/fuzz --gpuInfo -t api -n NativeGLCanvas w/o using
+# Docker, it will use the host's GPU (e.g. GL_VENDOR NVIDIA Corporation).
+
+# Reproduce a fuzzer bug in SwiftShader:
+# First, copy the test case into $SKIA_ROOT, say $SKIA_ROOT/skbug_1234
+#    build-with-swift-shader-and-run "out/with-swift-shader/fuzz -t filter_fuzz -b /skia/skbug_1234"
+
+# $SKIA_ROOT gets mapped to /skia - other than that, the docker container does not have
+# access to the host file system.
+
+
+IMAGE = 'gcr.io/skia-public/skia-with-swift-shader-base:prod'
+
+BUILD_SCRIPT_PATH = '/skia/docker/skia-with-swift-shader-base/build.sh'
+EXECUTABLE_DIR = 'out/with-swift-shader/'
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--sync_deps', action='store_true', help='Sync the deps before building?')
+parser.add_argument('command', help='A string containing the command to be run '
+                                    '(e.g. out/with-swift-shader/fuzz --help)')
+args = parser.parse_args()
+
+skia_root = os.environ['SKIA_ROOT'] or os.getcwd()
+
+print 'Assuming SKIA_ROOT to be %s' % skia_root
+
+build_cmd = ['docker', 'run', '--rm', '-v', '%s:/skia' % skia_root, IMAGE, BUILD_SCRIPT_PATH]
+if args.sync_deps:
+    build_cmd += ['sync-deps']
+
+print 'Compiling executables to %s/%s' % (skia_root, EXECUTABLE_DIR)
+
+print subprocess.check_output(build_cmd)
+
+supplied_cmd = args.command.split(' ')
+print 'Running supplied command %s' % supplied_cmd
+run_cmd = ['docker', 'run', '--rm', '-w=/skia', '-v', '%s:/skia' % skia_root, IMAGE] + supplied_cmd
+
+print subprocess.check_output(run_cmd)

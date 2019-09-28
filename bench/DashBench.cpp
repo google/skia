@@ -4,16 +4,16 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Benchmark.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkDashPathEffect.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkString.h"
-#include "SkStrokeRec.h"
-#include "SkTDArray.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkString.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/private/SkTDArray.h"
+#include "include/utils/SkRandom.h"
 
 
 /*
@@ -144,8 +144,7 @@ static void make_unit_star(SkPath* path, int n) {
     path->moveTo(0, -SK_Scalar1);
     for (int i = 1; i < n; i++) {
         rad += drad;
-        SkScalar cosV, sinV = SkScalarSinCos(rad, &cosV);
-        path->lineTo(cosV, sinV);
+        path->lineTo(SkScalarCos(rad), SkScalarSin(rad));
     }
     path->close();
 }

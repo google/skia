@@ -8,10 +8,10 @@
 #ifndef SkFixed_DEFINED
 #define SkFixed_DEFINED
 
-#include "SkScalar.h"
-#include "SkSafe_math.h"
-
-#include "SkTypes.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkSafe_math.h"
+#include "include/private/SkTo.h"
 
 /** \file SkFixed.h
 
@@ -23,6 +23,7 @@
 typedef int32_t             SkFixed;
 #define SK_Fixed1           (1 << 16)
 #define SK_FixedHalf        (1 << 15)
+#define SK_FixedQuarter     (1 << 14)
 #define SK_FixedMax         (0x7FFFFFFF)
 #define SK_FixedMin         (-SK_FixedMax)
 #define SK_FixedPI          (0x3243F)

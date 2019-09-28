@@ -12,7 +12,10 @@
 import argparse
 import subprocess
 
-GO_URL = "https://storage.googleapis.com/golang/go1.9.4.linux-amd64.tar.gz"
+
+# Remember to also update the go_win asset when this is updated.
+GO_URL = "https://dl.google.com/go/go1.12.4.linux-amd64.tar.gz"
+
 
 def create_asset(target_dir):
   """Create the asset."""

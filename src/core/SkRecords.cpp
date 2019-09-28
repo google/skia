@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkPathPriv.h"
-#include "SkRecords.h"
+#include "src/core/SkPathPriv.h"
+#include "src/core/SkRecords.h"
 
 namespace SkRecords {
     PreCachedPath::PreCachedPath(const SkPath& path) : SkPath(path) {

@@ -1,0 +1,20 @@
+# Copyright 2019 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# These are variables that are overridable by projects that include Dawn.
+
+dawn_root = "../externals/dawn"
+
+# The paths to Dawn's dependencies. For now, we leave these unset to
+# use Dawn's DEPS. Eventually, we'll move to Skia's copies of as
+# many of these as possible. This will require updating Skia's
+# SPIRV-Tools and Shaderc at a minimum.
+
+# dawn_jinja2_dir = "//third_party/jinja2"
+# dawn_glfw_dir = "//third_party/glfw"
+# dawn_googletest_dir = "//third_party/googletest"
+# dawn_shaderc_dir = "//third_party/shaderc"
+# dawn_spirv_tools_dir = "//third_party/SPIRV-Tools"
+# dawn_spirv_cross_dir = "//third_party/spirv-cross"

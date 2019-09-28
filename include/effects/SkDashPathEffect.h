@@ -8,13 +8,14 @@
 #ifndef SkDashPathEffect_DEFINED
 #define SkDashPathEffect_DEFINED
 
-#include "SkPathEffect.h"
+#include "include/core/SkPathEffect.h"
 
 class SK_API SkDashPathEffect {
 public:
     /** intervals: array containing an even number of entries (>=2), with
          the even indices specifying the length of "on" intervals, and the odd
-         indices specifying the length of "off" intervals.
+         indices specifying the length of "off" intervals. This array will be
+         copied in Make, and can be disposed of freely after.
         count: number of elements in the intervals array
         phase: offset into the intervals array (mod the sum of all of the
          intervals).

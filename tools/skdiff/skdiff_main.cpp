@@ -4,18 +4,18 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "skdiff.h"
-#include "skdiff_html.h"
-#include "skdiff_utils.h"
-#include "SkBitmap.h"
-#include "SkData.h"
-#include "SkImageEncoder.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkStream.h"
-#include "SkPixelRef.h"
-#include "../private/SkTDArray.h"
-#include "../private/SkTSearch.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkPixelRef.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkOSFile.h"
+#include "src/core/SkTSearch.h"
+#include "src/utils/SkOSPath.h"
+#include "tools/skdiff/skdiff.h"
+#include "tools/skdiff/skdiff_html.h"
+#include "tools/skdiff/skdiff_utils.h"
 
 #include <stdlib.h>
 
@@ -183,14 +183,14 @@ struct DiffSummary {
         uint32_t mismatchValue;
 
         if (drp->fBase.fFilename.equals(drp->fComparison.fFilename)) {
-            fResultsOfType[drp->fResult].push(new SkString(drp->fBase.fFilename));
+            fResultsOfType[drp->fResult].push_back(new SkString(drp->fBase.fFilename));
         } else {
             SkString* blame = new SkString("(");
             blame->append(drp->fBase.fFilename);
             blame->append(", ");
             blame->append(drp->fComparison.fFilename);
             blame->append(")");
-            fResultsOfType[drp->fResult].push(blame);
+            fResultsOfType[drp->fResult].push_back(blame);
         }
         switch (drp->fResult) {
           case DiffRecord::kEqualBits_Result:
@@ -215,7 +215,7 @@ struct DiffSummary {
             break;
           case DiffRecord::kCouldNotCompare_Result:
             fNumMismatches++;
-            fStatusOfType[drp->fBase.fStatus][drp->fComparison.fStatus].push(
+            fStatusOfType[drp->fBase.fStatus][drp->fComparison.fStatus].push_back(
                     new SkString(drp->fBase.fFilename));
             break;
           case DiffRecord::kUnknown_Result:
@@ -274,7 +274,7 @@ static void get_file_list_subdir(const SkString& rootDir, const SkString& subDir
         pathRelativeToRootDir.append(fileName);
         if (string_contains_any_of(pathRelativeToRootDir, matchSubstrings) &&
             !string_contains_any_of(pathRelativeToRootDir, nomatchSubstrings)) {
-            files->push(new SkString(pathRelativeToRootDir));
+            files->push_back(new SkString(pathRelativeToRootDir));
         }
     }
 
@@ -344,7 +344,7 @@ static void get_bounds(DiffResource& resource, const char* name) {
     if (resource.fBitmap.empty() && !DiffResource::isStatusFailed(resource.fStatus)) {
         sk_sp<SkData> fileBits(read_file(resource.fFullPath.c_str()));
         if (fileBits) {
-            get_bitmap(fileBits, resource, true);
+            get_bitmap(fileBits, resource, true, true);
         } else {
             SkDebugf("WARNING: couldn't read %s file <%s>\n", name, resource.fFullPath.c_str());
             resource.fStatus = DiffResource::kCouldNotRead_Status;
@@ -375,6 +375,7 @@ static void get_bounds(DiffRecord& drp) {
 /// If outputDir.isEmpty(), don't write out diff files.
 static void create_diff_images (DiffMetricProc dmp,
                                 const int colorThreshold,
+                                bool ignoreColorSpace,
                                 RecordArray* differences,
                                 const SkString& baseDir,
                                 const SkString& comparisonDir,
@@ -495,8 +496,8 @@ static void create_diff_images (DiffMetricProc dmp,
                 VERBOSE_STATUS("MATCH", ANSI_COLOR_GREEN, baseFiles[i]);
             } else {
                 AutoReleasePixels arp(drp);
-                get_bitmap(baseFileBits, drp->fBase, false);
-                get_bitmap(comparisonFileBits, drp->fComparison, false);
+                get_bitmap(baseFileBits, drp->fBase, false, ignoreColorSpace);
+                get_bitmap(comparisonFileBits, drp->fComparison, false, ignoreColorSpace);
                 VERBOSE_STATUS("DIFFERENT", ANSI_COLOR_RED, baseFiles[i]);
                 if (DiffResource::kDecoded_Status == drp->fBase.fStatus &&
                     DiffResource::kDecoded_Status == drp->fComparison.fStatus) {
@@ -515,7 +516,7 @@ static void create_diff_images (DiffMetricProc dmp,
             get_bounds(*drp);
         }
         SkASSERT(DiffRecord::kUnknown_Result != drp->fResult);
-        differences->push(drp);
+        differences->push_back(drp);
         summary->add(drp);
     }
 
@@ -536,7 +537,7 @@ static void create_diff_images (DiffMetricProc dmp,
         if (getBounds) {
             get_bounds(*drp);
         }
-        differences->push(drp);
+        differences->push_back(drp);
         summary->add(drp);
     }
 
@@ -557,7 +558,7 @@ static void create_diff_images (DiffMetricProc dmp,
         if (getBounds) {
             get_bounds(*drp);
         }
-        differences->push(drp);
+        differences->push_back(drp);
         summary->add(drp);
     }
 
@@ -585,6 +586,7 @@ static void usage (char * argv0) {
 "\n    --match <substring>: compare files whose filenames contain this substring;"
 "\n                         if unspecified, compare ALL files."
 "\n                         this flag may be repeated."
+"\n    --nocolorspace: Ignore color space of images."
 "\n    --nodiffs: don't write out image diffs or index.html, just generate"
 "\n               report on stdout"
 "\n    --nomatch <substring>: regardless of --match, DO NOT compare files whose"
@@ -630,6 +632,7 @@ int main(int argc, char** argv) {
     bool recurseIntoSubdirs = true;
     bool verbose = false;
     bool listFailingBase = false;
+    bool ignoreColorSpace = false;
 
     RecordArray differences;
     DiffSummary summary;
@@ -702,7 +705,11 @@ int main(int argc, char** argv) {
             continue;
         }
         if (!strcmp(argv[i], "--match")) {
-            matchSubstrings.push(new SkString(argv[++i]));
+            matchSubstrings.push_back(new SkString(argv[++i]));
+            continue;
+        }
+        if (!strcmp(argv[i], "--nocolorspace")) {
+            ignoreColorSpace = true;
             continue;
         }
         if (!strcmp(argv[i], "--nodiffs")) {
@@ -710,7 +717,7 @@ int main(int argc, char** argv) {
             continue;
         }
         if (!strcmp(argv[i], "--nomatch")) {
-            nomatchSubstrings.push(new SkString(argv[++i]));
+            nomatchSubstrings.push_back(new SkString(argv[++i]));
             continue;
         }
         if (!strcmp(argv[i], "--noprintdirs")) {
@@ -802,10 +809,10 @@ int main(int argc, char** argv) {
     // If no matchSubstrings were specified, match ALL strings
     // (except for whatever nomatchSubstrings were specified, if any).
     if (matchSubstrings.isEmpty()) {
-        matchSubstrings.push(new SkString(""));
+        matchSubstrings.push_back(new SkString(""));
     }
 
-    create_diff_images(diffProc, colorThreshold, &differences,
+    create_diff_images(diffProc, colorThreshold, ignoreColorSpace, &differences,
                        baseDir, comparisonDir, outputDir,
                        matchSubstrings, nomatchSubstrings, recurseIntoSubdirs, generateDiffs,
                        verbose, &summary);

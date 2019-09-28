@@ -4,38 +4,14 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "bench/Benchmark.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkWeakRefCnt.h"
 #include <memory>
-#include "Benchmark.h"
-#include "SkAtomics.h"
-#include "SkRefCnt.h"
-#include "SkWeakRefCnt.h"
+#include <new>
 
 enum {
     M = 2
-};
-
-class AtomicInc32 : public Benchmark {
-public:
-    AtomicInc32() : fX(0) {}
-
-    bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
-    }
-
-protected:
-    const char* onGetName() override {
-        return "atomic_inc_32";
-    }
-
-    void onDraw(int loops, SkCanvas*) override {
-        for (int i = 0; i < loops; ++i) {
-            sk_atomic_inc(&fX);
-        }
-    }
-
-private:
-    int32_t fX;
-    typedef Benchmark INHERITED;
 };
 
 class RefCntBench_Stack : public Benchmark {
@@ -212,8 +188,6 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-DEF_BENCH( return new AtomicInc32(); )
 
 DEF_BENCH( return new RefCntBench_Stack(); )
 DEF_BENCH( return new RefCntBench_Heap(); )

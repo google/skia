@@ -8,34 +8,29 @@
 #ifndef GrClearOp_DEFINED
 #define GrClearOp_DEFINED
 
-#include "GrFixedClip.h"
-#include "GrOp.h"
+#include "src/gpu/GrFixedClip.h"
+#include "src/gpu/ops/GrOp.h"
 
 class GrOpFlushState;
+class GrRecordingContext;
 
 class GrClearOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrClearOp> Make(const GrFixedClip& clip, GrColor color,
-                                           GrSurfaceProxy* dstProxy) {
-        const SkIRect rect = SkIRect::MakeWH(dstProxy->width(), dstProxy->height());
-        if (clip.scissorEnabled() && !SkIRect::Intersects(clip.scissorRect(), rect)) {
-            return nullptr;
-        }
+    static std::unique_ptr<GrClearOp> Make(GrRecordingContext* context,
+                                           const GrFixedClip& clip,
+                                           const SkPMColor4f& color,
+                                           GrSurfaceProxy* dstProxy);
 
-        return std::unique_ptr<GrClearOp>(new GrClearOp(clip, color, dstProxy));
-    }
-
-    static std::unique_ptr<GrClearOp> Make(const SkIRect& rect, GrColor color,
-                                           bool fullScreen) {
-        SkASSERT(fullScreen || !rect.isEmpty());
-
-        return std::unique_ptr<GrClearOp>(new GrClearOp(rect, color, fullScreen));
-    }
+    static std::unique_ptr<GrClearOp> Make(GrRecordingContext* context,
+                                           const SkIRect& rect,
+                                           const SkPMColor4f& color,
+                                           bool fullScreen);
 
     const char* name() const override { return "Clear"; }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string;
         string.append(INHERITED::dumpInfo());
@@ -46,17 +41,20 @@ public:
         } else {
             string.append("disabled");
         }
-        string.appendf("], Color: 0x%08x\n", fColor);
+        string.appendf("], Color: 0x%08x\n", fColor.toBytes_RGBA());
         return string;
     }
+#endif
 
-    GrColor color() const { return fColor; }
-    void setColor(GrColor color) { fColor = color; }
+    const SkPMColor4f& color() const { return fColor; }
+    void setColor(const SkPMColor4f& color) { fColor = color; }
 
 private:
-    GrClearOp(const GrFixedClip& clip, GrColor color, GrSurfaceProxy* proxy);
+    friend class GrOpMemoryPool; // for ctors
 
-    GrClearOp(const SkIRect& rect, GrColor color, bool fullScreen)
+    GrClearOp(const GrFixedClip& clip, const SkPMColor4f& color, GrSurfaceProxy* proxy);
+
+    GrClearOp(const SkIRect& rect, const SkPMColor4f& color, bool fullScreen)
         : INHERITED(ClassID())
         , fClip(GrFixedClip(rect))
         , fColor(color) {
@@ -67,23 +65,22 @@ private:
         this->setBounds(SkRect::Make(rect), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         // This could be much more complicated. Currently we look at cases where the new clear
         // contains the old clear, or when the new clear is a subset of the old clear and is the
         // same color.
         GrClearOp* cb = t->cast<GrClearOp>();
         if (fClip.windowRectsState() != cb->fClip.windowRectsState()) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
         if (cb->contains(this)) {
             fClip = cb->fClip;
-            this->replaceBounds(*t);
             fColor = cb->fColor;
-            return true;
+            return CombineResult::kMerged;
         } else if (cb->fColor == fColor && this->contains(cb)) {
-            return true;
+            return CombineResult::kMerged;
         }
-        return false;
+        return CombineResult::kCannotCombine;
     }
 
     bool contains(const GrClearOp* that) const {
@@ -95,10 +92,10 @@ private:
 
     void onPrepare(GrOpFlushState*) override {}
 
-    void onExecute(GrOpFlushState* state) override;
+    void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override;
 
     GrFixedClip fClip;
-    GrColor     fColor;
+    SkPMColor4f fColor;
 
     typedef GrOp INHERITED;
 };

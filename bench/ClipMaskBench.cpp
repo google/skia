@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "sk_tool_utils.h"
-#include "SkCanvas.h"
-#include "SkColorSpace.h"
-#include "SkImage.h"
-#include "SkPictureRecorder.h"
-#include "SkString.h"
-#include "SkSurface.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "tools/ToolUtils.h"
 
 static void DrawMask(SkCanvas* canvas) {
-    sk_tool_utils::draw_checkerboard(canvas, SK_ColorTRANSPARENT, SK_ColorGREEN, 10);
+    ToolUtils::draw_checkerboard(canvas, SK_ColorTRANSPARENT, SK_ColorGREEN, 10);
 }
 
 class ClipMaskBench : public Benchmark {
@@ -67,8 +67,8 @@ DEF_BENCH(return new ClipMaskBench("picture", [](int size) -> sk_sp<SkImage> {
 });)
 
 /////////
-#include "SkSurface.h"
-#include "SkPath.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkSurface.h"
 
 class RasterTileBench : public Benchmark {
     sk_sp<SkSurface> fSurf;

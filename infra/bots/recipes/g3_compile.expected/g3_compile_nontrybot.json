@@ -1,0 +1,29 @@
+[
+  {
+    "cmd": [],
+    "name": "RECIPE CRASH (Uncaught exception)",
+    "~followup_annotations": [
+      "@@@STEP_EXCEPTION@@@",
+      "The recipe has crashed at point 'Uncaught exception'!",
+      "",
+      "Traceback (most recent call last):",
+      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/engine.py\", in run_steps",
+      "    raw_result = recipe_obj.run_steps(api, engine)",
+      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/recipe_deps.py\", in run_steps",
+      "    properties_def, api=api)",
+      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/property_invoker.py\", in invoke_with_properties",
+      "    arg_names, **additional_args)",
+      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/property_invoker.py\", in _invoke_with_properties",
+      "    return callable_obj(*props, **additional_args)",
+      "  File \"RECIPE_REPO[skia]/infra/bots/recipes/g3_compile.py\", line 22, in RunSteps",
+      "    raise Exception('%s can only be run as a trybot.' % buildername)",
+      "Exception: Build-Debian9-Clang-TAP-Presubmit-G3_Framework can only be run as a trybot."
+    ]
+  },
+  {
+    "failure": {
+      "humanReason": "Uncaught Exception: Exception('Build-Debian9-Clang-TAP-Presubmit-G3_Framework can only be run as a trybot.',)"
+    },
+    "name": "$result"
+  }
+]

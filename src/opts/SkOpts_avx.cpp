@@ -5,17 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "SkOpts.h"
+#include "src/core/SkOpts.h"
 
 #define SK_OPTS_NS avx
-#include "SkRasterPipeline_opts.h"
-#include "SkUtils_opts.h"
+#include "src/opts/SkRasterPipeline_opts.h"
+#include "src/opts/SkUtils_opts.h"
 
 namespace SkOpts {
     void Init_avx() {
         memset16 = SK_OPTS_NS::memset16;
         memset32 = SK_OPTS_NS::memset32;
         memset64 = SK_OPTS_NS::memset64;
+
+        rect_memset16 = SK_OPTS_NS::rect_memset16;
+        rect_memset32 = SK_OPTS_NS::rect_memset32;
+        rect_memset64 = SK_OPTS_NS::rect_memset64;
 
     #define M(st) stages_highp[SkRasterPipeline::st] = (StageFn)SK_OPTS_NS::st;
         SK_RASTER_PIPELINE_STAGES(M)

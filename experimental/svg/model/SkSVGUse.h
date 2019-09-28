@@ -8,8 +8,8 @@
 #ifndef SkSVGUse_DEFINED
 #define SkSVGUse_DEFINED
 
-#include "SkSVGTransformableNode.h"
-#include "SkSVGTypes.h"
+#include "experimental/svg/model/SkSVGTransformableNode.h"
+#include "experimental/svg/model/SkSVGTypes.h"
 
 /**
  * Implements support for <use> (reference) elements.

@@ -8,7 +8,7 @@
 #ifndef SkFloatUtils_DEFINED
 #define SkFloatUtils_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #include <limits.h>
 #include <float.h>
 
@@ -116,7 +116,7 @@ public:
 
         const Bits dist = DistanceBetweenSignAndMagnitudeNumbers(fU.bits,
                                                                  rhs.fU.bits);
-        //SkDEBUGF(("(%f, %f, %d) ", u_.value_, rhs.u_.value_, dist));
+        //SkDEBUGF("(%f, %f, %d) ", u_.value_, rhs.u_.value_, dist);
         return dist <= kMaxUlps;
     }
 

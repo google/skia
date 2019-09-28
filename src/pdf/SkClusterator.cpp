@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkClusterator.h"
+#include "src/pdf/SkClusterator.h"
 
-#include "SkUtils.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkGlyphRun.h"
+#include "src/utils/SkUTF.h"
 
 static bool is_reversed(const uint32_t* clusters, uint32_t count) {
     // "ReversedChars" is how PDF deals with RTL text.
@@ -23,90 +25,17 @@ static bool is_reversed(const uint32_t* clusters, uint32_t count) {
     return true;
 }
 
-SkClusterator::SkClusterator(const void* sourceText,
-                             size_t sourceByteCount,
-                             const SkPaint& paint,
-                             const uint32_t* clusters,
-                             uint32_t utf8TextByteLength,
-                             const char* utf8Text) {
-    if (SkPaint::kGlyphID_TextEncoding == paint.getTextEncoding()) {
-        fGlyphs = reinterpret_cast<const SkGlyphID*>(sourceText);
-        fClusters = clusters;
-        fUtf8Text = utf8Text;
-        fGlyphCount = sourceByteCount / sizeof(SkGlyphID);
-        fTextByteLength = utf8TextByteLength;
-        if (fClusters) {
-            SkASSERT(fUtf8Text && fTextByteLength > 0 && fGlyphCount > 0);
-            fReversedChars = is_reversed(fClusters, fGlyphCount);
-        } else {
-            SkASSERT(!fUtf8Text && fTextByteLength == 0);
-        }
-        return;
-    }
-
-    // If Skia is given text (not glyphs), then our fallback primitive shaping will
-    // produce a simple 1-1 cluster mapping.
-    fGlyphCount = SkToU32(paint.textToGlyphs(sourceText, sourceByteCount, nullptr));
-    fGlyphStorage.resize(fGlyphCount);
-    (void)paint.textToGlyphs(sourceText, sourceByteCount, fGlyphStorage.data());
-    fGlyphs = fGlyphStorage.data();
-    fClusterStorage.resize(fGlyphCount);
-    fClusters = fClusterStorage.data();
-
-    switch (paint.getTextEncoding()) {
-        case SkPaint::kUTF8_TextEncoding:
-        {
-            fUtf8Text = reinterpret_cast<const char*>(sourceText);
-            fTextByteLength = SkToU32(sourceByteCount);
-            const char* txtPtr = fUtf8Text;
-            for (uint32_t i = 0; i < fGlyphCount; ++i) {
-                fClusterStorage[i] = SkToU32(txtPtr - fUtf8Text);
-                txtPtr += SkUTF8_LeadByteToCount(*(const unsigned char*)txtPtr);
-                SkASSERT(txtPtr <= fUtf8Text + sourceByteCount);
-            }
-            SkASSERT(txtPtr == fUtf8Text + sourceByteCount);
-            return;
-        }
-        case SkPaint::kUTF16_TextEncoding:
-        {
-            const uint16_t* utf16ptr = reinterpret_cast<const uint16_t*>(sourceText);
-            int utf16count = SkToInt(sourceByteCount / sizeof(uint16_t));
-            fTextByteLength = SkToU32(SkUTF16_ToUTF8(utf16ptr, utf16count));
-            fUtf8textStorage.resize(fTextByteLength);
-            fUtf8Text = fUtf8textStorage.data();
-            char* txtPtr = fUtf8textStorage.data();
-            uint32_t clusterIndex = 0;
-            while (utf16ptr < (const uint16_t*)sourceText + utf16count) {
-                fClusterStorage[clusterIndex++] = SkToU32(txtPtr - fUtf8Text);
-                SkUnichar uni = SkUTF16_NextUnichar(&utf16ptr);
-                txtPtr += SkUTF8_FromUnichar(uni, txtPtr);
-            }
-            SkASSERT(clusterIndex == fGlyphCount);
-            SkASSERT(txtPtr == fUtf8textStorage.data() + fTextByteLength);
-            SkASSERT(utf16ptr == (const uint16_t*)sourceText + utf16count);
-            return;
-        }
-        case SkPaint::kUTF32_TextEncoding:
-        {
-            const SkUnichar* utf32 = reinterpret_cast<const SkUnichar*>(sourceText);
-            uint32_t utf32count = SkToU32(sourceByteCount / sizeof(SkUnichar));
-            SkASSERT(fGlyphCount == utf32count);
-            fTextByteLength = 0;
-            for (uint32_t i = 0; i < utf32count; ++i) {
-                fTextByteLength += SkToU32(SkUTF8_FromUnichar(utf32[i]));
-            }
-            fUtf8textStorage.resize(SkToSizeT(fTextByteLength));
-            fUtf8Text = fUtf8textStorage.data();
-            char* txtPtr = fUtf8textStorage.data();
-            for (uint32_t i = 0; i < utf32count; ++i) {
-                fClusterStorage[i] = SkToU32(txtPtr - fUtf8Text);
-                txtPtr += SkUTF8_FromUnichar(utf32[i], txtPtr);
-            }
-            return;
-        }
-        default:
-            SkDEBUGFAIL("");
-            break;
+SkClusterator::SkClusterator(const SkGlyphRun& run)
+    : fClusters(run.clusters().data())
+    , fUtf8Text(run.text().data())
+    , fGlyphCount(SkToU32(run.glyphsIDs().size()))
+    , fTextByteLength(SkToU32(run.text().size()))
+    , fReversedChars(fClusters ? is_reversed(fClusters, fGlyphCount) : false)
+{
+    if (fClusters) {
+        SkASSERT(fUtf8Text && fTextByteLength > 0 && fGlyphCount > 0);
+    } else {
+        SkASSERT(!fUtf8Text && fTextByteLength == 0);
     }
 }
 
@@ -133,4 +62,3 @@ SkClusterator::Cluster SkClusterator::next() {
     uint32_t clusterLen = clusterEnd - cluster;
     return Cluster{fUtf8Text + cluster, clusterLen, clusterGlyphIndex, clusterGlyphCount};
 }
-

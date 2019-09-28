@@ -6,15 +6,12 @@
  */
 
 
-#include "SkScan.h"
-#include "SkBlitter.h"
-#include "SkRasterClip.h"
+#include "src/core/SkBlitter.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkScan.h"
 
 std::atomic<bool> gSkUseAnalyticAA{true};
 std::atomic<bool> gSkForceAnalyticAA{false};
-
-std::atomic<bool> gSkUseDeltaAA{true};
-std::atomic<bool> gSkForceDeltaAA{false};
 
 static inline void blitrect(SkBlitter* blitter, const SkIRect& r) {
     blitter->blitRect(r.fLeft, r.fTop, r.width(), r.height());

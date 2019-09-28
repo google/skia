@@ -1,0 +1,5 @@
+# This config is used to generate the docs under continuous integration.
+
+@INCLUDE = Doxyfile
+
+OUTPUT_DIRECTORY       = /workspace/__doxygen_staging

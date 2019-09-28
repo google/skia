@@ -5,12 +5,29 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkBlendModePriv.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkLumaColorFilter.h"
+#include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkLumaColorFilter.h"
+#include "tools/ToolUtils.h"
+
+#include <string.h>
 
 static SkScalar kSize   = 80;
 static SkScalar kInset  = 10;
@@ -19,13 +36,14 @@ static SkColor  kColor2 = SkColorSetARGB(0xff, 0x82, 0xff, 0);
 
 static void draw_label(SkCanvas* canvas, const char* label,
                        const SkPoint& offset) {
-    SkPaint paint;
-    sk_tool_utils::set_portable_typeface(&paint);
+    SkFont font(ToolUtils::create_portable_typeface());
+    font.setEdging(SkFont::Edging::kAlias);
+
     size_t len = strlen(label);
 
-    SkScalar width = paint.measureText(label, len);
-    canvas->drawText(label, len, offset.x() - width / 2, offset.y(),
-                     paint);
+    SkScalar width = font.measureText(label, len, SkTextEncoding::kUTF8);
+    canvas->drawSimpleText(label, len, SkTextEncoding::kUTF8, offset.x() - width / 2, offset.y(),
+                           font, SkPaint());
 }
 
 static void draw_scene(SkCanvas* canvas, const sk_sp<SkColorFilter>& filter, SkBlendMode mode,
@@ -87,9 +105,9 @@ public:
 
         fFilter = SkLumaColorFilter::Make();
         fGr1 = SkGradientShader::MakeLinear(g1Points, g1Colors, pos, SK_ARRAY_COUNT(g1Colors),
-                                            SkShader::kClamp_TileMode);
+                                            SkTileMode::kClamp);
         fGr2 = SkGradientShader::MakeLinear(g2Points, g2Colors, pos, SK_ARRAY_COUNT(g2Colors),
-                                            SkShader::kClamp_TileMode);
+                                            SkTileMode::kClamp);
     }
 
 protected:

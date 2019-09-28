@@ -1,0 +1,36 @@
+{
+   "MaxCount": 32,
+   "Duration": 1,
+   "Rate": 8,
+   "Drawable": {
+      "Type": "SkImageDrawable",
+      "Path": "resources/images/explosion_sprites.png",
+      "Columns": 4,
+      "Rows": 4
+   },
+   "Code": [
+      "// float rand; Every read returns a random float [0 .. 1)",
+      "",
+      "float2 circle() {",
+      "  float x;",
+      "  float y;",
+      "  do {",
+      "    x = rand * 2 - 1;",
+      "    y = rand * 2 - 1;",
+      "  } while (x*x + y*y > 1);",
+      "  return float2(x, y);",
+      "}",
+      "",
+      "void spawn(inout Particle p) {",
+      "  p.lifetime = 1.0 + rand * 2.0;",
+      "  p.pos = circle() * 60;",
+      "  p.vel = p.pos / 3;",
+      "}",
+      "",
+      "void update(inout Particle p) {",
+      "  p.frame = p.age;",
+      "}",
+      ""
+   ],
+   "Bindings": []
+}

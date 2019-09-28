@@ -5,13 +5,30 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/effects/SkGradientShader.h"
+#include "tools/ToolUtils.h"
 
-#include "Resources.h"
-#include "SkBlendModePriv.h"
-#include "SkGradientShader.h"
-#include "SkPM4fPriv.h"
+#include <string.h>
 
 DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     SkPaint p;
@@ -19,7 +36,7 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     const int szInt = SkScalarTruncToInt(sz);
     const SkScalar tx = sz + 15.0f;
     const SkRect r = SkRect::MakeXYWH(0, 0, sz, sz);
-    SkShader::TileMode rpt = SkShader::kRepeat_TileMode;
+    SkTileMode rpt = SkTileMode::kRepeat;
     auto srgbColorSpace = SkColorSpace::MakeSRGB();
 
     SkBitmap ditherBmp;
@@ -50,10 +67,11 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     mipmapPixels[0] = mipmapPixels[3] = SkPackARGB32(0xFF, s25, s25, s25);
     mipmapPixels[1] = mipmapPixels[2] = SkPackARGB32(0xFF, s75, s75, s75);
 
+    SkFont font(ToolUtils::create_portable_typeface());
+
     SkPaint textPaint;
     textPaint.setAntiAlias(true);
     textPaint.setColor(SK_ColorWHITE);
-    sk_tool_utils::set_portable_typeface(&textPaint);
 
     // Helpers:
     auto advance = [&]() {
@@ -61,19 +79,22 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
         p.reset();
     };
 
+    auto drawString = [&](const char str[], SkScalar x, SkScalar y) {
+        canvas->drawSimpleText(str, strlen(str), SkTextEncoding::kUTF8, x, y, font, textPaint);
+    };
+
     auto nextRect = [&](const char* label, const char* label2) {
         canvas->drawRect(r, p);
-        canvas->drawString(label, 0, sz + textPaint.getFontSpacing(), textPaint);
+        drawString(label, 0, sz + font.getSpacing());
         if (label2) {
-            canvas->drawString(label2, 0, sz + 2 * textPaint.getFontSpacing(),
-                             textPaint);
+            drawString(label2, 0, sz + 2 * font.getSpacing());
         }
         advance();
     };
 
     auto nextBitmap = [&](const SkBitmap& bmp, const char* label) {
         canvas->drawBitmap(bmp, 0, 0);
-        canvas->drawString(label, 0, sz + textPaint.getFontSpacing(), textPaint);
+        drawString(label, 0, sz + font.getSpacing());
         advance();
     };
 
@@ -86,13 +107,10 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
 
         SkString srcText = SkStringPrintf("%08X", srcColor);
         SkString dstText = SkStringPrintf("%08X", dstColor);
-        canvas->drawString(srcText, 0, sz + textPaint.getFontSpacing(),
-                         textPaint);
+        drawString(srcText.c_str(), 0, sz + font.getSpacing());
         const char* modeName = SkBlendMode_Name(mode);
-        canvas->drawString(modeName, 0, sz + 2 * textPaint.getFontSpacing(),
-                         textPaint);
-        canvas->drawString(dstText, 0, sz + 3 * textPaint.getFontSpacing(),
-                         textPaint);
+        drawString(modeName, 0, sz + 2 * font.getSpacing());
+        drawString(dstText.c_str(), 0, sz + 3 * font.getSpacing());
         advance();
     };
 
@@ -104,7 +122,7 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     canvas->save();
 
     // Black/white dither, pixel perfect. This is ground truth.
-    p.setShader(SkShader::MakeBitmapShader(ditherBmp, rpt, rpt));
+    p.setShader(ditherBmp.makeShader(rpt, rpt));
     p.setFilterQuality(SkFilterQuality::kNone_SkFilterQuality);
     nextRect("Dither", "Reference");
 
@@ -113,19 +131,19 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     // the raster pipeline into *not* snapping to nearest.
     SkMatrix offsetMatrix = SkMatrix::Concat(
         SkMatrix::MakeScale(-1.0f), SkMatrix::MakeTrans(0.5f, 0.0f));
-    p.setShader(SkShader::MakeBitmapShader(ditherBmp, rpt, rpt, &offsetMatrix));
+    p.setShader(ditherBmp.makeShader(rpt, rpt, &offsetMatrix));
     p.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
     nextRect("Dither", "Bilerp");
 
     // Black/white dither, scaled down by 2x. Tests minification.
     SkMatrix scaleMatrix = SkMatrix::MakeScale(0.5f);
-    p.setShader(SkShader::MakeBitmapShader(ditherBmp, rpt, rpt, &scaleMatrix));
+    p.setShader(ditherBmp.makeShader(rpt, rpt, &scaleMatrix));
     p.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
     nextRect("Dither", "Scale");
 
     // 25%/75% dither, scaled down by 2x. Tests ALL aspects of minification. Specifically, are
     // sRGB sources decoded to linear before computing mipmaps?
-    p.setShader(SkShader::MakeBitmapShader(mipmapBmp, rpt, rpt, &scaleMatrix));
+    p.setShader(mipmapBmp.makeShader(rpt, rpt, &scaleMatrix));
     p.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
     nextRect("MipMaps", nullptr);
 
@@ -141,8 +159,7 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
             SkPoint::Make(sz + (sz * 10), 0)
         };
         SkColor colors[2] = { SK_ColorBLACK, SK_ColorWHITE };
-        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 2,
-                                                 SkShader::kClamp_TileMode));
+        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 2, SkTileMode::kClamp));
         nextRect("Gradient", "Interpolation");
     }
 
@@ -154,8 +171,7 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
             SkPoint::Make(sz, 0)
         };
         SkColor colors[2] = { 0xffbbbbbb, 0xffbdbdbd };
-        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 2,
-                                                 SkShader::kClamp_TileMode));
+        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 2, SkTileMode::kClamp));
         nextRect("Gradient", "Endpoints");
     }
 
@@ -167,8 +183,7 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
             SkPoint::Make(sz, 0)
         };
         SkColor colors[3] = { 0xffbbbbbb, 0xffbdbdbd, 0xffbbbbbb };
-        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 3,
-                                                 SkShader::kClamp_TileMode));
+        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 3, SkTileMode::kClamp));
         nextRect("Gradient", "3-Stop");
     }
 
@@ -180,8 +195,7 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
             SkPoint::Make(sz, 0)
         };
         SkColor colors[5] = { 0xffbbbbbb, 0xffbdbdbd, 0xffbbbbbb, 0xffbdbdbd, 0xffbbbbbb };
-        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 5,
-                                                 SkShader::kClamp_TileMode));
+        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 5, SkTileMode::kClamp));
         nextRect("Gradient", "Texture");
     }
 
@@ -192,12 +206,12 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     nextBitmap(srgbGreyBmp, "sRGB BMP");
 
     // Bitmap wrapped in a shader (linear):
-    p.setShader(SkShader::MakeBitmapShader(linearGreyBmp, rpt, rpt));
+    p.setShader(linearGreyBmp.makeShader(rpt, rpt));
     p.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
     nextRect("Lnr BMP", "Shader");
 
     // Bitmap wrapped in a shader (sRGB):
-    p.setShader(SkShader::MakeBitmapShader(srgbGreyBmp, rpt, rpt));
+    p.setShader(srgbGreyBmp.makeShader(rpt, rpt));
     p.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
     nextRect("sRGB BMP", "Shader");
 

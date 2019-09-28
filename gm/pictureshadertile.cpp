@@ -5,12 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-
-#include "SkPaint.h"
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
-#include "SkShader.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
 
 constexpr SkScalar kPictureSize = SK_Scalar1;
 constexpr SkScalar kFillSize = 100;
@@ -124,9 +134,8 @@ protected:
                 tilePtr = nullptr;
             }
 
-            fShaders[i] = SkShader::MakePictureShader(pictureRef, SkShader::kRepeat_TileMode,
-                                                      SkShader::kRepeat_TileMode, &localMatrix,
-                                                      tilePtr);
+            fShaders[i] = pictureRef->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                                 &localMatrix, tilePtr);
         }
     }
 

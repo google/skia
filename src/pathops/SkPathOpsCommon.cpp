@@ -4,34 +4,14 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkAddIntersections.h"
-#include "SkOpCoincidence.h"
-#include "SkOpEdgeBuilder.h"
-#include "SkPathOpsCommon.h"
-#include "SkPathWriter.h"
-#include "SkTSort.h"
 
-SkScalar ScaleFactor(const SkPath& path) {
-    static const SkScalar twoTo10 = 1024.f;
-    SkScalar largest = 0;
-    const SkScalar* oneBounds = &path.getBounds().fLeft;
-    for (int index = 0; index < 4; ++index) {
-        largest = SkTMax(largest, SkScalarAbs(oneBounds[index]));
-    }
-    SkScalar scale = twoTo10;
-    SkScalar next;
-    while ((next = scale * twoTo10) < largest) {
-        scale = next;
-    }
-    return scale == twoTo10 ? SK_Scalar1 : scale;
-}
-
-void ScalePath(const SkPath& path, SkScalar scale, SkPath* scaled) {
-    SkMatrix matrix;
-    matrix.setScale(scale, scale);
-    *scaled = path;
-    scaled->transform(matrix);
-}
+#include "include/private/SkMacros.h"
+#include "src/core/SkTSort.h"
+#include "src/pathops/SkAddIntersections.h"
+#include "src/pathops/SkOpCoincidence.h"
+#include "src/pathops/SkOpEdgeBuilder.h"
+#include "src/pathops/SkPathOpsCommon.h"
+#include "src/pathops/SkPathWriter.h"
 
 const SkOpAngle* AngleWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* windingPtr,
         bool* sortablePtr) {
@@ -154,7 +134,8 @@ SkOpSegment* FindChase(SkTDArray<SkOpSpanBase*>* chase, SkOpSpanBase** startPtr,
                 }
                 // OPTIMIZATION: should this also add to the chase?
                 if (sortable) {
-                    (void) segment->markAngle(maxWinding, sumWinding, angle);
+                    // TODO: add error handling
+                    SkAssertResult(segment->markAngle(maxWinding, sumWinding, angle, nullptr));
                 }
             }
         }

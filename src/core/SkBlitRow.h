@@ -8,8 +8,8 @@
 #ifndef SkBlitRow_DEFINED
 #define SkBlitRow_DEFINED
 
-#include "SkBitmap.h"
-#include "SkColor.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColor.h"
 
 class SkBlitRow {
 public:
@@ -33,19 +33,6 @@ public:
         if they are not, they may not overlap.
      */
     static void Color32(SkPMColor dst[], const SkPMColor src[], int count, SkPMColor color);
-
-    /** These static functions are called by the Factory and Factory32
-        functions, and should return either NULL, or a
-        platform-specific function-ptr to be used in place of the
-        system default.
-     */
-
-    static Proc32 PlatformProcs32(unsigned flags);
-
-private:
-    enum {
-        kFlags32_Mask = 3
-    };
 };
 
 #endif

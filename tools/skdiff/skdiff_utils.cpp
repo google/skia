@@ -4,15 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "skdiff.h"
-#include "skdiff_utils.h"
-#include "sk_tool_utils.h"
-#include "SkBitmap.h"
-#include "SkCodec.h"
-#include "SkData.h"
-#include "SkImageEncoder.h"
-#include "SkStream.h"
-#include "SkTypes.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
+#include "tools/ToolUtils.h"
+#include "tools/skdiff/skdiff.h"
+#include "tools/skdiff/skdiff_utils.h"
 
 #include <memory>
 
@@ -34,7 +34,8 @@ sk_sp<SkData> read_file(const char* file_path) {
     return data;
 }
 
-bool get_bitmap(sk_sp<SkData> fileBits, DiffResource& resource, bool sizeOnly) {
+bool get_bitmap(sk_sp<SkData> fileBits, DiffResource& resource, bool sizeOnly,
+                bool ignoreColorSpace) {
     auto codec = SkCodec::MakeFromData(fileBits);
     if (!codec) {
         SkDebugf("ERROR: could not create codec for <%s>\n", resource.fFullPath.c_str());
@@ -42,7 +43,18 @@ bool get_bitmap(sk_sp<SkData> fileBits, DiffResource& resource, bool sizeOnly) {
         return false;
     }
 
-    if (!resource.fBitmap.setInfo(codec->getInfo().makeColorType(kN32_SkColorType))) {
+    // If we're "ignoring" color space, then we want the raw pixel values from each image, so we
+    // decode to the original color space. If we want to account for color spaces, then we want to
+    // decode each image to the same color space, so that colors that are the "same" (but encoded
+    // differently) are transformed to some canonical representation prior to comparison.
+    //
+    // TODO: Use something wider than sRGB to avoid clipping with out-of-gamut colors.
+    SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
+    if (!ignoreColorSpace) {
+        info = info.makeColorSpace(SkColorSpace::MakeSRGB());
+    }
+
+    if (!resource.fBitmap.setInfo(info.makeColorType(kN32_SkColorType))) {
         SkDebugf("ERROR: could not set bitmap info for <%s>\n", resource.fFullPath.c_str());
         resource.fStatus = DiffResource::kCouldNotDecode_Status;
         return false;
@@ -80,10 +92,9 @@ static void force_all_opaque(const SkBitmap& bitmap) {
 
 bool write_bitmap(const SkString& path, const SkBitmap& bitmap) {
     SkBitmap copy;
-    sk_tool_utils::copy_to(&copy, kN32_SkColorType, bitmap);
+    ToolUtils::copy_to(&copy, kN32_SkColorType, bitmap);
     force_all_opaque(copy);
-    return sk_tool_utils::EncodeImageToFile(path.c_str(), copy,
-                                      SkEncodedImageFormat::kPNG, 100);
+    return ToolUtils::EncodeImageToFile(path.c_str(), copy, SkEncodedImageFormat::kPNG, 100);
 }
 
 /// Return a copy of the "input" string, within which we have replaced all instances

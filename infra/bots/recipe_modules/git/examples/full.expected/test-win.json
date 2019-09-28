@@ -1,0 +1,22 @@
+[
+  {
+    "cmd": [
+      "git",
+      "status"
+    ],
+    "name": "1"
+  },
+  {
+    "cmd": [
+      "git",
+      "status"
+    ],
+    "env": {
+      "PATH": "[START_DIR]\\git;[START_DIR]\\git\\bin;<PATH>"
+    },
+    "name": "2"
+  },
+  {
+    "name": "$result"
+  }
+]

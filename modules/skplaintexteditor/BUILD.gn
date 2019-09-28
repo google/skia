@@ -1,0 +1,69 @@
+# Copyright 2019 Google LLC.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../../gn/skia.gni")
+
+if (skia_use_icu && skia_use_harfbuzz) {
+  source_set("editor_lib") {
+    include_dirs = [ "../.." ]
+    public = [
+      "include/editor.h",
+      "include/stringslice.h",
+      "include/stringview.h",
+    ]
+    sources = [
+      "src/editor.cpp",
+      "src/stringslice.cpp",
+    ]
+    public_deps = [
+      "../..:skia",
+    ]
+    deps = [
+      ":shape",
+    ]
+  }
+
+  source_set("shape") {
+    include_dirs = [ "../.." ]
+    public = [
+      "src/shape.h",
+    ]
+    sources = [
+      "src/shape.cpp",
+    ]
+    public_deps = [
+      "../..:skia",
+    ]
+    deps = [
+      ":word_boundaries",
+      "../../modules/skshaper",
+    ]
+  }
+
+  source_set("word_boundaries") {
+    include_dirs = [ "../.." ]
+    public = [
+      "src/word_boundaries.h",
+    ]
+    sources = [
+      "src/word_boundaries.cpp",
+    ]
+    deps = [
+      "../../third_party/icu",
+    ]
+  }
+
+  source_set("editor_app") {
+    testonly = true
+    sources = [
+      "app/editor_application.cpp",
+    ]
+    public_deps = [
+      "../..:sk_app",
+    ]
+    deps = [
+      ":editor_lib",
+    ]
+  }
+}

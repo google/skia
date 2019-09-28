@@ -8,11 +8,12 @@
 #ifndef SkSVGValue_DEFINED
 #define SkSVGValue_DEFINED
 
-#include "SkColor.h"
-#include "SkMatrix.h"
-#include "SkPath.h"
-#include "SkSVGTypes.h"
-#include "SkTypes.h"
+#include "experimental/svg/model/SkSVGTypes.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkNoncopyable.h"
 
 class SkSVGValue : public SkNoncopyable {
 public:

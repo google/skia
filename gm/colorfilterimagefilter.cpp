@@ -5,42 +5,55 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkColorMatrixFilter.h"
-#include "SkColorPriv.h"
-#include "SkShader.h"
+#include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkTileMode.h"
+#include "include/effects/SkColorMatrix.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkImageFilters.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
+#include "tools/Resources.h"
 
-#include "SkBlurImageFilter.h"
-#include "SkColorFilterImageFilter.h"
-#include "SkTDArray.h"
+#include <string.h>
+#include <utility>
 
 #define FILTER_WIDTH    SkIntToScalar(30)
 #define FILTER_HEIGHT   SkIntToScalar(30)
 #define MARGIN          SkIntToScalar(10)
 
 static sk_sp<SkColorFilter> cf_make_brightness(float brightness) {
-    SkScalar amount255 = brightness * 255;
-    SkScalar matrix[20] = {
-        1, 0, 0, 0, amount255,
-        0, 1, 0, 0, amount255,
-        0, 0, 1, 0, amount255,
+    float matrix[20] = {
+        1, 0, 0, 0, brightness,
+        0, 1, 0, 0, brightness,
+        0, 0, 1, 0, brightness,
         0, 0, 0, 1, 0 };
-    return SkColorFilter::MakeMatrixFilterRowMajor255(matrix);
+    return SkColorFilters::Matrix(matrix);
 }
 
 static sk_sp<SkColorFilter> cf_make_grayscale() {
-    SkScalar matrix[20];
-    memset(matrix, 0, 20 * sizeof(SkScalar));
+    float matrix[20];
+    memset(matrix, 0, 20 * sizeof(float));
     matrix[0] = matrix[5] = matrix[10] = 0.2126f;
     matrix[1] = matrix[6] = matrix[11] = 0.7152f;
     matrix[2] = matrix[7] = matrix[12] = 0.0722f;
     matrix[18] = 1.0f;
-    return SkColorFilter::MakeMatrixFilterRowMajor255(matrix);
+    return SkColorFilters::Matrix(matrix);
 }
 
 static sk_sp<SkColorFilter> cf_make_colorize(SkColor color) {
-    return SkColorFilter::MakeModeFilter(color, SkBlendMode::kSrc);
+    return SkColorFilters::Blend(color, SkBlendMode::kSrc);
 }
 
 static void sk_gm_get_colorfilters(SkTArray<sk_sp<SkColorFilter>>* array) {
@@ -50,20 +63,17 @@ static void sk_gm_get_colorfilters(SkTArray<sk_sp<SkColorFilter>>* array) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkGradientShader.h"
-#include "SkImage.h"
-#include "Resources.h"
 
 static sk_sp<SkShader> sh_make_lineargradient0() {
     const SkPoint pts[] = { { 0, 0 }, { 100, 100 } };
     const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 3, SkShader::kRepeat_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 3, SkTileMode::kRepeat);
 }
 
 static sk_sp<SkShader> sh_make_lineargradient1() {
     const SkPoint pts[] = { { 0, 0 }, { 100, 100 } };
     const SkColor colors[] = { SK_ColorRED, 0x0000FF00, SK_ColorBLUE };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 3, SkShader::kRepeat_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 3, SkTileMode::kRepeat);
 }
 
 static sk_sp<SkShader> sh_make_image() {
@@ -71,7 +81,7 @@ static sk_sp<SkShader> sh_make_image() {
     if (!image) {
         return nullptr;
     }
-    return image->makeShader(SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
+    return image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat);
 }
 
 static void sk_gm_get_shaders(SkTDArray<SkShader*>* array) {
@@ -89,19 +99,19 @@ static void sk_gm_get_shaders(SkTDArray<SkShader*>* array) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static sk_sp<SkImageFilter> make_blur(float amount, sk_sp<SkImageFilter> input) {
-    return SkBlurImageFilter::Make(amount, amount, std::move(input));
+    return SkImageFilters::Blur(amount, amount, std::move(input));
 }
 
 static sk_sp<SkImageFilter> make_brightness(float amount, sk_sp<SkImageFilter> input) {
-    return SkColorFilterImageFilter::Make(cf_make_brightness(amount), std::move(input));
+    return SkImageFilters::ColorFilter(cf_make_brightness(amount), std::move(input));
 }
 
 static sk_sp<SkImageFilter> make_grayscale(sk_sp<SkImageFilter> input) {
-    return SkColorFilterImageFilter::Make(cf_make_grayscale(), std::move(input));
+    return SkImageFilters::ColorFilter(cf_make_grayscale(), std::move(input));
 }
 
 static sk_sp<SkImageFilter> make_mode_blue(sk_sp<SkImageFilter> input) {
-    return SkColorFilterImageFilter::Make(cf_make_colorize(SK_ColorBLUE), std::move(input));
+    return SkImageFilters::ColorFilter(cf_make_colorize(SK_ColorBLUE), std::move(input));
 }
 
 static void draw_clipped_rect(SkCanvas* canvas,
@@ -177,16 +187,15 @@ DEF_SIMPLE_GM(colorfilterimagefilter_layer, canvas, 32, 32) {
     SkAutoCanvasRestore autoCanvasRestore(canvas, false);
     SkColorMatrix cm;
     cm.setSaturation(0.0f);
-    sk_sp<SkColorFilter> cf(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
+    sk_sp<SkColorFilter> cf(SkColorFilters::Matrix(cm));
     SkPaint p;
-    p.setImageFilter(SkColorFilterImageFilter::Make(std::move(cf), nullptr));
+    p.setImageFilter(SkImageFilters::ColorFilter(std::move(cf), nullptr));
     canvas->saveLayer(nullptr, &p);
     canvas->clear(SK_ColorRED);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkGradientShader.h"
 template <typename T> class SkTRefArray : public SkTDArray<T> {
 public:
     ~SkTRefArray() { this->unrefAll(); }
@@ -202,7 +211,7 @@ DEF_SIMPLE_GM(colorfiltershader, canvas, 610, 610) {
     const SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
     *shaders.append() = SkGradientShader::MakeTwoPointConical({0, 0}, 50, {0, 0}, 150,
                                                               colors, nullptr, 2,
-                                                              SkShader::kClamp_TileMode).release();
+                                                              SkTileMode::kClamp).release();
 
     SkPaint paint;
     SkRect r = SkRect::MakeWH(120, 120);
@@ -224,12 +233,12 @@ DEF_SIMPLE_GM(colorfiltershader, canvas, 610, 610) {
     }
 }
 
-DEF_SIMPLE_GM(mixershader, canvas, 800, 700) {
-    auto shaderA = GetResourceAsImage("images/mandrill_128.png")->makeShader(SkShader::kClamp_TileMode,
-                                                                      SkShader::kClamp_TileMode);
+template <typename Maker> void do_mixershader(SkCanvas* canvas, Maker&& maker) {
+    auto shaderA = GetResourceAsImage("images/mandrill_128.png")->makeShader(SkTileMode::kClamp,
+                                                                             SkTileMode::kClamp);
     const SkColor colors[] = { SK_ColorGREEN, 0 };
     auto shaderB = SkGradientShader::MakeRadial({60, 60}, 55, colors, nullptr, 2,
-                                                SkShader::kClamp_TileMode,
+                                                SkTileMode::kClamp,
                                                 SkGradientShader::kInterpolateColorsInPremul_Flag,
                                                 nullptr);
     const SkBlendMode modes[] = {
@@ -245,11 +254,24 @@ DEF_SIMPLE_GM(mixershader, canvas, 800, 700) {
         const int count = 6;
         for (int x = 0; x < count; ++x) {
             const float t = x * 1.0f / (count - 1);
-            paint.setShader(SkShader::MakeCompose(shaderA, shaderB, mode, t));
+            paint.setShader(maker(shaderA, shaderB, mode, t));
             canvas->drawRect(r, paint);
             canvas->translate(r.width() + 10, 0);
         }
         canvas->restore();
         canvas->translate(0, r.height() + 20);
     }
+}
+
+DEF_SIMPLE_GM(mixershader, canvas, 800, 700) {
+    do_mixershader(canvas, [](sk_sp<SkShader> a, sk_sp<SkShader> b, SkBlendMode mode, float t) {
+        auto sh = SkShaders::Blend(mode, a, b);
+        return SkShaders::Lerp(t, a, sh);
+    });
+}
+
+DEF_SIMPLE_GM(mixershader2, canvas, 800, 700) {
+    do_mixershader(canvas, [](sk_sp<SkShader> a, sk_sp<SkShader> b, SkBlendMode mode, float t) {
+        return SkShaders::Lerp(t, a, SkShaders::Blend(mode, a, b));
+    });
 }

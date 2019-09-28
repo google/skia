@@ -8,9 +8,10 @@
 #ifndef SkTHash_DEFINED
 #define SkTHash_DEFINED
 
-#include "SkChecksum.h"
-#include "SkTypes.h"
-#include "SkTemplates.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkChecksum.h"
+#include "include/private/SkTemplates.h"
+#include <new>
 
 // Before trying to use SkTHashTable, look below to see if SkTHashMap or SkTHashSet works for you.
 // They're easier to use, usually perform the same, and have fewer sharp edges.
@@ -22,15 +23,24 @@
 // If the key is large and stored inside T, you may want to make K a const&.
 // Similarly, if T is large you might want it to be a pointer.
 template <typename T, typename K, typename Traits = T>
-class SkTHashTable : SkNoncopyable {
+class SkTHashTable {
 public:
     SkTHashTable() : fCount(0), fCapacity(0) {}
+    SkTHashTable(SkTHashTable&& other)
+        : fCount(other.fCount)
+        , fCapacity(other.fCapacity)
+        , fSlots(std::move(other.fSlots)) { other.fCount = other.fCapacity = 0; }
+
+    SkTHashTable& operator=(SkTHashTable&& other) {
+        if (this != &other) {
+            this->~SkTHashTable();
+            new (this) SkTHashTable(std::move(other));
+        }
+        return *this;
+    }
 
     // Clear the table.
-    void reset() {
-        this->~SkTHashTable();
-        new (this) SkTHashTable;
-    }
+    void reset() { *this = SkTHashTable(); }
 
     // How many entries are in the table?
     int count() const { return fCount; }
@@ -72,6 +82,15 @@ public:
             index = this->next(index);
         }
         SkASSERT(fCapacity == 0);
+        return nullptr;
+    }
+
+    // If there is an entry in the table with this key, return it.  If not, null.
+    // This only works for pointer type T, and cannot be used to find an nullptr entry.
+    T findOrNull(const K& key) const {
+        if (T* p = this->find(key)) {
+            return *p;
+        }
         return nullptr;
     }
 
@@ -192,12 +211,12 @@ private:
     }
 
     static uint32_t Hash(const K& key) {
-        uint32_t hash = Traits::Hash(key);
+        uint32_t hash = Traits::Hash(key) & 0xffffffff;
         return hash ? hash : 1;  // We reserve hash 0 to mark empty.
     }
 
     struct Slot {
-        Slot() : hash(0) {}
+        Slot() : val{}, hash(0) {}
         Slot(T&& v, uint32_t h) : val(std::move(v)), hash(h) {}
         Slot(Slot&& o) { *this = std::move(o); }
         Slot& operator=(Slot&& o) {
@@ -214,14 +233,19 @@ private:
 
     int fCount, fCapacity;
     SkAutoTArray<Slot> fSlots;
+
+    SkTHashTable(const SkTHashTable&) = delete;
+    SkTHashTable& operator=(const SkTHashTable&) = delete;
 };
 
 // Maps K->V.  A more user-friendly wrapper around SkTHashTable, suitable for most use cases.
 // K and V are treated as ordinary copyable C++ types, with no assumed relationship between the two.
 template <typename K, typename V, typename HashK = SkGoodHash>
-class SkTHashMap : SkNoncopyable {
+class SkTHashMap {
 public:
     SkTHashMap() {}
+    SkTHashMap(SkTHashMap&&) = default;
+    SkTHashMap& operator=(SkTHashMap&&) = default;
 
     // Clear the map.
     void reset() { fTable.reset(); }
@@ -273,23 +297,31 @@ private:
         K key;
         V val;
         static const K& GetKey(const Pair& p) { return p.key; }
-        static uint32_t Hash(const K& key) { return HashK()(key); }
+        static auto Hash(const K& key) { return HashK()(key); }
     };
 
     SkTHashTable<Pair, K> fTable;
+
+    SkTHashMap(const SkTHashMap&) = delete;
+    SkTHashMap& operator=(const SkTHashMap&) = delete;
 };
 
 // A set of T.  T is treated as an ordinary copyable C++ type.
 template <typename T, typename HashT = SkGoodHash>
-class SkTHashSet : SkNoncopyable {
+class SkTHashSet {
 public:
     SkTHashSet() {}
+    SkTHashSet(SkTHashSet&&) = default;
+    SkTHashSet& operator=(SkTHashSet&&) = default;
 
     // Clear the set.
     void reset() { fTable.reset(); }
 
     // How many items are in the set?
     int count() const { return fTable.count(); }
+
+    // Is empty?
+    bool empty() const { return fTable.count() == 0; }
 
     // Approximately how many bytes of memory do we use beyond sizeof(*this)?
     size_t approxBytesUsed() const { return fTable.approxBytesUsed(); }
@@ -319,9 +351,12 @@ public:
 private:
     struct Traits {
         static const T& GetKey(const T& item) { return item; }
-        static uint32_t Hash(const T& item) { return HashT()(item); }
+        static auto Hash(const T& item) { return HashT()(item); }
     };
     SkTHashTable<T, T, Traits> fTable;
+
+    SkTHashSet(const SkTHashSet&) = delete;
+    SkTHashSet& operator=(const SkTHashSet&) = delete;
 };
 
 #endif//SkTHash_DEFINED

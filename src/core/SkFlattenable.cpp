@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkFlattenable.h"
-#include "SkPtrRecorder.h"
-#include "SkReadBuffer.h"
+#include "include/core/SkFlattenable.h"
+#include "src/core/SkPtrRecorder.h"
+#include "src/core/SkReadBuffer.h"
 
 #include <algorithm>
 
@@ -55,7 +55,6 @@ namespace {
 struct Entry {
     const char*             fName;
     SkFlattenable::Factory  fFactory;
-    SkFlattenable::Type     fType;
 };
 
 struct EntryComparator {
@@ -79,58 +78,30 @@ void SkFlattenable::Finalize() {
     std::sort(gEntries, gEntries + gCount, EntryComparator());
 }
 
-void SkFlattenable::Register(const char name[], Factory factory, SkFlattenable::Type type) {
+void SkFlattenable::Register(const char name[], Factory factory) {
     SkASSERT(name);
     SkASSERT(factory);
     SkASSERT(gCount < (int)SK_ARRAY_COUNT(gEntries));
 
     gEntries[gCount].fName = name;
     gEntries[gCount].fFactory = factory;
-    gEntries[gCount].fType = type;
     gCount += 1;
 }
 
-#ifdef SK_DEBUG
-static void report_no_entries(const char* functionName) {
-    if (!gCount) {
-        SkDebugf("%s has no registered name/factory/type entries."
-                 " Call SkFlattenable::InitializeFlattenablesIfNeeded() before using gEntries",
-                 functionName);
-    }
-}
-#endif
-
 SkFlattenable::Factory SkFlattenable::NameToFactory(const char name[]) {
-    InitializeFlattenablesIfNeeded();
+    RegisterFlattenablesIfNeeded();
+
     SkASSERT(std::is_sorted(gEntries, gEntries + gCount, EntryComparator()));
-#ifdef SK_DEBUG
-    report_no_entries(__FUNCTION__);
-#endif
     auto pair = std::equal_range(gEntries, gEntries + gCount, name, EntryComparator());
-    if (pair.first == pair.second)
+    if (pair.first == pair.second) {
         return nullptr;
+    }
     return pair.first->fFactory;
 }
 
-bool SkFlattenable::NameToType(const char name[], SkFlattenable::Type* type) {
-    SkASSERT(type);
-    InitializeFlattenablesIfNeeded();
-    SkASSERT(std::is_sorted(gEntries, gEntries + gCount, EntryComparator()));
-#ifdef SK_DEBUG
-    report_no_entries(__FUNCTION__);
-#endif
-    auto pair = std::equal_range(gEntries, gEntries + gCount, name, EntryComparator());
-    if (pair.first == pair.second)
-        return false;
-    *type = pair.first->fType;
-    return true;
-}
-
 const char* SkFlattenable::FactoryToName(Factory fact) {
-    InitializeFlattenablesIfNeeded();
-#ifdef SK_DEBUG
-    report_no_entries(__FUNCTION__);
-#endif
+    RegisterFlattenablesIfNeeded();
+
     const Entry* entries = gEntries;
     for (int i = gCount - 1; i >= 0; --i) {
         if (entries[i].fFactory == fact) {

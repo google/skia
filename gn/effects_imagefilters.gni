@@ -1,0 +1,48 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Things are easiest for everyone if these source paths are absolute.
+_src = get_path_info("../src", "abspath")
+_include = get_path_info("../include", "abspath")
+
+skia_effects_imagefilter_public = [
+  "$_include/effects/SkAlphaThresholdFilter.h",
+  "$_include/effects/SkArithmeticImageFilter.h",
+  "$_include/effects/SkBlurImageFilter.h",
+  "$_include/effects/SkColorFilterImageFilter.h",
+  "$_include/effects/SkDisplacementMapEffect.h",
+  "$_include/effects/SkDropShadowImageFilter.h",
+  "$_include/effects/SkImageFilters.h",
+  "$_include/effects/SkImageSource.h",
+  "$_include/effects/SkLightingImageFilter.h",
+  "$_include/effects/SkMagnifierImageFilter.h",
+  "$_include/effects/SkMorphologyImageFilter.h",
+  "$_include/effects/SkOffsetImageFilter.h",
+  "$_include/effects/SkPaintImageFilter.h",
+  "$_include/effects/SkTileImageFilter.h",
+  "$_include/effects/SkXfermodeImageFilter.h",
+]
+
+skia_effects_imagefilter_sources = [
+  "$_src/effects/imagefilters/SkAlphaThresholdFilter.cpp",
+  "$_src/effects/imagefilters/SkArithmeticImageFilter.cpp",
+  "$_src/effects/imagefilters/SkBlurImageFilter.cpp",
+  "$_src/effects/imagefilters/SkColorFilterImageFilter.cpp",
+  "$_src/effects/imagefilters/SkComposeImageFilter.cpp",
+  "$_src/effects/imagefilters/SkDisplacementMapEffect.cpp",
+  "$_src/effects/imagefilters/SkDropShadowImageFilter.cpp",
+  "$_src/effects/imagefilters/SkImageFilters.cpp",
+  "$_src/effects/imagefilters/SkImageSource.cpp",
+  "$_src/effects/imagefilters/SkLightingImageFilter.cpp",
+  "$_src/effects/imagefilters/SkMagnifierImageFilter.cpp",
+  "$_src/effects/imagefilters/SkMatrixConvolutionImageFilter.cpp",
+  "$_src/effects/imagefilters/SkMergeImageFilter.cpp",
+  "$_src/effects/imagefilters/SkMorphologyImageFilter.cpp",
+  "$_src/effects/imagefilters/SkOffsetImageFilter.cpp",
+  "$_src/effects/imagefilters/SkPaintImageFilter.cpp",
+  "$_src/effects/imagefilters/SkPictureImageFilter.cpp",
+  "$_src/effects/imagefilters/SkTileImageFilter.cpp",
+  "$_src/effects/imagefilters/SkXfermodeImageFilter.cpp",
+]

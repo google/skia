@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkMorphologyImageFilter.h"
-#include "SkPaint.h"
-#include "SkRandom.h"
-#include "SkShader.h"
-#include "SkString.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/effects/SkImageFilters.h"
+#include "include/utils/SkRandom.h"
 
 #define SMALL   SkIntToScalar(2)
 #define REAL    1.5f
@@ -66,14 +66,12 @@ protected:
                 sk_sp<SkImageFilter> mf;
                 switch (fStyle) {
                 case kDilate_MT:
-                    mf = SkDilateImageFilter::Make(SkScalarFloorToInt(fRadius),
-                                                   SkScalarFloorToInt(fRadius),
-                                                   nullptr);
+                    mf = SkImageFilters::Dilate(
+                            SkScalarFloorToInt(fRadius), SkScalarFloorToInt(fRadius), nullptr);
                     break;
                 case kErode_MT:
-                    mf = SkErodeImageFilter::Make(SkScalarFloorToInt(fRadius),
-                                                  SkScalarFloorToInt(fRadius),
-                                                  nullptr);
+                    mf = SkImageFilters::Erode(
+                            SkScalarFloorToInt(fRadius), SkScalarFloorToInt(fRadius), nullptr);
                     break;
                 }
                 paint.setImageFilter(std::move(mf));

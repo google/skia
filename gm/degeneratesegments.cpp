@@ -4,31 +4,35 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkCanvas.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkRandom.h"
+
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/utils/SkRandom.h"
+#include "tools/ToolUtils.h"
 
 namespace skiagm {
 
 class DegenerateSegmentsGM : public GM {
-public:
-    DegenerateSegmentsGM() {}
-
-protected:
     struct PathAndName {
         SkPath      fPath;
         const char* fName1;
         const char* fName2;
     };
 
-    SkString onShortName() {
-        return SkString("degeneratesegments");
-    }
+    SkString onShortName() override { return SkString("degeneratesegments"); }
 
-    SkISize onISize() { return SkISize::Make(896, 930); }
+    SkISize onISize() override { return {896, 930}; }
 
     typedef SkPoint (*AddSegmentFunc)(SkPath&, SkPoint&);
 
@@ -208,53 +212,53 @@ protected:
         canvas->restore();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
-    constexpr AddSegmentFunc gSegmentFunctions[] = {
-        AddMove,
-        AddMoveClose,
-        AddDegenLine,
-        AddMoveDegenLine,
-        AddMoveDegenLineClose,
-        AddDegenQuad,
-        AddMoveDegenQuad,
-        AddMoveDegenQuadClose,
-        AddDegenCubic,
-        AddMoveDegenCubic,
-        AddMoveDegenCubicClose,
-        AddClose,
-        AddLine,
-        AddMoveLine,
-        AddMoveLineClose,
-        AddQuad,
-        AddMoveQuad,
-        AddMoveQuadClose,
-        AddCubic,
-        AddMoveCubic,
-        AddMoveCubicClose
-    };
-    const char* gSegmentNames[] = {
-        "Move",
-        "MoveClose",
-        "DegenLine",
-        "MoveDegenLine",
-        "MoveDegenLineClose",
-        "DegenQuad",
-        "MoveDegenQuad",
-        "MoveDegenQuadClose",
-        "DegenCubic",
-        "MoveDegenCubic",
-        "MoveDegenCubicClose",
-        "Close",
-        "Line",
-        "MoveLine",
-        "MoveLineClose",
-        "Quad",
-        "MoveQuad",
-        "MoveQuadClose",
-        "Cubic",
-        "MoveCubic",
-        "MoveCubicClose"
-    };
+    void onDraw(SkCanvas* canvas) override {
+        constexpr AddSegmentFunc gSegmentFunctions[] = {
+            AddMove,
+            AddMoveClose,
+            AddDegenLine,
+            AddMoveDegenLine,
+            AddMoveDegenLineClose,
+            AddDegenQuad,
+            AddMoveDegenQuad,
+            AddMoveDegenQuadClose,
+            AddDegenCubic,
+            AddMoveDegenCubic,
+            AddMoveDegenCubicClose,
+            AddClose,
+            AddLine,
+            AddMoveLine,
+            AddMoveLineClose,
+            AddQuad,
+            AddMoveQuad,
+            AddMoveQuadClose,
+            AddCubic,
+            AddMoveCubic,
+            AddMoveCubicClose
+        };
+        const char* gSegmentNames[] = {
+            "Move",
+            "MoveClose",
+            "DegenLine",
+            "MoveDegenLine",
+            "MoveDegenLineClose",
+            "DegenQuad",
+            "MoveDegenQuad",
+            "MoveDegenQuadClose",
+            "DegenCubic",
+            "MoveDegenCubic",
+            "MoveDegenCubicClose",
+            "Close",
+            "Line",
+            "MoveLine",
+            "MoveLineClose",
+            "Quad",
+            "MoveQuad",
+            "MoveQuadClose",
+            "Cubic",
+            "MoveCubic",
+            "MoveCubicClose"
+        };
 
         struct FillAndName {
             SkPath::FillType fFill;
@@ -289,15 +293,11 @@ protected:
         SkPaint titlePaint;
         titlePaint.setColor(SK_ColorBLACK);
         titlePaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&titlePaint);
-        titlePaint.setTextSize(15 * SK_Scalar1);
+        SkFont     font(ToolUtils::create_portable_typeface(), 15);
         const char title[] = "Random Paths Drawn Into Rectangle Clips With "
                              "Indicated Style, Fill and Linecaps, "
                              "with Stroke width 6";
-        canvas->drawString(title,
-                           20 * SK_Scalar1,
-                           20 * SK_Scalar1,
-                           titlePaint);
+        canvas->drawString(title, 20, 20, font, titlePaint);
 
         SkRandom rand;
         SkRect rect = SkRect::MakeWH(220*SK_Scalar1, 50*SK_Scalar1);
@@ -318,7 +318,7 @@ protected:
                     canvas->translate(rect.width() + 4*SK_Scalar1, 0);
                 }
 
-                SkColor color = sk_tool_utils::color_to_565(0xff007000);
+                SkColor      color = ToolUtils::color_to_565(0xff007000);
                 StyleAndName style = gStyles[(rand.nextU() >> 16) % numStyles];
                 CapAndName cap = gCaps[(rand.nextU() >> 16) % numCaps];
                 FillAndName fill = gFills[(rand.nextU() >> 16) % numFills];
@@ -349,46 +349,25 @@ protected:
                 SkPaint labelPaint;
                 labelPaint.setColor(color);
                 labelPaint.setAntiAlias(true);
-                sk_tool_utils::set_portable_typeface(&labelPaint);
-                labelPaint.setTextSize(10 * SK_Scalar1);
-                canvas->drawString(style.fName,
-                                   0, rect.height() + 12 * SK_Scalar1,
-                                   labelPaint);
-                canvas->drawString(fill.fName,
-                                   0, rect.height() + 24 * SK_Scalar1,
-                                   labelPaint);
-                canvas->drawString(cap.fName,
-                                   0, rect.height() + 36 * SK_Scalar1,
-                                   labelPaint);
-                canvas->drawString(gSegmentNames[s1],
-                                   0, rect.height() + 48 * SK_Scalar1,
-                                   labelPaint);
-                canvas->drawString(gSegmentNames[s2],
-                                   0, rect.height() + 60 * SK_Scalar1,
-                                   labelPaint);
-                canvas->drawString(gSegmentNames[s3],
-                                   0, rect.height() + 72 * SK_Scalar1,
-                                   labelPaint);
-                canvas->drawString(gSegmentNames[s4],
-                                   0, rect.height() + 84 * SK_Scalar1,
-                                   labelPaint);
-                canvas->drawString(gSegmentNames[s5],
-                                   0, rect.height() + 96 * SK_Scalar1,
-                                   labelPaint);
+                font.setSize(10);
+                canvas->drawString(style.fName, 0, rect.height() + 12, font, labelPaint);
+                canvas->drawString(fill.fName, 0, rect.height() + 24, font, labelPaint);
+                canvas->drawString(cap.fName, 0, rect.height() + 36, font, labelPaint);
+                canvas->drawString(gSegmentNames[s1], 0, rect.height() + 48, font, labelPaint);
+                canvas->drawString(gSegmentNames[s2], 0, rect.height() + 60, font, labelPaint);
+                canvas->drawString(gSegmentNames[s3], 0, rect.height() + 72, font, labelPaint);
+                canvas->drawString(gSegmentNames[s4], 0, rect.height() + 84, font, labelPaint);
+                canvas->drawString(gSegmentNames[s5], 0, rect.height() + 96, font, labelPaint);
             }
             canvas->restore();
         }
         canvas->restore();
         canvas->restore();
     }
-
-private:
-    typedef GM INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new DegenerateSegmentsGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new DegenerateSegmentsGM; )
 
 }

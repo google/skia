@@ -45,6 +45,8 @@ Differences from GLSL
 * use sk_InstanceID instead of gl_InstanceID
 * the fragment coordinate is sk_FragCoord, and is always relative to the upper
   left.
+* use sk_Clockwise instead of gl_FrontFacing. This is always relative to an
+  upper left origin.
 * you do not need to include ".0" to make a number a float (meaning that
   "float2(x, y) * 4" is perfectly legal in SkSL, unlike GLSL where it would
   often have to be expressed "float2(x, y) * 4.0". There is no performance
@@ -53,8 +55,12 @@ Differences from GLSL
 * creating a smaller vector from a larger vector (e.g. float2(float3(1))) is
   intentionally disallowed, as it is just a wordier way of performing a swizzle.
   Use swizzles instead.
-* Use texture() instead of textureProj(), e.g. texture(sampler2D, float3) is
-  equivalent to GLSL's textureProj(sampler2D, float3)
+* The last swizzle component, in addition to the normal rgba / xyzw components,
+  can also be the constants '0' or '1'. foo.rgb1 is equivalent to
+  float4(foo.rgb, 1).
+* All texture functions are named "sample", e.g. sample(sampler2D, float3) is
+  equivalent to GLSL's textureProj(sampler2D, float3).
+* Render target width and height are available via sk_Width and sk_Height
 * some built-in functions and one or two rarely-used language features are not
   yet supported (sorry!)
 
@@ -107,12 +113,13 @@ Within an '.fp' fragment processor file:
 * global 'in' variables represent data passed to the fragment processor at
   construction time. These variables become constructor parameters and are
   stored in fragment processor fields. By default float2/half2 maps to SkPoints,
-  and float4/half4 maps to SkRects (in x, y, width, height) order. Use ctype
+  and float4/half4 maps to SkRects (in x, y, width, height) order. Similarly,
+  int2/short2 maps to SkIPoint and int4/half4 maps to SkIRect. Use ctype
   (below) to override this default mapping.
 * global variables support an additional 'ctype' layout key, providing the type
   they should be represented as from within the C++ code. For instance, you can
-  use 'layout(ctype=GrColor4f) in half4 color;' to create a variable that looks
-  like a half4 on the SkSL side of things, and a GrColor4f on the C++ side of
+  use 'layout(ctype=SkPMColor4f) in half4 color;' to create a variable that looks
+  like a half4 on the SkSL side of things, and a SkPMColor4f on the C++ side of
   things.
 * 'uniform' variables become, as one would expect, top-level uniforms. By
   default they do not have any data provided to them; you will need to provide
@@ -121,6 +128,9 @@ Within an '.fp' fragment processor file:
   fragment processor constructor parameters. The fragment processor will accept
   a parameter representing the uniform's value, and automatically plumb it
   through to the uniform's value in its generated setData() function.
+* 'in uniform' variables support a 'tracked' flag in the layout that will
+  have the generated code automatically implement state tracking on the uniform
+  value to minimize GPU calls.
 * the 'sk_TransformedCoords2D' array provides access to 2D transformed
   coordinates. sk_TransformedCoords2D[0] is equivalent to calling
   fragBuilder->ensureCoords2D(args.fTransformedCoords[0]) (and the result is
@@ -133,6 +143,15 @@ Within an '.fp' fragment processor file:
   the program's key. Matrix variables additionally support 'key=identity',
   which causes the key to consider only whether or not the matrix is an
   identity matrix.
+* child processors can be declared with 'in fragmentProcessor <name>;', and can
+  be invoked by calling 'sample(<name>)' or 'sample(<name>, <inputColor>)'.
+  The first variant emits the child with a solid white input color. The second
+  variant emits the child with the result of the 2nd argument's expression,
+  which must evaluate to a half4. The process function returns a half4.
+* By default, fragment processors must be non-null. The type for a nullable
+  fragment processor is 'fragmentProcessor?', as in
+  'in fragmentProcessor? <name>'. You can check for the presence of such a
+  fragment processor by comparing it to 'null'.
 
 
 Creating a new .fp file

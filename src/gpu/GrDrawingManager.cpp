@@ -5,80 +5,188 @@
  * found in the LICENSE file.
  */
 
-#include "GrDrawingManager.h"
-#include "GrBackendSemaphore.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpu.h"
-#include "GrOnFlushResourceProvider.h"
-#include "GrOpList.h"
-#include "GrRenderTargetContext.h"
-#include "GrRenderTargetProxy.h"
-#include "GrResourceAllocator.h"
-#include "GrResourceProvider.h"
-#include "GrSoftwarePathRenderer.h"
-#include "GrSurfaceProxyPriv.h"
-#include "GrTextureContext.h"
-#include "GrTextureOpList.h"
-#include "GrTextureProxy.h"
-#include "GrTextureProxyPriv.h"
-#include "SkDeferredDisplayList.h"
-#include "SkSurface_Gpu.h"
-#include "SkTTopoSort.h"
-#include "GrTracing.h"
-#include "text/GrAtlasTextContext.h"
+#include "src/gpu/GrDrawingManager.h"
 
-// Turn on/off the sorting of opLists at flush time
-#ifndef SK_DISABLE_RENDER_TARGET_SORTING
-   #define SK_DISABLE_RENDER_TARGET_SORTING
-#endif
+#include "include/gpu/GrBackendSemaphore.h"
+#include "include/gpu/GrTexture.h"
+#include "include/private/GrRecordingContext.h"
+#include "include/private/SkDeferredDisplayList.h"
+#include "src/core/SkTTopoSort.h"
+#include "src/gpu/GrAuditTrail.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrCopyRenderTask.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrOnFlushResourceProvider.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetProxy.h"
+#include "src/gpu/GrRenderTask.h"
+#include "src/gpu/GrResourceAllocator.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSoftwarePathRenderer.h"
+#include "src/gpu/GrSurfaceProxyPriv.h"
+#include "src/gpu/GrTextureContext.h"
+#include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/GrTextureProxyPriv.h"
+#include "src/gpu/GrTextureResolveRenderTask.h"
+#include "src/gpu/GrTracing.h"
+#include "src/gpu/GrTransferFromRenderTask.h"
+#include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
+#include "src/gpu/text/GrTextContext.h"
+#include "src/image/SkSurface_Gpu.h"
 
-GrDrawingManager::GrDrawingManager(GrContext* context,
-                                   const GrPathRendererChain::Options& optionsForPathRendererChain,
-                                   const GrAtlasTextContext::Options& optionsForAtlasTextContext,
-                                   GrSingleOwner* singleOwner,
-                                   bool explicitlyAllocating,
-                                   GrContextOptions::Enable sortRenderTargets)
-        : fContext(context)
-        , fOptionsForPathRendererChain(optionsForPathRendererChain)
-        , fOptionsForAtlasTextContext(optionsForAtlasTextContext)
-        , fSingleOwner(singleOwner)
-        , fAbandoned(false)
-        , fAtlasTextContext(nullptr)
-        , fPathRendererChain(nullptr)
-        , fSoftwarePathRenderer(nullptr)
-        , fFlushing(false) {
+GrDrawingManager::RenderTaskDAG::RenderTaskDAG(bool sortRenderTasks)
+        : fSortRenderTasks(sortRenderTasks) {}
 
-    if (GrContextOptions::Enable::kNo == sortRenderTargets) {
-        fSortRenderTargets = false;
-    } else if (GrContextOptions::Enable::kYes == sortRenderTargets) {
-        fSortRenderTargets = true;
-    } else {
-        // By default we always enable sorting when we're explicitly allocating GPU resources
-        fSortRenderTargets = explicitlyAllocating;
+GrDrawingManager::RenderTaskDAG::~RenderTaskDAG() {}
+
+void GrDrawingManager::RenderTaskDAG::gatherIDs(SkSTArray<8, uint32_t, true>* idArray) const {
+    idArray->reset(fRenderTasks.count());
+    for (int i = 0; i < fRenderTasks.count(); ++i) {
+        if (fRenderTasks[i]) {
+            (*idArray)[i] = fRenderTasks[i]->uniqueID();
+        }
     }
 }
 
-void GrDrawingManager::cleanup() {
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        // no opList should receive a new command after this
-        fOpLists[i]->makeClosed(*fContext->contextPriv().caps());
+void GrDrawingManager::RenderTaskDAG::reset() {
+    fRenderTasks.reset();
+}
 
-        // We shouldn't need to do this, but it turns out some clients still hold onto opLists
-        // after a cleanup.
-        // MDB TODO: is this still true?
-        if (!fOpLists[i]->unique()) {
-            // TODO: Eventually this should be guaranteed unique.
-            // https://bugs.chromium.org/p/skia/issues/detail?id=7111
-            fOpLists[i]->endFlush();
+void GrDrawingManager::RenderTaskDAG::removeRenderTask(int index) {
+    if (!fRenderTasks[index]->unique()) {
+        // TODO: Eventually this should be guaranteed unique: http://skbug.com/7111
+        fRenderTasks[index]->endFlush();
+    }
+
+    fRenderTasks[index] = nullptr;
+}
+
+void GrDrawingManager::RenderTaskDAG::removeRenderTasks(int startIndex, int stopIndex) {
+    for (int i = startIndex; i < stopIndex; ++i) {
+        if (!fRenderTasks[i]) {
+            continue;
+        }
+        this->removeRenderTask(i);
+    }
+}
+
+bool GrDrawingManager::RenderTaskDAG::isUsed(GrSurfaceProxy* proxy) const {
+    for (int i = 0; i < fRenderTasks.count(); ++i) {
+        if (fRenderTasks[i] && fRenderTasks[i]->isUsed(proxy)) {
+            return true;
         }
     }
 
-    fOpLists.reset();
+    return false;
+}
 
-    delete fPathRendererChain;
+GrRenderTask* GrDrawingManager::RenderTaskDAG::add(sk_sp<GrRenderTask> renderTask) {
+    if (renderTask) {
+        return fRenderTasks.emplace_back(std::move(renderTask)).get();
+    }
+    return nullptr;
+}
+
+GrRenderTask* GrDrawingManager::RenderTaskDAG::addBeforeLast(sk_sp<GrRenderTask> renderTask) {
+    SkASSERT(!fRenderTasks.empty());
+    if (renderTask) {
+        // Release 'fRenderTasks.back()' and grab the raw pointer, in case the SkTArray grows
+        // and reallocates during emplace_back.
+        fRenderTasks.emplace_back(fRenderTasks.back().release());
+        return (fRenderTasks[fRenderTasks.count() - 2] = std::move(renderTask)).get();
+    }
+    return nullptr;
+}
+
+void GrDrawingManager::RenderTaskDAG::add(const SkTArray<sk_sp<GrRenderTask>>& renderTasks) {
+    fRenderTasks.push_back_n(renderTasks.count(), renderTasks.begin());
+}
+
+void GrDrawingManager::RenderTaskDAG::swap(SkTArray<sk_sp<GrRenderTask>>* renderTasks) {
+    SkASSERT(renderTasks->empty());
+    renderTasks->swap(fRenderTasks);
+}
+
+void GrDrawingManager::RenderTaskDAG::prepForFlush() {
+    if (fSortRenderTasks) {
+        SkDEBUGCODE(bool result =) SkTTopoSort<GrRenderTask, GrRenderTask::TopoSortTraits>(
+                &fRenderTasks);
+        SkASSERT(result);
+    }
+
+#ifdef SK_DEBUG
+    // This block checks for any unnecessary splits in the opsTasks. If two sequential opsTasks
+    // share the same backing GrSurfaceProxy it means the opsTask was artificially split.
+    if (fRenderTasks.count()) {
+        GrOpsTask* prevOpsTask = fRenderTasks[0]->asOpsTask();
+        for (int i = 1; i < fRenderTasks.count(); ++i) {
+            GrOpsTask* curOpsTask = fRenderTasks[i]->asOpsTask();
+
+            if (prevOpsTask && curOpsTask) {
+                SkASSERT(prevOpsTask->fTarget.get() != curOpsTask->fTarget.get());
+            }
+
+            prevOpsTask = curOpsTask;
+        }
+    }
+#endif
+}
+
+void GrDrawingManager::RenderTaskDAG::closeAll(const GrCaps* caps) {
+    for (int i = 0; i < fRenderTasks.count(); ++i) {
+        if (fRenderTasks[i]) {
+            fRenderTasks[i]->makeClosed(*caps);
+        }
+    }
+}
+
+void GrDrawingManager::RenderTaskDAG::cleanup(const GrCaps* caps) {
+    for (int i = 0; i < fRenderTasks.count(); ++i) {
+        if (!fRenderTasks[i]) {
+            continue;
+        }
+
+        // no renderTask should receive a dependency
+        fRenderTasks[i]->makeClosed(*caps);
+
+        // We shouldn't need to do this, but it turns out some clients still hold onto opsTasks
+        // after a cleanup.
+        // MDB TODO: is this still true?
+        if (!fRenderTasks[i]->unique()) {
+            // TODO: Eventually this should be guaranteed unique.
+            // https://bugs.chromium.org/p/skia/issues/detail?id=7111
+            fRenderTasks[i]->endFlush();
+        }
+    }
+
+    fRenderTasks.reset();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+GrDrawingManager::GrDrawingManager(GrRecordingContext* context,
+                                   const GrPathRendererChain::Options& optionsForPathRendererChain,
+                                   const GrTextContext::Options& optionsForTextContext,
+                                   bool sortRenderTasks,
+                                   bool reduceOpsTaskSplitting)
+        : fContext(context)
+        , fOptionsForPathRendererChain(optionsForPathRendererChain)
+        , fOptionsForTextContext(optionsForTextContext)
+        , fDAG(sortRenderTasks)
+        , fTextContext(nullptr)
+        , fPathRendererChain(nullptr)
+        , fSoftwarePathRenderer(nullptr)
+        , fFlushing(false)
+        , fReduceOpsTaskSplitting(reduceOpsTaskSplitting) {
+}
+
+void GrDrawingManager::cleanup() {
+    fDAG.cleanup(fContext->priv().caps());
+
     fPathRendererChain = nullptr;
-    SkSafeSetNull(fSoftwarePathRenderer);
+    fSoftwarePathRenderer = nullptr;
 
     fOnFlushCBObjects.reset();
 }
@@ -87,9 +195,8 @@ GrDrawingManager::~GrDrawingManager() {
     this->cleanup();
 }
 
-void GrDrawingManager::abandon() {
-    fAbandoned = true;
-    this->cleanup();
+bool GrDrawingManager::wasAbandoned() const {
+    return fContext->priv().abandoned();
 }
 
 void GrDrawingManager::freeGpuResources() {
@@ -101,59 +208,76 @@ void GrDrawingManager::freeGpuResources() {
     }
 
     // a path renderer may be holding onto resources
-    delete fPathRendererChain;
     fPathRendererChain = nullptr;
-    SkSafeSetNull(fSoftwarePathRenderer);
+    fSoftwarePathRenderer = nullptr;
 }
 
 // MDB TODO: make use of the 'proxy' parameter.
-GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
-                                                      GrResourceCache::FlushType type,
-                                                      int numSemaphores,
-                                                      GrBackendSemaphore backendSemaphores[]) {
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "internalFlush", fContext);
+GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[], int numProxies,
+        SkSurface::BackendSurfaceAccess access, const GrFlushInfo& info,
+        const GrPrepareForExternalIORequests& externalRequests) {
+    SkASSERT(numProxies >= 0);
+    SkASSERT(!numProxies || proxies);
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "flush", fContext);
 
     if (fFlushing || this->wasAbandoned()) {
+        if (info.fFinishedProc) {
+            info.fFinishedProc(info.fFinishedContext);
+        }
         return GrSemaphoresSubmitted::kNo;
     }
-    GrGpu* gpu = fContext->contextPriv().getGpu();
-    if (!gpu) {
-        return GrSemaphoresSubmitted::kNo; // Can't flush while DDL recording
-    }
-    fFlushing = true;
 
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        // Semi-usually the GrOpLists are already closed at this point, but sometimes Ganesh
-        // needs to flush mid-draw. In that case, the SkGpuDevice's GrOpLists won't be closed
-        // but need to be flushed anyway. Closing such GrOpLists here will mean new
-        // GrOpLists will be created to replace them if the SkGpuDevice(s) write to them again.
-        fOpLists[i]->makeClosed(*fContext->contextPriv().caps());
-    }
+    SkDEBUGCODE(this->validate());
 
-#ifdef SK_DEBUG
-    // This block checks for any unnecessary splits in the opLists. If two sequential opLists
-    // share the same backing GrSurfaceProxy it means the opList was artificially split.
-    if (fOpLists.count()) {
-        GrRenderTargetOpList* prevOpList = fOpLists[0]->asRenderTargetOpList();
-        for (int i = 1; i < fOpLists.count(); ++i) {
-            GrRenderTargetOpList* curOpList = fOpLists[i]->asRenderTargetOpList();
-
-            if (prevOpList && curOpList) {
-                SkASSERT(prevOpList->fTarget.get() != curOpList->fTarget.get());
-            }
-
-            prevOpList = curOpList;
+    if (kNone_GrFlushFlags == info.fFlags && !info.fNumSemaphores && !info.fFinishedProc &&
+            !externalRequests.hasRequests()) {
+        bool canSkip = numProxies > 0;
+        for (int i = 0; i < numProxies && canSkip; ++i) {
+            canSkip = !fDAG.isUsed(proxies[i]) && !this->isDDLTarget(proxies[i]);
+        }
+        if (canSkip) {
+            return GrSemaphoresSubmitted::kNo;
         }
     }
-#endif
 
-    if (fSortRenderTargets) {
-        SkDEBUGCODE(bool result =) SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
-        SkASSERT(result);
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        if (info.fFinishedProc) {
+            info.fFinishedProc(info.fFinishedContext);
+        }
+        return GrSemaphoresSubmitted::kNo; // Can't flush while DDL recording
     }
 
-    GrOpFlushState flushState(gpu, fContext->contextPriv().resourceProvider(),
-                              &fTokenTracker);
+    GrGpu* gpu = direct->priv().getGpu();
+    if (!gpu) {
+        if (info.fFinishedProc) {
+            info.fFinishedProc(info.fFinishedContext);
+        }
+        return GrSemaphoresSubmitted::kNo; // Can't flush while DDL recording
+    }
+
+    fFlushing = true;
+
+    auto resourceProvider = direct->priv().resourceProvider();
+    auto resourceCache = direct->priv().getResourceCache();
+
+    // Semi-usually the GrRenderTasks are already closed at this point, but sometimes Ganesh needs
+    // to flush mid-draw. In that case, the SkGpuDevice's opsTasks won't be closed but need to be
+    // flushed anyway. Closing such opsTasks here will mean new ones will be created to replace them
+    // if the SkGpuDevice(s) write to them again.
+    fDAG.closeAll(fContext->priv().caps());
+    fActiveOpsTask = nullptr;
+
+    fDAG.prepForFlush();
+    if (!fCpuBufferCache) {
+        // We cache more buffers when the backend is using client side arrays. Otherwise, we
+        // expect each pool will use a CPU buffer as a staging buffer before uploading to a GPU
+        // buffer object. Each pool only requires one staging buffer at a time.
+        int maxCachedBuffers = fContext->priv().caps()->preferClientSideDynamicBuffers() ? 2 : 6;
+        fCpuBufferCache = GrBufferAllocPool::CpuBufferCache::Make(maxCachedBuffers);
+    }
+
+    GrOpFlushState flushState(gpu, resourceProvider, &fTokenTracker, fCpuBufferCache);
 
     GrOnFlushResourceProvider onFlushProvider(this);
     // TODO: AFAICT the only reason fFlushState is on GrDrawingManager rather than on the
@@ -161,40 +285,44 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
 
     // Prepare any onFlush op lists (e.g. atlases).
     if (!fOnFlushCBObjects.empty()) {
-        fFlushingOpListIDs.reset(fOpLists.count());
-        for (int i = 0; i < fOpLists.count(); ++i) {
-            fFlushingOpListIDs[i] = fOpLists[i]->uniqueID();
-        }
-        SkSTArray<4, sk_sp<GrRenderTargetContext>> renderTargetContexts;
+        fDAG.gatherIDs(&fFlushingRenderTaskIDs);
+
         for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
-            onFlushCBObject->preFlush(&onFlushProvider,
-                                      fFlushingOpListIDs.begin(), fFlushingOpListIDs.count(),
-                                      &renderTargetContexts);
-            for (const sk_sp<GrRenderTargetContext>& rtc : renderTargetContexts) {
-                sk_sp<GrRenderTargetOpList> onFlushOpList = sk_ref_sp(rtc->getRTOpList());
-                if (!onFlushOpList) {
-                    continue;   // Odd - but not a big deal
-                }
+            onFlushCBObject->preFlush(&onFlushProvider, fFlushingRenderTaskIDs.begin(),
+                                      fFlushingRenderTaskIDs.count());
+        }
+        for (const auto& onFlushRenderTask : fOnFlushRenderTasks) {
+            onFlushRenderTask->makeClosed(*fContext->priv().caps());
 #ifdef SK_DEBUG
-                // OnFlush callbacks are already invoked during flush, and are therefore expected to
-                // handle resource allocation & usage on their own. (No deferred or lazy proxies!)
-                onFlushOpList->visitProxies_debugOnly([](GrSurfaceProxy* p) {
-                    SkASSERT(!p->asTextureProxy() || !p->asTextureProxy()->texPriv().isDeferred());
-                    SkASSERT(GrSurfaceProxy::LazyState::kNot == p->lazyInstantiationState());
-                });
+            // OnFlush callbacks are invoked during flush, and are therefore expected to handle
+            // resource allocation & usage on their own. (No deferred or lazy proxies!)
+            onFlushRenderTask->visitTargetAndSrcProxies_debugOnly(
+                    [](GrSurfaceProxy* p, GrMipMapped mipMapped) {
+                SkASSERT(!p->asTextureProxy() || !p->asTextureProxy()->texPriv().isDeferred());
+                SkASSERT(!p->isLazy());
+                if (p->requiresManualMSAAResolve()) {
+                    // The onFlush callback is responsible for ensuring MSAA gets resolved.
+                    SkASSERT(p->asRenderTargetProxy() && !p->asRenderTargetProxy()->isMSAADirty());
+                }
+                if (GrMipMapped::kYes == mipMapped) {
+                    // The onFlush callback is responsible for regenerating mips if needed.
+                    SkASSERT(p->asTextureProxy() && !p->asTextureProxy()->mipMapsAreDirty());
+                }
+            });
 #endif
-                onFlushOpList->makeClosed(*fContext->contextPriv().caps());
-                onFlushOpList->prepare(&flushState);
-                fOnFlushCBOpLists.push_back(std::move(onFlushOpList));
-            }
-            renderTargetContexts.reset();
+            onFlushRenderTask->prepare(&flushState);
         }
     }
 
 #if 0
     // Enable this to print out verbose GrOp information
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        SkDEBUGCODE(fOpLists[i]->dump();)
+    SkDEBUGCODE(SkDebugf("onFlush renderTasks:"));
+    for (const auto& onFlushRenderTask : fOnFlushRenderTasks) {
+        SkDEBUGCODE(onFlushRenderTask->dump();)
+    }
+    SkDEBUGCODE(SkDebugf("Normal renderTasks:"));
+    for (int i = 0; i < fRenderTasks.count(); ++i) {
+        SkDEBUGCODE(fRenderTasks[i]->dump();)
     }
 #endif
 
@@ -202,171 +330,224 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     bool flushed = false;
 
     {
-        GrResourceAllocator alloc(fContext->contextPriv().resourceProvider());
-        for (int i = 0; i < fOpLists.count(); ++i) {
-            fOpLists[i]->gatherProxyIntervals(&alloc);
-            alloc.markEndOfOpList(i);
+        GrResourceAllocator alloc(resourceProvider SkDEBUGCODE(, fDAG.numRenderTasks()));
+        for (int i = 0; i < fDAG.numRenderTasks(); ++i) {
+            if (fDAG.renderTask(i)) {
+                fDAG.renderTask(i)->gatherProxyIntervals(&alloc);
+            }
+            alloc.markEndOfOpsTask(i);
         }
+        alloc.determineRecyclability();
 
         GrResourceAllocator::AssignError error = GrResourceAllocator::AssignError::kNoError;
-        while (alloc.assign(&startIndex, &stopIndex, flushState.uninstantiateProxyTracker(),
-                            &error)) {
+        int numRenderTasksExecuted = 0;
+        while (alloc.assign(&startIndex, &stopIndex, &error)) {
             if (GrResourceAllocator::AssignError::kFailedProxyInstantiation == error) {
                 for (int i = startIndex; i < stopIndex; ++i) {
-                    fOpLists[i]->purgeOpsWithUninstantiatedProxies();
+                    GrRenderTask* renderTask = fDAG.renderTask(i);
+                    if (!renderTask) {
+                        continue;
+                    }
+                    if (!renderTask->isInstantiated()) {
+                        // No need to call the renderTask's handleInternalAllocationFailure
+                        // since we will already skip executing the renderTask since it is not
+                        // instantiated.
+                        continue;
+                    }
+                    renderTask->handleInternalAllocationFailure();
                 }
             }
 
-            if (this->executeOpLists(startIndex, stopIndex, &flushState)) {
+            if (this->executeRenderTasks(
+                    startIndex, stopIndex, &flushState, &numRenderTasksExecuted)) {
                 flushed = true;
             }
         }
     }
 
 #ifdef SK_DEBUG
-    for (const auto& opList : fOpLists) {
-        // If there are any remaining opLists at this point, make sure they will not survive the
+    for (int i = 0; i < fDAG.numRenderTasks(); ++i) {
+        // If there are any remaining opsTaskss at this point, make sure they will not survive the
         // flush. Otherwise we need to call endFlush() on them.
         // http://skbug.com/7111
-        SkASSERT(!opList || opList->unique());
+        SkASSERT(!fDAG.renderTask(i) || fDAG.renderTask(i)->unique());
     }
 #endif
-    fOpLists.reset();
+    fDAG.reset();
+    this->clearDDLTargets();
 
-    GrSemaphoresSubmitted result = gpu->finishFlush(numSemaphores, backendSemaphores);
+#ifdef SK_DEBUG
+    // In non-DDL mode this checks that all the flushed ops have been freed from the memory pool.
+    // When we move to partial flushes this assert will no longer be valid.
+    // In DDL mode this check is somewhat superfluous since the memory for most of the ops/opsTasks
+    // will be stored in the DDL's GrOpMemoryPools.
+    GrOpMemoryPool* opMemoryPool = fContext->priv().opMemoryPool();
+    opMemoryPool->isEmpty();
+#endif
 
-    flushState.uninstantiateProxyTracker()->uninstantiateAllProxies();
+    GrSemaphoresSubmitted result = gpu->finishFlush(proxies, numProxies, access, info,
+                                                    externalRequests);
 
-    // We always have to notify the cache when it requested a flush so it can reset its state.
-    if (flushed || type == GrResourceCache::FlushType::kCacheRequested) {
-        fContext->contextPriv().getResourceCache()->notifyFlushOccurred(type);
+    // Give the cache a chance to purge resources that become purgeable due to flushing.
+    if (flushed) {
+        resourceCache->purgeAsNeeded();
+        flushed = false;
     }
     for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
-        onFlushCBObject->postFlush(fTokenTracker.nextTokenToFlush(), fFlushingOpListIDs.begin(),
-                                   fFlushingOpListIDs.count());
+        onFlushCBObject->postFlush(fTokenTracker.nextTokenToFlush(), fFlushingRenderTaskIDs.begin(),
+                                   fFlushingRenderTaskIDs.count());
+        flushed = true;
     }
-    fFlushingOpListIDs.reset();
+    if (flushed) {
+        resourceCache->purgeAsNeeded();
+    }
+    fFlushingRenderTaskIDs.reset();
     fFlushing = false;
 
     return result;
 }
 
-static void end_oplist_flush_if_not_unique(const sk_sp<GrOpList>& opList) {
-    if (!opList->unique()) {
-        // TODO: Eventually this should be guaranteed unique: http://skbug.com/7111
-        opList->endFlush();
-    }
-}
-
-bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushState* flushState) {
-    SkASSERT(startIndex <= stopIndex && stopIndex <= fOpLists.count());
+bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlushState* flushState,
+                                          int* numRenderTasksExecuted) {
+    SkASSERT(startIndex <= stopIndex && stopIndex <= fDAG.numRenderTasks());
 
 #if GR_FLUSH_TIME_OP_SPEW
-    SkDebugf("Flushing opLists: %d to %d out of [%d, %d]\n",
-                            startIndex, stopIndex, 0, fOpLists.count());
+    SkDebugf("Flushing opsTask: %d to %d out of [%d, %d]\n",
+                            startIndex, stopIndex, 0, fDAG.numRenderTasks());
     for (int i = startIndex; i < stopIndex; ++i) {
-        fOpLists[i]->dump(false);
+        if (fDAG.renderTask(i)) {
+            fDAG.renderTask(i)->dump(true);
+        }
     }
 #endif
 
-    GrResourceProvider* resourceProvider = fContext->contextPriv().resourceProvider();
-    bool anyOpListsExecuted = false;
+    bool anyRenderTasksExecuted = false;
 
     for (int i = startIndex; i < stopIndex; ++i) {
-        if (!fOpLists[i]) {
+        GrRenderTask* renderTask = fDAG.renderTask(i);
+        if (!renderTask || !renderTask->isInstantiated()) {
              continue;
         }
 
-        if (resourceProvider->explicitlyAllocateGPUResources()) {
-            if (!fOpLists[i]->isInstantiated()) {
-                // If the backing surface wasn't allocated drop the draw of the entire opList.
-                end_oplist_flush_if_not_unique(fOpLists[i]); // http://skbug.com/7111
-                fOpLists[i] = nullptr;
-                continue;
-            }
-        } else {
-            if (!fOpLists[i]->instantiate(resourceProvider)) {
-                SkDebugf("OpList failed to instantiate.\n");
-                end_oplist_flush_if_not_unique(fOpLists[i]); // http://skbug.com/7111
-                fOpLists[i] = nullptr;
-                continue;
-            }
-        }
+        SkASSERT(renderTask->deferredProxiesAreInstantiated());
 
-        // TODO: handle this instantiation via lazy surface proxies?
-        // Instantiate all deferred proxies (being built on worker threads) so we can upload them
-        fOpLists[i]->instantiateDeferredProxies(fContext->contextPriv().resourceProvider());
-        fOpLists[i]->prepare(flushState);
+        renderTask->prepare(flushState);
     }
 
     // Upload all data to the GPU
     flushState->preExecuteDraws();
 
-    // Execute the onFlush op lists first, if any.
-    for (sk_sp<GrOpList>& onFlushOpList : fOnFlushCBOpLists) {
-        if (!onFlushOpList->execute(flushState)) {
-            SkDebugf("WARNING: onFlushOpList failed to execute.\n");
+    // For Vulkan, if we have too many oplists to be flushed we end up allocating a lot of resources
+    // for each command buffer associated with the oplists. If this gets too large we can cause the
+    // devices to go OOM. In practice we usually only hit this case in our tests, but to be safe we
+    // put a cap on the number of oplists we will execute before flushing to the GPU to relieve some
+    // memory pressure.
+    static constexpr int kMaxRenderTasksBeforeFlush = 100;
+
+    // Execute the onFlush renderTasks first, if any.
+    for (sk_sp<GrRenderTask>& onFlushRenderTask : fOnFlushRenderTasks) {
+        if (!onFlushRenderTask->execute(flushState)) {
+            SkDebugf("WARNING: onFlushRenderTask failed to execute.\n");
         }
-        SkASSERT(onFlushOpList->unique());
-        onFlushOpList = nullptr;
+        SkASSERT(onFlushRenderTask->unique());
+        onFlushRenderTask = nullptr;
+        (*numRenderTasksExecuted)++;
+        if (*numRenderTasksExecuted >= kMaxRenderTasksBeforeFlush) {
+            flushState->gpu()->finishFlush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess,
+                                           GrFlushInfo(), GrPrepareForExternalIORequests());
+            *numRenderTasksExecuted = 0;
+        }
     }
-    fOnFlushCBOpLists.reset();
+    fOnFlushRenderTasks.reset();
 
     // Execute the normal op lists.
     for (int i = startIndex; i < stopIndex; ++i) {
-        if (!fOpLists[i]) {
+        GrRenderTask* renderTask = fDAG.renderTask(i);
+        if (!renderTask || !renderTask->isInstantiated()) {
             continue;
         }
 
-        if (fOpLists[i]->execute(flushState)) {
-            anyOpListsExecuted = true;
+        if (renderTask->execute(flushState)) {
+            anyRenderTasksExecuted = true;
+        }
+        (*numRenderTasksExecuted)++;
+        if (*numRenderTasksExecuted >= kMaxRenderTasksBeforeFlush) {
+            flushState->gpu()->finishFlush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess,
+                                           GrFlushInfo(), GrPrepareForExternalIORequests());
+            *numRenderTasksExecuted = 0;
         }
     }
 
-    SkASSERT(!flushState->commandBuffer());
+    SkASSERT(!flushState->opsRenderPass());
     SkASSERT(fTokenTracker.nextDrawToken() == fTokenTracker.nextTokenToFlush());
 
-    // We reset the flush state before the OpLists so that the last resources to be freed are those
-    // that are written to in the OpLists. This helps to make sure the most recently used resources
-    // are the last to be purged by the resource cache.
+    // We reset the flush state before the RenderTasks so that the last resources to be freed are
+    // those that are written to in the RenderTasks. This helps to make sure the most recently used
+    // resources are the last to be purged by the resource cache.
     flushState->reset();
 
-    for (int i = startIndex; i < stopIndex; ++i) {
-        if (!fOpLists[i]) {
-            continue;
-        }
-        end_oplist_flush_if_not_unique(fOpLists[i]); // http://skbug.com/7111
-        fOpLists[i] = nullptr;
-    }
+    fDAG.removeRenderTasks(startIndex, stopIndex);
 
-    return anyOpListsExecuted;
+    return anyRenderTasksExecuted;
 }
 
-GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
-        GrSurfaceProxy* proxy, int numSemaphores, GrBackendSemaphore backendSemaphores[]) {
+GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[], int numProxies,
+                                                      SkSurface::BackendSurfaceAccess access,
+                                                      const GrFlushInfo& info) {
     if (this->wasAbandoned()) {
         return GrSemaphoresSubmitted::kNo;
     }
-    SkASSERT(proxy);
+    SkDEBUGCODE(this->validate());
+    SkASSERT(numProxies >= 0);
+    SkASSERT(!numProxies || proxies);
 
-    GrGpu* gpu = fContext->contextPriv().getGpu();
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        return GrSemaphoresSubmitted::kNo; // Can't flush while DDL recording
+    }
+
+    GrGpu* gpu = direct->priv().getGpu();
     if (!gpu) {
         return GrSemaphoresSubmitted::kNo; // Can't flush while DDL recording
     }
 
-    GrSemaphoresSubmitted result = GrSemaphoresSubmitted::kNo;
-    if (proxy->priv().hasPendingIO() || numSemaphores) {
-        result = this->flush(proxy, numSemaphores, backendSemaphores);
+    // TODO: It is important to upgrade the drawingmanager to just flushing the
+    // portion of the DAG required by 'proxies' in order to restore some of the
+    // semantics of this method.
+    GrSemaphoresSubmitted result = this->flush(proxies, numProxies, access, info,
+                                               GrPrepareForExternalIORequests());
+    for (int i = 0; i < numProxies; ++i) {
+        GrSurfaceProxy* proxy = proxies[i];
+        if (!proxy->isInstantiated()) {
+            return result;
+        }
+        // In the flushSurfaces case, we need to resolve MSAA immediately after flush. This is
+        // because the client will call through to this method when drawing into a target created by
+        // wrapBackendTextureAsRenderTarget, and will expect the original texture to be fully
+        // resolved upon return.
+        if (proxy->requiresManualMSAAResolve()) {
+            auto* rtProxy = proxy->asRenderTargetProxy();
+            SkASSERT(rtProxy);
+            if (rtProxy->isMSAADirty()) {
+                SkASSERT(rtProxy->peekRenderTarget());
+                gpu->resolveRenderTarget(rtProxy->peekRenderTarget());
+                rtProxy->markMSAAResolved();
+            }
+        }
+        // If, after a flush, any of the proxies of interest have dirty mipmaps, regenerate them in
+        // case their backend textures are being stolen.
+        // (This special case is exercised by the ReimportImageTextureWithMipLevels test.)
+        // FIXME: It may be more ideal to plumb down a "we're going to steal the backends" flag.
+        if (auto* textureProxy = proxy->asTextureProxy()) {
+            if (textureProxy->mipMapsAreDirty()) {
+                SkASSERT(textureProxy->peekTexture());
+                gpu->regenerateMipMapLevels(textureProxy->peekTexture());
+                textureProxy->markMipMapsClean();
+            }
+        }
     }
 
-    if (!proxy->instantiate(fContext->contextPriv().resourceProvider())) {
-        return result;
-    }
-
-    GrSurface* surface = proxy->priv().peekSurface();
-    if (surface->asRenderTarget()) {
-        gpu->resolveRenderTarget(surface->asRenderTarget());
-    }
+    SkDEBUGCODE(this->validate());
     return result;
 }
 
@@ -374,76 +555,213 @@ void GrDrawingManager::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlush
     fOnFlushCBObjects.push_back(onFlushCBObject);
 }
 
-void GrDrawingManager::moveOpListsToDDL(SkDeferredDisplayList* ddl) {
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        // no opList should receive a new command after this
-        fOpLists[i]->makeClosed(*fContext->contextPriv().caps());
+#if GR_TEST_UTILS
+void GrDrawingManager::testingOnly_removeOnFlushCallbackObject(GrOnFlushCallbackObject* cb) {
+    int n = std::find(fOnFlushCBObjects.begin(), fOnFlushCBObjects.end(), cb) -
+            fOnFlushCBObjects.begin();
+    SkASSERT(n < fOnFlushCBObjects.count());
+    fOnFlushCBObjects.removeShuffle(n);
+}
+#endif
+
+void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
+    SkDEBUGCODE(this->validate());
+
+    // no renderTask should receive a new command after this
+    fDAG.closeAll(fContext->priv().caps());
+    fActiveOpsTask = nullptr;
+
+    fDAG.swap(&ddl->fRenderTasks);
+
+    if (fPathRendererChain) {
+        if (auto ccpr = fPathRendererChain->getCoverageCountingPathRenderer()) {
+            ddl->fPendingPaths = ccpr->detachPendingPaths();
+        }
     }
 
-    ddl->fOpLists = std::move(fOpLists);
+    SkDEBUGCODE(this->validate());
 }
 
-void GrDrawingManager::copyOpListsFromDDL(const SkDeferredDisplayList* ddl,
+void GrDrawingManager::copyRenderTasksFromDDL(const SkDeferredDisplayList* ddl,
                                           GrRenderTargetProxy* newDest) {
+    SkDEBUGCODE(this->validate());
+
+    if (fActiveOpsTask) {
+        // This is  a temporary fix for the partial-MDB world. In that world we're not
+        // reordering so ops that (in the single opsTask world) would've just glommed onto the
+        // end of the single opsTask but referred to a far earlier RT need to appear in their
+        // own opsTask.
+        fActiveOpsTask->makeClosed(*fContext->priv().caps());
+        fActiveOpsTask = nullptr;
+    }
+
+    this->addDDLTarget(newDest);
+
     // Here we jam the proxy that backs the current replay SkSurface into the LazyProxyData.
-    // The lazy proxy that references it (in the copied opLists) will steal its GrTexture.
+    // The lazy proxy that references it (in the copied opsTasks) will steal its GrTexture.
     ddl->fLazyProxyData->fReplayDest = newDest;
-    fOpLists.push_back_n(ddl->fOpLists.count(), ddl->fOpLists.begin());
+
+    if (ddl->fPendingPaths.size()) {
+        GrCoverageCountingPathRenderer* ccpr = this->getCoverageCountingPathRenderer();
+
+        ccpr->mergePendingPaths(ddl->fPendingPaths);
+    }
+
+    fDAG.add(ddl->fRenderTasks);
+
+    SkDEBUGCODE(this->validate());
 }
 
-sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* rtp,
-                                                          bool managedOpList) {
+#ifdef SK_DEBUG
+void GrDrawingManager::validate() const {
+    if (fDAG.sortingRenderTasks() && fReduceOpsTaskSplitting) {
+        SkASSERT(!fActiveOpsTask);
+    } else {
+        if (fActiveOpsTask) {
+            SkASSERT(!fDAG.empty());
+            SkASSERT(!fActiveOpsTask->isClosed());
+            SkASSERT(fActiveOpsTask == fDAG.back());
+        }
+
+        for (int i = 0; i < fDAG.numRenderTasks(); ++i) {
+            if (fActiveOpsTask != fDAG.renderTask(i)) {
+                SkASSERT(fDAG.renderTask(i)->isClosed());
+            }
+        }
+
+        if (!fDAG.empty() && !fDAG.back()->isClosed()) {
+            SkASSERT(fActiveOpsTask == fDAG.back());
+        }
+    }
+}
+#endif
+
+void GrDrawingManager::closeRenderTasksForNewRenderTask(GrSurfaceProxy* target) {
+    if (target && fDAG.sortingRenderTasks() && fReduceOpsTaskSplitting) {
+        // In this case we need to close all the renderTasks that rely on the current contents of
+        // 'target'. That is bc we're going to update the content of the proxy so they need to be
+        // split in case they use both the old and new content. (This is a bit of an overkill: they
+        // really only need to be split if they ever reference proxy's contents again but that is
+        // hard to predict/handle).
+        if (GrRenderTask* lastRenderTask = target->getLastRenderTask()) {
+            lastRenderTask->closeThoseWhoDependOnMe(*fContext->priv().caps());
+        }
+    } else if (fActiveOpsTask) {
+        // This is  a temporary fix for the partial-MDB world. In that world we're not
+        // reordering so ops that (in the single opsTask world) would've just glommed onto the
+        // end of the single opsTask but referred to a far earlier RT need to appear in their
+        // own opsTask.
+        fActiveOpsTask->makeClosed(*fContext->priv().caps());
+        fActiveOpsTask = nullptr;
+    }
+}
+
+sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(sk_sp<GrRenderTargetProxy> rtp, bool managedOpsTask) {
+    SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
-    // This is  a temporary fix for the partial-MDB world. In that world we're not reordering
-    // so ops that (in the single opList world) would've just glommed onto the end of the single
-    // opList but referred to a far earlier RT need to appear in their own opList.
-    if (!fOpLists.empty()) {
-        fOpLists.back()->makeClosed(*fContext->contextPriv().caps());
+    this->closeRenderTasksForNewRenderTask(rtp.get());
+
+    sk_sp<GrOpsTask> opsTask(new GrOpsTask(fContext->priv().refOpMemoryPool(), rtp,
+                                           fContext->priv().auditTrail()));
+    SkASSERT(rtp->getLastRenderTask() == opsTask.get());
+
+    if (managedOpsTask) {
+        fDAG.add(opsTask);
+
+        if (!fDAG.sortingRenderTasks() || !fReduceOpsTaskSplitting) {
+            fActiveOpsTask = opsTask.get();
+        }
     }
 
-    auto resourceProvider = fContext->contextPriv().resourceProvider();
-
-    sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(
-                                                        resourceProvider,
-                                                        rtp,
-                                                        fContext->contextPriv().getAuditTrail()));
-    SkASSERT(rtp->getLastOpList() == opList.get());
-
-    if (managedOpList) {
-        fOpLists.push_back() = opList;
-    }
-
-    return opList;
+    SkDEBUGCODE(this->validate());
+    return opsTask;
 }
 
-sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(GrTextureProxy* textureProxy) {
+GrRenderTask* GrDrawingManager::newTextureResolveRenderTask(
+        sk_sp<GrSurfaceProxy> proxy, GrSurfaceProxy::ResolveFlags flags, const GrCaps& caps) {
+    SkDEBUGCODE(auto* previousTaskBeforeMipsResolve = proxy->getLastRenderTask();)
+
+    // Unlike in the "new opsTask" case, we do not want to close the active opsTask, nor (if we are
+    // in sorting and opsTask reduction mode) the render tasks that depend on the proxy's current
+    // state. This is because those opsTasks can still receive new ops and because if they refer to
+    // the mipmapped version of 'proxy', they will then come to depend on the render task being
+    // created here.
+    //
+    // Add the new textureResolveTask before the fActiveOpsTask (if not in
+    // sorting/opsTask-splitting-reduction mode) because it will depend upon this resolve task.
+    // NOTE: Putting it here will also reduce the amount of work required by the topological sort.
+    auto* resolveTask = static_cast<GrTextureResolveRenderTask*>(fDAG.addBeforeLast(
+            sk_make_sp<GrTextureResolveRenderTask>(std::move(proxy), flags)));
+    resolveTask->init(caps);
+
+    // GrTextureResolveRenderTask::init should have closed the texture proxy's previous task.
+    SkASSERT(!previousTaskBeforeMipsResolve || previousTaskBeforeMipsResolve->isClosed());
+    SkASSERT(resolveTask->fTarget->getLastRenderTask() == resolveTask);
+
+    return resolveTask;
+}
+
+void GrDrawingManager::newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
+                                                 const SkIRect& srcRect,
+                                                 GrColorType surfaceColorType,
+                                                 GrColorType dstColorType,
+                                                 sk_sp<GrGpuBuffer> dstBuffer,
+                                                 size_t dstOffset) {
+    SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
+    // This copies from srcProxy to dstBuffer so it doesn't have a real target.
+    this->closeRenderTasksForNewRenderTask(nullptr);
 
-    // This is  a temporary fix for the partial-MDB world. In that world we're not reordering
-    // so ops that (in the single opList world) would've just glommed onto the end of the single
-    // opList but referred to a far earlier RT need to appear in their own opList.
-    if (!fOpLists.empty()) {
-        fOpLists.back()->makeClosed(*fContext->contextPriv().caps());
-    }
+    GrRenderTask* task = fDAG.add(sk_make_sp<GrTransferFromRenderTask>(
+            srcProxy, srcRect, surfaceColorType, dstColorType, std::move(dstBuffer), dstOffset));
 
-    sk_sp<GrTextureOpList> opList(new GrTextureOpList(fContext->contextPriv().resourceProvider(),
-                                                      textureProxy,
-                                                      fContext->contextPriv().getAuditTrail()));
+    const GrCaps& caps = *fContext->priv().caps();
 
-    SkASSERT(textureProxy->getLastOpList() == opList.get());
+    // We always say GrMipMapped::kNo here since we are always just copying from the base layer. We
+    // don't need to make sure the whole mip map chain is valid.
+    task->addDependency(srcProxy.get(), GrMipMapped::kNo, GrTextureResolveManager(this), caps);
+    task->makeClosed(caps);
 
-    fOpLists.push_back() = opList;
-
-    return opList;
+    // We have closed the previous active oplist but since a new oplist isn't being added there
+    // shouldn't be an active one.
+    SkASSERT(!fActiveOpsTask);
+    SkDEBUGCODE(this->validate());
 }
 
-GrAtlasTextContext* GrDrawingManager::getAtlasTextContext() {
-    if (!fAtlasTextContext) {
-        fAtlasTextContext = GrAtlasTextContext::Make(fOptionsForAtlasTextContext);
+bool GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
+                                         const SkIRect& srcRect,
+                                         sk_sp<GrSurfaceProxy> dstProxy,
+                                         const SkIPoint& dstPoint) {
+    SkDEBUGCODE(this->validate());
+    SkASSERT(fContext);
+    this->closeRenderTasksForNewRenderTask(dstProxy.get());
+
+    GrRenderTask* task = fDAG.add(GrCopyRenderTask::Make(srcProxy, srcRect, dstProxy, dstPoint));
+    if (!task) {
+        return false;
     }
 
-    return fAtlasTextContext.get();
+    const GrCaps& caps = *fContext->priv().caps();
+
+    // We always say GrMipMapped::kNo here since we are always just copying from the base layer to
+    // another base layer. We don't need to make sure the whole mip map chain is valid.
+    task->addDependency(srcProxy.get(), GrMipMapped::kNo, GrTextureResolveManager(this), caps);
+    task->makeClosed(caps);
+
+    // We have closed the previous active oplist but since a new oplist isn't being added there
+    // shouldn't be an active one.
+    SkASSERT(!fActiveOpsTask);
+    SkDEBUGCODE(this->validate());
+    return true;
+}
+
+GrTextContext* GrDrawingManager::getTextContext() {
+    if (!fTextContext) {
+        fTextContext = GrTextContext::Make(fOptionsForTextContext);
+    }
+
+    return fTextContext.get();
 }
 
 /*
@@ -458,7 +776,7 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
                                                   GrPathRenderer::StencilSupport* stencilSupport) {
 
     if (!fPathRendererChain) {
-        fPathRendererChain = new GrPathRendererChain(fContext, fOptionsForPathRendererChain);
+        fPathRendererChain.reset(new GrPathRendererChain(fContext, fOptionsForPathRendererChain));
     }
 
     GrPathRenderer* pr = fPathRendererChain->getPathRenderer(args, drawType, stencilSupport);
@@ -474,55 +792,74 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
 
 GrPathRenderer* GrDrawingManager::getSoftwarePathRenderer() {
     if (!fSoftwarePathRenderer) {
-        fSoftwarePathRenderer =
-                new GrSoftwarePathRenderer(fContext->contextPriv().proxyProvider(),
-                                           fOptionsForPathRendererChain.fAllowPathMaskCaching);
+        fSoftwarePathRenderer.reset(
+                new GrSoftwarePathRenderer(fContext->priv().proxyProvider(),
+                                           fOptionsForPathRendererChain.fAllowPathMaskCaching));
     }
-    return fSoftwarePathRenderer;
+    return fSoftwarePathRenderer.get();
 }
 
 GrCoverageCountingPathRenderer* GrDrawingManager::getCoverageCountingPathRenderer() {
     if (!fPathRendererChain) {
-        fPathRendererChain = new GrPathRendererChain(fContext, fOptionsForPathRendererChain);
+        fPathRendererChain.reset(new GrPathRendererChain(fContext, fOptionsForPathRendererChain));
     }
     return fPathRendererChain->getCoverageCountingPathRenderer();
 }
 
-sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
-                                                            sk_sp<GrSurfaceProxy> sProxy,
-                                                            sk_sp<SkColorSpace> colorSpace,
-                                                            const SkSurfaceProps* surfaceProps,
-                                                            bool managedOpList) {
+void GrDrawingManager::flushIfNecessary() {
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        return;
+    }
+
+    auto resourceCache = direct->priv().getResourceCache();
+    if (resourceCache && resourceCache->requestsFlush()) {
+        this->flush(nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(),
+                    GrPrepareForExternalIORequests());
+        resourceCache->purgeAsNeeded();
+    }
+}
+
+std::unique_ptr<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
+        sk_sp<GrSurfaceProxy> sProxy,
+        GrColorType colorType,
+        sk_sp<SkColorSpace> colorSpace,
+        const SkSurfaceProps* surfaceProps,
+        bool managedOpsTask) {
     if (this->wasAbandoned() || !sProxy->asRenderTargetProxy()) {
         return nullptr;
     }
 
     // SkSurface catches bad color space usage at creation. This check handles anything that slips
     // by, including internal usage.
-    if (!SkSurface_Gpu::Valid(fContext->contextPriv().caps(), sProxy->config(), colorSpace.get())) {
+    if (!SkSurface_Gpu::Valid(fContext->priv().caps(), sProxy->backendFormat())) {
         SkDEBUGFAIL("Invalid config and colorspace combination");
         return nullptr;
     }
 
-    sk_sp<GrRenderTargetProxy> rtp(sk_ref_sp(sProxy->asRenderTargetProxy()));
+    sk_sp<GrRenderTargetProxy> renderTargetProxy(sk_ref_sp(sProxy->asRenderTargetProxy()));
 
-    return sk_sp<GrRenderTargetContext>(new GrRenderTargetContext(
-                                                        fContext, this, std::move(rtp),
-                                                        std::move(colorSpace),
-                                                        surfaceProps,
-                                                        fContext->contextPriv().getAuditTrail(),
-                                                        fSingleOwner, managedOpList));
+    return std::unique_ptr<GrRenderTargetContext>(
+            new GrRenderTargetContext(fContext,
+                                      std::move(renderTargetProxy),
+                                      colorType,
+                                      std::move(colorSpace),
+                                      surfaceProps,
+                                      managedOpsTask));
 }
 
-sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProxy> sProxy,
-                                                             sk_sp<SkColorSpace> colorSpace) {
+std::unique_ptr<GrTextureContext> GrDrawingManager::makeTextureContext(
+        sk_sp<GrSurfaceProxy> sProxy,
+        GrColorType colorType,
+        SkAlphaType alphaType,
+        sk_sp<SkColorSpace> colorSpace) {
     if (this->wasAbandoned() || !sProxy->asTextureProxy()) {
         return nullptr;
     }
 
     // SkSurface catches bad color space usage at creation. This check handles anything that slips
     // by, including internal usage.
-    if (!SkSurface_Gpu::Valid(fContext->contextPriv().caps(), sProxy->config(), colorSpace.get())) {
+    if (!SkSurface_Gpu::Valid(fContext->priv().caps(), sProxy->backendFormat())) {
         SkDEBUGFAIL("Invalid config and colorspace combination");
         return nullptr;
     }
@@ -532,8 +869,6 @@ sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProx
 
     sk_sp<GrTextureProxy> textureProxy(sk_ref_sp(sProxy->asTextureProxy()));
 
-    return sk_sp<GrTextureContext>(new GrTextureContext(fContext, this, std::move(textureProxy),
-                                                        std::move(colorSpace),
-                                                        fContext->contextPriv().getAuditTrail(),
-                                                        fSingleOwner));
+    return std::unique_ptr<GrTextureContext>(new GrTextureContext(
+            fContext, std::move(textureProxy), colorType, alphaType, std::move(colorSpace)));
 }

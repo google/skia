@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkCodec.h"
-#include "Test.h"
+#include "include/codec/SkCodec.h"
+#include "tests/Test.h"
+#include "tools/Resources.h"
 
 DEF_TEST(ExifOrientation, r) {
     std::unique_ptr<SkStream> stream(GetResourceAsStream("images/exif-orientation-2-ur.jpg"));

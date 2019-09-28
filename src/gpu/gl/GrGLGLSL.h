@@ -5,21 +5,16 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGLInitGLSL_DEFINED
-#define GrGLInitGLSL_DEFINED
+#ifndef GrGLGLSL_DEFINED
+#define GrGLGLSL_DEFINED
 
-#include "gl/GrGLInterface.h"
-#include "GrColor.h"
-#include "GrTypesPriv.h"
-#include "SkString.h"
-#include "../private/GrGLSL.h"
+#include "src/gpu/glsl/GrGLSL.h"
 
-class GrGLContextInfo;
+struct GrGLInterface;
 
 /**
  * Gets the most recent GLSL Generation compatible with the OpenGL context.
  */
 bool GrGLGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation);
-
 
 #endif

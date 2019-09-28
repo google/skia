@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gl/GrGLVaryingHandler.h"
+#include "src/gpu/gl/GrGLVaryingHandler.h"
 
-#include "gl/GrGLGpu.h"
-#include "gl/builders/GrGLProgramBuilder.h"
+#include "src/gpu/gl/GrGLGpu.h"
+#include "src/gpu/gl/builders/GrGLProgramBuilder.h"
 
 
 GrGLSLVaryingHandler::VaryingHandle GrGLVaryingHandler::addPathProcessingVarying(
@@ -20,7 +20,8 @@ GrGLSLVaryingHandler::VaryingHandle GrGLVaryingHandler::addPathProcessingVarying
     SkASSERT(glPB->gpu()->glCaps().shaderCaps()->pathRenderingSupport() &&
              glPB->fPrimProc.isPathRendering() &&
              !glPB->fPrimProc.willUseGeoShader() &&
-             glPB->fPrimProc.numAttribs() == 0);
+             !glPB->fPrimProc.numVertexAttributes() &&
+             !glPB->fPrimProc.numInstanceAttributes());
 #endif
     this->addVarying(name, v);
     auto varyingInfo = fPathProcVaryingInfos.push_back();

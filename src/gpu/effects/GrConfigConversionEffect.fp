@@ -6,17 +6,17 @@
  */
 
 @header {
-    #include "GrClip.h"
-    #include "GrContext.h"
-    #include "GrContextPriv.h"
-    #include "GrProxyProvider.h"
-    #include "GrRenderTargetContext.h"
+    #include "include/gpu/GrContext.h"
+    #include "src/gpu/GrClip.h"
+    #include "src/gpu/GrContextPriv.h"
+    #include "src/gpu/GrProxyProvider.h"
+    #include "src/gpu/GrRenderTargetContext.h"
 }
 
 @class {
     static bool TestForPreservingPMConversions(GrContext* context) {
         static constexpr int kSize = 256;
-        static constexpr GrPixelConfig kConfig = kRGBA_8888_GrPixelConfig;
+        static constexpr GrColorType kColorType = GrColorType::kRGBA_8888;
         SkAutoTMalloc<uint32_t> data(kSize * kSize * 3);
         uint32_t* srcData = data.get();
         uint32_t* firstRead = data.get() + kSize * kSize;
@@ -40,14 +40,14 @@
         const SkImageInfo ii = SkImageInfo::Make(kSize, kSize,
                                                  kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
-        sk_sp<GrRenderTargetContext> readRTC(
-                context->contextPriv().makeDeferredRenderTargetContext(SkBackingFit::kExact,
-                                                                       kSize, kSize,
-                                                                       kConfig, nullptr));
-        sk_sp<GrRenderTargetContext> tempRTC(
-                context->contextPriv().makeDeferredRenderTargetContext(SkBackingFit::kExact,
-                                                                       kSize, kSize,
-                                                                       kConfig, nullptr));
+        auto readRTC =
+                context->priv().makeDeferredRenderTargetContext(SkBackingFit::kExact,
+                                                                kSize, kSize,
+                                                                kColorType, nullptr);
+        auto tempRTC =
+                context->priv().makeDeferredRenderTargetContext(SkBackingFit::kExact,
+                                                                kSize, kSize,
+                                                                kColorType, nullptr);
         if (!readRTC || !readRTC->asTextureProxy() || !tempRTC) {
             return false;
         }
@@ -55,7 +55,7 @@
         // draw
         readRTC->discard();
 
-        GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+        GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
         SkPixmap pixmap(ii, srcData, 4 * kSize);
 
@@ -65,7 +65,6 @@
         sk_sp<SkImage> image = SkImage::MakeFromRaster(pixmap, nullptr, nullptr);
 
         sk_sp<GrTextureProxy> dataProxy = proxyProvider->createTextureProxy(std::move(image),
-                                                                            kNone_GrSurfaceFlags,
                                                                             1,
                                                                             SkBudgeted::kYes,
                                                                             SkBackingFit::kExact);
@@ -93,7 +92,7 @@
 
         readRTC->fillRectToRect(GrNoClip(), std::move(paint1), GrAA::kNo, SkMatrix::I(), kRect,
                                 kRect);
-        if (!readRTC->readPixels(ii, firstRead, 0, 0, 0)) {
+        if (!readRTC->readPixels(ii, firstRead, 0, {0, 0})) {
             return false;
         }
 
@@ -115,7 +114,7 @@
         readRTC->fillRectToRect(GrNoClip(), std::move(paint3), GrAA::kNo, SkMatrix::I(), kRect,
                                 kRect);
 
-        if (!readRTC->readPixels(ii, secondRead, 0, 0, 0)) {
+        if (!readRTC->readPixels(ii, secondRead, 0, {0, 0})) {
             return false;
         }
 

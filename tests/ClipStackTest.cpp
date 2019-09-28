@@ -5,48 +5,47 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkClipOp.h"
-#include "SkClipOpPriv.h"
-#include "SkClipStack.h"
-#include "SkImageInfo.h"
-#include "SkMatrix.h"
-#include "SkPath.h"
-#include "SkPoint.h"
-#include "SkRRect.h"
-#include "SkRandom.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkRegion.h"
-#include "SkScalar.h"
-#include "SkSize.h"
-#include "SkString.h"
-#include "SkSurface.h"
-#include "SkTLList.h"
-#include "SkTemplates.h"
-#include "SkTypes.h"
-#include "Test.h"
-
-#if SK_SUPPORT_GPU
-#include "GrCaps.h"
-#include "GrClip.h"
-#include "GrClipStackClip.h"
-#include "GrConfig.h"
-#include "GrContext.h"
-#include "GrContextFactory.h"
-#include "GrContextPriv.h"
-#include "GrReducedClip.h"
-#include "GrResourceCache.h"
-#include "GrResourceKey.h"
-#include "GrSurfaceProxyPriv.h"
-#include "GrTexture.h"
-#include "GrTextureProxy.h"
-typedef GrReducedClip::ElementList ElementList;
-typedef GrReducedClip::InitialState InitialState;
-#endif
+#include "include/core/SkCanvas.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrConfig.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrTexture.h"
+#include "include/private/GrResourceKey.h"
+#include "include/private/SkTemplates.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkClipOpPriv.h"
+#include "src/core/SkClipStack.h"
+#include "src/core/SkTLList.h"
+#include "src/gpu/GrClip.h"
+#include "src/gpu/GrClipStackClip.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrReducedClip.h"
+#include "src/gpu/GrResourceCache.h"
+#include "src/gpu/GrTextureProxy.h"
+#include "tests/Test.h"
+#include "tools/gpu/GrContextFactory.h"
 
 #include <cstring>
+#include <initializer_list>
 #include <new>
+
+class GrCaps;
+
+typedef GrReducedClip::ElementList ElementList;
+typedef GrReducedClip::InitialState InitialState;
 
 static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     SkClipStack s;
@@ -264,8 +263,8 @@ static void test_bounds(skiatest::Reporter* reporter,
 
     SkRect rectA, rectB;
 
-    rectA.iset(10, 10, 50, 50);
-    rectB.iset(40, 40, 80, 80);
+    rectA.setLTRB(10, 10, 50, 50);
+    rectB.setLTRB(40, 40, 80, 80);
 
     SkRRect rrectA, rrectB;
     rrectA.setOval(rectA);
@@ -345,8 +344,8 @@ static void test_isWideOpen(skiatest::Reporter* reporter) {
 
     SkRect rectA, rectB;
 
-    rectA.iset(10, 10, 40, 40);
-    rectB.iset(50, 50, 80, 80);
+    rectA.setLTRB(10, 10, 40, 40);
+    rectB.setLTRB(50, 50, 80, 80);
 
     // Stack should initially be wide open
     {
@@ -424,7 +423,6 @@ static int count(const SkClipStack& stack) {
     int count = 0;
 
     for (element = iter.prev(); element; element = iter.prev(), ++count) {
-        ;
     }
 
     return count;
@@ -878,7 +876,6 @@ static void test_invfill_diff_bug(skiatest::Reporter* reporter) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if SK_SUPPORT_GPU
 // Functions that add a shape to the clip stack. The shape is computed from a rectangle.
 // AA is always disabled since the clip stack reducer can cause changes in aa rasterization of the
 // stack. A fractional edge repeated in different elements may be rasterized fewer times using the
@@ -1045,7 +1042,7 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         }
 
         auto context = GrContext::MakeMock(nullptr);
-        const auto* caps = context->contextPriv().caps()->shaderCaps();
+        const GrCaps* caps = context->priv().caps();
 
         // Zero the memory we will new the GrReducedClip into. This ensures the elements gen ID
         // will be kInvalidGenID if left uninitialized.
@@ -1116,7 +1113,7 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
         SkRect bounds = SkRect::MakeXYWH(0, 0, 100, 100);
 
         auto context = GrContext::MakeMock(nullptr);
-        const auto* caps = context->contextPriv().caps()->shaderCaps();
+        const GrCaps* caps = context->priv().caps();
 
         SkAlignedSTStorage<1, GrReducedClip> storage;
         memset(storage.get(), 0, sizeof(GrReducedClip));
@@ -1205,7 +1202,7 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
 #undef XYWH
 #undef IXYWH
         auto context = GrContext::MakeMock(nullptr);
-        const auto* caps = context->contextPriv().caps()->shaderCaps();
+        const GrCaps* caps = context->priv().caps();
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(testCases); ++i) {
             const GrReducedClip reduced(stack, testCases[i].testBounds, caps);
@@ -1233,7 +1230,7 @@ static void test_reduced_clip_stack_no_aa_crash(skiatest::Reporter* reporter) {
     SkRect bounds = SkRect::MakeXYWH(0, 0, 100, 100);
 
     auto context = GrContext::MakeMock(nullptr);
-    const auto* caps = context->contextPriv().caps()->shaderCaps();
+    const GrCaps* caps = context->priv().caps();
 
     // At the time, this would crash.
     const GrReducedClip reduced(stack, bounds, caps);
@@ -1252,7 +1249,7 @@ static void test_aa_query(skiatest::Reporter* reporter, const SkString& testName
                           const SkRect& preXformQuery, ClipMethod expectedMethod,
                           int numExpectedElems = 0) {
     auto context = GrContext::MakeMock(nullptr);
-    const auto* caps = context->contextPriv().caps()->shaderCaps();
+    const GrCaps* caps = context->priv().caps();
 
     SkRect queryBounds;
     queryXform.mapRect(&queryBounds, preXformQuery);
@@ -1414,7 +1411,7 @@ static void test_tiny_query_bounds_assertion_bug(skiatest::Reporter* reporter) {
     pathStack.clipPath(clipPath, SkMatrix::I(), kIntersect_SkClipOp, true);
 
     auto context = GrContext::MakeMock(nullptr);
-    const auto* caps = context->contextPriv().caps()->shaderCaps();
+    const GrCaps* caps = context->priv().caps();
 
     for (const SkClipStack& stack : {rectStack, pathStack}) {
         for (SkRect queryBounds : {SkRect::MakeXYWH(53, 60, GrClip::kBoundsTolerance, 1000),
@@ -1430,7 +1427,40 @@ static void test_tiny_query_bounds_assertion_bug(skiatest::Reporter* reporter) {
     }
 }
 
-#endif
+static void test_is_rrect_deep_rect_stack(skiatest::Reporter* reporter) {
+    static constexpr SkRect kTargetBounds = SkRect::MakeWH(1000, 500);
+    // All antialiased or all not antialiased.
+    for (bool aa : {false, true}) {
+        SkClipStack stack;
+        for (int i = 0; i <= 100; ++i) {
+            stack.save();
+            stack.clipRect(SkRect::MakeLTRB(i, 0.5, kTargetBounds.width(), kTargetBounds.height()),
+                           SkMatrix::I(), SkClipOp::kIntersect, aa);
+        }
+        SkRRect rrect;
+        bool isAA;
+        SkRRect expected = SkRRect::MakeRect(
+                SkRect::MakeLTRB(100, 0.5, kTargetBounds.width(), kTargetBounds.height()));
+        if (stack.isRRect(kTargetBounds, &rrect, &isAA)) {
+            REPORTER_ASSERT(reporter, rrect == expected);
+            REPORTER_ASSERT(reporter, aa == isAA);
+        } else {
+            ERRORF(reporter, "Expected to be an rrect.");
+        }
+    }
+    // Mixed AA and non-AA without simple containment.
+    SkClipStack stack;
+    for (int i = 0; i <= 100; ++i) {
+        bool aa = i & 0b1;
+        int j = 100 - i;
+        stack.save();
+        stack.clipRect(SkRect::MakeLTRB(i, j + 0.5, kTargetBounds.width(), kTargetBounds.height()),
+                       SkMatrix::I(), SkClipOp::kIntersect, aa);
+    }
+    SkRRect rrect;
+    bool isAA;
+    REPORTER_ASSERT(reporter, !stack.isRRect(kTargetBounds, &rrect, &isAA));
+}
 
 DEF_TEST(ClipStack, reporter) {
     SkClipStack stack;
@@ -1452,7 +1482,7 @@ DEF_TEST(ClipStack, reporter) {
     SkClipStack::B2TIter iter(stack);
     const SkClipStack::Element* element = iter.next();
     SkRect answer;
-    answer.iset(25, 25, 75, 75);
+    answer.setLTRB(25, 25, 75, 75);
 
     REPORTER_ASSERT(reporter, element);
     REPORTER_ASSERT(reporter,
@@ -1478,18 +1508,17 @@ DEF_TEST(ClipStack, reporter) {
     test_path_replace(reporter);
     test_quickContains(reporter);
     test_invfill_diff_bug(reporter);
-#if SK_SUPPORT_GPU
+
     test_reduced_clip_stack(reporter);
     test_reduced_clip_stack_genid(reporter);
     test_reduced_clip_stack_no_aa_crash(reporter);
     test_reduced_clip_stack_aa(reporter);
     test_tiny_query_bounds_assertion_bug(reporter);
-#endif
+    test_is_rrect_deep_rect_stack(reporter);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-#if SK_SUPPORT_GPU
 sk_sp<GrTextureProxy> GrClipStackClip::testingOnly_createClipMask(GrContext* context) const {
     const GrReducedClip reducedClip(*fStack, SkRect::MakeWH(512, 512), 0);
     return this->createSoftwareClipMask(context, reducedClip, nullptr);
@@ -1508,7 +1537,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ClipMaskCache, reporter, ctxInfo) {
     path.setFillType(SkPath::kEvenOdd_FillType);
 
     static const char* kTag = GrClipStackClip::kMaskTestTag;
-    GrResourceCache* cache = context->contextPriv().getResourceCache();
+    GrResourceCache* cache = context->priv().getResourceCache();
 
     static constexpr int kN = 5;
 
@@ -1518,8 +1547,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ClipMaskCache, reporter, ctxInfo) {
         stack.save();
         stack.clipPath(path, m, SkClipOp::kIntersect, true);
         sk_sp<GrTextureProxy> mask = GrClipStackClip(&stack).testingOnly_createClipMask(context);
-        mask->instantiate(context->contextPriv().resourceProvider());
-        GrTexture* tex = mask->priv().peekTexture();
+        mask->instantiate(context->priv().resourceProvider());
+        GrTexture* tex = mask->peekTexture();
         REPORTER_ASSERT(reporter, 0 == strcmp(tex->getUniqueKey().tag(), kTag));
         // Make sure mask isn't pinned in cache.
         mask.reset(nullptr);
@@ -1563,4 +1592,3 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(canvas_private_clipRgn, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, rgn.getBounds() == SkIRect::MakeLTRB(3, 3, 7, 7));
     canvas->restore();
 }
-#endif

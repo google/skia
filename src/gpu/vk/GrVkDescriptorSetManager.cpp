@@ -5,54 +5,73 @@
 * found in the LICENSE file.
 */
 
-#include "GrVkDescriptorSetManager.h"
+#include "src/gpu/vk/GrVkDescriptorSetManager.h"
 
-#include "GrVkDescriptorPool.h"
-#include "GrVkDescriptorSet.h"
-#include "GrVkGpu.h"
-#include "GrVkUniformHandler.h"
+#include "src/gpu/vk/GrVkDescriptorPool.h"
+#include "src/gpu/vk/GrVkDescriptorSet.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkUniformHandler.h"
+
+#if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
+#include <sanitizer/lsan_interface.h>
+#endif
 
 GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateUniformManager(GrVkGpu* gpu) {
-    SkSTArray<2, uint32_t> visibilities;
-    // We set the visibility of the first binding to all supported geometry processing shader
-    // stages (vertex, tesselation, geometry, etc.) and the second binding to the fragment
-    // shader.
-    uint32_t geomStages = kVertex_GrShaderFlag;
+    SkSTArray<1, uint32_t> visibilities;
+    uint32_t stages = kVertex_GrShaderFlag | kFragment_GrShaderFlag;
     if (gpu->vkCaps().shaderCaps()->geometryShaderSupport()) {
-        geomStages |= kGeometry_GrShaderFlag;
+        stages |= kGeometry_GrShaderFlag;
     }
-    visibilities.push_back(geomStages);
-    visibilities.push_back(kFragment_GrShaderFlag);
-    return new GrVkDescriptorSetManager(gpu, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, visibilities);
+    visibilities.push_back(stages);
+
+    SkTArray<const GrVkSampler*> samplers;
+    return new GrVkDescriptorSetManager(gpu, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, visibilities,
+                                        samplers);
 }
 
 GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateSamplerManager(
         GrVkGpu* gpu, VkDescriptorType type, const GrVkUniformHandler& uniformHandler) {
     SkSTArray<4, uint32_t> visibilities;
-    if (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER == type) {
-        for (int i = 0 ; i < uniformHandler.numSamplers(); ++i) {
-            visibilities.push_back(uniformHandler.samplerVisibility(i));
-        }
-    } else {
-        SkASSERT(type == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER);
-        for (int i = 0 ; i < uniformHandler.numTexelBuffers(); ++i) {
-            visibilities.push_back(uniformHandler.texelBufferVisibility(i));
-        }
+    SkSTArray<4, const GrVkSampler*> immutableSamplers;
+    SkASSERT(type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+    for (int i = 0 ; i < uniformHandler.numSamplers(); ++i) {
+        visibilities.push_back(uniformHandler.samplerVisibility(i));
+        immutableSamplers.push_back(uniformHandler.immutableSampler(i));
     }
-    return CreateSamplerManager(gpu, type, visibilities);
+    return new GrVkDescriptorSetManager(gpu, type, visibilities, immutableSamplers);
 }
 
 GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateSamplerManager(
         GrVkGpu* gpu, VkDescriptorType type, const SkTArray<uint32_t>& visibilities) {
-    return new GrVkDescriptorSetManager(gpu, type, visibilities);
+    SkSTArray<4, const GrVkSampler*> immutableSamplers;
+    SkASSERT(type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+    for (int i = 0 ; i < visibilities.count(); ++i) {
+        immutableSamplers.push_back(nullptr);
+    }
+    return new GrVkDescriptorSetManager(gpu, type, visibilities, immutableSamplers);
 }
 
-GrVkDescriptorSetManager::GrVkDescriptorSetManager(GrVkGpu* gpu,
-                                                   VkDescriptorType type,
-                                                   const SkTArray<uint32_t>& visibilities)
-    : fPoolManager(type, gpu, visibilities) {
+GrVkDescriptorSetManager::GrVkDescriptorSetManager(
+        GrVkGpu* gpu, VkDescriptorType type,
+        const SkTArray<uint32_t>& visibilities,
+        const SkTArray<const GrVkSampler*>& immutableSamplers)
+    : fPoolManager(type, gpu, visibilities, immutableSamplers) {
+#ifdef SK_DEBUG
+    if (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
+        SkASSERT(visibilities.count() == immutableSamplers.count());
+    } else {
+        SkASSERT(immutableSamplers.count() == 0);
+    }
+#endif
     for (int i = 0; i < visibilities.count(); ++i) {
         fBindingVisibilities.push_back(visibilities[i]);
+    }
+    for (int i = 0; i < immutableSamplers.count(); ++i) {
+        const GrVkSampler* sampler = immutableSamplers[i];
+        if (sampler) {
+            sampler->ref();
+        }
+        fImmutableSamplers.push_back(sampler);
     }
 }
 
@@ -78,13 +97,20 @@ void GrVkDescriptorSetManager::recycleDescriptorSet(const GrVkDescriptorSet* des
     fFreeSets.push_back(descSet);
 }
 
-void GrVkDescriptorSetManager::release(const GrVkGpu* gpu) {
+void GrVkDescriptorSetManager::release(GrVkGpu* gpu) {
     fPoolManager.freeGPUResources(gpu);
 
     for (int i = 0; i < fFreeSets.count(); ++i) {
         fFreeSets[i]->unref(gpu);
     }
     fFreeSets.reset();
+
+    for (int i = 0; i < fImmutableSamplers.count(); ++i) {
+        if (fImmutableSamplers[i]) {
+            fImmutableSamplers[i]->unref(gpu);
+        }
+    }
+    fImmutableSamplers.reset();
 }
 
 void GrVkDescriptorSetManager::abandon() {
@@ -94,6 +120,13 @@ void GrVkDescriptorSetManager::abandon() {
         fFreeSets[i]->unrefAndAbandon();
     }
     fFreeSets.reset();
+
+    for (int i = 0; i < fImmutableSamplers.count(); ++i) {
+        if (fImmutableSamplers[i]) {
+            fImmutableSamplers[i]->unrefAndAbandon();
+        }
+    }
+    fImmutableSamplers.reset();
 }
 
 bool GrVkDescriptorSetManager::isCompatible(VkDescriptorType type,
@@ -103,23 +136,14 @@ bool GrVkDescriptorSetManager::isCompatible(VkDescriptorType type,
         return false;
     }
 
-    if (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
-        if (fBindingVisibilities.count() != uniHandler->numSamplers()) {
+    SkASSERT(type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+    if (fBindingVisibilities.count() != uniHandler->numSamplers()) {
+        return false;
+    }
+    for (int i = 0; i < uniHandler->numSamplers(); ++i) {
+        if (uniHandler->samplerVisibility(i) != fBindingVisibilities[i] ||
+            uniHandler->immutableSampler(i) != fImmutableSamplers[i]) {
             return false;
-        }
-        for (int i = 0; i < uniHandler->numSamplers(); ++i) {
-            if (uniHandler->samplerVisibility(i) != fBindingVisibilities[i]) {
-                return false;
-            }
-        }
-    } else if (VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER == type) {
-        if (fBindingVisibilities.count() != uniHandler->numTexelBuffers()) {
-            return false;
-        }
-        for (int i = 0; i < uniHandler->numTexelBuffers(); ++i) {
-            if (uniHandler->texelBufferVisibility(i) != fBindingVisibilities[i]) {
-                return false;
-            }
         }
     }
     return true;
@@ -137,7 +161,7 @@ bool GrVkDescriptorSetManager::isCompatible(VkDescriptorType type,
             return false;
         }
         for (int i = 0; i < visibilities.count(); ++i) {
-            if (visibilities[i] != fBindingVisibilities[i]) {
+            if (visibilities[i] != fBindingVisibilities[i] || fImmutableSamplers[i] != nullptr) {
                 return false;
             }
         }
@@ -165,7 +189,8 @@ VkShaderStageFlags visibility_to_vk_stage_flags(uint32_t visibility) {
 GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
         VkDescriptorType type,
         GrVkGpu* gpu,
-        const SkTArray<uint32_t>& visibilities)
+        const SkTArray<uint32_t>& visibilities,
+        const SkTArray<const GrVkSampler*>& immutableSamplers)
     : fDescType(type)
     , fCurrentDescriptorCount(0)
     , fPool(nullptr) {
@@ -182,7 +207,13 @@ GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
             dsSamplerBindings[i].descriptorType = type;
             dsSamplerBindings[i].descriptorCount = 1;
             dsSamplerBindings[i].stageFlags = visibility_to_vk_stage_flags(visibility);
-            dsSamplerBindings[i].pImmutableSamplers = nullptr;
+            if (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER == type) {
+                if (immutableSamplers[i]) {
+                    dsSamplerBindings[i].pImmutableSamplers = immutableSamplers[i]->samplerPtr();
+                } else {
+                    dsSamplerBindings[i].pImmutableSamplers = nullptr;
+                }
+            }
         }
 
         VkDescriptorSetLayoutCreateInfo dsSamplerLayoutCreateInfo;
@@ -196,6 +227,10 @@ GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
         // null.
         dsSamplerLayoutCreateInfo.pBindings = numBindings ? dsSamplerBindings.get() : nullptr;
 
+#if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
+        // skia:8713
+        __lsan::ScopedDisabler lsanDisabler;
+#endif
         GR_VK_CALL_ERRCHECK(gpu->vkInterface(),
                             CreateDescriptorSetLayout(gpu->device(),
                                                       &dsSamplerLayoutCreateInfo,
@@ -204,29 +239,29 @@ GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
         fDescCountPerSet = visibilities.count();
     } else {
         SkASSERT(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER == type);
-        GR_STATIC_ASSERT(2 == kUniformDescPerSet);
+        GR_STATIC_ASSERT(1 == kUniformDescPerSet);
         SkASSERT(kUniformDescPerSet == visibilities.count());
         // Create Uniform Buffer Descriptor
-        static const uint32_t bindings[kUniformDescPerSet] =
-                { GrVkUniformHandler::kGeometryBinding, GrVkUniformHandler::kFragBinding };
-        VkDescriptorSetLayoutBinding dsUniBindings[kUniformDescPerSet];
-        memset(&dsUniBindings, 0, kUniformDescPerSet * sizeof(VkDescriptorSetLayoutBinding));
-        for (int i = 0; i < kUniformDescPerSet; ++i) {
-            dsUniBindings[i].binding = bindings[i];
-            dsUniBindings[i].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            dsUniBindings[i].descriptorCount = 1;
-            dsUniBindings[i].stageFlags = visibility_to_vk_stage_flags(visibilities[i]);
-            dsUniBindings[i].pImmutableSamplers = nullptr;
-        }
+        VkDescriptorSetLayoutBinding dsUniBinding;
+        memset(&dsUniBinding, 0, sizeof(dsUniBinding));
+        dsUniBinding.binding = GrVkUniformHandler::kUniformBinding;
+        dsUniBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        dsUniBinding.descriptorCount = 1;
+        dsUniBinding.stageFlags = visibility_to_vk_stage_flags(visibilities[0]);
+        dsUniBinding.pImmutableSamplers = nullptr;
 
         VkDescriptorSetLayoutCreateInfo uniformLayoutCreateInfo;
         memset(&uniformLayoutCreateInfo, 0, sizeof(VkDescriptorSetLayoutCreateInfo));
         uniformLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
         uniformLayoutCreateInfo.pNext = nullptr;
         uniformLayoutCreateInfo.flags = 0;
-        uniformLayoutCreateInfo.bindingCount = 2;
-        uniformLayoutCreateInfo.pBindings = dsUniBindings;
+        uniformLayoutCreateInfo.bindingCount = 1;
+        uniformLayoutCreateInfo.pBindings = &dsUniBinding;
 
+#if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
+        // skia:8713
+        __lsan::ScopedDisabler lsanDisabler;
+#endif
         GR_VK_CALL_ERRCHECK(gpu->vkInterface(), CreateDescriptorSetLayout(gpu->device(),
                                                                           &uniformLayoutCreateInfo,
                                                                           nullptr,
@@ -279,7 +314,7 @@ void GrVkDescriptorSetManager::DescriptorPoolManager::getNewDescriptorSet(GrVkGp
                                                                    ds));
 }
 
-void GrVkDescriptorSetManager::DescriptorPoolManager::freeGPUResources(const GrVkGpu* gpu) {
+void GrVkDescriptorSetManager::DescriptorPoolManager::freeGPUResources(GrVkGpu* gpu) {
     if (fDescLayout) {
         GR_VK_CALL(gpu->vkInterface(), DestroyDescriptorSetLayout(gpu->device(), fDescLayout,
                                                                   nullptr));

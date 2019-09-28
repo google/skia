@@ -5,32 +5,30 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
-
-#if SK_SUPPORT_GPU
-
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextFactory.h"
-#include "GrContextPriv.h"
-#include "GrShaderCaps.h"
-#include "GrTypes.h"
-#include "SkBitmap.h"
-#include "SkBlendMode.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkColorFilter.h"
-#include "SkColorPriv.h"
-#include "SkImageInfo.h"
-#include "SkPaint.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
-#include "SkSurface.h"
-#include "SkTemplates.h"
-#include "SkUtils.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrTypesPriv.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkUtils.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "tests/Test.h"
+#include "tools/gpu/GrContextFactory.h"
 
 #include <math.h>
+#include <initializer_list>
 
 /** convert 0..1 linear value to 0..1 srgb */
 static float linear_to_srgb(float linear) {
@@ -121,7 +119,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
     SkAutoTMalloc<uint32_t> read(kW * kH);
 
     // We allow more error on GPUs with lower precision shader variables.
-    float error = context->contextPriv().caps()->shaderCaps()->halfIs32Bits() ? 0.5f : 1.2f;
+    float error = context->priv().caps()->shaderCaps()->halfIs32Bits() ? 0.5f : 1.2f;
 
     for (auto toSRGB : { false, true }) {
         sk_sp<SkSurface> dst(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii));
@@ -134,15 +132,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
         SkCanvas* dstCanvas = dst->getCanvas();
 
         dstCanvas->clear(SK_ColorRED);
-        dstCanvas->flush();
+        dst->flush();
 
         SkPaint gammaPaint;
         gammaPaint.setBlendMode(SkBlendMode::kSrc);
-        gammaPaint.setColorFilter(toSRGB ? SkColorFilter::MakeLinearToSRGBGamma()
-                                         : SkColorFilter::MakeSRGBToLinearGamma());
+        gammaPaint.setColorFilter(toSRGB ? SkColorFilters::LinearToSRGBGamma()
+                                         : SkColorFilters::SRGBToLinearGamma());
 
         dstCanvas->drawBitmap(bm, 0, 0, &gammaPaint);
-        dstCanvas->flush();
+        dst->flush();
 
         sk_memset32(read.get(), 0, kW * kH);
         if (!dst->readPixels(ii, read.get(), kRowBytes, 0, 0)) {
@@ -168,4 +166,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
         }
     }
 }
-#endif

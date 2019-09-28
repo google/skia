@@ -39,7 +39,14 @@ def zip(target_dir, zip_file, blacklist=None):  # pylint: disable=W0622
         if os.name == 'nt':
           # Dumb path separator replacement for Windows.
           zi.filename = zi.filename.replace(ntpath.sep, posixpath.sep)
-        perms = os.stat(filepath).st_mode
+        try:
+          perms = os.stat(filepath).st_mode
+        except OSError:
+          if os.path.islink(filepath):
+            print 'Skipping symlink %s' % filepath
+            continue
+          else:
+            raise
         zi.external_attr = perms << 16L
         zi.compress_type = zipfile.ZIP_DEFLATED
         with open(filepath, 'rb') as f:

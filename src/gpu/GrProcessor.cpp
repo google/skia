@@ -5,29 +5,28 @@
  * found in the LICENSE file.
  */
 
-#include "GrProcessor.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGeometryProcessor.h"
-#include "GrMemoryPool.h"
-#include "GrSamplerState.h"
-#include "GrTextureProxy.h"
-#include "GrXferProcessor.h"
-#include "SkSpinlock.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/SkSpinlock.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrProcessor.h"
+#include "src/gpu/GrSamplerState.h"
+#include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/GrXferProcessor.h"
 
 #if GR_TEST_UTILS
 
 GrResourceProvider* GrProcessorTestData::resourceProvider() {
-    return fContext->contextPriv().resourceProvider();
+    return fContext->priv().resourceProvider();
 }
 
 GrProxyProvider* GrProcessorTestData::proxyProvider() {
-    return fContext->contextPriv().proxyProvider();
+    return fContext->priv().proxyProvider();
 }
 
-const GrCaps* GrProcessorTestData::caps() { return fContext->contextPriv().caps(); }
+const GrCaps* GrProcessorTestData::caps() { return fContext->priv().caps(); }
 
-#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 class GrFragmentProcessor;
 class GrGeometryProcessor;
 
@@ -57,9 +56,15 @@ SkTArray<GrXPFactoryTestFactory*, true>* GrXPFactoryTestFactory::GetFactories() 
  * we verify the count is as expected.  If a new factory is added, then these numbers must be
  * manually adjusted.
  */
-static const int kFPFactoryCount = 38;
+#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
+static const int kFPFactoryCount = 36;
 static const int kGPFactoryCount = 14;
 static const int kXPFactoryCount = 4;
+#else
+static const int kFPFactoryCount = 0;
+static const int kGPFactoryCount = 0;
+static const int kXPFactoryCount = 0;
+#endif
 
 template <>
 void GrFragmentProcessorTestFactory::VerifyFactoryCount() {
@@ -87,7 +92,6 @@ void GrXPFactoryTestFactory::VerifyFactoryCount() {
     }
 }
 
-#endif
 #endif
 
 
@@ -124,106 +128,4 @@ void* GrProcessor::operator new(size_t size) { return MemoryPoolAccessor().pool(
 
 void GrProcessor::operator delete(void* target) {
     return MemoryPoolAccessor().pool()->release(target);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-void GrResourceIOProcessor::addTextureSampler(const TextureSampler* access) {
-    fTextureSamplers.push_back(access);
-}
-
-void GrResourceIOProcessor::addBufferAccess(const BufferAccess* access) {
-    fBufferAccesses.push_back(access);
-}
-
-void GrResourceIOProcessor::addPendingIOs() const {
-    for (const auto& sampler : fTextureSamplers) {
-        sampler->programProxy()->markPendingIO();
-    }
-    for (const auto& buffer : fBufferAccesses) {
-        buffer->programBuffer()->markPendingIO();
-    }
-}
-
-void GrResourceIOProcessor::removeRefs() const {
-    for (const auto& sampler : fTextureSamplers) {
-        sampler->programProxy()->removeRef();
-    }
-    for (const auto& buffer : fBufferAccesses) {
-        buffer->programBuffer()->removeRef();
-    }
-}
-
-void GrResourceIOProcessor::pendingIOComplete() const {
-    for (const auto& sampler : fTextureSamplers) {
-        sampler->programProxy()->pendingIOComplete();
-    }
-    for (const auto& buffer : fBufferAccesses) {
-        buffer->programBuffer()->pendingIOComplete();
-    }
-}
-
-bool GrResourceIOProcessor::instantiate(GrResourceProvider* resourceProvider) const {
-    for (const auto& sampler : fTextureSamplers) {
-        if (!sampler->instantiate(resourceProvider)) {
-            return false;
-        }
-    }
-
-    // MDB TODO: instantiate 'fBufferAccesses' here as well
-
-    return true;
-}
-
-bool GrResourceIOProcessor::hasSameSamplersAndAccesses(const GrResourceIOProcessor& that) const {
-    if (this->numTextureSamplers() != that.numTextureSamplers() ||
-        this->numBuffers() != that.numBuffers()) {
-        return false;
-    }
-    for (int i = 0; i < this->numTextureSamplers(); ++i) {
-        if (this->textureSampler(i) != that.textureSampler(i)) {
-            return false;
-        }
-    }
-    for (int i = 0; i < this->numBuffers(); ++i) {
-        if (this->bufferAccess(i) != that.bufferAccess(i)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-GrResourceIOProcessor::TextureSampler::TextureSampler() {}
-
-GrResourceIOProcessor::TextureSampler::TextureSampler(sk_sp<GrTextureProxy> proxy,
-                                                      const GrSamplerState& samplerState) {
-    this->reset(std::move(proxy), samplerState);
-}
-
-GrResourceIOProcessor::TextureSampler::TextureSampler(sk_sp<GrTextureProxy> proxy,
-                                                      GrSamplerState::Filter filterMode,
-                                                      GrSamplerState::WrapMode wrapXAndY,
-                                                      GrShaderFlags visibility) {
-    this->reset(std::move(proxy), filterMode, wrapXAndY, visibility);
-}
-
-void GrResourceIOProcessor::TextureSampler::reset(sk_sp<GrTextureProxy> proxy,
-                                                  const GrSamplerState& samplerState,
-                                                  GrShaderFlags visibility) {
-    fSamplerState = samplerState;
-    fProxyRef.setProxy(std::move(proxy), kRead_GrIOType);
-    fSamplerState.setFilterMode(SkTMin(samplerState.filter(), this->proxy()->highestFilterMode()));
-    fVisibility = visibility;
-}
-
-void GrResourceIOProcessor::TextureSampler::reset(sk_sp<GrTextureProxy> proxy,
-                                                  GrSamplerState::Filter filterMode,
-                                                  GrSamplerState::WrapMode wrapXAndY,
-                                                  GrShaderFlags visibility) {
-    fProxyRef.setProxy(std::move(proxy), kRead_GrIOType);
-    filterMode = SkTMin(filterMode, this->proxy()->highestFilterMode());
-    fSamplerState = GrSamplerState(wrapXAndY, filterMode);
-    fVisibility = visibility;
 }

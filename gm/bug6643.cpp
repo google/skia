@@ -5,9 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkGradientShader.h"
-#include "SkPictureRecorder.h"
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
 
 DEF_SIMPLE_GM(bug6643, canvas, 200, 200) {
     SkColor colors[] = { SK_ColorTRANSPARENT, SK_ColorGREEN, SK_ColorTRANSPARENT };
@@ -21,9 +29,8 @@ DEF_SIMPLE_GM(bug6643, canvas, 200, 200) {
     SkPictureRecorder recorder;
     recorder.beginRecording(200, 200)->drawPaint(p);
 
-    p.setShader(SkShader::MakePictureShader(recorder.finishRecordingAsPicture(),
-                                            SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode,
-                                            nullptr, nullptr));
+    p.setShader(recorder.finishRecordingAsPicture()->makeShader(
+                                            SkTileMode::kRepeat, SkTileMode::kRepeat));
     canvas->drawColor(SK_ColorWHITE);
     canvas->drawPaint(p);
 }

@@ -4,10 +4,24 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
+
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkClipOpPriv.h"
+#include "tools/ToolUtils.h"
+
+#include <utility>
 
 namespace skiagm {
 
@@ -17,7 +31,7 @@ class ComplexClip3GM : public GM {
 public:
     ComplexClip3GM(bool doSimpleClipFirst)
         : fDoSimpleClipFirst(doSimpleClipFirst) {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
@@ -44,13 +58,14 @@ protected:
         SkPath* secondClip = &clipComplex;
 
         if (!fDoSimpleClipFirst) {
-            SkTSwap<SkPath*>(firstClip, secondClip);
+            using std::swap;
+            swap(firstClip, secondClip);
         }
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
-        paint.setTextSize(SkIntToScalar(20));
+
+        SkFont font(ToolUtils::create_portable_typeface(), 20);
 
         constexpr struct {
             SkClipOp    fOp;
@@ -103,7 +118,7 @@ protected:
                                                    doAAB ? "A" : "B",
                                                    doInvB ? "I" : "N");
 
-                        canvas->drawString(str.c_str(), txtX, SkIntToScalar(130), paint);
+                        canvas->drawString(str.c_str(), txtX, SkIntToScalar(130), font, paint);
                         if (doInvB) {
                             canvas->translate(SkIntToScalar(150),0);
                         } else {

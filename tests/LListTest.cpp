@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkRandom.h"
-#include "SkTInternalLList.h"
-#include "SkTLList.h"
-#include "Test.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkTInternalLList.h"
+#include "src/core/SkTLList.h"
+#include "tests/Test.h"
 
 class ListElement {
 public:
@@ -120,26 +120,31 @@ static void test_tinternallist(skiatest::Reporter* reporter) {
     SkTInternalLList<ListElement> listA, listB;
     listA.concat(std::move(listB));
     check_list(listA, reporter, true, 0, false, false, false, false, elements);
+    // NOLINTNEXTLINE(bugprone-use-after-move)
     check_list(listB, reporter, true, 0, false, false, false, false, elements);
 
     listB.addToTail(&elements[0]);
     listA.concat(std::move(listB));
     check_list(listA, reporter, false, 1, true, false, false, false, elements);
+    // NOLINTNEXTLINE(bugprone-use-after-move)
     check_list(listB, reporter, true, 0, false, false, false, false, elements);
 
     listB.addToTail(&elements[1]);
     listA.concat(std::move(listB));
     check_list(listA, reporter, false, 2, true, true, false, false, elements);
+    // NOLINTNEXTLINE(bugprone-use-after-move)
     check_list(listB, reporter, true, 0, false, false, false, false, elements);
 
     listA.concat(std::move(listB));
     check_list(listA, reporter, false, 2, true, true, false, false, elements);
+    // NOLINTNEXTLINE(bugprone-use-after-move)
     check_list(listB, reporter, true, 0, false, false, false, false, elements);
 
     listB.addToTail(&elements[2]);
     listB.addToTail(&elements[3]);
     listA.concat(std::move(listB));
     check_list(listA, reporter, false, 4, true, true, true, true, elements);
+    // NOLINTNEXTLINE(bugprone-use-after-move)
     check_list(listB, reporter, true, 0, false, false, false, false, elements);
 
     cur = iter.init(listA, Iter::kHead_IterStart);

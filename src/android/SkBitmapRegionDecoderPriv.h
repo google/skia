@@ -8,7 +8,7 @@
 #ifndef SkBitmapRegionDecoderPriv_DEFINED
 #define SkBitmapRegionDecoderPriv_DEFINED
 
-#include "SkRect.h"
+#include "include/core/SkRect.h"
 
 enum SubsetType {
     kFullyInside_SubsetType,

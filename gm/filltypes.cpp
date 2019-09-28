@@ -5,9 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkPath.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 
 namespace skiagm {
 
@@ -15,7 +21,7 @@ class FillTypeGM : public GM {
     SkPath fPath;
 public:
     FillTypeGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
     }
 
     void makePath() {
@@ -91,7 +97,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new FillTypeGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new FillTypeGM; )
 
 }

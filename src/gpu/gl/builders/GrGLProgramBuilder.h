@@ -8,13 +8,14 @@
 #ifndef GrGLProgramBuilder_DEFINED
 #define GrGLProgramBuilder_DEFINED
 
-#include "GrPipeline.h"
-#include "gl/GrGLProgramDataManager.h"
-#include "gl/GrGLUniformHandler.h"
-#include "gl/GrGLVaryingHandler.h"
-#include "glsl/GrGLSLProgramBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "ir/SkSLProgram.h"
+#include "src/gpu/GrPipeline.h"
+#include "src/gpu/gl/GrGLProgram.h"
+#include "src/gpu/gl/GrGLProgramDataManager.h"
+#include "src/gpu/gl/GrGLUniformHandler.h"
+#include "src/gpu/gl/GrGLVaryingHandler.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/sksl/ir/SkSLProgram.h"
 
 class GrFragmentProcessor;
 class GrGLContextInfo;
@@ -34,8 +35,10 @@ public:
      * the surface origin.
      * @return true if generation was successful.
      */
-    static GrGLProgram* CreateProgram(const GrPipeline&,
+    static GrGLProgram* CreateProgram(GrRenderTarget*, GrSurfaceOrigin,
                                       const GrPrimitiveProcessor&,
+                                      const GrTextureProxy* const primProcProxies[],
+                                      const GrPipeline&,
                                       GrProgramDesc*,
                                       GrGLGpu*);
 
@@ -44,27 +47,26 @@ public:
     GrGLGpu* gpu() const { return fGpu; }
 
 private:
-    GrGLProgramBuilder(GrGLGpu*, const GrPipeline&, const GrPrimitiveProcessor&,
-                       GrProgramDesc*);
+    GrGLProgramBuilder(GrGLGpu*, GrRenderTarget*, GrSurfaceOrigin,
+                       const GrPipeline&, const GrPrimitiveProcessor&,
+                       const GrTextureProxy* const primProcProxies[], GrProgramDesc*);
 
-    bool compileAndAttachShaders(const char* glsl,
-                                 int length,
+    void addInputVars(const SkSL::Program::Inputs& inputs);
+    bool compileAndAttachShaders(const SkSL::String& glsl,
                                  GrGLuint programId,
                                  GrGLenum type,
                                  SkTDArray<GrGLuint>* shaderIds,
-                                 const SkSL::Program::Settings& settings,
-                                 const SkSL::Program::Inputs& inputs);
+                                 GrContextOptions::ShaderErrorHandler* errorHandler);
 
-    bool compileAndAttachShaders(GrGLSLShaderBuilder& shader,
-                                 GrGLuint programId,
-                                 GrGLenum type,
-                                 SkTDArray<GrGLuint>* shaderIds,
-                                 const SkSL::Program::Settings& settings,
-                                 SkSL::Program::Inputs* outInputs);
+    void computeCountsAndStrides(GrGLuint programID, const GrPrimitiveProcessor& primProc,
+                                 bool bindAttribLocations);
+    void storeShaderInCache(const SkSL::Program::Inputs& inputs, GrGLuint programID,
+                            const SkSL::String shaders[], bool isSkSL);
     GrGLProgram* finalize();
     void bindProgramResourceLocations(GrGLuint programID);
-    bool checkLinkStatus(GrGLuint programID);
-    void resolveProgramResourceLocations(GrGLuint programID);
+    bool checkLinkStatus(GrGLuint programID, GrContextOptions::ShaderErrorHandler* errorHandler,
+                         SkSL::String* sksl[], const SkSL::String glsl[]);
+    void resolveProgramResourceLocations(GrGLuint programID, bool force);
     void cleanupProgram(GrGLuint programID, const SkTDArray<GrGLuint>& shaderIDs);
     void cleanupShaders(const SkTDArray<GrGLuint>& shaderIDs);
 
@@ -78,6 +80,12 @@ private:
     GrGLGpu*              fGpu;
     GrGLVaryingHandler    fVaryingHandler;
     GrGLUniformHandler    fUniformHandler;
+
+    std::unique_ptr<GrGLProgram::Attribute[]> fAttributes;
+    int fVertexAttributeCnt;
+    int fInstanceAttributeCnt;
+    size_t fVertexStride;
+    size_t fInstanceStride;
 
     // shader pulled from cache. Data is organized as:
     // SkSL::Program::Inputs inputs

@@ -9,7 +9,7 @@
 #ifndef SkFlate_DEFINED
 #define SkFlate_DEFINED
 
-#include "SkStream.h"
+#include "include/core/SkStream.h"
 
 /**
   * Wrap a stream in this class to compress the information written to
@@ -28,7 +28,7 @@ public:
         @param gzip iff true, output a gzip file. "The gzip format is
         a wrapper, documented in RFC 1952, around a deflate stream."
         gzip adds a header with a magic number to the beginning of the
-        stream, alowing a client to identify a gzip file.
+        stream, allowing a client to identify a gzip file.
      */
     SkDeflateWStream(SkWStream*,
                      int compressionLevel = -1,

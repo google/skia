@@ -6,7 +6,7 @@
  */
 
 
-#include "SkParse.h"
+#include "include/utils/SkParse.h"
 
 #include <stdlib.h>
 
@@ -286,11 +286,3 @@ int SkParse::FindList(const char target[], const char list[])
     }
     return -1;
 }
-
-#ifdef SK_SUPPORT_UNITTEST
-void SkParse::UnitTest()
-{
-    // !!! additional parse tests go here
-    SkParse::TestColor();
-}
-#endif

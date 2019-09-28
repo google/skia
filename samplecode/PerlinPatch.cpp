@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkAnimTimer.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkPatchUtils.h"
-#include "SkPerlinNoiseShader.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkPerlinNoiseShader.h"
+#include "samplecode/Sample.h"
+#include "src/utils/SkPatchUtils.h"
+#include "tools/skui/ModifierKey.h"
 
 static void draw_control_points(SkCanvas* canvas, const SkPoint cubics[12]) {
     //draw control points
@@ -59,7 +59,7 @@ static void draw_control_points(SkCanvas* canvas, const SkPoint cubics[12]) {
 const SkScalar TexWidth = 100.0f;
 const SkScalar TexHeight = 100.0f;
 
-class PerlinPatchView : public SampleView {
+class PerlinPatchView : public Sample {
     sk_sp<SkShader> fShader0;
     sk_sp<SkShader> fShader1;
     sk_sp<SkShader> fShaderCompose;
@@ -104,33 +104,26 @@ public:
                                                   colors,
                                                   nullptr,
                                                   3,
-                                                  SkShader::kMirror_TileMode,
+                                                  SkTileMode::kMirror,
                                                   0,
                                                   nullptr);
     }
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt)  override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "PerlinPatch");
-            return true;
-        }
-        SkUnichar uni;
-        if (SampleCode::CharQ(*evt, &uni)) {
+    SkString name() override { return SkString("PerlinPatch"); }
+
+    bool onChar(SkUnichar uni) override {
             switch (uni) {
                 case 'g': fShowGrid = !fShowGrid; return true;
                 default: break;
             }
-        }
-        return this->INHERITED::onQuery(evt);
+            return false;
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(double nanos) override {
         fSeed += 0.005f;
         return true;
     }
-
 
     void onDrawContent(SkCanvas* canvas) override {
         if (!canvas->getTotalMatrix().invert(&fInvMatrix)) {
@@ -151,7 +144,7 @@ protected:
         SkScalar scaleFreq = 2.0;
         fShader1 = SkPerlinNoiseShader::MakeImprovedNoise(fXFreq/scaleFreq, fYFreq/scaleFreq, 4,
                                                              fSeed);
-        fShaderCompose = SkShader::MakeComposeShader(fShader0, fShader1, SkBlendMode::kSrcOver);
+        fShaderCompose = SkShaders::Blend(SkBlendMode::kSrcOver, fShader0, fShader1);
 
         paint.setShader(fShaderCompose);
 
@@ -167,30 +160,29 @@ protected:
     class PtClick : public Click {
     public:
         int fIndex;
-        PtClick(SkView* view, int index) : Click(view), fIndex(index) {}
+        PtClick(int index) : fIndex(index) {}
     };
 
     static bool hittest(const SkPoint& pt, SkScalar x, SkScalar y) {
         return SkPoint::Length(pt.fX - x, pt.fY - y) < SkIntToScalar(5);
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
-        // holding down shift
-        if (1 == modi) {
-            return new PtClick(this, -1);
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+        modi &= ~skui::ModifierKey::kFirstPress;  // ignore this
+        if (skui::ModifierKey::kShift == modi) {
+            return new PtClick(-1);
         }
-        // holding down ctrl
-        if (2 == modi) {
-            return new PtClick(this, -2);
+        if (skui::ModifierKey::kControl == modi) {
+            return new PtClick(-2);
         }
         SkPoint clickPoint = {x, y};
         fInvMatrix.mapPoints(&clickPoint, 1);
         for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); i++) {
             if (hittest(fPts[i], clickPoint.fX, clickPoint.fY)) {
-                return new PtClick(this, (int)i);
+                return new PtClick((int)i);
             }
         }
-        return this->INHERITED::onFindClickHandler(x, y, modi);
+        return nullptr;
     }
 
     bool onClick(Click* click) override {
@@ -211,7 +203,7 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 DEF_SAMPLE( return new PerlinPatchView(); )

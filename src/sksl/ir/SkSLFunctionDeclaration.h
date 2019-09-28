@@ -8,12 +8,12 @@
 #ifndef SKSL_FUNCTIONDECLARATION
 #define SKSL_FUNCTIONDECLARATION
 
-#include "SkSLExpression.h"
-#include "SkSLModifiers.h"
-#include "SkSLSymbol.h"
-#include "SkSLSymbolTable.h"
-#include "SkSLType.h"
-#include "SkSLVariable.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLModifiers.h"
+#include "src/sksl/ir/SkSLSymbol.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/ir/SkSLVariable.h"
 
 namespace SkSL {
 
@@ -71,7 +71,7 @@ struct FunctionDeclaration : public Symbol {
     bool determineFinalTypes(const std::vector<std::unique_ptr<Expression>>& arguments,
                              std::vector<const Type*>* outParameterTypes,
                              const Type** outReturnType) const {
-        ASSERT(arguments.size() == fParameters.size());
+        SkASSERT(arguments.size() == fParameters.size());
         int genericIndex = -1;
         for (size_t i = 0; i < arguments.size(); i++) {
             if (fParameters[i]->fType.kind() == Type::kGeneric_Kind) {
@@ -93,7 +93,7 @@ struct FunctionDeclaration : public Symbol {
             }
         }
         if (fReturnType.kind() == Type::kGeneric_Kind) {
-            ASSERT(genericIndex != -1);
+            SkASSERT(genericIndex != -1);
             *outReturnType = fReturnType.coercibleTypes()[genericIndex];
         } else {
             *outReturnType = &fReturnType;

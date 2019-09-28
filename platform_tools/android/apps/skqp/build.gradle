@@ -7,13 +7,12 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    compile 'com.android.support:design:26.+'
-    compile 'com.android.support.test:runner:0.5'
+    implementation 'com.android.support:design:26.+'
+    implementation 'androidx.test:runner:1.1.0'
 }
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "22.0.1"
     defaultConfig {
         applicationId "org.skia.skqp"
         minSdkVersion 19
@@ -22,6 +21,7 @@ android {
         versionName "1.0"
         signingConfig signingConfigs.debug
     }
+    flavorDimensions "base"
     sourceSets.main.jni.srcDirs = []
     sourceSets.main.jniLibs.srcDir "src/main/libs"
     productFlavors { universal{}; arm {}; arm64 {}; x86 {}; x64 {}; arm64vulkan{}; }

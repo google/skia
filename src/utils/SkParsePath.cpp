@@ -4,8 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkParse.h"
-#include "SkParsePath.h"
+#include "include/utils/SkParse.h"
+#include "include/utils/SkParsePath.h"
 
 static inline bool is_between(int c, int min, int max) {
     return (unsigned)(c - min) <= (unsigned)(max - min);
@@ -204,9 +204,9 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkGeometry.h"
-#include "SkString.h"
-#include "SkStream.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "src/core/SkGeometry.h"
 
 static void write_scalar(SkWStream* stream, SkScalar value) {
     char buffer[64];
@@ -236,7 +236,7 @@ void SkParsePath::ToSVGString(const SkPath& path, SkString* str) {
     SkPoint         pts[4];
 
     for (;;) {
-        switch (iter.next(pts, false)) {
+        switch (iter.next(pts)) {
             case SkPath::kConic_Verb: {
                 const SkScalar tol = SK_Scalar1 / 1024; // how close to a quad
                 SkAutoConicToQuads quadder;

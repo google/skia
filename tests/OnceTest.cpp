@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkOnce.h"
-#include "SkTaskGroup.h"
-#include "Test.h"
+#include "include/private/SkOnce.h"
+#include "src/core/SkTaskGroup.h"
+#include "tests/Test.h"
 
 static void add_five(int* x) {
     *x += 5;

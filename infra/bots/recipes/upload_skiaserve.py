@@ -7,7 +7,6 @@
 
 
 DEPS = [
-  'core',
   'flavor',
   'gsutil',
   'recipe_engine/context',
@@ -27,7 +26,7 @@ def RunSteps(api):
     # Do not upload skiaserve for trybots.
     return
 
-  src = api.vars.build_dir.join('out', api.vars.configuration, 'skiaserve')
+  src = api.vars.build_dir.join('skiaserve')
   target_arch = api.vars.builder_cfg.get('target_arch')
   dest = 'gs://skia-public-binaries/skiaserve/%s/%s/' % (
       target_arch, api.properties['revision'])

@@ -1,12 +1,16 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
+import java.io.File
+import java.nio.file.Paths
+import org.apache.tools.ant.taskdefs.condition.Os
 
 buildscript {
     repositories {
+        google()
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.android.tools.build:gradle:3.2.0'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -15,6 +19,7 @@ buildscript {
 
 allprojects {
     repositories {
+        google()
         jcenter()
     }
 }
@@ -23,7 +28,12 @@ def setupSkiaLibraryBuild(project, appVariants, appName) {
     appVariants.all{ variant ->
         def buildNativeLib = project.task("${variant.name}_BuildSkiaLib", type:Exec) {
             workingDir '../../../..' // top-level skia directory
-            commandLine constructBuildCommand(project, variant, appName).split()
+            final String cmd = constructBuildCommand(project, variant, appName)
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine "cmd", "/c", cmd
+            } else {
+                commandLine cmd.split()
+            }
         }
         buildNativeLib.onlyIf { !project.hasProperty("suppressNativeBuild") }
 
@@ -89,8 +99,8 @@ def getVariantOutDir(project, variant) {
 
 def constructBuildCommand(project, variant, appName) {
     String depotToolsDir = null
-    for (String entry : System.getenv("PATH").split(":")) {
-        if (entry.contains("depot_tools")) {
+    for (String entry : System.getenv("PATH").split(File.pathSeparator)) {
+        if (Paths.get(entry).endsWith("depot_tools")) {
             depotToolsDir = entry;
             break;
         }
@@ -104,6 +114,7 @@ def constructBuildCommand(project, variant, appName) {
                 " depot_tools or define depot_tools.dir in local.properties")
     }
 
+    String ninja = Paths.get(depotToolsDir, "ninja")
     String out_dir = getVariantOutDir(project, variant).skiaOut
-    return "${depotToolsDir}/ninja -C $out_dir $appName"
+    return "$ninja -C $out_dir $appName"
 }

@@ -9,17 +9,22 @@
 #define GrShadowRRectOp_DEFINED
 
 #include <memory>
-#include "GrColor.h"
+#include "src/gpu/GrColor.h"
 
 class GrDrawOp;
+class GrRecordingContext;
+
 class SkMatrix;
 class SkRRect;
-class SkStrokeRec;
 
 namespace GrShadowRRectOp {
 
-std::unique_ptr<GrDrawOp> Make(GrColor, const SkMatrix& viewMatrix, const SkRRect& rrect,
-                               SkScalar blurWidth, SkScalar insetWidth, SkScalar blurClamp = 1);
+std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
+                               GrColor,
+                               const SkMatrix& viewMatrix,
+                               const SkRRect&,
+                               SkScalar blurWidth,
+                               SkScalar insetWidth);
 }
 
 #endif

@@ -4,13 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "PathOpsTestCommon.h"
-#include "SkIntersections.h"
-#include "SkOpContour.h"
-#include "SkOpSegment.h"
-#include "SkRandom.h"
-#include "SkTSort.h"
-#include "Test.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkTSort.h"
+#include "src/pathops/SkIntersections.h"
+#include "src/pathops/SkOpContour.h"
+#include "src/pathops/SkOpSegment.h"
+#include "tests/PathOpsTestCommon.h"
+#include "tests/Test.h"
 
 static bool gDisableAngleTests = true;
 
@@ -197,7 +197,7 @@ public:
     }
 
     static int AllOnOneSide(SkOpAngle& lh, SkOpAngle& rh) {
-        return lh.allOnOneSide(&rh);
+        return lh.lineOnOneSide(&rh, false);
     }
 
     static int ConvexHullOverlaps(SkOpAngle& lh, SkOpAngle& rh) {

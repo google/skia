@@ -5,18 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkAnimTimer.h"
-#include "SkDrawable.h"
-#include "SkView.h"
-#include "SkCanvas.h"
-#include "SkDrawable.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkRSXform.h"
-#include "SkString.h"
-#include "SkSurface.h"
-#include "SkGradientShader.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/utils/SkRandom.h"
+#include "include/utils/SkTextUtils.h"
+#include "samplecode/Sample.h"
 
 const SkBlendMode gModes[] = {
     SkBlendMode::kSrcOver,
@@ -52,14 +50,15 @@ public:
         canvas->drawRoundRect(fRect, 8, 8, paint);
 
         paint.setColor(0xFFFFFFFF);
-        paint.setTextSize(16);
-        paint.setTextAlign(SkPaint::kCenter_Align);
-        paint.setLCDRenderText(true);
-        canvas->drawString(fLabel, fRect.centerX(), fRect.fTop + 0.68f * fRect.height(), paint);
+        SkFont font;
+        font.setSize(16);
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+        SkTextUtils::DrawString(canvas, fLabel.c_str(), fRect.centerX(), fRect.fTop + 0.68f * fRect.height(),
+                                font, paint, SkTextUtils::kCenter_Align);
     }
 
     bool hitTest(SkScalar x, SkScalar y) {
-        return fRect.intersects(x - 1, y - 1, x + 1, y + 1);
+        return fRect.intersects({x - 1, y - 1, x + 1, y + 1});
     }
 };
 
@@ -85,7 +84,7 @@ public:
         const SkColor colors[] = { 0, c };
         fPaint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(size/2, size/2), size/2,
                                                                      colors, nullptr, 2,
-                                                                     SkShader::kClamp_TileMode));
+                                                                     SkTileMode::kClamp));
         fBounds = SkRect::MakeWH(size, size);
     }
 
@@ -103,7 +102,7 @@ protected:
     }
 };
 
-class XferDemo : public SampleView {
+class XferDemo : public Sample {
     enum {
         N = 4
     };
@@ -137,13 +136,7 @@ public:
     }
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "XferDemo");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("XferDemo"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         for (int i = 0; i < N_Modes; ++i) {
@@ -167,11 +160,11 @@ protected:
         canvas->restore();
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
         // Check mode buttons first
         for (int i = 0; i < N_Modes; ++i) {
             if (fModeButtons[i].hitTest(x, y)) {
-                Click* click = new Click(this);
+                Click* click = new Click();
                 click->fMeta.setS32("mode", i);
                 return click;
             }
@@ -183,13 +176,13 @@ protected:
                 break;
             }
         }
-        return fSelected ? new Click(this) : nullptr;
+        return fSelected ? new Click() : nullptr;
     }
 
     bool onClick(Click* click) override {
         int32_t mode;
         if (click->fMeta.findS32("mode", &mode)) {
-            if (fSelected && Click::kUp_State == click->fState) {
+            if (fSelected && skui::InputState::kUp == click->fState) {
                 fSelected->fMode = gModes[mode];
             }
         } else {
@@ -200,7 +193,7 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

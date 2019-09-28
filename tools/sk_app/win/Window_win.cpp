@@ -5,17 +5,21 @@
 * found in the LICENSE file.
 */
 
-#include "Window_win.h"
+#include "include/gpu/vk/GrVkVulkan.h"
+
+#include "tools/sk_app/win/Window_win.h"
 
 #include <tchar.h>
 #include <windows.h>
 #include <windowsx.h>
 
-#include "SkUtils.h"
-#include "../WindowContext.h"
-#include "WindowContextFactory_win.h"
+#include "src/core/SkUtils.h"
+#include "tools/sk_app/WindowContext.h"
+#include "tools/sk_app/win/WindowContextFactory_win.h"
+#include "tools/skui/ModifierKey.h"
+
 #ifdef SK_VULKAN
-#include "../VulkanWindowContext.h"
+#include "tools/sk_app/VulkanWindowContext.h"
 #endif
 
 namespace sk_app {
@@ -72,11 +76,11 @@ bool Window_win::init(HINSTANCE hInstance) {
         wcex.cbWndExtra = 0;
         wcex.hInstance = fHInstance;
         wcex.hIcon = LoadIcon(fHInstance, (LPCTSTR)IDI_WINLOGO);
-        wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);;
+        wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
         wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
         wcex.lpszMenuName = nullptr;
         wcex.lpszClassName = gSZWindowClass;
-        wcex.hIconSm = LoadIcon(fHInstance, (LPCTSTR)IDI_WINLOGO);;
+        wcex.hIconSm = LoadIcon(fHInstance, (LPCTSTR)IDI_WINLOGO);
 
         if (!RegisterClassEx(&wcex)) {
             return false;
@@ -119,71 +123,71 @@ bool Window_win::init(HINSTANCE hInstance) {
     return true;
 }
 
-static Window::Key get_key(WPARAM vk) {
+static skui::Key get_key(WPARAM vk) {
     static const struct {
         WPARAM      fVK;
-        Window::Key fKey;
+        skui::Key fKey;
     } gPair[] = {
-        { VK_BACK, Window::Key::kBack },
-        { VK_CLEAR, Window::Key::kBack },
-        { VK_RETURN, Window::Key::kOK },
-        { VK_UP, Window::Key::kUp },
-        { VK_DOWN, Window::Key::kDown },
-        { VK_LEFT, Window::Key::kLeft },
-        { VK_RIGHT, Window::Key::kRight },
-        { VK_TAB, Window::Key::kTab },
-        { VK_PRIOR, Window::Key::kPageUp },
-        { VK_NEXT, Window::Key::kPageDown },
-        { VK_HOME, Window::Key::kHome },
-        { VK_END, Window::Key::kEnd },
-        { VK_DELETE, Window::Key::kDelete },
-        { VK_ESCAPE, Window::Key::kEscape },
-        { VK_SHIFT, Window::Key::kShift },
-        { VK_CONTROL, Window::Key::kCtrl },
-        { VK_MENU, Window::Key::kOption },
-        { 'A', Window::Key::kA },
-        { 'C', Window::Key::kC },
-        { 'V', Window::Key::kV },
-        { 'X', Window::Key::kX },
-        { 'Y', Window::Key::kY },
-        { 'Z', Window::Key::kZ },
+        { VK_BACK,    skui::Key::kBack     },
+        { VK_CLEAR,   skui::Key::kBack     },
+        { VK_RETURN,  skui::Key::kOK       },
+        { VK_UP,      skui::Key::kUp       },
+        { VK_DOWN,    skui::Key::kDown     },
+        { VK_LEFT,    skui::Key::kLeft     },
+        { VK_RIGHT,   skui::Key::kRight    },
+        { VK_TAB,     skui::Key::kTab      },
+        { VK_PRIOR,   skui::Key::kPageUp   },
+        { VK_NEXT,    skui::Key::kPageDown },
+        { VK_HOME,    skui::Key::kHome     },
+        { VK_END,     skui::Key::kEnd      },
+        { VK_DELETE,  skui::Key::kDelete   },
+        { VK_ESCAPE,  skui::Key::kEscape   },
+        { VK_SHIFT,   skui::Key::kShift    },
+        { VK_CONTROL, skui::Key::kCtrl     },
+        { VK_MENU,    skui::Key::kOption   },
+        { 'A',        skui::Key::kA        },
+        { 'C',        skui::Key::kC        },
+        { 'V',        skui::Key::kV        },
+        { 'X',        skui::Key::kX        },
+        { 'Y',        skui::Key::kY        },
+        { 'Z',        skui::Key::kZ        },
     };
     for (size_t i = 0; i < SK_ARRAY_COUNT(gPair); i++) {
         if (gPair[i].fVK == vk) {
             return gPair[i].fKey;
         }
     }
-    return Window::Key::kNONE;
+    return skui::Key::kNONE;
 }
 
-static uint32_t get_modifiers(UINT message, WPARAM wParam, LPARAM lParam) {
-    uint32_t modifiers = 0;
+static skui::ModifierKey get_modifiers(UINT message, WPARAM wParam, LPARAM lParam) {
+    skui::ModifierKey modifiers = skui::ModifierKey::kNone;
 
     switch (message) {
         case WM_UNICHAR:
         case WM_CHAR:
             if (0 == (lParam & (1 << 30))) {
-                modifiers |= Window::kFirstPress_ModifierKey;
+                modifiers |= skui::ModifierKey::kFirstPress;
             }
             if (lParam & (1 << 29)) {
-                modifiers |= Window::kOption_ModifierKey;
+                modifiers |= skui::ModifierKey::kOption;
             }
             break;
 
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
             if (0 == (lParam & (1 << 30))) {
-                modifiers |= Window::kFirstPress_ModifierKey;
+                modifiers |= skui::ModifierKey::kFirstPress;
             }
             if (lParam & (1 << 29)) {
-                modifiers |= Window::kOption_ModifierKey;
+                modifiers |= skui::ModifierKey::kOption;
             }
             break;
 
         case WM_KEYUP:
         case WM_SYSKEYUP:
             if (lParam & (1 << 29)) {
-                modifiers |= Window::kOption_ModifierKey;
+                modifiers |= skui::ModifierKey::kOption;
             }
             break;
 
@@ -192,10 +196,10 @@ static uint32_t get_modifiers(UINT message, WPARAM wParam, LPARAM lParam) {
         case WM_MOUSEMOVE:
         case WM_MOUSEWHEEL:
             if (wParam & MK_CONTROL) {
-                modifiers |= Window::kControl_ModifierKey;
+                modifiers |= skui::ModifierKey::kControl;
             }
             if (wParam & MK_SHIFT) {
-                modifiers |= Window::kShift_ModifierKey;
+                modifiers |= skui::ModifierKey::kShift;
             }
             break;
     }
@@ -247,13 +251,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
-            eventHandled = window->onKey(get_key(wParam), Window::kDown_InputState,
+            eventHandled = window->onKey(get_key(wParam), skui::InputState::kDown,
                                          get_modifiers(message, wParam, lParam));
             break;
 
         case WM_KEYUP:
         case WM_SYSKEYUP:
-            eventHandled = window->onKey(get_key(wParam), Window::kUp_InputState,
+            eventHandled = window->onKey(get_key(wParam), skui::InputState::kUp,
                                          get_modifiers(message, wParam, lParam));
             break;
 
@@ -270,8 +274,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             //    yPos -= rc.top;
             //}
 
-            Window::InputState istate = ((wParam & MK_LBUTTON) != 0) ? Window::kDown_InputState
-                                                                     : Window::kUp_InputState;
+            skui::InputState istate = ((wParam & MK_LBUTTON) != 0) ? skui::InputState::kDown
+                                                                     : skui::InputState::kUp;
 
             eventHandled = window->onMouse(xPos, yPos, istate,
                                             get_modifiers(message, wParam, lParam));
@@ -289,7 +293,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             //    yPos -= rc.top;
             //}
 
-            eventHandled = window->onMouse(xPos, yPos, Window::kMove_InputState,
+            eventHandled = window->onMouse(xPos, yPos, skui::InputState::kMove,
                                            get_modifiers(message, wParam, lParam));
         } break;
 
@@ -307,13 +311,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 ClientToScreen(hWnd, &topLeft);
                 for (uint16_t i = 0; i < numInputs; ++i) {
                     TOUCHINPUT ti = inputs[i];
-                    Window::InputState state;
+                    skui::InputState state;
                     if (ti.dwFlags & TOUCHEVENTF_DOWN) {
-                        state = Window::kDown_InputState;
+                        state = skui::InputState::kDown;
                     } else if (ti.dwFlags & TOUCHEVENTF_MOVE) {
-                        state = Window::kMove_InputState;
+                        state = skui::InputState::kMove;
                     } else if (ti.dwFlags & TOUCHEVENTF_UP) {
-                        state = Window::kUp_InputState;
+                        state = skui::InputState::kUp;
                     } else {
                         continue;
                     }
@@ -347,21 +351,28 @@ bool Window_win::attach(BackendType attachType) {
 
     switch (attachType) {
         case kNativeGL_BackendType:
-            fWindowContext = window_context_factory::NewGLForWin(fHWnd, fRequestedDisplayParams);
+            fWindowContext = window_context_factory::MakeGLForWin(fHWnd, fRequestedDisplayParams);
             break;
 #if SK_ANGLE
         case kANGLE_BackendType:
-            fWindowContext = window_context_factory::NewANGLEForWin(fHWnd, fRequestedDisplayParams);
+            fWindowContext =
+                    window_context_factory::MakeANGLEForWin(fHWnd, fRequestedDisplayParams);
+            break;
+#endif
+#ifdef SK_DAWN
+        case kDawn_BackendType:
+            fWindowContext =
+                    window_context_factory::MakeDawnD3D12ForWin(fHWnd, fRequestedDisplayParams);
             break;
 #endif
         case kRaster_BackendType:
-            fWindowContext = window_context_factory::NewRasterForWin(fHWnd,
-                                                                     fRequestedDisplayParams);
+            fWindowContext =
+                    window_context_factory::MakeRasterForWin(fHWnd, fRequestedDisplayParams);
             break;
 #ifdef SK_VULKAN
         case kVulkan_BackendType:
-            fWindowContext = window_context_factory::NewVulkanForWin(fHWnd,
-                                                                     fRequestedDisplayParams);
+            fWindowContext =
+                    window_context_factory::MakeVulkanForWin(fHWnd, fRequestedDisplayParams);
             break;
 #endif
     }
@@ -381,7 +392,7 @@ void Window_win::setRequestedDisplayParams(const DisplayParams& params, bool all
         // Need to change these early, so attach() creates the window context correctly
         fRequestedDisplayParams = params;
 
-        delete fWindowContext;
+        fWindowContext = nullptr;
         this->closeWindow();
         this->init(fHInstance);
         this->attach(fBackend);

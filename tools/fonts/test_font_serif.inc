@@ -1235,7 +1235,7 @@ const unsigned char LiberationSerifNormalVerbs[] = {
 2, 1, 2, 2, 2, 2, 5, 6
 };
 
-const unsigned LiberationSerifNormalCharCodes[] = {
+const SkUnichar LiberationSerifNormalCharCodes[] = {
 0, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45,
 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85,
@@ -1261,9 +1261,9 @@ const SkFixed LiberationSerifNormalWidths[] = {
 0x000071a0, 0x00007ae0, 0x00003340, 0x00007ae0, 0x00008a80
 };
 
-const int LiberationSerifNormalCharCodesCount = (int) SK_ARRAY_COUNT(LiberationSerifNormalCharCodes);
+const size_t LiberationSerifNormalCharCodesCount = SK_ARRAY_COUNT(LiberationSerifNormalCharCodes);
 
-const SkPaint::FontMetrics LiberationSerifNormalMetrics = {
+const SkFontMetrics LiberationSerifNormalMetrics = {
 0x0000000f, -0.981445f, -0.891113f, 0.216309f, 0.303223f, 0.0424805f, 0.567383f, 1.18359f,
 -0.176758f, 1.00684f, 0.458984f, 0.654785f, 0.0488281f, 0.108887f, 0.0488281f, -0.205078f
 };
@@ -2485,7 +2485,7 @@ const unsigned char LiberationSerifBoldVerbs[] = {
 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 5, 6
 };
 
-const unsigned LiberationSerifBoldCharCodes[] = {
+const SkUnichar LiberationSerifBoldCharCodes[] = {
 0, 32, 33, 34, 35, 36,
 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56,
 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76,
@@ -2511,9 +2511,9 @@ const SkFixed LiberationSerifBoldWidths[] = {
 0x000071a0, 0x000064e0, 0x00003860, 0x000064e0, 0x00008520
 };
 
-const int LiberationSerifBoldCharCodesCount = (int) SK_ARRAY_COUNT(LiberationSerifBoldCharCodes);
+const size_t LiberationSerifBoldCharCodesCount = SK_ARRAY_COUNT(LiberationSerifBoldCharCodes);
 
-const SkPaint::FontMetrics LiberationSerifBoldMetrics = {
+const SkFontMetrics LiberationSerifBoldMetrics = {
 0x0000000f, -1.00781f, -0.891113f, 0.216309f, 0.303223f, 0.0424805f, 0.59375f, 1.26709f,
 -0.182129f, 1.08496f, 0.458984f, 0.654785f, 0.0952148f, 0.108887f, 0.0498047f, -0.258789f
 };
@@ -3803,7 +3803,7 @@ const unsigned char LiberationSerifItalicVerbs[] = {
 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 5, 6
 };
 
-const unsigned LiberationSerifItalicCharCodes[] = {
+const SkUnichar LiberationSerifItalicCharCodes[] = {
 0, 32, 33, 34, 35, 36,
 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56,
 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76,
@@ -3829,9 +3829,9 @@ const SkFixed LiberationSerifItalicWidths[] = {
 0x000063a0, 0x00006660, 0x00004660, 0x00006660, 0x00008a80
 };
 
-const int LiberationSerifItalicCharCodesCount = (int) SK_ARRAY_COUNT(LiberationSerifItalicCharCodes);
+const size_t LiberationSerifItalicCharCodesCount = SK_ARRAY_COUNT(LiberationSerifItalicCharCodes);
 
-const SkPaint::FontMetrics LiberationSerifItalicMetrics = {
+const SkFontMetrics LiberationSerifItalicMetrics = {
 0x0000000f, -0.980957f, -0.891113f, 0.216309f, 0.303223f, 0.0424805f, 0.559082f, 1.26465f,
 -0.176758f, 1.08789f, 0.458984f, 0.654785f, 0.0488281f, 0.108887f, 0.0498047f, -0.258789f
 };
@@ -5115,7 +5115,7 @@ const unsigned char LiberationSerifBoldItalicVerbs[] = {
 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 5, 6
 };
 
-const unsigned LiberationSerifBoldItalicCharCodes[] = {
+const SkUnichar LiberationSerifBoldItalicCharCodes[] = {
 0, 32, 33, 34, 35, 36, 37, 38, 39,
 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
@@ -5141,9 +5141,9 @@ const SkFixed LiberationSerifBoldItalicWidths[] = {
 0x000063a0, 0x00005920, 0x00003860, 0x00005920, 0x000091e0
 };
 
-const int LiberationSerifBoldItalicCharCodesCount = (int) SK_ARRAY_COUNT(LiberationSerifBoldItalicCharCodes);
+const size_t LiberationSerifBoldItalicCharCodesCount = SK_ARRAY_COUNT(LiberationSerifBoldItalicCharCodes);
 
-const SkPaint::FontMetrics LiberationSerifBoldItalicMetrics = {
+const SkFontMetrics LiberationSerifBoldItalicMetrics = {
 0x0000000f, -0.980957f, -0.891113f, 0.216309f, 0.303223f, 0.0424805f, 0.578125f, 1.32861f,
 -0.178223f, 1.15039f, 0.458984f, 0.654785f, 0.0952148f, 0.108887f, 0.0498047f, -0.258789f
 };

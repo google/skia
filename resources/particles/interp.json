@@ -1,0 +1,29 @@
+{
+   "MaxCount": 6000,
+   "Duration": 5,
+   "Rate": 2000,
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 2
+   },
+   "Code": [
+      "// float rand; Every read returns a random float [0 .. 1)",
+      "",
+      "void spawn(inout Particle p) {",
+      "  p.lifetime = 2 + (rand * 2);",
+      "  p.vel.x = (30 * rand) + 50;",
+      "  p.vel.y = (20 * rand) - 10;",
+      "}",
+      "",
+      "void update(inout Particle p) {",
+      "  p.color.r = p.age;",
+      "  p.color.g = 1 - p.age;",
+      "  float s1 = 0.5 + (1.5 * p.age);",
+      "  float s2 = 1.0 + (-0.75 * p.age);",
+      "  p.scale = s1 + (s2 - s1) * rand;",
+      "  p.vel.y += 20.0 * dt;",
+      "}",
+      ""
+   ],
+   "Bindings": []
+}

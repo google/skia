@@ -1,0 +1,36 @@
+{
+   "MaxCount": 4096,
+   "Duration": 1,
+   "Rate": 1000,
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 1
+   },
+   "Code": [
+      "// float rand; Every read returns a random float [0 .. 1)",
+      "",
+      "void spawn(inout Particle p) {",
+      "  p.lifetime = mix(1, 3, rand);",
+      "  float a = radians(mix(250, 290, rand));",
+      "  float s = mix(10, 30, rand);",
+      "  p.vel.x = cos(a) * s;",
+      "  p.vel.y = sin(a) * s;",
+      "  p.pos = text(rand).xy;",
+      "}",
+      "",
+      "void update(inout Particle p) {",
+      "  float4 startColor = float4(1, 0.196, 0.078, 1);",
+      "  float4 endColor   = float4(1, 0.784, 0.078, 1);",
+      "  p.color = mix(startColor, endColor, p.age);",
+      "}",
+      ""
+   ],
+   "Bindings": [
+      {
+         "Type": "SkTextBinding",
+         "Name": "text",
+         "Text": "SKIA",
+         "FontSize": 96
+      }
+   ]
+}

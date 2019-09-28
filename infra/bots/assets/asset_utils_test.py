@@ -60,7 +60,7 @@ class _LocalStore(object):
     contents = os.listdir(os.path.join(self.dir, name))
     return sorted([int(d) for d in contents])
 
-  def upload(self, name, version, target_dir):
+  def upload(self, name, version, target_dir, extra_tags=None):
     shutil.copytree(target_dir, os.path.join(self.dir, name, str(version)))
 
   def download(self, name, version, target_dir):
@@ -178,13 +178,14 @@ class AssetTest(unittest.TestCase):
     asset_utils._prompt = self.old_prompt
 
     gs_path = 'gs://%s/assets/%s' % (GS_BUCKET, self.asset_name)
+    gsutil = asset_utils.GSStore()._gsutil
     attempt_delete = True
     try:
-      subprocess.check_call(['gsutil', 'ls', gs_path])
+      subprocess.check_call(gsutil + ['ls', gs_path])
     except subprocess.CalledProcessError:
       attempt_delete = False
     if attempt_delete:
-      subprocess.check_call(['gsutil', 'rm', '-rf', gs_path])
+      subprocess.check_call(gsutil + ['rm', '-rf', gs_path])
 
   def test_add_remove(self):
     # Ensure that we can't create an asset twice.

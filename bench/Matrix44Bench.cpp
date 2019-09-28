@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkMatrix44.h"
-#include "SkRandom.h"
-#include "SkString.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkMatrix44.h"
+#include "include/core/SkString.h"
+#include "include/utils/SkRandom.h"
 
 class Matrix44Bench : public Benchmark {
     SkString    fName;
@@ -44,9 +44,6 @@ class EqualsMatrix44Bench : public Matrix44Bench {
 public:
     EqualsMatrix44Bench()
         : INHERITED("equals")
-        , fM0(SkMatrix44::kIdentity_Constructor)
-        , fM1(SkMatrix44::kIdentity_Constructor)
-        , fM2(SkMatrix44::kIdentity_Constructor)
     {
         fM1.set(0, 0, 0);
         fM2.set(3, 3, 0);
@@ -68,7 +65,6 @@ class SetIdentityMatrix44Bench : public Matrix44Bench {
 public:
     SetIdentityMatrix44Bench()
         : INHERITED("setidentity")
-        , mat(SkMatrix44::kIdentity_Constructor)
     {
         double rowMajor[16] =
                 { 1, 2, 3, 4,
@@ -92,7 +88,6 @@ class PreScaleMatrix44Bench : public Matrix44Bench {
 public:
     PreScaleMatrix44Bench()
         : INHERITED("prescale")
-        , fM0(SkMatrix44::kUninitialized_Constructor)
     {
         fX = fY = fZ = SkDoubleToMScalar(1.5);
     }
@@ -113,8 +108,6 @@ class InvertMatrix44Bench : public Matrix44Bench {
 public:
     InvertMatrix44Bench()
         : INHERITED("invert")
-        , fM0(SkMatrix44::kUninitialized_Constructor)
-        , fM1(SkMatrix44::kUninitialized_Constructor)
     {
         fM0.setDouble(0, 0, -1.1);
         fM0.setDouble(0, 1, 2.1);
@@ -148,8 +141,6 @@ class InvertAffineMatrix44Bench : public Matrix44Bench {
 public:
     InvertAffineMatrix44Bench()
         : INHERITED("invertaffine")
-        , fM0(SkMatrix44::kIdentity_Constructor)
-        , fM1(SkMatrix44::kUninitialized_Constructor)
     {
         fM0.setDouble(0, 0, -1.1);
         fM0.setDouble(0, 1, 2.1);
@@ -180,8 +171,6 @@ class InvertScaleTranslateMatrix44Bench : public Matrix44Bench {
 public:
     InvertScaleTranslateMatrix44Bench()
         : INHERITED("invertscaletranslate")
-        , fM0(SkMatrix44::kIdentity_Constructor)
-        , fM1(SkMatrix44::kUninitialized_Constructor)
     {
         fM0.setDouble(0, 0, -1.1);
         fM0.setDouble(0, 3, 4.1);
@@ -207,8 +196,6 @@ class InvertTranslateMatrix44Bench : public Matrix44Bench {
 public:
     InvertTranslateMatrix44Bench()
         : INHERITED("inverttranslate")
-        , fM0(SkMatrix44::kIdentity_Constructor)
-        , fM1(SkMatrix44::kUninitialized_Constructor)
     {
         fM0.setDouble(0, 3, 4.1);
         fM0.setDouble(1, 3, 8.1);
@@ -229,7 +216,6 @@ class PostScaleMatrix44Bench : public Matrix44Bench {
 public:
     PostScaleMatrix44Bench()
         : INHERITED("postscale")
-        , fM0(SkMatrix44::kUninitialized_Constructor)
     {
         fX = fY = fZ = SkDoubleToMScalar(1.5);
     }
@@ -251,9 +237,6 @@ public:
     // SkMatrix44::setConcat() has a fast path for matrices that are at most scale+translate.
     SetConcatMatrix44Bench(bool fastPath)
         : INHERITED(fastPath ? "setconcat_fast" : "setconcat_general")
-        , fM0(SkMatrix44::kUninitialized_Constructor)
-        , fM1(SkMatrix44::kUninitialized_Constructor)
-        , fM2(SkMatrix44::kUninitialized_Constructor)
 {
         if (fastPath) {
             const SkMScalar v = SkDoubleToMScalar(1.5);
@@ -284,7 +267,6 @@ class GetTypeMatrix44Bench : public Matrix44Bench {
 public:
     GetTypeMatrix44Bench()
         : INHERITED("gettype")
-        , fMatrix(SkMatrix44::kIdentity_Constructor)
     {}
 protected:
     // Putting random generation of the matrix inside performTest()

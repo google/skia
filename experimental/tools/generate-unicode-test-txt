@@ -7,58 +7,80 @@
 
 import array, zlib, base64, sys
 
-## Source: http://www.unicode.org/Public/9.0.0/ucd/UnicodeData.txt
+#   import array, zlib, base64, sys, unicodedata
+#   def codepoints():
+#       for i in range(0x110000):
+#           try:
+#               u = ('\\U%08x' % i).decode('unicode-escape')
+#               n = unicodedata.name(u)
+#               c = unicodedata.category(u)
+#               if c[0] == 'C' or n.startswith('VARIATION '):
+#                   continue
+#               yield i
+#           except ValueError:
+#               pass
+#   def make_unicode_data():
+#       last = 0
+#       a = array.array('I')
+#       for i in codepoints():
+#         a.append(i - last - 1)
+#         last = i
+#       return base64.b64encode(zlib.compress(a.tostring(), 9))
+#   if __name__ == '__main__':
+#       b = make_unicode_data()
+#       for i in range(0, len(b), 76):
+#           print '  %s' % b[i:i+76]
 valid_codepoint_data = '''
-  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
+  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
 '''
+def codepoints():
+    i = 0
+    for increment in array.array('I', zlib.decompress(
+        base64.b64decode(valid_codepoint_data))).tolist():
+        i += increment + 1
+        yield i
 if sys.version_info[0] < 3:
     def to_unicode(i):
         return ('\\U%08x' % i).decode('unicode-escape').encode('UTF-8')
 else:
     def to_unicode(i):
         return chr(i)
-o = sys.stdout
-o.write(to_unicode(0xFEFF))
-pack = array.array('I', zlib.decompress(
-    base64.b64decode(valid_codepoint_data)))
-i = 0
-last_row = -1
-plist = pack.tolist()
-for increment in plist:
-    i += increment + 1
-    row = i - (i & 63)
-    if last_row != row:
-        if row:
-            o.write('\n' if row % 1024 else '\n\n')
-        o.write('U+%06x ' % row)
-        last_row = row
-    o.write(' ' + to_unicode(i))
-o.write('\n')
+if __name__ == '__main__':
+    o = sys.stdout
+    o.write(to_unicode(0xFEFF))
+    last_row = -1
+    for i in codepoints():
+        row = i - (i & 63)
+        if last_row != row:
+            if row:
+                o.write('\n' if row % 1024 else '\n\n')
+            o.write('U+%06x ' % row)
+            last_row = row
+        o.write(' ' + to_unicode(i))
+    o.write('\n')

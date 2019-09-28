@@ -5,26 +5,36 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurImageFilter.h"
-#include "SkMaskFilter.h"
-#include "gm.h"
-#include "sk_tool_utils.h"
+#include "gm/gm.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/effects/SkImageFilters.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
+#include <stdio.h>
 
 DEF_SIMPLE_GM(blurimagevmask, canvas, 700, 1200) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorBLACK);
 
-    SkPaint textPaint;
-    textPaint.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface(&textPaint);
-    textPaint.setTextSize(SkIntToScalar(25));
+    SkFont font(ToolUtils::create_portable_typeface(), 25);
 
     const double sigmas[] = {3.0, 8.0, 16.0, 24.0, 32.0};
 
-    canvas->drawString("mask blur",  285, 50, textPaint);
-    canvas->drawString("image blur", 285 + 250, 50, textPaint);
+    canvas->drawString("mask blur",  285, 50, font, paint);
+    canvas->drawString("image blur", 285 + 250, 50, font, paint);
 
 
     SkRect r = {35, 100, 135, 200};
@@ -34,7 +44,7 @@ DEF_SIMPLE_GM(blurimagevmask, canvas, 700, 1200) {
 
         char out[100];
         sprintf(out, "Sigma: %g", sigma);
-        canvas->drawString(out, r.left(), r.bottom() + 35, textPaint);
+        canvas->drawString(out, r.left(), r.bottom() + 35, font, paint);
 
         r.offset(250, 0);
 
@@ -44,7 +54,7 @@ DEF_SIMPLE_GM(blurimagevmask, canvas, 700, 1200) {
 
         SkPaint imageBlurPaint;
         r.offset(250, 0);
-        imageBlurPaint.setImageFilter(SkBlurImageFilter::Make(sigma, sigma, nullptr));
+        imageBlurPaint.setImageFilter(SkImageFilters::Blur(sigma, sigma, nullptr));
         canvas->saveLayer(nullptr, &imageBlurPaint);
 
         canvas->drawRect(r, paint);
@@ -54,9 +64,12 @@ DEF_SIMPLE_GM(blurimagevmask, canvas, 700, 1200) {
 
 }
 
-#include "Resources.h"
-DEF_SIMPLE_GM(blur_image, canvas, 500, 500) {
+DEF_SIMPLE_GM_CAN_FAIL(blur_image, canvas, errorMsg, 500, 500) {
     auto image = GetResourceAsImage("images/mandrill_128.png");
+    if (!image) {
+        *errorMsg = "Could not load mandrill_128.png. Did you forget to set the resourcePath?";
+        return skiagm::DrawResult::kFail;
+    }
 
     SkPaint paint;
     paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 4));
@@ -67,4 +80,5 @@ DEF_SIMPLE_GM(blur_image, canvas, 500, 500) {
     canvas->drawImage(image, 10, 10, &paint);
     canvas->scale(1.01f, 1.01f);
     canvas->drawImage(image, 10 + image->width() + 10.f, 10, &paint);
+    return skiagm::DrawResult::kOk;
 }

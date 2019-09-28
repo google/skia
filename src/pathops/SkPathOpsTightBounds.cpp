@@ -4,8 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkOpEdgeBuilder.h"
-#include "SkPathOpsCommon.h"
+#include "src/pathops/SkOpEdgeBuilder.h"
+#include "src/pathops/SkPathOpsCommon.h"
 
 bool TightBounds(const SkPath& path, SkRect* result) {
     SkPath::RawIter iter(path);
@@ -53,16 +53,7 @@ bool TightBounds(const SkPath& path, SkRect* result) {
     SkOpGlobalState globalState(contourList, &allocator  SkDEBUGPARAMS(false)
             SkDEBUGPARAMS(nullptr));
     // turn path into list of segments
-    SkScalar scaleFactor = ScaleFactor(path);
-    SkPath scaledPath;
-    const SkPath* workingPath;
-    if (scaleFactor > SK_Scalar1) {
-        ScalePath(path, 1.f / scaleFactor, &scaledPath);
-        workingPath = &scaledPath;
-    } else {
-        workingPath = &path;
-    }
-    SkOpEdgeBuilder builder(*workingPath, contourList, &globalState);
+    SkOpEdgeBuilder builder(path, contourList, &globalState);
     if (!builder.finish()) {
         return false;
     }
@@ -74,10 +65,6 @@ bool TightBounds(const SkPath& path, SkRect* result) {
     SkPathOpsBounds bounds = current->bounds();
     while ((current = current->next())) {
         bounds.add(current->bounds());
-    }
-    if (scaleFactor > SK_Scalar1) {
-        bounds.set(bounds.left() * scaleFactor, bounds.top() * scaleFactor,
-                   bounds.right() * scaleFactor, bounds.bottom() * scaleFactor);
     }
     *result = bounds;
     if (!moveBounds.isEmpty()) {

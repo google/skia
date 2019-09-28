@@ -11,6 +11,17 @@
         "extra_config"
       ]
     },
+    "BuildStats": {
+      "keys": [
+        "os",
+        "compiler",
+        "target_arch",
+        "configuration"
+      ],
+      "optional_keys": [
+        "extra_config"
+      ]
+    },
     "Calmbench": {
       "keys": [
         "os",
@@ -75,6 +86,7 @@
     "Upload": {
       "recurse_roles": [
         "Build",
+        "BuildStats",
         "Calmbench",
         "Perf",
         "Test"

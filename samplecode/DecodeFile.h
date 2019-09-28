@@ -8,16 +8,15 @@
 #ifndef DecodeFile_DEFINED
 #define DecodeFile_DEFINED
 
-#include "SkBitmap.h"
-#include "SkCodec.h"
-#include "SkData.h"
-#include "SkImage.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
 
-static inline bool decode_file(const char* filename, SkBitmap* bitmap,
+static inline bool decode_file(sk_sp<SkData> data, SkBitmap* bitmap,
                                SkColorType colorType = kN32_SkColorType,
                                bool requireUnpremul = false) {
-    sk_sp<SkData> data(SkData::MakeFromFileName(filename));
-    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(data);
+    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(std::move(data));
     if (!codec) {
         return false;
     }
@@ -32,6 +31,12 @@ static inline bool decode_file(const char* filename, SkBitmap* bitmap,
     }
 
     return SkCodec::kSuccess == codec->getPixels(info, bitmap->getPixels(), bitmap->rowBytes());
+}
+
+static inline bool decode_file(const char* filename, SkBitmap* bitmap,
+                               SkColorType colorType = kN32_SkColorType,
+                               bool requireUnpremul = false) {
+    return decode_file(SkData::MakeFromFileName(filename), bitmap, colorType, requireUnpremul);
 }
 
 static inline sk_sp<SkImage> decode_file(const char filename[]) {

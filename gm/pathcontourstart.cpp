@@ -5,12 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-
-#include "SkDashPathEffect.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkRRect.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTemplates.h"
 
 namespace skiagm {
 

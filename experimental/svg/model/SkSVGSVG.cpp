@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkSVGRenderContext.h"
-#include "SkSVGSVG.h"
-#include "SkSVGValue.h"
+#include "experimental/svg/model/SkSVGRenderContext.h"
+#include "experimental/svg/model/SkSVGSVG.h"
+#include "experimental/svg/model/SkSVGValue.h"
+#include "include/core/SkCanvas.h"
 
 SkSVGSVG::SkSVGSVG() : INHERITED(SkSVGTag::kSvg) { }
 

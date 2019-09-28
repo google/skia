@@ -23,19 +23,25 @@ Downloading Clang binaries (Googlers Only)
 ------------------------------------------
 This requires gsutil, part of the [gcloud sdk](https://cloud.google.com/sdk/downloads).
 
+<!--?prettify lang=sh?-->
+
     CLANGDIR="${HOME}/clang"
-    python infra/bots/assets/clang_linux/download.py -t $CLANGDIR
+    python2 infra/bots/assets/clang_linux/download.py -t $CLANGDIR
 
 Building Clang binaries from scratch (Other users)
 ---------------------------
 
+<!--?prettify lang=sh?-->
+
     CLANGDIR="${HOME}/clang"
 
-    python tools/git-sync-deps
+    python2 tools/git-sync-deps
     CC= CXX= infra/bots/assets/clang_linux/create.py -t "$CLANGDIR"
 
 Configure and Compile Skia with MSAN
 ------------------------------------
+
+<!--?prettify lang=sh?-->
 
     CLANGDIR="${HOME}/clang"
     mkdir -p out/msan
@@ -43,23 +49,22 @@ Configure and Compile Skia with MSAN
         cc = "${CLANGDIR}/bin/clang"
         cxx = "${CLANGDIR}/bin/clang++"
         extra_cflags = [ "-B${CLANGDIR}/bin" ]
-        extra_ldflags = [ "-B${CLANGDIR}/bin", "-fuse-ld=lld", "-L${CLANGDIR}/msan" ]
+        extra_ldflags = [
+            "-B${CLANGDIR}/bin",
+            "-fuse-ld=lld",
+            "-L${CLANGDIR}/msan",
+            "-Wl,-rpath,${CLANGDIR}/msan" ]
         sanitize = "MSAN"
         skia_use_fontconfig = false
-        skia_use_system_freetype2 = false
-        skia_enable_gpu = false
     EOF
-    python tools/git-sync-deps
+    python2 tools/git-sync-deps
     bin/gn gen out/msan
     ninja -C out/msan
 
-When you run a binary built with MSAN, make sure you force it to use our
-MSAN-instrumented libc++:
-
-    env LD_LIBRARY_PATH=$CLANGDIR/msan out/dm ...
-
 Configure and Compile Skia with ASAN
 ------------------------------------
+
+<!--?prettify lang=sh?-->
 
     CLANGDIR="${HOME}/clang"
     mkdir -p out/asan
@@ -67,18 +72,16 @@ Configure and Compile Skia with ASAN
         cc = "${CLANGDIR}/bin/clang"
         cxx = "${CLANGDIR}/bin/clang++"
         sanitize = "ASAN"
+        extra_ldflags = [ "-fuse-ld=lld", "-Wl,-rpath,${CLANGDIR}/lib" ]
     EOF
-    python tools/git-sync-deps
+    python2 tools/git-sync-deps
     bin/gn gen out/asan
     ninja -C out/asan
 
-
-To use the libc++ that comes with the above Clang asset:
-
-    env LD_LIBRARY_PATH=$CLANGDIR/lib out/dm ...
-
 Configure and Compile Skia with TSAN
 ------------------------------------
+
+<!--?prettify lang=sh?-->
 
     CLANGDIR="${HOME}/clang"
     mkdir -p out/tsan
@@ -87,9 +90,9 @@ Configure and Compile Skia with TSAN
         cxx = "${CLANGDIR}/bin/clang++"
         sanitize = "TSAN"
         is_debug = false
+        extra_ldflags = [ "-Wl,-rpath,${CLANGDIR}/lib" ]
     EOF
-    python tools/git-sync-deps
+    python2 tools/git-sync-deps
     bin/gn gen out/tsan
     ninja -C out/tsan
-
 

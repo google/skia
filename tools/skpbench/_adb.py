@@ -16,6 +16,7 @@ class Adb:
       self.__invocation.extend(['-s', device_serial])
     self.__echo = echo
     self.__is_root = None
+    self.__has_established_connection = False
 
   def shell(self, cmd):
     if self.__echo:
@@ -25,6 +26,7 @@ class Adb:
   def check(self, cmd):
     if self.__echo:
       self.__echo_shell_cmd(cmd)
+    self.__establish_connection()
     result = subprocess.check_output(self.__invocation + ['shell', cmd])
     if self.__echo:
       print(result, file=sys.stderr)
@@ -33,7 +35,7 @@ class Adb:
   def root(self):
     if not self.is_root():
       self.__invoke('root')
-      self.__invoke('wait-for-device')
+      self.__has_established_connection = False
       self.__is_root = None
     return self.is_root()
 
@@ -48,9 +50,7 @@ class Adb:
   def reboot(self):
     self.__is_root = None
     self.shell('reboot')
-    self.__invoke('wait-for-device')
-    while '1' != self.check('getprop sys.boot_completed').strip():
-      time.sleep(1)
+    self.__has_established_connection = False
 
   def __echo_shell_cmd(self, cmd):
     escaped = [re.sub(r'([^a-zA-Z0-9])', r'\\\1', x)
@@ -59,4 +59,15 @@ class Adb:
                   " '\n>' ".join(escaped))
 
   def __invoke(self, *args):
+    self.__establish_connection()
     subprocess.call(self.__invocation + list(args), stdout=sys.stderr)
+
+  def __establish_connection(self):
+    if self.__has_established_connection:
+      return
+    self.__has_established_connection = True
+    self.__invoke('wait-for-device')
+    while True:
+      time.sleep(1)
+      if '1' == self.check('getprop sys.boot_completed').strip():
+        break

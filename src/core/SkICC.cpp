@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
-#include "SkColorSpacePriv.h"
-#include "SkEndian.h"
-#include "SkFixed.h"
-#include "SkICC.h"
-#include "SkICCPriv.h"
-#include "SkMD5.h"
-#include "SkUtils.h"
+#include "include/core/SkICC.h"
+#include "include/private/SkFixed.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkEndian.h"
+#include "src/core/SkICCPriv.h"
+#include "src/core/SkMD5.h"
+#include "src/core/SkUtils.h"
 
 static constexpr char kDescriptionTagBodyPrefix[12] =
         { 'G', 'o', 'o', 'g', 'l', 'e', '/', 'S', 'k', 'i', 'a' , '/'};
@@ -172,25 +172,25 @@ static SkFixed float_round_to_fixed(float x) {
     return sk_float_saturate2int((float)floor((double)x * SK_Fixed1 + 0.5));
 }
 
-static void write_xyz_tag(uint32_t* ptr, const float toXYZD50[9], int col) {
+static void write_xyz_tag(uint32_t* ptr, const skcms_Matrix3x3& toXYZD50, int col) {
     ptr[0] = SkEndian_SwapBE32(kXYZ_PCSSpace);
     ptr[1] = 0;
-    ptr[2] = SkEndian_SwapBE32(float_round_to_fixed(toXYZD50[0*3 + col]));
-    ptr[3] = SkEndian_SwapBE32(float_round_to_fixed(toXYZD50[1*3 + col]));
-    ptr[4] = SkEndian_SwapBE32(float_round_to_fixed(toXYZD50[2*3 + col]));
+    ptr[2] = SkEndian_SwapBE32(float_round_to_fixed(toXYZD50.vals[0][col]));
+    ptr[3] = SkEndian_SwapBE32(float_round_to_fixed(toXYZD50.vals[1][col]));
+    ptr[4] = SkEndian_SwapBE32(float_round_to_fixed(toXYZD50.vals[2][col]));
 }
 
-static void write_trc_tag(uint32_t* ptr, const SkColorSpaceTransferFn& fn) {
+static void write_trc_tag(uint32_t* ptr, const skcms_TransferFunction& fn) {
     ptr[0] = SkEndian_SwapBE32(kTAG_ParaCurveType);
     ptr[1] = 0;
     ptr[2] = (uint32_t) (SkEndian_SwapBE16(kGABCDEF_ParaCurveType));
-    ptr[3] = SkEndian_SwapBE32(float_round_to_fixed(fn.fG));
-    ptr[4] = SkEndian_SwapBE32(float_round_to_fixed(fn.fA));
-    ptr[5] = SkEndian_SwapBE32(float_round_to_fixed(fn.fB));
-    ptr[6] = SkEndian_SwapBE32(float_round_to_fixed(fn.fC));
-    ptr[7] = SkEndian_SwapBE32(float_round_to_fixed(fn.fD));
-    ptr[8] = SkEndian_SwapBE32(float_round_to_fixed(fn.fE));
-    ptr[9] = SkEndian_SwapBE32(float_round_to_fixed(fn.fF));
+    ptr[3] = SkEndian_SwapBE32(float_round_to_fixed(fn.g));
+    ptr[4] = SkEndian_SwapBE32(float_round_to_fixed(fn.a));
+    ptr[5] = SkEndian_SwapBE32(float_round_to_fixed(fn.b));
+    ptr[6] = SkEndian_SwapBE32(float_round_to_fixed(fn.c));
+    ptr[7] = SkEndian_SwapBE32(float_round_to_fixed(fn.d));
+    ptr[8] = SkEndian_SwapBE32(float_round_to_fixed(fn.e));
+    ptr[9] = SkEndian_SwapBE32(float_round_to_fixed(fn.f));
 }
 
 static bool nearly_equal(float x, float y) {
@@ -205,46 +205,48 @@ static bool nearly_equal(float x, float y) {
     return ::fabsf(x - y) <= kTolerance;
 }
 
-static bool nearly_equal(const SkColorSpaceTransferFn& u,
-                         const SkColorSpaceTransferFn& v) {
-    return nearly_equal(u.fG, v.fG)
-        && nearly_equal(u.fA, v.fA)
-        && nearly_equal(u.fB, v.fB)
-        && nearly_equal(u.fC, v.fC)
-        && nearly_equal(u.fD, v.fD)
-        && nearly_equal(u.fE, v.fE)
-        && nearly_equal(u.fF, v.fF);
+static bool nearly_equal(const skcms_TransferFunction& u,
+                         const skcms_TransferFunction& v) {
+    return nearly_equal(u.g, v.g)
+        && nearly_equal(u.a, v.a)
+        && nearly_equal(u.b, v.b)
+        && nearly_equal(u.c, v.c)
+        && nearly_equal(u.d, v.d)
+        && nearly_equal(u.e, v.e)
+        && nearly_equal(u.f, v.f);
 }
 
-static bool nearly_equal(const float u[9], const float v[9]) {
-    for (int i = 0; i < 9; i++) {
-        if (!nearly_equal(u[i], v[i])) {
-            return false;
+static bool nearly_equal(const skcms_Matrix3x3& u, const skcms_Matrix3x3& v) {
+    for (int r = 0; r < 3; r++) {
+        for (int c = 0; c < 3; c++) {
+            if (!nearly_equal(u.vals[r][c], v.vals[r][c])) {
+                return false;
+            }
         }
     }
     return true;
 }
 
 // Return nullptr if the color profile doen't have a special name.
-const char* get_color_profile_description(const SkColorSpaceTransferFn& fn,
-                                          const float toXYZD50[9]) {
-    bool srgb_xfer = nearly_equal(fn, gSRGB_TransferFn);
-    bool srgb_gamut = nearly_equal(toXYZD50, gSRGB_toXYZD50);
+const char* get_color_profile_description(const skcms_TransferFunction& fn,
+                                          const skcms_Matrix3x3& toXYZD50) {
+    bool srgb_xfer = nearly_equal(fn, SkNamedTransferFn::kSRGB);
+    bool srgb_gamut = nearly_equal(toXYZD50, SkNamedGamut::kSRGB);
     if (srgb_xfer && srgb_gamut) {
         return "sRGB";
     }
-    bool line_xfer = nearly_equal(fn, gLinear_TransferFn);
+    bool line_xfer = nearly_equal(fn, SkNamedTransferFn::kLinear);
     if (line_xfer && srgb_gamut) {
         return "Linear Transfer with sRGB Gamut";
     }
-    bool twoDotTwo = nearly_equal(fn, g2Dot2_TransferFn);
+    bool twoDotTwo = nearly_equal(fn, SkNamedTransferFn::k2Dot2);
     if (twoDotTwo && srgb_gamut) {
         return "2.2 Transfer with sRGB Gamut";
     }
-    if (twoDotTwo && nearly_equal(toXYZD50, gAdobeRGB_toXYZD50)) {
+    if (twoDotTwo && nearly_equal(toXYZD50, SkNamedGamut::kAdobeRGB)) {
         return "AdobeRGB";
     }
-    bool dcip3_gamut = nearly_equal(toXYZD50, gDCIP3_toXYZD50);
+    bool dcip3_gamut = nearly_equal(toXYZD50, SkNamedGamut::kDCIP3);
     if (srgb_xfer || line_xfer) {
         if (srgb_xfer && dcip3_gamut) {
             return "sRGB Transfer with DCI-P3 Gamut";
@@ -252,7 +254,7 @@ const char* get_color_profile_description(const SkColorSpaceTransferFn& fn,
         if (line_xfer && dcip3_gamut) {
             return "Linear Transfer with DCI-P3 Gamut";
         }
-        bool rec2020 = nearly_equal(toXYZD50, gRec2020_toXYZD50);
+        bool rec2020 = nearly_equal(toXYZD50, SkNamedGamut::kRec2020);
         if (srgb_xfer && rec2020) {
             return "sRGB Transfer with Rec-BT-2020 Gamut";
         }
@@ -260,15 +262,12 @@ const char* get_color_profile_description(const SkColorSpaceTransferFn& fn,
             return "Linear Transfer with Rec-BT-2020 Gamut";
         }
     }
-    if (dcip3_gamut && nearly_equal(fn, gDCIP3_TransferFn)) {
-        return "DCI-P3";
-    }
     return nullptr;
 }
 
 static void get_color_profile_tag(char dst[kICCDescriptionTagSize],
-                                 const SkColorSpaceTransferFn& fn,
-                                 const float toXYZD50[9]) {
+                                 const skcms_TransferFunction& fn,
+                                 const skcms_Matrix3x3& toXYZD50) {
     SkASSERT(dst);
     if (const char* description = get_color_profile_description(fn, toXYZD50)) {
         SkASSERT(strlen(description) < kICCDescriptionTagSize);
@@ -278,11 +277,10 @@ static void get_color_profile_tag(char dst[kICCDescriptionTagSize],
     } else {
         strncpy(dst, kDescriptionTagBodyPrefix, sizeof(kDescriptionTagBodyPrefix));
         SkMD5 md5;
-        md5.write(toXYZD50, 9*sizeof(float));
+        md5.write(&toXYZD50, sizeof(toXYZD50));
         static_assert(sizeof(fn) == sizeof(float) * 7, "packed");
         md5.write(&fn, sizeof(fn));
-        SkMD5::Digest digest;
-        md5.finish(digest);
+        SkMD5::Digest digest = md5.finish();
         char* ptr = dst + sizeof(kDescriptionTagBodyPrefix);
         for (unsigned i = 0; i < sizeof(SkMD5::Digest); ++i) {
             uint8_t byte = digest.data[i];
@@ -293,7 +291,8 @@ static void get_color_profile_tag(char dst[kICCDescriptionTagSize],
     }
 }
 
-sk_sp<SkData> SkWriteICCProfile(const SkColorSpaceTransferFn& fn, const float toXYZD50[9]) {
+sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction& fn,
+                                const skcms_Matrix3x3& toXYZD50) {
     if (!is_valid_transfer_fn(fn)) {
         return nullptr;
     }

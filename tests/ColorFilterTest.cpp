@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
-#include "SkBlendMode.h"
-#include "SkColor.h"
-#include "SkColorFilter.h"
-#include "SkRandom.h"
-#include "SkReadBuffer.h"
-#include "SkRefCnt.h"
-#include "SkWriteBuffer.h"
-#include "SkTypes.h"
-#include "Test.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
+#include "tests/Test.h"
 
 class SkFlattenable;
 
@@ -35,7 +35,7 @@ static sk_sp<SkColorFilter> reincarnate_colorfilter(SkFlattenable* obj) {
 
 static sk_sp<SkColorFilter> make_filter() {
     // pick a filter that cannot compose with itself via newComposed()
-    return SkColorFilter::MakeModeFilter(SK_ColorRED, SkBlendMode::kColorBurn);
+    return SkColorFilters::Blend(SK_ColorRED, SkBlendMode::kColorBurn);
 }
 
 static void test_composecolorfilter_limit(skiatest::Reporter* reporter) {
@@ -65,7 +65,7 @@ DEF_TEST(ColorFilter, reporter) {
         // special case that would return nullptr (if color's alpha is 0 or 0xFF)
         color = SkColorSetA(color, 0x7F);
 
-        auto cf = SkColorFilter::MakeModeFilter(color, (SkBlendMode)mode);
+        auto cf = SkColorFilters::Blend(color, (SkBlendMode)mode);
 
         // allow for no filter if we're in Dst mode (its a no op)
         if (SkBlendMode::kDst == (SkBlendMode)mode && nullptr == cf) {
@@ -82,7 +82,7 @@ DEF_TEST(ColorFilter, reporter) {
 
 //        SkDebugf("--- mc [%d %x] ", mode, color);
 
-        REPORTER_ASSERT(reporter, cf->asColorMode(&c, (SkBlendMode*)&m));
+        REPORTER_ASSERT(reporter, cf->asAColorMode(&c, (SkBlendMode*)&m));
         // handle special-case folding by the factory
         if (SkBlendMode::kClear == (SkBlendMode)mode) {
             if (c != expectedColor) {
@@ -104,7 +104,7 @@ DEF_TEST(ColorFilter, reporter) {
 
             SkColor c2 = ~color;
             SkBlendMode m2 = ILLEGAL_MODE;
-            REPORTER_ASSERT(reporter, cf2->asColorMode(&c2, (SkBlendMode*)&m2));
+            REPORTER_ASSERT(reporter, cf2->asAColorMode(&c2, (SkBlendMode*)&m2));
             REPORTER_ASSERT(reporter, c2 == expectedColor);
             REPORTER_ASSERT(reporter, m2 == expectedMode);
         }

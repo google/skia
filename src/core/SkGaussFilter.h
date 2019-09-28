@@ -11,19 +11,12 @@
 #include <cstddef>
 
 // Define gaussian filters for values of sigma < 2. Produce values good to 1 part in 1,000,000.
-// Gaussian produces values as defined in the SVG 1.1 spec:
-// https://www.w3.org/TR/SVG/filters.html#feGaussianBlurElement
-// Bessel produces values as defined in "Scale-Space for Discrete Signals" by Tony Lindeberg
+// Produces values as defined in "Scale-Space for Discrete Signals" by Tony Lindeberg.
 class SkGaussFilter {
 public:
     static constexpr int kGaussArrayMax = 6;
-    enum class Type : bool {
-        Gaussian,
-        Bessel
-    };
 
-    // Type selects which method is used to calculate the gaussian factors.
-    SkGaussFilter(double sigma, Type type);
+    explicit SkGaussFilter(double sigma);
 
     size_t size()   const { return fN; }
     int radius() const { return fN - 1; }

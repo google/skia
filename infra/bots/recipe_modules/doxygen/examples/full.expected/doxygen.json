@@ -1,0 +1,16 @@
+[
+  {
+    "cmd": [
+      "python",
+      "RECIPE_MODULE[skia::doxygen]/resources/generate_and_upload_doxygen.py"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "generate and upload doxygen"
+  },
+  {
+    "name": "$result"
+  }
+]

@@ -1,0 +1,142 @@
+# Builds both skia-release:prod and a new fiddler using Google Container
+# Builder: https://cloud.google.com/container-builder/docs/
+#
+steps:
+  # To test locally, first uncomment the last two lines of this comment block, then submit with:
+  #
+  #    gcloud builds submit --config cloudbuild.yaml --no-source --substitutions=COMMIT_SHA=b2acf0a93927a57cc1fa9323839e788379ae3366
+  #
+  # Where COMMIT_SHA is updated to the last commit into Skia.
+  #
+  #- name: 'gcr.io/cloud-builders/git'
+  #  args: ['clone', 'https://github.com/google/skia.git', '.']
+
+  - name: 'debian:testing-slim'
+    args: ['mkdir', '-p', '--mode=777', '/workspace/__doxygen_staging']
+
+  - name: 'gcr.io/skia-public/doxygen:testing-slim'
+    dir: './tools/doxygen'
+    args: ['doxygen', 'ProdDoxyfile']
+    timeout: 600s
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/skia-release:prod', './docker/skia-release']
+    timeout: 7200s
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/skia-wasm-release:prod', './docker/skia-wasm-release']
+    timeout: 7200s
+
+  - name: 'gcr.io/skia-public/infra:prod'
+    dir: '/home/skia/golib/src/go.skia.org/infra/fiddlek'
+    env:
+      - 'ROOT=/workspace/__fiddler_staging'
+      - 'SKIP_BUILD=1'
+    args: ['./build_fiddler_release']
+    timeout: 600s
+
+  - name: 'gcr.io/skia-public/infra:prod'
+    dir: '/home/skia/golib/src/go.skia.org/infra/debugger'
+    env:
+      - 'ROOT=/workspace/__debugger_staging'
+      - 'SKIP_BUILD=1'
+    args: ['make', 'release_ci']
+    timeout: 600s
+
+  - name: 'gcr.io/skia-public/infra:prod'
+    dir: '/home/skia/golib/src/go.skia.org/infra/debugger-assets'
+    env:
+      - 'ROOT=/workspace/__debugger_assets_staging'
+      - 'SKIP_BUILD=1'
+    args: ['make', 'release_ci']
+    timeout: 600s
+
+  - name: 'gcr.io/skia-public/infra:prod'
+    dir: '/home/skia/golib/src/go.skia.org/infra/api'
+    env:
+      - 'ROOT=/workspace/__api_staging'
+      - 'SKIP_BUILD=1'
+    args: ['make', 'release_ci']
+    timeout: 600s
+
+  # We can't (easily) run docker inside of docker, which is how we get
+  # the build artifacts out of skia-wasm-release when running locally.
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['run', '--volume', '/workspace/wasm-products:/OUT',
+           'gcr.io/$PROJECT_ID/skia-wasm-release:prod',
+           'sh', '-c', 'cp -r /tmp/* /OUT']
+    dir: 'wasm-products'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['run', '--volume', '/workspace/wasm-products:/OUT',
+           '--volume', '/workspace/__jsfiddle_staging:/workspace/__jsfiddle_staging',
+           '--env', 'ROOT=/workspace/__jsfiddle_staging',
+           '--env', 'SKIP_BUILD=1',
+           '--workdir', '/home/skia/golib/src/go.skia.org/infra/jsfiddle',
+           'gcr.io/skia-public/infra:prod',
+           'make', 'release_ci']
+    dir: 'wasm-products'
+    timeout: 600s
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['run', '--volume', '/workspace/wasm-products:/OUT',
+           '--volume', '/workspace/__skottie_staging:/workspace/__skottie_staging',
+           '--env', 'ROOT=/workspace/__skottie_staging',
+           '--env', 'SKIP_BUILD=1',
+           '--workdir', '/home/skia/golib/src/go.skia.org/infra/skottie',
+           'gcr.io/skia-public/infra:prod',
+           'make', 'release_ci']
+    dir: 'wasm-products'
+    timeout: 600s
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['run', '--volume', '/workspace/wasm-products:/OUT',
+           '--volume', '/workspace/__particles_staging:/workspace/__particles_staging',
+           '--env', 'ROOT=/workspace/__particles_staging',
+           '--env', 'SKIP_BUILD=1',
+           '--workdir', '/home/skia/golib/src/go.skia.org/infra/particles',
+           'gcr.io/skia-public/infra:prod',
+           'make', 'release_ci']
+    dir: 'wasm-products'
+    timeout: 600s
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/fiddler:$COMMIT_SHA', '/workspace/__fiddler_staging']
+    timeout: 600s
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/skottie:$COMMIT_SHA', '/workspace/__skottie_staging']
+    timeout: 600s
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/particles:$COMMIT_SHA', '/workspace/__particles_staging']
+    timeout: 600s
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/debugger:$COMMIT_SHA', '/workspace/__debugger_staging']
+    timeout: 600s
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/debugger-assets:$COMMIT_SHA', '/workspace/__debugger_assets_staging']
+    timeout: 600s
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/jsfiddle:$COMMIT_SHA', '/workspace/__jsfiddle_staging']
+    timeout: 600s
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/api:$COMMIT_SHA', '/workspace/__api_staging']
+    timeout: 600s
+images:
+  - 'gcr.io/$PROJECT_ID/fiddler:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/skottie:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/particles:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/debugger:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/debugger-assets:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/jsfiddle:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/api:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/skia-release:prod'
+  - 'gcr.io/$PROJECT_ID/skia-wasm-release:prod'
+timeout: 7200s
+options:
+  machineType: 'N1_HIGHCPU_32'

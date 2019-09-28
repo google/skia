@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
+#include "bench/Benchmark.h"
 
-#include "SkCanvas.h"
-#include "SkShader.h"
-#include "SkGradientShader.h"
-#include "SkString.h"
-#include "SkColor.h"
-#include "SkPaint.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/effects/SkGradientShader.h"
 
 enum class Kind {
     k001,
@@ -93,7 +93,7 @@ public:
                                                       colors,
                                                       positions,
                                                       count,
-                                                      SkShader::kClamp_TileMode,
+                                                      SkTileMode::kClamp,
                                                       0,
                                                       nullptr));
     }

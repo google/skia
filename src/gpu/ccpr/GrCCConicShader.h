@@ -8,7 +8,7 @@
 #ifndef GrCCConicShader_DEFINED
 #define GrCCConicShader_DEFINED
 
-#include "ccpr/GrCCCoverageProcessor.h"
+#include "src/gpu/ccpr/GrCCCoverageProcessor.h"
 
 /**
  * This class renders the coverage of closed conic curves using the techniques outlined in
@@ -22,14 +22,19 @@
  */
 class GrCCConicShader : public GrCCCoverageProcessor::Shader {
 public:
-    void emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* wind,
-                       const char** outHull4) const override;
+    bool calculatesOwnEdgeCoverage() const override { return true; }
 
-    void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
-                        const char* position, const char* coverage,
-                        const char* cornerCoverage) override;
+    void emitSetupCode(
+            GrGLSLVertexGeoBuilder*, const char* pts, const char** outHull4) const override;
 
-    void onEmitFragmentCode(GrGLSLFPFragmentBuilder*, const char* outputCoverage) const override;
+    void onEmitVaryings(
+            GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code, const char* position,
+            const char* coverage, const char* cornerCoverage, const char* wind) override;
+
+    void emitFragmentCoverageCode(
+            GrGLSLFPFragmentBuilder*, const char* outputCoverage) const override;
+
+    void emitSampleMaskCode(GrGLSLFPFragmentBuilder*) const override;
 
 private:
     void calcHullCoverage(SkString* code, const char* klm, const char* grad,

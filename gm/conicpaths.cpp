@@ -5,10 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkTArray.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkFloatBits.h"
+#include "include/private/SkTArray.h"
 
 class ConicPathsGM : public skiagm::GM {
 protected:
@@ -157,6 +166,36 @@ DEF_SIMPLE_GM(largecircle, canvas, 250, 250) {
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
     canvas->drawCircle(c, radius, paint);
+}
+
+/* ovals should not be blurry */
+DEF_SIMPLE_GM(largeovals, canvas, 250, 250) {
+    // Test EllipseOp
+    SkRect r = SkRect::MakeXYWH(-520, -520, 5000, 4000);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(100);
+    canvas->drawOval(r, paint);
+    r.offset(-15, -15);
+    paint.setColor(SK_ColorDKGRAY);
+    // we use stroke and fill to avoid falling into the SimpleFill path
+    paint.setStyle(SkPaint::kStrokeAndFill_Style);
+    paint.setStrokeWidth(1);
+    canvas->drawOval(r, paint);
+
+    // Test DIEllipseOp
+    canvas->rotate(1.0f);
+    r.offset(55, 55);
+    paint.setColor(SK_ColorGRAY);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(100);
+    canvas->drawOval(r, paint);
+    r.offset(-15, -15);
+    paint.setColor(SK_ColorLTGRAY);
+    paint.setStyle(SkPaint::kStrokeAndFill_Style);
+    paint.setStrokeWidth(1);
+    canvas->drawOval(r, paint);
 }
 
 DEF_SIMPLE_GM(crbug_640176, canvas, 250, 250) {

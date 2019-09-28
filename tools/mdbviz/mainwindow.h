@@ -11,7 +11,7 @@
 #include <memory>
 #include <QMainWindow>
 
-#include "Model.h"
+#include "tools/mdbviz/Model.h"
 
 class QLabel;
 class QMenu;
@@ -32,7 +32,7 @@ private slots:
 
 private:
     void loadFile(const QString &fileName);
-    void setupOpListWidget();
+    void setupOpsTaskWidget();
     void presentCurrentRenderState();
 
 
@@ -46,7 +46,7 @@ private:
     QImage  fImage;
     QLabel* fImageLabel;
 
-    QTreeWidget* fOpListWidget;
+    QTreeWidget* fOpsTaskWidget;
 
     QMenu* fViewMenu;
 

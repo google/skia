@@ -22,7 +22,7 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "fetch-gn"
@@ -32,21 +32,19 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Debian9-GCC-loongson3a-Release/Release",
-      "--args=cc=\"[START_DIR]/mips64el_toolchain_linux/bin/mips64el-linux-gnuabi64-gcc-7\" cxx=\"[START_DIR]/mips64el_toolchain_linux/bin/mips64el-linux-gnuabi64-g++-7\" extra_cflags=[\"-Wno-format-truncation\", \"-Wno-uninitialized\", \"-DDUMMY_mips64el_toolchain_linux_version=42\", \"-Wno-strict-overflow\"] extra_ldflags=[\"-L[START_DIR]/mips64el_toolchain_linux/mips64el-linux-gnuabi64/lib\"] is_debug=false skia_enable_gpu=false skia_use_fontconfig=false skia_use_system_freetype2=false target_cpu=\"loongson3a\""
+      "--args=cc=\"[START_DIR]/mips64el_toolchain_linux/bin/mips64el-linux-gnuabi64-gcc-7\" cxx=\"[START_DIR]/mips64el_toolchain_linux/bin/mips64el-linux-gnuabi64-g++-7\" extra_cflags=[\"-Wno-format-truncation\", \"-Wno-uninitialized\", \"-DDUMMY_mips64el_toolchain_linux_version=42\", \"-Wno-strict-overflow\"] extra_ldflags=[\"-L[START_DIR]/mips64el_toolchain_linux/mips64el-linux-gnuabi64/lib\"] is_debug=false skia_enable_gpu=false skia_use_fontconfig=false skia_use_system_freetype2=false target_cpu=\"loongson3a\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/mips64el_toolchain_linux/lib/x86_64-linux-gnu/",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "gn gen"
   },
   {
     "cmd": [
       "ninja",
-      "-k",
-      "0",
       "-C",
       "[START_DIR]/cache/work/skia/out/Build-Debian9-GCC-loongson3a-Release/Release"
     ],
@@ -54,7 +52,7 @@
     "env": {
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/mips64el_toolchain_linux/lib/x86_64-linux-gnu/",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "ninja"
   },
@@ -62,7 +60,7 @@
     "cmd": [
       "python",
       "-u",
-      "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products_whitelist = ['bookmaker', 'dm', 'dm.exe', 'dm.app', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'nanobench', 'nanobench.exe', 'skpbench', 'skpbench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skiaserve', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk', 'whitelist_devices.json']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products_whitelist:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
+      "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products_whitelist = ['dm', 'dm.exe', 'dm.app', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'hello-opencl', 'hello-opencl.exe', 'nanobench', 'nanobench.exe', 'skpbench', 'skpbench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skiaserve', 'skottie_tool', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk', 'whitelist_devices.json']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products_whitelist:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
       "[START_DIR]/cache/work/skia/out/Build-Debian9-GCC-loongson3a-Release/Release",
       "[START_DIR]/[SWARM_OUT_DIR]/out/Release"
     ],
@@ -77,7 +75,7 @@
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@src = sys.argv[1]@@@",
       "@@@STEP_LOG_LINE@python.inline@dst = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@build_products_whitelist = ['bookmaker', 'dm', 'dm.exe', 'dm.app', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'nanobench', 'nanobench.exe', 'skpbench', 'skpbench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skiaserve', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk', 'whitelist_devices.json']@@@",
+      "@@@STEP_LOG_LINE@python.inline@build_products_whitelist = ['dm', 'dm.exe', 'dm.app', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'hello-opencl', 'hello-opencl.exe', 'nanobench', 'nanobench.exe', 'skpbench', 'skpbench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skiaserve', 'skottie_tool', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk', 'whitelist_devices.json']@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@try:@@@",
       "@@@STEP_LOG_LINE@python.inline@  os.makedirs(dst)@@@",
@@ -97,8 +95,6 @@
     ]
   },
   {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "name": "$result"
   }
 ]

@@ -5,24 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapDevice.h"
-#include "SkDraw.h"
-#include "SkImageFilter.h"
-#include "SkImageFilterCache.h"
-#include "SkMallocPixelRef.h"
-#include "SkMakeUnique.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPixelRef.h"
-#include "SkPixmap.h"
-#include "SkRasterClip.h"
-#include "SkRasterHandleAllocator.h"
-#include "SkShader.h"
-#include "SkSpecialImage.h"
-#include "SkSurface.h"
-#include "SkTLazy.h"
-#include "SkVertices.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRasterHandleAllocator.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkVertices.h"
+#include "src/core/SkBitmapDevice.h"
+#include "src/core/SkDraw.h"
+#include "src/core/SkGlyphRun.h"
+#include "src/core/SkImageFilterCache.h"
+#include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/core/SkStrikeCache.h"
+#include "src/core/SkTLazy.h"
 
 struct Bounder {
     SkRect  fBounds;
@@ -78,10 +79,20 @@ public:
         fNeedsTiling = clipR.right() > kMaxDim || clipR.bottom() > kMaxDim;
         if (fNeedsTiling) {
             if (bounds) {
-                SkRect devBounds;
-                dev->ctm().mapRect(&devBounds, *bounds);
-                if (devBounds.intersect(SkRect::Make(clipR))) {
-                    fSrcBounds = devBounds.roundOut();
+                // Make sure we round first, and then intersect. We can't rely on promoting the
+                // clipR to floats (and then intersecting with devBounds) since promoting
+                // int --> float can make the float larger than the int.
+                // rounding(out) first runs the risk of clamping if the float is larger an intmax
+                // but our roundOut() is saturating, which is fine for this use case
+                //
+                // e.g. the older version of this code did this:
+                //    devBounds = mapRect(bounds);
+                //    if (devBounds.intersect(SkRect::Make(clipR))) {
+                //        fSrcBounds = devBounds.roundOut();
+                // The problem being that the promotion of clipR to SkRect was unreliable
+                //
+                fSrcBounds = dev->ctm().mapRect(*bounds).roundOut();
+                if (fSrcBounds.intersect(clipR)) {
                     // Check again, now that we have computed srcbounds.
                     fNeedsTiling = fSrcBounds.right() > kMaxDim || fSrcBounds.bottom() > kMaxDim;
                 } else {
@@ -187,53 +198,28 @@ public:
     }
 };
 
-class SkColorTable;
-
 static bool valid_for_bitmap_device(const SkImageInfo& info,
                                     SkAlphaType* newAlphaType) {
-    if (info.width() < 0 || info.height() < 0) {
+    if (info.width() < 0 || info.height() < 0 || kUnknown_SkColorType == info.colorType()) {
         return false;
     }
 
-    // TODO: can we stop supporting kUnknown in SkBitmkapDevice?
-    if (kUnknown_SkColorType == info.colorType()) {
-        if (newAlphaType) {
-            *newAlphaType = kUnknown_SkAlphaType;
-        }
-        return true;
-    }
-
-    SkAlphaType canonicalAlphaType = info.alphaType();
-
-    switch (info.colorType()) {
-        case kAlpha_8_SkColorType:
-        case kARGB_4444_SkColorType:
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-        case kRGBA_1010102_SkColorType:
-        case kRGBA_F16_SkColorType:
-            break;
-        case kGray_8_SkColorType:
-        case kRGB_565_SkColorType:
-        case kRGB_888x_SkColorType:
-        case kRGB_101010x_SkColorType:
-            canonicalAlphaType = kOpaque_SkAlphaType;
-            break;
-        default:
-            return false;
-    }
-
     if (newAlphaType) {
-        *newAlphaType = canonicalAlphaType;
+        *newAlphaType = SkColorTypeIsAlwaysOpaque(info.colorType()) ? kOpaque_SkAlphaType
+                                                                    : info.alphaType();
     }
+
     return true;
 }
 
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
-    : INHERITED(bitmap.info(), SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType))
-    , fBitmap(bitmap)
-    , fRCStack(bitmap.width(), bitmap.height())
-{
+        : INHERITED(bitmap.info(), SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType))
+        , fBitmap(bitmap)
+        , fRCStack(bitmap.width(), bitmap.height())
+        , fGlyphPainter(this->surfaceProps(),
+                        bitmap.colorType(),
+                        bitmap.colorSpace(),
+                        SkStrikeCache::GlobalStrikeCache()) {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
 }
 
@@ -243,11 +229,14 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& info) {
 
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps,
                                SkRasterHandleAllocator::Handle hndl, const SkBitmap* coverage)
-    : INHERITED(bitmap.info(), surfaceProps)
-    , fBitmap(bitmap)
-    , fRasterHandle(hndl)
-    , fRCStack(bitmap.width(), bitmap.height())
-{
+        : INHERITED(bitmap.info(), surfaceProps)
+        , fBitmap(bitmap)
+        , fRasterHandle(hndl)
+        , fRCStack(bitmap.width(), bitmap.height())
+        , fGlyphPainter(this->surfaceProps(),
+                        bitmap.colorType(),
+                        bitmap.colorSpace(),
+                        SkStrikeCache::GlobalStrikeCache()) {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
 
     if (coverage) {
@@ -372,7 +361,7 @@ void SkBitmapDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
     path.addOval(oval);
     // call the VIRTUAL version, so any subclasses who do handle drawPath aren't
     // required to override drawOval.
-    this->drawPath(path, paint, nullptr, true);
+    this->drawPath(path, paint, true);
 }
 
 void SkBitmapDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
@@ -382,48 +371,30 @@ void SkBitmapDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     path.addRRect(rrect);
     // call the VIRTUAL version, so any subclasses who do handle drawPath aren't
     // required to override drawRRect.
-    this->drawPath(path, paint, nullptr, true);
+    this->drawPath(path, paint, true);
 #else
     LOOP_TILER( drawRRect(rrect, paint), Bounder(rrect.getBounds(), paint))
 #endif
 }
 
 void SkBitmapDevice::drawPath(const SkPath& path,
-                              const SkPaint& paint, const SkMatrix* prePathMatrix,
+                              const SkPaint& paint,
                               bool pathIsMutable) {
     const SkRect* bounds = nullptr;
-    SkRect storage;
-    if (SkDrawTiler::NeedsTiling(this)) {
-        if (!path.isInverseFillType()) {
-            if (prePathMatrix) {
-                prePathMatrix->mapRect(&storage, path.getBounds());
-                bounds = &storage;
-            } else {
-                bounds = &path.getBounds();
-            }
-        }
+    if (SkDrawTiler::NeedsTiling(this) && !path.isInverseFillType()) {
+        bounds = &path.getBounds();
     }
     SkDrawTiler tiler(this, bounds ? Bounder(*bounds, paint).bounds() : nullptr);
     if (tiler.needsTiling()) {
         pathIsMutable = false;
     }
     while (const SkDraw* draw = tiler.next()) {
-        draw->drawPath(path, paint, prePathMatrix, pathIsMutable);
+        draw->drawPath(path, paint, nullptr, pathIsMutable);
     }
-}
-
-void SkBitmapDevice::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
-                                const SkPaint& paint) {
-    SkMatrix matrix = SkMatrix::MakeTrans(x, y);
-    LogDrawScaleFactor(SkMatrix::Concat(this->ctm(), matrix), paint.getFilterQuality());
-    this->drawBitmap(bitmap, matrix, nullptr, paint);
 }
 
 void SkBitmapDevice::drawBitmap(const SkBitmap& bitmap, const SkMatrix& matrix,
                                 const SkRect* dstOrNull, const SkPaint& paint) {
-    // are we ever given a dst-rect AND have a maskfilter (which might change the bounds)?
-    SkASSERT(!dstOrNull || !paint.getMaskFilter());
-
     const SkRect* bounds = dstOrNull;
     SkRect storage;
     if (!bounds && SkDrawTiler::NeedsTiling(this)) {
@@ -434,7 +405,7 @@ void SkBitmapDevice::drawBitmap(const SkBitmap& bitmap, const SkMatrix& matrix,
             bounds = &storage;
         }
     }
-    LOOP_TILER(drawBitmap(bitmap, matrix, dstOrNull, paint), bounds);
+    LOOP_TILER(drawBitmap(bitmap, matrix, dstOrNull, paint), bounds)
 }
 
 static inline bool CanApplyDstMatrixAsCTM(const SkMatrix& m, const SkPaint& paint) {
@@ -456,7 +427,7 @@ void SkBitmapDevice::drawBitmapRect(const SkBitmap& bitmap,
     SkRect      bitmapBounds, tmpSrc, tmpDst;
     SkBitmap    tmpBitmap;
 
-    bitmapBounds.isetWH(bitmap.width(), bitmap.height());
+    bitmapBounds.setIWH(bitmap.width(), bitmap.height());
 
     // Compute matrix from the two rectangles
     if (src) {
@@ -466,7 +437,7 @@ void SkBitmapDevice::drawBitmapRect(const SkBitmap& bitmap,
     }
     matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
 
-    LogDrawScaleFactor(SkMatrix::Concat(this->ctm(), matrix), paint.getFilterQuality());
+    LogDrawScaleFactor(this->ctm(), matrix, paint.getFilterQuality());
 
     const SkRect* dstPtr = &dst;
     const SkBitmap* bitmapPtr = &bitmap;
@@ -523,7 +494,7 @@ void SkBitmapDevice::drawBitmapRect(const SkBitmap& bitmap,
                                                         SkIntToScalar(bitmapPtr->height()));
 #else
         SkRect extractedBitmapBounds;
-        extractedBitmapBounds.isetWH(bitmapPtr->width(), bitmapPtr->height());
+        extractedBitmapBounds.setIWH(bitmapPtr->width(), bitmapPtr->height());
 #endif
         if (extractedBitmapBounds == tmpSrc) {
             // no fractional part in src, we can just call drawBitmap
@@ -548,15 +519,15 @@ void SkBitmapDevice::drawBitmapRect(const SkBitmap& bitmap,
     // if its mutable, since that precaution is not needed (give the short lifetime of the shader).
 
     // construct a shader, so we can call drawRect with the dst
-    auto s = SkMakeBitmapShader(*bitmapPtr, SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
-                                &matrix, kNever_SkCopyPixelsMode);
+    auto s = SkMakeBitmapShaderForPaint(paint, *bitmapPtr, SkTileMode::kClamp,
+                                        SkTileMode::kClamp, &matrix, kNever_SkCopyPixelsMode);
     if (!s) {
         return;
     }
 
     SkPaint paintWithShader(paint);
     paintWithShader.setStyle(SkPaint::kFill_Style);
-    paintWithShader.setShader(s);
+    paintWithShader.setShader(std::move(s));
 
     // Call ourself, in case the subclass wanted to share this setup code
     // but handle the drawRect code themselves.
@@ -567,24 +538,16 @@ void SkBitmapDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPa
     BDDraw(this).drawSprite(bitmap, x, y, paint);
 }
 
-void SkBitmapDevice::drawText(const void* text, size_t len,
-                              SkScalar x, SkScalar y, const SkPaint& paint) {
-    SkBitmapDeviceFilteredSurfaceProps props(fBitmap, paint, fSurfaceProps);
-    LOOP_TILER( drawText((const char*)text, len, x, y, paint, &props()), nullptr)
+void SkBitmapDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
+    LOOP_TILER( drawGlyphRunList(glyphRunList, &fGlyphPainter), nullptr )
 }
 
-void SkBitmapDevice::drawPosText(const void* text, size_t len, const SkScalar xpos[],
-                                 int scalarsPerPos, const SkPoint& offset, const SkPaint& paint) {
-    SkBitmapDeviceFilteredSurfaceProps props(fBitmap, paint, fSurfaceProps);
-    LOOP_TILER( drawPosText((const char*)text, len, xpos, scalarsPerPos, offset, paint, &props()),
-                nullptr)
-}
-
-void SkBitmapDevice::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
-                                  const SkPaint& paint) {
+void SkBitmapDevice::drawVertices(const SkVertices* vertices, const SkVertices::Bone bones[],
+                                  int boneCount, SkBlendMode bmode, const SkPaint& paint) {
     BDDraw(this).drawVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
-                              vertices->texCoords(), vertices->colors(), bmode,
-                              vertices->indices(), vertices->indexCount(), paint);
+                              vertices->texCoords(), vertices->colors(), vertices->boneIndices(),
+                              vertices->boneWeights(), bmode, vertices->indices(),
+                              vertices->indexCount(), paint, bones, boneCount);
 }
 
 void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& origPaint) {
@@ -604,13 +567,23 @@ void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPain
         draw.fMatrix = &SkMatrix::I();
         draw.fRC = &fRCStack.rc();
         SkPaint paint(origPaint);
-        paint.setShader(SkShader::MakeBitmapShader(src->fBitmap, SkShader::kClamp_TileMode,
-                                                   SkShader::kClamp_TileMode, nullptr));
+        paint.setShader(src->fBitmap.makeShader());
         draw.drawBitmap(*src->fCoverage.get(),
                         SkMatrix::MakeTrans(SkIntToScalar(x),SkIntToScalar(y)), nullptr, paint);
     } else {
         this->drawSprite(src->fBitmap, x, y, *paint);
     }
+}
+
+void SkBitmapDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
+                               const SkRect tex[], const SkColor colors[], int count,
+                               SkBlendMode mode, const SkPaint& paint) {
+    // set this to true for performance comparisons with the old drawVertices way
+    if (false) {
+        this->INHERITED::drawAtlas(atlas, xform, tex, colors, count, mode, paint);
+        return;
+    }
+    BDDraw(this).drawAtlas(atlas, xform, tex, colors, count, mode, paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -652,10 +625,10 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPain
             SkMatrix::MakeTrans(SkIntToScalar(-x), SkIntToScalar(-y)), this->ctm());
         const SkIRect clipBounds = fRCStack.rc().getBounds().makeOffset(-x, -y);
         sk_sp<SkImageFilterCache> cache(this->getImageFilterCache());
-        SkImageFilter::OutputProperties outputProperties(fBitmap.colorSpace());
-        SkImageFilter::Context ctx(matrix, clipBounds, cache.get(), outputProperties);
+        SkImageFilter_Base::Context ctx(matrix, clipBounds, cache.get(), fBitmap.colorType(),
+                                        fBitmap.colorSpace(), src);
 
-        filteredImage = filter->filterImage(src, ctx, &offset);
+        filteredImage = as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset);
         if (!filteredImage) {
             return;
         }
@@ -728,7 +701,10 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPain
 
     SkAutoDeviceCTMRestore adctmr(this, maskMatrix);
     paint.writable()->setShader(srcImage->makeShader(&shaderMatrix));
-    this->drawImage(mask.get(), maskBounds.x(), maskBounds.y(), *paint);
+    this->drawImageRect(mask.get(), nullptr,
+                        SkRect::MakeXYWH(maskBounds.x(), maskBounds.y(),
+                                         mask->width(), mask->height()),
+                        *paint, SkCanvas::kFast_SrcRectConstraint);
 }
 
 sk_sp<SkSpecialImage> SkBitmapDevice::makeSpecial(const SkBitmap& bitmap) {
@@ -736,12 +712,16 @@ sk_sp<SkSpecialImage> SkBitmapDevice::makeSpecial(const SkBitmap& bitmap) {
 }
 
 sk_sp<SkSpecialImage> SkBitmapDevice::makeSpecial(const SkImage* image) {
-    return SkSpecialImage::MakeFromImage(SkIRect::MakeWH(image->width(), image->height()),
-                                         image->makeNonTextureImage(), fBitmap.colorSpace());
+    return SkSpecialImage::MakeFromImage(nullptr, SkIRect::MakeWH(image->width(), image->height()),
+                                         image->makeNonTextureImage());
 }
 
-sk_sp<SkSpecialImage> SkBitmapDevice::snapSpecial() {
-    return this->makeSpecial(fBitmap);
+sk_sp<SkSpecialImage> SkBitmapDevice::snapSpecial(const SkIRect& bounds, bool forceCopy) {
+    if (forceCopy) {
+        return SkSpecialImage::CopyFromRaster(bounds, fBitmap, &this->surfaceProps());
+    } else {
+        return SkSpecialImage::MakeFromRaster(bounds, fBitmap);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -822,10 +802,10 @@ void SkBitmapDevice::validateDevBounds(const SkIRect& drawClipBounds) {
 SkBaseDevice::ClipType SkBitmapDevice::onGetClipType() const {
     const SkRasterClip& rc = fRCStack.rc();
     if (rc.isEmpty()) {
-        return kEmpty_ClipType;
+        return ClipType::kEmpty;
     } else if (rc.isRect()) {
-        return kRect_ClipType;
+        return ClipType::kRect;
     } else {
-        return kComplex_ClipType;
+        return ClipType::kComplex;
     }
 }

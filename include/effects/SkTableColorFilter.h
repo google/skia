@@ -8,7 +8,7 @@
 #ifndef SkTableColorFilter_DEFINED
 #define SkTableColorFilter_DEFINED
 
-#include "SkColorFilter.h"
+#include "include/core/SkColorFilter.h"
 
 class SK_API SkTableColorFilter {
 public:
@@ -36,7 +36,7 @@ public:
                                          const uint8_t tableG[256],
                                          const uint8_t tableB[256]);
 
-    static void InitializeFlattenables();
+    static void RegisterFlattenables();
 };
 
 #endif

@@ -8,8 +8,9 @@
 #ifndef GpuTimer_DEFINED
 #define GpuTimer_DEFINED
 
-#include "SkTypes.h"
-#include "SkExchange.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkExchange.h"
+
 #include <chrono>
 
 namespace sk_gpu_test {

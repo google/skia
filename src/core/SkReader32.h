@@ -9,12 +9,13 @@
 #ifndef SkReader32_DEFINED
 #define SkReader32_DEFINED
 
-#include "SkData.h"
-#include "SkMatrix.h"
-#include "SkPath.h"
-#include "SkRegion.h"
-#include "SkRRect.h"
-#include "SkScalar.h"
+#include "include/core/SkData.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkScalar.h"
+#include "include/private/SkNoncopyable.h"
 
 class SkString;
 

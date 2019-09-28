@@ -5,12 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkInterpolator.h"
+#include "include/utils/SkInterpolator.h"
 
-#include "SkFixed.h"
-#include "SkMath.h"
-#include "SkMalloc.h"
-#include "SkTSearch.h"
+#include "include/core/SkMath.h"
+#include "include/private/SkFixed.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkTSearch.h"
 
 SkInterpolatorBase::SkInterpolatorBase() {
     fStorage    = nullptr;

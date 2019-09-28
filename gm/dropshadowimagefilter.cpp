@@ -5,12 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkColorFilter.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkImageFilters.h"
+#include "include/utils/SkTextUtils.h"
+#include "tools/ToolUtils.h"
 
-#include "SkColorFilterImageFilter.h"
-#include "SkDropShadowImageFilter.h"
+#include <utility>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -40,12 +53,11 @@ static void draw_text(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> im
     paint.setImageFilter(std::move(imf));
     paint.setColor(SK_ColorGREEN);
     paint.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface(&paint);
-    paint.setTextSize(r.height()/2);
-    paint.setTextAlign(SkPaint::kCenter_Align);
+
+    SkFont font(ToolUtils::create_portable_typeface(), r.height() / 2);
     canvas->save();
     canvas->clipRect(r);
-    canvas->drawString("Text", r.centerX(), r.centerY(), paint);
+    SkTextUtils::DrawString(canvas, "Text", r.centerX(), r.centerY(), font, paint, SkTextUtils::kCenter_Align);
     canvas->restore();
 }
 
@@ -75,30 +87,20 @@ DEF_SIMPLE_GM(dropshadowimagefilter, canvas, 400, 656) {
         draw_bitmap, draw_path, draw_paint, draw_text
     };
 
-    sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(SK_ColorMAGENTA,
-                                                          SkBlendMode::kSrcIn));
-    sk_sp<SkImageFilter> cfif(SkColorFilterImageFilter::Make(std::move(cf), nullptr));
-    SkImageFilter::CropRect cropRect(SkRect::Make(SkIRect::MakeXYWH(10, 10, 44, 44)),
-                                     SkImageFilter::CropRect::kHasAll_CropEdge);
-    SkImageFilter::CropRect bogusRect(SkRect::Make(SkIRect::MakeXYWH(-100, -100, 10, 10)),
-                                      SkImageFilter::CropRect::kHasAll_CropEdge);
+    sk_sp<SkColorFilter> cf(SkColorFilters::Blend(SK_ColorMAGENTA, SkBlendMode::kSrcIn));
+    sk_sp<SkImageFilter> cfif(SkImageFilters::ColorFilter(std::move(cf), nullptr));
+    SkIRect cropRect = SkIRect::MakeXYWH(10, 10, 44, 44);
+    SkIRect bogusRect = SkIRect::MakeXYWH(-100, -100, 10, 10);
 
     sk_sp<SkImageFilter> filters[] = {
         nullptr,
-        SkDropShadowImageFilter::Make(7.0f, 0.0f, 0.0f, 3.0f, SK_ColorBLUE,
-            SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr),
-        SkDropShadowImageFilter::Make(0.0f, 7.0f, 3.0f, 0.0f, SK_ColorBLUE,
-            SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr),
-        SkDropShadowImageFilter::Make(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
-            SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr),
-        SkDropShadowImageFilter::Make(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
-            SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, std::move(cfif)),
-        SkDropShadowImageFilter::Make(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
-            SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr, &cropRect),
-        SkDropShadowImageFilter::Make(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
-            SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr, &bogusRect),
-        SkDropShadowImageFilter::Make(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
-            SkDropShadowImageFilter::kDrawShadowOnly_ShadowMode, nullptr),
+        SkImageFilters::DropShadow(7.0f, 0.0f, 0.0f, 3.0f, SK_ColorBLUE, nullptr),
+        SkImageFilters::DropShadow(0.0f, 7.0f, 3.0f, 0.0f, SK_ColorBLUE, nullptr),
+        SkImageFilters::DropShadow(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, nullptr),
+        SkImageFilters::DropShadow(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, std::move(cfif)),
+        SkImageFilters::DropShadow(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, nullptr, &cropRect),
+        SkImageFilters::DropShadow(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, nullptr, &bogusRect),
+        SkImageFilters::DropShadowOnly(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, nullptr),
     };
 
     SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));

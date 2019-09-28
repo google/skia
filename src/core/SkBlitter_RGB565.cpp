@@ -5,15 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkCoreBlitters.h"
-#include "SkColorData.h"
-#include "SkShader.h"
-#include "SkUtils.h"
-#include "SkXfermodePriv.h"
-#include "SkBlitMask.h"
-#include "SkColorData.h"
+#include "include/core/SkShader.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkColorData.h"
+#include "src/core/SkCoreBlitters.h"
+#include "src/core/SkXfermodePriv.h"
+#include "src/utils/SkUTF.h"
 
-#include "SkNx.h"
+#include "include/private/SkNx.h"
 
 static void D16_S32X_src(uint16_t dst[], const SkPMColor src[], int count, uint8_t coverage) {
     SkASSERT(coverage == 0xFF);
@@ -74,9 +73,6 @@ bool SkRGB565_Shader_Blitter::Supports(const SkPixmap& device, const SkPaint& pa
     }
     if (paint.getBlendMode() != SkBlendMode::kSrcOver &&
         paint.getBlendMode() != SkBlendMode::kSrc) {
-        return false;
-    }
-    if (paint.isLCDRenderText()) {
         return false;
     }
     if (paint.isDither()) {

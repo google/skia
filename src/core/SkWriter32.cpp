@@ -5,10 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkMatrixPriv.h"
-#include "SkReader32.h"
-#include "SkString.h"
-#include "SkWriter32.h"
+#include "include/core/SkString.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkMatrixPriv.h"
+#include "src/core/SkReader32.h"
+
+#include "src/core/SkWriter32.h"
 
 void SkWriter32::writeMatrix(const SkMatrix& matrix) {
     size_t size = SkMatrixPriv::WriteToMemory(matrix, nullptr);

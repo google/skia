@@ -4,21 +4,24 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
-#include "SkView.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkGraphics.h"
-#include "SkPath.h"
-#include "SkRegion.h"
-#include "SkShader.h"
-#include "SkUtils.h"
-#include "SkColorPriv.h"
-#include "SkColorFilter.h"
-#include "SkTime.h"
-#include "SkTypeface.h"
 
-class PathClipView : public SampleView {
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkTime.h"
+#include "include/core/SkTypeface.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/private/SkTo.h"
+#include "samplecode/Sample.h"
+#include "src/utils/SkUTF.h"
+
+#include <utility>
+
+class PathClipView : public Sample {
 public:
     SkRect fOval;
     SkPoint fCenter;
@@ -26,13 +29,7 @@ public:
     PathClipView() : fOval(SkRect::MakeWH(200, 50)), fCenter(SkPoint::Make(250, 250)) {}
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "PathClip");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("PathClip"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         const SkRect oval = fOval.makeOffset(fCenter.fX - fOval.centerX(),
@@ -55,8 +52,8 @@ protected:
         canvas->drawOval(oval, p);
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
-        return new Click(this);
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
+        return new Click();
     }
 
     bool onClick(Click* click) override {
@@ -65,7 +62,7 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 DEF_SAMPLE( return new PathClipView; )
 
@@ -79,7 +76,8 @@ static int clip_line(const SkRect& bounds, SkPoint p0, SkPoint p1, SkPoint edges
     }
 
     if (p0.fY > p1.fY) {
-        SkTSwap(p0, p1);
+        using std::swap;
+        swap(p0, p1);
     }
     // now we're monotonic in Y: p0 <= p1
     if (p1.fY <= bounds.top() || p0.fY >= bounds.bottom()) {
@@ -99,7 +97,8 @@ static int clip_line(const SkRect& bounds, SkPoint p0, SkPoint p1, SkPoint edges
     // Now p0...p1 is strictly inside bounds vertically, so we just need to clip horizontally
 
     if (p0.fX > p1.fX) {
-        SkTSwap(p0, p1);
+        using std::swap;
+        swap(p0, p1);
     }
     // now we're left-to-right: p0 .. p1
 
@@ -146,7 +145,7 @@ static void draw_clipped_line(SkCanvas* canvas, const SkRect& bounds,
 
 // Demonstrate edge-clipping that is used in the scan converter
 //
-class EdgeClipView : public SampleView {
+class EdgeClipView : public Sample {
     enum {
         N = 3
     };
@@ -166,13 +165,7 @@ public:
     }
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "EdgeClip");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("EdgeClip"); }
 
     static SkScalar snap(SkScalar x) {
         return SkScalarRoundToScalar(x * 0.5f) * 2;
@@ -234,21 +227,21 @@ protected:
 
     class MyClick : public Click {
     public:
-        MyClick(SkView* view) : Click(view) {}
+        MyClick() {}
         virtual void handleMove() = 0;
     };
 
     class VertClick : public MyClick {
         SkPoint* fPt;
     public:
-        VertClick(SkView* view, SkPoint* pt) : MyClick(view), fPt(pt) {}
+        VertClick(SkPoint* pt) : fPt(pt) {}
         void handleMove() override { *fPt = snap(fCurr); }
     };
 
     class DragRectClick : public MyClick {
         SkRect* fRect;
     public:
-        DragRectClick(SkView* view, SkRect* rect) : MyClick(view), fRect(rect) {}
+        DragRectClick(SkRect* rect) : fRect(rect) {}
         void handleMove() override { fRect->offset(fCurr.x() - fPrev.x(), fCurr.y() - fPrev.y()); }
     };
 
@@ -257,8 +250,7 @@ protected:
         SkPoint* fPoly;
         int fCount;
     public:
-        DragPolyClick(SkView* view, SkPoint poly[], int count)
-            : MyClick(view), fPoly(poly), fCount(count)
+        DragPolyClick(SkPoint poly[], int count) : fPoly(poly), fCount(count)
         {
             SkASSERT((size_t)count <= SK_ARRAY_COUNT(fSrc));
             memcpy(fSrc, poly, count * sizeof(SkPoint));
@@ -274,7 +266,7 @@ protected:
 
     class DoNothingClick : public MyClick {
     public:
-        DoNothingClick(SkView* view) : MyClick(view) {}
+        DoNothingClick() {}
         void handleMove() override {}
     };
 
@@ -285,23 +277,23 @@ protected:
         return dx*dx + dy*dy <= rad*rad;
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
         for (int i = 0; i < N; ++i) {
             if (hit_test(fPoly[i], x, y)) {
-                return new VertClick(this, &fPoly[i]);
+                return new VertClick(&fPoly[i]);
             }
         }
 
         SkPath path;
         path.addPoly(fPoly, N, true);
         if (path.contains(x, y)) {
-            return new DragPolyClick(this, fPoly, N);
+            return new DragPolyClick(fPoly, N);
         }
 
         if (fClip.intersects(SkRect::MakeLTRB(x - 1, y - 1, x + 1, y + 1))) {
-            return new DragRectClick(this, &fClip);
+            return new DragRectClick(&fClip);
         }
-        return new DoNothingClick(this);
+        return new DoNothingClick();
     }
 
     bool onClick(Click* click) override {
@@ -310,6 +302,7 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
+
 DEF_SAMPLE( return new EdgeClipView; )

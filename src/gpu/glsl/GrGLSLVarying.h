@@ -8,13 +8,29 @@
 #ifndef GrGLSLVarying_DEFINED
 #define GrGLSLVarying_DEFINED
 
-#include "GrAllocator.h"
-#include "GrGeometryProcessor.h"
-#include "GrShaderVar.h"
-#include "GrTypesPriv.h"
-#include "glsl/GrGLSLProgramDataManager.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrAllocator.h"
+#include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrShaderVar.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 
 class GrGLSLProgramBuilder;
+
+#ifdef SK_DEBUG
+static bool is_matrix(GrSLType type) {
+    switch (type) {
+        case kFloat2x2_GrSLType:
+        case kFloat3x3_GrSLType:
+        case kFloat4x4_GrSLType:
+        case kHalf2x2_GrSLType:
+        case kHalf3x3_GrSLType:
+        case kHalf4x4_GrSLType:
+            return true;
+        default:
+            return false;
+    }
+}
+#endif
 
 class GrGLSLVarying {
 public:
@@ -25,9 +41,16 @@ public:
     };
 
     GrGLSLVarying() = default;
-    GrGLSLVarying(GrSLType type, Scope scope = Scope::kVertToFrag) : fType(type), fScope(scope) {}
+    GrGLSLVarying(GrSLType type, Scope scope = Scope::kVertToFrag)
+        : fType(type)
+        , fScope(scope) {
+        // Metal doesn't support varying matrices, so we disallow them everywhere for consistency
+        SkASSERT(!is_matrix(type));
+    }
 
     void reset(GrSLType type, Scope scope = Scope::kVertToFrag) {
+        // Metal doesn't support varying matrices, so we disallow them everywhere for consistency
+        SkASSERT(!is_matrix(type));
         *this = GrGLSLVarying();
         fType = type;
         fScope = scope;
@@ -104,7 +127,7 @@ public:
      * that will be set as the output varying for all emitted vertices.
      * TODO it might be nicer behavior to have a flag to declare output inside these calls
      */
-    void addPassThroughAttribute(const GrGeometryProcessor::Attribute*, const char* output,
+    void addPassThroughAttribute(const GrGeometryProcessor::Attribute&, const char* output,
                                  Interpolation = Interpolation::kInterpolated);
 
     void emitAttributes(const GrGeometryProcessor& gp);

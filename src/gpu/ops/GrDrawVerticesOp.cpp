@@ -5,32 +5,138 @@
  * found in the LICENSE file.
  */
 
-#include "GrDrawVerticesOp.h"
-#include "GrCaps.h"
-#include "GrDefaultGeoProcFactory.h"
-#include "GrOpFlushState.h"
-#include "SkGr.h"
+#include "src/core/SkRectPriv.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrDefaultGeoProcFactory.h"
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/ops/GrDrawVerticesOp.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
-std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrPaint&& paint,
-                                                 sk_sp<SkVertices> vertices,
-                                                 const SkMatrix& viewMatrix,
-                                                 GrAAType aaType,
-                                                 bool gammaCorrect,
-                                                 sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                                 GrPrimitiveType* overridePrimType) {
-    SkASSERT(vertices);
-    GrPrimitiveType primType = overridePrimType ? *overridePrimType
-                                                : SkVertexModeToGrPrimitiveType(vertices->mode());
-    return Helper::FactoryHelper<GrDrawVerticesOp>(std::move(paint), std::move(vertices), primType,
-                                                   aaType, gammaCorrect, std::move(colorSpaceXform),
-                                                   viewMatrix);
-}
+namespace {
 
-GrDrawVerticesOp::GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, GrColor color,
-                                   sk_sp<SkVertices> vertices, GrPrimitiveType primitiveType,
-                                   GrAAType aaType, bool gammaCorrect,
-                                   sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                   const SkMatrix& viewMatrix)
+class DrawVerticesOp final : public GrMeshDrawOp {
+private:
+    using Helper = GrSimpleMeshDrawOpHelper;
+
+public:
+    DEFINE_OP_CLASS_ID
+
+    DrawVerticesOp(const Helper::MakeArgs&, const SkPMColor4f&, sk_sp<SkVertices>,
+                   const SkVertices::Bone bones[], int boneCount, GrPrimitiveType, GrAAType,
+                   sk_sp<GrColorSpaceXform>, const SkMatrix& viewMatrix);
+
+    const char* name() const override { return "DrawVerticesOp"; }
+
+    void visitProxies(const VisitProxyFunc& func) const override {
+        fHelper.visitProxies(func);
+    }
+
+#ifdef SK_DEBUG
+    SkString dumpInfo() const override;
+#endif
+
+    FixedFunctionFlags fixedFunctionFlags() const override;
+
+    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
+                                      bool hasMixedSampledCoverage, GrClampType) override;
+
+private:
+    enum class ColorArrayType {
+        kPremulGrColor,
+        kSkColor,
+    };
+
+    void onPrepareDraws(Target*) override;
+    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
+
+    void drawVolatile(Target*);
+    void drawNonVolatile(Target*);
+
+    void fillBuffers(bool hasColorAttribute,
+                     bool hasLocalCoordsAttribute,
+                     size_t vertexStride,
+                     void* verts,
+                     uint16_t* indices) const;
+
+    void drawVertices(Target*,
+                      sk_sp<const GrGeometryProcessor>,
+                      sk_sp<const GrBuffer> vertexBuffer,
+                      int firstVertex,
+                      sk_sp<const GrBuffer> indexBuffer,
+                      int firstIndex);
+
+    sk_sp<GrGeometryProcessor> makeGP(const GrShaderCaps* shaderCaps,
+                                      bool* hasColorAttribute,
+                                      bool* hasLocalCoordAttribute) const;
+
+    GrPrimitiveType primitiveType() const { return fPrimitiveType; }
+    bool combinablePrimitive() const {
+        return GrPrimitiveType::kTriangles == fPrimitiveType ||
+               GrPrimitiveType::kLines == fPrimitiveType ||
+               GrPrimitiveType::kPoints == fPrimitiveType;
+    }
+
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps&) override;
+
+    struct Mesh {
+        SkPMColor4f fColor;  // Used if this->hasPerVertexColors() is false.
+        sk_sp<SkVertices> fVertices;
+        SkMatrix fViewMatrix;
+        bool fIgnoreTexCoords;
+        bool fIgnoreColors;
+
+        bool hasExplicitLocalCoords() const {
+            return fVertices->hasTexCoords() && !fIgnoreTexCoords;
+        }
+
+        bool hasPerVertexColors() const {
+            return fVertices->hasColors() && !fIgnoreColors;
+        }
+    };
+
+    bool isIndexed() const {
+        // Consistency enforced in onCombineIfPossible.
+        return fMeshes[0].fVertices->hasIndices();
+    }
+
+    bool requiresPerVertexColors() const {
+        return SkToBool(kRequiresPerVertexColors_Flag & fFlags);
+    }
+
+    bool anyMeshHasExplicitLocalCoords() const {
+        return SkToBool(kAnyMeshHasExplicitLocalCoords_Flag & fFlags);
+    }
+
+    bool hasMultipleViewMatrices() const {
+        return SkToBool(kHasMultipleViewMatrices_Flag & fFlags);
+    }
+
+    enum Flags {
+        kRequiresPerVertexColors_Flag       = 0x1,
+        kAnyMeshHasExplicitLocalCoords_Flag = 0x2,
+        kHasMultipleViewMatrices_Flag       = 0x4,
+    };
+
+    Helper fHelper;
+    SkSTArray<1, Mesh, true> fMeshes;
+    // GrPrimitiveType is more expressive than fVertices.mode() so it is used instead and we ignore
+    // the SkVertices mode (though fPrimitiveType may have been inferred from it).
+    GrPrimitiveType fPrimitiveType;
+    uint32_t fFlags;
+    int fVertexCount;
+    int fIndexCount;
+    ColorArrayType fColorArrayType;
+    sk_sp<GrColorSpaceXform> fColorSpaceXform;
+
+    typedef GrMeshDrawOp INHERITED;
+};
+
+DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
+                               sk_sp<SkVertices> vertices, const SkVertices::Bone bones[],
+                               int boneCount, GrPrimitiveType primitiveType, GrAAType aaType,
+                               sk_sp<GrColorSpaceXform> colorSpaceXform,
+                               const SkMatrix& viewMatrix)
         : INHERITED(ClassID())
         , fHelper(helperArgs, aaType)
         , fPrimitiveType(primitiveType)
@@ -41,9 +147,6 @@ GrDrawVerticesOp::GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, GrColor c
     fIndexCount = vertices->indexCount();
     fColorArrayType = vertices->hasColors() ? ColorArrayType::kSkColor
                                             : ColorArrayType::kPremulGrColor;
-    // GrColor is linearized (and gamut converted) during paint conversion, but SkColors need to be
-    // handled in the shader
-    fLinearizeColors = gammaCorrect && vertices->hasColors();
 
     Mesh& mesh = fMeshes.push_back();
     mesh.fColor = color;
@@ -52,12 +155,27 @@ GrDrawVerticesOp::GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, GrColor c
     mesh.fIgnoreTexCoords = false;
     mesh.fIgnoreColors = false;
 
+    if (mesh.fVertices->hasBones() && bones) {
+        // Perform the transformations on the CPU instead of the GPU.
+        mesh.fVertices = mesh.fVertices->applyBones(bones, boneCount);
+    } else {
+        SkASSERT(!bones || boneCount == 1);
+    }
+
     fFlags = 0;
     if (mesh.hasPerVertexColors()) {
         fFlags |= kRequiresPerVertexColors_Flag;
     }
     if (mesh.hasExplicitLocalCoords()) {
-        fFlags |= kAnyMeshHasExplicitLocalCoords;
+        fFlags |= kAnyMeshHasExplicitLocalCoords_Flag;
+    }
+
+    // Special case for meshes with a world transform but no bone weights.
+    // These will be considered normal vertices draws without bones.
+    if (!mesh.fVertices->hasBones() && boneCount == 1) {
+        SkMatrix worldTransform;
+        worldTransform.setAffine(bones[0].values);
+        mesh.fViewMatrix.preConcat(worldTransform);
     }
 
     IsZeroArea zeroArea;
@@ -66,10 +184,15 @@ GrDrawVerticesOp::GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, GrColor c
     } else {
         zeroArea = IsZeroArea::kNo;
     }
-    this->setTransformedBounds(mesh.fVertices->bounds(), viewMatrix, HasAABloat::kNo, zeroArea);
+
+    this->setTransformedBounds(mesh.fVertices->bounds(),
+                                mesh.fViewMatrix,
+                                HasAABloat::kNo,
+                                zeroArea);
 }
 
-SkString GrDrawVerticesOp::dumpInfo() const {
+#ifdef SK_DEBUG
+SkString DrawVerticesOp::dumpInfo() const {
     SkString string;
     string.appendf("PrimType: %d, MeshCount %d, VCount: %d, ICount: %d\n", (int)fPrimitiveType,
                    fMeshes.count(), fVertexCount, fIndexCount);
@@ -77,37 +200,38 @@ SkString GrDrawVerticesOp::dumpInfo() const {
     string += INHERITED::dumpInfo();
     return string;
 }
+#endif
 
-GrDrawOp::FixedFunctionFlags GrDrawVerticesOp::fixedFunctionFlags() const {
+GrDrawOp::FixedFunctionFlags DrawVerticesOp::fixedFunctionFlags() const {
     return fHelper.fixedFunctionFlags();
 }
 
-GrDrawOp::RequiresDstTexture GrDrawVerticesOp::finalize(const GrCaps& caps,
-                                                        const GrAppliedClip* clip,
-                                                        GrPixelConfigIsClamped dstIsClamped) {
+GrProcessorSet::Analysis DrawVerticesOp::finalize(
+        const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
+        GrClampType clampType) {
     GrProcessorAnalysisColor gpColor;
     if (this->requiresPerVertexColors()) {
         gpColor.setToUnknown();
     } else {
         gpColor.setToConstant(fMeshes.front().fColor);
     }
-    auto result = fHelper.xpRequiresDstTexture(caps, clip, dstIsClamped,
-                                               GrProcessorAnalysisCoverage::kNone, &gpColor);
+    auto result = fHelper.finalizeProcessors(caps, clip, hasMixedSampledCoverage, clampType,
+                                             GrProcessorAnalysisCoverage::kNone, &gpColor);
     if (gpColor.isConstant(&fMeshes.front().fColor)) {
         fMeshes.front().fIgnoreColors = true;
         fFlags &= ~kRequiresPerVertexColors_Flag;
         fColorArrayType = ColorArrayType::kPremulGrColor;
-        fLinearizeColors = false;
     }
     if (!fHelper.usesLocalCoords()) {
         fMeshes[0].fIgnoreTexCoords = true;
-        fFlags &= ~kAnyMeshHasExplicitLocalCoords;
+        fFlags &= ~kAnyMeshHasExplicitLocalCoords_Flag;
     }
     return result;
 }
 
-sk_sp<GrGeometryProcessor> GrDrawVerticesOp::makeGP(bool* hasColorAttribute,
-                                                    bool* hasLocalCoordAttribute) const {
+sk_sp<GrGeometryProcessor> DrawVerticesOp::makeGP(const GrShaderCaps* shaderCaps,
+                                                  bool* hasColorAttribute,
+                                                  bool* hasLocalCoordAttribute) const {
     using namespace GrDefaultGeoProcFactory;
     LocalCoords::Type localCoordsType;
     if (fHelper.usesLocalCoords()) {
@@ -127,65 +251,180 @@ sk_sp<GrGeometryProcessor> GrDrawVerticesOp::makeGP(bool* hasColorAttribute,
 
     Color color(fMeshes[0].fColor);
     if (this->requiresPerVertexColors()) {
-        color.fType = (fColorArrayType == ColorArrayType::kPremulGrColor)
-                              ? Color::kPremulGrColorAttribute_Type
-                              : Color::kUnpremulSkColorAttribute_Type;
-        color.fLinearize = fLinearizeColors;
-        color.fColorSpaceXform = fColorSpaceXform;
+        if (fColorArrayType == ColorArrayType::kPremulGrColor) {
+            color.fType = Color::kPremulGrColorAttribute_Type;
+        } else {
+            color.fType = Color::kUnpremulSkColorAttribute_Type;
+            color.fColorSpaceXform = fColorSpaceXform;
+        }
         *hasColorAttribute = true;
     } else {
         *hasColorAttribute = false;
-    };
+    }
+
     const SkMatrix& vm = this->hasMultipleViewMatrices() ? SkMatrix::I() : fMeshes[0].fViewMatrix;
-    return GrDefaultGeoProcFactory::Make(color, Coverage::kSolid_Type, localCoordsType, vm);
+
+    return GrDefaultGeoProcFactory::Make(shaderCaps,
+                                            color,
+                                            Coverage::kSolid_Type,
+                                            localCoordsType,
+                                            vm);
 }
 
-void GrDrawVerticesOp::onPrepareDraws(Target* target) {
+void DrawVerticesOp::onPrepareDraws(Target* target) {
+    bool hasMapBufferSupport = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
+    if (fMeshes[0].fVertices->isVolatile() || !hasMapBufferSupport) {
+        this->drawVolatile(target);
+    } else {
+        this->drawNonVolatile(target);
+    }
+}
+
+void DrawVerticesOp::drawVolatile(Target* target) {
     bool hasColorAttribute;
     bool hasLocalCoordsAttribute;
-    sk_sp<GrGeometryProcessor> gp = this->makeGP(&hasColorAttribute, &hasLocalCoordsAttribute);
-    size_t vertexStride = gp->getVertexStride();
+    sk_sp<GrGeometryProcessor> gp = this->makeGP(target->caps().shaderCaps(),
+                                                 &hasColorAttribute,
+                                                 &hasLocalCoordsAttribute);
 
-    SkASSERT(vertexStride == sizeof(SkPoint) + (hasColorAttribute ? sizeof(uint32_t) : 0) +
-                                     (hasLocalCoordsAttribute ? sizeof(SkPoint) : 0));
-
-    int instanceCount = fMeshes.count();
-
-    const GrBuffer* vertexBuffer;
-    int firstVertex;
-
+    // Allocate buffers.
+    size_t vertexStride = gp->vertexStride();
+    sk_sp<const GrBuffer> vertexBuffer;
+    int firstVertex = 0;
     void* verts = target->makeVertexSpace(vertexStride, fVertexCount, &vertexBuffer, &firstVertex);
-
     if (!verts) {
         SkDebugf("Could not allocate vertices\n");
         return;
     }
 
-    const GrBuffer* indexBuffer = nullptr;
+    sk_sp<const GrBuffer> indexBuffer;
     int firstIndex = 0;
-
     uint16_t* indices = nullptr;
     if (this->isIndexed()) {
         indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
-
         if (!indices) {
             SkDebugf("Could not allocate indices\n");
             return;
         }
     }
 
+    // Fill the buffers.
+    this->fillBuffers(hasColorAttribute,
+                      hasLocalCoordsAttribute,
+                      vertexStride,
+                      verts,
+                      indices);
+
+    // Draw the vertices.
+    this->drawVertices(target, std::move(gp), std::move(vertexBuffer), firstVertex, indexBuffer,
+                       firstIndex);
+}
+
+void DrawVerticesOp::drawNonVolatile(Target* target) {
+    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+
+    bool hasColorAttribute;
+    bool hasLocalCoordsAttribute;
+    sk_sp<GrGeometryProcessor> gp = this->makeGP(target->caps().shaderCaps(),
+                                                 &hasColorAttribute,
+                                                 &hasLocalCoordsAttribute);
+
+    SkASSERT(fMeshes.count() == 1); // Non-volatile meshes should never combine.
+
+    // Get the resource provider.
+    GrResourceProvider* rp = target->resourceProvider();
+
+    // Generate keys for the buffers.
+    GrUniqueKey vertexKey, indexKey;
+    GrUniqueKey::Builder vertexKeyBuilder(&vertexKey, kDomain, 2);
+    GrUniqueKey::Builder indexKeyBuilder(&indexKey, kDomain, 2);
+    vertexKeyBuilder[0] = indexKeyBuilder[0] = fMeshes[0].fVertices->uniqueID();
+    vertexKeyBuilder[1] = 0;
+    indexKeyBuilder[1] = 1;
+    vertexKeyBuilder.finish();
+    indexKeyBuilder.finish();
+
+    // Try to grab data from the cache.
+    sk_sp<GrGpuBuffer> vertexBuffer = rp->findByUniqueKey<GrGpuBuffer>(vertexKey);
+    sk_sp<GrGpuBuffer> indexBuffer =
+            this->isIndexed() ? rp->findByUniqueKey<GrGpuBuffer>(indexKey) : nullptr;
+
+    // Draw using the cached buffers if possible.
+    if (vertexBuffer && (!this->isIndexed() || indexBuffer)) {
+        this->drawVertices(target, std::move(gp), std::move(vertexBuffer), 0,
+                           std::move(indexBuffer), 0);
+        return;
+    }
+
+    // Allocate vertex buffer.
+    size_t vertexStride = gp->vertexStride();
+    vertexBuffer = rp->createBuffer(
+            fVertexCount * vertexStride, GrGpuBufferType::kVertex, kStatic_GrAccessPattern);
+    void* verts = vertexBuffer ? vertexBuffer->map() : nullptr;
+    if (!verts) {
+        SkDebugf("Could not allocate vertices\n");
+        return;
+    }
+
+    // Allocate index buffer.
+    uint16_t* indices = nullptr;
+    if (this->isIndexed()) {
+        indexBuffer = rp->createBuffer(
+                fIndexCount * sizeof(uint16_t), GrGpuBufferType::kIndex, kStatic_GrAccessPattern);
+        indices = indexBuffer ? static_cast<uint16_t*>(indexBuffer->map()) : nullptr;
+        if (!indices) {
+            SkDebugf("Could not allocate indices\n");
+            return;
+        }
+    }
+
+    // Fill the buffers.
+    this->fillBuffers(hasColorAttribute,
+                      hasLocalCoordsAttribute,
+                      vertexStride,
+                      verts,
+                      indices);
+
+    // Unmap the buffers.
+    vertexBuffer->unmap();
+    if (indexBuffer) {
+        indexBuffer->unmap();
+    }
+
+    // Cache the buffers.
+    rp->assignUniqueKeyToResource(vertexKey, vertexBuffer.get());
+    rp->assignUniqueKeyToResource(indexKey, indexBuffer.get());
+
+    // Draw the vertices.
+    this->drawVertices(target, std::move(gp), std::move(vertexBuffer), 0, std::move(indexBuffer),
+                       0);
+}
+
+void DrawVerticesOp::fillBuffers(bool hasColorAttribute,
+                                 bool hasLocalCoordsAttribute,
+                                 size_t vertexStride,
+                                 void* verts,
+                                 uint16_t* indices) const {
+    int instanceCount = fMeshes.count();
+
+    // Copy data into the buffers.
     int vertexOffset = 0;
     // We have a fast case below for uploading the vertex data when the matrix is translate
     // only and there are colors but not local coords.
     bool fastAttrs = hasColorAttribute && !hasLocalCoordsAttribute;
     for (int i = 0; i < instanceCount; i++) {
+        // Get each mesh.
         const Mesh& mesh = fMeshes[i];
+
+        // Copy data into the index buffer.
         if (indices) {
             int indexCount = mesh.fVertices->indexCount();
             for (int j = 0; j < indexCount; ++j) {
                 *indices++ = mesh.fVertices->indices()[j] + vertexOffset;
             }
         }
+
+        // Copy data into the vertex buffer.
         int vertexCount = mesh.fVertices->vertexCount();
         const SkPoint* positions = mesh.fVertices->positions();
         const SkColor* colors = mesh.fVertices->colors();
@@ -194,6 +433,7 @@ void GrDrawVerticesOp::onPrepareDraws(Target* target) {
                          mesh.fViewMatrix.getType() <= SkMatrix::kTranslate_Mask) &&
                         mesh.hasPerVertexColors();
         if (fastAttrs && fastMesh) {
+            // Fast case.
             struct V {
                 SkPoint fPos;
                 uint32_t fColor;
@@ -211,9 +451,19 @@ void GrDrawVerticesOp::onPrepareDraws(Target* target) {
             }
             verts = v + vertexCount;
         } else {
+            // Normal case.
             static constexpr size_t kColorOffset = sizeof(SkPoint);
-            size_t localCoordOffset =
-                    hasColorAttribute ? kColorOffset + sizeof(uint32_t) : kColorOffset;
+            size_t offset = kColorOffset;
+            if (hasColorAttribute) {
+                offset += sizeof(uint32_t);
+            }
+            size_t localCoordOffset = offset;
+            if (hasLocalCoordsAttribute) {
+                offset += sizeof(SkPoint);
+            }
+
+            // TODO4F: Preserve float colors
+            GrColor color = mesh.fColor.toBytes_RGBA();
 
             for (int j = 0; j < vertexCount; ++j) {
                 if (this->hasMultipleViewMatrices()) {
@@ -225,7 +475,7 @@ void GrDrawVerticesOp::onPrepareDraws(Target* target) {
                     if (mesh.hasPerVertexColors()) {
                         *(uint32_t*)((intptr_t)verts + kColorOffset) = colors[j];
                     } else {
-                        *(uint32_t*)((intptr_t)verts + kColorOffset) = mesh.fColor;
+                        *(uint32_t*)((intptr_t)verts + kColorOffset) = color;
                     }
                 }
                 if (hasLocalCoordsAttribute) {
@@ -240,42 +490,57 @@ void GrDrawVerticesOp::onPrepareDraws(Target* target) {
         }
         vertexOffset += vertexCount;
     }
-
-    GrMesh mesh(this->primitiveType());
-    if (!indices) {
-        mesh.setNonIndexedNonInstanced(fVertexCount);
-    } else {
-        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertexCount - 1);
-    }
-    mesh.setVertexData(vertexBuffer, firstVertex);
-    target->draw(gp.get(), fHelper.makePipeline(target), mesh);
 }
 
-bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
-    GrDrawVerticesOp* that = t->cast<GrDrawVerticesOp>();
+void DrawVerticesOp::drawVertices(Target* target,
+                                  sk_sp<const GrGeometryProcessor> gp,
+                                  sk_sp<const GrBuffer> vertexBuffer,
+                                  int firstVertex,
+                                  sk_sp<const GrBuffer> indexBuffer,
+                                  int firstIndex) {
+    GrMesh* mesh = target->allocMesh(this->primitiveType());
+    if (this->isIndexed()) {
+        mesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertexCount - 1,
+                         GrPrimitiveRestart::kNo);
+    } else {
+        mesh->setNonIndexedNonInstanced(fVertexCount);
+    }
+    mesh->setVertexData(std::move(vertexBuffer), firstVertex);
+    target->recordDraw(std::move(gp), mesh);
+}
+
+void DrawVerticesOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+    fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
+}
+
+GrOp::CombineResult DrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+    DrawVerticesOp* that = t->cast<DrawVerticesOp>();
 
     if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-        return false;
+        return CombineResult::kCannotCombine;
+    }
+
+    // Non-volatile meshes cannot batch, because if a non-volatile mesh batches with another mesh,
+    // then on the next frame, if that non-volatile mesh is drawn, it will draw the other mesh
+    // that was saved in its vertex buffer, which is not necessarily there anymore.
+    if (!this->fMeshes[0].fVertices->isVolatile() || !that->fMeshes[0].fVertices->isVolatile()) {
+        return CombineResult::kCannotCombine;
     }
 
     if (!this->combinablePrimitive() || this->primitiveType() != that->primitiveType()) {
-        return false;
+        return CombineResult::kCannotCombine;
     }
 
     if (fMeshes[0].fVertices->hasIndices() != that->fMeshes[0].fVertices->hasIndices()) {
-        return false;
+        return CombineResult::kCannotCombine;
     }
 
     if (fColorArrayType != that->fColorArrayType) {
-        return false;
+        return CombineResult::kCannotCombine;
     }
 
-    if (fLinearizeColors != that->fLinearizeColors) {
-        return false;
-    }
-
-    if (fVertexCount + that->fVertexCount > SK_MaxU16) {
-        return false;
+    if (fVertexCount + that->fVertexCount > SkTo<int>(UINT16_MAX)) {
+        return CombineResult::kCannotCombine;
     }
 
     // NOTE: For SkColor vertex colors, the source color space is always sRGB, and the destination
@@ -299,15 +564,36 @@ bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     fVertexCount += that->fVertexCount;
     fIndexCount += that->fIndexCount;
 
-    this->joinBounds(*that);
-    return true;
+    return CombineResult::kMerged;
+}
+
+} // anonymous namespace
+
+std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrRecordingContext* context,
+                                                 GrPaint&& paint,
+                                                 sk_sp<SkVertices> vertices,
+                                                 const SkVertices::Bone bones[],
+                                                 int boneCount,
+                                                 const SkMatrix& viewMatrix,
+                                                 GrAAType aaType,
+                                                 sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                                 GrPrimitiveType* overridePrimType) {
+    SkASSERT(vertices);
+    GrPrimitiveType primType = overridePrimType ? *overridePrimType
+                                                : SkVertexModeToGrPrimitiveType(vertices->mode());
+    return GrSimpleMeshDrawOpHelper::FactoryHelper<DrawVerticesOp>(context, std::move(paint),
+                                                                   std::move(vertices),
+                                                                   bones, boneCount,
+                                                                   primType, aaType,
+                                                                   std::move(colorSpaceXform),
+                                                                   viewMatrix);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if GR_TEST_UTILS
 
-#include "GrDrawOpTest.h"
+#include "src/gpu/GrDrawOpTest.h"
 
 static uint32_t seed_vertices(GrPrimitiveType type) {
     switch (type) {
@@ -323,7 +609,6 @@ static uint32_t seed_vertices(GrPrimitiveType type) {
             return 4;
     }
     SK_ABORT("Incomplete switch\n");
-    return 0;
 }
 
 static uint32_t primitive_vertices(GrPrimitiveType type) {
@@ -340,7 +625,6 @@ static uint32_t primitive_vertices(GrPrimitiveType type) {
             return 4;
     }
     SK_ABORT("Incomplete switch\n");
-    return 0;
 }
 
 static SkPoint random_point(SkRandom* random, SkScalar min, SkScalar max) {
@@ -364,18 +648,18 @@ static void randomize_params(size_t count, size_t maxVertex, SkScalar min, SkSca
             colors->push_back(GrRandomColor(random));
         }
         if (hasIndices) {
-            SkASSERT(maxVertex <= SK_MaxU16);
+            SkASSERT(maxVertex <= UINT16_MAX);
             indices->push_back(random->nextULessThan((uint16_t)maxVertex));
         }
     }
 }
 
-GR_DRAW_OP_TEST_DEFINE(GrDrawVerticesOp) {
+GR_DRAW_OP_TEST_DEFINE(DrawVerticesOp) {
     GrPrimitiveType type;
     do {
        type = GrPrimitiveType(random->nextULessThan(kNumGrPrimitiveTypes));
     } while (GrPrimTypeRequiresGeometryShaderSupport(type) &&
-             !context->contextPriv().caps()->shaderCaps()->geometryShaderSupport());
+             !context->priv().caps()->shaderCaps()->geometryShaderSupport());
 
     uint32_t primitiveCount = random->nextRangeU(1, 100);
 
@@ -388,7 +672,6 @@ GR_DRAW_OP_TEST_DEFINE(GrDrawVerticesOp) {
     bool hasTexCoords = random->nextBool();
     bool hasIndices = random->nextBool();
     bool hasColors = random->nextBool();
-    bool linearizeColors = random->nextBool();
 
     uint32_t vertexCount = seed_vertices(type) + (primitiveCount - 1) * primitive_vertices(type);
 
@@ -414,11 +697,11 @@ GR_DRAW_OP_TEST_DEFINE(GrDrawVerticesOp) {
                                                       hasIndices ? indices.count() : 0,
                                                       indices.begin());
     GrAAType aaType = GrAAType::kNone;
-    if (GrFSAAType::kUnifiedMSAA == fsaaType && random->nextBool()) {
+    if (numSamples > 1 && random->nextBool()) {
         aaType = GrAAType::kMSAA;
     }
-    return GrDrawVerticesOp::Make(std::move(paint), std::move(vertices), viewMatrix, aaType,
-                                  linearizeColors, std::move(colorSpaceXform), &type);
+    return GrDrawVerticesOp::Make(context, std::move(paint), std::move(vertices), nullptr, 0,
+                                  viewMatrix, aaType, std::move(colorSpaceXform), &type);
 }
 
 #endif

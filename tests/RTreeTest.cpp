@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkRTree.h"
-#include "SkRandom.h"
-#include "Test.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkRTree.h"
+#include "tests/Test.h"
 
 static const int NUM_RECTS = 200;
 static const size_t NUM_ITERATIONS = 100;
@@ -30,7 +30,7 @@ static bool verify_query(SkRect query, SkRect rects[], SkTDArray<int>& found) {
     // manually intersect with every rectangle
     for (int i = 0; i < NUM_RECTS; ++i) {
         if (SkRect::Intersects(query, rects[i])) {
-            expected.push(i);
+            expected.push_back(i);
         }
     }
 

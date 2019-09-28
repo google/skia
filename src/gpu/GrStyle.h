@@ -8,10 +8,10 @@
 #ifndef GrStyle_DEFINED
 #define GrStyle_DEFINED
 
-#include "GrTypes.h"
-#include "SkPathEffect.h"
-#include "SkStrokeRec.h"
-#include "SkTemplates.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkTemplates.h"
 
 /**
  * Represents the various ways that a GrShape can be styled. It has fill/stroking information
@@ -201,7 +201,7 @@ private:
             fIntervals.reset(0);
         }
         SkPathEffect::DashType      fType;
-        SkScalar                    fPhase;
+        SkScalar                    fPhase{0};
         SkAutoSTArray<4, SkScalar>  fIntervals;
     };
 

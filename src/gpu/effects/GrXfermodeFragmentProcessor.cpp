@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "GrXfermodeFragmentProcessor.h"
+#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 
-#include "GrConstColorProcessor.h"
-#include "GrFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLBlend.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "SkGr.h"
-#include "SkXfermodePriv.h"
+#include "src/core/SkXfermodePriv.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/effects/generated/GrConstColorProcessor.h"
+#include "src/gpu/glsl/GrGLSLBlend.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 
 // Some of the cpu implementations of blend modes differ too much from the GPU enough that
 // we can't use the cpu implementation to implement constantOutputForConstantInput.
@@ -38,6 +38,7 @@ public:
 
     const char* name() const override { return "ComposeTwo"; }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString str;
 
@@ -49,6 +50,7 @@ public:
         }
         return str;
     }
+#endif
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
@@ -146,15 +148,12 @@ private:
         return fMode == cs.fMode;
     }
 
-    GrColor4f constantOutputForConstantInput(GrColor4f input) const override {
-        float alpha = input.fRGBA[3];
-        input = input.opaque();
-        GrColor4f srcColor = ConstantOutputForConstantInput(this->childProcessor(0), input);
-        GrColor4f dstColor = ConstantOutputForConstantInput(this->childProcessor(1), input);
-        SkPM4f src = GrColor4fToSkPM4f(srcColor);
-        SkPM4f dst = GrColor4fToSkPM4f(dstColor);
-        SkPM4f res = SkBlendMode_Apply(fMode, src, dst);
-        return SkPM4fToGrColor4f(res).mulByScalar(alpha);
+    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
+        SkPMColor4f opaqueInput = { input.fR, input.fG, input.fB, 1 };
+        SkPMColor4f src = ConstantOutputForConstantInput(this->childProcessor(0), opaqueInput);
+        SkPMColor4f dst = ConstantOutputForConstantInput(this->childProcessor(1), opaqueInput);
+        SkPMColor4f res = SkBlendMode_Apply(fMode, src, dst);
+        return res * input.fA;
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -222,10 +221,10 @@ void GLComposeTwoFragmentProcessor::emitCode(EmitArgs& args) {
 
     // declare outputColor and emit the code for each of the two children
     SkString srcColor("xfer_src");
-    this->emitChild(0, inputColor, &srcColor, args);
+    this->invokeChild(0, inputColor, &srcColor, args);
 
     SkString dstColor("xfer_dst");
-    this->emitChild(1, inputColor, &dstColor, args);
+    this->invokeChild(1, inputColor, &dstColor, args);
 
     // emit blend code
     SkBlendMode mode = cs.getMode();
@@ -248,7 +247,7 @@ std::unique_ptr<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromTwoPro
         SkBlendMode mode) {
     switch (mode) {
         case SkBlendMode::kClear:
-            return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
+            return GrConstColorProcessor::Make(SK_PMColor4fTRANSPARENT,
                                                GrConstColorProcessor::InputMode::kIgnore);
         case SkBlendMode::kSrc:
             return src;
@@ -279,6 +278,7 @@ public:
 
     const char* name() const override { return "ComposeOne"; }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString str;
 
@@ -291,6 +291,7 @@ public:
         }
         return str;
     }
+#endif
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
@@ -325,17 +326,8 @@ private:
             case SkBlendMode::kSrcIn:
             case SkBlendMode::kDstIn:
             case SkBlendMode::kModulate:
-                if (fp->compatibleWithCoverageAsAlpha()) {
-                    if (fp->preservesOpaqueInput()) {
-                        flags = kPreservesOpaqueInput_OptimizationFlag |
-                                kCompatibleWithCoverageAsAlpha_OptimizationFlag;
-                    } else {
-                        flags = kCompatibleWithCoverageAsAlpha_OptimizationFlag;
-                    }
-                } else {
-                    flags = fp->preservesOpaqueInput() ? kPreservesOpaqueInput_OptimizationFlag
-                                                       : kNone_OptimizationFlags;
-                }
+                flags = ProcessorOptimizationFlags(fp) &
+                        ~kConstantOutputForConstantInput_OptimizationFlag;
                 break;
 
             // Produces zero when both are opaque, indeterminate if one is opaque.
@@ -395,7 +387,7 @@ private:
     }
 
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
-        GR_STATIC_ASSERT(((int)SkBlendMode::kLastMode & SK_MaxU16) == (int)SkBlendMode::kLastMode);
+        GR_STATIC_ASSERT(((int)SkBlendMode::kLastMode & UINT16_MAX) == (int)SkBlendMode::kLastMode);
         b->add32((int)fMode | (fChild << 16));
     }
 
@@ -403,19 +395,18 @@ private:
         return fMode == that.cast<ComposeOneFragmentProcessor>().fMode;
     }
 
-    GrColor4f constantOutputForConstantInput(GrColor4f inputColor) const override {
-        GrColor4f childColor =
-                ConstantOutputForConstantInput(this->childProcessor(0), GrColor4f::OpaqueWhite());
-        SkPM4f src, dst;
+    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inputColor) const override {
+        SkPMColor4f childColor = ConstantOutputForConstantInput(this->childProcessor(0),
+                                                                SK_PMColor4fWHITE);
+        SkPMColor4f src, dst;
         if (kSrc_Child == fChild) {
-            src = GrColor4fToSkPM4f(childColor);
-            dst = GrColor4fToSkPM4f(inputColor);
+            src = childColor;
+            dst = inputColor;
         } else {
-            src = GrColor4fToSkPM4f(inputColor);
-            dst = GrColor4fToSkPM4f(childColor);
+            src = inputColor;
+            dst = childColor;
         }
-        SkPM4f res = SkBlendMode_Apply(fMode, src, dst);
-        return SkPM4fToGrColor4f(res);
+        return SkBlendMode_Apply(fMode, src, dst);
     }
 
 private:
@@ -448,22 +439,15 @@ public:
         ComposeOneFragmentProcessor::Child child =
             args.fFp.cast<ComposeOneFragmentProcessor>().child();
         SkString childColor("child");
-        this->emitChild(0, &childColor, args);
-
-        const char* inputColor = args.fInputColor;
-        // We don't try to optimize for this case at all
-        if (!inputColor) {
-            fragBuilder->codeAppendf("const half4 ones = half4(1);");
-            inputColor = "ones";
-        }
+        this->invokeChild(0, &childColor, args);
 
         // emit blend code
         fragBuilder->codeAppendf("// Compose Xfer Mode: %s\n", SkBlendMode_Name(mode));
         const char* childStr = childColor.c_str();
         if (ComposeOneFragmentProcessor::kDst_Child == child) {
-            GrGLSLBlend::AppendMode(fragBuilder, inputColor, childStr, args.fOutputColor, mode);
+            GrGLSLBlend::AppendMode(fragBuilder, args.fInputColor, childStr, args.fOutputColor, mode);
         } else {
-            GrGLSLBlend::AppendMode(fragBuilder, childStr, inputColor, args.fOutputColor, mode);
+            GrGLSLBlend::AppendMode(fragBuilder, childStr, args.fInputColor, args.fOutputColor, mode);
         }
     }
 
@@ -509,13 +493,13 @@ std::unique_ptr<GrFragmentProcessor> ComposeOneFragmentProcessor::clone() const 
 // that these factories could simply return the input FP. However, that doesn't have quite
 // the same effect as the returned compose FP will replace the FP's input with solid white and
 // ignore the original input. This could be implemented as:
-// RunInSeries(ConstColor(GrColor_WHITE, kIgnoreInput), inputFP).
+// RunInSeries(ConstColor(WHITE, kIgnoreInput), inputFP).
 
 std::unique_ptr<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromDstProcessor(
         std::unique_ptr<GrFragmentProcessor> dst, SkBlendMode mode) {
     switch (mode) {
         case SkBlendMode::kClear:
-            return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
+            return GrConstColorProcessor::Make(SK_PMColor4fTRANSPARENT,
                                                GrConstColorProcessor::InputMode::kIgnore);
         case SkBlendMode::kSrc:
             return nullptr;
@@ -529,7 +513,7 @@ std::unique_ptr<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromSrcPro
         std::unique_ptr<GrFragmentProcessor> src, SkBlendMode mode) {
     switch (mode) {
         case SkBlendMode::kClear:
-            return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
+            return GrConstColorProcessor::Make(SK_PMColor4fTRANSPARENT,
                                                GrConstColorProcessor::InputMode::kIgnore);
         case SkBlendMode::kDst:
             return nullptr;

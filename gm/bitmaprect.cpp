@@ -5,14 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkGraphics.h"
-#include "SkPath.h"
-#include "SkRegion.h"
-#include "SkShader.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
 
 static void make_bitmap(SkBitmap* bitmap) {
     bitmap->allocN32Pixels(64, 64);
@@ -24,8 +30,7 @@ static void make_bitmap(SkBitmap* bitmap) {
     paint.setAntiAlias(true);
     const SkPoint pts[] = { { 0, 0 }, { 64, 64 } };
     const SkColor colors[] = { SK_ColorWHITE, SK_ColorBLUE };
-    paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
-                                                 SkShader::kClamp_TileMode));
+    paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp));
     canvas.drawCircle(32, 32, 32, paint);
 }
 
@@ -47,7 +52,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        canvas->drawColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
+        canvas->drawColor(0xFFCCCCCC);
 
         const SkIRect src[] = {
             { 0, 0, 32, 32 },

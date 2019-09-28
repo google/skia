@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lottie-Web Perf</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=egde,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/res/lottie.js" type="text/javascript" charset="utf-8"></script>
+    <style type="text/css" media="screen">
+      body {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+</head>
+<body>
+  <main>
+    <div style="width:1000px;height:1000px" class=anim></div>
+  </main>
+  <script type="text/javascript" charset="utf-8">
+    (function () {
+      const PATH = '/res/lottie.json';
+      const RENDERER = 'svg';
+      const MAX_FRAMES = 25;
+      const MAX_LOOPS = 5;
+
+      // Get total number of frames of the animation from the hash.
+      const hash = window.location.hash;
+      const totalFrames = hash.slice(1);
+      console.log("Lottie has " + totalFrames + "total frames");
+
+      // Load the animation with autoplay false. We will control which
+      // frame to seek to and then will measure performance.
+      let anim = lottie.loadAnimation({
+        container: document.querySelector('.anim'),
+        renderer: RENDERER,
+        loop: false,
+        autoplay: false,
+        path: PATH,
+        rendererSettings: {
+          preserveAspectRatio:'xMidYMid meet'
+        },
+      });
+
+      const t_rate = 1.0 / (MAX_FRAMES - 1);
+      let frame = 0;
+      let loop = 0;
+      const drawFrame = () => {
+        if (frame >= MAX_FRAMES) {
+          // Reached the end of one loop.
+          loop++;
+          if (loop == MAX_LOOPS) {
+            // These are global variables to talk with puppeteer.
+            window._lottieWebDone = true;
+            return;
+          }
+          // Reset frame to restart the loop.
+          frame = 0;
+        }
+
+        let t1 = Math.max(Math.min(t_rate * frame, 1.0), 0.0);
+        let seekToFrame = totalFrames * t1;
+        if (seekToFrame >= totalFrames-1) {
+          // bodymovin player sometimes draws blank when requesting
+          // to draw the very last frame.  Subtracting a small value
+          // seems to fix this and make it draw the last frame.
+          seekToFrame -= .001;
+        }
+
+        anim.goToAndStop(seekToFrame, true /* isFrame */);
+        console.log("Used seek: " + (seekToFrame/totalFrames));
+        frame++;
+        window.requestAnimationFrame(drawFrame);
+      };
+      window.requestAnimationFrame(drawFrame);
+    })();
+  </script>
+</body>
+</html>

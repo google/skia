@@ -5,13 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GMBench.h"
+#include "bench/GMBench.h"
 
-GMBench::GMBench(skiagm::GM* gm) : fGM(gm) {
-    fName.printf("GM_%s", gm->getName());
+GMBench::GMBench(std::unique_ptr<skiagm::GM> gm) : fGM(std::move(gm)) {
+    fName.printf("GM_%s", fGM->getName());
 }
-
-GMBench::~GMBench() { delete fGM; }
 
 const char* GMBench::onGetName() {
     return fName.c_str();

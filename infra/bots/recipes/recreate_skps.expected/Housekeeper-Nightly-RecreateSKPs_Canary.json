@@ -33,7 +33,7 @@
       "-u",
       "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",
       "--spec-path",
-      "cache_dir = '[START_DIR]/cache/git'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': False, 'name': 'src', 'url': 'https://chromium.googlesource.com/chromium/src.git'}, {'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]",
+      "cache_dir = '[START_DIR]/cache/git'\nsolutions = [{'custom_vars': {'checkout_chromium': True}, 'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]",
       "--patch_root",
       "skia",
       "--revision_mapping_file",
@@ -45,14 +45,12 @@
       "--output_json",
       "/path/to/tmp/json",
       "--revision",
-      "skia@abc123",
-      "--revision",
-      "src@origin/master"
+      "skia@abc123"
     ],
     "cwd": "[START_DIR]/cache/work",
-    "env_prefixes": {
+    "env_suffixes": {
       "PATH": [
-        "RECIPE_PACKAGE_REPO[depot_tools]"
+        "RECIPE_REPO[depot_tools]"
       ]
     },
     "infra_step": true,
@@ -62,8 +60,7 @@
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"did_run\": true, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"fixed_revisions\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"skia\": \"abc123\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"src\": \"origin/master\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"skia\": \"abc123\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"manifest\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"skia\": {@@@",
@@ -77,7 +74,7 @@
       "@@@STEP_LOG_LINE@json.output@    \"got_revision\": \"9046e2e693bb92a76e972b694580e5d17ad10748\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"got_revision_cp\": \"refs/heads/master@{#164710}\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"root\": \"src\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"root\": \"skia\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"source_manifest\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"directories\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"skia\": {@@@",
@@ -100,14 +97,19 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
+      "RECIPE_REPO[depot_tools]/gclient.py",
       "runhooks"
     ],
     "cwd": "[START_DIR]/cache/work",
     "env": {
       "CPPFLAGS": "-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1",
       "DEPOT_TOOLS_UPDATE": "0",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "GYP_CHROMIUM_NO_ACTION": "0"
+    },
+    "env_suffixes": {
+      "PATH": [
+        "RECIPE_REPO[depot_tools]"
+      ]
     },
     "name": "gclient runhooks"
   },
@@ -137,7 +139,7 @@
       "CHROME_HEADLESS": "1",
       "CPPFLAGS": "-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1",
       "GYP_GENERATORS": "ninja",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "GN"
   },
@@ -151,7 +153,7 @@
     "cwd": "[START_DIR]/cache/work/src",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "Build Chrome"
   },
@@ -197,13 +199,11 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "Recreate SKPs"
   },
   {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "name": "$result"
   }
 ]

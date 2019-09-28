@@ -8,10 +8,11 @@
 #ifndef SkMatrix44_DEFINED
 #define SkMatrix44_DEFINED
 
-#include <atomic>
+#include "include/core/SkMatrix.h"
+#include "include/core/SkScalar.h"
 
-#include "SkMatrix.h"
-#include "SkScalar.h"
+#include <atomic>
+#include <cstring>
 
 #ifdef SK_MSCALAR_IS_DOUBLE
 #ifdef SK_MSCALAR_IS_FLOAT
@@ -35,6 +36,7 @@
         return fabs(x);
     }
     static const SkMScalar SK_MScalarPI = 3.141592653589793;
+    static const SkMScalar SK_MScalarNaN = SK_DoubleNaN;
 
     #define SkMScalarFloor(x)           sk_double_floor(x)
     #define SkMScalarCeil(x)            sk_double_ceil(x)
@@ -67,6 +69,7 @@
         return sk_float_abs(x);
     }
     static const SkMScalar SK_MScalarPI = 3.14159265f;
+    static const SkMScalar SK_MScalarNaN = SK_FloatNaN;
 
     #define SkMScalarFloor(x)           sk_float_floor(x)
     #define SkMScalarCeil(x)            sk_float_ceil(x)
@@ -108,13 +111,11 @@ struct SkVector4 {
         return *this;
     }
 
-    bool operator==(const SkVector4& v) {
+    bool operator==(const SkVector4& v) const {
         return fData[0] == v.fData[0] && fData[1] == v.fData[1] &&
                fData[2] == v.fData[2] && fData[3] == v.fData[3];
     }
-    bool operator!=(const SkVector4& v) {
-        return !(*this == v);
-    }
+    bool operator!=(const SkVector4& v) const { return !(*this == v); }
     bool equals(SkScalar x, SkScalar y, SkScalar z, SkScalar w = SK_Scalar1) {
         return fData[0] == x && fData[1] == y &&
                fData[2] == z && fData[3] == w;
@@ -132,7 +133,6 @@ struct SkVector4 {
 
     The SkMatrix44 class holds a 4x4 matrix.
 
-    SkMatrix44 is not thread safe unless you've first called SkMatrix44::getType().
 */
 class SK_API SkMatrix44 {
 public:
@@ -143,35 +143,34 @@ public:
     enum Identity_Constructor {
         kIdentity_Constructor
     };
+    enum NaN_Constructor {
+        kNaN_Constructor
+    };
 
-    SkMatrix44(Uninitialized_Constructor) {}
+    SkMatrix44(Uninitialized_Constructor) {}  // ironically, cannot be constexpr
 
     constexpr SkMatrix44(Identity_Constructor)
         : fMat{{ 1, 0, 0, 0, },
                { 0, 1, 0, 0, },
                { 0, 0, 1, 0, },
                { 0, 0, 0, 1, }}
-        , fTypeMask(kIdentity_Mask)
-    {}
+        , fTypeMask(kIdentity_Mask) {}
 
-    SK_ATTR_DEPRECATED("use the constructors that take an enum")
-    SkMatrix44() { this->setIdentity(); }
+    SkMatrix44(NaN_Constructor)
+        : fMat{{ SK_MScalarNaN, SK_MScalarNaN, SK_MScalarNaN, SK_MScalarNaN },
+               { SK_MScalarNaN, SK_MScalarNaN, SK_MScalarNaN, SK_MScalarNaN },
+               { SK_MScalarNaN, SK_MScalarNaN, SK_MScalarNaN, SK_MScalarNaN },
+               { SK_MScalarNaN, SK_MScalarNaN, SK_MScalarNaN, SK_MScalarNaN }}
+        , fTypeMask(kTranslate_Mask | kScale_Mask | kAffine_Mask | kPerspective_Mask) {}
 
-    SkMatrix44(const SkMatrix44& src) {
-        memcpy(fMat, src.fMat, sizeof(fMat));
-        fTypeMask.store(src.fTypeMask, std::memory_order_relaxed);
-    }
+    constexpr SkMatrix44() : SkMatrix44{kIdentity_Constructor} {}
+
+    SkMatrix44(const SkMatrix44& src) = default;
+
+    SkMatrix44& operator=(const SkMatrix44& src) = default;
 
     SkMatrix44(const SkMatrix44& a, const SkMatrix44& b) {
         this->setConcat(a, b);
-    }
-
-    SkMatrix44& operator=(const SkMatrix44& src) {
-        if (&src != this) {
-            memcpy(fMat, src.fMat, sizeof(fMat));
-            fTypeMask.store(src.fTypeMask, std::memory_order_relaxed);
-        }
-        return *this;
     }
 
     bool operator==(const SkMatrix44& other) const;
@@ -196,12 +195,13 @@ public:
      */
     static const SkMatrix44& I();
 
-    enum TypeMask {
-        kIdentity_Mask      = 0,
-        kTranslate_Mask     = 0x01,  //!< set if the matrix has translation
-        kScale_Mask         = 0x02,  //!< set if the matrix has any scale != 1
-        kAffine_Mask        = 0x04,  //!< set if the matrix skews or rotates
-        kPerspective_Mask   = 0x08   //!< set if the matrix is in perspective
+    using TypeMask = uint8_t;
+    enum : TypeMask {
+        kIdentity_Mask = 0,
+        kTranslate_Mask = 1 << 0,    //!< set if the matrix has translation
+        kScale_Mask = 1 << 1,        //!< set if the matrix has any scale != 1
+        kAffine_Mask = 1 << 2,       //!< set if the matrix skews or rotates
+        kPerspective_Mask = 1 << 3,  //!< set if the matrix is in perspective
     };
 
     /**
@@ -211,13 +211,7 @@ public:
      *  other bits may be set to true even in the case of a pure perspective
      *  transform.
      */
-    inline TypeMask getType() const {
-        if (fTypeMask.load(std::memory_order_relaxed) & kUnknown_Mask) {
-            fTypeMask.store(this->computeTypeMask(), std::memory_order_relaxed);
-        }
-        SkASSERT(!(fTypeMask & kUnknown_Mask));
-        return (TypeMask)fTypeMask.load(std::memory_order_relaxed);
-    }
+    inline TypeMask getType() const { return fTypeMask; }
 
     /**
      *  Return true if the matrix is identity.
@@ -276,7 +270,7 @@ public:
         SkASSERT((unsigned)row <= 3);
         SkASSERT((unsigned)col <= 3);
         fMat[col][row] = value;
-        this->dirtyTypeMask();
+        this->recomputeTypeMask();
     }
 
     inline double getDouble(int row, int col) const {
@@ -336,6 +330,11 @@ public:
                 SkMScalar m_01, SkMScalar m_11, SkMScalar m_21,
                 SkMScalar m_02, SkMScalar m_12, SkMScalar m_22);
     void set3x3RowMajorf(const float[]);
+
+    void set4x4(SkMScalar m_00, SkMScalar m_10, SkMScalar m_20, SkMScalar m_30,
+                SkMScalar m_01, SkMScalar m_11, SkMScalar m_21, SkMScalar m_31,
+                SkMScalar m_02, SkMScalar m_12, SkMScalar m_22, SkMScalar m_32,
+                SkMScalar m_03, SkMScalar m_13, SkMScalar m_23, SkMScalar m_33);
 
     void setTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz);
     void preTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz);
@@ -400,16 +399,6 @@ public:
         this->mapScalars(vec, vec);
     }
 
-    SK_ATTR_DEPRECATED("use mapScalars")
-    void map(const SkScalar src[4], SkScalar dst[4]) const {
-        this->mapScalars(src, dst);
-    }
-
-    SK_ATTR_DEPRECATED("use mapScalars")
-    void map(SkScalar vec[4]) const {
-        this->mapScalars(vec, vec);
-    }
-
 #ifdef SK_MSCALAR_IS_DOUBLE
     void mapMScalars(const SkMScalar src[4], SkMScalar dst[4]) const;
 #elif defined SK_MSCALAR_IS_FLOAT
@@ -456,10 +445,8 @@ public:
 
 private:
     /* This is indexed by [col][row]. */
-    SkMScalar                       fMat[4][4];
-    mutable std::atomic<unsigned>   fTypeMask;
-
-    static constexpr int kUnknown_Mask = 0x80;
+    SkMScalar fMat[4][4];
+    TypeMask fTypeMask;
 
     static constexpr int kAllPublic_Masks = 0xF;
 
@@ -478,29 +465,16 @@ private:
     SkMScalar perspY() const { return fMat[1][3]; }
     SkMScalar perspZ() const { return fMat[2][3]; }
 
-    int computeTypeMask() const;
+    void recomputeTypeMask();
 
-    inline void dirtyTypeMask() {
-        fTypeMask.store(kUnknown_Mask, std::memory_order_relaxed);
-    }
-
-    inline void setTypeMask(int mask) {
-        SkASSERT(0 == (~(kAllPublic_Masks | kUnknown_Mask) & mask));
-        fTypeMask.store(mask, std::memory_order_relaxed);
-    }
-
-    /**
-     *  Does not take the time to 'compute' the typemask. Only returns true if
-     *  we already know that this matrix is identity.
-     */
-    inline bool isTriviallyIdentity() const {
-        return 0 == fTypeMask.load(std::memory_order_relaxed);
+    inline void setTypeMask(TypeMask mask) {
+        SkASSERT(0 == (~kAllPublic_Masks & mask));
+        fTypeMask = mask;
     }
 
     inline const SkMScalar* values() const { return &fMat[0][0]; }
 
     friend class SkColorSpace;
-    friend class SkColorSpace_XYZ;
 };
 
 #endif

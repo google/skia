@@ -8,7 +8,7 @@
 #ifndef GrVkVaryingHandler_DEFINED
 #define GrVkVaryingHandler_DEFINED
 
-#include "glsl/GrGLSLVarying.h"
+#include "src/gpu/glsl/GrGLSLVarying.h"
 
 class GrVkVaryingHandler : public GrGLSLVaryingHandler {
 public:

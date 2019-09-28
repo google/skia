@@ -5,10 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkGradientShader.h"
-#include "SkSurface.h"
-#include "gm.h"
-#include "sk_tool_utils.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
 
 static void make_transparency(SkCanvas* canvas, SkScalar width, SkScalar height) {
     SkPoint pts[2];
@@ -31,8 +41,7 @@ static void make_transparency(SkCanvas* canvas, SkScalar width, SkScalar height)
         shaderColors[0] = SK_AlphaTRANSPARENT;
         shaderColors[1] = kColors[i];
         SkPaint p;
-        p.setShader(SkGradientShader::MakeLinear(pts, shaderColors, nullptr, 2,
-                                                 SkShader::kClamp_TileMode));
+        p.setShader(SkGradientShader::MakeLinear(pts, shaderColors, nullptr, 2, SkTileMode::kClamp));
         canvas->drawRect(SkRect::MakeXYWH(0, i * kRowHeight, width, kRowHeight), p);
     }
 }
@@ -44,7 +53,7 @@ static sk_sp<SkShader> create_checkerboard_shader(SkColor c1, SkColor c2, int si
     bm.eraseColor(c1);
     bm.eraseArea(SkIRect::MakeLTRB(0, 0, size, size), c2);
     bm.eraseArea(SkIRect::MakeLTRB(size, size, 2 * size, 2 * size), c2);
-    return SkShader::MakeBitmapShader(bm, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
+    return bm.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat);
 }
 
 // http://crrev.com/834303005
@@ -59,8 +68,7 @@ static void checkerboard(SkCanvas* canvas, SkColor c1, SkColor c2, int size) {
  *  checkerboard pattern looks correct.
  */
 DEF_SIMPLE_GM(transparency_check, canvas, 1792, 1080) {
-    checkerboard(canvas, sk_tool_utils::color_to_565(0xFF999999),
-            sk_tool_utils::color_to_565(0xFF666666), 8);
+    checkerboard(canvas, 0xFF999999, 0xFF666666, 8);
     {
         SkAutoCanvasRestore autoCanvasRestore(canvas, true);
         auto surface(SkSurface::MakeRasterN32Premul(256, 9));

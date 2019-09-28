@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2005 The Android Open Source Project
  *
@@ -6,255 +5,338 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkRegion_DEFINED
 #define SkRegion_DEFINED
 
-#include "SkRect.h"
+#include "include/core/SkRect.h"
 
 class SkPath;
 class SkRgnBuilder;
 
-namespace android {
-    class Region;
-}
-
-#define SkRegion_gEmptyRunHeadPtr   ((SkRegion::RunHead*)-1)
-#define SkRegion_gRectRunHeadPtr    nullptr
-
 /** \class SkRegion
-
-    The SkRegion class encapsulates the geometric region used to specify
-    clipping areas for drawing.
+    SkRegion describes the set of pixels used to clip SkCanvas. SkRegion is compact,
+    efficiently storing a single integer rectangle, or a run length encoded array
+    of rectangles. SkRegion may reduce the current SkCanvas clip, or may be drawn as
+    one or more integer rectangles. SkRegion iterator returns the scan lines or
+    rectangles contained by it, optionally intersecting a bounding rectangle.
 */
 class SK_API SkRegion {
-public:
     typedef int32_t RunType;
-    static constexpr int kRunTypeSentinel = 0x7FFFFFFF;
+public:
 
+    /** Constructs an empty SkRegion. SkRegion is set to empty bounds
+        at (0, 0) with zero width and height.
+
+        @return  empty SkRegion
+    */
     SkRegion();
-    SkRegion(const SkRegion&);
-    explicit SkRegion(const SkIRect&);
+
+    /** Constructs a copy of an existing region.
+        Copy constructor makes two regions identical by value. Internally, region and
+        the returned result share pointer values. The underlying SkRect array is
+        copied when modified.
+
+        Creating a SkRegion copy is very efficient and never allocates memory.
+        SkRegion are always copied by value from the interface; the underlying shared
+        pointers are not exposed.
+
+        @param region  SkRegion to copy by value
+        @return        copy of SkRegion
+    */
+    SkRegion(const SkRegion& region);
+
+    /** Constructs a rectangular SkRegion matching the bounds of rect.
+
+        @param rect  bounds of constructed SkRegion
+        @return      rectangular SkRegion
+    */
+    explicit SkRegion(const SkIRect& rect);
+
+    /** Releases ownership of any shared data and deletes data if SkRegion is sole owner.
+    */
     ~SkRegion();
 
-    SkRegion& operator=(const SkRegion&);
+    /** Constructs a copy of an existing region.
+        Makes two regions identical by value. Internally, region and
+        the returned result share pointer values. The underlying SkRect array is
+        copied when modified.
 
-    /**
-     *  Return true if the two regions are equal. i.e. The enclose exactly
-     *  the same area.
-     */
+        Creating a SkRegion copy is very efficient and never allocates memory.
+        SkRegion are always copied by value from the interface; the underlying shared
+        pointers are not exposed.
+
+        @param region  SkRegion to copy by value
+        @return        SkRegion to copy by value
+    */
+    SkRegion& operator=(const SkRegion& region);
+
+    /** Compares SkRegion and other; returns true if they enclose exactly
+        the same area.
+
+        @param other  SkRegion to compare
+        @return       true if SkRegion pair are equivalent
+    */
     bool operator==(const SkRegion& other) const;
 
-    /**
-     *  Return true if the two regions are not equal.
-     */
+    /** Compares SkRegion and other; returns true if they do not enclose the same area.
+
+        @param other  SkRegion to compare
+        @return       true if SkRegion pair are not equivalent
+    */
     bool operator!=(const SkRegion& other) const {
         return !(*this == other);
     }
 
-    /**
-     *  Replace this region with the specified region, and return true if the
-     *  resulting region is non-empty.
-     */
+    /** Sets SkRegion to src, and returns true if src bounds is not empty.
+        This makes SkRegion and src identical by value. Internally,
+        SkRegion and src share pointer values. The underlying SkRect array is
+        copied when modified.
+
+        Creating a SkRegion copy is very efficient and never allocates memory.
+        SkRegion are always copied by value from the interface; the underlying shared
+        pointers are not exposed.
+
+        @param src  SkRegion to copy
+        @return     copy of src
+    */
     bool set(const SkRegion& src) {
         *this = src;
         return !this->isEmpty();
     }
 
-    /**
-     *  Swap the contents of this and the specified region. This operation
-     *  is gauarenteed to never fail.
-     */
-    void swap(SkRegion&);
+    /** Exchanges SkIRect array of SkRegion and other. swap() internally exchanges pointers,
+        so it is lightweight and does not allocate memory.
 
-    /** Return true if this region is empty */
-    bool isEmpty() const { return fRunHead == SkRegion_gEmptyRunHeadPtr; }
+        swap() usage has largely been replaced by operator=(const SkRegion& region).
+        SkPath do not copy their content on assignment until they are written to,
+        making assignment as efficient as swap().
 
-    /** Return true if this region is a single, non-empty rectangle */
-    bool isRect() const { return fRunHead == SkRegion_gRectRunHeadPtr; }
+        @param other  operator=(const SkRegion& region) set
+    */
+    void swap(SkRegion& other);
 
-    /** Return true if this region consists of more than 1 rectangular area */
+    /** Returns true if SkRegion is empty.
+        Empty SkRegion has bounds width or height less than or equal to zero.
+        SkRegion() constructs empty SkRegion; setEmpty()
+        and setRect() with dimensionless data make SkRegion empty.
+
+        @return  true if bounds has no width or height
+    */
+    bool isEmpty() const { return fRunHead == emptyRunHeadPtr(); }
+
+    /** Returns true if SkRegion is one SkIRect with positive dimensions.
+
+        @return  true if SkRegion contains one SkIRect
+    */
+    bool isRect() const { return fRunHead == kRectRunHeadPtr; }
+
+    /** Returns true if SkRegion is described by more than one rectangle.
+
+        @return  true if SkRegion contains more than one SkIRect
+    */
     bool isComplex() const { return !this->isEmpty() && !this->isRect(); }
 
-    /**
-     *  Return the bounds of this region. If the region is empty, returns an
-     *  empty rectangle.
-     */
+    /** Returns minimum and maximum axes values of SkIRect array.
+        Returns (0, 0, 0, 0) if SkRegion is empty.
+
+        @return  combined bounds of all SkIRect elements
+    */
     const SkIRect& getBounds() const { return fBounds; }
 
-    /**
-     *  Returns a value that grows approximately linearly with the number of
-     *  intervals comprised in the region. Empty region will return 0, Rect
-     *  will return 1, Complex will return a value > 1.
-     *
-     *  Use this to compare two regions, where the larger count likely
-     *  indicates a more complex region.
-     */
+    /** Returns a value that increases with the number of
+        elements in SkRegion. Returns zero if SkRegion is empty.
+        Returns one if SkRegion equals SkIRect; otherwise, returns
+        value greater than one indicating that SkRegion is complex.
+
+        Call to compare SkRegion for relative complexity.
+
+        @return  relative complexity
+    */
     int computeRegionComplexity() const;
 
-    /**
-     *  Returns true if the region is non-empty, and if so, appends the
-     *  boundary(s) of the region to the specified path.
-     *  If the region is empty, returns false, and path is left unmodified.
-     */
+    /** Appends outline of SkRegion to path.
+        Returns true if SkRegion is not empty; otherwise, returns false, and leaves path
+        unmodified.
+
+        @param path  SkPath to append to
+        @return      true if path changed
+    */
     bool getBoundaryPath(SkPath* path) const;
 
-    /**
-     *  Set the region to be empty, and return false, since the resulting
-     *  region is empty
-     */
+    /** Constructs an empty SkRegion. SkRegion is set to empty bounds
+        at (0, 0) with zero width and height. Always returns false.
+
+        @return  false
+    */
     bool setEmpty();
 
-    /**
-     *  If rect is non-empty, set this region to that rectangle and return true,
-     *  otherwise set this region to empty and return false.
-     */
-    bool setRect(const SkIRect&);
+    /** Constructs a rectangular SkRegion matching the bounds of rect.
+        If rect is empty, constructs empty and returns false.
 
-    /**
-     *  If left < right and top < bottom, set this region to that rectangle and
-     *  return true, otherwise set this region to empty and return false.
-     */
-    bool setRect(int32_t left, int32_t top, int32_t right, int32_t bottom) {
-        return this->setRect({ left, top, right, bottom });
-    }
+        @param rect  bounds of constructed SkRegion
+        @return      true if rect is not empty
+    */
+    bool setRect(const SkIRect& rect);
 
-    /**
-     *  Set this region to the union of an array of rects. This is generally
-     *  faster than calling region.op(rect, kUnion_Op) in a loop. If count is
-     *  0, then this region is set to the empty region.
-     *  @return true if the resulting region is non-empty
-     */
+    /** Constructs SkRegion as the union of SkIRect in rects array. If count is
+        zero, constructs empty SkRegion. Returns false if constructed SkRegion is empty.
+
+        May be faster than repeated calls to op().
+
+        @param rects  array of SkIRect
+        @param count  array size
+        @return       true if constructed SkRegion is not empty
+    */
     bool setRects(const SkIRect rects[], int count);
 
-    /**
-     *  Set this region to the specified region, and return true if it is
-     *  non-empty.
-     */
-    bool setRegion(const SkRegion&);
+    /** Constructs a copy of an existing region.
+        Makes two regions identical by value. Internally, region and
+        the returned result share pointer values. The underlying SkRect array is
+        copied when modified.
 
-    /**
-     *  Set this region to the area described by the path, clipped.
-     *  Return true if the resulting region is non-empty.
-     *  This produces a region that is identical to the pixels that would be
-     *  drawn by the path (with no antialiasing) with the specified clip.
-     */
-    bool setPath(const SkPath&, const SkRegion& clip);
+        Creating a SkRegion copy is very efficient and never allocates memory.
+        SkRegion are always copied by value from the interface; the underlying shared
+        pointers are not exposed.
 
-    /**
-     *  Returns true if the specified rectangle has a non-empty intersection
-     *  with this region.
-     */
-    bool intersects(const SkIRect&) const;
+        @param region  SkRegion to copy by value
+        @return        SkRegion to copy by value
+    */
+    bool setRegion(const SkRegion& region);
 
-    /**
-     *  Returns true if the specified region has a non-empty intersection
-     *  with this region.
-     */
-    bool intersects(const SkRegion&) const;
+    /** Constructs SkRegion to match outline of path within clip.
+        Returns false if constructed SkRegion is empty.
 
-    /**
-     *  Return true if the specified x,y coordinate is inside the region.
-     */
+        Constructed SkRegion draws the same pixels as path through clip when
+        anti-aliasing is disabled.
+
+        @param path  SkPath providing outline
+        @param clip  SkRegion containing path
+        @return      true if constructed SkRegion is not empty
+    */
+    bool setPath(const SkPath& path, const SkRegion& clip);
+
+    /** Returns true if SkRegion intersects rect.
+        Returns false if either rect or SkRegion is empty, or do not intersect.
+
+        @param rect  SkIRect to intersect
+        @return      true if rect and SkRegion have area in common
+    */
+    bool intersects(const SkIRect& rect) const;
+
+    /** Returns true if SkRegion intersects other.
+        Returns false if either other or SkRegion is empty, or do not intersect.
+
+        @param other  SkRegion to intersect
+        @return       true if other and SkRegion have area in common
+    */
+    bool intersects(const SkRegion& other) const;
+
+    /** Returns true if SkIPoint (x, y) is inside SkRegion.
+        Returns false if SkRegion is empty.
+
+        @param x  test SkIPoint x-coordinate
+        @param y  test SkIPoint y-coordinate
+        @return   true if (x, y) is inside SkRegion
+    */
     bool contains(int32_t x, int32_t y) const;
 
-    /**
-     *  Return true if the specified rectangle is completely inside the region.
-     *  This works for simple (rectangular) and complex regions, and always
-     *  returns the correct result. Note: if either this region or the rectangle
-     *  is empty, contains() returns false.
-     */
-    bool contains(const SkIRect&) const;
+    /** Returns true if other is completely inside SkRegion.
+        Returns false if SkRegion or other is empty.
 
-    /**
-     *  Return true if the specified region is completely inside the region.
-     *  This works for simple (rectangular) and complex regions, and always
-     *  returns the correct result. Note: if either region is empty, contains()
-     *  returns false.
-     */
-    bool contains(const SkRegion&) const;
+        @param other  SkIRect to contain
+        @return       true if other is inside SkRegion
+    */
+    bool contains(const SkIRect& other) const;
 
-    /**
-     *  Return true if this region is a single rectangle (not complex) and the
-     *  specified rectangle is contained by this region. Returning false is not
-     *  a guarantee that the rectangle is not contained by this region, but
-     *  return true is a guarantee that the rectangle is contained by this region.
-     */
+    /** Returns true if other is completely inside SkRegion.
+        Returns false if SkRegion or other is empty.
+
+        @param other  SkRegion to contain
+        @return       true if other is inside SkRegion
+    */
+    bool contains(const SkRegion& other) const;
+
+    /** Returns true if SkRegion is a single rectangle and contains r.
+        May return false even though SkRegion contains r.
+
+        @param r  SkIRect to contain
+        @return   true quickly if r points are equal or inside
+    */
     bool quickContains(const SkIRect& r) const {
-        return this->quickContains(r.fLeft, r.fTop, r.fRight, r.fBottom);
-    }
-
-    /**
-     *  Return true if this region is a single rectangle (not complex) and the
-     *  specified rectangle is contained by this region. Returning false is not
-     *  a guarantee that the rectangle is not contained by this region, but
-     *  return true is a guarantee that the rectangle is contained by this
-     *  region.
-     */
-    bool quickContains(int32_t left, int32_t top, int32_t right,
-                       int32_t bottom) const {
         SkASSERT(this->isEmpty() == fBounds.isEmpty()); // valid region
 
-        return left < right && top < bottom &&
-               fRunHead == SkRegion_gRectRunHeadPtr &&  // this->isRect()
-               /* fBounds.contains(left, top, right, bottom); */
-               fBounds.fLeft <= left && fBounds.fTop <= top &&
-               fBounds.fRight >= right && fBounds.fBottom >= bottom;
+        return  r.fLeft < r.fRight && r.fTop < r.fBottom &&
+                fRunHead == kRectRunHeadPtr &&  // this->isRect()
+                /* fBounds.contains(left, top, right, bottom); */
+                fBounds.fLeft <= r.fLeft   && fBounds.fTop <= r.fTop &&
+                fBounds.fRight >= r.fRight && fBounds.fBottom >= r.fBottom;
     }
 
-    /**
-     *  Return true if this region is empty, or if the specified rectangle does
-     *  not intersect the region. Returning false is not a guarantee that they
-     *  intersect, but returning true is a guarantee that they do not.
-     */
+    /** Returns true if SkRegion does not intersect rect.
+        Returns true if rect is empty or SkRegion is empty.
+        May return false even though SkRegion does not intersect rect.
+
+        @param rect  SkIRect to intersect
+        @return      true if rect does not intersect
+    */
     bool quickReject(const SkIRect& rect) const {
         return this->isEmpty() || rect.isEmpty() ||
                 !SkIRect::Intersects(fBounds, rect);
     }
 
-    /**
-     *  Return true if this region, or rgn, is empty, or if their bounds do not
-     *  intersect. Returning false is not a guarantee that they intersect, but
-     *  returning true is a guarantee that they do not.
-     */
+    /** Returns true if SkRegion does not intersect rgn.
+        Returns true if rgn is empty or SkRegion is empty.
+        May return false even though SkRegion does not intersect rgn.
+
+        @param rgn  SkRegion to intersect
+        @return     true if rgn does not intersect
+    */
     bool quickReject(const SkRegion& rgn) const {
         return this->isEmpty() || rgn.isEmpty() ||
                !SkIRect::Intersects(fBounds, rgn.fBounds);
     }
 
-    /** Translate the region by the specified (dx, dy) amount. */
+    /** Offsets SkRegion by ivector (dx, dy). Has no effect if SkRegion is empty.
+
+        @param dx  x-axis offset
+        @param dy  y-axis offset
+    */
     void translate(int dx, int dy) { this->translate(dx, dy, this); }
 
-    /**
-     *  Translate the region by the specified (dx, dy) amount, writing the
-     *  resulting region into dst. Note: it is legal to pass this region as the
-     *  dst parameter, effectively translating the region in place. If dst is
-     *  null, nothing happens.
-     */
+    /** Offsets SkRegion by ivector (dx, dy), writing result to dst. SkRegion may be passed
+        as dst parameter, translating SkRegion in place. Has no effect if dst is nullptr.
+        If SkRegion is empty, sets dst to empty.
+
+        @param dx   x-axis offset
+        @param dy   y-axis offset
+        @param dst  translated result
+    */
     void translate(int dx, int dy, SkRegion* dst) const;
 
-    /**
-     *  The logical operations that can be performed when combining two regions.
-     */
+    /** \enum SkRegion::Op
+        The logical operations that can be performed when combining two SkRegion.
+    */
     enum Op {
-        kDifference_Op, //!< subtract the op region from the first region
-        kIntersect_Op,  //!< intersect the two regions
-        kUnion_Op,      //!< union (inclusive-or) the two regions
-        kXOR_Op,        //!< exclusive-or the two regions
-        /** subtract the first region from the op region */
-        kReverseDifference_Op,
-        kReplace_Op,    //!< replace the dst region with the op region
-
-        kLastOp = kReplace_Op
+        kDifference_Op,                      //!< target minus operand
+        kIntersect_Op,                       //!< target intersected with operand
+        kUnion_Op,                           //!< target unioned with operand
+        kXOR_Op,                             //!< target exclusive or with operand
+        kReverseDifference_Op,               //!< operand minus target
+        kReplace_Op,                         //!< replace target with operand
+        kLastOp               = kReplace_Op, //!< last operator
     };
 
     static const int kOpCnt = kLastOp + 1;
 
-    /**
-     *  Set this region to the result of applying the Op to this region and the
-     *  specified rectangle: this = (this op rect).
-     *  Return true if the resulting region is non-empty.
-     */
+    /** Replaces SkRegion with the result of SkRegion op rect.
+        Returns true if replaced SkRegion is not empty.
+
+        @param rect  SkIRect operand
+        @param op    operator, one of:
+                     kDifference_Op, kIntersect_Op, kUnion_Op, kXOR_Op, kReverseDifference_Op,
+                     kReplace_Op
+        @return      false if result is empty
+    */
     bool op(const SkIRect& rect, Op op) {
         if (this->isRect() && kIntersect_Op == op) {
             if (!fBounds.intersect(rect)) {
@@ -265,101 +347,189 @@ public:
         return this->op(*this, rect, op);
     }
 
-    /**
-     *  Set this region to the result of applying the Op to this region and the
-     *  specified rectangle: this = (this op rect).
-     *  Return true if the resulting region is non-empty.
-     */
-    bool op(int left, int top, int right, int bottom, Op op) {
-        SkIRect rect;
-        rect.set(left, top, right, bottom);
-        return this->op(*this, rect, op);
-    }
+    /** Replaces SkRegion with the result of SkRegion op rgn.
+        Returns true if replaced SkRegion is not empty.
 
-    /**
-     *  Set this region to the result of applying the Op to this region and the
-     *  specified region: this = (this op rgn).
-     *  Return true if the resulting region is non-empty.
-     */
+        @param rgn  SkRegion operand
+        @param op   operator, one of:
+                    kDifference_Op, kIntersect_Op, kUnion_Op, kXOR_Op, kReverseDifference_Op,
+                    kReplace_Op
+        @return     false if result is empty
+    */
     bool op(const SkRegion& rgn, Op op) { return this->op(*this, rgn, op); }
 
-    /**
-     *  Set this region to the result of applying the Op to the specified
-     *  rectangle and region: this = (rect op rgn).
-     *  Return true if the resulting region is non-empty.
-     */
-    bool op(const SkIRect& rect, const SkRegion& rgn, Op);
+    /** Replaces SkRegion with the result of rect op rgn.
+        Returns true if replaced SkRegion is not empty.
 
-    /**
-     *  Set this region to the result of applying the Op to the specified
-     *  region and rectangle: this = (rgn op rect).
-     *  Return true if the resulting region is non-empty.
-     */
-    bool op(const SkRegion& rgn, const SkIRect& rect, Op);
+        @param rect  SkIRect operand
+        @param rgn   SkRegion operand
+        @param op    operator, one of:
+                     kDifference_Op, kIntersect_Op, kUnion_Op, kXOR_Op, kReverseDifference_Op,
+                     kReplace_Op
+        @return      false if result is empty
+    */
+    bool op(const SkIRect& rect, const SkRegion& rgn, Op op);
 
-    /**
-     *  Set this region to the result of applying the Op to the specified
-     *  regions: this = (rgna op rgnb).
-     *  Return true if the resulting region is non-empty.
-     */
+    /** Replaces SkRegion with the result of rgn op rect.
+        Returns true if replaced SkRegion is not empty.
+
+        @param rgn   SkRegion operand
+        @param rect  SkIRect operand
+        @param op    operator, one of:
+                     kDifference_Op, kIntersect_Op, kUnion_Op, kXOR_Op, kReverseDifference_Op,
+                     kReplace_Op
+        @return      false if result is empty
+    */
+    bool op(const SkRegion& rgn, const SkIRect& rect, Op op);
+
+    /** Replaces SkRegion with the result of rgna op rgnb.
+        Returns true if replaced SkRegion is not empty.
+
+        @param rgna  SkRegion operand
+        @param rgnb  SkRegion operand
+        @param op    operator, one of:
+                     kDifference_Op, kIntersect_Op, kUnion_Op, kXOR_Op, kReverseDifference_Op,
+                     kReplace_Op
+        @return      false if result is empty
+    */
     bool op(const SkRegion& rgna, const SkRegion& rgnb, Op op);
 
-#ifdef SK_BUILD_FOR_ANDROID
-    /** Returns a new char* containing the list of rectangles in this region
-     */
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    /** Private. Android framework only.
+
+        @return  string representation of SkRegion
+    */
     char* toString();
 #endif
 
-    /**
-     *  Returns the sequence of rectangles, sorted in Y and X, that make up
-     *  this region.
-     */
+    /** \class SkRegion::Iterator
+        Returns sequence of rectangles, sorted along y-axis, then x-axis, that make
+        up SkRegion.
+    */
     class SK_API Iterator {
     public:
+
+        /** Initializes SkRegion::Iterator with an empty SkRegion. done() on SkRegion::Iterator
+            returns true.
+            Call reset() to initialized SkRegion::Iterator at a later time.
+
+            @return  empty SkRegion iterator
+        */
         Iterator() : fRgn(nullptr), fDone(true) {}
-        Iterator(const SkRegion&);
-        // if we have a region, reset to it and return true, else return false
+
+        /** Sets SkRegion::Iterator to return elements of SkIRect array in region.
+
+            @param region  SkRegion to iterate
+            @return        SkRegion iterator
+        */
+        Iterator(const SkRegion& region);
+
+        /** SkPoint SkRegion::Iterator to start of SkRegion.
+            Returns true if SkRegion was set; otherwise, returns false.
+
+            @return  true if SkRegion was set
+        */
         bool rewind();
-        // reset the iterator, using the new region
-        void reset(const SkRegion&);
+
+        /** Resets iterator, using the new SkRegion.
+
+            @param region  SkRegion to iterate
+        */
+        void reset(const SkRegion& region);
+
+        /** Returns true if SkRegion::Iterator is pointing to final SkIRect in SkRegion.
+
+            @return  true if data parsing is complete
+        */
         bool done() const { return fDone; }
+
+        /** Advances SkRegion::Iterator to next SkIRect in SkRegion if it is not done.
+        */
         void next();
+
+        /** Returns SkIRect element in SkRegion. Does not return predictable results if SkRegion
+            is empty.
+
+            @return  part of SkRegion as SkIRect
+        */
         const SkIRect& rect() const { return fRect; }
-        // may return null
+
+        /** Returns SkRegion if set; otherwise, returns nullptr.
+
+            @return  iterated SkRegion
+        */
         const SkRegion* rgn() const { return fRgn; }
 
     private:
         const SkRegion* fRgn;
-        const RunType*  fRuns;
-        SkIRect         fRect;
+        const SkRegion::RunType*  fRuns;
+        SkIRect         fRect = {0, 0, 0, 0};
         bool            fDone;
     };
 
-    /**
-     *  Returns the sequence of rectangles, sorted in Y and X, that make up
-     *  this region intersected with the specified clip rectangle.
-     */
+    /** \class SkRegion::Cliperator
+        Returns the sequence of rectangles, sorted along y-axis, then x-axis, that make
+        up SkRegion intersected with the specified clip rectangle.
+    */
     class SK_API Cliperator {
     public:
-        Cliperator(const SkRegion&, const SkIRect& clip);
+
+        /** Sets SkRegion::Cliperator to return elements of SkIRect array in SkRegion within clip.
+
+            @param region  SkRegion to iterate
+            @param clip    bounds of iteration
+            @return        SkRegion iterator
+        */
+        Cliperator(const SkRegion& region, const SkIRect& clip);
+
+        /** Returns true if SkRegion::Cliperator is pointing to final SkIRect in SkRegion.
+
+            @return  true if data parsing is complete
+        */
         bool done() { return fDone; }
+
+        /** Advances iterator to next SkIRect in SkRegion contained by clip.
+        */
         void  next();
+
+        /** Returns SkIRect element in SkRegion, intersected with clip passed to
+            SkRegion::Cliperator constructor. Does not return predictable results if SkRegion
+            is empty.
+
+            @return  part of SkRegion inside clip as SkIRect
+        */
         const SkIRect& rect() const { return fRect; }
 
     private:
         Iterator    fIter;
         SkIRect     fClip;
-        SkIRect     fRect;
+        SkIRect     fRect = {0, 0, 0, 0};
         bool        fDone;
     };
 
-    /**
-     *  Returns the sequence of runs that make up this region for the specified
-     *  Y scanline, clipped to the specified left and right X values.
-     */
+    /** \class SkRegion::Spanerator
+        Returns the line segment ends within SkRegion that intersect a horizontal line.
+    */
     class Spanerator {
     public:
-        Spanerator(const SkRegion&, int y, int left, int right);
+
+        /** Sets SkRegion::Spanerator to return line segments in SkRegion on scan line.
+
+            @param region  SkRegion to iterate
+            @param y       horizontal line to intersect
+            @param left    bounds of iteration
+            @param right   bounds of iteration
+            @return        SkRegion iterator
+        */
+        Spanerator(const SkRegion& region, int y, int left, int right);
+
+        /** Advances iterator to next span intersecting SkRegion within line segment provided
+            in constructor. Returns true if interval was found.
+
+            @param left   pointer to span start; may be nullptr
+            @param right  pointer to span end; may be nullptr
+            @return       true if interval was found
+        */
         bool next(int* left, int* right);
 
     private:
@@ -368,33 +538,22 @@ public:
         bool    fDone;
     };
 
-    /**
-     *  Write the region to the buffer, and return the number of bytes written.
-     *  If buffer is NULL, it still returns the number of bytes.
-     */
+    /** Writes SkRegion to buffer, and returns number of bytes written.
+        If buffer is nullptr, returns number number of bytes that would be written.
+
+        @param buffer  storage for binary data
+        @return        size of SkRegion
+    */
     size_t writeToMemory(void* buffer) const;
-    /**
-     * Initializes the region from the buffer
-     *
-     * @param buffer Memory to read from
-     * @param length Amount of memory available in the buffer
-     * @return number of bytes read (must be a multiple of 4) or
-     *         0 if there was not enough memory available
-     */
+
+    /** Constructs SkRegion from buffer of size length. Returns bytes read.
+        Returned value will be multiple of four or zero if length was too small.
+
+        @param buffer  storage for binary data
+        @param length  size of buffer
+        @return        bytes read
+    */
     size_t readFromMemory(const void* buffer, size_t length);
-
-    /**
-     *  Returns a reference to a global empty region. Just a convenience for
-     *  callers that need a const empty region.
-     */
-    static const SkRegion& GetEmptyRegion();
-
-    SkDEBUGCODE(void dump() const;)
-    SkDEBUGCODE(void validate() const;)
-    SkDEBUGCODE(static void UnitTest();)
-
-    // expose this to allow for regression test on complex regions
-    SkDEBUGCODE(bool debugSetRuns(const RunType runs[], int count);)
 
 private:
     static constexpr int kOpCount = kReplace_Op + 1;
@@ -404,14 +563,17 @@ private:
     // S
     static constexpr int kRectRegionRuns = 7;
 
-    friend class android::Region;    // needed for marshalling efficiently
-
     struct RunHead;
+
+    static RunHead* emptyRunHeadPtr() { return (SkRegion::RunHead*) -1; }
+    static constexpr RunHead* kRectRunHeadPtr = nullptr;
 
     // allocate space for count runs
     void allocateRuns(int count);
     void allocateRuns(int count, int ySpanCount, int intervalCount);
     void allocateRuns(const RunHead& src);
+
+    SkDEBUGCODE(void dump() const;)
 
     SkIRect     fBounds;
     RunHead*    fRunHead;

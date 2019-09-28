@@ -7,11 +7,11 @@
 #ifndef SkBmpStandardCodec_DEFINED
 #define SkBmpStandardCodec_DEFINED
 
-#include "SkBmpBaseCodec.h"
-#include "SkColorTable.h"
-#include "SkImageInfo.h"
-#include "SkSwizzler.h"
-#include "SkTypes.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkTypes.h"
+#include "src/codec/SkBmpBaseCodec.h"
+#include "src/codec/SkColorTable.h"
+#include "src/codec/SkSwizzler.h"
 
 /*
  * This class implements the decoding for bmp images that use "standard" modes,
@@ -39,9 +39,9 @@ public:
      *                 the icp mask, if there is one)
      * @param inIco    indicates if the bmp is embedded in an ico file
      */
-    SkBmpStandardCodec(int width, int height, const SkEncodedInfo& info,
-                       std::unique_ptr<SkStream> stream, uint16_t bitsPerPixel, uint32_t numColors,
-                       uint32_t bytesPerColor, uint32_t offset, SkCodec::SkScanlineOrder rowOrder,
+    SkBmpStandardCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
+                       uint16_t bitsPerPixel, uint32_t numColors, uint32_t bytesPerColor,
+                       uint32_t offset, SkCodec::SkScanlineOrder rowOrder,
                        bool isOpaque, bool inIco);
 
 protected:
@@ -57,21 +57,14 @@ protected:
     SkCodec::Result onPrepareToDecode(const SkImageInfo& dstInfo,
             const SkCodec::Options& options) override;
 
-
-    uint64_t onGetFillValue(const SkImageInfo&) const override;
-
     SkSampler* getSampler(bool createIfNecessary) override {
         SkASSERT(fSwizzler);
         return fSwizzler.get();
     }
 
 private:
-
-    /*
-     * Creates the color table
-     */
     bool createColorTable(SkColorType colorType, SkAlphaType alphaType);
-
+    SkEncodedInfo swizzlerInfo() const;
     void initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts);
 
     int decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,

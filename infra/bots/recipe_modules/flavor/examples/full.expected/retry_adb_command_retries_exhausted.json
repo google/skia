@@ -1,19 +1,65 @@
 [
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+    ],
+    "name": "get swarming bot id",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
       "push",
       "file.txt",
       "file.txt"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "push file.txt file.txt"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "cat",
+      "file.txt"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "read file.txt"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "rm",
+      "-f",
+      "file.txt"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm file.txt"
   },
   {
     "cmd": [
@@ -45,7 +91,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "rm",
       "-rf",
@@ -53,16 +99,16 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "rm device_results_dir"
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "mkdir",
       "-p",
@@ -70,16 +116,16 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "mkdir device_results_dir"
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "mkdir",
       "-p",
@@ -87,27 +133,26 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "mkdir /sdcard/revenge_of_the_skiabot/resources",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_EXCEPTION@@@"
     ]
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "kill-server"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "kill adb server after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 1)",
@@ -115,14 +160,14 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "wait-for-device"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "wait for device after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 1)",
@@ -130,7 +175,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "mkdir",
       "-p",
@@ -138,27 +183,26 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "mkdir /sdcard/revenge_of_the_skiabot/resources (attempt 2)",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_EXCEPTION@@@"
     ]
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "kill-server"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "kill adb server after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 2)",
@@ -166,14 +210,14 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "wait-for-device"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "wait for device after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 2)",
@@ -181,7 +225,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "mkdir",
       "-p",
@@ -189,14 +233,13 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "mkdir /sdcard/revenge_of_the_skiabot/resources (attempt 3)",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_EXCEPTION@@@"
     ]
   },
@@ -204,12 +247,12 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['/usr/bin/adb.1.0.35', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
-      "[START_DIR]/build/out/Debug"
+      "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['/opt/infra-android/tools/adb', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
+      "[START_DIR]/build"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "dump log",
@@ -220,7 +263,7 @@
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
       "@@@STEP_LOG_LINE@python.inline@out = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output(['/usr/bin/adb.1.0.35', 'logcat', '-d'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output(['/opt/infra-android/tools/adb', 'logcat', '-d'])@@@",
       "@@@STEP_LOG_LINE@python.inline@for line in log.split('\\n'):@@@",
       "@@@STEP_LOG_LINE@python.inline@  tokens = line.split()@@@",
       "@@@STEP_LOG_LINE@python.inline@  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':@@@",
@@ -237,20 +280,6 @@
     "cmd": [
       "python",
       "-u",
-      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
-    ],
-    "name": "get swarming bot id",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
@@ -259,26 +288,30 @@
       "/home/chrome-bot/build123-m2--device5.force_quarantine"
     ],
     "infra_step": true,
-    "name": "Quarantining Bot"
+    "name": "Quarantining Bot",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@build123-m2--device5.force_quarantine@ @@@",
+      "@@@STEP_LOG_END@build123-m2--device5.force_quarantine@@@"
+    ]
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "kill-server"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "kill adb server"
   },
   {
-    "name": "$result",
-    "reason": "Infra Failure: Step('mkdir /sdcard/revenge_of_the_skiabot/resources (attempt 3)') returned 1",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "humanReason": "Infra Failure: Step('mkdir /sdcard/revenge_of_the_skiabot/resources (attempt 3)') (retcode: 1)"
+    },
+    "name": "$result"
   }
 ]

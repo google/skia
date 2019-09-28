@@ -5,40 +5,32 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "tests/Test.h"
 
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::GLTestContext;
 using sk_gpu_test::ContextInfo;
 
-// TODO: currently many GPU tests are declared outside SK_SUPPORT_GPU guards.
-// Thus we export the empty RunWithGPUTestContexts when SK_SUPPORT_GPU=0.
 namespace skiatest {
 
-#if SK_SUPPORT_GPU
 bool IsGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return kOpenGL_GrBackend == GrContextFactory::ContextTypeBackend(type);
+    return GrBackendApi::kOpenGL == GrContextFactory::ContextTypeBackend(type);
 }
 bool IsVulkanContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return kVulkan_GrBackend == GrContextFactory::ContextTypeBackend(type);
+    return GrBackendApi::kVulkan == GrContextFactory::ContextTypeBackend(type);
+}
+bool IsMetalContextType(sk_gpu_test::GrContextFactory::ContextType type) {
+    return GrBackendApi::kMetal == GrContextFactory::ContextTypeBackend(type);
 }
 bool IsRenderingGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
     return IsGLContextType(type) && GrContextFactory::IsRenderingContext(type);
 }
-bool IsNullGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return type == GrContextFactory::kNullGL_ContextType;
+bool IsMockContextType(sk_gpu_test::GrContextFactory::ContextType type) {
+    return type == GrContextFactory::kMock_ContextType;
 }
-#else
-bool IsGLContextType(int) { return false; }
-bool IsVulkanContextType(int) { return false; }
-bool IsRenderingGLContextType(int) { return false; }
-bool IsNullGLContextType(int) { return false; }
-#endif
 
 void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contextTypeFilter,
                             Reporter* reporter, const GrContextOptions& options) {
-#if SK_SUPPORT_GPU
-
 #if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
     static constexpr auto kNativeGLType = GrContextFactory::kGL_ContextType;
 #else
@@ -60,8 +52,7 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
         // also tracks which of its contexts is current above that API and gets tripped up if the
         // native windowing API is used directly outside of the command buffer code.
         GrContextFactory factory(options);
-        ContextInfo ctxInfo = factory.getContextInfo(
-                contextType, GrContextFactory::ContextOverrides::kDisableNVPR);
+        ContextInfo ctxInfo = factory.getContextInfo(contextType);
         if (contextTypeFilter && !(*contextTypeFilter)(contextType)) {
             continue;
         }
@@ -71,13 +62,6 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
             (*test)(reporter, ctxInfo);
             ctxInfo.grContext()->flush();
         }
-        ctxInfo = factory.getContextInfo(contextType,
-                                         GrContextFactory::ContextOverrides::kRequireNVPRSupport);
-        if (ctxInfo.grContext()) {
-            (*test)(reporter, ctxInfo);
-            ctxInfo.grContext()->flush();
-        }
     }
-#endif
 }
 } // namespace skiatest

@@ -8,10 +8,11 @@
 #ifndef GrGLUtil_DEFINED
 #define GrGLUtil_DEFINED
 
-#include "gl/GrGLInterface.h"
-#include "GrGLDefines.h"
-#include "GrStencilSettings.h"
-#include "GrTypesPriv.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrDataUtils.h"
+#include "src/gpu/GrStencilSettings.h"
+#include "src/gpu/gl/GrGLDefines.h"
 
 class SkMatrix;
 
@@ -29,6 +30,9 @@ typedef uint64_t GrGLDriverVersion;
                                                (static_cast<uint64_t>(minor) << 16) | \
                                                 static_cast<uint64_t>(point))
 
+#define GR_GL_MAJOR_VER(version) (static_cast<uint32_t>(version) >> 16)
+#define GR_GL_MINOR_VER(version) (static_cast<uint32_t>(version) & 0xFFFF)
+
 #define GR_GL_INVALID_VER GR_GL_VER(0, 0)
 #define GR_GLSL_INVALID_VER GR_GLSL_VER(0, 0)
 #define GR_GL_DRIVER_UNKNOWN_VER GR_GL_DRIVER_VER(0, 0, 0)
@@ -38,6 +42,7 @@ typedef uint64_t GrGLDriverVersion;
  */
 enum GrGLVendor {
     kARM_GrGLVendor,
+    kGoogle_GrGLVendor,
     kImagination_GrGLVendor,
     kIntel_GrGLVendor,
     kQualcomm_GrGLVendor,
@@ -53,15 +58,35 @@ enum GrGLRenderer {
     kPowerVR54x_GrGLRenderer,
     kPowerVRRogue_GrGLRenderer,
     kAdreno3xx_GrGLRenderer,
-    kAdreno4xx_GrGLRenderer,
+    kAdreno430_GrGLRenderer,
+    kAdreno4xx_other_GrGLRenderer,
     kAdreno5xx_GrGLRenderer,
     kOSMesa_GrGLRenderer,
-    kIntelIrisPro_GrGLRenderer,
-    /** Either HD 4xxx or Iris 4xxx */
-    kIntel4xxx_GrGLRenderer,
-    /** Either HD 6xxx or Iris 6xxx */
-    kIntel6xxx_GrGLRenderer,
-    kIntelSkylake_GrGLRenderer,
+    kGoogleSwiftShader_GrGLRenderer,
+
+    /** Intel GPU families, ordered by generation **/
+    // 6th gen
+    kIntelSandyBridge_GrGLRenderer,
+
+    // 7th gen
+    kIntelIvyBridge_GrGLRenderer,
+    kIntelValleyView_GrGLRenderer, // aka BayTrail
+    kIntelHaswell_GrGLRenderer,
+
+    // 8th gen
+    kIntelCherryView_GrGLRenderer, // aka Braswell
+    kIntelBroadwell_GrGLRenderer,
+
+    // 9th gen
+    kIntelApolloLake_GrGLRenderer,
+    kIntelSkyLake_GrGLRenderer,
+    kIntelGeminiLake_GrGLRenderer,
+    kIntelKabyLake_GrGLRenderer,
+    kIntelCoffeeLake_GrGLRenderer,
+
+    // 11th gen
+    kIntelIceLake_GrGLRenderer,
+
     kGalliumLLVM_GrGLRenderer,
     kMali4xx_GrGLRenderer,
     /** T-6xx, T-7xx, or T-8xx */
@@ -80,7 +105,9 @@ enum GrGLDriver {
     kNVIDIA_GrGLDriver,
     kIntel_GrGLDriver,
     kANGLE_GrGLDriver,
+    kSwiftShader_GrGLDriver,
     kQualcomm_GrGLDriver,
+    kAndroidEmulator_GrGLDriver,
     kUnknown_GrGLDriver
 };
 
@@ -98,6 +125,7 @@ enum class GrGLANGLEVendor {
 
 enum class GrGLANGLERenderer {
     kUnknown,
+    kSandyBridge,
     kIvyBridge,
     kSkylake
 };
@@ -250,8 +278,105 @@ void GrGLClearErr(const GrGLInterface* gl);
 // call glGetError without doing a redundant error check or logging.
 #define GR_GL_GET_ERROR(IFACE) (IFACE)->fFunctions.fGetError()
 
+static constexpr GrGLFormat GrGLFormatFromGLEnum(GrGLenum glFormat) {
+    switch (glFormat) {
+        case GR_GL_RGBA8:                return GrGLFormat::kRGBA8;
+        case GR_GL_R8:                   return GrGLFormat::kR8;
+        case GR_GL_ALPHA8:               return GrGLFormat::kALPHA8;
+        case GR_GL_LUMINANCE8:           return GrGLFormat::kLUMINANCE8;
+        case GR_GL_BGRA8:                return GrGLFormat::kBGRA8;
+        case GR_GL_RGB565:               return GrGLFormat::kRGB565;
+        case GR_GL_RGBA16F:              return GrGLFormat::kRGBA16F;
+        case GR_GL_LUMINANCE16F:         return GrGLFormat::kLUMINANCE16F;
+        case GR_GL_R16F:                 return GrGLFormat::kR16F;
+        case GR_GL_RGB8:                 return GrGLFormat::kRGB8;
+        case GR_GL_RG8:                  return GrGLFormat::kRG8;
+        case GR_GL_RGB10_A2:             return GrGLFormat::kRGB10_A2;
+        case GR_GL_RGBA4:                return GrGLFormat::kRGBA4;
+        case GR_GL_RGBA32F:              return GrGLFormat::kRGBA32F;
+        case GR_GL_SRGB8_ALPHA8:         return GrGLFormat::kSRGB8_ALPHA8;
+        case GR_GL_COMPRESSED_RGB8_ETC2: return GrGLFormat::kCOMPRESSED_RGB8_ETC2;
+        case GR_GL_COMPRESSED_ETC1_RGB8: return GrGLFormat::kCOMPRESSED_ETC1_RGB8;
+        case GR_GL_R16:                  return GrGLFormat::kR16;
+        case GR_GL_RG16:                 return GrGLFormat::kRG16;
+        case GR_GL_RGBA16:               return GrGLFormat::kRGBA16;
+        case GR_GL_RG16F:                return GrGLFormat::kRG16F;
+
+        default:                         return GrGLFormat::kUnknown;
+    }
+}
+
+/** Returns either the sized internal format or compressed internal format of the GrGLFormat. */
+static constexpr GrGLenum GrGLFormatToEnum(GrGLFormat format) {
+    switch (format) {
+        case GrGLFormat::kRGBA8:                return GR_GL_RGBA8;
+        case GrGLFormat::kR8:                   return GR_GL_R8;
+        case GrGLFormat::kALPHA8:               return GR_GL_ALPHA8;
+        case GrGLFormat::kLUMINANCE8:           return GR_GL_LUMINANCE8;
+        case GrGLFormat::kBGRA8:                return GR_GL_BGRA8;
+        case GrGLFormat::kRGB565:               return GR_GL_RGB565;
+        case GrGLFormat::kRGBA16F:              return GR_GL_RGBA16F;
+        case GrGLFormat::kLUMINANCE16F:         return GR_GL_LUMINANCE16F;
+        case GrGLFormat::kR16F:                 return GR_GL_R16F;
+        case GrGLFormat::kRGB8:                 return GR_GL_RGB8;
+        case GrGLFormat::kRG8:                  return GR_GL_RG8;
+        case GrGLFormat::kRGB10_A2:             return GR_GL_RGB10_A2;
+        case GrGLFormat::kRGBA4:                return GR_GL_RGBA4;
+        case GrGLFormat::kRGBA32F:              return GR_GL_RGBA32F;
+        case GrGLFormat::kSRGB8_ALPHA8:         return GR_GL_SRGB8_ALPHA8;
+        case GrGLFormat::kCOMPRESSED_RGB8_ETC2: return GR_GL_COMPRESSED_RGB8_ETC2;
+        case GrGLFormat::kCOMPRESSED_ETC1_RGB8: return GR_GL_COMPRESSED_ETC1_RGB8;
+        case GrGLFormat::kR16:                  return GR_GL_R16;
+        case GrGLFormat::kRG16:                 return GR_GL_RG16;
+        case GrGLFormat::kRGBA16:               return GR_GL_RGBA16;
+        case GrGLFormat::kRG16F:                return GR_GL_RG16F;
+        case GrGLFormat::kUnknown:              return 0;
+    }
+    SkUNREACHABLE;
+}
+
+#if GR_TEST_UTILS
+static constexpr const char* GrGLFormatToStr(GrGLenum glFormat) {
+    switch (glFormat) {
+        case GR_GL_RGBA8:                return "RGBA8";
+        case GR_GL_R8:                   return "R8";
+        case GR_GL_ALPHA8:               return "ALPHA8";
+        case GR_GL_LUMINANCE8:           return "LUMINANCE8";
+        case GR_GL_BGRA8:                return "BGRA8";
+        case GR_GL_RGB565:               return "RGB565";
+        case GR_GL_RGBA16F:              return "RGBA16F";
+        case GR_GL_LUMINANCE16F:         return "LUMINANCE16F";
+        case GR_GL_R16F:                 return "R16F";
+        case GR_GL_RGB8:                 return "RGB8";
+        case GR_GL_RG8:                  return "RG8";
+        case GR_GL_RGB10_A2:             return "RGB10_A2";
+        case GR_GL_RGBA4:                return "RGBA4";
+        case GR_GL_RGBA32F:              return "RGBA32F";
+        case GR_GL_SRGB8_ALPHA8:         return "SRGB8_ALPHA8";
+        case GR_GL_COMPRESSED_RGB8_ETC2: return "ETC2";
+        case GR_GL_COMPRESSED_ETC1_RGB8: return "ETC1";
+        case GR_GL_R16:                  return "R16";
+        case GR_GL_RG16:                 return "RG16";
+        case GR_GL_RGBA16:               return "RGBA16";
+        case GR_GL_RG16F:                return "RG16F";
+
+        default:                         return "Unknown";
+    }
+}
+#endif
+
 GrGLenum GrToGLStencilFunc(GrStencilTest test);
 
-GrPixelConfig GrGLSizedFormatToPixelConfig(GrGLenum sizedFormat);
+/**
+ * Returns true if the format is compressed.
+ */
+bool GrGLFormatIsCompressed(GrGLFormat);
+
+/**
+ * Maps a GrGLFormat into the CompressionType enum if appropriate.
+ */
+bool GrGLFormatToCompressionType(GrGLFormat, SkImage::CompressionType*);
+
+size_t GrGLBytesPerFormat(GrGLFormat);
 
 #endif

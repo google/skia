@@ -4,19 +4,5 @@
 # found in the LICENSE file.
 
 skcms_sources = [
-  "src/Curve.c",
-  "src/Curve.h",
-  "src/ICCProfile.c",
-  "src/ICCProfile.h",
-  "src/LinearAlgebra.c",
-  "src/LinearAlgebra.h",
-  "src/Macros.h",
-  "src/PortableMath.c",
-  "src/PortableMath.h",
-  "src/RandomBytes.h",
-  "src/TransferFunction.c",
-  "src/TransferFunction.h",
-  "src/Transform.c",
-  "src/Transform.h",
-  "src/Transform_inl.h",
+  "skcms.cc",
 ]

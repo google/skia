@@ -7,14 +7,14 @@
 #ifndef SkGifCodec_DEFINED
 #define SkGifCodec_DEFINED
 
-#include "SkCodec.h"
-#include "SkCodecAnimation.h"
-#include "SkColorSpace.h"
-#include "SkColorTable.h"
-#include "SkImageInfo.h"
-#include "SkSwizzler.h"
+#include "include/codec/SkCodec.h"
+#include "include/codec/SkCodecAnimation.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImageInfo.h"
+#include "src/codec/SkColorTable.h"
+#include "src/codec/SkSwizzler.h"
 
-#include "SkGifImageReader.h"
+#include "third_party/gif/SkGifImageReader.h"
 
 /*
  *
@@ -46,8 +46,6 @@ protected:
     }
 
     bool onRewind() override;
-
-    uint64_t onGetFillValue(const SkImageInfo&) const override;
 
     int onGetFrameCount() override;
     bool onGetFrameInfo(int, FrameInfo*) const override;
@@ -128,7 +126,7 @@ private:
      * Called only by NewFromStream
      * Takes ownership of the SkGifImageReader
      */
-    SkGifCodec(const SkEncodedInfo&, const SkImageInfo&, SkGifImageReader*);
+    SkGifCodec(SkEncodedInfo&&, SkGifImageReader*);
 
     std::unique_ptr<SkGifImageReader>   fReader;
     std::unique_ptr<uint8_t[]>          fTmpBuffer;

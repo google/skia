@@ -5,35 +5,34 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorSpace.h"
-#include "SkRasterPipeline.h"
-#include "Test.h"
-#include "../src/jumper/SkJumper.h"
+#include "include/core/SkColorSpace.h"
+#include "src/core/SkRasterPipeline.h"
+#include "tests/Test.h"
 
-static void check_error(skiatest::Reporter* r, float limit, SkColorSpaceTransferFn fn) {
+static void check_error(skiatest::Reporter* r, float limit, skcms_TransferFunction fn) {
     float in[256], out[256];
     for (int i = 0; i < 256; i++) {
         in [i] = i / 255.0f;
         out[i] = 0.0f;  // Not likely important.  Just being tidy.
     }
 
-    SkJumper_MemoryCtx ip = { in, 0},
-                       op = {out, 0};
+    SkRasterPipeline_MemoryCtx ip = { in, 0},
+                               op = {out, 0};
 
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f32, &ip);
-    p.append(SkRasterPipeline::parametric_r, &fn);
-    p.append(SkRasterPipeline::parametric_g, &fn);
-    p.append(SkRasterPipeline::parametric_b, &fn);
-    p.append(SkRasterPipeline::parametric_a, &fn);
+    p.append(SkRasterPipeline::parametric, &fn);
     p.append(SkRasterPipeline::store_f32, &op);
 
     p.run(0,0, 256/4,1);
 
 
     for (int i = 0; i < 256; i++) {
-        float want = (in[i] <= fn.fD) ? fn.fC * in[i] + fn.fF
-                                      : powf(in[i] * fn.fA + fn.fB, fn.fG) + fn.fE;
+        float want = (in[i] <= fn.d) ? fn.c * in[i] + fn.f
+                                     : powf(in[i] * fn.a + fn.b, fn.g) + fn.e;
+        if (i % 4 == 3) {  // alpha should stay unchanged.
+            want = in[i];
+        }
         float err = fabsf(out[i] - want);
         if (err > limit) {
             ERRORF(r, "At %d, error was %g (got %g, want %g)", i, err, out[i], want);
@@ -42,9 +41,9 @@ static void check_error(skiatest::Reporter* r, float limit, SkColorSpaceTransfer
 }
 
 static void check_error(skiatest::Reporter* r, float limit, float gamma) {
-    SkColorSpaceTransferFn fn = {0,0,0,0,0,0,0};
-    fn.fG = gamma;
-    fn.fA = 1;
+    skcms_TransferFunction fn = {0,0,0,0,0,0,0};
+    fn.g = gamma;
+    fn.a = 1;
     check_error(r, limit, fn);
 }
 

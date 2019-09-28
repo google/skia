@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageInfoPriv.h"
-#include "SkSafeMath.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkSafeMath.h"
+#include "src/core/SkWriteBuffer.h"
 
 int SkColorTypeBytesPerPixel(SkColorType ct) {
     switch (ct) {
@@ -22,27 +22,12 @@ int SkColorTypeBytesPerPixel(SkColorType ct) {
         case kRGBA_1010102_SkColorType: return 4;
         case kRGB_101010x_SkColorType:  return 4;
         case kGray_8_SkColorType:       return 1;
+        case kRGBA_F16Norm_SkColorType: return 8;
         case kRGBA_F16_SkColorType:     return 8;
+        case kRGBA_F32_SkColorType:     return 16;
     }
     return 0;
 }
-
-// These values must be constant over revisions, though they can be renamed to reflect if/when
-// they are deprecated.
-enum Stored_SkColorType {
-    kUnknown_Stored_SkColorType             = 0,
-    kAlpha_8_Stored_SkColorType             = 1,
-    kRGB_565_Stored_SkColorType             = 2,
-    kARGB_4444_Stored_SkColorType           = 3,
-    kRGBA_8888_Stored_SkColorType           = 4,
-    kBGRA_8888_Stored_SkColorType           = 5,
-    kIndex_8_Stored_SkColorType_DEPRECATED  = 6,
-    kGray_8_Stored_SkColorType              = 7,
-    kRGBA_F16_Stored_SkColorType            = 8,
-    kRGB_888x_Stored_SkColorType            = 9,
-    kRGBA_1010102_Stored_SkColorType        = 10,
-    kRGB_101010x_Stored_SkColorType         = 11,
-};
 
 bool SkColorTypeIsAlwaysOpaque(SkColorType ct) {
     return !(kAlpha_SkColorTypeComponentFlag & SkColorTypeComponentFlags(ct));
@@ -55,19 +40,19 @@ int SkImageInfo::bytesPerPixel() const { return SkColorTypeBytesPerPixel(fColorT
 int SkImageInfo::shiftPerPixel() const { return SkColorTypeShiftPerPixel(fColorType); }
 
 size_t SkImageInfo::computeOffset(int x, int y, size_t rowBytes) const {
-    SkASSERT((unsigned)x < (unsigned)fWidth);
-    SkASSERT((unsigned)y < (unsigned)fHeight);
-    return SkColorTypeComputeOffset(fColorType, x, y, rowBytes);
+    SkASSERT((unsigned)x < (unsigned)this->width());
+    SkASSERT((unsigned)y < (unsigned)this->height());
+    return SkColorTypeComputeOffset(this->colorType(), x, y, rowBytes);
 }
 
 size_t SkImageInfo::computeByteSize(size_t rowBytes) const {
-    if (0 == fHeight) {
+    if (0 == this->height()) {
         return 0;
     }
     SkSafeMath safe;
-    size_t bytes = safe.add(safe.mul(fHeight - 1, rowBytes),
-                            safe.mul(fWidth, this->bytesPerPixel()));
-    return safe ? bytes : SK_MaxSizeT;
+    size_t bytes = safe.add(safe.mul(safe.addInt(this->height(), -1), rowBytes),
+                            safe.mul(this->width(), this->bytesPerPixel()));
+    return safe ? bytes : SIZE_MAX;
 }
 
 SkImageInfo SkImageInfo::MakeS32(int width, int height, SkAlphaType at) {
@@ -90,7 +75,9 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
         case kRGBA_1010102_SkColorType:
+        case kRGBA_F16Norm_SkColorType:
         case kRGBA_F16_SkColorType:
+        case kRGBA_F32_SkColorType:
             if (kUnknown_SkAlphaType == alphaType) {
                 return false;
             }
@@ -112,7 +99,7 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkReadPixelsRec.h"
+#include "src/image/SkReadPixelsRec.h"
 
 bool SkReadPixelsRec::trim(int srcWidth, int srcHeight) {
     if (nullptr == fPixels || fRowBytes < fInfo.minRowBytes()) {
@@ -125,7 +112,7 @@ bool SkReadPixelsRec::trim(int srcWidth, int srcHeight) {
     int x = fX;
     int y = fY;
     SkIRect srcR = SkIRect::MakeXYWH(x, y, fInfo.width(), fInfo.height());
-    if (!srcR.intersect(0, 0, srcWidth, srcHeight)) {
+    if (!srcR.intersect({0, 0, srcWidth, srcHeight})) {
         return false;
     }
 
@@ -137,7 +124,8 @@ bool SkReadPixelsRec::trim(int srcWidth, int srcHeight) {
         y = 0;
     }
     // here x,y are either 0 or negative
-    fPixels = ((char*)fPixels - y * fRowBytes - x * fInfo.bytesPerPixel());
+    // we negate and add them so UBSAN (pointer-overflow) doesn't get confused.
+    fPixels = ((char*)fPixels + -y*fRowBytes + -x*fInfo.bytesPerPixel());
     // the intersect may have shrunk info's logical size
     fInfo = fInfo.makeWH(srcR.width(), srcR.height());
     fX = srcR.x();
@@ -148,7 +136,7 @@ bool SkReadPixelsRec::trim(int srcWidth, int srcHeight) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkWritePixelsRec.h"
+#include "src/core/SkWritePixelsRec.h"
 
 bool SkWritePixelsRec::trim(int dstWidth, int dstHeight) {
     if (nullptr == fPixels || fRowBytes < fInfo.minRowBytes()) {
@@ -161,7 +149,7 @@ bool SkWritePixelsRec::trim(int dstWidth, int dstHeight) {
     int x = fX;
     int y = fY;
     SkIRect dstR = SkIRect::MakeXYWH(x, y, fInfo.width(), fInfo.height());
-    if (!dstR.intersect(0, 0, dstWidth, dstHeight)) {
+    if (!dstR.intersect({0, 0, dstWidth, dstHeight})) {
         return false;
     }
 
@@ -173,7 +161,8 @@ bool SkWritePixelsRec::trim(int dstWidth, int dstHeight) {
         y = 0;
     }
     // here x,y are either 0 or negative
-    fPixels = ((const char*)fPixels - y * fRowBytes - x * fInfo.bytesPerPixel());
+    // we negate and add them so UBSAN (pointer-overflow) doesn't get confused.
+    fPixels = ((const char*)fPixels + -y*fRowBytes + -x*fInfo.bytesPerPixel());
     // the intersect may have shrunk info's logical size
     fInfo = fInfo.makeWH(dstR.width(), dstR.height());
     fX = dstR.x();

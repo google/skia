@@ -7,13 +7,14 @@
 
 
 BUILD_PRODUCTS_ISOLATE_WHITELIST = [
-  'bookmaker',
   'dm',
   'dm.exe',
   'dm.app',
   'nanobench.app',
   'get_images_from_skps',
   'get_images_from_skps.exe',
+  'hello-opencl',
+  'hello-opencl.exe',
   'nanobench',
   'nanobench.exe',
   'skpbench',
@@ -23,6 +24,7 @@ BUILD_PRODUCTS_ISOLATE_WHITELIST = [
   '*.dylib',
   'skia_launcher',
   'skiaserve',
+  'skottie_tool',
   'lib/*.so',
   'run_testlab',
   'skqp-universal-debug.apk',

@@ -5,13 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapProcShader.h"
+#include "src/shaders/SkBitmapProcShader.h"
 
-#include "SkArenaAlloc.h"
-#include "SkBitmapProcState.h"
-#include "SkBitmapProvider.h"
-#include "SkPM4fPriv.h"
-#include "SkXfermodePriv.h"
+#include "src/core/SkArenaAlloc.h"
+#include "src/core/SkBitmapProcState.h"
+#include "src/core/SkXfermodePriv.h"
 
 static bool only_scale_and_translate(const SkMatrix& matrix) {
     unsigned mask = SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask;
@@ -94,8 +92,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkShaderBase::Context* SkBitmapProcLegacyShader::MakeContext(
-    const SkShaderBase& shader, TileMode tmx, TileMode tmy,
-    const SkBitmapProvider& provider, const ContextRec& rec, SkArenaAlloc* alloc)
+    const SkShaderBase& shader, SkTileMode tmx, SkTileMode tmy,
+    const SkImage_Base* image, const ContextRec& rec, SkArenaAlloc* alloc)
 {
     SkMatrix totalInverse;
     // Do this first, so we know the matrix can be inverted.
@@ -103,7 +101,7 @@ SkShaderBase::Context* SkBitmapProcLegacyShader::MakeContext(
         return nullptr;
     }
 
-    SkBitmapProcState* state = alloc->make<SkBitmapProcState>(provider, tmx, tmy);
+    SkBitmapProcState* state = alloc->make<SkBitmapProcState>(image, tmx, tmy);
     if (!state->setup(totalInverse, *rec.fPaint)) {
         return nullptr;
     }

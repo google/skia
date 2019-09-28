@@ -11,12 +11,20 @@
 #include <vector>
 #include <memory>
 
-#include "SkSLBoolLiteral.h"
-#include "SkSLExpression.h"
-#include "SkSLIntLiteral.h"
-#include "SkSLModifiers.h"
-#include "SkSLProgramElement.h"
-#include "SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLBoolLiteral.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLFloatLiteral.h"
+#include "src/sksl/ir/SkSLIntLiteral.h"
+#include "src/sksl/ir/SkSLModifiers.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
+
+#ifdef SK_VULKAN
+#include "src/gpu/vk/GrVkCaps.h"
+#endif
+
+// name of the render target width uniform
+#define SKSL_RTWIDTH_NAME "u_skRTWidth"
 
 // name of the render target height uniform
 #define SKSL_RTHEIGHT_NAME "u_skRTHeight"
@@ -39,6 +47,14 @@ struct Program {
             : fKind(kInt_Kind)
             , fValue(i) {}
 
+            Value(unsigned int i)
+            : fKind(kInt_Kind)
+            , fValue(i) {}
+
+            Value(float f)
+            : fKind(kFloat_Kind)
+            , fValue(f) {}
+
             std::unique_ptr<Expression> literal(const Context& context, int offset) const {
                 switch (fKind) {
                     case Program::Settings::Value::kBool_Kind:
@@ -49,8 +65,12 @@ struct Program {
                         return std::unique_ptr<Expression>(new IntLiteral(context,
                                                                           offset,
                                                                           fValue));
+                    case Program::Settings::Value::kFloat_Kind:
+                        return std::unique_ptr<Expression>(new FloatLiteral(context,
+                                                                          offset,
+                                                                          fValue));
                     default:
-                        ASSERT(false);
+                        SkASSERT(false);
                         return nullptr;
                 }
             }
@@ -58,15 +78,19 @@ struct Program {
             enum {
                 kBool_Kind,
                 kInt_Kind,
+                kFloat_Kind,
             } fKind;
 
             int fValue;
         };
 
-#ifdef SKSL_STANDALONE
+#if defined(SKSL_STANDALONE) || !SK_SUPPORT_GPU
         const StandaloneShaderCaps* fCaps = &standaloneCaps;
 #else
         const GrShaderCaps* fCaps = nullptr;
+#ifdef SK_VULKAN
+        const GrVkCaps* fVkCaps = nullptr;
+#endif
 #endif
         // if false, sk_FragCoord is exactly the same as gl_FragCoord. If true, the y coordinate
         // must be flipped.
@@ -80,10 +104,16 @@ struct Program {
         bool fForceHighPrecision = false;
         // if true, add -0.5 bias to LOD of all texture lookups
         bool fSharpenTextures = false;
+        // if the program needs to create an RTHeight uniform, this is its offset in the uniform
+        // buffer
+        int fRTHeightOffset = -1;
         std::unordered_map<String, Value> fArgs;
     };
 
     struct Inputs {
+        // if true, this program requires the render target width uniform to be defined
+        bool fRTWidth;
+
         // if true, this program requires the render target height uniform to be defined
         bool fRTHeight;
 
@@ -92,12 +122,13 @@ struct Program {
         bool fFlipY;
 
         void reset() {
+            fRTWidth = false;
             fRTHeight = false;
             fFlipY = false;
         }
 
         bool isEmpty() {
-            return !fRTHeight && !fFlipY;
+            return !fRTWidth && !fRTHeight && !fFlipY;
         }
     };
 
@@ -192,7 +223,8 @@ struct Program {
         kVertex_Kind,
         kGeometry_Kind,
         kFragmentProcessor_Kind,
-        kCPU_Kind
+        kPipelineStage_Kind,
+        kGeneric_Kind,
     };
 
     Program(Kind kind,
@@ -252,10 +284,13 @@ struct Program {
     // because destroying elements can modify reference counts in symbols
     std::shared_ptr<SymbolTable> fSymbols;
     Inputs fInputs;
+    bool fIsOptimized = false;
 
 private:
     std::vector<std::unique_ptr<ProgramElement>>* fInheritedElements;
     std::vector<std::unique_ptr<ProgramElement>> fElements;
+
+    friend class Compiler;
 };
 
 } // namespace

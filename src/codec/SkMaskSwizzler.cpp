@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkCodecPriv.h"
-#include "SkColorData.h"
-#include "SkMaskSwizzler.h"
+#include "include/private/SkColorData.h"
+#include "src/codec/SkCodecPriv.h"
+#include "src/codec/SkMaskSwizzler.h"
 
 static void swizzle_mask16_to_rgba_opaque(
         void* dstRow, const uint8_t* srcRow, int width, SkMasks* masks,
@@ -385,7 +385,7 @@ static void swizzle_mask32_to_565(
  *
  */
 SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(const SkImageInfo& dstInfo,
-        const SkImageInfo& srcInfo, SkMasks* masks, uint32_t bitsPerPixel,
+        bool srcIsOpaque, SkMasks* masks, uint32_t bitsPerPixel,
         const SkCodec::Options& options) {
 
     // Choose the appropriate row procedure
@@ -394,7 +394,7 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(const SkImageInfo& dstInfo,
         case 16:
             switch (dstInfo.colorType()) {
                 case kRGBA_8888_SkColorType:
-                    if (kOpaque_SkAlphaType == srcInfo.alphaType()) {
+                    if (srcIsOpaque) {
                         proc = &swizzle_mask16_to_rgba_opaque;
                     } else {
                         switch (dstInfo.alphaType()) {
@@ -410,7 +410,7 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(const SkImageInfo& dstInfo,
                     }
                     break;
                 case kBGRA_8888_SkColorType:
-                    if (kOpaque_SkAlphaType == srcInfo.alphaType()) {
+                    if (srcIsOpaque) {
                         proc = &swizzle_mask16_to_bgra_opaque;
                     } else {
                         switch (dstInfo.alphaType()) {
@@ -435,7 +435,7 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(const SkImageInfo& dstInfo,
         case 24:
             switch (dstInfo.colorType()) {
                 case kRGBA_8888_SkColorType:
-                    if (kOpaque_SkAlphaType == srcInfo.alphaType()) {
+                    if (srcIsOpaque) {
                         proc = &swizzle_mask24_to_rgba_opaque;
                     } else {
                         switch (dstInfo.alphaType()) {
@@ -451,7 +451,7 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(const SkImageInfo& dstInfo,
                     }
                     break;
                 case kBGRA_8888_SkColorType:
-                    if (kOpaque_SkAlphaType == srcInfo.alphaType()) {
+                    if (srcIsOpaque) {
                         proc = &swizzle_mask24_to_bgra_opaque;
                     } else {
                         switch (dstInfo.alphaType()) {
@@ -476,7 +476,7 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(const SkImageInfo& dstInfo,
         case 32:
             switch (dstInfo.colorType()) {
                 case kRGBA_8888_SkColorType:
-                    if (kOpaque_SkAlphaType == srcInfo.alphaType()) {
+                    if (srcIsOpaque) {
                         proc = &swizzle_mask32_to_rgba_opaque;
                     } else {
                         switch (dstInfo.alphaType()) {
@@ -492,7 +492,7 @@ SkMaskSwizzler* SkMaskSwizzler::CreateMaskSwizzler(const SkImageInfo& dstInfo,
                     }
                     break;
                 case kBGRA_8888_SkColorType:
-                    if (kOpaque_SkAlphaType == srcInfo.alphaType()) {
+                    if (srcIsOpaque) {
                         proc = &swizzle_mask32_to_bgra_opaque;
                     } else {
                         switch (dstInfo.alphaType()) {

@@ -8,8 +8,8 @@
 #ifndef SkRectPriv_DEFINED
 #define SkRectPriv_DEFINED
 
-#include "SkRect.h"
-#include "SkMathPriv.h"
+#include "include/core/SkRect.h"
+#include "src/core/SkMathPriv.h"
 
 class SkRectPriv {
 public:
@@ -36,7 +36,7 @@ public:
         return { SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax };
     }
 
-    static SkRect MakeLargestInverted() {
+    static constexpr SkRect MakeLargestInverted() {
         return { SK_ScalarMax, SK_ScalarMax, SK_ScalarMin, SK_ScalarMin };
     }
 

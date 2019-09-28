@@ -1,0 +1,238 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/cache/work"
+    ],
+    "infra_step": true,
+    "name": "makedirs checkout_path"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "remove",
+      "[START_DIR]/cache/work/.gclient_entries"
+    ],
+    "infra_step": true,
+    "name": "remove [START_DIR]/cache/work/.gclient_entries"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",
+      "--spec-path",
+      "cache_dir = '[START_DIR]/cache/git'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]",
+      "--patch_root",
+      "skia",
+      "--revision_mapping_file",
+      "{\"got_revision\": \"skia\"}",
+      "--git-cache-dir",
+      "[START_DIR]/cache/git",
+      "--cleanup-dir",
+      "[CLEANUP]/bot_update",
+      "--output_json",
+      "/path/to/tmp/json",
+      "--patch_ref",
+      "https://skia.googlesource.com/skia.git@abc123:89/456789/12",
+      "--revision",
+      "skia@abc123"
+    ],
+    "cwd": "[START_DIR]/cache/work",
+    "env_suffixes": {
+      "PATH": [
+        "RECIPE_REPO[depot_tools]"
+      ]
+    },
+    "infra_step": true,
+    "name": "bot_update",
+    "~followup_annotations": [
+      "@@@STEP_TEXT@Some step text@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"did_run\": true, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"fixed_revisions\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"skia\": \"abc123\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"manifest\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"skia\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"repository\": \"https://fake.org/skia.git\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"revision\": \"9046e2e693bb92a76e972b694580e5d17ad10748\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"patch_failure\": false, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"patch_root\": \"skia\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"properties\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"got_revision\": \"9046e2e693bb92a76e972b694580e5d17ad10748\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"got_revision_cp\": \"refs/heads/master@{#164710}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"root\": \"skia\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"source_manifest\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"directories\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"skia\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"git_checkout\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@          \"repo_url\": \"https://fake.org/skia.git\", @@@",
+      "@@@STEP_LOG_LINE@json.output@          \"revision\": \"9046e2e693bb92a76e972b694580e5d17ad10748\"@@@",
+      "@@@STEP_LOG_LINE@json.output@        }@@@",
+      "@@@STEP_LOG_LINE@json.output@      }@@@",
+      "@@@STEP_LOG_LINE@json.output@    }, @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"version\": 0@@@",
+      "@@@STEP_LOG_LINE@json.output@  }, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"step_text\": \"Some step text\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@",
+      "@@@SET_BUILD_PROPERTY@got_revision@\"9046e2e693bb92a76e972b694580e5d17ad10748\"@@@",
+      "@@@SET_BUILD_PROPERTY@got_revision_cp@\"refs/heads/master@{#164710}\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "mkdirs out_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import errno\nimport os\nimport shutil\nimport sys\n\ncopy_dest = sys.argv[1]\nbase_dir = sys.argv[2]\nbundle_name = sys.argv[3]\nout_dir = sys.argv[4]\n\n# Clean out old binaries (if any)\ntry:\n  shutil.rmtree(copy_dest)\nexcept OSError as e:\n  if e.errno != errno.ENOENT:\n    raise\n\n# Make folder\ntry:\n  os.makedirs(copy_dest)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\n# Copy binaries (pathkit.js and pathkit.wasm) to where the karma tests\n# expect them ($SKIA_ROOT/modules/pathkit/npm-wasm/bin/)\ndest = os.path.join(copy_dest, 'pathkit.js')\nshutil.copyfile(os.path.join(base_dir, 'pathkit.js'), dest)\nos.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.\n\nif bundle_name:\n  dest = os.path.join(copy_dest, bundle_name)\n  shutil.copyfile(os.path.join(base_dir, bundle_name), dest)\n  os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.\n\n# Prepare output folder, api.file.ensure_directory doesn't touch\n# the permissions of the out directory if it already exists.\nos.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't write.\n",
+      "[START_DIR]/cache/work/skia/modules/pathkit/npm-wasm/bin",
+      "[START_DIR]/build",
+      "pathkit.wasm",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "Set up for docker",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import errno@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import shutil@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@copy_dest = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@base_dir = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@bundle_name = sys.argv[3]@@@",
+      "@@@STEP_LOG_LINE@python.inline@out_dir = sys.argv[4]@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@# Clean out old binaries (if any)@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  shutil.rmtree(copy_dest)@@@",
+      "@@@STEP_LOG_LINE@python.inline@except OSError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if e.errno != errno.ENOENT:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    raise@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@# Make folder@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(copy_dest)@@@",
+      "@@@STEP_LOG_LINE@python.inline@except OSError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if e.errno != errno.EEXIST:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    raise@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@# Copy binaries (pathkit.js and pathkit.wasm) to where the karma tests@@@",
+      "@@@STEP_LOG_LINE@python.inline@# expect them ($SKIA_ROOT/modules/pathkit/npm-wasm/bin/)@@@",
+      "@@@STEP_LOG_LINE@python.inline@dest = os.path.join(copy_dest, 'pathkit.js')@@@",
+      "@@@STEP_LOG_LINE@python.inline@shutil.copyfile(os.path.join(base_dir, 'pathkit.js'), dest)@@@",
+      "@@@STEP_LOG_LINE@python.inline@os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@if bundle_name:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  dest = os.path.join(copy_dest, bundle_name)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  shutil.copyfile(os.path.join(base_dir, bundle_name), dest)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@# Prepare output folder, api.file.ensure_directory doesn't touch@@@",
+      "@@@STEP_LOG_LINE@python.inline@# the permissions of the out directory if it already exists.@@@",
+      "@@@STEP_LOG_LINE@python.inline@os.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't write.@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+    ],
+    "name": "get swarming bot id",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
+    ],
+    "name": "get swarming task id",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "docker",
+      "run",
+      "--shm-size=2gb",
+      "--rm",
+      "--volume",
+      "[START_DIR]/cache/work:/SRC",
+      "--volume",
+      "[START_DIR]/[SWARM_OUT_DIR]:/OUT",
+      "gcr.io/skia-public/perf-karma-chrome-tests:72.0.3626.121_v1",
+      "/SRC/skia/infra/pathkit/perf_pathkit.sh",
+      "--builder",
+      "Perf-Debian9-EMCC-GCE-CPU-AVX2-wasm-Release-All-PathKit",
+      "--git_hash",
+      "abc123",
+      "--buildbucket_build_id",
+      "",
+      "--bot_id",
+      "",
+      "--task_id",
+      "",
+      "--browser",
+      "Chrome",
+      "--config",
+      "Release",
+      "--source_type",
+      "pathkit",
+      "--issue",
+      "1234",
+      "--patchset",
+      "7",
+      "--patch_storage",
+      "gerrit"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "DOCKER_CONFIG": "/home/chrome-bot/.docker",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "Performance tests of PathKit with Docker"
+  },
+  {
+    "name": "$result"
+  }
+]

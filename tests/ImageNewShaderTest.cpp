@@ -5,16 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkImage.h"
-#include "SkShader.h"
-#include "SkSurface.h"
-#include "SkTypes.h"
-#include "Test.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "tests/Test.h"
 
-#if SK_SUPPORT_GPU
-#include "GrContext.h"
-#endif
+#include "include/gpu/GrContext.h"
 
 static void test_bitmap_equality(skiatest::Reporter* reporter, SkBitmap& bm1, SkBitmap& bm2) {
     REPORTER_ASSERT(reporter, bm1.computeByteSize() == bm2.computeByteSize());
@@ -44,8 +42,8 @@ static void run_shader_test(skiatest::Reporter* reporter, SkSurface* sourceSurfa
 
     sk_sp<SkImage> sourceImage(sourceSurface->makeImageSnapshot());
     sk_sp<SkShader> sourceShader = sourceImage->makeShader(
-            SkShader::kRepeat_TileMode,
-            SkShader::kRepeat_TileMode);
+            SkTileMode::kRepeat,
+            SkTileMode::kRepeat);
 
     SkPaint paint;
     paint.setShader(sourceShader);
@@ -70,8 +68,8 @@ static void run_shader_test(skiatest::Reporter* reporter, SkSurface* sourceSurfa
     matrix.setTranslate(SkIntToScalar(-1), SkIntToScalar(0));
 
     sk_sp<SkShader> sourceShaderTranslated = sourceImage->makeShader(
-            SkShader::kRepeat_TileMode,
-            SkShader::kRepeat_TileMode,
+            SkTileMode::kRepeat,
+            SkTileMode::kRepeat,
             &matrix);
 
     destinationCanvas->clear(SK_ColorTRANSPARENT);
@@ -105,8 +103,6 @@ DEF_TEST(ImageNewShader, reporter) {
 
     run_shader_test(reporter, sourceSurface.get(), destinationSurface.get(), info);
 }
-
-#if SK_SUPPORT_GPU
 
 static void gpu_to_gpu(skiatest::Reporter* reporter, GrContext* context) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(5, 5);
@@ -145,5 +141,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageNewShader_GPU, reporter, ctxInfo) {
     //  RASTER -> GPU
     raster_to_gpu(reporter, ctxInfo.grContext());
 }
-
-#endif

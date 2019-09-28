@@ -5,13 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkMaskFilter.h"
-#include "SkPaint.h"
+#include "gm/gm.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkBlurMask.h"
+#include "tools/ToolUtils.h"
 
 // This GM tests out the SkBlurMaskFilter's kIgnoreTransform flag. That flag causes the blur mask
 // filter to not apply the CTM to the blur's radius.
@@ -95,17 +105,15 @@ protected:
 
     void drawOverlay(SkCanvas* canvas) {
         canvas->translate(10, 0);
-        SkPaint textPaint;
-        sk_tool_utils::set_portable_typeface(&textPaint);
-        textPaint.setAntiAlias(true);
+        SkFont font(ToolUtils::create_portable_typeface());
         canvas->save();
         for (int i = 0; i < kNumBlurs; ++i) {
-            canvas->drawString(kBlurFlags[i].fName, 100, 0, textPaint);
+            canvas->drawString(kBlurFlags[i].fName, 100, 0, font, SkPaint());
             canvas->translate(SkIntToScalar(130), 0);
         }
         canvas->restore();
         for (auto scale : kMatrixScales) {
-            canvas->drawString(scale.fName, 0, 50, textPaint);
+            canvas->drawString(scale.fName, 0, 50, font, SkPaint());
             canvas->translate(0, SkIntToScalar(150));
         }
     }

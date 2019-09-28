@@ -5,10 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColorData.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
 
 /**
  * This GM checks that bitmap pixels are unpremultiplied before being exported
@@ -19,8 +27,6 @@
  */
 
 constexpr int SLIDE_SIZE = 256;
-constexpr int PIXEL_SIZE_8888 = SLIDE_SIZE / 256;
-constexpr int PIXEL_SIZE_4444 = SLIDE_SIZE / 16;
 
 static void init_bitmap(SkColorType ct, SkBitmap* bitmap) {
     bitmap->allocPixels(SkImageInfo::Make(SLIDE_SIZE, SLIDE_SIZE, ct,
@@ -31,15 +37,10 @@ static void init_bitmap(SkColorType ct, SkBitmap* bitmap) {
 static SkBitmap make_argb8888_gradient() {
     SkBitmap bitmap;
     init_bitmap(kN32_SkColorType, &bitmap);
-    uint8_t rowColor = 0;
     for (int y = 0; y < SLIDE_SIZE; y++) {
         uint32_t* dst = bitmap.getAddr32(0, y);
         for (int x = 0; x < SLIDE_SIZE; x++) {
-            dst[x] = SkPackARGB32(rowColor, rowColor,
-                                  rowColor, rowColor);
-        }
-        if (y % PIXEL_SIZE_8888 == PIXEL_SIZE_8888 - 1) {
-            rowColor++;
+            dst[x] = SkPackARGB32(y, y, y, y);
         }
     }
     return bitmap;
@@ -48,17 +49,10 @@ static SkBitmap make_argb8888_gradient() {
 static SkBitmap make_argb4444_gradient() {
     SkBitmap bitmap;
     init_bitmap(kARGB_4444_SkColorType, &bitmap);
-    uint8_t rowColor = 0;
-    for (int y = 0; y < SLIDE_SIZE; y++) {
-        uint16_t* dst = bitmap.getAddr16(0, y);
-        for (int x = 0; x < SLIDE_SIZE; x++) {
-            dst[x] = SkPackARGB4444(rowColor, rowColor,
-                                    rowColor, rowColor);
-        }
-        if (y % PIXEL_SIZE_4444 == PIXEL_SIZE_4444 - 1) {
-            rowColor++;
-        }
-    }
+    // Using draw rather than readPixels to suppress dither
+    SkPaint paint;
+    paint.setBlendMode(SkBlendMode::kSrc);
+    SkCanvas{ bitmap }.drawBitmap(make_argb8888_gradient(), 0, 0, &paint);
     return bitmap;
 }
 
@@ -84,19 +78,10 @@ static SkBitmap make_argb8888_stripes() {
 static SkBitmap make_argb4444_stripes() {
     SkBitmap bitmap;
     init_bitmap(kARGB_4444_SkColorType, &bitmap);
-    uint8_t rowColor = 0;
-    for (int y = 0; y < SLIDE_SIZE; y++) {
-        uint16_t* dst = bitmap.getAddr16(0, y);
-        for (int x = 0; x < SLIDE_SIZE; x++) {
-            dst[x] = SkPackARGB4444(rowColor, rowColor,
-                                    rowColor, rowColor);
-        }
-        if (rowColor == 0) {
-            rowColor = 15;
-        } else {
-            rowColor = 0;
-        }
-    }
+    // Using draw rather than readPixels to suppress dither
+    SkPaint paint;
+    paint.setBlendMode(SkBlendMode::kSrc);
+    SkCanvas{ bitmap }.drawBitmap(make_argb8888_stripes(), 0, 0, &paint);
     return bitmap;
 }
 

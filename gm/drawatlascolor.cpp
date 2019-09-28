@@ -5,11 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkCanvas.h"
-#include "SkRSXform.h"
-#include "SkSurface.h"
+#include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "tools/ToolUtils.h"
 
 // Create a square atlas of:
 //   opaque white  |     opaque red
@@ -20,7 +33,7 @@ static sk_sp<SkImage> make_atlas(SkCanvas* caller, int atlasSize) {
     const int kBlockSize = atlasSize/2;
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(atlasSize, atlasSize);
-    auto surface(sk_tool_utils::makeSurface(caller, info));
+    auto        surface(ToolUtils::makeSurface(caller, info));
     SkCanvas* canvas = surface->getCanvas();
 
     SkPaint paint;
@@ -54,7 +67,7 @@ static sk_sp<SkImage> make_atlas(SkCanvas* caller, int atlasSize) {
 class DrawAtlasColorsGM : public skiagm::GM {
 public:
     DrawAtlasColorsGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
+        this->setBGColor(0xFFCCCCCC);
     }
 
 protected:
@@ -128,16 +141,12 @@ protected:
             quadColors[i] = gColors[i];
         }
 
-        SkPaint textP;
-        textP.setTextSize(SkIntToScalar(kTextPad));
-        textP.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&textP, nullptr);
+        SkFont font(ToolUtils::create_portable_typeface(), kTextPad);
 
         for (int i = 0; i < numModes; ++i) {
             const char* label = SkBlendMode_Name(gModes[i]);
-            canvas->drawString(label,
-                             i*(target.width()+kPad)+kPad, SkIntToScalar(kTextPad),
-                             textP);
+            canvas->drawString(label, i*(target.width()+kPad)+kPad, SkIntToScalar(kTextPad),
+                               font, paint);
         }
 
         for (int i = 0; i < numModes; ++i) {

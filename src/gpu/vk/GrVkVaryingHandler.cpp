@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkVaryingHandler.h"
+#include "src/gpu/vk/GrVkVaryingHandler.h"
 
 /** Returns the number of locations take up by a given GrSLType. We assume that all
     scalar values are 32 bits. */
@@ -30,14 +30,20 @@ static inline int grsltype_to_location_size(GrSLType type) {
         case kInt2_GrSLType:
         case kShort2_GrSLType:
         case kUShort2_GrSLType:
+        case kByte2_GrSLType:
+        case kUByte2_GrSLType:
             return 1;
         case kInt3_GrSLType:
         case kShort3_GrSLType:
         case kUShort3_GrSLType:
+        case kByte3_GrSLType:
+        case kUByte3_GrSLType:
             return 1;
         case kInt4_GrSLType:
         case kShort4_GrSLType:
         case kUShort4_GrSLType:
+        case kByte4_GrSLType:
+        case kUByte4_GrSLType:
             return 1;
         case kFloat2x2_GrSLType:
         case kHalf2x2_GrSLType:
@@ -49,31 +55,28 @@ static inline int grsltype_to_location_size(GrSLType type) {
         case kHalf4x4_GrSLType:
             return 4;
         case kTexture2DSampler_GrSLType:
+        case kSampler_GrSLType:
+        case kTexture2D_GrSLType:
             return 0;
         case kTextureExternalSampler_GrSLType:
              return 0;
         case kTexture2DRectSampler_GrSLType:
              return 0;
-        case kBufferSampler_GrSLType:
-             return 0;
         case kBool_GrSLType:
              return 1;
         case kInt_GrSLType: // fall through
         case kShort_GrSLType:
+        case kByte_GrSLType:
              return 1;
-        case kUint_GrSLType:
-        case kUShort_GrSLType: // fall through
+        case kUint_GrSLType: // fall through
+        case kUShort_GrSLType:
+        case kUByte_GrSLType:
              return 1;
-        case kTexture2D_GrSLType:
-             return 0;
-        case kSampler_GrSLType:
-             return 0;
     }
     SK_ABORT("Unexpected type");
-    return -1;
 }
 
-void finalize_helper(GrVkVaryingHandler::VarArray& vars) {
+static void finalize_helper(GrVkVaryingHandler::VarArray& vars) {
     int locationIndex = 0;
     for (int i = 0; i < vars.count(); ++i) {
         GrShaderVar& var = vars[i];

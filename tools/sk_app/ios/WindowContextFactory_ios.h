@@ -9,28 +9,35 @@
 #ifndef WindowContextFactory_ios_DEFINED
 #define WindowContextFactory_ios_DEFINED
 
-#include "SDL.h"
+#include "tools/sk_app/ios/Window_ios.h"
+
+#import <UIKit/UIKit.h>
+
+#include "tools/sk_app/WindowContext.h"
+
+#include <memory>
 
 namespace sk_app {
 
-class WindowContext;
 struct DisplayParams;
 
 namespace window_context_factory {
 
 struct IOSWindowInfo {
-    SDL_Window*   fWindow;
-    SDL_GLContext fGLContext;
+    sk_app::Window_ios* fWindow;
+    UIViewController*   fViewController;
 };
 
-inline WindowContext* NewVulkanForIOS(const IOSWindowInfo&, const DisplayParams&) {
-    // No Vulkan support on iOS.
+inline std::unique_ptr<WindowContext> MakeVulkanForIOS(const IOSWindowInfo&, const DisplayParams&) {
+    // No Vulkan support on iOS yet.
     return nullptr;
 }
 
-WindowContext* NewGLForIOS(const IOSWindowInfo&, const DisplayParams&);
+std::unique_ptr<WindowContext> MakeMetalForIOS(const IOSWindowInfo&, const DisplayParams&);
 
-WindowContext* NewRasterForIOS(const IOSWindowInfo&, const DisplayParams&);
+std::unique_ptr<WindowContext> MakeGLForIOS(const IOSWindowInfo&, const DisplayParams&);
+
+std::unique_ptr<WindowContext> MakeRasterForIOS(const IOSWindowInfo&, const DisplayParams&);
 
 }  // namespace window_context_factory
 

@@ -8,11 +8,10 @@
 #ifndef Window_mac_DEFINED
 #define Window_mac_DEFINED
 
-#include "../Window.h"
-#include "SkChecksum.h"
-#include "SkTDynamicHash.h"
+#include "src/core/SkTDynamicHash.h"
+#include "tools/sk_app/Window.h"
 
-#include "SDL.h"
+#import <Cocoa/Cocoa.h>
 
 namespace sk_app {
 
@@ -20,11 +19,10 @@ class Window_mac : public Window {
 public:
     Window_mac()
             : INHERITED()
-            , fWindow(nullptr)
-            , fWindowID(0)
-            , fGLContext(nullptr)
-            , fMSAASampleCount(1) {}
-    ~Window_mac() override { this->closeWindow(); }
+            , fWindow(nil) {}
+    ~Window_mac() override {
+        this->closeWindow();
+    }
 
     bool initWindow();
 
@@ -33,30 +31,26 @@ public:
 
     bool attach(BackendType) override;
 
-    void onInval() override;
+    void onInval() override {}
 
-    static bool HandleWindowEvent(const SDL_Event& event);
+    static void PaintWindows();
 
-    static const Uint32& GetKey(const Window_mac& w) {
-        return w.fWindowID;
+    static const NSInteger& GetKey(const Window_mac& w) {
+        return w.fWindowNumber;
     }
 
-    static uint32_t Hash(const Uint32& winID) {
-        return winID;
+    static uint32_t Hash(const NSInteger& windowNumber) {
+        return windowNumber;
     }
 
-private:
-    bool handleEvent(const SDL_Event& event);
-
+    NSWindow* window() { return fWindow; }
     void closeWindow();
 
-    static SkTDynamicHash<Window_mac, Uint32> gWindowMap;
+private:
+    NSWindow*    fWindow;
+    NSInteger    fWindowNumber;
 
-    SDL_Window*   fWindow;
-    Uint32        fWindowID;
-    SDL_GLContext fGLContext;
-
-    int          fMSAASampleCount;
+    static SkTDynamicHash<Window_mac, NSInteger> gWindowMap;
 
     typedef Window INHERITED;
 };

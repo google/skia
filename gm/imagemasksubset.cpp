@@ -5,13 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkCanvas.h"
-#include "SkImage.h"
-#include "SkImageGenerator.h"
-#include "SkMakeUnique.h"
-#include "SkSurface.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageGenerator.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkMakeUnique.h"
+#include "tools/ToolUtils.h"
 
 namespace {
 
@@ -20,7 +27,7 @@ const SkIRect kSubset = SkIRect::MakeLTRB(25, 25, 75, 75);
 const SkRect    kDest = SkRect::MakeXYWH(10, 10, 100, 100);
 
 sk_sp<SkImage> make_mask(const sk_sp<SkSurface>& surface) {
-    sk_tool_utils::draw_checkerboard(surface->getCanvas(), 0x80808080, 0x00000000, 5);
+    ToolUtils::draw_checkerboard(surface->getCanvas(), 0x80808080, 0x00000000, 5);
     return surface->makeImageSnapshot();
 }
 
@@ -53,9 +60,7 @@ const MakerT makers[] = {
     // SkImage_Gpu
     [](SkCanvas* c, const SkImageInfo& info) -> sk_sp<SkImage> {
         sk_sp<SkSurface> surface;
-#if SK_SUPPORT_GPU
         surface = SkSurface::MakeRenderTarget(c->getGrContext(), SkBudgeted::kNo, info);
-#endif
         return make_mask(surface ? surface : SkSurface::MakeRaster(info));
     },
 

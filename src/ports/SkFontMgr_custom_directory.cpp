@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontMgr_custom.h"
-#include "SkFontMgr_directory.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkStream.h"
+#include "include/core/SkStream.h"
+#include "include/ports/SkFontMgr_directory.h"
+#include "src/core/SkOSFile.h"
+#include "src/ports/SkFontMgr_custom.h"
+#include "src/utils/SkOSPath.h"
 
 class DirectorySystemFontLoader : public SkFontMgr_Custom::SystemFontLoader {
 public:
@@ -53,13 +53,13 @@ private:
             SkString filename(SkOSPath::Join(directory.c_str(), name.c_str()));
             std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(filename.c_str());
             if (!stream) {
-                SkDebugf("---- failed to open <%s>\n", filename.c_str());
+                // SkDebugf("---- failed to open <%s>\n", filename.c_str());
                 continue;
             }
 
             int numFaces;
             if (!scanner.recognizedFont(stream.get(), &numFaces)) {
-                SkDebugf("---- failed to open <%s> as a font\n", filename.c_str());
+                // SkDebugf("---- failed to open <%s> as a font\n", filename.c_str());
                 continue;
             }
 
@@ -70,8 +70,8 @@ private:
                 if (!scanner.scanFont(stream.get(), faceIndex,
                                       &realname, &style, &isFixedPitch, nullptr))
                 {
-                    SkDebugf("---- failed to open <%s> <%d> as a font\n",
-                             filename.c_str(), faceIndex);
+                    // SkDebugf("---- failed to open <%s> <%d> as a font\n",
+                    //          filename.c_str(), faceIndex);
                     continue;
                 }
 

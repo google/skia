@@ -6,20 +6,20 @@
  */
 
 
-#include "Sk2DPathEffect.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
-#include "SkPath.h"
-#include "SkRegion.h"
-#include "SkStrokeRec.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/effects/Sk2DPathEffect.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 Sk2DPathEffect::Sk2DPathEffect(const SkMatrix& mat) : fMatrix(mat) {
     // Calling invert will set the type mask on both matrices, making them thread safe.
     fMatrixIsInvertible = fMatrix.invert(&fInverse);
 }
 
-bool Sk2DPathEffect::filterPath(SkPath* dst, const SkPath& src,
-                                SkStrokeRec*, const SkRect*) const {
+bool Sk2DPathEffect::onFilterPath(SkPath* dst, const SkPath& src,
+                                  SkStrokeRec*, const SkRect*) const {
     if (!fMatrixIsInvertible) {
         return false;
     }
@@ -74,18 +74,11 @@ void Sk2DPathEffect::flatten(SkWriteBuffer& buffer) const {
     buffer.writeMatrix(fMatrix);
 }
 
-void Sk2DPathEffect::toString(SkString* str) const {
-    str->appendf("(matrix: %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f)",
-            fMatrix[SkMatrix::kMScaleX], fMatrix[SkMatrix::kMSkewX],  fMatrix[SkMatrix::kMTransX],
-            fMatrix[SkMatrix::kMSkewY],  fMatrix[SkMatrix::kMScaleY], fMatrix[SkMatrix::kMTransY],
-            fMatrix[SkMatrix::kMPersp0], fMatrix[SkMatrix::kMPersp1], fMatrix[SkMatrix::kMPersp2]);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkLine2DPathEffect::filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec* rec, const SkRect* cullRect) const {
-    if (this->INHERITED::filterPath(dst, src, rec, cullRect)) {
+bool SkLine2DPathEffect::onFilterPath(SkPath* dst, const SkPath& src,
+                                      SkStrokeRec* rec, const SkRect* cullRect) const {
+    if (this->INHERITED::onFilterPath(dst, src, rec, cullRect)) {
         rec->setStrokeStyle(fWidth);
         return true;
     }
@@ -117,14 +110,6 @@ void SkLine2DPathEffect::flatten(SkWriteBuffer &buffer) const {
     buffer.writeScalar(fWidth);
 }
 
-
-void SkLine2DPathEffect::toString(SkString* str) const {
-    str->appendf("SkLine2DPathEffect: (");
-    this->INHERITED::toString(str);
-    str->appendf("width: %f", fWidth);
-    str->appendf(")");
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkPath2DPathEffect::SkPath2DPathEffect(const SkMatrix& m, const SkPath& p)
@@ -148,11 +133,3 @@ void SkPath2DPathEffect::next(const SkPoint& loc, int u, int v,
                               SkPath* dst) const {
     dst->addPath(fPath, loc.fX, loc.fY);
 }
-
-void SkPath2DPathEffect::toString(SkString* str) const {
-    str->appendf("SkPath2DPathEffect: (");
-    this->INHERITED::toString(str);
-    // TODO: print out path information
-    str->appendf(")");
-}
-

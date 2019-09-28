@@ -24,9 +24,11 @@
     <family name="Em"><font weight="400" style="normal">Em.ttf</font></family>
     <family name="HangingS"><font weight="400" style="normal">HangingS.ttf</font></family>
     <family name="HintGasp"><font weight="400" style="normal">hintgasp.ttf</font></family>
-    <family name="RTeallyBigA"><font weight="400" style="normal">ReallyBigA.ttf</font></family>
+    <family name="ReallyBigA"><font weight="400" style="normal">ReallyBigA.ttf</font></family>
     <family name="Spider"><font weight="400" style="normal">SpiderSymbol.ttf</font></family>
-    <family name="TestTTC0"><font weight="400" style="normal" index="0">test.ttc</font></family>
-    <family name="TestTTC1"><font weight="400" style="normal" index="1">test.ttc</font></family>
+    <family>
+        <font weight="400" style="normal" index="0">test.ttc</font>
+        <font weight="700" style="normal" index="1" fallbackFor="sans-serif">test.ttc</font>
+    </family>
     <family name="Funkster"><font weight="400" style="normal">Funkster.ttf</font></family>
 </familyset>

@@ -8,10 +8,9 @@
 #ifndef SkUtils_DEFINED
 #define SkUtils_DEFINED
 
-#include "SkTypes.h"
-#include "SkMath.h"
-#include "SkOpts.h"
-#include "SkTypeface.h"
+#include "include/core/SkFontTypes.h"
+#include "src/core/SkOpts.h"
+#include "src/utils/SkUTF.h"
 
 /** Similar to memset(), but it assigns a 16, 32, or 64-bit value into the buffer.
     @param buffer   The memory to have value copied into it
@@ -27,88 +26,73 @@ static inline void sk_memset32(uint32_t buffer[], uint32_t value, int count) {
 static inline void sk_memset64(uint64_t buffer[], uint64_t value, int count) {
     SkOpts::memset64(buffer, value, count);
 }
-///////////////////////////////////////////////////////////////////////////////
-
-#define kMaxBytesInUTF8Sequence     4
-
-#ifdef SK_DEBUG
-    int SkUTF8_LeadByteToCount(unsigned c);
-#else
-    #define SkUTF8_LeadByteToCount(c)   ((((0xE5 << 24) >> ((unsigned)c >> 4 << 1)) & 3) + 1)
-#endif
-
-inline int SkUTF8_CountUTF8Bytes(const char utf8[]) {
-    SkASSERT(utf8);
-    return SkUTF8_LeadByteToCount(*(const uint8_t*)utf8);
-}
-
-int         SkUTF8_CountUnichars(const char utf8[]);
-
-/** These functions are safe: invalid sequences will return -1; */
-int SkUTF8_CountUnichars(const void* utf8, size_t byteLength);
-int SkUTF16_CountUnichars(const void* utf16, size_t byteLength);
-int SkUTF32_CountUnichars(const void* utf32, size_t byteLength);
-int SkUTFN_CountUnichars(SkTypeface::Encoding encoding, const void* utfN, size_t byteLength);
-
-/** This function is safe: invalid UTF8 sequences will return -1
- *  When -1 is returned, ptr is unchanged.
- *  Precondition: *ptr < end;
- */
-SkUnichar SkUTF8_NextUnicharWithError(const char** ptr, const char* end);
-
-/** this version replaces invalid utf-8 sequences with code point U+FFFD. */
-inline SkUnichar SkUTF8_NextUnichar(const char** ptr, const char* end) {
-    SkUnichar val = SkUTF8_NextUnicharWithError(ptr, end);
-    if (val < 0) {
-        *ptr = end;
-        return 0xFFFD;  // REPLACEMENT CHARACTER
-    }
-    return val;
-}
-
-SkUnichar   SkUTF8_ToUnichar(const char utf8[]);
-SkUnichar   SkUTF8_NextUnichar(const char**);
-SkUnichar   SkUTF8_PrevUnichar(const char**);
-
-/** Return the number of bytes need to convert a unichar
-    into a utf8 sequence. Will be 1..kMaxBytesInUTF8Sequence,
-    or 0 if uni is illegal.
-*/
-size_t      SkUTF8_FromUnichar(SkUnichar uni, char utf8[] = nullptr);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define SkUTF16_IsHighSurrogate(c)  (((c) & 0xFC00) == 0xD800)
-#define SkUTF16_IsLowSurrogate(c)   (((c) & 0xFC00) == 0xDC00)
-
-int SkUTF16_CountUnichars(const uint16_t utf16[]);
-// returns the current unichar and then moves past it (*p++)
+// Unlike the functions in SkUTF.h, these two functions do not take an array
+// length parameter.  When possible, use SkUTF::NextUTF{8,16} instead.
+SkUnichar SkUTF8_NextUnichar(const char**);
 SkUnichar SkUTF16_NextUnichar(const uint16_t**);
-// this guy backs up to the previus unichar value, and returns it (*--p)
-SkUnichar SkUTF16_PrevUnichar(const uint16_t**);
-size_t SkUTF16_FromUnichar(SkUnichar uni, uint16_t utf16[] = nullptr);
 
-size_t SkUTF16_ToUTF8(const uint16_t utf16[], int numberOf16BitValues,
-                      char utf8[] = nullptr);
+///////////////////////////////////////////////////////////////////////////////
 
-inline bool SkUnichar_IsVariationSelector(SkUnichar uni) {
-/*  The 'true' ranges are:
- *      0x180B  <= uni <=  0x180D
- *      0xFE00  <= uni <=  0xFE0F
- *      0xE0100 <= uni <= 0xE01EF
- */
-    if (uni < 0x180B || uni > 0xE01EF) {
-        return false;
+static inline bool SkUTF16_IsLeadingSurrogate(uint16_t c) { return ((c) & 0xFC00) == 0xD800; }
+
+static inline bool SkUTF16_IsTrailingSurrogate (uint16_t c) { return ((c) & 0xFC00) == 0xDC00; }
+
+///////////////////////////////////////////////////////////////////////////////
+
+static inline int SkUTFN_CountUnichars(SkTextEncoding enc, const void* utfN, size_t bytes) {
+    switch (enc) {
+        case SkTextEncoding::kUTF8:  return SkUTF::CountUTF8((const char*)utfN, bytes);
+        case SkTextEncoding::kUTF16: return SkUTF::CountUTF16((const uint16_t*)utfN, bytes);
+        case SkTextEncoding::kUTF32: return SkUTF::CountUTF32((const int32_t*)utfN, bytes);
+        default: SkDEBUGFAIL("unknown text encoding"); return -1;
     }
-    if ((uni > 0x180D && uni < 0xFE00) || (uni > 0xFE0F && uni < 0xE0100)) {
-        return false;
-    }
-    return true;
 }
+
+static inline SkUnichar SkUTFN_Next(SkTextEncoding enc, const void** ptr, const void* stop) {
+    switch (enc) {
+        case SkTextEncoding::kUTF8:
+            return SkUTF::NextUTF8((const char**)ptr, (const char*)stop);
+        case SkTextEncoding::kUTF16:
+            return SkUTF::NextUTF16((const uint16_t**)ptr, (const uint16_t*)stop);
+        case SkTextEncoding::kUTF32:
+            return SkUTF::NextUTF32((const int32_t**)ptr, (const int32_t*)stop);
+        default: SkDEBUGFAIL("unknown text encoding"); return -1;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 namespace SkHexadecimalDigits {
     extern const char gUpper[16];  // 0-9A-F
     extern const char gLower[16];  // 0-9a-f
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+// If T is an 8-byte GCC or Clang vector extension type, it would naturally
+// pass or return in the MMX mm0 register on 32-bit x86 builds.  This has the
+// fun side effect of clobbering any state in the x87 st0 register.  (There is
+// no ABI governing who should preserve mm?/st? registers, so no one does!)
+//
+// We force-inline sk_unaligned_load() and sk_unaligned_store() to avoid that,
+// making them safe to use for all types on all platforms, thus solving the
+// problem once and for all!
+
+template <typename T, typename P>
+static SK_ALWAYS_INLINE T sk_unaligned_load(const P* ptr) {
+    // TODO: static_assert desirable things about T here so as not to be totally abused.
+    T val;
+    memcpy(&val, ptr, sizeof(val));
+    return val;
+}
+
+template <typename T, typename P>
+static SK_ALWAYS_INLINE void sk_unaligned_store(P* ptr, T val) {
+    // TODO: ditto
+    memcpy(ptr, &val, sizeof(val));
 }
 
 #endif

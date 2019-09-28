@@ -8,22 +8,17 @@
 #ifndef SkHeifCodec_DEFINED
 #define SkHeifCodec_DEFINED
 
-#include "SkCodec.h"
-#include "SkColorSpace.h"
-#include "SkColorSpaceXform.h"
-#include "SkEncodedOrigin.h"
-#include "SkImageInfo.h"
-#include "SkSwizzler.h"
-#include "SkStream.h"
-
-#if !defined(__has_include)
-    #define __has_include(x) 0
-#endif
+#include "include/codec/SkCodec.h"
+#include "include/codec/SkEncodedOrigin.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkStream.h"
+#include "src/codec/SkFrameHolder.h"
+#include "src/codec/SkSwizzler.h"
 
 #if __has_include("HeifDecoderAPI.h")
     #include "HeifDecoderAPI.h"
 #else
-    #include "SkStubHeifDecoderAPI.h"
+    #include "src/codec/SkStubHeifDecoderAPI.h"
 #endif
 
 class SkHeifCodec : public SkCodec {
@@ -33,7 +28,8 @@ public:
     /*
      * Assumes IsHeif was called and returned true.
      */
-    static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
+    static std::unique_ptr<SkCodec> MakeFromStream(
+            std::unique_ptr<SkStream>, SkCodec::SelectionPolicy selectionPolicy, Result*);
 
 protected:
 
@@ -47,27 +43,23 @@ protected:
         return SkEncodedImageFormat::kHEIF;
     }
 
-    bool conversionSupported(const SkImageInfo&, SkColorType, bool,
-                             const SkColorSpace*) const override {
-        // This class checks for conversion after creating colorXform.
-        return true;
+    int onGetFrameCount() override;
+    bool onGetFrameInfo(int, FrameInfo*) const override;
+    int onGetRepetitionCount() override;
+    const SkFrameHolder* getFrameHolder() const override {
+        return &fFrameHolder;
     }
+
+    bool conversionSupported(const SkImageInfo&, bool, bool) override;
+
+    bool onRewind() override;
 
 private:
     /*
      * Creates an instance of the decoder
      * Called only by NewFromStream
      */
-    SkHeifCodec(int width, int height, const SkEncodedInfo&,
-            HeifDecoder*, sk_sp<SkColorSpace>, SkEncodedOrigin);
-
-    /*
-     * Checks if the conversion between the input image and the requested output
-     * image has been implemented.
-     *
-     * Sets the output color format.
-     */
-    bool setOutputColorFormat(const SkImageInfo& dst);
+    SkHeifCodec(SkEncodedInfo&&, HeifDecoder*, SkEncodedOrigin, bool animation);
 
     void initializeSwizzler(const SkImageInfo& dstInfo, const Options& options);
     void allocateStorage(const SkImageInfo& dstInfo);
@@ -90,7 +82,46 @@ private:
     uint32_t*                          fColorXformSrcRow;
 
     std::unique_ptr<SkSwizzler>        fSwizzler;
+    bool                               fUseAnimation;
 
+    class Frame : public SkFrame {
+    public:
+        Frame(int i) : INHERITED(i) {}
+
+    protected:
+        SkEncodedInfo::Alpha onReportedAlpha() const override {
+            return SkEncodedInfo::Alpha::kOpaque_Alpha;
+        }
+
+    private:
+        typedef SkFrame INHERITED;
+    };
+
+    class FrameHolder : public SkFrameHolder {
+    public:
+        ~FrameHolder() override {}
+        void setScreenSize(int w, int h) {
+            fScreenWidth = w;
+            fScreenHeight = h;
+        }
+        Frame* appendNewFrame();
+        const Frame* frame(int i) const;
+        Frame* editFrameAt(int i);
+        int size() const {
+            return static_cast<int>(fFrames.size());
+        }
+        void reserve(int size) {
+            fFrames.reserve(size);
+        }
+
+    protected:
+        const SkFrame* onGetFrame(int i) const override;
+
+    private:
+        std::vector<Frame> fFrames;
+    };
+
+    FrameHolder fFrameHolder;
     typedef SkCodec INHERITED;
 };
 

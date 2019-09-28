@@ -8,8 +8,8 @@
 #ifndef SKSL_BLOCK
 #define SKSL_BLOCK
 
-#include "SkSLStatement.h"
-#include "SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLStatement.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 
 namespace SkSL {
 
@@ -30,6 +30,14 @@ struct Block : public Statement {
             }
         }
         return true;
+    }
+
+    std::unique_ptr<Statement> clone() const override {
+        std::vector<std::unique_ptr<Statement>> cloned;
+        for (const auto& s : fStatements) {
+            cloned.push_back(s->clone());
+        }
+        return std::unique_ptr<Statement>(new Block(fOffset, std::move(cloned), fSymbols));
     }
 
     String description() const override {

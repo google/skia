@@ -4,17 +4,16 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
-#include "SkView.h"
-#include "SkCanvas.h"
-#include "SkCornerPathEffect.h"
-#include "SkGradientShader.h"
-#include "SkPath.h"
-#include "SkRegion.h"
-#include "SkShader.h"
-#include "SkUtils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkShader.h"
+#include "include/effects/SkCornerPathEffect.h"
+#include "include/effects/SkGradientShader.h"
+#include "samplecode/Sample.h"
+#include "src/utils/SkUTF.h"
 
-class FillTypeView : public SampleView {
+class FillTypeView : public Sample {
     SkPath fPath;
 public:
     FillTypeView() {
@@ -26,14 +25,7 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "FillType");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    virtual SkString name() { return SkString("FillType"); }
 
     void showPath(SkCanvas* canvas, int x, int y, SkPath::FillType ft,
                   SkScalar scale, const SkPaint& paint) {
@@ -85,10 +77,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new FillTypeView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new FillTypeView(); )

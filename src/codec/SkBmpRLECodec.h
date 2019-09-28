@@ -7,11 +7,11 @@
 #ifndef SkBmpRLECodec_DEFINED
 #define SkBmpRLECodec_DEFINED
 
-#include "SkBmpCodec.h"
-#include "SkColorTable.h"
-#include "SkImageInfo.h"
-#include "SkSampler.h"
-#include "SkTypes.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkTypes.h"
+#include "src/codec/SkBmpCodec.h"
+#include "src/codec/SkColorTable.h"
+#include "src/codec/SkSampler.h"
 
 /*
  * This class implements the decoding for bmp images that use an RLE encoding
@@ -35,11 +35,13 @@ public:
      *               headers
      * @param rowOrder indicates whether rows are ordered top-down or bottom-up
      */
-    SkBmpRLECodec(int width, int height, const SkEncodedInfo& info, std::unique_ptr<SkStream>,
+    SkBmpRLECodec(SkEncodedInfo&& info, std::unique_ptr<SkStream>,
             uint16_t bitsPerPixel, uint32_t numColors, uint32_t bytesPerColor,
             uint32_t offset, SkCodec::SkScanlineOrder rowOrder);
 
     int setSampleX(int);
+
+    int fillWidth() const;
 
 protected:
 

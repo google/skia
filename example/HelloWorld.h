@@ -8,8 +8,8 @@
 #ifndef HelloWorld_DEFINED
 #define HelloWorld_DEFINED
 
-#include "sk_app/Application.h"
-#include "sk_app/Window.h"
+#include "tools/sk_app/Application.h"
+#include "tools/sk_app/Window.h"
 
 class SkCanvas;
 
@@ -21,8 +21,8 @@ public:
     void onIdle() override;
 
     void onBackendCreated() override;
-    void onPaint(SkCanvas* canvas) override;
-    bool onChar(SkUnichar c, uint32_t modifiers) override;
+    void onPaint(SkSurface*) override;
+    bool onChar(SkUnichar c, skui::ModifierKey modifiers) override;
 
 private:
     void updateTitle();

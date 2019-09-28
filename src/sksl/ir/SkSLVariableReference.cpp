@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLVariableReference.h"
+#include "src/sksl/ir/SkSLVariableReference.h"
 
-#include "SkSLConstructor.h"
-#include "SkSLFloatLiteral.h"
-#include "SkSLIRGenerator.h"
-#include "SkSLSetting.h"
+#include "src/sksl/SkSLIRGenerator.h"
+#include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLFloatLiteral.h"
+#include "src/sksl/ir/SkSLSetting.h"
 
 namespace SkSL {
 
@@ -53,7 +53,7 @@ void VariableReference::setRefKind(RefKind refKind) {
 
 std::unique_ptr<Expression> VariableReference::copy_constant(const IRGenerator& irGenerator,
                                                              const Expression* expr) {
-    ASSERT(expr->isConstant());
+    SkASSERT(expr->isConstant());
     switch (expr->fKind) {
         case Expression::kIntLiteral_Kind:
             return std::unique_ptr<Expression>(new IntLiteral(irGenerator.fContext,
@@ -93,8 +93,14 @@ std::unique_ptr<Expression> VariableReference::constantPropagate(const IRGenerat
     if (fRefKind != kRead_RefKind) {
         return nullptr;
     }
+    if (irGenerator.fKind == Program::kPipelineStage_Kind &&
+        fVariable.fStorage == Variable::kGlobal_Storage &&
+        (fVariable.fModifiers.fFlags & Modifiers::kIn_Flag) &&
+        !(fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag)) {
+        return irGenerator.getArg(fOffset, fVariable.fName);
+    }
     if ((fVariable.fModifiers.fFlags & Modifiers::kConst_Flag) && fVariable.fInitialValue &&
-        fVariable.fInitialValue->isConstant()) {
+        fVariable.fInitialValue->isConstant() && fType.kind() != Type::kArray_Kind) {
         return copy_constant(irGenerator, fVariable.fInitialValue);
     }
     auto exprIter = definitions.find(&fVariable);

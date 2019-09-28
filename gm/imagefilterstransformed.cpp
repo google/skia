@@ -5,18 +5,29 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurImageFilter.h"
-#include "SkColor.h"
-#include "SkDisplacementMapEffect.h"
-#include "SkDropShadowImageFilter.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
-#include "SkImageSource.h"
-#include "SkMorphologyImageFilter.h"
-#include "SkScalar.h"
-#include "SkSurface.h"
-#include "gm.h"
-#include "sk_tool_utils.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkImageFilters.h"
+#include "tools/ToolUtils.h"
+
+#include <utility>
 
 namespace skiagm {
 
@@ -38,7 +49,7 @@ static sk_sp<SkImage> make_gradient_circle(int width, int height) {
     colors[1] = SK_ColorBLACK;
     SkPaint paint;
     paint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(x, y), radius, colors, nullptr, 2,
-                                                 SkShader::kClamp_TileMode));
+                                                 SkTileMode::kClamp));
     canvas->drawCircle(x, y, radius, paint);
 
     return surface->makeImageSnapshot();
@@ -58,24 +69,20 @@ protected:
 
     void onOnceBeforeDraw() override {
         fCheckerboard = SkImage::MakeFromBitmap(
-            sk_tool_utils::create_checkerboard_bitmap(64, 64, 0xFFA0A0A0, 0xFF404040, 8));
+                ToolUtils::create_checkerboard_bitmap(64, 64, 0xFFA0A0A0, 0xFF404040, 8));
         fGradientCircle = make_gradient_circle(64, 64);
     }
 
     void onDraw(SkCanvas* canvas) override {
-        sk_sp<SkImageFilter> gradient(SkImageSource::Make(fGradientCircle));
-        sk_sp<SkImageFilter> checkerboard(SkImageSource::Make(fCheckerboard));
+        sk_sp<SkImageFilter> gradient(SkImageFilters::Image(fGradientCircle));
+        sk_sp<SkImageFilter> checkerboard(SkImageFilters::Image(fCheckerboard));
         sk_sp<SkImageFilter> filters[] = {
-            SkBlurImageFilter::Make(12, 0, nullptr),
-            SkDropShadowImageFilter::Make(0, 15, 8, 0, SK_ColorGREEN,
-                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr),
-            SkDisplacementMapEffect::Make(SkDisplacementMapEffect::kR_ChannelSelectorType,
-                                          SkDisplacementMapEffect::kR_ChannelSelectorType,
-                                          12,
-                                          std::move(gradient),
-                                          checkerboard),
-            SkDilateImageFilter::Make(2, 2, checkerboard),
-            SkErodeImageFilter::Make(2, 2, checkerboard),
+            SkImageFilters::Blur(12, 0, nullptr),
+            SkImageFilters::DropShadow(0, 15, 8, 0, SK_ColorGREEN, nullptr),
+            SkImageFilters::DisplacementMap(SkColorChannel::kR, SkColorChannel::kR, 12,
+                                            std::move(gradient), checkerboard),
+            SkImageFilters::Dilate(2, 2, checkerboard),
+            SkImageFilters::Erode(2, 2, checkerboard),
         };
 
         const SkScalar margin = SkIntToScalar(20);
@@ -117,7 +124,6 @@ DEF_GM( return new ImageFiltersTransformedGM; )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-#include "SkXfermodeImageFilter.h"
 
 DEF_SIMPLE_GM(rotate_imagefilter, canvas, 500, 500) {
     SkPaint paint;
@@ -126,8 +132,8 @@ DEF_SIMPLE_GM(rotate_imagefilter, canvas, 500, 500) {
 
     sk_sp<SkImageFilter> filters[] = {
         nullptr,
-        SkBlurImageFilter::Make(6, 0, nullptr),
-        SkXfermodeImageFilter::Make(SkBlendMode::kSrcOver, nullptr),
+        SkImageFilters::Blur(6, 0, nullptr),
+        SkImageFilters::Xfermode(SkBlendMode::kSrcOver, nullptr),
     };
 
     for (auto& filter : filters) {

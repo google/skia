@@ -46,13 +46,13 @@ in half4x4 matrix;
 }
 
 @optimizationFlags {
-    kCompatibleWithCoverageAsAlpha_OptimizationFlag |
-    (GrPixelConfigIsOpaque(image->config()) ? kPreservesOpaqueInput_OptimizationFlag :
-                                              kNone_OptimizationFlags)
+    ModulateForSamplerOptFlags(image->config(),
+            samplerParams.wrapModeX() == GrSamplerState::WrapMode::kClampToBorder ||
+            samplerParams.wrapModeY() == GrSamplerState::WrapMode::kClampToBorder)
 }
 
 void main() {
-    sk_OutColor = sk_InColor * texture(image, sk_TransformedCoords2D[0]);
+    sk_OutColor = sk_InColor * sample(image, sk_TransformedCoords2D[0]);
 }
 
 @test(testData) {

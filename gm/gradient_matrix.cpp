@@ -5,20 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkGradientShader.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
-#include "SkSize.h"
-#include "SkString.h"
-
-#include "gm.h"
-#include "sk_tool_utils.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
 
 constexpr SkColor gColors[] = {
     SK_ColorRED, SK_ColorYELLOW
@@ -64,7 +63,7 @@ constexpr int IMAGES_X = 4;             // number of images per row
 
 static sk_sp<SkShader> make_linear_gradient(const SkPoint pts[2], const SkMatrix& localMatrix) {
     return SkGradientShader::MakeLinear(pts, gColors, nullptr, SK_ARRAY_COUNT(gColors),
-                                        SkShader::kClamp_TileMode, 0, &localMatrix);
+                                        SkTileMode::kClamp, 0, &localMatrix);
 }
 
 static sk_sp<SkShader> make_radial_gradient(const SkPoint pts[2], const SkMatrix& localMatrix) {
@@ -73,7 +72,7 @@ static sk_sp<SkShader> make_radial_gradient(const SkPoint pts[2], const SkMatrix
                SkScalarAve(pts[0].fY, pts[1].fY));
     float radius = (center - pts[0]).length();
     return SkGradientShader::MakeRadial(center, radius, gColors, nullptr, SK_ARRAY_COUNT(gColors),
-                                        SkShader::kClamp_TileMode, 0, &localMatrix);
+                                        SkTileMode::kClamp, 0, &localMatrix);
 }
 
 static void draw_gradients(SkCanvas* canvas,
@@ -109,8 +108,7 @@ static void draw_gradients(SkCanvas* canvas,
     canvas->restore();
 }
 
-DEF_SIMPLE_GM_BG(gradient_matrix, canvas, 800, 800,
-                 sk_tool_utils::color_to_565(0xFFDDDDDD)) {
+DEF_SIMPLE_GM_BG(gradient_matrix, canvas, 800, 800, 0xFFDDDDDD) {
         draw_gradients(canvas, &make_linear_gradient,
                       linearPts, SK_ARRAY_COUNT(linearPts));
 

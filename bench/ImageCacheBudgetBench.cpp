@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "sk_tool_utils.h"
-#include "SkCanvas.h"
-#include "SkImage.h"
-#include "SkSurface.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkSurface.h"
+#include "tools/ToolUtils.h"
 
-#if SK_SUPPORT_GPU
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
 
-#include "GrContext.h"
-#include "GrContextPriv.h"
+#include <utility>
 
 /** These benchmarks were designed to measure changes to GrResourceCache's replacement policy */
 
@@ -27,8 +27,8 @@ static constexpr int kS = 25;
 
 static void make_images(sk_sp<SkImage> imgs[], int cnt) {
     for (int i = 0; i < cnt; ++i) {
-        SkBitmap bmp = sk_tool_utils::create_checkerboard_bitmap(kS, kS, SK_ColorBLACK,
-                                                                 SK_ColorCYAN, 10);
+        SkBitmap bmp =
+                ToolUtils::create_checkerboard_bitmap(kS, kS, SK_ColorBLACK, SK_ColorCYAN, 10);
         imgs[i] = SkImage::MakeFromBitmap(bmp);
     }
 }
@@ -47,7 +47,7 @@ void set_cache_budget(SkCanvas* canvas, int approxImagesInBudget) {
     GrContext* context =  canvas->getGrContext();
     SkASSERT(context);
     context->flush();
-    context->contextPriv().purgeAllUnlockedResources_ForTesting();
+    context->priv().testingOnly_purgeAllUnlockedResources();
     sk_sp<SkImage> image;
     make_images(&image, 1);
     draw_image(canvas, image.get());
@@ -56,7 +56,7 @@ void set_cache_budget(SkCanvas* canvas, int approxImagesInBudget) {
     context->getResourceCacheUsage(&baselineCount, nullptr);
     baselineCount -= 1; // for the image's textures.
     context->setResourceCacheLimits(baselineCount + approxImagesInBudget, 1 << 30);
-    context->contextPriv().purgeAllUnlockedResources_ForTesting();
+    context->priv().testingOnly_purgeAllUnlockedResources();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -91,7 +91,7 @@ protected:
     void onPerCanvasPreDraw(SkCanvas* canvas) override {
         GrContext* context = canvas->getGrContext();
         SkASSERT(context);
-        context->getResourceCacheLimits(&fOldCount, &fOldBytes);
+        fOldBytes = context->getResourceCacheLimit();
         set_cache_budget(canvas, fBudgetSize);
         make_images(fImages, kImagesToDraw);
         if (fShuffle) {
@@ -104,7 +104,8 @@ protected:
                 }
                 for (int i = 0; i < kImagesToDraw - 1; ++i) {
                     int other = random.nextULessThan(kImagesToDraw - i) + i;
-                    SkTSwap(base[i], base[other]);
+                    using std::swap;
+                    swap(base[i], base[other]);
                 }
             }
         }
@@ -113,7 +114,7 @@ protected:
     void onPerCanvasPostDraw(SkCanvas* canvas) override {
         GrContext* context =  canvas->getGrContext();
         SkASSERT(context);
-        context->setResourceCacheLimits(fOldCount, fOldBytes);
+        context->setResourceCacheLimit(fOldBytes);
         for (int i = 0; i < kImagesToDraw; ++i) {
             fImages[i].reset();
         }
@@ -148,7 +149,6 @@ private:
     sk_sp<SkImage>              fImages[kImagesToDraw];
     std::unique_ptr<int[]>      fIndices;
     size_t                      fOldBytes;
-    int                         fOldCount;
 
     typedef Benchmark INHERITED;
 };
@@ -259,5 +259,3 @@ private:
 
 DEF_BENCH( return new ImageCacheBudgetDynamicBench(ImageCacheBudgetDynamicBench::Mode::kPingPong); )
 DEF_BENCH( return new ImageCacheBudgetDynamicBench(ImageCacheBudgetDynamicBench::Mode::kFlipFlop); )
-
-#endif

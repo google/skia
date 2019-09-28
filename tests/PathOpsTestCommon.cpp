@@ -4,15 +4,17 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "PathOpsTestCommon.h"
-#include "SkPathOpsBounds.h"
-#include "SkPathOpsConic.h"
-#include "SkPathOpsCubic.h"
-#include "SkPathOpsLine.h"
-#include "SkPathOpsQuad.h"
-#include "SkPathOpsTSect.h"
-#include "SkReduceOrder.h"
-#include "SkTSort.h"
+#include "src/core/SkTSort.h"
+#include "src/pathops/SkPathOpsBounds.h"
+#include "src/pathops/SkPathOpsConic.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsLine.h"
+#include "src/pathops/SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsTSect.h"
+#include "src/pathops/SkReduceOrder.h"
+#include "tests/PathOpsTestCommon.h"
+
+#include <utility>
 
 static double calc_t_div(const SkDCubic& cubic, double precision, double start) {
     const double adjust = sqrt(3.) / 36;
@@ -223,7 +225,8 @@ void CubicPathToSimple(const SkPath& cubicPath, SkPath* simplePath) {
                 double tInflects[2];
                 int inflections = cubic.findInflections(tInflects);
                 if (inflections > 1 && tInflects[0] > tInflects[1]) {
-                    SkTSwap(tInflects[0], tInflects[1]);
+                    using std::swap;
+                    swap(tInflects[0], tInflects[1]);
                 }
                 double lo = 0;
                 for (int index = 0; index <= inflections; ++index) {

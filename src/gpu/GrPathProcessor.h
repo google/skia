@@ -8,7 +8,7 @@
 #ifndef GrPathProcessor_DEFINED
 #define GrPathProcessor_DEFINED
 
-#include "GrPrimitiveProcessor.h"
+#include "src/gpu/GrPrimitiveProcessor.h"
 
 /*
  * The path equivalent of the GP.  For now this just manages color. In the long term we plan on
@@ -16,7 +16,7 @@
  */
 class GrPathProcessor : public GrPrimitiveProcessor {
 public:
-    static GrPathProcessor* Create(GrColor color,
+    static GrPathProcessor* Create(const SkPMColor4f& color,
                                    const SkMatrix& viewMatrix = SkMatrix::I(),
                                    const SkMatrix& localMatrix = SkMatrix::I()) {
         return new GrPathProcessor(color, viewMatrix, localMatrix);
@@ -24,7 +24,7 @@ public:
 
     const char* name() const override { return "PathProcessor"; }
 
-    GrColor color() const { return fColor; }
+    const SkPMColor4f& color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
@@ -38,11 +38,9 @@ public:
     virtual bool isPathRendering() const override { return true; }
 
 private:
-    GrPathProcessor(GrColor, const SkMatrix& viewMatrix, const SkMatrix& localMatrix);
+    GrPathProcessor(const SkPMColor4f&, const SkMatrix& viewMatrix, const SkMatrix& localMatrix);
 
-    bool hasExplicitLocalCoords() const override { return false; }
-
-    GrColor fColor;
+    SkPMColor4f fColor;
     const SkMatrix fViewMatrix;
     const SkMatrix fLocalMatrix;
 

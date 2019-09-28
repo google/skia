@@ -8,11 +8,12 @@
 #ifndef SkPaintImageFilter_DEFINED
 #define SkPaintImageFilter_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkImageFilter.h"
-#include "SkPaint.h"
+#include "include/core/SkImageFilter.h"
 
-class SK_API SkPaintImageFilter : public SkImageFilter {
+class SkPaint;
+
+// DEPRECATED: Use include/effects/SkImageFilters::Paint
+class SK_API SkPaintImageFilter  {
 public:
     /** Create a new image filter which fills the given rectangle using the
      *  given paint. If no rectangle is specified, an output is produced with
@@ -23,28 +24,13 @@ public:
      *                not specified, the source primitive's bounds are used
      *                instead.
      */
-    static sk_sp<SkImageFilter> Make(const SkPaint& paint, const CropRect* cropRect = nullptr);
+    static sk_sp<SkImageFilter> Make(const SkPaint& paint,
+                                     const SkImageFilter::CropRect* cropRect = nullptr);
 
-    bool affectsTransparentBlack() const override;
-
-    void toString(SkString* str) const override;
-
-    Factory getFactory() const override { return CreateProc; }
-
-protected:
-    void flatten(SkWriteBuffer&) const override;
-    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
-                                        SkIPoint* offset) const override;
-    sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
+    static void RegisterFlattenables();
 
 private:
-    SkPaintImageFilter(const SkPaint& paint, const CropRect* rect);
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
-
-    SkPaint fPaint;
-
-    typedef SkImageFilter INHERITED;
+    SkPaintImageFilter() = delete;
 };
 
 #endif

@@ -6,9 +6,10 @@
  */
 
 
-#include "GrGLUtil.h"
-#include "GrTypesPriv.h"
-#include "SkMatrix.h"
+#include "include/core/SkMatrix.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrDataUtils.h"
+#include "src/gpu/gl/GrGLUtil.h"
 #include <stdio.h>
 
 void GrGLClearErr(const GrGLInterface* gl) {
@@ -77,6 +78,13 @@ GrGLStandard GrGLGetStandardInUseFromString(const char* versionString) {
         return kGL_GrGLStandard;
     }
 
+    // WebGL might look like "OpenGL ES 2.0 (WebGL 1.0 (OpenGL ES 2.0 Chromium))"
+    int esMajor, esMinor;
+    n = sscanf(versionString, "OpenGL ES %d.%d (WebGL %d.%d", &esMajor, &esMinor, &major, &minor);
+    if (4 == n) {
+        return kWebGL_GrGLStandard;
+    }
+
     // check for ES 1
     char profile[2];
     n = sscanf(versionString, "OpenGL ES-%c%c %d.%d", profile, profile+1, &major, &minor);
@@ -121,7 +129,7 @@ void GrGLGetDriverInfo(GrGLStandard standard,
         return;
     }
 
-    if (standard == kGL_GrGLStandard) {
+    if (GR_IS_GR_GL(standard)) {
         if (kNVIDIA_GrGLVendor == vendor) {
             *outDriver = kNVIDIA_GrGLDriver;
             int n = sscanf(versionString, "%d.%d.%d NVIDIA %d.%d",
@@ -143,8 +151,7 @@ void GrGLGetDriverInfo(GrGLStandard standard,
             *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
             return;
         }
-    }
-    else {
+    } else if (GR_IS_GR_GL_ES(standard)) {
         if (kNVIDIA_GrGLVendor == vendor) {
             *outDriver = kNVIDIA_GrGLDriver;
             int n = sscanf(versionString, "OpenGL ES %d.%d NVIDIA %d.%d",
@@ -174,6 +181,21 @@ void GrGLGetDriverInfo(GrGLStandard standard,
         }
     }
 
+    if (kGoogle_GrGLVendor == vendor) {
+        // Swiftshader is the only Google vendor at the moment
+        *outDriver = kSwiftShader_GrGLDriver;
+
+        // Swiftshader has a strange version string: w.x.y.z  Going to arbitrarily ignore
+        // y and assume w,x and z are major, minor, point.
+        // As of writing, version is 4.0.0.6
+        int n = sscanf(versionString, "OpenGL ES %d.%d SwiftShader %d.%d.0.%d", &major, &minor,
+                       &driverMajor, &driverMinor, &driverPoint);
+        if (5 == n) {
+            *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, driverPoint);
+        }
+        return;
+    }
+
     if (kIntel_GrGLVendor == vendor) {
         // We presume we're on the Intel driver since it hasn't identified itself as Mesa.
         *outDriver = kIntel_GrGLDriver;
@@ -196,6 +218,10 @@ void GrGLGetDriverInfo(GrGLStandard standard,
         }
         return;
     }
+    static constexpr char kEmulatorPrefix[] = "Android Emulator OpenGL ES Translator";
+    if (0 == strncmp(kEmulatorPrefix, rendererString, strlen(kEmulatorPrefix))) {
+        *outDriver = kAndroidEmulator_GrGLDriver;
+    }
 }
 
 GrGLVersion GrGLGetVersionFromString(const char* versionString) {
@@ -215,6 +241,13 @@ GrGLVersion GrGLGetVersionFromString(const char* versionString) {
 
     n = sscanf(versionString, "%d.%d", &major, &minor);
     if (2 == n) {
+        return GR_GL_VER(major, minor);
+    }
+
+    // WebGL might look like "OpenGL ES 2.0 (WebGL 1.0 (OpenGL ES 2.0 Chromium))"
+    int esMajor, esMinor;
+    n = sscanf(versionString, "OpenGL ES %d.%d (WebGL %d.%d", &esMajor, &esMinor, &major, &minor);
+    if (4 == n) {
         return GR_GL_VER(major, minor);
     }
 
@@ -267,6 +300,9 @@ GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
         if (0 == strcmp(vendorString, "ARM")) {
             return kARM_GrGLVendor;
         }
+        if (0 == strcmp(vendorString, "Google Inc.")) {
+            return kGoogle_GrGLVendor;
+        }
         if (0 == strcmp(vendorString, "Imagination Technologies")) {
             return kImagination_GrGLVendor;
         }
@@ -289,7 +325,7 @@ GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
 static bool is_renderer_angle(const char* rendererString) {
     static constexpr char kHeader[] = "ANGLE ";
     static constexpr size_t kHeaderLength = SK_ARRAY_COUNT(kHeader) - 1;
-    return 0 == strncmp(rendererString, kHeader, kHeaderLength);
+    return rendererString && 0 == strncmp(rendererString, kHeader, kHeaderLength);
 }
 
 GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
@@ -338,35 +374,83 @@ GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
                     return kAdreno3xx_GrGLRenderer;
                 }
                 if (adrenoNumber < 500) {
-                    return kAdreno4xx_GrGLRenderer;
+                    return adrenoNumber >= 430
+                            ? kAdreno430_GrGLRenderer : kAdreno4xx_other_GrGLRenderer;
                 }
                 if (adrenoNumber < 600) {
                     return kAdreno5xx_GrGLRenderer;
                 }
             }
         }
-        if (0 == strcmp("Intel Iris Pro OpenGL Engine", rendererString)) {
-            return kIntelIrisPro_GrGLRenderer;
+        if (0 == strcmp("Google SwiftShader", rendererString)) {
+            return kGoogleSwiftShader_GrGLRenderer;
         }
 
-        int intelNumber;
-        if (sscanf(rendererString, "Intel(R) Iris(TM) Graphics %d", &intelNumber) ||
-            sscanf(rendererString, "Intel(R) Iris(TM) Pro Graphics %d", &intelNumber) ||
-            sscanf(rendererString, "Intel(R) Iris(TM) Pro Graphics P%d", &intelNumber) ||
-            sscanf(rendererString, "Intel(R) Iris(R) Graphics %d", &intelNumber) ||
-            sscanf(rendererString, "Intel(R) Iris(R) Pro Graphics %d", &intelNumber) ||
-            sscanf(rendererString, "Intel(R) Iris(R) Pro Graphics P%d", &intelNumber) ||
-            sscanf(rendererString, "Intel(R) HD Graphics %d", &intelNumber) ||
-            sscanf(rendererString, "Intel(R) HD Graphics P%d", &intelNumber)) {
+        if (const char* intelString = strstr(rendererString, "Intel")) {
+            // These generic strings seem to always come from Haswell: Iris 5100 or Iris Pro 5200
+            if (0 == strcmp("Intel Iris OpenGL Engine", intelString) ||
+                0 == strcmp("Intel Iris Pro OpenGL Engine", intelString)) {
+                return kIntelHaswell_GrGLRenderer;
+            }
+            if (strstr(intelString, "Sandybridge")) {
+                return kIntelSandyBridge_GrGLRenderer;
+            }
+            if (strstr(intelString, "Bay Trail")) {
+                return kIntelValleyView_GrGLRenderer;
+            }
+            // There are many possible intervening strings here:
+            // 'Intel(R)' is a common prefix
+            // 'Iris' may appear, followed by '(R)' or '(TM)'
+            // 'Iris' can then be followed by 'Graphics', 'Pro Graphics', or 'Plus Graphics'
+            // If 'Iris' isn't there, we might have 'HD Graphics' or 'UHD Graphics'
+            //
+            // In all cases, though, we end with 'Graphics ', an optional 'P', and a number,
+            // so just skip to that and handle two cases:
+            if (const char* intelGfxString = strstr(intelString, "Graphics")) {
+                int intelNumber;
+                if (sscanf(intelGfxString, "Graphics %d", &intelNumber) ||
+                    sscanf(intelGfxString, "Graphics P%d", &intelNumber)) {
 
-            if (intelNumber >= 4000 && intelNumber < 5000) {
-                return kIntel4xxx_GrGLRenderer;
-            }
-            if (intelNumber >= 6000 && intelNumber < 7000) {
-                return kIntel6xxx_GrGLRenderer;
-            }
-            if (intelNumber >= 500 && intelNumber < 600) {
-                return kIntelSkylake_GrGLRenderer;
+                    if (intelNumber == 2000 || intelNumber == 3000) {
+                        return kIntelSandyBridge_GrGLRenderer;
+                    }
+                    if (intelNumber == 2500 || intelNumber == 4000) {
+                        return kIntelIvyBridge_GrGLRenderer;
+                    }
+                    if (intelNumber >= 4200 && intelNumber <= 5200) {
+                        return kIntelHaswell_GrGLRenderer;
+                    }
+                    if (intelNumber >= 400 && intelNumber <= 405) {
+                        return kIntelCherryView_GrGLRenderer;
+                    }
+                    if (intelNumber >= 5300 && intelNumber <= 6300) {
+                        return kIntelBroadwell_GrGLRenderer;
+                    }
+                    if (intelNumber >= 500 && intelNumber <= 505) {
+                        return kIntelApolloLake_GrGLRenderer;
+                    }
+                    if (intelNumber >= 510 && intelNumber <= 580) {
+                        return kIntelSkyLake_GrGLRenderer;
+                    }
+                    if (intelNumber >= 600 && intelNumber <= 605) {
+                        return kIntelGeminiLake_GrGLRenderer;
+                    }
+                    // 610 and 630 are reused from KabyLake to CoffeeLake. The CoffeeLake variants
+                    // are "UHD Graphics", while the KabyLake ones are "HD Graphics"
+                    if (intelNumber == 610 || intelNumber == 630) {
+                        return strstr(intelString, "UHD") ? kIntelCoffeeLake_GrGLRenderer
+                                                          : kIntelKabyLake_GrGLRenderer;
+                    }
+                    if (intelNumber >= 610 && intelNumber <= 650) {
+                        return kIntelKabyLake_GrGLRenderer;
+                    }
+                    if (intelNumber == 655) {
+                        return kIntelCoffeeLake_GrGLRenderer;
+                    }
+                    if (intelNumber >= 910 && intelNumber <= 950) {
+                        return kIntelIceLake_GrGLRenderer;
+                    }
+                }
             }
         }
 
@@ -427,6 +511,10 @@ void GrGLGetANGLEInfoFromString(const char* rendererString, GrGLANGLEBackend* ba
             (1 == sscanf(modelStr, "HD Graphics %i", &modelNumber) ||
              1 == sscanf(modelStr, "HD Graphics P%i", &modelNumber))) {
             switch (modelNumber) {
+                case 2000:
+                case 3000:
+                    *renderer = GrGLANGLERenderer::kSandyBridge;
+                    break;
                 case 4000:
                 case 2500:
                     *renderer = GrGLANGLERenderer::kIvyBridge;
@@ -510,40 +598,106 @@ GrGLenum GrToGLStencilFunc(GrStencilTest test) {
     return gTable[(int)test];
 }
 
-GrPixelConfig GrGLSizedFormatToPixelConfig(GrGLenum sizedFormat) {
-    switch (sizedFormat) {
-        case GR_GL_R8:
-            return kAlpha_8_as_Red_GrPixelConfig;
-        case GR_GL_ALPHA8:
-            return kAlpha_8_as_Alpha_GrPixelConfig;
-        case GR_GL_RGBA8:
-            return kRGBA_8888_GrPixelConfig;
-        case GR_GL_RGB8:
-            return kRGB_888_GrPixelConfig;
-        case GR_GL_BGRA8:
-            return kBGRA_8888_GrPixelConfig;
-        case GR_GL_SRGB8_ALPHA8:
-            return kSRGBA_8888_GrPixelConfig;
-        case GR_GL_RGB565:
-            return kRGB_565_GrPixelConfig;
-        case GR_GL_RGB5:
-            return kRGB_565_GrPixelConfig;
-        case GR_GL_RGBA4:
-            return kRGBA_4444_GrPixelConfig;
-        case GR_GL_RGB10_A2:
-            return kRGBA_1010102_GrPixelConfig;
-        case GR_GL_LUMINANCE8:
-            return kGray_8_GrPixelConfig;
-        case GR_GL_RGBA32F:
-            return kRGBA_float_GrPixelConfig;
-        case GR_GL_RG32F:
-            return kRG_float_GrPixelConfig;
-        case GR_GL_R16F:
-            return kAlpha_half_as_Red_GrPixelConfig;
-        case GR_GL_RGBA16F:
-            return kRGBA_half_GrPixelConfig;
-        default:
-            return kUnknown_GrPixelConfig;
+bool GrGLFormatIsCompressed(GrGLFormat format) {
+    switch (format) {
+        case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
+        case GrGLFormat::kCOMPRESSED_ETC1_RGB8:
+            return true;
+
+        case GrGLFormat::kRGBA8:
+        case GrGLFormat::kR8:
+        case GrGLFormat::kALPHA8:
+        case GrGLFormat::kLUMINANCE8:
+        case GrGLFormat::kBGRA8:
+        case GrGLFormat::kRGB565:
+        case GrGLFormat::kRGBA16F:
+        case GrGLFormat::kR16F:
+        case GrGLFormat::kLUMINANCE16F:
+        case GrGLFormat::kRGB8:
+        case GrGLFormat::kRG8:
+        case GrGLFormat::kRGB10_A2:
+        case GrGLFormat::kRGBA4:
+        case GrGLFormat::kRGBA32F:
+        case GrGLFormat::kSRGB8_ALPHA8:
+        case GrGLFormat::kR16:
+        case GrGLFormat::kRG16:
+        case GrGLFormat::kRGBA16:
+        case GrGLFormat::kRG16F:
+        case GrGLFormat::kUnknown:
+            return false;
     }
+    SkUNREACHABLE;
 }
 
+bool GrGLFormatToCompressionType(GrGLFormat format, SkImage::CompressionType* compressionType) {
+    switch (format) {
+        case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
+        case GrGLFormat::kCOMPRESSED_ETC1_RGB8:
+            *compressionType = SkImage::kETC1_CompressionType;
+            return true;
+
+        case GrGLFormat::kRGBA8:
+        case GrGLFormat::kR8:
+        case GrGLFormat::kALPHA8:
+        case GrGLFormat::kLUMINANCE8:
+        case GrGLFormat::kBGRA8:
+        case GrGLFormat::kRGB565:
+        case GrGLFormat::kRGBA16F:
+        case GrGLFormat::kR16F:
+        case GrGLFormat::kLUMINANCE16F:
+        case GrGLFormat::kRGB8:
+        case GrGLFormat::kRG8:
+        case GrGLFormat::kRGB10_A2:
+        case GrGLFormat::kRGBA4:
+        case GrGLFormat::kRGBA32F:
+        case GrGLFormat::kSRGB8_ALPHA8:
+        case GrGLFormat::kR16:
+        case GrGLFormat::kRG16:
+        case GrGLFormat::kRGBA16:
+        case GrGLFormat::kRG16F:
+        case GrGLFormat::kUnknown:
+            return false;
+    }
+    SkUNREACHABLE;
+}
+
+size_t GrGLBytesPerFormat(GrGLFormat glFormat) {
+    switch (glFormat) {
+        case GrGLFormat::kLUMINANCE8:
+        case GrGLFormat::kALPHA8:
+        case GrGLFormat::kR8:
+            return 1;
+
+        case GrGLFormat::kRGB565:
+        case GrGLFormat::kRGBA4:
+        case GrGLFormat::kRG8:
+        case GrGLFormat::kR16F:
+        case GrGLFormat::kLUMINANCE16F:
+        case GrGLFormat::kR16:
+            return 2;
+
+        case GrGLFormat::kRGB8:
+            return 3;
+
+        case GrGLFormat::kRGBA8:
+        case GrGLFormat::kSRGB8_ALPHA8:
+        case GrGLFormat::kBGRA8:
+        case GrGLFormat::kRGB10_A2:
+        case GrGLFormat::kRG16:
+        case GrGLFormat::kRG16F:
+            return 4;
+
+        case GrGLFormat::kRGBA16F:
+        case GrGLFormat::kRGBA16:
+            return 8;
+
+        case GrGLFormat::kRGBA32F:
+            return 16;
+
+        case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
+        case GrGLFormat::kCOMPRESSED_ETC1_RGB8:
+        case GrGLFormat::kUnknown:
+            return 0;
+    }
+    SkUNREACHABLE;
+}

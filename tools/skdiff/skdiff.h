@@ -8,11 +8,11 @@
 #ifndef skdiff_DEFINED
 #define skdiff_DEFINED
 
-#include "SkBitmap.h"
-#include "SkColor.h"
-#include "SkColorPriv.h"
-#include "SkString.h"
-#include "../private/SkTDArray.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkString.h"
+#include "include/private/SkTDArray.h"
 
 #if defined(SK_BUILD_FOR_WIN)
     #define PATH_DIV_STR "\\"

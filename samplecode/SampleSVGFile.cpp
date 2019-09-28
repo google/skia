@@ -5,22 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #ifdef SK_XML
 
-#include "SampleCode.h"
-#include "SkCanvas.h"
-#include "SkDOM.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkStream.h"
-#include "SkSVGDOM.h"
-#include "SkView.h"
+#include "experimental/svg/model/SkSVGDOM.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkStream.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkOSFile.h"
+#include "src/utils/SkOSPath.h"
+#include "src/xml/SkDOM.h"
 
 namespace {
 
-class SVGFileView : public SampleView {
+class SVGFileView : public Sample {
 public:
     SVGFileView(const SkString& path)
         : fPath(path), fLabel(SkStringPrintf("[%s]", SkOSPath::Basename(path.c_str()).c_str())) {}
@@ -60,26 +59,20 @@ protected:
         this->INHERITED::onSizeChange();
     }
 
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, fLabel.c_str());
-            return true;
-        }
+    SkString name() override { return fLabel; }
 
-        return this->INHERITED::onQuery(evt);
-    }
 private:
     sk_sp<SkSVGDOM> fDom;
     SkString        fPath;
     SkString        fLabel;
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 } // anonymous namespace
 
-SampleView* CreateSampleSVGFileView(const SkString& filename);
-SampleView* CreateSampleSVGFileView(const SkString& filename) {
+Sample* CreateSampleSVGFileView(const SkString& filename);
+Sample* CreateSampleSVGFileView(const SkString& filename) {
     return new SVGFileView(filename);
 }
 #endif  // SK_XML

@@ -8,9 +8,10 @@
 #ifndef GrSoftwarePathRenderer_DEFINED
 #define GrSoftwarePathRenderer_DEFINED
 
-#include "GrPathRenderer.h"
+#include "src/gpu/GrPathRenderer.h"
 
 class GrProxyProvider;
+class GrTextureProxy;
 
 /**
  * This class uses the software side to render a path to an SkBitmap and
@@ -22,6 +23,14 @@ public:
             : fProxyProvider(proxyProvider)
             , fAllowCaching(allowCaching) {
     }
+
+    static bool GetShapeAndClipBounds(GrRenderTargetContext*,
+                                      const GrClip& clip,
+                                      const GrShape& shape,
+                                      const SkMatrix& matrix,
+                                      SkIRect* unclippedDevShapeBounds,
+                                      SkIRect* clippedDevShapeBounds,
+                                      SkIRect* devClipBounds);
 
 private:
     static void DrawNonAARect(GrRenderTargetContext* renderTargetContext,

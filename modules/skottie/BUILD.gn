@@ -1,0 +1,154 @@
+# Copyright 2018 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../../gn/skia.gni")
+
+declare_args() {
+  skia_enable_skottie = !(is_win && is_component_build)
+}
+
+if (skia_enable_skottie) {
+  config("public_config") {
+    defines = [ "SK_ENABLE_SKOTTIE" ]
+    include_dirs = [ "include" ]
+  }
+
+  component("skottie") {
+    check_includes = false
+    import("skottie.gni")
+    public_configs = [ ":public_config" ]
+    public = skia_skottie_public
+    sources = skia_skottie_sources
+    configs += [ "../../:skia_private" ]
+    deps = [
+      "../..:skia",
+      "../sksg",
+      "../skshaper",
+    ]
+  }
+
+  if (defined(is_skia_standalone)) {
+    config("utils_config") {
+      include_dirs = [ "utils" ]
+    }
+    source_set("utils") {
+      check_includes = false
+      testonly = true
+
+      public_configs = [ ":utils_config" ]
+      configs += [ "../../:skia_private" ]
+
+      sources = [
+        "utils/SkottieUtils.cpp",
+      ]
+      deps = [
+        ":skottie",
+        "../..:skia",
+      ]
+    }
+
+    if (skia_enable_tools) {
+      source_set("tests") {
+        testonly = true
+
+        configs += [
+          "../..:skia_private",
+          "../..:tests_config",
+        ]
+        sources = [
+          "src/SkottieTest.cpp",
+        ]
+
+        deps = [
+          ":skottie",
+          "../..:gpu_tool_utils",
+          "../..:skia",
+          "../skshaper",
+        ]
+      }
+
+      source_set("fuzz") {
+        check_includes = false
+        testonly = true
+
+        configs += [ "../..:skia_private" ]
+        include_dirs = [
+          "../../tools",
+          "../../tools/flags",
+          "../../tools/fonts",
+        ]
+        sources = [
+          "../../tools/Resources.cpp",
+          "../../tools/fonts/TestFontMgr.cpp",
+          "../../tools/fonts/TestSVGTypeface.cpp",
+          "../../tools/fonts/TestTypeface.cpp",
+          "fuzz/FuzzSkottieJSON.cpp",
+        ]
+
+        deps = [
+          "../..:experimental_svg_model",
+          "../..:skia",
+        ]
+
+        public_deps = [
+          ":skottie",
+        ]
+      }
+
+      source_set("tool") {
+        check_includes = false
+        testonly = true
+
+        configs += [ "../..:skia_private" ]
+        sources = [
+          "src/SkottieTool.cpp",
+        ]
+
+        deps = [
+          "../..:flags",
+          "../..:skia",
+        ]
+
+        public_deps = [
+          ":skottie",
+          ":utils",
+        ]
+      }
+
+      source_set("gm") {
+        check_includes = false
+        testonly = true
+
+        # would be nice to have a gm_config
+        include_dirs = [ "../../gm" ]
+
+        configs += [ "../..:skia_private" ]
+        sources = [
+          "gm/3dgm.cpp",
+          "gm/SkottieGM.cpp",
+        ]
+
+        deps = [
+          ":skottie",
+          ":utils",
+          "../..:gpu_tool_utils",
+          "../..:skia",
+          "../..:tool_utils",
+        ]
+      }
+    }
+  }
+} else {
+  group("skottie") {
+  }
+  group("fuzz") {
+  }
+  group("gm") {
+  }
+  group("tests") {
+  }
+  group("utils") {
+  }
+}

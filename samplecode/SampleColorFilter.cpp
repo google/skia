@@ -4,13 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "sk_tool_utils.h"
-#include "SampleCode.h"
-#include "SkView.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkPaint.h"
-#include "SkShader.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
+#include "samplecode/Sample.h"
+#include "tools/ToolUtils.h"
 
 static int inflate5To8(int x) {
     return (x << 3) | (x >> 2);
@@ -90,7 +89,7 @@ static SkBitmap createBitmap(int n) {
 
     SkCanvas canvas(bitmap);
     SkRect r;
-    r.set(0, 0, SkIntToScalar(n), SkIntToScalar(n));
+    r.setWH(SkIntToScalar(n), SkIntToScalar(n));
     r.inset(SK_Scalar1, SK_Scalar1);
 
     SkPaint paint;
@@ -107,32 +106,23 @@ static SkBitmap createBitmap(int n) {
     return bitmap;
 }
 
-class ColorFilterView : public SampleView {
+class ColorFilterView : public Sample {
     SkBitmap fBitmap;
     sk_sp<SkShader> fShader;
     enum {
         N = 64
     };
 
-protected:
     void onOnceBeforeDraw() override {
         fBitmap = createBitmap(N);
-        fShader = sk_tool_utils::create_checkerboard_shader(
-                0xFFCCCCCC, 0xFFFFFFFF, 12);
+        fShader = ToolUtils::create_checkerboard_shader(0xFFCCCCCC, 0xFFFFFFFF, 12);
 
         if (false) { // avoid bit rot, suppress warning
             test_5bits();
         }
     }
 
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "ColorFilter");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("ColorFilter"); }
 
     void onDrawBackground(SkCanvas* canvas) override {
         SkPaint paint;
@@ -146,7 +136,7 @@ protected:
             p.setAntiAlias(true);
             SkRect r = { 20.4f, 10, 20.6f, 20 };
             canvas->drawRect(r, p);
-            r.set(30.9f, 10, 31.1f, 20);
+            r.setLTRB(30.9f, 10, 31.1f, 20);
             canvas->drawRect(r, p);
             return;
         }
@@ -182,18 +172,12 @@ protected:
 
         for (size_t y = 0; y < SK_ARRAY_COUNT(gColors); y++) {
             for (size_t x = 0; x < SK_ARRAY_COUNT(gModes); x++) {
-                paint.setColorFilter(SkColorFilter::MakeModeFilter(gColors[y], gModes[x]));
+                paint.setColorFilter(SkColorFilters::Blend(gColors[y], gModes[x]));
                 canvas->drawBitmap(fBitmap, x * N * 1.25f, y * N * scale, &paint);
             }
         }
 
     }
-
-private:
-    typedef SampleView INHERITED;
 };
 
-//////////////////////////////////////////////////////////////////////////////
-
-static SkView* MyFactory() { return new ColorFilterView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new ColorFilterView(); )

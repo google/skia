@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkColorData.h"
-#include "SkFixed.h"
-#include "SkMathPriv.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkRandom.h"
-#include "SkString.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkString.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkFixed.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkMathPriv.h"
 
 static float sk_fsel(float pred, float result_ge, float result_lt) {
     return pred >= 0 ? result_ge : result_lt;
@@ -76,8 +76,8 @@ protected:
                               int count) = 0;
 
     void performTest(float* SK_RESTRICT dst, const float* SK_RESTRICT src, int count) override {
-        uint32_t* d = SkTCast<uint32_t*>(dst);
-        const uint32_t* s = SkTCast<const uint32_t*>(src);
+        uint32_t* d = reinterpret_cast<uint32_t*>(dst);
+        const uint32_t* s = reinterpret_cast<const uint32_t*>(src);
         this->performITest(d, s, count);
     }
 private:
@@ -601,7 +601,7 @@ DEF_BENCH( return new FixedMathBench(); )
 
 //////////////////////////////////////////////////////////////
 
-#include "../private/SkFloatBits.h"
+#include "include/private/SkFloatBits.h"
 class Floor2IntBench : public Benchmark {
     enum {
         ARRAY = 1000,

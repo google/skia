@@ -4,11 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkPathOpsConic.h"
-#include "SkPathOpsCubic.h"
-#include "SkPathOpsLine.h"
-#include "SkPathOpsQuad.h"
-#include "SkPathOpsRect.h"
+#include "src/pathops/SkPathOpsConic.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsLine.h"
+#include "src/pathops/SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsRect.h"
 
 void SkDRect::setBounds(const SkDQuad& curve, const SkDQuad& sub, double startT, double endT) {
     set(sub[0]);
@@ -59,4 +59,8 @@ void SkDRect::setBounds(const SkDCubic& curve, const SkDCubic& sub, double start
         double t = startT + (endT - startT) * tValues[index];
         add(curve.ptAtT(t));
     }
+}
+
+void SkDRect::setBounds(const SkTCurve& curve) {
+    curve.setBounds(this);
 }

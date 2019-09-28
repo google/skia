@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkBmpCodec.h"
-#include "SkBmpMaskCodec.h"
-#include "SkBmpRLECodec.h"
-#include "SkBmpStandardCodec.h"
-#include "SkCodecPriv.h"
-#include "SkColorData.h"
-#include "SkStream.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkColorData.h"
+#include "src/codec/SkBmpCodec.h"
+#include "src/codec/SkBmpMaskCodec.h"
+#include "src/codec/SkBmpRLECodec.h"
+#include "src/codec/SkBmpStandardCodec.h"
+#include "src/codec/SkCodecPriv.h"
 
 /*
  * Defines the version and type of the second bitmap header
@@ -374,7 +374,7 @@ SkCodec::Result SkBmpCodec::ReadHeader(SkStream* stream, bool inIco,
                     //
                     // Header types are matched based on size.  If the header is
                     // V3+, we are guaranteed to be able to read at least this size.
-                    SkASSERT(infoBytesRemaining > 52);
+                    SkASSERT(infoBytesRemaining >= 52);
                     inputMasks.alpha = get_int(iBuffer.get(), 48);
                     break;
                 case kOS2VX_BmpHeaderType:
@@ -481,8 +481,8 @@ SkCodec::Result SkBmpCodec::ReadHeader(SkStream* stream, bool inIco,
                 SkASSERT(!inIco || nullptr != stream->getMemoryBase());
 
                 // Set the image info and create a codec.
-                const SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, bitsPerComponent);
-                codecOut->reset(new SkBmpStandardCodec(width, height, info,
+                auto info = SkEncodedInfo::Make(width, height, color, alpha, bitsPerComponent);
+                codecOut->reset(new SkBmpStandardCodec(std::move(info),
                                                        std::unique_ptr<SkStream>(stream),
                                                        bitsPerPixel, numColors, bytesPerColor,
                                                        offset - bytesRead, rowOrder, isOpaque,
@@ -520,7 +520,8 @@ SkCodec::Result SkBmpCodec::ReadHeader(SkStream* stream, bool inIco,
 
             if (codecOut) {
                 // Check that input bit masks are valid and create the masks object
-                std::unique_ptr<SkMasks> masks(SkMasks::CreateMasks(inputMasks, bitsPerPixel));
+                SkASSERT(bitsPerPixel % 8 == 0);
+                std::unique_ptr<SkMasks> masks(SkMasks::CreateMasks(inputMasks, bitsPerPixel/8));
                 if (nullptr == masks) {
                     SkCodecPrintf("Error: invalid input masks.\n");
                     return kInvalidInput;
@@ -539,8 +540,8 @@ SkCodec::Result SkBmpCodec::ReadHeader(SkStream* stream, bool inIco,
                     color = SkEncodedInfo::kBGR_Color;
                     alpha = SkEncodedInfo::kOpaque_Alpha;
                 }
-                const SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
-                codecOut->reset(new SkBmpMaskCodec(width, height, info,
+                auto info = SkEncodedInfo::Make(width, height, color, alpha, 8);
+                codecOut->reset(new SkBmpMaskCodec(std::move(info),
                                                    std::unique_ptr<SkStream>(stream), bitsPerPixel,
                                                    masks.release(), rowOrder));
                 return static_cast<SkBmpMaskCodec*>(codecOut->get())->didCreateSrcBuffer()
@@ -570,9 +571,9 @@ SkCodec::Result SkBmpCodec::ReadHeader(SkStream* stream, bool inIco,
                 // is uncommon, but we cannot be certain that an RLE bmp will be
                 // opaque or that we will be able to represent it with a palette.
                 // For that reason, we always indicate that we are kBGRA.
-                const SkEncodedInfo info = SkEncodedInfo::Make(SkEncodedInfo::kBGRA_Color,
-                        SkEncodedInfo::kBinary_Alpha, 8);
-                codecOut->reset(new SkBmpRLECodec(width, height, info,
+                auto info = SkEncodedInfo::Make(width, height, SkEncodedInfo::kBGRA_Color,
+                                                SkEncodedInfo::kBinary_Alpha, 8);
+                codecOut->reset(new SkBmpRLECodec(std::move(info),
                                                   std::unique_ptr<SkStream>(stream), bitsPerPixel,
                                                   numColors, bytesPerColor, offset - bytesRead,
                                                   rowOrder));
@@ -600,14 +601,12 @@ std::unique_ptr<SkCodec> SkBmpCodec::MakeFromStream(std::unique_ptr<SkStream> st
     return kSuccess == *result ? std::move(codec) : nullptr;
 }
 
-SkBmpCodec::SkBmpCodec(int width, int height, const SkEncodedInfo& info,
-                       std::unique_ptr<SkStream> stream,
+SkBmpCodec::SkBmpCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
         uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder)
-    : INHERITED(width, height, info, kXformSrcColorFormat, std::move(stream),
-                SkColorSpace::MakeSRGB())
+    : INHERITED(std::move(info), kXformSrcColorFormat, std::move(stream))
     , fBitsPerPixel(bitsPerPixel)
     , fRowOrder(rowOrder)
-    , fSrcRowBytes(SkAlign4(compute_row_bytes(width, fBitsPerPixel)))
+    , fSrcRowBytes(SkAlign4(compute_row_bytes(this->dimensions().width(), fBitsPerPixel)))
     , fXformBuffer(nullptr)
 {}
 

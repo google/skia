@@ -5,13 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkDashPathEffect.h"
-#include "SkPath.h"
-#include "SkSVGAttribute.h"
-#include "SkSVGNode.h"
-#include "SkSVGRenderContext.h"
-#include "SkSVGTypes.h"
+#include "experimental/svg/model/SkSVGRenderContext.h"
+
+#include "experimental/svg/model/SkSVGAttribute.h"
+#include "experimental/svg/model/SkSVGNode.h"
+#include "experimental/svg/model/SkSVGTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/private/SkTo.h"
 
 namespace {
 

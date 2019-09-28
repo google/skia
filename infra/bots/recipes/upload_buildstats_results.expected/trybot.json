@@ -1,0 +1,49 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/perf",
+      "*.json"
+    ],
+    "cwd": "[START_DIR]/perf",
+    "infra_step": true,
+    "name": "find results",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/perf/buildstats_abc123.json@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/perf/buildstats_def.json@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "cp",
+      "-z",
+      "json",
+      "[START_DIR]/perf/buildstats_abc123.json",
+      "gs://skia-perf/trybot/buildstats-json-v1/2012/05/14/12/BuildStats-Debian9-EMCC-wasm-Release-PathKit/456789/12/abc123_buildstats_abc123.json"
+    ],
+    "infra_step": true,
+    "name": "upload [START_DIR]/perf/buildstats_abc123.json"
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "cp",
+      "-z",
+      "json",
+      "[START_DIR]/perf/buildstats_def.json",
+      "gs://skia-perf/trybot/buildstats-json-v1/2012/05/14/12/BuildStats-Debian9-EMCC-wasm-Release-PathKit/456789/12/abc123_buildstats_def.json"
+    ],
+    "infra_step": true,
+    "name": "upload [START_DIR]/perf/buildstats_def.json"
+  },
+  {
+    "name": "$result"
+  }
+]

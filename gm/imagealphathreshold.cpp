@@ -5,14 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkAlphaThresholdFilter.h"
-#include "SkImageSource.h"
-#include "SkOffsetImageFilter.h"
-#include "SkRandom.h"
-#include "SkRegion.h"
-#include "SkSurface.h"
-#include "sk_tool_utils.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkImageFilters.h"
+#include "include/utils/SkRandom.h"
+#include "tools/ToolUtils.h"
+
+#include <utility>
 
 #define WIDTH 500
 #define HEIGHT 500
@@ -29,7 +42,7 @@ static void draw_rects(SkCanvas* canvas) {
     canvas->drawRect(SkRect::MakeXYWH(WIDTH / 2, HEIGHT / 2, WIDTH / 2, HEIGHT / 2), rectPaint);
 }
 
-static SkPaint create_filter_paint(SkImageFilter::CropRect* cropRect = nullptr) {
+static SkPaint create_filter_paint(SkIRect* cropRect = nullptr) {
     SkIRect rects[2];
     rects[0] = SkIRect::MakeXYWH(0, 150, WIDTH, HEIGHT - 300);
     rects[1] = SkIRect::MakeXYWH(150, 0, WIDTH - 300, HEIGHT);
@@ -37,8 +50,9 @@ static SkPaint create_filter_paint(SkImageFilter::CropRect* cropRect = nullptr) 
     region.setRects(rects, 2);
 
     SkPaint paint;
-    sk_sp<SkImageFilter> offset(SkOffsetImageFilter::Make(25, 25, nullptr));
-    paint.setImageFilter(SkAlphaThresholdFilter::Make(region, 0.2f, 0.7f, std::move(offset), cropRect));
+    sk_sp<SkImageFilter> offset(SkImageFilters::Offset(25, 25, nullptr));
+    paint.setImageFilter(
+            SkImageFilters::AlphaThreshold(region, 0.2f, 0.7f, std::move(offset), cropRect));
     return paint;
 }
 
@@ -70,8 +84,7 @@ protected:
 
         canvas->concat(matrix);
 
-        SkRect r = SkRect::MakeLTRB(100, 100, WIDTH - 100, HEIGHT - 100);
-        SkImageFilter::CropRect cropRect(r);
+        SkIRect cropRect = SkIRect::MakeLTRB(100, 100, WIDTH - 100, HEIGHT - 100);
 
         SkPaint paint = create_filter_paint(fUseCropRect ? &cropRect : nullptr);
         canvas->saveLayer(nullptr, &paint);
@@ -104,7 +117,7 @@ static sk_sp<SkSurface> make_color_matching_surface(SkCanvas* canvas, int width,
 
     SkImageInfo info = SkImageInfo::Make(width, height, ct, at, std::move(cs));
 
-    return sk_tool_utils::makeSurface(canvas, info);
+    return ToolUtils::makeSurface(canvas, info);
 }
 
 class ImageAlphaThresholdSurfaceGM : public skiagm::GM {
@@ -122,7 +135,7 @@ protected:
         return SkISize::Make(WIDTH, HEIGHT);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkMatrix matrix;
         matrix.reset();
         matrix.setTranslate(WIDTH * .1f, HEIGHT * .1f);
@@ -133,7 +146,8 @@ protected:
         sk_sp<SkSurface> surface(make_color_matching_surface(canvas, WIDTH, HEIGHT,
                                                              kPremul_SkAlphaType));
         if (!surface) {
-            return;
+            *errorMsg = "make_color_matching_surface failed";
+            return DrawResult::kFail;
         }
 
         surface->getCanvas()->clear(SK_ColorTRANSPARENT);
@@ -142,6 +156,7 @@ protected:
         SkPaint paint = create_filter_paint();
         canvas->clipRect(SkRect::MakeLTRB(100, 100, WIDTH - 100, HEIGHT - 100));
         canvas->drawImage(surface->makeImageSnapshot().get(), 0, 0, &paint);
+        return DrawResult::kOk;
     }
 
 private:
@@ -184,9 +199,9 @@ DEF_SIMPLE_GM_BG(imagealphathreshold_image, canvas, WIDTH * 2, HEIGHT, SK_ColorB
     region.setRects(rects, 2);
 
     SkPaint filterPaint;
-    sk_sp<SkImageFilter> imageSource(SkImageSource::Make(image));
-    filterPaint.setImageFilter(SkAlphaThresholdFilter::Make(region, 0.2f, 0.7f,
-                                                            std::move(imageSource)));
+    sk_sp<SkImageFilter> imageSource(SkImageFilters::Image(image));
+    filterPaint.setImageFilter(SkImageFilters::AlphaThreshold(region, 0.2f, 0.7f,
+                                                              std::move(imageSource)));
 
     canvas->saveLayer(nullptr, &filterPaint);
     canvas->restore();

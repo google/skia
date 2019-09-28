@@ -5,154 +5,249 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
-#include "SkBlendModePriv.h"
-#include "SkComposeShader.h"
-#include "SkColorFilter.h"
-#include "SkColorData.h"
-#include "SkColorShader.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
-#include "SkString.h"
-#include "../jumper/SkJumper.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkString.h"
+#include "include/private/SkColorData.h"
+#include "src/core/SkArenaAlloc.h"
+#include "src/core/SkBlendModePriv.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/shaders/SkColorShader.h"
+#include "src/shaders/SkComposeShader.h"
 
-sk_sp<SkShader> SkShader::MakeCompose(sk_sp<SkShader> dst, sk_sp<SkShader> src, SkBlendMode mode,
-                                      float lerpT) {
-    if (!src || !dst || SkScalarIsNaN(lerpT)) {
+namespace {
+
+sk_sp<SkShader> wrap_lm(sk_sp<SkShader> shader, const SkMatrix* lm) {
+    return (shader && lm) ? shader->makeWithLocalMatrix(*lm) : shader;
+}
+
+struct LocalMatrixStageRec final : public SkStageRec {
+    LocalMatrixStageRec(const SkStageRec& rec, const SkMatrix& lm)
+        : INHERITED(rec) {
+        if (!lm.isIdentity()) {
+            if (fLocalM) {
+                fStorage.setConcat(lm, *fLocalM);
+                fLocalM = fStorage.isIdentity() ? nullptr : &fStorage;
+            } else {
+                fLocalM = &lm;
+            }
+        }
+    }
+
+private:
+    SkMatrix fStorage;
+
+    using INHERITED = SkStageRec;
+};
+
+} // namespace
+
+sk_sp<SkShader> SkShaders::Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                                 const SkMatrix* lm) {
+    switch (mode) {
+        case SkBlendMode::kClear: return Color(0);
+        case SkBlendMode::kDst:   return wrap_lm(std::move(dst), lm);
+        case SkBlendMode::kSrc:   return wrap_lm(std::move(src), lm);
+        default: break;
+    }
+    return sk_sp<SkShader>(new SkShader_Blend(mode, std::move(dst), std::move(src), lm));
+}
+
+sk_sp<SkShader> SkShaders::Lerp(float weight, sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                                const SkMatrix* lm) {
+    if (SkScalarIsNaN(weight)) {
         return nullptr;
     }
-    lerpT = SkScalarPin(lerpT, 0, 1);
-
-    if (lerpT == 0) {
-        return dst;
-    } else if (lerpT == 1) {
-        if (mode == SkBlendMode::kSrc) {
-            return src;
-        }
-        if (mode == SkBlendMode::kDst) {
-            return dst;
-        }
+    if (dst == src || weight <= 0) {
+        return wrap_lm(std::move(dst), lm);
     }
-    return sk_sp<SkShader>(new SkComposeShader(std::move(dst), std::move(src), mode, lerpT));
+    if (weight >= 1) {
+        return wrap_lm(std::move(src), lm);
+    }
+    return sk_sp<SkShader>(new SkShader_Lerp(weight, std::move(dst), std::move(src), lm));
+}
+
+sk_sp<SkShader> SkShaders::Lerp(sk_sp<SkShader> red, sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                                const SkMatrix* lm) {
+    if (!red) {
+        return nullptr;
+    }
+    if (dst == src) {
+        return wrap_lm(std::move(dst), lm);
+    }
+    return sk_sp<SkShader>(new SkShader_LerpRed(std::move(red), std::move(dst), std::move(src),
+                                                lm));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkFlattenable> SkComposeShader::CreateProc(SkReadBuffer& buffer) {
+static bool append_shader_or_paint(const SkStageRec& rec, SkShader* shader) {
+    if (shader) {
+        if (!as_SB(shader)->appendStages(rec)) {
+            return false;
+        }
+    } else {
+        rec.fPipeline->append_constant_color(rec.fAlloc, rec.fPaint.getColor4f().premul().vec());
+    }
+    return true;
+}
+
+// Returns the output of e0, and leaves the output of e1 in r,g,b,a
+static float* append_two_shaders(const SkStageRec& rec, SkShader* s0, SkShader* s1) {
+    struct Storage {
+        float   fRes0[4 * SkRasterPipeline_kMaxStride];
+    };
+    auto storage = rec.fAlloc->make<Storage>();
+
+    if (!append_shader_or_paint(rec, s0)) {
+        return nullptr;
+    }
+    rec.fPipeline->append(SkRasterPipeline::store_src, storage->fRes0);
+
+    if (!append_shader_or_paint(rec, s1)) {
+        return nullptr;
+    }
+    return storage->fRes0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkFlattenable> SkShader_Blend::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkShader> dst(buffer.readShader());
     sk_sp<SkShader> src(buffer.readShader());
     unsigned        mode = buffer.read32();
-    float           lerp = buffer.readScalar();
 
     // check for valid mode before we cast to the enum type
     if (!buffer.validate(mode <= (unsigned)SkBlendMode::kLastMode)) {
         return nullptr;
     }
-    return MakeCompose(std::move(dst), std::move(src), static_cast<SkBlendMode>(mode), lerp);
+    return SkShaders::Blend(static_cast<SkBlendMode>(mode), std::move(dst), std::move(src));
 }
 
-void SkComposeShader::flatten(SkWriteBuffer& buffer) const {
+void SkShader_Blend::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fDst.get());
     buffer.writeFlattenable(fSrc.get());
     buffer.write32((int)fMode);
-    buffer.writeScalar(fLerpT);
 }
 
-sk_sp<SkShader> SkComposeShader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    return MakeCompose(xformer->apply(fDst.get()), xformer->apply(fSrc.get()),
-                       fMode, fLerpT);
-}
+bool SkShader_Blend::onAppendStages(const SkStageRec& orig_rec) const {
+    const LocalMatrixStageRec rec(orig_rec, this->getLocalMatrix());
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-bool SkComposeShader::asACompose(ComposeRec* rec) const {
-    if (!this->isJustMode()) {
+    float* res0 = append_two_shaders(rec, fDst.get(), fSrc.get());
+    if (!res0) {
         return false;
     }
 
-    if (rec) {
-        rec->fShaderA   = fDst.get();
-        rec->fShaderB   = fSrc.get();
-        rec->fBlendMode = fMode;
-    }
+    rec.fPipeline->append(SkRasterPipeline::load_dst, res0);
+    SkBlendMode_AppendStages(fMode, rec.fPipeline);
     return true;
 }
-#endif
 
-bool SkComposeShader::onAppendStages(const StageRec& rec) const {
+sk_sp<SkFlattenable> SkShader_Lerp::CreateProc(SkReadBuffer& buffer) {
+    sk_sp<SkShader> dst(buffer.readShader());
+    sk_sp<SkShader> src(buffer.readShader());
+    float t = buffer.readScalar();
+    return buffer.isValid() ? SkShaders::Lerp(t, std::move(dst), std::move(src)) : nullptr;
+}
+
+void SkShader_Lerp::flatten(SkWriteBuffer& buffer) const {
+    buffer.writeFlattenable(fDst.get());
+    buffer.writeFlattenable(fSrc.get());
+    buffer.writeScalar(fWeight);
+}
+
+bool SkShader_Lerp::onAppendStages(const SkStageRec& orig_rec) const {
+    const LocalMatrixStageRec rec(orig_rec, this->getLocalMatrix());
+
+    float* res0 = append_two_shaders(rec, fDst.get(), fSrc.get());
+    if (!res0) {
+        return false;
+    }
+
+    rec.fPipeline->append(SkRasterPipeline::load_dst, res0);
+    rec.fPipeline->append(SkRasterPipeline::lerp_1_float, &fWeight);
+    return true;
+}
+
+sk_sp<SkFlattenable> SkShader_LerpRed::CreateProc(SkReadBuffer& buffer) {
+    sk_sp<SkShader> dst(buffer.readShader());
+    sk_sp<SkShader> src(buffer.readShader());
+    sk_sp<SkShader> red(buffer.readShader());
+    return buffer.isValid() ?
+           SkShaders::Lerp(std::move(red), std::move(dst), std::move(src)) : nullptr;
+}
+
+void SkShader_LerpRed::flatten(SkWriteBuffer& buffer) const {
+    buffer.writeFlattenable(fDst.get());
+    buffer.writeFlattenable(fSrc.get());
+    buffer.writeFlattenable(fRed.get());
+}
+
+bool SkShader_LerpRed::onAppendStages(const SkStageRec& orig_rec) const {
+    const LocalMatrixStageRec rec(orig_rec, this->getLocalMatrix());
+
     struct Storage {
-        float   fRGBA[4 * SkJumper_kMaxStride];
-        float   fAlpha;
+        float   fRed[4 * SkRasterPipeline_kMaxStride];
     };
     auto storage = rec.fAlloc->make<Storage>();
-
-    if (!as_SB(fSrc)->appendStages(rec)) {
+    if (!as_SB(fRed)->appendStages(rec)) {
         return false;
     }
-    // This outputs r,g,b,a, which we'll need later when we apply the mode, but we save it off now
-    // since fShaderB will overwrite them.
-    rec.fPipeline->append(SkRasterPipeline::store_rgba, storage->fRGBA);
+    // actually, we just need the first (red) channel, but for now we store rgba
+    rec.fPipeline->append(SkRasterPipeline::store_src, storage->fRed);
 
-    if (!as_SB(fDst)->appendStages(rec)) {
+    float* res0 = append_two_shaders(rec, fDst.get(), fSrc.get());
+    if (!res0) {
         return false;
     }
-    // We now have our logical 'dst' in r,g,b,a, but we need it in dr,dg,db,da for the mode/lerp
-    // so we have to shuttle them. If we had a stage the would load_into_dst, then we could
-    // reverse the two shader invocations, and avoid this move...
-    rec.fPipeline->append(SkRasterPipeline::move_src_dst);
-    rec.fPipeline->append(SkRasterPipeline::load_rgba, storage->fRGBA);
 
-    if (!this->isJustLerp()) {
-        SkBlendMode_AppendStages(fMode, rec.fPipeline);
-    }
-    if (!this->isJustMode()) {
-        rec.fPipeline->append(SkRasterPipeline::lerp_1_float, &fLerpT);
-    }
+    rec.fPipeline->append(SkRasterPipeline::load_dst, res0);
+    rec.fPipeline->append(SkRasterPipeline::lerp_native, &storage->fRed[0]);
     return true;
 }
 
 #if SK_SUPPORT_GPU
 
-#include "effects/GrConstColorProcessor.h"
-#include "effects/GrXfermodeFragmentProcessor.h"
+#include "include/private/GrRecordingContext.h"
+#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
+#include "src/gpu/effects/generated/GrComposeLerpEffect.h"
+#include "src/gpu/effects/generated/GrComposeLerpRedEffect.h"
+#include "src/gpu/effects/generated/GrConstColorProcessor.h"
 
-/////////////////////////////////////////////////////////////////////
+static std::unique_ptr<GrFragmentProcessor> as_fp(const GrFPArgs& args, SkShader* shader) {
+    return shader ? as_SB(shader)->asFragmentProcessor(args) : nullptr;
+}
 
-std::unique_ptr<GrFragmentProcessor> SkComposeShader::asFragmentProcessor(
-        const GrFPArgs& args) const {
-    if (this->isJustMode()) {
-        SkASSERT(fMode != SkBlendMode::kSrc && fMode != SkBlendMode::kDst); // caught in factory
-        if (fMode == SkBlendMode::kClear) {
-            return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
-                                               GrConstColorProcessor::InputMode::kIgnore);
-        }
-    }
-
-    std::unique_ptr<GrFragmentProcessor> fpA(as_SB(fDst)->asFragmentProcessor(args));
-    if (!fpA) {
+std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(
+        const GrFPArgs& orig_args) const {
+    const GrFPArgs::WithPreLocalMatrix args(orig_args, this->getLocalMatrix());
+    auto fpA = as_fp(args, fDst.get());
+    auto fpB = as_fp(args, fSrc.get());
+    if (!fpA || !fpB) {
         return nullptr;
     }
-    std::unique_ptr<GrFragmentProcessor> fpB(as_SB(fSrc)->asFragmentProcessor(args));
-    if (!fpB) {
-        return nullptr;
-    }
-    // TODO: account for fLerpT when it is < 1
     return GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(fpB),
                                                               std::move(fpA), fMode);
 }
-#endif
 
-void SkComposeShader::toString(SkString* str) const {
-    str->append("SkComposeShader: (");
-
-    str->append("dst: ");
-    as_SB(fDst)->toString(str);
-    str->append(" src: ");
-    as_SB(fSrc)->toString(str);
-    str->appendf(" mode: %s", SkBlendMode_Name(fMode));
-    str->appendf(" lerpT: %g", fLerpT);
-
-    this->INHERITED::toString(str);
-
-    str->append(")");
+std::unique_ptr<GrFragmentProcessor> SkShader_Lerp::asFragmentProcessor(
+        const GrFPArgs& orig_args) const {
+    const GrFPArgs::WithPreLocalMatrix args(orig_args, this->getLocalMatrix());
+    auto fpA = as_fp(args, fDst.get());
+    auto fpB = as_fp(args, fSrc.get());
+    return GrComposeLerpEffect::Make(std::move(fpA), std::move(fpB), fWeight);
 }
+
+std::unique_ptr<GrFragmentProcessor> SkShader_LerpRed::asFragmentProcessor(
+        const GrFPArgs& orig_args) const {
+    const GrFPArgs::WithPreLocalMatrix args(orig_args, this->getLocalMatrix());
+    auto fpA = as_fp(args, fDst.get());
+    auto fpB = as_fp(args, fSrc.get());
+    auto red = as_SB(fRed)->asFragmentProcessor(args);
+    if (!red) {
+        return nullptr;
+    }
+    return GrComposeLerpRedEffect::Make(std::move(fpA), std::move(fpB), std::move(red));
+}
+#endif

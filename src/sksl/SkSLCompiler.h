@@ -11,12 +11,13 @@
 #include <set>
 #include <unordered_set>
 #include <vector>
-#include "ir/SkSLProgram.h"
-#include "ir/SkSLSymbolTable.h"
-#include "SkSLCFGGenerator.h"
-#include "SkSLContext.h"
-#include "SkSLErrorReporter.h"
-#include "SkSLLexer.h"
+#include "src/sksl/SkSLByteCode.h"
+#include "src/sksl/SkSLCFGGenerator.h"
+#include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLLexer.h"
+#include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 
 #define SK_FRAGCOLOR_BUILTIN           10001
 #define SK_IN_BUILTIN                  10002
@@ -26,7 +27,12 @@
 #define SK_TEXTURESAMPLERS_BUILTIN     10006
 #define SK_OUT_BUILTIN                 10007
 #define SK_LASTFRAGCOLOR_BUILTIN       10008
+#define SK_MAIN_X_BUILTIN              10009
+#define SK_MAIN_Y_BUILTIN              10010
+#define SK_WIDTH_BUILTIN               10011
+#define SK_HEIGHT_BUILTIN              10012
 #define SK_FRAGCOORD_BUILTIN              15
+#define SK_CLOCKWISE_BUILTIN              17
 #define SK_VERTEXID_BUILTIN               42
 #define SK_INSTANCEID_BUILTIN             43
 #define SK_CLIPDISTANCE_BUILTIN            3
@@ -45,7 +51,7 @@ class IRGenerator;
  *
  * See the README for information about SkSL.
  */
-class Compiler : public ErrorReporter {
+class SK_API Compiler : public ErrorReporter {
 public:
     static constexpr const char* RTADJUST_NAME  = "sk_RTAdjust";
     static constexpr const char* PERVERTEX_NAME = "sk_PerVertex";
@@ -58,26 +64,73 @@ public:
         kPermitInvalidStaticTests_Flag = 1,
     };
 
+    struct FormatArg {
+        enum class Kind {
+            kInput,
+            kOutput,
+            kCoordX,
+            kCoordY,
+            kUniform,
+            kChildProcessor
+        };
+
+        FormatArg(Kind kind)
+                : fKind(kind) {}
+
+        FormatArg(Kind kind, int index)
+                : fKind(kind)
+                , fIndex(index) {}
+
+        Kind fKind;
+
+        int fIndex;
+    };
+
     Compiler(Flags flags = kNone_Flags);
 
     ~Compiler() override;
 
+    Compiler(const Compiler&) = delete;
+    Compiler& operator=(const Compiler&) = delete;
+
+    /**
+     * Registers an ExternalValue as a top-level symbol which is visible in the global namespace.
+     */
+    void registerExternalValue(ExternalValue* value);
+
     std::unique_ptr<Program> convertProgram(Program::Kind kind, String text,
                                             const Program::Settings& settings);
 
-    bool toSPIRV(const Program& program, OutputStream& out);
+    bool optimize(Program& program);
 
-    bool toSPIRV(const Program& program, String* out);
+    std::unique_ptr<Program> specialize(Program& program,
+                    const std::unordered_map<SkSL::String, SkSL::Program::Settings::Value>& inputs);
 
-    bool toGLSL(const Program& program, OutputStream& out);
+    bool toSPIRV(Program& program, OutputStream& out);
 
-    bool toGLSL(const Program& program, String* out);
+    bool toSPIRV(Program& program, String* out);
 
-    bool toMetal(const Program& program, OutputStream& out);
+    bool toGLSL(Program& program, OutputStream& out);
 
-    bool toCPP(const Program& program, String name, OutputStream& out);
+    bool toGLSL(Program& program, String* out);
 
-    bool toH(const Program& program, String name, OutputStream& out);
+    bool toMetal(Program& program, OutputStream& out);
+
+    bool toMetal(Program& program, String* out);
+
+    bool toCPP(Program& program, String name, OutputStream& out);
+
+    bool toH(Program& program, String name, OutputStream& out);
+
+    std::unique_ptr<ByteCode> toByteCode(Program& program);
+
+    bool toPipelineStage(const Program& program, String* out,
+                         std::vector<FormatArg>* outFormatArgs);
+
+    /**
+     * Takes ownership of the given symbol. It will be destroyed when the compiler is destroyed.
+     */
+    Symbol* takeOwnership(std::unique_ptr<Symbol> symbol);
 
     void error(int offset, String msg) override;
 
@@ -98,6 +151,11 @@ public:
     static bool IsAssignment(Token::Kind token);
 
 private:
+    void processIncludeFile(Program::Kind kind, const char* src, size_t length,
+                            std::shared_ptr<SymbolTable> base,
+                            std::vector<std::unique_ptr<ProgramElement>>* outElements,
+                            std::shared_ptr<SymbolTable>* outSymbolTable);
+
     void addDefinition(const Expression* lvalue, std::unique_ptr<Expression>* expr,
                        DefinitionMap* definitions);
 
@@ -133,12 +191,17 @@ private:
 
     Position position(int offset);
 
+    std::shared_ptr<SymbolTable> fGpuSymbolTable;
     std::vector<std::unique_ptr<ProgramElement>> fVertexInclude;
     std::shared_ptr<SymbolTable> fVertexSymbolTable;
     std::vector<std::unique_ptr<ProgramElement>> fFragmentInclude;
     std::shared_ptr<SymbolTable> fFragmentSymbolTable;
     std::vector<std::unique_ptr<ProgramElement>> fGeometryInclude;
     std::shared_ptr<SymbolTable> fGeometrySymbolTable;
+    std::vector<std::unique_ptr<ProgramElement>> fPipelineInclude;
+    std::shared_ptr<SymbolTable> fPipelineSymbolTable;
+    std::vector<std::unique_ptr<ProgramElement>> fInterpreterInclude;
+    std::shared_ptr<SymbolTable> fInterpreterSymbolTable;
 
     std::shared_ptr<SymbolTable> fTypes;
     IRGenerator* fIRGenerator;

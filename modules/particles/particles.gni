@@ -1,0 +1,15 @@
+# Copyright 2019 Google LLC
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Things are easiest for everyone if these source paths are absolute.
+_src = get_path_info("src", "abspath")
+
+skia_particle_sources = [
+  "$_src/SkCurve.cpp",
+  "$_src/SkParticleBinding.cpp",
+  "$_src/SkParticleDrawable.cpp",
+  "$_src/SkParticleEffect.cpp",
+  "$_src/SkReflected.cpp",
+]

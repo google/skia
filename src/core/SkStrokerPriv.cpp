@@ -5,10 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkStrokerPriv.h"
-#include "SkGeometry.h"
-#include "SkPath.h"
-#include "SkPointPriv.h"
+#include "include/core/SkPath.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkPointPriv.h"
+#include "src/core/SkStrokerPriv.h"
+
+#include <utility>
 
 static void ButtCapper(SkPath* path, const SkPoint& pivot, const SkVector& normal,
                        const SkPoint& stop, SkPath*) {
@@ -86,7 +88,8 @@ static void BluntJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnit
     afterUnitNormal.scale(radius, &after);
 
     if (!is_clockwise(beforeUnitNormal, afterUnitNormal)) {
-        SkTSwap<SkPath*>(outer, inner);
+        using std::swap;
+        swap(outer, inner);
         after.negate();
     }
 
@@ -108,7 +111,8 @@ static void RoundJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnit
     SkRotationDirection dir = kCW_SkRotationDirection;
 
     if (!is_clockwise(before, after)) {
-        SkTSwap<SkPath*>(outer, inner);
+        using std::swap;
+        swap(outer, inner);
         before.negate();
         after.negate();
         dir = kCCW_SkRotationDirection;
@@ -153,7 +157,8 @@ static void MiterJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnit
 
     ccw = !is_clockwise(before, after);
     if (ccw) {
-        SkTSwap<SkPath*>(outer, inner);
+        using std::swap;
+        swap(outer, inner);
         before.negate();
         after.negate();
     }

@@ -4,10 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkOpSpan.h"
-#include "SkPathOpsPoint.h"
-#include "SkPathWriter.h"
-#include "SkTSort.h"
+#include "src/core/SkTSort.h"
+#include "src/pathops/SkOpSegment.h"
+#include "src/pathops/SkOpSpan.h"
+#include "src/pathops/SkPathOpsPoint.h"
+#include "src/pathops/SkPathWriter.h"
 
 // wrap path to keep track of whether the contour is initialized and non-empty
 SkPathWriter::SkPathWriter(SkPath& path)
@@ -31,21 +32,21 @@ void SkPathWriter::close() {
 }
 
 void SkPathWriter::conicTo(const SkPoint& pt1, const SkOpPtT* pt2, SkScalar weight) {
-    this->update(pt2);
+    SkPoint pt2pt = this->update(pt2);
 #if DEBUG_PATH_CONSTRUCTION
     SkDebugf("path.conicTo(%1.9g,%1.9g, %1.9g,%1.9g, %1.9g);\n",
-            pt1.fX, pt1.fY, pt2->fPt.fX, pt2->fPt.fY, weight);
+            pt1.fX, pt1.fY, pt2pt.fX, pt2pt.fY, weight);
 #endif
-    fCurrent.conicTo(pt1, pt2->fPt, weight);
+    fCurrent.conicTo(pt1, pt2pt, weight);
 }
 
 void SkPathWriter::cubicTo(const SkPoint& pt1, const SkPoint& pt2, const SkOpPtT* pt3) {
-    this->update(pt3);
+    SkPoint pt3pt = this->update(pt3);
 #if DEBUG_PATH_CONSTRUCTION
     SkDebugf("path.cubicTo(%1.9g,%1.9g, %1.9g,%1.9g, %1.9g,%1.9g);\n",
-            pt1.fX, pt1.fY, pt2.fX, pt2.fY, pt3->fPt.fX, pt3->fPt.fY);
+            pt1.fX, pt1.fY, pt2.fX, pt2.fY, pt3pt.fX, pt3pt.fY);
 #endif
-    fCurrent.cubicTo(pt1, pt2, pt3->fPt);
+    fCurrent.cubicTo(pt1, pt2, pt3pt);
 }
 
 bool SkPathWriter::deferredLine(const SkOpPtT* pt) {
@@ -96,8 +97,8 @@ void SkPathWriter::finishContour() {
         this->close();
     } else {
         SkASSERT(fDefer[1]);
-        fEndPtTs.push(fFirstPtT);
-        fEndPtTs.push(fDefer[1]);
+        fEndPtTs.push_back(fFirstPtT);
+        fEndPtTs.push_back(fDefer[1]);
         fPartials.push_back(fCurrent);
         this->init();
     }
@@ -143,21 +144,28 @@ void SkPathWriter::moveTo() {
 }
 
 void SkPathWriter::quadTo(const SkPoint& pt1, const SkOpPtT* pt2) {
-    this->update(pt2);
+    SkPoint pt2pt = this->update(pt2);
 #if DEBUG_PATH_CONSTRUCTION
     SkDebugf("path.quadTo(%1.9g,%1.9g, %1.9g,%1.9g);\n",
-            pt1.fX, pt1.fY, pt2->fPt.fX, pt2->fPt.fY);
+            pt1.fX, pt1.fY, pt2pt.fX, pt2pt.fY);
 #endif
-    fCurrent.quadTo(pt1, pt2->fPt);
+    fCurrent.quadTo(pt1, pt2pt);
 }
 
-void SkPathWriter::update(const SkOpPtT* pt) {
+// if last point to be written matches the current path's first point, alter the
+// last to avoid writing a degenerate lineTo when the path is closed
+SkPoint SkPathWriter::update(const SkOpPtT* pt) {
     if (!fDefer[1]) {
         this->moveTo();
     } else if (!this->matchedLast(fDefer[0])) {
         this->lineTo();
     }
+    SkPoint result = pt->fPt;
+    if (fFirstPtT && result != fFirstPtT->fPt && fFirstPtT->contains(pt)) {
+        result = fFirstPtT->fPt;
+    }
     fDefer[0] = fDefer[1] = pt;  // set both to know that there is not a pending deferred line
+    return result;
 }
 
 bool SkPathWriter::someAssemblyRequired() {
@@ -214,6 +222,49 @@ void SkPathWriter::assemble() {
                 eStart->fPt.fX, eStart->fPt.fY, eEnd->fPt.fX, eEnd->fPt.fY);
     }
 #endif
+    // lengthen any partial contour adjacent to a simple segment
+    for (int pIndex = 0; pIndex < endCount; pIndex++) {
+        SkOpPtT* opPtT = const_cast<SkOpPtT*>(runs[pIndex]);
+        SkPath dummy;
+        SkPathWriter partWriter(dummy);
+        do {
+            if (!zero_or_one(opPtT->fT)) {
+                break;
+            }
+            SkOpSpanBase* opSpanBase = opPtT->span();
+            SkOpSpanBase* start = opPtT->fT ? opSpanBase->prev() : opSpanBase->upCast()->next();
+            int step = opPtT->fT ? 1 : -1;
+            const SkOpSegment* opSegment = opSpanBase->segment();
+            const SkOpSegment* nextSegment = opSegment->isSimple(&start, &step);
+            if (!nextSegment) {
+                break;
+            }
+            SkOpSpanBase* opSpanEnd = start->t() ? start->prev() : start->upCast()->next();
+            if (start->starter(opSpanEnd)->alreadyAdded()) {
+                break;
+            }
+            nextSegment->addCurveTo(start, opSpanEnd, &partWriter);
+            opPtT = opSpanEnd->ptT();
+            SkOpPtT** runsPtr = const_cast<SkOpPtT**>(&runs[pIndex]);
+            *runsPtr = opPtT;
+        } while (true);
+        partWriter.finishContour();
+        const SkTArray<SkPath>& partPartials = partWriter.partials();
+        if (!partPartials.count()) {
+            continue;
+        }
+        // if pIndex is even, reverse and prepend to fPartials; otherwise, append
+        SkPath& partial = const_cast<SkPath&>(fPartials[pIndex >> 1]);
+        const SkPath& part = partPartials[0];
+        if (pIndex & 1) {
+            partial.addPath(part, SkPath::kExtend_AddPathMode);
+        } else {
+            SkPath reverse;
+            reverse.reverseAddPath(part);
+            reverse.addPath(partial, SkPath::kExtend_AddPathMode);
+            partial = reverse;
+        }
+    }
     SkTDArray<int> sLink, eLink;
     int linkCount = endCount / 2; // number of partial contours
     sLink.append(linkCount);
@@ -301,6 +352,24 @@ void SkPathWriter::assemble() {
 #endif
         do {
             const SkPath& contour = fPartials[rIndex];
+            if (!first) {
+                SkPoint prior, next;
+                if (!fPathPtr->getLastPt(&prior)) {
+                    return;
+                }
+                if (forward) {
+                    next = contour.getPoint(0);
+                } else {
+                    SkAssertResult(contour.getLastPt(&next));
+                }
+                if (prior != next) {
+                    /* TODO: if there is a gap between open path written so far and path to come,
+                       connect by following segments from one to the other, rather than introducing
+                       a diagonal to connect the two.
+                     */
+                    SkDebugf("");
+                }
+            }
             if (forward) {
                 fPathPtr->addPath(contour,
                         first ? SkPath::kAppend_AddPathMode : SkPath::kExtend_AddPathMode);

@@ -3,14 +3,12 @@
     "cmd": [
       "gsutil",
       "cp",
-      "[START_DIR]/build/out/Release/skiaserve",
+      "[START_DIR]/build/skiaserve",
       "gs://skia-public-binaries/skiaserve/arm/abc123/"
     ],
     "name": "upload skiaserve"
   },
   {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "name": "$result"
   }
 ]

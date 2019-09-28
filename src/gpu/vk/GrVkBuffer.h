@@ -8,9 +8,8 @@
 #ifndef GrVkBuffer_DEFINED
 #define GrVkBuffer_DEFINED
 
-#include "GrVkResource.h"
-#include "vk/GrVkDefines.h"
-#include "vk/GrVkTypes.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/vk/GrVkResource.h"
 
 class GrVkGpu;
 
@@ -70,7 +69,7 @@ protected:
         Type               fType;
 
     private:
-        void freeGPUData(const GrVkGpu* gpu) const override;
+        void freeGPUData(GrVkGpu* gpu) const override;
 
         void onRecycle(GrVkGpu* gpu) const override { this->unref(gpu); }
 
@@ -82,7 +81,7 @@ protected:
                                   const Desc& descriptor);
 
     GrVkBuffer(const Desc& desc, const GrVkBuffer::Resource* resource)
-        : fDesc(desc), fResource(resource), fOffset(0), fMapPtr(nullptr), fMappedSize(0) {
+        : fDesc(desc), fResource(resource), fOffset(0), fMapPtr(nullptr) {
     }
 
     void* vkMap(GrVkGpu* gpu) {
@@ -107,6 +106,7 @@ private:
 
     void internalMap(GrVkGpu* gpu, size_t size, bool* createdNewBuffer = nullptr);
     void internalUnmap(GrVkGpu* gpu, size_t size);
+    void copyCpuDataToGpuBuffer(GrVkGpu* gpu, const void* srcData, size_t size);
 
     void validate() const;
     bool vkIsMapped() const;
@@ -115,9 +115,6 @@ private:
     const Resource*         fResource;
     VkDeviceSize            fOffset;
     void*                   fMapPtr;
-    // On certain Intel devices/drivers there is a bug if we try to flush non-coherent memory and
-    // pass in VK_WHOLE_SIZE. Thus we track our mapped size and explicitly set it when calling flush
-    VkDeviceSize            fMappedSize;
 
     typedef SkNoncopyable INHERITED;
 };

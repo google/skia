@@ -8,8 +8,7 @@
 #ifndef SkBitSet_DEFINED
 #define SkBitSet_DEFINED
 
-#include "SkTDArray.h"
-#include "SkTemplates.h"
+#include "include/private/SkTemplates.h"
 
 class SkBitSet {
 public:
@@ -29,33 +28,22 @@ public:
         *chunk |= mask;
     }
 
-    template<typename T>
-    void setAll(T* array, int len) {
-        static_assert(std::is_integral<T>::value, "T is integral");
-        for (int i = 0; i < len; ++i) {
-            this->set(static_cast<int>(array[i]));
-        }
-    }
-
     bool has(int index) const {
         const uint32_t* chunk = this->internalGet(index);
         uint32_t mask = 1 << (index & 31);
         return chunk && SkToBool(*chunk & mask);
     }
 
-    /** Export indices of set bits to T array. */
-    template<typename T>
-    void exportTo(SkTDArray<T>* array) const {
-        static_assert(std::is_integral<T>::value, "T is integral");
-        SkASSERT(array);
-        uint32_t* data = reinterpret_cast<uint32_t*>(fBitData.get());
-        for (unsigned int i = 0; i < fDwordCount; ++i) {
-            uint32_t value = data[i];
-            if (value) {  // There are set bits
-                unsigned int index = i * 32;
-                for (unsigned int j = 0; j < 32; ++j) {
+    // Calls f(unsigned) for each set value.
+    template<typename FN>
+    void getSetValues(FN f) const {
+        const uint32_t* data = fBitData.get();
+        for (unsigned i = 0; i < fDwordCount; ++i) {
+            if (uint32_t value = data[i]) {  // There are set bits
+                unsigned index = i * 32;
+                for (unsigned j = 0; j < 32; ++j) {
                     if (0x1 & (value >> j)) {
-                        array->push(index + j);
+                        f(index | j);
                     }
                 }
             }
@@ -63,7 +51,7 @@ public:
     }
 
 private:
-    std::unique_ptr<uint32_t, SkFunctionWrapper<void, void, sk_free>> fBitData;
+    std::unique_ptr<uint32_t, SkFunctionWrapper<void(void*), sk_free>> fBitData;
     size_t fDwordCount;  // Dword (32-bit) count of the bitset.
 
     uint32_t* internalGet(int index) const {

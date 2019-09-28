@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<title>PathKit (Skia's Geometry + WASM)</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  svg, canvas {
+    border: 1px dashed #AAA;
+  }
+
+  canvas {
+    width: 200px;
+    height: 200px;
+  }
+
+  canvas.big {
+    width: 300px;
+    height: 300px;
+  }
+
+</style>
+
+<h2> Can output to an SVG Path, a Canvas, or a Path2D object </h2>
+<svg id=svg1 xmlns='http://www.w3.org/2000/svg' width=200 height=200></svg>
+<canvas id=canvas1></canvas>
+<canvas id=canvas2></canvas>
+
+<h2> Interact with NewPath() just like a Path2D Object </h2>
+<canvas class=big id=canvas3></canvas>
+<canvas class=big id=canvas4></canvas>
+
+<h2> Has various Path Effects </h2>
+<canvas class=big id=canvas5></canvas>
+<canvas class=big id=canvas6></canvas>
+<canvas class=big id=canvas7></canvas>
+<canvas class=big id=canvas8></canvas>
+<canvas class=big id=canvas9></canvas>
+<canvas class=big id=canvas10></canvas>
+<canvas class=big id=canvas11></canvas>
+<canvas class=big id=canvasTransform></canvas>
+
+<h2> Supports fill-rules of nonzero and evenodd </h2>
+<svg id=svg2 xmlns='http://www.w3.org/2000/svg' width=200 height=200></svg>
+<svg id=svg3 xmlns='http://www.w3.org/2000/svg' width=200 height=200></svg>
+
+<h2> Solves Cubics for Y given X </h2>
+<canvas class=big id=cubics></canvas>
+
+<script type="text/javascript" src="/node_modules/pathkit-wasm/bin/pathkit.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+  PathKitInit({
+    locateFile: (file) => '/node_modules/pathkit-wasm/bin/'+file,
+  }).ready().then((PathKit) => {
+    window.PathKit = PathKit;
+    OutputsExample(PathKit);
+    Path2DExample(PathKit);
+    PathEffectsExample(PathKit);
+    MatrixTransformExample(PathKit);
+    FilledSVGExample(PathKit);
+    CubicSolverExample(PathKit);
+  });
+
+  function setCanvasSize(ctx, width, height) {
+    ctx.canvas.width = width;
+    ctx.canvas.height = height;
+  }
+
+  function OutputsExample(PathKit) {
+    let firstPath = PathKit.FromSVGString('M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z');
+
+    let secondPath = PathKit.NewPath();
+    // Acts somewhat like the Canvas API, except can be chained
+    secondPath.moveTo(1, 1)
+              .lineTo(20, 1)
+              .lineTo(10, 30)
+              .closePath();
+
+    // Join the two paths together (mutating firstPath in the process)
+    firstPath.op(secondPath, PathKit.PathOp.INTERSECT);
+
+    let simpleStr = firstPath.toSVGString();
+
+    let newSVG = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    newSVG.setAttribute('stroke', 'rgb(0,0,200)');
+    newSVG.setAttribute('fill', 'white');
+    newSVG.setAttribute('transform', 'scale(8,8)');
+    newSVG.setAttribute('d', simpleStr);
+    document.getElementById('svg1').appendChild(newSVG);
+
+    // Draw directly to Canvas
+    let ctx = document.getElementById('canvas1').getContext('2d');
+    setCanvasSize(ctx, 200, 200);
+    ctx.strokeStyle = 'green';
+    ctx.fillStyle = 'white';
+    ctx.scale(8, 8);
+    ctx.beginPath();
+    firstPath.toCanvas(ctx);
+    ctx.stroke();
+
+    // create Path2D object and use it in a Canvas.
+    let path2D = firstPath.toPath2D();
+    ctx = document.getElementById('canvas2').getContext('2d');
+    setCanvasSize(ctx, 200, 200);
+    ctx.canvas.width = 200
+    ctx.scale(8, 8);
+    ctx.fillStyle = 'purple';
+    ctx.strokeStyle = 'orange';
+    ctx.fill(path2D);
+    ctx.stroke(path2D);
+
+    // clean up WASM memory
+    // See http://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/embind.html?highlight=memory#memory-management
+    firstPath.delete();
+    secondPath.delete();
+  }
+
+  function Path2DExample(PathKit) {
+    let objs = [new Path2D(), PathKit.NewPath(), new Path2D(), PathKit.NewPath()];
+    let canvases = [
+      document.getElementById('canvas3').getContext('2d'),
+      document.getElementById('canvas4').getContext('2d')
+    ];
+
+    for (i = 0; i <= 1; i++) {
+      let path = objs[i];
+
+      path.moveTo(20, 5);
+      path.lineTo(30, 20);
+      path.lineTo(40, 10);
+      path.lineTo(50, 20);
+      path.lineTo(60, 0);
+      path.lineTo(20, 5);
+
+      path.moveTo(20, 80);
+      path.bezierCurveTo(90, 10, 160, 150, 190, 10);
+
+      path.moveTo(36, 148);
+      path.quadraticCurveTo(66, 188, 120, 136);
+      path.lineTo(36, 148);
+
+      path.rect(5, 170, 20, 20);
+
+      path.moveTo(150, 180);
+      path.arcTo(150, 100, 50, 200, 20);
+      path.lineTo(160, 160);
+
+      path.moveTo(20, 120);
+      path.arc(20, 120, 18, 0, 1.75 * Math.PI);
+      path.lineTo(20, 120);
+
+      let secondPath = objs[i+2];
+      secondPath.ellipse(130, 25, 30, 10, -1*Math.PI/8, Math.PI/6, 1.5*Math.PI, false);
+
+      path.addPath(secondPath);
+
+      let m = document.createElementNS('http://www.w3.org/2000/svg', 'svg').createSVGMatrix();
+      m.a = 1; m.b = 0;
+      m.c = 0; m.d = 1;
+      m.e = 0; m.f = 20.5;
+
+      path.addPath(secondPath, m);
+      // With PathKit, one can also just provide the 6 params as floats, to avoid
+      // the overhead of making an SVGMatrix
+      // path.addPath(secondPath, 1, 0, 0, 1, 0, 20.5);
+
+      canvasCtx = canvases[i];
+      canvasCtx.fillStyle = 'blue';
+      setCanvasSize(canvasCtx, 300, 300);
+      canvasCtx.scale(1.5, 1.5);
+      if (path.toPath2D) {
+        canvasCtx.stroke(path.toPath2D());
+      } else {
+        canvasCtx.stroke(path);
+      }
+    }
+
+
+    objs[1].delete();
+  }
+
+  // see https://fiddle.skia.org/c/@discrete_path
+  function drawStar(path) {
+    let R = 115.2, C = 128.0;
+    path.moveTo(C + R + 22, C);
+    for (let i = 1; i < 8; i++) {
+      let a = 2.6927937 * i;
+      path.lineTo(C + R * Math.cos(a) + 22, C + R * Math.sin(a));
+    }
+    path.closePath();
+    return path;
+  }
+
+  function PathEffectsExample(PathKit) {
+    let effects = [
+      // no-op
+      (path) => path,
+      // dash
+      (path, counter) => path.dash(10, 3, counter/5),
+      // trim (takes optional 3rd param for returning the trimmed part
+      // or the complement)
+      (path, counter) => path.trim((counter/100) % 1, 0.8, false),
+      // simplify
+      (path) => path.simplify(),
+      // stroke
+      (path, counter) => path.stroke({
+        width: 10 * (Math.sin(counter/30) + 1),
+        join: PathKit.StrokeJoin.BEVEL,
+        cap: PathKit.StrokeCap.BUTT,
+        miter_limit: 1,
+      }),
+      // "offset effect", that is, making a border around the shape.
+      (path, counter) => {
+        let orig = path.copy();
+        path.stroke({
+          width: 10 + (counter / 4) % 50,
+          join: PathKit.StrokeJoin.ROUND,
+          cap: PathKit.StrokeCap.SQUARE,
+        })
+          .op(orig, PathKit.PathOp.DIFFERENCE);
+        orig.delete();
+      },
+      (path, counter) => {
+        let simplified = path.simplify().copy();
+        path.stroke({
+          width: 2 + (counter / 2) % 100,
+          join: PathKit.StrokeJoin.BEVEL,
+          cap: PathKit.StrokeCap.BUTT,
+        })
+          .op(simplified, PathKit.PathOp.REVERSE_DIFFERENCE);
+        simplified.delete();
+      }
+    ];
+
+    let names = ["(plain)", "Dash", "Trim", "Simplify", "Stroke", "Grow", "Shrink"];
+
+    let counter = 0;
+    function frame() {
+      counter++;
+      for (let i = 0; i < effects.length; i++) {
+        let path = PathKit.NewPath();
+        drawStar(path);
+
+        // The transforms apply directly to the path.
+        effects[i](path, counter);
+
+        let ctx = document.getElementById(`canvas${i+5}`).getContext('2d');
+        setCanvasSize(ctx, 300, 300);
+        ctx.strokeStyle = '#3c597a';
+        ctx.fillStyle = '#3c597a';
+        if (i >=4 ) {
+          ctx.fill(path.toPath2D(), path.getFillTypeString());
+        } else {
+          ctx.stroke(path.toPath2D());
+        }
+
+        ctx.font = '42px monospace';
+
+        let x = 150-ctx.measureText(names[i]).width/2;
+        ctx.strokeText(names[i], x, 290);
+
+        path.delete();
+      }
+      window.requestAnimationFrame(frame);
+    }
+    window.requestAnimationFrame(frame);
+  }
+
+  function MatrixTransformExample(PathKit) {
+    // Creates an animated star that twists and moves.
+    let ctx = document.getElementById('canvasTransform').getContext('2d');
+    setCanvasSize(ctx, 300, 300);
+    ctx.strokeStyle = '#3c597a';
+
+    let path = drawStar(PathKit.NewPath());
+    // TODO(kjlubick): Perhaps expose some matrix helper functions to allow
+    // clients to build their own matrices like this?
+    // These matrices represent a 2 degree rotation and a 1% scale factor.
+    let scaleUp = [1.0094, -0.0352,  3.1041,
+                   0.0352,  1.0094, -6.4885,
+                   0     ,  0      , 1];
+
+    let scaleDown = [ 0.9895, 0.0346, -2.8473,
+                     -0.0346, 0.9895,  6.5276,
+                      0     , 0     ,  1];
+
+    let i = 0;
+    function frame(){
+      i++;
+      if (Math.round(i/100) % 2) {
+        path.transform(scaleDown);
+      } else {
+        path.transform(scaleUp);
+      }
+
+      ctx.clearRect(0, 0, 300, 300);
+      ctx.stroke(path.toPath2D());
+
+      ctx.font = '42px monospace';
+      let x = 150-ctx.measureText('Transform').width/2;
+      ctx.strokeText('Transform', x, 290);
+
+      window.requestAnimationFrame(frame);
+    }
+    window.requestAnimationFrame(frame);
+  }
+
+  function FilledSVGExample(PathKit) {
+    let innerRect = PathKit.NewPath();
+    innerRect.rect(80, 100, 40, 40);
+
+    let outerRect = PathKit.NewPath();
+    outerRect.rect(50, 10, 100, 100)
+             .op(innerRect, PathKit.PathOp.XOR);
+
+    let str = outerRect.toSVGString();
+
+    let diffSVG = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    diffSVG.setAttribute('stroke', 'red');
+    diffSVG.setAttribute('fill', 'black');
+    // force fill-rule to nonzero to demonstrate difference
+    diffSVG.setAttribute('fill-rule', 'nonzero');
+    diffSVG.setAttribute('d', str);
+    document.getElementById('svg2').appendChild(diffSVG);
+
+    let unionSVG = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    unionSVG.setAttribute('stroke', 'red');
+    unionSVG.setAttribute('fill', 'black');
+    // ask what the path thinks fill-rule should be ('evenodd')
+    // SVG and Canvas both use the same keys ('nonzero' and 'evenodd') and both
+    // default to 'nonzero', so one call supports both.
+    unionSVG.setAttribute('fill-rule', outerRect.getFillTypeString());
+    unionSVG.setAttribute('d', str);
+    document.getElementById('svg3').appendChild(unionSVG);
+
+    outerRect.delete();
+    innerRect.delete();
+  }
+
+  function CubicSolverExample(PathKit) {
+    let ctx = document.getElementById('cubics').getContext('2d');
+    setCanvasSize(ctx, 300, 300);
+    // Draw lines between cp0 (0, 0) and cp1 and then cp2 and cp3 (1, 1)
+    // scaled up to be on a 300x300 grid instead of unit square
+    ctx.strokeStyle = 'black';
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(0.1 * 300, 0.5*300);
+
+    ctx.moveTo(0.5 * 300, 0.1*300);
+    ctx.lineTo(300, 300);
+    ctx.stroke();
+
+
+    ctx.strokeStyle = 'green';
+    ctx.beginPath();
+
+    for (let x = 0; x < 300; x++) {
+      // scale X into unit square
+      let y = PathKit.cubicYFromX(0.1, 0.5, 0.5, 0.1, x/300);
+      ctx.arc(x, y*300, 2, 0, 2*Math.PI);
+    }
+    ctx.stroke();
+  }
+
+</script>

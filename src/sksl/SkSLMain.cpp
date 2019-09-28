@@ -6,8 +6,8 @@
  */
 
 #include <fstream>
-#include "SkSLCompiler.h"
-#include "SkSLFileOutputStream.h"
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLFileOutputStream.h"
 
 // Given the path to a file (e.g. src/gpu/effects/GrFooFragmentProcessor.fp) and the expected
 // filename prefix and suffix (e.g. "Gr" and ".fp"), returns the "base name" of the
@@ -45,8 +45,10 @@ int main(int argc, const char** argv) {
         kind = SkSL::Program::kGeometry_Kind;
     } else if (input.endsWith(".fp")) {
         kind = SkSL::Program::kFragmentProcessor_Kind;
+    } else if (input.endsWith(".stage")) {
+        kind = SkSL::Program::kPipelineStage_Kind;
     } else {
-        printf("input filename must end in '.vert', '.frag', '.geom', or '.fp'\n");
+        printf("input filename must end in '.vert', '.frag', '.geom', '.fp', or '.stage'\n");
         exit(1);
     }
 

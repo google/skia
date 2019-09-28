@@ -40,7 +40,11 @@
       "[START_DIR]/tmp/SKP_VERSION"
     ],
     "infra_step": true,
-    "name": "write SKP_VERSION"
+    "name": "write SKP_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SKP_VERSION@42@@@",
+      "@@@STEP_LOG_END@SKP_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -68,7 +72,11 @@
       "[START_DIR]/tmp/SK_IMAGE_VERSION"
     ],
     "infra_step": true,
-    "name": "write SK_IMAGE_VERSION"
+    "name": "write SK_IMAGE_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SK_IMAGE_VERSION@42@@@",
+      "@@@STEP_LOG_END@SK_IMAGE_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -96,7 +104,11 @@
       "[START_DIR]/tmp/SVG_VERSION"
     ],
     "infra_step": true,
-    "name": "write SVG_VERSION"
+    "name": "write SVG_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SVG_VERSION@42@@@",
+      "@@@STEP_LOG_END@SVG_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -105,7 +117,6 @@
       "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
     ],
     "name": "get swarming bot id",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
@@ -119,7 +130,6 @@
       "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
     ],
     "name": "get swarming task id",
-    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
@@ -133,7 +143,7 @@
       "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
       "[START_DIR]",
       "catchsegv",
-      "[START_DIR]/build/out/Debug/dm",
+      "[START_DIR]/build/dm",
       "--resourcePath",
       "[START_DIR]/skia/resources",
       "--skps",
@@ -150,6 +160,8 @@
       "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Coverage",
       "buildbucket_build_id",
       "123454321",
+      "task_id",
+      "task_12345",
       "swarming_bot_id",
       "skia-bot-123",
       "swarming_task_id",
@@ -173,12 +185,15 @@
       "Golo",
       "os",
       "Ubuntu17",
+      "style",
+      "default",
       "--dont_write",
       "pdf",
       "--randomProcessorTest",
       "--nocpu",
       "--config",
       "vk",
+      "vkmsaa8",
       "vk1010102",
       "--src",
       "tests",
@@ -195,6 +210,10 @@
       "svg",
       "_",
       "svgparse_",
+      "_",
+      "image",
+      "gen_platf",
+      "error",
       "_",
       "image",
       "_",
@@ -295,13 +314,11 @@
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/linux_vulkan_sdk/lib",
       "LLVM_PROFILE_FILE": "[START_DIR]/[SWARM_OUT_DIR]/All.profraw",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]:[START_DIR]/linux_vulkan_sdk/bin"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/linux_vulkan_sdk/bin"
     },
     "name": "symbolized dm"
   },
   {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "name": "$result"
   }
 ]

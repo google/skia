@@ -5,57 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkCanvasPriv.h"
-#include "SkPath.h"
-#include "SkMakeUnique.h"
-
-
-#include "SkCubicMap.h"
-
-static void test_cubic(SkCanvas* canvas) {
-    const SkPoint pts[] = {
-        { 0.333333f, 0.333333f }, { 0.666666f, 0.666666f },
-        { 1, 0 }, { 0, 1 },
-        { 0, 1 }, { 1, 0 },
-        { 0, 0 }, { 1, 1 },
-        { 1, 1 }, { 0, 0 },
-        { 0, 1 }, { 0, 1 },
-        { 1, 0 }, { 1, 0 },
-    };
-
-    SkPaint paint0, paint1;
-    paint0.setAntiAlias(true);  paint0.setStrokeWidth(3/256.0f); paint0.setColor(SK_ColorRED);
-    paint1.setAntiAlias(true);
-
-    SkCubicMap cmap;
-
-    canvas->translate(10, 266);
-    canvas->scale(256, -256);
-    for (size_t i = 0; i < SK_ARRAY_COUNT(pts); i += 2) {
-        cmap.setPts(pts[i], pts[i+1]);
-
-        const int N = 128;
-        SkPoint tmp0[N+1], tmp1[N+1], tmp2[N+1];
-        for (int j = 0; j <= N; ++j) {
-            float p = j * 1.0f / N;
-            tmp0[j] = cmap.computeFromT(p);
-            tmp1[j].set(p, cmap.computeYFromX(p));
-            tmp2[j].set(p, cmap.hackYFromX(p));
-        }
-
-        canvas->save();
-        canvas->drawPoints(SkCanvas::kPolygon_PointMode, N+1, tmp0, paint0);
-        canvas->drawPoints(SkCanvas::kPolygon_PointMode, N+1, tmp1, paint1);
-        canvas->translate(0, -1.2f);
-        canvas->drawPoints(SkCanvas::kPolygon_PointMode, N+1, tmp0, paint0);
-        canvas->drawPoints(SkCanvas::kPolygon_PointMode, N+1, tmp2, paint1);
-        canvas->restore();
-
-        canvas->translate(1.1f, 0);
-    }
-}
+#include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "src/core/SkCanvasPriv.h"
+#include "tools/ToolUtils.h"
 
 static void do_draw(SkCanvas* canvas, const SkRect& r) {
     SkPaint paint;
@@ -170,25 +132,7 @@ static void draw_rect_tests(SkCanvas* canvas) {
    Each region should show as a blue center surrounded by a 2px green
    border, with no red.
 */
-
-class AAClipGM : public skiagm::GM {
-public:
-    AAClipGM() {
-
-    }
-
-protected:
-    SkString onShortName() override {
-        return SkString("aaclip");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(240, 120);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
-        if (0) { test_cubic(canvas); return; }
-
+DEF_SIMPLE_GM(aaclip, canvas, 240, 120) {
         // Initial pixel-boundary-aligned draw
         draw_rect_tests(canvas);
 
@@ -208,17 +152,14 @@ protected:
         canvas->translate(SK_Scalar1 / 5, SK_Scalar1 / 5);
         canvas->translate(SkIntToScalar(50), 0);
         draw_rect_tests(canvas);
-    }
-
-private:
-    typedef skiagm::GM INHERITED;
-};
-
-DEF_GM(return new AAClipGM;)
+}
 
 /////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_BUILD_FOR_MAC
+
+#include "include/utils/mac/SkCGUtils.h"
+#include "src/core/SkMakeUnique.h"
 
 static std::unique_ptr<SkCanvas> make_canvas(const SkBitmap& bm) {
     const SkImageInfo& info = bm.info();
@@ -231,7 +172,6 @@ static std::unique_ptr<SkCanvas> make_canvas(const SkBitmap& bm) {
     }
 }
 
-#include "SkCGUtils.h"
 static void test_image(SkCanvas* canvas, const SkImageInfo& info) {
     SkBitmap bm;
     bm.allocPixels(info);
@@ -258,20 +198,7 @@ static void test_image(SkCanvas* canvas, const SkImageInfo& info) {
     CGImageRelease(image);
 }
 
-class CGImageGM : public skiagm::GM {
-public:
-    CGImageGM() {}
-
-protected:
-    SkString onShortName() override {
-        return SkString("cgimage");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(800, 250);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(cgimage, canvas, 800, 250) {
         const struct {
             SkColorType fCT;
             SkAlphaType fAT;
@@ -292,12 +219,8 @@ protected:
             test_image(canvas, info);
             canvas->translate(info.width() + 10, 0);
         }
-    }
+}
 
-private:
-    typedef skiagm::GM INHERITED;
-};
-//DEF_GM( return new CGImageGM; )
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -331,7 +254,7 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
 
-        paint.setColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
+        paint.setColor(0xFFCCCCCC);
         canvas->drawPath(path, paint);
 
         paint.setColor(SK_ColorRED);
@@ -344,7 +267,7 @@ protected:
 
         SkRect r = SkRect::MakeXYWH(0, H/4, W, H/2);
         SkPaint paint;
-        paint.setColor(sk_tool_utils::color_to_565(0xFF8888FF));
+        paint.setColor(ToolUtils::color_to_565(0xFF8888FF));
 
         canvas->drawRect(r, paint);
         this->doDraw(canvas, path);

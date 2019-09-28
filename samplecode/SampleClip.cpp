@@ -5,15 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkAAClip.h"
-#include "SkView.h"
-#include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkClipOpPriv.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/utils/SkRandom.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkClipOpPriv.h"
 
 constexpr int W = 150;
 constexpr int H = 200;
@@ -21,15 +20,13 @@ constexpr int H = 200;
 static void show_text(SkCanvas* canvas, bool doAA) {
     SkRandom rand;
     SkPaint paint;
-    paint.setAntiAlias(doAA);
-    paint.setLCDRenderText(true);
-    paint.setTextSize(SkIntToScalar(20));
+    SkFont font(nullptr, 20);
+    font.setEdging(doAA ? SkFont::Edging::kSubpixelAntiAlias : SkFont::Edging::kAlias);
 
     for (int i = 0; i < 200; ++i) {
         paint.setColor((SK_A32_MASK << SK_A32_SHIFT) | rand.nextU());
-        canvas->drawString("Hamburgefons",
-                         rand.nextSScalar1() * W, rand.nextSScalar1() * H + 20,
-                         paint);
+        canvas->drawString("Hamburgefons", rand.nextSScalar1() * W, rand.nextSScalar1() * H + 20,
+                           font, paint);
     }
 }
 
@@ -103,28 +100,10 @@ static void show_thick(SkCanvas* canvas, bool doAA) {
 
 typedef void (*CanvasProc)(SkCanvas*, bool);
 
-class ClipView : public SampleView {
-public:
-    ClipView() {
-        SkAAClip clip;
-        SkIRect r = { -2, -3, 842, 18 };
-        clip.setRect(r);
-    }
+class ClipView : public Sample {
+    SkString name() override { return SkString("Clip"); }
 
-    virtual ~ClipView() {
-    }
-
-protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Clip");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
 
@@ -153,12 +132,6 @@ protected:
             canvas->translate(0, H * SK_Scalar1 * 8 / 7);
         }
     }
-
-private:
-    typedef SampleView INHERITED;
 };
 
-//////////////////////////////////////////////////////////////////////////////
-
-static SkView* MyFactory() { return new ClipView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new ClipView(); )

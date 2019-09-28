@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkFixed.h"
-#include "SkReadBuffer.h"
-#include "SkString.h"
-#include "SkTableMaskFilter.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkString.h"
+#include "include/effects/SkTableMaskFilter.h"
+#include "include/private/SkFixed.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 class SkTableMaskFilterImpl : public SkMaskFilterBase {
 public:
@@ -18,15 +18,14 @@ public:
     SkMask::Format getFormat() const override;
     bool filterMask(SkMask*, const SkMask&, const SkMatrix&, SkIPoint*) const override;
 
-    void toString(SkString* str) const override;
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTableMaskFilterImpl)
-
 protected:
     ~SkTableMaskFilterImpl() override;
 
     void flatten(SkWriteBuffer&) const override;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkTableMaskFilterImpl)
+
     SkTableMaskFilterImpl();
 
     uint8_t fTable[256];
@@ -166,16 +165,4 @@ void SkTableMaskFilter::MakeClipTable(uint8_t table[256], uint8_t min,
     }
     SkDebugf("\n\n");
 #endif
-}
-
-void SkTableMaskFilterImpl::toString(SkString* str) const {
-    str->append("SkTableMaskFilter: (");
-
-    str->append("table: ");
-    for (int i = 0; i < 255; ++i) {
-        str->appendf("%d, ", fTable[i]);
-    }
-    str->appendf("%d", fTable[255]);
-
-    str->append(")");
 }

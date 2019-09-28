@@ -125,13 +125,13 @@ a document must include multiple pages.
 
 <!--?prettify lang=cc?-->
 
-    #include "SkDocument.h"
+    #include "SkPDFDocument.h"
     #include "SkStream.h"
     void skpdf(int width, int height,
                void (*draw)(SkCanvas*),
                const char* path) {
         SkFILEWStream pdfStream(path);
-        sk_sp<SkDocument> pdfDoc = SkDocument::MakePDF(&pdfStream);
+        auto pdfDoc = SkPDF::MakeDocument(&pdfStream);
         SkCanvas* pdfCanvas = pdfDoc->beginPage(SkIntToScalar(width),
                                                 SkIntToScalar(height));
         draw(pdfCanvas);
@@ -158,7 +158,7 @@ The SkPicture backend uses SkPictureRecorder instead of SkSurface.
         draw(recordingCanvas);
         sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
         SkFILEWStream skpStream(path);
-        // Open SKP files with `SampleApp --picture SKP_FILE`
+        // Open SKP files with `viewer --skps PATH_TO_SKP --slide SKP_FILE`
         picture->serialize(&skpStream);
     }
 

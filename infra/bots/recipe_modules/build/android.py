@@ -33,6 +33,7 @@ def compile_fn(api, checkout_root, out_dir):
   args = {
       'ndk': quote(api.vars.slave_dir.join(ndk_path)),
       'target_cpu': quote(target_arch),
+      'werror': 'true',
   }
   extra_cflags.append('-DDUMMY_ndk_version=%s' %
                       api.run.asset_version(ndk_asset, skia_dir))
@@ -44,8 +45,6 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_enable_vulkan_debug_layers'] = 'false'
   if 'ASAN' in extra_tokens:
     args['sanitize'] = '"ASAN"'
-    if target_arch == 'arm' and 'ndk_api' not in args:
-      args['ndk_api'] = 21
 
   # If an Android API level is specified, use that.
   for t in extra_tokens:
@@ -68,8 +67,6 @@ def compile_fn(api, checkout_root, out_dir):
     # If this is the SkQP build, set up the environment and run the script
     # to build the universal APK. This should only run the skqp branches.
     if 'SKQP' in extra_tokens:
-      api.infra.update_go_deps()
-
       output_binary = out_dir.join('run_testlab')
       build_target = skia_dir.join('infra', 'cts', 'run_testlab.go')
       build_cmd = ['go', 'build', '-o', output_binary, build_target]
@@ -93,7 +90,7 @@ def compile_fn(api, checkout_root, out_dir):
     else:
       api.run(api.step, 'gn gen',
               cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
-      api.run(api.step, 'ninja', cmd=['ninja', '-k', '0', '-C', out_dir])
+      api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
 
 
 def copy_extra_build_products(api, src, dst):

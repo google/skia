@@ -8,7 +8,7 @@
 #ifndef SkAnnotationKeys_DEFINED
 #define SkAnnotationKeys_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 class SkAnnotationKeys {
 public:

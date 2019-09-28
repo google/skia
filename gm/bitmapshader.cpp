@@ -4,18 +4,23 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gm.h"
 
-#include "SkBitmap.h"
-#include "SkPaint.h"
-#include "SkShader.h"
-#include "sk_tool_utils.h"
-
-#if SK_SUPPORT_GPU
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#endif
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
 
 namespace skiagm {
 
@@ -45,7 +50,7 @@ class BitmapShaderGM : public GM {
 
 protected:
     void onOnceBeforeDraw() override {
-        this->setBGColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
+        this->setBGColor(SK_ColorGRAY);
         draw_bm(&fBitmap);
         draw_mask(&fMask);
     }
@@ -70,11 +75,11 @@ protected:
             }
 
             canvas->save();
-            paint.setShader(SkShader::MakeBitmapShader(fBitmap, SkShader::kClamp_TileMode,
-                                                       SkShader::kClamp_TileMode, &s));
+            paint.setShader(fBitmap.makeShader(&s));
 
             // draw the shader with a bitmap mask
             canvas->drawBitmap(fMask, 0, 0, &paint);
+            // no blue circle expected (the bitmap shader's coordinates are aligned to CTM still)
             canvas->drawBitmap(fMask, 30, 0, &paint);
 
             canvas->translate(0, 25);
@@ -92,8 +97,7 @@ protected:
 
             canvas->translate(0, 25);
 
-            paint.setShader(SkShader::MakeBitmapShader(fMask, SkShader::kRepeat_TileMode,
-                                                       SkShader::kRepeat_TileMode, &s));
+            paint.setShader(fMask.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &s));
             paint.setColor(SK_ColorRED);
 
             // draw the mask using the shader and a color
@@ -121,11 +125,9 @@ DEF_SIMPLE_GM(hugebitmapshader, canvas, 100, 100) {
     // (See https://skia-review.googlesource.com/c/skia/+/73200)
     int bitmapW = 1;
     int bitmapH = 60000;
-#if SK_SUPPORT_GPU
     if (auto* ctx = canvas->getGrContext()) {
-        bitmapH = ctx->contextPriv().caps()->maxTextureSize() + 1;
+        bitmapH = ctx->priv().caps()->maxTextureSize() + 1;
     }
-#endif
     bitmap.setInfo(SkImageInfo::MakeA8(bitmapW, bitmapH), bitmapW);
     uint8_t* pixels = new uint8_t[bitmapH];
     for(int i = 0; i < bitmapH; ++i) {
@@ -133,8 +135,7 @@ DEF_SIMPLE_GM(hugebitmapshader, canvas, 100, 100) {
     }
     bitmap.setPixels(pixels);
 
-    paint.setShader(SkShader::MakeBitmapShader(bitmap,
-             SkShader::kMirror_TileMode, SkShader::kMirror_TileMode));
+    paint.setShader(bitmap.makeShader(SkTileMode::kMirror, SkTileMode::kMirror));
     paint.setColor(SK_ColorRED);
     paint.setAntiAlias(true);
     canvas->drawCircle(50, 50, 50, paint);
@@ -143,7 +144,6 @@ DEF_SIMPLE_GM(hugebitmapshader, canvas, 100, 100) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new BitmapShaderGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new BitmapShaderGM; )
 
 }

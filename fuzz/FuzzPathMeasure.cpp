@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Fuzz.h"
-#include "FuzzCommon.h"
-#include "SkPathMeasure.h"
+#include "fuzz/Fuzz.h"
+#include "fuzz/FuzzCommon.h"
+#include "include/core/SkPathMeasure.h"
 
 void inline ignoreResult(bool ) {}
 
@@ -19,7 +19,7 @@ DEF_FUZZ(PathMeasure, fuzz) {
         fuzz->next(&distance[index]);
     }
     SkPath path;
-    BuildPath(fuzz, &path, SkPath::Verb::kDone_Verb);
+    FuzzEvilPath(fuzz, &path, SkPath::Verb::kDone_Verb);
     SkRect bounds = path.getBounds();
     SkScalar maxDim = SkTMax(bounds.width(), bounds.height());
     SkScalar resScale = maxDim / 1000;

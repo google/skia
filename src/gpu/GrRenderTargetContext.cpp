@@ -5,74 +5,90 @@
  * found in the LICENSE file.
  */
 
-#include "GrRenderTargetContext.h"
-#include "../private/GrAuditTrail.h"
-#include "../private/SkShadowFlags.h"
-#include "GrAppliedClip.h"
-#include "GrBackendSemaphore.h"
-#include "GrBlurUtils.h"
-#include "GrColor.h"
-#include "GrContextPriv.h"
-#include "GrDrawingManager.h"
-#include "GrFixedClip.h"
-#include "GrGpuResourcePriv.h"
-#include "GrOpList.h"
-#include "GrPathRenderer.h"
-#include "GrQuad.h"
-#include "GrRenderTarget.h"
-#include "GrRenderTargetContextPriv.h"
-#include "GrResourceProvider.h"
-#include "GrStencilAttachment.h"
-#include "GrTracing.h"
-#include "SkDrawShadowInfo.h"
-#include "SkGr.h"
-#include "SkLatticeIter.h"
-#include "SkMatrixPriv.h"
-#include "SkRRectPriv.h"
-#include "SkShadowUtils.h"
-#include "SkSurfacePriv.h"
-#include "effects/GrRRectEffect.h"
-#include "ops/GrAtlasTextOp.h"
-#include "ops/GrClearOp.h"
-#include "ops/GrClearStencilClipOp.h"
-#include "ops/GrDebugMarkerOp.h"
-#include "ops/GrDrawAtlasOp.h"
-#include "ops/GrDrawOp.h"
-#include "ops/GrDrawVerticesOp.h"
-#include "ops/GrLatticeOp.h"
-#include "ops/GrOp.h"
-#include "ops/GrOvalOpFactory.h"
-#include "ops/GrRectOpFactory.h"
-#include "ops/GrRegionOp.h"
-#include "ops/GrSemaphoreOp.h"
-#include "ops/GrShadowRRectOp.h"
-#include "ops/GrStencilPathOp.h"
-#include "ops/GrTextureOp.h"
-#include "text/GrAtlasTextContext.h"
-#include "text/GrTextUtils.h"
+#include "include/core/SkDrawable.h"
+#include "include/gpu/GrBackendSemaphore.h"
+#include "include/private/GrRecordingContext.h"
+#include "include/private/SkShadowFlags.h"
+#include "include/utils/SkShadowUtils.h"
+#include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkConvertPixels.h"
+#include "src/core/SkDrawShadowInfo.h"
+#include "src/core/SkGlyphRunPainter.h"
+#include "src/core/SkLatticeIter.h"
+#include "src/core/SkMatrixPriv.h"
+#include "src/core/SkRRectPriv.h"
+#include "src/core/SkSurfacePriv.h"
+#include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrAuditTrail.h"
+#include "src/gpu/GrBlurUtils.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrColor.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDataUtils.h"
+#include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrFixedClip.h"
+#include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrPathRenderer.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTarget.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrStencilAttachment.h"
+#include "src/gpu/GrStyle.h"
+#include "src/gpu/GrTracing.h"
+#include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrBicubicEffect.h"
+#include "src/gpu/effects/GrRRectEffect.h"
+#include "src/gpu/effects/GrTextureDomain.h"
+#include "src/gpu/effects/generated/GrColorMatrixFragmentProcessor.h"
+#include "src/gpu/geometry/GrQuad.h"
+#include "src/gpu/geometry/GrQuadUtils.h"
+#include "src/gpu/geometry/GrShape.h"
+#include "src/gpu/ops/GrAtlasTextOp.h"
+#include "src/gpu/ops/GrClearOp.h"
+#include "src/gpu/ops/GrClearStencilClipOp.h"
+#include "src/gpu/ops/GrDebugMarkerOp.h"
+#include "src/gpu/ops/GrDrawAtlasOp.h"
+#include "src/gpu/ops/GrDrawOp.h"
+#include "src/gpu/ops/GrDrawVerticesOp.h"
+#include "src/gpu/ops/GrDrawableOp.h"
+#include "src/gpu/ops/GrFillRRectOp.h"
+#include "src/gpu/ops/GrFillRectOp.h"
+#include "src/gpu/ops/GrLatticeOp.h"
+#include "src/gpu/ops/GrOp.h"
+#include "src/gpu/ops/GrOvalOpFactory.h"
+#include "src/gpu/ops/GrRegionOp.h"
+#include "src/gpu/ops/GrSemaphoreOp.h"
+#include "src/gpu/ops/GrShadowRRectOp.h"
+#include "src/gpu/ops/GrStencilPathOp.h"
+#include "src/gpu/ops/GrStrokeRectOp.h"
+#include "src/gpu/ops/GrTextureOp.h"
+#include "src/gpu/text/GrTextContext.h"
+#include "src/gpu/text/GrTextTarget.h"
 
-class GrRenderTargetContext::TextTarget : public GrTextUtils::Target {
+class GrRenderTargetContext::TextTarget : public GrTextTarget {
 public:
     TextTarget(GrRenderTargetContext* renderTargetContext)
-            : Target(renderTargetContext->width(), renderTargetContext->height(),
-                     renderTargetContext->colorSpaceInfo())
-            , fRenderTargetContext(renderTargetContext) {}
+            : GrTextTarget(renderTargetContext->width(), renderTargetContext->height(),
+                           renderTargetContext->colorSpaceInfo())
+            , fRenderTargetContext(renderTargetContext)
+            , fGlyphPainter{*renderTargetContext}{}
 
-    void addDrawOp(const GrClip& clip, std::unique_ptr<GrAtlasTextOp> op) {
+    void addDrawOp(const GrClip& clip, std::unique_ptr<GrAtlasTextOp> op) override {
         fRenderTargetContext->addDrawOp(clip, std::move(op));
     }
 
-    void drawPath(const GrClip& clip, const SkPath& path, const SkPaint& paint,
-                  const SkMatrix& viewMatrix, const SkMatrix* pathMatrix,
-                  const SkIRect& clipBounds) {
-        GrBlurUtils::drawPathWithMaskFilter(fRenderTargetContext->fContext, fRenderTargetContext,
-                                            clip, path, paint, viewMatrix, pathMatrix, clipBounds,
-                                            false);
+    void drawShape(const GrClip& clip, const SkPaint& paint,
+                  const SkMatrix& viewMatrix, const GrShape& shape) override {
+        GrBlurUtils::drawShapeWithMaskFilter(fRenderTargetContext->fContext, fRenderTargetContext,
+                                             clip, paint, viewMatrix, shape);
     }
 
     void makeGrPaint(GrMaskFormat maskFormat, const SkPaint& skPaint, const SkMatrix& viewMatrix,
-                     GrPaint* grPaint) {
-        GrContext* context = fRenderTargetContext->fContext;
+                     GrPaint* grPaint) override {
+        auto context = fRenderTargetContext->fContext;
         const GrColorSpaceInfo& colorSpaceInfo = fRenderTargetContext->colorSpaceInfo();
         if (kARGB_GrMaskFormat == maskFormat) {
             SkPaintToGrPaintWithPrimitiveColor(context, colorSpaceInfo, skPaint, grPaint);
@@ -81,8 +97,18 @@ public:
         }
     }
 
+    GrRecordingContext* getContext() override {
+        return fRenderTargetContext->fContext;
+    }
+
+    SkGlyphRunListPainter* glyphPainter() override {
+        return &fGlyphPainter;
+    }
+
 private:
     GrRenderTargetContext* fRenderTargetContext;
+    SkGlyphRunListPainter fGlyphPainter;
+
 };
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this->drawingManager()->getContext())
@@ -90,36 +116,11 @@ private:
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
 #define ASSERT_SINGLE_OWNER_PRIV \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->singleOwner());)
-#define RETURN_IF_ABANDONED        if (this->drawingManager()->wasAbandoned()) { return; }
-#define RETURN_IF_ABANDONED_PRIV   if (fRenderTargetContext->drawingManager()->wasAbandoned()) { return; }
-#define RETURN_FALSE_IF_ABANDONED  if (this->drawingManager()->wasAbandoned()) { return false; }
-#define RETURN_FALSE_IF_ABANDONED_PRIV  if (fRenderTargetContext->drawingManager()->wasAbandoned()) { return false; }
-#define RETURN_NULL_IF_ABANDONED   if (this->drawingManager()->wasAbandoned()) { return nullptr; }
-
-//////////////////////////////////////////////////////////////////////////////
-
-GrAAType GrChooseAAType(GrAA aa, GrFSAAType fsaaType, GrAllowMixedSamples allowMixedSamples,
-                        const GrCaps& caps) {
-    if (GrAA::kNo == aa) {
-        // On some devices we cannot disable MSAA if it is enabled so we make the AA type reflect
-        // that.
-        if (fsaaType == GrFSAAType::kUnifiedMSAA && !caps.multisampleDisableSupport()) {
-            return GrAAType::kMSAA;
-        }
-        return GrAAType::kNone;
-    }
-    switch (fsaaType) {
-        case GrFSAAType::kNone:
-            return GrAAType::kCoverage;
-        case GrFSAAType::kUnifiedMSAA:
-            return GrAAType::kMSAA;
-        case GrFSAAType::kMixedSamples:
-            return GrAllowMixedSamples::kYes == allowMixedSamples ? GrAAType::kMixedSamples
-                                                                  : GrAAType::kCoverage;
-    }
-    SK_ABORT("Unexpected fsaa type");
-    return GrAAType::kNone;
-}
+#define RETURN_IF_ABANDONED        if (fContext->priv().abandoned()) { return; }
+#define RETURN_IF_ABANDONED_PRIV   if (fRenderTargetContext->fContext->priv().abandoned()) { return; }
+#define RETURN_FALSE_IF_ABANDONED  if (fContext->priv().abandoned()) { return false; }
+#define RETURN_FALSE_IF_ABANDONED_PRIV  if (fRenderTargetContext->fContext->priv().abandoned()) { return false; }
+#define RETURN_NULL_IF_ABANDONED   if (fContext->priv().abandoned()) { return nullptr; }
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -134,36 +135,21 @@ private:
     GrDrawingManager* fDrawingManager;
 };
 
-bool GrRenderTargetContext::wasAbandoned() const {
-    return this->drawingManager()->wasAbandoned();
-}
-
-// In MDB mode the reffing of the 'getLastOpList' call's result allows in-progress
-// GrOpLists to be picked up and added to by renderTargetContexts lower in the call
-// stack. When this occurs with a closed GrOpList, a new one will be allocated
-// when the renderTargetContext attempts to use it (via getOpList).
-GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
-                                             GrDrawingManager* drawingMgr,
+// In MDB mode the reffing of the 'getLastOpsTask' call's result allows in-progress
+// GrOpsTask to be picked up and added to by renderTargetContexts lower in the call
+// stack. When this occurs with a closed GrOpsTask, a new one will be allocated
+// when the renderTargetContext attempts to use it (via getOpsTask).
+GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
                                              sk_sp<GrRenderTargetProxy> rtp,
+                                             GrColorType colorType,
                                              sk_sp<SkColorSpace> colorSpace,
                                              const SkSurfaceProps* surfaceProps,
-                                             GrAuditTrail* auditTrail,
-                                             GrSingleOwner* singleOwner,
-                                             bool managedOpList)
-        : GrSurfaceContext(context, drawingMgr, rtp->config(), std::move(colorSpace), auditTrail,
-                           singleOwner)
+                                             bool managedOpsTask)
+        : GrSurfaceContext(context, colorType, kPremul_SkAlphaType, std::move(colorSpace))
         , fRenderTargetProxy(std::move(rtp))
-        , fOpList(sk_ref_sp(fRenderTargetProxy->getLastRenderTargetOpList()))
+        , fOpsTask(sk_ref_sp(fRenderTargetProxy->getLastOpsTask()))
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
-        , fManagedOpList(managedOpList) {
-    GrResourceProvider* resourceProvider = context->contextPriv().resourceProvider();
-    if (resourceProvider && !resourceProvider->explicitlyAllocateGPUResources()) {
-        // MDB TODO: to ensure all resources still get allocated in the correct order in the hybrid
-        // world we need to get the correct opList here so that it, in turn, can grab and hold
-        // its rendertarget.
-        this->getRTOpList();
-    }
-
+        , fManagedOpsTask(managedOpsTask) {
     fTextTarget.reset(new TextTarget(this));
     SkDEBUGCODE(this->validate();)
 }
@@ -173,14 +159,26 @@ void GrRenderTargetContext::validate() const {
     SkASSERT(fRenderTargetProxy);
     fRenderTargetProxy->validate(fContext);
 
-    if (fOpList && !fOpList->isClosed()) {
-        SkASSERT(fRenderTargetProxy->getLastOpList() == fOpList.get());
+    if (fOpsTask && !fOpsTask->isClosed()) {
+        SkASSERT(fRenderTargetProxy->getLastRenderTask() == fOpsTask.get());
     }
 }
 #endif
 
 GrRenderTargetContext::~GrRenderTargetContext() {
     ASSERT_SINGLE_OWNER
+}
+
+inline GrAAType GrRenderTargetContext::chooseAAType(GrAA aa) {
+    if (GrAA::kNo == aa) {
+        // On some devices we cannot disable MSAA if it is enabled so we make the AA type reflect
+        // that.
+        if (this->numSamples() > 1 && !this->caps()->multisampleDisableSupport()) {
+            return GrAAType::kMSAA;
+        }
+        return GrAAType::kNone;
+    }
+    return (this->numSamples() > 1) ? GrAAType::kMSAA : GrAAType::kCoverage;
 }
 
 GrTextureProxy* GrRenderTargetContext::asTextureProxy() {
@@ -202,63 +200,35 @@ GrMipMapped GrRenderTargetContext::mipMapped() const {
     return GrMipMapped::kNo;
 }
 
-GrRenderTargetOpList* GrRenderTargetContext::getRTOpList() {
+GrOpsTask* GrRenderTargetContext::getOpsTask() {
     ASSERT_SINGLE_OWNER
     SkDEBUGCODE(this->validate();)
 
-    if (!fOpList || fOpList->isClosed()) {
-        fOpList = this->drawingManager()->newRTOpList(fRenderTargetProxy.get(), fManagedOpList);
+    if (!fOpsTask || fOpsTask->isClosed()) {
+        fOpsTask = this->drawingManager()->newOpsTask(fRenderTargetProxy, fManagedOpsTask);
     }
 
-    return fOpList.get();
+    return fOpsTask.get();
 }
 
-GrOpList* GrRenderTargetContext::getOpList() {
-    return this->getRTOpList();
-}
-
-void GrRenderTargetContext::drawText(const GrClip& clip, const SkPaint& skPaint,
-                                     const SkMatrix& viewMatrix, const char text[],
-                                     size_t byteLength, SkScalar x, SkScalar y,
-                                     const SkIRect& clipBounds) {
+void GrRenderTargetContext::drawGlyphRunList(
+        const GrClip& clip, const SkMatrix& viewMatrix,
+        const SkGlyphRunList& blob) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawText", fContext);
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawGlyphRunList", fContext);
 
-    GrAtlasTextContext* atlasTextContext = this->drawingManager()->getAtlasTextContext();
-    atlasTextContext->drawText(fContext, fTextTarget.get(), clip, skPaint, viewMatrix,
-                               fSurfaceProps, text, byteLength, x, y, clipBounds);
-}
+    // Drawing text can cause us to do inline uploads. This is not supported for wrapped vulkan
+    // secondary command buffers because it would require stopping and starting a render pass which
+    // we don't have access to.
+    if (this->wrapsVkSecondaryCB()) {
+        return;
+    }
 
-void GrRenderTargetContext::drawPosText(const GrClip& clip, const SkPaint& paint,
-                                        const SkMatrix& viewMatrix, const char text[],
-                                        size_t byteLength, const SkScalar pos[],
-                                        int scalarsPerPosition, const SkPoint& offset,
-                                        const SkIRect& clipBounds) {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawPosText", fContext);
-
-    GrAtlasTextContext* atlasTextContext = this->drawingManager()->getAtlasTextContext();
-    atlasTextContext->drawPosText(fContext, fTextTarget.get(), clip, paint, viewMatrix,
-                                  fSurfaceProps, text, byteLength, pos, scalarsPerPosition, offset,
-                                  clipBounds);
-}
-
-void GrRenderTargetContext::drawTextBlob(const GrClip& clip, const SkPaint& paint,
-                                         const SkMatrix& viewMatrix, const SkTextBlob* blob,
-                                         SkScalar x, SkScalar y, SkDrawFilter* filter,
-                                         const SkIRect& clipBounds) {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTextBlob", fContext);
-
-    GrAtlasTextContext* atlasTextContext = this->drawingManager()->getAtlasTextContext();
-    atlasTextContext->drawTextBlob(fContext, fTextTarget.get(), clip, paint, viewMatrix,
-                                   fSurfaceProps, blob, x, y, filter, clipBounds);
+    GrTextContext* atlasTextContext = this->drawingManager()->getTextContext();
+    atlasTextContext->drawGlyphRunList(fContext, fTextTarget.get(), clip, viewMatrix,
+                                       fSurfaceProps, blob);
 }
 
 void GrRenderTargetContext::discard() {
@@ -269,11 +239,11 @@ void GrRenderTargetContext::discard() {
 
     AutoCheckFlush acf(this->drawingManager());
 
-    this->getRTOpList()->discard();
+    this->getOpsTask()->discard();
 }
 
 void GrRenderTargetContext::clear(const SkIRect* rect,
-                                  const GrColor color,
+                                  const SkPMColor4f& color,
                                   CanClearFullscreen canClearFullscreen) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
@@ -285,7 +255,94 @@ void GrRenderTargetContext::clear(const SkIRect* rect,
                         canClearFullscreen);
 }
 
-void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor color) {
+void GrRenderTargetContextPriv::clear(const GrFixedClip& clip,
+                                      const SkPMColor4f& color,
+                                      CanClearFullscreen canClearFullscreen) {
+    ASSERT_SINGLE_OWNER_PRIV
+    RETURN_IF_ABANDONED_PRIV
+    SkDEBUGCODE(fRenderTargetContext->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContextPriv", "clear",
+                                   fRenderTargetContext->fContext);
+
+    AutoCheckFlush acf(fRenderTargetContext->drawingManager());
+    fRenderTargetContext->internalClear(clip, color, canClearFullscreen);
+}
+
+static void clear_to_grpaint(const SkPMColor4f& color, GrPaint* paint) {
+    paint->setColor4f(color);
+    if (color.isOpaque()) {
+        // Can just rely on the src-over blend mode to do the right thing
+        paint->setPorterDuffXPFactory(SkBlendMode::kSrcOver);
+    } else {
+        // A clear overwrites the prior color, so even if it's transparent, it behaves as if it
+        // were src blended
+        paint->setPorterDuffXPFactory(SkBlendMode::kSrc);
+    }
+}
+
+void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
+                                          const SkPMColor4f& color,
+                                          CanClearFullscreen canClearFullscreen) {
+    bool isFull = false;
+    if (!clip.hasWindowRectangles()) {
+        // TODO: wrt the shouldInitializeTextures path, it would be more performant to
+        // only clear the entire target if we knew it had not been cleared before. As
+        // is this could end up doing a lot of redundant clears.
+        isFull = !clip.scissorEnabled() ||
+                 (CanClearFullscreen::kYes == canClearFullscreen &&
+                  (this->caps()->preferFullscreenClears() || this->caps()->shouldInitializeTextures())) ||
+                 clip.scissorRect().contains(SkIRect::MakeWH(this->width(), this->height()));
+    }
+
+    if (isFull) {
+        GrOpsTask* opsTask = this->getOpsTask();
+        if (opsTask->resetForFullscreenClear(this->canDiscardPreviousOpsOnFullClear()) &&
+            !this->caps()->performColorClearsAsDraws()) {
+            // The op list was emptied and native clears are allowed, so just use the load op
+            opsTask->setColorLoadOp(GrLoadOp::kClear, color);
+            return;
+        } else {
+            // Will use an op for the clear, reset the load op to discard since the op will
+            // blow away the color buffer contents
+            opsTask->setColorLoadOp(GrLoadOp::kDiscard);
+        }
+
+        // Must add an op to the list (either because we couldn't use a load op, or because the
+        // clear load op isn't supported)
+        if (this->caps()->performColorClearsAsDraws()) {
+            SkRect rtRect = SkRect::MakeWH(this->width(), this->height());
+            GrPaint paint;
+            clear_to_grpaint(color, &paint);
+            this->addDrawOp(GrFixedClip::Disabled(),
+                            GrFillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
+                                                        rtRect));
+        } else {
+            this->addOp(GrClearOp::Make(
+                    fContext, SkIRect::MakeEmpty(), color, /* fullscreen */ true));
+        }
+    } else {
+        if (this->caps()->performPartialClearsAsDraws()) {
+            // performPartialClearsAsDraws() also returns true if any clear has to be a draw.
+            GrPaint paint;
+            clear_to_grpaint(color, &paint);
+
+            this->addDrawOp(clip,
+                            GrFillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
+                                                        SkRect::Make(clip.scissorRect())));
+        } else {
+            std::unique_ptr<GrOp> op(GrClearOp::Make(fContext, clip, color,
+                                                     this->asSurfaceProxy()));
+            // This version of the clear op factory can return null if the clip doesn't intersect
+            // with the surface proxy's boundary
+            if (!op) {
+                return;
+            }
+            this->addOp(std::move(op));
+        }
+    }
+}
+
+void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect) {
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
     SkDEBUGCODE(fRenderTargetContext->validate();)
@@ -307,178 +364,343 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor
         }
     }
 
-    // TODO: in a post-MDB world this should be handled at the OpList level.
-    // An op-list that is initially cleared and has no other ops should receive an
-    // extra draw.
-    // This path doesn't handle coalescing of full screen clears b.c. it
-    // has to clear the entire render target - not just the content area.
-    // It could be done but will take more finagling.
-    std::unique_ptr<GrOp> op(GrClearOp::Make(rtRect, color, !clearRect));
-    if (!op) {
-        return;
-    }
-    fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
-}
+    static const SkPMColor4f kColor = SK_PMColor4fTRANSPARENT;
 
-void GrRenderTargetContextPriv::clear(const GrFixedClip& clip,
-                                      const GrColor color,
-                                      CanClearFullscreen canClearFullscreen) {
-    ASSERT_SINGLE_OWNER_PRIV
-    RETURN_IF_ABANDONED_PRIV
-    SkDEBUGCODE(fRenderTargetContext->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContextPriv", "clear",
-                                   fRenderTargetContext->fContext);
+    // TODO: in a post-MDB world this should be handled at the OpsTask level.
+    // This makes sure to always add an op to the list, instead of marking the clear as a load op.
+    // This code follows very similar logic to internalClear() below, but critical differences are
+    // highlighted in line related to absClear()'s unique behavior.
+    if (clearRect) {
+        if (fRenderTargetContext->caps()->performPartialClearsAsDraws()) {
+            GrPaint paint;
+            clear_to_grpaint(kColor, &paint);
 
-    AutoCheckFlush acf(fRenderTargetContext->drawingManager());
-    fRenderTargetContext->internalClear(clip, color, canClearFullscreen);
-}
-
-void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
-                                          const GrColor color,
-                                          CanClearFullscreen canClearFullscreen) {
-    bool isFull = false;
-    if (!clip.hasWindowRectangles()) {
-        isFull = !clip.scissorEnabled() ||
-                 (CanClearFullscreen::kYes == canClearFullscreen &&
-                  this->caps()->preferFullscreenClears()) ||
-                 clip.scissorRect().contains(SkIRect::MakeWH(this->width(), this->height()));
-    }
-
-    if (isFull) {
-        this->getRTOpList()->fullClear(*this->caps(), color);
-    } else {
-        std::unique_ptr<GrOp> op(GrClearOp::Make(clip, color, this->asSurfaceProxy()));
-        if (!op) {
-            return;
+            // Use the disabled clip; the rect geometry already matches the clear rectangle and
+            // if it were added to a scissor, that would be intersected with the logical surface
+            // bounds and not the worst case dimensions required here.
+            fRenderTargetContext->addDrawOp(
+                    GrFixedClip::Disabled(),
+                    GrFillRectOp::MakeNonAARect(fRenderTargetContext->fContext, std::move(paint),
+                                                SkMatrix::I(), SkRect::Make(rtRect)));
+        } else {
+            // Must use the ClearOp factory that takes a boolean (false) instead of a surface
+            // proxy. The surface proxy variant would intersect the clip rect with its logical
+            // bounds, which is not desired in this special case.
+            fRenderTargetContext->addOp(GrClearOp::Make(
+                    fRenderTargetContext->fContext, rtRect, kColor, /* fullscreen */ false));
         }
-        this->getRTOpList()->addOp(std::move(op), *this->caps());
+    } else {
+        if (fRenderTargetContext->getOpsTask()->resetForFullscreenClear(
+                fRenderTargetContext->canDiscardPreviousOpsOnFullClear()) &&
+            !fRenderTargetContext->caps()->performColorClearsAsDraws()) {
+            fRenderTargetContext->getOpsTask()->setColorLoadOp(GrLoadOp::kClear, kColor);
+        } else {
+            fRenderTargetContext->getOpsTask()->setColorLoadOp(GrLoadOp::kDiscard);
+
+            if (fRenderTargetContext->caps()->performColorClearsAsDraws()) {
+                // This draws a quad covering the worst case dimensions instead of just the logical
+                // width and height like in internalClear().
+                GrPaint paint;
+                clear_to_grpaint(kColor, &paint);
+                fRenderTargetContext->addDrawOp(
+                        GrFixedClip::Disabled(),
+                        GrFillRectOp::MakeNonAARect(fRenderTargetContext->fContext,
+                                                    std::move(paint), SkMatrix::I(),
+                                                    SkRect::Make(rtRect)));
+            } else {
+                // Nothing special about this path in absClear compared to internalClear()
+                fRenderTargetContext->addOp(GrClearOp::Make(
+                        fRenderTargetContext->fContext, SkIRect::MakeEmpty(), kColor,
+                        /* fullscreen */ true));
+            }
+        }
     }
 }
 
 void GrRenderTargetContext::drawPaint(const GrClip& clip,
                                       GrPaint&& paint,
                                       const SkMatrix& viewMatrix) {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawPaint", fContext);
-
-    // set rect to be big enough to fill the space, but not super-huge, so we
-    // don't overflow fixed-point implementations
-
+    // Start with the render target, since that is the maximum content we could possibly fill.
+    // drawFilledQuad() will automatically restrict it to clip bounds for us if possible.
     SkRect r = fRenderTargetProxy->getBoundsRect();
-
-    SkRRect rrect;
-    GrAA aa;
-    // Check if we can replace a clipRRect()/drawPaint() with a drawRRect(). We only do the
-    // transformation for non-rect rrects. Rects caused a performance regression on an Android
-    // test that needs investigation. We also skip cases where there are fragment processors
-    // because they may depend on having correct local coords and this path draws in device space
-    // without a local matrix.
-    if (!paint.numTotalFragmentProcessors() && clip.isRRect(r, &rrect, &aa) && !rrect.isRect()) {
-        this->drawRRect(GrNoClip(), std::move(paint), aa, SkMatrix::I(), rrect,
-                        GrStyle::SimpleFill());
-        return;
-    }
-
-
-    bool isPerspective = viewMatrix.hasPerspective();
-
-    // We attempt to map r by the inverse matrix and draw that. mapRect will
-    // map the four corners and bound them with a new rect. This will not
-    // produce a correct result for some perspective matrices.
-    if (!isPerspective) {
-        if (!SkMatrixPriv::InverseMapRect(viewMatrix, &r, r)) {
-            return;
-        }
-        this->drawRect(clip, std::move(paint), GrAA::kNo, viewMatrix, r);
+    if (!paint.numTotalFragmentProcessors()) {
+        // The paint is trivial so we won't need to use local coordinates, so skip calculating the
+        // inverse view matrix.
+        this->fillRectToRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(), r, r);
     } else {
+        // Use the inverse view matrix to arrive at appropriate local coordinates for the paint.
         SkMatrix localMatrix;
         if (!viewMatrix.invert(&localMatrix)) {
             return;
         }
-
-        AutoCheckFlush acf(this->drawingManager());
-
-        std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeNonAAFillWithLocalMatrix(
-                std::move(paint), SkMatrix::I(), localMatrix, r, GrAAType::kNone);
-        this->addDrawOp(clip, std::move(op));
+        this->fillRectWithLocalMatrix(clip, std::move(paint), GrAA::kNo, SkMatrix::I(), r,
+                                      localMatrix);
     }
 }
 
-static inline bool rect_contains_inclusive(const SkRect& rect, const SkPoint& point) {
-    return point.fX >= rect.fLeft && point.fX <= rect.fRight &&
-           point.fY >= rect.fTop && point.fY <= rect.fBottom;
-}
+enum class GrRenderTargetContext::QuadOptimization {
+    // The rect to draw doesn't intersect clip or render target, so no draw op should be added
+    kDiscarded,
+    // The rect to draw was converted to some other op and appended to the oplist, so no additional
+    // op is necessary. Currently this can convert it to a clear op or a rrect op. Only valid if
+    // a constColor is provided.
+    kSubmitted,
+    // The clip was folded into the device quad, with updated edge flags and local coords, and
+    // caller is responsible for adding an appropriate op.
+    kClipApplied,
+    // No change to clip, but quad updated to better fit clip/render target, and caller is
+    // responsible for adding an appropriate op.
+    kCropped
+};
 
-// Attempts to crop a rect and optional local rect to the clip boundaries.
-// Returns false if the draw can be skipped entirely.
-static bool crop_filled_rect(int width, int height, const GrClip& clip,
-                             const SkMatrix& viewMatrix, SkRect* rect,
-                             SkRect* localRect = nullptr) {
-    if (!viewMatrix.rectStaysRect()) {
-        return true;
-    }
-
-    SkIRect clipDevBounds;
-    SkRect clipBounds;
-
-    clip.getConservativeBounds(width, height, &clipDevBounds);
-    if (!SkMatrixPriv::InverseMapRect(viewMatrix, &clipBounds, SkRect::Make(clipDevBounds))) {
+static bool make_vertex_finite(float* value) {
+    if (SkScalarIsNaN(*value)) {
         return false;
     }
 
-    if (localRect) {
-        if (!rect->intersects(clipBounds)) {
-            return false;
-        }
-        const SkScalar dx = localRect->width() / rect->width();
-        const SkScalar dy = localRect->height() / rect->height();
-        if (clipBounds.fLeft > rect->fLeft) {
-            localRect->fLeft += (clipBounds.fLeft - rect->fLeft) * dx;
-            rect->fLeft = clipBounds.fLeft;
-        }
-        if (clipBounds.fTop > rect->fTop) {
-            localRect->fTop += (clipBounds.fTop - rect->fTop) * dy;
-            rect->fTop = clipBounds.fTop;
-        }
-        if (clipBounds.fRight < rect->fRight) {
-            localRect->fRight -= (rect->fRight - clipBounds.fRight) * dx;
-            rect->fRight = clipBounds.fRight;
-        }
-        if (clipBounds.fBottom < rect->fBottom) {
-            localRect->fBottom -= (rect->fBottom - clipBounds.fBottom) * dy;
-            rect->fBottom = clipBounds.fBottom;
-        }
-        return true;
+    if (!SkScalarIsFinite(*value)) {
+        // +/- infinity at this point. Don't use exactly SK_ScalarMax so that we have some precision
+        // left when calculating crops.
+        static constexpr float kNearInfinity = SK_ScalarMax / 4.f;
+        *value = *value < 0.f ? -kNearInfinity : kNearInfinity;
     }
 
-    return rect->intersect(clipBounds);
+    return true;
 }
 
-bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
+GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimization(
+        const GrClip& clip, const SkPMColor4f* constColor,
+        const GrUserStencilSettings* stencilSettings, GrAA* aa, GrQuadAAFlags* edgeFlags,
+        GrQuad* deviceQuad, GrQuad* localQuad) {
+    // Optimization requirements:
+    // 1. kDiscard applies when clip bounds and quad bounds do not intersect
+    // 2. kClear applies when constColor and final geom is pixel aligned rect;
+    //       pixel aligned rect requires rect clip and (rect quad or quad covers clip)
+    // 3. kRRect applies when constColor and rrect clip and quad covers clip
+    // 4. kExplicitClip applies when rect clip and (rect quad or quad covers clip)
+    // 5. kCropped applies when rect quad (currently)
+    // 6. kNone always applies
+    GrQuadAAFlags newFlags = *edgeFlags;
+
+    SkRect rtRect;
+    if (stencilSettings) {
+        // Must use worst case bounds so that stencil buffer updates on approximately sized render
+        // targets don't get corrupted.
+        rtRect = SkRect::MakeWH(fRenderTargetProxy->worstCaseWidth(),
+                                fRenderTargetProxy->worstCaseHeight());
+    } else {
+        // Use the logical size of the render target, which allows for "fullscreen" clears even if
+        // the render target has an approximate backing fit
+        rtRect = SkRect::MakeWH(this->width(), this->height());
+    }
+
+    SkRect drawBounds = deviceQuad->bounds();
+    if (constColor) {
+        // Don't bother updating local coordinates when the paint will ignore them anyways
+        localQuad = nullptr;
+        // If the device quad is not finite, coerce into a finite quad. This is acceptable since it
+        // will be cropped to the finite 'clip' or render target and there is no local space mapping
+        if (!deviceQuad->isFinite()) {
+            for (int i = 0; i < 4; ++i) {
+                if (!make_vertex_finite(deviceQuad->xs() + i) ||
+                    !make_vertex_finite(deviceQuad->ys() + i) ||
+                    !make_vertex_finite(deviceQuad->ws() + i)) {
+                    // Discard if we see a nan
+                    return QuadOptimization::kDiscarded;
+                }
+            }
+            SkASSERT(deviceQuad->isFinite());
+        }
+    } else {
+        // CropToRect requires the quads to be finite. If they are not finite and we have local
+        // coordinates, the mapping from local space to device space is poorly defined so drop it
+        if (!deviceQuad->isFinite()) {
+            return QuadOptimization::kDiscarded;
+        }
+    }
+
+    // If the quad is entirely off screen, it doesn't matter what the clip does
+    if (!rtRect.intersects(drawBounds)) {
+        return QuadOptimization::kDiscarded;
+    }
+
+    // Check if clip can be represented as a rounded rect (initialize as if clip fully contained
+    // the render target).
+    SkRRect clipRRect = SkRRect::MakeRect(rtRect);
+    // We initialize clipAA to *aa when there are stencil settings so that we don't artificially
+    // encounter mixed-aa edges (not allowed for stencil), but we want to start as non-AA for
+    // regular draws so that if we fully cover the render target, that can stop being anti-aliased.
+    GrAA clipAA = stencilSettings ? *aa : GrAA::kNo;
+    bool axisAlignedClip = true;
+    if (!clip.quickContains(rtRect)) {
+        if (!clip.isRRect(rtRect, &clipRRect, &clipAA)) {
+            axisAlignedClip = false;
+        }
+    }
+
+    // If the clip rrect is valid (i.e. axis-aligned), we can potentially combine it with the
+    // draw geometry so that no clip is needed when drawing.
+    if (axisAlignedClip && (!stencilSettings || clipAA == *aa)) {
+        // Tighten clip bounds (if clipRRect.isRect() is true, clipBounds now holds the intersection
+        // of the render target and the clip rect)
+        SkRect clipBounds = rtRect;
+        if (!clipBounds.intersect(clipRRect.rect()) || !clipBounds.intersects(drawBounds)) {
+            return QuadOptimization::kDiscarded;
+        }
+
+        if (clipRRect.isRect()) {
+            // No rounded corners, so the kClear and kExplicitClip optimizations are possible
+            if (GrQuadUtils::CropToRect(clipBounds, clipAA, &newFlags, deviceQuad, localQuad)) {
+                if (constColor && deviceQuad->quadType() == GrQuad::Type::kAxisAligned) {
+                    // Clear optimization is possible
+                    drawBounds = deviceQuad->bounds();
+                    if (drawBounds.contains(rtRect)) {
+                        // Fullscreen clear
+                        this->clear(nullptr, *constColor, CanClearFullscreen::kYes);
+                        return QuadOptimization::kSubmitted;
+                    } else if (GrClip::IsPixelAligned(drawBounds) &&
+                               drawBounds.width() > 256 && drawBounds.height() > 256) {
+                        // Scissor + clear (round shouldn't do anything since we are pixel aligned)
+                        SkIRect scissorRect;
+                        drawBounds.round(&scissorRect);
+                        this->clear(&scissorRect, *constColor, CanClearFullscreen::kNo);
+                        return QuadOptimization::kSubmitted;
+                    }
+                }
+
+                // Update overall AA setting.
+                *edgeFlags = newFlags;
+                if (*aa == GrAA::kNo && clipAA == GrAA::kYes &&
+                    newFlags != GrQuadAAFlags::kNone) {
+                    // The clip was anti-aliased and now the draw needs to be upgraded to AA to
+                    // properly reflect the smooth edge of the clip.
+                    *aa = GrAA::kYes;
+                }
+                // We intentionally do not downgrade AA here because we don't know if we need to
+                // preserve MSAA (see GrQuadAAFlags docs). But later in the pipeline, the ops can
+                // use GrResolveAATypeForQuad() to turn off coverage AA when all flags are off.
+
+                // deviceQuad is exactly the intersection of original quad and clip, so it can be
+                // drawn with no clip (submitted by caller)
+                return QuadOptimization::kClipApplied;
+            } else {
+                // The quads have been updated to better fit the clip bounds, but can't get rid of
+                // the clip entirely
+                return QuadOptimization::kCropped;
+            }
+        } else if (constColor) {
+            // Rounded corners and constant filled color (limit ourselves to solid colors because
+            // there is no way to use custom local coordinates with drawRRect).
+            if (GrQuadUtils::CropToRect(clipBounds, clipAA, &newFlags, deviceQuad, localQuad) &&
+                deviceQuad->quadType() == GrQuad::Type::kAxisAligned &&
+                deviceQuad->bounds().contains(clipBounds)) {
+                // Since the cropped quad became a rectangle which covered the bounds of the rrect,
+                // we can draw the rrect directly and ignore the edge flags
+                GrPaint paint;
+                clear_to_grpaint(*constColor, &paint);
+                this->drawRRect(GrFixedClip::Disabled(), std::move(paint), clipAA, SkMatrix::I(),
+                                clipRRect, GrStyle::SimpleFill());
+                return QuadOptimization::kSubmitted;
+            } else {
+                // The quad has been updated to better fit clip bounds, but can't remove the clip
+                return QuadOptimization::kCropped;
+            }
+        }
+    }
+
+    // Crop the quad to the conservative bounds of the clip.
+    SkIRect clipDevBounds;
+    clip.getConservativeBounds(rtRect.width(), rtRect.height(), &clipDevBounds);
+    SkRect clipBounds = SkRect::Make(clipDevBounds);
+
+    // One final check for discarding, since we may have gone here directly due to a complex clip
+    if (!clipBounds.intersects(drawBounds)) {
+        return QuadOptimization::kDiscarded;
+    }
+
+    // Even if this were to return true, the crop rect does not exactly match the clip, so can not
+    // report explicit-clip. Since these edges aren't visible, don't update the final edge flags.
+    GrQuadUtils::CropToRect(clipBounds, clipAA, &newFlags, deviceQuad, localQuad);
+
+    return QuadOptimization::kCropped;
+}
+
+void GrRenderTargetContext::drawFilledQuad(const GrClip& clip,
                                            GrPaint&& paint,
                                            GrAA aa,
-                                           const SkMatrix& viewMatrix,
-                                           const SkRect& rect,
+                                           GrQuadAAFlags edgeFlags,
+                                           const GrQuad& deviceQuad,
+                                           const GrQuad& localQuad,
                                            const GrUserStencilSettings* ss) {
-    SkRect croppedRect = rect;
-    if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix, &croppedRect)) {
-        return true;
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawFilledQuad", fContext);
+
+    AutoCheckFlush acf(this->drawingManager());
+
+    SkPMColor4f* constColor = nullptr;
+    SkPMColor4f paintColor;
+    if (!ss && !paint.numCoverageFragmentProcessors() &&
+        paint.isConstantBlendedColor(&paintColor)) {
+        // Only consider clears/rrects when it's easy to guarantee 100% fill with single color
+        constColor = &paintColor;
     }
 
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
-    std::unique_ptr<GrDrawOp> op;
-    if (GrAAType::kCoverage == aaType) {
-        op = GrRectOpFactory::MakeAAFill(std::move(paint), viewMatrix, croppedRect, ss);
-    } else {
-        op = GrRectOpFactory::MakeNonAAFill(std::move(paint), viewMatrix, croppedRect, aaType, ss);
+    GrQuad croppedDeviceQuad = deviceQuad;
+    GrQuad croppedLocalQuad = localQuad;
+    QuadOptimization opt = this->attemptQuadOptimization(clip, constColor, ss, &aa, &edgeFlags,
+                                                         &croppedDeviceQuad, &croppedLocalQuad);
+    if (opt >= QuadOptimization::kClipApplied) {
+        // These optimizations require caller to add an op themselves
+        const GrClip& finalClip = opt == QuadOptimization::kClipApplied ? GrFixedClip::Disabled()
+                                                                        : clip;
+        GrAAType aaType = ss ? (aa == GrAA::kYes ? GrAAType::kMSAA : GrAAType::kNone)
+                             : this->chooseAAType(aa);
+        this->addDrawOp(finalClip, GrFillRectOp::Make(fContext, std::move(paint), aaType, edgeFlags,
+                                                      croppedDeviceQuad, croppedLocalQuad, ss));
     }
-    if (!op) {
-        return false;
+    // All other optimization levels were completely handled inside attempt(), so no extra op needed
+}
+
+void GrRenderTargetContext::drawTexturedQuad(const GrClip& clip,
+                                             sk_sp<GrTextureProxy> proxy,
+                                             sk_sp<GrColorSpaceXform> textureXform,
+                                             GrSamplerState::Filter filter,
+                                             const SkPMColor4f& color,
+                                             SkBlendMode blendMode,
+                                             GrAA aa,
+                                             GrQuadAAFlags edgeFlags,
+                                             const GrQuad& deviceQuad,
+                                             const GrQuad& localQuad,
+                                             const SkRect* domain) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTexturedQuad", fContext);
+
+    AutoCheckFlush acf(this->drawingManager());
+
+    // Functionally this is very similar to drawFilledQuad except that there's no constColor to
+    // enable the kSubmitted optimizations, no stencil settings support, and its a GrTextureOp.
+    GrQuad croppedDeviceQuad = deviceQuad;
+    GrQuad croppedLocalQuad = localQuad;
+    QuadOptimization opt = this->attemptQuadOptimization(clip, nullptr, nullptr, &aa, &edgeFlags,
+                                                         &croppedDeviceQuad, &croppedLocalQuad);
+
+    SkASSERT(opt != QuadOptimization::kSubmitted);
+    if (opt != QuadOptimization::kDiscarded) {
+        // And the texture op if not discarded
+        const GrClip& finalClip = opt == QuadOptimization::kClipApplied ? GrFixedClip::Disabled()
+                                                                        : clip;
+        GrAAType aaType = this->chooseAAType(aa);
+        // Use the provided domain, although hypothetically we could detect that the cropped local
+        // quad is sufficiently inside the domain and the constraint could be dropped.
+        this->addDrawOp(finalClip, GrTextureOp::Make(fContext, std::move(proxy),
+                                                     std::move(textureXform), filter, color,
+                                                     blendMode, aaType, edgeFlags,
+                                                     croppedDeviceQuad, croppedLocalQuad, domain));
     }
-    this->addDrawOp(clip, std::move(op));
-    return true;
 }
 
 void GrRenderTargetContext::drawRect(const GrClip& clip,
@@ -501,35 +723,10 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
     AutoCheckFlush acf(this->drawingManager());
 
     const SkStrokeRec& stroke = style->strokeRec();
-    if (stroke.getStyle() == SkStrokeRec::kFill_Style && !paint.numCoverageFragmentProcessors()) {
-        // Check if this is a full RT draw and can be replaced with a clear. We don't bother
-        // checking cases where the RT is fully inside a stroke.
-        SkRect rtRect = fRenderTargetProxy->getBoundsRect();
-        // Does the clip contain the entire RT?
-        if (clip.quickContains(rtRect)) {
-            SkMatrix invM;
-            if (!viewMatrix.invert(&invM)) {
-                return;
-            }
-            // Does the rect bound the RT?
-            GrQuad quad(rtRect, invM);
-            if (rect_contains_inclusive(rect, quad.point(0)) &&
-                rect_contains_inclusive(rect, quad.point(1)) &&
-                rect_contains_inclusive(rect, quad.point(2)) &&
-                rect_contains_inclusive(rect, quad.point(3))) {
-                // Will it blend?
-                GrColor clearColor;
-                if (paint.isConstantBlendedColor(&clearColor)) {
-                    this->clear(nullptr, clearColor,
-                                GrRenderTargetContext::CanClearFullscreen::kYes);
-                    return;
-                }
-            }
-        }
-
-        if (this->drawFilledRect(clip, std::move(paint), aa, viewMatrix, rect, nullptr)) {
-            return;
-        }
+    if (stroke.getStyle() == SkStrokeRec::kFill_Style) {
+        // Fills the rect, using rect as its own local coordinates
+        this->fillRectToRect(clip, std::move(paint), aa, viewMatrix, rect, rect);
+        return;
     } else if (stroke.getStyle() == SkStrokeRec::kStroke_Style ||
                stroke.getStyle() == SkStrokeRec::kHairline_Style) {
         if ((!rect.width() || !rect.height()) &&
@@ -567,28 +764,81 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
 
         std::unique_ptr<GrDrawOp> op;
 
-        GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
-        if (GrAAType::kCoverage == aaType) {
-            // The stroke path needs the rect to remain axis aligned (no rotation or skew).
-            if (viewMatrix.rectStaysRect()) {
-                op = GrRectOpFactory::MakeAAStroke(std::move(paint), viewMatrix, rect, stroke);
-            }
-        } else {
-            op = GrRectOpFactory::MakeNonAAStroke(std::move(paint), viewMatrix, rect, stroke,
-                                                  aaType);
-        }
-
+        GrAAType aaType = this->chooseAAType(aa);
+        op = GrStrokeRectOp::Make(fContext, std::move(paint), aaType, viewMatrix, rect, stroke);
+        // op may be null if the stroke is not supported or if using coverage aa and the view matrix
+        // does not preserve rectangles.
         if (op) {
             this->addDrawOp(clip, std::move(op));
             return;
         }
     }
+    assert_alive(paint);
     this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, GrShape(rect, *style));
+}
+
+void GrRenderTargetContext::drawQuadSet(const GrClip& clip, GrPaint&& paint, GrAA aa,
+                                        const SkMatrix& viewMatrix, const QuadSetEntry quads[],
+                                        int cnt) {
+    GrAAType aaType = this->chooseAAType(aa);
+    this->addDrawOp(clip, GrFillRectOp::MakeSet(fContext, std::move(paint), aaType, viewMatrix,
+                                                quads, cnt));
 }
 
 int GrRenderTargetContextPriv::maxWindowRectangles() const {
     return fRenderTargetContext->fRenderTargetProxy->maxWindowRectangles(
             *fRenderTargetContext->caps());
+}
+
+GrOpsTask::CanDiscardPreviousOps GrRenderTargetContext::canDiscardPreviousOpsOnFullClear(
+        ) const {
+#if GR_TEST_UTILS
+    if (fPreserveOpsOnFullClear_TestingOnly) {
+        return GrOpsTask::CanDiscardPreviousOps::kNo;
+    }
+#endif
+    // Regardless of how the clear is implemented (native clear or a fullscreen quad), all prior ops
+    // would normally be overwritten. The one exception is if the render target context is marked as
+    // needing a stencil buffer then there may be a prior op that writes to the stencil buffer.
+    // Although the clear will ignore the stencil buffer, following draw ops may not so we can't get
+    // rid of all the preceding ops. Beware! If we ever add any ops that have a side effect beyond
+    // modifying the stencil buffer we will need a more elaborate tracking system (skbug.com/7002).
+    return GrOpsTask::CanDiscardPreviousOps(!fNumStencilSamples);
+}
+
+void GrRenderTargetContext::setNeedsStencil(bool multisampled) {
+    // Don't clear stencil until after we've changed fNumStencilSamples. This ensures we don't loop
+    // forever in the event that there are driver bugs and we need to clear as a draw.
+    bool needsStencilClear = !fNumStencilSamples;
+
+    int numRequiredSamples = this->numSamples();
+    if (multisampled && 1 == numRequiredSamples) {
+        // The caller has requested a multisampled stencil buffer on a non-MSAA render target. Use
+        // mixed samples.
+        SkASSERT(fRenderTargetProxy->canUseMixedSamples(*this->caps()));
+        numRequiredSamples = this->caps()->internalMultisampleCount(
+                this->asSurfaceProxy()->backendFormat());
+    }
+    SkASSERT(numRequiredSamples > 0);
+
+    if (numRequiredSamples > fNumStencilSamples) {
+        fNumStencilSamples = numRequiredSamples;
+        fRenderTargetProxy->setNeedsStencil(fNumStencilSamples);
+    }
+
+    if (needsStencilClear) {
+        if (this->caps()->performStencilClearsAsDraws()) {
+            // There is a driver bug with clearing stencil. We must use an op to manually clear the
+            // stencil buffer before the op that required 'setNeedsStencil'.
+            this->internalStencilClear(GrFixedClip::Disabled(), /* inside mask */ false);
+        } else {
+            // Setting the clear stencil load op is preferable. On non-tilers, this lets the flush
+            // code note when the instantiated stencil buffer is already clear and skip the clear
+            // altogether. And on tilers, loading the stencil buffer cleared is even faster than
+            // preserving the previous contents.
+            this->getOpsTask()->setStencilLoadOp(GrLoadOp::kClear);
+        }
+    }
 }
 
 void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
@@ -600,28 +850,39 @@ void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool i
 
     AutoCheckFlush acf(fRenderTargetContext->drawingManager());
 
-    std::unique_ptr<GrOp> op(GrClearStencilClipOp::Make(
-                                                 clip, insideStencilMask,
-                                                 fRenderTargetContext->fRenderTargetProxy.get()));
-    if (!op) {
-        return;
+    fRenderTargetContext->internalStencilClear(clip, insideStencilMask);
+}
+
+void GrRenderTargetContext::internalStencilClear(const GrFixedClip& clip, bool insideStencilMask) {
+    if (this->caps()->performStencilClearsAsDraws()) {
+        const GrUserStencilSettings* ss = GrStencilSettings::SetClipBitSettings(insideStencilMask);
+        SkRect rtRect = SkRect::MakeWH(this->width(), this->height());
+
+        // Configure the paint to have no impact on the color buffer
+        GrPaint paint;
+        paint.setXPFactory(GrDisableColorXPFactory::Get());
+        this->addDrawOp(clip, GrFillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
+                                                          rtRect, ss));
+    } else {
+        std::unique_ptr<GrOp> op(GrClearStencilClipOp::Make(fContext, clip, insideStencilMask,
+                                                            fRenderTargetProxy.get()));
+        if (!op) {
+            return;
+        }
+        this->addOp(std::move(op));
     }
-    fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
 }
 
 void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
-                                            GrAAType aaType,
+                                            GrAA doStencilMSAA,
                                             const SkMatrix& viewMatrix,
-                                            const GrPath* path) {
+                                            sk_sp<const GrPath> path) {
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
     SkDEBUGCODE(fRenderTargetContext->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContextPriv", "stencilPath",
                                    fRenderTargetContext->fContext);
 
-    SkASSERT(aaType != GrAAType::kCoverage);
-
-    bool useHWAA = GrAATypeIsHW(aaType);
     // TODO: extract portions of checkDraw that are relevant to path stenciling.
     SkASSERT(path);
     SkASSERT(fRenderTargetContext->caps()->shaderCaps()->pathRenderingSupport());
@@ -637,209 +898,77 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
         return;
     }
 
-    fRenderTargetContext->setNeedsStencil();
-
-    std::unique_ptr<GrOp> op = GrStencilPathOp::Make(viewMatrix,
-                                                     useHWAA,
-                                                     path->getFillType(),
+    std::unique_ptr<GrOp> op = GrStencilPathOp::Make(fRenderTargetContext->fContext,
+                                                     viewMatrix,
+                                                     GrAA::kYes == doStencilMSAA,
                                                      appliedClip.hasStencilClip(),
                                                      appliedClip.scissorState(),
-                                                     path);
+                                                     std::move(path));
     if (!op) {
         return;
     }
     op->setClippedBounds(bounds);
-    fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
+
+    fRenderTargetContext->setNeedsStencil(GrAA::kYes == doStencilMSAA);
+    fRenderTargetContext->addOp(std::move(op));
 }
 
-void GrRenderTargetContextPriv::stencilRect(const GrHardClip& clip,
-                                            const GrUserStencilSettings* ss,
-                                            GrAAType aaType,
-                                            const SkMatrix& viewMatrix,
-                                            const SkRect& rect) {
-    ASSERT_SINGLE_OWNER_PRIV
-    RETURN_IF_ABANDONED_PRIV
-    SkDEBUGCODE(fRenderTargetContext->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContextPriv", "stencilRect",
-                                   fRenderTargetContext->fContext);
-
-    SkASSERT(GrAAType::kCoverage != aaType);
-    AutoCheckFlush acf(fRenderTargetContext->drawingManager());
-
-    GrPaint paint;
-    paint.setXPFactory(GrDisableColorXPFactory::Get());
-    std::unique_ptr<GrDrawOp> op =
-            GrRectOpFactory::MakeNonAAFill(std::move(paint), viewMatrix, rect, aaType, ss);
-    fRenderTargetContext->addDrawOp(clip, std::move(op));
-}
-
-bool GrRenderTargetContextPriv::drawAndStencilRect(const GrHardClip& clip,
-                                                   const GrUserStencilSettings* ss,
-                                                   SkRegion::Op op,
-                                                   bool invert,
-                                                   GrAA aa,
-                                                   const SkMatrix& viewMatrix,
-                                                   const SkRect& rect) {
-    ASSERT_SINGLE_OWNER_PRIV
-    RETURN_FALSE_IF_ABANDONED_PRIV
-    SkDEBUGCODE(fRenderTargetContext->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContextPriv", "drawAndStencilRect",
-                                   fRenderTargetContext->fContext);
-
-    AutoCheckFlush acf(fRenderTargetContext->drawingManager());
-
-    GrPaint paint;
-    paint.setCoverageSetOpXPFactory(op, invert);
-
-    if (fRenderTargetContext->drawFilledRect(clip, std::move(paint), aa, viewMatrix, rect, ss)) {
-        return true;
-    }
-    SkPath path;
-    path.setIsVolatile(true);
-    path.addRect(rect);
-    return this->drawAndStencilPath(clip, ss, op, invert, aa, viewMatrix, path);
-}
-
-void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
-                                           GrPaint&& paint,
-                                           GrAA aa,
+void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetEntry set[], int cnt,
+                                           GrSamplerState::Filter filter, SkBlendMode mode,
+                                           GrAA aa, SkCanvas::SrcRectConstraint constraint,
                                            const SkMatrix& viewMatrix,
-                                           const SkRect& rectToDraw,
-                                           const SkRect& localRect) {
+                                           sk_sp<GrColorSpaceXform> texXform) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-            GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "fillRectToRect", fContext);
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTextureSet", fContext);
 
-    SkRect croppedRect = rectToDraw;
-    SkRect croppedLocalRect = localRect;
-    if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix,
-                          &croppedRect, &croppedLocalRect)) {
-        return;
-    }
+    if (mode != SkBlendMode::kSrcOver ||
+        !fContext->priv().caps()->dynamicStateArrayGeometryProcessorTextureSupport()) {
+        // Draw one at a time since the bulk API doesn't support non src-over blending, or the
+        // backend can't support the bulk geometry processor yet.
+        SkMatrix ctm;
+        for (int i = 0; i < cnt; ++i) {
+            float alpha = set[i].fAlpha;
+            ctm = viewMatrix;
+            if (set[i].fPreViewMatrix) {
+                ctm.preConcat(*set[i].fPreViewMatrix);
+            }
 
-    AutoCheckFlush acf(this->drawingManager());
+            GrQuad quad, srcQuad;
+            if (set[i].fDstClipQuad) {
+                quad = GrQuad::MakeFromSkQuad(set[i].fDstClipQuad, ctm);
 
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
-    if (GrAAType::kCoverage != aaType) {
-        std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeNonAAFillWithLocalRect(
-                std::move(paint), viewMatrix, croppedRect, croppedLocalRect, aaType);
+                SkPoint srcPts[4];
+                GrMapRectPoints(set[i].fDstRect, set[i].fSrcRect, set[i].fDstClipQuad, srcPts, 4);
+                srcQuad = GrQuad::MakeFromSkQuad(srcPts, SkMatrix::I());
+            } else {
+                quad = GrQuad::MakeFromRect(set[i].fDstRect, ctm);
+                srcQuad = GrQuad(set[i].fSrcRect);
+            }
+
+            const SkRect* domain = constraint == SkCanvas::kStrict_SrcRectConstraint
+                    ? &set[i].fSrcRect : nullptr;
+            this->drawTexturedQuad(clip, set[i].fProxy, texXform, filter,
+                                   {alpha, alpha, alpha, alpha}, mode, aa, set[i].fAAFlags,
+                                   quad, srcQuad, domain);
+        }
+    } else {
+        // Can use a single op, avoiding GrPaint creation, and can batch across proxies
+        AutoCheckFlush acf(this->drawingManager());
+        GrAAType aaType = this->chooseAAType(aa);
+        auto op = GrTextureOp::MakeSet(fContext, set, cnt, filter, aaType, constraint, viewMatrix,
+                                       std::move(texXform));
         this->addDrawOp(clip, std::move(op));
-        return;
     }
-
-    std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeAAFillWithLocalRect(
-            std::move(paint), viewMatrix, croppedRect, croppedLocalRect);
-    if (op) {
-        this->addDrawOp(clip, std::move(op));
-        return;
-    }
-
-    SkMatrix viewAndUnLocalMatrix;
-    if (!viewAndUnLocalMatrix.setRectToRect(localRect, rectToDraw, SkMatrix::kFill_ScaleToFit)) {
-        SkDebugf("fillRectToRect called with empty local matrix.\n");
-        return;
-    }
-    viewAndUnLocalMatrix.postConcat(viewMatrix);
-
-    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewAndUnLocalMatrix,
-                                     GrShape(localRect));
-}
-
-static bool must_filter(const SkRect& src, const SkRect& dst, const SkMatrix& ctm) {
-    // We don't currently look for 90 degree rotations, mirroring, or downscales that sample at
-    // texel centers.
-    if (!ctm.isTranslate()) {
-        return true;
-    }
-    if (src.width() != dst.width() || src.height() != dst.height()) {
-        return true;
-    }
-    // Check that the device space rectangle's fractional offset is the same as the src rectangle,
-    // and that therefore integers in the src image fall on integers in device space.
-    SkScalar x = ctm.getTranslateX(), y = ctm.getTranslateY();
-    x += dst.fLeft; y += dst.fTop;
-    x -= src.fLeft; y -= src.fTop;
-    return !SkScalarIsInt(x) || !SkScalarIsInt(y);
-}
-
-void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy> proxy,
-                                        GrSamplerState::Filter filter, GrColor color,
-                                        const SkRect& srcRect, const SkRect& dstRect, GrAA aa,
-                                        const SkMatrix& viewMatrix,
-                                        sk_sp<GrColorSpaceXform> colorSpaceXform) {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTexture", fContext);
-    if (filter != GrSamplerState::Filter::kNearest && !must_filter(srcRect, dstRect, viewMatrix)) {
-        filter = GrSamplerState::Filter::kNearest;
-    }
-    SkRect clippedDstRect = dstRect;
-    SkRect clippedSrcRect = srcRect;
-    if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix, &clippedDstRect,
-                          &clippedSrcRect)) {
-        return;
-    }
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
-    bool allowSRGB = SkToBool(this->colorSpaceInfo().colorSpace());
-    this->addDrawOp(
-            clip, GrTextureOp::Make(std::move(proxy), filter, color, clippedSrcRect, clippedDstRect,
-                                    aaType, viewMatrix, std::move(colorSpaceXform), allowSRGB));
-}
-
-void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
-                                                    GrPaint&& paint,
-                                                    GrAA aa,
-                                                    const SkMatrix& viewMatrix,
-                                                    const SkRect& rectToDraw,
-                                                    const SkMatrix& localMatrix) {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "fillRectWithLocalMatrix", fContext);
-
-    SkRect croppedRect = rectToDraw;
-    if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix, &croppedRect)) {
-        return;
-    }
-
-    AutoCheckFlush acf(this->drawingManager());
-
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
-    if (GrAAType::kCoverage != aaType) {
-        std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeNonAAFillWithLocalMatrix(
-                std::move(paint), viewMatrix, localMatrix, croppedRect, aaType);
-        this->addDrawOp(clip, std::move(op));
-        return;
-    }
-
-    std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeAAFillWithLocalMatrix(
-            std::move(paint), viewMatrix, localMatrix, croppedRect);
-    if (op) {
-        this->addDrawOp(clip, std::move(op));
-        return;
-    }
-
-    SkMatrix viewAndUnLocalMatrix;
-    if (!localMatrix.invert(&viewAndUnLocalMatrix)) {
-        SkDebugf("fillRectWithLocalMatrix called with degenerate local matrix.\n");
-        return;
-    }
-    viewAndUnLocalMatrix.postConcat(viewMatrix);
-
-    SkPath path;
-    path.setIsVolatile(true);
-    path.addRect(rectToDraw);
-    path.transform(localMatrix);
-    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewAndUnLocalMatrix,
-                                     GrShape(path));
 }
 
 void GrRenderTargetContext::drawVertices(const GrClip& clip,
                                          GrPaint&& paint,
                                          const SkMatrix& viewMatrix,
                                          sk_sp<SkVertices> vertices,
+                                         const SkVertices::Bone bones[],
+                                         int boneCount,
                                          GrPrimitiveType* overridePrimType) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
@@ -849,10 +978,9 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
     AutoCheckFlush acf(this->drawingManager());
 
     SkASSERT(vertices);
-    GrAAType aaType = this->chooseAAType(GrAA::kNo, GrAllowMixedSamples::kNo);
+    GrAAType aaType = this->chooseAAType(GrAA::kNo);
     std::unique_ptr<GrDrawOp> op = GrDrawVerticesOp::Make(
-            std::move(paint), std::move(vertices), viewMatrix, aaType,
-            this->colorSpaceInfo().isGammaCorrect(),
+            fContext, std::move(paint), std::move(vertices), bones, boneCount, viewMatrix, aaType,
             this->colorSpaceInfo().refColorSpaceXformFromSRGB(), overridePrimType);
     this->addDrawOp(clip, std::move(op));
 }
@@ -873,9 +1001,9 @@ void GrRenderTargetContext::drawAtlas(const GrClip& clip,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    GrAAType aaType = this->chooseAAType(GrAA::kNo, GrAllowMixedSamples::kNo);
-    std::unique_ptr<GrDrawOp> op = GrDrawAtlasOp::Make(std::move(paint), viewMatrix, aaType,
-                                                       spriteCount, xform, texRect, colors);
+    GrAAType aaType = this->chooseAAType(GrAA::kNo);
+    std::unique_ptr<GrDrawOp> op = GrDrawAtlasOp::Make(fContext, std::move(paint), viewMatrix,
+                                                       aaType, spriteCount, xform, texRect, colors);
     this->addDrawOp(clip, std::move(op));
 }
 
@@ -891,7 +1019,9 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawRRect", fContext);
-    if (rrect.isEmpty()) {
+
+    const SkStrokeRec& stroke = style.strokeRec();
+    if (stroke.getStyle() == SkStrokeRec::kFill_Style && rrect.isEmpty()) {
        return;
     }
 
@@ -902,31 +1032,46 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
     // draw is aa. Since our lower level clip code works from op bounds, which are SkRects, it
     // doesn't detect that the clip can be ignored (modulo antialiasing). The following test
     // attempts to mitigate the stencil clip cost but will only help when the entire clip stack
-    // can be ignored. We'd prefer to fix this in the framework by removing the clips calls.
+    // can be ignored. We'd prefer to fix this in the framework by removing the clips calls. This
+    // only works for filled rrects since the stroke width outsets beyond the rrect itself.
     SkRRect devRRect;
-    if (rrect.transform(viewMatrix, &devRRect) && clip->quickContains(devRRect)) {
+    if (stroke.getStyle() == SkStrokeRec::kFill_Style && rrect.transform(viewMatrix, &devRRect) &&
+        clip->quickContains(devRRect)) {
         clip = &noclip;
     }
 #endif
     SkASSERT(!style.pathEffect()); // this should've been devolved to a path in SkGpuDevice
 
     AutoCheckFlush acf(this->drawingManager());
-    const SkStrokeRec stroke = style.strokeRec();
 
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
-    if (GrAAType::kCoverage == aaType) {
-        const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
-        std::unique_ptr<GrDrawOp> op = GrOvalOpFactory::MakeRRectOp(std::move(paint),
-                                                                    viewMatrix,
-                                                                    rrect,
-                                                                    stroke,
-                                                                    shaderCaps);
-        if (op) {
-            this->addDrawOp(*clip, std::move(op));
-            return;
-        }
+    GrAAType aaType = this->chooseAAType(aa);
+
+    std::unique_ptr<GrDrawOp> op;
+    if (GrAAType::kCoverage == aaType && rrect.isSimple() &&
+        rrect.getSimpleRadii().fX == rrect.getSimpleRadii().fY &&
+        viewMatrix.rectStaysRect() && viewMatrix.isSimilarity()) {
+        // In coverage mode, we draw axis-aligned circular roundrects with the GrOvalOpFactory
+        // to avoid perf regressions on some platforms.
+        assert_alive(paint);
+        op = GrOvalOpFactory::MakeCircularRRectOp(
+                fContext, std::move(paint), viewMatrix, rrect, stroke, this->caps()->shaderCaps());
+    }
+    if (!op && style.isSimpleFill()) {
+        assert_alive(paint);
+        op = GrFillRRectOp::Make(
+                fContext, aaType, viewMatrix, rrect, *this->caps(), std::move(paint));
+    }
+    if (!op && GrAAType::kCoverage == aaType) {
+        assert_alive(paint);
+        op = GrOvalOpFactory::MakeRRectOp(
+                fContext, std::move(paint), viewMatrix, rrect, stroke, this->caps()->shaderCaps());
+    }
+    if (op) {
+        this->addDrawOp(*clip, std::move(op));
+        return;
     }
 
+    assert_alive(paint);
     this->drawShapeUsingPathRenderer(*clip, std::move(paint), aa, viewMatrix,
                                      GrShape(rrect, style));
 }
@@ -945,7 +1090,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
                                            const SkPath& path,
                                            const SkDrawShadowRec& rec) {
     ASSERT_SINGLE_OWNER
-    if (this->drawingManager()->wasAbandoned()) {
+    if (fContext->priv().abandoned()) {
         return true;
     }
     SkDEBUGCODE(this->validate();)
@@ -990,7 +1135,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
 
     // 1/scale
     SkScalar devToSrcScale = viewMatrix.isScaleTranslate() ?
-        SkScalarInvert(viewMatrix[SkMatrix::kMScaleX]) :
+        SkScalarInvert(SkScalarAbs(viewMatrix[SkMatrix::kMScaleX])) :
         sk_float_rsqrt(viewMatrix[SkMatrix::kMScaleX] * viewMatrix[SkMatrix::kMScaleX] +
                        viewMatrix[SkMatrix::kMSkewX] * viewMatrix[SkMatrix::kMSkewX]);
 
@@ -1020,17 +1165,16 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
             // set a large inset to force a fill
             devSpaceInsetWidth = ambientRRect.width();
         }
-        // the fraction of the blur we want to apply is devSpaceInsetWidth/devSpaceAmbientBlur,
-        // which is just 1/umbraRecipAlpha.
-        SkScalar blurClamp = SkScalarInvert(umbraRecipAlpha);
 
-        std::unique_ptr<GrDrawOp> op = GrShadowRRectOp::Make(ambientColor, viewMatrix,
+        std::unique_ptr<GrDrawOp> op = GrShadowRRectOp::Make(fContext,
+                                                             ambientColor,
+                                                             viewMatrix,
                                                              ambientRRect,
                                                              devSpaceAmbientBlur,
-                                                             devSpaceInsetWidth,
-                                                             blurClamp);
-        SkASSERT(op);
-        this->addDrawOp(clip, std::move(op));
+                                                             devSpaceInsetWidth);
+        if (op) {
+            this->addDrawOp(clip, std::move(op));
+        }
     }
 
     if (SkColorGetA(rec.fSpotColor) > 0) {
@@ -1120,12 +1264,15 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
 
         GrColor spotColor = SkColorToPremulGrColor(rec.fSpotColor);
 
-        std::unique_ptr<GrDrawOp> op = GrShadowRRectOp::Make(spotColor, viewMatrix,
+        std::unique_ptr<GrDrawOp> op = GrShadowRRectOp::Make(fContext,
+                                                             spotColor,
+                                                             viewMatrix,
                                                              spotShadowRRect,
                                                              2.0f * devSpaceSpotBlur,
                                                              insetWidth);
-        SkASSERT(op);
-        this->addDrawOp(clip, std::move(op));
+        if (op) {
+            this->addDrawOp(clip, std::move(op));
+        }
     }
 
     return true;
@@ -1144,7 +1291,7 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
 
     SkTCopyOnFirstWrite<SkRRect> inner(origInner), outer(origOuter);
 
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+    GrAAType aaType = this->chooseAAType(aa);
 
     if (GrAAType::kMSAA == aaType) {
         return false;
@@ -1162,13 +1309,14 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
             auto circleBounds = SkRect::MakeLTRB(cx - avgR, cy - avgR, cx + avgR, cy + avgR);
             SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
             stroke.setStrokeStyle(outerR - innerR);
-            auto op = GrOvalOpFactory::MakeOvalOp(std::move(paint), viewMatrix, circleBounds,
-                                                  GrStyle(stroke, nullptr),
+            auto op = GrOvalOpFactory::MakeOvalOp(fContext, std::move(paint), viewMatrix,
+                                                  circleBounds, GrStyle(stroke, nullptr),
                                                   this->caps()->shaderCaps());
             if (op) {
                 this->addDrawOp(clip, std::move(op));
                 return true;
             }
+            assert_alive(paint);
         }
     }
 
@@ -1240,6 +1388,7 @@ void GrRenderTargetContext::drawDRRect(const GrClip& clip,
     if (this->drawFilledDRRect(clip, std::move(paint), aa, viewMatrix, outer, inner)) {
         return;
     }
+    assert_alive(paint);
 
     SkPath path;
     path.setIsVolatile(true);
@@ -1276,12 +1425,14 @@ void GrRenderTargetContext::drawRegion(const GrClip& clip,
     if (complexStyle || GrAA::kYes == aa) {
         SkPath path;
         region.getBoundaryPath(&path);
+        path.setIsVolatile(true);
+
         return this->drawPath(clip, std::move(paint), aa, viewMatrix, path, style);
     }
 
-    GrAAType aaType = this->chooseAAType(GrAA::kNo, GrAllowMixedSamples::kNo);
-    std::unique_ptr<GrDrawOp> op = GrRegionOp::Make(std::move(paint), viewMatrix, region, aaType,
-                                                    ss);
+    GrAAType aaType = this->chooseAAType(GrAA::kNo);
+    std::unique_ptr<GrDrawOp> op = GrRegionOp::Make(fContext, std::move(paint), viewMatrix, region,
+                                                    aaType, ss);
     this->addDrawOp(clip, std::move(op));
 }
 
@@ -1296,22 +1447,51 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawOval", fContext);
 
+    const SkStrokeRec& stroke = style.strokeRec();
+
     if (oval.isEmpty() && !style.pathEffect()) {
+        if (stroke.getStyle() == SkStrokeRec::kFill_Style) {
+            return;
+        }
+
+        this->drawRect(clip, std::move(paint), aa, viewMatrix, oval, &style);
         return;
     }
 
     AutoCheckFlush acf(this->drawingManager());
 
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
-    if (GrAAType::kCoverage == aaType) {
-        const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
-        if (auto op = GrOvalOpFactory::MakeOvalOp(std::move(paint), viewMatrix, oval, style,
-                                                  shaderCaps)) {
-            this->addDrawOp(clip, std::move(op));
-            return;
-        }
+    GrAAType aaType = this->chooseAAType(aa);
+
+    std::unique_ptr<GrDrawOp> op;
+    if (GrAAType::kCoverage == aaType && oval.width() > SK_ScalarNearlyZero &&
+        oval.width() == oval.height() && viewMatrix.isSimilarity()) {
+        // We don't draw true circles as round rects in coverage mode, because it can
+        // cause perf regressions on some platforms as compared to the dedicated circle Op.
+        assert_alive(paint);
+        op = GrOvalOpFactory::MakeCircleOp(fContext, std::move(paint), viewMatrix, oval, style,
+                                           this->caps()->shaderCaps());
+    }
+    if (!op && style.isSimpleFill()) {
+        // GrFillRRectOp has special geometry and a fragment-shader branch to conditionally evaluate
+        // the arc equation. This same special geometry and fragment branch also turn out to be a
+        // substantial optimization for drawing ovals (namely, by not evaluating the arc equation
+        // inside the oval's inner diamond). Given these optimizations, it's a clear win to draw
+        // ovals the exact same way we do round rects.
+        assert_alive(paint);
+        op = GrFillRRectOp::Make(fContext, aaType, viewMatrix, SkRRect::MakeOval(oval),
+                                 *this->caps(), std::move(paint));
+    }
+    if (!op && GrAAType::kCoverage == aaType) {
+        assert_alive(paint);
+        op = GrOvalOpFactory::MakeOvalOp(fContext, std::move(paint), viewMatrix, oval, style,
+                                         this->caps()->shaderCaps());
+    }
+    if (op) {
+        this->addDrawOp(clip, std::move(op));
+        return;
     }
 
+    assert_alive(paint);
     this->drawShapeUsingPathRenderer(
             clip, std::move(paint), aa, viewMatrix,
             GrShape(SkRRect::MakeOval(oval), SkPath::kCW_Direction, 2, false, style));
@@ -1333,10 +1513,11 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+    GrAAType aaType = this->chooseAAType(aa);
     if (GrAAType::kCoverage == aaType) {
         const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
-        std::unique_ptr<GrDrawOp> op = GrOvalOpFactory::MakeArcOp(std::move(paint),
+        std::unique_ptr<GrDrawOp> op = GrOvalOpFactory::MakeArcOp(fContext,
+                                                                  std::move(paint),
                                                                   viewMatrix,
                                                                   oval,
                                                                   startAngle,
@@ -1348,6 +1529,7 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
             this->addDrawOp(clip, std::move(op));
             return;
         }
+        assert_alive(paint);
     }
     this->drawShapeUsingPathRenderer(
             clip, std::move(paint), aa, viewMatrix,
@@ -1370,25 +1552,438 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
     AutoCheckFlush acf(this->drawingManager());
 
     std::unique_ptr<GrDrawOp> op =
-            GrLatticeOp::MakeNonAA(std::move(paint), viewMatrix, std::move(image), std::move(csxf),
-                                   filter, std::move(iter), dst);
+            GrLatticeOp::MakeNonAA(fContext, std::move(paint), viewMatrix, std::move(image),
+                                   std::move(csxf), filter, std::move(iter), dst);
     this->addDrawOp(clip, std::move(op));
 }
 
-GrSemaphoresSubmitted GrRenderTargetContext::prepareForExternalIO(
-        int numSemaphores, GrBackendSemaphore backendSemaphores[]) {
-    ASSERT_SINGLE_OWNER
-    if (this->drawingManager()->wasAbandoned()) { return GrSemaphoresSubmitted::kNo; }
-    SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "prepareForExternalIO", fContext);
+void GrRenderTargetContext::drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable,
+                                         const SkRect& bounds) {
+    std::unique_ptr<GrOp> op(GrDrawableOp::Make(fContext, std::move(drawable), bounds));
+    SkASSERT(op);
+    this->addOp(std::move(op));
+}
 
-    return this->drawingManager()->prepareSurfaceForExternalIO(fRenderTargetProxy.get(),
-                                                               numSemaphores,
-                                                               backendSemaphores);
+void GrRenderTargetContext::asyncRescaleAndReadPixels(
+        const SkImageInfo& info, const SkIRect& srcRect, SkSurface::RescaleGamma rescaleGamma,
+        SkFilterQuality rescaleQuality, ReadPixelsCallback callback, ReadPixelsContext context) {
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        callback(context, nullptr, 0);
+        return;
+    }
+    if (fRenderTargetProxy->wrapsVkSecondaryCB()) {
+        callback(context, nullptr, 0);
+        return;
+    }
+    auto dstCT = SkColorTypeToGrColorType(info.colorType());
+    bool needsRescale = srcRect.width() != info.width() || srcRect.height() != info.height();
+    auto colorTypeOfFinalContext = this->colorSpaceInfo().colorType();
+    auto backendFormatOfFinalContext = fRenderTargetProxy->backendFormat();
+    if (needsRescale) {
+        colorTypeOfFinalContext = dstCT;
+        backendFormatOfFinalContext = this->caps()->getDefaultBackendFormat(dstCT,
+                                                                            GrRenderable::kYes);
+    }
+    auto readInfo = this->caps()->supportedReadPixelsColorType(colorTypeOfFinalContext,
+                                                               backendFormatOfFinalContext, dstCT);
+    // Fail if we can't read from the source surface's color type.
+    if (readInfo.fColorType == GrColorType::kUnknown) {
+        callback(context, nullptr, 0);
+        return;
+    }
+    // Fail if read color type does not have all of dstCT's color channels and those missing color
+    // channels are in the src.
+    uint32_t dstComponents = GrColorTypeComponentFlags(dstCT);
+    uint32_t legalReadComponents = GrColorTypeComponentFlags(readInfo.fColorType);
+    uint32_t srcComponents = GrColorTypeComponentFlags(this->colorSpaceInfo().colorType());
+    if ((~legalReadComponents & dstComponents) & srcComponents) {
+        callback(context, nullptr, 0);
+        return;
+    }
+
+    std::unique_ptr<GrRenderTargetContext> tempRTC;
+    int x = srcRect.fLeft;
+    int y = srcRect.fTop;
+    if (needsRescale) {
+        tempRTC = this->rescale(info, srcRect, rescaleGamma, rescaleQuality);
+        if (!tempRTC) {
+            callback(context, nullptr, 0);
+            return;
+        }
+        SkASSERT(SkColorSpace::Equals(tempRTC->colorSpaceInfo().colorSpace(), info.colorSpace()));
+        SkASSERT(tempRTC->origin() == kTopLeft_GrSurfaceOrigin);
+        x = y = 0;
+    } else {
+        sk_sp<GrColorSpaceXform> xform =
+                GrColorSpaceXform::Make(this->colorSpaceInfo().colorSpace(),
+                                        this->colorSpaceInfo().alphaType(),
+                                        info.colorSpace(), info.alphaType());
+        // Insert a draw to a temporary surface if we need to do a y-flip or color space conversion.
+        if (this->origin() == kBottomLeft_GrSurfaceOrigin || xform) {
+            // We flip or color convert by drawing and we don't currently support drawing to
+            // kPremul.
+            if (info.alphaType() == kUnpremul_SkAlphaType) {
+                callback(context, nullptr, 0);
+                return;
+            }
+            sk_sp<GrTextureProxy> texProxy = sk_ref_sp(fRenderTargetProxy->asTextureProxy());
+            SkRect srcRectToDraw = SkRect::Make(srcRect);
+            // If the src is not texturable first try to make a copy to a texture.
+            if (!texProxy) {
+                texProxy = GrSurfaceProxy::Copy(fContext, fRenderTargetProxy.get(),
+                                                GrMipMapped::kNo, srcRect, SkBackingFit::kApprox,
+                                                SkBudgeted::kNo);
+                if (!texProxy) {
+                    callback(context, nullptr, 0);
+                    return;
+                }
+                srcRectToDraw = SkRect::MakeWH(srcRect.width(), srcRect.height());
+            }
+            tempRTC = direct->priv().makeDeferredRenderTargetContext(
+                    SkBackingFit::kApprox, srcRect.width(), srcRect.height(),
+                    this->colorSpaceInfo().colorType(), info.refColorSpace(), 1, GrMipMapped::kNo,
+                    kTopLeft_GrSurfaceOrigin);
+            if (!tempRTC) {
+                callback(context, nullptr, 0);
+                return;
+            }
+            tempRTC->drawTexture(GrNoClip(), std::move(texProxy), GrSamplerState::Filter::kNearest,
+                                 SkBlendMode::kSrc, SK_PMColor4fWHITE, srcRectToDraw,
+                                 SkRect::MakeWH(srcRect.width(), srcRect.height()), GrAA::kNo,
+                                 GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
+                                 SkMatrix::I(), std::move(xform));
+            x = y = 0;
+        }
+    }
+    auto rtc = tempRTC ? tempRTC.get() : this;
+    return rtc->asyncReadPixels(SkIRect::MakeXYWH(x, y, info.width(), info.height()),
+                                info.colorType(), callback, context);
+}
+
+void GrRenderTargetContext::asyncReadPixels(const SkIRect& rect, SkColorType colorType,
+                                            ReadPixelsCallback callback,
+                                            ReadPixelsContext context) {
+    SkASSERT(rect.fLeft >= 0 && rect.fRight <= this->width());
+    SkASSERT(rect.fTop >= 0 && rect.fBottom <= this->height());
+
+    auto transferResult = this->transferPixels(SkColorTypeToGrColorType(colorType), rect);
+
+    if (!transferResult.fTransferBuffer) {
+        SkAutoPixmapStorage pm;
+        auto ii = SkImageInfo::Make(rect.width(), rect.height(), colorType,
+                                    this->colorSpaceInfo().alphaType(),
+                                    this->colorSpaceInfo().refColorSpace());
+        pm.alloc(ii);
+        if (!this->readPixels(ii, pm.writable_addr(), pm.rowBytes(), {rect.fLeft, rect.fTop})) {
+            callback(context, nullptr, 0);
+        }
+        callback(context, pm.addr(), pm.rowBytes());
+        return;
+    }
+
+    struct FinishContext {
+        ReadPixelsCallback* fClientCallback;
+        ReadPixelsContext fClientContext;
+        int fW, fH;
+        SkColorType fColorType;
+        PixelTransferResult fTransferResult;
+    };
+    // Assumption is that the caller would like to flush. We could take a parameter or require an
+    // explicit flush from the caller. We'd have to have a way to defer attaching the finish
+    // callback to GrGpu until after the next flush that flushes our op list, though.
+    auto* finishContext = new FinishContext{callback, context, rect.width(),
+                                            rect.height(), colorType, std::move(transferResult)};
+    auto finishCallback = [](GrGpuFinishedContext c) {
+        const auto* context = reinterpret_cast<const FinishContext*>(c);
+        const void* data = context->fTransferResult.fTransferBuffer->map();
+        if (!data) {
+            (*context->fClientCallback)(context->fClientContext, nullptr, 0);
+            delete context;
+            return;
+        }
+        std::unique_ptr<char[]> tmp;
+        size_t rowBytes = context->fW * SkColorTypeBytesPerPixel(context->fColorType);
+        if (context->fTransferResult.fPixelConverter) {
+            tmp.reset(new char[rowBytes * context->fH]);
+            context->fTransferResult.fPixelConverter(tmp.get(), data);
+            data = tmp.get();
+        }
+        (*context->fClientCallback)(context->fClientContext, data, rowBytes);
+        delete context;
+    };
+    GrFlushInfo flushInfo;
+    flushInfo.fFinishedContext = finishContext;
+    flushInfo.fFinishedProc = finishCallback;
+    this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+}
+
+void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(
+        SkYUVColorSpace yuvColorSpace, sk_sp<SkColorSpace> dstColorSpace, const SkIRect& srcRect,
+        int dstW, int dstH, RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
+        ReadPixelsCallbackYUV420 callback, ReadPixelsContext context) {
+    SkASSERT(srcRect.fLeft >= 0 && srcRect.fRight <= this->width());
+    SkASSERT(srcRect.fTop >= 0 && srcRect.fBottom <= this->height());
+    SkASSERT((dstW % 2 == 0) && (dstH % 2 == 0));
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        callback(context, nullptr, nullptr);
+        return;
+    }
+    if (fRenderTargetProxy->wrapsVkSecondaryCB()) {
+        callback(context, nullptr, nullptr);
+        return;
+    }
+    if (dstW & 0x1) {
+        return;
+    }
+    int x = srcRect.fLeft;
+    int y = srcRect.fTop;
+    std::unique_ptr<GrRenderTargetContext> tempRTC;
+    bool needsRescale = srcRect.width() != dstW || srcRect.height() != dstH;
+    if (needsRescale) {
+        // We assume the caller wants kPremul. There is no way to indicate a preference.
+        auto info = SkImageInfo::Make(dstW, dstH, kRGBA_8888_SkColorType, kPremul_SkAlphaType,
+                                      dstColorSpace);
+        // TODO: Incorporate the YUV conversion into last pass of rescaling.
+        tempRTC = this->rescale(info, srcRect, rescaleGamma, rescaleQuality);
+        if (!tempRTC) {
+            callback(context, nullptr, nullptr);
+            return;
+        }
+        SkASSERT(SkColorSpace::Equals(tempRTC->colorSpaceInfo().colorSpace(), info.colorSpace()));
+        SkASSERT(tempRTC->origin() == kTopLeft_GrSurfaceOrigin);
+        x = y = 0;
+    } else {
+        // We assume the caller wants kPremul. There is no way to indicate a preference.
+        sk_sp<GrColorSpaceXform> xform = GrColorSpaceXform::Make(
+                this->colorSpaceInfo().colorSpace(), this->colorSpaceInfo().alphaType(),
+                dstColorSpace.get(), kPremul_SkAlphaType);
+        if (xform) {
+            sk_sp<GrTextureProxy> texProxy = this->asTextureProxyRef();
+            // TODO: Do something if the input is not a texture already.
+            if (!texProxy) {
+                callback(context, nullptr, nullptr);
+                return;
+            }
+            SkRect srcRectToDraw = SkRect::Make(srcRect);
+            tempRTC = direct->priv().makeDeferredRenderTargetContext(
+                    SkBackingFit::kApprox, dstW, dstH, this->colorSpaceInfo().colorType(),
+                    dstColorSpace, 1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
+            if (!tempRTC) {
+                callback(context, nullptr, nullptr);
+                return;
+            }
+            tempRTC->drawTexture(GrNoClip(), std::move(texProxy), GrSamplerState::Filter::kNearest,
+                                 SkBlendMode::kSrc, SK_PMColor4fWHITE, srcRectToDraw,
+                                 SkRect::MakeWH(srcRect.width(), srcRect.height()), GrAA::kNo,
+                                 GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
+                                 SkMatrix::I(), std::move(xform));
+            x = y = 0;
+        }
+    }
+    auto srcProxy = tempRTC ? tempRTC->asTextureProxyRef() : this->asTextureProxyRef();
+    // TODO: Do something if the input is not a texture already.
+    if (!srcProxy) {
+        callback(context, nullptr, nullptr);
+        return;
+    }
+    auto yRTC = direct->priv().makeDeferredRenderTargetContextWithFallback(
+            SkBackingFit::kApprox, dstW, dstH, GrColorType::kAlpha_8, dstColorSpace, 1,
+            GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
+    auto uRTC = direct->priv().makeDeferredRenderTargetContextWithFallback(
+            SkBackingFit::kApprox, dstW / 2, dstH / 2, GrColorType::kAlpha_8, dstColorSpace, 1,
+            GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
+    auto vRTC = direct->priv().makeDeferredRenderTargetContextWithFallback(
+            SkBackingFit::kApprox, dstW / 2, dstH / 2, GrColorType::kAlpha_8, dstColorSpace, 1,
+            GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
+    if (!yRTC || !uRTC || !vRTC) {
+        callback(context, nullptr, nullptr);
+        return;
+    }
+
+    static constexpr float kRec601M[] {
+             65.481f / 255, 128.553f / 255,  24.966f / 255,  16.f / 255,   // y
+            -37.797f / 255, -74.203f / 255, 112.0f   / 255, 128.f / 255,  // u
+            112.f    / 255, -93.786f / 255, -18.214f / 255, 128.f / 255,  // v
+    };
+    static constexpr float kRec709M[] {
+             45.5594f / 255,  156.6288f / 255,  15.8118f / 255,  16.f / 255, // y
+            -25.6642f / 255,  -86.3358f / 255, 112.f     / 255, 128.f / 255,  // u
+            112.f     / 255, -101.7303f / 255, -10.2697f / 255, 128.f / 255,  // v
+    };
+    static constexpr float kJpegM[] {
+             0.299f   ,  0.587f   ,  0.114f   ,   0.f / 255,  // y
+            -0.168736f, -0.331264f,  0.5f     , 128.f / 255,  // u
+             0.5f     , -0.418688f, -0.081312f, 128.f / 255,  // v
+    };
+    static constexpr float kIM[] {
+            1.f, 0.f, 0.f, 0.f,
+            0.f, 1.f, 0.f, 0.f,
+            0.f, 0.f, 1.f, 0.f,
+    };
+    const float* baseM = kIM;
+    switch (yuvColorSpace) {
+        case kRec601_SkYUVColorSpace:
+            baseM = kRec601M;
+            break;
+        case kRec709_SkYUVColorSpace:
+            baseM = kRec709M;
+            break;
+        case kJPEG_SkYUVColorSpace:
+            baseM = kJpegM;
+            break;
+        case kIdentity_SkYUVColorSpace:
+            baseM = kIM;
+            break;
+    }
+    // TODO: Use one transfer buffer for all three planes to reduce map/unmap cost?
+
+    auto texMatrix = SkMatrix::MakeTrans(x, y);
+
+    SkRect dstRectY = SkRect::MakeWH(dstW, dstH);
+    SkRect dstRectUV = SkRect::MakeWH(dstW / 2, dstH / 2);
+
+    // This matrix generates (r,g,b,a) = (0, 0, 0, y)
+    float yM[20];
+    std::fill_n(yM, 15, 0.f);
+    yM[15] = baseM[0]; yM[16] = baseM[1]; yM[17] = baseM[2]; yM[18] = 0; yM[19] = baseM[3];
+    GrPaint yPaint;
+    yPaint.addColorTextureProcessor(srcProxy, texMatrix);
+    auto yFP = GrColorMatrixFragmentProcessor::Make(yM, false, true, false);
+    yPaint.addColorFragmentProcessor(std::move(yFP));
+    yPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+    yRTC->fillRectToRect(GrNoClip(), std::move(yPaint), GrAA::kNo, SkMatrix::I(),
+                         dstRectY, dstRectY);
+    auto yTransfer = yRTC->transferPixels(GrColorType::kAlpha_8,
+                                          SkIRect::MakeWH(yRTC->width(), yRTC->height()));
+    if (!yTransfer.fTransferBuffer) {
+        callback(context, nullptr, nullptr);
+        return;
+    }
+
+    texMatrix.preScale(2.f, 2.f);
+    // This matrix generates (r,g,b,a) = (0, 0, 0, u)
+    float uM[20];
+    std::fill_n(uM, 15, 0.f);
+    uM[15] = baseM[4]; uM[16] = baseM[5]; uM[17] = baseM[6]; uM[18] = 0; uM[19] = baseM[7];
+    GrPaint uPaint;
+    uPaint.addColorTextureProcessor(srcProxy, texMatrix, GrSamplerState::ClampBilerp());
+    auto uFP = GrColorMatrixFragmentProcessor::Make(uM, false, true, false);
+    uPaint.addColorFragmentProcessor(std::move(uFP));
+    uPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+    uRTC->fillRectToRect(GrNoClip(), std::move(uPaint), GrAA::kNo, SkMatrix::I(),
+                         dstRectUV, dstRectUV);
+    auto uTransfer = uRTC->transferPixels(GrColorType::kAlpha_8,
+                                          SkIRect::MakeWH(uRTC->width(), uRTC->height()));
+    if (!uTransfer.fTransferBuffer) {
+        callback(context, nullptr, nullptr);
+        return;
+    }
+
+    // This matrix generates (r,g,b,a) = (0, 0, 0, v)
+    float vM[20];
+    std::fill_n(vM, 15, 0.f);
+    vM[15] = baseM[8]; vM[16] = baseM[9]; vM[17] = baseM[10]; vM[18] = 0; vM[19] = baseM[11];
+    GrPaint vPaint;
+    vPaint.addColorTextureProcessor(srcProxy, texMatrix, GrSamplerState::ClampBilerp());
+    auto vFP = GrColorMatrixFragmentProcessor::Make(vM, false, true, false);
+    vPaint.addColorFragmentProcessor(std::move(vFP));
+    vPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+    vRTC->fillRectToRect(GrNoClip(), std::move(vPaint), GrAA::kNo, SkMatrix::I(),
+                         dstRectUV, dstRectUV);
+    auto vTransfer = vRTC->transferPixels(GrColorType::kAlpha_8,
+                                          SkIRect::MakeWH(vRTC->width(), vRTC->height()));
+    if (!vTransfer.fTransferBuffer) {
+        callback(context, nullptr, nullptr);
+        return;
+    }
+
+    struct FinishContext {
+        ReadPixelsCallbackYUV420* fClientCallback;
+        ReadPixelsContext fClientContext;
+        int fW, fH;
+        PixelTransferResult fYTransfer;
+        PixelTransferResult fUTransfer;
+        PixelTransferResult fVTransfer;
+    };
+    // Assumption is that the caller would like to flush. We could take a parameter or require an
+    // explicit flush from the caller. We'd have to have a way to defer attaching the finish
+    // callback to GrGpu until after the next flush that flushes our op list, though.
+    auto* finishContext = new FinishContext{callback,
+                                            context,
+                                            dstW,
+                                            dstH,
+                                            std::move(yTransfer),
+                                            std::move(uTransfer),
+                                            std::move(vTransfer)};
+    auto finishCallback = [](GrGpuFinishedContext c) {
+        const auto* context = reinterpret_cast<const FinishContext*>(c);
+        const void* y = context->fYTransfer.fTransferBuffer->map();
+        const void* u = context->fUTransfer.fTransferBuffer->map();
+        const void* v = context->fVTransfer.fTransferBuffer->map();
+        if (!y || !u || !v) {
+            if (y) {
+                context->fYTransfer.fTransferBuffer->unmap();
+            }
+            if (u) {
+                context->fUTransfer.fTransferBuffer->unmap();
+            }
+            if (v) {
+                context->fVTransfer.fTransferBuffer->unmap();
+            }
+            (*context->fClientCallback)(context->fClientContext, nullptr, 0);
+            delete context;
+            return;
+        }
+        size_t w = SkToSizeT(context->fW);
+        size_t h = SkToSizeT(context->fH);
+        std::unique_ptr<uint8_t[]> yTemp;
+        if (context->fYTransfer.fPixelConverter) {
+            yTemp.reset(new uint8_t[w * h]);
+            context->fYTransfer.fPixelConverter(yTemp.get(), y);
+            y = yTemp.get();
+        }
+        std::unique_ptr<uint8_t[]> uTemp;
+        if (context->fUTransfer.fPixelConverter) {
+            uTemp.reset(new uint8_t[w / 2 * h / 2]);
+            context->fUTransfer.fPixelConverter(uTemp.get(), u);
+            u = uTemp.get();
+        }
+        std::unique_ptr<uint8_t[]> vTemp;
+        if (context->fVTransfer.fPixelConverter) {
+            vTemp.reset(new uint8_t[w / 2 * h / 2]);
+            context->fVTransfer.fPixelConverter(vTemp.get(), v);
+            v = vTemp.get();
+        }
+        const void* data[] = {y, u, v};
+        size_t rowBytes[] = {w, w / 2, w / 2};
+        (*context->fClientCallback)(context->fClientContext, data, rowBytes);
+        context->fYTransfer.fTransferBuffer->unmap();
+        context->fUTransfer.fTransferBuffer->unmap();
+        context->fVTransfer.fTransferBuffer->unmap();
+        delete context;
+    };
+    GrFlushInfo flushInfo;
+    flushInfo.fFinishedContext = finishContext;
+    flushInfo.fFinishedProc = finishCallback;
+    this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
+}
+
+GrSemaphoresSubmitted GrRenderTargetContext::flush(SkSurface::BackendSurfaceAccess access,
+                                                   const GrFlushInfo& info) {
+    ASSERT_SINGLE_OWNER
+    if (fContext->priv().abandoned()) {
+        return GrSemaphoresSubmitted::kNo;
+    }
+    SkDEBUGCODE(this->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "flush", fContext);
+
+    return this->drawingManager()->flushSurface(fRenderTargetProxy.get(), access, info);
 }
 
 bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
-                                             const GrBackendSemaphore* waitSemaphores) {
+                                             const GrBackendSemaphore waitSemaphores[]) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1396,73 +1991,32 @@ bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    if (numSemaphores && !this->caps()->fenceSyncSupport()) {
+    if (numSemaphores && !this->caps()->semaphoreSupport()) {
         return false;
     }
 
-    auto resourceProvider = fContext->contextPriv().resourceProvider();
+    auto direct = fContext->priv().asDirectContext();
+    if (!direct) {
+        return false;
+    }
 
-    SkTArray<sk_sp<GrSemaphore>> semaphores(numSemaphores);
+    auto resourceProvider = direct->priv().resourceProvider();
+
     for (int i = 0; i < numSemaphores; ++i) {
         sk_sp<GrSemaphore> sema = resourceProvider->wrapBackendSemaphore(
                 waitSemaphores[i], GrResourceProvider::SemaphoreWrapType::kWillWait,
                 kAdopt_GrWrapOwnership);
-        std::unique_ptr<GrOp> waitOp(GrSemaphoreOp::MakeWait(sema, fRenderTargetProxy.get()));
-        this->getRTOpList()->addOp(std::move(waitOp), *this->caps());
+        std::unique_ptr<GrOp> waitOp(GrSemaphoreOp::MakeWait(fContext, std::move(sema),
+                                                             fRenderTargetProxy.get()));
+        this->getOpsTask()->addWaitOp(
+                std::move(waitOp), GrTextureResolveManager(this->drawingManager()), *this->caps());
     }
     return true;
 }
 
 void GrRenderTargetContext::insertEventMarker(const SkString& str) {
-    std::unique_ptr<GrOp> op(GrDebugMarkerOp::Make(fRenderTargetProxy.get(), str));
-    this->getRTOpList()->addOp(std::move(op), *this->caps());
-}
-
-
-// Can 'path' be drawn as a pair of filled nested rectangles?
-static bool fills_as_nested_rects(const SkMatrix& viewMatrix, const SkPath& path, SkRect rects[2]) {
-
-    if (path.isInverseFillType()) {
-        return false;
-    }
-
-    // TODO: this restriction could be lifted if we were willing to apply
-    // the matrix to all the points individually rather than just to the rect
-    if (!viewMatrix.rectStaysRect()) {
-        return false;
-    }
-
-    SkPath::Direction dirs[2];
-    if (!path.isNestedFillRects(rects, dirs)) {
-        return false;
-    }
-
-    if (SkPath::kWinding_FillType == path.getFillType() && dirs[0] == dirs[1]) {
-        // The two rects need to be wound opposite to each other
-        return false;
-    }
-
-    // Right now, nested rects where the margin is not the same width
-    // all around do not render correctly
-    const SkScalar* outer = rects[0].asScalars();
-    const SkScalar* inner = rects[1].asScalars();
-
-    bool allEq = true;
-
-    SkScalar margin = SkScalarAbs(outer[0] - inner[0]);
-    bool allGoE1 = margin >= SK_Scalar1;
-
-    for (int i = 1; i < 4; ++i) {
-        SkScalar temp = SkScalarAbs(outer[i] - inner[i]);
-        if (temp < SK_Scalar1) {
-            allGoE1 = false;
-        }
-        if (!SkScalarNearlyEqual(margin, temp)) {
-            allEq = false;
-        }
-    }
-
-    return allEq || allGoE1;
+    std::unique_ptr<GrOp> op(GrDebugMarkerOp::Make(fContext, fRenderTargetProxy.get(), str));
+    this->addOp(std::move(op));
 }
 
 void GrRenderTargetContext::drawPath(const GrClip& clip,
@@ -1474,9 +2028,23 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-            GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContextPriv", "drawPath", fContext);
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawPath", fContext);
 
     GrShape shape(path, style);
+
+    this->drawShape(clip, std::move(paint), aa, viewMatrix, shape);
+}
+
+void GrRenderTargetContext::drawShape(const GrClip& clip,
+                                      GrPaint&& paint,
+                                      GrAA aa,
+                                      const SkMatrix& viewMatrix,
+                                      const GrShape& shape) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawShape", fContext);
+
     if (shape.isEmpty()) {
         if (shape.inverseFilled()) {
             this->drawPaint(clip, std::move(paint), viewMatrix);
@@ -1487,6 +2055,7 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
     AutoCheckFlush acf(this->drawingManager());
 
     if (!shape.style().hasPathEffect()) {
+        GrAAType aaType = this->chooseAAType(aa);
         SkRRect rrect;
         // We can ignore the starting point and direction since there is no path effect.
         bool inverted;
@@ -1501,28 +2070,24 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
             }
             this->drawRRect(clip, std::move(paint), aa, viewMatrix, rrect, shape.style());
             return;
-        }
-    }
-
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
-    if (GrAAType::kCoverage == aaType) {
-        // TODO: Make GrShape check for nested rects.
-        SkRect rects[2];
-        if (shape.style().isSimpleFill() && fills_as_nested_rects(viewMatrix, path, rects)) {
-            // Concave AA paths are expensive - try to avoid them for special cases
+        } else if (GrAAType::kCoverage == aaType && shape.style().isSimpleFill() &&
+                   viewMatrix.rectStaysRect()) {
+            // TODO: the rectStaysRect restriction could be lifted if we were willing to apply
+            // the matrix to all the points individually rather than just to the rect
             SkRect rects[2];
-
-            if (fills_as_nested_rects(viewMatrix, path, rects)) {
-                std::unique_ptr<GrDrawOp> op =
-                        GrRectOpFactory::MakeAAFillNestedRects(std::move(paint), viewMatrix, rects);
+            if (shape.asNestedRects(rects)) {
+                // Concave AA paths are expensive - try to avoid them for special cases
+                std::unique_ptr<GrDrawOp> op = GrStrokeRectOp::MakeNested(
+                                fContext, std::move(paint), viewMatrix, rects);
                 if (op) {
                     this->addDrawOp(clip, std::move(op));
                 }
-                // A null return indicates that there is nothing to draw in this case.
+                // Returning here indicates that there is nothing to draw in this case.
                 return;
             }
         }
     }
+
     this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, shape);
 }
 
@@ -1540,9 +2105,11 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
                                    fRenderTargetContext->fContext);
 
     if (path.isEmpty() && path.isInverseFillType()) {
-        this->drawAndStencilRect(clip, ss, op, invert, GrAA::kNo, SkMatrix::I(),
-                                 SkRect::MakeIWH(fRenderTargetContext->width(),
-                                                 fRenderTargetContext->height()));
+        GrPaint paint;
+        paint.setCoverageSetOpXPFactory(op, invert);
+        this->stencilRect(clip, ss, std::move(paint), GrAA::kNo, SkMatrix::I(),
+                          SkRect::MakeIWH(fRenderTargetContext->width(),
+                                          fRenderTargetContext->height()));
         return true;
     }
 
@@ -1552,7 +2119,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
     // the src color (either the input alpha or in the frag shader) to implement
     // aa. If we have some future driver-mojo path AA that can do the right
     // thing WRT to the blend then we'll need some query on the PR.
-    GrAAType aaType = fRenderTargetContext->chooseAAType(aa, GrAllowMixedSamples::kNo);
+    GrAAType aaType = fRenderTargetContext->chooseAAType(aa);
     bool hasUserStencilSettings = !ss->isUnused();
 
     SkIRect clipConservativeBounds;
@@ -1562,10 +2129,13 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
     GrShape shape(path, GrStyle::SimpleFill());
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
     canDrawArgs.fCaps = fRenderTargetContext->caps();
+    canDrawArgs.fProxy = fRenderTargetContext->proxy();
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &shape;
     canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
     canDrawArgs.fAAType = aaType;
+    SkASSERT(!fRenderTargetContext->wrapsVkSecondaryCB());
+    canDrawArgs.fTargetIsWrappedVkSecondaryCB = false;
     canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
 
     // Don't allow the SW renderer
@@ -1587,7 +2157,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
                                       &viewMatrix,
                                       &shape,
                                       aaType,
-                                      fRenderTargetContext->colorSpaceInfo().isGammaCorrect()};
+                                      fRenderTargetContext->colorSpaceInfo().isLinearlyBlended()};
     pr->drawPath(args);
     return true;
 }
@@ -1595,7 +2165,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
 SkBudgeted GrRenderTargetContextPriv::isBudgeted() const {
     ASSERT_SINGLE_OWNER_PRIV
 
-    if (fRenderTargetContext->wasAbandoned()) {
+    if (fRenderTargetContext->fContext->priv().abandoned()) {
         return SkBudgeted::kNo;
     }
 
@@ -1613,22 +2183,23 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
     RETURN_IF_ABANDONED
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "internalDrawPath", fContext);
 
+    if (!viewMatrix.isFinite() || !originalShape.bounds().isFinite()) {
+        return;
+    }
+
     SkIRect clipConservativeBounds;
     clip.getConservativeBounds(this->width(), this->height(), &clipConservativeBounds, nullptr);
 
     GrShape tempShape;
-    // NVPR cannot handle hairlines, so this would get picked up by a different stencil and
-    // cover path renderer (i.e. default path renderer). The hairline renderer produces much
-    // smoother hairlines than MSAA.
-    GrAllowMixedSamples allowMixedSamples = originalShape.style().isSimpleHairline()
-                                                    ? GrAllowMixedSamples::kNo
-                                                    : GrAllowMixedSamples::kYes;
-    GrAAType aaType = this->chooseAAType(aa, allowMixedSamples);
+    GrAAType aaType = this->chooseAAType(aa);
+
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
     canDrawArgs.fCaps = this->caps();
+    canDrawArgs.fProxy = this->proxy();
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &originalShape;
     canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
+    canDrawArgs.fTargetIsWrappedVkSecondaryCB = this->wrapsVkSecondaryCB();
     canDrawArgs.fHasUserStencilSettings = false;
 
     GrPathRenderer* pr;
@@ -1683,7 +2254,7 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
                                       &viewMatrix,
                                       canDrawArgs.fShape,
                                       aaType,
-                                      this->colorSpaceInfo().isGammaCorrect()};
+                                      this->colorSpaceInfo().isLinearlyBlended()};
     pr->drawPath(args);
 }
 
@@ -1713,12 +2284,20 @@ static void op_bounds(SkRect* bounds, const GrOp* op) {
     }
 }
 
-uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDrawOp> op) {
+void GrRenderTargetContext::addOp(std::unique_ptr<GrOp> op) {
+    this->getOpsTask()->addOp(
+            std::move(op), GrTextureResolveManager(this->drawingManager()), *this->caps());
+}
+
+void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDrawOp> op,
+                                      const std::function<WillAddOpFn>& willAddFn) {
     ASSERT_SINGLE_OWNER
-    if (this->drawingManager()->wasAbandoned()) {
-        return SK_InvalidUniqueID;
+    if (fContext->priv().abandoned()) {
+        fContext->priv().opMemoryPool()->release(std::move(op));
+        return;
     }
     SkDEBUGCODE(this->validate();)
+    SkDEBUGCODE(op->fAddDrawOpCalled = true;)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "addDrawOp", fContext);
 
     // Setup clip
@@ -1726,39 +2305,61 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
     op_bounds(&bounds, op.get());
     GrAppliedClip appliedClip;
     GrDrawOp::FixedFunctionFlags fixedFunctionFlags = op->fixedFunctionFlags();
-    if (!clip.apply(fContext, this, fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA,
-                    fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil, &appliedClip,
-                    &bounds)) {
-        return SK_InvalidUniqueID;
+    bool usesHWAA = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA;
+    bool usesStencil = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil;
+
+    if (usesStencil) {
+        this->setNeedsStencil(usesHWAA);
     }
 
-    if (fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil ||
-        appliedClip.hasStencilClip()) {
-        this->getOpList()->setStencilLoadOp(GrLoadOp::kClear);
-
-        this->setNeedsStencil();
+    if (!clip.apply(fContext, this, usesHWAA, usesStencil, &appliedClip, &bounds)) {
+        fContext->priv().opMemoryPool()->release(std::move(op));
+        return;
     }
 
-    GrPixelConfigIsClamped dstIsClamped =
-            GrGetPixelConfigIsClamped(this->colorSpaceInfo().config());
+    SkASSERT((!usesStencil && !appliedClip.hasStencilClip()) || (fNumStencilSamples > 0));
+
+    GrClampType clampType = GrColorTypeClampType(this->colorSpaceInfo().colorType());
+    // MIXED SAMPLES TODO: If we start using mixed samples for clips we will need to check the clip
+    // here as well.
+    bool hasMixedSampledCoverage = (usesHWAA && this->numSamples() <= 1);
+#ifdef SK_DEBUG
+    if (hasMixedSampledCoverage) {
+        SkASSERT(usesStencil);
+        SkASSERT(fRenderTargetProxy->canUseMixedSamples(*this->caps()));
+    }
+#endif
+    GrProcessorSet::Analysis analysis = op->finalize(
+            *this->caps(), &appliedClip, hasMixedSampledCoverage, clampType);
+
     GrXferProcessor::DstProxy dstProxy;
-    if (GrDrawOp::RequiresDstTexture::kYes == op->finalize(*this->caps(), &appliedClip,
-                                                           dstIsClamped)) {
-        if (!this->setupDstProxy(this->asRenderTargetProxy(), clip, op->bounds(), &dstProxy)) {
-            return SK_InvalidUniqueID;
+    if (analysis.requiresDstTexture()) {
+        if (!this->setupDstProxy(clip, *op, &dstProxy)) {
+            fContext->priv().opMemoryPool()->release(std::move(op));
+            return;
         }
     }
 
     op->setClippedBounds(bounds);
-    return this->getRTOpList()->addOp(std::move(op), *this->caps(),
-                                      std::move(appliedClip), dstProxy);
+    auto opsTask = this->getOpsTask();
+    if (willAddFn) {
+        willAddFn(op.get(), opsTask->uniqueID());
+    }
+    opsTask->addDrawOp(std::move(op), analysis, std::move(appliedClip), dstProxy,
+                       GrTextureResolveManager(this->drawingManager()), *this->caps());
 }
 
-bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const GrClip& clip,
-                                          const SkRect& opBounds,
+bool GrRenderTargetContext::setupDstProxy(const GrClip& clip, const GrOp& op,
                                           GrXferProcessor::DstProxy* dstProxy) {
-    if (this->caps()->textureBarrierSupport()) {
-        if (GrTextureProxy* texProxy = rtProxy->asTextureProxy()) {
+    // If we are wrapping a vulkan secondary command buffer, we can't make a dst copy because we
+    // don't actually have a VkImage to make a copy of. Additionally we don't have the power to
+    // start and stop the render pass in order to make the copy.
+    if (fRenderTargetProxy->wrapsVkSecondaryCB()) {
+        return false;
+    }
+
+    if (this->caps()->textureBarrierSupport() && !fRenderTargetProxy->requiresManualMSAAResolve()) {
+        if (GrTextureProxy* texProxy = fRenderTargetProxy->asTextureProxy()) {
             // The render target is a texture, so we can read from it directly in the shader. The XP
             // will be responsible to detect this situation and request a texture barrier.
             dstProxy->setProxy(sk_ref_sp(texProxy));
@@ -1767,15 +2368,26 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
         }
     }
 
-    SkIRect copyRect = SkIRect::MakeWH(rtProxy->width(), rtProxy->height());
+    SkIRect copyRect = SkIRect::MakeWH(fRenderTargetProxy->width(), fRenderTargetProxy->height());
 
     SkIRect clippedRect;
-    clip.getConservativeBounds(rtProxy->width(), rtProxy->height(), &clippedRect);
-    SkIRect drawIBounds;
-    opBounds.roundOut(&drawIBounds);
-    // Cover up for any precision issues by outsetting the op bounds a pixel in each direction.
-    drawIBounds.outset(1, 1);
-    if (!clippedRect.intersect(drawIBounds)) {
+    clip.getConservativeBounds(
+            fRenderTargetProxy->width(), fRenderTargetProxy->height(), &clippedRect);
+    SkRect opBounds = op.bounds();
+    // If the op has aa bloating or is a infinitely thin geometry (hairline) outset the bounds by
+    // 0.5 pixels.
+    if (op.hasAABloat() || op.hasZeroArea()) {
+        opBounds.outset(0.5f, 0.5f);
+        // An antialiased/hairline draw can sometimes bleed outside of the clips bounds. For
+        // performance we may ignore the clip when the draw is entirely inside the clip is float
+        // space but will hit pixels just outside the clip when actually rasterizing.
+        clippedRect.outset(1, 1);
+        clippedRect.intersect(SkIRect::MakeWH(
+                fRenderTargetProxy->width(), fRenderTargetProxy->height()));
+    }
+    SkIRect opIBounds;
+    opBounds.roundOut(&opIBounds);
+    if (!clippedRect.intersect(opIBounds)) {
 #ifdef SK_DEBUG
         GrCapsDebugf(this->caps(), "setupDstTexture: Missed an early reject bailing on draw.");
 #endif
@@ -1784,51 +2396,55 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
 
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
     // have per-sample dst values by making the copy multisampled.
-    GrSurfaceDesc desc;
-    bool rectsMustMatch = false;
-    bool disallowSubrect = false;
-    GrSurfaceOrigin origin;
-    if (!this->caps()->initDescForDstCopy(rtProxy, &desc, &origin, &rectsMustMatch,
-                                          &disallowSubrect)) {
-        desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        desc.fConfig = rtProxy->config();
-        origin = rtProxy->origin();
-    }
+    GrCaps::DstCopyRestrictions restrictions = this->caps()->getDstCopyRestrictions(
+            fRenderTargetProxy.get(), this->colorSpaceInfo().colorType());
 
-    if (!disallowSubrect) {
+    if (!restrictions.fMustCopyWholeSrc) {
         copyRect = clippedRect;
     }
 
-    SkIPoint dstPoint, dstOffset;
+    SkIPoint dstOffset;
     SkBackingFit fit;
-    if (rectsMustMatch) {
-        desc.fWidth = rtProxy->width();
-        desc.fHeight = rtProxy->height();
-        dstPoint = {copyRect.fLeft, copyRect.fTop};
+    if (restrictions.fRectsMustMatch == GrSurfaceProxy::RectsMustMatch::kYes) {
         dstOffset = {0, 0};
         fit = SkBackingFit::kExact;
     } else {
-        desc.fWidth = copyRect.width();
-        desc.fHeight = copyRect.height();
-        dstPoint = {0, 0};
         dstOffset = {copyRect.fLeft, copyRect.fTop};
         fit = SkBackingFit::kApprox;
     }
+    sk_sp<GrTextureProxy> newProxy = GrSurfaceProxy::Copy(
+            fContext, fRenderTargetProxy.get(), GrMipMapped::kNo, copyRect, fit, SkBudgeted::kYes,
+            restrictions.fRectsMustMatch);
+    SkASSERT(newProxy);
 
-    sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeDeferredSurfaceContext(
-            desc, origin, GrMipMapped::kNo, fit, SkBudgeted::kYes,
-            sk_ref_sp(this->colorSpaceInfo().colorSpace()));
-    if (!sContext) {
-        SkDebugf("setupDstTexture: surfaceContext creation failed.\n");
-        return false;
-    }
-
-    if (!sContext->copy(rtProxy, copyRect, dstPoint)) {
-        SkDebugf("setupDstTexture: copy failed.\n");
-        return false;
-    }
-
-    dstProxy->setProxy(sContext->asTextureProxyRef());
+    dstProxy->setProxy(std::move(newProxy));
     dstProxy->setOffset(dstOffset);
     return true;
 }
+
+bool GrRenderTargetContext::blitTexture(GrTextureProxy* src, const SkIRect& srcRect,
+                                        const SkIPoint& dstPoint) {
+    SkIRect clippedSrcRect;
+    SkIPoint clippedDstPoint;
+    if (!GrClipSrcRectAndDstPoint(this->asSurfaceProxy()->isize(), src->isize(), srcRect, dstPoint,
+                                  &clippedSrcRect, &clippedDstPoint)) {
+        return false;
+    }
+
+    GrPaint paint;
+    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+    auto fp = GrSimpleTextureEffect::Make(sk_ref_sp(src->asTextureProxy()),
+                                          SkMatrix::I());
+    if (!fp) {
+        return false;
+    }
+    paint.addColorFragmentProcessor(std::move(fp));
+
+    this->fillRectToRect(
+            GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+            SkRect::MakeXYWH(clippedDstPoint.fX, clippedDstPoint.fY, clippedSrcRect.width(),
+                             clippedSrcRect.height()),
+            SkRect::Make(clippedSrcRect));
+    return true;
+}
+

@@ -5,13 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkParsePath.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkString.h"
+#include "include/utils/SkParsePath.h"
 
-DEF_SIMPLE_GM(crbug_691386, canvas, 256, 256) {
+DEF_SIMPLE_GM_CAN_FAIL(crbug_691386, canvas, errorMsg, 256, 256) {
     SkPath path;
     if (!SkParsePath::FromSVGString("M -1 0 A 1 1 0 0 0 1 0 Z", &path)) {
-        return;
+        *errorMsg = "Failed to parse path.";
+        return skiagm::DrawResult::kFail;
     }
     SkPaint p;
     p.setStyle(SkPaint::kStroke_Style);
@@ -19,4 +24,5 @@ DEF_SIMPLE_GM(crbug_691386, canvas, 256, 256) {
     canvas->scale(96.0f, 96.0f);
     canvas->translate(1.25f, 1.25f);
     canvas->drawPath(path, p);
+    return skiagm::DrawResult::kOk;
 }

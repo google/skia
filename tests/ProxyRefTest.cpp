@@ -7,193 +7,116 @@
 
 // This is a GPU-backend specific test.
 
-#include "Test.h"
+#include "tests/Test.h"
 
-#if SK_SUPPORT_GPU
-#include "GrContextPriv.h"
-#include "GrGpuResourceRef.h"
-#include "GrProxyProvider.h"
-#include "GrRenderTargetProxy.h"
-#include "GrResourceProvider.h"
-#include "GrSurfaceProxy.h"
-#include "GrTexture.h"
-#include "GrTextureProxy.h"
-
-int32_t GrIORefProxy::getProxyRefCnt_TestOnly() const {
-    return fRefCnt;
-}
-
-int32_t GrIORefProxy::getBackingRefCnt_TestOnly() const {
-    if (fTarget) {
-        return fTarget->fRefCnt;
-    }
-
-    return fRefCnt;
-}
-
-int32_t GrIORefProxy::getPendingReadCnt_TestOnly() const {
-    if (fTarget) {
-        return fTarget->fPendingReads;
-    }
-
-    return fPendingReads;
-}
-
-int32_t GrIORefProxy::getPendingWriteCnt_TestOnly() const {
-    if (fTarget) {
-        return fTarget->fPendingWrites;
-    }
-
-    return fPendingWrites;
-}
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRenderTargetProxy.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSurfaceProxy.h"
+#include "src/gpu/GrTextureProxy.h"
 
 static const int kWidthHeight = 128;
 
 static void check_refs(skiatest::Reporter* reporter,
                        GrTextureProxy* proxy,
                        int32_t expectedProxyRefs,
-                       int32_t expectedBackingRefs,
-                       int32_t expectedNumReads,
-                       int32_t expectedNumWrites) {
-    REPORTER_ASSERT(reporter, proxy->getProxyRefCnt_TestOnly() == expectedProxyRefs);
-    REPORTER_ASSERT(reporter, proxy->getBackingRefCnt_TestOnly() == expectedBackingRefs);
-    REPORTER_ASSERT(reporter, proxy->getPendingReadCnt_TestOnly() == expectedNumReads);
-    REPORTER_ASSERT(reporter, proxy->getPendingWriteCnt_TestOnly() == expectedNumWrites);
+                       int32_t expectedBackingRefs) {
+    int32_t actualProxyRefs = proxy->refCnt();
+    int32_t actualBackingRefs = proxy->testingOnly_getBackingRefCnt();
 
-    SkASSERT(proxy->getProxyRefCnt_TestOnly() == expectedProxyRefs);
-    SkASSERT(proxy->getBackingRefCnt_TestOnly() == expectedBackingRefs);
-    SkASSERT(proxy->getPendingReadCnt_TestOnly() == expectedNumReads);
-    SkASSERT(proxy->getPendingWriteCnt_TestOnly() == expectedNumWrites);
+    SkASSERT(actualProxyRefs == expectedProxyRefs);
+    SkASSERT(actualBackingRefs == expectedBackingRefs);
+
+    REPORTER_ASSERT(reporter, actualProxyRefs == expectedProxyRefs);
+    REPORTER_ASSERT(reporter, actualBackingRefs == expectedBackingRefs);
 }
 
-static sk_sp<GrTextureProxy> make_deferred(GrProxyProvider* proxyProvider) {
+static sk_sp<GrTextureProxy> make_deferred(GrContext* context) {
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    const GrCaps* caps = context->priv().caps();
+
     GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = kWidthHeight;
     desc.fHeight = kWidthHeight;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    return proxyProvider->createProxy(desc, kBottomLeft_GrSurfaceOrigin, SkBackingFit::kApprox,
-                                      SkBudgeted::kYes, GrInternalSurfaceFlags::kNoPendingIO);
+    const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
+                                                                 GrRenderable::kYes);
+    return proxyProvider->createProxy(format, desc, GrRenderable::kYes, 1,
+                                      kBottomLeft_GrSurfaceOrigin, GrMipMapped::kNo,
+                                      SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
 }
 
-static sk_sp<GrTextureProxy> make_wrapped(GrProxyProvider* proxyProvider) {
-    GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = kWidthHeight;
-    desc.fHeight = kWidthHeight;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
+static sk_sp<GrTextureProxy> make_wrapped(GrContext* context) {
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
-    return proxyProvider->createInstantiatedProxy(desc, kBottomLeft_GrSurfaceOrigin,
-                                                  SkBackingFit::kExact, SkBudgeted::kNo);
+    return proxyProvider->testingOnly_createInstantiatedProxy(
+            {kWidthHeight, kWidthHeight}, GrColorType::kRGBA_8888, GrRenderable::kYes, 1,
+            kBottomLeft_GrSurfaceOrigin, SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
-    GrProxyProvider* proxyProvider = ctxInfo.grContext()->contextPriv().proxyProvider();
-    GrResourceProvider* resourceProvider = ctxInfo.grContext()->contextPriv().resourceProvider();
+    GrResourceProvider* resourceProvider = ctxInfo.grContext()->priv().resourceProvider();
 
     for (auto make : { make_deferred, make_wrapped }) {
-        // A single write
+        // An extra ref
         {
-            sk_sp<GrTextureProxy> proxy((*make)(proxyProvider));
-            if (proxy.get()) {
-                GrPendingIOResource<GrSurfaceProxy, kWrite_GrIOType> fWrite(proxy.get());
+            sk_sp<GrTextureProxy> proxy((*make)(ctxInfo.grContext()));
+            if (proxy) {
+                sk_sp<GrTextureProxy> extraRef(proxy);
 
-                static const int kExpectedReads = 0;
-                static const int kExpectedWrites = 1;
+                int backingRefs = proxy->isInstantiated() ? 1 : -1;
 
-                check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
+                check_refs(reporter, proxy.get(), 2, backingRefs);
 
                 proxy->instantiate(resourceProvider);
 
-                // In the deferred case, this checks that the refs transfered to the GrSurface
-                check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
+                check_refs(reporter, proxy.get(), 2, 1);
             }
-        }
-
-        // A single read
-        {
-            sk_sp<GrTextureProxy> proxy((*make)(proxyProvider));
-            if (proxy.get()) {
-                GrPendingIOResource<GrSurfaceProxy, kRead_GrIOType> fRead(proxy.get());
-
-                static const int kExpectedReads = 1;
-                static const int kExpectedWrites = 0;
-
-                check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
-
-                proxy->instantiate(resourceProvider);
-
-                // In the deferred case, this checks that the refs transfered to the GrSurface
-                check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
-            }
-        }
-
-        // A single read/write pair
-        {
-            sk_sp<GrTextureProxy> proxy((*make)(proxyProvider));
-            if (proxy.get()) {
-                GrPendingIOResource<GrSurfaceProxy, kRW_GrIOType> fRW(proxy.get());
-
-                static const int kExpectedReads = 1;
-                static const int kExpectedWrites = 1;
-
-                check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
-
-                proxy->instantiate(resourceProvider);
-
-                // In the deferred case, this checks that the refs transferred to the GrSurface
-                check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
-            }
+            check_refs(reporter, proxy.get(), 1, 1);
         }
 
         // Multiple normal refs
         {
-            sk_sp<GrTextureProxy> proxy((*make)(proxyProvider));
+            sk_sp<GrTextureProxy> proxy((*make)(ctxInfo.grContext()));
             if (proxy.get()) {
                 proxy->ref();
                 proxy->ref();
 
-                static const int kExpectedReads = 0;
-                static const int kExpectedWrites = 0;
+                int backingRefs = proxy->isInstantiated() ? 1 : -1;
 
-                check_refs(reporter, proxy.get(), 3, 3,kExpectedReads, kExpectedWrites);
+                check_refs(reporter, proxy.get(), 3, backingRefs);
 
                 proxy->instantiate(resourceProvider);
 
-                // In the deferred case, this checks that the refs transferred to the GrSurface
-                check_refs(reporter, proxy.get(), 3, 3, kExpectedReads, kExpectedWrites);
+                check_refs(reporter, proxy.get(), 3, 1);
 
                 proxy->unref();
                 proxy->unref();
             }
+            check_refs(reporter, proxy.get(), 1, 1);
         }
 
         // Continue using (reffing) proxy after instantiation
         {
-            sk_sp<GrTextureProxy> proxy((*make)(proxyProvider));
-            if (proxy.get()) {
-                proxy->ref();
+            sk_sp<GrTextureProxy> proxy((*make)(ctxInfo.grContext()));
+            if (proxy) {
+                sk_sp<GrTextureProxy> firstExtraRef(proxy);
 
-                GrPendingIOResource<GrSurfaceProxy, kWrite_GrIOType> fWrite(proxy.get());
+                int backingRefs = proxy->isInstantiated() ? 1 : -1;
 
-                static const int kExpectedWrites = 1;
-
-                check_refs(reporter, proxy.get(), 2, 2, 0, kExpectedWrites);
+                check_refs(reporter, proxy.get(), 2, backingRefs);
 
                 proxy->instantiate(resourceProvider);
 
-                // In the deferred case, this checks that the refs transfered to the GrSurface
-                check_refs(reporter, proxy.get(), 2, 2, 0, kExpectedWrites);
+                check_refs(reporter, proxy.get(), 2, 1);
 
-                proxy->unref();
-                check_refs(reporter, proxy.get(), 1, 1, 0, kExpectedWrites);
-
-                GrPendingIOResource<GrSurfaceProxy, kRead_GrIOType> fRead(proxy.get());
-                check_refs(reporter, proxy.get(), 1, 1, 1, kExpectedWrites);
+                sk_sp<GrTextureProxy> secondExtraRef(proxy);
+                check_refs(reporter, proxy.get(), 3, 1);
             }
+            check_refs(reporter, proxy.get(), 1, 1);
         }
     }
 }
-
-#endif

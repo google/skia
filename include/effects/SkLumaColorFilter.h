@@ -8,24 +8,30 @@
 #ifndef SkLumaColorFilter_DEFINED
 #define SkLumaColorFilter_DEFINED
 
-#include "SkColorFilter.h"
-#include "SkRefCnt.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkRefCnt.h"
 
 class SkRasterPipeline;
 
 /**
- *  Luminance-to-alpha color filter, as defined in
- *  http://www.w3.org/TR/SVG/masking.html#Masking
- *  http://www.w3.org/TR/css-masking/#MaskValues
+ *  SkLumaColorFilter multiplies the luma of its input into the alpha channel,
+ *  and sets the red, green, and blue channels to zero.
  *
- *  The resulting color is black with transparency equal to the
- *  luminance value modulated by alpha:
+ *    SkLumaColorFilter(r,g,b,a) = {0,0,0, a * luma(r,g,b)}
  *
- *    C' = [ Lum * a, 0, 0, 0 ]
+ *  This is similar to a luminanceToAlpha feColorMatrix,
+ *  but note how this filter folds in the previous alpha,
+ *  something an feColorMatrix cannot do.
  *
+ *    feColorMatrix(luminanceToAlpha; r,g,b,a) = {0,0,0, luma(r,g,b)}
+ *
+ *  (Despite its name, an feColorMatrix using luminanceToAlpha does
+ *  actually compute luma, a dot-product of gamma-encoded color channels,
+ *  not luminance, a dot-product of linear color channels.  So at least
+ *  SkLumaColorFilter and feColorMatrix+luminanceToAlpha agree there.)
  */
 
- #include "SkFlattenable.h"
+ #include "include/core/SkFlattenable.h"
 
 class SK_API SkLumaColorFilter : public SkColorFilter {
 public:
@@ -33,22 +39,17 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrContext*, const GrColorSpaceInfo&) const override;
+            GrRecordingContext*, const GrColorSpaceInfo&) const override;
 #endif
-
-    void toString(SkString* str) const override;
-
-    Factory getFactory() const override { return CreateProc; }
 
 protected:
     void flatten(SkWriteBuffer&) const override;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkLumaColorFilter)
+
     SkLumaColorFilter();
-    void onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                        bool shaderIsOpaque) const override;
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
+    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
 
     typedef SkColorFilter INHERITED;
 };

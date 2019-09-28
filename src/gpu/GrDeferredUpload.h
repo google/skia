@@ -9,8 +9,8 @@
 #define GrDeferredUpload_DEFINED
 
 #include <functional>
-#include "GrTypes.h"
-#include "GrTypesPriv.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/GrTypesPriv.h"
 
 class GrTextureProxy;
 
@@ -117,7 +117,7 @@ private:
  */
 using GrDeferredTextureUploadWritePixelsFn =
         std::function<bool(GrTextureProxy*, int left, int top, int width, int height,
-                           GrColorType colorType, const void* buffer, size_t rowBytes)>;
+                           GrColorType srcColorType, const void* buffer, size_t rowBytes)>;
 
 /**
  * A deferred texture upload is simply a std::function that takes a

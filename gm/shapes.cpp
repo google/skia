@@ -5,9 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkRandom.h"
-#include "SkRRect.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTArray.h"
+#include "include/utils/SkRandom.h"
 
 namespace skiagm {
 
@@ -95,7 +107,7 @@ private:
         for (int i = 0; i < fShapes.count(); i++) {
             SkPaint paint(fPaint);
             paint.setColor(rand.nextU() & ~0x808080);
-            paint.setAlpha(128);  // Use alpha to detect double blends.
+            paint.setAlphaf(0.5f);  // Use alpha to detect double blends.
             const SkRRect& shape = fShapes[i];
             canvas->save();
             canvas->rotate(fRotations[i]);
@@ -141,7 +153,7 @@ private:
             inner.transform(innerXform, &xformedInner);
             SkPaint paint(fPaint);
             paint.setColor(rand.nextU() & ~0x808080);
-            paint.setAlpha(128);  // Use alpha to detect double blends.
+            paint.setAlphaf(0.5f);  // Use alpha to detect double blends.
             canvas->save();
             canvas->rotate(fRotations[i]);
             canvas->drawDRRect(outer, xformedInner, paint);

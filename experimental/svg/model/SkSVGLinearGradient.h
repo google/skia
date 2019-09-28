@@ -8,8 +8,8 @@
 #ifndef SkSVGLinearGradient_DEFINED
 #define SkSVGLinearGradient_DEFINED
 
-#include "SkSVGGradient.h"
-#include "SkSVGTypes.h"
+#include "experimental/svg/model/SkSVGGradient.h"
+#include "experimental/svg/model/SkSVGTypes.h"
 
 class SkSVGLinearGradient final : public SkSVGGradient {
 public:
@@ -28,7 +28,7 @@ protected:
 
     sk_sp<SkShader> onMakeShader(const SkSVGRenderContext&,
                                  const SkColor*, const SkScalar*, int count,
-                                 SkShader::TileMode, const SkMatrix&) const override;
+                                 SkTileMode, const SkMatrix&) const override;
 private:
     SkSVGLinearGradient();
 

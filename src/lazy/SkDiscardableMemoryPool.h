@@ -8,8 +8,8 @@
 #ifndef SkDiscardableMemoryPool_DEFINED
 #define SkDiscardableMemoryPool_DEFINED
 
-#include "SkDiscardableMemory.h"
-#include "SkMutex.h"
+#include "include/private/SkMutex.h"
+#include "src/core/SkDiscardableMemory.h"
 
 #ifndef SK_LAZY_CACHE_STATS
     #ifdef SK_DEBUG

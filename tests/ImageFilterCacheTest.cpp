@@ -5,16 +5,18 @@
   * found in the LICENSE file.
   */
 
-#include "Test.h"
+#include "tests/Test.h"
 
-#include "SkBitmap.h"
-#include "SkColorFilter.h"
-#include "SkColorFilterImageFilter.h"
-#include "SkImage.h"
-#include "SkImageFilter.h"
-#include "SkImageFilterCache.h"
-#include "SkMatrix.h"
-#include "SkSpecialImage.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/effects/SkImageFilters.h"
+#include "src/core/SkImageFilterCache.h"
+#include "src/core/SkSpecialImage.h"
+
+SK_USE_FLUENT_IMAGE_FILTER_TYPES
 
 static const int kSmallerSize = 10;
 static const int kPad = 3;
@@ -28,9 +30,8 @@ static SkBitmap create_bm() {
 }
 
 static sk_sp<SkImageFilter> make_filter() {
-    sk_sp<SkColorFilter> filter(SkColorFilter::MakeModeFilter(SK_ColorBLUE,
-                                                              SkBlendMode::kSrcIn));
-    return SkColorFilterImageFilter::Make(std::move(filter), nullptr, nullptr);
+    sk_sp<SkColorFilter> filter(SkColorFilters::Blend(SK_ColorBLUE, SkBlendMode::kSrcIn));
+    return SkImageFilters::ColorFilter(std::move(filter), nullptr, nullptr);
 }
 
 // Ensure the cache can return a cached image
@@ -46,15 +47,13 @@ static void test_find_existing(skiatest::Reporter* reporter,
 
     SkIPoint offset = SkIPoint::Make(3, 4);
     auto filter = make_filter();
-    cache->set(key1, image.get(), offset, filter.get());
+    cache->set(key1, filter.get(), skif::FilterResult<For::kOutput>(image, offset));
 
-    SkIPoint foundOffset;
+    skif::FilterResult<For::kOutput> foundImage;
+    REPORTER_ASSERT(reporter, cache->get(key1, &foundImage));
+    REPORTER_ASSERT(reporter, offset == foundImage.origin());
 
-    sk_sp<SkSpecialImage> foundImage = cache->get(key1, &foundOffset);
-    REPORTER_ASSERT(reporter, foundImage);
-    REPORTER_ASSERT(reporter, offset == foundOffset);
-
-    REPORTER_ASSERT(reporter, !cache->get(key2, &foundOffset));
+    REPORTER_ASSERT(reporter, !cache->get(key2, &foundImage));
 }
 
 // If either id is different or the clip or the matrix are different the
@@ -76,13 +75,13 @@ static void test_dont_find_if_diff_key(skiatest::Reporter* reporter,
 
     SkIPoint offset = SkIPoint::Make(3, 4);
     auto filter = make_filter();
-    cache->set(key0, image.get(), offset, filter.get());
+    cache->set(key0, filter.get(), skif::FilterResult<For::kOutput>(image, offset));
 
-    SkIPoint foundOffset;
-    REPORTER_ASSERT(reporter, !cache->get(key1, &foundOffset));
-    REPORTER_ASSERT(reporter, !cache->get(key2, &foundOffset));
-    REPORTER_ASSERT(reporter, !cache->get(key3, &foundOffset));
-    REPORTER_ASSERT(reporter, !cache->get(key4, &foundOffset));
+    skif::FilterResult<For::kOutput> foundImage;
+    REPORTER_ASSERT(reporter, !cache->get(key1, &foundImage));
+    REPORTER_ASSERT(reporter, !cache->get(key2, &foundImage));
+    REPORTER_ASSERT(reporter, !cache->get(key3, &foundImage));
+    REPORTER_ASSERT(reporter, !cache->get(key4, &foundImage));
 }
 
 // Test purging when the max cache size is exceeded
@@ -97,18 +96,17 @@ static void test_internal_purge(skiatest::Reporter* reporter, const sk_sp<SkSpec
 
     SkIPoint offset = SkIPoint::Make(3, 4);
     auto filter1 = make_filter();
-    cache->set(key1, image.get(), offset, filter1.get());
+    cache->set(key1, filter1.get(), skif::FilterResult<For::kOutput>(image, offset));
 
-    SkIPoint foundOffset;
-
-    REPORTER_ASSERT(reporter, cache->get(key1, &foundOffset));
+    skif::FilterResult<For::kOutput> foundImage;
+    REPORTER_ASSERT(reporter, cache->get(key1, &foundImage));
 
     // This should knock the first one out of the cache
     auto filter2 = make_filter();
-    cache->set(key2, image.get(), offset, filter2.get());
+    cache->set(key2, filter2.get(), skif::FilterResult<For::kOutput>(image, offset));
 
-    REPORTER_ASSERT(reporter, cache->get(key2, &foundOffset));
-    REPORTER_ASSERT(reporter, !cache->get(key1, &foundOffset));
+    REPORTER_ASSERT(reporter, cache->get(key2, &foundImage));
+    REPORTER_ASSERT(reporter, !cache->get(key1, &foundImage));
 }
 
 // Exercise the purgeByKey and purge methods
@@ -125,26 +123,25 @@ static void test_explicit_purging(skiatest::Reporter* reporter,
     SkIPoint offset = SkIPoint::Make(3, 4);
     auto filter1 = make_filter();
     auto filter2 = make_filter();
-    cache->set(key1, image.get(), offset, filter1.get());
-    cache->set(key2, image.get(), offset, filter2.get());
+    cache->set(key1, filter1.get(), skif::FilterResult<For::kOutput>(image, offset));
+    cache->set(key2, filter2.get(), skif::FilterResult<For::kOutput>(image, offset));
     SkDEBUGCODE(REPORTER_ASSERT(reporter, 2 == cache->count());)
 
-    SkIPoint foundOffset;
-
-    REPORTER_ASSERT(reporter, cache->get(key1, &foundOffset));
-    REPORTER_ASSERT(reporter, cache->get(key2, &foundOffset));
+    skif::FilterResult<For::kOutput> foundImage;
+    REPORTER_ASSERT(reporter, cache->get(key1, &foundImage));
+    REPORTER_ASSERT(reporter, cache->get(key2, &foundImage));
 
     cache->purgeByImageFilter(filter1.get());
     SkDEBUGCODE(REPORTER_ASSERT(reporter, 1 == cache->count());)
 
-    REPORTER_ASSERT(reporter, !cache->get(key1, &foundOffset));
-    REPORTER_ASSERT(reporter, cache->get(key2, &foundOffset));
+    REPORTER_ASSERT(reporter, !cache->get(key1, &foundImage));
+    REPORTER_ASSERT(reporter, cache->get(key2, &foundImage));
 
     cache->purge();
     SkDEBUGCODE(REPORTER_ASSERT(reporter, 0 == cache->count());)
 
-    REPORTER_ASSERT(reporter, !cache->get(key1, &foundOffset));
-    REPORTER_ASSERT(reporter, !cache->get(key2, &foundOffset));
+    REPORTER_ASSERT(reporter, !cache->get(key1, &foundImage));
+    REPORTER_ASSERT(reporter, !cache->get(key2, &foundImage));
 }
 
 DEF_TEST(ImageFilterCache_RasterBacked, reporter) {
@@ -166,16 +163,16 @@ DEF_TEST(ImageFilterCache_RasterBacked, reporter) {
 
 
 // Shared test code for both the raster and gpu-backed image cases
-static void test_image_backed(skiatest::Reporter* reporter, const sk_sp<SkImage>& srcImage) {
+static void test_image_backed(skiatest::Reporter* reporter,
+                              GrContext* context,
+                              const sk_sp<SkImage>& srcImage) {
     const SkIRect& full = SkIRect::MakeWH(kFullSize, kFullSize);
-    SkColorSpace* legacyColorSpace = nullptr;
 
-    sk_sp<SkSpecialImage> fullImg(SkSpecialImage::MakeFromImage(full, srcImage, legacyColorSpace));
+    sk_sp<SkSpecialImage> fullImg(SkSpecialImage::MakeFromImage(context, full, srcImage));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
-    sk_sp<SkSpecialImage> subsetImg(SkSpecialImage::MakeFromImage(subset, srcImage,
-                                                                  legacyColorSpace));
+    sk_sp<SkSpecialImage> subsetImg(SkSpecialImage::MakeFromImage(context, subset, srcImage));
 
     test_find_existing(reporter, fullImg, subsetImg);
     test_dont_find_if_diff_key(reporter, fullImg, subsetImg);
@@ -188,44 +185,35 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
 
     sk_sp<SkImage> srcImage(SkImage::MakeFromBitmap(srcBM));
 
-    test_image_backed(reporter, srcImage);
+    test_image_backed(reporter, nullptr, srcImage);
 }
 
-#if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrProxyProvider.h"
-#include "GrResourceProvider.h"
-#include "GrSurfaceProxyPriv.h"
-#include "GrTest.h"
-#include "GrTexture.h"
-#include "GrTextureProxy.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrTexture.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSurfaceProxyPriv.h"
+#include "src/gpu/GrTextureProxy.h"
 
 static sk_sp<GrTextureProxy> create_proxy(GrProxyProvider* proxyProvider) {
     SkBitmap srcBM = create_bm();
-
-    GrSurfaceDesc desc;
-    desc.fFlags  = kNone_GrSurfaceFlags;
-    desc.fWidth  = kFullSize;
-    desc.fHeight = kFullSize;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
-
-    return proxyProvider->createTextureProxy(desc, SkBudgeted::kYes, srcBM.getPixels(),
-                                             srcBM.rowBytes());
+    sk_sp<SkImage> srcImage(SkImage::MakeFromBitmap(srcBM));
+    return proxyProvider->createTextureProxy(srcImage, 1, SkBudgeted::kYes, SkBackingFit::kExact);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    sk_sp<GrTextureProxy> srcProxy(create_proxy(context->contextPriv().proxyProvider()));
+    sk_sp<GrTextureProxy> srcProxy(create_proxy(context->priv().proxyProvider()));
     if (!srcProxy) {
         return;
     }
 
-    if (!srcProxy->instantiate(context->contextPriv().resourceProvider())) {
+    if (!srcProxy->instantiate(context->priv().resourceProvider())) {
         return;
     }
-    GrTexture* tex = srcProxy->priv().peekTexture();
+    GrTexture* tex = srcProxy->peekTexture();
 
     GrBackendTexture backendTex = tex->getBackendTexture();
 
@@ -252,13 +240,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
     }
     REPORTER_ASSERT(reporter, readBackOrigin == texOrigin);
 
-    test_image_backed(reporter, srcImage);
+    test_image_backed(reporter, context, srcImage);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    sk_sp<GrTextureProxy> srcProxy(create_proxy(context->contextPriv().proxyProvider()));
+    sk_sp<GrTextureProxy> srcProxy(create_proxy(context->priv().proxyProvider()));
     if (!srcProxy) {
         return;
     }
@@ -282,4 +270,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo
     test_internal_purge(reporter, fullImg);
     test_explicit_purging(reporter, fullImg, subsetImg);
 }
-#endif

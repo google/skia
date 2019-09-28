@@ -5,23 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "SkAAClip.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkImageInfo.h"
-#include "SkMalloc.h"
-#include "SkMask.h"
-#include "SkMatrix.h"
-#include "SkPath.h"
-#include "SkRRect.h"
-#include "SkRandom.h"
-#include "SkRasterClip.h"
-#include "SkRect.h"
-#include "SkRegion.h"
-#include "SkScalar.h"
-#include "SkTypes.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkMalloc.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkAAClip.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkRasterClip.h"
+#include "tests/Test.h"
 
 #include <string.h>
 
@@ -307,7 +307,7 @@ static void test_path_with_hole(skiatest::Reporter* reporter) {
         0xFF, 0xFF, 0xFF, 0xFF,
     };
     SkMask expected;
-    expected.fBounds.set(0, 0, 4, 6);
+    expected.fBounds.setWH(4, 6);
     expected.fRowBytes = 4;
     expected.fFormat = SkMask::kA8_Format;
     expected.fImage = (uint8_t*)gExpectedImage;

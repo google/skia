@@ -19,7 +19,7 @@ import subprocess
 # scripting gcloud and also for updates.
 BASE_URL = 'https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/%s'
 GCLOUD_BASE_NAME='google-cloud-sdk'
-GCLOUD_ARCHIVE = '%s-200.0.0-linux-x86_64.tar.gz' % GCLOUD_BASE_NAME
+GCLOUD_ARCHIVE = '%s-250.0.0-linux-x86_64.tar.gz' % GCLOUD_BASE_NAME
 GCLOUD_URL = BASE_URL % GCLOUD_ARCHIVE
 
 def create_asset(target_dir):
@@ -40,6 +40,19 @@ def create_asset(target_dir):
   subprocess.check_call([gcloud_exe, 'components',
                          'install', 'beta', 'cloud-datastore-emulator',
                          '--quiet'], env=env)
+  subprocess.check_call([gcloud_exe, 'components',
+                         'install', 'beta', 'bigtable',
+                         '--quiet'], env=env)
+  subprocess.check_call([gcloud_exe, 'components',
+                         'install', 'pubsub-emulator',
+                         '--quiet'], env=env)
+  subprocess.check_call([gcloud_exe, 'components',
+                         'install', 'beta', 'cloud-firestore-emulator',
+                         '--quiet'], env=env)
+  # As of gcloud v250.0.0 and Cloud Firestore Emulator v1.4.6, there is a bug
+  # that something expects the JAR to be executable, but it isn't.
+  fs_jar = 'platform/cloud-firestore-emulator/cloud-firestore-emulator.jar'
+  subprocess.check_call(['chmod', '+x', os.path.join(target_dir, fs_jar)])
   subprocess.check_call([gcloud_exe, 'components','update', '--quiet'], env=env)
 
   # Remove the tarball.

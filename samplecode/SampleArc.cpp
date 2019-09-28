@@ -5,29 +5,28 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkAnimTimer.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkColorPriv.h"
-#include "SkCornerPathEffect.h"
-#include "SkDrawable.h"
-#include "SkGradientShader.h"
-#include "SkPath.h"
-#include "SkPathMeasure.h"
-#include "SkPictureRecorder.h"
-#include "SkRandom.h"
-#include "SkRegion.h"
-#include "SkShader.h"
-#include "SkString.h"
-#include "SkUtils.h"
-#include "SkView.h"
-#include "Sk1DPathEffect.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/effects/Sk1DPathEffect.h"
+#include "include/effects/SkCornerPathEffect.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/utils/SkRandom.h"
+#include "include/utils/SkTextUtils.h"
+#include "samplecode/Sample.h"
+#include "src/utils/SkUTF.h"
 
-#include "SkParsePath.h"
+#include "include/utils/SkParsePath.h"
 static void testparse() {
     SkRect r;
-    r.set(0, 0, 10, 10.5f);
+    r.setLTRB(0, 0, 10, 10.5f);
     SkPath p, p2;
     SkString str, str2;
 
@@ -37,7 +36,7 @@ static void testparse() {
     SkParsePath::ToSVGString(p2, &str2);
 }
 
-class ArcsView : public SampleView {
+class ArcsView : public Sample {
     class MyDrawable : public SkDrawable {
         SkRect   fR;
         SkScalar fSweep;
@@ -79,34 +78,11 @@ class ArcsView : public SampleView {
         }
     };
 
-public:
-    SkRect fRect;
+    SkRect fRect = {20, 20, 220, 220};
     sk_sp<MyDrawable> fAnimatingDrawable;
     sk_sp<SkDrawable> fRootDrawable;
 
-    ArcsView() {
-        testparse();
-        fSweep = SkIntToScalar(100);
-        this->setBGColor(0xFFDDDDDD);
-
-        fRect.set(0, 0, SkIntToScalar(200), SkIntToScalar(200));
-        fRect.offset(SkIntToScalar(20), SkIntToScalar(20));
-        fAnimatingDrawable = sk_make_sp<MyDrawable>(fRect);
-
-        SkPictureRecorder recorder;
-        this->drawRoot(recorder.beginRecording(SkRect::MakeWH(800, 500)));
-        fRootDrawable = recorder.finishRecordingAsDrawable();
-    }
-
-protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Arcs");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Arcs"); }
 
     static void DrawRectWithLines(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
         canvas->drawRect(r, p);
@@ -117,18 +93,14 @@ protected:
     }
 
     static void DrawLabel(SkCanvas* canvas, const SkRect& rect, SkScalar start, SkScalar sweep) {
-        SkPaint paint;
-
-        paint.setAntiAlias(true);
-        paint.setTextAlign(SkPaint::kCenter_Align);
-
+        SkFont font;
         SkString    str;
-
         str.appendScalar(start);
         str.append(", ");
         str.appendScalar(sweep);
-        canvas->drawString(str, rect.centerX(),
-                         rect.fBottom + paint.getTextSize() * 5/4, paint);
+        SkTextUtils::DrawString(canvas, str.c_str(), rect.centerX(),
+                         rect.fBottom + font.getSize() * 5/4, font, SkPaint(),
+                                SkTextUtils::kCenter_Align);
     }
 
     static void DrawArcs(SkCanvas* canvas) {
@@ -137,7 +109,7 @@ protected:
         SkScalar w = 75;
         SkScalar h = 50;
 
-        r.set(0, 0, w, h);
+        r.setWH(w, h);
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
 
@@ -186,23 +158,28 @@ protected:
         DrawArcs(canvas);
     }
 
+    void onOnceBeforeDraw() override {
+        testparse();
+        this->setBGColor(0xFFDDDDDD);
+
+        fAnimatingDrawable = sk_make_sp<MyDrawable>(fRect);
+
+        SkPictureRecorder recorder;
+        this->drawRoot(recorder.beginRecording(SkRect::MakeWH(800, 500)));
+        fRootDrawable = recorder.finishRecordingAsDrawable();
+    }
+
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawDrawable(fRootDrawable.get());
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
-        SkScalar angle = SkDoubleToScalar(fmod(timer.secs() * 360 / 24, 360));
-        fAnimatingDrawable->setSweep(angle);
+    bool onAnimate(double nanos) override {
+        SkScalar angle = SkDoubleToScalar(fmod(1e-9 * nanos * 360 / 24, 360));
+        if (fAnimatingDrawable) {
+            fAnimatingDrawable->setSweep(angle);
+        }
         return true;
     }
-
-private:
-    SkScalar fSweep;
-
-    typedef SampleView INHERITED;
 };
 
-//////////////////////////////////////////////////////////////////////////////
-
-static SkView* MyFactory() { return new ArcsView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new ArcsView(); )

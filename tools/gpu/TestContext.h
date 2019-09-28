@@ -9,11 +9,12 @@
 #ifndef TestContext_DEFINED
 #define TestContext_DEFINED
 
-#include "../private/SkTemplates.h"
-#include "FenceSync.h"
-#include "GrTypes.h"
-#include "SkRefCnt.h"
-#include "SkScopeExit.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkScopeExit.h"
+#include "tools/gpu/FenceSync.h"
 
 class GrContext;
 struct GrContextOptions;
@@ -58,7 +59,7 @@ public:
      */
     SkScopeExit SK_WARN_UNUSED_RESULT makeCurrentAndAutoRestore() const;
 
-    virtual GrBackend backend() = 0;
+    virtual GrBackendApi backend() = 0;
 
     virtual sk_sp<GrContext> makeGrContext(const GrContextOptions&);
 

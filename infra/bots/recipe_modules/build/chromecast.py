@@ -12,7 +12,13 @@ def compile_fn(api, checkout_root, out_dir):
   toolchain_dir = api.vars.slave_dir.join('cast_toolchain', 'armv7a')
   gles_dir = api.vars.slave_dir.join('chromebook_arm_gles')
 
-  extra_cflags = [
+  target  = ['-target', 'armv7a-cros-linux-gnueabihf']
+  sysroot = ['--sysroot',
+             '%s/usr/armv7a-cros-linux-gnueabihf' % toolchain_dir]
+
+  extra_asmflags = target
+
+  extra_cflags = target + sysroot + [
     '-I%s' % gles_dir.join('include'),
     '-DMESA_EGL_NO_X11_HEADERS',
     "-DSK_NO_COMMAND_BUFFER",
@@ -22,19 +28,25 @@ def compile_fn(api, checkout_root, out_dir):
     '-g0',
     ('-DDUMMY_cast_toolchain_version=%s' %
      api.run.asset_version('cast_toolchain', skia_dir)),
+
+    # Force older math.h function versions that shipped on the Chorizo.
+    '-include', '%s' % skia_dir.join('tools', 'force_older_glibc_math.h'),
   ]
 
-  extra_ldflags = [
-    # Chromecast does not package libstdc++
+  extra_ldflags = target + sysroot + [
+    # Chromecast does not package libc++.
     '-static-libstdc++', '-static-libgcc',
     '-L%s' % toolchain_dir.join('lib'),
+    '-L%s' % gles_dir.join('lib'),
+    '-fuse-ld=gold',
+    '-B%s/usr/libexec/gcc' % toolchain_dir,
   ]
 
   quote = lambda x: '"%s"' % x
   args = {
-    'cc': quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabi-gcc')),
-    'cxx': quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabi-g++')),
-    'ar': quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabi-ar')),
+    'cc':  quote(toolchain_dir.join('usr', 'bin', 'clang-9.elf')),
+    'cxx': quote(toolchain_dir.join('usr', 'bin', 'clang++-9.elf')),
+    'ar':  quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabihf-ar')),
     'target_cpu': quote(target_arch),
     'skia_use_fontconfig': 'false',
     'skia_enable_gpu': 'true',
@@ -44,10 +56,12 @@ def compile_fn(api, checkout_root, out_dir):
     # Makes the binary smaller
     'skia_use_icu': 'false',
     'skia_use_egl': 'true',
+    'werror': 'true',
   }
 
   if configuration != 'Debug':
     args['is_debug'] = 'false'
+  args['extra_asmflags'] = repr(extra_asmflags).replace("'", '"')
   args['extra_cflags'] = repr(extra_cflags).replace("'", '"')
   args['extra_ldflags'] = repr(extra_ldflags).replace("'", '"')
 
@@ -60,7 +74,7 @@ def compile_fn(api, checkout_root, out_dir):
             infra_step=True)
     api.run(api.step, 'gn gen', cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
     api.run(api.step, 'ninja',
-            cmd=['ninja', '-k', '0', '-C', out_dir, 'nanobench', 'dm'])
+            cmd=['ninja', '-C', out_dir, 'nanobench', 'dm'])
 
 
 def copy_extra_build_products(api, src, dst):

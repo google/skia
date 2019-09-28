@@ -5,23 +5,29 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "Test.h"
+#include "tests/Test.h"
+#include "tools/Resources.h"
 
-#include "SkBitmap.h"
-#include "SkColorPriv.h"
-#include "SkEncodedImageFormat.h"
-#include "SkImage.h"
-#include "SkJpegEncoder.h"
-#include "SkPngEncoder.h"
-#include "SkStream.h"
-#include "SkWebpEncoder.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkSurface.h"
+#include "include/encode/SkJpegEncoder.h"
+#include "include/encode/SkPngEncoder.h"
+#include "include/encode/SkWebpEncoder.h"
 
 #include "png.h"
 
 #include <algorithm>
 #include <string>
 #include <vector>
+
+// FIXME: Update the Google3 build's dependencies so it can run this test.
+#ifndef SK_BUILD_FOR_GOOGLE3
+#include "webp/decode.h"
+#endif
 
 static bool encode(SkEncodedImageFormat format, SkWStream* dst, const SkPixmap& src) {
     switch (format) {
@@ -129,6 +135,44 @@ static inline bool almost_equals(const SkBitmap& a, const SkBitmap& b, int toler
     }
 
     return true;
+}
+
+DEF_TEST(Encode_JPG, r) {
+    auto image = GetResourceAsImage("images/mandrill_128.png");
+    if (!image) {
+        return;
+    }
+
+    for (auto ct : { kRGBA_8888_SkColorType,
+                     kBGRA_8888_SkColorType,
+                     kRGB_565_SkColorType,
+                     kARGB_4444_SkColorType,
+                     kGray_8_SkColorType,
+                     kRGBA_F16_SkColorType }) {
+        for (auto at : { kPremul_SkAlphaType, kUnpremul_SkAlphaType, kOpaque_SkAlphaType }) {
+            auto info = SkImageInfo::Make(image->width(), image->height(), ct, at);
+            auto surface = SkSurface::MakeRaster(info);
+            auto canvas = surface->getCanvas();
+            canvas->drawImage(image, 0, 0);
+
+            SkBitmap bm;
+            bm.allocPixels(info);
+            if (!surface->makeImageSnapshot()->readPixels(bm.pixmap(), 0, 0)) {
+                ERRORF(r, "failed to readPixels! ct: %i\tat: %i\n", ct, at);
+                continue;
+            }
+            for (auto alphaOption : { SkJpegEncoder::AlphaOption::kIgnore,
+                                      SkJpegEncoder::AlphaOption::kBlendOnBlack }) {
+                SkJpegEncoder::Options opts;
+                opts.fAlphaOption = alphaOption;
+                SkNullWStream dummy;
+                if (!SkJpegEncoder::Encode(&dummy, bm.pixmap(), opts)) {
+                    REPORTER_ASSERT(r, ct == kARGB_4444_SkColorType
+                                    && alphaOption == SkJpegEncoder::AlphaOption::kBlendOnBlack);
+                }
+            }
+        }
+    }
 }
 
 DEF_TEST(Encode_JpegDownsample, r) {
@@ -286,6 +330,54 @@ DEF_TEST(Encode_PngOptions, r) {
     REPORTER_ASSERT(r, almost_equals(bm0, bm2, 0));
 }
 
+#ifndef SK_BUILD_FOR_GOOGLE3
+DEF_TEST(Encode_WebpQuality, r) {
+    SkBitmap bm;
+    bm.allocN32Pixels(100, 100);
+    bm.eraseColor(SK_ColorBLUE);
+
+    auto dataLossy    = SkEncodeBitmap(bm, SkEncodedImageFormat::kWEBP, 99);
+    auto dataLossLess = SkEncodeBitmap(bm, SkEncodedImageFormat::kWEBP, 100);
+
+    enum Format {
+        kMixed    = 0,
+        kLossy    = 1,
+        kLossless = 2,
+    };
+
+    auto test = [&r](const sk_sp<SkData>& data, Format expected) {
+        auto printFormat = [](int f) {
+            switch (f) {
+                case kMixed:    return "mixed";
+                case kLossy:    return "lossy";
+                case kLossless: return "lossless";
+                default:        return "unknown";
+            }
+        };
+
+        if (!data) {
+            ERRORF(r, "Failed to encode. Expected %s", printFormat(expected));
+            return;
+        }
+
+        WebPBitstreamFeatures features;
+        auto status = WebPGetFeatures(data->bytes(), data->size(), &features);
+        if (status != VP8_STATUS_OK) {
+            ERRORF(r, "Encode had an error %i. Expected %s", status, printFormat(expected));
+            return;
+        }
+
+        if (expected != features.format) {
+            ERRORF(r, "Expected %s encode, but got format %s", printFormat(expected),
+                                                               printFormat(features.format));
+        }
+    };
+
+    test(dataLossy,    kLossy);
+    test(dataLossLess, kLossless);
+}
+#endif
+
 DEF_TEST(Encode_WebpOptions, r) {
     SkBitmap bitmap;
     bool success = GetResourceAsBitmap("images/google_chrome.ico", &bitmap);
@@ -336,5 +428,5 @@ DEF_TEST(Encode_WebpOptions, r) {
     SkImage::MakeFromEncoded(data3)->asLegacyBitmap(&bm3);
     REPORTER_ASSERT(r, almost_equals(bm0, bm1, 0));
     REPORTER_ASSERT(r, almost_equals(bm0, bm2, 90));
-    REPORTER_ASSERT(r, almost_equals(bm2, bm3, 45));
+    REPORTER_ASSERT(r, almost_equals(bm2, bm3, 50));
 }

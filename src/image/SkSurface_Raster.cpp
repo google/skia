@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkSurface_Base.h"
-#include "SkImageInfoPriv.h"
-#include "SkImagePriv.h"
-#include "SkCanvas.h"
-#include "SkDevice.h"
-#include "SkMallocPixelRef.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkMallocPixelRef.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "src/core/SkDevice.h"
+#include "src/core/SkImagePriv.h"
+#include "src/image/SkSurface_Base.h"
 
 class SkSurface_Raster : public SkSurface_Base {
 public:
@@ -21,7 +21,7 @@ public:
 
     SkCanvas* onNewCanvas() override;
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
-    sk_sp<SkImage> onNewImageSnapshot() override;
+    sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset) override;
     void onWritePixels(const SkPixmap&, int x, int y) override;
     void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) override;
     void onCopyOnWrite(ContentChangeMode) override;
@@ -38,39 +38,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
-    if (!SkImageInfoIsValidCommon(info)) {
+    if (!SkImageInfoIsValid(info)) {
         return false;
-    }
-    if (info.isEmpty()) {
-        return false;
-    }
-
-    static const size_t kMaxTotalSize = SK_MaxS32;
-
-    // TODO(mtklein,brianosman): revisit all these color space decisions
-    switch (info.colorType()) {
-        case kAlpha_8_SkColorType:
-        case kGray_8_SkColorType:
-        case kRGB_565_SkColorType:
-        case kARGB_4444_SkColorType:
-        case kRGB_888x_SkColorType:
-        case kRGBA_1010102_SkColorType:
-        case kRGB_101010x_SkColorType:
-            if (info.colorSpace()) {
-                return false;
-            }
-            break;
-
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-            if (info.colorSpace() && !info.colorSpace()->gammaCloseToSRGB()) {
-                return false;
-            }
-            break;
-        case kRGBA_F16_SkColorType:
-            break;
-        default:
-            return false;
     }
 
     if (kIgnoreRowBytesValue == rowBytes) {
@@ -90,6 +59,7 @@ bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
     }
 
     uint64_t size = sk_64_mul(info.height(), rowBytes);
+    static const size_t kMaxTotalSize = SK_MaxS32;
     if (size > kMaxTotalSize) {
         return false;
     }
@@ -128,7 +98,16 @@ void SkSurface_Raster::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
     canvas->drawBitmap(fBitmap, x, y, paint);
 }
 
-sk_sp<SkImage> SkSurface_Raster::onNewImageSnapshot() {
+sk_sp<SkImage> SkSurface_Raster::onNewImageSnapshot(const SkIRect* subset) {
+    if (subset) {
+        SkASSERT(SkIRect::MakeWH(fBitmap.width(), fBitmap.height()).contains(*subset));
+        SkBitmap dst;
+        dst.allocPixels(fBitmap.info().makeWH(subset->width(), subset->height()));
+        SkAssertResult(fBitmap.readPixels(dst.pixmap(), subset->left(), subset->top()));
+        dst.setImmutable(); // key, so MakeFromBitmap doesn't make a copy of the buffer
+        return SkImage::MakeFromBitmap(dst);
+    }
+
     SkCopyPixelsMode cpm = kIfMutable_SkCopyPixelsMode;
     if (fWeOwnThePixels) {
         // SkImage_raster requires these pixels are immutable for its full lifetime.
@@ -210,7 +189,7 @@ sk_sp<SkSurface> SkSurface::MakeRaster(const SkImageInfo& info, size_t rowBytes,
         return nullptr;
     }
 
-    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeZeroed(info, rowBytes);
+    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeAllocate(info, rowBytes);
     if (!pr) {
         return nullptr;
     }
@@ -218,4 +197,9 @@ sk_sp<SkSurface> SkSurface::MakeRaster(const SkImageInfo& info, size_t rowBytes,
         SkASSERT(pr->rowBytes() == rowBytes);
     }
     return sk_make_sp<SkSurface_Raster>(info, std::move(pr), props);
+}
+
+sk_sp<SkSurface> SkSurface::MakeRasterN32Premul(int width, int height,
+                                                const SkSurfaceProps* surfaceProps) {
+    return MakeRaster(SkImageInfo::MakeN32Premul(width, height), surfaceProps);
 }

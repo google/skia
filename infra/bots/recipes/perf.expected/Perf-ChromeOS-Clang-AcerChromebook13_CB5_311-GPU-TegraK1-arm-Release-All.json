@@ -1,0 +1,762 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/tmp"
+    ],
+    "infra_step": true,
+    "name": "makedirs tmp_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[HOME]/ssh_machine.json",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "read ssh_machine.json"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "mkdir",
+      "-p",
+      "/home/chronos/user/resources"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "mkdir /home/chronos/user/resources"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "rm",
+      "-rf",
+      "/home/chronos/user/bin"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /home/chronos/user/bin"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "mkdir",
+      "-p",
+      "/home/chronos/user/bin"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "mkdir /home/chronos/user/bin"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "sudo",
+      "mount",
+      "-i",
+      "-o",
+      "remount,exec",
+      "/home/chronos"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "remount /home/chronos/user/ as exec"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)\n",
+      "[START_DIR]/skia/resources",
+      "foo@127.0.0.1:/home/chronos/user/resources"
+    ],
+    "infra_step": true,
+    "name": "scp -r [START_DIR]/skia/resources foo@127.0.0.1:/home/chronos/user/resources",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@src = sys.argv[1] + '/*'@@@",
+      "@@@STEP_LOG_LINE@python.inline@dest   = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/skia/infra/bots/assets/skp/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get skp VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "42",
+      "[START_DIR]/tmp/SKP_VERSION"
+    ],
+    "infra_step": true,
+    "name": "write SKP_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SKP_VERSION@42@@@",
+      "@@@STEP_LOG_END@SKP_VERSION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "cat",
+      "/home/chronos/user/SKP_VERSION"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "read /home/chronos/user/SKP_VERSION"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "rm",
+      "-f",
+      "/home/chronos/user/SKP_VERSION"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /home/chronos/user/SKP_VERSION"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "rm",
+      "-rf",
+      "/home/chronos/user/skps"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /home/chronos/user/skps"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "mkdir",
+      "-p",
+      "/home/chronos/user/skps"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "mkdir /home/chronos/user/skps"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)\n",
+      "[START_DIR]/skp",
+      "foo@127.0.0.1:/home/chronos/user/skps"
+    ],
+    "infra_step": true,
+    "name": "scp -r [START_DIR]/skp foo@127.0.0.1:/home/chronos/user/skps",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@src = sys.argv[1] + '/*'@@@",
+      "@@@STEP_LOG_LINE@python.inline@dest   = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/tmp/SKP_VERSION",
+      "foo@127.0.0.1:/home/chronos/user/SKP_VERSION"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "scp [START_DIR]/tmp/SKP_VERSION foo@127.0.0.1:/home/chronos/user/SKP_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/skia/infra/bots/assets/skimage/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get skimage VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "42",
+      "[START_DIR]/tmp/SK_IMAGE_VERSION"
+    ],
+    "infra_step": true,
+    "name": "write SK_IMAGE_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SK_IMAGE_VERSION@42@@@",
+      "@@@STEP_LOG_END@SK_IMAGE_VERSION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "cat",
+      "/home/chronos/user/SK_IMAGE_VERSION"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "read /home/chronos/user/SK_IMAGE_VERSION"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "rm",
+      "-f",
+      "/home/chronos/user/SK_IMAGE_VERSION"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /home/chronos/user/SK_IMAGE_VERSION"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "rm",
+      "-rf",
+      "/home/chronos/user/images"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /home/chronos/user/images"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "mkdir",
+      "-p",
+      "/home/chronos/user/images"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "mkdir /home/chronos/user/images"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)\n",
+      "[START_DIR]/skimage",
+      "foo@127.0.0.1:/home/chronos/user/images"
+    ],
+    "infra_step": true,
+    "name": "scp -r [START_DIR]/skimage foo@127.0.0.1:/home/chronos/user/images",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@src = sys.argv[1] + '/*'@@@",
+      "@@@STEP_LOG_LINE@python.inline@dest   = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/tmp/SK_IMAGE_VERSION",
+      "foo@127.0.0.1:/home/chronos/user/SK_IMAGE_VERSION"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "scp [START_DIR]/tmp/SK_IMAGE_VERSION foo@127.0.0.1:/home/chronos/user/SK_IMAGE_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/skia/infra/bots/assets/svg/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get svg VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "42",
+      "[START_DIR]/tmp/SVG_VERSION"
+    ],
+    "infra_step": true,
+    "name": "write SVG_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SVG_VERSION@42@@@",
+      "@@@STEP_LOG_END@SVG_VERSION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "cat",
+      "/home/chronos/user/SVG_VERSION"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "read /home/chronos/user/SVG_VERSION"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "rm",
+      "-f",
+      "/home/chronos/user/SVG_VERSION"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /home/chronos/user/SVG_VERSION"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "rm",
+      "-rf",
+      "/home/chronos/user/svgs"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /home/chronos/user/svgs"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "mkdir",
+      "-p",
+      "/home/chronos/user/svgs"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "mkdir /home/chronos/user/svgs"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)\n",
+      "[START_DIR]/svg",
+      "foo@127.0.0.1:/home/chronos/user/svgs"
+    ],
+    "infra_step": true,
+    "name": "scp -r [START_DIR]/svg foo@127.0.0.1:/home/chronos/user/svgs",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@src = sys.argv[1] + '/*'@@@",
+      "@@@STEP_LOG_LINE@python.inline@dest   = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/tmp/SVG_VERSION",
+      "foo@127.0.0.1:/home/chronos/user/SVG_VERSION"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "scp [START_DIR]/tmp/SVG_VERSION foo@127.0.0.1:/home/chronos/user/SVG_VERSION"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "rm",
+      "-rf",
+      "/home/chronos/user/perf"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /home/chronos/user/perf"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "mkdir",
+      "-p",
+      "/home/chronos/user/perf"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "mkdir /home/chronos/user/perf"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+    ],
+    "name": "get swarming bot id",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
+    ],
+    "name": "get swarming task id",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "scp",
+      "[START_DIR]/build/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "scp [START_DIR]/build/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "chmod",
+      "+x",
+      "/home/chronos/user/bin/nanobench"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "make nanobench executable"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "/home/chronos/user/bin/nanobench",
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "gles",
+      "--match",
+      "~^shapes_rrect_inner_rrect_50_500x500$",
+      "~inc0.gif",
+      "~inc1.gif",
+      "~incInterlaced.gif",
+      "~inc0.jpg",
+      "~incGray.jpg",
+      "~inc0.wbmp",
+      "~inc1.wbmp",
+      "~inc0.webp",
+      "~inc1.webp",
+      "~inc0.ico",
+      "~inc1.ico",
+      "~inc0.png",
+      "~inc1.png",
+      "~inc2.png",
+      "~inc12.png",
+      "~inc13.png",
+      "~inc14.png",
+      "~inc0.webp",
+      "~inc1.webp",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "TegraK1",
+      "model",
+      "AcerChromebook13_CB5_311",
+      "os",
+      "ChromeOS"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "nanobench"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "makedirs perf_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)\n",
+      "foo@127.0.0.1:/home/chronos/user/perf",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "infra_step": true,
+    "name": "scp -r foo@127.0.0.1:/home/chronos/user/perf [START_DIR]/[SWARM_OUT_DIR]",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@src = sys.argv[1] + '/*'@@@",
+      "@@@STEP_LOG_LINE@python.inline@dest   = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "name": "$result"
+  }
+]

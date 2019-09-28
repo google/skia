@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkGradientShader.h"
-#include "SkSVGLinearGradient.h"
-#include "SkSVGRenderContext.h"
-#include "SkSVGValue.h"
+#include "experimental/svg/model/SkSVGLinearGradient.h"
+#include "experimental/svg/model/SkSVGRenderContext.h"
+#include "experimental/svg/model/SkSVGValue.h"
+#include "include/effects/SkGradientShader.h"
 
 SkSVGLinearGradient::SkSVGLinearGradient() : INHERITED(SkSVGTag::kLinearGradient) {}
 
@@ -57,7 +57,7 @@ void SkSVGLinearGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& 
 
 sk_sp<SkShader> SkSVGLinearGradient::onMakeShader(const SkSVGRenderContext& ctx,
                                                   const SkColor* colors, const SkScalar* pos,
-                                                  int count, SkShader::TileMode tm,
+                                                  int count, SkTileMode tm,
                                                   const SkMatrix& localMatrix) const {
     const auto& lctx = ctx.lengthContext();
     const auto x1 = lctx.resolve(fX1, SkSVGLengthContext::LengthType::kHorizontal);

@@ -5,31 +5,28 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkView.h"
-#include "SkCanvas.h"
-#include "SkUtils.h"
-#include "SkColorPriv.h"
-#include "SkColorFilter.h"
-#include "SkImage.h"
-#include "SkRandom.h"
-#include "SkTime.h"
-#include "SkTypeface.h"
-#include "Timer.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkTime.h"
+#include "include/core/SkTypeface.h"
+#include "include/utils/SkRandom.h"
+#include "samplecode/Sample.h"
+#include "src/utils/SkUTF.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrContextPriv.h"
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
 #endif
 
 SkRandom gRand;
 
 static void DrawTheText(SkCanvas* canvas, const char text[], size_t length, SkScalar x, SkScalar y,
-                        const SkPaint& paint) {
-    SkPaint p(paint);
-
-    p.setSubpixelText(true);
-    canvas->drawText(text, length, x, y, p);
+                        const SkFont& font, const SkPaint& paint) {
+    SkFont f(font);
+    f.setSubpixel(true);
+    canvas->drawSimpleText(text, length, SkTextEncoding::kUTF8, x, y, f, paint);
 }
 
 // This sample demonstrates the cache behavior of bitmap vs. distance field text
@@ -40,24 +37,15 @@ static void DrawTheText(SkCanvas* canvas, const char text[], size_t length, SkSc
 //            -- this feature boosts the rendering out of the small point-size
 //               SDF-text special case (which falls back to bitmap fonts for small points)
 
-class AnimatedTextView : public SampleView {
-public:
-    AnimatedTextView() : fScale(1.0f), fScaleInc(0.1f), fRotation(0.0f), fSizeScale(1) {
-        fCurrentTime = 0;
-        fTimer.start();
-        memset(fTimes, 0, sizeof(fTimes));
-    }
+class AnimatedTextView : public Sample {
+    float fScale = 1;
+    float fScaleInc = 0.1f;
+    float fRotation = 0;
+    int   fSizeScale = 1;
 
-protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "AnimatedText");
-            return true;
-        }
+    SkString name() override { return SkString("AnimatedText"); }
 
-        SkUnichar uni;
-        if (SampleCode::CharQ(*evt, &uni)) {
+    bool onChar(SkUnichar uni) override {
             if ('2' == uni) {
                 if (fSizeScale == 2) {
                     fSizeScale = 1;
@@ -66,45 +54,22 @@ protected:
                 }
                 return true;
             }
-        }
-        return this->INHERITED::onQuery(evt);
+            return false;
     }
 
     void onDrawContent(SkCanvas* canvas) override {
+        SkFont font(SkTypeface::MakeFromFile("/skimages/samplefont.ttf"));
+
         SkPaint paint;
-        paint.setTypeface(SkTypeface::MakeFromFile("/skimages/samplefont.ttf"));
         paint.setAntiAlias(true);
         paint.setFilterQuality(kMedium_SkFilterQuality);
-
-        SkString outString("fps: ");
-        fTimer.end();
-
-        // TODO: generalize this timing code in utils
-        fTimes[fCurrentTime] = (float)(fTimer.fWall);
-        fCurrentTime = (fCurrentTime + 1) & 0x1f;
-
-        float meanTime = 0.0f;
-        for (int i = 0; i < 32; ++i) {
-            meanTime += fTimes[i];
-        }
-        meanTime /= 32.f;
-        SkScalar fps = 1000.f / meanTime;
-        outString.appendScalar(fps);
-        outString.append(" ms: ");
-        outString.appendScalar(meanTime);
-
-        SkString modeString("Text scale: ");
-        modeString.appendU32(fSizeScale);
-        modeString.append("x");
-
-        fTimer.start();
 
         canvas->save();
 
 #if SK_SUPPORT_GPU
         GrContext* grContext = canvas->getGrContext();
         if (grContext) {
-            sk_sp<SkImage> image = grContext->contextPriv().getFontAtlasImage_ForTesting(
+            sk_sp<SkImage> image = grContext->priv().testingOnly_getFontAtlasImage(
                                                                 GrMaskFormat::kA8_GrMaskFormat);
             canvas->drawImageRect(image,
                                   SkRect::MakeXYWH(512.0f, 10.0f, 512.0f, 512.0f), &paint);
@@ -120,18 +85,17 @@ protected:
 
         SkScalar y = SkIntToScalar(0);
         for (int i = 12; i <= 26; i++) {
-            paint.setTextSize(SkIntToScalar(i*fSizeScale));
-            y += paint.getFontSpacing();
-            DrawTheText(canvas, text, length, SkIntToScalar(110), y, paint);
+            font.setSize(SkIntToScalar(i*fSizeScale));
+            y += font.getSpacing();
+            DrawTheText(canvas, text, length, SkIntToScalar(110), y, font, paint);
         }
         canvas->restore();
 
-        paint.setTextSize(16);
-//        canvas->drawString(outString, 512.f, 540.f, paint);
-        canvas->drawString(modeString, 768.f, 540.f, paint);
+        font.setSize(16);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(double nanos) override {
+        // TODO: use nanos
         // We add noise to the scale and rotation animations to
         // keep the font atlas from falling into a steady state
         fRotation += (1.0f + gRand.nextRangeF(-0.1f, 0.1f));
@@ -143,22 +107,6 @@ protected:
         }
         return true;
     }
-
-private:
-    float fScale;
-    float fScaleInc;
-    float fRotation;
-    int   fSizeScale;
-
-    WallTimer   fTimer;
-    float       fTimes[32];
-    int         fCurrentTime;
-
-
-    typedef SampleView INHERITED;
 };
 
-//////////////////////////////////////////////////////////////////////////////
-
-static SkView* MyFactory() { return new AnimatedTextView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new AnimatedTextView(); )

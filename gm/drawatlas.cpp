@@ -5,18 +5,46 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRSXform.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/core/SkVertices.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkFontPriv.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
-#include "SkAutoMalloc.h"
-#include "SkCanvas.h"
-#include "SkRSXform.h"
-#include "SkSurface.h"
-#include "sk_tool_utils.h"
+#include <initializer_list>
 
 class DrawAtlasGM : public skiagm::GM {
     static sk_sp<SkImage> MakeAtlas(SkCanvas* caller, const SkRect& target) {
         SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
-        auto surface(sk_tool_utils::makeSurface(caller, info));
+        auto        surface(ToolUtils::makeSurface(caller, info));
         SkCanvas* canvas = surface->getCanvas();
         // draw red everywhere, but we don't expect to see it in the draw, testing the notion
         // that drawAtlas draws a subset-region of the atlas.
@@ -98,50 +126,48 @@ private:
 DEF_GM( return new DrawAtlasGM; )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkPath.h"
-#include "SkPathMeasure.h"
 
 static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
-                              const SkPoint xy[], const SkPath& path, const SkPaint& paint,
-                              float baseline_offset, bool useRSX) {
+                              const SkPoint xy[], const SkPath& path, const SkFont& font, const SkPaint& paint,
+                              float baseline_offset) {
     SkPathMeasure meas(path, false);
 
-    int count = paint.countText(text, length);
+    int count = font.countText(text, length, SkTextEncoding::kUTF8);
     size_t size = count * (sizeof(SkRSXform) + sizeof(SkScalar));
     SkAutoSMalloc<512> storage(size);
     SkRSXform* xform = (SkRSXform*)storage.get();
     SkScalar* widths = (SkScalar*)(xform + count);
 
     // Compute a conservative bounds so we can cull the draw
-    const SkRect font = paint.getFontBounds();
-    const SkScalar max = SkTMax(SkTMax(SkScalarAbs(font.fLeft), SkScalarAbs(font.fRight)),
-                                SkTMax(SkScalarAbs(font.fTop), SkScalarAbs(font.fBottom)));
+    const SkRect fontb = SkFontPriv::GetFontBounds(font);
+    const SkScalar max = SkTMax(SkTMax(SkScalarAbs(fontb.fLeft), SkScalarAbs(fontb.fRight)),
+                                SkTMax(SkScalarAbs(fontb.fTop), SkScalarAbs(fontb.fBottom)));
     const SkRect bounds = path.getBounds().makeOutset(max, max);
 
-    if (useRSX) {
-        paint.getTextWidths(text, length, widths);
+    SkAutoTArray<SkGlyphID> glyphs(count);
+    font.textToGlyphs(text, length, SkTextEncoding::kUTF8, glyphs.get(), count);
+    font.getWidths(glyphs.get(), count, widths);
 
-        for (int i = 0; i < count; ++i) {
-            // we want to position each character on the center of its advance
-            const SkScalar offset = SkScalarHalf(widths[i]);
-            SkPoint pos;
-            SkVector tan;
-            if (!meas.getPosTan(xy[i].x() + offset, &pos, &tan)) {
-                pos = xy[i];
-                tan.set(1, 0);
-            }
-            pos += SkVector::Make(-tan.fY, tan.fX) * baseline_offset;
-
-            xform[i].fSCos = tan.x();
-            xform[i].fSSin = tan.y();
-            xform[i].fTx   = pos.x() - tan.y() * xy[i].y() - tan.x() * offset;
-            xform[i].fTy   = pos.y() + tan.x() * xy[i].y() - tan.y() * offset;
+    for (int i = 0; i < count; ++i) {
+        // we want to position each character on the center of its advance
+        const SkScalar offset = SkScalarHalf(widths[i]);
+        SkPoint pos;
+        SkVector tan;
+        if (!meas.getPosTan(xy[i].x() + offset, &pos, &tan)) {
+            pos = xy[i];
+            tan.set(1, 0);
         }
+        pos += SkVector::Make(-tan.fY, tan.fX) * baseline_offset;
 
-        canvas->drawTextRSXform(text, length, &xform[0], &bounds, paint);
-    } else {
-        canvas->drawTextOnPathHV(text, length, path, 0, baseline_offset, paint);
+        xform[i].fSCos = tan.x();
+        xform[i].fSSin = tan.y();
+        xform[i].fTx   = pos.x() - tan.y() * xy[i].y() - tan.x() * offset;
+        xform[i].fTy   = pos.y() + tan.x() * xy[i].y() - tan.y() * offset;
     }
+
+    canvas->drawTextBlob(SkTextBlob::MakeFromRSXform(glyphs.get(), count * sizeof(SkGlyphID),
+                                         &xform[0], font, SkTextEncoding::kGlyphID),
+                         0, 0, paint);
 
     if (true) {
         SkPaint p;
@@ -150,22 +176,23 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
     }
 }
 
-#include "SkGradientShader.h"
 static sk_sp<SkShader> make_shader() {
     SkPoint pts[2] = {{0, 0}, {220, 0}};
     SkColor colors[2] = {SK_ColorRED, SK_ColorBLUE};
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kMirror_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kMirror);
 }
 
-static void drawTextPath(SkCanvas* canvas, bool useRSX, bool doStroke) {
+static void drawTextPath(SkCanvas* canvas, bool doStroke) {
     const char text0[] = "ABCDFGHJKLMNOPQRSTUVWXYZ";
     const int N = sizeof(text0) - 1;
     SkPoint pos[N];
 
+    SkFont font;
+    font.setSize(100);
+
     SkPaint paint;
     paint.setShader(make_shader());
     paint.setAntiAlias(true);
-    paint.setTextSize(100);
     if (doStroke) {
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(2.25f);
@@ -175,7 +202,7 @@ static void drawTextPath(SkCanvas* canvas, bool useRSX, bool doStroke) {
     SkScalar x = 0;
     for (int i = 0; i < N; ++i) {
         pos[i].set(x, 0);
-        x += paint.measureText(&text0[i], 1);
+        x += font.measureText(&text0[i], 1, SkTextEncoding::kUTF8, nullptr, &paint);
     }
 
     SkPath path;
@@ -187,7 +214,7 @@ static void drawTextPath(SkCanvas* canvas, bool useRSX, bool doStroke) {
     for (auto d : dirs) {
         path.reset();
         path.addOval(SkRect::MakeXYWH(160, 160, 540, 540), d);
-        draw_text_on_path(canvas, text0, N, pos, path, paint, baseline_offset, useRSX);
+        draw_text_on_path(canvas, text0, N, pos, path, font, paint, baseline_offset);
     }
 
     paint.reset();
@@ -195,22 +222,42 @@ static void drawTextPath(SkCanvas* canvas, bool useRSX, bool doStroke) {
     canvas->drawPath(path, paint);
 }
 
-DEF_SIMPLE_GM(drawTextRSXform, canvas, 860, 860) {
+DEF_SIMPLE_GM(drawTextRSXform, canvas, 430, 860) {
     canvas->scale(0.5f, 0.5f);
     const bool doStroke[] = { false, true };
     for (auto st : doStroke) {
-        canvas->save();
-        drawTextPath(canvas, false, st);
-        canvas->translate(860, 0);
-        drawTextPath(canvas, true, st);
-        canvas->restore();
+        drawTextPath(canvas, st);
         canvas->translate(0, 860);
     }
 }
 
-#include "Resources.h"
-#include "SkColorFilter.h"
-#include "SkVertices.h"
+// Exercise xform blob and its bounds
+DEF_SIMPLE_GM(blob_rsxform, canvas, 500, 100) {
+    SkFont font;
+    font.setTypeface(ToolUtils::create_portable_typeface());
+    font.setSize(50);
+
+    const char text[] = "CrazyXform";
+    constexpr size_t len = sizeof(text) - 1;
+
+    SkRSXform xforms[len];
+    SkScalar scale = 1;
+    SkScalar x = 0, y = 0;
+    for (size_t i = 0; i < len; ++i) {
+        scale = SkScalarSin(i * SK_ScalarPI / (len-1)) * 0.75f + 0.5f;
+        xforms[i] = SkRSXform::Make(scale, 0, x, y);
+        x += 50 * scale;
+    }
+
+    auto blob = SkTextBlob::MakeFromRSXform(text, len, xforms, font);
+
+    SkPoint offset = { 20, 70 };
+    SkPaint paint;
+    paint.setColor(0xFFCCCCCC);
+    canvas->drawRect(blob->bounds().makeOffset(offset.fX, offset.fY), paint);
+    paint.setColor(SK_ColorBLACK);
+    canvas->drawTextBlob(blob, offset.fX, offset.fY, paint);
+}
 
 static sk_sp<SkVertices> make_vertices(sk_sp<SkImage> image, const SkRect& r,
                                        SkColor color) {
@@ -241,7 +288,7 @@ DEF_SIMPLE_GM(compare_atlas_vertices, canvas, 560, 585) {
     auto verts = make_vertices(image, tex, color);
     const sk_sp<SkColorFilter> filters[] = {
         nullptr,
-        SkColorFilter::MakeModeFilter(0xFF00FF88, SkBlendMode::kModulate),
+        SkColorFilters::Blend(0xFF00FF88, SkBlendMode::kModulate),
     };
     const SkBlendMode modes[] = {
         SkBlendMode::kSrcOver,
@@ -251,8 +298,8 @@ DEF_SIMPLE_GM(compare_atlas_vertices, canvas, 560, 585) {
     canvas->translate(10, 10);
     SkPaint paint;
     for (SkBlendMode mode : modes) {
-        for (int alpha : { 0xFF, 0x7F }) {
-            paint.setAlpha(alpha);
+        for (float alpha : { 1.0f, 0.5f }) {
+            paint.setAlphaf(alpha);
             canvas->save();
             for (auto cf : filters) {
                 paint.setColorFilter(cf);

@@ -7,8 +7,9 @@
 
 // Unit tests for src/core/SkPoint3.cpp and its header
 
-#include "SkPoint3.h"
-#include "Test.h"
+#include "include/core/SkPoint3.h"
+#include "include/utils/SkRandom.h"
+#include "tests/Test.h"
 
 static void test_eq_ops(skiatest::Reporter* reporter) {
     const SkPoint3 p0 = SkPoint3::Make(0, 0, 0);
@@ -103,6 +104,18 @@ static void test_normalize(skiatest::Reporter* reporter,
     } else {
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(newLength, SK_Scalar1));
         REPORTER_ASSERT(reporter, result);
+    }
+    SkRandom random;
+    random.setSeed(1234);
+    SkPoint3 pt3;
+    int testCount = 100000;
+    for (int index = 0; index < testCount; ++index) {
+        SkScalar testVal;
+        do {
+            testVal = random.nextRangeF(0, 2);
+        } while (!testVal);
+        pt3.set(testVal, 0, 0);
+        REPORTER_ASSERT(reporter, !pt3.normalize() || 1 == pt3.fX);
     }
 }
 

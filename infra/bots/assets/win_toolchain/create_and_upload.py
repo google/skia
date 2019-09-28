@@ -20,23 +20,21 @@ import utils
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument('--gsutil')
-  parser.add_argument('--chrome_path')
-  parser.add_argument('--msvs_version', required=True)
+  parser.add_argument('--src_dir', '-s', required=True)
   args = parser.parse_args()
 
   with utils.tmp_dir():
     cwd = os.getcwd()
     create_script = os.path.join(common.FILE_DIR, 'create.py')
     upload_script = os.path.join(common.FILE_DIR, 'upload.py')
+    target_dir = os.path.join(cwd, 'win_toolchain')
 
     try:
       cmd = ['python', create_script,
-             '-t', cwd,
-             '--msvs_version', args.msvs_version]
-      if args.chrome_path:
-        cmd.extend(['--chrome_path', args.chrome_path])
+             '-t', target_dir,
+             '-s', args.src_dir]
       subprocess.check_call(cmd)
-      cmd = ['python', upload_script, '-t', cwd]
+      cmd = ['python', upload_script, '-t', target_dir]
       if args.gsutil:
         cmd.extend(['--gsutil', args.gsutil])
       subprocess.check_call(cmd)

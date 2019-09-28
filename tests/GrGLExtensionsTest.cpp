@@ -5,14 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-// This test is a GPU-backend specific test.
-#if SK_SUPPORT_GPU
-
-#include "gl/GrGLDefines.h"
-#include "gl/GrGLExtensions.h"
-#include "Test.h"
+#include "include/gpu/gl/GrGLExtensions.h"
+#include "src/gpu/gl/GrGLDefines.h"
+#include "tests/Test.h"
 
 const GrGLubyte* simpleGetString(GrGLenum name) {
     return (const GrGLubyte*)(name == GR_GL_VERSION ? "3.0" : "");
@@ -34,7 +31,7 @@ const GrGLubyte* simpleGetStringi(GrGLenum name, GrGLuint index) {
 
 DEF_TEST(GrGLExtensionsTest_remove, reporter) {
     GrGLExtensions ext;
-    ext.init(kNone_GrGLStandard,
+    ext.init(kGL_GrGLStandard,
              &simpleGetString,
              &simpleGetStringi,
              &simpleGetIntegerv,
@@ -49,5 +46,3 @@ DEF_TEST(GrGLExtensionsTest_remove, reporter) {
     REPORTER_ASSERT(reporter, ext.remove("test_extension_1"));
     REPORTER_ASSERT(reporter, !ext.has("test_extension_1"));
 }
-
-#endif

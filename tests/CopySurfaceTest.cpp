@@ -5,25 +5,28 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/GrTypesPriv.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkUtils.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/GrSurfaceProxy.h"
+#include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/SkGr.h"
+#include "tests/Test.h"
+#include "tools/gpu/GrContextFactory.h"
+#include "tools/gpu/ProxyUtils.h"
 
-#if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrContextFactory.h"
-#include "GrContextPriv.h"
-#include "GrSurfaceContext.h"
-#include "GrSurfaceProxy.h"
-#include "GrTextureProxy.h"
-#include "GrTypes.h"
-#include "ProxyUtils.h"
-#include "SkImageInfo.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkTemplates.h"
-#include "SkUtils.h"
-#include "Test.h"
-
+#include <initializer_list>
 #include <utility>
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
@@ -59,98 +62,134 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
         {-1   , -1   },
     };
 
-    const SkImageInfo ii = SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    static const SkImageInfo kImageInfos[] {
+        SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType, kPremul_SkAlphaType),
+        SkImageInfo::Make(kW, kH, kBGRA_8888_SkColorType, kPremul_SkAlphaType)
+    };
 
     SkAutoTMalloc<uint32_t> read(kW * kH);
 
     for (auto sOrigin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
         for (auto dOrigin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
-            for (auto sRT : {true, false}) {
-                for (auto dRT : {true, false}) {
+            for (auto sRenderable : {GrRenderable::kYes, GrRenderable::kNo}) {
+                for (auto dRenderable : {GrRenderable::kYes, GrRenderable::kNo}) {
                     for (auto srcRect : kSrcRects) {
                         for (auto dstPoint : kDstPoints) {
-                            auto src = sk_gpu_test::MakeTextureProxyFromData(
-                                    context, sRT, kW, kH, ii.colorType(), sOrigin, srcPixels.get(),
-                                    kRowBytes);
-                            auto dst = sk_gpu_test::MakeTextureProxyFromData(
-                                    context, dRT, kW, kH, ii.colorType(), dOrigin, dstPixels.get(),
-                                    kRowBytes);
-                            if (!src || !dst) {
-                                ERRORF(reporter,
-                                       "Could not create surfaces for copy surface test.");
-                                continue;
-                            }
+                            for (auto ii: kImageInfos) {
+                                auto src = sk_gpu_test::MakeTextureProxyFromData(
+                                        context, sRenderable, kW, kH, ii.colorType(),
+                                        ii.alphaType(), sOrigin, srcPixels.get(), kRowBytes);
+                                auto dst = sk_gpu_test::MakeTextureProxyFromData(
+                                        context, dRenderable, kW, kH, ii.colorType(),
+                                        ii.alphaType(), dOrigin, dstPixels.get(), kRowBytes);
 
-                            sk_sp<GrSurfaceContext> dstContext =
-                                   context->contextPriv().makeWrappedSurfaceContext(std::move(dst));
+                                // Should always work if the color type is RGBA, but may not work
+                                // for BGRA
+                                if (ii.colorType() == kRGBA_8888_SkColorType) {
+                                    if (!src || !dst) {
+                                        ERRORF(reporter,
+                                               "Could not create surfaces for copy surface test.");
+                                        continue;
+                                    }
+                                } else {
+                                    if (!context->defaultBackendFormat(
+                                            kBGRA_8888_SkColorType, GrRenderable::kNo).isValid()) {
+                                        continue;
+                                    }
+                                    if (!src || !dst) {
+                                        ERRORF(reporter,
+                                               "Could not create surfaces for copy surface test.");
+                                        continue;
+                                    }
+                                }
 
-                            bool result = dstContext->copy(src.get(), srcRect, dstPoint);
+                                auto dstContext = context->priv().makeWrappedSurfaceContext(
+                                        std::move(dst),
+                                        SkColorTypeToGrColorType(ii.colorType()),
+                                        ii.alphaType());
 
-                            bool expectedResult = true;
-                            SkIPoint dstOffset = { dstPoint.fX - srcRect.fLeft,
-                                                   dstPoint.fY - srcRect.fTop };
-                            SkIRect copiedDstRect = SkIRect::MakeXYWH(dstPoint.fX,
-                                                                      dstPoint.fY,
-                                                                      srcRect.width(),
-                                                                      srcRect.height());
+                                bool result = false;
+                                if (sOrigin == dOrigin) {
+                                    result = dstContext->testCopy(src.get(), srcRect, dstPoint);
+                                } else if (dRenderable == GrRenderable::kYes) {
+                                    SkASSERT(dstContext->asRenderTargetContext());
+                                    result = dstContext->asRenderTargetContext()->blitTexture(
+                                            src.get(), srcRect, dstPoint);
+                                }
 
-                            SkIRect copiedSrcRect;
-                            if (!copiedSrcRect.intersect(srcRect, SkIRect::MakeWH(kW, kH))) {
-                                expectedResult = false;
-                            } else {
-                                // If the src rect was clipped, apply same clipping to each side of
-                                // copied dst rect.
-                                copiedDstRect.fLeft += copiedSrcRect.fLeft - srcRect.fLeft;
-                                copiedDstRect.fTop += copiedSrcRect.fTop - srcRect.fTop;
-                                copiedDstRect.fRight -= copiedSrcRect.fRight - srcRect.fRight;
-                                copiedDstRect.fBottom -= copiedSrcRect.fBottom - srcRect.fBottom;
-                            }
-                            if (copiedDstRect.isEmpty() ||
-                                !copiedDstRect.intersect(SkIRect::MakeWH(kW, kH))) {
-                                expectedResult = false;
-                            }
-                            // To make the copied src rect correct we would apply any dst clipping
-                            // back to the src rect, but we don't use it again so don't bother.
-                            if (expectedResult != result) {
-                                ERRORF(reporter, "Expected return value %d from copySurface, got "
-                                       "%d.", expectedResult, result);
-                                continue;
-                            }
+                                bool expectedResult = true;
+                                SkIPoint dstOffset = { dstPoint.fX - srcRect.fLeft,
+                                                       dstPoint.fY - srcRect.fTop };
+                                SkIRect copiedDstRect = SkIRect::MakeXYWH(dstPoint.fX,
+                                                                          dstPoint.fY,
+                                                                          srcRect.width(),
+                                                                          srcRect.height());
 
-                            if (!expectedResult || !result) {
-                                continue;
-                            }
+                                SkIRect copiedSrcRect;
+                                if (!copiedSrcRect.intersect(srcRect, SkIRect::MakeWH(kW, kH))) {
+                                    expectedResult = false;
+                                } else {
+                                    // If the src rect was clipped, apply same clipping to each side
+                                    // of copied dst rect.
+                                    copiedDstRect.fLeft += copiedSrcRect.fLeft - srcRect.fLeft;
+                                    copiedDstRect.fTop += copiedSrcRect.fTop - srcRect.fTop;
+                                    copiedDstRect.fRight -= copiedSrcRect.fRight - srcRect.fRight;
+                                    copiedDstRect.fBottom -= copiedSrcRect.fBottom -
+                                                             srcRect.fBottom;
+                                }
+                                if (copiedDstRect.isEmpty() ||
+                                    !copiedDstRect.intersect(SkIRect::MakeWH(kW, kH))) {
+                                    expectedResult = false;
+                                }
+                                if (sOrigin != dOrigin && dRenderable == GrRenderable::kNo) {
+                                    expectedResult = false;
+                                }
 
-                            sk_memset32(read.get(), 0, kW * kH);
-                            if (!dstContext->readPixels(ii, read.get(), kRowBytes, 0, 0)) {
-                                ERRORF(reporter, "Error calling readPixels");
-                                continue;
-                            }
+                                // To make the copied src rect correct we would apply any dst
+                                // clipping back to the src rect, but we don't use it again so
+                                // don't bother.
+                                if (expectedResult != result) {
+                                    ERRORF(reporter, "Expected return value %d from copySurface, "
+                                           "got %d.", expectedResult, result);
+                                    continue;
+                                }
 
-                            bool abort = false;
-                            // Validate that pixels inside copiedDstRect received the correct value
-                            // from src and that those outside were not modified.
-                            for (int y = 0; y < kH && !abort; ++y) {
-                                for (int x = 0; x < kW; ++x) {
-                                    uint32_t r = read.get()[y * kW + x];
-                                    if (copiedDstRect.contains(x, y)) {
-                                        int sx = x - dstOffset.fX;
-                                        int sy = y - dstOffset.fY;
-                                        uint32_t s = srcPixels.get()[sy * kW + sx];
-                                        if (s != r) {
-                                            ERRORF(reporter, "Expected dst %d,%d to contain "
-                                                   "0x%08x copied from src location %d,%d. Got "
-                                                   "0x%08x", x, y, s, sx, sy, r);
-                                            abort = true;
-                                            break;
-                                        }
-                                    } else {
-                                        uint32_t d = dstPixels.get()[y * kW + x];
-                                        if (d != r) {
-                                            ERRORF(reporter, "Expected dst %d,%d to be unmodified ("
-                                                   "0x%08x). Got 0x%08x", x, y, d, r);
-                                            abort = true;
-                                            break;
+                                if (!expectedResult || !result) {
+                                    continue;
+                                }
+
+                                sk_memset32(read.get(), 0, kW * kH);
+                                if (!dstContext->readPixels(ii, read.get(), kRowBytes, {0, 0})) {
+                                    ERRORF(reporter, "Error calling readPixels");
+                                    continue;
+                                }
+
+                                bool abort = false;
+                                // Validate that pixels inside copiedDstRect received the correct
+                                // value from src and that those outside were not modified.
+                                for (int y = 0; y < kH && !abort; ++y) {
+                                    for (int x = 0; x < kW; ++x) {
+                                        uint32_t r = read.get()[y * kW + x];
+                                        if (copiedDstRect.contains(x, y)) {
+                                            int sx = x - dstOffset.fX;
+                                            int sy = y - dstOffset.fY;
+                                            uint32_t s = srcPixels.get()[sy * kW + sx];
+                                            if (s != r) {
+                                                ERRORF(reporter, "Expected dst %d,%d to contain "
+                                                       "0x%08x copied from src location %d,%d. Got "
+                                                       "0x%08x", x, y, s, sx, sy, r);
+                                                abort = true;
+                                                break;
+                                            }
+                                        } else {
+                                            uint32_t d = dstPixels.get()[y * kW + x];
+                                            if (d != r) {
+                                                ERRORF(reporter, "Expected dst %d,%d to be "
+                                                       "unmodified (0x%08x). Got 0x%08x",
+                                                       x, y, d, r);
+                                                abort = true;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
@@ -162,4 +201,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
         }
     }
 }
-#endif

@@ -5,20 +5,19 @@
 * found in the LICENSE file.
 */
 
-#include "Window.h"
+#include "tools/sk_app/Window.h"
 
-#include "SkSurface.h"
-#include "SkCanvas.h"
-#include "WindowContext.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "tools/sk_app/WindowContext.h"
 
 namespace sk_app {
 
 Window::Window() {}
 
-void Window::detach() {
-    delete fWindowContext;
-    fWindowContext = nullptr;
-}
+Window::~Window() {}
+
+void Window::detach() { fWindowContext = nullptr; }
 
 void Window::visitLayers(std::function<void(Layer*)> visitor) {
     for (int i = 0; i < fLayers.count(); ++i) {
@@ -41,23 +40,23 @@ void Window::onBackendCreated() {
     this->visitLayers([](Layer* layer) { layer->onBackendCreated(); });
 }
 
-bool Window::onChar(SkUnichar c, uint32_t modifiers) {
+bool Window::onChar(SkUnichar c, skui::ModifierKey modifiers) {
     return this->signalLayers([=](Layer* layer) { return layer->onChar(c, modifiers); });
 }
 
-bool Window::onKey(Key key, InputState state, uint32_t modifiers) {
+bool Window::onKey(skui::Key key, skui::InputState state, skui::ModifierKey modifiers) {
     return this->signalLayers([=](Layer* layer) { return layer->onKey(key, state, modifiers); });
 }
 
-bool Window::onMouse(int x, int y, InputState state, uint32_t modifiers) {
+bool Window::onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers) {
     return this->signalLayers([=](Layer* layer) { return layer->onMouse(x, y, state, modifiers); });
 }
 
-bool Window::onMouseWheel(float delta, uint32_t modifiers) {
+bool Window::onMouseWheel(float delta, skui::ModifierKey modifiers) {
     return this->signalLayers([=](Layer* layer) { return layer->onMouseWheel(delta, modifiers); });
 }
 
-bool Window::onTouch(intptr_t owner, InputState state, float x, float y) {
+bool Window::onTouch(intptr_t owner, skui::InputState state, float x, float y) {
     return this->signalLayers([=](Layer* layer) { return layer->onTouch(owner, state, x, y); });
 }
 
@@ -70,15 +69,13 @@ void Window::onPaint() {
         return;
     }
     markInvalProcessed();
+    this->visitLayers([](Layer* layer) { layer->onPrePaint(); });
     sk_sp<SkSurface> backbuffer = fWindowContext->getBackbufferSurface();
     if (backbuffer) {
         // draw into the canvas of this surface
-        SkCanvas* canvas = backbuffer->getCanvas();
+        this->visitLayers([=](Layer* layer) { layer->onPaint(backbuffer.get()); });
 
-        this->visitLayers([](Layer* layer) { layer->onPrePaint(); });
-        this->visitLayers([=](Layer* layer) { layer->onPaint(canvas); });
-
-        canvas->flush();
+        backbuffer->flush();
 
         fWindowContext->swapBuffers();
     } else {
@@ -92,16 +89,17 @@ void Window::onResize(int w, int h) {
         return;
     }
     fWindowContext->resize(w, h);
+    this->visitLayers([=](Layer* layer) { layer->onResize(w, h); });
 }
 
-int Window::width() {
+int Window::width() const {
     if (!fWindowContext) {
         return 0;
     }
     return fWindowContext->width();
 }
 
-int Window::height() {
+int Window::height() const {
     if (!fWindowContext) {
         return 0;
     }
@@ -129,7 +127,7 @@ int Window::stencilBits() const {
     return fWindowContext->stencilBits();
 }
 
-const GrContext* Window::getGrContext() const {
+GrContext* Window::getGrContext() const {
     if (!fWindowContext) {
         return nullptr;
     }

@@ -4,15 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkGeometry.h"
-#include "SkLineParameters.h"
-#include "SkPathOpsConic.h"
-#include "SkPathOpsCubic.h"
-#include "SkPathOpsCurve.h"
-#include "SkPathOpsLine.h"
-#include "SkPathOpsQuad.h"
-#include "SkPathOpsRect.h"
-#include "SkTSort.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkTSort.h"
+#include "src/pathops/SkLineParameters.h"
+#include "src/pathops/SkPathOpsConic.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsCurve.h"
+#include "src/pathops/SkPathOpsLine.h"
+#include "src/pathops/SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsRect.h"
 
 const int SkDCubic::gPrecisionUnit = 256;  // FIXME: test different values in test framework
 
@@ -731,4 +731,20 @@ double SkDCubic::top(const SkDCubic& dCurve, double startT, double endT, SkDPoin
         }
     }
     return topT;
+}
+
+int SkTCubic::intersectRay(SkIntersections* i, const SkDLine& line) const {
+    return i->intersectRay(fCubic, line);
+}
+
+bool SkTCubic::hullIntersects(const SkDQuad& quad, bool* isLinear) const {
+    return quad.hullIntersects(fCubic, isLinear);
+}
+
+bool SkTCubic::hullIntersects(const SkDConic& conic, bool* isLinear) const  {
+    return conic.hullIntersects(fCubic, isLinear);
+}
+
+void SkTCubic::setBounds(SkDRect* rect) const {
+    rect->setBounds(fCubic);
 }

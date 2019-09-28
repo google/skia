@@ -8,11 +8,11 @@
 #ifndef SKSL_FIELD
 #define SKSL_FIELD
 
-#include "SkSLModifiers.h"
-#include "SkSLPosition.h"
-#include "SkSLSymbol.h"
-#include "SkSLType.h"
-#include "SkSLVariable.h"
+#include "src/sksl/SkSLPosition.h"
+#include "src/sksl/ir/SkSLModifiers.h"
+#include "src/sksl/ir/SkSLSymbol.h"
+#include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/ir/SkSLVariable.h"
 
 namespace SkSL {
 

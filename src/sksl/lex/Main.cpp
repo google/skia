@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "NFAtoDFA.h"
-#include "RegexParser.h"
+#include "src/sksl/lex/NFAtoDFA.h"
+#include "src/sksl/lex/RegexParser.h"
 
 #include <fstream>
 #include <sstream>
@@ -33,7 +33,7 @@ static constexpr const char* HEADER =
 void writeH(const DFA& dfa, const char* lexer, const char* token,
             const std::vector<std::string>& tokens, const char* hPath) {
     std::ofstream out(hPath);
-    ASSERT(out.good());
+    SkASSERT(out.good());
     out << HEADER;
     out << "#ifndef SKSL_" << lexer << "\n";
     out << "#define SKSL_" << lexer << "\n";
@@ -54,7 +54,7 @@ void writeH(const DFA& dfa, const char* lexer, const char* token,
     out << "    , fOffset(-1)\n";
     out << "    , fLength(-1) {}\n";
     out << "\n";
-    out << "    " << token << "(Kind kind, int offset, int length)\n";
+    out << "    " << token << "(Kind kind, int32_t offset, int32_t length)\n";
     out << "    : fKind(kind)\n";
     out << "    , fOffset(offset)\n";
     out << "    , fLength(length) {}\n";
@@ -66,7 +66,7 @@ void writeH(const DFA& dfa, const char* lexer, const char* token,
     out << "\n";
     out << "class " << lexer << " {\n";
     out << "public:\n";
-    out << "    void start(const char* text, size_t length) {\n";
+    out << "    void start(const char* text, int32_t length) {\n";
     out << "        fText = text;\n";
     out << "        fLength = length;\n";
     out << "        fOffset = 0;\n";
@@ -76,8 +76,8 @@ void writeH(const DFA& dfa, const char* lexer, const char* token,
     out << "\n";
     out << "private:\n";
     out << "    const char* fText;\n";
-    out << "    int fLength;\n";
-    out << "    int fOffset;\n";
+    out << "    int32_t fLength;\n";
+    out << "    int32_t fOffset;\n";
     out << "};\n";
     out << "\n";
     out << "} // namespace\n";
@@ -87,7 +87,7 @@ void writeH(const DFA& dfa, const char* lexer, const char* token,
 void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* include,
               const char* cppPath) {
     std::ofstream out(cppPath);
-    ASSERT(out.good());
+    SkASSERT(out.good());
     out << HEADER;
     out << "#include \"" << include << "\"\n";
     out << "\n";
@@ -98,7 +98,10 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
     for (const auto& row : dfa.fTransitions) {
         states = std::max(states, row.size());
     }
-    out << "static int16_t mappings[" << dfa.fCharMappings.size() << "] = {\n    ";
+    // arbitrarily-chosen character which is greater than START_CHAR and should not appear in actual
+    // input
+    out << "static const uint8_t INVALID_CHAR = 18;";
+    out << "static int8_t mappings[" << dfa.fCharMappings.size() << "] = {\n    ";
     const char* separator = "";
     for (int m : dfa.fCharMappings) {
         out << separator << std::to_string(m);
@@ -131,31 +134,37 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
     out << " };\n";
     out << "\n";
 
-    out << token << " " << lexer << "::next() {\n";;
-    out << "    int startOffset = fOffset;\n";
+    out << token << " " << lexer << "::next() {\n";
+    out << "    // note that we cheat here: normally a lexer needs to worry about the case\n";
+    out << "    // where a token has a prefix which is not itself a valid token - for instance, \n";
+    out << "    // maybe we have a valid token 'while', but 'w', 'wh', etc. are not valid\n";
+    out << "    // tokens. Our grammar doesn't have this property, so we can simplify the logic\n";
+    out << "    // a bit.\n";
+    out << "    int32_t startOffset = fOffset;\n";
     out << "    if (startOffset == fLength) {\n";
     out << "        return " << token << "(" << token << "::END_OF_FILE, startOffset, 0);\n";
     out << "    }\n";
-    out << "    int offset = startOffset;\n";
-    out << "    int state = 1;\n";
-    out << "    " << token << "::Kind lastAccept = " << token << "::Kind::INVALID;\n";
-    out << "    int lastAcceptEnd = startOffset + 1;\n";
-    out << "    while (offset < fLength) {\n";
-    out << "        if ((uint8_t) fText[offset] >= " << dfa.fCharMappings.size() << ") {";
-    out << "            break;";
-    out << "        }";
-    out << "        state = transitions[mappings[(int) fText[offset]]][state];\n";
-    out << "        ++offset;\n";
-    out << "        if (!state) {\n";
+    out << "    int16_t state = 1;\n";
+    out << "    for (;;) {\n";
+    out << "        if (fOffset >= fLength) {\n";
+    out << "            if (accepts[state] == -1) {\n";
+    out << "                return Token(Token::END_OF_FILE, startOffset, 0);\n";
+    out << "            }\n";
     out << "            break;\n";
     out << "        }\n";
-    out << "        if (accepts[state]) {\n";
-    out << "            lastAccept = (" << token << "::Kind) accepts[state];\n";
-    out << "            lastAcceptEnd = offset;\n";
+    out << "        uint8_t c = (uint8_t) fText[fOffset];";
+    out << "        if (c <= 8 || c >= " << dfa.fCharMappings.size() << ") {";
+    out << "            c = INVALID_CHAR;";
+    out << "        }";
+    out << "        int16_t newState = transitions[mappings[c]][state];\n";
+    out << "        if (!newState) {\n";
+    out << "            break;\n";
     out << "        }\n";
+    out << "        state = newState;";
+    out << "        ++fOffset;\n";
     out << "    }\n";
-    out << "    fOffset = lastAcceptEnd;\n";
-    out << "    return " << token << "(lastAccept, startOffset, lastAcceptEnd - startOffset);\n";
+    out << "    Token::Kind kind = (" << token << "::Kind) accepts[state];\n";
+    out << "    return " << token << "(kind, startOffset, fOffset - startOffset);\n";
     out << "}\n";
     out << "\n";
     out << "} // namespace\n";
@@ -172,13 +181,13 @@ void process(const char* inPath, const char* lexer, const char* token, const cha
         std::istringstream split(line);
         std::string name, delimiter, pattern;
         if (split >> name >> delimiter >> pattern) {
-            ASSERT(split.eof());
-            ASSERT(name != "");
-            ASSERT(delimiter == "=");
-            ASSERT(pattern != "");
+            SkASSERT(split.eof());
+            SkASSERT(name != "");
+            SkASSERT(delimiter == "=");
+            SkASSERT(pattern != "");
             tokens.push_back(name);
             if (pattern[0] == '"') {
-                ASSERT(pattern.size() > 2 && pattern[pattern.size() - 1] == '"');
+                SkASSERT(pattern.size() > 2 && pattern[pattern.size() - 1] == '"');
                 RegexNode node = RegexNode(RegexNode::kChar_Kind, pattern[1]);
                 for (size_t i = 2; i < pattern.size() - 1; ++i) {
                     node = RegexNode(RegexNode::kConcat_Kind, node,
@@ -194,7 +203,7 @@ void process(const char* inPath, const char* lexer, const char* token, const cha
     NFAtoDFA converter(&nfa);
     DFA dfa = converter.convert();
     writeH(dfa, lexer, token, tokens, hPath);
-    writeCPP(dfa, lexer, token, (std::string("SkSL") + lexer + ".h").c_str(), cppPath);
+    writeCPP(dfa, lexer, token, (std::string("src/sksl/SkSL") + lexer + ".h").c_str(), cppPath);
 }
 
 int main(int argc, const char** argv) {

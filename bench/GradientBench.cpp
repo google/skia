@@ -4,14 +4,16 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Benchmark.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkGradientShader.h"
-#include "SkPaint.h"
-#include "SkShader.h"
-#include "SkString.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/effects/SkGradientShader.h"
+
+#include "tools/ToolUtils.h"
 
 struct GradData {
     int             fCount;
@@ -48,12 +50,12 @@ static const GradData gGradData[] = {
 
 /// Ignores scale
 static sk_sp<SkShader> MakeLinear(const SkPoint pts[2], const GradData& data,
-                                  SkShader::TileMode tm, float scale) {
+                                  SkTileMode tm, float scale) {
     return SkGradientShader::MakeLinear(pts, data.fColors, data.fPos, data.fCount, tm);
 }
 
 static sk_sp<SkShader> MakeRadial(const SkPoint pts[2], const GradData& data,
-                                  SkShader::TileMode tm, float scale) {
+                                  SkTileMode tm, float scale) {
     SkPoint center;
     center.set(SkScalarAve(pts[0].fX, pts[1].fX),
                SkScalarAve(pts[0].fY, pts[1].fY));
@@ -63,7 +65,7 @@ static sk_sp<SkShader> MakeRadial(const SkPoint pts[2], const GradData& data,
 
 /// Ignores scale
 static sk_sp<SkShader> MakeSweep(const SkPoint pts[2], const GradData& data,
-                                 SkShader::TileMode tm, float scale) {
+                                 SkTileMode tm, float scale) {
     SkPoint center;
     center.set(SkScalarAve(pts[0].fX, pts[1].fX),
                SkScalarAve(pts[0].fY, pts[1].fY));
@@ -72,7 +74,7 @@ static sk_sp<SkShader> MakeSweep(const SkPoint pts[2], const GradData& data,
 
 /// Ignores scale
 static sk_sp<SkShader> MakeConical(const SkPoint pts[2], const GradData& data,
-                                   SkShader::TileMode tm, float scale) {
+                                   SkTileMode tm, float scale) {
     SkPoint center0, center1;
     center0.set(SkScalarAve(pts[0].fX, pts[1].fX),
                 SkScalarAve(pts[0].fY, pts[1].fY));
@@ -85,7 +87,7 @@ static sk_sp<SkShader> MakeConical(const SkPoint pts[2], const GradData& data,
 
 /// Ignores scale
 static sk_sp<SkShader> MakeConicalZeroRad(const SkPoint pts[2], const GradData& data,
-                                          SkShader::TileMode tm, float scale) {
+                                          SkTileMode tm, float scale) {
     SkPoint center0, center1;
     center0.set(SkScalarAve(pts[0].fX, pts[1].fX),
                 SkScalarAve(pts[0].fY, pts[1].fY));
@@ -98,7 +100,7 @@ static sk_sp<SkShader> MakeConicalZeroRad(const SkPoint pts[2], const GradData& 
 
 /// Ignores scale
 static sk_sp<SkShader> MakeConicalOutside(const SkPoint pts[2], const GradData& data,
-                                          SkShader::TileMode tm, float scale) {
+                                          SkTileMode tm, float scale) {
     SkPoint center0, center1;
     SkScalar radius0 = (pts[1].fX - pts[0].fX) / 10;
     SkScalar radius1 = (pts[1].fX - pts[0].fX) / 3;
@@ -112,7 +114,7 @@ static sk_sp<SkShader> MakeConicalOutside(const SkPoint pts[2], const GradData& 
 
 /// Ignores scale
 static sk_sp<SkShader> MakeConicalOutsideZeroRad(const SkPoint pts[2], const GradData& data,
-                                                 SkShader::TileMode tm, float scale) {
+                                                 SkTileMode tm, float scale) {
     SkPoint center0, center1;
     SkScalar radius0 = (pts[1].fX - pts[0].fX) / 10;
     SkScalar radius1 = (pts[1].fX - pts[0].fX) / 3;
@@ -125,7 +127,7 @@ static sk_sp<SkShader> MakeConicalOutsideZeroRad(const SkPoint pts[2], const Gra
 }
 
 typedef sk_sp<SkShader> (*GradMaker)(const SkPoint pts[2], const GradData& data,
-                                     SkShader::TileMode tm, float scale);
+                                     SkTileMode tm, float scale);
 
 static const struct {
     GradMaker   fMaker;
@@ -155,20 +157,6 @@ enum GeomType {
     kOval_GeomType
 };
 
-static const char* tilemodename(SkShader::TileMode tm) {
-    switch (tm) {
-        case SkShader::kClamp_TileMode:
-            return "clamp";
-        case SkShader::kRepeat_TileMode:
-            return "repeat";
-        case SkShader::kMirror_TileMode:
-            return "mirror";
-        default:
-            SkDEBUGFAIL("unknown tilemode");
-            return "error";
-    }
-}
-
 static const char* geomtypename(GeomType gt) {
     switch (gt) {
         case kRect_GeomType:
@@ -187,13 +175,13 @@ class GradientBench : public Benchmark {
 public:
     GradientBench(GradType gradType,
                   GradData data = gGradData[0],
-                  SkShader::TileMode tm = SkShader::kClamp_TileMode,
+                  SkTileMode tm = SkTileMode::kClamp,
                   GeomType geomType = kRect_GeomType,
                   float scale = 1.0f)
         : fGeomType(geomType) {
 
         fName.printf("gradient_%s_%s", gGrads[gradType].fName,
-                     tilemodename(tm));
+                     ToolUtils::tilemode_name(tm));
         if (geomType != kRect_GeomType) {
             fName.appendf("_%s", geomtypename(geomType));
         }
@@ -211,7 +199,7 @@ public:
     GradientBench(GradType gradType, GradData data, bool dither)
         : fGeomType(kRect_GeomType) {
 
-        const char *tmname = tilemodename(SkShader::kClamp_TileMode);
+        const char *tmname = ToolUtils::tilemode_name(SkTileMode::kClamp);
         fName.printf("gradient_%s_%s", gGrads[gradType].fName, tmname);
         fName.append(data.fName);
 
@@ -220,7 +208,7 @@ public:
         }
 
         this->setupPaint(&fPaint);
-        fPaint.setShader(MakeShader(gradType, data, SkShader::kClamp_TileMode, 1.0f));
+        fPaint.setShader(MakeShader(gradType, data, SkTileMode::kClamp, 1.0f));
         fPaint.setDither(dither);
     }
 
@@ -252,7 +240,7 @@ private:
     typedef Benchmark INHERITED;
 
     sk_sp<SkShader> MakeShader(GradType gradType, GradData data,
-                               SkShader::TileMode tm, float scale) {
+                               SkTileMode tm, float scale) {
         const SkPoint pts[2] = {
             { 0, 0 },
             { SkIntToScalar(kSize), SkIntToScalar(kSize) }
@@ -272,26 +260,26 @@ DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[0]); )
 DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[1]); )
 DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[2]); )
 DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[4]); )
-DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[0], SkShader::kRepeat_TileMode); )
-DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[1], SkShader::kRepeat_TileMode); )
-DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[2], SkShader::kRepeat_TileMode); )
-DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[0], SkShader::kMirror_TileMode); )
-DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[1], SkShader::kMirror_TileMode); )
-DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[2], SkShader::kMirror_TileMode); )
+DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[0], SkTileMode::kRepeat); )
+DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[1], SkTileMode::kRepeat); )
+DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[2], SkTileMode::kRepeat); )
+DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[0], SkTileMode::kMirror); )
+DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[1], SkTileMode::kMirror); )
+DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[2], SkTileMode::kMirror); )
 
 DEF_BENCH( return new GradientBench(kRadial_GradType, gGradData[0]); )
 DEF_BENCH( return new GradientBench(kRadial_GradType, gGradData[1]); )
 DEF_BENCH( return new GradientBench(kRadial_GradType, gGradData[2]); )
 // Draw a radial gradient of radius 1/2 on a rectangle; half the lines should
 // be completely pinned, the other half should pe partially pinned
-DEF_BENCH( return new GradientBench(kRadial_GradType, gGradData[0], SkShader::kClamp_TileMode, kRect_GeomType, 0.5f); )
+DEF_BENCH( return new GradientBench(kRadial_GradType, gGradData[0], SkTileMode::kClamp, kRect_GeomType, 0.5f); )
 
 // Draw a radial gradient on a circle of equal size; all the lines should
 // hit the unpinned fast path (so long as GradientBench.W == H)
-DEF_BENCH( return new GradientBench(kRadial_GradType, gGradData[0], SkShader::kClamp_TileMode, kOval_GeomType); )
+DEF_BENCH( return new GradientBench(kRadial_GradType, gGradData[0], SkTileMode::kClamp, kOval_GeomType); )
 
-DEF_BENCH( return new GradientBench(kRadial_GradType, gGradData[0], SkShader::kMirror_TileMode); )
-DEF_BENCH( return new GradientBench(kRadial_GradType, gGradData[0], SkShader::kRepeat_TileMode); )
+DEF_BENCH( return new GradientBench(kRadial_GradType, gGradData[0], SkTileMode::kMirror); )
+DEF_BENCH( return new GradientBench(kRadial_GradType, gGradData[0], SkTileMode::kRepeat); )
 DEF_BENCH( return new GradientBench(kSweep_GradType); )
 DEF_BENCH( return new GradientBench(kSweep_GradType, gGradData[1]); )
 DEF_BENCH( return new GradientBench(kSweep_GradType, gGradData[2]); )
@@ -354,7 +342,7 @@ protected:
                 SK_ColorWHITE };
             paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr,
                                                          SK_ARRAY_COUNT(colors),
-                                                         SkShader::kClamp_TileMode));
+                                                         SkTileMode::kClamp));
             canvas->drawRect(r, paint);
         }
     }

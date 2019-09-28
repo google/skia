@@ -1,6 +1,19 @@
 [
   {
     "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+    ],
+    "name": "get swarming bot id",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "/usr/bin/adb.1.0.35",
       "push",
       "file.txt",
@@ -10,10 +23,43 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "push file.txt file.txt"
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "shell",
+      "cat",
+      "file.txt"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "read file.txt"
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "shell",
+      "rm",
+      "-f",
+      "file.txt"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm file.txt"
   },
   {
     "cmd": [
@@ -55,7 +101,7 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "rm device_results_dir"
@@ -72,7 +118,7 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "mkdir device_results_dir"
@@ -89,7 +135,7 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "mkdir /sdcard/revenge_of_the_skiabot/resources"
@@ -104,7 +150,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources",
@@ -153,7 +199,11 @@
       "[START_DIR]/tmp/SKP_VERSION"
     ],
     "infra_step": true,
-    "name": "write SKP_VERSION"
+    "name": "write SKP_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SKP_VERSION@42@@@",
+      "@@@STEP_LOG_END@SKP_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -166,11 +216,10 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /sdcard/revenge_of_the_skiabot/SKP_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "read /sdcard/revenge_of_the_skiabot/SKP_VERSION"
   },
   {
     "cmd": [
@@ -184,7 +233,7 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/SKP_VERSION"
@@ -201,7 +250,7 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/skps"
@@ -218,7 +267,7 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "mkdir /sdcard/revenge_of_the_skiabot/skps"
@@ -233,7 +282,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps",
@@ -267,7 +316,7 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "push [START_DIR]/tmp/SKP_VERSION /sdcard/revenge_of_the_skiabot/SKP_VERSION"
@@ -298,7 +347,11 @@
       "[START_DIR]/tmp/SK_IMAGE_VERSION"
     ],
     "infra_step": true,
-    "name": "write SK_IMAGE_VERSION"
+    "name": "write SK_IMAGE_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SK_IMAGE_VERSION@42@@@",
+      "@@@STEP_LOG_END@SK_IMAGE_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -311,11 +364,10 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
   },
   {
     "cmd": [
@@ -329,7 +381,7 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
@@ -346,7 +398,7 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/images"
@@ -363,7 +415,7 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "mkdir /sdcard/revenge_of_the_skiabot/images"
@@ -378,7 +430,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "push [START_DIR]/skimage/* /sdcard/revenge_of_the_skiabot/images",
@@ -412,7 +464,7 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "push [START_DIR]/tmp/SK_IMAGE_VERSION /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
@@ -443,7 +495,11 @@
       "[START_DIR]/tmp/SVG_VERSION"
     ],
     "infra_step": true,
-    "name": "write SVG_VERSION"
+    "name": "write SVG_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@SVG_VERSION@42@@@",
+      "@@@STEP_LOG_END@SVG_VERSION@@@"
+    ]
   },
   {
     "cmd": [
@@ -456,11 +512,10 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /sdcard/revenge_of_the_skiabot/SVG_VERSION",
-    "stdout": "/path/to/tmp/"
+    "name": "read /sdcard/revenge_of_the_skiabot/SVG_VERSION"
   },
   {
     "cmd": [
@@ -474,7 +529,7 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/SVG_VERSION"
@@ -491,7 +546,7 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "rm /sdcard/revenge_of_the_skiabot/svgs"
@@ -508,7 +563,7 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "mkdir /sdcard/revenge_of_the_skiabot/svgs"
@@ -523,7 +578,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "push [START_DIR]/svg/* /sdcard/revenge_of_the_skiabot/svgs",
@@ -557,7 +612,7 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "push [START_DIR]/tmp/SVG_VERSION /sdcard/revenge_of_the_skiabot/SVG_VERSION"
@@ -568,15 +623,15 @@
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo \"%s\" > '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])\nactual_gov = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()\nif actual_gov != gov:\n  raise Exception('(actual, expected) (%s, %s)'\n                  % (actual_gov, gov))\n",
       "/usr/bin/adb.1.0.35",
-      "0",
+      "4",
       "userspace"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "Set CPU 0's governor to userspace",
+    "name": "Set CPU 4's governor to userspace",
     "timeout": 30,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -611,17 +666,16 @@
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ntarget_percent = float(sys.argv[2])\ncpu = int(sys.argv[3])\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nroot = '/sys/devices/system/cpu/cpu%d/cpufreq' %cpu\n\n# All devices we test on give a list of their available frequencies.\navailable_freqs = subprocess.check_output([ADB, 'shell',\n    'cat %s/scaling_available_frequencies' % root])\n\n# Check for message like '/system/bin/sh: file not found'\nif available_freqs and '/system/bin/sh' not in available_freqs:\n  available_freqs = sorted(\n      int(i) for i in available_freqs.strip().split())\nelse:\n  raise Exception('Could not get list of available frequencies: %s' %\n                  available_freqs)\n\nmaxfreq = available_freqs[-1]\ntarget = int(round(maxfreq * target_percent))\nfreq = maxfreq\nfor f in reversed(available_freqs):\n  if f <= target:\n    freq = f\n    break\n\nprint 'Setting frequency to %d' % freq\n\n# If scaling_max_freq is lower than our attempted setting, it won't take.\n# We must set min first, because if we try to set max to be less than min\n# (which sometimes happens after certain devices reboot) it returns a\n# perplexing permissions error.\nsubprocess.check_output([ADB, 'shell', 'echo 0 > '\n    '%s/scaling_min_freq' % root])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '%s/scaling_max_freq' % (freq, root)])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '%s/scaling_setspeed' % (freq, root)])\ntime.sleep(5)\nactual_freq = subprocess.check_output([ADB, 'shell', 'cat '\n    '%s/scaling_cur_freq' % root]).strip()\nif actual_freq != str(freq):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_freq, freq))\n",
       "/usr/bin/adb.1.0.35",
       "0.6",
-      "0"
+      "4"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "Scale CPU 0 to 0.600000",
+    "name": "Scale CPU 4 to 0.600000",
     "timeout": 30,
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
@@ -687,17 +741,16 @@
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ntarget_percent = float(sys.argv[2])\ncpu = int(sys.argv[3])\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nroot = '/sys/devices/system/cpu/cpu%d/cpufreq' %cpu\n\n# All devices we test on give a list of their available frequencies.\navailable_freqs = subprocess.check_output([ADB, 'shell',\n    'cat %s/scaling_available_frequencies' % root])\n\n# Check for message like '/system/bin/sh: file not found'\nif available_freqs and '/system/bin/sh' not in available_freqs:\n  available_freqs = sorted(\n      int(i) for i in available_freqs.strip().split())\nelse:\n  raise Exception('Could not get list of available frequencies: %s' %\n                  available_freqs)\n\nmaxfreq = available_freqs[-1]\ntarget = int(round(maxfreq * target_percent))\nfreq = maxfreq\nfor f in reversed(available_freqs):\n  if f <= target:\n    freq = f\n    break\n\nprint 'Setting frequency to %d' % freq\n\n# If scaling_max_freq is lower than our attempted setting, it won't take.\n# We must set min first, because if we try to set max to be less than min\n# (which sometimes happens after certain devices reboot) it returns a\n# perplexing permissions error.\nsubprocess.check_output([ADB, 'shell', 'echo 0 > '\n    '%s/scaling_min_freq' % root])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '%s/scaling_max_freq' % (freq, root)])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '%s/scaling_setspeed' % (freq, root)])\ntime.sleep(5)\nactual_freq = subprocess.check_output([ADB, 'shell', 'cat '\n    '%s/scaling_cur_freq' % root]).strip()\nif actual_freq != str(freq):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_freq, freq))\n",
       "/usr/bin/adb.1.0.35",
       "0.6",
-      "0"
+      "4"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "Scale CPU 0 to 0.600000 (attempt 2)",
+    "name": "Scale CPU 4 to 0.600000 (attempt 2)",
     "timeout": 30,
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
@@ -763,17 +816,16 @@
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ntarget_percent = float(sys.argv[2])\ncpu = int(sys.argv[3])\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nroot = '/sys/devices/system/cpu/cpu%d/cpufreq' %cpu\n\n# All devices we test on give a list of their available frequencies.\navailable_freqs = subprocess.check_output([ADB, 'shell',\n    'cat %s/scaling_available_frequencies' % root])\n\n# Check for message like '/system/bin/sh: file not found'\nif available_freqs and '/system/bin/sh' not in available_freqs:\n  available_freqs = sorted(\n      int(i) for i in available_freqs.strip().split())\nelse:\n  raise Exception('Could not get list of available frequencies: %s' %\n                  available_freqs)\n\nmaxfreq = available_freqs[-1]\ntarget = int(round(maxfreq * target_percent))\nfreq = maxfreq\nfor f in reversed(available_freqs):\n  if f <= target:\n    freq = f\n    break\n\nprint 'Setting frequency to %d' % freq\n\n# If scaling_max_freq is lower than our attempted setting, it won't take.\n# We must set min first, because if we try to set max to be less than min\n# (which sometimes happens after certain devices reboot) it returns a\n# perplexing permissions error.\nsubprocess.check_output([ADB, 'shell', 'echo 0 > '\n    '%s/scaling_min_freq' % root])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '%s/scaling_max_freq' % (freq, root)])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '%s/scaling_setspeed' % (freq, root)])\ntime.sleep(5)\nactual_freq = subprocess.check_output([ADB, 'shell', 'cat '\n    '%s/scaling_cur_freq' % root]).strip()\nif actual_freq != str(freq):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_freq, freq))\n",
       "/usr/bin/adb.1.0.35",
       "0.6",
-      "0"
+      "4"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "Scale CPU 0 to 0.600000 (attempt 3)",
+    "name": "Scale CPU 4 to 0.600000 (attempt 3)",
     "timeout": 30,
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
@@ -837,11 +889,11 @@
       "python",
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['/usr/bin/adb.1.0.35', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
-      "[START_DIR]/build/out/Debug"
+      "[START_DIR]/build"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "dump log",
@@ -869,20 +921,6 @@
     "cmd": [
       "python",
       "-u",
-      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
-    ],
-    "name": "get swarming bot id",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
@@ -891,7 +929,11 @@
       "/home/chrome-bot/skia-rpi-022.force_quarantine"
     ],
     "infra_step": true,
-    "name": "Quarantining Bot"
+    "name": "Quarantining Bot",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@skia-rpi-022.force_quarantine@ @@@",
+      "@@@STEP_LOG_END@skia-rpi-022.force_quarantine@@@"
+    ]
   },
   {
     "cmd": [
@@ -902,15 +944,15 @@
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "kill adb server"
   },
   {
-    "name": "$result",
-    "reason": "Infra Failure: Step('Scale CPU 0 to 0.600000 (attempt 3)') returned 1",
-    "recipe_result": null,
-    "status_code": 1
+    "failure": {
+      "humanReason": "Infra Failure: Step('Scale CPU 4 to 0.600000 (attempt 3)') (retcode: 1)"
+    },
+    "name": "$result"
   }
 ]

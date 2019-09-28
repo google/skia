@@ -8,9 +8,9 @@
 #ifndef SkAdvancedTypefaceMetrics_DEFINED
 #define SkAdvancedTypefaceMetrics_DEFINED
 
-#include "SkBitmaskEnum.h"
-#include "SkRect.h"
-#include "SkString.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkString.h"
+#include "include/private/SkBitmaskEnum.h"
 
 /** \class SkAdvancedTypefaceMetrics
 

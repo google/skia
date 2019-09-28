@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<title>CanvasKit Extra features (Skia via Web Assembly)</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  canvas {
+    border: 1px dashed #AAA;
+    width: 300px;
+    height: 300px;
+  }
+
+</style>
+
+<h2> Skottie </h2>
+<canvas id=sk_legos width=300 height=300></canvas>
+<canvas id=sk_drinks width=500 height=500></canvas>
+<canvas id=sk_party width=500 height=500></canvas>
+<canvas id=sk_onboarding width=500 height=500></canvas>
+<canvas id=sk_animated_gif width=500 height=500
+        title='This is an animated gif being animated in Skottie'></canvas>
+<canvas id=sk_webfont width=500 height=500
+        title='This shows loading of a custom font (e.g. WebFont)'></canvas>
+
+<h2> Particles </h2>
+<canvas id=particles width=500 height=500></canvas>
+
+<script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+  var CanvasKit = null;
+  var legoJSON = null;
+  var drinksJSON = null;
+  var confettiJSON = null;
+  var onboardingJSON = null;
+  var multiFrameJSON = null;
+  var webfontJSON = null;
+  var fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
+
+  var robotoData = null;
+  var notoserifData = null;
+
+  var bonesImageData = null;
+  var flightAnimGif = null;
+  CanvasKitInit({
+    locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
+  }).ready().then((CK) => {
+    CanvasKit = CK;
+    // Set bounds to fix the 4:3 resolution of the legos
+    SkottieExample(CanvasKit, 'sk_legos', legoJSON,
+                  {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
+    // Re-size to fit
+    SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
+    SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
+    SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
+    SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
+      'image_0.png': flightAnimGif,
+    });
+    SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, {
+      'Roboto-Regular': robotoData,
+    });
+
+    ParticlesAPI1(CanvasKit);
+  });
+
+  fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
+    resp.text().then((str) => {
+      legoJSON = str;
+      SkottieExample(CanvasKit, 'sk_legos', legoJSON,
+                    {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
+    });
+  });
+
+  fetch('https://storage.googleapis.com/skia-cdn/misc/drinks.json').then((resp) => {
+    resp.text().then((str) => {
+      drinksJSON = str;
+      SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
+    });
+  });
+
+  fetch('https://storage.googleapis.com/skia-cdn/misc/confetti.json').then((resp) => {
+    resp.text().then((str) => {
+      confettiJSON = str;
+      SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
+    });
+  });
+
+  fetch('https://storage.googleapis.com/skia-cdn/misc/onboarding.json').then((resp) => {
+    resp.text().then((str) => {
+      onboardingJSON = str;
+      SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
+    });
+  });
+
+  fetch('https://storage.googleapis.com/skia-cdn/misc/skottie_sample_multiframe.json').then((resp) => {
+    resp.text().then((str) => {
+      multiFrameJSON = str;
+      SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
+        'image_0.png': flightAnimGif,
+      });
+    });
+  });
+
+  fetch('https://storage.googleapis.com/skia-cdn/misc/skottie_sample_webfont.json').then((resp) => {
+    resp.text().then((str) => {
+      webfontJSON = str;
+      SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, {
+        'Roboto-Regular': robotoData,
+      });
+    });
+  });
+
+  fetch('https://storage.googleapis.com/skia-cdn/misc/flightAnim.gif').then((resp) => {
+    resp.arrayBuffer().then((buffer) => {
+      flightAnimGif = buffer;
+      SkottieExample(CanvasKit, 'sk_animated_gif', multiFrameJSON, fullBounds, {
+        'image_0.png': flightAnimGif,
+      });
+    });
+  });
+
+  fetch('./Roboto-Regular.woff').then((resp) => {
+    resp.arrayBuffer().then((buffer) => {
+      robotoData = buffer;
+      SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, {
+        'Roboto-Regular': robotoData,
+      });
+    });
+  });
+
+  function SkottieExample(CanvasKit, id, jsonStr, bounds, assets) {
+    if (!CanvasKit || !jsonStr) {
+      return;
+    }
+    const animation = CanvasKit.MakeManagedAnimation(jsonStr, assets);
+    const duration = animation.duration() * 1000;
+    const size = animation.size();
+    let c = document.getElementById(id);
+    bounds = bounds || {fLeft: 0, fTop: 0, fRight: size.w, fBottom: size.h};
+
+    // Basic managed animation test.
+    if (id === 'sk_drinks') {
+      animation.setColor('BACKGROUND_FILL', CanvasKit.Color(0, 163, 199, 1.0));
+    }
+
+    const surface = CanvasKit.MakeCanvasSurface(id);
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+
+    let firstFrame = Date.now();
+
+    function drawFrame(canvas) {
+      let seek = ((Date.now() - firstFrame) / duration) % 1.0;
+      let damage = animation.seek(seek);
+      // TODO: SkRect.isEmpty()?
+      if (damage.fRight > damage.fLeft && damage.fBottom > damage.fTop) {
+        canvas.clear(CanvasKit.WHITE);
+        animation.render(canvas, bounds);
+      }
+      surface.requestAnimationFrame(drawFrame);
+    }
+    surface.requestAnimationFrame(drawFrame);
+
+    //animation.delete();
+    return surface;
+  }
+
+  function ParticlesAPI1(CanvasKit) {
+    const surface = CanvasKit.MakeCanvasSurface('particles');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const context = CanvasKit.currentContext();
+    const canvas = surface.getCanvas();
+
+    const particles = CanvasKit.MakeParticles(JSON.stringify(snowfall));
+    particles.start(Date.now() / 1000.0, true);
+
+    function drawFrame(canvas) {
+      canvas.clear(CanvasKit.BLACK);
+
+      particles.update(Date.now() / 1000.0);
+      particles.draw(canvas);
+      surface.requestAnimationFrame(drawFrame);
+    }
+    surface.requestAnimationFrame(drawFrame);
+  }
+
+const snowfall = {
+   "MaxCount": 4096,
+   "Duration": 1,
+   "Rate": 30,
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 1
+   },
+   "Code": [
+      "// float rand; Every read returns a random float [0 .. 1)",
+      "",
+      "void spawn(inout Particle p) {",
+      "  p.lifetime = 10;",
+      "  p.vel.y = 10 + rand * 20;",
+      "  p.vel.x = -5 + 10 * rand;",
+      "  p.pos.x = rand * 500;",
+      "}",
+      "",
+      "void update(inout Particle p) {",
+      "  p.scale = size(p.age);",
+      "}",
+      ""
+   ],
+   "Bindings": [
+      {
+         "Type": "SkCurveBinding",
+         "Name": "size",
+         "Curve": {
+            "XValues": [],
+            "Segments": [
+               {
+                  "Type": "Cubic",
+                  "Ranged": true,
+                  "Bidirectional": false,
+                  "A0": 10,
+                  "B0": 10,
+                  "C0": 10,
+                  "D0": 0,
+                  "A1": 10,
+                  "B1": 0,
+                  "C1": 0,
+                  "D1": 0
+               }
+            ]
+         }
+      }
+   ]
+};
+
+  function SurfaceAPI1(CanvasKit) {
+    const surface = CanvasKit.MakeCanvasSurface('surfaces');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const context = CanvasKit.currentContext();
+    const canvas = surface.getCanvas();
+
+    // create a subsurface as a temporary workspace.
+    const subSurface = surface.makeSurface({
+      width: 50,
+      height: 50,
+      alphaType: CanvasKit.AlphaType.Premul,
+      colorType: CanvasKit.ColorType.RGBA_8888,
+    });
+
+    if (!subSurface) {
+      console.error('Could not make subsurface');
+      return;
+    }
+
+    // draw a small "scene"
+    const paint = new CanvasKit.SkPaint();
+    paint.setColor(CanvasKit.Color(139, 228, 135, 0.95)); // greenish
+    paint.setStyle(CanvasKit.PaintStyle.Fill);
+    paint.setAntiAlias(true);
+
+    const subCanvas = subSurface.getCanvas();
+    subCanvas.clear(CanvasKit.BLACK);
+    subCanvas.drawRect(CanvasKit.LTRBRect(5, 15, 45, 40), paint);
+
+    paint.setColor(CanvasKit.Color(214, 93, 244)); // purplish
+    for (let i = 0; i < 10; i++) {
+      const x = Math.random() * 50;
+      const y = Math.random() * 50;
+
+      subCanvas.drawOval(CanvasKit.XYWHRect(x, y, 6, 6), paint);
+    }
+
+    // Snap it off as an SkImage - this image will be in the form the
+    // parent surface prefers (e.g. Texture for GPU / Raster for CPU).
+    const img = subSurface.makeImageSnapshot();
+
+    // clean up the temporary surface
+    subSurface.delete();
+    paint.delete();
+
+    // Make it repeat a bunch with a shader
+    const pattern = img.makeShader(CanvasKit.TileMode.Repeat, CanvasKit.TileMode.Mirror);
+    const patternPaint = new CanvasKit.SkPaint();
+    patternPaint.setShader(pattern);
+
+    let i = 0;
+
+    function drawFrame() {
+      i++;
+      CanvasKit.setCurrentContext(context);
+      canvas.clear(CanvasKit.WHITE);
+
+      canvas.drawOval(CanvasKit.LTRBRect(i % 60, i % 60, 300 - (i% 60), 300 - (i % 60)), patternPaint);
+      surface.flush();
+      window.requestAnimationFrame(drawFrame);
+    }
+    window.requestAnimationFrame(drawFrame);
+
+  }
+</script>

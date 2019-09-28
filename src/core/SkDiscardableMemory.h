@@ -8,8 +8,8 @@
 #ifndef SkDiscardableMemory_DEFINED
 #define SkDiscardableMemory_DEFINED
 
-#include "SkRefCnt.h"
-#include "SkTypes.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 
 /**
  *  Interface for discardable memory. Implementation is provided by the
@@ -47,7 +47,7 @@ public:
      *
      * Nested calls to lock are not allowed.
      */
-    virtual bool lock() = 0;
+    virtual bool SK_WARN_UNUSED_RESULT lock() = 0;
 
     /**
      * Returns the current pointer for the discardable memory. This call is ONLY

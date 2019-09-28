@@ -5,9 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkRegion.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 
 /**
  *  This is very similar to the RectGrid macrobench in Android.
@@ -32,7 +36,7 @@ protected:
     void onOnceBeforeDraw() override {
         for (int x = 50; x < 250; x+=2) {
             for (int y = 50; y < 250; y+=2) {
-                fRegion.op(x, y, x + 1, y + 1, SkRegion::kUnion_Op);
+                fRegion.op({x, y, x + 1, y + 1}, SkRegion::kUnion_Op);
             }
         }
     }

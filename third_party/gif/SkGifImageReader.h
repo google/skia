@@ -42,15 +42,17 @@
 // so we will too.
 class SkGifCodec;
 
-#include "SkCodec.h"
-#include "SkCodecPriv.h"
-#include "SkCodecAnimation.h"
-#include "SkColorTable.h"
-#include "SkData.h"
-#include "SkFrameHolder.h"
-#include "SkImageInfo.h"
-#include "SkStreamBuffer.h"
-#include "../private/SkTArray.h"
+#include "include/codec/SkCodec.h"
+#include "include/codec/SkCodecAnimation.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageInfo.h"
+#include "include/private/SkTArray.h"
+#include "src/codec/SkCodecPriv.h"
+#include "src/codec/SkColorTable.h"
+#include "src/codec/SkFrameHolder.h"
+#include "src/codec/SkStreamBuffer.h"
+
+#include <array>
 #include <memory>
 
 typedef SkTArray<unsigned char, true> SkGIFRow;
@@ -60,6 +62,7 @@ typedef SkTArray<unsigned char, true> SkGIFRow;
 #define SK_MAX_DICTIONARY_ENTRIES    4096 // 2^SK_MAX_DICTIONARY_ENTRY_BITS
 #define SK_MAX_COLORS                256
 #define SK_BYTES_PER_COLORMAP_ENTRY  3
+#define SK_DICTIONARY_WORD_SIZE      8
 
 // List of possible parsing states.
 enum SkGIFState {
@@ -97,7 +100,6 @@ public:
         , clearCode(0)
         , avail(0)
         , oldcode(0)
-        , firstchar(0)
         , bits(0)
         , datum(0)
         , ipass(0)
@@ -120,7 +122,6 @@ private:
     int clearCode; // Codeword used to trigger dictionary reset.
     int avail; // Index of next available slot in dictionary.
     int oldcode;
-    unsigned char firstchar;
     int bits; // Number of unread bits in "datum".
     int datum; // 32-bit input buffer.
     int ipass; // Interlace pass; Ranges 1-4 if interlaced.
@@ -128,7 +129,8 @@ private:
     size_t rowsRemaining; // Rows remaining to be output.
 
     unsigned short prefix[SK_MAX_DICTIONARY_ENTRIES];
-    unsigned char suffix[SK_MAX_DICTIONARY_ENTRIES];
+    std::array<std::array<unsigned char, SK_DICTIONARY_WORD_SIZE>,
+                SK_MAX_DICTIONARY_ENTRIES> suffix;
     unsigned short suffixLength[SK_MAX_DICTIONARY_ENTRIES];
     SkGIFRow rowBuffer; // Single scanline temporary buffer.
     unsigned char* rowIter;

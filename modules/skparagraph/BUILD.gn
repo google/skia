@@ -1,0 +1,103 @@
+# Copyright 2019 Google LLC.
+
+import("../../gn/skia.gni")
+
+declare_args() {
+  skia_enable_skparagraph = !(is_win && is_component_build)
+  paragraph_tests_enabled = true
+  paragraph_bench_enabled = false
+}
+
+if (skia_enable_skparagraph) {
+  config("public_config") {
+    include_dirs = [
+      "include",
+      "utils",
+    ]
+  }
+
+  component("skparagraph") {
+    import("skparagraph.gni")
+    public_configs = [ ":public_config" ]
+    public = skparagraph_public
+    if (skia_use_icu && skia_use_harfbuzz) {
+      sources = skparagraph_sources
+    } else {
+      sources = []
+    }
+    deps = [
+      "../..:skia",
+      "../skshaper",
+      "//third_party/icu",
+    ]
+  }
+
+  config("utils_config") {
+    include_dirs = [ "utils" ]
+  }
+
+  if (defined(is_skia_standalone) && skia_enable_tools) {
+    source_set("utils") {
+      import("skparagraph.gni")
+      public_configs = [ ":utils_config" ]
+      configs += [ "../../:skia_private" ]
+      if (skia_use_icu && skia_use_harfbuzz) {
+        sources = skparagraph_utils
+      } else {
+        sources = []
+      }
+      deps = [
+        "../..:skia",
+        "../skshaper",
+        "//third_party/icu",
+      ]
+    }
+
+    source_set("tests") {
+      if (skia_use_icu && skia_use_harfbuzz && paragraph_tests_enabled) {
+        testonly = true
+        sources = [
+          "//tests/SkParagraphTest.cpp",
+        ]
+        deps = [
+          ":skparagraph",
+          "../..:gpu_tool_utils",
+          "../..:skia",
+          "../skshaper",
+          "//third_party/icu",
+        ]
+      }
+    }
+
+    source_set("bench") {
+      if (skia_use_icu && skia_use_harfbuzz && paragraph_bench_enabled) {
+        testonly = true
+        sources = [
+          "//bench/ParagraphBench.cpp",
+        ]
+        deps = [
+          ":skparagraph",
+          "../..:skia",
+          "../skshaper",
+          "//third_party/icu",
+        ]
+      }
+    }
+
+    source_set("samples") {
+      if (skia_use_icu && skia_use_harfbuzz) {
+        testonly = true
+        sources = [
+          "//samplecode/SampleParagraph.cpp",
+        ]
+        deps = [
+          ":skparagraph",
+          ":utils",
+          "../..:skia",
+          "../skshaper",
+          "//third_party/icu",
+        ]
+      }
+    }
+  }
+}
