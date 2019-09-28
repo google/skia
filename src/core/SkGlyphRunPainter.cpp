@@ -27,7 +27,6 @@
 #include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
-#include "src/core/SkPaintPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
@@ -589,6 +588,7 @@ SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorSpaceInfo
     }
     if (paint.getColorFilter() != nullptr) {
         filteredColor = paint.getColorFilter()->filterColor4f(filteredColor,
+                                                              colorSpaceInfo.colorSpace(),
                                                               colorSpaceInfo.colorSpace());
     }
     return filteredColor.premul();
