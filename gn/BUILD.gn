@@ -14,10 +14,9 @@ declare_args() {
 
   malloc = ""
 
-  enable_bitcode = false
-  if (is_tvos || is_watchos) {
-    enable_bitcode = true
-  }
+  enable_bitcode =
+    (is_tvos || is_watchos) &&
+    (target_cpu == "arm" || target_cpu == "arm64")
 }
 
 if (is_ios) {
@@ -217,9 +216,9 @@ config("default") {
       _target = "x86_64"
     }
     if (is_watchos) {
-      if (_target == "armv7") {
+      if (target_cpu == "arm") {
         _target = "armv7k"
-      } else if (_target == "arm64") {
+      } else if (target_cpu == "arm64") {
         _target = "arm64_32"
       }
     }
