@@ -7,32 +7,32 @@
  * found in the LICENSE file.
  */
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
-#include "SkMatrix44.h"
-#include "SkBlurMaskFilter.h"
-#include "SkPngEncoder.h"
-#include "SkJpegEncoder.h"
-#include "SkWebpEncoder.h"
-#include "SkTypeface.h"
-#include "SkDropShadowImageFilter.h"
-#include "SkDisplacementMapEffect.h"
-#include "SkShader.h"
-#include "SkMatrixConvolutionImageFilter.h"
-#include "SkPathMeasure.h"
-#include "SkVertices.h"
-#include "SkImage.h"
-#include "SkPathOps.h"
-#include "SkRegion.h"
-#include "Sk1DPathEffect.h"
-#include "SkHighContrastFilter.h"
-#include "SkMask.h"
-#include "SkTrimPathEffect.h"
-#include "SkColorSpace.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkMatrix44.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkVertices.h"
+#include "include/effects/Sk1DPathEffect.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "include/effects/SkDisplacementMapEffect.h"
+#include "include/effects/SkDropShadowImageFilter.h"
+#include "include/effects/SkHighContrastFilter.h"
+#include "include/effects/SkMatrixConvolutionImageFilter.h"
+#include "include/effects/SkTrimPathEffect.h"
+#include "include/encode/SkJpegEncoder.h"
+#include "include/encode/SkPngEncoder.h"
+#include "include/encode/SkWebpEncoder.h"
+#include "include/pathops/SkPathOps.h"
+#include "src/core/SkMask.h"
 
 #if SK_SUPPORT_GPU
-#include "GrTypes.h"
-#include "GrContextOptions.h"
+#include "include/gpu/GrTypes.h"
+#include "include/gpu/GrContextOptions.h"
 #endif
 
 #if __cplusplus >= 199711L
@@ -85,15 +85,15 @@ static_assert ((int)SkPath::SegmentMask::kConic_SegmentMask   == (int)CONIC_SK_P
 static_assert ((int)SkPath::SegmentMask::kCubic_SegmentMask   == (int)CUBIC_SK_PATH_SEGMENT_MASK,   ASSERT_MSG(SkPath::SegmentMask, sk_path_segment_mask_t));
 
 // sk_text_align_t
-static_assert ((int)SkPaint::Align::kLeft_Align     == (int)LEFT_SK_TEXT_ALIGN,     ASSERT_MSG(SkPaint::Align, sk_text_align_t));
-static_assert ((int)SkPaint::Align::kCenter_Align   == (int)CENTER_SK_TEXT_ALIGN,   ASSERT_MSG(SkPaint::Align, sk_text_align_t));
-static_assert ((int)SkPaint::Align::kRight_Align    == (int)RIGHT_SK_TEXT_ALIGN,    ASSERT_MSG(SkPaint::Align, sk_text_align_t));
+static_assert ((int)SkTextUtils::Align::kLeft_Align     == (int)LEFT_SK_TEXT_ALIGN,     ASSERT_MSG(SkTextUtils::Align, sk_text_align_t));
+static_assert ((int)SkTextUtils::Align::kCenter_Align   == (int)CENTER_SK_TEXT_ALIGN,   ASSERT_MSG(SkTextUtils::Align, sk_text_align_t));
+static_assert ((int)SkTextUtils::Align::kRight_Align    == (int)RIGHT_SK_TEXT_ALIGN,    ASSERT_MSG(SkTextUtils::Align, sk_text_align_t));
 
 // sk_text_encoding_t
-static_assert ((int)SkPaint::TextEncoding::kUTF8_TextEncoding      == (int)UTF8_SK_TEXT_ENCODING,       ASSERT_MSG(SkPaint::TextEncoding, sk_text_encoding_t));
-static_assert ((int)SkPaint::TextEncoding::kUTF16_TextEncoding     == (int)UTF16_SK_TEXT_ENCODING,      ASSERT_MSG(SkPaint::TextEncoding, sk_text_encoding_t));
-static_assert ((int)SkPaint::TextEncoding::kUTF32_TextEncoding     == (int)UTF32_SK_TEXT_ENCODING,      ASSERT_MSG(SkPaint::TextEncoding, sk_text_encoding_t));
-static_assert ((int)SkPaint::TextEncoding::kGlyphID_TextEncoding   == (int)GLYPH_ID_SK_TEXT_ENCODING,   ASSERT_MSG(SkPaint::TextEncoding, sk_text_encoding_t));
+static_assert ((int)SkTextEncoding::kUTF8      == (int)UTF8_SK_TEXT_ENCODING,       ASSERT_MSG(SkTextEncoding, sk_text_encoding_t));
+static_assert ((int)SkTextEncoding::kUTF16     == (int)UTF16_SK_TEXT_ENCODING,      ASSERT_MSG(SkTextEncoding, sk_text_encoding_t));
+static_assert ((int)SkTextEncoding::kUTF32     == (int)UTF32_SK_TEXT_ENCODING,      ASSERT_MSG(SkTextEncoding, sk_text_encoding_t));
+static_assert ((int)SkTextEncoding::kGlyphID   == (int)GLYPH_ID_SK_TEXT_ENCODING,   ASSERT_MSG(SkTextEncoding, sk_text_encoding_t));
 
 // sk_filter_quality_t
 static_assert ((int)SkFilterQuality::kNone_SkFilterQuality     == (int)NONE_SK_FILTER_QUALITY,     ASSERT_MSG(SkFilterQuality, sk_filter_quality_t));
@@ -166,7 +166,9 @@ static_assert ((int)SkColorType::kBGRA_8888_SkColorType      == (int)BGRA_8888_S
 static_assert ((int)SkColorType::kRGBA_1010102_SkColorType   == (int)RGBA_1010102_SK_COLORTYPE,   ASSERT_MSG(SkColorType, sk_colortype_t));
 static_assert ((int)SkColorType::kRGB_101010x_SkColorType    == (int)RGB_101010X_SK_COLORTYPE,    ASSERT_MSG(SkColorType, sk_colortype_t));
 static_assert ((int)SkColorType::kGray_8_SkColorType         == (int)GRAY_8_SK_COLORTYPE,         ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kRGBA_F16Norm_SkColorType   == (int)RGBA_F16_NORM_SK_COLORTYPE,  ASSERT_MSG(SkColorType, sk_colortype_t));
 static_assert ((int)SkColorType::kRGBA_F16_SkColorType       == (int)RGBA_F16_SK_COLORTYPE,       ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kRGBA_F32_SkColorType       == (int)RGBA_F32_SK_COLORTYPE,       ASSERT_MSG(SkColorType, sk_colortype_t));
 
 // sk_alphatype_t
 static_assert ((int)SkAlphaType::kUnknown_SkAlphaType    == (int)UNKNOWN_SK_ALPHATYPE,    ASSERT_MSG(SkAlphaType, sk_alphatype_t));
@@ -182,9 +184,10 @@ static_assert ((int)SkPixelGeometry::kRGB_V_SkPixelGeometry     == (int)RGB_V_SK
 static_assert ((int)SkPixelGeometry::kBGR_V_SkPixelGeometry     == (int)BGR_V_SK_PIXELGEOMETRY,     ASSERT_MSG(SkPixelGeometry, sk_pixelgeometry_t));
 
 // sk_shader_tilemode_t
-static_assert ((int)SkShader::TileMode::kClamp_TileMode    == (int)CLAMP_SK_SHADER_TILEMODE,    ASSERT_MSG(SkShader::TileMode, sk_shader_tilemode_t));
-static_assert ((int)SkShader::TileMode::kRepeat_TileMode   == (int)REPEAT_SK_SHADER_TILEMODE,   ASSERT_MSG(SkShader::TileMode, sk_shader_tilemode_t));
-static_assert ((int)SkShader::TileMode::kMirror_TileMode   == (int)MIRROR_SK_SHADER_TILEMODE,   ASSERT_MSG(SkShader::TileMode, sk_shader_tilemode_t));
+static_assert ((int)SkTileMode::kClamp    == (int)CLAMP_SK_SHADER_TILEMODE,    ASSERT_MSG(SkTileMode, sk_shader_tilemode_t));
+static_assert ((int)SkTileMode::kRepeat   == (int)REPEAT_SK_SHADER_TILEMODE,   ASSERT_MSG(SkTileMode, sk_shader_tilemode_t));
+static_assert ((int)SkTileMode::kMirror   == (int)MIRROR_SK_SHADER_TILEMODE,   ASSERT_MSG(SkTileMode, sk_shader_tilemode_t));
+static_assert ((int)SkTileMode::kDecal    == (int)DECAL_SK_SHADER_TILEMODE,    ASSERT_MSG(SkTileMode, sk_shader_tilemode_t));
 
 // sk_blurstyle_t
 static_assert ((int)SkBlurStyle::kNormal_SkBlurStyle   == (int)NORMAL_SK_BLUR_STYLE,   ASSERT_MSG(SkBlurStyle, sk_blurstyle_t));
@@ -282,11 +285,11 @@ static_assert ((int)SkPaint::Style::kFill_Style            == (int)FILL_SK_PAINT
 static_assert ((int)SkPaint::Style::kStrokeAndFill_Style   == (int)STROKE_AND_FILL_SK_PAINT_STYLE,   ASSERT_MSG(SkPaint::Style, sk_paint_style_t));
 static_assert ((int)SkPaint::Style::kStroke_Style          == (int)STROKE_SK_PAINT_STYLE,            ASSERT_MSG(SkPaint::Style, sk_paint_style_t));
 
-// sk_paint_hinting_t
-static_assert ((int)SkPaint::Hinting::kNo_Hinting       == (int)NO_HINTING_SK_PAINT_HINTING,       ASSERT_MSG(SkPaint::Hinting, sk_paint_hinting_t));
-static_assert ((int)SkPaint::Hinting::kSlight_Hinting   == (int)SLIGHT_HINTING_SK_PAINT_HINTING,   ASSERT_MSG(SkPaint::Hinting, sk_paint_hinting_t));
-static_assert ((int)SkPaint::Hinting::kNormal_Hinting   == (int)NORMAL_HINTING_SK_PAINT_HINTING,   ASSERT_MSG(SkPaint::Hinting, sk_paint_hinting_t));
-static_assert ((int)SkPaint::Hinting::kFull_Hinting     == (int)FULL_HINTING_SK_PAINT_HINTING,     ASSERT_MSG(SkPaint::Hinting, sk_paint_hinting_t));
+// sk_font_hinting_t
+static_assert ((int)SkFontHinting::kNone     == (int)NONE_SK_FONT_HINTING,     ASSERT_MSG(SkFontHinting, sk_font_hinting_t));
+static_assert ((int)SkFontHinting::kSlight   == (int)SLIGHT_SK_FONT_HINTING,   ASSERT_MSG(SkFontHinting, sk_font_hinting_t));
+static_assert ((int)SkFontHinting::kNormal   == (int)NORMAL_SK_FONT_HINTING,   ASSERT_MSG(SkFontHinting, sk_font_hinting_t));
+static_assert ((int)SkFontHinting::kFull     == (int)FULL_SK_FONT_HINTING,     ASSERT_MSG(SkFontHinting, sk_font_hinting_t));
 
 // sk_point_mode_t
 static_assert ((int)SkCanvas::PointMode::kPoints_PointMode    == (int)POINTS_SK_POINT_MODE,    ASSERT_MSG(SkCanvas::PointMode, sk_point_mode_t));

@@ -7,11 +7,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkTextBlob.h"
+#include "include/core/SkTextBlob.h"
 
-#include "sk_textblob.h"
+#include "include/c/sk_textblob.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
 
 void sk_textblob_ref(const sk_textblob_t* blob) {

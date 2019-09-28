@@ -7,12 +7,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlurMaskFilter.h"
-#include "SkTableMaskFilter.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "include/effects/SkTableMaskFilter.h"
 
-#include "sk_maskfilter.h"
+#include "include/c/sk_maskfilter.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
 sk_maskfilter_t* sk_maskfilter_new_table(const uint8_t table[256]) {
     return ToMaskFilter(SkTableMaskFilter::Create(table));
@@ -38,6 +38,6 @@ sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t cstyle, float sigma) {
     return ToMaskFilter(SkMaskFilter::MakeBlur((SkBlurStyle)cstyle, sigma).release());
 }
 
-sk_maskfilter_t* sk_maskfilter_new_blur_with_flags(sk_blurstyle_t cstyle, float sigma, const sk_rect_t* occluder, bool respectCTM) {
-    return ToMaskFilter(SkMaskFilter::MakeBlur((SkBlurStyle)cstyle, sigma, *AsRect(occluder), respectCTM).release());
+sk_maskfilter_t* sk_maskfilter_new_blur_with_flags(sk_blurstyle_t cstyle, float sigma, bool respectCTM) {
+    return ToMaskFilter(SkMaskFilter::MakeBlur((SkBlurStyle)cstyle, sigma, respectCTM).release());
 }

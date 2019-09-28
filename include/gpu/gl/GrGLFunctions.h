@@ -259,9 +259,6 @@ using GrEGLCreateImageFn = GrEGLImage GR_GL_FUNCTION_TYPE(GrEGLDisplay dpy, GrEG
 using GrEGLDestroyImageFn = GrEGLBoolean GR_GL_FUNCTION_TYPE(GrEGLDisplay dpy, GrEGLImage image);
 }  // extern "C"
 
-// Legacy name used in Chrome. TODO: Remove when removed from Chrome.
-using GrGLGetStringProc = GrGLGetStringFn;
-
 // This is a lighter-weight std::function, trying to reduce code size and compile time
 // by only supporting the exact use cases we require.
 template <typename T> class GrGLFunction;
@@ -301,9 +298,6 @@ public:
         };
     }
 
-    // See other (temporary) specialization below.
-    GrGLFunction(const GrGLFunction<R(*)(Args...)>& that);
-
     R operator()(Args... args) const {
         SkASSERT(fCall);
         return fCall(fBuf, std::forward<Args>(args)...);
@@ -318,23 +312,5 @@ private:
     Call* fCall = nullptr;
     size_t fBuf[4];
 };
-
-/**
- * Chrome instantiates GrGLFunctions on function pointers that don't include GR_GL_FUNCTION_TYPE.
- * This can go away after Chrome is updated to use the above specialization.
- */
-template <typename R, typename... Args>
-class GrGLFunction<R (*)(Args...)> : public GrGLFunction<R GR_GL_FUNCTION_TYPE(Args...)> {
-public:
-    template <typename Closure>
-    GrGLFunction(Closure closure)
-            : GrGLFunction<R GR_GL_FUNCTION_TYPE(Args...)>(std::move(closure)) {}
-};
-
-template <typename R, typename... Args>
-GrGLFunction<R GR_GL_FUNCTION_TYPE(Args...)>::GrGLFunction(const GrGLFunction<R (*)(Args...)>& that)
-        : fCall(that.fCall) {
-    memcpy(fBuf, that.fBuf, sizeof(fBuf));
-}
 
 #endif

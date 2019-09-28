@@ -8,9 +8,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkRegion.h"
-#include "sk_region.h"
-#include "sk_types_priv.h"
+#include "include/core/SkRegion.h"
+
+#include "include/c/sk_region.h"
+
+#include "src/c/sk_types_priv.h"
 
 
 sk_region_t *sk_region_new() {
@@ -54,7 +56,7 @@ bool sk_region_set_region(sk_region_t* dst, const sk_region_t* region) {
 }
 
 bool sk_region_op(sk_region_t *dst, int left, int top, int right, int bottom, sk_region_op_t op) {
-    return AsRegion(dst)->op(left, top, right, bottom, (SkRegion::Op)op);
+    return AsRegion(dst)->op(SkIRect::MakeLTRB(left, top, right, bottom), (SkRegion::Op)op);
 }
 
 bool sk_region_op2(sk_region_t *dst, sk_region_t *src, sk_region_op_t op) {

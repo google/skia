@@ -7,27 +7,27 @@
  * found in the LICENSE file.
  */
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
-#include "SkImageInfo.h"
-#include "SkSurfaceProps.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkPoint3.h"
-#include "SkSize.h"
-#include "SkPaint.h"
-#include "SkCodec.h"
-#include "SkMask.h"
-#include "SkCanvas.h"
-#include "SkTime.h"
-#include "SkDocument.h"
-#include "SkHighContrastFilter.h"
-#include "SkTextBlob.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkDocument.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkPoint3.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTime.h"
+#include "include/effects/SkHighContrastFilter.h"
+#include "src/effects/SkMask.h"
 
 #if SK_SUPPORT_GPU
-#include "GrTypes.h"
-#include "gl/GrGLTypes.h"
-#include "GrContextOptions.h"
+#include "include/gpu/GrTypes.h"
+#include "include/gpu/GrContextOptions.h"
+#include "include/gpu/gl/GrGLTypes.h"
 #endif
 
 #if __cplusplus >= 199711L
@@ -48,7 +48,7 @@ static_assert (sizeof (sk_isize_t) == sizeof (SkISize), ASSERT_MSG(SkISize, sk_i
 static_assert (sizeof (sk_size_t) == sizeof (SkSize), ASSERT_MSG(SkSize, sk_size_t));
 static_assert (sizeof (sk_point3_t) == sizeof (SkPoint3), ASSERT_MSG(SkPoint3, sk_point3_t));
 static_assert (sizeof (sk_imageinfo_t) == sizeof (SkImageInfo), ASSERT_MSG(SkImageInfo, sk_imageinfo_t));
-static_assert (sizeof (sk_fontmetrics_t) == sizeof (SkPaint::FontMetrics), ASSERT_MSG(SkPaint::FontMetrics, sk_fontmetrics_t));
+static_assert (sizeof (sk_fontmetrics_t) == sizeof (SkFontMetrics), ASSERT_MSG(SkFontMetrics, sk_fontmetrics_t));
 static_assert (sizeof (sk_codec_options_t) == sizeof (SkCodec::Options), ASSERT_MSG(SkCodec::Options, sk_codec_options_t));
 static_assert (sizeof (sk_mask_t) == sizeof (SkMask), ASSERT_MSG(SkMask, sk_mask_t));
 static_assert (sizeof (sk_lattice_t) == sizeof (SkCanvas::Lattice), ASSERT_MSG(SkCanvas::Lattice, sk_lattice_t));

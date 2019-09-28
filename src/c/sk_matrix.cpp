@@ -7,13 +7,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkMatrix.h"
-#include "SkCamera.h"
-#include "SkMatrix44.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkMatrix44.h"
+#include "include/utils/SkCamera.h"
 
-#include "sk_matrix.h"
+#include "include/c/sk_matrix.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
 bool sk_matrix_try_invert(sk_matrix_t *matrix, sk_matrix_t *result) {
     SkMatrix inverse;

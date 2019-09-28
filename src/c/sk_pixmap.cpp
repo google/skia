@@ -7,17 +7,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkPixmap.h"
-#include "SkImageEncoder.h"
-#include "SkSwizzle.h"
-#include "SkJpegEncoder.h"
-#include "SkPngEncoder.h"
-#include "SkWebpEncoder.h"
-#include "SkUnPreMultiply.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkSwizzle.h"
+#include "include/core/SkUnPreMultiply.h"
+#include "include/encode/SkJpegEncoder.h"
+#include "include/encode/SkPngEncoder.h"
+#include "include/encode/SkWebpEncoder.h"
 
-#include "sk_pixmap.h"
+#include "include/c/sk_pixmap.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
 
 void sk_pixmap_destructor(sk_pixmap_t* cpixmap) {

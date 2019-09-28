@@ -7,11 +7,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkXMLWriter.h"
+#include "src/xml/SkXMLWriter.h"
 
-#include "sk_xml.h"
+#include "include/c/sk_xml.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 

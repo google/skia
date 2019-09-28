@@ -7,15 +7,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkAnnotation.h"
-#include "SkNoDrawCanvas.h"
-#include "SkNWayCanvas.h"
-#include "SkOverdrawCanvas.h"
+#include "include/core/SkAnnotation.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkOverdrawCanvas.h"
+#include "include/utils/SkNoDrawCanvas.h"
+#include "include/utils/SkNWayCanvas.h"
 
-#include "sk_canvas.h"
+#include "include/c/sk_canvas.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
 void sk_canvas_destroy(sk_canvas_t* ccanvas) {
     delete AsCanvas(ccanvas);

@@ -1094,40 +1094,6 @@ group("modules") {
   ]
 }
 
-config("SkiaSharp_public") {
-  include_dirs = skia_public_includes + [ "include/xamarin" ]
-  defines = [ "SKIA_C_DLL" ]
-  if (is_linux) {
-    defines += [ "SK_SAMPLES_FOR_X" ]
-  }
-  if (!skia_enable_gpu) {
-    defines += [ "SK_SUPPORT_GPU=0" ]
-  }
-}
-
-shared_library("SkiaSharp") {
-  public_configs = [ ":skia_public", ":SkiaSharp_public" ]
-  configs += skia_library_configs + [ ":SkiaSharp_public" ]
-
-  deps = [
-    ":skia",
-  ]
-
-  # clear the sources and add explicitly
-  set_sources_assignment_filter([])
-  sources = [
-    "src/xamarin/sk_manageddrawable.cpp",
-    "src/xamarin/sk_managedstream.cpp",
-    "src/xamarin/sk_xamarin.cpp",
-    "src/xamarin/SkiaKeeper.c",
-    "src/xamarin/SkManagedDrawable.cpp",
-    "src/xamarin/SkManagedStream.cpp",
-    "src/xamarin/WinRTCompat.cpp",
-  ]
-
-  libs = []
-}
-
 # Targets guarded by skia_enable_tools may use //third_party freely.
 if (skia_enable_tools) {
   skia_public_includes = [
@@ -2719,5 +2685,39 @@ if (skia_enable_tools) {
         sources += [ "src/core/SkCpu.cpp" ]
       }
     }
+  }
+
+  config("SkiaSharp_public") {
+    include_dirs = skia_public_includes + [ "include/xamarin" ]
+    defines = [ "SKIA_C_DLL" ]
+    if (is_linux) {
+      defines += [ "SK_SAMPLES_FOR_X" ]
+    }
+    if (!skia_enable_gpu) {
+      defines += [ "SK_SUPPORT_GPU=0" ]
+    }
+  }
+
+  shared_library("SkiaSharp") {
+    public_configs = [ ":skia_public", ":SkiaSharp_public" ]
+    configs += skia_library_configs + [ ":SkiaSharp_public" ]
+
+    deps = [
+      ":skia",
+    ]
+
+    # clear the sources and add explicitly
+    set_sources_assignment_filter([])
+    sources = [
+      "src/xamarin/sk_manageddrawable.cpp",
+      "src/xamarin/sk_managedstream.cpp",
+      "src/xamarin/sk_xamarin.cpp",
+      "src/xamarin/SkiaKeeper.c",
+      "src/xamarin/SkManagedDrawable.cpp",
+      "src/xamarin/SkManagedStream.cpp",
+      "src/xamarin/WinRTCompat.cpp",
+    ]
+
+    libs = []
   }
 }

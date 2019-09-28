@@ -10,7 +10,7 @@
 #ifndef sk_imagefilter_DEFINED
 #define sk_imagefilter_DEFINED
 
-#include "sk_types.h"
+#include "include/c/sk_types.h"
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 

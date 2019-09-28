@@ -7,11 +7,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorSpace.h"
+#include "include/core/SkColorSpace.h"
 
-#include "sk_colorspace.h"
+#include "include/c/sk_colorspace.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
 void sk_colorspace_unref(sk_colorspace_t* cColorSpace) {
     SkSafeUnref(AsColorSpace(cColorSpace));

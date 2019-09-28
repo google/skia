@@ -10,7 +10,7 @@
 #ifndef sk_types_priv_DEFINED
 #define sk_types_priv_DEFINED
 
-#include "sk_types.h"
+#include "include/c/sk_types.h"
 
 
 // Define a mapping between a C++ type and the C type.
@@ -70,6 +70,7 @@ DEF_CLASS_MAP(SkDrawable, sk_drawable_t, Drawable)
 DEF_CLASS_MAP(SkDynamicMemoryWStream, sk_wstream_dynamicmemorystream_t, DynamicMemoryWStream)
 DEF_CLASS_MAP(SkFILEStream, sk_stream_filestream_t, FileStream)
 DEF_CLASS_MAP(SkFILEWStream, sk_wstream_filestream_t, FileWStream)
+DEF_CLASS_MAP(SkFont, sk_font_t, Font)
 DEF_CLASS_MAP(SkFontMgr, sk_fontmgr_t, FontMgr)
 DEF_CLASS_MAP(SkFontStyle, sk_fontstyle_t, FontStyle)
 DEF_CLASS_MAP(SkFontStyleSet, sk_fontstyleset_t, FontStyleSet)
@@ -126,36 +127,36 @@ DEF_STRUCT_MAP(GrGLTextureInfo, gr_gl_textureinfo_t, GrGLTextureInfo)
 DEF_STRUCT_MAP(GrGLFramebufferInfo, gr_gl_framebufferinfo_t, GrGLFramebufferInfo)
 DEF_STRUCT_MAP(GrGLInterface, gr_glinterface_t, GrGLInterface)
 
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
 DEF_MAP(SkCanvas::Lattice, sk_lattice_t, Lattice)
 
-#include "SkCodec.h"
+#include "include/codec/SkCodec.h"
 DEF_MAP(SkCodec::FrameInfo, sk_codec_frameinfo_t, FrameInfo)
 DEF_MAP(SkCodec::Options, sk_codec_options_t, CodecOptions)
 
-#include "SkImageFilter.h"
+#include "include/core/SkImageFilter.h"
 DEF_MAP(SkImageFilter::CropRect, sk_imagefilter_croprect_t, ImageFilterCropRect)
 
-#include "SkJpegEncoder.h"
+#include "include/encode/SkJpegEncoder.h"
 DEF_MAP(SkJpegEncoder::Options, sk_jpegencoder_options_t, JpegEncoderOptions)
 
-#include "SkPaint.h"
-DEF_MAP(SkPaint::FontMetrics, sk_fontmetrics_t, FontMetrics)
+#include "include/core/SkFontMetrics.h"
+DEF_MAP(SkFontMetrics, sk_fontmetrics_t, FontMetrics)
 
-#include "SkPath.h"
+#include "include/core/SkPath.h"
 DEF_MAP(SkPath::Iter, sk_path_iterator_t, PathIter)
 DEF_MAP(SkPath::RawIter, sk_path_rawiterator_t, PathRawIter)
 
-#include "SkPngEncoder.h"
+#include "include/encode/SkPngEncoder.h"
 DEF_MAP(SkPngEncoder::Options, sk_pngencoder_options_t, PngEncoderOptions)
 
-#include "SkTime.h"
+#include "include/core/SkTime.h"
 DEF_MAP(SkTime::DateTime, sk_time_datetime_t, TimeDateTime)
 
-#include "SkWebpEncoder.h"
+#include "include/encode/SkWebpEncoder.h"
 DEF_MAP(SkWebpEncoder::Options, sk_webpencoder_options_t, WebpEncoderOptions)
 
-#include "SkMatrix.h"
+#include "include/core/SkMatrix.h"
 static inline SkMatrix AsMatrix(const sk_matrix_t* matrix) {
     return SkMatrix::MakeAll(
         matrix->mat[0], matrix->mat[1], matrix->mat[2],
@@ -168,7 +169,7 @@ static inline sk_matrix_t ToMatrix(const SkMatrix* matrix) {
     return m;
 }
 
-#include "SkImageInfo.h"
+#include "include/core/SkImageInfo.h"
 static inline SkImageInfo AsImageInfo(const sk_imageinfo_t* info) {
     return SkImageInfo::Make(
         info->width,
@@ -186,8 +187,14 @@ static inline sk_imageinfo_t ToImageInfo(const SkImageInfo info) {
         (sk_alphatype_t)info.alphaType(),
     };
 }
+static inline const SkImageInfo* ToImageInfo(const sk_imageinfo_t* cinfo) {
+    return reinterpret_cast<const SkImageInfo*>(cinfo);
+}
+static inline sk_imageinfo_t* AsImageInfo(SkImageInfo* info) {
+    return reinterpret_cast<sk_imageinfo_t*>(info);
+}
 
-#include "SkTextBlob.h"
+#include "include/core/SkTextBlob.h"
 static inline SkTextBlobBuilder::RunBuffer AsTextBlobBuilderRunBuffer(const sk_textblob_builder_runbuffer_t* runbuffer) {
     return {
         (SkGlyphID*)runbuffer->glyphs,
@@ -205,14 +212,13 @@ static inline sk_textblob_builder_runbuffer_t ToTextBlobBuilderRunBuffer(const S
     };
 }
 
-#include "SkDocument.h"
-static inline SkDocument::OptionalTimestamp AsDocumentOptionalTimestamp(const sk_time_datetime_t* datetime) {
-    SkDocument::OptionalTimestamp ts;
+#include "include/docs/SkPDFDocument.h"
+static inline SkTime::DateTime AsDocumentOptionalTimestamp(const sk_time_datetime_t* datetime) {
     if (datetime) {
-        ts.fEnabled = true;
-        ts.fDateTime = *AsTimeDateTime(datetime);
+        return *AsTimeDateTime(datetime);
+    } else {
+        return SkTime::DateTime();
     }
-    return ts;
 }
 static inline SkString AsDocumentOptionalString(const sk_string_t* skstring) {
     if (skstring) {
@@ -221,8 +227,8 @@ static inline SkString AsDocumentOptionalString(const sk_string_t* skstring) {
         return SkString();
     }
 }
-static inline SkDocument::PDFMetadata AsDocumentPDFMetadata(const sk_document_pdf_metadata_t* metadata) {
-    SkDocument::PDFMetadata md;
+static inline SkPDF::Metadata AsDocumentPDFMetadata(const sk_document_pdf_metadata_t* metadata) {
+    SkPDF::Metadata md;
     md.fTitle = AsDocumentOptionalString(metadata->fTitle);
     md.fAuthor = AsDocumentOptionalString(metadata->fAuthor);
     md.fSubject = AsDocumentOptionalString(metadata->fSubject);

@@ -87,13 +87,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
                 if (GrRenderable::kYes == renderable) {
                     REPORTER_ASSERT(reporter, texture->texturePriv().mipMapsAreDirty());
                 } else {
-#if 1
-                    // This is temporarily checks that the new image DOES have dirty MIP levels. See
-                    // comment in SkImage_Gpu.cpp, new_wrapped_texture_common().
-                    REPORTER_ASSERT(reporter, texture->texturePriv().mipMapsAreDirty());
-#else
                     REPORTER_ASSERT(reporter, !texture->texturePriv().mipMapsAreDirty());
-#endif
                 }
             } else {
                 REPORTER_ASSERT(reporter, GrMipMapped::kNo == texture->texturePriv().mipMapped());

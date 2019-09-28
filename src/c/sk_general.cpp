@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
-#include "SkRefCnt.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 
-#include "sk_types.h"
-#include "sk_general.h"
+#include "include/c/sk_types.h"
+#include "include/c/sk_general.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
 static inline const SkRefCnt* AsRefCnt(const sk_refcnt_t* t) {
     return reinterpret_cast<const SkRefCnt*>(t);

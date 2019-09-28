@@ -7,11 +7,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkSVGCanvas.h"
+#include "include/svg/SkSVGCanvas.h"
 
-#include "sk_svg.h"
+#include "include/c/sk_svg.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -7,15 +7,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypeface.h"
-#include "SkFontMgr.h"
-#include "SkFontStyle.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkTypeface.h"
 
 #include <memory>
 
-#include "sk_typeface.h"
+#include "include/c/sk_typeface.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
 // typeface
 
@@ -40,7 +40,8 @@ sk_typeface_t* sk_typeface_create_from_file(const char* path, int index) {
 }
 
 sk_typeface_t* sk_typeface_create_from_stream(sk_stream_asset_t* stream, int index) {
-    return ToTypeface(SkTypeface::MakeFromStream (AsStreamAsset(stream), index).release());
+    std::unique_ptr<SkStreamAsset> skstream(AsStreamAsset(stream));
+    return ToTypeface(SkTypeface::MakeFromStream (std::move(skstream), index).release());
 }
 
 int sk_typeface_chars_to_glyphs (sk_typeface_t* typeface, const char *chars, sk_encoding_t encoding, uint16_t glyphs [], int glyphCount) {
@@ -48,7 +49,7 @@ int sk_typeface_chars_to_glyphs (sk_typeface_t* typeface, const char *chars, sk_
 }
 
 sk_stream_asset_t* sk_typeface_open_stream(sk_typeface_t* typeface, int* ttcIndex) {
-    return ToStreamAsset(AsTypeface(typeface)->openStream(ttcIndex));
+    return ToStreamAsset(AsTypeface(typeface)->openStream(ttcIndex).release());
 }
 
 int sk_typeface_get_units_per_em(sk_typeface_t* typeface) {
@@ -146,7 +147,8 @@ sk_typeface_t* sk_fontmgr_create_from_data(sk_fontmgr_t* fontmgr, sk_data_t* dat
 }
 
 sk_typeface_t* sk_fontmgr_create_from_stream(sk_fontmgr_t* fontmgr, sk_stream_asset_t* stream, int index) {
-    return ToTypeface(AsFontMgr(fontmgr)->makeFromStream(std::unique_ptr<SkStreamAsset>(AsStreamAsset(stream)), index).release());
+    std::unique_ptr<SkStreamAsset> skstream(AsStreamAsset(stream));
+    return ToTypeface(AsFontMgr(fontmgr)->makeFromStream(std::move(skstream), index).release());
 }
 
 sk_typeface_t* sk_fontmgr_create_from_file(sk_fontmgr_t* fontmgr, const char* path, int index) {

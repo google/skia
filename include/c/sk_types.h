@@ -66,7 +66,9 @@ typedef enum {
     RGBA_1010102_SK_COLORTYPE,
     RGB_101010X_SK_COLORTYPE,
     GRAY_8_SK_COLORTYPE,
+    RGBA_F16_NORM_SK_COLORTYPE,
     RGBA_F16_SK_COLORTYPE,
+    RGBA_F32_SK_COLORTYPE,
 } sk_colortype_t;
 
 typedef enum {
@@ -217,6 +219,7 @@ typedef struct sk_maskfilter_t sk_maskfilter_t;
     draw geometries, text and bitmaps.
 */
 typedef struct sk_paint_t sk_paint_t;
+typedef struct sk_font_t sk_font_t;
 /**
     A sk_path_t encapsulates compound (multiple contour) geometric
     paths consisting of straight line segments, quadratic curves, and
@@ -588,6 +591,7 @@ typedef enum {
     CLAMP_SK_SHADER_TILEMODE,
     REPEAT_SK_SHADER_TILEMODE,
     MIRROR_SK_SHADER_TILEMODE,
+    DECAL_SK_SHADER_TILEMODE,
 } sk_shader_tilemode_t;
 
 typedef enum {
@@ -614,11 +618,17 @@ typedef enum {
 } sk_paint_style_t;
 
 typedef enum {
-    NO_HINTING_SK_PAINT_HINTING,
-    SLIGHT_HINTING_SK_PAINT_HINTING,
-    NORMAL_HINTING_SK_PAINT_HINTING,
-    FULL_HINTING_SK_PAINT_HINTING,
-} sk_paint_hinting_t;
+    NONE_SK_FONT_HINTING,
+    SLIGHT_SK_FONT_HINTING,
+    NORMAL_SK_FONT_HINTING,
+    FULL_SK_FONT_HINTING,
+} sk_font_hinting_t;
+
+typedef enum {
+    ALIAS_SK_FONT_EDGING,
+    ANTIALIAS_SK_FONT_EDGING,
+    SUBPIXEL_ANTIALIAS_SK_FONT_EDGING,
+} sk_font_edging_t;
 
 typedef struct sk_colortable_t sk_colortable_t;
 
