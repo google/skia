@@ -79,12 +79,12 @@ bool SkModeColorFilter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaqu
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
 
 std::unique_ptr<GrFragmentProcessor> SkModeColorFilter::asFragmentProcessor(
-        GrRecordingContext*, const GrColorSpaceInfo& dstColorSpaceInfo) const {
+        GrRecordingContext*, const GrColorInfo& dstColorInfo) const {
     if (SkBlendMode::kDst == fMode) {
         return nullptr;
     }
 
-    auto constFP = GrConstColorProcessor::Make(SkColorToPMColor4f(fColor, dstColorSpaceInfo),
+    auto constFP = GrConstColorProcessor::Make(SkColorToPMColor4f(fColor, dstColorInfo),
                                                GrConstColorProcessor::InputMode::kIgnore);
     auto fp = GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(constFP), fMode);
     if (!fp) {

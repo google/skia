@@ -276,8 +276,7 @@ public:
                                           const SkSurfaceProps* props) const override {
         // Ignore the requested color type, the raster backend currently only supports N32
         colorType = kN32_SkColorType;   // TODO: find ways to allow f16
-        SkImageInfo info = SkImageInfo::Make(size.width(), size.height(), colorType, at,
-                                             sk_ref_sp(colorSpace));
+        SkImageInfo info = SkImageInfo::Make(size, colorType, at, sk_ref_sp(colorSpace));
         return SkSpecialSurface::MakeRaster(info, props);
     }
 
@@ -304,8 +303,7 @@ sk_sp<SkSurface> onMakeTightSurface(SkColorType colorType, const SkColorSpace* c
                                         const SkISize& size, SkAlphaType at) const override {
         // Ignore the requested color type, the raster backend currently only supports N32
         colorType = kN32_SkColorType;   // TODO: find ways to allow f16
-        SkImageInfo info = SkImageInfo::Make(size.width(), size.height(), colorType, at,
-                                             sk_ref_sp(colorSpace));
+        SkImageInfo info = SkImageInfo::Make(size, colorType, at, sk_ref_sp(colorSpace));
         return SkSurface::MakeRaster(info);
     }
 
@@ -525,8 +523,7 @@ public:
         //    onMakeSurface() or is this unnecessary?
         colorType = colorSpace && colorSpace->gammaIsLinear()
             ? kRGBA_F16_SkColorType : kRGBA_8888_SkColorType;
-        SkImageInfo info = SkImageInfo::Make(size.width(), size.height(), colorType, at,
-                                             sk_ref_sp(colorSpace));
+        SkImageInfo info = SkImageInfo::Make(size, colorType, at, sk_ref_sp(colorSpace));
         // CONTEXT TODO: remove this use of 'backdoor' to create an SkSurface
         return SkSurface::MakeRenderTarget(fContext->priv().backdoor(), SkBudgeted::kYes, info);
     }

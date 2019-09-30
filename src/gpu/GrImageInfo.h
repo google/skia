@@ -10,7 +10,7 @@
 
 #include "include/core/SkImageInfo.h"
 #include "include/private/GrTypesPriv.h"
-#include "src/gpu/GrColorSpaceInfo.h"
+#include "src/gpu/GrColorInfo.h"
 
 class GrImageInfo {
 public:
@@ -88,7 +88,7 @@ public:
     bool isValid() const { return fColorInfo.isValid() && this->width() > 0 && this->height() > 0; }
 
 private:
-    GrColorSpaceInfo fColorInfo = {};
+    GrColorInfo fColorInfo = {};
     SkISize fDimensions;
 };
 

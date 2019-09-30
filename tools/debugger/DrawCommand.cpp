@@ -676,7 +676,7 @@ bool DrawCommand::flatten(const SkImage&  image,
     size_t       rowBytes = 4 * image.width();
     SkAutoMalloc buffer(rowBytes * image.height());
     SkImageInfo  dstInfo =
-            SkImageInfo::Make(image.width(), image.height(), kN32_SkColorType, kPremul_SkAlphaType);
+            SkImageInfo::Make(image.dimensions(), kN32_SkColorType, kPremul_SkAlphaType);
     if (!image.readPixels(dstInfo, buffer.get(), rowBytes, 0, 0)) {
         SkDebugf("readPixels failed\n");
         return false;

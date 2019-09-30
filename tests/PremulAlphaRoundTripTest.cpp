@@ -54,8 +54,7 @@ static void fill_surface(SkSurface* surf, SkColorType colorType, PackUnpremulPro
         }
     }
 
-    const SkImageInfo info = SkImageInfo::Make(bmp.width(), bmp.height(),
-                                               colorType, kUnpremul_SkAlphaType);
+    const SkImageInfo info = SkImageInfo::Make(bmp.dimensions(), colorType, kUnpremul_SkAlphaType);
     surf->writePixels({info, bmp.getPixels(), bmp.rowBytes()}, 0, 0);
 }
 
