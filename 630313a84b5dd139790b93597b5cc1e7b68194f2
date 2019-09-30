@@ -81,6 +81,30 @@
       "revId": "630313a84b5dd139790b93597b5cc1e7b68194f2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af7beb29_8039d9ba",
+        "filename": "tests/SurfaceTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 854,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-09-30T14:54:40Z",
+      "side": 1,
+      "message": "Got it. I think it\u0027d make this a lot more readable to make origColor be SkColor rather than uint32_t and use SkColorGetA(), R(), G(), B() here and for rectColorPM as well.",
+      "parentUuid": "3a1107e6_e226db06",
+      "range": {
+        "startLine": 852,
+        "startChar": 0,
+        "endLine": 854,
+        "endChar": 72
+      },
+      "revId": "630313a84b5dd139790b93597b5cc1e7b68194f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
