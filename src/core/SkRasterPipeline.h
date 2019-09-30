@@ -160,8 +160,8 @@ struct SkRasterPipeline_CallbackCtx {
 };
 
 namespace SkSL {
-struct ByteCode;
-struct ByteCodeFunction;
+class ByteCode;
+class ByteCodeFunction;
 }
 
 struct SkRasterPipeline_InterpreterCtx {

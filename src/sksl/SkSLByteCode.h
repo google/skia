@@ -168,8 +168,22 @@ enum class ByteCodeInstruction : uint16_t {
 };
 #undef VECTOR
 
-struct ByteCodeFunction {
+class ByteCodeFunction {
+public:
+    int getParameterCount() const { return fParameterCount; }
+    int getReturnCount() const { return fReturnCount; }
+
+    /**
+     * Print bytecode disassembly to stdout.
+     */
+    void disassemble() const;
+
+private:
     ByteCodeFunction(const FunctionDeclaration* declaration);
+
+    friend class ByteCode;
+    friend class ByteCodeGenerator;
+    friend struct Interpreter;
 
     struct Parameter {
         int fSlotCount;
@@ -179,19 +193,14 @@ struct ByteCodeFunction {
     SkSL::String fName;
     std::vector<Parameter> fParameters;
     int fParameterCount;
+    int fReturnCount = 0;
 
     int fLocalCount = 0;
     int fStackCount = 0;
     int fConditionCount = 0;
     int fLoopCount = 0;
-    int fReturnCount = 0;
     mutable SkOnce fPreprocessOnce;
     std::vector<uint8_t> fCode;
-
-    /**
-     * Print bytecode disassembly to stdout.
-     */
-    void disassemble() const;
 
     /**
      * Replace each opcode with the corresponding entry from the labels array.
@@ -199,18 +208,11 @@ struct ByteCodeFunction {
     void preprocess(const void* labels[]);
 };
 
-struct SK_API ByteCode {
+class SK_API ByteCode {
+public:
     static constexpr int kVecWidth = 16;
 
     ByteCode() = default;
-    ByteCode(const ByteCode&) = delete;
-    ByteCode& operator=(const ByteCode&) = delete;
-
-    int fGlobalCount = 0;
-    // one entry per input slot, contains the global slot to which the input slot maps
-    std::vector<uint8_t> fInputSlots;
-    std::vector<std::unique_ptr<ByteCodeFunction>> fFunctions;
-    std::vector<ExternalValue*> fExternalValues;
 
     const ByteCodeFunction* getFunction(const char* name) const {
         for (const auto& f : fFunctions) {
@@ -222,7 +224,7 @@ struct SK_API ByteCode {
     }
 
     /**
-     * Invokes the specified function with the given arguments, 'N' times.
+     * Invokes the specified function once, with the given arguments.
      * 'args', 'outReturn', and 'uniforms' are collections of 32-bit values (typically floats,
      * but possibly int32_t or uint32_t, depending on the types used in the SkSL).
      * Any 'out' or 'inout' parameters will result in the 'args' array being modified.
@@ -234,10 +236,35 @@ struct SK_API ByteCode {
                                      float* outReturn, int returnCount,
                                      const float* uniforms, int uniformCount) const;
 
+    /**
+     * Invokes the specified function with the given arguments, 'N' times. 'args' and 'outReturn'
+     * are accepted and returned in structure-of-arrays form:
+     *   args[0] points to an array of N values, the first argument for each invocation
+     *   ...
+     *   args[argCount - 1] points to an array of N values, the last argument for each invocation
+     *
+     * All values in 'args', 'outReturn', and 'uniforms' are 32-bit values (typically floats,
+     * but possibly int32_t or uint32_t, depending on the types used in the SkSL).
+     * Any 'out' or 'inout' parameters will result in the 'args' array being modified.
+     * The return value is stored in 'outReturn' (may be null, to discard the return value).
+     * 'uniforms' are mapped to 'uniform' globals, in order.
+     */
     bool SKSL_WARN_UNUSED_RESULT runStriped(const ByteCodeFunction*, int N,
                                             float* args[], int argCount,
                                             float* outReturn[], int returnCount,
                                             const float* uniforms, int uniformCount) const;
+
+private:
+    ByteCode(const ByteCode&) = delete;
+    ByteCode& operator=(const ByteCode&) = delete;
+
+    friend class ByteCodeGenerator;
+    friend struct Interpreter;
+
+    int fGlobalCount = 0;
+    std::vector<uint8_t> fUniformSlots;
+    std::vector<std::unique_ptr<ByteCodeFunction>> fFunctions;
+    std::vector<ExternalValue*> fExternalValues;
 };
 
 }
