@@ -153,18 +153,24 @@ static void fillin_ETC1_with_color(int width, int height, const SkColor4f& color
     }
 }
 
-// Fill in the width x height 'dest' with the munged version of 'colorf' that matches 'config'
-static bool fill_buffer_with_color(GrPixelConfig config, int width, int height,
+// Fill in the width x height 'dest' with the munged version of 'colorf' that matches 'ct'
+static bool fill_buffer_with_color(GrColorType grColorType, int width, int height,
                                    const SkColor4f& colorf, void* dest) {
-    SkASSERT(kRGB_ETC1_GrPixelConfig != config);
+    SkASSERT(GrColorType::kUnknown != grColorType);
 
-    GrColor color = colorf.toBytes_RGBA();
+    SkColorType skColorType = GrColorTypeToSkColorType(grColorType);
+    if (kUnknown_SkColorType == skColorType) {
+        return false;
+    }
 
-    uint8_t r = GrColorUnpackR(color);
-    uint8_t g = GrColorUnpackG(color);
-    uint8_t b = GrColorUnpackB(color);
-    uint8_t a = GrColorUnpackA(color);
 
+
+    SkImageInfo ii = SkImageInfo::Make(width, height, skColorType, kPremul_SkAlphaType);
+
+    SkPixmap pm(ii, dest, 0);
+    pm.erase(colorf);
+
+#if 0
     switch (config) {
         case kAlpha_8_GrPixelConfig:                            // fall through
         case kAlpha_8_as_Alpha_GrPixelConfig:                   // fall through
@@ -301,6 +307,7 @@ static bool fill_buffer_with_color(GrPixelConfig config, int width, int height,
             return false;
             break;
     }
+#endif
 
     return true;
 }
@@ -341,11 +348,10 @@ size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, int baseWidth, int
     return combinedBufferSize;
 }
 
-void GrFillInData(GrPixelConfig config, int baseWidth, int baseHeight,
+void GrFillInData(GrColorType grColorType, int baseWidth, int baseHeight,
                   const SkTArray<size_t>& individualMipOffsets, char* dstPixels,
                   const SkColor4f& colorf) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-    SkASSERT(!GrPixelConfigIsCompressed(config));
     int mipLevels = individualMipOffsets.count();
 
     int currentWidth = baseWidth;
@@ -353,7 +359,8 @@ void GrFillInData(GrPixelConfig config, int baseWidth, int baseHeight,
     for (int currentMipLevel = 0; currentMipLevel < mipLevels; ++currentMipLevel) {
         size_t offset = individualMipOffsets[currentMipLevel];
 
-        fill_buffer_with_color(config, currentWidth, currentHeight, colorf, &(dstPixels[offset]));
+        fill_buffer_with_color(grColorType, currentWidth, currentHeight,
+                               colorf, &(dstPixels[offset]));
         currentWidth = SkTMax(1, currentWidth / 2);
         currentHeight = SkTMax(1, currentHeight / 2);
     }
