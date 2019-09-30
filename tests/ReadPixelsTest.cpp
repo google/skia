@@ -730,9 +730,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
                             REPORTER_ASSERT(reporter, readCT != kUnknown_SkColorType &&
                                                       !rect.isEmpty());
                         } else {
-                            // TODO: Support reading to kGray, support kRGB_101010x at all in GPU.
+                            // TODO: Support kRGB_101010x at all in GPU.
                             auto surfBounds = SkIRect::MakeWH(surf->width(), surf->height());
-                            if (readCT != kUnknown_SkColorType && readCT != kGray_8_SkColorType &&
+                            if (readCT != kUnknown_SkColorType &&
                                 readCT != kRGB_101010x_SkColorType && !rect.isEmpty() &&
                                 surfBounds.contains(rect)) {
                                 ERRORF(reporter,

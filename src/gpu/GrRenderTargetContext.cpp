@@ -1509,9 +1509,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
         return;
     }
     auto dstCT = SkColorTypeToGrColorType(info.colorType());
-    // TODO: Support reading to gray.
-    if (dstCT == GrColorType::kUnknown ||
-        GrColorTypeComponentFlags(dstCT) & kGray_SkColorTypeComponentFlag) {
+    if (dstCT == GrColorType::kUnknown) {
         callback(context, nullptr, 0);
         return;
     }

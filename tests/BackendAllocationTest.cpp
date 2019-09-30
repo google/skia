@@ -657,15 +657,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                 }
 
                 {
-                    // GL has difficulties reading back from these combinations. In particular,
-                    // reading back kGray_8 is a mess.
-                    if (GrBackendApi::kOpenGL == context->backend()) {
-                        if (kAlpha_8_SkColorType == combo.fColorType ||
-                            kGray_8_SkColorType == combo.fColorType) {
-                            continue;
-                        }
-                    }
-
                     auto createWithColorMtd = [colorType](GrContext* context,
                                                           const SkColor4f& color,
                                                           GrMipMapped mipMapped,
