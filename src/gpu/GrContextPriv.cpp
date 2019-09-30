@@ -338,35 +338,3 @@ std::unique_ptr<GrFragmentProcessor> GrContextPriv::createUPMToPMEffect(
 
     return GrConfigConversionEffect::Make(std::move(fp), PMConversion::kToPremul);
 }
-
-//////////////////////////////////////////////////////////////////////////////
-
-#include "src/core/SkMipMap.h"
-
-GrBackendTexture GrContextPriv::createBackendTexture(const SkPixmap srcData[], int numLevels,
-                                                     GrRenderable renderable,
-                                                     GrProtected isProtected) {
-    if (!fContext->asDirectContext()) {
-        return {};
-    }
-
-    if (this->abandoned()) {
-        return {};
-    }
-
-    if (!srcData || !numLevels) {
-        return {};
-    }
-
-    int baseWidth = srcData[0].width();
-    int baseHeight = srcData[0].height();
-    SkColorType colorType = srcData[0].colorType();
-
-    GrBackendFormat backendFormat = fContext->defaultBackendFormat(colorType, renderable);
-
-    GrGpu* gpu = fContext->fGpu.get();
-
-    return gpu->createBackendTexture(baseWidth, baseHeight, backendFormat,
-                                     numLevels > 1 ? GrMipMapped::kYes : GrMipMapped::kNo,
-                                     renderable, srcData, numLevels, nullptr, isProtected);
-}

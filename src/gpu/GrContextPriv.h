@@ -261,18 +261,6 @@ public:
     void testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCallbackObject*);
 #endif
 
-    // If possible, create a backend texture initialized with the provided pixmap data. The client
-    // should ensure that the returned backend texture is valid.
-    // If successful, the created backend texture will be compatible with the provided
-    // pixmap(s).
-    // If numLevels is 1 a non-mipMapped texture will result. If a mipMapped texture is desired
-    // the data for all the mipmap levels must be provided.
-    // For the Vulkan backend the layout of the created VkImage will be:
-    //      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-    // regardless of the renderability setting
-    GrBackendTexture createBackendTexture(const SkPixmap srcData[], int numLevels,
-                                          GrRenderable, GrProtected);
-
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}
     GrContextPriv(const GrContextPriv&); // unimpl

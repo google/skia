@@ -17,7 +17,6 @@
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkScopeExit.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrGpu.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -107,12 +106,12 @@ static sk_sp<SkImage> do_read_and_scale_yuv(SkSurface* surface, SkYUVColorSpace 
     auto* gr = surface->getCanvas()->getGrContext();
     GrBackendTexture backendTextures[3];
 
-    backendTextures[0] = gr->priv().createBackendTexture(&context.fYData, 1,
-                                                         GrRenderable::kNo, GrProtected::kNo);
-    backendTextures[1] = gr->priv().createBackendTexture(&context.fUData, 1,
-                                                         GrRenderable::kNo, GrProtected::kNo);
-    backendTextures[2] = gr->priv().createBackendTexture(&context.fVData, 1,
-                                                         GrRenderable::kNo, GrProtected::kNo);
+    backendTextures[0] = gr->createBackendTexture(&context.fYData, 1,
+                                                  GrRenderable::kNo, GrProtected::kNo);
+    backendTextures[1] = gr->createBackendTexture(&context.fUData, 1,
+                                                  GrRenderable::kNo, GrProtected::kNo);
+    backendTextures[2] = gr->createBackendTexture(&context.fVData, 1,
+                                                  GrRenderable::kNo, GrProtected::kNo);
     SkYUVAIndex indices[4] = {
         { 0, SkColorChannel::kR},
         { 1, SkColorChannel::kR},
