@@ -15,6 +15,7 @@
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSurfaceContextPriv.h"
@@ -57,7 +58,7 @@ GrSingleOwner* GrSurfaceContext::singleOwner() {
 }
 #endif
 
-bool GrSurfaceContext::readPixels(const GrPixelInfo& origDstInfo, void* dst, size_t rowBytes,
+bool GrSurfaceContext::readPixels(const GrImageInfo& origDstInfo, void* dst, size_t rowBytes,
                                   SkIPoint pt, GrContext* direct) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
@@ -184,7 +185,7 @@ bool GrSurfaceContext::readPixels(const GrPixelInfo& origDstInfo, void* dst, siz
                    (dstInfo.colorType() != supportedRead.fColorType);
 
     std::unique_ptr<char[]> tmpPixels;
-    GrPixelInfo tmpInfo;
+    GrImageInfo tmpInfo;
     void* readDst = dst;
     size_t readRB = rowBytes;
     if (convert) {
@@ -214,7 +215,7 @@ bool GrSurfaceContext::readPixels(const GrPixelInfo& origDstInfo, void* dst, siz
     return true;
 }
 
-bool GrSurfaceContext::writePixels(const GrPixelInfo& origSrcInfo, const void* src, size_t rowBytes,
+bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* src, size_t rowBytes,
                                    SkIPoint pt, GrContext* direct) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
@@ -380,7 +381,7 @@ bool GrSurfaceContext::writePixels(const GrPixelInfo& origSrcInfo, const void* s
     std::unique_ptr<char[]> tmpPixels;
     GrColorType srcColorType = srcInfo.colorType();
     if (convert) {
-        GrPixelInfo tmpInfo(allowedColorType, this->colorSpaceInfo().alphaType(),
+        GrImageInfo tmpInfo(allowedColorType, this->colorSpaceInfo().alphaType(),
                             this->colorSpaceInfo().refColorSpace(), srcInfo.width(),
                             srcInfo.height());
         auto tmpRB = tmpInfo.minRowBytes();
@@ -645,8 +646,8 @@ GrSurfaceContext::PixelTransferResult GrSurfaceContext::transferPixels(GrColorTy
     if (supportedRead.fColorType != dstCT || flip) {
         result.fPixelConverter = [w = rect.width(), h = rect.height(), dstCT, supportedRead, at](
                 void* dst, const void* src) {
-              GrPixelInfo srcInfo(supportedRead.fColorType, at, nullptr, w, h);
-              GrPixelInfo dstInfo(dstCT,                    at, nullptr, w, h);
+            GrImageInfo srcInfo(supportedRead.fColorType, at, nullptr, w, h);
+            GrImageInfo dstInfo(dstCT,                    at, nullptr, w, h);
               GrConvertPixels(dstInfo, dst, dstInfo.minRowBytes(),
                               srcInfo, src, srcInfo.minRowBytes(),
                               /* flipY = */ false);
