@@ -54,7 +54,8 @@ public:
     // Commits the current command buffer to the queue and then creates a new command buffer. If
     // sync is set to kForce_SyncQueue, the function will wait for all work in the committed
     // command buffer to finish before creating a new buffer and returning.
-    void submitCommandBuffer(SyncQueue sync);
+    void submitCommandBuffer(SyncQueue sync, GrGpuFinishedProc finishedProc = nullptr,
+                             GrGpuFinishedContext finishedContext = nullptr);
 
     void deleteBackendTexture(const GrBackendTexture&) override;
 
@@ -168,16 +169,10 @@ private:
 
     bool onTransferPixelsTo(GrTexture*, int left, int top, int width, int height,
                             GrColorType textureColorType, GrColorType bufferColorType, GrGpuBuffer*,
-                            size_t offset, size_t rowBytes) override {
-        // TODO: not sure this is worth the work since nobody uses it
-        return false;
-    }
+                            size_t offset, size_t rowBytes) override;
     bool onTransferPixelsFrom(GrSurface*, int left, int top, int width, int height,
                               GrColorType surfaceColorType, GrColorType bufferColorType,
-                              GrGpuBuffer*, size_t offset) override {
-        // TODO: Will need to implement this to support async read backs.
-        return false;
-    }
+                              GrGpuBuffer*, size_t offset) override;
 
     bool onRegenerateMipMapLevels(GrTexture*) override;
 
@@ -188,18 +183,11 @@ private:
 
     void onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
                        const GrFlushInfo& info, const GrPrepareForExternalIORequests&) override {
+        // TODO: handle the other arguments here?
         if (info.fFlags & kSyncCpu_GrFlushFlag) {
-            this->submitCommandBuffer(kForce_SyncQueue);
-            if (info.fFinishedProc) {
-                info.fFinishedProc(info.fFinishedContext);
-            }
+            this->submitCommandBuffer(kForce_SyncQueue, info.fFinishedProc, info.fFinishedContext);
         } else {
-            this->submitCommandBuffer(kSkip_SyncQueue);
-            // TODO: support finishedProc to actually be called when the GPU is done with the work
-            // and not immediately.
-            if (info.fFinishedProc) {
-                info.fFinishedProc(info.fFinishedContext);
-            }
+            this->submitCommandBuffer(kSkip_SyncQueue, info.fFinishedProc, info.fFinishedContext);
         }
     }
 
@@ -208,6 +196,9 @@ private:
                          GrColorType dataColorType, const GrMipLevel texels[], int mipLevels);
     // Function that fills texture levels with transparent black based on levelMask.
     bool clearTexture(GrMtlTexture*, GrColorType, uint32_t levelMask);
+    bool readOrTransferPixels(GrSurface* surface, int left, int top, int width, int height,
+                              GrColorType dstColorType, id<MTLBuffer> transferBuffer, size_t offset,
+                              size_t imageBytes, size_t rowBytes);
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(
             const GrRenderTarget*, int width, int height, int numStencilSamples) override;
