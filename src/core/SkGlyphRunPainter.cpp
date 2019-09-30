@@ -10,7 +10,7 @@
 #if SK_SUPPORT_GPU
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrColorSpaceInfo.h"
+#include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
@@ -85,15 +85,14 @@ SkGlyphRunListPainter::SkGlyphRunListPainter(const SkSurfaceProps& props,
         : SkGlyphRunListPainter(props, colorType, compute_scaler_context_flags(cs), strikeCache) {}
 
 #if SK_SUPPORT_GPU
-SkGlyphRunListPainter::SkGlyphRunListPainter(const SkSurfaceProps& props,
-                                             const GrColorSpaceInfo& csi)
+SkGlyphRunListPainter::SkGlyphRunListPainter(const SkSurfaceProps& props, const GrColorInfo& csi)
         : SkGlyphRunListPainter(props,
                                 kUnknown_SkColorType,
                                 compute_scaler_context_flags(csi.colorSpace()),
                                 SkStrikeCache::GlobalStrikeCache()) {}
 
 SkGlyphRunListPainter::SkGlyphRunListPainter(const GrRenderTargetContext& rtc)
-        : SkGlyphRunListPainter{rtc.surfaceProps(), rtc.colorSpaceInfo()} {}
+        : SkGlyphRunListPainter{rtc.surfaceProps(), rtc.colorInfo()} {}
 
 #endif
 
@@ -581,15 +580,14 @@ SkGlyphRunListPainter::ensureBuffers(const SkGlyphRun& glyphRun) {
 
 #if SK_SUPPORT_GPU
 // -- GrTextContext --------------------------------------------------------------------------------
-SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorSpaceInfo& colorSpaceInfo) {
+SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorInfo& colorInfo) {
     SkColor4f filteredColor = paint.getColor4f();
-    if (auto* xform = colorSpaceInfo.colorSpaceXformFromSRGB()) {
+    if (auto* xform = colorInfo.colorSpaceXformFromSRGB()) {
         filteredColor = xform->apply(filteredColor);
     }
     if (paint.getColorFilter() != nullptr) {
-        filteredColor = paint.getColorFilter()->filterColor4f(filteredColor,
-                                                              colorSpaceInfo.colorSpace(),
-                                                              colorSpaceInfo.colorSpace());
+        filteredColor = paint.getColorFilter()->filterColor4f(filteredColor, colorInfo.colorSpace(),
+                                                              colorInfo.colorSpace());
     }
     return filteredColor.premul();
 }
@@ -603,8 +601,8 @@ void GrTextContext::drawGlyphRunList(
     // Get the first paint to use as the key paint.
     const SkPaint& listPaint = glyphRunList.paint();
 
-    SkPMColor4f filteredColor = generate_filtered_color(listPaint, target->colorSpaceInfo());
-    GrColor color = generate_filtered_color(listPaint, target->colorSpaceInfo()).toBytes_RGBA();
+    SkPMColor4f filteredColor = generate_filtered_color(listPaint, target->colorInfo());
+    GrColor color = generate_filtered_color(listPaint, target->colorInfo()).toBytes_RGBA();
 
     // If we have been abandoned, then don't draw
     if (context->priv().abandoned()) {
@@ -617,7 +615,7 @@ void GrTextContext::drawGlyphRunList(
     const SkMaskFilter* mf = listPaint.getMaskFilter();
     bool canCache = glyphRunList.canCache() && !(listPaint.getPathEffect() ||
                                                  (mf && !as_MFB(mf)->asABlur(&blurRec)));
-    SkScalerContextFlags scalerContextFlags = ComputeScalerContextFlags(target->colorSpaceInfo());
+    SkScalerContextFlags scalerContextFlags = ComputeScalerContextFlags(target->colorInfo());
 
     auto grStrikeCache = context->priv().getGrStrikeCache();
     GrTextBlobCache* textBlobCache = context->priv().getTextBlobCache();
@@ -926,7 +924,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
 
     size_t textLen = (int)strlen(text);
 
-    SkPMColor4f filteredColor = generate_filtered_color(skPaint, rtc->colorSpaceInfo());
+    SkPMColor4f filteredColor = generate_filtered_color(skPaint, rtc->colorInfo());
     GrColor color = filteredColor.toBytes_RGBA();
 
     auto origin = SkPoint::Make(x, y);
@@ -938,8 +936,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
     if (!glyphRunList.empty()) {
         blob = direct->priv().getTextBlobCache()->makeBlob(glyphRunList, color, strikeCache);
         // Use the text and textLen below, because we don't want to mess with the paint.
-        SkScalerContextFlags scalerContextFlags =
-                ComputeScalerContextFlags(rtc->colorSpaceInfo());
+        SkScalerContextFlags scalerContextFlags = ComputeScalerContextFlags(rtc->colorInfo());
         blob->generateFromGlyphRunList(
                 *context->priv().caps()->shaderCaps(), textContext->fOptions,
                 skPaint, scalerContextFlags, viewMatrix, surfaceProps,

@@ -234,7 +234,7 @@ bool SkVideoEncoder::beginRecording(SkISize dim, int fps) {
     // need opaque and bgra to efficiently use libyuv / convert-to-yuv-420
     SkAlphaType alphaType = kOpaque_SkAlphaType;
     sk_sp<SkColorSpace> cs = nullptr;   // should we use this?
-    fInfo = SkImageInfo::Make(dim.width(), dim.height(), kRGBA_8888_SkColorType, alphaType, cs);
+    fInfo = SkImageInfo::Make(dim, kRGBA_8888_SkColorType, alphaType, cs);
     if (!this->init(fps)) {
         return false;
     }

@@ -22,7 +22,7 @@
 #if SK_SUPPORT_GPU
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrColorSpaceInfo.h"
+#include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/SkGr.h"
@@ -345,19 +345,19 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
     }
 
     auto lm = this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix);
-    SkColorType dstColorType = GrColorTypeToSkColorType(args.fDstColorSpaceInfo->colorType());
+    SkColorType dstColorType = GrColorTypeToSkColorType(args.fDstColorInfo->colorType());
     if (dstColorType == kUnknown_SkColorType) {
         dstColorType = kRGBA_8888_SkColorType;
     }
     sk_sp<SkShader> bitmapShader(this->refBitmapShader(*args.fViewMatrix, &lm, dstColorType,
-                                                       args.fDstColorSpaceInfo->colorSpace(),
+                                                       args.fDstColorInfo->colorSpace(),
                                                        maxTextureSize));
     if (!bitmapShader) {
         return nullptr;
     }
 
     // We want to *reset* args.fPreLocalMatrix, not compose it.
-    GrFPArgs newArgs(args.fContext, args.fViewMatrix, args.fFilterQuality, args.fDstColorSpaceInfo);
+    GrFPArgs newArgs(args.fContext, args.fViewMatrix, args.fFilterQuality, args.fDstColorInfo);
     newArgs.fPreLocalMatrix = lm.get();
 
     return as_SB(bitmapShader)->asFragmentProcessor(newArgs);

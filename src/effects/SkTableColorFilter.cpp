@@ -85,8 +85,8 @@ public:
     ~SkTable_ColorFilter() override { delete fBitmap; }
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext*, const GrColorSpaceInfo&) const override;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
+                                                             const GrColorInfo&) const override;
 #endif
 
     enum {
@@ -234,7 +234,7 @@ void SkTable_ColorFilter::getTableAsBitmap(SkBitmap* table) const {
 #if SK_SUPPORT_GPU
 
 #include "include/private/GrRecordingContext.h"
-#include "src/gpu/GrColorSpaceInfo.h"
+#include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/SkGr.h"
@@ -399,15 +399,15 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTes
     ));
     sk_sp<SkColorSpace> colorSpace = GrTest::TestColorSpace(d->fRandom);
     auto fp = filter->asFragmentProcessor(
-            d->context(), GrColorSpaceInfo(GrColorType::kRGBA_8888, kUnknown_SkAlphaType,
-                                           std::move(colorSpace)));
+            d->context(),
+            GrColorInfo(GrColorType::kRGBA_8888, kUnknown_SkAlphaType, std::move(colorSpace)));
     SkASSERT(fp);
     return fp;
 }
 #endif
 
 std::unique_ptr<GrFragmentProcessor> SkTable_ColorFilter::asFragmentProcessor(
-        GrRecordingContext* context, const GrColorSpaceInfo&) const {
+        GrRecordingContext* context, const GrColorInfo&) const {
     SkBitmap bitmap;
     this->getTableAsBitmap(&bitmap);
 

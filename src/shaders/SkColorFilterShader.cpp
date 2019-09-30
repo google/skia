@@ -58,7 +58,7 @@ std::unique_ptr<GrFragmentProcessor> SkColorFilterShader::asFragmentProcessor(
         return nullptr;
     }
 
-    auto fp2 = fFilter->asFragmentProcessor(args.fContext, *args.fDstColorSpaceInfo);
+    auto fp2 = fFilter->asFragmentProcessor(args.fContext, *args.fDstColorInfo);
     if (!fp2) {
         return fp1;
     }

@@ -5,19 +5,21 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrColorSpaceInfo_DEFINED
-#define GrColorSpaceInfo_DEFINED
+#ifndef GrColorInfo_DEFINED
+#define GrColorInfo_DEFINED
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
 #include "src/gpu/GrColorSpaceXform.h"
 
-/** Describes the color space properties of a surface context. */
-class GrColorSpaceInfo {
+/**
+ * All the info needed to interpret a color: Color type + alpha type + color space. Also caches
+ * the GrColorSpaceXform from sRGB. */
+class GrColorInfo {
 public:
-    GrColorSpaceInfo() = default;
-    GrColorSpaceInfo(GrColorType, SkAlphaType, sk_sp<SkColorSpace>);
+    GrColorInfo() = default;
+    GrColorInfo(GrColorType, SkAlphaType, sk_sp<SkColorSpace>);
 
     bool isLinearlyBlended() const { return fColorSpace && fColorSpace->gammaIsLinear(); }
 
