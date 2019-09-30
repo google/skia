@@ -411,8 +411,8 @@ static void draw_shape_with_mask_filter(GrRecordingContext* context,
             if (maskRTC) {
                 filteredMask = maskFilter->filterMaskGPU(context,
                                                          maskRTC->asTextureProxyRef(),
-                                                         maskRTC->colorSpaceInfo().colorType(),
-                                                         maskRTC->colorSpaceInfo().alphaType(),
+                                                         maskRTC->colorInfo().colorType(),
+                                                         maskRTC->colorInfo().alphaType(),
                                                          viewMatrix,
                                                          maskRect);
                 SkASSERT(kTopLeft_GrSurfaceOrigin == filteredMask->origin());
@@ -459,8 +459,7 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(context, renderTargetContext->colorSpaceInfo(), paint, viewMatrix,
-                          &grPaint)) {
+    if (!SkPaintToGrPaint(context, renderTargetContext->colorInfo(), paint, viewMatrix, &grPaint)) {
         return;
     }
 

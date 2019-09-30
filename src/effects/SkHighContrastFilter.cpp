@@ -16,7 +16,7 @@
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrContext.h"
-#include "src/gpu/GrColorSpaceInfo.h"
+#include "src/gpu/GrColorInfo.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #endif
@@ -36,9 +36,9 @@ public:
     ~SkHighContrast_Filter() override {}
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext*, const GrColorSpaceInfo&) const override;
- #endif
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
+                                                             const GrColorInfo&) const override;
+#endif
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
 
@@ -354,7 +354,7 @@ void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
 }
 
 std::unique_ptr<GrFragmentProcessor> SkHighContrast_Filter::asFragmentProcessor(
-        GrRecordingContext*, const GrColorSpaceInfo& csi) const {
+        GrRecordingContext*, const GrColorInfo& csi) const {
     bool linearize = !csi.isLinearlyBlended();
     return HighContrastFilterEffect::Make(fConfig, linearize);
 }

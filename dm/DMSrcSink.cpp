@@ -1367,8 +1367,7 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
 
     GrContextFactory factory(grOptions);
     const SkISize size = src.size();
-    SkImageInfo info =
-            SkImageInfo::Make(size.width(), size.height(), fColorType, fAlphaType, fColorSpace);
+    SkImageInfo info = SkImageInfo::Make(size, fColorType, fAlphaType, fColorSpace);
     sk_sp<SkSurface> surface;
     GrContext* context = factory.getContextInfo(fContextType, fContextOverrides).grContext();
     if (initContext) {
@@ -1427,8 +1426,7 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
         info.colorType() == kRGB_888x_SkColorType) {
         // We don't currently support readbacks into these formats on the GPU backend. Convert to
         // 32 bit.
-        info = SkImageInfo::Make(size.width(), size.height(), kRGBA_8888_SkColorType,
-                                 kPremul_SkAlphaType, fColorSpace);
+        info = SkImageInfo::Make(size, kRGBA_8888_SkColorType, kPremul_SkAlphaType, fColorSpace);
     }
     dst->allocPixels(info);
     canvas->readPixels(*dst, 0, 0);
@@ -1729,8 +1727,7 @@ Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) con
     SkAlphaType alphaType = kPremul_SkAlphaType;
     (void)SkColorTypeValidateAlphaType(fColorType, alphaType, &alphaType);
 
-    dst->allocPixelsFlags(SkImageInfo::Make(size.width(), size.height(),
-                                            fColorType, alphaType, fColorSpace),
+    dst->allocPixelsFlags(SkImageInfo::Make(size, fColorType, alphaType, fColorSpace),
                           SkBitmap::kZeroPixels_AllocFlag);
 
     SkCanvas canvas(*dst);

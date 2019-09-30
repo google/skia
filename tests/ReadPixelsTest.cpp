@@ -276,7 +276,7 @@ static BitmapInit nextBMI(BitmapInit bmi) {
 
 static void init_bitmap(SkBitmap* bitmap, const SkIRect& rect, BitmapInit init, SkColorType ct,
                         SkAlphaType at) {
-    SkImageInfo info = SkImageInfo::Make(rect.width(), rect.height(), ct, at);
+    SkImageInfo info = SkImageInfo::Make(rect.size(), ct, at);
     size_t rowBytes = 0;
     switch (init) {
         case kTight_BitmapInit:
@@ -706,8 +706,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
                         SkAutoPixmapStorage result;
                         Context context;
                         context.fPixmap = &result;
-                        info = SkImageInfo::Make(rect.width(), rect.height(), readCT,
-                                                 kPremul_SkAlphaType, readCS);
+                        info = SkImageInfo::Make(rect.size(), readCT, kPremul_SkAlphaType, readCS);
                         result.alloc(info);
                         memset(result.writable_addr(), 0xAB, result.computeByteSize());
                         // Rescale quality and linearity don't matter since we're doing a non-

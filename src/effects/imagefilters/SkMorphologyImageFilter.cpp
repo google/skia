@@ -796,8 +796,7 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilterImpl::onFilterImage(const Context& 
         return nullptr;
     }
 
-    SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(),
-                                         inputBM.colorType(), inputBM.alphaType());
+    SkImageInfo info = SkImageInfo::Make(bounds.size(), inputBM.colorType(), inputBM.alphaType());
 
     SkBitmap dst;
     if (!dst.tryAllocPixels(info)) {

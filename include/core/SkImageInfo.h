@@ -235,7 +235,11 @@ public:
     */
     static SkImageInfo Make(int width, int height, SkColorType ct, SkAlphaType at,
                             sk_sp<SkColorSpace> cs = nullptr) {
-        return SkImageInfo(width, height, ct, at, std::move(cs));
+        return SkImageInfo({width, height}, ct, at, std::move(cs));
+    }
+    static SkImageInfo Make(SkISize dimensions, SkColorType ct, SkAlphaType at,
+                            sk_sp<SkColorSpace> cs = nullptr) {
+        return SkImageInfo(dimensions, ct, at, std::move(cs));
     }
 
     /** Creates SkImageInfo from integral dimensions width and height, kN32_SkColorType,
@@ -258,7 +262,7 @@ public:
     */
     static SkImageInfo MakeN32(int width, int height, SkAlphaType at,
                                sk_sp<SkColorSpace> cs = nullptr) {
-        return Make(width, height, kN32_SkColorType, at, std::move(cs));
+        return Make({width, height}, kN32_SkColorType, at, std::move(cs));
     }
 
     /** Creates SkImageInfo from integral dimensions width and height, kN32_SkColorType,
@@ -291,7 +295,7 @@ public:
         @return        created SkImageInfo
     */
     static SkImageInfo MakeN32Premul(int width, int height, sk_sp<SkColorSpace> cs = nullptr) {
-        return Make(width, height, kN32_SkColorType, kPremul_SkAlphaType, std::move(cs));
+        return Make({width, height}, kN32_SkColorType, kPremul_SkAlphaType, std::move(cs));
     }
 
     /** Creates SkImageInfo from integral dimensions width and height, kN32_SkColorType,
@@ -318,7 +322,7 @@ public:
         @return        created SkImageInfo
     */
     static SkImageInfo MakeA8(int width, int height) {
-        return Make(width, height, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr);
+        return Make({width, height}, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr);
     }
 
     /** Creates SkImageInfo from integral dimensions width and height, kUnknown_SkColorType,
@@ -332,7 +336,7 @@ public:
         @return        created SkImageInfo
     */
     static SkImageInfo MakeUnknown(int width, int height) {
-        return Make(width, height, kUnknown_SkColorType, kUnknown_SkAlphaType, nullptr);
+        return Make({width, height}, kUnknown_SkColorType, kUnknown_SkAlphaType, nullptr);
     }
 
     /** Creates SkImageInfo from integral dimensions width and height set to zero,
@@ -619,9 +623,9 @@ private:
     SkColorType         fColorType;
     SkAlphaType         fAlphaType;
 
-    SkImageInfo(int width, int height, SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs)
+    SkImageInfo(SkISize dimensions, SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs)
         : fColorSpace(std::move(cs))
-        , fDimensions{width, height}
+        , fDimensions(dimensions)
         , fColorType(ct)
         , fAlphaType(at)
     {}

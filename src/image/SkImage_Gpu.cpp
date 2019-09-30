@@ -228,7 +228,7 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(GrContext* ctx, SkYUVColorS
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, at,
                                    renderTargetContext->asTextureProxyRef(),
-                                   renderTargetContext->colorSpaceInfo().refColorSpace());
+                                   renderTargetContext->colorInfo().refColorSpace());
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopy(GrContext* ctx,

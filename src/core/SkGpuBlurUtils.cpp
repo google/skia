@@ -387,7 +387,7 @@ static std::unique_ptr<GrRenderTargetContext> reexpand(
         return nullptr;
     }
 
-    GrColorType srcColorType = srcRenderTargetContext->colorSpaceInfo().colorType();
+    GrColorType srcColorType = srcRenderTargetContext->colorInfo().colorType();
 
     srcRenderTargetContext = nullptr; // no longer needed
 

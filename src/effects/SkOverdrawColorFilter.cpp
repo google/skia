@@ -88,7 +88,7 @@ void SkOverdrawColorFilter::RegisterFlattenables() {
 #include "include/private/GrRecordingContext.h"
 
 std::unique_ptr<GrFragmentProcessor> SkOverdrawColorFilter::asFragmentProcessor(
-        GrRecordingContext* context, const GrColorSpaceInfo&) const {
+        GrRecordingContext* context, const GrColorInfo&) const {
     static int overdrawIndex = GrSkSLFP::NewIndex();
     return GrSkSLFP::Make(context, overdrawIndex, "Overdraw", SKSL_OVERDRAW_SRC, fColors,
                           sizeof(fColors));

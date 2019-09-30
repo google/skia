@@ -33,8 +33,8 @@ bool SkColorFilter::onAsAColorMatrix(float matrix[20]) const {
 }
 
 #if SK_SUPPORT_GPU
-std::unique_ptr<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(
-        GrRecordingContext*, const GrColorSpaceInfo&) const {
+std::unique_ptr<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(GrRecordingContext*,
+                                                                        const GrColorInfo&) const {
     return nullptr;
 }
 #endif
@@ -110,9 +110,9 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext* context, const GrColorSpaceInfo& dstColorSpaceInfo) const override {
-        auto innerFP = fInner->asFragmentProcessor(context, dstColorSpaceInfo);
-        auto outerFP = fOuter->asFragmentProcessor(context, dstColorSpaceInfo);
+            GrRecordingContext* context, const GrColorInfo& dstColorInfo) const override {
+        auto innerFP = fInner->asFragmentProcessor(context, dstColorInfo);
+        auto outerFP = fOuter->asFragmentProcessor(context, dstColorInfo);
         if (!innerFP || !outerFP) {
             return nullptr;
         }
@@ -196,8 +196,8 @@ public:
     }()) {}
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext*, const GrColorSpaceInfo&) const override {
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
+                                                             const GrColorInfo&) const override {
         // wish our caller would let us know if our input was opaque...
         GrSRGBEffect::Alpha alpha = GrSRGBEffect::Alpha::kPremul;
         switch (fDir) {
@@ -310,10 +310,10 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext* context, const GrColorSpaceInfo& dstColorSpaceInfo) const override {
+            GrRecordingContext* context, const GrColorInfo& dstColorInfo) const override {
         return GrMixerEffect::Make(
-                fCF0->asFragmentProcessor(context, dstColorSpaceInfo),
-                fCF1 ? fCF1->asFragmentProcessor(context, dstColorSpaceInfo) : nullptr,
+                fCF0->asFragmentProcessor(context, dstColorInfo),
+                fCF1 ? fCF1->asFragmentProcessor(context, dstColorInfo) : nullptr,
                 fWeight);
     }
 #endif
@@ -388,8 +388,8 @@ public:
         , fCpuFunction(cpuFunction) {}
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext* context, const GrColorSpaceInfo&) const override {
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext* context,
+                                                             const GrColorInfo&) const override {
         return GrSkSLFP::Make(context, fIndex, "Runtime Color Filter", fSkSL,
                               fInputs ? fInputs->data() : nullptr,
                               fInputs ? fInputs->size() : 0);

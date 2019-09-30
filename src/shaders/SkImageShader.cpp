@@ -165,7 +165,7 @@ sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
 
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrColorSpaceInfo.h"
+#include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
@@ -251,8 +251,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         }
     }
     inner = GrColorSpaceXformEffect::Make(std::move(inner), fImage->colorSpace(),
-                                          fImage->alphaType(),
-                                          args.fDstColorSpaceInfo->colorSpace());
+                                          fImage->alphaType(), args.fDstColorInfo->colorSpace());
     if (isAlphaOnly) {
         return inner;
     } else if (args.fInputColorIsOpaque) {

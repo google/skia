@@ -193,7 +193,7 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
     bool mipmapped = rtc->asTextureProxy() ? GrMipMapped::kYes == rtc->asTextureProxy()->mipMapped()
                                            : false;
 
-    SkColorType ct = GrColorTypeToSkColorType(rtc->colorSpaceInfo().colorType());
+    SkColorType ct = GrColorTypeToSkColorType(rtc->colorInfo().colorType());
     if (ct == kUnknown_SkColorType) {
         return false;
     }
@@ -204,7 +204,7 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
     SkASSERT(!usesGLFBO0 || !SkToBool(rtc->asTextureProxy()));
 
     SkImageInfo ii = SkImageInfo::Make(rtc->width(), rtc->height(), ct, kPremul_SkAlphaType,
-                                       rtc->colorSpaceInfo().refColorSpace());
+                                       rtc->colorInfo().refColorSpace());
 
     GrBackendFormat format = rtc->asSurfaceProxy()->backendFormat();
 
@@ -292,7 +292,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
         return false;
     }
 
-    SkColorType rtcColorType = GrColorTypeToSkColorType(rtc->colorSpaceInfo().colorType());
+    SkColorType rtcColorType = GrColorTypeToSkColorType(rtc->colorInfo().colorType());
     if (rtcColorType == kUnknown_SkColorType) {
         return false;
     }
@@ -303,12 +303,10 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
            characterization.cacheMaxResourceBytes() <= maxResourceBytes &&
            characterization.origin() == rtc->origin() &&
            characterization.backendFormat() == rtc->asSurfaceProxy()->backendFormat() &&
-           characterization.width() == rtc->width() &&
-           characterization.height() == rtc->height() &&
+           characterization.width() == rtc->width() && characterization.height() == rtc->height() &&
            characterization.colorType() == rtcColorType &&
            characterization.sampleCount() == rtc->numSamples() &&
-           SkColorSpace::Equals(characterization.colorSpace(),
-                                rtc->colorSpaceInfo().colorSpace()) &&
+           SkColorSpace::Equals(characterization.colorSpace(), rtc->colorInfo().colorSpace()) &&
            characterization.isProtected() == isProtected &&
            characterization.surfaceProps() == rtc->surfaceProps();
 }
@@ -563,20 +561,20 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
     SkASSERT(oldTexture->asRenderTarget());
     int sampleCnt = oldTexture->asRenderTarget()->numSamples();
     GrColorType grColorType = SkColorTypeToGrColorType(this->getCanvas()->imageInfo().colorType());
-    auto colorSpace = sk_ref_sp(oldRTC->colorSpaceInfo().colorSpace());
+    auto colorSpace = sk_ref_sp(oldRTC->colorInfo().colorSpace());
     if (!validate_backend_texture(context->priv().caps(), backendTexture,
                                   sampleCnt, grColorType, true)) {
         return false;
     }
-    auto rtc = context->priv().makeBackendTextureRenderTargetContext(
-            backendTexture,
-            origin,
-            sampleCnt,
-            oldRTC->colorSpaceInfo().colorType(),
-            std::move(colorSpace),
-            &this->props(),
-            releaseProc,
-            releaseContext);
+    auto rtc =
+            context->priv().makeBackendTextureRenderTargetContext(backendTexture,
+                                                                  origin,
+                                                                  sampleCnt,
+                                                                  oldRTC->colorInfo().colorType(),
+                                                                  std::move(colorSpace),
+                                                                  &this->props(),
+                                                                  releaseProc,
+                                                                  releaseContext);
     if (!rtc) {
         return false;
     }

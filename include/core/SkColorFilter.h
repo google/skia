@@ -13,7 +13,7 @@
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkRefCnt.h"
 
-class GrColorSpaceInfo;
+class GrColorInfo;
 class GrFragmentProcessor;
 class GrRecordingContext;
 class SkBitmap;
@@ -96,7 +96,7 @@ public:
      *  A null return indicates that the color filter isn't implemented for the GPU backend.
      */
     virtual std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext*, const GrColorSpaceInfo& dstColorSpaceInfo) const;
+            GrRecordingContext*, const GrColorInfo& dstColorInfo) const;
 #endif
 
     bool affectsTransparentBlack() const {

@@ -176,8 +176,7 @@ inline std::unique_ptr<GrAtlasTextOp> GrTextBlob::makeOp(
         // TODO: Can we be even smarter based on the dest transfer function?
         op = GrAtlasTextOp::MakeDistanceField(
                 target->getContext(), std::move(grPaint), glyphCount, distanceAdjustTable,
-                target->colorSpaceInfo().isLinearlyBlended(),
-                SkPaintPriv::ComputeLuminanceColor(paint),
+                target->colorInfo().isLinearlyBlended(), SkPaintPriv::ComputeLuminanceColor(paint),
                 props, info.isAntiAliased(), info.hasUseLCDText());
     } else {
         op = GrAtlasTextOp::MakeBitmap(target->getContext(), std::move(grPaint), format, glyphCount,

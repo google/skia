@@ -35,7 +35,7 @@ protected:
 
         SkISize size = canvas->getBaseLayerSize();
 
-        auto info = SkImageInfo::Make(size.width(), size.height(), fCT, fAT, fCS);
+        auto info = SkImageInfo::Make(size, fCT, fAT, fCS);
         SkBitmap bitmap;
         bitmap.allocPixels(info);
 

@@ -73,9 +73,9 @@ class GrRenderTargetContext::TextTarget : public GrTextTarget {
 public:
     TextTarget(GrRenderTargetContext* renderTargetContext)
             : GrTextTarget(renderTargetContext->width(), renderTargetContext->height(),
-                           renderTargetContext->colorSpaceInfo())
+                           renderTargetContext->colorInfo())
             , fRenderTargetContext(renderTargetContext)
-            , fGlyphPainter{*renderTargetContext}{}
+            , fGlyphPainter{*renderTargetContext} {}
 
     void addDrawOp(const GrClip& clip, std::unique_ptr<GrAtlasTextOp> op) override {
         fRenderTargetContext->addDrawOp(clip, std::move(op));
@@ -90,11 +90,11 @@ public:
     void makeGrPaint(GrMaskFormat maskFormat, const SkPaint& skPaint, const SkMatrix& viewMatrix,
                      GrPaint* grPaint) override {
         auto context = fRenderTargetContext->fContext;
-        const GrColorSpaceInfo& colorSpaceInfo = fRenderTargetContext->colorSpaceInfo();
+        const GrColorInfo& colorInfo = fRenderTargetContext->colorInfo();
         if (kARGB_GrMaskFormat == maskFormat) {
-            SkPaintToGrPaintWithPrimitiveColor(context, colorSpaceInfo, skPaint, grPaint);
+            SkPaintToGrPaintWithPrimitiveColor(context, colorInfo, skPaint, grPaint);
         } else {
-            SkPaintToGrPaint(context, colorSpaceInfo, skPaint, viewMatrix, grPaint);
+            SkPaintToGrPaint(context, colorInfo, skPaint, viewMatrix, grPaint);
         }
     }
 
@@ -621,7 +621,7 @@ void GrRenderTargetContext::drawTexturedQuad(const GrClip& clip,
         const GrClip& finalClip = opt == QuadOptimization::kClipApplied ? GrFixedClip::Disabled()
                                                                         : clip;
         GrAAType aaType = this->chooseAAType(aa);
-        auto clampType = GrColorTypeClampType(this->colorSpaceInfo().colorType());
+        auto clampType = GrColorTypeClampType(this->colorInfo().colorType());
         auto saturate = clampType == GrClampType::kManual ? GrTextureOp::Saturate::kYes
                                                           : GrTextureOp::Saturate::kNo;
         // Use the provided domain, although hypothetically we could detect that the cropped local
@@ -887,7 +887,7 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetE
         // Can use a single op, avoiding GrPaint creation, and can batch across proxies
         AutoCheckFlush acf(this->drawingManager());
         GrAAType aaType = this->chooseAAType(aa);
-        auto clampType = GrColorTypeClampType(this->colorSpaceInfo().colorType());
+        auto clampType = GrColorTypeClampType(this->colorInfo().colorType());
         auto saturate = clampType == GrClampType::kManual ? GrTextureOp::Saturate::kYes
                                                           : GrTextureOp::Saturate::kNo;
         auto op = GrTextureOp::MakeSet(fContext, set, cnt, filter, saturate, aaType, constraint,
@@ -914,7 +914,7 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
     GrAAType aaType = this->chooseAAType(GrAA::kNo);
     std::unique_ptr<GrDrawOp> op = GrDrawVerticesOp::Make(
             fContext, std::move(paint), std::move(vertices), bones, boneCount, viewMatrix, aaType,
-            this->colorSpaceInfo().refColorSpaceXformFromSRGB(), overridePrimType);
+            this->colorInfo().refColorSpaceXformFromSRGB(), overridePrimType);
     this->addDrawOp(clip, std::move(op));
 }
 
@@ -1517,7 +1517,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
         return;
     }
     bool needsRescale = srcRect.width() != info.width() || srcRect.height() != info.height();
-    auto colorTypeOfFinalContext = this->colorSpaceInfo().colorType();
+    auto colorTypeOfFinalContext = this->colorInfo().colorType();
     auto backendFormatOfFinalContext = fRenderTargetProxy->backendFormat();
     if (needsRescale) {
         colorTypeOfFinalContext = dstCT;
@@ -1535,7 +1535,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
     // channels are in the src.
     uint32_t dstComponents = GrColorTypeComponentFlags(dstCT);
     uint32_t legalReadComponents = GrColorTypeComponentFlags(readInfo.fColorType);
-    uint32_t srcComponents = GrColorTypeComponentFlags(this->colorSpaceInfo().colorType());
+    uint32_t srcComponents = GrColorTypeComponentFlags(this->colorInfo().colorType());
     if ((~legalReadComponents & dstComponents) & srcComponents) {
         callback(context, nullptr, 0);
         return;
@@ -1550,14 +1550,14 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
             callback(context, nullptr, 0);
             return;
         }
-        SkASSERT(SkColorSpace::Equals(tempRTC->colorSpaceInfo().colorSpace(), info.colorSpace()));
+        SkASSERT(SkColorSpace::Equals(tempRTC->colorInfo().colorSpace(), info.colorSpace()));
         SkASSERT(tempRTC->origin() == kTopLeft_GrSurfaceOrigin);
         x = y = 0;
     } else {
-        sk_sp<GrColorSpaceXform> xform =
-                GrColorSpaceXform::Make(this->colorSpaceInfo().colorSpace(),
-                                        this->colorSpaceInfo().alphaType(),
-                                        info.colorSpace(), info.alphaType());
+        sk_sp<GrColorSpaceXform> xform = GrColorSpaceXform::Make(this->colorInfo().colorSpace(),
+                                                                 this->colorInfo().alphaType(),
+                                                                 info.colorSpace(),
+                                                                 info.alphaType());
         // Insert a draw to a temporary surface if we need to do a y-flip or color space conversion.
         if (this->origin() == kBottomLeft_GrSurfaceOrigin || xform) {
             // We flip or color convert by drawing and we don't currently support drawing to
@@ -1581,7 +1581,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
             }
             tempRTC = direct->priv().makeDeferredRenderTargetContext(
                     SkBackingFit::kApprox, srcRect.width(), srcRect.height(),
-                    this->colorSpaceInfo().colorType(), info.refColorSpace(), 1, GrMipMapped::kNo,
+                    this->colorInfo().colorType(), info.refColorSpace(), 1, GrMipMapped::kNo,
                     kTopLeft_GrSurfaceOrigin);
             if (!tempRTC) {
                 callback(context, nullptr, 0);
@@ -1610,9 +1610,9 @@ void GrRenderTargetContext::asyncReadPixels(const SkIRect& rect, SkColorType col
 
     if (!transferResult.fTransferBuffer) {
         SkAutoPixmapStorage pm;
-        auto ii = SkImageInfo::Make(rect.width(), rect.height(), colorType,
-                                    this->colorSpaceInfo().alphaType(),
-                                    this->colorSpaceInfo().refColorSpace());
+        auto ii = SkImageInfo::Make(rect.size(), colorType,
+                                    this->colorInfo().alphaType(),
+                                    this->colorInfo().refColorSpace());
         pm.alloc(ii);
         if (!this->readPixels(ii, pm.writable_addr(), pm.rowBytes(), {rect.fLeft, rect.fTop})) {
             callback(context, nullptr, 0);
@@ -1690,14 +1690,14 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(
             callback(context, nullptr, nullptr);
             return;
         }
-        SkASSERT(SkColorSpace::Equals(tempRTC->colorSpaceInfo().colorSpace(), info.colorSpace()));
+        SkASSERT(SkColorSpace::Equals(tempRTC->colorInfo().colorSpace(), info.colorSpace()));
         SkASSERT(tempRTC->origin() == kTopLeft_GrSurfaceOrigin);
         x = y = 0;
     } else {
         // We assume the caller wants kPremul. There is no way to indicate a preference.
         sk_sp<GrColorSpaceXform> xform = GrColorSpaceXform::Make(
-                this->colorSpaceInfo().colorSpace(), this->colorSpaceInfo().alphaType(),
-                dstColorSpace.get(), kPremul_SkAlphaType);
+                this->colorInfo().colorSpace(), this->colorInfo().alphaType(), dstColorSpace.get(),
+                kPremul_SkAlphaType);
         if (xform) {
             sk_sp<GrTextureProxy> texProxy = this->asTextureProxyRef();
             // TODO: Do something if the input is not a texture already.
@@ -1707,8 +1707,8 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(
             }
             SkRect srcRectToDraw = SkRect::Make(srcRect);
             tempRTC = direct->priv().makeDeferredRenderTargetContext(
-                    SkBackingFit::kApprox, dstW, dstH, this->colorSpaceInfo().colorType(),
-                    dstColorSpace, 1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
+                    SkBackingFit::kApprox, dstW, dstH, this->colorInfo().colorType(), dstColorSpace,
+                    1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
             if (!tempRTC) {
                 callback(context, nullptr, nullptr);
                 return;
@@ -2095,7 +2095,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
                                       &viewMatrix,
                                       &shape,
                                       aaType,
-                                      fRenderTargetContext->colorSpaceInfo().isLinearlyBlended()};
+                                      fRenderTargetContext->colorInfo().isLinearlyBlended()};
     pr->drawPath(args);
     return true;
 }
@@ -2192,7 +2192,7 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
                                       &viewMatrix,
                                       canDrawArgs.fShape,
                                       aaType,
-                                      this->colorSpaceInfo().isLinearlyBlended()};
+                                      this->colorInfo().isLinearlyBlended()};
     pr->drawPath(args);
 }
 
@@ -2257,7 +2257,7 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
 
     SkASSERT((!usesStencil && !appliedClip.hasStencilClip()) || (fNumStencilSamples > 0));
 
-    GrClampType clampType = GrColorTypeClampType(this->colorSpaceInfo().colorType());
+    GrClampType clampType = GrColorTypeClampType(this->colorInfo().colorType());
     // MIXED SAMPLES TODO: If we start using mixed samples for clips we will need to check the clip
     // here as well.
     bool hasMixedSampledCoverage = (usesHWAA && this->numSamples() <= 1);
@@ -2335,7 +2335,7 @@ bool GrRenderTargetContext::setupDstProxy(const GrClip& clip, const GrOp& op,
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
     // have per-sample dst values by making the copy multisampled.
     GrCaps::DstCopyRestrictions restrictions = this->caps()->getDstCopyRestrictions(
-            fRenderTargetProxy.get(), this->colorSpaceInfo().colorType());
+            fRenderTargetProxy.get(), this->colorInfo().colorType());
 
     if (!restrictions.fMustCopyWholeSrc) {
         copyRect = clippedRect;

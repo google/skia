@@ -284,8 +284,8 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
 
     SkBitmap coverage;
     if (trackCoverage) {
-        SkImageInfo ci = SkImageInfo::Make(info.width(), info.height(), kAlpha_8_SkColorType,
-                                           kPremul_SkAlphaType);
+        SkImageInfo ci =
+                SkImageInfo::Make(info.dimensions(), kAlpha_8_SkColorType, kPremul_SkAlphaType);
         if (!coverage.tryAllocPixelsFlags(ci, SkBitmap::kZeroPixels_AllocFlag)) {
             return nullptr;
         }
