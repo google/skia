@@ -42,6 +42,7 @@ private:
         this->makeFullScreen(proxy);
     }
 
+    void onPrePrepare() override {}
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;

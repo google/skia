@@ -38,12 +38,18 @@ public:
 
     const GrPrimitiveProcessor& primitiveProcessor() const { return fPrimProc; }
     const GrTextureProxy* const* primProcProxies() const { return fPrimProcProxies; }
-    const GrRenderTarget* renderTarget() const { return fRenderTarget; }
-    GrPixelConfig config() const { return fRenderTarget->config(); }
-    int effectiveSampleCnt() const {
+
+    //---
+    int effectiveSampleCnt1() const {
         SkASSERT(GrProcessor::CustomFeatures::kSampleLocations & header().processorFeatures());
-        return fRenderTarget->renderTargetPriv().getSampleLocations().count();
+        return fRenderTarget1->renderTargetPriv().getSampleLocations().count();
     }
+    const SkTArray<SkPoint>& getSampleLocations1() const {
+        return fRenderTarget1->renderTargetPriv().getSampleLocations();
+    }
+    int numSamples1() const { return fNumSamples; }
+    //---
+
     GrSurfaceOrigin origin() const { return fOrigin; }
     const GrPipeline& pipeline() const { return fPipeline; }
     GrProgramDesc* desc() { return fDesc; }
@@ -93,7 +99,8 @@ public:
 
     int fStageIndex;
 
-    const GrRenderTarget*        fRenderTarget;
+    const GrRenderTarget*        fRenderTarget1;
+    const int                    fNumSamples;
     const GrSurfaceOrigin        fOrigin;
     const GrPipeline&            fPipeline;
     const GrPrimitiveProcessor&  fPrimProc;
@@ -109,7 +116,7 @@ public:
     int fFragmentProcessorCnt;
 
 protected:
-    explicit GrGLSLProgramBuilder(GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
+    explicit GrGLSLProgramBuilder(GrRenderTarget*, int numSamples, GrSurfaceOrigin,
                                   const GrPrimitiveProcessor&,
                                   const GrTextureProxy* const primProcProxies[],
                                   const GrPipeline&,
