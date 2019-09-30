@@ -13,6 +13,7 @@
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkUtils.h"
 #include "src/gpu/GrColor.h"
+#include "src/gpu/GrImageInfo.h"
 
 struct ETC1Block {
     uint32_t fHigh;
@@ -483,8 +484,8 @@ static inline void append_clamp_gamut(SkRasterPipeline* pipeline) {
     pipeline->append_gamut_clamp_if_normalized(fakeII);
 }
 
-bool GrConvertPixels(const GrPixelInfo& dstInfo,       void* dst, size_t dstRB,
-                     const GrPixelInfo& srcInfo, const void* src, size_t srcRB,
+bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
+                     const GrImageInfo& srcInfo, const void* src, size_t srcRB,
                      bool flipY) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     if (!srcInfo.isValid() || !dstInfo.isValid()) {

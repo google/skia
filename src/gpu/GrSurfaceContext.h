@@ -54,7 +54,7 @@ public:
      * @param direct        The direct context to use. If null will use our GrRecordingContext if it
      *                      is a GrDirectContext and fail otherwise.
      */
-    bool readPixels(const GrPixelInfo& dstInfo, void* dst, size_t rowBytes, SkIPoint srcPt,
+    bool readPixels(const GrImageInfo& dstInfo, void* dst, size_t rowBytes, SkIPoint srcPt,
                     GrContext* direct = nullptr);
 
     /**
@@ -67,7 +67,7 @@ public:
      * @param direct        The direct context to use. If null will use our GrRecordingContext if it
      *                      is a GrDirectContext and fail otherwise.
      */
-    bool writePixels(const GrPixelInfo& srcInfo, const void* src, size_t rowBytes, SkIPoint dstPt,
+    bool writePixels(const GrImageInfo& srcInfo, const void* src, size_t rowBytes, SkIPoint dstPt,
                      GrContext* direct = nullptr);
 
     // TODO: this is virtual b.c. this object doesn't have a pointer to the wrapped GrSurfaceProxy?
