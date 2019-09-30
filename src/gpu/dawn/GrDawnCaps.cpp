@@ -185,9 +185,19 @@ bool GrDawnCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
     return true;
 }
 
-GrColorType GrDawnCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat&,
+GrColorType GrDawnCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& backendFormat,
                                                           bool isAlphaChannel) const {
-    return GrColorType::kUnknown;
+    dawn::TextureFormat textureFormat;
+    if (!backendFormat.asDawnFormat(&textureFormat)) {
+        return GrColorType::kUnknown;
+    }
+    switch (textureFormat) {
+        case dawn::TextureFormat::R8Unorm:     return isAlphaChannel ? GrColorType::kAlpha_8
+                                                                     : GrColorType::kGray_8;
+        case dawn::TextureFormat::RGBA8Unorm:  return GrColorType::kRGBA_8888;
+        case dawn::TextureFormat::BGRA8Unorm:  return GrColorType::kBGRA_8888;
+        default:                               return GrColorType::kUnknown;
+    }
 }
 
 #if GR_TEST_UTILS
