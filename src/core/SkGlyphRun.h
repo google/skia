@@ -88,6 +88,13 @@ public:
         }
         return glyphCount;
     }
+    size_t maxGlyphCount() const {
+        size_t glyphCount = 0;
+        for(const auto& run : fGlyphRuns) {
+            glyphCount = SkTMax(glyphCount, run.runSize());
+        }
+        return glyphCount;
+    }
     bool allFontsFinite() const;
 
     SkPoint origin() const { return fOrigin; }
