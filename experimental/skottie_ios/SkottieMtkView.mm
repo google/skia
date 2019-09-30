@@ -87,7 +87,14 @@
     if (fPaused) {
         return fAnimationMoment;
     }
-    return std::fmod(1e-9 * (SkTime::GetNSecs() - fStartTime), fAnimation->duration());
+    double time = 1e-9 * (SkTime::GetNSecs() - fStartTime);
+    double duration = fAnimation->duration();
+    if ([self stopAtEnd] && time >= duration) {
+        fPaused = true;
+        fAnimationMoment = duration;
+        return fAnimationMoment;
+    }
+    return std::fmod(time, duration);
 }
 
 - (void)seek:(float)seconds {
@@ -105,11 +112,15 @@
 
 - (BOOL)togglePaused {
     if (fPaused) {
-        fStartTime = SkTime::GetNSecs() - 1e9 * fAnimationMoment;
+        double offset = fAnimationMoment >= fAnimation->duration() ? 0 : -1e9 * fAnimationMoment;
+        fStartTime = SkTime::GetNSecs() + offset;
+        fPaused = false;
     } else {
         fAnimationMoment = [self currentTime];
+        fPaused = true;
     }
-    fPaused = !fPaused;
     return fPaused;
 }
+
+- (BOOL)isPaused { return fPaused; }
 @end

@@ -14,6 +14,9 @@ class GrContext;
 // e.g.: use SkMetalDeviceToGrContext().
 @property (assign) GrContext* grContext;  // non-owning pointer.
 
+// When set, pauses at end of loop.
+@property (assign) BOOL stopAtEnd;
+
 // Override of the MTKView interface.  Uses Skia+Skottie+Metal to draw.
 - (void)drawRect:(CGRect)rect;
 
@@ -25,6 +28,9 @@ class GrContext;
 
 // Toggle paused mode.  Return paused state.
 - (BOOL)togglePaused;
+
+// Return the current paused state.
+- (BOOL)isPaused;
 
 // Return the default size of the Lottie animation.
 - (CGSize)size;
