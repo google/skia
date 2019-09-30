@@ -44,7 +44,7 @@
 
 namespace SkSL {
 
-struct ByteCode;
+class ByteCode;
 class ExternalValue;
 class IRGenerator;
 

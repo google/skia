@@ -73,7 +73,7 @@ bool ByteCodeGenerator::generateCode() {
 //                    SkASSERT(!(declVar->fModifiers.fFlags & Modifiers::kIn_Flag));
                     if (declVar->fModifiers.fFlags & Modifiers::kUniform_Flag) {
                         for (int i = SlotCount(declVar->fType); i > 0; --i) {
-                            fOutput->fInputSlots.push_back(fOutput->fGlobalCount++);
+                            fOutput->fUniformSlots.push_back(fOutput->fGlobalCount++);
                         }
                     } else {
                         fOutput->fGlobalCount += SlotCount(declVar->fType);
