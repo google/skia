@@ -39,22 +39,23 @@ void test(skiatest::Reporter* r, const char* src, float* in, float* expected,
             return;
         }
         const SkSL::ByteCodeFunction* main = byteCode->getFunction("main");
-        std::unique_ptr<float[]> out = std::unique_ptr<float[]>(new float[main->fReturnCount]);
-        SkAssertResult(byteCode->run(main, in, main->fParameterCount, out.get(), main->fReturnCount,
+        int returnCount = main->getReturnCount();
+        std::unique_ptr<float[]> out = std::unique_ptr<float[]>(new float[returnCount]);
+        SkAssertResult(byteCode->run(main, in, main->getParameterCount(), out.get(), returnCount,
                                      nullptr, 0));
-        bool valid = exactCompare ? !memcmp(out.get(), expected, sizeof(float) * main->fReturnCount)
-                                  : nearly_equal(out.get(), expected, main->fReturnCount);
+        bool valid = exactCompare ? !memcmp(out.get(), expected, sizeof(float) * returnCount)
+                                  : nearly_equal(out.get(), expected, returnCount);
         if (!valid) {
             printf("for program: %s\n", src);
             printf("    expected (");
             const char* separator = "";
-            for (int i = 0; i < main->fReturnCount; ++i) {
+            for (int i = 0; i < returnCount; ++i) {
                 printf("%s%f", separator, expected[i]);
                 separator = ", ";
             }
             printf("), but received (");
             separator = "";
-            for (int i = 0; i < main->fReturnCount; ++i) {
+            for (int i = 0; i < returnCount; ++i) {
                 printf("%s%f", separator, out.get()[i]);
                 separator = ", ";
             }
@@ -716,7 +717,7 @@ static void expect_run_failure(skiatest::Reporter* r, const char* src, float* in
     REPORTER_ASSERT(r, byteCode);
 
     auto fun = byteCode->getFunction("main");
-    bool result = byteCode->run(fun, in, fun->fParameterCount, nullptr, 0, nullptr, 0);
+    bool result = byteCode->run(fun, in, fun->getParameterCount(), nullptr, 0, nullptr, 0);
     REPORTER_ASSERT(r, !result);
 }
 
