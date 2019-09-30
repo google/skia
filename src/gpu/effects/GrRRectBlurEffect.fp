@@ -77,8 +77,8 @@ uniform half blurRadius;
             auto rtc2 =
                       SkGpuBlurUtils::GaussianBlur(context,
                                                    std::move(srcProxy),
-                                                   rtc->colorSpaceInfo().colorType(),
-                                                   rtc->colorSpaceInfo().alphaType(),
+                                                   rtc->colorInfo().colorType(),
+                                                   rtc->colorInfo().alphaType(),
                                                    SkIPoint::Make(0, 0),
                                                    nullptr,
                                                    SkIRect::MakeWH(size.fWidth, size.fHeight),

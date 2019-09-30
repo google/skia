@@ -73,8 +73,7 @@ void SkAtlasTextTarget::concat(const SkMatrix& matrix) { this->accessCTM()->preC
 
 //////////////////////////////////////////////////////////////////////////////
 
-static const GrColorSpaceInfo kColorSpaceInfo(GrColorType::kRGBA_8888, kPremul_SkAlphaType,
-                                              nullptr);
+static const GrColorInfo kColorInfo(GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr);
 static const SkSurfaceProps kProps(
         SkSurfaceProps::kUseDistanceFieldFonts_Flag, kUnknown_SkPixelGeometry);
 
@@ -82,12 +81,11 @@ static const SkSurfaceProps kProps(
 
 class SkInternalAtlasTextTarget : public GrTextTarget, public SkAtlasTextTarget {
 public:
-    SkInternalAtlasTextTarget(sk_sp<SkAtlasTextContext> context,
-                              int width, int height,
+    SkInternalAtlasTextTarget(sk_sp<SkAtlasTextContext> context, int width, int height,
                               void* handle)
-            : GrTextTarget(width, height, kColorSpaceInfo)
+            : GrTextTarget(width, height, kColorInfo)
             , SkAtlasTextTarget(std::move(context), width, height, handle)
-            , fGlyphPainter(kProps, kColorSpaceInfo) {
+            , fGlyphPainter(kProps, kColorInfo) {
         fOpMemoryPool = fContext->internal().grContext()->priv().refOpMemoryPool();
     }
 

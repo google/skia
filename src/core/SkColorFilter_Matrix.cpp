@@ -82,7 +82,7 @@ bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec, bool shaderIsOp
 #if SK_SUPPORT_GPU
 #include "src/gpu/effects/generated/GrColorMatrixFragmentProcessor.h"
 std::unique_ptr<GrFragmentProcessor> SkColorFilter_Matrix::asFragmentProcessor(
-        GrRecordingContext*, const GrColorSpaceInfo&) const {
+        GrRecordingContext*, const GrColorInfo&) const {
     if (fDomain == Domain::kHSLA) {
         // TODO
         return nullptr;

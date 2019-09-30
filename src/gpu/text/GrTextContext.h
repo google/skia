@@ -80,7 +80,7 @@ private:
     // sets up the descriptor on the blob and returns a detached cache.  Client must attach
     static SkColor ComputeCanonicalColor(const SkPaint&, bool lcd);
     // Determines if we need to use fake gamma (and contrast boost):
-    static SkScalerContextFlags ComputeScalerContextFlags(const GrColorSpaceInfo&);
+    static SkScalerContextFlags ComputeScalerContextFlags(const GrColorInfo&);
 
     const GrDistanceFieldAdjustTable* dfAdjustTable() const { return fDistanceAdjustTable.get(); }
 
