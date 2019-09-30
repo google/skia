@@ -134,7 +134,7 @@ DEF_SIMPLE_GM(BlurDrawImage, canvas, 256, 256) {
 DEF_SIMPLE_GM(BlurBigSigma, canvas, 1024, 1024) {
     SkPaint layerPaint, p;
 
-    p.setImageFilter(SkBlurImageFilter::Make(0, 500, nullptr));
+    p.setImageFilter(SkBlurImageFilter::Make(500, 500, nullptr));
 
     canvas->drawRect(SkRect::MakeWH(700, 800), p);
 }

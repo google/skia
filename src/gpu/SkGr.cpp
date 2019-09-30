@@ -18,6 +18,7 @@
 #include "include/private/SkTemplates.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkBlendModePriv.h"
+#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMessageBus.h"
@@ -46,7 +47,7 @@
 
 GR_FP_SRC_STRING SKSL_DITHER_SRC = R"(
 // This controls the range of values added to color channels
-layout(key) in int rangeType;
+in int rangeType;
 
 void main(float x, float y, inout half4 color) {
     half value;
@@ -256,7 +257,7 @@ GrPixelConfig SkColorType2GrPixelConfig(const SkColorType type) {
         case kRGBA_F16_SkColorType:
             return kRGBA_half_GrPixelConfig;
         case kRGBA_F32_SkColorType:
-            return kRGBA_float_GrPixelConfig;
+            return kUnknown_GrPixelConfig;
         case kR8G8_unorm_SkColorType:
             return kRG_88_GrPixelConfig;
         case kR16G16_unorm_SkColorType:
@@ -427,8 +428,8 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
     SkColorFilter* colorFilter = skPaint.getColorFilter();
     if (colorFilter) {
         if (applyColorFilterToPaintColor) {
-            grPaint->setColor4f(
-                    colorFilter->filterColor4f(origColor, colorSpaceInfo.colorSpace()).premul());
+            SkColorSpace* dstCS = colorSpaceInfo.colorSpace();
+            grPaint->setColor4f(colorFilter->filterColor4f(origColor, dstCS, dstCS).premul());
         } else {
             auto cfFP = colorFilter->asFragmentProcessor(context, colorSpaceInfo);
             if (cfFP) {

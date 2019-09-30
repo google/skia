@@ -406,6 +406,9 @@ public:
 
     bool fbFetchRequiresEnablePerSample() const { return fFBFetchRequiresEnablePerSample; }
 
+    /* Is there support for enabling/disabling sRGB writes for sRGB-capable color buffers? */
+    bool srgbWriteControl() const { return fSRGBWriteControl; }
+
     GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&,
                                                   bool isAlphaChannel) const override;
 
@@ -435,11 +438,11 @@ private:
 
     struct FormatWorkarounds {
         bool fDisableSRGBRenderWithMSAAForMacAMD = false;
-        bool fDisablePerFormatTextureStorageForCommandBufferES2 = false;
-        bool fDisableNonRedSingleChannelTexStorageForANGLEGL = false;
+        bool fDisableRGBA16FTexStorageForCrBug1008003 = false;
         bool fDisableBGRATextureStorageForIntelWindowsES = false;
         bool fDisableRGB8ForMali400 = false;
         bool fDisableLuminance16F = false;
+        bool fDontDisableTexStorageOnAndroid = false;
     };
 
     void applyDriverCorrectnessWorkarounds(const GrGLContextInfo&, const GrContextOptions&,
@@ -503,6 +506,7 @@ private:
     bool fProgramParameterSupport : 1;
     bool fSamplerObjectSupport : 1;
     bool fFBFetchRequiresEnablePerSample : 1;
+    bool fSRGBWriteControl : 1;
 
     // Driver workarounds
     bool fDoManualMipmapping : 1;

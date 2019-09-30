@@ -227,16 +227,16 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     fBufferMapThreshold = 0;
 
     // Buffers are always fully mapped.
-    fMapBufferFlags = kCanMap_MapFlag;
+    fMapBufferFlags =  kCanMap_MapFlag | kAsyncRead_MapFlag;
 
     fOversizedStencilSupport = true;
 
-    fSRGBSupport = true;   // always available in Metal
-    fSRGBWriteControl = false;
     fMipMapSupport = true;   // always available in Metal
     fNPOTTextureTileSupport = true;  // always available in Metal
 
     fReuseScratchTextures = true; // Assuming this okay
+
+    fTransferBufferSupport = true;
 
     fTextureBarrierSupport = false; // Need to figure out if we can do this
 
@@ -429,7 +429,6 @@ static constexpr MTLPixelFormat kMtlFormats[] = {
 #ifdef SK_BUILD_FOR_IOS
     MTLPixelFormatABGR4Unorm,
 #endif
-    MTLPixelFormatRGBA32Float,
     MTLPixelFormatRGBA8Unorm_sRGB,
     MTLPixelFormatR16Unorm,
     MTLPixelFormatRG16Unorm,
@@ -644,25 +643,6 @@ void GrMtlCaps::initFormatTable() {
         }
     }
 
-    // Format: RGBA32Float
-    {
-        info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA32Float)];
-        if (this->isMac()) {
-            info->fFlags = FormatInfo::kAllFlags;
-        } else {
-            info->fFlags = 0;
-        }
-        info->fColorTypeInfoCount = 1;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
-        int ctIdx = 0;
-        // Format: RGBA32Float, Surface: kRGBA_F32
-        if (info->fFlags) {
-            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
-            ctInfo.fColorType = GrColorType::kRGBA_F32;
-            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-        }
-    }
-
     // Format: R16Float
     {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatR16Float)];
@@ -805,7 +785,6 @@ void GrMtlCaps::initFormatTable() {
     this->setColorType(GrColorType::kAlpha_F16,        { MTLPixelFormatR16Float });
     this->setColorType(GrColorType::kRGBA_F16,         { MTLPixelFormatRGBA16Float });
     this->setColorType(GrColorType::kRGBA_F16_Clamped, { MTLPixelFormatRGBA16Float });
-    this->setColorType(GrColorType::kRGBA_F32,         { MTLPixelFormatRGBA32Float });
     this->setColorType(GrColorType::kAlpha_16,         { MTLPixelFormatR16Unorm });
     this->setColorType(GrColorType::kRG_1616,          { MTLPixelFormatRG16Unorm });
     this->setColorType(GrColorType::kRGBA_16161616,    { MTLPixelFormatRGBA16Unorm });
@@ -906,11 +885,6 @@ static constexpr GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, 
                 return kRGBA_half_Clamped_GrPixelConfig;
             }
             break;
-        case GrColorType::kRGBA_F32:
-            if (MTLPixelFormatRGBA32Float == format) {
-                return kRGBA_float_GrPixelConfig;
-            }
-            break;
         case GrColorType::kAlpha_16:
             if (MTLPixelFormatR16Unorm == format) {
                 return kAlpha_16_GrPixelConfig;
@@ -931,6 +905,7 @@ static constexpr GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, 
                 return kRG_half_GrPixelConfig;
             }
             break;
+        case GrColorType::kRGBA_F32:
         case GrColorType::kAlpha_8xxx:
         case GrColorType::kAlpha_F32xxx:
         case GrColorType::kGray_8xxx:
@@ -1080,7 +1055,6 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrMtlCaps::getTestingCombina
         { GrColorType::kAlpha_F16,        GrBackendFormat::MakeMtl(MTLPixelFormatR16Float)        },
         { GrColorType::kRGBA_F16,         GrBackendFormat::MakeMtl(MTLPixelFormatRGBA16Float)     },
         { GrColorType::kRGBA_F16_Clamped, GrBackendFormat::MakeMtl(MTLPixelFormatRGBA16Float)     },
-        { GrColorType::kRGBA_F32,         GrBackendFormat::MakeMtl(MTLPixelFormatRGBA32Float)     },
         { GrColorType::kAlpha_16,         GrBackendFormat::MakeMtl(MTLPixelFormatR16Unorm)        },
         { GrColorType::kRG_1616,          GrBackendFormat::MakeMtl(MTLPixelFormatRG16Unorm)       },
         { GrColorType::kRGBA_16161616,    GrBackendFormat::MakeMtl(MTLPixelFormatRGBA16Unorm)     },

@@ -32,6 +32,7 @@ struct SkParticles {
         kColorB,
         kColorA,
         kSpriteFrame,
+        kFlags,       // This is the only non-float data (it's actually uint32_t)
 
         kNumChannels,
     };

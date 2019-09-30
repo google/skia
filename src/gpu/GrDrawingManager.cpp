@@ -531,7 +531,8 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
             SkASSERT(rtProxy);
             if (rtProxy->isMSAADirty()) {
                 SkASSERT(rtProxy->peekRenderTarget());
-                gpu->resolveRenderTarget(rtProxy->peekRenderTarget());
+                gpu->resolveRenderTarget(rtProxy->peekRenderTarget(), rtProxy->msaaDirtyRect(),
+                                         rtProxy->origin(), GrGpu::ForExternalIO::kYes);
                 rtProxy->markMSAAResolved();
             }
         }
@@ -902,13 +903,6 @@ std::unique_ptr<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext
         return nullptr;
     }
 
-    // SkSurface catches bad color space usage at creation. This check handles anything that slips
-    // by, including internal usage.
-    if (!SkSurface_Gpu::Valid(fContext->priv().caps(), sProxy->backendFormat())) {
-        SkDEBUGFAIL("Invalid config and colorspace combination");
-        return nullptr;
-    }
-
     sk_sp<GrRenderTargetProxy> renderTargetProxy(sk_ref_sp(sProxy->asRenderTargetProxy()));
 
     return std::unique_ptr<GrRenderTargetContext>(
@@ -926,13 +920,6 @@ std::unique_ptr<GrTextureContext> GrDrawingManager::makeTextureContext(
         SkAlphaType alphaType,
         sk_sp<SkColorSpace> colorSpace) {
     if (this->wasAbandoned() || !sProxy->asTextureProxy()) {
-        return nullptr;
-    }
-
-    // SkSurface catches bad color space usage at creation. This check handles anything that slips
-    // by, including internal usage.
-    if (!SkSurface_Gpu::Valid(fContext->priv().caps(), sProxy->backendFormat())) {
-        SkDEBUGFAIL("Invalid config and colorspace combination");
         return nullptr;
     }
 

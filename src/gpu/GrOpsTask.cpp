@@ -394,6 +394,13 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 #endif
+    // TODO: remove the check for discard here once reduced op splitting is turned on. Currently we
+    // can end up with GrOpsTasks that only have a discard load op and no ops. For vulkan validation
+    // we need to keep that discard and not drop it. Once we have reduce op list splitting enabled
+    // we shouldn't end up with GrOpsTasks with only discard.
+    if (this->isNoOp() || (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
+        return;
+    }
 
     flushState->setSampledProxyArray(&fSampledProxies);
     // Loop over the ops that haven't yet been prepared.
@@ -445,7 +452,11 @@ static GrOpsRenderPass* create_command_buffer(
 // is at flush time). However, we need to store the RenderTargetProxy in the
 // Ops and instantiate them here.
 bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
-    if (this->isNoOp()) {
+    // TODO: remove the check for discard here once reduced op splitting is turned on. Currently we
+    // can end up with GrOpsTasks that only have a discard load op and no ops. For vulkan validation
+    // we need to keep that discard and not drop it. Once we have reduce op list splitting enabled
+    // we shouldn't end up with GrOpsTasks with only discard.
+    if (this->isNoOp() || (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
         return false;
     }
 
@@ -504,6 +515,9 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
 void GrOpsTask::setColorLoadOp(GrLoadOp op, const SkPMColor4f& color) {
     fColorLoadOp = op;
     fLoadClearColor = color;
+    if (GrLoadOp::kClear == fColorLoadOp) {
+        fTotalBounds.setWH(fTarget->width(), fTarget->height());
+    }
 }
 
 bool GrOpsTask::resetForFullscreenClear(CanDiscardPreviousOps canDiscardPreviousOps) {
@@ -534,6 +548,7 @@ void GrOpsTask::discard() {
     if (this->isEmpty()) {
         fColorLoadOp = GrLoadOp::kDiscard;
         fStencilLoadOp = GrLoadOp::kDiscard;
+        fTotalBounds.setEmpty();
     }
 }
 
@@ -671,6 +686,10 @@ void GrOpsTask::recordOp(
         return;
     }
 
+    // Account for this op's bounds before we attempt to combine.
+    // NOTE: The caller should have already called "op->setClippedBounds()" by now, if applicable.
+    fTotalBounds.join(op->bounds());
+
     // Check if there is an op we can combine with by linearly searching back until we either
     // 1) check every op
     // 2) intersect with something
@@ -747,3 +766,18 @@ void GrOpsTask::forwardCombine(const GrCaps& caps) {
     }
 }
 
+GrRenderTask::ExpectedOutcome GrOpsTask::onMakeClosed(
+        const GrCaps& caps, SkIRect* targetUpdateBounds) {
+    this->forwardCombine(caps);
+    if (!this->isNoOp()) {
+        SkRect clippedContentBounds = SkRect::MakeIWH(fTarget->width(), fTarget->height());
+        // TODO: If we can fix up GLPrograms test to always intersect the fTarget bounds then we can
+        // simply assert here that the bounds intersect.
+        if (clippedContentBounds.intersect(fTotalBounds)) {
+            clippedContentBounds.roundOut(&fClippedContentBounds);
+            *targetUpdateBounds = fClippedContentBounds;
+            return ExpectedOutcome::kTargetDirty;
+        }
+    }
+    return ExpectedOutcome::kTargetUnchanged;
+}

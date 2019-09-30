@@ -535,18 +535,6 @@ bool GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int wi
         if (rt->wrapsSecondaryCommandBuffer()) {
             return false;
         }
-        // resolve the render target if necessary
-        switch (rt->getResolveType()) {
-            case GrVkRenderTarget::kCantResolve_ResolveType:
-                return false;
-            case GrVkRenderTarget::kAutoResolves_ResolveType:
-                break;
-            case GrVkRenderTarget::kCanResolve_ResolveType:
-                this->resolveRenderTargetNoFlush(rt);
-                break;
-            default:
-                SK_ABORT("Unknown resolve type");
-        }
         srcImage = rt;
     } else {
         srcImage = static_cast<GrVkTexture*>(surface->asTexture());
@@ -617,21 +605,22 @@ void GrVkGpu::resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect&
     fCurrentCmdBuffer->resolveImage(this, *src->msaaImage(), *dstImage, 1, &resolveInfo);
 }
 
-void GrVkGpu::internalResolveRenderTarget(GrRenderTarget* target, bool requiresSubmit) {
-    if (target->needsResolve()) {
-        SkASSERT(target->numSamples() > 1);
-        GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(target);
-        SkASSERT(rt->msaaImage());
+void GrVkGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
+                                    GrSurfaceOrigin resolveOrigin, ForExternalIO forExternalIO) {
+    SkASSERT(target->numSamples() > 1);
+    GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(target);
+    SkASSERT(rt->msaaImage());
 
-        const SkIRect& srcRect = rt->getResolveRect();
+    auto nativeResolveRect = GrNativeRect::MakeRelativeTo(
+            resolveOrigin, target->height(), resolveRect);
+    this->resolveImage(target, rt, nativeResolveRect.asSkIRect(),
+                       SkIPoint::Make(nativeResolveRect.fX, nativeResolveRect.fY));
 
-        this->resolveImage(target, rt, srcRect, SkIPoint::Make(srcRect.fLeft, srcRect.fTop));
-
-        rt->flagAsResolved();
-
-        if (requiresSubmit) {
-            this->submitCommandBuffer(kSkip_SyncQueue);
-        }
+    if (ForExternalIO::kYes == forExternalIO) {
+        // This resolve is called when we are preparing an msaa surface for external I/O. It is
+        // called after flushing, so we need to make sure we submit the command buffer after doing
+        // the resolve so that the resolve actually happens.
+        this->submitCommandBuffer(kSkip_SyncQueue);
     }
 }
 
@@ -1114,14 +1103,17 @@ static bool check_image_info(const GrVkCaps& caps,
         return false;
     }
 
+    if (info.fImageLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR && !caps.supportsSwapchain()) {
+        return false;
+    }
+
     if (info.fYcbcrConversionInfo.isValid()) {
         if (!caps.supportsYcbcrConversion()) {
             return false;
         }
-    }
-
-    if (info.fImageLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR && !caps.supportsSwapchain()) {
-        return false;
+        if (info.fYcbcrConversionInfo.fExternalFormat != 0) {
+            return true;
+        }
     }
 
     SkASSERT(GrVkFormatColorTypePairIsValid(info.fFormat, colorType));
@@ -1129,6 +1121,9 @@ static bool check_image_info(const GrVkCaps& caps,
 }
 
 static bool check_tex_image_info(const GrVkCaps& caps, const GrVkImageInfo& info) {
+    if (info.fYcbcrConversionInfo.isValid() && info.fYcbcrConversionInfo.fExternalFormat != 0) {
+        return true;
+    }
     if (info.fImageTiling == VK_IMAGE_TILING_OPTIMAL) {
         if (!caps.isVkFormatTexturable(info.fFormat)) {
             return false;
@@ -1353,6 +1348,7 @@ bool GrVkGpu::onRegenerateMipMapLevels(GrTexture* tex) {
         SkDebugf("Trying to create mipmap for linear tiled texture");
         return false;
     }
+    SkASSERT(tex->texturePriv().textureType() == GrTextureType::k2D);
 
     // determine if we can blit to and from this format
     const GrVkCaps& caps = this->vkCaps();
@@ -1457,23 +1453,26 @@ GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(
 ////////////////////////////////////////////////////////////////////////////////
 
 bool copy_src_data(GrVkGpu* gpu, const GrVkAlloc& alloc, VkFormat vkFormat,
-                   int width, int height,
-                   const void* srcData, size_t srcRowBytes) {
-    SkASSERT(srcData);
+                   const SkTArray<size_t>& individualMipOffsets,
+                   const SkPixmap srcData[], int numMipLevels) {
+    SkASSERT(srcData && numMipLevels);
     SkASSERT(!GrVkFormatIsCompressed(vkFormat));
+    SkASSERT(individualMipOffsets.count() == numMipLevels);
 
-    void* mapPtr = GrVkMemory::MapAlloc(gpu, alloc);
+    char* mapPtr = (char*) GrVkMemory::MapAlloc(gpu, alloc);
     if (!mapPtr) {
         return false;
     }
     size_t bytesPerPixel = GrVkBytesPerFormat(vkFormat);
-    const size_t trimRowBytes = width * bytesPerPixel;
-    if (!srcRowBytes) {
-        srcRowBytes = trimRowBytes;
-    }
-    SkASSERT(trimRowBytes * height <= alloc.fSize);
 
-    SkRectMemcpy(mapPtr, trimRowBytes, srcData, srcRowBytes, trimRowBytes, height);
+    for (int level = 0; level < numMipLevels; ++level) {
+        const size_t trimRB = srcData[level].width() * bytesPerPixel;
+        SkASSERT(individualMipOffsets[level] + trimRB * srcData[level].height() <= alloc.fSize);
+
+        SkRectMemcpy(mapPtr + individualMipOffsets[level], trimRB,
+                     srcData[level].addr(), srcData[level].rowBytes(),
+                     trimRB, srcData[level].height());
+    }
 
     GrVkMemory::FlushMappedAlloc(gpu, alloc, 0, alloc.fSize);
     GrVkMemory::UnmapAlloc(gpu, alloc);
@@ -1533,11 +1532,6 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
     }
 
     if (renderable && !fVkCaps->isFormatRenderable(vkFormat, 1)) {
-        return false;
-    }
-
-    // Currently we don't support uploading pixel data when mipped.
-    if (srcData && GrMipMapped::kYes == mipMapped) {
         return false;
     }
 
@@ -1653,9 +1647,8 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
             return false;
         }
 
-        SkASSERT(1 == mipLevelCount);
-        bool result = copy_src_data(this, bufferAlloc, vkFormat, w, h,
-                                    srcData->addr(), srcData->rowBytes());
+        bool result = copy_src_data(this, bufferAlloc, vkFormat, individualMipOffsets,
+                                    srcData, numMipLevels);
         if (!result) {
             GrVkImage::DestroyImageInfo(this, info);
             GrVkMemory::FreeBufferMemory(this, GrVkBuffer::kCopyRead_Type, bufferAlloc);
@@ -2231,18 +2224,6 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
         // stop and start the VkRenderPass which we don't have access to.
         if (rt->wrapsSecondaryCommandBuffer()) {
             return false;
-        }
-        // resolve the render target if necessary
-        switch (rt->getResolveType()) {
-            case GrVkRenderTarget::kCantResolve_ResolveType:
-                return false;
-            case GrVkRenderTarget::kAutoResolves_ResolveType:
-                break;
-            case GrVkRenderTarget::kCanResolve_ResolveType:
-                this->resolveRenderTargetNoFlush(rt);
-                break;
-            default:
-                SK_ABORT("Unknown resolve type");
         }
         image = rt;
     } else {

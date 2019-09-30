@@ -10,7 +10,7 @@
 
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkStrikeCache.h"
-#include "src/core/SkStrikeInterface.h"
+#include "src/core/SkStrikeForGPU.h"
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/text/GrStrikeCache.h"
@@ -71,7 +71,7 @@ public:
     sk_sp<GrTextStrike> findOrCreateGrStrike(GrStrikeCache* cache) const;
 #endif
 
-    SkScopedStrike findOrCreateScopedStrike(SkStrikeCacheInterface* cache) const;
+    SkScopedStrikeForGPU findOrCreateScopedStrike(SkStrikeForGPUCacheInterface* cache) const;
 
     SkExclusiveStrikePtr findOrCreateExclusiveStrike(
             SkStrikeCache* cache = SkStrikeCache::GlobalStrikeCache()) const;

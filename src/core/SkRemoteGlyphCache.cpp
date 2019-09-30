@@ -185,7 +185,7 @@ struct StrikeSpec {
 };
 
 // -- RemoteStrike ----------------------------------------------------------------------------
-class SkStrikeServer::RemoteStrike : public SkStrikeInterface {
+class SkStrikeServer::RemoteStrike : public SkStrikeForGPU {
 public:
     // N.B. RemoteStrike is not valid until ensureScalerContext is called.
     RemoteStrike(const SkDescriptor& descriptor,
@@ -486,10 +486,10 @@ SkStrikeServer::RemoteStrike* SkStrikeServer::getOrCreateCache(
     return this->getOrCreateCache(*desc, *font.getTypefaceOrDefault(), *effects);
 }
 
-SkScopedStrike SkStrikeServer::findOrCreateScopedStrike(const SkDescriptor& desc,
-                                                        const SkScalerContextEffects& effects,
-                                                        const SkTypeface& typeface) {
-    return SkScopedStrike{this->getOrCreateCache(desc, typeface, effects)};
+SkScopedStrikeForGPU SkStrikeServer::findOrCreateScopedStrike(const SkDescriptor& desc,
+                                                              const SkScalerContextEffects& effects,
+                                                              const SkTypeface& typeface) {
+    return SkScopedStrikeForGPU{this->getOrCreateCache(desc, typeface, effects)};
 }
 
 void SkStrikeServer::AddGlyphForTesting(
@@ -669,7 +669,7 @@ void SkStrikeServer::RemoteStrike::writeGlyphPath(const SkPackedGlyphID& glyphID
 
 
 // Be sure to read and understand the comment for prepareForDrawingRemoveEmpty in
-// SkStrikeInterface.h before working on this code.
+// SkStrikeForGPU.h before working on this code.
 SkSpan<const SkGlyphPos>
 SkStrikeServer::RemoteStrike::prepareForDrawingRemoveEmpty(
         const SkPackedGlyphID packedGlyphIDs[],

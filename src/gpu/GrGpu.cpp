@@ -19,6 +19,7 @@
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrMesh.h"
+#include "src/gpu/GrNativeRect.h"
 #include "src/gpu/GrPathRendering.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTargetPriv.h"
@@ -580,8 +581,13 @@ bool GrGpu::regenerateMipMapLevels(GrTexture* texture) {
     SkASSERT(texture);
     SkASSERT(this->caps()->mipMapSupport());
     SkASSERT(texture->texturePriv().mipMapped() == GrMipMapped::kYes);
-    SkASSERT(texture->texturePriv().mipMapsAreDirty());
-    SkASSERT(!texture->asRenderTarget() || !texture->asRenderTarget()->needsResolve());
+    if (!texture->texturePriv().mipMapsAreDirty()) {
+        // This can happen when the proxy expects mipmaps to be dirty, but they are not dirty on the
+        // actual target. This may be caused by things that the drawingManager could not predict,
+        // i.e., ops that don't draw anything, aborting a draw for exceptional circumstances, etc.
+        // NOTE: This goes away once we quit tracking mipmap state on the actual texture.
+        return true;
+    }
     if (texture->readOnly()) {
         return false;
     }
@@ -597,10 +603,11 @@ void GrGpu::resetTextureBindings() {
     this->onResetTextureBindings();
 }
 
-void GrGpu::resolveRenderTarget(GrRenderTarget* target) {
+void GrGpu::resolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
+                                GrSurfaceOrigin origin, ForExternalIO forExternalIO) {
     SkASSERT(target);
     this->handleDirtyContext();
-    this->onResolveRenderTarget(target);
+    this->onResolveRenderTarget(target, resolveRect, origin, forExternalIO);
 }
 
 void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const SkIRect* bounds,
@@ -609,15 +616,6 @@ void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const 
     SkASSERT(!surface->readOnly());
     // Mark any MIP chain and resolve buffer as dirty if and only if there is a non-empty bounds.
     if (nullptr == bounds || !bounds->isEmpty()) {
-        if (GrRenderTarget* target = surface->asRenderTarget()) {
-            SkIRect flippedBounds;
-            if (kBottomLeft_GrSurfaceOrigin == origin && bounds) {
-                flippedBounds = {bounds->fLeft, surface->height() - bounds->fBottom,
-                                 bounds->fRight, surface->height() - bounds->fTop};
-                bounds = &flippedBounds;
-            }
-            target->flagAsNeedingResolve(bounds);
-        }
         GrTexture* texture = surface->asTexture();
         if (texture && 1 == mipLevels) {
             texture->texturePriv().markMipMapsDirty();

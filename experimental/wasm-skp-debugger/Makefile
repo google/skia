@@ -15,8 +15,8 @@ debug:
 move-assets:
 	# assume the developer also has a checkout of buildbot here and wants to test the newly
 	# built wasm debugger with the interface.
-	cp ./debugger/bin/debugger.js   ~/go/src/go.skia.org/infra/debugger-assets/res/js
-	cp ./debugger/bin/debugger.wasm ~/go/src/go.skia.org/infra/debugger-assets/res
+	cp ./debugger/bin/debugger.js   ${SKIA_INFRA_ROOT}/debugger-assets/res/js
+	cp ./debugger/bin/debugger.wasm ${SKIA_INFRA_ROOT}/debugger-assets/res
 
 # A barebones local example of the wasm module included in a page.
 # for the real interface see

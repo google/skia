@@ -181,10 +181,16 @@ public:
     sk_sp<GrGpuBuffer> createBuffer(size_t size, GrGpuBufferType intendedType,
                                     GrAccessPattern accessPattern, const void* data = nullptr);
 
+    enum class ForExternalIO : bool {
+        kYes = true,
+        kNo = false
+    };
+
     /**
      * Resolves MSAA.
      */
-    void resolveRenderTarget(GrRenderTarget*);
+    void resolveRenderTarget(GrRenderTarget*, const SkIRect& resolveRect, GrSurfaceOrigin,
+                             ForExternalIO);
 
     /**
      * Uses the base of the texture to recompute the contents of the other levels.
@@ -498,6 +504,13 @@ public:
      * This is for testing purposes only.
      */
     virtual void testingOnly_flushGpuAndSync() = 0;
+
+    /**
+     * Inserted as a pair around a block of code to do a GPU frame capture.
+     * Currently only works with the Metal backend.
+     */
+    virtual void testingOnly_startCapture() {}
+    virtual void testingOnly_endCapture() {}
 #endif
 
     // width and height may be larger than rt (if underlying API allows it).
@@ -629,7 +642,8 @@ private:
                                       GrGpuBuffer* transferBuffer, size_t offset) = 0;
 
     // overridden by backend-specific derived class to perform the resolve
-    virtual void onResolveRenderTarget(GrRenderTarget* target) = 0;
+    virtual void onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
+                                       GrSurfaceOrigin resolveOrigin, ForExternalIO) = 0;
 
     // overridden by backend specific derived class to perform mip map level regeneration.
     virtual bool onRegenerateMipMapLevels(GrTexture*) = 0;

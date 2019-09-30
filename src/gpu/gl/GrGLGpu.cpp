@@ -1949,20 +1949,17 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
     }
 
     if (renderTarget) {
-        // resolve the render target if necessary
-        switch (renderTarget->getResolveType()) {
-            case GrGLRenderTarget::kCantResolve_ResolveType:
-                return false;
-            case GrGLRenderTarget::kAutoResolves_ResolveType:
-                this->flushRenderTargetNoColorWrites(renderTarget);
-                break;
-            case GrGLRenderTarget::kCanResolve_ResolveType:
-                this->onResolveRenderTarget(renderTarget);
-                // we don't track the state of the READ FBO ID.
-                this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, renderTarget->textureFBOID());
-                break;
-            default:
-                SK_ABORT("Unknown resolve type");
+        if (renderTarget->numSamples() <= 1 ||
+            renderTarget->renderFBOID() == renderTarget->textureFBOID()) {  // Also catches FBO 0.
+            SkASSERT(!renderTarget->requiresManualMSAAResolve());
+            this->flushRenderTargetNoColorWrites(renderTarget);
+        } else if (GrGLRenderTarget::kUnresolvableFBOID == renderTarget->textureFBOID()) {
+            SkASSERT(!renderTarget->requiresManualMSAAResolve());
+            return false;
+        } else {
+            SkASSERT(renderTarget->requiresManualMSAAResolve());
+            // we don't track the state of the READ FBO ID.
+            this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, renderTarget->textureFBOID());
         }
     } else {
         // Use a temporary FBO.
@@ -2281,55 +2278,48 @@ void GrGLGpu::sendIndexedInstancedMeshToGpu(GrPrimitiveType primitiveType,
     }
 }
 
-void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
+void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
+                                    GrSurfaceOrigin resolveOrigin, ForExternalIO) {
+    // Some extensions automatically resolves the texture when it is read.
+    SkASSERT(this->glCaps().usesMSAARenderBuffers());
+
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(target);
-    if (rt->needsResolve()) {
-        // Some extensions automatically resolves the texture when it is read.
-        if (this->glCaps().usesMSAARenderBuffers()) {
-            SkASSERT(rt->textureFBOID() != rt->renderFBOID());
-            SkASSERT(rt->textureFBOID() != 0 && rt->renderFBOID() != 0);
-            this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->renderFBOID());
-            this->bindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->textureFBOID());
+    SkASSERT(rt->textureFBOID() != rt->renderFBOID());
+    SkASSERT(rt->textureFBOID() != 0 && rt->renderFBOID() != 0);
+    this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->renderFBOID());
+    this->bindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->textureFBOID());
 
-            // make sure we go through flushRenderTarget() since we've modified
-            // the bound DRAW FBO ID.
-            fHWBoundRenderTargetUniqueID.makeInvalid();
-            const SkIRect dirtyRect = rt->getResolveRect();
-            // The dirty rect tracked on the RT is always stored in the native coordinates of the
-            // surface. Choose kTopLeft so no adjustments are made
-            static constexpr auto kDirtyRectOrigin = kTopLeft_GrSurfaceOrigin;
-            if (GrGLCaps::kES_Apple_MSFBOType == this->glCaps().msFBOType()) {
-                // Apple's extension uses the scissor as the blit bounds.
-                GrScissorState scissorState;
-                scissorState.set(dirtyRect);
-                this->flushScissor(scissorState, rt->width(), rt->height(), kDirtyRectOrigin);
-                this->disableWindowRectangles();
-                GL_CALL(ResolveMultisampleFramebuffer());
-            } else {
-                int l, b, r, t;
-                if (GrGLCaps::kResolveMustBeFull_BlitFrambufferFlag &
-                    this->glCaps().blitFramebufferSupportFlags()) {
-                    l = 0;
-                    b = 0;
-                    r = target->width();
-                    t = target->height();
-                } else {
-                    auto rect = GrNativeRect::MakeRelativeTo(
-                            kDirtyRectOrigin, rt->height(), dirtyRect);
-                    l = rect.fX;
-                    b = rect.fY;
-                    r = rect.fX + rect.fWidth;
-                    t = rect.fY + rect.fHeight;
-                }
-
-                // BlitFrameBuffer respects the scissor, so disable it.
-                this->disableScissor();
-                this->disableWindowRectangles();
-                GL_CALL(BlitFramebuffer(l, b, r, t, l, b, r, t,
-                                        GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
-            }
+    // make sure we go through flushRenderTarget() since we've modified
+    // the bound DRAW FBO ID.
+    fHWBoundRenderTargetUniqueID.makeInvalid();
+    if (GrGLCaps::kES_Apple_MSFBOType == this->glCaps().msFBOType()) {
+        // Apple's extension uses the scissor as the blit bounds.
+        GrScissorState scissorState;
+        scissorState.set(resolveRect);
+        this->flushScissor(scissorState, rt->width(), rt->height(), resolveOrigin);
+        this->disableWindowRectangles();
+        GL_CALL(ResolveMultisampleFramebuffer());
+    } else {
+        int l, b, r, t;
+        if (GrGLCaps::kResolveMustBeFull_BlitFrambufferFlag &
+            this->glCaps().blitFramebufferSupportFlags()) {
+            l = 0;
+            b = 0;
+            r = target->width();
+            t = target->height();
+        } else {
+            auto rect = GrNativeRect::MakeRelativeTo(
+                    resolveOrigin, rt->height(), resolveRect);
+            l = rect.fX;
+            b = rect.fY;
+            r = rect.fX + rect.fWidth;
+            t = rect.fY + rect.fHeight;
         }
-        rt->flagAsResolved();
+
+        // BlitFrameBuffer respects the scissor, so disable it.
+        this->disableScissor();
+        this->disableWindowRectangles();
+        GL_CALL(BlitFramebuffer(l, b, r, t, l, b, r, t, GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
     }
 }
 
@@ -2546,14 +2536,6 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
         }
     }
 #endif
-
-    // If we created a rt/tex and rendered to it without using a texture and now we're texturing
-    // from the rt it will still be the last bound texture, but it needs resolving. So keep this
-    // out of the "last != next" check.
-    GrGLRenderTarget* texRT = static_cast<GrGLRenderTarget*>(texture->asRenderTarget());
-    if (texRT) {
-        this->onResolveRenderTarget(texRT);
-    }
 
     GrGpuResource::UniqueID textureID = texture->uniqueID();
     GrGLenum target = texture->target();
@@ -3504,7 +3486,6 @@ static GrPixelConfig gl_format_to_pixel_config(GrGLFormat format) {
         case GrGLFormat::kRGB10_A2:             return kRGBA_1010102_GrPixelConfig;
         case GrGLFormat::kRGB565:               return kRGB_565_GrPixelConfig;
         case GrGLFormat::kRGBA4:                return kRGBA_4444_GrPixelConfig;
-        case GrGLFormat::kRGBA32F:              return kRGBA_float_GrPixelConfig;
         case GrGLFormat::kRGBA16F:              return kRGBA_half_GrPixelConfig;
         case GrGLFormat::kR16:                  return kAlpha_16_GrPixelConfig;
         case GrGLFormat::kRG16:                 return kRG_1616_GrPixelConfig;
@@ -3563,11 +3544,6 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
         return GrBackendTexture();  // invalid
     }
 
-    // Currently we don't support uploading pixel data when mipped.
-    if (srcData && GrMipMapped::kYes == mipMapped) {
-        return GrBackendTexture();  // invalid
-    }
-
     GrGLTextureInfo info;
     GrGLTextureParameters::SamplerOverriddenState initialState;
 
@@ -3606,6 +3582,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
             texels[i] = {&(tmpPixels[offset]), currentWidth * bytesPerPixel};
         }
     }
+
     GrSurfaceDesc desc;
     desc.fWidth = w;
     desc.fHeight = h;
