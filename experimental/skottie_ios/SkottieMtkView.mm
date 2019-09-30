@@ -87,7 +87,14 @@
     if (fPaused) {
         return fAnimationMoment;
     }
-    return std::fmod(1e-9 * (SkTime::GetNSecs() - fStartTime), fAnimation->duration());
+    double time = 1e-9 * (SkTime::GetNSecs() - fStartTime);
+    double duration = fAnimation->duration();
+    if ([self stopAtEnd] && time >= duration) {
+        fPaused = true;
+        fAnimationMoment = duration;
+        return fAnimationMoment;
+    }
+    return std::fmod(time, duration);
 }
 
 - (void)seek:(float)seconds {
@@ -112,4 +119,6 @@
     fPaused = !fPaused;
     return fPaused;
 }
+
+- (BOOL)isPaused { return fPaused; }
 @end
