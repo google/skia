@@ -268,8 +268,9 @@ protected:
     }
 
     static void draw_as_tex(SkCanvas* canvas, SkImage* image, SkScalar x, SkScalar y) {
-        auto texImage = image->makeTextureImage(canvas->getGrContext());
-        if (!texImage) {
+        sk_sp<GrTextureProxy> proxy(as_IB(image)->asTextureProxyRef(
+                canvas->getGrContext(), GrSamplerState::ClampBilerp(), nullptr));
+        if (!proxy) {
             // show placeholder if we have no texture
             SkPaint paint;
             paint.setStyle(SkPaint::kStroke_Style);
@@ -280,6 +281,11 @@ protected:
             canvas->drawLine(r.left(), r.bottom(), r.right(), r.top(), paint);
             return;
         }
+
+        // No API to draw a GrTexture directly, so we cheat and create a private image subclass
+        sk_sp<SkImage> texImage(new SkImage_Gpu(sk_ref_sp(canvas->getGrContext()),
+                                                image->uniqueID(), kPremul_SkAlphaType,
+                                                std::move(proxy), image->refColorSpace()));
         canvas->drawImage(texImage.get(), x, y);
     }
 

@@ -122,9 +122,8 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
         // The renderTargetContext coming out of SkGpuDevice should always be exact and the
         // above copy creates a kExact surfaceContext.
         SkASSERT(srcProxy->priv().isExact());
-        image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, info.colorType(),
-                                        info.alphaType(), info.refColorSpace(),
-                                        std::move(srcProxy));
+        image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, info.alphaType(),
+                                        std::move(srcProxy), info.refColorSpace());
     }
     return image;
 }
@@ -246,9 +245,8 @@ void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPai
         // of drawing a texture proxy.
         const SkImageInfo info = fDevice->imageInfo();
         sk_sp<SkImage> image;
-        image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, info.colorType(),
-                                        info.alphaType(), info.refColorSpace(),
-                                        std::move(srcProxy));
+        image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, info.alphaType(),
+                                        std::move(srcProxy), info.refColorSpace());
         canvas->drawImage(image, x, y, paint);
         return true;
     };
