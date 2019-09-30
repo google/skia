@@ -113,3 +113,6 @@ Milestone 78
     This is intended to help support HDR YUV uses case (e.g., P010 and P016). As such,
     the addition is focused on allowing creation of SkPixmaps and SkImages and not
     SkSurfaces (i.e., who wants to render to render to these?)
+
+  * Added SkPixmap-based createBackendTexture method to GrContext. This allows clients to create
+    backend resources (initialized with texture data) that Skia/Ganesh doesn't know about/track.

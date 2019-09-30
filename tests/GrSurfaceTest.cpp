@@ -10,10 +10,8 @@
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTexture.h"
 #include "src/core/SkAutoPixmapStorage.h"
-#include "src/core/SkMipMap.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrProxyProvider.h"
@@ -397,9 +395,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
     // that they'd succeed if the texture wasn't kRead. We want to be sure we're failing with
     // kRead for the right reason.
     for (auto ioType : {kRead_GrIOType, kRW_GrIOType}) {
-        auto backendTex = context->priv().createBackendTexture(&srcPixmap, 1,
-                                                               GrRenderable::kYes,
-                                                               GrProtected::kNo);
+        auto backendTex = context->createBackendTexture(&srcPixmap, 1,
+                                                        GrRenderable::kYes, GrProtected::kNo);
 
         auto proxy = proxyProvider->wrapBackendTexture(backendTex, GrColorType::kRGBA_8888,
                                                        kTopLeft_GrSurfaceOrigin,

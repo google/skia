@@ -830,7 +830,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
 }
 
 static void test_surface_draw_partially(
-    skiatest::Reporter* reporter, sk_sp<SkSurface> surface, uint32_t origColor) {
+    skiatest::Reporter* reporter, sk_sp<SkSurface> surface, SkColor origColor) {
     const int kW = surface->width();
     const int kH = surface->height();
     SkPaint paint;
@@ -849,14 +849,14 @@ static void test_surface_draw_partially(
                                        readback.rowBytes(), 0, 0));
     bool stop = false;
 
-    SkPMColor origColorPM = SkPackARGB_as_RGBA((origColor >> 24 & 0xFF),
-                                               (origColor >> 0 & 0xFF),
-                                               (origColor >> 8 & 0xFF),
-                                               (origColor >> 16 & 0xFF));
-    SkPMColor rectColorPM = SkPackARGB_as_RGBA((kRectColor >> 24 & 0xFF),
-                                               (kRectColor >> 16 & 0xFF),
-                                               (kRectColor >> 8 & 0xFF),
-                                               (kRectColor >> 0 & 0xFF));
+    SkPMColor origColorPM = SkPackARGB_as_RGBA(SkColorGetA(origColor),
+                                               SkColorGetR(origColor),
+                                               SkColorGetG(origColor),
+                                               SkColorGetB(origColor));
+    SkPMColor rectColorPM = SkPackARGB_as_RGBA(SkColorGetA(kRectColor),
+                                               SkColorGetR(kRectColor),
+                                               SkColorGetG(kRectColor),
+                                               SkColorGetB(kRectColor));
 
     for (int y = 0; y < kH/2 && !stop; ++y) {
        for (int x = 0; x < kW && !stop; ++x) {
