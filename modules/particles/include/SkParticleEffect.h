@@ -26,7 +26,7 @@ class SkParticleDrawable;
 class SkParticleExternalValue;
 
 namespace SkSL {
-    struct ByteCode;
+    class ByteCode;
 }
 
 class SkParticleEffectParams : public SkRefCnt {
