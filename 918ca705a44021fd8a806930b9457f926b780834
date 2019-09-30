@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "25042f7e_2f2c6ffc",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T17:38:16Z",
+      "side": 1,
+      "message": "so, ?",
+      "range": {
+        "startLine": 63,
+        "startChar": 84,
+        "endLine": 63,
+        "endChar": 88
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0230b280_b119658f",
         "filename": "src/core/SkImageFilter.cpp",
         "patchSetId": 7
@@ -105,6 +128,52 @@
       "writtenOn": "2019-09-30T15:47:38Z",
       "side": 1,
       "message": "// If we have no known content bounds we just use the desired bounds bc ... ?",
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f30baea4_39d2621c",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T17:38:16Z",
+      "side": 1,
+      "message": "will ?",
+      "range": {
+        "startLine": 273,
+        "startChar": 66,
+        "endLine": 273,
+        "endChar": 72
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86d4285d_fcffffd0",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T17:38:16Z",
+      "side": 1,
+      "message": "skif::LayerSpace\u003cSkIRect\u003e ?",
+      "range": {
+        "startLine": 554,
+        "startChar": 4,
+        "endLine": 554,
+        "endChar": 8
+      },
       "revId": "918ca705a44021fd8a806930b9457f926b780834",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -558,6 +627,121 @@
       "writtenOn": "2019-09-30T17:07:54Z",
       "side": 1,
       "message": "add an @return ?",
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d1f823a_eb1e3b14",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T17:38:16Z",
+      "side": 1,
+      "message": "of the ?",
+      "range": {
+        "startLine": 193,
+        "startChar": 60,
+        "endLine": 193,
+        "endChar": 61
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dba0a16a_a4c1b8ee",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T17:38:16Z",
+      "side": 1,
+      "message": "the ?",
+      "range": {
+        "startLine": 355,
+        "startChar": 89,
+        "endLine": 355,
+        "endChar": 90
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc9fb95c_877b5184",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T17:38:16Z",
+      "side": 1,
+      "message": "filters\u0027",
+      "range": {
+        "startLine": 356,
+        "startChar": 8,
+        "endLine": 356,
+        "endChar": 16
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b227460_eb7a6457",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T17:38:16Z",
+      "side": 1,
+      "message": "down ?",
+      "range": {
+        "startLine": 364,
+        "startChar": 46,
+        "endLine": 364,
+        "endChar": 48
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0e6939e_fc25a774",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T17:38:16Z",
+      "side": 1,
+      "message": "Maybe make this one of the kYes/kNo enums in the future ?",
+      "range": {
+        "startLine": 369,
+        "startChar": 65,
+        "endLine": 369,
+        "endChar": 78
+      },
       "revId": "918ca705a44021fd8a806930b9457f926b780834",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
