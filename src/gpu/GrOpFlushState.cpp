@@ -12,6 +12,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrResourceProvider.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -102,8 +103,8 @@ void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload,
             tmpPixels.reset(new char[height * tightRB]);
             // Use kUnpremul to ensure no alpha type conversions or clamping occur.
             static constexpr auto kAT = kUnpremul_SkAlphaType;
-            GrPixelInfo srcInfo(colorType, kAT, nullptr, width, height);
-            GrPixelInfo tmpInfo(supportedWrite.fColorType, kAT, nullptr, width,
+            GrImageInfo srcInfo(colorType, kAT, nullptr, width, height);
+            GrImageInfo tmpInfo(supportedWrite.fColorType, kAT, nullptr, width,
                                 height);
             if (!GrConvertPixels(tmpInfo, tmpPixels.get(), tightRB, srcInfo, buffer, rowBytes)) {
                 return false;

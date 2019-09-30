@@ -20,6 +20,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/SkGpuDevice.h"

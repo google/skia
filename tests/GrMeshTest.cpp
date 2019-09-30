@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkTypes.h"
 #include "tests/Test.h"
 
 #include <array>
@@ -17,6 +16,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsRenderPass.h"

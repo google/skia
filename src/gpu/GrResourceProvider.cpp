@@ -17,6 +17,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrGpuBuffer.h"
+#include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrPath.h"
 #include "src/gpu/GrPathRendering.h"
 #include "src/gpu/GrProxyProvider.h"
@@ -524,8 +525,8 @@ static bool prepare_level(const GrMipLevel& inLevel,
     data->reset(new char[tempRB * size.fHeight]);
     outLevel->fPixels = data->get();
     outLevel->fRowBytes = tempRB;
-    GrPixelInfo srcInfo(origColorType,    kUnpremul_SkAlphaType, nullptr, size);
-    GrPixelInfo dstInfo(allowedColorType, kUnpremul_SkAlphaType, nullptr, size);
+    GrImageInfo srcInfo(origColorType,    kUnpremul_SkAlphaType, nullptr, size);
+    GrImageInfo dstInfo(allowedColorType, kUnpremul_SkAlphaType, nullptr, size);
     return GrConvertPixels(dstInfo, data->get(), tempRB, srcInfo, inLevel.fPixels, actualRB);
 }
 

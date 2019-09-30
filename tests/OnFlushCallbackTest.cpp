@@ -14,6 +14,7 @@
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDefaultGeoProcFactory.h"
+#include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
