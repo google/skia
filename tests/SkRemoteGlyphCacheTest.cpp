@@ -893,7 +893,7 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
     {
         SkPoint pt{SkFixedToScalar(lostGlyphID.getSubXFixed()),
                    SkFixedToScalar(lostGlyphID.getSubYFixed())};
-        SkGlyph* lostGlyph = testCache->glyph(lostGlyphID.code(), pt);
+        SkGlyph* lostGlyph = testCache->glyph(lostGlyphID.glyphID(), pt);
         testCache->prepareImage(lostGlyph);
 
         REPORTER_ASSERT(reporter, lostGlyph->height() == 1);
@@ -906,7 +906,7 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
     {
         SkPoint pt{SkFixedToScalar(SK_FixedQuarter),
                    SkFixedToScalar(SK_FixedQuarter)};
-        SkGlyph* lostGlyph = testCache->glyph(lostGlyphID.code(), pt);
+        SkGlyph* lostGlyph = testCache->glyph(lostGlyphID.glyphID(), pt);
         testCache->prepareImage(lostGlyph);
 
         REPORTER_ASSERT(reporter, lostGlyph->height() == 1);

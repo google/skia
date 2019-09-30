@@ -627,7 +627,7 @@ void SkScalerContext::getFontMetrics(SkFontMetrics* fm) {
 
 bool SkScalerContext::internalGetPath(SkPackedGlyphID glyphID, SkPath* devPath) {
     SkPath  path;
-    if (!generatePath(glyphID.code(), &path)) {
+    if (!generatePath(glyphID.glyphID(), &path)) {
         return false;
     }
 
