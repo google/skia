@@ -44,11 +44,8 @@ bool SkColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) con
 }
 
 SkColor SkColorFilter::filterColor(SkColor c) const {
-#ifdef SK_SUPPORT_LEGACY_COLORFILTER_NO_SHADER
+    // This is mostly meaningless. We should phase-out this call entirely.
     SkColorSpace* cs = nullptr;
-#else
-    SkColorSpace* cs = sk_srgb_singleton();
-#endif
     return this->filterColor4f(SkColor4f::FromColor(c), cs, cs).toSkColor();
 }
 
