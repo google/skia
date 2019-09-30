@@ -10,6 +10,7 @@
 #include "include/core/SkTypes.h"
 
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrPixelInfo.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/SkGr.h"
 #include "tests/Test.h"

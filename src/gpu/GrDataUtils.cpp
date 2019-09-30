@@ -13,6 +13,7 @@
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkUtils.h"
 #include "src/gpu/GrColor.h"
+#include "src/gpu/GrPixelInfo.h"
 
 struct ETC1Block {
     uint32_t fHigh;

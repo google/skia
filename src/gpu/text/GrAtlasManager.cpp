@@ -8,6 +8,7 @@
 #include "src/gpu/text/GrAtlasManager.h"
 
 #include "src/gpu/GrGlyph.h"
+#include "src/gpu/GrPixelInfo.h"
 #include "src/gpu/text/GrStrikeCache.h"
 
 GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrStrikeCache* glyphCache,

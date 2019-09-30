@@ -12,6 +12,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrPixelInfo.h"
 #include "src/gpu/GrResourceProvider.h"
 
 //////////////////////////////////////////////////////////////////////////////

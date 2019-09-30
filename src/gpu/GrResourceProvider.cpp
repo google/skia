@@ -19,6 +19,7 @@
 #include "src/gpu/GrGpuBuffer.h"
 #include "src/gpu/GrPath.h"
 #include "src/gpu/GrPathRendering.h"
+#include "src/gpu/GrPixelInfo.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrResourceCache.h"
