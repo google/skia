@@ -529,6 +529,75 @@
     },
     {
       "key": {
+        "uuid": "aa3d660b_eee659a8",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T18:38:24Z",
+      "side": 1,
+      "message": "Do we need this cast here ?",
+      "range": {
+        "startLine": 429,
+        "startChar": 22,
+        "endLine": 429,
+        "endChar": 30
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2076151d_d1b60a4c",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T18:38:24Z",
+      "side": 1,
+      "message": "here too ?",
+      "range": {
+        "startLine": 440,
+        "startChar": 22,
+        "endLine": 440,
+        "endChar": 30
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87b06a4c_06b137ec",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 453,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T18:38:24Z",
+      "side": 1,
+      "message": "So, should this be \u0027bounds\u0027 or should \u0027origin\u0027 be \u0027layerOrigin\u0027 ?",
+      "range": {
+        "startLine": 453,
+        "startChar": 24,
+        "endLine": 453,
+        "endChar": 35
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "49c356f7_ab23c63f",
         "filename": "src/core/SkImageFilter_Base.h",
         "patchSetId": 7
@@ -1330,6 +1399,143 @@
         "endLine": 369,
         "endChar": 78
       },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc202033_87b8a0c9",
+        "filename": "src/core/SkPointPriv.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T18:38:24Z",
+      "side": 1,
+      "message": "This seems a bit odd - do we need this escape hatch ?",
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5236f8f3_e0b5b419",
+        "filename": "src/core/SkPointPriv.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T18:38:24Z",
+      "side": 1,
+      "message": "v.fDir ?",
+      "range": {
+        "startLine": 162,
+        "startChar": 54,
+        "endLine": 162,
+        "endChar": 55
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2516bb25_8c63de18",
+        "filename": "src/core/SkPointPriv.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T18:38:24Z",
+      "side": 1,
+      "message": "same here ?",
+      "range": {
+        "startLine": 163,
+        "startChar": 54,
+        "endLine": 163,
+        "endChar": 55
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ab03072_d194958b",
+        "filename": "src/core/SkPointPriv.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T18:38:24Z",
+      "side": 1,
+      "message": "Should we have things like:\n\nSkIPoint operator+(const SkIPoint\u0026)\n\nor\n\nSkIDirection SkPoint::operator-(const SkIPoint\u0026)\n\n?",
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5306ae42_81822cb2",
+        "filename": "src/core/SkPointPriv.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T18:38:24Z",
+      "side": 1,
+      "message": "same Q here",
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0dc03eee_eb7cb77d",
+        "filename": "src/effects/imagefilters/SkComposeImageFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T18:38:24Z",
+      "side": 1,
+      "message": "wdyt about just swapping this usage over to the new system? It is limited to just this method.\n\nCould be a separate CL though",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 96
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1211523b_a3458345",
+        "filename": "src/effects/imagefilters/SkDisplacementMapEffect.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T18:38:24Z",
+      "side": 1,
+      "message": "Could this be something like: ctx.withNewColorSpace ?\n\nIn a separate CL though",
       "revId": "918ca705a44021fd8a806930b9457f926b780834",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
