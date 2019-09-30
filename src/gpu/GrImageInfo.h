@@ -18,8 +18,7 @@ public:
 
     // not explicit
     GrImageInfo(const SkImageInfo& info)
-            : fColorInfo(SkColorTypeToGrColorType(info.colorType()), info.alphaType(),
-                         info.refColorSpace())
+            : fColorInfo(info.colorInfo())
             , fDimensions(info.dimensions()) {}
 
     GrImageInfo(GrColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs, int w, int h)
