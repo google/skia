@@ -2,6 +2,115 @@
   "comments": [
     {
       "key": {
+        "uuid": "0230b280_b119658f",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T15:47:38Z",
+      "side": 1,
+      "message": "devTargetOutput ?",
+      "range": {
+        "startLine": 251,
+        "startChar": 71,
+        "endLine": 251,
+        "endChar": 83
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0eb39e8a_c16031b1",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T15:47:38Z",
+      "side": 1,
+      "message": "both the ?",
+      "range": {
+        "startLine": 253,
+        "startChar": 11,
+        "endLine": 253,
+        "endChar": 14
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "040d48cb_3e81c722",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T15:47:38Z",
+      "side": 1,
+      "message": "device-space desired coverage area ?",
+      "range": {
+        "startLine": 253,
+        "startChar": 15,
+        "endLine": 253,
+        "endChar": 32
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d597e2db_ca4b6305",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T15:47:38Z",
+      "side": 1,
+      "message": "desiredBounds ?\n\nAlso, I don\u0027t know if prefixing all the \u003cSkIRect\u003e w/ layer... would be too cumbersome",
+      "range": {
+        "startLine": 254,
+        "startChar": 30,
+        "endLine": 254,
+        "endChar": 39
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "520f08de_26b14eb7",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T15:47:38Z",
+      "side": 1,
+      "message": "// If we have no known content bounds we just use the desired bounds bc ... ?",
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1e24460a_e8bd397e",
         "filename": "src/core/SkImageFilterTypes.h",
         "patchSetId": 7
