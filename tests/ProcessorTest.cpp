@@ -7,10 +7,13 @@
 
 #include "tests/Test.h"
 
+#include <atomic>
+#include <random>
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrGpuResource.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContext.h"
@@ -21,8 +24,6 @@
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "tests/TestUtils.h"
-#include <atomic>
-#include <random>
 
 namespace {
 class TestOp : public GrMeshDrawOp {

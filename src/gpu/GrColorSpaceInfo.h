@@ -19,6 +19,11 @@ public:
     GrColorSpaceInfo() = default;
     GrColorSpaceInfo(GrColorType, SkAlphaType, sk_sp<SkColorSpace>);
 
+    // Note this extracts the color type, alpha type, and color space, but not the dimensions.
+    static GrColorSpaceInfo FromImageInfo(const SkImageInfo& ii) {
+        return {SkColorTypeToGrColorType(ii.colorType()), ii.alphaType(), ii.refColorSpace()};
+    }
+
     bool isLinearlyBlended() const { return fColorSpace && fColorSpace->gammaIsLinear(); }
 
     SkColorSpace* colorSpace() const { return fColorSpace.get(); }
