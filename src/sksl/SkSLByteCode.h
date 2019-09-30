@@ -208,6 +208,13 @@ private:
     void preprocess(const void* labels[]);
 };
 
+enum class TypeCategory {
+    kBool,
+    kSigned,
+    kUnsigned,
+    kFloat,
+};
+
 class SK_API ByteCode {
 public:
     static constexpr int kVecWidth = 16;
@@ -254,6 +261,26 @@ public:
                                             float* outReturn[], int returnCount,
                                             const float* uniforms, int uniformCount) const;
 
+    struct Uniform {
+        SkSL::String fName;
+        TypeCategory fType;
+        int fColumns;
+        int fRows;
+        int fSlot;
+    };
+
+    int getUniformBlockSize() const { return fUniformSlots.size(); }
+    int getUniformCount() const { return fUniforms.size(); }
+    int getUniformLocation(const char* name) const {
+        for (int i = 0; i < (int)fUniforms.size(); ++i) {
+            if (fUniforms[i].fName == name) {
+                return fUniforms[i].fSlot;
+            }
+        }
+        return -1;
+    }
+    const Uniform& getUniform(int i) const { return fUniforms[i]; }
+
 private:
     ByteCode(const ByteCode&) = delete;
     ByteCode& operator=(const ByteCode&) = delete;
@@ -263,6 +290,8 @@ private:
 
     int fGlobalCount = 0;
     std::vector<uint8_t> fUniformSlots;
+    std::vector<Uniform> fUniforms;
+
     std::vector<std::unique_ptr<ByteCodeFunction>> fFunctions;
     std::vector<ExternalValue*> fExternalValues;
 };
