@@ -1397,6 +1397,14 @@ static constexpr GrColorType GrPixelConfigToColorType(GrPixelConfig config) {
     SkUNREACHABLE;
 }
 
+static constexpr GrColorType GrClosestColorTypeToCompressionType(
+        SkImage::CompressionType compression) {
+    switch (compression) {
+        case SkImage::kETC1_CompressionType: return GrColorType::kRGB_888x;
+    }
+    SkUNREACHABLE;
+}
+
 static constexpr GrPixelConfig GrColorTypeToPixelConfig(GrColorType colorType) {
     switch (colorType) {
         case GrColorType::kUnknown:          return kUnknown_GrPixelConfig;

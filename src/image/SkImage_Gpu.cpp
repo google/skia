@@ -48,21 +48,12 @@
 #include "src/gpu/gl/GrGLTexture.h"
 #include "src/image/SkImage_Gpu.h"
 
-static SkColorType proxy_color_type(GrTextureProxy* proxy) {
-    SkColorType colorType;
-    if (!GrPixelConfigToColorType(proxy->config(), &colorType)) {
-        colorType = kUnknown_SkColorType;
-    }
-    return colorType;
-}
-
-SkImage_Gpu::SkImage_Gpu(sk_sp<GrContext> context, uint32_t uniqueID, SkAlphaType at,
-                         sk_sp<GrTextureProxy> proxy, sk_sp<SkColorSpace> colorSpace)
+SkImage_Gpu::SkImage_Gpu(sk_sp<GrContext> context, uint32_t uniqueID, SkColorType ct,
+                         SkAlphaType at, sk_sp<SkColorSpace> colorSpace,
+                         sk_sp<GrTextureProxy> proxy)
         : INHERITED(std::move(context), proxy->worstCaseWidth(), proxy->worstCaseHeight(), uniqueID,
-                    proxy_color_type(proxy.get()), at, colorSpace)
+                    ct, at, colorSpace)
         , fProxy(std::move(proxy)) {}
-
-SkImage_Gpu::~SkImage_Gpu() {}
 
 GrSemaphoresSubmitted SkImage_Gpu::onFlush(GrContext* context, const GrFlushInfo& info) {
     if (!context || !fContext->priv().matches(context) || fContext->abandoned()) {
@@ -106,14 +97,15 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* con
         return nullptr;
     }
 
+    auto actualCT = GrColorTypeToSkColorType(renderTargetContext->colorSpaceInfo().colorType());
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
-    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, this->alphaType(),
-                                   renderTargetContext->asTextureProxyRef(), std::move(targetCS));
+    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, actualCT, this->alphaType(),
+                                   std::move(targetCS), renderTargetContext->asTextureProxyRef());
 }
 
 sk_sp<SkImage> SkImage_Gpu::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {
-    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, this->alphaType(), fProxy,
-                                   std::move(newCS));
+    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, this->colorType(),
+                                   this->alphaType(), std::move(newCS), fProxy);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -137,8 +129,9 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
     if (!proxy) {
         return nullptr;
     }
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, at, std::move(proxy),
-                                   std::move(colorSpace));
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID,
+                                   GrColorTypeToSkColorType(colorType), at, std::move(colorSpace),
+                                   std::move(proxy));
 }
 
 sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
@@ -197,9 +190,9 @@ sk_sp<SkImage> SkImage::MakeFromCompressed(GrContext* context, sk_sp<SkData> dat
     if (!proxy) {
         return nullptr;
     }
-
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, kOpaque_SkAlphaType,
-                                   std::move(proxy), nullptr);
+    auto ct = GrColorTypeToSkColorType(GrClosestColorTypeToCompressionType(type));
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, ct,
+                                   kOpaque_SkAlphaType, nullptr, std::move(proxy));
 }
 
 sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(GrContext* ctx, SkYUVColorSpace yuvColorSpace,
@@ -227,10 +220,11 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(GrContext* ctx, SkYUVColorS
     }
 
     SkAlphaType at = GetAlphaTypeFromYUVAIndices(yuvaIndices);
+    auto ct = GrColorTypeToSkColorType(renderTargetContext->colorSpaceInfo().colorType());
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, at,
-                                   renderTargetContext->asTextureProxyRef(),
-                                   renderTargetContext->colorSpaceInfo().refColorSpace());
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, ct, at,
+                                   renderTargetContext->colorSpaceInfo().refColorSpace(),
+                                   renderTargetContext->asTextureProxyRef());
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopy(GrContext* ctx,
@@ -365,8 +359,9 @@ static sk_sp<SkImage> create_image_from_producer(GrContext* context, GrTexturePr
     if (!proxy) {
         return nullptr;
     }
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), id, at, std::move(proxy),
-                                   sk_ref_sp(producer->colorSpace()));
+    auto ct = GrColorTypeToSkColorType(producer->colorType());
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), id, ct, at,
+                                   sk_ref_sp(producer->colorSpace()), std::move(proxy));
 }
 
 sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, GrMipMapped mipMapped) const {
@@ -457,8 +452,8 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
     if (!proxy) {
         return nullptr;
     }
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, alphaType,
-                                   std::move(proxy), std::move(colorSpace));
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, colorType, alphaType,
+                                   std::move(colorSpace), std::move(proxy));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -587,8 +582,8 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
     sk_sp<SkColorSpace> cs = pixmap.refColorSpace();
     SkAlphaType at =  pixmap.alphaType();
 
-    sk_sp<SkImage> image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, at,
-                                                   proxy, cs);
+    sk_sp<SkImage> image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID,
+                                                   colorType, at, cs, proxy);
     if (!image) {
         return nullptr;
     }

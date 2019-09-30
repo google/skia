@@ -22,9 +22,8 @@ struct SkYUVAIndex;
 
 class SkImage_Gpu : public SkImage_GpuBase {
 public:
-    SkImage_Gpu(sk_sp<GrContext>, uint32_t uniqueID, SkAlphaType, sk_sp<GrTextureProxy>,
-                sk_sp<SkColorSpace>);
-    ~SkImage_Gpu() override;
+    SkImage_Gpu(sk_sp<GrContext>, uint32_t uniqueID, SkColorType, SkAlphaType, sk_sp<SkColorSpace>,
+                sk_sp<GrTextureProxy>);
 
     GrSemaphoresSubmitted onFlush(GrContext*, const GrFlushInfo&) override;
 

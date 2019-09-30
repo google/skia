@@ -27,8 +27,6 @@ SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrContext> context, int width, int height
         : INHERITED(SkImageInfo::Make(width, height, ct, at, std::move(cs)), uniqueID)
         , fContext(std::move(context)) {}
 
-SkImage_GpuBase::~SkImage_GpuBase() {}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if GR_TEST_UTILS
@@ -126,8 +124,8 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(GrRecordingContext* context,
     }
 
     // MDB: this call is okay bc we know 'sContext' was kExact
-    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, this->alphaType(),
-                                   std::move(copyProxy), this->refColorSpace());
+    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, this->colorType(),
+                                   this->alphaType(), this->refColorSpace(), std::move(copyProxy));
 }
 
 bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
