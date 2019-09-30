@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "23e01d8f_7c1a9b48",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-09-30T14:43:37Z",
+      "side": 1,
+      "message": "we can\u0027t be null",
+      "range": {
+        "startLine": 264,
+        "startChar": 30,
+        "endLine": 264,
+        "endChar": 41
+      },
+      "revId": "50c6a16d97d50ea0e6d087a37a41fcf1039bac54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
