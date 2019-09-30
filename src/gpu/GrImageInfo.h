@@ -18,9 +18,7 @@ public:
 
     // not explicit
     GrImageInfo(const SkImageInfo& info)
-            : fColorInfo(SkColorTypeToGrColorType(info.colorType()), info.alphaType(),
-                         info.refColorSpace())
-            , fDimensions(info.dimensions()) {}
+            : fColorInfo(info.colorInfo()), fDimensions(info.dimensions()) {}
 
     GrImageInfo(GrColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs, int w, int h)
             : fColorInfo(ct, at, std::move(cs)), fDimensions{w,h} {}
