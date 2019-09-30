@@ -168,7 +168,6 @@ bool GrDawnGpu::onWritePixels(GrSurface* surface, int left, int top, int width, 
                               bool prepForTexSampling) {
     GrDawnTexture* texture = static_cast<GrDawnTexture*>(surface->asTexture());
     if (!texture) {
-        SkASSERT(!"uploading to non-texture unimplemented");
         return false;
     }
     texture->upload(texels, mipLevelCount, SkIRect::MakeXYWH(left, top, width, height),
