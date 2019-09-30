@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3da402d9_40554c2a",
+        "filename": "src/gpu/GrColorInfo.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-09-30T20:03:41Z",
+      "side": 1,
+      "message": "from",
+      "range": {
+        "startLine": 18,
+        "startChar": 25,
+        "endLine": 18,
+        "endChar": 27
+      },
+      "revId": "1de484c0bf8a6aa548232abc683a880a5672f6b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
