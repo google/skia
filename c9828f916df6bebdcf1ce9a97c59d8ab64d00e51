@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3468a92b_583a1e18",
+        "filename": "src/gpu/vk/GrVkOpsRenderPass.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-09-30T17:44:13Z",
+      "side": 0,
+      "message": "Oh, was Vulkan already scissoring every draw anyway?",
+      "revId": "c9828f916df6bebdcf1ce9a97c59d8ab64d00e51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
