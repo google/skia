@@ -849,9 +849,10 @@ static void test_surface_draw_partially(
     bool stop = false;
 
     SkPMColor origColorPM = SkPackARGB_as_RGBA((origColor >> 24 & 0xFF),
-                                               (origColor >> 0 & 0xFF),
+                                               (origColor >> 16 & 0xFF),
                                                (origColor >> 8 & 0xFF),
-                                               (origColor >> 16 & 0xFF));
+                                               (origColor >> 0 & 0xFF));
+
     SkPMColor rectColorPM = SkPackARGB_as_RGBA((kRectColor >> 24 & 0xFF),
                                                (kRectColor >> 16 & 0xFF),
                                                (kRectColor >> 8 & 0xFF),
