@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "31234410_3f33ad31",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-30T14:28:56Z",
+      "side": 1,
+      "message": "Probably nicer to use SkUnref here.",
+      "range": {
+        "startLine": 261,
+        "startChar": 46,
+        "endLine": 261,
+        "endChar": 53
+      },
+      "revId": "6d907faa7d542d12a904c278cff40ab861c99459",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f770371_7b57f33f",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2287,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-30T14:28:56Z",
+      "side": 1,
+      "message": "eek! this might happen before the .get()s from previous parameters.",
+      "range": {
+        "startLine": 2287,
+        "startChar": 42,
+        "endLine": 2287,
+        "endChar": 59
+      },
+      "revId": "6d907faa7d542d12a904c278cff40ab861c99459",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bfe7f78b_9cbf8eeb",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-30T14:28:56Z",
+      "side": 1,
+      "message": "This could be more efficient by simply passing the AutoDWriteTable around to avoid the copy.",
+      "range": {
+        "startLine": 264,
+        "startChar": 19,
+        "endLine": 264,
+        "endChar": 31
+      },
+      "revId": "6d907faa7d542d12a904c278cff40ab861c99459",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
