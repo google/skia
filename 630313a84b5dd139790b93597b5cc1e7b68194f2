@@ -105,6 +105,30 @@
       "revId": "630313a84b5dd139790b93597b5cc1e7b68194f2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "968310b4_c36f669e",
+        "filename": "tests/SurfaceTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 854,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T16:53:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "af7beb29_8039d9ba",
+      "range": {
+        "startLine": 852,
+        "startChar": 0,
+        "endLine": 854,
+        "endChar": 72
+      },
+      "revId": "630313a84b5dd139790b93597b5cc1e7b68194f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
