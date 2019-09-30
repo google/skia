@@ -140,7 +140,7 @@ public:
         fRect.sort();
         fStrokeWidth = stroke.getWidth();
 
-        SkScalar rad = SkScalarHalf(fStrokeWidth);
+        SkScalar rad = fStrokeWidth ? SkScalarHalf(fStrokeWidth) : 0.5f;
         SkRect bounds = rect;
         bounds.outset(rad, rad);
 
