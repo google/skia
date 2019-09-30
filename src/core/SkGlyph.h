@@ -70,7 +70,7 @@ struct SkPackedGlyphID {
         return this->fID < that.fID;
     }
 
-    uint32_t code() const {
+    SkGlyphID glyphID() const {
         return fID & kGlyphIDMask;
     }
 
@@ -92,7 +92,7 @@ struct SkPackedGlyphID {
 
     SkString dump() const {
         SkString str;
-        str.appendf("code: %d, x: %d, y:%d", code(), getSubXFixed(), getSubYFixed());
+        str.appendf("code: %d, x: %d, y:%d", glyphID(), getSubXFixed(), getSubYFixed());
         return str;
     }
 
@@ -130,7 +130,7 @@ public:
     SkScalar advanceX() const { return fAdvanceX; }
     SkScalar advanceY() const { return fAdvanceY; }
 
-    SkGlyphID getGlyphID() const { return fID.code(); }
+    SkGlyphID getGlyphID() const { return fID.glyphID(); }
     SkPackedGlyphID getPackedID() const { return fID; }
     SkFixed getSubXFixed() const { return fID.getSubXFixed(); }
     SkFixed getSubYFixed() const { return fID.getSubYFixed(); }
