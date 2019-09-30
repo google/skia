@@ -152,7 +152,7 @@ void GrMtlGpu::destroyResources() {
 }
 
 GrOpsRenderPass* GrMtlGpu::getOpsRenderPass(
-            GrRenderTarget* renderTarget, GrSurfaceOrigin origin, const SkRect& bounds,
+            GrRenderTarget* renderTarget, GrSurfaceOrigin origin, const SkIRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
             const SkTArray<GrTextureProxy*, true>& sampledProxies) {

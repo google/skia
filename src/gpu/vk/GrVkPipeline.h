@@ -41,7 +41,7 @@ public:
     VkPipelineLayout layout() const { return fPipelineLayout; }
 
     static void SetDynamicScissorRectState(GrVkGpu*, GrVkCommandBuffer*, const GrRenderTarget*,
-                                           GrSurfaceOrigin, SkIRect);
+                                           GrSurfaceOrigin, const SkIRect& scissorRect);
     static void SetDynamicViewportState(GrVkGpu*, GrVkCommandBuffer*, const GrRenderTarget*);
     static void SetDynamicBlendConstantState(GrVkGpu*, GrVkCommandBuffer*,
                                              const GrSwizzle& outputSwizzle,

@@ -175,7 +175,7 @@ void GrVkOpsRenderPass::submit() {
     fGpu->endRenderPass(fRenderTarget, fOrigin, fBounds);
 }
 
-void GrVkOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin,
+void GrVkOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
                             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
                             const SkTArray<GrTextureProxy*, true>& sampledProxies) {
@@ -198,14 +198,13 @@ void GrVkOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin,
         }
     }
 
+    SkASSERT(bounds.isEmpty() || SkIRect::MakeWH(rt->width(), rt->height()).contains(bounds));
+    fBounds = bounds;
+
     if (this->wrapsSecondaryCommandBuffer()) {
         this->initWrapped();
         return;
     }
-
-    // TODO: This should be passed in via the GrOpsTask instead of always setting it to the full
-    // render target bounds.
-    fBounds = SkIRect::MakeWH(fRenderTarget->width(), fRenderTarget->height());
 
     this->init(colorInfo, stencilInfo, colorInfo.fClearColor);
 }
@@ -433,7 +432,8 @@ GrVkPipelineState* GrVkOpsRenderPass::prepareDrawState(
         const GrPipeline& pipeline,
         const GrPipeline::FixedDynamicState* fixedDynamicState,
         const GrPipeline::DynamicStateArrays* dynamicStateArrays,
-        GrPrimitiveType primitiveType) {
+        GrPrimitiveType primitiveType,
+        const SkIRect& renderPassScissorRect) {
     GrVkCommandBuffer* currentCB = this->currentCommandBuffer();
     SkASSERT(fCurrentRenderPass);
 
@@ -471,12 +471,16 @@ GrVkPipelineState* GrVkOpsRenderPass::prepareDrawState(
 
     if (!pipeline.isScissorEnabled()) {
         GrVkPipeline::SetDynamicScissorRectState(fGpu, currentCB, fRenderTarget, fOrigin,
-                                                 SkIRect::MakeWH(fRenderTarget->width(),
-                                                                 fRenderTarget->height()));
+                                                 renderPassScissorRect);
     } else if (!dynamicStateArrays || !dynamicStateArrays->fScissorRects) {
         SkASSERT(fixedDynamicState);
+        SkIRect combinedScissorRect;
+        if (!combinedScissorRect.intersect(renderPassScissorRect,
+                                           fixedDynamicState->fScissorRect)) {
+            combinedScissorRect = SkIRect::MakeEmpty();
+        }
         GrVkPipeline::SetDynamicScissorRectState(fGpu, currentCB, fRenderTarget, fOrigin,
-                                                 fixedDynamicState->fScissorRect);
+                                                 combinedScissorRect);
     }
     GrVkPipeline::SetDynamicViewportState(fGpu, currentCB, fRenderTarget);
     GrVkPipeline::SetDynamicBlendConstantState(fGpu, currentCB, pipeline.outputSwizzle(),
@@ -531,15 +535,23 @@ void GrVkOpsRenderPass::onDraw(const GrPrimitiveProcessor& primProc,
     }
 #endif
 
+    SkRect scissorRect = SkRect::Make(fBounds);
+    SkIRect renderPassScissorRect = SkIRect::MakeEmpty();
+    if (scissorRect.intersect(bounds)) {
+        scissorRect.roundOut(&renderPassScissorRect);
+    }
+
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
     GrVkPipelineState* pipelineState = this->prepareDrawState(primProc, pipeline, fixedDynamicState,
-                                                              dynamicStateArrays, primitiveType);
+                                                              dynamicStateArrays, primitiveType,
+                                                              renderPassScissorRect);
     if (!pipelineState) {
         return;
     }
 
     bool dynamicScissor =
             pipeline.isScissorEnabled() && dynamicStateArrays && dynamicStateArrays->fScissorRects;
+
     bool dynamicTextures = dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures;
 
     for (int i = 0; i < meshCount; ++i) {
@@ -548,16 +560,22 @@ void GrVkOpsRenderPass::onDraw(const GrPrimitiveProcessor& primProc,
             SkDEBUGCODE(pipelineState = nullptr);
             primitiveType = mesh.primitiveType();
             pipelineState = this->prepareDrawState(primProc, pipeline, fixedDynamicState,
-                                                   dynamicStateArrays, primitiveType);
+                                                   dynamicStateArrays, primitiveType,
+                                                   renderPassScissorRect);
             if (!pipelineState) {
                 return;
             }
         }
 
         if (dynamicScissor) {
+            SkIRect combinedScissorRect;
+            if (!combinedScissorRect.intersect(renderPassScissorRect,
+                                               dynamicStateArrays->fScissorRects[i])) {
+                combinedScissorRect = SkIRect::MakeEmpty();
+            }
             GrVkPipeline::SetDynamicScissorRectState(fGpu, this->currentCommandBuffer(),
                                                      fRenderTarget, fOrigin,
-                                                     dynamicStateArrays->fScissorRects[i]);
+                                                     combinedScissorRect);
         }
         if (dynamicTextures) {
             GrTextureProxy* const* meshProxies = dynamicStateArrays->fPrimitiveProcessorTextures +

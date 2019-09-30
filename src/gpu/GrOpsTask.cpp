@@ -424,8 +424,8 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
     flushState->setSampledProxyArray(nullptr);
 }
 
-static GrOpsRenderPass* create_command_buffer(
-        GrGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
+static GrOpsRenderPass* create_render_pass(
+        GrGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
         GrLoadOp colorLoadOp, const SkPMColor4f& loadClearColor, GrLoadOp stencilLoadOp,
         const SkTArray<GrTextureProxy*, true>& sampledProxies) {
     const GrOpsRenderPass::LoadAndStoreInfo kColorLoadStoreInfo {
@@ -471,11 +471,11 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
              !flushState->gpu()->caps()->performColorClearsAsDraws());
     SkASSERT(fStencilLoadOp != GrLoadOp::kClear ||
              !flushState->gpu()->caps()->performStencilClearsAsDraws());
-    GrOpsRenderPass* renderPass = create_command_buffer(
+    GrOpsRenderPass* renderPass = create_render_pass(
                                                     flushState->gpu(),
                                                     fTarget->peekRenderTarget(),
                                                     fTarget->origin(),
-                                                    fTarget->getBoundsRect(),
+                                                    fClippedContentBounds,
                                                     fColorLoadOp,
                                                     fLoadClearColor,
                                                     fStencilLoadOp,

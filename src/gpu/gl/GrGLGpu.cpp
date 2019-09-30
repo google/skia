@@ -2030,7 +2030,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
 }
 
 GrOpsRenderPass* GrGLGpu::getOpsRenderPass(
-        GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
+        GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
         const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
         const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
         const SkTArray<GrTextureProxy*, true>& sampledProxies) {
