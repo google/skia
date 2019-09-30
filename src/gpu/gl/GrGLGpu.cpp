@@ -3507,6 +3507,34 @@ static GrPixelConfig gl_format_to_pixel_config(GrGLFormat format) {
     SkUNREACHABLE;
 }
 
+static GrColorType GrGLFormatToGrColorType(GrGLFormat glFormat) {
+    switch (glFormat) {
+        case GrGLFormat::kUnknown:              return GrColorType::kUnknown;
+        case GrGLFormat::kRGBA8:                return GrColorType::kRGBA_8888;
+        case GrGLFormat::kR8:                   return GrColorType::kAlpha_8;
+        case GrGLFormat::kALPHA8:               return GrColorType::kAlpha_8;
+        case GrGLFormat::kLUMINANCE8:           return GrColorType::kGray_8;
+        case GrGLFormat::kBGRA8:                return GrColorType::kBGRA_8888;
+        case GrGLFormat::kRGB565:               return GrColorType::kBGR_565;
+        case GrGLFormat::kRGBA16F:              return GrColorType::kRGBA_F16;
+        case GrGLFormat::kR16F:                 return GrColorType::kAlpha_F16;
+        case GrGLFormat::kRGB8:                 return GrColorType::kRGB_888x;
+        case GrGLFormat::kRG8:                  return GrColorType::kRG_88;
+        case GrGLFormat::kRGB10_A2:             return GrColorType::kRGBA_1010102;
+        case GrGLFormat::kRGBA4:                return GrColorType::kABGR_4444;
+        case GrGLFormat::kSRGB8_ALPHA8:         return GrColorType::kRGBA_8888_SRGB;
+        case GrGLFormat::kCOMPRESSED_RGB8_ETC2: return GrColorType::kRGB_888x;
+        case GrGLFormat::kCOMPRESSED_ETC1_RGB8: return GrColorType::kRGB_888x;
+        case GrGLFormat::kR16:                  return GrColorType::kAlpha_16;
+        case GrGLFormat::kRG16:                 return GrColorType::kRG_1616;
+        case GrGLFormat::kRGBA16:               return GrColorType::kRGBA_16161616;
+        case GrGLFormat::kRG16F:                return GrColorType::kRG_F16;
+        case GrGLFormat::kLUMINANCE16F:         return GrColorType::kAlpha_F16;
+    }
+
+    SkUNREACHABLE;
+}
+
 GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
                                                  const GrBackendFormat& format,
                                                  GrMipMapped mipMapped,
@@ -3531,13 +3559,19 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
     // Compressed formats go through onCreateCompressedBackendTexture
     SkASSERT(!GrGLFormatIsCompressed(glFormat));
 
-    GrPixelConfig config = gl_format_to_pixel_config(glFormat);
-
-    if (config == kUnknown_GrPixelConfig) {
+    GrColorType textureColorType = GrGLFormatToGrColorType(glFormat);
+    if (textureColorType == GrColorType::kUnknown) {
         return GrBackendTexture();  // invalid
     }
 
-    auto textureColorType = GrPixelConfigToColorType(config);
+    GrPixelConfig config1 = gl_format_to_pixel_config(glFormat);
+
+#ifdef SK_DEBUG
+    {
+        GrColorType oldTextureColorType = GrPixelConfigToColorType(config1);
+        SkASSERT(oldTextureColorType == textureColorType);
+    }
+#endif
 
     // TODO: move the texturability check up to GrGpu::createBackendTexture and just assert here
     if (!this->caps()->isFormatTexturableAndUploadable(textureColorType, format)) {
@@ -3565,14 +3599,14 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
         texels.append(mipLevelCount);
         SkTArray<size_t> individualMipOffsets(mipLevelCount);
 
-        size_t bytesPerPixel = GrBytesPerPixel(config);
+        size_t bytesPerPixel = GrColorTypeBytesPerPixel(textureColorType);
 
         size_t totalSize = GrComputeTightCombinedBufferSize(
                 bytesPerPixel, w, h, &individualMipOffsets, mipLevelCount);
 
         char* tmpPixels = (char*)pixelStorage.reset(totalSize);
 
-        GrFillInData(config, w, h, individualMipOffsets, tmpPixels, *color);
+        GrFillInData(textureColorType, w, h, individualMipOffsets, tmpPixels, *color);
         for (int i = 0; i < mipLevelCount; ++i) {
             size_t offset = individualMipOffsets[i];
 
@@ -3586,7 +3620,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
     GrSurfaceDesc desc;
     desc.fWidth = w;
     desc.fHeight = h;
-    desc.fConfig = config;
+    desc.fConfig = config1;
 
     info.fTarget = GR_GL_TEXTURE_2D;
     info.fFormat = GrGLFormatToEnum(glFormat);
@@ -3595,7 +3629,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
     if (!info.fID) {
         return GrBackendTexture();  // invalid
     }
-    auto srcColorType = GrPixelConfigToColorType(desc.fConfig);
+    GrColorType srcColorType = textureColorType; // hmmm
     if (!texels.empty() &&
         !this->uploadTexData(glFormat, textureColorType, desc.fWidth, desc.fHeight,
                              GR_GL_TEXTURE_2D, 0, 0, desc.fWidth, desc.fHeight, srcColorType,
