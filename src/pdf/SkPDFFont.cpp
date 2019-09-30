@@ -511,6 +511,22 @@ static SkPDFIndirectReference type3_descriptor(SkPDFDocument* doc,
     return ref;
 }
 
+#ifdef SK_PDF_BITMAP_GLYPH_RASTER_SIZE
+static constexpr float kBitmapFontSize = SK_PDF_BITMAP_GLYPH_RASTER_SIZE;
+#else
+static constexpr float kBitmapFontSize = 64;
+#endif
+
+SkStrikeSpec make_small_strike(const SkTypeface& typeface) {
+    SkFont font(sk_ref_sp(&typeface), kBitmapFontSize);
+    font.setHinting(SkFontHinting::kNone);
+    font.setEdging(SkFont::Edging::kAlias);
+    return SkStrikeSpec::MakeMask(font,
+                                  SkPaint(),
+                                  SkSurfaceProps(0, kUnknown_SkPixelGeometry),
+                                  kFakeGammaAndBoostContrast,
+                                  SkMatrix::I());
+}
 
 static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
     SkTypeface* typeface = pdfFont.typeface();
@@ -528,6 +544,12 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
     auto cache = strikeSpec.findOrCreateExclusiveStrike();
     SkASSERT(cache);
     SkScalar emSize = (SkScalar)unitsPerEm;
+
+    SkStrikeSpec strikeSpecSmall = kBitmapFontSize > 0 ? make_small_strike(*typeface)
+                                                       : strikeSpec;
+    auto smallCache = strikeSpecSmall.findOrCreateExclusiveStrike();
+    SkASSERT(smallCache);
+    float bitmapScale = kBitmapFontSize > 0 ? emSize / kBitmapFontSize : 1.0f;
 
     SkPDFDict font("Font");
     font.insertName("Subtype", "Type3");
@@ -575,20 +597,22 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
                 SkPDFUtils::EmitPath(*path, SkPaint::kFill_Style, &content);
                 SkPDFUtils::PaintPath(SkPaint::kFill_Style, path->getFillType(), &content);
             } else {
-                auto pimg = to_image(gID, cache.get());
+                auto pimg = to_image(gID, smallCache.get());
                 if (!pimg.fImage) {
                     setGlyphWidthAndBoundingBox(glyph->advanceX(), glyphBBox, &content);
                 } else {
+                    using SkPDFUtils::AppendScalar;
                     imageGlyphs.emplace_back(gID, SkPDFSerializeImage(pimg.fImage.get(), doc));
-                    SkPDFUtils::AppendScalar(glyph->advanceX(), &content);
+                    AppendScalar(glyph->advanceX(), &content);
                     content.writeText(" 0 d0\n");
-                    content.writeDecAsText(pimg.fImage->width());
+                    AppendScalar(pimg.fImage->width() * bitmapScale, &content);
                     content.writeText(" 0 0 ");
-                    content.writeDecAsText(-pimg.fImage->height());
+                    AppendScalar(-pimg.fImage->height() * bitmapScale, &content);
                     content.writeText(" ");
-                    content.writeDecAsText(pimg.fOffset.x());
+                    AppendScalar(pimg.fOffset.x() * bitmapScale, &content);
                     content.writeText(" ");
-                    content.writeDecAsText(pimg.fImage->height() + pimg.fOffset.y());
+                    AppendScalar((pimg.fImage->height() + pimg.fOffset.y()) * bitmapScale,
+                                 &content);
                     content.writeText(" cm\n/X");
                     content.write(characterName.c_str(), characterName.size());
                     content.writeText(" Do\n");
