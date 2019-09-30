@@ -21,14 +21,6 @@ public:
 
     ~GrDawnRenderTarget() override;
 
-    // override of GrRenderTarget
-    ResolveType getResolveType() const override {
-        if (this->numSamples() > 1) {
-            return kCanResolve_ResolveType;
-        }
-        return kAutoResolves_ResolveType;
-    }
-
     bool canAttemptStencilAttachment() const override {
         return true;
     }
