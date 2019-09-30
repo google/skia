@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "710c5145_1888b47b",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Updated to match the declared name in SkImageFilter_Base.h",
+      "parentUuid": "0230b280_b119658f",
+      "range": {
+        "startLine": 251,
+        "startChar": 71,
+        "endLine": 251,
+        "endChar": 83
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0eb39e8a_c16031b1",
         "filename": "src/core/SkImageFilter.cpp",
         "patchSetId": 7
@@ -94,6 +118,54 @@
     },
     {
       "key": {
+        "uuid": "cd73e634_bc808342",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "040d48cb_3e81c722",
+      "range": {
+        "startLine": 253,
+        "startChar": 15,
+        "endLine": 253,
+        "endChar": 32
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8dd873b5_88800a16",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0eb39e8a_c16031b1",
+      "range": {
+        "startLine": 253,
+        "startChar": 11,
+        "endLine": 253,
+        "endChar": 14
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d597e2db_ca4b6305",
         "filename": "src/core/SkImageFilter.cpp",
         "patchSetId": 7
@@ -117,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "49de0891_c5a1cb65",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d597e2db_ca4b6305",
+      "range": {
+        "startLine": 254,
+        "startChar": 30,
+        "endLine": 254,
+        "endChar": 39
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "520f08de_26b14eb7",
         "filename": "src/core/SkImageFilter.cpp",
         "patchSetId": 7
@@ -131,6 +227,24 @@
       "revId": "918ca705a44021fd8a806930b9457f926b780834",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c639fb40_0040e107",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "520f08de_26b14eb7",
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -203,6 +317,30 @@
     },
     {
       "key": {
+        "uuid": "1d36837a_f6bc903e",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e24460a_e8bd397e",
+      "range": {
+        "startLine": 326,
+        "startChar": 56,
+        "endLine": 326,
+        "endChar": 64
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "072f37c6_55605b53",
         "filename": "src/core/SkImageFilterTypes.h",
         "patchSetId": 7
@@ -223,6 +361,30 @@
       "revId": "918ca705a44021fd8a806930b9457f926b780834",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22e236c6_3fe6c97f",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "072f37c6_55605b53",
+      "range": {
+        "startLine": 332,
+        "startChar": 54,
+        "endLine": 332,
+        "endChar": 62
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -249,6 +411,30 @@
     },
     {
       "key": {
+        "uuid": "2adeb628_3926f32d",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9088961d_ea859882",
+      "range": {
+        "startLine": 334,
+        "startChar": 17,
+        "endLine": 334,
+        "endChar": 20
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b21eef6a_1efe922c",
         "filename": "src/core/SkImageFilterTypes.h",
         "patchSetId": 7
@@ -272,6 +458,30 @@
     },
     {
       "key": {
+        "uuid": "ba7e01ed_ecbb8091",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b21eef6a_1efe922c",
+      "range": {
+        "startLine": 353,
+        "startChar": 13,
+        "endLine": 353,
+        "endChar": 23
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6fda4ac7_ab268959",
         "filename": "src/core/SkImageFilterTypes.h",
         "patchSetId": 7
@@ -292,6 +502,30 @@
       "revId": "918ca705a44021fd8a806930b9457f926b780834",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af99341a_f40896e9",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6fda4ac7_ab268959",
+      "range": {
+        "startLine": 354,
+        "startChar": 13,
+        "endLine": 354,
+        "endChar": 19
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -341,6 +575,54 @@
     },
     {
       "key": {
+        "uuid": "bb6d0aab_730f994b",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "In this case, the mapping defines both a \u0027layer/local\u0027 transformation and a \u0027layer/device\u0027 transformation, so I\u0027ve clarified the comment.",
+      "parentUuid": "49c356f7_ab23c63f",
+      "range": {
+        "startLine": 60,
+        "startChar": 63,
+        "endLine": 60,
+        "endChar": 72
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "704c2fd1_f79c8def",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "82b5efa8_85439795",
+      "range": {
+        "startLine": 60,
+        "startChar": 58,
+        "endLine": 60,
+        "endChar": 62
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "866bd39d_5fd3bc83",
         "filename": "src/core/SkImageFilter_Base.h",
         "patchSetId": 7
@@ -387,6 +669,54 @@
     },
     {
       "key": {
+        "uuid": "415d0236_933afe0c",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "708fad43_6fd36c5a",
+      "range": {
+        "startLine": 62,
+        "startChar": 62,
+        "endLine": 62,
+        "endChar": 68
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "54f38d81_adb2847e",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "866bd39d_5fd3bc83",
+      "range": {
+        "startLine": 62,
+        "startChar": 15,
+        "endLine": 62,
+        "endChar": 21
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e2829325_91cabf98",
         "filename": "src/core/SkImageFilter_Base.h",
         "patchSetId": 7
@@ -401,6 +731,24 @@
       "revId": "918ca705a44021fd8a806930b9457f926b780834",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6cc5b21a_a85f2a64",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e2829325_91cabf98",
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -427,6 +775,30 @@
     },
     {
       "key": {
+        "uuid": "7835c938_7e868c12",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d88c7edf_a743afc1",
+      "range": {
+        "startLine": 66,
+        "startChar": 78,
+        "endLine": 66,
+        "endChar": 79
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "16e996f7_fb9452d7",
         "filename": "src/core/SkImageFilter_Base.h",
         "patchSetId": 7
@@ -450,6 +822,30 @@
     },
     {
       "key": {
+        "uuid": "2b1733a4_23bf807a",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "16e996f7_fb9452d7",
+      "range": {
+        "startLine": 67,
+        "startChar": 57,
+        "endLine": 67,
+        "endChar": 58
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2fda1fe9_4a61ed45",
         "filename": "src/core/SkImageFilter_Base.h",
         "patchSetId": 7
@@ -464,6 +860,24 @@
       "revId": "918ca705a44021fd8a806930b9457f926b780834",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fad1a7e_7e88257f",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2fda1fe9_4a61ed45",
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -490,6 +904,30 @@
     },
     {
       "key": {
+        "uuid": "47b512c9_33533321",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47f054c4_663b4bd8",
+      "range": {
+        "startLine": 75,
+        "startChar": 91,
+        "endLine": 75,
+        "endChar": 96
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "29841b6a_9339505c",
         "filename": "src/core/SkImageFilter_Base.h",
         "patchSetId": 7
@@ -504,6 +942,24 @@
       "revId": "918ca705a44021fd8a806930b9457f926b780834",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "68ce4445_8597b5b5",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "29841b6a_9339505c",
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -530,6 +986,30 @@
     },
     {
       "key": {
+        "uuid": "42cde014_d5be9a56",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4fa2ec72_ddbb2eb6",
+      "range": {
+        "startLine": 79,
+        "startChar": 43,
+        "endLine": 79,
+        "endChar": 48
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fbb06453_46bb331e",
         "filename": "src/core/SkImageFilter_Base.h",
         "patchSetId": 7
@@ -550,6 +1030,30 @@
       "revId": "918ca705a44021fd8a806930b9457f926b780834",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3decf36b_ee62b210",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fbb06453_46bb331e",
+      "range": {
+        "startLine": 80,
+        "startChar": 62,
+        "endLine": 82,
+        "endChar": 84
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -576,6 +1080,30 @@
     },
     {
       "key": {
+        "uuid": "9902c573_3e9c6a75",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7515ea05_72aa3747",
+      "range": {
+        "startLine": 84,
+        "startChar": 63,
+        "endLine": 84,
+        "endChar": 71
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9f4618d1_eef077f3",
         "filename": "src/core/SkImageFilter_Base.h",
         "patchSetId": 7
@@ -599,6 +1127,30 @@
     },
     {
       "key": {
+        "uuid": "f3eb7d88_947f2969",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f4618d1_eef077f3",
+      "range": {
+        "startLine": 86,
+        "startChar": 62,
+        "endLine": 86,
+        "endChar": 63
+      },
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da702d18_a557f0a8",
         "filename": "src/core/SkImageFilter_Base.h",
         "patchSetId": 7
@@ -616,6 +1168,24 @@
     },
     {
       "key": {
+        "uuid": "5d349802_b5ee0b62",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da702d18_a557f0a8",
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9de75ebe_efed3818",
         "filename": "src/core/SkImageFilter_Base.h",
         "patchSetId": 7
@@ -630,6 +1200,24 @@
       "revId": "918ca705a44021fd8a806930b9457f926b780834",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82efeba8_ff9e0ed5",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-09-30T18:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9de75ebe_efed3818",
+      "revId": "918ca705a44021fd8a806930b9457f926b780834",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
