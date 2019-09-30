@@ -84,7 +84,64 @@ namespace {
     };
 
     struct Builder : public skvm::Builder {
-        //using namespace skvm;
+
+        // We'll overload Builder's mul() method with anther type Flex in just a second,
+        // so we need to explicitly declare we're using it to prevent shadowing.
+        using skvm::Builder::mul;
+
+        // Most values we hold in buffers are unorms of some sort,
+        // which are ideal in terms of bit efficiency, but annoying
+        // for math because of their 2^k-1 denominator.
+        //
+        // It would be easier to do math if the denominator were an
+        // exact power of two, fixed point.  But that wastes almost
+        // a whole bit, and most graphics code expects unorms anyway.
+        //
+        // So we introduce Flex{n,u,p}, representing the value
+        //
+        //        n
+        //   -----------
+        //   (2^u-1) 2^p
+        //
+        // (Think "u" for unorm, "p" for power, "n" numerator.)
+        struct Flex { skvm::I32 n; int u,p; };
+        //
+        // Flex can represent a unorm (p=0) or fixed-point (u=1) exactly,
+        // and allows for limited combination of the two.
+        static Flex Unorm(skvm::I32 n, int u) { return {n,u,0}; }
+        static Flex Fixed(skvm::I32 n, int p) { return {n,1,p}; }
+        //
+        // The one thing Flex really can't represent is the product of two unorms.
+        // There's never a good u term...  (2^a-1)*(2^b-1) = (2^c-1) can't be solved for c.
+        // But we can approximate any Flex as fixed-point by rounding the upper half of values up.
+        // In unorm8, 0->0, 1->1, ..., 127->127, 128->129, ..., 254->255, 255->256.
+        Flex fixed(Flex f) {
+            if (f.u != 1) {
+                // E.g. unorm8 x += x>>7.
+                f.n = add(f.n, shr(f.n, f.u-1));
+                f.p += f.u;
+                f.u = 1;
+                // It would be safe but pointless to run that code when f.u == 1 already:
+                //   f.n = add(f.n, shr(f.n, 0));  // f += f>>0 ~~> f += f ~~> f *= 2
+                //   f.p += 1                      // f /= 2
+                //   f.u = 1                       // no-op
+            }
+            return f;
+        }
+        //
+        // So to multiply two Flex, we make sure at least one of them is fixed-point,
+        // and then it's easy: multiply the numerators, add the p-terms in the denominator.
+        Flex mul(Flex x, Flex y) {
+            if (x.u != 1 && y.u != 1) {
+                // We need to convert x or y to fixed-point before multiplying.
+                // This introduces up to 1 bit of error, so to minimize that in a relative sense,
+                // we'll do it to the value with the larger unorm bias.
+                if (x.u > y.u) { std::swap(x,y); }
+                y = fixed(y);
+            }
+            SkASSERT(x.u == 1 || y.u == 1);
+            return { mul(x.n, y.n), x.u*y.u, x.p+y.p};
+        }
 
         struct Color { skvm::I32 r,g,b,a; };
 
