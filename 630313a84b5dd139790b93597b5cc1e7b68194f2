@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1d930a33_8c94349c",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T14:33:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9e82f7b_9692a445",
+      "revId": "630313a84b5dd139790b93597b5cc1e7b68194f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52318de8_d46d9b63",
         "filename": "tests/SurfaceTest.cpp",
         "patchSetId": 5
@@ -30,6 +48,30 @@
       "writtenOn": "2019-09-26T21:36:58Z",
       "side": 1,
       "message": "what\u0027s this about?",
+      "range": {
+        "startLine": 852,
+        "startChar": 0,
+        "endLine": 854,
+        "endChar": 72
+      },
+      "revId": "630313a84b5dd139790b93597b5cc1e7b68194f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a1107e6_e226db06",
+        "filename": "tests/SurfaceTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 854,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-09-30T14:33:24Z",
+      "side": 1,
+      "message": "The two creation methods which feed this test (create_gpu_surface_backend_texture and create_gpu_surface_backend_texture_as_render_target) call create_backend_texture. That method used to memset a raw SkColor into the pixels while now it calls GrContext::createBackendTexture.",
+      "parentUuid": "52318de8_d46d9b63",
       "range": {
         "startLine": 852,
         "startChar": 0,
