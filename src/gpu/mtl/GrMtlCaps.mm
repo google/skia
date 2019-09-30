@@ -227,7 +227,7 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     fBufferMapThreshold = 0;
 
     // Buffers are always fully mapped.
-    fMapBufferFlags = kCanMap_MapFlag;
+    fMapBufferFlags =  kCanMap_MapFlag | kAsyncRead_MapFlag;
 
     fOversizedStencilSupport = true;
 
@@ -235,6 +235,8 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     fNPOTTextureTileSupport = true;  // always available in Metal
 
     fReuseScratchTextures = true; // Assuming this okay
+
+    fTransferBufferSupport = true;
 
     fTextureBarrierSupport = false; // Need to figure out if we can do this
 
