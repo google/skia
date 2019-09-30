@@ -60,6 +60,9 @@ class GrGLSLProgramDataManager;
 
 namespace {
 
+static const int kWidth = 300;
+static const int kHeight = 200;
+
 static constexpr GrGeometryProcessor::Attribute gVertex =
         {"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
 
@@ -70,7 +73,7 @@ static constexpr GrGeometryProcessor::Attribute gVertex =
  */
 class ClockwiseGM : public skiagm::GpuGM {
     SkString onShortName() override { return SkString("clockwise"); }
-    SkISize onISize() override { return {300, 200}; }
+    SkISize onISize() override { return {kWidth, kHeight}; }
     void onDraw(GrContext*, GrRenderTargetContext*, SkCanvas*) override;
 };
 
@@ -137,7 +140,7 @@ public:
 private:
     ClockwiseTestOp(bool readSkFragCoord, float y)
             : GrDrawOp(ClassID()), fReadSkFragCoord(readSkFragCoord), fY(y) {
-        this->setBounds(SkRect::MakeIWH(300, 100), HasAABloat::kNo, IsZeroArea::kNo);
+        this->setBounds(SkRect::MakeXYWH(0, fY, 100, 100), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     const char* name() const override { return "ClockwiseTestOp"; }
@@ -166,7 +169,8 @@ private:
         mesh.setNonIndexedNonInstanced(4);
         mesh.setVertexData(std::move(fVertexBuffer));
         flushState->opsRenderPass()->draw(ClockwiseTestProcessor(fReadSkFragCoord), pipeline,
-                                          nullptr, nullptr, &mesh, 1, SkRect::MakeIWH(100, 100));
+                                          nullptr, nullptr, &mesh, 1,
+                                          SkRect::MakeXYWH(0, fY, 100, 100));
     }
 
     sk_sp<GrBuffer> fVertexBuffer;

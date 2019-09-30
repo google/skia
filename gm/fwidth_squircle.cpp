@@ -147,7 +147,7 @@ private:
     FwidthSquircleTestOp(const SkMatrix& viewMatrix)
             : GrDrawOp(ClassID())
             , fViewMatrix(viewMatrix) {
-        this->setBounds(SkRect::MakeIWH(200, 200), HasAABloat::kNo, IsZeroArea::kNo);
+        this->setBounds(SkRect::MakeIWH(kWidth, kHeight), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     const char* name() const override { return "ClockwiseTestOp"; }
@@ -176,11 +176,14 @@ private:
         mesh.setNonIndexedNonInstanced(4);
         mesh.setVertexData(std::move(fVertexBuffer));
         flushState->opsRenderPass()->draw(FwidthSquircleTestProcessor(fViewMatrix), pipeline,
-                                          nullptr, nullptr, &mesh, 1, SkRect::MakeIWH(100, 100));
+                                          nullptr, nullptr, &mesh, 1, SkRect::MakeIWH(kWidth,
+                                                                                      kHeight));
     }
 
     sk_sp<GrBuffer> fVertexBuffer;
     const SkMatrix fViewMatrix;
+    static const int kWidth = 200;
+    static const int kHeight = 200;
 
     friend class ::GrOpMemoryPool; // for ctor
 };
