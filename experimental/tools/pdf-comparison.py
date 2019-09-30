@@ -20,6 +20,7 @@ cp out/default/pdfium_test ~/bin/
 
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -201,9 +202,12 @@ def checkout_worktree(checkoutable):
   directory = os.path.join(tempfile.gettempdir(), 'skpdf_control_tree')
   commit = check_output(['git', 'rev-parse', checkoutable]).strip()
   if os.path.isdir(directory):
-    check_call(['git', 'checkout', commit], cwd=directory)
-  else:
-    check_call(['git', 'worktree', 'add', directory, commit])
+    try:
+      check_call(['git', 'checkout', commit], cwd=directory)
+      return directory
+    except subprocess.CalledProcessError:
+      shutil.rmtree(directory)
+  check_call(['git', 'worktree', 'add', '-f', directory, commit])
   return directory
 
 def build_skia(directory, executable):
