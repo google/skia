@@ -13,6 +13,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrTextureContext.h"
@@ -205,8 +206,8 @@ bool compare_pixels(int width, int height,
     return true;
 }
 
-bool compare_pixels(const GrPixelInfo& infoA, const char* a, size_t rowBytesA,
-                    const GrPixelInfo& infoB, const char* b, size_t rowBytesB,
+bool compare_pixels(const GrImageInfo& infoA, const char* a, size_t rowBytesA,
+                    const GrImageInfo& infoB, const char* b, size_t rowBytesB,
                     const float tolRGBA[4], std::function<ComparePixmapsErrorReporter>& error) {
     if (infoA.width() != infoB.width() || infoA.height() != infoB.height()) {
         static constexpr float kDummyDiffs[4] = {};
@@ -228,7 +229,7 @@ bool compare_pixels(const GrPixelInfo& infoA, const char* a, size_t rowBytesA,
     } else {
         floatCS = SkColorSpace::MakeSRGBLinear();
     }
-    GrPixelInfo floatInfo(GrColorType::kRGBA_F32, floatAlphaType, std::move(floatCS),
+    GrImageInfo floatInfo(GrColorType::kRGBA_F32, floatAlphaType, std::move(floatCS),
                           infoA.width(), infoA.height());
 
     size_t floatBpp = GrColorTypeBytesPerPixel(GrColorType::kRGBA_F32);
@@ -264,8 +265,8 @@ bool check_solid_pixels(const SkColor4f& col, const SkPixmap& pixmap,
     // First convert 'col' to be compatible with 'pixmap'
     {
         sk_sp<SkColorSpace> srcCS = SkColorSpace::MakeSRGBLinear();
-        GrPixelInfo srcInfo(GrColorType::kRGBA_F32, kUnpremul_SkAlphaType, std::move(srcCS), 1, 1);
-        GrPixelInfo dstInfo(GrColorType::kRGBA_F32, pixmap.alphaType(), pixmap.refColorSpace(), 1, 1);
+        GrImageInfo srcInfo(GrColorType::kRGBA_F32, kUnpremul_SkAlphaType, std::move(srcCS), 1, 1);
+        GrImageInfo dstInfo(GrColorType::kRGBA_F32, pixmap.alphaType(), pixmap.refColorSpace(), 1, 1);
 
         SkAssertResult(GrConvertPixels(dstInfo, floatA.get(), floatBpp, srcInfo,
                                        col.vec(), floatBpp));
@@ -275,7 +276,7 @@ bool check_solid_pixels(const SkColor4f& col, const SkPixmap& pixmap,
     std::unique_ptr<char[]> floatB(new char[floatRowBytes * pixmap.height()]);
     // Then convert 'pixmap' to RGBA_F32
     {
-        GrPixelInfo dstInfo(GrColorType::kRGBA_F32, pixmap.alphaType(), pixmap.refColorSpace(),
+        GrImageInfo dstInfo(GrColorType::kRGBA_F32, pixmap.alphaType(), pixmap.refColorSpace(),
                             pixmap.width(), pixmap.height());
 
         SkAssertResult(GrConvertPixels(dstInfo, floatB.get(), floatRowBytes, pixmap.info(),
