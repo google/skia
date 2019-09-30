@@ -17,9 +17,9 @@
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/SkGr.h"
 
-static GrColorSpaceInfo make_info(const SkBitmap& bm) {
-    return GrColorSpaceInfo(SkColorTypeToGrColorType(bm.colorType()), bm.alphaType(),
-                            bm.refColorSpace());
+static GrColorInfo make_info(const SkBitmap& bm) {
+    return GrColorInfo(SkColorTypeToGrColorType(bm.colorType()), bm.alphaType(),
+                       bm.refColorSpace());
 }
 
 GrBitmapTextureMaker::GrBitmapTextureMaker(GrRecordingContext* context, const SkBitmap& bitmap,

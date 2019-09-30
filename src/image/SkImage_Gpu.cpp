@@ -95,7 +95,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* con
         return nullptr;
     }
 
-    auto actualCT = GrColorTypeToSkColorType(renderTargetContext->colorSpaceInfo().colorType());
+    auto actualCT = GrColorTypeToSkColorType(renderTargetContext->colorInfo().colorType());
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
     return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, actualCT, this->alphaType(),
                                    std::move(targetCS), renderTargetContext->asTextureProxyRef());
@@ -218,10 +218,10 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(GrContext* ctx, SkYUVColorS
     }
 
     SkAlphaType at = GetAlphaTypeFromYUVAIndices(yuvaIndices);
-    auto ct = GrColorTypeToSkColorType(renderTargetContext->colorSpaceInfo().colorType());
+    auto ct = GrColorTypeToSkColorType(renderTargetContext->colorInfo().colorType());
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, ct, at,
-                                   renderTargetContext->colorSpaceInfo().refColorSpace(),
+                                   renderTargetContext->colorInfo().refColorSpace(),
                                    renderTargetContext->asTextureProxyRef());
 }
 

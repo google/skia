@@ -22,7 +22,7 @@
 #include "src/gpu/GrSamplerState.h"
 #include "src/shaders/SkShaderBase.h"
 
-class GrColorSpaceInfo;
+class GrColorInfo;
 class GrColorSpaceXform;
 struct GrProcessorTestData;
 class GrStyle;
@@ -60,7 +60,7 @@ public:
 
 private:
     SkMatrix fViewMatrixStorage;
-    std::unique_ptr<GrColorSpaceInfo> fColorSpaceInfoStorage;
+    std::unique_ptr<GrColorInfo> fColorInfoStorage;
     GrFPArgs fArgs;
 };
 
