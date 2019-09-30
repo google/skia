@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0191ec86_2e6e64d7",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-30T20:47:54Z",
+      "side": 1,
+      "message": "I don\u0027t understand why this wouldn\u0027t have an assert that this didn\u0027t throw away bits.",
+      "range": {
+        "startLine": 61,
+        "startChar": 57,
+        "endLine": 61,
+        "endChar": 69
+      },
+      "revId": "0919926492b3d6e2ff83a934f804010694b03031",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f357c18_def6d75b",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-09-30T20:47:54Z",
+      "side": 1,
+      "message": "Did you just want a copy constructor?",
+      "range": {
+        "startLine": 61,
+        "startChar": 39,
+        "endLine": 61,
+        "endChar": 49
+      },
+      "revId": "0919926492b3d6e2ff83a934f804010694b03031",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
