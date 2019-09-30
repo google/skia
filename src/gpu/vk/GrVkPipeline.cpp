@@ -586,10 +586,9 @@ void GrVkPipeline::SetDynamicScissorRectState(GrVkGpu* gpu,
                                               GrVkCommandBuffer* cmdBuffer,
                                               const GrRenderTarget* renderTarget,
                                               GrSurfaceOrigin rtOrigin,
-                                              SkIRect scissorRect) {
-    if (!scissorRect.intersect(SkIRect::MakeWH(renderTarget->width(), renderTarget->height()))) {
-        scissorRect.setEmpty();
-    }
+                                              const SkIRect& scissorRect) {
+    SkASSERT(scissorRect.isEmpty() ||
+             SkIRect::MakeWH(renderTarget->width(), renderTarget->height()).contains(scissorRect));
 
     VkRect2D scissor;
     scissor.offset.x = scissorRect.fLeft;

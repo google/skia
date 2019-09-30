@@ -38,7 +38,7 @@ public:
 
     void executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override;
 
-    void set(GrRenderTarget*, GrSurfaceOrigin,
+    void set(GrRenderTarget*, GrSurfaceOrigin, const SkIRect& bounds,
              const GrOpsRenderPass::LoadAndStoreInfo&,
              const GrOpsRenderPass::StencilLoadAndStoreInfo&,
              const SkTArray<GrTextureProxy*, true>& sampledProxies);
@@ -74,7 +74,8 @@ private:
                                         const GrPipeline&,
                                         const GrPipeline::FixedDynamicState*,
                                         const GrPipeline::DynamicStateArrays*,
-                                        GrPrimitiveType);
+                                        GrPrimitiveType,
+                                        const SkIRect& renderPassScissorRect);
 
     void onDraw(const GrPrimitiveProcessor&,
                 const GrPipeline&,
