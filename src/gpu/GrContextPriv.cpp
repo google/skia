@@ -289,9 +289,16 @@ sk_sp<SkImage> GrContextPriv::testingOnly_getFontAtlasImage(GrMaskFormat format,
         return nullptr;
     }
 
+    SkColorType ct = kUnknown_SkColorType;
+    switch (format) {
+        case kA8_GrMaskFormat:   ct = kAlpha_8_SkColorType;    break;
+        case kA565_GrMaskFormat: ct = kRGB_565_SkColorType;    break;
+        case kARGB_GrMaskFormat: ct = kRGBA_8888_SkColorType;  break;
+    }
+
     SkASSERT(proxies[index]->priv().isExact());
-    sk_sp<SkImage> image(new SkImage_Gpu(sk_ref_sp(fContext), kNeedNewImageUniqueID,
-                                         kPremul_SkAlphaType, proxies[index], nullptr));
+    sk_sp<SkImage> image(new SkImage_Gpu(sk_ref_sp(fContext), kNeedNewImageUniqueID, ct,
+                                         kPremul_SkAlphaType, nullptr, proxies[index]));
     return image;
 }
 
