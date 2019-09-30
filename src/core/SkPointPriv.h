@@ -124,4 +124,106 @@ public:
     }
 };
 
+// Sk[I]Direction provides a proper type id for directions since Sk[I]Vector is just a typedef of
+// Sk[I]Point. As just a typedef, this made it cumbersome to provide template specializations that
+// behaved differently for directions vs. positions. Now, in these scenarios, the template can
+// specialize on Sk[I]Direction instead, but because these types provide implicit copy and move
+// operators between the regular Sk[I]Vector API they are able to be used easily with the rest of
+// Skia's math code.
+// NOTE: If this proves more generally useful, it may warrant being made public, or taking the
+// time to explicitly separate Sk[I]Vector and Sk[I]Point.
+struct SkIDirection {
+    SkIVector fDir;
+
+    SkIDirection() = default;
+
+    // Make it seamless to move back and forth between the real data type
+    SkIDirection(const SkIVector& dir) : fDir(dir) {}
+    SkIDirection(SkIVector&& dir) : fDir(std::move(dir)) {}
+
+    SkIDirection& operator=(const SkIVector& dir) {
+        fDir = dir;
+        return *this;
+    }
+    SkIDirection& operator=(SkIVector&& dir) {
+        fDir = std::move(dir);
+        return *this;
+    }
+
+    operator const SkIVector&() const { return fDir; }
+    operator SkIVector() { return fDir; }
+
+    // Provides convenient access to the regular SkIVector member functions
+    SkIVector* operator->() { return &fDir; }
+    const SkIVector* operator->() const { return &fDir; }
+
+    // Clone the math operators for vector vectors
+    SkIDirection operator-() const { return -fDir; }
+    void operator +=(const SkIDirection& v) { fDir += v; }
+    void operator -=(const SkIDirection& v) { fDir -= v; }
+
+    // Since we have implicit moves back and forth between original SkType, these can't be friend
+    // functions or the base Sk operators would be ambiguous when mixing SkIVector and SkIDirection.
+    bool operator==(const SkIDirection& v) const {
+        return fDir == v.fDir;
+    }
+    bool operator!=(const SkIDirection& v) const {
+        return fDir != v.fDir;
+    }
+    SkIDirection operator-(const SkIDirection& v) const {
+        return fDir - v.fDir;
+    }
+    SkIDirection operator+(const SkIDirection& v) const {
+        return fDir + v.fDir;
+    }
+};
+
+struct SkDirection {
+    SkVector fDir;
+
+    SkDirection() = default;
+
+    // Make it seamless to move back and forth between the real data type
+    SkDirection(const SkVector& dir) : fDir(dir) {}
+    SkDirection(SkVector&& dir) : fDir(std::move(dir)) {}
+
+    SkDirection& operator=(const SkVector& dir) {
+        fDir = dir;
+        return *this;
+    }
+    SkDirection& operator=(SkVector&& dir) {
+        fDir = std::move(dir);
+        return *this;
+    }
+
+    operator const SkVector&() const { return fDir; }
+    operator SkVector() { return fDir; }
+
+    // Provides convenient access to the regular SkVector member functions
+    SkVector* operator->() { return &fDir; }
+    const SkVector* operator->() const { return &fDir; }
+
+    // Clone the math operators for vector vectors
+    SkDirection operator-() const { return -fDir; }
+    SkDirection operator*(SkScalar scale) const { return fDir * scale; }
+    void operator +=(const SkDirection& v) { fDir += v; }
+    void operator -=(const SkDirection& v) { fDir -= v; }
+    void operator *=(SkScalar scale) { fDir *= scale; }
+
+    // Since we have implicit moves back and forth between original SkType, these can't be friend
+    // functions or the base Sk operators would be ambiguous when mixing SkIVector and SkIDirection.
+    bool operator==(const SkDirection& v) const {
+        return fDir == v.fDir;
+    }
+    bool operator!=(const SkDirection& v) const {
+        return fDir != v.fDir;
+    }
+    SkDirection operator-(const SkDirection& v) const {
+        return fDir - v.fDir;
+    }
+    SkDirection operator+(const SkDirection& v) const {
+        return fDir + v.fDir;
+    }
+};
+
 #endif
