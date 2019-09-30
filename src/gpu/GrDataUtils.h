@@ -37,14 +37,16 @@ public:
     GrPixelInfo(const SkImageInfo& info)
             : fColorInfo(SkColorTypeToGrColorType(info.colorType()), info.alphaType(),
                          info.refColorSpace())
-            , fWidth(info.width())
-            , fHeight(info.height()) {}
+            , fSize(info.dimensions()) {}
+
+    GrPixelInfo(SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs, int w, int h)
+        : GrPixelInfo(SkColorTypeToGrColorType(ct), at, std::move(cs), w, h) {}
 
     GrPixelInfo(GrColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs, int w, int h)
-            : fColorInfo(ct, at, std::move(cs)), fWidth(w), fHeight(h) {}
+            : fColorInfo(ct, at, std::move(cs)), fSize{w, h} {}
 
-    GrPixelInfo(GrColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs, const SkISize& size)
-            : fColorInfo(ct, at, std::move(cs)), fWidth(size.fWidth), fHeight(size.fHeight) {}
+    GrPixelInfo(GrColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs, SkISize size)
+            : fColorInfo(ct, at, std::move(cs)), fSize(size) {}
 
     GrPixelInfo(const GrPixelInfo&) = default;
     GrPixelInfo(GrPixelInfo&&) = default;
@@ -63,6 +65,8 @@ public:
         return {this->colorType(), this->alphaType(), this->refColorSpace(), width, height};
     }
 
+    const GrColorSpaceInfo& colorSpaceInfo() const { return fColorInfo; }
+
     GrColorType colorType() const { return fColorInfo.colorType(); }
 
     SkAlphaType alphaType() const { return fColorInfo.alphaType(); }
@@ -71,9 +75,11 @@ public:
 
     sk_sp<SkColorSpace> refColorSpace() const { return fColorInfo.refColorSpace(); }
 
-    int width() const { return fWidth; }
+    SkISize size() const { return fSize; }
 
-    int height() const { return fHeight; }
+    int width() const { return fSize.width(); }
+
+    int height() const { return fSize.height(); }
 
     size_t bpp() const { return GrColorTypeBytesPerPixel(this->colorType()); }
 
@@ -89,7 +95,7 @@ public:
     template <typename T>
     bool clip(int surfaceWidth, int surfaceHeight, SkIPoint* surfacePt, T** data, size_t rowBytes) {
         auto bounds = SkIRect::MakeWH(surfaceWidth, surfaceHeight);
-        auto rect = SkIRect::MakeXYWH(surfacePt->fX, surfacePt->fY, fWidth, fHeight);
+        auto rect = SkIRect::MakeXYWH(surfacePt->fX, surfacePt->fY, this->width(), this->height());
         if (!rect.intersect(bounds)) {
             return false;
         }
@@ -97,17 +103,15 @@ public:
                                        (rect.fLeft - surfacePt->fX) * this->bpp());
         surfacePt->fX = rect.fLeft;
         surfacePt->fY = rect.fTop;
-        fWidth = rect.width();
-        fHeight = rect.height();
+        fSize = rect.size();
         return true;
     }
 
-    bool isValid() const { return fColorInfo.isValid() && fWidth > 0 && fHeight > 0; }
+    bool isValid() const { return fColorInfo.isValid() && this->width() > 0 && this->height() > 0; }
 
 private:
     GrColorSpaceInfo fColorInfo = {};
-    int fWidth = 0;
-    int fHeight = 0;
+    SkISize fSize;
 };
 
 // Swizzle param is applied after loading and before converting from srcInfo to dstInfo.

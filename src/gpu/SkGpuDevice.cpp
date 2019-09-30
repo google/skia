@@ -1198,14 +1198,14 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
 
     const SkIRect rect = SkIRect::MakeWH(proxy->width(), proxy->height());
 
+    GrColorSpaceInfo info(bitmap.colorType(), bitmap.alphaType(), bitmap.refColorSpace());
     // GrMakeCachedBitmapProxy creates a tight copy of 'bitmap' so we don't have to subset
     // the special image
     return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
                                                rect,
                                                bitmap.getGenerationID(),
                                                std::move(proxy),
-                                               SkColorTypeToGrColorType(bitmap.colorType()),
-                                               bitmap.refColorSpace(),
+                                               info,
                                                &this->surfaceProps());
 }
 
@@ -1214,12 +1214,12 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
     if (image->isTextureBacked()) {
         sk_sp<GrTextureProxy> proxy = as_IB(image)->asTextureProxyRef(this->context());
 
+        GrColorSpaceInfo info(image->colorType(), image->alphaType(), image->refColorSpace());
         return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
                                                    SkIRect::MakeWH(image->width(), image->height()),
                                                    image->uniqueID(),
                                                    std::move(proxy),
-                                                   SkColorTypeToGrColorType(image->colorType()),
-                                                   image->refColorSpace(),
+                                                   info,
                                                    &this->surfaceProps());
     } else if (image->peekPixels(&pm)) {
         SkBitmap bm;
@@ -1264,14 +1264,13 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial(const SkIRect& subset, bool force
         finalSubset = SkIRect::MakeSize(proxy->isize());
     }
 
-    GrColorType ct = SkColorTypeToGrColorType(this->imageInfo().colorType());
-
+    GrColorSpaceInfo info(this->imageInfo().colorType(), this->imageInfo().alphaType(),
+                          this->imageInfo().refColorSpace());
     return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
                                                finalSubset,
                                                kNeedNewImageUniqueID_SpecialImage,
                                                std::move(proxy),
-                                               ct,
-                                               this->imageInfo().refColorSpace(),
+                                               info,
                                                &this->surfaceProps());
 }
 

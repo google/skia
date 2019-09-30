@@ -157,8 +157,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     // TODO: If I make this TopLeft origin to match resolve_origin calls for kDefault, this test
     // fails on the Nexus5. Why?
     auto surfaceContext = context0->priv().makeBackendTextureContext(
-            backendTex, kBottomLeft_GrSurfaceOrigin, GrColorType::kRGBA_8888, kPremul_SkAlphaType,
-            nullptr);
+            backendTex, kBottomLeft_GrSurfaceOrigin,
+            {GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr});
 
     if (!surfaceContext) {
         ERRORF(reporter, "Error wrapping external texture in GrSurfaceContext.");

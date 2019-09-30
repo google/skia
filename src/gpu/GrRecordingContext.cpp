@@ -145,23 +145,20 @@ void GrRecordingContext::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlu
 
 std::unique_ptr<GrSurfaceContext> GrRecordingContext::makeWrappedSurfaceContext(
         sk_sp<GrSurfaceProxy> proxy,
-        GrColorType colorType,
-        SkAlphaType alphaType,
-        sk_sp<SkColorSpace> colorSpace,
+        const GrColorSpaceInfo& colorSpaceInfo,
         const SkSurfaceProps* props) {
     ASSERT_SINGLE_OWNER_PRIV
 
     SkASSERT(proxy);
 
     if (proxy->asRenderTargetProxy()) {
-        SkASSERT(kPremul_SkAlphaType == alphaType || kOpaque_SkAlphaType == alphaType);
-        return this->drawingManager()->makeRenderTargetContext(std::move(proxy), colorType,
-                                                               std::move(colorSpace), props);
+        SkASSERT(kPremul_SkAlphaType == colorSpaceInfo.alphaType() ||
+                 kOpaque_SkAlphaType == colorSpaceInfo.alphaType());
+        return this->drawingManager()->makeRenderTargetContext(std::move(proxy), colorSpaceInfo.colorType(), colorSpaceInfo.refColorSpace(), props);
     } else {
         SkASSERT(proxy->asTextureProxy());
         SkASSERT(!props);
-        return this->drawingManager()->makeTextureContext(std::move(proxy), colorType, alphaType,
-                                                          std::move(colorSpace));
+        return this->drawingManager()->makeTextureContext(std::move(proxy), colorSpaceInfo);
     }
 }
 
@@ -198,8 +195,8 @@ std::unique_ptr<GrTextureContext> GrRecordingContext::makeDeferredTextureContext
 
     auto drawingManager = this->drawingManager();
 
-    return drawingManager->makeTextureContext(std::move(texture), colorType, alphaType,
-                                              std::move(colorSpace));
+    return drawingManager->makeTextureContext(std::move(texture),
+            {colorType, alphaType, std::move(colorSpace)});
 }
 
 std::unique_ptr<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext(
@@ -316,12 +313,9 @@ void GrRecordingContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* o
 
 std::unique_ptr<GrSurfaceContext> GrRecordingContextPriv::makeWrappedSurfaceContext(
         sk_sp<GrSurfaceProxy> proxy,
-        GrColorType colorType,
-        SkAlphaType alphaType,
-        sk_sp<SkColorSpace> colorSpace,
+        const GrColorSpaceInfo& colorSpaceInfo,
         const SkSurfaceProps* props) {
-    return fContext->makeWrappedSurfaceContext(std::move(proxy), colorType, alphaType,
-                                               std::move(colorSpace), props);
+    return fContext->makeWrappedSurfaceContext(std::move(proxy), colorSpaceInfo, props);
 }
 
 std::unique_ptr<GrTextureContext> GrRecordingContextPriv::makeDeferredTextureContext(

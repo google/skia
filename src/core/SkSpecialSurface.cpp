@@ -147,13 +147,13 @@ public:
         if (!fProxy) {
             return nullptr;
         }
-        GrColorType ct = SkColorTypeToGrColorType(fCanvas->imageInfo().colorType());
-
+        const auto& ii = fCanvas->imageInfo();
+        GrColorSpaceInfo info(ii.colorType(), ii.alphaType(), ii.refColorSpace());
         return SkSpecialImage::MakeDeferredFromGpu(fCanvas->getGrContext(),
                                                    this->subset(),
                                                    kNeedNewImageUniqueID_SpecialImage,
-                                                   std::move(fProxy), ct,
-                                                   fCanvas->imageInfo().refColorSpace(),
+                                                   std::move(fProxy),
+                                                   info,
                                                    &this->props());
     }
 

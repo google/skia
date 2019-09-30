@@ -108,17 +108,17 @@ static void run_test(skiatest::Reporter* reporter, GrContext* context, int array
         controlPixelData[i + 1] = 0xA62F;
     }
 
-    const SkImageInfo dstInfo =
-            SkImageInfo::Make(DEV_W, DEV_H, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    const SkImageInfo srcInfo =
+            SkImageInfo::Make(DEV_W, DEV_H, colorType, kPremul_SkAlphaType);
+    const SkImageInfo dstInfo = srcInfo.makeColorType(kRGBA_8888_SkColorType);
 
     for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
-        auto proxy = sk_gpu_test::MakeTextureProxyFromData(context, GrRenderable::kNo, DEV_W, DEV_H,
-                                                           colorType, kPremul_SkAlphaType, origin,
-                                                           controlPixelData.begin(), 0);
+        auto proxy = sk_gpu_test::MakeTextureProxyFromData(context, GrRenderable::kNo,
+                origin, srcInfo, controlPixelData.begin(), 0);
         SkASSERT(proxy);
 
         auto sContext = context->priv().makeWrappedSurfaceContext(
-                std::move(proxy), SkColorTypeToGrColorType(colorType), kPremul_SkAlphaType);
+                std::move(proxy), colorType, kPremul_SkAlphaType, nullptr);
 
         if (!sContext->readPixels(dstInfo, readBuffer.begin(), 0, {0, 0})) {
             // We only require this to succeed if the format is renderable.

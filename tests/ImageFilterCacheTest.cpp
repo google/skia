@@ -256,11 +256,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo
 
     const SkIRect& full = SkIRect::MakeWH(kFullSize, kFullSize);
 
+    GrColorSpaceInfo info(GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr);
     sk_sp<SkSpecialImage> fullImg(SkSpecialImage::MakeDeferredFromGpu(
                                                               context, full,
                                                               kNeedNewImageUniqueID_SpecialImage,
                                                               srcProxy,
-                                                              GrColorType::kRGBA_8888, nullptr));
+                                                              info));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
@@ -268,7 +269,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo
                                                                 context, subset,
                                                                 kNeedNewImageUniqueID_SpecialImage,
                                                                 srcProxy,
-                                                                GrColorType::kRGBA_8888, nullptr));
+                                                                info));
 
     test_find_existing(reporter, fullImg, subsetImg);
     test_dont_find_if_diff_key(reporter, fullImg, subsetImg);

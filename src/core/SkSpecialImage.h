@@ -17,6 +17,7 @@
 #include "include/private/GrTypesPriv.h"
 #endif
 
+class GrColorSpaceInfo;
 class GrRecordingContext;
 class GrTextureProxy;
 class SkBitmap;
@@ -87,10 +88,8 @@ public:
                                                      const SkIRect& subset,
                                                      uint32_t uniqueID,
                                                      sk_sp<GrTextureProxy>,
-                                                     GrColorType,
-                                                     sk_sp<SkColorSpace>,
-                                                     const SkSurfaceProps* = nullptr,
-                                                     SkAlphaType at = kPremul_SkAlphaType);
+                                                     const GrColorSpaceInfo&,
+                                                     const SkSurfaceProps* = nullptr);
 #endif
 
     /**

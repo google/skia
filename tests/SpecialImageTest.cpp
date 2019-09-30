@@ -229,13 +229,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
             return;
         }
 
+        GrColorSpaceInfo info(GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr);
         sk_sp<SkSpecialImage> gpuImage(SkSpecialImage::MakeDeferredFromGpu(
                                                             context,
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
                                                             kNeedNewImageUniqueID_SpecialImage,
                                                             std::move(proxy),
-                                                            GrColorType::kRGBA_8888,
-                                                            nullptr));
+                                                            info));
 
         {
             sk_sp<SkSpecialImage> fromGPU(gpuImage->makeTextureImage(context));
@@ -263,13 +263,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
         return;
     }
 
+    GrColorSpaceInfo info(GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr);
     sk_sp<SkSpecialImage> fullSImg(SkSpecialImage::MakeDeferredFromGpu(
                                                             context,
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
                                                             kNeedNewImageUniqueID_SpecialImage,
                                                             proxy,
-                                                            GrColorType::kRGBA_8888,
-                                                            nullptr));
+                                                            info));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
@@ -278,8 +278,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
                                                                context, subset,
                                                                kNeedNewImageUniqueID_SpecialImage,
                                                                std::move(proxy),
-                                                               GrColorType::kRGBA_8888,
-                                                               nullptr));
+                                                               info));
         test_image(subSImg1, reporter, context, true);
     }
 

@@ -687,8 +687,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
             SkIRect::MakeWH(dstBounds.width(), dstBounds.height()),
             kNeedNewImageUniqueID_SpecialImage,
             renderTargetContext->asTextureProxyRef(),
-            renderTargetContext->colorSpaceInfo().colorType(),
-            sk_ref_sp(input->getColorSpace()),
+            renderTargetContext->colorSpaceInfo(),
             ctx.surfaceProps());
 }
 #endif

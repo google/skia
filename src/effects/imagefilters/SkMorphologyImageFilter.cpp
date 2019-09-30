@@ -610,11 +610,11 @@ static sk_sp<SkSpecialImage> apply_morphology(
         srcTexture = dstRTContext->asTextureProxyRef();
     }
 
+    GrColorSpaceInfo info(colorType, kPremul_SkAlphaType, std::move(colorSpace));
     return SkSpecialImage::MakeDeferredFromGpu(context,
                                                SkIRect::MakeWH(rect.width(), rect.height()),
                                                kNeedNewImageUniqueID_SpecialImage,
-                                               std::move(srcTexture), colorType,
-                                               std::move(colorSpace), &input->props());
+                                               std::move(srcTexture), info, &input->props());
 }
 #endif
 

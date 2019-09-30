@@ -473,12 +473,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
     for (auto origin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
         for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
             sk_sp<GrTextureProxy> proxy = sk_gpu_test::MakeTextureProxyFromData(
-                    context, renderable, DEV_W, DEV_H, bmp.colorType(), bmp.alphaType(), origin,
-                    bmp.getPixels(), bmp.rowBytes());
+                    context, renderable, origin, bmp.info(), bmp.getPixels(), bmp.rowBytes());
             auto sContext = context->priv().makeWrappedSurfaceContext(
-                    std::move(proxy), SkColorTypeToGrColorType(bmp.colorType()),
-                    kPremul_SkAlphaType);
-            auto info = SkImageInfo::Make(DEV_W, DEV_H, kN32_SkColorType, kPremul_SkAlphaType);
+                    std::move(proxy), bmp.colorType(), kPremul_SkAlphaType, nullptr);
+            auto info = bmp.info().makeColorType(kN32_SkColorType);
             test_readpixels_texture(reporter, std::move(sContext), info);
         }
     }
@@ -710,6 +708,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
                         context.fPixmap = &result;
                         info = SkImageInfo::Make(rect.width(), rect.height(), readCT,
                                                  kPremul_SkAlphaType, readCS);
+
                         result.alloc(info);
                         memset(result.writable_addr(), 0xAB, result.computeByteSize());
                         // Rescale quality and linearity don't matter since we're doing a non-

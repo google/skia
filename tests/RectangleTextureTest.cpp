@@ -105,9 +105,9 @@ static void test_copy_to_surface(skiatest::Reporter* reporter,
 
     for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
         auto origin = dstContext->asSurfaceProxy()->origin();
+        GrPixelInfo pixelInfo(kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr, dstContext->width(), dstContext->height());
         auto src = sk_gpu_test::MakeTextureProxyFromData(
-                context, renderable, dstContext->width(), dstContext->height(),
-                kRGBA_8888_SkColorType, kPremul_SkAlphaType, origin, pixels.get(), 0);
+                context, renderable, origin, pixelInfo, pixels.get(), 0);
         // If this assert ever fails we can add a fallback to do copy as draw, but until then we can
         // be more restrictive.
         SkAssertResult(dstContext->testCopy(src.get()));
@@ -185,7 +185,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
                                refPixels, "RectangleTexture-copy-from");
 
         auto rectContext = context->priv().makeWrappedSurfaceContext(
-                std::move(rectProxy), GrColorType::kRGBA_8888, kPremul_SkAlphaType);
+                std::move(rectProxy), {GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr});
         SkASSERT(rectContext);
 
         test_read_pixels(reporter, rectContext.get(), refPixels, "RectangleTexture-read");

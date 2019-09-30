@@ -17,7 +17,12 @@
 class GrColorSpaceInfo {
 public:
     GrColorSpaceInfo() = default;
+    GrColorSpaceInfo(const GrColorSpaceInfo&) = default;
+    GrColorSpaceInfo(GrColorSpaceInfo&&) = default;
     GrColorSpaceInfo(GrColorType, SkAlphaType, sk_sp<SkColorSpace>);
+    GrColorSpaceInfo(SkColorType, SkAlphaType, sk_sp<SkColorSpace>);
+
+    GrColorSpaceInfo& operator=(const GrColorSpaceInfo&) = default;
 
     bool isLinearlyBlended() const { return fColorSpace && fColorSpace->gammaIsLinear(); }
 

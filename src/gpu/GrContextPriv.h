@@ -74,10 +74,17 @@ public:
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
     std::unique_ptr<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
-                                                                GrColorType,
-                                                                SkAlphaType,
-                                                                sk_sp<SkColorSpace> = nullptr,
+                                                                const GrColorSpaceInfo&,
                                                                 const SkSurfaceProps* = nullptr);
+    std::unique_ptr<GrSurfaceContext> makeWrappedSurfaceContext(
+            sk_sp<GrSurfaceProxy> proxy,
+            SkColorType ct,
+            SkAlphaType at,
+            sk_sp<SkColorSpace> cs,
+            const SkSurfaceProps* props = nullptr) {
+        return this->makeWrappedSurfaceContext(
+                std::move(proxy), {SkColorTypeToGrColorType(ct), at, std::move(cs)}, props);
+    }
 
     /** Create a new texture context backed by a deferred-style GrTextureProxy. */
     std::unique_ptr<GrTextureContext> makeDeferredTextureContext(
@@ -138,9 +145,7 @@ public:
 
     std::unique_ptr<GrTextureContext> makeBackendTextureContext(const GrBackendTexture&,
                                                                 GrSurfaceOrigin,
-                                                                GrColorType,
-                                                                SkAlphaType,
-                                                                sk_sp<SkColorSpace>);
+                                                                const GrColorSpaceInfo&);
 
     // These match the definitions in SkSurface & GrSurface.h, for whence they came
     typedef void* ReleaseContext;

@@ -26,6 +26,7 @@
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkTArray.h"
+#include "src/gpu/GrDataUtils.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Gpu.h"
 #include "tools/ToolUtils.h"
@@ -130,9 +131,8 @@ static sk_sp<SkImage> make_reference_image(GrContext* context,
 
     auto origin = bottomLeftOrigin ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
 
-    auto proxy = sk_gpu_test::MakeTextureProxyFromData(context, GrRenderable::kNo, kImageSize,
-                                                       kImageSize, bm.colorType(), bm.alphaType(),
-                                                       origin, bm.getPixels(), bm.rowBytes());
+    auto proxy = sk_gpu_test::MakeTextureProxyFromData(context, GrRenderable::kNo, origin,
+                                                       bm.info(), bm.getPixels(), bm.rowBytes());
     if (!proxy) {
         return nullptr;
     }

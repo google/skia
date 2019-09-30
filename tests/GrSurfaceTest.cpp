@@ -309,7 +309,8 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                                 kTopLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes, GrProtected::kNo);
                         if (proxy) {
                             auto texCtx = context->priv().makeWrappedSurfaceContext(
-                                    std::move(proxy), combo.fColorType, kPremul_SkAlphaType);
+                                    std::move(proxy),
+                                    {combo.fColorType, kPremul_SkAlphaType, nullptr});
 
                             readback.erase(kClearColor);
                             if (texCtx->readPixels(readback.info(), readback.writable_addr(),
@@ -404,8 +405,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
                                                        kTopLeft_GrSurfaceOrigin,
                                                        kBorrow_GrWrapOwnership,
                                                        GrWrapCacheable::kNo, ioType);
-        auto surfContext = context->priv().makeWrappedSurfaceContext(proxy, GrColorType::kRGBA_8888,
-                                                                     kPremul_SkAlphaType);
+        auto surfContext = context->priv().makeWrappedSurfaceContext(
+                proxy, {GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr});
 
         // Read pixels should work with a read-only texture.
         {

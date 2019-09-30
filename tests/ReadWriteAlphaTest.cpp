@@ -76,7 +76,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
             return;
         }
         auto sContext = context->priv().makeWrappedSurfaceContext(
-                std::move(proxy), GrColorType::kAlpha_8, kPremul_SkAlphaType);
+                std::move(proxy), {GrColorType::kAlpha_8, kPremul_SkAlphaType, nullptr});
 
         sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii));
 
@@ -176,6 +176,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
     // Attempt to read back just alpha from a RGBA/BGRA texture. Once with a texture-only src and
     // once with a render target.
     for (auto info : kInfos) {
+        GrPixelInfo pixelInfo(info.fColorType, info.fAlphaType, nullptr, X_SIZE, Y_SIZE);
         for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
             uint32_t rgbaData[X_SIZE * Y_SIZE];
             // Make the alpha channel of the rgba texture come from alphaData.
@@ -188,14 +189,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
             auto origin = GrRenderable::kYes == renderable ? kBottomLeft_GrSurfaceOrigin
                                                            : kTopLeft_GrSurfaceOrigin;
             auto proxy = sk_gpu_test::MakeTextureProxyFromData(
-                    context, renderable, X_SIZE, Y_SIZE, info.fColorType, info.fAlphaType, origin,
-                    rgbaData, 0);
+                    context, renderable, origin, pixelInfo, rgbaData, 0);
             if (!proxy) {
                 continue;
             }
 
             auto sContext = context->priv().makeWrappedSurfaceContext(
-                    std::move(proxy), info.fColorType, kPremul_SkAlphaType);
+                    std::move(proxy), {info.fColorType, kPremul_SkAlphaType, nullptr});
 
             for (auto rowBytes : kRowBytes) {
                 size_t nonZeroRowBytes = rowBytes ? rowBytes : X_SIZE;

@@ -58,9 +58,7 @@ public:
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
     std::unique_ptr<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
-                                                                GrColorType,
-                                                                SkAlphaType,
-                                                                sk_sp<SkColorSpace> = nullptr,
+                                                                const GrColorSpaceInfo&,
                                                                 const SkSurfaceProps* = nullptr);
 
     /** Create a new texture context backed by a deferred-style GrTextureProxy. */

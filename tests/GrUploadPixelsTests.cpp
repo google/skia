@@ -10,6 +10,7 @@
 #include "include/core/SkTypes.h"
 
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/SkGr.h"
 #include "tests/Test.h"
@@ -28,13 +29,13 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColo
 
     fill_pixel_data(kWidth, kHeight, srcBuffer.get());
 
-    auto proxy = sk_gpu_test::MakeTextureProxyFromData(context, renderable, kWidth, kHeight, ct,
-                                                       kPremul_SkAlphaType,
-                                                       kTopLeft_GrSurfaceOrigin, srcBuffer, 0);
+    GrPixelInfo pixelInfo(ct, kPremul_SkAlphaType, nullptr, kWidth, kHeight);
+    auto proxy = sk_gpu_test::MakeTextureProxyFromData(
+            context, renderable, kTopLeft_GrSurfaceOrigin, pixelInfo, srcBuffer.get(), 0);
     REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
         auto sContext = context->priv().makeWrappedSurfaceContext(
-                proxy, SkColorTypeToGrColorType(ct), kPremul_SkAlphaType);
+                proxy, ct, kPremul_SkAlphaType, nullptr);
 
         SkImageInfo dstInfo = SkImageInfo::Make(kWidth, kHeight, ct, kPremul_SkAlphaType);
 
@@ -60,13 +61,12 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColo
                                                                          2));
     }
 
-    proxy = sk_gpu_test::MakeTextureProxyFromData(context, renderable, kWidth, kHeight, ct,
-                                                  kPremul_SkAlphaType, kBottomLeft_GrSurfaceOrigin,
-                                                  srcBuffer, 0);
+    proxy = sk_gpu_test::MakeTextureProxyFromData(context, renderable, kBottomLeft_GrSurfaceOrigin,
+                                                  pixelInfo, srcBuffer.get(), 0);
     REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
         auto sContext = context->priv().makeWrappedSurfaceContext(
-                proxy, SkColorTypeToGrColorType(ct), kPremul_SkAlphaType);
+                proxy, ct, kPremul_SkAlphaType, nullptr);
 
         SkImageInfo dstInfo = SkImageInfo::Make(kWidth, kHeight, ct, kPremul_SkAlphaType);
 

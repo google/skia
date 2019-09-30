@@ -16,6 +16,7 @@
 #include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/GrPathRendererChain.h"
 #include "src/gpu/GrResourceCache.h"
+#include "src/gpu/GrTextureContext.h"
 #include "src/gpu/text/GrTextContext.h"
 
 class GrCoverageCountingPathRenderer;
@@ -42,9 +43,12 @@ public:
                                                                    const SkSurfaceProps*,
                                                                    bool managedOpsTask = true);
     std::unique_ptr<GrTextureContext> makeTextureContext(sk_sp<GrSurfaceProxy>,
-                                                         GrColorType,
-                                                         SkAlphaType,
-                                                         sk_sp<SkColorSpace>);
+                                                         const GrColorSpaceInfo&);
+    std::unique_ptr<GrTextureContext> makeTextureContext(sk_sp<GrSurfaceProxy> proxy, SkColorType ct,
+                                                         SkAlphaType at, sk_sp<SkColorSpace> cs) {
+        return this->makeTextureContext(
+                std::move(proxy), {SkColorTypeToGrColorType(ct), at, std::move(cs)});
+    }
 
     // A managed opsTask is controlled by the drawing manager (i.e., sorted & flushed with the
     // others). An unmanaged one is created and used by the onFlushCallback.
