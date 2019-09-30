@@ -307,14 +307,14 @@ GrStencilAttachment* GrDawnGpu::createStencilAttachmentForRenderTarget(const GrR
     return stencil;
 }
 
-GrBackendTexture GrDawnGpu::createBackendTexture(int width, int height,
-                                                 const GrBackendFormat& backendFormat,
-                                                 GrMipMapped mipMapped,
-                                                 GrRenderable renderable,
-                                                 const void* pixels,
-                                                 size_t rowBytes,
-                                                 const SkColor4f* color,
-                                                 GrProtected isProtected) {
+GrBackendTexture GrDawnGpu::onCreateBackendTexture(int width, int height,
+                                                   const GrBackendFormat& backendFormat,
+                                                   GrMipMapped mipMapped,
+                                                   GrRenderable renderable,
+                                                   const SkPixmap srcData[],
+                                                   int numMipLevels,
+                                                   const SkColor4f* color,
+                                                   GrProtected isProtected) {
     dawn::TextureFormat format;
     if (!backendFormat.asDawnFormat(&format)) {
         return GrBackendTexture();
@@ -322,9 +322,7 @@ GrBackendTexture GrDawnGpu::createBackendTexture(int width, int height,
 
     GrPixelConfig config = GrDawnFormatToPixelConfig(format);
 
-    if (width > this->caps()->maxTextureSize() || height > this->caps()->maxTextureSize()) {
-        return GrBackendTexture();
-    }
+    SkASSERT(width <= this->caps()->maxTextureSize() && height <= this->caps()->maxTextureSize());
 
     // FIXME: Dawn doesn't support mipmapped render targets (yet).
     if (GrMipMapped::kYes == mipMapped && GrRenderable::kYes == renderable) {
@@ -347,7 +345,9 @@ GrBackendTexture GrDawnGpu::createBackendTexture(int width, int height,
     desc.format = format;
 
     // Figure out the number of mip levels.
-    if (GrMipMapped::kYes == mipMapped) {
+    if (srcData) {
+        desc.mipLevelCount = numMipLevels;
+    } else if (GrMipMapped::kYes == mipMapped) {
         desc.mipLevelCount = SkMipMap::ComputeLevelCount(width, height) + 1;
     }
 
@@ -355,9 +355,11 @@ GrBackendTexture GrDawnGpu::createBackendTexture(int width, int height,
 
     size_t bpp = GrBytesPerPixel(config);
     size_t baseLayerSize = bpp * width * height;
+    const void* pixels;
     SkAutoMalloc defaultStorage(baseLayerSize);
-    if (!pixels) {
-        // Fill in the texture with all zeros so we don't have random garbage
+    if (srcData) {
+        pixels = srcData->addr();
+    } else {
         pixels = defaultStorage.get();
         memset(defaultStorage.get(), 0, baseLayerSize);
     }
