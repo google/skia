@@ -84,61 +84,107 @@ namespace {
     };
 
     struct Builder : public skvm::Builder {
-        //using namespace skvm;
 
-        struct Color { skvm::I32 r,g,b,a; };
+        // We'll overload Builder's mul() method with anther type Flex in just a second,
+        // so we need to explicitly declare we're using it to prevent shadowing.
+        using skvm::Builder::mul;
 
-
-        skvm::I32 inv(skvm::I32 x) {
-            return sub(splat(255), x);
+        // Most values we hold in buffers are unorms of some sort,
+        // which are ideal in terms of bit efficiency, but annoying
+        // for math because of their 2^k-1 denominator.
+        //
+        // It would be easier to do math if the denominator were an
+        // exact power of two, fixed point.  But that wastes almost
+        // a whole bit, and most graphics code expects unorms anyway.
+        //
+        // So we introduce Flex{n,u,p}, representing the value
+        //
+        //        n
+        //   -----------
+        //   (2^u-1) 2^p
+        //
+        // (Think "u" for unorm, "p" for power, "n" numerator.)
+        struct Flex { skvm::I32 n; int u,p; };
+        //
+        // Flex can represent a unorm (p=0) or fixed-point (u=1) exactly,
+        // and allows for limited combination of the two.
+        static Flex Unorm(int u, skvm::I32 n) { return {n,u,0}; }
+        static Flex Fixed(int p, skvm::I32 n) { return {n,1,p}; }
+        //
+        // The one thing Flex really can't represent is the product of two unorms.
+        // There's never a good u term...  (2^a-1)*(2^b-1) = (2^c-1) can't be solved for c.
+        // But we can approximate any Flex as fixed-point by rounding the upper half of values up.
+        // In unorm8, 0->0, 1->1, ..., 127->127, 128->129, ..., 254->255, 255->256.
+        Flex to_fixed(Flex f) {
+            if (f.u != 1) {
+                // E.g. unorm8 x += x>>7.
+                f.n = add(f.n, shr(f.n, f.u-1));
+                f.p += f.u;
+                f.u = 1;
+                // It would be safe but pointless to run that code when f.u == 1 already:
+                //   f.n = add(f.n, shr(f.n, 0));  // f += f>>0 ~~> f += f ~~> f *= 2
+                //   f.p += 1                      // f /= 2
+                //   f.u = 1                       // no-op
+            }
+            SkASSERT(f.u == 1);
+            return f;
+        }
+        //
+        // So to multiply two Flex, we make sure at least one of them is fixed-point,
+        // and then it's easy: multiply the numerators, add the p-terms in the denominator.
+        Flex mul(Flex x, Flex y) {
+            if (x.u != 1 && y.u != 1) {
+                // We need to convert x or y to fixed-point before multiplying.
+                // This introduces up to 1 bit of error, so to minimize that in a relative sense,
+                // we'll do it to the value with the larger unorm bias.
+                if (x.u > y.u) { std::swap(x,y); }
+                y = to_fixed(y);
+            }
+            SkASSERT(x.u == 1 || y.u == 1);
+            return { mul(x.n, y.n), x.u*y.u, x.p+y.p};
+        }
+        //
+        // On our way out, we'll need to convert Flex values back to some given unorm format.
+        skvm::I32 to_unorm(int u, Flex f) {
+            // TODO: this is very approximate.
+            int diff = f.u+f.p - u;
+            if (diff > 0) { return shr(f.n, +diff); }
+            if (diff < 0) { return shl(f.n, -diff); }  // TODO: bit-replicate up?
+            return f.n;
         }
 
-        // TODO: provide this in skvm::Builder, with a custom NEON impl.
-        skvm::I32 div255(skvm::I32 v) {
-            // This should be a bit-perfect version of (v+127)/255,
-            // implemented as (v + ((v+128)>>8) + 128)>>8.
-            skvm::I32 v128 = add(v, splat(128));
-            return shr(add(v128, shr(v128, 8)), 8);
-        }
+        struct Color { Flex r,g,b,a; };
 
-        skvm::I32 mix(skvm::I32 x, skvm::I32 y, skvm::I32 t) {
-            return div255(add(mul(x, inv(t)),
-                              mul(y,     t )));
-        }
-
-        Color unpack_8888(skvm::I32 rgba) {
+        Color unpack_rgba_8888(skvm::I32 rgba) {
             return {
-                extract(rgba,  0, splat(0xff)),
-                extract(rgba,  8, splat(0xff)),
-                extract(rgba, 16, splat(0xff)),
-                extract(rgba, 24, splat(0xff)),
+                Unorm(8, extract(rgba,  0, splat(0xff))),
+                Unorm(8, extract(rgba,  8, splat(0xff))),
+                Unorm(8, extract(rgba, 16, splat(0xff))),
+                Unorm(8, extract(rgba, 24, splat(0xff))),
             };
         }
 
-        skvm::I32 pack_8888(Color c) {
-            return pack(pack(c.r, c.g, 8),
-                        pack(c.b, c.a, 8), 16);
-        }
-
-        Color unpack_565(skvm::I32 bgr) {
-            // N.B. kRGB_565_SkColorType is named confusingly;
-            //      blue is in the low bits and red the high.
-            skvm::I32 r = extract(bgr, 11, splat(0b011'111)),
-                      g = extract(bgr,  5, splat(0b111'111)),
-                      b = extract(bgr,  0, splat(0b011'111));
+        Color unpack_bgr_565(skvm::I32 bgr) {
             return {
-                // Scale 565 up to 888.
-                bit_or(shl(r, 3), shr(r, 2)),
-                bit_or(shl(g, 2), shr(g, 4)),
-                bit_or(shl(b, 3), shr(b, 2)),
-                splat(0xff),
+                Unorm(5, extract(bgr, 11, splat(0x1f))),
+                Unorm(6, extract(bgr,  5, splat(0x3f))),
+                Unorm(5, extract(bgr,  0, splat(0x1f))),
+                Unorm(8, splat(0xff)),  // How we represent alpha=1.0 is a little arbitrary.
             };
         }
 
-        skvm::I32 pack_565(Color c) {
-            skvm::I32 r = div255(mul(c.r, splat(31))),
-                      g = div255(mul(c.g, splat(63))),
-                      b = div255(mul(c.b, splat(31)));
+        skvm::I32 pack_rgba_8888(Color c) {
+            skvm::I32 r = to_unorm(8, c.r),
+                      g = to_unorm(8, c.g),
+                      b = to_unorm(8, c.b),
+                      a = to_unorm(8, c.a);
+            return pack(pack(r, g, 8),
+                        pack(b, a, 8), 16);
+        }
+        skvm::I32 pack_bgr_565(Color c) {
+            skvm::I32 r = to_unorm(5, c.r),
+                      g = to_unorm(6, c.g),
+                      b = to_unorm(5, c.b);
             return pack(pack(b, g,5), r,11);
         }
 
@@ -181,7 +227,7 @@ namespace {
             // When there's no shader and no color filter, the source color is the paint color.
             if (key.shader)      { TODO; }
             if (key.colorFilter) { TODO; }
-            Color src = unpack_8888(uniform32(uniforms, offsetof(Uniforms, paint_color)));
+            Color src = unpack_rgba_8888(uniform32(uniforms, offsetof(Uniforms, paint_color)));
 
             // There are several orderings here of when we load dst and coverage
             // and how coverage is applied, and to complicate things, LCD coverage
@@ -194,19 +240,24 @@ namespace {
                 switch (key.coverage) {
                     case Coverage::Full: return false;
 
-                    case Coverage::UniformA8: cov->r = cov->g = cov->b = cov->a =
-                                              uniform8(uniforms, offsetof(Uniforms, coverage));
-                                              return true;
+                    case Coverage::UniformA8:
+                        cov->r = cov->g = cov->b = cov->a
+                            = Unorm(8, uniform8(uniforms, offsetof(Uniforms, coverage)));
+                        return true;
 
-                    case Coverage::MaskA8: cov->r = cov->g = cov->b = cov->a =
-                                           load8(varying<uint8_t>());
-                                           return true;
+                    case Coverage::MaskA8:
+                        cov->r = cov->g = cov->b = cov->a
+                            = Unorm(8, load8(varying<uint8_t>()));
+                        return true;
 
                     case Coverage::MaskLCD16:
                         SkASSERT(dst_loaded);
-                        *cov = unpack_565(load16(varying<uint16_t>()));
+                        *cov = unpack_bgr_565(load16(varying<uint16_t>()));
+                        /*
+                         * TODO: calculate alpha coverage from r,g,b coverage
                         cov->a = select(lt(src.a, dst.a), min(cov->r, min(cov->g,cov->b))
                                                         , max(cov->r, max(cov->g,cov->b)));
+                        */
                         return true;
 
                     case Coverage::Mask3D: TODO;
@@ -223,10 +274,10 @@ namespace {
                                                    key.coverage == Coverage::MaskLCD16)) {
                 Color cov;
                 if (load_coverage(&cov)) {
-                    src.r = div255(mul(src.r, cov.r));
-                    src.g = div255(mul(src.g, cov.g));
-                    src.b = div255(mul(src.b, cov.b));
-                    src.a = div255(mul(src.a, cov.a));
+                    src.r = mul(src.r, cov.r);
+                    src.g = mul(src.g, cov.g);
+                    src.b = mul(src.b, cov.b);
+                    src.a = mul(src.a, cov.a);
                 }
                 lerp_coverage_post_blend = false;
             }
@@ -235,9 +286,9 @@ namespace {
             SkDEBUGCODE(dst_loaded = true;)
             switch (key.colorType) {
                 default: TODO;
-                case kRGB_565_SkColorType:   dst = unpack_565 (load16(dst_ptr)); break;
-                case kRGBA_8888_SkColorType: dst = unpack_8888(load32(dst_ptr)); break;
-                case kBGRA_8888_SkColorType: dst = unpack_8888(load32(dst_ptr));
+                case kRGB_565_SkColorType:   dst = unpack_bgr_565  (load16(dst_ptr)); break;
+                case kRGBA_8888_SkColorType: dst = unpack_rgba_8888(load32(dst_ptr)); break;
+                case kBGRA_8888_SkColorType: dst = unpack_rgba_8888(load32(dst_ptr));
                                              std::swap(dst.r, dst.b);
                                              break;
             }
@@ -246,7 +297,7 @@ namespace {
             // opaque, ignoring any math that disagrees.  So anything involving force_opaque is
             // optional, and sometimes helps cut a small amount of work in these programs.
             const bool force_opaque = true && key.alphaType == kOpaque_SkAlphaType;
-            if (force_opaque) { dst.a = splat(0xff); }
+            if (force_opaque) { dst.a = Unorm(8, splat(0xff)); }
 
             // We'd need to premul dst after loading and unpremul before storing.
             if (key.alphaType == kUnpremul_SkAlphaType) { TODO; }
@@ -258,10 +309,10 @@ namespace {
                 case SkBlendMode::kSrc: break;
 
                 case SkBlendMode::kSrcOver: {
-                    src.r = add(src.r, div255(mul(dst.r, inv(src.a))));
-                    src.g = add(src.g, div255(mul(dst.g, inv(src.a))));
-                    src.b = add(src.b, div255(mul(dst.b, inv(src.a))));
-                    src.a = add(src.a, div255(mul(dst.a, inv(src.a))));
+                    src.r = add(src.r, mul(dst.r, inv(src.a)));
+                    src.g = add(src.g, mul(dst.g, inv(src.a)));
+                    src.b = add(src.b, mul(dst.b, inv(src.a)));
+                    src.a = add(src.a, mul(dst.a, inv(src.a)));
                 } break;
             }
 
@@ -280,10 +331,10 @@ namespace {
             switch (key.colorType) {
                 default: SkUNREACHABLE;
 
-                case kRGB_565_SkColorType:   store16(dst_ptr, pack_565(src)); break;
+                case kRGB_565_SkColorType:   store16(dst_ptr, pack_bgr_565(src)); break;
 
                 case kBGRA_8888_SkColorType: std::swap(src.r, src.b);  // fallthrough
-                case kRGBA_8888_SkColorType: store32(dst_ptr, pack_8888(src)); break;
+                case kRGBA_8888_SkColorType: store32(dst_ptr, pack_rgba_8888(src)); break;
             }
         #undef TODO
         }
