@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkColorSpacePriv.h"
-#include "src/gpu/GrColorSpaceInfo.h"
+#include "src/gpu/GrColorInfo.h"
 
-GrColorSpaceInfo::GrColorSpaceInfo(GrColorType colorType,
-                                   SkAlphaType alphaType,
-                                   sk_sp<SkColorSpace> colorSpace)
+#include "src/core/SkColorSpacePriv.h"
+
+GrColorInfo::GrColorInfo(
+        GrColorType colorType, SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace)
         : fColorSpace(std::move(colorSpace)), fColorType(colorType), fAlphaType(alphaType) {}
 
-GrColorSpaceXform* GrColorSpaceInfo::colorSpaceXformFromSRGB() const {
+GrColorSpaceXform* GrColorInfo::colorSpaceXformFromSRGB() const {
     // TODO: Make this atomic if we start accessing this on multiple threads.
     if (!fInitializedColorSpaceXformFromSRGB) {
         // sRGB sources are very common (SkColor, etc...), so we cache that transformation

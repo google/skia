@@ -503,20 +503,20 @@ static void extract_planes(const SkBitmap& bm, SkYUVColorSpace yuvColorSpace, Pl
 
     SkASSERT(!(bm.width() % 2));
     SkASSERT(!(bm.height() % 2));
-    planes->fYFull.allocPixels(SkImageInfo::Make(bm.width(), bm.height(), kGray_8_SkColorType,
-                               kUnpremul_SkAlphaType));
-    planes->fUFull.allocPixels(SkImageInfo::Make(bm.width(), bm.height(), kGray_8_SkColorType,
-                               kUnpremul_SkAlphaType));
-    planes->fVFull.allocPixels(SkImageInfo::Make(bm.width(), bm.height(), kGray_8_SkColorType,
-                               kUnpremul_SkAlphaType));
+    planes->fYFull.allocPixels(
+            SkImageInfo::Make(bm.dimensions(), kGray_8_SkColorType, kUnpremul_SkAlphaType));
+    planes->fUFull.allocPixels(
+            SkImageInfo::Make(bm.dimensions(), kGray_8_SkColorType, kUnpremul_SkAlphaType));
+    planes->fVFull.allocPixels(
+            SkImageInfo::Make(bm.dimensions(), kGray_8_SkColorType, kUnpremul_SkAlphaType));
     planes->fAFull.allocPixels(SkImageInfo::MakeA8(bm.width(), bm.height()));
     planes->fUQuarter.allocPixels(SkImageInfo::Make(bm.width()/2, bm.height()/2,
                                   kGray_8_SkColorType, kUnpremul_SkAlphaType));
     planes->fVQuarter.allocPixels(SkImageInfo::Make(bm.width()/2, bm.height()/2,
                                   kGray_8_SkColorType, kUnpremul_SkAlphaType));
 
-    planes->fFull.allocPixels(SkImageInfo::Make(bm.width(), bm.height(),
-                              kRGBA_F32_SkColorType, kUnpremul_SkAlphaType));
+    planes->fFull.allocPixels(
+            SkImageInfo::Make(bm.dimensions(), kRGBA_F32_SkColorType, kUnpremul_SkAlphaType));
     planes->fQuarter.allocPixels(SkImageInfo::Make(bm.width()/2, bm.height()/2,
                                  kRGBA_F32_SkColorType, kUnpremul_SkAlphaType));
 
@@ -625,8 +625,7 @@ static SkBitmap make_16(const SkBitmap& src, SkColorType dstCT,
 
     SkBitmap result;
 
-    result.allocPixels(SkImageInfo::Make(src.width(), src.height(), dstCT,
-                                         kUnpremul_SkAlphaType));
+    result.allocPixels(SkImageInfo::Make(src.dimensions(), dstCT, kUnpremul_SkAlphaType));
 
     for (int y = 0; y < src.height(); ++y) {
         for (int x = 0; x < src.width(); ++x) {
