@@ -243,26 +243,26 @@ protected:
         kYes = true
     };
     /**
-     * Indicates that the geometry represented by the op has zero area (e.g. it is hairline or
-     * points).
+     * Indicates that the geometry being drawn in a hairline stroke. A point that is drawn in device
+     * space is also considered a hairline.
      */
-    enum class IsZeroArea : bool {
+    enum class IsHairline : bool {
         kNo = false,
         kYes = true
     };
 
-    void setBounds(const SkRect& newBounds, HasAABloat aabloat, IsZeroArea zeroArea) {
+    void setBounds(const SkRect& newBounds, HasAABloat aabloat, IsHairline zeroArea) {
         fBounds = newBounds;
         this->setBoundsFlags(aabloat, zeroArea);
     }
     void setTransformedBounds(const SkRect& srcBounds, const SkMatrix& m,
-                              HasAABloat aabloat, IsZeroArea zeroArea) {
+                              HasAABloat aabloat, IsHairline zeroArea) {
         m.mapRect(&fBounds, srcBounds);
         this->setBoundsFlags(aabloat, zeroArea);
     }
     void makeFullScreen(GrSurfaceProxy* proxy) {
         this->setBounds(SkRect::MakeIWH(proxy->width(), proxy->height()),
-                        HasAABloat::kNo, IsZeroArea::kNo);
+                        HasAABloat::kNo, IsHairline::kNo);
     }
 
     static uint32_t GenOpClassID() { return GenID(&gCurrOpClassID); }
@@ -296,10 +296,10 @@ private:
         return id;
     }
 
-    void setBoundsFlags(HasAABloat aabloat, IsZeroArea zeroArea) {
+    void setBoundsFlags(HasAABloat aabloat, IsHairline zeroArea) {
         fBoundsFlags = 0;
         fBoundsFlags |= (HasAABloat::kYes == aabloat) ? kAABloat_BoundsFlag : 0;
-        fBoundsFlags |= (IsZeroArea ::kYes == zeroArea) ? kZeroArea_BoundsFlag : 0;
+        fBoundsFlags |= (IsHairline ::kYes == zeroArea) ? kZeroArea_BoundsFlag : 0;
     }
 
     enum {

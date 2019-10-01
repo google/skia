@@ -137,7 +137,7 @@ public:
 private:
     ClockwiseTestOp(bool readSkFragCoord, float y)
             : GrDrawOp(ClassID()), fReadSkFragCoord(readSkFragCoord), fY(y) {
-        this->setBounds(SkRect::MakeXYWH(0, fY, 100, 100), HasAABloat::kNo, IsZeroArea::kNo);
+        this->setBounds(SkRect::MakeXYWH(0, fY, 100, 100), HasAABloat::kNo, IsHairline::kNo);
     }
 
     const char* name() const override { return "ClockwiseTestOp"; }

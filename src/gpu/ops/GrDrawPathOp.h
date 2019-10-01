@@ -86,7 +86,8 @@ private:
             : GrDrawPathOpBase(
                     ClassID(), viewMatrix, std::move(paint), path->getFillType(), aa)
             , fPath(std::move(path)) {
-        this->setTransformedBounds(fPath->getBounds(), viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
+        this->setTransformedBounds(fPath->getBounds(), viewMatrix, HasAABloat::kNo,
+                                   IsHairline::kNo);
     }
 
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;

@@ -52,7 +52,7 @@ protected:
             : GrDrawOp(classID)
             , fResources(std::move(resources)) {
         this->setBounds(SkRect::MakeIWH(drawBounds.width(), drawBounds.height()),
-                        GrOp::HasAABloat::kNo, GrOp::IsZeroArea::kNo);
+                        GrOp::HasAABloat::kNo, GrOp::IsHairline::kNo);
     }
 
     const sk_sp<const GrCCPerFlushResources> fResources;

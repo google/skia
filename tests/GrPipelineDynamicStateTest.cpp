@@ -130,7 +130,7 @@ private:
         , fScissorTest(scissorTest)
         , fVertexBuffer(std::move(vbuff)) {
         this->setBounds(SkRect::MakeIWH(kScreenSize, kScreenSize),
-                        HasAABloat::kNo, IsZeroArea::kNo);
+                        HasAABloat::kNo, IsHairline::kNo);
     }
 
     const char* name() const override { return "GrPipelineDynamicStateTestOp"; }

@@ -61,7 +61,7 @@ public:
         info.fRegion = region;
 
         SkRect bounds = SkRect::Make(region.getBounds());
-        this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
+        this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kNo, IsHairline::kNo);
     }
 
     const char* name() const override { return "GrRegionOp"; }

@@ -147,7 +147,7 @@ private:
     FwidthSquircleTestOp(const SkMatrix& viewMatrix)
             : GrDrawOp(ClassID())
             , fViewMatrix(viewMatrix) {
-        this->setBounds(SkRect::MakeIWH(kWidth, kHeight), HasAABloat::kNo, IsZeroArea::kNo);
+        this->setBounds(SkRect::MakeIWH(kWidth, kHeight), HasAABloat::kNo, IsHairline::kNo);
     }
 
     const char* name() const override { return "ClockwiseTestOp"; }

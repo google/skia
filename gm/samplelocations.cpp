@@ -208,7 +208,7 @@ public:
 
 private:
     SampleLocationsTestOp(GradType gradType) : GrDrawOp(ClassID()), fGradType(gradType) {
-        this->setBounds(SkRect::MakeIWH(200, 200), HasAABloat::kNo, IsZeroArea::kNo);
+        this->setBounds(SkRect::MakeIWH(200, 200), HasAABloat::kNo, IsHairline::kNo);
     }
 
     const char* name() const override { return "SampleLocationsTestOp"; }
