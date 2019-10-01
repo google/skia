@@ -383,7 +383,7 @@ public:
         fPaths.emplace_back(PathData{path, tolerance});
 
         this->setBounds(devBounds, HasAABloat::kNo,
-                        isHairline ? IsZeroArea::kYes : IsZeroArea::kNo);
+                        isHairline ? IsZeroWidth::kYes : IsZeroWidth::kNo);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }

@@ -700,7 +700,7 @@ public:
                    const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage, stencilSettings) {
         fPaths.emplace_back(PathData{viewMatrix, path, color});
-        this->setTransformedBounds(path.getBounds(), viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
+        this->setTransformedBounds(path.getBounds(), viewMatrix, HasAABloat::kYes, IsZeroWidth::kNo);
     }
 
     const char* name() const override { return "AAConvexPathOp"; }
