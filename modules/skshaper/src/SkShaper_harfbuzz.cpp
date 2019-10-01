@@ -424,12 +424,12 @@ private:
 
 class RunIteratorQueue {
 public:
-    void insert(SkShaper::RunIterator* runIterator) {
-        fRunIterators.insert(runIterator);
+    void insert(SkShaper::RunIterator* runIterator, int priority) {
+        fEntries.insert({runIterator, priority});
     }
 
     bool advanceRuns() {
-        const SkShaper::RunIterator* leastRun = fRunIterators.peek();
+        const SkShaper::RunIterator* leastRun = fEntries.peek().runIterator;
         if (leastRun->atEnd()) {
             SkASSERT(this->allRunsAreAtEnd());
             return false;
@@ -437,34 +437,41 @@ public:
         const size_t leastEnd = leastRun->endOfCurrentRun();
         SkShaper::RunIterator* currentRun = nullptr;
         SkDEBUGCODE(size_t previousEndOfCurrentRun);
-        while ((currentRun = fRunIterators.peek())->endOfCurrentRun() <= leastEnd) {
-            fRunIterators.pop();
+        while ((currentRun = fEntries.peek().runIterator)->endOfCurrentRun() <= leastEnd) {
+            int priority = fEntries.peek().priority;
+            fEntries.pop();
             SkDEBUGCODE(previousEndOfCurrentRun = currentRun->endOfCurrentRun());
             currentRun->consume();
             SkASSERT(previousEndOfCurrentRun < currentRun->endOfCurrentRun());
-            fRunIterators.insert(currentRun);
+            fEntries.insert({currentRun, priority});
         }
         return true;
     }
 
     size_t endOfCurrentRun() const {
-        return fRunIterators.peek()->endOfCurrentRun();
+        return fEntries.peek().runIterator->endOfCurrentRun();
     }
 
 private:
     bool allRunsAreAtEnd() const {
-        for (int i = 0; i < fRunIterators.count(); ++i) {
-            if (!fRunIterators.at(i)->atEnd()) {
+        for (int i = 0; i < fEntries.count(); ++i) {
+            if (!fEntries.at(i).runIterator->atEnd()) {
                 return false;
             }
         }
         return true;
     }
 
-    static bool CompareRunIterator(SkShaper::RunIterator* const& a, SkShaper::RunIterator* const& b) {
-        return a->endOfCurrentRun() < b->endOfCurrentRun();
+    struct Entry {
+        SkShaper::RunIterator* runIterator;
+        int priority;
+    };
+    static bool CompareEntry(Entry const& a, Entry const& b) {
+        size_t aEnd = a.runIterator->endOfCurrentRun();
+        size_t bEnd = b.runIterator->endOfCurrentRun();
+        return aEnd  < bEnd || (aEnd == bEnd && a.priority < b.priority);
     }
-    SkTDPQueue<SkShaper::RunIterator*, CompareRunIterator> fRunIterators;
+    SkTDPQueue<Entry, CompareEntry> fEntries;
 };
 
 struct ShapedGlyph {
@@ -758,7 +765,6 @@ void ShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
                            SkScalar width,
                            RunHandler* handler) const
 {
-    SkASSERT(handler);
     UBiDiLevel defaultLevel = leftToRight ? UBIDI_DEFAULT_LTR : UBIDI_DEFAULT_RTL;
 
     std::unique_ptr<BiDiRunIterator> bidi(MakeIcuBiDiRunIterator(utf8, utf8Bytes, defaultLevel));
@@ -794,11 +800,12 @@ void ShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
                            SkScalar width,
                            RunHandler* handler) const
 {
+    SkASSERT(handler);
     RunIteratorQueue runSegmenter;
-    runSegmenter.insert(&font);
-    runSegmenter.insert(&bidi);
-    runSegmenter.insert(&script);
-    runSegmenter.insert(&language);
+    runSegmenter.insert(&font,     3); // The font iterator is always run last in case of tie.
+    runSegmenter.insert(&bidi,     2);
+    runSegmenter.insert(&script,   1);
+    runSegmenter.insert(&language, 0);
 
     this->wrap(utf8, utf8Bytes, bidi, language, script, font, runSegmenter, width, handler);
 }
