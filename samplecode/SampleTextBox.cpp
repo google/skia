@@ -53,10 +53,39 @@ protected:
 
         for (int i = 9; i < 24; i += 2) {
             SkTextBlobBuilderRunHandler builder(gText, { margin, margin });
-            SkFont font(nullptr, SkIntToScalar(i));
-            font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+            SkFont srcFont(nullptr, SkIntToScalar(i));
+            srcFont.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
-            fShaper->shape(gText, strlen(gText), font, true, w - margin, &builder);
+            const char* utf8 = gText;
+            size_t utf8Bytes = sizeof(gText) - 1;
+
+            std::unique_ptr<SkShaper::BiDiRunIterator> bidi(
+                SkShaper::MakeBiDiRunIterator(utf8, utf8Bytes, 0xfe));
+            if (!bidi) {
+                return;
+            }
+
+            std::unique_ptr<SkShaper::LanguageRunIterator> language(
+                SkShaper::MakeStdLanguageRunIterator(utf8, utf8Bytes));
+            if (!language) {
+                return;
+            }
+
+            SkFourByteTag undeterminedScript = SkSetFourByteTag('Z','y','y','y');
+            std::unique_ptr<SkShaper::ScriptRunIterator> script(
+                SkShaper::MakeScriptRunIterator(utf8, utf8Bytes, undeterminedScript));
+            if (!script) {
+                return;
+            }
+
+            std::unique_ptr<SkShaper::FontRunIterator> font(
+                SkShaper::MakeFontMgrRunIterator(utf8, utf8Bytes, srcFont, SkFontMgr::RefDefault(),
+                                                 "Arial", SkFontStyle::Bold(), &*language));
+            if (!font) {
+                return;
+            }
+
+            fShaper->shape(utf8, utf8Bytes, *font, *bidi, *script, *language, w - margin, &builder);
             canvas->drawTextBlob(builder.makeBlob(), 0, 0, paint);
 
             canvas->translate(0, builder.endPoint().y());
