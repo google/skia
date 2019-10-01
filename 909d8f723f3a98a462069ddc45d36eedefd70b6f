@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c89f74d5_e8c387fe",
+        "filename": "modules/skottie/src/effects/MotionBlurEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-01T16:59:08Z",
+      "side": 1,
+      "message": "Does this affect falling into the fast path much?",
+      "range": {
+        "startLine": 207,
+        "startChar": 35,
+        "endLine": 207,
+        "endChar": 64
+      },
+      "revId": "909d8f723f3a98a462069ddc45d36eedefd70b6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
