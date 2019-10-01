@@ -8193,7 +8193,7 @@
         {
           "name": "skia/bots/mips64el_toolchain_linux",
           "path": "mips64el_toolchain_linux",
-          "version": "version:4"
+          "version": "version:6"
         }
       ],
       "command": [
@@ -8262,7 +8262,7 @@
         {
           "name": "skia/bots/mips64el_toolchain_linux",
           "path": "mips64el_toolchain_linux",
-          "version": "version:4"
+          "version": "version:6"
         }
       ],
       "command": [
@@ -8331,7 +8331,7 @@
         {
           "name": "skia/bots/mips64el_toolchain_linux",
           "path": "mips64el_toolchain_linux",
-          "version": "version:4"
+          "version": "version:6"
         }
       ],
       "command": [
@@ -8400,7 +8400,7 @@
         {
           "name": "skia/bots/mips64el_toolchain_linux",
           "path": "mips64el_toolchain_linux",
-          "version": "version:4"
+          "version": "version:6"
         }
       ],
       "command": [
