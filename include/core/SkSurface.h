@@ -764,6 +764,23 @@ public:
     */
     bool readPixels(const SkBitmap& dst, int srcX, int srcY);
 
+
+    class AsyncReadResult {
+    public:
+        AsyncReadResult(const AsyncReadResult&) = delete;
+        AsyncReadResult(AsyncReadResult&&) = delete;
+        AsyncReadResult& operator=(const AsyncReadResult&) = delete;
+        AsyncReadResult& operator=(AsyncReadResult&&) = delete;
+
+        virtual ~AsyncReadResult() = default;
+        virtual int count() const = 0;
+        virtual const void* data(int i) const = 0;
+        virtual size_t rowBytes(int i) const  = 0;
+
+    protected:
+        AsyncReadResult() = default;
+    };
+
     /** Makes pixel data available to caller, possibly asynchronously. Can perform rescaling.
 
         Currently asynchronous reads are only supported on the GPU backend and only when the
@@ -793,11 +810,18 @@ public:
         @param context          passed to callback
      */
     using ReadPixelsContext = void*;
-    using ReadPixelsCallback = void(ReadPixelsContext, const void* data, size_t rowBytes);
+    using LegacyReadPixelsCallback = void(ReadPixelsContext, const void* data, size_t rowBytes);
     enum RescaleGamma : bool { kSrc, kLinear };
     void asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
                                    RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
+                                   LegacyReadPixelsCallback callback, ReadPixelsContext context);
+
+    using ReadPixelsCallback = void(ReadPixelsContext, std::unique_ptr<const AsyncReadResult>);
+
+    void asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
+                                   RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
                                    ReadPixelsCallback callback, ReadPixelsContext context);
+
 
     /**
         Similar to asyncRescaleAndReadPixels but performs an additional conversion to YUV. The
@@ -820,13 +844,20 @@ public:
         @param callback         function to call with the planar read result
         @param context          passed to callback
      */
-    using ReadPixelsCallbackYUV420 = void(ReadPixelsContext, const void* data[3],
-                                          size_t rowBytes[3]);
+    using LegacyReadPixelsCallbackYUV420 = void(ReadPixelsContext, const void* data[3],
+                                                size_t rowBytes[3]);
     void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
                                          sk_sp<SkColorSpace> dstColorSpace, const SkIRect& srcRect,
                                          int dstW, int dstH, RescaleGamma rescaleGamma,
                                          SkFilterQuality rescaleQuality,
-                                         ReadPixelsCallbackYUV420 callback, ReadPixelsContext);
+                                         LegacyReadPixelsCallbackYUV420 callback,
+                                         ReadPixelsContext);
+    void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                         sk_sp<SkColorSpace> dstColorSpace, const SkIRect& srcRect,
+                                         int dstW, int dstH, RescaleGamma rescaleGamma,
+                                         SkFilterQuality rescaleQuality,
+                                         ReadPixelsCallback callback,
+                                         ReadPixelsContext);
 
     /** Copies SkRect of pixels from the src SkPixmap to the SkSurface.
 

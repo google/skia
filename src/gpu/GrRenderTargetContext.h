@@ -441,7 +441,6 @@ public:
     void drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>, const SkRect& bounds);
 
     using ReadPixelsCallback = SkSurface::ReadPixelsCallback;
-    using ReadPixelsCallbackYUV420 = SkSurface::ReadPixelsCallbackYUV420;
     using ReadPixelsContext = SkSurface::ReadPixelsContext;
     using RescaleGamma = SkSurface::RescaleGamma;
 
@@ -454,7 +453,7 @@ public:
                                          sk_sp<SkColorSpace> dstColorSpace, const SkIRect& srcRect,
                                          int dstW, int dstH, RescaleGamma rescaleGamma,
                                          SkFilterQuality rescaleQuality,
-                                         ReadPixelsCallbackYUV420 callback,
+                                         ReadPixelsCallback callback,
                                          ReadPixelsContext context);
 
     /**

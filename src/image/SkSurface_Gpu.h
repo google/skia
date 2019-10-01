@@ -43,7 +43,7 @@ public:
                                            const SkIRect& srcRect, int dstW, int dstH,
                                            RescaleGamma rescaleGamma,
                                            SkFilterQuality rescaleQuality,
-                                           ReadPixelsCallbackYUV420 callback,
+                                           ReadPixelsCallback callback,
                                            ReadPixelsContext context) override;
 
     void onCopyOnWrite(ContentChangeMode) override;

@@ -144,7 +144,7 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info, const S
 void SkSurface_Gpu::onAsyncRescaleAndReadPixelsYUV420(
         SkYUVColorSpace yuvColorSpace, sk_sp<SkColorSpace> dstColorSpace, const SkIRect& srcRect,
         int dstW, int dstH, RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
-        ReadPixelsCallbackYUV420 callback, ReadPixelsContext context) {
+        ReadPixelsCallback callback, ReadPixelsContext context) {
     auto* rtc = this->fDevice->accessRenderTargetContext();
     rtc->asyncRescaleAndReadPixelsYUV420(yuvColorSpace, std::move(dstColorSpace), srcRect, dstW,
                                          dstH, rescaleGamma, rescaleQuality, callback, context);
