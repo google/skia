@@ -67,7 +67,8 @@ GrMtlPipelineState* GrMtlOpsRenderPass::prepareDrawState(
     SkASSERT(SkToBool(primProcProxies) == SkToBool(primProc.numTextureSamplers()));
 
     GrMtlPipelineState* pipelineState =
-        fGpu->resourceProvider().findOrCreateCompatiblePipelineState(fRenderTarget, fOrigin,
+        fGpu->resourceProvider().findOrCreateCompatiblePipelineState(fRenderTarget,
+                                                                     fOrigin,
                                                                      pipeline,
                                                                      primProc,
                                                                      primProcProxies,

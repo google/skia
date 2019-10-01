@@ -92,12 +92,21 @@ void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
                         std::move(appliedClip));
     sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(), this->viewMatrix()));
 
+    GrFoo foo(state->drawOpArgs().renderTarget()->numSamples(),
+              state->drawOpArgs().origin(),
+              pipeline,
+              *pathProc,
+              &fixedDynamicState,
+              nullptr);
+
     GrStencilSettings stencil;
     init_stencil_pass_settings(*state, this->fillType(), &stencil);
-    state->gpu()->pathRendering()->drawPath(state->drawOpArgs().renderTarget(),
+    state->gpu()->pathRendering()->drawPath(state->drawOpArgs().renderTarget(), foo,
+#if 0
                                             state->drawOpArgs().origin(),
-                                            *pathProc, pipeline, fixedDynamicState, stencil,
-                                            fPath.get());
+                                            *pathProc, pipeline, fixedDynamicState,
+#endif
+                                            stencil, fPath.get());
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -1658,13 +1658,18 @@ void GrGLGpu::disableWindowRectangles() {
 }
 
 bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
+                           const GrFoo& foo,
+#if 0
                            GrSurfaceOrigin origin,
                            const GrPrimitiveProcessor& primProc,
                            const GrPipeline& pipeline,
                            const GrPipeline::FixedDynamicState* fixedDynamicState,
                            const GrPipeline::DynamicStateArrays* dynamicStateArrays,
                            int dynamicStateArraysLength,
+#endif
                            bool willDrawPoints) {
+
+#if 0
     const GrTextureProxy* const* primProcProxies = nullptr;
     const GrTextureProxy* const* primProcProxiesToBind = nullptr;
     if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
@@ -1675,9 +1680,11 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
     }
 
     SkASSERT(SkToBool(primProcProxies) == SkToBool(primProc.numTextureSamplers()));
+#endif
 
-    sk_sp<GrGLProgram> program(fProgramCache->refProgram(
-            this, renderTarget, origin, primProc, primProcProxies, pipeline, willDrawPoints));
+    sk_sp<GrGLProgram> program(fProgramCache->refProgram(this, renderTarget, foo,
+    //    origin, primProc, primProcProxies, pipeline,
+                                                         willDrawPoints));
     if (!program) {
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;
@@ -1689,8 +1696,8 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
     this->flushBlendAndColorWrite(
             pipeline.getXferProcessor().getBlendInfo(), pipeline.outputSwizzle());
 
-    fHWProgram->updateUniformsAndTextureBindings(renderTarget, origin,
-                                                 primProc, pipeline, primProcProxiesToBind);
+    fHWProgram->updateUniformsAndTextureBindings(renderTarget, foo);
+//                                                 origin, primProc, pipeline, primProcProxiesToBind);
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
     GrStencilSettings stencil;
@@ -2123,11 +2130,16 @@ void GrGLGpu::flushViewport(int width, int height) {
     #endif
 #endif
 
-void GrGLGpu::draw(GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
+void GrGLGpu::draw(GrRenderTarget* renderTarget,
+#if 0
+                   GrSurfaceOrigin origin,
                    const GrPrimitiveProcessor& primProc,
                    const GrPipeline& pipeline,
                    const GrPipeline::FixedDynamicState* fixedDynamicState,
                    const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+#else
+                   const GrFoo& foo,
+#endif
                    const GrMesh meshes[],
                    int meshCount) {
     this->handleDirtyContext();
@@ -2139,8 +2151,9 @@ void GrGLGpu::draw(GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
             break;
         }
     }
-    if (!this->flushGLState(renderTarget, origin, primProc, pipeline, fixedDynamicState,
-                            dynamicStateArrays, meshCount, hasPoints)) {
+    if (!this->flushGLState(renderTarget, foo,
+                            //origin, primProc, pipeline, fixedDynamicState, dynamicStateArrays, meshCount
+                            hasPoints)) {
         return;
     }
 

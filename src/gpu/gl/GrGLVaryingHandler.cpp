@@ -17,7 +17,7 @@ GrGLSLVaryingHandler::VaryingHandle GrGLVaryingHandler::addPathProcessingVarying
 #ifdef SK_DEBUG
     GrGLProgramBuilder* glPB = (GrGLProgramBuilder*) fProgramBuilder;
     // This call is not used for non-NVPR backends.
-    SkASSERT(glPB->gpu()->glCaps().shaderCaps()->pathRenderingSupport() &&
+    SkASSERT(glPB->gpu1()->glCaps().shaderCaps()->pathRenderingSupport() &&
              glPB->fPrimProc.isPathRendering() &&
              !glPB->fPrimProc.willUseGeoShader() &&
              !glPB->fPrimProc.numVertexAttributes() &&

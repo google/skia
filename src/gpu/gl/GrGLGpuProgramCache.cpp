@@ -47,10 +47,14 @@ void GrGLGpu::ProgramCache::reset() {
 
 GrGLProgram* GrGLGpu::ProgramCache::refProgram(GrGLGpu* gpu,
                                                GrRenderTarget* renderTarget,
+#if 0
                                                GrSurfaceOrigin origin,
                                                const GrPrimitiveProcessor& primProc,
                                                const GrTextureProxy* const primProcProxies[],
                                                const GrPipeline& pipeline,
+#else
+                                               const GrFoo& foo,
+#endif
                                                bool isPoints) {
     // Get GrGLProgramDesc
     GrProgramDesc desc;
@@ -67,9 +71,11 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(GrGLGpu* gpu,
         // We've pre-compiled the GL program, but don't have the GrGLProgram scaffolding
         const GrGLPrecompiledProgram* precompiledProgram = &((*entry)->fPrecompiledProgram);
         SkASSERT(precompiledProgram->fProgramID != 0);
-        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(renderTarget, origin,
-                                                                 primProc, primProcProxies,
-                                                                 pipeline, &desc, fGpu,
+        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(renderTarget, foo,
+//                                                                 renderTarget->numSamples(), origin,
+//                                                                 primProc, primProcProxies,
+//                                                                 pipeline,
+                                                                 &desc, fGpu,
                                                                  precompiledProgram);
         if (nullptr == program) {
             // Should we purge the program ID from the cache at this point?
@@ -79,9 +85,13 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(GrGLGpu* gpu,
         (*entry)->fProgram.reset(program);
     } else if (!entry) {
         // We have a cache miss
-        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(renderTarget, origin,
+        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(renderTarget, foo,
+#if 0
+                                                                 renderTarget->numSamples(), origin,
                                                                  primProc, primProcProxies,
-                                                                 pipeline, &desc, fGpu);
+                                                                 pipeline,
+#endif
+                                                                 &desc, fGpu);
         if (nullptr == program) {
             return nullptr;
         }

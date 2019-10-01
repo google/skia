@@ -429,16 +429,20 @@ void GrVkOpsRenderPass::bindGeometry(const GrGpuBuffer* indexBuffer,
 }
 
 GrVkPipelineState* GrVkOpsRenderPass::prepareDrawState(
+#if 0
         const GrPrimitiveProcessor& primProc,
         const GrPipeline& pipeline,
         const GrPipeline::FixedDynamicState* fixedDynamicState,
         const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+#endif
+        const GrFoo& foo,
         GrPrimitiveType primitiveType) {
     GrVkCommandBuffer* currentCB = this->currentCommandBuffer();
     SkASSERT(fCurrentRenderPass);
 
     VkRenderPass compatibleRenderPass = fCurrentRenderPass->vkRenderPass();
 
+#if 0
     const GrTextureProxy* const* primProcProxies = nullptr;
     if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
         primProcProxies = dynamicStateArrays->fPrimitiveProcessorTextures;
@@ -447,12 +451,19 @@ GrVkPipelineState* GrVkOpsRenderPass::prepareDrawState(
     }
 
     SkASSERT(SkToBool(primProcProxies) == SkToBool(primProc.numTextureSamplers()));
+#endif
 
     GrVkPipelineState* pipelineState =
-        fGpu->resourceProvider().findOrCreateCompatiblePipelineState(fRenderTarget, fOrigin,
+        fGpu->resourceProvider().findOrCreateCompatiblePipelineState(fRenderTarget,
+#if 0
+                                                                     fRenderTarget->numSamples(),
+                                                                     fOrigin,
                                                                      pipeline,
                                                                      primProc,
                                                                      primProcProxies,
+#else
+                                                                     foo,
+#endif
                                                                      primitiveType,
                                                                      compatibleRenderPass);
     if (!pipelineState) {

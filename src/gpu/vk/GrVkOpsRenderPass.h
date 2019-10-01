@@ -70,10 +70,13 @@ private:
                       const GrGpuBuffer* vertexBuffer,
                       const GrGpuBuffer* instanceBuffer);
 
-    GrVkPipelineState* prepareDrawState(const GrPrimitiveProcessor&,
+    GrVkPipelineState* prepareDrawState(const GrFoo&,
+#if 0
+                                        const GrPrimitiveProcessor&,
                                         const GrPipeline&,
                                         const GrPipeline::FixedDynamicState*,
                                         const GrPipeline::DynamicStateArrays*,
+#endif
                                         GrPrimitiveType);
 
     void onDraw(const GrPrimitiveProcessor&,
