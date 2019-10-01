@@ -64,6 +64,14 @@ public:
     // initialize each tile with a constant value rather than loading each pixel from memory.
     bool preferFullscreenClears() const { return fPreferFullscreenClears; }
 
+    // Should we discard stencil values after a render pass? (Tilers get better performance if we
+    // always load stencil buffers with a "clear" op, and then discard the content when finished.)
+    bool discardStencilValuesAfterRenderPass() const {
+        // This method is actually just a duplicate of preferFullscreenClears(), with a descriptive
+        // name for the sake of readability.
+        return this->preferFullscreenClears();
+    }
+
     bool preferVRAMUseOverFlushes() const { return fPreferVRAMUseOverFlushes; }
 
     bool preferTrianglesOverSampleMask() const { return fPreferTrianglesOverSampleMask; }
