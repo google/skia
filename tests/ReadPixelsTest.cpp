@@ -776,3 +776,120 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
         }
     }
 }
+
+DEF_GPUTEST(AsyncReadPixelsContextShutdown, reporter, options) {
+    const auto ii = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType,
+                                      SkColorSpace::MakeSRGB());
+    enum class ShutdownSequence {
+        kFreeResult_DestroyContext,
+        kDestroyContext_FreeResult,
+        kFreeResult_ReleaseAndAbandon_DestroyContext,
+        kFreeResult_Abandon_DestroyContext,
+        kReleaseAndAbandon_FreeResult_DestroyContext,
+        kAbandon_FreeResult_DestroyContext,
+        kReleaseAndAbandon_DestroyContext_FreeResult,
+        kAbandon_DestroyContext_FreeResult,
+    };
+    for (int t = 0; t < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++t) {
+        auto type = static_cast<sk_gpu_test::GrContextFactory::ContextType>(t);
+        for (auto sequence : {ShutdownSequence::kFreeResult_DestroyContext,
+                              ShutdownSequence::kDestroyContext_FreeResult,
+                              ShutdownSequence::kFreeResult_ReleaseAndAbandon_DestroyContext,
+                              ShutdownSequence::kFreeResult_Abandon_DestroyContext,
+                              ShutdownSequence::kReleaseAndAbandon_FreeResult_DestroyContext,
+                              ShutdownSequence::kAbandon_FreeResult_DestroyContext,
+                              ShutdownSequence::kReleaseAndAbandon_DestroyContext_FreeResult,
+                              ShutdownSequence::kAbandon_DestroyContext_FreeResult}) {
+            // Vulkan context abandoning without resource release has issues outside of the scope of
+            // this test.
+            if (type == sk_gpu_test::GrContextFactory::kVulkan_ContextType &&
+                (sequence == ShutdownSequence::kAbandon_FreeResult_DestroyContext ||
+                 sequence == ShutdownSequence::kAbandon_DestroyContext_FreeResult ||
+                 sequence == ShutdownSequence::kFreeResult_Abandon_DestroyContext)) {
+                continue;
+            }
+            for (bool yuv : {false, true}) {
+                sk_gpu_test::GrContextFactory factory(options);
+                auto context = factory.get(type);
+                if (!context) {
+                    continue;
+                }
+                // This test is only meaningful for contexts that support transfer buffers.
+                if (!context->priv().caps()->transferBufferSupport()) {
+                    continue;
+                }
+                auto surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii, 1, nullptr);
+                if (!surf) {
+                    continue;
+                }
+                struct Context {
+                    bool fCalled = false;
+                    std::unique_ptr<const SkSurface::AsyncReadResult> fResult;
+                } cbContext;
+                auto cb = [](void* c, std::unique_ptr<const SkSurface::AsyncReadResult> result) {
+                    auto context = static_cast<Context*>(c);
+                    context->fResult = std::move(result);
+                    context->fCalled = true;
+                };
+                if (yuv) {
+                    surf->asyncRescaleAndReadPixelsYUV420(
+                            kIdentity_SkYUVColorSpace, SkColorSpace::MakeSRGB(), ii.bounds(),
+                            ii.dimensions(), SkSurface::RescaleGamma::kSrc, kNone_SkFilterQuality,
+                            cb, &cbContext);
+                } else {
+                    surf->asyncRescaleAndReadPixels(ii, ii.bounds(), SkSurface::RescaleGamma::kSrc,
+                                                    kNone_SkFilterQuality, cb, &cbContext);
+                }
+                while (!cbContext.fCalled) {
+                    context->checkAsyncWorkCompletion();
+                }
+                if (!cbContext.fResult) {
+                    ERRORF(reporter, "Callback failed on %s. is YUV: %d",
+                           sk_gpu_test::GrContextFactory::ContextTypeName(type), yuv);
+                    continue;
+                }
+                // The real test is that we don't crash, get Vulkan validation errors, etc, during
+                // this shutdown sequence.
+                switch (sequence) {
+                    case ShutdownSequence::kFreeResult_DestroyContext:
+                    case ShutdownSequence::kFreeResult_ReleaseAndAbandon_DestroyContext:
+                    case ShutdownSequence::kFreeResult_Abandon_DestroyContext:
+                        break;
+                    case ShutdownSequence::kDestroyContext_FreeResult:
+                        factory.destroyContexts();
+                        break;
+                    case ShutdownSequence::kReleaseAndAbandon_FreeResult_DestroyContext:
+                        factory.releaseResourcesAndAbandonContexts();
+                        break;
+                    case ShutdownSequence::kAbandon_FreeResult_DestroyContext:
+                        factory.abandonContexts();
+                        break;
+                    case ShutdownSequence::kReleaseAndAbandon_DestroyContext_FreeResult:
+                        factory.releaseResourcesAndAbandonContexts();
+                        factory.destroyContexts();
+                        break;
+                    case ShutdownSequence::kAbandon_DestroyContext_FreeResult:
+                        factory.abandonContexts();
+                        factory.destroyContexts();
+                        break;
+                }
+                cbContext.fResult.reset();
+                switch (sequence) {
+                    case ShutdownSequence::kFreeResult_ReleaseAndAbandon_DestroyContext:
+                        factory.releaseResourcesAndAbandonContexts();
+                        break;
+                    case ShutdownSequence::kFreeResult_Abandon_DestroyContext:
+                        factory.abandonContexts();
+                        break;
+                    case ShutdownSequence::kFreeResult_DestroyContext:
+                    case ShutdownSequence::kDestroyContext_FreeResult:
+                    case ShutdownSequence::kReleaseAndAbandon_FreeResult_DestroyContext:
+                    case ShutdownSequence::kAbandon_FreeResult_DestroyContext:
+                    case ShutdownSequence::kReleaseAndAbandon_DestroyContext_FreeResult:
+                    case ShutdownSequence::kAbandon_DestroyContext_FreeResult:
+                        break;
+                }
+            }
+        }
+    }
+}
