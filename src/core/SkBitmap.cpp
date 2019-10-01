@@ -628,14 +628,3 @@ bool SkBitmap::peekPixels(SkPixmap* pmap) const {
     }
     return false;
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_DEBUG
-void SkImageInfo::validate() const {
-    SkASSERT(fDimensions.width() >= 0);
-    SkASSERT(fDimensions.height() >= 0);
-    SkASSERT(SkColorTypeIsValid(fColorType));
-    SkASSERT(SkAlphaTypeIsValid(fAlphaType));
-}
-#endif

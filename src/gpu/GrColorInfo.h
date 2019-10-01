@@ -20,6 +20,7 @@ class GrColorInfo {
 public:
     GrColorInfo() = default;
     GrColorInfo(GrColorType, SkAlphaType, sk_sp<SkColorSpace>);
+    /* implicit */ GrColorInfo(const SkColorInfo&);
 
     bool isLinearlyBlended() const { return fColorSpace && fColorSpace->gammaIsLinear(); }
 
