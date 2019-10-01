@@ -5,13 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/GrContext.h"
+
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/gpu/GrBackendSemaphore.h"
-#include "include/gpu/GrContext.h"
 #include "include/private/SkDeferredDisplayList.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkTaskGroup.h"
+#include "src/gpu/GrClientMappedBufferManager.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMemoryPool.h"
@@ -31,7 +33,6 @@
 #include "src/gpu/text/GrTextContext.h"
 #include "src/image/SkSurface_Gpu.h"
 #include <atomic>
-#include <unordered_map>
 
 #define ASSERT_OWNED_PROXY(P) \
     SkASSERT(!(P) || !((P)->peekTexture()) || (P)->peekTexture()->getContext() == this)
@@ -96,6 +97,8 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
     if (!fShaderErrorHandler) {
         fShaderErrorHandler = GrShaderUtils::DefaultShaderErrorHandler();
     }
+
+    fMappedBufferManager = skstd::make_unique<GrClientMappedBufferManager>();
 
     return true;
 }
@@ -184,6 +187,7 @@ void GrContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
 
     ASSERT_SINGLE_OWNER
 
+    fMappedBufferManager->process();
     auto purgeTime = GrStdSteadyClock::now() - msNotUsed;
 
     fResourceCache->purgeAsNeeded();

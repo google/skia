@@ -132,7 +132,8 @@ void SkSurface_Gpu::onWritePixels(const SkPixmap& src, int x, int y) {
     fDevice->writePixels(src, x, y);
 }
 
-void SkSurface_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
+void SkSurface_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
+                                                const SkIRect& srcRect,
                                                 RescaleGamma rescaleGamma,
                                                 SkFilterQuality rescaleQuality,
                                                 ReadPixelsCallback callback,
@@ -143,11 +144,11 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info, const S
 
 void SkSurface_Gpu::onAsyncRescaleAndReadPixelsYUV420(
         SkYUVColorSpace yuvColorSpace, sk_sp<SkColorSpace> dstColorSpace, const SkIRect& srcRect,
-        int dstW, int dstH, RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
-        ReadPixelsCallbackYUV420 callback, ReadPixelsContext context) {
+        const SkISize& dstSize, RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
+        ReadPixelsCallback callback, ReadPixelsContext context) {
     auto* rtc = this->fDevice->accessRenderTargetContext();
-    rtc->asyncRescaleAndReadPixelsYUV420(yuvColorSpace, std::move(dstColorSpace), srcRect, dstW,
-                                         dstH, rescaleGamma, rescaleQuality, callback, context);
+    rtc->asyncRescaleAndReadPixelsYUV420(yuvColorSpace, std::move(dstColorSpace), srcRect, dstSize,
+                                         rescaleGamma, rescaleQuality, callback, context);
 }
 
 // Create a new render target and, if necessary, copy the contents of the old
