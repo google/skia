@@ -8,6 +8,7 @@
 #ifndef GrMtlGpu_DEFINED
 #define GrMtlGpu_DEFINED
 
+#include <list>
 #include "include/gpu/GrTexture.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTarget.h"
@@ -53,7 +54,7 @@ public:
 
     // Commits the current command buffer to the queue and then creates a new command buffer. If
     // sync is set to kForce_SyncQueue, the function will wait for all work in the committed
-    // command buffer to finish before creating a new buffer and returning.
+    // command buffer to finish before returning.
     void submitCommandBuffer(SyncQueue sync);
 
     void deleteBackendTexture(const GrBackendTexture&) override;
@@ -95,8 +96,7 @@ public:
                                             GrWrapOwnership ownership) override;
     void insertSemaphore(sk_sp<GrSemaphore> semaphore) override;
     void waitSemaphore(sk_sp<GrSemaphore> semaphore) override;
-    // We currently call finish procs immediately in onFinishFlush().
-    void checkFinishProcs() override {}
+    void checkFinishProcs() override;
     sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override { return nullptr; }
 
     // When the Metal backend actually uses indirect command buffers, this function will actually do
@@ -168,16 +168,10 @@ private:
 
     bool onTransferPixelsTo(GrTexture*, int left, int top, int width, int height,
                             GrColorType textureColorType, GrColorType bufferColorType, GrGpuBuffer*,
-                            size_t offset, size_t rowBytes) override {
-        // TODO: not sure this is worth the work since nobody uses it
-        return false;
-    }
+                            size_t offset, size_t rowBytes) override;
     bool onTransferPixelsFrom(GrSurface*, int left, int top, int width, int height,
                               GrColorType surfaceColorType, GrColorType bufferColorType,
-                              GrGpuBuffer*, size_t offset) override {
-        // TODO: Will need to implement this to support async read backs.
-        return false;
-    }
+                              GrGpuBuffer*, size_t offset) override;
 
     bool onRegenerateMipMapLevels(GrTexture*) override;
 
@@ -187,27 +181,16 @@ private:
     void resolveTexture(id<MTLTexture> colorTexture, id<MTLTexture> resolveTexture);
 
     void onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
-                       const GrFlushInfo& info, const GrPrepareForExternalIORequests&) override {
-        if (info.fFlags & kSyncCpu_GrFlushFlag) {
-            this->submitCommandBuffer(kForce_SyncQueue);
-            if (info.fFinishedProc) {
-                info.fFinishedProc(info.fFinishedContext);
-            }
-        } else {
-            this->submitCommandBuffer(kSkip_SyncQueue);
-            // TODO: support finishedProc to actually be called when the GPU is done with the work
-            // and not immediately.
-            if (info.fFinishedProc) {
-                info.fFinishedProc(info.fFinishedContext);
-            }
-        }
-    }
+                       const GrFlushInfo& info, const GrPrepareForExternalIORequests&) override;
 
     // Function that uploads data onto textures with private storage mode (GPU access only).
     bool uploadToTexture(GrMtlTexture* tex, int left, int top, int width, int height,
                          GrColorType dataColorType, const GrMipLevel texels[], int mipLevels);
     // Function that fills texture levels with transparent black based on levelMask.
     bool clearTexture(GrMtlTexture*, GrColorType, uint32_t levelMask);
+    bool readOrTransferPixels(GrSurface* surface, int left, int top, int width, int height,
+                              GrColorType dstColorType, id<MTLBuffer> transferBuffer, size_t offset,
+                              size_t imageBytes, size_t rowBytes);
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(
             const GrRenderTarget*, int width, int height, int numStencilSamples) override;
@@ -242,6 +225,13 @@ private:
 #endif
 
     bool fDisconnected;
+
+    struct FinishCallback {
+        GrGpuFinishedProc fCallback;
+        GrGpuFinishedContext fContext;
+        GrFence fFence;
+    };
+    std::list<FinishCallback> fFinishCallbacks;
 
     typedef GrGpu INHERITED;
 };
