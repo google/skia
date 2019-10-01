@@ -2,21 +2,59 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
------
-  * Add explicit src and dst colorspace parameters to SkColorFilter::filterColor4f()
-
-  * Add SkSurface::MakeFromCAMetalLayer
-
-  * Remove isRectContour and ksNestedFillRects from public
-  * Start to move nested SkPath types (e.g. Direction, Verb) up to root level in SkPathTypes.h
-  * Remove Vulkan/Metal float32 RGBA texture support
-  * Add SkColorInfo. It's dimensionless SkImageInfo.
+* * *
 
 Milestone 79
+
+[Insert new notes here.]
+
+  * Add SkColorInfo. It's dimensionless SkImageInfo.
+    https://review.skia.org/245261
+
+  * Added SkPixmap-based createBackendTexture method to GrContext. This allows clients to create
+    backend resources (initialized with texture data) that Skia/Ganesh doesn't know about/track.
+    https://review.skia.org/244676
+
+  * Add explicit src and dst colorspace parameters to SkColorFilter::filterColor4f()
+    https://review.skia.org/244882
+
+  * Remove Vulkan/Metal float32 RGBA texture support
+    https://review.skia.org/244881
+
+  * Add SkSurface::MakeFromCAMetalLayer
+    https://review.skia.org/242563
+
+  * Added kAlpha_F16_SkColorType, kRG_F16_SkColorType and kRGBA_16161616_SkColorType.
+    This is intended to help support HDR YUV uses case (e.g., P010 and P016). As such,
+    the addition is focused on allowing creation of SkPixmaps and SkImages and not
+    SkSurfaces (i.e., who wants to render to render to these?)
+    https://review.skia.org/241357
+
+  * Start to move nested SkPath types (e.g. Direction, Verb) up to root level in SkPathTypes.h
+    https://review.skia.org/241079
+
+  * Remove isRectContour and ksNestedFillRects from public
+    https://review.skia.org/241078
+
+  * Added kRG_88_SkColorType. This is intended to help support YUV uses case (e.g., NV12).
+    As such, the addition is focused on allowing creation of SkPixmaps and SkImages and not
+    SkSurfaces (i.e., who wants to render to RG?)
+    https://review.skia.org/239930
+    https://review.skia.org/235797
 
   * Make the size of program/pipeline caches configurable via
     GrContextOptions::fRuntimeProgramCacheSize
     https://review.skia.org/239756
+
+  * Added kAlpha_16_SkColorType and kRG_1616_SkColorType. This is intended to help support HDR YUV
+    uses case (e.g., P010 and P016). As such, the addition is focused on allowing creation of
+    SkPixmaps and SkImages and not SkSurfaces (i.e., who wants to render to render to these?)
+    https://review.skia.org/239930
+
+  * Add GrContext::precompileShader to allow up-front compilation of previously-cached shaders.
+    https://review.skia.org/239438
+
+* * *
 
 Milestone 78
 
@@ -98,22 +136,3 @@ Milestone 78
   * Changed GrContextOptions' fDisallowGLSLBinaryCaching to fShaderCacheStrategy,
     and allow caching SkSL.
     https://review.skia.org/238856
-
-  * Added kRG_88_SkColorType. This is intended to help support YUV uses case (e.g., NV12).
-    As such, the addition is focused on allowing creation of SkPixmaps and SkImages and not
-    SkSurfaces (i.e., who wants to render to RG?)
-
-  * Add GrContext::precompileShader to allow up-front compilation of previously-cached shaders.
-    https://review.skia.org/239438
-
-  * Added kAlpha_16_SkColorType and kRG_1616_SkColorType. This is intended to help support HDR YUV
-    uses case (e.g., P010 and P016). As such, the addition is focused on allowing creation of
-    SkPixmaps and SkImages and not SkSurfaces (i.e., who wants to render to render to these?)
-
-  * Added kAlpha_F16_SkColorType, kRG_F16_SkColorType and kRGBA_16161616_SkColorType.
-    This is intended to help support HDR YUV uses case (e.g., P010 and P016). As such,
-    the addition is focused on allowing creation of SkPixmaps and SkImages and not
-    SkSurfaces (i.e., who wants to render to render to these?)
-
-  * Added SkPixmap-based createBackendTexture method to GrContext. This allows clients to create
-    backend resources (initialized with texture data) that Skia/Ganesh doesn't know about/track.
