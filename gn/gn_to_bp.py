@@ -289,7 +289,7 @@ cc_test {
     ],
 
     data: [
-        "resources/*",
+        "resources/**/*",
     ],
 }''')
 
