@@ -144,25 +144,21 @@ def compile_fn(api, checkout_root, out_dir):
     if target_arch in ['mips64el', 'loongson3a']:
       mips64el_toolchain_linux = str(api.vars.slave_dir.join(
           'mips64el_toolchain_linux'))
-      cc  = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-gcc-7'
-      cxx = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-g++-7'
+      cc  = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-gcc-8'
+      cxx = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-g++-8'
       env['LD_LIBRARY_PATH'] = (
           mips64el_toolchain_linux + '/lib/x86_64-linux-gnu/')
       extra_ldflags.append('-L' + mips64el_toolchain_linux +
                            '/mips64el-linux-gnuabi64/lib')
       extra_cflags.extend([
-          '-Wno-format-truncation',
-          '-Wno-uninitialized',
           ('-DDUMMY_mips64el_toolchain_linux_version=%s' %
            api.run.asset_version('mips64el_toolchain_linux', skia_dir))
       ])
-      if configuration == 'Release':
-        # This warning is only triggered when fuzz_canvas is inlined.
-        extra_cflags.append('-Wno-strict-overflow')
       args.update({
         'skia_use_system_freetype2': 'false',
         'skia_use_fontconfig':       'false',
         'skia_enable_gpu':           'false',
+        'werror':                    'false',
       })
     else:
       cc, cxx = 'gcc', 'g++'
