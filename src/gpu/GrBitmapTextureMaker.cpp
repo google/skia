@@ -17,14 +17,9 @@
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/SkGr.h"
 
-static GrColorInfo make_info(const SkBitmap& bm) {
-    return GrColorInfo(SkColorTypeToGrColorType(bm.colorType()), bm.alphaType(),
-                       bm.refColorSpace());
-}
-
 GrBitmapTextureMaker::GrBitmapTextureMaker(GrRecordingContext* context, const SkBitmap& bitmap,
                                            bool useDecal)
-        : INHERITED(context, bitmap.width(), bitmap.height(), make_info(bitmap), useDecal)
+        : INHERITED(context, bitmap.width(), bitmap.height(), bitmap.info().colorInfo(), useDecal)
         , fBitmap(bitmap) {
     if (!bitmap.isVolatile()) {
         SkIPoint origin = bitmap.pixelRefOrigin();

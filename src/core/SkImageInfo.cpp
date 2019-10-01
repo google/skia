@@ -41,9 +41,11 @@ bool SkColorTypeIsAlwaysOpaque(SkColorType ct) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-int SkImageInfo::bytesPerPixel() const { return SkColorTypeBytesPerPixel(fColorType); }
+int SkColorInfo::bytesPerPixel() const { return SkColorTypeBytesPerPixel(fColorType); }
 
-int SkImageInfo::shiftPerPixel() const { return SkColorTypeShiftPerPixel(fColorType); }
+int SkColorInfo::shiftPerPixel() const { return SkColorTypeShiftPerPixel(fColorType); }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 size_t SkImageInfo::computeOffset(int x, int y, size_t rowBytes) const {
     SkASSERT((unsigned)x < (unsigned)this->width());
@@ -62,8 +64,17 @@ size_t SkImageInfo::computeByteSize(size_t rowBytes) const {
 }
 
 SkImageInfo SkImageInfo::MakeS32(int width, int height, SkAlphaType at) {
-    return SkImageInfo({width, height}, kN32_SkColorType, at, SkColorSpace::MakeSRGB());
+    return SkImageInfo({width, height}, {kN32_SkColorType, at, SkColorSpace::MakeSRGB()});
 }
+
+#ifdef SK_DEBUG
+void SkImageInfo::validate() const {
+    SkASSERT(fDimensions.width() >= 0);
+    SkASSERT(fDimensions.height() >= 0);
+    SkASSERT(SkColorTypeIsValid(this->colorType()));
+    SkASSERT(SkAlphaTypeIsValid(this->alphaType()));
+}
+#endif
 
 bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
                                   SkAlphaType* canonical) {

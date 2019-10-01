@@ -13,6 +13,11 @@ GrColorInfo::GrColorInfo(
         GrColorType colorType, SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace)
         : fColorSpace(std::move(colorSpace)), fColorType(colorType), fAlphaType(alphaType) {}
 
+GrColorInfo::GrColorInfo(const SkColorInfo& ci)
+        : GrColorInfo(SkColorTypeToGrColorType(ci.colorType()),
+                      ci.alphaType(),
+                      ci.refColorSpace()) {}
+
 GrColorSpaceXform* GrColorInfo::colorSpaceXformFromSRGB() const {
     // TODO: Make this atomic if we start accessing this on multiple threads.
     if (!fInitializedColorSpaceXformFromSRGB) {

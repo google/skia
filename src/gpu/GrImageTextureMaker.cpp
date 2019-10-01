@@ -13,15 +13,10 @@
 #include "src/image/SkImage_GpuYUVA.h"
 #include "src/image/SkImage_Lazy.h"
 
-static GrColorInfo make_info(const SkImage*& image) {
-    return GrColorInfo(SkColorTypeToGrColorType(image->colorType()),
-                                                image->alphaType(),
-                                                image->refColorSpace());
-}
-
 GrImageTextureMaker::GrImageTextureMaker(GrRecordingContext* context, const SkImage* client,
                                          SkImage::CachingHint chint, bool useDecal)
-        : INHERITED(context, client->width(), client->height(), make_info(client), useDecal)
+        : INHERITED(context, client->width(), client->height(), client->imageInfo().colorInfo(),
+                    useDecal)
         , fImage(static_cast<const SkImage_Lazy*>(client))
         , fCachingHint(chint) {
     SkASSERT(client->isLazyGenerated());
@@ -48,7 +43,8 @@ void GrImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* pa
 
 GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrContext* context, const SkImage* client,
                                                  bool useDecal)
-        : INHERITED(context, client->width(), client->height(), make_info(client), useDecal)
+        : INHERITED(context, client->width(), client->height(), client->imageInfo().colorInfo(),
+                    useDecal)
         , fImage(static_cast<const SkImage_GpuYUVA*>(client)) {
     SkASSERT(as_IB(client)->isYUVA());
     GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(),
