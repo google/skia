@@ -144,8 +144,8 @@ def compile_fn(api, checkout_root, out_dir):
     if target_arch in ['mips64el', 'loongson3a']:
       mips64el_toolchain_linux = str(api.vars.slave_dir.join(
           'mips64el_toolchain_linux'))
-      cc  = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-gcc-7'
-      cxx = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-g++-7'
+      cc  = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-gcc-8'
+      cxx = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-g++-8'
       env['LD_LIBRARY_PATH'] = (
           mips64el_toolchain_linux + '/lib/x86_64-linux-gnu/')
       extra_ldflags.append('-L' + mips64el_toolchain_linux +
