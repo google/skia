@@ -178,11 +178,11 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMCol
         mesh.fViewMatrix.preConcat(worldTransform);
     }
 
-    IsZeroArea zeroArea;
+    IsHairline zeroArea;
     if (GrIsPrimTypeLines(primitiveType) || GrPrimitiveType::kPoints == primitiveType) {
-        zeroArea = IsZeroArea::kYes;
+        zeroArea = IsHairline::kYes;
     } else {
-        zeroArea = IsZeroArea::kNo;
+        zeroArea = IsHairline::kNo;
     }
 
     this->setTransformedBounds(mesh.fVertices->bounds(),

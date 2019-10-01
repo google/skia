@@ -82,7 +82,7 @@ class CCPRGeometryView::DrawCoverageCountOp : public GrDrawOp {
 public:
     DrawCoverageCountOp(CCPRGeometryView* view) : INHERITED(ClassID()), fView(view) {
         this->setBounds(SkRect::MakeIWH(fView->width(), fView->height()), GrOp::HasAABloat::kNo,
-                        GrOp::IsZeroArea::kNo);
+                        GrOp::IsHairline::kNo);
     }
 
     const char* name() const override {

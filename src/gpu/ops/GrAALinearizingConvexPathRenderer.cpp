@@ -162,7 +162,7 @@ public:
             }
             bounds.outset(w, w);
         }
-        this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
+        this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kYes, IsHairline::kNo);
     }
 
     const char* name() const override { return "AAFlatteningConvexPathOp"; }

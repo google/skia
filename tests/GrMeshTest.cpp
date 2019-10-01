@@ -292,7 +292,7 @@ private:
         , fPrepareFn(prepareFn)
         , fExecuteFn(executeFn){
         this->setBounds(SkRect::MakeIWH(kImageWidth, kImageHeight),
-                        HasAABloat::kNo, IsZeroArea::kNo);
+                        HasAABloat::kNo, IsHairline::kNo);
     }
 
     const char* name() const override { return "GrMeshTestOp"; }

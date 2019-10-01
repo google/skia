@@ -87,7 +87,7 @@ public:
         fQuads.append(deviceQuad, { paintColor, edgeFlags },
                       fHelper.isTrivial() ? nullptr : &localQuad);
         this->setBounds(deviceQuad.bounds(), HasAABloat(aaType == GrAAType::kCoverage),
-                        IsZeroArea::kNo);
+                        IsHairline::kNo);
     }
 
     const char* name() const override { return "FillRectOp"; }
@@ -299,7 +299,7 @@ private:
         SkRect newBounds = this->bounds();
         newBounds.joinPossiblyEmptyRect(deviceQuad.bounds());
         this->setBounds(newBounds, HasAABloat(fHelper.aaType() == GrAAType::kCoverage),
-                        IsZeroArea::kNo);
+                        IsHairline::kNo);
         fQuads.append(deviceQuad, { color, edgeAA }, fHelper.isTrivial() ? nullptr : &localQuad);
     }
 

@@ -304,7 +304,7 @@ private:
         fProxyCnt = 1;
         fProxies[0] = {proxy.release(), 1};
         this->setBounds(dstQuad.bounds(), HasAABloat(aaType == GrAAType::kCoverage),
-                        IsZeroArea::kNo);
+                        IsHairline::kNo);
         fDomain = static_cast<unsigned>(domainRect != nullptr);
     }
     TextureOp(const GrRenderTargetContext::TextureSetEntry set[],
@@ -387,7 +387,8 @@ private:
         if (!mustFilter) {
             fFilter = static_cast<unsigned>(GrSamplerState::Filter::kNearest);
         }
-        this->setBounds(bounds, HasAABloat(this->aaType() == GrAAType::kCoverage), IsZeroArea::kNo);
+        this->setBounds(bounds, HasAABloat(this->aaType() == GrAAType::kCoverage),
+                        IsHairline::kNo);
         fDomain = static_cast<unsigned>(netDomain);
     }
 

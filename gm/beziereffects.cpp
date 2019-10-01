@@ -78,7 +78,7 @@ protected:
             , fColor(color)
             , fGeometryProcessor(std::move(gp))
             , fProcessorSet(SkBlendMode::kSrc) {
-        this->setBounds(rect, HasAABloat::kYes, IsZeroArea::kNo);
+        this->setBounds(rect, HasAABloat::kYes, IsHairline::kNo);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {

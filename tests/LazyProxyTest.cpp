@@ -107,7 +107,7 @@ public:
                     GrSurfaceProxy::UseAllocator::kYes);
 
             this->setBounds(SkRectPriv::MakeLargest(), GrOp::HasAABloat::kNo,
-                            GrOp::IsZeroArea::kNo);
+                            GrOp::IsHairline::kNo);
         }
 
         const char* name() const override { return "LazyProxyTest::Op"; }
@@ -358,7 +358,7 @@ private:
         SkASSERT(fLazyProxy.get());
 
         this->setBounds(SkRect::MakeIWH(kSize, kSize),
-                        HasAABloat::kNo, IsZeroArea::kNo);
+                        HasAABloat::kNo, IsHairline::kNo);
     }
 
     const char* name() const override { return "LazyFailedInstantiationTestOp"; }

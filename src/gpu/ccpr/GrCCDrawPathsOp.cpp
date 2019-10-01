@@ -118,7 +118,7 @@ GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrShape& shape, float 
     }
     // We always have AA bloat, even in MSAA atlas mode. This is because by the time this Op comes
     // along and draws to the main canvas, the atlas has been resolved to analytic coverage.
-    this->setBounds(clippedDrawBounds, GrOp::HasAABloat::kYes, GrOp::IsZeroArea::kNo);
+    this->setBounds(clippedDrawBounds, GrOp::HasAABloat::kYes, GrOp::IsHairline::kNo);
 }
 
 GrCCDrawPathsOp::~GrCCDrawPathsOp() {

@@ -61,7 +61,7 @@ public:
             fLocalQuad = GrQuad(*localRect);
         }
         // Choose some conservative values for aa bloat and zero area.
-        this->setBounds(r, HasAABloat::kYes, IsZeroArea::kYes);
+        this->setBounds(r, HasAABloat::kYes, IsHairline::kYes);
     }
 
     const char* name() const override { return "NonAARectOp"; }

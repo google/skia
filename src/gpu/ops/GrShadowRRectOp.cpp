@@ -218,7 +218,7 @@ public:
             }
         }
 
-        this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
+        this->setBounds(bounds, HasAABloat::kNo, IsHairline::kNo);
 
         fGeoData.emplace_back(Geometry{color, outerRadius, umbraInset, innerRadius,
                                        blurRadius, bounds, type, isCircle});

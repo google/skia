@@ -52,7 +52,7 @@ private:
             , fHasStencilClip(hasStencilClip)
             , fScissor(scissor)
             , fPath(std::move(path)) {
-        this->setBounds(fPath->getBounds(), HasAABloat::kNo, IsZeroArea::kNo);
+        this->setBounds(fPath->getBounds(), HasAABloat::kNo, IsHairline::kNo);
     }
 
     void onPrepare(GrOpFlushState*) override {}

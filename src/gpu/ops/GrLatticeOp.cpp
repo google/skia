@@ -165,7 +165,7 @@ public:
         patch.fDst = dst;
 
         // setup bounds
-        this->setTransformedBounds(patch.fDst, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
+        this->setTransformedBounds(patch.fDst, viewMatrix, HasAABloat::kNo, IsHairline::kNo);
     }
 
     const char* name() const override { return "NonAALatticeOp"; }
