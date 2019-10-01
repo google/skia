@@ -298,7 +298,8 @@ private:
         SkMatrix& combinedMatrix = fLines[0].fSrcRotInv;
         combinedMatrix.postConcat(geometry.fViewMatrix);
 
-        IsZeroArea zeroArea = geometry.fSrcStrokeWidth ? IsZeroArea::kNo : IsZeroArea::kYes;
+        HasZeroWidthEdge zeroArea = geometry.fSrcStrokeWidth ? HasZeroWidthEdge::kNo
+                                                             : HasZeroWidthEdge::kYes;
         HasAABloat aaBloat = (aaMode == AAMode::kNone) ? HasAABloat ::kNo : HasAABloat::kYes;
         this->setTransformedBounds(bounds, combinedMatrix, aaBloat, zeroArea);
     }

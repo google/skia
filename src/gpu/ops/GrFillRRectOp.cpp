@@ -102,7 +102,7 @@ GrFillRRectOp::GrFillRRectOp(
         , fFlags(flags)
         , fProcessors(std::move(paint)) {
     SkASSERT((fFlags & Flags::kHasPerspective) == totalShapeMatrix.hasPerspective());
-    this->setBounds(devBounds, GrOp::HasAABloat::kYes, GrOp::IsZeroArea::kNo);
+    this->setBounds(devBounds, GrOp::HasAABloat::kYes, GrOp::HasZeroWidthEdge::kNo);
 
     // Write the matrix attribs.
     const SkMatrix& m = totalShapeMatrix;
