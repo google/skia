@@ -82,13 +82,16 @@ enum class ByteCodeInstruction : uint16_t {
     // local/global slot to load
     VECTOR(kLoad),
     VECTOR(kLoadGlobal),
+    VECTOR(kLoadUniform),
     // As kLoad/kLoadGlobal, then a count byte (1-4), and then one byte per swizzle component (0-3).
     kLoadSwizzle,
     kLoadSwizzleGlobal,
+    kLoadSwizzleUniform,
     // kLoadExtended* are fallback load ops when we lack a specialization. They are followed by a
     // count byte, and get the slot to load from the top of the stack.
     kLoadExtended,
     kLoadExtendedGlobal,
+    kLoadExtendedUniform,
     // Followed by four bytes: srcCols, srcRows, dstCols, dstRows. Consumes the src matrix from the
     // stack, and replaces it with the dst matrix. Per GLSL rules, there are no restrictions on
     // dimensions. Any overlapping values are copied, and any other values are filled in with the
@@ -261,8 +264,8 @@ private:
     friend class ByteCodeGenerator;
     friend struct Interpreter;
 
-    int fGlobalCount = 0;
-    std::vector<uint8_t> fUniformSlots;
+    int fGlobalSlotCount = 0;
+    int fUniformSlotCount = 0;
     std::vector<std::unique_ptr<ByteCodeFunction>> fFunctions;
     std::vector<ExternalValue*> fExternalValues;
 };
