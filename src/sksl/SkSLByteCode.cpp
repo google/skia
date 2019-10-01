@@ -104,6 +104,10 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         case ByteCodeInstruction::kLoadGlobal2: printf("loadglobal2 %d", READ16() >> 8); break;
         case ByteCodeInstruction::kLoadGlobal3: printf("loadglobal3 %d", READ16() >> 8); break;
         case ByteCodeInstruction::kLoadGlobal4: printf("loadglobal4 %d", READ16() >> 8); break;
+        case ByteCodeInstruction::kLoadUniform: printf("loaduniform %d", READ16() >> 8); break;
+        case ByteCodeInstruction::kLoadUniform2: printf("loaduniform2 %d", READ16() >> 8); break;
+        case ByteCodeInstruction::kLoadUniform3: printf("loaduniform3 %d", READ16() >> 8); break;
+        case ByteCodeInstruction::kLoadUniform4: printf("loaduniform4 %d", READ16() >> 8); break;
         case ByteCodeInstruction::kLoadSwizzle: {
             int target = READ8();
             int count = READ8();
@@ -122,8 +126,19 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
             }
             break;
         }
+        case ByteCodeInstruction::kLoadSwizzleUniform: {
+            int target = READ8();
+            int count = READ8();
+            printf("loadswizzleuniform %d %d", target, count);
+            for (int i = 0; i < count; ++i) {
+                printf(", %d", READ8());
+            }
+            break;
+        }
         case ByteCodeInstruction::kLoadExtended: printf("loadextended %d", READ8()); break;
         case ByteCodeInstruction::kLoadExtendedGlobal: printf("loadextendedglobal %d", READ8());
+            break;
+        case ByteCodeInstruction::kLoadExtendedUniform: printf("loadextendeduniform %d", READ8());
             break;
         case ByteCodeInstruction::kMatrixToMatrix: {
             int srcCols = READ8();
@@ -537,8 +552,8 @@ static void Inverse4x4(VValue* sp) {
 }
 
 static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue* stack,
-                     float* outReturn[], VValue globals[], bool stripedOutput, int N,
-                     int baseIndex) {
+                     float* outReturn[], VValue globals[], const float uniforms[],
+                     bool stripedOutput, int N, int baseIndex) {
 #ifdef SKSLC_THREADED_CODE
     static const void* labels[] = {
         // If you aren't familiar with it, the &&label syntax is the GCC / Clang "labels as values"
@@ -580,10 +595,13 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
         &&kInverse4x4,
         VECTOR_LABELS(kLoad),
         VECTOR_LABELS(kLoadGlobal),
+        VECTOR_LABELS(kLoadUniform),
         &&kLoadSwizzle,
         &&kLoadSwizzleGlobal,
+        &&kLoadSwizzleUniform,
         &&kLoadExtended,
         &&kLoadExtendedGlobal,
+        &&kLoadExtendedUniform,
         &&kMatrixToMatrix,
         &&kMatrixMultiply,
         VECTOR_MATRIX_LABELS(kNegateF),
@@ -671,10 +689,13 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
     CHECK_LABEL(kInverse4x4);
     CHECK_VECTOR_LABELS(kLoad);
     CHECK_VECTOR_LABELS(kLoadGlobal);
+    CHECK_VECTOR_LABELS(kLoadUniform);
     CHECK_LABEL(kLoadSwizzle);
     CHECK_LABEL(kLoadSwizzleGlobal);
+    CHECK_LABEL(kLoadSwizzleUniform);
     CHECK_LABEL(kLoadExtended);
     CHECK_LABEL(kLoadExtendedGlobal);
+    CHECK_LABEL(kLoadExtendedUniform);
     CHECK_LABEL(kMatrixToMatrix);
     CHECK_LABEL(kMatrixMultiply);
     CHECK_VECTOR_MATRIX_LABELS(kNegateF);
@@ -914,6 +935,14 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                         ip += 2;
                         NEXT();
 
+    LABEL(kLoadUniform4) sp[4].fFloat = uniforms[ip[1] + 3];
+    LABEL(kLoadUniform3) sp[3].fFloat = uniforms[ip[1] + 2];
+    LABEL(kLoadUniform2) sp[2].fFloat = uniforms[ip[1] + 1];
+    LABEL(kLoadUniform)  sp[1].fFloat = uniforms[ip[1] + 0];
+                        sp += ip[0];
+                        ip += 2;
+                        NEXT();
+
     LABEL(kLoadExtended) {
         int count = READ8();
         I32 src = POP().fSigned;
@@ -944,6 +973,21 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
         NEXT();
     }
 
+    LABEL(kLoadExtendedUniform) {
+        int count = READ8();
+        I32 src = POP().fSigned;
+        I32 m = mask();
+        for (int i = 0; i < count; ++i) {
+            for (int j = 0; j < VecWidth; ++j) {
+                if (m[j]) {
+                    sp[i + 1].fFloat[j] = uniforms[src[j] + i];
+                }
+            }
+        }
+        sp += count;
+        NEXT();
+    }
+
     LABEL(kLoadSwizzle) {
         int src = READ8();
         int count = READ8();
@@ -959,6 +1003,16 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
         int count = READ8();
         for (int i = 0; i < count; ++i) {
             PUSH(globals[src + *(ip + i)]);
+        }
+        ip += count;
+        NEXT();
+    }
+
+    LABEL(kLoadSwizzleUniform) {
+        int src = READ8();
+        int count = READ8();
+        for (int i = 0; i < count; ++i) {
+            PUSH(F32(uniforms[src + *(ip + i)]));
         }
         ip += count;
         NEXT();
@@ -1447,10 +1501,15 @@ void ByteCodeFunction::preprocess(const void* labels[]) {
             case ByteCodeInstruction::kLoadGlobal:
             case ByteCodeInstruction::kLoadGlobal2:
             case ByteCodeInstruction::kLoadGlobal3:
-            case ByteCodeInstruction::kLoadGlobal4: READ16(); break;
+            case ByteCodeInstruction::kLoadGlobal4:
+            case ByteCodeInstruction::kLoadUniform:
+            case ByteCodeInstruction::kLoadUniform2:
+            case ByteCodeInstruction::kLoadUniform3:
+            case ByteCodeInstruction::kLoadUniform4: READ16(); break;
 
             case ByteCodeInstruction::kLoadSwizzle:
-            case ByteCodeInstruction::kLoadSwizzleGlobal: {
+            case ByteCodeInstruction::kLoadSwizzleGlobal:
+            case ByteCodeInstruction::kLoadSwizzleUniform: {
                 READ8();
                 int count = READ8();
                 ip += count;
@@ -1459,6 +1518,7 @@ void ByteCodeFunction::preprocess(const void* labels[]) {
 
             case ByteCodeInstruction::kLoadExtended:
             case ByteCodeInstruction::kLoadExtendedGlobal:
+            case ByteCodeInstruction::kLoadExtendedUniform:
                 READ8();
                 break;
 
@@ -1577,16 +1637,13 @@ bool ByteCode::run(const ByteCodeFunction* f,
 
     if (argCount != f->fParameterCount ||
         returnCount != f->fReturnCount ||
-        uniformCount != (int)fUniformSlots.size()) {
+        uniformCount != fUniformSlotCount) {
         return false;
     }
 
     Interpreter::VValue globals[32];
-    if (fGlobalCount > (int)SK_ARRAY_COUNT(globals)) {
+    if (fGlobalSlotCount > (int)SK_ARRAY_COUNT(globals)) {
         return false;
-    }
-    for (uint8_t slot : fUniformSlots) {
-        globals[slot].fFloat = *uniforms++;
     }
 
     // Transpose args into stack
@@ -1601,7 +1658,7 @@ bool ByteCode::run(const ByteCodeFunction* f,
 
     bool stripedOutput = false;
     float** outArray = outReturn ? &outReturn : nullptr;
-    if (!Interpreter::InnerRun(this, f, stack, outArray, globals, stripedOutput, 1, 0)) {
+    if (!Interpreter::InnerRun(this, f, stack, outArray, globals, uniforms, stripedOutput, 1, 0)) {
         return false;
     }
 
@@ -1642,16 +1699,13 @@ bool ByteCode::runStriped(const ByteCodeFunction* f, int N,
 
     if (argCount != f->fParameterCount ||
         returnCount != f->fReturnCount ||
-        uniformCount != (int)fUniformSlots.size()) {
+        uniformCount != fUniformSlotCount) {
         return false;
     }
 
     Interpreter::VValue globals[32];
-    if (fGlobalCount > (int)SK_ARRAY_COUNT(globals)) {
+    if (fGlobalSlotCount > (int)SK_ARRAY_COUNT(globals)) {
         return false;
-    }
-    for (uint8_t slot : fUniformSlots) {
-        globals[slot].fFloat = *uniforms++;
     }
 
     // innerRun just takes outArgs, so clear it if the count is zero
@@ -1670,7 +1724,7 @@ bool ByteCode::runStriped(const ByteCodeFunction* f, int N,
         }
 
         bool stripedOutput = true;
-        if (!Interpreter::InnerRun(this, f, stack, outReturn, globals, stripedOutput, w,
+        if (!Interpreter::InnerRun(this, f, stack, outReturn, globals, uniforms, stripedOutput, w,
                                    baseIndex)) {
             return false;
         }

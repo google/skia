@@ -164,19 +164,65 @@ private:
         } fValue;
     };
 
+
+    // Similar to Variable::Storage, but locals and parameters are grouped together, and globals
+    // are further subidivided into uniforms and other (writable) globals.
+    enum class Storage {
+        kLocal,    // include parameters
+        kGlobal,   // non-uniform globals
+        kUniform,  // uniform globals
+    };
+
+    struct Location {
+        int     fSlot;
+        Storage fStorage;
+
+        // Not really invalid, but a "safe" placeholder to be more explicit at call-sites
+        static Location MakeInvalid() { return { 0, Storage::kLocal }; }
+
+        Location makeOnStack() { return { -1, fStorage }; }
+        bool isOnStack() const { return fSlot < 0; }
+
+        Location operator+(int offset) {
+            SkASSERT(fSlot >= 0);
+            return { fSlot + offset, fStorage };
+        }
+
+        ByteCodeInstruction selectLoad(ByteCodeInstruction local,
+                                       ByteCodeInstruction global,
+                                       ByteCodeInstruction uniform) const {
+            switch (fStorage) {
+                case Storage::kLocal:   return local;
+                case Storage::kGlobal:  return global;
+                case Storage::kUniform: return uniform;
+            }
+            SkUNREACHABLE;
+        }
+
+        ByteCodeInstruction selectStore(ByteCodeInstruction local,
+                                        ByteCodeInstruction global) const {
+            switch (fStorage) {
+                case Storage::kLocal:   return local;
+                case Storage::kGlobal:  return global;
+                case Storage::kUniform: SK_ABORT("Trying to store to a uniform"); break;
+            }
+            return local;
+        }
+    };
+
     /**
      * Returns the local slot into which var should be stored, allocating a new slot if it has not
      * already been assigned one. Compound variables (e.g. vectors) will consume more than one local
      * slot, with the getLocation return value indicating where the first element should be stored.
      */
-    int getLocation(const Variable& var);
+    Location getLocation(const Variable& var);
 
     /**
      * As above, but computes the (possibly dynamic) address of an expression involving indexing &
      * field access. If the address is known, it's returned. If not, -1 is returned, and the
      * location will be left on the top of the stack.
      */
-    int getLocation(const Expression& expr, Variable::Storage* storage);
+    Location getLocation(const Expression& expr);
 
     std::unique_ptr<ByteCodeFunction> writeFunction(const FunctionDefinition& f);
 
