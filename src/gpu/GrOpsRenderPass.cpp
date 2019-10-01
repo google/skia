@@ -79,9 +79,12 @@ static void assert_msaa_and_mips_are_resolved(
 }
 #endif
 
-bool GrOpsRenderPass::draw(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
+bool GrOpsRenderPass::draw(const GrFoo& foo,
+#if 0
+                           const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
                            const GrPipeline::FixedDynamicState* fixedDynamicState,
                            const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+#endif
                            const GrMesh meshes[], int meshCount, const SkRect& bounds) {
 #ifdef SK_DEBUG
     SkASSERT(!primProc.hasInstanceAttributes() || this->gpu()->caps()->instanceAttribSupport());

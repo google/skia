@@ -23,6 +23,7 @@
 #include "src/gpu/GrCpuBuffer.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrFixedClip.h"
+#include "src/gpu/GrFoo.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrMesh.h"
 #include "src/gpu/GrPipeline.h"
@@ -1658,13 +1659,18 @@ void GrGLGpu::disableWindowRectangles() {
 }
 
 bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
+                           const GrFoo& foo,
+#if 0
                            GrSurfaceOrigin origin,
                            const GrPrimitiveProcessor& primProc,
                            const GrPipeline& pipeline,
                            const GrPipeline::FixedDynamicState* fixedDynamicState,
                            const GrPipeline::DynamicStateArrays* dynamicStateArrays,
                            int dynamicStateArraysLength,
+#endif
                            bool willDrawPoints) {
+
+#if 0
     const GrTextureProxy* const* primProcProxies = nullptr;
     const GrTextureProxy* const* primProcProxiesToBind = nullptr;
     if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
@@ -1675,9 +1681,11 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
     }
 
     SkASSERT(SkToBool(primProcProxies) == SkToBool(primProc.numTextureSamplers()));
+#endif
 
-    sk_sp<GrGLProgram> program(fProgramCache->refProgram(
-            this, renderTarget, origin, primProc, primProcProxies, pipeline, willDrawPoints));
+    sk_sp<GrGLProgram> program(fProgramCache->refProgram(this, renderTarget, foo,
+    //    origin, primProc, primProcProxies, pipeline,
+                                                         willDrawPoints));
     if (!program) {
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;
@@ -1687,10 +1695,10 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
 
     // Swizzle the blend to match what the shader will output.
     this->flushBlendAndColorWrite(
-            pipeline.getXferProcessor().getBlendInfo(), pipeline.outputSwizzle());
+            foo.pipeline().getXferProcessor().getBlendInfo(), pipeline.outputSwizzle());
 
-    fHWProgram->updateUniformsAndTextureBindings(renderTarget, origin,
-                                                 primProc, pipeline, primProcProxiesToBind);
+    fHWProgram->updateUniformsAndTextureBindings(renderTarget, foo);
+//                                                 origin, primProc, pipeline, primProcProxiesToBind);
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
     GrStencilSettings stencil;
@@ -1700,15 +1708,15 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
         stencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(),
                       glRT->renderTargetPriv().numStencilBits());
     }
-    this->flushStencil(stencil, origin);
+    this->flushStencil(stencil, foo.origin());
     if (pipeline.isScissorEnabled()) {
         static constexpr SkIRect kBogusScissor{0, 0, 1, 1};
         GrScissorState state(fixedDynamicState ? fixedDynamicState->fScissorRect : kBogusScissor);
-        this->flushScissor(state, glRT->width(), glRT->height(), origin);
+        this->flushScissor(state, glRT->width(), glRT->height(), foo.origin());
     } else {
         this->disableScissor();
     }
-    this->flushWindowRectangles(pipeline.getWindowRectsState(), glRT, origin);
+    this->flushWindowRectangles(pipeline.getWindowRectsState(), glRT, foo.origin());
     this->flushHWAAState(glRT, pipeline.isHWAntialiasState());
 
     // This must come after textures are flushed because a texture may need
@@ -2123,11 +2131,16 @@ void GrGLGpu::flushViewport(int width, int height) {
     #endif
 #endif
 
-void GrGLGpu::draw(GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
+void GrGLGpu::draw(GrRenderTarget* renderTarget,
+#if 0
+                   GrSurfaceOrigin origin,
                    const GrPrimitiveProcessor& primProc,
                    const GrPipeline& pipeline,
                    const GrPipeline::FixedDynamicState* fixedDynamicState,
                    const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+#else
+                   const GrFoo& foo,
+#endif
                    const GrMesh meshes[],
                    int meshCount) {
     this->handleDirtyContext();
@@ -2139,8 +2152,9 @@ void GrGLGpu::draw(GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
             break;
         }
     }
-    if (!this->flushGLState(renderTarget, origin, primProc, pipeline, fixedDynamicState,
-                            dynamicStateArrays, meshCount, hasPoints)) {
+    if (!this->flushGLState(renderTarget, foo,
+                            //origin, primProc, pipeline, fixedDynamicState, dynamicStateArrays, meshCount
+                            hasPoints)) {
         return;
     }
 

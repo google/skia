@@ -21,18 +21,24 @@ typedef size_t shader_size;
 
 GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         GrVkGpu* gpu,
-        GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
+        GrRenderTarget* renderTarget,
+#if 0
+        int numSamples, GrSurfaceOrigin origin,
         const GrPrimitiveProcessor& primProc,
         const GrTextureProxy* const primProcProxies[],
         const GrPipeline& pipeline,
+#else
+        const GrFoo& foo,
+#endif
         const GrStencilSettings& stencil,
         GrPrimitiveType primitiveType,
         Desc* desc,
         VkRenderPass compatibleRenderPass) {
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrVkPipelineStateBuilder builder(gpu, renderTarget, origin, pipeline, primProc,
-                                     primProcProxies, desc);
+    GrVkPipelineStateBuilder builder(gpu, renderTarget, foo, desc);
+//                                     numSamples, origin, pipeline, primProc,
+//                                     primProcProxies, desc);
 
     if (!builder.emitAndInstallProcs()) {
         return nullptr;
@@ -43,12 +49,17 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
 
 GrVkPipelineStateBuilder::GrVkPipelineStateBuilder(GrVkGpu* gpu,
                                                    GrRenderTarget* renderTarget,
+#if 0
+                                                   int numSamples,
                                                    GrSurfaceOrigin origin,
                                                    const GrPipeline& pipeline,
                                                    const GrPrimitiveProcessor& primProc,
                                                    const GrTextureProxy* const primProcProxies[],
+#else
+                                                   const GrFoo& foo,
+#endif
                                                    GrProgramDesc* desc)
-        : INHERITED(renderTarget, origin, primProc, primProcProxies, pipeline, desc)
+        : INHERITED(renderTarget, foo, desc) // numSamples, origin, primProc, primProcProxies, pipeline, desc)
         , fGpu(gpu)
         , fVaryingHandler(this)
         , fUniformHandler(this) {}
@@ -139,7 +150,7 @@ int GrVkPipelineStateBuilder::loadShadersFromCache(SkReader32* cached,
 void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
                                                    const SkSL::Program::Inputs inputs[],
                                                    bool isSkSL) {
-    Desc* desc = static_cast<Desc*>(this->desc());
+    const Desc* desc = static_cast<const Desc*>(this->desc1());
     sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->shaderKeyLength());
     sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedShaders(isSkSL ? kSKSL_Tag : kSPIRV_Tag,
                                                                    shaders,
@@ -291,8 +302,10 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
             this->storeShadersInCache(shaders, inputs, isSkSL);
         }
     }
-    GrVkPipeline* pipeline = resourceProvider.createPipeline(
-            this->renderTarget()->numSamples(), fPrimProc, fPipeline, stencil, this->origin(),
+    GrVkPipeline* pipeline = resourceProvider.createPipeline(fFoo,
+            //this->numSamples1(), this->primitiveProcessor(), this->pipeline(),
+            stencil,
+            // this->origin(),
             shaderStageInfo, numShaderStages, primitiveType, compatibleRenderPass, pipelineLayout);
     for (int i = 0; i < kGrShaderTypeCount; ++i) {
         // This if check should not be needed since calling destroy on a VK_NULL_HANDLE is allowed.

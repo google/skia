@@ -118,9 +118,10 @@ public:
      *
      * It is the caller's responsibility to ensure the program is bound before calling.
      */
-    void updateUniformsAndTextureBindings(const GrRenderTarget*, GrSurfaceOrigin,
-                                          const GrPrimitiveProcessor&, const GrPipeline&,
-                                          const GrTextureProxy* const primitiveProcessorTextures[]);
+    void updateUniformsAndTextureBindings(const GrRenderTarget*, const GrFoo&);
+//                                          GrSurfaceOrigin,
+//                                          const GrPrimitiveProcessor&, const GrPipeline&,
+//                                          const GrTextureProxy* const primitiveProcessorTextures[]);
 
     void updatePrimitiveProcessorTextureBindings(const GrPrimitiveProcessor&,
                                                  const GrTextureProxy* const[]);
