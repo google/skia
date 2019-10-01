@@ -8,6 +8,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontMgr.h"
+#include "include/core/SkFontStyle.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTFitsIn.h"
@@ -44,18 +45,28 @@ static inline SkUnichar utf8_next(const char** ptr, const char* end) {
 class FontMgrRunIterator final : public SkShaper::FontRunIterator {
 public:
     FontMgrRunIterator(const char* utf8, size_t utf8Bytes, const SkFont& font,
-                       sk_sp<SkFontMgr> fallbackMgr)
+                       sk_sp<SkFontMgr> fallbackMgr,
+                       const char* requestName, SkFontStyle requestStyle,
+                       const SkShaper::LanguageRunIterator* lang)
         : fCurrent(utf8), fBegin(utf8), fEnd(fCurrent + utf8Bytes)
         , fFallbackMgr(std::move(fallbackMgr))
         , fFont(font)
         , fFallbackFont(fFont)
         , fCurrentFont(nullptr)
+        , fRequestName(requestName)
+        , fRequestStyle(requestStyle)
+        , fLanguage(lang)
     {
         fFont.setTypeface(font.refTypefaceOrDefault());
         fFallbackFont.setTypeface(nullptr);
     }
+    FontMgrRunIterator(const char* utf8, size_t utf8Bytes, const SkFont& font,
+                       sk_sp<SkFontMgr> fallbackMgr)
+        : FontMgrRunIterator(utf8, utf8Bytes, font, std::move(fallbackMgr), nullptr, font.refTypefaceOrDefault()->fontStyle(), nullptr) {}
+
     void consume() override {
         SkASSERT(fCurrent < fEnd);
+        SkASSERT(!fLanguage || this->endOfCurrentRun() <= fLanguage->endOfCurrentRun());
         SkUnichar u = utf8_next(&fCurrent, fEnd);
         // If the starting typeface can handle this character, use it.
         if (fFont.unicharToGlyph(u)) {
@@ -65,8 +76,9 @@ public:
             fCurrentFont = &fFallbackFont;
         // If not, try to find a fallback typeface
         } else {
+            const char* language = fLanguage ? fLanguage->currentLanguage() : nullptr;
             sk_sp<SkTypeface> candidate(fFallbackMgr->matchFamilyStyleCharacter(
-                nullptr, fFont.getTypeface()->fontStyle(), nullptr, 0, u));
+                fRequestName, fRequestStyle, fLanguage ? &language : nullptr, fLanguage ? 1 : 0, u));
             if (candidate) {
                 fFallbackFont.setTypeface(std::move(candidate));
                 fCurrentFont = &fFallbackFont;
@@ -87,8 +99,9 @@ public:
 
             // End run if current typeface does not have this character and some other font does.
             if (!fCurrentFont->unicharToGlyph(u)) {
+                const char* language = fLanguage ? fLanguage->currentLanguage() : nullptr;
                 sk_sp<SkTypeface> candidate(fFallbackMgr->matchFamilyStyleCharacter(
-                    nullptr, fFont.getTypeface()->fontStyle(), nullptr, 0, u));
+                    fRequestName, fRequestStyle, fLanguage ? &language : nullptr, fLanguage ? 1 : 0, u));
                 if (candidate) {
                     fCurrent = prev;
                     return;
@@ -111,10 +124,13 @@ private:
     char const * fCurrent;
     char const * const fBegin;
     char const * const fEnd;
-    sk_sp<SkFontMgr> fFallbackMgr;
+    sk_sp<SkFontMgr> const fFallbackMgr;
     SkFont fFont;
     SkFont fFallbackFont;
     SkFont* fCurrentFont;
+    char const * const fRequestName;
+    SkFontStyle const fRequestStyle;
+    SkShaper::LanguageRunIterator const * const fLanguage;
 };
 
 std::unique_ptr<SkShaper::FontRunIterator>
@@ -122,6 +138,15 @@ SkShaper::MakeFontMgrRunIterator(const char* utf8, size_t utf8Bytes,
                                  const SkFont& font, sk_sp<SkFontMgr> fallback)
 {
     return skstd::make_unique<FontMgrRunIterator>(utf8, utf8Bytes, font, std::move(fallback));
+}
+
+std::unique_ptr<SkShaper::FontRunIterator>
+SkShaper::MakeFontMgrRunIterator(const char* utf8, size_t utf8Bytes, const SkFont& font,
+                                 sk_sp<SkFontMgr> fallback,
+                                 const char* requestName, SkFontStyle requestStyle,
+                                 const SkShaper::LanguageRunIterator* lang)
+{
+    return skstd::make_unique<FontMgrRunIterator>(utf8, utf8Bytes, font, std::move(fallback), requestName, requestStyle, lang);
 }
 
 std::unique_ptr<SkShaper::LanguageRunIterator>
