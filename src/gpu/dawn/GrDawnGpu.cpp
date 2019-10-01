@@ -143,7 +143,7 @@ void GrDawnGpu::disconnect(DisconnectType type) {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrOpsRenderPass* GrDawnGpu::getOpsRenderPass(
-            GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
+            GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
             const SkTArray<GrTextureProxy*, true>& sampledProxies) {
