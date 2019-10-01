@@ -56,7 +56,7 @@ GrClearOp::GrClearOp(const GrFixedClip& clip, const SkPMColor4f& color, GrSurfac
         }
     }
     this->setBounds(SkRect::Make(fClip.scissorEnabled() ? fClip.scissorRect() : rtRect),
-                    HasAABloat::kNo, IsZeroArea::kNo);
+                    HasAABloat::kNo, HasZeroWidthEdge::kNo);
 }
 
 void GrClearOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
