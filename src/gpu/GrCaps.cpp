@@ -177,7 +177,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("MSAA Resolves Automatically", fMSAAResolvesAutomatically);
     writer->appendBool("Use primitive restart", fUsePrimitiveRestart);
     writer->appendBool("Prefer client-side dynamic buffers", fPreferClientSideDynamicBuffers);
-    writer->appendBool("Prefer fullscreen clears", fPreferFullscreenClears);
+    writer->appendBool("Prefer fullscreen clears (and stencil discard)", fPreferFullscreenClears);
     writer->appendBool("Must clear buffer memory", fMustClearUploadedBufferData);
     writer->appendBool("Should initialize textures", fShouldInitializeTextures);
     writer->appendBool("Supports importing AHardwareBuffers", fSupportsAHardwareBufferImages);
