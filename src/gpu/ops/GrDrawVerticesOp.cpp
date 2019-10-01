@@ -178,11 +178,11 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMCol
         mesh.fViewMatrix.preConcat(worldTransform);
     }
 
-    IsZeroArea zeroArea;
+    HasZeroWidthEdge zeroArea;
     if (GrIsPrimTypeLines(primitiveType) || GrPrimitiveType::kPoints == primitiveType) {
-        zeroArea = IsZeroArea::kYes;
+        zeroArea = HasZeroWidthEdge::kYes;
     } else {
-        zeroArea = IsZeroArea::kNo;
+        zeroArea = HasZeroWidthEdge::kNo;
     }
 
     this->setTransformedBounds(mesh.fVertices->bounds(),

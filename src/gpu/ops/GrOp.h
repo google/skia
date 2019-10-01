@@ -243,26 +243,27 @@ protected:
         kYes = true
     };
     /**
-     * Indicates that the geometry represented by the op has zero area (e.g. it is hairline or
-     * points).
+     * Indicates that the geometry represented by the op has zero area edges (e.g. it is hairline or
+     * points). This refers to the edges being "zero" width, so a hairline rect is still considered
+     * to be HasZeroWidthEdge::kYes.
      */
-    enum class IsZeroArea : bool {
+    enum class HasZeroWidthEdge : bool {
         kNo = false,
         kYes = true
     };
 
-    void setBounds(const SkRect& newBounds, HasAABloat aabloat, IsZeroArea zeroArea) {
+    void setBounds(const SkRect& newBounds, HasAABloat aabloat, HasZeroWidthEdge zeroArea) {
         fBounds = newBounds;
         this->setBoundsFlags(aabloat, zeroArea);
     }
     void setTransformedBounds(const SkRect& srcBounds, const SkMatrix& m,
-                              HasAABloat aabloat, IsZeroArea zeroArea) {
+                              HasAABloat aabloat, HasZeroWidthEdge zeroArea) {
         m.mapRect(&fBounds, srcBounds);
         this->setBoundsFlags(aabloat, zeroArea);
     }
     void makeFullScreen(GrSurfaceProxy* proxy) {
         this->setBounds(SkRect::MakeIWH(proxy->width(), proxy->height()),
-                        HasAABloat::kNo, IsZeroArea::kNo);
+                        HasAABloat::kNo, HasZeroWidthEdge::kNo);
     }
 
     static uint32_t GenOpClassID() { return GenID(&gCurrOpClassID); }
@@ -296,10 +297,10 @@ private:
         return id;
     }
 
-    void setBoundsFlags(HasAABloat aabloat, IsZeroArea zeroArea) {
+    void setBoundsFlags(HasAABloat aabloat, HasZeroWidthEdge zeroArea) {
         fBoundsFlags = 0;
         fBoundsFlags |= (HasAABloat::kYes == aabloat) ? kAABloat_BoundsFlag : 0;
-        fBoundsFlags |= (IsZeroArea ::kYes == zeroArea) ? kZeroArea_BoundsFlag : 0;
+        fBoundsFlags |= (HasZeroWidthEdge ::kYes == zeroArea) ? kZeroArea_BoundsFlag : 0;
     }
 
     enum {
