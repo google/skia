@@ -75,10 +75,12 @@ SkRect MotionBlurEffect::seekToSample(size_t sample_idx, const SkMatrix& ctm) co
 }
 
 SkRect MotionBlurEffect::onRevalidate(sksg::InvalidationController*, const SkMatrix& ctm) {
-    SkRect bounds = SkRect::MakeEmpty();
+    SkRect bounds       = SkRect::MakeEmpty();
+    fVisibleSampleCount = 0;
 
     for (size_t i = 0; i < fSampleCount; ++i) {
         bounds.join(this->seekToSample(i, ctm));
+        fVisibleSampleCount += SkToSizeT(this->children()[0]->isVisible());
     }
 
     return bounds;
@@ -90,105 +92,108 @@ void MotionBlurEffect::renderToRaster8888Pow2Samples(SkCanvas* canvas,
     // We can play dirty tricks.
 
     // Don't worry about "Next"... this is exact.
-    const int shift = SkNextLog2(fSampleCount);
-    SkASSERT((size_t(1)<<shift) == fSampleCount);
+    const int shift = SkNextLog2(fVisibleSampleCount);
+    SkASSERT((size_t(1)<<shift) == fVisibleSampleCount);
 
     SkASSERT(this->children().size() == 1ul);
     const sk_sp<RenderNode>& child = this->children()[0];
 
-    std::vector<uint64_t> accum;
+    SkAutoCanvasRestore acr(canvas, false);
     canvas->saveLayer(this->bounds(), nullptr);
-    {
-        SkImageInfo info;
-        size_t rowBytes;
-        auto layer = (uint32_t*)canvas->accessTopLayerPixels(&info, &rowBytes);
-        SkASSERT(layer);
-        SkASSERT(info.colorType() == kRGBA_8888_SkColorType ||
-                 info.colorType() == kBGRA_8888_SkColorType);
 
-        bool needs_clear = false;  // Cleared initially by saveLayer().
-        for (size_t i = 0; i < fSampleCount; ++i) {
-            this->seekToSample(i, canvas->getTotalMatrix());
+    SkImageInfo info;
+    size_t rowBytes;
+    auto layer = (uint32_t*)canvas->accessTopLayerPixels(&info, &rowBytes);
+    SkASSERT(layer);
+    SkASSERT(info.colorType() == kRGBA_8888_SkColorType ||
+             info.colorType() == kBGRA_8888_SkColorType);
 
-            if (!child->isVisible()) {
-                continue;
-            }
+    SkASSERT(!info.isEmpty());
+    std::vector<uint64_t> accum(info.width() * info.height());
 
-            // Draw this subframe.
-            if (needs_clear) {
-                canvas->clear(0);
-            }
-            needs_clear = true;
-            child->render(canvas, ctx);
+    SkDEBUGCODE(size_t frames_rendered = 0;)
+    bool needs_clear = false;  // Cleared initially by saveLayer().
+    for (size_t i = 0; i < fSampleCount; ++i) {
+        this->seekToSample(i, canvas->getTotalMatrix());
 
-            // Pluck out the pixels we've drawn in the layer.
-            const uint32_t* src = layer;
-            if (accum.empty()) {
-                accum.resize(info.width() * info.height());
-            }
-            uint64_t* dst = accum.data();
-
-            for (int y = 0; y < info.height(); y++) {
-                // Expand 8-bit to 16-bit and accumulate.
-                int n = info.width();
-                const auto row = src;
-                while (n >= 4) {
-                    auto s = skvx::Vec<16, uint8_t >::Load(src);
-                    auto d = skvx::Vec<16, uint16_t>::Load(dst);
-
-                    (d + skvx::cast<uint16_t>(s)).store(dst);
-
-                    src += 4;
-                    dst += 4;
-                    n   -= 4;
-                }
-                while (n) {
-                    auto s = skvx::Vec<4, uint8_t >::Load(src);
-                    auto d = skvx::Vec<4, uint16_t>::Load(dst);
-
-                    (d + skvx::cast<uint16_t>(s)).store(dst);
-
-                    src += 1;
-                    dst += 1;
-                    n   -= 1;
-                }
-                src = (const uint32_t*)( (const char*)row + rowBytes );
-            }
+        if (!child->isVisible()) {
+            continue;
         }
 
-        // Actually draw the frame using the accumulated subframes.
-        if (!accum.empty()) {
-            const uint64_t* src = accum.data();
-            uint32_t* dst = layer;
-            for (int y = 0; y < info.height(); y++) {
-                // Divide accumulated subframes through by sample count.
-                int n = info.width();
-                const auto row = dst;
-                while (n >= 4) {
-                    auto s = skvx::Vec<16, uint16_t>::Load(src);
-                    skvx::cast<uint8_t>(s >> shift).store(dst);
+        // Draw this subframe.
+        if (needs_clear) {
+            canvas->clear(0);
+        }
+        needs_clear = true;
+        child->render(canvas, ctx);
+        SkDEBUGCODE(frames_rendered++;)
 
-                    src += 4;
-                    dst += 4;
-                    n   -= 4;
-                }
-                while (n) {
-                    auto s = skvx::Vec<4, uint16_t>::Load(src);
-                    skvx::cast<uint8_t>(s >> shift).store(dst);
+        // Pluck out the pixels we've drawn in the layer.
+        const uint32_t* src = layer;
+              uint64_t* dst = accum.data();
 
-                    src += 1;
-                    dst += 1;
-                    n   -= 1;
-                }
+        for (int y = 0; y < info.height(); y++) {
+            // Expand 8-bit to 16-bit and accumulate.
+            int n = info.width();
+            const auto row = src;
+            while (n >= 4) {
+                auto s = skvx::Vec<16, uint8_t >::Load(src);
+                auto d = skvx::Vec<16, uint16_t>::Load(dst);
 
-                dst = (uint32_t*)( (char*)row + rowBytes );
+                (d + skvx::cast<uint16_t>(s)).store(dst);
+
+                src += 4;
+                dst += 4;
+                n   -= 4;
             }
+            while (n) {
+                auto s = skvx::Vec<4, uint8_t >::Load(src);
+                auto d = skvx::Vec<4, uint16_t>::Load(dst);
+
+                (d + skvx::cast<uint16_t>(s)).store(dst);
+
+                src += 1;
+                dst += 1;
+                n   -= 1;
+            }
+            src = (const uint32_t*)( (const char*)row + rowBytes );
         }
     }
-    canvas->restore();
+    SkASSERT(frames_rendered == fVisibleSampleCount);
+
+    // Actually draw the frame using the accumulated subframes.
+    const uint64_t* src = accum.data();
+          uint32_t* dst = layer;
+    for (int y = 0; y < info.height(); y++) {
+        // Divide accumulated subframes through by sample count.
+        int n = info.width();
+        const auto row = dst;
+        while (n >= 4) {
+            auto s = skvx::Vec<16, uint16_t>::Load(src);
+            skvx::cast<uint8_t>(s >> shift).store(dst);
+
+            src += 4;
+            dst += 4;
+            n   -= 4;
+        }
+        while (n) {
+            auto s = skvx::Vec<4, uint16_t>::Load(src);
+            skvx::cast<uint8_t>(s >> shift).store(dst);
+
+            src += 1;
+            dst += 1;
+            n   -= 1;
+        }
+
+        dst = (uint32_t*)( (char*)row + rowBytes );
+    }
 }
 
 void MotionBlurEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
+    if (!fVisibleSampleCount) {
+        return;
+    }
+
     SkASSERT(this->children().size() == 1ul);
     const auto& child = this->children()[0];
 
@@ -199,7 +204,7 @@ void MotionBlurEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) cons
     SkPixmap pm;
     if (canvas->peekPixels(&pm) && (canvas->imageInfo().colorType() == kRGBA_8888_SkColorType ||
                                     canvas->imageInfo().colorType() == kBGRA_8888_SkColorType   )
-                                && SkIsPow2(fSampleCount)) {
+                                && SkIsPow2(fVisibleSampleCount)) {
         this->renderToRaster8888Pow2Samples(canvas, ctx);
         return;
     }
@@ -209,7 +214,7 @@ void MotionBlurEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) cons
     // Accumulate in F16 for more precision.
     canvas->saveLayer(SkCanvas::SaveLayerRec(&this->bounds(), nullptr, SkCanvas::kF16ColorType));
 
-    const float frame_alpha = 1.0f / fSampleCount;
+    const float frame_alpha = 1.0f / fVisibleSampleCount;
 
     // Depending on whether we can defer frame blending,
     // use a local (deferred) RenderContext or an explicit layer for frame/content rendering.
@@ -225,6 +230,7 @@ void MotionBlurEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) cons
                              .modulateBlendMode(SkBlendMode::kPlus);
     }
 
+    SkDEBUGCODE(size_t frames_rendered = 0;)
     for (size_t i = 0; i < fSampleCount; ++i) {
         this->seekToSample(i, canvas->getTotalMatrix());
 
@@ -238,7 +244,10 @@ void MotionBlurEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) cons
         }
 
         child->render(canvas, frame_ctx);
+        SkDEBUGCODE(frames_rendered++;)
     }
+
+    SkASSERT(frames_rendered == fVisibleSampleCount);
 }
 
 } // namespace internal

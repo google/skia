@@ -45,7 +45,8 @@ private:
     const float                 fPhase,
                                 fDT;
 
-    float fT = 0;
+    float  fT                  = 0;
+    size_t fVisibleSampleCount = 0;
 
     using INHERITED = sksg::CustomRenderNode;
 };
