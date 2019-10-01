@@ -140,7 +140,7 @@ public:
         fRect.sort();
         fStrokeWidth = stroke.getWidth();
 
-        SkScalar rad = fStrokeWidth ? SkScalarHalf(fStrokeWidth) : 0.5f;
+        SkScalar rad = SkScalarHalf(fStrokeWidth);
         SkRect bounds = rect;
         bounds.outset(rad, rad);
 
@@ -157,7 +157,8 @@ public:
             bounds.offset(0.5f, 0.5f);
             this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
         } else {
-            this->setTransformedBounds(bounds, fViewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
+            this->setTransformedBounds(bounds, fViewMatrix, HasAABloat::kNo,
+                                       fStrokeWidth ? IsZeroArea::kNo : IsZeroArea::kYes);
         }
     }
 

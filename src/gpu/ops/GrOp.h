@@ -244,7 +244,8 @@ protected:
     };
     /**
      * Indicates that the geometry represented by the op has zero area (e.g. it is hairline or
-     * points).
+     * points). This refers to the "edges" being zero area, so a hairline rect is still considered
+     * to be IsZeroArea::kYes.
      */
     enum class IsZeroArea : bool {
         kNo = false,
