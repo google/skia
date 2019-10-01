@@ -18,8 +18,11 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrResourceAllocator.h"
+#include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/geometry/GrRect.h"
 #include "src/gpu/ops/GrClearOp.h"
@@ -427,7 +430,7 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
 static GrOpsRenderPass* create_render_pass(
         GrGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
         GrLoadOp colorLoadOp, const SkPMColor4f& loadClearColor, GrLoadOp stencilLoadOp,
-        const SkTArray<GrTextureProxy*, true>& sampledProxies) {
+        GrStoreOp stencilStoreOp, const SkTArray<GrTextureProxy*, true>& sampledProxies) {
     const GrOpsRenderPass::LoadAndStoreInfo kColorLoadStoreInfo {
         colorLoadOp,
         GrStoreOp::kStore,
@@ -441,7 +444,7 @@ static GrOpsRenderPass* create_render_pass(
     // lower level (inside the VK command buffer).
     const GrOpsRenderPass::StencilLoadAndStoreInfo stencilLoadAndStoreInfo {
         stencilLoadOp,
-        GrStoreOp::kStore,
+        stencilStoreOp,
     };
 
     return gpu->getOpsRenderPass(rt, origin, bounds, kColorLoadStoreInfo, stencilLoadAndStoreInfo,
@@ -463,23 +466,60 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
     SkASSERT(fTarget->peekRenderTarget());
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
-    // TODO: at the very least, we want the stencil store op to always be discard (at this
-    // level). In Vulkan, sub-command buffers would still need to load & store the stencil buffer.
-
     // Make sure load ops are not kClear if the GPU needs to use draws for clears
     SkASSERT(fColorLoadOp != GrLoadOp::kClear ||
              !flushState->gpu()->caps()->performColorClearsAsDraws());
-    SkASSERT(fStencilLoadOp != GrLoadOp::kClear ||
-             !flushState->gpu()->caps()->performStencilClearsAsDraws());
+
+    const GrCaps& caps = *flushState->gpu()->caps();
+    GrRenderTarget* renderTarget = fTarget.get()->peekRenderTarget();
+    SkASSERT(renderTarget);
+    GrStencilAttachment* stencil = renderTarget->renderTargetPriv().getStencilAttachment();
+
+    GrLoadOp stencilLoadOp;
+    switch (fInitialStencilContent) {
+        case StencilContent::kDontCare:
+            stencilLoadOp = GrLoadOp::kDiscard;
+            break;
+        case StencilContent::kUserBitsCleared:
+            SkASSERT(!caps.performStencilClearsAsDraws());
+            SkASSERT(stencil);
+            if (caps.discardStencilValuesAfterRenderPass()) {
+                // Always clear the stencil if it is being discarded after render passes. This is
+                // also an optimization because we are on a tiler and it avoids loading the values
+                // from memory.
+                stencilLoadOp = GrLoadOp::kClear;
+                break;
+            }
+            if (!stencil->hasPerformedInitialClear()) {
+                stencilLoadOp = GrLoadOp::kClear;
+                stencil->markHasPerformedInitialClear();
+                break;
+            }
+            // renderTargetContexts are required to leave the user stencil bits in a cleared state
+            // once finished, meaning the stencil values will always remain cleared after the
+            // initial clear. Just fall through to reloading the existing (cleared) stencil values
+            // from memory.
+        case StencilContent::kPreserved:
+            SkASSERT(stencil);
+            stencilLoadOp = GrLoadOp::kLoad;
+            break;
+    }
+
+    // NOTE: If fMustPreserveStencil is set, then we are executing a renderTargetContext that split
+    // its opsTask.
+    //
+    // FIXME: We don't currently flag render passes that don't use stencil at all. In that case
+    // their store op might be "discard", and we currently make the assumption that a discard will
+    // not invalidate what's already in main memory. This is probably ok for now, but certainly
+    // something we want to address soon.
+    GrStoreOp stencilStoreOp = (caps.discardStencilValuesAfterRenderPass() && !fMustPreserveStencil)
+            ? GrStoreOp::kDiscard
+            : GrStoreOp::kStore;
+
     GrOpsRenderPass* renderPass = create_render_pass(
-                                                    flushState->gpu(),
-                                                    fTarget->peekRenderTarget(),
-                                                    fTarget->origin(),
-                                                    fClippedContentBounds,
-                                                    fColorLoadOp,
-                                                    fLoadClearColor,
-                                                    fStencilLoadOp,
-                                                    fSampledProxies);
+            flushState->gpu(), fTarget->peekRenderTarget(), fTarget->origin(),
+            fClippedContentBounds, fColorLoadOp, fLoadClearColor, stencilLoadOp, stencilStoreOp,
+            fSampledProxies);
     flushState->setOpsRenderPass(renderPass);
     renderPass->begin();
 
@@ -547,7 +587,7 @@ void GrOpsTask::discard() {
     // opsTasks' color & stencil load ops.
     if (this->isEmpty()) {
         fColorLoadOp = GrLoadOp::kDiscard;
-        fStencilLoadOp = GrLoadOp::kDiscard;
+        fInitialStencilContent = StencilContent::kDontCare;
         fTotalBounds.setEmpty();
     }
 }
@@ -555,17 +595,34 @@ void GrOpsTask::discard() {
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG
-static const char* load_op_to_name(GrLoadOp op) {
-    return GrLoadOp::kLoad == op ? "load" : GrLoadOp::kClear == op ? "clear" : "discard";
-}
-
 void GrOpsTask::dump(bool printDependencies) const {
     GrRenderTask::dump(printDependencies);
 
-    SkDebugf("ColorLoadOp: %s %x StencilLoadOp: %s\n",
-             load_op_to_name(fColorLoadOp),
-             GrLoadOp::kClear == fColorLoadOp ? fLoadClearColor.toBytes_RGBA() : 0x0,
-             load_op_to_name(fStencilLoadOp));
+    SkDebugf("fColorLoadOp: ");
+    switch (fColorLoadOp) {
+        case GrLoadOp::kLoad:
+            SkDebugf("kLoad\n");
+            break;
+        case GrLoadOp::kClear:
+            SkDebugf("kClear (0x%x)\n", fLoadClearColor.toBytes_RGBA());
+            break;
+        case GrLoadOp::kDiscard:
+            SkDebugf("kDiscard\n");
+            break;
+    }
+
+    SkDebugf("fInitialStencilContent: ");
+    switch (fInitialStencilContent) {
+        case StencilContent::kDontCare:
+            SkDebugf("kDontCare\n");
+            break;
+        case StencilContent::kUserBitsCleared:
+            SkDebugf("kUserBitsCleared\n");
+            break;
+        case StencilContent::kPreserved:
+            SkDebugf("kPreserved\n");
+            break;
+    }
 
     SkDebugf("ops (%d):\n", fOpChains.count());
     for (int i = 0; i < fOpChains.count(); ++i) {
