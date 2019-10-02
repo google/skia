@@ -441,7 +441,6 @@ public:
     void drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>, const SkRect& bounds);
 
     using ReadPixelsCallback = SkSurface::ReadPixelsCallback;
-    using ReadPixelsCallbackYUV420 = SkSurface::ReadPixelsCallbackYUV420;
     using ReadPixelsContext = SkSurface::ReadPixelsContext;
     using RescaleGamma = SkSurface::RescaleGamma;
 
@@ -451,10 +450,12 @@ public:
                                    ReadPixelsCallback callback, ReadPixelsContext context);
     // GPU implementation for SkSurface::asyncRescaleAndReadPixelsYUV420.
     void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
-                                         sk_sp<SkColorSpace> dstColorSpace, const SkIRect& srcRect,
-                                         int dstW, int dstH, RescaleGamma rescaleGamma,
+                                         sk_sp<SkColorSpace> dstColorSpace,
+                                         const SkIRect& srcRect,
+                                         const SkISize& dstSize,
+                                         RescaleGamma rescaleGamma,
                                          SkFilterQuality rescaleQuality,
-                                         ReadPixelsCallbackYUV420 callback,
+                                         ReadPixelsCallback callback,
                                          ReadPixelsContext context);
 
     /**
@@ -621,6 +622,8 @@ private:
     // value is false then a texture copy could not be made.
     bool SK_WARN_UNUSED_RESULT setupDstProxy(const GrClip&, const GrOp& op,
                                              GrXferProcessor::DstProxy* result);
+
+    class AsyncReadResult;
 
     // The async read step of asyncRescaleAndReadPixels()
     void asyncReadPixels(const SkIRect& rect, SkColorType colorType, ReadPixelsCallback callback,
