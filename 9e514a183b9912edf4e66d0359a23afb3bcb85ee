@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "740c519f_e4c2fbb0",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-10-02T16:11:46Z",
+      "side": 0,
+      "message": "We might still need this as I\u0027m not sure if any of our other clients is trying to build with Xcode 9 or older. I\u0027d say leave it out and see if anyone squawks.",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 31
+      },
+      "revId": "9e514a183b9912edf4e66d0359a23afb3bcb85ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
