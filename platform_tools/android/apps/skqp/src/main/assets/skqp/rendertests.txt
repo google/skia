@@ -141,7 +141,7 @@ colorfilteralpha8,0
 colorfilterimagefilter,0
 colorfilterimagefilter_layer,0
 colorfiltershader,50000
-colormatrix,1
+colormatrix,200
 colorwheel,0
 colorwheelnative,0
 combinemaskfilter,0
