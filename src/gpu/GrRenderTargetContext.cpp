@@ -208,11 +208,8 @@ GrOpsTask* GrRenderTargetContext::getOpsTask() {
     if (!fOpsTask || fOpsTask->isClosed()) {
         sk_sp<GrOpsTask> newOpsTask =
                 this->drawingManager()->newOpsTask(fRenderTargetProxy, fManagedOpsTask);
-        if (fNumStencilSamples > 0) {
-            // fNumStencilSamples is initially 0, and it should only get modified after the point
-            // that we've started building an opsTask.
-            SkASSERT(fOpsTask);
-            // Store the stencil values to memory upon completion of fOpsTask.
+        if (fOpsTask && fNumStencilSamples > 0) {
+            // Store the stencil values in memory upon completion of fOpsTask.
             fOpsTask->setMustPreserveStencil();
             // Reload the stencil buffer content at the beginning of newOpsTask.
             // FIXME: Could the topo sort insert a task between these two that modifies the stencil
