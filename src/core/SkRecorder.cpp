@@ -59,7 +59,7 @@ void SkRecorder::reset(SkRecord* record, const SkRect& bounds,
     fDrawPictureMode = dpm;
     fRecord = record;
     SkIRect rounded = bounds.roundOut();
-    this->resetCanvas(rounded.right(), rounded.bottom());
+    this->resetCanvas(rounded);
     fMiniRecorder = mr;
 }
 
