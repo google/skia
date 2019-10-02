@@ -79,7 +79,7 @@ sk_sp<SkSpecialImage> SkComposeImageFilterImpl::onFilterImage(const Context& ctx
     SkIRect innerClipBounds;
     innerClipBounds = this->getInput(0)->filterBounds(ctx.clipBounds(), ctx.ctm(),
                                                       kReverse_MapDirection, &ctx.clipBounds());
-    Context innerContext = ctx.withNewClipBounds(innerClipBounds);
+    Context innerContext = ctx.withNewDesiredOutput(skif::LayerSpace<SkIRect>(innerClipBounds));
     SkIPoint innerOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> inner(this->filterInput(1, innerContext, &innerOffset));
     if (!inner) {
