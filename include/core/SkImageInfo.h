@@ -560,16 +560,6 @@ public:
         return Make({newWidth, newHeight}, fColorInfo);
     }
 
-    /** Creates SkImageInfo with the same SkColorType, SkColorSpace, and SkAlphaType,
-        with dimensions set to newDimensions.
-
-        @param newSize   pixel column and row count; must be zero or greater
-        @return          created SkImageInfo
-    */
-    SkImageInfo makeDimensions(SkISize newSize) const {
-        return Make(newSize, fColorInfo);
-    }
-
     /** Creates SkImageInfo with same SkColorType, SkColorSpace, width, and height,
         with SkAlphaType set to newAlphaType.
 

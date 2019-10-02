@@ -451,7 +451,7 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
     SkASSERT(static_cast<unsigned>(r.fTop) < static_cast<unsigned>(this->height()));
 
     SkBitmap dst;
-    dst.setInfo(this->info().makeDimensions(r.size()), this->rowBytes());
+    dst.setInfo(this->info().makeWH(r.width(), r.height()), this->rowBytes());
     dst.setIsVolatile(this->isVolatile());
 
     if (fPixelRef) {
@@ -492,7 +492,7 @@ bool SkBitmap::writePixels(const SkPixmap& src, int dstX, int dstY) {
     }
 
     void* dstPixels = this->getAddr(rec.fX, rec.fY);
-    const SkImageInfo dstInfo = this->info().makeDimensions(rec.fInfo.dimensions());
+    const SkImageInfo dstInfo = this->info().makeWH(rec.fInfo.width(), rec.fInfo.height());
     SkConvertPixels(dstInfo, dstPixels, this->rowBytes(), rec.fInfo, rec.fPixels, rec.fRowBytes);
     this->notifyPixelsChanged();
     return true;
