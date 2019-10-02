@@ -503,8 +503,6 @@
       "image",
       "_",
       ".SRW",
-      "--match",
-      "~HalfFloatAlphaTextureTest",
       "--nonativeFonts",
       "--verbose"
     ],
