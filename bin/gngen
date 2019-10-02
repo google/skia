@@ -1,0 +1,50 @@
+#! /usr/bin/env python
+# Copyright 2019 Google LLC.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import subprocess
+import sys
+import os
+import re
+
+'''
+example use:
+    bin/gngen out/default \
+        cc_wrapper="ccache" \
+        skia_use_metal=true \
+        extra_cflags=-DSK_PDF_LESS_COMPRESSION \
+        extra_cflags=-DGR_GL_CHECK_ERROR \
+        extra_cflags=-DSK_PDF_BASE85_BINARY
+
+is equivilent to calling:
+    bin/gn gen out/foobar '--args=skia_use_metal=true cc_wrapper="ccache" extra_cflags=["-DSK_PDF_LESS_COMPRESSION","-DGR_GL_CHECK_ERROR","-DSK_PDF_BASE85_BINARY"]'
+'''
+
+PWD = os.path.dirname(__file__)
+directory = sys.argv[1]
+args = {}
+def escape(s):
+    return '"%s"' % s.replace('"', '\\"').replace(
+            '$', '\\$').replace('\\', '\\\\')
+for arg in sys.argv[2:]:
+    key, value = arg.split('=', 1)
+    if value not in ['true', 'false'] and not re.match('^-?[0-9]+$', value):
+        value = escape(value)
+    if key not in args:
+        args[key] = value
+    else:
+        old = args[key]
+        if isinstance(old, list):
+            old.append(value)
+        else:
+            args[key] = [old, value]
+
+def fmt(v):
+    return '[%s]' % ','.join(v) if isinstance(v, list) else v
+
+argstring = ' '.join('%s=%s' % (k, fmt(v)) for k, v in args.items())
+
+cmd = [PWD + '/gn', 'gen', directory, '--args=' + argstring]
+print ' '.join(repr(x) for x in cmd)
+subprocess.check_call(cmd)
