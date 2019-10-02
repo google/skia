@@ -346,7 +346,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::CopyFromRaster(const SkIRect& subset,
     }
 
     SkBitmap tmp;
-    SkImageInfo info = bm.info().makeWH(subset.width(), subset.height());
+    SkImageInfo info = bm.info().makeDimensions(subset.size());
     // As in MakeFromRaster, must force src to N32 for ImageFilters
     if (!valid_for_imagefilters(bm.info())) {
         info = info.makeColorType(kN32_SkColorType);

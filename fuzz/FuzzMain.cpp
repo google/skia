@@ -428,7 +428,7 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
 
     SkImageInfo decodeInfo = codec->getInfo();
     SkISize size = codec->getScaledDimensions(fscale);
-    decodeInfo = decodeInfo.makeWH(size.width(), size.height());
+    decodeInfo = decodeInfo.makeDimensions(size);
 
     SkBitmap bitmap;
     SkCodec::Options options;
