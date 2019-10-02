@@ -174,8 +174,7 @@ template <> void Draw::draw(const DrawDrawable& r) {
 class FillBounds : SkNoncopyable {
 public:
     FillBounds(const SkRect& cullRect, const SkRecord& record, SkRect bounds[])
-        : fNumRecords(record.count())
-        , fCullRect(cullRect)
+        : fCullRect(cullRect)
         , fBounds(bounds) {
         fCTM = SkMatrix::I();
 
@@ -503,8 +502,6 @@ private:
         }
         return true;
     }
-
-    const int fNumRecords;
 
     // We do not guarantee anything for operations outside of the cull rect
     const SkRect fCullRect;
