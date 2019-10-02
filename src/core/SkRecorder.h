@@ -40,7 +40,7 @@ private:
 class SkRecorder final : public SkCanvasVirtualEnforcer<SkNoDrawCanvas> {
 public:
     // Does not take ownership of the SkRecord.
-    SkRecorder(SkRecord*, int width, int height, SkMiniRecorder* = nullptr);   // legacy version
+    SkRecorder(SkRecord*, int width, int height, SkMiniRecorder* = nullptr);   // TODO: remove
     SkRecorder(SkRecord*, const SkRect& bounds, SkMiniRecorder* = nullptr);
 
     enum DrawPictureMode {
