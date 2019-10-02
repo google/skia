@@ -25,6 +25,13 @@
 #define SkAssertResult(x) do { if (!(x)) abort(); } while (false)
 #define SkDEBUGCODE(...) __VA_ARGS__
 #define SK_API
+#if !defined(SkUNREACHABLE)
+#  if defined(_MSC_VER) && !defined(__clang__)
+#    define SkUNREACHABLE __assume(false)
+#  else
+#    define SkUNREACHABLE __builtin_unreachable()
+#  endif
+#endif
 #else
 #include "include/core/SkTypes.h"
 #endif

@@ -204,7 +204,7 @@ private:
             switch (fStorage) {
                 case Storage::kLocal:   return local;
                 case Storage::kGlobal:  return global;
-                case Storage::kUniform: SK_ABORT("Trying to store to a uniform"); break;
+                case Storage::kUniform: SkASSERT(false && "Trying to store to a uniform"); break;
             }
             return local;
         }
