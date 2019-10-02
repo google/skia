@@ -95,6 +95,7 @@ void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     GrStencilSettings stencil;
     init_stencil_pass_settings(*state, this->fillType(), &stencil);
     state->gpu()->pathRendering()->drawPath(state->drawOpArgs().renderTarget(),
+                                            state->drawOpArgs().renderTarget()->numSamples(),
                                             state->drawOpArgs().origin(),
                                             *pathProc, pipeline, fixedDynamicState, stencil,
                                             fPath.get());
