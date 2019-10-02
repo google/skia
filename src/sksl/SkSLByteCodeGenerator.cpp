@@ -70,7 +70,7 @@ bool ByteCodeGenerator::generateCode() {
                     // should either specialize the program (Compiler::specialize) to bake in the
                     // final values of the 'in' variables, or not use 'in' variables (maybe you
                     // meant to use 'uniform' instead?).
-//                    SkASSERT(!(declVar->fModifiers.fFlags & Modifiers::kIn_Flag));
+                    SkASSERT(!(declVar->fModifiers.fFlags & Modifiers::kIn_Flag));
                     if (declVar->fModifiers.fFlags & Modifiers::kUniform_Flag) {
                         for (int i = SlotCount(declVar->fType); i > 0; --i) {
                             fOutput->fUniformSlots.push_back(fOutput->fGlobalCount++);
