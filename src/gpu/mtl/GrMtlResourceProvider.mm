@@ -32,7 +32,7 @@ GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
     int64_t maxBufferLength = 256*1024*1024;
 #endif
 #if GR_METAL_SDK_VERSION >= 200
-    if ([gpu->device() respondsToSelector:@selector(maxBufferLength)]) {
+    if (@available(iOS 12, macOS 10.14, *)) {
        maxBufferLength = gpu->device().maxBufferLength;
     }
 #endif
