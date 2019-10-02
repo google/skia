@@ -909,3 +909,55 @@ DEF_TEST(Picture_drawsNothing, r) {
         REPORTER_ASSERT(r, pic->cullRect().isEmpty() == c.draws_nothing);
     }
 }
+
+DEF_TEST(Picture_emptyBug, r) {
+    const SkRect bounds = {-5000, -5000, 5000, 5000};
+
+    SkPictureRecorder recorder;
+    SkRTreeFactory factory;
+
+    // These three pictures should all draw the same but due to bugs they don't:
+    //
+    //   1) inner has enough content that it is recoreded as an SkBigPicture,
+    //      and all its content falls ouside the positive/positive quadrant,
+    //      and it is recorded with an R-tree so we contract the cullRect to those bounds;
+    //
+    //   2) middle wraps inner,
+    //      and it its recorded with an R-tree so we update middle's cullRect to inner's;
+    //
+    //   3) outer wraps inner,
+    //      and notices that middle contains only one op, drawPicture(inner),
+    //      so it plays middle back during recording rather than ref'ing middle,
+    //      querying middle's R-tree wit'its SkCanvas bounds {0,0, 5000,5000},
+    //      finding nothing to draw.
+    //
+    //   The real root issue here is in SkRecordDraw.cpp, trying to query
+    //   which ops to play back:
+    //
+    //   if (bbh) {
+    //       SkRect query = canvas->getLocalClipBounds();
+    //
+    //       SkTDArray<int> ops;
+    //       bbh->search(query, &ops);
+    //   ...
+    //
+    //   That query rect does not reflect the original bounds we passed to beginRecording().
+    //   Instead, it's the _size_ of the SkNoPixelsDevice we back recording canvases with,
+    //   transformed by the CTM (here I) and outset by 1 to {-1,-1, 5001,5001}.
+    {
+        SkCanvas* canvas = recorder.beginRecording(bounds, &factory);
+        canvas->translate(-100,-100);
+        canvas->drawRect({0,0,50,50}, SkPaint{});
+    }
+    sk_sp<SkPicture> inner = recorder.finishRecordingAsPicture();
+
+    recorder.beginRecording(bounds, &factory)->drawPicture(inner);
+    sk_sp<SkPicture> middle = recorder.finishRecordingAsPicture();
+
+    recorder.beginRecording(bounds)->drawPicture(middle);
+    sk_sp<SkPicture> outer = recorder.finishRecordingAsPicture();
+
+    REPORTER_ASSERT(r, (inner ->cullRect() == SkRect{-100,-100, -50,-50}));
+    REPORTER_ASSERT(r, (middle->cullRect() == SkRect{-100,-100, -50,-50}));
+    REPORTER_ASSERT(r, (outer ->cullRect() == SkRect{-100,-100, -50,-50}));
+}
