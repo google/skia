@@ -103,13 +103,13 @@ static SkDeserialProcs maked(SkDeserialPictureProc proc, const void* ctx = nullp
 }
 
 // packages the picture's point in the skdata, and records it in the ctx as an array
-struct Context {
+struct AsyncContext {
     SkTDArray<SkPicture*>   fArray;
     SkPicture*              fSkipMe = nullptr;
 };
 
 static sk_sp<SkData> array_serial_proc(SkPicture* pic, void* ctx) {
-    Context* c = (Context*)ctx;
+    AsyncContext* c = (AsyncContext*)ctx;
     if (c->fSkipMe == pic) {
         return nullptr;
     }
@@ -120,7 +120,7 @@ static sk_sp<SkData> array_serial_proc(SkPicture* pic, void* ctx) {
 static sk_sp<SkPicture> array_deserial_proc(const void* data, size_t size, void* ctx) {
     SkASSERT(sizeof(SkPicture*) == size);
 
-    Context* c = (Context*)ctx;
+    AsyncContext* c = (AsyncContext*)ctx;
     SkPicture* pic;
     memcpy(&pic, data, size);
 
@@ -133,7 +133,7 @@ static sk_sp<SkPicture> array_deserial_proc(const void* data, size_t size, void*
 
 static void test_pictures(skiatest::Reporter* reporter, sk_sp<SkPicture> p0, int count,
                           bool skipRoot) {
-    Context ctx;
+    AsyncContext ctx;
     if (skipRoot) {
         ctx.fSkipMe = p0.get();
     }

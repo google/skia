@@ -246,7 +246,7 @@ bool zero_rect(const SkImageInfo& dstInfo, void* pixels, size_t rowBytes,
         }
     }
 
-    const SkImageInfo info = dstInfo.makeWH(prevRect.width(), prevRect.height());
+    const SkImageInfo info = dstInfo.makeDimensions(prevRect.size());
     const size_t bpp = dstInfo.bytesPerPixel();
     const size_t offset = prevRect.x() * bpp + prevRect.y() * rowBytes;
     void* eraseDst = SkTAddOffset<void>(pixels, offset);
