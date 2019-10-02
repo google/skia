@@ -39,11 +39,11 @@ GrSkSLFPFactory::GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCap
                     fInAndUniformVars.push_back(&var);
                 }
                 // "in uniform" doesn't make sense outside of .fp files
-                //SkASSERT((var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) == 0 ||
-                //         (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) == 0);
+                SkASSERT((var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) == 0 ||
+                         (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) == 0);
                 // "layout(key)" doesn't make sense outside of .fp files; all 'in' variables are
                 // part of the key
-                //SkASSERT(!var.fModifiers.fLayout.fKey);
+                SkASSERT(!var.fModifiers.fLayout.fKey);
             }
         }
     }
