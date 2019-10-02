@@ -655,10 +655,6 @@ def dm_flags(api, bot):
     # skia:6575
     match.append('~multipicturedraw_')
 
-  if 'CommandBuffer' in bot:
-    # https://crbug.com/697030
-    match.append('~HalfFloatAlphaTextureTest')
-
   if 'AndroidOne' in bot:
     match.append('~WritePixels')  # skia:4711
     match.append('~PremulAlphaRoundTrip_Gpu')  # skia:7501

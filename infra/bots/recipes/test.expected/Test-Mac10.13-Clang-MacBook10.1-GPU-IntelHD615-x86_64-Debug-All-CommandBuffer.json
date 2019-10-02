@@ -504,7 +504,6 @@
       "_",
       ".SRW",
       "--match",
-      "~HalfFloatAlphaTextureTest",
       "~^SRGBReadWritePixels$",
       "~^GrMeshTest$",
       "--nonativeFonts",
