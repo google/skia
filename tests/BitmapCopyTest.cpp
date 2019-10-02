@@ -192,7 +192,8 @@ DEF_TEST(BitmapReadPixels, reporter) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
         clear_4x4_pixels(dstPixels);
 
-        dstInfo = dstInfo.makeDimensions(gRec[i].fRequestedDstSize);
+        dstInfo = dstInfo.makeWH(gRec[i].fRequestedDstSize.width(),
+                                 gRec[i].fRequestedDstSize.height());
         bool success = srcBM.readPixels(dstInfo, dstPixels, rowBytes,
                                         gRec[i].fRequestedSrcLoc.x(), gRec[i].fRequestedSrcLoc.y());
 

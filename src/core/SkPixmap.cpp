@@ -76,7 +76,7 @@ bool SkPixmap::extractSubset(SkPixmap* result, const SkIRect& subset) const {
         const size_t bpp = fInfo.bytesPerPixel();
         pixels = (const uint8_t*)fPixels + r.fTop * fRowBytes + r.fLeft * bpp;
     }
-    result->reset(fInfo.makeDimensions(r.size()), pixels, fRowBytes);
+    result->reset(fInfo.makeWH(r.width(), r.height()), pixels, fRowBytes);
     return true;
 }
 
@@ -163,7 +163,7 @@ bool SkPixmap::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t ds
     }
 
     const void* srcPixels = this->addr(rec.fX, rec.fY);
-    const SkImageInfo srcInfo = fInfo.makeDimensions(rec.fInfo.dimensions());
+    const SkImageInfo srcInfo = fInfo.makeWH(rec.fInfo.width(), rec.fInfo.height());
     SkConvertPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, srcInfo, srcPixels, this->rowBytes());
     return true;
 }

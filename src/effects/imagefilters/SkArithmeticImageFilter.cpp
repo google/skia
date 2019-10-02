@@ -193,10 +193,10 @@ static bool intersect(SkPixmap* dst, SkPixmap* src, int srcDx, int srcDy) {
     if (!sect.intersect(dstR, srcR)) {
         return false;
     }
-    *dst = SkPixmap(dst->info().makeDimensions(sect.size()),
+    *dst = SkPixmap(dst->info().makeWH(sect.width(), sect.height()),
                     dst->addr(sect.fLeft, sect.fTop),
                     dst->rowBytes());
-    *src = SkPixmap(src->info().makeDimensions(sect.size()),
+    *src = SkPixmap(src->info().makeWH(sect.width(), sect.height()),
                     src->addr(SkTMax(0, -srcDx), SkTMax(0, -srcDy)),
                     src->rowBytes());
     return true;
