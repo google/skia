@@ -141,8 +141,15 @@ void GrCCPathProcessor::drawPaths(GrOpFlushState* flushState, const GrPipeline& 
                              baseInstance, enablePrimitiveRestart);
     mesh.setVertexData(resources.refVertexBuffer());
 
-    flushState->opsRenderPass()->draw(*this, pipeline, fixedDynamicState, nullptr, &mesh, 1,
-                                      bounds);
+    GrFoo foo(1, kTopLeft_GrSurfaceOrigin,
+              pipeline,
+              *this,
+              fixedDynamicState,
+              nullptr);
+
+    flushState->opsRenderPass()->draw(foo,
+//                                      *this, pipeline, fixedDynamicState, nullptr,
+                                      &mesh, 1, bounds);
 }
 
 void GrCCPathProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {

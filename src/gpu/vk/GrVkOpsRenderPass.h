@@ -70,17 +70,24 @@ private:
                       const GrGpuBuffer* vertexBuffer,
                       const GrGpuBuffer* instanceBuffer);
 
-    GrVkPipelineState* prepareDrawState(const GrPrimitiveProcessor&,
+    GrVkPipelineState* prepareDrawState(
+#if 0
+                                        const GrPrimitiveProcessor&,
                                         const GrPipeline&,
                                         const GrPipeline::FixedDynamicState*,
                                         const GrPipeline::DynamicStateArrays*,
+#endif
+                                        const GrFoo&,
                                         GrPrimitiveType,
                                         const SkIRect& renderPassScissorRect);
 
-    void onDraw(const GrPrimitiveProcessor&,
+    void onDraw(const GrFoo&,
+#if 0
+                const GrPrimitiveProcessor&,
                 const GrPipeline&,
                 const GrPipeline::FixedDynamicState*,
                 const GrPipeline::DynamicStateArrays*,
+#endif
                 const GrMesh[],
                 int meshCount,
                 const SkRect& bounds) override;

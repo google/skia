@@ -63,10 +63,16 @@ public:
     * @return true if generation was successful.
     */
     static GrVkPipelineState* CreatePipelineState(GrVkGpu*,
-                                                  GrRenderTarget*, GrSurfaceOrigin,
+                                                  GrRenderTarget*,
+#if 0
+                                                  int numSamples,
+                                                  GrSurfaceOrigin,
                                                   const GrPrimitiveProcessor&,
                                                   const GrTextureProxy* const primProcProxies[],
                                                   const GrPipeline&,
+#else
+                                                  const GrFoo&,
+#endif
                                                   const GrStencilSettings&,
                                                   GrPrimitiveType,
                                                   Desc*,
@@ -80,10 +86,15 @@ public:
     void finalizeFragmentSecondaryColor(GrShaderVar& outputColor) override;
 
 private:
-    GrVkPipelineStateBuilder(GrVkGpu*, GrRenderTarget*, GrSurfaceOrigin,
+    GrVkPipelineStateBuilder(GrVkGpu*, GrRenderTarget*,
+#if 0
+                             int numSamples, GrSurfaceOrigin,
                              const GrPipeline&,
                              const GrPrimitiveProcessor&,
                              const GrTextureProxy* const primProcProxies[],
+#else
+                             const GrFoo&,
+#endif
                              GrProgramDesc*);
 
     GrVkPipelineState* finalize(const GrStencilSettings&,

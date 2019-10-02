@@ -132,6 +132,10 @@ private:
         float   fKLM[4]; // The last value is ignored. The effect expects a vec4f.
     };
 
+    void onPrePrepareDraws() override {
+
+    }
+
     void onPrepareDraws(Target* target) override {
         SkASSERT(this->gp()->vertexStride() == sizeof(Vertex));
         QuadHelper helper(target, sizeof(Vertex), 1);
@@ -342,6 +346,10 @@ private:
         SkPoint fPosition;
         float   fKLM[4]; // The last value is ignored. The effect expects a vec4f.
     };
+
+    void onPrePrepareDraws() override {
+
+    }
 
     void onPrepareDraws(Target* target) override {
         SkASSERT(this->gp()->vertexStride() == sizeof(Vertex));
