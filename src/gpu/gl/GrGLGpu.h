@@ -75,11 +75,15 @@ public:
     // The GrGLOpsRenderPass does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the draw call for the corresponding passthrough function
     // on GrGLOpsRenderPass.
-    void draw(GrRenderTarget*, GrSurfaceOrigin,
+    void draw(GrRenderTarget*,
+              const GrFoo&,
+#if 0
+              GrSurfaceOrigin,
               const GrPrimitiveProcessor&,
               const GrPipeline&,
               const GrPipeline::FixedDynamicState*,
               const GrPipeline::DynamicStateArrays*,
+#endif
               const GrMesh[],
               int meshCount);
 
@@ -272,9 +276,14 @@ private:
     // willDrawPoints must be true if point primitives will be rendered after setting the GL state.
     // If DynamicStateArrays is not null then dynamicStateArraysLength is the number of dynamic
     // state entries in each array.
-    bool flushGLState(GrRenderTarget*, GrSurfaceOrigin, const GrPrimitiveProcessor&,
+    bool flushGLState(GrRenderTarget*,
+#if 0
+                      GrSurfaceOrigin, const GrPrimitiveProcessor&,
                       const GrPipeline&, const GrPipeline::FixedDynamicState*,
                       const GrPipeline::DynamicStateArrays*, int dynamicStateArraysLength,
+#else
+                      const GrFoo&,
+#endif
                       bool willDrawPoints);
 
     void flushProgram(sk_sp<GrGLProgram>);
@@ -313,10 +322,15 @@ private:
 
         void abandon();
         void reset();
-        GrGLProgram* refProgram(GrGLGpu*, GrRenderTarget*, GrSurfaceOrigin,
-                                const GrPrimitiveProcessor&,
+        GrGLProgram* refProgram(GrGLGpu*, GrRenderTarget*,
+#if 0
+                                GrSurfaceOrigin, const GrPrimitiveProcessor&,
                                 const GrTextureProxy* const primProcProxies[],
-                                const GrPipeline&, bool hasPointSize);
+                                const GrPipeline&,
+#else
+                                const GrFoo&,
+#endif
+                                bool hasPointSize);
         bool precompileShader(const SkData& key, const SkData& data);
 
     private:

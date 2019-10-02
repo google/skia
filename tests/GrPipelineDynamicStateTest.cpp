@@ -13,6 +13,7 @@
 #include "src/core/SkMakeUnique.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrFoo.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
@@ -149,8 +150,16 @@ private:
         }
         GrPipeline::DynamicStateArrays dynamicState;
         dynamicState.fScissorRects = kDynamicScissors;
-        state->opsRenderPass()->draw(GrPipelineDynamicStateTestProcessor(), pipeline, nullptr,
-                                     &dynamicState, meshes.begin(), 4,
+
+        GrFoo foo(1, kTopLeft_GrSurfaceOrigin,
+                  pipeline,
+                  GrPipelineDynamicStateTestProcessor(),
+                  nullptr,
+                  &dynamicState);
+
+        state->opsRenderPass()->draw(foo,
+//                                     GrPipelineDynamicStateTestProcessor(), pipeline, nullptr, &dynamicState,
+                                     meshes.begin(), 4,
                                      SkRect::MakeIWH(kScreenSize, kScreenSize));
     }
 

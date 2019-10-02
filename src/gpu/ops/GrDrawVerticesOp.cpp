@@ -47,6 +47,7 @@ private:
         kSkColor,
     };
 
+    void onPrePrepareDraws() override;
     void onPrepareDraws(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
@@ -269,6 +270,10 @@ sk_sp<GrGeometryProcessor> DrawVerticesOp::makeGP(const GrShaderCaps* shaderCaps
                                             Coverage::kSolid_Type,
                                             localCoordsType,
                                             vm);
+}
+
+void DrawVerticesOp::onPrePrepareDraws() {
+
 }
 
 void DrawVerticesOp::onPrepareDraws(Target* target) {

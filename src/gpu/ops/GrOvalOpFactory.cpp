@@ -1233,6 +1233,10 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
 private:
+    void onPrePrepareDraws() override {
+
+    }
+
     void onPrepareDraws(Target* target) override {
         SkMatrix localMatrix;
         if (!fViewMatrixIfUsingLocalCoords.invert(&localMatrix)) {
@@ -1565,6 +1569,10 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
 private:
+    void onPrePrepareDraws() override {
+
+    }
+
     void onPrepareDraws(Target* target) override {
         SkMatrix localMatrix;
         if (!fViewMatrixIfUsingLocalCoords.invert(&localMatrix)) {
@@ -1864,6 +1872,10 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
 private:
+    void onPrePrepareDraws() override {
+
+    }
+
     void onPrepareDraws(Target* target) override {
         SkMatrix localMatrix;
         if (!fViewMatrixIfUsingLocalCoords.invert(&localMatrix)) {
@@ -2107,6 +2119,10 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
 private:
+    void onPrePrepareDraws() override {
+
+    }
+
     void onPrepareDraws(Target* target) override {
         // Setup geometry processor
         sk_sp<GrGeometryProcessor> gp(
