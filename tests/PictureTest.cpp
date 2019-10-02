@@ -909,3 +909,31 @@ DEF_TEST(Picture_drawsNothing, r) {
         REPORTER_ASSERT(r, pic->cullRect().isEmpty() == c.draws_nothing);
     }
 }
+
+DEF_TEST(Picture_emptyBug, r) {
+    const SkRect bounds = {-5000, -5000, 5000, 5000};
+
+    SkPictureRecorder recorder;
+    SkRTreeFactory factory;
+
+    // Record three pictures that all draw the same:
+    //   1) inner has some content;
+    //   2) middle wraps inner;
+    //   3) outer wraps middle.
+    {
+        SkCanvas* canvas = recorder.beginRecording(bounds, &factory);
+        canvas->translate(-100, -100);
+        canvas->drawRect(SkRect::MakeWH(50, 50), SkPaint{});
+    }
+    sk_sp<SkPicture> inner = recorder.finishRecordingAsPicture();
+
+    recorder.beginRecording(bounds, &factory)->drawPicture(inner);
+    sk_sp<SkPicture> middle = recorder.finishRecordingAsPicture();
+
+    recorder.beginRecording(bounds, &factory)->drawPicture(middle);
+    sk_sp<SkPicture> outer = recorder.finishRecordingAsPicture();
+
+    REPORTER_ASSERT(r, !inner ->cullRect().isEmpty());
+    REPORTER_ASSERT(r, !middle->cullRect().isEmpty());
+    REPORTER_ASSERT(r, !outer ->cullRect().isEmpty());  // This failed at one point.
+}
