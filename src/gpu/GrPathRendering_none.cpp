@@ -42,7 +42,7 @@ void GrGLPathRendering::setProjectionMatrix(const SkMatrix&, const SkISize&, GrS
 
 sk_sp<GrPath> GrGLPathRendering::createPath(const SkPath&, const GrStyle&) { return nullptr; }
 
-void GrGLPathRendering::onDrawPath(GrRenderTarget*, GrSurfaceOrigin,
+void GrGLPathRendering::onDrawPath(GrRenderTarget*, int numSamples, GrSurfaceOrigin,
                                    const GrPrimitiveProcessor&,
                                    const GrPipeline&,
                                    const GrPipeline::FixedDynamicState&,
