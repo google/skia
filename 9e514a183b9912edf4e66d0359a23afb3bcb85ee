@@ -46,6 +46,30 @@
       "revId": "9e514a183b9912edf4e66d0359a23afb3bcb85ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a95609f8_6006c276",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5970
+      },
+      "writtenOn": "2019-10-02T19:00:34Z",
+      "side": 0,
+      "message": "Doh. You said leave it out. I thought leave it in. Stupid mind autocomplete :( I\u0027ll add it back.",
+      "parentUuid": "91838ad4_d7028478",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 31
+      },
+      "revId": "9e514a183b9912edf4e66d0359a23afb3bcb85ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
