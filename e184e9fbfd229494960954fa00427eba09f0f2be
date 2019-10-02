@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50f7145f_803ee524",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1959,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-10-02T13:45:52Z",
+      "side": 1,
+      "message": "maybe a simple helper function that evaluates whether to use tiled rendering since we\u0027re doing this with a similar comment in two places?",
+      "range": {
+        "startLine": 1958,
+        "startChar": 0,
+        "endLine": 1959,
+        "endChar": 56
+      },
+      "revId": "e184e9fbfd229494960954fa00427eba09f0f2be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
