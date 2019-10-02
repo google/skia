@@ -909,3 +909,45 @@ DEF_TEST(Picture_drawsNothing, r) {
         REPORTER_ASSERT(r, pic->cullRect().isEmpty() == c.draws_nothing);
     }
 }
+
+DEF_TEST(Picture_emptyNestedPictureBug, r) {
+    const SkRect bounds = {-5000, -5000, 5000, 5000};
+
+    SkPictureRecorder recorder;
+    SkRTreeFactory factory;
+
+    // These three pictures should all draw the same but due to bugs they don't:
+    //
+    //   1) inner has enough content that it is recoreded as an SkBigPicture,
+    //      and all its content falls outside the positive/positive quadrant,
+    //      and it is recorded with an R-tree so we contract the cullRect to those bounds;
+    //
+    //   2) middle wraps inner,
+    //      and it its recorded with an R-tree so we update middle's cullRect to inner's;
+    //
+    //   3) outer wraps inner,
+    //      and notices that middle contains only one op, drawPicture(inner),
+    //      so it plays middle back during recording rather than ref'ing middle,
+    //      querying middle's R-tree with its SkCanvas' bounds* {0,0, 5000,5000},
+    //      finding nothing to draw.
+    //
+    //  * The bug was that these bounds were not tracked as {-5000,-5000, 5000,5000}.
+    {
+        SkCanvas* canvas = recorder.beginRecording(bounds, &factory);
+        canvas->translate(-100,-100);
+        canvas->drawRect({0,0,50,50}, SkPaint{});
+    }
+    sk_sp<SkPicture> inner = recorder.finishRecordingAsPicture();
+
+    recorder.beginRecording(bounds, &factory)->drawPicture(inner);
+    sk_sp<SkPicture> middle = recorder.finishRecordingAsPicture();
+
+    // This doesn't need &factory to reproduce the bug,
+    // but it's nice to see we come up with the same {-100,-100, -50,-50} bounds.
+    recorder.beginRecording(bounds, &factory)->drawPicture(middle);
+    sk_sp<SkPicture> outer = recorder.finishRecordingAsPicture();
+
+    REPORTER_ASSERT(r, (inner ->cullRect() == SkRect{-100,-100, -50,-50}));
+    REPORTER_ASSERT(r, (middle->cullRect() == SkRect{-100,-100, -50,-50}));
+    REPORTER_ASSERT(r, (outer ->cullRect() == SkRect{-100,-100, -50,-50}));   // Used to fail.
+}
