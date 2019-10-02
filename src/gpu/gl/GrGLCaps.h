@@ -404,6 +404,8 @@ public:
 
     bool samplerObjectSupport() const { return fSamplerObjectSupport; }
 
+    bool tiledRenderingSupport() const { return fTiledRenderingSupport; }
+
     bool fbFetchRequiresEnablePerSample() const { return fFBFetchRequiresEnablePerSample; }
 
     /* Is there support for enabling/disabling sRGB writes for sRGB-capable color buffers? */
@@ -505,6 +507,7 @@ private:
     bool fProgramBinarySupport : 1;
     bool fProgramParameterSupport : 1;
     bool fSamplerObjectSupport : 1;
+    bool fTiledRenderingSupport : 1;
     bool fFBFetchRequiresEnablePerSample : 1;
     bool fSRGBWriteControl : 1;
 
