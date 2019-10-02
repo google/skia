@@ -19,5 +19,6 @@ using JSObject = emscripten::val;
 using JSString = emscripten::val;
 using SkPathOrNull = emscripten::val;
 using Uint8Array = emscripten::val;
+using Float32Array = emscripten::val;
 
 #endif
