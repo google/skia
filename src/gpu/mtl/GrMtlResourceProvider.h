@@ -25,7 +25,7 @@ public:
     GrMtlResourceProvider(GrMtlGpu* gpu);
 
     GrMtlPipelineState* findOrCreateCompatiblePipelineState(
-        GrRenderTarget*, GrSurfaceOrigin,
+        GrRenderTarget*, int numSamples, GrSurfaceOrigin,
         const GrPipeline&,
         const GrPrimitiveProcessor&,
         const GrTextureProxy* const primProcProxies[],
@@ -55,7 +55,7 @@ private:
         ~PipelineStateCache();
 
         void release();
-        GrMtlPipelineState* refPipelineState(GrRenderTarget*, GrSurfaceOrigin,
+        GrMtlPipelineState* refPipelineState(GrRenderTarget*, int numSamples, GrSurfaceOrigin,
                                              const GrPrimitiveProcessor&,
                                              const GrTextureProxy* const primProcProxies[],
                                              const GrPipeline&,

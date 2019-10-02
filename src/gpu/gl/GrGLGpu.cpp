@@ -1658,6 +1658,7 @@ void GrGLGpu::disableWindowRectangles() {
 }
 
 bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
+                           int numSamples,
                            GrSurfaceOrigin origin,
                            const GrPrimitiveProcessor& primProc,
                            const GrPipeline& pipeline,
@@ -1677,7 +1678,8 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
     SkASSERT(SkToBool(primProcProxies) == SkToBool(primProc.numTextureSamplers()));
 
     sk_sp<GrGLProgram> program(fProgramCache->refProgram(
-            this, renderTarget, origin, primProc, primProcProxies, pipeline, willDrawPoints));
+            this, renderTarget, numSamples, origin, primProc, primProcProxies, pipeline,
+            willDrawPoints));
     if (!program) {
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;
@@ -2178,7 +2180,7 @@ void GrGLGpu::flushViewport(int width, int height) {
     #endif
 #endif
 
-void GrGLGpu::draw(GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
+void GrGLGpu::draw(GrRenderTarget* renderTarget, int numSamples, GrSurfaceOrigin origin,
                    const GrPrimitiveProcessor& primProc,
                    const GrPipeline& pipeline,
                    const GrPipeline::FixedDynamicState* fixedDynamicState,
@@ -2194,7 +2196,7 @@ void GrGLGpu::draw(GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
             break;
         }
     }
-    if (!this->flushGLState(renderTarget, origin, primProc, pipeline, fixedDynamicState,
+    if (!this->flushGLState(renderTarget, numSamples, origin, primProc, pipeline, fixedDynamicState,
                             dynamicStateArrays, meshCount, hasPoints)) {
         return;
     }

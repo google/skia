@@ -45,7 +45,9 @@ static void cleanup_program(GrGLGpu* gpu, GrGLuint programID,
     cleanup_shaders(gpu, shaderIDs);
 }
 
-GrGLProgram* GrGLProgramBuilder::CreateProgram(GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
+GrGLProgram* GrGLProgramBuilder::CreateProgram(GrRenderTarget* renderTarget,
+                                               int numSamples,
+                                               GrSurfaceOrigin origin,
                                                const GrPrimitiveProcessor& primProc,
                                                const GrTextureProxy* const primProcProxies[],
                                                const GrPipeline& pipeline,
@@ -59,7 +61,7 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(GrRenderTarget* renderTarget, GrS
 
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrGLProgramBuilder builder(gpu, renderTarget, origin,
+    GrGLProgramBuilder builder(gpu, renderTarget, numSamples, origin,
                                pipeline, primProc, primProcProxies, desc);
 
     auto persistentCache = gpu->getContext()->priv().getPersistentCache();
@@ -80,12 +82,13 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(GrRenderTarget* renderTarget, GrS
 
 GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu,
                                        GrRenderTarget* renderTarget,
+                                       int numSamples,
                                        GrSurfaceOrigin origin,
                                        const GrPipeline& pipeline,
                                        const GrPrimitiveProcessor& primProc,
                                        const GrTextureProxy* const primProcProxies[],
                                        GrProgramDesc* desc)
-        : INHERITED(renderTarget, origin, primProc, primProcProxies, pipeline, desc)
+        : INHERITED(renderTarget, numSamples, origin, primProc, primProcProxies, pipeline, desc)
         , fGpu(gpu)
         , fVaryingHandler(this)
         , fUniformHandler(this)

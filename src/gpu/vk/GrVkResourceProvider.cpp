@@ -228,12 +228,13 @@ GrVkSamplerYcbcrConversion* GrVkResourceProvider::findOrCreateCompatibleSamplerY
 }
 
 GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
-        GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
+        GrRenderTarget* renderTarget, int numSamples, GrSurfaceOrigin origin,
         const GrPipeline& pipeline, const GrPrimitiveProcessor& proc,
         const GrTextureProxy* const primProcProxies[], GrPrimitiveType primitiveType,
         VkRenderPass compatibleRenderPass) {
-    return fPipelineStateCache->refPipelineState(renderTarget, origin, proc, primProcProxies,
-                                                 pipeline, primitiveType, compatibleRenderPass);
+    return fPipelineStateCache->refPipelineState(renderTarget, numSamples, origin, proc,
+                                                 primProcProxies, pipeline, primitiveType,
+                                                 compatibleRenderPass);
 }
 
 void GrVkResourceProvider::getSamplerDescriptorSetHandle(VkDescriptorType type,

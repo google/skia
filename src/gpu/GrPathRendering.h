@@ -108,7 +108,7 @@ public:
 
     void stencilPath(const StencilPathArgs& args, const GrPath* path);
 
-    void drawPath(GrRenderTarget*, GrSurfaceOrigin,
+    void drawPath(GrRenderTarget*, int numSamples, GrSurfaceOrigin,
                   const GrPrimitiveProcessor& primProc,
                   const GrPipeline& pipeline,
                   const GrPipeline::FixedDynamicState&,
@@ -119,7 +119,7 @@ protected:
     GrPathRendering(GrGpu* gpu) : fGpu(gpu) { }
 
     virtual void onStencilPath(const StencilPathArgs&, const GrPath*) = 0;
-    virtual void onDrawPath(GrRenderTarget*, GrSurfaceOrigin,
+    virtual void onDrawPath(GrRenderTarget*, int numSamples, GrSurfaceOrigin,
                             const GrPrimitiveProcessor&,
                             const GrPipeline&,
                             const GrPipeline::FixedDynamicState&,

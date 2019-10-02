@@ -78,6 +78,7 @@ void GrVkResourceProvider::PipelineStateCache::release() {
 
 GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
         GrRenderTarget* renderTarget,
+        int numSamples,
         GrSurfaceOrigin origin,
         const GrPrimitiveProcessor& primProc,
         const GrTextureProxy* const primProcProxies[],
@@ -112,8 +113,8 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
         ++fCacheMisses;
 #endif
         GrVkPipelineState* pipelineState(GrVkPipelineStateBuilder::CreatePipelineState(
-                fGpu, renderTarget, origin, primProc, primProcProxies, pipeline, stencil,
-                primitiveType, &desc, compatibleRenderPass));
+                fGpu, renderTarget, numSamples, origin, primProc, primProcProxies, pipeline,
+                stencil, primitiveType, &desc, compatibleRenderPass));
         if (nullptr == pipelineState) {
             return nullptr;
         }

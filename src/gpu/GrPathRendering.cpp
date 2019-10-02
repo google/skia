@@ -50,7 +50,7 @@ void GrPathRendering::stencilPath(const StencilPathArgs& args, const GrPath* pat
     this->onStencilPath(args, path);
 }
 
-void GrPathRendering::drawPath(GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
+void GrPathRendering::drawPath(GrRenderTarget* renderTarget, int numSamples, GrSurfaceOrigin origin,
                                const GrPrimitiveProcessor& primProc,
                                const GrPipeline& pipeline,
                                const GrPipeline::FixedDynamicState& fixedDynamicState,
@@ -62,6 +62,6 @@ void GrPathRendering::drawPath(GrRenderTarget* renderTarget, GrSurfaceOrigin ori
                                                                  *fGpu->caps())) {
         fGpu->xferBarrier(renderTarget, barrierType);
     }
-    this->onDrawPath(renderTarget, origin, primProc, pipeline, fixedDynamicState,
+    this->onDrawPath(renderTarget, numSamples, origin, primProc, pipeline, fixedDynamicState,
                      stencilPassSettings, path);
 }

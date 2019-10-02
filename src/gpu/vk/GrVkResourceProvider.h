@@ -114,7 +114,7 @@ public:
             const GrVkYcbcrConversionInfo& ycbcrInfo);
 
     GrVkPipelineState* findOrCreateCompatiblePipelineState(
-            GrRenderTarget*, GrSurfaceOrigin,
+            GrRenderTarget*, int numSamples, GrSurfaceOrigin,
             const GrPipeline&,
             const GrPrimitiveProcessor&,
             const GrTextureProxy* const primProcProxies[],
@@ -197,7 +197,7 @@ private:
 
         void abandon();
         void release();
-        GrVkPipelineState* refPipelineState(GrRenderTarget*, GrSurfaceOrigin,
+        GrVkPipelineState* refPipelineState(GrRenderTarget*, int numSamples, GrSurfaceOrigin,
                                             const GrPrimitiveProcessor&,
                                             const GrTextureProxy* const primProcProxies[],
                                             const GrPipeline&,

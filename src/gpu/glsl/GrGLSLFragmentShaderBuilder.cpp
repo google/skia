@@ -295,8 +295,7 @@ void GrGLSLFragmentShaderBuilder::onFinalize() {
                      == fUsedProcessorFeaturesAllStages_DebugOnly);
 
     if (CustomFeatures::kSampleLocations & fProgramBuilder->header().processorFeatures()) {
-        const SkTArray<SkPoint>& sampleLocations =
-                fProgramBuilder->renderTarget()->renderTargetPriv().getSampleLocations();
+        const SkTArray<SkPoint>& sampleLocations = fProgramBuilder->getSampleLocations();
         this->definitions().append("const float2 _sampleOffsets[] = float2[](");
         for (int i = 0; i < sampleLocations.count(); ++i) {
             SkPoint offset = sampleLocations[i] - SkPoint::Make(.5f, .5f);

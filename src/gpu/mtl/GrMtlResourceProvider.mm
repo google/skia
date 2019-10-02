@@ -38,11 +38,11 @@ GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
 }
 
 GrMtlPipelineState* GrMtlResourceProvider::findOrCreateCompatiblePipelineState(
-        GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
+        GrRenderTarget* renderTarget, int numSamples, GrSurfaceOrigin origin,
         const GrPipeline& pipeline, const GrPrimitiveProcessor& proc,
         const GrTextureProxy* const primProcProxies[], GrPrimitiveType primType) {
-    return fPipelineStateCache->refPipelineState(renderTarget, origin, proc, primProcProxies,
-                                                 pipeline, primType);
+    return fPipelineStateCache->refPipelineState(renderTarget, numSamples, origin, proc,
+                                                 primProcProxies, pipeline, primType);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -137,6 +137,7 @@ void GrMtlResourceProvider::PipelineStateCache::release() {
 
 GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
         GrRenderTarget* renderTarget,
+        int numSamples,
         GrSurfaceOrigin origin,
         const GrPrimitiveProcessor& primProc,
         const GrTextureProxy* const primProcProxies[],
@@ -162,7 +163,7 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
         ++fCacheMisses;
 #endif
         GrMtlPipelineState* pipelineState(GrMtlPipelineStateBuilder::CreatePipelineState(
-                fGpu, renderTarget, origin, primProc, primProcProxies, pipeline, &desc));
+            fGpu, renderTarget, numSamples, origin, primProc, primProcProxies, pipeline, &desc));
         if (nullptr == pipelineState) {
             return nullptr;
         }

@@ -449,7 +449,9 @@ GrVkPipelineState* GrVkOpsRenderPass::prepareDrawState(
     SkASSERT(SkToBool(primProcProxies) == SkToBool(primProc.numTextureSamplers()));
 
     GrVkPipelineState* pipelineState =
-        fGpu->resourceProvider().findOrCreateCompatiblePipelineState(fRenderTarget, fOrigin,
+        fGpu->resourceProvider().findOrCreateCompatiblePipelineState(fRenderTarget,
+                                                                     fRenderTarget->numSamples(),
+                                                                     fOrigin,
                                                                      pipeline,
                                                                      primProc,
                                                                      primProcProxies,
