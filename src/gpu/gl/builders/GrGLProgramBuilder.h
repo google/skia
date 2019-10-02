@@ -47,7 +47,9 @@ public:
      * be supplied to skip the shader compilation.
      * @return true if generation was successful.
      */
-    static GrGLProgram* CreateProgram(GrRenderTarget*, GrSurfaceOrigin,
+    static GrGLProgram* CreateProgram(GrRenderTarget*,
+                                      int numSamples,
+                                      GrSurfaceOrigin,
                                       const GrPrimitiveProcessor&,
                                       const GrTextureProxy* const primProcProxies[],
                                       const GrPipeline&,
@@ -62,7 +64,7 @@ public:
     GrGLGpu* gpu() const { return fGpu; }
 
 private:
-    GrGLProgramBuilder(GrGLGpu*, GrRenderTarget*, GrSurfaceOrigin,
+    GrGLProgramBuilder(GrGLGpu*, GrRenderTarget*, int numSamples, GrSurfaceOrigin,
                        const GrPipeline&, const GrPrimitiveProcessor&,
                        const GrTextureProxy* const primProcProxies[], GrProgramDesc*);
 
