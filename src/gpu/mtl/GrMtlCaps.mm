@@ -250,6 +250,7 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     fMixedSamplesSupport = false;
     fGpuTracingSupport = false;
 
+    fFenceSyncSupport = true;
     bool supportsMTLEvent = false;
 #ifdef GR_METAL_SDK_SUPPORTS_EVENTS
     // TODO: this may be redundant
@@ -263,7 +264,6 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
 #endif
     }
 #endif
-    fFenceSyncSupport = supportsMTLEvent;
     fSemaphoreSupport = supportsMTLEvent;
 
     fCrossContextTextureSupport = false;
