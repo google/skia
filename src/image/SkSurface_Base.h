@@ -51,7 +51,8 @@ public:
     /**
      * Default implementation does a rescale/read and then calls the callback.
      */
-    virtual void onAsyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
+    virtual void onAsyncRescaleAndReadPixels(const SkImageInfo& info,
+                                             const SkIRect& srcRect,
                                              RescaleGamma rescaleGamma,
                                              SkFilterQuality rescaleQuality,
                                              ReadPixelsCallback callback,
@@ -61,10 +62,11 @@ public:
      */
     virtual void onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
                                                    sk_sp<SkColorSpace> dstColorSpace,
-                                                   const SkIRect& srcRect, int dstW, int dstH,
+                                                   const SkIRect& srcRect,
+                                                   const SkISize& dstSize,
                                                    RescaleGamma rescaleGamma,
                                                    SkFilterQuality rescaleQuality,
-                                                   ReadPixelsCallbackYUV420 callback,
+                                                   ReadPixelsCallback callback,
                                                    ReadPixelsContext context);
 
     /**

@@ -228,6 +228,10 @@ public:
         return fContext->fShaderErrorHandler;
     }
 
+    GrClientMappedBufferManager* clientMappedBufferManager() {
+        return fContext->fMappedBufferManager.get();
+    }
+
 #if GR_TEST_UTILS
     /** Reset GPU stats */
     void resetGpuStats() const ;
