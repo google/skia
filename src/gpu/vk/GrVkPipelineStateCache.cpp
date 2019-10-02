@@ -97,7 +97,8 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
 
     // Get GrVkProgramDesc
     GrVkPipelineStateBuilder::Desc desc;
-    if (!GrVkPipelineStateBuilder::Desc::Build(&desc, renderTarget, primProc, pipeline, stencil,
+    if (!GrVkPipelineStateBuilder::Desc::Build(&desc, renderTarget,
+                                               primProc, pipeline, stencil,
                                                primitiveType, fGpu)) {
         GrCapsDebugf(fGpu->caps(), "Failed to build vk program descriptor!\n");
         return nullptr;
@@ -112,7 +113,8 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
         ++fCacheMisses;
 #endif
         GrVkPipelineState* pipelineState(GrVkPipelineStateBuilder::CreatePipelineState(
-                fGpu, renderTarget, origin, primProc, primProcProxies, pipeline, stencil,
+                fGpu, renderTarget, renderTarget->numSamples(),
+                origin, primProc, primProcProxies, pipeline, stencil,
                 primitiveType, &desc, compatibleRenderPass));
         if (nullptr == pipelineState) {
             return nullptr;

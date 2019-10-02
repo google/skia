@@ -122,7 +122,7 @@ void GrGLSLFragmentShaderBuilder::applyFnToMultisampleMask(
     SkDEBUGCODE(fUsedProcessorFeaturesThisStage_DebugOnly |= CustomFeatures::kSampleLocations);
     SkDEBUGCODE(fUsedProcessorFeaturesAllStages_DebugOnly |= CustomFeatures::kSampleLocations);
 
-    int sampleCnt = fProgramBuilder->effectiveSampleCnt();
+    int sampleCnt = fProgramBuilder->effectiveSampleCnt1();
     SkASSERT(sampleCnt > 1);
 
     this->codeAppendf("{");
@@ -295,8 +295,7 @@ void GrGLSLFragmentShaderBuilder::onFinalize() {
                      == fUsedProcessorFeaturesAllStages_DebugOnly);
 
     if (CustomFeatures::kSampleLocations & fProgramBuilder->header().processorFeatures()) {
-        const SkTArray<SkPoint>& sampleLocations =
-                fProgramBuilder->renderTarget()->renderTargetPriv().getSampleLocations();
+        const SkTArray<SkPoint>& sampleLocations = fProgramBuilder->getSampleLocations1();
         this->definitions().append("const float2 _sampleOffsets[] = float2[](");
         for (int i = 0; i < sampleLocations.count(); ++i) {
             SkPoint offset = sampleLocations[i] - SkPoint::Make(.5f, .5f);

@@ -20,7 +20,9 @@
 
 const int GrGLSLProgramBuilder::kVarsPerBlock = 8;
 
-GrGLSLProgramBuilder::GrGLSLProgramBuilder(GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
+GrGLSLProgramBuilder::GrGLSLProgramBuilder(GrRenderTarget* renderTarget,
+                                           int numSamples,
+                                           GrSurfaceOrigin origin,
                                            const GrPrimitiveProcessor& primProc,
                                            const GrTextureProxy* const primProcProxies[],
                                            const GrPipeline& pipeline,
@@ -29,7 +31,8 @@ GrGLSLProgramBuilder::GrGLSLProgramBuilder(GrRenderTarget* renderTarget, GrSurfa
         , fGS(this)
         , fFS(this)
         , fStageIndex(-1)
-        , fRenderTarget(renderTarget)
+        , fRenderTarget1(renderTarget)
+        , fNumSamples(numSamples)
         , fOrigin(origin)
         , fPipeline(pipeline)
         , fPrimProc(primProc)

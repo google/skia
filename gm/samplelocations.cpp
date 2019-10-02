@@ -168,7 +168,7 @@ class SampleLocationsTestProcessor::Impl : public GrGLSLGeometryProcessor {
         // sample offsets and sample mask are correlated with actual HW sample locations, no red
         // will bleed through.
         f->codeAppendf("for (int i = 0; i < %i; ++i) {",
-                       f->getProgramBuilder()->effectiveSampleCnt());
+                       f->getProgramBuilder()->effectiveSampleCnt1());
         if (GradType::kHW == proc.fGradType) {
             f->codeAppendf("float2x2 grad = float2x2(dFdx(%s), dFdy(%s));",
                            coord.fsIn(), coord.fsIn());
