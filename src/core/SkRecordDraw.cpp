@@ -174,8 +174,7 @@ template <> void Draw::draw(const DrawDrawable& r) {
 class FillBounds : SkNoncopyable {
 public:
     FillBounds(const SkRect& cullRect, const SkRecord& record, SkRect bounds[])
-        : fNumRecords(record.count())
-        , fCullRect(cullRect)
+        : fCullRect(cullRect)
         , fBounds(bounds) {
         fCTM = SkMatrix::I();
 
@@ -183,7 +182,7 @@ public:
         fSaveStack.push_back({ 0, Bounds::MakeEmpty(), nullptr, fCTM });
     }
 
-    void cleanUp() {
+    ~FillBounds() {
         // If we have any lingering unpaired Saves, simulate restores to make
         // sure all ops in those Save blocks have their bounds calculated.
         while (!fSaveStack.isEmpty()) {
@@ -206,10 +205,6 @@ public:
 
     // In this file, SkRect are in local coordinates, Bounds are translated back to identity space.
     typedef SkRect Bounds;
-
-    int currentOp() const { return fCurrentOp; }
-    const SkMatrix& ctm() const { return fCTM; }
-    const Bounds& getBounds(int index) const { return fBounds[index]; }
 
     // Adjust rect for all paints that may affect its geometry, then map it to identity space.
     Bounds adjustAndMap(SkRect rect, const SkPaint* paint) const {
@@ -504,8 +499,6 @@ private:
         return true;
     }
 
-    const int fNumRecords;
-
     // We do not guarantee anything for operations outside of the cull rect
     const SkRect fCullRect;
 
@@ -525,11 +518,12 @@ private:
 }  // namespace SkRecords
 
 void SkRecordFillBounds(const SkRect& cullRect, const SkRecord& record, SkRect bounds[]) {
-    SkRecords::FillBounds visitor(cullRect, record, bounds);
-    for (int curOp = 0; curOp < record.count(); curOp++) {
-        visitor.setCurrentOp(curOp);
-        record.visit(curOp, visitor);
+    {
+        SkRecords::FillBounds visitor(cullRect, record, bounds);
+        for (int i = 0; i < record.count(); i++) {
+            visitor.setCurrentOp(i);
+            record.visit(i, visitor);
+        }
     }
-    visitor.cleanUp();
 }
 
