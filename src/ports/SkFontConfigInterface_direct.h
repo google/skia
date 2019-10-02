@@ -30,6 +30,7 @@ protected:
     virtual bool isAccessible(const char* filename);
 
 private:
+    std::unique_ptr<FcConfig,SkFunctionWrapper<decltype(FcConfigDestroy),FcConfigDestroy>> fcConfig;
     bool isValidPattern(FcPattern* pattern);
     FcPattern* MatchFont(FcFontSet* font_set, const char* post_config_family,
                          const SkString& family);
