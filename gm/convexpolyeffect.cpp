@@ -105,6 +105,10 @@ private:
         this->setBounds(sorted_rect(fRect), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
+    void onPrePrepareDraws() override {
+
+    }
+
     void onPrepareDraws(Target* target) override {
         using namespace GrDefaultGeoProcFactory;
 

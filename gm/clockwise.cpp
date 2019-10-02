@@ -26,6 +26,7 @@
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrFoo.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrGpuBuffer.h"
 #include "src/gpu/GrMemoryPool.h"
@@ -146,6 +147,7 @@ private:
                                       bool hasMixedSampledCoverage, GrClampType) override {
         return GrProcessorSet::EmptySetAnalysis();
     }
+    void onPrePrepare() override { }
     void onPrepare(GrOpFlushState* flushState) override {
         SkPoint vertices[4] = {
             {100, fY},
@@ -165,8 +167,16 @@ private:
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setNonIndexedNonInstanced(4);
         mesh.setVertexData(std::move(fVertexBuffer));
-        flushState->opsRenderPass()->draw(ClockwiseTestProcessor(fReadSkFragCoord), pipeline,
-                                          nullptr, nullptr, &mesh, 1, SkRect::MakeIWH(100, 100));
+
+        GrFoo foo(1, kTopLeft_GrSurfaceOrigin,
+                  pipeline,
+                  ClockwiseTestProcessor(fReadSkFragCoord),
+                  nullptr,
+                  nullptr);
+
+        flushState->opsRenderPass()->draw(foo,
+                                          //ClockwiseTestProcessor(fReadSkFragCoord), pipeline, nullptr, nullptr,
+                                          &mesh, 1, SkRect::MakeIWH(100, 100));
     }
 
     sk_sp<GrBuffer> fVertexBuffer;

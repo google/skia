@@ -47,10 +47,15 @@ public:
      * be supplied to skip the shader compilation.
      * @return true if generation was successful.
      */
-    static GrGLProgram* CreateProgram(GrRenderTarget*, GrSurfaceOrigin,
+    static GrGLProgram* CreateProgram(GrRenderTarget*,
+#if 0
+                                      int numSamples, GrSurfaceOrigin,
                                       const GrPrimitiveProcessor&,
                                       const GrTextureProxy* const primProcProxies[],
                                       const GrPipeline&,
+#else
+                                      const GrFoo&,
+#endif
                                       GrProgramDesc*,
                                       GrGLGpu*,
                                       const GrGLPrecompiledProgram* = nullptr);
@@ -59,12 +64,13 @@ public:
 
     const GrCaps* caps() const override;
 
-    GrGLGpu* gpu() const { return fGpu; }
+    GrGLGpu* gpu1() const { return fGpu1; }
 
 private:
-    GrGLProgramBuilder(GrGLGpu*, GrRenderTarget*, GrSurfaceOrigin,
-                       const GrPipeline&, const GrPrimitiveProcessor&,
-                       const GrTextureProxy* const primProcProxies[], GrProgramDesc*);
+    GrGLProgramBuilder(GrGLGpu*, GrRenderTarget*, const GrFoo&, GrProgramDesc*);
+//                       int numSamples, GrSurfaceOrigin,
+//                       const GrPipeline&, const GrPrimitiveProcessor&,
+//                       const GrTextureProxy* const primProcProxies[], GrProgramDesc*);
 
     void addInputVars(const SkSL::Program::Inputs& inputs);
     bool compileAndAttachShaders(const SkSL::String& glsl,
@@ -91,7 +97,7 @@ private:
     const GrGLSLUniformHandler* uniformHandler() const override { return &fUniformHandler; }
     GrGLSLVaryingHandler* varyingHandler() override { return &fVaryingHandler; }
 
-    GrGLGpu*              fGpu;
+    GrGLGpu*              fGpu1;
     GrGLVaryingHandler    fVaryingHandler;
     GrGLUniformHandler    fUniformHandler;
 

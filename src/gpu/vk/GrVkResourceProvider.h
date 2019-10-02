@@ -43,11 +43,14 @@ public:
     // Set up any initial vk objects
     void init();
 
-    GrVkPipeline* createPipeline(int numColorSamples,
-                                 const GrPrimitiveProcessor& primProc,
-                                 const GrPipeline& pipeline,
-                                 const GrStencilSettings& stencil,
+    GrVkPipeline* createPipeline(const GrFoo&,
+#if 0
+                                 int numColorSamples,
                                  GrSurfaceOrigin,
+                                 const GrPipeline& pipeline,
+                                 const GrPrimitiveProcessor& primProc,
+#endif
+                                 const GrStencilSettings& stencil,
                                  VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                  int shaderStageCount,
                                  GrPrimitiveType primitiveType,
@@ -114,10 +117,15 @@ public:
             const GrVkYcbcrConversionInfo& ycbcrInfo);
 
     GrVkPipelineState* findOrCreateCompatiblePipelineState(
-            GrRenderTarget*, GrSurfaceOrigin,
+            GrRenderTarget*,
+#if 0
+            int numSamples, GrSurfaceOrigin,
             const GrPipeline&,
             const GrPrimitiveProcessor&,
             const GrTextureProxy* const primProcProxies[],
+#else
+            const GrFoo&,
+#endif
             GrPrimitiveType,
             VkRenderPass compatibleRenderPass);
 
@@ -197,10 +205,15 @@ private:
 
         void abandon();
         void release();
-        GrVkPipelineState* refPipelineState(GrRenderTarget*, GrSurfaceOrigin,
+        GrVkPipelineState* refPipelineState(GrRenderTarget*,
+#if 0
+                                            int numSamples, GrSurfaceOrigin,
                                             const GrPrimitiveProcessor&,
                                             const GrTextureProxy* const primProcProxies[],
                                             const GrPipeline&,
+#else
+                                            const GrFoo&,
+#endif
                                             GrPrimitiveType,
                                             VkRenderPass compatibleRenderPass);
 
