@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "076c77bd_e8f1e941",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-02T21:50:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7c650649_c7d14a3d",
+      "range": {
+        "startLine": 18,
+        "startChar": 6,
+        "endLine": 18,
+        "endChar": 11
+      },
+      "revId": "832a4a22ea7eb91c94af351f3cc5b4842d29b1ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d8bd5e9c_57946d96",
         "filename": "modules/skshaper/src/SkShaper.cpp",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "832a4a22ea7eb91c94af351f3cc5b4842d29b1ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d9b2288_c9a9fbd2",
+        "filename": "modules/skshaper/src/SkShaper.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-02T21:50:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d8bd5e9c_57946d96",
+      "range": {
+        "startLine": 39,
+        "startChar": 94,
+        "endLine": 39,
+        "endChar": 99
+      },
+      "revId": "832a4a22ea7eb91c94af351f3cc5b4842d29b1ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
