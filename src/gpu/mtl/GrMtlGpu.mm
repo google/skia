@@ -1215,45 +1215,63 @@ bool GrMtlGpu::readOrTransferPixels(GrSurface* surface, int left, int top, int w
 }
 
 GrFence SK_WARN_UNUSED_RESULT GrMtlGpu::insertFence() {
+    GrMtlCommandBuffer* cmdBuffer = this->commandBuffer();
 #ifdef GR_METAL_SDK_SUPPORTS_EVENTS
     if (@available(macOS 10.14, iOS 12.0, *)) {
-        if (this->caps()->fenceSyncSupport()) {
-            GrMtlCommandBuffer* cmdBuffer = this->commandBuffer();
-            ++fLatestEvent;
-            cmdBuffer->encodeSignalEvent(fSharedEvent, fLatestEvent);
+        ++fLatestEvent;
+        cmdBuffer->encodeSignalEvent(fSharedEvent, fLatestEvent);
 
-            return fLatestEvent;
-        }
+        return fLatestEvent;
     }
 #endif
-    return 0;
+    // If MTLSharedEvent isn't available, we create a semaphore and signal it
+    // within the current command buffer's completion handler.
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    __block dispatch_semaphore_t block_sema = semaphore;
+    cmdBuffer->addCompletedHandler(^(id <MTLCommandBuffer>commandBuffer) {
+        dispatch_semaphore_signal(block_sema);
+    });
+
+    const void* cfFence = (__bridge_retained const void*) semaphore;
+    return (GrFence) cfFence;
 }
 
-bool GrMtlGpu::waitFence(GrFence value, uint64_t timeout) {
+bool GrMtlGpu::waitFence(GrFence fence, uint64_t timeout) {
+    dispatch_semaphore_t semaphore;
 #ifdef GR_METAL_SDK_SUPPORTS_EVENTS
     if (@available(macOS 10.14, iOS 12.0, *)) {
-        if (this->caps()->fenceSyncSupport()) {
-            dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+        semaphore = dispatch_semaphore_create(0);
 
-            // Add listener for this particular value or greater
-            __block dispatch_semaphore_t block_sema = semaphore;
-            [fSharedEvent notifyListener: fSharedEventListener
-                                 atValue: value
-                                   block: ^(id<MTLSharedEvent> sharedEvent, uint64_t value) {
-                                       dispatch_semaphore_signal(block_sema);
-                                   }];
+        // Add listener for this particular value or greater
+        __block dispatch_semaphore_t block_sema = semaphore;
+        [fSharedEvent notifyListener: fSharedEventListener
+                             atValue: fence
+                               block: ^(id<MTLSharedEvent> sharedEvent, uint64_t value) {
+                                   dispatch_semaphore_signal(block_sema);
+                               }];
 
-            long result = dispatch_semaphore_wait(semaphore, timeout);
-
-            return !result;
-        }
-    }
+    } else
 #endif
-    return true;
+    {
+        const void* cfFence = (const void*) fence;
+        semaphore = (__bridge dispatch_semaphore_t)cfFence;
+    }
+    long result = dispatch_semaphore_wait(semaphore, timeout);
+
+    return !result;
 }
 
-void GrMtlGpu::deleteFence(GrFence) const {
-    // nothing to delete
+void GrMtlGpu::deleteFence(GrFence fence) const {
+#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
+    if (@available(macOS 10.14, iOS 12.0, *)) {
+        // nothing to delete
+    } else
+#endif
+    {
+        const void* cfFence = (const void*) fence;
+        // In this case it's easier to release in CoreFoundation than depend on ARC
+        CFRelease(cfFence);
+    }
 }
 
 sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrMtlGpu::makeSemaphore(bool isOwned) {
