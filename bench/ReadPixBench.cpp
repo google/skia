@@ -74,7 +74,7 @@ protected:
         const SkImageInfo info = SkImageInfo::MakeN32Premul(2048, 1024);
         fSrc.allocPixels(info);
         fSrc.eraseColor(SK_ColorBLACK);
-        fDst.allocPixels(info.makeWH(info.height(), info.width()));
+        fDst.allocPixels(info.makeDimensions(info.dimensions()));
     }
 
     const char* onGetName() override {
