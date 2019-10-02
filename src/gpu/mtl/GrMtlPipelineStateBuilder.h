@@ -59,14 +59,14 @@ public:
      * @return true if generation was successful.
      */
     static GrMtlPipelineState* CreatePipelineState(GrMtlGpu*,
-                                                   GrRenderTarget*, GrSurfaceOrigin,
+                                                   GrRenderTarget*, int numSamples, GrSurfaceOrigin,
                                                    const GrPrimitiveProcessor&,
                                                    const GrTextureProxy* const primProcProxies[],
                                                    const GrPipeline&,
                                                    Desc*);
 
 private:
-    GrMtlPipelineStateBuilder(GrMtlGpu*, GrRenderTarget*, GrSurfaceOrigin,
+    GrMtlPipelineStateBuilder(GrMtlGpu*, GrRenderTarget*, int numSamples, GrSurfaceOrigin,
                               const GrPipeline&,
                               const GrPrimitiveProcessor&,
                               const GrTextureProxy* const primProcProxies[],

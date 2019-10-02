@@ -24,12 +24,12 @@
 
 GrMtlPipelineState* GrMtlPipelineStateBuilder::CreatePipelineState(
         GrMtlGpu* gpu,
-        GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
+        GrRenderTarget* renderTarget, int numSamples, GrSurfaceOrigin origin,
         const GrPrimitiveProcessor& primProc,
         const GrTextureProxy* const primProcProxies[],
         const GrPipeline& pipeline,
         Desc* desc) {
-    GrMtlPipelineStateBuilder builder(gpu, renderTarget, origin, pipeline, primProc,
+    GrMtlPipelineStateBuilder builder(gpu, renderTarget, numSamples, origin, pipeline, primProc,
                                       primProcProxies, desc);
 
     if (!builder.emitAndInstallProcs()) {
@@ -40,12 +40,13 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::CreatePipelineState(
 
 GrMtlPipelineStateBuilder::GrMtlPipelineStateBuilder(GrMtlGpu* gpu,
                                                      GrRenderTarget* renderTarget,
+                                                     int numSamples,
                                                      GrSurfaceOrigin origin,
                                                      const GrPipeline& pipeline,
                                                      const GrPrimitiveProcessor& primProc,
                                                      const GrTextureProxy* const primProcProxies[],
                                                      GrProgramDesc* desc)
-        : INHERITED(renderTarget, origin, primProc, primProcProxies, pipeline, desc)
+    : INHERITED(renderTarget, numSamples, origin, primProc, primProcProxies, pipeline, desc)
         , fGpu(gpu)
         , fUniformHandler(this)
         , fVaryingHandler(this) {
@@ -363,7 +364,8 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
     pipelineDescriptor.vertexFunction = vertexFunction;
     pipelineDescriptor.fragmentFunction = fragmentFunction;
     pipelineDescriptor.vertexDescriptor = create_vertex_descriptor(primProc);
-    pipelineDescriptor.colorAttachments[0] = create_color_attachment(this->config(), pipeline);
+    pipelineDescriptor.colorAttachments[0] = create_color_attachment(renderTarget->config(),
+                                                                     pipeline);
     pipelineDescriptor.sampleCount = renderTarget->numSamples();
     bool hasStencilAttachment = SkToBool(renderTarget->renderTargetPriv().getStencilAttachment());
     GrMtlCaps* mtlCaps = (GrMtlCaps*)this->caps();
