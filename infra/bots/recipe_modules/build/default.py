@@ -333,7 +333,8 @@ def compile_fn(api, checkout_root, out_dir):
       api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
 
 
-def copy_extra_build_products(api, src, dst):
+def copy_build_products(api, src, dst):
+  util.copy_whitelisted_build_products(api, src, dst)
   extra_tokens  = api.vars.extra_tokens
   os            = api.vars.builder_cfg.get('os', '')
 

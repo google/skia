@@ -5,7 +5,6 @@
 
 import re
 
-
 def compile_fn(api, checkout_root, out_dir):
   skia_dir      = checkout_root.join('skia')
   compiler      = api.vars.builder_cfg.get('compiler')
@@ -93,5 +92,41 @@ def compile_fn(api, checkout_root, out_dir):
       api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
 
 
-def copy_extra_build_products(api, src, dst):
-  pass
+ANDROID_BUILD_PRODUCTS_LIST = [
+  'dm',
+  'nanobench',
+  'skpbench',
+]
+
+
+def copy_build_products(api, src, dst):
+  """Copy Android build products from src to dst."""
+  api.python.inline(
+      name='copy android build products',
+      program='''import errno
+import glob
+import os
+import shutil
+import sys
+
+src = sys.argv[1]
+dst = sys.argv[2]
+build_products = %s
+
+try:
+  os.makedirs(dst)
+except OSError as e:
+  if e.errno != errno.EEXIST:
+    raise
+
+for pattern in build_products:
+  path = os.path.join(src, pattern)
+  for f in glob.glob(path):
+    dst_path = os.path.join(dst, os.path.relpath(f, src))
+    if not os.path.isdir(os.path.dirname(dst_path)):
+      os.makedirs(os.path.dirname(dst_path))
+    print 'Copying build product %%s to %%s' %% (f, dst_path)
+    shutil.move(f, dst_path)
+''' % str(ANDROID_BUILD_PRODUCTS_LIST),
+      args=[src, dst],
+      infra_step=True)
