@@ -27,20 +27,21 @@ public:
 
     /**
     * Builds a program descriptor. Before the descriptor can be used, the client must call finalize
-    * on the returned GrProgramDesc.
+    * on the filled in GrProgramDesc.
     *
-    * @param GrPrimitiveProcessor The geometry
-    * @param hasPointSize Controls whether the shader will output a point size.
-    * @param GrPipeline  The optimized drawstate.  The descriptor will represent a program
-    *                        which this optstate can use to draw with.  The optstate contains
-    *                        general draw information, as well as the specific color, geometry,
-    *                        and coverage stages which will be used to generate the GL Program for
-    *                        this optstate.
-    * @param GrGpu          Ptr to the GrGpu object the program will be used with.
-    * @param GrProgramDesc  The built and finalized descriptor
+    * @param result        The built descriptor
+    * @param primProc      The primitive processor
+    * @param primitiveType Controls whether the shader will output a point size.
+    * @param pipeline      The optimized drawstate. The descriptor will represent a program
+    *                      which this optstate can use to draw with. The optstate contains
+    *                      general draw information, as well as the specific color, geometry,
+    *                      and coverage stages which will be used to generate the GL Program for
+    *                      this optstate.
+    * @param gpu           Ptr to the GrGpu object the program will be used with.
     **/
-    static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrPrimitiveProcessor&,
-                      bool hasPointSize, const GrPipeline&, GrGpu*);
+    static bool Build(GrProgramDesc* result, const GrRenderTarget*,
+                      const GrPrimitiveProcessor& primProc,
+                      GrPrimitiveType primitiveType, const GrPipeline& pipeline, GrGpu* gpu);
 
     static bool BuildFromData(GrProgramDesc* desc, const void* keyData, size_t keyLength) {
         if (!SkTFitsIn<int>(keyLength)) {
@@ -111,8 +112,8 @@ public:
         uint8_t fSurfaceOriginKey : 2;
         uint8_t fProcessorFeatures : 1;
         bool fSnapVerticesToPixelCenters : 1;
-        bool fHasPointSize : 1;
-        uint8_t fPad : 3;
+        uint8_t fPrimitiveType : 3;
+        uint8_t fPad : 1;
     };
     GR_STATIC_ASSERT(sizeof(KeyHeader) == 6);
 

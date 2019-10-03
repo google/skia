@@ -90,7 +90,8 @@ enum class GrPrimitiveType {
     kPoints,
     kLines,          // 1 pix wide only
     kLineStrip,      // 1 pix wide only
-    kLinesAdjacency  // requires geometry shader support.
+    kLinesAdjacency, // requires geometry shader support.
+    kPath
 };
 static constexpr int kNumGrPrimitiveTypes = (int)GrPrimitiveType::kLinesAdjacency + 1;
 

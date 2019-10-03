@@ -119,9 +119,10 @@ void GrGLPathRendering::onDrawPath(GrRenderTarget* renderTarget,
                                    const GrStencilSettings& stencilPassSettings,
                                    const GrPath* path) {
     if (!this->gpu()->flushGLState(renderTarget, numSamples, origin, primProc, pipeline,
-                                   &fixedDynamicState, nullptr, 1, false)) {
+                                   &fixedDynamicState, nullptr, 1, GrPrimitiveType::kPath)) {
         return;
     }
+
     const GrGLPath* glPath = static_cast<const GrGLPath*>(path);
 
     this->flushPathStencilSettings(stencilPassSettings);

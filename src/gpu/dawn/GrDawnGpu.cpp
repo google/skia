@@ -90,10 +90,9 @@ public:
                       const GrPipeline& pipeline,
                       const GrPrimitiveProcessor& primProc,
                       GrPrimitiveType primitiveType,
-                      bool hasPoints,
                       bool hasDepthStencil,
                       GrGpu* gpu) {
-        if (!GrProgramDesc::Build(desc, rt, primProc, hasPoints, pipeline, gpu)) {
+        if (!GrProgramDesc::Build(desc, rt, primProc, primitiveType, pipeline, gpu)) {
             return false;
         }
         GrProcessorKeyBuilder b(&desc->key());
@@ -104,7 +103,6 @@ public:
         b.add32(rt->config());
         b.add32(static_cast<int32_t>(hasDepthStencil));
         b.add32(get_blend_info_key(pipeline));
-        b.add32(static_cast<uint32_t>(primitiveType));
         return true;
     }
 };
@@ -635,12 +633,10 @@ sk_sp<GrDawnProgram> GrDawnGpu::getOrCreateRenderPipeline(
         const GrPipeline& pipeline,
         const GrPrimitiveProcessor& primProc,
         const GrTextureProxy* const* primProcProxies,
-        bool hasPoints,
         GrPrimitiveType primitiveType) {
     bool hasDepthStencil = rt->renderTargetPriv().getStencilAttachment() != nullptr;
     Desc desc;
-    if (!Desc::Build(&desc, rt, pipeline, primProc, primitiveType, hasPoints, hasDepthStencil,
-                     this)) {
+    if (!Desc::Build(&desc, rt, pipeline, primProc, primitiveType, hasDepthStencil, this)) {
         return nullptr;
     }
 
