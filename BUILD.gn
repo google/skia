@@ -1072,6 +1072,7 @@ group("modules") {
   deps = [
     "modules/particles",
     "modules/skottie",
+    "modules/skparagraph",
     "modules/skshaper",
   ]
 }

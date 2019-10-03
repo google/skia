@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `CanvasKit.MakeAnimatedImageFromEncoded`, `SkCanvas.drawAnimatedImage`.
  - `CanvasKit.SkFontMgr.FromData` which takes several ArrayBuffers of font data, parses
    them, reading the metadata (e.g. family names) and stores them into a SkFontMgr.
+ - SkParagraph as an optional set of APIs for dealing with text layout.
 
 ### Changed
  - The `no_font` compile option should strip out more dead code related to fonts.
