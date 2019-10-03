@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e64fc6cc_2351ed42",
+        "filename": "infra/bots/recipe_modules/build/android.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-10-03T20:12:45Z",
+      "side": 1,
+      "message": "nit: Please deduplicate with copy_whitelisted_build_products in infra/bots/recipe_modules/build/util.py.\n\nE.g. \u0027build_products \u003d sys.argv[3:]\u0027 and pass the list in args.\n\nMaybe also move the script to be a resource.",
+      "range": {
+        "startLine": 106,
+        "startChar": 14,
+        "endLine": 106,
+        "endChar": 29
+      },
+      "revId": "4fb296c788005e1013b219e9ee3eaa57a030217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
