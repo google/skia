@@ -1664,7 +1664,7 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
                            const GrPipeline::FixedDynamicState* fixedDynamicState,
                            const GrPipeline::DynamicStateArrays* dynamicStateArrays,
                            int dynamicStateArraysLength,
-                           bool willDrawPoints) {
+                           GrPrimitiveType primType) {
     const GrTextureProxy* const* primProcProxies = nullptr;
     const GrTextureProxy* const* primProcProxiesToBind = nullptr;
     if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
@@ -1677,7 +1677,7 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
     SkASSERT(SkToBool(primProcProxies) == SkToBool(primProc.numTextureSamplers()));
 
     sk_sp<GrGLProgram> program(fProgramCache->refProgram(
-            this, renderTarget, origin, primProc, primProcProxies, pipeline, willDrawPoints));
+            this, renderTarget, origin, primProc, primProcProxies, pipeline, primType));
     if (!program) {
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;
@@ -2212,15 +2212,20 @@ void GrGLGpu::draw(GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
                    int meshCount) {
     this->handleDirtyContext();
 
-    bool hasPoints = false;
-    for (int i = 0; i < meshCount; ++i) {
-        if (meshes[i].primitiveType() == GrPrimitiveType::kPoints) {
-            hasPoints = true;
-            break;
-        }
+    if (!meshCount) {
+        return;
     }
+
+    GrPrimitiveType primType = meshes[0].primitiveType();
+
+#ifdef SK_DEBUG
+    for (int i = 0; i < meshCount; ++i) {
+        SkASSERT(meshes[i].primitiveType() == primType);
+    }
+#endif
+
     if (!this->flushGLState(renderTarget, origin, primProc, pipeline, fixedDynamicState,
-                            dynamicStateArrays, meshCount, hasPoints)) {
+                            dynamicStateArrays, meshCount, primType)) {
         return;
     }
 
