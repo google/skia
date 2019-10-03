@@ -8,6 +8,8 @@ Milestone 79
 
 [Insert new notes here.]
 
+  * Expose SkTextBlobRunIterator in SkTextBlob.h.
+
   * Add SkColorInfo. It's dimensionless SkImageInfo.
     https://review.skia.org/245261
 
