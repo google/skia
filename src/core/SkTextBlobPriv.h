@@ -157,8 +157,13 @@ public:
     static const RunRecord* First(const SkTextBlob* blob);
 
     static const RunRecord* Next(const RunRecord* run);
+    static const RunRecord* NextUnchecked(const RunRecord* run);
 
     void validate(const uint8_t* storageTop) const;
+
+    bool isLastRun() const {
+        return SkToBool(fFlags & kLast_Flag);
+    }
 
 private:
     friend class SkTextBlobBuilder;
@@ -168,8 +173,6 @@ private:
         kLast_Flag        = 0x04, // set for the last blob run
         kExtended_Flag    = 0x08, // set for runs with text/cluster info
     };
-
-    static const RunRecord* NextUnchecked(const RunRecord* run);
 
     static size_t PosCount(uint32_t glyphCount,
                            SkTextBlob::GlyphPositioning positioning,

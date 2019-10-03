@@ -434,6 +434,10 @@ DEF_TEST(TextBlob_serialize, reporter) {
     if (img0 && img1) {
         REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(img0.get(), img1.get()));
     }
+
+    for (auto run : blob0->runs()) {
+        REPORTER_ASSERT(reporter, run.countGlyphs() == 5);
+    }
 }
 
 DEF_TEST(TextBlob_MakeAsDrawText, reporter) {

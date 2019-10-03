@@ -187,14 +187,65 @@ public:
                                          const SkDeserialProcs& procs);
 
 private:
-    friend class SkNVRefCnt<SkTextBlob>;
     class RunRecord;
+
+    class Run {
+    public:
+        SkTypeface*     typeface() const;
+        int             countGlyphs() const;
+        const uint16_t* indices() const;
+
+        Run(const RunRecord* ptr) : fRunPtr(ptr) {}
+        const RunRecord* fRunPtr;
+
+        friend class Runs;
+        friend class RunIter;
+    };
+
+    class RunIter {
+    public:
+        bool operator==(const RunIter& other) const { return fRunPtr == other.fRunPtr; }
+        bool operator!=(const RunIter& other) const { return !(*this == other); }
+
+        void operator++(); // call uncheckednext
+
+        Run operator*() const {
+            SkASSERT(fRunPtr);
+            return Run(fRunPtr);
+        }
+
+        RunIter(const RunRecord* ptr) : fRunPtr(ptr) {}
+
+        const RunRecord* fRunPtr;
+
+        friend class Runs;
+    };
+
+    class Runs {
+    public:
+        RunIter begin() { return RunIter(fBlob.beginRunRec()); }
+        RunIter end()   { return RunIter(fBlob.endRunRec());  }
+
+        Runs(const SkTextBlob& blob) : fBlob(blob) {}
+
+        const SkTextBlob& fBlob;
+    };
+
+public:
+    Runs runs() const { return Runs(*this); }
+
+private:
+
+    friend class SkNVRefCnt<SkTextBlob>;
 
     enum GlyphPositioning : uint8_t;
 
     explicit SkTextBlob(const SkRect& bounds);
 
     ~SkTextBlob();
+
+    const RunRecord* beginRunRec() const;
+    const RunRecord* endRunRec() const;
 
     // Memory for objects of this class is created with sk_malloc rather than operator new and must
     // be freed with sk_free.
