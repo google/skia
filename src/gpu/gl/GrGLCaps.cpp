@@ -60,7 +60,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fProgramBinarySupport = false;
     fProgramParameterSupport = false;
     fSamplerObjectSupport = false;
-    fTiledRenderingSupport = false;
     fFBFetchRequiresEnablePerSample = false;
     fSRGBWriteControl = false;
 
@@ -676,10 +675,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fSamplerObjectSupport = version >= GR_GL_VER(2,0);
     }
 
-    if (GR_IS_GR_GL_ES(standard)) {
-        fTiledRenderingSupport = ctxInfo.hasExtension("GL_QCOM_tiled_rendering");
-    }
-
     FormatWorkarounds formatWorkarounds;
 
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
@@ -1167,7 +1162,6 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Program binary support", fProgramBinarySupport);
     writer->appendBool("Program parameters support", fProgramParameterSupport);
     writer->appendBool("Sampler object support", fSamplerObjectSupport);
-    writer->appendBool("Tiled rendering support", fTiledRenderingSupport);
     writer->appendBool("FB fetch requires enable per sample", fFBFetchRequiresEnablePerSample);
     writer->appendBool("sRGB Write Control", fSRGBWriteControl);
 
@@ -3687,11 +3681,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // https://github.com/flutter/flutter/issues/38700
     if (kAndroidEmulator_GrGLDriver == ctxInfo.driver()) {
         shaderCaps->fNoDefaultPrecisionForExternalSamplers = true;
-    }
-
-    // http://skbug.com/9491: Nexus5 produces rendering artifacts when we use QCOM_tiled_rendering.
-    if (kAdreno3xx_GrGLRenderer == ctxInfo.renderer()) {
-        fTiledRenderingSupport = false;
     }
 }
 

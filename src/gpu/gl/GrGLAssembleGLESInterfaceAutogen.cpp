@@ -242,11 +242,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
         GET_PROC_SUFFIX(DiscardFramebuffer, EXT);
     }
 
-    if (extensions.has("GL_QCOM_tiled_rendering")) {
-        GET_PROC_SUFFIX(EndTiling, QCOM);
-        GET_PROC_SUFFIX(StartTiling, QCOM);
-    }
-
     if (glVer >= GR_GL_VER(3,0)) {
         GET_PROC(VertexAttribDivisor);
     } else if (extensions.has("GL_EXT_instanced_arrays")) {
