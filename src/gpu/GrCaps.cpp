@@ -230,21 +230,6 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
                          kBlendEquationSupportNames[fBlendEquationSupport]);
     writer->appendString("Map Buffer Support", map_flags_to_string(fMapBufferFlags).c_str());
 
-    writer->beginArray("configs");
-
-    // TODO: Either move this logic into individual backends dump and do it based on format and
-    // colorType, or have a loop printing out the defaults for given GrColorTypes. Or both.
-    for (size_t i = 1; i < kGrPixelConfigCnt; ++i) {
-        GrPixelConfig config = static_cast<GrPixelConfig>(i);
-        writer->beginObject(nullptr, false);
-        writer->appendString("name", GrPixelConfigToStr(config));
-        //writer->appendS32("max sample count", this->maxRenderTargetSampleCount(config));
-//        writer->appendBool("texturable", this->isConfigTexturable(config));
-        writer->endObject();
-    }
-
-    writer->endArray();
-
     this->onDumpJSON(writer);
 
     writer->appendName("shaderCaps");

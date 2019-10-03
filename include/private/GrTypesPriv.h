@@ -809,15 +809,6 @@ enum class  GrMipMapsStatus {
 GR_MAKE_BITFIELD_CLASS_OPS(GpuPathRenderers)
 
 /**
- * Describes whether pixel data encoding should be converted to/from linear/sRGB encoding.
- */
-enum class GrSRGBConversion {
-    kNone,
-    kSRGBToLinear,
-    kLinearToSRGB,
-};
-
-/**
  * Utility functions for GrPixelConfig
  */
 
@@ -931,47 +922,6 @@ static constexpr bool GrPixelConfigIsAlphaOnly(GrPixelConfig config) {
             return false;
     }
     SkUNREACHABLE;
-}
-
-static constexpr bool GrPixelConfigIsFloatingPoint(GrPixelConfig config) {
-    switch (config) {
-        case kUnknown_GrPixelConfig:
-        case kAlpha_8_GrPixelConfig:
-        case kAlpha_8_as_Alpha_GrPixelConfig:
-        case kAlpha_8_as_Red_GrPixelConfig:
-        case kGray_8_GrPixelConfig:
-        case kGray_8_as_Lum_GrPixelConfig:
-        case kGray_8_as_Red_GrPixelConfig:
-        case kRGB_565_GrPixelConfig:
-        case kRGBA_4444_GrPixelConfig:
-        case kRGB_888_GrPixelConfig:
-        case kRGB_888X_GrPixelConfig:
-        case kRG_88_GrPixelConfig:
-        case kRGBA_8888_GrPixelConfig:
-        case kBGRA_8888_GrPixelConfig:
-        case kSRGBA_8888_GrPixelConfig:
-        case kRGBA_1010102_GrPixelConfig:
-        case kRGB_ETC1_GrPixelConfig:
-        case kAlpha_16_GrPixelConfig:
-        case kRG_1616_GrPixelConfig:
-        case kRGBA_16161616_GrPixelConfig:
-            return false;
-        case kAlpha_half_GrPixelConfig:
-        case kAlpha_half_as_Lum_GrPixelConfig:
-        case kAlpha_half_as_Red_GrPixelConfig:
-        case kRGBA_half_GrPixelConfig:
-        case kRGBA_half_Clamped_GrPixelConfig:
-        case kRG_half_GrPixelConfig:
-            return true;
-    }
-    SkUNREACHABLE;
-}
-
-static constexpr GrClampType GrPixelConfigClampType(GrPixelConfig config) {
-    if (!GrPixelConfigIsFloatingPoint(config)) {
-        return GrClampType::kAuto;
-    }
-    return kRGBA_half_Clamped_GrPixelConfig == config ? GrClampType::kManual : GrClampType::kNone;
 }
 
 /**
@@ -1453,38 +1403,6 @@ static constexpr const char* GrBackendApiToStr(GrBackendApi api) {
         case GrBackendApi::kOpenGL: return "OpenGL";
         case GrBackendApi::kVulkan: return "Vulkan";
         case GrBackendApi::kMock:   return "Mock";
-    }
-    SkUNREACHABLE;
-}
-
-static constexpr const char* GrPixelConfigToStr(GrPixelConfig config) {
-    switch (config) {
-        case kUnknown_GrPixelConfig:           return "Unknown";
-        case kAlpha_8_GrPixelConfig:           return "Alpha8";
-        case kAlpha_8_as_Alpha_GrPixelConfig:  return "Alpha8_asAlpha";
-        case kAlpha_8_as_Red_GrPixelConfig:    return "Alpha8_asRed";
-        case kGray_8_GrPixelConfig:            return "Gray8";
-        case kGray_8_as_Lum_GrPixelConfig:     return "Gray8_asLum";
-        case kGray_8_as_Red_GrPixelConfig:     return "Gray8_asRed";
-        case kRGB_565_GrPixelConfig:           return "RGB565";
-        case kRGBA_4444_GrPixelConfig:         return "RGBA444";
-        case kRGBA_8888_GrPixelConfig:         return "RGBA8888";
-        case kRGB_888_GrPixelConfig:           return "RGB888";
-        case kRGB_888X_GrPixelConfig:          return "RGB888X";
-        case kRG_88_GrPixelConfig:             return "RG88";
-        case kBGRA_8888_GrPixelConfig:         return "BGRA8888";
-        case kSRGBA_8888_GrPixelConfig:        return "SRGBA8888";
-        case kRGBA_1010102_GrPixelConfig:      return "RGBA1010102";
-        case kAlpha_half_GrPixelConfig:        return "AlphaHalf";
-        case kAlpha_half_as_Lum_GrPixelConfig: return "AlphaHalf_asLum";
-        case kAlpha_half_as_Red_GrPixelConfig: return "AlphaHalf_asRed";
-        case kRGBA_half_GrPixelConfig:         return "RGBAHalf";
-        case kRGBA_half_Clamped_GrPixelConfig: return "RGBAHalfClamped";
-        case kRGB_ETC1_GrPixelConfig:          return "RGBETC1";
-        case kAlpha_16_GrPixelConfig:          return "Alpha16";
-        case kRG_1616_GrPixelConfig:           return "RG1616";
-        case kRGBA_16161616_GrPixelConfig:     return "RGBA16161616";
-        case kRG_half_GrPixelConfig:           return "RGHalf";
     }
     SkUNREACHABLE;
 }
