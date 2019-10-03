@@ -22,6 +22,30 @@
       "revId": "85152f3cb8a39ff57aafaa21e181c9317b1e10cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae80e3aa_2323f190",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-10-03T20:14:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba563f37_ec97236b",
+      "range": {
+        "startLine": 205,
+        "startChar": 10,
+        "endLine": 205,
+        "endChar": 17
+      },
+      "revId": "85152f3cb8a39ff57aafaa21e181c9317b1e10cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
