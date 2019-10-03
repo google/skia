@@ -2,6 +2,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+from . import util
+
 DOCKER_IMAGE = 'gcr.io/skia-public/cmake-release:3.13.1_v2'
 INNER_BUILD_SCRIPT = '/SRC/skia/infra/cmake/build_skia.sh'
 
@@ -43,5 +45,5 @@ def compile_fn(api, checkout_root, _ignore):
         'Build Skia using CMake in Docker',
         cmd=cmd)
 
-def copy_extra_build_products(_api, _src, _dst):
-  pass
+def copy_build_products(api, src, dst):
+  util.copy_listed_files(api, src, dst, util.DEFAULT_BUILD_PRODUCTS)

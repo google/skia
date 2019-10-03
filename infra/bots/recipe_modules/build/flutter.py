@@ -32,7 +32,7 @@ def compile_fn(api, checkout_root, out_dir):
         cmd=['ninja', '-C', out_dir, '-j100'])
 
 
-def copy_extra_build_products(api, src, dst):
+def copy_build_products(api, src, dst):
   stripped_src = src.join('lib.stripped', 'libflutter.so')
   stripped_dst = dst.join('libflutter_stripped.so')
   api.python.inline(
