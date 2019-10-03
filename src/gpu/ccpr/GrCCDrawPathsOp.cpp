@@ -303,7 +303,7 @@ bool GrCCDrawPathsOp::SingleDraw::shouldCachePathMask(int maxRenderTargetSize) c
     // The hitRect should already be contained within the shape's bounds, but we still intersect it
     // because it's possible for edges very near pixel boundaries (e.g., 0.999999), to round out
     // inconsistently, depending on the integer translation values and fp32 precision.
-    SkIRect hitRect = fCacheEntry->hitRect().makeOffset(fCachedMaskShift.x(), fCachedMaskShift.y());
+    SkIRect hitRect = fCacheEntry->hitRect().makeOffset(fCachedMaskShift);
     hitRect.intersect(fShapeConservativeIBounds);
 
     // Render and cache the entire path mask if we see enough of it to justify rendering all the

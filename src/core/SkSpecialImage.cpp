@@ -174,13 +174,13 @@ sk_sp<SkSurface> SkSpecialImage::makeTightSurface(
 }
 
 sk_sp<SkSpecialImage> SkSpecialImage::makeSubset(const SkIRect& subset) const {
-    SkIRect absolute = subset.makeOffset(this->subset().x(), this->subset().y());
+    SkIRect absolute = subset.makeOffset(this->subset().topLeft());
     return as_SIB(this)->onMakeSubset(absolute);
 }
 
 sk_sp<SkImage> SkSpecialImage::asImage(const SkIRect* subset) const {
     if (subset) {
-        SkIRect absolute = subset->makeOffset(this->subset().x(), this->subset().y());
+        SkIRect absolute = subset->makeOffset(this->subset().topLeft());
         return as_SIB(this)->onAsImage(&absolute);
     } else {
         return as_SIB(this)->onAsImage(nullptr);

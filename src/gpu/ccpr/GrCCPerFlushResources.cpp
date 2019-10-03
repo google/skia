@@ -487,8 +487,7 @@ void GrCCPerFlushResources::recordStencilResolveInstance(
     SkASSERT(GrCCAtlas::CoverageType::kA8_Multisample == this->renderedPathCoverageType());
     SkASSERT(fNextStencilResolveInstanceIdx < fEndStencilResolveInstance);
 
-    SkIRect atlasIBounds = clippedPathIBounds.makeOffset(
-            devToAtlasOffset.x(), devToAtlasOffset.y());
+    SkIRect atlasIBounds = clippedPathIBounds.makeOffset(devToAtlasOffset);
     if (GrFillRule::kEvenOdd == fillRule) {
         // Make even/odd fills counterclockwise. The resolve draw uses two-sided stencil, with
         // "nonzero" settings in front and "even/odd" settings in back.

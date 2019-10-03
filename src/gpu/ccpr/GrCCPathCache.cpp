@@ -245,7 +245,7 @@ GrCCPathCache::OnFlushEntryRef GrCCPathCache::find(
             }
         }
     }
-    entry->fHitRect.join(clippedDrawBounds.makeOffset(-maskShift->x(), -maskShift->y()));
+    entry->fHitRect.join(clippedDrawBounds.makeOffset(-*maskShift));
     SkASSERT(!entry->fCachedAtlas || entry->fCachedAtlas->getOnFlushProxy());
     return OnFlushEntryRef::OnFlushRef(entry);
 }
@@ -374,7 +374,7 @@ void GrCCPathCacheEntry::setCoverageCountAtlas(
     fAtlasOffset = atlasOffset + maskShift;
 
     fOctoBounds.setOffset(octoBounds, -maskShift.fX, -maskShift.fY);
-    fDevIBounds = devIBounds.makeOffset(-maskShift.fX, -maskShift.fY);
+    fDevIBounds = devIBounds.makeOffset(-maskShift);
 }
 
 GrCCPathCacheEntry::ReleaseAtlasResult GrCCPathCacheEntry::upgradeToLiteralCoverageAtlas(

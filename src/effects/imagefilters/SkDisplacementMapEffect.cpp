@@ -321,7 +321,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(const Context& 
         return nullptr;
     }
 
-    const SkIRect colorBounds = bounds.makeOffset(-colorOffset.x(), -colorOffset.y());
+    const SkIRect colorBounds = bounds.makeOffset(-colorOffset);
     // If the offset overflowed (saturated) then we have to abort, as we need their
     // dimensions to be equal. See https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=7209
     if (colorBounds.size() != bounds.size()) {
