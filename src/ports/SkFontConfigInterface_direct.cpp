@@ -510,7 +510,8 @@ const char* kFontFormatCFF = "CFF";
 
 SkFontConfigInterfaceDirect::SkFontConfigInterfaceDirect() {
     FCLocker lock;
-    fcConfig.reset(FcConfigReference(nullptr));
+
+    FcInit();
 
     SkDEBUGCODE(fontconfiginterface_unittest();)
 }
@@ -541,7 +542,7 @@ bool SkFontConfigInterfaceDirect::isValidPattern(FcPattern* pattern) {
     if (!c_filename) {
         return false;
     }
-    const char* sysroot = (const char*)FcConfigGetSysRoot(fcConfig.get());
+    const char* sysroot = (const char*)FcConfigGetSysRoot(nullptr);
     SkString resolvedFilename;
     if (sysroot) {
         resolvedFilename = sysroot;
@@ -612,7 +613,7 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
 
     FcPatternAddBool(pattern, FC_SCALABLE, FcTrue);
 
-    FcConfigSubstitute(fcConfig.get(), pattern, FcMatchPattern);
+    FcConfigSubstitute(nullptr, pattern, FcMatchPattern);
     FcDefaultSubstitute(pattern);
 
     // Font matching:
@@ -651,7 +652,7 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
     }
 
     FcResult result;
-    FcFontSet* font_set = FcFontSort(fcConfig.get(), pattern, 0, nullptr, &result);
+    FcFontSet* font_set = FcFontSort(nullptr, pattern, 0, nullptr, &result);
     if (!font_set) {
         FcPatternDestroy(pattern);
         return false;
@@ -679,7 +680,7 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
         FcFontSetDestroy(font_set);
         return false;
     }
-    const char* sysroot = (const char*)FcConfigGetSysRoot(fcConfig.get());
+    const char* sysroot = (const char*)FcConfigGetSysRoot(nullptr);
     SkString resolvedFilename;
     if (sysroot) {
         resolvedFilename = sysroot;
