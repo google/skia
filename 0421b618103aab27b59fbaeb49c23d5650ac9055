@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c52a4d9b_ca749a47",
+        "filename": "src/ports/SkFontConfigInterface_direct.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 10225
+      },
+      "writtenOn": "2019-10-03T22:01:08Z",
+      "side": 1,
+      "message": "Keep in mind, this is not atomic.\n\nYou are reducing the window for a crash, but there is a case between the cmpxchg to take the config and the increment where the fconfig can be deleted.",
+      "revId": "0421b618103aab27b59fbaeb49c23d5650ac9055",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
