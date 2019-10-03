@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "95eba818_c522316e",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-03T21:11:57Z",
+      "side": 1,
+      "message": "Should return RunIter\u0026 ( return *this; after incrementing).",
+      "range": {
+        "startLine": 210,
+        "startChar": 8,
+        "endLine": 210,
+        "endChar": 12
+      },
+      "revId": "f1011ba11a438da96a9c98582e5f136721d340a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -46,6 +46,30 @@
       "revId": "85152f3cb8a39ff57aafaa21e181c9317b1e10cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7555ceee_86ebd643",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-03T21:11:57Z",
+      "side": 1,
+      "message": "Note that reference here is the same as value_type because this is a proxy iterator.",
+      "parentUuid": "ba563f37_ec97236b",
+      "range": {
+        "startLine": 205,
+        "startChar": 10,
+        "endLine": 205,
+        "endChar": 17
+      },
+      "revId": "85152f3cb8a39ff57aafaa21e181c9317b1e10cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c7b9ebc_c1e556b1",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-03T21:11:57Z",
+      "side": 1,
+      "message": "Technically to be an input_iterator it is also necessary to implement\n\nRunIter RunIter::operator++(int); //easy\nFoo* operator-\u003e(); // super non-obvious for proxy iterators\n\nhttps://stackoverflow.com/questions/27582845/how-to-implement-operator-for-an-iterator-that-constructs-its-values-on-demand\n\nFor example\n\nclass RunIter {\nstruct RunPointerProxy {\n  Run run;\n  Run operator*()\u0026\u0026 { return run; }\n  Run* operator-\u003e() { return \u0026run; }\n};\nRunPointerProxy operator-\u003e() { return **this; } // short for \u0027return this-\u003eoperator*();\u0027\n};",
+      "range": {
+        "startLine": 208,
+        "startChar": 39,
+        "endLine": 208,
+        "endChar": 53
+      },
+      "revId": "ea6a4940d3d719378486da3d0efb3b09b2f86143",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b8f1884_ce8be58b",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-03T21:11:57Z",
+      "side": 1,
+      "message": "I know it\u0027s the same type, but it would be nice to state this as returning \u0027reference\u0027.",
+      "range": {
+        "startLine": 215,
+        "startChar": 8,
+        "endLine": 215,
+        "endChar": 11
+      },
+      "revId": "ea6a4940d3d719378486da3d0efb3b09b2f86143",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
