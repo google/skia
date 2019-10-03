@@ -59,7 +59,16 @@ public:
         return !(*this == other);
     }
 
+    /*
+     * Return a new surface characterization with the only difference being a different width
+     * and height
+     */
     SkSurfaceCharacterization createResized(int width, int height) const;
+
+    /*
+     * Return a new surface characterization with only a replaced color space
+     */
+    SkSurfaceCharacterization createColorSpace(sk_sp<SkColorSpace>) const;
 
     GrContextThreadSafeProxy* contextInfo() const { return fContextInfo.get(); }
     sk_sp<GrContextThreadSafeProxy> refContextInfo() const { return fContextInfo; }
@@ -183,6 +192,10 @@ public:
     SkSurfaceCharacterization() : fSurfaceProps(0, kUnknown_SkPixelGeometry) { }
 
     SkSurfaceCharacterization createResized(int width, int height) const {
+        return *this;
+    }
+
+    SkSurfaceCharacterization createColorSpace(sk_sp<SkColorSpace>) const {
         return *this;
     }
 
