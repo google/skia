@@ -96,6 +96,18 @@ var CanvasKit = {
 		setResourceCacheLimitBytes: function() {},
 	},
 
+	Paragraph: {
+		// public API (from C++ bindings)
+		getGlyphPositionAtCoordinate: function() {},
+		layout: function() {},
+
+		// private API
+		/** @return {Float32Array} */
+		_getRectsForRange: function() {},
+	},
+
+	ParagraphStyle: function() {},
+
 	RSXFormBuilder: function() {},
 	SkColorBuilder: function() {},
 	SkRectBuilder: function() {},
@@ -126,6 +138,7 @@ var CanvasKit = {
 		drawLine: function() {},
 		drawOval: function() {},
 		drawPaint: function() {},
+		drawParagraph: function() {},
 		drawPath: function() {},
 		drawPicture: function() {},
 		drawRRect:  function() {},
@@ -379,6 +392,8 @@ var CanvasKit = {
 		texCoords: function() {},
 	},
 
+	TextStyle: function() {},
+
 	// Constants and Enums
 	gpu: {},
 	skottie: {},
@@ -397,6 +412,16 @@ var CanvasKit = {
 	CONIC_VERB: {},
 	CUBIC_VERB: {},
 	CLOSE_VERB: {},
+
+	NoDecoration: {},
+	UnderlineDecoration: {},
+	OverlineDecoration: {},
+	LineThroughDecoration: {},
+
+	Affinity: {
+		Upstream: {},
+		Downstream: {},
+	},
 
 	AlphaType: {
 		Opaque: {},
@@ -495,6 +520,16 @@ var CanvasKit = {
 		ReverseDifference: {},
 	},
 
+	RectHeightStyle: {
+		Tight: {},
+		Max: {},
+	},
+
+	RectWidthStyle: {
+		Tight: {},
+		Max: {},
+	},
+
 	StrokeCap: {
 		Butt: {},
 		Round: {},
@@ -505,6 +540,15 @@ var CanvasKit = {
 		Miter: {},
 		Round: {},
 		Bevel: {},
+	},
+
+	TextAlign: {
+		Left: {},
+		Right: {},
+		Center: {},
+		Justify: {},
+		Start: {},
+		End: {},
 	},
 
 	TextEncoding: {
@@ -561,6 +605,8 @@ var CanvasKit = {
 // Public API things that are newly declared in the JS should go here.
 // It's not enough to declare them above, because closure can still erase them
 // unless they go on the prototype.
+CanvasKit.Paragraph.prototype.getRectsForRange = function() {};
+
 CanvasKit.SkPath.prototype.addArc = function() {};
 CanvasKit.SkPath.prototype.addOval = function() {};
 CanvasKit.SkPath.prototype.addPath = function() {};
