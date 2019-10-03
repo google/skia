@@ -764,69 +764,132 @@ public:
     */
     bool readPixels(const SkBitmap& dst, int srcX, int srcY);
 
-    /** Makes pixel data available to caller, possibly asynchronously. Can perform rescaling.
+    /** The result from asyncRescaleAndReadPixels() or asyncRescaleAndReadPixelsYUV420(). */
+    class AsyncReadResult {
+    public:
+        AsyncReadResult(const AsyncReadResult&) = delete;
+        AsyncReadResult(AsyncReadResult&&) = delete;
+        AsyncReadResult& operator=(const AsyncReadResult&) = delete;
+        AsyncReadResult& operator=(AsyncReadResult&&) = delete;
+
+        virtual ~AsyncReadResult() = default;
+        virtual int count() const = 0;
+        virtual const void* data(int i) const = 0;
+        virtual size_t rowBytes(int i) const = 0;
+
+    protected:
+        AsyncReadResult() = default;
+    };
+
+    /** Client-provided context that is passed to client-provided ReadPixelsContext. */
+    using ReadPixelsContext = void*;
+
+    /**  Client-provided callback to asyncRescaleAndReadPixels() or
+         asyncRescaleAndReadPixelsYUV420() that is called when read result is ready or on failure.
+     */
+    using ReadPixelsCallback = void(ReadPixelsContext, std::unique_ptr<const AsyncReadResult>);
+
+    /** Controls the gamma that rescaling occurs in for asyncRescaleAndReadPixels() and
+        asyncRescaleAndReadPixelsYUV420().
+     */
+    enum RescaleGamma : bool { kSrc, kLinear };
+
+    /** Makes surface pixel data available to caller, possibly asynchronously. It can also rescale
+        the surface pixels.
 
         Currently asynchronous reads are only supported on the GPU backend and only when the
         underlying 3D API supports transfer buffers and CPU/GPU synchronization primitives. In all
         other cases this operates synchronously.
 
-        Data is read from the source rectangle, is optionally converted to a linear gamma, is
+        Data is read from the source sub-rectangle, is optionally converted to a linear gamma, is
         rescaled to the size indicated by 'info', is then converted to the color space, color type,
-        and alpha type of 'info'.
+        and alpha type of 'info'. A 'srcRect' that is not contained by the bounds of the surface
+        causes failure.
 
-        When the pixel data is ready the caller's ReadPixelsCallback is called with a pointer to
-        the data in the requested color type, alpha type, and color space. The data pointer is
-        only valid for the duration of the callback.
+        When the pixel data is ready the caller's ReadPixelsCallback is called with a
+        AsyncReadResult containing pixel data in the requested color type, alpha type, and color
+        space. The AsyncReadResult will have count() == 1. Upon failure the callback is called
+        with nullptr for AsyncReadResult.
 
-        Upon failure the the callback is called with nullptr as the data pointer.
+        The data is valid for the lifetime of AsyncReadResult with the exception that if the
+        SkSurface is GPU-backed the data is immediately invalidated if the GrContext is abandoned
+        or destroyed.
 
-        If the src rectangle is not contained by the bounds of the surface then failure occurs.
-
-        Failure is indicated by calling callback with a nullptr for 'data'.
-
-        @param info             info of the requested pixels
-        @param srcRect          subrectangle of surface to read
-        @param rescaleGamma     controls whether rescaling is done in the surface's gamma or whether
-                                the source data is transformed to a linear gamma before rescaling.
-        @param rescaleQuality   controls the quality (and cost) of the rescaling
-        @param callback         function to call with result of the read
-        @param context          passed to callback
+        @param info            info of the requested pixels
+        @param srcRect         subrectangle of surface to read
+        @param rescaleGamma    controls whether rescaling is done in the surface's gamma or whether
+                               the source data is transformed to a linear gamma before rescaling.
+        @param rescaleQuality  controls the quality (and cost) of the rescaling
+        @param callback        function to call with result of the read
+        @param context         passed to callback
      */
-    using ReadPixelsContext = void*;
-    using ReadPixelsCallback = void(ReadPixelsContext, const void* data, size_t rowBytes);
-    enum RescaleGamma : bool { kSrc, kLinear };
     void asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
                                    RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
                                    ReadPixelsCallback callback, ReadPixelsContext context);
+
+    /** Legacy version of asyncRescaleAndReadPixels() that passes data directly to the callback
+        rather than using AsyncReadResult. The data is only valid during the lifetime of the
+        callback.
+
+        Deprecated.
+     */
+    using LegacyReadPixelsCallback = void(ReadPixelsContext, const void* data, size_t rowBytes);
+    void asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
+                                   RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
+                                   LegacyReadPixelsCallback callback, ReadPixelsContext context);
 
     /**
         Similar to asyncRescaleAndReadPixels but performs an additional conversion to YUV. The
         RGB->YUV conversion is controlled by 'yuvColorSpace'. The YUV data is returned as three
         planes ordered y, u, v. The u and v planes are half the width and height of the resized
-        rectangle. Currently this fails if dstW or dstH are not even.
+        rectangle. The y, u, and v values are single bytes. Currently this fails if 'dstSize'
+        width and height are not even. A 'srcRect' that is not contained by the bounds of the
+        surface causes failure.
 
-        On failure the callback is called with a null data pointer array. Fails if srcRect is not
-        contained in the surface bounds.
+        When the pixel data is ready the caller's ReadPixelsCallback is called with a
+        AsyncReadResult containing the planar data. The AsyncReadResult will have count() == 3.
+        Upon failure the callback is called with nullptr for AsyncReadResult.
+
+        The data is valid for the lifetime of AsyncReadResult with the exception that if the
+        SkSurface is GPU-backed the data is immediately invalidated if the GrContext is abandoned
+        or destroyed.
 
         @param yuvColorSpace  The transformation from RGB to YUV. Applied to the resized image
                               after it is converted to dstColorSpace.
         @param dstColorSpace  The color space to convert the resized image to, after rescaling.
         @param srcRect        The portion of the surface to rescale and convert to YUV planes.
-        @param dstW           The width to rescale srcRect to
-        @param dstH           The height to rescale srcRect to
-        @param rescaleGamma     controls whether rescaling is done in the surface's gamma or whether
-                                the source data is transformed to a linear gamma before rescaling.
-        @param rescaleQuality   controls the quality (and cost) of the rescaling
-        @param callback         function to call with the planar read result
-        @param context          passed to callback
+        @param dstSize        The size to rescale srcRect to
+        @param rescaleGamma   controls whether rescaling is done in the surface's gamma or whether
+                              the source data is transformed to a linear gamma before rescaling.
+        @param rescaleQuality controls the quality (and cost) of the rescaling
+        @param callback       function to call with the planar read result
+        @param context        passed to callback
      */
-    using ReadPixelsCallbackYUV420 = void(ReadPixelsContext, const void* data[3],
-                                          size_t rowBytes[3]);
     void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
-                                         sk_sp<SkColorSpace> dstColorSpace, const SkIRect& srcRect,
-                                         int dstW, int dstH, RescaleGamma rescaleGamma,
+                                         sk_sp<SkColorSpace> dstColorSpace,
+                                         const SkIRect& srcRect,
+                                         const SkISize& dstSize,
+                                         RescaleGamma rescaleGamma,
                                          SkFilterQuality rescaleQuality,
-                                         ReadPixelsCallbackYUV420 callback, ReadPixelsContext);
+                                         ReadPixelsCallback callback,
+                                         ReadPixelsContext);
+
+    /** Legacy version of asyncRescaleAndReadPixelsYUV420() that passes data directly to the
+        callback rather than using AsyncReadResult. The data is only valid during the lifetime of
+        the callback.
+
+        Deprecated.
+     */
+    using LegacyReadPixelsCallbackYUV420 = void(ReadPixelsContext, const void* data[3],
+                                                size_t rowBytes[3]);
+    void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                         sk_sp<SkColorSpace> dstColorSpace,
+                                         const SkIRect& srcRect,
+                                         int dstW, int dstH,
+                                         RescaleGamma rescaleGamma,
+                                         SkFilterQuality rescaleQuality,
+                                         LegacyReadPixelsCallbackYUV420 callback,
+                                         ReadPixelsContext);
 
     /** Copies SkRect of pixels from the src SkPixmap to the SkSurface.
 

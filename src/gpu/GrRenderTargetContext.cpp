@@ -17,6 +17,7 @@
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkLatticeIter.h"
+#include "src/core/SkMakeUnique.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/core/SkSurfacePriv.h"
@@ -24,6 +25,7 @@
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrBlurUtils.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrClientMappedBufferManager.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDataUtils.h"
@@ -1509,18 +1511,18 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
         SkFilterQuality rescaleQuality, ReadPixelsCallback callback, ReadPixelsContext context) {
     auto direct = fContext->priv().asDirectContext();
     if (!direct) {
-        callback(context, nullptr, 0);
+        callback(context, nullptr);
         return;
     }
     if (fRenderTargetProxy->wrapsVkSecondaryCB()) {
-        callback(context, nullptr, 0);
+        callback(context, nullptr);
         return;
     }
     auto dstCT = SkColorTypeToGrColorType(info.colorType());
     // TODO: Support reading to gray.
     if (dstCT == GrColorType::kUnknown ||
         GrColorTypeComponentFlags(dstCT) & kGray_SkColorTypeComponentFlag) {
-        callback(context, nullptr, 0);
+        callback(context, nullptr);
         return;
     }
     bool needsRescale = srcRect.width() != info.width() || srcRect.height() != info.height();
@@ -1535,7 +1537,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
                                                                backendFormatOfFinalContext, dstCT);
     // Fail if we can't read from the source surface's color type.
     if (readInfo.fColorType == GrColorType::kUnknown) {
-        callback(context, nullptr, 0);
+        callback(context, nullptr);
         return;
     }
     // Fail if read color type does not have all of dstCT's color channels and those missing color
@@ -1544,7 +1546,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
     uint32_t legalReadComponents = GrColorTypeComponentFlags(readInfo.fColorType);
     uint32_t srcComponents = GrColorTypeComponentFlags(this->colorInfo().colorType());
     if ((~legalReadComponents & dstComponents) & srcComponents) {
-        callback(context, nullptr, 0);
+        callback(context, nullptr);
         return;
     }
 
@@ -1554,7 +1556,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
     if (needsRescale) {
         tempRTC = this->rescale(info, srcRect, rescaleGamma, rescaleQuality);
         if (!tempRTC) {
-            callback(context, nullptr, 0);
+            callback(context, nullptr);
             return;
         }
         SkASSERT(SkColorSpace::Equals(tempRTC->colorInfo().colorSpace(), info.colorSpace()));
@@ -1570,7 +1572,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
             // We flip or color convert by drawing and we don't currently support drawing to
             // kPremul.
             if (info.alphaType() == kUnpremul_SkAlphaType) {
-                callback(context, nullptr, 0);
+                callback(context, nullptr);
                 return;
             }
             sk_sp<GrTextureProxy> texProxy = sk_ref_sp(fRenderTargetProxy->asTextureProxy());
@@ -1581,7 +1583,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
                                                 GrMipMapped::kNo, srcRect, SkBackingFit::kApprox,
                                                 SkBudgeted::kNo);
                 if (!texProxy) {
-                    callback(context, nullptr, 0);
+                    callback(context, nullptr);
                     return;
                 }
                 srcRectToDraw = SkRect::MakeWH(srcRect.width(), srcRect.height());
@@ -1591,7 +1593,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
                     this->colorInfo().colorType(), info.refColorSpace(), 1, GrMipMapped::kNo,
                     kTopLeft_GrSurfaceOrigin);
             if (!tempRTC) {
-                callback(context, nullptr, 0);
+                callback(context, nullptr);
                 return;
             }
             tempRTC->drawTexture(GrNoClip(), std::move(texProxy), GrSamplerState::Filter::kNearest,
@@ -1607,55 +1609,126 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
                                 info.colorType(), callback, context);
 }
 
+class GrRenderTargetContext::AsyncReadResult : public SkSurface::AsyncReadResult {
+public:
+    AsyncReadResult(uint32_t inboxID) : fInboxID(inboxID) {}
+    ~AsyncReadResult() override {
+        for (int i = 0; i < fPlanes.count(); ++i) {
+            if (!fPlanes[i].fMappedBuffer) {
+                delete[] static_cast<const char*>(fPlanes[i].fData);
+            } else {
+                GrClientMappedBufferManager::BufferFinishedMessageBus::Post(
+                        {std::move(fPlanes[i].fMappedBuffer), fInboxID});
+            }
+        }
+    }
+
+    int count() const override { return fPlanes.count(); }
+    const void* data(int i) const override { return fPlanes[i].fData; }
+    size_t rowBytes(int i) const override { return fPlanes[i].fRowBytes; }
+
+    bool addTransferResult(const PixelTransferResult& result,
+                           SkISize size,
+                           size_t rowBytes,
+                           GrClientMappedBufferManager* manager) {
+        SkASSERT(!result.fTransferBuffer->isMapped());
+        const void* mappedData = result.fTransferBuffer->map();
+        if (!mappedData) {
+            return false;
+        }
+        if (result.fPixelConverter) {
+            std::unique_ptr<char[]> convertedData(new char[rowBytes * size.height()]);
+            result.fPixelConverter(convertedData.get(), mappedData);
+            this->addCpuPlane(std::move(convertedData), rowBytes);
+            result.fTransferBuffer->unmap();
+        } else {
+            manager->insert(result.fTransferBuffer);
+            this->addMappedPlane(mappedData, rowBytes, std::move(result.fTransferBuffer));
+        }
+        return true;
+    }
+
+    void addCpuPlane(std::unique_ptr<const char[]> data, size_t rowBytes) {
+        SkASSERT(data);
+        SkASSERT(rowBytes > 0);
+        fPlanes.emplace_back(data.release(), rowBytes, nullptr);
+    }
+
+private:
+    void addMappedPlane(const void* data, size_t rowBytes, sk_sp<GrGpuBuffer> mappedBuffer) {
+        SkASSERT(data);
+        SkASSERT(rowBytes > 0);
+        SkASSERT(mappedBuffer);
+        SkASSERT(mappedBuffer->isMapped());
+        fPlanes.emplace_back(data, rowBytes, std::move(mappedBuffer));
+    }
+
+    struct Plane {
+        Plane(const void* data, size_t rowBytes, sk_sp<GrGpuBuffer> buffer)
+                : fData(data), fRowBytes(rowBytes), fMappedBuffer(std::move(buffer)) {}
+        const void* fData;
+        size_t fRowBytes;
+        // If this is null then fData is heap alloc and must be delete[]ed as const char[].
+        sk_sp<GrGpuBuffer> fMappedBuffer;
+    };
+    SkSTArray<3, Plane> fPlanes;
+    uint32_t fInboxID;
+};
+
 void GrRenderTargetContext::asyncReadPixels(const SkIRect& rect, SkColorType colorType,
                                             ReadPixelsCallback callback,
                                             ReadPixelsContext context) {
     SkASSERT(rect.fLeft >= 0 && rect.fRight <= this->width());
     SkASSERT(rect.fTop >= 0 && rect.fBottom <= this->height());
 
+    auto directContext = fContext->priv().asDirectContext();
+    SkASSERT(directContext);
+    auto mappedBufferManager = directContext->priv().clientMappedBufferManager();
+
     auto transferResult = this->transferPixels(SkColorTypeToGrColorType(colorType), rect);
 
     if (!transferResult.fTransferBuffer) {
-        SkAutoPixmapStorage pm;
         auto ii = SkImageInfo::Make(rect.size(), colorType,
                                     this->colorInfo().alphaType(),
                                     this->colorInfo().refColorSpace());
-        pm.alloc(ii);
+        auto result = skstd::make_unique<AsyncReadResult>(0);
+        std::unique_ptr<char[]> data(new char[ii.computeMinByteSize()]);
+        SkPixmap pm(ii, data.get(), ii.minRowBytes());
+        result->addCpuPlane(std::move(data), pm.rowBytes());
+
         if (!this->readPixels(ii, pm.writable_addr(), pm.rowBytes(), {rect.fLeft, rect.fTop})) {
-            callback(context, nullptr, 0);
+            callback(context, nullptr);
         }
-        callback(context, pm.addr(), pm.rowBytes());
+        callback(context, std::move(result));
         return;
     }
 
     struct FinishContext {
         ReadPixelsCallback* fClientCallback;
         ReadPixelsContext fClientContext;
-        int fW, fH;
+        SkISize fSize;
         SkColorType fColorType;
+        GrClientMappedBufferManager* fMappedBufferManager;
         PixelTransferResult fTransferResult;
     };
     // Assumption is that the caller would like to flush. We could take a parameter or require an
     // explicit flush from the caller. We'd have to have a way to defer attaching the finish
     // callback to GrGpu until after the next flush that flushes our op list, though.
-    auto* finishContext = new FinishContext{callback, context, rect.width(),
-                                            rect.height(), colorType, std::move(transferResult)};
+    auto* finishContext = new FinishContext{callback,
+                                            context,
+                                            rect.size(),
+                                            colorType,
+                                            mappedBufferManager,
+                                            std::move(transferResult)};
     auto finishCallback = [](GrGpuFinishedContext c) {
         const auto* context = reinterpret_cast<const FinishContext*>(c);
-        const void* data = context->fTransferResult.fTransferBuffer->map();
-        if (!data) {
-            (*context->fClientCallback)(context->fClientContext, nullptr, 0);
-            delete context;
-            return;
+        auto result = skstd::make_unique<AsyncReadResult>(context->fMappedBufferManager->inboxID());
+        size_t rowBytes = context->fSize.width() * SkColorTypeBytesPerPixel(context->fColorType);
+        if (!result->addTransferResult(context->fTransferResult, context->fSize, rowBytes,
+                                       context->fMappedBufferManager)) {
+            result.reset();
         }
-        std::unique_ptr<char[]> tmp;
-        size_t rowBytes = context->fW * SkColorTypeBytesPerPixel(context->fColorType);
-        if (context->fTransferResult.fPixelConverter) {
-            tmp.reset(new char[rowBytes * context->fH]);
-            context->fTransferResult.fPixelConverter(tmp.get(), data);
-            data = tmp.get();
-        }
-        (*context->fClientCallback)(context->fClientContext, data, rowBytes);
+        (*context->fClientCallback)(context->fClientContext, std::move(result));
         delete context;
     };
     GrFlushInfo flushInfo;
@@ -1664,37 +1737,40 @@ void GrRenderTargetContext::asyncReadPixels(const SkIRect& rect, SkColorType col
     this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
 }
 
-void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(
-        SkYUVColorSpace yuvColorSpace, sk_sp<SkColorSpace> dstColorSpace, const SkIRect& srcRect,
-        int dstW, int dstH, RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
-        ReadPixelsCallbackYUV420 callback, ReadPixelsContext context) {
+void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                                            sk_sp<SkColorSpace> dstColorSpace,
+                                                            const SkIRect& srcRect,
+                                                            const SkISize& dstSize,
+                                                            RescaleGamma rescaleGamma,
+                                                            SkFilterQuality rescaleQuality,
+                                                            ReadPixelsCallback callback,
+                                                            ReadPixelsContext context) {
     SkASSERT(srcRect.fLeft >= 0 && srcRect.fRight <= this->width());
     SkASSERT(srcRect.fTop >= 0 && srcRect.fBottom <= this->height());
-    SkASSERT((dstW % 2 == 0) && (dstH % 2 == 0));
+    SkASSERT(!dstSize.isZero());
+    SkASSERT((dstSize.width() % 2 == 0) && (dstSize.height() % 2 == 0));
+
     auto direct = fContext->priv().asDirectContext();
     if (!direct) {
-        callback(context, nullptr, nullptr);
+        callback(context, nullptr);
         return;
     }
     if (fRenderTargetProxy->wrapsVkSecondaryCB()) {
-        callback(context, nullptr, nullptr);
-        return;
-    }
-    if (dstW & 0x1) {
+        callback(context, nullptr);
         return;
     }
     int x = srcRect.fLeft;
     int y = srcRect.fTop;
     std::unique_ptr<GrRenderTargetContext> tempRTC;
-    bool needsRescale = srcRect.width() != dstW || srcRect.height() != dstH;
+    bool needsRescale = srcRect.size() != dstSize;
     if (needsRescale) {
         // We assume the caller wants kPremul. There is no way to indicate a preference.
-        auto info = SkImageInfo::Make(dstW, dstH, kRGBA_8888_SkColorType, kPremul_SkAlphaType,
+        auto info = SkImageInfo::Make(dstSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType,
                                       dstColorSpace);
         // TODO: Incorporate the YUV conversion into last pass of rescaling.
         tempRTC = this->rescale(info, srcRect, rescaleGamma, rescaleQuality);
         if (!tempRTC) {
-            callback(context, nullptr, nullptr);
+            callback(context, nullptr);
             return;
         }
         SkASSERT(SkColorSpace::Equals(tempRTC->colorInfo().colorSpace(), info.colorSpace()));
@@ -1709,15 +1785,16 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(
             sk_sp<GrTextureProxy> texProxy = this->asTextureProxyRef();
             // TODO: Do something if the input is not a texture already.
             if (!texProxy) {
-                callback(context, nullptr, nullptr);
+                callback(context, nullptr);
                 return;
             }
             SkRect srcRectToDraw = SkRect::Make(srcRect);
             tempRTC = direct->priv().makeDeferredRenderTargetContext(
-                    SkBackingFit::kApprox, dstW, dstH, this->colorInfo().colorType(), dstColorSpace,
-                    1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
+                    SkBackingFit::kApprox, dstSize.width(), dstSize.height(),
+                    this->colorInfo().colorType(), dstColorSpace, 1, GrMipMapped::kNo,
+                    kTopLeft_GrSurfaceOrigin);
             if (!tempRTC) {
-                callback(context, nullptr, nullptr);
+                callback(context, nullptr);
                 return;
             }
             tempRTC->drawTexture(GrNoClip(), std::move(texProxy), GrSamplerState::Filter::kNearest,
@@ -1731,20 +1808,22 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(
     auto srcProxy = tempRTC ? tempRTC->asTextureProxyRef() : this->asTextureProxyRef();
     // TODO: Do something if the input is not a texture already.
     if (!srcProxy) {
-        callback(context, nullptr, nullptr);
+        callback(context, nullptr);
         return;
     }
     auto yRTC = direct->priv().makeDeferredRenderTargetContextWithFallback(
-            SkBackingFit::kApprox, dstW, dstH, GrColorType::kAlpha_8, dstColorSpace, 1,
-            GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
+            SkBackingFit::kApprox, dstSize.width(), dstSize.height(), GrColorType::kAlpha_8,
+            dstColorSpace, 1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
+    int halfW = dstSize.width()/2;
+    int halfH = dstSize.height()/2;
     auto uRTC = direct->priv().makeDeferredRenderTargetContextWithFallback(
-            SkBackingFit::kApprox, dstW / 2, dstH / 2, GrColorType::kAlpha_8, dstColorSpace, 1,
+            SkBackingFit::kApprox, halfW, halfH, GrColorType::kAlpha_8, dstColorSpace, 1,
             GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
     auto vRTC = direct->priv().makeDeferredRenderTargetContextWithFallback(
-            SkBackingFit::kApprox, dstW / 2, dstH / 2, GrColorType::kAlpha_8, dstColorSpace, 1,
+            SkBackingFit::kApprox, halfW, halfH, GrColorType::kAlpha_8, dstColorSpace, 1,
             GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
     if (!yRTC || !uRTC || !vRTC) {
-        callback(context, nullptr, nullptr);
+        callback(context, nullptr);
         return;
     }
 
@@ -1787,8 +1866,8 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(
 
     auto texMatrix = SkMatrix::MakeTrans(x, y);
 
-    SkRect dstRectY = SkRect::MakeWH(dstW, dstH);
-    SkRect dstRectUV = SkRect::MakeWH(dstW / 2, dstH / 2);
+    SkRect dstRectY = SkRect::Make(dstSize);
+    SkRect dstRectUV = SkRect::MakeWH(halfW, halfH);
 
     // This matrix generates (r,g,b,a) = (0, 0, 0, y)
     float yM[20];
@@ -1804,7 +1883,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(
     auto yTransfer = yRTC->transferPixels(GrColorType::kAlpha_8,
                                           SkIRect::MakeWH(yRTC->width(), yRTC->height()));
     if (!yTransfer.fTransferBuffer) {
-        callback(context, nullptr, nullptr);
+        callback(context, nullptr);
         return;
     }
 
@@ -1823,7 +1902,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(
     auto uTransfer = uRTC->transferPixels(GrColorType::kAlpha_8,
                                           SkIRect::MakeWH(uRTC->width(), uRTC->height()));
     if (!uTransfer.fTransferBuffer) {
-        callback(context, nullptr, nullptr);
+        callback(context, nullptr);
         return;
     }
 
@@ -1841,14 +1920,15 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(
     auto vTransfer = vRTC->transferPixels(GrColorType::kAlpha_8,
                                           SkIRect::MakeWH(vRTC->width(), vRTC->height()));
     if (!vTransfer.fTransferBuffer) {
-        callback(context, nullptr, nullptr);
+        callback(context, nullptr);
         return;
     }
 
     struct FinishContext {
-        ReadPixelsCallbackYUV420* fClientCallback;
+        ReadPixelsCallback* fClientCallback;
         ReadPixelsContext fClientContext;
-        int fW, fH;
+        GrClientMappedBufferManager* fMappedBufferManager;
+        SkISize fSize;
         PixelTransferResult fYTransfer;
         PixelTransferResult fUTransfer;
         PixelTransferResult fVTransfer;
@@ -1858,56 +1938,34 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(
     // callback to GrGpu until after the next flush that flushes our op list, though.
     auto* finishContext = new FinishContext{callback,
                                             context,
-                                            dstW,
-                                            dstH,
+                                            direct->priv().clientMappedBufferManager(),
+                                            dstSize,
                                             std::move(yTransfer),
                                             std::move(uTransfer),
                                             std::move(vTransfer)};
     auto finishCallback = [](GrGpuFinishedContext c) {
         const auto* context = reinterpret_cast<const FinishContext*>(c);
-        const void* y = context->fYTransfer.fTransferBuffer->map();
-        const void* u = context->fUTransfer.fTransferBuffer->map();
-        const void* v = context->fVTransfer.fTransferBuffer->map();
-        if (!y || !u || !v) {
-            if (y) {
-                context->fYTransfer.fTransferBuffer->unmap();
-            }
-            if (u) {
-                context->fUTransfer.fTransferBuffer->unmap();
-            }
-            if (v) {
-                context->fVTransfer.fTransferBuffer->unmap();
-            }
-            (*context->fClientCallback)(context->fClientContext, nullptr, 0);
+        auto result = skstd::make_unique<AsyncReadResult>(context->fMappedBufferManager->inboxID());
+        auto manager = context->fMappedBufferManager;
+        size_t rowBytes = SkToSizeT(context->fSize.width());
+        if (!result->addTransferResult(context->fYTransfer, context->fSize, rowBytes, manager)) {
+            (*context->fClientCallback)(context->fClientContext, nullptr);
             delete context;
             return;
         }
-        size_t w = SkToSizeT(context->fW);
-        size_t h = SkToSizeT(context->fH);
-        std::unique_ptr<uint8_t[]> yTemp;
-        if (context->fYTransfer.fPixelConverter) {
-            yTemp.reset(new uint8_t[w * h]);
-            context->fYTransfer.fPixelConverter(yTemp.get(), y);
-            y = yTemp.get();
+        rowBytes /= 2;
+        SkISize uvSize = {context->fSize.width()/2, context->fSize.height()/2};
+        if (!result->addTransferResult(context->fUTransfer, uvSize, rowBytes, manager)) {
+            (*context->fClientCallback)(context->fClientContext, nullptr);
+            delete context;
+            return;
         }
-        std::unique_ptr<uint8_t[]> uTemp;
-        if (context->fUTransfer.fPixelConverter) {
-            uTemp.reset(new uint8_t[w / 2 * h / 2]);
-            context->fUTransfer.fPixelConverter(uTemp.get(), u);
-            u = uTemp.get();
+        if (!result->addTransferResult(context->fVTransfer, uvSize, rowBytes, manager)) {
+            (*context->fClientCallback)(context->fClientContext, nullptr);
+            delete context;
+            return;
         }
-        std::unique_ptr<uint8_t[]> vTemp;
-        if (context->fVTransfer.fPixelConverter) {
-            vTemp.reset(new uint8_t[w / 2 * h / 2]);
-            context->fVTransfer.fPixelConverter(vTemp.get(), v);
-            v = vTemp.get();
-        }
-        const void* data[] = {y, u, v};
-        size_t rowBytes[] = {w, w / 2, w / 2};
-        (*context->fClientCallback)(context->fClientContext, data, rowBytes);
-        context->fYTransfer.fTransferBuffer->unmap();
-        context->fUTransfer.fTransferBuffer->unmap();
-        context->fVTransfer.fTransferBuffer->unmap();
+        (*context->fClientCallback)(context->fClientContext, std::move(result));
         delete context;
     };
     GrFlushInfo flushInfo;
