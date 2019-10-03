@@ -333,14 +333,6 @@ bool GrGLInterface::validate() const {
         }
     }
 
-    if ((GR_IS_GR_GL_ES(fStandard) && (
-          fExtensions.has("GL_QCOM_tiled_rendering")))) {
-        if (!fFunctions.fEndTiling ||
-            !fFunctions.fStartTiling) {
-            RETURN_FALSE_INTERFACE;
-        }
-    }
-
     if ((GR_IS_GR_GL(fStandard) && (
           (glVer >= GR_GL_VER(3,2)) ||
           fExtensions.has("GL_ARB_instanced_arrays"))) ||

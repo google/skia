@@ -11,15 +11,14 @@
 #include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 
-void GrGLOpsRenderPass::set(GrRenderTarget* rt, const SkIRect& contentBounds,
-                            GrSurfaceOrigin origin, const LoadAndStoreInfo& colorInfo,
+void GrGLOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin,
+                            const LoadAndStoreInfo& colorInfo,
                             const StencilLoadAndStoreInfo& stencilInfo) {
     SkASSERT(fGpu);
     SkASSERT(!fRenderTarget);
     SkASSERT(fGpu == rt->getContext()->priv().getGpu());
 
     this->INHERITED::set(rt, origin);
-    fContentBounds = contentBounds;
     fColorLoadAndStoreInfo = colorInfo;
     fStencilLoadAndStoreInfo = stencilInfo;
 }

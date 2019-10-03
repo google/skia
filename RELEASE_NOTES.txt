@@ -136,5 +136,3 @@ Milestone 78
   * Changed GrContextOptions' fDisallowGLSLBinaryCaching to fShaderCacheStrategy,
     and allow caching SkSL.
     https://review.skia.org/238856
-
-  * Use GL_QCOM_TILED_RENDERING to explicitly discard stencil

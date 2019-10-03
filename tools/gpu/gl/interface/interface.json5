@@ -261,16 +261,6 @@
   },
 
   {
-    "GL":    null, // Not supported
-    "GLES":  [{"ext": "GL_QCOM_tiled_rendering"}],
-    "WebGL": null,
-
-    "functions": [
-      "StartTiling", "EndTiling",
-    ]
-  },
-
-  {
     "GL":    [{"min_version": [3, 2], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_ARB_instanced_arrays"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
