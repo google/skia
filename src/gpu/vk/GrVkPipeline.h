@@ -25,11 +25,14 @@ struct SkIRect;
 class GrVkPipeline : public GrVkResource {
 public:
     static GrVkPipeline* Create(GrVkGpu*,
+                                const GrFoo&,
+#if 0
                                 int numColorSamples,
                                 const GrPrimitiveProcessor&,
                                 const GrPipeline& pipeline,
+#endif
                                 const GrStencilSettings&,
-                                GrSurfaceOrigin,
+//                                GrSurfaceOrigin,
                                 VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                 int shaderStageCount,
                                 GrPrimitiveType primitiveType,

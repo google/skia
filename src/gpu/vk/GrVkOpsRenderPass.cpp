@@ -175,7 +175,7 @@ void GrVkOpsRenderPass::submit() {
     fGpu->endRenderPass(fRenderTarget, fOrigin, fBounds);
 }
 
-void GrVkOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
+void GrVkOpsRenderPass::set1(GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
                             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
                             const SkTArray<GrTextureProxy*, true>& sampledProxies) {
@@ -186,7 +186,7 @@ void GrVkOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin, const Sk
     fIsActive = true;
 #endif
 
-    this->INHERITED::set(rt, origin);
+    this->INHERITED::set1(rt, origin);
 
     for (int i = 0; i < sampledProxies.count(); ++i) {
         if (sampledProxies[i]->isInstantiated()) {
@@ -428,10 +428,13 @@ void GrVkOpsRenderPass::bindGeometry(const GrGpuBuffer* indexBuffer,
 }
 
 GrVkPipelineState* GrVkOpsRenderPass::prepareDrawState(
+#if 0
         const GrPrimitiveProcessor& primProc,
         const GrPipeline& pipeline,
         const GrPipeline::FixedDynamicState* fixedDynamicState,
         const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+#endif
+        const GrFoo& foo,
         GrPrimitiveType primitiveType,
         const SkIRect& renderPassScissorRect) {
     GrVkCommandBuffer* currentCB = this->currentCommandBuffer();
@@ -439,6 +442,7 @@ GrVkPipelineState* GrVkOpsRenderPass::prepareDrawState(
 
     VkRenderPass compatibleRenderPass = fCurrentRenderPass->vkRenderPass();
 
+#if 0
     const GrTextureProxy* const* primProcProxies = nullptr;
     if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
         primProcProxies = dynamicStateArrays->fPrimitiveProcessorTextures;
@@ -447,14 +451,19 @@ GrVkPipelineState* GrVkOpsRenderPass::prepareDrawState(
     }
 
     SkASSERT(SkToBool(primProcProxies) == SkToBool(primProc.numTextureSamplers()));
+#endif
 
     GrVkPipelineState* pipelineState =
         fGpu->resourceProvider().findOrCreateCompatiblePipelineState(fRenderTarget,
+#if 0
                                                                      fRenderTarget->numSamples(),
                                                                      fOrigin,
                                                                      pipeline,
                                                                      primProc,
                                                                      primProcProxies,
+#else
+                                                                     foo,
+#endif
                                                                      primitiveType,
                                                                      compatibleRenderPass);
     if (!pipelineState) {
@@ -463,30 +472,31 @@ GrVkPipelineState* GrVkOpsRenderPass::prepareDrawState(
 
     pipelineState->bindPipeline(fGpu, currentCB);
 
-    pipelineState->setAndBindUniforms(fGpu, fRenderTarget, fOrigin, primProc, pipeline, currentCB);
+    // TODO: what is the story w/ 'fOrigin'!
+    pipelineState->setAndBindUniforms(fGpu, fRenderTarget, fOrigin, foo.primProc(), foo.pipeline(), currentCB);
 
     // Check whether we need to bind textures between each GrMesh. If not we can bind them all now.
-    bool setTextures = !(dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures);
+    bool setTextures = !(foo.dynamicStateArrays() && foo.dynamicStateArrays()->fPrimitiveProcessorTextures);
     if (setTextures) {
-        pipelineState->setAndBindTextures(fGpu, primProc, pipeline, primProcProxies, currentCB);
+        pipelineState->setAndBindTextures(fGpu, foo.primProc(), foo.pipeline(), foo.primProcProxies(), currentCB);
     }
 
-    if (!pipeline.isScissorEnabled()) {
+    if (!foo.pipeline().isScissorEnabled()) {
         GrVkPipeline::SetDynamicScissorRectState(fGpu, currentCB, fRenderTarget, fOrigin,
                                                  renderPassScissorRect);
-    } else if (!dynamicStateArrays || !dynamicStateArrays->fScissorRects) {
-        SkASSERT(fixedDynamicState);
+    } else if (!foo.dynamicStateArrays() || !foo.dynamicStateArrays()->fScissorRects) {
+        SkASSERT(foo.fixedDynamicState());
         SkIRect combinedScissorRect;
         if (!combinedScissorRect.intersect(renderPassScissorRect,
-                                           fixedDynamicState->fScissorRect)) {
+                                           foo.fixedDynamicState()->fScissorRect)) {
             combinedScissorRect = SkIRect::MakeEmpty();
         }
         GrVkPipeline::SetDynamicScissorRectState(fGpu, currentCB, fRenderTarget, fOrigin,
                                                  combinedScissorRect);
     }
     GrVkPipeline::SetDynamicViewportState(fGpu, currentCB, fRenderTarget);
-    GrVkPipeline::SetDynamicBlendConstantState(fGpu, currentCB, pipeline.outputSwizzle(),
-                                               pipeline.getXferProcessor());
+    GrVkPipeline::SetDynamicBlendConstantState(fGpu, currentCB, foo.pipeline().outputSwizzle(),
+                                               foo.pipeline().getXferProcessor());
 
     return pipelineState;
 }
@@ -500,39 +510,42 @@ void check_sampled_texture(GrTexture* tex, GrRenderTarget* rt, GrVkGpu* gpu) {
 #endif
 
 
-void GrVkOpsRenderPass::onDraw(const GrPrimitiveProcessor& primProc,
-                                    const GrPipeline& pipeline,
-                                    const GrPipeline::FixedDynamicState* fixedDynamicState,
-                                    const GrPipeline::DynamicStateArrays* dynamicStateArrays,
-                                    const GrMesh meshes[],
-                                    int meshCount,
-                                    const SkRect& bounds) {
+void GrVkOpsRenderPass::onDraw(const GrFoo& foo,
+#if 0
+                               const GrPrimitiveProcessor& primProc,
+                               const GrPipeline& pipeline,
+                               const GrPipeline::FixedDynamicState* fixedDynamicState,
+                               const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+#endif
+                               const GrMesh meshes[],
+                               int meshCount,
+                               const SkRect& bounds) {
     if (!meshCount) {
         return;
     }
 
 #ifdef SK_DEBUG
-    if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
+    if (foo.dynamicStateArrays() && foo.dynamicStateArrays()->fPrimitiveProcessorTextures) {
         for (int m = 0, i = 0; m < meshCount; ++m) {
-            for (int s = 0; s < primProc.numTextureSamplers(); ++s, ++i) {
-                auto texture = dynamicStateArrays->fPrimitiveProcessorTextures[i]->peekTexture();
+            for (int s = 0; s < foo.primProc().numTextureSamplers(); ++s, ++i) {
+                auto texture = foo.dynamicStateArrays()->fPrimitiveProcessorTextures[i]->peekTexture();
                 check_sampled_texture(texture, fRenderTarget, fGpu);
             }
         }
     } else {
-        for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-            auto texture = fixedDynamicState->fPrimitiveProcessorTextures[i]->peekTexture();
+        for (int i = 0; i < foo.primProc().numTextureSamplers(); ++i) {
+            auto texture = foo.fixedDynamicState()->fPrimitiveProcessorTextures[i]->peekTexture();
             check_sampled_texture(texture, fRenderTarget, fGpu);
         }
     }
-    GrFragmentProcessor::Iter iter(pipeline);
+    GrFragmentProcessor::Iter iter(foo.pipeline());
     while (const GrFragmentProcessor* fp = iter.next()) {
         for (int i = 0; i < fp->numTextureSamplers(); ++i) {
             const GrFragmentProcessor::TextureSampler& sampler = fp->textureSampler(i);
             check_sampled_texture(sampler.peekTexture(), fRenderTarget, fGpu);
         }
     }
-    if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
+    if (GrTexture* dstTexture = foo.pipeline().peekDstTexture()) {
         check_sampled_texture(dstTexture, fRenderTarget, fGpu);
     }
 #endif
@@ -544,26 +557,24 @@ void GrVkOpsRenderPass::onDraw(const GrPrimitiveProcessor& primProc,
     }
 
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
-    GrVkPipelineState* pipelineState = this->prepareDrawState(primProc, pipeline, fixedDynamicState,
-                                                              dynamicStateArrays, primitiveType,
+    GrVkPipelineState* pipelineState = this->prepareDrawState(foo, primitiveType,
                                                               renderPassScissorRect);
     if (!pipelineState) {
         return;
     }
 
-    bool dynamicScissor =
-            pipeline.isScissorEnabled() && dynamicStateArrays && dynamicStateArrays->fScissorRects;
+    bool dynamicScissor = foo.pipeline().isScissorEnabled() && foo.dynamicStateArrays() &&
+                          foo.dynamicStateArrays()->fScissorRects;
 
-    bool dynamicTextures = dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures;
+    bool dynamicTextures = foo.dynamicStateArrays() &&
+                           foo.dynamicStateArrays()->fPrimitiveProcessorTextures;
 
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
         if (mesh.primitiveType() != primitiveType) {
             SkDEBUGCODE(pipelineState = nullptr);
             primitiveType = mesh.primitiveType();
-            pipelineState = this->prepareDrawState(primProc, pipeline, fixedDynamicState,
-                                                   dynamicStateArrays, primitiveType,
-                                                   renderPassScissorRect);
+            pipelineState = this->prepareDrawState(foo, primitiveType, renderPassScissorRect);
             if (!pipelineState) {
                 return;
             }
@@ -572,7 +583,7 @@ void GrVkOpsRenderPass::onDraw(const GrPrimitiveProcessor& primProc,
         if (dynamicScissor) {
             SkIRect combinedScissorRect;
             if (!combinedScissorRect.intersect(renderPassScissorRect,
-                                               dynamicStateArrays->fScissorRects[i])) {
+                                               foo.dynamicStateArrays()->fScissorRects[i])) {
                 combinedScissorRect = SkIRect::MakeEmpty();
             }
             GrVkPipeline::SetDynamicScissorRectState(fGpu, this->currentCommandBuffer(),
@@ -580,9 +591,9 @@ void GrVkOpsRenderPass::onDraw(const GrPrimitiveProcessor& primProc,
                                                      combinedScissorRect);
         }
         if (dynamicTextures) {
-            GrTextureProxy* const* meshProxies = dynamicStateArrays->fPrimitiveProcessorTextures +
-                                                 primProc.numTextureSamplers() * i;
-            pipelineState->setAndBindTextures(fGpu, primProc, pipeline, meshProxies,
+            GrTextureProxy* const* meshProxies = foo.dynamicStateArrays()->fPrimitiveProcessorTextures +
+                                                 foo.primProc().numTextureSamplers() * i;
+            pipelineState->setAndBindTextures(fGpu, foo.primProc(), foo.pipeline(), meshProxies,
                                               this->currentCommandBuffer());
         }
         SkASSERT(pipelineState);

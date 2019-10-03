@@ -52,7 +52,7 @@ sk_sp<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions,
     return sk_sp<GrGpu>(new GrMockGpu(context, *mockOptions, contextOptions));
 }
 
-GrOpsRenderPass* GrMockGpu::getOpsRenderPass(
+GrOpsRenderPass* GrMockGpu::getOpsRenderPass1(
                                 GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
                                 const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                                 const GrOpsRenderPass::StencilLoadAndStoreInfo&,
