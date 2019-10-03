@@ -46,8 +46,7 @@ private:
                     const GrTextureProxy* const primProcProxies[],
                     const GrPipeline::FixedDynamicState* fixedDynamicState,
                     const GrPipeline::DynamicStateArrays* dynamicStateArrays,
-                    const GrPrimitiveType primitiveType,
-                    bool hasPoints);
+                    const GrPrimitiveType primitiveType);
 
     void onDraw(const GrPrimitiveProcessor& primProc,
                 const GrPipeline& pipeline,

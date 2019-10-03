@@ -607,6 +607,9 @@ static uint32_t seed_vertices(GrPrimitiveType type) {
             return 2;
         case GrPrimitiveType::kLinesAdjacency:
             return 4;
+        case GrPrimitiveType::kPath:
+           SkASSERT(0);
+           return 0;
     }
     SK_ABORT("Incomplete switch\n");
 }
@@ -623,6 +626,9 @@ static uint32_t primitive_vertices(GrPrimitiveType type) {
             return 1;
         case GrPrimitiveType::kLinesAdjacency:
             return 4;
+        case GrPrimitiveType::kPath:
+            SkASSERT(0);
+            return 0;
     }
     SK_ABORT("Incomplete switch\n");
 }
@@ -658,7 +664,8 @@ GR_DRAW_OP_TEST_DEFINE(DrawVerticesOp) {
     GrPrimitiveType type;
     do {
        type = GrPrimitiveType(random->nextULessThan(kNumGrPrimitiveTypes));
-    } while (GrPrimTypeRequiresGeometryShaderSupport(type) &&
+    } while (type == GrPrimitiveType::kPath &&
+             GrPrimTypeRequiresGeometryShaderSupport(type) &&
              !context->priv().caps()->shaderCaps()->geometryShaderSupport());
 
     uint32_t primitiveCount = random->nextRangeU(1, 100);
