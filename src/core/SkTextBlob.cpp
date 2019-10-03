@@ -901,7 +901,6 @@ int get_glyph_run_intercepts(const SkGlyphRun& glyphRun,
 
 int SkTextBlob::getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
                               const SkPaint* paint) const {
-
     SkTLazy<SkPaint> defaultPaint;
     if (paint == nullptr) {
         defaultPaint.init();
@@ -918,4 +917,34 @@ int SkTextBlob::getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
     }
 
     return intervalCount;
+}
+
+/////////////////////// Iterators
+
+const SkTextBlob::RunRecord* SkTextBlob::beginRunRec() const {
+    return RunRecord::First(this);
+}
+
+const SkTextBlob::RunRecord* SkTextBlob::endRunRec() const {
+    const RunRecord* run = RunRecord::First(this);
+    while (!run->isLastRun()) {
+        run = RunRecord::Next(run);
+    }
+    return RunRecord::NextUnchecked(run);
+}
+
+void SkTextBlob::RunIter::operator++() {
+    fRunPtr = RunRecord::NextUnchecked(fRunPtr);
+}
+
+SkTypeface* SkTextBlob::Run::typeface() const {
+    return fRunPtr->font().getTypeface();
+}
+
+int SkTextBlob::Run::countGlyphs() const {
+    return fRunPtr->glyphCount();
+}
+
+const uint16_t* SkTextBlob::Run::indices() const {
+    return fRunPtr->glyphBuffer();
 }

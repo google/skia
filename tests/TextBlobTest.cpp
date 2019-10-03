@@ -434,6 +434,10 @@ DEF_TEST(TextBlob_serialize, reporter) {
     if (img0 && img1) {
         REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(img0.get(), img1.get()));
     }
+
+    for (auto run : blob0->runs()) {
+        REPORTER_ASSERT(reporter, run.countGlyphs() == 5);
+    }
 }
 
 DEF_TEST(TextBlob_MakeAsDrawText, reporter) {
@@ -448,4 +452,30 @@ DEF_TEST(TextBlob_MakeAsDrawText, reporter) {
     }
     REPORTER_ASSERT(reporter, runs == 1);
 
+}
+
+DEF_TEST(TextBlob_runs, reporter) {
+    sk_sp<SkTypeface> tf = SkTypeface::MakeFromName(nullptr, SkFontStyle::BoldItalic());
+
+    SkTextBlobBuilder builder;
+    add_run(&builder, "Hello", 10, 20, tf);    // don't flatten a typeface
+    add_run(&builder, "World", 10, 40, tf);         // do flatten this typeface
+    auto blob = builder.make();
+
+    int runCounter = 0;
+    for (auto r : blob->runs()) {
+        REPORTER_ASSERT(reporter, r.countGlyphs() == 5);
+        REPORTER_ASSERT(reporter, r.typeface() == tf.get());
+        runCounter += 1;
+    }
+    REPORTER_ASSERT(reporter, runCounter == 2);
+
+    // Check indices on the first run
+    {
+        auto iter = blob->runs().begin();
+        auto r = *iter;
+        const uint16_t* indices = r.indices();
+        REPORTER_ASSERT(reporter, r.countGlyphs() == 5);
+        REPORTER_ASSERT(reporter, indices[2] == indices[3]);    // the two 'l's in Hello
+    }
 }
