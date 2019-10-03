@@ -384,11 +384,10 @@ void GrMtlCaps::initShaderCaps() {
     shaderCaps->fShaderDerivativeSupport = true;
     shaderCaps->fGeometryShaderSupport = false;
 
-    if ((this->isMac() && fVersion >= 2) ||
-        (this->isIOS() && ((1 == fFamilyGroup && 4 == fVersion) ||
-                           (2 == fFamilyGroup && 4 == fVersion) ||
-                           (3 == fFamilyGroup && 3 == fVersion)))) {
+    if (@available(macOS 10.12, iOS 11.0, *)) {
         shaderCaps->fDualSourceBlendingSupport = true;
+    } else {
+        shaderCaps->fDualSourceBlendingSupport = false;
     }
 
     // TODO: Re-enable this once skbug:8720 is fixed. Will also need to remove asserts in

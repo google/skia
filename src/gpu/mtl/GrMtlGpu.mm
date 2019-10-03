@@ -1329,13 +1329,17 @@ void GrMtlGpu::resolveTexture(id<MTLTexture> resolveTexture, id<MTLTexture> colo
 
 #if GR_TEST_UTILS
 void GrMtlGpu::testingOnly_startCapture() {
-    // TODO: add Metal 3 interface as well
-    MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
-    [captureManager startCaptureWithDevice: fDevice];
+    if (@available(macOS 10.13, iOS 11.0, *)) {
+        // TODO: add Metal 3 interface as well
+        MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
+        [captureManager startCaptureWithDevice: fDevice];
+    }
 }
 
 void GrMtlGpu::testingOnly_endCapture() {
-    MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
-    [captureManager stopCapture];
+    if (@available(macOS 10.13, iOS 11.0, *)) {
+        MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
+        [captureManager stopCapture];
+    }
 }
 #endif
