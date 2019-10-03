@@ -7,6 +7,7 @@
 
 # Generate Android.bp for Skia from GN configuration.
 
+import itertools
 import os
 import pprint
 import string
@@ -413,7 +414,9 @@ here = os.path.dirname(__file__)
 defs = gn_to_bp_utils.GetArchSources(os.path.join(here, 'opts.gni'))
 
 def get_defines(json):
-  return {str(d) for d in json['targets']['//:skia']['defines']}
+  return {str(d) for d in itertools.chain(
+      json['targets']['//:skia']['defines'],
+      json['targets']['//:pdf' ]['defines'])}
 android_defines = get_defines(js)
 linux_defines   = get_defines(js_linux)
 mac_defines     = get_defines(js_mac)
