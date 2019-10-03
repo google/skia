@@ -7,7 +7,8 @@ INNER_BUILD_DIR = '/SRC/skia/infra/skqp'
 INNER_BUILD_SCRIPT = './build_apk.sh'
 
 BUILD_PRODUCTS_ISOLATE_WHITELIST_SKQP = [
-  '*.apk'
+  '*.apk',
+  'whitelist_devices.json',
 ]
 
 
@@ -42,7 +43,7 @@ def compile_fn(api, checkout_root, _ignore):
         cmd=cmd)
 
 
-def copy_extra_build_products(api, _ignore, dst):
+def copy_build_products(api, _ignore, dst):
   out_dir = api.vars.cache_dir.join('docker', 'skqp')
   # We don't use the normal copy_build_products because it uses
   # shutil.move, which attempts to delete the previous file, which
