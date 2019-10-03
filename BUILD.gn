@@ -1072,9 +1072,11 @@ group("modules") {
   deps = [
     "modules/particles",
     "modules/skottie",
-    "modules/skparagraph",
     "modules/skshaper",
   ]
+  if (!(is_win && is_component_build)) {
+    deps += [ "modules/skparagraph" ]
+  }
 }
 
 # Targets guarded by skia_enable_tools may use //third_party freely.
