@@ -327,15 +327,14 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
+bool GrVkPipelineStateBuilder::Desc::Build1(Desc* desc,
                                            GrRenderTarget* renderTarget,
                                            const GrPrimitiveProcessor& primProc,
                                            const GrPipeline& pipeline,
                                            const GrStencilSettings& stencil,
                                            GrPrimitiveType primitiveType,
                                            GrVkGpu* gpu) {
-    if (!INHERITED::Build(desc, renderTarget, primProc,
-                          primitiveType == GrPrimitiveType::kPoints, pipeline, gpu)) {
+    if (!INHERITED::Build(desc, renderTarget, primProc, primitiveType, pipeline, gpu)) {
         return false;
     }
 

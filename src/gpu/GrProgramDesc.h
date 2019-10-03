@@ -40,7 +40,7 @@ public:
     * @param GrProgramDesc  The built and finalized descriptor
     **/
     static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrPrimitiveProcessor&,
-                      bool hasPointSize, const GrPipeline&, GrGpu*);
+                      GrPrimitiveType, const GrPipeline&, GrGpu*);
 
     static bool BuildFromData(GrProgramDesc* desc, const void* keyData, size_t keyLength) {
         if (!SkTFitsIn<int>(keyLength)) {
