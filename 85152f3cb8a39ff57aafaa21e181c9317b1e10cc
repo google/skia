@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba563f37_ec97236b",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-03T19:35:47Z",
+      "side": 1,
+      "message": "In order to be an official iterator, you need to include...\n        using value_type \u003d Run;\n        using difference_type \u003d ptrdiff_t;\n        using pointer \u003d value_type*;\n        using reference \u003d value_type;\n        using iterator_category \u003d std::input_iterator_tag;\n\nThese types allow you to interact with other c++ iterator stuff better.",
+      "range": {
+        "startLine": 205,
+        "startChar": 10,
+        "endLine": 205,
+        "endChar": 17
+      },
+      "revId": "85152f3cb8a39ff57aafaa21e181c9317b1e10cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
