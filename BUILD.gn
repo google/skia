@@ -1074,7 +1074,7 @@ group("modules") {
     "modules/skottie",
     "modules/skshaper",
   ]
-  if (!(is_win && is_component_build)) {
+  if (target_cpu == "wasm") {
     deps += [ "modules/skparagraph" ]
   }
 }
