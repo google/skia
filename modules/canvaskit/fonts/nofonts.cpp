@@ -4,7 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "include/core/SkTypes.h"
+#include <stddef.h>
+#include <stdint.h>
 struct SkEmbeddedResource { const uint8_t* d; const size_t s; };
 static const SkEmbeddedResource header[] = {};
 static const int header_count = 0;
