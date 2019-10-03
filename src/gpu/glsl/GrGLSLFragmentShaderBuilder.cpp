@@ -85,7 +85,7 @@ SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) 
 }
 
 const char* GrGLSLFragmentShaderBuilder::sampleOffsets() {
-    SkASSERT(CustomFeatures::kSampleLocations & fProgramBuilder->header().processorFeatures());
+    SkASSERT(CustomFeatures::kSampleLocations & fProgramBuilder->header1().processorFeatures());
     SkDEBUGCODE(fUsedProcessorFeaturesThisStage_DebugOnly |= CustomFeatures::kSampleLocations);
     SkDEBUGCODE(fUsedProcessorFeaturesAllStages_DebugOnly |= CustomFeatures::kSampleLocations);
     return "_sampleOffsets";
@@ -118,11 +118,11 @@ void GrGLSLFragmentShaderBuilder::maskOffMultisampleCoverage(
 
 void GrGLSLFragmentShaderBuilder::applyFnToMultisampleMask(
         const char* fn, const char* grad, ScopeFlags scopeFlags) {
-    SkASSERT(CustomFeatures::kSampleLocations & fProgramBuilder->header().processorFeatures());
+    SkASSERT(CustomFeatures::kSampleLocations & fProgramBuilder->header1().processorFeatures());
     SkDEBUGCODE(fUsedProcessorFeaturesThisStage_DebugOnly |= CustomFeatures::kSampleLocations);
     SkDEBUGCODE(fUsedProcessorFeaturesAllStages_DebugOnly |= CustomFeatures::kSampleLocations);
 
-    int sampleCnt = fProgramBuilder->effectiveSampleCnt();
+    int sampleCnt = fProgramBuilder->effectiveSampleCnt1();
     SkASSERT(sampleCnt > 1);
 
     this->codeAppendf("{");
@@ -283,19 +283,19 @@ const char* GrGLSLFragmentShaderBuilder::getSecondaryColorOutputName() const {
 }
 
 GrSurfaceOrigin GrGLSLFragmentShaderBuilder::getSurfaceOrigin() const {
-    SkASSERT(fProgramBuilder->header().hasSurfaceOriginKey());
-    return static_cast<GrSurfaceOrigin>(fProgramBuilder->header().fSurfaceOriginKey-1);
+    SkASSERT(fProgramBuilder->header1().hasSurfaceOriginKey());
+    return static_cast<GrSurfaceOrigin>(fProgramBuilder->header1().fSurfaceOriginKey-1);
 
     GR_STATIC_ASSERT(0 == kTopLeft_GrSurfaceOrigin);
     GR_STATIC_ASSERT(1 == kBottomLeft_GrSurfaceOrigin);
 }
 
 void GrGLSLFragmentShaderBuilder::onFinalize() {
-    SkASSERT(fProgramBuilder->header().processorFeatures()
+    SkASSERT(fProgramBuilder->header1().processorFeatures()
                      == fUsedProcessorFeaturesAllStages_DebugOnly);
 
-    if (CustomFeatures::kSampleLocations & fProgramBuilder->header().processorFeatures()) {
-        const SkTArray<SkPoint>& sampleLocations = fProgramBuilder->getSampleLocations();
+    if (CustomFeatures::kSampleLocations & fProgramBuilder->header1().processorFeatures()) {
+        const SkTArray<SkPoint>& sampleLocations = fProgramBuilder->getSampleLocations1();
         this->definitions().append("const float2 _sampleOffsets[] = float2[](");
         for (int i = 0; i < sampleLocations.count(); ++i) {
             SkPoint offset = sampleLocations[i] - SkPoint::Make(.5f, .5f);

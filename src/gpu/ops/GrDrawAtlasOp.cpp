@@ -48,6 +48,7 @@ public:
                                       bool hasMixedSampledCoverage, GrClampType) override;
 
 private:
+    void onPrePrepareDraws() override;
     void onPrepareDraws(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
@@ -181,6 +182,10 @@ SkString DrawAtlasOp::dumpInfo() const {
     return string;
 }
 #endif
+
+void DrawAtlasOp::onPrePrepareDraws() {
+
+}
 
 void DrawAtlasOp::onPrepareDraws(Target* target) {
     // Setup geometry processor

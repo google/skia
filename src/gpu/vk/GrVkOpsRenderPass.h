@@ -38,7 +38,7 @@ public:
 
     void executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override;
 
-    void set(GrRenderTarget*, GrSurfaceOrigin, const SkIRect& bounds,
+    void set1(GrRenderTarget*, GrSurfaceOrigin, const SkIRect& bounds,
              const GrOpsRenderPass::LoadAndStoreInfo&,
              const GrOpsRenderPass::StencilLoadAndStoreInfo&,
              const SkTArray<GrTextureProxy*, true>& sampledProxies);
@@ -70,17 +70,24 @@ private:
                       const GrGpuBuffer* vertexBuffer,
                       const GrGpuBuffer* instanceBuffer);
 
-    GrVkPipelineState* prepareDrawState(const GrPrimitiveProcessor&,
+    GrVkPipelineState* prepareDrawState(
+#if 0
+                                        const GrPrimitiveProcessor&,
                                         const GrPipeline&,
                                         const GrPipeline::FixedDynamicState*,
                                         const GrPipeline::DynamicStateArrays*,
+#endif
+                                        const GrFoo&,
                                         GrPrimitiveType,
                                         const SkIRect& renderPassScissorRect);
 
-    void onDraw(const GrPrimitiveProcessor&,
+    void onDraw(const GrFoo&,
+#if 0
+                const GrPrimitiveProcessor&,
                 const GrPipeline&,
                 const GrPipeline::FixedDynamicState*,
                 const GrPipeline::DynamicStateArrays*,
+#endif
                 const GrMesh[],
                 int meshCount,
                 const SkRect& bounds) override;

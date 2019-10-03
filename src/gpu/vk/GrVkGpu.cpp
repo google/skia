@@ -319,7 +319,7 @@ void GrVkGpu::disconnect(DisconnectType type) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrOpsRenderPass* GrVkGpu::getOpsRenderPass(
+GrOpsRenderPass* GrVkGpu::getOpsRenderPass1(
             GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
@@ -328,7 +328,7 @@ GrOpsRenderPass* GrVkGpu::getOpsRenderPass(
         fCachedOpsRenderPass.reset(new GrVkOpsRenderPass(this));
     }
 
-    fCachedOpsRenderPass->set(rt, origin, bounds, colorInfo, stencilInfo, sampledProxies);
+    fCachedOpsRenderPass->set1(rt, origin, bounds, colorInfo, stencilInfo, sampledProxies);
     return fCachedOpsRenderPass.get();
 }
 

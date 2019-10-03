@@ -338,7 +338,7 @@ public:
 
     // Returns a GrOpsRenderPass which GrOpsTasks send draw commands to instead of directly
     // to the Gpu object. The 'bounds' rect is the content rect of the renderTarget.
-    virtual GrOpsRenderPass* getOpsRenderPass(
+    virtual GrOpsRenderPass* getOpsRenderPass1(
             GrRenderTarget* renderTarget, GrSurfaceOrigin, const SkIRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo&,
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,
