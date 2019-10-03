@@ -83,7 +83,7 @@ SkImage_Lazy::Validator::Validator(sk_sp<SharedGenerator> gen, const SkIRect* su
         subset = &bounds;
     }
 
-    fInfo   = info.makeDimensions(subset->size());
+    fInfo   = info.makeWH(subset->width(), subset->height());
     fOrigin = SkIPoint::Make(subset->x(), subset->y());
     if (colorType || colorSpace) {
         if (colorType) {
@@ -321,7 +321,7 @@ sk_sp<SkImage> SkImage::DecodeToRaster(const void* encoded, size_t length, const
         if (!SkIRect::MakeWH(info.width(), info.height()).contains(*subset)) {
             return nullptr;
         }
-        info = info.makeDimensions(subset->size());
+        info = info.makeWH(subset->width(), subset->height());
         origin = {subset->x(), subset->y()};
     }
 

@@ -79,7 +79,7 @@ struct DownsampleBitmapGM : public skiagm::GM {
 
 static SkBitmap convert_bitmap_format(SkBitmap src, SkImageInfo info) {
     SkBitmap dst;
-    dst.allocPixels(info.makeDimensions(src.dimensions()));
+    dst.allocPixels(info.makeWH(src.width(), src.height()));
 
     SkPixmap pm;
     SkAssertResult(dst.peekPixels(&pm));

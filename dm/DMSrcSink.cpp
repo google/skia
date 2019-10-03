@@ -413,7 +413,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     if ((size.width() <= 10 || size.height() <= 10) && 1.0f != fScale) {
         return Error::Nonfatal("Scaling very small images is uninteresting.");
     }
-    decodeInfo = decodeInfo.makeDimensions(size);
+    decodeInfo = decodeInfo.makeWH(size.width(), size.height());
 
     const int bpp = decodeInfo.bytesPerPixel();
     const size_t rowBytes = size.width() * bpp;
@@ -794,7 +794,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
     if ((size.width() <= 10 || size.height() <= 10) && 1 != fSampleSize) {
         return Error::Nonfatal("Scaling very small images is uninteresting.");
     }
-    decodeInfo = decodeInfo.makeDimensions(size);
+    decodeInfo = decodeInfo.makeWH(size.width(), size.height());
 
     int bpp = decodeInfo.bytesPerPixel();
     size_t rowBytes = size.width() * bpp;
@@ -976,7 +976,8 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
 
     SkImageInfo info = codec->getInfo();
     if (fDecodeToDst) {
-        info = canvas->imageInfo().makeDimensions(info.dimensions());
+        info = canvas->imageInfo().makeWH(info.width(),
+                                          info.height());
     }
 
     SkBitmap bitmap;
@@ -1820,7 +1821,7 @@ Error ViaUpright::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
 
     SkBitmap uprighted;
     SkISize size = auto_compute_translate(&upright, bitmap->width(), bitmap->height());
-    uprighted.allocPixels(bitmap->info().makeDimensions(size));
+    uprighted.allocPixels(bitmap->info().makeWH(size.width(), size.height()));
 
     SkCanvas canvas(uprighted);
     canvas.concat(upright);
