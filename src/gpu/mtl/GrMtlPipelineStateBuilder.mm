@@ -82,8 +82,6 @@ id<MTLLibrary> GrMtlPipelineStateBuilder::createMtlShaderLibrary(
 }
 
 static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType type) {
-    // All half types will actually be float types. We are currently not using half types with
-    // metal to avoid an issue with narrow type coercions (float->half) http://skbug.com/8221
     switch (type) {
         case kFloat_GrVertexAttribType:
             return MTLVertexFormatFloat;
@@ -94,7 +92,11 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
         case kFloat4_GrVertexAttribType:
             return MTLVertexFormatFloat4;
         case kHalf_GrVertexAttribType:
-            return MTLVertexFormatHalf;
+            if (@available(macOS 10.13, iOS 11.0, *)) {
+                return MTLVertexFormatHalf;
+            } else {
+                return MTLVertexFormatInvalid;
+            }
         case kHalf2_GrVertexAttribType:
             return MTLVertexFormatHalf2;
         case kHalf3_GrVertexAttribType:
@@ -108,7 +110,11 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
         case kInt4_GrVertexAttribType:
             return MTLVertexFormatInt4;
         case kByte_GrVertexAttribType:
-            return MTLVertexFormatChar;
+            if (@available(macOS 10.13, iOS 11.0, *)) {
+                return MTLVertexFormatChar;
+            } else {
+                return MTLVertexFormatInvalid;
+            }
         case kByte2_GrVertexAttribType:
             return MTLVertexFormatChar2;
         case kByte3_GrVertexAttribType:
@@ -116,7 +122,11 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
         case kByte4_GrVertexAttribType:
             return MTLVertexFormatChar4;
         case kUByte_GrVertexAttribType:
-            return MTLVertexFormatUChar;
+            if (@available(macOS 10.13, iOS 11.0, *)) {
+                return MTLVertexFormatUChar;
+            } else {
+                return MTLVertexFormatInvalid;
+            }
         case kUByte2_GrVertexAttribType:
             return MTLVertexFormatUChar2;
         case kUByte3_GrVertexAttribType:
@@ -124,7 +134,11 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
         case kUByte4_GrVertexAttribType:
             return MTLVertexFormatUChar4;
         case kUByte_norm_GrVertexAttribType:
-            return MTLVertexFormatUCharNormalized;
+            if (@available(macOS 10.13, iOS 11.0, *)) {
+                return MTLVertexFormatUCharNormalized;
+            } else {
+                return MTLVertexFormatInvalid;
+            }
         case kUByte4_norm_GrVertexAttribType:
             return MTLVertexFormatUChar4Normalized;
         case kShort2_GrVertexAttribType:
@@ -140,7 +154,11 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
         case kUint_GrVertexAttribType:
             return MTLVertexFormatUInt;
         case kUShort_norm_GrVertexAttribType:
-            return MTLVertexFormatUShortNormalized;
+            if (@available(macOS 10.13, iOS 11.0, *)) {
+                return MTLVertexFormatUShortNormalized;
+            } else {
+                return MTLVertexFormatInvalid;
+            }
         case kUShort4_norm_GrVertexAttribType:
             return MTLVertexFormatUShort4Normalized;
     }
@@ -167,6 +185,7 @@ static MTLVertexDescriptor* create_vertex_descriptor(const GrPrimitiveProcessor&
     for (const auto& attribute : primProc.vertexAttributes()) {
         MTLVertexAttributeDescriptor* mtlAttribute = vertexDescriptor.attributes[attributeIndex];
         mtlAttribute.format = attribute_type_to_mtlformat(attribute.cpuType());
+        SkASSERT(MTLVertexFormatInvalid != mtlAttribute.format);
         mtlAttribute.offset = vertexAttributeOffset;
         mtlAttribute.bufferIndex = vertexBinding;
 
