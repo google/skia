@@ -500,6 +500,51 @@ void DDLSurfaceCharacterizationTestImpl(GrContext* context, skiatest::Reporter* 
         s = nullptr;
         params.cleanUpBackEnd(context, backend);
     }
+
+    // Exercise the createColorSpace method
+    {
+        SurfaceParameters params(context);
+        GrBackendTexture backend;
+
+        sk_sp<SkSurface> s = params.make(context, &backend);
+        if (!s) {
+            return;
+        }
+
+        SkSurfaceCharacterization char0;
+        SkAssertResult(s->characterize(&char0));
+
+        // The default params create an sRGB color space
+        REPORTER_ASSERT(reporter, char0.colorSpace()->isSRGB());
+        REPORTER_ASSERT(reporter, !char0.colorSpace()->gammaIsLinear());
+
+        {
+            sk_sp<SkColorSpace> newCS = SkColorSpace::MakeSRGBLinear();
+
+            SkSurfaceCharacterization char1 = char0.createColorSpace(std::move(newCS));
+            REPORTER_ASSERT(reporter, char1.isValid());
+            REPORTER_ASSERT(reporter, !char1.colorSpace()->isSRGB());
+            REPORTER_ASSERT(reporter, char1.colorSpace()->gammaIsLinear());
+        }
+
+        {
+            SkSurfaceCharacterization char2 = char0.createColorSpace(nullptr);
+            REPORTER_ASSERT(reporter, char2.isValid());
+            REPORTER_ASSERT(reporter, !char2.colorSpace());
+        }
+
+        {
+            sk_sp<SkColorSpace> newCS = SkColorSpace::MakeSRGBLinear();
+
+            SkSurfaceCharacterization invalid;
+            REPORTER_ASSERT(reporter, !invalid.isValid());
+            SkSurfaceCharacterization stillInvalid = invalid.createColorSpace(std::move(newCS));
+            REPORTER_ASSERT(reporter, !stillInvalid.isValid());
+        }
+
+        s = nullptr;
+        params.cleanUpBackEnd(context, backend);
+    }
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctxInfo) {
