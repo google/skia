@@ -5,6 +5,7 @@
 
 import re
 
+from . import util
 
 def compile_fn(api, checkout_root, out_dir):
   skia_dir      = checkout_root.join('skia')
@@ -93,5 +94,6 @@ def compile_fn(api, checkout_root, out_dir):
       api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
 
 
-def copy_extra_build_products(api, src, dst):
-  pass
+def copy_build_products(api, src, dst):
+  # FIXME(kjlubick)
+  util.copy_whitelisted_build_products(api, src, dst)
