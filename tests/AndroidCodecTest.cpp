@@ -291,7 +291,7 @@ DEF_TEST(AndroidCodec_sampledOrientation, r) {
     options.fSampleSize = sampleSize;
 
     SkBitmap bm;
-    auto info = androidCodec->getInfo().makeDimensions(sampledDims);
+    auto info = androidCodec->getInfo().makeWH(sampledDims.width(), sampledDims.height());
     bm.allocPixels(info);
 
     auto result = androidCodec->getAndroidPixels(info, bm.getPixels(), bm.rowBytes(), &options);

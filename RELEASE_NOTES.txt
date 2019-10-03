@@ -8,10 +8,6 @@ Milestone 79
 
 [Insert new notes here.]
 
-  * New versions of SkSurface async-rescale-and read APIs that allow client to extend
-    the lifetime of the result data. Old versions are deprecated.
-    https://review.skia.org/245457
-
   * Add SkColorInfo. It's dimensionless SkImageInfo.
     https://review.skia.org/245261
 

@@ -21,7 +21,6 @@
 class GrAtlasManager;
 class GrBackendSemaphore;
 class GrCaps;
-class GrClientMappedBufferManager;
 class GrContextPriv;
 class GrContextThreadSafeProxy;
 class GrFragmentProcessor;
@@ -472,13 +471,6 @@ public:
     GrBackendTexture createBackendTexture(const SkPixmap srcData[], int numLevels,
                                           GrRenderable, GrProtected);
 
-    // Helper version of above for a single level.
-    GrBackendTexture createBackendTexture(const SkPixmap& srcData,
-                                          GrRenderable renderable,
-                                          GrProtected isProtected) {
-        return this->createBackendTexture(&srcData, 1, renderable, isProtected);
-    }
-
     void deleteBackendTexture(GrBackendTexture);
 
     // This interface allows clients to pre-compile shaders and populate the runtime program cache.
@@ -533,10 +525,15 @@ private:
     GrContextOptions::PersistentCache*      fPersistentCache;
     GrContextOptions::ShaderErrorHandler*   fShaderErrorHandler;
 
-    std::unique_ptr<GrClientMappedBufferManager> fMappedBufferManager;
-
     // TODO: have the GrClipStackClip use renderTargetContexts and rm this friending
     friend class GrContextPriv;
+
+    /**
+     * These functions create premul <-> unpremul effects, using the specialized round-trip effects
+     * from GrConfigConversionEffect.
+     */
+    std::unique_ptr<GrFragmentProcessor> createPMToUPMEffect(std::unique_ptr<GrFragmentProcessor>);
+    std::unique_ptr<GrFragmentProcessor> createUPMToPMEffect(std::unique_ptr<GrFragmentProcessor>);
 
     typedef GrRecordingContext INHERITED;
 };
