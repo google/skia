@@ -20,6 +20,7 @@
 #include "src/gpu/GrBuffer.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrFoo.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrGpuBuffer.h"
 #include "src/gpu/GrMemoryPool.h"
@@ -156,6 +157,11 @@ private:
             const GrCaps&, const GrAppliedClip*, bool hasMixedSampledCoverage, GrClampType) override {
         return GrProcessorSet::EmptySetAnalysis();
     }
+
+    void onPrePrepare() override {
+
+    }
+
     void onPrepare(GrOpFlushState* flushState) override {
         SkPoint vertices[4] = {
             {-1, -1},
@@ -172,12 +178,17 @@ private:
         }
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrcOver,
                             flushState->drawOpArgs().fOutputSwizzle);
+
+        GrFoo foo(1, kTopLeft_GrSurfaceOrigin,
+                  pipeline,
+                  FwidthSquircleTestProcessor(fViewMatrix),
+                  nullptr, nullptr);
+
+
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setNonIndexedNonInstanced(4);
         mesh.setVertexData(std::move(fVertexBuffer));
-        flushState->opsRenderPass()->draw(FwidthSquircleTestProcessor(fViewMatrix), pipeline,
-                                          nullptr, nullptr, &mesh, 1, SkRect::MakeIWH(kWidth,
-                                                                                      kHeight));
+        flushState->opsRenderPass()->draw(foo, &mesh, 1, SkRect::MakeIWH(kWidth, kHeight));
     }
 
     sk_sp<GrBuffer> fVertexBuffer;

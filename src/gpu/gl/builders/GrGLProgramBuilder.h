@@ -47,10 +47,15 @@ public:
      * be supplied to skip the shader compilation.
      * @return true if generation was successful.
      */
-    static GrGLProgram* CreateProgram(GrRenderTarget*, GrSurfaceOrigin,
+    static GrGLProgram* CreateProgram(GrRenderTarget*,
+#if 0
+                                      int numSamples, GrSurfaceOrigin,
                                       const GrPrimitiveProcessor&,
                                       const GrTextureProxy* const primProcProxies[],
                                       const GrPipeline&,
+#else
+                                      const GrFoo&,
+#endif
                                       GrProgramDesc*,
                                       GrGLGpu*,
                                       const GrGLPrecompiledProgram* = nullptr);
@@ -62,9 +67,10 @@ public:
     GrGLGpu* gpu() const { return fGpu; }
 
 private:
-    GrGLProgramBuilder(GrGLGpu*, GrRenderTarget*, GrSurfaceOrigin,
-                       const GrPipeline&, const GrPrimitiveProcessor&,
-                       const GrTextureProxy* const primProcProxies[], GrProgramDesc*);
+    GrGLProgramBuilder(GrGLGpu*, GrRenderTarget*, const GrFoo&, GrProgramDesc*);
+//                       int numSamples, GrSurfaceOrigin,
+//                       const GrPipeline&, const GrPrimitiveProcessor&,
+//                       const GrTextureProxy* const primProcProxies[], GrProgramDesc*);
 
     void addInputVars(const SkSL::Program::Inputs& inputs);
     bool compileAndAttachShaders(const SkSL::String& glsl,

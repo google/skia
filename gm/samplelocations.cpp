@@ -168,7 +168,7 @@ class SampleLocationsTestProcessor::Impl : public GrGLSLGeometryProcessor {
         // sample offsets and sample mask are correlated with actual HW sample locations, no red
         // will bleed through.
         f->codeAppendf("for (int i = 0; i < %i; ++i) {",
-                       f->getProgramBuilder()->effectiveSampleCnt());
+                       f->getProgramBuilder()->effectiveSampleCnt1());
         if (GradType::kHW == proc.fGradType) {
             f->codeAppendf("float2x2 grad = float2x2(dFdx(%s), dFdy(%s));",
                            coord.fsIn(), coord.fsIn());
@@ -235,11 +235,16 @@ private:
                             flushState->drawOpArgs().fOutputSwizzle,
                             GrPipeline::InputFlags::kHWAntialias, &kStencilWrite);
 
+        GrFoo foo(1, kTopLeft_GrSurfaceOrigin,
+                  pipeline,
+                  SampleLocationsTestProcessor(fGradType),
+                  nullptr, nullptr);
+
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setInstanced(nullptr, 200*200, 0, 4);
-        flushState->opsRenderPass()->draw(
-                SampleLocationsTestProcessor(fGradType), pipeline, nullptr, nullptr, &mesh, 1,
-                SkRect::MakeIWH(200, 200));
+        flushState->opsRenderPass()->draw(foo,
+//                SampleLocationsTestProcessor(fGradType), pipeline, nullptr, nullptr,
+                                          &mesh, 1, SkRect::MakeIWH(200, 200));
     }
 
     const GradType fGradType;
