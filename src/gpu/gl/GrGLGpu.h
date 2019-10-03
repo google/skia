@@ -283,7 +283,7 @@ private:
     bool flushGLState(GrRenderTarget*, int numSamples, GrSurfaceOrigin, const GrPrimitiveProcessor&,
                       const GrPipeline&, const GrPipeline::FixedDynamicState*,
                       const GrPipeline::DynamicStateArrays*, int dynamicStateArraysLength,
-                      bool willDrawPoints);
+                      GrPrimitiveType);
 
     void flushProgram(sk_sp<GrGLProgram>);
 
@@ -324,7 +324,7 @@ private:
         GrGLProgram* refProgram(GrGLGpu*, GrRenderTarget*, int numSamples, GrSurfaceOrigin,
                                 const GrPrimitiveProcessor&,
                                 const GrTextureProxy* const primProcProxies[],
-                                const GrPipeline&, bool hasPointSize);
+                                const GrPipeline&, GrPrimitiveType);
         bool precompileShader(const SkData& key, const SkData& data);
 
     private:
