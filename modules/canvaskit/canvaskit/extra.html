@@ -26,6 +26,9 @@
 <h2> Particles </h2>
 <canvas id=particles width=500 height=500></canvas>
 
+<h2> Paragraph </h2>
+<canvas id=para1 width=500 height=500></canvas>
+
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
 <script type="text/javascript" charset="utf-8">
@@ -63,6 +66,8 @@
     });
 
     ParticlesAPI1(CanvasKit);
+
+    ParagraphAPI1(CanvasKit, robotoData);
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
@@ -127,6 +132,7 @@
       SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, {
         'Roboto-Regular': robotoData,
       });
+      ParagraphAPI1(CanvasKit, robotoData);
     });
   });
 
@@ -311,5 +317,67 @@ const snowfall = {
     }
     window.requestAnimationFrame(drawFrame);
 
+  }
+
+  function ParagraphAPI1(CanvasKit, fontData) {
+    if (!CanvasKit || !fontData) {
+      return;
+    }
+
+    const surface = CanvasKit.MakeCanvasSurface('para1');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+
+    const canvas = surface.getCanvas();
+    const fontMgr = CanvasKit.SkFontMgr.FromData([fontData]);
+
+    const paraStyle = new CanvasKit.ParagraphStyle({
+        textStyle: {
+            color: CanvasKit.BLACK,
+            fontFamilies: ['Roboto'],
+            fontSize: 50,
+        },
+        textAlign: CanvasKit.TextAlign.Left,
+        maxLines: 5,
+    });
+
+    const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+    builder.addText('The quick brown fox ate a hamburgerfons and got sick.');
+    const paragraph = builder.build();
+
+    let wrapTo = 0;
+
+    let X = 100;
+    let Y = 100;
+
+    const font = new CanvasKit.SkFont(null, 18);
+    const fontPaint = new CanvasKit.SkPaint();
+    fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
+    fontPaint.setAntiAlias(true);
+
+    function drawFrame(canvas) {
+      canvas.clear(CanvasKit.WHITE);
+      wrapTo = 350 + 150 * Math.sin(Date.now() / 2000);
+      paragraph.layout(wrapTo);
+      canvas.drawParagraph(paragraph, 0, 0);
+
+      canvas.drawLine(wrapTo, 0, wrapTo, 400, fontPaint);
+
+      let posA = paragraph.getGlyphPositionAtCoordinate(X, Y);
+      canvas.drawText(`At (${X}, ${Y}) glyph is ${posA.pos}`, 5, 450, fontPaint, font);
+
+      surface.requestAnimationFrame(drawFrame);
+    }
+    surface.requestAnimationFrame(drawFrame);
+
+    let interact = (e) => {
+      X = e.offsetX;
+      Y = e.offsetY;
+    };
+
+    document.getElementById('para1').addEventListener('pointermove', interact);
+    return surface;
   }
 </script>

@@ -68,6 +68,9 @@
 #include <emscripten/html5.h>
 #endif
 
+#ifdef SK_INCLUDE_PARAGRAPH
+#include "modules/skparagraph/include/Paragraph.h"
+#endif
 // Aliases for less typing
 using BoneIndices = SkVertices::BoneIndices;
 using BoneWeights = SkVertices::BoneWeights;
@@ -846,6 +849,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("drawLine", select_overload<void (SkScalar, SkScalar, SkScalar, SkScalar, const SkPaint&)>(&SkCanvas::drawLine))
         .function("drawOval", &SkCanvas::drawOval)
         .function("drawPaint", &SkCanvas::drawPaint)
+#ifdef SK_INCLUDE_PARAGRAPH
+        .function("drawParagraph", optional_override([](SkCanvas& self, skia::textlayout::Paragraph* p,
+                                                     SkScalar x, SkScalar y) {
+            p->paint(&self, x, y);
+        }), allow_raw_pointers())
+#endif
         .function("drawPath", &SkCanvas::drawPath)
         // Of note, picture is *not* what is colloquially thought of as a "picture", what we call
         // a bitmap. An SkPicture is a series of draw commands.
@@ -909,8 +918,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkImageInfo dstInfo = toSkImageInfo(di);
 
             return self.writePixels(dstInfo, pixels, srcRowBytes, dstX, dstY);
-        }))
-        ;
+        }));
 
     class_<SkColorFilter>("SkColorFilter")
         .smart_ptr<sk_sp<SkColorFilter>>("sk_sp<SkColorFilter>>")
