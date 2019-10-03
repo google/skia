@@ -84,61 +84,72 @@ namespace {
     };
 
     struct Builder : public skvm::Builder {
-        //using namespace skvm;
-
-        struct Color { skvm::I32 r,g,b,a; };
-
-
-        skvm::I32 inv(skvm::I32 x) {
-            return sub(splat(255), x);
+    #define TODO SkUNREACHABLE
+        // Round a unorm to fixed point needing the same number of bits,
+        // e.g unorm8 in [0,255] to a fix7 in [0,128].
+        skvm::I32 fix_down(skvm::I32 x, int /*bits*/) {
+            // (x+1)>>1
+            // c.f. pavgb for x86, vrhadd for ARM
+            return shr(add(x, splat(1)), 1);
         }
 
-        // TODO: provide this in skvm::Builder, with a custom NEON impl.
-        skvm::I32 div255(skvm::I32 v) {
-            // This should be a bit-perfect version of (v+127)/255,
-            // implemented as (v + ((v+128)>>8) + 128)>>8.
-            skvm::I32 v128 = add(v, splat(128));
-            return shr(add(v128, shr(v128, 8)), 8);
+        // Round a unorm to fixed point needing one more bit,
+        // e.g unorm8 in [0,255] to a fix8 in [0,256].
+        skvm::I32 fix_up(skvm::I32 x, int bits) {
+            // E.g. x + (x>>7) for unorm8 -> fix8.
+            return add(x, shr(x, bits-1));
         }
 
-        skvm::I32 mix(skvm::I32 x, skvm::I32 y, skvm::I32 t) {
-            return div255(add(mul(x, inv(t)),
-                              mul(y,     t )));
+        // Convert a unormS to unormD, e.g. unorm8 <-> unorm5.
+        skvm::I32 rescale_unorm(skvm::I32 x, int S, int D) {
+            if (S > D) { return shr(x, S-D); }
+            if (D > S) { TODO; /* bit replicate up to dst bits */ }
+            return x;
         }
 
-        Color unpack_8888(skvm::I32 rgba) {
+        // Color channel depths and values,
+        // ambiguously unorm or fixed point depending on use case.
+        struct Color {
+            int r_bits; skvm::I32 r;
+            int g_bits; skvm::I32 g;
+            int b_bits; skvm::I32 b;
+            int a_bits; skvm::I32 a;
+        };
+
+
+        Color unpack_rgba_8888(skvm::I32 rgba) {
             return {
-                extract(rgba,  0, splat(0xff)),
-                extract(rgba,  8, splat(0xff)),
-                extract(rgba, 16, splat(0xff)),
-                extract(rgba, 24, splat(0xff)),
+                8, extract(rgba,  0, splat(0xff)),
+                8, extract(rgba,  8, splat(0xff)),
+                8, extract(rgba, 16, splat(0xff)),
+                8, extract(rgba, 24, splat(0xff)),
             };
         }
 
-        skvm::I32 pack_8888(Color c) {
-            return pack(pack(c.r, c.g, 8),
-                        pack(c.b, c.a, 8), 16);
-        }
-
-        Color unpack_565(skvm::I32 bgr) {
+        Color unpack_bgr_565(skvm::I32 bgr) {
             // N.B. kRGB_565_SkColorType is named confusingly;
             //      blue is in the low bits and red the high.
-            skvm::I32 r = extract(bgr, 11, splat(0b011'111)),
-                      g = extract(bgr,  5, splat(0b111'111)),
-                      b = extract(bgr,  0, splat(0b011'111));
             return {
-                // Scale 565 up to 888.
-                bit_or(shl(r, 3), shr(r, 2)),
-                bit_or(shl(g, 2), shr(g, 4)),
-                bit_or(shl(b, 3), shr(b, 2)),
-                splat(0xff),
+                5, extract(bgr, 11, splat(0x1f)),
+                6, extract(bgr,  5, splat(0x3f)),
+                5, extract(bgr,  0, splat(0x1f)),
+                8, splat(0xff),  // Many ways to write 1.0.  Any best way?
             };
         }
 
-        skvm::I32 pack_565(Color c) {
-            skvm::I32 r = div255(mul(c.r, splat(31))),
-                      g = div255(mul(c.g, splat(63))),
-                      b = div255(mul(c.b, splat(31)));
+        skvm::I32 pack_rgba_8888(Color c) {
+            skvm::I32 r = rescale_unorm(c.r, c.r_bits, 8),
+                      g = rescale_unorm(c.g, c.g_bits, 8),
+                      b = rescale_unorm(c.b, c.b_bits, 8),
+                      a = rescale_unorm(c.a, c.a_bits, 8);
+            return pack(pack(r, g, 8),
+                        pack(b, a, 8), 16);
+        }
+
+        skvm::I32 pack_bgr_565(Color c) {
+            skvm::I32 r = rescale_unorm(c.r, c.r_bits, 5),
+                      g = rescale_unorm(c.g, c.g_bits, 6),
+                      b = rescale_unorm(c.b, c.b_bits, 5);
             return pack(pack(b, g,5), r,11);
         }
 
@@ -170,7 +181,6 @@ namespace {
         }
 
         explicit Builder(const Key& key) {
-        #define TODO SkUNREACHABLE
             SkASSERT(CanBuild(key));
             skvm::Arg uniforms = uniform(),
                       dst_ptr  = arg(SkColorTypeBytesPerPixel(key.colorType));
@@ -181,7 +191,7 @@ namespace {
             // When there's no shader and no color filter, the source color is the paint color.
             if (key.shader)      { TODO; }
             if (key.colorFilter) { TODO; }
-            Color src = unpack_8888(uniform32(uniforms, offsetof(Uniforms, paint_color)));
+            Color src = unpack_rgba_8888(uniform32(uniforms, offsetof(Uniforms, paint_color)));
 
             // There are several orderings here of when we load dst and coverage
             // and how coverage is applied, and to complicate things, LCD coverage
@@ -194,19 +204,26 @@ namespace {
                 switch (key.coverage) {
                     case Coverage::Full: return false;
 
-                    case Coverage::UniformA8: cov->r = cov->g = cov->b = cov->a =
-                                              uniform8(uniforms, offsetof(Uniforms, coverage));
-                                              return true;
+                    case Coverage::UniformA8:
+                        cov->r = cov->g = cov->b = cov->a
+                            = uniform8(uniforms, offsetof(Uniforms, coverage));
+                        cov->r_bits = cov->g_bits = cov->b_bits = cov->a_bits = 8;
+                        return true;
 
-                    case Coverage::MaskA8: cov->r = cov->g = cov->b = cov->a =
-                                           load8(varying<uint8_t>());
-                                           return true;
+                    case Coverage::MaskA8:
+                        cov->r = cov->g = cov->b = cov->a
+                            = load8(varying<uint8_t>())
+                        cov->r_bits = cov->g_bits = cov->b_bits = cov->a_bits = 8;
+                        return true;
 
                     case Coverage::MaskLCD16:
                         SkASSERT(dst_loaded);
-                        *cov = unpack_565(load16(varying<uint16_t>()));
+                        *cov = unpack_bgr_565(load16(varying<uint16_t>()));
+                        /*
+                         * TODO: these values aren't currently comparable...
                         cov->a = select(lt(src.a, dst.a), min(cov->r, min(cov->g,cov->b))
                                                         , max(cov->r, max(cov->g,cov->b)));
+                        */
                         return true;
 
                     case Coverage::Mask3D: TODO;
@@ -223,10 +240,10 @@ namespace {
                                                    key.coverage == Coverage::MaskLCD16)) {
                 Color cov;
                 if (load_coverage(&cov)) {
-                    src.r = div255(mul(src.r, cov.r));
-                    src.g = div255(mul(src.g, cov.g));
-                    src.b = div255(mul(src.b, cov.b));
-                    src.a = div255(mul(src.a, cov.a));
+                    src.r = shr(mul(src.r, fix_up(cov.r, cov.r_bits)), cov.r_bits);
+                    src.g = shr(mul(src.g, fix_up(cov.g, cov.g_bits)), cov.r_bits);
+                    src.b = shr(mul(src.b, fix_up(cov.b, cov.b_bits)), cov.r_bits);
+                    src.a = shr(mul(src.a, fix_up(cov.a, cov.a_bits)), cov.r_bits);
                 }
                 lerp_coverage_post_blend = false;
             }
@@ -235,9 +252,9 @@ namespace {
             SkDEBUGCODE(dst_loaded = true;)
             switch (key.colorType) {
                 default: TODO;
-                case kRGB_565_SkColorType:   dst = unpack_565 (load16(dst_ptr)); break;
-                case kRGBA_8888_SkColorType: dst = unpack_8888(load32(dst_ptr)); break;
-                case kBGRA_8888_SkColorType: dst = unpack_8888(load32(dst_ptr));
+                case kRGB_565_SkColorType:   dst = unpack_bgr_565  (load16(dst_ptr)); break;
+                case kRGBA_8888_SkColorType: dst = unpack_rgba_8888(load32(dst_ptr)); break;
+                case kBGRA_8888_SkColorType: dst = unpack_rgba_8888(load32(dst_ptr));
                                              std::swap(dst.r, dst.b);
                                              break;
             }
@@ -246,7 +263,7 @@ namespace {
             // opaque, ignoring any math that disagrees.  So anything involving force_opaque is
             // optional, and sometimes helps cut a small amount of work in these programs.
             const bool force_opaque = true && key.alphaType == kOpaque_SkAlphaType;
-            if (force_opaque) { dst.a = splat(0xff); }
+            if (force_opaque) { dst.a_bits = 8; dst.a = splat(0xff); }
 
             // We'd need to premul dst after loading and unpremul before storing.
             if (key.alphaType == kUnpremul_SkAlphaType) { TODO; }
@@ -258,16 +275,25 @@ namespace {
                 case SkBlendMode::kSrc: break;
 
                 case SkBlendMode::kSrcOver: {
-                    src.r = add(src.r, div255(mul(dst.r, inv(src.a))));
-                    src.g = add(src.g, div255(mul(dst.g, inv(src.a))));
-                    src.b = add(src.b, div255(mul(dst.b, inv(src.a))));
-                    src.a = add(src.a, div255(mul(dst.a, inv(src.a))));
+                    skvm::I32 A = sub(splat(128),
+                                      fix_down(src.a));
+                    src.r = add(src.r, shr(mul(dst.r, A), 7));
+                    src.g = add(src.g, shr(mul(dst.g, A), 7));
+                    src.b = add(src.b, shr(mul(dst.b, A), 7));
+                    src.a = add(src.a, shr(mul(dst.a, A), 7));
                 } break;
             }
 
             // Lerp with coverage post-blend if needed.
             Color cov;
             if (lerp_coverage_post_blend && load_coverage(&cov)) {
+                auto mix = [&](skvm::I32 x, skvm::I32 y, skvm::I32 t) {
+                    skvm::I32 wy = fix_down(t),
+                              wx = sub(splat(128), wy);
+
+                    return shr(add(mul(x, wx),
+                                   mul(y, wy)), 7);
+                };
                 src.r = mix(dst.r, src.r, cov.r);
                 src.g = mix(dst.g, src.g, cov.g);
                 src.b = mix(dst.b, src.b, cov.b);
@@ -280,10 +306,10 @@ namespace {
             switch (key.colorType) {
                 default: SkUNREACHABLE;
 
-                case kRGB_565_SkColorType:   store16(dst_ptr, pack_565(src)); break;
+                case kRGB_565_SkColorType:   store16(dst_ptr, pack_bgr_565(src)); break;
 
                 case kBGRA_8888_SkColorType: std::swap(src.r, src.b);  // fallthrough
-                case kRGBA_8888_SkColorType: store32(dst_ptr, pack_8888(src)); break;
+                case kRGBA_8888_SkColorType: store32(dst_ptr, pack_rgba_8888(src)); break;
             }
         #undef TODO
         }
