@@ -704,14 +704,14 @@ CanvasKit.onRuntimeInitialized = function() {
     return retVal;
   }
 
-  // arguments should all be an arrayBuffer or be an array of arrayBuffers.
+  // arguments should all be arrayBuffers or be an array of arrayBuffers.
   CanvasKit.SkFontMgr.FromData = function() {
     if (!arguments.length) {
       SkDebug('Could not make SkFontMgr from no font sources');
       return null;
     }
     var fonts = arguments;
-    if (Array.isArray(fonts) && fonts.length === 1) {
+    if (fonts.length === 1 && Array.isArray(fonts[0])) {
       fonts = arguments[0];
     }
     if (!fonts.length) {
