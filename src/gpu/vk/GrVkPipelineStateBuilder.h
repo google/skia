@@ -38,7 +38,7 @@ public:
      */
     class Desc : public GrProgramDesc {
     public:
-        static bool Build(Desc*,
+        static bool Build1(Desc*,
                           GrRenderTarget*,
                           const GrPrimitiveProcessor&,
                           const GrPipeline&,

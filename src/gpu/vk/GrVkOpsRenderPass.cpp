@@ -542,6 +542,13 @@ void GrVkOpsRenderPass::onDraw(const GrPrimitiveProcessor& primProc,
     }
 
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
+
+#ifdef SK_DEBUG
+    for (int i = 0; i < meshCount; ++i) {
+        SkASSERT(meshes[i].primitiveType() == primitiveType);
+    }
+#endif
+
     GrVkPipelineState* pipelineState = this->prepareDrawState(primProc, pipeline, fixedDynamicState,
                                                               dynamicStateArrays, primitiveType,
                                                               renderPassScissorRect);

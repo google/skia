@@ -51,10 +51,10 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(GrGLGpu* gpu,
                                                const GrPrimitiveProcessor& primProc,
                                                const GrTextureProxy* const primProcProxies[],
                                                const GrPipeline& pipeline,
-                                               bool isPoints) {
+                                               GrPrimitiveType primitiveType) {
     // Get GrGLProgramDesc
     GrProgramDesc desc;
-    if (!GrProgramDesc::Build(&desc, renderTarget, primProc, isPoints, pipeline, gpu)) {
+    if (!GrProgramDesc::Build(&desc, renderTarget, primProc, primitiveType, pipeline, gpu)) {
         GrCapsDebugf(gpu->caps(), "Failed to gl program descriptor!\n");
         return nullptr;
     }
