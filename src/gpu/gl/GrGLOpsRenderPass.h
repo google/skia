@@ -52,15 +52,19 @@ public:
 private:
     GrGpu* gpu() override { return fGpu; }
 
-    void onDraw(const GrPrimitiveProcessor& primProc,
+    void onDraw(const GrFoo& foo,
+#if 0
+                const GrPrimitiveProcessor& primProc,
                 const GrPipeline& pipeline,
                 const GrPipeline::FixedDynamicState* fixedDynamicState,
                 const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+#endif
                 const GrMesh mesh[],
                 int meshCount,
                 const SkRect& bounds) override {
-        fGpu->draw(fRenderTarget, fRenderTarget->numSamples(), fOrigin, primProc, pipeline,
-                   fixedDynamicState, dynamicStateArrays, mesh, meshCount);
+        fGpu->draw(fRenderTarget, foo,
+//                   fOrigin, primProc, pipeline, fixedDynamicState, dynamicStateArrays,
+                   mesh, meshCount);
     }
 
     void onClear(const GrFixedClip& clip, const SkPMColor4f& color) override {

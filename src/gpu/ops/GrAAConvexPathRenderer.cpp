@@ -731,6 +731,10 @@ public:
     }
 
 private:
+    void onPrePrepareDraws() override {
+
+    }
+
     void onPrepareDraws(Target* target) override {
         int instanceCount = fPaths.count();
 

@@ -9,12 +9,17 @@
 #define GrPathRendering_DEFINED
 
 #include "include/core/SkPath.h"
-#include "src/gpu/GrPipeline.h"
+//#include "src/gpu/GrPipeline.h"
 
+class GrFoo;
 class GrGpu;
 class GrPath;
+class GrRenderTarget;
+class GrRenderTargetProxy;
+class GrScissorState;
 class GrStencilSettings;
 class GrStyle;
+struct GrUserStencilSettings;
 struct SkScalerContextEffects;
 class SkDescriptor;
 class SkTypeface;
@@ -108,10 +113,15 @@ public:
 
     void stencilPath(const StencilPathArgs& args, const GrPath* path);
 
-    void drawPath(GrRenderTarget*, int numSamples, GrSurfaceOrigin,
+    void drawPath(GrRenderTarget*,
+#if 0
+                  GrSurfaceOrigin,
                   const GrPrimitiveProcessor& primProc,
                   const GrPipeline& pipeline,
                   const GrPipeline::FixedDynamicState&,
+#else
+                  const GrFoo&,
+#endif
                   const GrStencilSettings& stencilPassSettings,  // Cover pass settings in pipeline.
                   const GrPath* path);
 
@@ -119,10 +129,15 @@ protected:
     GrPathRendering(GrGpu* gpu) : fGpu(gpu) { }
 
     virtual void onStencilPath(const StencilPathArgs&, const GrPath*) = 0;
-    virtual void onDrawPath(GrRenderTarget*, int numSamples, GrSurfaceOrigin,
+    virtual void onDrawPath(GrRenderTarget*,
+#if 0
+                            GrSurfaceOrigin,
                             const GrPrimitiveProcessor&,
                             const GrPipeline&,
                             const GrPipeline::FixedDynamicState&,
+#else
+                            const GrFoo&,
+#endif
                             const GrStencilSettings&,
                             const GrPath*) = 0;
 
