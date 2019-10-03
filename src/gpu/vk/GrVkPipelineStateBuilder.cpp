@@ -334,8 +334,7 @@ bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
                                            const GrStencilSettings& stencil,
                                            GrPrimitiveType primitiveType,
                                            GrVkGpu* gpu) {
-    if (!INHERITED::Build(desc, renderTarget, primProc,
-                          primitiveType == GrPrimitiveType::kPoints, pipeline, gpu)) {
+    if (!GrProgramDesc::Build(desc, renderTarget, primProc, primitiveType, pipeline, gpu)) {
         return false;
     }
 
@@ -352,8 +351,6 @@ bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
     stencil.genKey(&b);
 
     b.add32(pipeline.getBlendInfoKey());
-
-    b.add32((uint32_t)primitiveType);
 
     return true;
 }

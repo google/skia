@@ -44,11 +44,10 @@ public:
 private:
     GrGpu* gpu() override { return fGpu; }
 
-    GrMtlPipelineState* prepareDrawState(
-            const GrPrimitiveProcessor& primProc,
-            const GrPipeline& pipeline,
-            const GrPipeline::FixedDynamicState* fixedDynamicState,
-            GrPrimitiveType primType);
+    GrMtlPipelineState* prepareDrawState(const GrPrimitiveProcessor&,
+                                         const GrPipeline&,
+                                         const GrPipeline::FixedDynamicState*,
+                                         GrPrimitiveType);
 
     void onDraw(const GrPrimitiveProcessor& primProc,
                 const GrPipeline& pipeline,
