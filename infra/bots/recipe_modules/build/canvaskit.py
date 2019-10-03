@@ -49,7 +49,7 @@ def compile_fn(api, checkout_root, _ignore):
         cmd=cmd)
 
 
-def copy_extra_build_products(api, _ignore, dst):
+def copy_build_products(api, _ignore, dst):
   out_dir = api.vars.cache_dir.join('docker', 'canvaskit')
   # We don't use the normal copy_build_products because it uses
   # shutil.move, which attempts to delete the previous file, which
