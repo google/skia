@@ -254,7 +254,7 @@ sk_sp<SkImage> SkImage_Lazy::onMakeSubset(GrRecordingContext* context,
     SkASSERT(this->bounds().contains(subset));
     SkASSERT(this->bounds() != subset);
 
-    const SkIRect generatorSubset = subset.makeOffset(fOrigin.x(), fOrigin.y());
+    const SkIRect generatorSubset = subset.makeOffset(fOrigin);
     const SkColorType colorType = this->colorType();
     Validator validator(fSharedGenerator, &generatorSubset, &colorType, this->refColorSpace());
     return validator ? sk_sp<SkImage>(new SkImage_Lazy(&validator)) : nullptr;

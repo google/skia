@@ -2243,7 +2243,7 @@ void SkCanvas::onDrawBehind(const SkPaint& paint) {
         // We use clipRegion because it is already defined to operate in dev-space
         // (i.e. ignores the ctm). However, it is going to first translate by -origin,
         // but we don't want that, so we undo that before calling in.
-        SkRegion rgn(bounds.makeOffset(dev->fOrigin.fX, dev->fOrigin.fY));
+        SkRegion rgn(bounds.makeOffset(dev->fOrigin));
         dev->clipRegion(rgn, SkClipOp::kIntersect);
         dev->drawPaint(draw.paint());
         dev->restore(fMCRec->fMatrix);

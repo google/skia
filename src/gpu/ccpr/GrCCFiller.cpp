@@ -110,8 +110,7 @@ void GrCCFiller::parseDeviceSpaceFill(const SkPath& path, const SkPoint* deviceS
 
     if (GrScissorTest::kEnabled == scissorTest) {
         fScissorSubBatches.push_back() = {fTotalPrimitiveCounts[(int)GrScissorTest::kEnabled],
-                                          clippedDevIBounds.makeOffset(devToAtlasOffset.fX,
-                                                                       devToAtlasOffset.fY)};
+                                          clippedDevIBounds.makeOffset(devToAtlasOffset)};
     }
 }
 

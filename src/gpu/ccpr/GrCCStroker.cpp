@@ -296,9 +296,9 @@ void GrCCStroker::parseDeviceSpaceStroke(const SkPath& path, const SkPoint* devi
     InstanceTallies* currStrokeEndIndices;
     if (GrScissorTest::kEnabled == scissorTest) {
         SkASSERT(fBatches.back().fEndScissorSubBatch == fScissorSubBatches.count());
-        fScissorSubBatches.emplace_back(
-                &fTalliesAllocator, *fInstanceCounts[(int)GrScissorTest::kEnabled],
-                clippedDevIBounds.makeOffset(devToAtlasOffset.x(), devToAtlasOffset.y()));
+        fScissorSubBatches.emplace_back(&fTalliesAllocator,
+                                        *fInstanceCounts[(int)GrScissorTest::kEnabled],
+                                        clippedDevIBounds.makeOffset(devToAtlasOffset));
         fBatches.back().fEndScissorSubBatch = fScissorSubBatches.count();
         fInstanceCounts[(int)GrScissorTest::kEnabled] =
                 currStrokeEndIndices = fScissorSubBatches.back().fEndInstances;
