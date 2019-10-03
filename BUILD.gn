@@ -73,12 +73,6 @@ config("skia_private") {
   if (skia_use_angle) {
     defines += [ "SK_ANGLE" ]
   }
-  if (skia_llvm_path != "") {
-    defines += [ "SK_LLVM_AVAILABLE" ]
-    include_dirs += [ "$skia_llvm_path/include" ]
-    libs += [ skia_llvm_lib ]
-    lib_dirs += [ "$skia_llvm_path/lib/" ]
-  }
 }
 
 # Any code that's linked into Skia-the-library should use this config via += skia_library_configs.

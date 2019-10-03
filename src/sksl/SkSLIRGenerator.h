@@ -95,7 +95,6 @@ private:
                                      std::vector<std::unique_ptr<Expression>> arguments);
     int coercionCost(const Expression& expr, const Type& type);
     std::unique_ptr<Expression> coerce(std::unique_ptr<Expression> expr, const Type& type);
-    std::unique_ptr<Expression> convertAppend(int offset, const std::vector<ASTNode>& args);
     std::unique_ptr<Block> convertBlock(const ASTNode& block);
     std::unique_ptr<Statement> convertBreak(const ASTNode& b);
     std::unique_ptr<Expression> convertNumberConstructor(
