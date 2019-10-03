@@ -171,7 +171,7 @@ echo "Compiling bitcode"
   target_cpu=\"wasm\" \
   use_PIC=false \
   \
-  skia_use_angle = false \
+  skia_use_angle=false \
   skia_use_dng_sdk=false \
   skia_use_egl=true \
   skia_use_expat=false \
@@ -232,7 +232,6 @@ ${EMCXX} \
     $HTML_CANVAS_API \
     --pre-js $BASE_DIR/postamble.js \
     --post-js $BASE_DIR/ready.js \
-    $BUILTIN_FONT \
     $BASE_DIR/canvaskit_bindings.cpp \
     $PARTICLES_BINDINGS \
     $SKOTTIE_BINDINGS \
@@ -244,6 +243,7 @@ ${EMCXX} \
     $BUILD_DIR/libskshaper.a \
     $SHAPER_LIB \
     $BUILD_DIR/libskia.a \
+    $BUILTIN_FONT \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s EXPORT_NAME="CanvasKitInit" \
     -s FORCE_FILESYSTEM=0 \
