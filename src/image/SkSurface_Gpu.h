@@ -40,11 +40,10 @@ public:
                                      ReadPixelsContext context) override;
     void onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
                                            sk_sp<SkColorSpace> dstColorSpace,
-                                           const SkIRect& srcRect,
-                                           const SkISize& dstSize,
+                                           const SkIRect& srcRect, int dstW, int dstH,
                                            RescaleGamma rescaleGamma,
                                            SkFilterQuality rescaleQuality,
-                                           ReadPixelsCallback callback,
+                                           ReadPixelsCallbackYUV420 callback,
                                            ReadPixelsContext context) override;
 
     void onCopyOnWrite(ContentChangeMode) override;

@@ -51,23 +51,21 @@ public:
     /**
      * Default implementation does a rescale/read and then calls the callback.
      */
-    virtual void onAsyncRescaleAndReadPixels(const SkImageInfo&,
-                                             const SkIRect& srcRect,
-                                             RescaleGamma,
-                                             SkFilterQuality,
-                                             ReadPixelsCallback,
-                                             ReadPixelsContext);
+    virtual void onAsyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
+                                             RescaleGamma rescaleGamma,
+                                             SkFilterQuality rescaleQuality,
+                                             ReadPixelsCallback callback,
+                                             ReadPixelsContext context);
     /**
      * Default implementation does a rescale/read/yuv conversion and then calls the callback.
      */
-    virtual void onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
+    virtual void onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
                                                    sk_sp<SkColorSpace> dstColorSpace,
-                                                   const SkIRect& srcRect,
-                                                   const SkISize& dstSize,
-                                                   RescaleGamma,
-                                                   SkFilterQuality,
-                                                   ReadPixelsCallback,
-                                                   ReadPixelsContext);
+                                                   const SkIRect& srcRect, int dstW, int dstH,
+                                                   RescaleGamma rescaleGamma,
+                                                   SkFilterQuality rescaleQuality,
+                                                   ReadPixelsCallbackYUV420 callback,
+                                                   ReadPixelsContext context);
 
     /**
      *  Default implementation:
