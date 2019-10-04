@@ -52,9 +52,7 @@ public:
     enum class InputType {
         kPoints,
         kLines,
-        kLinesAdjacency,
         kTriangles,
-        kTrianglesAdjacency
     };
 
     enum class OutputType {

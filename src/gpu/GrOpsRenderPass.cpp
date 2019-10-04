@@ -83,8 +83,6 @@ bool GrOpsRenderPass::draw(const GrPrimitiveProcessor& primProc, const GrPipelin
 #ifdef SK_DEBUG
     SkASSERT(!primProc.hasInstanceAttributes() || this->gpu()->caps()->instanceAttribSupport());
     for (int i = 0; i < meshCount; ++i) {
-        SkASSERT(!GrPrimTypeRequiresGeometryShaderSupport(meshes[i].primitiveType()) ||
-                 this->gpu()->caps()->shaderCaps()->geometryShaderSupport());
         SkASSERT(primProc.hasVertexAttributes() == meshes[i].hasVertexData());
         SkASSERT(primProc.hasInstanceAttributes() == meshes[i].hasInstanceData());
     }

@@ -48,9 +48,7 @@ static const char* input_type_name(GrGLSLGeometryBuilder::InputType in) {
     switch (in) {
         case InputType::kPoints: return "points";
         case InputType::kLines: return "lines";
-        case InputType::kLinesAdjacency: return "lines_adjacency";
         case InputType::kTriangles: return "triangles";
-        case InputType::kTrianglesAdjacency: return "triangles_adjacency";
     }
     SK_ABORT("invalid input type");
 }
