@@ -26,6 +26,7 @@
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrMesh.h"
 #include "src/gpu/GrPipeline.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
@@ -1658,14 +1659,10 @@ void GrGLGpu::disableWindowRectangles() {
 }
 
 bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
-                           int numSamples,
-                           GrSurfaceOrigin origin,
-                           const GrPrimitiveProcessor& primProc,
-                           const GrPipeline& pipeline,
-                           const GrPipeline::FixedDynamicState* fixedDynamicState,
-                           const GrPipeline::DynamicStateArrays* dynamicStateArrays,
-                           int dynamicStateArraysLength,
+                           const GrProgramInfo& programInfo,
                            bool willDrawPoints) {
+
+#if 0
     const GrTextureProxy* const* primProcProxies = nullptr;
     const GrTextureProxy* const* primProcProxiesToBind = nullptr;
     if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
@@ -1676,10 +1673,10 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
     }
 
     SkASSERT(SkToBool(primProcProxies) == SkToBool(primProc.numTextureSamplers()));
+#endif
 
-    sk_sp<GrGLProgram> program(fProgramCache->refProgram(
-            this, renderTarget, numSamples, origin, primProc, primProcProxies, pipeline,
-            willDrawPoints));
+    sk_sp<GrGLProgram> program(fProgramCache->refProgram(this, renderTarget, programInfo,
+                                                         willDrawPoints));
     if (!program) {
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;
@@ -1689,29 +1686,28 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
 
     // Swizzle the blend to match what the shader will output.
     this->flushBlendAndColorWrite(
-            pipeline.getXferProcessor().getBlendInfo(), pipeline.outputSwizzle());
+        programInfo.pipeline().getXferProcessor().getBlendInfo(), programInfo.pipeline().outputSwizzle());
 
-    fHWProgram->updateUniformsAndTextureBindings(renderTarget, origin,
-                                                 primProc, pipeline, primProcProxiesToBind);
+    fHWProgram->updateUniformsAndTextureBindings(renderTarget, programInfo);
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
     GrStencilSettings stencil;
-    if (pipeline.isStencilEnabled()) {
+    if (programInfo.pipeline().isStencilEnabled()) {
         // TODO: attach stencil and create settings during render target flush.
         SkASSERT(glRT->renderTargetPriv().getStencilAttachment());
-        stencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(),
+        stencil.reset(*programInfo.pipeline().getUserStencil(), programInfo.pipeline().hasStencilClip(),
                       glRT->renderTargetPriv().numStencilBits());
     }
-    this->flushStencil(stencil, origin);
-    if (pipeline.isScissorEnabled()) {
+    this->flushStencil(stencil, programInfo.origin());
+    if (programInfo.pipeline().isScissorEnabled()) {
         static constexpr SkIRect kBogusScissor{0, 0, 1, 1};
-        GrScissorState state(fixedDynamicState ? fixedDynamicState->fScissorRect : kBogusScissor);
-        this->flushScissor(state, glRT->width(), glRT->height(), origin);
+        GrScissorState state(programInfo.fixedDynamicState() ? programInfo.fixedDynamicState()->fScissorRect : kBogusScissor);
+        this->flushScissor(state, glRT->width(), glRT->height(), programInfo.origin());
     } else {
         this->disableScissor();
     }
-    this->flushWindowRectangles(pipeline.getWindowRectsState(), glRT, origin);
-    this->flushHWAAState(glRT, pipeline.isHWAntialiasState());
+    this->flushWindowRectangles(programInfo.pipeline().getWindowRectsState(), glRT, programInfo.origin());
+    this->flushHWAAState(glRT, programInfo.pipeline().isHWAntialiasState());
 
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).
@@ -2089,7 +2085,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
                                           dstColorType, buffer, rowPixelWidth);
 }
 
-GrOpsRenderPass* GrGLGpu::getOpsRenderPass(
+GrOpsRenderPass* GrGLGpu::getOpsRenderPass1(
         GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
         const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
         const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
@@ -2098,7 +2094,7 @@ GrOpsRenderPass* GrGLGpu::getOpsRenderPass(
         fCachedOpsRenderPass.reset(new GrGLOpsRenderPass(this));
     }
 
-    fCachedOpsRenderPass->set(rt, origin, colorInfo, stencilInfo);
+    fCachedOpsRenderPass->set1(rt, origin, colorInfo, stencilInfo);
     return fCachedOpsRenderPass.get();
 }
 
@@ -2180,14 +2176,17 @@ void GrGLGpu::flushViewport(int width, int height) {
     #endif
 #endif
 
-void GrGLGpu::draw(GrRenderTarget* renderTarget, int numSamples, GrSurfaceOrigin origin,
-                   const GrPrimitiveProcessor& primProc,
-                   const GrPipeline& pipeline,
-                   const GrPipeline::FixedDynamicState* fixedDynamicState,
-                   const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+void GrGLGpu::draw(GrRenderTarget* renderTarget,
+                   const GrProgramInfo& programInfo,
                    const GrMesh meshes[],
                    int meshCount) {
     this->handleDirtyContext();
+
+    if (meshCount == 0) {
+        return;
+    }
+
+    GrPrimitiveType primType = meshes[0].primitiveType();
 
     bool hasPoints = false;
     for (int i = 0; i < meshCount; ++i) {
@@ -2196,32 +2195,31 @@ void GrGLGpu::draw(GrRenderTarget* renderTarget, int numSamples, GrSurfaceOrigin
             break;
         }
     }
-    if (!this->flushGLState(renderTarget, numSamples, origin, primProc, pipeline, fixedDynamicState,
-                            dynamicStateArrays, meshCount, hasPoints)) {
+    if (!this->flushGLState(renderTarget, programInfo, hasPoints)) {
         return;
     }
 
     bool dynamicScissor = false;
     bool dynamicPrimProcTextures = false;
-    if (dynamicStateArrays) {
-        dynamicScissor = pipeline.isScissorEnabled() && dynamicStateArrays->fScissorRects;
-        dynamicPrimProcTextures = dynamicStateArrays->fPrimitiveProcessorTextures;
+    if (programInfo.dynamicStateArrays()) {
+        dynamicScissor = programInfo.pipeline().isScissorEnabled() && programInfo.dynamicStateArrays()->fScissorRects;
+        dynamicPrimProcTextures = programInfo.dynamicStateArrays()->fPrimitiveProcessorTextures;
     }
     for (int m = 0; m < meshCount; ++m) {
-        if (GrXferBarrierType barrierType = pipeline.xferBarrierType(renderTarget->asTexture(),
-                                                                     *this->caps())) {
+        if (GrXferBarrierType barrierType = programInfo.pipeline().xferBarrierType(renderTarget->asTexture(),
+                                                                                   *this->caps())) {
             this->xferBarrier(renderTarget, barrierType);
         }
 
         if (dynamicScissor) {
             GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
-            this->flushScissor(GrScissorState(dynamicStateArrays->fScissorRects[m]),
-                               glRT->width(), glRT->height(), origin);
+            this->flushScissor(GrScissorState(programInfo.dynamicStateArrays()->fScissorRects[m]),
+                               glRT->width(), glRT->height(), programInfo.origin());
         }
         if (dynamicPrimProcTextures) {
-            auto texProxyArray = dynamicStateArrays->fPrimitiveProcessorTextures +
-                                 m * primProc.numTextureSamplers();
-            fHWProgram->updatePrimitiveProcessorTextureBindings(primProc, texProxyArray);
+            auto texProxyArray = programInfo.dynamicStateArrays()->fPrimitiveProcessorTextures +
+                                 m * programInfo.primProc().numTextureSamplers();
+            fHWProgram->updatePrimitiveProcessorTextureBindings(programInfo.primProc(), texProxyArray);
         }
         if (this->glCaps().requiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines() &&
             GrIsPrimTypeLines(meshes[m].primitiveType()) &&

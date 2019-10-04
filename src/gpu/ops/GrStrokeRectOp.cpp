@@ -175,6 +175,10 @@ public:
     }
 
 private:
+    void onPrePrepareDraws() override {
+
+    }
+
     void onPrepareDraws(Target* target) override {
         sk_sp<GrGeometryProcessor> gp;
         {
@@ -422,6 +426,7 @@ public:
     }
 
 private:
+    void onPrePrepareDraws() override;
     void onPrepareDraws(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
@@ -467,6 +472,10 @@ private:
 
     typedef GrMeshDrawOp INHERITED;
 };
+
+void AAStrokeRectOp::onPrePrepareDraws() {
+
+}
 
 void AAStrokeRectOp::onPrepareDraws(Target* target) {
     sk_sp<GrGeometryProcessor> gp(create_aa_stroke_rect_gp(target->caps().shaderCaps(),

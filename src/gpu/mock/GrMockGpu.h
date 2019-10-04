@@ -24,7 +24,7 @@ public:
 
     ~GrMockGpu() override {}
 
-    GrOpsRenderPass* getOpsRenderPass(
+    GrOpsRenderPass* getOpsRenderPass1(
             GrRenderTarget*, GrSurfaceOrigin, const SkIRect&,
             const GrOpsRenderPass::LoadAndStoreInfo&,
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,

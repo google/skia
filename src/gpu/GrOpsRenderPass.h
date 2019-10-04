@@ -18,6 +18,7 @@ class GrGpu;
 class GrMesh;
 class GrPipeline;
 class GrPrimitiveProcessor;
+class GrProgramInfo;
 class GrRenderTarget;
 class GrSemaphore;
 struct SkIRect;
@@ -55,10 +56,13 @@ public:
     // GrMesh object and emit a draw for it. Each draw will use the same GrPipeline and
     // GrPrimitiveProcessor. This may fail if the draw would exceed any resource limits (e.g.
     // number of vertex attributes is too large).
-    bool draw(const GrPrimitiveProcessor&,
+    bool draw(const GrProgramInfo&,
+#if 0
+              const GrPrimitiveProcessor&,
               const GrPipeline&,
               const GrPipeline::FixedDynamicState*,
               const GrPipeline::DynamicStateArrays*,
+#endif
               const GrMesh[],
               int meshCount,
               const SkRect& bounds);
@@ -79,33 +83,28 @@ public:
     virtual void executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) {}
 
 protected:
-    GrOpsRenderPass() : fOrigin(kTopLeft_GrSurfaceOrigin), fRenderTarget(nullptr) {}
+    GrOpsRenderPass() : fOrigin1(kTopLeft_GrSurfaceOrigin), fRenderTarget(nullptr) {}
 
-    GrOpsRenderPass(GrRenderTarget* rt, GrSurfaceOrigin origin)
-            : fOrigin(origin)
+    GrOpsRenderPass(GrRenderTarget* rt, GrSurfaceOrigin origin, bool foo)
+            : fOrigin1(origin)
             , fRenderTarget(rt) {
     }
 
-    void set(GrRenderTarget* rt, GrSurfaceOrigin origin) {
+    void set1(GrRenderTarget* rt, GrSurfaceOrigin origin) {
         SkASSERT(!fRenderTarget);
 
         fRenderTarget = rt;
-        fOrigin = origin;
+        fOrigin1 = origin;
     }
 
-    GrSurfaceOrigin fOrigin;
+    GrSurfaceOrigin fOrigin1;
     GrRenderTarget* fRenderTarget;
 
 private:
     virtual GrGpu* gpu() = 0;
 
     // overridden by backend-specific derived class to perform the draw call.
-    virtual void onDraw(const GrPrimitiveProcessor&,
-                        const GrPipeline&,
-                        const GrPipeline::FixedDynamicState*,
-                        const GrPipeline::DynamicStateArrays*,
-                        const GrMesh[],
-                        int meshCount,
+    virtual void onDraw(const GrProgramInfo&, const GrMesh[], int meshCount,
                         const SkRect& bounds) = 0;
 
     // overridden by backend-specific derived class to perform the clear.

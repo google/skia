@@ -13,6 +13,7 @@
 
 GrMeshDrawOp::GrMeshDrawOp(uint32_t classID) : INHERITED(classID) {}
 
+void GrMeshDrawOp::onPrePrepare() { this->onPrePrepareDraws(); }
 void GrMeshDrawOp::onPrepare(GrOpFlushState* state) { this->onPrepareDraws(state); }
 
 //////////////////////////////////////////////////////////////////////////////
