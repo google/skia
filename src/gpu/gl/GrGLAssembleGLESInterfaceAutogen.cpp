@@ -243,6 +243,8 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
     }
 
     if (extensions.has("GL_QCOM_tiled_rendering")) {
+        GET_PROC_SUFFIX(EndTiling, QCOM);
+        GET_PROC_SUFFIX(StartTiling, QCOM);
     }
 
     if (glVer >= GR_GL_VER(3,0)) {

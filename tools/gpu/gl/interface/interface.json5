@@ -269,7 +269,7 @@
     "GLES":  [{"ext": "GL_QCOM_tiled_rendering"}],
     "WebGL": null,
 
-    "optional": [
+    "functions": [
       "StartTiling", "EndTiling",
     ]
   },
