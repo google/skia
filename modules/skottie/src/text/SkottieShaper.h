@@ -61,7 +61,8 @@ public:
         kVisualCenter,
         // extent box bottom -> text box bottom
         kVisualBottom,
-        // Resize the text such that the extent box fits (snuggly) in the text box.
+        // Resize the text such that the extent box fits (snuggly) in the text box,
+        // both horizontally and vertically.
         kVisualResizeToFit,
         // Same kVisualResizeToFit if the text doesn't fit at the specified font size.
         // Otherwise, same as kVisualCenter.
