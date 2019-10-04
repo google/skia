@@ -41,6 +41,8 @@ public:
     }
 #endif
 
+    bool driverWorkaround_callsClearCmd() const override { return true; }
+
 private:
     friend class GrOpMemoryPool; // for ctor
 
