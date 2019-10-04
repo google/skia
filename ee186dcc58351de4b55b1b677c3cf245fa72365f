@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55d583b5_0256c794",
+        "filename": "third_party/angle2/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-10-04T20:43:15Z",
+      "side": 1,
+      "message": "ANGLE\u0027s GN files have some .cpp files in their _headers list. :(",
+      "range": {
+        "startLine": 98,
+        "startChar": 14,
+        "endLine": 98,
+        "endChar": 30
+      },
+      "revId": "ee186dcc58351de4b55b1b677c3cf245fa72365f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
