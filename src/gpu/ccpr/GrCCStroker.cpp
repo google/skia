@@ -9,6 +9,7 @@
 
 #include "include/core/SkStrokeRec.h"
 #include "src/core/SkPathPriv.h"
+#include "src/gpu/GrFoo.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/ccpr/GrCCCoverageProcessor.h"
@@ -775,7 +776,16 @@ void GrCCStroker::flushBufferedMeshesAsStrokes(const GrPrimitiveProcessor& proce
     SkASSERT(fMeshesBuffer.count() == fScissorsBuffer.count());
     GrPipeline::DynamicStateArrays dynamicStateArrays;
     dynamicStateArrays.fScissorRects = fScissorsBuffer.begin();
-    flushState->opsRenderPass()->draw(processor, pipeline, nullptr, &dynamicStateArrays,
+
+    GrFoo foo(flushState->drawOpArgs().numSamples(),
+              flushState->drawOpArgs().origin(),
+              pipeline,
+              processor,
+              nullptr,
+              &dynamicStateArrays);
+
+    flushState->opsRenderPass()->draw(foo,
+                                      //processor, pipeline, nullptr, &dynamicStateArrays,
                                       fMeshesBuffer.begin(), fMeshesBuffer.count(),
                                       SkRect::Make(drawBounds));
     // Don't call reset(), as that also resets the reserve count.

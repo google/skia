@@ -11,6 +11,7 @@
 #include "src/core/SkConvertPixels.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDrawOpAtlas.h"
+#include "src/gpu/GrFoo.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrResourceProvider.h"
@@ -52,10 +53,17 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
             this->opsRenderPass()->inlineUpload(this, fCurrUpload->fUpload);
             ++fCurrUpload;
         }
-        this->opsRenderPass()->draw(
-                *fCurrDraw->fGeometryProcessor, *pipeline, fCurrDraw->fFixedDynamicState,
-                fCurrDraw->fDynamicStateArrays, fCurrDraw->fMeshes, fCurrDraw->fMeshCnt,
-                chainBounds);
+
+        GrFoo foo(this->proxy()->numSamples(),
+                  this->proxy()->origin(),
+                  *pipeline,
+                  *fCurrDraw->fGeometryProcessor,
+                  fCurrDraw->fFixedDynamicState,
+                  fCurrDraw->fDynamicStateArrays);
+
+        this->opsRenderPass()->draw(foo,
+//                                    *fCurrDraw->fGeometryProcessor, *pipeline, fCurrDraw->fFixedDynamicState, fCurrDraw->fDynamicStateArrays,
+                                    fCurrDraw->fMeshes, fCurrDraw->fMeshCnt, chainBounds);
         fTokenTracker->flushToken();
         ++fCurrDraw;
     }

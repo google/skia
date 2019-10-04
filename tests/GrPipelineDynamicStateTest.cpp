@@ -13,6 +13,7 @@
 #include "src/core/SkMakeUnique.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrFoo.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrMemoryPool.h"
@@ -140,8 +141,9 @@ private:
         return GrProcessorSet::EmptySetAnalysis();
     }
     void onPrepare(GrOpFlushState*) override {}
-    void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override {
-        GrPipeline pipeline(fScissorTest, SkBlendMode::kSrc, state->drawOpArgs().fOutputSwizzle);
+    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        GrPipeline pipeline(fScissorTest, SkBlendMode::kSrc,
+                            flushState->drawOpArgs().fOutputSwizzle);
         SkSTArray<kNumMeshes, GrMesh> meshes;
         for (int i = 0; i < kNumMeshes; ++i) {
             GrMesh& mesh = meshes.emplace_back(GrPrimitiveType::kTriangleStrip);
@@ -150,9 +152,18 @@ private:
         }
         GrPipeline::DynamicStateArrays dynamicState;
         dynamicState.fScissorRects = kDynamicScissors;
-        state->opsRenderPass()->draw(GrPipelineDynamicStateTestProcessor(), pipeline, nullptr,
-                                     &dynamicState, meshes.begin(), 4,
-                                     SkRect::MakeIWH(kScreenSize, kScreenSize));
+
+        GrFoo foo(flushState->drawOpArgs().numSamples(),
+                  flushState->drawOpArgs().origin(),
+                  pipeline,
+                  GrPipelineDynamicStateTestProcessor(),
+                  nullptr,
+                  &dynamicState);
+
+        flushState->opsRenderPass()->draw(foo,
+//                                     GrPipelineDynamicStateTestProcessor(), pipeline, nullptr, &dynamicState,
+                                          meshes.begin(), 4,
+                                          SkRect::MakeIWH(kScreenSize, kScreenSize));
     }
 
     GrScissorTest               fScissorTest;

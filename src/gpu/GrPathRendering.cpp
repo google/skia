@@ -10,6 +10,7 @@
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkScalerContext.h"
+#include "src/gpu/GrFoo.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrPathRendering.h"
 #include "src/gpu/GrRenderTarget.h"
@@ -50,18 +51,24 @@ void GrPathRendering::stencilPath(const StencilPathArgs& args, const GrPath* pat
     this->onStencilPath(args, path);
 }
 
-void GrPathRendering::drawPath(GrRenderTarget* renderTarget, int numSamples, GrSurfaceOrigin origin,
+void GrPathRendering::drawPath(GrRenderTarget* renderTarget,
+#if 0
+                               GrSurfaceOrigin origin,
                                const GrPrimitiveProcessor& primProc,
                                const GrPipeline& pipeline,
                                const GrPipeline::FixedDynamicState& fixedDynamicState,
+#else
+                               const GrFoo& foo,
+#endif
                                // Cover pass settings in pipeline.
                                const GrStencilSettings& stencilPassSettings,
                                const GrPath* path) {
     fGpu->handleDirtyContext();
-    if (GrXferBarrierType barrierType = pipeline.xferBarrierType(renderTarget->asTexture(),
-                                                                 *fGpu->caps())) {
+    if (GrXferBarrierType barrierType = foo.pipeline().xferBarrierType(renderTarget->asTexture(),
+                                                                       *fGpu->caps())) {
         fGpu->xferBarrier(renderTarget, barrierType);
     }
-    this->onDrawPath(renderTarget, numSamples, origin, primProc, pipeline, fixedDynamicState,
+    this->onDrawPath(renderTarget, foo,
+//                     origin, primProc, pipeline, fixedDynamicState,
                      stencilPassSettings, path);
 }

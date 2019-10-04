@@ -46,23 +46,27 @@ static void cleanup_program(GrGLGpu* gpu, GrGLuint programID,
 }
 
 GrGLProgram* GrGLProgramBuilder::CreateProgram(GrRenderTarget* renderTarget,
-                                               int numSamples,
-                                               GrSurfaceOrigin origin,
+#if 0
+                                               int numSamples, GrSurfaceOrigin origin,
                                                const GrPrimitiveProcessor& primProc,
                                                const GrTextureProxy* const primProcProxies[],
                                                const GrPipeline& pipeline,
+#else
+                                               const GrFoo& foo,
+#endif
                                                GrProgramDesc* desc,
                                                GrGLGpu* gpu,
                                                const GrGLPrecompiledProgram* precompiledProgram) {
-    SkASSERT(!pipeline.isBad());
+    SkASSERT(!foo.pipeline().isBad());
 
     ATRACE_ANDROID_FRAMEWORK("Shader Compile");
     GrAutoLocaleSetter als("C");
 
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrGLProgramBuilder builder(gpu, renderTarget, numSamples, origin,
-                               pipeline, primProc, primProcProxies, desc);
+    GrGLProgramBuilder builder(gpu, renderTarget,
+//                               numSamples, origin, pipeline, primProc, primProcProxies,
+                               foo, desc);
 
     auto persistentCache = gpu->getContext()->priv().getPersistentCache();
     if (persistentCache && !precompiledProgram) {
@@ -82,13 +86,17 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(GrRenderTarget* renderTarget,
 
 GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu,
                                        GrRenderTarget* renderTarget,
+#if 0
                                        int numSamples,
                                        GrSurfaceOrigin origin,
                                        const GrPipeline& pipeline,
                                        const GrPrimitiveProcessor& primProc,
                                        const GrTextureProxy* const primProcProxies[],
+#else
+                                       const GrFoo& foo,
+#endif
                                        GrProgramDesc* desc)
-        : INHERITED(renderTarget, numSamples, origin, primProc, primProcProxies, pipeline, desc)
+        : INHERITED(renderTarget, foo, desc) //numSamples, origin, primProc, primProcProxies, pipeline, desc)
         , fGpu(gpu)
         , fVaryingHandler(this)
         , fUniformHandler(this)
@@ -170,7 +178,7 @@ void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs,
     if (!this->gpu()->getContext()->priv().getPersistentCache()) {
         return;
     }
-    sk_sp<SkData> key = SkData::MakeWithoutCopy(desc()->asKey(), desc()->keyLength());
+    sk_sp<SkData> key = SkData::MakeWithoutCopy(desc1()->asKey(), desc1()->keyLength());
     if (fGpu->glCaps().programBinarySupport()) {
         // binary cache
         GrGLsizei length = 0;

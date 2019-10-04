@@ -64,11 +64,15 @@ public:
     */
     static GrVkPipelineState* CreatePipelineState(GrVkGpu*,
                                                   GrRenderTarget*,
+#if 0
                                                   int numSamples,
                                                   GrSurfaceOrigin,
                                                   const GrPrimitiveProcessor&,
                                                   const GrTextureProxy* const primProcProxies[],
                                                   const GrPipeline&,
+#else
+                                                  const GrFoo&,
+#endif
                                                   const GrStencilSettings&,
                                                   GrPrimitiveType,
                                                   Desc*,
@@ -83,11 +87,14 @@ public:
 
 private:
     GrVkPipelineStateBuilder(GrVkGpu*, GrRenderTarget*,
-                             int numSamples,
-                             GrSurfaceOrigin,
+#if 0
+                             int numSamples, GrSurfaceOrigin,
                              const GrPipeline&,
                              const GrPrimitiveProcessor&,
                              const GrTextureProxy* const primProcProxies[],
+#else
+                             const GrFoo&,
+#endif
                              GrProgramDesc*);
 
     GrVkPipelineState* finalize(const GrStencilSettings&,

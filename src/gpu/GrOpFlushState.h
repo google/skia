@@ -58,6 +58,7 @@ public:
     /** Additional data required on a per-op basis when executing GrOps. */
     struct OpArgs {
         GrSurfaceOrigin origin() const { return fProxy->origin(); }
+        int numSamples() const { return fProxy->numSamples(); }
         GrRenderTarget* renderTarget() const { return fProxy->peekRenderTarget(); }
 
         GrOp* fOp;
