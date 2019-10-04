@@ -21,7 +21,9 @@ RUN cd /tmp \
   && mkdir -p /tmp/skia \
   && cd /tmp/skia \
   && /tmp/depot_tools/fetch skia \
-  && cd skia
+  && cd skia \
+  && touch noop.python \
+  && vpython noop.py
 
 RUN mkdir -p /tmp/skia/skia/out/Static
 RUN echo '  \n\
