@@ -10,6 +10,11 @@
 //
 // http://web.eecs.umich.edu/~sugih/courses/eecs487/common/notes/APITables.xml
 // is a handy reference comparing GL and GLES API
+//
+// To regenerate the Assemble/Validate code after editing this file, execute:
+//
+//   make -C tools/gpu/gl/interface generate
+
 [
   {
     "GL":    [{"ext": "<core>"}],
@@ -257,6 +262,16 @@
 
     "functions": [
       "DiscardFramebuffer",
+    ]
+  },
+
+  {
+    "GL":    null, // Not supported
+    "GLES":  [{"ext": "GL_QCOM_tiled_rendering"}],
+    "WebGL": null,
+
+    "optional": [
+      "StartTiling", "EndTiling",
     ]
   },
 
