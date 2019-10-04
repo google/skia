@@ -146,6 +146,7 @@ private:
                                       bool hasMixedSampledCoverage, GrClampType) override {
         return GrProcessorSet::EmptySetAnalysis();
     }
+    void onPrePrepare() override { }
     void onPrepare(GrOpFlushState* flushState) override {
         SkPoint vertices[4] = {
             {100, fY},
@@ -165,6 +166,7 @@ private:
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setNonIndexedNonInstanced(4);
         mesh.setVertexData(std::move(fVertexBuffer));
+
         flushState->opsRenderPass()->draw(ClockwiseTestProcessor(fReadSkFragCoord), pipeline,
                                           nullptr, nullptr, &mesh, 1,
                                           SkRect::MakeXYWH(0, fY, 100, 100));
