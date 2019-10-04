@@ -741,8 +741,8 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
         initArgs.fInputFlags = GrPipeline::InputFlags::kHWAntialias;
     }
     initArgs.fCaps = &flushState->caps();
-    initArgs.fDstProxy = flushState->drawOpArgs().fDstProxy;
-    initArgs.fOutputSwizzle = flushState->drawOpArgs().fOutputSwizzle;
+    initArgs.fDstProxy = flushState->drawOpArgs().dstProxy();
+    initArgs.fOutputSwizzle = flushState->drawOpArgs().outputSwizzle();
     auto clip = flushState->detachAppliedClip();
     GrPipeline::FixedDynamicState* fixedDynamicState =
         flushState->allocator()->make<GrPipeline::FixedDynamicState>(clip.scissorState().rect());

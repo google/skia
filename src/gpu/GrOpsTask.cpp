@@ -412,13 +412,12 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
             TRACE_EVENT0("skia.gpu", chain.head()->name());
 #endif
-            GrOpFlushState::OpArgs opArgs = {
+            GrOpFlushState::OpArgs opArgs(
                 chain.head(),
                 fTarget->asRenderTargetProxy(),
                 chain.appliedClip(),
-                fTarget.get()->asRenderTargetProxy()->outputSwizzle(),
-                chain.dstProxy()
-            };
+                chain.dstProxy());
+
             flushState->setOpArgs(&opArgs);
             chain.head()->prepare(flushState);
             flushState->setOpArgs(nullptr);
@@ -532,13 +531,10 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
         TRACE_EVENT0("skia.gpu", chain.head()->name());
 #endif
 
-        GrOpFlushState::OpArgs opArgs {
-            chain.head(),
-            fTarget->asRenderTargetProxy(),
-            chain.appliedClip(),
-            fTarget.get()->asRenderTargetProxy()->outputSwizzle(),
-            chain.dstProxy()
-        };
+        GrOpFlushState::OpArgs opArgs(chain.head(),
+                                      fTarget->asRenderTargetProxy(),
+                                      chain.appliedClip(),
+                                      chain.dstProxy());
 
         flushState->setOpArgs(&opArgs);
         chain.head()->execute(flushState, chain.bounds());

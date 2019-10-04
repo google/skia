@@ -232,7 +232,7 @@ private:
         );
 
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrcOver,
-                            flushState->drawOpArgs().fOutputSwizzle,
+                            flushState->drawOpArgs().outputSwizzle(),
                             GrPipeline::InputFlags::kHWAntialias, &kStencilWrite);
 
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
