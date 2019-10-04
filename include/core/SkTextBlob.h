@@ -189,7 +189,7 @@ public:
     static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size,
                                          const SkDeserialProcs& procs);
 
-    class Iter {
+    SK_API class Iter {
     public:
         struct Run {
             SkTypeface*     fTypeface;
