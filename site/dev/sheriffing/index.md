@@ -5,7 +5,7 @@ Tree Sheriffs Documentation
 
 *   [What does a sheriff do?](#what_is_a_sheriff)
     +   [Skia tree](#skia_tree)
-    +   [DEPS rolls](#deps_rolls)
+    +   [AutoRollers](#autorollers)
     +   [Gold and Perf](#gold_and_perf)
     +   [Documentation](#sheriff_doc)
 *   [View current and upcoming sheriffs](#view_current_upcoming_sheriffs)
@@ -57,9 +57,9 @@ string "SkDevice" has appeared in the last 10 commits:
 
         Review-Url: https://codereview.chromium.org/2167723002
 
-<a name="deps_rolls"></a>
-### DEPS rolls
-* Ensure that [AutoRoll Bot](https://autoroll.skia.org)'s DEPS rolls land successfully.
+<a name="autorollers"></a>
+### Autorollers
+* Ensure that all AutoRollers listed on the [status page](https://status.skia.org) are successfully landing.
 
 <a name="gold_and_perf"></a>
 ### Gold and Perf
@@ -69,6 +69,9 @@ string "SkDevice" has appeared in the last 10 commits:
 <a name="sheriff_doc"></a>
 ### Documentation
 * Improve/update this documentation page for future sheriffs, especially the [Tips section](#tips).
+* Read and update the [Ongoing Issues section](https://docs.google.com/document/d/1y2jUf4vXI0fwhu2TiCLVIfWC1JOxFcHXGw39y7i-y_I/edit#heading=h.tpualuc3p7z0) in the handoff doc.
+* (Optional) Document significant events that occurred during your sheriff shift in the [Weekly
+  Handoff Notes section](https://docs.google.com/document/d/1y2jUf4vXI0fwhu2TiCLVIfWC1JOxFcHXGw39y7i-y_I/edit#heading=h.y49irwbutzr) in the handoff doc.
 
 In general, sheriffs should have a strong bias towards actions that keep the tree green and then open; if a simple revert can fix the problem, the sheriff <b>should revert first and ask questions later</b>.
 
