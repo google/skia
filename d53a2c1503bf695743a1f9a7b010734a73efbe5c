@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c200fa9a_a6fd5504",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 7787
+      },
+      "writtenOn": "2019-10-04T00:02:05Z",
+      "side": 1,
+      "message": "I think you need to revert the change below that causes the failures, otherwise, it will be rolled in again.",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 148
+      },
+      "revId": "d53a2c1503bf695743a1f9a7b010734a73efbe5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
