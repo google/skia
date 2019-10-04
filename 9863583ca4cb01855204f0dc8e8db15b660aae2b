@@ -16,6 +16,24 @@
       "revId": "9863583ca4cb01855204f0dc8e8db15b660aae2b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f42b1918_09443e1b",
+        "filename": "tools/gpu/gl/interface/interface.json5",
+        "patchSetId": 2
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-10-04T16:45:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b96f34a1_f6f86b98",
+      "revId": "9863583ca4cb01855204f0dc8e8db15b660aae2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
