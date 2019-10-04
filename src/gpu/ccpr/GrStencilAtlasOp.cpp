@@ -116,7 +116,7 @@ void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chain
 
     GrPipeline pipeline(
             GrScissorTest::kEnabled, GrDisableColorXPFactory::MakeXferProcessor(),
-            flushState->drawOpArgs().fOutputSwizzle, GrPipeline::InputFlags::kHWAntialias,
+            flushState->drawOpArgs().outputSwizzle(), GrPipeline::InputFlags::kHWAntialias,
             &kIncrDecrStencil);
 
     GrSampleMaskProcessor sampleMaskProc;
@@ -139,7 +139,7 @@ void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chain
             : &kResolveStencilCoverageAndReset;
 
     GrPipeline resolvePipeline(GrScissorTest::kEnabled, SkBlendMode::kSrc,
-                               flushState->drawOpArgs().fOutputSwizzle, noHWAA,
+                               flushState->drawOpArgs().outputSwizzle(), noHWAA,
                                stencilResolveSettings);
     GrPipeline::FixedDynamicState scissorRectState(drawBoundsRect);
 

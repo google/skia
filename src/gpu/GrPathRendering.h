@@ -94,13 +94,13 @@ public:
                         const GrScissorState* scissor,
                         const GrStencilSettings* stencil)
             : fUseHWAA(useHWAA)
-            , fProxy(proxy)
+            , fProxy1(proxy)
             , fViewMatrix(viewMatrix)
             , fScissor(scissor)
             , fStencil(stencil) {
         }
         bool                     fUseHWAA;
-        GrRenderTargetProxy*     fProxy;
+        GrRenderTargetProxy*     fProxy1;
         const SkMatrix*          fViewMatrix;
         const GrScissorState*    fScissor;
         const GrStencilSettings* fStencil;
