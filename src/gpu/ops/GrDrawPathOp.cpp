@@ -49,8 +49,8 @@ GrPipeline::InitArgs GrDrawPathOpBase::pipelineInitArgs(const GrOpFlushState& st
     }
     args.fUserStencil = &kCoverPass;
     args.fCaps = &state.caps();
-    args.fDstProxy = state.drawOpArgs().fDstProxy;
-    args.fOutputSwizzle = state.drawOpArgs().fOutputSwizzle;
+    args.fDstProxy = state.drawOpArgs().dstProxy();
+    args.fOutputSwizzle = state.drawOpArgs().outputSwizzle();
     return args;
 }
 
@@ -67,7 +67,7 @@ const GrProcessorSet::Analysis& GrDrawPathOpBase::doProcessorAnalysis(
 
 void init_stencil_pass_settings(const GrOpFlushState& flushState,
                                 GrPathRendering::FillType fillType, GrStencilSettings* stencil) {
-    const GrAppliedClip* appliedClip = flushState.drawOpArgs().fAppliedClip;
+    const GrAppliedClip* appliedClip = flushState.drawOpArgs().appliedClip();
     bool stencilClip = appliedClip && appliedClip->hasStencilClip();
     stencil->reset(GrPathRendering::GetStencilPassSettings(fillType), stencilClip,
                    flushState.drawOpArgs().renderTarget()->renderTargetPriv().numStencilBits());
