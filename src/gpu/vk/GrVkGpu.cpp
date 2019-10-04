@@ -328,7 +328,7 @@ GrOpsRenderPass* GrVkGpu::getOpsRenderPass(
         fCachedOpsRenderPass.reset(new GrVkOpsRenderPass(this));
     }
 
-    fCachedOpsRenderPass->set(rt, origin, bounds, colorInfo, stencilInfo, sampledProxies);
+    fCachedOpsRenderPass->set1(rt, origin, bounds, colorInfo, stencilInfo, sampledProxies);
     return fCachedOpsRenderPass.get();
 }
 
