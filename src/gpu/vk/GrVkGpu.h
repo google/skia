@@ -100,7 +100,8 @@ public:
             GrRenderTarget*, GrSurfaceOrigin, const SkIRect&,
             const GrOpsRenderPass::LoadAndStoreInfo&,
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-            const SkTArray<GrTextureProxy*, true>& sampledProxies) override;
+            const SkTArray<GrTextureProxy*, true>& sampledProxies,
+            bool hasClearOp) override;
 
     void addBufferMemoryBarrier(const GrVkResource*,
                                 VkPipelineStageFlags srcStageMask,

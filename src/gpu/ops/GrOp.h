@@ -165,6 +165,14 @@ public:
         this->onExecute(state, chainBounds);
     }
 
+    /**
+     * This is to handle a driver workaround in vulkan when using primary command buffers. On the
+     * Pixel3 and some mali devices, the driver has a bug when calling vkCmdClearAttachments from a
+     * primary command buffer. So we need to track which ops will call a clear command (for color or
+     * stencil) so that we can use a secondary command buffer for those GrVkOpsRenderPass.
+     */
+    virtual bool driverWorkaround_callsClearCmd() const { return false; }
+
     /** Used for spewing information about ops when debugging. */
 #ifdef SK_DEBUG
     virtual SkString dumpInfo() const {

@@ -430,7 +430,8 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
 static GrOpsRenderPass* create_render_pass(
         GrGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
         GrLoadOp colorLoadOp, const SkPMColor4f& loadClearColor, GrLoadOp stencilLoadOp,
-        GrStoreOp stencilStoreOp, const SkTArray<GrTextureProxy*, true>& sampledProxies) {
+        GrStoreOp stencilStoreOp, const SkTArray<GrTextureProxy*, true>& sampledProxies,
+        bool hasClearOp) {
     const GrOpsRenderPass::LoadAndStoreInfo kColorLoadStoreInfo {
         colorLoadOp,
         GrStoreOp::kStore,
@@ -448,7 +449,7 @@ static GrOpsRenderPass* create_render_pass(
     };
 
     return gpu->getOpsRenderPass(rt, origin, bounds, kColorLoadStoreInfo, stencilLoadAndStoreInfo,
-                                 sampledProxies);
+                                 sampledProxies, hasClearOp);
 }
 
 // TODO: this is where GrOp::renderTarget is used (which is fine since it
@@ -519,7 +520,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
     GrOpsRenderPass* renderPass = create_render_pass(
             flushState->gpu(), fTarget->peekRenderTarget(), fTarget->origin(),
             fClippedContentBounds, fColorLoadOp, fLoadClearColor, stencilLoadOp, stencilStoreOp,
-            fSampledProxies);
+            fSampledProxies, fHasClearOp);
     flushState->setOpsRenderPass(renderPass);
     renderPass->begin();
 

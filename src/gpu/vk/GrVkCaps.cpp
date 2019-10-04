@@ -439,6 +439,14 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
         fMaxVertexAttributes = SkTMin(fMaxVertexAttributes, 32);
     }
 
+    if (kQualcomm_VkVendor == properties.vendorID || kARM_VkVendor == properties.vendorID) {
+        if (fPreferPrimaryOverSecondaryCommandBuffers) {
+            // When only using primary command buffers, there is a driver bug when calling
+            // vkCmdClearAttachment.
+            fAvoidClearAttachmentsInPrimaryCommandBuffer = true;
+        }
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // GrShaderCaps workarounds
     ////////////////////////////////////////////////////////////////////////////
