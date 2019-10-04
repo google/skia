@@ -919,3 +919,26 @@ int SkTextBlob::getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
 
     return intervalCount;
 }
+
+////////
+
+SkTextBlob::Iter::Iter(const SkTextBlob& blob) {
+    fRunRecord = RunRecord::First(&blob);
+}
+
+bool SkTextBlob::Iter::next(Run* rec) {
+    if (fRunRecord) {
+        if (rec) {
+            rec->fTypeface = fRunRecord->font().getTypeface();
+            rec->fGlyphCount = fRunRecord->glyphCount();
+            rec->fGlyphIndices = fRunRecord->glyphBuffer();
+        }
+        if (fRunRecord->isLastRun()) {
+            fRunRecord = nullptr;
+        } else {
+            fRunRecord = RunRecord::Next(fRunRecord);
+        }
+        return true;
+    }
+    return false;
+}
