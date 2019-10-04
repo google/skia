@@ -24,7 +24,6 @@ DEFAULT_BUILD_PRODUCTS = [
   '*.dll',
   '*.dylib',
   'skia_launcher',
-  'skiaserve',
   'skottie_tool',
   'lib/*.so',
   'run_testlab',
