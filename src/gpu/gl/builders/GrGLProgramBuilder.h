@@ -48,11 +48,7 @@ public:
      * @return true if generation was successful.
      */
     static GrGLProgram* CreateProgram(GrRenderTarget*,
-                                      int numSamples,
-                                      GrSurfaceOrigin,
-                                      const GrPrimitiveProcessor&,
-                                      const GrTextureProxy* const primProcProxies[],
-                                      const GrPipeline&,
+                                      const GrProgramInfo&,
                                       GrProgramDesc*,
                                       GrGLGpu*,
                                       const GrGLPrecompiledProgram* = nullptr);
@@ -64,9 +60,7 @@ public:
     GrGLGpu* gpu() const { return fGpu; }
 
 private:
-    GrGLProgramBuilder(GrGLGpu*, GrRenderTarget*, int numSamples, GrSurfaceOrigin,
-                       const GrPipeline&, const GrPrimitiveProcessor&,
-                       const GrTextureProxy* const primProcProxies[], GrProgramDesc*);
+    GrGLProgramBuilder(GrGLGpu*, GrRenderTarget*, const GrProgramInfo&, GrProgramDesc*);
 
     void addInputVars(const SkSL::Program::Inputs& inputs);
     bool compileAndAttachShaders(const SkSL::String& glsl,
