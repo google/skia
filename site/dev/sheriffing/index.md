@@ -34,6 +34,9 @@ Below is a brief summary of what the sheriff does for each task:
 * Close and open the [tree](http://skia-tree-status.appspot.com).
 * Keep the builder comments on the [status page](https://status.skia.org) up to date.
 * File or follow up with [BreakingTheBuildbots bugs](https://bug.skia.org/?q=label:BreakingTheBuildbots). See the tip on [when to file bugs](#when_to_file_bugs).
+* Read and update the [Ongoing Issues section](https://docs.google.com/document/d/1y2jUf4vXI0fwhu2TiCLVIfWC1JOxFcHXGw39y7i-y_I/edit#heading=h.tpualuc3p7z0) in the handoff doc.
+* (Optional) Document significant events that occurred during your sheriff shift in the [Weekly
+  Handoff Notes section](https://docs.google.com/document/d/1y2jUf4vXI0fwhu2TiCLVIfWC1JOxFcHXGw39y7i-y_I/edit#heading=h.y49irwbutzr) in the handoff doc.
 
 <a name="blamer"></a>
 ### Blamer
@@ -69,9 +72,6 @@ string "SkDevice" has appeared in the last 10 commits:
 <a name="sheriff_doc"></a>
 ### Documentation
 * Improve/update this documentation page for future sheriffs, especially the [Tips section](#tips).
-* Read and update the [Ongoing Issues section](https://docs.google.com/document/d/1y2jUf4vXI0fwhu2TiCLVIfWC1JOxFcHXGw39y7i-y_I/edit#heading=h.tpualuc3p7z0) in the handoff doc.
-* (Optional) Document significant events that occurred during your sheriff shift in the [Weekly
-  Handoff Notes section](https://docs.google.com/document/d/1y2jUf4vXI0fwhu2TiCLVIfWC1JOxFcHXGw39y7i-y_I/edit#heading=h.y49irwbutzr) in the handoff doc.
 
 In general, sheriffs should have a strong bias towards actions that keep the tree green and then open; if a simple revert can fix the problem, the sheriff <b>should revert first and ask questions later</b>.
 
