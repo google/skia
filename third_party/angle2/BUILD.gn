@@ -95,9 +95,9 @@ shared_library("libGLESv2") {
           angle_preprocessor_sources + angle_translator_sources +
               angle_translator_essl_sources + angle_translator_glsl_sources +
               angle_translator_hlsl_sources + libangle_sources +
-              libangle_common_sources + libangle_image_util_sources +
-              libglesv2_sources + libangle_gl_sources +
-              angle_system_utils_sources + xxhash_sources,
+              libangle_headers + libangle_common_sources +
+              libangle_image_util_sources + libglesv2_sources +
+              libangle_gl_sources + angle_system_utils_sources + xxhash_sources,
           ".",
           angle_root) + [ "$angle_root/src/libANGLE/FrameCapture_mock.cpp" ]
   if (is_win) {
