@@ -30,9 +30,11 @@
 static bool get_feature_set(id<MTLDevice> device, MTLFeatureSet* featureSet) {
     // Mac OSX
 #ifdef SK_BUILD_FOR_MAC
-    if ([device supportsFeatureSet:MTLFeatureSet_OSX_GPUFamily1_v2]) {
-        *featureSet = MTLFeatureSet_OSX_GPUFamily1_v2;
-        return true;
+    if (@available(macOS 10.12, *)) {
+        if ([device supportsFeatureSet:MTLFeatureSet_OSX_GPUFamily1_v2]) {
+            *featureSet = MTLFeatureSet_OSX_GPUFamily1_v2;
+            return true;
+        }
     }
     if ([device supportsFeatureSet:MTLFeatureSet_OSX_GPUFamily1_v1]) {
         *featureSet = MTLFeatureSet_OSX_GPUFamily1_v1;
@@ -42,9 +44,11 @@ static bool get_feature_set(id<MTLDevice> device, MTLFeatureSet* featureSet) {
 
     // iOS Family group 3
 #ifdef SK_BUILD_FOR_IOS
-    if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily3_v2]) {
-        *featureSet = MTLFeatureSet_iOS_GPUFamily3_v2;
-        return true;
+    if (@available(iOS 10.0, *)) {
+        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily3_v2]) {
+            *featureSet = MTLFeatureSet_iOS_GPUFamily3_v2;
+            return true;
+        }
     }
     if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily3_v1]) {
         *featureSet = MTLFeatureSet_iOS_GPUFamily3_v1;
@@ -52,9 +56,11 @@ static bool get_feature_set(id<MTLDevice> device, MTLFeatureSet* featureSet) {
     }
 
     // iOS Family group 2
-    if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily2_v3]) {
-        *featureSet = MTLFeatureSet_iOS_GPUFamily2_v3;
-        return true;
+    if (@available(iOS 10.0, *)) {
+        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily2_v3]) {
+            *featureSet = MTLFeatureSet_iOS_GPUFamily2_v3;
+            return true;
+        }
     }
     if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily2_v2]) {
         *featureSet = MTLFeatureSet_iOS_GPUFamily2_v2;
@@ -66,9 +72,11 @@ static bool get_feature_set(id<MTLDevice> device, MTLFeatureSet* featureSet) {
     }
 
     // iOS Family group 1
-    if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily1_v3]) {
-        *featureSet = MTLFeatureSet_iOS_GPUFamily1_v3;
-        return true;
+    if (@available(iOS 10.0, *)) {
+        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily1_v3]) {
+            *featureSet = MTLFeatureSet_iOS_GPUFamily1_v3;
+            return true;
+        }
     }
     if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily1_v2]) {
         *featureSet = MTLFeatureSet_iOS_GPUFamily1_v2;
@@ -1346,13 +1354,17 @@ void GrMtlGpu::resolveTexture(id<MTLTexture> resolveTexture, id<MTLTexture> colo
 
 #if GR_TEST_UTILS
 void GrMtlGpu::testingOnly_startCapture() {
-    // TODO: add Metal 3 interface as well
-    MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
-    [captureManager startCaptureWithDevice: fDevice];
+    if (@available(macOS 10.13, iOS 11.0, *)) {
+        // TODO: add Metal 3 interface as well
+        MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
+        [captureManager startCaptureWithDevice: fDevice];
+    }
 }
 
 void GrMtlGpu::testingOnly_endCapture() {
-    MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
-    [captureManager stopCapture];
+    if (@available(macOS 10.13, iOS 11.0, *)) {
+        MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
+        [captureManager stopCapture];
+    }
 }
 #endif

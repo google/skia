@@ -82,8 +82,6 @@ id<MTLLibrary> GrMtlPipelineStateBuilder::createMtlShaderLibrary(
 }
 
 static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType type) {
-    // All half types will actually be float types. We are currently not using half types with
-    // metal to avoid an issue with narrow type coercions (float->half) http://skbug.com/8221
     switch (type) {
         case kFloat_GrVertexAttribType:
             return MTLVertexFormatFloat;
@@ -94,7 +92,11 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
         case kFloat4_GrVertexAttribType:
             return MTLVertexFormatFloat4;
         case kHalf_GrVertexAttribType:
-            return MTLVertexFormatHalf;
+            if (@available(macOS 10.13, iOS 11.0, *)) {
+                return MTLVertexFormatHalf;
+            } else {
+                return MTLVertexFormatInvalid;
+            }
         case kHalf2_GrVertexAttribType:
             return MTLVertexFormatHalf2;
         case kHalf3_GrVertexAttribType:
@@ -108,7 +110,11 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
         case kInt4_GrVertexAttribType:
             return MTLVertexFormatInt4;
         case kByte_GrVertexAttribType:
-            return MTLVertexFormatChar;
+            if (@available(macOS 10.13, iOS 11.0, *)) {
+                return MTLVertexFormatChar;
+            } else {
+                return MTLVertexFormatInvalid;
+            }
         case kByte2_GrVertexAttribType:
             return MTLVertexFormatChar2;
         case kByte3_GrVertexAttribType:
@@ -116,7 +122,11 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
         case kByte4_GrVertexAttribType:
             return MTLVertexFormatChar4;
         case kUByte_GrVertexAttribType:
-            return MTLVertexFormatUChar;
+            if (@available(macOS 10.13, iOS 11.0, *)) {
+                return MTLVertexFormatUChar;
+            } else {
+                return MTLVertexFormatInvalid;
+            }
         case kUByte2_GrVertexAttribType:
             return MTLVertexFormatUChar2;
         case kUByte3_GrVertexAttribType:
@@ -124,7 +134,11 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
         case kUByte4_GrVertexAttribType:
             return MTLVertexFormatUChar4;
         case kUByte_norm_GrVertexAttribType:
-            return MTLVertexFormatUCharNormalized;
+            if (@available(macOS 10.13, iOS 11.0, *)) {
+                return MTLVertexFormatUCharNormalized;
+            } else {
+                return MTLVertexFormatInvalid;
+            }
         case kUByte4_norm_GrVertexAttribType:
             return MTLVertexFormatUChar4Normalized;
         case kShort2_GrVertexAttribType:
@@ -140,7 +154,11 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
         case kUint_GrVertexAttribType:
             return MTLVertexFormatUInt;
         case kUShort_norm_GrVertexAttribType:
-            return MTLVertexFormatUShortNormalized;
+            if (@available(macOS 10.13, iOS 11.0, *)) {
+                return MTLVertexFormatUShortNormalized;
+            } else {
+                return MTLVertexFormatInvalid;
+            }
         case kUShort4_norm_GrVertexAttribType:
             return MTLVertexFormatUShort4Normalized;
     }
@@ -167,6 +185,7 @@ static MTLVertexDescriptor* create_vertex_descriptor(const GrPrimitiveProcessor&
     for (const auto& attribute : primProc.vertexAttributes()) {
         MTLVertexAttributeDescriptor* mtlAttribute = vertexDescriptor.attributes[attributeIndex];
         mtlAttribute.format = attribute_type_to_mtlformat(attribute.cpuType());
+        SkASSERT(MTLVertexFormatInvalid != mtlAttribute.format);
         mtlAttribute.offset = vertexAttributeOffset;
         mtlAttribute.bufferIndex = vertexBinding;
 
@@ -207,49 +226,64 @@ static MTLVertexDescriptor* create_vertex_descriptor(const GrPrimitiveProcessor&
 }
 
 static MTLBlendFactor blend_coeff_to_mtl_blend(GrBlendCoeff coeff) {
-    static const MTLBlendFactor gTable[] = {
-        MTLBlendFactorZero,                      // kZero_GrBlendCoeff
-        MTLBlendFactorOne,                       // kOne_GrBlendCoeff
-        MTLBlendFactorSourceColor,               // kSC_GrBlendCoeff
-        MTLBlendFactorOneMinusSourceColor,       // kISC_GrBlendCoeff
-        MTLBlendFactorDestinationColor,          // kDC_GrBlendCoeff
-        MTLBlendFactorOneMinusDestinationColor,  // kIDC_GrBlendCoeff
-        MTLBlendFactorSourceAlpha,               // kSA_GrBlendCoeff
-        MTLBlendFactorOneMinusSourceAlpha,       // kISA_GrBlendCoeff
-        MTLBlendFactorDestinationAlpha,          // kDA_GrBlendCoeff
-        MTLBlendFactorOneMinusDestinationAlpha,  // kIDA_GrBlendCoeff
-        MTLBlendFactorBlendColor,                // kConstC_GrBlendCoeff
-        MTLBlendFactorOneMinusBlendColor,        // kIConstC_GrBlendCoeff
-        MTLBlendFactorBlendAlpha,                // kConstA_GrBlendCoeff
-        MTLBlendFactorOneMinusBlendAlpha,        // kIConstA_GrBlendCoeff
-        MTLBlendFactorSource1Color,              // kS2C_GrBlendCoeff
-        MTLBlendFactorOneMinusSource1Color,      // kIS2C_GrBlendCoeff
-        MTLBlendFactorSource1Alpha,              // kS2A_GrBlendCoeff
-        MTLBlendFactorOneMinusSource1Alpha,      // kIS2A_GrBlendCoeff
-        MTLBlendFactorZero,                      // kIllegal_GrBlendCoeff
-    };
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kGrBlendCoeffCnt);
-    GR_STATIC_ASSERT(0 == kZero_GrBlendCoeff);
-    GR_STATIC_ASSERT(1 == kOne_GrBlendCoeff);
-    GR_STATIC_ASSERT(2 == kSC_GrBlendCoeff);
-    GR_STATIC_ASSERT(3 == kISC_GrBlendCoeff);
-    GR_STATIC_ASSERT(4 == kDC_GrBlendCoeff);
-    GR_STATIC_ASSERT(5 == kIDC_GrBlendCoeff);
-    GR_STATIC_ASSERT(6 == kSA_GrBlendCoeff);
-    GR_STATIC_ASSERT(7 == kISA_GrBlendCoeff);
-    GR_STATIC_ASSERT(8 == kDA_GrBlendCoeff);
-    GR_STATIC_ASSERT(9 == kIDA_GrBlendCoeff);
-    GR_STATIC_ASSERT(10 == kConstC_GrBlendCoeff);
-    GR_STATIC_ASSERT(11 == kIConstC_GrBlendCoeff);
-    GR_STATIC_ASSERT(12 == kConstA_GrBlendCoeff);
-    GR_STATIC_ASSERT(13 == kIConstA_GrBlendCoeff);
-    GR_STATIC_ASSERT(14 == kS2C_GrBlendCoeff);
-    GR_STATIC_ASSERT(15 == kIS2C_GrBlendCoeff);
-    GR_STATIC_ASSERT(16 == kS2A_GrBlendCoeff);
-    GR_STATIC_ASSERT(17 == kIS2A_GrBlendCoeff);
+    switch (coeff) {
+        case kZero_GrBlendCoeff:
+            return MTLBlendFactorZero;
+        case kOne_GrBlendCoeff:
+            return MTLBlendFactorOne;
+        case kSC_GrBlendCoeff:
+            return MTLBlendFactorSourceColor;
+        case kISC_GrBlendCoeff:
+            return MTLBlendFactorOneMinusSourceColor;
+        case kDC_GrBlendCoeff:
+            return MTLBlendFactorDestinationColor;
+        case kIDC_GrBlendCoeff:
+            return MTLBlendFactorOneMinusDestinationColor;
+        case kSA_GrBlendCoeff:
+            return MTLBlendFactorSourceAlpha;
+        case kISA_GrBlendCoeff:
+            return MTLBlendFactorOneMinusSourceAlpha;
+        case kDA_GrBlendCoeff:
+            return MTLBlendFactorDestinationAlpha;
+        case kIDA_GrBlendCoeff:
+            return MTLBlendFactorOneMinusDestinationAlpha;
+        case kConstC_GrBlendCoeff:
+            return MTLBlendFactorBlendColor;
+        case kIConstC_GrBlendCoeff:
+            return MTLBlendFactorOneMinusBlendColor;
+        case kConstA_GrBlendCoeff:
+            return MTLBlendFactorBlendAlpha;
+        case kIConstA_GrBlendCoeff:
+            return MTLBlendFactorOneMinusBlendAlpha;
+        case kS2C_GrBlendCoeff:
+            if (@available(macOS 10.12, iOS 11.0, *)) {
+                return MTLBlendFactorSource1Color;
+            } else {
+                return MTLBlendFactorZero;
+            }
+        case kIS2C_GrBlendCoeff:
+            if (@available(macOS 10.12, iOS 11.0, *)) {
+                return MTLBlendFactorOneMinusSource1Color;
+            } else {
+                return MTLBlendFactorZero;
+            }
+        case kS2A_GrBlendCoeff:
+            if (@available(macOS 10.12, iOS 11.0, *)) {
+                return MTLBlendFactorSource1Alpha;
+            } else {
+                return MTLBlendFactorZero;
+            }
+        case kIS2A_GrBlendCoeff:
+            if (@available(macOS 10.12, iOS 11.0, *)) {
+                return MTLBlendFactorOneMinusSource1Alpha;
+            } else {
+                return MTLBlendFactorZero;
+            }
+        case kIllegal_GrBlendCoeff:
+            return MTLBlendFactorZero;
+    }
 
-    SkASSERT((unsigned)coeff < kGrBlendCoeffCnt);
-    return gTable[coeff];
+    SK_ABORT("Unknown blend coefficient");
 }
 
 static MTLBlendOperation blend_equation_to_mtl_blend_op(GrBlendEquation equation) {

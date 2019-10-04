@@ -41,11 +41,13 @@ GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice>
 void GrMtlCaps::initFeatureSet(MTLFeatureSet featureSet) {
     // Mac OSX
 #ifdef SK_BUILD_FOR_MAC
-    if (MTLFeatureSet_OSX_GPUFamily1_v2 == featureSet) {
-        fPlatform = Platform::kMac;
-        fFamilyGroup = 1;
-        fVersion = 2;
-        return;
+    if (@available(macOS 10.12, *)) {
+        if (MTLFeatureSet_OSX_GPUFamily1_v2 == featureSet) {
+            fPlatform = Platform::kMac;
+            fFamilyGroup = 1;
+            fVersion = 2;
+            return;
+        }
     }
     if (MTLFeatureSet_OSX_GPUFamily1_v1 == featureSet) {
         fPlatform = Platform::kMac;
@@ -57,11 +59,13 @@ void GrMtlCaps::initFeatureSet(MTLFeatureSet featureSet) {
 
     // iOS Family group 3
 #ifdef SK_BUILD_FOR_IOS
-    if (MTLFeatureSet_iOS_GPUFamily3_v2 == featureSet) {
-        fPlatform = Platform::kIOS;
-        fFamilyGroup = 3;
-        fVersion = 2;
-        return;
+    if (@available(iOS 10.0, *)) {
+        if (MTLFeatureSet_iOS_GPUFamily3_v2 == featureSet) {
+            fPlatform = Platform::kIOS;
+            fFamilyGroup = 3;
+            fVersion = 2;
+            return;
+        }
     }
     if (MTLFeatureSet_iOS_GPUFamily3_v1 == featureSet) {
         fPlatform = Platform::kIOS;
@@ -71,11 +75,13 @@ void GrMtlCaps::initFeatureSet(MTLFeatureSet featureSet) {
     }
 
     // iOS Family group 2
-    if (MTLFeatureSet_iOS_GPUFamily2_v3 == featureSet) {
-        fPlatform = Platform::kIOS;
-        fFamilyGroup = 2;
-        fVersion = 3;
-        return;
+    if (@available(iOS 10.0, *)) {
+        if (MTLFeatureSet_iOS_GPUFamily2_v3 == featureSet) {
+            fPlatform = Platform::kIOS;
+            fFamilyGroup = 2;
+            fVersion = 3;
+            return;
+        }
     }
     if (MTLFeatureSet_iOS_GPUFamily2_v2 == featureSet) {
         fPlatform = Platform::kIOS;
@@ -91,11 +97,13 @@ void GrMtlCaps::initFeatureSet(MTLFeatureSet featureSet) {
     }
 
     // iOS Family group 1
-    if (MTLFeatureSet_iOS_GPUFamily1_v3 == featureSet) {
-        fPlatform = Platform::kIOS;
-        fFamilyGroup = 1;
-        fVersion = 3;
-        return;
+    if (@available(iOS 10.0, *)) {
+        if (MTLFeatureSet_iOS_GPUFamily1_v3 == featureSet) {
+            fPlatform = Platform::kIOS;
+            fFamilyGroup = 1;
+            fVersion = 3;
+            return;
+        }
     }
     if (MTLFeatureSet_iOS_GPUFamily1_v2 == featureSet) {
         fPlatform = Platform::kIOS;
@@ -213,15 +221,13 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
         }
     }
 
-    // Clamp to border is supported on Mac 10.12 and higher (gpu family.version >= 1.2). It is not
-    // supported on iOS.
-    if (this->isMac()) {
-        if (fFamilyGroup == 1 && fVersion < 2) {
-            fClampToBorderSupport = false;
-        }
-    } else {
-        fClampToBorderSupport = false;
+    // Clamp to border is supported on Mac 10.12 and higher. It is not supported on iOS.
+    fClampToBorderSupport = false;
+#if SK_BUILD_FOR_MAC
+    if (@available(macOS 10.12, *)) {
+        fClampToBorderSupport = true;
     }
+#endif
 
     // Starting with the assumption that there isn't a reason to not map small buffers.
     fBufferMapThreshold = 0;
@@ -253,15 +259,8 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     fFenceSyncSupport = true;
     bool supportsMTLEvent = false;
 #ifdef GR_METAL_SDK_SUPPORTS_EVENTS
-    // TODO: this may be redundant
     if (@available(macOS 10.14, iOS 12.0, *)) {
-        NSOperatingSystemVersion osVersion = [[NSProcessInfo processInfo] operatingSystemVersion];
-#ifdef SK_BUILD_FOR_MAC
-        supportsMTLEvent = (osVersion.majorVersion > 10 ||
-                            (osVersion.majorVersion == 10 && osVersion.minorVersion >= 14));
-#else
-        supportsMTLEvent = (osVersion.majorVersion >= 12);
-#endif
+        supportsMTLEvent = true;
     }
 #endif
     fSemaphoreSupport = supportsMTLEvent;
@@ -384,11 +383,10 @@ void GrMtlCaps::initShaderCaps() {
     shaderCaps->fShaderDerivativeSupport = true;
     shaderCaps->fGeometryShaderSupport = false;
 
-    if ((this->isMac() && fVersion >= 2) ||
-        (this->isIOS() && ((1 == fFamilyGroup && 4 == fVersion) ||
-                           (2 == fFamilyGroup && 4 == fVersion) ||
-                           (3 == fFamilyGroup && 3 == fVersion)))) {
+    if (@available(macOS 10.12, iOS 11.0, *)) {
         shaderCaps->fDualSourceBlendingSupport = true;
+    } else {
+        shaderCaps->fDualSourceBlendingSupport = false;
     }
 
     // TODO: Re-enable this once skbug:8720 is fixed. Will also need to remove asserts in
