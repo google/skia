@@ -22,6 +22,30 @@
       "revId": "01657ecca69645a80e1312cabe47ffc1c4e79ca6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "897a2043_6230d114",
+        "filename": "modules/skottie/src/text/SkottieShaper.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-10-04T19:24:05Z",
+      "side": 1,
+      "message": "This is the branch where both dimensions are known to be smaller than the box, and we\u0027re trying to determine whether we need to continue the binary search with an upscale or not.\n\nWe\u0027re done when one of the dimensions is really close to the box size, since the chances for both dimensions fitting tightly are very slim.  Really close \u003d\u003e smallest difference vs. box size.\n\nE.g. if the box is 10x10 and assuming a fixed text aspect ratio of 2:1, we would ideally end up with a text blob of 10x5.  The ideal leftover |spacing| we\u0027re looking for is min((10 - 10), (10 - 5)) \u003d\u003d 0 \u003d\u003e the text width fits the box width perfectly, but there\u0027s leftover vertical spacing of 5 (to be split top/bottom).\n\nDoes this make sense?",
+      "parentUuid": "4affd11a_e0f3a20c",
+      "range": {
+        "startLine": 391,
+        "startChar": 33,
+        "endLine": 391,
+        "endChar": 41
+      },
+      "revId": "01657ecca69645a80e1312cabe47ffc1c4e79ca6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
