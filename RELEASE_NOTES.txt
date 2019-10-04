@@ -4,6 +4,9 @@ This file includes a list of high level updates for each milestone release.
 
 * * *
 
+  * SkTextBlob::Iter to discover the glyph indices and typefaces in each run
+    https://skia-review.googlesource.com/246296
+
 Milestone 79
 
 [Insert new notes here.]
