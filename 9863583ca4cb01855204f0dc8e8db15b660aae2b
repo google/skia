@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b96f34a1_f6f86b98",
+        "filename": "tools/gpu/gl/interface/interface.json5",
+        "patchSetId": 2
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-10-04T12:19:16Z",
+      "side": 1,
+      "message": "You must also define these in a functions list",
+      "revId": "9863583ca4cb01855204f0dc8e8db15b660aae2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
