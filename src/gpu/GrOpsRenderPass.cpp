@@ -12,6 +12,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrFixedClip.h"
+#include "src/gpu/GrFoo.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMesh.h"
 #include "src/gpu/GrPrimitiveProcessor.h"
@@ -35,10 +36,11 @@ void GrOpsRenderPass::clearStencilClip(const GrFixedClip& clip, bool insideStenc
 }
 
 #ifdef SK_DEBUG
-static void assert_msaa_and_mips_are_resolved(
-        const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
-        const GrPipeline::FixedDynamicState* fixedDynamicState,
-        const GrPipeline::DynamicStateArrays* dynamicStateArrays, int meshCount) {
+static void assert_msaa_and_mips_are_resolved(const GrFoo& foo,
+//        const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
+//        const GrPipeline::FixedDynamicState* fixedDynamicState,
+//        const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+                                              int meshCount) {
     auto assertResolved = [](GrTexture* tex, const GrSamplerState& sampler) {
         SkASSERT(tex);
 
@@ -52,21 +54,21 @@ static void assert_msaa_and_mips_are_resolved(
         }
     };
 
-    if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
+    if (foo.dynamicStateArrays() && foo.dynamicStateArrays()->fPrimitiveProcessorTextures) {
         for (int m = 0, i = 0; m < meshCount; ++m) {
-            for (int s = 0; s < primProc.numTextureSamplers(); ++s, ++i) {
-                auto* tex = dynamicStateArrays->fPrimitiveProcessorTextures[i]->peekTexture();
-                assertResolved(tex, primProc.textureSampler(s).samplerState());
+            for (int s = 0; s < foo.primProc().numTextureSamplers(); ++s, ++i) {
+                auto* tex = foo.dynamicStateArrays()->fPrimitiveProcessorTextures[i]->peekTexture();
+                assertResolved(tex, foo.primProc().textureSampler(s).samplerState());
             }
         }
     } else {
-        for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-            auto* tex = fixedDynamicState->fPrimitiveProcessorTextures[i]->peekTexture();
-            assertResolved(tex, primProc.textureSampler(i).samplerState());
+        for (int i = 0; i < foo.primProc().numTextureSamplers(); ++i) {
+            auto* tex = foo.fixedDynamicState()->fPrimitiveProcessorTextures[i]->peekTexture();
+            assertResolved(tex, foo.primProc().textureSampler(i).samplerState());
         }
     }
 
-    GrFragmentProcessor::Iter iter(pipeline);
+    GrFragmentProcessor::Iter iter(foo.pipeline());
     while (const GrFragmentProcessor* fp = iter.next()) {
         for (int i = 0; i < fp->numTextureSamplers(); ++i) {
             const auto& textureSampler = fp->textureSampler(i);
@@ -76,46 +78,50 @@ static void assert_msaa_and_mips_are_resolved(
 }
 #endif
 
-bool GrOpsRenderPass::draw(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
+bool GrOpsRenderPass::draw(const GrFoo& foo,
+#if 0
+                           const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
                            const GrPipeline::FixedDynamicState* fixedDynamicState,
                            const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+#endif
                            const GrMesh meshes[], int meshCount, const SkRect& bounds) {
 #ifdef SK_DEBUG
-    SkASSERT(!primProc.hasInstanceAttributes() || this->gpu()->caps()->instanceAttribSupport());
+    SkASSERT(!foo.primProc().hasInstanceAttributes() ||
+             this->gpu()->caps()->instanceAttribSupport());
     for (int i = 0; i < meshCount; ++i) {
         SkASSERT(!GrPrimTypeRequiresGeometryShaderSupport(meshes[i].primitiveType()) ||
                  this->gpu()->caps()->shaderCaps()->geometryShaderSupport());
-        SkASSERT(primProc.hasVertexAttributes() == meshes[i].hasVertexData());
-        SkASSERT(primProc.hasInstanceAttributes() == meshes[i].hasInstanceData());
+        SkASSERT(foo.primProc().hasVertexAttributes() == meshes[i].hasVertexData());
+        SkASSERT(foo.primProc().hasInstanceAttributes() == meshes[i].hasInstanceData());
     }
 
-    SkASSERT(!pipeline.isScissorEnabled() || fixedDynamicState ||
-             (dynamicStateArrays && dynamicStateArrays->fScissorRects));
+    SkASSERT(!foo.pipeline().isScissorEnabled() || foo.fixedDynamicState() ||
+             (foo.dynamicStateArrays() && foo.dynamicStateArrays()->fScissorRects));
 
-    SkASSERT(!pipeline.isBad());
+    SkASSERT(!foo.pipeline().isBad());
 
-    if (fixedDynamicState && fixedDynamicState->fPrimitiveProcessorTextures) {
-        GrTextureProxy** processorProxies = fixedDynamicState->fPrimitiveProcessorTextures;
-        for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
+    if (foo.fixedDynamicState() && foo.fixedDynamicState()->fPrimitiveProcessorTextures) {
+        GrTextureProxy** processorProxies = foo.fixedDynamicState()->fPrimitiveProcessorTextures;
+        for (int i = 0; i < foo.primProc().numTextureSamplers(); ++i) {
             SkASSERT(processorProxies[i]->isInstantiated());
         }
     }
-    if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
-        int n = primProc.numTextureSamplers() * meshCount;
-        const auto* textures = dynamicStateArrays->fPrimitiveProcessorTextures;
+    if (foo.dynamicStateArrays() && foo.dynamicStateArrays()->fPrimitiveProcessorTextures) {
+        int n = foo.primProc().numTextureSamplers() * meshCount;
+        const auto* textures = foo.dynamicStateArrays()->fPrimitiveProcessorTextures;
         for (int i = 0; i < n; ++i) {
             SkASSERT(textures[i]->isInstantiated());
         }
         SkASSERT(meshCount >= 1);
         const GrTextureProxy* const* primProcProxies =
-                dynamicStateArrays->fPrimitiveProcessorTextures;
-        for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
+                foo.dynamicStateArrays()->fPrimitiveProcessorTextures;
+        for (int i = 0; i < foo.primProc().numTextureSamplers(); ++i) {
             const GrBackendFormat& format = primProcProxies[i]->backendFormat();
             GrTextureType type = primProcProxies[i]->textureType();
             GrPixelConfig config = primProcProxies[i]->config();
             for (int j = 1; j < meshCount; ++j) {
                 const GrTextureProxy* testProxy =
-                        primProcProxies[j*primProc.numTextureSamplers() + i];
+                        primProcProxies[j*foo.primProc().numTextureSamplers() + i];
                 SkASSERT(testProxy->backendFormat() == format);
                 SkASSERT(testProxy->textureType() == type);
                 SkASSERT(testProxy->config() == config);
@@ -123,22 +129,23 @@ bool GrOpsRenderPass::draw(const GrPrimitiveProcessor& primProc, const GrPipelin
         }
     }
 
-    assert_msaa_and_mips_are_resolved(
-            primProc, pipeline, fixedDynamicState, dynamicStateArrays, meshCount);
+    assert_msaa_and_mips_are_resolved(foo, meshCount);
+//            primProc, pipeline, fixedDynamicState, dynamicStateArrays, meshCount);
 #endif
 
-    if (primProc.numVertexAttributes() > this->gpu()->caps()->maxVertexAttributes()) {
+    if (foo.primProc().numVertexAttributes() > this->gpu()->caps()->maxVertexAttributes()) {
         this->gpu()->stats()->incNumFailedDraws();
         return false;
     }
-    this->onDraw(primProc, pipeline, fixedDynamicState, dynamicStateArrays, meshes, meshCount,
-                 bounds);
+    this->onDraw(foo,
+//                 primProc, pipeline, fixedDynamicState, dynamicStateArrays,
+                 meshes, meshCount, bounds);
 #ifdef SK_DEBUG
-    GrProcessor::CustomFeatures processorFeatures = primProc.requestedFeatures();
-    for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
-        processorFeatures |= pipeline.getFragmentProcessor(i).requestedFeatures();
+    GrProcessor::CustomFeatures processorFeatures = foo.primProc().requestedFeatures();
+    for (int i = 0; i < foo.pipeline().numFragmentProcessors(); ++i) {
+        processorFeatures |= foo.pipeline().getFragmentProcessor(i).requestedFeatures();
     }
-    processorFeatures |= pipeline.getXferProcessor().requestedFeatures();
+    processorFeatures |= foo.pipeline().getXferProcessor().requestedFeatures();
     if (GrProcessor::CustomFeatures::kSampleLocations & processorFeatures) {
         // Verify we always have the same sample pattern key, regardless of graphics state.
         SkASSERT(this->gpu()->findOrAssignSamplePatternKey(fRenderTarget)
