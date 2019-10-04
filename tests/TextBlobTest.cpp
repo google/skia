@@ -449,3 +449,34 @@ DEF_TEST(TextBlob_MakeAsDrawText, reporter) {
     REPORTER_ASSERT(reporter, runs == 1);
 
 }
+
+DEF_TEST(TextBlob_iter, reporter) {
+    sk_sp<SkTypeface> tf = SkTypeface::MakeFromName(nullptr, SkFontStyle::BoldItalic());
+
+    SkTextBlobBuilder builder;
+    add_run(&builder, "Hello", 10, 20, nullptr);
+    add_run(&builder, "World", 10, 40, tf);
+    auto blob = builder.make();
+
+    SkTextBlob::Iter::Run expected[] = {
+        { nullptr, 5, nullptr },
+        { tf.get(), 5, nullptr },
+    };
+
+    SkTextBlob::Iter iter(*blob);
+    SkTextBlob::Iter::Run run;
+    for (auto exp : expected) {
+        REPORTER_ASSERT(reporter, iter.next(&run));
+        REPORTER_ASSERT(reporter, run.fTypeface == exp.fTypeface);
+        REPORTER_ASSERT(reporter, run.fGlyphCount == exp.fGlyphCount);
+        for (int i = 0; i < run.fGlyphCount; ++i) {
+            REPORTER_ASSERT(reporter, run.fGlyphIndices[i] != 0);
+        }
+    }
+    REPORTER_ASSERT(reporter, !iter.next(&run));    // we're done
+
+    SkTextBlob::Iter iter2(*blob);
+    REPORTER_ASSERT(reporter, iter2.next(&run));
+    // Hello should have the same glyph repeated for the 'l'
+    REPORTER_ASSERT(reporter, run.fGlyphIndices[2] == run.fGlyphIndices[3]);
+}
