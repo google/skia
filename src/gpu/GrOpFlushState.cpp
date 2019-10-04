@@ -13,6 +13,7 @@
 #include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrImageInfo.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrResourceProvider.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -40,7 +41,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
     pipelineArgs.fDstProxy = this->dstProxy();
     pipelineArgs.fCaps = &this->caps();
     pipelineArgs.fUserStencil = stencilSettings;
-    pipelineArgs.fOutputSwizzle = this->drawOpArgs().fOutputSwizzle;
+    pipelineArgs.fOutputSwizzle = this->drawOpArgs().outputSwizzle();
     GrPipeline* pipeline = this->allocator()->make<GrPipeline>(pipelineArgs,
                                                                std::move(processorSet),
                                                                this->detachAppliedClip());
@@ -52,10 +53,16 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
             this->opsRenderPass()->inlineUpload(this, fCurrUpload->fUpload);
             ++fCurrUpload;
         }
-        this->opsRenderPass()->draw(
-                *fCurrDraw->fGeometryProcessor, *pipeline, fCurrDraw->fFixedDynamicState,
-                fCurrDraw->fDynamicStateArrays, fCurrDraw->fMeshes, fCurrDraw->fMeshCnt,
-                chainBounds);
+
+        GrProgramInfo programInfo(this->proxy()->numSamples(),
+                                  this->proxy()->origin(),
+                                  *pipeline,
+                                  *fCurrDraw->fGeometryProcessor,
+                                  fCurrDraw->fFixedDynamicState,
+                                  fCurrDraw->fDynamicStateArrays);
+
+        this->opsRenderPass()->draw(programInfo, fCurrDraw->fMeshes,
+                                    fCurrDraw->fMeshCnt, chainBounds);
         fTokenTracker->flushToken();
         ++fCurrDraw;
     }
@@ -134,7 +141,7 @@ void GrOpFlushState::recordDraw(
         const GrPipeline::FixedDynamicState* fixedDynamicState,
         const GrPipeline::DynamicStateArrays* dynamicStateArrays) {
     SkASSERT(fOpArgs);
-    SkASSERT(fOpArgs->fOp);
+    SkASSERT(fOpArgs->op());
     bool firstDraw = fDraws.begin() == fDraws.end();
     auto& draw = fDraws.append(&fArena);
     GrDeferredUploadToken token = fTokenTracker->issueDrawToken();
@@ -154,7 +161,7 @@ void GrOpFlushState::recordDraw(
     draw.fDynamicStateArrays = dynamicStateArrays;
     draw.fMeshes = meshes;
     draw.fMeshCnt = meshCnt;
-    draw.fOp = fOpArgs->fOp;
+    draw.fOp = fOpArgs->op();
     if (firstDraw) {
         fBaseDrawToken = token;
     }
@@ -193,7 +200,7 @@ void GrOpFlushState::putBackVertices(int vertices, size_t vertexStride) {
 }
 
 GrAppliedClip GrOpFlushState::detachAppliedClip() {
-    return fOpArgs->fAppliedClip ? std::move(*fOpArgs->fAppliedClip) : GrAppliedClip();
+    return fOpArgs->appliedClip() ? std::move(*fOpArgs->appliedClip()) : GrAppliedClip();
 }
 
 GrStrikeCache* GrOpFlushState::glyphCache() const {

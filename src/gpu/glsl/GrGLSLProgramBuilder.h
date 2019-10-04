@@ -11,6 +11,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrProgramDesc.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
@@ -21,6 +22,7 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/glsl/GrGLSLXferProcessor.h"
 
+class GrProgramInfo;
 class GrShaderVar;
 class GrGLSLVaryingHandler;
 class SkString;
@@ -36,20 +38,24 @@ public:
     virtual const GrCaps* caps() const = 0;
     const GrShaderCaps* shaderCaps() const { return this->caps()->shaderCaps(); }
 
-    const GrPrimitiveProcessor& primitiveProcessor() const { return fPrimProc; }
-    const GrTextureProxy* const* primProcProxies() const { return fPrimProcProxies; }
+    int numSamples1() const { return fProgramInfo.numSamples(); }
+    GrSurfaceOrigin origin() const { return fProgramInfo.origin(); }
+    const GrPipeline& pipeline() const { return fProgramInfo.pipeline(); }
+    const GrPrimitiveProcessor& primitiveProcessor() const { return fProgramInfo.primProc(); }
+    const GrTextureProxy* const* primProcProxies() const { return fProgramInfo.primProcProxies(); }
+
+    //---
     int effectiveSampleCnt() const {
-        SkASSERT(GrProcessor::CustomFeatures::kSampleLocations & header().processorFeatures());
-        return fRenderTarget->renderTargetPriv().getSampleLocations().count();
+        SkASSERT(GrProcessor::CustomFeatures::kSampleLocations & header1().processorFeatures());
+        return fRenderTarget1->renderTargetPriv().getSampleLocations().count();
     }
     const SkTArray<SkPoint>& getSampleLocations() const {
-        return fRenderTarget->renderTargetPriv().getSampleLocations();
+        return fRenderTarget1->renderTargetPriv().getSampleLocations();
     }
-    int numSamples() const { return fNumSamples; }
-    GrSurfaceOrigin origin() const { return fOrigin; }
-    const GrPipeline& pipeline() const { return fPipeline; }
-    GrProgramDesc* desc() { return fDesc; }
-    const GrProgramDesc::KeyHeader& header() const { return fDesc->header(); }
+    //---
+
+    const GrProgramDesc* desc1() const { return fDesc1; }
+    const GrProgramDesc::KeyHeader& header1() const { return fDesc1->header(); }
 
     void appendUniformDecls(GrShaderFlags visibility, SkString*) const;
 
@@ -95,14 +101,10 @@ public:
 
     int fStageIndex;
 
-    const GrRenderTarget*        fRenderTarget;
-    const int                    fNumSamples;
-    const GrSurfaceOrigin        fOrigin;
-    const GrPipeline&            fPipeline;
-    const GrPrimitiveProcessor&  fPrimProc;
-    const GrTextureProxy* const* fPrimProcProxies;
+    const GrRenderTarget*        fRenderTarget1; // TODO: remove this
+    const GrProgramInfo&         fProgramInfo;
 
-    GrProgramDesc*               fDesc;
+    const GrProgramDesc*         fDesc1;
 
     GrGLSLBuiltinUniformHandles  fUniformHandles;
 
@@ -112,13 +114,7 @@ public:
     int fFragmentProcessorCnt;
 
 protected:
-    explicit GrGLSLProgramBuilder(GrRenderTarget* renderTarget,
-                                  int numSamples,
-                                  GrSurfaceOrigin origin,
-                                  const GrPrimitiveProcessor&,
-                                  const GrTextureProxy* const primProcProxies[],
-                                  const GrPipeline&,
-                                  GrProgramDesc*);
+    explicit GrGLSLProgramBuilder(GrRenderTarget*, const GrProgramInfo&, const GrProgramDesc*);
 
     void addFeature(GrShaderFlags shaders, uint32_t featureBit, const char* extensionName);
 

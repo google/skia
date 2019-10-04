@@ -11,6 +11,7 @@
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrOpsRenderPass.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/ccpr/GrCCCoverageProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
@@ -701,7 +702,7 @@ void GrCCStroker::drawStrokes(GrOpFlushState* flushState, GrCCCoverageProcessor*
             ? &fZeroTallies : fScissorSubBatches[startScissorSubBatch - 1].fEndInstances;
 
     GrPipeline pipeline(GrScissorTest::kEnabled, SkBlendMode::kPlus,
-                        flushState->drawOpArgs().fOutputSwizzle);
+                        flushState->drawOpArgs().outputSwizzle());
 
     // Draw linear strokes.
     this->appendStrokeMeshesToBuffers(0, batch, startIndices, startScissorSubBatch, drawBounds);
@@ -775,7 +776,15 @@ void GrCCStroker::flushBufferedMeshesAsStrokes(const GrPrimitiveProcessor& proce
     SkASSERT(fMeshesBuffer.count() == fScissorsBuffer.count());
     GrPipeline::DynamicStateArrays dynamicStateArrays;
     dynamicStateArrays.fScissorRects = fScissorsBuffer.begin();
-    flushState->opsRenderPass()->draw(processor, pipeline, nullptr, &dynamicStateArrays,
+
+    GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
+                              flushState->drawOpArgs().origin(),
+                              pipeline,
+                              processor,
+                              nullptr,
+                              &dynamicStateArrays);
+
+    flushState->opsRenderPass()->draw(programInfo,
                                       fMeshesBuffer.begin(), fMeshesBuffer.count(),
                                       SkRect::Make(drawBounds));
     // Don't call reset(), as that also resets the reserve count.
