@@ -35,6 +35,70 @@ static void produce_frame(SkSurface* surf, skottie::Animation* anim, double fram
     anim->render(surf->getCanvas());
 }
 
+struct RenderDesc {
+    SkSurface*  fSurface;
+    int         fFrameIndex;
+};
+
+static void receive_frame(const RenderDesc& desc) {
+    SkAutoMutexAcquire ama(gFrameMutex);
+
+    insert_
+    if (desc.fFrameIndex == gFrameNeeded) {
+}
+
+struct FrameReceiver {
+
+    void postFrame(int frameIndex, SkSurface* surf) {
+        SkAutoMutexAcquire ama(fMutex);
+
+        gQueOfFrames.insert(desc);
+        while (gQueOfFrames.count() > 0 && gQueOfFrames.back().fFrameIndex == gExpectedIndex) {
+            gEncoder.addFrame(gQueOfFrames.back().fPixmap);
+            recycle_surface(gQueOfFrames.back().fSurface);
+            gQueOfFrames.pop_back();
+            gExpectedIndex += 1;
+        }
+    }
+};
+
+struct SkottieRec {
+    sk_sp<skottie::Animation> fAnimation;
+    int fFrameCount;
+    int fFrameStep;
+    int fFPS;
+
+    void run(int frameIndex) {
+        RenderDesc desc;
+        while (fRenderProvider.next(&desc)) {
+            fAnimation->seekFrameTime(desc.fFrameTime);
+            desc->fSurface->getCanvas()->clear(SK_ColorWHITE);
+            fAnimation->render(desc->fSurface->getCanvas());
+            fFrameReceiver->addFrame(desc.fFrameTime, desc->fSurface);
+        }
+    }
+        double ts = frameIndex * 1.0 / fFPS;
+        double normal_time = frameIndex * 1.0 / fFrameCount;
+        double frame_time = normal_time * duration;
+
+        produce_frame(surf.get(), animation.get(), frame_time);
+
+        AsyncRec asyncRec = { info, &encoder };
+        if (context) {
+            surf->asyncRescaleAndReadPixels(info, {0, 0, info.width(), info.height()},
+                                            SkSurface::RescaleGamma::kSrc, kNone_SkFilterQuality,
+                                            [](void* ctx, const void* data, size_t rb) {
+                AsyncRec* rec = (AsyncRec*)ctx;
+                rec->encoder->addFrame({rec->info, data, rb});
+            }, &asyncRec);
+        } else {
+            SkPixmap pm;
+            SkAssertResult(surf->peekPixels(&pm));
+            encoder.addFrame(pm);
+        }
+    }
+};
+
 struct AsyncRec {
     SkImageInfo info;
     SkVideoEncoder* encoder;
@@ -94,6 +158,14 @@ int main(int argc, char** argv) {
                  dim.width(), dim.height(), duration, fps, frame_duration);
     }
 
+    SkottieRec rec = {
+        assetPath,
+        FLAGS_input[0],
+        frames
+    };
+
+    SkTaskGroup().batch(thread_count, [rec](int index) {
+    })
     SkVideoEncoder encoder;
 
     GrContext* context = nullptr;
