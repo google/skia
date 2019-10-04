@@ -135,7 +135,7 @@ public:
         fLineCount++;
     }
 
-    Shaper::Result finalize(float* shaped_height) {
+    Shaper::Result finalize(SkSize* shaped_size) {
         if (!(fDesc.fFlags & Shaper::Flags::kFragmentGlyphs)) {
             // All glyphs are pending in a single blob.
             SkASSERT(fResult.fFragments.empty());
@@ -172,7 +172,7 @@ public:
             return box;
         };
 
-        SkASSERT(!shaped_height || fDesc.fVAlign == Shaper::VAlign::kVisualCenter);
+        SkASSERT(!shaped_size || fDesc.fVAlign == Shaper::VAlign::kVisualCenter);
 
         // Perform additional adjustments based on VAlign.
         float v_offset = 0;
@@ -189,8 +189,8 @@ public:
         case Shaper::VAlign::kVisualCenter: {
             const auto ebox = extent_box();
             v_offset = fBox.centerY() - ebox.centerY();
-            if (shaped_height) {
-                *shaped_height = ebox.height();
+            if (shaped_size) {
+                *shaped_size = SkSize::Make(ebox.width(), ebox.height());
             }
         } break;
         case Shaper::VAlign::kVisualBottom:
@@ -323,7 +323,7 @@ private:
 
 Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc,
                          const SkRect& box, const sk_sp<SkFontMgr>& fontmgr,
-                         float* shaped_height = nullptr) {
+                         SkSize* shaped_size = nullptr) {
     SkASSERT(desc.fVAlign != Shaper::VAlign::kVisualResizeToFit);
 
     const auto& is_line_break = [](SkUnichar uch) {
@@ -344,7 +344,7 @@ Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc,
     }
     blobMaker.shapeLine(line_start, ptr);
 
-    return blobMaker.finalize(shaped_height);
+    return blobMaker.finalize(shaped_size);
 }
 
 Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc,
@@ -376,10 +376,10 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
         desc.fLineHeight = try_scale * orig_desc.fLineHeight;
         desc.fAscent     = try_scale * orig_desc.fAscent;
 
-        float res_height = 0;
-        auto res = ShapeImpl(txt, desc, box, fontmgr, &res_height);
+        SkSize res_size = {0, 0};
+        auto res = ShapeImpl(txt, desc, box, fontmgr, &res_size);
 
-        if (res_height > box.height()) {
+        if (res_size.width() > box.width() || res_size.height() > box.height()) {
             out_scale = try_scale;
             try_scale = (in_scale == 0)
                     ? try_scale * 0.5f // initial in_scale not found yet - search exponentially
@@ -387,11 +387,6 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
         } else {
             // It fits - so it's a candidate.
             best_result = std::move(res);
-            static constexpr float kTolerance = 1;
-            if (box.height() - res_height <= kTolerance) {
-                // Jackpot.
-                break;
-            }
 
             in_scale = try_scale;
             try_scale = (out_scale == std::numeric_limits<float>::max())
@@ -423,10 +418,10 @@ Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const Sk
         auto adjusted_desc = desc;
         adjusted_desc.fVAlign = VAlign::kVisualCenter;
 
-        float height;
-        auto result = ShapeImpl(txt, adjusted_desc, box, fontmgr, &height);
+        SkSize size;
+        auto result = ShapeImpl(txt, adjusted_desc, box, fontmgr, &size);
 
-        if (height <= box.height()) {
+        if (size.width() <= box.width() && size.height() <= box.height()) {
             return result;
         }
 
