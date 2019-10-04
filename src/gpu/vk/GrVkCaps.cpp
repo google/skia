@@ -425,6 +425,11 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
         fShouldAlwaysUseDedicatedImageMemory = true;
     }
 
+    // On Mali devices there are lots of rendering issues when we only use primary command buffers.
+    if (kARM_VkVendor == properties.vendorID) {
+        fPreferPrimaryOverSecondaryCommandBuffers = false;
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // GrCaps workarounds
     ////////////////////////////////////////////////////////////////////////////
@@ -437,6 +442,14 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     // AMD advertises support for MAX_UINT vertex input attributes, but in reality only supports 32.
     if (kAMD_VkVendor == properties.vendorID) {
         fMaxVertexAttributes = SkTMin(fMaxVertexAttributes, 32);
+    }
+
+    if (kQualcomm_VkVendor == properties.vendorID) {
+        if (fPreferPrimaryOverSecondaryCommandBuffers) {
+            // When only using primary command buffers, there is a driver bug call
+            // vkCmdClearAttachement with a stencil buffer.
+            fPerformStencilClearsAsDraws = true;
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////
