@@ -28,7 +28,7 @@
     },
     "Build-Debian9-Clang-arm-Release-Android": {
       "tasks": [
-        "Upload-Build-Debian9-Clang-arm-Release-Android"
+        "Build-Debian9-Clang-arm-Release-Android"
       ]
     },
     "Build-Debian9-Clang-arm-Release-Android_API26": {
@@ -79,7 +79,7 @@
     },
     "Build-Debian9-Clang-arm64-Release-Android": {
       "tasks": [
-        "Upload-Build-Debian9-Clang-arm64-Release-Android"
+        "Build-Debian9-Clang-arm64-Release-Android"
       ]
     },
     "Build-Debian9-Clang-arm64-Release-Android_ASAN": {
@@ -116,7 +116,7 @@
     },
     "Build-Debian9-Clang-x64-Release-Android": {
       "tasks": [
-        "Upload-Build-Debian9-Clang-x64-Release-Android"
+        "Build-Debian9-Clang-x64-Release-Android"
       ]
     },
     "Build-Debian9-Clang-x86-Debug": {
@@ -136,7 +136,7 @@
     },
     "Build-Debian9-Clang-x86-Release-Android": {
       "tasks": [
-        "Upload-Build-Debian9-Clang-x86-Release-Android"
+        "Build-Debian9-Clang-x86-Release-Android"
       ]
     },
     "Build-Debian9-Clang-x86-Release-Android_Vulkan": {
@@ -47699,250 +47699,6 @@
       "outputs": [
         "test"
       ]
-    },
-    "Upload-Build-Debian9-Clang-arm-Release-Android": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
-        }
-      ],
-      "command": [
-        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "upload_skiaserve",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Upload-Build-Debian9-Clang-arm-Release-Android\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
-        "skia"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Debian9-Clang-arm-Release-Android"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-highmem-2",
-        "os:Debian-9.8",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 3600000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
-      "io_timeout_ns": 3600000000000,
-      "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
-      "service_account": "skia-external-binary-uploader@skia-swarming-bots.iam.gserviceaccount.com"
-    },
-    "Upload-Build-Debian9-Clang-arm64-Release-Android": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
-        }
-      ],
-      "command": [
-        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "upload_skiaserve",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Upload-Build-Debian9-Clang-arm64-Release-Android\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
-        "skia"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Debian9-Clang-arm64-Release-Android"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-highmem-2",
-        "os:Debian-9.8",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 3600000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
-      "io_timeout_ns": 3600000000000,
-      "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
-      "service_account": "skia-external-binary-uploader@skia-swarming-bots.iam.gserviceaccount.com"
-    },
-    "Upload-Build-Debian9-Clang-x64-Release-Android": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
-        }
-      ],
-      "command": [
-        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "upload_skiaserve",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Upload-Build-Debian9-Clang-x64-Release-Android\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
-        "skia"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Debian9-Clang-x64-Release-Android"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-highmem-2",
-        "os:Debian-9.8",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 3600000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
-      "io_timeout_ns": 3600000000000,
-      "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
-      "service_account": "skia-external-binary-uploader@skia-swarming-bots.iam.gserviceaccount.com"
-    },
-    "Upload-Build-Debian9-Clang-x86-Release-Android": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
-        }
-      ],
-      "command": [
-        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "upload_skiaserve",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Upload-Build-Debian9-Clang-x86-Release-Android\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
-        "skia"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Debian9-Clang-x86-Release-Android"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-highmem-2",
-        "os:Debian-9.8",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 3600000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
-      "io_timeout_ns": 3600000000000,
-      "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
-      "service_account": "skia-external-binary-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-BuildStats-Debian9-Clang-arm-Release-Flutter_Android": {
       "caches": [

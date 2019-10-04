@@ -1111,19 +1111,6 @@ func (b *builder) compile(name string, parts map[string]string) string {
 		glog.Fatalf("Job %q is missing from the jobs list!", name)
 	}
 
-	// Upload the skiaserve binary only for Linux Android compile bots.
-	// See skbug.com/7399 for context.
-	if parts["configuration"] == "Release" &&
-		parts["extra_config"] == "Android" &&
-		!strings.Contains(parts["os"], "Win") &&
-		!strings.Contains(parts["os"], "Mac") {
-		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, b.jobNameSchema.Sep, name)
-		task := b.kitchenTask(uploadName, "upload_skiaserve", "swarm_recipe.isolate", b.cfg.ServiceAccountUploadBinary, b.linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
-		task.Dependencies = append(task.Dependencies, name)
-		b.MustAddTask(uploadName, task)
-		return uploadName
-	}
-
 	return name
 }
 
