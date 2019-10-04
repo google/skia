@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4affd11a_e0f3a20c",
+        "filename": "modules/skottie/src/text/SkottieShaper.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 9707
+      },
+      "writtenOn": "2019-10-04T18:57:46Z",
+      "side": 1,
+      "message": "Should this be the max spacing across width \u0026 height, since we are trying to determine the best-fit? Otherwise it looks like it might optimize for fit in one dimension.",
+      "range": {
+        "startLine": 391,
+        "startChar": 33,
+        "endLine": 391,
+        "endChar": 41
+      },
+      "revId": "01657ecca69645a80e1312cabe47ffc1c4e79ca6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
