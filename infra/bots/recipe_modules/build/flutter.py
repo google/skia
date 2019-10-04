@@ -32,17 +32,21 @@ def compile_fn(api, checkout_root, out_dir):
         cmd=['ninja', '-C', out_dir, '-j100'])
 
 
-def copy_extra_build_products(api, src, dst):
+def copy_build_products(api, src, dst):
   stripped_src = src.join('lib.stripped', 'libflutter.so')
   stripped_dst = dst.join('libflutter_stripped.so')
   api.python.inline(
       name='copy stripped library',
       program='''
+import os
 import shutil
 import sys
 
 src = sys.argv[1]
 dst = sys.argv[2]
+
+if not os.path.isdir(os.path.dirname(dst)):
+  os.makedirs(os.path.dirname(dst))
 
 shutil.copyfile(src, dst)
 ''',
