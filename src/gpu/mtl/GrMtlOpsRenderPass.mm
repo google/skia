@@ -57,7 +57,7 @@ GrMtlPipelineState* GrMtlOpsRenderPass::prepareDrawState(
         const GrPrimitiveProcessor& primProc,
         const GrPipeline& pipeline,
         const GrPipeline::FixedDynamicState* fixedDynamicState,
-        GrPrimitiveType primType) {
+        GrPrimitiveType primitiveType) {
     // TODO: resolve textures and regenerate mipmaps as needed
 
     const GrTextureProxy* const* primProcProxies = nullptr;
@@ -73,7 +73,7 @@ GrMtlPipelineState* GrMtlOpsRenderPass::prepareDrawState(
                                                                      pipeline,
                                                                      primProc,
                                                                      primProcProxies,
-                                                                     primType);
+                                                                     primitiveType);
     if (!pipelineState) {
         return nullptr;
     }
@@ -95,6 +95,13 @@ void GrMtlOpsRenderPass::onDraw(const GrPrimitiveProcessor& primProc,
     }
 
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
+
+#ifdef SK_DEBUG
+    for (int i = 0; i < meshCount; ++i) {
+        SkASSERT(meshes[i].primitiveType() == primitiveType);
+    }
+#endif
+
     GrMtlPipelineState* pipelineState = this->prepareDrawState(primProc, pipeline,
                                                                fixedDynamicState, primitiveType);
     if (!pipelineState) {

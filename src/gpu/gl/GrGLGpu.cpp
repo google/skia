@@ -1665,7 +1665,7 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
                            const GrPipeline::FixedDynamicState* fixedDynamicState,
                            const GrPipeline::DynamicStateArrays* dynamicStateArrays,
                            int dynamicStateArraysLength,
-                           bool willDrawPoints) {
+                           GrPrimitiveType primitiveType) {
     const GrTextureProxy* const* primProcProxies = nullptr;
     const GrTextureProxy* const* primProcProxiesToBind = nullptr;
     if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
@@ -1679,7 +1679,7 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
 
     sk_sp<GrGLProgram> program(fProgramCache->refProgram(
             this, renderTarget, numSamples, origin, primProc, primProcProxies, pipeline,
-            willDrawPoints));
+            primitiveType));
     if (!program) {
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;
@@ -2189,15 +2189,20 @@ void GrGLGpu::draw(GrRenderTarget* renderTarget, int numSamples, GrSurfaceOrigin
                    int meshCount) {
     this->handleDirtyContext();
 
-    bool hasPoints = false;
-    for (int i = 0; i < meshCount; ++i) {
-        if (meshes[i].primitiveType() == GrPrimitiveType::kPoints) {
-            hasPoints = true;
-            break;
-        }
+    if (!meshCount) {
+        return;
     }
+
+    GrPrimitiveType primitiveType = meshes[0].primitiveType();
+
+#ifdef SK_DEBUG
+    for (int i = 0; i < meshCount; ++i) {
+        SkASSERT(meshes[i].primitiveType() == primitiveType);
+    }
+#endif
+
     if (!this->flushGLState(renderTarget, numSamples, origin, primProc, pipeline, fixedDynamicState,
-                            dynamicStateArrays, meshCount, hasPoints)) {
+                            dynamicStateArrays, meshCount, primitiveType)) {
         return;
     }
 
@@ -2261,6 +2266,9 @@ static GrGLenum gr_primitive_type_to_gl_mode(GrPrimitiveType primitiveType) {
             return GR_GL_LINE_STRIP;
         case GrPrimitiveType::kLinesAdjacency:
             return GR_GL_LINES_ADJACENCY;
+        case GrPrimitiveType::kPath:
+            SK_ABORT("non-mesh-based GrPrimitiveType");
+            return 0;
     }
     SK_ABORT("invalid GrPrimitiveType");
 }
