@@ -36,6 +36,7 @@
 #include "src/gpu/GrPrimitiveProcessor.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProcessorSet.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
@@ -161,13 +162,18 @@ private:
             return;
         }
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kPlus,
-                            flushState->drawOpArgs().fOutputSwizzle);
+                            flushState->drawOpArgs().outputSwizzle());
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setNonIndexedNonInstanced(4);
         mesh.setVertexData(std::move(fVertexBuffer));
-        flushState->opsRenderPass()->draw(ClockwiseTestProcessor(fReadSkFragCoord), pipeline,
-                                          nullptr, nullptr, &mesh, 1,
-                                          SkRect::MakeXYWH(0, fY, 100, 100));
+
+        GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
+                                  flushState->drawOpArgs().origin(),
+                                  pipeline,
+                                  ClockwiseTestProcessor(fReadSkFragCoord),
+                                  nullptr, nullptr);
+
+        flushState->opsRenderPass()->draw(programInfo, &mesh, 1, SkRect::MakeXYWH(0, fY, 100, 100));
     }
 
     sk_sp<GrBuffer> fVertexBuffer;

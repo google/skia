@@ -42,7 +42,7 @@ public:
         state->doUpload(upload);
     }
 
-    void set(GrRenderTarget*, GrSurfaceOrigin, const LoadAndStoreInfo&,
+    void set1(GrRenderTarget*, GrSurfaceOrigin, const LoadAndStoreInfo&,
              const StencilLoadAndStoreInfo&);
 
     void reset() {
@@ -52,23 +52,17 @@ public:
 private:
     GrGpu* gpu() override { return fGpu; }
 
-    void onDraw(const GrPrimitiveProcessor& primProc,
-                const GrPipeline& pipeline,
-                const GrPipeline::FixedDynamicState* fixedDynamicState,
-                const GrPipeline::DynamicStateArrays* dynamicStateArrays,
-                const GrMesh mesh[],
-                int meshCount,
+    void onDraw(const GrProgramInfo& programInfo, const GrMesh mesh[], int meshCount,
                 const SkRect& bounds) override {
-        fGpu->draw(fRenderTarget, fRenderTarget->numSamples(), fOrigin, primProc, pipeline,
-                   fixedDynamicState, dynamicStateArrays, mesh, meshCount);
+        fGpu->draw(fRenderTarget, programInfo, mesh, meshCount);
     }
 
     void onClear(const GrFixedClip& clip, const SkPMColor4f& color) override {
-        fGpu->clear(clip, color, fRenderTarget, fOrigin);
+        fGpu->clear(clip, color, fRenderTarget, fOrigin1);
     }
 
     void onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) override {
-        fGpu->clearStencilClip(clip, insideStencilMask, fRenderTarget, fOrigin);
+        fGpu->clearStencilClip(clip, insideStencilMask, fRenderTarget, fOrigin1);
     }
 
     GrGLGpu*                                 fGpu;

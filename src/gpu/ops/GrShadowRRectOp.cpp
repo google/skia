@@ -531,7 +531,6 @@ private:
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)++;
         }
-
     }
 
     void onPrepareDraws(Target* target) override {

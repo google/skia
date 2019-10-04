@@ -335,7 +335,7 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
     }
 
     GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kPlus,
-                        state->drawOpArgs().fOutputSwizzle);
+                        state->drawOpArgs().outputSwizzle());
 
     std::unique_ptr<GrCCCoverageProcessor> proc;
     if (state->caps().shaderCaps()->geometryShaderSupport()) {

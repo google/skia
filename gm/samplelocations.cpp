@@ -232,14 +232,18 @@ private:
         );
 
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrcOver,
-                            flushState->drawOpArgs().fOutputSwizzle,
+                            flushState->drawOpArgs().outputSwizzle(),
                             GrPipeline::InputFlags::kHWAntialias, &kStencilWrite);
+
+        GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
+                                  flushState->drawOpArgs().origin(),
+                                  pipeline,
+                                  SampleLocationsTestProcessor(fGradType),
+                                  nullptr, nullptr);
 
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setInstanced(nullptr, 200*200, 0, 4);
-        flushState->opsRenderPass()->draw(
-                SampleLocationsTestProcessor(fGradType), pipeline, nullptr, nullptr, &mesh, 1,
-                SkRect::MakeIWH(200, 200));
+        flushState->opsRenderPass()->draw(programInfo, &mesh, 1, SkRect::MakeIWH(200, 200));
     }
 
     const GradType fGradType;
