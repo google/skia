@@ -5,10 +5,6 @@
 DOCKER_IMAGE = 'gcr.io/skia-public/canvaskit-emsdk:1.38.27_v1'
 INNER_BUILD_SCRIPT = '/SRC/skia/infra/canvaskit/build_canvaskit.sh'
 
-BUILD_PRODUCTS_ISOLATE_WHITELIST_WASM = [
-  'canvaskit.*'
-]
-
 
 def compile_fn(api, checkout_root, _ignore):
   out_dir = api.vars.cache_dir.join('docker', 'canvaskit')
@@ -49,9 +45,14 @@ def compile_fn(api, checkout_root, _ignore):
         cmd=cmd)
 
 
-def copy_extra_build_products(api, _ignore, dst):
+CANVASKIT_BUILD_PRODUCTS = [
+  'canvaskit.*'
+]
+
+
+def copy_build_products(api, _ignore, dst):
   out_dir = api.vars.cache_dir.join('docker', 'canvaskit')
-  # We don't use the normal copy_build_products because it uses
+  # We don't use the normal copy_listed_files because it uses
   # shutil.move, which attempts to delete the previous file, which
   # doesn't work because the docker created outputs are read-only and
   # owned by root (aka only docker images). It's likely safe to change
@@ -68,7 +69,7 @@ import sys
 
 src = sys.argv[1]
 dst = sys.argv[2]
-build_products_whitelist = %s
+build_products = %s
 
 try:
   os.makedirs(dst)
@@ -76,7 +77,7 @@ except OSError as e:
   if e.errno != errno.EEXIST:
     raise
 
-for pattern in build_products_whitelist:
+for pattern in build_products:
   path = os.path.join(src, pattern)
   for f in glob.glob(path):
     dst_path = os.path.join(dst, os.path.relpath(f, src))
@@ -87,6 +88,6 @@ for pattern in build_products_whitelist:
     # ownership), we'd rather not keep those around. copyfile doesn't
     # keep the metadata around, so that helps us.
     shutil.copyfile(f, dst_path)
-''' % str(BUILD_PRODUCTS_ISOLATE_WHITELIST_WASM),
+''' % str(CANVASKIT_BUILD_PRODUCTS),
       args=[out_dir, dst],
       infra_step=True)

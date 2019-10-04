@@ -333,14 +333,16 @@ def compile_fn(api, checkout_root, out_dir):
       api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
 
 
-def copy_extra_build_products(api, src, dst):
+def copy_build_products(api, src, dst):
+  util.copy_listed_files(api, src, dst, util.DEFAULT_BUILD_PRODUCTS)
   extra_tokens  = api.vars.extra_tokens
   os            = api.vars.builder_cfg.get('os', '')
 
   if 'SwiftShader' in extra_tokens:
-    util.copy_whitelisted_build_products(api,
+    util.copy_listed_files(api,
         src.join('swiftshader_out'),
-        api.vars.swarming_out_dir.join('swiftshader_out'))
+        api.vars.swarming_out_dir.join('swiftshader_out'),
+        util.DEFAULT_BUILD_PRODUCTS)
 
   if os == 'Mac' and any('SAN' in t for t in extra_tokens):
     # Hardcoding this path because it should only change when we upgrade to a
