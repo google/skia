@@ -96,7 +96,7 @@ public:
     GrStencilAttachment* createStencilAttachmentForRenderTarget(
             const GrRenderTarget*, int width, int height, int numStencilSamples) override;
 
-    GrOpsRenderPass* getOpsRenderPass(
+    GrOpsRenderPass* getOpsRenderPass1(
             GrRenderTarget*, GrSurfaceOrigin, const SkIRect&,
             const GrOpsRenderPass::LoadAndStoreInfo&,
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,

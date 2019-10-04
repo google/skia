@@ -7,6 +7,7 @@
 
 #include "src/gpu/GrAllocator.h"
 #include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/GrFoo.h"
 #include "src/gpu/GrPathProcessor.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrProcessor.h"
@@ -73,11 +74,21 @@ void GrGLProgram::abandon() {
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrGLProgram::updateUniformsAndTextureBindings(const GrRenderTarget* renderTarget,
+#if 0
                                                    GrSurfaceOrigin origin,
                                                    const GrPrimitiveProcessor& primProc,
                                                    const GrPipeline& pipeline,
-                                                   const GrTextureProxy* const primProcTextures[]) {
-    this->setRenderTargetState(renderTarget, origin, primProc);
+                                                   const GrTextureProxy* const primProcTextures[]
+#else
+                                                   const GrFoo& foo
+#endif
+) {
+    const GrTextureProxy* const* primProcProxiesToBind = nullptr;
+    if (foo.fixedDynamicState() && foo.fixedDynamicState()->fPrimitiveProcessorTextures) {
+        primProcProxiesToBind = foo.fixedDynamicState()->fPrimitiveProcessorTextures;
+    }
+
+    this->setRenderTargetState(renderTarget, foo.origin(), foo.primProc());
 
     // we set the textures, and uniforms for installed processors in a generic way, but subclasses
     // of GLProgram determine how to set coord transforms
@@ -85,23 +96,23 @@ void GrGLProgram::updateUniformsAndTextureBindings(const GrRenderTarget* renderT
     // We must bind to texture units in the same order in which we set the uniforms in
     // GrGLProgramDataManager. That is, we bind textures for processors in this order:
     // primProc, fragProcs, XP.
-    fPrimitiveProcessor->setData(fProgramDataManager, primProc,
-                                 GrFragmentProcessor::CoordTransformIter(pipeline));
-    if (primProcTextures) {
-        this->updatePrimitiveProcessorTextureBindings(primProc, primProcTextures);
+    fPrimitiveProcessor->setData(fProgramDataManager, foo.primProc(),
+                                 GrFragmentProcessor::CoordTransformIter(foo.pipeline()));
+    if (primProcProxiesToBind) {
+        this->updatePrimitiveProcessorTextureBindings(foo.primProc(), primProcProxiesToBind);
     }
-    int nextTexSamplerIdx = primProc.numTextureSamplers();
+    int nextTexSamplerIdx = foo.primProc().numTextureSamplers();
 
-    this->setFragmentData(pipeline, &nextTexSamplerIdx);
+    this->setFragmentData(foo.pipeline(), &nextTexSamplerIdx);
 
-    const GrXferProcessor& xp = pipeline.getXferProcessor();
+    const GrXferProcessor& xp = foo.pipeline().getXferProcessor();
     SkIPoint offset;
-    GrTexture* dstTexture = pipeline.peekDstTexture(&offset);
+    GrTexture* dstTexture = foo.pipeline().peekDstTexture(&offset);
 
     fXferProcessor->setData(fProgramDataManager, xp, dstTexture, offset);
     if (dstTexture) {
         fGpu->bindTexture(nextTexSamplerIdx++, GrSamplerState::ClampNearest(),
-                          pipeline.dstTextureProxy()->textureSwizzle(),
+                          foo.pipeline().dstTextureProxy()->textureSwizzle(),
                           static_cast<GrGLTexture*>(dstTexture));
     }
     SkASSERT(nextTexSamplerIdx == fNumTextureSamplers);

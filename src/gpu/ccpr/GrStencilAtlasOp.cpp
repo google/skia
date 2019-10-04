@@ -8,6 +8,7 @@
 #include "src/gpu/ccpr/GrStencilAtlasOp.h"
 
 #include "include/private/GrRecordingContext.h"
+#include "src/gpu/GrFoo.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -116,7 +117,7 @@ void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chain
 
     GrPipeline pipeline(
             GrScissorTest::kEnabled, GrDisableColorXPFactory::MakeXferProcessor(),
-            flushState->drawOpArgs().fOutputSwizzle, GrPipeline::InputFlags::kHWAntialias,
+            flushState->drawOpArgs().outputSwizzle(), GrPipeline::InputFlags::kHWAntialias,
             &kIncrDecrStencil);
 
     GrSampleMaskProcessor sampleMaskProc;
@@ -139,7 +140,7 @@ void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chain
             : &kResolveStencilCoverageAndReset;
 
     GrPipeline resolvePipeline(GrScissorTest::kEnabled, SkBlendMode::kSrc,
-                               flushState->drawOpArgs().fOutputSwizzle, noHWAA,
+                               flushState->drawOpArgs().outputSwizzle(), noHWAA,
                                stencilResolveSettings);
     GrPipeline::FixedDynamicState scissorRectState(drawBoundsRect);
 
@@ -147,6 +148,12 @@ void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chain
     mesh.setInstanced(fResources->refStencilResolveBuffer(),
                       fEndStencilResolveInstance - fBaseStencilResolveInstance,
                       fBaseStencilResolveInstance, 4);
-    flushState->opsRenderPass()->draw(StencilResolveProcessor(), resolvePipeline, &scissorRectState,
-                                      nullptr, &mesh, 1, SkRect::Make(drawBoundsRect));
+    GrFoo foo(flushState->drawOpArgs().numSamples1(),
+              flushState->drawOpArgs().origin(),
+              resolvePipeline,
+              StencilResolveProcessor(),
+              &scissorRectState,
+              nullptr);
+
+    flushState->opsRenderPass()->draw(foo, &mesh, 1, SkRect::Make(drawBoundsRect));
 }

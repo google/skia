@@ -72,7 +72,9 @@ protected:
     };
 
 private:
+    void onPrePrepare() final;
     void onPrepare(GrOpFlushState* state) final;
+    virtual void onPrePrepareDraws() {} //= 0;
     virtual void onPrepareDraws(Target*) = 0;
     typedef GrDrawOp INHERITED;
 };
@@ -147,7 +149,7 @@ public:
 
     GrPipeline::FixedDynamicState* makeFixedDynamicState(int numPrimitiveProcessorTextures);
 
-    virtual GrRenderTargetProxy* proxy() const = 0;
+    virtual GrRenderTargetProxy* proxy2() const = 0;
 
     virtual const GrAppliedClip* appliedClip() = 0;
     virtual GrAppliedClip detachAppliedClip() = 0;

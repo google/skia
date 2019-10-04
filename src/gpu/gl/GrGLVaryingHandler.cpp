@@ -18,10 +18,10 @@ GrGLSLVaryingHandler::VaryingHandle GrGLVaryingHandler::addPathProcessingVarying
     GrGLProgramBuilder* glPB = (GrGLProgramBuilder*) fProgramBuilder;
     // This call is not used for non-NVPR backends.
     SkASSERT(glPB->gpu()->glCaps().shaderCaps()->pathRenderingSupport() &&
-             glPB->fPrimProc.isPathRendering() &&
-             !glPB->fPrimProc.willUseGeoShader() &&
-             !glPB->fPrimProc.numVertexAttributes() &&
-             !glPB->fPrimProc.numInstanceAttributes());
+             glPB->fFoo.primProc().isPathRendering() &&
+             !glPB->fFoo.primProc().willUseGeoShader() &&
+             !glPB->fFoo.primProc().numVertexAttributes() &&
+             !glPB->fFoo.primProc().numInstanceAttributes());
 #endif
     this->addVarying(name, v);
     auto varyingInfo = fPathProcVaryingInfos.push_back();

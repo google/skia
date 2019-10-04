@@ -15,6 +15,7 @@
 #include "src/core/SkMakeUnique.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrFoo.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrMemoryPool.h"
@@ -410,8 +411,16 @@ sk_sp<const GrBuffer> DrawMeshHelper::getIndexBuffer() {
 void DrawMeshHelper::drawMesh(const GrMesh& mesh) {
     GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc, GrSwizzle::RGBA());
     GrMeshTestProcessor mtp(mesh.isInstanced(), mesh.hasVertexData());
-    fState->opsRenderPass()->draw(mtp, pipeline, nullptr, nullptr, &mesh, 1,
-                                  SkRect::MakeIWH(kImageWidth, kImageHeight));
+
+    GrFoo foo(fState->drawOpArgs().numSamples1(),
+              fState->drawOpArgs().origin(),
+              pipeline,
+              mtp,
+              nullptr, nullptr);
+
+    fState->opsRenderPass()->draw(foo,
+                                  //mtp, pipeline, nullptr, nullptr,
+                                  &mesh, 1, SkRect::MakeIWH(kImageWidth, kImageHeight));
 }
 
 static void run_test(GrContext* context, const char* testName, skiatest::Reporter* reporter,

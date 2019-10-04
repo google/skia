@@ -10,6 +10,7 @@
 #include "include/private/GrRecordingContext.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrFoo.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsRenderPass.h"
@@ -741,8 +742,8 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
         initArgs.fInputFlags = GrPipeline::InputFlags::kHWAntialias;
     }
     initArgs.fCaps = &flushState->caps();
-    initArgs.fDstProxy = flushState->drawOpArgs().fDstProxy;
-    initArgs.fOutputSwizzle = flushState->drawOpArgs().fOutputSwizzle;
+    initArgs.fDstProxy = flushState->drawOpArgs().dstProxy();
+    initArgs.fOutputSwizzle = flushState->drawOpArgs().outputSwizzle();
     auto clip = flushState->detachAppliedClip();
     GrPipeline::FixedDynamicState* fixedDynamicState =
         flushState->allocator()->make<GrPipeline::FixedDynamicState>(clip.scissorState().rect());
@@ -750,13 +751,21 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
                                                                      std::move(fProcessors),
                                                                      std::move(clip));
 
+    GrFoo foo(flushState->drawOpArgs().numSamples1(),
+              flushState->drawOpArgs().origin(),
+              *pipeline,
+              *proc,
+              fixedDynamicState,
+              nullptr);
+
     GrMesh* mesh = flushState->allocator()->make<GrMesh>(GrPrimitiveType::kTriangles);
     mesh->setIndexedInstanced(
             std::move(fIndexBuffer), fIndexCount, std::move(fInstanceBuffer), fInstanceCount,
             fBaseInstance, GrPrimitiveRestart::kNo);
     mesh->setVertexData(std::move(fVertexBuffer));
-    flushState->opsRenderPass()->draw(
-            *proc, *pipeline, fixedDynamicState, nullptr, mesh, 1, this->bounds());
+    flushState->opsRenderPass()->draw(foo,
+            //*proc, *pipeline, fixedDynamicState, nullptr,
+                                      mesh, 1, this->bounds());
     fIndexCount = 0;
 }
 

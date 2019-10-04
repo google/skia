@@ -21,26 +21,34 @@
 const int GrGLSLProgramBuilder::kVarsPerBlock = 8;
 
 GrGLSLProgramBuilder::GrGLSLProgramBuilder(GrRenderTarget* renderTarget,
-                                           int numSamples,
-                                           GrSurfaceOrigin origin,
+#if 0
+                                           int numSamples, GrSurfaceOrigin origin,
                                            const GrPrimitiveProcessor& primProc,
                                            const GrTextureProxy* const primProcProxies[],
                                            const GrPipeline& pipeline,
-                                           GrProgramDesc* desc)
+#else
+                                           const GrFoo& foo,
+#endif
+                                           const GrProgramDesc* desc)
         : fVS(this)
         , fGS(this)
         , fFS(this)
         , fStageIndex(-1)
-        , fRenderTarget(renderTarget)
+        , fRenderTarget1(renderTarget)
+#if 0
         , fNumSamples(numSamples)
         , fOrigin(origin)
         , fPipeline(pipeline)
         , fPrimProc(primProc)
         , fPrimProcProxies(primProcProxies)
-        , fDesc(desc)
+#else
+        , fFoo(foo)
+#endif
+        , fDesc1(desc)
         , fGeometryProcessor(nullptr)
         , fXferProcessor(nullptr)
-        , fNumFragmentSamplers(0) {}
+        , fNumFragmentSamplers(0) {
+}
 
 void GrGLSLProgramBuilder::addFeature(GrShaderFlags shaders,
                                       uint32_t featureBit,
@@ -115,7 +123,7 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor,
                                            name.c_str());
     }
 
-    GrGLSLPrimitiveProcessor::FPCoordTransformHandler transformHandler(fPipeline,
+    GrGLSLPrimitiveProcessor::FPCoordTransformHandler transformHandler(this->pipeline(),
                                                                        &fTransformedCoordVars);
     GrGLSLGeometryProcessor::EmitArgs args(&fVS,
                                            proc.willUseGeoShader() ? &fGS : nullptr,
@@ -229,7 +237,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
     AutoStageAdvance adv(this);
 
     SkASSERT(!fXferProcessor);
-    const GrXferProcessor& xp = fPipeline.getXferProcessor();
+    const GrXferProcessor& xp = this->pipeline().getXferProcessor();
     fXferProcessor.reset(xp.createGLSLInstance());
 
     // Enable dual source secondary output if we have one
@@ -248,13 +256,13 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
     SamplerHandle dstTextureSamplerHandle;
     GrSurfaceOrigin dstTextureOrigin = kTopLeft_GrSurfaceOrigin;
 
-    if (GrTexture* dstTexture = fPipeline.peekDstTexture()) {
+    if (GrTexture* dstTexture = this->pipeline().peekDstTexture()) {
         // GrProcessor::TextureSampler sampler(dstTexture);
-        SkASSERT(fPipeline.dstTextureProxy());
-        const GrSwizzle& swizzle = fPipeline.dstTextureProxy()->textureSwizzle();
+        SkASSERT(this->pipeline().dstTextureProxy());
+        const GrSwizzle& swizzle = this->pipeline().dstTextureProxy()->textureSwizzle();
         dstTextureSamplerHandle =
                 this->emitSampler(dstTexture, GrSamplerState(), swizzle, "DstTextureSampler");
-        dstTextureOrigin = fPipeline.dstTextureProxy()->origin();
+        dstTextureOrigin = this->pipeline().dstTextureProxy()->origin();
         SkASSERT(dstTexture->texturePriv().textureType() != GrTextureType::kExternal);
     }
 
@@ -270,7 +278,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
                                        fFS.getSecondaryColorOutputName(),
                                        dstTextureSamplerHandle,
                                        dstTextureOrigin,
-                                       this->desc()->header().fOutputSwizzle);
+                                       this->desc1()->header().fOutputSwizzle);
     fXferProcessor->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect

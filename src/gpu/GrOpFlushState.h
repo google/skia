@@ -57,9 +57,27 @@ public:
 
     /** Additional data required on a per-op basis when executing GrOps. */
     struct OpArgs {
+        OpArgs() = delete;
+        explicit OpArgs(GrOp* op, GrRenderTargetProxy* proxy, GrAppliedClip* clip,
+                        GrSwizzle swizzle, GrXferProcessor::DstProxy dstProxy)
+            : fOp(op)
+            , fProxy(proxy)
+            , fAppliedClip(clip)
+            , fOutputSwizzle(swizzle)
+            , fDstProxy(dstProxy) {
+        }
+
+        GrOp* op1() { return fOp;  }
+        GrRenderTargetProxy* proxy1() const { return fProxy; }
+        GrAppliedClip* appliedClip() const { return fAppliedClip; }
+        GrSwizzle outputSwizzle() const { return fOutputSwizzle; }
+        const GrXferProcessor::DstProxy& dstProxy() const { return fDstProxy;  }
+
         GrSurfaceOrigin origin() const { return fProxy->origin(); }
+        int numSamples1() const { return fProxy->numSamples(); }
         GrRenderTarget* renderTarget() const { return fProxy->peekRenderTarget(); }
 
+    private:
         GrOp* fOp;
         // TODO: do we still need the dst proxy here?
         GrRenderTargetProxy* fProxy;
@@ -72,7 +90,7 @@ public:
 
     const OpArgs& drawOpArgs() const {
         SkASSERT(fOpArgs);
-        SkASSERT(fOpArgs->fOp);
+        SkASSERT(fOpArgs->op1());
         return *fOpArgs;
     }
 
@@ -105,10 +123,10 @@ public:
                                     int* actualIndexCount) final;
     void putBackIndices(int indexCount) final;
     void putBackVertices(int vertices, size_t vertexStride) final;
-    GrRenderTargetProxy* proxy() const final { return fOpArgs->fProxy; }
-    const GrAppliedClip* appliedClip() final { return fOpArgs->fAppliedClip; }
+    GrRenderTargetProxy* proxy2() const final { return fOpArgs->proxy1(); }
+    const GrAppliedClip* appliedClip() final { return fOpArgs->appliedClip(); }
     GrAppliedClip detachAppliedClip() final;
-    const GrXferProcessor::DstProxy& dstProxy() const final { return fOpArgs->fDstProxy; }
+    const GrXferProcessor::DstProxy& dstProxy() const final { return fOpArgs->dstProxy(); }
     GrDeferredUploadTarget* deferredUploadTarget() final { return this; }
     const GrCaps& caps() const final;
     GrResourceProvider* resourceProvider() const final { return fResourceProvider; }
@@ -140,7 +158,7 @@ private:
         const GrPipeline::FixedDynamicState* fFixedDynamicState;
         const GrPipeline::DynamicStateArrays* fDynamicStateArrays;
         const GrMesh* fMeshes = nullptr;
-        const GrOp* fOp = nullptr;
+        const GrOp* fOp2 = nullptr;
         int fMeshCnt = 0;
     };
 
