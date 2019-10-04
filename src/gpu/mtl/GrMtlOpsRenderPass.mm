@@ -353,11 +353,15 @@ void GrMtlOpsRenderPass::sendInstancedMeshToGpu(GrPrimitiveType primitiveType,
     this->bindGeometry(vertexBuffer, 0, instanceBuffer);
 
     SkASSERT(primitiveType != GrPrimitiveType::kLinesAdjacency); // Geometry shaders not supported.
-    [fActiveRenderCmdEncoder drawPrimitives:gr_to_mtl_primitive(primitiveType)
-                                vertexStart:baseVertex
-                                vertexCount:vertexCount
-                              instanceCount:instanceCount
-                               baseInstance:baseInstance];
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        [fActiveRenderCmdEncoder drawPrimitives:gr_to_mtl_primitive(primitiveType)
+                                    vertexStart:baseVertex
+                                    vertexCount:vertexCount
+                                  instanceCount:instanceCount
+                                   baseInstance:baseInstance];
+    } else {
+        SkASSERT(false);
+    }
 }
 
 void GrMtlOpsRenderPass::sendIndexedInstancedMeshToGpu(GrPrimitiveType primitiveType,
@@ -369,7 +373,7 @@ void GrMtlOpsRenderPass::sendIndexedInstancedMeshToGpu(GrPrimitiveType primitive
                                                        const GrBuffer* instanceBuffer,
                                                        int instanceCount,
                                                        int baseInstance,
-                                                            GrPrimitiveRestart restart) {
+                                                       GrPrimitiveRestart restart) {
     this->bindGeometry(vertexBuffer, 0, instanceBuffer);
 
     SkASSERT(primitiveType != GrPrimitiveType::kLinesAdjacency); // Geometry shaders not supported.
@@ -385,14 +389,19 @@ void GrMtlOpsRenderPass::sendIndexedInstancedMeshToGpu(GrPrimitiveType primitive
     SkASSERT(restart == GrPrimitiveRestart::kNo);
     size_t indexOffset = static_cast<const GrMtlBuffer*>(indexBuffer)->offset() +
                          sizeof(uint16_t) * baseIndex;
-    [fActiveRenderCmdEncoder drawIndexedPrimitives:gr_to_mtl_primitive(primitiveType)
-                                        indexCount:indexCount
-                                         indexType:MTLIndexTypeUInt16
-                                       indexBuffer:mtlIndexBuffer
-                                 indexBufferOffset:indexOffset
-                                     instanceCount:instanceCount
-                                        baseVertex:baseVertex
-                                      baseInstance:baseInstance];
+
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        [fActiveRenderCmdEncoder drawIndexedPrimitives:gr_to_mtl_primitive(primitiveType)
+                                            indexCount:indexCount
+                                             indexType:MTLIndexTypeUInt16
+                                           indexBuffer:mtlIndexBuffer
+                                     indexBufferOffset:indexOffset
+                                         instanceCount:instanceCount
+                                            baseVertex:baseVertex
+                                          baseInstance:baseInstance];
+    } else {
+        SkASSERT(false);
+    }
     fGpu->stats()->incNumDraws();
 }
 
