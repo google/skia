@@ -163,7 +163,6 @@ static dawn::PrimitiveTopology to_dawn_primitive_topology(GrPrimitiveType primit
             return dawn::PrimitiveTopology::LineList;
         case GrPrimitiveType::kLineStrip:
             return dawn::PrimitiveTopology::LineStrip;
-        case GrPrimitiveType::kLinesAdjacency:
         default:
             SkASSERT(!"unsupported primitive topology");
             return dawn::PrimitiveTopology::TriangleList;
