@@ -156,6 +156,11 @@ private:
             const GrCaps&, const GrAppliedClip*, bool hasMixedSampledCoverage, GrClampType) override {
         return GrProcessorSet::EmptySetAnalysis();
     }
+
+    void onPrePrepare() override {
+
+    }
+
     void onPrepare(GrOpFlushState* flushState) override {
         SkPoint vertices[4] = {
             {-1, -1},
@@ -172,6 +177,7 @@ private:
         }
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrcOver,
                             flushState->drawOpArgs().fOutputSwizzle);
+
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setNonIndexedNonInstanced(4);
         mesh.setVertexData(std::move(fVertexBuffer));
