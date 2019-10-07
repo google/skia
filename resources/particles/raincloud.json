@@ -31,6 +31,7 @@
       "}",
       "",
       "void update(inout Particle p) {",
+      "  p.vel.y += 20 * dt;",
       "  if (once(p.pos.y > 150, p.flags, 0x1)) {",
       "    p.scale = 0;",
       "    splash(false);",

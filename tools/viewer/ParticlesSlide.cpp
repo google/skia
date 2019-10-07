@@ -230,7 +230,7 @@ void ParticlesSlide::load(SkScalar winWidth, SkScalar winHeight) {
 }
 
 void ParticlesSlide::draw(SkCanvas* canvas) {
-    canvas->clear(0);
+    canvas->clear(SK_ColorGRAY);
 
     gDragPoints.reset();
     gDragPoints.push_back(&fPlayPosition);
