@@ -17,6 +17,7 @@
 
 #import <Metal/Metal.h>
 
+class GrProgramInfo;
 class GrMtlGpu;
 class GrMtlPipelineState;
 
@@ -37,8 +38,7 @@ public:
     public:
         static bool Build(Desc*,
                           GrRenderTarget*,
-                          const GrPrimitiveProcessor&,
-                          const GrPipeline&,
+                          const GrProgramInfo&,
                           GrPrimitiveType,
                           GrMtlGpu* gpu);
 
@@ -59,23 +59,14 @@ public:
      * @return true if generation was successful.
      */
     static GrMtlPipelineState* CreatePipelineState(GrMtlGpu*,
-                                                   GrRenderTarget*, int numSamples, GrSurfaceOrigin,
-                                                   const GrPrimitiveProcessor&,
-                                                   const GrTextureProxy* const primProcProxies[],
-                                                   const GrPipeline&,
+                                                   GrRenderTarget*,
+                                                   const GrProgramInfo&,
                                                    Desc*);
 
 private:
-    GrMtlPipelineStateBuilder(GrMtlGpu*, GrRenderTarget*, int numSamples, GrSurfaceOrigin,
-                              const GrPipeline&,
-                              const GrPrimitiveProcessor&,
-                              const GrTextureProxy* const primProcProxies[],
-                              GrProgramDesc*);
+    GrMtlPipelineStateBuilder(GrMtlGpu*, GrRenderTarget*, const GrProgramInfo&, GrProgramDesc*);
 
-    GrMtlPipelineState* finalize(GrRenderTarget* renderTarget,
-                                 const GrPrimitiveProcessor& primProc,
-                                 const GrPipeline& pipeline,
-                                 Desc*);
+    GrMtlPipelineState* finalize(GrRenderTarget*, const GrProgramInfo&, Desc*);
 
     const GrCaps* caps() const override;
 
