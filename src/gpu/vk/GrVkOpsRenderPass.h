@@ -41,7 +41,8 @@ public:
     void set(GrRenderTarget*, GrSurfaceOrigin, const SkIRect& bounds,
              const GrOpsRenderPass::LoadAndStoreInfo&,
              const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-             const SkTArray<GrTextureProxy*, true>& sampledProxies);
+             const SkTArray<GrTextureProxy*, true>& sampledProxies,
+             bool hasClearOp);
     void reset();
 
     void submit();
@@ -122,6 +123,7 @@ private:
     const GrVkRenderPass*                       fCurrentRenderPass;
     bool                                        fCurrentCBIsEmpty = true;
     SkIRect                                     fBounds;
+    bool                                        fHasClearOp;
     GrVkGpu*                                    fGpu;
 
 #ifdef SK_DEBUG

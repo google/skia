@@ -119,7 +119,10 @@ void GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
     vkClearColor.color.float32[2] = clearColor[2];
     vkClearColor.color.float32[3] = clearColor[3];
 
-    if (!fGpu->vkCaps().preferPrimaryOverSecondaryCommandBuffers()) {
+    bool useSecondaryCB =
+            !fGpu->vkCaps().preferPrimaryOverSecondaryCommandBuffers() ||
+            (fHasClearOp && fGpu->vkCaps().avoidClearAttachmentsInPrimaryCommandBuffer());
+    if (useSecondaryCB) {
         fCurrentSecondaryCommandBuffer = fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu);
         fCurrentSecondaryCommandBuffer->begin(fGpu, vkRT->framebuffer(), fCurrentRenderPass);
     }
@@ -178,9 +181,12 @@ void GrVkOpsRenderPass::submit() {
 void GrVkOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
                             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
-                            const SkTArray<GrTextureProxy*, true>& sampledProxies) {
+                            const SkTArray<GrTextureProxy*, true>& sampledProxies,
+                            bool hasClearOp) {
     SkASSERT(!fRenderTarget);
     SkASSERT(fGpu == rt->getContext()->priv().getGpu());
+
+    fHasClearOp = hasClearOp;
 
 #ifdef SK_DEBUG
     fIsActive = true;
@@ -238,6 +244,9 @@ void GrVkOpsRenderPass::insertEventMarker(const char* msg) {
 }
 
 void GrVkOpsRenderPass::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
+    if (fGpu->vkCaps().avoidClearAttachmentsInPrimaryCommandBuffer()) {
+        SkASSERT(fCurrentSecondaryCommandBuffer);
+    }
     SkASSERT(!clip.hasWindowRectangles());
 
     GrStencilAttachment* sb = fRenderTarget->renderTargetPriv().getStencilAttachment();
@@ -289,6 +298,9 @@ void GrVkOpsRenderPass::onClearStencilClip(const GrFixedClip& clip, bool insideS
 }
 
 void GrVkOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
+    if (fGpu->vkCaps().avoidClearAttachmentsInPrimaryCommandBuffer()) {
+        SkASSERT(fCurrentSecondaryCommandBuffer);
+    }
     // parent class should never let us get here with no RT
     SkASSERT(!clip.hasWindowRectangles());
 
@@ -362,8 +374,11 @@ void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuff
     VkClearValue vkClearColor;
     memset(&vkClearColor, 0, sizeof(VkClearValue));
 
-    if (!fGpu->vkCaps().preferPrimaryOverSecondaryCommandBuffers() ||
-        mustUseSecondaryCommandBuffer) {
+    bool useSecondaryCB =
+            !fGpu->vkCaps().preferPrimaryOverSecondaryCommandBuffers() ||
+            (fHasClearOp && fGpu->vkCaps().avoidClearAttachmentsInPrimaryCommandBuffer()) ||
+            mustUseSecondaryCommandBuffer;
+    if (useSecondaryCB) {
         fCurrentSecondaryCommandBuffer = fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu);
         fCurrentSecondaryCommandBuffer->begin(fGpu, vkRT->framebuffer(), fCurrentRenderPass);
     }

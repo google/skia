@@ -70,6 +70,10 @@ public:
 
         op->visitProxies(addDependency);
 
+        if (op->driverWorkaround_callsClearCmd()) {
+            fHasClearOp = true;
+        }
+
         this->recordOp(std::move(op), GrProcessorSet::EmptySetAnalysis(), nullptr, nullptr, caps);
     }
 
@@ -278,6 +282,10 @@ private:
 
     // We must track if we have a wait op so that we don't delete the op when we have a full clear.
     bool fHasWaitOp = false;;
+
+    // For a driver workaround on the Pixel3 and some mali devices we need to track if any clear
+    // commands are called on this GrOpsTask.
+    bool fHasClearOp = false;
 
     // For ops/opsTask we have mean: 5 stdDev: 28
     SkSTArray<25, OpChain, true> fOpChains;
