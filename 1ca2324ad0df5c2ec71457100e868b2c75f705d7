@@ -22,6 +22,30 @@
       "revId": "1ca2324ad0df5c2ec71457100e868b2c75f705d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce7f4979_c89114d1",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-07T21:05:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "13eccd58_de513bb4",
+      "range": {
+        "startLine": 64,
+        "startChar": 17,
+        "endLine": 67,
+        "endChar": 37
+      },
+      "revId": "1ca2324ad0df5c2ec71457100e868b2c75f705d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
