@@ -260,6 +260,7 @@ void GrVkCommandBuffer::clearAttachments(const GrVkGpu* gpu,
                                                        attachments,
                                                        numRects,
                                                        clearRects));
+    this->invalidateState();
 }
 
 void GrVkCommandBuffer::bindDescriptorSets(const GrVkGpu* gpu,
