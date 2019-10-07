@@ -49,6 +49,8 @@ public:
     const SkPMColor4f& color() const { return fColor; }
     void setColor(const SkPMColor4f& color) { fColor = color; }
 
+    bool driverWorkaround_callsClearCmd() const override { return true; }
+
 private:
     friend class GrOpMemoryPool; // for ctors
 

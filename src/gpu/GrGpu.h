@@ -338,11 +338,14 @@ public:
 
     // Returns a GrOpsRenderPass which GrOpsTasks send draw commands to instead of directly
     // to the Gpu object. The 'bounds' rect is the content rect of the renderTarget.
+    // The hasClearOp is a driver bug workaround (skbug.com/9512) and tells the GPU to put the
+    // returned renderPass in a secondary command buffer.
     virtual GrOpsRenderPass* getOpsRenderPass(
             GrRenderTarget* renderTarget, GrSurfaceOrigin, const SkIRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo&,
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-            const SkTArray<GrTextureProxy*, true>& sampledProxies) = 0;
+            const SkTArray<GrTextureProxy*, true>& sampledProxies,
+            bool hasClearOp) = 0;
 
     // Called by GrDrawingManager when flushing.
     // Provides a hook for post-flush actions (e.g. Vulkan command buffer submits). This will also
