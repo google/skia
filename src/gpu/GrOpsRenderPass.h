@@ -18,6 +18,7 @@ class GrGpu;
 class GrMesh;
 class GrPipeline;
 class GrPrimitiveProcessor;
+class GrProgramInfo;
 class GrRenderTarget;
 class GrSemaphore;
 struct SkIRect;
@@ -55,13 +56,7 @@ public:
     // GrMesh object and emit a draw for it. Each draw will use the same GrPipeline and
     // GrPrimitiveProcessor. This may fail if the draw would exceed any resource limits (e.g.
     // number of vertex attributes is too large).
-    bool draw(const GrPrimitiveProcessor&,
-              const GrPipeline&,
-              const GrPipeline::FixedDynamicState*,
-              const GrPipeline::DynamicStateArrays*,
-              const GrMesh[],
-              int meshCount,
-              const SkRect& bounds);
+    bool draw(const GrProgramInfo&, const GrMesh[], int meshCount, const SkRect& bounds);
 
     // Performs an upload of vertex data in the middle of a set of a set of draws
     virtual void inlineUpload(GrOpFlushState*, GrDeferredTextureUploadFn&) = 0;
@@ -100,12 +95,7 @@ private:
     virtual GrGpu* gpu() = 0;
 
     // overridden by backend-specific derived class to perform the draw call.
-    virtual void onDraw(const GrPrimitiveProcessor&,
-                        const GrPipeline&,
-                        const GrPipeline::FixedDynamicState*,
-                        const GrPipeline::DynamicStateArrays*,
-                        const GrMesh[],
-                        int meshCount,
+    virtual void onDraw(const GrProgramInfo&, const GrMesh[], int meshCount,
                         const SkRect& bounds) = 0;
 
     // overridden by backend-specific derived class to perform the clear.

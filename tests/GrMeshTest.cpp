@@ -20,6 +20,7 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsRenderPass.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
@@ -410,7 +411,14 @@ sk_sp<const GrBuffer> DrawMeshHelper::getIndexBuffer() {
 void DrawMeshHelper::drawMesh(const GrMesh& mesh) {
     GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc, GrSwizzle::RGBA());
     GrMeshTestProcessor mtp(mesh.isInstanced(), mesh.hasVertexData());
-    fState->opsRenderPass()->draw(mtp, pipeline, nullptr, nullptr, &mesh, 1,
+
+    GrProgramInfo programInfo(fState->drawOpArgs().numSamples(),
+                              fState->drawOpArgs().origin(),
+                              pipeline,
+                              mtp,
+                              nullptr, nullptr);
+
+    fState->opsRenderPass()->draw(programInfo, &mesh, 1,
                                   SkRect::MakeIWH(kImageWidth, kImageHeight));
 }
 
