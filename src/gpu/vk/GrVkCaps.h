@@ -53,6 +53,12 @@ public:
     int maxRenderTargetSampleCount(const GrBackendFormat&) const override;
     int maxRenderTargetSampleCount(VkFormat format) const;
 
+    size_t bytesPerPixel(VkFormat format) const {
+        // We shouldn't be calling this for compressed or planar formats.
+        SkASSERT(this->getFormatInfo(format).fBytesPerPixel);
+        return this->getFormatInfo(format).fBytesPerPixel;
+    }
+
     SupportedWrite supportedWritePixelsColorType(GrColorType surfaceColorType,
                                                  const GrBackendFormat& surfaceFormat,
                                                  GrColorType srcColorType) const override;
@@ -267,6 +273,8 @@ private:
         uint16_t fLinearFlags = 0;
 
         SkTDArray<int> fColorSampleCounts;
+        // This value is only valid for regular formats. Planar and compressed formats will be 0.
+        size_t fBytesPerPixel = 0;
 
         std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
         int fColorTypeInfoCount = 0;
