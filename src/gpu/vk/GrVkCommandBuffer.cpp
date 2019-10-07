@@ -260,6 +260,9 @@ void GrVkCommandBuffer::clearAttachments(const GrVkGpu* gpu,
                                                        attachments,
                                                        numRects,
                                                        clearRects));
+    if (gpu->vkCaps().mustInvalidatePrimaryCmdBufferStateAfterClearAttachments()) {
+        this->invalidateState();
+    }
 }
 
 void GrVkCommandBuffer::bindDescriptorSets(const GrVkGpu* gpu,
