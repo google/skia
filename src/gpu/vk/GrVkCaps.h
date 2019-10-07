@@ -146,6 +146,10 @@ public:
         return fPreferPrimaryOverSecondaryCommandBuffers;
     }
 
+    bool mustInvalidatePrimaryCmdBufferStateAfterClearAttachments() const {
+        return fMustInvalidatePrimaryCmdBufferStateAfterClearAttachments;
+    }
+
     /**
      * Helpers used by canCopySurface. In all cases if the SampleCnt parameter is zero that means
      * the surface is not a render target, otherwise it is the number of samples in the render
@@ -303,7 +307,8 @@ private:
 
     bool fSupportsProtectedMemory = false;
 
-    bool fPreferPrimaryOverSecondaryCommandBuffers = false;
+    bool fPreferPrimaryOverSecondaryCommandBuffers = true;
+    bool fMustInvalidatePrimaryCmdBufferStateAfterClearAttachments = false;
 
     typedef GrCaps INHERITED;
 };
