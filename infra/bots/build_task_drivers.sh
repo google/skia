@@ -15,3 +15,4 @@ cd skia
 # Build task drivers from the infra repo.
 export GOBIN="${1}"
 go install -v go.skia.org/infra/infra/bots/task_drivers/update_go_deps
+go install -v go.skia.org/infra/infra/bots/task_drivers/run_docker
