@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13eccd58_de513bb4",
+        "filename": "src/core/SkZip.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-07T17:00:25Z",
+      "side": 1,
+      "message": "Isn\u0027t the actual requirement something like\n\nstd::is_convertible\u003cU*, T*\u003e \u0026\u0026 sizeof(U) \u003d\u003d sizeof(T)",
+      "range": {
+        "startLine": 64,
+        "startChar": 17,
+        "endLine": 67,
+        "endChar": 37
+      },
+      "revId": "1ca2324ad0df5c2ec71457100e868b2c75f705d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
