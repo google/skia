@@ -32,8 +32,10 @@ GrMtlStencilAttachment* GrMtlStencilAttachment::Create(GrMtlGpu* gpu,
                                                            width:width
                                                           height:height
                                                        mipmapped:NO];
-    desc.resourceOptions = MTLResourceStorageModePrivate;
-    desc.usage = MTLTextureUsageRenderTarget;
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        desc.storageMode = MTLStorageModePrivate;
+        desc.usage = MTLTextureUsageRenderTarget;
+    }
     desc.sampleCount = sampleCnt;
     if (sampleCnt > 1) {
         desc.textureType = MTLTextureType2DMultisample;

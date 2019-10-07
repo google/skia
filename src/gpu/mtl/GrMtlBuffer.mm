@@ -37,11 +37,13 @@ GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedTyp
         , fOffset(0) {
     // In most cases, we'll allocate dynamic buffers when we map them, below.
     if (!fIsDynamic) {
-        // TODO: newBufferWithBytes: used to work with StorageModePrivate buffers -- seems like
-        // a bug that it no longer does. If that changes we could use that to pre-load the buffer.
+        NSUInteger options = 0;
+        if (@available(macOS 10.11, iOS 9.0, *)) {
+            options |= MTLResourceStorageModePrivate;
+        }
         fMtlBuffer = size == 0 ? nil :
                 [gpu->device() newBufferWithLength: size
-                                           options: MTLResourceStorageModePrivate];
+                                           options: options];
     }
     this->registerWithCache(SkBudgeted::kYes);
     VALIDATE();
@@ -123,9 +125,13 @@ void GrMtlBuffer::internalMap(size_t sizeInBytes) {
     } else {
         SkASSERT(fMtlBuffer);
         SkASSERT(fMappedBuffer == nil);
+        NSUInteger options = 0;
+        if (@available(macOS 10.11, iOS 9.0, *)) {
+            options |= MTLResourceStorageModeShared;
+        }
         fMappedBuffer =
                 [this->mtlGpu()->device() newBufferWithLength: sizeInBytes
-                                                      options: MTLResourceStorageModeShared];
+                                                      options: options];
         fMapPtr = fMappedBuffer.contents;
     }
     VALIDATE();

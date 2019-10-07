@@ -124,7 +124,9 @@ MTLTextureDescriptor* GrGetMTLTextureDescriptor(id<MTLTexture> mtlTexture) {
     texDesc.mipmapLevelCount = mtlTexture.mipmapLevelCount;
     texDesc.arrayLength = mtlTexture.arrayLength;
     texDesc.sampleCount = mtlTexture.sampleCount;
-    texDesc.usage = mtlTexture.usage;
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        texDesc.usage = mtlTexture.usage;
+    }
     return texDesc;
 }
 
