@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "314cba38_033eb451",
+        "filename": "site/user/modules/particles.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-10-07T16:22:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c9d21235_873c5b30",
+      "range": {
+        "startLine": 108,
+        "startChar": 6,
+        "endLine": 108,
+        "endChar": 31
+      },
+      "revId": "fe282f41f54db6deec3b242d3f95395f19841aa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6e720e7b_dc03caed",
         "filename": "site/user/modules/particles.md",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "d58dea8f_6b21454b",
+        "filename": "site/user/modules/particles.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-10-07T16:22:24Z",
+      "side": 1,
+      "message": "No, the particle serializer supports the Code and EffectCode being either a single string or list of strings. The viewer particle slide uses the list of strings so that the resulting JSON is easier to see/diff in gerritt (otherwise it ends up as strings containing \u0027\\\\n\u0027).\n\nAnd I replicated that here because it was easy to just copy-paste the JSON.",
+      "parentUuid": "6e720e7b_dc03caed",
+      "range": {
+        "startLine": 135,
+        "startChar": 6,
+        "endLine": 135,
+        "endChar": 7
+      },
+      "revId": "fe282f41f54db6deec3b242d3f95395f19841aa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d4216068_779bface",
         "filename": "site/user/modules/particles.md",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2019-10-07T15:59:13Z",
       "side": 1,
       "message": "Does this require the new version?",
+      "range": {
+        "startLine": 227,
+        "startChar": 6,
+        "endLine": 227,
+        "endChar": 15
+      },
+      "revId": "fe282f41f54db6deec3b242d3f95395f19841aa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "774677df_9b2fec56",
+        "filename": "site/user/modules/particles.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-10-07T16:22:24Z",
+      "side": 1,
+      "message": "Yup, that and a fireworks sample both need the new \"SkEffectBinding\" support.",
+      "parentUuid": "d4216068_779bface",
       "range": {
         "startLine": 227,
         "startChar": 6,
