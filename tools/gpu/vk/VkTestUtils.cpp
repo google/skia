@@ -109,6 +109,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
     void*                       pUserData) {
     if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
         SkDebugf("Vulkan error [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+        SkASSERT(false);
         return VK_TRUE; // skip further layers
     } else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
         // There is currently a bug in the spec which doesn't have

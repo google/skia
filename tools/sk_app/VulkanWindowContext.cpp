@@ -238,7 +238,7 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
         }
     }
     fDisplayParams = params;
-    fSampleCount = params.fMSAASampleCount;
+    fSampleCount = SkTMax(1, params.fMSAASampleCount);
     fStencilBits = 8;
 
     if (VK_FORMAT_UNDEFINED == surfaceFormat) {
@@ -352,7 +352,8 @@ void VulkanWindowContext::createBuffers(VkFormat format, SkColorType colorType) 
         } else {
             GrBackendTexture backendTexture(fWidth, fHeight, info);
 
-            fSurfaces[i] = SkSurface::MakeFromBackendTexture(
+            // We don't set the sampled usage bit on the swapchain so this can't be a GrTexture.
+            fSurfaces[i] = SkSurface::MakeFromBackendTextureAsRenderTarget(
                     fContext.get(), backendTexture, kTopLeft_GrSurfaceOrigin, fSampleCount,
                     colorType, fDisplayParams.fColorSpace, &fDisplayParams.fSurfaceProps);
 
