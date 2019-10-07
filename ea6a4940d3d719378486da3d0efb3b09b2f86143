@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2d4c86f9_533eebad",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-07T17:27:17Z",
+      "side": 1,
+      "message": "Missed some parens there...\n\nRunPointerProxy operator-\u003e() { return {**this}; } // short for \u0027return {this-\u003eoperator*()};\u0027",
+      "parentUuid": "8c7b9ebc_c1e556b1",
+      "range": {
+        "startLine": 208,
+        "startChar": 39,
+        "endLine": 208,
+        "endChar": 53
+      },
+      "revId": "ea6a4940d3d719378486da3d0efb3b09b2f86143",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8b8f1884_ce8be58b",
         "filename": "include/core/SkTextBlob.h",
         "patchSetId": 4
