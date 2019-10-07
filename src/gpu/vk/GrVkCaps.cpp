@@ -425,6 +425,19 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
         fShouldAlwaysUseDedicatedImageMemory = true;
     }
 
+    // On Mali galaxy s7 and s9 we see lots of rendering issues with image filters dropping out when
+    // using only primary command buffers.
+    if (kARM_VkVendor == properties.vendorID) {
+        fPreferPrimaryOverSecondaryCommandBuffers = false;
+    }
+
+    // On various devices, when calling vkCmdClearAttachments on a primary command buffer, it
+    // corrupts the bound buffers on the command buffer. As a workaround we invalidate our knowledge
+    // of bound buffers so that we will rebind them on the next draw.
+    if (kQualcomm_VkVendor == properties.vendorID || kAMD_VkVendor == properties.vendorID) {
+        fMustInvalidatePrimaryCmdBufferStateAfterClearAttachments = true;
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // GrCaps workarounds
     ////////////////////////////////////////////////////////////////////////////
