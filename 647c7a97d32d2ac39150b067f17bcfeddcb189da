@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1bd4aa9d_e5236d4e",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 806,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-07T20:15:40Z",
+      "side": 0,
+      "message": "is this meant to be deleted?",
+      "range": {
+        "startLine": 806,
+        "startChar": 4,
+        "endLine": 806,
+        "endChar": 52
+      },
+      "revId": "647c7a97d32d2ac39150b067f17bcfeddcb189da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
