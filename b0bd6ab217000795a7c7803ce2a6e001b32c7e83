@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e7bcc68a_2674cd52",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-07T14:18:02Z",
+      "side": 1,
+      "message": "// The \u0027hasClearOp\u0027 parameter is a driver bug workaround (skbug.com/XXX) and tells the GPU to put the returned renderPass in a secondary command buffer.\n\n?",
+      "revId": "b0bd6ab217000795a7c7803ce2a6e001b32c7e83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8b8042d_d21c427e",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2095,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-07T14:18:02Z",
+      "side": 1,
+      "message": "Maybe /**/ this out ?",
+      "range": {
+        "startLine": 2095,
+        "startChar": 13,
+        "endLine": 2095,
+        "endChar": 23
+      },
+      "revId": "b0bd6ab217000795a7c7803ce2a6e001b32c7e83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11502b40_3ac4740f",
+        "filename": "src/gpu/gl/GrGLGpu.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-07T14:18:02Z",
+      "side": 1,
+      "message": "Maybe /**/ this out ?",
+      "range": {
+        "startLine": 131,
+        "startChar": 72,
+        "endLine": 131,
+        "endChar": 82
+      },
+      "revId": "b0bd6ab217000795a7c7803ce2a6e001b32c7e83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89a01954_5ceb0208",
+        "filename": "src/gpu/ops/GrOp.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-07T14:18:02Z",
+      "side": 1,
+      "message": "//\n// The way this flows through the system is that the X \u0026 Y ops return true setting a flag \n// on the containing GrOpsRenderTask. When that render task gets executed it passes the \n// flag on to the GPU which then funnels that renderTask to a secondary command buffer.",
+      "revId": "b0bd6ab217000795a7c7803ce2a6e001b32c7e83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1fcb6473_84fdc05a",
+        "filename": "src/gpu/vk/GrVkOpsRenderPass.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-07T14:18:02Z",
+      "side": 1,
+      "message": "Is this necessary here? I thought the initial clears were okay.",
+      "range": {
+        "startLine": 123,
+        "startChar": 27,
+        "endLine": 123,
+        "endChar": 87
+      },
+      "revId": "b0bd6ab217000795a7c7803ce2a6e001b32c7e83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ba604a1_8241f57c",
+        "filename": "tools/sk_app/VulkanWindowContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-07T14:18:02Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 355,
+        "startChar": 32,
+        "endLine": 355,
+        "endChar": 39
+      },
+      "revId": "b0bd6ab217000795a7c7803ce2a6e001b32c7e83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
