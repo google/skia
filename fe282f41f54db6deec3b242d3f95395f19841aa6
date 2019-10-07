@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c9d21235_873c5b30",
+        "filename": "site/user/modules/particles.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-10-07T15:59:13Z",
+      "side": 1,
+      "message": "Why not run this once before the first frame? Could get rid of save/restore then.",
+      "range": {
+        "startLine": 108,
+        "startChar": 6,
+        "endLine": 108,
+        "endChar": 31
+      },
+      "revId": "fe282f41f54db6deec3b242d3f95395f19841aa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e720e7b_dc03caed",
+        "filename": "site/user/modules/particles.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-10-07T15:59:13Z",
+      "side": 1,
+      "message": "Does this have to be on separate lines? JS supports multi-line string literals using backticks\n`\nvoid spawn()...\nfloat3...\n`",
+      "range": {
+        "startLine": 135,
+        "startChar": 6,
+        "endLine": 135,
+        "endChar": 7
+      },
+      "revId": "fe282f41f54db6deec3b242d3f95395f19841aa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4216068_779bface",
+        "filename": "site/user/modules/particles.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-10-07T15:59:13Z",
+      "side": 1,
+      "message": "Does this require the new version?",
+      "range": {
+        "startLine": 227,
+        "startChar": 6,
+        "endLine": 227,
+        "endChar": 15
+      },
+      "revId": "fe282f41f54db6deec3b242d3f95395f19841aa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
