@@ -3,6 +3,10 @@
 // how and when to attach them (e.g. only if an extension is present).
 // It is used for both the assemble and validate step.
 //
+// To regenerate the Assemble/Validate code after editing this file, execute:
+//
+//   make -C tools/gpu/gl/interface generate
+//
 // Currently it assumes the minimum versions:
 //   - GL: 2.0
 //   - GLES: 2.0
@@ -257,6 +261,19 @@
 
     "functions": [
       "DiscardFramebuffer",
+    ]
+  },
+
+  {
+    "GL":    null, // Not supported
+    "GLES":  [{"ext": "GL_QCOM_tiled_rendering"}],
+    "WebGL": null,
+
+    "functions": [
+      "StartTiling", "EndTiling",
+    ],
+    "optional": [
+      "StartTiling", "EndTiling",
     ]
   },
 
