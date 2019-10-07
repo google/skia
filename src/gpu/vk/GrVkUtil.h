@@ -57,8 +57,6 @@ bool GrInstallVkShaderModule(const GrVkGpu* gpu,
                              VkShaderModule* shaderModule,
                              VkPipelineShaderStageCreateInfo* stageInfo);
 
-size_t GrVkBytesPerFormat(VkFormat);
-
 /**
  * Returns true if the format is compressed.
  */

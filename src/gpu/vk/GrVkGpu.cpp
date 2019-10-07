@@ -1463,7 +1463,7 @@ bool copy_src_data(GrVkGpu* gpu, const GrVkAlloc& alloc, VkFormat vkFormat,
     if (!mapPtr) {
         return false;
     }
-    size_t bytesPerPixel = GrVkBytesPerFormat(vkFormat);
+    size_t bytesPerPixel = gpu->vkCaps().bytesPerPixel(vkFormat);
 
     for (int level = 0; level < numMipLevels; ++level) {
         const size_t trimRB = srcData[level].width() * bytesPerPixel;
@@ -1611,7 +1611,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
                      mipLevelCount, VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
 
     if (srcData) {
-        size_t bytesPerPixel = GrVkBytesPerFormat(vkFormat);
+        size_t bytesPerPixel = fVkCaps->bytesPerPixel(vkFormat);
         SkASSERT(w && h);
 
         SkTArray<size_t> individualMipOffsets(mipLevelCount);
