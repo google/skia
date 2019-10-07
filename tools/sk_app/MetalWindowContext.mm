@@ -35,7 +35,11 @@ void MetalWindowContext::initializeContext() {
     fQueue = [fDevice newCommandQueue];
 
     if (fDisplayParams.fMSAASampleCount > 1) {
-        if (![fDevice supportsTextureSampleCount:fDisplayParams.fMSAASampleCount]) {
+        if (@available(macOS 10.11, iOS 9.0, *)) {
+            if (![fDevice supportsTextureSampleCount:fDisplayParams.fMSAASampleCount]) {
+                return;
+            }
+        } else {
             return;
         }
     }

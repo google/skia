@@ -176,12 +176,16 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 static id<MTLBuffer> alloc_dynamic_buffer(id<MTLDevice> device, size_t size) {
-    return [device newBufferWithLength: size
+    NSUInteger options = 0;
+    if (@available(macOS 10.11, iOS 9.0, *)) {
 #ifdef SK_BUILD_FOR_MAC
-                               options: MTLResourceStorageModeManaged];
+        options |= MTLResourceStorageModeManaged;
 #else
-                               options: MTLResourceStorageModeShared];
+        options |= MTLResourceStorageModeShared;
 #endif
+    }
+    return [device newBufferWithLength: size
+                               options: options];
 
 }
 

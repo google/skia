@@ -23,15 +23,19 @@ static inline MTLSamplerAddressMode wrap_mode_to_mtl_sampler_address(
         case GrSamplerState::WrapMode::kMirrorRepeat:
             return MTLSamplerAddressModeMirrorRepeat;
         case GrSamplerState::WrapMode::kClampToBorder:
-            // Must guard the reference to the clamp to border address mode by macro since iOS
-            // builds will fail if it's referenced, even if other code makes sure it's never used.
-#ifdef SK_BUILD_FOR_IOS
-            SkASSERT(false);
-            return MTLSamplerAddressModeClampToEdge;
-#else
-            SkASSERT(caps.clampToBorderSupport());
-            return MTLSamplerAddressModeClampToBorderColor;
+            // Must guard the reference to the clamp to border address mode by macro since iOS or
+            // older MacOS builds will fail if it's referenced, even if other code makes sure it's
+            // never used.
+#ifdef SK_BUILD_FOR_MAC
+            if (@available(macOS 10.12, *)) {
+                SkASSERT(caps.clampToBorderSupport());
+                return MTLSamplerAddressModeClampToBorderColor;
+            } else
 #endif
+            {
+                SkASSERT(false);
+                return MTLSamplerAddressModeClampToEdge;
+            }
     }
     SK_ABORT("Unknown wrap mode.");
 }
@@ -62,7 +66,9 @@ GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, const GrSamplerState& sa
     samplerDesc.lodMaxClamp = !useMipMaps ? 0.0f : (float)(maxMipLevel);
     samplerDesc.maxAnisotropy = 1.0f;
     samplerDesc.normalizedCoordinates = true;
-    samplerDesc.compareFunction = MTLCompareFunctionNever;
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        samplerDesc.compareFunction = MTLCompareFunctionNever;
+    }
 
     return new GrMtlSampler([gpu->device() newSamplerStateWithDescriptor: samplerDesc],
                             GenerateKey(samplerState, maxMipLevel));
