@@ -11,6 +11,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTime.h"
+#include "include/private/SkMutex.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "src/utils/SkOSPath.h"
@@ -34,6 +35,92 @@ static void produce_frame(SkSurface* surf, skottie::Animation* anim, double fram
     surf->getCanvas()->clear(SK_ColorWHITE);
     anim->render(surf->getCanvas());
 }
+
+struct RenderedFrame {
+    SkSurface*  fSurface;
+    int         fFrameIndex;
+
+    bool operator<(const RenderedFrame& other) {
+        return fFrameIndex < other.fFrameIndex;
+    }
+};
+
+struct SurfacePool {
+    SkMutex fMutex;
+    SkTDArray<SkSurface*>   fSurfaces;
+    int                     fNextFrameIndexToGenerate = 0;
+    const int               fFrameCount;
+
+    SurfacePool(int frameCount) : fFrameCount(frameCount) {}
+
+    bool nextFrameToRender(RenderedFrame* frame) {
+        // need semaphore to sleep if we have no surfaces available...
+
+        SkAutoMutexExclusive ame(fMutex);
+
+        int count = fSurfaces.count();
+        SkSurface* surf = fSurfaces[count - 1];
+        fSurfaces.remove(count - 1);
+        frame->fSurface = surf;
+        frame->fFrameIndex = fNextFrameIndexToGenerate++;
+        return true;
+    }
+
+    void addToPool(SkSurface* surface) {
+        SkAutoMutexExclusive ame(fMutex);
+
+        SkASSERT(fSurfaces.find(surface) < 0);
+        *fSurfaces.append() = surface;
+    }
+};
+
+template <typename T> void binsert(SkTDArray<T>* array, const T& value) {
+    T* pos = std::lower_bound(array->begin(), array->end(), value);
+    *array->insert(pos - array->begin()) = value;
+}
+
+struct RenderedFrameQue {
+    SkMutex fMutex;
+    SkTDArray<RenderedFrame> fFrames;
+    SkVideoEncoder*          fEncoder;
+    SurfacePool*             fSurfacePool;
+    int                      fNextFrameIndexToEncode = 0;   // monotonic increasing
+
+    void enque(const RenderedFrame& frame) {
+        SkAutoMutexExclusive ame(fMutex);
+
+        binsert(&fFrames, frame);
+        while (fFrames.count() > 0 && fFrames[0].fFrameIndex == fNextFrameIndexToEncode) {
+            SkPixmap pm;
+            fFrames[0].fSurface->peekPixels(&pm);
+            fEncoder->addFrame(pm);
+            fSurfacePool->addToPool(fFrames[0].fSurface);
+            fFrames.remove(0);
+            fNextFrameIndexToEncode += 1;
+        }
+    }
+};
+
+struct SkottieRec {
+    sk_sp<skottie::Animation> fAnimation;
+    SurfacePool*              fProvider;
+    RenderedFrameQue*         fReceiver;
+
+    int fFrameCount;
+    int fFPS;
+
+    void run() {
+        RenderedFrame frame;
+        while (fProvider->nextFrameToRender(&frame)) {
+            double normal_time = frame.fFrameIndex * 1.0 / (fFrameCount - 1);
+
+            fAnimation->seek(normal_time);
+            frame.fSurface->getCanvas()->clear(SK_ColorWHITE);
+            fAnimation->render(frame.fSurface->getCanvas());
+            fReceiver->enque(frame);
+        }
+    }
+};
 
 struct AsyncRec {
     SkImageInfo info;
@@ -94,6 +181,14 @@ int main(int argc, char** argv) {
                  dim.width(), dim.height(), duration, fps, frame_duration);
     }
 
+    SkottieRec rec = {
+        assetPath,
+        FLAGS_input[0],
+        frames
+    };
+
+    SkTaskGroup().batch(thread_count, [rec](int index) {
+    })
     SkVideoEncoder encoder;
 
     GrContext* context = nullptr;
