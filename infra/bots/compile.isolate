@@ -12,6 +12,7 @@
       '../../bench',
       '../../bin/fetch-clang-format',
       '../../bin/fetch-gn',
+      '../../build_overrides/angle.gni',
       '../../build_overrides/dawn.gni',
       '../../buildtools',
       '../../dm',
