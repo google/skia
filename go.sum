@@ -1414,7 +1414,6 @@ golang.org/x/tools v0.0.0-20190930201159-7c411dea38b0 h1:7+F62GGWUowoiJOUDivedlB
 golang.org/x/tools v0.0.0-20190930201159-7c411dea38b0/go.mod h1:b+2E5dAYhXwXZwtnZ6UAqBI28+e2cm9otk0dWdXHAEo=
 golang.org/x/tools v0.0.0-20191001184121-329c8d646ebe h1:hFr8KcN0dM0/dqbUW0KZYN+YXJeZBpBWIG9ZkMuX1vQ=
 golang.org/x/tools v0.0.0-20191001184121-329c8d646ebe/go.mod h1:b+2E5dAYhXwXZwtnZ6UAqBI28+e2cm9otk0dWdXHAEo=
-golang.org/x/tools v0.0.0-20191002234911-9ade4c73f2af/go.mod h1:b+2E5dAYhXwXZwtnZ6UAqBI28+e2cm9otk0dWdXHAEo=
 golang.org/x/tools v0.0.0-20191005014404-c9f9432ec4b2/go.mod h1:b+2E5dAYhXwXZwtnZ6UAqBI28+e2cm9otk0dWdXHAEo=
 golang.org/x/tools/gopls v0.1.0/go.mod h1:p8Q0IUu6EEeGxqmoN/g6Et3gReLCGA7PtNRdyOxcWJE=
 golang.org/x/tools/gopls v0.1.1/go.mod h1:RYlHDmWjvTa1HuWNyEKa6/zzI2ums47cfsozmM0466w=
