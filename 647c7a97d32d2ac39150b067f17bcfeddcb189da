@@ -22,6 +22,30 @@
       "revId": "647c7a97d32d2ac39150b067f17bcfeddcb189da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36542465_a1937b7e",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 806,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-10-07T20:21:04Z",
+      "side": 0,
+      "message": "Yes, we shouldn\u0027t been setting that. It\u0027s meant for CPU-mapped objects where you\u0027re only writing on the CPU side, and Apple basically says don\u0027t use it unless you\u0027re seeing slowdowns otherwise.",
+      "parentUuid": "1bd4aa9d_e5236d4e",
+      "range": {
+        "startLine": 806,
+        "startChar": 4,
+        "endLine": 806,
+        "endChar": 52
+      },
+      "revId": "647c7a97d32d2ac39150b067f17bcfeddcb189da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
