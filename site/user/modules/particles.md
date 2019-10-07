@@ -43,6 +43,20 @@ Samples
     </figcaption>
   </figure>
   <figure>
+    <canvas id=fireworks width=400 height=400></canvas>
+    <figcaption>
+      <a href="https://particles.skia.org/b986ed92759cd66a36a3d589e6130931"
+         target=_blank rel=noopener>Fireworks</a>
+    </figcaption>
+  </figure>
+  <figure>
+    <canvas id=raincloud width=400 height=400></canvas>
+    <figcaption>
+      <a href="https://particles.skia.org/030d1403bbe69f7c4506d6f688e53487"
+         target=_blank rel=noopener>Raincloud</a>
+    </figcaption>
+  </figure>
+  <figure>
     <canvas id=text width=400 height=400></canvas>
     <figcaption>
       <a href="https://particles.skia.org/7c13116e4b61c18b828bfc281903efe8"
@@ -59,8 +73,7 @@ Samples
   var locate_file = '';
   if (window.WebAssembly && typeof window.WebAssembly.compile === 'function') {
     console.log('WebAssembly is supported!');
-//    locate_file = 'https://particles.skia.org/static/';
-    locate_file = 'https://unpkg.com/canvaskit-wasm@0.7.0/bin/';
+    locate_file = 'https://particles.skia.org/static/';
   } else {
     console.log('WebAssembly is not supported (yet) on this browser.');
     document.getElementById('demo').innerHTML = "<div>WASM not supported by your browser. Try a recent version of Chrome, Firefox, Edge, or Safari.</div>";
@@ -75,6 +88,8 @@ Samples
     CanvasKit = CK;
     ParticleExample(CanvasKit, 'confetti', confetti, 200, 200);
     ParticleExample(CanvasKit, 'curves', curves, 200, 200);
+    ParticleExample(CanvasKit, 'fireworks', fireworks, 200, 300);
+    ParticleExample(CanvasKit, 'raincloud', raincloud, 200, 100);
     ParticleExample(CanvasKit, 'text', text, 75, 250);
   });
 
@@ -222,6 +237,84 @@ const curves = {
    ]
 };
 
+const fireworks = {
+   "MaxCount": 1000,
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 1
+   },
+   "EffectCode": [
+      "void effectSpawn(inout Effect effect) {",
+      "  effect.lifetime = 2;",
+      "  effect.rate = 120;",
+      "  float a = radians(mix(-20, 20, rand) - 90);",
+      "  float s = mix(200, 220, rand);",
+      "  effect.vel.x = cos(a) * s;",
+      "  effect.vel.y = sin(a) * s;",
+      "  effect.color.rgb = float3(rand, rand, rand);",
+      "  effect.pos.x = 0;",
+      "  effect.pos.y = 0;",
+      "}",
+      "",
+      "void effectUpdate(inout Effect effect) {",
+      "  effect.vel.y += dt * 90;",
+      "}",
+      "",
+      "void effectDeath(inout Effect effect) {",
+      "  explode(false);",
+      "}",
+      ""
+   ],
+   "Code": [
+      "void spawn(inout Particle p) {",
+      "  p.lifetime = 0.5;",
+      "  float a = radians(rand * 360);",
+      "  float s = mix(5, 10, rand);",
+      "  p.vel.x = cos(a) * s;",
+      "  p.vel.y = sin(a) * s;",
+      "}",
+      "",
+      "void update(inout Particle p) {",
+      "  p.color.a = 1 - p.age;",
+      "}",
+      ""
+   ],
+   "Bindings": [
+      {
+         "Type": "SkEffectBinding",
+         "Name": "explode",
+         "MaxCount": 50,
+         "Drawable": {
+            "Type": "SkCircleDrawable",
+            "Radius": 3
+         },
+         "EffectCode": [
+            "void effectSpawn(inout Effect effect) {",
+            "  effect.burst = 50;",
+            "  effect.lifetime = 2.5;",
+            "}",
+            ""
+         ],
+         "Code": [
+            "void spawn(inout Particle p) {",
+            "  p.lifetime = 2 + rand * 0.5;",
+            "  float a = radians(rand * 360);",
+            "  float s = mix(90, 100, rand);",
+            "  p.vel.x = cos(a) * s;",
+            "  p.vel.y = sin(a) * s;",
+            "}",
+            "",
+            "void update(inout Particle p) {",
+            "  p.color.a = 1 - p.age;",
+            "  p.vel.y += dt * 50;",
+            "}",
+            ""
+         ],
+         "Bindings": []
+      }
+   ]
+};
+
 const raincloud = {
    "MaxCount": 128,
    "Drawable": {
@@ -274,7 +367,7 @@ const raincloud = {
          },
          "EffectCode": [
             "void effectSpawn(inout Effect effect) {",
-            "  effect.color = float4(1, 1, 1, 1);",
+            "  effect.color = float4(0.8, 0.8, 0.8, 1);",
             "  effect.rate = 30;",
             "}",
             ""
