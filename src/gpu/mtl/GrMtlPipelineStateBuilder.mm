@@ -421,12 +421,11 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
 
 bool GrMtlPipelineStateBuilder::Desc::Build(Desc* desc,
                                             GrRenderTarget* renderTarget,
-                                            const GrPrimitiveProcessor& primProc,
-                                            const GrPipeline& pipeline,
+                                            const GrProgramInfo& programInfo,
                                             GrPrimitiveType primitiveType,
                                             GrMtlGpu* gpu) {
-    if (!INHERITED::Build(desc, renderTarget, primProc,
-                          GrPrimitiveType::kLines == primitiveType, pipeline, gpu)) {
+    if (!GrProgramDesc::Build(desc, renderTarget, programInfo,
+                              GrPrimitiveType::kPoints == primitiveType, gpu)) {
         return false;
     }
 
@@ -444,7 +443,7 @@ bool GrMtlPipelineStateBuilder::Desc::Build(Desc* desc,
     b.add32((uint32_t)pipeline.isStencilEnabled());
     // Stencil samples don't seem to be tracked in the MTLRenderPipeline
 
-    b.add32(pipeline.getBlendInfoKey());
+    b.add32(programInfo.pipeline().getBlendInfoKey());
 
     b.add32((uint32_t)primitiveType);
 
