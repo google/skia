@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5700ebac_76cce33d",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-07T20:24:00Z",
+      "side": 1,
+      "message": "fPreferPrimaryOverSecondaryCommandBuffers ?",
+      "range": {
+        "startLine": 431,
+        "startChar": 8,
+        "endLine": 431,
+        "endChar": 66
+      },
+      "revId": "a5253efc052f8b9c3b0dbec53af4587573e371e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
