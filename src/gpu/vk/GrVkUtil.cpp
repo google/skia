@@ -177,44 +177,6 @@ bool GrInstallVkShaderModule(const GrVkGpu* gpu,
     return true;
 }
 
-size_t GrVkBytesPerFormat(VkFormat vkFormat) {
-    switch (vkFormat) {
-        case VK_FORMAT_R8_UNORM:
-            return 1;
-
-        case VK_FORMAT_R5G6B5_UNORM_PACK16:
-        case VK_FORMAT_R4G4B4A4_UNORM_PACK16:
-        case VK_FORMAT_B4G4R4A4_UNORM_PACK16:
-        case VK_FORMAT_R8G8_UNORM:
-        case VK_FORMAT_R16_SFLOAT:
-        case VK_FORMAT_R16_UNORM:
-            return 2;
-
-        case VK_FORMAT_R8G8B8_UNORM:
-            return 3;
-
-        case VK_FORMAT_R8G8B8A8_UNORM:
-        case VK_FORMAT_R8G8B8A8_SRGB:
-        case VK_FORMAT_B8G8R8A8_UNORM:
-        case VK_FORMAT_A2B10G10R10_UNORM_PACK32:
-        case VK_FORMAT_R16G16_UNORM:
-        case VK_FORMAT_R16G16_SFLOAT:
-            return 4;
-
-        case VK_FORMAT_R16G16B16A16_SFLOAT:
-        case VK_FORMAT_R16G16B16A16_UNORM:
-            return 8;
-
-        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
-            return 0;
-
-        default:
-            SK_ABORT("Invalid Vk format");
-    }
-
-    SK_ABORT("Invalid Vk format");
-}
-
 bool GrVkFormatIsCompressed(VkFormat vkFormat) {
     switch (vkFormat) {
         case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
