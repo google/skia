@@ -47,21 +47,30 @@ class SkZip {
         size_t fIndex = 0;
     };
 
+    template<typename T>
+    using make_nullptr = std::integral_constant<std::nullptr_t, nullptr>;
+
 public:
-    SkZip(size_t) = delete;
+    constexpr SkZip() : fPointers{make_nullptr<Ts*>::value...}, fSize{0} {}
+    constexpr SkZip(size_t) = delete;
     constexpr SkZip(size_t size, Ts*... ts)
             : fPointers{ts...}
             , fSize{size} {}
+    constexpr SkZip(const SkZip& that) = default;
 
-    template<typename... Us>
+    // Check to see if U can be used for const T or is the same as T
+    template <typename U, typename T>
+    using CanConvertToConst = typename std::integral_constant<bool,
+                    std::is_convertible<U*, T*>::value && sizeof(U) == sizeof(T)>::type;
+
+    // Allow SkZip<const T> to be constructed from SkZip<T>.
+    template<typename... Us,
+            typename = std::enable_if<skstd::conjunction<CanConvertToConst<Us, Ts>...>::value>>
     constexpr SkZip(const SkZip<Us...>& that)
-            : fPointers{that.fPointers}
-            , fSize{that.fSize} {}
+        : fPointers(that.data())
+        , fSize{that.size()} { }
 
-    constexpr ReturnTuple operator[](size_t i) const {
-        return this->index(i);
-    }
-
+    constexpr ReturnTuple operator[](size_t i) const { return this->index(i);}
     constexpr size_t size() const { return fSize; }
     constexpr bool empty() const { return this->size() == 0; }
     constexpr ReturnTuple front() const { return this->index(0); }
@@ -71,8 +80,17 @@ public:
     template<size_t I> constexpr auto get() const {
         return SkMakeSpan(std::get<I>(fPointers), fSize);
     }
+    constexpr std::tuple<Ts*...> data() const { return fPointers; }
+    constexpr SkZip first(size_t n) const {
+        SkASSERT(n <= this->size());
+        return SkZip{n, fPointers};
+    }
 
 private:
+    constexpr SkZip(size_t n, const std::tuple<Ts*...>& pointers)
+        : fPointers{pointers}
+        , fSize{n} {}
+
     constexpr ReturnTuple index(size_t i) const {
         SkASSERT(this->size() > 0);
         SkASSERT(i < this->size());
@@ -106,6 +124,14 @@ class SkMakeZipDetail {
         static constexpr value_type* Data(T(&t)[N]) { return t; }
         static constexpr size_t Size(T(&)[N]) { return N; }
     };
+    // In general, we don't want r-value collections, but SkSpans are ok, because they are a view
+    // onto an actual container.
+    template<typename T> struct ContiguousMemory<SkSpan<T>> {
+        using value_type = T;
+        static constexpr value_type* Data(SkSpan<T> s) { return s.data(); }
+        static constexpr size_t Size(SkSpan<T> s) { return s.size(); }
+    };
+    // Only accept l-value references to collections.
     template<typename C> struct ContiguousMemory<C&> {
         using value_type = typename std::remove_pointer<decltype(std::declval<C>().data())>::type;
         static constexpr value_type* Data(C& c) { return c.data(); }
@@ -122,6 +148,9 @@ class SkMakeZipDetail {
     };
     template <typename T, typename... Ts, size_t N> struct PickOneSize<T(&)[N], Ts...> {
         static constexpr size_t Size(T(&)[N], Ts...) { return N; }
+    };
+    template<typename T, typename... Ts> struct PickOneSize<SkSpan<T>, Ts...> {
+        static constexpr size_t Size(SkSpan<T> s, Ts...) { return s.size(); }
     };
     template<typename C, typename... Ts> struct PickOneSize<C&, Ts...> {
         static constexpr size_t Size(C& c, Ts...) { return c.size(); }
