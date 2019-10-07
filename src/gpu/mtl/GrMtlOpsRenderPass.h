@@ -44,16 +44,9 @@ public:
 private:
     GrGpu* gpu() override { return fGpu; }
 
-    GrMtlPipelineState* prepareDrawState(
-            const GrPrimitiveProcessor& primProc,
-            const GrPipeline& pipeline,
-            const GrPipeline::FixedDynamicState* fixedDynamicState,
-            GrPrimitiveType primType);
+    GrMtlPipelineState* prepareDrawState(const GrProgramInfo&, GrPrimitiveType);
 
-    void onDraw(const GrPrimitiveProcessor& primProc,
-                const GrPipeline& pipeline,
-                const GrPipeline::FixedDynamicState* fixedDynamicState,
-                const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+    void onDraw(const GrProgramInfo& programInfo,
                 const GrMesh mesh[],
                 int meshCount,
                 const SkRect& bounds) override;
