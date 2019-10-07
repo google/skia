@@ -8,9 +8,9 @@
       "--mmma_targets",
       "external/skia",
       "--issue",
-      "1234",
+      "456789",
       "--patchset",
-      "1"
+      "12"
     ],
     "name": "Trigger and wait for task on android compile server"
   },

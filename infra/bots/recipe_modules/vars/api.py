@@ -34,7 +34,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.cache_dir = self.slave_dir.join('cache')
 
     self.swarming_out_dir = self.slave_dir.join(
-        self.m.properties['swarm_out_dir'])
+        self.m.properties.get('swarm_out_dir', 'tmp'))
 
     self.tmp_dir = self.m.path['start_dir'].join('tmp')
 
