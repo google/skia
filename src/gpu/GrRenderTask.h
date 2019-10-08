@@ -29,6 +29,12 @@ public:
 
     void makeClosed(const GrCaps&);
 
+    void prePrepare() {
+        SkASSERT(!fPrePrepared);
+        fPrePrepared = true;
+        this->onPrePrepare();
+    }
+
     // These two methods are only invoked at flush time
     void prepare(GrOpFlushState* flushState);
     bool execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }
@@ -183,11 +189,14 @@ private:
         }
     };
 
-    virtual void onPrepare(GrOpFlushState* flushState) = 0;
+    virtual void onPrePrepare() {}; // Only the GrOpsTask currently overrides this virtual
+
+    virtual void onPrepare(GrOpFlushState*) {}; // Only the GrOpsTask overrides this virtual
     virtual bool onExecute(GrOpFlushState* flushState) = 0;
 
     const uint32_t         fUniqueID;
     uint32_t               fFlags;
+    bool                   fPrePrepared = false;
 
     // 'this' GrRenderTask relies on the output of the GrRenderTasks in 'fDependencies'
     SkSTArray<1, GrRenderTask*, true> fDependencies;
