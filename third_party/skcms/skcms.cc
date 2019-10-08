@@ -61,6 +61,80 @@ static float minus_1_ulp(float x) {
     return x;
 }
 
+// Most transfer functions we work with are sRGBish.
+// For exotic HDR transfer functions, we encode them using a tf.g that makes no sense,
+// and repurpose the other fields to hold the parameters of the HDR functions.
+enum TFKind { Bad, sRGBish, PQish, HLGish, HLGinvish };
+struct TF_PQish  { float A,B,C,D,E,F; };
+struct TF_HLGish { float R,G,a,b,c; };
+
+static float TFKind_marker(TFKind kind) {
+    // We'd use different NaNs, but those aren't guaranteed to be preserved by WASM.
+    return -(float)kind;
+}
+
+static TFKind classify(const skcms_TransferFunction& tf, TF_PQish*   pq = nullptr
+                                                       , TF_HLGish* hlg = nullptr) {
+    if (tf.g < 0 && (int)tf.g == tf.g) {
+        // TODO: sanity checks for PQ/HLG like we do for sRGBish.
+        switch (-(int)tf.g) {
+            case PQish:     if (pq ) { memcpy(pq , &tf.a, sizeof(*pq )); } return PQish;
+            case HLGish:    if (hlg) { memcpy(hlg, &tf.a, sizeof(*hlg)); } return HLGish;
+            case HLGinvish: if (hlg) { memcpy(hlg, &tf.a, sizeof(*hlg)); } return HLGinvish;
+        }
+        return Bad;
+    }
+
+    // Basic sanity checks for sRGBish transfer functions.
+    if (isfinitef_(tf.a + tf.b + tf.c + tf.d + tf.e + tf.f + tf.g)
+            // a,c,d,g should be non-negative to make any sense.
+            && tf.a >= 0
+            && tf.c >= 0
+            && tf.d >= 0
+            && tf.g >= 0
+            // Raising a negative value to a fractional tf->g produces complex numbers.
+            && tf.a * tf.d + tf.b >= 0) {
+        return sRGBish;
+    }
+
+    return Bad;
+}
+
+// TODO: temporary shim for old call sites
+static bool tf_is_valid(const skcms_TransferFunction* tf) {
+    return classify(*tf) == sRGBish;
+}
+
+
+bool skcms_TransferFunction_makePQish(skcms_TransferFunction* tf,
+                                      float A, float B, float C,
+                                      float D, float E, float F) {
+    *tf = { TFKind_marker(PQish), A,B,C,D,E,F };
+    assert(classify(*tf) == PQish);
+    return true;
+}
+
+float skcms_TransferFunction_eval(const skcms_TransferFunction* tf, float x) {
+    float sign = x < 0 ? -1.0f : 1.0f;
+    x *= sign;
+
+    TF_PQish pq;
+    switch (classify(*tf, &pq)) {
+        case Bad:       break;
+        case HLGish:    break;
+        case HLGinvish: break;
+
+        case sRGBish: return sign * (x < tf->d ?       tf->c * x + tf->f
+                                               : powf_(tf->a * x + tf->b, tf->g) + tf->e);
+
+        case PQish: return sign * powf_(fmaxf_(pq.A + pq.B * powf_(x, pq.C), 0)
+                                            / (pq.D + pq.E * powf_(x, pq.C)),
+                                        pq.F);
+    }
+    return 0;
+}
+
+
 static float eval_curve(const skcms_Curve* curve, float x) {
     if (curve->table_entries == 0) {
         return skcms_TransferFunction_eval(&curve->parametric, x);
@@ -253,25 +327,6 @@ static bool read_to_XYZD50(const skcms_ICCTag* rXYZ, const skcms_ICCTag* gXYZ,
     return read_tag_xyz(rXYZ, &toXYZ->vals[0][0], &toXYZ->vals[1][0], &toXYZ->vals[2][0]) &&
            read_tag_xyz(gXYZ, &toXYZ->vals[0][1], &toXYZ->vals[1][1], &toXYZ->vals[2][1]) &&
            read_tag_xyz(bXYZ, &toXYZ->vals[0][2], &toXYZ->vals[1][2], &toXYZ->vals[2][2]);
-}
-
-static bool tf_is_valid(const skcms_TransferFunction* tf) {
-    // Reject obviously malformed inputs
-    if (!isfinitef_(tf->a + tf->b + tf->c + tf->d + tf->e + tf->f + tf->g)) {
-        return false;
-    }
-
-    // All of these parameters should be non-negative
-    if (tf->a < 0 || tf->c < 0 || tf->d < 0 || tf->g < 0) {
-        return false;
-    }
-
-    // It's rather _complex_ to raise a negative number to a fractional power tf->g.
-    if (tf->a * tf->d + tf->b < 0) {
-        return false;
-    }
-
-    return true;
 }
 
 typedef struct {
@@ -1417,14 +1472,6 @@ float powf_(float x, float y) {
     assert (x >= 0);
     return (x == 0) || (x == 1) ? x
                                 : exp2f_(log2f_(x) * y);
-}
-
-float skcms_TransferFunction_eval(const skcms_TransferFunction* tf, float x) {
-    float sign = x < 0 ? -1.0f : 1.0f;
-    x *= sign;
-
-    return sign * (x < tf->d ? tf->c * x + tf->f
-                             : powf_(tf->a * x + tf->b, tf->g) + tf->e);
 }
 
 #if defined(__clang__)

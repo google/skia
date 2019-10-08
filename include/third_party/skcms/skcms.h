@@ -51,6 +51,50 @@ SKCMS_API float skcms_TransferFunction_eval  (const skcms_TransferFunction*, flo
 SKCMS_API bool  skcms_TransferFunction_invert(const skcms_TransferFunction*,
                                               skcms_TransferFunction*);
 
+// We can jam a couple alternate transfer function forms into skcms_TransferFunction,
+// including those matching the general form of the SMPTE ST 2084 PQ function and its inverse:
+//
+//                       max(A + B|x|^C, 0)
+//    tf(x) = sign(x) * (------------------) ^ F
+   //                       (D + E|x|^C)
+SKCMS_API bool skcms_TransferFunction_makePQish(skcms_TransferFunction*,
+                                                float A, float B, float C,
+                                                float D, float E, float F);
+
+static inline bool skcms_TransferFunction_makePQ(skcms_TransferFunction* tf) {
+    return skcms_TransferFunction_makePQish(tf, -107/128.0f,         1.0f,   32/2523.0f
+                                              , 2413/128.0f, -2392/128.0f, 8192/1305.0f);
+}
+static inline bool skcms_TransferFunction_makePQinv(skcms_TransferFunction* tf) {
+    return skcms_TransferFunction_makePQish(tf, 107/128.0f, 2413/128.0f, 1305/8192.0f
+                                              ,       1.0f, 2392/128.0f, 2523/  32.0f);
+}
+
+// skcms_TransferFunction also supports functions of the form of HLG's inverse...
+//
+//             { sign(linear) * ( R|linear|^G          ) when 0 <= |linear| <= 1
+//   encoded = { sign(linear) * ( a ln(|linear|-b) + c ) when 1 <  |linear|
+SKCMS_API bool skcms_TransferFunction_makeHLGinvish(skcms_TransferFunction*,
+                                                    float R, float G,
+                                                    float a, float b, float c);
+
+// ... and of the form of HLG itself, factored to take the same five parameters.
+//
+//            { sign(encoded) * ( (|encoded|/R)^(1/G) )        when 0 <= |encoded| <= R
+//   linear = { sign(encoded) * ( e^( (|encoded|-c)/a ) + b )  when R <  |encoded|
+SKCMS_API bool skcms_TransferFunction_makeHLGish(skcms_TransferFunction*,
+                                                float R, float G,
+                                                float a, float b, float c);
+
+static inline bool skcms_TransferFunction_makeHLG(skcms_TransferFunction* tf) {
+    return skcms_TransferFunction_makeHLGish(tf,
+            0.5f, 0.5f , 0.17883277f, 0.28466892f, 0.55991073f);
+}
+static inline bool skcms_TransferFunction_makeHLGinv(skcms_TransferFunction* tf) {
+    return skcms_TransferFunction_makeHLGinvish(tf,
+            0.5f, 0.5f , 0.17883277f, 0.28466892f, 0.55991073f);
+}
+
 // Unified representation of 'curv' or 'para' tag data, or a 1D table from 'mft1' or 'mft2'
 typedef union skcms_Curve {
     struct {
