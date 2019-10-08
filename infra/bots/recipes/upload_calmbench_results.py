@@ -39,8 +39,6 @@ def RunSteps(api):
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
   api.flavor.setup()
 
-  builder_name = api.properties['buildername']
-
   now = api.time.utcnow()
 
   json_src = FindFile(api, "json")
@@ -52,12 +50,11 @@ def RunSteps(api):
   gs_path = '/'.join((
       'calmbench-v1', str(now.year).zfill(4),
       str(now.month).zfill(2), str(now.day).zfill(2), str(now.hour).zfill(2),
-      builder_name))
+      api.vars.builder_name))
 
-  issue = api.properties.get('patch_issue')
-  patchset = api.properties.get('patch_set')
-  if issue and patchset:
-    gs_path = '/'.join(('trybot', gs_path, str(issue), str(patchset)))
+  if api.vars.is_trybot:
+    gs_path = '/'.join(('trybot', gs_path,
+                        str(api.vars.issue), str(api.vars.patchset)))
 
   dst = '/'.join((
       'gs://%s' % api.properties['gs_bucket'], gs_path, basename))
@@ -89,16 +86,14 @@ def GenTests(api):
 
   yield (
     api.test('trybot') +
+    api.properties.tryserver(
+        gerrit_project='skia',
+        gerrit_url='https://skia-review.googlesource.com/',
+    ) +
     api.properties(buildername=builder,
                    repository='https://skia.googlesource.com/skia.git',
                    gs_bucket='skia-calmbench',
                    swarm_out_dir='[SWARM_OUT_DIR]',
                    revision='abc123',
-                   path_config='kitchen',
-                   patch_storage='gerrit') +
-    api.properties.tryserver(
-        buildername=builder,
-        gerrit_project='skia',
-        gerrit_url='https://skia-review.googlesource.com/',
-    )
+                   path_config='kitchen')
   )

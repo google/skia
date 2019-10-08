@@ -13,6 +13,7 @@ DEPS = [
   'recipe_engine/properties',
   'recipe_engine/raw_io',
   'recipe_engine/step',
+  'vars',
 ]
 
 CF_X86_PHONE_ENG_LUNCH_TARGET = 'cf_x86_phone-eng'
@@ -26,24 +27,23 @@ LUNCH_TARGET_TO_MMMA_TARGETS = {
 
 
 def RunSteps(api):
-  buildername = api.properties['buildername']
-  issue = api.properties.get('patch_issue')
-  patchset = api.properties.get('patch_set')
-  if not issue or not patchset:
+  api.vars.setup()
+  if not api.vars.is_trybot:
     # This bot currently only supports trybot runs because:
     # Non-trybot runs could fail if the Android tree is red. We mitigate this
     # for trybot runs by verifying that runs without the patch succeed. We do
     # not currently have a way to do the same for non-trybot runs.
-    raise Exception('%s can only be run as a trybot.' % buildername)
+    raise Exception('%s can only be run as a trybot.' % api.vars.builder_name)
 
-  if CF_X86_PHONE_ENG_LUNCH_TARGET in buildername:
+  if CF_X86_PHONE_ENG_LUNCH_TARGET in api.vars.builder_name:
     lunch_target = CF_X86_PHONE_ENG_LUNCH_TARGET
     mmma_targets = LUNCH_TARGET_TO_MMMA_TARGETS[lunch_target]
-  elif SDK_LUNCH_TARGET in buildername:
+  elif SDK_LUNCH_TARGET in api.vars.builder_name:
     lunch_target = SDK_LUNCH_TARGET
     mmma_targets = LUNCH_TARGET_TO_MMMA_TARGETS[SDK_LUNCH_TARGET]
   else:
-    raise Exception('Lunch target in %s is not recognized.' % buildername)
+    raise Exception('Lunch target in %s is not recognized.' %
+                    api.vars.builder_name)
 
   infrabots_dir = api.path['start_dir'].join('skia', 'infra', 'bots')
   trigger_wait_ac_script = infrabots_dir.join('android_compile',
@@ -54,15 +54,15 @@ def RunSteps(api):
   cmd = ['python', trigger_wait_ac_script,
          '--lunch_target', lunch_target,
          '--mmma_targets', mmma_targets,
-         '--issue', issue,
-         '--patchset', patchset,
+         '--issue', api.vars.issue,
+         '--patchset', api.vars.patchset,
         ]
   try:
     api.step('Trigger and wait for task on android compile server', cmd=cmd)
   except api.step.StepFailure as e:
     # Add withpatch and nopatch logs as links (if they exist).
     gs_file = 'gs://android-compile-tasks/%s-%s-%s.json' % (
-        lunch_target, issue, patchset)
+        lunch_target, api.vars.issue, api.vars.patchset)
     step_result = api.step('Get task log links',
                            ['gsutil', 'cat', gs_file],
                            stdout=api.json.output())
@@ -82,50 +82,58 @@ def RunSteps(api):
 def GenTests(api):
   yield(
     api.test('android_compile_trybot') +
+    api.properties.tryserver(
+          gerrit_project='skia',
+          gerrit_url='https://skia-review.googlesource.com/',
+    ) +
     api.properties(
         buildername='Build-Debian9-Clang-cf_x86_phone-eng-Android_Framework',
         path_config='kitchen',
         swarm_out_dir='[SWARM_OUT_DIR]',
         repository='https://skia.googlesource.com/skia.git',
-        patch_issue=1234,
-        patch_set=1,
     )
   )
 
   yield(
     api.test('android_compile_sdk_trybot') +
+    api.properties.tryserver(
+          gerrit_project='skia',
+          gerrit_url='https://skia-review.googlesource.com/',
+    ) +
     api.properties(
         buildername='Build-Debian9-Clang-host-sdk-Android_Framework',
         path_config='kitchen',
         swarm_out_dir='[SWARM_OUT_DIR]',
         repository='https://skia.googlesource.com/skia.git',
-        patch_issue=1234,
-        patch_set=1,
     )
   )
 
   yield(
     api.test('android_compile_unrecognized_target') +
+    api.properties.tryserver(
+          gerrit_project='skia',
+          gerrit_url='https://skia-review.googlesource.com/',
+    ) +
     api.properties(
         buildername='Build-Debian9-Clang-unrecognized-Android_Framework',
         path_config='kitchen',
         swarm_out_dir='[SWARM_OUT_DIR]',
         repository='https://skia.googlesource.com/skia.git',
-        patch_issue=1234,
-        patch_set=1,
     ) +
     api.expect_exception('Exception')
   )
 
   yield(
     api.test('android_compile_trybot_failure') +
+    api.properties.tryserver(
+          gerrit_project='skia',
+          gerrit_url='https://skia-review.googlesource.com/',
+    ) +
     api.properties(
         buildername='Build-Debian9-Clang-cf_x86_phone-eng-Android_Framework',
         path_config='kitchen',
         swarm_out_dir='[SWARM_OUT_DIR]',
         repository='https://skia.googlesource.com/skia.git',
-        patch_issue=1234,
-        patch_set=1,
     ) +
     api.step_data('Trigger and wait for task on android compile server',
                   retcode=1) +
