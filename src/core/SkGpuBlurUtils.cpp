@@ -197,12 +197,9 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
     // the proxyOffset, which is why keeping them separate is convenient.
     SkIRect midRect = *contentRect, leftRect, rightRect;
     midRect.offset(srcOffset);
-    SkIRect topRect, bottomRect;
     if (Direction::kX == direction) {
         bounds[0] = contentRect->left() + proxyOffset.x();
         bounds[1] = contentRect->right() + proxyOffset.x();
-        topRect = SkIRect::MakeLTRB(0, 0, dstRect.right(), midRect.top());
-        bottomRect = SkIRect::MakeLTRB(0, midRect.bottom(), dstRect.right(), dstRect.bottom());
         midRect.inset(radius, 0);
         leftRect = SkIRect::MakeLTRB(0, midRect.top(), midRect.left(), midRect.bottom());
         rightRect =
@@ -217,8 +214,6 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
     } else {
         bounds[0] = contentRect->top() + proxyOffset.y();
         bounds[1] = contentRect->bottom() + proxyOffset.y();
-        topRect = SkIRect::MakeLTRB(0, 0, midRect.left(), dstRect.bottom());
-        bottomRect = SkIRect::MakeLTRB(midRect.right(), 0, dstRect.right(), dstRect.bottom());
         midRect.inset(0, radius);
         leftRect = SkIRect::MakeLTRB(midRect.left(), 0, midRect.right(), midRect.top());
         rightRect =
@@ -230,15 +225,6 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
         contentRect->fTop = dstRect.fTop;
         contentRect->fRight = midRect.fRight;
         contentRect->fBottom = dstRect.fBottom;
-    }
-    if (!topRect.isEmpty()) {
-        dstRenderTargetContext->clear(&topRect, SK_PMColor4fTRANSPARENT,
-                                      GrRenderTargetContext::CanClearFullscreen::kNo);
-    }
-
-    if (!bottomRect.isEmpty()) {
-        dstRenderTargetContext->clear(&bottomRect, SK_PMColor4fTRANSPARENT,
-                                      GrRenderTargetContext::CanClearFullscreen::kNo);
     }
 
     if (midRect.isEmpty()) {
