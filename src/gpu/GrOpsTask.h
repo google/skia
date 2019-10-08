@@ -50,6 +50,7 @@ public:
      */
     void endFlush() override;
 
+    void onPrePrepare() override;
     /**
      * Together these two functions flush all queued up draws to GrCommandBuffer. The return value
      * of executeOps() indicates whether any commands were actually issued to the GPU.

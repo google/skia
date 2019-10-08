@@ -391,6 +391,26 @@ void GrOpsTask::endFlush() {
     fAuditTrail = nullptr;
 }
 
+void GrOpsTask::onPrePrepare() {
+    SkASSERT(this->isClosed());
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+#endif
+    // TODO: remove the check for discard here once reduced op splitting is turned on. Currently we
+    // can end up with GrOpsTasks that only have a discard load op and no ops. For vulkan validation
+    // we need to keep that discard and not drop it. Once we have reduce op list splitting enabled
+    // we shouldn't end up with GrOpsTasks with only discard.
+    if (this->isNoOp() || (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
+        return;
+    }
+
+    for (const auto& chain : fOpChains) {
+        if (chain.shouldExecute()) {
+            chain.head()->prePrepare();
+        }
+    }
+}
+
 void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
     SkASSERT(fTarget->peekRenderTarget());
     SkASSERT(this->isClosed());
@@ -418,6 +438,7 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
                                           chain.dstProxy());
 
             flushState->setOpArgs(&opArgs);
+            // GrOp::prePrepare may or may not have been called at this point
             chain.head()->prepare(flushState);
             flushState->setOpArgs(nullptr);
         }

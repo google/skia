@@ -577,6 +577,10 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
 
     fDAG.swap(&ddl->fRenderTasks);
 
+    for (auto renderTask : ddl->fRenderTasks) {
+        renderTask->prePrepare();
+    }
+
     if (fPathRendererChain) {
         if (auto ccpr = fPathRendererChain->getCoverageCountingPathRenderer()) {
             ddl->fPendingPaths = ccpr->detachPendingPaths();

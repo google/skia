@@ -282,7 +282,8 @@ private:
             , fQuads(1, true /* includes locals */)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fSaturate(static_cast<unsigned>(saturate))
-            , fFilter(static_cast<unsigned>(filter)) {
+            , fFilter(static_cast<unsigned>(filter))
+            , fPrePrepared(false) {
         // Clean up disparities between the overall aa type and edge configuration and apply
         // optimizations based on the rect and matrix when appropriate
         GrQuadUtils::ResolveAAType(aaType, aaFlags, dstQuad, &aaType, &aaFlags);
@@ -319,7 +320,8 @@ private:
             , fQuads(cnt, true /* includes locals */)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fSaturate(static_cast<unsigned>(saturate))
-            , fFilter(static_cast<unsigned>(filter)) {
+            , fFilter(static_cast<unsigned>(filter))
+            , fPrePrepared(false) {
         fProxyCnt = SkToUInt(cnt);
         SkRect bounds = SkRectPriv::MakeLargestInverted();
         GrAAType overallAAType = GrAAType::kNone; // aa type maximally compatible with all dst rects
@@ -425,6 +427,13 @@ private:
         }
     }
 
+    void onPrePrepareDraws() override {
+        SkASSERT(!fPrePrepared);
+        // Pull forward the tessellation of the quads to here
+        fPrePrepared = true;
+    }
+
+    // onPrePrepareDraws may or may not have been called at this point
     void onPrepareDraws(Target* target) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
         GrQuad::Type quadType = GrQuad::Type::kAxisAligned;
@@ -555,6 +564,13 @@ private:
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
         const auto* that = t->cast<TextureOp>();
+
+        if (fPrePrepared || that->fPrePrepared) {
+            // This should never happen (since only DDL recorded ops should be prePrepared)
+            // but, in any case, we should never combine ops that that been prePrepared
+            return CombineResult::kCannotCombine;
+        }
+
         if (fDomain != that->fDomain) {
             // It is technically possible to combine operations across domain modes, but performance
             // testing suggests it's better to make more draw calls where some take advantage of
@@ -615,7 +631,8 @@ private:
     unsigned fDomain : 1;
     unsigned fColorType : 2;
     GR_STATIC_ASSERT(GrQuadPerEdgeAA::kColorTypeCount <= 4);
-    unsigned fProxyCnt : 32 - 8;
+    unsigned fPrePrepared : 1;
+    unsigned fProxyCnt : 32 - 7;
     Proxy fProxies[1];
 
     static_assert(GrQuad::kTypeCount <= 4, "GrQuad::Type does not fit in 2 bits");
