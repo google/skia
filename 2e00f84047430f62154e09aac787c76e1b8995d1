@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d9bae08_5752b709",
+        "filename": "src/effects/imagefilters/SkMorphologyImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-10-08T11:48:33Z",
+      "side": 1,
+      "message": "Feels like length() produces overly pessimistic results (e.g. rotation or high skew)... wouldn\u0027t a std:abs() on top of original approach solve the negative scale problem?",
+      "range": {
+        "startLine": 77,
+        "startChar": 26,
+        "endLine": 77,
+        "endChar": 78
+      },
+      "revId": "2e00f84047430f62154e09aac787c76e1b8995d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
