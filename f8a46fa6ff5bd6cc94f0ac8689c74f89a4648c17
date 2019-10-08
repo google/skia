@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e7c71ba2_4aab04bf",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-08T20:11:13Z",
+      "side": 1,
+      "message": "nit: maybe cleaner to put this outside the switch?",
+      "range": {
+        "startLine": 147,
+        "startChar": 0,
+        "endLine": 147,
+        "endChar": 50
+      },
+      "revId": "f8a46fa6ff5bd6cc94f0ac8689c74f89a4648c17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71269d8a_d3d76a16",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-08T20:11:13Z",
+      "side": 1,
+      "message": "Could this be GrCaps::clampToBorderSupport()? When the kDecal can be hardware supported, it should be just as fast. Or does this really only apply to the left/top edges, so there\u0027d still be the decal shader added for the right/bottom?",
+      "range": {
+        "startLine": 156,
+        "startChar": 19,
+        "endLine": 156,
+        "endChar": 24
+      },
+      "revId": "f8a46fa6ff5bd6cc94f0ac8689c74f89a4648c17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a8b7500_543ce658",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-08T20:11:13Z",
+      "side": 1,
+      "message": "Should it be SkMinScalar/SkMaxScalar vs. using the std:: functions?",
+      "range": {
+        "startLine": 226,
+        "startChar": 28,
+        "endLine": 226,
+        "endChar": 36
+      },
+      "revId": "f8a46fa6ff5bd6cc94f0ac8689c74f89a4648c17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3becab09_7f88b4b0",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-08T20:11:13Z",
+      "side": 1,
+      "message": "This should be (domainMode \u003d\u003d kDecal_Mode || textureWrapMode \u003d\u003d GrSamplerState::kDecal), since the last arg has to be true if any type of sampling can produce transparent black.",
+      "range": {
+        "startLine": 218,
+        "startChar": 47,
+        "endLine": 218,
+        "endChar": 89
+      },
+      "revId": "f8a46fa6ff5bd6cc94f0ac8689c74f89a4648c17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
