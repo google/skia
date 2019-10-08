@@ -301,7 +301,11 @@ private:
 class InternalLineMetrics {
 public:
 
-    InternalLineMetrics() { clean(); }
+    InternalLineMetrics() {
+        clean();
+        fForceStrut = false;
+    }
+
     InternalLineMetrics(bool forceStrut) {
         clean();
         fForceStrut = forceStrut;
