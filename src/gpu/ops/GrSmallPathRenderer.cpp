@@ -315,7 +315,7 @@ private:
         int fInstancesToFlush;
     };
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws1(Target* target) override {
         int instanceCount = fShapes.count();
 
         static constexpr int kMaxTextures = GrDistanceFieldPathGeoProc::kMaxTextures;

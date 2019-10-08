@@ -45,7 +45,7 @@ public:
         // TODO: make use of texture chaining.
         return CombineResult::kCannotCombine;
     }
-    void onPrepare(GrOpFlushState*) override {}
+    void onPrepare1(GrOpFlushState*) override {}
 
     static std::unique_ptr<GrDrawOp> Make(
             GrRecordingContext*, sk_sp<const GrCCPerFlushResources>, FillBatchID, StrokeBatchID,

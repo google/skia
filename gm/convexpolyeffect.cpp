@@ -105,7 +105,7 @@ private:
         this->setBounds(sorted_rect(fRect), HasAABloat::kNo, IsHairline::kNo);
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws1(Target* target) override {
         using namespace GrDefaultGeoProcFactory;
 
         Color color(fColor);

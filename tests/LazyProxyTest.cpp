@@ -116,7 +116,7 @@ public:
                                           bool hasMixedSampledCoverage, GrClampType) override {
             return GrProcessorSet::EmptySetAnalysis();
         }
-        void onPrepare(GrOpFlushState*) override {}
+        void onPrepare1(GrOpFlushState*) override {}
 
         LazyProxyTest* const fTest;
         sk_sp<GrTextureProxy> fProxy;
@@ -367,7 +367,7 @@ private:
                                       bool hasMixedSampledCoverage, GrClampType) override {
         return GrProcessorSet::EmptySetAnalysis();
     }
-    void onPrepare(GrOpFlushState*) override {}
+    void onPrepare1(GrOpFlushState*) override {}
     void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override {
         *fTestExecuteValue = 2;
     }

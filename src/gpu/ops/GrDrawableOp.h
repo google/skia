@@ -40,7 +40,7 @@ private:
     CombineResult onCombineIfPossible(GrOp* that, const GrCaps& caps) override {
         return CombineResult::kCannotCombine;
     }
-    void onPrepare(GrOpFlushState*) override {}
+    void onPrepare1(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 

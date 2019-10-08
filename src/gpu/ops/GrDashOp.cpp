@@ -324,7 +324,7 @@ private:
         bool fHasEndRect;
     };
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws1(Target* target) override {
         int instanceCount = fLines.count();
         SkPaint::Cap cap = this->cap();
         bool isRoundCap = SkPaint::kRound_Cap == cap;

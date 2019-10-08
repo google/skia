@@ -731,7 +731,7 @@ public:
     }
 
 private:
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws1(Target* target) override {
         int instanceCount = fPaths.count();
 
         SkMatrix invert;

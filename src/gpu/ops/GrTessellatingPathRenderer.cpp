@@ -330,7 +330,7 @@ private:
                            allocator.firstVertex(), count);
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws1(Target* target) override {
         sk_sp<GrGeometryProcessor> gp;
         {
             using namespace GrDefaultGeoProcFactory;

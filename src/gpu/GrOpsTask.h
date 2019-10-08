@@ -54,7 +54,8 @@ public:
      * Together these two functions flush all queued up draws to GrCommandBuffer. The return value
      * of executeOps() indicates whether any commands were actually issued to the GPU.
      */
-    void onPrepare(GrOpFlushState* flushState) override;
+    void onPrePrepare() override;
+    void onPrepare1(GrOpFlushState* flushState) override;
     bool onExecute(GrOpFlushState* flushState) override;
 
     void addSampledTexture(GrTextureProxy* proxy) {

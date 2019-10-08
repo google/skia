@@ -122,7 +122,7 @@ private:
                         HasAABloat::kNo, IsHairline::kNo);
     }
 
-    void onPrepare(GrOpFlushState*) override {}
+    void onPrepare1(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override {
         for (auto& op : ChainRange<TestOp>(this)) {
@@ -226,7 +226,8 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                                   *context->priv().caps());
                 }
                 opsTask.makeClosed(*context->priv().caps());
-                opsTask.prepare(&flushState);
+                opsTask.prePrepare();
+                opsTask.prepare1(&flushState);
                 opsTask.execute(&flushState);
                 opsTask.endFlush();
 #if 0  // Useful to repeat a random configuration that fails the test while debugger attached.

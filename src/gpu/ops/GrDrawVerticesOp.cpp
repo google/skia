@@ -47,7 +47,7 @@ private:
         kSkColor,
     };
 
-    void onPrepareDraws(Target*) override;
+    void onPrepareDraws1(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
     void drawVolatile(Target*);
@@ -271,7 +271,7 @@ sk_sp<GrGeometryProcessor> DrawVerticesOp::makeGP(const GrShaderCaps* shaderCaps
                                             vm);
 }
 
-void DrawVerticesOp::onPrepareDraws(Target* target) {
+void DrawVerticesOp::onPrepareDraws1(Target* target) {
     bool hasMapBufferSupport = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
     if (fMeshes[0].fVertices->isVolatile() || !hasMapBufferSupport) {
         this->drawVolatile(target);

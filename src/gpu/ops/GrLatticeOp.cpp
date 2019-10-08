@@ -210,7 +210,7 @@ public:
     }
 
 private:
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws1(Target* target) override {
         GrGpu* gpu = target->resourceProvider()->priv().gpu();
         auto gp = LatticeGP::Make(gpu, fProxy.get(), fColorSpaceXform, fFilter, fWideColor);
         if (!gp) {

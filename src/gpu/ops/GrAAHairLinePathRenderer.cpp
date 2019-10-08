@@ -849,7 +849,7 @@ public:
     }
 
 private:
-    void onPrepareDraws(Target*) override;
+    void onPrepareDraws1(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
     typedef SkTArray<SkPoint, true> PtArray;
@@ -913,7 +913,7 @@ private:
 
 }  // anonymous namespace
 
-void AAHairlineOp::onPrepareDraws(Target* target) {
+void AAHairlineOp::onPrepareDraws1(Target* target) {
     // Setup the viewmatrix and localmatrix for the GrGeometryProcessor.
     SkMatrix invert;
     if (!this->viewMatrix().invert(&invert)) {

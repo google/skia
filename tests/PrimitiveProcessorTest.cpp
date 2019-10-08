@@ -54,7 +54,7 @@ private:
         this->setBounds(SkRect::MakeWH(1.f, 1.f), HasAABloat::kNo, IsHairline::kNo);
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws1(Target* target) override {
         class GP : public GrGeometryProcessor {
         public:
             GP(int numAttribs) : INHERITED(kGP_ClassID), fNumAttribs(numAttribs) {

@@ -146,7 +146,7 @@ private:
                                       bool hasMixedSampledCoverage, GrClampType) override {
         return GrProcessorSet::EmptySetAnalysis();
     }
-    void onPrepare(GrOpFlushState* flushState) override {
+    void onPrepare1(GrOpFlushState* flushState) override {
         SkPoint vertices[4] = {
             {100, fY},
             {0, fY+100},

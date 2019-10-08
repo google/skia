@@ -113,7 +113,7 @@ private:
         int fVertexOffset;
     };
 
-    void onPrepareDraws(Target*) override;
+    void onPrepareDraws1(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
     GrMaskFormat maskFormat() const {

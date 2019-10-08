@@ -228,7 +228,7 @@ private:
         target->recordDraw(std::move(gp), mesh);
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws1(Target* target) override {
         // Setup GrGeometryProcessor
         sk_sp<GrGeometryProcessor> gp(create_lines_only_gp(target->caps().shaderCaps(),
                                                            fHelper.compatibleWithCoverageAsAlpha(),

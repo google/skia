@@ -48,7 +48,7 @@ public:
                                       bool hasMixedSampledCoverage, GrClampType) override;
 
 private:
-    void onPrepareDraws(Target*) override;
+    void onPrepareDraws1(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
     const SkPMColor4f& color() const { return fColor; }
@@ -182,7 +182,7 @@ SkString DrawAtlasOp::dumpInfo() const {
 }
 #endif
 
-void DrawAtlasOp::onPrepareDraws(Target* target) {
+void DrawAtlasOp::onPrepareDraws1(Target* target) {
     // Setup geometry processor
     sk_sp<GrGeometryProcessor> gp(make_gp(target->caps().shaderCaps(),
                                           this->hasColors(),

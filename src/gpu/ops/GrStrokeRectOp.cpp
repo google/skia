@@ -175,7 +175,7 @@ public:
     }
 
 private:
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws1(Target* target) override {
         sk_sp<GrGeometryProcessor> gp;
         {
             using namespace GrDefaultGeoProcFactory;
@@ -422,7 +422,7 @@ public:
     }
 
 private:
-    void onPrepareDraws(Target*) override;
+    void onPrepareDraws1(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
     static const int kMiterIndexCnt = 3 * 24;
@@ -468,7 +468,7 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-void AAStrokeRectOp::onPrepareDraws(Target* target) {
+void AAStrokeRectOp::onPrepareDraws1(Target* target) {
     sk_sp<GrGeometryProcessor> gp(create_aa_stroke_rect_gp(target->caps().shaderCaps(),
                                                            fHelper.compatibleWithCoverageAsAlpha(),
                                                            this->viewMatrix(),

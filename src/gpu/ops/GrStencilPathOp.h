@@ -55,7 +55,7 @@ private:
         this->setBounds(fPath->getBounds(), HasAABloat::kNo, IsHairline::kNo);
     }
 
-    void onPrepare(GrOpFlushState*) override {}
+    void onPrepare1(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 

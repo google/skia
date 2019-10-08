@@ -91,7 +91,7 @@ protected:
     SkRect      fRect;
 
 private:
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws1(Target* target) override {
         using namespace GrDefaultGeoProcFactory;
 
         // The vertex attrib order is always pos, color, local coords.

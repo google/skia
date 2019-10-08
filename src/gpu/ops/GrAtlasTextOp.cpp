@@ -275,7 +275,7 @@ static void clip_quads(const SkIRect& clipRect, char* currVertex, const char* bl
     }
 }
 
-void GrAtlasTextOp::onPrepareDraws(Target* target) {
+void GrAtlasTextOp::onPrepareDraws1(Target* target) {
     auto resourceProvider = target->resourceProvider();
 
     // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix.

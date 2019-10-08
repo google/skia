@@ -186,7 +186,7 @@ private:
             const GrRenderTargetContext::QuadSetEntry quads[], int quadCount,
             const GrUserStencilSettings*);
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws1(Target* target) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
         using Domain = GrQuadPerEdgeAA::Domain;

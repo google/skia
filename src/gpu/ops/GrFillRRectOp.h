@@ -32,7 +32,7 @@ public:
     void visitProxies(const VisitProxyFunc& fn) const override {
         fProcessors.visitProxies(fn);
     }
-    void onPrepare(GrOpFlushState*) override;
+    void onPrepare1(GrOpFlushState*) override;
 
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
