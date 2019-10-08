@@ -487,6 +487,11 @@ def dm_flags(api, bot):
     # skia:7160
     blacklist('_ test _ SRGBReadWritePixels')
     blacklist('_ test _ SRGBMipMap')
+    # skia:9517
+    blacklist('_ test _ CharacterizationBackendAllocationTest')
+    blacklist('_ test _ ColorTypeBackendAllocationTest')
+    blacklist('_ test _ GLBackendAllocationTest')
+    blacklist('_ test _ VKBackendAllocationTest')
 
   if api.vars.internal_hardware_label == '5':
     # http://b/118312149#comment9
