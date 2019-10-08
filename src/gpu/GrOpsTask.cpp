@@ -391,7 +391,15 @@ void GrOpsTask::endFlush() {
     fAuditTrail = nullptr;
 }
 
-void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
+void GrOpsTask::onPrePrepare() {
+    for (const auto& chain : fOpChains) {
+        if (chain.shouldExecute()) {
+            chain.head()->prePrepare();
+        }
+    }
+}
+
+void GrOpsTask::onPrepare2(GrOpFlushState* flushState) {
     SkASSERT(fTarget->peekRenderTarget());
     SkASSERT(this->isClosed());
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -419,7 +427,7 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
                 chain.dstProxy());
 
             flushState->setOpArgs(&opArgs);
-            chain.head()->prepare(flushState);
+            chain.head()->prepare1(flushState);
             flushState->setOpArgs(nullptr);
         }
     }

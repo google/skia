@@ -154,10 +154,16 @@ public:
     }
 
     /**
+     * Called before 'prepare' but after sorting. This is, currently, intended to allow
+     * DDLs to pull more work forward thus it doesn't get a flush state.
+     */
+    void prePrepare() { this->onPrePrepare(); }
+
+    /**
      * Called prior to executing. The op should perform any resource creation or data transfers
      * necessary before execute() is called.
      */
-    void prepare(GrOpFlushState* state) { this->onPrepare(state); }
+    void prepare1(GrOpFlushState* state) { this->onPrepare(state); }
 
     /** Issues the op's commands to GrGpu. */
     void execute(GrOpFlushState* state, const SkRect& chainBounds) {
@@ -282,6 +288,7 @@ private:
         return CombineResult::kCannotCombine;
     }
 
+    virtual void onPrePrepare() {}  // Only GrMeshDrawOp currently overrides this virtual
     virtual void onPrepare(GrOpFlushState*) = 0;
     // If this op is chained then chainBounds is the union of the bounds of all ops in the chain.
     // Otherwise, this op's bounds.

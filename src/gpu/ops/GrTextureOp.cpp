@@ -425,6 +425,11 @@ private:
         }
     }
 
+    void onPrePrepareDraws() override {
+        // Do something clever here
+    }
+
+    //$$
     void onPrepareDraws(Target* target) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
         GrQuad::Type quadType = GrQuad::Type::kAxisAligned;

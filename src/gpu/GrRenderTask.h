@@ -29,8 +29,15 @@ public:
 
     void makeClosed(const GrCaps&);
 
+    bool fPrePrepared = false;
+
+    void prePrepare() {
+        SkASSERT(!fPrePrepared);
+        fPrePrepared = true;
+        this->onPrePrepare();
+    }
     // These two methods are only invoked at flush time
-    void prepare(GrOpFlushState* flushState);
+    void prepare1(GrOpFlushState* flushState);
     bool execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }
 
     // Called when this class will survive a flush and needs to truncate its ops and start over.
@@ -183,7 +190,9 @@ private:
         }
     };
 
-    virtual void onPrepare(GrOpFlushState* flushState) = 0;
+    virtual void onPrePrepare() {};
+
+    virtual void onPrepare2(GrOpFlushState* flushState) = 0;
     virtual bool onExecute(GrOpFlushState* flushState) = 0;
 
     const uint32_t         fUniqueID;
