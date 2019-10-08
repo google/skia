@@ -569,13 +569,17 @@ void GrDrawingManager::testingOnly_removeOnFlushCallbackObject(GrOnFlushCallback
 #endif
 
 void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
-    SkDEBUGCODE(this->validate());
+   SkDEBUGCODE(this->validate());
 
     // no renderTask should receive a new command after this
     fDAG.closeAll(fContext->priv().caps());
     fActiveOpsTask = nullptr;
 
     fDAG.swap(&ddl->fRenderTasks);
+
+    for (auto renderTask : ddl->fRenderTasks) {
+        renderTask->prePrepare();
+    }
 
     if (fPathRendererChain) {
         if (auto ccpr = fPathRendererChain->getCoverageCountingPathRenderer()) {

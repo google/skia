@@ -29,6 +29,10 @@ public:
 
     void makeClosed(const GrCaps&);
 
+    void prePrepare() {
+        this->onPrePrepare();
+    }
+
     // These two methods are only invoked at flush time
     void prepare(GrOpFlushState* flushState);
     bool execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }
@@ -141,10 +145,10 @@ private:
     static uint32_t CreateUniqueID();
 
     enum Flags {
-        kClosed_Flag    = 0x01,   //!< This GrRenderTask can't accept any more dependencies.
+        kClosed_Flag      = 0x01,   //!< This GrRenderTask can't accept any more dependencies.
 
-        kWasOutput_Flag = 0x02,   //!< Flag for topological sorting
-        kTempMark_Flag  = 0x04,   //!< Flag for topological sorting
+        kWasOutput_Flag   = 0x02,   //!< Flag for topological sorting
+        kTempMark_Flag    = 0x04,   //!< Flag for topological sorting
     };
 
     void setFlag(uint32_t flag) {
@@ -183,7 +187,9 @@ private:
         }
     };
 
-    virtual void onPrepare(GrOpFlushState* flushState) = 0;
+    virtual void onPrePrepare() {} // Only the GrOpsTask currently overrides this virtual
+
+    virtual void onPrepare(GrOpFlushState*) {} // Only the GrOpsTask overrides this virtual
     virtual bool onExecute(GrOpFlushState* flushState) = 0;
 
     const uint32_t         fUniqueID;
