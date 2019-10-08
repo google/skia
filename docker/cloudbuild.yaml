@@ -8,8 +8,8 @@ steps:
   #
   # Where COMMIT_SHA is updated to the last commit into Skia.
   #
-  # - name: 'gcr.io/cloud-builders/git'
-  #   args: ['clone', 'https://github.com/google/skia.git', '.']
+  #- name: 'gcr.io/cloud-builders/git'
+  #  args: ['clone', 'https://github.com/google/skia.git', '.']
 
   - name: 'debian:testing-slim'
     args: ['mkdir', '-p', '--mode=0777', '/workspace/__doxygen_staging']
@@ -144,4 +144,5 @@ timeout: 7200s
 options:
   machineType: 'N1_HIGHCPU_32'
   env: # https://bugs.chromium.org/p/chromium/issues/detail?id=993053#c3
-    - 'HOME=/tmp'
+    - 'VPYTHON_VIRTUALENV_ROOT=/workspace/__cache'
+    - 'CIPD_CACHE_DIR=/workspace/__cache'
