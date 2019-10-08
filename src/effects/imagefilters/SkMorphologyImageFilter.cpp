@@ -69,6 +69,13 @@ protected:
     void flatten(SkWriteBuffer&) const override;
 
     SkISize radius() const { return fRadius; }
+    SkSize mappedRadius(const SkMatrix& ctm) const {
+      SkVector radiusVector = SkVector::Make(SkIntToScalar(fRadius.width()),
+                                             SkIntToScalar(fRadius.height()));
+      ctm.mapVectors(&radiusVector, 1);
+      radiusVector.setAbs(radiusVector);
+      return SkSize::Make(radiusVector.x(), radiusVector.y());
+    }
 
 private:
     friend void SkDilateImageFilter::RegisterFlattenables();
@@ -187,10 +194,8 @@ SkRect SkMorphologyImageFilterImpl::computeFastBounds(const SkRect& src) const {
 
 SkIRect SkMorphologyImageFilterImpl::onFilterNodeBounds(
         const SkIRect& src, const SkMatrix& ctm, MapDirection, const SkIRect* inputRect) const {
-    SkVector radius = SkVector::Make(SkIntToScalar(this->radius().width()),
-                                     SkIntToScalar(this->radius().height()));
-    ctm.mapVectors(&radius, 1);
-    return src.makeOutset(SkScalarCeilToInt(radius.x()), SkScalarCeilToInt(radius.y()));
+    SkSize radius = mappedRadius(ctm);
+    return src.makeOutset(SkScalarCeilToInt(radius.width()), SkScalarCeilToInt(radius.height()));
 }
 
 #if SK_SUPPORT_GPU
@@ -747,11 +752,9 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilterImpl::onFilterImage(const Context& 
         return nullptr;
     }
 
-    SkVector radius = SkVector::Make(SkIntToScalar(this->radius().width()),
-                                     SkIntToScalar(this->radius().height()));
-    ctx.ctm().mapVectors(&radius, 1);
-    int width = SkScalarFloorToInt(radius.fX);
-    int height = SkScalarFloorToInt(radius.fY);
+    SkSize radius = mappedRadius(ctx.ctm());
+    int width = SkScalarFloorToInt(radius.width());
+    int height = SkScalarFloorToInt(radius.height());
 
     if (width < 0 || height < 0) {
         return nullptr;

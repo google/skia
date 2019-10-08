@@ -571,6 +571,86 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterNegativeBlurSigma_Gpu, reporter, c
     test_negative_blur_sigma(reporter, ctxInfo.grContext());
 }
 
+static void test_morphology_radius_with_mirror_ctm(skiatest::Reporter* reporter, GrContext* context) {
+    // Check that SkMorphologyImageFilter maps the radius correctly when the
+    // CTM contains a mirroring transform.
+    static const int kWidth = 32, kHeight = 32;
+    static const int kRadius = 8;
+
+    sk_sp<SkImageFilter> filter(SkImageFilters::Dilate(kRadius, kRadius, nullptr));
+
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(kWidth, kHeight);
+    SkCanvas canvas(bitmap);
+    canvas.clear(SK_ColorTRANSPARENT);
+    SkPaint paint;
+    paint.setColor(SK_ColorWHITE);
+    canvas.drawRect(SkRect::MakeXYWH(kWidth / 4, kHeight / 4, kWidth / 2, kHeight / 2),
+                    paint);
+
+    sk_sp<SkSpecialImage> imgSrc(SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(kWidth, kHeight),
+                                                                bitmap));
+
+    SkIPoint offset;
+    SkImageFilter_Base::Context ctx(SkMatrix::I(), SkIRect::MakeWH(32, 32), nullptr,
+                                    kN32_SkColorType, nullptr, imgSrc.get());
+
+    sk_sp<SkSpecialImage> normalResult(
+            as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset));
+    REPORTER_ASSERT(reporter, normalResult);
+
+    SkMatrix mirrorX;
+    mirrorX.setTranslate(0, SkIntToScalar(32));
+    mirrorX.preScale(SK_Scalar1, -SK_Scalar1);
+    SkImageFilter_Base::Context mirrorXCTX(mirrorX, SkIRect::MakeWH(32, 32), nullptr,
+                                           kN32_SkColorType, nullptr, imgSrc.get());
+
+    sk_sp<SkSpecialImage> mirrorXResult(
+            as_IFB(filter)->filterImage(mirrorXCTX).imageAndOffset(&offset));
+    REPORTER_ASSERT(reporter, mirrorXResult);
+
+    SkMatrix mirrorY;
+    mirrorY.setTranslate(SkIntToScalar(32), 0);
+    mirrorY.preScale(-SK_Scalar1, SK_Scalar1);
+    SkImageFilter_Base::Context mirrorYCTX(mirrorY, SkIRect::MakeWH(32, 32), nullptr,
+                                           kN32_SkColorType, nullptr, imgSrc.get());
+
+    sk_sp<SkSpecialImage> mirrorYResult(
+            as_IFB(filter)->filterImage(mirrorYCTX).imageAndOffset(&offset));
+    REPORTER_ASSERT(reporter, mirrorYResult);
+
+    SkBitmap normalResultBM, mirrorXResultBM, mirrorYResultBM;
+
+    REPORTER_ASSERT(reporter, normalResult->getROPixels(&normalResultBM));
+    REPORTER_ASSERT(reporter, mirrorXResult->getROPixels(&mirrorXResultBM));
+    REPORTER_ASSERT(reporter, mirrorYResult->getROPixels(&mirrorYResultBM));
+
+    for (int y = 0; y < kHeight; y++) {
+        int diffs = memcmp(normalResultBM.getAddr32(0, y),
+                           mirrorXResultBM.getAddr32(0, y),
+                           normalResultBM.rowBytes());
+        REPORTER_ASSERT(reporter, !diffs);
+        if (diffs) {
+            break;
+        }
+        diffs = memcmp(normalResultBM.getAddr32(0, y),
+                       mirrorYResultBM.getAddr32(0, y),
+                       normalResultBM.rowBytes());
+        REPORTER_ASSERT(reporter, !diffs);
+        if (diffs) {
+            break;
+        }
+    }
+}
+
+DEF_TEST(MorphologyFilterRadiusWithMirrorCTM, reporter) {
+    test_morphology_radius_with_mirror_ctm(reporter, nullptr);
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(MorphologyFilterRadiusWithMirrorCTM_Gpu, reporter, ctxInfo) {
+    test_morphology_radius_with_mirror_ctm(reporter, ctxInfo.grContext());
+}
+
 static void test_zero_blur_sigma(skiatest::Reporter* reporter, GrContext* context) {
     // Check that SkBlurImageFilter with a zero sigma and a non-zero srcOffset works correctly.
     SkIRect cropRect = SkIRect::MakeXYWH(5, 0, 5, 10);
