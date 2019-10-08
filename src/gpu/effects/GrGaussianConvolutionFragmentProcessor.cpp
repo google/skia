@@ -211,20 +211,16 @@ static void fill_in_1D_gaussian_kernel(float* kernel, int width, float gaussianS
 }
 
 GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
-                                                            sk_sp<GrTextureProxy> proxy,
-                                                            Direction direction,
-                                                            int radius,
-                                                            float gaussianSigma,
-                                                            GrTextureDomain::Mode mode,
-                                                            int bounds[2])
+        sk_sp<GrTextureProxy> proxy, GrSamplerState::WrapMode textureWrapMode, Direction direction,
+        int radius, float gaussianSigma, GrTextureDomain::Mode domainMode, int bounds[2])
         : INHERITED(kGrGaussianConvolutionFragmentProcessor_ClassID,
                     ModulateForSamplerOptFlags(proxy->config(),
-                                               mode == GrTextureDomain::kDecal_Mode))
+                                               domainMode == GrTextureDomain::kDecal_Mode))
         , fCoordTransform(proxy.get())
-        , fTextureSampler(std::move(proxy))
+        , fTextureSampler(std::move(proxy), GrSamplerState::Filter::kNearest, textureWrapMode)
         , fRadius(radius)
         , fDirection(direction)
-        , fMode(mode) {
+        , fMode(domainMode) {
     // Make sure the sampler's ctor uses the clamp wrap mode
     SkASSERT(fTextureSampler.samplerState().wrapModeX() == GrSamplerState::WrapMode::kClamp &&
              fTextureSampler.samplerState().wrapModeY() == GrSamplerState::WrapMode::kClamp);
@@ -297,8 +293,11 @@ std::unique_ptr<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::Tes
     int radius = d->fRandom->nextRangeU(1, kMaxKernelRadius);
     float sigma = radius / 3.f;
 
+    GrSamplerState::WrapMode textureWrapMode = (0 == d->fRandom->nextULessThan(3))
+        ? GrSamplerState::WrapMode::kRepeat : GrSamplerState::WrapMode::kClamp;
+
     return GrGaussianConvolutionFragmentProcessor::Make(
-            d->textureProxy(texIdx),
-            dir, radius, sigma, static_cast<GrTextureDomain::Mode>(modeIdx), bounds);
+            d->textureProxy(texIdx), textureWrapMode, dir, radius, sigma,
+            static_cast<GrTextureDomain::Mode>(modeIdx), bounds);
 }
 #endif
