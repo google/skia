@@ -15,7 +15,6 @@
 #include <functional>   // std::function
 #include <string.h>
 
-struct SkCurve;
 class SkFieldVisitor;
 struct SkPoint;
 class SkString;
@@ -162,9 +161,6 @@ public:
         const char* fName;
     };
     virtual void visit(const char*, int&, const EnumStringMapping*, int count) = 0;
-
-    // Specific virtual signature for SkCurve, to allow for heavily customized UI in SkGuiVisitor.
-    virtual void visit(const char* name, SkCurve& c);
 
     // Default visit function for structs with no special behavior. It is assumed that any such
     // struct implements visitFields(SkFieldVisitor*) to recursively visit each of its fields.
