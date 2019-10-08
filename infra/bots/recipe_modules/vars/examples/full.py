@@ -7,6 +7,7 @@ DEPS = [
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
+  'recipe_engine/step',
   'vars',
 ]
 
@@ -19,6 +20,27 @@ def RunSteps(api):
   ]
   if api.vars.is_linux:
     assert len(info) == 2  # Make pylint happy.
+  s = api.step('show', cmd=None)
+  for p in [
+      'build_dir',
+      'builder_cfg',
+      'builder_name',
+      'cache_dir',
+      'default_env',
+      'extra_tokens',
+      'internal_hardware_label',
+      'is_internal_bot',
+      'is_linux',
+      'is_trybot',
+      'issue',
+      'patch_storage',
+      'patchset',
+      'role',
+      'slave_dir',
+      'swarming_out_dir',
+      'tmp_dir',
+      ]:
+    s.presentation.properties[p] = str(getattr(api.vars, p))
 
 
 TEST_BUILDERS = [
@@ -53,4 +75,15 @@ def GenTests(api):
           gerrit_project='skia',
           gerrit_url='https://skia-review.googlesource.com/',
       )
+  )
+
+  buildername = 'Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All-ASAN_Vulkan'
+  yield (
+      api.test('integer_issue') +
+      api.properties(buildername=buildername,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     patch_issue='0',
+                     patch_set='0')
   )
