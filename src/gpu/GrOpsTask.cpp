@@ -412,11 +412,10 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
             TRACE_EVENT0("skia.gpu", chain.head()->name());
 #endif
-            GrOpFlushState::OpArgs opArgs(
-                chain.head(),
-                fTarget->asRenderTargetProxy(),
-                chain.appliedClip(),
-                chain.dstProxy());
+            GrOpFlushState::OpArgs opArgs(chain.head(),
+                                          fTarget->asRenderTargetProxy(),
+                                          chain.appliedClip(),
+                                          chain.dstProxy());
 
             flushState->setOpArgs(&opArgs);
             chain.head()->prepare(flushState);
