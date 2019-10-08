@@ -374,6 +374,4 @@ bool GrGLFormatIsCompressed(GrGLFormat);
  */
 bool GrGLFormatToCompressionType(GrGLFormat, SkImage::CompressionType*);
 
-size_t GrGLBytesPerFormat(GrGLFormat);
-
 #endif
