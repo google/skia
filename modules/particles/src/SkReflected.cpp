@@ -7,18 +7,10 @@
 
 #include "modules/particles/include/SkReflected.h"
 
-#include "modules/particles/include/SkCurve.h"
-
 SkSTArray<16, const SkReflected::Type*, true> SkReflected::gTypes;
 
 void SkReflected::VisitTypes(std::function<void(const Type*)> visitor) {
     for (const Type* type : gTypes) {
         visitor(type);
     }
-}
-
-void SkFieldVisitor::visit(const char* name, SkCurve& c) {
-    this->enterObject(name);
-    c.visitFields(this);
-    this->exitObject();
 }

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <title>CanvasKit Extra features (Skia via Web Assembly)</title>
 <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -183,8 +183,9 @@
     }
     const context = CanvasKit.currentContext();
     const canvas = surface.getCanvas();
+    canvas.translate(250, 450);
 
-    const particles = CanvasKit.MakeParticles(JSON.stringify(snowfall));
+    const particles = CanvasKit.MakeParticles(JSON.stringify(curves));
     particles.start(Date.now() / 1000.0, true);
 
     function drawFrame(canvas) {
@@ -197,58 +198,35 @@
     surface.requestAnimationFrame(drawFrame);
   }
 
-const snowfall = {
-   "MaxCount": 4096,
+const curves = {
+   "MaxCount": 1000,
    "Drawable": {
       "Type": "SkCircleDrawable",
-      "Radius": 1
+      "Radius": 2
    },
    "EffectCode": [
       "void effectSpawn(inout Effect effect) {",
-      "  effect.rate = 30;",
-      "}",
-      "",
-      "void effectUpdate(inout Effect effect) {",
+      "  effect.rate = 200;",
+      "  effect.color = float4(1, 0, 0, 1);",
       "}",
       ""
    ],
    "Code": [
       "void spawn(inout Particle p) {",
-      "  p.lifetime = 10;",
-      "  p.vel.y = 10 + rand * 20;",
-      "  p.vel.x = -5 + 10 * rand;",
-      "  p.pos.x = rand * 500;",
+      "  p.lifetime = 3 + rand;",
+      "  p.vel.y = -50;",
       "}",
       "",
       "void update(inout Particle p) {",
-      "  p.scale = size(p.age);",
+      "  float w = mix(15, 3, p.age);",
+      "  p.pos.x = sin(radians(p.age * 320)) * mix(25, 10, p.age) + mix(-w, w, rand);",
+      "  if (rand < 0.5) { p.pos.x = -p.pos.x; }",
+      "",
+      "  p.color.g = (mix(75, 220, p.age) + mix(-30, 30, rand)) / 255;",
       "}",
       ""
    ],
-   "Bindings": [
-      {
-         "Type": "SkCurveBinding",
-         "Name": "size",
-         "Curve": {
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Cubic",
-                  "Ranged": true,
-                  "Bidirectional": false,
-                  "A0": 10,
-                  "B0": 10,
-                  "C0": 10,
-                  "D0": 0,
-                  "A1": 10,
-                  "B1": 0,
-                  "C1": 0,
-                  "D1": 0
-               }
-            ]
-         }
-      }
-   ]
+   "Bindings": []
 };
 
   function SurfaceAPI1(CanvasKit) {
