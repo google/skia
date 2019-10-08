@@ -11,8 +11,6 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
   && groupadd -g 2000 skia \
   && useradd -u 2000 -g 2000 --home-dir /workspace/__cache skia
 
-USER skia
-
 ADD --chown=skia:skia https://storage.googleapis.com/swiftshader-binaries/OpenGL_ES/Latest/Linux/libGLESv2.so /usr/local/lib/libGLESv2.so
 ADD --chown=skia:skia  https://storage.googleapis.com/swiftshader-binaries/OpenGL_ES/Latest/Linux/libEGL.so /usr/local/lib/libEGL.so
 RUN cd /tmp \
@@ -46,7 +44,8 @@ RUN cd /tmp/skia/skia \
   && ./bin/fetch-gn \
   && ./bin/gn gen out/Static \
   && git rev-parse HEAD > VERSION \
-  && /tmp/depot_tools/ninja -C out/Static
+  && /tmp/depot_tools/ninja -C out/Static \
+  && chown -R skia:skia out/Static
 
 # Uncomment the lines below and update the ref to patch in a CL.
 #
