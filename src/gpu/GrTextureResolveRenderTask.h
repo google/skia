@@ -18,7 +18,6 @@ public:
     void addProxy(sk_sp<GrSurfaceProxy>, GrSurfaceProxy::ResolveFlags, const GrCaps&);
 
 private:
-    void onPrepare(GrOpFlushState*) override {}
     bool onIsUsed(GrSurfaceProxy* proxy) const override {
         SkASSERT(proxy != fTarget.get());  // This case should be handled by GrRenderTask.
         return false;
