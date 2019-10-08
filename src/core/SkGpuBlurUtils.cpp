@@ -76,6 +76,7 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
                                  const SkIRect& dstRect,
                                  const SkIPoint& srcOffset,
                                  sk_sp<GrTextureProxy> proxy,
+                                 GrSamplerState::WrapMode textureWrapMode,
                                  Direction direction,
                                  int radius,
                                  float sigma,
@@ -83,7 +84,7 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
                                  int bounds[2]) {
     GrPaint paint;
     std::unique_ptr<GrFragmentProcessor> conv(GrGaussianConvolutionFragmentProcessor::Make(
-            std::move(proxy), direction, radius, sigma, mode, bounds));
+            std::move(proxy), textureWrapMode, direction, radius, sigma, mode, bounds));
     paint.addColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     SkMatrix localMatrix = SkMatrix::MakeTrans(-SkIntToScalar(srcOffset.x()),
@@ -141,6 +142,23 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingCo
     return renderTargetContext;
 }
 
+bool can_use_texture_wrap_mode(GrTextureDomain::Mode mode, GrSamplerState::WrapMode* wrapMode) {
+    switch (mode) {
+        using WrapMode = GrSamplerState::WrapMode;
+        case GrTextureDomain::kClamp_Mode:
+        case GrTextureDomain::kIgnore_Mode:
+            *wrapMode = WrapMode::kClamp;
+            return true;
+        case GrTextureDomain::kRepeat_Mode:
+            *wrapMode = WrapMode::kRepeat;
+            return true;
+        case GrTextureDomain::kDecal_Mode:
+            return false;
+    }
+    SK_ABORT("Invalid GrTextureDomain::Mode");
+    return false;
+}
+
 // NOTE: Both convolve_gaussian or decimate accept a proxyOffset. This is separate from the
 // srcBounds and srcOffset, which are relative to the content rect of the image, whereas proxyOffset
 // maps from the content rect to the proxy's coordinate space. Due to how the destination bounds are
@@ -189,21 +207,31 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
     if (GrTextureDomain::kIgnore_Mode == mode) {
         *contentRect = dstRect;
         convolve_gaussian_1d(dstRenderTargetContext.get(), clip, dstRect, netOffset,
-                             std::move(srcProxy), direction, radius, sigma,
-                             GrTextureDomain::kIgnore_Mode, bounds);
+                             std::move(srcProxy), GrSamplerState::WrapMode::kClamp, direction,
+                             radius, sigma, GrTextureDomain::kIgnore_Mode, bounds);
         return dstRenderTargetContext;
     }
     // These destination rects need to be adjusted by srcOffset, but should *not* be adjusted by
     // the proxyOffset, which is why keeping them separate is convenient.
-    SkIRect midRect = *contentRect, leftRect, rightRect;
+    SkIRect midRect = *contentRect, lowerBoundaryRect, upperBoundaryRect;
     midRect.offset(srcOffset);
+
+    GrSamplerState::WrapMode boundaryWrapMode = GrSamplerState::WrapMode::kClamp;
     if (Direction::kX == direction) {
         bounds[0] = contentRect->left() + proxyOffset.x();
         bounds[1] = contentRect->right() + proxyOffset.x();
-        midRect.inset(radius, 0);
-        leftRect = SkIRect::MakeLTRB(0, midRect.top(), midRect.left(), midRect.bottom());
-        rightRect =
+
+        if (midRect.left() > 0 || !can_use_texture_wrap_mode(mode, &boundaryWrapMode)) {
+            // Inset left side.
+            midRect.fLeft = std::min(midRect.left() + radius, midRect.right());
+        }
+        // Inset right side.
+        midRect.fRight = std::max(midRect.right() - radius, midRect.left());
+
+        lowerBoundaryRect = SkIRect::MakeLTRB(0, midRect.top(), midRect.left(), midRect.bottom());
+        upperBoundaryRect =
             SkIRect::MakeLTRB(midRect.right(), midRect.top(), dstRect.width(), midRect.bottom());
+
         dstRect.fTop = midRect.top();
         dstRect.fBottom = midRect.bottom();
 
@@ -214,11 +242,19 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
     } else {
         bounds[0] = contentRect->top() + proxyOffset.y();
         bounds[1] = contentRect->bottom() + proxyOffset.y();
-        midRect.inset(0, radius);
-        leftRect = SkIRect::MakeLTRB(midRect.left(), 0, midRect.right(), midRect.top());
-        rightRect =
+
+        if (midRect.top() > 0 || !can_use_texture_wrap_mode(mode, &boundaryWrapMode)) {
+            // Inset top side.
+            midRect.fTop = std::min(midRect.top() + radius, midRect.bottom());
+        }
+        // Inset bottom side.
+        midRect.fBottom = std::max(midRect.fBottom - radius, midRect.top());
+
+        lowerBoundaryRect = SkIRect::MakeLTRB(midRect.left(), 0, midRect.right(), midRect.top());
+        upperBoundaryRect =
             SkIRect::MakeLTRB(midRect.left(), midRect.bottom(), midRect.right(), dstRect.height());
         dstRect.fLeft = midRect.left();
+
         dstRect.fRight = midRect.right();
 
         contentRect->fLeft = midRect.fLeft;
@@ -230,16 +266,23 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
     if (midRect.isEmpty()) {
         // Blur radius covers srcBounds; use bounds over entire draw
         convolve_gaussian_1d(dstRenderTargetContext.get(), clip, dstRect, netOffset,
-                             std::move(srcProxy), direction, radius, sigma, mode, bounds);
+                             std::move(srcProxy), GrSamplerState::WrapMode::kClamp, direction,
+                             radius, sigma, mode, bounds);
     } else {
-        // Draw right and left margins with bounds; middle without.
-        convolve_gaussian_1d(dstRenderTargetContext.get(), clip, leftRect, netOffset,
-                             srcProxy, direction, radius, sigma, mode, bounds);
-        convolve_gaussian_1d(dstRenderTargetContext.get(), clip, rightRect, netOffset,
-                             srcProxy, direction, radius, sigma, mode, bounds);
+        // Enforce the domain mode on the boundaries; ignore the domain in the middle.
+        if (!lowerBoundaryRect.isEmpty()) {
+            convolve_gaussian_1d(dstRenderTargetContext.get(), clip, lowerBoundaryRect, netOffset,
+                                 srcProxy, boundaryWrapMode, direction, radius, sigma, mode,
+                                 bounds);
+        }
+        if (!upperBoundaryRect.isEmpty()) {
+            convolve_gaussian_1d(dstRenderTargetContext.get(), clip, upperBoundaryRect, netOffset,
+                                 srcProxy, boundaryWrapMode, direction, radius, sigma, mode,
+                                 bounds);
+        }
         convolve_gaussian_1d(dstRenderTargetContext.get(), clip, midRect, netOffset,
-                             std::move(srcProxy), direction, radius, sigma,
-                             GrTextureDomain::kIgnore_Mode, bounds);
+                             std::move(srcProxy), GrSamplerState::WrapMode::kClamp, direction,
+                             radius, sigma, GrTextureDomain::kIgnore_Mode, bounds);
     }
 
     return dstRenderTargetContext;
