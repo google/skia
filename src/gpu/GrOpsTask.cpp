@@ -391,6 +391,14 @@ void GrOpsTask::endFlush() {
     fAuditTrail = nullptr;
 }
 
+void GrOpsTask::onPrePrepare() {
+    for (const auto& chain : fOpChains) {
+        if (chain.shouldExecute()) {
+            chain.head()->prePrepare();
+        }
+    }
+}
+
 void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
     SkASSERT(fTarget->peekRenderTarget());
     SkASSERT(this->isClosed());
@@ -419,6 +427,7 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
                 chain.dstProxy());
 
             flushState->setOpArgs(&opArgs);
+            // GrOp::prePrepare will already have been called at this point
             chain.head()->prepare(flushState);
             flushState->setOpArgs(nullptr);
         }

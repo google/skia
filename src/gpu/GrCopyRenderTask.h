@@ -24,7 +24,6 @@ private:
                      sk_sp<GrSurfaceProxy> dstProxy,
                      const SkIPoint& dstPoint);
 
-    void onPrepare(GrOpFlushState*) override {}
     bool onIsUsed(GrSurfaceProxy* proxy) const override {
         SkASSERT(proxy != fTarget.get());  // This case should be handled by GrRenderTask.
         return proxy == fSrcProxy.get();
