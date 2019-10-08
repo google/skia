@@ -22,31 +22,23 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
-GrMtlPipelineState* GrMtlPipelineStateBuilder::CreatePipelineState(
-        GrMtlGpu* gpu,
-        GrRenderTarget* renderTarget, int numSamples, GrSurfaceOrigin origin,
-        const GrPrimitiveProcessor& primProc,
-        const GrTextureProxy* const primProcProxies[],
-        const GrPipeline& pipeline,
-        Desc* desc) {
-    GrMtlPipelineStateBuilder builder(gpu, renderTarget, numSamples, origin, pipeline, primProc,
-                                      primProcProxies, desc);
+GrMtlPipelineState* GrMtlPipelineStateBuilder::CreatePipelineState(GrMtlGpu* gpu,
+                                                                   GrRenderTarget* renderTarget,
+                                                                   const GrProgramInfo& programInfo,
+                                                                   Desc* desc) {
+    GrMtlPipelineStateBuilder builder(gpu, renderTarget, programInfo, desc);
 
     if (!builder.emitAndInstallProcs()) {
         return nullptr;
     }
-    return builder.finalize(renderTarget, primProc, pipeline, desc);
+    return builder.finalize(renderTarget, programInfo, desc);
 }
 
 GrMtlPipelineStateBuilder::GrMtlPipelineStateBuilder(GrMtlGpu* gpu,
                                                      GrRenderTarget* renderTarget,
-                                                     int numSamples,
-                                                     GrSurfaceOrigin origin,
-                                                     const GrPipeline& pipeline,
-                                                     const GrPrimitiveProcessor& primProc,
-                                                     const GrTextureProxy* const primProcProxies[],
+                                                     const GrProgramInfo& programInfo,
                                                      GrProgramDesc* desc)
-    : INHERITED(renderTarget, numSamples, origin, primProc, primProcProxies, pipeline, desc)
+        : INHERITED(renderTarget, programInfo, desc)
         , fGpu(gpu)
         , fUniformHandler(this)
         , fVaryingHandler(this) {
@@ -348,8 +340,7 @@ uint32_t buffer_size(uint32_t offset, uint32_t maxAlignment) {
 }
 
 GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTarget,
-                                                        const GrPrimitiveProcessor& primProc,
-                                                        const GrPipeline& pipeline,
+                                                        const GrProgramInfo& programInfo,
                                                         Desc* desc) {
     auto pipelineDescriptor = [MTLRenderPipelineDescriptor new];
 
@@ -397,9 +388,9 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
 
     pipelineDescriptor.vertexFunction = vertexFunction;
     pipelineDescriptor.fragmentFunction = fragmentFunction;
-    pipelineDescriptor.vertexDescriptor = create_vertex_descriptor(primProc);
+    pipelineDescriptor.vertexDescriptor = create_vertex_descriptor(programInfo.primProc());
     pipelineDescriptor.colorAttachments[0] = create_color_attachment(renderTarget->config(),
-                                                                     pipeline);
+                                                                     programInfo.pipeline());
     pipelineDescriptor.sampleCount = renderTarget->numSamples();
     bool hasStencilAttachment = SkToBool(renderTarget->renderTargetPriv().getStencilAttachment());
     GrMtlCaps* mtlCaps = (GrMtlCaps*)this->caps();
@@ -455,12 +446,11 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
 
 bool GrMtlPipelineStateBuilder::Desc::Build(Desc* desc,
                                             GrRenderTarget* renderTarget,
-                                            const GrPrimitiveProcessor& primProc,
-                                            const GrPipeline& pipeline,
+                                            const GrProgramInfo& programInfo,
                                             GrPrimitiveType primitiveType,
                                             GrMtlGpu* gpu) {
-    if (!INHERITED::Build(desc, renderTarget, primProc,
-                          GrPrimitiveType::kLines == primitiveType, pipeline, gpu)) {
+    if (!GrProgramDesc::Build(desc, renderTarget, programInfo,
+                              GrPrimitiveType::kPoints == primitiveType, gpu)) {
         return false;
     }
 
@@ -475,10 +465,10 @@ bool GrMtlPipelineStateBuilder::Desc::Build(Desc* desc,
     bool hasStencilAttachment = SkToBool(renderTarget->renderTargetPriv().getStencilAttachment());
     b.add32(hasStencilAttachment ? gpu->mtlCaps().preferredStencilFormat().fInternalFormat
                                  : MTLPixelFormatInvalid);
-    b.add32((uint32_t)pipeline.isStencilEnabled());
+    b.add32((uint32_t)programInfo.pipeline().isStencilEnabled());
     // Stencil samples don't seem to be tracked in the MTLRenderPipeline
 
-    b.add32(pipeline.getBlendInfoKey());
+    b.add32(programInfo.pipeline().getBlendInfoKey());
 
     b.add32((uint32_t)primitiveType);
 
