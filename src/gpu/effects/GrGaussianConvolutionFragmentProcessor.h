@@ -23,13 +23,14 @@ public:
 
     /// Convolve with a Gaussian kernel
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+                                                     GrSamplerState::WrapMode textureWrapMode,
                                                      Direction dir,
                                                      int halfWidth,
                                                      float gaussianSigma,
                                                      GrTextureDomain::Mode mode,
                                                      int* bounds) {
         return std::unique_ptr<GrFragmentProcessor>(new GrGaussianConvolutionFragmentProcessor(
-                std::move(proxy), dir, halfWidth, gaussianSigma, mode, bounds));
+                std::move(proxy), textureWrapMode, dir, halfWidth, gaussianSigma, mode, bounds));
     }
 
     const float* kernel() const { return fKernel; }
@@ -71,9 +72,9 @@ public:
 
 private:
     /// Convolve with a Gaussian kernel
-    GrGaussianConvolutionFragmentProcessor(sk_sp<GrTextureProxy>, Direction,
-                                           int halfWidth, float gaussianSigma,
-                                           GrTextureDomain::Mode mode, int bounds[2]);
+    GrGaussianConvolutionFragmentProcessor(
+            sk_sp<GrTextureProxy>, GrSamplerState::WrapMode, Direction, int halfWidth,
+            float gaussianSigma, GrTextureDomain::Mode mode, int bounds[2]);
 
     explicit GrGaussianConvolutionFragmentProcessor(const GrGaussianConvolutionFragmentProcessor&);
 
