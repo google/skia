@@ -215,8 +215,7 @@ def nanobench_flags(api, bot):
   if 'AcerChromebook13_CB5_311-GPU-TegraK1' in bot:
     # skia:7551
     match.append('~^shapes_rrect_inner_rrect_50_500x500$')
-  if (bot ==
-      'Perf-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Release-All-Android'):
+  if ('Perf-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Release-All-Android' in bot):
     # skia:9413
     match.append('~^path_text$')
     match.append('~^path_text_clipped_uncached$')
