@@ -44,7 +44,7 @@ public:
         // TODO: make use of texture chaining.
         return CombineResult::kCannotCombine;
     }
-    void onPrepare(GrOpFlushState*) override {}
+    void onPrepare1(GrOpFlushState*) override {}
 
 protected:
     AtlasOp(uint32_t classID, sk_sp<const GrCCPerFlushResources> resources,

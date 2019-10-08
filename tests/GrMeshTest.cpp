@@ -301,7 +301,7 @@ private:
                                       bool hasMixedSampledCoverage, GrClampType) override {
         return GrProcessorSet::EmptySetAnalysis();
     }
-    void onPrepare(GrOpFlushState* state) override {
+    void onPrepare1(GrOpFlushState* state) override {
         fHelper.reset(new DrawMeshHelper(state));
         fPrepareFn(fHelper.get());
     }

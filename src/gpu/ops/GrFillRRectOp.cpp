@@ -440,7 +440,7 @@ static constexpr uint16_t kMSAAIndexData[] = {
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gMSAAIndexBufferKey);
 
-void GrFillRRectOp::onPrepare(GrOpFlushState* flushState) {
+void GrFillRRectOp::onPrepare1(GrOpFlushState* flushState) {
     if (void* instanceData = flushState->makeVertexSpace(fInstanceStride, fInstanceCount,
                                                          &fInstanceBuffer, &fBaseInstance)) {
         SkASSERT(fInstanceStride * fInstanceCount == fInstanceData.count());

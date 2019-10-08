@@ -72,7 +72,14 @@ protected:
     };
 
 private:
-    void onPrepare(GrOpFlushState* state) final;
+    void onPrePrepare() final {
+        this->onPrePrepareDraws();
+    }
+
+    void onPrepare1(GrOpFlushState* state) final;
+
+    // Only the GrTextureOp currently overrides this virtual
+    virtual void onPrePrepareDraws() {};
     virtual void onPrepareDraws(Target*) = 0;
     typedef GrDrawOp INHERITED;
 };

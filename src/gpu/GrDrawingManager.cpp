@@ -313,7 +313,8 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[], int num
                 }
             });
 #endif
-            onFlushRenderTask->prepare(&flushState);
+            onFlushRenderTask->prePrepare();
+            onFlushRenderTask->prepare1(&flushState);
         }
     }
 
@@ -434,7 +435,8 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
 
         SkASSERT(renderTask->deferredProxiesAreInstantiated());
 
-        renderTask->prepare(flushState);
+        renderTask->prePrepare();
+        renderTask->prepare1(flushState);
     }
 
     // Upload all data to the GPU

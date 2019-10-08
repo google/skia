@@ -90,7 +90,7 @@ private:
                 fClip.scissorRect().contains(that->fClip.scissorRect()));
     }
 
-    void onPrepare(GrOpFlushState*) override {}
+    void onPrepare1(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override;
 

@@ -219,7 +219,7 @@ private:
                                       bool hasMixedSampledCoverage, GrClampType) override {
         return GrProcessorSet::EmptySetAnalysis();
     }
-    void onPrepare(GrOpFlushState*) override {}
+    void onPrepare1(GrOpFlushState*) override {}
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         static constexpr GrUserStencilSettings kStencilWrite(
             GrUserStencilSettings::StaticInit<

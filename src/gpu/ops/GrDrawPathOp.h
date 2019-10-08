@@ -54,7 +54,7 @@ protected:
     }
 
 private:
-    void onPrepare(GrOpFlushState*) final {}
+    void onPrepare1(GrOpFlushState*) final {}
 
     SkMatrix fViewMatrix;
     SkPMColor4f fInputColor;
