@@ -38,7 +38,7 @@ Samples
   <figure>
     <canvas id=curves width=400 height=400></canvas>
     <figcaption>
-      <a href="https://particles.skia.org/e1b1b1f5e3d31b9fae57bf90dce729a8"
+      <a href="https://particles.skia.org/63b1970cc212740e5a44870691c49307"
          target=_blank rel=noopener>Curves</a>
     </figcaption>
   </figure>
@@ -87,7 +87,7 @@ Samples
   }).ready().then((CK) => {
     CanvasKit = CK;
     ParticleExample(CanvasKit, 'confetti', confetti, 200, 200);
-    ParticleExample(CanvasKit, 'curves', curves, 200, 200);
+    ParticleExample(CanvasKit, 'curves', curves, 200, 300);
     ParticleExample(CanvasKit, 'fireworks', fireworks, 200, 300);
     ParticleExample(CanvasKit, 'raincloud', raincloud, 200, 100);
     ParticleExample(CanvasKit, 'text', text, 75, 250);
@@ -178,7 +178,8 @@ const curves = {
    },
    "EffectCode": [
       "void effectSpawn(inout Effect effect) {",
-      "  effect.rate = 200; effect.pos.y = 100;",
+      "  effect.rate = 200;",
+      "  effect.color = float4(1, 0, 0, 1);",
       "}",
       ""
    ],
@@ -189,52 +190,15 @@ const curves = {
       "}",
       "",
       "void update(inout Particle p) {",
-      "  p.pos.x = wave(p.age);",
-      "  p.color = color(p.age);",
+      "  float w = mix(15, 3, p.age);",
+      "  p.pos.x = sin(radians(p.age * 320)) * mix(25, 10, p.age) + mix(-w, w, rand);",
+      "  if (rand < 0.5) { p.pos.x = -p.pos.x; }",
+      "",
+      "  p.color.g = (mix(75, 220, p.age) + mix(-30, 30, rand)) / 255;",
       "}",
       ""
    ],
-   "Bindings": [
-      {
-         "Type": "SkCurveBinding",
-         "Name": "wave",
-         "Curve": {
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Cubic",
-                  "Ranged": true,
-                  "Bidirectional": true,
-                  "A0": -20,
-                  "B0": 50,
-                  "C0": -30,
-                  "D0": -10,
-                  "A1": 20,
-                  "B1": 60,
-                  "C1": -20,
-                  "D1": 0
-               }
-            ]
-         }
-      },
-      {
-         "Type": "SkColorCurveBinding",
-         "Name": "color",
-         "Curve": {
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Linear",
-                  "Ranged": true,
-                  "A0": [ 1, 0, 0, 1 ],
-                  "D0": [ 1, 0.735294, 0, 0.2 ],
-                  "A1": [ 1, 0.588235, 0, 1 ],
-                  "D1": [ 0.941177, 1, 0, 0.2 ]
-               }
-            ]
-         }
-      }
-   ]
+   "Bindings": []
 };
 
 const fireworks = {
