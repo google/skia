@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "88770318_10600000",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-08T19:33:02Z",
+      "side": 1,
+      "message": "I would much prefer not to have to do this.",
+      "range": {
+        "startLine": 278,
+        "startChar": 45,
+        "endLine": 278,
+        "endChar": 68
+      },
+      "revId": "92fbe07cc77fd5b44e7f828882c0a82842067172",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

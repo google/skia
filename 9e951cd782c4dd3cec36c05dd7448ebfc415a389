@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "231866df_073c899b",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-08T19:33:02Z",
+      "side": 0,
+      "message": "Remove this and...",
+      "range": {
+        "startLine": 331,
+        "startChar": 11,
+        "endLine": 331,
+        "endChar": 42
+      },
+      "revId": "9e951cd782c4dd3cec36c05dd7448ebfc415a389",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f11b645_dd0464fc",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-08T19:33:02Z",
+      "side": 0,
+      "message": "+  sources \u003d [ \"src/ports/SkFontMgr_custom_embedded.cpp\" ]\n+  if (!skia_enable_fontmgr_empty \u0026\u0026 !skia_enable_fontmgr_custom) {\n+    sources +\u003d [\n+      \"src/ports/SkFontMgr_custom.cpp\",\n+      \"src/ports/SkFontMgr_custom.h\",\n+    ]\n+  } else {\n+    sources +\u003d [ \"src/ports/SkFontMgr_custom_embedded_factory.cpp\" ]\n+  }\n\nThis looks a bit more complicated, but is actually just pointing out that SkFontMgr_custom.h and the like need to be pulled into their own target which this should dep on.",
+      "range": {
+        "startLine": 336,
+        "startChar": 0,
+        "endLine": 341,
+        "endChar": 3
+      },
+      "revId": "9e951cd782c4dd3cec36c05dd7448ebfc415a389",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
