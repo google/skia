@@ -225,7 +225,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     atlasManager->setMaxPages_TestingOnly(0);
 
     flushState.setOpArgs(&opArgs);
-    op->prepare(&flushState);
+    op->prepare1(&flushState);
     flushState.setOpArgs(nullptr);
     opMemoryPool->release(std::move(op));
 }
