@@ -46,6 +46,30 @@
       "revId": "2e00f84047430f62154e09aac787c76e1b8995d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "771a1036_cd284750",
+        "filename": "src/effects/imagefilters/SkMorphologyImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-08T13:54:26Z",
+      "side": 1,
+      "message": "This also makes it consistent with how SkBlurImageFilter maps its sigma values (stored in SkSize\u0027s as well).",
+      "parentUuid": "3f3a184c_924d1476",
+      "range": {
+        "startLine": 77,
+        "startChar": 26,
+        "endLine": 77,
+        "endChar": 78
+      },
+      "revId": "2e00f84047430f62154e09aac787c76e1b8995d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
