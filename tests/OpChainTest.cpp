@@ -226,6 +226,7 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                                   *context->priv().caps());
                 }
                 opsTask.makeClosed(*context->priv().caps());
+                opsTask.prePrepare();
                 opsTask.prepare(&flushState);
                 opsTask.execute(&flushState);
                 opsTask.endFlush();

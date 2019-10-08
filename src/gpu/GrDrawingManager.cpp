@@ -313,6 +313,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[], int num
                 }
             });
 #endif
+            onFlushRenderTask->prePrepare(); // This may or may not have already been called
             onFlushRenderTask->prepare(&flushState);
         }
     }
@@ -434,6 +435,7 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
 
         SkASSERT(renderTask->deferredProxiesAreInstantiated());
 
+        renderTask->prePrepare(); // This may or may not have already been called on this task
         renderTask->prepare(flushState);
     }
 
@@ -576,6 +578,10 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
     fActiveOpsTask = nullptr;
 
     fDAG.swap(&ddl->fRenderTasks);
+
+    for (auto renderTarget : ddl->fRenderTasks) {
+        renderTarget->prePrepare();
+    }
 
     if (fPathRendererChain) {
         if (auto ccpr = fPathRendererChain->getCoverageCountingPathRenderer()) {
