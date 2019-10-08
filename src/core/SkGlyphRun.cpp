@@ -25,23 +25,16 @@ SkGlyphRun::SkGlyphRun(const SkFont& font,
                        SkSpan<const SkGlyphID> glyphIDs,
                        SkSpan<const char> text,
                        SkSpan<const uint32_t> clusters)
-        : fPositions{positions}
-        , fGlyphIDs{glyphIDs}
+        : fSource{SkMakeZip(glyphIDs, positions)}
         , fText{text}
         , fClusters{clusters}
         , fFont{font} {}
 
 SkGlyphRun::SkGlyphRun(const SkGlyphRun& that, const SkFont& font)
-    : fPositions{that.fPositions}
-    , fGlyphIDs{that.fGlyphIDs}
+    : fSource{that.fSource}
     , fText{that.fText}
     , fClusters{that.fClusters}
     , fFont{font} {}
-
-void SkGlyphRun::filloutGlyphsAndPositions(SkGlyphID* glyphIDs, SkPoint* positions) {
-    memcpy(glyphIDs, fGlyphIDs.data(), fGlyphIDs.size_bytes());
-    memcpy(positions, fPositions.data(), fPositions.size_bytes());
-}
 
 // -- SkGlyphRunList -------------------------------------------------------------------------------
 SkGlyphRunList::SkGlyphRunList() = default;
