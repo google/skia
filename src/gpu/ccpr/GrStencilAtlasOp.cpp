@@ -10,6 +10,7 @@
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsRenderPass.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/ccpr/GrCCPerFlushResources.h"
 #include "src/gpu/ccpr/GrSampleMaskProcessor.h"
@@ -147,6 +148,15 @@ void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chain
     mesh.setInstanced(fResources->refStencilResolveBuffer(),
                       fEndStencilResolveInstance - fBaseStencilResolveInstance,
                       fBaseStencilResolveInstance, 4);
-    flushState->opsRenderPass()->draw(StencilResolveProcessor(), resolvePipeline, &scissorRectState,
-                                      nullptr, &mesh, 1, SkRect::Make(drawBoundsRect));
+
+    StencilResolveProcessor primProc;
+
+    GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
+                              flushState->drawOpArgs().origin(),
+                              resolvePipeline,
+                              primProc,
+                              &scissorRectState,
+                              nullptr);
+
+    flushState->opsRenderPass()->draw(programInfo, &mesh, 1, SkRect::Make(drawBoundsRect));
 }

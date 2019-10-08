@@ -15,9 +15,8 @@
 #include "src/gpu/GrColor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 
+class GrProgramInfo;
 class GrShaderCaps;
-class GrPipeline;
-class GrPrimitiveProcessor;
 
 /** This class describes a program to generate. It also serves as a program cache key */
 class GrProgramDesc {
@@ -29,18 +28,14 @@ public:
     * Builds a program descriptor. Before the descriptor can be used, the client must call finalize
     * on the returned GrProgramDesc.
     *
-    * @param GrPrimitiveProcessor The geometry
+    * @param desc         The built and finalized descriptor
+    * @param renderTarget The target of the draw
+    * @param programInfo  Program information need to build the key
     * @param hasPointSize Controls whether the shader will output a point size.
-    * @param GrPipeline  The optimized drawstate.  The descriptor will represent a program
-    *                        which this optstate can use to draw with.  The optstate contains
-    *                        general draw information, as well as the specific color, geometry,
-    *                        and coverage stages which will be used to generate the GL Program for
-    *                        this optstate.
-    * @param GrGpu          Ptr to the GrGpu object the program will be used with.
-    * @param GrProgramDesc  The built and finalized descriptor
+    * @param gpu          Pointer to the GrGpu object the program will be used with.
     **/
-    static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrPrimitiveProcessor&,
-                      bool hasPointSize, const GrPipeline&, GrGpu*);
+    static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrProgramInfo&,
+                      bool hasPointSize, GrGpu*);
 
     static bool BuildFromData(GrProgramDesc* desc, const void* keyData, size_t keyLength) {
         if (!SkTFitsIn<int>(keyLength)) {

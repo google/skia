@@ -12,6 +12,7 @@
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrPrimitiveProcessor.h"
 #include "src/gpu/GrProcessor.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrTexturePriv.h"
@@ -188,10 +189,8 @@ static bool gen_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
                                                                       fp.numCoordTransforms()), b);
 }
 
-bool GrProgramDesc::Build(
-        GrProgramDesc* desc, const GrRenderTarget* renderTarget,
-        const GrPrimitiveProcessor& primProc, bool hasPointSize, const GrPipeline& pipeline,
-        GrGpu* gpu) {
+bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarget,
+                          const GrProgramInfo& programInfo, bool hasPointSize, GrGpu* gpu) {
     // The descriptor is used as a cache key. Thus when a field of the
     // descriptor will not affect program generation (because of the attribute
     // bindings in use or other descriptor field settings) it should be set
@@ -206,28 +205,30 @@ bool GrProgramDesc::Build(
 
     GrProcessorKeyBuilder b(&desc->key());
 
-    primProc.getGLSLProcessorKey(shaderCaps, &b);
-    primProc.getAttributeKey(&b);
-    if (!gen_meta_key(primProc, shaderCaps, 0, &b)) {
+    programInfo.primProc().getGLSLProcessorKey(shaderCaps, &b);
+    programInfo.primProc().getAttributeKey(&b);
+    if (!gen_meta_key(programInfo.primProc(), shaderCaps, 0, &b)) {
         desc->key().reset();
         return false;
     }
-    GrProcessor::CustomFeatures processorFeatures = primProc.requestedFeatures();
 
-    for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
-        const GrFragmentProcessor& fp = pipeline.getFragmentProcessor(i);
-        if (!gen_frag_proc_and_meta_keys(primProc, fp, gpu, shaderCaps, &b)) {
+    // TODO: use programInfo.requestedFeatures here
+    GrProcessor::CustomFeatures processorFeatures = programInfo.primProc().requestedFeatures();
+
+    for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
+        const GrFragmentProcessor& fp = programInfo.pipeline().getFragmentProcessor(i);
+        if (!gen_frag_proc_and_meta_keys(programInfo.primProc(), fp, gpu, shaderCaps, &b)) {
             desc->key().reset();
             return false;
         }
         processorFeatures |= fp.requestedFeatures();
     }
 
-    const GrXferProcessor& xp = pipeline.getXferProcessor();
+    const GrXferProcessor& xp = programInfo.pipeline().getXferProcessor();
     const GrSurfaceOrigin* originIfDstTexture = nullptr;
     GrSurfaceOrigin origin;
-    if (pipeline.dstTextureProxy()) {
-        origin = pipeline.dstTextureProxy()->origin();
+    if (programInfo.pipeline().dstTextureProxy()) {
+        origin = programInfo.pipeline().dstTextureProxy()->origin();
         originIfDstTexture = &origin;
     }
     xp.getGLSLProcessorKey(shaderCaps, &b, originIfDstTexture);
@@ -238,7 +239,7 @@ bool GrProgramDesc::Build(
     processorFeatures |= xp.requestedFeatures();
 
     if (processorFeatures & GrProcessor::CustomFeatures::kSampleLocations) {
-        SkASSERT(pipeline.isHWAntialiasState());
+        SkASSERT(programInfo.pipeline().isHWAntialiasState());
         b.add32(renderTarget->renderTargetPriv().getSamplePatternKey());
     }
 
@@ -249,17 +250,18 @@ bool GrProgramDesc::Build(
 
     // make sure any padding in the header is zeroed.
     memset(header, 0, kHeaderSize);
-    header->fOutputSwizzle = pipeline.outputSwizzle().asKey();
-    header->fColorFragmentProcessorCnt = pipeline.numColorFragmentProcessors();
-    header->fCoverageFragmentProcessorCnt = pipeline.numCoverageFragmentProcessors();
+    header->fOutputSwizzle = programInfo.pipeline().outputSwizzle().asKey();
+    header->fColorFragmentProcessorCnt = programInfo.pipeline().numColorFragmentProcessors();
+    header->fCoverageFragmentProcessorCnt = programInfo.pipeline().numCoverageFragmentProcessors();
     // Fail if the client requested more processors than the key can fit.
-    if (header->fColorFragmentProcessorCnt != pipeline.numColorFragmentProcessors() ||
-        header->fCoverageFragmentProcessorCnt != pipeline.numCoverageFragmentProcessors()) {
+    if (header->fColorFragmentProcessorCnt != programInfo.pipeline().numColorFragmentProcessors() ||
+        header->fCoverageFragmentProcessorCnt !=
+                                         programInfo.pipeline().numCoverageFragmentProcessors()) {
         return false;
     }
     header->fProcessorFeatures = (uint8_t)processorFeatures;
     SkASSERT(header->processorFeatures() == processorFeatures);  // Ensure enough bits.
-    header->fSnapVerticesToPixelCenters = pipeline.snapVerticesToPixelCenters();
+    header->fSnapVerticesToPixelCenters = programInfo.pipeline().snapVerticesToPixelCenters();
     header->fHasPointSize = hasPointSize ? 1 : 0;
     return true;
 }

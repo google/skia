@@ -13,6 +13,7 @@
 #include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrImageInfo.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrResourceProvider.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -52,10 +53,16 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
             this->opsRenderPass()->inlineUpload(this, fCurrUpload->fUpload);
             ++fCurrUpload;
         }
-        this->opsRenderPass()->draw(
-                *fCurrDraw->fGeometryProcessor, *pipeline, fCurrDraw->fFixedDynamicState,
-                fCurrDraw->fDynamicStateArrays, fCurrDraw->fMeshes, fCurrDraw->fMeshCnt,
-                chainBounds);
+
+        GrProgramInfo programInfo(this->proxy()->numSamples(),
+                                  this->proxy()->origin(),
+                                  *pipeline,
+                                  *fCurrDraw->fGeometryProcessor,
+                                  fCurrDraw->fFixedDynamicState,
+                                  fCurrDraw->fDynamicStateArrays);
+
+        this->opsRenderPass()->draw(programInfo, fCurrDraw->fMeshes,
+                                    fCurrDraw->fMeshCnt, chainBounds);
         fTokenTracker->flushToken();
         ++fCurrDraw;
     }

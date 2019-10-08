@@ -40,8 +40,7 @@ public:
     public:
         static bool Build(Desc*,
                           GrRenderTarget*,
-                          const GrPrimitiveProcessor&,
-                          const GrPipeline&,
+                          const GrProgramInfo&,
                           const GrStencilSettings&,
                           GrPrimitiveType primitiveType,
                           GrVkGpu* gpu);
@@ -64,11 +63,7 @@ public:
     */
     static GrVkPipelineState* CreatePipelineState(GrVkGpu*,
                                                   GrRenderTarget*,
-                                                  int numSamples,
-                                                  GrSurfaceOrigin,
-                                                  const GrPrimitiveProcessor&,
-                                                  const GrTextureProxy* const primProcProxies[],
-                                                  const GrPipeline&,
+                                                  const GrProgramInfo&,
                                                   const GrStencilSettings&,
                                                   GrPrimitiveType,
                                                   Desc*,
@@ -82,13 +77,7 @@ public:
     void finalizeFragmentSecondaryColor(GrShaderVar& outputColor) override;
 
 private:
-    GrVkPipelineStateBuilder(GrVkGpu*, GrRenderTarget*,
-                             int numSamples,
-                             GrSurfaceOrigin,
-                             const GrPipeline&,
-                             const GrPrimitiveProcessor&,
-                             const GrTextureProxy* const primProcProxies[],
-                             GrProgramDesc*);
+    GrVkPipelineStateBuilder(GrVkGpu*, GrRenderTarget*, const GrProgramInfo&, GrProgramDesc*);
 
     GrVkPipelineState* finalize(const GrStencilSettings&,
                                 GrPrimitiveType primitiveType,

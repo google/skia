@@ -112,14 +112,10 @@ void GrGLPathRendering::onStencilPath(const StencilPathArgs& args, const GrPath*
 }
 
 void GrGLPathRendering::onDrawPath(GrRenderTarget* renderTarget,
-                                   int numSamples, GrSurfaceOrigin origin,
-                                   const GrPrimitiveProcessor& primProc,
-                                   const GrPipeline& pipeline,
-                                   const GrPipeline::FixedDynamicState& fixedDynamicState,
+                                   const GrProgramInfo& programInfo,
                                    const GrStencilSettings& stencilPassSettings,
                                    const GrPath* path) {
-    if (!this->gpu()->flushGLState(renderTarget, numSamples, origin, primProc, pipeline,
-                                   &fixedDynamicState, nullptr, 1, false)) {
+    if (!this->gpu()->flushGLState(renderTarget, programInfo, false)) {
         return;
     }
     const GrGLPath* glPath = static_cast<const GrGLPath*>(path);

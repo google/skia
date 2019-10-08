@@ -58,23 +58,23 @@ GrMtlPipelineState::GrMtlPipelineState(
 }
 
 void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
-                                 GrSurfaceOrigin origin,
-                                 const GrPrimitiveProcessor& primProc,
-                                 const GrPipeline& pipeline,
-                                 const GrTextureProxy* const primProcTextures[]) {
-    SkASSERT(primProcTextures || !primProc.numTextureSamplers());
+                                 const GrProgramInfo& programInfo) {
+    SkASSERT(programInfo.primProcProxies() || !programInfo.primProc().numTextureSamplers());
 
-    this->setRenderTargetState(renderTarget, origin);
-    fGeometryProcessor->setData(fDataManager, primProc,
-                                GrFragmentProcessor::CoordTransformIter(pipeline));
+    // Note: the Metal backend currently only supports fixed primProc textures
+    const GrTextureProxy* const* primProcProxies = programInfo.primProcProxies();
+
+    this->setRenderTargetState(renderTarget, programInfo.origin());
+    fGeometryProcessor->setData(fDataManager, programInfo.primProc(),
+                                GrFragmentProcessor::CoordTransformIter(programInfo.pipeline()));
     fSamplerBindings.reset();
-    for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-        const auto& sampler = primProc.textureSampler(i);
-        auto texture = static_cast<GrMtlTexture*>(primProcTextures[i]->peekTexture());
+    for (int i = 0; i < programInfo.primProc().numTextureSamplers(); ++i) {
+        const auto& sampler = programInfo.primProc().textureSampler(i);
+        auto texture = static_cast<GrMtlTexture*>(primProcProxies[i]->peekTexture());
         fSamplerBindings.emplace_back(sampler.samplerState(), texture, fGpu);
     }
 
-    GrFragmentProcessor::Iter iter(pipeline);
+    GrFragmentProcessor::Iter iter(programInfo.pipeline());
     GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
     const GrFragmentProcessor* fp = iter.next();
     GrGLSLFragmentProcessor* glslFP = glslIter.next();
@@ -91,12 +91,13 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
 
     {
         SkIPoint offset;
-        GrTexture* dstTexture = pipeline.peekDstTexture(&offset);
+        GrTexture* dstTexture = programInfo.pipeline().peekDstTexture(&offset);
 
-        fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
+        fXferProcessor->setData(fDataManager, programInfo.pipeline().getXferProcessor(),
+                                dstTexture, offset);
     }
 
-    if (GrTextureProxy* dstTextureProxy = pipeline.dstTextureProxy()) {
+    if (GrTextureProxy* dstTextureProxy = programInfo.pipeline().dstTextureProxy()) {
         fSamplerBindings.emplace_back(GrSamplerState::ClampNearest(),
                                       dstTextureProxy->peekTexture(),
                                       fGpu);
@@ -105,9 +106,10 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
     SkASSERT(fNumSamplers == fSamplerBindings.count());
     fDataManager.resetDirtyBits();
 
-    if (pipeline.isStencilEnabled()) {
+    if (programInfo.pipeline().isStencilEnabled()) {
         SkASSERT(renderTarget->renderTargetPriv().getStencilAttachment());
-        fStencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(),
+        fStencil.reset(*programInfo.pipeline().getUserStencil(),
+                       programInfo.pipeline().hasStencilClip(),
                        renderTarget->renderTargetPriv().numStencilBits());
     }
 }

@@ -38,11 +38,10 @@ GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
 }
 
 GrMtlPipelineState* GrMtlResourceProvider::findOrCreateCompatiblePipelineState(
-        GrRenderTarget* renderTarget, int numSamples, GrSurfaceOrigin origin,
-        const GrPipeline& pipeline, const GrPrimitiveProcessor& proc,
-        const GrTextureProxy* const primProcProxies[], GrPrimitiveType primType) {
-    return fPipelineStateCache->refPipelineState(renderTarget, numSamples, origin, proc,
-                                                 primProcProxies, pipeline, primType);
+        GrRenderTarget* renderTarget,
+        const GrProgramInfo& programInfo,
+        GrPrimitiveType primType) {
+    return fPipelineStateCache->refPipelineState(renderTarget, programInfo, primType);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -137,25 +136,23 @@ void GrMtlResourceProvider::PipelineStateCache::release() {
 
 GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
         GrRenderTarget* renderTarget,
-        int numSamples,
-        GrSurfaceOrigin origin,
-        const GrPrimitiveProcessor& primProc,
-        const GrTextureProxy* const primProcProxies[],
-        const GrPipeline& pipeline,
+        const GrProgramInfo& programInfo,
         GrPrimitiveType primType) {
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     ++fTotalRequests;
 #endif
+
+    // TODO: unify GL, VK and Mtl
     // Get GrMtlProgramDesc
     GrMtlPipelineStateBuilder::Desc desc;
-    if (!GrMtlPipelineStateBuilder::Desc::Build(&desc, renderTarget, primProc, pipeline, primType,
-                                                fGpu)) {
+    if (!GrMtlPipelineStateBuilder::Desc::Build(&desc, renderTarget, programInfo, primType, fGpu)) {
         GrCapsDebugf(fGpu->caps(), "Failed to build mtl program descriptor!\n");
         return nullptr;
     }
     // If we knew the shader won't depend on origin, we could skip this (and use the same program
     // for both origins). Instrumenting all fragment processors would be difficult and error prone.
-    desc.setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(origin));
+    desc.setSurfaceOriginKey(
+            GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(programInfo.origin()));
 
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (!entry) {
@@ -163,8 +160,8 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
         ++fCacheMisses;
 #endif
         GrMtlPipelineState* pipelineState(GrMtlPipelineStateBuilder::CreatePipelineState(
-            fGpu, renderTarget, numSamples, origin, primProc, primProcProxies, pipeline, &desc));
-        if (nullptr == pipelineState) {
+            fGpu, renderTarget, programInfo, &desc));
+        if (!pipelineState) {
             return nullptr;
         }
         entry = fMap.insert(desc, std::unique_ptr<Entry>(new Entry(fGpu, pipelineState)));

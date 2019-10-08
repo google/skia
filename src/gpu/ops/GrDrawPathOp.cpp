@@ -9,6 +9,7 @@
 #include "include/private/SkTemplates.h"
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetPriv.h"
@@ -92,13 +93,17 @@ void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
                         std::move(appliedClip));
     sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(), this->viewMatrix()));
 
+    GrProgramInfo programInfo(state->drawOpArgs().numSamples(),
+                              state->drawOpArgs().origin(),
+                              pipeline,
+                              *pathProc,
+                              &fixedDynamicState,
+                              nullptr);
+
     GrStencilSettings stencil;
     init_stencil_pass_settings(*state, this->fillType(), &stencil);
     state->gpu()->pathRendering()->drawPath(state->drawOpArgs().renderTarget(),
-                                            state->drawOpArgs().renderTarget()->numSamples(),
-                                            state->drawOpArgs().origin(),
-                                            *pathProc, pipeline, fixedDynamicState, stencil,
-                                            fPath.get());
+                                            programInfo, stencil, fPath.get());
 }
 
 //////////////////////////////////////////////////////////////////////////////

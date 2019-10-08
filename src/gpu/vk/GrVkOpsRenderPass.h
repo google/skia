@@ -70,19 +70,10 @@ private:
                       const GrGpuBuffer* vertexBuffer,
                       const GrGpuBuffer* instanceBuffer);
 
-    GrVkPipelineState* prepareDrawState(const GrPrimitiveProcessor&,
-                                        const GrPipeline&,
-                                        const GrPipeline::FixedDynamicState*,
-                                        const GrPipeline::DynamicStateArrays*,
-                                        GrPrimitiveType,
+    GrVkPipelineState* prepareDrawState(const GrProgramInfo&, GrPrimitiveType,
                                         const SkIRect& renderPassScissorRect);
 
-    void onDraw(const GrPrimitiveProcessor&,
-                const GrPipeline&,
-                const GrPipeline::FixedDynamicState*,
-                const GrPipeline::DynamicStateArrays*,
-                const GrMesh[],
-                int meshCount,
+    void onDraw(const GrProgramInfo&, const GrMesh[], int meshCount,
                 const SkRect& bounds) override;
 
     // GrMesh::SendToGpuImpl methods. These issue the actual Vulkan draw commands.

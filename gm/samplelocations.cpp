@@ -235,11 +235,17 @@ private:
                             flushState->drawOpArgs().outputSwizzle(),
                             GrPipeline::InputFlags::kHWAntialias, &kStencilWrite);
 
+        SampleLocationsTestProcessor primProc(fGradType);
+
+        GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
+                                  flushState->drawOpArgs().origin(),
+                                  pipeline,
+                                  primProc,
+                                  nullptr, nullptr);
+
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setInstanced(nullptr, 200*200, 0, 4);
-        flushState->opsRenderPass()->draw(
-                SampleLocationsTestProcessor(fGradType), pipeline, nullptr, nullptr, &mesh, 1,
-                SkRect::MakeIWH(200, 200));
+        flushState->opsRenderPass()->draw(programInfo, &mesh, 1, SkRect::MakeIWH(200, 200));
     }
 
     const GradType fGradType;

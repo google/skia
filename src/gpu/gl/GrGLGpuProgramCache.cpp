@@ -47,30 +47,29 @@ void GrGLGpu::ProgramCache::reset() {
 
 GrGLProgram* GrGLGpu::ProgramCache::refProgram(GrGLGpu* gpu,
                                                GrRenderTarget* renderTarget,
-                                               int numSamples,
-                                               GrSurfaceOrigin origin,
-                                               const GrPrimitiveProcessor& primProc,
-                                               const GrTextureProxy* const primProcProxies[],
-                                               const GrPipeline& pipeline,
+                                               const GrProgramInfo& programInfo,
                                                bool isPoints) {
+
+
+    // TODO: can this be unified between GL and Vk?
     // Get GrGLProgramDesc
     GrProgramDesc desc;
-    if (!GrProgramDesc::Build(&desc, renderTarget, primProc, isPoints, pipeline, gpu)) {
+    if (!GrProgramDesc::Build(&desc, renderTarget, programInfo, isPoints, gpu)) {
         GrCapsDebugf(gpu->caps(), "Failed to gl program descriptor!\n");
         return nullptr;
     }
     // If we knew the shader won't depend on origin, we could skip this (and use the same program
     // for both origins). Instrumenting all fragment processors would be difficult and error prone.
-    desc.setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(origin));
+    desc.setSurfaceOriginKey(
+            GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(programInfo.origin()));
 
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (entry && !(*entry)->fProgram) {
         // We've pre-compiled the GL program, but don't have the GrGLProgram scaffolding
         const GrGLPrecompiledProgram* precompiledProgram = &((*entry)->fPrecompiledProgram);
         SkASSERT(precompiledProgram->fProgramID != 0);
-        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(renderTarget, numSamples, origin,
-                                                                 primProc, primProcProxies,
-                                                                 pipeline, &desc, fGpu,
+        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(renderTarget, programInfo,
+                                                                 &desc, fGpu,
                                                                  precompiledProgram);
         if (nullptr == program) {
             // Should we purge the program ID from the cache at this point?
@@ -80,9 +79,8 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(GrGLGpu* gpu,
         (*entry)->fProgram.reset(program);
     } else if (!entry) {
         // We have a cache miss
-        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(renderTarget, numSamples, origin,
-                                                                 primProc, primProcProxies,
-                                                                 pipeline, &desc, fGpu);
+        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(renderTarget, programInfo,
+                                                                 &desc, fGpu);
         if (nullptr == program) {
             return nullptr;
         }

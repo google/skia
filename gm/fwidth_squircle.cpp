@@ -30,6 +30,7 @@
 #include "src/gpu/GrPrimitiveProcessor.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProcessorSet.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
@@ -150,7 +151,7 @@ private:
         this->setBounds(SkRect::MakeIWH(kWidth, kHeight), HasAABloat::kNo, IsHairline::kNo);
     }
 
-    const char* name() const override { return "ClockwiseTestOp"; }
+    const char* name() const override { return "FwidthSquircleTestOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
     GrProcessorSet::Analysis finalize(
             const GrCaps&, const GrAppliedClip*, bool hasMixedSampledCoverage, GrClampType) override {
@@ -172,12 +173,19 @@ private:
         }
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrcOver,
                             flushState->drawOpArgs().outputSwizzle());
+
+        FwidthSquircleTestProcessor primProc(fViewMatrix);
+
+        GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
+                                  flushState->drawOpArgs().origin(),
+                                  pipeline,
+                                  primProc,
+                                  nullptr, nullptr);
+
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setNonIndexedNonInstanced(4);
         mesh.setVertexData(std::move(fVertexBuffer));
-        flushState->opsRenderPass()->draw(FwidthSquircleTestProcessor(fViewMatrix), pipeline,
-                                          nullptr, nullptr, &mesh, 1, SkRect::MakeIWH(kWidth,
-                                                                                      kHeight));
+        flushState->opsRenderPass()->draw(programInfo, &mesh, 1, SkRect::MakeIWH(kWidth, kHeight));
     }
 
     sk_sp<GrBuffer> fVertexBuffer;

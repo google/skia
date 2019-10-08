@@ -43,11 +43,8 @@ public:
     // Set up any initial vk objects
     void init();
 
-    GrVkPipeline* createPipeline(int numColorSamples,
-                                 const GrPrimitiveProcessor& primProc,
-                                 const GrPipeline& pipeline,
+    GrVkPipeline* createPipeline(const GrProgramInfo&,
                                  const GrStencilSettings& stencil,
-                                 GrSurfaceOrigin,
                                  VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                  int shaderStageCount,
                                  GrPrimitiveType primitiveType,
@@ -114,10 +111,8 @@ public:
             const GrVkYcbcrConversionInfo& ycbcrInfo);
 
     GrVkPipelineState* findOrCreateCompatiblePipelineState(
-            GrRenderTarget*, int numSamples, GrSurfaceOrigin,
-            const GrPipeline&,
-            const GrPrimitiveProcessor&,
-            const GrTextureProxy* const primProcProxies[],
+            GrRenderTarget*,
+            const GrProgramInfo&,
             GrPrimitiveType,
             VkRenderPass compatibleRenderPass);
 
@@ -197,10 +192,8 @@ private:
 
         void abandon();
         void release();
-        GrVkPipelineState* refPipelineState(GrRenderTarget*, int numSamples, GrSurfaceOrigin,
-                                            const GrPrimitiveProcessor&,
-                                            const GrTextureProxy* const primProcProxies[],
-                                            const GrPipeline&,
+        GrVkPipelineState* refPipelineState(GrRenderTarget*,
+                                            const GrProgramInfo&,
                                             GrPrimitiveType,
                                             VkRenderPass compatibleRenderPass);
 

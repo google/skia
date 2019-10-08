@@ -91,19 +91,16 @@ void GrVkResourceProvider::init() {
     fUniformDSHandle = GrVkDescriptorSetManager::Handle(0);
 }
 
-GrVkPipeline* GrVkResourceProvider::createPipeline(int numColorSamples,
-                                                   const GrPrimitiveProcessor& primProc,
-                                                   const GrPipeline& pipeline,
+GrVkPipeline* GrVkResourceProvider::createPipeline(const GrProgramInfo& programInfo,
                                                    const GrStencilSettings& stencil,
-                                                   GrSurfaceOrigin origin,
                                                    VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                                    int shaderStageCount,
                                                    GrPrimitiveType primitiveType,
                                                    VkRenderPass compatibleRenderPass,
                                                    VkPipelineLayout layout) {
-    return GrVkPipeline::Create(
-            fGpu, numColorSamples, primProc, pipeline, stencil, origin, shaderStageInfo,
-            shaderStageCount, primitiveType, compatibleRenderPass, layout, this->pipelineCache());
+    return GrVkPipeline::Create(fGpu, programInfo, stencil, shaderStageInfo,
+                                shaderStageCount, primitiveType, compatibleRenderPass,
+                                layout, this->pipelineCache());
 }
 
 // To create framebuffers, we first need to create a simple RenderPass that is
@@ -228,13 +225,12 @@ GrVkSamplerYcbcrConversion* GrVkResourceProvider::findOrCreateCompatibleSamplerY
 }
 
 GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
-        GrRenderTarget* renderTarget, int numSamples, GrSurfaceOrigin origin,
-        const GrPipeline& pipeline, const GrPrimitiveProcessor& proc,
-        const GrTextureProxy* const primProcProxies[], GrPrimitiveType primitiveType,
+        GrRenderTarget* renderTarget,
+        const GrProgramInfo& programInfo,
+        GrPrimitiveType primitiveType,
         VkRenderPass compatibleRenderPass) {
-    return fPipelineStateCache->refPipelineState(renderTarget, numSamples, origin, proc,
-                                                 primProcProxies, pipeline, primitiveType,
-                                                 compatibleRenderPass);
+    return fPipelineStateCache->refPipelineState(renderTarget, programInfo,
+                                                 primitiveType, compatibleRenderPass);
 }
 
 void GrVkResourceProvider::getSamplerDescriptorSetHandle(VkDescriptorType type,
