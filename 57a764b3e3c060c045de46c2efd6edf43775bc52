@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be46af9e_a4c8442e",
+        "filename": "src/gpu/GrProgramDesc.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-08T18:36:05Z",
+      "side": 1,
+      "message": "why not use it then?",
+      "range": {
+        "startLine": 215,
+        "startChar": 4,
+        "endLine": 215,
+        "endChar": 51
+      },
+      "revId": "57a764b3e3c060c045de46c2efd6edf43775bc52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bf26085_15d49407",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 2177,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-08T18:36:05Z",
+      "side": 1,
+      "message": "seems like we should either just check this in GrOpsRenderPass base class (and then we can assert here), or we should just let all the sub classes do the check and remove it form the base.",
+      "range": {
+        "startLine": 2175,
+        "startChar": 5,
+        "endLine": 2177,
+        "endChar": 5
+      },
+      "revId": "57a764b3e3c060c045de46c2efd6edf43775bc52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
