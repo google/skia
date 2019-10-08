@@ -27,7 +27,6 @@ public:
             , fDstOffset(dstOffset) {}
 
 private:
-    void onPrepare(GrOpFlushState*) override {}
     bool onIsUsed(GrSurfaceProxy* proxy) const override {
         SkASSERT(!fTarget);
         return proxy == fSrcProxy.get();
