@@ -648,7 +648,9 @@ private:
         // formats. Also used to upload zeros to initially clear a texture.
         GrGLenum fDefaultExternalFormat = 0;
         GrGLenum fDefaultExternalType = 0;
-        GrGLenum fTexSubImageZeroDataBpp = 0;
+
+        // This value is only valid for regular formats. Planar and compressed formats will be 0.
+        GrGLenum fBytesPerPixel = 0;
 
         enum {
             // This indicates that a stencil format has not yet been determined for the config.
