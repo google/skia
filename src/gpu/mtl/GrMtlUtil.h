@@ -110,8 +110,6 @@ id<MTLRenderPipelineState> GrMtlNewRenderPipelineStateWithDescriptor(
  */
 id<MTLTexture> GrGetMTLTextureFromSurface(GrSurface* surface);
 
-size_t GrMtlBytesPerFormat(MTLPixelFormat);
-
 static inline MTLPixelFormat GrBackendFormatAsMTLPixelFormat(const GrBackendFormat& format) {
     return static_cast<MTLPixelFormat>(format.asMtlFormat());
 }
