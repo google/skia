@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ce7cb99_260270e9",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-08T20:22:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d34c7d90_2f3da3c8",
+      "range": {
+        "startLine": 429,
+        "startChar": 28,
+        "endLine": 429,
+        "endChar": 39
+      },
+      "revId": "d09d451036459349232c385db2c952d0bd37fa36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

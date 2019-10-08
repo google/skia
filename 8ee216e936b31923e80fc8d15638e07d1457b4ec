@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bb027942_6629bdd5",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-08T20:22:09Z",
+      "side": 1,
+      "message": "PTAL",
+      "parentUuid": "db0582e2_083645d9",
+      "range": {
+        "startLine": 438,
+        "startChar": 8,
+        "endLine": 439,
+        "endChar": 27
+      },
+      "revId": "8ee216e936b31923e80fc8d15638e07d1457b4ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2bd6ba94_a37036c6",
         "filename": "src/gpu/GrOpsTask.cpp",
         "patchSetId": 9
@@ -45,6 +69,30 @@
       "revId": "8ee216e936b31923e80fc8d15638e07d1457b4ec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb97f166_3e11b3fd",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-08T20:22:09Z",
+      "side": 1,
+      "message": "I added it for uniformity but in both cases this skips there would be no chains anyway.",
+      "parentUuid": "2bd6ba94_a37036c6",
+      "range": {
+        "startLine": 412,
+        "startChar": 0,
+        "endLine": 414,
+        "endChar": 5
+      },
+      "revId": "8ee216e936b31923e80fc8d15638e07d1457b4ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
