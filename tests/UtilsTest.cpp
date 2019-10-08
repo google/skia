@@ -316,9 +316,27 @@ DEF_TEST(SkZip, reporter) {
         REPORTER_ASSERT(reporter, i = 4);
     }
 
-    // Check copy.
-    auto zz{z};
     {
+        // Check first(n)
+        int i = 0;
+        for (auto t : z.first(2)) {
+            uint16_t a; float b; int c; int d; int s;
+            std::tie(a, b, c, d, s) = t;
+            REPORTER_ASSERT(reporter, a == A[i]);
+            REPORTER_ASSERT(reporter, b == B[i]);
+            REPORTER_ASSERT(reporter, c == C[i]);
+            REPORTER_ASSERT(reporter, d == D[i]);
+            REPORTER_ASSERT(reporter, s == S[i]);
+
+            i++;
+        }
+        REPORTER_ASSERT(reporter, i = 2);
+    }
+
+
+    {
+        // Check copy.
+        auto zz{z};
         int i = 0;
         for (auto t : zz) {
             uint16_t a; float b; int c; int d; int s;
@@ -334,8 +352,33 @@ DEF_TEST(SkZip, reporter) {
         REPORTER_ASSERT(reporter, i = 4);
     }
 
-    // Check index getter
     {
+        // Check const restricting copy
+        SkZip<const uint16_t, const float, const int, int, int> cz = z;
+        int i = 0;
+        for (auto t : cz) {
+            uint16_t a; float b; int c; int d; int s;
+            std::tie(a, b, c, d, s) = t;
+            REPORTER_ASSERT(reporter, a == A[i]);
+            REPORTER_ASSERT(reporter, b == B[i]);
+            REPORTER_ASSERT(reporter, c == C[i]);
+            REPORTER_ASSERT(reporter, d == D[i]);
+            REPORTER_ASSERT(reporter, s == S[i]);
+
+            i++;
+        }
+        REPORTER_ASSERT(reporter, i = 4);
+    }
+
+    {
+        // Check data() returns all the original pointers
+        auto ptrs = z.data();
+        REPORTER_ASSERT(reporter,
+                ptrs == std::make_tuple(&A[0], &B[0], C.data(), D.data(), S.data()));
+    }
+
+    {
+        // Check index getter
         auto span = z.get<1>();
         REPORTER_ASSERT(reporter, span[1] == 20.f);
     }
