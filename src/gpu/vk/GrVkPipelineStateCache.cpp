@@ -78,34 +78,33 @@ void GrVkResourceProvider::PipelineStateCache::release() {
 
 GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
         GrRenderTarget* renderTarget,
-        int numSamples,
-        GrSurfaceOrigin origin,
-        const GrPrimitiveProcessor& primProc,
-        const GrTextureProxy* const primProcProxies[],
-        const GrPipeline& pipeline,
+        const GrProgramInfo& programInfo,
         GrPrimitiveType primitiveType,
         VkRenderPass compatibleRenderPass) {
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     ++fTotalRequests;
 #endif
     GrStencilSettings stencil;
-    if (pipeline.isStencilEnabled()) {
+    if (programInfo.pipeline().isStencilEnabled()) {
         // TODO: attach stencil and create settings during render target flush.
         SkASSERT(renderTarget->renderTargetPriv().getStencilAttachment());
-        stencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(),
+        stencil.reset(*programInfo.pipeline().getUserStencil(),
+                      programInfo.pipeline().hasStencilClip(),
                       renderTarget->renderTargetPriv().numStencilBits());
     }
 
+    // TODO: can this be unified between Vulkan and GL?
     // Get GrVkProgramDesc
     GrVkPipelineStateBuilder::Desc desc;
-    if (!GrVkPipelineStateBuilder::Desc::Build(&desc, renderTarget, primProc, pipeline, stencil,
+    if (!GrVkPipelineStateBuilder::Desc::Build(&desc, renderTarget, programInfo, stencil,
                                                primitiveType, fGpu)) {
         GrCapsDebugf(fGpu->caps(), "Failed to build vk program descriptor!\n");
         return nullptr;
     }
     // If we knew the shader won't depend on origin, we could skip this (and use the same program
     // for both origins). Instrumenting all fragment processors would be difficult and error prone.
-    desc.setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(origin));
+    desc.setSurfaceOriginKey(
+            GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(programInfo.origin()));
 
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (!entry) {
@@ -113,9 +112,9 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
         ++fCacheMisses;
 #endif
         GrVkPipelineState* pipelineState(GrVkPipelineStateBuilder::CreatePipelineState(
-                fGpu, renderTarget, numSamples, origin, primProc, primProcProxies, pipeline,
+                fGpu, renderTarget, programInfo,
                 stencil, primitiveType, &desc, compatibleRenderPass));
-        if (nullptr == pipelineState) {
+        if (!pipelineState) {
             return nullptr;
         }
         entry = fMap.insert(desc, std::unique_ptr<Entry>(new Entry(fGpu, pipelineState)));

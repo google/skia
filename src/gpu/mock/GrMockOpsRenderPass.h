@@ -35,9 +35,8 @@ public:
     int numDraws() const { return fNumDraws; }
 
 private:
-    void onDraw(const GrPrimitiveProcessor&, const GrPipeline&,
-                const GrPipeline::FixedDynamicState*, const GrPipeline::DynamicStateArrays*,
-                const GrMesh[], int meshCount, const SkRect& bounds) override {
+    void onDraw(const GrProgramInfo&, const GrMesh[], int meshCount,
+                const SkRect& bounds) override {
         this->markRenderTargetDirty();
         ++fNumDraws;
     }

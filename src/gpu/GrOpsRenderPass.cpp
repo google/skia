@@ -15,6 +15,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMesh.h"
 #include "src/gpu/GrPrimitiveProcessor.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrTexturePriv.h"
@@ -35,10 +36,7 @@ void GrOpsRenderPass::clearStencilClip(const GrFixedClip& clip, bool insideStenc
 }
 
 #ifdef SK_DEBUG
-static void assert_msaa_and_mips_are_resolved(
-        const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
-        const GrPipeline::FixedDynamicState* fixedDynamicState,
-        const GrPipeline::DynamicStateArrays* dynamicStateArrays, int meshCount) {
+static void assert_msaa_and_mips_are_resolved(const GrProgramInfo& programInfo, int meshCount) {
     auto assertResolved = [](GrTexture* tex, const GrSamplerState& sampler) {
         SkASSERT(tex);
 
@@ -52,68 +50,81 @@ static void assert_msaa_and_mips_are_resolved(
         }
     };
 
-    if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
-        for (int m = 0, i = 0; m < meshCount; ++m) {
-            for (int s = 0; s < primProc.numTextureSamplers(); ++s, ++i) {
-                auto* tex = dynamicStateArrays->fPrimitiveProcessorTextures[i]->peekTexture();
-                assertResolved(tex, primProc.textureSampler(s).samplerState());
+    if (programInfo.hasDynamicPrimProcTextures()) {
+        for (int m = 0; m < meshCount; ++m) {
+            auto dynamicPrimProcTextures = programInfo.dynamicPrimProcTextures(m);
+
+            for (int s = 0; s < programInfo.primProc().numTextureSamplers(); ++s) {
+                auto* tex = dynamicPrimProcTextures[s]->peekTexture();
+                assertResolved(tex, programInfo.primProc().textureSampler(s).samplerState());
             }
         }
-    } else {
-        for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-            auto* tex = fixedDynamicState->fPrimitiveProcessorTextures[i]->peekTexture();
-            assertResolved(tex, primProc.textureSampler(i).samplerState());
+    } else if (programInfo.hasFixedPrimProcTextures()) {
+        auto fixedPrimProcTextures = programInfo.fixedPrimProcTextures();
+
+        for (int s = 0; s < programInfo.primProc().numTextureSamplers(); ++s) {
+            auto* tex = fixedPrimProcTextures[s]->peekTexture();
+            assertResolved(tex, programInfo.primProc().textureSampler(s).samplerState());
         }
     }
 
-    GrFragmentProcessor::Iter iter(pipeline);
+    GrFragmentProcessor::Iter iter(programInfo.pipeline());
     while (const GrFragmentProcessor* fp = iter.next()) {
-        for (int i = 0; i < fp->numTextureSamplers(); ++i) {
-            const auto& textureSampler = fp->textureSampler(i);
+        for (int s = 0; s < fp->numTextureSamplers(); ++s) {
+            const auto& textureSampler = fp->textureSampler(s);
             assertResolved(textureSampler.peekTexture(), textureSampler.samplerState());
         }
     }
 }
 #endif
 
-bool GrOpsRenderPass::draw(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline,
-                           const GrPipeline::FixedDynamicState* fixedDynamicState,
-                           const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+bool GrOpsRenderPass::draw(const GrProgramInfo& programInfo,
                            const GrMesh meshes[], int meshCount, const SkRect& bounds) {
+    if (!meshCount) {
+        return true;
+    }
+
 #ifdef SK_DEBUG
-    SkASSERT(!primProc.hasInstanceAttributes() || this->gpu()->caps()->instanceAttribSupport());
+    SkASSERT(!programInfo.primProc().hasInstanceAttributes() ||
+             this->gpu()->caps()->instanceAttribSupport());
     for (int i = 0; i < meshCount; ++i) {
-        SkASSERT(primProc.hasVertexAttributes() == meshes[i].hasVertexData());
-        SkASSERT(primProc.hasInstanceAttributes() == meshes[i].hasInstanceData());
+        SkASSERT(programInfo.primProc().hasVertexAttributes() == meshes[i].hasVertexData());
+        SkASSERT(programInfo.primProc().hasInstanceAttributes() == meshes[i].hasInstanceData());
     }
 
-    SkASSERT(!pipeline.isScissorEnabled() || fixedDynamicState ||
-             (dynamicStateArrays && dynamicStateArrays->fScissorRects));
+    SkASSERT(!programInfo.pipeline().isScissorEnabled() || programInfo.fixedDynamicState() ||
+             (programInfo.dynamicStateArrays() && programInfo.dynamicStateArrays()->fScissorRects));
 
-    SkASSERT(!pipeline.isBad());
+    SkASSERT(!programInfo.pipeline().isBad());
 
-    if (fixedDynamicState && fixedDynamicState->fPrimitiveProcessorTextures) {
-        GrTextureProxy** processorProxies = fixedDynamicState->fPrimitiveProcessorTextures;
-        for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-            SkASSERT(processorProxies[i]->isInstantiated());
+    if (programInfo.hasFixedPrimProcTextures()) {
+        auto fixedPrimProcTextures = programInfo.fixedPrimProcTextures();
+        for (int s = 0; s < programInfo.primProc().numTextureSamplers(); ++s) {
+            SkASSERT(fixedPrimProcTextures[s]->isInstantiated());
         }
     }
-    if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
-        int n = primProc.numTextureSamplers() * meshCount;
-        const auto* textures = dynamicStateArrays->fPrimitiveProcessorTextures;
-        for (int i = 0; i < n; ++i) {
-            SkASSERT(textures[i]->isInstantiated());
+
+    if (programInfo.hasDynamicPrimProcTextures()) {
+        for (int m = 0; m < meshCount; ++m) {
+            auto dynamicPrimProcTextures = programInfo.dynamicPrimProcTextures(m);
+            for (int s = 0; s < programInfo.primProc().numTextureSamplers(); ++s) {
+                SkASSERT(dynamicPrimProcTextures[s]->isInstantiated());
+            }
         }
-        SkASSERT(meshCount >= 1);
-        const GrTextureProxy* const* primProcProxies =
-                dynamicStateArrays->fPrimitiveProcessorTextures;
-        for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-            const GrBackendFormat& format = primProcProxies[i]->backendFormat();
-            GrTextureType type = primProcProxies[i]->textureType();
-            GrPixelConfig config = primProcProxies[i]->config();
-            for (int j = 1; j < meshCount; ++j) {
-                const GrTextureProxy* testProxy =
-                        primProcProxies[j*primProc.numTextureSamplers() + i];
+
+        // Check that, for a given sampler, the properties of the dynamic textures remain
+        // the same for all the meshes
+        for (int s = 0; s < programInfo.primProc().numTextureSamplers(); ++s) {
+            auto dynamicPrimProcTextures = programInfo.dynamicPrimProcTextures(0);
+
+            const GrBackendFormat& format = dynamicPrimProcTextures[s]->backendFormat();
+            GrTextureType type = dynamicPrimProcTextures[s]->textureType();
+            GrPixelConfig config = dynamicPrimProcTextures[s]->config();
+
+            for (int m = 1; m < meshCount; ++m) {
+                dynamicPrimProcTextures = programInfo.dynamicPrimProcTextures(m);
+
+                auto testProxy = dynamicPrimProcTextures[s];
                 SkASSERT(testProxy->backendFormat() == format);
                 SkASSERT(testProxy->textureType() == type);
                 SkASSERT(testProxy->config() == config);
@@ -121,22 +132,17 @@ bool GrOpsRenderPass::draw(const GrPrimitiveProcessor& primProc, const GrPipelin
         }
     }
 
-    assert_msaa_and_mips_are_resolved(
-            primProc, pipeline, fixedDynamicState, dynamicStateArrays, meshCount);
+    assert_msaa_and_mips_are_resolved(programInfo, meshCount);
 #endif
 
-    if (primProc.numVertexAttributes() > this->gpu()->caps()->maxVertexAttributes()) {
+    if (programInfo.primProc().numVertexAttributes() > this->gpu()->caps()->maxVertexAttributes()) {
         this->gpu()->stats()->incNumFailedDraws();
         return false;
     }
-    this->onDraw(primProc, pipeline, fixedDynamicState, dynamicStateArrays, meshes, meshCount,
-                 bounds);
+    this->onDraw(programInfo, meshes, meshCount, bounds);
+
 #ifdef SK_DEBUG
-    GrProcessor::CustomFeatures processorFeatures = primProc.requestedFeatures();
-    for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
-        processorFeatures |= pipeline.getFragmentProcessor(i).requestedFeatures();
-    }
-    processorFeatures |= pipeline.getXferProcessor().requestedFeatures();
+    GrProcessor::CustomFeatures processorFeatures = programInfo.requestedFeatures();
     if (GrProcessor::CustomFeatures::kSampleLocations & processorFeatures) {
         // Verify we always have the same sample pattern key, regardless of graphics state.
         SkASSERT(this->gpu()->findOrAssignSamplePatternKey(fRenderTarget)

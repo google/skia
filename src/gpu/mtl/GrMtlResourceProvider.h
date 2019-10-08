@@ -24,12 +24,9 @@ class GrMtlResourceProvider {
 public:
     GrMtlResourceProvider(GrMtlGpu* gpu);
 
-    GrMtlPipelineState* findOrCreateCompatiblePipelineState(
-        GrRenderTarget*, int numSamples, GrSurfaceOrigin,
-        const GrPipeline&,
-        const GrPrimitiveProcessor&,
-        const GrTextureProxy* const primProcProxies[],
-        GrPrimitiveType);
+    GrMtlPipelineState* findOrCreateCompatiblePipelineState(GrRenderTarget*,
+                                                            const GrProgramInfo&,
+                                                            GrPrimitiveType);
 
     // Finds or creates a compatible MTLDepthStencilState based on the GrStencilSettings.
     GrMtlDepthStencil* findOrCreateCompatibleDepthStencilState(const GrStencilSettings&,
@@ -55,10 +52,7 @@ private:
         ~PipelineStateCache();
 
         void release();
-        GrMtlPipelineState* refPipelineState(GrRenderTarget*, int numSamples, GrSurfaceOrigin,
-                                             const GrPrimitiveProcessor&,
-                                             const GrTextureProxy* const primProcProxies[],
-                                             const GrPipeline&,
+        GrMtlPipelineState* refPipelineState(GrRenderTarget*, const GrProgramInfo&,
                                              GrPrimitiveType);
 
     private:
