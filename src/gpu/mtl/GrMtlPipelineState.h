@@ -46,9 +46,7 @@ public:
 
     id<MTLRenderPipelineState> mtlPipelineState() { return fPipelineState; }
 
-    void setData(const GrRenderTarget*, GrSurfaceOrigin,
-                 const GrPrimitiveProcessor& primPRoc, const GrPipeline& pipeline,
-                 const GrTextureProxy* const primProcTextures[]);
+    void setData(const GrRenderTarget*, const GrProgramInfo&);
 
     void setDrawState(id<MTLRenderCommandEncoder>, const GrSwizzle& outputSwizzle,
                       const GrXferProcessor&);
