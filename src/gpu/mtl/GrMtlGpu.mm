@@ -841,7 +841,7 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
     }
 
     // Create the transfer buffer
-    size_t bytesPerPixel = GrMtlBytesPerFormat(format);
+    size_t bytesPerPixel = fMtlCaps->bytesPerPixel(format);
 
     SkTArray<size_t> individualMipOffsets(mipLevelCount);
     size_t combinedBufferSize = GrComputeTightCombinedBufferSize(bytesPerPixel, w, h,
