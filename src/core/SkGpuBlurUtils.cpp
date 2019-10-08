@@ -231,15 +231,6 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
         contentRect->fRight = midRect.fRight;
         contentRect->fBottom = dstRect.fBottom;
     }
-    if (!topRect.isEmpty()) {
-        dstRenderTargetContext->clear(&topRect, SK_PMColor4fTRANSPARENT,
-                                      GrRenderTargetContext::CanClearFullscreen::kNo);
-    }
-
-    if (!bottomRect.isEmpty()) {
-        dstRenderTargetContext->clear(&bottomRect, SK_PMColor4fTRANSPARENT,
-                                      GrRenderTargetContext::CanClearFullscreen::kNo);
-    }
 
     if (midRect.isEmpty()) {
         // Blur radius covers srcBounds; use bounds over entire draw
