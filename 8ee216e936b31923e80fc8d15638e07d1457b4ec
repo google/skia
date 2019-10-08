@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db0582e2_083645d9",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-08T19:36:54Z",
+      "side": 1,
+      "message": "should prepare() just call prePrepare()?",
+      "range": {
+        "startLine": 438,
+        "startChar": 8,
+        "endLine": 439,
+        "endChar": 27
+      },
+      "revId": "8ee216e936b31923e80fc8d15638e07d1457b4ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2bd6ba94_a37036c6",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-08T19:36:54Z",
+      "side": 1,
+      "message": "should this check be on onPrePrepare as well? We do it here and onExecute.",
+      "range": {
+        "startLine": 412,
+        "startChar": 0,
+        "endLine": 414,
+        "endChar": 5
+      },
+      "revId": "8ee216e936b31923e80fc8d15638e07d1457b4ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
