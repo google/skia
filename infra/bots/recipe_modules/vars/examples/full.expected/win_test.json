@@ -26,6 +26,29 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "show",
+    "~followup_annotations": [
+      "@@@SET_BUILD_PROPERTY@build_dir@\"[START_DIR]\\\\build\"@@@",
+      "@@@SET_BUILD_PROPERTY@builder_cfg@\"{'cpu_or_gpu_value': 'GTX660', 'arch': 'x86_64', 'test_filter': 'All', 'cpu_or_gpu': 'GPU', 'role': 'Test', 'model': 'ShuttleA', 'configuration': 'Debug', 'os': 'Win10', 'compiler': 'MSVC'}\"@@@",
+      "@@@SET_BUILD_PROPERTY@builder_name@\"Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-All\"@@@",
+      "@@@SET_BUILD_PROPERTY@cache_dir@\"[START_DIR]\\\\cache\"@@@",
+      "@@@SET_BUILD_PROPERTY@default_env@\"{'PATH': '%(PATH)s;RECIPE_REPO[depot_tools]', 'CHROME_HEADLESS': '1'}\"@@@",
+      "@@@SET_BUILD_PROPERTY@extra_tokens@\"[]\"@@@",
+      "@@@SET_BUILD_PROPERTY@internal_hardware_label@\"None\"@@@",
+      "@@@SET_BUILD_PROPERTY@is_internal_bot@\"False\"@@@",
+      "@@@SET_BUILD_PROPERTY@is_linux@\"False\"@@@",
+      "@@@SET_BUILD_PROPERTY@is_trybot@\"True\"@@@",
+      "@@@SET_BUILD_PROPERTY@issue@\"456789\"@@@",
+      "@@@SET_BUILD_PROPERTY@patch_storage@\"gerrit\"@@@",
+      "@@@SET_BUILD_PROPERTY@patchset@\"12\"@@@",
+      "@@@SET_BUILD_PROPERTY@role@\"Test\"@@@",
+      "@@@SET_BUILD_PROPERTY@slave_dir@\"[START_DIR]\"@@@",
+      "@@@SET_BUILD_PROPERTY@swarming_out_dir@\"[START_DIR]\\\\[SWARM_OUT_DIR]\"@@@",
+      "@@@SET_BUILD_PROPERTY@tmp_dir@\"[START_DIR]\\\\tmp\"@@@"
+    ]
+  },
+  {
     "name": "$result"
   }
 ]

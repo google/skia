@@ -17,6 +17,7 @@ DEPS = [
   'recipe_engine/step',
   'recipe_engine/time',
   'gsutil',
+  'vars',
 ]
 
 
@@ -25,7 +26,7 @@ VERBOSE_LOG = 'verbose.log'
 
 
 def RunSteps(api):
-  builder_name = api.properties['buildername']
+  api.vars.setup()
   revision = api.properties['revision']
 
   results_dir = api.path['start_dir'].join('test')
@@ -54,15 +55,13 @@ def RunSteps(api):
       str(now.day  ).zfill(2),
       str(now.hour ).zfill(2),
       revision,
-      builder_name,
+      api.vars.builder_name,
       str(int(calendar.timegm(now.utctimetuple())))])
 
   # Trybot results are further siloed by issue/patchset.
-  issue = api.properties.get('patch_issue')
-  patchset = api.properties.get('patch_set')
-  if issue and patchset:
-    summary_dest_path = '/'.join((
-        'trybot', summary_dest_path, str(issue), str(patchset)))
+  if api.vars.is_trybot:
+    summary_dest_path = '/'.join(('trybot', summary_dest_path,
+                                  str(api.vars.issue), str(api.vars.patchset)))
 
   summary_dest_path = 'gs://%s/%s' % (api.properties['gs_bucket'],
                                       summary_dest_path)
@@ -82,7 +81,7 @@ def RunSteps(api):
 
 
 def GenTests(api):
-  builder = 'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug'
+  builder = 'Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All'
   yield (
     api.test('normal_bot') +
     api.properties(buildername=builder,
@@ -123,15 +122,13 @@ def GenTests(api):
 
   yield (
       api.test('trybot') +
+      api.properties.tryserver(
+          gerrit_project='skia',
+          gerrit_url='https://skia-review.googlesource.com/',
+      ) +
       api.properties(
           buildername=builder,
           gs_bucket='skia-infra-gm',
           revision='abc123',
-          path_config='kitchen',
-          patch_storage='gerrit') +
-      api.properties.tryserver(
-          buildername=builder,
-          gerrit_project='skia',
-          gerrit_url='https://skia-review.googlesource.com/',
-      )
+          path_config='kitchen')
   )

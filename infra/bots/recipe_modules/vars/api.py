@@ -34,7 +34,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.cache_dir = self.slave_dir.join('cache')
 
     self.swarming_out_dir = self.slave_dir.join(
-        self.m.properties['swarm_out_dir'])
+        self.m.properties.get('swarm_out_dir', 'tmp'))
 
     self.tmp_dir = self.m.path['start_dir'].join('tmp')
 
@@ -63,7 +63,9 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.patchset = None
     self.is_trybot = False
     if (self.m.properties.get('patch_issue', '') and
+        self.m.properties['patch_issue'] != '0' and
         self.m.properties.get('patch_set', '') and
+        self.m.properties['patch_set'] != '0' and
         self.m.properties.get('patch_ref', '')):
       self.is_trybot = True
       self.issue = self.m.properties['patch_issue']

@@ -13,12 +13,13 @@ DEPS = [
   'recipe_engine/properties',
   'recipe_engine/step',
   'recipe_engine/time',
+  'vars',
 ]
 
 
 def RunSteps(api):
   # Upload the nanobench results.
-  builder_name = api.properties['buildername']
+  api.vars.setup()
 
   now = api.time.utcnow()
   src_path = api.path['start_dir'].join('perf')
@@ -36,12 +37,11 @@ def RunSteps(api):
   gs_path = '/'.join((
       'nano-json-v1', str(now.year).zfill(4),
       str(now.month).zfill(2), str(now.day).zfill(2), str(now.hour).zfill(2),
-      builder_name))
+      api.vars.builder_name))
 
-  issue = api.properties.get('patch_issue')
-  patchset = api.properties.get('patch_set')
-  if issue and patchset:
-    gs_path = '/'.join(('trybot', gs_path, str(issue), str(patchset)))
+  if api.vars.is_trybot:
+    gs_path = '/'.join(('trybot', gs_path,
+                        str(api.vars.issue), str(api.vars.patchset)))
 
   dst = '/'.join((
       'gs://%s' % api.properties['gs_bucket'], gs_path, basename))
@@ -67,8 +67,7 @@ def GenTests(api):
     api.properties(buildername=builder,
                    gs_bucket='skia-perf',
                    revision='abc123',
-                   path_config='kitchen',
-                   patch_storage='gerrit') +
+                   path_config='kitchen') +
     api.properties.tryserver(
         buildername=builder,
         gerrit_project='skia',

@@ -177,10 +177,10 @@ var (
 	// used where necessary.
 	EXTRA_PROPS = map[string]string{
 		"buildbucket_build_id": specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID,
-		"patch_issue":          specs.PLACEHOLDER_ISSUE,
+		"patch_issue":          specs.PLACEHOLDER_ISSUE_INT,
 		"patch_ref":            specs.PLACEHOLDER_PATCH_REF,
 		"patch_repo":           specs.PLACEHOLDER_PATCH_REPO,
-		"patch_set":            specs.PLACEHOLDER_PATCHSET,
+		"patch_set":            specs.PLACEHOLDER_PATCHSET_INT,
 		"patch_storage":        specs.PLACEHOLDER_PATCH_STORAGE,
 		"repository":           specs.PLACEHOLDER_REPO,
 		"revision":             specs.PLACEHOLDER_REVISION,

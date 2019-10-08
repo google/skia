@@ -4,9 +4,9 @@
       "python",
       "[START_DIR]/skia/infra/bots/g3_compile/trigger_wait_g3_task.py",
       "--issue",
-      "1234",
+      "456789",
       "--patchset",
-      "1",
+      "12",
       "--output_file",
       "[CLEANUP]/g3_try_tmp_1/output_file"
     ],

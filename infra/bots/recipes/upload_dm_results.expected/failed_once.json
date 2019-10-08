@@ -64,7 +64,7 @@
       "cp",
       "-Z",
       "[START_DIR]/test/dm.json",
-      "gs://skia-infra-gm/dm-json-v1/2012/05/14/12/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug/1337000001/dm.json"
+      "gs://skia-infra-gm/dm-json-v1/2012/05/14/12/abc123/Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All/1337000001/dm.json"
     ],
     "name": "upload dm.json"
   },
@@ -92,7 +92,7 @@
       "cp",
       "-Z",
       "[START_DIR]/test/verbose.log",
-      "gs://skia-infra-gm/dm-json-v1/2012/05/14/12/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug/1337000001/verbose.log"
+      "gs://skia-infra-gm/dm-json-v1/2012/05/14/12/abc123/Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All/1337000001/verbose.log"
     ],
     "name": "upload verbose.log"
   },
