@@ -275,7 +275,7 @@ optional("fontmgr_custom") {
 }
 
 optional("fontmgr_custom_empty") {
-  enabled = skia_enable_fontmgr_custom_empty
+  enabled = skia_enable_fontmgr_custom_empty && target_cpu != "wasm"
 
   deps = [
     ":typeface_freetype",
@@ -337,8 +337,15 @@ optional("fontmgr_wasm") {
     "src/ports/SkFontMgr_custom.cpp",
     "src/ports/SkFontMgr_custom.h",
     "src/ports/SkFontMgr_custom_embedded.cpp",
-    "src/ports/SkFontMgr_custom_embedded_factory.cpp",
   ]
+  if (skia_enable_fontmgr_custom_empty) {
+    sources += [
+      "src/ports/SkFontMgr_custom_empty.cpp",
+      "src/ports/SkFontMgr_custom_empty_factory.cpp",
+    ]
+  } else {
+    sources += [ "src/ports/SkFontMgr_custom_embedded_factory.cpp" ]
+  }
 }
 
 optional("fontmgr_win") {
