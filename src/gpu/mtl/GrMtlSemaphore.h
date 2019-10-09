@@ -13,7 +13,6 @@
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
 
-#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
 #include <Metal/Metal.h>
 
 class GrMtlGpu;
@@ -44,6 +43,5 @@ private:
 
     typedef GrSemaphore INHERITED;
 };
-#endif
 
 #endif
