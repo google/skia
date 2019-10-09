@@ -328,17 +328,29 @@ optional("fontmgr_fuchsia") {
 }
 
 optional("fontmgr_wasm") {
-  enabled = !skia_enable_fontmgr_empty && target_cpu == "wasm"
+  enabled = target_cpu == "wasm"
 
   deps = [
     ":typeface_freetype",
   ]
+
+  # custom_embedded has the source for both embedding a font in the binary
+  # (only used for the all-included build) and reading in a font from
+  # raw bytes passed over the wire (a typical way to load fonts).
   sources = [
-    "src/ports/SkFontMgr_custom.cpp",
-    "src/ports/SkFontMgr_custom.h",
     "src/ports/SkFontMgr_custom_embedded.cpp",
-    "src/ports/SkFontMgr_custom_embedded_factory.cpp",
   ]
+
+  # If we haven't opted for no fonts (empty) or fonts, but not the
+  # built-in one (custom), then, we need to provide the mechanism for
+  # using the built-in font.
+  if (!skia_enable_fontmgr_empty && !skia_enable_fontmgr_custom) {
+    sources += [
+      "src/ports/SkFontMgr_custom.cpp",
+      "src/ports/SkFontMgr_custom.h",
+      "src/ports/SkFontMgr_custom_embedded_factory.cpp",
+    ]
+  }
 }
 
 optional("fontmgr_win") {
