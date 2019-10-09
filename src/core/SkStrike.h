@@ -97,15 +97,8 @@ public:
         return fScalerContext->getMaskFormat();
     }
 
-    bool isSubpixel() const {
-        return fIsSubpixel;
-    }
-
-    SkVector rounding() const override;
-
-    SkIPoint subpixelMask() const override {
-        return SkIPoint::Make((!fIsSubpixel || fAxisAlignment == kY_SkAxisAlignment) ? 0 : ~0,
-                              (!fIsSubpixel || fAxisAlignment == kX_SkAxisAlignment) ? 0 : ~0);
+    const SkGlyphPositionRoundingSpec& roundingSpec() const override {
+        return fRoundingSpec;
     }
 
     const SkDescriptor& getDescriptor() const override;
@@ -205,6 +198,7 @@ private:
 
     const bool              fIsSubpixel;
     const SkAxisAlignment   fAxisAlignment;
+    const SkGlyphPositionRoundingSpec fRoundingSpec;
 };
 
 #endif  // SkStrike_DEFINED

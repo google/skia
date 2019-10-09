@@ -23,6 +23,23 @@ class GrRenderTargetContext;
 class SkGlyphRunPainterInterface;
 class SkStrikeSpec;
 
+// round and axisAlignmentMask are used to calculate the subpixel position of a glyph.
+// The per component (x or y) calculation is:
+//
+//   subpixelOffset = (floor((viewportPosition + rounding) & mask) >> 14) & 3
+//
+// where mask is either 0 or ~0, and rounding is either
+// 1/2 for non-subpixel or 1/8 for subpixel.
+struct SkGlyphPositionRoundingSpec {
+    SkGlyphPositionRoundingSpec(bool isSubpixel, SkAxisAlignment axisAlignment);
+    const SkVector rounding;
+    const SkIPoint axisAlignmentMask;
+
+private:
+    static SkVector PixelRounding(bool isSubpixel, SkAxisAlignment axisAlignment);
+    static SkIPoint AxisAlignmentMask(bool isSubpixel, SkAxisAlignment axisAlignment);
+};
+
 class SkStrikeCommon {
 public:
     static SkVector PixelRounding(bool isSubpixel, SkAxisAlignment axisAlignment);
@@ -102,7 +119,7 @@ private:
                              SkGlyphRunPainterInterface* process);
 
     static SkSpan<const SkPackedGlyphID> DeviceSpacePackedGlyphIDs(
-            SkStrikeForGPU* strike,
+            const SkGlyphPositionRoundingSpec& roundingSpec,
             const SkMatrix& viewMatrix,
             const SkPoint& origin,
             int n,
