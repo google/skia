@@ -9,12 +9,12 @@ class ParagraphCacheKey {
 public:
     ParagraphCacheKey(const ParagraphImpl* paragraph)
         : fText(paragraph->fText.c_str(), paragraph->fText.size())
-        , fFontSwitches(paragraph->switches())
+        , fResolvedFonts(paragraph->resolvedFonts())
         , fTextStyles(paragraph->fTextStyles)
         , fParagraphStyle(paragraph->paragraphStyle()) { }
 
     SkString fText;
-    SkTArray<FontDescr> fFontSwitches;
+    SkTArray<ResolvedFontDescriptor> fResolvedFonts;
     SkTArray<Block, true> fTextStyles;
     ParagraphStyle fParagraphStyle;
 };
@@ -32,9 +32,8 @@ public:
 
     // Shaped results:
     InternalState fInternalState;
-    SkTArray<Run> fRuns;
+    SkTArray<Run, false> fRuns;
     SkTArray<Cluster, true> fClusters;
-    SkTArray<RunShifts, true> fRunShifts;
 };
 
 
@@ -46,8 +45,8 @@ uint32_t ParagraphCache::KeyHash::mix(uint32_t hash, uint32_t data) const {
 }
 uint32_t ParagraphCache::KeyHash::operator()(const ParagraphCacheKey& key) const {
     uint32_t hash = 0;
-    for (auto& fd : key.fFontSwitches) {
-        hash = mix(hash, SkGoodHash()(fd.fStart));
+    for (auto& fd : key.fResolvedFonts) {
+        hash = mix(hash, SkGoodHash()(fd.fTextStart));
         hash = mix(hash, SkGoodHash()(fd.fFont.getSize()));
 
         if (fd.fFont.getTypeface() != nullptr) {
@@ -74,7 +73,7 @@ bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b) {
     if (a.fText.size() != b.fText.size()) {
         return false;
     }
-    if (a.fFontSwitches.count() != b.fFontSwitches.count()) {
+    if (a.fResolvedFonts.count() != b.fResolvedFonts.count()) {
         return false;
     }
     if (a.fText != b.fText) {
@@ -89,10 +88,10 @@ bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b) {
         return false;
     }
 
-    for (size_t i = 0; i < a.fFontSwitches.size(); ++i) {
-        auto& fda = a.fFontSwitches[i];
-        auto& fdb = b.fFontSwitches[i];
-        if (fda.fStart != fdb.fStart) {
+    for (size_t i = 0; i < a.fResolvedFonts.size(); ++i) {
+        auto& fda = a.fResolvedFonts[i];
+        auto& fdb = b.fResolvedFonts[i];
+        if (fda.fTextStart != fdb.fTextStart) {
             return false;
         }
         if (fda.fFont != fdb.fFont) {
@@ -149,7 +148,6 @@ ParagraphCache::~ParagraphCache() { }
 void ParagraphCache::updateFrom(const ParagraphImpl* paragraph, Entry* entry) {
 
     entry->fValue->fInternalState = paragraph->state();
-    entry->fValue->fRunShifts = paragraph->fRunShifts;
     for (size_t i = 0; i < paragraph->fRuns.size(); ++i) {
         auto& run = paragraph->fRuns[i];
         if (run.fSpaced) {
@@ -169,11 +167,6 @@ void ParagraphCache::updateTo(ParagraphImpl* paragraph, const Entry* entry) {
     paragraph->fClusters = entry->fValue->fClusters;
     for (auto& cluster : paragraph->fClusters) {
         cluster.setMaster(paragraph);
-    }
-
-    paragraph->fRunShifts.reset();
-    for (auto& runShift : entry->fValue->fRunShifts) {
-        paragraph->fRunShifts.push_back(runShift);
     }
 
     paragraph->fState = entry->fValue->fInternalState;
