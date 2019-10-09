@@ -104,7 +104,8 @@ class TextWrapper {
             if (fEnd.cluster() != nullptr &&
                 fEnd.cluster()->master() != nullptr &&
                 fEnd.cluster()->run() != nullptr &&
-                fEnd.cluster()->run()->placeholder() == nullptr) {
+                fEnd.cluster()->run()->placeholder() == nullptr &&
+                fWidth > 0) {
                 fWidth -= (fEnd.cluster()->width() - fEnd.cluster()->trimmedWidth(fEnd.position()));
             }
         }
