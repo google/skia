@@ -119,7 +119,6 @@ void GrMtlCommandBuffer::endAllEncoding() {
     }
 }
 
-#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
 void GrMtlCommandBuffer::encodeSignalEvent(id<MTLEvent> event, uint64_t eventValue) {
     SkASSERT(fCmdBuffer);
     this->endAllEncoding(); // ensure we don't have any active command encoders
@@ -136,4 +135,4 @@ void GrMtlCommandBuffer::encodeWaitForEvent(id<MTLEvent> event, uint64_t eventVa
         [fCmdBuffer encodeWaitForEvent:event value:eventValue];
     }
 }
-#endif
+
