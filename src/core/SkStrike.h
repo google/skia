@@ -112,6 +112,9 @@ public:
     SkSpan<const SkGlyph*> prepareImages(SkSpan<const SkPackedGlyphID> glyphIDs,
                                          const SkGlyph* results[]);
 
+    void prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* drawables);
+
+    void prepareForDrawingPathsCPU(SkDrawableGlyphBuffer* drawables);
     SkSpan<const SkGlyphPos> prepareForDrawingRemoveEmpty(const SkPackedGlyphID packedGlyphIDs[],
                                                           const SkPoint positions[],
                                                           size_t n,

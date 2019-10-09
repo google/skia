@@ -76,17 +76,6 @@ SkGlyphRunListPainter::SkGlyphRunListPainter(const GrRenderTargetContext& rtc)
 
 #endif
 
-static bool check_glyph_position(SkPoint position) {
-    // Prevent glyphs from being drawn outside of or straddling the edge of device space.
-    // Comparisons written a little weirdly so that NaN coordinates are treated safely.
-    auto gt = [](float a, int b) { return !(a <= (float)b); };
-    auto lt = [](float a, int b) { return !(a >= (float)b); };
-    return !(gt(position.fX, INT_MAX - (INT16_MAX + SkTo<int>(UINT16_MAX))) ||
-             lt(position.fX, INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/)) ||
-             gt(position.fY, INT_MAX - (INT16_MAX + SkTo<int>(UINT16_MAX))) ||
-             lt(position.fY, INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/)));
-}
-
 SkSpan<const SkPackedGlyphID> SkGlyphRunListPainter::DeviceSpacePackedGlyphIDs(
         const SkGlyphPositionRoundingSpec& roundingSpec,
         const SkMatrix& viewMatrix,
@@ -148,7 +137,6 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
     SkPoint origin = glyphRunList.origin();
     for (auto& glyphRun : glyphRunList) {
         const SkFont& runFont = glyphRun.font();
-        auto runSize = glyphRun.runSize();
 
         if (SkStrikeSpec::ShouldDrawAsPath(runPaint, runFont, deviceMatrix)) {
 
@@ -157,71 +145,24 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 
             auto strike = strikeSpec.findOrCreateExclusiveStrike();
 
-            // Used for the side effect for creating the right positions.
-            SourceSpacePackedGlyphIDs(
-                    origin,
-                    runSize,
-                    glyphRun.glyphsIDs().data(),
-                    glyphRun.positions().data(),
-                    fPositions,
-                    fPackedGlyphIDs);
-
-            SkBulkGlyphMetricsAndPaths glyphPaths{strikeSpec};
-            auto glyphs = glyphPaths.glyphs(glyphRun.glyphsIDs());
-
-            SkTDArray<SkPathPos> pathsAndPositions;
-            pathsAndPositions.setReserve(runSize);
-            for (size_t i = 0; i < runSize; i++) {
-                const SkGlyph& glyph = *glyphs[i];
-                SkPoint position = fPositions[i];
-                if (check_glyph_position(position) && !glyph.isEmpty() && glyph.path() != nullptr) {
-                    pathsAndPositions.push_back(SkPathPos{glyph.path(), position});
-                }
-            }
+            fDrawable.startSource(glyphRun.source(), origin);
+            strike->prepareForDrawingPathsCPU(&fDrawable);
 
             // The paint we draw paths with must have the same anti-aliasing state as the runFont
             // allowing the paths to have the same edging as the glyph masks.
             SkPaint pathPaint = runPaint;
             pathPaint.setAntiAlias(runFont.hasSomeAntiAliasing());
 
-            bitmapDevice->paintPaths(
-                    SkSpan<const SkPathPos>{pathsAndPositions.begin(), pathsAndPositions.size()},
-                    strikeSpec.strikeToSourceRatio(), pathPaint);
+            bitmapDevice->paintPaths(&fDrawable, strikeSpec.strikeToSourceRatio(), pathPaint);
         } else {
             SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
                     runFont, runPaint, props, fScalerContextFlags, deviceMatrix);
 
             auto strike = strikeSpec.findOrCreateExclusiveStrike();
 
-            auto packedGlyphIDs = DeviceSpacePackedGlyphIDs(
-                    strike->roundingSpec(),
-                    deviceMatrix,
-                    origin,
-                    runSize,
-                    glyphRun.glyphsIDs().data(),
-                    glyphRun.positions().data(),
-                    fPositions,
-                    fPackedGlyphIDs);
-
-            SkBulkGlyphMetricsAndImages glyphImages{strikeSpec};
-            SkSpan<const SkGlyph*> glyphs = glyphImages.glyphs(packedGlyphIDs);
-
-            SkTDArray<SkMask> masks;
-            masks.setReserve(runSize);
-
-            SkPoint* posCursor = fPositions.get();
-            for (const SkGlyph* glyph : glyphs) {
-                SkPoint position = *posCursor++;
-                // The glyph could have dimensions (!isEmpty()), but still may have no bits if
-                // the width is too wide. So check that there really is an image.
-                if (check_glyph_position(position)
-                    && !glyph->isEmpty()
-                    && glyph->image() != nullptr) {
-                    masks.push_back(glyph->mask(position));
-                }
-            }
-
-            bitmapDevice->paintMasks(SkSpan<const SkMask>{masks.begin(), masks.size()}, runPaint);
+            fDrawable.startDevice(glyphRun.source(), origin, deviceMatrix, strike->roundingSpec());
+            strike->prepareForDrawingMasksCPU(&fDrawable);
+            bitmapDevice->paintMasks(&fDrawable, runPaint);
         }
     }
 }
@@ -930,9 +871,9 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
 #endif  // GR_TEST_UTILS
 #endif  // SK_SUPPORT_GPU
 
-SkGlyphRunListPainter::ScopedBuffers::ScopedBuffers(SkGlyphRunListPainter* painter, int size)
+SkGlyphRunListPainter::ScopedBuffers::ScopedBuffers(SkGlyphRunListPainter* painter, size_t size)
         : fPainter{painter} {
-    SkASSERT(size >= 0);
+    fPainter->fDrawable.ensureSize(size);
     if (fPainter->fMaxRunSize < size) {
         fPainter->fMaxRunSize = size;
 
@@ -943,6 +884,7 @@ SkGlyphRunListPainter::ScopedBuffers::ScopedBuffers(SkGlyphRunListPainter* paint
 }
 
 SkGlyphRunListPainter::ScopedBuffers::~ScopedBuffers() {
+    fPainter->fDrawable.reset();
     fPainter->fPaths.clear();
     fPainter->fARGBGlyphsIDs.clear();
     fPainter->fARGBPositions.clear();

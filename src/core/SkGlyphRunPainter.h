@@ -10,6 +10,7 @@
 
 #include "include/core/SkSurfaceProps.h"
 #include "src/core/SkDistanceFieldGen.h"
+#include "src/core/SkGlyphBuffer.h"
 #include "src/core/SkGlyphRun.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkTextBlobPriv.h"
@@ -66,11 +67,10 @@ public:
     public:
         virtual ~BitmapDevicePainter() = default;
 
-        virtual void paintPaths(SkSpan<const SkPathPos> pathsAndPositions,
-                                SkScalar scale,
-                                const SkPaint& paint) const = 0;
+        virtual void paintPaths(
+                SkDrawableGlyphBuffer* drawables, SkScalar scale, const SkPaint& paint) const = 0;
 
-        virtual void paintMasks(SkSpan<const SkMask> masks, const SkPaint& paint) const = 0;
+        virtual void paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) const = 0;
     };
 
     void drawForBitmapDevice(
@@ -93,7 +93,7 @@ private:
                           SkScalerContextFlags flags, SkStrikeForGPUCacheInterface* strikeCache);
 
     struct ScopedBuffers {
-        ScopedBuffers(SkGlyphRunListPainter* painter, int size);
+        ScopedBuffers(SkGlyphRunListPainter* painter, size_t size);
         ~ScopedBuffers();
         SkGlyphRunListPainter* fPainter;
     };
@@ -143,7 +143,9 @@ private:
 
     SkStrikeForGPUCacheInterface* const fStrikeCache;
 
-    int fMaxRunSize{0};
+    SkDrawableGlyphBuffer fDrawable;
+
+    size_t fMaxRunSize{0};
     SkAutoTMalloc<SkPoint> fPositions;
     SkAutoTMalloc<SkPackedGlyphID> fPackedGlyphIDs;
     SkAutoTMalloc<SkGlyphPos> fGlyphPos;

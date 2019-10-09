@@ -133,7 +133,6 @@ private:
 #ifdef SK_DEBUG
     enum {
         kReset,
-        kPackedID,
         kInput,
         kProcess,
         kDraw
