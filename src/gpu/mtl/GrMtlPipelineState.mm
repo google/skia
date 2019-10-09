@@ -59,7 +59,7 @@ GrMtlPipelineState::GrMtlPipelineState(
 
 void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
                                  const GrProgramInfo& programInfo) {
-    SkASSERT(programInfo.primProcProxies() || !programInfo.primProc().numTextureSamplers());
+    programInfo.validate1();
 
     // Note: the Metal backend currently only supports fixed primProc textures
     const GrTextureProxy* const* primProcProxies = programInfo.primProcProxies();
