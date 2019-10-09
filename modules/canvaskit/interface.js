@@ -8,6 +8,11 @@
 CanvasKit.onRuntimeInitialized = function() {
   // All calls to 'this' need to go in externs.js so closure doesn't minify them away.
 
+  // buffer is the underlying ArrayBuffer that is the WASM memory blob.
+  // It was removed from Emscripten proper in https://github.com/emscripten-core/emscripten/pull/8277
+  // but it is convenient to have a reference to, so we add it back in.
+  CanvasKit.buffer = CanvasKit.HEAP8.buffer;
+
   // Add some helpers for matrices. This is ported from SkMatrix.cpp
   // to save complexity and overhead of going back and forth between
   // C++ and JS layers.

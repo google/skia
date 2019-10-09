@@ -9,16 +9,15 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
   default-jre
 
 RUN cd /opt \
-  && git clone https://github.com/juj/emsdk.git
+  && git clone https://github.com/emscripten-core/emsdk.git
 
 WORKDIR /opt/emsdk
 
 RUN ./emsdk update-tags
 
-# These versions were available and worked on my local desktop as of Nov 6 2018.
-RUN ./emsdk install sdk-1.38.27-64bit
+RUN ./emsdk install sdk-1.38.47-64bit
 
-RUN ./emsdk activate sdk-1.38.27-64bit
+RUN ./emsdk activate sdk-1.38.47-64bit
 
 RUN /bin/bash -c "source ./emsdk_env.sh"
 
