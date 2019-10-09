@@ -173,7 +173,7 @@ private:
     const sk_sp<SkSurface> fSurface;
 };
 
-static std::vector<SkBitmap> gMP4Frames;
+static std::vector<sk_sp<SkImage>> gMP4Frames;
 
 struct MP4Sink final : public Sink {
     explicit MP4Sink(const SkMatrix& scale_matrix)
@@ -188,9 +188,8 @@ struct MP4Sink final : public Sink {
     }
 
     bool endFrame(size_t i) override {
-        // SkVideoEncoder wants RGBA 8888 frames.  (N32 may be RGBA 8888 or BGRA 8888.)
-        gMP4Frames[i].allocPixels(fSurface->imageInfo().makeColorType(kRGBA_8888_SkColorType));
-        return fSurface->readPixels(gMP4Frames[i].pixmap(), 0,0);
+        gMP4Frames[i] = fSurface->makeImageSnapshot();
+        return SkToBool(gMP4Frames[i]);
     }
 
     const sk_sp<SkSurface> fSurface;
@@ -344,9 +343,14 @@ int main(int argc, char** argv) {
 #if defined(HAVE_VIDEO_ENCODER)
     if (FLAGS_format.contains("mp4")) {
         SkVideoEncoder enc;
-        enc.beginRecording({FLAGS_width, FLAGS_height}, FLAGS_fps);
-        for (const SkBitmap& frame : gMP4Frames) {
-            enc.addFrame(frame.pixmap());
+        if (!enc.beginRecording({FLAGS_width, FLAGS_height}, FLAGS_fps)) {
+            SkDEBUGF("Invalid video stream configuration.\n");
+            return -1;
+        }
+        for (const auto& frame : gMP4Frames) {
+            SkPixmap pm;
+            SkAssertResult(frame->peekPixels(&pm));
+            enc.addFrame(pm);
         }
         sk_sp<SkData> mp4 = enc.endRecording();
 
