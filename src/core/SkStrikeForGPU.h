@@ -67,7 +67,8 @@ public:
 
     // Common categories for glyph types used by GPU.
     static bool CanDrawAsMask(const SkGlyph& glyph);
-    static bool CanDrawAsSDFT(const SkGlyph& glyph);
+    static bool CanDrawAsSDFT(const SkGlyph& glyph, const SkPoint& position,
+                              const SkMatrix& viewMatrix, SkScalar strikeToSourceRatio);
     static bool CanDrawAsPath(const SkGlyph& glyph);
 
 

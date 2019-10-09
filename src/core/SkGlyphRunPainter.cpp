@@ -417,7 +417,8 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 // kARGB32_Format. The following if statements use this assumption.
                 SkASSERT(glyph.maskFormat() == SkMask::kSDF_Format || glyph.isColor());
 
-                if (SkStrikeForGPU::CanDrawAsSDFT(glyph)) {
+                if (SkStrikeForGPU::CanDrawAsSDFT(glyph, position, viewMatrix,
+                                                  strikeSpec.strikeToSourceRatio())) {
                     // SDF mask will work.
                     fGlyphPos[glyphsWithMaskCount++] = glyphPos;
                 } else if (SkStrikeForGPU::CanDrawAsPath(glyph)) {
