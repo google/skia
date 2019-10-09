@@ -55,6 +55,15 @@ public:
 
     SkShaper::RunHandler::Buffer newRunBuffer();
 
+    SkScalar posX(size_t index) const {
+        return fPositions[index].fX + fOffsets[index].fX;
+    }
+    void addX(size_t index, SkScalar shift) {
+        fPositions[index].fX += shift;
+    }
+    SkScalar posY(size_t index) const {
+        return fPositions[index].fY + fOffsets[index].fY;
+    }
     size_t size() const { return fGlyphs.size(); }
     void setWidth(SkScalar width) { fAdvance.fX = width; }
     void setHeight(SkScalar height) { fAdvance.fY = height; }
@@ -143,16 +152,23 @@ public:
     SkSpan<const SkPoint> positions() const {
         return SkSpan<const SkPoint>(fPositions.begin(), fPositions.size());
     }
+    SkSpan<const SkPoint> offsets() const {
+        return SkSpan<const SkPoint>(fOffsets.begin(), fOffsets.size());
+    }
     SkSpan<const uint32_t> clusterIndexes() const {
         return SkSpan<const uint32_t>(fClusterIndexes.begin(), fClusterIndexes.size());
     }
-    SkSpan<const SkScalar> offsets() const { return SkSpan<const SkScalar>(fOffsets.begin(), fOffsets.size()); }
+    SkSpan<const SkScalar> shifts() const { return SkSpan<const SkScalar>(fShifts.begin(), fShifts.size()); }
 
+    void commit();
+
+    SkRect getBounds(size_t pos) const { return fBounds[pos]; }
 private:
     friend class ParagraphImpl;
     friend class TextLine;
     friend class InternalLineMetrics;
     friend class ParagraphCache;
+    friend class OneLineShaper;
 
     ParagraphImpl* fMaster;
     TextRange fTextRange;
@@ -167,22 +183,26 @@ private:
     uint8_t fBidiLevel;
     SkVector fAdvance;
     SkVector fOffset;
-    size_t fFirstChar;
+    TextIndex fClusterStart;
     SkShaper::RunHandler::Range fUtf8Range;
-    SkSTArray<128, SkGlyphID, false> fGlyphs;
+    SkSTArray<128, SkGlyphID, true> fGlyphs;
     SkSTArray<128, SkPoint, true> fPositions;
+    SkSTArray<128, SkPoint, true> fOffsets;
     SkSTArray<128, uint32_t, true> fClusterIndexes;
-    SkSTArray<128, SkScalar, true> fOffsets;  // For formatting (letter/word spacing, justification)
+    SkSTArray<128, SkRect, true> fBounds;
+
+    SkSTArray<128, SkScalar, true> fShifts;  // For formatting (letter/word spacing, justification)
     bool fSpaced;
 };
 
 struct Codepoint {
 
-  Codepoint(GraphemeIndex graphemeIndex, TextIndex textIndex)
-    : fGrapeme(graphemeIndex), fTextIndex(textIndex) { }
+  Codepoint(GraphemeIndex graphemeIndex, TextIndex textIndex, size_t index)
+    : fGrapheme(graphemeIndex), fTextIndex(textIndex), fIndex(index) { }
 
-  GraphemeIndex fGrapeme;
+  GraphemeIndex fGrapheme;
   TextIndex fTextIndex;             // Used for getGlyphPositionAtCoordinate
+  size_t fIndex;
 };
 
 struct Grapheme {
@@ -376,9 +396,9 @@ public:
 
     SkScalar height() const {
         if (fForceStrut) {
-            return SkScalarRoundToInt(fHeight);
+            return ::round(fHeight);
         } else {
-            return SkScalarRoundToInt(fDescent - fAscent + fLeading);
+            return ::round((double)fDescent - fAscent + fLeading);
         }
     }
 

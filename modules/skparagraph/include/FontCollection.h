@@ -37,6 +37,7 @@ public:
     sk_sp<SkTypeface> defaultFallback();
 
     void disableFontFallback();
+    void enableFontFallback();
     bool fontFallbackEnabled() { return fEnableFontFallback; }
 
     ParagraphCache* getParagraphCache() { return &fParagraphCache; }
