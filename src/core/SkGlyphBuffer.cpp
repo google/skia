@@ -11,10 +11,8 @@
 
 void SkDrawableGlyphBuffer::startSource(
         const SkZip<const SkGlyphID, const SkPoint>& source, SkPoint origin) {
-    SkASSERT(fPhase == kReset);
-    // Properly size the buffers.
-    this->ensureSize(source.size());
-
+    SkASSERT(fPhase == kPackedID);
+    fInputSize = source.size();
 
     // Map all the positions.
     auto positions = source.get<1>();
@@ -33,10 +31,8 @@ void SkDrawableGlyphBuffer::startDevice(
         const SkZip<const SkGlyphID, const SkPoint>& source,
         SkPoint origin, const SkMatrix& viewMatrix,
         const SkGlyphPositionRoundingSpec& roundingSpec) {
-    SkASSERT(fPhase == kReset);
-
-    // Properly size the buffers.
-    this->ensureSize(source.size());
+    SkASSERT(fPhase == kPackedID);
+    fInputSize = source.size();
 
     // Map the positions including subpixel position.
     auto positions = source.get<1>();
@@ -75,11 +71,14 @@ void SkDrawableGlyphBuffer::reset() {
 }
 
 void SkDrawableGlyphBuffer::ensureSize(size_t size) {
+    SkASSERT(fPhase == kReset);
     if (size > fMaxSize) {
         fMultiBuffer.reset(size);
         fPositions.reset(size);
         fMaxSize = size;
     }
+
     fInputSize = size;
     fDrawableSize = 0;
+    SkDEBUGCODE(fPhase = kPackedID);
 }

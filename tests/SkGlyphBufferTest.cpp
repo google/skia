@@ -19,6 +19,7 @@ DEF_TEST(SkDrawableGlyphBufferBasic, reporter) {
 
     {
         SkDrawableGlyphBuffer drawable;
+        drawable.ensureSize(100);
         drawable.startSource(source, {100, 100});
         for (auto t : SkMakeEnumerate(drawable.input())) {
             size_t i; SkGlyphVariant packedID; SkPoint pos;
@@ -30,6 +31,7 @@ DEF_TEST(SkDrawableGlyphBufferBasic, reporter) {
 
     {
         SkDrawableGlyphBuffer drawable;
+        drawable.ensureSize(100);
         SkMatrix matrix = SkMatrix::MakeScale(0.5);
         SkGlyphPositionRoundingSpec rounding{true, kX_SkAxisAlignment};
         drawable.startDevice(source, {100, 100}, matrix, rounding);
@@ -44,6 +46,7 @@ DEF_TEST(SkDrawableGlyphBufferBasic, reporter) {
 
     {
         SkDrawableGlyphBuffer drawable;
+        drawable.ensureSize(100);
         drawable.startSource(source, {100, 100});
         for (auto t : SkMakeEnumerate(drawable.input())) {
             size_t i; SkGlyphVariant packedID; SkPoint pos;

@@ -76,6 +76,8 @@ private:
 // SkPackedGlyphIDs.
 class SkDrawableGlyphBuffer {
 public:
+    void ensureSize(size_t size);
+
     // Load the buffer with SkPackedGlyphIDs and positions in source space.
     void startSource(const SkZip<const SkGlyphID, const SkPoint>& source, SkPoint origin);
 
@@ -122,8 +124,6 @@ public:
     void reset();
 
 private:
-    void ensureSize(size_t size);
-
     size_t fMaxSize{0};
     size_t fInputSize{0};
     size_t fDrawableSize{0};
@@ -133,11 +133,11 @@ private:
 #ifdef SK_DEBUG
     enum {
         kReset,
+        kPackedID,
         kInput,
         kProcess,
         kDraw
     } fPhase{kReset};
 #endif
 };
-
 #endif  // SkGlyphBuffer_DEFINED
