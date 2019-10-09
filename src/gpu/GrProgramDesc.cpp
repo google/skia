@@ -212,16 +212,12 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
         return false;
     }
 
-    // TODO: use programInfo.requestedFeatures here
-    GrProcessor::CustomFeatures processorFeatures = programInfo.primProc().requestedFeatures();
-
     for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
         const GrFragmentProcessor& fp = programInfo.pipeline().getFragmentProcessor(i);
         if (!gen_frag_proc_and_meta_keys(programInfo.primProc(), fp, gpu, shaderCaps, &b)) {
             desc->key().reset();
             return false;
         }
-        processorFeatures |= fp.requestedFeatures();
     }
 
     const GrXferProcessor& xp = programInfo.pipeline().getXferProcessor();
@@ -236,9 +232,8 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
         desc->key().reset();
         return false;
     }
-    processorFeatures |= xp.requestedFeatures();
 
-    if (processorFeatures & GrProcessor::CustomFeatures::kSampleLocations) {
+    if (programInfo.requestedFeatures() & GrProcessor::CustomFeatures::kSampleLocations) {
         SkASSERT(programInfo.pipeline().isHWAntialiasState());
         b.add32(renderTarget->renderTargetPriv().getSamplePatternKey());
     }
@@ -259,8 +254,9 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
                                          programInfo.pipeline().numCoverageFragmentProcessors()) {
         return false;
     }
-    header->fProcessorFeatures = (uint8_t)processorFeatures;
-    SkASSERT(header->processorFeatures() == processorFeatures);  // Ensure enough bits.
+    header->fProcessorFeatures = (uint8_t)programInfo.requestedFeatures();
+    // Ensure enough bits.
+    SkASSERT(header->fProcessorFeatures == (int) programInfo.requestedFeatures());
     header->fSnapVerticesToPixelCenters = programInfo.pipeline().snapVerticesToPixelCenters();
     header->fHasPointSize = hasPointSize ? 1 : 0;
     return true;
