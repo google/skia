@@ -192,7 +192,7 @@ public:
 
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(CustomFeatures);
 
-    CustomFeatures requestedFeatures() const { return fRequestedFeatures; }
+    CustomFeatures requestedFeatures1() const { return fRequestedFeatures1; }
 
     void* operator new(size_t size);
     void operator delete(void* target);
@@ -214,11 +214,11 @@ protected:
     GrProcessor(const GrProcessor&) = delete;
     GrProcessor& operator=(const GrProcessor&) = delete;
 
-    void setWillUseCustomFeature(CustomFeatures feature) { fRequestedFeatures |= feature; }
-    void resetCustomFeatures() { fRequestedFeatures = CustomFeatures::kNone; }
+    void setWillUseCustomFeature(CustomFeatures feature) { fRequestedFeatures1 |= feature; }
+    void resetCustomFeatures() { fRequestedFeatures1 = CustomFeatures::kNone; }
 
     const ClassID fClassID;
-    CustomFeatures fRequestedFeatures = CustomFeatures::kNone;
+    CustomFeatures fRequestedFeatures1 = CustomFeatures::kNone;
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrProcessor::CustomFeatures);
