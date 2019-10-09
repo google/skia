@@ -10,6 +10,8 @@ This file includes a list of high level updates for each milestone release.
 Milestone 79
 
 [Insert new notes here.]
+  * Added new api on GrContext ComputeImageSize. This replaces the hold static helper
+    ComputeTextureSize.
 
   * New versions of SkSurface async-rescale-and read APIs that allow client to extend
     the lifetime of the result data. Old versions are deprecated.
