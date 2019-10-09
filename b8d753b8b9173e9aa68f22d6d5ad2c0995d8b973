@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1c2bc89a_05cee26e",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-09T18:56:39Z",
+      "side": 1,
+      "message": "Just as a note, I hadn\u0027t previously really appreciated how far adding half the sampling frequency for the rounding had gotten from the use of SkScalarFloorToScalar in the \u0027processXXX\u0027 functions. Not that anything needs to be done right now, but it would be nice to somehow make it obvious the intermediates like mappedPositions aren\u0027t really positions but offset-positions.",
+      "range": {
+        "startLine": 101,
+        "startChar": 4,
+        "endLine": 101,
+        "endChar": 48
+      },
+      "revId": "b8d753b8b9173e9aa68f22d6d5ad2c0995d8b973",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87865561_4961d0c0",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-09T18:56:39Z",
+      "side": 1,
+      "message": "This name seems overly misleading. I know you\u0027re just moving this around and using the old name, but this vector is actually just specifying half the sampling frequency for the two axes. It would be nice to clear this up while moving it about to something like HalfSampleFreq. (The same  goes for the actual public field.)",
+      "range": {
+        "startLine": 39,
+        "startChar": 20,
+        "endLine": 39,
+        "endChar": 33
+      },
+      "revId": "b8d753b8b9173e9aa68f22d6d5ad2c0995d8b973",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3929caf_ea4e895f",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-09T18:56:39Z",
+      "side": 1,
+      "message": "This is more a IgnorePositionMask than an AxisAlignmentMask (the masks are always axis aligned, and in fact the masks are always pixel aligned, the mask specifies whether the position should be considered in creating the mask at all).",
+      "range": {
+        "startLine": 40,
+        "startChar": 20,
+        "endLine": 40,
+        "endChar": 33
+      },
+      "revId": "b8d753b8b9173e9aa68f22d6d5ad2c0995d8b973",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9385054_cbbdaf84",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-09T18:56:39Z",
+      "side": 1,
+      "message": "not used anymore?",
+      "range": {
+        "startLine": 245,
+        "startChar": 4,
+        "endLine": 245,
+        "endChar": 41
+      },
+      "revId": "b8d753b8b9173e9aa68f22d6d5ad2c0995d8b973",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "438d0796_755679f1",
+        "filename": "src/core/SkStrike.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-09T18:56:39Z",
+      "side": 1,
+      "message": "Not used anymore?",
+      "range": {
+        "startLine": 200,
+        "startChar": 4,
+        "endLine": 200,
+        "endChar": 43
+      },
+      "revId": "b8d753b8b9173e9aa68f22d6d5ad2c0995d8b973",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
