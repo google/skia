@@ -95,24 +95,8 @@ bool GrTextContext::CanDrawAsDistanceFields(const SkPaint& paint, const SkFont& 
                                             const SkSurfaceProps& props,
                                             bool contextSupportsDistanceFieldText,
                                             const Options& options) {
-    if (!viewMatrix.hasPerspective()) {
-        SkScalar maxScale = viewMatrix.getMaxScale();
-        SkScalar scaledTextSize = maxScale * font.getSize();
-        // Hinted text looks far better at small resolutions
-        // Scaling up beyond 2x yields undesireable artifacts
-        if (scaledTextSize < options.fMinDistanceFieldFontSize ||
-            scaledTextSize > options.fMaxDistanceFieldFontSize) {
-            return false;
-        }
-
-        bool useDFT = props.isUseDeviceIndependentFonts();
-#if SK_FORCE_DISTANCE_FIELD_TEXT
-        useDFT = true;
-#endif
-
-        if (!useDFT && scaledTextSize < kLargeDFFontSize) {
-            return false;
-        }
+    if (viewMatrix.hasPerspective()) {
+        return false;
     }
 
     // mask filters modify alpha, which doesn't translate well to distance
@@ -125,24 +109,38 @@ bool GrTextContext::CanDrawAsDistanceFields(const SkPaint& paint, const SkFont& 
         return false;
     }
 
+    SkScalar maxScale = viewMatrix.getMaxScale();
+    SkScalar scaledTextSize = maxScale * font.getSize();
+    // Hinted text looks far better at small resolutions
+    // Scaling up beyond 2x yields undesirable artifacts
+    if (scaledTextSize < options.fMinDistanceFieldFontSize ||
+        scaledTextSize > options.fMaxDistanceFieldFontSize) {
+        return false;
+    }
+
+    bool useDFT = props.isUseDeviceIndependentFonts();
+#if SK_FORCE_DISTANCE_FIELD_TEXT
+    useDFT = true;
+#endif
+
+    if (!useDFT && scaledTextSize < kLargeDFFontSize) {
+        return false;
+    }
+
     return true;
 }
 
 SkScalar scaled_text_size(const SkScalar textSize, const SkMatrix& viewMatrix) {
+    SkASSERT(!viewMatrix.hasPerspective());
+
     SkScalar scaledTextSize = textSize;
 
-    if (viewMatrix.hasPerspective()) {
-        // for perspective, we simply force to the medium size
-        // TODO: compute a size based on approximate screen area
-        scaledTextSize = kMediumDFFontLimit;
-    } else {
-        SkScalar maxScale = viewMatrix.getMaxScale();
-        // if we have non-unity scale, we need to choose our base text size
-        // based on the SkPaint's text size multiplied by the max scale factor
-        // TODO: do we need to do this if we're scaling down (i.e. maxScale < 1)?
-        if (maxScale > 0 && !SkScalarNearlyEqual(maxScale, SK_Scalar1)) {
-            scaledTextSize *= maxScale;
-        }
+    SkScalar maxScale = viewMatrix.getMaxScale();
+    // if we have non-unity scale, we need to choose our base text size
+    // based on the SkPaint's text size multiplied by the max scale factor
+    // TODO: do we need to do this if we're scaling down (i.e. maxScale < 1)?
+    if (maxScale > 0 && !SkScalarNearlyEqual(maxScale, SK_Scalar1)) {
+        scaledTextSize *= maxScale;
     }
 
     return scaledTextSize;
