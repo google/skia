@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb83f3a3_af72ce69",
+        "filename": "src/gpu/text/GrTextContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-10-09T19:40:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d6b877a3_369850ee",
+      "range": {
+        "startLine": 115,
+        "startChar": 35,
+        "endLine": 115,
+        "endChar": 47
+      },
+      "revId": "75c0d5034a1f7bd938d608bdeb0703088fd8c4ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
