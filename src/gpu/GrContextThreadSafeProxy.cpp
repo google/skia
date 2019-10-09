@@ -85,7 +85,7 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         const GrVkCaps* vkCaps = (const GrVkCaps*) this->caps();
 
         // The protection status of the characterization and the context need to match
-        if (isProtected != GrProtected(vkCaps->supportsProtectedMemory())) {
+        if (isProtected == GrProtected::kYes && !vkCaps->supportsProtectedMemory()) {
             return SkSurfaceCharacterization(); // return an invalid characterization
         }
 #endif
