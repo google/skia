@@ -55,6 +55,8 @@ void GrMtlOpsRenderPass::submit() {
 
 GrMtlPipelineState* GrMtlOpsRenderPass::prepareDrawState(const GrProgramInfo& programInfo,
                                                          GrPrimitiveType primType) {
+    programInfo.validate();
+
     // TODO: resolve textures and regenerate mipmaps as needed
 
     GrMtlPipelineState* pipelineState =

@@ -435,6 +435,8 @@ GrVkPipelineState* GrVkOpsRenderPass::prepareDrawState(
 
     VkRenderPass compatibleRenderPass = fCurrentRenderPass->vkRenderPass();
 
+    programInfo.validate1();
+
     GrVkPipelineState* pipelineState =
         fGpu->resourceProvider().findOrCreateCompatiblePipelineState(fRenderTarget,
                                                                      programInfo,

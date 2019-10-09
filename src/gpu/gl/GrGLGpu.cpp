@@ -1661,6 +1661,7 @@ void GrGLGpu::disableWindowRectangles() {
 bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
                            const GrProgramInfo& programInfo,
                            bool willDrawPoints) {
+    programInfo.validate1();
 
     sk_sp<GrGLProgram> program(fProgramCache->refProgram(this, renderTarget, programInfo,
                                                          willDrawPoints));
