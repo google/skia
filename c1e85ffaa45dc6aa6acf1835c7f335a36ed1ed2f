@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bb5d7344_57146278",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-10-09T14:14:23Z",
+      "side": 1,
+      "message": "Ran gn format - it\u0027s happy as is.",
+      "parentUuid": "c9a597de_4439017b",
+      "range": {
+        "startLine": 340,
+        "startChar": 1,
+        "endLine": 342,
+        "endChar": 3
+      },
+      "revId": "c1e85ffaa45dc6aa6acf1835c7f335a36ed1ed2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9f1e428a_aa3f904b",
         "filename": "BUILD.gn",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "c1e85ffaa45dc6aa6acf1835c7f335a36ed1ed2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35e4af8c_fb5ce43e",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-10-09T14:14:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f1e428a_aa3f904b",
+      "range": {
+        "startLine": 350,
+        "startChar": 17,
+        "endLine": 350,
+        "endChar": 67
+      },
+      "revId": "c1e85ffaa45dc6aa6acf1835c7f335a36ed1ed2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
