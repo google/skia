@@ -12,7 +12,6 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
-#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
 sk_sp<GrMtlSemaphore> GrMtlSemaphore::Make(GrMtlGpu* gpu, bool isOwned) {
     if (@available(macOS 10.14, iOS 12.0, *)) {
         id<MTLEvent> event = [gpu->device() newEvent];
@@ -69,4 +68,3 @@ GrBackendSemaphore GrMtlSemaphore::backendSemaphore() const {
     }
     return backendSemaphore;
 }
-#endif

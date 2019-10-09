@@ -33,10 +33,8 @@ public:
         [fCmdBuffer addCompletedHandler:block];
     }
 
-#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
     void encodeSignalEvent(id<MTLEvent>, uint64_t value) API_AVAILABLE(macos(10.14), ios(12.0));
     void encodeWaitForEvent(id<MTLEvent>, uint64_t value) API_AVAILABLE(macos(10.14), ios(12.0));
-#endif
 
 private:
     GrMtlCommandBuffer(id<MTLCommandBuffer> cmdBuffer)

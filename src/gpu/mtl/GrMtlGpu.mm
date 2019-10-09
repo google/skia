@@ -120,7 +120,6 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
         , fDisconnected(false) {
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
     fCaps = fMtlCaps;
-#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
     if (@available(macOS 10.14, iOS 12.0, *)) {
         if (fMtlCaps->fenceSyncSupport()) {
             fSharedEvent = [fDevice newSharedEvent];
@@ -129,7 +128,6 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
             fLatestEvent = 0;
         }
     }
-#endif
 }
 
 GrMtlGpu::~GrMtlGpu() {
@@ -1250,14 +1248,12 @@ bool GrMtlGpu::readOrTransferPixels(GrSurface* surface, int left, int top, int w
 
 GrFence SK_WARN_UNUSED_RESULT GrMtlGpu::insertFence() {
     GrMtlCommandBuffer* cmdBuffer = this->commandBuffer();
-#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
     if (@available(macOS 10.14, iOS 12.0, *)) {
         ++fLatestEvent;
         cmdBuffer->encodeSignalEvent(fSharedEvent, fLatestEvent);
 
         return fLatestEvent;
     }
-#endif
     // If MTLSharedEvent isn't available, we create a semaphore and signal it
     // within the current command buffer's completion handler.
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
@@ -1271,7 +1267,6 @@ GrFence SK_WARN_UNUSED_RESULT GrMtlGpu::insertFence() {
 
 bool GrMtlGpu::waitFence(GrFence fence, uint64_t timeout) {
     dispatch_semaphore_t semaphore;
-#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
     if (@available(macOS 10.14, iOS 12.0, *)) {
         semaphore = dispatch_semaphore_create(0);
 
@@ -1283,9 +1278,7 @@ bool GrMtlGpu::waitFence(GrFence fence, uint64_t timeout) {
                                    dispatch_semaphore_signal(block_sema);
                                }];
 
-    } else
-#endif
-    {
+    } else {
         const void* cfFence = (const void*) fence;
         semaphore = (__bridge dispatch_semaphore_t)cfFence;
     }
@@ -1295,12 +1288,9 @@ bool GrMtlGpu::waitFence(GrFence fence, uint64_t timeout) {
 }
 
 void GrMtlGpu::deleteFence(GrFence fence) const {
-#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
     if (@available(macOS 10.14, iOS 12.0, *)) {
         // nothing to delete
-    } else
-#endif
-    {
+    } else {
         const void* cfFence = (const void*) fence;
         // In this case it's easier to release in CoreFoundation than depend on ARC
         CFRelease(cfFence);
@@ -1309,43 +1299,31 @@ void GrMtlGpu::deleteFence(GrFence fence) const {
 
 sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrMtlGpu::makeSemaphore(bool isOwned) {
     SkASSERT(this->caps()->semaphoreSupport());
-#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
     return GrMtlSemaphore::Make(this, isOwned);
-#else
-    return nullptr;
-#endif
 }
 
 sk_sp<GrSemaphore> GrMtlGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
                                                   GrResourceProvider::SemaphoreWrapType wrapType,
                                                   GrWrapOwnership ownership) {
     SkASSERT(this->caps()->semaphoreSupport());
-#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
     return GrMtlSemaphore::MakeWrapped(this, semaphore.mtlSemaphore(), semaphore.mtlValue(),
                                        ownership);
-#else
-    return nullptr;
-#endif
 }
 
 void GrMtlGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore) {
-#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
     if (@available(macOS 10.14, iOS 12.0, *)) {
         GrMtlSemaphore* mtlSem = static_cast<GrMtlSemaphore*>(semaphore.get());
 
         this->commandBuffer()->encodeSignalEvent(mtlSem->event(), mtlSem->value());
     }
-#endif
 }
 
 void GrMtlGpu::waitSemaphore(sk_sp<GrSemaphore> semaphore) {
-#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
     if (@available(macOS 10.14, iOS 12.0, *)) {
         GrMtlSemaphore* mtlSem = static_cast<GrMtlSemaphore*>(semaphore.get());
 
         this->commandBuffer()->encodeWaitForEvent(mtlSem->event(), mtlSem->value());
     }
-#endif
 }
 
 void GrMtlGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect&, GrSurfaceOrigin,

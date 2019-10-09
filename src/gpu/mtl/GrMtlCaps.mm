@@ -268,11 +268,9 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
 
     fFenceSyncSupport = true;
     bool supportsMTLEvent = false;
-#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
     if (@available(macOS 10.14, iOS 12.0, *)) {
         supportsMTLEvent = true;
     }
-#endif
     fSemaphoreSupport = supportsMTLEvent;
 
     fCrossContextTextureSupport = false;
