@@ -25,9 +25,16 @@
 #include <numeric>
 #include <vector>
 
+#if defined(HAVE_VIDEO_ENCODER)
+    #include "experimental/ffmpeg/SkVideoEncoder.h"
+    const char* formats_help = "Output format (png, skp, mp4, or null)";
+#else
+    const char* formats_help = "Output format (png, skp, or null)";
+#endif
+
 static DEFINE_string2(input    , i, nullptr, "Input .json file.");
 static DEFINE_string2(writePath, w, nullptr, "Output directory.  Frames are names [0-9]{6}.png.");
-static DEFINE_string2(format   , f, "png"  , "Output format (png, skp or null)");
+static DEFINE_string2(format   , f, "png"  , formats_help);
 
 static DEFINE_double(t0,   0, "Timeline start [0..1].");
 static DEFINE_double(t1,   1, "Timeline stop [0..1].");
@@ -166,6 +173,29 @@ private:
     const sk_sp<SkSurface> fSurface;
 };
 
+static std::vector<SkBitmap> gMP4Frames;
+
+struct MP4Sink final : public Sink {
+    explicit MP4Sink(const SkMatrix& scale_matrix)
+        : fSurface(SkSurface::MakeRasterN32Premul(FLAGS_width, FLAGS_height)) {
+        fSurface->getCanvas()->concat(scale_matrix);
+    }
+
+    SkCanvas* beginFrame(size_t) override {
+        SkCanvas* canvas = fSurface->getCanvas();
+        canvas->clear(SK_ColorTRANSPARENT);
+        return canvas;
+    }
+
+    bool endFrame(size_t i) override {
+        // SkVideoEncoder wants RGBA 8888 frames.  (N32 may be RGBA 8888 or BGRA 8888.)
+        gMP4Frames[i].allocPixels(fSurface->imageInfo().makeColorType(kRGBA_8888_SkColorType));
+        return fSurface->readPixels(gMP4Frames[i].pixmap(), 0,0);
+    }
+
+    const sk_sp<SkSurface> fSurface;
+};
+
 class Logger final : public skottie::Logger {
 public:
     struct LogEntry {
@@ -203,6 +233,7 @@ std::unique_ptr<Sink> MakeSink(const char* fmt, const SkMatrix& scale_matrix) {
     if (0 == strcmp(fmt,  "png")) return  PNGSink::Make(scale_matrix);
     if (0 == strcmp(fmt,  "skp")) return  SKPSink::Make(scale_matrix);
     if (0 == strcmp(fmt, "null")) return NullSink::Make(scale_matrix);
+    if (0 == strcmp(fmt,  "mp4")) return skstd::make_unique<MP4Sink>(scale_matrix);
 
     SkDebugf("Unknown format: %s\n", FLAGS_format[0]);
     return nullptr;
@@ -227,7 +258,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    if (!sk_mkdir(FLAGS_writePath[0])) {
+    if (!FLAGS_format.contains("mp4") && !sk_mkdir(FLAGS_writePath[0])) {
         return 1;
     }
 
@@ -265,6 +296,10 @@ int main(int argc, char** argv) {
                dt = 1 / std::min(anim->duration() * FLAGS_fps, kMaxFrames);
 
     const auto frame_count = static_cast<int>((t1 - t0) / dt);
+
+    if (FLAGS_format.contains("mp4")) {
+        gMP4Frames.resize(frame_count);
+    }
 
     SkSpinlock lock;
     std::vector<double> frames_ms;
@@ -305,5 +340,19 @@ int main(int argc, char** argv) {
     double sum = std::accumulate(frames_ms.begin(), frames_ms.end(), 0);
     SkDebugf("frame time min %gms, med %gms, avg %gms, max %gms, sum %gms\n",
              frames_ms[0], frames_ms[frame_count/2], sum/frame_count, frames_ms.back(), sum);
+
+#if defined(HAVE_VIDEO_ENCODER)
+    if (FLAGS_format.contains("mp4")) {
+        SkVideoEncoder enc;
+        enc.beginRecording({FLAGS_width, FLAGS_height}, FLAGS_fps);
+        for (const SkBitmap& frame : gMP4Frames) {
+            enc.addFrame(frame.pixmap());
+        }
+        sk_sp<SkData> mp4 = enc.endRecording();
+
+        SkFILEWStream{FLAGS_writePath[0]}
+            .write(mp4->data(), mp4->size());
+    }
+#endif
     return 0;
 }
