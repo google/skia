@@ -101,7 +101,7 @@ if [[ $@ == *no_canvas* ]]; then
   HTML_CANVAS_API=""
 fi
 
-GN_FONT="skia_enable_fontmgr_empty=false"
+GN_FONT="skia_enable_fontmgr_empty=false skia_enable_fontmgr_custom_empty=false"
 FONT_CFLAGS=""
 BUILTIN_FONT="$BASE_DIR/fonts/NotoMono-Regular.ttf.cpp"
 if [[ $@ == *no_font* ]]; then
@@ -111,8 +111,8 @@ if [[ $@ == *no_font* ]]; then
   GN_FONT="skia_enable_fontmgr_empty=true"
 elif [[ $@ == *no_embedded_font* ]]; then
   echo "Omitting the built-in font(s)"
-  BUILTIN_FONT="$BASE_DIR/fonts/nofonts.cpp"
-  GN_FONT="skia_enable_fontmgr_empty=false"
+  BUILTIN_FONT=""
+  GN_FONT="skia_enable_fontmgr_empty=false skia_enable_fontmgr_custom_empty=true"
 else
   # Generate the font's binary file (which is covered by .gitignore)
   python tools/embed_resources.py \
