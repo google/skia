@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ttFont sfntVersion="\x00\x01\x00\x00" ttLibVersion="3.37">
+
+  <GlyphOrder>
+    <!-- The 'id' attribute is only for humans; it is ignored when parsed. -->
+    <GlyphID id="0" name=".notdef"/>
+    <GlyphID id="1" name="a"/>
+    <GlyphID id="2" name="b"/>
+    <GlyphID id="3" name="c"/>
+    <GlyphID id="4" name="gravecomb"/>
+  </GlyphOrder>
+
+  <head>
+    <!-- Most of this table will be recalculated by the compiler -->
+    <tableVersion value="1.0"/>
+    <fontRevision value="2.82"/>
+    <checkSumAdjustment value="0xaf75724"/>
+    <magicNumber value="0x5f0f3cf5"/>
+    <flags value="00001000 00011011"/>
+    <unitsPerEm value="2048"/>
+    <created value="Mon Aug  6 13:54:50 1990"/>
+    <modified value="Tue May  9 12:19:20 2000"/>
+    <xMin value="-1361"/>
+    <yMin value="-665"/>
+    <xMax value="4154"/>
+    <yMax value="2124"/>
+    <macStyle value="00000000 00000000"/>
+    <lowestRecPPEM value="9"/>
+    <fontDirectionHint value="1"/>
+    <indexToLocFormat value="0"/>
+    <glyphDataFormat value="0"/>
+  </head>
+
+  <hhea>
+    <tableVersion value="0x00010000"/>
+    <ascent value="1854"/>
+    <descent value="-434"/>
+    <lineGap value="67"/>
+    <advanceWidthMax value="4096"/>
+    <minLeftSideBearing value="-1361"/>
+    <minRightSideBearing value="-461"/>
+    <xMaxExtent value="4154"/>
+    <caretSlopeRise value="1"/>
+    <caretSlopeRun value="0"/>
+    <caretOffset value="0"/>
+    <reserved0 value="0"/>
+    <reserved1 value="0"/>
+    <reserved2 value="0"/>
+    <reserved3 value="0"/>
+    <metricDataFormat value="0"/>
+    <numberOfHMetrics value="5"/>
+  </hhea>
+
+  <maxp>
+    <!-- Most of this table will be recalculated by the compiler -->
+    <tableVersion value="0x10000"/>
+    <numGlyphs value="5"/>
+    <maxPoints value="256"/>
+    <maxContours value="63"/>
+    <maxCompositePoints value="99"/>
+    <maxCompositeContours value="5"/>
+    <maxZones value="2"/>
+    <maxTwilightPoints value="16"/>
+    <maxStorage value="47"/>
+    <maxFunctionDefs value="66"/>
+    <maxInstructionDefs value="0"/>
+    <maxStackElements value="1036"/>
+    <maxSizeOfInstructions value="2813"/>
+    <maxComponentElements value="3"/>
+    <maxComponentDepth value="2"/>
+  </maxp>
+
+  <OS_2>
+    <!-- The fields 'usFirstCharIndex' and 'usLastCharIndex'
+         will be recalculated by the compiler -->
+    <version value="1"/>
+    <xAvgCharWidth value="904"/>
+    <usWeightClass value="400"/>
+    <usWidthClass value="5"/>
+    <fsType value="00000000 00000000"/>
+    <ySubscriptXSize value="1434"/>
+    <ySubscriptYSize value="1331"/>
+    <ySubscriptXOffset value="0"/>
+    <ySubscriptYOffset value="283"/>
+    <ySuperscriptXSize value="1434"/>
+    <ySuperscriptYSize value="1331"/>
+    <ySuperscriptXOffset value="0"/>
+    <ySuperscriptYOffset value="977"/>
+    <yStrikeoutSize value="102"/>
+    <yStrikeoutPosition value="530"/>
+    <sFamilyClass value="2053"/>
+    <panose>
+      <bFamilyType value="2"/>
+      <bSerifStyle value="11"/>
+      <bWeight value="6"/>
+      <bProportion value="4"/>
+      <bContrast value="2"/>
+      <bStrokeVariation value="2"/>
+      <bArmStyle value="2"/>
+      <bLetterForm value="2"/>
+      <bMidline value="2"/>
+      <bXHeight value="4"/>
+    </panose>
+    <ulUnicodeRange1 value="00000000 00000000 00000000 01000001"/>
+    <ulUnicodeRange2 value="00000000 00000000 00000000 00000000"/>
+    <ulUnicodeRange3 value="00000000 00000000 00000000 00000000"/>
+    <ulUnicodeRange4 value="00000000 00000000 00000000 00000000"/>
+    <achVendID value="Mono"/>
+    <fsSelection value="00000000 01000000"/>
+    <usFirstCharIndex value="97"/>
+    <usLastCharIndex value="768"/>
+    <sTypoAscender value="1491"/>
+    <sTypoDescender value="-431"/>
+    <sTypoLineGap value="307"/>
+    <usWinAscent value="1854"/>
+    <usWinDescent value="434"/>
+    <ulCodePageRange1 value="01000000 00000000 00000001 11111111"/>
+    <ulCodePageRange2 value="11111111 11111111 00000000 00000000"/>
+  </OS_2>
+
+  <hmtx>
+    <mtx name=".notdef" width="1536" lsb="256"/>
+    <mtx name="a" width="1139" lsb="74"/>
+    <mtx name="b" width="1139" lsb="134"/>
+    <mtx name="c" width="1024" lsb="80"/>
+    <mtx name="gravecomb" width="0" lsb="-534"/>
+  </hmtx>
+
+  <cmap>
+    <tableVersion version="0"/>
+    <cmap_format_4 platformID="0" platEncID="3" language="0">
+      <map code="0x61" name="a"/><!-- LATIN SMALL LETTER A -->
+      <map code="0x62" name="b"/><!-- LATIN SMALL LETTER B -->
+      <map code="0x63" name="c"/><!-- LATIN SMALL LETTER C -->
+      <map code="0x300" name="gravecomb"/><!-- COMBINING GRAVE ACCENT -->
+    </cmap_format_4>
+    <cmap_format_4 platformID="3" platEncID="1" language="0">
+      <map code="0x61" name="a"/><!-- LATIN SMALL LETTER A -->
+      <map code="0x62" name="b"/><!-- LATIN SMALL LETTER B -->
+      <map code="0x63" name="c"/><!-- LATIN SMALL LETTER C -->
+      <map code="0x300" name="gravecomb"/><!-- COMBINING GRAVE ACCENT -->
+    </cmap_format_4>
+    <cmap_format_12 platformID="3" platEncID="10" format="12" reserved="0" length="40" language="0" nGroups="2">
+      <map code="0x61" name="a"/><!-- LATIN SMALL LETTER A -->
+      <map code="0x62" name="b"/><!-- LATIN SMALL LETTER B -->
+      <map code="0x63" name="c"/><!-- LATIN SMALL LETTER C -->
+      <map code="0x300" name="gravecomb"/><!-- COMBINING GRAVE ACCENT -->
+    </cmap_format_12>
+  </cmap>
+
+  <loca>
+    <!-- The 'loca' table will be calculated by the compiler -->
+  </loca>
+
+  <glyf>
+
+    <!-- The xMin, yMin, xMax and yMax values
+         will be recalculated by the compiler. -->
+
+    <TTGlyph name=".notdef" xMin="256" yMin="0" xMax="1280" yMax="1280">
+      <contour>
+        <pt x="256" y="0" on="1"/>
+        <pt x="256" y="1280" on="1"/>
+        <pt x="1280" y="1280" on="1"/>
+        <pt x="1280" y="0" on="1"/>
+      </contour>
+      <contour>
+        <pt x="288" y="32" on="1"/>
+        <pt x="1248" y="32" on="1"/>
+        <pt x="1248" y="1248" on="1"/>
+        <pt x="288" y="1248" on="1"/>
+      </contour>
+      <instructions/>
+    </TTGlyph>
+
+    <TTGlyph name="a" xMin="74" yMin="-24" xMax="1052" yMax="1086">
+      <contour>
+        <pt x="828" y="131" on="1"/>
+        <pt x="728" y="46" on="0"/>
+        <pt x="543" y="-24" on="0"/>
+        <pt x="437" y="-24" on="1"/>
+        <pt x="262" y="-24" on="0"/>
+        <pt x="74" y="147" on="0"/>
+        <pt x="74" y="280" on="1"/>
+        <pt x="74" y="358" on="0"/>
+        <pt x="145" y="487" on="0"/>
+        <pt x="260" y="565" on="0"/>
+        <pt x="332" y="585" on="1"/>
+        <pt x="385" y="599" on="0"/>
+        <pt x="492" y="612" on="1"/>
+        <pt x="710" y="638" on="0"/>
+        <pt x="813" y="674" on="1"/>
+        <pt x="814" y="711" on="0"/>
+        <pt x="814" y="721" on="1"/>
+        <pt x="814" y="831" on="0"/>
+        <pt x="763" y="876" on="1"/>
+        <pt x="694" y="937" on="0"/>
+        <pt x="558" y="937" on="1"/>
+        <pt x="431" y="937" on="0"/>
+        <pt x="310" y="848" on="0"/>
+        <pt x="281" y="735" on="1"/>
+        <pt x="105" y="759" on="1"/>
+        <pt x="129" y="872" on="0"/>
+        <pt x="239" y="1011" on="0"/>
+        <pt x="447" y="1086" on="0"/>
+        <pt x="584" y="1086" on="1"/>
+        <pt x="720" y="1086" on="0"/>
+        <pt x="890" y="1022" on="0"/>
+        <pt x="970" y="925" on="0"/>
+        <pt x="986" y="851" on="1"/>
+        <pt x="995" y="805" on="0"/>
+        <pt x="995" y="685" on="1"/>
+        <pt x="995" y="445" on="1"/>
+        <pt x="995" y="194" on="0"/>
+        <pt x="1018" y="61" on="0"/>
+        <pt x="1052" y="0" on="1"/>
+        <pt x="864" y="0" on="1"/>
+        <pt x="836" y="56" on="0"/>
+      </contour>
+      <contour>
+        <pt x="813" y="533" on="1"/>
+        <pt x="715" y="493" on="0"/>
+        <pt x="519" y="465" on="1"/>
+        <pt x="408" y="449" on="0"/>
+        <pt x="316" y="409" on="0"/>
+        <pt x="266" y="332" on="0"/>
+        <pt x="266" y="285" on="1"/>
+        <pt x="266" y="213" on="0"/>
+        <pt x="375" y="117" on="0"/>
+        <pt x="480" y="117" on="1"/>
+        <pt x="584" y="117" on="0"/>
+        <pt x="746" y="208" on="0"/>
+        <pt x="784" y="287" on="1"/>
+        <pt x="813" y="348" on="0"/>
+        <pt x="813" y="467" on="1"/>
+      </contour>
+      <instructions/>
+    </TTGlyph>
+
+    <TTGlyph name="b" xMin="134" yMin="-24" xMax="1055" yMax="1466">
+      <contour>
+        <pt x="301" y="0" on="1"/>
+        <pt x="134" y="0" on="1"/>
+        <pt x="134" y="1466" on="1"/>
+        <pt x="314" y="1466" on="1"/>
+        <pt x="314" y="943" on="1"/>
+        <pt x="428" y="1086" on="0"/>
+        <pt x="605" y="1086" on="1"/>
+        <pt x="703" y="1086" on="0"/>
+        <pt x="878" y="1007" on="0"/>
+        <pt x="991" y="864" on="0"/>
+        <pt x="1055" y="662" on="0"/>
+        <pt x="1055" y="547" on="1"/>
+        <pt x="1055" y="274" on="0"/>
+        <pt x="785" y="-24" on="0"/>
+        <pt x="596" y="-24" on="1"/>
+        <pt x="408" y="-24" on="0"/>
+        <pt x="301" y="133" on="1"/>
+      </contour>
+      <contour>
+        <pt x="299" y="539" on="1"/>
+        <pt x="299" y="348" on="0"/>
+        <pt x="351" y="263" on="1"/>
+        <pt x="436" y="124" on="0"/>
+        <pt x="581" y="124" on="1"/>
+        <pt x="699" y="124" on="0"/>
+        <pt x="871" y="329" on="0"/>
+        <pt x="871" y="532" on="1"/>
+        <pt x="871" y="740" on="0"/>
+        <pt x="706" y="938" on="0"/>
+        <pt x="589" y="938" on="1"/>
+        <pt x="471" y="938" on="0"/>
+        <pt x="299" y="733" on="0"/>
+      </contour>
+      <instructions/>
+    </TTGlyph>
+
+    <TTGlyph name="c" xMin="80" yMin="-24" xMax="1005" yMax="1086">
+      <contour>
+        <pt x="828" y="389" on="1"/>
+        <pt x="1005" y="366" on="1"/>
+        <pt x="976" y="183" on="0"/>
+        <pt x="737" y="-24" on="0"/>
+        <pt x="563" y="-24" on="1"/>
+        <pt x="345" y="-24" on="0"/>
+        <pt x="80" y="261" on="0"/>
+        <pt x="80" y="527" on="1"/>
+        <pt x="80" y="699" on="0"/>
+        <pt x="194" y="957" on="0"/>
+        <pt x="427" y="1086" on="0"/>
+        <pt x="564" y="1086" on="1"/>
+        <pt x="737" y="1086" on="0"/>
+        <pt x="957" y="911" on="0"/>
+        <pt x="988" y="750" on="1"/>
+        <pt x="813" y="723" on="1"/>
+        <pt x="788" y="830" on="0"/>
+        <pt x="661" y="938" on="0"/>
+        <pt x="571" y="938" on="1"/>
+        <pt x="435" y="938" on="0"/>
+        <pt x="265" y="743" on="0"/>
+        <pt x="265" y="532" on="1"/>
+        <pt x="265" y="318" on="0"/>
+        <pt x="429" y="124" on="0"/>
+        <pt x="561" y="124" on="1"/>
+        <pt x="667" y="124" on="0"/>
+        <pt x="809" y="254" on="0"/>
+      </contour>
+      <instructions/>
+    </TTGlyph>
+
+    <TTGlyph name="gravecomb" xMin="-534" yMin="1547" xMax="-158" yMax="1827">
+      <contour>
+        <pt x="-158" y="1547" on="1"/>
+        <pt x="-303" y="1547" on="1"/>
+        <pt x="-534" y="1827" on="1"/>
+        <pt x="-293" y="1827" on="1"/>
+      </contour>
+      <instructions/>
+    </TTGlyph>
+
+  </glyf>
+
+  <name>
+    <namerecord nameID="0" platformID="0" platEncID="3" langID="0x0">
+      Typeface © The Monotype Corporation plc. Data © The Monotype Corporation plc/Type Solutions Inc. 1990-1992. All Rights Reserved
+    </namerecord>
+    <namerecord nameID="1" platformID="0" platEncID="3" langID="0x0">
+      Arial
+    </namerecord>
+    <namerecord nameID="2" platformID="0" platEncID="3" langID="0x0">
+      Regular
+    </namerecord>
+    <namerecord nameID="3" platformID="0" platEncID="3" langID="0x0">
+      Monotype:Arial Regular:Version 2.82 (Microsoft)
+    </namerecord>
+    <namerecord nameID="4" platformID="0" platEncID="3" langID="0x0">
+      Arial
+    </namerecord>
+    <namerecord nameID="5" platformID="0" platEncID="3" langID="0x0">
+      Version 2.82
+    </namerecord>
+    <namerecord nameID="6" platformID="0" platEncID="3" langID="0x0">
+      ArialMT
+    </namerecord>
+    <namerecord nameID="7" platformID="0" platEncID="3" langID="0x0">
+      Arial® Trademark of The Monotype Corporation plc registered in the US Pat &amp; TM Off. and elsewhere.
+    </namerecord>
+    <namerecord nameID="8" platformID="0" platEncID="3" langID="0x0">
+      Monotype Typography
+    </namerecord>
+    <namerecord nameID="9" platformID="0" platEncID="3" langID="0x0">
+      Monotype Type Drawing Office - Robin Nicholas, Patricia Saunders 1982
+    </namerecord>
+    <namerecord nameID="10" platformID="0" platEncID="3" langID="0x0">
+      Contemporary sans serif design, Arial contains more humanist characteristics than many of its predecessors and as such is more in tune with the mood of the last decades of the twentieth century.  The overall treatment of curves is softer and fuller than in most industrial style sans serif faces.  Terminal strokes are cut on the diagonal which helps to give the face a less mechanical appearance.  Arial is an extremely versatile family of typefaces which can be used with equal success for text setting in reports, presentations, magazines etc, and for display use in newspapers, advertising and promotions.
+    </namerecord>
+    <namerecord nameID="11" platformID="0" platEncID="3" langID="0x0">
+      http://www.monotype.com/html/mtname/ms_arial.html
+    </namerecord>
+    <namerecord nameID="12" platformID="0" platEncID="3" langID="0x0">
+      http://www.monotype.com/html/mtname/ms_welcome.html
+    </namerecord>
+    <namerecord nameID="13" platformID="0" platEncID="3" langID="0x0">
+    ...
+    </namerecord>
+    <namerecord nameID="14" platformID="0" platEncID="3" langID="0x0">
+    ...
+    </namerecord>
+    <namerecord nameID="0" platformID="1" platEncID="0" langID="0x0" unicode="True">
+      Typeface © The Monotype Corporation plc. Data © The Monotype Corporation plc/Type Solutions Inc. 1990-1992. All Rights Reserved
+    </namerecord>
+    <namerecord nameID="1" platformID="1" platEncID="0" langID="0x0" unicode="True">
+      Arial
+    </namerecord>
+    <namerecord nameID="2" platformID="1" platEncID="0" langID="0x0" unicode="True">
+      Regular
+    </namerecord>
+    <namerecord nameID="3" platformID="1" platEncID="0" langID="0x0" unicode="True">
+      Monotype:Arial Regular:Version 2.82 (Microsoft)
+    </namerecord>
+    <namerecord nameID="4" platformID="1" platEncID="0" langID="0x0" unicode="True">
+      Arial
+    </namerecord>
+    <namerecord nameID="5" platformID="1" platEncID="0" langID="0x0" unicode="True">
+      Version 2.82
+    </namerecord>
+    <namerecord nameID="6" platformID="1" platEncID="0" langID="0x0" unicode="True">
+      ArialMT
+    </namerecord>
+    <namerecord nameID="7" platformID="1" platEncID="0" langID="0x0" unicode="True">
+      Arial® Trademark of The Monotype Corporation plc registered in the US Pat &amp; TM Off. and elsewhere.
+    </namerecord>
+    <namerecord nameID="8" platformID="1" platEncID="0" langID="0x0" unicode="True">
+      Monotype Typography
+    </namerecord>
+    <namerecord nameID="9" platformID="1" platEncID="0" langID="0x0" unicode="True">
+      Monotype Type Drawing Office - Robin Nicholas, Patricia Saunders 1982
+    </namerecord>
+    <namerecord nameID="10" platformID="1" platEncID="0" langID="0x0" unicode="True">
+      Contemporary sans serif design, Arial contains more humanist characteristics than many of its predecessors and as such is more in tune with the mood of the last decades of the twentieth century.  The overall treatment of curves is softer and fuller than in most industrial style sans serif faces.  Terminal strokes are cut on the diagonal which helps to give the face a less mechanical appearance.  Arial is an extremely versatile family of typefaces which can be used with equal success for text setting in reports, presentations, magazines etc, and for display use in newspapers, advertising and promotions.
+    </namerecord>
+    <namerecord nameID="11" platformID="1" platEncID="0" langID="0x0" unicode="True">
+      http://www.monotype.com/html/mtname/ms_arial.html
+    </namerecord>
+    <namerecord nameID="12" platformID="1" platEncID="0" langID="0x0" unicode="True">
+      http://www.monotype.com/html/mtname/ms_welcome.html
+    </namerecord>
+    <namerecord nameID="13" platformID="1" platEncID="0" langID="0x0" unicode="True">
+    ...
+    </namerecord>
+    <namerecord nameID="14" platformID="1" platEncID="0" langID="0x0" unicode="True">
+    ...
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x403">
+      Normal
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x405">
+      obyčejné
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x406">
+      normal
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x407">
+      Standard
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x408">
+      Κανονικά
+    </namerecord>
+    <namerecord nameID="0" platformID="3" platEncID="1" langID="0x409">
+      Typeface © The Monotype Corporation plc. Data © The Monotype Corporation plc/Type Solutions Inc. 1990-1992. All Rights Reserved
+    </namerecord>
+    <namerecord nameID="1" platformID="3" platEncID="1" langID="0x409">
+      Arial
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x409">
+      Regular
+    </namerecord>
+    <namerecord nameID="3" platformID="3" platEncID="1" langID="0x409">
+      Monotype:Arial Regular:Version 2.82 (Microsoft)
+    </namerecord>
+    <namerecord nameID="4" platformID="3" platEncID="1" langID="0x409">
+      Arial
+    </namerecord>
+    <namerecord nameID="5" platformID="3" platEncID="1" langID="0x409">
+      Version 2.82
+    </namerecord>
+    <namerecord nameID="6" platformID="3" platEncID="1" langID="0x409">
+      ArialMT
+    </namerecord>
+    <namerecord nameID="7" platformID="3" platEncID="1" langID="0x409">
+      Arial® Trademark of The Monotype Corporation plc registered in the US Pat &amp; TM Off. and elsewhere.
+    </namerecord>
+    <namerecord nameID="8" platformID="3" platEncID="1" langID="0x409">
+      Monotype Typography
+    </namerecord>
+    <namerecord nameID="9" platformID="3" platEncID="1" langID="0x409">
+      Monotype Type Drawing Office - Robin Nicholas, Patricia Saunders 1982
+    </namerecord>
+    <namerecord nameID="10" platformID="3" platEncID="1" langID="0x409">
+      Contemporary sans serif design, Arial contains more humanist characteristics than many of its predecessors and as such is more in tune with the mood of the last decades of the twentieth century.  The overall treatment of curves is softer and fuller than in most industrial style sans serif faces.  Terminal strokes are cut on the diagonal which helps to give the face a less mechanical appearance.  Arial is an extremely versatile family of typefaces which can be used with equal success for text setting in reports, presentations, magazines etc, and for display use in newspapers, advertising and promotions.
+    </namerecord>
+    <namerecord nameID="11" platformID="3" platEncID="1" langID="0x409">
+      http://www.monotype.com/html/mtname/ms_arial.html
+    </namerecord>
+    <namerecord nameID="12" platformID="3" platEncID="1" langID="0x409">
+      http://www.monotype.com/html/mtname/ms_welcome.html
+    </namerecord>
+    <namerecord nameID="13" platformID="3" platEncID="1" langID="0x409">
+    ...
+    </namerecord>
+    <namerecord nameID="14" platformID="3" platEncID="1" langID="0x409">
+    ...
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x40a">
+      Normal
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x40b">
+      Normaali
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x40c">
+      Normal
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x40e">
+      Normál
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x410">
+      Normale
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x413">
+      Standaard
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x414">
+      Normal
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x415">
+      Normalny
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x416">
+      Normal
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x419">
+      Обычный
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x41b">
+      Normálne
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x41d">
+      Normal
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x41f">
+      Normal
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x424">
+      Navadno
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x42a">
+      thường
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x42d">
+      Arrunta
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x80a">
+      Normal
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x816">
+      Normal
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0xc0a">
+      Normal
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0xc0c">
+      Normal
+    </namerecord>
+  </name>
+
+  <post>
+    <formatType value="3.0"/>
+    <italicAngle value="0.0"/>
+    <underlinePosition value="-217"/>
+    <underlineThickness value="150"/>
+    <isFixedPitch value="0"/>
+    <minMemType42 value="0"/>
+    <maxMemType42 value="0"/>
+    <minMemType1 value="0"/>
+    <maxMemType1 value="0"/>
+  </post>
+
+</ttFont>
