@@ -63,7 +63,7 @@ void GrSampleMaskProcessor::reset(PrimitiveType primitiveType, GrResourceProvide
     fPrimitiveType = primitiveType;  // This will affect the return values for numInputPoints, etc.
     SkASSERT(PrimitiveType::kWeightedTriangles != fPrimitiveType);
 
-    this->resetCustomFeatures();
+    this->resetCustomFeatures1();
     fInputAttribs.reset();
 
     switch (fPrimitiveType) {
@@ -84,7 +84,7 @@ void GrSampleMaskProcessor::reset(PrimitiveType primitiveType, GrResourceProvide
             fInputAttribs.emplace_back("Y", instanceAttribType, shaderVarType);
             this->setVertexAttributes(nullptr, 0);
             this->setInstanceAttributes(fInputAttribs.begin(), fInputAttribs.count());
-            this->setWillUseCustomFeature(CustomFeatures::kSampleLocations);
+            this->setWillUseCustomFeature1(CustomFeatures::kSampleLocations);
             break;
         }
     }

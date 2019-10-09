@@ -203,7 +203,7 @@ public:
         this->setInstanceAttributes(fInstanceAttribs.begin(), fInstanceAttribs.count());
 
         if (GrAAType::kMSAA == fAAType) {
-            this->setWillUseCustomFeature(CustomFeatures::kSampleLocations);
+            this->setWillUseCustomFeature1(CustomFeatures::kSampleLocations);
         }
     }
 

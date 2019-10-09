@@ -85,7 +85,7 @@ SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) 
 }
 
 const char* GrGLSLFragmentShaderBuilder::sampleOffsets() {
-    SkASSERT(CustomFeatures::kSampleLocations & fProgramBuilder->header().processorFeatures());
+    SkASSERT(CustomFeatures::kSampleLocations & fProgramBuilder->processorFeatures());
     SkDEBUGCODE(fUsedProcessorFeaturesThisStage_DebugOnly |= CustomFeatures::kSampleLocations);
     SkDEBUGCODE(fUsedProcessorFeaturesAllStages_DebugOnly |= CustomFeatures::kSampleLocations);
     return "_sampleOffsets";
@@ -118,7 +118,7 @@ void GrGLSLFragmentShaderBuilder::maskOffMultisampleCoverage(
 
 void GrGLSLFragmentShaderBuilder::applyFnToMultisampleMask(
         const char* fn, const char* grad, ScopeFlags scopeFlags) {
-    SkASSERT(CustomFeatures::kSampleLocations & fProgramBuilder->header().processorFeatures());
+    SkASSERT(CustomFeatures::kSampleLocations & fProgramBuilder->processorFeatures());
     SkDEBUGCODE(fUsedProcessorFeaturesThisStage_DebugOnly |= CustomFeatures::kSampleLocations);
     SkDEBUGCODE(fUsedProcessorFeaturesAllStages_DebugOnly |= CustomFeatures::kSampleLocations);
 
@@ -291,10 +291,9 @@ GrSurfaceOrigin GrGLSLFragmentShaderBuilder::getSurfaceOrigin() const {
 }
 
 void GrGLSLFragmentShaderBuilder::onFinalize() {
-    SkASSERT(fProgramBuilder->header().processorFeatures()
-                     == fUsedProcessorFeaturesAllStages_DebugOnly);
+    SkASSERT(fProgramBuilder->processorFeatures() == fUsedProcessorFeaturesAllStages_DebugOnly);
 
-    if (CustomFeatures::kSampleLocations & fProgramBuilder->header().processorFeatures()) {
+    if (CustomFeatures::kSampleLocations & fProgramBuilder->processorFeatures()) {
         const SkTArray<SkPoint>& sampleLocations = fProgramBuilder->getSampleLocations();
         this->definitions().append("const float2 _sampleOffsets[] = float2[](");
         for (int i = 0; i < sampleLocations.count(); ++i) {
