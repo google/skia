@@ -75,9 +75,8 @@ void GrMtlOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
                                 const GrMesh meshes[],
                                 int meshCount,
                                 const SkRect& bounds) {
-    if (!meshCount) {
-        return;
-    }
+
+    SkASSERT(meshCount); // guaranteed by GrOpsRenderPass::draw
 
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
     GrMtlPipelineState* pipelineState = this->prepareDrawState(programInfo, primitiveType);

@@ -259,6 +259,10 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
                                          programInfo.pipeline().numCoverageFragmentProcessors()) {
         return false;
     }
+    // If we knew the shader won't depend on origin, we could skip this (and use the same program
+    // for both origins). Instrumenting all fragment processors would be difficult and error prone.
+    header->fSurfaceOriginKey =
+        GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(programInfo.origin());
     header->fProcessorFeatures = (uint8_t)processorFeatures;
     SkASSERT(header->processorFeatures() == processorFeatures);  // Ensure enough bits.
     header->fSnapVerticesToPixelCenters = programInfo.pipeline().snapVerticesToPixelCenters();

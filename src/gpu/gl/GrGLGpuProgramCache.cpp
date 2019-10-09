@@ -51,17 +51,13 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(GrGLGpu* gpu,
                                                bool isPoints) {
 
 
-    // TODO: can this be unified between GL and Vk?
+    // TODO: can this be unified between GL, Vk and Mtl?
     // Get GrGLProgramDesc
     GrProgramDesc desc;
     if (!GrProgramDesc::Build(&desc, renderTarget, programInfo, isPoints, gpu)) {
         GrCapsDebugf(gpu->caps(), "Failed to gl program descriptor!\n");
         return nullptr;
     }
-    // If we knew the shader won't depend on origin, we could skip this (and use the same program
-    // for both origins). Instrumenting all fragment processors would be difficult and error prone.
-    desc.setSurfaceOriginKey(
-            GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(programInfo.origin()));
 
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (entry && !(*entry)->fProgram) {

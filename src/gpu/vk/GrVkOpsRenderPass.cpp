@@ -494,9 +494,8 @@ void check_sampled_texture(GrTexture* tex, GrRenderTarget* rt, GrVkGpu* gpu) {
 void GrVkOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
                                const GrMesh meshes[], int meshCount,
                                const SkRect& bounds) {
-    if (!meshCount) {
-        return;
-    }
+
+    SkASSERT(meshCount); // guaranteed by GrOpsRenderPass::draw
 
 #ifdef SK_DEBUG
     if (programInfo.hasDynamicPrimProcTextures()) {

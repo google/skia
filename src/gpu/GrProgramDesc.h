@@ -85,15 +85,9 @@ public:
         return !(*this == other);
     }
 
-    void setSurfaceOriginKey(int key) {
-        KeyHeader* header = this->atOffset<KeyHeader, kHeaderOffset>();
-        header->fSurfaceOriginKey = key;
-    }
-
     struct KeyHeader {
-        bool hasSurfaceOriginKey() const {
-            return SkToBool(fSurfaceOriginKey);
-        }
+        SkDEBUGCODE(bool hasSurfaceOriginKey() const { return SkToBool(fSurfaceOriginKey); })
+
         GrProcessor::CustomFeatures processorFeatures() const {
             return (GrProcessor::CustomFeatures)fProcessorFeatures;
         }
