@@ -21,6 +21,7 @@ class SkGlyph;
 class SkMaskFilter;
 class SkPathEffect;
 class SkTypeface;
+struct SkGlyphPositionRoundingSpec;
 struct SkScalerContextEffects;
 
 struct SkGlyphPos {
@@ -52,15 +53,7 @@ public:
                                  int maxDimension,
                                  SkGlyphPos results[]) = 0;
 
-    // rounding() and subpixelMask are used to calculate the subpixel position of a glyph.
-    // The per component (x or y) calculation is:
-    //
-    //   subpixelOffset = (floor((viewportPosition + rounding) & mask) >> 14) & 3
-    //
-    // where mask is either 0 or ~0, and rounding is either
-    // 1/2 for non-subpixel or 1/8 for subpixel.
-    virtual SkVector rounding() const = 0;
-    virtual SkIPoint subpixelMask() const = 0;
+    virtual const SkGlyphPositionRoundingSpec& roundingSpec() const = 0;
 
     // Used with SkScopedStrikeForGPU to take action at the end of a scope.
     virtual void onAboutToExitScope() = 0;

@@ -197,19 +197,14 @@ public:
     void writePendingGlyphs(Serializer* serializer);
     SkDiscardableHandleId discardableHandleId() const { return fDiscardableHandleId; }
 
-    bool isSubpixel() const { return fIsSubpixel; }
-
     const SkDescriptor& getDescriptor() const override {
         return *fDescriptor.getDesc();
     }
 
     void setTypefaceAndEffects(const SkTypeface* typeface, SkScalerContextEffects effects);
 
-    SkVector rounding() const override;
-
-    SkIPoint subpixelMask() const override {
-        return SkIPoint::Make((!fIsSubpixel || fAxisAlignment == kY_SkAxisAlignment) ? 0 : ~0u,
-                              (!fIsSubpixel || fAxisAlignment == kX_SkAxisAlignment) ? 0 : ~0u);
+    const SkGlyphPositionRoundingSpec& roundingSpec() const override {
+        return fRoundingSpec;
     }
 
     SkSpan<const SkGlyphPos>
@@ -248,6 +243,7 @@ private:
     // Values saved from the initial context.
     const bool fIsSubpixel;
     const SkAxisAlignment fAxisAlignment;
+    const SkGlyphPositionRoundingSpec fRoundingSpec;
 
     // The context built using fDescriptor
     std::unique_ptr<SkScalerContext> fContext;
@@ -284,6 +280,7 @@ SkStrikeServer::RemoteStrike::RemoteStrike(
         , fDiscardableHandleId(discardableHandleId)
         , fIsSubpixel{context->isSubpixel()}
         , fAxisAlignment{context->computeAxisAlignmentForHText()}
+        , fRoundingSpec{fIsSubpixel, fAxisAlignment}
         // N.B. context must come last because it is used above.
         , fContext{std::move(context)} {
     SkASSERT(fDescriptor.getDesc() != nullptr);
@@ -648,10 +645,6 @@ void SkStrikeServer::RemoteStrike::setTypefaceAndEffects(
         const SkTypeface* typeface, SkScalerContextEffects effects) {
     fTypeface = typeface;
     fEffects = effects;
-}
-
-SkVector SkStrikeServer::RemoteStrike::rounding() const {
-    return SkStrikeCommon::PixelRounding(fIsSubpixel, fAxisAlignment);
 }
 
 void SkStrikeServer::RemoteStrike::writeGlyphPath(const SkPackedGlyphID& glyphID,
