@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2ae9461b_37cf4634",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-09T17:57:43Z",
+      "side": 1,
+      "message": "Yeah, though as far as I can tell, probably only if you really care about memory usage. The libx264 encoding is fast and already itself threaded.\n\nIt\u0027d also be trivially easy to just break into several smaller batches instead of having to bother with really streaming, e.g. instead of\n\n   rasterize(0..n)\n   addFrames(0..n)\n\nwe could\n\n   rasterize(0..k)\n   addFrames(0..k)\n   rasterize(k..2k)\n   addFrames(k..2k)\n   ...\n   rasterize(n-k..n)\n   addFrames(n-k..n)",
+      "parentUuid": "c0be86e8_db6bbd03",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 72
+      },
+      "revId": "3e331b61336d66a5110492e1592cdbd2097bceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "be9978fa_038d7fe7",
         "filename": "modules/skottie/src/SkottieTool.cpp",
         "patchSetId": 1
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "df23080a_e700c074",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-09T17:57:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "be9978fa_038d7fe7",
+      "revId": "3e331b61336d66a5110492e1592cdbd2097bceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c8c4af68_2e526a95",
         "filename": "modules/skottie/src/SkottieTool.cpp",
         "patchSetId": 1
@@ -53,6 +95,30 @@
       "writtenOn": "2019-10-09T17:35:08Z",
       "side": 1,
       "message": "we should fix that :)",
+      "range": {
+        "startLine": 188,
+        "startChar": 8,
+        "endLine": 188,
+        "endChar": 50
+      },
+      "revId": "3e331b61336d66a5110492e1592cdbd2097bceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1ce621d_acbba70c",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-09T17:57:43Z",
+      "side": 1,
+      "message": "Yeah, its API claims it\u0027s preferred, but really that\u0027s more a \"if you prefer it draw right\" kind of preference.  Doesn\u0027t really affect speed.",
+      "parentUuid": "c8c4af68_2e526a95",
       "range": {
         "startLine": 188,
         "startChar": 8,
