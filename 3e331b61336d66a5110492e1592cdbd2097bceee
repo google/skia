@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c0be86e8_db6bbd03",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-10-09T17:33:27Z",
+      "side": 1,
+      "message": "It still seems interesting to explore the \"streaming\" approach, where we don\u0027t raster all frames upfront.\n\nWe can look into that as a follow up too.",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 72
+      },
+      "revId": "3e331b61336d66a5110492e1592cdbd2097bceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be9978fa_038d7fe7",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-10-09T17:33:27Z",
+      "side": 1,
+      "message": "Initialize in ctor (and cache)?",
+      "revId": "3e331b61336d66a5110492e1592cdbd2097bceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
