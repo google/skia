@@ -782,7 +782,7 @@ void GrCCStroker::flushBufferedMeshesAsStrokes(const GrPrimitiveProcessor& proce
                               pipeline,
                               processor,
                               nullptr,
-                              &dynamicStateArrays);
+                              &dynamicStateArrays, 0);
 
     flushState->opsRenderPass()->draw(programInfo,
                                       fMeshesBuffer.begin(), fMeshesBuffer.count(),

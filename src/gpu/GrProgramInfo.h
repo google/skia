@@ -12,24 +12,26 @@
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrPrimitiveProcessor.h"
 
+class GrMesh;
+
 class GrProgramInfo {
 public:
-    // TODO: it seems like this object should also get the number of copies in
-    // dynamicStateArrays. If that were true a portion of checkAllInstantiated could be moved
-    // to validate.
     GrProgramInfo(int numSamples,
                   GrSurfaceOrigin origin,
                   const GrPipeline& pipeline,
                   const GrPrimitiveProcessor& primProc,
                   const GrPipeline::FixedDynamicState* fixedDynamicState,
-                  const GrPipeline::DynamicStateArrays* dynamicStateArrays)
+                  const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+                  int numDynamicStateArrays)
             : fNumSamples(numSamples)
             , fOrigin(origin)
             , fPipeline(pipeline)
             , fPrimProc(primProc)
             , fFixedDynamicState(fixedDynamicState)
-            , fDynamicStateArrays(dynamicStateArrays) {
+            , fDynamicStateArrays(dynamicStateArrays)
+            , fNumDynamicStateArrays(numDynamicStateArrays) {
         SkDEBUGCODE(this->validate();)
+        (void) fNumDynamicStateArrays;  // touch this to quiet unused member warnings
     }
 
     int numSamples() const { return fNumSamples;  }
@@ -37,7 +39,6 @@ public:
     const GrPipeline& pipeline() const { return fPipeline; }
     const GrPrimitiveProcessor& primProc() const { return fPrimProc; }
     const GrPipeline::FixedDynamicState* fixedDynamicState() const { return fFixedDynamicState; }
-    const GrPipeline::DynamicStateArrays* dynamicStateArrays() const { return fDynamicStateArrays; }
 
     // TODO: can this be removed?
     const GrTextureProxy* const* primProcProxies() const {
@@ -77,6 +78,7 @@ public:
 
     const GrTextureProxy* const* dynamicPrimProcTextures(int i) const {
         SkASSERT(this->hasDynamicPrimProcTextures());
+        SkASSERT(i < fNumDynamicStateArrays);
 
         return fDynamicStateArrays->fPrimitiveProcessorTextures +
                                                                 i * fPrimProc.numTextureSamplers();
@@ -94,8 +96,9 @@ public:
 
 #ifdef SK_DEBUG
     void validate() const;
-    void checkAllInstantiated(int meshCount) const;
-    void checkMSAAAndMIPSAreResolved(int meshCount) const;
+    void checkAllInstantiated() const;
+    void checkMSAAAndMIPSAreResolved() const;
+    void compatibleWithMeshes(const GrMesh meshes[], int meshCount) const;
 
     bool isNVPR() const {
         return fPrimProc.isPathRendering() && !fPrimProc.willUseGeoShader() &&
@@ -120,6 +123,7 @@ private:
     const GrPrimitiveProcessor&           fPrimProc;
     const GrPipeline::FixedDynamicState*  fFixedDynamicState;
     const GrPipeline::DynamicStateArrays* fDynamicStateArrays;
+    const int                             fNumDynamicStateArrays;
 };
 
 #endif
