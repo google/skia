@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3288b046_a5f46032",
+        "filename": "tools/skottie2movie.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-10-09T15:24:46Z",
+      "side": 1,
+      "message": "Having a pool of surfaces has two features. Not sure if they\u0027re critical, so I can try your suggestion and time:\n\n- If we get ahead of the encoder (i.e. more rendered images exist than workers) snapping involves at least a malloc, (hopefully not a copy if our erase optimization kicks in). With a pool of surfaces, there are no mallocs/free between frames.\n- The fixed pool throttles our memory usage, in case we get way ahead of the encoder (or just a slow frame).",
+      "parentUuid": "37d4ce24_71520784",
+      "range": {
+        "startLine": 150,
+        "startChar": 4,
+        "endLine": 152,
+        "endChar": 0
+      },
+      "revId": "6a1cdb1e1b5e5e03082914f1b9781f9089797c68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4eebe559_fea11631",
         "filename": "tools/skottie2movie.cpp",
         "patchSetId": 4
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "f200f77a_9ef38eda",
+        "filename": "tools/skottie2movie.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-10-09T15:24:46Z",
+      "side": 1,
+      "message": "I\u0027ll try that. In my mind the workers are all orthogonal (i.e. they don\u0027t work on preassigned frames) so I\u0027m not sure how one order or the other matters, but that is mostly my ignorance.",
+      "parentUuid": "4eebe559_fea11631",
+      "revId": "6a1cdb1e1b5e5e03082914f1b9781f9089797c68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d20ee58d_05586cc7",
         "filename": "tools/skottie2movie.cpp",
         "patchSetId": 4
@@ -53,6 +95,24 @@
       "writtenOn": "2019-10-09T14:03:27Z",
       "side": 1,
       "message": "It looks like you may be building a thread pool on top of of a thread pool... can\u0027t you break down the work units to one frame at a time?  Otherwise you\u0027re going to be help up by the slowest chunk of frames rather than by a single slow frame.\n\n   SkTaskGroup::Enabler enabler(FLAGS_threads-1);\n   SkTaskGroup{}.batch(frame_count, ... handle one frame ...);\n\n?",
+      "revId": "6a1cdb1e1b5e5e03082914f1b9781f9089797c68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1403d1fc_cb7ec265",
+        "filename": "tools/skottie2movie.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-10-09T15:24:46Z",
+      "side": 1,
+      "message": "A given worker does not operate on a chunk of frames. After each frame, a work goes to the central provider to get the \"next\" frame. Is that different from what you\u0027re describing?",
+      "parentUuid": "d20ee58d_05586cc7",
       "revId": "6a1cdb1e1b5e5e03082914f1b9781f9089797c68",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
