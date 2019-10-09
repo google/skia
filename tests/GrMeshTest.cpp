@@ -416,7 +416,7 @@ void DrawMeshHelper::drawMesh(const GrMesh& mesh) {
                               fState->drawOpArgs().origin(),
                               pipeline,
                               mtp,
-                              nullptr, nullptr);
+                              nullptr, nullptr, 0);
 
     fState->opsRenderPass()->draw(programInfo, &mesh, 1,
                                   SkRect::MakeIWH(kImageWidth, kImageHeight));
