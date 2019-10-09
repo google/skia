@@ -153,6 +153,7 @@ private:
     friend class TextLine;
     friend class InternalLineMetrics;
     friend class ParagraphCache;
+    friend class OneLineShaper;
 
     ParagraphImpl* fMaster;
     TextRange fTextRange;
@@ -167,9 +168,9 @@ private:
     uint8_t fBidiLevel;
     SkVector fAdvance;
     SkVector fOffset;
-    size_t fFirstChar;
+    TextIndex fClusterStart;
     SkShaper::RunHandler::Range fUtf8Range;
-    SkSTArray<128, SkGlyphID, false> fGlyphs;
+    SkSTArray<128, SkGlyphID, true> fGlyphs;
     SkSTArray<128, SkPoint, true> fPositions;
     SkSTArray<128, uint32_t, true> fClusterIndexes;
     SkSTArray<128, SkScalar, true> fOffsets;  // For formatting (letter/word spacing, justification)
@@ -178,11 +179,12 @@ private:
 
 struct Codepoint {
 
-  Codepoint(GraphemeIndex graphemeIndex, TextIndex textIndex)
-    : fGrapeme(graphemeIndex), fTextIndex(textIndex) { }
+  Codepoint(GraphemeIndex graphemeIndex, TextIndex textIndex, size_t index)
+    : fGrapheme(graphemeIndex), fTextIndex(textIndex), fIndex(index) { }
 
-  GraphemeIndex fGrapeme;
+  GraphemeIndex fGrapheme;
   TextIndex fTextIndex;             // Used for getGlyphPositionAtCoordinate
+  size_t fIndex;
 };
 
 struct Grapheme {
