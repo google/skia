@@ -679,9 +679,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, c
     SkFont font;
 
     // A perspective transform forces fallback to dft.
-    SkMatrix matrix = SkMatrix::I();
-    matrix[SkMatrix::kMPersp0] = 0.5f;
-    REPORTER_ASSERT(reporter, matrix.hasPerspective());
+    SkMatrix matrix = SkMatrix::MakeScale(16);
     SkSurfaceProps surfaceProps(0, kUnknown_SkPixelGeometry);
     GrTextContext::Options options;
     GrTextContext::SanitizeOptions(&options);
