@@ -131,18 +131,12 @@ bool GrTextContext::CanDrawAsDistanceFields(const SkPaint& paint, const SkFont& 
 SkScalar scaled_text_size(const SkScalar textSize, const SkMatrix& viewMatrix) {
     SkScalar scaledTextSize = textSize;
 
-    if (viewMatrix.hasPerspective()) {
-        // for perspective, we simply force to the medium size
-        // TODO: compute a size based on approximate screen area
-        scaledTextSize = kMediumDFFontLimit;
-    } else {
-        SkScalar maxScale = viewMatrix.getMaxScale();
-        // if we have non-unity scale, we need to choose our base text size
-        // based on the SkPaint's text size multiplied by the max scale factor
-        // TODO: do we need to do this if we're scaling down (i.e. maxScale < 1)?
-        if (maxScale > 0 && !SkScalarNearlyEqual(maxScale, SK_Scalar1)) {
-            scaledTextSize *= maxScale;
-        }
+    SkScalar maxScale = viewMatrix.getMaxScale();
+    // if we have non-unity scale, we need to choose our base text size
+    // based on the SkPaint's text size multiplied by the max scale factor
+    // TODO: do we need to do this if we're scaling down (i.e. maxScale < 1)?
+    if (maxScale > 0 && !SkScalarNearlyEqual(maxScale, SK_Scalar1)) {
+        scaledTextSize *= maxScale;
     }
 
     return scaledTextSize;
