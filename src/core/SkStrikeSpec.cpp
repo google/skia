@@ -181,7 +181,6 @@ SkStrikeSpec::MakeSDFT(const SkFont& font, const SkPaint& paint,
                        const SkSurfaceProps& surfaceProps, const SkMatrix& deviceMatrix,
                        const GrTextContext::Options& options) {
     SkStrikeSpec storage;
-    SkASSERT(!deviceMatrix.hasPerspective());
 
     SkPaint dfPaint = GrTextContext::InitDistanceFieldPaint(paint);
     SkFont dfFont = GrTextContext::InitDistanceFieldFont(
