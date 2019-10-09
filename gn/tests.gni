@@ -238,6 +238,7 @@ tests_sources = [
   "$_tests/SkDOMTest.cpp",
   "$_tests/SkFixed15Test.cpp",
   "$_tests/SkGaussFilterTest.cpp",
+  "$_tests/SkGlyphBufferTest.cpp",
   "$_tests/SkImageTest.cpp",
   "$_tests/SkNxTest.cpp",
   "$_tests/SkPEGTest.cpp",
