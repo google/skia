@@ -41,7 +41,7 @@ public:
     GrSurfaceOrigin origin() const { return fProgramInfo.origin(); }
     const GrPipeline& pipeline() const { return fProgramInfo.pipeline(); }
     const GrPrimitiveProcessor& primitiveProcessor() const { return fProgramInfo.primProc(); }
-    const GrTextureProxy* const* primProcProxies() const { return fProgramInfo.primProcProxies(); }
+    const GrTextureProxy* const* primProcProxies1() const { return fProgramInfo.primProcProxies1(); }
 
     // TODO: stop passing in the renderTarget for just the sampleLocations
     int effectiveSampleCnt() const {

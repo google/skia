@@ -36,7 +36,7 @@ public:
     const GrPipeline::DynamicStateArrays* dynamicStateArrays() const { return fDynamicStateArrays; }
 
     // TODO: can this be removed?
-    const GrTextureProxy* const* primProcProxies() const {
+    const GrTextureProxy* const* primProcProxies1() const {
         const GrTextureProxy* const* primProcProxies = nullptr;
         if (fDynamicStateArrays && fDynamicStateArrays->fPrimitiveProcessorTextures) {
             primProcProxies = fDynamicStateArrays->fPrimitiveProcessorTextures;
