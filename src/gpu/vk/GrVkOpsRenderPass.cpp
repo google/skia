@@ -450,15 +450,14 @@ GrVkPipelineState* GrVkOpsRenderPass::prepareDrawState(
     // same place (i.e., the target renderTargetProxy) that had best agree.
     SkASSERT(programInfo.origin() == fOrigin);
 
-    // TODO: just pass in GrProgramInfo
-    pipelineState->setAndBindUniforms(fGpu, fRenderTarget, fOrigin,
-                                      programInfo.primProc(), programInfo.pipeline(), currentCB);
+    pipelineState->setAndBindUniforms(fGpu, fRenderTarget, programInfo, currentCB);
 
     // Check whether we need to bind textures between each GrMesh. If not we can bind them all now.
     if (!programInfo.hasDynamicPrimProcTextures()) {
-        // TODO: just pass in GrProgramInfo
+        auto proxies = programInfo.hasFixedPrimProcTextures() ? programInfo.fixedPrimProcTextures()
+                                                              : nullptr;
         pipelineState->setAndBindTextures(fGpu, programInfo.primProc(), programInfo.pipeline(),
-                                          programInfo.primProcProxies(), currentCB);
+                                          proxies, currentCB);
     }
 
     if (!programInfo.pipeline().isScissorEnabled()) {
@@ -573,8 +572,7 @@ void GrVkOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
         if (hasDynamicTextures) {
             auto meshProxies = programInfo.dynamicPrimProcTextures(i);
             pipelineState->setAndBindTextures(fGpu, programInfo.primProc(), programInfo.pipeline(),
-                                              meshProxies,
-                                              this->currentCommandBuffer());
+                                              meshProxies, this->currentCommandBuffer());
         }
         SkASSERT(pipelineState);
         mesh.sendToGpu(this);
