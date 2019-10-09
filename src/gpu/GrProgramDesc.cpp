@@ -212,16 +212,12 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
         return false;
     }
 
-    // TODO: use programInfo.requestedFeatures here
-    GrProcessor::CustomFeatures processorFeatures = programInfo.primProc().requestedFeatures();
-
     for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
         const GrFragmentProcessor& fp = programInfo.pipeline().getFragmentProcessor(i);
         if (!gen_frag_proc_and_meta_keys(programInfo.primProc(), fp, gpu, shaderCaps, &b)) {
             desc->key().reset();
             return false;
         }
-        processorFeatures |= fp.requestedFeatures();
     }
 
     const GrXferProcessor& xp = programInfo.pipeline().getXferProcessor();
@@ -236,9 +232,8 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
         desc->key().reset();
         return false;
     }
-    processorFeatures |= xp.requestedFeatures();
 
-    if (processorFeatures & GrProcessor::CustomFeatures::kSampleLocations) {
+    if (programInfo.requestedFeatures() & GrProcessor::CustomFeatures::kSampleLocations) {
         SkASSERT(programInfo.pipeline().isHWAntialiasState());
         b.add32(renderTarget->renderTargetPriv().getSamplePatternKey());
     }
@@ -262,9 +257,10 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
     // If we knew the shader won't depend on origin, we could skip this (and use the same program
     // for both origins). Instrumenting all fragment processors would be difficult and error prone.
     header->fSurfaceOriginKey =
-        GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(programInfo.origin());
-    header->fProcessorFeatures = (uint8_t)processorFeatures;
-    SkASSERT(header->processorFeatures() == processorFeatures);  // Ensure enough bits.
+                    GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(programInfo.origin());
+    header->fProcessorFeatures = (uint8_t)programInfo.requestedFeatures();
+    // Ensure enough bits.
+    SkASSERT(header->fProcessorFeatures == (int) programInfo.requestedFeatures());
     header->fSnapVerticesToPixelCenters = programInfo.pipeline().snapVerticesToPixelCenters();
     header->fHasPointSize = hasPointSize ? 1 : 0;
     return true;

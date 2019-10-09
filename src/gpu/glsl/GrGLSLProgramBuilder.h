@@ -42,10 +42,13 @@ public:
     const GrPipeline& pipeline() const { return fProgramInfo.pipeline(); }
     const GrPrimitiveProcessor& primitiveProcessor() const { return fProgramInfo.primProc(); }
     const GrTextureProxy* const* primProcProxies() const { return fProgramInfo.primProcProxies(); }
+    GrProcessor::CustomFeatures processorFeatures() const {
+        return fProgramInfo.requestedFeatures();
+    }
 
     // TODO: stop passing in the renderTarget for just the sampleLocations
     int effectiveSampleCnt() const {
-        SkASSERT(GrProcessor::CustomFeatures::kSampleLocations & header().processorFeatures());
+        SkASSERT(GrProcessor::CustomFeatures::kSampleLocations & fProgramInfo.requestedFeatures());
         return fRenderTarget->renderTargetPriv().getSampleLocations().count();
     }
     const SkTArray<SkPoint>& getSampleLocations() const {

@@ -86,12 +86,6 @@ public:
     }
 
     struct KeyHeader {
-        SkDEBUGCODE(bool hasSurfaceOriginKey() const { return SkToBool(fSurfaceOriginKey); })
-
-        GrProcessor::CustomFeatures processorFeatures() const {
-            return (GrProcessor::CustomFeatures)fProcessorFeatures;
-        }
-
         // Set to uniquely idenitify any swizzling of the shader's output color(s).
         uint16_t fOutputSwizzle;
         uint8_t fColorFragmentProcessorCnt; // Can be packed into 4 bits if required.
