@@ -34,27 +34,7 @@
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTraceEvent.h"
 
-#include <limits.h>
-
-// -- SkGlyphCacheCommon ---------------------------------------------------------------------------
-SkVector SkStrikeCommon::PixelRounding(bool isSubpixel, SkAxisAlignment axisAlignment) {
-    if (!isSubpixel) {
-        return {SK_ScalarHalf, SK_ScalarHalf};
-    } else {
-        static constexpr SkScalar kSubpixelRounding = SkFixedToScalar(SkGlyph::kSubpixelRound);
-        switch (axisAlignment) {
-            case kX_SkAxisAlignment:
-                return {kSubpixelRounding, SK_ScalarHalf};
-            case kY_SkAxisAlignment:
-                return {SK_ScalarHalf, kSubpixelRounding};
-            case kNone_SkAxisAlignment:
-                return {kSubpixelRounding, kSubpixelRounding};
-        }
-    }
-
-    // Some compilers need this.
-    return {0, 0};
-}
+#include <climits>
 
 // -- SkGlyphRunListPainter ------------------------------------------------------------------------
 SkGlyphRunListPainter::SkGlyphRunListPainter(const SkSurfaceProps& props,
@@ -108,7 +88,7 @@ static bool check_glyph_position(SkPoint position) {
 }
 
 SkSpan<const SkPackedGlyphID> SkGlyphRunListPainter::DeviceSpacePackedGlyphIDs(
-        SkStrikeForGPU* strike,
+        const SkGlyphPositionRoundingSpec& roundingSpec,
         const SkMatrix& viewMatrix,
         const SkPoint& origin,
         int n,
@@ -119,11 +99,11 @@ SkSpan<const SkPackedGlyphID> SkGlyphRunListPainter::DeviceSpacePackedGlyphIDs(
     // Add rounding and origin.
     SkMatrix matrix = viewMatrix;
     matrix.preTranslate(origin.x(), origin.y());
-    SkPoint rounding = strike->rounding();
+    SkPoint rounding = roundingSpec.halfAxisSampleFreq;
     matrix.postTranslate(rounding.x(), rounding.y());
     matrix.mapPoints(mappedPositions, positions, n);
 
-    SkIPoint mask = strike->subpixelMask();
+    SkIPoint mask = roundingSpec.ignorePositionMask;
 
     for (int i = 0; i < n; i++) {
         SkFixed subX = SkScalarToFixed(mappedPositions[i].x()) & mask.x(),
@@ -214,7 +194,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             auto strike = strikeSpec.findOrCreateExclusiveStrike();
 
             auto packedGlyphIDs = DeviceSpacePackedGlyphIDs(
-                    strike.get(),
+                    strike->roundingSpec(),
                     deviceMatrix,
                     origin,
                     runSize,
@@ -510,7 +490,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
             auto packedGlyphIDs = DeviceSpacePackedGlyphIDs(
-                    strike.get(),
+                    strike->roundingSpec(),
                     viewMatrix,
                     origin,
                     glyphRun.runSize(),
@@ -976,4 +956,35 @@ SkGlyphRunListPainter::ScopedBuffers::~ScopedBuffers() {
         fPainter->fARGBGlyphsIDs.shrink_to_fit();
         fPainter->fARGBPositions.shrink_to_fit();
     }
+}
+
+SkVector SkGlyphPositionRoundingSpec::HalfAxisSampleFreq(bool isSubpixel, SkAxisAlignment axisAlignment) {
+    if (!isSubpixel) {
+        return {SK_ScalarHalf, SK_ScalarHalf};
+    } else {
+        static constexpr SkScalar kSubpixelRounding = SkFixedToScalar(SkGlyph::kSubpixelRound);
+        switch (axisAlignment) {
+            case kX_SkAxisAlignment:
+                return {kSubpixelRounding, SK_ScalarHalf};
+            case kY_SkAxisAlignment:
+                return {SK_ScalarHalf, kSubpixelRounding};
+            case kNone_SkAxisAlignment:
+                return {kSubpixelRounding, kSubpixelRounding};
+        }
+    }
+
+    // Some compilers need this.
+    return {0, 0};
+}
+
+SkIPoint SkGlyphPositionRoundingSpec::IgnorePositionMask(
+        bool isSubpixel, SkAxisAlignment axisAlignment) {
+    return SkIPoint::Make((!isSubpixel || axisAlignment == kY_SkAxisAlignment) ? 0 : ~0,
+                          (!isSubpixel || axisAlignment == kX_SkAxisAlignment) ? 0 : ~0);
+}
+
+SkGlyphPositionRoundingSpec::SkGlyphPositionRoundingSpec(bool isSubpixel,
+                                                         SkAxisAlignment axisAlignment)
+        : halfAxisSampleFreq{HalfAxisSampleFreq(isSubpixel, axisAlignment)}
+        , ignorePositionMask{IgnorePositionMask(isSubpixel, axisAlignment)} {
 }

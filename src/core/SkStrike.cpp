@@ -20,12 +20,11 @@ SkStrike::SkStrike(
     const SkDescriptor& desc,
     std::unique_ptr<SkScalerContext> scaler,
     const SkFontMetrics& fontMetrics)
-    : fDesc{desc}
-    , fScalerContext{std::move(scaler)}
-    , fFontMetrics{fontMetrics}
-    , fIsSubpixel{fScalerContext->isSubpixel()}
-    , fAxisAlignment{fScalerContext->computeAxisAlignmentForHText()}
-{
+        : fDesc{desc}
+        , fScalerContext{std::move(scaler)}
+        , fFontMetrics{fontMetrics}
+        , fRoundingSpec{fScalerContext->isSubpixel(),
+                        fScalerContext->computeAxisAlignmentForHText()} {
     SkASSERT(fScalerContext != nullptr);
     fMemoryUsed = sizeof(*this);
 }
@@ -59,10 +58,9 @@ SkGlyph* SkStrike::glyph(SkGlyphID glyphID) {
 }
 
 SkGlyph* SkStrike::glyph(SkGlyphID glyphID, SkPoint position) {
-    const SkFixed maskX = (!fIsSubpixel || fAxisAlignment == kY_SkAxisAlignment) ? 0 : ~0;
-    const SkFixed maskY = (!fIsSubpixel || fAxisAlignment == kX_SkAxisAlignment) ? 0 : ~0;
-    SkFixed subX = SkScalarToFixed(position.x()) & maskX,
-            subY = SkScalarToFixed(position.y()) & maskY;
+    SkIPoint mask = fRoundingSpec.ignorePositionMask;
+    SkFixed subX = SkScalarToFixed(position.x()) & mask.x(),
+            subY = SkScalarToFixed(position.y()) & mask.y();
     return this->glyph(SkPackedGlyphID{glyphID, subX, subY});
 }
 
@@ -158,10 +156,6 @@ const SkGlyph* SkStrike::getCachedGlyphAnySubPix(SkGlyphID glyphID,
     }
 
     return nullptr;
-}
-
-SkVector SkStrike::rounding() const {
-    return SkStrikeCommon::PixelRounding(fIsSubpixel, fAxisAlignment);
 }
 
 SkSpan<const SkGlyph*> SkStrike::metrics(SkSpan<const SkGlyphID> glyphIDs,
