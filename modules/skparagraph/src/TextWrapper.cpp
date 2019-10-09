@@ -235,7 +235,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         TextRange text(fEndLine.startCluster()->textRange().start, fEndLine.endCluster()->textRange().end);
         TextRange textWithSpaces(fEndLine.startCluster()->textRange().start, startLine->textRange().start);
         if (fEndLine.breakCluster()->isHardBreak()) {
-            textWithSpaces.end = fEndLine.breakCluster()->textRange().start;
+            //textWithSpaces.end = fEndLine.breakCluster()->textRange().start;
         } else if (startLine == end) {
             textWithSpaces.end = parent->text().size();
         }
