@@ -103,8 +103,8 @@ int main(int argc, char** argv) {
     do {
         double loop_start = SkTime::GetSecs();
 
-        encoder.beginRecording(dim, fps);
-        auto info = encoder.preferredInfo();
+        const auto info = SkImageInfo::MakeN32Premul(dim.width(), dim.height());
+        encoder.beginRecording(info, fps);
 
         // lazily allocate the surfaces
         if (!surf) {
