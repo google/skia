@@ -28,12 +28,8 @@ public:
             , fStrike{desc, std::move(scaler), metrics}
             , fPinner{std::move(pinner)} {}
 
-    SkVector rounding() const override {
-        return fStrike.rounding();
-    }
-
-    SkIPoint subpixelMask() const override {
-        return fStrike.subpixelMask();
+    const SkGlyphPositionRoundingSpec& roundingSpec() const override {
+        return fStrike.roundingSpec();
     }
 
     SkSpan<const SkGlyphPos>

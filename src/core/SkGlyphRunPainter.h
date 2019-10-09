@@ -23,10 +23,25 @@ class GrRenderTargetContext;
 class SkGlyphRunPainterInterface;
 class SkStrikeSpec;
 
+// round and ignorePositionMask are used to calculate the subpixel position of a glyph.
+// The per component (x or y) calculation is:
+//
+//   subpixelOffset = (floor((viewportPosition + rounding) & mask) >> 14) & 3
+//
+// where mask is either 0 or ~0, and rounding is either
+// 1/2 for non-subpixel or 1/8 for subpixel.
+struct SkGlyphPositionRoundingSpec {
+    SkGlyphPositionRoundingSpec(bool isSubpixel, SkAxisAlignment axisAlignment);
+    const SkVector halfAxisSampleFreq;
+    const SkIPoint ignorePositionMask;
+
+private:
+    static SkVector HalfAxisSampleFreq(bool isSubpixel, SkAxisAlignment axisAlignment);
+    static SkIPoint IgnorePositionMask(bool isSubpixel, SkAxisAlignment axisAlignment);
+};
+
 class SkStrikeCommon {
 public:
-    static SkVector PixelRounding(bool isSubpixel, SkAxisAlignment axisAlignment);
-
     // An atlas consists of plots, and plots hold glyphs. The minimum a plot can be is 256x256.
     // This means that the maximum size a glyph can be is 256x256.
     static constexpr uint16_t kSkSideTooBigForAtlas = 256;
@@ -102,7 +117,7 @@ private:
                              SkGlyphRunPainterInterface* process);
 
     static SkSpan<const SkPackedGlyphID> DeviceSpacePackedGlyphIDs(
-            SkStrikeForGPU* strike,
+            const SkGlyphPositionRoundingSpec& roundingSpec,
             const SkMatrix& viewMatrix,
             const SkPoint& origin,
             int n,
