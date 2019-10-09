@@ -115,15 +115,13 @@ void GrVkPipelineState::abandonGPUResources() {
 
 void GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
                                            const GrRenderTarget* renderTarget,
-                                           GrSurfaceOrigin origin,
-                                           const GrPrimitiveProcessor& primProc,
-                                           const GrPipeline& pipeline,
+                                           const GrProgramInfo& programInfo,
                                            GrVkCommandBuffer* commandBuffer) {
-    this->setRenderTargetState(renderTarget, origin);
+    this->setRenderTargetState(renderTarget, programInfo.origin());
 
-    fGeometryProcessor->setData(fDataManager, primProc,
-                                GrFragmentProcessor::CoordTransformIter(pipeline));
-    GrFragmentProcessor::Iter iter(pipeline);
+    fGeometryProcessor->setData(fDataManager, programInfo.primProc(),
+                                GrFragmentProcessor::CoordTransformIter(programInfo.pipeline()));
+    GrFragmentProcessor::Iter iter(programInfo.pipeline());
     GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
     const GrFragmentProcessor* fp = iter.next();
     GrGLSLFragmentProcessor* glslFP = glslIter.next();
@@ -136,9 +134,10 @@ void GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
 
     {
         SkIPoint offset;
-        GrTexture* dstTexture = pipeline.peekDstTexture(&offset);
+        GrTexture* dstTexture = programInfo.pipeline().peekDstTexture(&offset);
 
-        fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
+        fXferProcessor->setData(fDataManager, programInfo.pipeline().getXferProcessor(),
+                                dstTexture, offset);
     }
 
     // Get new descriptor set
