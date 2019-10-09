@@ -72,7 +72,9 @@ static sk_sp<SkData> subset_harfbuzz(sk_sp<SkData> fontData,
     glyphUsage.getSetValues([&glyphs](unsigned gid) { hb_set_add(glyphs, gid);});
 
     hb_subset_input_set_retain_gids(input.get(), true);
-    hb_subset_input_set_drop_hints(input.get(), true);
+    // TODO: When possible, check if a font is 'tricky' with FT_IS_TRICKY.
+    // If it isn't known if a font is 'tricky', retain the hints.
+    hb_subset_input_set_drop_hints(input.get(), false);
     HBFace subset(hb_subset(face.get(), input.get()));
     HBBlob result(hb_face_reference_blob(subset.get()));
     return to_data(std::move(result));
