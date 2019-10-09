@@ -93,7 +93,7 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
                       renderTarget->renderTargetPriv().numStencilBits());
     }
 
-    // TODO: can this be unified between Vulkan and GL?
+    // TODO: can this be unified between GL, Vk and Mtl?
     // Get GrVkProgramDesc
     GrVkPipelineStateBuilder::Desc desc;
     if (!GrVkPipelineStateBuilder::Desc::Build(&desc, renderTarget, programInfo, stencil,
@@ -101,10 +101,6 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
         GrCapsDebugf(fGpu->caps(), "Failed to build vk program descriptor!\n");
         return nullptr;
     }
-    // If we knew the shader won't depend on origin, we could skip this (and use the same program
-    // for both origins). Instrumenting all fragment processors would be difficult and error prone.
-    desc.setSurfaceOriginKey(
-            GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(programInfo.origin()));
 
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (!entry) {
