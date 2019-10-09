@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86e3ec24_ccd875a2",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-10-09T17:41:07Z",
+      "side": 1,
+      "message": "Currently this asserts because the glyph is neither color nor have we prepared a path. Would like some advice on how to address this.",
+      "range": {
+        "startLine": 424,
+        "startChar": 27,
+        "endLine": 424,
+        "endChar": 63
+      },
+      "revId": "dead8ab1b170b5553d08bd36c69eea56e65366d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
