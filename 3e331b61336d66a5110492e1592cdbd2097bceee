@@ -39,6 +39,29 @@
       "revId": "3e331b61336d66a5110492e1592cdbd2097bceee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8c4af68_2e526a95",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-10-09T17:35:08Z",
+      "side": 1,
+      "message": "we should fix that :)",
+      "range": {
+        "startLine": 188,
+        "startChar": 8,
+        "endLine": 188,
+        "endChar": 50
+      },
+      "revId": "3e331b61336d66a5110492e1592cdbd2097bceee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
