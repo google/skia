@@ -573,14 +573,14 @@ var CanvasKit = {
 
 	// Things Enscriptem adds for us
 
-	/** Represents the heap of the WASM code
-	 * @type {ArrayBuffer}
-	 */
-	buffer: {},
 	/**
 	 * @type {Float32Array}
 	 */
 	HEAPF32: {},
+	/**
+	 * @type {Float64Array}
+	 */
+	HEAPF64: {},
 	/**
 	 * @type {Uint8Array}
 	 */
@@ -590,13 +590,22 @@ var CanvasKit = {
 	 */
 	HEAPU16: {},
 	/**
-	 * @type {Int32Array}
-	 */
-	HEAP32: {},
-	/**
 	 * @type {Uint32Array}
 	 */
 	HEAPU32: {},
+	/**
+	 * @type {Int8Array}
+	 */
+	HEAP8: {},
+	/**
+	 * @type {Int16Array}
+	 */
+	HEAP16: {},
+	/**
+	 * @type {Int32Array}
+	 */
+	HEAP32: {},
+
 	_malloc: function() {},
 	_free: function() {},
 	onRuntimeInitialized: function() {},
