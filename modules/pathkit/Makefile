@@ -57,12 +57,12 @@ test-docker:
 	mkdir -p $$SKIA_ROOT/out/dockerbuild
 
 	docker run --rm -v $$SKIA_ROOT:/SRC -v $$SKIA_ROOT/out/dockerbuild:/OUT \
-gcr.io/skia-public/emsdk-release:prod /SRC/infra/pathkit/build_pathkit.sh
+gcr.io/skia-public/emsdk-base:prod /SRC/infra/pathkit/build_pathkit.sh
 	cp ../../out/dockerbuild/pathkit.js   ./npm-wasm/bin/test/pathkit.js
 	cp ../../out/dockerbuild/pathkit.wasm ./npm-wasm/bin/test/pathkit.wasm
 
 	docker run --rm -v $$SKIA_ROOT:/SRC -v $$SKIA_ROOT/out/dockerbuild:/OUT \
-gcr.io/skia-public/emsdk-release:prod /SRC/infra/pathkit/build_pathkit.sh asm.js
+gcr.io/skia-public/emsdk-base:prod /SRC/infra/pathkit/build_pathkit.sh asm.js
 	cp ../../out/dockerbuild/pathkit.js     ./npm-asmjs/bin/test/pathkit.js
 	cp ../../out/dockerbuild/pathkit.js.mem ./npm-asmjs/bin/test/pathkit.js.mem
 

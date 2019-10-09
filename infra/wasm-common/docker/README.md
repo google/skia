@@ -3,7 +3,7 @@ Docker
 
 Docker files to ease working with PathKit and WASM.
 
-emsdk-release
+emsdk-base
 ----------
 
 This image has an Emscripten SDK environment that can be used for
@@ -19,11 +19,11 @@ installed libraries.
 
 For testing the image locally, the following flow can be helpful:
 
-    docker build -t emsdk-release ./emsdk-release/
+    docker build -t emsdk-base ./emsdk-base/
     # Run bash in it to poke around and make sure things are properly installed
-    docker run -it emsdk-release /bin/bash
+    docker run -it emsdk-base /bin/bash
     # Compile PathKit with the local image
-    docker run -v $SKIA_ROOT:/SRC -v $SKIA_ROOT/out/dockerpathkit:/OUT emsdk-release /SRC/infra/pathkit/build_pathkit.sh
+    docker run -v $SKIA_ROOT:/SRC -v $SKIA_ROOT/out/dockerpathkit:/OUT emsdk-base /SRC/infra/pathkit/build_pathkit.sh
 
 karma-chrome-tests
 ------------------
