@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "37d4ce24_71520784",
+        "filename": "tools/skottie2movie.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-09T14:03:27Z",
+      "side": 1,
+      "message": "You sure you need all this?  You can\u0027t just say, create a surface, snap an image, pass the image to the encoder?  If you need caching, maybe try thread_local?",
+      "range": {
+        "startLine": 150,
+        "startChar": 4,
+        "endLine": 152,
+        "endChar": 0
+      },
+      "revId": "6a1cdb1e1b5e5e03082914f1b9781f9089797c68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4eebe559_fea11631",
+        "filename": "tools/skottie2movie.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-09T14:03:27Z",
+      "side": 1,
+      "message": "This creates a LIFO thread pool as the default executor, which is probably the worst order to use here.  Want to try using SkExecutor::MakeFIFOThreadPool()?",
+      "revId": "6a1cdb1e1b5e5e03082914f1b9781f9089797c68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d20ee58d_05586cc7",
+        "filename": "tools/skottie2movie.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-09T14:03:27Z",
+      "side": 1,
+      "message": "It looks like you may be building a thread pool on top of of a thread pool... can\u0027t you break down the work units to one frame at a time?  Otherwise you\u0027re going to be help up by the slowest chunk of frames rather than by a single slow frame.\n\n   SkTaskGroup::Enabler enabler(FLAGS_threads-1);\n   SkTaskGroup{}.batch(frame_count, ... handle one frame ...);\n\n?",
+      "revId": "6a1cdb1e1b5e5e03082914f1b9781f9089797c68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
