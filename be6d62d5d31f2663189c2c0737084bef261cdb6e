@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39860dbf_c051536a",
+        "filename": "experimental/ffmpeg/SkVideoEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-09T19:07:47Z",
+      "side": 0,
+      "message": "I don\u0027t mind adding namespace {}, but it\u0027s way easier to see these functions are static when you keep static on the declaration.",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 7
+      },
+      "revId": "be6d62d5d31f2663189c2c0737084bef261cdb6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
