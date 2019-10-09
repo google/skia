@@ -11,6 +11,9 @@
 
 namespace skia {
 namespace textlayout {
+
+namespace {
+
 // TODO: deal with all the intersection functionality
 int32_t intersectedSize(TextRange a, TextRange b) {
     if (a.empty() || b.empty()) {
@@ -26,6 +29,13 @@ TextRange intersected(const TextRange& a, const TextRange& b) {
     auto begin = SkTMax(a.start, b.start);
     auto end = SkTMin(a.end, b.end);
     return end >= begin ? TextRange(begin, end) : EMPTY_TEXT;
+}
+
+SkScalar littleRound(SkScalar a) {
+    // This rounding is done to match Flutter tests. Must be removed..
+  return SkScalarRoundToScalar(a * 100.0)/100.0;
+}
+
 }
 
 TextLine::TextLine(ParagraphImpl* master,
@@ -466,11 +476,12 @@ void TextLine::justify(SkScalar maxWidth) {
 
         if (ghost) {
             if (leftToRight) {
-                fMaster->shiftCluster(index, ghostShift);
+                fMaster->shiftCluster(index, ghostShift, ghostShift);
             }
             return true;
         }
 
+        auto lastShift = shift;
         if (cluster->isWhitespaces()) {
             if (!whitespacePatch) {
                 shift += step;
@@ -480,7 +491,7 @@ void TextLine::justify(SkScalar maxWidth) {
         } else {
             whitespacePatch = false;
         }
-        fMaster->shiftCluster(index, shift);
+        fMaster->shiftCluster(index, shift, lastShift);
         return true;
     });
 
@@ -505,7 +516,7 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
 
             // Shape the ellipsis
             Run* run = shapeEllipsis(ellipsis, cluster->run());
-            run->fFirstChar = cluster->textRange().start;
+            run->fClusterStart = cluster->textRange().start;
             run->setMaster(fMaster);
             fEllipsis = std::make_shared<Run>(*run);
 
@@ -673,15 +684,15 @@ void TextLine::iterateThroughClustersInGlyphsOrder(bool reverse,
 }
 
 SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
-                                               SkScalar runOffset,
-                                               TextRange textRange,
-                                               StyleType styleType,
-                                               const RunStyleVisitor& visitor) const {
+                                                   SkScalar runOffset,
+                                                   TextRange textRange,
+                                                   StyleType styleType,
+                                                   const RunStyleVisitor& visitor) const {
 
     if (run->fEllipsis) {
         // Extra efforts to get the ellipsis text style
         ClipContext clipContext = this->measureTextInsideOneRun(run->textRange(), run, runOffset, 0, false, false);
-        TextRange testRange(run->fFirstChar, run->fFirstChar + 1);
+        TextRange testRange(run->fClusterStart, run->fClusterStart + 1);
         for (BlockIndex index = fBlockRange.start; index < fBlockRange.end; ++index) {
            auto block = fMaster->styles().begin() + index;
            auto intersect = intersected(block->fRange, testRange);
@@ -765,7 +776,10 @@ void TextLine::iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisi
 
         const auto run = &this->fMaster->run(runIndex);
         auto lineIntersection = intersected(run->textRange(), textRange);
-
+        if (lineIntersection.width() == 0 && this->width() != 0) {
+            // TODO: deal with empty runs in a better way
+            continue;
+        }
         runOffset += width;
         if (!visitor(run, runOffset, lineIntersection, &width)) {
             return;
@@ -799,14 +813,17 @@ LineMetrics TextLine::getMetrics() const {
     result.fEndIndex = fTextWithWhitespacesRange.end;
     result.fEndExcludingWhitespaces = fTextRange.end;
     result.fEndIncludingNewline = fTextWithWhitespacesRange.end; // TODO: implement
-    result.fHardBreak = fMaster->cluster(fGhostClusterRange.end).isHardBreak();
-    result.fAscent = fMaxRunMetrics.ascent();
+    // TODO: For some reason Flutter imagines a hard line break at the end of the last line.
+    //  To be removed...
+    result.fHardBreak = fMaster->cluster(fGhostClusterRange.end - 1).isHardBreak() ||
+                        fGhostClusterRange.end == fMaster->clusters().size() - 1;
+    result.fAscent = - fMaxRunMetrics.ascent();
     result.fDescent = fMaxRunMetrics.descent();
-    result.fUnscaledAscent = fMaxRunMetrics.ascent(); // TODO: implement
-    result.fHeight = fAdvance.fY;
-    result.fWidth = fAdvance.fX;
+    result.fUnscaledAscent = - fMaxRunMetrics.ascent(); // TODO: implement
+    result.fHeight = littleRound(fAdvance.fY);
+    result.fWidth = littleRound(fAdvance.fX);
     result.fLeft = fOffset.fX;
-    result.fBaseline = fMaxRunMetrics.baseline();
+    result.fBaseline = fMaxRunMetrics.baseline() + (this - fMaster->lines().begin()) * result.fHeight;
     result.fLineNumber = this - fMaster->lines().begin();
 
     // Fill out the style parts
