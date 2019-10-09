@@ -13,6 +13,7 @@
 #include "include/private/SkMutex.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkTemplates.h"
+#include "src/core/SkEnumerate.h"
 #include "src/core/SkMakeUnique.h"
 #include <cctype>
 
@@ -178,6 +179,36 @@ SkStrike::prepareImages(SkSpan<const SkPackedGlyphID> glyphIDs, const SkGlyph* r
     }
 
     return {results, glyphIDs.size()};
+}
+
+void SkStrike::prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* drawables) {
+    for (auto t : SkMakeEnumerate(drawables->input())) {
+        size_t i; SkGlyphVariant packedID;
+        std::forward_as_tuple(i, std::tie(packedID, std::ignore)) = t;
+        SkGlyph* glyph = this->glyph(packedID);
+        if (!glyph->isEmpty()) {
+            const void* image = this->prepareImage(glyph);
+            // If the glyph is too large, then no image is created.
+            if (image != nullptr) {
+                drawables->push_back(glyph, i);
+            }
+        }
+    }
+}
+
+void SkStrike::prepareForDrawingPathsCPU(SkDrawableGlyphBuffer* drawables) {
+    for (auto t : SkMakeEnumerate(drawables->input())) {
+        size_t i; SkGlyphVariant packedID;
+        std::forward_as_tuple(i, std::tie(packedID, std::ignore)) = t;
+        SkGlyph* glyph = this->glyph(packedID);
+        if (!glyph->isEmpty()) {
+            const SkPath* path = this->preparePath(glyph);
+            // The glyph my not have a path.
+            if (path != nullptr) {
+                drawables->push_back(path, i);
+            }
+        }
+    }
 }
 
 // N.B. This glyphMetrics call culls all the glyphs which will not display based on a non-finite
