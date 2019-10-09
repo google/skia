@@ -239,6 +239,15 @@ size_t GrContext::ComputeTextureSize(SkColorType type, int width, int height, Gr
                                   colorSamplesPerPixel, mipMapped, useNextPow2);
 }
 
+size_t GrContext::ComputeImageSize(sk_sp<SkImage> image, GrMipMapped mipMapped, bool useNextPow2) {
+    if (!image->isTextureBacked()) {
+        return 0;
+    }
+    int colorSamplesPerPixel = 1;
+    return GrSurface::ComputeSize(SkColorType2GrPixelConfig(image->colorType()), image->width(),
+                                  image->height(), colorSamplesPerPixel, mipMapped, useNextPow2);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 int GrContext::maxTextureSize() const { return this->caps()->maxTextureSize(); }
