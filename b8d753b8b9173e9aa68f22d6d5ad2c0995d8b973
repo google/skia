@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f9a78e37_ad204140",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-09T19:25:23Z",
+      "side": 1,
+      "message": "I think that soon I will be able to do the flooring in this code too. The code still floors too many times out of paranoia.",
+      "parentUuid": "1c2bc89a_05cee26e",
+      "range": {
+        "startLine": 101,
+        "startChar": 4,
+        "endLine": 101,
+        "endChar": 48
+      },
+      "revId": "b8d753b8b9173e9aa68f22d6d5ad2c0995d8b973",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "87865561_4961d0c0",
         "filename": "src/core/SkGlyphRunPainter.h",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "b8d753b8b9173e9aa68f22d6d5ad2c0995d8b973",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "816d76c6_95318310",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-09T19:25:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "87865561_4961d0c0",
+      "range": {
+        "startLine": 39,
+        "startChar": 20,
+        "endLine": 39,
+        "endChar": 33
+      },
+      "revId": "b8d753b8b9173e9aa68f22d6d5ad2c0995d8b973",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "d02ed866_8e95beda",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-09T19:25:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3929caf_ea4e895f",
+      "range": {
+        "startLine": 40,
+        "startChar": 20,
+        "endLine": 40,
+        "endChar": 33
+      },
+      "revId": "b8d753b8b9173e9aa68f22d6d5ad2c0995d8b973",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b9385054_cbbdaf84",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 2
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "bbb49bdc_2b4582e0",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-09T19:25:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b9385054_cbbdaf84",
+      "range": {
+        "startLine": 245,
+        "startChar": 4,
+        "endLine": 245,
+        "endChar": 41
+      },
+      "revId": "b8d753b8b9173e9aa68f22d6d5ad2c0995d8b973",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "438d0796_755679f1",
         "filename": "src/core/SkStrike.h",
         "patchSetId": 2
@@ -114,6 +210,30 @@
       "revId": "b8d753b8b9173e9aa68f22d6d5ad2c0995d8b973",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9356de4_95d63d52",
+        "filename": "src/core/SkStrike.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-09T19:25:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "438d0796_755679f1",
+      "range": {
+        "startLine": 200,
+        "startChar": 4,
+        "endLine": 200,
+        "endChar": 43
+      },
+      "revId": "b8d753b8b9173e9aa68f22d6d5ad2c0995d8b973",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
