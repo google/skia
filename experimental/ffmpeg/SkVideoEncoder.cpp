@@ -231,10 +231,9 @@ bool SkVideoEncoder::beginRecording(SkISize dim, int fps) {
         return false;
     }
 
-    // need opaque and bgra to efficiently use libyuv / convert-to-yuv-420
     SkAlphaType alphaType = kOpaque_SkAlphaType;
     sk_sp<SkColorSpace> cs = nullptr;   // should we use this?
-    fInfo = SkImageInfo::Make(dim, kRGBA_8888_SkColorType, alphaType, cs);
+    fInfo = SkImageInfo::MakeN32(dim.width(), dim.height(), alphaType, cs);
     if (!this->init(fps)) {
         return false;
     }
@@ -242,14 +241,15 @@ bool SkVideoEncoder::beginRecording(SkISize dim, int fps) {
     fCurrentPTS = 0;
     fDeltaPTS = 1;
 
-    SkASSERT(sws_isSupportedInput(AV_PIX_FMT_RGBA) > 0);
+    const auto fmt = kN32_SkColorType == kRGBA_8888_SkColorType ? AV_PIX_FMT_RGBA : AV_PIX_FMT_BGRA;
+    SkASSERT(sws_isSupportedInput(fmt) > 0);
     SkASSERT(sws_isSupportedOutput(AV_PIX_FMT_YUV420P) > 0);
     // sws_getCachedContext takes in either null or a previous ctx. It returns either a new ctx,
     // or the same as the input if it is compatible with the inputs. Thus we never have to
     // explicitly release our ctx until the destructor, since sws_getCachedContext takes care
     // of freeing the old as needed if/when it returns a new one.
     fSWScaleCtx = sws_getCachedContext(fSWScaleCtx,
-                                       dim.width(), dim.height(), AV_PIX_FMT_RGBA,
+                                       dim.width(), dim.height(), fmt,
                                        dim.width(), dim.height(), AV_PIX_FMT_YUV420P,
                                        SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
     return fSWScaleCtx != nullptr;
@@ -257,6 +257,9 @@ bool SkVideoEncoder::beginRecording(SkISize dim, int fps) {
 
 bool SkVideoEncoder::addFrame(const SkPixmap& pm) {
     if (!is_valid(pm.dimensions())) {
+        return false;
+    }
+    if (pm.info().colorType() != fInfo.colorType()) {
         return false;
     }
     /* make sure the frame data is writable */
