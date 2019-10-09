@@ -30,6 +30,7 @@ if (skia_use_system_harfbuzz) {
     ]
     deps = [
       "//third_party/icu",
+      "//third_party/zlib",
     ]
     public = [
       "$_src/hb-blob.h",

@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - and `no_embedded_font` option now allows creating a `SkFontMgr.FromData` instead of
    always having an empty one.
  - Use newer version of Freetype2 (Tracking Skia's DEPS now).
+ - Use newer versions of libpng and zlib (Tracking Skia's DEPS now).
 
 ### Fixed
  - Null terminator bug in draw text - skbug.com/9314
