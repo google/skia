@@ -14,6 +14,9 @@
 
 class GrProgramInfo {
 public:
+    // TODO: it seems like this object should also get the number of copies in
+    // dynamicStateArrays. If that were true a portion of checkAllInstantiated could be moved
+    // to validate.
     GrProgramInfo(int numSamples,
                   GrSurfaceOrigin origin,
                   const GrPipeline& pipeline,
@@ -26,6 +29,7 @@ public:
             , fPrimProc(primProc)
             , fFixedDynamicState(fixedDynamicState)
             , fDynamicStateArrays(dynamicStateArrays) {
+        SkDEBUGCODE(this->validate1();)
     }
 
     int numSamples() const { return fNumSamples;  }
@@ -89,6 +93,10 @@ public:
     }
 
 #ifdef SK_DEBUG
+    void validate1() const;
+    void checkAllInstantiated(int meshCount) const;
+    void checkMSAAAndMIPSAreResolved(int meshCount) const;
+
     bool isNVPR() const {
         return fPrimProc.isPathRendering() && !fPrimProc.willUseGeoShader() &&
                !fPrimProc.numVertexAttributes() && !fPrimProc.numInstanceAttributes();
