@@ -1308,7 +1308,7 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
         glyph.fID = info[i].codepoint;
         glyph.fCluster = info[i].cluster;
         glyph.fOffset.fX = pos[i].x_offset * textSizeX;
-        glyph.fOffset.fY = pos[i].y_offset * textSizeY;
+        glyph.fOffset.fY = - pos[i].y_offset * textSizeY;
         glyph.fAdvance.fX = pos[i].x_advance * textSizeX;
         glyph.fAdvance.fY = pos[i].y_advance * textSizeY;
 
