@@ -98,7 +98,7 @@ int GrFragmentProcessor::registerChildProcessor(std::unique_ptr<GrFragmentProces
     if (child->usesLocalCoords()) {
         fFlags |= kUsesLocalCoords_Flag;
     }
-    fRequestedFeatures |= child->fRequestedFeatures;
+    fRequestedFeatures1 |= child->fRequestedFeatures1;
 
     int index = fChildProcessors.count();
     fChildProcessors.push_back(std::move(child));

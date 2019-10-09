@@ -133,7 +133,7 @@ int GrVkPipelineStateBuilder::loadShadersFromCache(SkReader32* cached,
 void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
                                                    const SkSL::Program::Inputs inputs[],
                                                    bool isSkSL) {
-    const Desc* desc = static_cast<const Desc*>(this->desc());
+    const Desc* desc = static_cast<const Desc*>(this->desc1());
     sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->shaderKeyLength());
     sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedShaders(isSkSL ? kSKSL_Tag : kSPIRV_Tag,
                                                                    shaders,

@@ -262,7 +262,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
                                        fFS.getSecondaryColorOutputName(),
                                        dstTextureSamplerHandle,
                                        dstTextureOrigin,
-                                       this->header().fOutputSwizzle);
+                                       this->header1().fOutputSwizzle);
     fXferProcessor->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
@@ -291,17 +291,17 @@ bool GrGLSLProgramBuilder::checkSamplerCounts() {
 #ifdef SK_DEBUG
 void GrGLSLProgramBuilder::verify(const GrPrimitiveProcessor& gp) {
     SkASSERT(!fFS.fHasReadDstColorThisStage_DebugOnly);
-    SkASSERT(fFS.fUsedProcessorFeaturesThisStage_DebugOnly == gp.requestedFeatures());
+    SkASSERT(fFS.fUsedProcessorFeaturesThisStage_DebugOnly == gp.requestedFeatures1());
 }
 
 void GrGLSLProgramBuilder::verify(const GrFragmentProcessor& fp) {
     SkASSERT(!fFS.fHasReadDstColorThisStage_DebugOnly);
-    SkASSERT(fFS.fUsedProcessorFeaturesThisStage_DebugOnly == fp.requestedFeatures());
+    SkASSERT(fFS.fUsedProcessorFeaturesThisStage_DebugOnly == fp.requestedFeatures1());
 }
 
 void GrGLSLProgramBuilder::verify(const GrXferProcessor& xp) {
     SkASSERT(xp.willReadDstColor() == fFS.fHasReadDstColorThisStage_DebugOnly);
-    SkASSERT(fFS.fUsedProcessorFeaturesThisStage_DebugOnly == xp.requestedFeatures());
+    SkASSERT(fFS.fUsedProcessorFeaturesThisStage_DebugOnly == xp.requestedFeatures1());
 }
 #endif
 

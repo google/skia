@@ -100,7 +100,7 @@ public:
     SampleLocationsTestProcessor(GradType gradType)
             : GrGeometryProcessor(kSampleLocationsTestProcessor_ClassID)
             , fGradType(gradType) {
-        this->setWillUseCustomFeature(CustomFeatures::kSampleLocations);
+        this->setWillUseCustomFeature1(CustomFeatures::kSampleLocations);
     }
     const char* name() const override { return "SampleLocationsTestProcessor"; }
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {
