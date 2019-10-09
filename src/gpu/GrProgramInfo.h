@@ -29,8 +29,15 @@ public:
             , fPrimProc(primProc)
             , fFixedDynamicState(fixedDynamicState)
             , fDynamicStateArrays(dynamicStateArrays) {
+        fRequestedFeatures = fPrimProc.requestedFeatures();
+        for (int i = 0; i < fPipeline.numFragmentProcessors(); ++i) {
+            fRequestedFeatures |= fPipeline.getFragmentProcessor(i).requestedFeatures();
+        }
+        fRequestedFeatures |= fPipeline.getXferProcessor().requestedFeatures();
         SkDEBUGCODE(this->validate();)
     }
+
+    GrProcessor::CustomFeatures requestedFeatures() const { return fRequestedFeatures; }
 
     int numSamples() const { return fNumSamples;  }
     GrSurfaceOrigin origin() const { return fOrigin;  }
@@ -101,16 +108,6 @@ public:
         return fPrimProc.isPathRendering() && !fPrimProc.willUseGeoShader() &&
                !fPrimProc.numVertexAttributes() && !fPrimProc.numInstanceAttributes();
     }
-
-    // TODO: calculate this once in the ctor and use more widely
-    GrProcessor::CustomFeatures requestedFeatures() const {
-        GrProcessor::CustomFeatures requestedFeatures = fPrimProc.requestedFeatures();
-        for (int i = 0; i < fPipeline.numFragmentProcessors(); ++i) {
-            requestedFeatures |= fPipeline.getFragmentProcessor(i).requestedFeatures();
-        }
-        requestedFeatures |= fPipeline.getXferProcessor().requestedFeatures();
-        return requestedFeatures;
-    }
 #endif
 
 private:
@@ -120,6 +117,7 @@ private:
     const GrPrimitiveProcessor&           fPrimProc;
     const GrPipeline::FixedDynamicState*  fFixedDynamicState;
     const GrPipeline::DynamicStateArrays* fDynamicStateArrays;
+    GrProcessor::CustomFeatures           fRequestedFeatures;
 };
 
 #endif
