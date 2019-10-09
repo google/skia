@@ -121,6 +121,8 @@ class SkGlyph {
 public:
     static constexpr SkFixed kSubpixelRound = SK_FixedHalf >> SkPackedGlyphID::kSubPixelPosLen;
 
+    // SkGlyph() is used for testing.
+    constexpr SkGlyph() : fID{SkPackedGlyphID()} { }
     constexpr explicit SkGlyph(SkPackedGlyphID id) : fID{id} { }
     explicit SkGlyph(const SkGlyphPrototype& p);
 
