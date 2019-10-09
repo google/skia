@@ -100,11 +100,15 @@ int main(int argc, char** argv) {
     sk_sp<SkSurface> surf;
     sk_sp<SkData> data;
 
+    const auto info = SkImageInfo::MakeN32(dim.width(), dim.height(), kOpaque_SkAlphaType);
+
     do {
         double loop_start = SkTime::GetSecs();
 
-        encoder.beginRecording(dim, fps);
-        auto info = encoder.preferredInfo();
+        if (!encoder.beginRecording(info, fps)) {
+            SkDEBUGF("Invalid video configuration.\n");
+            return -1;
+        }
 
         // lazily allocate the surfaces
         if (!surf) {
