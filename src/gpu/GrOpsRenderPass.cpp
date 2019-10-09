@@ -35,49 +35,6 @@ void GrOpsRenderPass::clearStencilClip(const GrFixedClip& clip, bool insideStenc
     this->onClearStencilClip(clip, insideStencilMask);
 }
 
-#ifdef SK_DEBUG
-static void assert_msaa_and_mips_are_resolved(const GrProgramInfo& programInfo, int meshCount) {
-    auto assertResolved = [](GrTexture* tex, const GrSamplerState& sampler) {
-        SkASSERT(tex);
-
-        // Ensure mipmaps were all resolved ahead of time by the DAG.
-        if (GrSamplerState::Filter::kMipMap == sampler.filter() &&
-            (tex->width() != 1 || tex->height() != 1)) {
-            // There are some cases where we might be given a non-mipmapped texture with a mipmap
-            // filter. See skbug.com/7094.
-            SkASSERT(tex->texturePriv().mipMapped() != GrMipMapped::kYes ||
-                     !tex->texturePriv().mipMapsAreDirty());
-        }
-    };
-
-    if (programInfo.hasDynamicPrimProcTextures()) {
-        for (int m = 0; m < meshCount; ++m) {
-            auto dynamicPrimProcTextures = programInfo.dynamicPrimProcTextures(m);
-
-            for (int s = 0; s < programInfo.primProc().numTextureSamplers(); ++s) {
-                auto* tex = dynamicPrimProcTextures[s]->peekTexture();
-                assertResolved(tex, programInfo.primProc().textureSampler(s).samplerState());
-            }
-        }
-    } else if (programInfo.hasFixedPrimProcTextures()) {
-        auto fixedPrimProcTextures = programInfo.fixedPrimProcTextures();
-
-        for (int s = 0; s < programInfo.primProc().numTextureSamplers(); ++s) {
-            auto* tex = fixedPrimProcTextures[s]->peekTexture();
-            assertResolved(tex, programInfo.primProc().textureSampler(s).samplerState());
-        }
-    }
-
-    GrFragmentProcessor::Iter iter(programInfo.pipeline());
-    while (const GrFragmentProcessor* fp = iter.next()) {
-        for (int s = 0; s < fp->numTextureSamplers(); ++s) {
-            const auto& textureSampler = fp->textureSampler(s);
-            assertResolved(textureSampler.peekTexture(), textureSampler.samplerState());
-        }
-    }
-}
-#endif
-
 bool GrOpsRenderPass::draw(const GrProgramInfo& programInfo,
                            const GrMesh meshes[], int meshCount, const SkRect& bounds) {
     if (!meshCount) {
@@ -87,52 +44,14 @@ bool GrOpsRenderPass::draw(const GrProgramInfo& programInfo,
 #ifdef SK_DEBUG
     SkASSERT(!programInfo.primProc().hasInstanceAttributes() ||
              this->gpu()->caps()->instanceAttribSupport());
+
     for (int i = 0; i < meshCount; ++i) {
         SkASSERT(programInfo.primProc().hasVertexAttributes() == meshes[i].hasVertexData());
         SkASSERT(programInfo.primProc().hasInstanceAttributes() == meshes[i].hasInstanceData());
     }
 
-    SkASSERT(!programInfo.pipeline().isScissorEnabled() || programInfo.fixedDynamicState() ||
-             (programInfo.dynamicStateArrays() && programInfo.dynamicStateArrays()->fScissorRects));
-
-    SkASSERT(!programInfo.pipeline().isBad());
-
-    if (programInfo.hasFixedPrimProcTextures()) {
-        auto fixedPrimProcTextures = programInfo.fixedPrimProcTextures();
-        for (int s = 0; s < programInfo.primProc().numTextureSamplers(); ++s) {
-            SkASSERT(fixedPrimProcTextures[s]->isInstantiated());
-        }
-    }
-
-    if (programInfo.hasDynamicPrimProcTextures()) {
-        for (int m = 0; m < meshCount; ++m) {
-            auto dynamicPrimProcTextures = programInfo.dynamicPrimProcTextures(m);
-            for (int s = 0; s < programInfo.primProc().numTextureSamplers(); ++s) {
-                SkASSERT(dynamicPrimProcTextures[s]->isInstantiated());
-            }
-        }
-
-        // Check that, for a given sampler, the properties of the dynamic textures remain
-        // the same for all the meshes
-        for (int s = 0; s < programInfo.primProc().numTextureSamplers(); ++s) {
-            auto dynamicPrimProcTextures = programInfo.dynamicPrimProcTextures(0);
-
-            const GrBackendFormat& format = dynamicPrimProcTextures[s]->backendFormat();
-            GrTextureType type = dynamicPrimProcTextures[s]->textureType();
-            GrPixelConfig config = dynamicPrimProcTextures[s]->config();
-
-            for (int m = 1; m < meshCount; ++m) {
-                dynamicPrimProcTextures = programInfo.dynamicPrimProcTextures(m);
-
-                auto testProxy = dynamicPrimProcTextures[s];
-                SkASSERT(testProxy->backendFormat() == format);
-                SkASSERT(testProxy->textureType() == type);
-                SkASSERT(testProxy->config() == config);
-            }
-        }
-    }
-
-    assert_msaa_and_mips_are_resolved(programInfo, meshCount);
+    programInfo.checkAllInstantiated(meshCount);
+    programInfo.checkMSAAAndMIPSAreResolved(meshCount);
 #endif
 
     if (programInfo.primProc().numVertexAttributes() > this->gpu()->caps()->maxVertexAttributes()) {
