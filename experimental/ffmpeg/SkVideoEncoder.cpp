@@ -59,8 +59,10 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace {
+
 // returns true on error (and may dump the particular error message)
-static bool check_err(int err, const int silentList[] = nullptr) {
+bool check_err(int err, const int silentList[] = nullptr) {
     if (err >= 0) {
         return false;
     }
@@ -83,13 +85,13 @@ static bool check_err(int err, const int silentList[] = nullptr) {
     return true;
 }
 
-static int sk_write_packet(void* ctx, uint8_t* buffer, int size) {
+int sk_write_packet(void* ctx, uint8_t* buffer, int size) {
     SkRandomAccessWStream* stream = (SkRandomAccessWStream*)ctx;
     stream->write(buffer, size);
     return size;
 }
 
-static int64_t sk_seek_packet(void* ctx, int64_t pos, int whence) {
+int64_t sk_seek_packet(void* ctx, int64_t pos, int whence) {
     SkRandomAccessWStream* stream = (SkRandomAccessWStream*)ctx;
     switch (whence) {
         case SEEK_SET:
@@ -110,9 +112,21 @@ static int64_t sk_seek_packet(void* ctx, int64_t pos, int whence) {
     return pos;
 }
 
-SkVideoEncoder::SkVideoEncoder() {
-    fInfo = SkImageInfo::MakeUnknown();
+AVPixelFormat PixelFormat(const SkImageInfo& info) {
+    switch (info.colorType()) {
+    case kRGBA_8888_SkColorType: return AV_PIX_FMT_RGBA;
+    case kBGRA_8888_SkColorType: return AV_PIX_FMT_BGRA;
+    case kGray_8_SkColorType:    return AV_PIX_FMT_GRAY8;
+    default: break;
+    }
+
+    SkDebugf("Unsupported color type: %d\n", info.colorType());
+    return AV_PIX_FMT_NONE;
 }
+
+} // namespace
+
+SkVideoEncoder::SkVideoEncoder() : fInfo(SkImageInfo::MakeUnknown()) {}
 
 SkVideoEncoder::~SkVideoEncoder() {
     this->reset();
@@ -226,15 +240,14 @@ static bool is_valid(SkISize dim) {
     return ((dim.width() | dim.height()) & 1) == 0;
 }
 
-bool SkVideoEncoder::beginRecording(SkISize dim, int fps) {
-    if (!is_valid(dim)) {
+bool SkVideoEncoder::beginRecording(const SkImageInfo& info, int fps) {
+    const auto fmt = PixelFormat(info);
+
+    if (fmt == AV_PIX_FMT_NONE || !is_valid(info.bounds().size())) {
         return false;
     }
 
-    // need opaque and bgra to efficiently use libyuv / convert-to-yuv-420
-    SkAlphaType alphaType = kOpaque_SkAlphaType;
-    sk_sp<SkColorSpace> cs = nullptr;   // should we use this?
-    fInfo = SkImageInfo::Make(dim, kRGBA_8888_SkColorType, alphaType, cs);
+    fInfo = info;
     if (!this->init(fps)) {
         return false;
     }
@@ -249,8 +262,8 @@ bool SkVideoEncoder::beginRecording(SkISize dim, int fps) {
     // explicitly release our ctx until the destructor, since sws_getCachedContext takes care
     // of freeing the old as needed if/when it returns a new one.
     fSWScaleCtx = sws_getCachedContext(fSWScaleCtx,
-                                       dim.width(), dim.height(), AV_PIX_FMT_RGBA,
-                                       dim.width(), dim.height(), AV_PIX_FMT_YUV420P,
+                                       info.width(), info.height(), fmt,
+                                       info.width(), info.height(), AV_PIX_FMT_YUV420P,
                                        SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
     return fSWScaleCtx != nullptr;
 }

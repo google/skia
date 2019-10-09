@@ -28,16 +28,10 @@ public:
     ~SkVideoEncoder();
 
     /**
-     *  Begina a new recording. Balance this (after adding all of your frames) with a call
+     *  Begins a new recording. Balance this (after adding all of your frames) with a call
      *  to endRecording().
      */
-    bool beginRecording(SkISize, int fps);
-
-    /**
-     *  Returns the preferred ImageInfo for this recording. Only valid if beginRecording() has
-     *  been called, and endRecording has not been called (yet).
-     */
-    SkImageInfo preferredInfo() const { return fInfo; }
+    bool beginRecording(const SkImageInfo&, int fps);
 
     /**
      *  If you have your own pixmap, call addFrame(). Note this may fail if it uses an unsupported
