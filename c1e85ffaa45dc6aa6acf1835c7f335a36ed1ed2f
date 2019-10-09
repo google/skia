@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c9a597de_4439017b",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-09T13:50:34Z",
+      "side": 1,
+      "message": "I think a \u0027gn format\u0027 will stick this all on one line.",
+      "range": {
+        "startLine": 340,
+        "startChar": 1,
+        "endLine": 342,
+        "endChar": 3
+      },
+      "revId": "c1e85ffaa45dc6aa6acf1835c7f335a36ed1ed2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f1e428a_aa3f904b",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-09T13:50:34Z",
+      "side": 1,
+      "message": "Ah, you\u0027re right, I wrote that suggestion wrong. How about this just gets put up in the conditional sources just above? The issue here is that skia_enable_fontmgr_empty and skia_enable_fontmgr_custom currently both pull in the SkFontMgr_custom files, but they also each pull in a SkFontMgr_xxx_factory.cpp, and one should only ever end up with one SkFontMgr_xxx_factory.cpp (or you end in with an ODR violation). That needs to be cleaned up to make this all less impenetrable.",
+      "range": {
+        "startLine": 350,
+        "startChar": 17,
+        "endLine": 350,
+        "endChar": 67
+      },
+      "revId": "c1e85ffaa45dc6aa6acf1835c7f335a36ed1ed2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
