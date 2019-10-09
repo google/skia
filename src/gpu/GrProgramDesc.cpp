@@ -259,6 +259,8 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
                                          programInfo.pipeline().numCoverageFragmentProcessors()) {
         return false;
     }
+    header->fSurfaceOriginKey =
+        GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(programInfo.origin());
     header->fProcessorFeatures = (uint8_t)processorFeatures;
     SkASSERT(header->processorFeatures() == processorFeatures);  // Ensure enough bits.
     header->fSnapVerticesToPixelCenters = programInfo.pipeline().snapVerticesToPixelCenters();

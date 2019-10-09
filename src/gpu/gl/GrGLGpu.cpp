@@ -2172,9 +2172,7 @@ void GrGLGpu::draw(GrRenderTarget* renderTarget,
                    int meshCount) {
     this->handleDirtyContext();
 
-    if (meshCount == 0) {
-        return;
-    }
+    SkASSERT(meshCount); // guaranteed by GrOpsRenderPass::draw
 
     bool hasPoints = false;
     for (int i = 0; i < meshCount; ++i) {
