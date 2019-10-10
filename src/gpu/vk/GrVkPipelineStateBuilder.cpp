@@ -323,8 +323,7 @@ bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
                                            const GrStencilSettings& stencil,
                                            GrPrimitiveType primitiveType,
                                            GrVkGpu* gpu) {
-    if (!GrProgramDesc::Build(desc, renderTarget, programInfo,
-                              primitiveType == GrPrimitiveType::kPoints, gpu)) {
+    if (!GrProgramDesc::Build(desc, renderTarget, programInfo, primitiveType, gpu)) {
         return false;
     }
 

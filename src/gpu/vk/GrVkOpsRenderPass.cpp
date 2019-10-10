@@ -539,6 +539,7 @@ void GrVkOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
     }
 
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
+
     GrVkPipelineState* pipelineState = this->prepareDrawState(programInfo, primitiveType,
                                                               renderPassScissorRect);
     if (!pipelineState) {

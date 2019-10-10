@@ -1660,10 +1660,10 @@ void GrGLGpu::disableWindowRectangles() {
 
 bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
                            const GrProgramInfo& programInfo,
-                           bool willDrawPoints) {
+                           GrPrimitiveType primitiveType) {
 
     sk_sp<GrGLProgram> program(fProgramCache->refProgram(this, renderTarget, programInfo,
-                                                         willDrawPoints));
+                                                         primitiveType));
     if (!program) {
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;
@@ -2174,14 +2174,22 @@ void GrGLGpu::draw(GrRenderTarget* renderTarget,
 
     SkASSERT(meshCount); // guaranteed by GrOpsRenderPass::draw
 
-    bool hasPoints = false;
-    for (int i = 0; i < meshCount; ++i) {
-        if (meshes[i].primitiveType() == GrPrimitiveType::kPoints) {
-            hasPoints = true;
-            break;
+    GrPrimitiveType primitiveType = meshes[0].primitiveType();
+
+#ifdef SK_DEBUG
+    // kPoints should never be intermingled in with the other primitive types
+    for (int i = 1; i < meshCount; ++i) {
+        if (primitiveType == GrPrimitiveType::kPoints) {
+            SkASSERT(meshes[i].primitiveType() == GrPrimitiveType::kPoints);
+        } else {
+            SkASSERT(meshes[i].primitiveType() != GrPrimitiveType::kPoints);
         }
     }
-    if (!this->flushGLState(renderTarget, programInfo, hasPoints)) {
+#endif
+
+    // Passing 'primitiveType' here is a bit misleading. In GL's case it works out, since
+    // GL only cares if it is kPoints or not.
+    if (!this->flushGLState(renderTarget, programInfo, primitiveType)) {
         return;
     }
 
