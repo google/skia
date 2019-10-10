@@ -173,7 +173,7 @@ private:
                                   flushState->drawOpArgs().origin(),
                                   pipeline,
                                   primProc,
-                                  nullptr, nullptr);
+                                  nullptr, nullptr, 0);
 
         flushState->opsRenderPass()->draw(programInfo, &mesh, 1, SkRect::MakeXYWH(0, fY, 100, 100));
     }

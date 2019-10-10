@@ -208,7 +208,7 @@ void GrCCCoverageProcessor::draw(
                               pipeline,
                               *this,
                               nullptr,
-                              &dynamicStateArrays);
+                              &dynamicStateArrays, 0);
 
 
     renderPass->draw(programInfo, meshes, meshCount, drawBounds);

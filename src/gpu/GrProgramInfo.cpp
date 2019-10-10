@@ -9,6 +9,7 @@
 
 
 #ifdef SK_DEBUG
+#include "src/gpu/GrMesh.h"
 #include "src/gpu/GrTexturePriv.h"
 
 void GrProgramInfo::validate() const {
@@ -25,25 +26,8 @@ void GrProgramInfo::validate() const {
 
     SkASSERT(!fPipeline.isScissorEnabled() || this->hasFixedScissor() ||
              this->hasDynamicScissors());
-}
-
-void GrProgramInfo::checkAllInstantiated(int meshCount) const {
-    if (this->hasFixedPrimProcTextures()) {
-        auto fixedPrimProcTextures = this->fixedPrimProcTextures();
-        for (int s = 0; s < this->primProc().numTextureSamplers(); ++s) {
-            SkASSERT(fixedPrimProcTextures[s]->isInstantiated());
-        }
-    }
 
     if (this->hasDynamicPrimProcTextures()) {
-        for (int m = 0; m < meshCount; ++m) {
-            auto dynamicPrimProcTextures = this->dynamicPrimProcTextures(m);
-            for (int s = 0; s < this->primProc().numTextureSamplers(); ++s) {
-                SkASSERT(dynamicPrimProcTextures[s]->isInstantiated());
-            }
-        }
-
-        // TODO: if GrProgramInfo had the mesh count we could do this in validate!
         // Check that, for a given sampler, the properties of the dynamic textures remain
         // the same for all the meshes
         for (int s = 0; s < this->primProc().numTextureSamplers(); ++s) {
@@ -53,7 +37,7 @@ void GrProgramInfo::checkAllInstantiated(int meshCount) const {
             GrTextureType type = dynamicPrimProcTextures[s]->textureType();
             GrPixelConfig config = dynamicPrimProcTextures[s]->config();
 
-            for (int m = 1; m < meshCount; ++m) {
+            for (int m = 1; m < fNumDynamicStateArrays; ++m) {
                 dynamicPrimProcTextures = this->dynamicPrimProcTextures(m);
 
                 auto testProxy = dynamicPrimProcTextures[s];
@@ -65,7 +49,25 @@ void GrProgramInfo::checkAllInstantiated(int meshCount) const {
     }
 }
 
-void GrProgramInfo::checkMSAAAndMIPSAreResolved(int meshCount) const {
+void GrProgramInfo::checkAllInstantiated() const {
+    if (this->hasFixedPrimProcTextures()) {
+        auto fixedPrimProcTextures = this->fixedPrimProcTextures();
+        for (int s = 0; s < this->primProc().numTextureSamplers(); ++s) {
+            SkASSERT(fixedPrimProcTextures[s]->isInstantiated());
+        }
+    }
+
+    if (this->hasDynamicPrimProcTextures()) {
+        for (int m = 0; m < fNumDynamicStateArrays; ++m) {
+            auto dynamicPrimProcTextures = this->dynamicPrimProcTextures(m);
+            for (int s = 0; s < this->primProc().numTextureSamplers(); ++s) {
+                SkASSERT(dynamicPrimProcTextures[s]->isInstantiated());
+            }
+        }
+    }
+}
+
+void GrProgramInfo::checkMSAAAndMIPSAreResolved() const {
 
     auto assertResolved = [](GrTexture* tex, const GrSamplerState& sampler) {
         SkASSERT(tex);
@@ -81,7 +83,7 @@ void GrProgramInfo::checkMSAAAndMIPSAreResolved(int meshCount) const {
     };
 
     if (this->hasDynamicPrimProcTextures()) {
-        for (int m = 0; m < meshCount; ++m) {
+        for (int m = 0; m < fNumDynamicStateArrays; ++m) {
             auto dynamicPrimProcTextures = this->dynamicPrimProcTextures(m);
 
             for (int s = 0; s < this->primProc().numTextureSamplers(); ++s) {
@@ -104,6 +106,15 @@ void GrProgramInfo::checkMSAAAndMIPSAreResolved(int meshCount) const {
             const auto& textureSampler = fp->textureSampler(s);
             assertResolved(textureSampler.peekTexture(), textureSampler.samplerState());
         }
+    }
+}
+
+void GrProgramInfo::compatibleWithMeshes(const GrMesh meshes[], int meshCount) const {
+    SkASSERT(!fNumDynamicStateArrays || meshCount == fNumDynamicStateArrays);
+
+    for (int i = 0; i < meshCount; ++i) {
+        SkASSERT(fPrimProc.hasVertexAttributes() == meshes[i].hasVertexData());
+        SkASSERT(fPrimProc.hasInstanceAttributes() == meshes[i].hasInstanceData());
     }
 }
 

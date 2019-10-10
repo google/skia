@@ -59,7 +59,8 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
                                   *pipeline,
                                   *fCurrDraw->fGeometryProcessor,
                                   fCurrDraw->fFixedDynamicState,
-                                  fCurrDraw->fDynamicStateArrays);
+                                  fCurrDraw->fDynamicStateArrays,
+                                  fCurrDraw->fMeshCnt);
 
         this->opsRenderPass()->draw(programInfo, fCurrDraw->fMeshes,
                                     fCurrDraw->fMeshCnt, chainBounds);

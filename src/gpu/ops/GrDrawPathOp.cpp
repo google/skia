@@ -98,7 +98,7 @@ void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
                               pipeline,
                               *pathProc,
                               &fixedDynamicState,
-                              nullptr);
+                              nullptr, 0);
 
     GrStencilSettings stencil;
     init_stencil_pass_settings(*state, this->fillType(), &stencil);

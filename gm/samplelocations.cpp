@@ -241,7 +241,7 @@ private:
                                   flushState->drawOpArgs().origin(),
                                   pipeline,
                                   primProc,
-                                  nullptr, nullptr);
+                                  nullptr, nullptr, 0);
 
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setInstanced(nullptr, 200*200, 0, 4);

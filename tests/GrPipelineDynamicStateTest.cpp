@@ -160,7 +160,7 @@ private:
                                   pipeline,
                                   primProc,
                                   nullptr,
-                                  &dynamicState);
+                                  &dynamicState, 0);
 
         flushState->opsRenderPass()->draw(programInfo, meshes.begin(), 4,
                                           SkRect::MakeIWH(kScreenSize, kScreenSize));

@@ -45,13 +45,9 @@ bool GrOpsRenderPass::draw(const GrProgramInfo& programInfo,
     SkASSERT(!programInfo.primProc().hasInstanceAttributes() ||
              this->gpu()->caps()->instanceAttribSupport());
 
-    for (int i = 0; i < meshCount; ++i) {
-        SkASSERT(programInfo.primProc().hasVertexAttributes() == meshes[i].hasVertexData());
-        SkASSERT(programInfo.primProc().hasInstanceAttributes() == meshes[i].hasInstanceData());
-    }
-
-    programInfo.checkAllInstantiated(meshCount);
-    programInfo.checkMSAAAndMIPSAreResolved(meshCount);
+    programInfo.compatibleWithMeshes(meshes, meshCount);
+    programInfo.checkAllInstantiated();
+    programInfo.checkMSAAAndMIPSAreResolved();
 #endif
 
     if (programInfo.primProc().numVertexAttributes() > this->gpu()->caps()->maxVertexAttributes()) {
