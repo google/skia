@@ -134,6 +134,8 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
                                                    const SkSL::Program::Inputs inputs[],
                                                    bool isSkSL) {
     const Desc* desc = static_cast<const Desc*>(this->desc());
+    // Here we shear off the Vk-specific portion of the Desc in order to create the
+    // persistent key
     sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->shaderKeyLength());
     sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedShaders(isSkSL ? kSKSL_Tag : kSPIRV_Tag,
                                                                    shaders,
@@ -201,6 +203,8 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
     SkFourByteTag shaderType = 0;
     auto persistentCache = fGpu->getContext()->priv().getPersistentCache();
     if (persistentCache) {
+        // Here we shear off the Vk-specific portion of the Desc in order to create the
+        // persistent key
         sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->shaderKeyLength());
         cached = persistentCache->load(*key);
         if (cached) {
