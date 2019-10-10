@@ -25,18 +25,20 @@ public:
     GrProgramDesc() {}
 
     /**
-    * Builds a program descriptor. Before the descriptor can be used, the client must call finalize
-    * on the returned GrProgramDesc.
-    *
-    * @param desc         The built and finalized descriptor
-    * @param renderTarget The target of the draw
-    * @param programInfo  Program information need to build the key
-    * @param hasPointSize Controls whether the shader will output a point size.
-    * @param gpu          Pointer to the GrGpu object the program will be used with.
-    **/
+     * Builds a program descriptor. Before the descriptor can be used, the client must call finalize
+     * on the returned GrProgramDesc.
+     *
+     * @param desc         The built and finalized descriptor
+     * @param renderTarget The target of the draw
+     * @param programInfo  Program information need to build the key
+     * @param hasPointSize Controls whether the shader will output a point size.
+     * @param gpu          Pointer to the GrGpu object the program will be used with.
+     **/
     static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrProgramInfo&,
                       bool hasPointSize, GrGpu*);
 
+    // This is strictly an OpenGL call since the other backends have additional data in their
+    // keys
     static bool BuildFromData(GrProgramDesc* desc, const void* keyData, size_t keyLength) {
         if (!SkTFitsIn<int>(keyLength)) {
             return false;
@@ -85,8 +87,12 @@ public:
         return !(*this == other);
     }
 
+    // TODO: remove this use of the header
+    bool hasPointSize() const { return this->header().fHasPointSize; }
+
+protected:
     struct KeyHeader {
-        // Set to uniquely idenitify any swizzling of the shader's output color(s).
+        // Set to uniquely identify any swizzling of the shader's output color(s).
         uint16_t fOutputSwizzle;
         uint8_t fColorFragmentProcessorCnt; // Can be packed into 4 bits if required.
         uint8_t fCoverageFragmentProcessorCnt;
@@ -99,10 +105,8 @@ public:
     };
     GR_STATIC_ASSERT(sizeof(KeyHeader) == 6);
 
-    // This should really only be used internally, base classes should return their own headers
     const KeyHeader& header() const { return *this->atOffset<KeyHeader, kHeaderOffset>(); }
 
-protected:
     template<typename T, size_t OFFSET> T* atOffset() {
         return reinterpret_cast<T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
     }
