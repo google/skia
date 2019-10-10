@@ -147,14 +147,12 @@ void GrDawnOpsRenderPass::applyState(const GrPipeline& pipeline,
                                           const GrTextureProxy* const primProcProxies[],
                                           const GrPipeline::FixedDynamicState* fixedDynamicState,
                                           const GrPipeline::DynamicStateArrays* dynamicStateArrays,
-                                          const GrPrimitiveType primitiveType,
-                                          bool hasPoints) {
+                                          const GrPrimitiveType primitiveType) {
     sk_sp<GrDawnProgram> program = fGpu->getOrCreateRenderPipeline(fRenderTarget,
                                                                   fOrigin,
                                                                   pipeline,
                                                                   primProc,
                                                                   primProcProxies,
-                                                                  hasPoints,
                                                                   primitiveType);
     auto bindGroup = program->setData(fGpu, fRenderTarget, fOrigin, primProc, pipeline,
                                       primProcProxies);
@@ -180,12 +178,9 @@ void GrDawnOpsRenderPass::onDraw(const GrPrimitiveProcessor& primProc,
     if (!meshCount) {
         return;
     }
-    bool hasPoints = false;
-    for (int i = 0; i < meshCount; ++i) {
-        if (meshes[i].primitiveType() == GrPrimitiveType::kPoints) {
-            hasPoints = true;
-        }
-    }
+
+    GrPrimitiveType primitiveType = meshes[0].primitiveType();
+
     const GrTextureProxy* const* primProcProxies = nullptr;
     if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
         primProcProxies = dynamicStateArrays->fPrimitiveProcessorTextures;
@@ -193,8 +188,8 @@ void GrDawnOpsRenderPass::onDraw(const GrPrimitiveProcessor& primProc,
         primProcProxies = fixedDynamicState->fPrimitiveProcessorTextures;
     }
     for (int i = 0; i < meshCount; ++i) {
-        applyState(pipeline, primProc, primProcProxies, fixedDynamicState, dynamicStateArrays,
-                   meshes[0].primitiveType(), hasPoints);
+        this->applyState(pipeline, primProc, primProcProxies, fixedDynamicState,
+                         dynamicStateArrays, primitiveType);
         meshes[i].sendToGpu(this);
     }
 }

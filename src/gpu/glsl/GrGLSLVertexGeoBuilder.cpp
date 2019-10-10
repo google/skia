@@ -37,7 +37,8 @@ void GrGLSLVertexGeoBuilder::emitNormalizedSkPosition(SkString* out, const char*
 void GrGLSLVertexBuilder::onFinalize() {
     // We could have the GrGeometryProcessor do this, but its just easier to have it performed
     // here. If we ever need to set variable pointsize, then we can reinvestigate.
-    if (this->getProgramBuilder()->header().fHasPointSize) {
+    const GrProgramDesc::KeyHeader& header = this->getProgramBuilder()->desc()->header();
+    if (header.hasPointSize()) {
         this->codeAppend("sk_PointSize = 1.0;");
     }
     fProgramBuilder->varyingHandler()->getVertexDecls(&this->inputs(), &this->outputs());

@@ -93,7 +93,6 @@ public:
                                                    const GrPipeline&,
                                                    const GrPrimitiveProcessor&,
                                                    const GrTextureProxy* const* primProcProxies,
-                                                   bool hasPoints,
                                                    GrPrimitiveType primitiveType);
 
     dawn::Sampler getOrCreateSampler(const GrSamplerState& samplerState);
