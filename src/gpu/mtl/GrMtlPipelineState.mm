@@ -61,7 +61,9 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
                                  const GrProgramInfo& programInfo) {
 
     // Note: the Metal backend currently only supports fixed primProc textures
-    const GrTextureProxy* const* primProcProxies = programInfo.primProcProxies();
+    SkASSERT(!programInfo.hasDynamicPrimProcTextures());
+    auto proxies = programInfo.hasFixedPrimProcTextures() ? programInfo.fixedPrimProcTextures()
+                                                          : nullptr;
 
     this->setRenderTargetState(renderTarget, programInfo.origin());
     fGeometryProcessor->setData(fDataManager, programInfo.primProc(),
@@ -69,7 +71,7 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
     fSamplerBindings.reset();
     for (int i = 0; i < programInfo.primProc().numTextureSamplers(); ++i) {
         const auto& sampler = programInfo.primProc().textureSampler(i);
-        auto texture = static_cast<GrMtlTexture*>(primProcProxies[i]->peekTexture());
+        auto texture = static_cast<GrMtlTexture*>(proxies[i]->peekTexture());
         fSamplerBindings.emplace_back(sampler.samplerState(), texture, fGpu);
     }
 
