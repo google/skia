@@ -113,6 +113,10 @@ public:
         return this->maxRenderTargetSampleCount(format.asMockColorType());
     }
 
+    size_t bytesPerPixel(const GrBackendFormat& format) const override {
+        return GrColorTypeBytesPerPixel(format.asMockColorType());
+    }
+
     SupportedWrite supportedWritePixelsColorType(GrColorType surfaceColorType,
                                                  const GrBackendFormat& surfaceFormat,
                                                  GrColorType srcColorType) const override {

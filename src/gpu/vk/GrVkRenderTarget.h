@@ -117,8 +117,9 @@ protected:
             // Add one to account for the resolved VkImage.
             numColorSamples += 1;
         }
-        return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
-                                      numColorSamples, GrMipMapped::kNo);
+        const GrCaps& caps = *this->getGpu()->caps();
+        return GrSurface::ComputeSize(this->config(), caps, this->backendFormat(), this->width(),
+                                      this->height(), numColorSamples, GrMipMapped::kNo);
     }
 
     void createFramebuffer(GrVkGpu* gpu);

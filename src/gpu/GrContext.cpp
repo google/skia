@@ -14,6 +14,7 @@
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/GrClientMappedBufferManager.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMemoryPool.h"
@@ -31,6 +32,7 @@
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 #include "src/gpu/text/GrTextContext.h"
+#include "src/image/SkImage_GpuBase.h"
 #include "src/image/SkSurface_Gpu.h"
 #include <atomic>
 
@@ -232,20 +234,21 @@ size_t GrContext::getResourceCachePurgeableBytes() const {
     return fResourceCache->getPurgeableBytes();
 }
 
-size_t GrContext::ComputeTextureSize(SkColorType type, int width, int height, GrMipMapped mipMapped,
-                                     bool useNextPow2) {
-    int colorSamplesPerPixel = 1;
-    return GrSurface::ComputeSize(SkColorType2GrPixelConfig(type), width, height,
-                                  colorSamplesPerPixel, mipMapped, useNextPow2);
-}
-
 size_t GrContext::ComputeImageSize(sk_sp<SkImage> image, GrMipMapped mipMapped, bool useNextPow2) {
     if (!image->isTextureBacked()) {
         return 0;
     }
+    SkImage_GpuBase* gpuImage = static_cast<SkImage_GpuBase*>(as_IB(image.get()));
+    GrTextureProxy* proxy = gpuImage->peekProxy();
+    if (!proxy) {
+        return 0;
+    }
+
+    const GrCaps& caps = *gpuImage->context()->priv().caps();
     int colorSamplesPerPixel = 1;
-    return GrSurface::ComputeSize(SkColorType2GrPixelConfig(image->colorType()), image->width(),
-                                  image->height(), colorSamplesPerPixel, mipMapped, useNextPow2);
+    return GrSurface::ComputeSize(SkColorType2GrPixelConfig(image->colorType()), caps,
+                                  proxy->backendFormat(), image->width(), image->height(),
+                                  colorSamplesPerPixel, mipMapped, useNextPow2);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

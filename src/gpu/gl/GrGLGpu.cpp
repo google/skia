@@ -3620,7 +3620,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
         texels.append(mipLevelCount);
         SkTArray<size_t> individualMipOffsets(mipLevelCount);
 
-        size_t bytesPerPixel = GrBytesPerPixel(config);
+        size_t bytesPerPixel = this->glCaps().bytesPerPixel(glFormat);
 
         size_t totalSize = GrComputeTightCombinedBufferSize(
                 bytesPerPixel, w, h, &individualMipOffsets, mipLevelCount);

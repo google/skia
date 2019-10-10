@@ -1048,7 +1048,10 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     {
         constexpr VkFormat format = VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM;
         auto& info = this->getFormatInfo(format);
-        info.fBytesPerPixel = 0;
+        // Currently we are just over estimating this value to be used in gpu size calculations even
+        // though the actually size is probably less. We should instead treat planar formats similar
+        // to compressed textures that go through their own special query for calculating size.
+        info.fBytesPerPixel = 3;
         if (fSupportsYcbcrConversion) {
             info.init(interface, physDev, properties, format);
         }
@@ -1069,7 +1072,10 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     {
         constexpr VkFormat format = VK_FORMAT_G8_B8R8_2PLANE_420_UNORM;
         auto& info = this->getFormatInfo(format);
-        info.fBytesPerPixel = 0;
+        // Currently we are just over estimating this value to be used in gpu size calculations even
+        // though the actually size is probably less. We should instead treat planar formats similar
+        // to compressed textures that go through their own special query for calculating size.
+        info.fBytesPerPixel = 3;
         if (fSupportsYcbcrConversion) {
             info.init(interface, physDev, properties, format);
         }
@@ -1351,6 +1357,18 @@ int GrVkCaps::maxRenderTargetSampleCount(VkFormat format) const {
         return 0;
     }
     return table[table.count() - 1];
+}
+
+size_t GrVkCaps::bytesPerPixel(const GrBackendFormat& format) const {
+    VkFormat vkFormat;
+    if (!format.asVkFormat(&vkFormat)) {
+        return 0;
+    }
+    return this->bytesPerPixel(vkFormat);
+}
+
+size_t GrVkCaps::bytesPerPixel(VkFormat format) const {
+    return this->getFormatInfo(format).fBytesPerPixel;
 }
 
 static inline size_t align_to_4(size_t v) {

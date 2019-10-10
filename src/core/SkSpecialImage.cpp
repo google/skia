@@ -399,7 +399,9 @@ public:
 
     SkColorType colorType() const override { return GrColorTypeToSkColorType(fColorType); }
 
-    size_t getSize() const override { return fTextureProxy->gpuMemorySize(); }
+    size_t getSize() const override {
+        return fTextureProxy->gpuMemorySize(*fContext->priv().caps());
+    }
 
     void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const override {
         SkRect dst = SkRect::MakeXYWH(x, y,

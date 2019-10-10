@@ -75,7 +75,8 @@ public:
     inline GrSurfacePriv surfacePriv();
     inline const GrSurfacePriv surfacePriv() const;
 
-    static size_t ComputeSize(GrPixelConfig config, int width, int height, int colorSamplesPerPixel,
+    static size_t ComputeSize(GrPixelConfig config, const GrCaps&, const GrBackendFormat&,
+                              int width, int height, int colorSamplesPerPixel,
                               GrMipMapped, bool binSize = false);
 
     /**

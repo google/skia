@@ -244,7 +244,8 @@ size_t GrVkTextureRenderTarget::onGpuMemorySize() const {
         // Add one to account for the resolve VkImage.
         ++numColorSamples;
     }
-    return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
-                                  numColorSamples,  // TODO: this still correct?
+    const GrCaps& caps = *this->getGpu()->caps();
+    return GrSurface::ComputeSize(this->config(), caps, this->backendFormat(), this->width(),
+                                  this->height(), numColorSamples,  // TODO: this still correct?
                                   this->texturePriv().mipMapped());
 }

@@ -16,6 +16,8 @@
 #include "src/gpu/SkGr.h"
 
 size_t GrSurface::ComputeSize(GrPixelConfig config,
+                              const GrCaps& caps,
+                              const GrBackendFormat& format,
                               int width,
                               int height,
                               int colorSamplesPerPixel,
@@ -30,7 +32,7 @@ size_t GrSurface::ComputeSize(GrPixelConfig config,
     if (GrPixelConfigIsCompressed(config)) {
         colorSize = GrCompressedFormatDataSize(config, width, height);
     } else {
-        colorSize = (size_t)width * height * GrBytesPerPixel(config);
+        colorSize = (size_t)width * height * caps.bytesPerPixel(format);
     }
     SkASSERT(colorSize > 0);
 

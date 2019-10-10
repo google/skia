@@ -102,8 +102,9 @@ public:
             // Add one to account for the resolve buffer.
             ++numColorSamples;
         }
-        return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
-                                      numColorSamples, GrMipMapped::kNo);
+        const GrCaps& caps = *this->getGpu()->caps();
+        return GrSurface::ComputeSize(this->config(), caps, this->backendFormat(), this->width(),
+                                      this->height(), numColorSamples, GrMipMapped::kNo);
     }
 
     GrBackendRenderTarget getBackendRenderTarget() const override {
@@ -186,8 +187,9 @@ private:
             // Add one to account for the resolve buffer.
             ++numColorSamples;
         }
-        return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
-                                      numColorSamples,
+        const GrCaps& caps = *this->getGpu()->caps();
+        return GrSurface::ComputeSize(this->config(), caps, this->backendFormat(), this->width(),
+                                      this->height(), numColorSamples,
                                       this->texturePriv().mipMapped());
     }
 

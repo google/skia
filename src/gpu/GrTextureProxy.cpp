@@ -143,9 +143,10 @@ GrMipMapped GrTextureProxy::mipMapped() const {
     return fMipMapped;
 }
 
-size_t GrTextureProxy::onUninstantiatedGpuMemorySize() const {
-    return GrSurface::ComputeSize(this->config(), this->width(), this->height(), 1,
-                                  this->proxyMipMapped(), !this->priv().isExact());
+size_t GrTextureProxy::onUninstantiatedGpuMemorySize(const GrCaps& caps) const {
+    return GrSurface::ComputeSize(this->config(), caps, this->backendFormat(),  this->width(),
+                                  this->height(), 1, this->proxyMipMapped(),
+                                  !this->priv().isExact());
 }
 
 bool GrTextureProxy::ProxiesAreCompatibleAsDynamicState(const GrTextureProxy* first,

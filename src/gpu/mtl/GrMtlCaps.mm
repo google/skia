@@ -380,6 +380,11 @@ int GrMtlCaps::getRenderTargetSampleCount(int requestedCount, MTLPixelFormat for
     return 1 == requestedCount ? 1 : 0;
 }
 
+size_t GrMtlCaps::bytesPerPixel(const GrBackendFormat& format) const {
+    MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
+    return this->bytesPerPixel(mtlFormat);
+}
+
 size_t GrMtlCaps::bytesPerPixel(MTLPixelFormat format) const {
     return this->getFormatInfo(format).fBytesPerPixel;
 }

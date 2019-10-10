@@ -133,6 +133,9 @@ public:
     }
     int maxRenderTargetSampleCount(GrGLFormat) const;
 
+    size_t bytesPerPixel(GrGLFormat) const;
+    size_t bytesPerPixel(const GrBackendFormat&) const override;
+
     bool isFormatCopyable(const GrBackendFormat&) const override;
 
     bool canFormatBeFBOColorAttachment(GrGLFormat) const;
@@ -649,7 +652,7 @@ private:
         GrGLenum fDefaultExternalFormat = 0;
         GrGLenum fDefaultExternalType = 0;
 
-        // This value is only valid for regular formats. Planar and compressed formats will be 0.
+        // This value is only valid for regular formats. Compressed formats will be 0.
         GrGLenum fBytesPerPixel = 0;
 
         enum {
