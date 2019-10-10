@@ -48,13 +48,11 @@ void GrGLGpu::ProgramCache::reset() {
 GrGLProgram* GrGLGpu::ProgramCache::refProgram(GrGLGpu* gpu,
                                                GrRenderTarget* renderTarget,
                                                const GrProgramInfo& programInfo,
-                                               bool isPoints) {
-
-
+                                               GrPrimitiveType primitiveType) {
     // TODO: can this be unified between GL, Vk and Mtl?
     // Get GrGLProgramDesc
     GrProgramDesc desc;
-    if (!GrProgramDesc::Build(&desc, renderTarget, programInfo, isPoints, gpu)) {
+    if (!GrProgramDesc::Build(&desc, renderTarget, programInfo, primitiveType, gpu)) {
         GrCapsDebugf(gpu->caps(), "Failed to gl program descriptor!\n");
         return nullptr;
     }
