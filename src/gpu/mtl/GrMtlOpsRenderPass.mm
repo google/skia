@@ -20,13 +20,11 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
-GrMtlOpsRenderPass::GrMtlOpsRenderPass(
-        GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
-        const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
-        const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo)
+GrMtlOpsRenderPass::GrMtlOpsRenderPass(GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
+                                       const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
+                                       const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo)
         : INHERITED(rt, origin)
-        , fGpu(gpu)
-        {
+        , fGpu(gpu) {
     this->setupRenderPass(colorInfo, stencilInfo);
 }
 
@@ -54,13 +52,13 @@ void GrMtlOpsRenderPass::submit() {
 }
 
 GrMtlPipelineState* GrMtlOpsRenderPass::prepareDrawState(const GrProgramInfo& programInfo,
-                                                         GrPrimitiveType primType) {
+                                                         GrPrimitiveType primitiveType) {
     // TODO: resolve textures and regenerate mipmaps as needed
 
     GrMtlPipelineState* pipelineState =
         fGpu->resourceProvider().findOrCreateCompatiblePipelineState(fRenderTarget,
                                                                      programInfo,
-                                                                     primType);
+                                                                     primitiveType);
     if (!pipelineState) {
         return nullptr;
     }
