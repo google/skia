@@ -11,7 +11,7 @@
 #include "include/private/GrTypesPriv.h"
 #include "dawn/dawncpp.h"
 
-GrPixelConfig GrDawnFormatToPixelConfig(dawn::TextureFormat format);
+size_t GrDawnBytesPerPixel(dawn::TextureFormat format);
 bool GrDawnFormatIsRenderable(dawn::TextureFormat format);
 bool GrPixelConfigToDawnFormat(GrPixelConfig config, dawn::TextureFormat* format);
 size_t GrDawnRoundRowBytes(size_t rowBytes);
