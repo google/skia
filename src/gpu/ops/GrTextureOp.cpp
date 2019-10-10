@@ -477,14 +477,16 @@ private:
 
         GrSamplerState samplerState = GrSamplerState(GrSamplerState::WrapMode::kClamp,
                                                      this->filter());
+#if 0
         GrGpu* gpu = target->resourceProvider()->priv().gpu();
         uint32_t extraSamplerKey = gpu->getExtraSamplerKeyForProgram(
                 samplerState, fProxies[0].fProxy->backendFormat());
+#endif
 
         auto saturate = static_cast<GrTextureOp::Saturate>(fSaturate);
         sk_sp<GrGeometryProcessor> gp = GrQuadPerEdgeAA::MakeTexturedProcessor(
                 vertexSpec, *target->caps().shaderCaps(), textureType, samplerState, swizzle,
-                extraSamplerKey, std::move(fTextureColorSpaceXform), saturate);
+                /*extraSamplerKey,*/ std::move(fTextureColorSpaceXform), saturate);
 
         // We'll use a dynamic state array for the GP textures when there are multiple ops.
         // Otherwise, we use fixed dynamic state to specify the single op's proxy.

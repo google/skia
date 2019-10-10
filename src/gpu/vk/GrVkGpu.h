@@ -153,8 +153,10 @@ public:
                     VkDeviceSize dstOffset, VkDeviceSize size);
     bool updateBuffer(GrVkBuffer* buffer, const void* src, VkDeviceSize offset, VkDeviceSize size);
 
+#if 0
     uint32_t getExtraSamplerKeyForProgram(const GrSamplerState&,
                                           const GrBackendFormat& format) override;
+#endif
 
     enum PersistentCacheKeyType : uint32_t {
         kShader_PersistentCacheKeyType = 0,

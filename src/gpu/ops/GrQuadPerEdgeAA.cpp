@@ -698,11 +698,11 @@ public:
     static sk_sp<GrGeometryProcessor> Make(const VertexSpec& vertexSpec, const GrShaderCaps& caps,
                                            GrTextureType textureType,
                                            const GrSamplerState& samplerState,
-                                           const GrSwizzle& swizzle, uint32_t extraSamplerKey,
+                                           const GrSwizzle& swizzle, //uint32_t extraSamplerKey,
                                            sk_sp<GrColorSpaceXform> textureColorSpaceXform,
                                            Saturate saturate) {
         return sk_sp<QuadPerEdgeAAGeometryProcessor>(new QuadPerEdgeAAGeometryProcessor(
-                vertexSpec, caps, textureType, samplerState, swizzle, extraSamplerKey,
+                vertexSpec, caps, textureType, samplerState, swizzle, //extraSamplerKey,
                 std::move(textureColorSpaceXform), saturate));
     }
 
@@ -906,13 +906,13 @@ private:
                                    GrTextureType textureType,
                                    const GrSamplerState& samplerState,
                                    const GrSwizzle& swizzle,
-                                   uint32_t extraSamplerKey,
+//                                   uint32_t extraSamplerKey,
                                    sk_sp<GrColorSpaceXform> textureColorSpaceXform,
                                    Saturate saturate)
             : INHERITED(kQuadPerEdgeAAGeometryProcessor_ClassID)
             , fSaturate(saturate)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
-            , fSampler(textureType, samplerState, swizzle, extraSamplerKey) {
+            , fSampler(textureType, samplerState, swizzle) { //, extraSamplerKey) {
         SkASSERT(spec.hasLocalCoords());
         this->initializeAttrs(spec);
         this->setTextureSamplerCnt(1);
@@ -994,11 +994,11 @@ sk_sp<GrGeometryProcessor> MakeProcessor(const VertexSpec& spec) {
 sk_sp<GrGeometryProcessor> MakeTexturedProcessor(const VertexSpec& spec, const GrShaderCaps& caps,
                                                  GrTextureType textureType,
                                                  const GrSamplerState& samplerState,
-                                                 const GrSwizzle& swizzle, uint32_t extraSamplerKey,
+                                                 const GrSwizzle& swizzle, // uint32_t extraSamplerKey,
                                                  sk_sp<GrColorSpaceXform> textureColorSpaceXform,
                                                  Saturate saturate) {
     return QuadPerEdgeAAGeometryProcessor::Make(spec, caps, textureType, samplerState, swizzle,
-                                                extraSamplerKey, std::move(textureColorSpaceXform),
+                                                /*extraSamplerKey,*/ std::move(textureColorSpaceXform),
                                                 saturate);
 }
 
