@@ -68,6 +68,8 @@ SKOTTIE_WASM_BLACKLIST = [
   'lottiefiles.com - Loading 2.json',
   'streetby_loading.json',
   'streetby_test_loading.json',
+  # Times out
+  'beetle.json',
 ]
 
 # These files work in SVG but not in Canvas.
