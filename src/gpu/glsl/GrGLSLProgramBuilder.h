@@ -45,6 +45,10 @@ public:
     GrProcessor::CustomFeatures processorFeatures() const {
         return fProgramInfo.requestedFeatures();
     }
+    bool snapVerticesToPixelCenters() const {
+        return fProgramInfo.pipeline().snapVerticesToPixelCenters();
+    }
+    bool hasPointSize() const { return fDesc->header().hasPointSize(); }
 
     // TODO: stop passing in the renderTarget for just the sampleLocations
     int effectiveSampleCnt() const {
@@ -56,7 +60,6 @@ public:
     }
 
     const GrProgramDesc* desc() const { return fDesc; }
-    const GrProgramDesc::KeyHeader& header() const { return fDesc->header(); }
 
     void appendUniformDecls(GrShaderFlags visibility, SkString*) const;
 
