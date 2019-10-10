@@ -123,6 +123,7 @@ shared_library("libGLESv2") {
                     angle_root)
     libs += [
       "d3d9.lib",
+      "dxgi.lib",
       "dxguid.lib",
       "gdi32.lib",
       "user32.lib",
