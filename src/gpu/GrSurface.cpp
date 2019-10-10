@@ -15,8 +15,7 @@
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/SkGr.h"
 
-size_t GrSurface::ComputeSize(GrPixelConfig config,
-                              const GrCaps& caps,
+size_t GrSurface::ComputeSize(const GrCaps& caps,
                               const GrBackendFormat& format,
                               int width,
                               int height,
@@ -28,9 +27,10 @@ size_t GrSurface::ComputeSize(GrPixelConfig config,
     width  = binSize ? GrResourceProvider::MakeApprox(width)  : width;
     height = binSize ? GrResourceProvider::MakeApprox(height) : height;
 
-    SkASSERT(kUnknown_GrPixelConfig != config);
-    if (GrPixelConfigIsCompressed(config)) {
-        colorSize = GrCompressedFormatDataSize(config, width, height);
+    // Just setting a defualt value here to appease warnings on uninitialized object.
+    SkImage::CompressionType compressionType = SkImage::kETC1_CompressionType;
+    if (caps.isFormatCompressed(format, &compressionType)) {
+        colorSize = GrCompressedFormatDataSize(compressionType, width, height);
     } else {
         colorSize = (size_t)width * height * caps.bytesPerPixel(format);
     }
