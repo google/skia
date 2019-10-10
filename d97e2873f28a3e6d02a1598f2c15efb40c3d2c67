@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4fde8812_49f41eb4",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-10T19:06:31Z",
+      "side": 1,
+      "message": "Just \"resourceProvider-\u003ecaps()\"? And remove the priv \u0026 gpu includes ?",
+      "range": {
+        "startLine": 278,
+        "startChar": 25,
+        "endLine": 278,
+        "endChar": 64
+      },
+      "revId": "d97e2873f28a3e6d02a1598f2c15efb40c3d2c67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fea503b8_08349601",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-10T19:06:31Z",
+      "side": 1,
+      "message": "wdyt about giving the GrDrawOpAtlas its own copy of the caps in debug mode?",
+      "revId": "d97e2873f28a3e6d02a1598f2c15efb40c3d2c67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8adca3a7_c5a29e22",
+        "filename": "src/gpu/GrSurface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-10T19:06:31Z",
+      "side": 1,
+      "message": "So, we just still need this bc of the compressed stuff ? :(",
+      "range": {
+        "startLine": 18,
+        "startChar": 44,
+        "endLine": 18,
+        "endChar": 50
+      },
+      "revId": "d97e2873f28a3e6d02a1598f2c15efb40c3d2c67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79870038_941cccef",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1366,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-10T19:06:31Z",
+      "side": 1,
+      "message": "Should be add similar guards elsewhere ?",
+      "range": {
+        "startLine": 1364,
+        "startChar": 0,
+        "endLine": 1366,
+        "endChar": 5
+      },
+      "revId": "d97e2873f28a3e6d02a1598f2c15efb40c3d2c67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
