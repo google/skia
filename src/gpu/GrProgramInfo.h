@@ -48,19 +48,6 @@ public:
     const GrPrimitiveProcessor& primProc() const { return fPrimProc; }
     const GrPipeline::FixedDynamicState* fixedDynamicState() const { return fFixedDynamicState; }
 
-    // TODO: can this be removed?
-    const GrTextureProxy* const* primProcProxies() const {
-        const GrTextureProxy* const* primProcProxies = nullptr;
-        if (fDynamicStateArrays && fDynamicStateArrays->fPrimitiveProcessorTextures) {
-            primProcProxies = fDynamicStateArrays->fPrimitiveProcessorTextures;
-        } else if (fFixedDynamicState) {
-            primProcProxies = fFixedDynamicState->fPrimitiveProcessorTextures;
-        }
-
-        SkASSERT(SkToBool(primProcProxies) == SkToBool(fPrimProc.numTextureSamplers()));
-        return primProcProxies;
-    }
-
     bool hasDynamicScissors() const {
         return fPipeline.isScissorEnabled() &&
                fDynamicStateArrays && fDynamicStateArrays->fScissorRects;
