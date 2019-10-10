@@ -606,8 +606,8 @@ static uint32_t seed_vertices(GrPrimitiveType type) {
         case GrPrimitiveType::kLineStrip:
             return 2;
         case GrPrimitiveType::kPath:
-            SkASSERT(0);
-            return 0;
+           SkASSERT(0);
+           return 0;
     }
     SK_ABORT("Incomplete switch\n");
 }
