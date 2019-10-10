@@ -11,7 +11,7 @@
     // Allocate memory in wasm to hold the skp file selected by the user.
     var fileMemPtr = this._malloc(size);
     // Make a typed array view of that memory
-    var fileMem = new Uint8Array(this.buffer, fileMemPtr, size);
+    var fileMem = new Uint8Array(DebuggerView.HEAPU8.buffer, fileMemPtr, size);
     // Copy the file into it
     fileMem.set(fileContents);
     // Hand off pointer to wasm
