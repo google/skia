@@ -228,8 +228,7 @@ describe('CanvasKit\'s Path Behavior', function() {
         }));
     });
 
-    // A bit wrong, check after jlavrova's change lands.
-    xit('can do hit detection on ascii', function(done) {
+    it('can do hit detection on ascii', function(done) {
         Promise.all([LoadCanvasKit, notoSerifFontLoaded]).then(catchException(done, () => {
             const surface = CanvasKit.MakeCanvasSurface('test');
             expect(surface).toBeTruthy('Could not make surface')

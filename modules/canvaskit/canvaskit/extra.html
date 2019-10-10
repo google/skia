@@ -27,7 +27,7 @@
 <canvas id=particles width=500 height=500></canvas>
 
 <h2> Paragraph </h2>
-<canvas id=para1 width=500 height=500></canvas>
+<canvas id=para1 width=600 height=600></canvas>
 
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
@@ -344,15 +344,15 @@ const curves = {
       canvas.drawLine(wrapTo, 0, wrapTo, 400, fontPaint);
 
       let posA = paragraph.getGlyphPositionAtCoordinate(X, Y);
-      canvas.drawText(`At (${X}, ${Y}) glyph is ${posA.pos}`, 5, 450, fontPaint, font);
+      canvas.drawText(`At (${X.toFixed(2)}, ${Y.toFixed(2)}) glyph is ${posA.pos}`, 5, 450, fontPaint, font);
 
       surface.requestAnimationFrame(drawFrame);
     }
     surface.requestAnimationFrame(drawFrame);
 
     let interact = (e) => {
-      X = e.offsetX;
-      Y = e.offsetY;
+      X = e.offsetX*2; // multiply by 2 because the canvas is 300 css pixels wide,
+      Y = e.offsetY*2; // but the canvas itself is 600px wide
     };
 
     document.getElementById('para1').addEventListener('pointermove', interact);
