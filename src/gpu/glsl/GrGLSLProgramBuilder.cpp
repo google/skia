@@ -64,7 +64,16 @@ bool GrGLSLProgramBuilder::emitAndInstallProcs() {
 void GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor,
                                                   SkString* outputCoverage) {
     const GrPrimitiveProcessor& proc = this->primitiveProcessor();
-    const GrTextureProxy* const* primProcProxies = this->primProcProxies();
+
+    // Because all the texture properties must be consistent between all the dynamic and fixed
+    // primProc proxies, we just deal w/ the first set of dynamic proxies or the set of fixed
+    // proxies here.
+    const GrTextureProxy* const* primProcProxies = nullptr;
+    if (fProgramInfo.hasDynamicPrimProcTextures()) {
+        primProcProxies = fProgramInfo.dynamicPrimProcTextures(0);
+    } else if (fProgramInfo.hasFixedPrimProcTextures()) {
+        primProcProxies = fProgramInfo.fixedPrimProcTextures();
+    }
 
     // Program builders have a bit of state we need to clear with each effect
     AutoStageAdvance adv(this);
@@ -99,9 +108,8 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor,
         SkString name;
         name.printf("TextureSampler_%d", i);
         const auto& sampler = proc.textureSampler(i);
-        const GrTexture* texture = primProcProxies[i]->peekTexture();
-        SkASSERT(sampler.textureType() == texture->texturePriv().textureType());
-        texSamplers[i] = this->emitSampler(texture,
+        SkASSERT(sampler.textureType() == primProcProxies[i]->textureType());
+        texSamplers[i] = this->emitSampler(primProcProxies[i],
                                            sampler.samplerState(),
                                            sampler.swizzle(),
                                            name.c_str());
@@ -184,7 +192,7 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
             SkString name;
             name.printf("TextureSampler_%d", samplerIdx++);
             const auto& sampler = subFP->textureSampler(i);
-            texSamplers.emplace_back(this->emitSampler(sampler.peekTexture(),
+            texSamplers.emplace_back(this->emitSampler(sampler.proxy(),
                                                        sampler.samplerState(),
                                                        sampler.swizzle(),
                                                        name.c_str()));
@@ -240,14 +248,13 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
     SamplerHandle dstTextureSamplerHandle;
     GrSurfaceOrigin dstTextureOrigin = kTopLeft_GrSurfaceOrigin;
 
-    if (GrTexture* dstTexture = this->pipeline().peekDstTexture()) {
+    if (GrTextureProxy* dstTextureProxy = this->pipeline().dstTextureProxy()) {
         // GrProcessor::TextureSampler sampler(dstTexture);
-        SkASSERT(this->pipeline().dstTextureProxy());
-        const GrSwizzle& swizzle = this->pipeline().dstTextureProxy()->textureSwizzle();
-        dstTextureSamplerHandle =
-                this->emitSampler(dstTexture, GrSamplerState(), swizzle, "DstTextureSampler");
-        dstTextureOrigin = this->pipeline().dstTextureProxy()->origin();
-        SkASSERT(dstTexture->texturePriv().textureType() != GrTextureType::kExternal);
+        const GrSwizzle& swizzle = dstTextureProxy->textureSwizzle();
+        dstTextureSamplerHandle = this->emitSampler(dstTextureProxy, GrSamplerState(),
+                                                    swizzle, "DstTextureSampler");
+        dstTextureOrigin = dstTextureProxy->origin();
+        SkASSERT(dstTextureProxy->textureType() != GrTextureType::kExternal);
     }
 
     SkString finalInColor = colorIn.size() ? colorIn : SkString("float4(1)");
@@ -271,7 +278,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
     fFS.codeAppend("}");
 }
 
-GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::emitSampler(const GrTexture* texture,
+GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::emitSampler(const GrTextureProxy* texture,
                                                                       const GrSamplerState& state,
                                                                       const GrSwizzle& swizzle,
                                                                       const char* name) {
