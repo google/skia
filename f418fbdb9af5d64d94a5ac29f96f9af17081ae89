@@ -22,6 +22,30 @@
       "revId": "f418fbdb9af5d64d94a5ac29f96f9af17081ae89",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d8949b9_86c2a834",
+        "filename": "src/gpu/vk/GrVkOpsRenderPass.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-10T15:19:59Z",
+      "side": 1,
+      "message": "I\u0027m trying to remove primProcProxies entirely because it is somewhat loosey-goosey/dangerous. I also thought this structure made it clearer what was going on; namely that we still want to call setAndBindTextures even when there are no textures to bind.\n\n(Initially I had revised this to be:\n\nif (programInfo.hasFixedPrimProcTextures()) {\n   pipelineState-\u003esetAndBindTextures(fGpu, programInfo.primProc(), programInfo.pipeline(),\n                                     programInfo.fixedPrimProcTextures(), currentCB);\n}\n\nand was surprised when Vk stopped working)",
+      "parentUuid": "7b5aadf5_442fb2a8",
+      "range": {
+        "startLine": 460,
+        "startChar": 42,
+        "endLine": 460,
+        "endChar": 49
+      },
+      "revId": "f418fbdb9af5d64d94a5ac29f96f9af17081ae89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
