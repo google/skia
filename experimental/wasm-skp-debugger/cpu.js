@@ -60,7 +60,7 @@
         // Do we have an HTML canvas to write the pixels to?
         // We will not if this a GPU build or a raster surface, for example.
         if (this._canvas) {
-          var pixels = new Uint8ClampedArray(DebuggerView.buffer, this._pixelPtr, this._bufferLen);
+          var pixels = new Uint8ClampedArray(DebuggerView.HEAPU8.buffer, this._pixelPtr, this._bufferLen);
           var imageData = new ImageData(pixels, this._width, this._height);
           this._canvas.getContext('2d').putImageData(imageData, 0, 0);
         }
