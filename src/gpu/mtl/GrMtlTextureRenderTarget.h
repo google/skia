@@ -77,8 +77,9 @@ private:
         if (numColorSamples > 1) {
             ++numColorSamples;
         }
-        return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
-                                      numColorSamples, GrMipMapped::kNo);
+        const GrCaps& caps = *this->getGpu()->caps();
+        return GrSurface::ComputeSize(this->config(), caps, this->backendFormat(), this->width(),
+                                      this->height(), numColorSamples, GrMipMapped::kNo);
     }
 };
 
