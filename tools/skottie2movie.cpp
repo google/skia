@@ -11,14 +11,13 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTime.h"
+#include "include/private/SkMutex.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/utils/SkottieUtils.h"
+#include "src/core/SkTaskGroup.h"
 #include "src/utils/SkOSPath.h"
 
 #include "tools/flags/CommandLineFlags.h"
-#include "tools/gpu/GrContextFactory.h"
-
-#include "include/gpu/GrContextOptions.h"
 
 static DEFINE_string2(input, i, "", "skottie animation to render");
 static DEFINE_string2(output, o, "", "mp4 file to create");
@@ -27,21 +26,132 @@ static DEFINE_int_2(fps, f, 25, "fps");
 static DEFINE_bool2(verbose, v, false, "verbose mode");
 static DEFINE_bool2(loop, l, false, "loop mode for profiling");
 static DEFINE_int(set_dst_width, 0, "set destination width (height will be computed)");
-static DEFINE_bool2(gpu, g, false, "use GPU for rendering");
+static DEFINE_int(threads,  0, "Number of worker threads (0 -> cores count).");
+static DEFINE_bool2(skipEncoder, s, false, "Skip calling the encoder");
 
-static void produce_frame(SkSurface* surf, skottie::Animation* anim, double frame_time) {
-    anim->seekFrameTime(frame_time);
-    surf->getCanvas()->clear(SK_ColorWHITE);
-    anim->render(surf->getCanvas());
+extern bool gSkUseThreadLocalStrikeCaches_IAcknowledgeThisIsIncrediblyExperimental;
+
+struct RenderedFrame {
+    SkImage*    fImage;
+    int         fFrameIndex;
+
+    bool operator<(const RenderedFrame& other) const {
+        return fFrameIndex < other.fFrameIndex;
+    }
+};
+
+struct SurfacePool {
+    std::atomic<int>        fAtomicIndex;
+    const int               fFrameCount;
+
+    SurfacePool(int frameCount) : fAtomicIndex(1), fFrameCount(frameCount) {}
+
+    int nextFrameToRender() {
+        int index = fAtomicIndex.fetch_add(+1, std::memory_order_relaxed) + 1;
+        if (index >= fFrameCount) {
+            index = -1;
+        }
+        return index;
+    }
+};
+
+template <typename T> void binsert(SkTDArray<T>* array, const T& value) {
+    T* pos = std::lower_bound(array->begin(), array->end(), value);
+    *array->insert(pos - array->begin()) = value;
 }
 
-struct AsyncRec {
-    SkImageInfo info;
-    SkVideoEncoder* encoder;
+struct RenderedFrameQue {
+    SkMutex fMutex;
+    SkTDArray<RenderedFrame> fFrames;
+    SkVideoEncoder*          fEncoder;
+    SurfacePool*             fSurfacePool;
+    int                      fNextFrameIndexToEncode = 0;   // monotonic increasing
+
+    RenderedFrameQue(SkVideoEncoder* encoder, SurfacePool* pool)
+        : fEncoder(encoder), fSurfacePool(pool)
+    {}
+
+    void enque(SkImage* inputImage, int frameIndex) {
+        bool need_insert = true;
+
+        SkImage* image;
+        do {
+            image = nullptr;
+            {
+                SkAutoMutexExclusive ame(fMutex);
+                if (need_insert) {
+                    binsert(&fFrames, { inputImage, frameIndex });
+                    need_insert = false;
+                }
+                if (fFrames.count() > 0 && fFrames[0].fFrameIndex == fNextFrameIndexToEncode) {
+                    image = fFrames[0].fImage;
+                    fFrames.remove(0);
+                    // don't modify fNextFrameIndexToEncode yet
+                }
+            }
+
+            if (image) {
+                SkPixmap pm;
+                image->peekPixels(&pm);
+                if (!FLAGS_skipEncoder) {
+                    fEncoder->addFrame(pm);
+                }
+                image->unref();
+
+                {
+                    SkAutoMutexExclusive ame(fMutex);
+                    fNextFrameIndexToEncode += 1;
+                }
+            }
+        } while (image);
+    }
 };
+
+static sk_sp<SkData> make_the_movie(SkISize dim, int fps, sk_sp<skottie::ResourceProvider> rp,
+                                    sk_sp<SkData> inputData, int frame_count, float scale) {
+    const int worker_count = FLAGS_threads ? FLAGS_threads : 1;
+
+    auto info = SkImageInfo::MakeN32Premul(dim);
+    SkVideoEncoder encoder;
+    encoder.beginRecording(dim, fps);
+
+    SurfacePool provider(frame_count);
+
+    RenderedFrameQue receiver(&encoder, &provider);
+
+    // Fire up our workers, each of which loops until we're done
+
+    SkTaskGroup::Enabler enabler(FLAGS_threads - 1);
+    SkTaskGroup{}.batch(worker_count, [&](int worker_index) {
+        auto surf = SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(dim.width(), dim.height()));
+        SkCanvas* canvas = surf->getCanvas();
+        auto anim = skottie::Animation::Builder()
+                            .setResourceProvider(rp)
+                            .make(static_cast<const char*>(inputData->data()), inputData->size());
+
+        int work_counter = 0;
+        for (int frameIndex = worker_index; frameIndex < frame_count; frameIndex += worker_count) {
+            double normal_time = frameIndex * 1.0 / (frame_count - 1);
+
+            anim->seek(normal_time);
+            SkAutoCanvasRestore acr(canvas, true);
+            canvas->scale(scale, scale);
+            canvas->clear(SK_ColorWHITE);
+            anim->render(canvas);
+            receiver.enque(surf->makeImageSnapshot().release(), frameIndex);
+            work_counter += 1;
+        }
+        if (FLAGS_verbose) {
+            SkDebugf("[%d] work counter %d\n", worker_index, work_counter);
+        }
+    });
+
+    return encoder.endRecording();
+}
 
 int main(int argc, char** argv) {
     SkGraphics::Init();
+    gSkUseThreadLocalStrikeCaches_IAcknowledgeThisIsIncrediblyExperimental = true;
 
     CommandLineFlags::SetUsage("Converts skottie to a mp4");
     CommandLineFlags::Parse(argc, argv);
@@ -51,10 +161,6 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    auto contextType = sk_gpu_test::GrContextFactory::kGL_ContextType;
-    GrContextOptions grCtxOptions;
-    sk_gpu_test::GrContextFactory factory(grCtxOptions);
-
     SkString assetPath;
     if (FLAGS_assetPath.count() > 0) {
         assetPath.set(FLAGS_assetPath[0]);
@@ -63,16 +169,26 @@ int main(int argc, char** argv) {
     }
     SkDebugf("assetPath %s\n", assetPath.c_str());
 
-    auto animation = skottie::Animation::Builder()
-        .setResourceProvider(skottie_utils::FileResourceProvider::Make(assetPath))
-        .makeFromFile(FLAGS_input[0]);
-    if (!animation) {
-        SkDebugf("failed to load %s\n", FLAGS_input[0]);
-        return -1;
+    auto rp = skottie_utils::CachingResourceProvider::Make(
+                  skottie_utils::FileResourceProvider::Make(SkOSPath::Dirname(FLAGS_input[0]),
+                  /*predecode=*/true));
+    auto inputData = SkData::MakeFromFileName(FLAGS_input[0]);
+
+    if (!inputData) {
+        SkDebugf("Could not load %s.\n", FLAGS_input[0]);
+        return 1;
     }
 
-    SkISize dim = animation->size().toRound();
-    double duration = animation->duration();
+    SkISize dim;
+    double duration;
+    {
+        auto anim = skottie::Animation::Builder()
+                            .setResourceProvider(rp)
+                            .make(static_cast<const char*>(inputData->data()), inputData->size());
+        dim = anim->size().toRound();
+        duration = anim->duration();
+    }
+
     int fps = FLAGS_fps;
     if (fps < 1) {
         fps = 1;
@@ -86,80 +202,23 @@ int main(int argc, char** argv) {
         dim = { FLAGS_set_dst_width, SkScalarRoundToInt(scale * dim.height()) };
     }
 
-    const int frames = SkScalarRoundToInt(duration * fps);
-    const double frame_duration = 1.0 / fps;
+    const int frame_count = SkScalarRoundToInt(duration * fps);
 
     if (FLAGS_verbose) {
-        SkDebugf("Size %dx%d duration %g, fps %d, frame_duration %g\n",
-                 dim.width(), dim.height(), duration, fps, frame_duration);
+        SkDebugf("Size %dx%d duration %g, fps %d\n",
+                 dim.width(), dim.height(), duration, fps);
     }
 
-    SkVideoEncoder encoder;
-
-    GrContext* context = nullptr;
-    sk_sp<SkSurface> surf;
-    sk_sp<SkData> data;
-
-    const auto info = SkImageInfo::MakeN32Premul(dim);
+    sk_sp<SkData> outData;
     do {
         double loop_start = SkTime::GetSecs();
 
-        if (!encoder.beginRecording(dim, fps)) {
-            SkDEBUGF("Invalid video stream configuration.\n");
-            return -1;
-        }
-
-        // lazily allocate the surfaces
-        if (!surf) {
-            if (FLAGS_gpu) {
-                context = factory.getContextInfo(contextType).grContext();
-                surf = SkSurface::MakeRenderTarget(context,
-                                                   SkBudgeted::kNo,
-                                                   info,
-                                                   0,
-                                                   GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
-                                                   nullptr);
-                if (!surf) {
-                    context = nullptr;
-                }
-            }
-            if (!surf) {
-                surf = SkSurface::MakeRaster(info);
-            }
-            surf->getCanvas()->scale(scale, scale);
-        }
-
-        for (int i = 0; i <= frames; ++i) {
-            double ts = i * 1.0 / fps;
-            if (FLAGS_verbose) {
-                SkDebugf("rendering frame %d ts %g\n", i, ts);
-            }
-
-            double normal_time = i * 1.0 / frames;
-            double frame_time = normal_time * duration;
-
-            produce_frame(surf.get(), animation.get(), frame_time);
-
-            AsyncRec asyncRec = { info, &encoder };
-            if (context) {
-                surf->asyncRescaleAndReadPixels(info, {0, 0, info.width(), info.height()},
-                                                SkSurface::RescaleGamma::kSrc, kNone_SkFilterQuality,
-                                                [](void* ctx, const void* data, size_t rb) {
-                    AsyncRec* rec = (AsyncRec*)ctx;
-                    rec->encoder->addFrame({rec->info, data, rb});
-                }, &asyncRec);
-            } else {
-                SkPixmap pm;
-                SkAssertResult(surf->peekPixels(&pm));
-                encoder.addFrame(pm);
-            }
-        }
-        data = encoder.endRecording();
+        outData = make_the_movie(dim, fps, rp, inputData, frame_count, scale);
 
         if (FLAGS_loop) {
             double loop_dur = SkTime::GetSecs() - loop_start;
             SkDebugf("recording secs %g, frames %d, recording fps %d\n",
-                     loop_dur, frames, (int)(frames / loop_dur));
+                     loop_dur, frame_count, (int)(frame_count / loop_dur));
         }
     } while (FLAGS_loop);
 
@@ -173,6 +232,6 @@ int main(int argc, char** argv) {
         SkDebugf("Can't create output file %s\n", FLAGS_output[0]);
         return -1;
     }
-    ostream.write(data->data(), data->size());
+    ostream.write(outData->data(), outData->size());
     return 0;
 }
