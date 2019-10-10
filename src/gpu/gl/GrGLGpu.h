@@ -274,7 +274,7 @@ private:
     // willDrawPoints must be true if point primitives will be rendered after setting the GL state.
     // If DynamicStateArrays is not null then dynamicStateArraysLength is the number of dynamic
     // state entries in each array.
-    bool flushGLState(GrRenderTarget*, const GrProgramInfo&, bool willDrawPoints);
+    bool flushGLState(GrRenderTarget*, const GrProgramInfo&, GrPrimitiveType);
 
     void flushProgram(sk_sp<GrGLProgram>);
 
@@ -312,7 +312,7 @@ private:
 
         void abandon();
         void reset();
-        GrGLProgram* refProgram(GrGLGpu*, GrRenderTarget*, const GrProgramInfo&, bool hasPointSize);
+        GrGLProgram* refProgram(GrGLGpu*, GrRenderTarget*, const GrProgramInfo&, GrPrimitiveType);
         bool precompileShader(const SkData& key, const SkData& data);
 
     private:

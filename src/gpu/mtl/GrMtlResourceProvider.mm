@@ -40,8 +40,8 @@ GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
 GrMtlPipelineState* GrMtlResourceProvider::findOrCreateCompatiblePipelineState(
         GrRenderTarget* renderTarget,
         const GrProgramInfo& programInfo,
-        GrPrimitiveType primType) {
-    return fPipelineStateCache->refPipelineState(renderTarget, programInfo, primType);
+        GrPrimitiveType primitiveType) {
+    return fPipelineStateCache->refPipelineState(renderTarget, programInfo, primitiveType);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

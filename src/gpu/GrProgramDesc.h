@@ -26,16 +26,16 @@ public:
 
     /**
     * Builds a program descriptor. Before the descriptor can be used, the client must call finalize
-    * on the returned GrProgramDesc.
+    * on the filled in GrProgramDesc.
     *
-    * @param desc         The built and finalized descriptor
-    * @param renderTarget The target of the draw
-    * @param programInfo  Program information need to build the key
-    * @param hasPointSize Controls whether the shader will output a point size.
-    * @param gpu          Pointer to the GrGpu object the program will be used with.
+    * @param desc          The built and finalized descriptor
+    * @param renderTarget  The target of the draw
+    * @param programInfo   Program information need to build the key
+    * @param primitiveType Controls whether the shader will output a point size.
+    * @param gpu           Pointer to the GrGpu object the program will be used with.
     **/
     static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrProgramInfo&,
-                      bool hasPointSize, GrGpu*);
+                      GrPrimitiveType, GrGpu*);
 
     static bool BuildFromData(GrProgramDesc* desc, const void* keyData, size_t keyLength) {
         if (!SkTFitsIn<int>(keyLength)) {
@@ -86,6 +86,8 @@ public:
     }
 
     struct KeyHeader {
+        bool hasPointSize() const { return fHasPointSize; }
+
         // Set to uniquely idenitify any swizzling of the shader's output color(s).
         uint16_t fOutputSwizzle;
         uint8_t fColorFragmentProcessorCnt; // Can be packed into 4 bits if required.

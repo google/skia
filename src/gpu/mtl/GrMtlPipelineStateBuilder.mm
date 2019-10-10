@@ -449,8 +449,7 @@ bool GrMtlPipelineStateBuilder::Desc::Build(Desc* desc,
                                             const GrProgramInfo& programInfo,
                                             GrPrimitiveType primitiveType,
                                             GrMtlGpu* gpu) {
-    if (!GrProgramDesc::Build(desc, renderTarget, programInfo,
-                              GrPrimitiveType::kPoints == primitiveType, gpu)) {
+    if (!GrProgramDesc::Build(desc, renderTarget, programInfo, primitiveType, gpu)) {
         return false;
     }
 
