@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8fb0a824_09a970e9",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-10-10T16:17:56Z",
+      "side": 1,
+      "message": "alternatively, ditch Enabler and use MakeFIFOThreadPool?",
+      "range": {
+        "startLine": 317,
+        "startChar": 0,
+        "endLine": 319,
+        "endChar": 32
+      },
+      "revId": "0df41a06cef5b6ba1a5960a8a370f7a0ac2954dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a578464d_ea6bb9f3",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-10-10T16:17:56Z",
+      "side": 1,
+      "message": "is this really needed? we should have consumed all frames at this point \u003d\u003e all threads are done?",
+      "range": {
+        "startLine": 379,
+        "startChar": 4,
+        "endLine": 379,
+        "endChar": 14
+      },
+      "revId": "0df41a06cef5b6ba1a5960a8a370f7a0ac2954dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
