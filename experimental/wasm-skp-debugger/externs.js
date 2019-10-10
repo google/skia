@@ -46,6 +46,11 @@ var DebuggerView = {
 		jsonCommandList: function() {},
 		lastCommandInfo: function() {},
 	},
+
+	/**
+	 * @type {Uint8Array}
+	 */
+	HEAPU8: {},
 };
 
 // Public API things that are newly declared in the JS should go here.
