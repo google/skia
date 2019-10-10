@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b1c648cb_716c61d2",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-10T16:28:44Z",
+      "side": 1,
+      "message": "Yeah, I thought about that, or making Enabler have a `bool fifo\u003dfalse` parameter, but the LIFO thread pool really is a bit better for performance, and it\u0027s so easy to swap the order here.\n\nAlso, kind of annoying to have to redo all the logic keeping a trival executor when threads \u003d\u003d 1, that sort of thing.",
+      "parentUuid": "8fb0a824_09a970e9",
+      "range": {
+        "startLine": 317,
+        "startChar": 0,
+        "endLine": 319,
+        "endChar": 32
+      },
+      "revId": "0df41a06cef5b6ba1a5960a8a370f7a0ac2954dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a578464d_ea6bb9f3",
         "filename": "modules/skottie/src/SkottieTool.cpp",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2019-10-10T16:17:56Z",
       "side": 1,
       "message": "is this really needed? we should have consumed all frames at this point \u003d\u003e all threads are done?",
+      "range": {
+        "startLine": 379,
+        "startChar": 4,
+        "endLine": 379,
+        "endChar": 14
+      },
+      "revId": "0df41a06cef5b6ba1a5960a8a370f7a0ac2954dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "642d2d5d_05ba17dd",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-10T16:28:44Z",
+      "side": 1,
+      "message": "Yeah, still needed.  We\u0027re not always making .mp4s.",
+      "parentUuid": "a578464d_ea6bb9f3",
       "range": {
         "startLine": 379,
         "startChar": 4,
