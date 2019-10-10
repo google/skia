@@ -31,8 +31,9 @@ void GrTexture::markMipMapsClean() {
 }
 
 size_t GrTexture::onGpuMemorySize() const {
-    return GrSurface::ComputeSize(this->config(), this->width(), this->height(), 1,
-                                  this->texturePriv().mipMapped());
+    const GrCaps& caps = *this->getGpu()->caps();
+    return GrSurface::ComputeSize(this->config(), caps, this->backendFormat(), this->width(),
+                                  this->height(), 1, this->texturePriv().mipMapped());
 }
 
 /////////////////////////////////////////////////////////////////////////////
