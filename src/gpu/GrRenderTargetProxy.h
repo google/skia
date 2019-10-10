@@ -151,7 +151,7 @@ private:
     }
     bool canChangeStencilAttachment() const;
 
-    size_t onUninstantiatedGpuMemorySize() const override;
+    size_t onUninstantiatedGpuMemorySize(const GrCaps&) const override;
     SkDEBUGCODE(void onValidateSurface(const GrSurface*) override;)
 
     // WARNING: Be careful when adding or removing fields here. ASAN is likely to trigger warnings

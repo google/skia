@@ -193,6 +193,10 @@ public:
     // For historical reasons requestedCount==0 is handled identically to requestedCount==1.
     virtual int getRenderTargetSampleCount(int requestedCount, const GrBackendFormat&) const = 0;
 
+    // Returns the number of bytes per pixel for the given GrBackendFormat. This is only supported
+    // for "normal" formats. For compressed formats this will return 0.
+    virtual size_t bytesPerPixel(const GrBackendFormat&) const = 0;
+
     /**
      * Backends may have restrictions on what types of surfaces support GrGpu::writePixels().
      * If this returns false then the caller should implement a fallback where a temporary texture
