@@ -756,7 +756,7 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
                               *pipeline,
                               *proc,
                               fixedDynamicState,
-                              nullptr);
+                              nullptr, 0);
 
     GrMesh* mesh = flushState->allocator()->make<GrMesh>(GrPrimitiveType::kTriangles);
     mesh->setIndexedInstanced(
