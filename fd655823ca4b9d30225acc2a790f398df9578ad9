@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "02bd08a3_be99b876",
+        "filename": "modules/canvaskit/canvaskit/extra.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-10-10T17:20:26Z",
+      "side": 1,
+      "message": "That strange behavior I was showing you was because I was not converting the coordinates correctly.",
+      "revId": "fd655823ca4b9d30225acc2a790f398df9578ad9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
