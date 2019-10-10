@@ -3922,6 +3922,15 @@ int GrGLCaps::maxRenderTargetSampleCount(GrGLFormat format) const {
     return count;
 }
 
+size_t GrGLCaps::bytesPerPixel(GrGLFormat format) const {
+    return this->getFormatInfo(format).fBytesPerPixel;
+}
+
+size_t GrGLCaps::bytesPerPixel(const GrBackendFormat& format) const {
+    auto glFormat = format.asGLFormat();
+    return this->bytesPerPixel(glFormat);
+}
+
 bool GrGLCaps::canFormatBeFBOColorAttachment(GrGLFormat format) const {
     return SkToBool(this->getFormatInfo(format).fFlags & FormatInfo::kFBOColorAttachment_Flag);
 }
