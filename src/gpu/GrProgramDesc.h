@@ -86,7 +86,12 @@ public:
     }
 
     struct KeyHeader {
-        // Set to uniquely idenitify any swizzling of the shader's output color(s).
+        bool hasPointSize() const { return fHasPointSize; }
+
+    private:
+        friend class GrProgramDesc;
+
+        // Set to uniquely identify any swizzling of the shader's output color(s).
         uint16_t fOutputSwizzle;
         uint8_t fColorFragmentProcessorCnt; // Can be packed into 4 bits if required.
         uint8_t fCoverageFragmentProcessorCnt;
