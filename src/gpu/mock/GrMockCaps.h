@@ -46,7 +46,8 @@ public:
     }
 
     // Mock caps doesn't support any compressed formats right now
-    bool isFormatCompressed(const GrBackendFormat&) const override {
+    bool isFormatCompressed(const GrBackendFormat&,
+                            SkImage::CompressionType* compressionType = nullptr) const override {
         return false;
     }
 
