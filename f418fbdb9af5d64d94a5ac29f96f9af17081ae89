@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b5aadf5_442fb2a8",
+        "filename": "src/gpu/vk/GrVkOpsRenderPass.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-10T14:59:40Z",
+      "side": 1,
+      "message": "why this change? Was primProcProxies() wrong before or is this equivalent?",
+      "range": {
+        "startLine": 460,
+        "startChar": 42,
+        "endLine": 460,
+        "endChar": 49
+      },
+      "revId": "f418fbdb9af5d64d94a5ac29f96f9af17081ae89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
