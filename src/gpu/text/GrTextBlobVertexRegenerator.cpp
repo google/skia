@@ -184,9 +184,10 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
                        fCurrGlyph * kVerticesPerGlyph * vertexStride;
     result->fFirstVertex = currVertex;
 
-    for (int glyphIdx = fCurrGlyph; glyphIdx < (int)fSubRun->glyphCount(); glyphIdx++) {
-        GrGlyph* glyph = nullptr;
-        if (regenTexCoords) {
+    if (regenTexCoords) {
+        for (int glyphIdx = fCurrGlyph; glyphIdx < (int)fSubRun->glyphCount(); glyphIdx++) {
+            GrGlyph* glyph = nullptr;
+
             size_t glyphOffset = glyphIdx + fSubRun->glyphStartIndex();
 
             if (regenGlyphs) {
@@ -202,14 +203,13 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
             if (!fFullAtlasManager->hasGlyph(glyph)) {
                 GrDrawOpAtlas::ErrorCode code;
                 code = strike->addGlyphToAtlas(fResourceProvider, fUploadTarget, fGlyphCache,
-                                              fFullAtlasManager, glyph,
-                                              fLazyStrike->get(), fSubRun->maskFormat(),
-                                              fSubRun->needsTransform());
+                                               fFullAtlasManager, glyph,
+                                               fLazyStrike->get(), fSubRun->maskFormat(),
+                                               fSubRun->needsTransform());
                 if (GrDrawOpAtlas::ErrorCode::kError == code) {
                     // Something horrible has happened - drop the op
                     return false;
-                }
-                else if (GrDrawOpAtlas::ErrorCode::kTryAgain == code) {
+                } else if (GrDrawOpAtlas::ErrorCode::kTryAgain == code) {
                     fBrokenRun = glyphIdx > 0;
                     result->fFinished = false;
                     return true;
@@ -218,7 +218,15 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
             auto tokenTracker = fUploadTarget->tokenTracker();
             fFullAtlasManager->addGlyphToBulkAndSetUseToken(fSubRun->bulkUseToken(), glyph,
                                                             tokenTracker->nextDrawToken());
+            regen_texcoords(currVertex, vertexStride, glyph, fSubRun->drawAsDistanceFields());
+            currVertex += vertexStride * GrAtlasTextOp::kVerticesPerGlyph;
+            ++result->fGlyphsRegenerated;
+            ++fCurrGlyph;
         }
+    }
+    currVertex = fBlob->fVertices + fSubRun->vertexStartIndex() +
+                       fCurrGlyph * kVerticesPerGlyph * vertexStride;
+    for (int glyphIdx = fCurrGlyph; glyphIdx < (int)fSubRun->glyphCount(); glyphIdx++) {
 
         if (regenPos) {
             regen_positions(currVertex, vertexStride, fTransX, fTransY);
@@ -226,13 +234,7 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
         if (regenCol) {
             regen_colors(currVertex, vertexStride, fColor);
         }
-        if (regenTexCoords) {
-            regen_texcoords(currVertex, vertexStride, glyph, fSubRun->drawAsDistanceFields());
-        }
-
         currVertex += vertexStride * GrAtlasTextOp::kVerticesPerGlyph;
-        ++result->fGlyphsRegenerated;
-        ++fCurrGlyph;
     }
 
     // We may have changed the color so update it here
