@@ -45,6 +45,9 @@ public:
     GrProcessor::CustomFeatures processorFeatures() const {
         return fProgramInfo.requestedFeatures();
     }
+    bool snapVerticesToPixelCenters() const {
+        return fProgramInfo.pipeline().snapVerticesToPixelCenters();
+    }
 
     // TODO: stop passing in the renderTarget for just the sampleLocations
     int effectiveSampleCnt() const {
