@@ -11,7 +11,6 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/encode/SkPngEncoder.h"
-#include "include/private/SkSpinlock.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "src/core/SkMakeUnique.h"
@@ -22,6 +21,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <future>
 #include <numeric>
 #include <vector>
 
@@ -173,7 +173,7 @@ private:
     const sk_sp<SkSurface> fSurface;
 };
 
-static std::vector<sk_sp<SkImage>> gMP4Frames;
+static std::vector<std::promise<sk_sp<SkImage>>> gMP4Frames;
 
 struct MP4Sink final : public Sink {
     explicit MP4Sink(const SkMatrix& scale_matrix)
@@ -188,8 +188,11 @@ struct MP4Sink final : public Sink {
     }
 
     bool endFrame(size_t i) override {
-        gMP4Frames[i] = fSurface->makeImageSnapshot();
-        return SkToBool(gMP4Frames[i]);
+        if (sk_sp<SkImage> img = fSurface->makeImageSnapshot()) {
+            gMP4Frames[i].set_value(std::move(img));
+            return true;
+        }
+        return false;
     }
 
     const sk_sp<SkSurface> fSurface;
@@ -300,12 +303,21 @@ int main(int argc, char** argv) {
         gMP4Frames.resize(frame_count);
     }
 
-    SkSpinlock lock;
-    std::vector<double> frames_ms;
-    frames_ms.reserve(frame_count);
+    std::vector<double> frames_ms(frame_count);
+
+    auto ms_since = [](auto start) {
+        const auto elapsed = std::chrono::steady_clock::now() - start;
+        return std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
+    };
 
     SkTaskGroup::Enabler enabler(FLAGS_threads - 1);
-    SkTaskGroup{}.batch(frame_count, [&](int i) {
+
+    SkTaskGroup tg;
+    tg.batch(frame_count, [&](int i) {
+        // SkTaskGroup::Enabler creates a LIFO work pool,
+        // but we want our early frames to start first.
+        i = frame_count - 1 - i;
+
         const auto start = std::chrono::steady_clock::now();
 #if defined(SK_BUILD_FOR_IOS)
         // iOS doesn't support thread_local on versions less than 9.0.
@@ -328,17 +340,8 @@ int main(int argc, char** argv) {
             sink->endFrame(i);
         }
 
-        const auto elapsed = std::chrono::steady_clock::now() - start;
-        double ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
-        lock.acquire();
-            frames_ms.push_back(ms);
-        lock.release();
+        frames_ms[i] = ms_since(start);
     });
-
-    std::sort(frames_ms.begin(), frames_ms.end());
-    double sum = std::accumulate(frames_ms.begin(), frames_ms.end(), 0);
-    SkDebugf("frame time min %gms, med %gms, avg %gms, max %gms, sum %gms\n",
-             frames_ms[0], frames_ms[frame_count/2], sum/frame_count, frames_ms.back(), sum);
 
 #if defined(HAVE_VIDEO_ENCODER)
     if (FLAGS_format.contains("mp4")) {
@@ -347,16 +350,37 @@ int main(int argc, char** argv) {
             SkDEBUGF("Invalid video stream configuration.\n");
             return -1;
         }
-        for (const auto& frame : gMP4Frames) {
+
+        std::vector<double> starved_ms;
+        for (std::promise<sk_sp<SkImage>>& frame : gMP4Frames) {
+            const auto start = std::chrono::steady_clock::now();
+            sk_sp<SkImage> img = frame.get_future().get();
+            starved_ms.push_back(ms_since(start));
+
             SkPixmap pm;
-            SkAssertResult(frame->peekPixels(&pm));
+            SkAssertResult(img->peekPixels(&pm));
             enc.addFrame(pm);
         }
         sk_sp<SkData> mp4 = enc.endRecording();
 
         SkFILEWStream{FLAGS_writePath[0]}
             .write(mp4->data(), mp4->size());
+
+        // If everything's going well, the first frame should account for the most,
+        // and ideally nearly all, starvation.
+        double first = starved_ms[0];
+        std::sort(starved_ms.begin(), starved_ms.end());
+        double sum = std::accumulate(starved_ms.begin(), starved_ms.end(), 0);
+        SkDebugf("starved min %gms, med %gms, avg %gms, max %gms, sum %gms, first %gms (%s)\n",
+                 starved_ms[0], starved_ms[frame_count/2], sum/frame_count, starved_ms.back(), sum,
+                 first, first == starved_ms.back() ? "ok" : "BAD");
     }
 #endif
+    tg.wait();
+
+    std::sort(frames_ms.begin(), frames_ms.end());
+    double sum = std::accumulate(frames_ms.begin(), frames_ms.end(), 0);
+    SkDebugf("frame time min %gms, med %gms, avg %gms, max %gms, sum %gms\n",
+             frames_ms[0], frames_ms[frame_count/2], sum/frame_count, frames_ms.back(), sum);
     return 0;
 }
