@@ -42,6 +42,48 @@
     },
     {
       "key": {
+        "uuid": "3e1d18f3_6a31a024",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-10T19:30:59Z",
+      "side": 1,
+      "message": "I would be a pain since we would also need to wrap all callers of the factory in debug code to pass in the caps. Going to leave this as is.",
+      "parentUuid": "fea503b8_08349601",
+      "revId": "d97e2873f28a3e6d02a1598f2c15efb40c3d2c67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30d48f08_556e7d32",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-10T19:30:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4fde8812_49f41eb4",
+      "range": {
+        "startLine": 278,
+        "startChar": 25,
+        "endLine": 278,
+        "endChar": 64
+      },
+      "revId": "d97e2873f28a3e6d02a1598f2c15efb40c3d2c67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8adca3a7_c5a29e22",
         "filename": "src/gpu/GrSurface.cpp",
         "patchSetId": 2
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "0995614c_dabfc41c",
+        "filename": "src/gpu/GrSurface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-10T19:30:59Z",
+      "side": 1,
+      "message": "Yup, but the compressed stuff is getting removed/fixed in follow on CL.",
+      "parentUuid": "8adca3a7_c5a29e22",
+      "range": {
+        "startLine": 18,
+        "startChar": 44,
+        "endLine": 18,
+        "endChar": 50
+      },
+      "revId": "d97e2873f28a3e6d02a1598f2c15efb40c3d2c67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "79870038_941cccef",
         "filename": "src/gpu/vk/GrVkCaps.cpp",
         "patchSetId": 2
@@ -76,6 +142,30 @@
       "writtenOn": "2019-10-10T19:06:31Z",
       "side": 1,
       "message": "Should be add similar guards elsewhere ?",
+      "range": {
+        "startLine": 1364,
+        "startChar": 0,
+        "endLine": 1366,
+        "endChar": 5
+      },
+      "revId": "d97e2873f28a3e6d02a1598f2c15efb40c3d2c67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9d1cf50_87aaed2a",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1366,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-10T19:30:59Z",
+      "side": 1,
+      "message": "Only vulkan\u0027s as*Format method returns a bool since we can\u0027t branch off of the returned VkFormat. The other backends have a format which we can use a failure.",
+      "parentUuid": "79870038_941cccef",
       "range": {
         "startLine": 1364,
         "startChar": 0,
