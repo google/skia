@@ -19515,7 +19515,7 @@
         "-repository",
         "https://chromium.googlesource.com/chromium/tools/build",
         "-revision",
-        "HEAD"
+        "617e0fd3186eaae8bcb7521def0d6d3b4a5bcaf1"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
