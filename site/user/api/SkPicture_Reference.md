@@ -117,7 +117,7 @@ true to stop playback
 
 ### Example
 
-<div><fiddle-embed name="56ed920dadbf2b2967ac45fb5a9bded6"><div>JustOneDraw allows the black rectangle to draw but stops playback before the
+<div><fiddle-embed name="@Picture_AbortCallback_abort"><div>JustOneDraw allows the black rectangle to draw but stops playback before the
 white rectangle appears.
 </div></fiddle-embed></div>
 
@@ -154,7 +154,7 @@ is called with a pointer to <a href='undocumented#Data'>data</a>, <a href='undoc
 
 ### Example
 
-<div><fiddle-embed name="404fb42560a289c2004cad1caf3b96de"></fiddle-embed></div>
+<div><fiddle-embed name="@Picture_MakeFromStream"></fiddle-embed></div>
 
 ### See Also
 
@@ -193,7 +193,7 @@ is called with a pointer to <a href='#SkPicture_MakeFromData_data'>data</a>, <a 
 
 ### Example
 
-<div><fiddle-embed name="58b44bf47d8816782066618700afdecb"></fiddle-embed></div>
+<div><fiddle-embed name="@Picture_MakeFromData"></fiddle-embed></div>
 
 ### See Also
 
@@ -227,7 +227,7 @@ static <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkPicture_Reference#Sk
 
 ### Example
 
-<div><fiddle-embed name="30b9f1b310187db6aff720a5d67591e2"></fiddle-embed></div>
+<div><fiddle-embed name="@Picture_008"></fiddle-embed></div>
 
 ### See Also
 
@@ -259,7 +259,7 @@ To add a single command to draw <a href='SkPicture_Reference#SkPicture'>SkPictur
 
 ### Example
 
-<div><fiddle-embed name="6b0ffb03ba05f526b345dc65a1c73fe4"></fiddle-embed></div>
+<div><fiddle-embed name="@Picture_playback"></fiddle-embed></div>
 
 ### See Also
 
@@ -286,7 +286,7 @@ bounds passed when <a href='SkPicture_Reference#SkPicture'>SkPicture</a> was cre
 
 ### Example
 
-<div><fiddle-embed name="15bb9a9596b40c5e2045f76e8c1dcf8e"><div><a href='SkPicture_Reference#Picture'>Picture</a> recorded bounds are smaller than contents; contents outside recorded
+<div><fiddle-embed name="@Picture_cullRect"><div><a href='SkPicture_Reference#Picture'>Picture</a> recorded bounds are smaller than contents; contents outside recorded
 bounds may be drawn, and are drawn in this example.
 </div></fiddle-embed></div>
 
@@ -310,7 +310,7 @@ identifier for <a href='SkPicture_Reference#SkPicture'>SkPicture</a>
 
 ### Example
 
-<div><fiddle-embed name="8e4257245c988c600410fe4fd7293f07">
+<div><fiddle-embed name="@Picture_uniqueID">
 
 #### Example Output
 
@@ -354,7 +354,7 @@ storage containing serialized <a href='SkPicture_Reference#SkPicture'>SkPicture<
 
 ### Example
 
-<div><fiddle-embed name="dacdebe1355c884ebd3c2ea038cc7a20"></fiddle-embed></div>
+<div><fiddle-embed name="@Picture_serialize"></fiddle-embed></div>
 
 ### See Also
 
@@ -387,7 +387,7 @@ is called with a pointer to <a href='SkPicture_Reference#SkPicture'>SkPicture</a
 
 ### Example
 
-<div><fiddle-embed name="30b9f1b310187db6aff720a5d67591e2"></fiddle-embed></div>
+<div><fiddle-embed name="@Picture_008"></fiddle-embed></div>
 
 ### See Also
 
@@ -421,7 +421,7 @@ placeholder with unique identifier
 
 ### Example
 
-<div><fiddle-embed name="0d2cbf82f490ffb180e0b4531afa232c"></fiddle-embed></div>
+<div><fiddle-embed name="@Picture_MakePlaceholder"></fiddle-embed></div>
 
 ### See Also
 

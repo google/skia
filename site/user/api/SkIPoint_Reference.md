@@ -76,7 +76,7 @@ Sets <a href='#SkIPoint_fX'>fX</a> to <a href='#SkIPoint_Make_x'>x</a>, <a href=
 
 ### Example
 
-<div><fiddle-embed name="e5cf5159525bd3140f288a95fe641fae">
+<div><fiddle-embed name="@IPoint_Make">
 
 #### Example Output
 
@@ -108,7 +108,7 @@ Returns x-axis value of <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>.
 
 ### Example
 
-<div><fiddle-embed name="eed4185294f8a8216fc354e6ee6b2e3a">
+<div><fiddle-embed name="@IPoint_x">
 
 #### Example Output
 
@@ -138,7 +138,7 @@ Returns y-axis value of <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>.
 
 ### Example
 
-<div><fiddle-embed name="35c41b8ba7cebf8c9a7a8494e610e14d">
+<div><fiddle-embed name="@IPoint_y">
 
 #### Example Output
 
@@ -168,7 +168,7 @@ true if <a href='#SkIPoint_fX'>fX</a> is zero and <a href='#SkIPoint_fY'>fY</a> 
 
 ### Example
 
-<div><fiddle-embed name="658c1df611b4577cc7e0bb384e95737e">
+<div><fiddle-embed name="@IPoint_isZero">
 
 #### Example Output
 
@@ -206,7 +206,7 @@ Sets <a href='#SkIPoint_fX'>fX</a> to <a href='#SkIPoint_set_x'>x</a> and <a hre
 
 ### Example
 
-<div><fiddle-embed name="165418b5718d79d8f1682a8a0ee32ba0">
+<div><fiddle-embed name="@IPoint_set">
 
 #### Example Output
 
@@ -236,7 +236,7 @@ Returns <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> changing the signs of
 
 ### Example
 
-<div><fiddle-embed name="b30d4780475d113a7fed3637af7f0db1">
+<div><fiddle-embed name="@IPoint_minus_operator">
 
 #### Example Output
 
@@ -272,7 +272,7 @@ Offsets <a href='SkIPoint_Reference#IPoint'>IPoint</a> by <a href='#IPoint_IVect
 
 ### Example
 
-<div><fiddle-embed name="4eb2d95c9e9a66f05296e345bb68bd51"></fiddle-embed></div>
+<div><fiddle-embed name="@IPoint_addto_operator"></fiddle-embed></div>
 
 ### See Also
 
@@ -297,7 +297,7 @@ Subtracts <a href='#IPoint_IVector'>IVector</a> <a href='#SkIPoint_subtractfrom_
 
 ### Example
 
-<div><fiddle-embed name="a01e533dc7ab34ed728dc4e7a5f1f0ee"></fiddle-embed></div>
+<div><fiddle-embed name="@IPoint_subtractfrom_operator"></fiddle-embed></div>
 
 ### See Also
 
@@ -329,7 +329,7 @@ true if <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> equals (<a href='#SkI
 
 ### Example
 
-<div><fiddle-embed name="64f575d36439d5b69aaed14ffeff1cc4">
+<div><fiddle-embed name="@IPoint_equals">
 
 #### Example Output
 
@@ -372,7 +372,7 @@ true if <a href='#SkIPoint_equal_operator_a'>a</a>.<a href='#SkIPoint_fX'>fX</a>
 
 ### Example
 
-<div><fiddle-embed name="37ffe2817d720f99e6c252332ce70460">
+<div><fiddle-embed name="@IPoint_equal_operator">
 
 #### Example Output
 
@@ -415,7 +415,7 @@ true if <a href='#SkIPoint_notequal_operator_a'>a</a>.<a href='#SkIPoint_fX'>fX<
 
 ### Example
 
-<div><fiddle-embed name="dd89dc48dff69b53d99530b120f204bc">
+<div><fiddle-embed name="@IPoint_notequal_operator">
 
 #### Example Output
 
@@ -460,7 +460,7 @@ Can also be used to subtract <a href='#IPoint_IVector'>IVector</a> from <a href=
 
 ### Example
 
-<div><fiddle-embed name="e626e26bf557857b824aa7d03f723e0f"></fiddle-embed></div>
+<div><fiddle-embed name="@IPoint_subtract_operator"></fiddle-embed></div>
 
 ### See Also
 
@@ -496,7 +496,7 @@ Can also be used to add <a href='#IPoint_IVector'>IVector</a> to <a href='#IPoin
 
 ### Example
 
-<div><fiddle-embed name="63f4cba971c6d8434595906f865b5a29"></fiddle-embed></div>
+<div><fiddle-embed name="@IPoint_add_operator"></fiddle-embed></div>
 
 ### See Also
 
