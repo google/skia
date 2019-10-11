@@ -120,7 +120,7 @@ empty <a href='SkRegion_Reference#SkRegion'>SkRegion</a> iterator
 
 ### Example
 
-<div><fiddle-embed name="a2db43ee3cbf6893e9b23927fb44298a">
+<div><fiddle-embed name="@Region_Iterator_Iterator">
 
 #### Example Output
 
@@ -157,7 +157,7 @@ Sets <a href='SkRegion_Reference#SkRegion'>SkRegion</a>::<a href='#SkRegion_Iter
 
 ### Example
 
-<div><fiddle-embed name="e317ceca48a6a7504219af58f35d2c95">
+<div><fiddle-embed name="@Region_Iterator_copy_const_SkRegion">
 
 #### Example Output
 
@@ -188,7 +188,7 @@ true if <a href='SkRegion_Reference#SkRegion'>SkRegion</a> was set
 
 ### Example
 
-<div><fiddle-embed name="32d51e959d6cc720a74ec4822511e2cd">
+<div><fiddle-embed name="@Region_Iterator_rewind">
 
 #### Example Output
 
@@ -228,7 +228,7 @@ Resets iterator, using the new <a href='SkRegion_Reference#SkRegion'>SkRegion</a
 
 ### Example
 
-<div><fiddle-embed name="d153f87bd518a4ab947b7e407ea1db79">
+<div><fiddle-embed name="@Region_Iterator_reset">
 
 #### Example Output
 
@@ -260,7 +260,7 @@ true if <a href='undocumented#Data'>data</a> parsing is complete
 
 ### Example
 
-<div><fiddle-embed name="814efa7d7f4ae52dfc861a937c1b5c25">
+<div><fiddle-embed name="@Region_Iterator_done">
 
 #### Example Output
 
@@ -287,7 +287,7 @@ Advances <a href='SkRegion_Reference#SkRegion'>SkRegion</a>::<a href='#SkRegion_
 
 ### Example
 
-<div><fiddle-embed name="771236c2eadfc2fcd02a3e61a0875d39">
+<div><fiddle-embed name="@Region_Iterator_next">
 
 #### Example Output
 
@@ -319,7 +319,7 @@ part of <a href='SkRegion_Reference#SkRegion'>SkRegion</a> as <a href='SkIRect_R
 
 ### Example
 
-<div><fiddle-embed name="0e7c58ab5d3bcfb36b1f8464cf6c7d89">
+<div><fiddle-embed name="@Region_Iterator_rect">
 
 #### Example Output
 
@@ -351,7 +351,7 @@ iterated <a href='SkRegion_Reference#SkRegion'>SkRegion</a>
 
 ### Example
 
-<div><fiddle-embed name="bbc3c454a21186e2a16e843a5b061c44"></fiddle-embed></div>
+<div><fiddle-embed name="@Region_Iterator_rgn"></fiddle-embed></div>
 
 ### See Also
 
@@ -400,7 +400,7 @@ Sets <a href='SkRegion_Reference#SkRegion'>SkRegion</a>::<a href='#SkRegion_Clip
 
 ### Example
 
-<div><fiddle-embed name="3831fb6006a7e0ad5d140c266c22be78">
+<div><fiddle-embed name="@Region_Cliperator_const_SkRegion_const_SkIRect">
 
 #### Example Output
 
@@ -430,7 +430,7 @@ true if <a href='undocumented#Data'>data</a> parsing is complete
 
 ### Example
 
-<div><fiddle-embed name="6cca7b96836266800d852664a1366453">
+<div><fiddle-embed name="@Region_Cliperator_done">
 
 #### Example Output
 
@@ -457,7 +457,7 @@ Advances iterator to next <a href='SkIRect_Reference#SkIRect'>SkIRect</a> in <a 
 
 ### Example
 
-<div><fiddle-embed name="3bbcc7eec19c808a8167bbcc987199f8">
+<div><fiddle-embed name="@Region_Cliperator_next">
 
 #### Example Output
 
@@ -490,7 +490,7 @@ part of <a href='SkRegion_Reference#SkRegion'>SkRegion</a> inside clip as <a hre
 
 ### Example
 
-<div><fiddle-embed name="05791751f00b4c2426093fa143b43bc7">
+<div><fiddle-embed name="@Region_Cliperator_rect">
 
 #### Example Output
 
@@ -552,7 +552,7 @@ Sets <a href='SkRegion_Reference#SkRegion'>SkRegion</a>::<a href='#SkRegion_Span
 
 ### Example
 
-<div><fiddle-embed name="3073b3f8ea7252871b6156ff674dc385"></fiddle-embed></div>
+<div><fiddle-embed name="@Region_Spanerator_const_SkRegion_int_int_int"></fiddle-embed></div>
 
 ### See Also
 
@@ -585,7 +585,7 @@ true if interval was found
 
 ### Example
 
-<div><fiddle-embed name="03d02180fee5f64ec4a3347e118fb2ec">
+<div><fiddle-embed name="@Region_Spanerator_next">
 
 #### Example Output
 
@@ -617,7 +617,7 @@ empty <a href='SkRegion_Reference#SkRegion'>SkRegion</a>
 
 ### Example
 
-<div><fiddle-embed name="4549dcda3e0f9a41b3daee0ed37deca8">
+<div><fiddle-embed name="@Region_empty_constructor">
 
 #### Example Output
 
@@ -661,7 +661,7 @@ copy of <a href='SkRegion_Reference#SkRegion'>SkRegion</a>
 
 ### Example
 
-<div><fiddle-embed name="3daa83fca809b9ec6560d2ef9e2da5e6">
+<div><fiddle-embed name="@Region_copy_const_SkRegion">
 
 #### Example Output
 
@@ -702,7 +702,7 @@ rectangular <a href='SkRegion_Reference#SkRegion'>SkRegion</a>
 
 ### Example
 
-<div><fiddle-embed name="5253910233f7961c30b4c18ab911e917"></fiddle-embed></div>
+<div><fiddle-embed name="@Region_copy_const_SkIRect"></fiddle-embed></div>
 
 ### See Also
 
@@ -720,7 +720,7 @@ Releases ownership of any shared <a href='undocumented#Data'>data</a> and delete
 
 ### Example
 
-<div><fiddle-embed name="985ff654a6b67288d322c748132a088e"><div>delete calls <a href='SkRegion_Reference#Region'>Region</a> destructor, but copy of original in region2 is unaffected.
+<div><fiddle-embed name="@Region_destructor"><div>delete calls <a href='SkRegion_Reference#Region'>Region</a> destructor, but copy of original in region2 is unaffected.
 </div>
 
 #### Example Output
@@ -765,7 +765,7 @@ pointers are not exposed.
 
 ### Example
 
-<div><fiddle-embed name="e8513f6394c24efaa301d41921c5241a">
+<div><fiddle-embed name="@Region_copy_operator">
 
 #### Example Output
 
@@ -804,7 +804,7 @@ true if <a href='SkRegion_Reference#SkRegion'>SkRegion</a> pair are equivalent
 
 ### Example
 
-<div><fiddle-embed name="d7f4fdc8bc63ca8410ed166ecef0aef3">
+<div><fiddle-embed name="@Region_equal1_operator">
 
 #### Example Output
 
@@ -843,7 +843,7 @@ true if <a href='SkRegion_Reference#SkRegion'>SkRegion</a> pair are not equivale
 
 ### Example
 
-<div><fiddle-embed name="3357caa9d8d810f200cbccb668182496">
+<div><fiddle-embed name="@Region_notequal1_operator">
 
 #### Example Output
 
@@ -889,7 +889,7 @@ copy of <a href='#SkRegion_set_src'>src</a>
 
 ### Example
 
-<div><fiddle-embed name="b3538117c7ae2cb7de3b42ca45fe1b13">
+<div><fiddle-embed name="@Region_set">
 
 #### Example Output
 
@@ -928,7 +928,7 @@ making assignment as efficient as <a href='#SkRegion_swap'>swap()</a>.
 
 ### Example
 
-<div><fiddle-embed name="ae67b7b4c198b46c58e48f5af061c8f1">
+<div><fiddle-embed name="@Region_swap">
 
 #### Example Output
 
@@ -962,7 +962,7 @@ true if bounds has no width or height
 
 ### Example
 
-<div><fiddle-embed name="10ef0de39e8553dd97cf8668ce185070">
+<div><fiddle-embed name="@Region_isEmpty">
 
 #### Example Output
 
@@ -994,7 +994,7 @@ true if <a href='SkRegion_Reference#SkRegion'>SkRegion</a> contains one <a href=
 
 ### Example
 
-<div><fiddle-embed name="b6adbdddf7fe45a1098121c4e5fd57ea">
+<div><fiddle-embed name="@Region_isRect">
 
 #### Example Output
 
@@ -1026,7 +1026,7 @@ true if <a href='SkRegion_Reference#SkRegion'>SkRegion</a> contains more than on
 
 ### Example
 
-<div><fiddle-embed name="1fbd76d75ca2d280e81856311de4e54e">
+<div><fiddle-embed name="@Region_isComplex">
 
 #### Example Output
 
@@ -1059,7 +1059,7 @@ combined bounds of all <a href='SkIRect_Reference#SkIRect'>SkIRect</a> elements
 
 ### Example
 
-<div><fiddle-embed name="651632582d385d2531e7aa551c31e331">
+<div><fiddle-embed name="@Region_getBounds">
 
 #### Example Output
 
@@ -1094,7 +1094,7 @@ relative complexity
 
 ### Example
 
-<div><fiddle-embed name="c4984fefdcecdd1090be160f80939d87">
+<div><fiddle-embed name="@Region_computeRegionComplexity">
 
 #### Example Output
 
@@ -1135,7 +1135,7 @@ true if <a href='#SkRegion_getBoundaryPath_path'>path</a> changed
 
 ### Example
 
-<div><fiddle-embed name="6631d36406efa3b3e27960c876421a7f"></fiddle-embed></div>
+<div><fiddle-embed name="@Region_getBoundaryPath"></fiddle-embed></div>
 
 ### See Also
 
@@ -1158,7 +1158,7 @@ false
 
 ### Example
 
-<div><fiddle-embed name="1314f7250963775c5ee89cc5981eee24">
+<div><fiddle-embed name="@Region_setEmpty">
 
 #### Example Output
 
@@ -1198,7 +1198,7 @@ true if <a href='#SkRegion_setRect_rect'>rect</a> is not empty
 
 ### Example
 
-<div><fiddle-embed name="e12575ffcd262f2364e0e6bece98a825">
+<div><fiddle-embed name="@Region_setRect">
 
 #### Example Output
 
@@ -1292,7 +1292,7 @@ true if constructed <a href='SkRegion_Reference#SkRegion'>SkRegion</a> is not em
 
 ### Example
 
-<div><fiddle-embed name="fc793a14ed76c096a68a755c963c1ee0"></fiddle-embed></div>
+<div><fiddle-embed name="@Region_setRects"></fiddle-embed></div>
 
 ### See Also
 
@@ -1328,7 +1328,7 @@ pointers are not exposed.
 
 ### Example
 
-<div><fiddle-embed name="5d75d22bd155576838155762ab040751">
+<div><fiddle-embed name="@Region_setRegion">
 
 #### Example Output
 
@@ -1559,7 +1559,7 @@ true quickly if <a href='#SkRegion_quickContains_r'>r</a> <a href='SkPoint_Refer
 
 ### Example
 
-<div><fiddle-embed name="d8e5eac373e2e7cfc1b8cd0229647ba6">
+<div><fiddle-embed name="@Region_quickContains">
 
 #### Example Output
 
@@ -1651,7 +1651,7 @@ true if <a href='#SkRegion_quickReject_rect'>rect</a> does not intersect
 
 ### Example
 
-<div><fiddle-embed name="71ac24b7d91ac5ca7c14b43930d5f85d">
+<div><fiddle-embed name="@Region_quickReject">
 
 #### Example Output
 
@@ -1692,7 +1692,7 @@ true if <a href='#SkRegion_quickReject_2_rgn'>rgn</a> does not intersect
 
 ### Example
 
-<div><fiddle-embed name="def7dba38947c33b203e4f9db6c88be3">
+<div><fiddle-embed name="@Region_quickReject_2">
 
 #### Example Output
 
@@ -1730,7 +1730,7 @@ Offsets <a href='SkRegion_Reference#SkRegion'>SkRegion</a> by <a href='SkIPoint_
 
 ### Example
 
-<div><fiddle-embed name="4e5b9e53aa1b200fed3ee6596ca01f0e"></fiddle-embed></div>
+<div><fiddle-embed name="@Region_translate"></fiddle-embed></div>
 
 ### See Also
 
@@ -1763,7 +1763,7 @@ If <a href='SkRegion_Reference#SkRegion'>SkRegion</a> is empty, sets <a href='#S
 
 ### Example
 
-<div><fiddle-embed name="024200960eb52fee1f471514607e6001"></fiddle-embed></div>
+<div><fiddle-embed name="@Region_translate_2"></fiddle-embed></div>
 
 ### See Also
 
@@ -2156,7 +2156,7 @@ bytes read
 
 ### Example
 
-<div><fiddle-embed name="1ede346c430ef23df0eaaf0773dd6a15"></fiddle-embed></div>
+<div><fiddle-embed name="@Region_readFromMemory"></fiddle-embed></div>
 
 ### See Also
 

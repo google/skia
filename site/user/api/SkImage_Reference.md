@@ -236,7 +236,7 @@ copy of <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a> pixels, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="513afec5795a9504ebf6af5373d16b6b"><div>Draw a five by five <a href='SkBitmap_Reference#Bitmap'>bitmap</a>, and draw a copy in an <a href='SkImage_Reference#Image'>Image</a>. Editing the <a href='#SkImage_MakeRasterCopy_pixmap'>pixmap</a>
+<div><fiddle-embed name="@Image_MakeRasterCopy"><div>Draw a five by five <a href='SkBitmap_Reference#Bitmap'>bitmap</a>, and draw a copy in an <a href='SkImage_Reference#Image'>Image</a>. Editing the <a href='#SkImage_MakeRasterCopy_pixmap'>pixmap</a>
 alters the  <a href='SkBitmap_Reference#Bitmap_Draw'>bitmap draw</a>, but does not alter the <a href='SkImage_Reference#Image'>Image</a> draw since the <a href='SkImage_Reference#Image'>Image</a>
 contains a copy of the pixels.
 </div></fiddle-embed></div>
@@ -281,7 +281,7 @@ each dimension fits in 29 bits;
 
 ### Example
 
-<div><fiddle-embed name="22e7ce79ab2fe94252d23319f2258127"></fiddle-embed></div>
+<div><fiddle-embed name="@Image_MakeRasterData"></fiddle-embed></div>
 
 ### See Also
 
@@ -359,7 +359,7 @@ row bytes are large enough to hold one row of pixels;
 
 ### Example
 
-<div><fiddle-embed name="275356b65d18c8868f4434137350cddc">
+<div><fiddle-embed name="@Image_MakeFromRaster">
 
 #### Example Output
 
@@ -406,7 +406,7 @@ created <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="cf2cf53321e4e6a77c2841bfbc0ef707"><div>The first <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> is shared; writing to the <a href='undocumented#Pixel'>pixel</a> memory changes the first
+<div><fiddle-embed name="@Image_MakeFromBitmap"><div>The first <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> is shared; writing to the <a href='undocumented#Pixel'>pixel</a> memory changes the first
 <a href='SkImage_Reference#Image'>Image</a>.
 The second <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> is marked immutable, and is copied; writing to the <a href='undocumented#Pixel'>pixel</a>
 memory does not alter the second <a href='SkImage_Reference#Image'>Image</a>.
@@ -452,7 +452,7 @@ created <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="c2fec0746f88ca34d7dce59dd9bdef9e"><div>The generator returning <a href='SkPicture_Reference#Picture'>Picture</a> cannot be shared; std::move transfers ownership to generated <a href='SkImage_Reference#Image'>Image</a>.
+<div><fiddle-embed name="@Image_MakeFromGenerator"><div>The generator returning <a href='SkPicture_Reference#Picture'>Picture</a> cannot be shared; std::move transfers ownership to generated <a href='SkImage_Reference#Image'>Image</a>.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -490,7 +490,7 @@ created <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="894f732ed6409b1f392bc5481421d0e9"></fiddle-embed></div>
+<div><fiddle-embed name="@Image_MakeFromEncoded"></fiddle-embed></div>
 
 ### See Also
 
@@ -571,7 +571,7 @@ created <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="94e9296c53bad074bf2a48ff885dac13" gpu="true"><div>A back-end <a href='undocumented#Texture'>texture</a> has been created and uploaded to the GPU outside of this example.
+<div><fiddle-embed name="@Image_MakeFromTexture" gpu="true"><div>A back-end <a href='undocumented#Texture'>texture</a> has been created and uploaded to the GPU outside of this example.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -649,7 +649,7 @@ created <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="2b1e46354d823dbb53fa6af570135329" gpu="true"><div><a href='#SkImage_MakeFromTexture_2_textureReleaseProc'>textureReleaseProc</a> may be called at some later <a href='SkPoint_Reference#Point'>point</a> in time. In this example,
+<div><fiddle-embed name="@Image_MakeFromTexture_2" gpu="true"><div><a href='#SkImage_MakeFromTexture_2_textureReleaseProc'>textureReleaseProc</a> may be called at some later <a href='SkPoint_Reference#Point'>point</a> in time. In this example,
 <a href='#SkImage_MakeFromTexture_2_textureReleaseProc'>textureReleaseProc</a> has no effect on the drawing.
 </div></fiddle-embed></div>
 
@@ -769,7 +769,7 @@ created <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="45bca8747b8f49b5be34b520897ef048"></fiddle-embed></div>
+<div><fiddle-embed name="@Image_MakeCrossContextFromPixmap"></fiddle-embed></div>
 
 ### See Also
 
@@ -839,7 +839,7 @@ created <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="b034517e39394b7543f06ec885e36d7d" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="@Image_MakeFromAdoptedTexture" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -1379,7 +1379,7 @@ created <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="4aa2879b9e44dfd6648995326d2c4dcf"></fiddle-embed></div>
+<div><fiddle-embed name="@Image_MakeFromPicture"></fiddle-embed></div>
 
 ### See Also
 
@@ -1496,7 +1496,7 @@ integral <a href='undocumented#Size'>size</a> of <a href='#SkImage_width'>width(
 
 ### Example
 
-<div><fiddle-embed name="96b4bc43b3667df9ba9e2dafb770d33c">
+<div><fiddle-embed name="@Image_dimensions">
 
 #### Example Output
 
@@ -1526,7 +1526,7 @@ integral rectangle from origin to <a href='#SkImage_width'>width()</a> and <a hr
 
 ### Example
 
-<div><fiddle-embed name="c204b38b3fc08914b0a634aa4eaec894"></fiddle-embed></div>
+<div><fiddle-embed name="@Image_bounds"></fiddle-embed></div>
 
 ### See Also
 
@@ -1599,7 +1599,7 @@ Returns <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> if known; ot
 
 ### Example
 
-<div><fiddle-embed name="50396fad4a128f58e400ca00fe09711f"></fiddle-embed></div>
+<div><fiddle-embed name="@Image_colorType"></fiddle-embed></div>
 
 ### See Also
 
@@ -1680,7 +1680,7 @@ true if pixels represent a transparency mask
 
 ### Example
 
-<div><fiddle-embed name="50762c73b8ea91959c5a7b68fbf1062d">
+<div><fiddle-embed name="@Image_isAlphaOnly">
 
 #### Example Output
 
@@ -1710,7 +1710,7 @@ true if <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> is <a href='
 
 ### Example
 
-<div><fiddle-embed name="e3340460003b74ee286d625e68589d65">
+<div><fiddle-embed name="@Image_isOpaque">
 
 #### Example Output
 
@@ -1769,7 +1769,7 @@ transforming <a href='SkImage_Reference#SkImage'>SkImage</a> before <a href='SkC
 
 ### Example
 
-<div><fiddle-embed name="1c6de6fe72b00b5be970f5f718363449"></fiddle-embed></div>
+<div><fiddle-embed name="@Image_makeShader"></fiddle-embed></div>
 
 ### See Also
 
@@ -1800,7 +1800,7 @@ transforming <a href='SkImage_Reference#SkImage'>SkImage</a> before <a href='SkC
 
 ### Example
 
-<div><fiddle-embed name="10172fca71b9dbdcade772513ffeb27e"></fiddle-embed></div>
+<div><fiddle-embed name="@Image_makeShader_2"></fiddle-embed></div>
 
 ### See Also
 
@@ -2069,7 +2069,7 @@ true if pixels are copied to <a href='#SkImage_readPixels_dstPixels'>dstPixels</
 
 ### Example
 
-<div><fiddle-embed name="8aa8ca63dff4641dfc6ea8a3c555d59c"></fiddle-embed></div>
+<div><fiddle-embed name="@Image_readPixels"></fiddle-embed></div>
 
 ### See Also
 
@@ -2135,7 +2135,7 @@ true if pixels are copied to <a href='#SkImage_readPixels_2_dst'>dst</a>
 
 ### Example
 
-<div><fiddle-embed name="b77a73c4baa63a4a8e2a4fdd96144d0b"></fiddle-embed></div>
+<div><fiddle-embed name="@Image_readPixels_2"></fiddle-embed></div>
 
 ### See Also
 
@@ -2197,7 +2197,7 @@ true if pixels are scaled to fit <a href='#SkImage_scalePixels_dst'>dst</a>
 
 ### Example
 
-<div><fiddle-embed name="5949c9a63610cae30019e5b1899ee38f"></fiddle-embed></div>
+<div><fiddle-embed name="@Image_scalePixels"></fiddle-embed></div>
 
 ### See Also
 
@@ -2249,7 +2249,7 @@ encoded <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="7a3bf8851bb7160e4e49c48f8c09639d"></fiddle-embed></div>
+<div><fiddle-embed name="@Image_encodeToData"></fiddle-embed></div>
 
 ### See Also
 
@@ -2276,7 +2276,7 @@ encoded <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="30cee813f6aa476b0a9c8a24283e53a3"></fiddle-embed></div>
+<div><fiddle-embed name="@Image_encodeToData_2"></fiddle-embed></div>
 
 ### See Also
 
@@ -2337,7 +2337,7 @@ partial or full <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="889e495ce3e3b3bacc96e8230932331c"></fiddle-embed></div>
+<div><fiddle-embed name="@Image_makeSubset"></fiddle-embed></div>
 
 ### See Also
 
@@ -2487,7 +2487,7 @@ filtered <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="85a76163138a2720ac003691d6363938" gpu="true"><div>In each frame of the animation, filtered <a href='SkImage_Reference#Image'>Image</a> is drawn in a different location.
+<div><fiddle-embed name="@Image_makeWithFilter" gpu="true"><div>In each frame of the animation, filtered <a href='SkImage_Reference#Image'>Image</a> is drawn in a different location.
 By translating <a href='SkCanvas_Reference#Canvas'>canvas</a> by returned <a href='#SkImage_makeWithFilter_offset'>offset</a>, <a href='SkImage_Reference#Image'>Image</a> appears stationary.
 </div></fiddle-embed></div>
 
@@ -2555,7 +2555,7 @@ true if back-end <a href='undocumented#Texture'>texture</a> was created
 
 ### Example
 
-<div><fiddle-embed name="06aeb3cf63ffccf7b49fe556e5def351" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="@Image_MakeBackendTextureFromSkImage" gpu="true"></fiddle-embed></div>
 
 ### See Also
 

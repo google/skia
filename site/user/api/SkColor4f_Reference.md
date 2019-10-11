@@ -109,7 +109,7 @@ true if <a href='SkColor4f_Reference#SkRGBA4f'>SkRGBA4f</a> equals <a href='#SkR
 
 ### Example
 
-<div><fiddle-embed name="e5b34bcb7f80f2ed890cdacaa059db0d">
+<div><fiddle-embed name="@RGBA4f_equal1_operator">
 
 #### Example Output
 
@@ -147,7 +147,7 @@ true if <a href='SkColor4f_Reference#SkRGBA4f'>SkRGBA4f</a> is not equal to <a h
 
 ### Example
 
-<div><fiddle-embed name="82f1a9b4c2b27aa547061786d1f33dab">
+<div><fiddle-embed name="@RGBA4f_notequal1_operator">
 
 #### Example Output
 
@@ -229,7 +229,7 @@ components as read-only array
 
 ### Example
 
-<div><fiddle-embed name="229057023515224358a36acf15508cf6">
+<div><fiddle-embed name="@RGBA4f_vec">
 
 #### Example Output
 
@@ -260,7 +260,7 @@ components as writable array
 
 ### Example
 
-<div><fiddle-embed name="7420bf0a7cae5c6577c4c4a4613e7e7e">
+<div><fiddle-embed name="@RGBA4f_vec_2">
 
 #### Example Output
 
@@ -372,7 +372,7 @@ Returns closest <a href='SkColor4f_Reference#SkRGBA4f'>SkRGBA4f</a> to <a href='
 
 ### Example
 
-<div><fiddle-embed name="33b029064e8d1928e42a587c953d0e4e">
+<div><fiddle-embed name="@RGBA4f_FromColor">
 
 #### Example Output
 
@@ -403,7 +403,7 @@ closest <a href='SkColor_Reference#Color'>Color</a>
 
 ### Example
 
-<div><fiddle-embed name="edc5fd18d961f7607d2bcbf7f7d427e5">
+<div><fiddle-embed name="@RGBA4f_toSkColor">
 
 #### Example Output
 

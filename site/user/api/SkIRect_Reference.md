@@ -133,7 +133,7 @@ bounds (0, 0, 0, 0)
 
 ### Example
 
-<div><fiddle-embed name="0ade3971c1d2616564992e286966ec8a">
+<div><fiddle-embed name="@IRect_MakeEmpty">
 
 #### Example Output
 
@@ -177,7 +177,7 @@ bounds (0, 0, <a href='#SkIRect_MakeWH_w'>w</a>, <a href='#SkIRect_MakeWH_h'>h</
 
 ### Example
 
-<div><fiddle-embed name="e36827a1a6ae2b1c26e7a8a08f325a07">
+<div><fiddle-embed name="@IRect_MakeWH">
 
 #### Example Output
 
@@ -215,7 +215,7 @@ bounds (0, 0, <a href='#SkIRect_MakeSize_size'>size</a>.<a href='#SkISize_width'
 
 ### Example
 
-<div><fiddle-embed name="c6586ff8d24869c780169b0d19c75df6">
+<div><fiddle-embed name="@IRect_MakeSize">
 
 #### Example Output
 
@@ -263,7 +263,7 @@ bounds (<a href='#SkIRect_MakeLTRB_l'>l</a>, <a href='#SkIRect_MakeLTRB_t'>t</a>
 
 ### Example
 
-<div><fiddle-embed name="ec1473b700c594f2df9749a12a06b89b">
+<div><fiddle-embed name="@IRect_MakeLTRB">
 
 #### Example Output
 
@@ -311,7 +311,7 @@ bounds at (<a href='#SkIRect_MakeXYWH_x'>x</a>, <a href='#SkIRect_MakeXYWH_y'>y<
 
 ### Example
 
-<div><fiddle-embed name="598ee14350bd1d961cae6b36fa3df17e">
+<div><fiddle-embed name="@IRect_MakeXYWH">
 
 #### Example Output
 
@@ -345,7 +345,7 @@ Call <a href='#SkIRect_sort'>sort()</a> to reverse <a href='#SkIRect_fLeft'>fLef
 
 ### Example
 
-<div><fiddle-embed name="caf38ea4431bc246ba198f6a8c2b0f01">
+<div><fiddle-embed name="@IRect_left">
 
 #### Example Output
 
@@ -377,7 +377,7 @@ and <a href='#SkIRect_sort'>sort()</a> to reverse <a href='#SkIRect_fTop'>fTop</
 
 ### Example
 
-<div><fiddle-embed name="cbec1ae6530e95943775450b1d11f19e">
+<div><fiddle-embed name="@IRect_top">
 
 #### Example Output
 
@@ -409,7 +409,7 @@ Call <a href='#SkIRect_sort'>sort()</a> to reverse <a href='#SkIRect_fLeft'>fLef
 
 ### Example
 
-<div><fiddle-embed name="97e210976f1ee0387b30c70635cf114f">
+<div><fiddle-embed name="@IRect_right">
 
 #### Example Output
 
@@ -441,7 +441,7 @@ and <a href='#SkIRect_sort'>sort()</a> to reverse <a href='#SkIRect_fTop'>fTop</
 
 ### Example
 
-<div><fiddle-embed name="c32afebc296054a181621648a184b8e3">
+<div><fiddle-embed name="@IRect_bottom">
 
 #### Example Output
 
@@ -473,7 +473,7 @@ and <a href='#SkIRect_sort'>sort()</a> to reverse <a href='#SkIRect_fLeft'>fLeft
 
 ### Example
 
-<div><fiddle-embed name="2a59cbfd1330a0db520d6ebb2b7c68c7">
+<div><fiddle-embed name="@IRect_x">
 
 #### Example Output
 
@@ -505,7 +505,7 @@ and <a href='#SkIRect_sort'>sort()</a> to reverse <a href='#SkIRect_fTop'>fTop</
 
 ### Example
 
-<div><fiddle-embed name="6ea461e71f7fc80605818fbf493caa63">
+<div><fiddle-embed name="@IRect_y">
 
 #### Example Output
 
@@ -537,7 +537,7 @@ result fits in 32-bit signed integer; result may be negative.
 
 ### Example
 
-<div><fiddle-embed name="4acfbe051805940210c8916a94794142">
+<div><fiddle-embed name="@IRect_width">
 
 #### Example Output
 
@@ -570,7 +570,7 @@ overflow in its calculation.
 
 ### Example
 
-<div><fiddle-embed name="63977f97999bbd6eecfdcc7575d75492">
+<div><fiddle-embed name="@IRect_width64">
 
 #### Example Output
 
@@ -601,7 +601,7 @@ result fits in 32-bit signed integer; result may be negative.
 
 ### Example
 
-<div><fiddle-embed name="0175bae87fafcd9433ae661574695586">
+<div><fiddle-embed name="@IRect_height">
 
 #### Example Output
 
@@ -634,7 +634,7 @@ overflow in its calculation.
 
 ### Example
 
-<div><fiddle-embed name="02dd98716e54bbd8c2f0ff23b7ef98cf">
+<div><fiddle-embed name="@IRect_height64">
 
 #### Example Output
 
@@ -665,7 +665,7 @@ or if result fits in 32-bit signed integer; result may be negative.
 
 ### Example
 
-<div><fiddle-embed name="8b3224641cb3053a7b8a5798b6cd1cf6">
+<div><fiddle-embed name="@IRect_size">
 
 #### Example Output
 
@@ -697,7 +697,7 @@ true if <a href='#SkIRect_width'>width()</a> or <a href='#SkIRect_height'>height
 
 ### Example
 
-<div><fiddle-embed name="edaad064b6de249b7a7c768dfa000adc">
+<div><fiddle-embed name="@IRect_isEmpty">
 
 #### Example Output
 
@@ -732,7 +732,7 @@ true if <a href='#SkIRect_width64'>width64</a>() or <a href='#SkIRect_height64'>
 
 ### Example
 
-<div><fiddle-embed name="eb905faa1084ccab3ad0605df4c27ea4">
+<div><fiddle-embed name="@IRect_isEmpty64">
 
 #### Example Output
 
@@ -778,7 +778,7 @@ true if members are equal
 
 ### Example
 
-<div><fiddle-embed name="bd8f028d9051062816c9116fea4237b2">
+<div><fiddle-embed name="@IRect_equal_operator">
 
 #### Example Output
 
@@ -819,7 +819,7 @@ true if members are not equal
 
 ### Example
 
-<div><fiddle-embed name="6c4acd8aa203f632b7d85cae672abf4d">
+<div><fiddle-embed name="@IRect_notequal_operator">
 
 #### Example Output
 
@@ -851,7 +851,7 @@ is a convenience, but does not designate a special empty rectangle.
 
 ### Example
 
-<div><fiddle-embed name="94039c3cc9e911c8ab2993d56fd06210">
+<div><fiddle-embed name="@IRect_setEmpty">
 
 #### Example Output
 
@@ -941,7 +941,7 @@ Sets <a href='SkIRect_Reference#SkIRect'>SkIRect</a> to (<a href='#SkIRect_setLT
 
 ### Example
 
-<div><fiddle-embed name="ead6bdcf2ae77ec19a1c5a96f5b31af8">
+<div><fiddle-embed name="@IRect_setLTRB">
 
 #### Example Output
 
@@ -985,7 +985,7 @@ Does not validate input; <a href='#SkIRect_setXYWH_width'>width</a> or <a href='
 
 ### Example
 
-<div><fiddle-embed name="0e1db8c86678c004e504f47641b44b17">
+<div><fiddle-embed name="@IRect_setXYWH">
 
 #### Example Output
 
@@ -1033,7 +1033,7 @@ If <a href='#SkIRect_makeOffset_dy'>dy</a> is positive, <a href='SkIRect_Referen
 
 ### Example
 
-<div><fiddle-embed name="737c747df07ddf392c05970440de0927">
+<div><fiddle-embed name="@IRect_makeOffset">
 
 #### Example Output
 
@@ -1079,7 +1079,7 @@ If <a href='#SkIRect_makeInset_dy'>dy</a> is positive, <a href='SkIRect_Referenc
 
 ### Example
 
-<div><fiddle-embed name="1db94b2c76e0a7a71856532335fa56b6">
+<div><fiddle-embed name="@IRect_makeInset">
 
 #### Example Output
 
@@ -1125,7 +1125,7 @@ If <a href='#SkIRect_makeOutset_dy'>dy</a> is positive, <a href='SkIRect_Referen
 
 ### Example
 
-<div><fiddle-embed name="240e2953e3455c08f6d89255feff8416">
+<div><fiddle-embed name="@IRect_makeOutset">
 
 #### Example Output
 
@@ -1167,7 +1167,7 @@ If <a href='#SkIRect_offset_dy'>dy</a> is positive, moves <a href='SkIRect_Refer
 
 ### Example
 
-<div><fiddle-embed name="77e633b2174ffae923c038b303418b50">
+<div><fiddle-embed name="@IRect_offset">
 
 #### Example Output
 
@@ -1206,7 +1206,7 @@ If <a href='#SkIRect_offset_2_delta'>delta</a>.<a href='#SkIPoint_fY'>fY</a> is 
 
 ### Example
 
-<div><fiddle-embed name="31a4c575499e76def651eb65994876f0">
+<div><fiddle-embed name="@IRect_offset_2">
 
 #### Example Output
 
@@ -1243,7 +1243,7 @@ are unchanged.
 
 ### Example
 
-<div><fiddle-embed name="a2734ff23b35653956a3002e5c29ff91">
+<div><fiddle-embed name="@IRect_offsetTo">
 
 #### Example Output
 
@@ -1284,7 +1284,7 @@ If <a href='#SkIRect_inset_dy'>dy</a> is negative, makes <a href='SkIRect_Refere
 
 ### Example
 
-<div><fiddle-embed name="9debaded1aa8bdf5077a4de0b3015b8f">
+<div><fiddle-embed name="@IRect_inset">
 
 #### Example Output
 
@@ -1325,7 +1325,7 @@ If <a href='#SkIRect_outset_dy'>dy</a> is negative, makes <a href='SkIRect_Refer
 
 ### Example
 
-<div><fiddle-embed name="3fc62ca29428195f33a3a02b3eb74e4f">
+<div><fiddle-embed name="@IRect_outset">
 
 #### Example Output
 
@@ -1387,7 +1387,7 @@ if that is not the desired behavior.
 
 ### Example
 
-<div><fiddle-embed name="8dc91284493dd012cca3d0ce4c66bda4">
+<div><fiddle-embed name="@IRect_adjust">
 
 #### Example Output
 
@@ -1431,7 +1431,7 @@ true if (<a href='#SkIRect_contains_x'>x</a>, <a href='#SkIRect_contains_y'>y</a
 
 ### Example
 
-<div><fiddle-embed name="a7958a4e0668f5cf805a8e78eb57f51d">
+<div><fiddle-embed name="@IRect_contains">
 
 #### Example Output
 
@@ -1525,7 +1525,7 @@ true if all sides of <a href='SkIRect_Reference#SkIRect'>SkIRect</a> are outside
 
 ### Example
 
-<div><fiddle-embed name="ee0185db622602b4eb19583c2f42c734">
+<div><fiddle-embed name="@IRect_contains_3">
 
 #### Example Output
 
@@ -1567,7 +1567,7 @@ true if all sides of <a href='SkIRect_Reference#SkIRect'>SkIRect</a> are outside
 
 ### Example
 
-<div><fiddle-embed name="acbd79ffb304f332e4b38ef18e19663e">
+<div><fiddle-embed name="@IRect_contains_4">
 
 #### Example Output
 
@@ -1621,7 +1621,7 @@ true if all sides of <a href='SkIRect_Reference#SkIRect'>SkIRect</a> are outside
 
 ### Example
 
-<div><fiddle-embed name="fef2a36bee224e92500199fa9d3cbb8b">
+<div><fiddle-embed name="@IRect_containsNoEmptyCheck">
 
 #### Example Output
 
@@ -1663,7 +1663,7 @@ true if all sides of <a href='SkIRect_Reference#SkIRect'>SkIRect</a> are outside
 
 ### Example
 
-<div><fiddle-embed name="8f91f58001d9c10420eb146fbc169af4">
+<div><fiddle-embed name="@IRect_containsNoEmptyCheck_2">
 
 #### Example Output
 
@@ -1705,7 +1705,7 @@ true if <a href='#SkIRect_intersect_r'>r</a> and <a href='SkIRect_Reference#SkIR
 
 ### Example
 
-<div><fiddle-embed name="ea233f5d5d1ae0e76fc6f2eb371c927a"><div>Two <a href='undocumented#SkDebugf'>SkDebugf</a> calls are required. If the calls are combined, their arguments
+<div><fiddle-embed name="@IRect_intersect"><div>Two <a href='undocumented#SkDebugf'>SkDebugf</a> calls are required. If the calls are combined, their arguments
 may not be evaluated in left to right order: the printed intersection may
 be before or after the call to intersect.
 </div>
@@ -1751,7 +1751,7 @@ true if <a href='#SkIRect_intersect_2_a'>a</a> and <a href='#SkIRect_intersect_2
 
 ### Example
 
-<div><fiddle-embed name="b2db0573aacf99ca52776c5522459d02">
+<div><fiddle-embed name="@IRect_intersect_2">
 
 #### Example Output
 
@@ -1890,7 +1890,7 @@ true if <a href='#SkIRect_Intersects_a'>a</a> and <a href='#SkIRect_Intersects_b
 
 ### Example
 
-<div><fiddle-embed name="0c67cf8981389efc7108369fb9b7976b">
+<div><fiddle-embed name="@IRect_Intersects">
 
 #### Example Output
 
@@ -2016,7 +2016,7 @@ Has no effect if <a href='#SkIRect_join_2_r'>r</a> is empty. Otherwise, if <a hr
 
 ### Example
 
-<div><fiddle-embed name="75fd81c1d3512e63890d085593018876">
+<div><fiddle-embed name="@IRect_join_2">
 
 #### Example Output
 
@@ -2046,7 +2046,7 @@ and <a href='#SkIRect_width'>width()</a> and <a href='#SkIRect_height'>height()<
 
 ### Example
 
-<div><fiddle-embed name="fa12547fcfd4c1aef3db1a1f6aae0fe4">
+<div><fiddle-embed name="@IRect_sort">
 
 #### Example Output
 
@@ -2079,7 +2079,7 @@ sorted <a href='SkIRect_Reference#SkIRect'>SkIRect</a>
 
 ### Example
 
-<div><fiddle-embed name="de89926c374aa16427916900b89a3441">
+<div><fiddle-embed name="@IRect_makeSorted">
 
 #### Example Output
 
@@ -2110,7 +2110,7 @@ global <a href='SkIRect_Reference#SkIRect'>SkIRect</a> set to all zeroes
 
 ### Example
 
-<div><fiddle-embed name="65e0b9b52e907902630577941fb3ed6d">
+<div><fiddle-embed name="@IRect_EmptyIRect">
 
 #### Example Output
 

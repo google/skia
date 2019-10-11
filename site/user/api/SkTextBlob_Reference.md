@@ -284,7 +284,7 @@ storage containing serialized <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBl
 
 ### Example
 
-<div><fiddle-embed name="464201a828f7e94fc01cd57facfcd2f4"></fiddle-embed></div>
+<div><fiddle-embed name="@TextBlob_serialize_2"></fiddle-embed></div>
 
 ### See Also
 

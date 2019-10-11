@@ -428,7 +428,7 @@ ignored.
 
 ### Example
 
-<div><fiddle-embed name="21ae21e4ce53d2018e042dd457997300"><div><a href='SkColor_Reference#Alpha'>Alpha</a> pixels can modify another draw. orangePaint fills the bounds of <a href='SkBitmap_Reference#Bitmap'>bitmap</a>,
+<div><fiddle-embed name="@Color_Type_Alpha_8"><div><a href='SkColor_Reference#Alpha'>Alpha</a> pixels can modify another draw. orangePaint fills the bounds of <a href='SkBitmap_Reference#Bitmap'>bitmap</a>,
 with its transparency set to alpha8 <a href='undocumented#Pixel'>pixel</a> value.
 </div></fiddle-embed></div>
 
@@ -451,7 +451,7 @@ always be paired with <a href='SkImageInfo_Reference#kOpaque_SkAlphaType'>kOpaqu
 
 ### Example
 
-<div><fiddle-embed name="7e7c46bb4572e21e13529ff364eb0a9c"></fiddle-embed></div>
+<div><fiddle-embed name="@Color_Type_RGB_565"></fiddle-embed></div>
 
 ### See Also
 
@@ -482,7 +482,7 @@ less than 15, the drawn result is undefined.
 
 ### Example
 
-<div><fiddle-embed name="33a360c3404ac21db801943336843d8e"></fiddle-embed></div>
+<div><fiddle-embed name="@Color_Type_ARGB_4444"></fiddle-embed></div>
 
 ### See Also
 
@@ -515,7 +515,7 @@ will have the best performance. Use <a href='SkImageInfo_Reference#kN32_SkColorT
 
 ### Example
 
-<div><fiddle-embed name="947922a19d59893fe7f9d9ee1954379b"></fiddle-embed></div>
+<div><fiddle-embed name="@Color_Type_RGBA_8888"></fiddle-embed></div>
 
 ### See Also
 
@@ -535,7 +535,7 @@ their <a href='#Color_Alpha'>Color_Alpha</a> was set to one, and should always b
 
 ### Example
 
-<div><fiddle-embed name="4260d6cc15db2c60c07f6fdc8d9ae425"></fiddle-embed></div>
+<div><fiddle-embed name="@Color_Type_RGB_888"></fiddle-embed></div>
 
 ### See Also
 
@@ -568,7 +568,7 @@ and will have the best performance. Use <a href='SkImageInfo_Reference#kN32_SkCo
 
 ### Example
 
-<div><fiddle-embed name="945ce5344fce5470f8604b2e06e9f9ae"></fiddle-embed></div>
+<div><fiddle-embed name="@Color_Type_BGRA_8888"></fiddle-embed></div>
 
 ### See Also
 
@@ -603,7 +603,7 @@ less than three, the drawn result is undefined.
 
 ### Example
 
-<div><fiddle-embed name="1282dc1127ce1b0061544619ae4de0f0"></fiddle-embed></div>
+<div><fiddle-embed name="@Color_Type_RGBA_1010102"></fiddle-embed></div>
 
 ### See Also
 
@@ -626,7 +626,7 @@ draw all colors possible to a <a href='SkImageInfo_Reference#kRGB_101010x_SkColo
 
 ### Example
 
-<div><fiddle-embed name="92f81aa0459230459600a01e79ccff29"></fiddle-embed></div>
+<div><fiddle-embed name="@Color_Type_RGB_101010"></fiddle-embed></div>
 
 ### See Also
 
@@ -644,7 +644,7 @@ opaque as if its <a href='#Color_Alpha'>Color_Alpha</a> was set to one, and shou
 
 ### Example
 
-<div><fiddle-embed name="93da0eb0b6722a4f33dc7dae094abf0b"></fiddle-embed></div>
+<div><fiddle-embed name="@Color_Type_Gray_8"></fiddle-embed></div>
 
 ### See Also
 
@@ -681,7 +681,7 @@ less than one, the drawn result is undefined.
 
 ### Example
 
-<div><fiddle-embed name="dd81527bbdf5eaae7dd21ac04ab84f9e"></fiddle-embed></div>
+<div><fiddle-embed name="@Color_Type_RGBA_F16"></fiddle-embed></div>
 
 ### See Also
 
@@ -749,7 +749,7 @@ bytes per <a href='undocumented#Pixel'>pixel</a>
 
 ### Example
 
-<div><fiddle-embed name="09ef49d07cb7005ba3e34d5ea53896f5"><a href='SkImageInfo_Reference#kUnknown_SkColorType'>kUnknown_SkColorType</a>, <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_565_SkColorType'>kRGB_565_SkColorType</a>,
+<div><fiddle-embed name="@ColorTypeBytesPerPixel"><a href='SkImageInfo_Reference#kUnknown_SkColorType'>kUnknown_SkColorType</a>, <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_565_SkColorType'>kRGB_565_SkColorType</a>,
 <a href='SkImageInfo_Reference#kARGB_4444_SkColorType'>kARGB_4444_SkColorType</a>, <a href='SkImageInfo_Reference#kRGBA_8888_SkColorType'>kRGBA_8888_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_888x_SkColorType'>kRGB_888x_SkColorType</a>,
 <a href='SkImageInfo_Reference#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a>, <a href='SkImageInfo_Reference#kRGBA_1010102_SkColorType'>kRGBA_1010102_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_101010x_SkColorType'>kRGB_101010x_SkColorType</a>,
 <a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, <a href='SkImageInfo_Reference#kRGBA_F16_SkColorType'>kRGBA_F16_SkColorType</a>
@@ -788,7 +788,7 @@ true if <a href='SkColor_Reference#Alpha'>alpha</a> is always set to 1.0
 
 ### Example
 
-<div><fiddle-embed name="9b3eb5aaa0dfea9feee54e7650fa5446"><a href='SkImageInfo_Reference#kUnknown_SkColorType'>kUnknown_SkColorType</a>, <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_565_SkColorType'>kRGB_565_SkColorType</a>,
+<div><fiddle-embed name="@ColorTypeIsAlwaysOpaque"><a href='SkImageInfo_Reference#kUnknown_SkColorType'>kUnknown_SkColorType</a>, <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_565_SkColorType'>kRGB_565_SkColorType</a>,
 <a href='SkImageInfo_Reference#kARGB_4444_SkColorType'>kARGB_4444_SkColorType</a>, <a href='SkImageInfo_Reference#kRGBA_8888_SkColorType'>kRGBA_8888_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_888x_SkColorType'>kRGB_888x_SkColorType</a>,
 <a href='SkImageInfo_Reference#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a>, <a href='SkImageInfo_Reference#kRGBA_1010102_SkColorType'>kRGBA_1010102_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_101010x_SkColorType'>kRGB_101010x_SkColorType</a>,
 <a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, <a href='SkImageInfo_Reference#kRGBA_F16_SkColorType'>kRGBA_F16_SkColorType</a>
@@ -859,7 +859,7 @@ true if valid <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> can be
 
 ### Example
 
-<div><fiddle-embed name="befac1c29ed21507d367e4d824383a04"><a href='SkImageInfo_Reference#kUnknown_SkAlphaType'>kUnknown_SkAlphaType</a>, <a href='SkImageInfo_Reference#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>, <a href='SkImageInfo_Reference#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>,
+<div><fiddle-embed name="@ColorTypeValidateAlphaType"><a href='SkImageInfo_Reference#kUnknown_SkAlphaType'>kUnknown_SkAlphaType</a>, <a href='SkImageInfo_Reference#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>, <a href='SkImageInfo_Reference#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>,
 <a href='SkImageInfo_Reference#kUnpremul_SkAlphaType'>kUnpremul_SkAlphaType</a>
 <a href='SkImageInfo_Reference#kUnknown_SkColorType'>kUnknown_SkColorType</a>, <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_565_SkColorType'>kRGB_565_SkColorType</a>,
 <a href='SkImageInfo_Reference#kARGB_4444_SkColorType'>kARGB_4444_SkColorType</a>, <a href='SkImageInfo_Reference#kRGBA_8888_SkColorType'>kRGBA_8888_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_888x_SkColorType'>kRGB_888x_SkColorType</a>,
@@ -1083,7 +1083,7 @@ created <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>
 
 ### Example
 
-<div><fiddle-embed name="9f47f9c2a99473f5b1113db48096d586"></fiddle-embed></div>
+<div><fiddle-embed name="@ImageInfo_Make"></fiddle-embed></div>
 
 ### See Also
 
@@ -1178,7 +1178,7 @@ created <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>
 
 ### Example
 
-<div><fiddle-embed name="de418ccb42471d1589508ef3955f8c53"><div>Top gradient is drawn to offScreen without <a href='#Color_Space'>Color_Space</a>. It is darker than middle
+<div><fiddle-embed name="@ImageInfo_MakeS32"><div>Top gradient is drawn to offScreen without <a href='#Color_Space'>Color_Space</a>. It is darker than middle
 gradient, drawn to offScreen with sRGB <a href='#Color_Space'>Color_Space</a>. Bottom gradient shares bits
 with middle, but does not specify the <a href='#Color_Space'>Color_Space</a> in noColorSpaceBitmap. A source
 without <a href='#Color_Space'>Color_Space</a> is treated as sRGB; the bottom gradient is identical to the
@@ -1294,7 +1294,7 @@ created <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>
 
 ### Example
 
-<div><fiddle-embed name="547388991687b8e10d482d8b1c82777d"></fiddle-embed></div>
+<div><fiddle-embed name="@ImageInfo_MakeA8"></fiddle-embed></div>
 
 ### See Also
 
@@ -1428,7 +1428,7 @@ Returns <a href='#Image_Info_Color_Type'>Color_Type</a>, one of: <a href='SkImag
 
 ### Example
 
-<div><fiddle-embed name="06ecc3ce7f35cc7f930cbc2a662e3105">
+<div><fiddle-embed name="@ImageInfo_colorType">
 
 #### Example Output
 
@@ -1460,7 +1460,7 @@ Returns <a href='#Image_Info_Alpha_Type'>Alpha_Type</a>, one of: <a href='SkImag
 
 ### Example
 
-<div><fiddle-embed name="5c1d2499a4056b6cff38c1cf924158a1">
+<div><fiddle-embed name="@ImageInfo_alphaType">
 
 #### Example Output
 
@@ -1491,7 +1491,7 @@ Returns <a href='undocumented#SkColorSpace'>SkColorSpace</a>, the range of color
 
 ### Example
 
-<div><fiddle-embed name="5602b816d7cf75e3851274ef36a4c10f"><div><a href='undocumented#SkColorSpace'>SkColorSpace</a>::<a href='#SkColorSpace_MakeSRGBLinear'>MakeSRGBLinear</a> creates <a href='#Color_Space'>Color_Space</a> with linear gamma
+<div><fiddle-embed name="@ImageInfo_colorSpace"><div><a href='undocumented#SkColorSpace'>SkColorSpace</a>::<a href='#SkColorSpace_MakeSRGBLinear'>MakeSRGBLinear</a> creates <a href='#Color_Space'>Color_Space</a> with linear gamma
 and an sRGB gamut. This <a href='#Color_Space'>Color_Space</a> gamma is not close to sRGB gamma.
 </div>
 
@@ -1527,7 +1527,7 @@ The returned <a href='undocumented#SkColorSpace'>SkColorSpace</a> is immutable.
 
 ### Example
 
-<div><fiddle-embed name="33f65524736736fd91802b4198ba6fa8"></fiddle-embed></div>
+<div><fiddle-embed name="@ImageInfo_refColorSpace"></fiddle-embed></div>
 
 ### See Also
 
@@ -1550,7 +1550,7 @@ true if either dimension is zero or smaller
 
 ### Example
 
-<div><fiddle-embed name="b8757200da5be0b43763cf79feb681a7">
+<div><fiddle-embed name="@ImageInfo_isEmpty">
 
 #### Example Output
 
@@ -1588,7 +1588,7 @@ true if <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> is <a href='
 
 ### Example
 
-<div><fiddle-embed name="e9bd4f02b6cfb3ac864cb7fee7d7299c">
+<div><fiddle-embed name="@ImageInfo_isOpaque">
 
 #### Example Output
 
@@ -1621,7 +1621,7 @@ integral <a href='undocumented#Size'>size</a> of <a href='#SkImageInfo_width'>wi
 
 ### Example
 
-<div><fiddle-embed name="d5547cd2b302822aa85b7b0ae3f48458">
+<div><fiddle-embed name="@ImageInfo_dimensions">
 
 #### Example Output
 
@@ -1651,7 +1651,7 @@ integral rectangle from origin to <a href='#SkImageInfo_width'>width()</a> and <
 
 ### Example
 
-<div><fiddle-embed name="a818be8945cd0c18f99ffe53e90afa48"></fiddle-embed></div>
+<div><fiddle-embed name="@ImageInfo_bounds"></fiddle-embed></div>
 
 ### See Also
 
@@ -1709,7 +1709,7 @@ created <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>
 
 ### Example
 
-<div><fiddle-embed name="cd203a3f9c5fb68272f21f302dd54fbc"></fiddle-embed></div>
+<div><fiddle-embed name="@ImageInfo_makeWH"></fiddle-embed></div>
 
 ### See Also
 
@@ -1745,7 +1745,7 @@ created <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>
 
 ### Example
 
-<div><fiddle-embed name="e72db006f1bea26feceaef8727ff9818"></fiddle-embed></div>
+<div><fiddle-embed name="@ImageInfo_makeAlphaType"></fiddle-embed></div>
 
 ### See Also
 
@@ -1780,7 +1780,7 @@ created <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>
 
 ### Example
 
-<div><fiddle-embed name="3ac267b08b12dc83c95f91d8dd5d70ee"></fiddle-embed></div>
+<div><fiddle-embed name="@ImageInfo_makeColorType"></fiddle-embed></div>
 
 ### See Also
 
@@ -1833,7 +1833,7 @@ bytes in <a href='undocumented#Pixel'>pixel</a>
 
 ### Example
 
-<div><fiddle-embed name="9b6de4a07b2316228e9340e5a3b82134"><a href='SkImageInfo_Reference#kUnknown_SkColorType'>kUnknown_SkColorType</a>, <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_565_SkColorType'>kRGB_565_SkColorType</a>,
+<div><fiddle-embed name="@ImageInfo_bytesPerPixel"><a href='SkImageInfo_Reference#kUnknown_SkColorType'>kUnknown_SkColorType</a>, <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_565_SkColorType'>kRGB_565_SkColorType</a>,
 <a href='SkImageInfo_Reference#kARGB_4444_SkColorType'>kARGB_4444_SkColorType</a>, <a href='SkImageInfo_Reference#kRGBA_8888_SkColorType'>kRGBA_8888_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_888x_SkColorType'>kRGB_888x_SkColorType</a>,
 <a href='SkImageInfo_Reference#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a>, <a href='SkImageInfo_Reference#kRGBA_1010102_SkColorType'>kRGBA_1010102_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_101010x_SkColorType'>kRGB_101010x_SkColorType</a>,
 <a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, <a href='SkImageInfo_Reference#kRGBA_F16_SkColorType'>kRGBA_F16_SkColorType</a>
@@ -1877,7 +1877,7 @@ one of: 0, 1, 2, 3; left shift to convert pixels to bytes
 
 ### Example
 
-<div><fiddle-embed name="e47b911f94fc629f756a829e523a2a89"><a href='SkImageInfo_Reference#kUnknown_SkColorType'>kUnknown_SkColorType</a>, <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_565_SkColorType'>kRGB_565_SkColorType</a>,
+<div><fiddle-embed name="@ImageInfo_shiftPerPixel"><a href='SkImageInfo_Reference#kUnknown_SkColorType'>kUnknown_SkColorType</a>, <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_565_SkColorType'>kRGB_565_SkColorType</a>,
 <a href='SkImageInfo_Reference#kARGB_4444_SkColorType'>kARGB_4444_SkColorType</a>, <a href='SkImageInfo_Reference#kRGBA_8888_SkColorType'>kRGBA_8888_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_888x_SkColorType'>kRGB_888x_SkColorType</a>,
 <a href='SkImageInfo_Reference#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a>, <a href='SkImageInfo_Reference#kRGBA_1010102_SkColorType'>kRGBA_1010102_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_101010x_SkColorType'>kRGB_101010x_SkColorType</a>,
 <a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, <a href='SkImageInfo_Reference#kRGBA_F16_SkColorType'>kRGBA_F16_SkColorType</a>
@@ -1922,7 +1922,7 @@ in 31 bits.
 
 ### Example
 
-<div><fiddle-embed name="4b5d3904476726a39f1c3e276d6b6ba7">
+<div><fiddle-embed name="@ImageInfo_minRowBytes64">
 
 #### Example Output
 
@@ -1961,7 +1961,7 @@ in 31 bits.
 
 ### Example
 
-<div><fiddle-embed name="897230ecfb36095486beca324fd369f9">
+<div><fiddle-embed name="@ImageInfo_minRowBytes">
 
 #### Example Output
 
@@ -2014,7 +2014,7 @@ offset within <a href='undocumented#Pixel'>pixel</a> array
 
 ### Example
 
-<div><fiddle-embed name="818e4e1191e39d2a642902cbf253b399"></fiddle-embed></div>
+<div><fiddle-embed name="@ImageInfo_computeOffset"></fiddle-embed></div>
 
 ### See Also
 
@@ -2044,7 +2044,7 @@ true if <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a> equals <a hr
 
 ### Example
 
-<div><fiddle-embed name="53c212c4f2449df0b0eedbc6227b6ab7">
+<div><fiddle-embed name="@ImageInfo_equal1_operator">
 
 #### Example Output
 
@@ -2085,7 +2085,7 @@ true if <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a> is not equal
 
 ### Example
 
-<div><fiddle-embed name="8c039fde0a476ac1aa62bf9de5d61c77">
+<div><fiddle-embed name="@ImageInfo_notequal1_operator">
 
 #### Example Output
 
@@ -2129,7 +2129,7 @@ memory required by <a href='undocumented#Pixel'>pixel</a> buffer
 
 ### Example
 
-<div><fiddle-embed name="9def507d2295f7051effd0c83bb04436"></fiddle-embed></div>
+<div><fiddle-embed name="@ImageInfo_computeByteSize"></fiddle-embed></div>
 
 ### See Also
 
@@ -2155,7 +2155,7 @@ least memory required by <a href='undocumented#Pixel'>pixel</a> buffer
 
 ### Example
 
-<div><fiddle-embed name="fc18640fdde437cb35338aed7c68d399"></fiddle-embed></div>
+<div><fiddle-embed name="@ImageInfo_computeMinByteSize"></fiddle-embed></div>
 
 ### See Also
 
@@ -2185,7 +2185,7 @@ true if <a href='#SkImageInfo_computeByteSize'>computeByteSize</a>() or <a href=
 
 ### Example
 
-<div><fiddle-embed name="6a63dfdd62ab77ff57783af8c33d7b78">
+<div><fiddle-embed name="@ImageInfo_ByteSizeOverflowed">
 
 #### Example Output
 
@@ -2226,7 +2226,7 @@ true if <a href='#SkImageInfo_validRowBytes_rowBytes'>rowBytes</a> is large enou
 
 ### Example
 
-<div><fiddle-embed name="c6b0f6a3f493cb08d9abcdefe12de245">
+<div><fiddle-embed name="@ImageInfo_validRowBytes">
 
 #### Example Output
 
@@ -2255,7 +2255,7 @@ a width and height of zero, and no <a href='undocumented#SkColorSpace'>SkColorSp
 
 ### Example
 
-<div><fiddle-embed name="ab7e73786805c936de386b6c1ebe1f13">
+<div><fiddle-embed name="@ImageInfo_reset">
 
 #### Example Output
 
