@@ -69,6 +69,12 @@ public:
         /** Should be BCP-47, c locale names may also work. */
         virtual const char* currentLanguage() const = 0;
     };
+    struct Feature {
+        SkFourByteTag tag;
+        uint32_t value;
+        size_t start; // Offset to the start (utf8) element of the run.
+        size_t end;   // Offset to one past the last (utf8) element of the run.
+    };
 
 private:
     template <typename RunIteratorSubclass>
@@ -204,6 +210,15 @@ public:
                        BiDiRunIterator&,
                        ScriptRunIterator&,
                        LanguageRunIterator&,
+                       SkScalar width,
+                       RunHandler*) const = 0;
+
+    virtual void shape(const char* utf8, size_t utf8Bytes,
+                       FontRunIterator&,
+                       BiDiRunIterator&,
+                       ScriptRunIterator&,
+                       LanguageRunIterator&,
+                       const Feature* features, size_t featuresSize,
                        SkScalar width,
                        RunHandler*) const = 0;
 
