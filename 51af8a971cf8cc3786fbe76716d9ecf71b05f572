@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62a9a21f_4caba1f4",
+        "filename": "tests/SkGlyphBufferTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-11T14:31:01Z",
+      "side": 1,
+      "message": "I suppose you don\u0027t have to, but since this is just a test anyway can we just have \u0027SkGlyph testGlyph[100];\u0027 and then here push_back(testGlyph[i], i) . Just seems like an easy way to have one less thing for sanitizers and static code analysis to complain about.",
+      "range": {
+        "startLine": 54,
+        "startChar": 31,
+        "endLine": 54,
+        "endChar": 47
+      },
+      "revId": "51af8a971cf8cc3786fbe76716d9ecf71b05f572",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
