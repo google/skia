@@ -1071,3 +1071,4 @@
 #include "../../docs/examples/Text_Skew_X.cpp"
 #include "../../docs/examples/Typeface_Methods.cpp"
 #include "../../docs/examples/Xor.cpp"
+#include "../../docs/examples/incomplete.cpp"
