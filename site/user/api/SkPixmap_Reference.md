@@ -94,7 +94,7 @@ empty <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>
 
 ### Example
 
-<div><fiddle-embed name="9547e74a9d37553a667b913ffd1312dd">
+<div><fiddle-embed name="@Pixmap_empty_constructor">
 
 #### Example Output
 
@@ -149,7 +149,7 @@ initialized <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>
 
 ### Example
 
-<div><fiddle-embed name="9a00774be57d7308313b3a9073e6e696"><div><a href='SkImage_Reference#SkImage'>SkImage</a>::<a href='#SkImage_MakeRasterCopy'>MakeRasterCopy</a> takes const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& as an argument. The example
+<div><fiddle-embed name="@Pixmap_const_SkImageInfo_const_star"><div><a href='SkImage_Reference#SkImage'>SkImage</a>::<a href='#SkImage_MakeRasterCopy'>MakeRasterCopy</a> takes const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& as an argument. The example
 constructs a <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a> from the brace-delimited parameters.
 </div>
 
@@ -182,7 +182,7 @@ memory if desired.
 
 ### Example
 
-<div><fiddle-embed name="d9eb583c39f4f0baea79896b89245c98">
+<div><fiddle-embed name="@Pixmap_reset">
 
 #### Example Output
 
@@ -231,7 +231,7 @@ out of scope, <a href='#SkPixmap_reset_2_addr'>addr</a> is unaffected.
 
 ### Example
 
-<div><fiddle-embed name="9a392b753167cfa849cebeefd5a6e07d"></fiddle-embed></div>
+<div><fiddle-embed name="@Pixmap_reset_2"></fiddle-embed></div>
 
 ### See Also
 
@@ -303,7 +303,7 @@ true if intersection of <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a> and <
 
 ### Example
 
-<div><fiddle-embed name="febdbfac6cf4cde69837643be2e1f6dd"></fiddle-embed></div>
+<div><fiddle-embed name="@Pixmap_extractSubset"></fiddle-embed></div>
 
 ### See Also
 
@@ -327,7 +327,7 @@ reference to <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>
 
 ### Example
 
-<div><fiddle-embed name="6e0f558bf7fabc655041116288559134">
+<div><fiddle-embed name="@Pixmap_info">
 
 #### Example Output
 
@@ -361,7 +361,7 @@ byte length of <a href='undocumented#Pixel'>pixel</a> row
 
 ### Example
 
-<div><fiddle-embed name="19ac8bb81854680bd408fec8cb797d5c">
+<div><fiddle-embed name="@Pixmap_rowBytes">
 
 #### Example Output
 
@@ -394,7 +394,7 @@ It is up to the <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a> creator to en
 
 ### Example
 
-<div><fiddle-embed name="17bcabaaee2dbb7beba562e9ca50b55e">
+<div><fiddle-embed name="@Pixmap_addr">
 
 #### Example Output
 
@@ -428,7 +428,7 @@ Returns <a href='undocumented#Pixel'>pixel</a> count in each <a href='undocument
 
 ### Example
 
-<div><fiddle-embed name="f68617b7153a20b2ed3d7f9ed5c6e5e4">
+<div><fiddle-embed name="@Pixmap_width">
 
 #### Example Output
 
@@ -458,7 +458,7 @@ Returns <a href='undocumented#Pixel'>pixel</a> row count.
 
 ### Example
 
-<div><fiddle-embed name="4a996d32122f469d51ddd0186efb48cc">
+<div><fiddle-embed name="@Pixmap_height">
 
 #### Example Output
 
@@ -492,7 +492,7 @@ Returns <a href='#Image_Info_Color_Type'>Color_Type</a>, one of: <a href='SkImag
 
 ### Example
 
-<div><fiddle-embed name="0ab5c7af272685f2ce177cc79e6b9457">
+<div><fiddle-embed name="@Pixmap_colorType">
 
 #### Example Output
 
@@ -524,7 +524,7 @@ Returns <a href='#Image_Info_Alpha_Type'>Alpha_Type</a>, one of: <a href='SkImag
 
 ### Example
 
-<div><fiddle-embed name="070b1a60232be499eb10c6ea62371804">
+<div><fiddle-embed name="@Bitmap_012">
 
 #### Example Output
 
@@ -556,7 +556,7 @@ immutable.
 
 ### Example
 
-<div><fiddle-embed name="3421bb20a302d563832ba7bb45e0cc58"><div><a href='undocumented#SkColorSpace'>SkColorSpace</a>::<a href='#SkColorSpace_MakeSRGBLinear'>MakeSRGBLinear</a> creates <a href='#Color_Space'>Color_Space</a> with linear gamma
+<div><fiddle-embed name="@Pixmap_colorSpace"><div><a href='undocumented#SkColorSpace'>SkColorSpace</a>::<a href='#SkColorSpace_MakeSRGBLinear'>MakeSRGBLinear</a> creates <a href='#Color_Space'>Color_Space</a> with linear gamma
 and an sRGB gamut. This <a href='#Color_Space'>Color_Space</a> gamma is not close to sRGB gamma.
 </div>
 
@@ -590,7 +590,7 @@ true if <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a> has opaque <
 
 ### Example
 
-<div><fiddle-embed name="efd083f121e888a523455ea8a49e50d1"><div><a href='#SkPixmap_isOpaque'>isOpaque</a> ignores whether all pixels are opaque or not.
+<div><fiddle-embed name="@Pixmap_isOpaque"><div><a href='#SkPixmap_isOpaque'>isOpaque</a> ignores whether all pixels are opaque or not.
 </div>
 
 #### Example Output
@@ -624,7 +624,7 @@ integral rectangle from origin to <a href='#SkPixmap_width'>width()</a> and <a h
 
 ### Example
 
-<div><fiddle-embed name="79750fb1d898a4e5c8c828b7bc9acec5">
+<div><fiddle-embed name="@Pixmap_bounds">
 
 #### Example Output
 
@@ -658,7 +658,7 @@ maximum pixels per row
 
 ### Example
 
-<div><fiddle-embed name="6231bb212d0c231b5bc44eac626fbcb5">
+<div><fiddle-embed name="@Pixmap_rowBytesAsPixels">
 
 #### Example Output
 
@@ -693,7 +693,7 @@ one of: 0, 1, 2, 3; left shift to convert pixels to bytes
 
 ### Example
 
-<div><fiddle-embed name="bf31ee140e2c163c3957276e6d4c4f0c">
+<div><fiddle-embed name="@Pixmap_shiftPerPixel">
 
 #### Example Output
 
@@ -734,7 +734,7 @@ Returns <a href='#SkPixmap_height'>height()</a> times <a href='#SkPixmap_rowByte
 
 ### Example
 
-<div><fiddle-embed name="410d14ddc45d272598c5a4e52bb047de">
+<div><fiddle-embed name="@Pixmap_computeByteSize">
 
 #### Example Output
 
@@ -786,7 +786,7 @@ true if all pixels have opaque values or <a href='SkImageInfo_Reference#SkColorT
 
 ### Example
 
-<div><fiddle-embed name="6ef37d5be03d0bfaec992dbb5a94c66f">
+<div><fiddle-embed name="@Pixmap_computeIsOpaque">
 
 #### Example Output
 
@@ -839,7 +839,7 @@ precision.
 
 ### Example
 
-<div><fiddle-embed name="94ad244056dc80ecd87daae004266334">
+<div><fiddle-embed name="@Pixmap_getColor">
 
 #### Example Output
 
@@ -926,7 +926,7 @@ readable generic pointer to <a href='undocumented#Pixel'>pixel</a>
 
 ### Example
 
-<div><fiddle-embed name="6e6e29e860eafed77308c973400cc84d">
+<div><fiddle-embed name="@Pixmap_addr_2">
 
 #### Example Output
 
@@ -960,7 +960,7 @@ readable unsigned 8-bit pointer to pixels
 
 ### Example
 
-<div><fiddle-embed name="9adda80b2dd1b08ec5ccf66da7c8bd91">
+<div><fiddle-embed name="@Pixmap_addr8">
 
 #### Example Output
 
@@ -994,7 +994,7 @@ readable unsigned 16-bit pointer to pixels
 
 ### Example
 
-<div><fiddle-embed name="9b16012d265c954c6de13f3fc960da52">
+<div><fiddle-embed name="@Pixmap_addr16">
 
 #### Example Output
 
@@ -1028,7 +1028,7 @@ readable unsigned 32-bit pointer to pixels
 
 ### Example
 
-<div><fiddle-embed name="6b90c7ae9f254fe4ea9ef638f893a3e6">
+<div><fiddle-embed name="@Pixmap_addr32">
 
 #### Example Output
 
@@ -1062,7 +1062,7 @@ readable unsigned 64-bit pointer to pixels
 
 ### Example
 
-<div><fiddle-embed name="0d17085a4698a8a2e2235fad9041b4b4">
+<div><fiddle-embed name="@Pixmap_addr64">
 
 #### Example Output
 
@@ -1097,7 +1097,7 @@ readable unsigned 16-bit pointer to first component of pixels
 
 ### Example
 
-<div><fiddle-embed name="54e8525a592f05623c33b375aebc90c1">
+<div><fiddle-embed name="@Pixmap_addrF16">
 
 #### Example Output
 
@@ -1143,7 +1143,7 @@ readable unsigned 8-bit pointer to <a href='undocumented#Pixel'>pixel</a> at (<a
 
 ### Example
 
-<div><fiddle-embed name="5b986272268ef2c52045c1856f8b6107">
+<div><fiddle-embed name="@Pixmap_addr8_2">
 
 #### Example Output
 
@@ -1189,7 +1189,7 @@ readable unsigned 16-bit pointer to <a href='undocumented#Pixel'>pixel</a> at (<
 
 ### Example
 
-<div><fiddle-embed name="2c0c88a546d4ef093ab63ff72dac00b9">
+<div><fiddle-embed name="@Pixmap_addr16_2">
 
 #### Example Output
 
@@ -1235,7 +1235,7 @@ readable unsigned 32-bit pointer to <a href='undocumented#Pixel'>pixel</a> at (<
 
 ### Example
 
-<div><fiddle-embed name="12f8b5ce9fb25604f33df336677f5d62">
+<div><fiddle-embed name="@Pixmap_addr32_2">
 
 #### Example Output
 
@@ -1281,7 +1281,7 @@ readable unsigned 64-bit pointer to <a href='undocumented#Pixel'>pixel</a> at (<
 
 ### Example
 
-<div><fiddle-embed name="5449f65fd7673273b0b57807fd3117ff">
+<div><fiddle-embed name="@Pixmap_addr64_2">
 
 #### Example Output
 
@@ -1330,7 +1330,7 @@ readable unsigned 16-bit pointer to <a href='undocumented#Pixel'>pixel</a> compo
 
 ### Example
 
-<div><fiddle-embed name="f6076cad455bc80af5d06eb121d3b6f2">
+<div><fiddle-embed name="@Pixmap_addrF16_2">
 
 #### Example Output
 
@@ -1362,7 +1362,7 @@ writable generic base pointer to pixels
 
 ### Example
 
-<div><fiddle-embed name="74ef460f89ed5904334d0f8883e781c4">
+<div><fiddle-embed name="@Pixmap_writable_addr">
 
 #### Example Output
 
@@ -1407,7 +1407,7 @@ writable generic pointer to <a href='undocumented#Pixel'>pixel</a>
 
 ### Example
 
-<div><fiddle-embed name="559eaca89c765bc8466ea1ba3331d4db">
+<div><fiddle-embed name="@Pixmap_writable_addr_2">
 
 #### Example Output
 
@@ -1453,7 +1453,7 @@ writable unsigned 8-bit pointer to pixels
 
 ### Example
 
-<div><fiddle-embed name="809284db136748208b3efc31cd89de29"><div>Altering pixels after drawing <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> is not guaranteed to affect subsequent
+<div><fiddle-embed name="@Pixmap_writable_addr8"><div>Altering pixels after drawing <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> is not guaranteed to affect subsequent
 drawing on all platforms. Adding a second <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>::<a href='#SkBitmap_installPixels'>installPixels</a> after editing
 <a href='undocumented#Pixel'>pixel</a> memory is safer.
 </div></fiddle-embed></div>
@@ -1492,7 +1492,7 @@ writable unsigned 16-bit pointer to <a href='undocumented#Pixel'>pixel</a>
 
 ### Example
 
-<div><fiddle-embed name="6da54774f6432b46b47ea9013c15f280"><div>Draw a five by five <a href='SkBitmap_Reference#Bitmap'>bitmap</a>, and draw it again with a center black <a href='undocumented#Pixel'>pixel</a>.
+<div><fiddle-embed name="@Pixmap_writable_addr16"><div>Draw a five by five <a href='SkBitmap_Reference#Bitmap'>bitmap</a>, and draw it again with a center black <a href='undocumented#Pixel'>pixel</a>.
 The low nibble of the 16-bit word is <a href='SkColor_Reference#Alpha'>Alpha</a>.
 </div></fiddle-embed></div>
 
@@ -1531,7 +1531,7 @@ writable unsigned 32-bit pointer to <a href='undocumented#Pixel'>pixel</a>
 
 ### Example
 
-<div><fiddle-embed name="086866243bf9e4c14c3b215a2aa69ad9"></fiddle-embed></div>
+<div><fiddle-embed name="@Pixmap_writable_addr32"></fiddle-embed></div>
 
 ### See Also
 
@@ -1567,7 +1567,7 @@ writable unsigned 64-bit pointer to <a href='undocumented#Pixel'>pixel</a>
 
 ### Example
 
-<div><fiddle-embed name="de14d8d30e4a7b6462103d0e0dd96b0b"></fiddle-embed></div>
+<div><fiddle-embed name="@Pixmap_writable_addr64"></fiddle-embed></div>
 
 ### See Also
 
@@ -1604,7 +1604,7 @@ writable unsigned 16-bit pointer to first component of <a href='undocumented#Pix
 
 ### Example
 
-<div><fiddle-embed name="7822d78f5cacf5c04267cbbc6c6d0b80"><div>Left <a href='SkBitmap_Reference#Bitmap'>bitmap</a> is drawn with two pixels defined in half float format. Right <a href='SkBitmap_Reference#Bitmap'>bitmap</a>
+<div><fiddle-embed name="@Pixmap_writable_addrF16"><div>Left <a href='SkBitmap_Reference#Bitmap'>bitmap</a> is drawn with two pixels defined in half float format. Right <a href='SkBitmap_Reference#Bitmap'>bitmap</a>
 is drawn after overwriting bottom half float <a href='SkColor_Reference#Color'>color</a> with top half float <a href='SkColor_Reference#Color'>color</a>.
 </div></fiddle-embed></div>
 
@@ -1658,7 +1658,7 @@ true if pixels are copied to <a href='#SkPixmap_readPixels_dstPixels'>dstPixels<
 
 ### Example
 
-<div><fiddle-embed name="df4e355c4845350daede833b4fd21ec1"><div>Transferring the gradient from 8 bits per component to 4 bits per component
+<div><fiddle-embed name="@Pixmap_readPixels"><div>Transferring the gradient from 8 bits per component to 4 bits per component
 creates visible banding.
 </div></fiddle-embed></div>
 
@@ -1719,7 +1719,7 @@ true if pixels are copied to <a href='#SkPixmap_readPixels_2_dstPixels'>dstPixel
 
 ### Example
 
-<div><fiddle-embed name="094ca0bd37588cc7be241bb387a3e17b"></fiddle-embed></div>
+<div><fiddle-embed name="@Pixmap_readPixels_2"></fiddle-embed></div>
 
 ### See Also
 
@@ -1770,7 +1770,7 @@ true if pixels are copied to <a href='#SkPixmap_readPixels_3_dst'>dst</a>
 
 ### Example
 
-<div><fiddle-embed name="6ec7f7b2cc163cd29f627eef6d4b061c"></fiddle-embed></div>
+<div><fiddle-embed name="@Pixmap_readPixels_3"></fiddle-embed></div>
 
 ### See Also
 
@@ -1811,7 +1811,7 @@ true if pixels are copied to <a href='#SkPixmap_readPixels_4_dst'>dst</a>
 
 ### Example
 
-<div><fiddle-embed name="e18549b5ee1039cb61b0bb38c2104fc9"></fiddle-embed></div>
+<div><fiddle-embed name="@Pixmap_readPixels_4"></fiddle-embed></div>
 
 ### See Also
 
@@ -1864,7 +1864,7 @@ true if pixels are scaled to fit <a href='#SkPixmap_scalePixels_dst'>dst</a>
 
 ### Example
 
-<div><fiddle-embed name="8e3c8a9c1d0d2e9b8bf66e24d274f792"></fiddle-embed></div>
+<div><fiddle-embed name="@Pixmap_scalePixels"></fiddle-embed></div>
 
 ### See Also
 
@@ -1898,7 +1898,7 @@ true if pixels are changed
 
 ### Example
 
-<div><fiddle-embed name="a0cdbafed4786788cc90681e7b294234"></fiddle-embed></div>
+<div><fiddle-embed name="@Pixmap_erase"></fiddle-embed></div>
 
 ### See Also
 
@@ -1929,7 +1929,7 @@ true if pixels are changed
 
 ### Example
 
-<div><fiddle-embed name="838202e0d49cad2eb3eeb495834f6d63"></fiddle-embed></div>
+<div><fiddle-embed name="@Pixmap_erase_2"></fiddle-embed></div>
 
 ### See Also
 
@@ -1964,7 +1964,7 @@ true if pixels are changed
 
 ### Example
 
-<div><fiddle-embed name="f884f3f46a565f052a5e252ae2f36e9b"></fiddle-embed></div>
+<div><fiddle-embed name="@Pixmap_erase_3"></fiddle-embed></div>
 
 ### See Also
 

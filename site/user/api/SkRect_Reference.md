@@ -155,7 +155,7 @@ bounds (0, 0, 0, 0)
 
 ### Example
 
-<div><fiddle-embed name="2e262d0ac4b8ef51695e0525fc3ecdf6">
+<div><fiddle-embed name="@Rect_MakeEmpty">
 
 #### Example Output
 
@@ -202,7 +202,7 @@ bounds (0, 0, <a href='#SkRect_MakeWH_w'>w</a>, <a href='#SkRect_MakeWH_h'>h</a>
 
 ### Example
 
-<div><fiddle-embed name="8009d30f431e01f8aea4808e9017d9bf">
+<div><fiddle-embed name="@Rect_MakeWH">
 
 #### Example Output
 
@@ -246,7 +246,7 @@ bounds (0, 0, <a href='#SkRect_MakeIWH_w'>w</a>, <a href='#SkRect_MakeIWH_h'>h</
 
 ### Example
 
-<div><fiddle-embed name="faa660ac19eaddc3f3eab57a0bddfdcb">
+<div><fiddle-embed name="@Rect_MakeIWH">
 
 #### Example Output
 
@@ -285,7 +285,7 @@ bounds (0, 0, <a href='#SkRect_MakeSize_size'>size</a>.<a href='#SkSize_width'>w
 
 ### Example
 
-<div><fiddle-embed name="ab2c1a55016c8de9172b77fdf69e00a2">
+<div><fiddle-embed name="@Rect_MakeSize">
 
 #### Example Output
 
@@ -333,7 +333,7 @@ bounds (<a href='#SkRect_MakeLTRB_l'>l</a>, <a href='#SkRect_MakeLTRB_t'>t</a>, 
 
 ### Example
 
-<div><fiddle-embed name="158b8dd9d02d65a5ae5ab7d1595a5b4c">
+<div><fiddle-embed name="@Rect_MakeLTRB">
 
 #### Example Output
 
@@ -381,7 +381,7 @@ bounds at (<a href='#SkRect_MakeXYWH_x'>x</a>, <a href='#SkRect_MakeXYWH_y'>y</a
 
 ### Example
 
-<div><fiddle-embed name="38e464dba13be11ac21e210fbf3b5afc">
+<div><fiddle-embed name="@Rect_MakeXYWH">
 
 #### Example Output
 
@@ -420,7 +420,7 @@ bounds (0, 0, <a href='#SkRect_Make_size'>size</a>.<a href='#SkISize_width'>widt
 
 ### Example
 
-<div><fiddle-embed name="e866f5e4f6ac52e89acadf48e54ac8e0">
+<div><fiddle-embed name="@Rect_Make">
 
 #### Example Output
 
@@ -459,7 +459,7 @@ than <a href='#SkRect_fBottom'>fBottom</a>.
 
 ### Example
 
-<div><fiddle-embed name="dd801faa1e60a0fe9e0657674461e063"></fiddle-embed></div>
+<div><fiddle-embed name="@Rect_Make_2"></fiddle-embed></div>
 
 ### See Also
 
@@ -485,7 +485,7 @@ true if <a href='#SkRect_width'>width()</a> or <a href='#SkRect_height'>height()
 
 ### Example
 
-<div><fiddle-embed name="1d7b924d6ca2a6aef09684a8a632439c">
+<div><fiddle-embed name="@Rect_isEmpty">
 
 #### Example Output
 
@@ -520,7 +520,7 @@ true if <a href='#SkRect_width'>width()</a> or <a href='#SkRect_height'>height()
 
 ### Example
 
-<div><fiddle-embed name="c7065a83b220a96f903dbbb65906fe7b">
+<div><fiddle-embed name="@Rect_isSorted">
 
 #### Example Output
 
@@ -554,7 +554,7 @@ true if no member is infinite or NaN
 
 ### Example
 
-<div><fiddle-embed name="443fe5f8296d4cdb19cc9862a9cf77a4">
+<div><fiddle-embed name="@Rect_isFinite">
 
 #### Example Output
 
@@ -587,7 +587,7 @@ Call <a href='#SkRect_sort'>sort()</a> to reverse <a href='#SkRect_fLeft'>fLeft<
 
 ### Example
 
-<div><fiddle-embed name="23c77a35ac54a439a2989f840aa5cb99">
+<div><fiddle-embed name="@Rect_x">
 
 #### Example Output
 
@@ -619,7 +619,7 @@ and <a href='#SkRect_sort'>sort()</a> to reverse <a href='#SkRect_fTop'>fTop</a>
 
 ### Example
 
-<div><fiddle-embed name="c653d9017983d2a047b1fee6a481d82b">
+<div><fiddle-embed name="@Rect_y">
 
 #### Example Output
 
@@ -651,7 +651,7 @@ Call <a href='#SkRect_sort'>sort()</a> to reverse <a href='#SkRect_fLeft'>fLeft<
 
 ### Example
 
-<div><fiddle-embed name="900dc96c3549795a87036d6458c4fde6">
+<div><fiddle-embed name="@Rect_left">
 
 #### Example Output
 
@@ -683,7 +683,7 @@ and <a href='#SkRect_sort'>sort()</a> to reverse <a href='#SkRect_fTop'>fTop</a>
 
 ### Example
 
-<div><fiddle-embed name="3cfc24b011aef1ca8ccb57c05711620c">
+<div><fiddle-embed name="@Rect_top">
 
 #### Example Output
 
@@ -715,7 +715,7 @@ Call <a href='#SkRect_sort'>sort()</a> to reverse <a href='#SkRect_fLeft'>fLeft<
 
 ### Example
 
-<div><fiddle-embed name="ca3de7e5e292b3ad3633b1c39a31d3ab">
+<div><fiddle-embed name="@Rect_right">
 
 #### Example Output
 
@@ -747,7 +747,7 @@ and <a href='#SkRect_sort'>sort()</a> to reverse <a href='#SkRect_fTop'>fTop</a>
 
 ### Example
 
-<div><fiddle-embed name="a98993a66616ae406d8bdc54adfb1411">
+<div><fiddle-embed name="@Rect_bottom">
 
 #### Example Output
 
@@ -779,7 +779,7 @@ result fits in 32-bit float; result may be negative or infinity.
 
 ### Example
 
-<div><fiddle-embed name="11f8f0efe6291019fee0ac17844f6c1a"><div>Compare with <a href='SkIRect_Reference#SkIRect'>SkIRect</a>::<a href='#SkIRect_width'>width()</a> example.
+<div><fiddle-embed name="@Rect_width"><div>Compare with <a href='SkIRect_Reference#SkIRect'>SkIRect</a>::<a href='#SkIRect_width'>width()</a> example.
 </div>
 
 #### Example Output
@@ -812,7 +812,7 @@ result fits in 32-bit float; result may be negative or infinity.
 
 ### Example
 
-<div><fiddle-embed name="39429e45f05240218ecd511443ab3e44"><div>Compare with <a href='SkIRect_Reference#SkIRect'>SkIRect</a>::<a href='#SkIRect_height'>height()</a> example.
+<div><fiddle-embed name="@Rect_height"><div>Compare with <a href='SkIRect_Reference#SkIRect'>SkIRect</a>::<a href='#SkIRect_height'>height()</a> example.
 </div>
 
 #### Example Output
@@ -845,7 +845,7 @@ midpoint on x-axis
 
 ### Example
 
-<div><fiddle-embed name="d8439ba8d23a424fa032fb97147fd2d2">
+<div><fiddle-embed name="@Rect_centerX">
 
 #### Example Output
 
@@ -879,7 +879,7 @@ midpoint on y-axis
 
 ### Example
 
-<div><fiddle-embed name="ebeeafafeb8fe39d5ffc9115b02c2340">
+<div><fiddle-embed name="@Rect_centerY">
 
 #### Example Output
 
@@ -925,7 +925,7 @@ true if members are equal
 
 ### Example
 
-<div><fiddle-embed name="c6c5b40cad7c3a839fdf576b380391a6">
+<div><fiddle-embed name="@Rect_equal_operator">
 
 #### Example Output
 
@@ -972,7 +972,7 @@ true if members are not equal
 
 ### Example
 
-<div><fiddle-embed name="286072f8c27ff15be9eb945fa38dc9f7">
+<div><fiddle-embed name="@Rect_notequal_operator">
 
 #### Example Output
 
@@ -1008,7 +1008,7 @@ bottom-right, bottom-left.
 
 ### Example
 
-<div><fiddle-embed name="59a6e7d202ac17ab80ec21b233e51f59">
+<div><fiddle-embed name="@Rect_toQuad">
 
 #### Example Output
 
@@ -1049,7 +1049,7 @@ Result is either empty or sorted: <a href='#SkRect_fLeft'>fLeft</a> is less than
 
 ### Example
 
-<div><fiddle-embed name="cf0da15f48aa54fd1889e7f913601710">
+<div><fiddle-embed name="@Rect_setBounds">
 
 #### Example Output
 
@@ -1098,7 +1098,7 @@ true if all <a href='SkPoint_Reference#SkPoint'>SkPoint</a> values are finite
 
 ### Example
 
-<div><fiddle-embed name="83d879b92683b15f9daaf0c9e71c5b35">
+<div><fiddle-embed name="@Rect_setBoundsCheck">
 
 #### Example Output
 
@@ -1141,7 +1141,7 @@ contains infinity or NaN, all <a href='SkRect_Reference#SkRect'>SkRect</a> dimen
 
 ### Example
 
-<div><fiddle-embed name="be10cb1411dbcf7e38e0198e8a9b8b0e"></fiddle-embed></div>
+<div><fiddle-embed name="@Rect_setBoundsNoCheck"></fiddle-embed></div>
 
 ### See Also
 
@@ -1163,7 +1163,7 @@ is a convenience, but does not designate a special empty rectangle.
 
 ### Example
 
-<div><fiddle-embed name="2cf67542d45ef5d7a7efb673b651ff54">
+<div><fiddle-embed name="@Rect_setEmpty">
 
 #### Example Output
 
@@ -1198,7 +1198,7 @@ Very large values in <a href='#SkRect_set_src'>src</a> may lose precision.
 
 ### Example
 
-<div><fiddle-embed name="a10ad8d97062bc3f40942f47e5108917">
+<div><fiddle-embed name="@Rect_set">
 
 #### Example Output
 
@@ -1288,7 +1288,7 @@ Sets <a href='SkRect_Reference#SkRect'>SkRect</a> to (<a href='#SkRect_setLTRB_l
 
 ### Example
 
-<div><fiddle-embed name="70692838793454c8e045d6eaf7edcbff">
+<div><fiddle-embed name="@Rect_setLTRB">
 
 #### Example Output
 
@@ -1370,7 +1370,7 @@ sorted and may be empty. Does not check to see if values are finite.
 
 ### Example
 
-<div><fiddle-embed name="ee72450381f768f3869153cdbeccdc3e"><div><a href='#SkRect_set_4_p0'>p0</a> and <a href='#SkRect_set_4_p1'>p1</a> may be swapped and have the same effect unless one contains NaN.
+<div><fiddle-embed name="@Rect_set_4"><div><a href='#SkRect_set_4_p0'>p0</a> and <a href='#SkRect_set_4_p1'>p1</a> may be swapped and have the same effect unless one contains NaN.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -1406,7 +1406,7 @@ Does not validate input; <a href='#SkRect_setXYWH_width'>width</a> or <a href='#
 
 ### Example
 
-<div><fiddle-embed name="373cce4c61b9da0384b735b838765163">
+<div><fiddle-embed name="@Rect_setXYWH">
 
 #### Example Output
 
@@ -1444,7 +1444,7 @@ Sets <a href='SkRect_Reference#SkRect'>SkRect</a> to (0, 0, <a href='#SkRect_set
 
 ### Example
 
-<div><fiddle-embed name="9cb5fee17802fa49341f3707bdf5d235">
+<div><fiddle-embed name="@Rect_setWH">
 
 #### Example Output
 
@@ -1579,7 +1579,7 @@ If <a href='#SkRect_makeOffset_dy'>dy</a> is positive, <a href='SkRect_Reference
 
 ### Example
 
-<div><fiddle-embed name="98841ab0a932f99cccd8e6a34d94ba05">
+<div><fiddle-embed name="@Rect_makeOffset">
 
 #### Example Output
 
@@ -1625,7 +1625,7 @@ If <a href='#SkRect_makeInset_dy'>dy</a> is positive, <a href='SkRect_Reference#
 
 ### Example
 
-<div><fiddle-embed name="b8d32ab2f7ea3d4d5fb5a4ea2156f1c5">
+<div><fiddle-embed name="@Rect_makeInset">
 
 #### Example Output
 
@@ -1671,7 +1671,7 @@ If <a href='#SkRect_makeOutset_dy'>dy</a> is positive, <a href='SkRect_Reference
 
 ### Example
 
-<div><fiddle-embed name="87176fc60914cbca9c6a20998a033c24">
+<div><fiddle-embed name="@Rect_makeOutset">
 
 #### Example Output
 
@@ -1713,7 +1713,7 @@ If <a href='#SkRect_offset_dy'>dy</a> is positive, moves <a href='SkRect_Referen
 
 ### Example
 
-<div><fiddle-embed name="04eb33f0fd376f2942ca5f1c7f6cbcfc">
+<div><fiddle-embed name="@Rect_offset">
 
 #### Example Output
 
@@ -1752,7 +1752,7 @@ If <a href='#SkRect_offset_2_delta'>delta</a>.<a href='#SkPoint_fY'>fY</a> is po
 
 ### Example
 
-<div><fiddle-embed name="b24cf65561c98c1858a06c39f10fb797">
+<div><fiddle-embed name="@Rect_offset_2">
 
 #### Example Output
 
@@ -1789,7 +1789,7 @@ are unchanged.
 
 ### Example
 
-<div><fiddle-embed name="bedb04b7b3e1af3e8039f9cffe66989e">
+<div><fiddle-embed name="@Rect_offsetTo">
 
 #### Example Output
 
@@ -1830,7 +1830,7 @@ If <a href='#SkRect_inset_dy'>dy</a> is negative, makes <a href='SkRect_Referenc
 
 ### Example
 
-<div><fiddle-embed name="dae21340941dc6e4d048816dfd9f204c">
+<div><fiddle-embed name="@Rect_inset">
 
 #### Example Output
 
@@ -1871,7 +1871,7 @@ If <a href='#SkRect_outset_dy'>dy</a> is negative, makes <a href='SkRect_Referen
 
 ### Example
 
-<div><fiddle-embed name="861f873ba660af8c8bf8b0b83d829cf4">
+<div><fiddle-embed name="@Rect_outset">
 
 #### Example Output
 
@@ -1923,7 +1923,7 @@ true if (<a href='#SkRect_contains_x'>x</a>, <a href='#SkRect_contains_y'>y</a>)
 
 ### Example
 
-<div><fiddle-embed name="85be528a78945a6dc4f7dccb80a80746">
+<div><fiddle-embed name="@Rect_contains">
 
 #### Example Output
 
@@ -1965,7 +1965,7 @@ true if all sides of <a href='SkRect_Reference#SkRect'>SkRect</a> are outside <a
 
 ### Example
 
-<div><fiddle-embed name="92f9e6aa5bb76791139a24cf7d8df99e">
+<div><fiddle-embed name="@Rect_contains_2">
 
 #### Example Output
 
@@ -2007,7 +2007,7 @@ true if all sides of <a href='SkRect_Reference#SkRect'>SkRect</a> are outside <a
 
 ### Example
 
-<div><fiddle-embed name="dd58b699551dd44026a2c6386be27d88">
+<div><fiddle-embed name="@Rect_contains_3">
 
 #### Example Output
 
@@ -2049,7 +2049,7 @@ true if <a href='#SkRect_intersect_r'>r</a> and <a href='SkRect_Reference#SkRect
 
 ### Example
 
-<div><fiddle-embed name="5d0b12e0ef6f1c181dddded4274230ca"><div>Two <a href='undocumented#SkDebugf'>SkDebugf</a> calls are required. If the calls are combined, their arguments
+<div><fiddle-embed name="@Rect_intersect"><div>Two <a href='undocumented#SkDebugf'>SkDebugf</a> calls are required. If the calls are combined, their arguments
 may not be evaluated in left to right order: the printed intersection may
 be before or after the call to intersect.
 </div>
@@ -2104,7 +2104,7 @@ true if construction and <a href='SkRect_Reference#SkRect'>SkRect</a> have area 
 
 ### Example
 
-<div><fiddle-embed name="5002f65a72def2787086a33131933e70"><div>Two <a href='undocumented#SkDebugf'>SkDebugf</a> calls are required. If the calls are combined, their arguments
+<div><fiddle-embed name="@Rect_intersect_2"><div>Two <a href='undocumented#SkDebugf'>SkDebugf</a> calls are required. If the calls are combined, their arguments
 may not be evaluated in <a href='#SkRect_intersect_2_left'>left</a> to <a href='#SkRect_intersect_2_right'>right</a> order: the printed intersection may
 be before or after the call to intersect.
 </div>
@@ -2150,7 +2150,7 @@ true if <a href='#SkRect_intersect_3_a'>a</a> and <a href='#SkRect_intersect_3_b
 
 ### Example
 
-<div><fiddle-embed name="d610437a65dd3e952719efe605cbd0c7">
+<div><fiddle-embed name="@Rect_intersect_3">
 
 #### Example Output
 
@@ -2200,7 +2200,7 @@ true if construction and <a href='SkRect_Reference#SkRect'>SkRect</a> have area 
 
 ### Example
 
-<div><fiddle-embed name="7145dc17ebce4f54e892102f6c98e811">
+<div><fiddle-embed name="@Rect_intersects_3">
 
 #### Example Output
 
@@ -2238,7 +2238,7 @@ true if <a href='#SkRect_intersects_2_r'>r</a> and <a href='SkRect_Reference#SkR
 
 ### Example
 
-<div><fiddle-embed name="ca37b4231b21eb8296cb19ba9e0c781b">
+<div><fiddle-embed name="@Rect_intersects_2">
 
 #### Example Output
 
@@ -2279,7 +2279,7 @@ true if <a href='#SkRect_Intersects_a'>a</a> and <a href='#SkRect_Intersects_b'>
 
 ### Example
 
-<div><fiddle-embed name="795061764b10c9e05efb466c9cb60644">
+<div><fiddle-embed name="@Rect_Intersects">
 
 #### Example Output
 
@@ -2329,7 +2329,7 @@ Has no effect if construction is empty. Otherwise, if <a href='SkRect_Reference#
 
 ### Example
 
-<div><fiddle-embed name="afa9c6b4d05bb669db07fe0b7b97e6aa">
+<div><fiddle-embed name="@Rect_join">
 
 #### Example Output
 
@@ -2365,7 +2365,7 @@ Has no effect if <a href='#SkRect_join_2_r'>r</a> is empty. Otherwise, if <a hre
 
 ### Example
 
-<div><fiddle-embed name="26500032494cf93c5fa3423110fe82af">
+<div><fiddle-embed name="@Rect_join_2">
 
 #### Example Output
 
@@ -2403,7 +2403,7 @@ May produce incorrect results if <a href='#SkRect_joinNonEmptyArg_r'>r</a> is em
 
 ### Example
 
-<div><fiddle-embed name="88439de2aa0911262c60c0eb506396cb"><div>Since <a href='SkRect_Reference#Rect'>Rect</a> is not sorted, first result is copy of toJoin.
+<div><fiddle-embed name="@Rect_joinNonEmptyArg"><div>Since <a href='SkRect_Reference#Rect'>Rect</a> is not sorted, first result is copy of toJoin.
 </div>
 
 #### Example Output
@@ -2440,7 +2440,7 @@ May produce incorrect results if <a href='SkRect_Reference#SkRect'>SkRect</a> or
 
 ### Example
 
-<div><fiddle-embed name="a476548d0001296afd8e58c1eba1b70b"><div>Since <a href='SkRect_Reference#Rect'>Rect</a> is not sorted, first result is not useful.
+<div><fiddle-embed name="@Rect_joinPossiblyEmptyRect"><div>Since <a href='SkRect_Reference#Rect'>Rect</a> is not sorted, first result is not useful.
 </div>
 
 #### Example Output
@@ -2479,7 +2479,7 @@ members, using <code>(<a href='undocumented#SkScalarRoundToInt'>SkScalarRoundToI
 
 ### Example
 
-<div><fiddle-embed name="8b9e5a9af0a9b878f76919534d88f41e">
+<div><fiddle-embed name="@Rect_round">
 
 #### Example Output
 
@@ -2515,7 +2515,7 @@ up <a href='#SkRect_fRight'>fRight</a> and <a href='#SkRect_fBottom'>fBottom</a>
 
 ### Example
 
-<div><fiddle-embed name="0bd13d7e6426ae7a3befa2ab151ac5fc">
+<div><fiddle-embed name="@Rect_roundOut">
 
 #### Example Output
 
@@ -2551,7 +2551,7 @@ up <a href='#SkRect_fRight'>fRight</a> and <a href='#SkRect_fBottom'>fBottom</a>
 
 ### Example
 
-<div><fiddle-embed name="e09a6a12869a8ac21e9c2af98a5bb686">
+<div><fiddle-embed name="@Rect_roundOut_2">
 
 #### Example Output
 
@@ -2587,7 +2587,7 @@ of <a href='#SkRect_fRight'>fRight</a> and <a href='#SkRect_fBottom'>fBottom</a>
 
 ### Example
 
-<div><fiddle-embed name="abb337da8fc1891f016c61258681c64c">
+<div><fiddle-embed name="@Rect_roundIn">
 
 #### Example Output
 
@@ -2619,7 +2619,7 @@ rounded <a href='SkIRect_Reference#IRect'>IRect</a>
 
 ### Example
 
-<div><fiddle-embed name="ef7ae1dd522c235b0afe41b55a624f46">
+<div><fiddle-embed name="@Rect_round_2">
 
 #### Example Output
 
@@ -2652,7 +2652,7 @@ rounded <a href='SkIRect_Reference#IRect'>IRect</a>
 
 ### Example
 
-<div><fiddle-embed name="05f0f65ae148f192656cd87df90f1d57">
+<div><fiddle-embed name="@Rect_roundOut_3">
 
 #### Example Output
 
@@ -2682,7 +2682,7 @@ and <a href='#SkRect_width'>width()</a> and <a href='#SkRect_height'>height()</a
 
 ### Example
 
-<div><fiddle-embed name="e624fe398e3d770b573c09fc74c0c400">
+<div><fiddle-embed name="@Rect_sort">
 
 #### Example Output
 
@@ -2715,7 +2715,7 @@ sorted <a href='SkRect_Reference#SkRect'>SkRect</a>
 
 ### Example
 
-<div><fiddle-embed name="f59567042b87f6b26f9bfeeb04468032">
+<div><fiddle-embed name="@Rect_makeSorted">
 
 #### Example Output
 
@@ -2747,7 +2747,7 @@ pointer to <a href='#SkRect_fLeft'>fLeft</a>
 
 ### Example
 
-<div><fiddle-embed name="e1ea5f949d80276f3637931eae93a07c">
+<div><fiddle-embed name="@Rect_asScalars">
 
 #### Example Output
 
@@ -2781,7 +2781,7 @@ generate exact binary representations of floating <a href='SkPoint_Reference#Poi
 
 ### Example
 
-<div><fiddle-embed name="cea049ffff702a5923da41fe0ae0763b">
+<div><fiddle-embed name="@Rect_dump">
 
 #### Example Output
 
@@ -2814,7 +2814,7 @@ from output.
 
 ### Example
 
-<div><fiddle-embed name="9fb76971b1a104a2a59816e0392267a7">
+<div><fiddle-embed name="@Rect_dump_2">
 
 #### Example Output
 
@@ -2847,7 +2847,7 @@ Use instead of <a href='#SkRect_dump'>dump()</a> when submitting
 
 ### Example
 
-<div><fiddle-embed name="824b5a3fcfd46a7e1c5f9e3c16e6bb39">
+<div><fiddle-embed name="@Rect_dumpHex">
 
 #### Example Output
 
