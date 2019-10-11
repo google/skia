@@ -333,7 +333,7 @@ def main():
     adb = Adb(FLAGS.device_serial, FLAGS.adb_binary,
               echo=(FLAGS.verbosity >= 5))
     model = adb.check('getprop ro.product.model').strip()
-    if model == 'Pixel C':
+    if model == 'Pixel C': # note that pixel C's are not avilable to bots anymore.
       from _hardware_pixel_c import HardwarePixelC
       hardware = HardwarePixelC(adb)
     elif model == 'Pixel':
@@ -342,6 +342,9 @@ def main():
     elif model == 'Pixel 2':
       from _hardware_pixel2 import HardwarePixel2
       hardware = HardwarePixel2(adb)
+    elif model == 'Pixel 3':
+      from _hardware_pixel3 import HardwarePixel3
+      hardware = HardwarePixel3(adb)
     elif model == 'Nexus 6P':
       from _hardware_nexus_6p import HardwareNexus6P
       hardware = HardwareNexus6P(adb)
