@@ -8,7 +8,6 @@
 #ifndef SkZip_DEFINED
 #define SkZip_DEFINED
 
-#include <cstddef>
 #include <iterator>
 #include <tuple>
 #include <type_traits>
@@ -48,10 +47,10 @@ class SkZip {
     };
 
     template<typename T>
-    using make_nullptr = std::integral_constant<std::nullptr_t, nullptr>;
+    static constexpr T* nullify = nullptr;
 
 public:
-    constexpr SkZip() : fPointers{make_nullptr<Ts*>::value...}, fSize{0} {}
+    constexpr SkZip() : fPointers{nullify<Ts>...}, fSize{0} {}
     constexpr SkZip(size_t) = delete;
     constexpr SkZip(size_t size, Ts*... ts)
             : fPointers{ts...}
@@ -179,6 +178,10 @@ public:
         return SkZip<ValueType<Ts>...>{size, Span<Ts>::Data(std::forward<Ts>(ts))...};
     }
 };
+
+template<typename... Ts>
+template<typename T>
+constexpr T* SkZip<Ts...>::nullify;
 
 template<typename... Ts>
 inline constexpr auto SkMakeZip(Ts&& ... ts) {
