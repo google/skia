@@ -1240,13 +1240,23 @@ bool GrVkCaps::isFormatSRGB(const GrBackendFormat& format) const {
     return format_is_srgb(vkFormat);
 }
 
-bool GrVkCaps::isFormatCompressed(const GrBackendFormat& format) const {
+bool GrVkCaps::isFormatCompressed(const GrBackendFormat& format,
+                                  SkImage::CompressionType* compressionType) const {
     VkFormat vkFormat;
     if (!format.asVkFormat(&vkFormat)) {
         return false;
     }
+    SkImage::CompressionType dummyType;
+    SkImage::CompressionType* compressionTypePtr = compressionType ? compressionType : &dummyType;
 
-    return vkFormat == VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
+    switch (vkFormat) {
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
+            // ETC2 uses the same compression layout as ETC1
+            *compressionTypePtr = SkImage::kETC1_CompressionType;
+            return true;
+        default:
+            return false;
+    }
 }
 
 bool GrVkCaps::isFormatTexturableAndUploadable(GrColorType ct,
