@@ -127,9 +127,8 @@ size_t GrRenderTargetProxy::onUninstantiatedGpuMemorySize(const GrCaps& caps) co
     }
 
     // TODO: do we have enough information to improve this worst case estimate?
-    return GrSurface::ComputeSize(this->config(), caps, this->backendFormat(), this->width(),
-                                  this->height(), colorSamplesPerPixel, GrMipMapped::kNo,
-                                  !this->priv().isExact());
+    return GrSurface::ComputeSize(caps, this->backendFormat(), this->width(), this->height(),
+                                  colorSamplesPerPixel, GrMipMapped::kNo, !this->priv().isExact());
 }
 
 bool GrRenderTargetProxy::refsWrappedObjects() const {

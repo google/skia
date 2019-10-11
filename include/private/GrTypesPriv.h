@@ -896,20 +896,15 @@ static constexpr bool GrPixelConfigIsCompressed(GrPixelConfig config) {
 }
 
 /**
- * Returns the data size for the given compressed pixel config
+ * Returns the data size for the given SkImage::CompressionType
  */
-static inline size_t GrCompressedFormatDataSize(GrPixelConfig config,
+static inline size_t GrCompressedFormatDataSize(SkImage::CompressionType compressionType,
                                                 int width, int height) {
-    SkASSERT(GrPixelConfigIsCompressed(config));
-
-    switch (config) {
-        case kRGB_ETC1_GrPixelConfig:
+    switch (compressionType) {
+        case SkImage::kETC1_CompressionType:
             SkASSERT((width & 3) == 0);
             SkASSERT((height & 3) == 0);
             return (width >> 2) * (height >> 2) * 8;
-
-        default:
-            SK_ABORT("Unknown compressed pixel config");
     }
 
     SK_ABORT("Invalid pixel config");
