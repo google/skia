@@ -16,6 +16,24 @@
       "revId": "2f6dfbce047ae9b41b01fe78e3d1f5fd25479201",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dccca5b5_b5f4ea13",
+        "filename": "src/core/SkSemaphore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 10265
+      },
+      "writtenOn": "2019-10-11T22:40:44Z",
+      "side": 1,
+      "message": "I don\u0027t know, sorry.",
+      "parentUuid": "154681ef_03e2de6a",
+      "revId": "2f6dfbce047ae9b41b01fe78e3d1f5fd25479201",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
