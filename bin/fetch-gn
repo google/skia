@@ -10,7 +10,6 @@ import os
 import shutil
 import stat
 import sys
-import urllib2
 
 os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
 
@@ -27,10 +26,19 @@ def sha1_of_file(path):
       h.update(f.read())
   return h.hexdigest()
 
-if sha1_of_file(dst) != sha1:
-  with open(dst, 'wb') as f:
-    f.write(urllib2.urlopen('https://chromium-gn.storage-download.googleapis.com/' + sha1).read())
+def download_file(url, local_path):
+  major = sys.version_info[0]
+  if major == 2:
+    import urllib2
+    with open(local_path, 'wb') as f:
+      f.write(urllib2.urlopen(url).read())
+  elif major == 3:
+    from urllib import request
+    with open(local_path, 'wb') as f:
+      f.write(request.urlopen(url).read())
 
+if sha1_of_file(dst) != sha1:
+  download_file('https://chromium-gn.storage-download.googleapis.com/' + sha1, dst)
   os.chmod(dst, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
                 stat.S_IRGRP                | stat.S_IXGRP |
                 stat.S_IROTH                | stat.S_IXOTH )

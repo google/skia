@@ -10,4 +10,4 @@ import sys
 
 (sdk,) = sys.argv[1:]
 
-print subprocess.check_output(['xcrun', '--sdk', sdk, '--show-sdk-path'])
+print(subprocess.check_output(['xcrun', '--sdk', sdk, '--show-sdk-path']))

@@ -94,6 +94,8 @@ def is_git_toplevel(git, directory):
   try:
     toplevel = subprocess.check_output(
       [git, 'rev-parse', '--show-toplevel'], cwd=directory).strip()
+    if sys.version_info[0] == 3:
+      toplevel = toplevel.decode(encoding='utf-8', errors='strict')
     return os.path.realpath(directory) == os.path.realpath(toplevel)
   except subprocess.CalledProcessError:
     return False
@@ -167,7 +169,12 @@ def git_checkout_to_directory(git, repo, checkoutable, directory, verbose):
 
 def parse_file_to_dict(path):
   dictionary = {}
-  execfile(path, dictionary)
+  if sys.version_info[0] == 2:
+    execfile(path, dictionary)
+  else:
+    with open(path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    exec(content, {}, dictionary)
   return dictionary
 
 
@@ -204,9 +211,9 @@ def git_sync_deps(deps_file_path, command_line_os_requests, verbose):
         raise Exception('%r is parent of %r' % (other_dir, directory))
   list_of_arg_lists = []
   for directory in sorted(dependencies):
-    if not isinstance(dependencies[directory], basestring):
+    if not isinstance(dependencies[directory], str):
       if verbose:
-        print 'Skipping "%s".' % directory
+        print('Skipping "%s".' % directory)
       continue
     if '@' in dependencies[directory]:
       repo, checkoutable = dependencies[directory].split('@', 1)

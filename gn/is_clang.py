@@ -9,9 +9,14 @@ import subprocess
 import sys
 cc,cxx = sys.argv[1:3]
 
-if ('clang' in subprocess.check_output('%s --version' % cc, shell=True) and
-    'clang' in subprocess.check_output('%s --version' % cxx, shell=True)):
-  print 'true'
+def check_output(cmd):
+  output = subprocess.check_output('%s --version' % cmd, shell=True)
+  if sys.version_info[0] == 3:
+    output = output.decode(encoding='utf-8', errors='strict')
+  return output
+
+if ('clang' in check_output(cc) and 'clang' in check_output(cxx)):
+  print('true')
 else:
-  print 'false'
+  print('false')
 
