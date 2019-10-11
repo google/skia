@@ -14,6 +14,71 @@
 class SkStrikeForGPU;
 struct SkGlyphPositionRoundingSpec;
 
+// SkSourceGlyphBuffer is the source of glyphs between the different stages of character drawing.
+// It starts with the glyphs and positions from the SkGlyphRun as the first source. When glyphs
+// are reject by a stage they become the source for the next stage.
+class SkSourceGlyphBuffer {
+public:
+    SkSourceGlyphBuffer() = default;
+
+    void setSource(SkZip<const SkGlyphID, const SkPoint> source) {
+        this->~SkSourceGlyphBuffer();
+        new (this) SkSourceGlyphBuffer{source};
+    }
+
+    void reset();
+
+    void reject(size_t index) {
+        SkASSERT(index < fSource.size());
+        if (!this->sourceIsRejectBuffers()) {
+            // Need to expand the buffers for first use. All other reject sets will be fewer than
+            // this one.
+            SkGlyphID glyphID; SkPoint pos;
+            std::tie(glyphID, pos) = fSource[index];
+            fRejectedGlyphIDs.push_back(glyphID);
+            fRejectedPositions.push_back(pos);
+            fRejectSize++;
+        } else {
+            SkASSERT(fRejectSize < fRejects.size());
+            fRejects[fRejectSize++] = fSource[index];
+        }
+    }
+
+    void reject(size_t index, int rejectedMaxDimension) {
+        fRejectedMaxDimension = SkTMax(fRejectedMaxDimension, rejectedMaxDimension);
+        this->reject(index);
+    }
+
+    SkZip<const SkGlyphID, const SkPoint> flipRejectsToSource() {
+        fRejects = SkMakeZip(fRejectedGlyphIDs, fRejectedPositions).first(fRejectSize);
+        fSource = fRejects;
+        fRejectSize = 0;
+        fSourceMaxDimension = fRejectedMaxDimension;
+        fRejectedMaxDimension = 0;
+        return fSource;
+    }
+
+    SkZip<const SkGlyphID, const SkPoint> source() const { return fSource; }
+
+    int rejectedMaxDimension() const { return fSourceMaxDimension; }
+
+private:
+    SkSourceGlyphBuffer(const SkZip<const SkGlyphID, const SkPoint>& source) {
+        fSource = source;
+    }
+    bool sourceIsRejectBuffers() const {
+        return fSource.get<0>().data() == fRejectedGlyphIDs.data();
+    }
+
+    SkZip<const SkGlyphID, const SkPoint> fSource;
+    size_t fRejectSize{0};
+    int fSourceMaxDimension{0};
+    int fRejectedMaxDimension{0};
+    SkZip<SkGlyphID, SkPoint> fRejects;
+    SkSTArray<4, SkGlyphID> fRejectedGlyphIDs;
+    SkSTArray<4, SkPoint> fRejectedPositions;
+};
+
 // A memory format that allows an SkPackedGlyphID, SkGlyph*, and SkPath* to occupy the same
 // memory. This allows SkPackedGlyphIDs as input, and SkGlyph*/SkPath* as output using the same
 // memory.
