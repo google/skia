@@ -104,6 +104,7 @@ public:
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
+    const GrColorInfo& colorInfo() const { return fColorInfo; }
     GrColorType colorType() const { return fColorInfo.colorType(); }
     SkAlphaType alphaType() const { return fColorInfo.alphaType(); }
     SkColorSpace* colorSpace() const { return fColorInfo.colorSpace(); }
