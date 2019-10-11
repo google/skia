@@ -10,6 +10,6 @@ import sys
 
 dirpath, = sys.argv[1:]
 
-print os.path.isdir(dirpath)
+print(os.path.isdir(dirpath))
 
 
