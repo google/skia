@@ -14,6 +14,50 @@
 class SkStrikeForGPU;
 struct SkGlyphPositionRoundingSpec;
 
+class SkSourceGlyphBuffer {
+public:
+    SkSourceGlyphBuffer() = default;
+
+    void setSource(SkZip<const SkGlyphID, const SkPoint> source) {
+        // Start with rejects pointing to internal buffers.
+        fRejects = SkZip<SkGlyphID, SkPoint>{
+                source.size(), fRejectedGlyphIDs.get(), fRejectedPositions.get()};
+        fSource = source;
+        fRejectSize = 0;
+    }
+
+    void ensureSize(size_t size);
+    void reset();
+
+    void reject(size_t index) {
+        fRejects[fRejectSize++] = fSource[index];
+    }
+
+    void reject(size_t index, int rejectedMaxDimension) {
+        fRejectedMaxDimension = SkTMax(fRejectedMaxDimension, rejectedMaxDimension);
+        this->reject(index);
+    }
+
+    SkZip<const SkGlyphID, const SkPoint> flipRejectsToSource() {
+        fSource = fRejects.first(fRejectSize);
+        fRejectSize = 0;
+        return fSource;
+    }
+
+    SkZip<const SkGlyphID, const SkPoint> source() const { return fSource; }
+
+    int rejectedMaxDimension() const { return fRejectedMaxDimension; }
+
+private:
+    SkZip<const SkGlyphID, const SkPoint> fSource;
+    size_t fMaxSize{0};
+    size_t fRejectSize{0};
+    int fRejectedMaxDimension{0};
+    SkZip<SkGlyphID, SkPoint> fRejects;
+    SkAutoTMalloc<SkGlyphID> fRejectedGlyphIDs;
+    SkAutoTMalloc<SkPoint> fRejectedPositions;
+};
+
 // A memory format that allows an SkPackedGlyphID, SkGlyph*, and SkPath* to occupy the same
 // memory. This allows SkPackedGlyphIDs as input, and SkGlyph*/SkPath* as output using the same
 // memory.
