@@ -30,6 +30,15 @@ private:
                LanguageRunIterator&,
                SkScalar width,
                RunHandler*) const override;
+
+    void shape(const char* utf8, size_t utf8Bytes,
+               FontRunIterator&,
+               BiDiRunIterator&,
+               ScriptRunIterator&,
+               LanguageRunIterator&,
+               const Feature*, size_t featureSize,
+               SkScalar width,
+               RunHandler*) const override;
 };
 
 std::unique_ptr<SkShaper> SkShaper::MakePrimitive() {
@@ -122,6 +131,21 @@ void SkShaperPrimitive::shape(const char* utf8, size_t utf8Bytes,
                               SkScalar width,
                               RunHandler* handler) const
 {
+    font.consume();
+    SkASSERT(font.currentFont().getTypeface());
+    bidi.consume();
+    return this->shape(utf8, utf8Bytes, font.currentFont(), (bidi.currentLevel() % 2) == 0,
+                       width, handler);
+}
+
+void SkShaperPrimitive::shape(const char* utf8, size_t utf8Bytes,
+                              FontRunIterator& font,
+                              BiDiRunIterator& bidi,
+                              ScriptRunIterator&,
+                              LanguageRunIterator&,
+                              const Feature*, size_t,
+                              SkScalar width,
+                              RunHandler* handler) const {
     font.consume();
     SkASSERT(font.currentFont().getTypeface());
     bidi.consume();
