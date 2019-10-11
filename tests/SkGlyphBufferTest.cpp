@@ -11,6 +11,16 @@
 #include "src/core/SkScalerContext.h"
 #include "tests/Test.h"
 
+
+DEF_TEST(SkSourceGlyphBufferBasic, reporter) {
+    SkSourceGlyphBuffer rejects;
+    // Positions are picked to avoid precision problems.
+    const SkPoint positions[] = {{10.25,10.25}, {20.5,10.25}, {30.75,10.25}, {40,10.25}};
+    const SkGlyphID glyphIDs[] = {1, 2, 3, 4};
+    auto source = SkMakeZip(glyphIDs, positions);
+    rejects.setSource(source);
+}
+
 DEF_TEST(SkDrawableGlyphBufferBasic, reporter) {
     // Positions are picked to avoid precision problems.
     const SkPoint positions[] = {{10.25,10.25}, {20.5,10.25}, {30.75,10.25}, {40,10.25}};
