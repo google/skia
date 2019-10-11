@@ -22,6 +22,30 @@
       "revId": "ca4377d3d2232c0a9b21dceadaeb03a7cc803248",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27f24ed8_a9d734d2",
+        "filename": "src/gpu/GrTextureAdjuster.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-11T21:16:43Z",
+      "side": 0,
+      "message": "Agreed, seems outdated.",
+      "parentUuid": "8a2dd265_80bc8619",
+      "range": {
+        "startLine": 32,
+        "startChar": 3,
+        "endLine": 33,
+        "endChar": 29
+      },
+      "revId": "ca4377d3d2232c0a9b21dceadaeb03a7cc803248",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
