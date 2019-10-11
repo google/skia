@@ -11,6 +11,10 @@
 #include "src/core/SkScalerContext.h"
 #include "tests/Test.h"
 
+
+DEF_TEST(SkSourceGlyphBufferBasic, reporter) {
+}
+
 DEF_TEST(SkDrawableGlyphBufferBasic, reporter) {
     // Positions are picked to avoid precision problems.
     const SkPoint positions[] = {{10.25,10.25}, {20.5,10.25}, {30.75,10.25}, {40,10.25}};
