@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b69b8ff4_658bf04d",
+        "filename": "src/core/SkStrike.cpp",
+        "patchSetId": 67
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-11T17:58:00Z",
+      "side": 1,
+      "message": "I suppose my point is, these seem to be here just for the bitmap case, which should also be capable of doing rejects? If, say prepareForMaskDrawing really is gpu specific then should itbe named as such? Even if we currently just store up the rejects and don\u0027t do anything with them in the bitmap case right now (to avoid changing anything) that seems better than adding these incompletes?",
+      "range": {
+        "startLine": 184,
+        "startChar": 0,
+        "endLine": 212,
+        "endChar": 1
+      },
+      "revId": "bdc86ff73e7e09cc5d276de1060175cb41380fa1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
