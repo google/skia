@@ -46,7 +46,7 @@ utility to restore <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> state on d
 
 ### Example
 
-<div><fiddle-embed name="466ef576b88e29d7252422db7adeed1c"></fiddle-embed></div>
+<div><fiddle-embed name="@AutoCanvasRestore_SkCanvas_star"></fiddle-embed></div>
 
 ### See Also
 
@@ -80,7 +80,7 @@ Restores <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> to saved state immed
 
 ### Example
 
-<div><fiddle-embed name="9f459b218ec079c1ada23f4412968f9a">
+<div><fiddle-embed name="@AutoCanvasRestore_restore">
 
 #### Example Output
 

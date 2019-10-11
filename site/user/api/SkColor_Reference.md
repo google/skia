@@ -129,7 +129,7 @@ than the largest of <a href='#SkColorSetARGB_r'>r</a>, <a href='#SkColorSetARGB_
 
 ### Example
 
-<div><fiddle-embed name="35888f0869e01a6e03b5b93bba563734"></fiddle-embed></div>
+<div><fiddle-embed name="@ColorSetARGB"></fiddle-embed></div>
 
 ### See Also
 
@@ -166,7 +166,7 @@ fully opaque to 255.
 
 ### Example
 
-<div><fiddle-embed name="dad12dd912197cd5edd789ac0801bf8a"></fiddle-embed></div>
+<div><fiddle-embed name="@ColorSetRGB"></fiddle-embed></div>
 
 ### See Also
 
@@ -192,7 +192,7 @@ Returns <a href='SkColor_Reference#Alpha'>Alpha</a> byte from <a href='SkColor_R
 
 ### Example
 
-<div><fiddle-embed name="896ce0316b489608a95af5439ca2aab1"></fiddle-embed></div>
+<div><fiddle-embed name="@ColorGetA"></fiddle-embed></div>
 
 ### See Also
 
@@ -315,7 +315,7 @@ from <a href='#SkColorSetA_a'>a</a>. <a href='SkColor_Reference#Alpha'>Alpha</a>
 
 ### Example
 
-<div><fiddle-embed name="18f6f376f771f5ffa56d5e5b2ebd20fb"></fiddle-embed></div>
+<div><fiddle-embed name="@ColorSetA"></fiddle-embed></div>
 
 ### See Also
 
@@ -359,12 +359,12 @@ fully transparent; to 255, fully opaque.
 
 ### Example
 
-<div><fiddle-embed name="bc9c7ea424d10bbcd1e5a88770d4794e"><div><a href='SkColor_Reference#Color'>Color</a> the parts of the <a href='SkBitmap_Reference#Bitmap'>bitmap</a> red if they mostly contain transparent pixels.
+<div><fiddle-embed name="@Alpha_Constants_a"><div><a href='SkColor_Reference#Color'>Color</a> the parts of the <a href='SkBitmap_Reference#Bitmap'>bitmap</a> red if they mostly contain transparent pixels.
 </div></fiddle-embed></div>
 
 ### Example
 
-<div><fiddle-embed name="0424f67ebc2858e8fd04ae3367b115ff"><div><a href='SkColor_Reference#Color'>Color</a> the parts of the <a href='SkBitmap_Reference#Bitmap'>bitmap</a> green if they contain fully opaque pixels.
+<div><fiddle-embed name="@Alpha_Constants_b"><div><a href='SkColor_Reference#Color'>Color</a> the parts of the <a href='SkBitmap_Reference#Bitmap'>bitmap</a> green if they contain fully opaque pixels.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -497,17 +497,17 @@ Represents fully opaque magenta. <a href='#HTML_Fuchsia'>HTML_Fuchsia</a> is equ
 
 ### Example
 
-<div><fiddle-embed name="9ca1e2a5b9b4c92ecf4409d0813867d6"><div><a href='SkColor_Reference#SK_ColorTRANSPARENT'>SK_ColorTRANSPARENT</a> sets <a href='SkColor_Reference#Color'>Color</a> <a href='SkColor_Reference#Alpha'>Alpha</a> and components to zero.
+<div><fiddle-embed name="@Color_Constants_b"><div><a href='SkColor_Reference#SK_ColorTRANSPARENT'>SK_ColorTRANSPARENT</a> sets <a href='SkColor_Reference#Color'>Color</a> <a href='SkColor_Reference#Alpha'>Alpha</a> and components to zero.
 </div></fiddle-embed></div>
 
 ### Example
 
-<div><fiddle-embed name="6971489f28291f08e429cc6ccc73b09b"><div><a href='SkColor_Reference#SK_ColorBLACK'>SK_ColorBLACK</a> sets <a href='SkColor_Reference#Color'>Color</a> <a href='SkColor_Reference#Alpha'>Alpha</a> to one and components to zero.
+<div><fiddle-embed name="@Color_Constants_c"><div><a href='SkColor_Reference#SK_ColorBLACK'>SK_ColorBLACK</a> sets <a href='SkColor_Reference#Color'>Color</a> <a href='SkColor_Reference#Alpha'>Alpha</a> to one and components to zero.
 </div></fiddle-embed></div>
 
 ### Example
 
-<div><fiddle-embed name="fce650f997e802d4e55edf62b8437a2d"><div><a href='SkColor_Reference#SK_ColorWHITE'>SK_ColorWHITE</a> sets <a href='SkColor_Reference#Color'>Color</a> <a href='SkColor_Reference#Alpha'>Alpha</a> and components to one.
+<div><fiddle-embed name="@Color_Constants_d"><div><a href='SkColor_Reference#SK_ColorWHITE'>SK_ColorWHITE</a> sets <a href='SkColor_Reference#Color'>Color</a> <a href='SkColor_Reference#Alpha'>Alpha</a> and components to one.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -596,7 +596,7 @@ Converts ARGB to its HSV components. <a href='SkColor_Reference#Alpha'>Alpha</a>
 
 ### Example
 
-<div><fiddle-embed name="1e0370f12c8aab5b84f9e824074f1e5a"></fiddle-embed></div>
+<div><fiddle-embed name="@ColorToHSV"></fiddle-embed></div>
 
 ### See Also
 
@@ -635,7 +635,7 @@ ARGB equivalent to HSV
 
 ### Example
 
-<div><fiddle-embed name="311a59931ac340b90f202cd6ac399a0a"></fiddle-embed></div>
+<div><fiddle-embed name="@HSVToColor"></fiddle-embed></div>
 
 ### See Also
 
@@ -670,7 +670,7 @@ RGB equivalent to HSV
 
 ### Example
 
-<div><fiddle-embed name="d355a17547908cdbc2c38720974b5d11"></fiddle-embed></div>
+<div><fiddle-embed name="@HSVToColor_2"></fiddle-embed></div>
 
 ### See Also
 

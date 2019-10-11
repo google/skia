@@ -334,7 +334,7 @@ creating a mask with irregular edges.
 
 ### Example
 
-<div><fiddle-embed name="a9b56a26ca469bab9ab10e16f62fb2e2"><div><a href='SkColor_Reference#SK_ColorYELLOW'>SK_ColorYELLOW</a> is ignored because <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kClear'>kClear</a> ignores the source <a href='undocumented#Pixel'>pixel</a>
+<div><fiddle-embed name="@Clear"><div><a href='SkColor_Reference#SK_ColorYELLOW'>SK_ColorYELLOW</a> is ignored because <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kClear'>kClear</a> ignores the source <a href='undocumented#Pixel'>pixel</a>
 value and the destination <a href='undocumented#Pixel'>pixel</a> value, always setting the destination to zero.
 </div></fiddle-embed></div>
 
@@ -354,7 +354,7 @@ regardless of source and destination <a href='SkColor_Reference#Alpha'>Alpha</a>
 
 ### Example
 
-<div><fiddle-embed name="0fc85dd916cc1a5896d36c80b9847391"><div><a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kSrc'>kSrc</a> does not blend transparent pixels with existing background;
+<div><fiddle-embed name="@Src"><div><a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kSrc'>kSrc</a> does not blend transparent pixels with existing background;
 it punches a transparent hole in the existing <a href='SkImage_Reference#Image'>image</a>.
 </div></fiddle-embed></div>
 
@@ -374,7 +374,7 @@ selects colors and ignores <a href='undocumented#Sprite'>sprites</a>.
 
 ### Example
 
-<div><fiddle-embed name="35915a2273be1076f00f2e47998ce808"></fiddle-embed></div>
+<div><fiddle-embed name="@Dst"></fiddle-embed></div>
 
 <a name='Src_Over'></a>
 
@@ -390,7 +390,7 @@ be at least as opaque as the less transparent of source and original destination
 
 ### Example
 
-<div><fiddle-embed name="2ea9c149964a06cdb4929158cb4f15f8"></fiddle-embed></div>
+<div><fiddle-embed name="@Src_Over"></fiddle-embed></div>
 
 <a name='Dst_Over'></a>
 
@@ -403,7 +403,7 @@ drawing destination over source. Has no effect destination if is opaque.
 
 ### Example
 
-<div><fiddle-embed name="10dbb4d97902956ef5f5f8562f65119e"></fiddle-embed></div>
+<div><fiddle-embed name="@Dst_Over"></fiddle-embed></div>
 
 <a name='Src_In'></a>
 
@@ -416,7 +416,7 @@ drawing source with destination opacity.
 
 ### Example
 
-<div><fiddle-embed name="b0833c18fe8b0eeaab9bd6d2160d272f"></fiddle-embed></div>
+<div><fiddle-embed name="@Src_In"></fiddle-embed></div>
 
 <a name='Dst_In'></a>
 
@@ -430,7 +430,7 @@ destination is visible where source is visible.
 
 ### Example
 
-<div><fiddle-embed name="a5eeba05ccf6097a5d110a9d64f97c25"></fiddle-embed></div>
+<div><fiddle-embed name="@Dst_In"></fiddle-embed></div>
 
 <a name='Src_Out'></a>
 
@@ -444,7 +444,7 @@ is opaque, has no effect.
 
 ### Example
 
-<div><fiddle-embed name="ccc1e74226e0c9eacbc21f1eed017b84"></fiddle-embed></div>
+<div><fiddle-embed name="@Src_Out"></fiddle-embed></div>
 
 <a name='Dst_Out'></a>
 
@@ -459,7 +459,7 @@ has no effect.
 
 ### Example
 
-<div><fiddle-embed name="b9a894c9accfc5d94081bbd77d5d790a"></fiddle-embed></div>
+<div><fiddle-embed name="@Dst_Out"></fiddle-embed></div>
 
 <a name='Src_Atop'></a>
 
@@ -473,7 +473,7 @@ is transparent, has no effect.
 
 ### Example
 
-<div><fiddle-embed name="a13148977bfc985934a92752c83a2041"></fiddle-embed></div>
+<div><fiddle-embed name="@Src_Atop"></fiddle-embed></div>
 
 <a name='Dst_Atop'></a>
 
@@ -486,7 +486,7 @@ making destination transparent where source is transparent.
 
 ### Example
 
-<div><fiddle-embed name="1955856d45773a4fd914fcc1f813222f"></fiddle-embed></div>
+<div><fiddle-embed name="@Dst_Atop"></fiddle-embed></div>
 
 <a name='Xor'></a>
 
@@ -500,7 +500,7 @@ exchanging the transparency of the source and destination.
 
 ### Example
 
-<div><fiddle-embed name="29db2c7493d9098b8a086ddbe30dd6d6"></fiddle-embed></div>
+<div><fiddle-embed name="@Xor"></fiddle-embed></div>
 
 <a name='Plus'></a>
 
@@ -513,7 +513,7 @@ summing the <a href='SkColor_Reference#Alpha'>Alpha</a> and <a href='SkColor_Ref
 
 ### Example
 
-<div><fiddle-embed name="05383441e510d54008402e128fc8ad2b"></fiddle-embed></div>
+<div><fiddle-embed name="@Plus"></fiddle-embed></div>
 
 <a name='Modulate'></a>
 
@@ -534,7 +534,7 @@ and destination using <a href='undocumented#Unpremultiply'>Unpremultiplied</a> c
 
 ### Example
 
-<div><fiddle-embed name="3fdac2b2f48bd227d2e74234c260bc8e"><div>If source and destination are opaque, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kModulate'>kModulate</a> and
+<div><fiddle-embed name="@Modulate"><div>If source and destination are opaque, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kModulate'>kModulate</a> and
 <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kMultiply'>kMultiply</a> produce the same results.
 </div></fiddle-embed></div>
 
@@ -548,7 +548,7 @@ Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <c
 
 ### Example
 
-<div><fiddle-embed name="b7b42965927788d853f449f08ddf46de"></fiddle-embed></div>
+<div><fiddle-embed name="@Screen"></fiddle-embed></div>
 
 <a name='Overlay'></a>
 
@@ -562,7 +562,7 @@ Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <c
 
 ### Example
 
-<div><fiddle-embed name="03bf042201de02d6d131938ccd3172eb"></fiddle-embed></div>
+<div><fiddle-embed name="@Overlay"></fiddle-embed></div>
 
 <a name='Darken'></a>
 
@@ -577,7 +577,7 @@ component with source if source is darker.
 
 ### Example
 
-<div><fiddle-embed name="23c974d2759f523ca2f4a78ae86855c3"></fiddle-embed></div>
+<div><fiddle-embed name="@Darken"></fiddle-embed></div>
 
 <a name='Lighten'></a>
 
@@ -592,7 +592,7 @@ component with source if source is lighter.
 
 ### Example
 
-<div><fiddle-embed name="95cb08b8c8db3af3b2c9ad56ae7d6bc1"></fiddle-embed></div>
+<div><fiddle-embed name="@Lighten"></fiddle-embed></div>
 
 <a name='Color_Dodge'></a>
 
@@ -607,7 +607,7 @@ making destination brighter to reflect source.
 
 ### Example
 
-<div><fiddle-embed name="280ad6267a7d2d77b6d2c4531c6fc0bf"></fiddle-embed></div>
+<div><fiddle-embed name="@Color_Dodge"></fiddle-embed></div>
 
 <a name='Color_Burn'></a>
 
@@ -622,7 +622,7 @@ making destination darker to reflect source.
 
 ### Example
 
-<div><fiddle-embed name="3eeef529375d8083ae0d615789d55e89"></fiddle-embed></div>
+<div><fiddle-embed name="@Color_Burn"></fiddle-embed></div>
 
 <a name='Hard_Light'></a>
 
@@ -637,7 +637,7 @@ making destination lighter or darker, depending on source.
 
 ### Example
 
-<div><fiddle-embed name="ac2fe555e2196e15863ea4ce74db3d54"></fiddle-embed></div>
+<div><fiddle-embed name="@Hard_Light"></fiddle-embed></div>
 
 <a name='Soft_Light'></a>
 
@@ -653,7 +653,7 @@ making destination lighter or darker, depending on source.
 
 ### Example
 
-<div><fiddle-embed name="ac93f30dff13f8a8bb31398de370863b"></fiddle-embed></div>
+<div><fiddle-embed name="@Soft_Light"></fiddle-embed></div>
 
 <a name='Difference'></a>
 
@@ -667,7 +667,7 @@ replacing destination with lighter less darker.
 
 ### Example
 
-<div><fiddle-embed name="52d2c8d1b9b428de4477b4caa1543a3d"></fiddle-embed></div>
+<div><fiddle-embed name="@Difference"></fiddle-embed></div>
 
 <a name='Exclusion'></a>
 
@@ -681,7 +681,7 @@ replacing destination with lighter less darker, ignoring <a href='SkColor_Refere
 
 ### Example
 
-<div><fiddle-embed name="a544ee1c67c7c557a9e54d5e99f94bb6"></fiddle-embed></div>
+<div><fiddle-embed name="@Exclusion"></fiddle-embed></div>
 
 <a name='Multiply'></a>
 
@@ -696,7 +696,7 @@ the product of <a href='undocumented#Unpremultiply'>Unpremultiplied</a> source a
 
 ### Example
 
-<div><fiddle-embed name="eb29c896f008dfbef09e16b85114fc3a"></fiddle-embed></div>
+<div><fiddle-embed name="@Multiply"></fiddle-embed></div>
 
 <a name='Hue'></a>
 
@@ -710,7 +710,7 @@ source hue, leaving destination luminosity and saturation unchanged.
 
 ### Example
 
-<div><fiddle-embed name="41e45570d682397d3b8ff2f51bd9c574"></fiddle-embed></div>
+<div><fiddle-embed name="@Hue"></fiddle-embed></div>
 
 <a name='Saturation'></a>
 
@@ -724,7 +724,7 @@ source hue, leaving destination luminosity and saturation unchanged.
 
 ### Example
 
-<div><fiddle-embed name="a48698975d236573cef512f94a7e360b"></fiddle-embed></div>
+<div><fiddle-embed name="@Saturation"></fiddle-embed></div>
 
 <a name='Color'></a>
 
@@ -738,7 +738,7 @@ source hue and saturation, leaving destination luminosity unchanged.
 
 ### Example
 
-<div><fiddle-embed name="5d7c6e23a34ca9bf3ba8cda4cdc94cc4"></fiddle-embed></div>
+<div><fiddle-embed name="@Color"></fiddle-embed></div>
 
 <a name='Luminosity'></a>
 
@@ -752,7 +752,7 @@ source luminosity, leaving destination hue and saturation unchanged.
 
 ### Example
 
-<div><fiddle-embed name="7d42fe34ae20dd9e12c39dc3950e9989"></fiddle-embed></div>
+<div><fiddle-embed name="@Luminosity"></fiddle-embed></div>
 
 <a name='SkBlendMode_Name'></a>
 
@@ -788,7 +788,7 @@ C <a href='undocumented#String'>string</a>
 
 ### Example
 
-<div><fiddle-embed name="3996f4994bf4e90b4cd86524c1f9f1a6">
+<div><fiddle-embed name="@BlendMode_Name">
 
 #### Example Output
 
