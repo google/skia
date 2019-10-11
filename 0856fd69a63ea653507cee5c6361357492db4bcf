@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "51a23e88_1ec4a27d",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 3
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-10-11T16:10:08Z",
+      "side": 1,
+      "message": "We don\u0027t have hardware monitoring implemented on Mali, which is why we never run skpbench on it. I\u0027m hesitant to add a device without at least figuring out how to lock the clocks. Ideally we should monitor temperatures as well.",
+      "revId": "0856fd69a63ea653507cee5c6361357492db4bcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f18f77fb_db2693cc",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 3
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-10-11T16:10:08Z",
+      "side": 1,
+      "message": "This should be Pixel C instead. They are both the same GPU (TegraX1), but the Pixel C has hardware monitoring implemented.",
+      "revId": "0856fd69a63ea653507cee5c6361357492db4bcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
