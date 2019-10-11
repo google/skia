@@ -40,6 +40,10 @@ def recipe_test(train):
     cmd.append('train')
   else:
     cmd.append('run')
+  if 'win' in sys.platform:
+    # Do not run tests in parallel. This helps prevent problems due to .pyc
+    # cleanup on Windows.
+    cmd.extend(['--jobs', '1'])
   return test(cmd, SKIA_DIR)
 
 
