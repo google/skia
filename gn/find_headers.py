@@ -34,14 +34,14 @@ desc_json_txt = ''
 try:
   desc_json_txt = subprocess.check_output(gn_desc_cmd)
 except subprocess.CalledProcessError as e:
-  print e.output
+  print(e.output)
   raise
 
 desc_json = {}
 try:
   desc_json = json.loads(desc_json_txt)
 except ValueError:
-  print desc_json_txt
+  print(desc_json_txt)
   raise
 
 sources = set()
