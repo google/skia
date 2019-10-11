@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "64f8ec96_e5ae482e",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-11T14:59:46Z",
+      "side": 1,
+      "message": "Maybe a comment about why using SkImage::kETC1 is correct, just to prevent future confusion if someone sees the Metal\u0027s ETC2 and thinks it was a typo?",
+      "range": {
+        "startLine": 305,
+        "startChar": 13,
+        "endLine": 305,
+        "endChar": 36
+      },
+      "revId": "d00b83c4abeffcbb8cab81f2cd09fda61cb876d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ba2d118_419ed97c",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1254,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-11T14:59:46Z",
+      "side": 1,
+      "message": "Same as metal comment?",
+      "range": {
+        "startLine": 1254,
+        "startChar": 43,
+        "endLine": 1254,
+        "endChar": 64
+      },
+      "revId": "d00b83c4abeffcbb8cab81f2cd09fda61cb876d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
