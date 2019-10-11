@@ -22,7 +22,7 @@ def test(cmd, cwd):
   try:
     subprocess.check_output(cmd, cwd=cwd, stderr=subprocess.STDOUT)
   except subprocess.CalledProcessError as e:
-    return e.output
+    return 'Command failed: %s\n%s' % (' '.join(cmd), e.output)
 
 
 def python_unit_tests(train):
@@ -40,6 +40,10 @@ def recipe_test(train):
     cmd.append('train')
   else:
     cmd.append('run')
+  if 'win' in sys.platform:
+    # Do not run tests in parallel. This helps prevent problems due to .pyc
+    # cleanup on Windows.
+    cmd.extend(['--jobs', '1'])
   return test(cmd, SKIA_DIR)
 
 
