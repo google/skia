@@ -1024,8 +1024,6 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
         return;
     }
 
-    const GrPixelConfig config = proxy->config();
-
     SkMatrix ctm = this->ctm();
     ctm.postTranslate(-SkIntToScalar(left), -SkIntToScalar(top));
 
@@ -1039,7 +1037,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
     auto fp = GrSimpleTextureEffect::Make(std::move(proxy), SkMatrix::I());
     fp = GrColorSpaceXformEffect::Make(std::move(fp), result->getColorSpace(), result->alphaType(),
                                        fRenderTargetContext->colorInfo().colorSpace());
-    if (GrPixelConfigIsAlphaOnly(config)) {
+    if (GrColorTypeIsAlphaOnly(SkColorTypeToGrColorType(result->colorType()))) {
         fp = GrFragmentProcessor::MakeInputPremulAndMulByOutput(std::move(fp));
     } else {
         if (paint.getColor4f().isOpaque()) {

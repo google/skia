@@ -1046,7 +1046,8 @@ DEF_GPUTEST(SkImage_CrossContextGrayAlphaConfigs, reporter, options) {
             REPORTER_ASSERT(reporter, proxy);
 
             bool expectAlpha = kAlpha_8_SkColorType == ct;
-            REPORTER_ASSERT(reporter, expectAlpha == GrPixelConfigIsAlphaOnly(proxy->config()));
+            GrColorType grCT = SkColorTypeToGrColorType(image->colorType());
+            REPORTER_ASSERT(reporter, expectAlpha == GrColorTypeIsAlphaOnly(grCT));
         }
     }
 }
