@@ -29,10 +29,11 @@ public:
             bool coordsLimitedToConstraintRect,
             const GrSamplerState::Filter* filterOrNullForBicubic) override;
 
-    // We do not ref the texture nor the colorspace, so the caller must keep them in scope while
-    // this Adjuster is alive.
     GrTextureAdjuster(GrRecordingContext*, sk_sp<GrTextureProxy>, GrColorType, SkAlphaType,
                       uint32_t uniqueID, SkColorSpace*, bool useDecal = false);
+
+    GrTextureAdjuster(GrRecordingContext*, sk_sp<GrTextureProxy>, const GrColorInfo&,
+                      uint32_t uniqueID, bool useDecal = false);
 
 protected:
     void makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) override;
