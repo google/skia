@@ -13658,7 +13658,7 @@
         {
           "name": "infra/recipe_bundles/chromium.googlesource.com/chromium/tools/build",
           "path": "recipe_bundle",
-          "version": "refs/heads/master"
+          "version": "git_revision:617e0fd3186eaae8bcb7521def0d6d3b4a5bcaf1"
         }
       ],
       "command": [
