@@ -57,7 +57,7 @@ static skcms_TransferFunction compute_transfer(AVColorTransferCharacteristic t) 
     };
     skcms_TransferFunction encoded_to_linear;
     bool success = skcms_TransferFunction_invert(&linear_to_encoded, &encoded_to_linear);
-    SkASSERT(success);
+    SkAssertResult(success);
 
     return encoded_to_linear;
 }
