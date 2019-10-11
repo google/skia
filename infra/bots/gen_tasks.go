@@ -1216,7 +1216,7 @@ func presubmit(b *specs.TasksCfgBuilder, name string) string {
 		}
 	}
 	replaceArg("-repository", "https://chromium.googlesource.com/chromium/tools/build")
-	replaceArg("-revision", "HEAD")
+	replaceArg("-revision", "617e0fd3186eaae8bcb7521def0d6d3b4a5bcaf1")
 	usesGit(task, name)
 	task.Dependencies = []string{} // No bundled recipes for this one.
 	b.MustAddTask(name, task)
