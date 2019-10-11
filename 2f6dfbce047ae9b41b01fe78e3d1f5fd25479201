@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "154681ef_03e2de6a",
+        "filename": "src/core/SkSemaphore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-11T22:03:10Z",
+      "side": 1,
+      "message": "Wonder if this is still true?  I\u0027ll follow up if you don\u0027t know.",
+      "revId": "2f6dfbce047ae9b41b01fe78e3d1f5fd25479201",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
