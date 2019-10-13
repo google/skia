@@ -29,7 +29,8 @@ bool GrDawnTextureRenderTarget::canAttemptStencilAttachment() const {
 }
 
 size_t GrDawnTextureRenderTarget::onGpuMemorySize() const {
-    return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
+    const GrCaps& caps = *this->getGpu()->caps();
+    return GrSurface::ComputeSize(caps, this->backendFormat(), this->width(), this->height(),
                                   1, // FIXME: for MSAA
                                   this->texturePriv().mipMapped());
 }
