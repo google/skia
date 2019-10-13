@@ -318,19 +318,19 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     std::vector<dawn::BindGroupLayoutBinding> layoutBindings;
     if (0 != geometryUniformSize) {
         layoutBindings.push_back({ GrDawnUniformHandler::kGeometryBinding,
-                                   dawn::ShaderStageBit::Vertex,
+                                   dawn::ShaderStage::Vertex,
                                    dawn::BindingType::UniformBuffer});
     }
     if (0 != fragmentUniformSize) {
         layoutBindings.push_back({ GrDawnUniformHandler::kFragBinding,
-                                   dawn::ShaderStageBit::Fragment,
+                                   dawn::ShaderStage::Fragment,
                                    dawn::BindingType::UniformBuffer});
     }
     uint32_t binding = GrDawnUniformHandler::kSamplerBindingBase;
     for (int i = 0; i < builder.fUniformHandler.fSamplers.count(); ++i) {
-        layoutBindings.push_back({ binding++, dawn::ShaderStageBit::Fragment,
+        layoutBindings.push_back({ binding++, dawn::ShaderStage::Fragment,
                                    dawn::BindingType::Sampler});
-        layoutBindings.push_back({ binding++, dawn::ShaderStageBit::Fragment,
+        layoutBindings.push_back({ binding++, dawn::ShaderStage::Fragment,
                                    dawn::BindingType::SampledTexture});
     }
     dawn::BindGroupLayoutDescriptor bindGroupLayoutDesc;
@@ -401,17 +401,17 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     vertexInput.bufferCount = inputs.size();
     vertexInput.buffers = &inputs.front();
 
-    dawn::PipelineStageDescriptor vsDesc;
+    dawn::ProgrammableStageDescriptor vsDesc;
     vsDesc.module = vsModule;
     vsDesc.entryPoint = "main";
 
-    dawn::PipelineStageDescriptor fsDesc;
+    dawn::ProgrammableStageDescriptor fsDesc;
     fsDesc.module = fsModule;
     fsDesc.entryPoint = "main";
 
     dawn::RenderPipelineDescriptor rpDesc;
     rpDesc.layout = pipelineLayout;
-    rpDesc.vertexStage = &vsDesc;
+    rpDesc.vertexStage = vsDesc;
     rpDesc.fragmentStage = &fsDesc;
     rpDesc.vertexInput = &vertexInput;
     rpDesc.primitiveTopology = to_dawn_primitive_topology(primitiveType);
@@ -419,8 +419,7 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
         rpDesc.depthStencilState = &depthStencilState;
     }
     rpDesc.colorStateCount = 1;
-    dawn::ColorStateDescriptor* colorStatesPtr[] = { &colorState };
-    rpDesc.colorStates = colorStatesPtr;
+    rpDesc.colorStates = &colorState;
     result->fRenderPipeline = gpu->device().CreateRenderPipeline(&rpDesc);
     return result;
 }
