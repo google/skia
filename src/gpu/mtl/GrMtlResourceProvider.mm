@@ -31,9 +31,9 @@ GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
 #else
     int64_t maxBufferLength = 256*1024*1024;
 #endif
-    if (@available(iOS 12, macOS 10.14, *)) {
-       maxBufferLength = gpu->device().maxBufferLength;
-    }
+//    if (@available(iOS 12, macOS 10.14, *)) {
+//       maxBufferLength = gpu->device().maxBufferLength;
+//    }
     fBufferSuballocatorMaxSize = maxBufferLength/16;
 }
 
