@@ -87,18 +87,18 @@ class Desc : public GrProgramDesc {
 public:
     static bool Build(Desc* desc,
                       GrRenderTarget* rt,
-                      const GrPipeline& pipeline,
-                      const GrPrimitiveProcessor& primProc,
+                      const GrProgramInfo& programInfo,
                       GrPrimitiveType primitiveType,
                       bool hasPoints,
                       bool hasDepthStencil,
                       GrGpu* gpu) {
-        if (!GrProgramDesc::Build(desc, rt, primProc, hasPoints, pipeline, gpu)) {
+        if (!GrProgramDesc::Build(desc, rt, programInfo, hasPoints, gpu)) {
             return false;
         }
         GrProcessorKeyBuilder b(&desc->key());
 
         GrStencilSettings stencil;
+        const GrPipeline& pipeline = programInfo.pipeline();
         stencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(), 8);
         stencil.genKey(&b);
         b.add32(rt->config());
@@ -126,7 +126,7 @@ GrDawnGpu::GrDawnGpu(GrContext* context, const GrContextOptions& options,
         , fDevice(device)
         , fQueue(device.CreateQueue())
         , fCompiler(new SkSL::Compiler())
-        , fUniformRingBuffer(this, dawn::BufferUsageBit::Uniform)
+        , fUniformRingBuffer(this, dawn::BufferUsage::Uniform)
         , fRenderPipelineCache(kMaxRenderPipelineEntries)
         , fStagingManager(fDevice) {
     fCaps.reset(new GrDawnCaps(options));
@@ -319,8 +319,6 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(int width, int height,
         return GrBackendTexture();
     }
 
-    GrPixelConfig config = GrDawnFormatToPixelConfig(format);
-
     SkASSERT(width <= this->caps()->maxTextureSize() && height <= this->caps()->maxTextureSize());
 
     // FIXME: Dawn doesn't support mipmapped render targets (yet).
@@ -330,12 +328,12 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(int width, int height,
 
     dawn::TextureDescriptor desc;
     desc.usage =
-        dawn::TextureUsageBit::Sampled |
-        dawn::TextureUsageBit::CopySrc |
-        dawn::TextureUsageBit::CopyDst;
+        dawn::TextureUsage::Sampled |
+        dawn::TextureUsage::CopySrc |
+        dawn::TextureUsage::CopyDst;
 
     if (GrRenderable::kYes == renderable) {
-        desc.usage |= dawn::TextureUsageBit::OutputAttachment;
+        desc.usage |= dawn::TextureUsage::OutputAttachment;
     }
 
     desc.size.width = width;
@@ -352,7 +350,7 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(int width, int height,
 
     dawn::Texture tex = this->device().CreateTexture(&desc);
 
-    size_t bpp = GrBytesPerPixel(config);
+    size_t bpp = GrDawnBytesPerPixel(format);
     size_t baseLayerSize = bpp * width * height;
     const void* pixels;
     SkAutoMalloc defaultStorage(baseLayerSize);
@@ -439,8 +437,8 @@ GrBackendRenderTarget GrDawnGpu::createTestingOnlyBackendRenderTarget(int width,
 
     dawn::TextureDescriptor desc;
     desc.usage =
-        dawn::TextureUsageBit::CopySrc |
-        dawn::TextureUsageBit::OutputAttachment;
+        dawn::TextureUsage::CopySrc |
+        dawn::TextureUsage::OutputAttachment;
 
     desc.size.width = width;
     desc.size.height = height;
@@ -536,7 +534,7 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, i
     int sizeInBytes = rowBytes * height;
 
     dawn::BufferDescriptor desc;
-    desc.usage = dawn::BufferUsageBit::CopyDst | dawn::BufferUsageBit::MapRead;
+    desc.usage = dawn::BufferUsage::CopyDst | dawn::BufferUsage::MapRead;
     desc.size = sizeInBytes;
 
     dawn::Buffer buf = device().CreateBuffer(&desc);
@@ -631,15 +629,12 @@ sk_sp<GrSemaphore> GrDawnGpu::prepareTextureForCrossContextUsage(GrTexture* text
 
 sk_sp<GrDawnProgram> GrDawnGpu::getOrCreateRenderPipeline(
         GrRenderTarget* rt,
-        GrSurfaceOrigin origin,
-        const GrPipeline& pipeline,
-        const GrPrimitiveProcessor& primProc,
-        const GrTextureProxy* const* primProcProxies,
+        const GrProgramInfo& programInfo,
         bool hasPoints,
         GrPrimitiveType primitiveType) {
     bool hasDepthStencil = rt->renderTargetPriv().getStencilAttachment() != nullptr;
     Desc desc;
-    if (!Desc::Build(&desc, rt, pipeline, primProc, primitiveType, hasPoints, hasDepthStencil,
+    if (!Desc::Build(&desc, rt, programInfo, primitiveType, hasPoints, hasDepthStencil,
                      this)) {
         return nullptr;
     }
@@ -653,7 +648,7 @@ sk_sp<GrDawnProgram> GrDawnGpu::getOrCreateRenderPipeline(
     dawn::TextureFormat stencilFormat = dawn::TextureFormat::Depth24PlusStencil8;
 
     sk_sp<GrDawnProgram> program = GrDawnProgramBuilder::Build(
-        this, rt, origin, pipeline, primProc, primProcProxies, primitiveType, colorFormat,
+        this, rt, programInfo, primitiveType, colorFormat,
         hasDepthStencil, stencilFormat, &desc);
     fRenderPipelineCache.insert(desc, program);
     return program;

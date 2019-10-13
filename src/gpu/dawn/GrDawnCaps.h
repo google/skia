@@ -41,6 +41,8 @@ public:
         return SurfaceReadPixelsSupport::kSupported;
     }
 
+    size_t bytesPerPixel(const GrBackendFormat&) const override;
+
     int getRenderTargetSampleCount(int requestedCount,
                                    const GrBackendFormat&) const override;
 

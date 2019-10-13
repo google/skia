@@ -11,7 +11,7 @@
 #include "src/core/SkAutoMalloc.h"
 #include "tools/sk_app/DawnWindowContext.h"
 
-static void PrintDeviceError(const char* message, void*) {
+static void PrintDeviceError(DawnErrorType, const char* message, void*) {
     printf("Device error: %s\n", message);
     SkASSERT(false);
 }
@@ -42,8 +42,8 @@ void DawnWindowContext::initializeContext(int width, int height) {
         fContext.reset();
         return;
     }
-    fSwapChain.Configure(fSwapChainFormat, dawn::TextureUsageBit::OutputAttachment, width, height);
-    fDevice.SetErrorCallback(PrintDeviceError, 0);
+    fSwapChain.Configure(fSwapChainFormat, dawn::TextureUsage::OutputAttachment, width, height);
+    fDevice.SetUncapturedErrorCallback(PrintDeviceError, 0);
 }
 
 DawnWindowContext::~DawnWindowContext() {
@@ -97,7 +97,7 @@ void DawnWindowContext::resize(int w, int h) {
         fContext.reset();
         return;
     }
-    fSwapChain.Configure(fSwapChainFormat, dawn::TextureUsageBit::OutputAttachment, fWidth,
+    fSwapChain.Configure(fSwapChainFormat, dawn::TextureUsage::OutputAttachment, fWidth,
                          fHeight);
 }
 

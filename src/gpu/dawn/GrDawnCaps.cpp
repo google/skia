@@ -139,6 +139,14 @@ bool GrDawnCaps::isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFo
     return isFormatRenderable(format, sampleCount);
 }
 
+size_t GrDawnCaps::bytesPerPixel(const GrBackendFormat& backendFormat) const {
+    dawn::TextureFormat dawnFormat;
+    if (!backendFormat.asDawnFormat(&dawnFormat)) {
+        return 0;
+    }
+    return GrDawnBytesPerPixel(dawnFormat);
+}
+
 int GrDawnCaps::getRenderTargetSampleCount(int requestedCount,
                                            const GrBackendFormat& backendFormat) const {
     dawn::TextureFormat dawnFormat;
