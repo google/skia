@@ -65,19 +65,14 @@ struct GrDawnProgram : public SkRefCnt {
     BuiltinUniformHandles fBuiltinUniformHandles;
 
     void setRenderTargetState(const GrRenderTarget*, GrSurfaceOrigin);
-    dawn::BindGroup setData(GrDawnGpu* gpu, const GrRenderTarget*, GrSurfaceOrigin origin,
-                            const GrPrimitiveProcessor&, const GrPipeline&,
-                            const GrTextureProxy* const primProcTextures[]);
+    dawn::BindGroup setData(GrDawnGpu* gpu, const GrRenderTarget*, const GrProgramInfo&);
 };
 
 class GrDawnProgramBuilder : public GrGLSLProgramBuilder {
 public:
     static sk_sp<GrDawnProgram> Build(GrDawnGpu*,
-                                      GrRenderTarget* renderTarget,
-                                      GrSurfaceOrigin origin,
-                                      const GrPipeline&,
-                                      const GrPrimitiveProcessor&,
-                                      const GrTextureProxy* const primProcProxies[],
+                                      GrRenderTarget* rt,
+                                      const GrProgramInfo& programInfo,
                                       GrPrimitiveType primitiveType,
                                       dawn::TextureFormat colorFormat,
                                       bool hasDepthStencil,
@@ -93,10 +88,7 @@ public:
 private:
     GrDawnProgramBuilder(GrDawnGpu*,
                          GrRenderTarget*,
-                         GrSurfaceOrigin,
-                         const GrPrimitiveProcessor&,
-                         const GrTextureProxy* const primProcProxies[],
-                         const GrPipeline&,
+                         const GrProgramInfo&,
                          GrProgramDesc*);
     dawn::ShaderModule createShaderModule(const GrGLSLShaderBuilder&, SkSL::Program::Kind,
                                           SkSL::Program::Inputs* inputs);
