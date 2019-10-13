@@ -52,7 +52,7 @@ public:
 
     ~SwapChainImplMTL() {}
 
-    DawnSwapChainError Configure(DawnTextureFormat format, DawnTextureUsageBit,
+    DawnSwapChainError Configure(DawnTextureFormat format, DawnTextureUsage,
             uint32_t width, uint32_t height) {
         if (format != DAWN_TEXTURE_FORMAT_RGBA8_UNORM) {
             return "unsupported format";
