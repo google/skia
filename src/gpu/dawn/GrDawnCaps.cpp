@@ -32,7 +32,8 @@ bool GrDawnCaps::isFormatSRGB(const GrBackendFormat& format) const {
     return false;
 }
 
-bool GrDawnCaps::isFormatCompressed(const GrBackendFormat& format) const {
+bool GrDawnCaps::isFormatCompressed(const GrBackendFormat& format,
+                                    SkImage::CompressionType* compressionType) const {
     return false;
 }
 
@@ -137,6 +138,14 @@ bool GrDawnCaps::isFormatRenderable(const GrBackendFormat& format,
 bool GrDawnCaps::isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
                                                int sampleCount) const {
     return isFormatRenderable(format, sampleCount);
+}
+
+size_t GrDawnCaps::bytesPerPixel(const GrBackendFormat& backendFormat) const {
+    dawn::TextureFormat dawnFormat;
+    if (!backendFormat.asDawnFormat(&dawnFormat)) {
+        return 0;
+    }
+    return GrDawnBytesPerPixel(dawnFormat);
 }
 
 int GrDawnCaps::getRenderTargetSampleCount(int requestedCount,

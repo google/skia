@@ -18,7 +18,8 @@ public:
     GrDawnCaps(const GrContextOptions& contextOptions);
 
     bool isFormatSRGB(const GrBackendFormat&) const override;
-    bool isFormatCompressed(const GrBackendFormat&) const override;
+    bool isFormatCompressed(const GrBackendFormat&,
+                            SkImage::CompressionType* compressionType = nullptr) const override;
 
     bool isFormatTexturableAndUploadable(GrColorType, const GrBackendFormat& format) const override;
     bool isFormatRenderable(const GrBackendFormat& format,
@@ -40,6 +41,8 @@ public:
     SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override {
         return SurfaceReadPixelsSupport::kSupported;
     }
+
+    size_t bytesPerPixel(const GrBackendFormat&) const override;
 
     int getRenderTargetSampleCount(int requestedCount,
                                    const GrBackendFormat&) const override;
