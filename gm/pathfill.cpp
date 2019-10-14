@@ -15,6 +15,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/utils/SkRandom.h"
 
 typedef SkScalar (*MakePathProc)(SkPath*);
 
@@ -291,8 +292,7 @@ constexpr MakePathProc gProcs[] = {
     make_house,
     make_sawtooth_3,
 };
-
-#define N   SK_ARRAY_COUNT(gProcs)
+const int N = SK_ARRAY_COUNT(gProcs);
 
 class PathFillGM : public skiagm::GM {
     SkPath  fPath[N];
@@ -618,3 +618,75 @@ DEF_SIMPLE_GM(bug7792, canvas, 800, 800) {
     path.close();
     canvas->drawPath(path, p);
 }
+
+enum Type {
+    kRect,
+    kOval,
+    kRPath,
+    kOPath,
+};
+
+class SimpleBenchGM : public skiagm::GM {
+    enum {
+        N = 1000,
+    };
+
+    SkPath  fRPath[N], fOPath[N];
+    SkRect  fRect[N];
+    const Type    fType;
+    SkString fName;
+
+public:
+    SimpleBenchGM(const char name[], Type t) : fType(t) {
+        fName.printf("simple-bench-%s", name);
+    }
+
+protected:
+    void onOnceBeforeDraw() override {
+        SkRandom rand;
+        const float w = 100,
+                    h = 100;
+        for (size_t i = 0; i < N; i++) {
+            float x = rand.nextRangeF(0, 50),
+                  y = rand.nextRangeF(0, 50);
+            fRect[i] = SkRect::MakeXYWH(x, y, w, h);
+
+            fRPath[i].moveTo(x + 0, y + 0);
+            fRPath[i].lineTo(x + w, y + 0);
+            fRPath[i].lineTo(x + w, y + h);
+            fRPath[i].lineTo(x+0.5, y + h);
+
+            fOPath[i].arcTo(fRect[i], 0, 359.9, true);
+        }
+    }
+
+    SkString onShortName() override {
+        return fName;
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(450, 220);
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setColor(SK_ColorRED);
+        paint.setAntiAlias(true);
+        for (int i = 0; i < N; ++i) {
+            switch (fType) {
+                case kRect:  canvas->drawRect(fRect[i],  paint); break;
+                case kOval:  canvas->drawOval(fRect[i],  paint); break;
+                case kRPath: canvas->drawPath(fRPath[i], paint); break;
+                case kOPath: canvas->drawPath(fOPath[i], paint); break;
+            }
+        }
+    }
+
+private:
+    typedef skiagm::GM INHERITED;
+};
+
+DEF_GM( return new SimpleBenchGM("rect", kRect); )
+DEF_GM( return new SimpleBenchGM("oval", kOval); )
+DEF_GM( return new SimpleBenchGM("rpath", kRPath); )
+DEF_GM( return new SimpleBenchGM("opath", kOPath); )
