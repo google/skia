@@ -32,10 +32,10 @@ public:
      * @param renderTarget  The target of the draw
      * @param programInfo   Program information need to build the key
      * @param primitiveType Controls whether the shader will output a point size.
-     * @param gpu           Pointer to the GrGpu object the program will be used with.
+     * @param shaderCaps    the shader caps
      **/
     static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrProgramInfo&,
-                      GrPrimitiveType, GrGpu*);
+                      GrPrimitiveType, const GrShaderCaps&);
 
     // This is strictly an OpenGL call since the other backends have additional data in their
     // keys

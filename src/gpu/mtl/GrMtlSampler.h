@@ -27,7 +27,7 @@ public:
     typedef uint32_t Key;
 
     // Helpers for hashing GrMtlSampler
-    static Key GenerateKey(const GrSamplerState&, uint32_t maxMipLevel);
+    static Key GenerateKey(const GrSamplerState&);
 
     static const Key& GetKey(const GrMtlSampler& sampler) { return sampler.fKey; }
     static uint32_t Hash(const Key& key) {
