@@ -793,6 +793,8 @@ void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool i
 }
 
 void GrRenderTargetContext::internalStencilClear(const GrFixedClip& clip, bool insideStencilMask) {
+    this->setNeedsStencil(/* multisampled = */ false);
+
     if (this->caps()->performStencilClearsAsDraws()) {
         const GrUserStencilSettings* ss = GrStencilSettings::SetClipBitSettings(insideStencilMask);
         SkRect rtRect = SkRect::MakeWH(this->width(), this->height());
