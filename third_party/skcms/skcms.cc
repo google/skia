@@ -48,6 +48,66 @@ static const union {
 } inf_ = { 0x7f800000 };
 #define INFINITY_ inf_.f
 
+#if defined(__clang__) || defined(__GNUC__)
+    #define small_memcpy __builtin_memcpy
+#else
+    #define small_memcpy memcpy
+#endif
+
+static float log2f_(float x) {
+    // The first approximation of log2(x) is its exponent 'e', minus 127.
+    int32_t bits;
+    small_memcpy(&bits, &x, sizeof(bits));
+
+    float e = (float)bits * (1.0f / (1<<23));
+
+    // If we use the mantissa too we can refine the error signficantly.
+    int32_t m_bits = (bits & 0x007fffff) | 0x3f000000;
+    float m;
+    small_memcpy(&m, &m_bits, sizeof(m));
+
+    return (e - 124.225514990f
+              -   1.498030302f*m
+              -   1.725879990f/(0.3520887068f + m));
+}
+static float logf_(float x) {
+    const float ln2 = 0.69314718f;
+    return ln2*log2f_(x);
+}
+
+static float exp2f_(float x) {
+    float fract = x - floorf_(x);
+
+    float fbits = (1.0f * (1<<23)) * (x + 121.274057500f
+                                        -   1.490129070f*fract
+                                        +  27.728023300f/(4.84252568f - fract));
+
+    // Before we cast fbits to int32_t, check for out of range values to pacify UBSAN.
+    // INT_MAX is not exactly representable as a float, so exclude it as effectively infinite.
+    // INT_MIN is a power of 2 and exactly representable as a float, so it's fine.
+    if (fbits >= (float)INT_MAX) {
+        return INFINITY_;
+    } else if (fbits < (float)INT_MIN) {
+        return -INFINITY_;
+    }
+
+    int32_t bits = (int32_t)fbits;
+    small_memcpy(&x, &bits, sizeof(x));
+    return x;
+}
+
+// Not static, as it's used by some test tools.
+float powf_(float x, float y) {
+    assert (x >= 0);
+    return (x == 0) || (x == 1) ? x
+                                : exp2f_(log2f_(x) * y);
+}
+
+static float expf_(float x) {
+    // TODO: can do better than this...
+    return powf_(2.7182818284590452354f, x);
+}
+
 static float fmaxf_(float x, float y) { return x > y ? x : y; }
 static float fminf_(float x, float y) { return x < y ? x : y; }
 
@@ -114,15 +174,41 @@ bool skcms_TransferFunction_makePQish(skcms_TransferFunction* tf,
     return true;
 }
 
+bool skcms_TransferFunction_makeHLGinvish(skcms_TransferFunction* tf,
+                                          float R, float G,
+                                          float a, float b, float c) {
+    *tf = { TFKind_marker(HLGinvish), R,G, a,b,c, 0 };
+    assert(classify(*tf) == HLGinvish);
+    return true;
+}
+
+bool skcms_TransferFunction_makeHLGish(skcms_TransferFunction* tf,
+                                       float R, float G,
+                                       float a, float b, float c) {
+    // The math for HLGish transfer functions is faster if we precompute 1/R, 1/G, 1/a.
+    *tf = { TFKind_marker(HLGish), 1.0f/R,1.0f/G, 1.0f/a,b,c, 0 };
+    assert(classify(*tf) == HLGish);
+    return true;
+}
+
 float skcms_TransferFunction_eval(const skcms_TransferFunction* tf, float x) {
     float sign = x < 0 ? -1.0f : 1.0f;
     x *= sign;
 
-    TF_PQish pq;
-    switch (classify(*tf, &pq)) {
+    TF_PQish  pq;
+    TF_HLGish hlg;
+    switch (classify(*tf, &pq, &hlg)) {
         case Bad:       break;
-        case HLGish:    break;
-        case HLGinvish: break;
+
+        // Remember that hlg.R, hlg.G, and hlg.a are holding each value's reciprocal,
+        // so the math may look a bit funny...
+        case HLGish:    return sign * (x*hlg.R <= 1 ? powf_(x*hlg.R, hlg.G)
+                                                    : expf_((x-hlg.c)*hlg.a) + hlg.b);
+
+        // Here all the hlg fields mean what they look like, R,G,a,b,c.
+        case HLGinvish: return sign * (x <= 1 ? hlg.R * powf_(x, hlg.G)
+                                              : hlg.a * logf_(x - hlg.b) + hlg.c);
+
 
         case sRGBish: return sign * (x < tf->d ?       tf->c * x + tf->f
                                                : powf_(tf->a * x + tf->b, tf->g) + tf->e);
@@ -1424,56 +1510,6 @@ skcms_Matrix3x3 skcms_Matrix3x3_concat(const skcms_Matrix3x3* A, const skcms_Mat
     return m;
 }
 
-#if defined(__clang__) || defined(__GNUC__)
-    #define small_memcpy __builtin_memcpy
-#else
-    #define small_memcpy memcpy
-#endif
-
-static float log2f_(float x) {
-    // The first approximation of log2(x) is its exponent 'e', minus 127.
-    int32_t bits;
-    small_memcpy(&bits, &x, sizeof(bits));
-
-    float e = (float)bits * (1.0f / (1<<23));
-
-    // If we use the mantissa too we can refine the error signficantly.
-    int32_t m_bits = (bits & 0x007fffff) | 0x3f000000;
-    float m;
-    small_memcpy(&m, &m_bits, sizeof(m));
-
-    return (e - 124.225514990f
-              -   1.498030302f*m
-              -   1.725879990f/(0.3520887068f + m));
-}
-
-static float exp2f_(float x) {
-    float fract = x - floorf_(x);
-
-    float fbits = (1.0f * (1<<23)) * (x + 121.274057500f
-                                        -   1.490129070f*fract
-                                        +  27.728023300f/(4.84252568f - fract));
-
-    // Before we cast fbits to int32_t, check for out of range values to pacify UBSAN.
-    // INT_MAX is not exactly representable as a float, so exclude it as effectively infinite.
-    // INT_MIN is a power of 2 and exactly representable as a float, so it's fine.
-    if (fbits >= (float)INT_MAX) {
-        return INFINITY_;
-    } else if (fbits < (float)INT_MIN) {
-        return -INFINITY_;
-    }
-
-    int32_t bits = (int32_t)fbits;
-    small_memcpy(&x, &bits, sizeof(x));
-    return x;
-}
-
-float powf_(float x, float y) {
-    assert (x >= 0);
-    return (x == 0) || (x == 1) ? x
-                                : exp2f_(log2f_(x) * y);
-}
-
 #if defined(__clang__)
     [[clang::no_sanitize("float-divide-by-zero")]]  // Checked for by tf_is_valid() on the way out.
 #endif
@@ -1622,8 +1658,8 @@ static float rg_nonlinear(float x,
     assert (D >= 0);
 
     // The gradient.
-    dfdP[0] = 0.69314718f*log2f_(Y)*powf_(Y, g)
-            - 0.69314718f*log2f_(D)*powf_(D, g);
+    dfdP[0] = logf_(Y)*powf_(Y, g)
+            - logf_(D)*powf_(D, g);
     dfdP[1] = y*g*powf_(Y, g-1)
             - d*g*powf_(D, g-1);
     dfdP[2] =   g*powf_(Y, g-1)
