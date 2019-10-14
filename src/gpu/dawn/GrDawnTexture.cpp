@@ -153,8 +153,7 @@ void GrDawnTexture::upload(const GrMipLevel texels[], int mipLevels, const SkIRe
                 GrColorTypeToSkColorType(GrPixelConfigToColorType(this->config()));
             srcInfo = SkImageInfo::Make(width, height, colorType, kOpaque_SkAlphaType);
             SkPixmap srcPixmap(srcInfo, texels[i].fPixels, origRowBytes);
-            origRowBytes = width * GrBytesPerPixel(kRGBA_8888_GrPixelConfig);
-            origRowBytes = GrDawnRoundRowBytes(origRowBytes);
+            origRowBytes = GrDawnRoundRowBytes(info.minRowBytes());
             bitmap.allocPixels(info, origRowBytes);
             bitmap.writePixels(srcPixmap);
             if (!bitmap.peekPixels(&pixmap)) {
