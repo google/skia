@@ -768,8 +768,8 @@ private:
             , fType(type)
             , fNumOctaves(numOctaves)
             , fStitchTiles(stitchTiles)
-            , fPermutationsSampler(std::move(permutationsProxy))
-            , fNoiseSampler(std::move(noiseProxy))
+            , fPermutationsSampler(std::move(permutationsProxy), GrSamplerState::ClampNearest())
+            , fNoiseSampler(std::move(noiseProxy), GrSamplerState::ClampNearest())
             , fPaintingData(std::move(paintingData)) {
         this->setTextureSamplerCnt(2);
         fCoordTransform = GrCoordTransform(matrix);
@@ -1191,8 +1191,8 @@ private:
             : INHERITED(kGrImprovedPerlinNoiseEffect_ClassID, kNone_OptimizationFlags)
             , fOctaves(octaves)
             , fZ(z)
-            , fPermutationsSampler(std::move(permutationsProxy))
-            , fGradientSampler(std::move(gradientProxy))
+            , fPermutationsSampler(std::move(permutationsProxy), GrSamplerState::ClampNearest())
+            , fGradientSampler(std::move(gradientProxy), GrSamplerState::ClampNearest())
             , fPaintingData(std::move(paintingData)) {
         this->setTextureSamplerCnt(2);
         fCoordTransform = GrCoordTransform(matrix);

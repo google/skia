@@ -40,7 +40,7 @@ private:
             , maskCoordTransform(
                       SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y())),
                       mask.get())
-            , mask(std::move(mask))
+            , mask(std::move(mask), GrSamplerState::ClampNearest())
             , innerThreshold(innerThreshold)
             , outerThreshold(outerThreshold) {
         this->setTextureSamplerCnt(1);

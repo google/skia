@@ -1617,7 +1617,7 @@ GrLightingEffect::GrLightingEffect(ClassID classID,
         : INHERITED(classID, kNone_OptimizationFlags)
         , fCoordTransform(proxy.get())
         , fDomain(create_domain(proxy.get(), srcBounds, GrTextureDomain::kDecal_Mode))
-        , fTextureSampler(std::move(proxy))
+        , fTextureSampler(std::move(proxy), GrSamplerState::ClampNearest())
         , fLight(std::move(light))
         , fSurfaceScale(surfaceScale)
         , fFilterMatrix(matrix)
