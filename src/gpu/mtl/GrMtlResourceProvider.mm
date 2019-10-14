@@ -59,12 +59,11 @@ GrMtlDepthStencil* GrMtlResourceProvider::findOrCreateCompatibleDepthStencilStat
     return depthStencilState;
 }
 
-GrMtlSampler* GrMtlResourceProvider::findOrCreateCompatibleSampler(const GrSamplerState& params,
-                                                                   uint32_t maxMipLevel) {
+GrMtlSampler* GrMtlResourceProvider::findOrCreateCompatibleSampler(const GrSamplerState& params) {
     GrMtlSampler* sampler;
-    sampler = fSamplers.find(GrMtlSampler::GenerateKey(params, maxMipLevel));
+    sampler = fSamplers.find(GrMtlSampler::GenerateKey(params));
     if (!sampler) {
-        sampler = GrMtlSampler::Create(fGpu, params, maxMipLevel);
+        sampler = GrMtlSampler::Create(fGpu, params);
         fSamplers.add(sampler);
     }
     SkASSERT(sampler);

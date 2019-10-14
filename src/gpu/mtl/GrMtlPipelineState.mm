@@ -28,8 +28,7 @@ GrMtlPipelineState::SamplerBindings::SamplerBindings(const GrSamplerState& state
                                                      GrTexture* texture,
                                                      GrMtlGpu* gpu)
         : fTexture(static_cast<GrMtlTexture*>(texture)->mtlTexture()) {
-    uint32_t maxMipMapLevel = texture->texturePriv().maxMipMapLevel();
-    fSampler = gpu->resourceProvider().findOrCreateCompatibleSampler(state, maxMipMapLevel);
+    fSampler = gpu->resourceProvider().findOrCreateCompatibleSampler(state);
 }
 
 GrMtlPipelineState::GrMtlPipelineState(
