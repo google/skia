@@ -1,7 +1,10 @@
 spirv_cross = "//third_party/externals/spirv-cross"
 
 config("spirv_cross_config") {
-  include_dirs = [ "//third_party/externals" ]
+  include_dirs = [
+    "//third_party/externals",
+    "//third_party/externals/spirv-cross",
+  ]
   defines = [ "SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS" ]
 }
 
