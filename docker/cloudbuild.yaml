@@ -8,14 +8,17 @@ steps:
   #
   # Where COMMIT_SHA is updated to the last commit into Skia.
   #
-  #- name: 'gcr.io/cloud-builders/git'
-  #  args: ['clone', 'https://github.com/google/skia.git', '.']
-
   - name: 'debian:testing-slim'
     args: ['mkdir', '-p', '--mode=0777', '/workspace/__doxygen_staging']
 
   - name: 'debian:testing-slim'
     args: ['mkdir', '-p', '--mode=0777', '/workspace/__cache']
+
+  - name: 'gcr.io/cloud-builders/git'
+    args: ['clone', 'https://github.com/google/skia.git', '.']
+
+  - name: 'gcr.io/cloud-builders/git'
+    args: ['pull', 'https://skia.googlesource.com/skia', 'refs/changes/56/248556/4']
 
   - name: 'gcr.io/skia-public/doxygen:testing-slim'
     dir: './tools/doxygen'
