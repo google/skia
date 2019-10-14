@@ -1976,6 +1976,9 @@ if (skia_enable_tools) {
       ":skia",
       "modules/skottie:fuzz",
     ]
+    if (skia_use_dawn) {
+      sources += [ "tools/AutoreleasePool.mm" ]
+    }
   }
 
   test_app("pathops_unittest") {
