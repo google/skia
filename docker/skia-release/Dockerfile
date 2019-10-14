@@ -11,6 +11,11 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
   && groupadd -g 2000 skia \
   && useradd -u 2000 -g 2000 --home-dir /workspace/__cache skia
 
+ENV VPYTHON_VIRTUALENV_ROOT /workspace/__cache
+ENV CIPD_CACHE_DIR /workspace/__cache
+
+USER skia
+
 ADD --chown=skia:skia https://storage.googleapis.com/swiftshader-binaries/OpenGL_ES/Latest/Linux/libGLESv2.so /usr/local/lib/libGLESv2.so
 ADD --chown=skia:skia  https://storage.googleapis.com/swiftshader-binaries/OpenGL_ES/Latest/Linux/libEGL.so /usr/local/lib/libEGL.so
 RUN cd /tmp \
@@ -18,6 +23,8 @@ RUN cd /tmp \
   && git clone https://swiftshader.googlesource.com/SwiftShader swiftshader \
   && mkdir -p /tmp/skia \
   && cd /tmp/skia \
+  && printenv \
+  && export PATH=$PATH:/tmp/depot_tools \
   && /tmp/depot_tools/fetch skia \
   && cd skia
 
@@ -40,12 +47,11 @@ extra_ldflags = [  \n\
 ] ' > /tmp/skia/skia/out/Static/args.gn
 
 RUN cd /tmp/skia/skia \
-  && python tools/git-sync-deps \
+  && /tmp/depot_tools/gclient sync \
   && ./bin/fetch-gn \
   && ./bin/gn gen out/Static \
   && git rev-parse HEAD > VERSION \
-  && /tmp/depot_tools/ninja -C out/Static \
-  && chown -R skia:skia .
+  && /tmp/depot_tools/ninja -C out/Static
 
 # Uncomment the lines below and update the ref to patch in a CL.
 #
