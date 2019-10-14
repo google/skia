@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4e4e843f_f2b51119",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-10-14T16:41:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "74b59a82_0f169c7a",
+      "revId": "d1f5a57879cf525e2f829798a4da03cd82c6624c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1747d3f7_f7d269a5",
         "filename": "src/gpu/dawn/GrDawnTexture.cpp",
         "patchSetId": 4
@@ -39,6 +57,30 @@
       "revId": "d1f5a57879cf525e2f829798a4da03cd82c6624c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17a300de_0ba2b415",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-10-14T16:41:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1747d3f7_f7d269a5",
+      "range": {
+        "startLine": 156,
+        "startChar": 27,
+        "endLine": 156,
+        "endChar": 36
+      },
+      "revId": "d1f5a57879cf525e2f829798a4da03cd82c6624c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
