@@ -123,7 +123,7 @@ private:
             , sigma(sigma)
             , rect(rect)
             , cornerRadius(cornerRadius)
-            , ninePatchSampler(std::move(ninePatchSampler)) {
+            , ninePatchSampler(std::move(ninePatchSampler), GrSamplerState::ClampNearest()) {
         this->setTextureSamplerCnt(1);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

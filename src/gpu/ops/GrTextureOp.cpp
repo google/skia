@@ -442,7 +442,7 @@ private:
         ColorType colorType = ColorType::kNone;
         int numProxies = 0;
         int numTotalQuads = 0;
-        auto textureType = fProxies[0].fProxy->textureType();
+        const GrBackendFormat& backendFormat = fProxies[0].fProxy->backendFormat();
         const GrSwizzle& swizzle = fProxies[0].fProxy->textureSwizzle();
         GrAAType aaType = this->aaType();
         for (const auto& op : ChainRange<TextureOp>(this)) {
@@ -463,7 +463,7 @@ private:
                 if (!proxy->isInstantiated()) {
                     return;
                 }
-                SkASSERT(proxy->textureType() == textureType);
+                SkASSERT(proxy->textureType() == backendFormat.textureType());
                 SkASSERT(proxy->textureSwizzle() == swizzle);
             }
             if (op.aaType() == GrAAType::kCoverage) {
@@ -477,14 +477,16 @@ private:
 
         GrSamplerState samplerState = GrSamplerState(GrSamplerState::WrapMode::kClamp,
                                                      this->filter());
+#if 0
         GrGpu* gpu = target->resourceProvider()->priv().gpu();
         uint32_t extraSamplerKey = gpu->getExtraSamplerKeyForProgram(
                 samplerState, fProxies[0].fProxy->backendFormat());
+#endif
 
         auto saturate = static_cast<GrTextureOp::Saturate>(fSaturate);
         sk_sp<GrGeometryProcessor> gp = GrQuadPerEdgeAA::MakeTexturedProcessor(
-                vertexSpec, *target->caps().shaderCaps(), textureType, samplerState, swizzle,
-                extraSamplerKey, std::move(fTextureColorSpaceXform), saturate);
+                vertexSpec, *target->caps().shaderCaps(), backendFormat, samplerState, swizzle,
+                /*extraSamplerKey,*/ std::move(fTextureColorSpaceXform), saturate);
 
         // We'll use a dynamic state array for the GP textures when there are multiple ops.
         // Otherwise, we use fixed dynamic state to specify the single op's proxy.

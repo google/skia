@@ -62,6 +62,26 @@ public:
 
     bool operator!=(const GrSamplerState& that) const { return !(*this == that); }
 
+    static uint8_t GenerateKey(const GrSamplerState& samplerState) {
+        const int kTileModeXShift = 2;
+        const int kTileModeYShift = 4;
+        const int kMipLevelShift = 6;
+
+        SkASSERT(static_cast<int>(samplerState.filter()) <= 3);
+        uint8_t key = static_cast<uint16_t>(samplerState.filter());
+
+        SkASSERT(static_cast<int>(samplerState.wrapModeX()) <= 3);
+        key |= (static_cast<uint8_t>(samplerState.wrapModeX()) << kTileModeXShift);
+
+        SkASSERT(static_cast<int>(samplerState.wrapModeY()) <= 3);
+        key |= (static_cast<uint8_t>(samplerState.wrapModeY()) << kTileModeYShift);
+
+        bool useMipMaps = GrSamplerState::Filter::kMipMap == samplerState.filter();
+        key |= useMipMaps ? (1 << kMipLevelShift) : 0;
+
+        return key;
+    }
+
 private:
     WrapMode fWrapModes[2];
     Filter fFilter;
