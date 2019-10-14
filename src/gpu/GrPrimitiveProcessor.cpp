@@ -55,37 +55,20 @@ static inline GrSamplerState::Filter clamp_filter(GrTextureType type,
 
 GrPrimitiveProcessor::TextureSampler::TextureSampler(GrTextureType textureType,
                                                      const GrSamplerState& samplerState,
-                                                     const GrSwizzle& swizzle,
-                                                     uint32_t extraSamplerKey) {
-    this->reset(textureType, samplerState, swizzle, extraSamplerKey);
-}
-
-GrPrimitiveProcessor::TextureSampler::TextureSampler(GrTextureType textureType,
-                                                     GrSamplerState::Filter filterMode,
-                                                     GrSamplerState::WrapMode wrapXAndY,
                                                      const GrSwizzle& swizzle) {
-    this->reset(textureType, filterMode, wrapXAndY, swizzle);
+                                                     //uint32_t extraSamplerKey) {
+    this->reset(textureType, samplerState, swizzle); // , extraSamplerKey);
 }
 
 void GrPrimitiveProcessor::TextureSampler::reset(GrTextureType textureType,
                                                  const GrSamplerState& samplerState,
-                                                 const GrSwizzle& swizzle,
-                                                 uint32_t extraSamplerKey) {
+                                                 const GrSwizzle& swizzle) {
+//                                                 uint32_t extraSamplerKey) {
     fSamplerState = samplerState;
     fSamplerState.setFilterMode(clamp_filter(textureType, samplerState.filter()));
     fSwizzle = swizzle;
     fTextureType = textureType;
-    fExtraSamplerKey = extraSamplerKey;
+//    fExtraSamplerKey = extraSamplerKey;
     fIsInitialized = true;
 }
 
-void GrPrimitiveProcessor::TextureSampler::reset(GrTextureType textureType,
-                                                 GrSamplerState::Filter filterMode,
-                                                 GrSamplerState::WrapMode wrapXAndY,
-                                                 const GrSwizzle& swizzle) {
-    filterMode = clamp_filter(textureType, filterMode);
-    fSamplerState = GrSamplerState(wrapXAndY, filterMode);
-    fSwizzle = swizzle;
-    fTextureType = textureType;
-    fIsInitialized = true;
-}
