@@ -1183,6 +1183,9 @@ def GenTests(api):
   )
 
   builder = 'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-All-Android'
+  retry_step_name = ('push [START_DIR]/skia/resources/* '
+                     '/sdcard/revenge_of_the_skiabot/resources.push '
+                     '[START_DIR]/skia/resources/file1')
   yield (
     api.test('failed_push') +
     api.properties(buildername=builder,
@@ -1204,8 +1207,9 @@ def GenTests(api):
     ) +
     api.step_data('get swarming bot id',
                   stdout=api.raw_io.output('build123-m2--device5')) +
-    api.step_data('push [START_DIR]/skia/resources/* '+
-                  '/sdcard/revenge_of_the_skiabot/resources', retcode=1)
+    api.step_data(retry_step_name, retcode=1) +
+    api.step_data(retry_step_name + ' (attempt 2)', retcode=1) +
+    api.step_data(retry_step_name + ' (attempt 3)', retcode=1)
   )
 
   retry_step_name = 'adb pull.pull /sdcard/revenge_of_the_skiabot/dm_out'

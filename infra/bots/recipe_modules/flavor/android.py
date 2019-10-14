@@ -532,23 +532,29 @@ time.sleep(60)
 
   def copy_directory_contents_to_device(self, host, device):
     # Copy the tree, avoiding hidden directories and resolving symlinks.
-    self.m.run(self.m.python.inline, 'push %s/* %s' % (host, device),
-               program="""
-    import os
-    import subprocess
-    import sys
-    host   = sys.argv[1]
-    device = sys.argv[2]
-    for d, _, fs in os.walk(host):
-      p = os.path.relpath(d, host)
-      if p != '.' and p.startswith('.'):
-        continue
-      for f in fs:
-        print os.path.join(p,f)
-        subprocess.check_call(['%s', 'push',
-                               os.path.realpath(os.path.join(host, p, f)),
-                               os.path.join(device, p, f)])
-    """ % self.ADB_BINARY, args=[host, device], infra_step=True)
+    sep = self.m.path.sep
+    host_str = str(host).rstrip(sep) + sep
+    device = device.rstrip('/')
+    with self.m.step.nest('push %s* %s' % (host_str, device)):
+      contents = self.m.file.listdir('list %s' % host, host, recursive=True,
+                                     test_data=['file1',
+                                                'subdir' + sep + 'file2',
+                                                '.file3',
+                                                '.ignore' + sep + 'file4'])
+      for path in contents:
+        path_str = str(path)
+        assert path_str.startswith(host_str), (
+            'expected %s to have %s as a prefix' % (path_str, host_str))
+        relpath = path_str[len(host_str):]
+        # NOTE(dogben): Previous logic used os.walk and skipped directories
+        # starting with '.', but not files starting with '.'. It's not clear
+        # what the reason was (maybe skipping .git?), but I'm keeping that
+        # behavior here.
+        if self.m.path.dirname(relpath).startswith('.'):
+          continue
+        device_path = device + '/' + relpath  # Android paths use /
+        self._adb('push %s' % path, 'push',
+                  self.m.path.realpath(path), device_path)
 
   def copy_directory_contents_to_host(self, device, host):
     # TODO(borenet): When all of our devices are on Android 6.0 and up, we can
