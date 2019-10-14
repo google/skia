@@ -60,13 +60,6 @@ GrPrimitiveProcessor::TextureSampler::TextureSampler(GrTextureType textureType,
     this->reset(textureType, samplerState, swizzle, extraSamplerKey);
 }
 
-GrPrimitiveProcessor::TextureSampler::TextureSampler(GrTextureType textureType,
-                                                     GrSamplerState::Filter filterMode,
-                                                     GrSamplerState::WrapMode wrapXAndY,
-                                                     const GrSwizzle& swizzle) {
-    this->reset(textureType, filterMode, wrapXAndY, swizzle);
-}
-
 void GrPrimitiveProcessor::TextureSampler::reset(GrTextureType textureType,
                                                  const GrSamplerState& samplerState,
                                                  const GrSwizzle& swizzle,
@@ -79,13 +72,3 @@ void GrPrimitiveProcessor::TextureSampler::reset(GrTextureType textureType,
     fIsInitialized = true;
 }
 
-void GrPrimitiveProcessor::TextureSampler::reset(GrTextureType textureType,
-                                                 GrSamplerState::Filter filterMode,
-                                                 GrSamplerState::WrapMode wrapXAndY,
-                                                 const GrSwizzle& swizzle) {
-    filterMode = clamp_filter(textureType, filterMode);
-    fSamplerState = GrSamplerState(wrapXAndY, filterMode);
-    fSwizzle = swizzle;
-    fTextureType = textureType;
-    fIsInitialized = true;
-}
