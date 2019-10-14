@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12f91031_93754b91",
+        "filename": "docker/skia-build-tools/Dockerfile",
+        "patchSetId": 22
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-10-14T19:05:24Z",
+      "side": 1,
+      "message": "Note: it would be best to get these from CIPD so that they\u0027re pinned and can be explicitly rolled, but I don\u0027t know the best way to do that from the Skia repo at the moment.",
+      "range": {
+        "startLine": 4,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 10
+      },
+      "revId": "f32d945aabef4f4b0b13f734a0ef6cb75a96a7d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
