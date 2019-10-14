@@ -269,7 +269,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
                                        fFS.getSecondaryColorOutputName(),
                                        dstTextureSamplerHandle,
                                        dstTextureOrigin,
-                                       this->header().fOutputSwizzle);
+                                       this->pipeline().outputSwizzle());
     fXferProcessor->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
