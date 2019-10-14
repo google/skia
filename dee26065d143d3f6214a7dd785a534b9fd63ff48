@@ -22,6 +22,30 @@
       "revId": "dee26065d143d3f6214a7dd785a534b9fd63ff48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7dff526c_5d7919c9",
+        "filename": "docker/skia-release/Dockerfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-10-14T14:05:18Z",
+      "side": 1,
+      "message": "Yes, DEPS is still used, there\u0027s a \"python tools/git-sync-deps\" later in this file.",
+      "parentUuid": "2b9c44a9_83238b33",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 83
+      },
+      "revId": "dee26065d143d3f6214a7dd785a534b9fd63ff48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
