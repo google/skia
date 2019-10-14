@@ -1,10 +1,8 @@
 # A Docker image that has the Emscripten SDK installed to /opt/emsdk
 # Use this image to compile C/C++ code to WASM.
 
-FROM launcher.gcr.io/google/clang-debian9
+FROM gcr.io/skia-public/skia-build-tools:latest
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
-  git \
-  python \
   nodejs \
   default-jre
 
