@@ -1204,8 +1204,9 @@ def GenTests(api):
     ) +
     api.step_data('get swarming bot id',
                   stdout=api.raw_io.output('build123-m2--device5')) +
-    api.step_data('push [START_DIR]/skia/resources/* '+
-                  '/sdcard/revenge_of_the_skiabot/resources', retcode=1)
+    api.step_data('push [START_DIR]/skia/resources/* '
+                  '/sdcard/revenge_of_the_skiabot/resources.push '
+                  '[START_DIR]/skia/resources/file1', retcode=1)
   )
 
   retry_step_name = 'adb pull.pull /sdcard/revenge_of_the_skiabot/dm_out'
