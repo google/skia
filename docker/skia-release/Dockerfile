@@ -18,7 +18,7 @@ RUN cd /tmp \
   && git clone https://swiftshader.googlesource.com/SwiftShader swiftshader \
   && mkdir -p /tmp/skia \
   && cd /tmp/skia \
-  && /tmp/depot_tools/fetch skia \
+  && git clone https://skia.googlesource.com/skia \
   && cd skia
 
 RUN mkdir -p /tmp/skia/skia/out/Static
