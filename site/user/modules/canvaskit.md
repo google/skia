@@ -201,7 +201,7 @@ Samples
 
       paint.setPathEffect(dpe);
       paint.setStyle(CanvasKit.PaintStyle.Stroke);
-      paint.setStrokeWidth(5.0 + -3 * Math.cos(i/30));
+//      paint.setStrokeWidth(5.0 + -3 * Math.cos(i/30));
       paint.setAntiAlias(true);
       paint.setColor(CanvasKit.Color(66, 129, 164, 1.0));
 
@@ -218,6 +218,7 @@ Samples
 
     // Make animation interactive
     let interact = (e) => {
+        paint.setStrokeWidth(e.pressure * 10);
       if (!e.buttons) {
         return;
       }
