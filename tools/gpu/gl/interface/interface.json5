@@ -271,9 +271,6 @@
 
     "functions": [
       "StartTiling", "EndTiling",
-    ],
-    "optional": [
-      "StartTiling", "EndTiling",
     ]
   },
 

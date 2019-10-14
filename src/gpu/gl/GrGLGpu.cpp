@@ -1860,7 +1860,15 @@ void GrGLGpu::clearStencil(GrRenderTarget* target, int clearValue) {
     fHWStencilSettings.invalidate();
 }
 
-void GrGLGpu::beginCommandBuffer(GrRenderTarget* rt,
+static bool use_tiled_rendering(const GrGLCaps& glCaps,
+                                const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilLoadStore) {
+    // Only use the tiled rendering extension if we can explicitly clear and discard the stencil.
+    // Otherwise it's faster to just not use it.
+    return glCaps.tiledRenderingSupport() && GrLoadOp::kClear == stencilLoadStore.fLoadOp &&
+           GrStoreOp::kDiscard == stencilLoadStore.fStoreOp;
+}
+
+void GrGLGpu::beginCommandBuffer(GrRenderTarget* rt, const SkIRect& bounds, GrSurfaceOrigin origin,
                                  const GrOpsRenderPass::LoadAndStoreInfo& colorLoadStore,
                                  const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilLoadStore) {
     SkASSERT(!fIsExecutingCommandBuffer_DebugOnly);
@@ -1870,6 +1878,15 @@ void GrGLGpu::beginCommandBuffer(GrRenderTarget* rt,
     auto glRT = static_cast<GrGLRenderTarget*>(rt);
     this->flushRenderTarget(glRT);
     SkDEBUGCODE(fIsExecutingCommandBuffer_DebugOnly = true);
+
+    if (use_tiled_rendering(this->glCaps(), stencilLoadStore)) {
+        auto nativeBounds = GrNativeRect::MakeRelativeTo(origin, glRT->height(), bounds);
+        GrGLbitfield preserveMask = (GrLoadOp::kLoad == colorLoadStore.fLoadOp)
+                ? GR_GL_COLOR_BUFFER_BIT0 : GR_GL_NONE;
+        SkASSERT(GrLoadOp::kLoad != stencilLoadStore.fLoadOp);  // Handled by use_tiled_rendering().
+        GL_CALL(StartTiling(nativeBounds.fX, nativeBounds.fY, nativeBounds.fWidth,
+                            nativeBounds.fHeight, preserveMask));
+    }
 
     GrGLbitfield clearMask = 0;
     if (GrLoadOp::kClear == colorLoadStore.fLoadOp) {
@@ -1927,6 +1944,14 @@ void GrGLGpu::endCommandBuffer(GrRenderTarget* rt,
                                            discardAttachments.begin()));
             }
         }
+    }
+
+    if (use_tiled_rendering(this->glCaps(), stencilLoadStore)) {
+        GrGLbitfield preserveMask = (GrStoreOp::kStore == colorLoadStore.fStoreOp)
+                ? GR_GL_COLOR_BUFFER_BIT0 : GR_GL_NONE;
+        // Handled by use_tiled_rendering().
+        SkASSERT(GrStoreOp::kStore != stencilLoadStore.fStoreOp);
+        GL_CALL(EndTiling(preserveMask));
     }
 
     SkDEBUGCODE(fIsExecutingCommandBuffer_DebugOnly = false);
@@ -2084,7 +2109,7 @@ GrOpsRenderPass* GrGLGpu::getOpsRenderPass(
         fCachedOpsRenderPass.reset(new GrGLOpsRenderPass(this));
     }
 
-    fCachedOpsRenderPass->set(rt, origin, colorInfo, stencilInfo);
+    fCachedOpsRenderPass->set(rt, bounds, origin, colorInfo, stencilInfo);
     return fCachedOpsRenderPass.get();
 }
 

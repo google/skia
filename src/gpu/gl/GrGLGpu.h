@@ -111,7 +111,7 @@ public:
     // stencil buffer as not dirty?
     void clearStencil(GrRenderTarget*, int clearValue);
 
-    void beginCommandBuffer(GrRenderTarget*,
+    void beginCommandBuffer(GrRenderTarget*, const SkIRect& bounds, GrSurfaceOrigin,
                             const GrOpsRenderPass::LoadAndStoreInfo& colorLoadStore,
                             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilLoadStore);
 
