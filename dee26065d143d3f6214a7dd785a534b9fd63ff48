@@ -46,6 +46,30 @@
       "revId": "dee26065d143d3f6214a7dd785a534b9fd63ff48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be50be9f_3187f378",
+        "filename": "docker/skia-release/Dockerfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-10-14T14:08:31Z",
+      "side": 1,
+      "message": "Oh, we should be using gclient.  git-sync-deps is untested and does not handle many of the corner cases which have been incorporated into gclient in ~10 years of usage.",
+      "parentUuid": "7dff526c_5d7919c9",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 83
+      },
+      "revId": "dee26065d143d3f6214a7dd785a534b9fd63ff48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
