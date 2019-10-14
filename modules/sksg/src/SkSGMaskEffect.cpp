@@ -8,8 +8,17 @@
 #include "modules/sksg/include/SkSGMaskEffect.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/effects/SkLumaColorFilter.h"
 
 namespace sksg {
+
+static bool is_inverted(sksg::MaskEffect::Mode mode) {
+    return static_cast<uint32_t>(mode) & 1;
+};
+
+static bool is_luma(sksg::MaskEffect::Mode mode) {
+    return static_cast<uint32_t>(mode) & 2;
+}
 
 MaskEffect::MaskEffect(sk_sp<RenderNode> child, sk_sp<RenderNode> mask, Mode mode)
     : INHERITED(std::move(child))
@@ -31,18 +40,23 @@ void MaskEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
         ctx->modulatePaint(canvas->getTotalMatrix(), &mask_paint);
     }
 
+    RenderContext mask_render_context;
+    if (is_luma(fMaskMode)) {
+        mask_render_context.fColorFilter = SkLumaColorFilter::Make();
+    }
+
     canvas->saveLayer(this->bounds(), &mask_paint);
-    fMaskNode->render(canvas);
+    fMaskNode->render(canvas, &mask_render_context);
 
     SkPaint p;
-    p.setBlendMode(fMaskMode == Mode::kNormal ? SkBlendMode::kSrcIn : SkBlendMode::kSrcOut);
+    p.setBlendMode(is_inverted(fMaskMode) ? SkBlendMode::kSrcOut : SkBlendMode::kSrcIn);
     canvas->saveLayer(this->bounds(), &p);
 
     this->INHERITED::onRender(canvas, nullptr);
 }
 
 const RenderNode* MaskEffect::onNodeAt(const SkPoint& p) const {
-    const auto mask_hit = (!!fMaskNode->nodeAt(p) == (fMaskMode == Mode::kNormal));
+    const auto mask_hit = (!!fMaskNode->nodeAt(p) == !is_inverted(fMaskMode));
 
     return mask_hit ? this->INHERITED::onNodeAt(p) : nullptr;
 }
@@ -53,7 +67,7 @@ SkRect MaskEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm)
     const auto maskBounds = fMaskNode->revalidate(ic, ctm);
     auto childBounds = this->INHERITED::onRevalidate(ic, ctm);
 
-    return (fMaskMode == Mode::kInvert || childBounds.intersect(maskBounds))
+    return (is_inverted(fMaskMode) || childBounds.intersect(maskBounds))
         ? childBounds
         : SkRect::MakeEmpty();
 }
