@@ -41,6 +41,7 @@ enum class Saturate : bool { kNo = false, kYes = true };
  */
 std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
                                sk_sp<GrTextureProxy>,
+                               GrColorType srcColorType,
                                sk_sp<GrColorSpaceXform>,
                                GrSamplerState::Filter,
                                const SkPMColor4f&,
