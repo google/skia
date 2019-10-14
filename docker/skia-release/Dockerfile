@@ -18,7 +18,7 @@ RUN cd /tmp \
   && git clone https://swiftshader.googlesource.com/SwiftShader swiftshader \
   && mkdir -p /tmp/skia \
   && cd /tmp/skia \
-  && /tmp/depot_tools/fetch skia \
+  && git clone https://skia.googlesource.com/skia \
   && cd skia
 
 RUN mkdir -p /tmp/skia/skia/out/Static
@@ -40,7 +40,7 @@ extra_ldflags = [  \n\
 ] ' > /tmp/skia/skia/out/Static/args.gn
 
 RUN cd /tmp/skia/skia \
-  && python tools/git-sync-deps \
+  && /tmp/depot_tools/gclient sync \
   && ./bin/fetch-gn \
   && ./bin/gn gen out/Static \
   && git rev-parse HEAD > VERSION \
