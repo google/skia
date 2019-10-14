@@ -69,6 +69,30 @@
       "revId": "f32d945aabef4f4b0b13f734a0ef6cb75a96a7d4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffb8975c_6440326c",
+        "filename": "infra/wasm-common/docker/emsdk-base/Dockerfile",
+        "patchSetId": 22
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-10-14T19:49:10Z",
+      "side": 1,
+      "message": "Right, this would be another spot where a module Dockerfile system would make sense.",
+      "parentUuid": "99de7469_a571f410",
+      "range": {
+        "startLine": 4,
+        "startChar": 5,
+        "endLine": 4,
+        "endChar": 47
+      },
+      "revId": "f32d945aabef4f4b0b13f734a0ef6cb75a96a7d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
