@@ -196,14 +196,15 @@ void ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* c
     rtc->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
 
     // Draw the test to an off-screen, top-down render target.
+    GrColorType rtcColorType = rtc->colorInfo().colorType();
     if (auto topLeftRTC = ctx->priv().makeDeferredRenderTargetContext(
-                SkBackingFit::kExact, 100, 200, rtc->colorInfo().colorType(), nullptr, 1,
+                SkBackingFit::kExact, 100, 200, rtcColorType, nullptr, 1,
                 GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes)) {
         topLeftRTC->clear(nullptr, SK_PMColor4fTRANSPARENT,
                           GrRenderTargetContext::CanClearFullscreen::kYes);
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
-        rtc->drawTexture(GrNoClip(), sk_ref_sp(topLeftRTC->asTextureProxy()),
+        rtc->drawTexture(GrNoClip(), sk_ref_sp(topLeftRTC->asTextureProxy()), rtcColorType,
                          GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
                          SK_PMColor4fWHITE, {0, 0, 100, 200},
                          {100, 0, 200, 200}, GrAA::kNo, GrQuadAAFlags::kNone,
@@ -213,13 +214,13 @@ void ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* c
 
     // Draw the test to an off-screen, bottom-up render target.
     if (auto topLeftRTC = ctx->priv().makeDeferredRenderTargetContext(
-                SkBackingFit::kExact, 100, 200, rtc->colorInfo().colorType(), nullptr, 1,
+                SkBackingFit::kExact, 100, 200, rtcColorType, nullptr, 1,
                 GrMipMapped::kNo, kBottomLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes)) {
         topLeftRTC->clear(nullptr, SK_PMColor4fTRANSPARENT,
                           GrRenderTargetContext::CanClearFullscreen::kYes);
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
-        rtc->drawTexture(GrNoClip(), sk_ref_sp(topLeftRTC->asTextureProxy()),
+        rtc->drawTexture(GrNoClip(), sk_ref_sp(topLeftRTC->asTextureProxy()), rtcColorType,
                          GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
                          SK_PMColor4fWHITE, {0, 0, 100, 200},
                          {200, 0, 300, 200}, GrAA::kNo, GrQuadAAFlags::kNone,

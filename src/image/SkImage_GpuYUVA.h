@@ -25,8 +25,8 @@ public:
     friend class GrYUVAImageTextureMaker;
 
     SkImage_GpuYUVA(sk_sp<GrContext>, int width, int height, uint32_t uniqueID, SkYUVColorSpace,
-                    sk_sp<GrTextureProxy> proxies[], int numProxies, const SkYUVAIndex[4],
-                    GrSurfaceOrigin, sk_sp<SkColorSpace>);
+                    sk_sp<GrTextureProxy> proxies[], GrColorType proxyColorTypes[], int numProxies,
+                    const SkYUVAIndex[4], GrSurfaceOrigin, sk_sp<SkColorSpace>);
     ~SkImage_GpuYUVA() override;
 
     GrSemaphoresSubmitted onFlush(GrContext*, const GrFlushInfo&) override;
@@ -82,6 +82,7 @@ private:
     // This array will usually only be sparsely populated.
     // The actual non-null fields are dictated by the 'fYUVAIndices' indices
     mutable sk_sp<GrTextureProxy>    fProxies[4];
+    mutable GrColorType              fProxyColorTypes[4];
     int                              fNumProxies;
     SkYUVAIndex                      fYUVAIndices[4];
     const SkYUVColorSpace            fYUVColorSpace;

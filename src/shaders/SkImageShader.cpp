@@ -228,7 +228,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         return nullptr;
     }
 
-    bool isAlphaOnly = SkColorTypeIsAlphaOnly(fImage->colorType());
+    GrColorType srcColorType = SkColorTypeToGrColorType(fImage->colorType());
 
     lmInverse.postScale(scaleAdjust[0], scaleAdjust[1]);
 
@@ -237,21 +237,24 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         // domainX and domainY will properly apply the decal effect with the texture domain used in
         // the bicubic filter if clamp to border was unsupported in hardware
         static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
-        inner = GrBicubicEffect::Make(std::move(proxy), lmInverse, wrapModes, domainX, domainY,
-                                      kDir, fImage->alphaType());
+        inner = GrBicubicEffect::Make(std::move(proxy), srcColorType, lmInverse, wrapModes, domainX,
+                                      domainY, kDir, fImage->alphaType());
     } else {
         if (domainX != GrTextureDomain::kIgnore_Mode || domainY != GrTextureDomain::kIgnore_Mode) {
             SkRect domain = GrTextureDomain::MakeTexelDomain(
                     SkIRect::MakeWH(proxy->width(), proxy->height()),
                     domainX, domainY);
-            inner = GrTextureDomainEffect::Make(std::move(proxy), lmInverse, domain,
+            inner = GrTextureDomainEffect::Make(std::move(proxy), srcColorType, lmInverse, domain,
                                                 domainX, domainY, samplerState);
         } else {
-            inner = GrSimpleTextureEffect::Make(std::move(proxy), lmInverse, samplerState);
+            inner = GrSimpleTextureEffect::Make(std::move(proxy), srcColorType, lmInverse,
+                                                samplerState);
         }
     }
     inner = GrColorSpaceXformEffect::Make(std::move(inner), fImage->colorSpace(),
                                           fImage->alphaType(), args.fDstColorInfo->colorSpace());
+
+    bool isAlphaOnly = SkColorTypeIsAlphaOnly(fImage->colorType());
     if (isAlphaOnly) {
         return inner;
     } else if (args.fInputColorIsOpaque) {
