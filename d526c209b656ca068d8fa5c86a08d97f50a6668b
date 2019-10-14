@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad5db842_9b79df5b",
+        "filename": "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-14T20:23:10Z",
+      "side": 1,
+      "message": "foreground?",
+      "range": {
+        "startLine": 374,
+        "startChar": 60,
+        "endLine": 374,
+        "endChar": 70
+      },
+      "revId": "d526c209b656ca068d8fa5c86a08d97f50a6668b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "832895be_65e45f22",
+        "filename": "src/sksl/sksl_enums.inc",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-14T20:23:10Z",
+      "side": 1,
+      "message": "If we\u0027re putting the GrColorType definition here now so it can be used in .fp files, should the enum definition be removed from GrTypesPriv.h?",
+      "range": {
+        "startLine": 35,
+        "startChar": 11,
+        "endLine": 35,
+        "endChar": 22
+      },
+      "revId": "d526c209b656ca068d8fa5c86a08d97f50a6668b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
