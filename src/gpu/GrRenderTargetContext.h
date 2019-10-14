@@ -548,7 +548,7 @@ private:
                              sk_sp<GrTextureProxy>);
 
     GrOpsTask::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const;
-    void setNeedsStencil(bool multisampled);
+    void setNeedsStencil(bool useMixedSamplesIfNotMSAA);
 
     void internalClear(const GrFixedClip&, const SkPMColor4f&, CanClearFullscreen);
     void internalStencilClear(const GrFixedClip&, bool insideStencilMask);
