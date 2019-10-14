@@ -104,8 +104,8 @@ float powf_(float x, float y) {
 }
 
 static float expf_(float x) {
-    // TODO: can do better than this...
-    return powf_(2.7182818284590452354f, x);
+    const float log2_e = 1.4426950408889634074f;
+    return exp2f_(log2_e * x);
 }
 
 static float fmaxf_(float x, float y) { return x > y ? x : y; }
