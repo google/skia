@@ -41,8 +41,9 @@ sk_sp<SkSurface> SkMtkViewToSurface(MTKView* mtkView, GrContext* grContext) {
     }
 }
 
-sk_sp<GrContext> SkMetalDeviceToGrContext(id<MTLDevice> device, id<MTLCommandQueue> queue, const GrContextOptions& opts) {
-    return GrContext::MakeMetal((void*)device, (void*)queue, opts);
+sk_sp<GrContext> SkMetalDeviceToGrContext(id<MTLDevice> device, const GrContextOptions& opts) {
+    return GrContext::MakeMetal((void*)device,
+                                (void*)[device newCommandQueue], opts);
 }
 
 void SkMtkViewConfigForSkia(MTKView* mtkView) {
