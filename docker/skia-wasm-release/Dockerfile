@@ -1,11 +1,9 @@
 # Dockerfile for building the WASM libraries used by jsfiddle.skia.org and debugger.skia.org
 FROM gcr.io/skia-public/emsdk-base:prod as builder
 
-RUN cd /tmp \
-  && git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git' \
-  && mkdir -p /tmp/skia \
+RUN mkdir -p /tmp/skia \
   && cd /tmp/skia \
-  && /tmp/depot_tools/fetch skia
+  && git clone https://skia.googlesource.com/skia
 
 RUN cd /tmp/skia/skia \
   && python tools/git-sync-deps \
