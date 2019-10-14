@@ -246,45 +246,40 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 /**
- * Used to represent a texture that is required by a GrPrimitiveProcessor. It holds a GrTextureProxy
- * along with an associated GrSamplerState. TextureSamplers don't perform any coord manipulation to
- * account for texture origin.
+ * Used to capture the properties of the GrTextureProxies required/expected by a primitiveProcessor
+ * along with an associated GrSamplerState. The actual proxies used are stored in either the
+ * fixed or dynamic state arrays. TextureSamplers don't perform any coord manipulation to account
+ * for texture origin.
  */
 class GrPrimitiveProcessor::TextureSampler {
 public:
     TextureSampler() = default;
 
-    TextureSampler(GrTextureType, const GrSamplerState&, const GrSwizzle&,
-                   uint32_t extraSamplerKey);
-
-    explicit TextureSampler(GrTextureType, GrSamplerState::Filter,
-                            GrSamplerState::WrapMode wrapXAndY, const GrSwizzle&);
+    TextureSampler(const GrSamplerState&, const GrBackendFormat&, const GrSwizzle&);
+//                   uint32_t extraSamplerKey);
 
     TextureSampler(const TextureSampler&) = delete;
     TextureSampler& operator=(const TextureSampler&) = delete;
 
-    void reset(GrTextureType, const GrSamplerState&, const GrSwizzle&,
-               uint32_t extraSamplerKey = 0);
-    void reset(GrTextureType,
-               GrSamplerState::Filter,
-               GrSamplerState::WrapMode wrapXAndY,
-               const GrSwizzle& swizzle);
+    void reset(const GrSamplerState&, const GrBackendFormat&, const GrSwizzle&);
+//               uint32_t extraSamplerKey = 0);
 
-    GrTextureType textureType() const { return fTextureType; }
+    const GrBackendFormat& backendFormat() const { return fBackendFormat; }
+    GrTextureType textureType() const { return fBackendFormat.textureType(); }
 
     const GrSamplerState& samplerState() const { return fSamplerState; }
     const GrSwizzle& swizzle() const { return fSwizzle; }
 
-    uint32_t extraSamplerKey() const { return fExtraSamplerKey; }
+//    uint32_t extraSamplerKey() const { return fExtraSamplerKey; }
 
     bool isInitialized() const { return fIsInitialized; }
 
 private:
-    GrSamplerState fSamplerState;
-    GrSwizzle fSwizzle;
-    GrTextureType fTextureType = GrTextureType::k2D;
-    uint32_t fExtraSamplerKey = 0;
-    bool fIsInitialized = false;
+    GrSamplerState  fSamplerState;
+    GrBackendFormat fBackendFormat;
+    GrSwizzle       fSwizzle;
+//    uint32_t fExtraSamplerKey = 0;
+    bool            fIsInitialized = false;
 };
 
 const GrPrimitiveProcessor::TextureSampler& GrPrimitiveProcessor::IthTextureSampler(int i) {
