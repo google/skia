@@ -158,7 +158,7 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(sk_sp<GrTextureProxy> srcPr
         , fCoordTransform(srcProxy.get())
         , fDomain(srcProxy.get(), GrTextureDomain::MakeTexelDomain(srcBounds, tileMode),
                   tileMode, tileMode)
-        , fTextureSampler(std::move(srcProxy))
+        , fTextureSampler(std::move(srcProxy), GrSamplerState::ClampNearest())
         , fKernelSize(kernelSize)
         , fGain(SkScalarToFloat(gain))
         , fBias(SkScalarToFloat(bias) / 255.0f)

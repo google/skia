@@ -2533,6 +2533,7 @@ void GrVkGpu::addDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable) 
     fDrawables.emplace_back(std::move(drawable));
 }
 
+#if 0
 uint32_t GrVkGpu::getExtraSamplerKeyForProgram(const GrSamplerState& samplerState,
                                                const GrBackendFormat& format) {
     const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
@@ -2550,6 +2551,7 @@ uint32_t GrVkGpu::getExtraSamplerKeyForProgram(const GrSamplerState& samplerStat
 
     return result;
 }
+#endif
 
 void GrVkGpu::storeVkPipelineCacheData() {
     if (this->getContext()->priv().getPersistentCache()) {

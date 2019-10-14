@@ -101,7 +101,7 @@ private:
            const SkTArray<sk_sp<GrGpuBuffer>>& buffers)
             : INHERITED(kTestFP_ClassID, kNone_OptimizationFlags), fSamplers(4) {
         for (const auto& proxy : proxies) {
-            fSamplers.emplace_back(proxy);
+            fSamplers.emplace_back(proxy, GrSamplerState::ClampNearest());
         }
         this->setTextureSamplerCnt(fSamplers.count());
     }

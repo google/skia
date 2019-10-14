@@ -19,6 +19,10 @@
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 
+#ifdef SK_VULKAN
+#include "src/gpu/vk/GrVkSampler.h"
+#endif
+
 enum {
     kSamplerOrImageTypeKeyBits = 4
 };
@@ -56,41 +60,76 @@ static uint32_t sampler_key(GrTextureType textureType, const GrSwizzle& swizzle,
     return SkToU32(samplerTypeKey | swizzleKey << kSamplerOrImageTypeKeyBits);
 }
 
-static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrFragmentProcessor& fp,
-                             GrGpu* gpu, const GrShaderCaps& caps) {
+static bool needs_extra_sampler_key_for_program(const GrBackendFormat& format) {
+#ifdef SK_VULKAN
+    const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
+
+    return ycbcrInfo && ycbcrInfo->isValid();
+#else
+    return false;
+#endif
+}
+
+static void add_extra_sampler_key_for_program(GrProcessorKeyBuilder* b,
+                                              const GrSamplerState& samplerState,
+                                              const GrBackendFormat& format) {
+#ifdef SK_VULKAN
+    SkASSERT(needs_extra_sampler_key_for_program(format));
+
+    const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
+
+    GrVkSampler::Key key = GrVkSampler::GenerateKey(samplerState, *ycbcrInfo);
+
+    size_t bytesOfDoom = sizeof(key);
+
+    size_t uint32sOfDoom = (bytesOfDoom + 3) / 4;
+
+    uint32_t* tmp = b->add32n(uint32sOfDoom);
+
+    memset(tmp, 0, uint32sOfDoom);
+    memcpy(tmp, &key, sizeof(key));
+#else
+    SK_ABORT("Unexpected Vulkan-specific code path");
+#endif
+}
+
+static void add_fp_sampler_keys(GrProcessorKeyBuilder* b, const GrFragmentProcessor& fp,
+                                const GrShaderCaps& caps) {
     int numTextureSamplers = fp.numTextureSamplers();
     if (!numTextureSamplers) {
         return;
     }
     for (int i = 0; i < numTextureSamplers; ++i) {
         const GrFragmentProcessor::TextureSampler& sampler = fp.textureSampler(i);
-        const GrTexture* tex = sampler.peekTexture();
-        uint32_t samplerKey = sampler_key(
-                tex->texturePriv().textureType(), sampler.swizzle(), caps);
-        uint32_t extraSamplerKey = gpu->getExtraSamplerKeyForProgram(
-                sampler.samplerState(), sampler.proxy()->backendFormat());
-        if (extraSamplerKey) {
+        const GrTextureProxy* proxy = sampler.proxy();
+        uint32_t samplerKey = sampler_key(proxy->textureType(), sampler.swizzle(), caps);
+
+        if (needs_extra_sampler_key_for_program(proxy->backendFormat())) {
             // We first mark the normal sampler key with last bit to flag that it has an extra
-            // sampler key. We then add both keys.
+            // sampler key and then add it. We then add the extra sampler key separately.
             SkASSERT((samplerKey & (1 << 31)) == 0);
             b->add32(samplerKey | (1 << 31));
-            b->add32(extraSamplerKey);
+
+            add_extra_sampler_key_for_program(b, sampler.samplerState(), proxy->backendFormat());
         } else {
             b->add32(samplerKey);
         }
     }
 }
 
-static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrPrimitiveProcessor& pp,
-                             const GrShaderCaps& caps) {
+static void add_pp_sampler_keys(GrProcessorKeyBuilder* b, const GrPrimitiveProcessor& pp,
+                                const GrShaderCaps& caps) {
     int numTextureSamplers = pp.numTextureSamplers();
     if (!numTextureSamplers) {
         return;
     }
     for (int i = 0; i < numTextureSamplers; ++i) {
         const GrPrimitiveProcessor::TextureSampler& sampler = pp.textureSampler(i);
-        uint32_t samplerKey = sampler_key(
-                sampler.textureType(), sampler.swizzle(), caps);
+        // $$
+        const GrTextureProxy* proxy = nullptr; // sampler.proxy();
+        uint32_t samplerKey = sampler_key(sampler.textureType(), sampler.swizzle(), caps);
+
+#if 0
         uint32_t extraSamplerKey = sampler.extraSamplerKey();
         if (extraSamplerKey) {
             // We first mark the normal sampler key with last bit to flag that it has an extra
@@ -99,8 +138,9 @@ static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrPrimitiveProcesso
             b->add32(samplerKey | (1 << 31));
             b->add32(extraSamplerKey);
         } else {
+#endif
             b->add32(samplerKey);
-        }
+//        }
     }
 }
 
@@ -113,11 +153,10 @@ static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrPrimitiveProcesso
  * transforms, etc, for the space allotted in the meta-key.  NOTE, both FPs and GPs share this
  * function because it is hairy, though FPs do not have attribs, and GPs do not have transforms
  */
-static bool gen_meta_key(const GrFragmentProcessor& fp,
-                         GrGpu* gpu,
-                         const GrShaderCaps& shaderCaps,
-                         uint32_t transformKey,
-                         GrProcessorKeyBuilder* b) {
+static bool gen_fp_meta_key(const GrFragmentProcessor& fp,
+                            const GrShaderCaps& shaderCaps,
+                            uint32_t transformKey,
+                            GrProcessorKeyBuilder* b) {
     size_t processorKeySize = b->size();
     uint32_t classID = fp.classID();
 
@@ -127,7 +166,7 @@ static bool gen_meta_key(const GrFragmentProcessor& fp,
         return false;
     }
 
-    add_sampler_keys(b, fp, gpu, shaderCaps);
+    add_fp_sampler_keys(b, fp, shaderCaps);
 
     uint32_t* key = b->add32n(2);
     key[0] = (classID << 16) | SkToU32(processorKeySize);
@@ -135,10 +174,10 @@ static bool gen_meta_key(const GrFragmentProcessor& fp,
     return true;
 }
 
-static bool gen_meta_key(const GrPrimitiveProcessor& pp,
-                         const GrShaderCaps& shaderCaps,
-                         uint32_t transformKey,
-                         GrProcessorKeyBuilder* b) {
+static bool gen_pp_meta_key(const GrPrimitiveProcessor& pp,
+                            const GrShaderCaps& shaderCaps,
+                            uint32_t transformKey,
+                            GrProcessorKeyBuilder* b) {
     size_t processorKeySize = b->size();
     uint32_t classID = pp.classID();
 
@@ -148,7 +187,7 @@ static bool gen_meta_key(const GrPrimitiveProcessor& pp,
         return false;
     }
 
-    add_sampler_keys(b, pp, shaderCaps);
+    add_pp_sampler_keys(b, pp, shaderCaps);
 
     uint32_t* key = b->add32n(2);
     key[0] = (classID << 16) | SkToU32(processorKeySize);
@@ -174,30 +213,30 @@ static bool gen_meta_key(const GrXferProcessor& xp,
 
 static bool gen_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
                                         const GrFragmentProcessor& fp,
-                                        GrGpu* gpu,
                                         const GrShaderCaps& shaderCaps,
                                         GrProcessorKeyBuilder* b) {
     for (int i = 0; i < fp.numChildProcessors(); ++i) {
-        if (!gen_frag_proc_and_meta_keys(primProc, fp.childProcessor(i), gpu, shaderCaps, b)) {
+        if (!gen_frag_proc_and_meta_keys(primProc, fp.childProcessor(i), shaderCaps, b)) {
             return false;
         }
     }
 
     fp.getGLSLProcessorKey(shaderCaps, b);
 
-    return gen_meta_key(fp, gpu, shaderCaps, primProc.getTransformKey(fp.coordTransforms(),
-                                                                      fp.numCoordTransforms()), b);
+    return gen_fp_meta_key(fp, shaderCaps, primProc.getTransformKey(fp.coordTransforms(),
+                                                                    fp.numCoordTransforms()),
+                                                                    b);
 }
 
 bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarget,
                           const GrProgramInfo& programInfo, GrPrimitiveType primitiveType,
-                          GrGpu* gpu) {
+                          const GrShaderCaps& shaderCaps) {
     // The descriptor is used as a cache key. Thus when a field of the
     // descriptor will not affect program generation (because of the attribute
     // bindings in use or other descriptor field settings) it should be set
     // to a canonical value to avoid duplicate programs with different keys.
 
-    const GrShaderCaps& shaderCaps = *gpu->caps()->shaderCaps();
+//    const GrShaderCaps& shaderCaps = *gpu->caps()->shaderCaps();
 
     GR_STATIC_ASSERT(0 == kProcessorKeysOffset % sizeof(uint32_t));
     // Make room for everything up to the effect keys.
@@ -208,14 +247,14 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
 
     programInfo.primProc().getGLSLProcessorKey(shaderCaps, &b);
     programInfo.primProc().getAttributeKey(&b);
-    if (!gen_meta_key(programInfo.primProc(), shaderCaps, 0, &b)) {
+    if (!gen_pp_meta_key(programInfo.primProc(), shaderCaps, 0, &b)) {
         desc->key().reset();
         return false;
     }
 
     for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
         const GrFragmentProcessor& fp = programInfo.pipeline().getFragmentProcessor(i);
-        if (!gen_frag_proc_and_meta_keys(programInfo.primProc(), fp, gpu, shaderCaps, &b)) {
+        if (!gen_frag_proc_and_meta_keys(programInfo.primProc(), fp, shaderCaps, &b)) {
             desc->key().reset();
             return false;
         }

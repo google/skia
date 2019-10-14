@@ -49,10 +49,13 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(GrGLGpu* gpu,
                                                GrRenderTarget* renderTarget,
                                                const GrProgramInfo& programInfo,
                                                GrPrimitiveType primitiveType) {
+    const GrShaderCaps& shaderCaps = *gpu->caps()->shaderCaps();
+
     // TODO: can this be unified between GL, Vk and Mtl?
     // Get GrGLProgramDesc
     GrProgramDesc desc;
-    if (!GrProgramDesc::Build(&desc, renderTarget, programInfo, primitiveType, gpu)) {
+
+    if (!GrProgramDesc::Build(&desc, renderTarget, programInfo, primitiveType, shaderCaps)) {
         GrCapsDebugf(gpu->caps(), "Failed to gl program descriptor!\n");
         return nullptr;
     }
