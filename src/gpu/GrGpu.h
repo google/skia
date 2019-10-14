@@ -541,6 +541,7 @@ public:
         }
     }
 
+#if 0
     /**
      * Returns a key that represents the sampler that will be created for the passed in parameters.
      * Currently this key is only used when we are building a vulkan pipeline with immutable
@@ -552,6 +553,7 @@ public:
     virtual uint32_t getExtraSamplerKeyForProgram(const GrSamplerState&, const GrBackendFormat&) {
         return 0;
     }
+#endif
 
     virtual void storeVkPipelineCacheData() {}
 
