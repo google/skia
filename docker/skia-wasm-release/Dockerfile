@@ -1,14 +1,12 @@
 # Dockerfile for building the WASM libraries used by jsfiddle.skia.org and debugger.skia.org
 FROM gcr.io/skia-public/emsdk-base:prod as builder
 
-RUN cd /tmp \
-  && git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git' \
-  && mkdir -p /tmp/skia \
+# Checkout Skia.
+RUN mkdir -p /tmp/skia \
   && cd /tmp/skia \
-  && /tmp/depot_tools/fetch skia
-
-RUN cd /tmp/skia/skia \
-  && python tools/git-sync-deps \
+  && fetch skia \
+  && cd skia \
+  && gclient sync \
   && ./bin/fetch-gn
 
 # PathKit should be in /tmp/skia/skia/out/pathkit/
