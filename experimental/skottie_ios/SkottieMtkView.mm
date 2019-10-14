@@ -63,7 +63,10 @@
     fAnimation->render(canvas);
     surface->flush();
     surface = nullptr;
-    [[self currentDrawable] present];
+
+    id<MTLCommandBuffer> commandBuffer = [[self queue] commandBuffer];
+    [commandBuffer presentDrawable:[self currentDrawable]];
+    [commandBuffer commit];
 }
 
 - (BOOL)loadAnimation:(NSData*) data {

@@ -13,6 +13,7 @@
 
 static UIStackView* make_skottie_stack(CGFloat width,
                                        id<MTLDevice> metalDevice,
+                                       id<MTLCommandQueue> metalQueue,
                                        GrContext* grContext) {
     UIStackView* stack = [[UIStackView alloc] init];
     [stack setAxis:UILayoutConstraintAxisVertical];
@@ -35,6 +36,7 @@ static UIStackView* make_skottie_stack(CGFloat width,
             continue;
         }
         [skottieView setDevice:metalDevice];
+        [skottieView setQueue:metalQueue];
         [skottieView setGrContext:grContext];
         SkMtkViewConfigForSkia(skottieView);
         CGSize animSize = [skottieView size];
@@ -52,6 +54,7 @@ static UIStackView* make_skottie_stack(CGFloat width,
 
 @interface AppViewController : UIViewController
     @property (strong) id<MTLDevice> metalDevice;
+    @property (strong) id<MTLCommandQueue> metalQueue;
     @property (strong) UIStackView* stackView;
 @end
 
@@ -76,12 +79,14 @@ static UIStackView* make_skottie_stack(CGFloat width,
             NSLog(@"Metal is not supported on this device");
             return;
         }
+        [self setMetalQueue:[[self metalDevice] newCommandQueue]];
         GrContextOptions grContextOptions;  // set different options here.
-        fGrContext = SkMetalDeviceToGrContext([self metalDevice], grContextOptions);
+        fGrContext = SkMetalDeviceToGrContext([self metalDevice], [self metalQueue],
+                                              grContextOptions);
     }
 
     [self setStackView:make_skottie_stack([[UIScreen mainScreen] bounds].size.width,
-                                          [self metalDevice], fGrContext.get())];
+                                          [self metalDevice], [self metalQueue], fGrContext.get())];
 
     CGFloat statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
     CGSize mainScreenSize = [[UIScreen mainScreen] bounds].size;
