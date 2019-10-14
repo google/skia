@@ -165,6 +165,7 @@ int SkAnimatedImage::computeNextFrame(int current, bool* animationEnded) {
     *animationEnded = false;
 
     const int frameToDecode = current + 1;
+    fFrameCount = fCodec->codec()->getFrameCount();
     if (frameToDecode == fFrameCount - 1) {
         // Final frame. Check to determine whether to stop.
         fRepetitionsCompleted++;

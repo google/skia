@@ -142,7 +142,7 @@ private:
     const SkImageInfo               fDecodeInfo;
     const SkIRect                   fCropRect;
     const sk_sp<SkPicture>          fPostProcess;
-    const int                       fFrameCount;
+    int                             fFrameCount;
     const bool                      fSimple;     // no crop, scale, or postprocess
     SkMatrix                        fMatrix;     // used only if !fSimple
 
