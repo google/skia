@@ -122,7 +122,7 @@ public:
         dawn::Buffer buffer;
         if (fBuffers.empty()) {
             dawn::BufferDescriptor desc;
-            desc.usage = dawn::BufferUsageBit::MapRead | dawn::BufferUsageBit::CopyDst;
+            desc.usage = dawn::BufferUsage::MapRead | dawn::BufferUsage::CopyDst;
             desc.size = 1;
             buffer = fDevice.CreateBuffer(&desc);
         } else {
