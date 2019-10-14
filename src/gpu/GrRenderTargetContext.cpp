@@ -748,15 +748,13 @@ GrOpsTask::CanDiscardPreviousOps GrRenderTargetContext::canDiscardPreviousOpsOnF
     return GrOpsTask::CanDiscardPreviousOps(!fNumStencilSamples);
 }
 
-void GrRenderTargetContext::setNeedsStencil(bool multisampled) {
+void GrRenderTargetContext::setNeedsStencil(bool useMixedSamplesIfNotMSAA) {
     // Don't clear stencil until after we've changed fNumStencilSamples. This ensures we don't loop
     // forever in the event that there are driver bugs and we need to clear as a draw.
     bool hasInitializedStencil = fNumStencilSamples > 0;
 
     int numRequiredSamples = this->numSamples();
-    if (multisampled && 1 == numRequiredSamples) {
-        // The caller has requested a multisampled stencil buffer on a non-MSAA render target. Use
-        // mixed samples.
+    if (useMixedSamplesIfNotMSAA && 1 == numRequiredSamples) {
         SkASSERT(fRenderTargetProxy->canUseMixedSamples(*this->caps()));
         numRequiredSamples = this->caps()->internalMultisampleCount(
                 this->asSurfaceProxy()->backendFormat());
@@ -793,6 +791,8 @@ void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool i
 }
 
 void GrRenderTargetContext::internalStencilClear(const GrFixedClip& clip, bool insideStencilMask) {
+    this->setNeedsStencil(/* useMixedSamplesIfNotMSAA = */ false);
+
     if (this->caps()->performStencilClearsAsDraws()) {
         const GrUserStencilSettings* ss = GrStencilSettings::SetClipBitSettings(insideStencilMask);
         SkRect rtRect = SkRect::MakeWH(this->width(), this->height());
