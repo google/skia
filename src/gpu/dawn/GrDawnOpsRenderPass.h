@@ -47,11 +47,11 @@ private:
                     const GrPipeline::FixedDynamicState* fixedDynamicState,
                     const GrPipeline::DynamicStateArrays* dynamicStateArrays,
                     const GrPrimitiveType primitiveType);
+    void setScissorState(const GrProgramInfo&);
+    void applyState(const GrProgramInfo& programInfo,
+                    const GrPrimitiveType primitiveType);
 
-    void onDraw(const GrPrimitiveProcessor& primProc,
-                const GrPipeline& pipeline,
-                const GrPipeline::FixedDynamicState* fixedDynamicState,
-                const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+    void onDraw(const GrProgramInfo& programInfo,
                 const GrMesh mesh[],
                 int meshCount,
                 const SkRect& bounds) override;
