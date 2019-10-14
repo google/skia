@@ -8,14 +8,29 @@ steps:
   #
   # Where COMMIT_SHA is updated to the last commit into Skia.
   #
-  #- name: 'gcr.io/cloud-builders/git'
-  #  args: ['clone', 'https://github.com/google/skia.git', '.']
+  - name: 'gcr.io/cloud-builders/git'
+    dir: '.'
+    args: ['clone', 'https://github.com/google/skia.git', '.']
+
+  - name: 'gcr.io/cloud-builders/git'
+    dir: '.'
+    args: ['fetch', 'https://skia.googlesource.com/skia','refs/changes/56/248556/13']
+
+  - name: 'gcr.io/cloud-builders/git'
+    dir: '.'
+    args: ['checkout', 'FETCH_HEAD']
 
   - name: 'debian:testing-slim'
-    args: ['mkdir', '-p', '--mode=0777', '/workspace/__doxygen_staging']
+    dir: '.'
+    args: ['mkdir', '-p', '--mode=0777', './__doxygen_staging']
 
   - name: 'debian:testing-slim'
-    args: ['mkdir', '-p', '--mode=0777', '/workspace/__cache']
+    dir: '.'
+    args: ['ls', '-al', '/']
+
+  - name: 'debian:testing-slim'
+    dir: '.'
+    args: ['mkdir', '-p', '--mode=0777', './__cache']
 
   - name: 'gcr.io/skia-public/doxygen:testing-slim'
     dir: './tools/doxygen'
@@ -23,10 +38,12 @@ steps:
     timeout: 600s
 
   - name: 'gcr.io/cloud-builders/docker'
+    dir: '.'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/skia-release:prod', './docker/skia-release']
     timeout: 7200s
 
   - name: 'gcr.io/cloud-builders/docker'
+    dir: '.'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/skia-wasm-release:prod', './docker/skia-wasm-release']
     timeout: 7200s
 
