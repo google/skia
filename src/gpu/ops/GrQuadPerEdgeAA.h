@@ -85,7 +85,7 @@ namespace GrQuadPerEdgeAA {
 
     sk_sp<GrGeometryProcessor> MakeTexturedProcessor(
             const VertexSpec& spec, const GrShaderCaps& caps, GrTextureType textureType,
-            const GrSamplerState& samplerState, const GrSwizzle& swizzle, uint32_t extraSamplerKey,
+            const GrSamplerState& samplerState, const GrSwizzle& swizzle, // uint32_t extraSamplerKey,
             sk_sp<GrColorSpaceXform> textureColorSpaceXform, Saturate saturate);
 
     // Fill vertices with the vertex data needed to represent the given quad. The device position,

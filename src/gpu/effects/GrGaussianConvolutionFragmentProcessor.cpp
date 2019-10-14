@@ -221,7 +221,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
                     ModulateForSamplerOptFlags(proxy->config(),
                                                mode == GrTextureDomain::kDecal_Mode))
         , fCoordTransform(proxy.get())
-        , fTextureSampler(std::move(proxy))
+        , fTextureSampler(std::move(proxy), GrSamplerState::ClampNearest())
         , fRadius(radius)
         , fDirection(direction)
         , fMode(mode) {

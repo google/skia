@@ -267,7 +267,7 @@ private:
     ColorTableEffect(sk_sp<GrTextureProxy> proxy)
             : INHERITED(kColorTableEffect_ClassID,
                         kNone_OptimizationFlags) // Not bothering with table-specific optimizations.
-            , fTextureSampler(std::move(proxy)) {
+            , fTextureSampler(std::move(proxy), GrSamplerState::ClampNearest()) {
         this->setTextureSamplerCnt(1);
     }
 

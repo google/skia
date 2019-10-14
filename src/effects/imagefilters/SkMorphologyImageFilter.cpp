@@ -400,7 +400,7 @@ GrMorphologyEffect::GrMorphologyEffect(sk_sp<GrTextureProxy> proxy,
         : INHERITED(kGrMorphologyEffect_ClassID,
                     ModulateForClampedSamplerOptFlags(proxy->config()))
         , fCoordTransform(proxy.get())
-        , fTextureSampler(std::move(proxy))
+        , fTextureSampler(std::move(proxy), GrSamplerState::ClampNearest())
         , fDirection(direction)
         , fRadius(radius)
         , fType(type)

@@ -20,8 +20,7 @@ GrCCClipProcessor::GrCCClipProcessor(const GrCCClipPath* clipPath, IsCoverageCou
         , fClipPath(clipPath)
         , fIsCoverageCount(IsCoverageCount::kYes == isCoverageCount)
         , fMustCheckBounds(MustCheckBounds::kYes == mustCheckBounds)
-        , fAtlasAccess(sk_ref_sp(fClipPath->atlasLazyProxy()), GrSamplerState::Filter::kNearest,
-                       GrSamplerState::WrapMode::kClamp) {
+        , fAtlasAccess(sk_ref_sp(fClipPath->atlasLazyProxy()), GrSamplerState::ClampNearest()) {
     SkASSERT(fAtlasAccess.proxy());
     this->setTextureSamplerCnt(1);
 }

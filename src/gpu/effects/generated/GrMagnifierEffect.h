@@ -39,7 +39,7 @@ private:
                       float yInvZoom, float xInvInset, float yInvInset)
             : INHERITED(kGrMagnifierEffect_ClassID, kNone_OptimizationFlags)
             , srcCoordTransform(SkMatrix::I(), src.get())
-            , src(std::move(src))
+            , src(std::move(src), GrSamplerState::ClampNearest())
             , bounds(bounds)
             , srcRect(srcRect)
             , xInvZoom(xInvZoom)

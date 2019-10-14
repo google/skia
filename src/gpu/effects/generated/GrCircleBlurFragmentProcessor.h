@@ -34,7 +34,7 @@ private:
             , circleRect(circleRect)
             , textureRadius(textureRadius)
             , solidRadius(solidRadius)
-            , blurProfileSampler(std::move(blurProfileSampler)) {
+            , blurProfileSampler(std::move(blurProfileSampler), GrSamplerState::ClampNearest()) {
         this->setTextureSamplerCnt(1);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

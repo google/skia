@@ -496,13 +496,13 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
                 SkMatrix::Concat(SkMatrix::MakeTrans(displSubset.x(), displSubset.y()),
                                  offsetMatrix),
                 displacement.get())
-        , fDisplacementSampler(displacement)
+        , fDisplacementSampler(displacement, GrSamplerState::ClampNearest())
         , fColorTransform(SkMatrix::MakeTrans(colorSubset.x(), colorSubset.y()), color.get())
         , fDomain(color.get(),
                   GrTextureDomain::MakeTexelDomain(colorSubset,
                                                    GrTextureDomain::kDecal_Mode),
                   GrTextureDomain::kDecal_Mode, GrTextureDomain::kDecal_Mode)
-        , fColorSampler(color)
+        , fColorSampler(color, GrSamplerState::ClampNearest())
         , fXChannelSelector(xChannelSelector)
         , fYChannelSelector(yChannelSelector)
         , fScale(scale) {

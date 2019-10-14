@@ -434,16 +434,9 @@ public:
 
     TextureSampler(sk_sp<GrTextureProxy>, const GrSamplerState&);
 
-    explicit TextureSampler(sk_sp<GrTextureProxy>,
-                            GrSamplerState::Filter = GrSamplerState::Filter::kNearest,
-                            GrSamplerState::WrapMode wrapXAndY = GrSamplerState::WrapMode::kClamp);
-
     TextureSampler& operator=(const TextureSampler&) = delete;
 
     void reset(sk_sp<GrTextureProxy>, const GrSamplerState&);
-    void reset(sk_sp<GrTextureProxy>,
-               GrSamplerState::Filter = GrSamplerState::Filter::kNearest,
-               GrSamplerState::WrapMode wrapXAndY = GrSamplerState::WrapMode::kClamp);
 
     bool operator==(const TextureSampler& that) const {
         return this->proxy()->underlyingUniqueID() == that.proxy()->underlyingUniqueID() &&
