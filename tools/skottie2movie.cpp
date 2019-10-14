@@ -11,8 +11,10 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTime.h"
+#include "include/private/SkMutex.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/utils/SkottieUtils.h"
+#include "src/core/SkTaskGroup.h"
 #include "src/utils/SkOSPath.h"
 
 #include "tools/flags/CommandLineFlags.h"
