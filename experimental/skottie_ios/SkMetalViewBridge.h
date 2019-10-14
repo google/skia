@@ -12,7 +12,7 @@ template <typename T> class sk_sp;
 
 sk_sp<SkSurface> SkMtkViewToSurface(MTKView*, GrContext*);
 
-sk_sp<GrContext> SkMetalDeviceToGrContext(id<MTLDevice>, const GrContextOptions&);
+sk_sp<GrContext> SkMetalDeviceToGrContext(id<MTLDevice>, id<MTLCommandQueue>, const GrContextOptions&);
 
 void SkMtkViewConfigForSkia(MTKView*);
 
