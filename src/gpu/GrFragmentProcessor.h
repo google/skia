@@ -424,26 +424,17 @@ public:
     TextureSampler() = default;
 
     /**
-     * This copy constructor is used by GrFragmentProcessor::clone() implementations. The copy
-     * always takes a new ref on the texture proxy as the new fragment processor will not yet be
-     * in pending execution state.
+     * This copy constructor is used by GrFragmentProcessor::clone() implementations.
      */
     explicit TextureSampler(const TextureSampler& that)
             : fProxy(that.fProxy)
             , fSamplerState(that.fSamplerState) {}
 
-    TextureSampler(sk_sp<GrTextureProxy>, const GrSamplerState&);
-
-    explicit TextureSampler(sk_sp<GrTextureProxy>,
-                            GrSamplerState::Filter = GrSamplerState::Filter::kNearest,
-                            GrSamplerState::WrapMode wrapXAndY = GrSamplerState::WrapMode::kClamp);
+    TextureSampler(sk_sp<GrTextureProxy>, const GrSamplerState& = GrSamplerState::ClampNearest());
 
     TextureSampler& operator=(const TextureSampler&) = delete;
 
     void reset(sk_sp<GrTextureProxy>, const GrSamplerState&);
-    void reset(sk_sp<GrTextureProxy>,
-               GrSamplerState::Filter = GrSamplerState::Filter::kNearest,
-               GrSamplerState::WrapMode wrapXAndY = GrSamplerState::WrapMode::kClamp);
 
     bool operator==(const TextureSampler& that) const {
         return this->proxy()->underlyingUniqueID() == that.proxy()->underlyingUniqueID() &&
