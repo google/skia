@@ -22,6 +22,30 @@
       "revId": "f32d945aabef4f4b0b13f734a0ef6cb75a96a7d4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4569dcfc_c3c8601c",
+        "filename": "docker/skia-build-tools/Dockerfile",
+        "patchSetId": 22
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-10-14T19:18:02Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "12f91031_93754b91",
+      "range": {
+        "startLine": 4,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 10
+      },
+      "revId": "f32d945aabef4f4b0b13f734a0ef6cb75a96a7d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
