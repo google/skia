@@ -44,7 +44,6 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
 
 @interface AppViewDelegate : NSObject <MTKViewDelegate>
 @property (assign, nonatomic) GrContext* grContext;  // non-owning pointer.
-@property (assign, nonatomic) id<MTLCommandQueue> metalQueue;
 @end
 
 @implementation AppViewDelegate {
@@ -71,10 +70,7 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
     // Must flush *and* present for this to work!
     surface->flush();
     surface = nullptr;
-
-    id<MTLCommandBuffer> commandBuffer = [[self metalQueue] commandBuffer];
-    [commandBuffer presentDrawable:[view currentDrawable]];
-    [commandBuffer commit];
+    [[view currentDrawable] present];
 }
 
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size {
@@ -86,7 +82,6 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
 
 @interface AppViewController : UIViewController
 @property (strong, nonatomic) id<MTLDevice> metalDevice;
-@property (strong, nonatomic) id<MTLCommandQueue> metalQueue;
 @end
 
 @implementation AppViewController {
@@ -101,9 +96,8 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
     [super viewDidLoad];
     if (!fGrContext) {
         [self setMetalDevice:MTLCreateSystemDefaultDevice()];
-        [self setMetalQueue:[[self metalDevice] newCommandQueue]];
         GrContextOptions grContextOptions;  // set different options here.
-        fGrContext = SkMetalDeviceToGrContext([self metalDevice], [self metalQueue], grContextOptions);
+        fGrContext = SkMetalDeviceToGrContext([self metalDevice], grContextOptions);
     }
     if (![self view] || ![self metalDevice]) {
         NSLog(@"Metal is not supported on this device");
@@ -116,7 +110,6 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
     SkMtkViewConfigForSkia(mtkView);
     AppViewDelegate* viewDelegate = [[AppViewDelegate alloc] init];
     [viewDelegate setGrContext:fGrContext.get()];
-    [viewDelegate setMetalQueue:[self metalQueue]];
     [viewDelegate mtkView:mtkView drawableSizeWillChange:[mtkView bounds].size];
     [mtkView setDelegate:viewDelegate];
 }
