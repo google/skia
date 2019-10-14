@@ -765,7 +765,10 @@ void TextLine::iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisi
 
         const auto run = &this->fMaster->run(runIndex);
         auto lineIntersection = intersected(run->textRange(), textRange);
-
+        if (lineIntersection.width() == 0 && this->width() != 0) {
+            // TODO: deal with empty runs in a better way
+            continue;
+        }
         runOffset += width;
         if (!visitor(run, runOffset, lineIntersection, &width)) {
             return;

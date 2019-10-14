@@ -221,6 +221,7 @@ private:
     friend class ParagraphCache;
 
     friend class TextWrapper;
+    friend class OneLineShaper;
 
     BlockRange findAllBlocks(TextRange textRange);
     void extractStyles();

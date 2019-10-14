@@ -23,6 +23,8 @@ skparagraph_sources = [
   "$_src/FontResolver.h",
   "$_src/FontResolver.cpp",
   "$_src/Iterators.h",
+  "$_src/OneLineShaper.h",
+  "$_src/OneLineShaper.cpp",
   "$_src/ParagraphBuilderImpl.h",
   "$_src/ParagraphBuilderImpl.cpp",
   "$_src/ParagraphCache.cpp",

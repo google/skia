@@ -33,9 +33,6 @@ typedef SkRange<GraphemeIndex> GraphemeRange;
 typedef size_t CodepointIndex;
 typedef SkRange<CodepointIndex> CodepointRange;
 
-typedef size_t GlyphIndex;
-typedef SkRange<GlyphIndex> GlyphRange;
-
 struct RunShifts {
     RunShifts() { }
     RunShifts(size_t count) { fShifts.push_back_n(count, 0.0); }
@@ -156,6 +153,7 @@ private:
     friend class TextLine;
     friend class InternalLineMetrics;
     friend class ParagraphCache;
+    friend class OneLineShaper;
 
     ParagraphImpl* fMaster;
     TextRange fTextRange;
