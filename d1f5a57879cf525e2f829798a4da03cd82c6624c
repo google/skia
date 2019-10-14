@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74b59a82_0f169c7a",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-14T12:31:27Z",
+      "side": 1,
+      "message": "can this move up a line ?",
+      "revId": "d1f5a57879cf525e2f829798a4da03cd82c6624c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1747d3f7_f7d269a5",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-14T12:31:27Z",
+      "side": 1,
+      "message": "Could this be \"info.minRowBytes\" ?",
+      "range": {
+        "startLine": 156,
+        "startChar": 27,
+        "endLine": 156,
+        "endChar": 36
+      },
+      "revId": "d1f5a57879cf525e2f829798a4da03cd82c6624c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
