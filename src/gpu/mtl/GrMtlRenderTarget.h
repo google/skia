@@ -14,6 +14,7 @@
 #include "src/gpu/GrGpu.h"
 
 #import <Metal/Metal.h>
+#import <QuartzCore/CAMetalLayer.h>
 
 class GrMtlGpu;
 
@@ -30,8 +31,8 @@ public:
         return true;
     }
 
-    id<MTLTexture> mtlColorTexture() const { return fColorTexture; }
-    id<MTLTexture> mtlResolveTexture() const { return fResolveTexture; }
+    virtual id<MTLTexture> mtlColorTexture() const { return fColorTexture; }
+    virtual id<MTLTexture> mtlResolveTexture() const { return fResolveTexture; }
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
 
@@ -67,8 +68,8 @@ protected:
                                       numColorSamples, GrMipMapped::kNo);
     }
 
-    id<MTLTexture> fColorTexture;
-    id<MTLTexture> fResolveTexture;
+    mutable id<MTLTexture> fColorTexture;
+    mutable id<MTLTexture> fResolveTexture;
 
 private:
     // Extra param to disambiguate from constructor used by subclasses.
@@ -89,6 +90,40 @@ private:
     typedef GrRenderTarget INHERITED;
 };
 
+
+class GrMtlDrawableRenderTarget: public GrMtlRenderTarget {
+public:
+    static sk_sp<GrMtlDrawableRenderTarget> MakeWrappedRenderTarget(GrMtlGpu*,
+                                                            const GrSurfaceDesc&,
+                                                            int sampleCnt,
+                                                            CAMetalLayer* layer,
+                                                            GrMTLHandle* drawable);
+
+    ~GrMtlDrawableRenderTarget() override {}
+
+    id<MTLTexture> mtlColorTexture() const override;
+    id<MTLTexture> mtlResolveTexture() const override;
+
+    GrBackendRenderTarget getBackendRenderTarget() const override;
+
+    GrBackendFormat backendFormat() const override;
+
+private:
+    GrMtlDrawableRenderTarget(GrMtlGpu* gpu,
+                      const GrSurfaceDesc& desc,
+                      int sampleCnt,
+                      id<MTLTexture> colorTexture,
+                      CAMetalLayer* layer,
+                      GrMTLHandle* drawable);
+    GrMtlDrawableRenderTarget(GrMtlGpu* gpu,
+                      const GrSurfaceDesc& desc,
+                      CAMetalLayer* layer,
+                      GrMTLHandle* drawable);
+
+    CAMetalLayer* fLayer;
+    mutable GrMTLHandle* fDrawable;
+    int fSampleCount;
+};
 
 #endif
 
