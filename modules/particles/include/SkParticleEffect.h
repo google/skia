@@ -156,6 +156,24 @@ public:
     }
     int getCount() const { return fCount; }
 
+    SkPoint   getPosition() const { return fState.fPosition; }
+    SkVector  getHeading()  const { return fState.fHeading;  }
+    float     getScale()    const { return fState.fScale;    }
+    SkVector  getVelocity() const { return fState.fVelocity; }
+    float     getSpin()     const { return fState.fSpin;     }
+    SkColor4f getColor()    const { return fState.fColor;    }
+    float     getFrame()    const { return fState.fFrame;    }
+    uint32_t  getFlags()    const { return fState.fFlags;    }
+
+    void setPosition(SkPoint   p) { fState.fPosition = p; }
+    void setHeading (SkVector  h) { fState.fHeading  = h; }
+    void setScale   (float     s) { fState.fScale    = s; }
+    void setVelocity(SkVector  v) { fState.fVelocity = v; }
+    void setSpin    (float     s) { fState.fSpin     = s; }
+    void setColor   (SkColor4f c) { fState.fColor    = c; }
+    void setFrame   (float     f) { fState.fFrame    = f; }
+    void setFlags   (uint32_t  f) { fState.fFlags    = f; }
+
     static void RegisterParticleTypes();
 
 private:
