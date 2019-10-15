@@ -1872,6 +1872,13 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
             }
         }
 
+        // We'd better have a sane, sRGB-ish TF by now.
+        // Other non-Bad TFs would be fine, but we know we've only ever tried to fit sRGBish;
+        // anything else is just some accident of math and the way we pun tf.g as a type flag.
+        if (sRGBish != classify(tf)) {
+            continue;
+        }
+
         // We find our error by roundtripping the table through tf_inv.
         //
         // (The most likely use case for this approximation is to be inverted and
