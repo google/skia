@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d24933ce_e88f4d26",
+        "filename": "samplecode/SampleCCPRGeometry.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-15T16:08:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eabd0855_dc18eb42",
+      "range": {
+        "startLine": 199,
+        "startChar": 44,
+        "endLine": 199,
+        "endChar": 67
+      },
+      "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f472e3db_6974a07b",
         "filename": "src/effects/imagefilters/SkAlphaThresholdFilter.cpp",
         "patchSetId": 3
@@ -36,6 +60,24 @@
       "writtenOn": "2019-10-15T14:03:27Z",
       "side": 1,
       "message": "wdyt about a \"GrColorType SkSpecialImage::realColorType()\" method to hide this ?",
+      "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19fc62f3_801ff43c",
+        "filename": "src/effects/imagefilters/SkAlphaThresholdFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-15T16:08:54Z",
+      "side": 1,
+      "message": "I think a grColorType() method would be useful. Will look in to adding this on a follow on CL so that we don\u0027t add more this one",
+      "parentUuid": "f472e3db_6974a07b",
       "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "1cfb8ae5_359a3133",
+        "filename": "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-15T16:08:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "edaecf0f_9a20d9db",
+      "range": {
+        "startLine": 356,
+        "startChar": 20,
+        "endLine": 356,
+        "endChar": 23
+      },
+      "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fc76d63a_fd4be748",
         "filename": "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
         "patchSetId": 3
@@ -85,6 +151,30 @@
       "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "959c8532_ecb99c69",
+        "filename": "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-15T16:08:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc76d63a_fd4be748",
+      "range": {
+        "startLine": 358,
+        "startChar": 44,
+        "endLine": 358,
+        "endChar": 47
+      },
+      "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "0ba8c575_0a396567",
+        "filename": "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-15T16:08:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a4b60f6d_8d0ebaa3",
+      "range": {
+        "startLine": 374,
+        "startChar": 20,
+        "endLine": 374,
+        "endChar": 23
+      },
+      "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "081f19ae_06a57c75",
         "filename": "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
         "patchSetId": 3
@@ -131,6 +245,30 @@
       "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a23a41be_8f58259b",
+        "filename": "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-15T16:08:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "081f19ae_06a57c75",
+      "range": {
+        "startLine": 376,
+        "startChar": 44,
+        "endLine": 376,
+        "endChar": 47
+      },
+      "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -157,6 +295,30 @@
     },
     {
       "key": {
+        "uuid": "0da7a437_8aa7627e",
+        "filename": "src/effects/imagefilters/SkXfermodeImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-15T16:08:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c5bdd0d0_2286a5c9",
+      "range": {
+        "startLine": 269,
+        "startChar": 20,
+        "endLine": 269,
+        "endChar": 23
+      },
+      "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ff35167b_bd934a07",
         "filename": "src/effects/imagefilters/SkXfermodeImageFilter.cpp",
         "patchSetId": 3
@@ -180,6 +342,30 @@
     },
     {
       "key": {
+        "uuid": "e69ac946_bfd86175",
+        "filename": "src/effects/imagefilters/SkXfermodeImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-15T16:08:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff35167b_bd934a07",
+      "range": {
+        "startLine": 287,
+        "startChar": 20,
+        "endLine": 287,
+        "endChar": 23
+      },
+      "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "39c25908_12d5fb15",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 3
@@ -194,6 +380,24 @@
       "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "517e2bea_479c5cbe",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1820,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-15T16:08:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "39c25908_12d5fb15",
+      "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -217,6 +421,30 @@
       "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57a2f8b7_84ce4b8e",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2449,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-15T16:08:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b1286ac_849128c4",
+      "range": {
+        "startLine": 2449,
+        "startChar": 57,
+        "endLine": 2449,
+        "endChar": 71
+      },
+      "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
