@@ -29,6 +29,13 @@ Samples
 
 <div id=demo>
   <figure>
+    <canvas id=trail width=400 height=400></canvas>
+    <figcaption>
+      <a href="https://particles.skia.org/84a757d92c424b3d378b55481a4b2394"
+         target=_blank rel=noopener>Trail (Click and Drag!)</a>
+    </figcaption>
+  </figure>
+  <figure>
     <canvas id=confetti width=400 height=400></canvas>
     <figcaption>
       <a href="https://particles.skia.org/84a757d92c424b3d378b55481a4b2394"
@@ -86,20 +93,13 @@ Samples
     locateFile: (file) => locate_file + file,
   }).ready().then((CK) => {
     CanvasKit = CK;
+    TrailExample(CanvasKit, 'trail', trail);
     ParticleExample(CanvasKit, 'confetti', confetti, 200, 200);
     ParticleExample(CanvasKit, 'curves', curves, 200, 300);
     ParticleExample(CanvasKit, 'fireworks', fireworks, 200, 300);
     ParticleExample(CanvasKit, 'raincloud', raincloud, 200, 100);
     ParticleExample(CanvasKit, 'text', text, 75, 250);
   });
-
-  function preventScrolling(canvas) {
-    canvas.addEventListener('touchmove', (e) => {
-      // Prevents touch events in the canvas from scrolling the canvas.
-      e.preventDefault();
-      e.stopPropagation();
-    });
-  }
 
   function ParticleExample(CanvasKit, id, jsonData, cx, cy) {
     if (!CanvasKit || !jsonData) {
@@ -430,6 +430,72 @@ const text = {
          "FontSize": 96
       }
    ]
+};
+
+  function preventScrolling(canvas) {
+    canvas.addEventListener('touchmove', (e) => {
+      // Prevents touch events in the canvas from scrolling the canvas.
+      e.preventDefault();
+      e.stopPropagation();
+    });
+  }
+
+  function TrailExample(CanvasKit, id, jsonData) {
+    if (!CanvasKit || !jsonData) {
+      return;
+    }
+    const surface = CanvasKit.MakeCanvasSurface(id);
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const context = CanvasKit.currentContext();
+    const canvas = surface.getCanvas();
+
+    const particles = CanvasKit.MakeParticles(JSON.stringify(jsonData));
+    particles.start(Date.now() / 1000.0, true);
+
+    function drawFrame(canvas) {
+      particles.update(Date.now() / 1000.0);
+
+      canvas.clear(CanvasKit.WHITE);
+      particles.draw(canvas);
+      surface.requestAnimationFrame(drawFrame);
+    }
+    surface.requestAnimationFrame(drawFrame);
+
+    let interact = (e) => {
+      particles.setPosition([e.offsetX, e.offsetY]);
+      particles.setRate(e.pressure * 1000);
+    };
+    document.getElementById('trail').addEventListener('pointermove', interact);
+    document.getElementById('trail').addEventListener('pointerdown', interact);
+    document.getElementById('trail').addEventListener('pointerup', interact);
+    preventScrolling(document.getElementById('trail'));
+  }
+
+const trail = {
+   "MaxCount": 2000,
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 4
+   },
+   "EffectCode": "",
+   "Code": [
+      "void spawn(inout Particle p) {",
+      "  p.lifetime = 2 + rand;",
+      "  float a = radians(rand * 360);",
+      "  p.vel = float2(cos(a), sin(a)) * mix(5, 15, rand);",
+      "  p.scale = mix(0.25, 0.75, rand);",
+      "}",
+      "",
+      "void update(inout Particle p) {",
+      "  p.color.r = p.age;",
+      "  p.color.g = 1 - p.age;",
+      "}",
+      ""
+   ],
+   "Bindings": []
 };
 
   }
