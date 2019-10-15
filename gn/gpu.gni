@@ -760,6 +760,8 @@ skia_metal_sources = [
   "$_src/gpu/mtl/GrMtlDepthStencil.mm",
   "$_src/gpu/mtl/GrMtlGpu.h",
   "$_src/gpu/mtl/GrMtlGpu.mm",
+  "$_src/gpu/mtl/GrMtlLayerObjects.h",
+  "$_src/gpu/mtl/GrMtlLayerObjects.mm",
   "$_src/gpu/mtl/GrMtlOpsRenderPass.h",
   "$_src/gpu/mtl/GrMtlOpsRenderPass.mm",
   "$_src/gpu/mtl/GrMtlPipelineState.h",

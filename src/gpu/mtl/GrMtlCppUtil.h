@@ -12,7 +12,8 @@
 
 // Utilities that can be used from cpp files (rather than .mm).
 
-GrMTLPixelFormat GrGetMTLPixelFormatFromMtlTextureInfo(const GrMtlTextureInfo&);
+GrMTLPixelFormat GrGetMTLPixelFormatFromMtlTextureInfo(const GrMtlTextureInfo&,
+                                                       const GrMtlLayerInfo&);
 
 #if GR_TEST_UTILS
 const char* GrMtlFormatToStr(GrMTLPixelFormat mtlFormat);
