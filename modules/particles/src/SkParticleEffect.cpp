@@ -226,8 +226,7 @@ void SkParticleEffect::processEffectSpawnRequests(double now) {
     fSpawnRequests.reset();
 }
 
-int SkParticleEffect::runEffectScript(double now, const char* entry) {
-    fState.fBurst = 0;
+void SkParticleEffect::runEffectScript(double now, const char* entry) {
     if (const auto& byteCode = fParams->fEffectProgram.fByteCode) {
         if (auto fun = byteCode->getFunction(entry)) {
             for (const auto& value : fParams->fEffectProgram.fExternalValues) {
@@ -241,7 +240,6 @@ int SkParticleEffect::runEffectScript(double now, const char* entry) {
             this->processEffectSpawnRequests(now);
         }
     }
-    return fState.fBurst;
 }
 
 void SkParticleEffect::processParticleSpawnRequests(double now, int start) {
@@ -304,24 +302,22 @@ void SkParticleEffect::advanceTime(double now) {
         this->setCapacity(fParams->fMaxCount);
     }
 
-    int burstCount = 0;
-
     // Is this the first update after calling start()?
     // Run 'effectSpawn' to set initial emitter properties.
     if (fState.fAge == 0.0f && fState.fLoopCount == 0) {
-        burstCount += this->runEffectScript(now, "effectSpawn");
+        this->runEffectScript(now, "effectSpawn");
     }
 
     fState.fAge += fState.fDeltaTime / fState.fLifetime;
     if (fState.fAge > 1) {
         // We always run effectDeath when age crosses 1, whether we're looping or actually dying
-        burstCount += this->runEffectScript(now, "effectDeath");
+        this->runEffectScript(now, "effectDeath");
 
         if (fLooping) {
             // If we looped, then run effectSpawn again (with the updated loop count)
             fState.fLoopCount += sk_float_floor2int(fState.fAge);
             fState.fAge = fmodf(fState.fAge, 1.0f);
-            burstCount += this->runEffectScript(now, "effectSpawn");
+            this->runEffectScript(now, "effectSpawn");
         } else {
             // Effect is dead if we've reached the end (and are not looping)
             return;
@@ -349,7 +345,7 @@ void SkParticleEffect::advanceTime(double now) {
     this->runParticleScript(now, "death", fCount, numDyingParticles);
 
     // Run 'effectUpdate' to adjust emitter properties
-    burstCount += this->runEffectScript(now, "effectUpdate");
+    this->runEffectScript(now, "effectUpdate");
 
     // Do integration of effect position and orientation
     {
@@ -362,10 +358,11 @@ void SkParticleEffect::advanceTime(double now) {
     }
 
     // Spawn new particles
-    float desired = fState.fRate * fState.fDeltaTime + fSpawnRemainder;
+    float desired = fState.fRate * fState.fDeltaTime + fSpawnRemainder + fState.fBurst;
+    fState.fBurst = 0;
     int numToSpawn = sk_float_round2int(desired);
     fSpawnRemainder = desired - numToSpawn;
-    numToSpawn = SkTPin(numToSpawn + burstCount, 0, fParams->fMaxCount - fCount);
+    numToSpawn = SkTPin(numToSpawn, 0, fParams->fMaxCount - fCount);
     if (numToSpawn) {
         const int spawnBase = fCount;
 

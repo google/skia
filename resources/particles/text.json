@@ -17,7 +17,7 @@
       "  float s = mix(10, 30, rand);",
       "  p.vel.x = cos(a) * s;",
       "  p.vel.y = sin(a) * s;",
-      "  p.pos = text(rand).xy;",
+      "  p.pos += text(rand).xy;",
       "}",
       "",
       "void update(inout Particle p) {",
