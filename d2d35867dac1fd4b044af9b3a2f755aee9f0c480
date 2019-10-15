@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "70a229e4_0e646aba",
+        "filename": "gn/BUILDCONFIG.gn",
+        "patchSetId": 11
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-15T17:32:56Z",
+      "side": 1,
+      "message": "We do all our ChromeOS builds with target_os \u003d \"linux\".  Might be clearer to set this as is_chromeos \u003d false.",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 38
+      },
+      "revId": "d2d35867dac1fd4b044af9b3a2f755aee9f0c480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
