@@ -178,6 +178,12 @@ public:
     void setFrame   (float     f) { fState.fFrame    = f; }
     void setFlags   (uint32_t  f) { fState.fFlags    = f; }
 
+    const SkSL::ByteCode* effectCode() const { return fParams->fEffectProgram.fByteCode.get(); }
+    const SkSL::ByteCode* particleCode() const { return fParams->fParticleProgram.fByteCode.get(); }
+
+    float* effectUniforms() { return fEffectUniforms.data(); }
+    float* particleUniforms() { return fParticleUniforms.data(); }
+
     static void RegisterParticleTypes();
 
 private:
@@ -201,13 +207,9 @@ private:
     double fLastTime;
     float  fSpawnRemainder;
 
-    // Effect-associated values exposed to script. They are some mix of uniform and inout,
-    // depending on whether we're executing per-effect or per-particle scripts.
+    // C++ version of the SkSL Effect struct. This is the inout parameter to per-effect scripts,
+    // and provided as a uniform (named 'effect') to the per-particle scripts.
     struct EffectState {
-        float fDeltaTime;
-
-        // Above this line is always uniform. Below is uniform for particles, inout for effect.
-
         float fAge;
         float fLifetime;
         int   fLoopCount;
@@ -231,6 +233,8 @@ private:
 
     // Cached
     int fCapacity;
+    SkTArray<float, true> fEffectUniforms;
+    SkTArray<float, true> fParticleUniforms;
 
     // Private interface used by SkEffectBinding and SkEffectExternalValue to spawn sub effects
     friend class SkEffectExternalValue;
