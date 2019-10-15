@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "851fdc77_0dd095e4",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-15T17:40:18Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this just be \"this-\u003ecolorInfo().colorType()\" ?\n\n\u0027colorType\u0027 is what we\u0027re drawing into, right?",
+      "range": {
+        "startLine": 148,
+        "startChar": 87,
+        "endLine": 148,
+        "endChar": 96
+      },
+      "revId": "ec9bb0f55cd2a523dc5e936e702c3ea6e631bcb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4ed1f13_6c99e682",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-15T17:40:18Z",
+      "side": 1,
+      "message": "here too ?",
+      "range": {
+        "startLine": 159,
+        "startChar": 84,
+        "endLine": 159,
+        "endChar": 93
+      },
+      "revId": "ec9bb0f55cd2a523dc5e936e702c3ea6e631bcb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9aec90a3_70ed029d",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-15T17:40:18Z",
+      "side": 1,
+      "message": "Move this up and use it in line 459 ?",
+      "revId": "ec9bb0f55cd2a523dc5e936e702c3ea6e631bcb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d804b4c5_f6f701fa",
+        "filename": "src/gpu/GrTextureProducer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-15T17:40:18Z",
+      "side": 1,
+      "message": "I\u0027m surprised we don\u0027t have to pass in a GrColorType w/ \u0027proxy\u0027 !?",
+      "revId": "ec9bb0f55cd2a523dc5e936e702c3ea6e631bcb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
