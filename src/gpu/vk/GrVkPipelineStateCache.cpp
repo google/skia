@@ -93,11 +93,13 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
                       renderTarget->renderTargetPriv().numStencilBits());
     }
 
+    const GrShaderCaps& shaderCaps = *fGpu->caps()->shaderCaps();
+
     // TODO: can this be unified between GL, Vk and Mtl?
     // Get GrVkProgramDesc
     GrVkPipelineStateBuilder::Desc desc;
     if (!GrVkPipelineStateBuilder::Desc::Build(&desc, renderTarget, programInfo, stencil,
-                                               primitiveType, fGpu)) {
+                                               primitiveType, shaderCaps)) {
         GrCapsDebugf(fGpu->caps(), "Failed to build vk program descriptor!\n");
         return nullptr;
     }

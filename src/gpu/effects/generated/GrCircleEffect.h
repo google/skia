@@ -16,6 +16,7 @@
 #include "src/gpu/GrFragmentProcessor.h"
 class GrCircleEffect : public GrFragmentProcessor {
 public:
+
     static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType, SkPoint center,
                                                      float radius) {
         // A radius below half causes the implicit insetting done by this processor to become
@@ -31,16 +32,15 @@ public:
     GrClipEdgeType edgeType;
     SkPoint center;
     float radius;
-
 private:
     GrCircleEffect(GrClipEdgeType edgeType, SkPoint center, float radius)
-            : INHERITED(kGrCircleEffect_ClassID,
-                        (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
-            , edgeType(edgeType)
-            , center(center)
-            , radius(radius) {}
+    : INHERITED(kGrCircleEffect_ClassID, (OptimizationFlags)  kCompatibleWithCoverageAsAlpha_OptimizationFlag )
+    , edgeType(edgeType)
+    , center(center)
+    , radius(radius) {
+    }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&,GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     typedef GrFragmentProcessor INHERITED;
