@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01b86dd4_d49fdd7a",
+        "filename": "tools/gpu/gl/interface/interface.json5",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-10-15T15:41:11Z",
+      "side": 1,
+      "message": "\"WASM webgl2 is supposed to have ReadBuffer, but it doesn\u0027t\"\nIs there documentation for this statement?",
+      "revId": "14a05059bd133534ae94410c126f17d8058cd4e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
