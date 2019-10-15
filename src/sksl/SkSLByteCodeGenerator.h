@@ -224,6 +224,8 @@ private:
      */
     Location getLocation(const Expression& expr);
 
+    void gatherUniforms(const Type& type, const String& name);
+
     std::unique_ptr<ByteCodeFunction> writeFunction(const FunctionDefinition& f);
 
     void writeVarDeclarations(const VarDeclarations& decl);

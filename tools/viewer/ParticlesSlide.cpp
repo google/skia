@@ -11,6 +11,7 @@
 #include "modules/particles/include/SkParticleSerialization.h"
 #include "modules/particles/include/SkReflected.h"
 #include "src/core/SkOSFile.h"
+#include "src/sksl/SkSLByteCode.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/Resources.h"
 #include "tools/viewer/ImGuiLayer.h"
@@ -301,18 +302,76 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
     // Another window to show all the running effects
     if (ImGui::Begin("Running")) {
         for (int i = 0; i < fRunning.count(); ++i) {
-            ImGui::PushID(i);
+            SkParticleEffect* effect = fRunning[i].fEffect.get();
+            ImGui::PushID(effect);
+
             ImGui::Checkbox("##Track", &fRunning[i].fTrackMouse);
             ImGui::SameLine();
-            bool remove = ImGui::Button("X") || !fRunning[i].fEffect->isAlive();
+            bool remove = ImGui::Button("X") || !effect->isAlive();
             ImGui::SameLine();
             ImGui::Text("%4g, %4g %5d %s", fRunning[i].fPosition.fX, fRunning[i].fPosition.fY,
-                        fRunning[i].fEffect->getCount(), fRunning[i].fName.c_str());
+                        effect->getCount(), fRunning[i].fName.c_str());
             if (fRunning[i].fTrackMouse) {
-                fRunning[i].fEffect->setPosition({ ImGui::GetMousePos().x,
-                                                   ImGui::GetMousePos().y });
+                effect->setPosition({ ImGui::GetMousePos().x, ImGui::GetMousePos().y });
                 fRunning[i].fPosition.set(0, 0);
             }
+
+            auto uniformsGui = [](const SkSL::ByteCode* code, float* data, SkPoint spawnPos) {
+                if (!code || !data) {
+                    return;
+                }
+                for (int i = 0; i < code->getUniformCount(); ++i) {
+                    const auto& uni = code->getUniform(i);
+                    float* vals = data + uni.fSlot;
+
+                    // Skip over builtin uniforms, to reduce clutter
+                    if (uni.fName == "dt" || uni.fName.startsWith("effect.")) {
+                        continue;
+                    }
+
+                    // Special case for 'uniform float2 mouse_pos' - an example of likely app logic
+                    if (uni.fName == "mouse_pos" &&
+                        uni.fType == SkSL::TypeCategory::kFloat &&
+                        uni.fRows == 2 && uni.fColumns == 1) {
+                        ImVec2 mousePos = ImGui::GetMousePos();
+                        vals[0] = mousePos.x - spawnPos.fX;
+                        vals[1] = mousePos.y - spawnPos.fY;
+                        continue;
+                    }
+
+                    if (uni.fType == SkSL::TypeCategory::kBool) {
+                        for (int c = 0; c < uni.fColumns; ++c, vals += uni.fRows) {
+                            for (int r = 0; r < uni.fRows; ++r, ++vals) {
+                                ImGui::PushID(c*uni.fRows + r);
+                                if (r > 0) {
+                                    ImGui::SameLine();
+                                }
+                                ImGui::CheckboxFlags(r == uni.fRows - 1 ? uni.fName.c_str()
+                                                                        : "##Hidden",
+                                                     (unsigned int*)vals, ~0);
+                                ImGui::PopID();
+                            }
+                        }
+                        continue;
+                    }
+
+                    ImGuiDataType dataType = ImGuiDataType_COUNT;
+                    switch (uni.fType) {
+                        case SkSL::TypeCategory::kSigned:   dataType = ImGuiDataType_S32;   break;
+                        case SkSL::TypeCategory::kUnsigned: dataType = ImGuiDataType_U32;   break;
+                        case SkSL::TypeCategory::kFloat:    dataType = ImGuiDataType_Float; break;
+                        default:                                                            break;
+                    }
+                    SkASSERT(dataType != ImGuiDataType_COUNT);
+                    for (int c = 0; c < uni.fColumns; ++c, vals += uni.fRows) {
+                        ImGui::PushID(c);
+                        ImGui::DragScalarN(uni.fName.c_str(), dataType, vals, uni.fRows, 1.0f);
+                        ImGui::PopID();
+                    }
+                }
+            };
+            uniformsGui(effect->effectCode(), effect->effectUniforms(), fRunning[i].fPosition);
+            uniformsGui(effect->particleCode(), effect->particleUniforms(), fRunning[i].fPosition);
             if (remove) {
                 fRunning.removeShuffle(i);
             }
