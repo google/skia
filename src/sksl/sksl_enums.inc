@@ -16,7 +16,7 @@ R"(/*
  * GrProcessorEdgeType will succeed with all values and it is up to the caller to check for
  * a NULL return.
  */
-enum class GrClipEdgeType {
+enum class GrClipEdgeTypee {
     kFillBW,
     kFillAA,
     kInverseFillBW,
