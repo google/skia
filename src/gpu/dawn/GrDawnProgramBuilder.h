@@ -39,7 +39,7 @@ struct GrDawnProgram : public SkRefCnt {
         void getRTAdjustmentVec(float* destVec) {
             destVec[0] = 2.f / fRenderTargetSize.fWidth;
             destVec[1] = -1.f;
-            if (kBottomLeft_GrSurfaceOrigin == fRenderTargetOrigin) {
+            if (kTopLeft_GrSurfaceOrigin == fRenderTargetOrigin) {
                 destVec[2] = -2.f / fRenderTargetSize.fHeight;
                 destVec[3] = 1.f;
             } else {
@@ -91,7 +91,7 @@ private:
                          const GrProgramInfo&,
                          GrProgramDesc*);
     dawn::ShaderModule createShaderModule(const GrGLSLShaderBuilder&, SkSL::Program::Kind,
-                                          SkSL::Program::Inputs* inputs);
+                                          bool flipY, SkSL::Program::Inputs* inputs);
     GrDawnGpu*             fGpu;
     GrDawnVaryingHandler   fVaryingHandler;
     GrDawnUniformHandler   fUniformHandler;
