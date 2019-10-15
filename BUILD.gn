@@ -1268,35 +1268,6 @@ if (skia_enable_tools) {
     }
   }
 
-  config("moltenvk_config") {
-    if (defined(skia_moltenvk_path) && skia_moltenvk_path != "") {
-      if (is_ios) {
-        moltenvk_framework_path = "$skia_moltenvk_path/MoltenVK/iOS"
-      } else {
-        moltenvk_framework_path = "$skia_moltenvk_path/MoltenVK/macOS"
-      }
-      cflags = [ "-F$moltenvk_framework_path" ]
-      ldflags = [ "-F$moltenvk_framework_path" ]
-      libs = [
-        "MoltenVK.framework",
-        "Metal.framework",
-        "IOSurface.framework",
-        "QuartzCore.framework",
-        "Foundation.framework",
-      ]
-      if (is_ios) {
-        libs += [ "UIKit.framework" ]
-      } else {
-        libs += [ "IOKit.framework" ]
-      }
-      defines = [ "SK_MOLTENVK" ]
-    }
-  }
-
-  source_set("moltenvk") {
-    public_configs = [ ":moltenvk_config" ]
-  }
-
   test_lib("gpu_tool_utils") {
     public_defines = []
 
@@ -1358,9 +1329,6 @@ if (skia_enable_tools) {
     if (skia_use_vulkan) {
       sources += [ "tools/gpu/vk/VkTestContext.cpp" ]
       sources += [ "tools/gpu/vk/VkTestUtils.cpp" ]
-      if (defined(skia_moltenvk_path) && skia_moltenvk_path != "") {
-        public_deps += [ ":moltenvk" ]
-      }
     }
     if (skia_use_metal) {
       sources += [ "tools/gpu/mtl/MtlTestContext.mm" ]
@@ -2210,9 +2178,6 @@ if (skia_enable_tools) {
         libs += [ "X11-xcb" ]
       } else if (is_win) {
         sources += [ "tools/sk_app/win/VulkanWindowContext_win.cpp" ]
-      } else if (is_mac) {
-        sources += [ "tools/sk_app/mac/VulkanWindowContext_mac.mm" ]
-        libs += [ "MetalKit.framework" ]
       }
     }
 
