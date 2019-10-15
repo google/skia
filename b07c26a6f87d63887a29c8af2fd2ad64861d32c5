@@ -1,0 +1,400 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a49f7ce9_75180788",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-15T17:31:38Z",
+      "side": 1,
+      "message": "I think maybe we\u0027re looking at two CLs here, one to add _DXDY, the other to restore the cross of these tile modes in x and y?   Want to split it apart?",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 371
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01118a22_8e7e8fb2",
+        "filename": "src/core/SkBitmapProcState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-15T17:31:38Z",
+      "side": 1,
+      "message": "Maybe let\u0027s start this whole block simpler?  Something like\n\n    while (count --\u003e 0) { \n        uint32_t XY \u003d *xy++,\n                  x \u003d XY \u0026 0xFFFF,\n                  y \u003d XY \u003e\u003e 16;\n        SkASSERT(x \u003c (unsigned)s.fPixmap.width() \u0026\u0026\n                 y \u003c (unsigned)s.fPixmap.height());\n        *colors++ \u003d ((const SkPMColor*)(srcAddr + y*rb))[x];\n    }\n\n?",
+      "range": {
+        "startLine": 132,
+        "startChar": 0,
+        "endLine": 154,
+        "endChar": 5
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54374916_06ed8a45",
+        "filename": "src/core/SkBitmapProcState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-15T17:31:38Z",
+      "side": 1,
+      "message": "Please use {} for all these.",
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4c0aeca_349631c5",
+        "filename": "src/core/SkBitmapProcState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 712,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-15T17:31:38Z",
+      "side": 1,
+      "message": "Is there a clearer way to say what you mean here?  Maybe just drop the first two lines?",
+      "range": {
+        "startLine": 707,
+        "startChar": 0,
+        "endLine": 712,
+        "endChar": 28
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abb1ef62_a4ed2e41",
+        "filename": "src/core/SkBitmapProcState_matrixProcs.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-15T17:31:38Z",
+      "side": 1,
+      "message": "Like, this entire block is not changed... please revert any changes like this that do not functionally matter.  I\u0027d be happy to review any refactoring or style you\u0027d like to do in a separate CL that doesn\u0027t not change functionality.",
+      "range": {
+        "startLine": 499,
+        "startChar": 0,
+        "endLine": 543,
+        "endChar": 5
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41734034_b60d7623",
+        "filename": "src/core/SkBitmapProcState_matrixProcs.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 858,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-15T17:31:38Z",
+      "side": 1,
+      "message": "These next three template parameters are really all \"tiley\", right?  The whole point in templating them is that they need not be clamp here, need not be repeat in repeatx_nofilter_trans, etc?",
+      "range": {
+        "startLine": 858,
+        "startChar": 17,
+        "endLine": 858,
+        "endChar": 23
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b222c8a8_5c973c89",
+        "filename": "src/core/SkOpts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-15T17:31:38Z",
+      "side": 1,
+      "message": "Maybe let\u0027s delete this line and your new comments, or switch \"This is the only one\" to \"These are the only ones\"?",
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b0cf755_2c53d98c",
+        "filename": "src/opts/SkBitmapProcState_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-15T17:31:38Z",
+      "side": 1,
+      "message": "I notice you keep writing \"AVX\".  This code uses AVX2, and the difference is important.  It\u0027s very much analogous to the operations available in SSE vs. SSE2.",
+      "range": {
+        "startLine": 42,
+        "startChar": 19,
+        "endLine": 42,
+        "endChar": 22
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59217cad_d35543a4",
+        "filename": "src/opts/SkBitmapProcState_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-15T17:31:38Z",
+      "side": 1,
+      "message": "Is there something preventing you from implementing the AVX2 version?",
+      "range": {
+        "startLine": 42,
+        "startChar": 38,
+        "endLine": 42,
+        "endChar": 96
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d3df3f1_05f8cddd",
+        "filename": "src/opts/SkBitmapProcState_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-15T17:31:38Z",
+      "side": 1,
+      "message": "let\u0027s rename this parameter so it does\u0027t start with \u0027f\u0027.  that\u0027s our usual signal for a class member (\"field\", I think?).  \"alpha\" is probably fine.",
+      "range": {
+        "startLine": 209,
+        "startChar": 57,
+        "endLine": 209,
+        "endChar": 69
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c68320a_56902f09",
+        "filename": "src/opts/SkBitmapProcState_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-15T17:31:38Z",
+      "side": 1,
+      "message": "Let\u0027s keep only the general interopolate_in_x_and_y(), and inline this splat logic into _DX?",
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e40136e7_ec37032a",
+        "filename": "src/opts/SkBitmapProcState_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-15T17:31:38Z",
+      "side": 1,
+      "message": "I\u0027m not sure there\u0027s anything above this that this is doing 4x..",
+      "range": {
+        "startLine": 333,
+        "startChar": 4,
+        "endLine": 333,
+        "endChar": 20
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cdcfb461_1d0e2b54",
+        "filename": "src/opts/SkBitmapProcState_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-15T17:31:38Z",
+      "side": 1,
+      "message": "This might all just be easier to follow if you leave the Ys in the low lanes?  Not sure why we\u0027re both deinterlacing and swapping the order?\n\nIt\u0027d also probably be a lot easier to follow if you put the Xs and Ys into separate registers.  It\u0027s really, really hard to maintain code that mixes heterogenous values in vectors like this, and is part of the reason we deleted it originally.\n\nI write this sort of code all the time and even I\u0027m not really following any of this.  Is there a way to write it more clearly?  Maybe start by inlining it into the one place it\u0027s called?\n\nWe\u0027re trying to unpack 2 x-coordinates, 2 y-coordinates, and the interpolating weights in each dimension, right?  When writing the AVX2 code I found it made things much, much clearer to abandon all this xy01 naming and call them by their sample corners: left and right in x, top and bottom in y, so you get top-left or tl, bottom-left, tr, br, etc.  And then the weights can be called wx and wy, the weights in the x and y directions.",
+      "range": {
+        "startLine": 337,
+        "startChar": 0,
+        "endLine": 340,
+        "endChar": 31
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "164b6cbf_2be47dda",
+        "filename": "src/opts/SkBitmapProcState_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-15T17:31:38Z",
+      "side": 1,
+      "message": "Does this compile away to a single pshufb?  It\u0027s got to be redundant to pshufd then pshufb, right?",
+      "range": {
+        "startLine": 353,
+        "startChar": 0,
+        "endLine": 355,
+        "endChar": 100
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "395309a9_84b26871",
+        "filename": "src/opts/SkBitmapProcState_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-15T17:31:38Z",
+      "side": 1,
+      "message": "I\u0027d really rather you not write any comments than copy and paste the old ones.  This is technically correct but misleading to say we\u0027re loading 2 X pairs... we\u0027re also loading Y pairs.",
+      "range": {
+        "startLine": 370,
+        "startChar": 50,
+        "endLine": 370,
+        "endChar": 67
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b07ec805_0d531c18",
+        "filename": "src/opts/SkBitmapProcState_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-15T17:31:38Z",
+      "side": 1,
+      "message": "Let\u0027s just pass this as `unsigned wy` like we do wx, and like the NEON code below does?  We\u0027re only ever working with one pixel here anyway... it\u0027s weird to expand wy on the outside of filter_and_scale_by_alpha() but expand wx on the inside.",
+      "range": {
+        "startLine": 434,
+        "startChar": 70,
+        "endLine": 434,
+        "endChar": 74
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bfe8667_14677bd1",
+        "filename": "src/opts/SkOpts_ssse3.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-15T17:31:38Z",
+      "side": 1,
+      "message": "Something is going to get upset for using tabs I\u0027m sure.   Please use spaces.",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 2
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d88c3640_0aa0f033",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-15T17:31:38Z",
+      "side": 1,
+      "message": "Doesn\u0027t this limitation also apply to the full-affine code?  It also uses SkFractionalInt a.k.a SkFixed3232, right?",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 30
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
