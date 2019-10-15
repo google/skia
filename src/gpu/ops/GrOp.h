@@ -158,7 +158,7 @@ public:
      * onPrePrepare must be prepared to handle both cases (when onPrePrepare has been called
      * ahead of time and when it has not been called).
      */
-    void prePrepare() { this->onPrePrepare(); }
+    void prePrepare(GrRecordingContext* context) { this->onPrePrepare(context); }
 
     /**
      * Called prior to executing. The op should perform any resource creation or data transfers
@@ -289,7 +289,8 @@ private:
         return CombineResult::kCannotCombine;
     }
 
-    virtual void onPrePrepare() {}  // Only GrMeshDrawOp currently overrides this virtual
+    // Only GrMeshDrawOp currently overrides this virtual
+    virtual void onPrePrepare(GrRecordingContext*) {}
     virtual void onPrepare(GrOpFlushState*) = 0;
     // If this op is chained then chainBounds is the union of the bounds of all ops in the chain.
     // Otherwise, this op's bounds.
