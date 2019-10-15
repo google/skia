@@ -76,6 +76,9 @@ for r, d, files in os.walk('%s'):
       subprocess.check_call(['touch', path])
 """ % cwd)
 
+    import time
+    time.sleep(2000)
+
     # Run GN, regenerate the SKSL files, and make sure rewritten #includes work.
     api.build(checkout_root=checkout_root,
               out_dir=api.vars.build_dir.join('out', 'Release'))
