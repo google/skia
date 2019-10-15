@@ -20,6 +20,7 @@ namespace SkOpts {
         blit_row_s32a_opaque = hsw::blit_row_s32a_opaque;
 
         S32_alpha_D32_filter_DX  = hsw::S32_alpha_D32_filter_DX;
+        S32_alpha_D32_filter_DXDY  = hsw::S32_alpha_D32_filter_DXDY;
 
         cubic_solver = SK_OPTS_NS::cubic_solver;
 

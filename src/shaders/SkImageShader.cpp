@@ -72,26 +72,36 @@ bool SkImageShader::isOpaque() const {
 
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 static bool legacy_shader_can_handle(const SkMatrix& inv) {
+#ifndef SK_SUPPORT_LEGACY_LOCAL_ROTATE_SHADER
     if (!inv.isScaleTranslate()) {
         return false;
     }
+#endif
 
-    // legacy code uses SkFixed 32.32, so ensure the inverse doesn't map device coordinates
-    // out of range.
-    const SkScalar max_dev_coord = 32767.0f;
-    SkRect src;
-    SkAssertResult(inv.mapRect(&src, SkRect::MakeWH(max_dev_coord, max_dev_coord)));
-
-    // take 1/4 of max signed 32bits so we have room to subtract local values
-    const SkScalar max_fixed32dot32 = SK_MaxS32 * 0.25f;
-    if (!SkRect::MakeLTRB(-max_fixed32dot32, -max_fixed32dot32,
-                           max_fixed32dot32, max_fixed32dot32).contains(src)) {
+    if (inv.hasPerspective()) {
         return false;
+    }
+
+    if (inv.isScaleTranslate()) {
+        // legacy code uses SkFixed 32.32, so ensure the inverse doesn't map device coordinates
+        // out of range.
+        const SkScalar max_dev_coord = 32767.0f;
+        SkRect src;
+        SkAssertResult(inv.mapRect(&src, SkRect::MakeWH(max_dev_coord, max_dev_coord)));
+
+        // take 1/4 of max signed 32bits so we have room to subtract local values
+        const SkScalar max_fixed32dot32 = SK_MaxS32 * 0.25f;
+        if (!SkRect::MakeLTRB(-max_fixed32dot32, -max_fixed32dot32, max_fixed32dot32,
+                              max_fixed32dot32)
+                     .contains(src)) {
+            return false;
+        }
     }
 
     // legacy shader impl should be able to handle these matrices
     return true;
 }
+
 
 SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
                                                     SkArenaAlloc* alloc) const {
@@ -101,9 +111,11 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
     if (fImage->colorType() != kN32_SkColorType) {
         return nullptr;
     }
+#ifndef SK_SUPPORT_LEGACY_TILED_BITMAPS
     if (fTileModeX != fTileModeY) {
         return nullptr;
     }
+#endif
     if (fTileModeX == SkTileMode::kDecal || fTileModeY == SkTileMode::kDecal) {
         return nullptr;
     }

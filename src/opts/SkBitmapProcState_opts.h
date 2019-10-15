@@ -24,7 +24,7 @@
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
     #include <immintrin.h>
 #elif defined(SK_ARM_HAS_NEON)
-    #include <arm_neon.h>
+    #include <arm_neon.h>git a
 #endif
 
 namespace SK_OPTS_NS {
@@ -38,6 +38,9 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
 }
 
 #if 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+
+#define S32_D32_DX_AVX_DEFINED 1   // right now i have not implemented S32_alpha_D32_filter_DXDY, this macro exists so that we can use SSE3 version of S32_alpha_D32_filter_DXDY
+
     /*not static*/ inline
     void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
                                  const uint32_t* xy, int count, uint32_t* colors) {
@@ -166,7 +169,81 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
         }
     }
 
-#elif 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+#endif // 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+
+#if 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+
+    // interpolate_in_x() is the crux of the SSSE3 implementation,
+    // interpolating in X for up to two output pixels (A and B) using _mm_maddubs_epi16().
+    static inline __m128i interpolate_in_x(uint32_t A0, uint32_t A1, uint32_t B0, uint32_t B1,
+                                            const __m128i& interlaced_x_weights) {
+        // _mm_maddubs_epi16() is a little idiosyncratic, but great as the core of a lerp.
+        //
+        // It takes two arguments interlaced byte-wise:
+        //    - first  arg: [ l,r, ... 7 more pairs of unsigned 8-bit values ...]
+        //    - second arg: [ w,W, ... 7 more pairs of   signed 8-bit values ...]
+        // and returns 8 signed 16-bit values: [ l*w + r*W, ... 7 more ... ].
+        //
+        // That's why we go to all this trouble to make interlaced_x_weights,
+        // and here we're about to interlace A0 with A1 and B0 with B1 to match.
+        //
+        // Our interlaced_x_weights are all in [0,16], and so we need not worry about
+        // the signedness of that input nor about the signedness of the output.
+
+       __m128i interlaced_A = _mm_unpacklo_epi8(_mm_cvtsi32_si128(A0), _mm_cvtsi32_si128(A1)),
+          interlaced_B = _mm_unpacklo_epi8(_mm_cvtsi32_si128(B0), _mm_cvtsi32_si128(B1));
+
+        return _mm_maddubs_epi16(_mm_unpacklo_epi64(interlaced_A, interlaced_B),
+                                 interlaced_x_weights);
+    };
+
+
+    // Interpolate {A0..A3} --> output pixel A, and {B0..B3} --> output pixel B.
+    // Returns two pixels, with each color channel in a 16-bit lane of the __m128i.
+    static inline __m128i interpolate_in_x_and_y(uint32_t A0, uint32_t A1,
+                                                 uint32_t A2, uint32_t A3,
+                                                 uint32_t B0, uint32_t B1,
+                                                 uint32_t B2, uint32_t B3,
+                                                 const __m128i& interlaced_x_weights,
+                                                 const __m128i& wy,
+                                                 uint16_t fAlphaScale) {
+        // Interpolate each row in X, leaving 16-bit lanes scaled by interlaced_x_weights.
+        __m128i top = interpolate_in_x(A0, A1, B0, B1, interlaced_x_weights),
+                bot = interpolate_in_x(A2, A3, B2, B3, interlaced_x_weights);
+
+        // Interpolate in Y.  As in the SSE2 code, we calculate top*(16-wy) + bot*wy
+        // as 16*top + (bot-top)*wy to save a multiply.
+        __m128i px = _mm_add_epi16(_mm_slli_epi16(top, 4),
+                                   _mm_mullo_epi16(_mm_sub_epi16(bot, top),
+                                                   wy));
+
+        // Scale down by total max weight 16x16 = 256.
+        px = _mm_srli_epi16(px, 8);
+
+        // Scale by alpha if needed.
+        if (fAlphaScale < 256) {
+            px = _mm_srli_epi16(_mm_mullo_epi16(px, _mm_set1_epi16(fAlphaScale)), 8);
+        }
+        return px;
+    };
+
+
+    // Interpolate {A0..A3} --> output pixel A, and {B0..B3} --> output pixel B.
+    // Returns two pixels, with each channel in a 16-bit lane of the __m128i.
+    static inline __m128i interpolate_in_x_and_y(uint32_t A0, uint32_t A1,
+                                                 uint32_t A2, uint32_t A3,
+                                                 uint32_t B0, uint32_t B1,
+                                                 uint32_t B2, uint32_t B3,
+                                                 const __m128i& interlaced_x_weights,
+                                                 int wy,
+                                                 uint16_t fAlphaScale) {
+        // The stored Y weight wy is for y1, and y0 gets a weight 16-wy.
+        const __m128i wy1 = _mm_set1_epi16(wy);
+
+        return interpolate_in_x_and_y(A0, A1, A2, A3, B0, B1, B2, B3, interlaced_x_weights, wy1, fAlphaScale);
+    }
+
+#ifndef S32_D32_DX_AVX_DEFINED
 
     /*not static*/ inline
     void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
@@ -175,59 +252,6 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
         SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
         SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
         SkASSERT(s.fAlphaScale <= 256);
-
-        // interpolate_in_x() is the crux of the SSSE3 implementation,
-        // interpolating in X for up to two output pixels (A and B) using _mm_maddubs_epi16().
-        auto interpolate_in_x = [](uint32_t A0, uint32_t A1,
-                                   uint32_t B0, uint32_t B1,
-                                   __m128i interlaced_x_weights) {
-            // _mm_maddubs_epi16() is a little idiosyncratic, but great as the core of a lerp.
-            //
-            // It takes two arguments interlaced byte-wise:
-            //    - first  arg: [ l,r, ... 7 more pairs of unsigned 8-bit values ...]
-            //    - second arg: [ w,W, ... 7 more pairs of   signed 8-bit values ...]
-            // and returns 8 signed 16-bit values: [ l*w + r*W, ... 7 more ... ].
-            //
-            // That's why we go to all this trouble to make interlaced_x_weights,
-            // and here we're about to interlace A0 with A1 and B0 with B1 to match.
-            //
-            // Our interlaced_x_weights are all in [0,16], and so we need not worry about
-            // the signedness of that input nor about the signedness of the output.
-
-            __m128i interlaced_A = _mm_unpacklo_epi8(_mm_cvtsi32_si128(A0), _mm_cvtsi32_si128(A1)),
-                    interlaced_B = _mm_unpacklo_epi8(_mm_cvtsi32_si128(B0), _mm_cvtsi32_si128(B1));
-
-            return _mm_maddubs_epi16(_mm_unpacklo_epi64(interlaced_A, interlaced_B),
-                                     interlaced_x_weights);
-        };
-
-        // Interpolate {A0..A3} --> output pixel A, and {B0..B3} --> output pixel B.
-        // Returns two pixels, with each color channel in a 16-bit lane of the __m128i.
-        auto interpolate_in_x_and_y = [&](uint32_t A0, uint32_t A1,
-                                          uint32_t A2, uint32_t A3,
-                                          uint32_t B0, uint32_t B1,
-                                          uint32_t B2, uint32_t B3,
-                                          __m128i interlaced_x_weights,
-                                          int wy) {
-            // Interpolate each row in X, leaving 16-bit lanes scaled by interlaced_x_weights.
-            __m128i top = interpolate_in_x(A0,A1, B0,B1, interlaced_x_weights),
-                    bot = interpolate_in_x(A2,A3, B2,B3, interlaced_x_weights);
-
-            // Interpolate in Y.  As in the SSE2 code, we calculate top*(16-wy) + bot*wy
-            // as 16*top + (bot-top)*wy to save a multiply.
-            __m128i px = _mm_add_epi16(_mm_slli_epi16(top, 4),
-                                       _mm_mullo_epi16(_mm_sub_epi16(bot, top),
-                                                       _mm_set1_epi16(wy)));
-
-            // Scale down by total max weight 16x16 = 256.
-            px = _mm_srli_epi16(px, 8);
-
-            // Scale by alpha if needed.
-            if (s.fAlphaScale < 256) {
-                px = _mm_srli_epi16(_mm_mullo_epi16(px, _mm_set1_epi16(s.fAlphaScale)), 8);
-            }
-            return px;
-        };
 
         // We're in _DX mode here, so we're only varying in X.
         // That means the first entry of xy is our constant pair of Y coordinates and weight in Y.
@@ -267,14 +291,14 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
                                                 row1[x0[A]], row1[x1[A]],
                                                 row0[x0[B]], row0[x1[B]],
                                                 row1[x0[B]], row1[x1[B]],
-                                                interlaced_x_weights_AB, wy);
+                                                interlaced_x_weights_AB, wy, s.fAlphaScale);
 
             // Once more with the other half of the x-weights for two more pixels C,D.
             __m128i CD = interpolate_in_x_and_y(row0[x0[C]], row0[x1[C]],
                                                 row1[x0[C]], row1[x1[C]],
                                                 row0[x0[D]], row0[x1[D]],
                                                 row1[x0[D]], row1[x1[D]],
-                                                interlaced_x_weights_CD, wy);
+                                                interlaced_x_weights_CD, wy, s.fAlphaScale);
 
             // Scale by alpha, pack back together to 8-bit lanes, and write out four pixels!
             _mm_storeu_si128((__m128i*)colors, _mm_packus_epi16(AB, CD));
@@ -298,14 +322,172 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
                                                row1[x0], row1[x1],
                                                       0,        0,
                                                       0,        0,
-                                               interlaced_x_weights, wy);
+                                               interlaced_x_weights, wy, s.fAlphaScale);
 
             *colors++ = _mm_cvtsi128_si32(_mm_packus_epi16(A, _mm_setzero_si128()));
         }
     }
 
+#endif // !S32_D32_DX_AVX_DEFINED
+
+    // As above, 4x.
+    static void decode_packed_coordinates_and_weightXY(const uint32_t* xy, int v0[4], int v1[4],
+                                                       __m128i* w) {
+        const __m128i xy_wide = _mm_loadu_si128(reinterpret_cast<const __m128i*>(xy));
+
+        // (x10, y10, x00, y00)
+        __m128i xy0_wide = _mm_srli_epi32(xy_wide, 18);
+        // (y10, y00, x10, x00)
+        xy0_wide = _mm_shuffle_epi32(xy0_wide, _MM_SHUFFLE(2, 0, 3, 1));
+        // (x11, y11, x01, y01)
+        __m128i xy1_wide = _mm_and_si128(xy_wide, _mm_set1_epi32(0x3fff));
+        // (y11, y01, x11, x01)
+        xy1_wide = _mm_shuffle_epi32(xy1_wide, _MM_SHUFFLE(2, 0, 3, 1));
+
+        _mm_storeu_si128(reinterpret_cast<__m128i*>(v0), xy0_wide);
+        _mm_storeu_si128(reinterpret_cast<__m128i*>(v1), xy1_wide);
+
+        // (x1, y1, x0, y0)
+        __m128i all_xy = _mm_and_si128(_mm_srli_epi32(xy_wide, 14), _mm_set1_epi32(0xf));
+        // (y1, y0, x1, x0)
+        all_xy = _mm_shuffle_epi32(all_xy, _MM_SHUFFLE(2, 0, 3, 1));
+        all_xy = _mm_shuffle_epi8(all_xy,
+                                  _mm_set_epi8(12, 12, 12, 12, 8, 8, 8, 8, 4, 4, 4, 4, 0, 0, 0, 0));
+        *w = all_xy;
+    }
+
+   /*not static*/ inline void S32_alpha_D32_filter_DXDY(const SkBitmapProcState& s,
+                                                         const uint32_t* xy, int count,
+                                                         uint32_t* colors) {
+        SkASSERT(count > 0 && colors != nullptr);
+        SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
+        SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
+
+        const uint8_t* src_addr = static_cast<const uint8_t*>(s.fPixmap.addr());
+        const size_t rb = s.fPixmap.rowBytes();
+
+        while (count >= 2) {
+            // We can really get going, loading 2 X pairs at a time to produce 2 output pixels.
+            int xy0[4];
+            int xy1[4];
+            __m128i wxy;
+            decode_packed_coordinates_and_weightXY(xy, xy0, xy1, &wxy);
+
+            const uint32_t* row00 = reinterpret_cast<const uint32_t*>(src_addr + xy0[2] * rb);
+            const uint32_t* row01 = reinterpret_cast<const uint32_t*>(src_addr + xy1[2] * rb);
+            const uint32_t* row10 = reinterpret_cast<const uint32_t*>(src_addr + xy0[3] * rb);
+            const uint32_t* row11 = reinterpret_cast<const uint32_t*>(src_addr + xy1[3] * rb);
+
+            __m128i sixteen_minus_xy = _mm_sub_epi8(_mm_set1_epi8(16), wxy);
+
+            // (4x(x1, 16-x1), 4x(x0, 16-x0))
+            __m128i scale_x = _mm_unpacklo_epi8(sixteen_minus_xy, wxy);
+
+            // The stored Y weight wy is for y1
+            __m128i wy1 = _mm_unpackhi_epi8(wxy, _mm_setzero_si128());
+
+            // interpolate_in_x_and_y() can produce two output pixels (A and B) at a time
+            // from eight input pixels {A0..A3} and {B0..B3}, arranged in a 2x2 grid for each.
+            __m128i AB = interpolate_in_x_and_y(row00[xy0[0]], row00[xy1[0]], row01[xy0[0]],
+                                                row01[xy1[0]], row10[xy0[1]], row10[xy1[1]],
+                                                row11[xy0[1]], row11[xy1[1]], scale_x, wy1, s.fAlphaScale);
+
+            // Pack lower 4 16 bit values of sum into lower 4 bytes.
+            AB = _mm_packus_epi16(AB, _mm_setzero_si128());
+
+            // Extract low int and store.
+            _mm_storel_epi64(reinterpret_cast<__m128i*>(colors), AB);
+
+            xy += 4;
+            colors += 2;
+            count -= 2;
+        }
+
+        while (count-- > 0) {
+            int y0, y1, wy;
+            decode_packed_coordinates_and_weight(*xy++, &y0, &y1, &wy);
+
+            auto row0 = (const uint32_t*)((const uint8_t*)s.fPixmap.addr() +
+                                          y0 * s.fPixmap.rowBytes()),
+                 row1 = (const uint32_t*)((const uint8_t*)s.fPixmap.addr() +
+                                          y1 * s.fPixmap.rowBytes());
+
+            // This is exactly the same flow as the count >= 4 loop above, but writing one pixel.
+            int x0, x1, wx;
+            decode_packed_coordinates_and_weight(*xy++, &x0, &x1, &wx);
+
+            // As above, splat out wx four times as wx1, and sixteen minus that as wx0.
+            __m128i wx1 = _mm_set1_epi8(wx),  // This splats it out 16 times, but that's fine.
+                    wx0 = _mm_sub_epi8(_mm_set1_epi8(16), wx1);
+
+            __m128i interlaced_x_weights_A = _mm_unpacklo_epi8(wx0, wx1);
+
+            __m128i A = interpolate_in_x_and_y(row0[x0], row0[x1], row1[x0], row1[x1], 0, 0, 0, 0,
+                                               interlaced_x_weights_A, wy, s.fAlphaScale);
+
+            *colors++ = _mm_cvtsi128_si32(_mm_packus_epi16(A, _mm_setzero_si128()));
+        }
+    }
 
 #elif 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+
+    static void filter_and_scale_by_alpha(unsigned wx, const __m128i& allY, SkPMColor p00,
+                                          SkPMColor p01, SkPMColor p10, SkPMColor p11, SkPMColor* dst,
+                                          uint16_t alphaScale) {
+
+        // Load the 4 pixels we're interpolating, in this grid:
+        //    | tl  tr |
+        //    | bl  br |
+         const __m128i tl = _mm_cvtsi32_si128(p00), tr = _mm_cvtsi32_si128(p01),
+                        bl = _mm_cvtsi32_si128(p10), br = _mm_cvtsi32_si128(p11);
+
+        // We want to calculate a sum of 4 pixels weighted in two directions:
+        //
+        //  sum = tl * (16-wy) * (16-wx)
+        //      + bl * (   wy) * (16-wx)
+        //      + tr * (16-wy) * (   wx)
+        //      + br * (   wy) * (   wx)
+        //
+        // (Notice top --> 16-wy, bottom --> wy, left --> 16-wx, right --> wx.)
+        //
+        // We've already prepared allY as a vector containing [wy, 16-wy] as a way
+        // to apply those y-direction weights.  So we'll start on the x-direction
+        // first, grouping into left and right halves, lined up with allY:
+        //
+        //     L = [bl, tl]
+        //     R = [br, tr]
+        //
+        //   sum = horizontalSum( allY * (L*(16-wx) + R*wx) )
+        //
+        // Rewriting that one more step, we can replace a multiply with a shift:
+        //
+        //   sum = horizontalSum( allY * (16*L + (R-L)*wx) )
+        //
+        // That's how we'll actually do this math.
+
+        __m128i L = _mm_unpacklo_epi8(_mm_unpacklo_epi32(bl, tl), _mm_setzero_si128()),
+                R = _mm_unpacklo_epi8(_mm_unpacklo_epi32(br, tr), _mm_setzero_si128());
+
+        __m128i inner = _mm_add_epi16(_mm_slli_epi16(L, 4),
+                                      _mm_mullo_epi16(_mm_sub_epi16(R, L), _mm_set1_epi16(wx)));
+
+        __m128i sum_in_x = _mm_mullo_epi16(inner, allY);
+
+        // sum = horizontalSum( ... )
+        __m128i sum = _mm_add_epi16(sum_in_x, _mm_srli_si128(sum_in_x, 8));
+
+        // Get back to [0,255] by dividing by maximum weight 16x16 = 256.
+        sum = _mm_srli_epi16(sum, 8);
+
+        if (alphaScale < 256) {
+            // Scale by alpha, which is in [0,256].
+            sum = _mm_mullo_epi16(sum, _mm_set1_epi16(alphaScale));
+            sum = _mm_srli_epi16(sum, 8);
+        }
+
+        *dst = _mm_cvtsi128_si32(_mm_packus_epi16(sum, _mm_setzero_si128()));
+      }
+
 
     /*not static*/ inline
     void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
@@ -330,58 +512,44 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
             int x0, x1, wx;
             decode_packed_coordinates_and_weight(*xy++, &x0, &x1, &wx);
 
-            // Load the 4 pixels we're interpolating, in this grid:
-            //    | tl  tr |
-            //    | bl  br |
-            const __m128i tl = _mm_cvtsi32_si128(row0[x0]), tr = _mm_cvtsi32_si128(row0[x1]),
-                          bl = _mm_cvtsi32_si128(row1[x0]), br = _mm_cvtsi32_si128(row1[x1]);
+            filter_and_scale_by_alpha(wx, allY,
+                                      row0[x0], row0[x1],
+                                      row1[x0], row1[x1],
+                                      colors++,
+                                      s.fAlphaScale);
+        }
+    }
 
-            // We want to calculate a sum of 4 pixels weighted in two directions:
-            //
-            //  sum = tl * (16-wy) * (16-wx)
-            //      + bl * (   wy) * (16-wx)
-            //      + tr * (16-wy) * (   wx)
-            //      + br * (   wy) * (   wx)
-            //
-            // (Notice top --> 16-wy, bottom --> wy, left --> 16-wx, right --> wx.)
-            //
-            // We've already prepared allY as a vector containing [wy, 16-wy] as a way
-            // to apply those y-direction weights.  So we'll start on the x-direction
-            // first, grouping into left and right halves, lined up with allY:
-            //
-            //     L = [bl, tl]
-            //     R = [br, tr]
-            //
-            //   sum = horizontalSum( allY * (L*(16-wx) + R*wx) )
-            //
-            // Rewriting that one more step, we can replace a multiply with a shift:
-            //
-            //   sum = horizontalSum( allY * (16*L + (R-L)*wx) )
-            //
-            // That's how we'll actually do this math.
 
-            __m128i L = _mm_unpacklo_epi8(_mm_unpacklo_epi32(bl, tl), _mm_setzero_si128()),
-                    R = _mm_unpacklo_epi8(_mm_unpacklo_epi32(br, tr), _mm_setzero_si128());
+    /*not static*/ inline
+    void S32_alpha_D32_filter_DXDY(const SkBitmapProcState& s,
+                                   const uint32_t* xy, int count, uint32_t* colors) {
+        SkASSERT(count > 0 && colors != nullptr);
+        SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
+        SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
+        SkASSERT(s.fAlphaScale <= 256);
 
-            __m128i inner = _mm_add_epi16(_mm_slli_epi16(L, 4),
-                                          _mm_mullo_epi16(_mm_sub_epi16(R,L), _mm_set1_epi16(wx)));
+        while (count --> 0) {
 
-            __m128i sum_in_x = _mm_mullo_epi16(inner, allY);
+            int y0, y1, wy;
+            decode_packed_coordinates_and_weight(*xy++, &y0, &y1, &wy);
 
-            // sum = horizontalSum( ... )
-            __m128i sum = _mm_add_epi16(sum_in_x, _mm_srli_si128(sum_in_x, 8));
+            // We'll put one pixel in the low 4 16-bit lanes to line up with wy,
+            // and another in the upper 4 16-bit lanes to line up with 16 - wy.
+            const __m128i allY = _mm_unpacklo_epi64(_mm_set1_epi16(   wy),
+                                                   _mm_set1_epi16(16-wy));
 
-            // Get back to [0,255] by dividing by maximum weight 16x16 = 256.
-            sum = _mm_srli_epi16(sum, 8);
+            int x0, x1, wx;
+            decode_packed_coordinates_and_weight(*xy++, &x0, &x1, &wx);
 
-            if (s.fAlphaScale < 256) {
-                // Scale by alpha, which is in [0,256].
-                sum = _mm_mullo_epi16(sum, _mm_set1_epi16(s.fAlphaScale));
-                sum = _mm_srli_epi16(sum, 8);
-            }
+            auto row0 = (const uint32_t*)( (const char*)s.fPixmap.addr() + y0 * s.fPixmap.rowBytes() ),
+                 row1 = (const uint32_t*)( (const char*)s.fPixmap.addr() + y1 * s.fPixmap.rowBytes() );
 
-            // Pack back into 8-bit values and store.
-            *colors++ = _mm_cvtsi128_si32(_mm_packus_epi16(sum, _mm_setzero_si128()));
+            filter_and_scale_by_alpha(wx, allY,
+                                      row0[x0], row0[x1],
+                                      row1[x0], row1[x1],
+                                      colors++,
+                                      s.fAlphaScale);
         }
     }
 
@@ -495,6 +663,31 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
         }
     }
 
+    /*not static*/ inline void S32_alpha_D32_filter_DXDY(const SkBitmapProcState& s,
+                                                         const uint32_t* xy, int count,
+                                                         SkPMColor* colors) {
+        SkASSERT(count > 0 && colors != nullptr);
+        SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
+        SkASSERT(4 == s.fPixmap.info().bytesPerPixel());
+        SkASSERT(s.fAlphaScale <= 256);
+
+        const char* SK_RESTRICT srcAddr = (const char*)s.fPixmap.addr();
+        size_t rb = s.fPixmap.rowBytes();
+
+        while (count-- > 0) {
+            int y0, y1, wy;
+            decode_packed_coordinates_and_weight(*xy++, &y0, &y1, &wy);
+
+            int x0, x1, wx;
+            decode_packed_coordinates_and_weight(*xy++, &x0, &x1, &wx);
+
+            auto row0 = (const uint32_t*)(srcAddr + y0 * rb);
+            auto row1 = (const uint32_t*)(srcAddr + y1 * rb);
+
+            filter_and_scale_by_alpha(wx, wy, row0[x0], row0[x1], row1[x0], row1[x1], colors++,
+                                      s.fAlphaScale);
+        }
+    }
 #endif
 
 }  // namespace SK_OPTS_NS
