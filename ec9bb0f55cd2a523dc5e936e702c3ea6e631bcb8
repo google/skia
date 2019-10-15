@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6754856a_6c715c7a",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-15T18:02:53Z",
+      "side": 1,
+      "message": "So colorType is set by: \"GrColorType colorType \u003d canvas2DFastPath ? GrColorType::kRGBA_8888 : this-\u003ecolorInfo().colorType();\"\n\nBut I guess in the canvas2DFastpath case we could end up with a situation where this-\u003ecolorInfo().colorType() would return BGRA but colorType is RGBA?\n\nSo to be safe we\u0027ll just directly call this-\u003ecolorInfo().colorType() as you suggested.",
+      "parentUuid": "851fdc77_0dd095e4",
+      "range": {
+        "startLine": 148,
+        "startChar": 87,
+        "endLine": 148,
+        "endChar": 96
+      },
+      "revId": "ec9bb0f55cd2a523dc5e936e702c3ea6e631bcb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f4ed1f13_6c99e682",
         "filename": "src/gpu/GrSurfaceContext.cpp",
         "patchSetId": 4
@@ -65,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "88be1668_3f5ecc2a",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-15T18:02:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9aec90a3_70ed029d",
+      "revId": "ec9bb0f55cd2a523dc5e936e702c3ea6e631bcb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d804b4c5_f6f701fa",
         "filename": "src/gpu/GrTextureProducer.cpp",
         "patchSetId": 4
@@ -76,6 +118,24 @@
       "writtenOn": "2019-10-15T17:40:18Z",
       "side": 1,
       "message": "I\u0027m surprised we don\u0027t have to pass in a GrColorType w/ \u0027proxy\u0027 !?",
+      "revId": "ec9bb0f55cd2a523dc5e936e702c3ea6e631bcb8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea93b7d8_779e1df7",
+        "filename": "src/gpu/GrTextureProducer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-15T18:02:53Z",
+      "side": 1,
+      "message": "When we make a textureProducer we pass in a GrColorType which we want to draw with. So we have it saved already.",
+      "parentUuid": "d804b4c5_f6f701fa",
       "revId": "ec9bb0f55cd2a523dc5e936e702c3ea6e631bcb8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
