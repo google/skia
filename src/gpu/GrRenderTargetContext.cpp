@@ -162,6 +162,9 @@ void GrRenderTargetContext::validate() const {
     SkASSERT(fRenderTargetProxy);
     fRenderTargetProxy->validate(fContext);
 
+    SkASSERT(fContext->priv().caps()->areColorTypeAndFormatCompatible(
+            this->colorInfo().colorType(), fRenderTargetProxy->backendFormat()));
+
     if (fOpsTask && !fOpsTask->isClosed()) {
         SkASSERT(fRenderTargetProxy->getLastRenderTask() == fOpsTask.get());
     }

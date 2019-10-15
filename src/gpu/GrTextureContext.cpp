@@ -10,6 +10,7 @@
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
@@ -29,6 +30,8 @@ GrTextureContext::GrTextureContext(GrRecordingContext* context,
 void GrTextureContext::validate() const {
     SkASSERT(fTextureProxy);
     fTextureProxy->validate(fContext);
+    SkASSERT(fContext->priv().caps()->areColorTypeAndFormatCompatible(
+            this->colorInfo().colorType(), fTextureProxy->backendFormat()));
 }
 #endif
 

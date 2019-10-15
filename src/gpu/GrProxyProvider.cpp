@@ -428,24 +428,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
     return proxy;
 }
 
-#ifdef SK_DEBUG
-static bool validate_backend_format_and_config(const GrCaps* caps,
-                                               const GrBackendFormat& format,
-                                               GrPixelConfig config) {
-    if (kUnknown_GrPixelConfig == config) {
-        return false;
-    }
-    if (GrPixelConfigIsCompressed(config)) {
-        // We have no way to verify these at the moment.
-        return true;
-    }
-
-    GrColorType grCT = GrPixelConfigToColorType(config);
-
-    return caps->areColorTypeAndFormatCompatible(grCT, format);
-}
-#endif
-
 sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format,
                                                    const GrSurfaceDesc& desc,
                                                    GrRenderable renderable,
@@ -468,11 +450,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
 
     SkASSERT(GrCaps::AreConfigsCompatible(desc.fConfig,
                                           caps->getConfigFromBackendFormat(format, colorType)));
-    // TODO: This check should be removed once we get the swizzle outside of GrProxyProvider and
-    // either pass them to the proxy or store the on some view object.
-    if (!caps->areColorTypeAndFormatCompatible(colorType, format)) {
-        return nullptr;
-    }
 
     if (GrMipMapped::kYes == mipMapped) {
         // SkMipMap doesn't include the base level in the level count so we have to add 1
@@ -570,8 +547,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
 
     const GrCaps* caps = this->caps();
 
-    SkASSERT(caps->areColorTypeAndFormatCompatible(grColorType, backendTex.getBackendFormat()));
-
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
     sk_sp<GrTexture> tex =
@@ -610,8 +585,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
     }
 
     const GrCaps* caps = this->caps();
-
-    SkASSERT(caps->areColorTypeAndFormatCompatible(colorType, backendTex.getBackendFormat()));
 
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
@@ -660,8 +633,6 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
 
     const GrCaps* caps = this->caps();
 
-    SkASSERT(caps->areColorTypeAndFormatCompatible(grColorType, backendRT.getBackendFormat()));
-
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
     sk_sp<GrRenderTarget> rt = resourceProvider->wrapBackendRenderTarget(backendRT, grColorType);
@@ -699,8 +670,6 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendTextureAsRenderTarget(
     }
 
     const GrCaps* caps = this->caps();
-
-    SkASSERT(caps->areColorTypeAndFormatCompatible(grColorType, backendTex.getBackendFormat()));
 
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
@@ -786,8 +755,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
         return nullptr;
     }
 
-    SkASSERT(validate_backend_format_and_config(this->caps(), format, desc.fConfig));
-
     GrColorType colorType = GrPixelConfigToColorType(desc.fConfig);
     GrSwizzle texSwizzle = this->caps()->getTextureSwizzle(format, colorType);
     GrSwizzle outSwizzle = this->caps()->getOutputSwizzle(format, colorType);
@@ -846,8 +813,6 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::createLazyRenderTargetProxy(
         return nullptr;
     }
 
-    SkASSERT(validate_backend_format_and_config(this->caps(), format, desc.fConfig));
-
     GrColorType colorType = GrPixelConfigToColorType(desc.fConfig);
     GrSwizzle texSwizzle = this->caps()->getTextureSwizzle(format, colorType);
     GrSwizzle outSwizzle = this->caps()->getOutputSwizzle(format, colorType);
@@ -885,7 +850,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::MakeFullyLazyProxy(LazyInstantiateCallbac
     }
 
     SkASSERT(renderTargetSampleCnt == 1 || renderable == GrRenderable::kYes);
-    SkASSERT(validate_backend_format_and_config(&caps, format, config));
     GrSurfaceDesc desc;
     GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone;
     desc.fWidth = -1;
