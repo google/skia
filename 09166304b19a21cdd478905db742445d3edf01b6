@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7fcbb59f_ea33dfa0",
+        "filename": "BUILD.gn",
+        "patchSetId": 7
+      },
+      "lineNbr": 1979,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-10-15T17:28:16Z",
+      "side": 1,
+      "message": "It\u0027s necessary when building with both the Dawn/Metal and Metal backends simultaneously. Not relevant to this roll (and looks like it no longer works). Reverted.",
+      "parentUuid": "dd756a4f_95c8ba9d",
+      "revId": "09166304b19a21cdd478905db742445d3edf01b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2ea2ddcf_f23b0980",
         "filename": "src/gpu/dawn/GrDawnOpsRenderPass.cpp",
         "patchSetId": 7
@@ -33,6 +51,24 @@
       "revId": "09166304b19a21cdd478905db742445d3edf01b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d1e5a7b_a3a5f46c",
+        "filename": "src/gpu/dawn/GrDawnOpsRenderPass.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-10-15T17:28:16Z",
+      "side": 1,
+      "message": "Thanks, I didn\u0027t see that!\n\nDone.",
+      "parentUuid": "2ea2ddcf_f23b0980",
+      "revId": "09166304b19a21cdd478905db742445d3edf01b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "0d3ee621_5eb227ee",
+        "filename": "src/gpu/dawn/GrDawnStencilAttachment.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-10-15T17:28:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "50357a59_39d00947",
+      "revId": "09166304b19a21cdd478905db742445d3edf01b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "78a87e0e_2b0f232b",
         "filename": "src/gpu/dawn/GrDawnTexture.cpp",
         "patchSetId": 7
@@ -67,6 +121,24 @@
       "revId": "09166304b19a21cdd478905db742445d3edf01b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03d79385_4ee6c7b9",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-10-15T17:28:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "78a87e0e_2b0f232b",
+      "revId": "09166304b19a21cdd478905db742445d3edf01b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "a4bab5a7_f92c2576",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-10-15T17:28:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aa4b3de1_a0802dab",
+      "revId": "09166304b19a21cdd478905db742445d3edf01b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "50f27e18_dbdc68e8",
         "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
         "patchSetId": 7
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "6ddab4d0_2e4abeb2",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-10-15T17:28:16Z",
+      "side": 1,
+      "message": "Reverted. (This wasn\u0027t ready for review...)",
+      "parentUuid": "50f27e18_dbdc68e8",
+      "revId": "09166304b19a21cdd478905db742445d3edf01b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cb43066b_fd0f8fea",
         "filename": "third_party/dawn/BUILD.gn",
         "patchSetId": 7
@@ -115,6 +223,24 @@
       "writtenOn": "2019-10-15T14:56:36Z",
       "side": 1,
       "message": "We should use Dawn\u0027s upstream BUILD.gn I can split it up more if you want.",
+      "revId": "09166304b19a21cdd478905db742445d3edf01b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a48f22bd_d9d499b0",
+        "filename": "third_party/dawn/BUILD.gn",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-10-15T17:28:16Z",
+      "side": 1,
+      "message": "Definitely, we should do that.",
+      "parentUuid": "cb43066b_fd0f8fea",
       "revId": "09166304b19a21cdd478905db742445d3edf01b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
