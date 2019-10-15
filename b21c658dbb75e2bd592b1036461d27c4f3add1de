@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f46f8aa_357e821d",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-15T20:12:03Z",
+      "side": 1,
+      "message": "Maybe put the definition in the .cpp below local and deviceDimensionality() function impls?",
+      "range": {
+        "startLine": 70,
+        "startChar": 21,
+        "endLine": 70,
+        "endChar": 33
+      },
+      "revId": "b21c658dbb75e2bd592b1036461d27c4f3add1de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e589feb_ff0825ad",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-15T20:12:03Z",
+      "side": 1,
+      "message": "Also move impl to .cpp? This seems pretty big for a header file, given that it\u0027s not templated, and then it can be defined much closer to initializeAttrs().",
+      "range": {
+        "startLine": 87,
+        "startChar": 15,
+        "endLine": 87,
+        "endChar": 25
+      },
+      "revId": "b21c658dbb75e2bd592b1036461d27c4f3add1de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80a2e034_0ef05db6",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-15T20:12:03Z",
+      "side": 1,
+      "message": "I\u0027m assuming a follow up CL will fill in the logic to get the vertex characterization of the op chain and fill out a vertex buffer using \u0027pool\u0027? And now, since this CL moves the allocation of the GP to the very end of onPrepare(), it will be easy to extract the vertex filling lines?",
+      "range": {
+        "startLine": 434,
+        "startChar": 8,
+        "endLine": 434,
+        "endChar": 64
+      },
+      "revId": "b21c658dbb75e2bd592b1036461d27c4f3add1de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80931b4e_d821011a",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-15T20:12:03Z",
+      "side": 1,
+      "message": "Nice! I like this clean up, even by itself.",
+      "range": {
+        "startLine": 464,
+        "startChar": 15,
+        "endLine": 464,
+        "endChar": 27
+      },
+      "revId": "b21c658dbb75e2bd592b1036461d27c4f3add1de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
