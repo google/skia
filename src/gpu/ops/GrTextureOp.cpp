@@ -646,6 +646,7 @@ namespace GrTextureOp {
 
 std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                sk_sp<GrTextureProxy> proxy,
+                               GrColorType srcColorType,
                                sk_sp<GrColorSpaceXform> textureXform,
                                GrSamplerState::Filter filter,
                                const SkPMColor4f& color,
@@ -683,10 +684,10 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
             SkRect correctedDomain;
             compute_domain(Domain::kYes, filter, kTopLeft_GrSurfaceOrigin, *domain,
                            1.f, 1.f, proxy->height(), &correctedDomain);
-            fp = GrTextureDomainEffect::Make(std::move(proxy), SkMatrix::I(), correctedDomain,
-                                             GrTextureDomain::kClamp_Mode, filter);
+            fp = GrTextureDomainEffect::Make(std::move(proxy), srcColorType, SkMatrix::I(),
+                                             correctedDomain, GrTextureDomain::kClamp_Mode, filter);
         } else {
-            fp = GrSimpleTextureEffect::Make(std::move(proxy), SkMatrix::I(), filter);
+            fp = GrSimpleTextureEffect::Make(std::move(proxy), srcColorType, SkMatrix::I(), filter);
         }
         fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(textureXform));
         paint.addColorFragmentProcessor(std::move(fp));
@@ -765,10 +766,10 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     aaFlags |= random->nextBool() ? GrQuadAAFlags::kBottom : GrQuadAAFlags::kNone;
     bool useDomain = random->nextBool();
     auto saturate = random->nextBool() ? GrTextureOp::Saturate::kYes : GrTextureOp::Saturate::kNo;
-    return GrTextureOp::Make(context, std::move(proxy), std::move(texXform), filter, color,
-                             saturate, SkBlendMode::kSrcOver, aaType, aaFlags,
-                             GrQuad::MakeFromRect(rect, viewMatrix), GrQuad(srcRect),
-                             useDomain ? &srcRect : nullptr);
+    return GrTextureOp::Make(context, std::move(proxy), GrColorType::kRGBA_8888,
+                             std::move(texXform), filter, color, saturate, SkBlendMode::kSrcOver,
+                             aaType, aaFlags, GrQuad::MakeFromRect(rect, viewMatrix),
+                             GrQuad(srcRect), useDomain ? &srcRect : nullptr);
 }
 
 #endif

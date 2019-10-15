@@ -212,13 +212,14 @@ static void fill_in_1D_gaussian_kernel(float* kernel, int width, float gaussianS
 
 GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
                                                             sk_sp<GrTextureProxy> proxy,
+                                                            GrColorType srcColorType,
                                                             Direction direction,
                                                             int radius,
                                                             float gaussianSigma,
                                                             GrTextureDomain::Mode mode,
                                                             int bounds[2])
         : INHERITED(kGrGaussianConvolutionFragmentProcessor_ClassID,
-                    ModulateForSamplerOptFlags(proxy->config(),
+                    ModulateForSamplerOptFlags(srcColorType,
                                                mode == GrTextureDomain::kDecal_Mode))
         , fCoordTransform(proxy.get())
         , fTextureSampler(std::move(proxy))
@@ -298,7 +299,7 @@ std::unique_ptr<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::Tes
     float sigma = radius / 3.f;
 
     return GrGaussianConvolutionFragmentProcessor::Make(
-            d->textureProxy(texIdx),
+            std::move(proxy), d->textureProxyColorType(texIdx),
             dir, radius, sigma, static_cast<GrTextureDomain::Mode>(modeIdx), bounds);
 }
 #endif

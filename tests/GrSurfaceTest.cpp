@@ -606,10 +606,11 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                         GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags ::kNone,
                         SkBackingFit::kExact, budgeted, GrProtected::kNo,
                         GrSurfaceProxy::UseAllocator::kYes);
-                rtc->drawTexture(GrNoClip(), proxy, GrSamplerState::Filter::kNearest,
-                                 SkBlendMode::kSrcOver, SkPMColor4f(), SkRect::MakeWH(w, h),
-                                 SkRect::MakeWH(w, h), GrAA::kNo, GrQuadAAFlags::kNone,
-                                 SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(), nullptr);
+                rtc->drawTexture(GrNoClip(), proxy, GrColorType::kRGBA_8888,
+                                 GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
+                                 SkPMColor4f(), SkRect::MakeWH(w, h), SkRect::MakeWH(w, h),
+                                 GrAA::kNo, GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
+                                 SkMatrix::I(), nullptr);
                 // We still have the proxy, which should remain instantiated, thereby keeping the
                 // texture not purgeable.
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
@@ -619,10 +620,11 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
 
                 // This time we move the proxy into the draw.
-                rtc->drawTexture(GrNoClip(), std::move(proxy), GrSamplerState::Filter::kNearest,
-                                 SkBlendMode::kSrcOver, SkPMColor4f(), SkRect::MakeWH(w, h),
-                                 SkRect::MakeWH(w, h), GrAA::kNo, GrQuadAAFlags::kNone,
-                                 SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(), nullptr);
+                rtc->drawTexture(GrNoClip(), std::move(proxy), GrColorType::kRGBA_8888,
+                                 GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
+                                 SkPMColor4f(), SkRect::MakeWH(w, h), SkRect::MakeWH(w, h),
+                                 GrAA::kNo, GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
+                                 SkMatrix::I(), nullptr);
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
                 context->flush();
                 context->priv().getGpu()->testingOnly_flushGpuAndSync();
@@ -665,9 +667,10 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                             auto proxy = context->priv().proxyProvider()->testingOnly_createWrapped(
                                     texture, GrColorType::kRGBA_8888, kTopLeft_GrSurfaceOrigin);
                             rtc->drawTexture(
-                                    GrNoClip(), proxy, GrSamplerState::Filter::kNearest,
-                                    SkBlendMode::kSrcOver, SkPMColor4f(), SkRect::MakeWH(w, h),
-                                    SkRect::MakeWH(w, h), GrAA::kNo, GrQuadAAFlags::kNone,
+                                    GrNoClip(), proxy, GrColorType::kRGBA_8888,
+                                    GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
+                                    SkPMColor4f(), SkRect::MakeWH(w, h), SkRect::MakeWH(w, h),
+                                    GrAA::kNo, GrQuadAAFlags::kNone,
                                     SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(), nullptr);
                             if (drawType == DrawType::kDrawAndFlush) {
                                 context->flush();
