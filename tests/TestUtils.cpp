@@ -76,8 +76,9 @@ void test_write_pixels(skiatest::Reporter* reporter,
 void test_copy_from_surface(skiatest::Reporter* reporter, GrContext* context, GrSurfaceProxy* proxy,
                             GrColorType colorType, uint32_t expectedPixelValues[],
                             const char* testName) {
-    sk_sp<GrTextureProxy> dstProxy = GrSurfaceProxy::Copy(context, proxy, GrMipMapped::kNo,
-                                                          SkBackingFit::kExact, SkBudgeted::kYes);
+    sk_sp<GrTextureProxy> dstProxy = GrSurfaceProxy::Copy(context, proxy, colorType,
+                                                          GrMipMapped::kNo, SkBackingFit::kExact,
+                                                          SkBudgeted::kYes);
     SkASSERT(dstProxy);
 
     auto dstContext = context->priv().makeWrappedSurfaceContext(std::move(dstProxy), colorType,
