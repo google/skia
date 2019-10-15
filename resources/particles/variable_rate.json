@@ -14,8 +14,9 @@
       "void spawn(inout Particle p) {",
       "  p.lifetime = 6;",
       "  float a = radians(rand * 360);",
-      "  p.pos = float2(cos(a), sin(a)) * 40;",
-      "  p.vel = p.pos;",
+      "  float2 ofs = float2(cos(a), sin(a)) * 40;",
+      "  p.pos += ofs;",
+      "  p.vel = ofs;",
       "  p.scale = 0.5;",
       "}",
       ""
