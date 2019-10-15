@@ -125,14 +125,15 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, uint32_t contex
 }
 
 sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
-                                                     GrTextureProxy* baseProxy) {
+                                                     GrTextureProxy* baseProxy,
+                                                     GrColorType srcColorType) {
     SkASSERT(baseProxy);
 
     if (!ctx->priv().caps()->isFormatCopyable(baseProxy->backendFormat())) {
         return nullptr;
     }
-    return GrSurfaceProxy::Copy(ctx, baseProxy, GrMipMapped::kYes, SkBackingFit::kExact,
-                                SkBudgeted::kYes);
+    return GrSurfaceProxy::Copy(ctx, baseProxy, srcColorType, GrMipMapped::kYes,
+                                SkBackingFit::kExact, SkBudgeted::kYes);
 }
 
 sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrRecordingContext* ctx,
