@@ -59,7 +59,7 @@ dawn::RenderPassEncoder GrDawnOpsRenderPass::beginRenderPass(dawn::LoadOp colorO
     dawn::Texture texture = static_cast<GrDawnRenderTarget*>(fRenderTarget)->texture();
     auto stencilAttachment = static_cast<GrDawnStencilAttachment*>(
         fRenderTarget->renderTargetPriv().getStencilAttachment());
-    dawn::TextureView colorView = texture.CreateDefaultView();
+    dawn::TextureView colorView = texture.CreateView();
     const float *c = fColorInfo.fClearColor.vec();
 
     dawn::RenderPassColorAttachmentDescriptor colorAttachment;
@@ -71,7 +71,7 @@ dawn::RenderPassEncoder GrDawnOpsRenderPass::beginRenderPass(dawn::LoadOp colorO
     dawn::RenderPassColorAttachmentDescriptor* colorAttachments = { &colorAttachment };
     dawn::RenderPassDescriptor renderPassDescriptor;
     renderPassDescriptor.colorAttachmentCount = 1;
-    renderPassDescriptor.colorAttachments = &colorAttachments;
+    renderPassDescriptor.colorAttachments = colorAttachments;
     if (stencilAttachment) {
         dawn::RenderPassDepthStencilAttachmentDescriptor depthStencilAttachment;
         depthStencilAttachment.attachment = stencilAttachment->view();
@@ -178,9 +178,8 @@ void GrDawnOpsRenderPass::sendInstancedMeshToGpu(GrPrimitiveType,
                                                  const GrBuffer* instanceBuffer,
                                                  int instanceCount,
                                                  int baseInstance) {
-    static const uint64_t vertexBufferOffsets[1] = {0};
     dawn::Buffer vb = static_cast<const GrDawnBuffer*>(vertexBuffer)->get();
-    fPassEncoder.SetVertexBuffers(0, 1, &vb, vertexBufferOffsets);
+    fPassEncoder.SetVertexBuffer(0, vb);
     fPassEncoder.Draw(vertexCount, 1, baseVertex, baseInstance);
     fGpu->stats()->incNumDraws();
 }
@@ -195,12 +194,10 @@ void GrDawnOpsRenderPass::sendIndexedInstancedMeshToGpu(GrPrimitiveType,
                                                         int instanceCount,
                                                         int baseInstance,
                                                         GrPrimitiveRestart restart) {
-    uint64_t vertexBufferOffsets[1];
-    vertexBufferOffsets[0] = 0;
     dawn::Buffer vb = static_cast<const GrDawnBuffer*>(vertexBuffer)->get();
     dawn::Buffer ib = static_cast<const GrDawnBuffer*>(indexBuffer)->get();
-    fPassEncoder.SetIndexBuffer(ib, 0);
-    fPassEncoder.SetVertexBuffers(0, 1, &vb, vertexBufferOffsets);
+    fPassEncoder.SetIndexBuffer(ib);
+    fPassEncoder.SetVertexBuffer(0, vb);
     fPassEncoder.DrawIndexed(indexCount, 1, baseIndex, baseVertex, baseInstance);
     fGpu->stats()->incNumDraws();
 }

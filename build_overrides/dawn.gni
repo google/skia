@@ -5,8 +5,6 @@
 
 # These are variables that are overridable by projects that include Dawn.
 
-dawn_root = "../externals/dawn"
-
 # The paths to Dawn's dependencies. For now, we leave these unset to
 # use Dawn's DEPS. Eventually, we'll move to Skia's copies of as
 # many of these as possible. This will require updating Skia's
