@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "44a40dc0_aadbf90e",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-10-15T14:20:48Z",
+      "side": 1,
+      "message": "These instructions (i.e. which repo) have changed in the past. Might be nice to link to https://emscripten.org/docs/getting_started/downloads.html as the canonical source.",
+      "revId": "c42f7a60f04b160030471cee0d01a11b28ba937f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
