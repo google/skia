@@ -281,7 +281,7 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
             if (fAnimated && ImGui::Button("Play")) {
                 sk_sp<SkParticleEffect> effect(new SkParticleEffect(fLoaded[i].fParams, fRandom));
                 effect->start(fAnimationTime, looped);
-                fRunning.push_back({ fPlayPosition, fLoaded[i].fName, effect });
+                fRunning.push_back({ fPlayPosition, fLoaded[i].fName, effect, false });
                 fRandom.nextU();
             }
             ImGui::SameLine();
@@ -302,10 +302,17 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
     if (ImGui::Begin("Running")) {
         for (int i = 0; i < fRunning.count(); ++i) {
             ImGui::PushID(i);
+            ImGui::Checkbox("##Track", &fRunning[i].fTrackMouse);
+            ImGui::SameLine();
             bool remove = ImGui::Button("X") || !fRunning[i].fEffect->isAlive();
             ImGui::SameLine();
             ImGui::Text("%4g, %4g %5d %s", fRunning[i].fPosition.fX, fRunning[i].fPosition.fY,
                         fRunning[i].fEffect->getCount(), fRunning[i].fName.c_str());
+            if (fRunning[i].fTrackMouse) {
+                fRunning[i].fEffect->setPosition({ ImGui::GetMousePos().x,
+                                                   ImGui::GetMousePos().y });
+                fRunning[i].fPosition.set(0, 0);
+            }
             if (remove) {
                 fRunning.removeShuffle(i);
             }

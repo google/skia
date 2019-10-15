@@ -49,6 +49,7 @@ private:
         SkPoint fPosition;
         SkString fName;
         sk_sp<SkParticleEffect> fEffect;
+        bool fTrackMouse;
     };
     SkTArray<RunningEffect> fRunning;
 };
