@@ -95,6 +95,8 @@ static inline MTLPixelFormat GrBackendFormatAsMTLPixelFormat(const GrBackendForm
     return static_cast<MTLPixelFormat>(format.asMtlFormat());
 }
 
+id<MTLTexture> GrCreateMSAAMtlTexture(GrMtlGpu* gpu, const GrSurfaceDesc& desc, int sampleCnt);
+
 /**
  * Returns true if the format is compressed.
  */

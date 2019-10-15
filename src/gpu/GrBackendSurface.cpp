@@ -344,7 +344,18 @@ GrBackendTexture::GrBackendTexture(int width,
         , fHeight(height)
         , fMipMapped(mipMapped)
         , fBackend(GrBackendApi::kMetal)
-        , fMtlInfo(mtlInfo) {}
+        , fMtlTextureInfo(mtlInfo) {}
+
+GrBackendTexture::GrBackendTexture(int width,
+                                   int height,
+                                   GrMipMapped mipMapped,
+                                   const GrMtlLayerInfo& mtlInfo)
+        : fIsValid(true)
+        , fWidth(width)
+        , fHeight(height)
+        , fMipMapped(mipMapped)
+        , fBackend(GrBackendApi::kMetal)
+        , fMtlLayerInfo(mtlInfo) {}
 #endif
 
 GrBackendTexture::GrBackendTexture(int width,
@@ -415,7 +426,8 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
 #endif
 #ifdef SK_METAL
         case GrBackendApi::kMetal:
-            fMtlInfo = that.fMtlInfo;
+            fMtlTextureInfo = that.fMtlTextureInfo;
+            fMtlLayerInfo = that.fMtlLayerInfo;
             break;
 #endif
 #ifdef SK_DAWN
@@ -473,7 +485,15 @@ sk_sp<GrVkImageLayout> GrBackendTexture::getGrVkImageLayout() const {
 #ifdef SK_METAL
 bool GrBackendTexture::getMtlTextureInfo(GrMtlTextureInfo* outInfo) const {
     if (this->isValid() && GrBackendApi::kMetal == fBackend) {
-        *outInfo = fMtlInfo;
+        *outInfo = fMtlTextureInfo;
+        return true;
+    }
+    return false;
+}
+
+bool GrBackendTexture::getMtlLayerInfo(GrMtlLayerInfo* outInfo) const {
+    if (this->isValid() && GrBackendApi::kMetal == fBackend) {
+        *outInfo = fMtlLayerInfo;
         return true;
     }
     return false;
@@ -539,7 +559,8 @@ bool GrBackendTexture::isSameTexture(const GrBackendTexture& that) {
 #endif
 #ifdef SK_METAL
         case GrBackendApi::kMetal:
-            return this->fMtlInfo.fTexture == that.fMtlInfo.fTexture;
+            return this->fMtlTextureInfo == that.fMtlTextureInfo &&
+                   this->fMtlLayerInfo == that.fMtlLayerInfo;
 #endif
         case GrBackendApi::kMock:
             return fMockInfo.fID == that.fMockInfo.fID;
@@ -574,9 +595,12 @@ GrBackendFormat GrBackendTexture::getBackendFormat() const {
 #endif
 #ifdef SK_METAL
         case GrBackendApi::kMetal: {
-            GrMtlTextureInfo mtlInfo;
-            SkAssertResult(this->getMtlTextureInfo(&mtlInfo));
-            return GrBackendFormat::MakeMtl(GrGetMTLPixelFormatFromMtlTextureInfo(mtlInfo));
+            GrMtlTextureInfo mtlTextureInfo;
+            SkAssertResult(this->getMtlTextureInfo(&mtlTextureInfo));
+            GrMtlLayerInfo mtlLayerInfo;
+            SkAssertResult(this->getMtlLayerInfo(&mtlLayerInfo));
+            return GrBackendFormat::MakeMtl(GrGetMTLPixelFormatFromMtlTextureInfo(mtlTextureInfo,
+                                                                                  mtlLayerInfo));
         }
 #endif
         case GrBackendApi::kMock:
@@ -612,7 +636,7 @@ bool GrBackendTexture::TestingOnly_Equals(const GrBackendTexture& t0, const GrBa
 #endif
 #ifdef SK_METAL
         case GrBackendApi::kMetal:
-            return t0.fMtlInfo == t1.fMtlInfo;
+            return t0.fMtlTextureInfo == t1.fMtlTextureInfo && t0.fMtlLayerInfo == t1.fMtlLayerInfo;
 #endif
 #ifdef SK_DAWN
         case GrBackendApi::kDawn:
@@ -688,7 +712,19 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fSampleCnt(SkTMax(1, sampleCnt))
         , fStencilBits(0)
         , fBackend(GrBackendApi::kMetal)
-        , fMtlInfo(mtlInfo) {}
+        , fMtlTextureInfo(mtlInfo) {}
+
+GrBackendRenderTarget::GrBackendRenderTarget(int width,
+                                             int height,
+                                             int sampleCnt,
+                                             const GrMtlLayerInfo& mtlInfo)
+        : fIsValid(true)
+        , fWidth(width)
+        , fHeight(height)
+        , fSampleCnt(SkTMax(1, sampleCnt))
+        , fStencilBits(0)
+        , fBackend(GrBackendApi::kMetal)
+        , fMtlLayerInfo(mtlInfo) {}
 #endif
 
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
@@ -764,7 +800,8 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
 #endif
 #ifdef SK_METAL
         case GrBackendApi::kMetal:
-            fMtlInfo = that.fMtlInfo;
+            fMtlTextureInfo = that.fMtlTextureInfo;
+            fMtlLayerInfo = that.fMtlLayerInfo;
             break;
 #endif
         case GrBackendApi::kMock:
@@ -817,7 +854,15 @@ sk_sp<GrVkImageLayout> GrBackendRenderTarget::getGrVkImageLayout() const {
 #ifdef SK_METAL
 bool GrBackendRenderTarget::getMtlTextureInfo(GrMtlTextureInfo* outInfo) const {
     if (this->isValid() && GrBackendApi::kMetal == fBackend) {
-        *outInfo = fMtlInfo;
+        *outInfo = fMtlTextureInfo;
+        return true;
+    }
+    return false;
+}
+
+bool GrBackendRenderTarget::getMtlLayerInfo(GrMtlLayerInfo* outInfo) const {
+    if (this->isValid() && GrBackendApi::kMetal == fBackend) {
+        *outInfo = fMtlLayerInfo;
         return true;
     }
     return false;
@@ -853,9 +898,12 @@ GrBackendFormat GrBackendRenderTarget::getBackendFormat() const {
 #endif
 #ifdef SK_METAL
         case GrBackendApi::kMetal: {
-            GrMtlTextureInfo mtlInfo;
-            SkAssertResult(this->getMtlTextureInfo(&mtlInfo));
-            return GrBackendFormat::MakeMtl(GrGetMTLPixelFormatFromMtlTextureInfo(mtlInfo));
+            GrMtlTextureInfo mtlTextureInfo;
+            SkAssertResult(this->getMtlTextureInfo(&mtlTextureInfo));
+            GrMtlLayerInfo mtlLayerInfo;
+            SkAssertResult(this->getMtlLayerInfo(&mtlLayerInfo));
+            return GrBackendFormat::MakeMtl(GrGetMTLPixelFormatFromMtlTextureInfo(mtlTextureInfo,
+                                                                                  mtlLayerInfo));
         }
 #endif
         case GrBackendApi::kMock:
@@ -908,7 +956,8 @@ bool GrBackendRenderTarget::TestingOnly_Equals(const GrBackendRenderTarget& r0,
 #endif
 #ifdef SK_METAL
         case GrBackendApi::kMetal:
-            return r0.fMtlInfo == r1.fMtlInfo;
+            return r0.fMtlTextureInfo == r1.fMtlTextureInfo &&
+                   r0.fMtlLayerInfo == r1.fMtlLayerInfo;
 #endif
 #ifdef SK_DAWN
         case GrBackendApi::kDawn:

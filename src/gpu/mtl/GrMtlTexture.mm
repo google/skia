@@ -57,7 +57,8 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
         , INHERITED(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo,
                     GrTextureType::k2D, mipMapsStatus)
         , fTexture(texture) {
-    SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
+    SkASSERT(!texture ||
+             (GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
 }
 
 sk_sp<GrMtlTexture> GrMtlTexture::MakeNewTexture(GrMtlGpu* gpu, SkBudgeted budgeted,
@@ -102,11 +103,11 @@ GrBackendTexture GrMtlTexture::getBackendTexture() const {
     GrMipMapped mipMapped = fTexture.mipmapLevelCount > 1 ? GrMipMapped::kYes
                                                           : GrMipMapped::kNo;
     GrMtlTextureInfo info;
-    info.fTexture.reset(GrRetainPtrFromId(fTexture));
+    info.fTexture.reset(GrRetainPtrFromId(this->mtlTexture()));
     return GrBackendTexture(this->width(), this->height(), mipMapped, info);
 }
 
 GrBackendFormat GrMtlTexture::backendFormat() const {
-    return GrBackendFormat::MakeMtl(fTexture.pixelFormat);
+    return GrBackendFormat::MakeMtl(this->mtlTexture().pixelFormat);
 }
 

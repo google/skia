@@ -197,6 +197,10 @@ public:
                      int height,
                      GrMipMapped,
                      const GrMtlTextureInfo& mtlInfo);
+    GrBackendTexture(int width,
+                     int height,
+                     GrMipMapped,
+                     const GrMtlLayerInfo& mtlInfo);
 #endif
 
 #ifdef SK_DAWN
@@ -248,6 +252,9 @@ public:
     // If the backend API is Metal, copies a snapshot of the GrMtlTextureInfo struct into the passed
     // in pointer and returns true. Otherwise returns false if the backend API is not Metal.
     bool getMtlTextureInfo(GrMtlTextureInfo*) const;
+    // If the backend API is Metal, copies a snapshot of the GrMtlLayerInfo struct into the passed
+    // in pointer and returns true. Otherwise returns false if the backend API is not Metal.
+    bool getMtlLayerInfo(GrMtlLayerInfo*) const;
 #endif
 
     // Get the GrBackendFormat for this texture (or an invalid format if this is not valid).
@@ -310,7 +317,8 @@ private:
         GrMockTextureInfo fMockInfo;
     };
 #ifdef SK_METAL
-    GrMtlTextureInfo fMtlInfo;
+    GrMtlTextureInfo fMtlTextureInfo;
+    GrMtlLayerInfo fMtlLayerInfo;
 #endif
 #ifdef SK_DAWN
     GrDawnImageInfo  fDawnInfo;
@@ -350,6 +358,10 @@ public:
                           int height,
                           int sampleCnt,
                           const GrMtlTextureInfo& mtlInfo);
+    GrBackendRenderTarget(int width,
+                          int height,
+                          int sampleCnt,
+                          const GrMtlLayerInfo& mtlInfo);
 #endif
 
     GrBackendRenderTarget(int width,
@@ -392,6 +404,9 @@ public:
     // If the backend API is Metal, copies a snapshot of the GrMtlTextureInfo struct into the passed
     // in pointer and returns true. Otherwise returns false if the backend API is not Metal.
     bool getMtlTextureInfo(GrMtlTextureInfo*) const;
+    // If the backend API is Metal, copies a snapshot of the GrMtlLayerInfo struct into the passed
+    // in pointer and returns true. Otherwise returns false if the backend API is not Metal.
+    bool getMtlLayerInfo(GrMtlLayerInfo*) const;
 #endif
 
     // Get the GrBackendFormat for this render target (or an invalid format if this is not valid).
@@ -440,7 +455,8 @@ private:
         GrMockRenderTargetInfo fMockInfo;
     };
 #ifdef SK_METAL
-    GrMtlTextureInfo fMtlInfo;
+    GrMtlTextureInfo fMtlTextureInfo;
+    GrMtlLayerInfo fMtlLayerInfo;
 #endif
 #ifdef SK_DAWN
     GrDawnImageInfo  fDawnInfo;
