@@ -350,9 +350,9 @@ static std::unique_ptr<GrRenderTargetContext> draw_mipmap_into_new_render_target
             GrMipMapped::kNo, SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
     auto rtc = drawingManager->makeRenderTargetContext(
             std::move(renderTarget), colorType, nullptr, nullptr, true);
-    rtc->drawTexture(GrNoClip(), mipmapProxy, filter, SkBlendMode::kSrcOver, {1,1,1,1},
-                     SkRect::MakeWH(4, 4), SkRect::MakeWH(1,1), GrAA::kYes, GrQuadAAFlags::kAll,
-                     SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(), nullptr);
+    rtc->drawTexture(GrNoClip(), mipmapProxy, colorType, filter, SkBlendMode::kSrcOver,
+                     {1,1,1,1}, SkRect::MakeWH(4, 4), SkRect::MakeWH(1,1), GrAA::kYes,
+                     GrQuadAAFlags::kAll, SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(), nullptr);
     return rtc;
 }
 

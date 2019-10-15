@@ -214,8 +214,9 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
 
     GrMipMapped mipMapped = willNeedMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
 
-    return GrSurfaceProxy::Copy(context, texProxy.get(), mipMapped, subset, SkBackingFit::kExact,
-                                SkBudgeted::kYes);
+    GrColorType grColorType = SkColorTypeToGrColorType(this->getInfo().colorType());
+    return GrSurfaceProxy::Copy(context, texProxy.get(), grColorType, mipMapped, subset,
+                                SkBackingFit::kExact, SkBudgeted::kYes);
 }
 
 bool GrAHardwareBufferImageGenerator::onIsValid(GrContext* context) const {

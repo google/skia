@@ -76,6 +76,7 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
                                  const SkIRect& dstRect,
                                  const SkIPoint& srcOffset,
                                  sk_sp<GrTextureProxy> proxy,
+                                 GrColorType srcColorType,
                                  Direction direction,
                                  int radius,
                                  float sigma,
@@ -83,7 +84,7 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
                                  int bounds[2]) {
     GrPaint paint;
     std::unique_ptr<GrFragmentProcessor> conv(GrGaussianConvolutionFragmentProcessor::Make(
-            std::move(proxy), direction, radius, sigma, mode, bounds));
+            std::move(proxy), srcColorType, direction, radius, sigma, mode, bounds));
     paint.addColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     SkMatrix localMatrix = SkMatrix::MakeTrans(-SkIntToScalar(srcOffset.x()),
@@ -189,7 +190,7 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
     if (GrTextureDomain::kIgnore_Mode == mode) {
         *contentRect = dstRect;
         convolve_gaussian_1d(dstRenderTargetContext.get(), clip, dstRect, netOffset,
-                             std::move(srcProxy), direction, radius, sigma,
+                             std::move(srcProxy), srcColorType, direction, radius, sigma,
                              GrTextureDomain::kIgnore_Mode, bounds);
         return dstRenderTargetContext;
     }
@@ -244,15 +245,16 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
     if (midRect.isEmpty()) {
         // Blur radius covers srcBounds; use bounds over entire draw
         convolve_gaussian_1d(dstRenderTargetContext.get(), clip, dstRect, netOffset,
-                             std::move(srcProxy), direction, radius, sigma, mode, bounds);
+                             std::move(srcProxy), srcColorType, direction, radius, sigma, mode,
+                             bounds);
     } else {
         // Draw right and left margins with bounds; middle without.
         convolve_gaussian_1d(dstRenderTargetContext.get(), clip, leftRect, netOffset,
-                             srcProxy, direction, radius, sigma, mode, bounds);
+                             srcProxy, srcColorType, direction, radius, sigma, mode, bounds);
         convolve_gaussian_1d(dstRenderTargetContext.get(), clip, rightRect, netOffset,
-                             srcProxy, direction, radius, sigma, mode, bounds);
+                             srcProxy, srcColorType, direction, radius, sigma, mode, bounds);
         convolve_gaussian_1d(dstRenderTargetContext.get(), clip, midRect, netOffset,
-                             std::move(srcProxy), direction, radius, sigma,
+                             std::move(srcProxy), srcColorType, direction, radius, sigma,
                              GrTextureDomain::kIgnore_Mode, bounds);
     }
 
@@ -334,6 +336,7 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
             }
             domain.offset(proxyOffset.x(), proxyOffset.y());
             auto fp = GrTextureDomainEffect::Make(std::move(srcProxy),
+                                                  srcColorType,
                                                   SkMatrix::I(),
                                                   domain,
                                                   modeForScaling,
@@ -344,7 +347,7 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
             // back in GaussianBlur
             srcOffset->set(0, 0);
         } else {
-            paint.addColorTextureProcessor(std::move(srcProxy), SkMatrix::I(),
+            paint.addColorTextureProcessor(std::move(srcProxy), srcColorType, SkMatrix::I(),
                                            GrSamplerState::ClampBilerp());
         }
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -401,7 +404,7 @@ static std::unique_ptr<GrRenderTargetContext> reexpand(
     GrPaint paint;
     SkRect domain = GrTextureDomain::MakeTexelDomain(localSrcBounds, GrTextureDomain::kClamp_Mode,
                                                      GrTextureDomain::kClamp_Mode);
-    auto fp = GrTextureDomainEffect::Make(std::move(srcProxy), SkMatrix::I(), domain,
+    auto fp = GrTextureDomainEffect::Make(std::move(srcProxy), srcColorType, SkMatrix::I(), domain,
                                           GrTextureDomain::kClamp_Mode,
                                           GrSamplerState::Filter::kBilerp);
     paint.addColorFragmentProcessor(std::move(fp));

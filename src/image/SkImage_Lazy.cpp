@@ -537,7 +537,8 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
         SkASSERT(GrMipMapped::kNo == proxy->mipMapped());
         *fUniqueKeyInvalidatedMessages.append() =
                 new GrUniqueKeyInvalidatedMessage(key, ctx->priv().contextID());
-        if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(ctx, proxy.get())) {
+        GrColorType srcColorType = SkColorTypeToGrColorType(this->colorType());
+        if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(ctx, proxy.get(), srcColorType)) {
             set_key_on_proxy(proxyProvider, mippedProxy.get(), proxy.get(), key);
             return mippedProxy;
         }

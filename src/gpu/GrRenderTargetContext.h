@@ -194,14 +194,14 @@ public:
      * specifies the rectangle to draw in local coords which will be transformed by 'viewMatrix' to
      * device space.
      */
-    void drawTexture(const GrClip& clip, sk_sp<GrTextureProxy> proxy, GrSamplerState::Filter filter,
-                     SkBlendMode mode, const SkPMColor4f& color, const SkRect& srcRect,
-                     const SkRect& dstRect, GrAA aa, GrQuadAAFlags edgeAA,
+    void drawTexture(const GrClip& clip, sk_sp<GrTextureProxy> proxy, GrColorType srcColorType,
+                     GrSamplerState::Filter filter, SkBlendMode mode, const SkPMColor4f& color,
+                     const SkRect& srcRect, const SkRect& dstRect, GrAA aa, GrQuadAAFlags edgeAA,
                      SkCanvas::SrcRectConstraint constraint, const SkMatrix& viewMatrix,
                      sk_sp<GrColorSpaceXform> texXform) {
         const SkRect* domain = constraint == SkCanvas::kStrict_SrcRectConstraint ?
                 &srcRect : nullptr;
-        this->drawTexturedQuad(clip, std::move(proxy), std::move(texXform), filter,
+        this->drawTexturedQuad(clip, std::move(proxy), srcColorType, std::move(texXform), filter,
                                color, mode, aa, edgeAA, GrQuad::MakeFromRect(dstRect, viewMatrix),
                                GrQuad(srcRect), domain);
     }
@@ -212,19 +212,20 @@ public:
      * 'domain' is null, it's equivalent to using the fast src rect constraint. If 'domain' is
      * provided, the strict src rect constraint is applied using 'domain'.
      */
-    void drawTextureQuad(const GrClip& clip, sk_sp<GrTextureProxy> proxy,
+    void drawTextureQuad(const GrClip& clip, sk_sp<GrTextureProxy> proxy, GrColorType srcColorType,
                          GrSamplerState::Filter filter, SkBlendMode mode, const SkPMColor4f& color,
                          const SkPoint srcQuad[4], const SkPoint dstQuad[4], GrAA aa,
                          GrQuadAAFlags edgeAA, const SkRect* domain, const SkMatrix& viewMatrix,
                          sk_sp<GrColorSpaceXform> texXform) {
-        this->drawTexturedQuad(clip, std::move(proxy), std::move(texXform), filter, color, mode,
-                               aa, edgeAA, GrQuad::MakeFromSkQuad(dstQuad, viewMatrix),
+        this->drawTexturedQuad(clip, std::move(proxy), srcColorType, std::move(texXform), filter,
+                               color, mode, aa, edgeAA, GrQuad::MakeFromSkQuad(dstQuad, viewMatrix),
                                GrQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()), domain);
     }
 
     /** Used with drawTextureSet */
     struct TextureSetEntry {
         sk_sp<GrTextureProxy> fProxy;
+        GrColorType fSrcColorType;
         SkRect fSrcRect;
         SkRect fDstRect;
         const SkPoint* fDstClipQuad; // Must be null, or point to an array of 4 points
@@ -422,6 +423,7 @@ public:
                           GrPaint&&,
                           const SkMatrix& viewMatrix,
                           sk_sp<GrTextureProxy>,
+                          GrColorType srcColorType,
                           sk_sp<GrColorSpaceXform>,
                           GrSamplerState::Filter,
                           std::unique_ptr<SkLatticeIter>,
@@ -432,7 +434,8 @@ public:
      * of the srcRect. The srcRect and dstRect are clipped to the bounds of the src and dst surfaces
      * respectively.
      */
-    bool blitTexture(GrTextureProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint);
+    bool blitTexture(GrTextureProxy* src, GrColorType srcColorType, const SkIRect& srcRect,
+                     const SkIPoint& dstPoint);
 
     /**
      * Adds the necessary signal and wait semaphores and adds the passed in SkDrawable to the
@@ -545,7 +548,8 @@ private:
     friend void test_draw_op(GrContext*,
                              GrRenderTargetContext*,
                              std::unique_ptr<GrFragmentProcessor>,
-                             sk_sp<GrTextureProxy>);
+                             sk_sp<GrTextureProxy>,
+                             GrColorType);
 
     GrOpsTask::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const;
     void setNeedsStencil(bool useMixedSamplesIfNotMSAA);
@@ -593,6 +597,7 @@ private:
     // Like drawFilledQuad but does not require using a GrPaint or FP for texturing
     void drawTexturedQuad(const GrClip& clip,
                           sk_sp<GrTextureProxy> proxy,
+                          GrColorType srcColorType,
                           sk_sp<GrColorSpaceXform> textureXform,
                           GrSamplerState::Filter filter,
                           const SkPMColor4f& color,

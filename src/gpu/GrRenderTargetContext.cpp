@@ -603,6 +603,7 @@ void GrRenderTargetContext::drawFilledQuad(const GrClip& clip,
 
 void GrRenderTargetContext::drawTexturedQuad(const GrClip& clip,
                                              sk_sp<GrTextureProxy> proxy,
+                                             GrColorType srcColorType,
                                              sk_sp<GrColorSpaceXform> textureXform,
                                              GrSamplerState::Filter filter,
                                              const SkPMColor4f& color,
@@ -639,9 +640,10 @@ void GrRenderTargetContext::drawTexturedQuad(const GrClip& clip,
         // Use the provided domain, although hypothetically we could detect that the cropped local
         // quad is sufficiently inside the domain and the constraint could be dropped.
         this->addDrawOp(finalClip,
-                        GrTextureOp::Make(fContext, std::move(proxy), std::move(textureXform),
-                                          filter, color, saturate, blendMode, aaType, edgeFlags,
-                                          croppedDeviceQuad, croppedLocalQuad, domain));
+                        GrTextureOp::Make(fContext, std::move(proxy), srcColorType,
+                                          std::move(textureXform), filter, color, saturate,
+                                          blendMode, aaType, edgeFlags, croppedDeviceQuad,
+                                          croppedLocalQuad, domain));
     }
 }
 
@@ -888,7 +890,7 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetE
 
             const SkRect* domain = constraint == SkCanvas::kStrict_SrcRectConstraint
                     ? &set[i].fSrcRect : nullptr;
-            this->drawTexturedQuad(clip, set[i].fProxy, texXform, filter,
+            this->drawTexturedQuad(clip, set[i].fProxy, set[i].fSrcColorType, texXform, filter,
                                    {alpha, alpha, alpha, alpha}, mode, aa, set[i].fAAFlags,
                                    quad, srcQuad, domain);
         }
@@ -1482,6 +1484,7 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
                                              GrPaint&& paint,
                                              const SkMatrix& viewMatrix,
                                              sk_sp<GrTextureProxy> image,
+                                             GrColorType srcColorType,
                                              sk_sp<GrColorSpaceXform> csxf,
                                              GrSamplerState::Filter filter,
                                              std::unique_ptr<SkLatticeIter> iter,
@@ -1495,7 +1498,7 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
 
     std::unique_ptr<GrDrawOp> op =
             GrLatticeOp::MakeNonAA(fContext, std::move(paint), viewMatrix, std::move(image),
-                                   std::move(csxf), filter, std::move(iter), dst);
+                                   srcColorType, std::move(csxf), filter, std::move(iter), dst);
     this->addDrawOp(clip, std::move(op));
 }
 
@@ -1580,6 +1583,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
             // If the src is not texturable first try to make a copy to a texture.
             if (!texProxy) {
                 texProxy = GrSurfaceProxy::Copy(fContext, fRenderTargetProxy.get(),
+                                                this->colorInfo().colorType(),
                                                 GrMipMapped::kNo, srcRect, SkBackingFit::kApprox,
                                                 SkBudgeted::kNo);
                 if (!texProxy) {
@@ -1596,8 +1600,9 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
                 callback(context, nullptr);
                 return;
             }
-            tempRTC->drawTexture(GrNoClip(), std::move(texProxy), GrSamplerState::Filter::kNearest,
-                                 SkBlendMode::kSrc, SK_PMColor4fWHITE, srcRectToDraw,
+            tempRTC->drawTexture(GrNoClip(), std::move(texProxy), this->colorInfo().colorType(),
+                                 GrSamplerState::Filter::kNearest, SkBlendMode::kSrc,
+                                 SK_PMColor4fWHITE, srcRectToDraw,
                                  SkRect::MakeWH(srcRect.width(), srcRect.height()), GrAA::kNo,
                                  GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
                                  SkMatrix::I(), std::move(xform));
@@ -1797,8 +1802,9 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
                 callback(context, nullptr);
                 return;
             }
-            tempRTC->drawTexture(GrNoClip(), std::move(texProxy), GrSamplerState::Filter::kNearest,
-                                 SkBlendMode::kSrc, SK_PMColor4fWHITE, srcRectToDraw,
+            tempRTC->drawTexture(GrNoClip(), std::move(texProxy), this->colorInfo().colorType(),
+                                 GrSamplerState::Filter::kNearest, SkBlendMode::kSrc,
+                                 SK_PMColor4fWHITE, srcRectToDraw,
                                  SkRect::MakeWH(srcRect.width(), srcRect.height()), GrAA::kNo,
                                  GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
                                  SkMatrix::I(), std::move(xform));
@@ -1811,6 +1817,9 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
         callback(context, nullptr);
         return;
     }
+    GrColorType srcColorType = tempRTC ? tempRTC->colorInfo().colorType()
+                                       : this->colorInfo().colorType();
+
     auto yRTC = direct->priv().makeDeferredRenderTargetContextWithFallback(
             SkBackingFit::kApprox, dstSize.width(), dstSize.height(), GrColorType::kAlpha_8,
             dstColorSpace, 1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
@@ -1874,7 +1883,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
     std::fill_n(yM, 15, 0.f);
     yM[15] = baseM[0]; yM[16] = baseM[1]; yM[17] = baseM[2]; yM[18] = 0; yM[19] = baseM[3];
     GrPaint yPaint;
-    yPaint.addColorTextureProcessor(srcProxy, texMatrix);
+    yPaint.addColorTextureProcessor(srcProxy, srcColorType, texMatrix);
     auto yFP = GrColorMatrixFragmentProcessor::Make(yM, false, true, false);
     yPaint.addColorFragmentProcessor(std::move(yFP));
     yPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -1893,7 +1902,8 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
     std::fill_n(uM, 15, 0.f);
     uM[15] = baseM[4]; uM[16] = baseM[5]; uM[17] = baseM[6]; uM[18] = 0; uM[19] = baseM[7];
     GrPaint uPaint;
-    uPaint.addColorTextureProcessor(srcProxy, texMatrix, GrSamplerState::ClampBilerp());
+    uPaint.addColorTextureProcessor(srcProxy, srcColorType, texMatrix,
+                                    GrSamplerState::ClampBilerp());
     auto uFP = GrColorMatrixFragmentProcessor::Make(uM, false, true, false);
     uPaint.addColorFragmentProcessor(std::move(uFP));
     uPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -1911,7 +1921,8 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
     std::fill_n(vM, 15, 0.f);
     vM[15] = baseM[8]; vM[16] = baseM[9]; vM[17] = baseM[10]; vM[18] = 0; vM[19] = baseM[11];
     GrPaint vPaint;
-    vPaint.addColorTextureProcessor(srcProxy, texMatrix, GrSamplerState::ClampBilerp());
+    vPaint.addColorTextureProcessor(srcProxy, srcColorType, texMatrix,
+                                    GrSamplerState::ClampBilerp());
     auto vFP = GrColorMatrixFragmentProcessor::Make(vM, false, true, false);
     vPaint.addColorFragmentProcessor(std::move(vFP));
     vPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -2416,8 +2427,8 @@ bool GrRenderTargetContext::setupDstProxy(const GrClip& clip, const GrOp& op,
         fit = SkBackingFit::kApprox;
     }
     sk_sp<GrTextureProxy> newProxy = GrSurfaceProxy::Copy(
-            fContext, fRenderTargetProxy.get(), GrMipMapped::kNo, copyRect, fit, SkBudgeted::kYes,
-            restrictions.fRectsMustMatch);
+            fContext, fRenderTargetProxy.get(), this->colorInfo().colorType(), GrMipMapped::kNo,
+            copyRect, fit, SkBudgeted::kYes, restrictions.fRectsMustMatch);
     SkASSERT(newProxy);
 
     dstProxy->setProxy(std::move(newProxy));
@@ -2425,8 +2436,8 @@ bool GrRenderTargetContext::setupDstProxy(const GrClip& clip, const GrOp& op,
     return true;
 }
 
-bool GrRenderTargetContext::blitTexture(GrTextureProxy* src, const SkIRect& srcRect,
-                                        const SkIPoint& dstPoint) {
+bool GrRenderTargetContext::blitTexture(GrTextureProxy* src, GrColorType srcColorType,
+                                        const SkIRect& srcRect, const SkIPoint& dstPoint) {
     SkIRect clippedSrcRect;
     SkIPoint clippedDstPoint;
     if (!GrClipSrcRectAndDstPoint(this->asSurfaceProxy()->isize(), src->isize(), srcRect, dstPoint,
@@ -2436,8 +2447,7 @@ bool GrRenderTargetContext::blitTexture(GrTextureProxy* src, const SkIRect& srcR
 
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    auto fp = GrSimpleTextureEffect::Make(sk_ref_sp(src->asTextureProxy()),
-                                          SkMatrix::I());
+    auto fp = GrSimpleTextureEffect::Make(sk_ref_sp(src), srcColorType, SkMatrix::I());
     if (!fp) {
         return false;
     }

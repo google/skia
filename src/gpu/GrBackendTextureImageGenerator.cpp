@@ -218,7 +218,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         GrMipMapped mipMapped = willNeedMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
         SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, info.width(), info.height());
 
-        return GrSurfaceProxy::Copy(context, proxy.get(), mipMapped, subset, SkBackingFit::kExact,
-                                    SkBudgeted::kYes);
+        return GrSurfaceProxy::Copy(context, proxy.get(), grColorType, mipMapped, subset,
+                                    SkBackingFit::kExact, SkBudgeted::kYes);
     }
 }

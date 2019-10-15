@@ -813,40 +813,6 @@ static constexpr GrPixelConfig GrCompressionTypePixelConfig(SkImage::Compression
     SkUNREACHABLE;
 }
 
-static constexpr bool GrPixelConfigIsOpaque(GrPixelConfig config) {
-    switch (config) {
-        case kRGB_565_GrPixelConfig:
-        case kRGB_888_GrPixelConfig:
-        case kRGB_888X_GrPixelConfig:
-        case kRG_88_GrPixelConfig:
-        case kGray_8_GrPixelConfig:
-        case kGray_8_as_Lum_GrPixelConfig:
-        case kGray_8_as_Red_GrPixelConfig:
-        case kRGB_ETC1_GrPixelConfig:
-        case kRG_1616_GrPixelConfig:
-        case kRG_half_GrPixelConfig:
-            return true;
-        case kAlpha_8_GrPixelConfig:
-        case kAlpha_8_as_Alpha_GrPixelConfig:
-        case kAlpha_8_as_Red_GrPixelConfig:
-        case kAlpha_16_GrPixelConfig:
-        case kRGBA_4444_GrPixelConfig:
-        case kAlpha_half_GrPixelConfig:
-        case kAlpha_half_as_Lum_GrPixelConfig:
-        case kAlpha_half_as_Red_GrPixelConfig:
-        case kRGBA_8888_GrPixelConfig:
-        case kBGRA_8888_GrPixelConfig:
-        case kSRGBA_8888_GrPixelConfig:
-        case kRGBA_1010102_GrPixelConfig:
-        case kRGBA_half_GrPixelConfig:
-        case kRGBA_half_Clamped_GrPixelConfig:
-        case kRGBA_16161616_GrPixelConfig:
-        case kUnknown_GrPixelConfig:
-            return false;
-    }
-    SkUNREACHABLE;
-}
-
 /**
  * Returns true if the pixel config is a GPU-specific compressed format
  * representation.

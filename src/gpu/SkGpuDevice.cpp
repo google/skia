@@ -230,6 +230,7 @@ void SkGpuDevice::replaceRenderTargetContext(std::unique_ptr<GrRenderTargetConte
 
         SkASSERT(fRenderTargetContext->asTextureProxy());
         SkAssertResult(rtc->blitTexture(fRenderTargetContext->asTextureProxy(),
+                                        fRenderTargetContext->colorInfo().colorType(),
                                         SkIRect::MakeWH(this->width(), this->height()),
                                         SkIPoint::Make(0,0)));
     }
@@ -930,6 +931,8 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     SkMatrix texMatrix = SkMatrix::MakeRectToRect(dstRect, srcRect, SkMatrix::kFill_ScaleToFit);
     texMatrix.postScale(scales[0], scales[1]);
 
+    GrColorType srcColorType = SkColorTypeToGrColorType(bitmap.colorType());
+
     // Construct a GrPaint by setting the bitmap texture as the first effect and then configuring
     // the rest from the SkPaint.
     std::unique_ptr<GrFragmentProcessor> fp;
@@ -951,19 +954,20 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
         }
         if (bicubic) {
             static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
-            fp = GrBicubicEffect::Make(std::move(proxy), texMatrix, domain, kDir,
+            fp = GrBicubicEffect::Make(std::move(proxy), srcColorType, texMatrix, domain, kDir,
                                        bitmap.alphaType());
         } else {
-            fp = GrTextureDomainEffect::Make(std::move(proxy), texMatrix, domain,
+            fp = GrTextureDomainEffect::Make(std::move(proxy), srcColorType, texMatrix, domain,
                                              GrTextureDomain::kClamp_Mode, samplerState.filter());
         }
     } else if (bicubic) {
         SkASSERT(GrSamplerState::Filter::kNearest == samplerState.filter());
         GrSamplerState::WrapMode wrapMode[2] = {samplerState.wrapModeX(), samplerState.wrapModeY()};
         static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
-        fp = GrBicubicEffect::Make(std::move(proxy), texMatrix, wrapMode, kDir, bitmap.alphaType());
+        fp = GrBicubicEffect::Make(std::move(proxy), srcColorType, texMatrix, wrapMode, kDir,
+                                   bitmap.alphaType());
     } else {
-        fp = GrSimpleTextureEffect::Make(std::move(proxy), texMatrix, samplerState);
+        fp = GrSimpleTextureEffect::Make(std::move(proxy), srcColorType, texMatrix, samplerState);
     }
 
     fp = GrColorSpaceXformEffect::Make(std::move(fp), bitmap.colorSpace(), bitmap.alphaType(),
@@ -1034,7 +1038,8 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
 
     tmpUnfiltered.setImageFilter(nullptr);
 
-    auto fp = GrSimpleTextureEffect::Make(std::move(proxy), SkMatrix::I());
+    GrColorType srcColorType = SkColorTypeToGrColorType(result->colorType());
+    auto fp = GrSimpleTextureEffect::Make(std::move(proxy), srcColorType, SkMatrix::I());
     fp = GrColorSpaceXformEffect::Make(std::move(fp), result->getColorSpace(), result->alphaType(),
                                        fRenderTargetContext->colorInfo().colorSpace());
     if (GrColorTypeIsAlphaOnly(SkColorTypeToGrColorType(result->colorType()))) {
@@ -1071,8 +1076,10 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
 
         std::unique_ptr<GrFragmentProcessor> cfp;
         if (clipProxy && ctm.invert(&inverseClipMatrix)) {
-            cfp = GrSimpleTextureEffect::Make(std::move(clipProxy), inverseClipMatrix, sampler);
-            if (clipImage->colorType() != kAlpha_8_SkColorType) {
+            GrColorType srcColorType = SkColorTypeToGrColorType(clipImage->colorType());
+            cfp = GrSimpleTextureEffect::Make(std::move(clipProxy), srcColorType, inverseClipMatrix,
+                                              sampler);
+            if (srcColorType != GrColorType::kAlpha_8) {
                 cfp = GrFragmentProcessor::SwizzleOutput(std::move(cfp), GrSwizzle::AAAA());
             }
         }
@@ -1247,6 +1254,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial(const SkIRect& subset, bool force
         // texture that matches the device contents
         proxy = GrSurfaceProxy::Copy(fContext.get(),
                                      rtc->asSurfaceProxy(),
+                                     rtc->colorInfo().colorType(),
                                      GrMipMapped::kNo,      // Don't auto generate mips
                                      subset,
                                      SkBackingFit::kApprox,
@@ -1362,8 +1370,8 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
                                         dstColorSpace,          kPremul_SkAlphaType);
 
     fRenderTargetContext->drawImageLattice(this->clip(), std::move(grPaint), this->ctm(),
-                                           std::move(proxy), std::move(csxf), filter,
-                                           std::move(iter), dst);
+                                           std::move(proxy), producer->colorType(), std::move(csxf),
+                                           filter, std::move(iter), dst);
 }
 
 void SkGpuDevice::drawImageLattice(const SkImage* image,
