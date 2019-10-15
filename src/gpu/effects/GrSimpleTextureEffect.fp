@@ -6,10 +6,10 @@
  */
 
 in uniform sampler2D image;
-in GrColorType srcColorType;
 in half4x4 matrix;
 
 @constructorParams {
+    GrColorType srcColorType,
     GrSamplerState samplerParams
 }
 
@@ -26,7 +26,7 @@ in half4x4 matrix;
                                                      GrColorType srcColorType,
                                                      const SkMatrix& matrix) {
         return std::unique_ptr<GrFragmentProcessor>(
-            new GrSimpleTextureEffect(std::move(proxy), srcColorType, matrix,
+            new GrSimpleTextureEffect(std::move(proxy), matrix, srcColorType,
                     GrSamplerState(GrSamplerState::WrapMode::kClamp, GrSamplerState::Filter::kNearest)));
     }
 
@@ -36,7 +36,7 @@ in half4x4 matrix;
                                                      const SkMatrix& matrix,
                                                      GrSamplerState::Filter filter) {
         return std::unique_ptr<GrFragmentProcessor>(
-            new GrSimpleTextureEffect(std::move(proxy), srcColorType, matrix,
+            new GrSimpleTextureEffect(std::move(proxy), matrix, srcColorType,
                                       GrSamplerState(GrSamplerState::WrapMode::kClamp, filter)));
      }
 
@@ -45,7 +45,7 @@ in half4x4 matrix;
                                                      const SkMatrix& matrix,
                                                      const GrSamplerState& p) {
         return std::unique_ptr<GrFragmentProcessor>(
-            new GrSimpleTextureEffect(std::move(proxy), srcColorType, matrix, p));
+            new GrSimpleTextureEffect(std::move(proxy), matrix, srcColorType, p));
     }
 }
 

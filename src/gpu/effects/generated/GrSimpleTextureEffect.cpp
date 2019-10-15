@@ -23,8 +23,6 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrSimpleTextureEffect& _outer = args.fFp.cast<GrSimpleTextureEffect>();
         (void)_outer;
-        auto srcColorType = _outer.srcColorType;
-        (void)srcColorType;
         auto matrix = _outer.matrix;
         (void)matrix;
         SkString sk_TransformedCoords2D_0 =
@@ -50,7 +48,6 @@ bool GrSimpleTextureEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrSimpleTextureEffect& that = other.cast<GrSimpleTextureEffect>();
     (void)that;
     if (image != that.image) return false;
-    if (srcColorType != that.srcColorType) return false;
     if (matrix != that.matrix) return false;
     return true;
 }
@@ -58,7 +55,6 @@ GrSimpleTextureEffect::GrSimpleTextureEffect(const GrSimpleTextureEffect& src)
         : INHERITED(kGrSimpleTextureEffect_ClassID, src.optimizationFlags())
         , imageCoordTransform(src.imageCoordTransform)
         , image(src.image)
-        , srcColorType(src.srcColorType)
         , matrix(src.matrix) {
     this->setTextureSamplerCnt(1);
     this->addCoordTransform(&imageCoordTransform);
