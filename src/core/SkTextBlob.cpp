@@ -881,9 +881,6 @@ int get_glyph_run_intercepts(const SkGlyphRun& glyphRun,
     SkScalar xPos = xOffset;
     SkScalar prevAdvance = 0;
 
-    // The typeface is scaled, so un-scale the bounds to be in the space of the typeface.
-    SkScalar scaledBounds[2] = {bounds[0] / scale, bounds[1] / scale};
-
     const SkPoint* posCursor = glyphRun.positions().begin();
     for (auto glyphID : glyphRun.glyphsIDs()) {
         SkPoint pos = *posCursor++;
@@ -892,6 +889,12 @@ int get_glyph_run_intercepts(const SkGlyphRun& glyphRun,
         xPos += prevAdvance * scale;
         prevAdvance = glyph->advanceX();
         if (cache->preparePath(glyph) != nullptr) {
+            // The typeface is scaled, so un-scale the bounds to be in the space of the typeface.
+            // Also ensure the bounds are properly offset by the vertical positioning of the glyph.
+            SkScalar scaledBounds[2] = {
+                (bounds[0] - pos.y()) / scale,
+                (bounds[1] - pos.y()) / scale
+            };
             cache->findIntercepts(scaledBounds, scale, pos.x(), glyph, intervals, intervalCount);
         }
     }
