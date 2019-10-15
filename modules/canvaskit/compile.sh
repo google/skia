@@ -9,7 +9,11 @@ set -ex
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 # This expects the environment variable EMSDK to be set
 if [[ ! -d $EMSDK ]]; then
-  echo "Be sure to set the EMSDK environment variable."
+  cat >&2 << "EOF"
+Be sure to set the EMSDK environment variable to the location of Emscripten SDK:
+
+    https://emscripten.org/docs/getting_started/downloads.html
+EOF
   exit 1
 fi
 
