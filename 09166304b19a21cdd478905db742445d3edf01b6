@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd756a4f_95c8ba9d",
+        "filename": "BUILD.gn",
+        "patchSetId": 7
+      },
+      "lineNbr": 1979,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2019-10-15T14:56:36Z",
+      "side": 1,
+      "message": "Why do we need this with the roll?",
+      "revId": "09166304b19a21cdd478905db742445d3edf01b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ea2ddcf_f23b0980",
+        "filename": "src/gpu/dawn/GrDawnOpsRenderPass.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2019-10-15T14:56:36Z",
+      "side": 1,
+      "message": "nit: or just CreateView();",
+      "revId": "09166304b19a21cdd478905db742445d3edf01b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50357a59_39d00947",
+        "filename": "src/gpu/dawn/GrDawnStencilAttachment.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2019-10-15T14:56:36Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "09166304b19a21cdd478905db742445d3edf01b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78a87e0e_2b0f232b",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2019-10-15T14:56:36Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "09166304b19a21cdd478905db742445d3edf01b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa4b3de1_a0802dab",
+        "filename": "src/gpu/dawn/GrDawnTexture.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2019-10-15T14:56:36Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "09166304b19a21cdd478905db742445d3edf01b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50f27e18_dbdc68e8",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2019-10-15T14:56:36Z",
+      "side": 1,
+      "message": "?",
+      "revId": "09166304b19a21cdd478905db742445d3edf01b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb43066b_fd0f8fea",
+        "filename": "third_party/dawn/BUILD.gn",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2019-10-15T14:56:36Z",
+      "side": 1,
+      "message": "We should use Dawn\u0027s upstream BUILD.gn I can split it up more if you want.",
+      "revId": "09166304b19a21cdd478905db742445d3edf01b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
