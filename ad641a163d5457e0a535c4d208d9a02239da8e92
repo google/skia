@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eabd0855_dc18eb42",
+        "filename": "samplecode/SampleCCPRGeometry.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-15T14:03:27Z",
+      "side": 1,
+      "message": "ccbuff-\u003ecolorInfo().colorType() ?",
+      "range": {
+        "startLine": 199,
+        "startChar": 44,
+        "endLine": 199,
+        "endChar": 67
+      },
+      "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f472e3db_6974a07b",
+        "filename": "src/effects/imagefilters/SkAlphaThresholdFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-15T14:03:27Z",
+      "side": 1,
+      "message": "wdyt about a \"GrColorType SkSpecialImage::realColorType()\" method to hide this ?",
+      "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "edaecf0f_9a20d9db",
+        "filename": "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-15T14:03:27Z",
+      "side": 1,
+      "message": "bg ?",
+      "range": {
+        "startLine": 356,
+        "startChar": 20,
+        "endLine": 356,
+        "endChar": 23
+      },
+      "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc76d63a_fd4be748",
+        "filename": "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-15T14:03:27Z",
+      "side": 1,
+      "message": "bg ?",
+      "range": {
+        "startLine": 358,
+        "startChar": 44,
+        "endLine": 358,
+        "endChar": 47
+      },
+      "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4b60f6d_8d0ebaa3",
+        "filename": "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-15T14:03:27Z",
+      "side": 1,
+      "message": "fg ?",
+      "range": {
+        "startLine": 374,
+        "startChar": 20,
+        "endLine": 374,
+        "endChar": 23
+      },
+      "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "081f19ae_06a57c75",
+        "filename": "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-15T14:03:27Z",
+      "side": 1,
+      "message": "fg ?",
+      "range": {
+        "startLine": 376,
+        "startChar": 44,
+        "endLine": 376,
+        "endChar": 47
+      },
+      "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
