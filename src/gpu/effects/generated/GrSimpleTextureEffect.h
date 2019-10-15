@@ -17,47 +17,52 @@
 class GrSimpleTextureEffect : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+                                                     GrColorType srcColorType,
                                                      const SkMatrix& matrix) {
         return std::unique_ptr<GrFragmentProcessor>(
-                new GrSimpleTextureEffect(std::move(proxy), matrix,
+                new GrSimpleTextureEffect(std::move(proxy), srcColorType, matrix,
                                           GrSamplerState(GrSamplerState::WrapMode::kClamp,
                                                          GrSamplerState::Filter::kNearest)));
     }
 
     /* clamp mode */
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+                                                     GrColorType srcColorType,
                                                      const SkMatrix& matrix,
                                                      GrSamplerState::Filter filter) {
         return std::unique_ptr<GrFragmentProcessor>(new GrSimpleTextureEffect(
-                std::move(proxy), matrix,
+                std::move(proxy), srcColorType, matrix,
                 GrSamplerState(GrSamplerState::WrapMode::kClamp, filter)));
     }
 
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+                                                     GrColorType srcColorType,
                                                      const SkMatrix& matrix,
                                                      const GrSamplerState& p) {
         return std::unique_ptr<GrFragmentProcessor>(
-                new GrSimpleTextureEffect(std::move(proxy), matrix, p));
+                new GrSimpleTextureEffect(std::move(proxy), srcColorType, matrix, p));
     }
     GrSimpleTextureEffect(const GrSimpleTextureEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "SimpleTextureEffect"; }
     GrCoordTransform imageCoordTransform;
     TextureSampler image;
+    GrColorType srcColorType;
     SkMatrix44 matrix;
 
 private:
-    GrSimpleTextureEffect(sk_sp<GrTextureProxy> image, SkMatrix44 matrix,
+    GrSimpleTextureEffect(sk_sp<GrTextureProxy> image, GrColorType srcColorType, SkMatrix44 matrix,
                           GrSamplerState samplerParams)
             : INHERITED(kGrSimpleTextureEffect_ClassID,
                         (OptimizationFlags)ModulateForSamplerOptFlags(
-                                image->config(),
+                                srcColorType,
                                 samplerParams.wrapModeX() ==
                                                 GrSamplerState::WrapMode::kClampToBorder ||
                                         samplerParams.wrapModeY() ==
                                                 GrSamplerState::WrapMode::kClampToBorder))
             , imageCoordTransform(matrix, image.get())
             , image(std::move(image), samplerParams)
+            , srcColorType(srcColorType)
             , matrix(matrix) {
         this->setTextureSamplerCnt(1);
         this->addCoordTransform(&imageCoordTransform);

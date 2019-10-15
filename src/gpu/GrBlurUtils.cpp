@@ -38,7 +38,8 @@ static bool draw_mask(GrRenderTargetContext* renderTargetContext,
                       const SkMatrix& viewMatrix,
                       const SkIRect& maskRect,
                       GrPaint&& paint,
-                      sk_sp<GrTextureProxy> mask) {
+                      sk_sp<GrTextureProxy> mask,
+                      GrColorType maskColorType) {
     SkMatrix inverse;
     if (!viewMatrix.invert(&inverse)) {
         return false;
@@ -47,7 +48,8 @@ static bool draw_mask(GrRenderTargetContext* renderTargetContext,
     SkMatrix matrix = SkMatrix::MakeTrans(-SkIntToScalar(maskRect.fLeft),
                                           -SkIntToScalar(maskRect.fTop));
     matrix.preConcat(viewMatrix);
-    paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(std::move(mask), matrix));
+    paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(std::move(mask), maskColorType,
+                                                                   matrix));
 
     renderTargetContext->fillRectWithLocalMatrix(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                                  SkRect::Make(maskRect), inverse);
@@ -165,7 +167,7 @@ static bool sw_draw_with_mask_filter(GrRecordingContext* context,
     }
 
     return draw_mask(renderTargetContext, clipData, viewMatrix, drawRect,
-                     std::move(paint), std::move(filteredMask));
+                     std::move(paint), std::move(filteredMask), GrColorType::kAlpha_8);
 }
 
 // Create a mask of 'shape' and return the resulting renderTargetContext
@@ -425,7 +427,8 @@ static void draw_shape_with_mask_filter(GrRecordingContext* context,
 
         if (filteredMask) {
             if (draw_mask(renderTargetContext, clip, viewMatrix,
-                          maskRect, std::move(paint), std::move(filteredMask))) {
+                          maskRect, std::move(paint), std::move(filteredMask),
+                          GrColorType::kAlpha_8)) {
                 // This path is completely drawn
                 return;
             }
