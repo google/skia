@@ -11,6 +11,8 @@
 #include "src/core/SkAutoMalloc.h"
 #include "tools/sk_app/DawnWindowContext.h"
 
+#include "dawn/dawn_proc.h"
+
 static void PrintDeviceError(DawnErrorType, const char* message, void*) {
     printf("Device error: %s\n", message);
     SkASSERT(false);
@@ -108,7 +110,7 @@ void DawnWindowContext::setDisplayParams(const DisplayParams& params) {
 dawn::Device DawnWindowContext::createDevice(dawn_native::BackendType type) {
     fInstance->DiscoverDefaultAdapters();
     DawnProcTable backendProcs = dawn_native::GetProcs();
-    dawnSetProcs(&backendProcs);
+    dawnProcSetProcs(&backendProcs);
 
     std::vector<dawn_native::Adapter> adapters = fInstance->GetAdapters();
     for (dawn_native::Adapter adapter : adapters) {
