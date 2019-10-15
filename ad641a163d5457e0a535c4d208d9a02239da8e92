@@ -131,6 +131,92 @@
       "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5bdd0d0_2286a5c9",
+        "filename": "src/effects/imagefilters/SkXfermodeImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-15T14:35:23Z",
+      "side": 1,
+      "message": "bg ?",
+      "range": {
+        "startLine": 269,
+        "startChar": 20,
+        "endLine": 269,
+        "endChar": 23
+      },
+      "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff35167b_bd934a07",
+        "filename": "src/effects/imagefilters/SkXfermodeImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-15T14:35:23Z",
+      "side": 1,
+      "message": "fg ?",
+      "range": {
+        "startLine": 287,
+        "startChar": 20,
+        "endLine": 287,
+        "endChar": 23
+      },
+      "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39c25908_12d5fb15",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1820,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-15T14:35:23Z",
+      "side": 1,
+      "message": "Maybe:\n\nGrColorType srcColorType \u003d tempRTC ? tempRTC-\u003ecolorInfo().colorType() \n                                   : this-\u003ecolorInfo().colorType();\n\njust to match - dunno.",
+      "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b1286ac_849128c4",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2449,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-15T14:35:23Z",
+      "side": 1,
+      "message": "Isn\u0027t \u0027src\u0027 already a texture proxy ?",
+      "range": {
+        "startLine": 2449,
+        "startChar": 57,
+        "endLine": 2449,
+        "endChar": 71
+      },
+      "revId": "ad641a163d5457e0a535c4d208d9a02239da8e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
