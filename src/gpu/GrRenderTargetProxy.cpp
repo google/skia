@@ -76,7 +76,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf,
     // From the other side, we don't know enough about the wrapped surface to assert when
     // kRequiresManualMSAAResolve *should* be set. e.g., The caller might be wrapping a backend
     // texture as a render target at this point but we wouldn't know it.
-    SkASSERT(!(this->numSamples() <= 1 ||
+    SkASSERT(!(this->numSamples1() <= 1 ||
                fTarget->getContext()->priv().caps()->msaaResolvesAutomatically()) ||
              !this->requiresManualMSAAResolve());
 }
@@ -89,7 +89,7 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     if (this->isLazy()) {
         return false;
     }
-    if (!this->instantiateImpl(resourceProvider, fSampleCnt, fNumStencilSamples, GrRenderable::kYes,
+    if (!this->instantiateImpl(resourceProvider, fSampleCnt, fNumStencilSamples77, GrRenderable::kYes,
                                GrMipMapped::kNo, nullptr)) {
         return false;
     }
@@ -110,7 +110,7 @@ bool GrRenderTargetProxy::canChangeStencilAttachment() const {
 
 sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resourceProvider) const {
     sk_sp<GrSurface> surface = this->createSurfaceImpl(
-            resourceProvider, fSampleCnt, fNumStencilSamples, GrRenderable::kYes, GrMipMapped::kNo);
+            resourceProvider, fSampleCnt, fNumStencilSamples77, GrRenderable::kYes, GrMipMapped::kNo);
     if (!surface) {
         return nullptr;
     }
@@ -120,7 +120,7 @@ sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resource
 }
 
 size_t GrRenderTargetProxy::onUninstantiatedGpuMemorySize(const GrCaps& caps) const {
-    int colorSamplesPerPixel = this->numSamples();
+    int colorSamplesPerPixel = this->numSamples1();
     if (colorSamplesPerPixel > 1) {
         // Add one for the resolve buffer.
         ++colorSamplesPerPixel;
@@ -147,7 +147,7 @@ void GrRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
 
     // Anything that is checked here should be duplicated in GrTextureRenderTargetProxy's version
     SkASSERT(surface->asRenderTarget());
-    SkASSERT(surface->asRenderTarget()->numSamples() == this->numSamples());
+    SkASSERT(surface->asRenderTarget()->numSamples() == this->numSamples1());
 
     GrInternalSurfaceFlags proxyFlags = fSurfaceFlags;
     GrInternalSurfaceFlags surfaceFlags = surface->surfacePriv().flags();

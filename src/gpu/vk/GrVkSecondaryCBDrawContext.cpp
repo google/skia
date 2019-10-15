@@ -94,7 +94,7 @@ bool GrVkSecondaryCBDrawContext::characterize(SkSurfaceCharacterization* charact
     GrBackendFormat format = rtc->asRenderTargetProxy()->backendFormat();
 
     characterization->set(ctx->threadSafeProxy(), maxResourceBytes, ii, format,
-                          rtc->origin(), rtc->numSamples(),
+                          rtc->origin(), rtc->numSamples1(),
                           SkSurfaceCharacterization::Textureable(false),
                           SkSurfaceCharacterization::MipMapped(false),
                           SkSurfaceCharacterization::UsesGLFBO0(false),
@@ -147,7 +147,7 @@ bool GrVkSecondaryCBDrawContext::isCompatible(
            characterization.width() == rtc->width() &&
            characterization.height() == rtc->height() &&
            characterization.colorType() == rtColorType &&
-           characterization.sampleCount() == rtc->numSamples() &&
+           characterization.sampleCount() == rtc->numSamples1() &&
            SkColorSpace::Equals(characterization.colorSpace(), rtc->colorInfo().colorSpace()) &&
            characterization.isProtected() == isProtected &&
            characterization.surfaceProps() == rtc->surfaceProps();

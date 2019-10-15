@@ -266,19 +266,19 @@ DrawResult SampleLocationsGM::onDraw(
         *errorMsg = "Requires support for sample variables.";
         return DrawResult::kSkip;
     }
-    if (rtc->numSamples() <= 1 && !ctx->priv().caps()->mixedSamplesSupport()) {
+    if (rtc->numSamples1() <= 1 && !ctx->priv().caps()->mixedSamplesSupport()) {
         *errorMsg = "MSAA and mixed samples only.";
         return DrawResult::kSkip;
     }
 
     auto offscreenRTC = ctx->priv().makeDeferredRenderTargetContext(
             SkBackingFit::kExact, 200, 200, rtc->colorInfo().colorType(), nullptr,
-            rtc->numSamples(), GrMipMapped::kNo, fOrigin);
+            rtc->numSamples1(), GrMipMapped::kNo, fOrigin);
     if (!offscreenRTC) {
         *errorMsg = "Failed to create offscreen render target.";
         return DrawResult::kFail;
     }
-    if (offscreenRTC->numSamples() <= 1 &&
+    if (offscreenRTC->numSamples1() <= 1 &&
         !offscreenRTC->proxy()->canUseMixedSamples(*ctx->priv().caps())) {
         *errorMsg = "MSAA and mixed samples only.";
         return DrawResult::kSkip;

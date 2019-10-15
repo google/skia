@@ -65,7 +65,7 @@ public:
             , fDstProxy(dstProxy) {
         }
 
-        int numSamples() const { return fProxy->numSamples(); }
+        int numSamples() const { return fProxy->numSamples1(); }
         GrSurfaceOrigin origin() const { return fProxy->origin(); }
         GrSwizzle outputSwizzle() const { return fProxy->outputSwizzle(); }
 

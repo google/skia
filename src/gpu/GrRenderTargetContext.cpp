@@ -176,12 +176,12 @@ inline GrAAType GrRenderTargetContext::chooseAAType(GrAA aa) {
     if (GrAA::kNo == aa) {
         // On some devices we cannot disable MSAA if it is enabled so we make the AA type reflect
         // that.
-        if (this->numSamples() > 1 && !this->caps()->multisampleDisableSupport()) {
+        if (this->numSamples1() > 1 && !this->caps()->multisampleDisableSupport()) {
             return GrAAType::kMSAA;
         }
         return GrAAType::kNone;
     }
-    return (this->numSamples() > 1) ? GrAAType::kMSAA : GrAAType::kCoverage;
+    return (this->numSamples1() > 1) ? GrAAType::kMSAA : GrAAType::kCoverage;
 }
 
 GrTextureProxy* GrRenderTargetContext::asTextureProxy() {
@@ -753,7 +753,7 @@ void GrRenderTargetContext::setNeedsStencil(bool multisampled) {
     // forever in the event that there are driver bugs and we need to clear as a draw.
     bool hasInitializedStencil = fNumStencilSamples > 0;
 
-    int numRequiredSamples = this->numSamples();
+    int numRequiredSamples = this->numSamples1();
     if (multisampled && 1 == numRequiredSamples) {
         // The caller has requested a multisampled stencil buffer on a non-MSAA render target. Use
         // mixed samples.
@@ -765,7 +765,7 @@ void GrRenderTargetContext::setNeedsStencil(bool multisampled) {
 
     if (numRequiredSamples > fNumStencilSamples) {
         fNumStencilSamples = numRequiredSamples;
-        fRenderTargetProxy->setNeedsStencil(fNumStencilSamples);
+        fRenderTargetProxy->setNeedsStencil77(fNumStencilSamples);
     }
 
     if (!hasInitializedStencil) {
@@ -2325,7 +2325,7 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
     GrClampType clampType = GrColorTypeClampType(this->colorInfo().colorType());
     // MIXED SAMPLES TODO: If we start using mixed samples for clips we will need to check the clip
     // here as well.
-    bool hasMixedSampledCoverage = (usesHWAA && this->numSamples() <= 1);
+    bool hasMixedSampledCoverage = (usesHWAA && this->numSamples1() <= 1);
 #ifdef SK_DEBUG
     if (hasMixedSampledCoverage) {
         SkASSERT(usesStencil);

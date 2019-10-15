@@ -221,7 +221,7 @@ void SkGpuDevice::replaceRenderTargetContext(std::unique_ptr<GrRenderTargetConte
                                              bool shouldRetainContent) {
     SkASSERT(rtc->width() == this->width());
     SkASSERT(rtc->height() == this->height());
-    SkASSERT(rtc->numSamples() == fRenderTargetContext->numSamples());
+    SkASSERT(rtc->numSamples1() == fRenderTargetContext->numSamples1());
     SkASSERT(rtc->asSurfaceProxy()->priv().isExact());
     if (shouldRetainContent) {
         if (this->context()->abandoned()) {
@@ -247,7 +247,7 @@ void SkGpuDevice::replaceRenderTargetContext(bool shouldRetainContent) {
     auto newRTC = MakeRenderTargetContext(this->context(),
                                           budgeted,
                                           this->imageInfo(),
-                                          fRenderTargetContext->numSamples(),
+                                          fRenderTargetContext->numSamples1(),
                                           fRenderTargetContext->origin(),
                                           &this->surfaceProps(),
                                           fRenderTargetContext->mipMapped());
@@ -835,7 +835,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
 
     const SkPaint* paint = &origPaint;
     SkPaint tempPaint;
-    if (origPaint.isAntiAlias() && fRenderTargetContext->numSamples() <= 1) {
+    if (origPaint.isAntiAlias() && fRenderTargetContext->numSamples1() <= 1) {
         // Drop antialiasing to avoid seams at tile boundaries.
         tempPaint = origPaint;
         tempPaint.setAntiAlias(false);
@@ -976,7 +976,7 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     }
 
     // Coverage-based AA would cause seams between tiles.
-    GrAA aa = GrAA(paint.isAntiAlias() && fRenderTargetContext->numSamples() > 1);
+    GrAA aa = GrAA(paint.isAntiAlias() && fRenderTargetContext->numSamples1() > 1);
     fRenderTargetContext->drawRect(this->clip(), std::move(grPaint), aa, viewMatrix, dstRect);
 }
 
@@ -1143,7 +1143,7 @@ void SkGpuDevice::drawBitmapRect(const SkBitmap& bitmap,
 
     // The tile code path doesn't currently support AA, so if the paint asked for aa and we could
     // draw untiled, then we bypass checking for tiling purely for optimization reasons.
-    bool useCoverageAA = fRenderTargetContext->numSamples() <= 1 &&
+    bool useCoverageAA = fRenderTargetContext->numSamples1() <= 1 &&
                          paint.isAntiAlias() && bitmap.width() <= maxTileSize &&
                          bitmap.height() <= maxTileSize;
 
@@ -1628,7 +1628,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
             cinfo.fInfo.height(),
             SkColorTypeToGrColorType(cinfo.fInfo.colorType()),
             fRenderTargetContext->colorInfo().refColorSpace(),
-            fRenderTargetContext->numSamples(),
+            fRenderTargetContext->numSamples1(),
             GrMipMapped::kNo,
             kBottomLeft_GrSurfaceOrigin,
             &props,
@@ -1650,7 +1650,7 @@ sk_sp<SkSurface> SkGpuDevice::makeSurface(const SkImageInfo& info, const SkSurfa
     // TODO: Change the signature of newSurface to take a budgeted parameter.
     static const SkBudgeted kBudgeted = SkBudgeted::kNo;
     return SkSurface::MakeRenderTarget(fContext.get(), kBudgeted, info,
-                                       fRenderTargetContext->numSamples(),
+                                       fRenderTargetContext->numSamples1(),
                                        fRenderTargetContext->origin(), &props);
 }
 

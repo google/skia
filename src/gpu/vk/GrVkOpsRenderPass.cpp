@@ -175,7 +175,7 @@ void GrVkOpsRenderPass::submit() {
     fGpu->endRenderPass(fRenderTarget, fOrigin, fBounds);
 }
 
-void GrVkOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
+void GrVkOpsRenderPass::set1(GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
                             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
                             const SkTArray<GrTextureProxy*, true>& sampledProxies) {

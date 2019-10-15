@@ -86,7 +86,7 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(sk_sp<GrSurface> surf,
     SkASSERT(surf->asTexture());
     SkASSERT(surf->asRenderTarget());
     SkASSERT(fSurfaceFlags == fTarget->surfacePriv().flags());
-    SkASSERT((this->numSamples() <= 1 ||
+    SkASSERT((this->numSamples1() <= 1 ||
               fTarget->getContext()->priv().caps()->msaaResolvesAutomatically()) !=
              this->requiresManualMSAAResolve());
 }
@@ -94,7 +94,7 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(sk_sp<GrSurface> surf,
 void GrTextureRenderTargetProxy::initSurfaceFlags(const GrCaps& caps) {
     // FBO 0 should never be wrapped as a texture render target.
     SkASSERT(!this->rtPriv().glRTFBOIDIs0());
-    if (this->numSamples() > 1 && !caps.msaaResolvesAutomatically())  {
+    if (this->numSamples1() > 1 && !caps.msaaResolvesAutomatically())  {
         // MSAA texture-render-targets always require manual resolve if we are not using a
         // multisampled-render-to-texture extension.
         //
@@ -107,7 +107,7 @@ void GrTextureRenderTargetProxy::initSurfaceFlags(const GrCaps& caps) {
 }
 
 size_t GrTextureRenderTargetProxy::onUninstantiatedGpuMemorySize(const GrCaps& caps) const {
-    int colorSamplesPerPixel = this->numSamples();
+    int colorSamplesPerPixel = this->numSamples1();
     if (colorSamplesPerPixel > 1) {
         // Add one to account for the resolve buffer.
         ++colorSamplesPerPixel;
@@ -126,7 +126,7 @@ bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvide
 
     const GrUniqueKey& key = this->getUniqueKey();
 
-    if (!this->instantiateImpl(resourceProvider, this->numSamples(), this->numStencilSamples(),
+    if (!this->instantiateImpl(resourceProvider, this->numSamples1(), this->numStencilSamples77(),
                                GrRenderable::kYes, this->mipMapped(),
                                key.isValid() ? &key : nullptr)) {
         return false;
@@ -144,7 +144,7 @@ bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvide
 sk_sp<GrSurface> GrTextureRenderTargetProxy::createSurface(
                                                     GrResourceProvider* resourceProvider) const {
     sk_sp<GrSurface> surface =
-            this->createSurfaceImpl(resourceProvider, this->numSamples(), this->numStencilSamples(),
+            this->createSurfaceImpl(resourceProvider, this->numSamples1(), this->numStencilSamples77(),
                                     GrRenderable::kYes, this->mipMapped());
     if (!surface) {
         return nullptr;
@@ -164,7 +164,7 @@ void GrTextureRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
 
     // Anything checked here should also be checking the GrRenderTargetProxy version
     SkASSERT(surface->asRenderTarget());
-    SkASSERT(surface->asRenderTarget()->numSamples() == this->numSamples());
+    SkASSERT(surface->asRenderTarget()->numSamples() == this->numSamples1());
 
     SkASSERT(surface->asTexture()->texturePriv().textureType() == this->textureType());
 

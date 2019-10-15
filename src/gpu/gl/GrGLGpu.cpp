@@ -1681,10 +1681,14 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
     GrStencilSettings stencil;
     if (programInfo.pipeline().isStencilEnabled()) {
         // TODO: attach stencil and create settings during render target flush.
+        int rtStencilBits = glRT->renderTargetPriv().numStencilBits();
+        int numStencilBits = 8;
+        SkASSERT(rtStencilBits >= numStencilBits);
+
         SkASSERT(glRT->renderTargetPriv().getStencilAttachment());
         stencil.reset(*programInfo.pipeline().getUserStencil(),
                       programInfo.pipeline().hasStencilClip(),
-                      glRT->renderTargetPriv().numStencilBits());
+                      numStencilBits);
     }
     this->flushStencil(stencil, programInfo.origin());
     if (programInfo.pipeline().isScissorEnabled()) {

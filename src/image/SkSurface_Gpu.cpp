@@ -79,7 +79,7 @@ GrBackendRenderTarget SkSurface_Gpu::onGetBackendRenderTarget(BackendHandleAcces
 SkCanvas* SkSurface_Gpu::onNewCanvas() { return new SkCanvas(fDevice); }
 
 sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
-    int sampleCount = fDevice->accessRenderTargetContext()->numSamples();
+    int sampleCount = fDevice->accessRenderTargetContext()->numSamples1();
     GrSurfaceOrigin origin = fDevice->accessRenderTargetContext()->origin();
     // TODO: Make caller specify this (change virtual signature of onNewSurface).
     static const SkBudgeted kBudgeted = SkBudgeted::kNo;
@@ -220,7 +220,7 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
     GrBackendFormat format = rtc->asSurfaceProxy()->backendFormat();
 
     characterization->set(ctx->threadSafeProxy(), maxResourceBytes, ii, format,
-                          rtc->origin(), rtc->numSamples(),
+                          rtc->origin(), rtc->numSamples1(),
                           SkSurfaceCharacterization::Textureable(SkToBool(rtc->asTextureProxy())),
                           SkSurfaceCharacterization::MipMapped(mipmapped),
                           SkSurfaceCharacterization::UsesGLFBO0(usesGLFBO0),
@@ -316,7 +316,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
            characterization.backendFormat() == rtc->asSurfaceProxy()->backendFormat() &&
            characterization.width() == rtc->width() && characterization.height() == rtc->height() &&
            characterization.colorType() == rtcColorType &&
-           characterization.sampleCount() == rtc->numSamples() &&
+           characterization.sampleCount() == rtc->numSamples1() &&
            SkColorSpace::Equals(characterization.colorSpace(), rtc->colorInfo().colorSpace()) &&
            characterization.isProtected() == isProtected &&
            characterization.surfaceProps() == rtc->surfaceProps();

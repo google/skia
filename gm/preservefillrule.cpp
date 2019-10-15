@@ -62,7 +62,7 @@ private:
                       SkString* errorMsg) override {
         using CoverageType = GrCCAtlas::CoverageType;
 
-        if (rtc->numSamples() > 1) {
+        if (rtc->numSamples1() > 1) {
             errorMsg->set("ccpr is currently only used for coverage AA");
             return DrawResult::kSkip;
         }
