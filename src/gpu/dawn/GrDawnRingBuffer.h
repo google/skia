@@ -16,7 +16,7 @@ class GrDawnGpu;
 
 class GrDawnRingBuffer : public SkRefCnt {
 public:
-    GrDawnRingBuffer(GrDawnGpu* gpu, dawn::BufferUsageBit usage);
+    GrDawnRingBuffer(GrDawnGpu* gpu, dawn::BufferUsage usage);
     ~GrDawnRingBuffer() override;
 
     struct Slice {
@@ -35,7 +35,7 @@ public:
 
 private:
     GrDawnGpu*            fGpu;
-    dawn::BufferUsageBit  fUsage;
+    dawn::BufferUsage     fUsage;
     dawn::Buffer          fBuffer;
     int                   fOffset = 0;
 };

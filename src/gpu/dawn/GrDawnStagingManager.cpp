@@ -28,7 +28,7 @@ GrDawnStagingBuffer* GrDawnStagingManager::findOrCreateStagingBuffer(size_t size
         fReadyPool.erase(i);
     } else {
         dawn::BufferDescriptor desc;
-        desc.usage = dawn::BufferUsageBit::MapWrite | dawn::BufferUsageBit::CopySrc;
+        desc.usage = dawn::BufferUsage::MapWrite | dawn::BufferUsage::CopySrc;
         desc.size = sizePow2;
         dawn::CreateBufferMappedResult result = fDevice.CreateBufferMapped(&desc);
         std::unique_ptr<GrDawnStagingBuffer> b(new GrDawnStagingBuffer(

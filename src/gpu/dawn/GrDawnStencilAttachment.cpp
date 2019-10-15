@@ -30,7 +30,7 @@ GrDawnStencilAttachment* GrDawnStencilAttachment::Create(GrDawnGpu* gpu,
                                                          int height,
                                                          int sampleCnt) {
     dawn::TextureDescriptor desc;
-    desc.usage = dawn::TextureUsageBit::OutputAttachment;
+    desc.usage = dawn::TextureUsage::OutputAttachment;
     desc.size.width = width;
     desc.size.height = height;
     desc.size.depth = 1;
@@ -39,7 +39,7 @@ GrDawnStencilAttachment* GrDawnStencilAttachment::Create(GrDawnGpu* gpu,
     if (!texture) {
         return nullptr;
     }
-    dawn::TextureView view = texture.CreateDefaultView();
+    dawn::TextureView view = texture.CreateView();
     if (!view) {
         return nullptr;
     }

@@ -125,7 +125,7 @@ GrDawnGpu::GrDawnGpu(GrContext* context, const GrContextOptions& options,
         , fDevice(device)
         , fQueue(device.CreateQueue())
         , fCompiler(new SkSL::Compiler())
-        , fUniformRingBuffer(this, dawn::BufferUsageBit::Uniform)
+        , fUniformRingBuffer(this, dawn::BufferUsage::Uniform)
         , fRenderPipelineCache(kMaxRenderPipelineEntries)
         , fStagingManager(fDevice) {
     fCaps.reset(new GrDawnCaps(options));
@@ -327,12 +327,12 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(int width, int height,
 
     dawn::TextureDescriptor desc;
     desc.usage =
-        dawn::TextureUsageBit::Sampled |
-        dawn::TextureUsageBit::CopySrc |
-        dawn::TextureUsageBit::CopyDst;
+        dawn::TextureUsage::Sampled |
+        dawn::TextureUsage::CopySrc |
+        dawn::TextureUsage::CopyDst;
 
     if (GrRenderable::kYes == renderable) {
-        desc.usage |= dawn::TextureUsageBit::OutputAttachment;
+        desc.usage |= dawn::TextureUsage::OutputAttachment;
     }
 
     desc.size.width = width;
@@ -436,8 +436,8 @@ GrBackendRenderTarget GrDawnGpu::createTestingOnlyBackendRenderTarget(int width,
 
     dawn::TextureDescriptor desc;
     desc.usage =
-        dawn::TextureUsageBit::CopySrc |
-        dawn::TextureUsageBit::OutputAttachment;
+        dawn::TextureUsage::CopySrc |
+        dawn::TextureUsage::OutputAttachment;
 
     desc.size.width = width;
     desc.size.height = height;
@@ -533,7 +533,7 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, i
     int sizeInBytes = rowBytes * height;
 
     dawn::BufferDescriptor desc;
-    desc.usage = dawn::BufferUsageBit::CopyDst | dawn::BufferUsageBit::MapRead;
+    desc.usage = dawn::BufferUsage::CopyDst | dawn::BufferUsage::MapRead;
     desc.size = sizeInBytes;
 
     dawn::Buffer buf = device().CreateBuffer(&desc);

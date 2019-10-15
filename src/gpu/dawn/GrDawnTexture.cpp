@@ -31,12 +31,12 @@ sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, const SkISize& size, Gr
     dawn::TextureDescriptor textureDesc;
 
     textureDesc.usage =
-        dawn::TextureUsageBit::Sampled |
-        dawn::TextureUsageBit::CopySrc |
-        dawn::TextureUsageBit::CopyDst;
+        dawn::TextureUsage::Sampled |
+        dawn::TextureUsage::CopySrc |
+        dawn::TextureUsage::CopyDst;
 
     if (renderTarget) {
-        textureDesc.usage |= dawn::TextureUsageBit::OutputAttachment;
+        textureDesc.usage |= dawn::TextureUsage::OutputAttachment;
     }
 
     textureDesc.size.width = size.fWidth;
@@ -52,7 +52,7 @@ sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, const SkISize& size, Gr
         return nullptr;
     }
 
-    dawn::TextureView textureView = tex.CreateDefaultView();
+    dawn::TextureView textureView = tex.CreateView();
 
     if (!textureView) {
         return nullptr;
@@ -88,7 +88,7 @@ sk_sp<GrDawnTexture> GrDawnTexture::MakeWrapped(GrDawnGpu* gpu, const SkISize& s
                                                 int sampleCnt, GrMipMapsStatus status,
                                                 GrWrapCacheable cacheable,
                                                 const GrDawnImageInfo& info) {
-    dawn::TextureView textureView = info.fTexture.CreateDefaultView();
+    dawn::TextureView textureView = info.fTexture.CreateView();
     if (!textureView) {
         return nullptr;
     }
