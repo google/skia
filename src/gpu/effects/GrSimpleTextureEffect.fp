@@ -6,7 +6,7 @@
  */
 
 in uniform sampler2D image;
-in GrColorType srcColorType;
+/*in GrColorType srcColorType;*/
 in half4x4 matrix;
 
 @constructorParams {
@@ -23,34 +23,34 @@ in half4x4 matrix;
 
 @make {
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                                     GrColorType srcColorType,
+                                                   /*  GrColorType srcColorType,*/
                                                      const SkMatrix& matrix) {
         return std::unique_ptr<GrFragmentProcessor>(
-            new GrSimpleTextureEffect(std::move(proxy), srcColorType, matrix,
+            new GrSimpleTextureEffect(std::move(proxy),/* srcColorType,*/ matrix,
                     GrSamplerState(GrSamplerState::WrapMode::kClamp, GrSamplerState::Filter::kNearest)));
     }
 
     /* clamp mode */
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                                     GrColorType srcColorType,
+                                                  /*   GrColorType srcColorType,*/
                                                      const SkMatrix& matrix,
                                                      GrSamplerState::Filter filter) {
         return std::unique_ptr<GrFragmentProcessor>(
-            new GrSimpleTextureEffect(std::move(proxy), srcColorType, matrix,
+            new GrSimpleTextureEffect(std::move(proxy),/* srcColorType,*/ matrix,
                                       GrSamplerState(GrSamplerState::WrapMode::kClamp, filter)));
      }
 
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                                     GrColorType srcColorType,
+                                                   /*  GrColorType srcColorType,*/
                                                      const SkMatrix& matrix,
                                                      const GrSamplerState& p) {
         return std::unique_ptr<GrFragmentProcessor>(
-            new GrSimpleTextureEffect(std::move(proxy), srcColorType, matrix, p));
+            new GrSimpleTextureEffect(std::move(proxy),/* srcColorType,*/ matrix, p));
     }
 }
 
 @optimizationFlags {
-    ModulateForSamplerOptFlags(srcColorType,
+    ModulateForSamplerOptFlags(/*srcColorType,*/
             samplerParams.wrapModeX() == GrSamplerState::WrapMode::kClampToBorder ||
             samplerParams.wrapModeY() == GrSamplerState::WrapMode::kClampToBorder)
 }
