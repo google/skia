@@ -34,6 +34,18 @@ public:
         return fTexture == that.fTexture;
     }
 };
+// For setting up a render target derived from a CAMetalLayer
+struct GrMtlLayerInfo {
+public:
+    GrMtlLayerInfo() {}
+
+    sk_cf_obj<const void*> fLayer;    // The CAMetalLayer we're grabbing the drawable from
+    GrMTLHandle*           fDrawable; // Pointer to return the drawable value to the client
+
+    bool operator==(const GrMtlLayerInfo& that) const {
+        return fLayer == that.fLayer && fDrawable == that.fDrawable;
+    }
+};
 #endif
 
 #endif

@@ -61,28 +61,6 @@ GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
     this->registerWithCacheWrapped(cacheable);
 }
 
-id<MTLTexture> create_msaa_texture(GrMtlGpu* gpu, const GrSurfaceDesc& desc, int sampleCnt) {
-    MTLPixelFormat format;
-    if (!GrPixelConfigToMTLFormat(desc.fConfig, &format)) {
-        return nullptr;
-    }
-    MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
-    texDesc.textureType = MTLTextureType2DMultisample;
-    texDesc.pixelFormat = format;
-    texDesc.width = desc.fWidth;
-    texDesc.height = desc.fHeight;
-    texDesc.depth = 1;
-    texDesc.mipmapLevelCount = 1;
-    texDesc.sampleCount = sampleCnt;
-    texDesc.arrayLength = 1;
-    if (@available(macOS 10.11, iOS 9.0, *)) {
-        texDesc.storageMode = MTLStorageModePrivate;
-        texDesc.usage = MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
-    }
-
-    return [gpu->device() newTextureWithDescriptor:texDesc];
-}
-
 sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeNewTextureRenderTarget(
         GrMtlGpu* gpu,
         SkBudgeted budgeted,
@@ -99,7 +77,7 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeNewTextureRenderTa
     }
 
     if (sampleCnt > 1) {
-        id<MTLTexture> colorTexture = create_msaa_texture(gpu, desc, sampleCnt);
+        id<MTLTexture> colorTexture = GrCreateMSAAMtlTexture(gpu, desc, sampleCnt);
         if (!colorTexture) {
             return nullptr;
         }
@@ -128,7 +106,7 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeWrappedTextureRend
                                             ? GrMipMapsStatus::kDirty
                                             : GrMipMapsStatus::kNotAllocated;
     if (sampleCnt > 1) {
-        id<MTLTexture> colorTexture = create_msaa_texture(gpu, desc, sampleCnt);
+        id<MTLTexture> colorTexture = GrCreateMSAAMtlTexture(gpu, desc, sampleCnt);
         if (!colorTexture) {
             return nullptr;
         }
