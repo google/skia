@@ -25,6 +25,7 @@ class GrShaderCaps;
 namespace GrQuadPerEdgeAA {
     using Saturate = GrTextureOp::Saturate;
 
+    enum class CoverageMode { kNone, kWithPosition, kWithColor };
     enum class Domain : bool { kNo = false, kYes = true };
     enum class ColorType { kNone, kByte, kHalf, kLast = kHalf };
     static const int kColorTypeCount = static_cast<int>(ColorType::kLast) + 1;
@@ -65,6 +66,65 @@ namespace GrQuadPerEdgeAA {
         int localDimensionality() const;
 
         int verticesPerQuad() const { return fUsesCoverageAA ? 8 : 4; }
+
+        CoverageMode coverageMode() const {
+            if (this->usesCoverageAA()) {
+                if (this->compatibleWithCoverageAsAlpha() && this->hasVertexColors() &&
+                    !this->requiresGeometryDomain()) {
+                    // Using a geometric domain acts as a second source of coverage and folding
+                    // the original coverage into color makes it impossible to apply the color's
+                    // alpha to the geometric domain's coverage when the original shape is clipped.
+                    return CoverageMode::kWithColor;
+                } else {
+                    return CoverageMode::kWithPosition;
+                }
+            } else {
+                return CoverageMode::kNone;
+            }
+        }
+
+        // This needs to stay in sync w/ QuadPerEdgeAAGeometryProcessor::initializeAttrs
+        size_t vertexSize() const {
+            bool needsPerspective = (this->deviceDimensionality() == 3);
+            CoverageMode coverageMode = this->coverageMode();
+
+            size_t count = 0;
+
+            if (coverageMode == CoverageMode::kWithPosition) {
+                if (needsPerspective) {
+                    count += GrVertexAttribTypeSize(kFloat4_GrVertexAttribType);
+                } else {
+                    count += GrVertexAttribTypeSize(kFloat2_GrVertexAttribType) +
+                             GrVertexAttribTypeSize(kFloat_GrVertexAttribType);
+                }
+            } else {
+                if (needsPerspective) {
+                    count += GrVertexAttribTypeSize(kFloat3_GrVertexAttribType);
+                } else {
+                    count += GrVertexAttribTypeSize(kFloat2_GrVertexAttribType);
+                }
+            }
+
+            if (this->requiresGeometryDomain()) {
+                count += GrVertexAttribTypeSize(kFloat4_GrVertexAttribType);
+            }
+
+            count +=
+                this->localDimensionality() * GrVertexAttribTypeSize(kFloat_GrVertexAttribType);
+
+            if (ColorType::kByte == this->colorType()) {
+                count += GrVertexAttribTypeSize(kUByte4_norm_GrVertexAttribType);
+            } else if (ColorType::kHalf == this->colorType()) {
+                count += GrVertexAttribTypeSize(kHalf4_GrVertexAttribType);
+            }
+
+            if (this->hasDomain()) {
+                count += GrVertexAttribTypeSize(kFloat4_GrVertexAttribType);
+            }
+
+            return count;
+        }
+
     private:
         static_assert(GrQuad::kTypeCount <= 4, "GrQuad::Type doesn't fit in 2 bits");
         static_assert(kColorTypeCount <= 4, "Color doesn't fit in 2 bits");
