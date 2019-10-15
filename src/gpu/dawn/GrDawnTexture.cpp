@@ -7,6 +7,7 @@
 
 #include "src/gpu/dawn/GrDawnTexture.h"
 
+#include "src/core/SkConvertPixels.h"
 #include "src/gpu/dawn/GrDawnGpu.h"
 #include "src/gpu/dawn/GrDawnTextureRenderTarget.h"
 #include "src/gpu/dawn/GrDawnUtil.h"
@@ -139,43 +140,14 @@ void GrDawnTexture::upload(const GrMipLevel texels[], int mipLevels, const SkIRe
     uint32_t height = rect.height();
 
     for (int i = 0; i < mipLevels; i++) {
-        size_t origRowBytes = texels[i].fRowBytes;
-        SkBitmap bitmap;
-        SkPixmap pixmap;
-        const char* src;
-        if (kRGBA_4444_GrPixelConfig == this->config() ||
-            kRGB_565_GrPixelConfig == this->config() ||
-            kGray_8_GrPixelConfig == this->config()) {
-            SkImageInfo info;
-            info = SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-            SkImageInfo srcInfo;
-            SkColorType colorType =
-                GrColorTypeToSkColorType(GrPixelConfigToColorType(this->config()));
-            srcInfo = SkImageInfo::Make(width, height, colorType, kOpaque_SkAlphaType);
-            SkPixmap srcPixmap(srcInfo, texels[i].fPixels, origRowBytes);
-            origRowBytes = GrDawnRoundRowBytes(info.minRowBytes());
-            bitmap.allocPixels(info, origRowBytes);
-            bitmap.writePixels(srcPixmap);
-            if (!bitmap.peekPixels(&pixmap)) {
-                continue;
-            }
-            src = static_cast<const char*>(pixmap.addr());
-        } else {
-            src = static_cast<const char*>(texels[i].fPixels);
-        }
-        size_t rowBytes = GrDawnRoundRowBytes(origRowBytes);
-        size_t size = rowBytes * height;
+        const void* src = texels[i].fPixels;
+        size_t srcRowBytes = texels[i].fRowBytes;
+        SkColorType colorType = GrColorTypeToSkColorType(GrPixelConfigToColorType(this->config()));
+        size_t trimRowBytes = width * SkColorTypeBytesPerPixel(colorType);
+        size_t dstRowBytes = GrDawnRoundRowBytes(trimRowBytes);
+        size_t size = dstRowBytes * height;
         GrDawnStagingBuffer* stagingBuffer = getDawnGpu()->getStagingBuffer(size);
-        if (rowBytes == origRowBytes) {
-            memcpy(stagingBuffer->fData, src, size);
-        } else {
-            char* dst = static_cast<char*>(stagingBuffer->fData);
-            for (uint32_t row = 0; row < height; row++) {
-                memcpy(dst, src, origRowBytes);
-                dst += rowBytes;
-                src += texels[i].fRowBytes;
-            }
-        }
+        SkRectMemcpy(stagingBuffer->fData, dstRowBytes, src, srcRowBytes, trimRowBytes, height);
         dawn::Buffer buffer = stagingBuffer->fBuffer;
         buffer.Unmap();
         stagingBuffer->fData = nullptr;
@@ -183,7 +155,7 @@ void GrDawnTexture::upload(const GrMipLevel texels[], int mipLevels, const SkIRe
         dawn::BufferCopyView srcBuffer;
         srcBuffer.buffer = buffer;
         srcBuffer.offset = 0;
-        srcBuffer.rowPitch = rowBytes;
+        srcBuffer.rowPitch = dstRowBytes;
         srcBuffer.imageHeight = height;
 
         dawn::TextureCopyView dstTexture;
