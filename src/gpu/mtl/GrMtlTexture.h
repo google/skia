@@ -26,7 +26,7 @@ public:
 
     ~GrMtlTexture() override;
 
-    id<MTLTexture> mtlTexture() const { return fTexture; }
+    virtual id<MTLTexture> mtlTexture() const { return fTexture; }
 
     GrBackendTexture getBackendTexture() const override;
 
@@ -54,6 +54,8 @@ protected:
          return false;
      }
 
+    mutable id<MTLTexture> fTexture;
+
 private:
     enum Wrapped { kWrapped };
 
@@ -62,8 +64,6 @@ private:
 
     GrMtlTexture(GrMtlGpu*, Wrapped, const GrSurfaceDesc&, id<MTLTexture>, GrMipMapsStatus,
                  GrWrapCacheable, GrIOType);
-
-    id<MTLTexture> fTexture;
 
     typedef GrTexture INHERITED;
 };

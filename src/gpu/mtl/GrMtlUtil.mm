@@ -15,6 +15,7 @@
 #include "src/sksl/SkSLCompiler.h"
 
 #import <Metal/Metal.h>
+#import <QuartzCore/CAMetalLayer.h>
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
@@ -277,13 +278,44 @@ id<MTLTexture> GrGetMTLTextureFromSurface(GrSurface* surface) {
     return mtlTexture;
 }
 
+id<MTLTexture> GrCreateMSAAMtlTexture(GrMtlGpu* gpu, const GrSurfaceDesc& desc, int sampleCnt) {
+    MTLPixelFormat format;
+    if (!GrPixelConfigToMTLFormat(desc.fConfig, &format)) {
+        return nullptr;
+    }
+    MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
+    texDesc.textureType = MTLTextureType2DMultisample;
+    texDesc.pixelFormat = format;
+    texDesc.width = desc.fWidth;
+    texDesc.height = desc.fHeight;
+    texDesc.depth = 1;
+    texDesc.mipmapLevelCount = 1;
+    texDesc.sampleCount = sampleCnt;
+    texDesc.arrayLength = 1;
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        texDesc.storageMode = MTLStorageModePrivate;
+        texDesc.usage = MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
+    }
+
+    return [gpu->device() newTextureWithDescriptor:texDesc];
+}
 
 //////////////////////////////////////////////////////////////////////////////
 // CPP Utils
 
-GrMTLPixelFormat GrGetMTLPixelFormatFromMtlTextureInfo(const GrMtlTextureInfo& info) {
-    id<MTLTexture> mtlTexture = GrGetMTLTexture(info.fTexture.get());
-    return static_cast<GrMTLPixelFormat>(mtlTexture.pixelFormat);
+GrMTLPixelFormat GrGetMTLPixelFormatFromMtlTextureInfo(const GrMtlTextureInfo& textureInfo,
+                                                       const GrMtlLayerInfo& layerInfo) {
+    id<MTLTexture> mtlTexture = GrGetMTLTexture(textureInfo.fTexture.get());
+    MTLPixelFormat pixelFormat = MTLPixelFormatInvalid;
+    if (mtlTexture) {
+        pixelFormat = mtlTexture.pixelFormat;
+    } else {
+        CAMetalLayer* mtlLayer = (__bridge CAMetalLayer*)(layerInfo.fLayer.get());
+        if (mtlLayer) {
+            pixelFormat = mtlLayer.pixelFormat;
+        }
+    }
+    return static_cast<GrMTLPixelFormat>(pixelFormat);
 }
 
 bool GrMtlFormatIsCompressed(MTLPixelFormat mtlFormat) {

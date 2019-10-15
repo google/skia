@@ -317,45 +317,6 @@ public:
                                                     const SkSurfaceProps* surfaceProps);
 #endif
 
-#ifdef SK_METAL
-    /** Private.
-        Creates SkSurface from CAMetalLayer.
-        Returned SkSurface takes a reference on the CAMetalLayer. The ref on the layer will be
-        released when the SkSurface is destroyed.
-
-        Only available when Metal API is enabled.
-
-        Will grab the current drawable from the layer and use its texture as a backendRT to
-        create a renderable surface.
-
-        @param context         GPU context
-        @param layer           GrMTLHandle (expected to be a CAMetalLayer*)
-        @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
-        @param colorType       one of:
-                               kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
-                               kARGB_4444_SkColorType, kRGBA_8888_SkColorType,
-                               kRGB_888x_SkColorType, kBGRA_8888_SkColorType,
-                               kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-                               kGray_8_SkColorType, kRGBA_F16_SkColorType
-        @param colorSpace      range of colors; may be nullptr
-        @param surfaceProps    LCD striping orientation and setting for device independent
-                               fonts; may be nullptr
-        @param drawable        Pointer to drawable to be filled in when this surface is
-                               instantiated; may not be nullptr
-        @return                created SkSurface, or nullptr
-     */
-    static sk_sp<SkSurface> MakeFromCAMetalLayer(GrContext* context,
-                                                 GrMTLHandle layer,
-                                                 GrSurfaceOrigin origin,
-                                                 int sampleCnt,
-                                                 SkColorType colorType,
-                                                 sk_sp<SkColorSpace> colorSpace,
-                                                 const SkSurfaceProps* surfaceProps,
-                                                 GrMTLHandle* drawable);
-
-#endif
-
     /** Returns SkSurface on GPU indicated by context. Allocates memory for
         pixels, based on the width, height, and SkColorType in SkImageInfo.  budgeted
         selects whether allocation for pixels is tracked by context. imageInfo

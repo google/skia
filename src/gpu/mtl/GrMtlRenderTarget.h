@@ -30,8 +30,8 @@ public:
         return true;
     }
 
-    id<MTLTexture> mtlColorTexture() const { return fColorTexture; }
-    id<MTLTexture> mtlResolveTexture() const { return fResolveTexture; }
+    virtual id<MTLTexture> mtlColorTexture() const { return fColorTexture; }
+    virtual id<MTLTexture> mtlResolveTexture() const { return fResolveTexture; }
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
 
@@ -67,8 +67,8 @@ protected:
                                       numColorSamples, GrMipMapped::kNo);
     }
 
-    id<MTLTexture> fColorTexture;
-    id<MTLTexture> fResolveTexture;
+    mutable id<MTLTexture> fColorTexture;
+    mutable id<MTLTexture> fResolveTexture;
 
 private:
     // Extra param to disambiguate from constructor used by subclasses.
@@ -88,7 +88,6 @@ private:
 
     typedef GrRenderTarget INHERITED;
 };
-
 
 #endif
 
