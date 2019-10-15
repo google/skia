@@ -65,6 +65,18 @@ namespace GrQuadPerEdgeAA {
         int localDimensionality() const;
 
         int verticesPerQuad() const { return fUsesCoverageAA ? 8 : 4; }
+
+        bool operator==(const VertexSpec& other) const {
+            return fDeviceQuadType == other.fDeviceQuadType &&
+                   fLocalQuadType  == other.fLocalQuadType &&
+                   fHasLocalCoords == other.fHasLocalCoords &&
+                   fColorType      == other.fColorType &&
+                   fHasDomain      == other.fHasDomain &&
+                   fUsesCoverageAA == other.fUsesCoverageAA &&
+                   fCompatibleWithCoverageAsAlpha == other.fCompatibleWithCoverageAsAlpha &&
+                   fRequiresGeometryDomain == other.fRequiresGeometryDomain;
+        }
+
     private:
         static_assert(GrQuad::kTypeCount <= 4, "GrQuad::Type doesn't fit in 2 bits");
         static_assert(kColorTypeCount <= 4, "Color doesn't fit in 2 bits");

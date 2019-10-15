@@ -578,7 +578,7 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
     fDAG.swap(&ddl->fRenderTasks);
 
     for (auto renderTask : ddl->fRenderTasks) {
-        renderTask->prePrepare();
+        renderTask->prePrepare(fContext);
     }
 
     if (fPathRendererChain) {
