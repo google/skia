@@ -65,11 +65,11 @@ private:
 };
 
     using ShapeVisitor =
-            std::function<SkScalar(SkSpan<const char>, SkSpan<Block>, SkScalar&, size_t)>;
+            std::function<SkScalar(SkSpan<const char>, SkSpan<Block>, SkScalar&, TextIndex)>;
     bool iterateThroughShapingRegions(ShapeVisitor shape);
 
     using ShapeSingleFontVisitor = std::function<void(Block)>;
-    void iterateThroughFonts(SkSpan<Block> styleSpan, ShapeSingleFontVisitor visitor);
+    void iterateThroughFontStyles(SkSpan<Block> styleSpan, ShapeSingleFontVisitor visitor);
 
     using TypefaceVisitor = std::function<bool(sk_sp<SkTypeface> typeface)>;
     void matchResolvedFonts(const TextStyle& textStyle, SkUnichar unicode, TypefaceVisitor visitor);
@@ -98,12 +98,15 @@ private:
 
     TextRange clusteredText(GlyphRange glyphs);
     void addResolved(GlyphRange glyphRange);
-    void addUnresolved(GlyphRange glyphRange);
-    void addUnresolvedWithRun(GlyphRange glyphRange);
+    bool addUnresolved(GlyphRange glyphRange);
+    bool addUnresolvedWithRun(GlyphRange glyphRange);
     void sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnresolvedBLock);
+    ClusterRange normalizeTextRange(GlyphRange glyphRange);
+    void increment(TextIndex& index);
 
     ParagraphImpl* fParagraph;
-    size_t fTextStart;
+    TextIndex fTextStart;
+    TextRange fTextRange;
     SkScalar fHeight;
     SkVector fAdvance;
 

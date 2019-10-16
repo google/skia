@@ -26,7 +26,7 @@ Run::Run(ParagraphImpl* master,
         : fMaster(master)
         , fTextRange(firstChar + info.utf8Range.begin(), firstChar + info.utf8Range.end())
         , fClusterRange(EMPTY_CLUSTERS)
-        , fFirstChar(firstChar) {
+        , fClusterStart(firstChar) {
     fFont = info.fFont;
     fHeightMultiplier = lineHeight;
     fBidiLevel = info.fBidiLevel;
@@ -42,7 +42,7 @@ Run::Run(ParagraphImpl* master,
     fSpaced = false;
     // To make edge cases easier:
     fPositions[info.glyphCount] = fOffset + fAdvance;
-    fClusterIndexes[info.glyphCount] = info.utf8Range.end();
+    fClusterIndexes[info.glyphCount] = this->leftToRight() ? info.utf8Range.end() : info.utf8Range.begin();
     fEllipsis = false;
     fPlaceholder = nullptr;
 }
@@ -58,7 +58,11 @@ SkScalar Run::calculateWidth(size_t start, size_t end, bool clip) const {
     if (fSpaced && end > start) {
         offset = fOffsets[clip ? end - 1 : end] - fOffsets[start];
     }
-    auto correction = end > start ? fMaster->posShift(fIndex, end - 1) - fMaster->posShift(fIndex, start) : 0;
+    auto correction = 0.0f;
+    if (end > start) {
+        correction = fMaster->posShift(fIndex, clip ? end - 1 : end) -
+                     fMaster->posShift(fIndex, start);
+    }
     return fPositions[end].fX - fPositions[start].fX + offset + correction;
 }
 
@@ -148,8 +152,8 @@ void Run::iterateThroughClustersInTextOrder(const ClusterVisitor& visitor) {
 
             visitor(start,
                     glyph,
-                    fFirstChar + cluster,
-                    fFirstChar + nextCluster,
+                    fClusterStart + cluster,
+                    fClusterStart + nextCluster,
                     this->calculateWidth(start, glyph, glyph == size()),
                     this->calculateHeight());
 
@@ -168,8 +172,8 @@ void Run::iterateThroughClustersInTextOrder(const ClusterVisitor& visitor) {
 
             visitor(start,
                     glyph,
-                    fFirstChar + cluster,
-                    fFirstChar + nextCluster,
+                    fClusterStart + cluster,
+                    fClusterStart + nextCluster,
                     this->calculateWidth(start, glyph, glyph == 0),
                     this->calculateHeight());
 

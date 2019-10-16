@@ -38,7 +38,7 @@ bool equal(const char* base, TextRange a, const char* b) {
 }
 class TestFontCollection : public FontCollection {
 public:
-    TestFontCollection()
+    TestFontCollection(bool testOnly = false)
             : fFontsFound(false)
             , fResolvedFonts(0)
             , fResourceDir(GetResourcePath("fonts").c_str())
@@ -63,7 +63,11 @@ public:
             fFontProvider->registerTypeface(SkTypeface::MakeFromFile(file_path.c_str()));
         }
 
-        this->setAssetFontManager(std::move(fFontProvider));
+        if (testOnly) {
+            this->setTestFontManager(std::move(fFontProvider));
+        } else {
+            this->setAssetFontManager(std::move(fFontProvider));
+        }
         this->disableFontFallback();
 
         if (!fFontsFound) SkDebugf("Fonts not found, skipping all the tests\n");
@@ -979,7 +983,7 @@ DEF_TEST(SkParagraph_SimpleRedParagraph, reporter) {
 }
 
 // Checked: DIFF+ (Space between 1 & 2 style blocks)
-DEF_TEST_DISABLED(SkParagraph_RainbowParagraph, reporter) {
+DEF_TEST(SkParagraph_RainbowParagraph, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     TestCanvas canvas("SkParagraph_RainbowParagraph.png");
     if (!fontCollection->fontsFound()) return;
@@ -1184,7 +1188,7 @@ DEF_TEST(SkParagraph_BoldParagraph, reporter) {
 }
 
 // Checked: NO DIFF (line height rounding error)
-DEF_TEST_DISABLED(SkParagraph_HeightOverrideParagraph, reporter) {
+DEF_TEST(SkParagraph_HeightOverrideParagraph, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_HeightOverrideParagraph.png");
@@ -1210,7 +1214,7 @@ DEF_TEST_DISABLED(SkParagraph_HeightOverrideParagraph, reporter) {
     paragraph->layout(550);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-    REPORTER_ASSERT(reporter, impl->runs().size() == 3);
+    REPORTER_ASSERT(reporter, impl->runs().size() == 5);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);  // paragraph style does not count
     REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
 
@@ -1590,7 +1594,7 @@ DEF_TEST(SkParagraph_JustifyAlignParagraph, reporter) {
 
 // Checked: DIFF (ghost spaces as a separate box in TxtLib)
 DEF_TEST(SkParagraph_JustifyRTL, reporter) {
-    sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+    sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>(true);
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_JustifyRTL.png");
     const char* text =
@@ -1640,7 +1644,7 @@ DEF_TEST(SkParagraph_JustifyRTL, reporter) {
     RectWidthStyle rect_width_style = RectWidthStyle::kTight;
     auto boxes = paragraph->getRectsForRange(0, 100, rect_height_style, rect_width_style);
     canvas.drawRects(SK_ColorRED, boxes);
-    REPORTER_ASSERT(reporter, boxes.size() == 3); // DIFF
+    REPORTER_ASSERT(reporter, boxes.size() == 5);
 
     boxes = paragraph->getRectsForRange(240, 250, rect_height_style, rect_width_style);
     canvas.drawRects(SK_ColorBLUE, boxes);
@@ -1777,7 +1781,7 @@ DEF_TEST(SkParagraph_WavyDecorationParagraph, reporter) {
 }
 
 // Checked: NO DIFF
-DEF_TEST_DISABLED(SkParagraph_ItalicsParagraph, reporter) {
+DEF_TEST(SkParagraph_ItalicsParagraph, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_ItalicsParagraph.png");
@@ -2027,7 +2031,7 @@ DEF_TEST(SkParagraph_ArabicRectsLTRLeftAlignParagraph, reporter) {
 }
 
 // Checked DIFF+
-DEF_TEST_DISABLED(SkParagraph_ArabicRectsLTRRightAlignParagraph, reporter) {
+DEF_TEST(SkParagraph_ArabicRectsLTRRightAlignParagraph, reporter) {
 
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
@@ -3283,7 +3287,7 @@ DEF_TEST(SkParagraph_LongWordParagraph, reporter) {
 }
 
 // Checked: DIFF?
-DEF_TEST_DISABLED(SkParagraph_KernScaleParagraph, reporter) {
+DEF_TEST(SkParagraph_KernScaleParagraph, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_KernScaleParagraph.png");
@@ -3780,8 +3784,8 @@ DEF_TEST(SkParagraph_BaselineParagraph, reporter) {
                     SkScalarNearlyEqual(paragraph->getAlphabeticBaseline(), 63.305f, EPSILON100));
 }
 
-// Checked: NO DIFF
-DEF_TEST_DISABLED(SkParagraph_FontFallbackParagraph, reporter) {
+// Checked: NO DIFF (number of runs only)
+DEF_TEST(SkParagraph_FontFallbackParagraph, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_FontFallbackParagraph.png");
@@ -3847,22 +3851,20 @@ DEF_TEST_DISABLED(SkParagraph_FontFallbackParagraph, reporter) {
     // Font resolution in Skia produces 6 runs because 2 parts of "Roboto 字典 " have different
     // script (Minikin merges the first 2 into one because of unresolved) [Apple + Unresolved ]
     // [Apple + Noto] [Apple + Han]
-    REPORTER_ASSERT(reporter, impl->runs().size() == 6);
+    REPORTER_ASSERT(reporter, impl->runs().size() == 7);
 
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[0].advance().fX, 48.330f, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[1].advance().fX, 15.879f, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[2].advance().fX, 139.125f, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[3].advance().fX, 27.999f, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[4].advance().fX, 62.248f, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[5].advance().fX, 27.999f, EPSILON100));
+    auto robotoAdvance = impl->runs()[0].advance().fX +
+                         impl->runs()[1].advance().fX +
+                         impl->runs()[2].advance().fX;
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(robotoAdvance, 64.199f, EPSILON50));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[3].advance().fX, 139.125f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[4].advance().fX, 27.999f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[5].advance().fX, 62.248f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[6].advance().fX, 27.999f, EPSILON100));
 
     // When a different font is resolved, then the metrics are different.
-    REPORTER_ASSERT(reporter, impl->runs()[1].correctAscent() != impl->runs()[3].correctAscent());
-    REPORTER_ASSERT(reporter, impl->runs()[1].correctDescent() != impl->runs()[3].correctDescent());
-    REPORTER_ASSERT(reporter, impl->runs()[3].correctAscent() != impl->runs()[5].correctAscent());
-    REPORTER_ASSERT(reporter, impl->runs()[3].correctDescent() != impl->runs()[5].correctDescent());
-    REPORTER_ASSERT(reporter, impl->runs()[1].correctAscent() != impl->runs()[5].correctAscent());
-    REPORTER_ASSERT(reporter, impl->runs()[1].correctDescent() != impl->runs()[5].correctDescent());
+    REPORTER_ASSERT(reporter, impl->runs()[4].correctAscent() != impl->runs()[6].correctAscent());
+    REPORTER_ASSERT(reporter, impl->runs()[4].correctDescent() != impl->runs()[6].correctDescent());
 }
 
 // Checked: NO DIFF
@@ -4354,7 +4356,7 @@ DEF_TEST(SkParagraph_FontFeaturesParagraph, reporter) {
 }
 
 // Not in Minikin
-DEF_TEST_DISABLED(SkParagraph_WhitespacesInMultipleFonts, reporter) {
+DEF_TEST(SkParagraph_WhitespacesInMultipleFonts, reporter) {
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
     if (!fontCollection->fontsFound()) return;
     const char* text = "English English 字典 字典 😀😃😄 😀😃😄";
@@ -4375,9 +4377,12 @@ DEF_TEST_DISABLED(SkParagraph_WhitespacesInMultipleFonts, reporter) {
     auto paragraph = builder.Build();
     paragraph->layout(TestCanvasWidth);
     SkDEBUGCODE(auto impl = static_cast<ParagraphImpl*>(paragraph.get());)
-            SkASSERT(impl->runs().size() == 3);
-    SkASSERT(impl->runs()[0].textRange().end == impl->runs()[1].textRange().start);
-    SkASSERT(impl->runs()[1].textRange().end == impl->runs()[2].textRange().start);
+    //SkASSERT(impl->runs().size() == 3); // It really does not matter
+    for (size_t i = 0; i < impl->runs().size() - 1; ++i) {
+        auto first = impl->runs()[i].textRange();
+        auto next  = impl->runs()[i + 1].textRange();
+        SkASSERT(first.end == next.start);
+    }
 }
 
 DEF_TEST(SkParagraph_JSON1, reporter) {

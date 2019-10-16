@@ -128,11 +128,19 @@ public:
     sk_sp<FontCollection> fontCollection() const { return fFontCollection; }
     void formatLines(SkScalar maxWidth);
 
-    void shiftCluster(ClusterIndex index, SkScalar shift) {
+    void shiftCluster(ClusterIndex index, SkScalar shift, SkScalar lastShift) {
         auto& cluster = fClusters[index];
-        auto& run = fRunShifts[cluster.runIndex()];
-        for (size_t pos = cluster.startPos(); pos < cluster.endPos(); ++pos) {
-            run.fShifts[pos] = shift;
+        auto& runShift = fRunShifts[cluster.runIndex()];
+        auto& run = fRuns[cluster.runIndex()];
+        auto start = cluster.startPos();
+        auto end = cluster.endPos();
+        if (!run.leftToRight()) {
+            runShift.fShifts[start] = lastShift;
+            ++start;
+            ++end;
+        }
+        for (size_t pos = start; pos < end; ++pos) {
+            runShift.fShifts[pos] = shift;
         }
     }
 
@@ -186,16 +194,6 @@ public:
     void setState(InternalState state);
     sk_sp<SkPicture> getPicture() { return fPicture; }
 
-    using ShapeVisitor =
-            std::function<SkScalar(SkSpan<const char>, SkSpan<Block>, SkScalar&, size_t)>;
-    bool iterateThroughShapingRegions(ShapeVisitor shape);
-
-    using ShapeSingleFontVisitor = std::function<void(Block)>;
-    void iterateThroughSingleFontRegions(SkSpan<Block> styleSpan, ShapeSingleFontVisitor);
-
-    using TypefaceVisitor = std::function<bool(sk_sp<SkTypeface> typeface)>;
-    void iterateThroughTypefaces(const TextStyle& textStyle, SkUnichar unicode, TypefaceVisitor visitor);
-
     void resetContext();
     void resolveStrut();
     void resetRunShifts();
@@ -226,6 +224,7 @@ private:
     BlockRange findAllBlocks(TextRange textRange);
     void extractStyles();
 
+    void markGraphemes16();
     void markGraphemes();
 
     // Input
@@ -243,8 +242,9 @@ private:
     InternalState fState;
     SkTArray<Run, false> fRuns;                // kShaped
     SkTArray<Cluster, true> fClusters;  // kClusterized (cached: text, word spacing, letter spacing, resolved fonts)
-    SkTArray<Grapheme, true> fGraphemes;
+    SkTArray<Grapheme, true> fGraphemes16;
     SkTArray<Codepoint, true> fCodePoints;
+    SkTArray<size_t> fGraphemes;
 
     SkTArray<RunShifts, false> fRunShifts;
     SkTArray<TextLine, true> fLines;    // kFormatted   (cached: width, max lines, ellipsis, text align)
