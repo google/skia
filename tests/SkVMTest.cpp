@@ -100,7 +100,7 @@ DEF_TEST(SkVM, r) {
         skvm::Arg arg = b.varying<int>();
 
         // x and y can both be hoisted,
-        // and x can die at y, while y lives forever.
+        // and x can die at y, while y must live for the loop.
         skvm::I32 x = b.splat(1),
                   y = b.add(x, b.splat(2));
         b.store32(arg, b.mul(b.load32(arg), y));
@@ -110,12 +110,12 @@ DEF_TEST(SkVM, r) {
 
         std::vector<skvm::Builder::Instruction> insts = b.program();
         REPORTER_ASSERT(r, insts.size() == 6);
-        REPORTER_ASSERT(r,  insts[0].hoist && insts[0].death == 2);
-        REPORTER_ASSERT(r,  insts[1].hoist && insts[1].death == 2);
-        REPORTER_ASSERT(r,  insts[2].hoist && insts[2].death == 6);
-        REPORTER_ASSERT(r, !insts[3].hoist);
-        REPORTER_ASSERT(r, !insts[4].hoist);
-        REPORTER_ASSERT(r, !insts[5].hoist);
+        REPORTER_ASSERT(r,  insts[0].can_hoist && insts[0].death == 2 && !insts[0].used_in_loop);
+        REPORTER_ASSERT(r,  insts[1].can_hoist && insts[1].death == 2 && !insts[1].used_in_loop);
+        REPORTER_ASSERT(r,  insts[2].can_hoist && insts[2].death == 4 &&  insts[2].used_in_loop);
+        REPORTER_ASSERT(r, !insts[3].can_hoist);
+        REPORTER_ASSERT(r, !insts[4].can_hoist);
+        REPORTER_ASSERT(r, !insts[5].can_hoist);
 
         dump(b, &buf);
 
@@ -245,7 +245,7 @@ DEF_TEST(SkVM_Pointless, r) {
     });
 
     for (const skvm::Builder::Instruction& inst : b.program()) {
-        REPORTER_ASSERT(r, inst.death == 0 && inst.hoist == true);
+        REPORTER_ASSERT(r, inst.death == 0 && inst.can_hoist == true);
     }
 }
 
@@ -579,9 +579,7 @@ DEF_TEST(SkVM_hoist, r) {
         b.store32(arg, x);
     }
 
-    // TODO: this really should JIT... a bug slipped in making it fail to.
-    // See https://skia-review.googlesource.com/c/skia/+/242591.
-    test_interpreter_only(r, b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
         int x = 4;
         program.eval(1, &x);
         // x += 0 + 1 + 2 + 3 + ... + 30 + 31
