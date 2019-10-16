@@ -132,8 +132,9 @@ namespace skvm {
 
         // d = op(n,m)
         using DOpNM = void(V d, V n, V m);
-        DOpNM  and16b, orr16b, eor16b, bic16b,
+        DOpNM  and16b, orr16b, eor16b, bic16b, bsl16b,
                add4s,  sub4s,  mul4s,
+              cmeq4s, cmgt4s,
                        sub8h,  mul8h,
               fadd4s, fsub4s, fmul4s, fdiv4s,
               tbl;

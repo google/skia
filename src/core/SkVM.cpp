@@ -978,10 +978,14 @@ namespace skvm {
     void Assembler::orr16b(V d, V n, V m) { this->op(0b0'1'0'01110'10'1, m, 0b00011'1, n, d); }
     void Assembler::eor16b(V d, V n, V m) { this->op(0b0'1'1'01110'00'1, m, 0b00011'1, n, d); }
     void Assembler::bic16b(V d, V n, V m) { this->op(0b0'1'0'01110'01'1, m, 0b00011'1, n, d); }
+    void Assembler::bsl16b(V d, V n, V m) { this->op(0b0'1'1'01110'01'1, m, 0b00011'1, n, d); }
 
     void Assembler::add4s(V d, V n, V m) { this->op(0b0'1'0'01110'10'1, m, 0b10000'1, n, d); }
     void Assembler::sub4s(V d, V n, V m) { this->op(0b0'1'1'01110'10'1, m, 0b10000'1, n, d); }
     void Assembler::mul4s(V d, V n, V m) { this->op(0b0'1'0'01110'10'1, m, 0b10011'1, n, d); }
+
+    void Assembler::cmeq4s(V d, V n, V m) { this->op(0b0'1'1'01110'10'1, m, 0b10001'1, n, d); }
+    void Assembler::cmgt4s(V d, V n, V m) { this->op(0b0'1'0'01110'10'1, m, 0b0011'0'1, n, d); }
 
     void Assembler::sub8h(V d, V n, V m) { this->op(0b0'1'1'01110'01'1, m, 0b10000'1, n, d); }
     void Assembler::mul8h(V d, V n, V m) { this->op(0b0'1'0'01110'01'1, m, 0b10011'1, n, d); }
@@ -1885,9 +1889,9 @@ namespace skvm {
                 case Op::mul_f32: a->fmul4s(dst(), r[x], r[y]); break;
                 case Op::div_f32: a->fdiv4s(dst(), r[x], r[y]); break;
 
-                case Op::mad_f32:
+                case Op::mad_f32: // fmla4s is z += x*y
                     if (avail & (1<<r[z])) { set_dst(r[z]); a->fmla4s( r[z],  r[x],  r[y]);   }
-                    else                   {                a->orr16b(tmp(),  r[z],  r[z]);
+                    else {                                  a->orr16b(tmp(),  r[z],  r[z]);
                                                             a->fmla4s(tmp(),  r[x],  r[y]);
                                        if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); } }
                                                             break;
@@ -1906,9 +1910,20 @@ namespace skvm {
                 case Op::bit_xor  : a->eor16b(dst(), r[x], r[y]); break;
                 case Op::bit_clear: a->bic16b(dst(), r[x], r[y]); break;
 
+                case Op::select: // bsl16b is x = x ? y : z
+                    if (avail & (1<<r[x])) { set_dst(r[x]); a->bsl16b( r[x],  r[y],  r[z]); }
+                    else {                                  a->orr16b(tmp(),  r[x],  r[x]);
+                                                            a->bsl16b(tmp(),  r[y],  r[z]);
+                                       if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); } }
+                                                            break;
+
                 case Op::shl_i32: a-> shl4s(dst(), r[x], imm); break;
                 case Op::shr_i32: a->ushr4s(dst(), r[x], imm); break;
                 case Op::sra_i32: a->sshr4s(dst(), r[x], imm); break;
+
+                case Op::eq_i32: a->cmeq4s(dst(), r[x], r[y]); break;
+                case Op::lt_i32: a->cmgt4s(dst(), r[y], r[x]); break;
+                case Op::gt_i32: a->cmgt4s(dst(), r[x], r[y]); break;
 
                 case Op::extract: if (imm) { a->ushr4s(tmp(), r[x], imm);
                                              a->and16b(dst(), tmp(), r[y]); }

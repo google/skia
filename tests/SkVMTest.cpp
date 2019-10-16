@@ -600,13 +600,7 @@ DEF_TEST(SkVM_select, r) {
         b.store32(buf, x);
     }
 
-#if defined(SK_CPU_ARM64)
-    // TODO: missing Op::select for ARMv8?
-    test_interpreter_only
-#else
-    test_jit_and_interpreter
-#endif
-    (r, b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
         int buf[] = { 0,1,2,3,4,5,6,7,8 };
         program.eval(SK_ARRAY_COUNT(buf), buf);
         for (int i = 0; i < (int)SK_ARRAY_COUNT(buf); i++) {
@@ -990,10 +984,14 @@ DEF_TEST(SkVM_Assembler, r) {
         a.orr16b(A::v4, A::v3, A::v1);
         a.eor16b(A::v4, A::v3, A::v1);
         a.bic16b(A::v4, A::v3, A::v1);
+        a.bsl16b(A::v4, A::v3, A::v1);
 
         a.add4s(A::v4, A::v3, A::v1);
         a.sub4s(A::v4, A::v3, A::v1);
         a.mul4s(A::v4, A::v3, A::v1);
+
+        a.cmeq4s(A::v4, A::v3, A::v1);
+        a.cmgt4s(A::v4, A::v3, A::v1);
 
         a.sub8h(A::v4, A::v3, A::v1);
         a.mul8h(A::v4, A::v3, A::v1);
@@ -1009,10 +1007,14 @@ DEF_TEST(SkVM_Assembler, r) {
         0x64,0x1c,0xa1,0x4e,
         0x64,0x1c,0x21,0x6e,
         0x64,0x1c,0x61,0x4e,
+        0x64,0x1c,0x61,0x6e,
 
         0x64,0x84,0xa1,0x4e,
         0x64,0x84,0xa1,0x6e,
         0x64,0x9c,0xa1,0x4e,
+
+        0x64,0x8c,0xa1,0x6e,
+        0x64,0x34,0xa1,0x4e,
 
         0x64,0x84,0x61,0x6e,
         0x64,0x9c,0x61,0x4e,
