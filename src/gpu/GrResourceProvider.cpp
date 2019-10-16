@@ -173,14 +173,15 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         return nullptr;
     }
 
-    // Compressed textures are read-only so they don't support re-use for scratch.
+    // Currently we don't recycle compressed textures as scratch. Additionally all compressed
+    // textures should be created through the createCompressedTexture function.
+    SkASSERT(!this->caps()->isFormatCompressed(format));
+
     // TODO: Support GrMipMapped::kYes in scratch texture lookup here.
-    if (!GrPixelConfigIsCompressed(desc.fConfig)) {
-        sk_sp<GrTexture> tex = this->getExactScratch(
-                desc, format, renderable, renderTargetSampleCnt, budgeted, mipMapped, isProtected);
-        if (tex) {
-            return tex;
-        }
+    sk_sp<GrTexture> tex = this->getExactScratch(
+            desc, format, renderable, renderTargetSampleCnt, budgeted, mipMapped, isProtected);
+    if (tex) {
+        return tex;
     }
 
     return fGpu->createTexture(desc, format, renderable, renderTargetSampleCnt, mipMapped, budgeted,
@@ -224,10 +225,9 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         return nullptr;
     }
 
-    // Currently we don't recycle compressed textures as scratch.
-    if (GrPixelConfigIsCompressed(desc.fConfig)) {
-        return nullptr;
-    }
+    // Currently we don't recycle compressed textures as scratch. Additionally all compressed
+    // textures should be created through the createCompressedTexture function.
+    SkASSERT(!this->caps()->isFormatCompressed(format));
 
     if (!fCaps->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, desc.fConfig, renderable,
                                       renderTargetSampleCnt, GrMipMapped::kNo)) {
@@ -256,7 +256,7 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc
                                                        GrProtected isProtected) {
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
-    SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig));
+    SkASSERT(!this->caps()->isFormatCompressed(format));
     SkASSERT(fCaps->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, desc.fConfig,
                                           renderable, renderTargetSampleCnt, GrMipMapped::kNo));
 

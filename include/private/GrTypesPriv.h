@@ -814,20 +814,6 @@ static constexpr GrPixelConfig GrCompressionTypePixelConfig(SkImage::Compression
 }
 
 /**
- * Returns true if the pixel config is a GPU-specific compressed format
- * representation.
- */
-static constexpr bool GrPixelConfigIsCompressed(GrPixelConfig config) {
-    switch (config) {
-        case kRGB_ETC1_GrPixelConfig:
-            return true;
-        default:
-            return false;
-    }
-    SkUNREACHABLE;
-}
-
-/**
  * Returns the data size for the given SkImage::CompressionType
  */
 static inline size_t GrCompressedFormatDataSize(SkImage::CompressionType compressionType,

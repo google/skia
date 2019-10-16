@@ -69,10 +69,6 @@ GrSurfaceProxy::GrSurfaceProxy(const GrBackendFormat& format,
         , fGpuMemorySize(kInvalidGpuMemorySize) {
     SkASSERT(fFormat.isValid());
     SkASSERT(is_valid_non_lazy(desc));
-    if (GrPixelConfigIsCompressed(desc.fConfig)) {
-        SkASSERT(renderable == GrRenderable::kNo);
-        fSurfaceFlags |= GrInternalSurfaceFlags::kReadOnly;
-    }
 }
 
 // Lazy-callback version
@@ -103,10 +99,6 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback,
     SkASSERT(fFormat.isValid());
     SkASSERT(fLazyInstantiateCallback);
     SkASSERT(is_valid_lazy(desc, fit));
-    if (GrPixelConfigIsCompressed(desc.fConfig)) {
-        SkASSERT(renderable == GrRenderable::kNo);
-        fSurfaceFlags |= GrInternalSurfaceFlags::kReadOnly;
-    }
 }
 
 // Wrapped version
