@@ -120,7 +120,7 @@ static_library("dawn_common") {
 dawn_json_generator("dawn_headers_gen") {
   target = "dawn_headers"
   outputs = [
-    "src/include/dawn/dawncpp.h",
+    "src/include/dawn/dawn_proc_table.h",
     "src/include/dawn/dawn.h",
   ]
 }
@@ -139,24 +139,41 @@ source_set("dawn_headers") {
   ]
 }
 
-dawn_json_generator("libdawn_gen") {
-  target = "libdawn"
+dawn_json_generator("dawncpp_gen") {
+  target = "dawncpp"
   outputs = [
     "src/dawn/dawncpp.cpp",
-    "src/dawn/dawn.c",
+    "src/include/dawn/dawncpp.h",
   ]
 }
 
-static_library("libdawn") {
+source_set("dawncpp") {
+  deps = [
+    ":dawn_headers",
+    ":dawncpp_gen",
+  ]
+  sources = get_target_outputs(":dawncpp_gen")
+  sources += [ "${dawn_root}/src/include/dawn/EnumClassBitmasks.h" ]
+}
+
+dawn_json_generator("libdawn_proc_gen") {
+  target = "dawn_proc"
+  outputs = [
+    "src/dawn/dawn_proc.c",
+  ]
+}
+
+static_library("libdawn_proc") {
   public_deps = [
     ":dawn_headers",
   ]
 
   defines = [ "DAWN_IMPLEMENTATION" ]
   deps = [
-    ":libdawn_gen",
+    ":libdawn_proc_gen",
   ]
-  sources = get_target_outputs(":libdawn_gen")
+  sources = get_target_outputs(":libdawn_proc_gen")
+  sources += [ "${dawn_root}/src/include/dawn/dawn_proc.h" ]
 }
 
 ###############################################################################
