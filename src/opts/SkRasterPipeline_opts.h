@@ -957,12 +957,23 @@ SI F approx_log2(F x) {
          -   1.498030302f * m
          -   1.725879990f / (0.3520887068f + m);
 }
+
+SI F approx_log(F x) {
+    const float ln2 = 0.69314718f;
+    return ln2 * approx_log2(x);
+}
+
 SI F approx_pow2(F x) {
     F f = fract(x);
     return bit_cast<F>(round(1.0f * (1<<23),
                              x + 121.274057500f
                                -   1.490129070f * f
                                +  27.728023300f / (4.84252568f - f)));
+}
+
+SI F approx_exp(F x) {
+    const float log2_e = 1.4426950408889634074f;
+    return approx_pow2(log2_e * x);
 }
 
 SI F approx_powf(F x, F y) {
@@ -1840,6 +1851,58 @@ STAGE(gamma_, const float* G) {
         U32 sign;
         v = strip_sign(v, &sign);
         return apply_sign(approx_powf(v, *G), sign);
+    };
+    r = fn(r);
+    g = fn(g);
+    b = fn(b);
+}
+
+STAGE(PQish, const skcms_TransferFunction* ctx) {
+    auto fn = [&](F v) {
+        U32 sign;
+        v = strip_sign(v, &sign);
+
+        F r = approx_powf(max(mad(ctx->b, approx_powf(v, ctx->c), ctx->a), 0)
+                           / (mad(ctx->e, approx_powf(v, ctx->c), ctx->d)),
+                        ctx->f);
+
+        return apply_sign(r, sign);
+    };
+    r = fn(r);
+    g = fn(g);
+    b = fn(b);
+}
+
+STAGE(HLGish, const skcms_TransferFunction* ctx) {
+    auto fn = [&](F v) {
+        U32 sign;
+        v = strip_sign(v, &sign);
+
+        const float R = ctx->a, G = ctx->b,
+                    a = ctx->c, b = ctx->d, c = ctx->e;
+
+        F r = if_then_else(v*R <= 1, approx_powf(v*R, G)
+                                   , approx_exp((v-c)*a) + b);
+
+        return apply_sign(r, sign);
+    };
+    r = fn(r);
+    g = fn(g);
+    b = fn(b);
+}
+
+STAGE(HLGinvish, const skcms_TransferFunction* ctx) {
+    auto fn = [&](F v) {
+        U32 sign;
+        v = strip_sign(v, &sign);
+
+        const float R = ctx->a, G = ctx->b,
+                    a = ctx->c, b = ctx->d, c = ctx->e;
+
+        F r = if_then_else(v <= 1, R * approx_powf(v, G)
+                                 , a * approx_log(v - b) + c);
+
+        return apply_sign(r, sign);
     };
     r = fn(r);
     g = fn(g);
@@ -4236,6 +4299,9 @@ STAGE_PP(swizzle, void* ctx) {
     NOT_IMPLEMENTED(matrix_4x3)  // TODO
     NOT_IMPLEMENTED(parametric)
     NOT_IMPLEMENTED(gamma_)
+    NOT_IMPLEMENTED(PQish)
+    NOT_IMPLEMENTED(HLGish)
+    NOT_IMPLEMENTED(HLGinvish)
     NOT_IMPLEMENTED(rgb_to_hsl)
     NOT_IMPLEMENTED(hsl_to_rgb)
     NOT_IMPLEMENTED(gauss_a_to_rgba)  // TODO
