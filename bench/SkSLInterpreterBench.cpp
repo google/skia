@@ -4,10 +4,14 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "bench/Benchmark.h"
 #include "include/utils/SkRandom.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
+
+// Without this build flag, this bench isn't runnable.
+#if defined(SK_ENABLE_SKSL_INTERPRETER)
 
 // Benchmarks the interpreter with a function that has a color-filter style signature
 class SkSLInterpreterCFBench : public Benchmark {
@@ -140,3 +144,4 @@ const char* kHighContrastFilterSrc = R"(
 
 DEF_BENCH(return new SkSLInterpreterCFBench("lumaToAlpha", 256, kLumaToAlphaSrc));
 DEF_BENCH(return new SkSLInterpreterCFBench("hcf", 256, kHighContrastFilterSrc));
+#endif // SK_ENABLE_SKSL_INTERPRETER
