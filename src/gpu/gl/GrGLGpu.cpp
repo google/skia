@@ -3660,7 +3660,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
 
         char* tmpPixels = (char*)pixelStorage.reset(totalSize);
 
-        GrFillInData(config, w, h, individualMipOffsets, tmpPixels, *color);
+        GrFillInData(textureColorType, w, h, individualMipOffsets, tmpPixels, *color);
         for (int i = 0; i < mipLevelCount; ++i) {
             size_t offset = individualMipOffsets[i];
 

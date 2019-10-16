@@ -26,7 +26,7 @@ size_t GrCompressedRowBytes(SkImage::CompressionType, int w);
 size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, int baseWidth, int baseHeight,
                                         SkTArray<size_t>* individualMipOffsets, int mipLevelCount);
 
-void GrFillInData(GrPixelConfig, int baseWidth, int baseHeight,
+void GrFillInData(GrColorType, int baseWidth, int baseHeight,
                   const SkTArray<size_t>& individualMipOffsets, char* dest, const SkColor4f& color);
 
 void GrFillInCompressedData(SkImage::CompressionType, int width, int height, char* dest,
