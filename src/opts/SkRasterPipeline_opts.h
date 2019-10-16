@@ -1473,15 +1473,12 @@ BLEND_MODE(softlight) {
 //
 // Anything extra we add beyond that is to make the math work with premul inputs.
 
-SI F max(F r, F g, F b) { return max(r, max(g, b)); }
-SI F min(F r, F g, F b) { return min(r, min(g, b)); }
-
-SI F sat(F r, F g, F b) { return max(r,g,b) - min(r,g,b); }
+SI F sat(F r, F g, F b) { return max(r, max(g,b)) - min(r, min(g,b)); }
 SI F lum(F r, F g, F b) { return r*0.30f + g*0.59f + b*0.11f; }
 
 SI void set_sat(F* r, F* g, F* b, F s) {
-    F mn  = min(*r,*g,*b),
-      mx  = max(*r,*g,*b),
+    F mn  = min(*r, min(*g,*b)),
+      mx  = max(*r, max(*g,*b)),
       sat = mx - mn;
 
     // Map min channel to 0, max channel to s, and scale the middle proportionally.
@@ -1499,8 +1496,8 @@ SI void set_lum(F* r, F* g, F* b, F l) {
     *b += diff;
 }
 SI void clip_color(F* r, F* g, F* b, F a) {
-    F mn = min(*r, *g, *b),
-      mx = max(*r, *g, *b),
+    F mn = min(*r, min(*g, *b)),
+      mx = max(*r, max(*g, *b)),
       l  = lum(*r, *g, *b);
 
     auto clip = [=](F c) {
@@ -1679,8 +1676,8 @@ STAGE(force_opaque    , Ctx::None) {  a = 1; }
 STAGE(force_opaque_dst, Ctx::None) { da = 1; }
 
 STAGE(rgb_to_hsl, Ctx::None) {
-    F mx = max(r,g,b),
-      mn = min(r,g,b),
+    F mx = max(r, max(g,b)),
+      mn = min(r, min(g,b)),
       d = mx - mn,
       d_rcp = 1.0f / d;
 
@@ -1723,8 +1720,8 @@ STAGE(hsl_to_rgb, Ctx::None) {
 
 // Derive alpha's coverage from rgb coverage and the values of src and dst alpha.
 SI F alpha_coverage_from_rgb_coverage(F a, F da, F cr, F cg, F cb) {
-    return if_then_else(a < da, min(cr,cg,cb)
-                              , max(cr,cg,cb));
+    return if_then_else(a < da, min(cr, min(cg,cb))
+                              , max(cr, max(cg,cb)));
 }
 
 STAGE(scale_1_float, const float* c) {
@@ -3150,8 +3147,6 @@ SI U32 if_then_else(I32 c, U32 t, U32 e) { return (t & c) | (e & ~c); }
 
 SI U16 max(U16 x, U16 y) { return if_then_else(x < y, y, x); }
 SI U16 min(U16 x, U16 y) { return if_then_else(x < y, x, y); }
-SI U16 max(U16 x, U16 y, U16 z) { return max(x, max(y, z)); }
-SI U16 min(U16 x, U16 y, U16 z) { return min(x, min(y, z)); }
 
 SI U16 from_float(float f) { return f * 255.0f + 0.5f; }
 
@@ -3879,8 +3874,8 @@ STAGE_PP(lerp_u8, const SkRasterPipeline_MemoryCtx* ctx) {
 
 // Derive alpha's coverage from rgb coverage and the values of src and dst alpha.
 SI U16 alpha_coverage_from_rgb_coverage(U16 a, U16 da, U16 cr, U16 cg, U16 cb) {
-    return if_then_else(a < da, min(cr,cg,cb)
-                              , max(cr,cg,cb));
+    return if_then_else(a < da, min(cr, min(cg,cb))
+                              , max(cr, max(cg,cb)));
 }
 STAGE_PP(scale_565, const SkRasterPipeline_MemoryCtx* ctx) {
     U16 cr,cg,cb;
