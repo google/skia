@@ -1471,25 +1471,37 @@ static void test_tags(skiatest::Reporter* reporter) {
 #endif
 }
 
-static void test_free_resource_messages(skiatest::Reporter* reporter) {
+static void test_free_texture_messages(skiatest::Reporter* reporter) {
+#if 0
     Mock mock(30000);
     GrContext* context = mock.context();
     GrResourceCache* cache = mock.cache();
     GrGpu* gpu = context->priv().getGpu();
 
+    GrBackendTexture tex1 = context->createBackendTexture(16, 16,
+                                                          SkColorType::kRGBA_8888_SkColorType,
+                                                          GrMipMapped::kNo, GrRenderable::kNo);
+    GrBackendTexture tex2 = context->createBackendTexture(16, 16,
+                                                          SkColorType::kRGBA_8888_SkColorType,
+                                                          GrMipMapped::kNo, GrRenderable::kNo);
+    GrBackendTexture tex3 = context->createBackendTexture(16, 16,
+                                                          SkColorType::kRGBA_8888_SkColorType,
+                                                          GrMipMapped::kNo, GrRenderable::kNo);
+
+
     TestResource* wrapped1 = TestResource::CreateWrapped(gpu, GrWrapCacheable::kYes);
-    cache->insertDelayedResourceUnref(wrapped1);
+    cache->insertDelayedTextureUnref(wrapped1);
 
     REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
 
     TestResource* wrapped2 = TestResource::CreateWrapped(gpu, GrWrapCacheable::kYes);
-    cache->insertDelayedResourceUnref(wrapped2);
+    cache->insertDelayedTextureUnref(wrapped2);
 
     // An uncacheable cross-context should not be purged as soon as we drop our ref. This
     // is because inserting it as a cross-context resource actually holds a ref until the
     // message is received.
     TestResource* wrapped3 = TestResource::CreateWrapped(gpu, GrWrapCacheable::kNo);
-    cache->insertDelayedResourceUnref(wrapped3);
+    cache->insertDelayedTextureUnref(wrapped3);
 
     REPORTER_ASSERT(reporter, 3 == TestResource::NumAlive());
 
@@ -1504,14 +1516,14 @@ static void test_free_resource_messages(skiatest::Reporter* reporter) {
     cache->purgeAsNeeded();
 
     // Send message to free the first resource
-    GrGpuResourceFreedMessage msg1{wrapped1, context->priv().contextID()};
-    SkMessageBus<GrGpuResourceFreedMessage>::Post(msg1);
+    GrTextureFreedMessage msg1{wrapped1, context->priv().contextID()};
+    SkMessageBus<GrTextureFreedMessage>::Post(msg1);
     cache->purgeAsNeeded();
 
     REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
 
-    GrGpuResourceFreedMessage msg2{wrapped3, context->priv().contextID()};
-    SkMessageBus<GrGpuResourceFreedMessage>::Post(msg2);
+    GrTextureFreedMessage msg2{wrapped3, context->priv().contextID()};
+    SkMessageBus<GrTextureFreedMessage>::Post(msg2);
     cache->purgeAsNeeded();
 
     REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
@@ -1519,8 +1531,10 @@ static void test_free_resource_messages(skiatest::Reporter* reporter) {
     mock.reset();
 
     REPORTER_ASSERT(reporter, 0 == TestResource::NumAlive());
-}
 
+    context->deleteBackendTexture(backendTex);
+#endif
+}
 
 DEF_GPUTEST(ResourceCacheMisc, reporter, /* options */) {
     // The below tests create their own mock contexts.
@@ -1541,7 +1555,7 @@ DEF_GPUTEST(ResourceCacheMisc, reporter, /* options */) {
     test_custom_data(reporter);
     test_abandoned(reporter);
     test_tags(reporter);
-    test_free_resource_messages(reporter);
+//    test_free_texture_messages(reporter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
