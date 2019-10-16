@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "51022f4b_f0cd5a0a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-16T18:53:10Z",
+      "side": 1,
+      "message": "It wasn\u0027t going to inspire confidence in our software engineering practices though :)",
+      "parentUuid": "78082f5e_be70e6d4",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 97
+      },
+      "revId": "9be41e0c431c6a7fb6d8ea726241ddc8ed8bded8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "420026e6_51591e39",
         "filename": "src/gpu/GrContext.cpp",
         "patchSetId": 8
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "3c667fcb_b6c81305",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-16T18:53:10Z",
+      "side": 1,
+      "message": "In this case the purgeAsNeeded could call processFreedGpuResources which would actually try to use the fTexture pointer (to get its uniqueID) stored in any GrTextureFreedMessages that had been queued up",
+      "parentUuid": "420026e6_51591e39",
+      "range": {
+        "startLine": 185,
+        "startChar": 4,
+        "endLine": 187,
+        "endChar": 5
+      },
+      "revId": "9be41e0c431c6a7fb6d8ea726241ddc8ed8bded8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "92c50891_fbff5459",
         "filename": "tests/ResourceCacheTest.cpp",
         "patchSetId": 8
@@ -59,6 +107,30 @@
       "writtenOn": "2019-10-16T18:43:34Z",
       "side": 1,
       "message": "do you need to delete these somewhere? The actual gpu allocations that is.",
+      "range": {
+        "startLine": 1490,
+        "startChar": 8,
+        "endLine": 1490,
+        "endChar": 19
+      },
+      "revId": "9be41e0c431c6a7fb6d8ea726241ddc8ed8bded8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4456901d_3d995de9",
+        "filename": "tests/ResourceCacheTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1490,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-16T18:53:10Z",
+      "side": 1,
+      "message": "I\u0027ll run the ASAN and valgrind bots but the Mock context doesn\u0027t actually allocate anything for the backend textures and line 1537 deletes the context (so we don\u0027t have anyone to free them anyway).",
+      "parentUuid": "92c50891_fbff5459",
       "range": {
         "startLine": 1490,
         "startChar": 8,
