@@ -168,7 +168,7 @@ private:
     uint8_t fBidiLevel;
     SkVector fAdvance;
     SkVector fOffset;
-    size_t fFirstChar;
+    TextIndex fClusterStart;
     SkShaper::RunHandler::Range fUtf8Range;
     SkSTArray<128, SkGlyphID, true> fGlyphs;
     SkSTArray<128, SkPoint, true> fPositions;
@@ -179,11 +179,12 @@ private:
 
 struct Codepoint {
 
-  Codepoint(GraphemeIndex graphemeIndex, TextIndex textIndex)
-    : fGrapeme(graphemeIndex), fTextIndex(textIndex) { }
+  Codepoint(GraphemeIndex graphemeIndex, TextIndex textIndex, size_t index)
+    : fGrapheme(graphemeIndex), fTextIndex(textIndex), fIndex(index) { }
 
-  GraphemeIndex fGrapeme;
+  GraphemeIndex fGrapheme;
   TextIndex fTextIndex;             // Used for getGlyphPositionAtCoordinate
+  size_t fIndex;
 };
 
 struct Grapheme {

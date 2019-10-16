@@ -466,11 +466,12 @@ void TextLine::justify(SkScalar maxWidth) {
 
         if (ghost) {
             if (leftToRight) {
-                fMaster->shiftCluster(index, ghostShift);
+                fMaster->shiftCluster(index, ghostShift, ghostShift);
             }
             return true;
         }
 
+        auto lastShift = shift;
         if (cluster->isWhitespaces()) {
             if (!whitespacePatch) {
                 shift += step;
@@ -480,7 +481,7 @@ void TextLine::justify(SkScalar maxWidth) {
         } else {
             whitespacePatch = false;
         }
-        fMaster->shiftCluster(index, shift);
+        fMaster->shiftCluster(index, shift, lastShift);
         return true;
     });
 
@@ -505,7 +506,7 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
 
             // Shape the ellipsis
             Run* run = shapeEllipsis(ellipsis, cluster->run());
-            run->fFirstChar = cluster->textRange().start;
+            run->fClusterStart = cluster->textRange().start;
             run->setMaster(fMaster);
             fEllipsis = std::make_shared<Run>(*run);
 
@@ -673,15 +674,15 @@ void TextLine::iterateThroughClustersInGlyphsOrder(bool reverse,
 }
 
 SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
-                                               SkScalar runOffset,
-                                               TextRange textRange,
-                                               StyleType styleType,
-                                               const RunStyleVisitor& visitor) const {
+                                                   SkScalar runOffset,
+                                                   TextRange textRange,
+                                                   StyleType styleType,
+                                                   const RunStyleVisitor& visitor) const {
 
     if (run->fEllipsis) {
         // Extra efforts to get the ellipsis text style
         ClipContext clipContext = this->measureTextInsideOneRun(run->textRange(), run, runOffset, 0, false, false);
-        TextRange testRange(run->fFirstChar, run->fFirstChar + 1);
+        TextRange testRange(run->fClusterStart, run->fClusterStart + 1);
         for (BlockIndex index = fBlockRange.start; index < fBlockRange.end; ++index) {
            auto block = fMaster->styles().begin() + index;
            auto intersect = intersected(block->fRange, testRange);
