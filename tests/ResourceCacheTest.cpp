@@ -1544,6 +1544,49 @@ DEF_GPUTEST(ResourceCacheMisc, reporter, /* options */) {
     test_free_resource_messages(reporter);
 }
 
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceMessagesAfterAbandon, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    GrGpu* gpu = context->priv().getGpu();
+    GrResourceCache* cache = context->priv().getResourceCache();
+
+    GrBackendTexture backend = context->createBackendTexture(16, 16,
+                                                             SkColorType::kRGBA_8888_SkColorType,
+                                                             GrMipMapped::kNo, GrRenderable::kNo);
+    GrTexture* tex = gpu->wrapBackendTexture(backend, GrColorType::kRGBA_8888,
+                                             GrWrapOwnership::kBorrow_GrWrapOwnership,
+                                             GrWrapCacheable::kYes,
+                                             GrIOType::kRead_GrIOType).release();
+
+    auto releaseProc = [](void* ctx) {
+        int* index = (int*) ctx;
+        *index = 1;
+    };
+
+    int freed = 0;
+
+    tex->setRelease(releaseProc, &freed);
+
+    cache->insertDelayedResourceUnref(tex);
+
+    // Now only the cache is holding a ref to this texture
+    tex->unref();
+
+    REPORTER_ASSERT(reporter, 0 == freed);
+
+    context->abandonContext();
+
+    REPORTER_ASSERT(reporter, 1 == freed);
+
+    // This downcast from a GrTexture (that has been deleted) to a GrGpuResource will cause a
+    // crash
+    GrGpuResourceFreedMessage msg{tex, context->priv().contextID()};
+    SkMessageBus<GrGpuResourceFreedMessage>::Post(msg);
+
+    context->purgeUnlockedResources(false);
+
+    context->deleteBackendTexture(backend);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
                                             GrRenderable renderable,
