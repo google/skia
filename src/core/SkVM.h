@@ -289,8 +289,9 @@ namespace skvm {
             int imm;        // Immediate bit pattern, shift count, argument index, etc.
 
             // Not populated until done() has been called.
-            int  death;     // Index of last live instruction taking this input; live if != 0.
-            bool hoist;     // Value independent of all loop variables?
+            int  death;         // Index of last live instruction taking this input; live if != 0.
+            bool can_hoist;     // Value independent of all loop variables?
+            bool used_in_loop;  // Is the value used in the loop (or only by hoisted values)?
         };
 
         Program done(const char* debug_name = nullptr);
@@ -435,16 +436,7 @@ namespace skvm {
             static size_t Hash(T val) {
                 return std::hash<T>{}(val);
             }
-            // TODO: replace with SkOpts::hash()?
-            size_t operator()(const Instruction& inst) const {
-                return Hash((uint8_t)inst.op)
-                     ^ Hash(inst.x)
-                     ^ Hash(inst.y)
-                     ^ Hash(inst.z)
-                     ^ Hash(inst.imm)
-                     ^ Hash(inst.death)
-                     ^ Hash(inst.hoist);
-            }
+            size_t operator()(const Instruction& inst) const;
         };
 
         Val push(Op, Val x, Val y=NA, Val z=NA, int imm=0);
@@ -501,7 +493,7 @@ namespace skvm {
         void setupJIT        (const std::vector<Builder::Instruction>&, const char* debug_name);
 
         bool jit(const std::vector<Builder::Instruction>&,
-                 bool hoist,
+                 bool try_hoisting,
                  Assembler*) const;
 
         // Dump jit-*.dump files for perf inject.

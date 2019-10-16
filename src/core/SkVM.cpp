@@ -96,8 +96,10 @@ namespace skvm {
                  y = inst.y,
                  z = inst.z;
             int imm = inst.imm;
-            write(o, inst.death == 0 ? "☠️ " :
-                     inst.hoist      ? "↑ " : "  ");
+            write(o,  inst.death == 0   ? "☠️ " :
+                     !inst.can_hoist    ? "  " :
+                      inst.used_in_loop ? "↑ " :
+                                          "↟ ");
             switch (op) {
                 case Op::store8:  write(o, "store8" , Arg{imm}, V{x}); break;
                 case Op::store16: write(o, "store16", Arg{imm}, V{x}); break;
@@ -317,50 +319,60 @@ namespace skvm {
 
             // Varying loads (and gathers) and stores cannot be hoisted out of the loop.
             if (inst.op <= Op::gather32) {
-                inst.hoist = false;
+                inst.can_hoist = false;
             }
 
             // If any of an instruction's inputs can't be hoisted, it can't be hoisted itself.
-            if (inst.hoist) {
-                if (inst.x != NA) { inst.hoist &= fProgram[inst.x].hoist; }
-                if (inst.y != NA) { inst.hoist &= fProgram[inst.y].hoist; }
-                if (inst.z != NA) { inst.hoist &= fProgram[inst.z].hoist; }
+            if (inst.can_hoist) {
+                if (inst.x != NA) { inst.can_hoist &= fProgram[inst.x].can_hoist; }
+                if (inst.y != NA) { inst.can_hoist &= fProgram[inst.y].can_hoist; }
+                if (inst.z != NA) { inst.can_hoist &= fProgram[inst.z].can_hoist; }
             }
 
-            // Any hoisted values used inside the loop need to live forever.
-            // TODO: this extends the lifetime of _hoistable_ values used inside the loop.
-            // Ultimately the JIT may or may not decide to actually hoist them, and if it
-            // doesn't, this is extending the lifetime of these values for no good reason,
-            // increasing register pressure, defeating the purpose of that no-hoist fallback.
-            if (!inst.hoist) {
-                auto make_immortal = [&](Val arg) {
-                    if (fProgram[arg].death != 0) {
-                        fProgram[arg].death = (Val)fProgram.size();
-                    }
-                };
-                if (inst.x != NA && fProgram[inst.x].hoist) { make_immortal(inst.x); }
-                if (inst.y != NA && fProgram[inst.y].hoist) { make_immortal(inst.y); }
-                if (inst.z != NA && fProgram[inst.z].hoist) { make_immortal(inst.z); }
+            // We'll want to know if hoisted values are used in the loop;
+            // if not, we can recycle their registers like we do loop values.
+            if (!inst.can_hoist /*i.e. we're in the loop, so the arguments are used_in_loop*/) {
+                if (inst.x != NA) { fProgram[inst.x].used_in_loop = true; }
+                if (inst.y != NA) { fProgram[inst.y].used_in_loop = true; }
+                if (inst.z != NA) { fProgram[inst.z].used_in_loop = true; }
             }
         }
 
         return {fProgram, fStrides, debug_name};
     }
 
+    // TODO: it's probably not important that we include post-Builder::done() fields like
+    // death, can_hoist, and used_in_loop in operator==() and InstructionHash::operator().
+    // They'll always have the same, initial values as set in Builder::push().
+
     static bool operator==(const Builder::Instruction& a, const Builder::Instruction& b) {
-        return a.op    == b.op
-            && a.x     == b.x
-            && a.y     == b.y
-            && a.z     == b.z
-            && a.imm   == b.imm
-            && a.death == b.death
-            && a.hoist == b.hoist;
+        return a.op           == b.op
+            && a.x            == b.x
+            && a.y            == b.y
+            && a.z            == b.z
+            && a.imm          == b.imm
+            && a.death        == b.death
+            && a.can_hoist    == b.can_hoist
+            && a.used_in_loop == b.used_in_loop;
+    }
+
+    // TODO: replace with SkOpts::hash()?
+    size_t Builder::InstructionHash::operator()(const Instruction& inst) const {
+        return Hash((uint8_t)inst.op)
+            ^ Hash(inst.x)
+            ^ Hash(inst.y)
+            ^ Hash(inst.z)
+            ^ Hash(inst.imm)
+            ^ Hash(inst.death)
+            ^ Hash(inst.can_hoist)
+            ^ Hash(inst.used_in_loop);
     }
 
     // Most instructions produce a value and return it by ID,
     // the value-producing instruction's own index in the program vector.
     Val Builder::push(Op op, Val x, Val y, Val z, int imm) {
-        Instruction inst{op, x, y, z, imm, /*death=*/0, /*hoist=*/true};
+        Instruction inst{op, x, y, z, imm,
+                         /*death=*/0, /*can_hoist=*/true, /*used_in_loop=*/false};
 
         // Basic common subexpression elimination:
         // if we've already seen this exact Instruction, use it instead of creating a new one.
@@ -1409,6 +1421,10 @@ namespace skvm {
         //
         // But recycling registers is fairly cheap, and good practice for the
         // JITs where minimizing register pressure really is important.
+        //
+        // Since we have effectively infinite registers, we hoist any value we can.
+        // (The JIT may choose a more complex policy to reduce register pressure.)
+        auto hoisted = [&](Val id) { return instructions[id].can_hoist; };
 
         fRegs = 0;
         int live_instructions = 0;
@@ -1422,7 +1438,9 @@ namespace skvm {
             // If this is a real input and it's lifetime ends at this instruction,
             // we can recycle the register it's occupying.
             auto maybe_recycle_register = [&](Val input) {
-                if (input != NA && instructions[input].death == id) {
+                if (input != NA
+                        && instructions[input].death == id
+                        && !(hoisted(input) && instructions[input].used_in_loop)) {
                     avail.push_back(reg[input]);
                 }
             };
@@ -1443,16 +1461,14 @@ namespace skvm {
 
         // Assign a register to each live hoisted instruction.
         for (Val id = 0; id < (Val)instructions.size(); id++) {
-            const Builder::Instruction& inst = instructions[id];
-            if (inst.death != 0 && inst.hoist) {
+            if (instructions[id].death != 0 && hoisted(id)) {
                 assign_register(id);
             }
         }
 
         // Assign registers to each live loop instruction.
         for (Val id = 0; id < (Val)instructions.size(); id++) {
-            const Builder::Instruction& inst = instructions[id];
-            if (inst.death != 0 && !inst.hoist) {
+            if (instructions[id].death != 0 && !hoisted(id)) {
                 assign_register(id);
 
             }
@@ -1486,14 +1502,14 @@ namespace skvm {
 
         for (Val id = 0; id < (Val)instructions.size(); id++) {
             const Builder::Instruction& inst = instructions[id];
-            if (inst.death != 0 && inst.hoist) {
+            if (inst.death != 0 && hoisted(id)) {
                 push_instruction(id, inst);
                 fLoop++;
             }
         }
         for (Val id = 0; id < (Val)instructions.size(); id++) {
             const Builder::Instruction& inst = instructions[id];
-            if (inst.death != 0 && !inst.hoist) {
+            if (inst.death != 0 && !hoisted(id)) {
                 push_instruction(id, inst);
             }
         }
@@ -1535,7 +1551,7 @@ namespace skvm {
     }
 
     bool Program::jit(const std::vector<Builder::Instruction>& instructions,
-                      const bool hoist,
+                      const bool try_hoisting,
                       Assembler* a) const {
         using A = Assembler;
 
@@ -1565,7 +1581,7 @@ namespace skvm {
         A::X N     = A::x0,
              arg[] = { A::x1, A::x2, A::x3, A::x4, A::x5, A::x6, A::x7 };
 
-        // We can use v0-v7 and v16-v31 freely; we'd need to preseve v8-v15.
+        // We can use v0-v7 and v16-v31 freely; we'd need to preserve v8-v15.
         using Reg = A::V;
         uint32_t avail = 0xffff00ff;
     #endif
@@ -1574,7 +1590,7 @@ namespace skvm {
             return false;
         }
 
-        auto hoisted = [&](Val id) { return hoist && instructions[id].hoist; };
+        auto hoisted = [&](Val id) { return try_hoisting && instructions[id].can_hoist; };
 
         std::vector<Reg> r(instructions.size());
 
@@ -1602,7 +1618,7 @@ namespace skvm {
 
                 case Op::bytes: if (!bytes_masks.find(imm)) {
                                     bytes_masks.set(imm, {});
-                                    if (hoist) {
+                                    if (try_hoisting) {
                                         // vpshufb can always work with the mask from memory,
                                         // but it helps to hoist the mask to a register for tbl.
                                     #if defined(__aarch64__)
@@ -1676,9 +1692,16 @@ namespace skvm {
 
             // Now make available any registers that are consumed by this instruction.
             // (The register pool we can pick dst from is >= the pool for tmp, adding any of these.)
-            if (x != NA && instructions[x].death == id) { avail |= 1 << r[x]; }
-            if (y != NA && instructions[y].death == id) { avail |= 1 << r[y]; }
-            if (z != NA && instructions[z].death == id) { avail |= 1 << r[z]; }
+            auto maybe_recycle_register = [&](Val input) {
+                if (input != NA
+                        && instructions[input].death == id
+                        && !(hoisted(input) && instructions[input].used_in_loop)) {
+                    avail |= 1 << r[input];
+                }
+            };
+            maybe_recycle_register(x);
+            maybe_recycle_register(y);
+            maybe_recycle_register(z);
             // set_dst() and dst() will work read/write with this perhaps-just-updated avail.
 
             // Some ops may decide dst on their own to best fit the instruction (see Op::mad_f32).
@@ -1901,10 +1924,11 @@ namespace skvm {
                 case Op::to_f32: a->scvtf4s (dst(), r[x]); break;
                 case Op::to_i32: a->fcvtzs4s(dst(), r[x]); break;
 
-                case Op::bytes: if (hoist) { a->tbl (dst(), r[x], bytes_masks.find(imm)->reg); }
-                                else       { a->ldrq(tmp(), &bytes_masks.find(imm)->label);
-                                             a->tbl (dst(), r[x], tmp()); }
-                                break;
+                case Op::bytes:
+                    if (try_hoisting) { a->tbl (dst(), r[x], bytes_masks.find(imm)->reg); }
+                    else              { a->ldrq(tmp(), &bytes_masks.find(imm)->label);
+                                        a->tbl (dst(), r[x], tmp()); }
+                                        break;
             #endif
             }
 
@@ -2026,10 +2050,10 @@ namespace skvm {
 
         // First try allowing code hoisting (faster code)
         // then again without if that fails (lower register pressure).
-        bool hoist = true;
-        if (!this->jit(instructions, hoist, &a)) {
-            hoist = false;
-            if (!this->jit(instructions, hoist, &a)) {
+        bool try_hoisting = true;
+        if (!this->jit(instructions, try_hoisting, &a)) {
+            try_hoisting = false;
+            if (!this->jit(instructions, try_hoisting, &a)) {
                 return;
             }
         }
@@ -2041,7 +2065,7 @@ namespace skvm {
 
         // Assemble the program for real.
         a = Assembler{fJITBuf};
-        SkAssertResult(this->jit(instructions, hoist, &a));
+        SkAssertResult(this->jit(instructions, try_hoisting, &a));
         SkASSERT(a.size() <= fJITSize);
 
         // Remap as executable, and flush caches on platforms that need that.
