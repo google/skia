@@ -12,7 +12,6 @@
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/include/TextStyle.h"
-#include "modules/skparagraph/src/FontResolver.h"
 #include "modules/skparagraph/src/Run.h"
 #include "modules/skparagraph/src/TextLine.h"
 
@@ -40,6 +39,14 @@ struct StyleBlock {
     }
     TextRange fRange;
     TStyle fStyle;
+};
+
+struct ResolvedFontDescriptor {
+
+    ResolvedFontDescriptor(TextIndex index, SkFont font)
+        : fFont(font), fTextStart(index) { }
+    SkFont fFont;
+    TextIndex fTextStart;
 };
 
 class TextBreaker {
@@ -118,7 +125,6 @@ public:
     SkSpan<const char> text() const { return SkSpan<const char>(fText.c_str(), fText.size()); }
     InternalState state() const { return fState; }
     SkSpan<Run> runs() { return SkSpan<Run>(fRuns.data(), fRuns.size()); }
-    const SkTArray<FontDescr>& switches() const { return fFontResolver.switches(); }
     SkSpan<Block> styles() {
         return SkSpan<Block>(fTextStyles.data(), fTextStyles.size());
     }
@@ -128,11 +134,19 @@ public:
     sk_sp<FontCollection> fontCollection() const { return fFontCollection; }
     void formatLines(SkScalar maxWidth);
 
-    void shiftCluster(ClusterIndex index, SkScalar shift) {
+    void shiftCluster(ClusterIndex index, SkScalar shift, SkScalar lastShift) {
         auto& cluster = fClusters[index];
-        auto& run = fRunShifts[cluster.runIndex()];
-        for (size_t pos = cluster.startPos(); pos < cluster.endPos(); ++pos) {
-            run.fShifts[pos] = shift;
+        auto& runShift = fRunShifts[cluster.runIndex()];
+        auto& run = fRuns[cluster.runIndex()];
+        auto start = cluster.startPos();
+        auto end = cluster.endPos();
+        if (!run.leftToRight()) {
+            runShift.fShifts[start] = lastShift;
+            ++start;
+            ++end;
+        }
+        for (size_t pos = start; pos < end; ++pos) {
+            runShift.fShifts[pos] = shift;
         }
     }
 
@@ -140,8 +154,6 @@ public:
         if (fRunShifts.count() == 0) return 0.0;
         return fRunShifts[index].fShifts[pos];
     }
-
-    SkScalar lineShift(size_t index) { return fLines[index].shift(); }
 
     bool strutEnabled() const { return paragraphStyle().getStrutStyle().getStrutEnabled(); }
     bool strutForceHeight() const {
@@ -180,21 +192,11 @@ public:
     Run& runByCluster(ClusterIndex clusterIndex);
     SkSpan<Block> blocks(BlockRange blockRange);
     Block& block(BlockIndex blockIndex);
+    SkTArray<ResolvedFontDescriptor> resolvedFonts() const { return fFontSwitches; }
 
     void markDirty() override { fState = kUnknown; }
-    FontResolver& getResolver() { return fFontResolver; }
     void setState(InternalState state);
     sk_sp<SkPicture> getPicture() { return fPicture; }
-
-    using ShapeVisitor =
-            std::function<SkScalar(SkSpan<const char>, SkSpan<Block>, SkScalar&, size_t)>;
-    bool iterateThroughShapingRegions(ShapeVisitor shape);
-
-    using ShapeSingleFontVisitor = std::function<void(Block)>;
-    void iterateThroughSingleFontRegions(SkSpan<Block> styleSpan, ShapeSingleFontVisitor);
-
-    using TypefaceVisitor = std::function<bool(sk_sp<SkTypeface> typeface)>;
-    void iterateThroughTypefaces(const TextStyle& textStyle, SkUnichar unicode, TypefaceVisitor visitor);
 
     void resetContext();
     void resolveStrut();
@@ -226,6 +228,7 @@ private:
     BlockRange findAllBlocks(TextRange textRange);
     void extractStyles();
 
+    void markGraphemes16();
     void markGraphemes();
 
     // Input
@@ -243,15 +246,17 @@ private:
     InternalState fState;
     SkTArray<Run, false> fRuns;                // kShaped
     SkTArray<Cluster, true> fClusters;  // kClusterized (cached: text, word spacing, letter spacing, resolved fonts)
-    SkTArray<Grapheme, true> fGraphemes;
+    SkTArray<Grapheme, true> fGraphemes16;
     SkTArray<Codepoint, true> fCodePoints;
+    SkTHashSet<size_t> fGraphemes;
 
     SkTArray<RunShifts, false> fRunShifts;
     SkTArray<TextLine, true> fLines;    // kFormatted   (cached: width, max lines, ellipsis, text align)
     sk_sp<SkPicture> fPicture;          // kRecorded    (cached: text styles)
 
+    SkTArray<ResolvedFontDescriptor> fFontSwitches;
+
     InternalLineMetrics fStrutMetrics;
-    FontResolver fFontResolver;
 
     SkScalar fOldWidth;
     SkScalar fOldHeight;
