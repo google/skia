@@ -159,6 +159,21 @@ public:
         return SkZip<SkGlyphVariant, SkPoint>{fInputSize, fMultiBuffer, fPositions};
     }
 
+    void flipDrawableToInput() {
+        SkASSERT(fPhase == kProcess);
+        fInputSize = fDrawableSize;
+        fDrawableSize = 0;
+        SkDEBUGCODE(fPhase = kInput);
+    }
+
+    void push_back(size_t from) {
+        SkASSERT(fPhase == kProcess);
+        SkASSERT(fDrawableSize <= from);
+        fPositions[fDrawableSize] = fPositions[from];
+        fMultiBuffer[fDrawableSize] = fMultiBuffer[from];
+        fDrawableSize++;
+    }
+
     // Store the glyph in the next drawable slot, using the position information located at index
     // from.
     void push_back(SkGlyph* glyph, size_t from) {
