@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "013b4845_9e0af68a",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-10-16T17:47:30Z",
+      "side": 1,
+      "message": "You might be able to move the -s USE_WEBGL2\u003d1 to here.",
+      "range": {
+        "startLine": 52,
+        "startChar": 10,
+        "endLine": 52,
+        "endChar": 15
+      },
+      "revId": "a27e7b8b90ef2db51dcd2a29bfccc22f3698cf45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
