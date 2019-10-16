@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f971fbee_6b82b3ce",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-16T13:20:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f46f8aa_357e821d",
+      "range": {
+        "startLine": 70,
+        "startChar": 21,
+        "endLine": 70,
+        "endChar": 33
+      },
+      "revId": "b21c658dbb75e2bd592b1036461d27c4f3add1de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7e589feb_ff0825ad",
         "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
         "patchSetId": 9
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "45953ffe_d851b68c",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-16T13:20:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e589feb_ff0825ad",
+      "range": {
+        "startLine": 87,
+        "startChar": 15,
+        "endLine": 87,
+        "endChar": 25
+      },
+      "revId": "b21c658dbb75e2bd592b1036461d27c4f3add1de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "80a2e034_0ef05db6",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 9
@@ -59,6 +107,30 @@
       "writtenOn": "2019-10-15T20:12:03Z",
       "side": 1,
       "message": "I\u0027m assuming a follow up CL will fill in the logic to get the vertex characterization of the op chain and fill out a vertex buffer using \u0027pool\u0027? And now, since this CL moves the allocation of the GP to the very end of onPrepare(), it will be easy to extract the vertex filling lines?",
+      "range": {
+        "startLine": 434,
+        "startChar": 8,
+        "endLine": 434,
+        "endChar": 64
+      },
+      "revId": "b21c658dbb75e2bd592b1036461d27c4f3add1de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d47b0d0a_cca9fc09",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-16T13:20:23Z",
+      "side": 1,
+      "message": "Right - I thought pushing this CL any further would make it far less understandable.",
+      "parentUuid": "80a2e034_0ef05db6",
       "range": {
         "startLine": 434,
         "startChar": 8,
