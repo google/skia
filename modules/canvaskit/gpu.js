@@ -21,7 +21,7 @@
           preserveDrawingBuffer: get(attrs, 'preserveDrawingBuffer', 0),
           preferLowPowerToHighPerformance: get(attrs, 'preferLowPowerToHighPerformance', 0),
           failIfMajorPerformanceCaveat: get(attrs, 'failIfMajorPerformanceCaveat', 0),
-          majorVersion: get(attrs, 'majorVersion', 1),
+          majorVersion: get(attrs, 'majorVersion', 2),
           minorVersion: get(attrs, 'minorVersion', 0),
           enableExtensionsByDefault: get(attrs, 'enableExtensionsByDefault', 1),
           explicitSwapControl: get(attrs, 'explicitSwapControl', 0),
@@ -38,7 +38,14 @@
         }
         // GL is an enscripten provided helper
         // See https://github.com/emscripten-core/emscripten/blob/incoming/src/library_webgl.js
-        return GL.createContext(canvas, contextAttributes);
+        var ctx = GL.createContext(canvas, contextAttributes);
+
+        if (!ctx && contextAttributes.majorVersion > 1) {
+          contextAttributes.majorVersion = 1;  // fall back to WebGL 1.0
+          contextAttributes.minorVersion = 0;
+          ctx = GL.createContext(canvas, contextAttributes);
+        }
+        return ctx;
       }
 
       CanvasKit.GetWebGLContext = function(canvas, attrs) {

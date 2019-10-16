@@ -181,6 +181,10 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
     }
 
     if (glVer >= GR_GL_VER(2,0)) {
+        GET_PROC(VertexAttribDivisor);
+    }
+
+    if (glVer >= GR_GL_VER(2,0)) {
         GET_PROC(VertexAttribIPointer);
     }
 
