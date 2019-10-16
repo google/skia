@@ -293,7 +293,8 @@ static void get_color_profile_tag(char dst[kICCDescriptionTagSize],
 
 sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction& fn,
                                 const skcms_Matrix3x3& toXYZD50) {
-    if (!is_valid_transfer_fn(fn)) {
+    // We can't encode HDR transfer functions in ICC
+    if (classify_transfer_fn(fn) != sRGBish_TF) {
         return nullptr;
     }
 

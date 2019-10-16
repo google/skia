@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
 #include <algorithm>
@@ -24,6 +25,11 @@ void SkRasterPipeline::append(StockStage stage, void* ctx) {
     SkASSERT(stage !=                 set_rgb);  // Please use append_set_rgb().
     SkASSERT(stage !=       unbounded_set_rgb);  // Please use append_set_rgb().
     SkASSERT(stage !=             clamp_gamut);  // Please use append_gamut_clamp_if_normalized().
+    SkASSERT(stage !=              parametric);  // Please use append_transfer_function().
+    SkASSERT(stage !=                  gamma_);  // Please use append_transfer_function().
+    SkASSERT(stage !=                   PQish);  // Please use append_transfer_function().
+    SkASSERT(stage !=                  HLGish);  // Please use append_transfer_function().
+    SkASSERT(stage !=               HLGinvish);  // Please use append_transfer_function().
     this->unchecked_append(stage, ctx);
 }
 void SkRasterPipeline::unchecked_append(StockStage stage, void* ctx) {
@@ -264,6 +270,24 @@ void SkRasterPipeline::append_store(SkColorType ct, const SkRasterPipeline_Memor
         case kBGRA_8888_SkColorType:          this->append(swap_rb);
                                               this->append(store_8888, ctx);
                                               break;
+    }
+}
+
+void SkRasterPipeline::append_transfer_function(const skcms_TransferFunction& tf) {
+    void* ctx = const_cast<void*>(static_cast<const void*>(&tf));
+    switch (classify_transfer_fn(tf)) {
+        case Bad_TF: SkASSERT(false); break;
+
+        case TFKind::sRGBish_TF:
+            if (tf.a == 1 && tf.b == 0 && tf.c == 0 && tf.d == 0 && tf.e == 0 && tf.f == 0) {
+                this->unchecked_append(gamma_, ctx);
+            } else {
+                this->unchecked_append(parametric, ctx);
+            }
+            break;
+        case PQish_TF:     this->unchecked_append(PQish,     ctx); break;
+        case HLGish_TF:    this->unchecked_append(HLGish,    ctx); break;
+        case HLGinvish_TF: this->unchecked_append(HLGinvish, ctx); break;
     }
 }
 
