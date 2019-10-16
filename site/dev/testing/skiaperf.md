@@ -36,5 +36,5 @@ You can also use the data to answer questions like [how many tests were run per 
 
     count(filter(""))
 
-See Skia Perf for the [full list of functions available](https://perf.skia.org/help).
+See Skia Perf for the [full list of functions available](https://perf.skia.org/help/).
 
