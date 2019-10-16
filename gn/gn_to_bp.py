@@ -310,6 +310,10 @@ def generate_args(target_os, enable_gpu):
     'skia_enable_fontmgr_win_gdi':        'false',
     'skia_use_fonthost_mac':              'false',
 
+    # enable features used in skia_nanobench
+    'skia_enable_sksl_interpreter':       'true',
+    'skia_tools_require_resources':       'true',
+
     'skia_use_freetype':                  'true',
     'skia_use_fontconfig':                'false',
     'skia_use_fixed_gamma_text':          'true',
