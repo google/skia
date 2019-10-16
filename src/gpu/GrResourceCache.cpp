@@ -635,6 +635,10 @@ void GrResourceCache::insertDelayedTextureUnref(GrTexture* texture) {
 }
 
 void GrResourceCache::processFreedGpuResources() {
+    if (!fTexturesAwaitingUnref.count()) {
+      return;
+    }
+
     SkTArray<GrTextureFreedMessage> msgs;
     fFreedTextureInbox.poll(&msgs);
     for (int i = 0; i < msgs.count(); ++i) {
