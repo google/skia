@@ -22,6 +22,30 @@
       "revId": "170329b46328527743c109b7b5db5f3fc5a49e6b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66624d53_0b00822a",
+        "filename": "modules/canvaskit/gpu.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-10-16T18:40:58Z",
+      "side": 1,
+      "message": "Tested with Safari Version 13.0.2 (14608.2.40.1.2).  It looks the same before and after.",
+      "parentUuid": "0f0b8774_9e60924e",
+      "range": {
+        "startLine": 44,
+        "startChar": 50,
+        "endLine": 44,
+        "endChar": 72
+      },
+      "revId": "170329b46328527743c109b7b5db5f3fc5a49e6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
