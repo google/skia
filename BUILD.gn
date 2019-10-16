@@ -566,9 +566,9 @@ optional("gpu") {
     sources += skia_dawn_sources
     public_deps += [
       "//third_party/dawn:dawn_headers",
-      "//third_party/dawn:libdawn_proc",
       "//third_party/dawn:dawncpp",
       "//third_party/dawn:libdawn_native_sources",
+      "//third_party/dawn:libdawn_proc",
     ]
     if (dawn_enable_d3d12) {
       libs += [
