@@ -168,7 +168,7 @@ private:
     uint8_t fBidiLevel;
     SkVector fAdvance;
     SkVector fOffset;
-    size_t fFirstChar;
+    TextIndex fClusterStart;
     SkShaper::RunHandler::Range fUtf8Range;
     SkSTArray<128, SkGlyphID, true> fGlyphs;
     SkSTArray<128, SkPoint, true> fPositions;

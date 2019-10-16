@@ -20,8 +20,6 @@ skparagraph_public = [
 
 skparagraph_sources = [
   "$_src/FontCollection.cpp",
-  "$_src/FontResolver.h",
-  "$_src/FontResolver.cpp",
   "$_src/Iterators.h",
   "$_src/OneLineShaper.h",
   "$_src/OneLineShaper.cpp",
