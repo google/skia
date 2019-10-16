@@ -1471,56 +1471,73 @@ static void test_tags(skiatest::Reporter* reporter) {
 #endif
 }
 
-static void test_free_resource_messages(skiatest::Reporter* reporter) {
+static void test_free_texture_messages(skiatest::Reporter* reporter) {
     Mock mock(30000);
     GrContext* context = mock.context();
     GrResourceCache* cache = mock.cache();
     GrGpu* gpu = context->priv().getGpu();
 
-    TestResource* wrapped1 = TestResource::CreateWrapped(gpu, GrWrapCacheable::kYes);
-    cache->insertDelayedResourceUnref(wrapped1);
+    GrBackendTexture backends[3];
+    GrTexture* wrapped[3];
+    int freed[3] = { 0, 0, 0 };
 
-    REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
+    auto releaseProc = [](void* ctx) {
+        int* index = (int*) ctx;
+        *index = 1;
+    };
 
-    TestResource* wrapped2 = TestResource::CreateWrapped(gpu, GrWrapCacheable::kYes);
-    cache->insertDelayedResourceUnref(wrapped2);
+    for (int i = 0; i < 3; ++i) {
+        backends[i] = context->createBackendTexture(16, 16, SkColorType::kRGBA_8888_SkColorType,
+                                                    GrMipMapped::kNo, GrRenderable::kNo);
+        wrapped[i] = gpu->wrapBackendTexture(backends[i], GrColorType::kRGBA_8888,
+                                             GrWrapOwnership::kBorrow_GrWrapOwnership,
+                                             (i < 2) ? GrWrapCacheable::kYes
+                                                     : GrWrapCacheable::kNo,
+                                             GrIOType::kRead_GrIOType).release();
+        wrapped[i]->setRelease(releaseProc, &freed[i]);
+    }
+
+    cache->insertDelayedTextureUnref(wrapped[0]);
+    cache->insertDelayedTextureUnref(wrapped[1]);
 
     // An uncacheable cross-context should not be purged as soon as we drop our ref. This
     // is because inserting it as a cross-context resource actually holds a ref until the
     // message is received.
-    TestResource* wrapped3 = TestResource::CreateWrapped(gpu, GrWrapCacheable::kNo);
-    cache->insertDelayedResourceUnref(wrapped3);
+    cache->insertDelayedTextureUnref(wrapped[2]);
 
-    REPORTER_ASSERT(reporter, 3 == TestResource::NumAlive());
+    REPORTER_ASSERT(reporter, 0 == (freed[0] + freed[1] + freed[2]));
 
     // Have only ref waiting on message.
-    wrapped1->unref();
-    wrapped2->unref();
-    wrapped3->unref();
+    wrapped[0]->unref();
+    wrapped[1]->unref();
+    wrapped[2]->unref();
 
-    REPORTER_ASSERT(reporter, 3 == TestResource::NumAlive());
+    REPORTER_ASSERT(reporter, 0 == (freed[0] + freed[1] + freed[2]));
 
     // This should free nothing since no messages were sent.
     cache->purgeAsNeeded();
 
+    REPORTER_ASSERT(reporter, 0 == (freed[0] + freed[1] + freed[2]));
+
     // Send message to free the first resource
-    GrGpuResourceFreedMessage msg1{wrapped1, context->priv().contextID()};
-    SkMessageBus<GrGpuResourceFreedMessage>::Post(msg1);
+    GrTextureFreedMessage msg1{wrapped[0], context->priv().contextID()};
+    SkMessageBus<GrTextureFreedMessage>::Post(msg1);
     cache->purgeAsNeeded();
 
-    REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
+    REPORTER_ASSERT(reporter, 1 == (freed[0] + freed[1] + freed[2]));
+    REPORTER_ASSERT(reporter, 1 == freed[0]);
 
-    GrGpuResourceFreedMessage msg2{wrapped3, context->priv().contextID()};
-    SkMessageBus<GrGpuResourceFreedMessage>::Post(msg2);
+    GrTextureFreedMessage msg2{wrapped[2], context->priv().contextID()};
+    SkMessageBus<GrTextureFreedMessage>::Post(msg2);
     cache->purgeAsNeeded();
 
-    REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
+    REPORTER_ASSERT(reporter, 2 == (freed[0] + freed[1] + freed[2]));
+    REPORTER_ASSERT(reporter, 0 == freed[1]);
 
     mock.reset();
 
-    REPORTER_ASSERT(reporter, 0 == TestResource::NumAlive());
+    REPORTER_ASSERT(reporter, 3 == (freed[0] + freed[1] + freed[2]));
 }
-
 
 DEF_GPUTEST(ResourceCacheMisc, reporter, /* options */) {
     // The below tests create their own mock contexts.
@@ -1541,7 +1558,7 @@ DEF_GPUTEST(ResourceCacheMisc, reporter, /* options */) {
     test_custom_data(reporter);
     test_abandoned(reporter);
     test_tags(reporter);
-    test_free_resource_messages(reporter);
+    test_free_texture_messages(reporter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
