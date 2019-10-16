@@ -29,11 +29,11 @@ namespace {
 
 class ParagraphView_Base : public Sample {
 protected:
-    sk_sp<TestFontCollection> getFontCollection() {
+    sk_sp<TestFontCollection> getFontCollection(const char* path = "fonts") {
         // If we reset font collection we need to reset paragraph cache
         static sk_sp<TestFontCollection> fFC = nullptr;
         if (fFC == nullptr) {
-            fFC = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str());
+            fFC = sk_make_sp<TestFontCollection>(GetResourcePath(path).c_str(), true);
         }
         return fFC;
     }
@@ -1214,10 +1214,6 @@ protected:
         paragraph->layout(width());
 
         paragraph->paint(canvas, 0, 0);
-        SkDEBUGCODE(auto impl = reinterpret_cast<ParagraphImpl*>(paragraph.get()));
-//        SkASSERT(impl->runs().size() == 3);
-//        SkASSERT(impl->runs()[0].textRange().end == impl->runs()[1].textRange().start);
-//        SkASSERT(impl->runs()[1].textRange().end == impl->runs()[2].textRange().start);
     }
 
 private:
@@ -1412,18 +1408,38 @@ protected:
         canvas->drawColor(SK_ColorWHITE);
 
         TextStyle text_style;
-        text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(16);
-        text_style.setColor(SK_ColorBLACK);
-        ParagraphStyle paragraph_style;
-        paragraph_style.setTextStyle(text_style);
-        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+        text_style.setFontFamilies({SkString("abc.ttf")});
+        text_style.setFontSize(50);
 
+        auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false);
+
+        fontCollection->addFontFromFile("abc/abc.ttf", "abc");
+        fontCollection->addFontFromFile("abc/abc+grave.ttf", "abc+grave");
+        fontCollection->addFontFromFile("abc/abc_agrave.ttf", "abc_agrave");
+
+        ParagraphStyle paragraph_style;
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+        text_style.setFontFamilies({SkString("abc"), SkString("abc+grave")});
+        text_style.setColor(SK_ColorBLUE);
         builder.pushStyle(text_style);
-        builder.addText("hello world");
+        builder.addText(u"a\u0300");
+        text_style.setColor(SK_ColorMAGENTA);
+        builder.pushStyle(text_style);
+        builder.addText(u"à");
+
+        text_style.setFontFamilies({SkString("abc"), SkString("abc_agrave")});
+
+        text_style.setColor(SK_ColorRED);
+        builder.pushStyle(text_style);
+        builder.addText(u"a\u0300");
+        text_style.setColor(SK_ColorGREEN);
+        builder.pushStyle(text_style);
+        builder.addText(u"à");
+
         auto paragraph = builder.Build();
-        paragraph->layout(400);
-        paragraph->paint(canvas, 0, 0);
+        paragraph->layout(800);
+        paragraph->paint(canvas, 50, 50);
 
     }
 
@@ -1443,8 +1459,10 @@ DEF_SAMPLE(return new ParagraphView7();)
 DEF_SAMPLE(return new ParagraphView8();)
 DEF_SAMPLE(return new ParagraphView9();)
 DEF_SAMPLE(return new ParagraphView10();)
+/*
 DEF_SAMPLE(return new ParagraphView11();)
 DEF_SAMPLE(return new ParagraphView12();)
 DEF_SAMPLE(return new ParagraphView13();)
 DEF_SAMPLE(return new ParagraphView14();)
 DEF_SAMPLE(return new ParagraphView15();)
+*/
