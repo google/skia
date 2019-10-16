@@ -43,7 +43,6 @@ public:
     SkSpan<const char> text() const { return fText; }
 
 private:
-
     // GlyphIDs and positions.
     const SkZip<const SkGlyphID, const SkPoint> fSource;
     // Original text from SkTextBlob if present. Will be empty of not present.
@@ -55,11 +54,6 @@ private:
 };
 
 class SkGlyphRunList {
-    const SkPaint* fOriginalPaint{nullptr};  // This should be deleted soon.
-    // The text blob is needed to hookup the call back that the SkTextBlob destructor calls. It
-    // should be used for nothing else
-    const SkTextBlob*  fOriginalTextBlob{nullptr};
-    SkPoint fOrigin = {0, 0};
     SkSpan<const SkGlyphRun> fGlyphRuns;
 
 public:
@@ -100,6 +94,13 @@ public:
     auto size()  const -> decltype(fGlyphRuns.size())          { return fGlyphRuns.size();   }
     auto empty() const -> decltype(fGlyphRuns.empty())         { return fGlyphRuns.empty();  }
     auto operator [] (size_t i) const -> decltype(fGlyphRuns[i]) { return fGlyphRuns[i];     }
+
+private:
+    const SkPaint* fOriginalPaint{nullptr};  // This should be deleted soon.
+    // The text blob is needed to hookup the call back that the SkTextBlob destructor calls. It
+    // should be used for nothing else
+    const SkTextBlob*  fOriginalTextBlob{nullptr};
+    SkPoint fOrigin = {0, 0};
 };
 
 class SkGlyphIDSet {
