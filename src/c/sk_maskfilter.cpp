@@ -7,8 +7,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkShader.h"
 #include "include/effects/SkBlurMaskFilter.h"
 #include "include/effects/SkTableMaskFilter.h"
+#include "include/effects/SkShaderMaskFilter.h"
 
 #include "include/c/sk_maskfilter.h"
 
@@ -40,4 +42,8 @@ sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t cstyle, float sigma) {
 
 sk_maskfilter_t* sk_maskfilter_new_blur_with_flags(sk_blurstyle_t cstyle, float sigma, bool respectCTM) {
     return ToMaskFilter(SkMaskFilter::MakeBlur((SkBlurStyle)cstyle, sigma, respectCTM).release());
+}
+
+sk_maskfilter_t* sk_maskfilter_new_shader(sk_shader_t* cshader) {
+    return ToMaskFilter(SkShaderMaskFilter::Make(sk_ref_sp(AsShader(cshader))).release());
 }

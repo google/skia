@@ -44,10 +44,6 @@ sk_typeface_t* sk_typeface_create_from_stream(sk_stream_asset_t* stream, int ind
     return ToTypeface(SkTypeface::MakeFromStream (std::move(skstream), index).release());
 }
 
-int sk_typeface_chars_to_glyphs (sk_typeface_t* typeface, const char *chars, sk_encoding_t encoding, uint16_t glyphs [], int glyphCount) {
-    return (AsTypeface(typeface))->charsToGlyphs(chars, (SkTypeface::Encoding)encoding, glyphs, glyphCount);
-}
-
 sk_stream_asset_t* sk_typeface_open_stream(sk_typeface_t* typeface, int* ttcIndex) {
     return ToStreamAsset(AsTypeface(typeface)->openStream(ttcIndex).release());
 }

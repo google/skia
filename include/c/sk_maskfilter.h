@@ -21,6 +21,7 @@ SK_C_API sk_maskfilter_t* sk_maskfilter_new_blur_with_flags(sk_blurstyle_t, floa
 SK_C_API sk_maskfilter_t* sk_maskfilter_new_table(const uint8_t table[256]);
 SK_C_API sk_maskfilter_t* sk_maskfilter_new_gamma(float gamma);
 SK_C_API sk_maskfilter_t* sk_maskfilter_new_clip(uint8_t min, uint8_t max);
+SK_C_API sk_maskfilter_t* sk_maskfilter_new_shader(sk_shader_t* cshader);
 
 SK_C_PLUS_PLUS_END_GUARD
 

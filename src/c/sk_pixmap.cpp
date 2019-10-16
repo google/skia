@@ -99,8 +99,8 @@ bool sk_pixmap_encode_image(sk_wstream_t* dst, const sk_pixmap_t* src, sk_encode
     return SkEncodeImage(AsWStream(dst), *AsPixmap(src), (SkEncodedImageFormat)encoder, quality);
 }
 
-bool sk_pixmap_read_pixels(const sk_pixmap_t* cpixmap, const sk_imageinfo_t* dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY, sk_transfer_function_behavior_t behavior) {
-    return AsPixmap(cpixmap)->readPixels(AsImageInfo(dstInfo), dstPixels, dstRowBytes, srcX, srcY, (SkTransferFunctionBehavior)behavior);
+bool sk_pixmap_read_pixels(const sk_pixmap_t* cpixmap, const sk_imageinfo_t* dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY) {
+    return AsPixmap(cpixmap)->readPixels(AsImageInfo(dstInfo), dstPixels, dstRowBytes, srcX, srcY);
 }
 
 bool sk_pixmap_scale_pixels(const sk_pixmap_t* cpixmap, const sk_pixmap_t* dst, sk_filter_quality_t quality) {

@@ -25,36 +25,15 @@ sk_colorspace_t* sk_colorspace_new_srgb_linear() {
     return ToColorSpace(SkColorSpace::MakeSRGBLinear().release());
 }
 
+sk_colorspace_t* sk_colorspace_new_rgb(sk_named_transfer_fn_t transfer, sk_named_gamut_t gamut) {
+    return ToColorSpace(SkColorSpace::MakeRGB(AsNamedTransferFn(transfer), AsNamedGamut(gamut)).release());
+}
+
 sk_colorspace_t* sk_colorspace_new_icc(const void* input, size_t len) {
-    return ToColorSpace(SkColorSpace::MakeICC(input, len).release());
-}
-
-sk_colorspace_t* sk_colorspace_new_rgb_with_gamma(sk_colorspace_render_target_gamma_t gamma, const sk_matrix44_t* toXYZD50) {
-    return ToColorSpace(SkColorSpace::MakeRGB((SkColorSpace::RenderTargetGamma)gamma, AsMatrix44(*toXYZD50)).release());
-}
-
-sk_colorspace_t* sk_colorspace_new_rgb_with_gamma_and_gamut(sk_colorspace_render_target_gamma_t gamma, sk_colorspace_gamut_t gamut) {
-    return ToColorSpace(SkColorSpace::MakeRGB((SkColorSpace::RenderTargetGamma)gamma, (SkColorSpace::Gamut)gamut).release());
-}
-
-sk_colorspace_t* sk_colorspace_new_rgb_with_coeffs(const sk_colorspace_transfer_fn_t* coeffs, const sk_matrix44_t* toXYZD50) {
-    return ToColorSpace(SkColorSpace::MakeRGB(*AsColorSpaceTransferFn(coeffs), AsMatrix44(*toXYZD50)).release());
-}
-
-sk_colorspace_t* sk_colorspace_new_rgb_with_coeffs_and_gamut(const sk_colorspace_transfer_fn_t* coeffs, sk_colorspace_gamut_t gamut) {
-    return ToColorSpace(SkColorSpace::MakeRGB(*AsColorSpaceTransferFn(coeffs), (SkColorSpace::Gamut)gamut).release());
-}
-
-sk_colorspace_t* sk_colorspace_new_rgb_with_gamma_named(sk_gamma_named_t gamma, const sk_matrix44_t* toXYZD50) {
-    return ToColorSpace(SkColorSpace::MakeRGB((SkGammaNamed)gamma, AsMatrix44(*toXYZD50)).release());
-}
-
-sk_colorspace_t* sk_colorspace_new_rgb_with_gamma_named_and_gamut(sk_gamma_named_t gamma, sk_colorspace_gamut_t gamut) {
-    return ToColorSpace(SkColorSpace::MakeRGB((SkGammaNamed)gamma, (SkColorSpace::Gamut)gamut).release());
-}
-
-sk_colorspace_type_t sk_colorspace_gamma_get_type(const sk_colorspace_t* cColorSpace) {
-    return (sk_colorspace_type_t)AsColorSpace(cColorSpace)->type();
+    skcms_ICCProfile profile;
+    if (skcms_Parse(input, len, &profile)) {
+        return ToColorSpace(SkColorSpace::MakeICC(input, len).release());
+    }
 }
 
 sk_gamma_named_t sk_colorspace_gamma_get_gamma_named(const sk_colorspace_t* cColorSpace) {
@@ -93,7 +72,7 @@ bool sk_colorspace_is_numerical_transfer_fn(const sk_colorspace_t* cColorSpace, 
     return AsColorSpace(cColorSpace)->isNumericalTransferFn(AsColorSpaceTransferFn(fn));
 }
 
-bool sk_colorspaceprimaries_to_xyzd50(const sk_colorspaceprimaries_t* primaries, sk_matrix44_t* toXYZD50) {
+bool sk_colorspace_primaries_to_xyzd50(const sk_colorspace_primaries_t* primaries, sk_matrix44_t* toXYZD50) {
     return AsColorSpacePrimaries(primaries)->toXYZD50(AsMatrix44(toXYZD50));
 }
 

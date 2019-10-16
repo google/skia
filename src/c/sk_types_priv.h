@@ -12,6 +12,9 @@
 
 #include "include/c/sk_types.h"
 
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+#define ASSERT_MSG(SK, C) "ABI changed, you must write a enumeration mapper for " TOSTRING(#SK) " to " TOSTRING(#C) "."
 
 // Define a mapping between a C++ type and the C type.
 //
@@ -104,14 +107,12 @@ DEF_CLASS_MAP(SkTextBlobBuilder, sk_textblob_builder_t, TextBlobBuilder)
 DEF_CLASS_MAP(SkTypeface, sk_typeface_t, Typeface)
 DEF_CLASS_MAP(SkVertices, sk_vertices_t, Vertices)
 DEF_CLASS_MAP(SkWStream, sk_wstream_t, WStream)
-DEF_CLASS_MAP(SkXMLStreamWriter, sk_xmlstreamwriter_t, XMLStreamWriter)
-DEF_CLASS_MAP(SkXMLWriter, sk_xmlwriter_t, XMLWriter)
 
 DEF_CLASS_MAP(GrContext, gr_context_t, GrContext)
 DEF_CLASS_MAP(GrBackendTexture, gr_backendtexture_t, GrBackendTexture)
 DEF_CLASS_MAP(GrBackendRenderTarget, gr_backendrendertarget_t, GrBackendRenderTarget)
 
-DEF_STRUCT_MAP(SkColorSpacePrimaries, sk_colorspaceprimaries_t, ColorSpacePrimaries)
+DEF_STRUCT_MAP(SkColorSpacePrimaries, sk_colorspace_primaries_t, ColorSpacePrimaries)
 DEF_STRUCT_MAP(SkColorSpaceTransferFn, sk_colorspace_transfer_fn_t, ColorSpaceTransferFn)
 DEF_STRUCT_MAP(SkHighContrastConfig, sk_highcontrastconfig_t, HighContrastConfig)
 DEF_STRUCT_MAP(SkIPoint, sk_ipoint_t, IPoint)
@@ -155,6 +156,40 @@ DEF_MAP(SkTime::DateTime, sk_time_datetime_t, TimeDateTime)
 
 #include "include/encode/SkWebpEncoder.h"
 DEF_MAP(SkWebpEncoder::Options, sk_webpencoder_options_t, WebpEncoderOptions)
+
+static inline skcms_Matrix3x3 AsNamedGamut(sk_named_gamut_t gamut) {
+    switch (gamut)
+    {
+        case SRGB_SK_NAMED_GAMUT:
+            return SkNamedGamut::kSRGB;
+        case ADOBE_RGB_SK_NAMED_GAMUT:
+            return SkNamedGamut::kAdobeRGB;
+        case DCIP3_D65_SK_NAMED_GAMUT:
+            return SkNamedGamut::kDCIP3;
+        case REC2020_SK_NAMED_GAMUT:
+            return SkNamedGamut::kRec2020;
+        default:
+            SkASSERTF(false, "An unknown sk_named_gamut_t was provided.");
+            return SkNamedGamut::kXYZ;
+    }
+}
+
+static inline skcms_TransferFunction AsNamedTransferFn(sk_named_transfer_fn_t transfer) {
+    switch (transfer)
+    {
+        case SRGB_SK_NAMED_TRANSFER_FN:
+            return SkNamedTransferFn::kSRGB;
+        case TWO_DOT_TWO_SK_NAMED_TRANSFER_FN:
+            return SkNamedTransferFn::k2Dot2;
+        case LINEAR_SK_NAMED_TRANSFER_FN:
+            return SkNamedTransferFn::kLinear;
+        case REC2020_SK_NAMED_TRANSFER_FN:
+            return SkNamedTransferFn::kRec2020;
+        default:
+            SkASSERTF(false, "An unknown sk_named_transfer_fn_t was provided.");
+            return SkNamedTransferFn::kLinear;
+    }
+}
 
 #include "include/core/SkMatrix.h"
 static inline SkMatrix AsMatrix(const sk_matrix_t* matrix) {

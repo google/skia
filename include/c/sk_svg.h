@@ -14,7 +14,7 @@
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
-SK_C_API sk_canvas_t* sk_svgcanvas_create(const sk_rect_t* bounds, sk_xmlwriter_t* writer);
+SK_C_API sk_canvas_t* sk_svgcanvas_create(const sk_rect_t* bounds, sk_wstream_t* stream);
 
 SK_C_PLUS_PLUS_END_GUARD
 

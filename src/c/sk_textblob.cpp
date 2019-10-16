@@ -43,14 +43,14 @@ sk_textblob_t* sk_textblob_builder_make(sk_textblob_builder_t* builder) {
     return ToTextBlob(AsTextBlobBuilder(builder)->make().release());
 }
 
-void sk_textblob_builder_alloc_run_text(sk_textblob_builder_t* builder, const sk_paint_t* font, int count, float x, float y, int textByteCount, const sk_string_t* lang, const sk_rect_t* bounds, sk_textblob_builder_runbuffer_t* runbuffer) {
-    *runbuffer = ToTextBlobBuilderRunBuffer(AsTextBlobBuilder(builder)->allocRunText(AsPaint(*font), count, x, y, textByteCount, *AsString(lang), AsRect(bounds)));
+void sk_textblob_builder_alloc_run(sk_textblob_builder_t* builder, const sk_font_t* font, int count, float x, float y, const sk_rect_t* bounds, sk_textblob_builder_runbuffer_t* runbuffer) {
+    *runbuffer = ToTextBlobBuilderRunBuffer(AsTextBlobBuilder(builder)->allocRun(AsFont(*font), count, x, y, AsRect(bounds)));
 }
 
-void sk_textblob_builder_alloc_run_text_pos_h(sk_textblob_builder_t* builder, const sk_paint_t* font, int count, float y, int textByteCount, const sk_string_t* lang, const sk_rect_t* bounds, sk_textblob_builder_runbuffer_t* runbuffer) {
-    *runbuffer = ToTextBlobBuilderRunBuffer(AsTextBlobBuilder(builder)->allocRunTextPosH(AsPaint(*font), count, y, textByteCount, *AsString(lang), AsRect(bounds)));
+void sk_textblob_builder_alloc_run_pos_h(sk_textblob_builder_t* builder, const sk_font_t* font, int count, float y, const sk_rect_t* bounds, sk_textblob_builder_runbuffer_t* runbuffer) {
+    *runbuffer = ToTextBlobBuilderRunBuffer(AsTextBlobBuilder(builder)->allocRunPosH(AsFont(*font), count, y, AsRect(bounds)));
 }
 
-void sk_textblob_builder_alloc_run_text_pos(sk_textblob_builder_t* builder, const sk_paint_t* font, int count, int textByteCount, const sk_string_t* lang, const sk_rect_t* bounds, sk_textblob_builder_runbuffer_t* runbuffer) {
-    *runbuffer = ToTextBlobBuilderRunBuffer(AsTextBlobBuilder(builder)->allocRunTextPos(AsPaint(*font), count, textByteCount, *AsString(lang), AsRect(bounds)));
+void sk_textblob_builder_alloc_run_pos(sk_textblob_builder_t* builder, const sk_font_t* font, int count, const sk_rect_t* bounds, sk_textblob_builder_runbuffer_t* runbuffer) {
+    *runbuffer = ToTextBlobBuilderRunBuffer(AsTextBlobBuilder(builder)->allocRunPos(AsFont(*font), count, AsRect(bounds)));
 }

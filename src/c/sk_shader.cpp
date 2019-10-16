@@ -7,6 +7,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkShader.h"
@@ -18,11 +19,20 @@
 #include "src/c/sk_types_priv.h"
 
 sk_shader_t* sk_shader_new_empty() {
-    return ToShader(SkShader::MakeEmptyShader().release());
+    return ToShader(SkShaders::Empty().release());
 }
 
 sk_shader_t* sk_shader_new_color(sk_color_t color) {
-    return ToShader(SkShader::MakeColorShader(color).release());
+    return ToShader(SkShaders::Color(color).release());
+}
+
+sk_shader_t* sk_shader_new_blend(sk_blendmode_t cmode, sk_shader_t* dst, sk_shader_t* src, const sk_matrix_t* localMatrix) {
+    SkMatrix m;
+    if (localMatrix) {
+        m = AsMatrix(localMatrix);
+    }
+    return ToShader(SkShaders::Blend(
+        (SkBlendMode)cmode, sk_ref_sp(AsShader(dst)), sk_ref_sp(AsShader(src)), localMatrix ? &m : nullptr).release());
 }
 
 sk_shader_t* sk_shader_new_bitmap(const sk_bitmap_t* src, sk_shader_tilemode_t tmx, sk_shader_tilemode_t tmy, const sk_matrix_t* localMatrix) {
@@ -30,8 +40,7 @@ sk_shader_t* sk_shader_new_bitmap(const sk_bitmap_t* src, sk_shader_tilemode_t t
     if (localMatrix) {
         m = AsMatrix(localMatrix);
     }
-    return ToShader(SkShader::MakeBitmapShader(
-        *AsBitmap(src), (SkTileMode)tmx, (SkTileMode)tmy, localMatrix ? &m : nullptr).release());
+    return ToShader(AsBitmap(src)->makeShader((SkTileMode)tmx, (SkTileMode)tmy, localMatrix ? &m : nullptr).release());
 }
 
 sk_shader_t* sk_shader_new_picture(sk_picture_t* src, sk_shader_tilemode_t tmx, sk_shader_tilemode_t tmy, const sk_matrix_t* localMatrix, const sk_rect_t* tile) {
@@ -39,8 +48,7 @@ sk_shader_t* sk_shader_new_picture(sk_picture_t* src, sk_shader_tilemode_t tmx, 
     if (localMatrix) {
         m = AsMatrix(localMatrix);
     }
-    return ToShader(SkShader::MakePictureShader(
-        sk_ref_sp(AsPicture(src)), (SkTileMode)tmx, (SkTileMode)tmy, localMatrix ? &m : nullptr, AsRect(tile)).release());
+    return ToShader(AsPicture(src)->makeShader((SkTileMode)tmx, (SkTileMode)tmy, localMatrix ? &m : nullptr, AsRect(tile)).release());
 }
 
 sk_shader_t* sk_shader_new_color_filter(sk_shader_t* proxy, sk_colorfilter_t* filter) {
@@ -59,16 +67,6 @@ sk_shader_t* sk_shader_new_perlin_noise_fractal_noise(float baseFrequencyX, floa
 sk_shader_t* sk_shader_new_perlin_noise_turbulence(float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed, const sk_isize_t* ctileSize) {
     return ToShader(SkPerlinNoiseShader::MakeTurbulence(
         baseFrequencyX, baseFrequencyY,  numOctaves,  seed,  AsISize(ctileSize)).release());
-}
-
-sk_shader_t* sk_shader_new_compose(sk_shader_t* shaderA, sk_shader_t* shaderB) {
-    return ToShader(SkShaders::Blend(
-        SkBlendMode::kSrcOver, sk_ref_sp(AsShader(shaderA)), sk_ref_sp(AsShader(shaderB))).release());
-}
-
-sk_shader_t* sk_shader_new_compose_with_mode(sk_shader_t* shaderA, sk_shader_t* shaderB, sk_blendmode_t cmode) {
-    return ToShader(SkShaders::Blend(
-        (SkBlendMode)cmode, sk_ref_sp(AsShader(shaderA)), sk_ref_sp(AsShader(shaderB))).release());
 }
 
 void sk_shader_ref(sk_shader_t* cshader) {

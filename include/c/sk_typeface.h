@@ -22,7 +22,6 @@ SK_C_API sk_typeface_t* sk_typeface_create_from_name_with_font_style(const char*
 SK_C_API void sk_typeface_unref(sk_typeface_t*);
 SK_C_API sk_typeface_t* sk_typeface_create_from_file(const char* path, int index);
 SK_C_API sk_typeface_t* sk_typeface_create_from_stream(sk_stream_asset_t* stream, int index);
-SK_C_API int sk_typeface_chars_to_glyphs(sk_typeface_t* typeface, const char* chars, sk_encoding_t encoding, uint16_t glyphs[], int glyphCount);
 SK_C_API sk_stream_asset_t* sk_typeface_open_stream(sk_typeface_t* typeface, int* ttcIndex);
 SK_C_API int sk_typeface_get_units_per_em(sk_typeface_t* typeface);
 SK_C_API sk_string_t* sk_typeface_get_family_name(sk_typeface_t* typeface);

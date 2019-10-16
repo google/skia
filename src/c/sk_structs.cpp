@@ -22,7 +22,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTime.h"
 #include "include/effects/SkHighContrastFilter.h"
-#include "src/effects/SkMask.h"
+#include "src/core/SkMask.h"
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrTypes.h"
@@ -55,7 +55,7 @@ static_assert (sizeof (sk_lattice_t) == sizeof (SkCanvas::Lattice), ASSERT_MSG(S
 static_assert (sizeof (sk_time_datetime_t) == sizeof (SkTime::DateTime), ASSERT_MSG(SkTime::DateTime, sk_time_datetime_t));
 static_assert (sizeof (sk_codec_frameinfo_t) == sizeof (SkCodec::FrameInfo), ASSERT_MSG(SkCodec::FrameInfo, sk_codec_frameinfo_t));
 static_assert (sizeof (sk_colorspace_transfer_fn_t) == sizeof (SkColorSpaceTransferFn), ASSERT_MSG(SkColorSpaceTransferFn, sk_colorspace_transfer_fn_t));
-static_assert (sizeof (sk_colorspaceprimaries_t) == sizeof (SkColorSpacePrimaries), ASSERT_MSG(SkColorSpacePrimaries, sk_colorspaceprimaries_t));
+static_assert (sizeof (sk_colorspace_primaries_t) == sizeof (SkColorSpacePrimaries), ASSERT_MSG(SkColorSpacePrimaries, sk_colorspace_primaries_t));
 static_assert (sizeof (sk_highcontrastconfig_t) == sizeof (SkHighContrastConfig), ASSERT_MSG(SkHighContrastConfig, sk_highcontrastconfig_t));
 static_assert (sizeof (sk_pngencoder_options_t) == sizeof (SkPngEncoder::Options), ASSERT_MSG(SkPngEncoder::Options, sk_pngencoder_options_t));
 static_assert (sizeof (sk_jpegencoder_options_t) == sizeof (SkJpegEncoder::Options), ASSERT_MSG(SkJpegEncoder::Options, sk_jpegencoder_options_t));
