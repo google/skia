@@ -427,24 +427,50 @@ private:
         }
     }
 
-    void onPrePrepareDraws() override {
+    void onPrePrepareDraws(GrRecordingContext* context) override {
         SkASSERT(!fPrePrepared);
         // Pull forward the tessellation of the quads to here
+
+        //GrOpMemoryPool* pool = context->priv().opMemoryPool();
+
         fPrePrepared = true;
     }
 
-    // onPrePrepareDraws may or may not have been called at this point
-    void onPrepareDraws(Target* target) override {
-        TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-        GrQuad::Type quadType = GrQuad::Type::kAxisAligned;
-        GrQuad::Type srcQuadType = GrQuad::Type::kAxisAligned;
-        Domain domain = Domain::kNo;
-        ColorType colorType = ColorType::kNone;
-        int numProxies = 0;
-        int numTotalQuads = 0;
+#ifdef SK_DEBUG
+    void validate() const override {
         auto textureType = fProxies[0].fProxy->textureType();
         const GrSwizzle& swizzle = fProxies[0].fProxy->textureSwizzle();
         GrAAType aaType = this->aaType();
+
+        for (const auto& op : ChainRange<TextureOp>(this)) {
+            for (unsigned p = 0; p < op.fProxyCnt; ++p) {
+                auto* proxy = op.fProxies[p].fProxy;
+                SkASSERT(proxy);
+                SkASSERT(proxy->textureType() == textureType);
+                SkASSERT(proxy->textureSwizzle() == swizzle);
+            }
+
+            // Each individual op must be a single aaType. kCoverage and kNone ops can chain
+            // together but kMSAA ones do not.
+            if (aaType == GrAAType::kCoverage || aaType == GrAAType::kNone) {
+                SkASSERT(op.aaType() == GrAAType::kCoverage || op.aaType() == GrAAType::kNone);
+            } else {
+                SkASSERT(aaType == GrAAType::kMSAA && op.aaType() == GrAAType::kMSAA);
+            }
+        }
+    }
+#endif
+
+    VertexSpec characterize(int* numProxies, int* numTotalQuads) const {
+        GrQuad::Type quadType = GrQuad::Type::kAxisAligned;
+        ColorType colorType = ColorType::kNone;
+        GrQuad::Type srcQuadType = GrQuad::Type::kAxisAligned;
+        Domain domain = Domain::kNo;
+        GrAAType overallAAType = this->aaType();
+
+        *numProxies = 0;
+        *numTotalQuads = 0;
+
         for (const auto& op : ChainRange<TextureOp>(this)) {
             if (op.fQuads.deviceQuadType() > quadType) {
                 quadType = op.fQuads.deviceQuadType();
@@ -456,35 +482,28 @@ private:
                 domain = Domain::kYes;
             }
             colorType = SkTMax(colorType, static_cast<ColorType>(op.fColorType));
-            numProxies += op.fProxyCnt;
+            *numProxies += op.fProxyCnt;
             for (unsigned p = 0; p < op.fProxyCnt; ++p) {
-                numTotalQuads += op.fProxies[p].fQuadCnt;
-                auto* proxy = op.fProxies[p].fProxy;
-                if (!proxy->isInstantiated()) {
-                    return;
-                }
-                SkASSERT(proxy->textureType() == textureType);
-                SkASSERT(proxy->textureSwizzle() == swizzle);
+                *numTotalQuads += op.fProxies[p].fQuadCnt;
             }
             if (op.aaType() == GrAAType::kCoverage) {
-                SkASSERT(aaType == GrAAType::kCoverage || aaType == GrAAType::kNone);
-                aaType = GrAAType::kCoverage;
+                overallAAType = GrAAType::kCoverage;
             }
         }
 
-        VertexSpec vertexSpec(quadType, colorType, srcQuadType, /* hasLocal */ true, domain, aaType,
-                              /* alpha as coverage */ true);
+        return VertexSpec(quadType, colorType, srcQuadType, /* hasLocal */ true, domain,
+                          overallAAType, /* alpha as coverage */ true);
+    }
 
-        GrSamplerState samplerState = GrSamplerState(GrSamplerState::WrapMode::kClamp,
-                                                     this->filter());
-        GrGpu* gpu = target->resourceProvider()->priv().gpu();
-        uint32_t extraSamplerKey = gpu->getExtraSamplerKeyForProgram(
-                samplerState, fProxies[0].fProxy->backendFormat());
+    // onPrePrepareDraws may or may not have been called at this point
+    void onPrepareDraws(Target* target) override {
+        TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
-        auto saturate = static_cast<GrTextureOp::Saturate>(fSaturate);
-        sk_sp<GrGeometryProcessor> gp = GrQuadPerEdgeAA::MakeTexturedProcessor(
-                vertexSpec, *target->caps().shaderCaps(), textureType, samplerState, swizzle,
-                extraSamplerKey, std::move(fTextureColorSpaceXform), saturate);
+        SkDEBUGCODE(this->validate();)
+
+        int numProxies, numTotalQuads;
+
+        const VertexSpec vertexSpec = this->characterize(&numProxies, &numTotalQuads);
 
         // We'll use a dynamic state array for the GP textures when there are multiple ops.
         // Otherwise, we use fixed dynamic state to specify the single op's proxy.
@@ -498,7 +517,7 @@ private:
             fixedDynamicState->fPrimitiveProcessorTextures[0] = fProxies[0].fProxy;
         }
 
-        size_t vertexSize = gp->vertexStride();
+        size_t vertexSize = vertexSpec.vertexSize();
 
         GrMesh* meshes = target->allocMeshes(numProxies);
         sk_sp<const GrBuffer> vbuffer;
@@ -549,6 +568,29 @@ private:
         }
         SkASSERT(!numQuadVerticesLeft);
         SkASSERT(!numAllocatedVertices);
+
+        sk_sp<GrGeometryProcessor> gp;
+
+        {
+            auto textureType = fProxies[0].fProxy->textureType();
+            const GrSwizzle& swizzle = fProxies[0].fProxy->textureSwizzle();
+
+            GrSamplerState samplerState = GrSamplerState(GrSamplerState::WrapMode::kClamp,
+                                                         this->filter());
+
+            auto saturate = static_cast<GrTextureOp::Saturate>(fSaturate);
+
+            GrGpu* gpu = target->resourceProvider()->priv().gpu();
+            uint32_t extraSamplerKey = gpu->getExtraSamplerKeyForProgram(
+                    samplerState, fProxies[0].fProxy->backendFormat());
+
+            gp = GrQuadPerEdgeAA::MakeTexturedProcessor(
+                vertexSpec, *target->caps().shaderCaps(), textureType, samplerState, swizzle,
+                extraSamplerKey, std::move(fTextureColorSpaceXform), saturate);
+
+            SkASSERT(vertexSize == gp->vertexStride());
+        }
+
         target->recordDraw(
                 std::move(gp), meshes, numProxies, fixedDynamicState, dynamicStateArrays);
     }

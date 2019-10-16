@@ -29,7 +29,7 @@ public:
 
     void makeClosed(const GrCaps&);
 
-    void prePrepare() { this->onPrePrepare(); }
+    void prePrepare(GrRecordingContext* context) { this->onPrePrepare(context); }
 
     // These two methods are only invoked at flush time
     void prepare(GrOpFlushState* flushState);
@@ -185,7 +185,8 @@ private:
         }
     };
 
-    virtual void onPrePrepare() {} // Only the GrOpsTask currently overrides this virtual
+    // Only the GrOpsTask currently overrides this virtual
+    virtual void onPrePrepare(GrRecordingContext*) {}
     virtual void onPrepare(GrOpFlushState*) {} // Only the GrOpsTask overrides this virtual
     virtual bool onExecute(GrOpFlushState* flushState) = 0;
 

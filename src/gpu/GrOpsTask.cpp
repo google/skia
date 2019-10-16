@@ -391,7 +391,7 @@ void GrOpsTask::endFlush() {
     fAuditTrail = nullptr;
 }
 
-void GrOpsTask::onPrePrepare() {
+void GrOpsTask::onPrePrepare(GrRecordingContext* context) {
     SkASSERT(this->isClosed());
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
@@ -406,7 +406,7 @@ void GrOpsTask::onPrePrepare() {
 
     for (const auto& chain : fOpChains) {
         if (chain.shouldExecute()) {
-            chain.head()->prePrepare();
+            chain.head()->prePrepare(context);
         }
     }
 }
