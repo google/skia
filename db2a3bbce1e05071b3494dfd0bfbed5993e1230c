@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9958fd94_81e6acb0",
+        "filename": "src/gpu/glsl/GrGLSLShaderBuilder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-16T18:19:47Z",
+      "side": 1,
+      "message": "Think this was a misstep on our part?  It\u0027s probably not too late to reformulate PQ using {a,b,c,d,e,f} and HLG using {a,b,c,d,e}, so everything always matches?",
+      "range": {
+        "startLine": 120,
+        "startChar": 57,
+        "endLine": 121,
+        "endChar": 40
+      },
+      "revId": "db2a3bbce1e05071b3494dfd0bfbed5993e1230c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
