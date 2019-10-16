@@ -1561,6 +1561,51 @@ DEF_GPUTEST(ResourceCacheMisc, reporter, /* options */) {
     test_free_texture_messages(reporter);
 }
 
+// This simulates a portion of Chrome's context abandonment processing.
+// Please see: crbug.com/1011368 and crbug.com/1014993
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceMessagesAfterAbandon, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    GrGpu* gpu = context->priv().getGpu();
+    GrResourceCache* cache = context->priv().getResourceCache();
+
+    GrBackendTexture backend = context->createBackendTexture(16, 16,
+                                                             SkColorType::kRGBA_8888_SkColorType,
+                                                             GrMipMapped::kNo, GrRenderable::kNo);
+    GrTexture* tex = gpu->wrapBackendTexture(backend, GrColorType::kRGBA_8888,
+                                             GrWrapOwnership::kBorrow_GrWrapOwnership,
+                                             GrWrapCacheable::kYes,
+                                             GrIOType::kRead_GrIOType).release();
+
+    auto releaseProc = [](void* ctx) {
+        int* index = (int*) ctx;
+        *index = 1;
+    };
+
+    int freed = 0;
+
+    tex->setRelease(releaseProc, &freed);
+
+    cache->insertDelayedTextureUnref(tex);
+
+    // Now only the cache is holding a ref to this texture
+    tex->unref();
+
+    REPORTER_ASSERT(reporter, 0 == freed);
+
+    context->abandonContext();
+
+    REPORTER_ASSERT(reporter, 1 == freed);
+
+    // In the past, creating this message could cause an exception due to
+    // an un-safe downcast from GrTexture to GrGpuResource
+    GrTextureFreedMessage msg{tex, context->priv().contextID()};
+    SkMessageBus<GrTextureFreedMessage>::Post(msg);
+
+    context->purgeUnlockedResources(false);
+
+    context->deleteBackendTexture(backend);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
                                             GrRenderable renderable,
