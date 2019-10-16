@@ -25,6 +25,8 @@ EMCC=`which emcc`
 EMCXX=`which em++`
 EMAR=`which emar`
 
+USE_WEBGL2_SETTING="1"
+
 RELEASE_CONF="-Oz --closure 1 --llvm-lto 3 -DSK_RELEASE --pre-js $BASE_DIR/release.js \
               -DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0"
 EXTRA_CFLAGS="\"-DSK_RELEASE\", \"-DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0\","
@@ -53,6 +55,7 @@ if [[ $@ == *cpu* ]]; then
   echo "Using the CPU backend instead of the GPU backend"
   GN_GPU="skia_enable_gpu=false"
   GN_GPU_FLAGS=""
+  USE_WEBGL2_SETTING="0"
   WASM_GPU="-DSK_SUPPORT_GPU=0 --pre-js $BASE_DIR/cpu.js"
 fi
 
@@ -258,6 +261,6 @@ ${EMCXX} \
     -s USE_FREETYPE=1 \
     -s USE_LIBPNG=1 \
     -s WARN_UNALIGNED=1 \
-    -s USE_WEBGL2=0 \
+    -s USE_WEBGL2="$USE_WEBGL2_SETTING" \
     -s WASM=1 \
     -o $BUILD_DIR/canvaskit.js
