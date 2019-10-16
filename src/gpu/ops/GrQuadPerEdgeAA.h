@@ -25,6 +25,7 @@ class GrShaderCaps;
 namespace GrQuadPerEdgeAA {
     using Saturate = GrTextureOp::Saturate;
 
+    enum class CoverageMode { kNone, kWithPosition, kWithColor };
     enum class Domain : bool { kNo = false, kYes = true };
     enum class ColorType { kNone, kByte, kHalf, kLast = kHalf };
     static const int kColorTypeCount = static_cast<int>(ColorType::kLast) + 1;
@@ -65,6 +66,10 @@ namespace GrQuadPerEdgeAA {
         int localDimensionality() const;
 
         int verticesPerQuad() const { return fUsesCoverageAA ? 8 : 4; }
+
+        CoverageMode coverageMode() const;
+        size_t vertexSize() const;
+
     private:
         static_assert(GrQuad::kTypeCount <= 4, "GrQuad::Type doesn't fit in 2 bits");
         static_assert(kColorTypeCount <= 4, "Color doesn't fit in 2 bits");
