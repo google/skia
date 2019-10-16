@@ -1471,25 +1471,26 @@ static void test_tags(skiatest::Reporter* reporter) {
 #endif
 }
 
-static void test_free_resource_messages(skiatest::Reporter* reporter) {
+#if 0
+static void test_free_texture_messages(skiatest::Reporter* reporter) {
     Mock mock(30000);
     GrContext* context = mock.context();
     GrResourceCache* cache = mock.cache();
     GrGpu* gpu = context->priv().getGpu();
 
     TestResource* wrapped1 = TestResource::CreateWrapped(gpu, GrWrapCacheable::kYes);
-    cache->insertDelayedResourceUnref(wrapped1);
+    cache->insertDelayedTextureUnref(wrapped1);
 
     REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
 
     TestResource* wrapped2 = TestResource::CreateWrapped(gpu, GrWrapCacheable::kYes);
-    cache->insertDelayedResourceUnref(wrapped2);
+    cache->insertDelayedTextureUnref(wrapped2);
 
     // An uncacheable cross-context should not be purged as soon as we drop our ref. This
     // is because inserting it as a cross-context resource actually holds a ref until the
     // message is received.
     TestResource* wrapped3 = TestResource::CreateWrapped(gpu, GrWrapCacheable::kNo);
-    cache->insertDelayedResourceUnref(wrapped3);
+    cache->insertDelayedTextureUnref(wrapped3);
 
     REPORTER_ASSERT(reporter, 3 == TestResource::NumAlive());
 
@@ -1520,7 +1521,7 @@ static void test_free_resource_messages(skiatest::Reporter* reporter) {
 
     REPORTER_ASSERT(reporter, 0 == TestResource::NumAlive());
 }
-
+#endif
 
 DEF_GPUTEST(ResourceCacheMisc, reporter, /* options */) {
     // The below tests create their own mock contexts.
@@ -1541,7 +1542,7 @@ DEF_GPUTEST(ResourceCacheMisc, reporter, /* options */) {
     test_custom_data(reporter);
     test_abandoned(reporter);
     test_tags(reporter);
-    test_free_resource_messages(reporter);
+//    test_free_texture_messages(reporter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
