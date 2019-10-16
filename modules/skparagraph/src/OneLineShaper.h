@@ -6,6 +6,7 @@
 #include <queue>
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/Run.h"
+#include "modules/skparagraph/src/ParagraphImpl.h"
 #include "src/core/SkSpan.h"
 
 namespace skia {
@@ -34,19 +35,11 @@ private:
         fText = text;
     }
 
-    // Resolved block
-    RunBlock(Run* run, TextRange text, GlyphRange glyphs) {
+    RunBlock(Run* run, TextRange text, GlyphRange glyphs, size_t score) {
         fRun = run;
         fText = text;
         fGlyphs = glyphs;
-        fScore = glyphs.width();
-    }
-
-    // Unresolved block
-    RunBlock(Run* run, TextRange text) {
-        fRun = run;
-        fScore = 0;
-        fText = text;
+        fScore = score;
     }
 
     // Entire run comes as one block fully resolved
@@ -65,19 +58,18 @@ private:
 };
 
     using ShapeVisitor =
-            std::function<SkScalar(SkSpan<const char>, SkSpan<Block>, SkScalar&, size_t)>;
+            std::function<SkScalar(SkSpan<const char>, SkSpan<Block>, SkScalar&, TextIndex)>;
     bool iterateThroughShapingRegions(ShapeVisitor shape);
 
     using ShapeSingleFontVisitor = std::function<void(Block)>;
-    void iterateThroughFonts(SkSpan<Block> styleSpan, ShapeSingleFontVisitor visitor);
+    void iterateThroughFontStyles(SkSpan<Block> styleSpan, ShapeSingleFontVisitor visitor);
 
     using TypefaceVisitor = std::function<bool(sk_sp<SkTypeface> typeface)>;
-    void matchResolvedFonts(const TextStyle& textStyle, SkUnichar unicode, TypefaceVisitor visitor);
+    void matchResolvedFonts(const TextStyle& textStyle, TypefaceVisitor visitor);
 
     void printState();
-    TextRange topUnresolved();
     void dropUnresolved();
-    void finish(TextRange text, size_t firstChar, SkScalar height, SkScalar& advanceX);
+    void finish(TextRange text, SkScalar height, SkScalar& advanceX);
 
     void beginLine() override {}
     void runInfo(const RunInfo&) override {}
@@ -87,7 +79,7 @@ private:
     Buffer runBuffer(const RunInfo& info) override {
         fCurrentRun = new Run(fParagraph,
                                info,
-                               fTextStart,
+                               fCurrentText.start,
                                fHeight,
                                fParagraph->fRuns.count(),
                                fAdvance.fX);
@@ -97,13 +89,15 @@ private:
     void commitRunBuffer(const RunInfo&) override;
 
     TextRange clusteredText(GlyphRange glyphs);
-    void addResolved(GlyphRange glyphRange);
-    void addUnresolved(GlyphRange glyphRange);
+    void addFullyResolved();
     void addUnresolvedWithRun(GlyphRange glyphRange);
     void sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnresolvedBLock);
+    ClusterRange normalizeTextRange(GlyphRange glyphRange);
+    void increment(TextIndex& index);
+    void fillGaps(size_t);
 
     ParagraphImpl* fParagraph;
-    size_t fTextStart;
+    TextRange fCurrentText;
     SkScalar fHeight;
     SkVector fAdvance;
 
