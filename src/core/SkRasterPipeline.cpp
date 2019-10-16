@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
 #include <algorithm>
@@ -264,6 +265,23 @@ void SkRasterPipeline::append_store(SkColorType ct, const SkRasterPipeline_Memor
         case kBGRA_8888_SkColorType:          this->append(swap_rb);
                                               this->append(store_8888, ctx);
                                               break;
+    }
+}
+
+void SkRasterPipeline::append_transfer_function(const skcms_TransferFunction& tf) {
+    switch (classify_transfer_fn(tf)) {
+        case Bad_TF: SkASSERT(false); break;
+
+        case TFKind::sRGBish_TF:
+            if (tf.a == 1 && tf.b == 0 && tf.c == 0 && tf.d == 0 && tf.e == 0 && tf.f == 0) {
+                this->append(gamma_, &tf.g);
+            } else {
+                this->append(parametric, &tf);
+            }
+            break;
+        case PQish_TF:     this->append(PQish,     &tf); break;
+        case HLGish_TF:    this->append(HLGish,    &tf); break;
+        case HLGinvish_TF: this->append(HLGinvish, &tf); break;
     }
 }
 
