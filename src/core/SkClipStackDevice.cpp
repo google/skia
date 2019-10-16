@@ -9,7 +9,7 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkRasterClip.h"
 
-SkIRect SkClipStackDevice::devClipBounds() const {
+SkIRect SkClipStackDevice::onDevClipBounds() const {
     SkIRect r = fClipStack.bounds(this->imageInfo().bounds()).roundOut();
     if (!r.isEmpty()) {
         SkASSERT(this->imageInfo().bounds().contains(r));
@@ -39,7 +39,13 @@ void SkClipStackDevice::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
     fClipStack.clipPath(path, this->ctm(), op, aa);
 }
 
+// FIXME the region is defined to be in the root coordinate space. What happens if the basis matrix
+// has a transform that's not just translation? At that point, we can't just call mapRect on the region
+// since that will create conservative rects that will end up clipping not enough. Would have to be
+// converted to a path representation...
 void SkClipStackDevice::onClipRegion(const SkRegion& rgn, SkClipOp op) {
+    // The provided 'rgn' is in the root canvas device space. It must be mapped into this device's
+    // space. When the device's basis matrix is just a translation,
     SkIPoint origin = this->getOrigin();
     SkRegion tmp;
     const SkRegion* ptr = &rgn;

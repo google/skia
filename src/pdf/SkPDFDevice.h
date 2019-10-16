@@ -90,8 +90,8 @@ public:
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
     void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
                       const SkPaint&) override;
-    void drawDevice(SkBaseDevice*, int x, int y,
-                    const SkPaint&) override;
+    // This is overridden because non-filtered PDF devices can be embedded without rasterizing
+    void drawDevice(SkBaseDevice*, const SkPaint&) override;
 
     // PDF specific methods.
 
@@ -114,8 +114,10 @@ protected:
 
     void drawAnnotation(const SkRect&, const char key[], SkData* value) override;
 
-    void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
-                     SkImage*, const SkMatrix&) override;
+    void drawSpecial(SkSpecialImage* image, const SkMatrix& transform, const SkPaint& paint,
+                     SkImage* clipImage = nullptr,
+                     const SkMatrix& clipMatrix = SkMatrix::I()) override;
+
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
     SkImageFilterCache* getImageFilterCache() override;

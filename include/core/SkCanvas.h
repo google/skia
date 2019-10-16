@@ -2533,8 +2533,6 @@ private:
         const SkMatrix& matrix() const;
         SkIRect clipBounds() const;
         const SkPaint&  paint() const;
-        int             x() const;
-        int             y() const;
 
     private:
         // used to embed the SkDrawIter object directly in our instance, w/o
@@ -2550,9 +2548,11 @@ private:
 
     static bool BoundsAffectsClip(SaveLayerFlags);
 
-    static void DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filter,
-                                     SkBaseDevice* dst, const SkIPoint& dstOrigin,
-                                     const SkMatrix& ctm);
+    // Draw 'src' content into 'dst', respecting their relative basis matrices such that when 'dst'
+    // is restored its initialized backdrop lines back up with src's content. If 'filter' is not
+    // null, the 'src' backdrop content will be filtered before being drawn into 'dst'.
+    static void DrawBackdropIntoLayer(SkBaseDevice* src, SkBaseDevice* dst,
+                                      const SkImageFilter* filter);
 
     enum ShaderOverrideOpacity {
         kNone_ShaderOverrideOpacity,        //!< there is no overriding shader (bitmap or image)
@@ -2667,7 +2667,7 @@ private:
     void internalDrawPaint(const SkPaint& paint);
     void internalSaveLayer(const SaveLayerRec&, SaveLayerStrategy);
     void internalSaveBehind(const SkRect*);
-    void internalDrawDevice(SkBaseDevice*, int x, int y, const SkPaint*, SkImage* clipImage,
+    void internalDrawDevice(SkBaseDevice*, const SkPaint*, SkImage* clipImage,
                             const SkMatrix& clipMatrix);
 
     // shared by save() and saveLayer()

@@ -1041,8 +1041,3 @@ void SkSVGDevice::drawVertices(const SkVertices*, const SkVertices::Bone[], int,
                                const SkPaint&) {
     // todo
 }
-
-void SkSVGDevice::drawDevice(SkBaseDevice*, int x, int y,
-                             const SkPaint&) {
-    // todo
-}

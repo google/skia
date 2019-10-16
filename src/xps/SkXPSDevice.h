@@ -97,8 +97,10 @@ protected:
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
     void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
                       const SkPaint&) override;
-    void drawDevice(SkBaseDevice*, int x, int y,
-                    const SkPaint&) override;
+
+    void drawSpecial(SkSpecialImage* image, const SkMatrix& transform, const SkPaint& paint,
+                             SkImage* clipImage = nullptr,
+                             const SkMatrix& clipMatrix = SkMatrix::I()) override;
 
 private:
     class TypefaceUse {
