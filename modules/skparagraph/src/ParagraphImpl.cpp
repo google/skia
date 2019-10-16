@@ -24,6 +24,7 @@ SkScalar littleRound(SkScalar a) {
     // This rounding is done to match Flutter tests. Must be removed..
   return SkScalarRoundToScalar(a * 100.0)/100.0;
 }
+
 }
 
 TextRange operator*(const TextRange& a, const TextRange& b) {
@@ -117,6 +118,8 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
 
     if (fState < kShaped) {
         fClusters.reset();
+        fGraphemes.reset();
+        this->markGraphemes();
 
         if (!this->shapeTextIntoEndlessLine()) {
 
@@ -153,15 +156,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
             fState = kClusterized;
             this->markLineBreaks();
             fState = kMarked;
-/*
-            size_t count = 0;
-            for (auto& cluster : fClusters) {
-                SkDebugf("#%d: [%d:%d) [%d:%d) %f @%d\n", count,
-                        cluster.fTextRange.start, cluster.fTextRange.end, cluster.fStart, cluster.fEnd,
-                        cluster.fWidth, cluster.fRunIndex);
-                ++count;
-            }
-*/
+
             // Add the paragraph to the cache
             fFontCollection->getParagraphCache()->updateParagraph(this);
         }
@@ -350,7 +345,6 @@ void ParagraphImpl::markLineBreaks() {
     fClusters.emplace_back(this, EMPTY_RUN, 0, 0, SkSpan<const char>(), 0, 0);
 }
 
-
 bool ParagraphImpl::shapeTextIntoEndlessLine() {
 
     if (fText.size() == 0) {
@@ -362,6 +356,8 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
         this->fRunShifts.reset();
         return true;
     }
+
+    fFontSwitches.reset();
 
     OneLineShaper oneLineShaper(this);
     auto result = oneLineShaper.shape();
@@ -511,9 +507,9 @@ TextLine& ParagraphImpl::addLine(SkVector offset,
     return fLines.emplace_back(this, offset, advance, blocks, text, textWithSpaces, clusters, clustersWithGhosts, widthWithSpaces, sizes);
 }
 
-void ParagraphImpl::markGraphemes() {
+void ParagraphImpl::markGraphemes16() {
 
-    if (!fGraphemes.empty()) {
+    if (!fGraphemes16.empty()) {
         return;
     }
 
@@ -531,9 +527,9 @@ void ParagraphImpl::markGraphemes() {
         SkUnichar u = SkUTF::NextUTF8(&ptr, end);
         uint16_t buffer[2];
         size_t count = SkUTF::ToUTF16(u, buffer);
-        fCodePoints.emplace_back(EMPTY_INDEX, index);
+        fCodePoints.emplace_back(EMPTY_INDEX, index, count > 1 ? 2 : 1);
         if (count > 1) {
-            fCodePoints.emplace_back(EMPTY_INDEX, index);
+            fCodePoints.emplace_back(EMPTY_INDEX, index, 1);
         }
     }
 
@@ -549,13 +545,35 @@ void ParagraphImpl::markGraphemes() {
             ++codepoints.end;
         }
 
-        // Update all the codepoints that belong to this grapheme
-        for (auto i = codepoints.start; i < codepoints.end; ++i) {
-            fCodePoints[i].fGrapeme = fGraphemes.size();
+        if (startPos == endPos) {
+            continue;
         }
 
-        fGraphemes.emplace_back(codepoints, TextRange(startPos, endPos));
+        //SkDebugf("Grapheme #%d [%d:%d)\n", fGraphemes16.size(), startPos, endPos);
+
+        // Update all the codepoints that belong to this grapheme
+        for (auto i = codepoints.start; i < codepoints.end; ++i) {
+            //SkDebugf("   [%d] = %d + %d\n", i, fCodePoints[i].fTextIndex, fCodePoints[i].fIndex);
+            fCodePoints[i].fGrapheme = fGraphemes16.size();
+        }
+
+        fGraphemes16.emplace_back(codepoints, TextRange(startPos, endPos));
         codepoints.start = codepoints.end;
+    }
+}
+
+void ParagraphImpl::markGraphemes() {
+
+    // This breaker gets called only once for a paragraph so we don't have to keep it
+    TextBreaker breaker;
+    if (!breaker.initialize(this->text(), UBRK_CHARACTER)) {
+        return;
+    }
+
+    auto endPos = breaker.first();
+    while (!breaker.eof()) {
+        fGraphemes.add(endPos);
+        endPos = breaker.next();
     }
 }
 
@@ -571,7 +589,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
         return results;
     }
 
-    markGraphemes();
+    markGraphemes16();
 
     if (start >= end || start > fCodePoints.size() || end == 0) {
         return results;
@@ -579,27 +597,34 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
 
     // Snap text edges to the code points/grapheme edges
     TextRange text(fText.size(), fText.size());
-    if (end < fCodePoints.size()) {
-        text.end = fCodePoints[end].fTextIndex;
-        auto endGrapheme = fGraphemes[fCodePoints[end].fGrapeme];
-        if (text.end < endGrapheme.fTextRange.end) {
-            text.end = endGrapheme.fTextRange.start;
-        }
-    }
+
     if (start < fCodePoints.size()) {
-        text.start = fCodePoints[start].fTextIndex;
-        auto startGrapheme = fGraphemes[fCodePoints[start].fGrapeme];
-        if (startGrapheme.fTextRange.end <= text.end) {
-            // TODO: remove the change that is done to pass txtlib unittests
-            //  (GetRectsForRangeIncludeCombiningCharacter). Must be removed...
-            if (startGrapheme.fCodepointRange.end - start == 1 ||
-                startGrapheme.fCodepointRange.start == start) {
+        auto startGrapheme = fGraphemes16[fCodePoints[start].fGrapheme];
+        auto lastGrapheme = fCodePoints[start].fGrapheme == fGraphemes16.size() - 1;
+        if (start > startGrapheme.fCodepointRange.start) {
+            if (end == startGrapheme.fCodepointRange.end &&
+                start == startGrapheme.fCodepointRange.end - 1) {
+                // This is a fix to make test GetRectsForRangeIncludeCombiningCharacter work
+                // Must be removed...
                 text.start = startGrapheme.fTextRange.start;
             } else {
-                text.start = startGrapheme.fTextRange.end;
+                text.start  = lastGrapheme && end >= fCodePoints.size()
+                        ? startGrapheme.fTextRange.start
+                        : startGrapheme.fTextRange.end;
             }
-        } else if (text.start > startGrapheme.fTextRange.start) {
-            text.start = startGrapheme.fTextRange.end;
+        } else {
+            text.start = startGrapheme.fTextRange.start;
+        }
+    }
+
+    if (end < fCodePoints.size()) {
+        auto codepoint = fCodePoints[end];
+        auto endGrapheme = fGraphemes16[fCodePoints[end].fGrapheme];
+        if (text.start == endGrapheme.fTextRange.start &&
+            end + codepoint.fIndex == fCodePoints.size()) {
+            text.end = endGrapheme.fTextRange.end;
+        } else {
+            text.end  = endGrapheme.fTextRange.start;
         }
     }
 
@@ -796,6 +821,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForPlaceholders() {
 
   return boxes;
 }
+
 // TODO: Deal with RTL here
 PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, SkScalar dy) {
 
@@ -804,7 +830,7 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
         return result;
     }
 
-    markGraphemes();
+    markGraphemes16();
     for (auto& line : fLines) {
         // Let's figure out if we can stop looking
         auto offsetY = line.offset().fY;
@@ -863,7 +889,7 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                     [](const Codepoint& lhs,size_t rhs) -> bool { return lhs.fTextIndex < rhs; });
 
                 auto codepointIndex = codepoint - fCodePoints.begin();
-                auto codepoints = fGraphemes[codepoint->fGrapeme].fCodepointRange;
+                auto codepoints = fGraphemes16[codepoint->fGrapheme].fCodepointRange;
                 auto graphemeSize = codepoints.width();
 
                 // We only need to inspect one glyph (maybe not even the entire glyph)
