@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f0b8774_9e60924e",
+        "filename": "modules/canvaskit/gpu.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-10-16T16:24:34Z",
+      "side": 1,
+      "message": "Is there a good way to test this fallback?  (I\u0027m guessing by trying it on Safari)",
+      "range": {
+        "startLine": 44,
+        "startChar": 50,
+        "endLine": 44,
+        "endChar": 72
+      },
+      "revId": "170329b46328527743c109b7b5db5f3fc5a49e6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
