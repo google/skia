@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a2c9700_dd3237fb",
+        "filename": "src/core/SkRasterPipeline.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-16T16:38:24Z",
+      "side": 1,
+      "message": "Might be nice to add parametric/gamma/pq/hlg/hlginv to this list and use unchecked_append() in append_transfer_function()?  Can help catch/prevent missed switch cases.",
+      "revId": "fd2c0e12147d11a4f83317cc51ff79409fb27c23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5056ba24_3b86a6c2",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1866,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-16T16:38:24Z",
+      "side": 1,
+      "message": "mad?\n\nMaybe I should remove 3-arg max()...",
+      "range": {
+        "startLine": 1866,
+        "startChar": 30,
+        "endLine": 1866,
+        "endChar": 33
+      },
+      "revId": "fd2c0e12147d11a4f83317cc51ff79409fb27c23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
