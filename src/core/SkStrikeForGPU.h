@@ -17,6 +17,7 @@
 #include <memory>
 
 class SkDescriptor;
+class SkDrawableGlyphBuffer;
 class SkGlyph;
 class SkMaskFilter;
 class SkPathEffect;
@@ -30,28 +31,19 @@ struct SkGlyphPos {
     SkPoint position;
 };
 
-struct SkPathPos {
-    const SkPath* path;
-    SkPoint position;
-};
-
 class SkStrikeForGPU {
 public:
     virtual ~SkStrikeForGPU() = default;
     virtual const SkDescriptor& getDescriptor() const = 0;
 
-    // prepareForDrawingRemoveEmpty takes glyphIDs, and position, and returns a list of SkGlyphs
-    // and positions where all the data to draw the glyph has been created. The maxDimension
+    // prepareForDrawing takes glyphIDs, and position in the form of
+    // SkDrawableGlyphBuffer, and returns a list of SkGlyphs and positions where all the data to
+    // draw the glyph has been created by adjusting the SkDrawableGlyphBuffer. The maxDimension
     // parameter determines if the mask/SDF version will be created, or an alternate drawing
     // format should be used. For path-only drawing set maxDimension to 0, and for bitmap-device
     // drawing (where there is no upper limit to the glyph in the cache) use INT_MAX.
-    // prepareForDrawingRemoveEmpty should remove all empty glyphs from the returned span.
-    virtual SkSpan<const SkGlyphPos>
-    prepareForDrawingRemoveEmpty(const SkPackedGlyphID packedGlyphIDs[],
-                                 const SkPoint positions[],
-                                 size_t n,
-                                 int maxDimension,
-                                 SkGlyphPos results[]) = 0;
+    virtual void
+    prepareForDrawing(int maxGlyphDimension, SkDrawableGlyphBuffer* drawables) = 0;
 
     virtual const SkGlyphPositionRoundingSpec& roundingSpec() const = 0;
 

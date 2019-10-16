@@ -113,26 +113,9 @@ private:
     void processARGBFallback(SkScalar maxSourceGlyphDimension,
                              const SkPaint& runPaint,
                              const SkFont& runFont,
+                             SkPoint origin,
                              const SkMatrix& viewMatrix,
                              SkGlyphRunPainterInterface* process);
-
-    static SkSpan<const SkPackedGlyphID> DeviceSpacePackedGlyphIDs(
-            const SkGlyphPositionRoundingSpec& roundingSpec,
-            const SkMatrix& viewMatrix,
-            const SkPoint& origin,
-            int n,
-            const SkGlyphID* glyphIDs,
-            const SkPoint* positions,
-            SkPoint* mappedPositions,
-            SkPackedGlyphID* results);
-
-    static SkSpan<const SkPackedGlyphID> SourceSpacePackedGlyphIDs(
-            const SkPoint& origin,
-            int n,
-            const SkGlyphID* glyphIDs,
-            const SkPoint* positions,
-            SkPoint* mappedPositions,
-            SkPackedGlyphID* results);
 
     // The props as on the actual device.
     const SkSurfaceProps fDeviceProps;
@@ -144,17 +127,11 @@ private:
     SkStrikeForGPUCacheInterface* const fStrikeCache;
 
     SkDrawableGlyphBuffer fDrawable;
+    SkSourceGlyphBuffer fRejects;
 
     size_t fMaxRunSize{0};
-    SkAutoTMalloc<SkPoint> fPositions;
-    SkAutoTMalloc<SkPackedGlyphID> fPackedGlyphIDs;
-    SkAutoTMalloc<SkGlyphPos> fGlyphPos;
 
     std::vector<SkGlyphPos> fPaths;
-
-    // Vectors for tracking ARGB fallback information.
-    std::vector<SkGlyphID> fARGBGlyphsIDs;
-    std::vector<SkPoint>   fARGBPositions;
 };
 
 // SkGlyphRunPainterInterface are all the ways that Ganesh generates glyphs. The first
@@ -175,7 +152,7 @@ public:
 
     virtual void startRun(const SkGlyphRun& glyphRun, bool useSDFT) = 0;
 
-    virtual void processDeviceMasks(SkSpan<const SkGlyphPos> masks,
+    virtual void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                     const SkStrikeSpec& strikeSpec) = 0;
 
     virtual void processSourcePaths(SkSpan<const SkGlyphPos> paths,
@@ -183,18 +160,18 @@ public:
 
     virtual void processDevicePaths(SkSpan<const SkGlyphPos> paths) = 0;
 
-    virtual void processSourceSDFT(SkSpan<const SkGlyphPos> masks,
+    virtual void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                    const SkStrikeSpec& strikeSpec,
                                    const SkFont& runFont,
                                    SkScalar minScale,
                                    SkScalar maxScale,
                                    bool hasWCoord) = 0;
 
-    virtual void processSourceFallback(SkSpan<const SkGlyphPos> masks,
+    virtual void processSourceFallback(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                        const SkStrikeSpec& strikeSpec,
                                        bool hasW) = 0;
 
-    virtual void processDeviceFallback(SkSpan<const SkGlyphPos> masks,
+    virtual void processDeviceFallback(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                        const SkStrikeSpec& strikeSpec) = 0;
 
 };

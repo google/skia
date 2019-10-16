@@ -15,6 +15,7 @@
 
 #include "src/core/SkDevice.h"
 #include "src/core/SkDraw.h"
+#include "src/core/SkEnumerate.h"
 #include "src/core/SkGlyphRun.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
@@ -207,12 +208,7 @@ public:
         return fRoundingSpec;
     }
 
-    SkSpan<const SkGlyphPos>
-    prepareForDrawingRemoveEmpty(
-            const SkPackedGlyphID packedGlyphIDs[],
-            const SkPoint positions[], size_t n,
-            int maxDimension,
-            SkGlyphPos results[]) override;
+    void prepareForDrawing(int maxDimension, SkDrawableGlyphBuffer* drawables) override;
 
     void onAboutToExitScope() override {}
 
@@ -656,30 +652,21 @@ void SkStrikeServer::RemoteStrike::writeGlyphPath(const SkPackedGlyphID& glyphID
 }
 
 
-// Be sure to read and understand the comment for prepareForDrawingRemoveEmpty in
+// Be sure to read and understand the comment for prepareForDrawing in
 // SkStrikeForGPU.h before working on this code.
-SkSpan<const SkGlyphPos>
-SkStrikeServer::RemoteStrike::prepareForDrawingRemoveEmpty(
-        const SkPackedGlyphID packedGlyphIDs[],
-        const SkPoint positions[], size_t n,
-        int maxDimension,
-        SkGlyphPos results[]) {
-    size_t drawableGlyphCount = 0;
-    for (size_t i = 0; i < n; i++) {
-        SkPoint glyphPos = positions[i];
-
-        // Check the cache for the glyph.
-        SkGlyph* glyphPtr = fGlyphMap.findOrNull(packedGlyphIDs[i]);
-
+void SkStrikeServer::RemoteStrike::prepareForDrawing(
+        int maxDimension, SkDrawableGlyphBuffer* drawables) {
+    for (auto t : SkMakeEnumerate(drawables->input())) {
+        size_t i; SkGlyphVariant packedID; SkPoint pos;
+        std::forward_as_tuple(i, std::tie(packedID, pos)) = t;
+        SkGlyph* glyphPtr = fGlyphMap.findOrNull(packedID);
         // Has this glyph ever been seen before?
         if (glyphPtr == nullptr) {
-
             // Never seen before. Make a new glyph.
-            glyphPtr = fAlloc.make<SkGlyph>(packedGlyphIDs[i]);
+            glyphPtr = fAlloc.make<SkGlyph>(packedID);
             fGlyphMap.set(glyphPtr);
             this->ensureScalerContext();
             fContext->getMetrics(glyphPtr);
-
             if (glyphPtr->maxDimension() <= maxDimension) {
                 // do nothing
             } else if (!glyphPtr->isColor()) {
@@ -695,20 +682,14 @@ SkStrikeServer::RemoteStrike::prepareForDrawingRemoveEmpty(
                 // This will be handled by the fallback strike.
                 SkASSERT(glyphPtr->maxDimension() > maxDimension && glyphPtr->isColor());
             }
-
             // Make sure to send the glyph to the GPU because we always send the image for a glyph.
-            fCachedGlyphImages.add(packedGlyphIDs[i]);
-            fPendingGlyphImages.push_back(packedGlyphIDs[i]);
+            fCachedGlyphImages.add(packedID);
+            fPendingGlyphImages.push_back(packedID);
         }
 
-        // Each non-empty glyph needs to be added as per the contract for
-        // prepareForDrawingRemoveEmpty.
         // TODO(herb): Change the code to only send the glyphs for fallback?
-        if (!glyphPtr->isEmpty()) {
-            results[drawableGlyphCount++] = {i, glyphPtr, glyphPos};
-        }
+        drawables->push_back(glyphPtr, i);
     }
-    return SkMakeSpan(results, drawableGlyphCount);
 }
 
 // SkStrikeClient ----------------------------------------------------------------------------------
