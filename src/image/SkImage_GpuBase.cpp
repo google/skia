@@ -395,8 +395,15 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
 
         ~PromiseLazyInstantiateCallback() {
             // Our destructor can run on any thread. We trigger the unref of fTexture by message.
+            // This unreffed texture pointer is a real problem! When the context has been
+            // abandoned, the GrTexture pointed to by this pointer is deleted! Due to virtual
+            // inheritance any manipulation of this pointer at that point will cause a crash.
+            // For now we "work around" the problem by just passing it, untouched, into the
+            // message bus but this very fragile.
+            // In the future the GrSurface class hierarchy refactoring should eliminate this
+            // difficulty by removing the virtual inheritance.
             if (fTexture) {
-                SkMessageBus<GrGpuResourceFreedMessage>::Post({fTexture, fTextureContextID});
+                SkMessageBus<GrTextureFreedMessage>::Post({fTexture, fTextureContextID});
             }
         }
 
@@ -471,7 +478,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             // let the cache know it is waiting on an unref message. We will send that message from
             // our destructor.
             GrContext* context = fTexture->getContext();
-            context->priv().getResourceCache()->insertDelayedResourceUnref(fTexture);
+            context->priv().getResourceCache()->insertDelayedTextureUnref(fTexture);
             fTextureContextID = context->priv().contextID();
             return {std::move(tex), kReleaseCallbackOnInstantiation, kKeySyncMode};
         }
