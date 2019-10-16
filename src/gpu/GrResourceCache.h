@@ -366,6 +366,8 @@ private:
     SkDEBUGCODE(GrGpuResource*          fNewlyPurgeableResourceForValidation = nullptr;)
 
     bool                                fPreferVRAMUseOverFlushes = false;
+
+    bool                                fAbandoned = false;
 };
 
 class GrResourceCache::ResourceAccess {

@@ -227,6 +227,7 @@ void GrResourceCache::abandonAll() {
     SkASSERT(!fBudgetedBytes);
     SkASSERT(!fPurgeableBytes);
     SkASSERT(!fResourcesAwaitingUnref.count());
+    fAbandoned = true;
 }
 
 void GrResourceCache::releaseAll() {
@@ -264,6 +265,7 @@ void GrResourceCache::releaseAll() {
     SkASSERT(!fBudgetedBytes);
     SkASSERT(!fPurgeableBytes);
     SkASSERT(!fResourcesAwaitingUnref.count());
+    fAbandoned = true;
 }
 
 void GrResourceCache::refResource(GrGpuResource* resource) {
@@ -635,6 +637,10 @@ void GrResourceCache::insertDelayedResourceUnref(GrGpuResource* resource) {
 }
 
 void GrResourceCache::processFreedGpuResources() {
+    if (fAbandoned) {
+        return;
+    }
+
     SkTArray<GrGpuResourceFreedMessage> msgs;
     fFreedGpuResourceInbox.poll(&msgs);
     for (int i = 0; i < msgs.count(); ++i) {
