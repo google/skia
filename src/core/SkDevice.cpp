@@ -36,20 +36,61 @@ SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfac
     : fInfo(info)
     , fSurfaceProps(surfaceProps)
 {
-    fOrigin = {0, 0};
+    fDeviceToRoot.reset();
+    fRootToDevice.reset();
     fCTM.reset();
 }
 
-void SkBaseDevice::setOrigin(const SkMatrix& globalCTM, int x, int y) {
-    fOrigin.set(x, y);
-    fCTM = globalCTM;
-    fCTM.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
+void SkBaseDevice::setDeviceCoordinateSystem(const SkMatrix& deviceToRoot,
+                                             const SkMatrix& localToDevice,
+                                             int x, int y) {
+    fDeviceToRoot = deviceToRoot;
+    SkAssertResult(deviceToRoot.invert(&fRootToDevice));
+    fCTM = localToDevice;
+    if (x | y) {
+        fDeviceToRoot.preTranslate(x, y);
+        fRootToDevice.postTranslate(-x, -y);
+        fCTM.postTranslate(-x, -y);
+    }
 }
 
 void SkBaseDevice::setGlobalCTM(const SkMatrix& ctm) {
     fCTM = ctm;
-    if (fOrigin.fX | fOrigin.fY) {
-        fCTM.postTranslate(-SkIntToScalar(fOrigin.fX), -SkIntToScalar(fOrigin.fY));
+    if (!fRootToDevice.isIdentity()) {
+        // Map from the global CTM state to this device's coordinate system.
+        fCTM.postConcat(fRootToDevice);
+    }
+}
+
+bool SkBaseDevice::getOrigin(SkIPoint* origin) const {
+    if (fDeviceToRoot.isScaleTranslate() && fDeviceToRoot.getScaleX() > 0.0f
+        && fDeviceToRoot.getScaleY() > 0.0f) {
+        // Avoid calculating the global bounds, this is equal to
+        // fDeviceToRoot * (0, 0) and then rounding out.
+        origin->fX = SkScalarFloorToInt(fDeviceToRoot.getTranslateX());
+        origin->fY = SkScalarFloorToInt(fDeviceToRoot.getTranslateY());
+
+        return origin->fX == fDeviceToRoot.getTranslateX() &&
+               origin->fY == fDeviceToRoot.getTranslateY();
+    } else {
+        // Report top-left corner of the device's global bounds
+        SkIRect globalBounds = this->getGlobalBounds();
+        *origin = globalBounds.topLeft();
+        return false;
+    }
+}
+
+SkMatrix SkBaseDevice::getRelativeTransform(const SkBaseDevice& inputDevice) const {
+    // To get the transform from the input's space to this space, map through the shared root space
+    return SkMatrix::Concat(fRootToDevice, inputDevice.fDeviceToRoot);
+}
+bool SkBaseDevice::getRelativeOrigin(const SkBaseDevice& inputDevice, SkIPoint* offset) const {
+    SkIPoint srcOrigin, dstOrigin;
+    if (this->getOrigin(&dstOrigin) && inputDevice.getOrigin(&srcOrigin)) {
+        *offset = srcOrigin - dstOrigin;
+        return true;
+    } else {
+        return false;
     }
 }
 

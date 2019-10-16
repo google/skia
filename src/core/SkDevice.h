@@ -49,8 +49,9 @@ public:
      */
     void getGlobalBounds(SkIRect* bounds) const {
         SkASSERT(bounds);
-        const SkIPoint& origin = this->getOrigin();
-        bounds->setXYWH(origin.x(), origin.y(), this->width(), this->height());
+        SkRect localBounds = SkRect::MakeIWH(this->width(), this->height());
+        fDeviceToRoot.mapRect(&localBounds);
+        *bounds = localBounds.roundOut();
     }
 
     SkIRect getGlobalBounds() const {
@@ -58,6 +59,14 @@ public:
         this->getGlobalBounds(&bounds);
         return bounds;
     }
+
+    /**
+     *  Returns the bounding box of the current clip, in this device's
+     *  coordinate space. No pixels outside of these bounds will be touched by
+     *  draws unless the clip is further modified (at which point this will
+     *  return the updated bounds).
+     */
+    SkIRect devClipBounds() const { return this->onDevClipBounds(); }
 
     int width() const {
         return this->imageInfo().width();
@@ -91,10 +100,39 @@ public:
     bool peekPixels(SkPixmap*);
 
     /**
-     *  Return the device's origin: its offset in device coordinates from
-     *  the default origin in its canvas' matrix/clip
+     *  Return the device's basis matrix: this maps from the device's coordinate space into the root
+     *  canvas' space. This includes the translation necessary to account for the device's origin.
      */
-    const SkIPoint& getOrigin() const { return fOrigin; }
+    const SkMatrix& getDeviceToRoot() const { return fDeviceToRoot; }
+    /**
+     *  Return the inverse of getDeviceToRoot(), mapping from the root canvas' space into this
+     *  device's coordinate space.
+     */
+    const SkMatrix& getRootToDevice() const { return fRootToDevice; }
+    /**
+     *  Get the pixel origin of this device, which is defined as the top left corner of the global
+     *  bounds of the device. Returns true if the device to root matrix is pure translation, in
+     *  which case the output 'origin' is sufficient to map the device's contents back to the root
+     *  space.
+     *
+     *  Note that this origin may not equal the result of applying the basis matrix to (0, 0). This
+     *  is due to both rounding any fractional coordinates to an exact pixel, and taking into
+     *  account the axis-aligned bounding box of the transformed device's bounds.
+     */
+    bool getOrigin(SkIPoint* origin) const;
+    /**
+     *  Get the transformation from the input device's to this device's coordinate space. This
+     *  transform can be used to draw the input device into this device, such that once this device
+     *  is drawn to the root device, the net effect will have the input device's content drawn
+     *  transformed by its global CTM.
+     */
+    SkMatrix getRelativeTransform(const SkBaseDevice&) const;
+    /**
+     *  Like getRelativeTransform(), but can be used if both this device and the input device have
+     *  translation-only device-to-root matrices. In this case, this returns true and 'offset' is
+     *  set to the integer translation matrix that would be returned by getRelativeTransform().
+     */
+    bool getRelativeOrigin(const SkBaseDevice&, SkIPoint* offset) const;
 
     virtual void* getRasterHandle() const { return nullptr; }
 
@@ -152,6 +190,10 @@ protected:
         kComplex
     };
     virtual ClipType onGetClipType() const = 0;
+
+    // This should strive to be as tight as possible, ideally not just mapping
+    // the global clip bounds by fToGlobal^-1.
+    virtual SkIRect onDevClipBounds() const = 0;
 
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
@@ -354,8 +396,20 @@ private:
      */
     virtual GrRenderTargetContext* accessRenderTargetContext() { return nullptr; }
 
-    // just called by SkCanvas when built as a layer
-    void setOrigin(const SkMatrix& ctm, int x, int y);
+    // Configure the device's coordinate spaces, specifying both how its device image maps back
+    // to the root space (via 'deviceToRoot') and the initial CTM of the device (via 'localToDevice',
+    // i.e. what geometry drawn into this device will be transformed with).
+    //
+    // (x, y) represents the top left corner of the device-space content that maps to the (0, 0)
+    // pixel of its backing buffer. This point is in device space, and the actual device-to-root
+    // matrix is pre-translated by T(x,y) and the actual CTM is post-translated by T(-x,-y).
+    void setDeviceCoordinateSystem(const SkMatrix& deviceToRoot, const SkMatrix& localToDevice,
+                                   int deviceOriginX, int deviceOriginY);
+    // Convenience to configure the device to be axis-aligned with the root canvas, but with a
+    // unique origin.
+    void setOrigin(const SkMatrix& globalCTM, int x, int y) {
+        this->setDeviceCoordinateSystem(SkMatrix::I(), globalCTM, x, y);
+    }
 
     /** Causes any deferred drawing to the device to be completed.
      */
@@ -369,9 +423,14 @@ private:
         *const_cast<SkImageInfo*>(&fInfo) = fInfo.makeWH(w, h);
     }
 
-    SkIPoint             fOrigin;
     const SkImageInfo    fInfo;
     const SkSurfaceProps fSurfaceProps;
+    // fDeviceToRoot and fRootToDevice are inverses of each other; there are never that many
+    // SkDevices, so pay the memory cost to avoid recalculating the inverse.
+    SkMatrix             fDeviceToRoot;
+    SkMatrix             fRootToDevice;
+    // This is the device CTM, not the root CTM. This transform maps from local space to the
+    // device's coordinate space; fDeviceToRoot * fCTM will match the root CTM.
     SkMatrix             fCTM;
 
     typedef SkRefCnt INHERITED;
@@ -412,6 +471,9 @@ protected:
     }
     ClipType onGetClipType() const override {
         return ClipType::kRect;
+    }
+    SkIRect onDevClipBounds() const override {
+        return SkIRect::MakeWH(this->width(), this->height());
     }
 
     void drawPaint(const SkPaint& paint) override {}

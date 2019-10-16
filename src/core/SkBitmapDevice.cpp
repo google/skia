@@ -768,7 +768,12 @@ void SkBitmapDevice::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
 }
 
 void SkBitmapDevice::onClipRegion(const SkRegion& rgn, SkClipOp op) {
-    SkIPoint origin = this->getOrigin();
+    // clipRegion is only used in Android, which does not use image filters.
+    // Image filters are the only reason we'd end up with a complicated device
+    // to root matrix, so we shouldn't ever assert here.
+    SkIPoint origin;
+    SkAssertResult(this->getOrigin(&origin));
+
     SkRegion tmp;
     const SkRegion* ptr = &rgn;
     if (origin.fX | origin.fY) {
@@ -817,4 +822,8 @@ SkBaseDevice::ClipType SkBitmapDevice::onGetClipType() const {
     } else {
         return ClipType::kComplex;
     }
+}
+
+SkIRect SkBitmapDevice::onDevClipBounds() const {
+    return fRCStack.rc().getBounds();
 }
