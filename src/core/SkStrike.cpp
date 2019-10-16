@@ -213,19 +213,14 @@ void SkStrike::prepareForDrawingPathsCPU(SkDrawableGlyphBuffer* drawables) {
 
 // N.B. This glyphMetrics call culls all the glyphs which will not display based on a non-finite
 // position or that there are no mask pixels.
-SkSpan<const SkGlyphPos>
-SkStrike::prepareForDrawingRemoveEmpty(const SkPackedGlyphID packedGlyphIDs[],
-                                       const SkPoint positions[],
-                                       size_t n,
-                                       int maxDimension,
-                                       SkGlyphPos results[]) {
-    size_t drawableGlyphCount = 0;
-    for (size_t i = 0; i < n; i++) {
-        SkPoint pos = positions[i];
+void SkStrike::prepareForDrawingRemoveEmpty(int maxDimension, SkDrawableGlyphBuffer* drawables) {
+    for (auto t : SkMakeEnumerate(drawables->input())) {
+        size_t i; SkGlyphVariant packedID; SkPoint pos;
+        std::forward_as_tuple(i, std::tie(packedID, pos)) = t;
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            SkGlyph* glyphPtr = this->glyph(packedGlyphIDs[i]);
+            SkGlyph* glyphPtr = this->glyph(packedID);
             if (!glyphPtr->isEmpty()) {
-                results[drawableGlyphCount++] = {i, glyphPtr, pos};
+                drawables->push_back(glyphPtr, i);
                 if (glyphPtr->maxDimension() <= maxDimension) {
                     // The glyph fits. Prepare image later.
                 } else if (!glyphPtr->isColor()) {
@@ -238,8 +233,6 @@ SkStrike::prepareForDrawingRemoveEmpty(const SkPackedGlyphID packedGlyphIDs[],
             }
         }
     }
-
-    return SkSpan<const SkGlyphPos>{results, drawableGlyphCount};
 }
 
 void SkStrike::findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
