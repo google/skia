@@ -602,13 +602,7 @@ DEF_TEST(SkVM_select, r) {
         b.store32(buf, x);
     }
 
-#if defined(SK_CPU_ARM64)
-    // TODO: missing Op::select for ARMv8?
-    test_interpreter_only
-#else
-    test_jit_and_interpreter
-#endif
-    (r, b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
         int buf[] = { 0,1,2,3,4,5,6,7,8 };
         program.eval(SK_ARRAY_COUNT(buf), buf);
         for (int i = 0; i < (int)SK_ARRAY_COUNT(buf); i++) {
