@@ -869,8 +869,9 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
                       srcData, numMipLevels, combinedBufferSize);
     } else if (color) {
         GrPixelConfig config = mtl_format_to_pixelconfig(format);
+        auto colorType = GrPixelConfigToColorType(config);
         SkASSERT(kUnknown_GrPixelConfig != config);
-        GrFillInData(config, w, h, individualMipOffsets, buffer, *color);
+        GrFillInData(colorType, w, h, individualMipOffsets, buffer, *color);
     }
 
     // Transfer buffer contents to texture
