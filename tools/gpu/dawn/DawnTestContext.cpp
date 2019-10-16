@@ -21,6 +21,7 @@
 
 #ifdef SK_DAWN
 #include "dawn/dawn.h"
+#include "dawn/dawn_proc.h"
 #include "include/gpu/GrContext.h"
 #include "tools/AutoreleasePool.h"
 #if USE_OPENGL_BACKEND
@@ -157,7 +158,7 @@ public:
     static dawn::Device createDevice(const dawn_native::Instance& instance,
                                      dawn_native::BackendType type) {
         DawnProcTable backendProcs = dawn_native::GetProcs();
-        dawnSetProcs(&backendProcs);
+        dawnProcSetProcs(&backendProcs);
 
         std::vector<dawn_native::Adapter> adapters = instance.GetAdapters();
         for (dawn_native::Adapter adapter : adapters) {
