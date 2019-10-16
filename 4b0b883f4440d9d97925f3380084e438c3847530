@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "232dcc0a_93602c45",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-10-16T18:09:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "15d35288_5fe5c252",
+      "range": {
+        "startLine": 20,
+        "startChar": 49,
+        "endLine": 20,
+        "endChar": 60
+      },
+      "revId": "4b0b883f4440d9d97925f3380084e438c3847530",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
