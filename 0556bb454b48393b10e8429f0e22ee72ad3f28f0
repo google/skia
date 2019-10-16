@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ba085cb_7d2c5679",
+        "filename": "src/core/SkGlyphBuffer.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-16T18:59:07Z",
+      "side": 1,
+      "message": "Is the intent to call this-\u003e~SkSourceGlyphBuffer() ?",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 52
+      },
+      "revId": "0556bb454b48393b10e8429f0e22ee72ad3f28f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
