@@ -18,13 +18,15 @@ namespace sksg {
  */
 class MaskEffect final : public EffectNode {
 public:
-    enum class Mode {
-        kNormal,
-        kInvert
+    enum class Mode : uint32_t {
+        kAlphaNormal,
+        kAlphaInvert,
+        kLumaNormal,
+        kLumaInvert,
     };
 
     static sk_sp<MaskEffect> Make(sk_sp<RenderNode> child, sk_sp<RenderNode> mask,
-                                  Mode mode = Mode::kNormal) {
+                                  Mode mode = Mode::kAlphaNormal) {
         return (child && mask)
             ? sk_sp<MaskEffect>(new MaskEffect(std::move(child), std::move(mask), mode))
             : nullptr;
