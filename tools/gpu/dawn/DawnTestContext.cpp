@@ -62,10 +62,10 @@ public:
 private:
     Proc getProc(const char* name) {
         PROC proc;
-        if (proc = GetProcAddress(fModule, name)) {
+        if ((proc = GetProcAddress(fModule, name))) {
             return (Proc) proc;
         }
-        if (proc = wglGetProcAddress(name)) {
+        if ((proc = wglGetProcAddress(name))) {
             return (Proc) proc;
         }
         return nullptr;
