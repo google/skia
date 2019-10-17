@@ -238,7 +238,6 @@ private:
         SampleLocationsTestProcessor primProc(fGradType);
 
         GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
-                                  flushState->drawOpArgs().numStencilSamples(),
                                   flushState->drawOpArgs().origin(),
                                   pipeline,
                                   primProc,

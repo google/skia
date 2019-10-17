@@ -7,19 +7,6 @@
 
 #include "src/gpu/GrProgramInfo.h"
 
-#include "src/gpu/GrStencilSettings.h"
-
-GrStencilSettings GrProgramInfo::stencilSettings() const {
-    GrStencilSettings stencil;
-
-    if (this->pipeline().isStencilEnabled()) {
-        stencil.reset(*this->pipeline().getUserStencil(),
-                      this->pipeline().hasStencilClip(),
-                      this->numStencilBits());
-    }
-
-    return stencil;
-}
 
 #ifdef SK_DEBUG
 #include "src/gpu/GrMesh.h"
