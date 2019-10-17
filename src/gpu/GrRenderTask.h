@@ -24,7 +24,7 @@ class GrTextureResolveRenderTask;
 // contents. (e.g., an opsTask that executes a command buffer, a task to regenerate mipmaps, etc.)
 class GrRenderTask : public SkRefCnt {
 public:
-    GrRenderTask(sk_sp<GrSurfaceProxy> target);
+    GrRenderTask(const GrSurfaceProxyView&);
     ~GrRenderTask() override;
 
     void makeClosed(const GrCaps&);
@@ -80,8 +80,8 @@ public:
 
     void visitTargetAndSrcProxies_debugOnly(const VisitSurfaceProxyFunc& fn) const {
         this->visitProxies_debugOnly(fn);
-        if (fTarget) {
-            fn(fTarget.get(), GrMipMapped::kNo);
+        if (fTargetView.asSurfaceProxy()) {
+            fn(fTargetView.asSurfaceProxy(), GrMipMapped::kNo);
         }
     }
 #endif
@@ -105,7 +105,7 @@ protected:
     // targetUpdateBounds must not extend beyond the proxy bounds.
     virtual ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect* targetUpdateBounds) = 0;
 
-    sk_sp<GrSurfaceProxy> fTarget;
+    GrSurfaceProxyView fTargetView;
 
     // List of texture proxies whose contents are being prepared on a worker thread
     // TODO: this list exists so we can fire off the proper upload when an renderTask begins
@@ -117,14 +117,14 @@ private:
     friend class GrDrawingManager;
 
     // Drops any pending operations that reference proxies that are not instantiated.
-    // NOTE: Derived classes don't need to check fTarget. That is handled when the drawingManager
-    // calls isInstantiated.
+    // NOTE: Derived classes don't need to check fTargetView. That is handled when the
+    // drawingManager calls isInstantiated.
     virtual void handleInternalAllocationFailure() = 0;
 
     virtual bool onIsUsed(GrSurfaceProxy*) const = 0;
 
     bool isUsed(GrSurfaceProxy* proxy) const {
-        if (proxy == fTarget.get()) {
+        if (proxy == fTargetView.asSurfaceProxy()) {
             return true;
         }
 

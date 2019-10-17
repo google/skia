@@ -19,7 +19,8 @@ public:
 
 private:
     bool onIsUsed(GrSurfaceProxy* proxy) const override {
-        SkASSERT(proxy != fTarget.get());  // This case should be handled by GrRenderTask.
+        // This case should be handled by GrRenderTask.
+        SkASSERT(proxy != fTargetView.asSurfaceProxy());
         return false;
     }
     void handleInternalAllocationFailure() override {

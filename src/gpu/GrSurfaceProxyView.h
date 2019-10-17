@@ -18,6 +18,16 @@ public:
     GrSurfaceProxyView(sk_sp<GrSurfaceProxy> proxy, GrSurfaceOrigin origin, GrSwizzle swizzle)
             : fProxy(proxy), fOrigin(origin), fSwizzle(swizzle) {}
 
+    GrSurfaceProxyView(const GrSurfaceProxyView& view)
+            : fProxy(view.fProxy), fOrigin(view.fOrigin), fSwizzle(view.fSwizzle) {}
+
+    bool operator==(const GrSurfaceProxyView& view) {
+        return fProxy.get() == view.fProxy.get() &&
+               fOrigin == view.fOrigin &&
+               fSwizzle == view.fOrigin;
+    }
+    bool operator!=(const GrSurfaceProxyView& view) { return !(*this == other); }
+
     GrSurfaceProxy* asSurfaceProxy() { return fProxy.get(); }
     const GrSurfaceProxy* asSurfaceProxy() const { return fProxy.get(); }
     sk_sp<GrSurfaceProxy> asSurfaceProxyRef() const { return fProxy; }
@@ -36,6 +46,10 @@ public:
 
     GrSurfaceOrigin origin() const { return fOrigin; }
     const GrSwizzle& swizzle() const { return fSwizzle; }
+
+    void reset() {
+        fProxy.reset();
+    }
 
 private:
     sk_sp<GrSurfaceProxy> fProxy;

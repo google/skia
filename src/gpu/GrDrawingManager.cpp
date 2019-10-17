@@ -128,7 +128,7 @@ void GrDrawingManager::RenderTaskDAG::prepForFlush() {
             GrOpsTask* curOpsTask = fRenderTasks[i]->asOpsTask();
 
             if (prevOpsTask && curOpsTask) {
-                SkASSERT(prevOpsTask->fTarget.get() != curOpsTask->fTarget.get());
+                SkASSERT(prevOpsTask->fTargetView != curOpsTask->fTargetView);
             }
 
             prevOpsTask = curOpsTask;
@@ -808,7 +808,7 @@ void GrDrawingManager::newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
 
 bool GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
                                          const SkIRect& srcRect,
-                                         sk_sp<GrSurfaceProxy> dstProxy,
+                                         const GrSurfaceProxyView& dstView,
                                          const SkIPoint& dstPoint) {
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);

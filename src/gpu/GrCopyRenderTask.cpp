@@ -13,13 +13,14 @@
 
 sk_sp<GrRenderTask> GrCopyRenderTask::Make(sk_sp<GrSurfaceProxy> srcProxy,
                                            const SkIRect& srcRect,
-                                           sk_sp<GrSurfaceProxy> dstProxy,
+                                           const GrSurfaceProxyView& dstView,
                                            const SkIPoint& dstPoint,
                                            const GrCaps* caps) {
     SkASSERT(dstProxy);
     SkASSERT(srcProxy);
     SkIRect clippedSrcRect;
     SkIPoint clippedDstPoint;
+    GrSurfaceProxy* dstProxy = dstView.asSurfaceProxy();
     // If the rect is outside the srcProxy or dstProxy then we've already succeeded.
     if (!GrClipSrcRectAndDstPoint(dstProxy->isize(), srcProxy->isize(), srcRect, dstPoint,
                                   &clippedSrcRect, &clippedDstPoint)) {
@@ -39,19 +40,19 @@ sk_sp<GrRenderTask> GrCopyRenderTask::Make(sk_sp<GrSurfaceProxy> srcProxy,
     }
 
     sk_sp<GrCopyRenderTask> task(new GrCopyRenderTask(
-            std::move(srcProxy), clippedSrcRect, std::move(dstProxy), clippedDstPoint));
+            std::move(srcProxy), clippedSrcRect, dstView, clippedDstPoint));
     return task;
 }
 
 GrCopyRenderTask::GrCopyRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
                                    const SkIRect& srcRect,
-                                   sk_sp<GrSurfaceProxy> dstProxy,
+                                   const GrSurfaceProxyView& dstView,
                                    const SkIPoint& dstPoint)
-        : GrRenderTask(std::move(dstProxy))
+        : GrRenderTask(dstView)
         , fSrcProxy(std::move(srcProxy))
         , fSrcRect(srcRect)
         , fDstPoint(dstPoint) {
-    fTarget->setLastRenderTask(this);
+    fTargetView.asSurfaceProxy()->setLastRenderTask(this);
 }
 
 void GrCopyRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
@@ -60,23 +61,24 @@ void GrCopyRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     // we read fSrcProxy and copy to fTarget.
     alloc->addInterval(fSrcProxy.get(), alloc->curOp(), alloc->curOp(),
                        GrResourceAllocator::ActualUse::kYes);
-    alloc->addInterval(fTarget.get(), alloc->curOp(), alloc->curOp(),
+    alloc->addInterval(fTargetView.asSurfaceProxy(), alloc->curOp(), alloc->curOp(),
                        GrResourceAllocator::ActualUse::kYes);
     alloc->incOps();
 }
 
 bool GrCopyRenderTask::onExecute(GrOpFlushState* flushState) {
-    if (!fSrcProxy->isInstantiated() || !fTarget->isInstantiated()) {
+    GrSurfaceProxy* proxy = fTargetView.asSurfaceProxy();
+    if (!fSrcProxy->isInstantiated() || !proxy->isInstantiated()) {
         return false;
     }
     GrSurface* srcSurface = fSrcProxy->peekSurface();
-    GrSurface* dstSurface = fTarget->peekSurface();
+    GrSurface* dstSurface = proxy->peekSurface();
     if (fSrcProxy->origin() == kBottomLeft_GrSurfaceOrigin) {
         if (fSrcProxy->height() != srcSurface->height()) {
             fSrcRect.offset(0, srcSurface->height() - fSrcProxy->height());
         }
-        if (fTarget->height() != dstSurface->height()) {
-            fDstPoint.fY = fDstPoint.fY + (dstSurface->height() - fTarget->height());
+        if (proxy->height() != dstSurface->height()) {
+            fDstPoint.fY = fDstPoint.fY + (dstSurface->height() - proxy->height());
         }
     }
     return flushState->gpu()->copySurface(dstSurface, srcSurface, fSrcRect, fDstPoint);

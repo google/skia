@@ -28,7 +28,7 @@ public:
 
 private:
     bool onIsUsed(GrSurfaceProxy* proxy) const override {
-        SkASSERT(!fTarget);
+        SkASSERT(!fTargetView.asSurfaceProxy());
         return proxy == fSrcProxy.get();
     }
     // If fSrcProxy is uninstantiated at flush time we simply will skip doing the transfer.
