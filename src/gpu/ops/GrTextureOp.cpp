@@ -580,13 +580,9 @@ private:
 
             auto saturate = static_cast<GrTextureOp::Saturate>(fSaturate);
 
-            GrGpu* gpu = target->resourceProvider()->priv().gpu();
-            uint32_t extraSamplerKey = gpu->getExtraSamplerKeyForProgram(samplerState,
-                                                                         backendFormat);
-
             gp = GrQuadPerEdgeAA::MakeTexturedProcessor(
                 vertexSpec, *target->caps().shaderCaps(), backendFormat, samplerState, swizzle,
-                extraSamplerKey, std::move(fTextureColorSpaceXform), saturate);
+                std::move(fTextureColorSpaceXform), saturate);
 
             SkASSERT(vertexSize == gp->vertexStride());
         }

@@ -38,7 +38,8 @@ public:
      */
     class Desc : public GrProgramDesc {
     public:
-        static bool Build(Desc*, GrRenderTarget*, const GrProgramInfo&, GrPrimitiveType, GrVkGpu*);
+        static bool Build(Desc*, GrRenderTarget*, const GrProgramInfo&, GrPrimitiveType,
+                          const GrCaps& caps);
 
         size_t shaderKeyLength() const { return fShaderKeyLength; }
 
