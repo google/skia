@@ -454,6 +454,7 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int minSten
             height = SkNextPow2(height);
         }
 #endif
+        // $$
         GrStencilAttachment::ComputeSharedStencilAttachmentKey(
                 width, height, minStencilSampleCount, &sbKey);
         auto stencil = this->findByUniqueKey<GrStencilAttachment>(sbKey);

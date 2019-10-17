@@ -70,8 +70,12 @@ void init_stencil_pass_settings(const GrOpFlushState& flushState,
                                 GrPathRendering::FillType fillType, GrStencilSettings* stencil) {
     const GrAppliedClip* appliedClip = flushState.drawOpArgs().appliedClip();
     bool stencilClip = appliedClip && appliedClip->hasStencilClip();
-    stencil->reset(GrPathRendering::GetStencilPassSettings(fillType), stencilClip,
-                   flushState.drawOpArgs().renderTarget()->renderTargetPriv().numStencilBits());
+
+    int rtNumStencilBits = flushState.drawOpArgs().renderTarget()->renderTargetPriv().numStencilBits();
+    int numStencilBits = flushState.drawOpArgs().numStencilSamples77();
+    SkASSERT(rtNumStencilBits >= numStencilBits);
+
+    stencil->reset(GrPathRendering::GetStencilPassSettings(fillType), stencilClip, numStencilBits, true);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -94,6 +98,7 @@ void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(), this->viewMatrix()));
 
     GrProgramInfo programInfo(state->drawOpArgs().numSamples(),
+                              state->drawOpArgs().numStencilSamples77(),
                               state->drawOpArgs().origin(),
                               pipeline,
                               *pathProc,

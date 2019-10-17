@@ -66,6 +66,7 @@ public:
         }
 
         int numSamples() const { return fProxy->numSamples(); }
+        int numStencilSamples77() const { return fProxy->numStencilSamples77(); }
         GrSurfaceOrigin origin() const { return fProxy->origin(); }
         GrSwizzle outputSwizzle() const { return fProxy->outputSwizzle(); }
 
