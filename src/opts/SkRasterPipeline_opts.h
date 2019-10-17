@@ -2834,35 +2834,93 @@ STAGE(bicubic, SkRasterPipeline_SamplerCtx2* ctx) {
     sampler(ctx, x,y, wx,wy, &r,&g,&b,&a);
 }
 
-// Adapt an SkRasterPipeline_GatherCtx to sample RGBA_8888 / clamp / clamp.
-SI SkRasterPipeline_SamplerCtx2 clamp_8888(const SkRasterPipeline_GatherCtx* ctx) {
-    SkRasterPipeline_SamplerCtx2 ctx2;
-    memcpy(&ctx2, ctx, sizeof(*ctx));
-    ctx2.ct = kRGBA_8888_SkColorType;
-    ctx2.tileX = SkTileMode::kClamp;
-    ctx2.tileY = SkTileMode::kClamp;
-    ctx2.invWidth  = 0;  // invWidth and invHeight will be ignored because we're kClamp.
-    ctx2.invHeight = 0;
-    return ctx2;
-}
-
+// A specialized fused image shader for clamp-x, clamp-y, non-sRGB sampling.
 STAGE(bilerp_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
-    F x = r, fx = fract(x + 0.5f),
-      y = g, fy = fract(y + 0.5f);
-    const F wx[] = {1.0f - fx, fx};
-    const F wy[] = {1.0f - fy, fy};
+    // (cx,cy) are the center of our sample.
+    F cx = r,
+      cy = g;
 
-    SkRasterPipeline_SamplerCtx2 ctx2 = clamp_8888(ctx);
-    sampler(&ctx2, x,y, wx,wy, &r,&g,&b,&a);
+    // All sample points are at the same fractional offset (fx,fy).
+    // They're the 4 corners of a logical 1x1 pixel surrounding (x,y) at (0.5,0.5) offsets.
+    F fx = fract(cx + 0.5f),
+      fy = fract(cy + 0.5f);
+
+    // We'll accumulate the color of all four samples into {r,g,b,a} directly.
+    r = g = b = a = 0;
+
+    for (float dy = -0.5f; dy <= +0.5f; dy += 1.0f)
+    for (float dx = -0.5f; dx <= +0.5f; dx += 1.0f) {
+        // (x,y) are the coordinates of this sample point.
+        F x = cx + dx,
+          y = cy + dy;
+
+        // ix_and_ptr() will clamp to the image's bounds for us.
+        const uint32_t* ptr;
+        U32 ix = ix_and_ptr(&ptr, ctx, x,y);
+
+        F sr,sg,sb,sa;
+        from_8888(gather(ptr, ix), &sr,&sg,&sb,&sa);
+
+        // In bilinear interpolation, the 4 pixels at +/- 0.5 offsets from the sample pixel center
+        // are combined in direct proportion to their area overlapping that logical query pixel.
+        // At positive offsets, the x-axis contribution to that rectangle is fx,
+        // or (1-fx) at negative x.  Same deal for y.
+        F sx = (dx > 0) ? fx : 1.0f - fx,
+          sy = (dy > 0) ? fy : 1.0f - fy,
+          area = sx * sy;
+
+        r += sr * area;
+        g += sg * area;
+        b += sb * area;
+        a += sa * area;
+    }
 }
-STAGE(bicubic_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
-    F x = r, fx = fract(x + 0.5f),
-      y = g, fy = fract(y + 0.5f);
-    const F wx[] = { bicubic_far(1-fx), bicubic_near(1-fx), bicubic_near(fx), bicubic_far(fx) };
-    const F wy[] = { bicubic_far(1-fy), bicubic_near(1-fy), bicubic_near(fy), bicubic_far(fy) };
 
-    SkRasterPipeline_SamplerCtx2 ctx2 = clamp_8888(ctx);
-    sampler(&ctx2, x,y, wx,wy, &r,&g,&b,&a);
+// A specialized fused image shader for clamp-x, clamp-y, non-sRGB sampling.
+STAGE(bicubic_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
+    // (cx,cy) are the center of our sample.
+    F cx = r,
+      cy = g;
+
+    // All sample points are at the same fractional offset (fx,fy).
+    // They're the 4 corners of a logical 1x1 pixel surrounding (x,y) at (0.5,0.5) offsets.
+    F fx = fract(cx + 0.5f),
+      fy = fract(cy + 0.5f);
+
+    // We'll accumulate the color of all four samples into {r,g,b,a} directly.
+    r = g = b = a = 0;
+
+    const F scaley[4] = {
+        bicubic_far (1.0f - fy), bicubic_near(1.0f - fy),
+        bicubic_near(       fy), bicubic_far (       fy),
+    };
+    const F scalex[4] = {
+        bicubic_far (1.0f - fx), bicubic_near(1.0f - fx),
+        bicubic_near(       fx), bicubic_far (       fx),
+    };
+
+    F sample_y = cy - 1.5f;
+    for (int yy = 0; yy <= 3; ++yy) {
+        F sample_x = cx - 1.5f;
+        for (int xx = 0; xx <= 3; ++xx) {
+            F scale = scalex[xx] * scaley[yy];
+
+            // ix_and_ptr() will clamp to the image's bounds for us.
+            const uint32_t* ptr;
+            U32 ix = ix_and_ptr(&ptr, ctx, sample_x, sample_y);
+
+            F sr,sg,sb,sa;
+            from_8888(gather(ptr, ix), &sr,&sg,&sb,&sa);
+
+            r = mad(scale, sr, r);
+            g = mad(scale, sg, g);
+            b = mad(scale, sb, b);
+            a = mad(scale, sa, a);
+
+            sample_x += 1;
+        }
+        sample_y += 1;
+    }
 }
 
 // ~~~~~~ GrSwizzle stage ~~~~~~ //
@@ -4015,6 +4073,69 @@ STAGE_PP(srcover_rgba_8888, const SkRasterPipeline_MemoryCtx* ctx) {
     static void(*bilerp_clamp_8888)(void) = nullptr;
     static void(*bilinear)(void) = nullptr;
 #else
+STAGE_GP(bilerp_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
+    // (cx,cy) are the center of our sample.
+    F cx = x,
+      cy = y;
+
+    // All sample points are at the same fractional offset (fx,fy).
+    // They're the 4 corners of a logical 1x1 pixel surrounding (x,y) at (0.5,0.5) offsets.
+    F fx = fract(cx + 0.5f),
+      fy = fract(cy + 0.5f);
+
+    // We'll accumulate the color of all four samples into {r,g,b,a} directly.
+    r = g = b = a = 0;
+
+    // The first three sample points will calculate their area using math
+    // just like in the float code above, but the fourth will take up all the rest.
+    //
+    // Logically this is the same as doing the math for the fourth pixel too,
+    // but rounding error makes this a better strategy, keeping opaque opaque, etc.
+    //
+    // We can keep up to 8 bits of fractional precision without overflowing 16-bit,
+    // so our "1.0" area is 256.
+    const uint16_t bias = 256;
+    U16 remaining = bias;
+
+    for (float dy = -0.5f; dy <= +0.5f; dy += 1.0f)
+    for (float dx = -0.5f; dx <= +0.5f; dx += 1.0f) {
+        // (x,y) are the coordinates of this sample point.
+        F x = cx + dx,
+          y = cy + dy;
+
+        // ix_and_ptr() will clamp to the image's bounds for us.
+        const uint32_t* ptr;
+        U32 ix = ix_and_ptr(&ptr, ctx, x,y);
+
+        U16 sr,sg,sb,sa;
+        from_8888(gather<U32>(ptr, ix), &sr,&sg,&sb,&sa);
+
+        // In bilinear interpolation, the 4 pixels at +/- 0.5 offsets from the sample pixel center
+        // are combined in direct proportion to their area overlapping that logical query pixel.
+        // At positive offsets, the x-axis contribution to that rectangle is fx,
+        // or (1-fx) at negative x.  Same deal for y.
+        F sx = (dx > 0) ? fx : 1.0f - fx,
+          sy = (dy > 0) ? fy : 1.0f - fy;
+
+        U16 area = (dy == 0.5f && dx == 0.5f) ? remaining
+                                              : cast<U16>(sx * sy * bias);
+        for (size_t i = 0; i < N; i++) {
+            SkASSERT(remaining[i] >= area[i]);
+        }
+        remaining -= area;
+
+        r += sr * area;
+        g += sg * area;
+        b += sb * area;
+        a += sa * area;
+    }
+
+    r = (r + bias/2) / bias;
+    g = (g + bias/2) / bias;
+    b = (b + bias/2) / bias;
+    a = (a + bias/2) / bias;
+}
+
 // TODO: lowp::tile() is identical to the highp tile()... share?
 SI F tile(F v, SkTileMode mode, float limit, float invLimit) {
     // After ix_and_ptr() will clamp the output of tile(), so we need not clamp here.
@@ -4090,16 +4211,6 @@ STAGE_GP(bilinear, const SkRasterPipeline_SamplerCtx2* ctx) {
 
     sampler(ctx, x,y, wx,wy, &r,&g,&b,&a);
 }
-STAGE_GP(bilerp_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
-    F fx = fract(x + 0.5f),
-      fy = fract(y + 0.5f);
-    const F wx[] = {1.0f - fx, fx};
-    const F wy[] = {1.0f - fy, fy};
-
-    SkRasterPipeline_SamplerCtx2 ctx2 = clamp_8888(ctx);
-    sampler(&ctx2, x,y, wx,wy, &r,&g,&b,&a);
-}
-
 #endif
 
 // ~~~~~~ GrSwizzle stage ~~~~~~ //
