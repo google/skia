@@ -55,6 +55,7 @@ DEF_SIMPLE_GM_BG(clipdrawdraw, canvas, 512, 512, 0xFFCCCCCC) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 DEF_SIMPLE_GM(clip_region, canvas, 256, 256) {
+#if 0
     SkRegion rgn({ 10, 10, 100, 100 });
 
     canvas->save();
@@ -67,4 +68,5 @@ DEF_SIMPLE_GM(clip_region, canvas, 256, 256) {
     canvas->clipRegion(rgn);
     canvas->drawColor(SK_ColorBLUE);
     canvas->restore();
+#endif
 }

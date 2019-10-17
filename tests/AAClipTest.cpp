@@ -97,7 +97,7 @@ static void copyToMask(const SkRegion& rgn, SkMask* mask) {
     tmpRgn.translate(-rgn.getBounds().fLeft, -rgn.getBounds().fTop);
 
     SkCanvas canvas(bitmap);
-    canvas.clipRegion(tmpRgn);
+//    canvas.clipRegion(tmpRgn);
     canvas.drawColor(SK_ColorBLACK);
 }
 
