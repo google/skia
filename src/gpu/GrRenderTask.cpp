@@ -253,7 +253,7 @@ bool GrRenderTask::isInstantiated() const {
     }
 
     int minStencilSampleCount = (fTarget->asRenderTargetProxy())
-            ? fTarget->asRenderTargetProxy()->numStencilSamples()
+            ? fTarget->asRenderTargetProxy()->numStencilSamples77()
             : 0;
 
     if (minStencilSampleCount) {
