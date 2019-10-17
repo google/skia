@@ -2,6 +2,54 @@
   "comments": [
     {
       "key": {
+        "uuid": "b4aecbca_5b802a2f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "\u003e \"incase\" is a possible misspelling of \"in case\".\n\nPlease Fix",
+      "parentUuid": "1614e52c_f57bbb12",
+      "range": {
+        "startLine": 9,
+        "startChar": 628,
+        "endLine": 9,
+        "endChar": 634
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "810de3be_f542cea3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1614e52c_f57bbb12",
+      "range": {
+        "startLine": 9,
+        "startChar": 628,
+        "endLine": 9,
+        "endChar": 634
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a49f7ce9_75180788",
         "filename": "/COMMIT_MSG",
         "patchSetId": 1
@@ -22,6 +70,30 @@
       "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0c9124a_9f0e9b5c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "Ok sure. Will split this change",
+      "parentUuid": "a49f7ce9_75180788",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 371
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -48,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "8371db74_6a7790c8",
+        "filename": "src/core/SkBitmapProcState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "01118a22_8e7e8fb2",
+      "range": {
+        "startLine": 132,
+        "startChar": 0,
+        "endLine": 154,
+        "endChar": 5
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "54374916_06ed8a45",
         "filename": "src/core/SkBitmapProcState.cpp",
         "patchSetId": 1
@@ -62,6 +158,24 @@
       "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e93da015_15f94e91",
+        "filename": "src/core/SkBitmapProcState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "54374916_06ed8a45",
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -88,6 +202,30 @@
     },
     {
       "key": {
+        "uuid": "f3f9218a_fe630470",
+        "filename": "src/core/SkBitmapProcState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 712,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d4c0aeca_349631c5",
+      "range": {
+        "startLine": 707,
+        "startChar": 0,
+        "endLine": 712,
+        "endChar": 28
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "abb1ef62_a4ed2e41",
         "filename": "src/core/SkBitmapProcState_matrixProcs.cpp",
         "patchSetId": 1
@@ -108,6 +246,30 @@
       "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb5427bb_985bfe95",
+        "filename": "src/core/SkBitmapProcState_matrixProcs.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "sounds good",
+      "parentUuid": "abb1ef62_a4ed2e41",
+      "range": {
+        "startLine": 499,
+        "startChar": 0,
+        "endLine": 543,
+        "endChar": 5
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -134,6 +296,30 @@
     },
     {
       "key": {
+        "uuid": "7eebc338_cd129788",
+        "filename": "src/core/SkBitmapProcState_matrixProcs.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 858,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "Yes though I will take this as separate CL",
+      "parentUuid": "41734034_b60d7623",
+      "range": {
+        "startLine": 858,
+        "startChar": 17,
+        "endLine": 858,
+        "endChar": 23
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b222c8a8_5c973c89",
         "filename": "src/core/SkOpts.h",
         "patchSetId": 1
@@ -148,6 +334,47 @@
       "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f294abeb_08f67040",
+        "filename": "src/core/SkOpts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b222c8a8_5c973c89",
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b4fe7124_1644d3a9",
+        "filename": "src/opts/SkBitmapProcState_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "ARM once are failing because this got added by mistake...",
+      "range": {
+        "startLine": 27,
+        "startChar": 25,
+        "endLine": 27,
+        "endChar": 30
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -197,6 +424,54 @@
     },
     {
       "key": {
+        "uuid": "1f089f90_813f0348",
+        "filename": "src/opts/SkBitmapProcState_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "Can i do that in separate CL ?. I have hard time figuring out how interpolation works when we are processing 8 pixels together( in case of SSE3 and AVX )",
+      "parentUuid": "59217cad_d35543a4",
+      "range": {
+        "startLine": 42,
+        "startChar": 38,
+        "endLine": 42,
+        "endChar": 96
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50eff6f6_ed13a8b8",
+        "filename": "src/opts/SkBitmapProcState_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0b0cf755_2c53d98c",
+      "range": {
+        "startLine": 42,
+        "startChar": 19,
+        "endLine": 42,
+        "endChar": 22
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9d3df3f1_05f8cddd",
         "filename": "src/opts/SkBitmapProcState_opts.h",
         "patchSetId": 1
@@ -220,6 +495,30 @@
     },
     {
       "key": {
+        "uuid": "51b130e7_bd8444e3",
+        "filename": "src/opts/SkBitmapProcState_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "9d3df3f1_05f8cddd",
+      "range": {
+        "startLine": 209,
+        "startChar": 57,
+        "endLine": 209,
+        "endChar": 69
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0c68320a_56902f09",
         "filename": "src/opts/SkBitmapProcState_opts.h",
         "patchSetId": 1
@@ -234,6 +533,24 @@
       "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df2977eb_13fea857",
+        "filename": "src/opts/SkBitmapProcState_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0c68320a_56902f09",
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -260,6 +577,30 @@
     },
     {
       "key": {
+        "uuid": "6186ab19_cee2e097",
+        "filename": "src/opts/SkBitmapProcState_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e40136e7_ec37032a",
+      "range": {
+        "startLine": 333,
+        "startChar": 4,
+        "endLine": 333,
+        "endChar": 20
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cdcfb461_1d0e2b54",
         "filename": "src/opts/SkBitmapProcState_opts.h",
         "patchSetId": 1
@@ -280,6 +621,30 @@
       "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1079b723_ee7f7fac",
+        "filename": "src/opts/SkBitmapProcState_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "Sorry for this weird logic. I was not very clear on how we are producing multiple pixels together. When we are processing one pixel at a time logic makes sense to me but when we are processing 8 pixels together interpolation logic makes little sense to me. Mainly how weights are getting calculated and why xy order seems reverse in this case( we do pack y pixel first and then x if i am not wrong ).\n\nI have tried to clean this logic to some extent. If you think this requires more clean up. Can you please help?",
+      "parentUuid": "cdcfb461_1d0e2b54",
+      "range": {
+        "startLine": 337,
+        "startChar": 0,
+        "endLine": 340,
+        "endChar": 31
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -306,6 +671,30 @@
     },
     {
       "key": {
+        "uuid": "e08134b3_d9b73cf2",
+        "filename": "src/opts/SkBitmapProcState_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "164b6cbf_2be47dda",
+      "range": {
+        "startLine": 353,
+        "startChar": 0,
+        "endLine": 355,
+        "endChar": 100
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "395309a9_84b26871",
         "filename": "src/opts/SkBitmapProcState_opts.h",
         "patchSetId": 1
@@ -326,6 +715,30 @@
       "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61fbc07d_2e316324",
+        "filename": "src/opts/SkBitmapProcState_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "395309a9_84b26871",
+      "range": {
+        "startLine": 370,
+        "startChar": 50,
+        "endLine": 370,
+        "endChar": 67
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -352,6 +765,30 @@
     },
     {
       "key": {
+        "uuid": "83d87908_710e7400",
+        "filename": "src/opts/SkBitmapProcState_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b07ec805_0d531c18",
+      "range": {
+        "startLine": 434,
+        "startChar": 70,
+        "endLine": 434,
+        "endChar": 74
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5bfe8667_14677bd1",
         "filename": "src/opts/SkOpts_ssse3.cpp",
         "patchSetId": 1
@@ -375,6 +812,30 @@
     },
     {
       "key": {
+        "uuid": "c679cc06_39ef2845",
+        "filename": "src/opts/SkOpts_ssse3.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "5bfe8667_14677bd1",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 2
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d88c3640_0aa0f033",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 1
@@ -395,6 +856,30 @@
       "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81d3e281_cfafa425",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d88c3640_0aa0f033",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 30
+      },
+      "revId": "b07c26a6f87d63887a29c8af2fd2ad64861d32c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

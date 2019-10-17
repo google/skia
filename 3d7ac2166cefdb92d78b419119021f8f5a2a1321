@@ -22,6 +22,29 @@
       "revId": "3d7ac2166cefdb92d78b419119021f8f5a2a1321",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c85780c9_c48acbae",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-17T16:08:18Z",
+      "side": 1,
+      "message": "un intensional will remove",
+      "range": {
+        "startLine": 125,
+        "startChar": 8,
+        "endLine": 126,
+        "endChar": 23
+      },
+      "revId": "3d7ac2166cefdb92d78b419119021f8f5a2a1321",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
