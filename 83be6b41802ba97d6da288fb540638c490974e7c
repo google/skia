@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6e1d0fd3_4ecd64e1",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1368,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-10-17T21:07:33Z",
+      "side": 1,
+      "message": "Is there a proposal for this somewhere?",
+      "range": {
+        "startLine": 1368,
+        "startChar": 34,
+        "endLine": 1368,
+        "endChar": 61
+      },
+      "revId": "83be6b41802ba97d6da288fb540638c490974e7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce4ca60d_cfd9aada",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-10-17T21:07:33Z",
+      "side": 1,
+      "message": "Can we rename this, to be clearer?",
+      "range": {
+        "startLine": 165,
+        "startChar": 20,
+        "endLine": 165,
+        "endChar": 23
+      },
+      "revId": "83be6b41802ba97d6da288fb540638c490974e7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
