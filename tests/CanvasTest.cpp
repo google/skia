@@ -253,7 +253,7 @@ static CanvasTest kCanvasTests[] = {
         c->clipPath(make_path_from_rect(SkRect{0, 0, 2, 1}));
     },
     [](SkCanvas* c, skiatest::Reporter* r) {
-        c->clipRegion(make_region_from_irect(SkIRect{0, 0, 2, 1}), kReplace_SkClipOp);
+ //       c->clipRegion(make_region_from_irect(SkIRect{0, 0, 2, 1}), kReplace_SkClipOp);
     },
     [](SkCanvas* c, skiatest::Reporter* r) {
         c->clear(kColor);
@@ -262,7 +262,7 @@ static CanvasTest kCanvasTests[] = {
         int saveCount = c->getSaveCount();
         c->save();
         c->translate(SkIntToScalar(1), SkIntToScalar(2));
-        c->clipRegion(make_region_from_irect(SkIRect{0, 0, 2, 1}));
+ //       c->clipRegion(make_region_from_irect(SkIRect{0, 0, 2, 1}));
         c->restore();
         REPORTER_ASSERT(r, c->getSaveCount() == saveCount);
         REPORTER_ASSERT(r, c->getTotalMatrix().isIdentity());
@@ -293,7 +293,7 @@ static CanvasTest kCanvasTests[] = {
         // assertion at playback time if the placeholders are not properly
         // filled when the recording ends.
         c->clipRect(kRect);
-        c->clipRegion(make_region_from_irect(SkIRect{0, 0, 2, 1}));
+//        c->clipRegion(make_region_from_irect(SkIRect{0, 0, 2, 1}));
     },
     [](SkCanvas* c, skiatest::Reporter* r) {
         // exercise fix for http://code.google.com/p/skia/issues/detail?id=560

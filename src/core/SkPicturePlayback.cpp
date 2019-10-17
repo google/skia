@@ -139,6 +139,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             }
         } break;
         case CLIP_REGION: {
+#if 0
             SkRegion region;
             reader->readRegion(&region);
             uint32_t packed = reader->readInt();
@@ -151,6 +152,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             if (canvas->isClipEmpty() && offsetToRestore) {
                 reader->skip(offsetToRestore - reader->offset());
             }
+#endif
         } break;
         case CLIP_RECT: {
             SkRect rect;

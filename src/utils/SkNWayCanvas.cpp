@@ -135,7 +135,7 @@ void SkNWayCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edg
 void SkNWayCanvas::onClipRegion(const SkRegion& deviceRgn, SkClipOp op) {
     Iter iter(fList);
     while (iter.next()) {
-        iter->clipRegion(deviceRgn, op);
+    //    iter->clipRegion(deviceRgn, op);
     }
     this->INHERITED::onClipRegion(deviceRgn, op);
 }

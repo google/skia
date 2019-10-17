@@ -950,7 +950,9 @@ public:
         @param deviceRgn  SkRegion to combine with clip
         @param op         SkClipOp to apply to clip
     */
+private:
     void clipRegion(const SkRegion& deviceRgn, SkClipOp op = SkClipOp::kIntersect);
+public:
 
     /** Returns true if SkRect rect, transformed by SkMatrix, can be quickly determined to be
         outside of clip. May return false even though rect is outside of clip.
