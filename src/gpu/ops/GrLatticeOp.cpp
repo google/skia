@@ -96,13 +96,8 @@ private:
               GrSamplerState::Filter filter, bool wideColor)
             : INHERITED(kLatticeGP_ClassID), fColorSpaceXform(std::move(csxf)) {
 
-        GrSamplerState samplerState = GrSamplerState(GrSamplerState::WrapMode::kClamp,
-                                                     filter);
-        uint32_t extraSamplerKey = gpu->getExtraSamplerKeyForProgram(samplerState,
-                                                                     proxy->backendFormat());
-
-        fSampler.reset(proxy->textureType(), samplerState, proxy->textureSwizzle(),
-                       extraSamplerKey);
+        fSampler.reset(GrSamplerState(GrSamplerState::WrapMode::kClamp, filter),
+                       proxy->backendFormat(), proxy->textureSwizzle());
         this->setTextureSamplerCnt(1);
         fInPosition = {"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
         fInTextureCoords = {"textureCoords", kFloat2_GrVertexAttribType, kFloat2_GrSLType};

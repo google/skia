@@ -21,7 +21,9 @@ class GrBackendFormat;
 class GrBackendRenderTarget;
 class GrBackendTexture;
 struct GrContextOptions;
+class GrProcessorKeyBuilder;
 class GrRenderTargetProxy;
+class GrSamplerState;
 class GrSurface;
 class SkJSONWriter;
 
@@ -429,6 +431,15 @@ public:
         SkASSERT(config == result || AreConfigsCompatible(config, result));
         return result;
     }
+
+    /**
+     * Adds fields to the key to represent the sampler that will be created for the passed
+     * in parameters. Currently this extra keying is only needed when building a vulkan pipeline
+     * with immutable samplers.
+     */
+    virtual void addExtraSamplerKey(GrProcessorKeyBuilder*,
+                                    const GrSamplerState&,
+                                    const GrBackendFormat&) const {}
 
 #ifdef SK_DEBUG
     // This is just a debugging entry point until we're weaned off of GrPixelConfig. It
