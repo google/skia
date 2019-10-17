@@ -29,10 +29,13 @@ std::unique_ptr<GrOp> GrStencilPathOp::Make(GrRecordingContext* context,
 void GrStencilPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     GrRenderTarget* rt = state->drawOpArgs().renderTarget();
     SkASSERT(rt);
+    int rtNumStencilBits = rt->renderTargetPriv().numStencilBits();
 
-    int numStencilBits = rt->renderTargetPriv().numStencilBits();
+    int numStencilBits = state->drawOpArgs().proxy()->numStencilSamples77();
+    SkASSERT(rtNumStencilBits >= numStencilBits);
+
     GrStencilSettings stencil(GrPathRendering::GetStencilPassSettings(fPath->getFillType()),
-                              fHasStencilClip, numStencilBits);
+                              fHasStencilClip, numStencilBits, true);
 
     GrPathRendering::StencilPathArgs args(fUseHWAA, state->drawOpArgs().proxy(),
                                           &fViewMatrix, &fScissor, &stencil);

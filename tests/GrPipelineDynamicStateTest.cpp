@@ -156,6 +156,7 @@ private:
         GrPipelineDynamicStateTestProcessor primProc;
 
         GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
+                                  flushState->drawOpArgs().numStencilSamples77(),
                                   flushState->drawOpArgs().origin(),
                                   pipeline,
                                   primProc,
