@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "325e81c9_ac9dacb6",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1368,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-17T20:40:21Z",
+      "side": 1,
+      "message": "replaced with wording about coordinate spaces.",
+      "parentUuid": "4e15fb8a_052f81f7",
+      "range": {
+        "startLine": 1368,
+        "startChar": 75,
+        "endLine": 1368,
+        "endChar": 82
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7141f0d1_26ee3da5",
         "filename": "src/core/SkDevice.cpp",
         "patchSetId": 2
@@ -39,6 +63,24 @@
       "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82a285b6_3564a8e3",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-17T20:40:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7141f0d1_26ee3da5",
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "af25d0db_f5bcc5b8",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-17T20:40:21Z",
+      "side": 1,
+      "message": "I agree that CTM is a little overloaded here; now that the SkDevice::fCTM has been renamed fLocalToDevice, it reads a little better. However, SkDevice still exposes its local matrix as \u0027ctm()\u0027 and \u0027setCTM()\u0027. It\u0027ll take another CL to further separate those functions from the global CTM managed by SkCanvas.",
+      "parentUuid": "26cdb671_17cb8693",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 15
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "792a3fc7_061529bb",
         "filename": "src/core/SkDevice.cpp",
         "patchSetId": 2
@@ -85,6 +151,30 @@
       "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b854ae5a_12df1970",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-17T20:40:21Z",
+      "side": 1,
+      "message": "described the input -\u003e root, root -\u003e this steps more explicitly",
+      "parentUuid": "792a3fc7_061529bb",
+      "range": {
+        "startLine": 84,
+        "startChar": 66,
+        "endLine": 84,
+        "endChar": 99
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "c74b7227_8c5abaa2",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-17T20:40:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c8996d75_cc96399f",
+      "range": {
+        "startLine": 103,
+        "startChar": 28,
+        "endLine": 103,
+        "endChar": 33
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c4a29498_70403d8e",
         "filename": "src/core/SkDevice.h",
         "patchSetId": 2
@@ -131,6 +245,30 @@
       "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0e56924_b3865f80",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-17T20:40:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c4a29498_70403d8e",
+      "range": {
+        "startLine": 118,
+        "startChar": 71,
+        "endLine": 118,
+        "endChar": 76
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -157,6 +295,30 @@
     },
     {
       "key": {
+        "uuid": "ab5ed081_1a0da9ee",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-17T20:40:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "494f3f4c_51eb7840",
+      "range": {
+        "startLine": 127,
+        "startChar": 22,
+        "endLine": 127,
+        "endChar": 26
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "01ebef38_92467f13",
         "filename": "src/core/SkDevice.h",
         "patchSetId": 2
@@ -180,6 +342,30 @@
     },
     {
       "key": {
+        "uuid": "c2001736_a8875389",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-17T20:40:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "01ebef38_92467f13",
+      "range": {
+        "startLine": 133,
+        "startChar": 39,
+        "endLine": 133,
+        "endChar": 45
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "25fd9d1b_91b80f8c",
         "filename": "src/core/SkDevice.h",
         "patchSetId": 2
@@ -194,6 +380,24 @@
       "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee741ba6_62c620d5",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-17T20:40:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "25fd9d1b_91b80f8c",
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -220,6 +424,30 @@
     },
     {
       "key": {
+        "uuid": "b3415e97_5175740d",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-17T20:40:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37a9d8ab_9211b376",
+      "range": {
+        "startLine": 403,
+        "startChar": 8,
+        "endLine": 403,
+        "endChar": 12
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ec4d665f_bddf82eb",
         "filename": "src/core/SkDevice.h",
         "patchSetId": 2
@@ -240,6 +468,30 @@
       "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93022251_e42c4872",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-17T20:40:21Z",
+      "side": 1,
+      "message": "further clarified",
+      "parentUuid": "ec4d665f_bddf82eb",
+      "range": {
+        "startLine": 405,
+        "startChar": 57,
+        "endLine": 405,
+        "endChar": 60
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -266,6 +518,30 @@
     },
     {
       "key": {
+        "uuid": "6aa03313_8b62b461",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-17T20:40:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b455f925_56bcdfc5",
+      "range": {
+        "startLine": 434,
+        "startChar": 25,
+        "endLine": 434,
+        "endChar": 29
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5bee5106_10972e80",
         "filename": "src/pdf/SkPDFDevice.cpp",
         "patchSetId": 2
@@ -286,6 +562,30 @@
       "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93f9012f_24ba9fc4",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-17T20:40:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5bee5106_10972e80",
+      "range": {
+        "startLine": 314,
+        "startChar": 7,
+        "endLine": 314,
+        "endChar": 14
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
