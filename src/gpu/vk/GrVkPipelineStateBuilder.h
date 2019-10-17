@@ -43,7 +43,7 @@ public:
                           const GrProgramInfo&,
                           const GrStencilSettings&,
                           GrPrimitiveType primitiveType,
-                          GrVkGpu* gpu);
+                          const GrCaps& caps);
 
         size_t shaderKeyLength() const { return fShaderKeyLength; }
 
