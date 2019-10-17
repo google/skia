@@ -587,8 +587,8 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
                         atlas->getStrokeBatchID(), atlas->drawBounds());
             }
             rtc->addDrawOp(GrNoClip(), std::move(op));
-            if (rtc->proxy()->requiresManualMSAAResolve()) {
-                onFlushRP->addTextureResolveTask(sk_ref_sp(rtc->proxy()->asTextureProxy()),
+            if (rtc->asRenderTargetProxy()->requiresManualMSAAResolve()) {
+                onFlushRP->addTextureResolveTask(rtc->asTextureProxyRef(),
                                                  GrSurfaceProxy::ResolveFlags::kMSAA);
             }
         }

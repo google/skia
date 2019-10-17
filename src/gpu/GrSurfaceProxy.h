@@ -262,7 +262,7 @@ public:
     }
 
     void setLastRenderTask(GrRenderTask*);
-    GrRenderTask* getLastRenderTask() { return fLastRenderTask; }
+    GrRenderTask* getLastRenderTask() const { return fLastRenderTask; }
 
     GrOpsTask* getLastOpsTask();
 

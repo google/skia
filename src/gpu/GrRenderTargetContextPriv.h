@@ -88,7 +88,7 @@ public:
      * guaranteed to match the uniqueID of the underlying GrRenderTarget - beware!
      */
     GrSurfaceProxy::UniqueID uniqueID() const {
-        return fRenderTargetContext->fRenderTargetProxy->uniqueID();
+        return fRenderTargetContext->asSurfaceProxy()->uniqueID();
     }
 
     uint32_t testingOnly_getOpsTaskID();
@@ -99,7 +99,7 @@ public:
                                const std::function<WillAddOpFn>& = std::function<WillAddOpFn>());
 
     bool refsWrappedObjects() const {
-        return fRenderTargetContext->fRenderTargetProxy->refsWrappedObjects();
+        return fRenderTargetContext->asRenderTargetProxy()->refsWrappedObjects();
     }
 
 private:

@@ -18,6 +18,7 @@
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/text/GrTextTarget.h"
@@ -475,29 +476,47 @@ public:
 
     void insertEventMarker(const SkString&);
 
-    const GrRenderTargetProxy* proxy() const { return fRenderTargetProxy.get(); }
-    int width() const { return fRenderTargetProxy->width(); }
-    int height() const { return fRenderTargetProxy->height(); }
-    int numSamples() const { return fRenderTargetProxy->numSamples(); }
+    int width() const { return this->asSurfaceProxy()->width(); }
+    int height() const { return this->asSurfaceProxy()->height(); }
+    int numSamples() const { return this->asRenderTargetProxy()->numSamples(); }
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
-    GrSurfaceOrigin origin() const { return fRenderTargetProxy->origin(); }
-    bool wrapsVkSecondaryCB() const { return fRenderTargetProxy->wrapsVkSecondaryCB(); }
+    GrSurfaceOrigin origin() const { return fSurfaceProxyView.origin(); }
+    bool wrapsVkSecondaryCB() const { return this->asRenderTargetProxy()->wrapsVkSecondaryCB(); }
     GrMipMapped mipMapped() const;
 
     // This entry point should only be called if the backing GPU object is known to be
     // instantiated.
-    GrRenderTarget* accessRenderTarget() { return fRenderTargetProxy->peekRenderTarget(); }
+    GrRenderTarget* accessRenderTarget() { return this->asSurfaceProxy()->peekRenderTarget(); }
 
-    GrSurfaceProxy* asSurfaceProxy() override { return fRenderTargetProxy.get(); }
-    const GrSurfaceProxy* asSurfaceProxy() const override { return fRenderTargetProxy.get(); }
-    sk_sp<GrSurfaceProxy> asSurfaceProxyRef() override { return fRenderTargetProxy; }
+    GrSurfaceProxy* asSurfaceProxy() override {
+        return fSurfaceProxyView.asSurfaceProxy();
+    }
+    const GrSurfaceProxy* asSurfaceProxy() const override {
+        return fSurfaceProxyView.asSurfaceProxy();
+    }
+    sk_sp<GrSurfaceProxy> asSurfaceProxyRef() override {
+        return fSurfaceProxyView.asSurfaceProxyRef();
+    }
 
-    GrTextureProxy* asTextureProxy() override;
-    const GrTextureProxy* asTextureProxy() const override;
-    sk_sp<GrTextureProxy> asTextureProxyRef() override;
+    GrTextureProxy* asTextureProxy() override {
+        return fSurfaceProxyView.asTextureProxy();
+    }
+    const GrTextureProxy* asTextureProxy() const override {
+        return fSurfaceProxyView.asTextureProxy();
+    }
+    sk_sp<GrTextureProxy> asTextureProxyRef() override {
+        return fSurfaceProxyView.asTextureProxyRef();
+    }
 
-    GrRenderTargetProxy* asRenderTargetProxy() override { return fRenderTargetProxy.get(); }
-    sk_sp<GrRenderTargetProxy> asRenderTargetProxyRef() override { return fRenderTargetProxy; }
+    GrRenderTargetProxy* asRenderTargetProxy() override {
+        return fSurfaceProxyView.asRenderTargetProxy();
+    }
+    const GrRenderTargetProxy* asRenderTargetProxy() const {
+        return fSurfaceProxyView.asRenderTargetProxy();
+    }
+    sk_sp<GrRenderTargetProxy> asRenderTargetProxyRef() override {
+        return fSurfaceProxyView.asRenderTargetProxyRef();
+    }
 
     GrRenderTargetContext* asRenderTargetContext() override { return this; }
 
@@ -508,7 +527,7 @@ public:
     GrTextTarget* textTarget() { return fTextTarget.get(); }
 
 #if GR_TEST_UTILS
-    bool testingOnly_IsInstantiated() const { return fRenderTargetProxy->isInstantiated(); }
+    bool testingOnly_IsInstantiated() const { return this->asSurfaceProxy()->isInstantiated(); }
     void testingOnly_SetPreserveOpsOnFullClear() { fPreserveOpsOnFullClear_TestingOnly = true; }
     GrOpsTask* testingOnly_PeekLastOpsTask() { return fOpsTask.get(); }
 #endif
@@ -637,7 +656,7 @@ private:
     GrOpsTask* getOpsTask();
 
     std::unique_ptr<GrTextTarget> fTextTarget;
-    sk_sp<GrRenderTargetProxy> fRenderTargetProxy;
+    GrSurfaceProxyView fSurfaceProxyView;
 
     // In MDB-mode the GrOpsTask can be closed by some other renderTargetContext that has picked
     // it up. For this reason, the GrOpsTask should only ever be accessed via 'getOpsTask'.

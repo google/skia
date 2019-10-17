@@ -45,7 +45,7 @@ bool GrPathRenderer::drawPath(const DrawPathArgs& args) {
     args.validate();
     CanDrawPathArgs canArgs;
     canArgs.fCaps = args.fContext->priv().caps();
-    canArgs.fProxy = args.fRenderTargetContext->proxy();
+    canArgs.fProxy = args.fRenderTargetContext->asRenderTargetProxy();
     canArgs.fClipConservativeBounds = args.fClipConservativeBounds;
     canArgs.fViewMatrix = args.fViewMatrix;
     canArgs.fShape = args.fShape;
