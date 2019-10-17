@@ -1,0 +1,291 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e15fb8a_052f81f7",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1368,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-17T19:02:58Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 1368,
+        "startChar": 75,
+        "endLine": 1368,
+        "endChar": 82
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7141f0d1_26ee3da5",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-17T19:02:58Z",
+      "side": 1,
+      "message": "move up a line and tab the initializer list over one ?",
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26cdb671_17cb8693",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-17T19:02:58Z",
+      "side": 1,
+      "message": "something in here seems misnamed",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 15
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "792a3fc7_061529bb",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-17T19:02:58Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 84,
+        "startChar": 66,
+        "endLine": 84,
+        "endChar": 99
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8996d75_cc96399f",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-17T19:02:58Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 103,
+        "startChar": 28,
+        "endLine": 103,
+        "endChar": 33
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4a29498_70403d8e",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-17T19:02:58Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 118,
+        "startChar": 71,
+        "endLine": 118,
+        "endChar": 76
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "494f3f4c_51eb7840",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-17T19:02:58Z",
+      "side": 1,
+      "message": "the ?",
+      "range": {
+        "startLine": 127,
+        "startChar": 22,
+        "endLine": 127,
+        "endChar": 26
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01ebef38_92467f13",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-17T19:02:58Z",
+      "side": 1,
+      "message": "rm ?",
+      "range": {
+        "startLine": 133,
+        "startChar": 39,
+        "endLine": 133,
+        "endChar": 45
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25fd9d1b_91b80f8c",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-17T19:02:58Z",
+      "side": 1,
+      "message": "\\n ?",
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37a9d8ab_9211b376",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-17T19:02:58Z",
+      "side": 1,
+      "message": "deviceOriginX, deviceOriginY ?",
+      "range": {
+        "startLine": 403,
+        "startChar": 8,
+        "endLine": 403,
+        "endChar": 12
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec4d665f_bddf82eb",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-17T19:02:58Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 405,
+        "startChar": 57,
+        "endLine": 405,
+        "endChar": 60
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b455f925_56bcdfc5",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-17T19:02:58Z",
+      "side": 1,
+      "message": "fLocalToDevice ?",
+      "range": {
+        "startLine": 434,
+        "startChar": 25,
+        "endLine": 434,
+        "endChar": 29
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bee5106_10972e80",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-17T19:02:58Z",
+      "side": 1,
+      "message": "to ?",
+      "range": {
+        "startLine": 314,
+        "startChar": 7,
+        "endLine": 314,
+        "endChar": 14
+      },
+      "revId": "4aa9436873691dccd99ceb70b8e34dff374c217a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
