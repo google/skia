@@ -39,9 +39,9 @@ public:
      * The number of stencil samples on this proxy will be equal to the largest sample count passed
      * to this method.
      */
-    void setNeedsStencil(int8_t numStencilSamples) {
+    void setNeedsStencil77(int8_t numStencilSamples) {
         SkASSERT(numStencilSamples >= fSampleCnt);
-        fNumStencilSamples = SkTMax(numStencilSamples, fNumStencilSamples);
+        fNumStencilSamples77 = SkTMax(numStencilSamples, fNumStencilSamples77);
     }
 
     /**
@@ -50,7 +50,7 @@ public:
      * to have at least this many. (After a multisample stencil buffer has been attached to a render
      * target, we never "downgrade" it to one with fewer samples.)
      */
-    int numStencilSamples() const { return fNumStencilSamples; }
+    int numStencilSamples() const { return fNumStencilSamples77; }
 
     /**
      * Returns the number of samples/pixel in the color buffer (One if non-MSAA).
@@ -162,7 +162,7 @@ private:
     // that particular class don't require it. Changing the size of this object can move the start
     // address of other types, leading to this problem.
     int8_t             fSampleCnt;
-    int8_t             fNumStencilSamples = 0;
+    int8_t             fNumStencilSamples77 = 0;
     WrapsVkSecondaryCB fWrapsVkSecondaryCB;
     GrSwizzle          fOutputSwizzle;
     SkIRect            fMSAADirtyRect = SkIRect::MakeEmpty();
