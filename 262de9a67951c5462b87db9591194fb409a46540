@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4565786_4cbaa39c",
+        "filename": "src/gpu/GrRenderTargetContextPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-17T20:09:03Z",
+      "side": 1,
+      "message": "I\u0027m a bit surprised this isn\u0027t on GrSurfaceProxy",
+      "range": {
+        "startLine": 102,
+        "startChar": 60,
+        "endLine": 102,
+        "endChar": 78
+      },
+      "revId": "262de9a67951c5462b87db9591194fb409a46540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0290f4c3_d74052a1",
+        "filename": "src/gpu/GrSurfaceProxyView.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-17T20:09:03Z",
+      "side": 1,
+      "message": "// Informative comment ?",
+      "revId": "262de9a67951c5462b87db9591194fb409a46540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
