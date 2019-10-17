@@ -23,6 +23,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         GrVkGpu* gpu,
         GrRenderTarget* renderTarget,
         const GrProgramInfo& programInfo,
+        const GrStencilSettings& stencil,
         GrPrimitiveType primitiveType,
         Desc* desc,
         VkRenderPass compatibleRenderPass) {
@@ -34,7 +35,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         return nullptr;
     }
 
-    return builder.finalize(primitiveType, compatibleRenderPass, desc);
+    return builder.finalize(stencil, primitiveType, compatibleRenderPass, desc);
 }
 
 GrVkPipelineStateBuilder::GrVkPipelineStateBuilder(GrVkGpu* gpu,
@@ -143,7 +144,8 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
     this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data);
 }
 
-GrVkPipelineState* GrVkPipelineStateBuilder::finalize(GrPrimitiveType primitiveType,
+GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& stencil,
+                                                      GrPrimitiveType primitiveType,
                                                       VkRenderPass compatibleRenderPass,
                                                       Desc* desc) {
     VkDescriptorSetLayout dsLayout[2];
@@ -289,7 +291,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(GrPrimitiveType primitiveT
             this->storeShadersInCache(shaders, inputs, isSkSL);
         }
     }
-        GrVkPipeline* pipeline = resourceProvider.createPipeline(fProgramInfo,
+        GrVkPipeline* pipeline = resourceProvider.createPipeline(fProgramInfo, stencil,
             shaderStageInfo, numShaderStages, primitiveType, compatibleRenderPass, pipelineLayout);
     for (int i = 0; i < kGrShaderTypeCount; ++i) {
         // This if check should not be needed since calling destroy on a VK_NULL_HANDLE is allowed.
@@ -324,6 +326,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(GrPrimitiveType primitiveT
 bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
                                            GrRenderTarget* renderTarget,
                                            const GrProgramInfo& programInfo,
+                                           const GrStencilSettings& stencil,
                                            GrPrimitiveType primitiveType,
                                            GrVkGpu* gpu) {
     if (!GrProgramDesc::Build(desc, renderTarget, programInfo, primitiveType, gpu)) {
@@ -339,8 +342,6 @@ bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
 
     GrVkRenderTarget* vkRT = (GrVkRenderTarget*)renderTarget;
     vkRT->simpleRenderPass()->genKey(&b);
-
-    GrStencilSettings stencil = programInfo.stencilSettings();
 
     stencil.genKey(&b);
 

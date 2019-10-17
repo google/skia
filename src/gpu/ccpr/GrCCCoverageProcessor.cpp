@@ -204,12 +204,12 @@ void GrCCCoverageProcessor::draw(
     GrOpsRenderPass* renderPass = flushState->opsRenderPass();
 
     GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
-                              flushState->drawOpArgs().numStencilSamples(),
                               flushState->drawOpArgs().origin(),
                               pipeline,
                               *this,
                               nullptr,
                               &dynamicStateArrays, 0);
+
 
     renderPass->draw(programInfo, meshes, meshCount, drawBounds);
 }

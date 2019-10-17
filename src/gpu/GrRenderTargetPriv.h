@@ -32,6 +32,8 @@ public:
      */
     void attachStencilAttachment(sk_sp<GrStencilAttachment> stencil);
 
+    int numStencilBits() const;
+
     /**
      * Returns a unique key that identifies this render target's sample pattern. (Must be
      * multisampled.)

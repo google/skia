@@ -26,6 +26,7 @@ class GrVkPipeline : public GrVkResource {
 public:
     static GrVkPipeline* Create(GrVkGpu*,
                                 const GrProgramInfo&,
+                                const GrStencilSettings&,
                                 VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                 int shaderStageCount,
                                 GrPrimitiveType primitiveType,
