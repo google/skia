@@ -4,16 +4,19 @@ This file includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 79
+
+  [Insert new notes here.]
+
   * SkTextBlob::Iter to discover the glyph indices and typefaces in each run
     https://skia-review.googlesource.com/246296
 
-Milestone 79
-
-[Insert new notes here.]
   * Added support for PQ and HLG transfer functions to SkColorSpace.
+    https://skia-review.googlesource.com/c/skia/+/249000
 
   * Added new api on GrContext ComputeImageSize. This replaces the hold static helper
     ComputeTextureSize.
+    https://skia-review.googlesource.com/c/skia/+/247337
 
   * New versions of SkSurface async-rescale-and read APIs that allow client to extend
     the lifetime of the result data. Old versions are deprecated.
