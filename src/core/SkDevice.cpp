@@ -33,23 +33,65 @@
 #include "src/utils/SkPatchUtils.h"
 
 SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfaceProps)
-    : fInfo(info)
-    , fSurfaceProps(surfaceProps)
-{
-    fOrigin = {0, 0};
-    fCTM.reset();
+        : fInfo(info)
+        , fSurfaceProps(surfaceProps) {
+    fDeviceToGlobal.reset();
+    fGlobalToDevice.reset();
+    fLocalToDevice.reset();
 }
 
-void SkBaseDevice::setOrigin(const SkMatrix& globalCTM, int x, int y) {
-    fOrigin.set(x, y);
-    fCTM = globalCTM;
-    fCTM.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
+void SkBaseDevice::setDeviceCoordinateSystem(const SkMatrix& deviceToGlobal,
+                                             const SkMatrix& localToDevice,
+                                             int deviceOriginX,
+                                             int deviceOriginY) {
+    fDeviceToGlobal = deviceToGlobal;
+    SkAssertResult(deviceToGlobal.invert(&fGlobalToDevice));
+    fLocalToDevice = localToDevice;
+    if (deviceOriginX | deviceOriginY) {
+        fDeviceToGlobal.preTranslate(deviceOriginX, deviceOriginY);
+        fGlobalToDevice.postTranslate(-deviceOriginX, -deviceOriginY);
+        fLocalToDevice.postTranslate(-deviceOriginX, -deviceOriginY);
+    }
 }
 
 void SkBaseDevice::setGlobalCTM(const SkMatrix& ctm) {
-    fCTM = ctm;
-    if (fOrigin.fX | fOrigin.fY) {
-        fCTM.postTranslate(-SkIntToScalar(fOrigin.fX), -SkIntToScalar(fOrigin.fY));
+    fLocalToDevice = ctm;
+    if (!fGlobalToDevice.isIdentity()) {
+        // Map from the global CTM state to this device's coordinate system.
+        fLocalToDevice.postConcat(fGlobalToDevice);
+    }
+}
+
+bool SkBaseDevice::getOrigin(SkIPoint* origin) const {
+    if (fDeviceToGlobal.isScaleTranslate() && fDeviceToGlobal.getScaleX() > 0.0f
+        && fDeviceToGlobal.getScaleY() > 0.0f) {
+        // Avoid calculating the global bounds, this is equal to
+        // fDeviceToRoot * (0, 0) and then rounding out.
+        origin->fX = SkScalarFloorToInt(fDeviceToGlobal.getTranslateX());
+        origin->fY = SkScalarFloorToInt(fDeviceToGlobal.getTranslateY());
+
+        return origin->fX == fDeviceToGlobal.getTranslateX() &&
+               origin->fY == fDeviceToGlobal.getTranslateY();
+    } else {
+        // Report top-left corner of the device's global bounds
+        SkIRect globalBounds = this->getGlobalBounds();
+        *origin = globalBounds.topLeft();
+        return false;
+    }
+}
+
+SkMatrix SkBaseDevice::getRelativeTransform(const SkBaseDevice& inputDevice) const {
+    // To get the transform from the input's space to this space, transform from the input space to
+    // the global space, and then from the global space back to this space.
+    return SkMatrix::Concat(fGlobalToDevice, inputDevice.fDeviceToGlobal);
+}
+bool SkBaseDevice::getRelativeOrigin(const SkBaseDevice& inputDevice, SkIPoint* offset) const {
+    SkIPoint srcOrigin, dstOrigin;
+    if (this->getOrigin(&dstOrigin) && inputDevice.getOrigin(&srcOrigin)) {
+        *offset = srcOrigin - dstOrigin;
+        return true;
+    } else {
+        return false;
     }
 }
 
