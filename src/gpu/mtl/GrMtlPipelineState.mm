@@ -110,7 +110,7 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
         SkASSERT(renderTarget->renderTargetPriv().getStencilAttachment());
         fStencil.reset(*programInfo.pipeline().getUserStencil(),
                        programInfo.pipeline().hasStencilClip(),
-                       renderTarget->renderTargetPriv().numStencilBits());
+                       programInfo.numStencilBits());
     }
 }
 
