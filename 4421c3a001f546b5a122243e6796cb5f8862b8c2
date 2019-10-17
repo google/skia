@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac2b964f_637b52e7",
+        "filename": "src/gpu/GrCopyRenderTask.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-17T20:30:12Z",
+      "side": 1,
+      "message": "Do we not need a srcView too ?",
+      "range": {
+        "startLine": 15,
+        "startChar": 58,
+        "endLine": 15,
+        "endChar": 67
+      },
+      "revId": "4421c3a001f546b5a122243e6796cb5f8862b8c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
