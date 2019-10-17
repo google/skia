@@ -498,7 +498,6 @@ static void setup_dynamic_state(VkPipelineDynamicStateCreateInfo* dynamicInfo,
 GrVkPipeline* GrVkPipeline::Create(
         GrVkGpu* gpu,
         const GrProgramInfo& programInfo,
-        const GrStencilSettings& stencil,
         VkPipelineShaderStageCreateInfo* shaderStageInfo, int shaderStageCount,
         GrPrimitiveType primitiveType, VkRenderPass compatibleRenderPass, VkPipelineLayout layout,
         VkPipelineCache cache) {
@@ -513,6 +512,8 @@ GrVkPipeline* GrVkPipeline::Create(
 
     VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
     setup_input_assembly_state(primitiveType, &inputAssemblyInfo);
+
+    GrStencilSettings stencil = programInfo.gimme();
 
     VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
     setup_depth_stencil_state(stencil, programInfo.origin(), &depthStencilInfo);

@@ -13,6 +13,7 @@
 #include "src/gpu/GrPrimitiveProcessor.h"
 
 class GrMesh;
+class GrStencilSettings;
 
 class GrProgramInfo {
 public:
@@ -88,6 +89,8 @@ public:
 
         return fFixedDynamicState->fPrimitiveProcessorTextures;
     }
+
+    GrStencilSettings gimme() const;
 
 #ifdef SK_DEBUG
     void validate() const;

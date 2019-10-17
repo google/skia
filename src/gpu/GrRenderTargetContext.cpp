@@ -768,7 +768,7 @@ void GrRenderTargetContext::setNeedsStencil(bool useMixedSamplesIfNotMSAA) {
 
     if (numRequiredSamples > fNumStencilSamples) {
         fNumStencilSamples = numRequiredSamples;
-        fRenderTargetProxy->setNeedsStencil(fNumStencilSamples);
+        fRenderTargetProxy->setNeedsStencil77(fNumStencilSamples);
     }
 
     if (!hasInitializedStencil) {
