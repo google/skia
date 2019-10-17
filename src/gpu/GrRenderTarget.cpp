@@ -71,11 +71,6 @@ void GrRenderTargetPriv::attachStencilAttachment(sk_sp<GrStencilAttachment> sten
     }
 }
 
-int GrRenderTargetPriv::numStencilBits() const {
-    SkASSERT(this->getStencilAttachment());
-    return this->getStencilAttachment()->bits();
-}
-
 int GrRenderTargetPriv::getSamplePatternKey() const {
 #ifdef SK_DEBUG
     GrStencilAttachment* stencil = fRenderTarget->fStencilAttachment.get();
