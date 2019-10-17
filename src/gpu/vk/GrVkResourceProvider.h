@@ -44,7 +44,6 @@ public:
     void init();
 
     GrVkPipeline* createPipeline(const GrProgramInfo&,
-                                 const GrStencilSettings& stencil,
                                  VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                  int shaderStageCount,
                                  GrPrimitiveType primitiveType,

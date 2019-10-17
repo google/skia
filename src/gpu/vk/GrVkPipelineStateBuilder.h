@@ -33,17 +33,12 @@ public:
      * For Vulkan we need to add to the GrProgramDesc to include the rest of the state on the
      * pipline. This includes stencil settings, blending information, render pass format, draw face
      * information, and primitive type. Note that some state is set dynamically on the pipeline for
-     * each draw  and thus is not included in this descriptor. This includes the viewport, scissor,
+     * each draw and thus is not included in this descriptor. This includes the viewport, scissor,
      * and blend constant.
      */
     class Desc : public GrProgramDesc {
     public:
-        static bool Build(Desc*,
-                          GrRenderTarget*,
-                          const GrProgramInfo&,
-                          const GrStencilSettings&,
-                          GrPrimitiveType primitiveType,
-                          GrVkGpu* gpu);
+        static bool Build(Desc*, GrRenderTarget*, const GrProgramInfo&, GrPrimitiveType, GrVkGpu*);
 
         size_t shaderKeyLength() const { return fShaderKeyLength; }
 
@@ -64,7 +59,6 @@ public:
     static GrVkPipelineState* CreatePipelineState(GrVkGpu*,
                                                   GrRenderTarget*,
                                                   const GrProgramInfo&,
-                                                  const GrStencilSettings&,
                                                   GrPrimitiveType,
                                                   Desc*,
                                                   VkRenderPass compatibleRenderPass);
@@ -79,8 +73,7 @@ public:
 private:
     GrVkPipelineStateBuilder(GrVkGpu*, GrRenderTarget*, const GrProgramInfo&, GrProgramDesc*);
 
-    GrVkPipelineState* finalize(const GrStencilSettings&,
-                                GrPrimitiveType primitiveType,
+    GrVkPipelineState* finalize(GrPrimitiveType primitiveType,
                                 VkRenderPass compatibleRenderPass,
                                 Desc*);
 

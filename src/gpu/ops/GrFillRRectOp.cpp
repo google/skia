@@ -752,6 +752,7 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
                                                                      std::move(clip));
 
     GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
+                              flushState->drawOpArgs().numStencilSamples(),
                               flushState->drawOpArgs().origin(),
                               *pipeline,
                               *proc,
