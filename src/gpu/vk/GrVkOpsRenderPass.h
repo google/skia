@@ -38,7 +38,7 @@ public:
 
     void executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override;
 
-    void set(GrRenderTarget*, GrSurfaceOrigin, const SkIRect& bounds,
+    void set1(GrRenderTarget*, GrSurfaceOrigin, const SkIRect& bounds,
              const GrOpsRenderPass::LoadAndStoreInfo&,
              const GrOpsRenderPass::StencilLoadAndStoreInfo&,
              const SkTArray<GrTextureProxy*, true>& sampledProxies);

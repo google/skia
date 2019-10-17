@@ -409,7 +409,7 @@ static void draw_shape_with_mask_filter(GrRecordingContext* context,
                                                         maskRect,
                                                         viewMatrix,
                                                         *shape,
-                                                        renderTargetContext->numSamples()));
+                                                        renderTargetContext->numSamples1()));
             if (maskRTC) {
                 filteredMask = maskFilter->filterMaskGPU(context,
                                                          maskRTC->asTextureProxyRef(),

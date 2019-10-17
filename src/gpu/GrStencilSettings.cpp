@@ -25,7 +25,7 @@ GR_STATIC_ASSERT(kAll_StencilFlags == (gUnused.fFrontFlags[0] & gUnused.fBackFla
 const GrUserStencilSettings& GrUserStencilSettings::kUnused = gUnused;
 
 void GrStencilSettings::reset(const GrUserStencilSettings& user, bool hasStencilClip,
-                              int numStencilBits) {
+                              int numStencilBits, bool foo) {
     uint16_t frontFlags = user.fFrontFlags[hasStencilClip];
     if (frontFlags & kSingleSided_StencilFlag) {
         SkASSERT(frontFlags == user.fBackFlags[hasStencilClip]);

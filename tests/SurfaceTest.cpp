@@ -149,7 +149,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
             // Ensure that the sample count stored on the resulting SkSurface is a valid value.
             if (surf) {
                 auto rtc = ((SkSurface_Gpu*)(surf.get()))->getDevice()->accessRenderTargetContext();
-                int storedCnt = rtc->numSamples();
+                int storedCnt = rtc->numSamples1();
                 int allowedCnt = context->priv().caps()->getRenderTargetSampleCount(
                         storedCnt, backendTex.getBackendFormat());
                 REPORTER_ASSERT(reporter, storedCnt == allowedCnt,
@@ -166,7 +166,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
                             colorType);
             if (surf) {
                 auto rtc = ((SkSurface_Gpu*)(surf.get()))->getDevice()->accessRenderTargetContext();
-                int storedCnt = rtc->numSamples();
+                int storedCnt = rtc->numSamples1();
                 int allowedCnt = context->priv().caps()->getRenderTargetSampleCount(
                         storedCnt, backendTex.getBackendFormat());
                 REPORTER_ASSERT(reporter, storedCnt == allowedCnt,
@@ -236,7 +236,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_maxSurfaceSamplesForColorType, repo
         int sampleCnt = ((SkSurface_Gpu*)(surf.get()))
                                 ->getDevice()
                                 ->accessRenderTargetContext()
-                                ->numSamples();
+                                ->numSamples1();
         REPORTER_ASSERT(reporter, sampleCnt == max, "Exected: %d, actual: %d", max, sampleCnt);
     }
 }

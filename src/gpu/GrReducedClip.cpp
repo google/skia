@@ -837,7 +837,7 @@ bool GrReducedClip::drawStencilClipMask(GrRecordingContext* context,
     for (ElementList::Iter iter(fMaskElements); iter.get(); iter.next()) {
         const Element* element = iter.get();
         // MIXED SAMPLES TODO: We can use stencil with mixed samples as well.
-        bool doStencilMSAA = element->isAA() && renderTargetContext->numSamples() > 1;
+        bool doStencilMSAA = element->isAA() && renderTargetContext->numSamples1() > 1;
         // Since we are only drawing to the stencil buffer, we can use kMSAA even if the render
         // target is mixed sampled.
         auto pathAAType = (doStencilMSAA) ? GrAAType::kMSAA : GrAAType::kNone;

@@ -289,7 +289,7 @@ static void draw_texture_producer(GrContext* context, GrRenderTargetContext* rtc
         !producer->hasMixedResolutions()) {
         SkMatrix combinedMatrix;
         combinedMatrix.setConcat(ctm, srcToDst);
-        if (can_ignore_bilerp_constraint(*producer, src, combinedMatrix, rtc->numSamples())) {
+        if (can_ignore_bilerp_constraint(*producer, src, combinedMatrix, rtc->numSamples1())) {
             constraintMode = GrTextureAdjuster::kNo_FilterConstraint;
         }
     }

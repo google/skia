@@ -48,7 +48,7 @@ static void check_rendertarget(skiatest::Reporter* reporter,
                                SkBackingFit fit,
                                int expectedMaxWindowRects) {
     REPORTER_ASSERT(reporter, rtProxy->maxWindowRectangles(caps) == expectedMaxWindowRects);
-    REPORTER_ASSERT(reporter, rtProxy->numSamples() == numSamples);
+    REPORTER_ASSERT(reporter, rtProxy->numSamples1() == numSamples);
 
     GrSurfaceProxy::UniqueID idBefore = rtProxy->uniqueID();
     bool preinstantiated = rtProxy->isInstantiated();
@@ -72,7 +72,7 @@ static void check_rendertarget(skiatest::Reporter* reporter,
     }
     REPORTER_ASSERT(reporter, rt->config() == rtProxy->config());
 
-    REPORTER_ASSERT(reporter, rt->numSamples() == rtProxy->numSamples());
+    REPORTER_ASSERT(reporter, rt->numSamples() == rtProxy->numSamples1());
     REPORTER_ASSERT(reporter, rt->surfacePriv().flags() == rtProxy->testingOnly_getFlags());
 }
 

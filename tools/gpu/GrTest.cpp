@@ -203,7 +203,7 @@ void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext
     static constexpr size_t kTotal = SK_ARRAY_COUNT(gFactories);
     uint32_t index = random->nextULessThan(static_cast<uint32_t>(kTotal));
     auto op = gFactories[index](
-            std::move(paint), random, context, renderTargetContext->numSamples());
+            std::move(paint), random, context, renderTargetContext->numSamples1());
     SkASSERT(op);
     renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
 }

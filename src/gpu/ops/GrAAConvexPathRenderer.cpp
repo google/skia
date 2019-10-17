@@ -853,7 +853,7 @@ private:
 bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrAAConvexPathRenderer::onDrawPath");
-    SkASSERT(args.fRenderTargetContext->numSamples() <= 1);
+    SkASSERT(args.fRenderTargetContext->numSamples1() <= 1);
     SkASSERT(!args.fShape->isEmpty());
 
     SkPath path;

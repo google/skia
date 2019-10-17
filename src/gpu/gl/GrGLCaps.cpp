@@ -3113,7 +3113,7 @@ static bool has_msaa_render_buffer(const GrSurfaceProxy* surf, const GrGLCaps& g
     // 1) It's multisampled
     // 2) We're using an extension with separate MSAA renderbuffers
     // 3) It's not FBO 0, which is special and always auto-resolves
-    return rt->numSamples() > 1 &&
+    return rt->numSamples1() > 1 &&
            glCaps.usesMSAARenderBuffers() &&
            !rt->rtPriv().glRTFBOIDIs0();
 }
@@ -3123,10 +3123,10 @@ bool GrGLCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy*
     int dstSampleCnt = 0;
     int srcSampleCnt = 0;
     if (const GrRenderTargetProxy* rtProxy = dst->asRenderTargetProxy()) {
-        dstSampleCnt = rtProxy->numSamples();
+        dstSampleCnt = rtProxy->numSamples1();
     }
     if (const GrRenderTargetProxy* rtProxy = src->asRenderTargetProxy()) {
-        srcSampleCnt = rtProxy->numSamples();
+        srcSampleCnt = rtProxy->numSamples1();
     }
     SkASSERT((dstSampleCnt > 0) == SkToBool(dst->asRenderTargetProxy()));
     SkASSERT((srcSampleCnt > 0) == SkToBool(src->asRenderTargetProxy()));
@@ -3179,12 +3179,12 @@ GrCaps::DstCopyRestrictions GrGLCaps::getDstCopyRestrictions(const GrRenderTarge
     // texture. This code prefers CopyTexSubImage to fbo blit and avoids triggering temporary fbo
     // creation. It isn't clear that avoiding temporary fbo creation is actually optimal.
     DstCopyRestrictions blitFramebufferRestrictions = {};
-    if (src->numSamples() > 1 &&
+    if (src->numSamples1() > 1 &&
         (this->blitFramebufferSupportFlags() & kResolveMustBeFull_BlitFrambufferFlag)) {
         blitFramebufferRestrictions.fRectsMustMatch = GrSurfaceProxy::RectsMustMatch::kYes;
         blitFramebufferRestrictions.fMustCopyWholeSrc = true;
         // Mirroring causes rects to mismatch later, don't allow it.
-    } else if (src->numSamples() > 1 && (this->blitFramebufferSupportFlags() &
+    } else if (src->numSamples1() > 1 && (this->blitFramebufferSupportFlags() &
                                          kRectsMustMatchForMSAASrc_BlitFramebufferFlag)) {
         blitFramebufferRestrictions.fRectsMustMatch = GrSurfaceProxy::RectsMustMatch::kYes;
     }
@@ -3202,7 +3202,7 @@ GrCaps::DstCopyRestrictions GrGLCaps::getDstCopyRestrictions(const GrRenderTarge
     }
 
     {
-        bool srcIsMSAARenderbuffer = src->numSamples() > 1 &&
+        bool srcIsMSAARenderbuffer = src->numSamples1() > 1 &&
                                      this->usesMSAARenderBuffers();
         if (srcIsMSAARenderbuffer) {
             // It's illegal to call CopyTexSubImage2D on a MSAA renderbuffer. Set up for FBO

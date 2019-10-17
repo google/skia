@@ -215,7 +215,7 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
 #ifdef SK_DEBUG
     if (this->asRenderTargetProxy()) {
         SkASSERT(fTarget->asRenderTarget());
-        if (int minStencilSampleCount = this->asRenderTargetProxy()->numStencilSamples()) {
+        if (int minStencilSampleCount = this->asRenderTargetProxy()->numStencilSamples77()) {
             auto* stencil = fTarget->asRenderTarget()->renderTargetPriv().getStencilAttachment();
             SkASSERT(stencil);
             SkASSERT(stencil->numSamples() >= minStencilSampleCount);
@@ -268,7 +268,7 @@ void GrSurfaceProxy::computeScratchKey(GrScratchKey* key) const {
     int sampleCount = 1;
     if (const auto* rtp = this->asRenderTargetProxy()) {
         renderable = GrRenderable::kYes;
-        sampleCount = rtp->numSamples();
+        sampleCount = rtp->numSamples1();
     }
 
     const GrTextureProxy* tp = this->asTextureProxy();
@@ -481,7 +481,7 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
     SkASSERT(fProxy->fHeight <= surface->height());
 
     auto rt = fProxy->asRenderTargetProxy();
-    int minStencilSampleCount = rt ? rt->numSamples() : 0;
+    int minStencilSampleCount = rt ? rt->numSamples1() : 0;
 
     if (!GrSurfaceProxyPriv::AttachStencilIfNeeded(
             resourceProvider, surface.get(), minStencilSampleCount)) {
