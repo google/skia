@@ -100,11 +100,12 @@ public:
     void call(int index, float* arguments, float* outReturn) override {
         SkScalar len = fPath->fTotalLength * arguments[0];
         int idx = 0;
-        while (idx < fPath->fContours.count() && len > fPath->fContours[idx]->length()) {
+        while (idx < fPath->fContours.count() - 1 && len > fPath->fContours[idx]->length()) {
             len -= fPath->fContours[idx++]->length();
         }
         SkVector localXAxis;
-        if (!fPath->fContours[idx]->getPosTan(len, (SkPoint*)outReturn, &localXAxis)) {
+        if (idx >= fPath->fContours.count() ||
+            !fPath->fContours[idx]->getPosTan(len, (SkPoint*)outReturn, &localXAxis)) {
             outReturn[0] = outReturn[1] = 0.0f;
             localXAxis = { 1, 0 };
         }
