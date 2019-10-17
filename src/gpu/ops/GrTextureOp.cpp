@@ -572,7 +572,7 @@ private:
         sk_sp<GrGeometryProcessor> gp;
 
         {
-            auto textureType = fProxies[0].fProxy->textureType();
+            const GrBackendFormat& backendFormat = fProxies[0].fProxy->backendFormat();
             const GrSwizzle& swizzle = fProxies[0].fProxy->textureSwizzle();
 
             GrSamplerState samplerState = GrSamplerState(GrSamplerState::WrapMode::kClamp,
@@ -581,11 +581,11 @@ private:
             auto saturate = static_cast<GrTextureOp::Saturate>(fSaturate);
 
             GrGpu* gpu = target->resourceProvider()->priv().gpu();
-            uint32_t extraSamplerKey = gpu->getExtraSamplerKeyForProgram(
-                    samplerState, fProxies[0].fProxy->backendFormat());
+            uint32_t extraSamplerKey = gpu->getExtraSamplerKeyForProgram(samplerState,
+                                                                         backendFormat);
 
             gp = GrQuadPerEdgeAA::MakeTexturedProcessor(
-                vertexSpec, *target->caps().shaderCaps(), textureType, samplerState, swizzle,
+                vertexSpec, *target->caps().shaderCaps(), backendFormat, samplerState, swizzle,
                 extraSamplerKey, std::move(fTextureColorSpaceXform), saturate);
 
             SkASSERT(vertexSize == gp->vertexStride());

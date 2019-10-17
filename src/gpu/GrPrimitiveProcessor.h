@@ -255,16 +255,17 @@ class GrPrimitiveProcessor::TextureSampler {
 public:
     TextureSampler() = default;
 
-    TextureSampler(GrTextureType, const GrSamplerState&, const GrSwizzle&,
+    TextureSampler(const GrSamplerState&, const GrBackendFormat&, const GrSwizzle&,
                    uint32_t extraSamplerKey = 0);
 
     TextureSampler(const TextureSampler&) = delete;
     TextureSampler& operator=(const TextureSampler&) = delete;
 
-    void reset(GrTextureType, const GrSamplerState&, const GrSwizzle&,
+    void reset(const GrSamplerState&, const GrBackendFormat&, const GrSwizzle&,
                uint32_t extraSamplerKey = 0);
 
-    GrTextureType textureType() const { return fTextureType; }
+    const GrBackendFormat& backendFormat() const { return fBackendFormat; }
+    GrTextureType textureType() const { return fBackendFormat.textureType(); }
 
     const GrSamplerState& samplerState() const { return fSamplerState; }
     const GrSwizzle& swizzle() const { return fSwizzle; }
@@ -274,11 +275,11 @@ public:
     bool isInitialized() const { return fIsInitialized; }
 
 private:
-    GrSamplerState fSamplerState;
-    GrSwizzle fSwizzle;
-    GrTextureType fTextureType = GrTextureType::k2D;
-    uint32_t fExtraSamplerKey = 0;
-    bool fIsInitialized = false;
+    GrSamplerState  fSamplerState;
+    GrBackendFormat fBackendFormat;
+    GrSwizzle       fSwizzle;
+    uint32_t        fExtraSamplerKey = 0;
+    bool            fIsInitialized = false;
 };
 
 const GrPrimitiveProcessor::TextureSampler& GrPrimitiveProcessor::IthTextureSampler(int i) {
