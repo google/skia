@@ -16,167 +16,6 @@ import("../externals/dawn/generator/dawn_generator.gni")
 import("../externals/dawn/scripts/dawn_features.gni")
 
 ###############################################################################
-# Template to wrap the Dawn code generator
-###############################################################################
-
-# Template to help with invocation of the Dawn code generator, looks like this:
-#
-#   dawn_json_generator("my_target_gen") {
-#     # Which generator target to output
-#     target = "my_target"
-#     # The list of expected outputs, generation fails if there's a mismatch
-#     outputs = [
-#       "MyTarget.cpp",
-#       "MyTarget.h",
-#     ]
-#   }
-#
-# Using the generated files is done like so:
-#
-#   shared_library("my_target") {
-#     deps = [ ":my_target_gen "]
-#     sources = get_target_outputs(":my_target_gen")
-#   }
-#
-###############################################################################
-# Common dawn libraries and configs
-###############################################################################
-
-config("libdawn_public") {
-  include_dirs = [
-    "$dawn_gen_root/src/include",
-    "$dawn_gen_root/src",
-    "$dawn_root/src/include",
-    "$dawn_root/src",
-  ]
-}
-
-config("dawn_internal") {
-  include_dirs = [ "$dawn_root/src" ]
-
-  defines = []
-  if (dawn_always_assert || is_debug) {
-    defines += [ "DAWN_ENABLE_ASSERTS" ]
-  }
-
-  if (dawn_enable_d3d12) {
-    defines += [ "DAWN_ENABLE_BACKEND_D3D12" ]
-  }
-  if (dawn_enable_metal) {
-    defines += [ "DAWN_ENABLE_BACKEND_METAL" ]
-  }
-  if (dawn_enable_null) {
-    defines += [ "DAWN_ENABLE_BACKEND_NULL" ]
-  }
-  if (dawn_enable_opengl) {
-    defines += [ "DAWN_ENABLE_BACKEND_OPENGL" ]
-  }
-  if (dawn_enable_vulkan) {
-    defines += [ "DAWN_ENABLE_BACKEND_VULKAN" ]
-  }
-
-  configs = [ ":libdawn_public" ]
-
-  # Only internal Dawn targets can use this config, this means only targets in
-  # this BUILD.gn file.
-  visibility = [ ":*" ]
-}
-
-static_library("dawn_common") {
-  sources = rebase_path([
-                          "src/common/Assert.cpp",
-                          "src/common/Assert.h",
-                          "src/common/BitSetIterator.h",
-                          "src/common/Compiler.h",
-                          "src/common/DynamicLib.cpp",
-                          "src/common/DynamicLib.h",
-                          "src/common/HashUtils.h",
-                          "src/common/Math.cpp",
-                          "src/common/Math.h",
-                          "src/common/Platform.h",
-                          "src/common/Result.cpp",
-                          "src/common/Result.h",
-                          "src/common/Serial.h",
-                          "src/common/SerialMap.h",
-                          "src/common/SerialQueue.h",
-                          "src/common/SerialStorage.h",
-                          "src/common/SwapChainUtils.h",
-                          "src/common/vulkan_platform.h",
-                          "src/common/windows_with_undefs.h",
-                        ],
-                        ".",
-                        "$dawn_root")
-
-  configs += [ ":dawn_internal" ]
-  deps = [
-    ":dawn_headers",
-  ]
-}
-
-###############################################################################
-# Dawn headers and libdawn.so
-###############################################################################
-
-dawn_json_generator("dawn_headers_gen") {
-  target = "dawn_headers"
-  outputs = [
-    "src/include/dawn/dawn_proc_table.h",
-    "src/include/dawn/dawn.h",
-  ]
-}
-
-source_set("dawn_headers") {
-  public_configs = [ ":libdawn_public" ]
-  deps = [
-    ":dawn_headers_gen",
-  ]
-
-  sources = get_target_outputs(":dawn_headers_gen")
-  sources += [
-    "src/include/dawn/EnumClassBitmasks.h",
-    "src/include/dawn/dawn_export.h",
-    "src/include/dawn/dawn_wsi.h",
-  ]
-}
-
-dawn_json_generator("dawncpp_gen") {
-  target = "dawncpp"
-  outputs = [
-    "src/dawn/dawncpp.cpp",
-    "src/include/dawn/dawncpp.h",
-  ]
-}
-
-source_set("dawncpp") {
-  deps = [
-    ":dawn_headers",
-    ":dawncpp_gen",
-  ]
-  sources = get_target_outputs(":dawncpp_gen")
-  sources += [ "${dawn_root}/src/include/dawn/EnumClassBitmasks.h" ]
-}
-
-dawn_json_generator("libdawn_proc_gen") {
-  target = "dawn_proc"
-  outputs = [
-    "src/dawn/dawn_proc.c",
-  ]
-}
-
-static_library("libdawn_proc") {
-  public_deps = [
-    ":dawn_headers",
-  ]
-
-  defines = [ "DAWN_IMPLEMENTATION" ]
-  deps = [
-    ":libdawn_proc_gen",
-  ]
-  sources = get_target_outputs(":libdawn_proc_gen")
-  sources += [ "${dawn_root}/src/include/dawn/dawn_proc.h" ]
-}
-
-###############################################################################
 # dawn_platform
 ###############################################################################
 
@@ -195,14 +34,17 @@ source_set("dawn_platform") {
 }
 
 ###############################################################################
-# libdawn_native.so
+# libdawn_native
 ###############################################################################
 
 config("libdawn_native_internal") {
   configs = [ ":dawn_internal" ]
-  defines = [ "DAWN_NATIVE_IMPLEMENTATION" ]
 
-  # Suppress warnings that Metal isn't in the deployment target of Chrome
+  # Suppress warnings that Metal isn't in the deployment target of Chrome:
+  # initialization of the Metal backend is behind a IsMetalSupported check so
+  # Dawn won't call Metal functions on macOS 10.10.
+  # TODO(cwallez@chromium.org): Consider using API_AVAILABLE annotations on all
+  # metal code in dawn once crbug.com/1004024 is sorted out.
   if (is_mac) {
     cflags_objcc = [ "-Wno-unguarded-availability" ]
   }
@@ -241,7 +83,7 @@ if (dawn_enable_opengl) {
 # dependencies of libdawn_native
 source_set("libdawn_native_headers") {
   public_deps = [
-    ":dawn_headers",
+    ":dawncpp_headers",
   ]
   sources = rebase_path(
           [
@@ -263,21 +105,21 @@ source_set("libdawn_native_headers") {
 static_library("libdawn_native") {
   deps = [
     ":dawn_common",
+    ":libdawn_native_headers",
     ":libdawn_native_utils_gen",
     "//third_party/spirv-cross:spirv_cross",
     "//third_party/spirv-tools:spvtools_val",
   ]
 
-  # Put the internal config public so that unittests can see internal headers
-  public_configs = [ ":libdawn_native_internal" ]
+  configs += [ ":libdawn_native_internal" ]
+  libs = []
 
-  # Set the headers as a public dependency so they are visible to unittests
+  # Dependencies that are needed to compile libdawn_native entry points in
+  # FooBackend.cpp need to be public deps so they are propagated to the
+  # libdawn_native target
   public_deps = [
     ":dawn_platform",
-    ":libdawn_native_headers",
   ]
-
-  libs = []
 
   sources = rebase_path(get_target_outputs(":libdawn_native_utils_gen"),
                         ".",
@@ -412,6 +254,8 @@ static_library("libdawn_native") {
               "src/dawn_native/d3d12/ComputePipelineD3D12.cpp",
               "src/dawn_native/d3d12/ComputePipelineD3D12.h",
               "src/dawn_native/d3d12/D3D12Backend.cpp",
+              "src/dawn_native/d3d12/D3D12Error.cpp",
+              "src/dawn_native/d3d12/D3D12Error.h",
               "src/dawn_native/d3d12/D3D12Info.cpp",
               "src/dawn_native/d3d12/D3D12Info.h",
               "src/dawn_native/d3d12/DescriptorHeapAllocator.cpp",
@@ -641,4 +485,162 @@ static_library("libdawn_native") {
               "$dawn_root")
     }
   }
+}
+
+config("libdawn_public") {
+  include_dirs = [
+    "$dawn_gen_root/src/include",
+    "$dawn_gen_root/src",
+    "$dawn_root/src/include",
+    "$dawn_root/src",
+  ]
+}
+
+config("dawn_internal") {
+  include_dirs = [ "$dawn_root/src" ]
+
+  defines = []
+  if (dawn_always_assert || is_debug) {
+    defines += [ "DAWN_ENABLE_ASSERTS" ]
+  }
+
+  if (dawn_enable_d3d12) {
+    defines += [ "DAWN_ENABLE_BACKEND_D3D12" ]
+  }
+  if (dawn_enable_metal) {
+    defines += [ "DAWN_ENABLE_BACKEND_METAL" ]
+  }
+  if (dawn_enable_null) {
+    defines += [ "DAWN_ENABLE_BACKEND_NULL" ]
+  }
+  if (dawn_enable_opengl) {
+    defines += [ "DAWN_ENABLE_BACKEND_OPENGL" ]
+  }
+  if (dawn_enable_vulkan) {
+    defines += [ "DAWN_ENABLE_BACKEND_VULKAN" ]
+  }
+
+  configs = [ ":libdawn_public" ]
+
+  # Only internal Dawn targets can use this config, this means only targets in
+  # this BUILD.gn file.
+  visibility = [ ":*" ]
+}
+
+static_library("dawn_common") {
+  sources = rebase_path([
+                          "Assert.cpp",
+                          "Assert.h",
+                          "BitSetIterator.h",
+                          "Compiler.h",
+                          "DynamicLib.cpp",
+                          "DynamicLib.h",
+                          "HashUtils.h",
+                          "Math.cpp",
+                          "Math.h",
+                          "Platform.h",
+                          "Result.cpp",
+                          "Result.h",
+                          "Serial.h",
+                          "SerialMap.h",
+                          "SerialQueue.h",
+                          "SerialStorage.h",
+                          "SwapChainUtils.h",
+                          "vulkan_platform.h",
+                          "windows_with_undefs.h",
+                        ],
+                        ".",
+                        "$dawn_root/src/common")
+
+  configs += [ ":dawn_internal" ]
+  deps = [
+    ":dawn_headers",
+  ]
+}
+
+###############################################################################
+# Dawn headers and libdawn.so
+###############################################################################
+
+dawn_json_generator("dawn_headers_gen") {
+  target = "dawn_headers"
+  outputs = [
+    "src/include/dawn/dawn.h",
+    "src/include/dawn/dawn_proc_table.h",
+  ]
+}
+
+source_set("dawn_headers") {
+  public_configs = [ ":libdawn_public" ]
+  public_deps = [
+    ":dawn_headers_gen",
+  ]
+
+  sources = get_target_outputs(":dawn_headers_gen")
+  sources += [
+    "${dawn_root}/src/include/dawn/dawn_export.h",
+    "${dawn_root}/src/include/dawn/dawn_wsi.h",
+  ]
+}
+
+###############################################################################
+# Dawn C++ headers
+###############################################################################
+
+dawn_json_generator("dawncpp_headers_gen") {
+  target = "dawncpp_headers"
+  outputs = [
+    "src/include/dawn/dawncpp.h",
+  ]
+}
+
+source_set("dawncpp_headers") {
+  public_deps = [
+    ":dawn_headers",
+    ":dawncpp_headers_gen",
+  ]
+
+  sources = get_target_outputs(":dawncpp_headers_gen")
+  sources += [ "${dawn_root}/src/include/dawn/EnumClassBitmasks.h" ]
+}
+
+###############################################################################
+# Dawn C++ wrapper
+###############################################################################
+
+dawn_json_generator("dawncpp_gen") {
+  target = "dawncpp"
+  outputs = [
+    "src/dawn/dawncpp.cpp",
+  ]
+}
+
+source_set("dawncpp") {
+  deps = [
+    ":dawncpp_gen",
+    ":dawncpp_headers",
+  ]
+  sources = get_target_outputs(":dawncpp_gen")
+}
+
+###############################################################################
+# libdawn_proc
+###############################################################################
+
+dawn_json_generator("libdawn_proc_gen") {
+  target = "dawn_proc"
+  outputs = [
+    "src/dawn/dawn_proc.c",
+  ]
+}
+
+static_library("libdawn_proc") {
+  public_deps = [
+    ":dawn_headers",
+  ]
+  deps = [
+    ":libdawn_proc_gen",
+  ]
+  sources = get_target_outputs(":libdawn_proc_gen")
+  sources += [ "${dawn_root}/src/include/dawn/dawn_proc.h" ]
 }
