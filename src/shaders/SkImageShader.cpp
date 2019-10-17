@@ -72,20 +72,41 @@ bool SkImageShader::isOpaque() const {
 
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 static bool legacy_shader_can_handle(const SkMatrix& inv) {
+#ifndef SK_SUPPORT_LEGACY_LOCAL_ROTATE_SHADER
     if (!inv.isScaleTranslate()) {
         return false;
     }
+#endif
 
-    // legacy code uses SkFixed 32.32, so ensure the inverse doesn't map device coordinates
-    // out of range.
-    const SkScalar max_dev_coord = 32767.0f;
+    if (inv.hasPerspective()) {
+        return false;
+    }
+
     SkRect src;
-    SkAssertResult(inv.mapRect(&src, SkRect::MakeWH(max_dev_coord, max_dev_coord)));
+   // legacy code uses SkFixed 32.32, so ensure the inverse doesn't map device coordinates
+   // out of range.
+   const SkScalar max_dev_coord = 32767.0f;
+
+    if (inv.isScaleTranslate()) {
+        SkAssertResult(inv.mapRect(&src, SkRect::MakeWH(max_dev_coord, max_dev_coord)));
+    }
+    else
+    {
+         SkPoint quad[4];
+         inv.mapRectToQuad(quad, SkRect::MakeWH(max_dev_coord, max_dev_coord));
+
+         // take bounds of the quad and create a rectangle
+         int left = std::min(std::min(quad[0].fX, quad[1].fX), std::min(quad[2].fX, quad[3].fX));
+         int top = std::min(std::min(quad[0].fY, quad[1].fY), std::min(quad[2].fY, quad[3].fY));
+         int right = std::max(std::max(quad[0].fX, quad[1].fX), std::max(quad[2].fX, quad[3].fX));
+         int bottom = std::max(std::max(quad[0].fY, quad[1].fY), std::max(quad[2].fY, quad[3].fY));
+         src = SkRect::MakeLTRB(left, top, right, bottom );
+    }
 
     // take 1/4 of max signed 32bits so we have room to subtract local values
     const SkScalar max_fixed32dot32 = SK_MaxS32 * 0.25f;
     if (!SkRect::MakeLTRB(-max_fixed32dot32, -max_fixed32dot32,
-                           max_fixed32dot32, max_fixed32dot32).contains(src)) {
+                            max_fixed32dot32, max_fixed32dot32).contains(src)) {
         return false;
     }
 
@@ -93,15 +114,13 @@ static bool legacy_shader_can_handle(const SkMatrix& inv) {
     return true;
 }
 
+
 SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
                                                     SkArenaAlloc* alloc) const {
     if (fImage->alphaType() == kUnpremul_SkAlphaType) {
         return nullptr;
     }
     if (fImage->colorType() != kN32_SkColorType) {
-        return nullptr;
-    }
-    if (fTileModeX != fTileModeY) {
         return nullptr;
     }
     if (fTileModeX == SkTileMode::kDecal || fTileModeY == SkTileMode::kDecal) {
