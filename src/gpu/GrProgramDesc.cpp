@@ -56,8 +56,8 @@ static uint32_t sampler_key(GrTextureType textureType, const GrSwizzle& swizzle,
     return SkToU32(samplerTypeKey | swizzleKey << kSamplerOrImageTypeKeyBits);
 }
 
-static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrFragmentProcessor& fp,
-                             GrGpu* gpu, const GrShaderCaps& caps) {
+static void add_fp_sampler_keys(GrProcessorKeyBuilder* b, const GrFragmentProcessor& fp,
+                                GrGpu* gpu, const GrShaderCaps& caps) {
     int numTextureSamplers = fp.numTextureSamplers();
     if (!numTextureSamplers) {
         return;
@@ -81,8 +81,8 @@ static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrFragmentProcessor
     }
 }
 
-static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrPrimitiveProcessor& pp,
-                             const GrShaderCaps& caps) {
+static void add_pp_sampler_keys(GrProcessorKeyBuilder* b, const GrPrimitiveProcessor& pp,
+                                const GrShaderCaps& caps) {
     int numTextureSamplers = pp.numTextureSamplers();
     if (!numTextureSamplers) {
         return;
@@ -113,11 +113,11 @@ static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrPrimitiveProcesso
  * transforms, etc, for the space allotted in the meta-key.  NOTE, both FPs and GPs share this
  * function because it is hairy, though FPs do not have attribs, and GPs do not have transforms
  */
-static bool gen_meta_key(const GrFragmentProcessor& fp,
-                         GrGpu* gpu,
-                         const GrShaderCaps& shaderCaps,
-                         uint32_t transformKey,
-                         GrProcessorKeyBuilder* b) {
+static bool gen_fp_meta_key(const GrFragmentProcessor& fp,
+                            GrGpu* gpu,
+                            const GrShaderCaps& shaderCaps,
+                            uint32_t transformKey,
+                            GrProcessorKeyBuilder* b) {
     size_t processorKeySize = b->size();
     uint32_t classID = fp.classID();
 
@@ -127,7 +127,7 @@ static bool gen_meta_key(const GrFragmentProcessor& fp,
         return false;
     }
 
-    add_sampler_keys(b, fp, gpu, shaderCaps);
+    add_fp_sampler_keys(b, fp, gpu, shaderCaps);
 
     uint32_t* key = b->add32n(2);
     key[0] = (classID << 16) | SkToU32(processorKeySize);
@@ -135,10 +135,10 @@ static bool gen_meta_key(const GrFragmentProcessor& fp,
     return true;
 }
 
-static bool gen_meta_key(const GrPrimitiveProcessor& pp,
-                         const GrShaderCaps& shaderCaps,
-                         uint32_t transformKey,
-                         GrProcessorKeyBuilder* b) {
+static bool gen_pp_meta_key(const GrPrimitiveProcessor& pp,
+                            const GrShaderCaps& shaderCaps,
+                            uint32_t transformKey,
+                            GrProcessorKeyBuilder* b) {
     size_t processorKeySize = b->size();
     uint32_t classID = pp.classID();
 
@@ -148,7 +148,7 @@ static bool gen_meta_key(const GrPrimitiveProcessor& pp,
         return false;
     }
 
-    add_sampler_keys(b, pp, shaderCaps);
+    add_pp_sampler_keys(b, pp, shaderCaps);
 
     uint32_t* key = b->add32n(2);
     key[0] = (classID << 16) | SkToU32(processorKeySize);
@@ -156,9 +156,9 @@ static bool gen_meta_key(const GrPrimitiveProcessor& pp,
     return true;
 }
 
-static bool gen_meta_key(const GrXferProcessor& xp,
-                         const GrShaderCaps& shaderCaps,
-                         GrProcessorKeyBuilder* b) {
+static bool gen_xp_meta_key(const GrXferProcessor& xp,
+                            const GrShaderCaps& shaderCaps,
+                            GrProcessorKeyBuilder* b) {
     size_t processorKeySize = b->size();
     uint32_t classID = xp.classID();
 
@@ -185,8 +185,9 @@ static bool gen_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
 
     fp.getGLSLProcessorKey(shaderCaps, b);
 
-    return gen_meta_key(fp, gpu, shaderCaps, primProc.getTransformKey(fp.coordTransforms(),
-                                                                      fp.numCoordTransforms()), b);
+    return gen_fp_meta_key(fp, gpu, shaderCaps, primProc.getTransformKey(fp.coordTransforms(),
+                                                                         fp.numCoordTransforms()),
+                                                                         b);
 }
 
 bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarget,
@@ -208,7 +209,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
 
     programInfo.primProc().getGLSLProcessorKey(shaderCaps, &b);
     programInfo.primProc().getAttributeKey(&b);
-    if (!gen_meta_key(programInfo.primProc(), shaderCaps, 0, &b)) {
+    if (!gen_pp_meta_key(programInfo.primProc(), shaderCaps, 0, &b)) {
         desc->key().reset();
         return false;
     }
@@ -229,7 +230,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
         originIfDstTexture = &origin;
     }
     xp.getGLSLProcessorKey(shaderCaps, &b, originIfDstTexture);
-    if (!gen_meta_key(xp, shaderCaps, &b)) {
+    if (!gen_xp_meta_key(xp, shaderCaps, &b)) {
         desc->key().reset();
         return false;
     }
