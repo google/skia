@@ -215,7 +215,7 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
 #ifdef SK_DEBUG
     if (this->asRenderTargetProxy()) {
         SkASSERT(fTarget->asRenderTarget());
-        if (int minStencilSampleCount = this->asRenderTargetProxy()->numStencilSamples()) {
+        if (int minStencilSampleCount = this->asRenderTargetProxy()->numStencilSamples77()) {
             auto* stencil = fTarget->asRenderTarget()->renderTargetPriv().getStencilAttachment();
             SkASSERT(stencil);
             SkASSERT(stencil->numSamples() >= minStencilSampleCount);
