@@ -11,6 +11,12 @@
 #ifdef Always
 #undef Always
 #endif
+#ifdef None
+#undef None
+#endif
+#ifdef Success
+#undef Success
+#endif
 #include "dawn/dawncpp.h"
 
 struct GrDawnImageInfo {
