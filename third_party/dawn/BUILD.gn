@@ -260,9 +260,7 @@ source_set("libdawn_native_headers") {
           "$dawn_root")
 }
 
-# The meat of the compilation for libdawn_native so that we can cheaply have
-# shared_library / static_library / component versions of it.
-source_set("libdawn_native_sources") {
+static_library("libdawn_native") {
   deps = [
     ":dawn_common",
     ":libdawn_native_utils_gen",
@@ -642,26 +640,5 @@ source_set("libdawn_native_sources") {
               ".",
               "$dawn_root")
     }
-  }
-}
-
-# The shared library for libdawn_native for use by samples, tests, etc.
-shared_library("libdawn_native") {
-  deps = [
-    ":libdawn_native_sources",
-  ]
-
-  #Make headers publically visible
-  public_deps = [
-    ":libdawn_native_headers",
-  ]
-  public_configs = [ ":libdawn_public" ]
-
-  # Tell dependents where to find this shared library
-  if (is_mac) {
-    ldflags = [
-      "-install_name",
-      "@rpath/${target_name}.dylib",
-    ]
   }
 }
