@@ -44,7 +44,7 @@ protected:
     id<MTLDevice>               fDevice;
     id<MTLCommandQueue>         fQueue;
     CAMetalLayer*               fMetalLayer;
-    id<CAMetalDrawable>         fCurrentDrawable;
+    GrMTLHandle                 fDrawableHandle;
 };
 
 }   // namespace sk_app
