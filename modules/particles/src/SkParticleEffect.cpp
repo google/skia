@@ -278,6 +278,7 @@ void SkParticleEffect::runParticleScript(double now, const char* entry, int star
                 value->setRandom(randomBase);
                 value->setEffect(this);
             }
+            memcpy(&fParticleUniforms[1], &fState.fAge, sizeof(EffectState));
             SkAssertResult(byteCode->runStriped(fun, count, args, SkParticles::kNumChannels,
                                                 nullptr, 0,
                                                 fParticleUniforms.data(),
@@ -321,7 +322,6 @@ void SkParticleEffect::advanceTime(double now) {
     SkASSERT(!this->particleCode() || this->particleCode()->getUniformLocation("effect.age") == 1);
     fEffectUniforms[0] = deltaTime;
     fParticleUniforms[0] = deltaTime;
-    memcpy(&fParticleUniforms[1], &fState.fAge, sizeof(EffectState));
 
     // Is this the first update after calling start()?
     // Run 'effectSpawn' to set initial emitter properties.
