@@ -76,22 +76,22 @@ void MetalWindowContext::destroyContext() {
 sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
     sk_sp<SkSurface> surface;
     if (fContext) {
-        GrMTLHandle drawable;
         surface = SkSurface::MakeFromCAMetalLayer(fContext.get(), (__bridge GrMTLHandle)fMetalLayer,
                                                   kTopLeft_GrSurfaceOrigin, fSampleCount,
                                                   kBGRA_8888_SkColorType,
                                                   fDisplayParams.fColorSpace,
                                                   &fDisplayParams.fSurfaceProps,
-                                                  &drawable);
-        // ARC is off in sk_app, so we need to release the CF ref manually
-        fCurrentDrawable = (id<CAMetalDrawable>)drawable;
-        CFRelease(drawable);
+                                                  &fDrawable);
     }
 
     return surface;
 }
 
 void MetalWindowContext::swapBuffers() {
+    // ARC is off in sk_app, so we need to release the CF ref manually
+    fCurrentDrawable = (id<CAMetalDrawable>)fDrawable;
+    CFRelease(fDrawable);
+
     id<MTLCommandBuffer> commandBuffer = [fQueue commandBuffer];
     commandBuffer.label = @"Present";
 

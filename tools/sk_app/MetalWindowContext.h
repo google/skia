@@ -44,6 +44,7 @@ protected:
     id<MTLDevice>               fDevice;
     id<MTLCommandQueue>         fQueue;
     CAMetalLayer*               fMetalLayer;
+    GrMTLHandle                 fDrawable;
     id<CAMetalDrawable>         fCurrentDrawable;
 };
 
