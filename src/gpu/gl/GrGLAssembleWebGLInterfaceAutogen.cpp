@@ -203,6 +203,10 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
     GET_PROC(RenderbufferStorage);
 
     if (glVer >= GR_GL_VER(2,0)) {
+        GET_PROC(BlitFramebuffer);
+    }
+
+    if (glVer >= GR_GL_VER(2,0)) {
         GET_PROC(RenderbufferStorageMultisample);
     }
 
