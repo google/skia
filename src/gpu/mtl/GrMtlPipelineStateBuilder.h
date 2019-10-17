@@ -36,8 +36,7 @@ public:
      */
     class Desc : public GrProgramDesc {
     public:
-        static bool Build(Desc*, GrRenderTarget*,
-                          const GrProgramInfo&, GrPrimitiveType, GrMtlGpu* gpu);
+        static bool Build(Desc*, GrRenderTarget*, const GrProgramInfo&, GrPrimitiveType, GrMtlGpu*);
 
         size_t shaderKeyLength() const { return fShaderKeyLength; }
 
