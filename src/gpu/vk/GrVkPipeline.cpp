@@ -237,9 +237,11 @@ static void setup_stencil_op_state(
     opState->reference = stencilFace.fRef;
 }
 
-static void setup_depth_stencil_state(
-        const GrStencilSettings& stencilSettings, GrSurfaceOrigin origin,
-        VkPipelineDepthStencilStateCreateInfo* stencilInfo) {
+static void setup_depth_stencil_state(const GrProgramInfo& programInfo,
+                                      VkPipelineDepthStencilStateCreateInfo* stencilInfo) {
+    GrStencilSettings stencilSettings = programInfo.stencilSettings();
+    GrSurfaceOrigin origin = programInfo.origin();
+
     memset(stencilInfo, 0, sizeof(VkPipelineDepthStencilStateCreateInfo));
     stencilInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
     stencilInfo->pNext = nullptr;
@@ -498,7 +500,6 @@ static void setup_dynamic_state(VkPipelineDynamicStateCreateInfo* dynamicInfo,
 GrVkPipeline* GrVkPipeline::Create(
         GrVkGpu* gpu,
         const GrProgramInfo& programInfo,
-        const GrStencilSettings& stencil,
         VkPipelineShaderStageCreateInfo* shaderStageInfo, int shaderStageCount,
         GrPrimitiveType primitiveType, VkRenderPass compatibleRenderPass, VkPipelineLayout layout,
         VkPipelineCache cache) {
@@ -515,7 +516,7 @@ GrVkPipeline* GrVkPipeline::Create(
     setup_input_assembly_state(primitiveType, &inputAssemblyInfo);
 
     VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
-    setup_depth_stencil_state(stencil, programInfo.origin(), &depthStencilInfo);
+    setup_depth_stencil_state(programInfo, &depthStencilInfo);
 
     VkPipelineViewportStateCreateInfo viewportInfo;
     setup_viewport_scissor_state(&viewportInfo);
