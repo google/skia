@@ -89,7 +89,7 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     if (this->isLazy()) {
         return false;
     }
-    if (!this->instantiateImpl(resourceProvider, fSampleCnt, fNumStencilSamples, GrRenderable::kYes,
+    if (!this->instantiateImpl(resourceProvider, fSampleCnt, fNumStencilSamples77, GrRenderable::kYes,
                                GrMipMapped::kNo, nullptr)) {
         return false;
     }
@@ -110,7 +110,7 @@ bool GrRenderTargetProxy::canChangeStencilAttachment() const {
 
 sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resourceProvider) const {
     sk_sp<GrSurface> surface = this->createSurfaceImpl(
-            resourceProvider, fSampleCnt, fNumStencilSamples, GrRenderable::kYes, GrMipMapped::kNo);
+            resourceProvider, fSampleCnt, fNumStencilSamples77, GrRenderable::kYes, GrMipMapped::kNo);
     if (!surface) {
         return nullptr;
     }

@@ -1678,7 +1678,12 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
     fHWProgram->updateUniformsAndTextureBindings(renderTarget, programInfo);
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
-    GrStencilSettings stencil;
+
+    GrStencilSettings stencil = programInfo.stencilSettings();
+
+    SkASSERT(glRT->renderTargetPriv().numStencilBits() >= programInfo.numStencilBits());
+
+#if 0
     if (programInfo.pipeline().isStencilEnabled()) {
         // TODO: attach stencil and create settings during render target flush.
         SkASSERT(glRT->renderTargetPriv().getStencilAttachment());
@@ -1686,6 +1691,8 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
                       programInfo.pipeline().hasStencilClip(),
                       glRT->renderTargetPriv().numStencilBits());
     }
+#endif
+
     this->flushStencil(stencil, programInfo.origin());
     if (programInfo.pipeline().isScissorEnabled()) {
         static constexpr SkIRect kBogusScissor{0, 0, 1, 1};

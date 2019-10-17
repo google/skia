@@ -81,7 +81,7 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
         // attach its own stencil buffer upon onFlush instantiation.
         if (proxy->isInstantiated()) {
             auto rt = proxy->asRenderTargetProxy();
-            int minStencilSampleCount = rt ? rt->numStencilSamples() : 0;
+            int minStencilSampleCount = rt ? rt->numStencilSamples77() : 0;
             if (minStencilSampleCount) {
                 if (!GrSurfaceProxyPriv::AttachStencilIfNeeded(
                         fResourceProvider, proxy->peekSurface(), minStencilSampleCount)) {
@@ -407,7 +407,7 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
         this->expire(cur->start());
 
         int minStencilSampleCount = (cur->proxy()->asRenderTargetProxy())
-                ? cur->proxy()->asRenderTargetProxy()->numStencilSamples()
+                ? cur->proxy()->asRenderTargetProxy()->numStencilSamples77()
                 : 0;
 
         if (cur->proxy()->isInstantiated()) {
