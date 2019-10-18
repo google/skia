@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a20d053f_d15b9ea0",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-18T19:59:54Z",
+      "side": 1,
+      "message": "gn_to_bp.py calls gn with host_os !\u003d mac, but target_os \u003d\u003d mac. What needs to happen is that no xcode_sysroot is set in that case. This will allow the normal xcode c++ compiler to work, but the compiler packaged with chrome will not work. I don\u0027t think this is a problem with using Android.bp.",
+      "parentUuid": "488d76e4_4ef518d8",
+      "range": {
+        "startLine": 33,
+        "startChar": 3,
+        "endLine": 33,
+        "endChar": 30
+      },
+      "revId": "d1b00e0a703d8879679ce0f58ef87ec82d180dea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cf2329bc_adc142ec",
         "filename": "gn/BUILD.gn",
         "patchSetId": 4
@@ -36,6 +60,24 @@
       "writtenOn": "2019-10-18T19:50:19Z",
       "side": 1,
       "message": "Feels like we shouldn\u0027t need to check xcode_sysroot !\u003d \"\" any more?  Lots of this stuff is really more is_mac related, like using libc++ or turning off linker warnings?",
+      "revId": "d1b00e0a703d8879679ce0f58ef87ec82d180dea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64311eb1_71171732",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-18T19:59:54Z",
+      "side": 1,
+      "message": "Only the linker warnings were disabled originally. I will refactor more carefully.",
+      "parentUuid": "cf2329bc_adc142ec",
       "revId": "d1b00e0a703d8879679ce0f58ef87ec82d180dea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
