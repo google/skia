@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "287ceb94_2a5d4809",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-10-18T15:12:34Z",
+      "side": 1,
+      "message": "fLocalToDeviceTransform ?",
+      "revId": "fad27a02964d8e486aa67d76fc05ee85e1a25dd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
