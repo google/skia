@@ -24,9 +24,24 @@
     // have undefined and it expects, for example, a float.
     CanvasKit.ParagraphStyle = function(s) {
       // Use [''] to tell closure not to minify the names
+      // TODO(kjlubick): strutStyle
+      s['disableHinting'] = s['disableHinting'] || false;
+      if (s['ellipsis']) {
+        var str = s['ellipsis'];
+        var strLen = lengthBytesUTF8(str) + 1;
+        var strPtr = CanvasKit._malloc(strLen);
+        stringToUTF8(str, strPtr, strLen);
+        s['_ellipsisPtr'] = strPtr;
+        s['_ellipsisLen'] = strLen;
+      } else {
+        s['_ellipsisPtr'] = nullptr;
+        s['_ellipsisLen'] = 0;
+      }
+
       s['heightMultiplier'] = s['heightMultiplier'] || 0;
       s['maxLines'] = s['maxLines'] || 0;
       s['textAlign'] = s['textAlign'] || CanvasKit.TextAlign.Start;
+      s['textDirection'] = s['textDirection'] || CanvasKit.TextDirection.LTR;
       s['textStyle'] = CanvasKit.TextStyle(s['textStyle']);
       return s;
     }

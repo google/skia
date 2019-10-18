@@ -55,6 +55,7 @@ describe('CanvasKit\'s Path Behavior', function() {
                 },
                 textAlign: CanvasKit.TextAlign.Center,
                 maxLines: 8,
+                ellipsis: '.._.',
             });
 
             const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
@@ -76,7 +77,7 @@ describe('CanvasKit\'s Path Behavior', function() {
 
             paragraph.layout(wrapTo);
 
-            canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
+            canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, 230), paint);
             canvas.drawParagraph(paragraph, 10, 10);
 
             surface.flush();
@@ -109,7 +110,6 @@ describe('CanvasKit\'s Path Behavior', function() {
                     color: CanvasKit.BLACK,
                     fontFamilies: ['Noto Serif'],
                     fontSize: 50,
-                    // TODO(kjlubick): font style
                 },
                 textAlign: CanvasKit.TextAlign.Left,
                 maxLines: 10,
@@ -290,6 +290,66 @@ describe('CanvasKit\'s Path Behavior', function() {
             surface.flush();
             fontMgr.delete();
             reportSurface(surface, 'paragraph_hits', done);
+        }));
+    });
+
+    it('supports font styles', function(done) {
+        Promise.all([LoadCanvasKit, notoSerifFontLoaded]).then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const paint = new CanvasKit.SkPaint();
+
+            paint.setColor(CanvasKit.RED);
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+            const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer);
+
+            const wrapTo = 200;
+
+            const paraStyle = new CanvasKit.ParagraphStyle({
+                textStyle: {
+                    color: CanvasKit.BLACK,
+                    fontFamilies: ['Noto Serif'],
+                    fontSize: 20,
+                    fontStyle: {
+                        weight: CanvasKit.FontWeight.Light,
+                    }
+                },
+                textDirection: CanvasKit.TextDirection.RTL,
+                disableHinting: true,
+            });
+
+            const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+            builder.addText('Default text\n');
+
+            const boldItalic = new CanvasKit.TextStyle({
+                fontStyle: {
+                    weight: CanvasKit.FontWeight.ExtraBold,
+                    width: CanvasKit.FontWidth.Expanded,
+                    slant: CanvasKit.FontSlant.Italic,
+                }
+            });
+            builder.pushStyle(blueText)
+            builder.addText(`Bold, Expanded, Italic`)
+            builder.pop();
+            builder.addText(`back to normal`);
+            const paragraph = builder.build();
+
+            paragraph.layout(wrapTo);
+
+            canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, 230), paint);
+            canvas.drawParagraph(paragraph, 10, 10);
+
+            surface.flush();
+
+            paint.delete();
+            fontMgr.delete();
+            reportSurface(surface, 'paragraph_styles', done);
         }));
     });
 
