@@ -455,6 +455,7 @@ skia_core_sources = [
 
   # private
   "$_include/private/SkChecksum.h",
+  "$_include/private/SkColorData.h",
   "$_include/private/SkDeferredDisplayList.h",
   "$_include/private/SkFixed.h",
   "$_include/private/SkFloatBits.h",
