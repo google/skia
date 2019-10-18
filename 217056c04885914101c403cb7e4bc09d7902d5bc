@@ -16,6 +16,24 @@
       "revId": "217056c04885914101c403cb7e4bc09d7902d5bc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48d7c9c8_028d9ab9",
+        "filename": "experimental/canvaskit/Makefile",
+        "patchSetId": 34
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-10-18T15:13:41Z",
+      "side": 1,
+      "message": "I believe the thinking was that you\u0027d do a make clean before pushing to npm",
+      "parentUuid": "48dfcdca_353e719b",
+      "revId": "217056c04885914101c403cb7e4bc09d7902d5bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
