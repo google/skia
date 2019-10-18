@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1df77bd_71d14c0b",
+        "filename": "tools/sk_app/DawnWindowContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2019-10-18T20:54:32Z",
+      "side": 1,
+      "message": "Note that under webgpu.h\u0027s proposal for swapchains this won\u0027t be allowed anymore in native. To be able to readback and use as a swapchain texture at the same time you\u0027ll have to render to an intermediate texture. (that should be ok for sk_app)",
+      "revId": "7b86d4e8a217d0a983a902aaad3c266f1696a660",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
