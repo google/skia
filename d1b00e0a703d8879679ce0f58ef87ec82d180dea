@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "ad55f310_98c3fe6d",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-18T20:06:29Z",
+      "side": 1,
+      "message": "Comment added",
+      "parentUuid": "a20d053f_d15b9ea0",
+      "range": {
+        "startLine": 33,
+        "startChar": 3,
+        "endLine": 33,
+        "endChar": 30
+      },
+      "revId": "d1b00e0a703d8879679ce0f58ef87ec82d180dea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cf2329bc_adc142ec",
         "filename": "gn/BUILD.gn",
         "patchSetId": 4
@@ -81,6 +105,24 @@
       "revId": "d1b00e0a703d8879679ce0f58ef87ec82d180dea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "206182a9_f826e84d",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-18T20:06:29Z",
+      "side": 1,
+      "message": "Better code.",
+      "parentUuid": "64311eb1_71171732",
+      "revId": "d1b00e0a703d8879679ce0f58ef87ec82d180dea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
