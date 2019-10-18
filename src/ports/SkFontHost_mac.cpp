@@ -1181,8 +1181,14 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     CTFontGetAdvancesForGlyphs(fCTFont.get(), kCTFontOrientationHorizontal,
                                &cgGlyph, &cgAdvance, 1);
     cgAdvance = CGSizeApplyAffineTransform(cgAdvance, fTransform);
-    glyph->fAdvanceX =  CGToFloat(cgAdvance.width);
     glyph->fAdvanceY = -CGToFloat(cgAdvance.height);
+
+    // Experimentally retrieve the advances from the CG font, in order to avoid having trak factored in.
+    CGFloat ctFontSize = CTFontGetSize(fCTFont.get());
+    int cgFontAdvance = 0;
+    CGFontGetGlyphAdvances(fCGFont.get(), &cgGlyph, 1, &cgFontAdvance);
+    int cgFontUnitsPerEm = CGFontGetUnitsPerEm(fCGFont.get());
+    glyph->fAdvanceX = cgFontAdvance * ctFontSize / cgFontUnitsPerEm;
 
     // The following produces skBounds in SkGlyph units (pixels, y down),
     // or returns early if skBounds would be empty.
