@@ -27,7 +27,11 @@ typedef SkFixed3232    SkFractionalInt;
 
 class SkPaint;
 
+// We only support this sort of matrix for our legacy shaders
+constexpr unsigned kValidBitmapProcStateMatrixMask = SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask;
+
 struct SkBitmapProcInfo {
+
     SkBitmapProcInfo(const SkImage_Base*, SkTileMode tmx, SkTileMode tmy);
     ~SkBitmapProcInfo();
 
