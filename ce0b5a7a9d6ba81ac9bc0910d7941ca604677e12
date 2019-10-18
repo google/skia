@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52aab366_97cac49b",
+        "filename": "src/core/SkBitmapProcState_matrixProcs.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-10-18T15:10:08Z",
+      "side": 1,
+      "message": "why does filter_affine use fixed, and nofilter_affine use fractionalint?",
+      "range": {
+        "startLine": 228,
+        "startChar": 24,
+        "endLine": 228,
+        "endChar": 30
+      },
+      "revId": "ce0b5a7a9d6ba81ac9bc0910d7941ca604677e12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd55b8df_5035d9b3",
+        "filename": "src/core/SkBitmapProcState_matrixProcs.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 719,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-10-18T15:10:08Z",
+      "side": 1,
+      "message": "same question about fixed -vs- fractionalint",
+      "range": {
+        "startLine": 719,
+        "startChar": 28,
+        "endLine": 719,
+        "endChar": 34
+      },
+      "revId": "ce0b5a7a9d6ba81ac9bc0910d7941ca604677e12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cc26765_736ffc22",
+        "filename": "src/core/SkBitmapProcState_matrixProcs.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1020,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-10-18T15:10:08Z",
+      "side": 1,
+      "message": "We have this if/else assert in a lot of places. I suggest we create a value which is this mask, and just conditionalize how we build it in one place (using the ifdef).\n\ne.g.\n\nifdef LEGACY\nconstexpr ... LegacyBitmapProcMatrixMask \u003d ...\n#else\n...\n#endif\n\nActually, I may post such a CL, which could land ahead of this CL, to cut down on the changes need in this one.",
+      "range": {
+        "startLine": 1020,
+        "startChar": 0,
+        "endLine": 1020,
+        "endChar": 103
+      },
+      "revId": "ce0b5a7a9d6ba81ac9bc0910d7941ca604677e12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
