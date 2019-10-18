@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c2b66c09_6a26fe43",
+        "filename": "src/image/SkSurface_GpuMtl.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-18T13:54:18Z",
+      "side": 1,
+      "message": "We want this to be part of our budget? I would think the swapchain allocations would be part of the clients budget.",
+      "range": {
+        "startLine": 85,
+        "startChar": 12,
+        "endLine": 85,
+        "endChar": 28
+      },
+      "revId": "073aa0fec2b6ccb8f7af7d9dc3de72ed5e06e4a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
