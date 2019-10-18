@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b093b669_ecf93699",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 614,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-18T15:09:34Z",
+      "side": 0,
+      "message": "This was a bug, since the previous matrix was the local to device matrix, but restore() treated it as a global CTM and would apply the device\u0027s origin translation to it.",
+      "range": {
+        "startLine": 614,
+        "startChar": 17,
+        "endLine": 614,
+        "endChar": 24
+      },
+      "revId": "f4b3d6b9f3d1530131016d589a76b7ac057fecc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61e4284b_1ac0ecbe",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-18T15:09:34Z",
+      "side": 0,
+      "message": "This was actually a bug in the default drawEdgeAAImageSet implementation, since baseCTM was the local to device transform, and then setGlobalCTM would re-apply the origin translation, and then the later restore() would also re-apply the device\u0027s translation since restore() takes a global ctm.",
+      "range": {
+        "startLine": 286,
+        "startChar": 18,
+        "endLine": 286,
+        "endChar": 30
+      },
+      "revId": "f4b3d6b9f3d1530131016d589a76b7ac057fecc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
