@@ -313,7 +313,7 @@ def _CheckTreeStatus(input_api, output_api, json_url):
       input_api, output_api, json_url=json_url)
   if not tree_status_results:
     # Check for caution state only if tree is not closed.
-    connection = input_api.urllib2.urlopen(json_url)
+    connection = input_api.urllib_request.urlopen(json_url)
     status = input_api.json.loads(connection.read())
     connection.close()
     if ('caution' in status['message'].lower() and
@@ -328,7 +328,7 @@ def _CheckTreeStatus(input_api, output_api, json_url):
               message=short_text, long_text=long_text))
   else:
     # Tree status is closed. Put in message about contacting sheriff.
-    connection = input_api.urllib2.urlopen(
+    connection = input_api.urllib_request.urlopen(
         SKIA_TREE_STATUS_URL + '/current-sheriff')
     sheriff_details = input_api.json.loads(connection.read())
     if sheriff_details:
