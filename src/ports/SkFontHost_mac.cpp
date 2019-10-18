@@ -2677,13 +2677,13 @@ protected:
     }
 
     /** Creates a dictionary suitable for setting the axes on a CGFont. */
-    static SkUniqueCFRef<CFDictionaryRef> copy_axes(CGFontRef cg, const SkFontArguments& args) {
+    static SkUniqueCFRef<CFDictionaryRef> copy_axes(CGFontRef cg, const SkFontArguments& args, float opsz_value) {
         // The CGFont variation data is keyed by name, but lacks the tag.
         // The CTFont variation data is keyed by tag, and also has the name.
         // We would like to work with CTFont variations, but creating a CTFont font with
         // CTFont variation dictionary runs into bugs. So use the CTFont variation data
         // to match names to tags to create the appropriate CGFont.
-        SkUniqueCFRef<CTFontRef> ct(CTFontCreateWithGraphicsFont(cg, 0, nullptr, nullptr));
+        SkUniqueCFRef<CTFontRef> ct(CTFontCreateWithGraphicsFont(cg, opsz_value, nullptr, nullptr));
         // CTFontCopyVariationAxes returns nullptr for CGFontCreateWithDataProvider fonts with
         // macOS 10.10 and iOS 9 or earlier. When this happens, there is no API to provide the tag.
         SkUniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(ct.get()));
@@ -2778,7 +2778,15 @@ protected:
             return nullptr;
         }
 
-        SkUniqueCFRef<CFDictionaryRef> cgVariations = copy_axes(cg.get(), args);
+        SkFourByteTag opszTag = SkSetFourByteTag('o', 'p', 's', 'z');
+        SkFontArguments::VariationPosition var_position = args.getVariationDesignPosition();
+        float opsz_value = 0;
+        for (int i = 0; i < var_position.coordinateCount; ++i) {
+          if (var_position.coordinates[i].axis == opszTag)
+            opsz_value = var_position.coordinates[i].value;
+        }
+
+        SkUniqueCFRef<CFDictionaryRef> cgVariations = copy_axes(cg.get(), args, opsz_value);
         // The CGFontRef returned by CGFontCreateCopyWithVariations when the passed CGFontRef was
         // created from a data provider does not appear to have any ownership of the underlying
         // data. The original CGFontRef must be kept alive until the copy will no longer be used.
@@ -2789,8 +2797,9 @@ protected:
             cgVariant.reset(cg.release());
         }
 
+
         SkUniqueCFRef<CTFontRef> ct(
-                CTFontCreateWithGraphicsFont(cgVariant.get(), 0, nullptr, nullptr));
+                CTFontCreateWithGraphicsFont(cgVariant.get(), opsz_value, nullptr, nullptr));
         if (!ct) {
             return nullptr;
         }
