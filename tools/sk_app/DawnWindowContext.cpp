@@ -13,6 +13,9 @@
 
 #include "dawn/dawn_proc.h"
 
+static dawn::TextureUsage kUsage = dawn::TextureUsage::OutputAttachment |
+                                   dawn::TextureUsage::CopySrc;
+
 static void PrintDeviceError(DawnErrorType, const char* message, void*) {
     printf("Device error: %s\n", message);
     SkASSERT(false);
@@ -44,7 +47,7 @@ void DawnWindowContext::initializeContext(int width, int height) {
         fContext.reset();
         return;
     }
-    fSwapChain.Configure(fSwapChainFormat, dawn::TextureUsage::OutputAttachment, width, height);
+    fSwapChain.Configure(fSwapChainFormat, kUsage, width, height);
     fDevice.SetUncapturedErrorCallback(PrintDeviceError, 0);
 }
 
@@ -99,8 +102,7 @@ void DawnWindowContext::resize(int w, int h) {
         fContext.reset();
         return;
     }
-    fSwapChain.Configure(fSwapChainFormat, dawn::TextureUsage::OutputAttachment, fWidth,
-                         fHeight);
+    fSwapChain.Configure(fSwapChainFormat, kUsage, fWidth, fHeight);
 }
 
 void DawnWindowContext::setDisplayParams(const DisplayParams& params) {
