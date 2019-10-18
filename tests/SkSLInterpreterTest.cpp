@@ -748,6 +748,11 @@ DEF_TEST(SkSLInterpreterArrayBounds, r) {
     REPORTER_ASSERT(r, in[0] == 3.0f && in[1] == 1.0f && in[2] == 2.0f);
 }
 
+DEF_TEST(SkSLInterpreterGlobalInitializers, r) {
+    // Globals can't have initializers
+    expect_failure(r, "float x = 0; void main(inout float y) { y = x; }");
+}
+
 DEF_TEST(SkSLInterpreterFunctions, r) {
     const char* src =
         "float sqr(float x) { return x * x; }\n"

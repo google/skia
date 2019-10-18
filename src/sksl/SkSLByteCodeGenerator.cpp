@@ -106,6 +106,11 @@ bool ByteCodeGenerator::generateCode() {
                 VarDeclarations& decl = (VarDeclarations&) e;
                 for (const auto& v : decl.fVars) {
                     const Variable* declVar = ((VarDeclaration&) *v).fVar;
+                    if (declVar->fInitialValue) {
+                        fErrors.error(declVar->fInitialValue->fOffset,
+                                      "Globals with initializers not supported.");
+                        return false;
+                    }
                     if (declVar->fModifiers.fLayout.fBuiltin >= 0) {
                         continue;
                     }
