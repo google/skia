@@ -225,7 +225,7 @@ public:
             fDevice->setUpContentEntry(clipStack, matrix, paint, textScale, &fDstFormXObject);
     }
     ScopedContentEntry(SkPDFDevice* dev, const SkPaint& paint, SkScalar textScale = 0)
-        : ScopedContentEntry(dev, &dev->cs(), dev->ctm(), paint, textScale) {}
+        : ScopedContentEntry(dev, &dev->cs(), dev->localToDevice(), paint, textScale) {}
 
     ~ScopedContentEntry() {
         if (fContentStream) {
@@ -321,7 +321,7 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
             return;
         }
         if (!strcmp(SkAnnotationKeys::Define_Named_Dest_Key(), key)) {
-            SkPoint p = deviceOffset + this->ctm().mapXY(rect.x(), rect.y());
+            SkPoint p = deviceOffset + this->localToDevice().mapXY(rect.x(), rect.y());
             pageXform.mapPoints(&p, 1);
             auto pg = fDocument->currentPage();
             fDocument->fNamedDestinations.push_back(SkPDFNamedDestination{sk_ref_sp(value), p, pg});
@@ -330,7 +330,7 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
     }
     // Convert to path to handle non-90-degree rotations.
     SkPath path = to_path(rect);
-    path.transform(this->ctm(), &path);
+    path.transform(this->localToDevice(), &path);
     SkPath clip;
     (void)this->cs().asPath(&clip);
     Op(clip, path, kIntersect_SkPathOp, &path);
@@ -351,7 +351,7 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
 
 void SkPDFDevice::drawPaint(const SkPaint& srcPaint) {
     SkMatrix inverse;
-    if (!this->ctm().invert(&inverse)) {
+    if (!this->localToDevice().invert(&inverse)) {
         return;
     }
     SkRect bbox = this->cs().bounds(this->bounds());
@@ -388,7 +388,7 @@ void SkPDFDevice::drawPoints(SkCanvas::PointMode mode,
     // of multiple calls to setUpContentEntry it causes.
     if (paint->getPathEffect()) {
         draw_points(mode, count, points, *paint,
-                    this->devClipBounds(), this->ctm(), this);
+                    this->devClipBounds(), this->localToDevice(), this);
         return;
     }
 
@@ -449,23 +449,23 @@ void SkPDFDevice::drawPoints(SkCanvas::PointMode mode,
 void SkPDFDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
     SkRect r = rect;
     r.sort();
-    this->internalDrawPath(this->cs(), this->ctm(), to_path(r), paint, true);
+    this->internalDrawPath(this->cs(), this->localToDevice(), to_path(r), paint, true);
 }
 
 void SkPDFDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     SkPath path;
     path.addRRect(rrect);
-    this->internalDrawPath(this->cs(), this->ctm(), path, paint, true);
+    this->internalDrawPath(this->cs(), this->localToDevice(), path, paint, true);
 }
 
 void SkPDFDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
     SkPath path;
     path.addOval(oval);
-    this->internalDrawPath(this->cs(), this->ctm(), path, paint, true);
+    this->internalDrawPath(this->cs(), this->localToDevice(), path, paint, true);
 }
 
 void SkPDFDevice::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutable) {
-    this->internalDrawPath(this->cs(), this->ctm(), path, paint, pathIsMutable);
+    this->internalDrawPath(this->cs(), this->localToDevice(), path, paint, pathIsMutable);
 }
 
 void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
@@ -613,7 +613,7 @@ void SkPDFDevice::drawImageRect(const SkImage* image,
                                 SkCanvas::SrcRectConstraint) {
     SkASSERT(image);
     this->internalDrawImageRect(SkKeyedImage(sk_ref_sp(const_cast<SkImage*>(image))),
-                                src, dst, paint, this->ctm());
+                                src, dst, paint, this->localToDevice());
 }
 
 void SkPDFDevice::drawBitmapRect(const SkBitmap& bm,
@@ -622,7 +622,7 @@ void SkPDFDevice::drawBitmapRect(const SkBitmap& bm,
                                  const SkPaint& paint,
                                  SkCanvas::SrcRectConstraint) {
     SkASSERT(!bm.drawsNothing());
-    this->internalDrawImageRect(SkKeyedImage(bm), src, dst, paint, this->ctm());
+    this->internalDrawImageRect(SkKeyedImage(bm), src, dst, paint, this->localToDevice());
 }
 
 void SkPDFDevice::drawSprite(const SkBitmap& bm, int x, int y, const SkPaint& paint) {
@@ -751,7 +751,7 @@ void SkPDFDevice::drawGlyphRunAsPath(
                       }
                       rec->fPos += 1; // move to the next glyph's position
                   }, &rec);
-    this->internalDrawPath(this->cs(), this->ctm(), path, runPaint, true);
+    this->internalDrawPath(this->cs(), this->localToDevice(), path, runPaint, true);
 
     SkFont transparentFont = glyphRun.font();
     transparentFont.setEmbolden(false); // Stop Recursion
@@ -760,11 +760,9 @@ void SkPDFDevice::drawGlyphRunAsPath(
     SkPaint transparent;
     transparent.setColor(SK_ColorTRANSPARENT);
 
-    if (this->ctm().hasPerspective()) {
-        SkMatrix prevCTM = this->ctm();
-        this->setCTM(SkMatrix::I());
+    if (this->localToDevice().hasPerspective()) {
+        SkAutoDeviceTransformRestore adr(this, SkMatrix::I());
         this->internalDrawGlyphRun(tmpGlyphRun, offset, transparent);
-        this->setCTM(prevCTM);
     } else {
         this->internalDrawGlyphRun(tmpGlyphRun, offset, transparent);
     }
@@ -800,7 +798,7 @@ void SkPDFDevice::internalDrawGlyphRun(
     if (runPaint.getPathEffect()
         || runPaint.getMaskFilter()
         || glyphRunFont.isEmbolden()
-        || this->ctm().hasPerspective()
+        || this->localToDevice().hasPerspective()
         || SkPaint::kFill_Style != runPaint.getStyle()) {
         // Stroked Text doesn't work well with Type3 fonts.
         this->drawGlyphRunAsPath(glyphRun, offset, runPaint);
@@ -916,7 +914,7 @@ void SkPDFDevice::internalDrawGlyphRun(
             // Do a glyph-by-glyph bounds-reject if positions are absolute.
             SkRect glyphBounds = get_glyph_bounds_device_space(
                     glyphs[index], textScaleX, textScaleY,
-                    xy + offset, this->ctm());
+                    xy + offset, this->localToDevice());
             if (glyphBounds.isEmpty()) {
                 if (!contains(clipStackBounds, {glyphBounds.x(), glyphBounds.y()})) {
                     continue;
@@ -1081,7 +1079,7 @@ bool SkPDFDevice::handleInversePath(const SkPath& origPath,
             // To be consistent with the raster output, hairline strokes
             // are rendered as non-inverted.
             modifiedPath.toggleInverseFillType();
-            this->internalDrawPath(this->cs(), this->ctm(), modifiedPath, paint, true);
+            this->internalDrawPath(this->cs(), this->localToDevice(), modifiedPath, paint, true);
             return true;
         }
     }
@@ -1089,7 +1087,7 @@ bool SkPDFDevice::handleInversePath(const SkPath& origPath,
     // Get bounds of clip in current transform space
     // (clip bounds are given in device space).
     SkMatrix transformInverse;
-    SkMatrix totalMatrix = this->ctm();
+    SkMatrix totalMatrix = this->localToDevice();
 
     if (!totalMatrix.invert(&transformInverse)) {
         return false;
@@ -1106,7 +1104,7 @@ bool SkPDFDevice::handleInversePath(const SkPath& origPath,
         return false;
     }
 
-    this->internalDrawPath(this->cs(), this->ctm(), modifiedPath, noInversePaint, true);
+    this->internalDrawPath(this->cs(), this->localToDevice(), modifiedPath, noInversePaint, true);
     return true;
 }
 
@@ -1578,7 +1576,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
     if (paint->getMaskFilter()) {
         paint.writable()->setShader(imageSubset.image()->makeShader(&transform));
         SkPath path = to_path(dst); // handles non-integral clipping.
-        this->internalDrawPath(this->cs(), this->ctm(), path, *paint, true);
+        this->internalDrawPath(this->cs(), this->localToDevice(), path, *paint, true);
         return;
     }
     transform.postConcat(ctm);
@@ -1725,7 +1723,7 @@ void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, int x, int y, const SkPain
     SkImageFilter* filter = paint.getImageFilter();
     if (filter) {
         SkIPoint offset = SkIPoint::Make(0, 0);
-        SkMatrix matrix = this->ctm();
+        SkMatrix matrix = this->localToDevice();
         matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
         const SkIRect clipBounds =
             this->cs().bounds(this->bounds()).roundOut().makeOffset(-x, -y);

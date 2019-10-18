@@ -376,7 +376,7 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     bool attemptDrawTexture = !useDecal; // rtc->drawTexture() only clamps
 
     // Get final CTM matrix
-    SkMatrix ctm = this->ctm();
+    SkMatrix ctm = this->localToDevice();
     if (preViewMatrix) {
         ctm.preConcat(*preViewMatrix);
     }
@@ -497,8 +497,8 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
                     set[base].fImage->colorSpace(), set[base].fImage->alphaType(),
                     fRenderTargetContext->colorInfo().colorSpace(), kPremul_SkAlphaType);
             fRenderTargetContext->drawTextureSet(this->clip(), textures.get() + base, n,
-                                                 filter, mode, GrAA::kYes, constraint, this->ctm(),
-                                                 std::move(textureXform));
+                                                 filter, mode, GrAA::kYes, constraint,
+                                                 this->localToDevice(), std::move(textureXform));
         }
     };
     int dstClipIndex = 0;
