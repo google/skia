@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "6b51830c_2dba1052",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-18T20:31:04Z",
+      "side": 1,
+      "message": "Yep, gn_to_bp.py . It runs gn with target_os\u003d\"mac\" so it can create the list of files to build for mac for the framework build for the simulator. However, we don\u0027t want to set these paths for that build (that build needs to figure things out itself). I\u0027m not sure myself if this is the best way to do this or not either.",
+      "parentUuid": "488d76e4_4ef518d8",
+      "range": {
+        "startLine": 33,
+        "startChar": 3,
+        "endLine": 33,
+        "endChar": 30
+      },
+      "revId": "d1b00e0a703d8879679ce0f58ef87ec82d180dea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cf2329bc_adc142ec",
         "filename": "gn/BUILD.gn",
         "patchSetId": 4
