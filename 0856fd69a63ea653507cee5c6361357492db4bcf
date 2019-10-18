@@ -69,6 +69,24 @@
       "revId": "0856fd69a63ea653507cee5c6361357492db4bcf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a02e75d_63d1d9fc",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 3
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-10-18T15:55:34Z",
+      "side": 1,
+      "message": "PixelC was apparently removed from the bots last year:\n\nhttps://skia-review.googlesource.com/136220\n\nNow that I think about it, I do recall they would hang frequently and cause headaches for the infra team.",
+      "parentUuid": "41b99af4_395077a5",
+      "revId": "0856fd69a63ea653507cee5c6361357492db4bcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
