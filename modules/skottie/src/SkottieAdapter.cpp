@@ -125,6 +125,19 @@ CameraAdapter:: CameraAdapter(const SkSize& viewport_size)
 
 CameraAdapter::~CameraAdapter() = default;
 
+sk_sp<CameraAdapter> CameraAdapter::MakeDefault(const SkSize &viewport_size) {
+    auto adapter = sk_make_sp<CameraAdapter>(viewport_size);
+
+    static constexpr float kDefaultAEZoom = 879.13f;
+    const auto center = SkVector::Make(viewport_size.width()  * 0.5f,
+                                       viewport_size.height() * 0.5f);
+    adapter->setZoom(kDefaultAEZoom);
+    adapter->setAnchorPoint(TransformAdapter3D::Vec3({center.fX, center.fY, 0}));
+    adapter->setPosition   (TransformAdapter3D::Vec3({center.fX, center.fY, -kDefaultAEZoom}));
+
+    return adapter;
+}
+
 SkMatrix44 CameraAdapter::totalMatrix() const {
     // Camera parameters:
     //
