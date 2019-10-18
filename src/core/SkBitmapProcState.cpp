@@ -119,6 +119,31 @@ static void S32_alpha_D32_nofilter_DX(const SkBitmapProcState& s,
     }
 }
 
+#if LEGACY_LOCAL_ROTATE_SHADER_ENABLED
+
+static void S32_alpha_D32_nofilter_DXDY(const SkBitmapProcState& s, const uint32_t* xy, int count,
+                                        SkPMColor* colors) {
+    SkASSERT(count > 0 && colors != nullptr);
+    SkASSERT(kNone_SkFilterQuality == s.fFilterQuality);
+    SkASSERT(4 == s.fPixmap.info().bytesPerPixel());
+    SkASSERT(s.fAlphaScale <= 256);
+
+    const char* SK_RESTRICT srcAddr = (const char*)s.fPixmap.addr();
+    size_t rb = s.fPixmap.rowBytes();
+
+    while (count-- > 0) {
+       uint32_t XY = *xy++,
+          x = XY & 0xFFFF,
+          y = XY >> 16;
+
+       SkASSERT(x < (unsigned)s.fPixmap.width() &&
+                y < (unsigned)s.fPixmap.height());
+       *colors++ = ((const SkPMColor*)(srcAddr + y * rb))[x];
+    }
+}
+
+#endif
+
 SkBitmapProcInfo::SkBitmapProcInfo(const SkImage_Base* image, SkTileMode tmx, SkTileMode tmy)
     : fImage(image)
     , fTileModeX(tmx)
@@ -166,7 +191,11 @@ static bool valid_for_filtering(unsigned dimension) {
 }
 
 bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
+#ifdef LEGACY_LOCAL_ROTATE_SHADER_ENABLED
+    SkASSERT(!inv.hasPerspective());
+#else
     SkASSERT(inv.isScaleTranslate());
+#endif
 
     fPixmap.reset();
     fInvMatrix = inv;
@@ -240,7 +269,11 @@ bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
  *    and may be removed.
  */
 bool SkBitmapProcState::chooseProcs() {
+#ifdef LEGACY_LOCAL_ROTATE_SHADER_ENABLED
+    SkASSERT(fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask | SkMatrix::kAffine_Mask));
+#else
     SkASSERT(fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
+#endif
     SkASSERT(fPixmap.colorType() == kN32_SkColorType);
     SkASSERT(fPixmap.alphaType() == kPremul_SkAlphaType ||
              fPixmap.alphaType() == kOpaque_SkAlphaType);
@@ -260,17 +293,29 @@ bool SkBitmapProcState::chooseProcs() {
     fMatrixProc = this->chooseMatrixProc(translate_only);
     SkASSERT(fMatrixProc);
 
-    if (fFilterQuality > kNone_SkFilterQuality) {
-        fSampleProc32 = SkOpts::S32_alpha_D32_filter_DX;
-    } else {
-        fSampleProc32 = S32_alpha_D32_nofilter_DX;
+    if (fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask)) {
+        if (fFilterQuality > kNone_SkFilterQuality) {
+            fSampleProc32 = SkOpts::S32_alpha_D32_filter_DX;
+        } else {
+            fSampleProc32 = S32_alpha_D32_nofilter_DX;
+        }
     }
+#ifdef LEGACY_LOCAL_ROTATE_SHADER_ENABLED
+    else {
+        if (fFilterQuality > kNone_SkFilterQuality) {
+            fSampleProc32 = SkOpts::S32_alpha_D32_filter_DXDY;
+        } else {
+            fSampleProc32 = S32_alpha_D32_nofilter_DXDY;
+        }
+    }
+#endif
 
     // our special-case shaderprocs
     // TODO: move this one into chooseShaderProc32() or pull all that in here.
-    if (fAlphaScale == 256
-            && fFilterQuality == kNone_SkFilterQuality
-            && SkTileMode::kClamp == fTileModeX) {
+    if (fAlphaScale == 256 &&
+        fFilterQuality == kNone_SkFilterQuality &&
+        SkTileMode::kClamp== fTileModeX &&
+        (fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask))) {
         fShaderProc32 = Clamp_S32_opaque_D32_nofilter_DX_shaderproc;
     } else {
         fShaderProc32 = this->chooseShaderProc32();
@@ -603,6 +648,31 @@ static void check_scale_filter(uint32_t bitmapXY[], int count,
     }
 }
 
+static void check_affine_nofilter(uint32_t bitmapXY[], int count, unsigned mx, unsigned my) {
+    for (int i = 0; i < count; ++i) {
+        uint32_t XY = bitmapXY[i];
+        unsigned x = XY & 0xFFFF;
+        unsigned y = XY >> 16;
+        SkASSERT(x < mx);
+        SkASSERT(y < my);
+    }
+}
+
+static void check_affine_filter(uint32_t bitmapXY[], int count, unsigned mx, unsigned my) {
+    for (int i = 0; i < count; ++i) {
+        uint32_t YY = *bitmapXY++;
+        unsigned y0 = YY >> 18;
+        unsigned y1 = YY & 0x3FFF;
+        SkASSERT(y0 < my);
+        SkASSERT(y1 < my);
+        uint32_t XX = *bitmapXY++;
+        unsigned x0 = XX >> 18;
+        unsigned x1 = XX & 0x3FFF;
+        SkASSERT(x0 < mx);
+        SkASSERT(x1 < mx);
+    }
+}
+
 void SkBitmapProcState::DebugMatrixProc(const SkBitmapProcState& state,
                                         uint32_t bitmapXY[], int count,
                                         int x, int y) {
@@ -615,9 +685,23 @@ void SkBitmapProcState::DebugMatrixProc(const SkBitmapProcState& state,
 
     // There are two formats possible:
     //  filter -vs- nofilter
+#ifndef LEGACY_LOCAL_ROTATE_SHADER_ENABLED
     SkASSERT(state.fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
-    proc = state.fFilterQuality != kNone_SkFilterQuality ?
-                check_scale_filter : check_scale_nofilter;
+#else
+    SkASSERT(state.fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask | SkMatrix::kAffine_Mask));
+#endif
+
+    // There are four formats possible:
+    //  scale -vs- affine
+    //  filter -vs- nofilter
+    if (state.fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask)) {
+        proc = state.fFilterQuality != kNone_SkFilterQuality ? check_scale_filter
+                                                             : check_scale_nofilter;
+    } else {
+        proc = state.fFilterQuality != kNone_SkFilterQuality ? check_affine_filter
+                                                             : check_affine_nofilter;
+    }
+
     proc(bitmapXY, count, state.fPixmap.width(), state.fPixmap.height());
 }
 
@@ -656,4 +740,3 @@ int SkBitmapProcState::maxCountForBufferSize(size_t bufferSize) const {
 
     return size;
 }
-

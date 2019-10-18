@@ -164,6 +164,10 @@
     #define SK_CPU_ARM64
 #endif
 
+#if ( defined( SK_CPU_ARM32 ) || defined( SK_CPU_ARM64 ) ) && defined( SK_SUPPORT_LEGACY_LOCAL_ROTATE_SHADER )
+#define LEGACY_LOCAL_ROTATE_SHADER_ENABLED 1
+#endif
+
 // All 64-bit ARM chips have NEON.  Many 32-bit ARM chips do too.
 #if !defined(SK_ARM_HAS_NEON) && !defined(SK_BUILD_NO_OPTS) && defined(__ARM_NEON)
     #define SK_ARM_HAS_NEON
