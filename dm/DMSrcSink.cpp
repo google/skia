@@ -28,6 +28,7 @@
 #include "include/private/SkTLogic.h"
 #include "include/third_party/skcms/skcms.h"
 #include "include/utils/SkNullCanvas.h"
+#include "include/utils/SkNWayCanvas.h"
 #include "include/utils/SkRandom.h"
 #include "src/codec/SkCodecImageGenerator.h"
 #include "src/codec/SkSwizzler.h"
@@ -1413,9 +1414,15 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     if (FLAGS_preAbandonGpuContext) {
         factory.abandonContexts();
     }
-    SkCanvas* canvas = surface->getCanvas();
+    SkCanvas* realCanvas = surface->getCanvas();
+    SkDebugf("Injecting Nway canvas\n");
+    SkNWayCanvas nway(surface->width(), surface->height());
+    nway.addCanvas(realCanvas);
+    SkCanvas* canvas = &nway;
+
     Error err = src.draw(canvas);
     if (!err.isEmpty()) {
+        SkDebugf("Error in GPUSink::onDraw:: %s\n", err.c_str());
         return err;
     }
     surface->flush();
@@ -1429,9 +1436,10 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
         // 32 bit.
         info = SkImageInfo::Make(size.width(), size.height(), kRGBA_8888_SkColorType,
                                  kPremul_SkAlphaType, fColorSpace);
+        SkDebugf("Convert to 32 bit color\n");
     }
     dst->allocPixels(info);
-    canvas->readPixels(*dst, 0, 0);
+    realCanvas->readPixels(*dst, 0, 0);
     if (FLAGS_abandonGpuContext) {
         factory.abandonContexts();
     } else if (FLAGS_releaseAndAbandonGpuContext) {

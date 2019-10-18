@@ -258,7 +258,7 @@ public:
         @param props  SkSurfaceProps to match; may be nullptr to match SkCanvas
         @return       SkSurface matching info and props, or nullptr if no match is available
     */
-    sk_sp<SkSurface> makeSurface(const SkImageInfo& info, const SkSurfaceProps* props = nullptr);
+    virtual sk_sp<SkSurface> makeSurface(const SkImageInfo& info, const SkSurfaceProps* props = nullptr);
 
     /** Returns GPU context of the GPU surface associated with SkCanvas.
 
@@ -377,7 +377,7 @@ public:
         @param srcY    offset into readable pixels on y-axis; may be negative
         @return        true if pixels were copied
     */
-    bool readPixels(const SkPixmap& pixmap, int srcX, int srcY);
+    virtual bool readPixels(const SkPixmap& pixmap, int srcX, int srcY);
 
     /** Copies SkRect of pixels from SkCanvas into bitmap. SkMatrix and clip are
         ignored.

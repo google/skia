@@ -57,7 +57,7 @@ protected:
             // draw a yellow rect through a diamond clip
             canvas->save();
                 canvas->androidFramework_setDeviceClipRestriction(SkIRect::MakeLTRB(500, 100, 800, 300));
-                canvas->drawColor(SK_ColorGREEN);
+                canvas->drawColor(SK_ColorBLUE);
 
                 SkPath pathClip;
                 pathClip.moveTo(SkIntToScalar(650),  SkIntToScalar(200));
@@ -72,7 +72,7 @@ protected:
             // draw a yellow rect through a round rect clip
             canvas->save();
                 canvas->androidFramework_setDeviceClipRestriction(SkIRect::MakeLTRB(500, 500, 800, 700));
-                canvas->drawColor(SK_ColorGREEN);
+                canvas->drawColor(SK_ColorCYAN);
 
                 canvas->clipRRect(SkRRect::MakeOval(SkRect::MakeLTRB(500, 600, 900, 750)),
                                   kReplace_SkClipOp, fDoAAClip);
@@ -84,7 +84,7 @@ protected:
             canvas->save();
                 canvas->clipRect(SkRect::MakeLTRB(100, 400, 300, 750),
                                  kIntersect_SkClipOp, fDoAAClip);
-                canvas->drawColor(SK_ColorGREEN);
+                canvas->drawColor(SK_ColorRED);
                 canvas->androidFramework_setDeviceClipRestriction(SkIRect::MakeLTRB(150, 450, 250, 700));
                 canvas->drawColor(SK_ColorYELLOW);
             canvas->restore();

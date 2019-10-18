@@ -12,8 +12,11 @@
 #include "include/core/SkCanvasVirtualEnforcer.h"
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkNoDrawCanvas.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkSurface.h"
 
-class SK_API SkNWayCanvas : public SkCanvasVirtualEnforcer<SkNoDrawCanvas> {
+
+class SK_API SkNWayCanvas : public SkCanvasVirtualEnforcer<SkCanvas> {
 public:
     SkNWayCanvas(int width, int height);
     ~SkNWayCanvas() override;
@@ -84,10 +87,33 @@ protected:
 
     void onFlush() override;
 
+    //void androidFramework_setDeviceClipRestriction(const SkIRect& rect) override;
+
+    // Return the image info of the first canvas.
+    SkImageInfo onImageInfo() const override {
+    return fList[0]->imageInfo();
+    }
+
+    sk_sp<SkSurface> onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props) override {
+        return fList[0]->makeSurface(info, &props);
+    }
+
+    GrContext* getGrContext() override {
+        return fList[0]->getGrContext();
+    }
+
+    GrRenderTargetContext* internal_private_accessTopLayerRenderTargetContext() override {
+        return fList[0]->internal_private_accessTopLayerRenderTargetContext();
+    }
+
+    bool readPixels(const SkPixmap& pm, int x, int y) override {
+        return fList[0]->readPixels(pm, x, y);
+    }
+
     class Iter;
 
 private:
-    typedef SkCanvasVirtualEnforcer<SkNoDrawCanvas> INHERITED;
+    typedef SkCanvasVirtualEnforcer<SkCanvas> INHERITED;
 };
 
 

@@ -176,6 +176,7 @@ DrawResult GpuGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
     GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
     if (!ctx || !rtc) {
         *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
+        SkDebugf("Nifong 1 ctx=%p, rtc=%p", ctx, rtc);
         return DrawResult::kSkip;
     }
     if (ctx->abandoned()) {

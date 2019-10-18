@@ -141,6 +141,7 @@ void SkNWayCanvas::onClipRegion(const SkRegion& deviceRgn, SkClipOp op) {
 }
 
 void SkNWayCanvas::onDrawPaint(const SkPaint& paint) {
+    SkDebugf("---- SkNWayCanvas::onDrawPaint\n");
     Iter iter(fList);
     while (iter.next()) {
         iter->drawPaint(paint);
@@ -363,3 +364,11 @@ void SkNWayCanvas::onFlush() {
         iter->flush();
     }
 }
+
+// void SkNWayCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
+//     Iter iter(fList);
+//     while (iter.next()) {
+//         iter->androidFramework_setDeviceClipRestriction(rect);
+//     }
+// }
+
