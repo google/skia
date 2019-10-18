@@ -83,12 +83,13 @@ private:
 
 class ManagedAnimation final : public SkRefCnt {
 public:
-    static sk_sp<ManagedAnimation> Make(const std::string& json, sk_sp<SkottieAssetProvider> ap) {
+    static sk_sp<ManagedAnimation> Make(const std::string& json,
+                                        sk_sp<skottie::ResourceProvider> rp) {
         auto mgr = skstd::make_unique<skottie_utils::CustomPropertyManager>();
         auto animation = skottie::Animation::Builder()
                             .setMarkerObserver(mgr->getMarkerObserver())
                             .setPropertyObserver(mgr->getPropertyObserver())
-                            .setResourceProvider(ap)
+                            .setResourceProvider(rp)
                             .make(json.c_str(), json.size());
 
         return animation
@@ -231,7 +232,10 @@ EMSCRIPTEN_BINDINGS(Skottie) {
             assets.push_back(std::make_pair(std::move(name), std::move(bytes)));
         }
 
-        return ManagedAnimation::Make(json, SkottieAssetProvider::Make(std::move(assets)));
+        return ManagedAnimation::Make(json,
+                 skottie_utils::DataURIResourceProviderProxy::Make(
+                    SkottieAssetProvider::Make(std::move(assets)),
+                    /*predecode=*/true));
     }));
     constant("managed_skottie", true);
 #endif // SK_INCLUDE_MANAGED_SKOTTIE

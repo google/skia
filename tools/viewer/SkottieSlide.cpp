@@ -97,7 +97,10 @@ void SkottieSlide::load(SkScalar w, SkScalar h) {
     fAnimation      = builder
             .setLogger(logger)
             .setResourceProvider(
-                skottie_utils::FileResourceProvider::Make(SkOSPath::Dirname(fPath.c_str())))
+                skottie_utils::DataURIResourceProviderProxy::Make(
+                    skottie_utils::FileResourceProvider::Make(SkOSPath::Dirname(fPath.c_str()),
+                                                              /*predecode=*/true),
+                    /*predecode=*/true))
             .makeFromFile(fPath.c_str());
     fAnimationStats = builder.getStats();
     fWinSize        = SkSize::Make(w, h);

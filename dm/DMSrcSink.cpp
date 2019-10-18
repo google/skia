@@ -1117,7 +1117,10 @@ SkottieSrc::SkottieSrc(Path path) : fPath(std::move(path)) {}
 Error SkottieSrc::draw(SkCanvas* canvas) const {
     auto animation = skottie::Animation::Builder()
         .setResourceProvider(
-                skottie_utils::FileResourceProvider::Make(SkOSPath::Dirname(fPath.c_str())))
+                skottie_utils::DataURIResourceProviderProxy::Make(
+                    skottie_utils::FileResourceProvider::Make(SkOSPath::Dirname(fPath.c_str()),
+                                                              /*predecode=*/true),
+                    /*predecode=*/true))
         .makeFromFile(fPath.c_str());
     if (!animation) {
         return SkStringPrintf("Unable to parse file: %s", fPath.c_str());

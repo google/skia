@@ -261,8 +261,10 @@ int main(int argc, char** argv) {
 
     auto logger = sk_make_sp<Logger>();
     auto     rp = skottie_utils::CachingResourceProvider::Make(
+                    skottie_utils::DataURIResourceProviderProxy::Make(
                       skottie_utils::FileResourceProvider::Make(SkOSPath::Dirname(FLAGS_input[0]),
-                                                                /*predecode=*/true));
+                                                                /*predecode=*/true),
+                      /*predecode=*/true));
     auto data   = SkData::MakeFromFileName(FLAGS_input[0]);
 
     if (!data) {
