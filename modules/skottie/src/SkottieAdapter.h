@@ -172,6 +172,8 @@ private:
 
 class CameraAdapter final : public TransformAdapter3D {
 public:
+    static sk_sp<CameraAdapter> MakeDefault(const SkSize& viewport_size);
+
     explicit CameraAdapter(const SkSize& viewport_size);
     ~CameraAdapter() override;
 

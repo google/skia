@@ -8,6 +8,7 @@
 #include "modules/skottie/src/SkottiePriv.h"
 
 #include "include/core/SkCanvas.h"
+#include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGTransform.h"
@@ -160,6 +161,11 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachComposition(
         }
 
         layer_recs.push_back({*jlayer, SkToSizeT(type)});
+    }
+
+    if (!layerCtx.fCameraTransform && ParseDefault<int>(jcomp["ddd"], 0)) {
+        // Instantiate a default camera when 3D layers are present.
+        layerCtx.fCameraTransform = CameraAdapter::MakeDefault(fSize)->refTransform();
     }
 
     // Second pass: attach all other layers.
