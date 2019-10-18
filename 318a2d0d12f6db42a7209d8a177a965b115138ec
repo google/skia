@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "180bc3e0_349b9018",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-18T16:03:38Z",
+      "side": 1,
+      "message": "SkTypeface. There are other issues in the SkScalerContext creation which aren\u0027t so straight forward. In fact the CTFont used by the SkScalerContext isn\u0027t affected by this change (at Patchset 1) and the opsz there will be set to the \u0027device\u0027 size still (which may be different from the \u0027opsz\u0027 which the user specified). So we may end up drawing with a different opsz that we measured with.",
+      "range": {
+        "startLine": 7,
+        "startChar": 24,
+        "endLine": 7,
+        "endChar": 39
+      },
+      "revId": "318a2d0d12f6db42a7209d8a177a965b115138ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e009a048_17de3502",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2686,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-18T16:03:38Z",
+      "side": 1,
+      "message": "This CTFont is only used to get the Axes, not the Values. Since it doesn\u0027t matter what the values are, this isn\u0027t needed.",
+      "revId": "318a2d0d12f6db42a7209d8a177a965b115138ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4115208e_aea2de76",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2802,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-18T16:03:38Z",
+      "side": 1,
+      "message": "I went and stepped through the code and can confirm that as the CTFont is created it first gets all the right variations from the CGFont passed in but then, as a very last step, it overwrites the \u0027opsz\u0027 axis value with the size passed here. I took a look and every CTFontCreate* function takes a size parameter which is used this way. As a result, I don\u0027t think there is currently any way to properly specify the \u0027opsz\u0027 axis value on a CTFont differently from the \u0027size\u0027 of the CTFont. Even CTFontCreateCopyWithAttributes (which promises to preserve the \u0027size\u0027 if the size parameter is 0) will apply a change to the \u0027opsz\u0027 axis and the overwrite it with the \u0027size\u0027.",
+      "revId": "318a2d0d12f6db42a7209d8a177a965b115138ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
