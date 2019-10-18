@@ -502,6 +502,57 @@ sk_sp<SkSurface> SkSurface_Gpu::MakeWrappedRenderTarget(
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
+sk_sp<SkSurface> SkSurface::MakeFromLazyRenderTargetProxy(GrContext* context,
+                                                          RenderTargetCreateProc createProc,
+                                                          int width, int height,
+                                                          const GrBackendFormat& backendFormat,
+                                                          GrSurfaceOrigin origin,
+                                                          int sampleCnt,
+                                                          SkColorType colorType,
+                                                          sk_sp<SkColorSpace> colorSpace,
+                                                          const SkSurfaceProps* surfaceProps) {
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    const GrCaps* caps = context->priv().caps();
+
+    GrColorType grColorType = SkColorTypeToGrColorType(colorType);
+
+    GrPixelConfig config = caps->getConfigFromBackendFormat(backendFormat, grColorType);
+    if (config == kUnknown_GrPixelConfig) {
+        return nullptr;
+    }
+
+    GrSurfaceDesc desc;
+    desc.fWidth = width;
+    desc.fHeight = height;
+    desc.fConfig = config;
+
+    sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
+            [createProc, sampleCnt](GrResourceProvider* resourceProvider) {
+                auto surface = createProc(resourceProvider);
+                if (surface && sampleCnt > 1) {
+                  surface->setRequiresManualMSAAResolve();
+                }
+                return GrSurfaceProxy::LazyCallbackResult(std::move(surface));
+            },
+            backendFormat, desc, sampleCnt, origin,
+            sampleCnt > 1 ? GrInternalSurfaceFlags::kRequiresManualMSAAResolve
+                          : GrInternalSurfaceFlags::kNone,
+            nullptr, // not textureable
+            GrMipMapsStatus::kNotAllocated, SkBackingFit::kExact, SkBudgeted::kNo,
+            GrProtected::kNo, false, GrSurfaceProxy::UseAllocator::kYes);
+
+    auto c = context->priv().makeWrappedSurfaceContext(std::move(proxy),
+                                                       grColorType,
+                                                       kPremul_SkAlphaType,
+                                                       colorSpace,
+                                                       surfaceProps);
+    SkASSERT(c->asRenderTargetContext());
+    std::unique_ptr<GrRenderTargetContext> rtc(c.release()->asRenderTargetContext());
+
+    sk_sp<SkSurface> surface = SkSurface_Gpu::MakeWrappedRenderTarget(context, std::move(rtc));
+    return surface;
+}
+
 sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrBackendTexture& tex,
                                                    GrSurfaceOrigin origin, int sampleCnt,
                                                    SkColorType colorType,
