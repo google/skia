@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff00b11b_e4b6ceb8",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-18T20:08:18Z",
+      "side": 0,
+      "message": "Might want to swap the order back so that the diff\u0027s smaller / clearer?",
+      "range": {
+        "startLine": 181,
+        "startChar": 0,
+        "endLine": 187,
+        "endChar": 15
+      },
+      "revId": "3085d9ac7d6e0b18b8045036362ef267f7f4edca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

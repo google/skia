@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a3af2c8_3f3ae56e",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-18T20:08:18Z",
+      "side": 1,
+      "message": "This and the one in ldflags below are probably redundant?  It\u0027s the default and there\u0027s no other choice on Mac, right?",
+      "range": {
+        "startLine": 201,
+        "startChar": 5,
+        "endLine": 201,
+        "endChar": 39
+      },
+      "revId": "16ced7e79e762acc18c576c5982747a59644abd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82623663_2260e36d",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-18T20:08:18Z",
+      "side": 1,
+      "message": "Try without this?  Seems odd we\u0027d only need it when we\u0027ve set xcode_sysroot?",
+      "range": {
+        "startLine": 207,
+        "startChar": 6,
+        "endLine": 207,
+        "endChar": 24
+      },
+      "revId": "16ced7e79e762acc18c576c5982747a59644abd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
