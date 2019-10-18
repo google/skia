@@ -68,3 +68,8 @@ docker-compile:
                --volume ${SKIA_ROOT}/out/canvaskit_wasm_docker:/OUT \
                gcr.io/skia-public/canvaskit-emsdk:1.38.27_v1 \
                /SRC/infra/canvaskit/build_canvaskit.sh
+
+run-bench:
+	# Run `make release` first
+	npm install
+	npx karma start ./karma.bench.conf.js --no-single-run --watch-poll
