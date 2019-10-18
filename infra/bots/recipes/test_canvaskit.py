@@ -18,7 +18,7 @@ DEPS = [
 ]
 
 
-DOCKER_IMAGE = 'gcr.io/skia-public/gold-karma-chrome-tests:72.0.3626.121_v1'
+DOCKER_IMAGE = 'gcr.io/skia-public/gold-karma-chrome-tests:77.0.3865.120_v1'
 INNER_KARMA_SCRIPT = '/SRC/skia/infra/canvaskit/test_canvaskit.sh'
 
 

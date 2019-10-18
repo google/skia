@@ -200,7 +200,7 @@
       "[START_DIR]/[SWARM_OUT_DIR]:/OUT",
       "--env",
       "ASM_JS=1",
-      "gcr.io/skia-public/perf-karma-chrome-tests:72.0.3626.121_v1",
+      "gcr.io/skia-public/perf-karma-chrome-tests:77.0.3865.120_v1",
       "/SRC/skia/infra/pathkit/perf_pathkit.sh",
       "--builder",
       "Perf-Debian9-EMCC-GCE-CPU-AVX2-asmjs-Release-All-PathKit",
