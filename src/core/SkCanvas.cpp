@@ -285,8 +285,6 @@ public:
         return false;
     }
 
-    int getX() const { return fDevice->getOrigin().x(); }
-    int getY() const { return fDevice->getOrigin().y(); }
     const SkPaint* getPaint() const { return fPaint; }
 
     SkBaseDevice*   fDevice;
@@ -626,7 +624,7 @@ SkIRect SkCanvas::getTopLayerBounds() const {
     if (!d) {
         return SkIRect::MakeEmpty();
     }
-    return SkIRect::MakeXYWH(d->getOrigin().x(), d->getOrigin().y(), d->width(), d->height());
+    return d->getGlobalBounds();
 }
 
 SkBaseDevice* SkCanvas::getDevice() const {
@@ -888,7 +886,8 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
     // The local bounds of the src device; all the bounds passed to snapSpecial must be intersected
     // with this rect.
     const SkIRect srcDevRect = SkIRect::MakeWH(src->width(), src->height());
-
+    // TODO(michaelludwig) - Update this function to use the relative transforms between src and
+    // dst; for now, since devices never have complex transforms, we can keep using getOrigin().
     if (!filter) {
         // All non-filtered devices are currently axis aligned, so they only differ by their origin.
         // This means that we only have to copy a dst-sized block of pixels out of src and translate
@@ -1200,27 +1199,26 @@ int SkCanvas::saveLayerAlpha(const SkRect* bounds, U8CPU alpha) {
 }
 
 void SkCanvas::internalSaveBehind(const SkRect* localBounds) {
-    SkIRect devBounds;
-    if (localBounds) {
-        SkRect tmp;
-        fMCRec->fMatrix.mapRect(&tmp, *localBounds);
-        if (!devBounds.intersect(tmp.round(), this->getDeviceClipBounds())) {
-            devBounds.setEmpty();
-        }
-    } else {
-        devBounds = this->getDeviceClipBounds();
-    }
-    if (devBounds.isEmpty()) {
-        return;
-    }
-
     SkBaseDevice* device = this->getTopDevice();
     if (nullptr == device) {   // Do we still need this check???
         return;
     }
 
-    // need the bounds relative to the device itself
-    devBounds.offset(-device->fOrigin.fX, -device->fOrigin.fY);
+    // Map the local bounds into the top device's coordinate space (this is not
+    // necessarily the full global CTM transform).
+    SkIRect devBounds;
+    if (localBounds) {
+        SkRect tmp;
+        device->localToDevice().mapRect(&tmp, *localBounds);
+        if (!devBounds.intersect(tmp.round(), device->devClipBounds())) {
+            devBounds.setEmpty();
+        }
+    } else {
+        devBounds = device->devClipBounds();
+    }
+    if (devBounds.isEmpty()) {
+        return;
+    }
 
     // This is getting the special image from the current device, which is then drawn into (both by
     // a client, and the drawClippedToSaveBehind below). Since this is not saving a layer, with its
@@ -1276,14 +1274,13 @@ void SkCanvas::internalRestore() {
     */
     if (layer) {
         if (fMCRec) {
-            const SkIPoint& origin = layer->fDevice->getOrigin();
             layer->fDevice->setImmutable();
-            this->internalDrawDevice(layer->fDevice.get(), origin.x(), origin.y(),
-                                     layer->fPaint.get(),
+            // At this point, 'layer' has been removed from the device stack, so the devices that
+            // internalDrawDevice sees are the destinations that 'layer' is drawn into.
+            this->internalDrawDevice(layer->fDevice.get(), layer->fPaint.get(),
                                      layer->fClipImage.get(), layer->fClipMatrix);
             // restore what we smashed in internalSaveLayer
             this->internalSetMatrix(layer->fStashedMatrix);
-            // reset this, since internalDrawDevice will have set it to true
             delete layer;
         } else {
             // we're at the root
@@ -1361,7 +1358,17 @@ void* SkCanvas::accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoi
         *rowBytes = pmap.rowBytes();
     }
     if (origin) {
-        *origin = this->getTopDevice()->getOrigin();
+        // If the caller requested the origin, they presumably are expecting the returned pixels to
+        // be axis-aligned with the root canvas. If the top level device isn't axis aligned, that's
+        // not the case. Until we update accessTopLayerPixels() to accept a coord space matrix
+        // instead of an origin, just don't expose the pixels in that case. Note that this means
+        // that layers with complex coordinate spaces can still report their pixels if the caller
+        // does not ask for the origin (e.g. just to dump its output to a file, etc).
+        if (this->getTopDevice()->isPixelAlignedToGlobal()) {
+            *origin = this->getTopDevice()->getOrigin();
+        } else {
+            return nullptr;
+        }
     }
     return pmap.writable_addr();
 }
@@ -1381,7 +1388,7 @@ static void check_drawdevice_colorspaces(SkColorSpace* src, SkColorSpace* dst) {
     SkASSERT(src == dst);
 }
 
-void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y, const SkPaint* paint,
+void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, const SkPaint* paint,
                                   SkImage* clipImage, const SkMatrix& clipMatrix) {
     SkPaint tmp;
     if (nullptr == paint) {
@@ -1396,7 +1403,10 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y, const SkPa
                                      srcDev->imageInfo().colorSpace());
         paint = &draw.paint();
         SkImageFilter* filter = paint->getImageFilter();
-        SkIPoint pos = { x - iter.getX(), y - iter.getY() };
+        // TODO(michaelludwig) - Devices aren't created with complex coordinate systems yet,
+        // so it should always be possible to use the relative origin. Once drawDevice() and
+        // drawSpecial() take an SkMatrix, this can switch to getRelativeTransform() instead.
+        SkIPoint pos = srcDev->getOrigin() - dstDev->getOrigin();
         if (filter || clipImage) {
             sk_sp<SkSpecialImage> specialImage = srcDev->snapSpecial();
             if (specialImage) {
@@ -2243,7 +2253,7 @@ void SkCanvas::onDrawBehind(const SkPaint& paint) {
         // We use clipRegion because it is already defined to operate in dev-space
         // (i.e. ignores the ctm). However, it is going to first translate by -origin,
         // but we don't want that, so we undo that before calling in.
-        SkRegion rgn(bounds.makeOffset(dev->fOrigin));
+        SkRegion rgn(bounds.makeOffset(dev->getOrigin()));
         dev->clipRegion(rgn, SkClipOp::kIntersect);
         dev->drawPaint(draw.paint());
         dev->restore(fMCRec->fMatrix);
@@ -2996,6 +3006,11 @@ SkCanvas::LayerIter::~LayerIter() {
 
 void SkCanvas::LayerIter::next() {
     fDone = !fImpl->next();
+    if (!fDone) {
+        // Cache the device origin. LayerIter is only used in Android, which doesn't use image
+        // filters, so its devices will always be able to report the origin exactly.
+        fDeviceOrigin = fImpl->fDevice->getOrigin();
+    }
 }
 
 SkBaseDevice* SkCanvas::LayerIter::device() const {
@@ -3018,8 +3033,8 @@ SkIRect SkCanvas::LayerIter::clipBounds() const {
     return fImpl->fDevice->getGlobalBounds();
 }
 
-int SkCanvas::LayerIter::x() const { return fImpl->getX(); }
-int SkCanvas::LayerIter::y() const { return fImpl->getY(); }
+int SkCanvas::LayerIter::x() const { return fDeviceOrigin.fX; }
+int SkCanvas::LayerIter::y() const { return fDeviceOrigin.fY; }
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -3100,17 +3115,12 @@ SkRasterHandleAllocator::Handle SkCanvas::accessTopRasterHandle() const {
     if (fAllocator && fMCRec->fTopLayer->fDevice) {
         const auto& dev = fMCRec->fTopLayer->fDevice;
         SkRasterHandleAllocator::Handle handle = dev->getRasterHandle();
-        SkIPoint origin = dev->getOrigin();
-        SkMatrix ctm = this->getTotalMatrix();
-        ctm.preTranslate(SkIntToScalar(-origin.x()), SkIntToScalar(-origin.y()));
-
-        SkIRect clip = fMCRec->fRasterClip.getBounds();
-        clip.offset(-origin.x(), -origin.y());
+        SkIRect clip = dev->devClipBounds();
         if (!clip.intersect({0, 0, dev->width(), dev->height()})) {
             clip.setEmpty();
         }
 
-        fAllocator->updateHandle(handle, ctm, clip);
+        fAllocator->updateHandle(handle, dev->localToDevice(), clip);
         return handle;
     }
     return nullptr;

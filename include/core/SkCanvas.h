@@ -2680,6 +2680,7 @@ private:
         intptr_t          fStorage[32];
         class SkDrawIter* fImpl;    // this points at fStorage
         SkPaint           fDefaultPaint;
+        SkIPoint          fDeviceOrigin;
         bool              fDone;
     };
 
@@ -2802,7 +2803,7 @@ private:
     void internalDrawPaint(const SkPaint& paint);
     void internalSaveLayer(const SaveLayerRec&, SaveLayerStrategy);
     void internalSaveBehind(const SkRect*);
-    void internalDrawDevice(SkBaseDevice*, int x, int y, const SkPaint*, SkImage* clipImage,
+    void internalDrawDevice(SkBaseDevice*, const SkPaint*, SkImage* clipImage,
                             const SkMatrix& clipMatrix);
 
     // shared by save() and saveLayer()
