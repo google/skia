@@ -103,6 +103,10 @@ public:
         this->onRestore();
         this->setGlobalCTM(ctm);
     }
+    void restoreLocal(const SkMatrix& localToDevice) {
+        this->onRestore();
+        this->setLocalToDevice(localToDevice);
+    }
     void clipRect(const SkRect& rect, SkClipOp op, bool aa) {
         this->onClipRect(rect, op, aa);
     }
@@ -120,9 +124,9 @@ public:
     }
     bool clipIsWideOpen() const;
 
-    const SkMatrix& ctm() const { return fCTM; }
-    void setCTM(const SkMatrix& ctm) {
-        fCTM = ctm;
+    const SkMatrix& localToDevice() const { return fLocalToDevice; }
+    void setLocalToDevice(const SkMatrix& localToDevice) {
+        fLocalToDevice = localToDevice;
     }
     void setGlobalCTM(const SkMatrix& ctm);
     virtual void validateDevBounds(const SkIRect&) {}
@@ -372,7 +376,7 @@ private:
     SkIPoint             fOrigin;
     const SkImageInfo    fInfo;
     const SkSurfaceProps fSurfaceProps;
-    SkMatrix             fCTM;
+    SkMatrix             fLocalToDevice;
 
     typedef SkRefCnt INHERITED;
 };
@@ -432,21 +436,21 @@ private:
     typedef SkBaseDevice INHERITED;
 };
 
-class SkAutoDeviceCTMRestore : SkNoncopyable {
+class SkAutoDeviceTransformRestore : SkNoncopyable {
 public:
-    SkAutoDeviceCTMRestore(SkBaseDevice* device, const SkMatrix& ctm)
+    SkAutoDeviceTransformRestore(SkBaseDevice* device, const SkMatrix& localToDevice)
         : fDevice(device)
-        , fPrevCTM(device->ctm())
+        , fPrevLocalToDevice(device->localToDevice())
     {
-        fDevice->setCTM(ctm);
+        fDevice->setLocalToDevice(localToDevice);
     }
-    ~SkAutoDeviceCTMRestore() {
-        fDevice->setCTM(fPrevCTM);
+    ~SkAutoDeviceTransformRestore() {
+        fDevice->setLocalToDevice(fPrevLocalToDevice);
     }
 
 private:
     SkBaseDevice*   fDevice;
-    const SkMatrix  fPrevCTM;
+    const SkMatrix  fPrevLocalToDevice;
 };
 
 #endif

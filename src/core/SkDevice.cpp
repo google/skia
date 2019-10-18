@@ -37,19 +37,19 @@ SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfac
     , fSurfaceProps(surfaceProps)
 {
     fOrigin = {0, 0};
-    fCTM.reset();
+    fLocalToDevice.reset();
 }
 
 void SkBaseDevice::setOrigin(const SkMatrix& globalCTM, int x, int y) {
     fOrigin.set(x, y);
-    fCTM = globalCTM;
-    fCTM.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
+    fLocalToDevice = globalCTM;
+    fLocalToDevice.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
 }
 
 void SkBaseDevice::setGlobalCTM(const SkMatrix& ctm) {
-    fCTM = ctm;
+    fLocalToDevice = ctm;
     if (fOrigin.fX | fOrigin.fY) {
-        fCTM.postTranslate(-SkIntToScalar(fOrigin.fX), -SkIntToScalar(fOrigin.fY));
+        fLocalToDevice.postTranslate(-SkIntToScalar(fOrigin.fX), -SkIntToScalar(fOrigin.fY));
     }
 }
 
@@ -83,12 +83,12 @@ static inline bool is_int(float x) {
 }
 
 void SkBaseDevice::drawRegion(const SkRegion& region, const SkPaint& paint) {
-    const SkMatrix& ctm = this->ctm();
-    bool isNonTranslate = ctm.getType() & ~(SkMatrix::kTranslate_Mask);
+    const SkMatrix& localToDevice = this->localToDevice();
+    bool isNonTranslate = localToDevice.getType() & ~(SkMatrix::kTranslate_Mask);
     bool complexPaint = paint.getStyle() != SkPaint::kFill_Style || paint.getMaskFilter() ||
                         paint.getPathEffect();
-    bool antiAlias = paint.isAntiAlias() && (!is_int(ctm.getTranslateX()) ||
-                                             !is_int(ctm.getTranslateY()));
+    bool antiAlias = paint.isAntiAlias() && (!is_int(localToDevice.getTranslateX()) ||
+                                             !is_int(localToDevice.getTranslateY()));
     if (isNonTranslate || complexPaint || antiAlias) {
         SkPath path;
         region.getBoundaryPath(&path);
@@ -125,7 +125,7 @@ void SkBaseDevice::drawDRRect(const SkRRect& outer,
 
 void SkBaseDevice::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                              const SkPoint texCoords[4], SkBlendMode bmode, const SkPaint& paint) {
-    SkISize lod = SkPatchUtils::GetLevelOfDetail(cubics, &this->ctm());
+    SkISize lod = SkPatchUtils::GetLevelOfDetail(cubics, &this->localToDevice());
     auto vertices = SkPatchUtils::MakeVertices(cubics, colors, texCoords, lod.width(), lod.height(),
                                                this->imageInfo().colorSpace());
     if (vertices) {
@@ -270,7 +270,7 @@ void SkBaseDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry images[], in
     SkASSERT(!paint.getPathEffect());
 
     SkPaint entryPaint = paint;
-    const SkMatrix baseCTM = this->ctm();
+    const SkMatrix baseLocalToDevice = this->localToDevice();
     int clipIndex = 0;
     for (int i = 0; i < count; ++i) {
         // TODO: Handle per-edge AA. Right now this mirrors the SkiaRenderer component of Chrome
@@ -283,8 +283,8 @@ void SkBaseDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry images[], in
         SkASSERT(images[i].fMatrixIndex < 0 || preViewMatrices);
         if (images[i].fMatrixIndex >= 0) {
             this->save();
-            this->setGlobalCTM(SkMatrix::Concat(
-                    baseCTM, preViewMatrices[images[i].fMatrixIndex]));
+            this->setLocalToDevice(SkMatrix::Concat(
+                    baseLocalToDevice, preViewMatrices[images[i].fMatrixIndex]));
             needsRestore = true;
         }
 
@@ -303,7 +303,7 @@ void SkBaseDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry images[], in
         this->drawImageRect(images[i].fImage.get(), &images[i].fSrcRect, images[i].fDstRect,
                             entryPaint, constraint);
         if (needsRestore) {
-            this->restore(baseCTM);
+            this->restoreLocal(baseLocalToDevice);
         }
     }
 }
@@ -366,8 +366,8 @@ bool SkBaseDevice::peekPixels(SkPixmap* pmap) {
 void SkBaseDevice::drawGlyphRunRSXform(const SkFont& font, const SkGlyphID glyphs[],
                                        const SkRSXform xform[], int count, SkPoint origin,
                                        const SkPaint& paint) {
-    const SkMatrix originalCTM = this->ctm();
-    if (!originalCTM.isFinite() || !SkScalarIsFinite(font.getSize()) ||
+    const SkMatrix originalLocalToDevice = this->localToDevice();
+    if (!originalLocalToDevice.isFinite() || !SkScalarIsFinite(font.getSize()) ||
         !SkScalarIsFinite(font.getScaleX()) ||
         !SkScalarIsFinite(font.getSkewX())) {
         return;
@@ -387,8 +387,8 @@ void SkBaseDevice::drawGlyphRunRSXform(const SkFont& font, const SkGlyphID glyph
         glyphID = glyphs[i];
         // now "glyphRun" is pointing at the current glyphID
 
-        SkMatrix ctm;
-        ctm.setRSXform(xform[i]).postTranslate(origin.fX, origin.fY);
+        SkMatrix glyphToDevice;
+        glyphToDevice.setRSXform(xform[i]).postTranslate(origin.fX, origin.fY);
 
         // We want to rotate each glyph by the rsxform, but we don't want to rotate "space"
         // (i.e. the shader that cares about the ctm) so we have to undo our little ctm trick
@@ -397,19 +397,19 @@ void SkBaseDevice::drawGlyphRunRSXform(const SkFont& font, const SkGlyphID glyph
         auto shader = transformingPaint.getShader();
         if (shader) {
             SkMatrix inverse;
-            if (ctm.invert(&inverse)) {
+            if (glyphToDevice.invert(&inverse)) {
                 transformingPaint.setShader(shader->makeWithLocalMatrix(inverse));
             } else {
                 transformingPaint.setShader(nullptr);  // can't handle this xform
             }
         }
 
-        ctm.setConcat(originalCTM, ctm);
-        this->setCTM(ctm);
+        glyphToDevice.postConcat(originalLocalToDevice);
+        this->setLocalToDevice(glyphToDevice);
 
         this->drawGlyphRunList(SkGlyphRunList{glyphRun, transformingPaint});
     }
-    this->setCTM(originalCTM);
+    this->setLocalToDevice(originalLocalToDevice);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

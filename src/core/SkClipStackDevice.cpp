@@ -28,15 +28,15 @@ void SkClipStackDevice::onRestore() {
 }
 
 void SkClipStackDevice::onClipRect(const SkRect& rect, SkClipOp op, bool aa) {
-    fClipStack.clipRect(rect, this->ctm(), op, aa);
+    fClipStack.clipRect(rect, this->localToDevice(), op, aa);
 }
 
 void SkClipStackDevice::onClipRRect(const SkRRect& rrect, SkClipOp op, bool aa) {
-    fClipStack.clipRRect(rrect, this->ctm(), op, aa);
+    fClipStack.clipRRect(rrect, this->localToDevice(), op, aa);
 }
 
 void SkClipStackDevice::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
-    fClipStack.clipPath(path, this->ctm(), op, aa);
+    fClipStack.clipPath(path, this->localToDevice(), op, aa);
 }
 
 void SkClipStackDevice::onClipRegion(const SkRegion& rgn, SkClipOp op) {
