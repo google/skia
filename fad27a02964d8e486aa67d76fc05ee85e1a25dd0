@@ -16,6 +16,24 @@
       "revId": "fad27a02964d8e486aa67d76fc05ee85e1a25dd0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5414f574_1119e318",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-18T15:36:42Z",
+      "side": 1,
+      "message": "I think I\u0027m going to keep it as-is, since otherwise the name is getting pretty long, and \u0027Transform\u0027 is somewhat redundant given the name already specifies coordinate spaces and the type is an SkMatrix.",
+      "parentUuid": "287ceb94_2a5d4809",
+      "revId": "fad27a02964d8e486aa67d76fc05ee85e1a25dd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
