@@ -794,7 +794,7 @@ static void mirrorx_nofilter_trans(const SkBitmapProcState& s,
 // The main entry point to the file, choosing between everything above.
 
 SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool translate_only_matrix) {
-    SkASSERT(fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
+    SkASSERT(fInvType <= kValidBitmapProcStateMatrixMask);
     SkASSERT(fTileModeX == fTileModeY);
     SkASSERT(fTileModeX != SkTileMode::kDecal);
 

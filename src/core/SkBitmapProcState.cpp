@@ -166,7 +166,7 @@ static bool valid_for_filtering(unsigned dimension) {
 }
 
 bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
-    SkASSERT(inv.isScaleTranslate());
+    SkASSERT(inv.getType() <= kValidBitmapProcStateMatrixMask);
 
     fPixmap.reset();
     fInvMatrix = inv;
@@ -240,7 +240,7 @@ bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
  *    and may be removed.
  */
 bool SkBitmapProcState::chooseProcs() {
-    SkASSERT(fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
+    SkASSERT(fInvType <= kValidBitmapProcStateMatrixMask);
     SkASSERT(fPixmap.colorType() == kN32_SkColorType);
     SkASSERT(fPixmap.alphaType() == kPremul_SkAlphaType ||
              fPixmap.alphaType() == kOpaque_SkAlphaType);
