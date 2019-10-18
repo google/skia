@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "1926bbab_1fedb301",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-18T20:33:47Z",
+      "side": 1,
+      "message": "Yeah, I might even go with an `hey_I_am_gn_to_bp \u003d true` flag just to make it clear that\u0027s what\u0027s going on.",
+      "parentUuid": "6b51830c_2dba1052",
+      "range": {
+        "startLine": 33,
+        "startChar": 3,
+        "endLine": 33,
+        "endChar": 30
+      },
+      "revId": "d1b00e0a703d8879679ce0f58ef87ec82d180dea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cf2329bc_adc142ec",
         "filename": "gn/BUILD.gn",
         "patchSetId": 4
