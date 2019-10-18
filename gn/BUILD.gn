@@ -12,9 +12,10 @@ declare_args() {
   use_PIC = true
 
   malloc = ""
+  xcode_sysroot = ""
 }
 
-if (is_ios) {
+if (is_ios && xcode_sysroot == "") {
   if (is_tvos) {
     sdk = "appletvos"
     if (target_cpu == "x86" || target_cpu == "x64") {
@@ -26,7 +27,16 @@ if (is_ios) {
       sdk = "iphonesimulator"
     }
   }
-  ios_sysroot = exec_script("find_ios_sysroot.py", [ sdk ], "trim string")
+  xcode_sysroot = exec_script("find_xcode_sysroot.py", [ sdk ], "trim string")
+}
+
+# If building for mac on a mac then lookup all the system includes so that goma and the clang
+# shipped with chrome can find them. When the gn_to_bp.py tool is run, then the host_os != mac.
+# In this case leave the xcode_sysroot empty, and the cc/c++ that come with XCode will be able to
+# find needed include paths.
+if (is_mac && host_os == "mac" && xcode_sysroot == "") {
+  xcode_sysroot =
+      exec_script("find_xcode_sysroot.py", [ "macosx" ], "trim string")
 }
 
 config("default") {
@@ -157,20 +167,20 @@ config("default") {
     }
     asmflags += [
       "-isysroot",
-      ios_sysroot,
+      xcode_sysroot,
       "-arch",
       _target,
     ]
     cflags += [
       "-isysroot",
-      ios_sysroot,
+      xcode_sysroot,
       "-arch",
       _target,
     ]
     cflags_cc += [ "-stdlib=libc++" ]
     ldflags += [
       "-isysroot",
-      ios_sysroot,
+      xcode_sysroot,
       "-arch",
       _target,
       "-stdlib=libc++",
@@ -184,7 +194,25 @@ config("default") {
       defines += [ "_GLIBCXX_DEBUG" ]
     }
   }
+
   if (is_mac) {
+    # If there was a xcode_sysroot set in args or calculated then use it, else don't set anything
+    # because the XCode cc/c++ already know all this stuff.
+    if (xcode_sysroot != "") {
+      asmflags += [
+        "-isysroot",
+        xcode_sysroot,
+      ]
+      cflags += [
+        "-isysroot",
+        xcode_sysroot,
+      ]
+      ldflags += [
+        "-isysroot",
+        xcode_sysroot,
+      ]
+    }
+
     # Disable linker warnings.  They're usually just annoyances like,
     #   ld: warning: text-based stub file
     #     /System/Library/Frameworks/foo.framework/foo.tbd and library file
