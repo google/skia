@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48dfcdca_353e719b",
+        "filename": "experimental/canvaskit/Makefile",
+        "patchSetId": 34
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-10-18T15:04:21Z",
+      "side": 1,
+      "message": "why call `make release` from clean?",
+      "revId": "217056c04885914101c403cb7e4bc09d7902d5bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
