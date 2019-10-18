@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c0fc4c8_5d1d9e4f",
+        "filename": "modules/canvaskit/Makefile",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-10-18T15:14:58Z",
+      "side": 1,
+      "message": "I\u0027d prefer a setup like test-continuous (because in the common case, you only need to run npm install once)",
+      "range": {
+        "startLine": 74,
+        "startChar": 1,
+        "endLine": 74,
+        "endChar": 12
+      },
+      "revId": "438abd621841c02796ee7383ac860ff3c004b073",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
