@@ -255,14 +255,16 @@ AnimationBuilder::AttachLayerContext::~AttachLayerContext() = default;
 AnimationBuilder::AttachLayerContext::TransformRec
 AnimationBuilder::AttachLayerContext::attachLayerTransform(const skjson::ObjectValue& jlayer,
                                                            const AnimationBuilder* abuilder,
-                                                           TransformType type) {
+                                                           TransformType type,
+                                                           bool has_camera_root) {
     TransformRec result;
 
     const auto layer_index = ParseDefault<int>(jlayer["ind"], -1);
     if (layer_index >= 0) {
         auto* rec = fLayerTransformMap.find(layer_index);
         if (!rec) {
-            rec = this->attachLayerTransformImpl(jlayer, abuilder, type, layer_index, false);
+            rec = this->attachLayerTransformImpl(jlayer, abuilder, type,
+                                                 layer_index, has_camera_root);
         }
         SkASSERT(rec);
 
@@ -272,7 +274,7 @@ AnimationBuilder::AttachLayerContext::attachLayerTransform(const skjson::ObjectV
         // This is safe because a) the scope is not used internally, and
         // b) there is exactly one attachLayerTransform call per layer.
         // The transform node OTOH may be used at a later time for parenting.
-        result.fTransformNode = rec->fTransformNode;
+        result.fTransformNode  = rec->fTransformNode;
         result.fTransformScope = std::move(rec->fTransformScope);
     }
 
@@ -283,12 +285,12 @@ sk_sp<sksg::Transform>
 AnimationBuilder::AttachLayerContext::attachParentLayerTransform(const skjson::ObjectValue& jlayer,
                                                                  const AnimationBuilder* abuilder,
                                                                  int layer_index,
-                                                                 bool is_camera_ancestor) {
+                                                                 bool has_camera_root) {
     const auto parent_index = ParseDefault<int>(jlayer["parent"], -1);
     if (parent_index < 0 || parent_index == layer_index) {
-        // Layer transform chains are implicitly rooted in the camera transform
+        // 3D layer transform chains are implicitly rooted in the camera transform
         // (except for camera parent layers).
-        return is_camera_ancestor ? nullptr : fCameraTransform;
+        return has_camera_root ? fCameraTransform : nullptr;
     }
 
     if (const auto* rec = fLayerTransformMap.find(parent_index))
@@ -305,7 +307,7 @@ AnimationBuilder::AttachLayerContext::attachParentLayerTransform(const skjson::O
                                                   abuilder,
                                                   parent_type,
                                                   parent_index,
-                                                  is_camera_ancestor)->fTransformNode;
+                                                  has_camera_root)->fTransformNode;
         }
     }
 
@@ -354,15 +356,15 @@ AnimationBuilder::AttachLayerContext::attachLayerTransformImpl(const skjson::Obj
                                                                const AnimationBuilder* abuilder,
                                                                TransformType type,
                                                                int layer_index,
-                                                               bool is_camera_ancestor) {
+                                                               bool has_camera_root) {
     SkASSERT(!fLayerTransformMap.find(layer_index));
 
     // Add a stub entry to break recursion cycles.
     fLayerTransformMap.set(layer_index, { nullptr, {} });
 
-    is_camera_ancestor |= type == TransformType::kCamera;
+    has_camera_root &= type != TransformType::kCamera;
     auto parent_matrix = this->attachParentLayerTransform(jlayer, abuilder, layer_index,
-                                                          is_camera_ancestor);
+                                                          has_camera_root);
     AutoScope ascope(abuilder);
     auto transform = this->attachTransformNode(jlayer,
                                                abuilder,
@@ -427,8 +429,14 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue&
     const auto transform_type = (type == kCameraLayerType)
             ? AttachLayerContext::TransformType::kCamera
             : AttachLayerContext::TransformType::kLayer;
-    auto layer_transform_rec = layerCtx->attachLayerTransform(jlayer, this, transform_type);
 
+    // Only layers tagged as 3D observe the composition camera.
+    // TODO: also "2D layers with an effect with a Comp Camera attribute".
+    const auto has_camera_root = transform_type != AttachLayerContext::TransformType::kCamera
+                              && ParseDefault<int>(jlayer["ddd"], 0);
+
+    auto layer_transform_rec = layerCtx->attachLayerTransform(jlayer, this, transform_type,
+                                                              has_camera_root);
     if (type == kCameraLayerType) {
         // Camera layers are special: they don't build normal SG fragments, but drive a root-level
         // transform.

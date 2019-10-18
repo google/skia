@@ -275,7 +275,8 @@ struct AnimationBuilder::AttachLayerContext {
 
     TransformRec attachLayerTransform(const skjson::ObjectValue& jlayer,
                                       const AnimationBuilder* abuilder,
-                                      TransformType type = TransformType::kLayer);
+                                      TransformType type,
+                                      bool has_camera_root);
 
     bool hasMotionBlur(const skjson::ObjectValue& jlayer) const;
 
@@ -283,7 +284,7 @@ private:
     sk_sp<sksg::Transform> attachParentLayerTransform(const skjson::ObjectValue& jlayer,
                                                       const AnimationBuilder* abuilder,
                                                       int layer_index,
-                                                      bool is_camera_ancestor);
+                                                      bool has_camera_root);
 
     sk_sp<sksg::Transform> attachTransformNode(const skjson::ObjectValue& jlayer,
                                                const AnimationBuilder* abuilder,
@@ -293,7 +294,7 @@ private:
     TransformRec* attachLayerTransformImpl(const skjson::ObjectValue& jlayer,
                                            const AnimationBuilder* abuilder,
                                            TransformType type, int layer_index,
-                                           bool is_camera_ancestor);
+                                           bool has_camera_root);
 };
 
 } // namespace internal
