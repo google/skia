@@ -26,7 +26,12 @@ if (is_ios) {
       sdk = "iphonesimulator"
     }
   }
-  ios_sysroot = exec_script("find_ios_sysroot.py", [ sdk ], "trim string")
+  xcode_sysroot = exec_script("find_xcode_sysroot.py", [ sdk ], "trim string")
+}
+
+if (is_mac) {
+  xcode_sysroot =
+      exec_script("find_xcode_sysroot.py", [ "macosx" ], "trim string")
 }
 
 config("default") {
@@ -157,20 +162,20 @@ config("default") {
     }
     asmflags += [
       "-isysroot",
-      ios_sysroot,
+      xcode_sysroot,
       "-arch",
       _target,
     ]
     cflags += [
       "-isysroot",
-      ios_sysroot,
+      xcode_sysroot,
       "-arch",
       _target,
     ]
     cflags_cc += [ "-stdlib=libc++" ]
     ldflags += [
       "-isysroot",
-      ios_sysroot,
+      xcode_sysroot,
       "-arch",
       _target,
       "-stdlib=libc++",
@@ -178,19 +183,36 @@ config("default") {
     libs += [ "objc" ]
   }
 
-  if (is_linux) {
-    libs += [ "pthread" ]
-    if (is_debug && sanitize == "") {
-      defines += [ "_GLIBCXX_DEBUG" ]
-    }
-  }
   if (is_mac) {
+    asmflags += [
+      "-isysroot",
+      xcode_sysroot,
+    ]
+    cflags += [
+      "-isysroot",
+      xcode_sysroot,
+    ]
+    cflags_cc += [ "-stdlib=libc++" ]
+    ldflags += [
+      "-isysroot",
+      xcode_sysroot,
+      "-stdlib=libc++",
+    ]
+    libs += [ "objc" ]
+
     # Disable linker warnings.  They're usually just annoyances like,
     #   ld: warning: text-based stub file
     #     /System/Library/Frameworks/foo.framework/foo.tbd and library file
     #     /System/Library/Frameworks/foo.framework/foo are out of sync.
     #     Falling back to library file for linking.
     ldflags += [ "-Wl,-w" ]
+  }
+
+  if (is_linux) {
+    libs += [ "pthread" ]
+    if (is_debug && sanitize == "") {
+      defines += [ "_GLIBCXX_DEBUG" ]
+    }
   }
 
   if (sanitize != "" && sanitize != "MSVC") {
