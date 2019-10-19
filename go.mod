@@ -9,7 +9,7 @@ require (
 	github.com/Azure/go-autorest v13.2.0+incompatible // indirect
 	github.com/NYTimes/gziphandler v1.1.1 // indirect
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
-	github.com/aws/aws-sdk-go v1.25.15 // indirect
+	github.com/aws/aws-sdk-go v1.25.16 // indirect
 	github.com/coreos/bbolt v1.3.3 // indirect
 	github.com/coreos/etcd v3.3.17+incompatible // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
@@ -49,16 +49,17 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.4.0 // indirect
 	github.com/ugorji/go v1.1.7 // indirect
-	go.chromium.org/luci v0.0.0-20191017232650-fdd3869c268f // indirect
+	go.chromium.org/luci v0.0.0-20191018230245-0b73213425c2 // indirect
 	go.etcd.io/bbolt v1.3.3 // indirect
-	go.skia.org/infra v0.0.0-20191018012907-e925b7218e0c
+	go.skia.org/infra v0.0.0-20191018201008-a87be9a88384
 	go.uber.org/multierr v1.2.0 // indirect
 	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550 // indirect
 	golang.org/x/exp v0.0.0-20191014171548-69215a2ee97e // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/mobile v0.0.0-20191002175909-6d0d39b2ca82 // indirect
 	golang.org/x/net v0.0.0-20191014212845-da9a3fd4c582 // indirect
-	golang.org/x/tools v0.0.0-20191018000036-341939e08647 // indirect
+	golang.org/x/sys v0.0.0-20191018095205-727590c5006e // indirect
+	golang.org/x/tools v0.0.0-20191018212557-ed542cd5b28a // indirect
 	golang.org/x/xerrors v0.0.0-20191011141410-1b5146add898 // indirect
 	google.golang.org/api v0.11.0
 	google.golang.org/appengine v1.6.5 // indirect
