@@ -18,12 +18,12 @@ require (
 	github.com/docker/spdystream v0.0.0-20181023171402-6480d4af844c // indirect
 	github.com/elazarl/goproxy v0.0.0-20191011121108-aa519ddbe484 // indirect
 	github.com/elazarl/goproxy/ext v0.0.0-20191011121108-aa519ddbe484 // indirect
-	github.com/emicklei/go-restful v2.10.0+incompatible // indirect
+	github.com/emicklei/go-restful v2.11.0+incompatible // indirect
 	github.com/evanphx/json-patch v4.5.0+incompatible // indirect
 	github.com/flynn/json5 v0.0.0-20160717195620-7620272ed633
 	github.com/fortytw2/leaktest v1.3.0 // indirect
 	github.com/go-openapi/jsonreference v0.19.3 // indirect
-	github.com/go-openapi/spec v0.19.3 // indirect
+	github.com/go-openapi/spec v0.19.4 // indirect
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/addlicense v0.0.0-20190907113143-be125746c2c4 // indirect
@@ -51,7 +51,7 @@ require (
 	github.com/ugorji/go v1.1.7 // indirect
 	go.chromium.org/luci v0.0.0-20191018230245-0b73213425c2 // indirect
 	go.etcd.io/bbolt v1.3.3 // indirect
-	go.skia.org/infra v0.0.0-20191018201008-a87be9a88384
+	go.skia.org/infra v0.0.0-20191019202855-3ee592e07fc4
 	go.uber.org/multierr v1.2.0 // indirect
 	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550 // indirect
 	golang.org/x/exp v0.0.0-20191014171548-69215a2ee97e // indirect
