@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73cdc966_50288b2f",
+        "filename": "include/core/SkMilestone.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-21T15:43:42Z",
+      "side": 1,
+      "message": "Won\u0027t Chrome now report graphics_backend \u003d\u003d Skia/\" m80\"?  Seems weird.\n\nAre these the only two places SK_MILESTONE is used?  What\u0027s the value of reporting it in Chrome anyway?  When will our milestone ever be different than the Chromium branch?  That\u0027s when we change the milestone...",
+      "revId": "fd1e35bcc9bc22ee33dd975dab5fb3c822f52a42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3119bdff_5a0f0e3e",
+        "filename": "src/pdf/SkPDFDocument.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-21T15:43:42Z",
+      "side": 1,
+      "message": "What\u0027s this change for?",
+      "revId": "fd1e35bcc9bc22ee33dd975dab5fb3c822f52a42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
