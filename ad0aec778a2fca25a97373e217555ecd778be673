@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "718c8098_1119e416",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-21T16:29:16Z",
+      "side": 1,
+      "message": "Might make sense to move this one\u0027s implementation inline to make it clear it\u0027s an alias now?",
+      "revId": "ad0aec778a2fca25a97373e217555ecd778be673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b1e37c8_396b0287",
+        "filename": "modules/skottie/src/Skottie.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-21T16:29:16Z",
+      "side": 1,
+      "message": "Is it correct / any easier to think of this as\n\n  this-\u003eseekFrameTime(t * this-\u003eduration(), ic);\n\n?",
+      "revId": "ad0aec778a2fca25a97373e217555ecd778be673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
