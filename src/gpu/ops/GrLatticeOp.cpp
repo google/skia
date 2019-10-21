@@ -291,7 +291,8 @@ private:
                                                   kVertsPerRect * patch.fIter->numRectsToDraw());
             }
         }
-        auto fixedDynamicState = target->makeFixedDynamicState(1);
+        auto fixedDynamicState = Target::MakeFixedDynamicState(target->allocator1(),
+                                                               target->appliedClip(), 1);
         fixedDynamicState->fPrimitiveProcessorTextures[0] = fProxy.get();
         helper.recordDraw(target, std::move(gp), fixedDynamicState);
     }

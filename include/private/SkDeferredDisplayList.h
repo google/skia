@@ -59,7 +59,7 @@ public:
     const SkDeferredDisplayListPriv priv() const;
 
 private:
-    friend class GrDrawingManager; // for access to 'fRenderTasks' and 'fLazyProxyData'
+    friend class GrDrawingManager; // for access to 'fRenderTasks', 'fLazyProxyData', 'fOpPOD'
     friend class SkDeferredDisplayListRecorder; // for access to 'fLazyProxyData'
     friend class SkDeferredDisplayListPriv;
 
@@ -71,6 +71,7 @@ private:
 
     SkTArray<sk_sp<GrRenderTask>>   fRenderTasks;
     PendingPathsMap                 fPendingPaths;  // This is the path data from CCPR.
+    std::unique_ptr<SkArenaAlloc>   fOpPOD;
 #endif
     sk_sp<LazyProxyData>            fLazyProxyData;
 };

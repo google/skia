@@ -322,7 +322,9 @@ private:
         GR_STATIC_ASSERT(GrBitmapTextGeoProc::kMaxTextures == kMaxTextures);
 
         FlushInfo flushInfo;
-        flushInfo.fFixedDynamicState = target->makeFixedDynamicState(kMaxTextures);
+        flushInfo.fFixedDynamicState = Target::MakeFixedDynamicState(target->allocator1(),
+                                                                     target->appliedClip(),
+                                                                     kMaxTextures);
         int numActiveProxies = fAtlas->numActivePages();
         const auto proxies = fAtlas->getProxies();
         for (int i = 0; i < numActiveProxies; ++i) {

@@ -142,7 +142,7 @@ public:
     GrAtlasManager* atlasManager() const final;
 
     /** GrMeshDrawOp::Target override. */
-    SkArenaAlloc* allocator() override { return &fArena; }
+    SkArenaAlloc* allocator1() override { return &fArena1; }
 
 private:
     struct InlineUpload {
@@ -167,7 +167,7 @@ private:
     };
 
     // Storage for ops' pipelines, draws, and inline uploads.
-    SkArenaAlloc fArena{sizeof(GrPipeline) * 100};
+    SkArenaAlloc fArena1{sizeof(GrPipeline) * 100};
 
     // Store vertex and index data on behalf of ops that are flushed.
     GrVertexBufferAllocPool fVertexPool;

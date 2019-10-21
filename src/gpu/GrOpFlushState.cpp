@@ -42,7 +42,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
     pipelineArgs.fCaps = &this->caps();
     pipelineArgs.fUserStencil = stencilSettings;
     pipelineArgs.fOutputSwizzle = this->drawOpArgs().outputSwizzle();
-    GrPipeline* pipeline = this->allocator()->make<GrPipeline>(pipelineArgs,
+    GrPipeline* pipeline = this->allocator1()->make<GrPipeline>(pipelineArgs,
                                                                std::move(processorSet),
                                                                this->detachAppliedClip());
 
@@ -85,7 +85,7 @@ void GrOpFlushState::reset() {
     SkASSERT(fCurrUpload == fInlineUploads.end());
     fVertexPool.reset();
     fIndexPool.reset();
-    fArena.reset();
+    fArena1.reset();
     fASAPUploads.reset();
     fInlineUploads.reset();
     fDraws.reset();
@@ -128,12 +128,12 @@ void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload,
 }
 
 GrDeferredUploadToken GrOpFlushState::addInlineUpload(GrDeferredTextureUploadFn&& upload) {
-    return fInlineUploads.append(&fArena, std::move(upload), fTokenTracker->nextDrawToken())
+    return fInlineUploads.append(&fArena1, std::move(upload), fTokenTracker->nextDrawToken())
             .fUploadBeforeToken;
 }
 
 GrDeferredUploadToken GrOpFlushState::addASAPUpload(GrDeferredTextureUploadFn&& upload) {
-    fASAPUploads.append(&fArena, std::move(upload));
+    fASAPUploads.append(&fArena1, std::move(upload));
     return fTokenTracker->nextTokenToFlush();
 }
 
@@ -144,7 +144,7 @@ void GrOpFlushState::recordDraw(
     SkASSERT(fOpArgs);
     SkDEBUGCODE(fOpArgs->validate());
     bool firstDraw = fDraws.begin() == fDraws.end();
-    auto& draw = fDraws.append(&fArena);
+    auto& draw = fDraws.append(&fArena1);
     GrDeferredUploadToken token = fTokenTracker->issueDrawToken();
     if (fixedDynamicState && fixedDynamicState->fPrimitiveProcessorTextures) {
         for (int i = 0; i < gp->numTextureSamplers(); ++i) {
