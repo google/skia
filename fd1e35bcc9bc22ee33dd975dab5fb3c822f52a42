@@ -141,6 +141,24 @@
       "revId": "fd1e35bcc9bc22ee33dd975dab5fb3c822f52a42",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b0ce24db_975f73c3",
+        "filename": "src/pdf/SkPDFDocument.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-21T17:19:26Z",
+      "side": 1,
+      "message": "Oh, cute.  It\u0027s funny... other than those four bytes, the PDFs we produce generally _are_ 7-bit safe, right?  It\u0027s all fairly readable / editable as text.",
+      "parentUuid": "5aec668d_73a1bdec",
+      "revId": "fd1e35bcc9bc22ee33dd975dab5fb3c822f52a42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
