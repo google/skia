@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75219788_d7788d1b",
+        "filename": "src/core/SkBitmapProcState.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-21T16:47:32Z",
+      "side": 1,
+      "message": "Mike, don\u0027t you find these sorts of asserts a lot easier to follow than the ones based on fInvType?\n\nDo you recall why we track both fInvMatrix and fInvType (\u003d fInvMatrix.getType())?  What isn\u0027t everything just using fInvMatrix and its easier to read methods?",
+      "range": {
+        "startLine": 194,
+        "startChar": 0,
+        "endLine": 199,
+        "endChar": 0
+      },
+      "revId": "43ac8dba9c04cf0ac2f4e7d34be9c36c822fc14d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f251954_53382fb8",
+        "filename": "src/core/SkBitmapProcState.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-21T16:47:32Z",
+      "side": 1,
+      "message": "Weirdly, we sometimes _don\u0027t_ use fInvType.",
+      "revId": "43ac8dba9c04cf0ac2f4e7d34be9c36c822fc14d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7efb91e4_3536dd5d",
+        "filename": "src/core/SkBitmapProcState.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-21T16:47:32Z",
+      "side": 1,
+      "message": "Let\u0027s\n\n   SkASSERT(fSampleProc);\n\nnow that it appears possible to not be set?",
+      "revId": "43ac8dba9c04cf0ac2f4e7d34be9c36c822fc14d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "667561ca_06d94b98",
+        "filename": "src/core/SkOpts.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-21T16:47:32Z",
+      "side": 1,
+      "message": "Since this is a function pointer, I think we can lean a bit more on the fact that is can be set to nullptr to avoid the need to splash #if LEGACY_LOCAL_ROTATE_SHADER_ENABLED all over the codebase?\n\nI think it could be as easy as writing the code like this in SkBitmapProcState_opts.h:\n\n#if defined(SK_ARM_HAS_NEON)\n  ...define S32_alpha_D32_filter_DXDY as normal...\n#else\n  void (*S32_alpha_D32_filter_DXDY)(const SkBitmapProcState\u0026, \n                                    const uint32_t*, int, SkPMColor*) \u003d nullptr;\n#endif\n\nAnd then null-checking SkOpts::S32_alpha_D32_filter_DXDY before you use it?",
+      "range": {
+        "startLine": 68,
+        "startChar": 4,
+        "endLine": 68,
+        "endChar": 38
+      },
+      "revId": "43ac8dba9c04cf0ac2f4e7d34be9c36c822fc14d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
