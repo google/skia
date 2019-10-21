@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97e57475_4e879556",
+        "filename": "public.bzl",
+        "patchSetId": 3
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-21T15:07:23Z",
+      "side": 1,
+      "message": "We can\u0027t really do this here or it won\u0027t roll.",
+      "revId": "ba0cafebc807902338247c5c438d38b3f9007c4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
