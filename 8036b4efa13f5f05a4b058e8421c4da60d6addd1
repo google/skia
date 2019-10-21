@@ -25,6 +25,23 @@
     },
     {
       "key": {
+        "uuid": "c7bc90da_4f10f446",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-21T15:55:31Z",
+      "side": 1,
+      "message": "Might be nice to add a note to parallel the other call?  Is it\n\n   (0 -\u003e first frame, 1 -\u003e second frame, 0.5 -\u003e half way between the two, etc.)\n\n?  It is meaningful to be fractionally between frames, right?",
+      "revId": "8036b4efa13f5f05a4b058e8421c4da60d6addd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ecdfabd9_7ce1f01d",
         "filename": "modules/skottie/include/Skottie.h",
         "patchSetId": 4
@@ -41,6 +58,69 @@
         "startChar": 19,
         "endLine": 230,
         "endChar": 27
+      },
+      "revId": "8036b4efa13f5f05a4b058e8421c4da60d6addd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "afd62872_6403fd6b",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-21T15:55:31Z",
+      "side": 1,
+      "message": "This seems fine, but why not just add\n\n   SkScalar fps() const { return fFPS; }\n\n?   I\u0027m always kind of suspicious of struct Info, struct Rec, etc... literally every struct is a record holding information.  They\u0027re names we give groupings that otherwise don\u0027t have a meaningful connection.  How come these fields go in Info but fInPoint, fOutPoint, and fFlags don\u0027t?",
+      "revId": "8036b4efa13f5f05a4b058e8421c4da60d6addd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ac79843_9a800b37",
+        "filename": "modules/skottie/src/Skottie.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-21T15:55:31Z",
+      "side": 1,
+      "message": "Why make this change?  Nothing subtle going on here right?  this-\u003esize() still works?",
+      "range": {
+        "startLine": 583,
+        "startChar": 4,
+        "endLine": 583,
+        "endChar": 54
+      },
+      "revId": "8036b4efa13f5f05a4b058e8421c4da60d6addd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e29bf0e0_74789a6f",
+        "filename": "tools/viewer/SkottieSlide.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-21T15:55:31Z",
+      "side": 1,
+      "message": "This is the sort of thing I\u0027m suspicious of.  Seems like there\u0027s no cost to keeping version(), and that it\u0027s clearer, and (not that this is a major concern) we can change how version() is implemented more easily.  I feel like we\u0027re exposing internal guts for no win.",
+      "range": {
+        "startLine": 108,
+        "startChar": 29,
+        "endLine": 108,
+        "endChar": 44
       },
       "revId": "8036b4efa13f5f05a4b058e8421c4da60d6addd1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
