@@ -140,7 +140,6 @@ template <unsigned (*tile)(SkFixed, int), unsigned (*extract_low_bits)(SkFixed, 
 static void filter_scale(const SkBitmapProcState& s,
                          uint32_t xy[], int count, int x, int y) {
     SkASSERT(s.fInvMatrix.isScaleTranslate());
-    SkASSERT(s.fInvKy == 0);
 
     auto pack = [](SkFixed f, unsigned max, SkFixed one) {
         unsigned i = tile(f, max);
@@ -482,7 +481,6 @@ static const SkBitmapProcState::MatrixProc MirrorX_MirrorY_Procs[] = {
     static void filter_scale_neon(const SkBitmapProcState& s,
                                   uint32_t xy[], int count, int x, int y) {
         SkASSERT(s.fInvMatrix.isScaleTranslate());
-        SkASSERT(s.fInvKy == 0);
 
         auto pack = [&](SkFixed f, unsigned max, SkFixed one) {
             unsigned i = tile(f, max);
