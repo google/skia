@@ -70,6 +70,10 @@ function copy1dArray(arr, dest, ptr) {
   if (!arr || !arr.length) {
     return nullptr;
   }
+  // This was created with CanvasKit.Malloc, so it's already been copied.
+  if (arr['_ck']) {
+    return arr.byteOffset;
+  }
   if (!ptr) {
     ptr = CanvasKit._malloc(arr.length * dest.BYTES_PER_ELEMENT);
   }
@@ -394,3 +398,44 @@ CanvasKit.RSXFormBuilder = CanvasKit.FourFloatArrayHelper;
  * the array every time.
  */
 CanvasKit.SkColorBuilder = CanvasKit.OneUIntArrayHelper;
+
+/**
+ * Malloc returns a TypedArray backed by the C++ memory of the
+ * given length. It should only be used by advanced users who
+ * can manage memory and initialize values properly. When used
+ * correctly, it can save copying of data between JS and C++.
+ * When used incorrectly, it can lead to memory leaks.
+ * See also CanvasKit.Free()
+ *
+ * const ta = CanvasKit.Malloc(Float32Array, 20);
+ * // store data into ta
+ * const cf = CanvasKit.SkColorFilter.MakeMatrix(ta);
+ * // Free does not need to be called because MakeMatrix
+ * // cleans up the ptr automatically.
+ *
+ * @param {TypedArray} typedArray - constructor for the typedArray.
+ * @param {number} len - number of elements to store.
+ */
+CanvasKit.Malloc = function(typedArray, len) {
+  var byteLen = len * typedArray.BYTES_PER_ELEMENT;
+  var ptr = CanvasKit._malloc(byteLen);
+  var ta = new typedArray(CanvasKit.buffer, ptr, len);
+  // add a marker that this was allocated in C++ land
+  ta['_ck'] = true;
+  return ta;
+}
+
+/**
+ * Free cleans up a TypedArray allocated with CanvasKit.Malloc().
+ * In most cases, (e.g. if copy1dArray is used), this will not
+ * need to be done.
+ *
+ * @param {TypedArray} typedArray - constructor for the typedArray.
+ */
+CanvasKit.Free = function(typedArray) {
+  if (!typedArray['_ck']) {
+    SkDebug('Cannot Free a typed array that was not made in Malloc');
+    return;
+  }
+  CanvasKit._free(typedArray.byteOffset);
+}
