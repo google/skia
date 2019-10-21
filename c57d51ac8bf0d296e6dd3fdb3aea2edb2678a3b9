@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9249daf9_8ae0160b",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-21T14:55:40Z",
+      "side": 1,
+      "message": "This createProc needs to return either a GrBackendTexture or GrBackendRenderTarget. GrRenderTarget is not meant to be public (even though it current is).\n\nWe also will probably need some sort of release callback so that client knows when they can delete the backend object.",
+      "range": {
+        "startLine": 464,
+        "startChar": 6,
+        "endLine": 464,
+        "endChar": 93
+      },
+      "revId": "c57d51ac8bf0d296e6dd3fdb3aea2edb2678a3b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "328aad45_573ad7ea",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-21T14:55:40Z",
+      "side": 1,
+      "message": "When I read this name I would assume you are passing in a LazyRenderTargetProxy (which is an internal thing in Ganesh). The description as references LazyProxy instantiation. This is an implementation detail that a client does not have any context for what it means.\n\nNow I\u0027m horrible at naming things, but maybe something along the lines of MakeFromLazyBackendTexture, MakeWithDeferredBackendRenderTarget, ...?",
+      "range": {
+        "startLine": 482,
+        "startChar": 28,
+        "endLine": 482,
+        "endChar": 57
+      },
+      "revId": "c57d51ac8bf0d296e6dd3fdb3aea2edb2678a3b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
