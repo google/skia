@@ -171,6 +171,11 @@ private:
     size_t fBytesRead = 0u;
 };
 
+bool SkFuzzDeserializeSkDescriptor(sk_sp<SkData> bytes, SkAutoDescriptor* ad) {
+    auto d = Deserializer(reinterpret_cast<const volatile char*>(bytes->data()), bytes->size());
+    return d.readDescriptor(ad);
+}
+
 // Paths use a SkWriter32 which requires 4 byte alignment.
 static const size_t kPathAlignment  = 4u;
 
