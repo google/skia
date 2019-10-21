@@ -5,6 +5,7 @@
 
 #include "include/core/SkDocument.h"
 
+#include "include/core/SkMilestone.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTime.h"
@@ -12,6 +13,12 @@
 class SkExecutor;
 
 namespace SkPDF {
+
+#define SKPDF_STRING(X) SKPDF_STRING_IMPL(X)
+#define SKPDF_STRING_IMPL(X) #X
+static constexpr char kDefaultPDFProducer[] = "Skia/PDF m" SKPDF_STRING(SK_MILESTONE);
+#undef SKPDF_STRING
+#undef SKPDF_STRING_IMPL
 
 /** Table 333 in PDF 32000-1:2008 §14.8.4.2
 */
@@ -106,9 +113,8 @@ struct Metadata {
     SkString fCreator;
 
     /** The product that is converting this document to PDF.
-        Leave fProducer empty to get the default, correct value.
     */
-    SkString fProducer;
+    SkString fProducer{kDefaultPDFProducer, strlen(kDefaultPDFProducer)};
 
     /** The date and time the document was created.
         The zero default value represents an unknown/unset time.
@@ -199,4 +205,5 @@ static inline sk_sp<SkDocument> MakeDocument(SkWStream* stream) {
 }
 
 }  // namespace SkPDF
+
 #endif  // SkPDFDocument_DEFINED
