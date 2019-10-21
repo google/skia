@@ -22,6 +22,30 @@
       "revId": "0c34c37ac59f1681d2daf30df9586c5ba06e5aa8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20d10bb3_f4e150f2",
+        "filename": "include/docs/SkPDFDocument.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-10-21T16:41:03Z",
+      "side": 1,
+      "message": "reverted.",
+      "parentUuid": "19b1fa7c_aa62e49c",
+      "range": {
+        "startLine": 117,
+        "startChar": 44,
+        "endLine": 117,
+        "endChar": 71
+      },
+      "revId": "0c34c37ac59f1681d2daf30df9586c5ba06e5aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

@@ -87,6 +87,24 @@
       "revId": "fd1e35bcc9bc22ee33dd975dab5fb3c822f52a42",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "276c1ddb_bc74892e",
+        "filename": "src/pdf/SkPDFDocument.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-10-21T16:41:03Z",
+      "side": 1,
+      "message": "Yes, but in a harder-to-read format.",
+      "parentUuid": "7b06585e_bea97056",
+      "revId": "fd1e35bcc9bc22ee33dd975dab5fb3c822f52a42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
