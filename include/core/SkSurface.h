@@ -26,12 +26,14 @@ class SkCanvas;
 class SkDeferredDisplayList;
 class SkPaint;
 class SkSurfaceCharacterization;
+class GrBackendFormat;
 class GrBackendRenderTarget;
 class GrBackendSemaphore;
 class GrBackendTexture;
 class GrContext;
 class GrRecordingContext;
 class GrRenderTarget;
+class GrResourceProvider;
 
 /** \class SkSurface
     SkSurface is responsible for managing the pixels that a canvas draws into. The pixels can be
@@ -318,8 +320,7 @@ public:
 #endif
 
 #ifdef SK_METAL
-    /** Private.
-        Creates SkSurface from CAMetalLayer.
+    /** Creates SkSurface from CAMetalLayer.
         Returned SkSurface takes a reference on the CAMetalLayer. The ref on the layer will be
         released when the SkSurface is destroyed.
 
@@ -453,6 +454,40 @@ public:
     static sk_sp<SkSurface> MakeRenderTarget(GrRecordingContext* context,
                                              const SkSurfaceCharacterization& characterization,
                                              SkBudgeted budgeted);
+
+    /** Creates SkSurface via LazyProxy instantiation. Will take the given RenderTargetCreateProc
+        and use it as part of a LazyInstantiationCallback to generate a SurfaceProxy. The primary
+        purpose of this method is to create a surface that will handle delayed acquisition of
+        backbuffer surfaces.
+
+        @param context         GPU context
+        @param createProc      Client-provided function that produces a sk_sp<GrRenderTarget>
+        @param width           Width of rendertarget
+        @param height          Height of rendertarget
+        @param format          Native format of rendertarget
+        @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
+        @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
+        @param colorType       one of:
+                               kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
+                               kARGB_4444_SkColorType, kRGBA_8888_SkColorType,
+                               kRGB_888x_SkColorType, kBGRA_8888_SkColorType,
+                               kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
+                               kGray_8_SkColorType, kRGBA_F16_SkColorType
+        @param colorSpace      range of colors; may be nullptr
+        @param surfaceProps    LCD striping orientation and setting for device independent fonts;
+                               may be nullptr
+        @return                created SkSurface, or nullptr
+    */
+    using RenderTargetCreateProc = std::function<sk_sp<GrRenderTarget>(GrResourceProvider*)>;
+    static sk_sp<SkSurface> MakeFromLazyRenderTargetProxy(GrContext* context,
+                                                          RenderTargetCreateProc createProc,
+                                                          int width, int height,
+                                                          const GrBackendFormat& backendFormat,
+                                                          GrSurfaceOrigin origin,
+                                                          int sampleCnt,
+                                                          SkColorType colorType,
+                                                          sk_sp<SkColorSpace> colorSpace,
+                                                          const SkSurfaceProps* surfaceProps);
 
     /** Wraps a backend texture in an SkSurface - setting up the surface to match the provided
         characterization. The caller must ensure the texture is valid for the lifetime of

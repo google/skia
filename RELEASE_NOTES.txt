@@ -7,6 +7,8 @@ This file includes a list of high level updates for each milestone release.
 Milestone 79
 
   [Insert new notes here.]
+  * Added SkSurface::MakeFromLazyRenderTargetProxy as a general method for creating
+    SkSurfaces that wrap swapchains with delayed backbuffer surface acquisition.
 
   * SkTextBlob::Iter to discover the glyph indices and typefaces in each run
     https://skia-review.googlesource.com/246296
