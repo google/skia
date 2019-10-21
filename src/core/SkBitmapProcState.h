@@ -76,7 +76,6 @@ struct SkBitmapProcState : public SkBitmapProcInfo {
     SkFixed             fFilterOneX;
     SkFixed             fFilterOneY;
 
-    SkFixed             fInvKy;             // chooseProcs
     uint16_t            fAlphaScale;        // chooseProcs
 
     /** Given the byte size of the index buffer to be passed to the matrix proc,

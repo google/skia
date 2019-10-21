@@ -246,7 +246,6 @@ bool SkBitmapProcState::chooseProcs() {
 
     fInvProc            = SkMatrixPriv::GetMapXYProc(fInvMatrix);
     fInvSxFractionalInt = SkScalarToFractionalInt(fInvMatrix.getScaleX());
-    fInvKy              = SkScalarToFixed        (fInvMatrix.getSkewY());
 
     fAlphaScale = SkAlpha255To256(SkColorGetA(fPaintColor));
 
@@ -279,7 +278,6 @@ static void Clamp_S32_D32_nofilter_trans_shaderproc(const void* sIn,
                                                     int count) {
     const SkBitmapProcState& s = *static_cast<const SkBitmapProcState*>(sIn);
     SkASSERT(s.fInvMatrix.isTranslate());
-    SkASSERT(s.fInvKy == 0);
     SkASSERT(count > 0 && colors != nullptr);
     SkASSERT(kNone_SkFilterQuality == s.fFilterQuality);
 
@@ -342,7 +340,6 @@ static void Repeat_S32_D32_nofilter_trans_shaderproc(const void* sIn,
                                                      int count) {
     const SkBitmapProcState& s = *static_cast<const SkBitmapProcState*>(sIn);
     SkASSERT(s.fInvMatrix.isTranslate());
-    SkASSERT(s.fInvKy == 0);
     SkASSERT(count > 0 && colors != nullptr);
     SkASSERT(kNone_SkFilterQuality == s.fFilterQuality);
 
@@ -396,7 +393,6 @@ static void S32_D32_constX_shaderproc(const void* sIn,
                                       int count) {
     const SkBitmapProcState& s = *static_cast<const SkBitmapProcState*>(sIn);
     SkASSERT(s.fInvMatrix.isScaleTranslate());
-    SkASSERT(s.fInvKy == 0);
     SkASSERT(count > 0 && colors != nullptr);
     SkASSERT(1 == s.fPixmap.width());
 
