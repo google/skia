@@ -25,12 +25,6 @@ class SkTypeface;
 struct SkGlyphPositionRoundingSpec;
 struct SkScalerContextEffects;
 
-struct SkGlyphPos {
-    size_t index;
-    const SkGlyph* glyph;
-    SkPoint position;
-};
-
 class SkStrikeForGPU {
 public:
     virtual ~SkStrikeForGPU() = default;

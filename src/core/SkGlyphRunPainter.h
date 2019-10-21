@@ -128,10 +128,6 @@ private:
 
     SkDrawableGlyphBuffer fDrawable;
     SkSourceGlyphBuffer fRejects;
-
-    size_t fMaxRunSize{0};
-
-    std::vector<SkGlyphPos> fPaths;
 };
 
 // SkGlyphRunPainterInterface are all the ways that Ganesh generates glyphs. The first
@@ -155,10 +151,8 @@ public:
     virtual void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                     const SkStrikeSpec& strikeSpec) = 0;
 
-    virtual void processSourcePaths(SkSpan<const SkGlyphPos> paths,
+    virtual void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                     const SkStrikeSpec& strikeSpec) = 0;
-
-    virtual void processDevicePaths(SkSpan<const SkGlyphPos> paths) = 0;
 
     virtual void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                    const SkStrikeSpec& strikeSpec,
