@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a2cc862_6a996fe0",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-10-21T17:49:39Z",
+      "side": 1,
+      "message": "What is this for?",
+      "revId": "2e0e5b65a26aad5ed7072233e4b3cfd5529f3e90",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
