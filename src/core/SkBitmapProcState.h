@@ -72,6 +72,7 @@ struct SkBitmapProcState : public SkBitmapProcInfo {
 
     SkMatrixPriv::MapXYProc fInvProc;           // chooseProcs
     SkFractionalInt     fInvSxFractionalInt;
+    SkFractionalInt     fInvKyFractionalInt;
 
     SkFixed             fFilterOneX;
     SkFixed             fFilterOneY;
