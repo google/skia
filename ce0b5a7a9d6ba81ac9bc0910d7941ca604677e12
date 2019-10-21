@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "78f2f25d_b8f3286c",
+        "filename": "src/core/SkBitmapProcState_matrixProcs.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-21T12:14:19Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "52aab366_97cac49b",
+      "range": {
+        "startLine": 228,
+        "startChar": 24,
+        "endLine": 228,
+        "endChar": 30
+      },
+      "revId": "ce0b5a7a9d6ba81ac9bc0910d7941ca604677e12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd55b8df_5035d9b3",
         "filename": "src/core/SkBitmapProcState_matrixProcs.cpp",
         "patchSetId": 6
@@ -45,6 +69,30 @@
       "revId": "ce0b5a7a9d6ba81ac9bc0910d7941ca604677e12",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c80b386d_23108289",
+        "filename": "src/core/SkBitmapProcState_matrixProcs.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 719,
+      "author": {
+        "id": 8384
+      },
+      "writtenOn": "2019-10-21T12:14:19Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "cd55b8df_5035d9b3",
+      "range": {
+        "startLine": 719,
+        "startChar": 28,
+        "endLine": 719,
+        "endChar": 34
+      },
+      "revId": "ce0b5a7a9d6ba81ac9bc0910d7941ca604677e12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
