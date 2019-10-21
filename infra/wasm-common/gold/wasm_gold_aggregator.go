@@ -176,15 +176,16 @@ func dumpJSON(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dmresults := jsonio.GoldResults{
-		TryJobID:                    *buildBucketID,
-		ContinuousIntegrationSystem: "buildbucket",
 		Builder:                     *builder,
-		GitHash:                     *gitHash,
 		ChangeListID:                *issue,
+		CodeReviewSystem:            "gerrit",
+		ContinuousIntegrationSystem: "buildbucket",
+		GitHash:                     *gitHash,
 		Key:                         defaultKeys,
 		PatchSetOrder:               *patchset,
 		Results:                     results,
 		TaskID:                      *taskId,
+		TryJobID:                    *buildBucketID,
 	}
 	enc := json.NewEncoder(outputFile)
 	enc.SetIndent("", "  ") // Make it human readable.
