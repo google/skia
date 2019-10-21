@@ -154,6 +154,7 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
 
     if (!program) {
         SkDebugf("SkSL error:\n%s\n", gpu->shaderCompiler()->errorText().c_str());
+        SkDebugf("Shader:\n%s\n", shaderString);
         SkASSERT(false);
         return nil;
     }
