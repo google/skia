@@ -73,7 +73,7 @@ static_assert((SKPDF_MAGIC[3] & 0x7F) == "Skia"[3], "");
 #endif
 static void serializeHeader(SkPDFOffsetMap* offsetMap, SkWStream* wStream) {
     offsetMap->markStartOfDocument(wStream);
-    wStream->writeText("%PDF-1.4\n%" SKPDF_MAGIC "\n");
+    wStream->writeText("%PDF-1.4\n%" SKPDF_MAGIC "\n%Skia/PDF\n");
     // The PDF spec recommends including a comment with four
     // bytes, all with their high bits set.  "\xD3\xEB\xE9\xE1" is
     // "Skia" with the high bits set.
