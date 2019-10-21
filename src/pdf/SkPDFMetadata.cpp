@@ -17,7 +17,11 @@
 
 #define SKPDF_STRING(X) SKPDF_STRING_IMPL(X)
 #define SKPDF_STRING_IMPL(X) #X
+#if SK_MILESTONE > 0
 #define SKPDF_PRODUCER "Skia/PDF m" SKPDF_STRING(SK_MILESTONE)
+#else
+#define SKPDF_PRODUCER "Skia/PDF"
+#endif
 #define SKPDF_CUSTOM_PRODUCER_KEY "ProductionLibrary"
 
 static constexpr SkTime::DateTime kZeroTime = {0, 0, 0, 0, 0, 0, 0, 0};
