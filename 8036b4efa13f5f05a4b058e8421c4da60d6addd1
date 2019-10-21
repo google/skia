@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "80de5979_b4cc6415",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-10-21T16:18:41Z",
+      "side": 1,
+      "message": "Will need to update clients anyway... let\u0027s try to kill it - I think everyone who uses it really wants one of the other two at this point.",
+      "parentUuid": "c10554af_6e90e6fe",
+      "range": {
+        "startLine": 224,
+        "startChar": 9,
+        "endLine": 224,
+        "endChar": 13
+      },
+      "revId": "8036b4efa13f5f05a4b058e8421c4da60d6addd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c7bc90da_4f10f446",
         "filename": "modules/skottie/include/Skottie.h",
         "patchSetId": 4
@@ -39,6 +63,24 @@
       "revId": "8036b4efa13f5f05a4b058e8421c4da60d6addd1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3acf5f39_28e5a0e6",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-10-21T16:18:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c7bc90da_4f10f446",
+      "revId": "8036b4efa13f5f05a4b058e8421c4da60d6addd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -89,6 +131,30 @@
     },
     {
       "key": {
+        "uuid": "928f2a00_ee42d044",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-10-21T16:18:41Z",
+      "side": 1,
+      "message": "SG, switched all the frame/time APIs to double.",
+      "parentUuid": "ecdfabd9_7ce1f01d",
+      "range": {
+        "startLine": 230,
+        "startChar": 19,
+        "endLine": 230,
+        "endChar": 27
+      },
+      "revId": "8036b4efa13f5f05a4b058e8421c4da60d6addd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "afd62872_6403fd6b",
         "filename": "modules/skottie/include/Skottie.h",
         "patchSetId": 4
@@ -103,6 +169,24 @@
       "revId": "8036b4efa13f5f05a4b058e8421c4da60d6addd1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3334a11_9f150c57",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-10-21T16:18:41Z",
+      "side": 1,
+      "message": "Separation is based on public-vs-private info, but not exposing a struct sgtm.\n\nDone.",
+      "parentUuid": "afd62872_6403fd6b",
+      "revId": "8036b4efa13f5f05a4b058e8421c4da60d6addd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -129,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "a8422ae3_5419ff52",
+        "filename": "modules/skottie/src/Skottie.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-10-21T16:18:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ac79843_9a800b37",
+      "range": {
+        "startLine": 583,
+        "startChar": 4,
+        "endLine": 583,
+        "endChar": 54
+      },
+      "revId": "8036b4efa13f5f05a4b058e8421c4da60d6addd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e29bf0e0_74789a6f",
         "filename": "tools/viewer/SkottieSlide.cpp",
         "patchSetId": 4
@@ -149,6 +257,30 @@
       "revId": "8036b4efa13f5f05a4b058e8421c4da60d6addd1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6bb07897_8d1c4058",
+        "filename": "tools/viewer/SkottieSlide.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-10-21T16:18:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e29bf0e0_74789a6f",
+      "range": {
+        "startLine": 108,
+        "startChar": 29,
+        "endLine": 108,
+        "endChar": 44
+      },
+      "revId": "8036b4efa13f5f05a4b058e8421c4da60d6addd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
