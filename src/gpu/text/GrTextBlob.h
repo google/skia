@@ -156,6 +156,10 @@ public:
         fMinMaxScale = SkMinScalar(scaledMax, fMinMaxScale);
     }
 
+    template <bool needsW, bool needsColor> struct SkGlyphVertex {
+
+    };
+
     static size_t GetVertexStride(GrMaskFormat maskFormat, bool hasWCoord) {
         switch (maskFormat) {
             case kA8_GrMaskFormat:

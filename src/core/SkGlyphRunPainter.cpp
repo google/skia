@@ -434,34 +434,56 @@ void GrTextBlob::SubRun::appendGlyph(GrGlyph* glyph, SkRect dstRect) {
     // glyphs drawn in perspective must always have a w coord.
     SkASSERT(hasW || !blob->fInitialViewMatrix.hasPerspective());
     auto maskFormat = this->maskFormat();
-    size_t vertexStride = GetVertexStride(maskFormat, hasW);
 
-    intptr_t vertex = reinterpret_cast<intptr_t>(blob->fVertices + fVertexEndIndex);
+    char* vertex = blob->fVertices + fVertexEndIndex;
 
-    // We always write the third position component used by SDFs. If it is unused it gets
-    // overwritten. Similarly, we always write the color and the blob will later overwrite it
-    // with texture coords if it is unused.
-    size_t colorOffset = hasW ? sizeof(SkPoint3) : sizeof(SkPoint);
-    // V0
-    *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fLeft, dstRect.fTop, 1.f};
-    *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
-    vertex += vertexStride;
+    SkScalar l = dstRect.left(), t = dstRect.top(), r = dstRect.right(), b = dstRect.bottom();
 
-    // V1
-    *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fLeft, dstRect.fBottom, 1.f};
-    *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
-    vertex += vertexStride;
+    if (!hasW) {
+        switch (maskFormat) {
+            case kA8_GrMaskFormat:
+            case kA565_GrMaskFormat: {
+                using Vertex = struct { SkPoint v; GrColor c; SkIPoint16 uv; }[4];
+                new(vertex) Vertex{{{l, t}, fColor}, {{l, b}, fColor},
+                                   {{r, t}, fColor}, {{r, b}, fColor}};
+                fVertexEndIndex += sizeof(Vertex);
+                break;
+            }
 
-    // V2
-    *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fRight, dstRect.fTop, 1.f};
-    *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
-    vertex += vertexStride;
+            case kARGB_GrMaskFormat: {
+                using Vertex = struct { SkPoint v; SkIPoint16 uv; }[4];
+                new(vertex) Vertex{{{l, t}}, {{l, b}}, {{r, t}}, {{r, b}}};
+                fVertexEndIndex += sizeof(Vertex);
+                break;
+            }
 
-    // V3
-    *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fRight, dstRect.fBottom, 1.f};
-    *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
+            default:
+                SK_ABORT("Bad format");
+                break;
+        }
+    } else {
+        switch(maskFormat) {
+            case kA8_GrMaskFormat: {
+                using Vertex = struct { SkPoint3 v; GrColor c; SkIPoint16 uv; }[4];
+                new(vertex) Vertex{{{l, t, 1}, fColor}, {{l, b, 1}, fColor},
+                                   {{r, t, 1}, fColor}, {{r, b, 1}, fColor}};
+                fVertexEndIndex += sizeof(Vertex);
+                break;
+            }
 
-    fVertexEndIndex += vertexStride * kVerticesPerGlyph;
+            case kARGB_GrMaskFormat: {
+                using Vertex = struct { SkPoint3 v; SkIPoint16 uv; }[4];
+                new(vertex) Vertex{{{l, t, 1}}, {{l, b, 1}}, {{r, t, 1}}, {{r, b, 1}}};
+                fVertexEndIndex += sizeof(Vertex);
+                break;
+            }
+
+            default:
+                SK_ABORT("Bad format");
+                break;
+        }
+    }
+
     blob->fGlyphs[fGlyphEndIndex++] = glyph;
 }
 
