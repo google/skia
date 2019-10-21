@@ -105,7 +105,7 @@ void SkottieSlide::load(SkScalar w, SkScalar h) {
 
     if (fAnimation) {
         SkDebugf("Loaded Bodymovin animation v: %s, size: [%f %f]\n",
-                 fAnimation->version().c_str(),
+                 fAnimation->info().fVersion.c_str(),
                  fAnimation->size().width(),
                  fAnimation->size().height());
         logger->report();

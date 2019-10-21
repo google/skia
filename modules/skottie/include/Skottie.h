@@ -223,18 +223,27 @@ public:
      */
     void seek(SkScalar t, sksg::InvalidationController* ic = nullptr);
 
+    /**
+     * Update the animation state to match |t|, specified as a frame index
+     * i.e. relative to duration * fps.
+     */
+    void seekFrame(SkScalar t, sksg::InvalidationController* ic = nullptr);
+
     /** Update the animation state to match t, specifed in frame time
      *  i.e. relative to duration().
      */
     void seekFrameTime(double t, sksg::InvalidationController* = nullptr);
 
-    /**
-     * Returns the animation duration in seconds.
-     */
-    SkScalar duration() const { return fDuration; }
+    struct Info {
+        SkString fVersion;  // Bodymovin version.
+        SkSize   fSize;     // Top-level composition size.
+        SkScalar fDuration; // Animation duration in seconds.
+        SkScalar fFPS;      // Frame rate.
+    };
 
-    const SkString& version() const { return fVersion;   }
-    const SkSize&      size() const { return fSize;      }
+    const   Info& info() const { return fInfo; }
+    const SkSize& size() const { return fInfo.fSize; }
+    SkScalar  duration() const { return fInfo.fDuration; }
 
 private:
     enum Flags : uint32_t {
@@ -242,14 +251,12 @@ private:
     };
 
     Animation(std::unique_ptr<sksg::Scene>, SkString ver, const SkSize& size,
-              SkScalar inPoint, SkScalar outPoint, SkScalar duration, uint32_t flags = 0);
+              SkScalar inPoint, SkScalar outPoint, SkScalar duration, SkScalar fps, uint32_t flags);
 
     std::unique_ptr<sksg::Scene> fScene;
-    const SkString               fVersion;
-    const SkSize                 fSize;
+    const Info                   fInfo;
     const SkScalar               fInPoint,
-                                 fOutPoint,
-                                 fDuration;
+                                 fOutPoint;
     const uint32_t               fFlags;
 
     typedef SkNVRefCnt<Animation> INHERITED;
