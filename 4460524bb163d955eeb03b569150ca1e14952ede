@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f88ac419_d84400ee",
+        "filename": "fuzz/FuzzMain.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-21T17:57:31Z",
+      "side": 1,
+      "message": "Does this belong in this CL?",
+      "range": {
+        "startLine": 92,
+        "startChar": 12,
+        "endLine": 92,
+        "endChar": 43
+      },
+      "revId": "4460524bb163d955eeb03b569150ca1e14952ede",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
