@@ -22,6 +22,30 @@
       "revId": "4460524bb163d955eeb03b569150ca1e14952ede",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6699119_9386a415",
+        "filename": "fuzz/FuzzMain.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-10-21T18:00:41Z",
+      "side": 1,
+      "message": "It\u0027s just a re-ordering of the list.  I guess it wasn\u0027t properly sorted before. Do you want me to revert it?",
+      "parentUuid": "f88ac419_d84400ee",
+      "range": {
+        "startLine": 92,
+        "startChar": 12,
+        "endLine": 92,
+        "endChar": 43
+      },
+      "revId": "4460524bb163d955eeb03b569150ca1e14952ede",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
