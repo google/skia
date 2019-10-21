@@ -173,7 +173,7 @@ sk_sp<skottie::ImageAsset> DataURIResourceProviderProxy::loadImageAsset(const ch
                                                                        b64.getDataSize(),
                                                       [](const void* ptr, void*) {
                                                           delete[] static_cast<const char*>(ptr);
-                                                      }, /*context=*/nullptr),
+                                                      }, /*ctx=*/nullptr),
                                                   fPredecode);
             }
         }
