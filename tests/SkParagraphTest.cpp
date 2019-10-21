@@ -4832,3 +4832,44 @@ DEF_TEST(SkParagraph_NewlineOnly, reporter) {
     paragraph->layout(1000);
     REPORTER_ASSERT(reporter, paragraph->getHeight() == 28);
 }
+
+DEF_TEST(SkParagraph_FontStyle, reporter) {
+    sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+    TestCanvas canvas("SkParagraph_FontStyle.png");
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Noto Serif")});
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setFontSize(20);
+
+    SkFontStyle fs = SkFontStyle(
+        SkFontStyle::Weight::kLight_Weight,
+        SkFontStyle::Width::kNormal_Width,
+        SkFontStyle::Slant::kUpright_Slant
+    );
+    text_style.setFontStyle(fs);
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextStyle(text_style);
+
+    TextStyle boldItalic;
+    boldItalic.setColor(SK_ColorRED);
+    SkFontStyle bi = SkFontStyle(
+        SkFontStyle::Weight::kBold_Weight,
+        SkFontStyle::Width::kNormal_Width,
+        SkFontStyle::Slant::kItalic_Slant
+    );
+    boldItalic.setFontStyle(bi);
+
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    builder.addText("Default text\n");
+    builder.pushStyle(boldItalic);
+    builder.addText("Bold and Italic\n");
+    builder.pop();
+    builder.addText("back to normal");
+    auto paragraph = builder.Build();
+    paragraph->layout(250);
+    paragraph->paint(canvas.get(), 0, 0);
+}

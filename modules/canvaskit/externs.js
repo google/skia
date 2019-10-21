@@ -501,6 +501,33 @@ var CanvasKit = {
 		High: {},
 	},
 
+	FontSlant: {
+		Upright: {},
+		Italic: {},
+		Oblique: {},
+	},
+
+	FontWeight: {
+		Invisible: {},
+		Thin: {},
+		ExtraLight: {},
+		Light: {},
+		Normal: {},
+		Medium: {},
+		SemiBold: {},
+		Bold: {},
+		ExtraLight: {},
+		Invisible: {},
+		Thin: {},
+		ExtraLight: {},
+	},
+
+	FontWidth: {
+		Upright: {},
+		Italic: {},
+		Oblique: {},
+	},
+
 	ImageFormat: {
 		PNG: {},
 		JPEG: {},
@@ -549,6 +576,11 @@ var CanvasKit = {
 		Justify: {},
 		Start: {},
 		End: {},
+	},
+
+	TextDirection: {
+		LTR: {},
+		RTL: {},
 	},
 
 	TextEncoding: {
