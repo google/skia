@@ -220,7 +220,6 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
 
     for (const auto& glyphRun : glyphRunList) {
         fRejects.setSource(glyphRun.source());
-        fPaths.clear();
         const SkFont& runFont = glyphRun.font();
 
 
@@ -234,10 +233,6 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             process->startRun(glyphRun, useSDFT);
         }
 
-        // Glyphs are generated in different scales relative to the source space. Masks are drawn
-        // in device space, and SDFT and Paths are draw in a fixed constant space. This is the
-        // factor used to scale the generated glyphs back to source space.
-        SkScalar maxDimensionInSourceSpace = 0.0;
         if (!useSDFT && !usePaths) {
             // Mask case
             SkStrikeSpec strikeSpec =
@@ -262,29 +257,19 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                     if (!SkScalarsAreFinite(pos.x(), pos.y())) {
                         // Do nothing;
                     } else if (SkStrikeForGPU::CanDrawAsMask(*glyph)) {
-                        fDrawable.push_back(i);
-                    } else if (SkStrikeForGPU::CanDrawAsPath(*glyph)) {
-                        fPaths.push_back(SkGlyphPos{i, glyph, pos});
+                        fDrawable.push_back(glyph, i);
                     } else {
-                        fRejects.reject(i, glyph->maxDimension());
+                        fRejects.reject(i);
                     }
                 }
             }
 
             fRejects.flipRejectsToSource();
 
-            if (!fRejects.source().empty()) {
-                maxDimensionInSourceSpace =
-                        fRejects.rejectedMaxDimension() / viewMatrix.getMaxScale();
-            }
-
             if (process) {
                 // processDeviceMasks must be called even if there are no glyphs to make sure runs
                 // are set correctly.
                 process->processDeviceMasks(fDrawable.drawable(), strikeSpec);
-                if (!fPaths.empty()) {
-                    process->processDevicePaths(SkMakeSpan(fPaths));
-                }
             }
         } else if (useSDFT) {
             // SDFT case
@@ -303,31 +288,26 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             for (auto t : SkMakeEnumerate(fDrawable.input())) {
                 size_t i; SkGlyphVariant glyphVariant; SkPoint pos;
                 std::forward_as_tuple(i, std::tie(glyphVariant, pos)) = t;
-                const SkGlyph& glyph = *glyphVariant.glyph();
+                SkGlyph* glyph = glyphVariant.glyph();
 
                 // The SDF scaler context system ensures that a glyph is empty, kSDF_Format, or
                 // kARGB32_Format. The following if statements use this assumption.
-                SkASSERT(glyph.maskFormat() == SkMask::kSDF_Format
-                         || glyph.isColor()
-                         || glyph.isEmpty());
+                SkASSERT(glyph->maskFormat() == SkMask::kSDF_Format
+                         || glyph->isColor()
+                         || glyph->isEmpty());
 
-                if (!glyph.isEmpty()) {
-                    if (SkStrikeForGPU::CanDrawAsSDFT(glyph)) {
+                if (!glyph->isEmpty()) {
+                    if (SkStrikeForGPU::CanDrawAsSDFT(*glyph)) {
                         // SDF mask will work.
-                        fDrawable.push_back(i);
-                    } else if (SkStrikeForGPU::CanDrawAsPath(glyph)) {
-                        // If not color but too big, use a path.
-                        fPaths.push_back(SkGlyphPos{i, &glyph, pos});
-                    } else {
+                        fDrawable.push_back(glyph, i);
+                    }  else {
                         // If no path, or it is color, then fallback.
-                        fRejects.reject(i, glyph.maxDimension());
+                        fRejects.reject(i);
                     }
                 }
             }
 
             fRejects.flipRejectsToSource();
-            maxDimensionInSourceSpace =
-                    fRejects.rejectedMaxDimension() * strikeSpec.strikeToSourceRatio();
 
             if (process) {
                 bool hasWCoord =
@@ -336,18 +316,15 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 // processSourceSDFT must be called even if there are no glyphs to make sure runs
                 // are set correctly.
                 process->processSourceSDFT(
-                        fDrawable.drawable(),
-                        strikeSpec,
-                        runFont,
-                        minScale,
-                        maxScale,
-                        hasWCoord);
-
-                if (!fPaths.empty()) {
-                    process->processSourcePaths(SkMakeSpan(fPaths), strikeSpec);
-                }
+                        fDrawable.drawable(), strikeSpec, runFont, minScale, maxScale, hasWCoord);
             }
-        } else {
+        }
+
+        // Glyphs are generated in different scales relative to the source space. Masks are drawn
+        // in device space, and SDFT and Paths are draw in a fixed constant space. This is the
+        // factor used to scale the generated glyphs back to source space.
+        SkScalar maxDimensionInSourceSpace = 0.0;
+        if (!fRejects.source().empty()) {
             // Path case
             SkStrikeSpec strikeSpec = SkStrikeSpec::MakePath(
                     runFont, runPaint, fDeviceProps, fScalerContextFlags);
@@ -365,7 +342,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 if (!glyph.isEmpty()) {
                     if (SkStrikeForGPU::CanDrawAsPath(glyph)) {
                         // Place paths in fGlyphPos
-                        fPaths.push_back(SkGlyphPos{i, &glyph, pos});
+                        fDrawable.push_back(glyph.path(), i);
                     } else {
                         fRejects.reject(i, glyph.maxDimension());
                     }
@@ -379,7 +356,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             if (process) {
                 // processSourcePaths must be called even if there are no glyphs to make sure runs
                 // are set correctly.
-                process->processSourcePaths(SkMakeSpan(fPaths), strikeSpec);
+                process->processSourcePaths(fDrawable.drawable(), strikeSpec);
             }
         }
 
@@ -650,29 +627,16 @@ void GrTextBlob::processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawab
     }
 }
 
-void GrTextBlob::processSourcePaths(SkSpan<const SkGlyphPos> paths,
+void GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                     const SkStrikeSpec& strikeSpec) {
     Run* run = this->currentRun();
     this->setHasBitmap();
-    run->setupFont(strikeSpec);
-    for (const auto& path : paths) {
-        if (const SkPath* glyphPath = path.glyph->path()) {
-            run->appendPathGlyph(*glyphPath, path.position, strikeSpec.strikeToSourceRatio(),
-                                 false);
-        }
-    }
-}
-
-void GrTextBlob::processDevicePaths(SkSpan<const SkGlyphPos> paths) {
-    Run* run = this->currentRun();
-    this->setHasBitmap();
-    for (const auto& path : paths) {
-        SkPoint pt{SkScalarFloorToScalar(path.position.fX),
-                   SkScalarFloorToScalar(path.position.fY)};
-        // TODO: path should always be set. Remove when proven.
-        if (const SkPath* glyphPath = path.glyph->path()) {
-            run->appendPathGlyph(*glyphPath, pt, SK_Scalar1, true);
-        }
+    // FIXME: why was this ever called?
+    //run->setupFont(strikeSpec);
+    for (auto t : drawables) {
+        const SkPath* path; SkPoint pos;
+        std::tie(path, pos) = t;
+        run->appendPathGlyph(*path, pos, strikeSpec.strikeToSourceRatio(), false);
     }
 }
 
@@ -788,20 +752,11 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
 SkGlyphRunListPainter::ScopedBuffers::ScopedBuffers(SkGlyphRunListPainter* painter, size_t size)
         : fPainter{painter} {
     fPainter->fDrawable.ensureSize(size);
-    if (fPainter->fMaxRunSize < size) {
-        fPainter->fMaxRunSize = size;
-    }
 }
 
 SkGlyphRunListPainter::ScopedBuffers::~ScopedBuffers() {
     fPainter->fDrawable.reset();
     fPainter->fRejects.reset();
-    fPainter->fPaths.clear();
-
-    if (fPainter->fMaxRunSize > 200) {
-        fPainter->fMaxRunSize = 0;
-        fPainter->fPaths.shrink_to_fit();
-    }
 }
 
 SkVector SkGlyphPositionRoundingSpec::HalfAxisSampleFreq(bool isSubpixel, SkAxisAlignment axisAlignment) {
