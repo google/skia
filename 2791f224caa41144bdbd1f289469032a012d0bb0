@@ -22,6 +22,30 @@
       "revId": "2791f224caa41144bdbd1f289469032a012d0bb0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "672eae1c_6211f269",
+        "filename": "src/gpu/GrSurfaceProxyView.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-21T21:56:09Z",
+      "side": 1,
+      "message": "Oh yes I have removed the const part of the proxies in one of the follow on CLs and missed that when I was cherry-picking the changes back to this CL. I\u0027ll update this one to remove the const",
+      "parentUuid": "3c63197e_0da2772a",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 5
+      },
+      "revId": "2791f224caa41144bdbd1f289469032a012d0bb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
