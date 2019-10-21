@@ -406,7 +406,7 @@ void GrOpsTask::onPrePrepare(GrRecordingContext* context) {
 
     for (const auto& chain : fOpChains) {
         if (chain.shouldExecute()) {
-            chain.head()->prePrepare(context);
+            chain.head()->prePrepare(context, chain.appliedClip());
         }
     }
 }
