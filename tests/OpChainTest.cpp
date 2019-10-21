@@ -205,9 +205,9 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                 GrOpFlushState flushState(context->priv().getGpu(),
                                           context->priv().resourceProvider(),
                                           &tracker);
-                GrOpsTask opsTask(sk_ref_sp(context->priv().opMemoryPool()),
-                                            sk_ref_sp(proxy->asRenderTargetProxy()),
-                                            context->priv().auditTrail());
+                GrOpsTask opsTask(context->priv().refOpMemoryPool(),
+                                  sk_ref_sp(proxy->asRenderTargetProxy()),
+                                  context->priv().auditTrail());
                 // This assumes the particular values of kRanges.
                 std::fill_n(result, result_width(), -1);
                 std::fill_n(validResult, result_width(), -1);

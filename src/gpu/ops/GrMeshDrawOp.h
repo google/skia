@@ -72,11 +72,13 @@ protected:
     };
 
 private:
-    void onPrePrepare(GrRecordingContext* context) final { this->onPrePrepareDraws(context); }
+    void onPrePrepare(GrRecordingContext* context, GrAppliedClip* clip) final {
+        this->onPrePrepareDraws(context, clip);
+    }
     void onPrepare(GrOpFlushState* state) final;
 
     // Only the GrTextureOp currently overrides this virtual
-    virtual void onPrePrepareDraws(GrRecordingContext*) {}
+    virtual void onPrePrepareDraws(GrRecordingContext*, GrAppliedClip*) {}
 
     virtual void onPrepareDraws(Target*) = 0;
     typedef GrDrawOp INHERITED;
@@ -97,7 +99,8 @@ public:
      */
     void recordDraw(sk_sp<const GrGeometryProcessor> gp, const GrMesh meshes[], int meshCnt = 1) {
         static constexpr int kZeroPrimProcTextures = 0;
-        auto fixedDynamicState = this->makeFixedDynamicState(kZeroPrimProcTextures);
+        auto fixedDynamicState = MakeFixedDynamicState(this->allocator(), this->appliedClip(),
+                                                       kZeroPrimProcTextures);
         this->recordDraw(std::move(gp), meshes, meshCnt, fixedDynamicState, nullptr);
     }
 
@@ -146,11 +149,14 @@ public:
 
     GrMesh* allocMeshes(int n) { return this->allocator()->makeArray<GrMesh>(n); }
 
-    GrPipeline::DynamicStateArrays* allocDynamicStateArrays(int numMeshes,
-                                                            int numPrimitiveProcessorTextures,
-                                                            bool allocScissors);
+    static GrPipeline::DynamicStateArrays* AllocDynamicStateArrays(SkArenaAlloc*,
+                                                                   int numMeshes,
+                                                                   int numPrimitiveProcTextures,
+                                                                   bool allocScissors);
 
-    GrPipeline::FixedDynamicState* makeFixedDynamicState(int numPrimitiveProcessorTextures);
+    static GrPipeline::FixedDynamicState* MakeFixedDynamicState(SkArenaAlloc*,
+                                                                const GrAppliedClip* clip,
+                                                                int numPrimitiveProcessorTextures);
 
     virtual GrRenderTargetProxy* proxy() const = 0;
 
@@ -174,7 +180,6 @@ public:
 
     virtual GrDeferredUploadTarget* deferredUploadTarget() = 0;
 
-private:
     virtual SkArenaAlloc* allocator() = 0;
 };
 
