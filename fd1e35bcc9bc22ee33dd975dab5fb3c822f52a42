@@ -69,6 +69,24 @@
       "revId": "fd1e35bcc9bc22ee33dd975dab5fb3c822f52a42",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b06585e_bea97056",
+        "filename": "src/pdf/SkPDFDocument.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-21T16:01:10Z",
+      "side": 1,
+      "message": "Just so I make sure I understand, you can undo this change because it wasn\u0027t actually embedding any extra information, right?  These SKPDF_MAGIC bytes identify the PDF comes from Skia just as well as this comment?",
+      "parentUuid": "e31c1659_8c4f3dfb",
+      "revId": "fd1e35bcc9bc22ee33dd975dab5fb3c822f52a42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
