@@ -78,7 +78,7 @@ size_t serialization_alignment() {
 
 class Serializer {
 public:
-    Serializer(std::vector<uint8_t>* buffer) : fBuffer{buffer} { }
+    explicit Serializer(std::vector<uint8_t>* buffer) : fBuffer{buffer} {}
 
     template <typename T, typename... Args>
     T* emplace(Args&&... args) {
@@ -333,7 +333,7 @@ public:
 
 protected:
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {
-#if SK_SUPPORT_GPU
+        #if SK_SUPPORT_GPU
         GrTextContext::Options options;
         GrTextContext::SanitizeOptions(&options);
 
@@ -343,7 +343,7 @@ protected:
                                      fDFTSupport,
                                      options,
                                      nullptr);
-#endif  // SK_SUPPORT_GPU
+        #endif  // SK_SUPPORT_GPU
     }
 
 private:
