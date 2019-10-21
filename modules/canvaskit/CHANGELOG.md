@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2019-10-21
+
 ### Added
  - `CanvasKit.MakeAnimatedImageFromEncoded`, `SkCanvas.drawAnimatedImage`.
  - `CanvasKit.SkFontMgr.FromData` which takes several ArrayBuffers of font data, parses
