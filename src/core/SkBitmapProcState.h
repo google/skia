@@ -39,7 +39,6 @@ struct SkBitmapProcInfo {
     SkTileMode              fTileModeX;
     SkTileMode              fTileModeY;
     SkFilterQuality         fFilterQuality;
-    SkMatrix::TypeMask      fInvType;
 
     bool init(const SkMatrix& inverse, const SkPaint&);
 
