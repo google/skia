@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c10554af_6e90e6fe",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-10-21T15:52:08Z",
+      "side": 1,
+      "message": "If we keep this one, let\u0027s rename it to also make it explicit (what space is t in?)",
+      "range": {
+        "startLine": 224,
+        "startChar": 9,
+        "endLine": 224,
+        "endChar": 13
+      },
+      "revId": "8036b4efa13f5f05a4b058e8421c4da60d6addd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ecdfabd9_7ce1f01d",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-10-21T15:52:08Z",
+      "side": 1,
+      "message": "nit:\n\nFor colors, we explicitly use \"float\", rather than SkScalar.\n\nI think SkScalar, if it has any future value, means coordinates in space, which might be doubles sometime in the future.\n\nI don\u0027t think we need to tie time-values to that geometry decision: Let\u0027s make time be a float or double (or rational).",
+      "range": {
+        "startLine": 230,
+        "startChar": 19,
+        "endLine": 230,
+        "endChar": 27
+      },
+      "revId": "8036b4efa13f5f05a4b058e8421c4da60d6addd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
