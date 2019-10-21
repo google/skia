@@ -65,6 +65,30 @@
     },
     {
       "key": {
+        "uuid": "edbda84e_8ff9da6d",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-21T16:07:29Z",
+      "side": 1,
+      "message": "Yeah, I\u0027m totally in the \"if it has any future value\" camp.  I\u0027d prefer SkScalar never to be used again except where we\u0027re already using it (like here I guess), and instead provide explicit float and/or double APIs.  I think it\u0027s also time that we permanently decide SkScalar is float.\n\n(In most of those \"and/or\" cases for function calls I imagine one of the two casts the value and calls the other... it really only gets interesting for longer-lived data structures.)",
+      "parentUuid": "ecdfabd9_7ce1f01d",
+      "range": {
+        "startLine": 230,
+        "startChar": 19,
+        "endLine": 230,
+        "endChar": 27
+      },
+      "revId": "8036b4efa13f5f05a4b058e8421c4da60d6addd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "afd62872_6403fd6b",
         "filename": "modules/skottie/include/Skottie.h",
         "patchSetId": 4
