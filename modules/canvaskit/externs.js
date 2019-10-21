@@ -551,6 +551,11 @@ var CanvasKit = {
 		End: {},
 	},
 
+	TextDirection: {
+		LTR: {},
+		RTL: {},
+	},
+
 	TextEncoding: {
 		UTF8: {},
 		UTF16: {},
