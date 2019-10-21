@@ -16,6 +16,24 @@
       "revId": "61386966b2adc3adfa9f65ae7b1b47d15c34d67a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d244aa1d_3c3a070d",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-10-21T16:47:37Z",
+      "side": 0,
+      "message": "Meant to be a safeguard so you don\u0027t fill your hdd is you mistype some arg or if the animation wants +inf fps or something.\n\nNot sure it helps much at this point, we can consider dropping.",
+      "parentUuid": "aba36ae7_8fb4174a",
+      "revId": "61386966b2adc3adfa9f65ae7b1b47d15c34d67a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "cabb048e_d36f6299",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-10-21T16:47:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "718c8098_1119e416",
+      "revId": "ad0aec778a2fca25a97373e217555ecd778be673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3b1e37c8_396b0287",
         "filename": "modules/skottie/src/Skottie.cpp",
         "patchSetId": 6
@@ -33,6 +51,24 @@
       "revId": "ad0aec778a2fca25a97373e217555ecd778be673",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73408ea6_df158f02",
+        "filename": "modules/skottie/src/Skottie.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-10-21T16:47:37Z",
+      "side": 1,
+      "message": "Yup, certainly reads clearer inline. Done.",
+      "parentUuid": "3b1e37c8_396b0287",
+      "revId": "ad0aec778a2fca25a97373e217555ecd778be673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
