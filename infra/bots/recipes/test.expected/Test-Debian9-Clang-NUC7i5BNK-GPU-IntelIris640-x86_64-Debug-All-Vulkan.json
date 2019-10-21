@@ -438,7 +438,7 @@
       ".SRW",
       "--match",
       "~VkHeapTests",
-      "~GLPrograms",
+      "~Programs",
       "~^SRGBReadWritePixels$",
       "--nonativeFonts",
       "--verbose"
