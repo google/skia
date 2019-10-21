@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa5bee7a_52d3d291",
+        "filename": "include/private/GrRecordingContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-21T19:38:38Z",
+      "side": 1,
+      "message": "What do you think of \u0027podAllocator\u0027? This allocator doesn\u0027t necessarily have to be specific to ops, and \u0027opPOD\u0027 is a little hard to read to me :P",
+      "range": {
+        "startLine": 53,
+        "startChar": 18,
+        "endLine": 53,
+        "endChar": 32
+      },
+      "revId": "012f36e7aa0237ea380e080a1dc161016e478042",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b4a2cc2_c8057573",
+        "filename": "include/private/GrRecordingContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-21T19:38:38Z",
+      "side": 1,
+      "message": "detachPODAllocator (if renaming), or detachOpPODAllocator (if not), to be consistent with the member?  Or were we dropping \u0027allocator\u0027 to imply that the allocations into the arena were meant to be done?",
+      "range": {
+        "startLine": 56,
+        "startChar": 34,
+        "endLine": 56,
+        "endChar": 45
+      },
+      "revId": "012f36e7aa0237ea380e080a1dc161016e478042",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79372054_45c20785",
+        "filename": "src/gpu/ops/GrMeshDrawOp.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-21T19:38:38Z",
+      "side": 1,
+      "message": "const? (and if so, on the other onPrePrepare-like functions)",
+      "range": {
+        "startLine": 75,
+        "startChar": 51,
+        "endLine": 75,
+        "endChar": 70
+      },
+      "revId": "012f36e7aa0237ea380e080a1dc161016e478042",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89304cdb_1fc705e6",
+        "filename": "src/gpu/ops/GrMeshDrawOp.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-21T19:38:38Z",
+      "side": 1,
+      "message": "Since most allocations use target-\u003eallocator() and target-\u003eappliedClip(), maybe we keep the member functions as well, and they just delegate to these static functions with their allocator and clip?",
+      "range": {
+        "startLine": 157,
+        "startChar": 42,
+        "endLine": 157,
+        "endChar": 63
+      },
+      "revId": "012f36e7aa0237ea380e080a1dc161016e478042",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6055579d_af6ff831",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-21T19:38:38Z",
+      "side": 1,
+      "message": "Could we make VertexSpec cached too? It should pack into 32-bits so it could maybe inline instead of arena allocated. But, if we don\u0027t cache it, we end up re-characterizing the chain in onPrepare() to arrive at the same spec. The double iteration is probably only a small performance hit, but something to consider if it\u0027s not hard.",
+      "range": {
+        "startLine": 440,
+        "startChar": 44,
+        "endLine": 440,
+        "endChar": 56
+      },
+      "revId": "012f36e7aa0237ea380e080a1dc161016e478042",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93a179af_f4e95eae",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 528,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-21T19:38:38Z",
+      "side": 1,
+      "message": "Will this used outside of the else clause below? If not, maybe keep it in the limited scope?",
+      "range": {
+        "startLine": 528,
+        "startChar": 22,
+        "endLine": 528,
+        "endChar": 27
+      },
+      "revId": "012f36e7aa0237ea380e080a1dc161016e478042",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
