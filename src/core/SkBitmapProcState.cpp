@@ -180,7 +180,6 @@ bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
     }
     fPixmap = fBMState->pixmap();
     fInvMatrix = fBMState->invMatrix();
-    fRealInvMatrix = fBMState->invMatrix();
     fPaintColor = paint.getColor();
     fFilterQuality = fBMState->quality();
     SkASSERT(fFilterQuality <= kLow_SkFilterQuality);
@@ -249,10 +248,8 @@ bool SkBitmapProcState::chooseProcs() {
     SkASSERT(fFilterQuality < kHigh_SkFilterQuality);
 
     fInvProc            = SkMatrixPriv::GetMapXYProc(fInvMatrix);
-    fInvSx              = SkScalarToFixed        (fInvMatrix.getScaleX());
     fInvSxFractionalInt = SkScalarToFractionalInt(fInvMatrix.getScaleX());
     fInvKy              = SkScalarToFixed        (fInvMatrix.getSkewY());
-    fInvKyFractionalInt = SkScalarToFractionalInt(fInvMatrix.getSkewY());
 
     fAlphaScale = SkAlpha255To256(SkColorGetA(fPaintColor));
 
