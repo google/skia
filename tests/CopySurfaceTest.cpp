@@ -78,11 +78,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                         for (auto dstPoint : kDstPoints) {
                             for (auto ii: kImageInfos) {
                                 auto src = sk_gpu_test::MakeTextureProxyFromData(
-                                        context, sRenderable, kW, kH, ii.colorType(),
-                                        ii.alphaType(), sOrigin, srcPixels.get(), kRowBytes);
+                                        context, sRenderable, sOrigin, ii, srcPixels.get(),
+                                        kRowBytes);
                                 auto dst = sk_gpu_test::MakeTextureProxyFromData(
-                                        context, dRenderable, kW, kH, ii.colorType(),
-                                        ii.alphaType(), dOrigin, dstPixels.get(), kRowBytes);
+                                        context, dRenderable, dOrigin, ii, dstPixels.get(),
+                                        kRowBytes);
 
                                 // Should always work if the color type is RGBA, but may not work
                                 // for BGRA
