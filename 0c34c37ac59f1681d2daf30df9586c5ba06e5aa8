@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19b1fa7c_aa62e49c",
+        "filename": "include/docs/SkPDFDocument.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-21T16:14:53Z",
+      "side": 1,
+      "message": "In general, I think this is a pointless optimization and prefer PS 5, but if you\u0027re going to do it, commit fully and use SK_ARRAY_COUNT(kDefaultPDFProducer)-1?",
+      "range": {
+        "startLine": 117,
+        "startChar": 44,
+        "endLine": 117,
+        "endChar": 71
+      },
+      "revId": "0c34c37ac59f1681d2daf30df9586c5ba06e5aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
