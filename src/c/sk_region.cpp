@@ -27,12 +27,12 @@ void sk_region_delete(sk_region_t *region) {
     delete AsRegion(region);
 }
 
-void sk_region_contains(sk_region_t *r, const sk_region_t *region) {
-    AsRegion(r)->contains(*AsRegion(region));
+bool sk_region_contains(sk_region_t *r, const sk_region_t *region) {
+    return AsRegion(r)->contains(*AsRegion(region));
 }
 
-void sk_region_contains2(sk_region_t *r, int x, int y) {
-    AsRegion(r)->contains(x, y);
+bool sk_region_contains2(sk_region_t *r, int x, int y) {
+    return AsRegion(r)->contains(x, y);
 }
 
 bool sk_region_intersects_rect(sk_region_t* r, const sk_irect_t* rect) {
