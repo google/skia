@@ -15,11 +15,6 @@
 
 #include <utility>
 
-#define SKPDF_STRING(X) SKPDF_STRING_IMPL(X)
-#define SKPDF_STRING_IMPL(X) #X
-#define SKPDF_PRODUCER "Skia/PDF m" SKPDF_STRING(SK_MILESTONE)
-#define SKPDF_CUSTOM_PRODUCER_KEY "ProductionLibrary"
-
 static constexpr SkTime::DateTime kZeroTime = {0, 0, 0, 0, 0, 0, 0, 0};
 
 static bool operator!=(const SkTime::DateTime& u, const SkTime::DateTime& v) {
@@ -123,6 +118,7 @@ static const struct {
         {"Subject", &SkPDF::Metadata::fSubject},
         {"Keywords", &SkPDF::Metadata::fKeywords},
         {"Creator", &SkPDF::Metadata::fCreator},
+        {"Producer", &SkPDF::Metadata::fProducer},
 };
 }  // namespace
 
@@ -134,12 +130,6 @@ std::unique_ptr<SkPDFObject> SkPDFMetadata::MakeDocumentInformationDict(
         if (value.size() > 0) {
             dict->insertString(keyValuePtr.key, convert(value));
         }
-    }
-    if (metadata.fProducer.isEmpty()) {
-        dict->insertString("Producer", convert(SKPDF_PRODUCER));
-    } else {
-        dict->insertString("Producer", convert(metadata.fProducer));
-        dict->insertString(SKPDF_CUSTOM_PRODUCER_KEY, convert(SKPDF_PRODUCER));
     }
     if (metadata.fCreation != kZeroTime) {
         dict->insertString("CreationDate", pdf_date(metadata.fCreation));

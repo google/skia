@@ -9,6 +9,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTime.h"
 
+
 class SkExecutor;
 
 namespace SkPDF {
@@ -108,8 +109,7 @@ struct Metadata {
     /** The product that is converting this document to PDF.
         Leave fProducer empty to get the default, correct value.
     */
-    SkString fProducer;
-
+    SkString fProducer = "Skia/PDF" SK_MILESTONE
     /** The date and time the document was created.
         The zero default value represents an unknown/unset time.
     */

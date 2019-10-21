@@ -33,7 +33,7 @@ text = '''/*
  * found in the LICENSE file.
  */
 #ifndef SK_MILESTONE
-#define SK_MILESTONE %d
+#define SK_MILESTONE " m%d"
 #endif
 '''
 
