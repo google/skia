@@ -9,6 +9,7 @@
 #include "src/core/SkBitmapController.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
@@ -72,20 +73,24 @@ bool SkImageShader::isOpaque() const {
 
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 static bool legacy_shader_can_handle(const SkMatrix& inv) {
-    if (!inv.isScaleTranslate()) {
+    if (inv.hasPerspective()) {
+        return false;
+    }
+
+    // Scale+translate methods are always present, but affine might not be.
+    if (!SkOpts::S32_alpha_D32_filter_DXDY && !inv.isScaleTranslate()) {
         return false;
     }
 
     // legacy code uses SkFixed 32.32, so ensure the inverse doesn't map device coordinates
     // out of range.
     const SkScalar max_dev_coord = 32767.0f;
-    SkRect src;
-    SkAssertResult(inv.mapRect(&src, SkRect::MakeWH(max_dev_coord, max_dev_coord)));
+    const SkRect src = inv.mapRect(SkRect::MakeWH(max_dev_coord, max_dev_coord));
 
     // take 1/4 of max signed 32bits so we have room to subtract local values
     const SkScalar max_fixed32dot32 = SK_MaxS32 * 0.25f;
     if (!SkRect::MakeLTRB(-max_fixed32dot32, -max_fixed32dot32,
-                           max_fixed32dot32, max_fixed32dot32).contains(src)) {
+                          +max_fixed32dot32, +max_fixed32dot32).contains(src)) {
         return false;
     }
 

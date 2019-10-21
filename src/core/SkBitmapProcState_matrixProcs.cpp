@@ -124,6 +124,28 @@ static void nofilter_scale(const SkBitmapProcState& s,
     }
 }
 
+template <unsigned (*tile)(SkFixed, int)>
+static void nofilter_affine(const SkBitmapProcState& s,
+                            uint32_t xy[], int count, int x, int y) {
+    SkASSERT(!s.fInvMatrix.hasPerspective());
+
+    const SkBitmapProcStateAutoMapper mapper(s, x, y);
+
+    SkFractionalInt fx = mapper.fractionalIntX(),
+                    fy = mapper.fractionalIntY(),
+                    dx = s.fInvSxFractionalInt,
+                    dy = s.fInvKyFractionalInt;
+    int maxX = s.fPixmap.width () - 1,
+        maxY = s.fPixmap.height() - 1;
+
+    while (count --> 0) {
+        *xy++ = (tile(SkFractionalIntToFixed(fy), maxY) << 16)
+              | (tile(SkFractionalIntToFixed(fx), maxX)      );
+        fx += dx;
+        fy += dy;
+    }
+}
+
 // Extract the high four fractional bits from fx, the lerp parameter when filtering.
 static unsigned extract_low_bits_clamp(SkFixed fx, int /*max*/) {
     // If we're already scaled up to by max like clamp/decal,
@@ -136,26 +158,27 @@ static unsigned extract_low_bits_repeat_mirror(SkFixed fx, int max) {
     return extract_low_bits_clamp((fx & 0xffff) * (max+1), max);
 }
 
+template <unsigned (*tile)(SkFixed, int), unsigned (*extract_low_bits)(SkFixed, int)>
+static uint32_t pack(SkFixed f, unsigned max, SkFixed one) {
+    uint32_t packed = tile(f, max);                      // low coordinate in high bits
+    packed = (packed <<  4) | extract_low_bits(f, max);  // (lerp weight _is_ coord fractional part)
+    packed = (packed << 14) | tile((f + one), max);      // high coordinate in low bits
+    return packed;
+}
+
 template <unsigned (*tile)(SkFixed, int), unsigned (*extract_low_bits)(SkFixed, int), bool tryDecal>
 static void filter_scale(const SkBitmapProcState& s,
                          uint32_t xy[], int count, int x, int y) {
     SkASSERT(s.fInvMatrix.isScaleTranslate());
-
-    auto pack = [](SkFixed f, unsigned max, SkFixed one) {
-        unsigned i = tile(f, max);
-        i = (i << 4) | extract_low_bits(f, max);
-        return (i << 14) | (tile((f + one), max));
-    };
 
     const unsigned maxX = s.fPixmap.width() - 1;
     const SkFractionalInt dx = s.fInvSxFractionalInt;
     SkFractionalInt fx;
     {
         const SkBitmapProcStateAutoMapper mapper(s, x, y);
-        const SkFixed fy = mapper.fixedY();
         const unsigned maxY = s.fPixmap.height() - 1;
         // compute our two Y values up front
-        *xy++ = pack(fy, maxY, s.fFilterOneY);
+        *xy++ = pack<tile, extract_low_bits>(mapper.fixedY(), maxY, s.fFilterOneY);
         // now initialize fx
         fx = mapper.fractionalIntX();
     }
@@ -175,8 +198,32 @@ static void filter_scale(const SkBitmapProcState& s,
     }
 
     while (count --> 0) {
-        SkFixed fixedFx = SkFractionalIntToFixed(fx);
-        *xy++ = pack(fixedFx, maxX, s.fFilterOneX);
+        *xy++ = pack<tile, extract_low_bits>(SkFractionalIntToFixed(fx), maxX, s.fFilterOneX);
+        fx += dx;
+    }
+}
+
+template <unsigned (*tile)(SkFixed, int), unsigned (*extract_low_bits)(SkFixed, int)>
+static void filter_affine(const SkBitmapProcState& s,
+                          uint32_t xy[], int count, int x, int y) {
+    SkASSERT(!s.fInvMatrix.hasPerspective());
+
+    const SkBitmapProcStateAutoMapper mapper(s, x, y);
+
+    SkFixed oneX = s.fFilterOneX,
+            oneY = s.fFilterOneY;
+
+    SkFractionalInt fx = mapper.fractionalIntX(),
+                    fy = mapper.fractionalIntY(),
+                    dx = s.fInvSxFractionalInt,
+                    dy = s.fInvKyFractionalInt;
+    unsigned maxX = s.fPixmap.width () - 1,
+             maxY = s.fPixmap.height() - 1;
+    while (count --> 0) {
+        *xy++ = pack<tile, extract_low_bits>(SkFractionalIntToFixed(fy), maxY, oneY);
+        *xy++ = pack<tile, extract_low_bits>(SkFractionalIntToFixed(fx), maxX, oneX);
+
+        fy += dy;
         fx += dx;
     }
 }
@@ -205,8 +252,8 @@ static unsigned mirror(SkFixed fx, int max) {
 
 // Mirror/Mirror's always just portable code.
 static const SkBitmapProcState::MatrixProc MirrorX_MirrorY_Procs[] = {
-    nofilter_scale<mirror, false>,
-    filter_scale<mirror, extract_low_bits_repeat_mirror, false>,
+    nofilter_scale <mirror, false>, filter_scale <mirror, extract_low_bits_repeat_mirror, false>,
+    nofilter_affine<mirror>,        filter_affine<mirror, extract_low_bits_repeat_mirror>,
 };
 
 // Clamp/Clamp and Repeat/Repeat have NEON or portable implementations.
@@ -473,6 +520,8 @@ static const SkBitmapProcState::MatrixProc MirrorX_MirrorY_Procs[] = {
         }
     }
 
+    // TODO: nofilter_affine_neon
+
     template <unsigned              (*tile )(SkFixed, int),
               int32x4_t             (*tile4)(int32x4_t, unsigned),
               unsigned  (*extract_low_bits )(SkFixed, int),
@@ -553,6 +602,8 @@ static const SkBitmapProcState::MatrixProc MirrorX_MirrorY_Procs[] = {
         }
     }
 
+    // TODO: filter_affine_neon
+
     static const SkBitmapProcState::MatrixProc ClampX_ClampY_Procs[] = {
         nofilter_scale_neon<clamp, clamp8, true>,
         filter_scale_neon<clamp,
@@ -560,6 +611,8 @@ static const SkBitmapProcState::MatrixProc MirrorX_MirrorY_Procs[] = {
                           extract_low_bits_clamp,
                           extract_low_bits_clamp4,
                           true>,
+
+        nofilter_affine<clamp>, filter_affine<clamp, extract_low_bits_clamp>,
     };
 
     static const SkBitmapProcState::MatrixProc RepeatX_RepeatY_Procs[] = {
@@ -569,17 +622,19 @@ static const SkBitmapProcState::MatrixProc MirrorX_MirrorY_Procs[] = {
                           extract_low_bits_repeat_mirror,
                           extract_low_bits_repeat_mirror4,
                           false>,
+
+        nofilter_affine<repeat>, filter_affine<repeat, extract_low_bits_repeat_mirror>,
     };
 
 #else
     static const SkBitmapProcState::MatrixProc ClampX_ClampY_Procs[] = {
-        nofilter_scale<clamp, true>,
-        filter_scale<clamp, extract_low_bits_clamp, true>,
+        nofilter_scale <clamp, true>, filter_scale <clamp, extract_low_bits_clamp, true>,
+        nofilter_affine<clamp>,       filter_affine<clamp, extract_low_bits_clamp>,
     };
 
     static const SkBitmapProcState::MatrixProc RepeatX_RepeatY_Procs[] = {
-        nofilter_scale<repeat, false>,
-        filter_scale<repeat, extract_low_bits_repeat_mirror, false>,
+        nofilter_scale <repeat, false>, filter_scale <repeat, extract_low_bits_repeat_mirror,false>,
+        nofilter_affine<repeat>,        filter_affine<repeat, extract_low_bits_repeat_mirror>,
     };
 #endif
 
@@ -788,7 +843,7 @@ static void mirrorx_nofilter_trans(const SkBitmapProcState& s,
 // The main entry point to the file, choosing between everything above.
 
 SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool translate_only_matrix) {
-    SkASSERT(fInvMatrix.isScaleTranslate());
+    SkASSERT(!fInvMatrix.hasPerspective());
     SkASSERT(fTileModeX == fTileModeY);
     SkASSERT(fTileModeX != SkTileMode::kDecal);
 
@@ -804,6 +859,9 @@ SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool translate
 
     // The arrays are all [ nofilter, filter ].
     int index = fFilterQuality > kNone_SkFilterQuality ? 1 : 0;
+    if (!fInvMatrix.isScaleTranslate()) {
+        index |= 2;
+    }
 
     if (fTileModeX == SkTileMode::kClamp) {
         // clamp gets special version of filterOne, working in non-normalized space (allowing decal)
