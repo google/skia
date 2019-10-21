@@ -81,8 +81,7 @@ static void decal_nofilter_scale(uint32_t dst[], SkFixed fx, SkFixed dx, int cou
 template <unsigned (*tile)(SkFixed, int), bool tryDecal>
 static void nofilter_scale(const SkBitmapProcState& s,
                            uint32_t xy[], int count, int x, int y) {
-    SkASSERT((s.fInvType & ~(SkMatrix::kTranslate_Mask |
-                             SkMatrix::kScale_Mask)) == 0);
+    SkASSERT(s.fInvMatrix.isScaleTranslate());
 
     // Write out our 32-bit y, and get our intial fx.
     SkFractionalInt fx;
@@ -140,8 +139,7 @@ static unsigned extract_low_bits_repeat_mirror(SkFixed fx, int max) {
 template <unsigned (*tile)(SkFixed, int), unsigned (*extract_low_bits)(SkFixed, int), bool tryDecal>
 static void filter_scale(const SkBitmapProcState& s,
                          uint32_t xy[], int count, int x, int y) {
-    SkASSERT((s.fInvType & ~(SkMatrix::kTranslate_Mask |
-                             SkMatrix::kScale_Mask)) == 0);
+    SkASSERT(s.fInvMatrix.isScaleTranslate());
     SkASSERT(s.fInvKy == 0);
 
     auto pack = [](SkFixed f, unsigned max, SkFixed one) {
@@ -402,8 +400,7 @@ static const SkBitmapProcState::MatrixProc MirrorX_MirrorY_Procs[] = {
              bool tryDecal>
     static void nofilter_scale_neon(const SkBitmapProcState& s,
                                     uint32_t xy[], int count, int x, int y) {
-        SkASSERT((s.fInvType & ~(SkMatrix::kTranslate_Mask |
-                                 SkMatrix::kScale_Mask)) == 0);
+        SkASSERT(s.fInvMatrix.isScaleTranslate());
 
         // we store y, x, x, x, x, x
         const unsigned maxX = s.fPixmap.width() - 1;
@@ -484,8 +481,7 @@ static const SkBitmapProcState::MatrixProc MirrorX_MirrorY_Procs[] = {
               bool tryDecal>
     static void filter_scale_neon(const SkBitmapProcState& s,
                                   uint32_t xy[], int count, int x, int y) {
-        SkASSERT((s.fInvType & ~(SkMatrix::kTranslate_Mask |
-                                 SkMatrix::kScale_Mask)) == 0);
+        SkASSERT(s.fInvMatrix.isScaleTranslate());
         SkASSERT(s.fInvKy == 0);
 
         auto pack = [&](SkFixed f, unsigned max, SkFixed one) {
@@ -645,7 +641,7 @@ static void fill_backwards(uint16_t xptr[], int pos, int count) {
 
 static void clampx_nofilter_trans(const SkBitmapProcState& s,
                                   uint32_t xy[], int count, int x, int y) {
-    SkASSERT((s.fInvType & ~SkMatrix::kTranslate_Mask) == 0);
+    SkASSERT(s.fInvMatrix.isTranslate());
 
     const SkBitmapProcStateAutoMapper mapper(s, x, y);
     *xy++ = int_clamp(mapper.intY(), s.fPixmap.height());
@@ -696,7 +692,7 @@ static void clampx_nofilter_trans(const SkBitmapProcState& s,
 
 static void repeatx_nofilter_trans(const SkBitmapProcState& s,
                                    uint32_t xy[], int count, int x, int y) {
-    SkASSERT((s.fInvType & ~SkMatrix::kTranslate_Mask) == 0);
+    SkASSERT(s.fInvMatrix.isTranslate());
 
     const SkBitmapProcStateAutoMapper mapper(s, x, y);
     *xy++ = int_repeat(mapper.intY(), s.fPixmap.height());
@@ -732,7 +728,7 @@ static void repeatx_nofilter_trans(const SkBitmapProcState& s,
 
 static void mirrorx_nofilter_trans(const SkBitmapProcState& s,
                                    uint32_t xy[], int count, int x, int y) {
-    SkASSERT((s.fInvType & ~SkMatrix::kTranslate_Mask) == 0);
+    SkASSERT(s.fInvMatrix.isTranslate());
 
     const SkBitmapProcStateAutoMapper mapper(s, x, y);
     *xy++ = int_mirror(mapper.intY(), s.fPixmap.height());
@@ -794,7 +790,7 @@ static void mirrorx_nofilter_trans(const SkBitmapProcState& s,
 // The main entry point to the file, choosing between everything above.
 
 SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool translate_only_matrix) {
-    SkASSERT(fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
+    SkASSERT(fInvMatrix.isScaleTranslate());
     SkASSERT(fTileModeX == fTileModeY);
     SkASSERT(fTileModeX != SkTileMode::kDecal);
 
