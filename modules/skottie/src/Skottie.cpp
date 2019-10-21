@@ -542,6 +542,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
                                           inPoint,
                                           outPoint,
                                           duration,
+                                          fps,
                                           flags));
 }
 
@@ -553,13 +554,14 @@ sk_sp<Animation> Animation::Builder::makeFromFile(const char path[]) {
 }
 
 Animation::Animation(std::unique_ptr<sksg::Scene> scene, SkString version, const SkSize& size,
-                     SkScalar inPoint, SkScalar outPoint, SkScalar duration, uint32_t flags)
+                     double inPoint, double outPoint, double duration, double fps, uint32_t flags)
     : fScene(std::move(scene))
     , fVersion(std::move(version))
     , fSize(size)
     , fInPoint(inPoint)
     , fOutPoint(outPoint)
     , fDuration(duration)
+    , fFPS(fps)
     , fFlags(flags) {
 
     // In case the client calls render before the first tick.
@@ -597,22 +599,20 @@ void Animation::render(SkCanvas* canvas, const SkRect* dstR, RenderFlags renderF
     fScene->render(canvas);
 }
 
-void Animation::seek(SkScalar t, sksg::InvalidationController* ic) {
+void Animation::seekFrame(double t, sksg::InvalidationController* ic) {
     TRACE_EVENT0("skottie", TRACE_FUNC);
 
     if (!fScene)
         return;
 
     // Per AE/Lottie semantics out_point is exclusive.
-    const auto kLastValidFrame = std::nextafter(fOutPoint, fInPoint);
+    const auto kLastValidFrame = std::nextafterf(fOutPoint, fInPoint);
 
-    fScene->animate(SkTPin(fInPoint + t * (fOutPoint - fInPoint), fInPoint, kLastValidFrame), ic);
+    fScene->animate(SkTPin<float>(fInPoint + t, fInPoint, kLastValidFrame), ic);
 }
 
 void Animation::seekFrameTime(double t, sksg::InvalidationController* ic) {
-    if (double dur = this->duration()) {
-        this->seek((SkScalar)(t / dur), ic);
-    }
+    this->seekFrame(t * fFPS, ic);
 }
 
 sk_sp<Animation> Animation::Make(const char* data, size_t length) {

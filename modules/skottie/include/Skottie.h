@@ -215,13 +215,29 @@ public:
     void render(SkCanvas* canvas, const SkRect* dst, RenderFlags) const;
 
     /**
+     * [Deprecated: use one of the other versions.]
+     *
      * Updates the animation state for |t|.
      *
      * @param t   normalized [0..1] frame selector (0 -> first frame, 1 -> final frame)
      * @param ic  optional invalidation controller (dirty region tracking)
      *
      */
-    void seek(SkScalar t, sksg::InvalidationController* ic = nullptr);
+    void seek(SkScalar t, sksg::InvalidationController* ic = nullptr) {
+        this->seekFrameTime(t * this->duration(), ic);
+    }
+
+    /**
+     * Update the animation state to match |t|, specified as a frame index
+     * i.e. relative to duration() * fps().
+     *
+     * Fractional values are allowed and meaningful - e.g.
+     *
+     *   0.0 -> first frame
+     *   1.0 -> second frame
+     *   0.5 -> halfway between first and second frame
+     */
+    void seekFrame(double t, sksg::InvalidationController* ic = nullptr);
 
     /** Update the animation state to match t, specifed in frame time
      *  i.e. relative to duration().
@@ -231,10 +247,15 @@ public:
     /**
      * Returns the animation duration in seconds.
      */
-    SkScalar duration() const { return fDuration; }
+    double duration() const { return fDuration; }
 
-    const SkString& version() const { return fVersion;   }
-    const SkSize&      size() const { return fSize;      }
+    /**
+     * Returns the animation frame rate (frames / second).
+     */
+    double fps() const { return fFPS; }
+
+    const SkString& version() const { return fVersion; }
+    const SkSize&      size() const { return fSize;    }
 
 private:
     enum Flags : uint32_t {
@@ -242,14 +263,15 @@ private:
     };
 
     Animation(std::unique_ptr<sksg::Scene>, SkString ver, const SkSize& size,
-              SkScalar inPoint, SkScalar outPoint, SkScalar duration, uint32_t flags = 0);
+              double inPoint, double outPoint, double duration, double fps, uint32_t flags);
 
     std::unique_ptr<sksg::Scene> fScene;
     const SkString               fVersion;
     const SkSize                 fSize;
-    const SkScalar               fInPoint,
+    const double                 fInPoint,
                                  fOutPoint,
-                                 fDuration;
+                                 fDuration,
+                                 fFPS;
     const uint32_t               fFlags;
 
     typedef SkNVRefCnt<Animation> INHERITED;
