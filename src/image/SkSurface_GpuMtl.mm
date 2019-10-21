@@ -48,8 +48,8 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
     }
 
     GrSurfaceDesc desc;
-    desc.fWidth = metalLayer.frame.size.width;
-    desc.fHeight = metalLayer.frame.size.height;
+    desc.fWidth = metalLayer.drawableSize.width * metalLayer.contentsScale;
+    desc.fHeight = metalLayer.drawableSize.height * metalLayer.contentsScale;
     desc.fConfig = config;
 
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
