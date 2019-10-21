@@ -16,6 +16,7 @@
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrSurfaceProxy.h"
+#include "src/gpu/GrSurfaceProxyView.h"
 
 class GrAuditTrail;
 class GrDrawingManager;
@@ -38,6 +39,10 @@ public:
     virtual ~GrSurfaceContext() = default;
 
     const GrColorInfo& colorInfo() const { return fColorInfo; }
+    GrSurfaceOrigin origin() const { return fOrigin; }
+    GrSurfaceProxyView textureSurfaceView() {
+        return { this->asSurfaceProxyRef(), fOrigin, fTextureSwizzle };
+    }
 
     // TODO: these two calls would be way cooler if this object had a GrSurfaceProxy pointer
     int width() const { return this->asSurfaceProxy()->width(); }
@@ -104,7 +109,8 @@ public:
 protected:
     friend class GrSurfaceContextPriv;
 
-    GrSurfaceContext(GrRecordingContext*, GrColorType, SkAlphaType, sk_sp<SkColorSpace>);
+    GrSurfaceContext(GrRecordingContext*, GrColorType, SkAlphaType, sk_sp<SkColorSpace>,
+                     GrSurfaceOrigin, GrSwizzle texSwizzle);
 
     GrDrawingManager* drawingManager();
     const GrDrawingManager* drawingManager() const;
@@ -114,6 +120,8 @@ protected:
     SkDEBUGCODE(GrSingleOwner* singleOwner();)
 
     GrRecordingContext* fContext;
+
+    GrSurfaceOrigin fOrigin;
 
     // The rescaling step of asyncRescaleAndReadPixels[YUV420]().
     std::unique_ptr<GrRenderTargetContext> rescale(const SkImageInfo& info, const SkIRect& srcRect,
@@ -159,6 +167,7 @@ private:
     }
 
     GrColorInfo fColorInfo;
+    GrSwizzle fTextureSwizzle;
 
     typedef SkRefCnt INHERITED;
 };
