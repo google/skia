@@ -104,6 +104,9 @@ static DEFINE_int(gpuFrameLag, 5,
                     "If unknown, estimated maximum number of frames GPU allows to lag.");
 
 static DEFINE_string(outResultsFile, "", "If given, write results here as JSON.");
+static DEFINE_bool(closeOutResultsFileHandle, false,
+        "Don't keep the 'outResultsFile' handle open between JSON flushes. "
+        "See https://b.corp.google.com/issues/143074513.");
 static DEFINE_int(maxCalibrationAttempts, 3,
              "Try up to this many times to guess loops for a bench, or skip the bench.");
 static DEFINE_int(maxLoops, 1000000, "Never run a bench more times than this.");
@@ -1164,7 +1167,13 @@ int main(int argc, char** argv) {
     std::unique_ptr<SkWStream> logStream(new SkNullWStream);
     if (!FLAGS_outResultsFile.isEmpty()) {
 #if defined(SK_RELEASE)
-        logStream.reset(new SkFILEWStream(FLAGS_outResultsFile[0]));
+        if (FLAGS_closeOutResultsFileHandle) {
+            // SkJSONWriter uses a 32k in-memory cache, so it only flushes occasionally and is well
+            // equipped for a stream that re-opens, appends, and closes the file on every write.
+            logStream.reset(new NanoFILEAppendAndCloseStream(FLAGS_outResultsFile[0]));
+        } else {
+            logStream.reset(new SkFILEWStream(FLAGS_outResultsFile[0]));
+        }
 #else
         SkDebugf("I'm ignoring --outResultsFile because this is a Debug build.");
         return 1;

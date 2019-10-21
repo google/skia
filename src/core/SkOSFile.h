@@ -16,8 +16,9 @@
 #include "include/core/SkString.h"
 
 enum SkFILE_Flags {
-    kRead_SkFILE_Flag   = 0x01,
-    kWrite_SkFILE_Flag  = 0x02
+    kRead_SkFILE_Flag    = 0x01,
+    kWrite_SkFILE_Flag   = 0x02,
+    kAppend_SkFILE_Flag  = 0x04
 };
 
 FILE* sk_fopen(const char path[], SkFILE_Flags);

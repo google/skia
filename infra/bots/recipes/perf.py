@@ -323,6 +323,11 @@ def perf_steps(api):
         api.flavor.device_dirs.perf_data_dir,
         'nanobench_%s_%d.json' % (api.properties['revision'], ts))
     args.extend(['--outResultsFile', json_path])
+    if api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
+      gpu = api.vars.builder_cfg.get('cpu_or_gpu_value')
+      if gpu == 'Adreno530' or gpu == 'Adreno540' or gpu == 'Adreno615':
+        # https://b.corp.google.com/issues/143074513
+        args.extend(['--closeOutResultsFileHandle'])
     args.extend(properties)
 
     keys_blacklist = ['configuration', 'role', 'test_filter']
@@ -373,6 +378,7 @@ TEST_BUILDERS = [
   'Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-All-Android',
   'Perf-Android-Clang-P30-GPU-MaliG76-arm64-Release-All-Android_Vulkan',
   'Perf-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Release-All-Android',
+  'Perf-Android-Clang-Pixel3-GPU-Adreno630-arm64-Release-All-Android',
   'Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All',
   'Perf-ChromeOS-Clang-AcerChromebook13_CB5_311-GPU-TegraK1-arm-Release-All',
   'Perf-Chromecast-Clang-Chorizo-CPU-Cortex_A7-arm-Debug-All',
