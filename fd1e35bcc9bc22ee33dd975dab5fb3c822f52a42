@@ -123,6 +123,24 @@
       "revId": "fd1e35bcc9bc22ee33dd975dab5fb3c822f52a42",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5aec668d_73a1bdec",
+        "filename": "src/pdf/SkPDFDocument.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-10-21T17:14:54Z",
+      "side": 1,
+      "message": "The high bits are suggested by the standard to hint to dumb programs that this is a binary file, not seven-bit-safe.",
+      "parentUuid": "14cd1e0d_93efe080",
+      "revId": "fd1e35bcc9bc22ee33dd975dab5fb3c822f52a42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
