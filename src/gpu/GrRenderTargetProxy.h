@@ -59,8 +59,6 @@ public:
 
     int maxWindowRectangles(const GrCaps& caps) const;
 
-    const GrSwizzle& outputSwizzle() const { return fOutputSwizzle; }
-
     bool wrapsVkSecondaryCB() const { return fWrapsVkSecondaryCB == WrapsVkSecondaryCB::kYes; }
 
     void markMSAADirty(const SkIRect& dirtyRect) {
@@ -99,7 +97,6 @@ protected:
                         int sampleCount,
                         GrSurfaceOrigin,
                         const GrSwizzle& textureSwizzle,
-                        const GrSwizzle& outputSwizzle,
                         SkBackingFit,
                         SkBudgeted,
                         GrProtected,
@@ -124,7 +121,6 @@ protected:
                         int sampleCount,
                         GrSurfaceOrigin,
                         const GrSwizzle& textureSwizzle,
-                        const GrSwizzle& outputSwizzle,
                         SkBackingFit,
                         SkBudgeted,
                         GrProtected,
@@ -136,7 +132,6 @@ protected:
     GrRenderTargetProxy(sk_sp<GrSurface>,
                         GrSurfaceOrigin,
                         const GrSwizzle& textureSwizzle,
-                        const GrSwizzle& outputSwizzle,
                         UseAllocator,
                         WrapsVkSecondaryCB = WrapsVkSecondaryCB::kNo);
 
@@ -164,7 +159,6 @@ private:
     int8_t             fSampleCnt;
     int8_t             fNumStencilSamples = 0;
     WrapsVkSecondaryCB fWrapsVkSecondaryCB;
-    GrSwizzle          fOutputSwizzle;
     SkIRect            fMSAADirtyRect = SkIRect::MakeEmpty();
     // This is to fix issue in large comment above. Without the padding we end 6 bytes into a 16
     // byte range, so the GrTextureProxy ends up starting 8 byte aligned by not 16. We add the

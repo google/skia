@@ -28,7 +28,6 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
                                                        GrMipMapped mipMapped,
                                                        GrMipMapsStatus mipMapsStatus,
                                                        const GrSwizzle& texSwizzle,
-                                                       const GrSwizzle& outSwizzle,
                                                        SkBackingFit fit,
                                                        SkBudgeted budgeted,
                                                        GrProtected isProtected,
@@ -37,8 +36,8 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
         : GrSurfaceProxy(format, desc, GrRenderable::kYes, origin, texSwizzle, fit, budgeted,
                          isProtected, surfaceFlags, useAllocator)
         // for now textures w/ data are always wrapped
-        , GrRenderTargetProxy(caps, format, desc, sampleCnt, origin, texSwizzle, outSwizzle, fit,
-                              budgeted, isProtected, surfaceFlags, useAllocator)
+        , GrRenderTargetProxy(caps, format, desc, sampleCnt, origin, texSwizzle, fit, budgeted,
+                              isProtected, surfaceFlags, useAllocator)
         , GrTextureProxy(format, desc, origin, mipMapped, mipMapsStatus, texSwizzle, fit, budgeted,
                          isProtected, surfaceFlags, useAllocator) {
     this->initSurfaceFlags(caps);
@@ -54,7 +53,6 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
                                                        GrMipMapped mipMapped,
                                                        GrMipMapsStatus mipMapsStatus,
                                                        const GrSwizzle& texSwizzle,
-                                                       const GrSwizzle& outSwizzle,
                                                        SkBackingFit fit,
                                                        SkBudgeted budgeted,
                                                        GrProtected isProtected,
@@ -65,8 +63,8 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
         // Since we have virtual inheritance, we initialize GrSurfaceProxy directly. Send null
         // callbacks to the texture and RT proxies simply to route to the appropriate constructors.
         , GrRenderTargetProxy(LazyInstantiateCallback(), format, desc, sampleCnt, origin,
-                              texSwizzle, outSwizzle, fit, budgeted, isProtected, surfaceFlags,
-                              useAllocator, WrapsVkSecondaryCB::kNo)
+                              texSwizzle, fit, budgeted, isProtected, surfaceFlags, useAllocator,
+                              WrapsVkSecondaryCB::kNo)
         , GrTextureProxy(LazyInstantiateCallback(), format, desc, origin, mipMapped, mipMapsStatus,
                          texSwizzle, fit, budgeted, isProtected, surfaceFlags, useAllocator) {
     this->initSurfaceFlags(caps);
@@ -78,10 +76,9 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
 GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(sk_sp<GrSurface> surf,
                                                        GrSurfaceOrigin origin,
                                                        const GrSwizzle& texSwizzle,
-                                                       const GrSwizzle& outSwizzle,
                                                        UseAllocator useAllocator)
         : GrSurfaceProxy(surf, origin, texSwizzle, SkBackingFit::kExact, useAllocator)
-        , GrRenderTargetProxy(surf, origin, texSwizzle, outSwizzle, useAllocator)
+        , GrRenderTargetProxy(surf, origin, texSwizzle, useAllocator)
         , GrTextureProxy(surf, origin, texSwizzle, useAllocator) {
     SkASSERT(surf->asTexture());
     SkASSERT(surf->asRenderTarget());
