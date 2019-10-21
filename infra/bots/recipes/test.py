@@ -210,12 +210,12 @@ def dm_flags(api, bot):
     if 'AndroidOne' in bot or ('Nexus' in bot and 'Nexus5x' not in bot) or 'GalaxyS6' in bot:
       # skbug.com/9019
       blacklist('_ test _ ProcessorCloneTest')
-      blacklist('_ test _ GLPrograms')
+      blacklist('_ test _ Programs')
       blacklist('_ test _ ProcessorOptimizationValidationTest')
 
     if 'CommandBuffer' in bot and 'MacBook10.1-' in bot:
       # skbug.com/9235
-      blacklist('_ test _ GLPrograms')
+      blacklist('_ test _ Programs')
 
     # skbug.com/9033 - these devices run out of memory on this test
     # when opList splitting reduction is enabled
@@ -718,7 +718,7 @@ def dm_flags(api, bot):
     match.extend(['~VkHeapTests']) # skia:6245
 
   if api.vars.is_linux and 'IntelIris640' in bot:
-    match.extend(['~GLPrograms']) # skia:7849
+    match.extend(['~Programs']) # skia:7849
 
   if 'IntelIris640' in bot or 'IntelHD615' in bot or 'IntelHDGraphics615' in bot:
     match.append('~^SRGBReadWritePixels$') # skia:9225
@@ -783,7 +783,7 @@ def dm_flags(api, bot):
 
   if 'LenovoYogaC630' in bot and 'ANGLE' in api.vars.extra_tokens:
     # skia:9275
-    blacklist(['_', 'tests', '_', 'GLPrograms'])
+    blacklist(['_', 'tests', '_', 'Programs'])
     # skia:8976
     blacklist(['_', 'tests', '_', 'GrDefaultPathRendererTest'])
     # https://bugs.chromium.org/p/angleproject/issues/detail?id=3414

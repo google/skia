@@ -8,6 +8,7 @@
 #include "src/gpu/mtl/GrMtlPipelineStateBuilder.h"
 
 #include "include/gpu/GrContext.h"
+#include "src/gpu/GrAutoLocaleSetter.h"
 #include "src/gpu/GrContextPriv.h"
 
 #include "src/gpu/mtl/GrMtlGpu.h"
@@ -26,6 +27,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::CreatePipelineState(GrMtlGpu* gpu
                                                                    GrRenderTarget* renderTarget,
                                                                    const GrProgramInfo& programInfo,
                                                                    Desc* desc) {
+    GrAutoLocaleSetter als("C");
     GrMtlPipelineStateBuilder builder(gpu, renderTarget, programInfo, desc);
 
     if (!builder.emitAndInstallProcs()) {
