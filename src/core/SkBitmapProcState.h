@@ -35,8 +35,6 @@ struct SkBitmapProcInfo {
 
     SkPixmap                fPixmap;
     SkMatrix                fInvMatrix;         // This changes based on tile mode.
-    // TODO: combine fInvMatrix and fRealInvMatrix.
-    SkMatrix                fRealInvMatrix;     // The actual inverse matrix.
     SkColor                 fPaintColor;
     SkTileMode              fTileModeX;
     SkTileMode              fTileModeY;
@@ -75,14 +73,11 @@ struct SkBitmapProcState : public SkBitmapProcInfo {
 
     SkMatrixPriv::MapXYProc fInvProc;           // chooseProcs
     SkFractionalInt     fInvSxFractionalInt;
-    SkFractionalInt     fInvKyFractionalInt;
 
     SkFixed             fFilterOneX;
     SkFixed             fFilterOneY;
 
-    SkFixed             fInvSx;             // chooseProcs
     SkFixed             fInvKy;             // chooseProcs
-    SkPMColor           fPaintPMColor;      // chooseProcs - A8 config
     uint16_t            fAlphaScale;        // chooseProcs
 
     /** Given the byte size of the index buffer to be passed to the matrix proc,
