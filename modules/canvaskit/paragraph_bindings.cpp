@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkColor.h"
+#include "include/core/SkFontStyle.h"
 #include "include/core/SkString.h"
 
 #include "modules/skparagraph/include/DartTypes.h"
@@ -26,13 +27,21 @@ using namespace emscripten;
 
 namespace para = skia::textlayout;
 
+struct SimpleFontStyle {
+    SkFontStyle::Slant  slant;
+    SkFontStyle::Weight weight;
+    SkFontStyle::Width  width;
+};
+
 struct SimpleTextStyle {
-    SkColor color;
-    SkColor foregroundColor;
     SkColor backgroundColor;
+    SkColor color;
     uint8_t decoration;
-    SkScalar fontSize;
     SkScalar decorationThickness;
+    SkScalar fontSize;
+    SimpleFontStyle fontStyle;
+    SkColor foregroundColor;
+
     uintptr_t /* const char** */ fontFamilies;
     int numFontFamilies;
 };
@@ -73,24 +82,41 @@ para::TextStyle toTextStyle(const SimpleTextStyle& s) {
         ts.setFontFamilies(ff);
     }
 
+    SkFontStyle fs(s.fontStyle.weight, s.fontStyle.width, s.fontStyle.slant);
+    ts.setFontStyle(fs);
+
     return ts;
 }
 
 struct SimpleParagraphStyle {
-    SimpleTextStyle textStyle;
+    bool disableHinting;
+    uintptr_t /* const char* */ ellipsisPtr;
+    size_t ellipsisLen;
     SkScalar heightMultiplier;
-    para::TextAlign textAlign;
     size_t maxLines;
+    para::TextAlign textAlign;
+    para::TextDirection textDirection;
+    SimpleTextStyle textStyle;
 };
 
 para::ParagraphStyle toParagraphStyle(const SimpleParagraphStyle& s) {
     para::ParagraphStyle ps;
+    if (s.disableHinting) {
+        ps.turnHintingOff();
+    }
+
+    if (s.ellipsisLen > 0) {
+        const char* ellipsisPtr = reinterpret_cast<const char*>(s.ellipsisPtr);
+        SkString eStr(ellipsisPtr, s.ellipsisLen);
+        ps.setEllipsis(eStr);
+    }
+    ps.setTextAlign(s.textAlign);
+    ps.setTextDirection(s.textDirection);
     auto ts = toTextStyle(s.textStyle);
     ps.setTextStyle(ts);
     if (s.heightMultiplier != 0) {
         ps.setHeight(s.heightMultiplier);
     }
-    ps.setTextAlign(s.textAlign);
     if (s.maxLines != 0) {
         ps.setMaxLines(s.maxLines);
     }
@@ -151,6 +177,35 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .value("Upstream",   para::Affinity::kUpstream)
         .value("Downstream", para::Affinity::kDownstream);
 
+    enum_<SkFontStyle::Slant>("FontSlant")
+        .value("Upright",              SkFontStyle::Slant::kUpright_Slant)
+        .value("Italic",               SkFontStyle::Slant::kItalic_Slant)
+        .value("Oblique",              SkFontStyle::Slant::kOblique_Slant);
+
+    enum_<SkFontStyle::Weight>("FontWeight")
+        .value("Invisible",            SkFontStyle::Weight::kInvisible_Weight)
+        .value("Thin",                 SkFontStyle::Weight::kThin_Weight)
+        .value("ExtraLight",           SkFontStyle::Weight::kExtraLight_Weight)
+        .value("Light",                SkFontStyle::Weight::kLight_Weight)
+        .value("Normal",               SkFontStyle::Weight::kNormal_Weight)
+        .value("Medium",               SkFontStyle::Weight::kMedium_Weight)
+        .value("SemiBold",             SkFontStyle::Weight::kSemiBold_Weight)
+        .value("Bold",                 SkFontStyle::Weight::kBold_Weight)
+        .value("ExtraBold",            SkFontStyle::Weight::kExtraBold_Weight)
+        .value("Black"    ,            SkFontStyle::Weight::kBlack_Weight)
+        .value("ExtraBlack",           SkFontStyle::Weight::kExtraBlack_Weight);
+
+    enum_<SkFontStyle::Width>("FontWidth")
+        .value("UltraCondensed",       SkFontStyle::Width::kUltraCondensed_Width)
+        .value("ExtraCondensed",       SkFontStyle::Width::kExtraCondensed_Width)
+        .value("Condensed",            SkFontStyle::Width::kCondensed_Width)
+        .value("SemiCondensed",        SkFontStyle::Width::kSemiCondensed_Width)
+        .value("Normal",               SkFontStyle::Width::kNormal_Width)
+        .value("SemiExpanded",         SkFontStyle::Width::kSemiExpanded_Width)
+        .value("Expanded",             SkFontStyle::Width::kExpanded_Width)
+        .value("ExtraExpanded",        SkFontStyle::Width::kExtraExpanded_Width)
+        .value("UltraExpanded",        SkFontStyle::Width::kUltraExpanded_Width);
+
     enum_<para::RectHeightStyle>("RectHeightStyle")
         .value("Tight",  para::RectHeightStyle::kTight)
         .value("Max",    para::RectHeightStyle::kMax);
@@ -167,15 +222,28 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .value("Start",   para::TextAlign::kStart)
         .value("End",     para::TextAlign::kEnd);
 
+    enum_<para::TextDirection>("TextDirection")
+        .value("LTR",    para::TextDirection::kLtr)
+        .value("RTL",    para::TextDirection::kRtl);
+
 
     value_object<para::PositionWithAffinity>("PositionWithAffinity")
         .field("pos",      &para::PositionWithAffinity::position)
         .field("affinity", &para::PositionWithAffinity::affinity);
 
+ value_object<SimpleFontStyle>("FontStyle")
+        .field("slant",     &SimpleFontStyle::slant)
+        .field("weight",    &SimpleFontStyle::weight)
+        .field("width",     &SimpleFontStyle::width);
+
     value_object<SimpleParagraphStyle>("ParagraphStyle")
+        .field("disableHinting",    &SimpleParagraphStyle::disableHinting)
+        .field("_ellipsisPtr",      &SimpleParagraphStyle::ellipsisPtr)
+        .field("_ellipsisLen",      &SimpleParagraphStyle::ellipsisLen)
         .field("heightMultiplier",  &SimpleParagraphStyle::heightMultiplier)
         .field("maxLines",          &SimpleParagraphStyle::maxLines)
         .field("textAlign",         &SimpleParagraphStyle::textAlign)
+        .field("textDirection",     &SimpleParagraphStyle::textDirection)
         .field("textStyle",         &SimpleParagraphStyle::textStyle);
 
     value_object<SimpleTextStyle>("TextStyle")
@@ -185,6 +253,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .field("decorationThickness", &SimpleTextStyle::decorationThickness)
         .field("_fontFamilies",       &SimpleTextStyle::fontFamilies)
         .field("fontSize",            &SimpleTextStyle::fontSize)
+        .field("fontStyle",           &SimpleTextStyle::fontStyle)
         .field("foregroundColor",     &SimpleTextStyle::foregroundColor)
         .field("_numFontFamilies",    &SimpleTextStyle::numFontFamilies);
 

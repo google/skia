@@ -24,17 +24,46 @@
     // have undefined and it expects, for example, a float.
     CanvasKit.ParagraphStyle = function(s) {
       // Use [''] to tell closure not to minify the names
+      // TODO(kjlubick): strutStyle
+      s['disableHinting'] = s['disableHinting'] || false;
+      if (s['ellipsis']) {
+        var str = s['ellipsis'];
+        var strLen = lengthBytesUTF8(str) + 1;
+        var strPtr = CanvasKit._malloc(strLen);
+        stringToUTF8(str, strPtr, strLen);
+        s['_ellipsisPtr'] = strPtr;
+        s['_ellipsisLen'] = strLen;
+      } else {
+        s['_ellipsisPtr'] = nullptr;
+        s['_ellipsisLen'] = 0;
+      }
+
       s['heightMultiplier'] = s['heightMultiplier'] || 0;
       s['maxLines'] = s['maxLines'] || 0;
       s['textAlign'] = s['textAlign'] || CanvasKit.TextAlign.Start;
+      s['textDirection'] = s['textDirection'] || CanvasKit.TextDirection.LTR;
       s['textStyle'] = CanvasKit.TextStyle(s['textStyle']);
+      return s;
+    }
+
+    function fontStyle(s) {
+      s = s || {};
+      // Can't check for falsey as 0 width means "invisible".
+      if (s['weight'] === undefined) {
+        s['weight'] = CanvasKit.FontWeight.Normal;
+      }
+      s['width'] = s['width'] || CanvasKit.FontWidth.Normal;
+      s['slant'] = s['slant'] || CanvasKit.FontSlant.Upright;
       return s;
     }
 
     CanvasKit.TextStyle = function(s) {
        // Use [''] to tell closure not to minify the names
       s['backgroundColor'] = s['backgroundColor'] || 0;
-      s['color'] = s['color'] || 0;
+      // Can't check for falsey as 0 is "white".
+      if (s['color'] === undefined) {
+        s['color'] = CanvasKit.BLACK;
+      }
       s['decoration'] = s['decoration'] || 0;
       s['decorationThickness'] = s['decorationThickness'] || 0;
       s['fontSize'] = s['fontSize'] || 0;
@@ -45,7 +74,9 @@
       } else {
         s['_fontFamilies'] = nullptr;
         s['_numFontFamilies'] = 0;
+        SkDebug("no font families provided, text may draw wrong or not at all")
       }
+      s['fontStyle'] = fontStyle(s['fontStyle']);
       s['foregroundColor'] = s['foregroundColor'] || 0;
       return s;
     }
