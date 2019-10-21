@@ -36,9 +36,9 @@ static DEFINE_string2(input    , i, nullptr, "Input .json file.");
 static DEFINE_string2(writePath, w, nullptr, "Output directory.  Frames are names [0-9]{6}.png.");
 static DEFINE_string2(format   , f, "png"  , formats_help);
 
-static DEFINE_double(t0,   0, "Timeline start [0..1].");
-static DEFINE_double(t1,   1, "Timeline stop [0..1].");
-static DEFINE_double(fps, 30, "Decode frames per second.");
+static DEFINE_double(t0,    0, "Timeline start [0..1].");
+static DEFINE_double(t1,    1, "Timeline stop [0..1].");
+static DEFINE_double(fps,   0, "Decode frames per second (default is animation native fps).");
 
 static DEFINE_int(width , 800, "Render width.");
 static DEFINE_int(height, 600, "Render height.");
@@ -255,11 +255,6 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    if (FLAGS_fps <= 0) {
-        SkDebugf("Invalid fps: %f.\n", FLAGS_fps);
-        return 1;
-    }
-
     if (!FLAGS_format.contains("mp4") && !sk_mkdir(FLAGS_writePath[0])) {
         return 1;
     }
@@ -292,12 +287,27 @@ int main(int argc, char** argv) {
                                                        SkMatrix::kCenter_ScaleToFit);
     logger->report();
 
-    static constexpr double kMaxFrames = 10000;
     const auto t0 = SkTPin(FLAGS_t0, 0.0, 1.0),
                t1 = SkTPin(FLAGS_t1,  t0, 1.0),
-               dt = 1 / std::min(anim->duration() * FLAGS_fps, kMaxFrames);
+       native_fps = anim->fps(),
+           frame0 = anim->duration() * t0 * native_fps,
+         duration = anim->duration() * (t1 - t0);
 
-    const auto frame_count = static_cast<int>((t1 - t0) / dt);
+    double fps = FLAGS_fps > 0 ? FLAGS_fps : native_fps;
+    if (fps <= 0) {
+        SkDebugf("Invalid fps: %f.\n", fps);
+        return 1;
+    }
+
+    auto frame_count = static_cast<int>(duration * fps);
+    static constexpr int kMaxFrames = 10000;
+    if (frame_count > kMaxFrames) {
+        frame_count = kMaxFrames;
+        fps = frame_count / duration;
+    }
+    const auto fps_scale = native_fps / fps;
+
+    SkDebugf("Rendering %f seconds (%d frames @%f fps).\n", duration, frame_count, fps);
 
     if (FLAGS_format.contains("mp4")) {
         gMP4Frames.resize(frame_count);
@@ -335,7 +345,7 @@ int main(int argc, char** argv) {
 #endif
 
         if (sink && anim) {
-            anim->seek(t0 + dt * i);
+            anim->seekFrame(frame0 + i * fps_scale);
             anim->render(sink->beginFrame(i));
             sink->endFrame(i);
         }
@@ -346,7 +356,7 @@ int main(int argc, char** argv) {
 #if defined(HAVE_VIDEO_ENCODER)
     if (FLAGS_format.contains("mp4")) {
         SkVideoEncoder enc;
-        if (!enc.beginRecording({FLAGS_width, FLAGS_height}, FLAGS_fps)) {
+        if (!enc.beginRecording({FLAGS_width, FLAGS_height}, fps)) {
             SkDEBUGF("Invalid video stream configuration.\n");
             return -1;
         }
