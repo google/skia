@@ -495,6 +495,31 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
         }
     }
 
+    /*not static*/ inline void S32_alpha_D32_filter_DXDY(const SkBitmapProcState& s,
+                                                         const uint32_t* xy, int count,
+                                                         SkPMColor* colors) {
+        SkASSERT(count > 0 && colors != nullptr);
+        SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
+        SkASSERT(4 == s.fPixmap.info().bytesPerPixel());
+        SkASSERT(s.fAlphaScale <= 256);
+
+        const char* SK_RESTRICT srcAddr = (const char*)s.fPixmap.addr();
+        size_t rb = s.fPixmap.rowBytes();
+
+        while (count-- > 0) {
+            int y0, y1, wy;
+            decode_packed_coordinates_and_weight(*xy++, &y0, &y1, &wy);
+
+            int x0, x1, wx;
+            decode_packed_coordinates_and_weight(*xy++, &x0, &x1, &wx);
+
+            auto row0 = (const uint32_t*)(srcAddr + y0 * rb);
+            auto row1 = (const uint32_t*)(srcAddr + y1 * rb);
+
+            filter_and_scale_by_alpha(wx, wy, row0[x0], row0[x1], row1[x0], row1[x1], colors++,
+                                      s.fAlphaScale);
+        }
+    }
 #endif
 
 }  // namespace SK_OPTS_NS

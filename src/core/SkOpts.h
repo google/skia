@@ -61,9 +61,14 @@ namespace SkOpts {
     }
 
     // SkBitmapProcState optimized Shader, Sample, or Matrix procs.
-    // This is the only one that can use anything past SSE2/NEON.
+    // These are the only ones that can use anything past SSE2/NEON.
     extern void (*S32_alpha_D32_filter_DX)(const SkBitmapProcState&,
                                            const uint32_t* xy, int count, SkPMColor*);
+
+#if LEGACY_LOCAL_ROTATE_SHADER_ENABLED
+    extern void (*S32_alpha_D32_filter_DXDY)(const SkBitmapProcState&, const uint32_t* xy,
+                                             int count, SkPMColor*);
+#endif
 
 #define M(st) +1
     // We can't necessarily express the type of SkJumper stage functions here,
