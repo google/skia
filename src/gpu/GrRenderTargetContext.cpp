@@ -217,7 +217,7 @@ GrOpsTask* GrRenderTargetContext::getOpsTask() {
 
     if (!fOpsTask || fOpsTask->isClosed()) {
         sk_sp<GrOpsTask> newOpsTask =
-                this->drawingManager()->newOpsTask(fRenderTargetProxy, fManagedOpsTask);
+                this->drawingManager()->newOpsTask(this->outputSurfaceView(), fManagedOpsTask);
         if (fOpsTask && fNumStencilSamples > 0) {
             // Store the stencil values in memory upon completion of fOpsTask.
             fOpsTask->setMustPreserveStencil();

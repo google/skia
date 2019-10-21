@@ -105,7 +105,6 @@ public:
     }
 #endif
 
-
 protected:
     friend class GrSurfaceContextPriv;
 
