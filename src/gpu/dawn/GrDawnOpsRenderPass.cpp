@@ -59,7 +59,9 @@ dawn::RenderPassEncoder GrDawnOpsRenderPass::beginRenderPass(dawn::LoadOp colorO
     dawn::Texture texture = static_cast<GrDawnRenderTarget*>(fRenderTarget)->texture();
     auto stencilAttachment = static_cast<GrDawnStencilAttachment*>(
         fRenderTarget->renderTargetPriv().getStencilAttachment());
-    dawn::TextureView colorView = texture.CreateView();
+    dawn::TextureViewDescriptor desc;
+    desc.mipLevelCount = 1;
+    dawn::TextureView colorView = texture.CreateView(&desc);
     const float *c = fColorInfo.fClearColor.vec();
 
     dawn::RenderPassColorAttachmentDescriptor colorAttachment;
