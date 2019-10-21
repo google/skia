@@ -29,6 +29,7 @@ class Deserializer;
 class Serializer;
 enum SkAxisAlignment : uint32_t;
 class SkDescriptor;
+class SkAutoDescriptor;
 class SkStrike;
 struct SkPackedGlyphID;
 enum SkScalerContextFlags : uint32_t;
@@ -220,5 +221,8 @@ private:
     SkStrikeCache* const fStrikeCache;
     const bool fIsLogging;
 };
+
+// For exposure to fuzzing only.
+bool SkFuzzDeserializeSkDescriptor(sk_sp<SkData> bytes, SkAutoDescriptor* ad);
 
 #endif  // SkRemoteGlyphCache_DEFINED
