@@ -428,10 +428,30 @@ private:
     }
 
     void onPrePrepareDraws(GrRecordingContext* context) override {
-        SkASSERT(!fPrePrepared);
-        // Pull forward the tessellation of the quads to here
+        TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
-        //GrOpMemoryPool* pool = context->priv().opMemoryPool();
+        SkDEBUGCODE(this->validate();)
+        SkASSERT(!fPrePrepared);
+
+        int numProxies, numTotalQuads;
+
+        SkArenaAlloc* arena = nullptr; // context->priv().podOpMemoryPool();
+
+        const VertexSpec vertexSpec = this->characterize(&numProxies, &numTotalQuads);
+
+        // We'll use a dynamic state array for the GP textures when there are multiple ops.
+        // Otherwise, we use fixed dynamic state to specify the single op's proxy.
+        GrPipeline::DynamicStateArrays* dynamicStateArrays = nullptr;
+        GrPipeline::FixedDynamicState* fixedDynamicState;
+        if (numProxies > 1) {
+            dynamicStateArrays = Target::AllocDynamicStateArrays(arena, numProxies, 1, false);
+            fixedDynamicState = Target::MakeFixedDynamicState(arena, target->appliedClip(), 0);
+        } else {
+            fixedDynamicState = Target::MakeFixedDynamicState(arena, target->appliedClip(), 1);
+            fixedDynamicState->fPrimitiveProcessorTextures[0] = fProxies[0].fProxy;
+        }
+
+        // Pull forward the tessellation of the quads to here
 
         fPrePrepared = true;
     }
@@ -505,15 +525,21 @@ private:
 
         const VertexSpec vertexSpec = this->characterize(&numProxies, &numTotalQuads);
 
+        SkArenaAlloc* arena = target->allocator();
+
+
         // We'll use a dynamic state array for the GP textures when there are multiple ops.
         // Otherwise, we use fixed dynamic state to specify the single op's proxy.
         GrPipeline::DynamicStateArrays* dynamicStateArrays = nullptr;
         GrPipeline::FixedDynamicState* fixedDynamicState;
         if (numProxies > 1) {
-            dynamicStateArrays = target->allocDynamicStateArrays(numProxies, 1, false);
-            fixedDynamicState = target->makeFixedDynamicState(0);
+            dynamicStateArrays = Target::AllocDynamicStateArrays(target->allocator(),
+                                                                 numProxies, 1, false);
+            fixedDynamicState = Target::MakeFixedDynamicState(target->allocator(),
+                                                              target->appliedClip(), 0);
         } else {
-            fixedDynamicState = target->makeFixedDynamicState(1);
+            fixedDynamicState = Target::MakeFixedDynamicState(target->allocator(),
+                                                              target->appliedClip(), 1);
             fixedDynamicState->fPrimitiveProcessorTextures[0] = fProxies[0].fProxy;
         }
 

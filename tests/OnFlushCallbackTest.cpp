@@ -160,7 +160,7 @@ private:
         mesh->setIndexed(indexBuffer, 6, firstIndex, 0, 3, GrPrimitiveRestart::kNo);
         mesh->setVertexData(vertexBuffer, firstVertex);
 
-        target->recordDraw(std::move(gp), mesh);
+        target->recordDraw1(std::move(gp), mesh);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {

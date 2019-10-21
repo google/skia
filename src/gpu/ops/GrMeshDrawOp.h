@@ -95,9 +95,10 @@ public:
      * Helper for drawing GrMesh(es) with zero primProc textures and no dynamic state besides the
      * scissor clip.
      */
-    void recordDraw(sk_sp<const GrGeometryProcessor> gp, const GrMesh meshes[], int meshCnt = 1) {
+    void recordDraw1(sk_sp<const GrGeometryProcessor> gp, const GrMesh meshes[], int meshCnt = 1) {
         static constexpr int kZeroPrimProcTextures = 0;
-        auto fixedDynamicState = this->makeFixedDynamicState(kZeroPrimProcTextures);
+        auto fixedDynamicState = MakeFixedDynamicState(this->allocator(), this->appliedClip(),
+                                                       kZeroPrimProcTextures);
         this->recordDraw(std::move(gp), meshes, meshCnt, fixedDynamicState, nullptr);
     }
 
@@ -146,11 +147,14 @@ public:
 
     GrMesh* allocMeshes(int n) { return this->allocator()->makeArray<GrMesh>(n); }
 
-    GrPipeline::DynamicStateArrays* allocDynamicStateArrays(int numMeshes,
-                                                            int numPrimitiveProcessorTextures,
-                                                            bool allocScissors);
+    static GrPipeline::DynamicStateArrays* AllocDynamicStateArrays(SkArenaAlloc*,
+                                                                   int numMeshes,
+                                                                   int numPrimitiveProcTextures,
+                                                                   bool allocScissors);
 
-    GrPipeline::FixedDynamicState* makeFixedDynamicState(int numPrimitiveProcessorTextures);
+    static GrPipeline::FixedDynamicState* MakeFixedDynamicState(SkArenaAlloc*,
+                                                                const GrAppliedClip* clip,
+                                                                int numPrimitiveProcessorTextures);
 
     virtual GrRenderTargetProxy* proxy() const = 0;
 
@@ -174,7 +178,6 @@ public:
 
     virtual GrDeferredUploadTarget* deferredUploadTarget() = 0;
 
-private:
     virtual SkArenaAlloc* allocator() = 0;
 };
 
