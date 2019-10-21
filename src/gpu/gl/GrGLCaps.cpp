@@ -417,9 +417,17 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         }
     } // No client side arrays in WebGL https://www.khronos.org/registry/webgl/specs/1.0/#6.2
 
+    this->initFSAASupport(contextOptions, ctxInfo, gli,
+                          /* allowMultisampledRenderToTexture = */true);
+
     if (!contextOptions.fAvoidStencilBuffers) {
-        // To reduce surface area, if we avoid stencil buffers, we also disable MSAA.
-        this->initFSAASupport(contextOptions, ctxInfo, gli);
+        if (fMultisampleDisableSupport && this->shaderCaps()->dualSourceBlendingSupport()) {
+            // We need dual source blending and the ability to disable multisample in order to support
+            // mixed samples in every corner case.
+            fMixedSamplesSupport = ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") ||
+                                   ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_mixed_samples");
+        }
+
         this->initStencilSupport(ctxInfo);
     }
 
@@ -528,6 +536,16 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         // All mipmapping and all wrapping modes are supported for non-power-of-
         // two images [in WebGL 2.0].
         fMipMapSupport = fNPOTTextureTileSupport;
+    }
+
+    if (kAdreno5xx_GrGLRenderer == ctxInfo.renderer() ||
+        kAdreno615_GrGLRenderer == ctxInfo.renderer()) {
+        // Pixel, Pixel2(XL), and Pixel3a crash sporadically when using
+        // EXT_multisampled_render_to_texture. Calling glFinish before accessing the texture seems
+        // to stop the crash, but it is also slower than just using an offscreen msaa renderbuffer.
+        // https://b.corp.google.com/issues/143074513
+        this->initFSAASupport(contextOptions, ctxInfo, gli,
+                              /* allowMultisampledRenderToTexture = */false);
     }
 
     GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_SIZE, &fMaxTextureSize);
@@ -951,55 +969,70 @@ bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrG
     return true;
 }
 
-void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrGLContextInfo& ctxInfo,
-                               const GrGLInterface* gli) {
-    // We need dual source blending and the ability to disable multisample in order to support mixed
-    // samples in every corner case.
-    if (fMultisampleDisableSupport && this->shaderCaps()->dualSourceBlendingSupport()) {
-        fMixedSamplesSupport = ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") ||
-                               ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_mixed_samples");
-    }
+void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions,
+                               const GrGLContextInfo& ctxInfo, const GrGLInterface* gli,
+                               bool allowMultisampledRenderToTexture) {
+    fMSFBOType = kNone_MSFBOType;
+    fMSAAResolvesAutomatically = false;
 
-    if (GR_IS_GR_GL(ctxInfo.standard())) {
-        if (ctxInfo.version() >= GR_GL_VER(3,0) ||
-            ctxInfo.hasExtension("GL_ARB_framebuffer_object")) {
-            fMSFBOType = kStandard_MSFBOType;
-        } else if (ctxInfo.hasExtension("GL_EXT_framebuffer_multisample") &&
-                   ctxInfo.hasExtension("GL_EXT_framebuffer_blit")) {
-            fMSFBOType = kStandard_MSFBOType;
-        }
-    } else if (GR_IS_GR_GL_ES(ctxInfo.standard())) {
-        // We prefer multisampled-render-to-texture extensions over ES3 MSAA because we've observed
-        // ES3 driver bugs on at least one device with a tiled GPU (N10).
-        if (ctxInfo.hasExtension("GL_EXT_multisampled_render_to_texture")) {
-            fMSFBOType = kES_EXT_MsToTexture_MSFBOType;
-            fMSAAResolvesAutomatically = true;
-        } else if (ctxInfo.hasExtension("GL_IMG_multisampled_render_to_texture")) {
-            fMSFBOType = kES_IMG_MsToTexture_MSFBOType;
-            fMSAAResolvesAutomatically = true;
-        } else if (ctxInfo.version() >= GR_GL_VER(3,0)) {
-            fMSFBOType = kStandard_MSFBOType;
-        } else if (ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
-            fMSFBOType = kStandard_MSFBOType;
-        } else if (ctxInfo.hasExtension("GL_ANGLE_framebuffer_multisample")) {
-            fMSFBOType = kStandard_MSFBOType;
-        } else if (ctxInfo.hasExtension("GL_APPLE_framebuffer_multisample")) {
-            fMSFBOType = kES_Apple_MSFBOType;
-        }
-    } else if (GR_IS_GR_WEBGL(ctxInfo.standard())) {
-        // No support in WebGL 1, but there is for 2.0
-        if (ctxInfo.version() >= GR_GL_VER(2,0)) {
-            fMSFBOType = kStandard_MSFBOType;
-        } else {
-            fMSFBOType = kNone_MSFBOType;
-        }
+    // To reduce surface area, if we avoid stencil buffers, we also disable MSAA.
+    if (contextOptions.fAvoidStencilBuffers) {
+        return;
     }
 
     // We disable MSAA for all Intel GPUs. Before Gen9, performance was very bad. Even with Gen9,
     // we've seen driver crashes in the wild. We don't have data on Gen11 yet.
     // chromium:527565, chromium:983926
     if (kIntel_GrGLVendor == ctxInfo.vendor()) {
-        fMSFBOType = kNone_MSFBOType;
+        return;
+    }
+
+    if (GR_IS_GR_GL(ctxInfo.standard())) {
+        if (ctxInfo.version() >= GR_GL_VER(3,0) ||
+            ctxInfo.hasExtension("GL_ARB_framebuffer_object")) {
+            fMSFBOType = kStandard_MSFBOType;
+            return;
+        }
+        if (ctxInfo.hasExtension("GL_EXT_framebuffer_multisample") &&
+            ctxInfo.hasExtension("GL_EXT_framebuffer_blit")) {
+            fMSFBOType = kStandard_MSFBOType;
+            return;
+        }
+    } else if (GR_IS_GR_GL_ES(ctxInfo.standard())) {
+        if (allowMultisampledRenderToTexture) {
+            if (ctxInfo.hasExtension("GL_EXT_multisampled_render_to_texture")) {
+                fMSFBOType = kES_EXT_MsToTexture_MSFBOType;
+                fMSAAResolvesAutomatically = true;
+                return;
+            }
+            if (ctxInfo.hasExtension("GL_IMG_multisampled_render_to_texture")) {
+                fMSFBOType = kES_IMG_MsToTexture_MSFBOType;
+                fMSAAResolvesAutomatically = true;
+                return;
+            }
+        }
+        if (ctxInfo.version() >= GR_GL_VER(3,0)) {
+            fMSFBOType = kStandard_MSFBOType;
+            return;
+        }
+        if (ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
+            fMSFBOType = kStandard_MSFBOType;
+            return;
+        }
+        if (ctxInfo.hasExtension("GL_ANGLE_framebuffer_multisample")) {
+            fMSFBOType = kStandard_MSFBOType;
+            return;
+        }
+        if (ctxInfo.hasExtension("GL_APPLE_framebuffer_multisample")) {
+            fMSFBOType = kES_Apple_MSFBOType;
+            return;
+        }
+    } else if (GR_IS_GR_WEBGL(ctxInfo.standard())) {
+        // No support in WebGL 1, but there is for 2.0
+        if (ctxInfo.version() >= GR_GL_VER(2,0)) {
+            fMSFBOType = kStandard_MSFBOType;
+            return;
+        }
     }
 }
 
