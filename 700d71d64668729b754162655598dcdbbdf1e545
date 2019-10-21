@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "757aea9b_08366ff3",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-10-21T15:45:33Z",
+      "side": 1,
+      "message": "Not sure if worth keeping these around.  We can drop after converting clients.",
+      "range": {
+        "startLine": 245,
+        "startChar": 0,
+        "endLine": 246,
+        "endChar": 58
+      },
+      "revId": "700d71d64668729b754162655598dcdbbdf1e545",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
