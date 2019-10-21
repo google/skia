@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b363185e_90e9ae30",
+        "filename": "include/private/GrRecordingContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-21T20:48:36Z",
+      "side": 1,
+      "message": "It is true that we could store non-GrOpsTask data in here but, for that matter, we could also store non-POD data (since it is a full blown SkArenaAlloc). I was just trying to limit the expected use case as we build this out.\n\nThe real current definition is something like - memoryWithTheSameLifetimeAsASetOfRenderTasks.\n\nRight now it is actually very limited - although it will grow into something we can use for other data I don\u0027t think it would even work for adding data that isn\u0027t ripped off to be stored in a DDL. For the more generic case we would need a missing step in flush that resets the arena at the end of flush (and that will get very complicated when we add partial flushing).",
+      "parentUuid": "aa5bee7a_52d3d291",
+      "range": {
+        "startLine": 53,
+        "startChar": 18,
+        "endLine": 53,
+        "endChar": 32
+      },
+      "revId": "012f36e7aa0237ea380e080a1dc161016e478042",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3b4a2cc2_c8057573",
         "filename": "include/private/GrRecordingContext.h",
         "patchSetId": 7
@@ -36,6 +60,30 @@
       "writtenOn": "2019-10-21T19:38:38Z",
       "side": 1,
       "message": "detachPODAllocator (if renaming), or detachOpPODAllocator (if not), to be consistent with the member?  Or were we dropping \u0027allocator\u0027 to imply that the allocations into the arena were meant to be done?",
+      "range": {
+        "startLine": 56,
+        "startChar": 34,
+        "endLine": 56,
+        "endChar": 45
+      },
+      "revId": "012f36e7aa0237ea380e080a1dc161016e478042",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48ec4c01_c8533c8d",
+        "filename": "include/private/GrRecordingContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-21T20:48:36Z",
+      "side": 1,
+      "message": "The latter. It is no longer an allocator but just static data. I don\u0027t know if it is worth adding a \"kNoMoreAllocations\u0027 flag to SkArenaAlloc.",
+      "parentUuid": "3b4a2cc2_c8057573",
       "range": {
         "startLine": 56,
         "startChar": 34,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "75849ddf_bc85ff81",
+        "filename": "src/gpu/ops/GrMeshDrawOp.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-21T20:48:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79372054_45c20785",
+      "range": {
+        "startLine": 75,
+        "startChar": 51,
+        "endLine": 75,
+        "endChar": 70
+      },
+      "revId": "012f36e7aa0237ea380e080a1dc161016e478042",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "89304cdb_1fc705e6",
         "filename": "src/gpu/ops/GrMeshDrawOp.h",
         "patchSetId": 7
@@ -82,6 +154,30 @@
       "writtenOn": "2019-10-21T19:38:38Z",
       "side": 1,
       "message": "Since most allocations use target-\u003eallocator() and target-\u003eappliedClip(), maybe we keep the member functions as well, and they just delegate to these static functions with their allocator and clip?",
+      "range": {
+        "startLine": 157,
+        "startChar": 42,
+        "endLine": 157,
+        "endChar": 63
+      },
+      "revId": "012f36e7aa0237ea380e080a1dc161016e478042",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2438403a_d8952fde",
+        "filename": "src/gpu/ops/GrMeshDrawOp.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-21T20:48:36Z",
+      "side": 1,
+      "message": "Let\u0027s talk in person about this. I kind of like the explicit nature of this in that makes it clear that the non-onPrePrepare paths are also using an SkArenaAlloc - just the FlushState\u0027s. \n\nI think part of this the GrMeshDrawOp\u0027s Target - which seems needlessly abstract.",
+      "parentUuid": "89304cdb_1fc705e6",
       "range": {
         "startLine": 157,
         "startChar": 42,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "e57b868e_ac04d219",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-21T20:48:36Z",
+      "side": 1,
+      "message": "That\u0027s in a follow-on CL. Rather than jam it into the arena I currently just have it in the TextureOp - I have mixed feelings about it.",
+      "parentUuid": "6055579d_af6ff831",
+      "range": {
+        "startLine": 440,
+        "startChar": 44,
+        "endLine": 440,
+        "endChar": 56
+      },
+      "revId": "012f36e7aa0237ea380e080a1dc161016e478042",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "93a179af_f4e95eae",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 7
@@ -137,6 +257,30 @@
       "revId": "012f36e7aa0237ea380e080a1dc161016e478042",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "173486bb_123fcab2",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 528,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-21T20:48:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "93a179af_f4e95eae",
+      "range": {
+        "startLine": 528,
+        "startChar": 22,
+        "endLine": 528,
+        "endChar": 27
+      },
+      "revId": "012f36e7aa0237ea380e080a1dc161016e478042",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
