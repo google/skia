@@ -520,10 +520,8 @@ private:
     void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                             const SkStrikeSpec& strikeSpec) override;
 
-    void processSourcePaths(SkSpan<const SkGlyphPos> paths,
+    void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                             const SkStrikeSpec& strikeSpec) override;
-
-    void processDevicePaths(SkSpan<const SkGlyphPos> paths) override;
 
     void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                            const SkStrikeSpec& strikeSpec,
