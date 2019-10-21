@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3c9aa357_72d4e1b3",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-21T20:15:15Z",
+      "side": 1,
+      "message": "I find the best spot for these is one tab stop to the left of the code it guards, as if braces\n\n{\n  ...\n}\n\n~~~\u003e\n\n#if foo\n   ...\n#endif\n\n(Sometimes of course you can\u0027t go any more left.  Tough luck.)",
+      "range": {
+        "startLine": 331,
+        "startChar": 4,
+        "endLine": 331,
+        "endChar": 26
+      },
+      "revId": "a1363a15fcfceec7e0ab5080cf9e46357877bd6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
