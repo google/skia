@@ -16,6 +16,24 @@
       "revId": "ba0cafebc807902338247c5c438d38b3f9007c4f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b835c4f6_d7fe0e27",
+        "filename": "public.bzl",
+        "patchSetId": 3
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-10-21T15:17:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97e57475_4e879556",
+      "revId": "ba0cafebc807902338247c5c438d38b3f9007c4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
