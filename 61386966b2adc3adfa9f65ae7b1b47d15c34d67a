@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aba36ae7_8fb4174a",
+        "filename": "modules/skottie/src/SkottieTool.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-21T16:31:01Z",
+      "side": 0,
+      "message": "(Unrelated, what\u0027s all this kMaxFrames stuff about?  Seems it kind of undermines what the command line flags tell the program to do?)",
+      "revId": "61386966b2adc3adfa9f65ae7b1b47d15c34d67a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
