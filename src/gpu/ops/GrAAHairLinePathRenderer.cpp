@@ -998,7 +998,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
         mesh->setIndexedPatterned(std::move(linesIndexBuffer), kIdxsPerLineSeg, kLineSegNumVertices,
                                   lineCount, kLineSegsNumInIdxBuffer);
         mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-        target->recordDraw(std::move(lineGP), mesh);
+        target->recordDraw1(std::move(lineGP), mesh);
     }
 
     if (quadCount || conicCount) {
@@ -1053,7 +1053,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
             mesh->setIndexedPatterned(quadsIndexBuffer, kIdxsPerQuad, kQuadNumVertices, quadCount,
                                       kQuadsNumInIdxBuffer);
             mesh->setVertexData(vertexBuffer, firstVertex);
-            target->recordDraw(std::move(quadGP), mesh);
+            target->recordDraw1(std::move(quadGP), mesh);
             firstVertex += quadCount * kQuadNumVertices;
         }
 
@@ -1062,7 +1062,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
             mesh->setIndexedPatterned(std::move(quadsIndexBuffer), kIdxsPerQuad, kQuadNumVertices,
                                       conicCount, kQuadsNumInIdxBuffer);
             mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-            target->recordDraw(std::move(conicGP), mesh);
+            target->recordDraw1(std::move(conicGP), mesh);
         }
     }
 }

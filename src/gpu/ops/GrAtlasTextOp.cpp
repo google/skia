@@ -302,7 +302,8 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     GR_STATIC_ASSERT(GrDistanceFieldA8TextGeoProc::kMaxTextures == kMaxTextures);
     GR_STATIC_ASSERT(GrDistanceFieldLCDTextGeoProc::kMaxTextures == kMaxTextures);
 
-    auto fixedDynamicState = target->makeFixedDynamicState(kMaxTextures);
+    auto fixedDynamicState = Target::MakeFixedDynamicState(target->allocator(),
+                                                           target->appliedClip(), kMaxTextures);
     for (unsigned i = 0; i < numActiveProxies; ++i) {
         fixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
         // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the proxies

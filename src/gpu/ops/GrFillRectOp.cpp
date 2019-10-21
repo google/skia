@@ -233,7 +233,7 @@ private:
             return;
         }
         mesh->setVertexData(std::move(vbuffer), vertexOffsetInBuffer);
-        target->recordDraw(std::move(gp), mesh);
+        target->recordDraw1(std::move(gp), mesh);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {

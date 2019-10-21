@@ -52,7 +52,7 @@ void GrMeshDrawOp::PatternHelper::init(Target* target, GrPrimitiveType primitive
 
 void GrMeshDrawOp::PatternHelper::recordDraw(
         Target* target, sk_sp<const GrGeometryProcessor> gp) const {
-    target->recordDraw(std::move(gp), fMesh);
+    target->recordDraw1(std::move(gp), fMesh);
 }
 
 void GrMeshDrawOp::PatternHelper::recordDraw(
@@ -75,32 +75,37 @@ GrMeshDrawOp::QuadHelper::QuadHelper(Target* target, size_t vertexStride, int qu
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrPipeline::DynamicStateArrays* GrMeshDrawOp::Target::allocDynamicStateArrays(
-        int numMeshes, int numPrimitiveProcessorTextures, bool allocScissors) {
-    auto result = this->allocator()->make<GrPipeline::DynamicStateArrays>();
+GrPipeline::DynamicStateArrays* GrMeshDrawOp::Target::AllocDynamicStateArrays(
+        SkArenaAlloc* arena, int numMeshes, int numPrimitiveProcessorTextures,
+        bool allocScissors) {
+
+    auto result = arena->make<GrPipeline::DynamicStateArrays>();
+
     if (allocScissors) {
-        result->fScissorRects = this->allocator()->makeArray<SkIRect>(numMeshes);
+        result->fScissorRects = arena->makeArray<SkIRect>(numMeshes);
     }
+
     if (numPrimitiveProcessorTextures) {
-        result->fPrimitiveProcessorTextures =
-                this->allocator()->makeArrayDefault<GrTextureProxy*>(
+        result->fPrimitiveProcessorTextures = arena->makeArrayDefault<GrTextureProxy*>(
                         numPrimitiveProcessorTextures * numMeshes);
     }
+
     return result;
 }
 
-GrPipeline::FixedDynamicState* GrMeshDrawOp::Target::makeFixedDynamicState(
-        int numPrimProcTextures) {
-    const GrAppliedClip* clip = this->appliedClip();
+GrPipeline::FixedDynamicState* GrMeshDrawOp::Target::MakeFixedDynamicState(
+        SkArenaAlloc* arena, const GrAppliedClip* clip, int numPrimProcTextures) {
+
     if ((clip && clip->scissorState().enabled()) || numPrimProcTextures) {
         const SkIRect& scissor = (clip) ? clip->scissorState().rect() : SkIRect::MakeEmpty();
-        auto fixedDynamicState =
-                this->allocator()->make<GrPipeline::FixedDynamicState>(scissor);
+
+        auto result = arena->make<GrPipeline::FixedDynamicState>(scissor);
+
         if (numPrimProcTextures) {
-            fixedDynamicState->fPrimitiveProcessorTextures =
-                    this->allocator()->makeArrayDefault<GrTextureProxy*>(numPrimProcTextures);
+            result->fPrimitiveProcessorTextures = arena->makeArrayDefault<GrTextureProxy*>(
+                        numPrimProcTextures);
         }
-        return fixedDynamicState;
+        return result;
     }
     return nullptr;
 }
