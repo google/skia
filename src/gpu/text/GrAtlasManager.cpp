@@ -89,8 +89,7 @@ static bool save_pixels(GrContext* context, GrSurfaceProxy* sProxy, GrColorType 
         return false;
     }
 
-    SkImageInfo ii = SkImageInfo::Make(sProxy->width(), sProxy->height(),
-                                       kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    SkImageInfo ii = SkImageInfo::Make(sProxy->size(), kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     SkBitmap bm;
     if (!bm.tryAllocPixels(ii)) {
         return false;

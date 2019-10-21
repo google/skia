@@ -102,42 +102,32 @@ public:
     bool isLazy() const { return !this->isInstantiated() && SkToBool(fLazyInstantiateCallback); }
 
     bool isFullyLazy() const {
-        bool result = fHeight < 0;
-        SkASSERT(result == (fWidth < 0));
+        bool result = fSize.width() < 0;
+        SkASSERT(result == (fSize.height() < 0));
         SkASSERT(!result || this->isLazy());
         return result;
     }
 
     GrPixelConfig config() const { return fConfig; }
 
-    int width() const {
+    SkISize size() const {
         SkASSERT(!this->isFullyLazy());
-        return fWidth;
+        return fSize;
     }
+    int width() const { return this->size().width(); }
+    int height() const { return this->size().height(); }
 
-    int height() const {
-        SkASSERT(!this->isFullyLazy());
-        return fHeight;
-    }
+    SkISize worstCaseSize() const;
 
-    SkISize isize() const { return {fWidth, fHeight}; }
-
-    int worstCaseWidth() const;
-    int worstCaseHeight() const;
     /**
      * Helper that gets the width and height of the surface as a bounding rectangle.
      */
-    SkRect getBoundsRect() const {
-        SkASSERT(!this->isFullyLazy());
-        return SkRect::MakeIWH(this->width(), this->height());
-    }
+    SkRect getBoundsRect() const { return SkRect::Make(this->size()); }
+
     /**
      * Helper that gets the worst case width and height of the surface as a bounding rectangle.
      */
-    SkRect getWorstCaseBoundsRect() const {
-        SkASSERT(!this->isFullyLazy());
-        return SkRect::MakeIWH(this->worstCaseWidth(), this->worstCaseHeight());
-    }
+    SkRect getWorstCaseBoundsRect() const { return SkRect::Make(this->worstCaseSize()); }
 
     GrSurfaceOrigin origin() const {
         SkASSERT(kTopLeft_GrSurfaceOrigin == fOrigin || kBottomLeft_GrSurfaceOrigin == fOrigin);
@@ -369,11 +359,10 @@ protected:
     // can use this optional method to specify the proxy's size. (A proxy's size can be less than
     // the GPU surface that backs it. e.g., SkBackingFit::kApprox.) Otherwise, the proxy's size will
     // be set to match the underlying GPU surface upon instantiation.
-    void setLazySize(int width, int height) {
+    void setLazySize(SkISize size) {
         SkASSERT(this->isFullyLazy());
-        SkASSERT(width > 0 && height > 0);
-        fWidth = width;
-        fHeight = height;
+        SkASSERT(!size.isEmpty());
+        fSize = size;
     }
 
     bool instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
@@ -396,8 +385,7 @@ private:
     // be filled in from the wrapped resource.
     const GrBackendFormat  fFormat;
     const GrPixelConfig    fConfig;
-    int                    fWidth;
-    int                    fHeight;
+    SkISize                fSize;
     const GrSurfaceOrigin  fOrigin;
     const GrSwizzle        fTextureSwizzle;
 
