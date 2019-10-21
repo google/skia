@@ -36,6 +36,7 @@
 #include "src/gpu/GrPrimitiveProcessor.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProcessorSet.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
@@ -137,7 +138,7 @@ public:
 private:
     ClockwiseTestOp(bool readSkFragCoord, float y)
             : GrDrawOp(ClassID()), fReadSkFragCoord(readSkFragCoord), fY(y) {
-        this->setBounds(SkRect::MakeIWH(300, 100), HasAABloat::kNo, IsZeroArea::kNo);
+        this->setBounds(SkRect::MakeXYWH(0, fY, 100, 100), HasAABloat::kNo, IsHairline::kNo);
     }
 
     const char* name() const override { return "ClockwiseTestOp"; }
@@ -146,28 +147,38 @@ private:
                                       bool hasMixedSampledCoverage, GrClampType) override {
         return GrProcessorSet::EmptySetAnalysis();
     }
-    void onPrepare(GrOpFlushState*) override {}
-    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         SkPoint vertices[4] = {
             {100, fY},
             {0, fY+100},
             {0, fY},
             {100, fY+100},
         };
-        sk_sp<const GrBuffer> vertexBuffer(flushState->resourceProvider()->createBuffer(
-                sizeof(vertices), GrGpuBufferType::kVertex, kStatic_GrAccessPattern, vertices));
-        if (!vertexBuffer) {
+        fVertexBuffer = flushState->resourceProvider()->createBuffer(
+                sizeof(vertices), GrGpuBufferType::kVertex, kStatic_GrAccessPattern, vertices);
+    }
+    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        if (!fVertexBuffer) {
             return;
         }
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kPlus,
-                            flushState->drawOpArgs().fOutputSwizzle);
+                            flushState->drawOpArgs().outputSwizzle());
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setNonIndexedNonInstanced(4);
-        mesh.setVertexData(std::move(vertexBuffer));
-        flushState->opsRenderPass()->draw(ClockwiseTestProcessor(fReadSkFragCoord), pipeline,
-                                          nullptr, nullptr, &mesh, 1, SkRect::MakeIWH(100, 100));
+        mesh.setVertexData(std::move(fVertexBuffer));
+
+        ClockwiseTestProcessor primProc(fReadSkFragCoord);
+
+        GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
+                                  flushState->drawOpArgs().origin(),
+                                  pipeline,
+                                  primProc,
+                                  nullptr, nullptr, 0);
+
+        flushState->opsRenderPass()->draw(programInfo, &mesh, 1, SkRect::MakeXYWH(0, fY, 100, 100));
     }
 
+    sk_sp<GrBuffer> fVertexBuffer;
     const bool fReadSkFragCoord;
     const float fY;
 
@@ -185,14 +196,15 @@ void ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* c
     rtc->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
 
     // Draw the test to an off-screen, top-down render target.
+    GrColorType rtcColorType = rtc->colorInfo().colorType();
     if (auto topLeftRTC = ctx->priv().makeDeferredRenderTargetContext(
-                SkBackingFit::kExact, 100, 200, rtc->colorSpaceInfo().colorType(), nullptr, 1,
+                SkBackingFit::kExact, 100, 200, rtcColorType, nullptr, 1,
                 GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes)) {
         topLeftRTC->clear(nullptr, SK_PMColor4fTRANSPARENT,
                           GrRenderTargetContext::CanClearFullscreen::kYes);
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
-        rtc->drawTexture(GrNoClip(), sk_ref_sp(topLeftRTC->asTextureProxy()),
+        rtc->drawTexture(GrNoClip(), sk_ref_sp(topLeftRTC->asTextureProxy()), rtcColorType,
                          GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
                          SK_PMColor4fWHITE, {0, 0, 100, 200},
                          {100, 0, 200, 200}, GrAA::kNo, GrQuadAAFlags::kNone,
@@ -202,13 +214,13 @@ void ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* c
 
     // Draw the test to an off-screen, bottom-up render target.
     if (auto topLeftRTC = ctx->priv().makeDeferredRenderTargetContext(
-                SkBackingFit::kExact, 100, 200, rtc->colorSpaceInfo().colorType(), nullptr, 1,
+                SkBackingFit::kExact, 100, 200, rtcColorType, nullptr, 1,
                 GrMipMapped::kNo, kBottomLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes)) {
         topLeftRTC->clear(nullptr, SK_PMColor4fTRANSPARENT,
                           GrRenderTargetContext::CanClearFullscreen::kYes);
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
-        rtc->drawTexture(GrNoClip(), sk_ref_sp(topLeftRTC->asTextureProxy()),
+        rtc->drawTexture(GrNoClip(), sk_ref_sp(topLeftRTC->asTextureProxy()), rtcColorType,
                          GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
                          SK_PMColor4fWHITE, {0, 0, 100, 200},
                          {200, 0, 300, 200}, GrAA::kNo, GrQuadAAFlags::kNone,

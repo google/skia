@@ -18,144 +18,68 @@ class GrResourceCache;
 class SkTraceMemoryDump;
 
 /**
- * Base class for GrGpuResource. Handles the various types of refs we need. Separated out as a base
- * class to isolate the ref-cnting behavior and provide friendship without exposing all of
- * GrGpuResource.
+ * Base class for GrGpuResource. Provides the hooks for resources to interact with the cache.
+ * Separated out as a base class to isolate the ref-cnting behavior and provide friendship without
+ * exposing all of GrGpuResource.
  *
- * Gpu resources can have three types of refs:
- *   1) Normal ref (+ by ref(), - by unref()): These are used by code that is issuing draw calls
- *      that read and write the resource via GrOpsTask and by any object that must own a
- *      GrGpuResource and is itself owned (directly or indirectly) by Skia-client code.
- *   2) Pending read (+ by addPendingRead(), - by completedRead()): GrContext has scheduled a read
- *      of the resource by the GPU as a result of a skia API call but hasn't executed it yet.
- *   3) Pending write (+ by addPendingWrite(), - by completedWrite()): GrContext has scheduled a
- *      write to the resource by the GPU as a result of a skia API call but hasn't executed it yet.
- *
- * The latter two ref types are private and intended only for Gr core code.
- *
- * PRIOR to the last ref/IO count being removed DERIVED::notifyAllCntsWillBeZero() will be called
- * (static poly morphism using CRTP). It is legal for additional ref's or pending IOs to be added
- * during this time. AFTER all the ref/io counts reach zero DERIVED::notifyAllCntsAreZero() will be
- * called. Similarly when the ref (but not necessarily pending read/write) count reaches 0
- * DERIVED::notifyRefCountIsZero() will be called. In the case when an unref() causes both
- * the ref cnt to reach zero and the other counts are zero, notifyRefCountIsZero() will be called
- * before notifyAllCntsAreZero(). Moreover, if notifyRefCountIsZero() returns false then
- * notifyAllCntsAreZero() won't be called at all. notifyRefCountIsZero() must return false if the
- * object may be deleted after notifyRefCntIsZero() returns.
- *
- * GrIORef and GrGpuResource are separate classes for organizational reasons and to be
- * able to give access via friendship to only the functions related to pending IO operations.
+ * PRIOR to the last ref being removed DERIVED::notifyRefCntWillBeZero() will be called
+ * (static poly morphism using CRTP). It is legal for additional ref's to be added
+ * during this time. AFTER the ref count reaches zero DERIVED::notifyRefCntIsZero() will be
+ * called.
  */
 template <typename DERIVED> class GrIORef : public SkNoncopyable {
 public:
-    // Some of the signatures are written to mirror SkRefCnt so that GrGpuResource can work with
-    // templated helper classes (e.g. sk_sp). However, we have different categories of
-    // refs (e.g. pending reads). We also don't require thread safety as GrCacheable objects are
-    // not intended to cross thread boundaries.
+    bool unique() const { return fRefCnt == 1; }
+
     void ref() const {
         // Only the cache should be able to add the first ref to a resource.
-        SkASSERT(fRefCnt > 0);
-        this->validate();
-        ++fRefCnt;
+        SkASSERT(this->getRefCnt() > 0);
+        // No barrier required.
+        (void)fRefCnt.fetch_add(+1, std::memory_order_relaxed);
     }
 
     void unref() const {
-        this->validate();
-
-        if (fRefCnt == 1) {
-            if (!this->internalHasPendingIO()) {
-                static_cast<const DERIVED*>(this)->notifyAllCntsWillBeZero();
+        SkASSERT(this->getRefCnt() > 0);
+        if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
+            // At this point we better be the only thread accessing this resource.
+            // Trick out the notifyRefCntWillBeZero() call by adding back one more ref.
+            fRefCnt.fetch_add(+1, std::memory_order_relaxed);
+            static_cast<const DERIVED*>(this)->notifyRefCntWillBeZero();
+            // notifyRefCntWillBeZero() could have done anything, including re-refing this and
+            // passing on to another thread. Take away the ref-count we re-added above and see
+            // if we're back to zero.
+            // TODO: Consider making it so that refs can't be added and merge
+            //  notifyRefCntWillBeZero()/willRemoveLastRef() with notifyRefCntIsZero().
+            if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
+                static_cast<const DERIVED*>(this)->notifyRefCntIsZero();
             }
-            SkASSERT(fRefCnt > 0);
         }
-        if (--fRefCnt == 0) {
-            if (!static_cast<const DERIVED*>(this)->notifyRefCountIsZero()) {
-                return;
-            }
-        }
-
-        this->didRemoveRefOrPendingIO(kRef_CntType);
-    }
-
-    void validate() const {
-#ifdef SK_DEBUG
-        SkASSERT(fRefCnt >= 0);
-        SkASSERT(fPendingReads >= 0);
-        SkASSERT(fPendingWrites >= 0);
-        SkASSERT(fRefCnt + fPendingReads + fPendingWrites >= 0);
-#endif
     }
 
 #if GR_TEST_UTILS
-    int32_t testingOnly_getRefCnt() const { return fRefCnt; }
-    int32_t testingOnly_getPendingReads() const { return fPendingReads; }
-    int32_t testingOnly_getPendingWrites() const { return fPendingWrites; }
+    int32_t testingOnly_getRefCnt() const { return this->getRefCnt(); }
 #endif
 
 protected:
-    GrIORef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0) { }
+    friend class GrResourceCache; // for internalHasRef
 
-    enum CntType {
-        kRef_CntType,
-        kPendingRead_CntType,
-        kPendingWrite_CntType,
-    };
+    GrIORef() : fRefCnt(1) {}
 
-    bool internalHasPendingRead() const { return SkToBool(fPendingReads); }
-    bool internalHasPendingWrite() const { return SkToBool(fPendingWrites); }
-    bool internalHasPendingIO() const { return SkToBool(fPendingWrites | fPendingReads); }
-
-    bool internalHasRef() const { return SkToBool(fRefCnt); }
-    bool internalHasUniqueRef() const { return fRefCnt == 1; }
+    bool internalHasRef() const { return SkToBool(this->getRefCnt()); }
 
     // Privileged method that allows going from ref count = 0 to ref count = 1.
     void addInitialRef() const {
-        this->validate();
-        ++fRefCnt;
+        SkASSERT(fRefCnt >= 0);
+        // No barrier required.
+        (void)fRefCnt.fetch_add(+1, std::memory_order_relaxed);
     }
 
 private:
-    void addPendingRead() const {
-        this->validate();
-        ++fPendingReads;
-    }
+    int32_t getRefCnt() const { return fRefCnt.load(std::memory_order_relaxed); }
 
-    void completedRead() const {
-        this->validate();
-        if (fPendingReads == 1 && !fPendingWrites && !fRefCnt) {
-            static_cast<const DERIVED*>(this)->notifyAllCntsWillBeZero();
-        }
-        --fPendingReads;
-        this->didRemoveRefOrPendingIO(kPendingRead_CntType);
-    }
+    mutable std::atomic<int32_t> fRefCnt;
 
-    void addPendingWrite() const {
-        this->validate();
-        ++fPendingWrites;
-    }
-
-    void completedWrite() const {
-        this->validate();
-        if (fPendingWrites == 1 && !fPendingReads && !fRefCnt) {
-            static_cast<const DERIVED*>(this)->notifyAllCntsWillBeZero();
-        }
-        --fPendingWrites;
-        this->didRemoveRefOrPendingIO(kPendingWrite_CntType);
-    }
-
-    void didRemoveRefOrPendingIO(CntType cntTypeRemoved) const {
-        if (0 == fPendingReads && 0 == fPendingWrites && 0 == fRefCnt) {
-            static_cast<const DERIVED*>(this)->notifyAllCntsAreZero(cntTypeRemoved);
-        }
-    }
-
-    mutable int32_t fRefCnt;
-    mutable int32_t fPendingReads;
-    mutable int32_t fPendingWrites;
-
-    friend class GrResourceCache; // to check IO ref counts.
-
-    template <typename, GrIOType> friend class GrPendingIOResource;
+    typedef SkNoncopyable INHERITED;
 };
 
 /**
@@ -310,7 +234,6 @@ protected:
 private:
     bool isPurgeable() const;
     bool hasRef() const;
-    bool hasRefOrPendingIO() const;
 
     /**
      * Called by the registerWithCache if the resource is available to be used as scratch.
@@ -334,16 +257,15 @@ private:
     virtual size_t onGpuMemorySize() const = 0;
 
     /**
-     * Called by GrResourceCache when a resource loses its last ref or pending IO.
+     * Called by GrIORef when a resource is about to lose its last ref
      */
-    virtual void willRemoveLastRefOrPendingIO() {}
+    virtual void willRemoveLastRef() {}
 
     // See comments in CacheAccess and ResourcePriv.
     void setUniqueKey(const GrUniqueKey&);
     void removeUniqueKey();
-    void notifyAllCntsWillBeZero() const;
-    void notifyAllCntsAreZero(CntType) const;
-    bool notifyRefCountIsZero() const;
+    void notifyRefCntWillBeZero() const;
+    void notifyRefCntIsZero() const;
     void removeScratchKey();
     void makeBudgeted();
     void makeUnbudgeted();
@@ -374,7 +296,7 @@ private:
     const UniqueID fUniqueID;
 
     typedef GrIORef<GrGpuResource> INHERITED;
-    friend class GrIORef<GrGpuResource>; // to access notifyAllCntsAreZero and notifyRefCntIsZero.
+    friend class GrIORef<GrGpuResource>; // to access notifyRefCntWillBeZero and notifyRefCntIsZero.
 };
 
 class GrGpuResource::ProxyAccess {

@@ -39,7 +39,7 @@ struct GrDawnProgram : public SkRefCnt {
         void getRTAdjustmentVec(float* destVec) {
             destVec[0] = 2.f / fRenderTargetSize.fWidth;
             destVec[1] = -1.f;
-            if (kBottomLeft_GrSurfaceOrigin == fRenderTargetOrigin) {
+            if (kTopLeft_GrSurfaceOrigin == fRenderTargetOrigin) {
                 destVec[2] = -2.f / fRenderTargetSize.fHeight;
                 destVec[3] = 1.f;
             } else {
@@ -65,19 +65,14 @@ struct GrDawnProgram : public SkRefCnt {
     BuiltinUniformHandles fBuiltinUniformHandles;
 
     void setRenderTargetState(const GrRenderTarget*, GrSurfaceOrigin);
-    dawn::BindGroup setData(GrDawnGpu* gpu, const GrRenderTarget*, GrSurfaceOrigin origin,
-                            const GrPrimitiveProcessor&, const GrPipeline&,
-                            const GrTextureProxy* const primProcTextures[]);
+    dawn::BindGroup setData(GrDawnGpu* gpu, const GrRenderTarget*, const GrProgramInfo&);
 };
 
 class GrDawnProgramBuilder : public GrGLSLProgramBuilder {
 public:
     static sk_sp<GrDawnProgram> Build(GrDawnGpu*,
-                                      GrRenderTarget* renderTarget,
-                                      GrSurfaceOrigin origin,
-                                      const GrPipeline&,
-                                      const GrPrimitiveProcessor&,
-                                      const GrTextureProxy* const primProcProxies[],
+                                      GrRenderTarget* rt,
+                                      const GrProgramInfo& programInfo,
                                       GrPrimitiveType primitiveType,
                                       dawn::TextureFormat colorFormat,
                                       bool hasDepthStencil,
@@ -93,13 +88,10 @@ public:
 private:
     GrDawnProgramBuilder(GrDawnGpu*,
                          GrRenderTarget*,
-                         GrSurfaceOrigin,
-                         const GrPrimitiveProcessor&,
-                         const GrTextureProxy* const primProcProxies[],
-                         const GrPipeline&,
+                         const GrProgramInfo&,
                          GrProgramDesc*);
     dawn::ShaderModule createShaderModule(const GrGLSLShaderBuilder&, SkSL::Program::Kind,
-                                          SkSL::Program::Inputs* inputs);
+                                          bool flipY, SkSL::Program::Inputs* inputs);
     GrDawnGpu*             fGpu;
     GrDawnVaryingHandler   fVaryingHandler;
     GrDawnUniformHandler   fUniformHandler;

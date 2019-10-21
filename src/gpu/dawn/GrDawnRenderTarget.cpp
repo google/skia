@@ -32,6 +32,14 @@ GrDawnRenderTarget::MakeWrapped(GrDawnGpu* gpu,
     return rt;
 }
 
+size_t GrDawnRenderTarget::onGpuMemorySize() const {
+    // The plus 1 is to account for the resolve texture or if not using msaa the RT itself
+    int numSamples = this->numSamples() + 1;
+    const GrCaps& caps = *getGpu()->caps();
+    return GrSurface::ComputeSize(caps, this->backendFormat(), this->width(), this->height(),
+                                  numSamples, GrMipMapped::kNo);
+}
+
 bool GrDawnRenderTarget::completeStencilAttachment() {
     return true;
 }

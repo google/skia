@@ -25,9 +25,9 @@ public:
     int height() const { return fHeight; }
     int bits() const { return fBits; }
     int numSamples() const { return fSampleCnt; }
-    bool isDirty() const { return fIsDirty; }
 
-    void cleared() { fIsDirty = false; }
+    bool hasPerformedInitialClear() const { return fHasPerformedInitialClear; }
+    void markHasPerformedInitialClear() { fHasPerformedInitialClear = true; }
 
     // We create a unique stencil buffer at each width, height and sampleCnt and share it for
     // all render targets that require a stencil with those params.
@@ -40,8 +40,7 @@ protected:
             , fWidth(width)
             , fHeight(height)
             , fBits(bits)
-            , fSampleCnt(sampleCnt)
-            , fIsDirty(true) {
+            , fSampleCnt(sampleCnt) {
     }
 
 private:
@@ -51,7 +50,7 @@ private:
     int fHeight;
     int fBits;
     int fSampleCnt;
-    bool fIsDirty;
+    bool fHasPerformedInitialClear = false;
 
     typedef GrGpuResource INHERITED;
 };

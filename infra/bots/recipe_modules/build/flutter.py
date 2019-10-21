@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+from . import util
 
 def compile_fn(api, checkout_root, out_dir):
   flutter_dir   = checkout_root.join('src')
@@ -32,17 +33,27 @@ def compile_fn(api, checkout_root, out_dir):
         cmd=['ninja', '-C', out_dir, '-j100'])
 
 
-def copy_extra_build_products(api, src, dst):
+FLUTTER_BUILD_PRODUCTS_LIST = [
+  '*.so',
+  'lib/*.so',
+]
+
+def copy_build_products(api, src, dst):
+  util.copy_listed_files(api, src, dst, FLUTTER_BUILD_PRODUCTS_LIST)
   stripped_src = src.join('lib.stripped', 'libflutter.so')
   stripped_dst = dst.join('libflutter_stripped.so')
   api.python.inline(
       name='copy stripped library',
       program='''
+import os
 import shutil
 import sys
 
 src = sys.argv[1]
 dst = sys.argv[2]
+
+if not os.path.isdir(os.path.dirname(dst)):
+  os.makedirs(os.path.dirname(dst))
 
 shutil.copyfile(src, dst)
 ''',

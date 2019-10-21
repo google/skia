@@ -6,7 +6,9 @@ namespace skui {
 enum class InputState {
     kDown,
     kUp,
-    kMove   // only valid for mouse
+    kMove,   // only valid for mouse
+    kRight,  // only valid for fling
+    kLeft,   // only valid for fling
 };
 }
 #endif  // skui_inputstate_DEFINED

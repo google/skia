@@ -5,11 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "include/android/SkAnimatedImage.h"
+#include "include/codec/SkAndroidCodec.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
+#include "include/core/SkDrawable.h"
 #include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkFilterQuality.h"
 #include "include/core/SkFont.h"
@@ -64,10 +68,17 @@
 #include <emscripten/html5.h>
 #endif
 
+#ifdef SK_INCLUDE_PARAGRAPH
+#include "modules/skparagraph/include/Paragraph.h"
+#endif
 // Aliases for less typing
 using BoneIndices = SkVertices::BoneIndices;
 using BoneWeights = SkVertices::BoneWeights;
 using Bone        = SkVertices::Bone;
+
+#ifndef SK_NO_FONTS
+sk_sp<SkFontMgr> SkFontMgr_New_Custom_Data(const uint8_t** datas, const size_t* sizes, int n);
+#endif
 
 struct SimpleMatrix {
     SkScalar scaleX, skewX,  transX;
@@ -374,7 +385,7 @@ JSArray EMSCRIPTEN_KEEPALIVE ToCmds(const SkPath& path) {
 // but that requires us to stick to C code and, AFAIK, doesn't allow us to return nice things like
 // SkPath or SkOpBuilder.
 //
-// So, basically, if we are using C++ and EMSCRIPTEN_BINDINGS, we can't have primative pointers
+// So, basically, if we are using C++ and EMSCRIPTEN_BINDINGS, we can't have primitive pointers
 // in our function type signatures. (this gives an error message like "Cannot call foo due to unbound
 // types Pi, Pf").  But, we can just pretend they are numbers and cast them to be pointers and
 // the compiler is happy.
@@ -558,12 +569,35 @@ struct PosTan {
 // SimpleRRect is simpler than passing a (complex) SkRRect over the wire to JS.
 struct SimpleRRect {
     SkRect rect;
-    SkScalar rx;
-    SkScalar ry;
+
+    SkScalar rx1;
+    SkScalar ry1;
+    SkScalar rx2;
+    SkScalar ry2;
+    SkScalar rx3;
+    SkScalar ry3;
+    SkScalar rx4;
+    SkScalar ry4;
 };
 
 SkRRect toRRect(const SimpleRRect& r) {
-    return SkRRect::MakeRectXY(r.rect, r.rx, r.ry);
+    SkVector fRadii[4] = {{r.rx1, r.ry1}, {r.rx2, r.ry2},
+                          {r.rx3, r.ry3}, {r.rx4, r.ry4}};
+    SkRRect rr;
+    rr.setRectRadii(r.rect, fRadii);
+    return rr;
+}
+
+struct TonalColors {
+    SkColor ambientColor;
+    SkColor spotColor;
+};
+
+TonalColors computeTonalColors(const TonalColors& in) {
+    TonalColors out;
+    SkShadowUtils::ComputeTonalColors(in.ambientColor, in.spotColor,
+        &out.ambientColor, &out.spotColor);
+    return out;
 }
 
 // These objects have private destructors / delete methods - I don't think
@@ -578,27 +612,29 @@ namespace emscripten {
         }
 
         template<>
-        void raw_destructor<SkTypeface>(SkTypeface *ptr) {
-        }
-
-        template<>
         void raw_destructor<SkVertices>(SkVertices *ptr) {
         }
 
+#ifndef SK_NO_FONTS
         template<>
         void raw_destructor<SkTextBlob>(SkTextBlob *ptr) {
         }
+
+        template<>
+        void raw_destructor<SkTypeface>(SkTypeface *ptr) {
+        }
+#endif
     }
 }
 
-// Some timesignatures below have uintptr_t instead of a pointer to a primative
+// Some signatures below have uintptr_t instead of a pointer to a primitive
 // type (e.g. SkScalar). This is necessary because we can't use "bind" (EMSCRIPTEN_BINDINGS)
 // and pointers to primitive types (Only bound types like SkPoint). We could if we used
 // cwrap (see https://becominghuman.ai/passing-and-returning-webassembly-array-parameters-a0f572c65d97)
 // but that requires us to stick to C code and, AFAIK, doesn't allow us to return nice things like
 // SkPath or SkCanvas.
 //
-// So, basically, if we are using C++ and EMSCRIPTEN_BINDINGS, we can't have primative pointers
+// So, basically, if we are using C++ and EMSCRIPTEN_BINDINGS, we can't have primitive pointers
 // in our function type signatures. (this gives an error message like "Cannot call foo due to unbound
 // types Pi, Pf").  But, we can just pretend they are numbers and cast them to be pointers and
 // the compiler is happy.
@@ -613,6 +649,17 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     constant("gpu", true);
 #endif
+    function("computeTonalColors", &computeTonalColors);
+    function("_decodeAnimatedImage", optional_override([](uintptr_t /* uint8_t*  */ iptr,
+                                                  size_t length)->sk_sp<SkAnimatedImage> {
+        uint8_t* imgData = reinterpret_cast<uint8_t*>(iptr);
+        sk_sp<SkData> bytes = SkData::MakeFromMalloc(imgData, length);
+        auto codec = SkAndroidCodec::MakeFromData(bytes);
+        if (nullptr == codec) {
+            return nullptr;
+        }
+        return SkAnimatedImage::Make(std::move(codec));
+    }), allow_raw_pointers());
     function("_decodeImage", optional_override([](uintptr_t /* uint8_t*  */ iptr,
                                                   size_t length)->sk_sp<SkImage> {
         uint8_t* imgData = reinterpret_cast<uint8_t*>(iptr);
@@ -756,6 +803,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }));
 #endif
 
+    class_<SkAnimatedImage>("SkAnimatedImage")
+        .smart_ptr<sk_sp<SkAnimatedImage>>("sk_sp<SkAnimatedImage>")
+        .function("getRepetitionCount", &SkAnimatedImage::getRepetitionCount)
+        .function("decodeNextFrame", &SkAnimatedImage::decodeNextFrame);
+
     class_<SkCanvas>("SkCanvas")
         .constructor<>()
         .function("clear", &SkCanvas::clear)
@@ -782,6 +834,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("drawDRRect",optional_override([](SkCanvas& self, const SimpleRRect& o, const SimpleRRect& i, const SkPaint& paint) {
             self.drawDRRect(toRRect(o), toRRect(i), paint);
         }))
+        .function("drawAnimatedImage",  optional_override([](SkCanvas& self, sk_sp<SkAnimatedImage>& aImg,
+                                                        SkScalar x, SkScalar y)->void {
+            self.drawDrawable(aImg.get(), x, y);
+        }), allow_raw_pointers())
         .function("drawImage", select_overload<void (const sk_sp<SkImage>&, SkScalar, SkScalar, const SkPaint*)>(&SkCanvas::drawImage), allow_raw_pointers())
         .function("drawImageRect", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
                                                         SkRect src, SkRect dst,
@@ -793,6 +849,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("drawLine", select_overload<void (SkScalar, SkScalar, SkScalar, SkScalar, const SkPaint&)>(&SkCanvas::drawLine))
         .function("drawOval", &SkCanvas::drawOval)
         .function("drawPaint", &SkCanvas::drawPaint)
+#ifdef SK_INCLUDE_PARAGRAPH
+        .function("drawParagraph", optional_override([](SkCanvas& self, skia::textlayout::Paragraph* p,
+                                                     SkScalar x, SkScalar y) {
+            p->paint(&self, x, y);
+        }), allow_raw_pointers())
+#endif
         .function("drawPath", &SkCanvas::drawPath)
         // Of note, picture is *not* what is colloquially thought of as a "picture", what we call
         // a bitmap. An SkPicture is a series of draw commands.
@@ -810,6 +872,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkShadowUtils::DrawShadow(&self, path, zPlaneParams, lightPos, lightRadius,
                                       ambientColor, spotColor, flags);
         }))
+#ifndef SK_NO_FONTS
         .function("_drawShapedText", &drawShapedText)
         .function("_drawSimpleText", optional_override([](SkCanvas& self, uintptr_t /* char* */ sptr,
                                                           size_t len, SkScalar x, SkScalar y, const SkFont& font,
@@ -820,6 +883,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.drawSimpleText(str, len, SkTextEncoding::kUTF8, x, y, font, paint);
         }))
         .function("drawTextBlob", select_overload<void (const sk_sp<SkTextBlob>&, SkScalar, SkScalar, const SkPaint&)>(&SkCanvas::drawTextBlob))
+#endif
         .function("drawVertices", select_overload<void (const sk_sp<SkVertices>&, SkBlendMode, const SkPaint&)>(&SkCanvas::drawVertices))
         .function("flush", &SkCanvas::flush)
         .function("getSaveCount", &SkCanvas::getSaveCount)
@@ -854,13 +918,28 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkImageInfo dstInfo = toSkImageInfo(di);
 
             return self.writePixels(dstInfo, pixels, srcRowBytes, dstX, dstY);
+        }));
+
+    class_<SkColorFilter>("SkColorFilter")
+        .smart_ptr<sk_sp<SkColorFilter>>("sk_sp<SkColorFilter>>")
+        .class_function("MakeBlend", &SkColorFilters::Blend)
+        .class_function("MakeCompose", &SkColorFilters::Compose)
+        .class_function("MakeLerp", &SkColorFilters::Lerp)
+        .class_function("MakeLinearToSRGBGamma", &SkColorFilters::LinearToSRGBGamma)
+        .class_function("_makeMatrix", optional_override([](uintptr_t /* float* */ fPtr) {
+            float* twentyFloats = reinterpret_cast<float*>(fPtr);
+            return SkColorFilters::Matrix(twentyFloats);
         }))
-        ;
+        .class_function("MakeSRGBToLinearGamma", &SkColorFilters::SRGBToLinearGamma);
 
     class_<SkData>("SkData")
         .smart_ptr<sk_sp<SkData>>("sk_sp<SkData>>")
         .function("size", &SkData::size);
 
+    class_<SkDrawable>("SkDrawable")
+        .smart_ptr<sk_sp<SkDrawable>>("sk_sp<SkDrawable>>");
+
+#ifndef SK_NO_FONTS
     class_<SkFont>("SkFont")
         .constructor<>()
         .constructor<sk_sp<SkTypeface>>()
@@ -906,15 +985,24 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkFontMgr>("SkFontMgr")
         .smart_ptr<sk_sp<SkFontMgr>>("sk_sp<SkFontMgr>")
+        .class_function("_fromData", optional_override([](uintptr_t /* uint8_t**  */ dPtr,
+                                                          uintptr_t /* size_t*  */ sPtr,
+                                                          int numFonts)->sk_sp<SkFontMgr> {
+            // See comment above for uintptr_t explanation
+            auto datas = reinterpret_cast<const uint8_t**>(dPtr);
+            auto sizes = reinterpret_cast<const size_t*>(sPtr);
+
+            return SkFontMgr_New_Custom_Data(datas, sizes, numFonts);
+        }), allow_raw_pointers())
         .class_function("RefDefault", &SkFontMgr::RefDefault)
 #ifdef SK_DEBUG
         .function("dumpFamilies", optional_override([](SkFontMgr& self) {
             int numFam = self.countFamilies();
-            SkDebugf("There are %d font families\n");
+            SkDebugf("There are %d font families\n", numFam);
             for (int i = 0 ; i< numFam; i++) {
                 SkString s;
                 self.getFamilyName(i, &s);
-                SkDebugf("\t%s", s.c_str());
+                SkDebugf("\t%s\n", s.c_str());
             }
         }))
 #endif
@@ -928,6 +1016,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
         return self.makeFromData(fontData);
     }), allow_raw_pointers());
+#endif
 
     class_<SkImage>("SkImage")
         .smart_ptr<sk_sp<SkImage>>("sk_sp<SkImage>")
@@ -982,6 +1071,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                     float r, float g, float b, float a) {
             self.setColor({r, g, b, a});
         }))
+        .function("setColorFilter", &SkPaint::setColorFilter)
         .function("setFilterQuality", &SkPaint::setFilterQuality)
         .function("setMaskFilter", &SkPaint::setMaskFilter)
         .function("setPathEffect", &SkPaint::setPathEffect)
@@ -1103,6 +1193,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }), allow_raw_pointers())
         .function("width", &SkSurface::width);
 
+#ifndef SK_NO_FONTS
     class_<SkTextBlob>("SkTextBlob")
         .smart_ptr<sk_sp<SkTextBlob>>("sk_sp<SkTextBlob>>")
         .class_function("_MakeFromRSXform", optional_override([](uintptr_t /* char* */ sptr,
@@ -1124,9 +1215,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return SkTextBlob::MakeFromText(str, len, font, encoding);
         }), allow_raw_pointers());
 
-
     class_<SkTypeface>("SkTypeface")
         .smart_ptr<sk_sp<SkTypeface>>("sk_sp<SkTypeface>");
+#endif
 
     class_<SkVertices>("SkVertices")
         .smart_ptr<sk_sp<SkVertices>>("sk_sp<SkVertices>")
@@ -1234,7 +1325,13 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("RGB_101010x", SkColorType::kRGB_101010x_SkColorType)
         .value("Gray_8", SkColorType::kGray_8_SkColorType)
         .value("RGBA_F16", SkColorType::kRGBA_F16_SkColorType)
-        .value("RGBA_F32", SkColorType::kRGBA_F32_SkColorType);
+        .value("RGBA_F32", SkColorType::kRGBA_F32_SkColorType)
+        .value("R8G8_unorm", SkColorType::kR8G8_unorm_SkColorType)
+        .value("A16_unorm", SkColorType::kA16_unorm_SkColorType)
+        .value("R16G16_unorm", SkColorType::kR16G16_unorm_SkColorType)
+        .value("A16_float", SkColorType::kA16_float_SkColorType)
+        .value("R16G16_float", SkColorType::kR16G16_float_SkColorType)
+        .value("R16G16B16A16_unorm", SkColorType::kR16G16B16A16_unorm_SkColorType);
 
     enum_<SkPath::FillType>("FillType")
         .value("Winding",           SkPath::FillType::kWinding_FillType)
@@ -1309,14 +1406,24 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     value_object<SimpleRRect>("SkRRect")
         .field("rect", &SimpleRRect::rect)
-        .field("rx",   &SimpleRRect::rx)
-        .field("ry",   &SimpleRRect::ry);
+        .field("rx1",  &SimpleRRect::rx1)
+        .field("ry1",  &SimpleRRect::ry1)
+        .field("rx2",  &SimpleRRect::rx2)
+        .field("ry2",  &SimpleRRect::ry2)
+        .field("rx3",  &SimpleRRect::rx3)
+        .field("ry3",  &SimpleRRect::ry3)
+        .field("rx4",  &SimpleRRect::rx4)
+        .field("ry4",  &SimpleRRect::ry4);
 
     value_object<SkIRect>("SkIRect")
         .field("fLeft",   &SkIRect::fLeft)
         .field("fTop",    &SkIRect::fTop)
         .field("fRight",  &SkIRect::fRight)
         .field("fBottom", &SkIRect::fBottom);
+
+    value_object<TonalColors>("TonalColors")
+        .field("ambient", &TonalColors::ambientColor)
+        .field("spot",    &TonalColors::spotColor);
 
     value_object<SimpleImageInfo>("SkImageInfo")
         .field("width",     &SimpleImageInfo::width)

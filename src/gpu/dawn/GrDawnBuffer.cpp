@@ -10,19 +10,19 @@
 #include "src/gpu/dawn/GrDawnGpu.h"
 
 namespace {
-    dawn::BufferUsageBit GrGpuBufferTypeToDawnUsageBit(GrGpuBufferType type) {
+    dawn::BufferUsage GrGpuBufferTypeToDawnUsageBit(GrGpuBufferType type) {
         switch (type) {
             case GrGpuBufferType::kVertex:
-                return dawn::BufferUsageBit::Vertex;
+                return dawn::BufferUsage::Vertex;
             case GrGpuBufferType::kIndex:
-                return dawn::BufferUsageBit::Index;
+                return dawn::BufferUsage::Index;
             case GrGpuBufferType::kXferCpuToGpu:
-                return dawn::BufferUsageBit::CopySrc;
+                return dawn::BufferUsage::CopySrc;
             case GrGpuBufferType::kXferGpuToCpu:
-                return dawn::BufferUsageBit::CopyDst;
+                return dawn::BufferUsage::CopyDst;
             default:
                 SkASSERT(!"buffer type not supported by Dawn");
-                return dawn::BufferUsageBit::Vertex;
+                return dawn::BufferUsage::Vertex;
         }
     }
 }
@@ -30,40 +30,42 @@ namespace {
 GrDawnBuffer::GrDawnBuffer(GrDawnGpu* gpu, size_t sizeInBytes, GrGpuBufferType type,
                            GrAccessPattern pattern)
     : INHERITED(gpu, sizeInBytes, type, pattern)
-    , fData(nullptr) {
+    , fStagingBuffer(nullptr) {
     dawn::BufferDescriptor bufferDesc;
     bufferDesc.size = sizeInBytes;
-    bufferDesc.usage = GrGpuBufferTypeToDawnUsageBit(type) | dawn::BufferUsageBit::CopyDst;
+    bufferDesc.usage = GrGpuBufferTypeToDawnUsageBit(type) | dawn::BufferUsage::CopyDst;
     fBuffer = this->getDawnGpu()->device().CreateBuffer(&bufferDesc);
     this->registerWithCache(SkBudgeted::kYes);
 }
 
 GrDawnBuffer::~GrDawnBuffer() {
-    delete[] fData;
 }
 
 void GrDawnBuffer::onMap() {
     if (this->wasDestroyed()) {
         return;
     }
-    fData = new char[this->size()];
-    fMapPtr = fData;
+    fStagingBuffer = getDawnGpu()->getStagingBuffer(this->size());
+    fMapPtr = fStagingBuffer->fData;
 }
 
 void GrDawnBuffer::onUnmap() {
     if (this->wasDestroyed()) {
         return;
     }
-    fBuffer.SetSubData(0, this->size(), reinterpret_cast<const uint8_t*>(fData));
-    delete[] fData;
-    fData = nullptr;
+    fStagingBuffer->fBuffer.Unmap();
+    fMapPtr = nullptr;
+    getDawnGpu()->getCopyEncoder()
+        .CopyBufferToBuffer(fStagingBuffer->fBuffer, 0, fBuffer, 0, this->size());
 }
 
 bool GrDawnBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
     if (this->wasDestroyed()) {
         return false;
     }
-    fBuffer.SetSubData(0, srcSizeInBytes, static_cast<const uint8_t*>(src));
+    this->onMap();
+    memcpy(fStagingBuffer->fData, src, srcSizeInBytes);
+    this->onUnmap();
     return true;
 }
 

@@ -8,6 +8,7 @@
 #ifndef GrMtlGpu_DEFINED
 #define GrMtlGpu_DEFINED
 
+#include <list>
 #include "include/gpu/GrTexture.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTarget.h"
@@ -53,14 +54,8 @@ public:
 
     // Commits the current command buffer to the queue and then creates a new command buffer. If
     // sync is set to kForce_SyncQueue, the function will wait for all work in the committed
-    // command buffer to finish before creating a new buffer and returning.
+    // command buffer to finish before returning.
     void submitCommandBuffer(SyncQueue sync);
-
-    GrBackendTexture createBackendTexture(int w, int h, const GrBackendFormat&,
-                                          GrMipMapped, GrRenderable,
-                                          const void* pixels, size_t rowBytes,
-                                          const SkColor4f* color,
-                                          GrProtected isProtected) override;
 
     void deleteBackendTexture(const GrBackendTexture&) override;
 
@@ -82,7 +77,7 @@ public:
                        const SkIPoint& dstPoint) override;
 
     GrOpsRenderPass* getOpsRenderPass(
-            GrRenderTarget*, GrSurfaceOrigin, const SkRect& bounds,
+            GrRenderTarget*, GrSurfaceOrigin, const SkIRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo&,
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,
             const SkTArray<GrTextureProxy*, true>& sampledProxies) override;
@@ -101,8 +96,7 @@ public:
                                             GrWrapOwnership ownership) override;
     void insertSemaphore(sk_sp<GrSemaphore> semaphore) override;
     void waitSemaphore(sk_sp<GrSemaphore> semaphore) override;
-    // We currently call finish procs immediately in onFinishFlush().
-    void checkFinishProcs() override {}
+    void checkFinishProcs() override;
     sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override { return nullptr; }
 
     // When the Metal backend actually uses indirect command buffers, this function will actually do
@@ -112,10 +106,6 @@ public:
     void submitIndirectCommandBuffer(GrSurface* surface, GrSurfaceOrigin origin,
                                      const SkIRect* bounds) {
         this->didWriteToSurface(surface, origin, bounds);
-    }
-
-    void resolveRenderTargetNoFlush(GrRenderTarget* target) {
-        this->internalResolveRenderTarget(target, false);
     }
 
 private:
@@ -133,19 +123,22 @@ private:
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
+    GrBackendTexture onCreateBackendTexture(int w, int h, const GrBackendFormat&,
+                                            GrMipMapped, GrRenderable,
+                                            const SkPixmap srcData[], int numMipLevels,
+                                            const SkColor4f* color, GrProtected) override;
+
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc,
                                      const GrBackendFormat& format,
                                      GrRenderable,
                                      int renderTargetSampleCnt,
                                      SkBudgeted budgeted,
                                      GrProtected,
-                                     const GrMipLevel texels[],
-                                     int mipLevelCount) override;
+                                     int mipLevelCount,
+                                     uint32_t levelClearMask) override;
     sk_sp<GrTexture> onCreateCompressedTexture(int width, int height, const GrBackendFormat&,
                                                SkImage::CompressionType, SkBudgeted,
-                                               const void* data) override {
-        return nullptr;
-    }
+                                               const void* data) override;
 
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrColorType,
                                           GrWrapOwnership, GrWrapCacheable, GrIOType) override;
@@ -175,60 +168,43 @@ private:
 
     bool onTransferPixelsTo(GrTexture*, int left, int top, int width, int height,
                             GrColorType textureColorType, GrColorType bufferColorType, GrGpuBuffer*,
-                            size_t offset, size_t rowBytes) override {
-        // TODO: not sure this is worth the work since nobody uses it
-        return false;
-    }
+                            size_t offset, size_t rowBytes) override;
     bool onTransferPixelsFrom(GrSurface*, int left, int top, int width, int height,
                               GrColorType surfaceColorType, GrColorType bufferColorType,
-                              GrGpuBuffer*, size_t offset) override {
-        // TODO: Will need to implement this to support async read backs.
-        return false;
-    }
+                              GrGpuBuffer*, size_t offset) override;
 
     bool onRegenerateMipMapLevels(GrTexture*) override;
 
-    void onResolveRenderTarget(GrRenderTarget* target) override {
-        // This resolve is called when we are preparing an msaa surface for external I/O. It is
-        // called after flushing, so we need to make sure we submit the command buffer after doing
-        // the resolve so that the resolve actually happens.
-        this->internalResolveRenderTarget(target, true);
-    }
+    void onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
+                               GrSurfaceOrigin resolveOrigin, ForExternalIO) override;
 
-    void internalResolveRenderTarget(GrRenderTarget* target, bool requiresSubmit);
     void resolveTexture(id<MTLTexture> colorTexture, id<MTLTexture> resolveTexture);
 
     void onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
-                       const GrFlushInfo& info, const GrPrepareForExternalIORequests&) override {
-        if (info.fFlags & kSyncCpu_GrFlushFlag) {
-            this->submitCommandBuffer(kForce_SyncQueue);
-            if (info.fFinishedProc) {
-                info.fFinishedProc(info.fFinishedContext);
-            }
-        } else {
-            this->submitCommandBuffer(kSkip_SyncQueue);
-            // TODO: support finishedProc to actually be called when the GPU is done with the work
-            // and not immediately.
-            if (info.fFinishedProc) {
-                info.fFinishedProc(info.fFinishedContext);
-            }
-        }
-    }
+                       const GrFlushInfo& info, const GrPrepareForExternalIORequests&) override;
 
     // Function that uploads data onto textures with private storage mode (GPU access only).
     bool uploadToTexture(GrMtlTexture* tex, int left, int top, int width, int height,
                          GrColorType dataColorType, const GrMipLevel texels[], int mipLevels);
     // Function that fills texture levels with transparent black based on levelMask.
     bool clearTexture(GrMtlTexture*, GrColorType, uint32_t levelMask);
+    bool readOrTransferPixels(GrSurface* surface, int left, int top, int width, int height,
+                              GrColorType dstColorType, id<MTLBuffer> transferBuffer, size_t offset,
+                              size_t imageBytes, size_t rowBytes);
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(
             const GrRenderTarget*, int width, int height, int numStencilSamples) override;
 
-    bool createTestingOnlyMtlTextureInfo(MTLPixelFormat,
-                                         int w, int h, bool texturable,
-                                         bool renderable, GrMipMapped mipMapped,
-                                         const void* srcData, size_t srcRowBytes,
-                                         const SkColor4f* color, GrMtlTextureInfo* info);
+    bool createMtlTextureForBackendSurface(MTLPixelFormat,
+                                           int w, int h, bool texturable,
+                                           bool renderable, GrMipMapped,
+                                           const SkPixmap srcData[], int numMipLevels,
+                                           const SkColor4f* color, GrMtlTextureInfo*);
+
+#if GR_TEST_UTILS
+    void testingOnly_startCapture() override;
+    void testingOnly_endCapture() override;
+#endif
 
     sk_sp<GrMtlCaps> fMtlCaps;
 
@@ -241,14 +217,19 @@ private:
 
     GrMtlResourceProvider fResourceProvider;
 
-#ifdef GR_METAL_SDK_SUPPORTS_EVENTS
     // For FenceSync
-    id<MTLSharedEvent>      fSharedEvent;
-    MTLSharedEventListener* fSharedEventListener;
+    id<MTLSharedEvent>      fSharedEvent API_AVAILABLE(macos(10.14), ios(12.0));
+    MTLSharedEventListener* fSharedEventListener API_AVAILABLE(macos(10.14), ios(12.0));
     uint64_t                fLatestEvent;
-#endif
 
     bool fDisconnected;
+
+    struct FinishCallback {
+        GrGpuFinishedProc fCallback;
+        GrGpuFinishedContext fContext;
+        GrFence fFence;
+    };
+    std::list<FinishCallback> fFinishCallbacks;
 
     typedef GrGpu INHERITED;
 };

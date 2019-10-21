@@ -15,6 +15,7 @@
 #include "include/private/SkImageInfoPriv.h"
 #include "src/codec/SkColorTable.h"
 #include "src/codec/SkPngPriv.h"
+#include "src/core/SkMSAN.h"
 #include "src/images/SkImageEncoderFns.h"
 #include <vector>
 
@@ -315,6 +316,13 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info) {
             return transform_scanline_101010x;
         case kAlpha_8_SkColorType:
             return transform_scanline_A8_to_GrayAlpha;
+        case kR8G8_unorm_SkColorType:
+        case kR16G16_unorm_SkColorType:
+        case kR16G16_float_SkColorType:
+        case kA16_unorm_SkColorType:
+        case kA16_float_SkColorType:
+        case kR16G16B16A16_unorm_SkColorType:
+            return nullptr;
     }
     SkASSERT(false);
     return nullptr;
@@ -414,6 +422,8 @@ bool SkPngEncoder::onEncodeRows(int numRows) {
 
     const void* srcRow = fSrc.addr(0, fCurrRow);
     for (int y = 0; y < numRows; y++) {
+        sk_msan_assert_initialized(srcRow,
+                                   (const uint8_t*)srcRow + (fSrc.width() << fSrc.shiftPerPixel()));
         fEncoderMgr->proc()((char*)fStorage.get(),
                             (const char*)srcRow,
                             fSrc.width(),

@@ -48,15 +48,15 @@
     M(load_565)    M(load_565_dst)  M(store_565)   M(gather_565)   \
     M(load_4444)   M(load_4444_dst) M(store_4444)  M(gather_4444)  \
     M(load_f16)    M(load_f16_dst)  M(store_f16)   M(gather_f16)   \
-    M(load_af16)                    M(store_af16)                  \
-    M(load_rgf16)                   M(store_rgf16)                 \
+    M(load_af16)   M(load_af16_dst) M(store_af16)  M(gather_af16)  \
+    M(load_rgf16)  M(load_rgf16_dst) M(store_rgf16) M(gather_rgf16) \
     M(load_f32)    M(load_f32_dst)  M(store_f32)   M(gather_f32)   \
     M(load_rgf32)                   M(store_rgf32)                 \
     M(load_8888)   M(load_8888_dst) M(store_8888)  M(gather_8888)  \
-    M(load_rg88)                    M(store_rg88)                  \
-    M(load_a16)                     M(store_a16)                   \
-    M(load_rg1616)                  M(store_rg1616)                \
-    M(load_16161616)                M(store_16161616)              \
+    M(load_rg88)   M(load_rg88_dst) M(store_rg88)  M(gather_rg88)  \
+    M(load_a16)    M(load_a16_dst)  M(store_a16)   M(gather_a16)   \
+    M(load_rg1616) M(load_rg1616_dst) M(store_rg1616) M(gather_rg1616) \
+    M(load_16161616) M(load_16161616_dst) M(store_16161616) M(gather_16161616) \
     M(load_1010102) M(load_1010102_dst) M(store_1010102) M(gather_1010102) \
     M(alpha_to_gray) M(alpha_to_gray_dst) M(bt709_luminance_or_luma_to_alpha)         \
     M(bilerp_clamp_8888) M(bicubic_clamp_8888)                     \
@@ -74,7 +74,7 @@
     M(matrix_translate) M(matrix_scale_translate)                  \
     M(matrix_2x3) M(matrix_3x3) M(matrix_3x4) M(matrix_4x5) M(matrix_4x3) \
     M(matrix_perspective)                                          \
-    M(parametric) M(gamma_)                                        \
+    M(parametric) M(gamma_) M(PQish) M(HLGish) M(HLGinvish)        \
     M(mirror_x)   M(repeat_x)                                      \
     M(mirror_y)   M(repeat_y)                                      \
     M(decal_x)    M(decal_y)   M(decal_x_and_y)                    \
@@ -160,8 +160,8 @@ struct SkRasterPipeline_CallbackCtx {
 };
 
 namespace SkSL {
-struct ByteCode;
-struct ByteCodeFunction;
+class ByteCode;
+class ByteCodeFunction;
 }
 
 struct SkRasterPipeline_InterpreterCtx {
@@ -224,9 +224,6 @@ public:
     void append(StockStage, void* = nullptr);
     void append(StockStage stage, const void* ctx) { this->append(stage, const_cast<void*>(ctx)); }
     void append(StockStage, uintptr_t ctx);
-    // For raw functions (i.e. from a JIT).  Don't use this unless you know exactly what fn needs to
-    // be. :)
-    void append(void* fn, void* ctx);
 
     // Append all stages to this pipeline.
     void extend(const SkRasterPipeline&);
@@ -264,14 +261,15 @@ public:
 
     void append_gamut_clamp_if_normalized(const SkImageInfo&);
 
+    void append_transfer_function(const skcms_TransferFunction&);
+
     bool empty() const { return fStages == nullptr; }
 
 private:
     struct StageList {
         StageList* prev;
-        uint64_t   stage;
+        StockStage stage;
         void*      ctx;
-        bool       rawFunction;
     };
 
     using StartPipelineFn = void(*)(size_t,size_t,size_t,size_t, void** program);

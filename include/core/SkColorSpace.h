@@ -51,6 +51,13 @@ static constexpr skcms_TransferFunction kLinear =
 
 static constexpr skcms_TransferFunction kRec2020 =
     {2.22222f, 0.909672f, 0.0903276f, 0.222222f, 0.0812429f, 0, 0};
+
+static constexpr skcms_TransferFunction kPQ =
+    {-2.0f, -107/128.0f, 1.0f, 32/2523.0f, 2413/128.0f, -2392/128.0f, 8192/1305.0f };
+
+static constexpr skcms_TransferFunction kHLG =
+    {-3.0f, 2.0f, 2.0f, 1/0.17883277f, 0.28466892f, 0.55991073f, 0.0f };
+
 }
 
 namespace SkNamedGamut {

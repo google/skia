@@ -415,7 +415,7 @@ DEF_TEST(AndroidCodec_animated, r) {
 
     for (int sampleSize : { 8, 32, 100 }) {
         auto dimensions = codec->codec()->getScaledDimensions(1.0f / sampleSize);
-        info = info.makeWH(dimensions.width(), dimensions.height());
+        info = info.makeDimensions(dimensions);
         SkBitmap bm;
         bm.allocPixels(info);
 

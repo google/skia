@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
 #include <algorithm>
@@ -24,10 +25,15 @@ void SkRasterPipeline::append(StockStage stage, void* ctx) {
     SkASSERT(stage !=                 set_rgb);  // Please use append_set_rgb().
     SkASSERT(stage !=       unbounded_set_rgb);  // Please use append_set_rgb().
     SkASSERT(stage !=             clamp_gamut);  // Please use append_gamut_clamp_if_normalized().
+    SkASSERT(stage !=              parametric);  // Please use append_transfer_function().
+    SkASSERT(stage !=                  gamma_);  // Please use append_transfer_function().
+    SkASSERT(stage !=                   PQish);  // Please use append_transfer_function().
+    SkASSERT(stage !=                  HLGish);  // Please use append_transfer_function().
+    SkASSERT(stage !=               HLGinvish);  // Please use append_transfer_function().
     this->unchecked_append(stage, ctx);
 }
 void SkRasterPipeline::unchecked_append(StockStage stage, void* ctx) {
-    fStages = fAlloc->make<StageList>( StageList{fStages, (uint64_t) stage, ctx, false} );
+    fStages = fAlloc->make<StageList>( StageList{fStages, stage, ctx} );
     fNumStages   += 1;
     fSlotsNeeded += ctx ? 2 : 1;
 }
@@ -35,11 +41,6 @@ void SkRasterPipeline::append(StockStage stage, uintptr_t ctx) {
     void* ptrCtx;
     memcpy(&ptrCtx, &ctx, sizeof(ctx));
     this->append(stage, ptrCtx);
-}
-void SkRasterPipeline::append(void* fn, void* ctx) {
-    fStages = fAlloc->make<StageList>( StageList{fStages, (uint64_t) fn, ctx, true} );
-    fNumStages   += 1;
-    fSlotsNeeded += ctx ? 2 : 1;
 }
 
 void SkRasterPipeline::extend(const SkRasterPipeline& src) {
@@ -165,30 +166,36 @@ void SkRasterPipeline::append_load(SkColorType ct, const SkRasterPipeline_Memory
     switch (ct) {
         case kUnknown_SkColorType: SkASSERT(false); break;
 
-        case kAlpha_8_SkColorType:      this->append(load_a8,      ctx); break;
-        case kRGB_565_SkColorType:      this->append(load_565,     ctx); break;
-        case kARGB_4444_SkColorType:    this->append(load_4444,    ctx); break;
-        case kRGBA_8888_SkColorType:    this->append(load_8888,    ctx); break;
-        case kRGBA_1010102_SkColorType: this->append(load_1010102, ctx); break;
+        case kAlpha_8_SkColorType:           this->append(load_a8,      ctx); break;
+        case kA16_unorm_SkColorType:         this->append(load_a16,     ctx); break;
+        case kA16_float_SkColorType:         this->append(load_af16,    ctx); break;
+        case kRGB_565_SkColorType:           this->append(load_565,     ctx); break;
+        case kARGB_4444_SkColorType:         this->append(load_4444,    ctx); break;
+        case kR8G8_unorm_SkColorType:        this->append(load_rg88,    ctx); break;
+        case kR16G16_unorm_SkColorType:      this->append(load_rg1616,  ctx); break;
+        case kR16G16_float_SkColorType:      this->append(load_rgf16,   ctx); break;
+        case kRGBA_8888_SkColorType:         this->append(load_8888,    ctx); break;
+        case kRGBA_1010102_SkColorType:      this->append(load_1010102, ctx); break;
+        case kR16G16B16A16_unorm_SkColorType:this->append(load_16161616,ctx); break;
         case kRGBA_F16Norm_SkColorType:
-        case kRGBA_F16_SkColorType:     this->append(load_f16,     ctx); break;
-        case kRGBA_F32_SkColorType:     this->append(load_f32,     ctx); break;
+        case kRGBA_F16_SkColorType:          this->append(load_f16,     ctx); break;
+        case kRGBA_F32_SkColorType:          this->append(load_f32,     ctx); break;
 
-        case kGray_8_SkColorType:       this->append(load_a8, ctx);
-                                        this->append(alpha_to_gray);
-                                        break;
+        case kGray_8_SkColorType:            this->append(load_a8, ctx);
+                                             this->append(alpha_to_gray);
+                                             break;
 
-        case kRGB_888x_SkColorType:     this->append(load_8888, ctx);
-                                        this->append(force_opaque);
-                                        break;
+        case kRGB_888x_SkColorType:          this->append(load_8888, ctx);
+                                             this->append(force_opaque);
+                                             break;
 
-        case kRGB_101010x_SkColorType:  this->append(load_1010102, ctx);
-                                        this->append(force_opaque);
-                                        break;
+        case kRGB_101010x_SkColorType:       this->append(load_1010102, ctx);
+                                             this->append(force_opaque);
+                                             break;
 
-        case kBGRA_8888_SkColorType:    this->append(load_8888, ctx);
-                                        this->append(swap_rb);
-                                        break;
+        case kBGRA_8888_SkColorType:         this->append(load_8888, ctx);
+                                             this->append(swap_rb);
+                                             break;
     }
 }
 
@@ -196,30 +203,36 @@ void SkRasterPipeline::append_load_dst(SkColorType ct, const SkRasterPipeline_Me
     switch (ct) {
         case kUnknown_SkColorType: SkASSERT(false); break;
 
-        case kAlpha_8_SkColorType:      this->append(load_a8_dst,      ctx); break;
-        case kRGB_565_SkColorType:      this->append(load_565_dst,     ctx); break;
-        case kARGB_4444_SkColorType:    this->append(load_4444_dst,    ctx); break;
-        case kRGBA_8888_SkColorType:    this->append(load_8888_dst,    ctx); break;
-        case kRGBA_1010102_SkColorType: this->append(load_1010102_dst, ctx); break;
+        case kAlpha_8_SkColorType:            this->append(load_a8_dst,      ctx); break;
+        case kA16_unorm_SkColorType:          this->append(load_a16_dst,     ctx); break;
+        case kA16_float_SkColorType:          this->append(load_af16_dst,    ctx); break;
+        case kRGB_565_SkColorType:            this->append(load_565_dst,     ctx); break;
+        case kARGB_4444_SkColorType:          this->append(load_4444_dst,    ctx); break;
+        case kR8G8_unorm_SkColorType:         this->append(load_rg88_dst,    ctx); break;
+        case kR16G16_unorm_SkColorType:       this->append(load_rg1616_dst,  ctx); break;
+        case kR16G16_float_SkColorType:       this->append(load_rgf16_dst,   ctx); break;
+        case kRGBA_8888_SkColorType:          this->append(load_8888_dst,    ctx); break;
+        case kRGBA_1010102_SkColorType:       this->append(load_1010102_dst, ctx); break;
+        case kR16G16B16A16_unorm_SkColorType: this->append(load_16161616_dst,ctx); break;
         case kRGBA_F16Norm_SkColorType:
-        case kRGBA_F16_SkColorType:     this->append(load_f16_dst,     ctx); break;
-        case kRGBA_F32_SkColorType:     this->append(load_f32_dst,     ctx); break;
+        case kRGBA_F16_SkColorType:           this->append(load_f16_dst,     ctx); break;
+        case kRGBA_F32_SkColorType:           this->append(load_f32_dst,     ctx); break;
 
-        case kGray_8_SkColorType:       this->append(load_a8_dst, ctx);
-                                        this->append(alpha_to_gray_dst);
-                                        break;
+        case kGray_8_SkColorType:             this->append(load_a8_dst, ctx);
+                                              this->append(alpha_to_gray_dst);
+                                              break;
 
-        case kRGB_888x_SkColorType:     this->append(load_8888_dst, ctx);
-                                        this->append(force_opaque_dst);
-                                        break;
+        case kRGB_888x_SkColorType:           this->append(load_8888_dst, ctx);
+                                              this->append(force_opaque_dst);
+                                              break;
 
-        case kRGB_101010x_SkColorType:  this->append(load_1010102_dst, ctx);
-                                        this->append(force_opaque_dst);
-                                        break;
+        case kRGB_101010x_SkColorType:        this->append(load_1010102_dst, ctx);
+                                              this->append(force_opaque_dst);
+                                              break;
 
-        case kBGRA_8888_SkColorType:    this->append(load_8888_dst, ctx);
-                                        this->append(swap_rb_dst);
-                                        break;
+        case kBGRA_8888_SkColorType:          this->append(load_8888_dst, ctx);
+                                              this->append(swap_rb_dst);
+                                              break;
     }
 }
 
@@ -227,30 +240,54 @@ void SkRasterPipeline::append_store(SkColorType ct, const SkRasterPipeline_Memor
     switch (ct) {
         case kUnknown_SkColorType: SkASSERT(false); break;
 
-        case kAlpha_8_SkColorType:      this->append(store_a8,      ctx); break;
-        case kRGB_565_SkColorType:      this->append(store_565,     ctx); break;
-        case kARGB_4444_SkColorType:    this->append(store_4444,    ctx); break;
-        case kRGBA_8888_SkColorType:    this->append(store_8888,    ctx); break;
-        case kRGBA_1010102_SkColorType: this->append(store_1010102, ctx); break;
+        case kAlpha_8_SkColorType:            this->append(store_a8,      ctx); break;
+        case kA16_unorm_SkColorType:          this->append(store_a16,     ctx); break;
+        case kA16_float_SkColorType:          this->append(store_af16,    ctx); break;
+        case kRGB_565_SkColorType:            this->append(store_565,     ctx); break;
+        case kARGB_4444_SkColorType:          this->append(store_4444,    ctx); break;
+        case kR8G8_unorm_SkColorType:         this->append(store_rg88,    ctx); break;
+        case kR16G16_unorm_SkColorType:       this->append(store_rg1616,  ctx); break;
+        case kR16G16_float_SkColorType:       this->append(store_rgf16,   ctx); break;
+        case kRGBA_8888_SkColorType:          this->append(store_8888,    ctx); break;
+        case kRGBA_1010102_SkColorType:       this->append(store_1010102, ctx); break;
+        case kR16G16B16A16_unorm_SkColorType: this->append(store_16161616,ctx); break;
         case kRGBA_F16Norm_SkColorType:
-        case kRGBA_F16_SkColorType:     this->append(store_f16,     ctx); break;
-        case kRGBA_F32_SkColorType:     this->append(store_f32,     ctx); break;
+        case kRGBA_F16_SkColorType:           this->append(store_f16,     ctx); break;
+        case kRGBA_F32_SkColorType:           this->append(store_f32,     ctx); break;
 
-        case kRGB_888x_SkColorType:     this->append(force_opaque);
-                                        this->append(store_8888, ctx);
-                                        break;
+        case kRGB_888x_SkColorType:           this->append(force_opaque);
+                                              this->append(store_8888, ctx);
+                                              break;
 
-        case kRGB_101010x_SkColorType:  this->append(force_opaque);
-                                        this->append(store_1010102, ctx);
-                                        break;
+        case kRGB_101010x_SkColorType:        this->append(force_opaque);
+                                              this->append(store_1010102, ctx);
+                                              break;
 
-        case kGray_8_SkColorType:       this->append(bt709_luminance_or_luma_to_alpha);
-                                        this->append(store_a8, ctx);
-                                        break;
+        case kGray_8_SkColorType:             this->append(bt709_luminance_or_luma_to_alpha);
+                                              this->append(store_a8, ctx);
+                                              break;
 
-        case kBGRA_8888_SkColorType:    this->append(swap_rb);
-                                        this->append(store_8888, ctx);
-                                        break;
+        case kBGRA_8888_SkColorType:          this->append(swap_rb);
+                                              this->append(store_8888, ctx);
+                                              break;
+    }
+}
+
+void SkRasterPipeline::append_transfer_function(const skcms_TransferFunction& tf) {
+    void* ctx = const_cast<void*>(static_cast<const void*>(&tf));
+    switch (classify_transfer_fn(tf)) {
+        case Bad_TF: SkASSERT(false); break;
+
+        case TFKind::sRGBish_TF:
+            if (tf.a == 1 && tf.b == 0 && tf.c == 0 && tf.d == 0 && tf.e == 0 && tf.f == 0) {
+                this->unchecked_append(gamma_, ctx);
+            } else {
+                this->unchecked_append(parametric, ctx);
+            }
+            break;
+        case PQish_TF:     this->unchecked_append(PQish,     ctx); break;
+        case HLGish_TF:    this->unchecked_append(HLGish,    ctx); break;
+        case HLGinvish_TF: this->unchecked_append(HLGinvish, ctx); break;
     }
 }
 
@@ -271,8 +308,7 @@ SkRasterPipeline::StartPipelineFn SkRasterPipeline::build_pipeline(void** ip) co
     // Stages are stored backwards in fStages, so we reverse here, back to front.
     *--ip = (void*)SkOpts::just_return_lowp;
     for (const StageList* st = fStages; st; st = st->prev) {
-        SkOpts::StageFn fn;
-        if (!st->rawFunction && (fn = SkOpts::stages_lowp[st->stage])) {
+        if (auto fn = SkOpts::stages_lowp[st->stage]) {
             if (st->ctx) {
                 *--ip = st->ctx;
             }
@@ -291,11 +327,7 @@ SkRasterPipeline::StartPipelineFn SkRasterPipeline::build_pipeline(void** ip) co
         if (st->ctx) {
             *--ip = st->ctx;
         }
-        if (st->rawFunction) {
-            *--ip = (void*)st->stage;
-        } else {
-            *--ip = (void*)SkOpts::stages_highp[st->stage];
-        }
+        *--ip = (void*)SkOpts::stages_highp[st->stage];
     }
     return SkOpts::start_pipeline_highp;
 }

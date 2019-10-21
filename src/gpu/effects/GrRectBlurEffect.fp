@@ -6,6 +6,8 @@
  */
 
 @header {
+#include <cmath>
+#include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkMathPriv.h"
@@ -21,53 +23,66 @@ layout(key) bool highp = abs(rect.x) > 16000 || abs(rect.y) > 16000 ||
 layout(when= highp) uniform float4 rectF;
 layout(when=!highp) uniform half4  rectH;
 
-in uniform sampler2D blurProfile;
-in uniform half invProfileWidth;
+// Texture that is a LUT for integral of normal distribution. The value at x (where x is a texture
+// coord between 0 and 1) is the integral from -inf to (3 * sigma * (-2 * x - 1)). I.e. x is mapped
+// 0 3*sigma to -3 sigma. The flip saves a reversal in the shader.
+in uniform sampler2D integral;
+// Used to produce normalized texture coords for lookups in 'integral'
+in uniform half invSixSigma;
+
+// There is a fast variant of the effect that does 2 texture lookups and a more general one for
+// wider blurs relative to rect sizes that does 4.
+layout(key) in bool isFast;
 
 @constructorParams {
     GrSamplerState samplerParams
 }
 
-@samplerParams(blurProfile) {
+@samplerParams(integral) {
     samplerParams
 }
 @class {
-static sk_sp<GrTextureProxy> CreateBlurProfileTexture(GrProxyProvider* proxyProvider,
-                                                      float sixSigma) {
-    // The "profile" we are calculating is the integral of a Gaussian with 'sigma' and a half
-    // plane. All such profiles are just scales of each other. So all we really care about is
-    // having enough resolution so that the linear interpolation done in texture lookup doesn't
-    // introduce noticeable artifacts. SkBlurMask::ComputeBlurProfile() produces profiles with
-    // ceil(6 * sigma) entries. We conservatively choose to have 2 texels for each dst pixel.
-    int minProfileWidth = 2 * sk_float_ceil2int(sixSigma);
-    // Bin by powers of 2 with a minimum so we get good profile reuse (remember we can just scale
-    // the texture coords to span the larger profile over a 6 sigma distance).
-    int profileWidth = SkTMax(SkNextPow2(minProfileWidth), 32);
+static sk_sp<GrTextureProxy> CreateIntegralTexture(GrProxyProvider* proxyProvider,
+                                                   float sixSigma) {
+    // The texture we're producing represents the integral of a normal distribution over a six-sigma
+    // range centered at zero. We want enough resolution so that the linear interpolation done in
+    // texture lookup doesn't introduce noticeable artifacts. We conservatively choose to have 2
+    // texels for each dst pixel.
+    int minWidth = 2 * sk_float_ceil2int(sixSigma);
+    // Bin by powers of 2 with a minimum so we get good profile reuse.
+    int width = SkTMax(SkNextPow2(minWidth), 32);
 
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey key;
     GrUniqueKey::Builder builder(&key, kDomain, 1, "Rect Blur Mask");
-    builder[0] = profileWidth;
+    builder[0] = width;
     builder.finish();
 
-    sk_sp<GrTextureProxy> blurProfile(proxyProvider->findOrCreateProxyByUniqueKey(
+    sk_sp<GrTextureProxy> proxy(proxyProvider->findOrCreateProxyByUniqueKey(
             key, GrColorType::kAlpha_8, kTopLeft_GrSurfaceOrigin));
-    if (!blurProfile) {
+    if (!proxy) {
         SkBitmap bitmap;
-        if (!bitmap.tryAllocPixels(SkImageInfo::MakeA8(profileWidth, 1))) {
+        if (!bitmap.tryAllocPixels(SkImageInfo::MakeA8(width, 1))) {
             return nullptr;
         }
-        SkBlurMask::ComputeBlurProfile(bitmap.getAddr8(0, 0), profileWidth, profileWidth / 6.f);
+        *bitmap.getAddr8(0, 0) = 255;
+        const float invWidth = 1.f / width;
+        for (int i = 1; i < width - 1; ++i) {
+            float x = (i + 0.5f) * invWidth;
+            x = (-6 * x + 3) * SK_ScalarRoot2Over2;
+            float integral = 0.5f * (std::erf(x) + 1.f);
+            *bitmap.getAddr8(i, 0) = SkToU8(sk_float_round2int(255.f * integral));
+        }
+        *bitmap.getAddr8(width - 1, 0) = 0;
         bitmap.setImmutable();
-        blurProfile = proxyProvider->createProxyFromBitmap(bitmap, GrMipMapped::kNo);
-        if (!blurProfile) {
+        proxy = proxyProvider->createProxyFromBitmap(bitmap, GrMipMapped::kNo);
+        if (!proxy) {
             return nullptr;
         }
-        SkASSERT(blurProfile->origin() == kTopLeft_GrSurfaceOrigin);
-        proxyProvider->assignUniqueKeyToProxy(key, blurProfile.get());
+        SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
+        proxyProvider->assignUniqueKeyToProxy(key, proxy.get());
     }
-
-    return blurProfile;
+    return proxy;
 }
 }
 
@@ -75,6 +90,7 @@ static sk_sp<GrTextureProxy> CreateBlurProfileTexture(GrProxyProvider* proxyProv
      static std::unique_ptr<GrFragmentProcessor> Make(GrProxyProvider* proxyProvider,
                                                       const GrShaderCaps& caps,
                                                       const SkRect& rect, float sigma) {
+         SkASSERT(rect.isSorted());
          if (!caps.floatIs32Bits()) {
              // We promote the math that gets us into the Gaussian space to full float when the rect
              // coords are large. If we don't have full float then fail. We could probably clip the
@@ -85,55 +101,91 @@ static sk_sp<GrTextureProxy> CreateBlurProfileTexture(GrProxyProvider* proxyProv
              }
          }
 
-         // The profilee straddles the rect edges (half inside, half outside). Thus if the profile
-         // size is greater than the rect width/height then the area at the center of the rect is
-         // influenced by both edges. This is not handled by this effect.
-         float profileSize = 6 * sigma;
-         if (profileSize >= (float) rect.width() || profileSize >= (float) rect.height()) {
-             // if the blur sigma is too large so the gaussian overlaps the whole
-             // rect in either direction, fall back to CPU path for now.
+         const float sixSigma = 6 * sigma;
+         auto integral = CreateIntegralTexture(proxyProvider, sixSigma);
+         if (!integral) {
              return nullptr;
          }
 
-         auto profile = CreateBlurProfileTexture(proxyProvider, profileSize);
-         if (!profile) {
-             return nullptr;
-         }
-         // The profile is calculated such that the midpoint is at the rect's edge. To simplify
-         // calculating texture coords in the shader, we inset the rect such that the profile
-         // can be used with one end point aligned to the edges of the rect uniform. The texture
-         // coords should be scaled such that the profile is sampled over a 6 sigma range so inset
-         // by 3 sigma.
-         float halfWidth = profileSize / 2;
-         auto insetR = rect.makeInset(halfWidth, halfWidth);
-         // inverse of the width over which the profile texture should be interpolated outward from
-         // the inset rect.
-         float invWidth = 1.f / profileSize;
-         return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(
-                 insetR, std::move(profile), invWidth, GrSamplerState::ClampBilerp()));
+         // In the fast variant we think of the midpoint of the integral texture as aligning
+         // with the closest rect edge both in x and y. To simplify texture coord calculation we
+         // inset the rect so that the edge of the inset rect corresponds to t = 0 in the texture.
+         // It actually simplifies things a bit in the !isFast case, too.
+         float threeSigma = sixSigma / 2;
+         SkRect insetRect = {rect.fLeft   + threeSigma,
+                             rect.fTop    + threeSigma,
+                             rect.fRight  - threeSigma,
+                             rect.fBottom - threeSigma};
+
+         // In our fast variant we find the nearest horizontal and vertical edges and for each
+         // do a lookup in the integral texture for each and multiply them. When the rect is
+         // less than 6 sigma wide then things aren't so simple and we have to consider both the
+         // left and right edge of the rectangle (and similar in y).
+         bool isFast = insetRect.isSorted();
+         // 1 / (6 * sigma) is the domain of the integral texture. We use the inverse to produce
+         // normalized texture coords from frag coord distances.
+         float invSixSigma = 1.f / sixSigma;
+         return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(insetRect,
+                 std::move(integral), invSixSigma, isFast, GrSamplerState::ClampBilerp()));
      }
 }
 
 void main() {
-        // Get the smaller of the signed distance from the frag coord to the left and right edges
-        // and similar for y.
-        // The blur profile computed by SkMaskFilter::ComputeBlurProfile is actually 1 - integral.
-        // The integral is an S-looking shape that is symmetric about 0, so we just  compute x and
-        // "backwards" such that texture coord is 1 at the edge and goes to 0 as we move outward.
-        half x;
-        @if (highp) {
-            x = max(half(rectF.x - sk_FragCoord.x), half(sk_FragCoord.x - rectF.z));
+        half xCoverage, yCoverage;
+        @if (isFast) {
+            // Get the smaller of the signed distance from the frag coord to the left and right
+            // edges and similar for y.
+            // The integral texture goes "backwards" (from 3*sigma to -3*sigma), So, the below
+            // computations align the left edge of the integral texture with the inset rect's edge
+            // extending outward 6 * sigma from the inset rect.
+            half x, y;
+            @if (highp) {
+                x = max(half(rectF.x - sk_FragCoord.x), half(sk_FragCoord.x - rectF.z));
+                y = max(half(rectF.y - sk_FragCoord.y), half(sk_FragCoord.y - rectF.w));
+           } else {
+                x = max(half(rectH.x - sk_FragCoord.x), half(sk_FragCoord.x - rectH.z));
+                y = max(half(rectH.y - sk_FragCoord.y), half(sk_FragCoord.y - rectH.w));
+            }
+            xCoverage = sample(integral, half2(x * invSixSigma, 0.5)).a;
+            yCoverage = sample(integral, half2(y * invSixSigma, 0.5)).a;
+            sk_OutColor = sk_InColor * xCoverage * yCoverage;
         } else {
-            x = max(half(rectH.x - sk_FragCoord.x), half(sk_FragCoord.x - rectH.z));
+            // We just consider just the x direction here. In practice we compute x and y separately
+            // and multiply them together.
+            // We define our coord system so that the point at which we're evaluating a kernel
+            // defined by the normal distribution (K) as  0. In this coord system let L be left
+            // edge and R be the right edge of the rectangle.
+            // We can calculate C by integrating K with the half infinite ranges outside the L to R
+            // range and subtracting from 1:
+            //   C = 1 - <integral of K from from -inf to  L> - <integral of K from R to inf>
+            // K is symmetric about x=0 so:
+            //   C = 1 - <integral of K from from -inf to  L> - <integral of K from -inf to -R>
+
+            // The integral texture goes "backwards" (from 3*sigma to -3*sigma) which is factored
+            // in to the below calculations.
+            // Also, our rect uniform was pre-inset by 3 sigma from the actual rect being blurred,
+            // also factored in.
+            half l, r, t, b;
+            @if (highp) {
+                l = half(sk_FragCoord.x - rectF.x);
+                r = half(rectF.z - sk_FragCoord.x);
+                t = half(sk_FragCoord.y - rectF.y);
+                b = half(rectF.w - sk_FragCoord.y);
+            } else {
+                l = half(sk_FragCoord.x - rectH.x);
+                r = half(rectH.z - sk_FragCoord.x);
+                t = half(sk_FragCoord.y - rectH.y);
+                b = half(rectH.w - sk_FragCoord.y);
+            }
+            half il = 1 + l * invSixSigma;
+            half ir = 1 + r * invSixSigma;
+            half it = 1 + t * invSixSigma;
+            half ib = 1 + b * invSixSigma;
+            xCoverage = 1 - sample(integral, half2(il, 0.5)).a
+                          - sample(integral, half2(ir, 0.5)).a;
+            yCoverage = 1 - sample(integral, half2(it, 0.5)).a
+                          - sample(integral, half2(ib, 0.5)).a;
         }
-        half y;
-        @if (highp) {
-            y = max(half(rectF.y - sk_FragCoord.y), half(sk_FragCoord.y - rectF.w));
-        } else {
-            y = max(half(rectH.y - sk_FragCoord.y), half(sk_FragCoord.y - rectH.w));
-        }
-        half xCoverage = sample(blurProfile, half2(x * invProfileWidth, 0.5)).a;
-        half yCoverage = sample(blurProfile, half2(y * invProfileWidth, 0.5)).a;
         sk_OutColor = sk_InColor * xCoverage * yCoverage;
 }
 

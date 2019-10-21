@@ -372,8 +372,9 @@ private:
         // the front and remove from the back there is no need for MRU.
     }
 
-    bool uploadToPage(unsigned int pageIdx, AtlasID* id, GrDeferredUploadTarget* target,
-                      int width, int height, const void* image, SkIPoint16* loc);
+    bool uploadToPage(const GrCaps&, unsigned int pageIdx, AtlasID* id,
+                      GrDeferredUploadTarget* target, int width, int height, const void* image,
+                      SkIPoint16* loc);
 
     bool createPages(GrProxyProvider*);
     bool activateNewPage(GrResourceProvider*);

@@ -35,26 +35,16 @@ void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCovera
     this->setXPFactory(GrCoverageSetOpXPFactory::Get(regionOp, invertCoverage));
 }
 
-void GrPaint::addColorTextureProcessor(sk_sp<GrTextureProxy> proxy, const SkMatrix& matrix) {
-    this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(std::move(proxy), matrix));
+void GrPaint::addColorTextureProcessor(sk_sp<GrTextureProxy> proxy, GrColorType srcColorType,
+                                       const SkMatrix& matrix) {
+    this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(std::move(proxy), srcColorType,
+                                                                matrix));
 }
 
-void GrPaint::addColorTextureProcessor(sk_sp<GrTextureProxy> proxy, const SkMatrix& matrix,
-                                       const GrSamplerState& samplerState) {
-    this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(std::move(proxy), matrix,
-                                                                samplerState));
-}
-
-void GrPaint::addCoverageTextureProcessor(sk_sp<GrTextureProxy> proxy,
-                                          const SkMatrix& matrix) {
-    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(std::move(proxy), matrix));
-}
-
-void GrPaint::addCoverageTextureProcessor(sk_sp<GrTextureProxy> proxy,
-                                          const SkMatrix& matrix,
-                                          const GrSamplerState& params) {
-    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(std::move(proxy), matrix,
-                                                                   params));
+void GrPaint::addColorTextureProcessor(sk_sp<GrTextureProxy> proxy, GrColorType srcColorType,
+                                       const SkMatrix& matrix, const GrSamplerState& samplerState) {
+    this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(std::move(proxy), srcColorType,
+                                                                matrix, samplerState));
 }
 
 bool GrPaint::isConstantBlendedColor(SkPMColor4f* constantColor) const {

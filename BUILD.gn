@@ -17,6 +17,8 @@ if (defined(skia_settings)) {
   import(skia_settings)
 }
 
+import("gn/ios.gni")
+
 # Skia public API, generally provided by :skia.
 config("skia_public") {
   include_dirs = [ "." ]
@@ -70,12 +72,6 @@ config("skia_private") {
   lib_dirs = []
   if (skia_use_angle) {
     defines += [ "SK_ANGLE" ]
-  }
-  if (skia_llvm_path != "") {
-    defines += [ "SK_LLVM_AVAILABLE" ]
-    include_dirs += [ "$skia_llvm_path/include" ]
-    libs += [ skia_llvm_lib ]
-    lib_dirs += [ "$skia_llvm_path/lib/" ]
   }
 }
 
@@ -335,17 +331,29 @@ optional("fontmgr_fuchsia") {
 }
 
 optional("fontmgr_wasm") {
-  enabled = !skia_enable_fontmgr_empty && target_cpu == "wasm"
+  enabled = target_cpu == "wasm"
 
   deps = [
     ":typeface_freetype",
   ]
+
+  # custom_embedded has the source for both embedding a font in the binary
+  # (only used for the all-included build) and reading in a font from
+  # raw bytes passed over the wire (a typical way to load fonts).
   sources = [
-    "src/ports/SkFontMgr_custom.cpp",
-    "src/ports/SkFontMgr_custom.h",
     "src/ports/SkFontMgr_custom_embedded.cpp",
-    "src/ports/SkFontMgr_custom_embedded_factory.cpp",
   ]
+
+  # If we haven't opted for no fonts (empty) or fonts, but not the
+  # built-in one (custom), then, we need to provide the mechanism for
+  # using the built-in font.
+  if (!skia_enable_fontmgr_empty && !skia_enable_fontmgr_custom) {
+    sources += [
+      "src/ports/SkFontMgr_custom.cpp",
+      "src/ports/SkFontMgr_custom.h",
+      "src/ports/SkFontMgr_custom_embedded_factory.cpp",
+    ]
+  }
 }
 
 optional("fontmgr_win") {
@@ -563,8 +571,9 @@ optional("gpu") {
     sources += skia_dawn_sources
     public_deps += [
       "//third_party/dawn:dawn_headers",
-      "//third_party/dawn:libdawn",
+      "//third_party/dawn:dawncpp",
       "//third_party/dawn:libdawn_native_sources",
+      "//third_party/dawn:libdawn_proc",
     ]
     if (dawn_enable_d3d12) {
       libs += [
@@ -874,6 +883,7 @@ component("skia") {
     "src/codec/SkEncodedInfo.cpp",
     "src/codec/SkMaskSwizzler.cpp",
     "src/codec/SkMasks.cpp",
+    "src/codec/SkParseEncodedOrigin.cpp",
     "src/codec/SkSampledCodec.cpp",
     "src/codec/SkSampler.cpp",
     "src/codec/SkStreamBuffer.cpp",
@@ -1092,6 +1102,9 @@ group("modules") {
     "modules/skottie",
     "modules/skshaper",
   ]
+  if (target_cpu == "wasm") {
+    deps += [ "modules/skparagraph" ]
+  }
 }
 
 # Targets guarded by skia_enable_tools may use //third_party freely.
@@ -1212,161 +1225,9 @@ if (skia_enable_tools) {
     }
   }
 
-  # Template to compile .xib and .storyboard files.
-  #
-  # Arguments
-  #
-  #     sources:
-  #         list of string, sources to compile
-  #
-  #     ibtool_flags:
-  #         (optional) list of string, additional flags to pass to the ibtool
-  template("compile_ib_files") {
-    action_foreach(target_name) {
-      forward_variables_from(invoker,
-                             [
-                               "testonly",
-                               "visibility",
-                             ])
-      assert(defined(invoker.sources),
-             "sources must be specified for $target_name")
-      assert(defined(invoker.output_extension),
-             "output_extension must be specified for $target_name")
-
-      ibtool_flags = []
-      if (defined(invoker.ibtool_flags)) {
-        ibtool_flags = invoker.ibtool_flags
-      }
-
-      _output_extension = invoker.output_extension
-
-      script = "//gn/compile_ib_files.py"
-      sources = invoker.sources
-      outputs = [
-        "$target_gen_dir/$target_name/{{source_name_part}}.$_output_extension",
-      ]
-      args = [
-        "--input",
-        "{{source}}",
-        "--output",
-        rebase_path(
-            "$target_gen_dir/$target_name/{{source_name_part}}.$_output_extension",
-            root_build_dir),
-      ]
-
-      #    if (!use_system_xcode) {
-      #      args += [
-      #        "--developer_dir",
-      #        hermetic_xcode_path,
-      #      ]
-      #    }
-      args += ibtool_flags
-    }
-  }
-
-  template("bundle_data_ib_file") {
-    assert(defined(invoker.source),
-           "source needs to be defined for $target_name")
-
-    _source_extension = get_path_info(invoker.source, "extension")
-    assert(_source_extension == "xib" || _source_extension == "storyboard",
-           "source must be a .xib or .storyboard for $target_name")
-
-    _target_name = target_name
-    if (_source_extension == "xib") {
-      _compile_ib_file = target_name + "_compile_xib"
-      _output_extension = "nib"
-    } else {
-      _compile_ib_file = target_name + "_compile_storyboard"
-      _output_extension = "storyboardc"
-    }
-
-    compile_ib_files(_compile_ib_file) {
-      sources = [
-        invoker.source,
-      ]
-      output_extension = _output_extension
-      visibility = [ ":$_target_name" ]
-      ibtool_flags = [
-        #        "--minimum-deployment-target",
-        #        ios_deployment_target,
-        "--auto-activate-custom-fonts",
-        "--target-device",
-        "iphone",
-        "--target-device",
-        "ipad",
-      ]
-    }
-
-    bundle_data(_target_name) {
-      forward_variables_from(invoker, "*", [ "source" ])
-
-      if (!defined(public_deps)) {
-        public_deps = []
-      }
-      public_deps += [ ":$_compile_ib_file" ]
-
-      sources = get_target_outputs(":$_compile_ib_file")
-
-      outputs = [
-        "{{bundle_resources_dir}}/{{source_file_part}}",
-      ]
-    }
-  }
-
   template("test_app") {
     if (is_ios) {
-      app_name = target_name
-      gen_path = target_gen_dir
-
-      action("${app_name}_generate_info_plist") {
-        script = "//gn/gen_plist_ios.py"
-        outputs = [
-          "$gen_path/${app_name}_Info.plist",
-        ]
-        args = [ rebase_path("$gen_path/$app_name", root_build_dir) ]
-      }
-
-      bundle_data("${app_name}_bundle_info_plist") {
-        public_deps = [
-          ":${app_name}_generate_info_plist",
-        ]
-        sources = [
-          "$gen_path/${app_name}_Info.plist",
-        ]
-        outputs = [
-          "{{bundle_root_dir}}/Info.plist",
-        ]
-      }
-
-      has_skps = "True" == exec_script("//gn/checkdir.py",
-                                       [ rebase_path("skps", root_build_dir) ],
-                                       "trim string")
-      bundle_data("${app_name}_bundle_resources") {
-        sources = [
-          "resources",
-        ]
-        outputs = [
-          # iOS reserves the folders 'Resources' and 'resources' so store one level deeper
-          "{{bundle_resources_dir}}/data/resources",
-        ]
-      }
-      bundle_data_ib_file("${app_name}_bundle_launchscreen") {
-        source = "platform_tools/ios/app/LaunchScreen.storyboard"
-      }
-      if (has_skps) {
-        bundle_data("${app_name}_bundle_skps") {
-          sources = [
-            "skps",
-          ]
-          outputs = [
-            # Store in same folder as resources
-            "{{bundle_resources_dir}}/data/skps",
-          ]
-        }
-      }
-
-      executable("${app_name}_generate_executable") {
+      ios_app_bundle(target_name) {
         forward_variables_from(invoker,
                                "*",
                                [
@@ -1374,88 +1235,14 @@ if (skia_enable_tools) {
                                  "visibility",
                                  "is_shared_library",
                                ])
-        configs += [ ":skia_private" ]
         testonly = true
-        output_name = rebase_path("$gen_path/$app_name", root_build_dir)
-      }
-
-      bundle_data("${app_name}_bundle_executable") {
-        public_deps = [
-          ":${app_name}_generate_executable",
-        ]
-        sources = [
-          "$gen_path/$app_name",
-        ]
-        outputs = [
-          "{{bundle_executable_dir}}/$app_name",
-        ]
-        testonly = true
-      }
-
-      action("${app_name}_dsymutil") {
-        public_deps = [
-          ":${app_name}_generate_executable",
-        ]
-        sources = [
-          "$gen_path/$app_name",
-        ]
-        script = "//gn/call.py"
-        args = [
-          "dsymutil",
-          rebase_path("$gen_path/$app_name"),
-        ]
-        outputs = [
-          "$gen_path/${app_name}.dSYM",
-        ]
-        testonly = true
-        pool = "//gn/toolchain:dsymutil_pool($default_toolchain)"
-      }
-
-      bundle_data("${app_name}_bundle_symbols") {
-        public_deps = [
-          ":${app_name}_dsymutil",
-        ]
-        sources = [
-          "$gen_path/${app_name}.dSYM",
-        ]
-        outputs = [
-          "{{bundle_executable_dir}}/${app_name}.dSYM",
-        ]
-        testonly = true
-      }
-
-      create_bundle("$app_name") {
-        product_type = "com.apple.product-type.application"
-        testonly = true
-
-        bundle_root_dir = "${root_build_dir}/${target_name}.app"
-        bundle_resources_dir = bundle_root_dir
-        bundle_executable_dir = bundle_root_dir
-
-        deps = [
-          ":${app_name}_bundle_executable",
-          ":${app_name}_bundle_info_plist",
-          ":${app_name}_bundle_launchscreen",
-          ":${app_name}_bundle_resources",
-          ":${app_name}_bundle_symbols",
-        ]
-        if (has_skps) {
-          deps += [ ":${app_name}_bundle_skps" ]
-        }
-
-        # should only code sign when running on a device, not the simulator
-        if (target_cpu != "x64") {
-          code_signing_script = "//gn/codesign_ios.py"
-          code_signing_sources = [ "$target_gen_dir/$app_name" ]
-          code_signing_outputs = [
-            "$bundle_root_dir/_CodeSignature/CodeResources",
-            "$bundle_root_dir/embedded.mobileprovision",
-          ]
-          code_signing_args = [
-            rebase_path("$bundle_root_dir", root_build_dir),
-            skia_ios_identity,
-            skia_ios_profile,
-          ]
+        extra_configs = [ ":skia_private" ]
+        launchscreen = "platform_tools/ios/app/LaunchScreen.storyboard"
+        data_sources = [ "resources" ]
+        if ("True" == exec_script("//gn/checkdir.py",
+                                  [ rebase_path("skps", root_build_dir) ],
+                                  "trim string")) {
+          data_sources += [ "skps" ]
         }
       }
     } else {
@@ -1495,35 +1282,6 @@ if (skia_enable_tools) {
         }
       }
     }
-  }
-
-  config("moltenvk_config") {
-    if (defined(skia_moltenvk_path) && skia_moltenvk_path != "") {
-      if (is_ios) {
-        moltenvk_framework_path = "$skia_moltenvk_path/MoltenVK/iOS"
-      } else {
-        moltenvk_framework_path = "$skia_moltenvk_path/MoltenVK/macOS"
-      }
-      cflags = [ "-F$moltenvk_framework_path" ]
-      ldflags = [ "-F$moltenvk_framework_path" ]
-      libs = [
-        "MoltenVK.framework",
-        "Metal.framework",
-        "IOSurface.framework",
-        "QuartzCore.framework",
-        "Foundation.framework",
-      ]
-      if (is_ios) {
-        libs += [ "UIKit.framework" ]
-      } else {
-        libs += [ "IOKit.framework" ]
-      }
-      defines = [ "SK_MOLTENVK" ]
-    }
-  }
-
-  source_set("moltenvk") {
-    public_configs = [ ":moltenvk_config" ]
   }
 
   test_lib("gpu_tool_utils") {
@@ -1587,9 +1345,6 @@ if (skia_enable_tools) {
     if (skia_use_vulkan) {
       sources += [ "tools/gpu/vk/VkTestContext.cpp" ]
       sources += [ "tools/gpu/vk/VkTestUtils.cpp" ]
-      if (defined(skia_moltenvk_path) && skia_moltenvk_path != "") {
-        public_deps += [ ":moltenvk" ]
-      }
     }
     if (skia_use_metal) {
       sources += [ "tools/gpu/mtl/MtlTestContext.mm" ]
@@ -2065,6 +1820,7 @@ if (skia_enable_tools) {
       ]
       deps = [
         ":flags",
+        ":gpu_tool_utils",
         ":skia",
         ":video_decoder",
         "modules/skottie",
@@ -2438,9 +2194,6 @@ if (skia_enable_tools) {
         libs += [ "X11-xcb" ]
       } else if (is_win) {
         sources += [ "tools/sk_app/win/VulkanWindowContext_win.cpp" ]
-      } else if (is_mac) {
-        sources += [ "tools/sk_app/mac/VulkanWindowContext_mac.mm" ]
-        libs += [ "MetalKit.framework" ]
       }
     }
 
@@ -2667,24 +2420,26 @@ if (skia_enable_tools) {
     }
   }
 
-  if (skia_enable_skvm_jit) {
-    test_app("skvmtool") {
-      defines = [
-        "SKVM_JIT",
-        "SKVM_PERF_DUMPS",
-      ]
-      include_dirs = [ "." ]
-      sources = [
-        "src/core/SkSpinlock.cpp",
-        "src/core/SkThreadID.cpp",
-        "src/core/SkVM.cpp",
-        "tools/SkVMBuilders.cpp",
-        "tools/SkVMTool.cpp",
-      ]
-      if (target_cpu == "x64") {
-        sources += [ "src/core/SkCpu.cpp" ]
-      }
-    }
+  executable("image_diff_metric") {
+    sources = [
+      "tools/image_diff_metric.cpp",
+    ]
+    deps = [
+      ":skia",
+    ]
+  }
+}
+
+if (is_ios && skia_use_metal && !skia_enable_flutter_defines) {
+  group("minimal_ios_mtl_skia_app") {
+    deps = [
+      "experimental/minimal_ios_mtl_skia_app",
+    ]
+  }
+  group("skottie_ios") {
+    deps = [
+      "experimental/skottie_ios",
+    ]
   }
 
   config("SkiaSharp_public") {

@@ -107,7 +107,7 @@ empty <a href='SkRRect_Reference#SkRRect'>SkRRect</a>
 
 ### Example
 
-<div><fiddle-embed name="471e7aad0feaf9ec3a21757a317a64f5"></fiddle-embed></div>
+<div><fiddle-embed name="@RRect_empty_constructor"></fiddle-embed></div>
 
 ### See Also
 
@@ -136,7 +136,7 @@ copy of <a href='#SkRRect_copy_const_SkRRect_rrect'>rrect</a>
 
 ### Example
 
-<div><fiddle-embed name="ad8f5d49edfcee60eddfe2a955b6c5f5"></fiddle-embed></div>
+<div><fiddle-embed name="@RRect_copy_const_SkRRect"></fiddle-embed></div>
 
 ### See Also
 
@@ -165,7 +165,7 @@ copy of <a href='#SkRRect_copy_operator_rrect'>rrect</a>
 
 ### Example
 
-<div><fiddle-embed name="52926c98c1cca00606d3ea99f23fea3d"></fiddle-embed></div>
+<div><fiddle-embed name="@RRect_copy_operator"></fiddle-embed></div>
 
 ### See Also
 
@@ -437,7 +437,7 @@ result may be infinity.
 
 ### Example
 
-<div><fiddle-embed name="c675a480b41dee157f84fa2550a2a53c"><div><a href='SkRRect_Reference#SkRRect'>SkRRect</a>::<a href='#SkRRect_MakeRect'>MakeRect</a> sorts its input, so <a href='#SkRRect_width'>width()</a> is always zero or larger.
+<div><fiddle-embed name="@RRect_width"><div><a href='SkRRect_Reference#SkRRect'>SkRRect</a>::<a href='#SkRRect_MakeRect'>MakeRect</a> sorts its input, so <a href='#SkRRect_width'>width()</a> is always zero or larger.
 </div>
 
 #### Example Output
@@ -470,7 +470,7 @@ result may be infinity.
 
 ### Example
 
-<div><fiddle-embed name="5a3eb1755164a7becec33cec6e6eca31"><div><a href='SkRRect_Reference#SkRRect'>SkRRect</a>::<a href='#SkRRect_MakeRect'>MakeRect</a> sorts its input, so <a href='#SkRRect_height'>height()</a> is always zero or larger.
+<div><fiddle-embed name="@RRect_height"><div><a href='SkRRect_Reference#SkRRect'>SkRRect</a>::<a href='#SkRRect_MakeRect'>MakeRect</a> sorts its input, so <a href='#SkRRect_height'>height()</a> is always zero or larger.
 </div>
 
 #### Example Output
@@ -524,7 +524,7 @@ corner radii to zero and sets type to <a href='#SkRRect_kEmpty_Type'>kEmpty_Type
 
 ### Example
 
-<div><fiddle-embed name="44e9a9c2c5ef1af2a616086ff46a9037"><div>Nothing blue is drawn because <a href='#RRect'>Round_Rect</a> is set to empty.
+<div><fiddle-embed name="@RRect_setEmpty"><div>Nothing blue is drawn because <a href='#RRect'>Round_Rect</a> is set to empty.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -552,7 +552,7 @@ otherwise, sets type to <a href='#SkRRect_kEmpty_Type'>kEmpty_Type</a>.
 
 ### Example
 
-<div><fiddle-embed name="3afc3ac9bebd1d7387822cc608571e82"></fiddle-embed></div>
+<div><fiddle-embed name="@RRect_setRect"></fiddle-embed></div>
 
 ### See Also
 
@@ -604,7 +604,7 @@ copy of <a href='#SkRRect_MakeRect_r'>r</a>
 
 ### Example
 
-<div><fiddle-embed name="5295b07fe4d2cdcd077979a9e19854d9"></fiddle-embed></div>
+<div><fiddle-embed name="@RRect_MakeRect"></fiddle-embed></div>
 
 ### See Also
 
@@ -635,7 +635,7 @@ Otherwise, sets to <a href='#SkRRect_kOval_Type'>kOval_Type</a>.
 
 ### Example
 
-<div><fiddle-embed name="0b99ee38fd154f769f6031242e02fa7a"></fiddle-embed></div>
+<div><fiddle-embed name="@RRect_MakeOval"></fiddle-embed></div>
 
 ### See Also
 
@@ -675,7 +675,7 @@ rounded rectangle
 
 ### Example
 
-<div><fiddle-embed name="2b24a1247637cbc94f8b3c77d37ed3e2"></fiddle-embed></div>
+<div><fiddle-embed name="@RRect_MakeRectXY"></fiddle-embed></div>
 
 ### See Also
 
@@ -702,7 +702,7 @@ Otherwise, sets to <a href='#SkRRect_kOval_Type'>kOval_Type</a>.
 
 ### Example
 
-<div><fiddle-embed name="cf418af29cbab6243ac16aacd1217ffe"></fiddle-embed></div>
+<div><fiddle-embed name="@RRect_setOval"></fiddle-embed></div>
 
 ### See Also
 
@@ -738,7 +738,7 @@ Otherwise, sets to <a href='#SkRRect_kSimple_Type'>kSimple_Type</a>.
 
 ### Example
 
-<div><fiddle-embed name="6ac569e40fb68c758319e85428b9ae95"></fiddle-embed></div>
+<div><fiddle-embed name="@RRect_setRectXY"></fiddle-embed></div>
 
 ### See Also
 
@@ -788,7 +788,7 @@ four edge <a href='undocumented#Patch'>patches</a>, and four corner <a href='und
 
 ### Example
 
-<div><fiddle-embed name="c4620df2eaba447b581688d3100053b1"></fiddle-embed></div>
+<div><fiddle-embed name="@RRect_setNinePatch"></fiddle-embed></div>
 
 ### See Also
 
@@ -823,7 +823,7 @@ sets to <a href='#SkRRect_kSimple_Type'>kSimple_Type</a>. Otherwise, sets to <a 
 
 ### Example
 
-<div><fiddle-embed name="340d6c51efaa1f7f3d0dcaf8b0e90696"></fiddle-embed></div>
+<div><fiddle-embed name="@RRect_setRectRadii"></fiddle-embed></div>
 
 ### See Also
 
@@ -878,7 +878,7 @@ index of bottom-left corner radii</td>
 
 ### Example
 
-<div><fiddle-embed name="9205393f30b156e1507e88aa27f1dd91"></fiddle-embed></div>
+<div><fiddle-embed name="@RRect_Corner"></fiddle-embed></div>
 
 ### See Also
 
@@ -902,7 +902,7 @@ bounding box
 
 ### Example
 
-<div><fiddle-embed name="6831adf4c536047f4709c686feb10c48">
+<div><fiddle-embed name="@RRect_rect">
 
 #### Example Output
 
@@ -946,7 +946,7 @@ x-axis and y-axis radii for one <a href='#SkRRect_radii_corner'>corner</a>
 
 ### Example
 
-<div><fiddle-embed name="8d5c88478528584913867ada423e0d59"><div>Finite values are scaled proportionately to fit; other values are set to zero.
+<div><fiddle-embed name="@RRect_radii"><div>Finite values are scaled proportionately to fit; other values are set to zero.
 Scaled values cannot be larger than 25, half the bounding <a href='#RRect'>Round_Rect</a> width.
 Small scaled values are halved to scale in proportion to the y-axis <a href='#SkRRect_radii_corner'>corner</a>
 radius, which is twice the bounds height.
@@ -986,7 +986,7 @@ bounding box
 
 ### Example
 
-<div><fiddle-embed name="4577e2dcb086b241bb43d8b89ee0b0dd"></fiddle-embed></div>
+<div><fiddle-embed name="@RRect_getBounds"></fiddle-embed></div>
 
 ### See Also
 
@@ -1097,7 +1097,7 @@ If <a href='#SkRRect_inset_dx'>dx</a> or <a href='#SkRRect_inset_dy'>dy</a> caus
 
 ### Example
 
-<div><fiddle-embed name="f02f0110d5605dac6d14dcb8d1d8cb6e"></fiddle-embed></div>
+<div><fiddle-embed name="@RRect_inset"></fiddle-embed></div>
 
 ### See Also
 
@@ -1134,7 +1134,7 @@ If <a href='#SkRRect_inset_2_dx'>dx</a> or <a href='#SkRRect_inset_2_dy'>dy</a> 
 
 ### Example
 
-<div><fiddle-embed name="da61054322550a2d5ac15114da23bd23"></fiddle-embed></div>
+<div><fiddle-embed name="@RRect_inset_2"></fiddle-embed></div>
 
 ### See Also
 
@@ -1174,7 +1174,7 @@ If <a href='#SkRRect_outset_dx'>dx</a> or <a href='#SkRRect_outset_dy'>dy</a> ca
 
 ### Example
 
-<div><fiddle-embed name="4d69b6d9c7726c47c42827d79fc7899c"></fiddle-embed></div>
+<div><fiddle-embed name="@RRect_outset"></fiddle-embed></div>
 
 ### See Also
 
@@ -1211,7 +1211,7 @@ If <a href='#SkRRect_outset_2_dx'>dx</a> or <a href='#SkRRect_outset_2_dy'>dy</a
 
 ### Example
 
-<div><fiddle-embed name="4391cced86653dcd0f84439a5c0bb3f2"></fiddle-embed></div>
+<div><fiddle-embed name="@RRect_outset_2"></fiddle-embed></div>
 
 ### See Also
 
@@ -1239,7 +1239,7 @@ Translates <a href='SkRRect_Reference#SkRRect'>SkRRect</a> by (<a href='#SkRRect
 
 ### Example
 
-<div><fiddle-embed name="a45cdd46ef2fe0df62d84d41713e82e2"></fiddle-embed></div>
+<div><fiddle-embed name="@RRect_offset"></fiddle-embed></div>
 
 ### See Also
 
@@ -1271,7 +1271,7 @@ Returns <a href='SkRRect_Reference#SkRRect'>SkRRect</a> translated by (<a href='
 
 ### Example
 
-<div><fiddle-embed name="c433aa41eaf5e419e3349fb970a08151"></fiddle-embed></div>
+<div><fiddle-embed name="@RRect_makeOffset"></fiddle-embed></div>
 
 ### See Also
 
@@ -1468,7 +1468,7 @@ of floating <a href='SkPoint_Reference#Point'>point</a> numbers.
 
 ### Example
 
-<div><fiddle-embed name="265b8d23288dc8026ff788e809360af7">
+<div><fiddle-embed name="@RRect_dump">
 
 #### Example Output
 
@@ -1513,7 +1513,7 @@ with limited precision; it may not be possible to reconstruct original
 
 ### Example
 
-<div><fiddle-embed name="f850423c7c0c4f803d479ecd92221059">
+<div><fiddle-embed name="@RRect_dump_2">
 
 #### Example Output
 
@@ -1549,7 +1549,7 @@ original <a href='SkRRect_Reference#SkRRect'>SkRRect</a>.
 
 ### Example
 
-<div><fiddle-embed name="c73f5e2644d949b859f05bd367883454">
+<div><fiddle-embed name="@RRect_dumpHex">
 
 #### Example Output
 

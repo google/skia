@@ -299,186 +299,30 @@ static void outset_projected_vertices(const V4f& x2d, const V4f& y2d,
     }
 }
 
-// Calculate area of intersection between quad (xs, ys) and a pixel at 'pixelCenter'.
-// a, b, c are edge equations of the quad, flipped is true if the line equations had their normals
-// reversed to correct for matrix transforms.
-static float get_exact_coverage(const SkPoint& pixelCenter, const Vertices& quad,
-                                const Edges& edges) {
-     // Ordering of vertices given default tri-strip that produces CCW points
-    static const int kCCW[] = {0, 1, 3, 2};
-    // Ordering of vertices given inverted tri-strip that produces CCW
-    static const int kFlippedCCW[] = {0, 2, 3, 1};
+static V4f degenerate_coverage(const V4f& px, const V4f& py, const Edges& edges) {
+    // Calculate distance of the 4 inset points (px, py) to the 4 edges
+    V4f d0 = fma(edges.fA[0], px, fma(edges.fB[0], py, edges.fC[0]));
+    V4f d1 = fma(edges.fA[1], px, fma(edges.fB[1], py, edges.fC[1]));
+    V4f d2 = fma(edges.fA[2], px, fma(edges.fB[2], py, edges.fC[2]));
+    V4f d3 = fma(edges.fA[3], px, fma(edges.fB[3], py, edges.fC[3]));
 
-    // Edge boundaries of the pixel
-    float left = pixelCenter.fX - 0.5f;
-    float right = pixelCenter.fX + 0.5f;
-    float top = pixelCenter.fY - 0.5f;
-    float bot = pixelCenter.fY + 0.5f;
-
-    // Whether or not the 4 corners of the pixel are inside the quad geometry. Variable names are
-    // intentional to work easily with the helper macros.
-    bool topleftInside = all((edges.fA * left + edges.fB * top + edges.fC) >= 0.f);
-    bool botleftInside = all((edges.fA * left + edges.fB * bot + edges.fC) >= 0.f);
-    bool botrightInside = all((edges.fA * right + edges.fB * bot + edges.fC) >= 0.f);
-    bool toprightInside = all((edges.fA * right + edges.fB * top + edges.fC) >= 0.f);
-    if (topleftInside && botleftInside && botrightInside && toprightInside) {
-        // Quad fully contains the pixel, so we know the area will be 1.f
-        return 1.f;
-    }
-
-    // Track whether or not the quad vertices in (xs, ys) are on the proper sides of l, t, r, and b
-    M4f leftValid = quad.fX >= left;
-    M4f rightValid = quad.fX <= right;
-    M4f topValid = quad.fY >= top;
-    M4f botValid = quad.fY <= bot;
-
-    // Intercepts of quad lines with the 4 pixel edges
-    V4f leftCross = -(edges.fC + edges.fA * left) / edges.fB;
-    V4f rightCross = -(edges.fC + edges.fA * right) / edges.fB;
-    V4f topCross = -(edges.fC + edges.fB * top) / edges.fA;
-    V4f botCross = -(edges.fC + edges.fB * bot) / edges.fA;
-
-    // State for implicitly tracking the intersection boundary and area
-    SkPoint firstPoint = {0.f, 0.f};
-    SkPoint lastPoint = {0.f, 0.f};
-    bool intersected = false;
-    float area = 0.f;
-
-    // Adds a point to the intersection hull, remembering first point (for closing) and the
-    // current point, and updates the running area total.
-    // See http://mathworld.wolfram.com/PolygonArea.html
-    auto accumulate = [&](const SkPoint& p) {
-        if (intersected) {
-            float da = lastPoint.fX * p.fY - p.fX * lastPoint.fY;
-            area += da;
-        } else {
-            firstPoint = p;
-            intersected = true;
-        }
-        lastPoint = p;
-    };
-
-    // Used during iteration over the quad points to check if edge intersections are valid and
-    // should be accumulated.
-#define ADD_EDGE_CROSSING_X(SIDE) \
-    do { \
-        if (SIDE##Cross[ei] >= top && SIDE##Cross[ei] <= bot) { \
-            accumulate({SIDE, SIDE##Cross[ei]}); \
-            addedIntersection = true; \
-        } \
-    } while(false)
-#define ADD_EDGE_CROSSING_Y(SIDE) \
-    do { \
-        if (SIDE##Cross[ei] >= left && SIDE##Cross[ei] <= right) { \
-            accumulate({SIDE##Cross[ei], SIDE}); \
-            addedIntersection = true; \
-        } \
-    } while(false)
-#define TEST_EDGES(SIDE, AXIS, I, NI) \
-    do { \
-        if (!SIDE##Valid[I] && SIDE##Valid[NI]) { \
-            ADD_EDGE_CROSSING_##AXIS(SIDE); \
-            crossedEdges = true; \
-        } \
-    } while(false)
-    // Used during iteration over the quad points to check if a pixel corner should be included
-    // in the intersection boundary
-#define ADD_CORNER(CHECK, SIDE_LR, SIDE_TB) \
-    if (!CHECK##Valid[i] || !CHECK##Valid[ni]) { \
-        if (SIDE_TB##SIDE_LR##Inside) { \
-            accumulate({SIDE_LR, SIDE_TB}); \
-        } \
-    }
-#define TEST_CORNER_X(SIDE, I, NI) \
-    do { \
-        if (!SIDE##Valid[I] && SIDE##Valid[NI]) { \
-            ADD_CORNER(top, SIDE, top) else ADD_CORNER(bot, SIDE, bot) \
-        } \
-    } while(false)
-#define TEST_CORNER_Y(SIDE, I, NI) \
-    do { \
-        if (!SIDE##Valid[I] && SIDE##Valid[NI]) { \
-            ADD_CORNER(left, left, SIDE) else ADD_CORNER(right, right, SIDE) \
-        } \
-    } while(false)
-
-    // Iterate over the 4 points of the quad, adding valid intersections with the pixel edges
-    // or adding interior pixel corners as it goes. This automatically keeps all accumulated points
-    // in CCW ordering so the area can be calculated on the fly and there's no need to store the
-    // list of hull points. This is somewhat inspired by the Sutherland-Hodgman algorithm but since
-    // there are only 4 points in each source polygon, there is no point list maintenance.
-    for (int j = 0; j < 4; ++j) {
-        // Current vertex
-        int i = edges.fFlipped ? kFlippedCCW[j] : kCCW[j];
-        // Moving to this vertex
-        int ni = edges.fFlipped ? kFlippedCCW[(j + 1) % 4] : kCCW[(j + 1) % 4];
-        // Index in edge vectors corresponding to move from i to ni
-        int ei = edges.fFlipped ? ni : i;
-
-        bool crossedEdges = false;
-        bool addedIntersection = false;
-
-        // First check if there are any outside -> inside edge crossings. There can be 0, 1, or 2.
-        // 2 can occur if one crossing is still outside the pixel, or if they both go through
-        // the corner (in which case a duplicate point is added, but that doesn't change area).
-
-        // Outside to inside crossing
-        TEST_EDGES(left, X, i, ni);
-        TEST_EDGES(right, X, i, ni);
-        TEST_EDGES(top, Y, i, ni);
-        TEST_EDGES(bot, Y, i, ni);
-        // Inside to outside crossing (swapping ni and i in the boolean test)
-        TEST_EDGES(left, X, ni, i);
-        TEST_EDGES(right, X, ni, i);
-        TEST_EDGES(top, Y, ni, i);
-        TEST_EDGES(bot, Y, ni, i);
-
-        // If we crossed edges but didn't add any intersections, check the corners of the pixel.
-        // If the pixel corners are inside the quad, include them in the boundary.
-        if (crossedEdges && !addedIntersection) {
-            // This can lead to repeated points, but those just accumulate zero area
-            TEST_CORNER_X(left, i, ni);
-            TEST_CORNER_X(right, i, ni);
-            TEST_CORNER_Y(top, i, ni);
-            TEST_CORNER_Y(bot, i, ni);
-
-            TEST_CORNER_X(left, ni, i);
-            TEST_CORNER_X(right, ni, i);
-            TEST_CORNER_Y(top, ni, i);
-            TEST_CORNER_Y(bot, ni, i);
-        }
-
-        // Lastly, if the next point is completely inside the pixel it gets included in the boundary
-        if (leftValid[ni] && rightValid[ni] && topValid[ni] && botValid[ni]) {
-            accumulate({quad.fX[ni], quad.fY[ni]});
-        }
-    }
-
-#undef TEST_CORNER_Y
-#undef TEST_CORNER_X
-#undef ADD_CORNER
-
-#undef TEST_EDGES
-#undef ADD_EDGE_CROSSING_Y
-#undef ADD_EDGE_CROSSING_X
-
-    // After all points have been considered, close the boundary to get final area. If we never
-    // added any points, it means the quad didn't intersect the pixel rectangle.
-    if (intersected) {
-        // Final equation for area of convex polygon is to multiply by -1/2 (minus since the points
-        // were in CCW order).
-        accumulate(firstPoint);
-        return -0.5f * area;
-    } else {
-        return 0.f;
-    }
+    // For each point, pretend that there's a rectangle that touches e0 and e3 on the horizontal
+    // axis, so its width is "approximately" d0 + d3, and it touches e1 and e2 on the vertical axis
+    // so its height is d1 + d2. Pin each of these dimensions to [0, 1] and approximate the coverage
+    // at each point as clamp(d0+d3, 0, 1) x clamp(d1+d2, 0, 1). For rectilinear quads this is an
+    // accurate calculation of its area clipped to an aligned pixel. For arbitrary quads it is not
+    // mathematically accurate but qualitatively provides a stable value proportional to the size of
+    // the shape.
+    V4f w = max(0.f, min(1.f, d0 + d3));
+    V4f h = max(0.f, min(1.f, d1 + d2));
+    return w * h;
 }
 
 // Outsets or insets xs/ys in place. To be used when the interior is very small, edges are near
 // parallel, or edges are very short/zero-length. Returns coverage for each vertex.
 // Requires (dx, dy) to already be fixed for empty edges.
 static V4f compute_degenerate_quad(GrQuadAAFlags aaFlags, const V4f& mask, const Edges& edges,
-                                    bool outset, Vertices* quad) {
+                                   bool outset, Vertices* quad) {
     // Move the edge 1/2 pixel in or out depending on 'outset'.
     V4f oc = edges.fC + mask * (outset ? 0.5f : -0.5f);
 
@@ -522,9 +366,9 @@ static V4f compute_degenerate_quad(GrQuadAAFlags aaFlags, const V4f& mask, const
         // it has collapsed, we know the shape cannot cover a pixel so update the coverage.
         SkPoint center = {0.25f * (quad->fX[0] + quad->fX[1] + quad->fX[2] + quad->fX[3]),
                           0.25f * (quad->fY[0] + quad->fY[1] + quad->fY[2] + quad->fY[3])};
-        coverage = get_exact_coverage(center, *quad, edges);
         px = center.fX;
         py = center.fY;
+        coverage = degenerate_coverage(px, py, edges);
     } else if (all(d1Or2)) {
         // Degenerates to a line. Compare p[2] and p[3] to edge 0. If they are on the wrong side,
         // that means edge 0 and 3 crossed, and otherwise edge 1 and 2 crossed.
@@ -532,17 +376,12 @@ static V4f compute_degenerate_quad(GrQuadAAFlags aaFlags, const V4f& mask, const
             // Edges 0 and 3 have crossed over, so make the line from average of (p0,p2) and (p1,p3)
             px = 0.5f * (skvx::shuffle<0, 1, 0, 1>(px) + skvx::shuffle<2, 3, 2, 3>(px));
             py = 0.5f * (skvx::shuffle<0, 1, 0, 1>(py) + skvx::shuffle<2, 3, 2, 3>(py));
-            float mc02 = get_exact_coverage({px[0], py[0]}, *quad, edges);
-            float mc13 = get_exact_coverage({px[1], py[1]}, *quad, edges);
-            coverage = V4f{mc02, mc13, mc02, mc13};
         } else {
             // Edges 1 and 2 have crossed over, so make the line from average of (p0,p1) and (p2,p3)
             px = 0.5f * (skvx::shuffle<0, 0, 2, 2>(px) + skvx::shuffle<1, 1, 3, 3>(px));
             py = 0.5f * (skvx::shuffle<0, 0, 2, 2>(py) + skvx::shuffle<1, 1, 3, 3>(py));
-            float mc01 = get_exact_coverage({px[0], py[0]}, *quad, edges);
-            float mc23 = get_exact_coverage({px[2], py[2]}, *quad, edges);
-            coverage = V4f{mc01, mc01, mc23, mc23};
         }
+        coverage = degenerate_coverage(px, py, edges);
     } else {
         // This turns into a triangle. Replace corners as needed with the intersections between
         // (e0,e3) and (e1,e2), which must now be calculated
@@ -638,32 +477,10 @@ static V4f compute_nested_persp_quad_vertices(const GrQuadAAFlags aaFlags, Verti
     return coverage;
 }
 
-enum class CoverageMode {
-    kNone,
-    kWithPosition,
-    kWithColor
-};
-
-static CoverageMode get_mode_for_spec(const GrQuadPerEdgeAA::VertexSpec& spec) {
-    if (spec.usesCoverageAA()) {
-        if (spec.compatibleWithCoverageAsAlpha() && spec.hasVertexColors() &&
-            !spec.requiresGeometryDomain()) {
-            // Using a geometric domain acts as a second source of coverage and folding the original
-            // coverage into color makes it impossible to apply the color's alpha to the geometric
-            // domain's coverage when the original shape is clipped.
-            return CoverageMode::kWithColor;
-        } else {
-            return CoverageMode::kWithPosition;
-        }
-    } else {
-        return CoverageMode::kNone;
-    }
-}
-
 // Writes four vertices in triangle strip order, including the additional data for local
 // coordinates, geometry + texture domains, color, and coverage as needed to satisfy the vertex spec
 static void write_quad(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
-                       CoverageMode mode, const V4f& coverage, SkPMColor4f color4f,
+                       GrQuadPerEdgeAA::CoverageMode mode, const V4f& coverage, SkPMColor4f color4f,
                        const SkRect& geomDomain, const SkRect& texDomain, const Vertices& quad) {
     static constexpr auto If = GrVertexWriter::If<float>;
 
@@ -672,13 +489,14 @@ static void write_quad(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& sp
         // perspective and coverage mode.
         vb->write(quad.fX[i], quad.fY[i],
                   If(spec.deviceQuadType() == GrQuad::Type::kPerspective, quad.fW[i]),
-                  If(mode == CoverageMode::kWithPosition, coverage[i]));
+                  If(mode == GrQuadPerEdgeAA::CoverageMode::kWithPosition, coverage[i]));
 
         // save color
         if (spec.hasVertexColors()) {
             bool wide = spec.colorType() == GrQuadPerEdgeAA::ColorType::kHalf;
             vb->write(GrVertexColor(
-                    color4f * (mode == CoverageMode::kWithColor ? coverage[i] : 1.f), wide));
+                color4f * (mode == GrQuadPerEdgeAA::CoverageMode::kWithColor ? coverage[i] : 1.f),
+                wide));
         }
 
         // save local position
@@ -745,7 +563,7 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrQuad& deviceQua
     SkASSERT(deviceQuad.quadType() <= spec.deviceQuadType());
     SkASSERT(!spec.hasLocalCoords() || localQuad.quadType() <= spec.localQuadType());
 
-    CoverageMode mode = get_mode_for_spec(spec);
+    GrQuadPerEdgeAA::CoverageMode mode = spec.coverageMode();
 
     // Load position data into V4fs (always x, y, and load w to avoid branching down the road)
     Vertices outer;
@@ -846,10 +664,68 @@ int VertexSpec::localDimensionality() const {
     return fHasLocalCoords ? (this->localQuadType() == GrQuad::Type::kPerspective ? 3 : 2) : 0;
 }
 
+CoverageMode VertexSpec::coverageMode() const {
+    if (this->usesCoverageAA()) {
+        if (this->compatibleWithCoverageAsAlpha() && this->hasVertexColors() &&
+            !this->requiresGeometryDomain()) {
+            // Using a geometric domain acts as a second source of coverage and folding
+            // the original coverage into color makes it impossible to apply the color's
+            // alpha to the geometric domain's coverage when the original shape is clipped.
+            return CoverageMode::kWithColor;
+        } else {
+            return CoverageMode::kWithPosition;
+        }
+    } else {
+        return CoverageMode::kNone;
+    }
+}
+
+// This needs to stay in sync w/ QuadPerEdgeAAGeometryProcessor::initializeAttrs
+size_t VertexSpec::vertexSize() const {
+    bool needsPerspective = (this->deviceDimensionality() == 3);
+    CoverageMode coverageMode = this->coverageMode();
+
+    size_t count = 0;
+
+    if (coverageMode == CoverageMode::kWithPosition) {
+        if (needsPerspective) {
+            count += GrVertexAttribTypeSize(kFloat4_GrVertexAttribType);
+        } else {
+            count += GrVertexAttribTypeSize(kFloat2_GrVertexAttribType) +
+                     GrVertexAttribTypeSize(kFloat_GrVertexAttribType);
+        }
+    } else {
+        if (needsPerspective) {
+            count += GrVertexAttribTypeSize(kFloat3_GrVertexAttribType);
+        } else {
+            count += GrVertexAttribTypeSize(kFloat2_GrVertexAttribType);
+        }
+    }
+
+    if (this->requiresGeometryDomain()) {
+        count += GrVertexAttribTypeSize(kFloat4_GrVertexAttribType);
+    }
+
+    count += this->localDimensionality() * GrVertexAttribTypeSize(kFloat_GrVertexAttribType);
+
+    if (ColorType::kByte == this->colorType()) {
+        count += GrVertexAttribTypeSize(kUByte4_norm_GrVertexAttribType);
+    } else if (ColorType::kHalf == this->colorType()) {
+        count += GrVertexAttribTypeSize(kHalf4_GrVertexAttribType);
+    }
+
+    if (this->hasDomain()) {
+        count += GrVertexAttribTypeSize(kFloat4_GrVertexAttribType);
+    }
+
+    return count;
+}
+
 ////////////////// Geometry Processor Implementation
 
 class QuadPerEdgeAAGeometryProcessor : public GrGeometryProcessor {
 public:
+    using Saturate = GrTextureOp::Saturate;
 
     static sk_sp<GrGeometryProcessor> Make(const VertexSpec& spec) {
         return sk_sp<QuadPerEdgeAAGeometryProcessor>(new QuadPerEdgeAAGeometryProcessor(spec));
@@ -859,33 +735,36 @@ public:
                                            GrTextureType textureType,
                                            const GrSamplerState& samplerState,
                                            const GrSwizzle& swizzle, uint32_t extraSamplerKey,
-                                           sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
+                                           sk_sp<GrColorSpaceXform> textureColorSpaceXform,
+                                           Saturate saturate) {
         return sk_sp<QuadPerEdgeAAGeometryProcessor>(new QuadPerEdgeAAGeometryProcessor(
                 vertexSpec, caps, textureType, samplerState, swizzle, extraSamplerKey,
-                std::move(textureColorSpaceXform)));
+                std::move(textureColorSpaceXform), saturate));
     }
 
     const char* name() const override { return "QuadPerEdgeAAGeometryProcessor"; }
 
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
         // texturing, device-dimensions are single bit flags
-        uint32_t x = fTexDomain.isInitialized() ? 0 : 1;
-        x |= fSampler.isInitialized() ? 0 : 2;
-        x |= fNeedsPerspective ? 0 : 4;
+        uint32_t x = (fTexDomain.isInitialized() ? 0 : 0x1)
+                   | (fSampler.isInitialized()   ? 0 : 0x2)
+                   | (fNeedsPerspective          ? 0 : 0x4)
+                   | (fSaturate == Saturate::kNo ? 0 : 0x8);
         // local coords require 2 bits (3 choices), 00 for none, 01 for 2d, 10 for 3d
         if (fLocalCoord.isInitialized()) {
-            x |= kFloat3_GrVertexAttribType == fLocalCoord.cpuType() ? 8 : 16;
+            x |= kFloat3_GrVertexAttribType == fLocalCoord.cpuType() ? 0x10 : 0x20;
         }
         // similar for colors, 00 for none, 01 for bytes, 10 for half-floats
         if (fColor.isInitialized()) {
-            x |= kUByte4_norm_GrVertexAttribType == fColor.cpuType() ? 32 : 64;
+            x |= kUByte4_norm_GrVertexAttribType == fColor.cpuType() ? 0x40 : 0x80;
         }
         // and coverage mode, 00 for none, 01 for withposition, 10 for withcolor, 11 for
         // position+geomdomain
         SkASSERT(!fGeomDomain.isInitialized() || fCoverageMode == CoverageMode::kWithPosition);
         if (fCoverageMode != CoverageMode::kNone) {
-            x |= fGeomDomain.isInitialized() ?
-                    384 : (CoverageMode::kWithPosition == fCoverageMode ? 128 : 256);
+            x |= fGeomDomain.isInitialized()
+                         ? 0x300
+                         : (CoverageMode::kWithPosition == fCoverageMode ? 0x100 : 0x200);
         }
 
         b->add32(GrColorSpaceXform::XformKey(fTextureColorSpaceXform.get()));
@@ -990,6 +869,14 @@ public:
                         args.fOutputColor, args.fTexSamplers[0], "texCoord", kFloat2_GrSLType,
                         &fTextureColorSpaceXformHelper);
                     args.fFragBuilder->codeAppend(";");
+                    if (gp.fSaturate == Saturate::kYes) {
+                        args.fFragBuilder->codeAppendf("%s = saturate(%s);",
+                                                       args.fOutputColor, args.fOutputColor);
+                    }
+                } else {
+                    // Saturate is only intended for use with a proxy to account for the fact
+                    // that GrTextureOp skips SkPaint conversion, which normally handles this.
+                    SkASSERT(gp.fSaturate == Saturate::kNo);
                 }
 
                 // And lastly, output the coverage calculation code
@@ -1056,8 +943,10 @@ private:
                                    const GrSamplerState& samplerState,
                                    const GrSwizzle& swizzle,
                                    uint32_t extraSamplerKey,
-                                   sk_sp<GrColorSpaceXform> textureColorSpaceXform)
+                                   sk_sp<GrColorSpaceXform> textureColorSpaceXform,
+                                   Saturate saturate)
             : INHERITED(kQuadPerEdgeAAGeometryProcessor_ClassID)
+            , fSaturate(saturate)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fSampler(textureType, samplerState, swizzle, extraSamplerKey) {
         SkASSERT(spec.hasLocalCoords());
@@ -1065,9 +954,10 @@ private:
         this->setTextureSamplerCnt(1);
     }
 
+    // This needs to stay in sync w/ VertexSpec::vertexSize
     void initializeAttrs(const VertexSpec& spec) {
         fNeedsPerspective = spec.deviceDimensionality() == 3;
-        fCoverageMode = get_mode_for_spec(spec);
+        fCoverageMode = spec.coverageMode();
 
         if (fCoverageMode == CoverageMode::kWithPosition) {
             if (fNeedsPerspective) {
@@ -1122,6 +1012,8 @@ private:
     // The positions attribute may have coverage built into it, so float3 is an ambiguous type
     // and may mean 2d with coverage, or 3d with no coverage
     bool fNeedsPerspective;
+    // Should saturate() be called on the color? Only relevant when created with a texture.
+    Saturate fSaturate = Saturate::kNo;
     CoverageMode fCoverageMode;
 
     // Color space will be null and fSampler.isInitialized() returns false when the GP is configured
@@ -1140,9 +1032,11 @@ sk_sp<GrGeometryProcessor> MakeTexturedProcessor(const VertexSpec& spec, const G
                                                  GrTextureType textureType,
                                                  const GrSamplerState& samplerState,
                                                  const GrSwizzle& swizzle, uint32_t extraSamplerKey,
-                                                 sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
+                                                 sk_sp<GrColorSpaceXform> textureColorSpaceXform,
+                                                 Saturate saturate) {
     return QuadPerEdgeAAGeometryProcessor::Make(spec, caps, textureType, samplerState, swizzle,
-                                                extraSamplerKey, std::move(textureColorSpaceXform));
+                                                extraSamplerKey, std::move(textureColorSpaceXform),
+                                                saturate);
 }
 
 } // namespace GrQuadPerEdgeAA

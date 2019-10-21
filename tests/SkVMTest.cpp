@@ -7,6 +7,7 @@
 
 #include "include/core/SkColorPriv.h"
 #include "include/private/SkColorData.h"
+#include "src/core/SkCpu.h"
 #include "src/core/SkVM.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
@@ -22,269 +23,43 @@ const char* fmt_name(Fmt fmt) {
     return "";
 }
 
-namespace {
-    using namespace skvm;
+static void dump(skvm::Builder& builder, SkWStream* o) {
+    skvm::Program program = builder.done();
+    builder.dump(o);
+    o->writeText("\n");
+    program.dump(o);
+    o->writeText("\n");
+}
 
-    struct V { Val id; };
-    struct R { Reg id; };
-    struct Shift { int bits; };
-    struct Splat { int bits; };
-    struct Hex   { int bits; };
-
-    static void write(SkWStream* o, const char* s) {
-        o->writeText(s);
-    }
-
-    static void write(SkWStream* o, Arg a) {
-        write(o, "arg(");
-        o->writeDecAsText(a.ix);
-        write(o, ")");
-    }
-    static void write(SkWStream* o, V v) {
-        write(o, "v");
-        o->writeDecAsText(v.id);
-    }
-    static void write(SkWStream* o, R r) {
-        write(o, "r");
-        o->writeDecAsText(r.id);
-    }
-    static void write(SkWStream* o, Shift s) {
-        o->writeDecAsText(s.bits);
-    }
-    static void write(SkWStream* o, Splat s) {
-        float f;
-        memcpy(&f, &s.bits, 4);
-        o->writeHexAsText(s.bits);
-        write(o, " (");
-        o->writeScalarAsText(f);
-        write(o, ")");
-    }
-    static void write(SkWStream* o, Hex h) {
-        o->writeHexAsText(h.bits);
-    }
-
-    template <typename T, typename... Ts>
-    static void write(SkWStream* o, T first, Ts... rest) {
-        write(o, first);
-        write(o, " ");
-        write(o, rest...);
-    }
-
-    static void dump_builder(const Builder& builder, SkWStream* o) {
-        const std::vector<Builder::Instruction> program = builder.program();
-
-        o->writeDecAsText(program.size());
-        o->writeText(" values:\n");
-        for (Val id = 0; id < (Val)program.size(); id++) {
-            const Builder::Instruction& inst = program[id];
-            Op  op = inst.op;
-            Val  x = inst.x,
-                 y = inst.y,
-                 z = inst.z;
-            int imm = inst.imm;
-            write(o, inst.death == 0 ? "☠️ " :
-                     inst.hoist      ? "↑ " : "  ");
-            switch (op) {
-                case Op::store8:  write(o, "store8" , Arg{imm}, V{x}); break;
-                case Op::store16: write(o, "store16", Arg{imm}, V{x}); break;
-                case Op::store32: write(o, "store32", Arg{imm}, V{x}); break;
-
-                case Op::load8:  write(o, V{id}, "= load8" , Arg{imm}); break;
-                case Op::load16: write(o, V{id}, "= load16", Arg{imm}); break;
-                case Op::load32: write(o, V{id}, "= load32", Arg{imm}); break;
-
-                case Op::gather8:  write(o, V{id}, "= gather8" , Arg{imm}, V{x}); break;
-                case Op::gather16: write(o, V{id}, "= gather16", Arg{imm}, V{x}); break;
-                case Op::gather32: write(o, V{id}, "= gather32", Arg{imm}, V{x}); break;
-
-                case Op::uniform8:  write(o, V{id}, "= uniform8" , Arg{imm & 0xffff}, Hex{imm>>16}); break;
-                case Op::uniform16: write(o, V{id}, "= uniform16", Arg{imm & 0xffff}, Hex{imm>>16}); break;
-                case Op::uniform32: write(o, V{id}, "= uniform32", Arg{imm & 0xffff}, Hex{imm>>16}); break;
-
-                case Op::splat:  write(o, V{id}, "= splat", Splat{imm}); break;
-
-
-                case Op::add_f32: write(o, V{id}, "= add_f32", V{x}, V{y}      ); break;
-                case Op::sub_f32: write(o, V{id}, "= sub_f32", V{x}, V{y}      ); break;
-                case Op::mul_f32: write(o, V{id}, "= mul_f32", V{x}, V{y}      ); break;
-                case Op::div_f32: write(o, V{id}, "= div_f32", V{x}, V{y}      ); break;
-                case Op::mad_f32: write(o, V{id}, "= mad_f32", V{x}, V{y}, V{z}); break;
-
-                case Op:: eq_f32: write(o, V{id}, "= eq_f32", V{x}, V{y}); break;
-                case Op::neq_f32: write(o, V{id}, "= neq_f32", V{x}, V{y}); break;
-                case Op:: lt_f32: write(o, V{id}, "= lt_f32", V{x}, V{y}); break;
-                case Op::lte_f32: write(o, V{id}, "= lte_f32", V{x}, V{y}); break;
-                case Op:: gt_f32: write(o, V{id}, "= gt_f32", V{x}, V{y}); break;
-                case Op::gte_f32: write(o, V{id}, "= gte_f32", V{x}, V{y}); break;
-
-
-                case Op::add_i32: write(o, V{id}, "= add_i32", V{x}, V{y}); break;
-                case Op::sub_i32: write(o, V{id}, "= sub_i32", V{x}, V{y}); break;
-                case Op::mul_i32: write(o, V{id}, "= mul_i32", V{x}, V{y}); break;
-
-                case Op::shl_i32: write(o, V{id}, "= shl_i32", V{x}, Shift{imm}); break;
-                case Op::shr_i32: write(o, V{id}, "= shr_i32", V{x}, Shift{imm}); break;
-                case Op::sra_i32: write(o, V{id}, "= sra_i32", V{x}, Shift{imm}); break;
-
-                case Op:: eq_i32: write(o, V{id}, "= eq_i32", V{x}, V{y}); break;
-                case Op::neq_i32: write(o, V{id}, "= neq_i32", V{x}, V{y}); break;
-                case Op:: lt_i32: write(o, V{id}, "= lt_i32", V{x}, V{y}); break;
-                case Op::lte_i32: write(o, V{id}, "= lte_i32", V{x}, V{y}); break;
-                case Op:: gt_i32: write(o, V{id}, "= gt_i32", V{x}, V{y}); break;
-                case Op::gte_i32: write(o, V{id}, "= gte_i32", V{x}, V{y}); break;
-
-                case Op::add_i16x2: write(o, V{id}, "= add_i16x2", V{x}, V{y}); break;
-                case Op::sub_i16x2: write(o, V{id}, "= sub_i16x2", V{x}, V{y}); break;
-                case Op::mul_i16x2: write(o, V{id}, "= mul_i16x2", V{x}, V{y}); break;
-
-                case Op::shl_i16x2: write(o, V{id}, "= shl_i16x2", V{x}, Shift{imm}); break;
-                case Op::shr_i16x2: write(o, V{id}, "= shr_i16x2", V{x}, Shift{imm}); break;
-                case Op::sra_i16x2: write(o, V{id}, "= sra_i16x2", V{x}, Shift{imm}); break;
-
-                case Op:: eq_i16x2: write(o, V{id}, "= eq_i16x2", V{x}, V{y}); break;
-                case Op::neq_i16x2: write(o, V{id}, "= neq_i16x2", V{x}, V{y}); break;
-                case Op:: lt_i16x2: write(o, V{id}, "= lt_i16x2", V{x}, V{y}); break;
-                case Op::lte_i16x2: write(o, V{id}, "= lte_i16x2", V{x}, V{y}); break;
-                case Op:: gt_i16x2: write(o, V{id}, "= gt_i16x2", V{x}, V{y}); break;
-                case Op::gte_i16x2: write(o, V{id}, "= gte_i16x2", V{x}, V{y}); break;
-
-                case Op::bit_and  : write(o, V{id}, "= bit_and"  , V{x}, V{y}      ); break;
-                case Op::bit_or   : write(o, V{id}, "= bit_or"   , V{x}, V{y}      ); break;
-                case Op::bit_xor  : write(o, V{id}, "= bit_xor"  , V{x}, V{y}      ); break;
-                case Op::bit_clear: write(o, V{id}, "= bit_clear", V{x}, V{y}      ); break;
-                case Op::select   : write(o, V{id}, "= select"   , V{x}, V{y}, V{z}); break;
-
-                case Op::bytes:   write(o, V{id}, "= bytes",   V{x}, Hex{imm}); break;
-                case Op::extract: write(o, V{id}, "= extract", V{x}, Shift{imm}, V{y}); break;
-                case Op::pack:    write(o, V{id}, "= pack",    V{x}, V{y}, Shift{imm}); break;
-
-                case Op::to_f32: write(o, V{id}, "= to_f32", V{x}); break;
-                case Op::to_i32: write(o, V{id}, "= to_i32", V{x}); break;
-            }
-
-            write(o, "\n");
-        }
-    }
-
-    static void dump_program(const Program& program, SkWStream* o) {
-        const std::vector<Program::Instruction> instructions = program.instructions();
-        const int nregs = program.nregs();
-        const int loop  = program.loop();
-
-        o->writeDecAsText(nregs);
-        o->writeText(" registers, ");
-        o->writeDecAsText(instructions.size());
-        o->writeText(" instructions:\n");
-        for (int i = 0; i < (int)instructions.size(); i++) {
-            if (i == loop) {
-                write(o, "loop:\n");
-            }
-            const Program::Instruction& inst = instructions[i];
-            Op   op = inst.op;
-            Reg   d = inst.d,
-                  x = inst.x,
-                  y = inst.y,
-                  z = inst.z;
-            int imm = inst.imm;
-            switch (op) {
-                case Op::store8:  write(o, "store8" , Arg{imm}, R{x}); break;
-                case Op::store16: write(o, "store16", Arg{imm}, R{x}); break;
-                case Op::store32: write(o, "store32", Arg{imm}, R{x}); break;
-
-                case Op::load8:  write(o, R{d}, "= load8" , Arg{imm}); break;
-                case Op::load16: write(o, R{d}, "= load16", Arg{imm}); break;
-                case Op::load32: write(o, R{d}, "= load32", Arg{imm}); break;
-
-                case Op::gather8:  write(o, R{d}, "= gather8" , Arg{imm}, R{x}); break;
-                case Op::gather16: write(o, R{d}, "= gather16", Arg{imm}, R{x}); break;
-                case Op::gather32: write(o, R{d}, "= gather32", Arg{imm}, R{x}); break;
-
-                case Op::uniform8:  write(o, R{d}, "= uniform8" , Arg{imm & 0xffff}, Hex{imm>>16}); break;
-                case Op::uniform16: write(o, R{d}, "= uniform16", Arg{imm & 0xffff}, Hex{imm>>16}); break;
-                case Op::uniform32: write(o, R{d}, "= uniform32", Arg{imm & 0xffff}, Hex{imm>>16}); break;
-
-                case Op::splat:  write(o, R{d}, "= splat", Splat{imm}); break;
-
-
-                case Op::add_f32: write(o, R{d}, "= add_f32", R{x}, R{y}      ); break;
-                case Op::sub_f32: write(o, R{d}, "= sub_f32", R{x}, R{y}      ); break;
-                case Op::mul_f32: write(o, R{d}, "= mul_f32", R{x}, R{y}      ); break;
-                case Op::div_f32: write(o, R{d}, "= div_f32", R{x}, R{y}      ); break;
-                case Op::mad_f32: write(o, R{d}, "= mad_f32", R{x}, R{y}, R{z}); break;
-
-                case Op:: eq_f32: write(o, R{d}, "= eq_f32", R{x}, R{y}); break;
-                case Op::neq_f32: write(o, R{d}, "= neq_f32", R{x}, R{y}); break;
-                case Op:: lt_f32: write(o, R{d}, "= lt_f32", R{x}, R{y}); break;
-                case Op::lte_f32: write(o, R{d}, "= lte_f32", R{x}, R{y}); break;
-                case Op:: gt_f32: write(o, R{d}, "= gt_f32", R{x}, R{y}); break;
-                case Op::gte_f32: write(o, R{d}, "= gte_f32", R{x}, R{y}); break;
-
-
-                case Op::add_i32: write(o, R{d}, "= add_i32", R{x}, R{y}); break;
-                case Op::sub_i32: write(o, R{d}, "= sub_i32", R{x}, R{y}); break;
-                case Op::mul_i32: write(o, R{d}, "= mul_i32", R{x}, R{y}); break;
-
-                case Op::shl_i32: write(o, R{d}, "= shl_i32", R{x}, Shift{imm}); break;
-                case Op::shr_i32: write(o, R{d}, "= shr_i32", R{x}, Shift{imm}); break;
-                case Op::sra_i32: write(o, R{d}, "= sra_i32", R{x}, Shift{imm}); break;
-
-                case Op:: eq_i32: write(o, R{d}, "= eq_i32", R{x}, R{y}); break;
-                case Op::neq_i32: write(o, R{d}, "= neq_i32", R{x}, R{y}); break;
-                case Op:: lt_i32: write(o, R{d}, "= lt_i32", R{x}, R{y}); break;
-                case Op::lte_i32: write(o, R{d}, "= lte_i32", R{x}, R{y}); break;
-                case Op:: gt_i32: write(o, R{d}, "= gt_i32", R{x}, R{y}); break;
-                case Op::gte_i32: write(o, R{d}, "= gte_i32", R{x}, R{y}); break;
-
-
-                case Op::add_i16x2: write(o, R{d}, "= add_i16x2", R{x}, R{y}); break;
-                case Op::sub_i16x2: write(o, R{d}, "= sub_i16x2", R{x}, R{y}); break;
-                case Op::mul_i16x2: write(o, R{d}, "= mul_i16x2", R{x}, R{y}); break;
-
-                case Op::shl_i16x2: write(o, R{d}, "= shl_i16x2", R{x}, Shift{imm}); break;
-                case Op::shr_i16x2: write(o, R{d}, "= shr_i16x2", R{x}, Shift{imm}); break;
-                case Op::sra_i16x2: write(o, R{d}, "= sra_i16x2", R{x}, Shift{imm}); break;
-
-                case Op:: eq_i16x2: write(o, R{d}, "= eq_i16x2", R{x}, R{y}); break;
-                case Op::neq_i16x2: write(o, R{d}, "= neq_i16x2", R{x}, R{y}); break;
-                case Op:: lt_i16x2: write(o, R{d}, "= lt_i16x2", R{x}, R{y}); break;
-                case Op::lte_i16x2: write(o, R{d}, "= lte_i16x2", R{x}, R{y}); break;
-                case Op:: gt_i16x2: write(o, R{d}, "= gt_i16x2", R{x}, R{y}); break;
-                case Op::gte_i16x2: write(o, R{d}, "= gte_i16x2", R{x}, R{y}); break;
-
-
-                case Op::bit_and  : write(o, R{d}, "= bit_and"  , R{x}, R{y}      ); break;
-                case Op::bit_or   : write(o, R{d}, "= bit_or"   , R{x}, R{y}      ); break;
-                case Op::bit_xor  : write(o, R{d}, "= bit_xor"  , R{x}, R{y}      ); break;
-                case Op::bit_clear: write(o, R{d}, "= bit_clear", R{x}, R{y}      ); break;
-                case Op::select   : write(o, R{d}, "= select"   , R{x}, R{y}, R{z}); break;
-
-                case Op::bytes:   write(o, R{d}, "= bytes", R{x}, Hex{imm}); break;
-                case Op::extract: write(o, R{d}, "= extract", R{x}, Shift{imm}, R{y}); break;
-                case Op::pack:    write(o, R{d}, "= pack",    R{x}, R{y}, Shift{imm}); break;
-
-                case Op::to_f32: write(o, R{d}, "= to_f32", R{x}); break;
-                case Op::to_i32: write(o, R{d}, "= to_i32", R{x}); break;
-            }
-            write(o, "\n");
-        }
-    }
-
-    static void dump(Builder& builder, SkWStream* o) {
-        skvm::Program program = builder.done();
-        dump_builder(builder, o);
-        o->writeText("\n");
-        dump_program(program, o);
-        o->writeText("\n");
-    }
-
-}  // namespace
-
+// TODO: I'd like this to go away and have every test in here run both JIT and interpreter.
 template <typename Fn>
-static void test_jit_and_interpreter(skvm::Program&& program, Fn&& test) {
-    test((const skvm::Program&) program);
-    program.dropJIT();
+static void test_interpreter_only(skiatest::Reporter* r, skvm::Program&& program, Fn&& test) {
+#if defined(SKVM_JIT)
+    REPORTER_ASSERT(r, !program.hasJIT());
+#endif
     test((const skvm::Program&) program);
 }
+
+template <typename Fn>
+static void test_jit_and_interpreter(skiatest::Reporter* r, skvm::Program&& program, Fn&& test) {
+#if defined(SKVM_JIT)
+    const bool expect_jit
+    #if defined(SK_CPU_X86)
+        = SkCpu::Supports(SkCpu::HSW);
+    #elif defined(SK_CPU_ARM64)
+        = true;
+    #else
+        = false;
+    #endif
+    if (expect_jit) {
+        REPORTER_ASSERT(r, program.hasJIT());
+        test((const skvm::Program&) program);
+        program.dropJIT();
+    }
+#endif
+    test_interpreter_only(r, std::move(program), std::move(test));
+}
+
 
 DEF_TEST(SkVM, r) {
     SkDynamicMemoryWStream buf;
@@ -325,7 +100,7 @@ DEF_TEST(SkVM, r) {
         skvm::Arg arg = b.varying<int>();
 
         // x and y can both be hoisted,
-        // and x can die at y, while y lives forever.
+        // and x can die at y, while y must live for the loop.
         skvm::I32 x = b.splat(1),
                   y = b.add(x, b.splat(2));
         b.store32(arg, b.mul(b.load32(arg), y));
@@ -335,16 +110,16 @@ DEF_TEST(SkVM, r) {
 
         std::vector<skvm::Builder::Instruction> insts = b.program();
         REPORTER_ASSERT(r, insts.size() == 6);
-        REPORTER_ASSERT(r,  insts[0].hoist && insts[0].death == 2);
-        REPORTER_ASSERT(r,  insts[1].hoist && insts[1].death == 2);
-        REPORTER_ASSERT(r,  insts[2].hoist && insts[2].death == 6);
-        REPORTER_ASSERT(r, !insts[3].hoist);
-        REPORTER_ASSERT(r, !insts[4].hoist);
-        REPORTER_ASSERT(r, !insts[5].hoist);
+        REPORTER_ASSERT(r,  insts[0].can_hoist && insts[0].death == 2 && !insts[0].used_in_loop);
+        REPORTER_ASSERT(r,  insts[1].can_hoist && insts[1].death == 2 && !insts[1].used_in_loop);
+        REPORTER_ASSERT(r,  insts[2].can_hoist && insts[2].death == 4 &&  insts[2].used_in_loop);
+        REPORTER_ASSERT(r, !insts[3].can_hoist);
+        REPORTER_ASSERT(r, !insts[4].can_hoist);
+        REPORTER_ASSERT(r, !insts[5].can_hoist);
 
         dump(b, &buf);
 
-        test_jit_and_interpreter(std::move(program), [&](const skvm::Program& program) {
+        test_jit_and_interpreter(r, std::move(program), [&](const skvm::Program& program) {
             int arg[] = {0,1,2,3,4,5,6,7,8,9};
 
             program.eval(SK_ARRAY_COUNT(arg), arg);
@@ -380,7 +155,7 @@ DEF_TEST(SkVM, r) {
         uint32_t src[9];
         uint32_t dst[SK_ARRAY_COUNT(src)];
 
-        test_jit_and_interpreter(std::move(program), [&](const skvm::Program& program) {
+        test_jit_and_interpreter(r, std::move(program), [&](const skvm::Program& program) {
             for (int i = 0; i < (int)SK_ARRAY_COUNT(src); i++) {
                 src[i] = 0xbb007733;
                 dst[i] = 0xffaaccee;
@@ -412,7 +187,7 @@ DEF_TEST(SkVM, r) {
     test_8888(SrcoverBuilder_I32{}.done("srcover_i32"));
     test_8888(SrcoverBuilder_I32_SWAR{}.done("srcover_i32_SWAR"));
 
-    test_jit_and_interpreter(SrcoverBuilder_F32{Fmt::RGBA_8888, Fmt::G8}.done(),
+    test_jit_and_interpreter(r, SrcoverBuilder_F32{Fmt::RGBA_8888, Fmt::G8}.done(),
                              [&](const skvm::Program& program) {
         uint32_t src[9];
         uint8_t  dst[SK_ARRAY_COUNT(src)];
@@ -435,7 +210,7 @@ DEF_TEST(SkVM, r) {
         }
     });
 
-    test_jit_and_interpreter(SrcoverBuilder_F32{Fmt::A8, Fmt::A8}.done(),
+    test_jit_and_interpreter(r, SrcoverBuilder_F32{Fmt::A8, Fmt::A8}.done(),
                              [&](const skvm::Program& program) {
         uint8_t src[256],
                 dst[256];
@@ -463,14 +238,14 @@ DEF_TEST(SkVM_Pointless, r) {
               b.splat(4.0f));
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
         for (int N = 0; N < 64; N++) {
             program.eval(N);
         }
     });
 
     for (const skvm::Builder::Instruction& inst : b.program()) {
-        REPORTER_ASSERT(r, inst.death == 0 && inst.hoist == true);
+        REPORTER_ASSERT(r, inst.death == 0 && inst.can_hoist == true);
     }
 }
 
@@ -484,7 +259,7 @@ DEF_TEST(SkVM_LoopCounts, r) {
               b.add(b.splat(1),
                     b.load32(arg)));
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
         int buf[64];
         for (int N = 0; N <= (int)SK_ARRAY_COUNT(buf); N++) {
             for (int i = 0; i < (int)SK_ARRAY_COUNT(buf); i++) {
@@ -517,7 +292,7 @@ DEF_TEST(SkVM_gathers, r) {
         b.store8 (buf8 , b.gather8 (img, b.bit_and(x, b.splat(31))));
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_interpreter_only(r, b.done(), [&](const skvm::Program& program) {
         const int img[] = {12,34,56,78, 90,98,76,54};
 
         constexpr int N = 20;
@@ -575,7 +350,7 @@ DEF_TEST(SkVM_bitops, r) {
         b.store32(ptr, x);
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
         int x = 0x42;
         program.eval(1, &x);
         REPORTER_ASSERT(r, x == 0x7fff'ffff);
@@ -594,7 +369,7 @@ DEF_TEST(SkVM_f32, r) {
         b.store32(arg, b.bit_cast(w));
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
         float buf[] = { 1,2,3,4,5,6,7,8,9 };
         program.eval(SK_ARRAY_COUNT(buf), buf);
         for (float v : buf) {
@@ -623,7 +398,7 @@ DEF_TEST(SkVM_cmp_i32, r) {
         b.store32(b.varying<int>(), m);
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_interpreter_only(r, b.done(), [&](const skvm::Program& program) {
         int in[] = { 0,1,2,3,4,5,6,7,8,9 };
         int out[SK_ARRAY_COUNT(in)];
 
@@ -660,7 +435,7 @@ DEF_TEST(SkVM_cmp_f32, r) {
         b.store32(b.varying<int>(), m);
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_interpreter_only(r, b.done(), [&](const skvm::Program& program) {
         float in[] = { 0,1,2,3,4,5,6,7,8,9 };
         int out[SK_ARRAY_COUNT(in)];
 
@@ -691,7 +466,7 @@ DEF_TEST(SkVM_i16x2, r) {
         b.store32(buf, u);
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_interpreter_only(r, b.done(), [&](const skvm::Program& program) {
         uint16_t buf[] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13 };
 
         program.eval(SK_ARRAY_COUNT(buf)/2, buf);
@@ -724,7 +499,7 @@ DEF_TEST(SkVM_cmp_i16, r) {
         b.store32(buf, m);
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_interpreter_only(r, b.done(), [&](const skvm::Program& program) {
         int16_t buf[] = { 0,1, 2,3, 4,5, 6,7, 8,9 };
 
         program.eval(SK_ARRAY_COUNT(buf)/2, buf);
@@ -757,7 +532,7 @@ DEF_TEST(SkVM_mad, r) {
         b.store32(arg, b.to_i32(v));
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
         int x = 2;
         program.eval(1, &x);
         // x = 2
@@ -781,7 +556,7 @@ DEF_TEST(SkVM_madder, r) {
         b.store32(arg, b.bit_cast(w));
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
         float x = 2.0f;
         // y = 2*2 + 2 = 6
         // z = 6*2 + 6 = 18
@@ -804,7 +579,7 @@ DEF_TEST(SkVM_hoist, r) {
         b.store32(arg, x);
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
         int x = 4;
         program.eval(1, &x);
         // x += 0 + 1 + 2 + 3 + ... + 30 + 31
@@ -825,7 +600,7 @@ DEF_TEST(SkVM_select, r) {
         b.store32(buf, x);
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
         int buf[] = { 0,1,2,3,4,5,6,7,8 };
         program.eval(SK_ARRAY_COUNT(buf), buf);
         for (int i = 0; i < (int)SK_ARRAY_COUNT(buf); i++) {
@@ -864,7 +639,7 @@ DEF_TEST(SkVM_NewOps, r) {
         SkDebugf("%.*s\n", blob->size(), blob->data());
     }
 
-    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+    test_interpreter_only(r, b.done(), [&](const skvm::Program& program) {
         const int N = 31;
         int16_t buf[N];
         for (int i = 0; i < N; i++) {
@@ -1209,10 +984,14 @@ DEF_TEST(SkVM_Assembler, r) {
         a.orr16b(A::v4, A::v3, A::v1);
         a.eor16b(A::v4, A::v3, A::v1);
         a.bic16b(A::v4, A::v3, A::v1);
+        a.bsl16b(A::v4, A::v3, A::v1);
 
         a.add4s(A::v4, A::v3, A::v1);
         a.sub4s(A::v4, A::v3, A::v1);
         a.mul4s(A::v4, A::v3, A::v1);
+
+        a.cmeq4s(A::v4, A::v3, A::v1);
+        a.cmgt4s(A::v4, A::v3, A::v1);
 
         a.sub8h(A::v4, A::v3, A::v1);
         a.mul8h(A::v4, A::v3, A::v1);
@@ -1228,10 +1007,14 @@ DEF_TEST(SkVM_Assembler, r) {
         0x64,0x1c,0xa1,0x4e,
         0x64,0x1c,0x21,0x6e,
         0x64,0x1c,0x61,0x4e,
+        0x64,0x1c,0x61,0x6e,
 
         0x64,0x84,0xa1,0x4e,
         0x64,0x84,0xa1,0x6e,
         0x64,0x9c,0xa1,0x4e,
+
+        0x64,0x8c,0xa1,0x6e,
+        0x64,0x34,0xa1,0x4e,
 
         0x64,0x84,0x61,0x6e,
         0x64,0x9c,0x61,0x4e,

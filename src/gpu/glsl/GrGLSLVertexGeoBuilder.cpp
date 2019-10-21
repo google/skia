@@ -14,7 +14,7 @@
 void GrGLSLVertexGeoBuilder::emitNormalizedSkPosition(SkString* out, const char* devPos,
                                                       const char* rtAdjustName,
                                                       GrSLType devPosType) {
-    if (this->getProgramBuilder()->desc()->header().fSnapVerticesToPixelCenters) {
+    if (this->getProgramBuilder()->snapVerticesToPixelCenters()) {
         if (kFloat3_GrSLType == devPosType) {
             const char* p = devPos;
             out->appendf("{float2 _posTmp = float2(%s.x/%s.z, %s.y/%s.z);", p, p, p, p);
@@ -37,7 +37,7 @@ void GrGLSLVertexGeoBuilder::emitNormalizedSkPosition(SkString* out, const char*
 void GrGLSLVertexBuilder::onFinalize() {
     // We could have the GrGeometryProcessor do this, but its just easier to have it performed
     // here. If we ever need to set variable pointsize, then we can reinvestigate.
-    if (this->getProgramBuilder()->desc()->header().fHasPointSize) {
+    if (this->getProgramBuilder()->hasPointSize()) {
         this->codeAppend("sk_PointSize = 1.0;");
     }
     fProgramBuilder->varyingHandler()->getVertexDecls(&this->inputs(), &this->outputs());
@@ -48,9 +48,7 @@ static const char* input_type_name(GrGLSLGeometryBuilder::InputType in) {
     switch (in) {
         case InputType::kPoints: return "points";
         case InputType::kLines: return "lines";
-        case InputType::kLinesAdjacency: return "lines_adjacency";
         case InputType::kTriangles: return "triangles";
-        case InputType::kTrianglesAdjacency: return "triangles_adjacency";
     }
     SK_ABORT("invalid input type");
 }

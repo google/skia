@@ -17,6 +17,7 @@
 class GrOpFlushState;
 class GrOpsTask;
 class GrResourceAllocator;
+class GrTextureResolveRenderTask;
 
 // This class abstracts a task that targets a single GrSurfaceProxy, participates in the
 // GrDrawingManager's DAG, and implements the onExecute method to modify its target proxy's
@@ -27,6 +28,8 @@ public:
     ~GrRenderTask() override;
 
     void makeClosed(const GrCaps&);
+
+    void prePrepare(GrRecordingContext* context) { this->onPrePrepare(context); }
 
     // These two methods are only invoked at flush time
     void prepare(GrOpFlushState* flushState);
@@ -44,6 +47,12 @@ public:
      */
     void addDependency(GrSurfaceProxy* dependedOn, GrMipMapped, GrTextureResolveManager,
                        const GrCaps& caps);
+
+    /*
+     * Notify this GrRenderTask that it relies on the contents of all GrRenderTasks which otherTask
+     * depends on.
+     */
+    void addDependenciesFromOtherTask(GrRenderTask* otherTask);
 
     /*
      * Does this renderTask depend on 'dependedOn'?
@@ -71,7 +80,9 @@ public:
 
     void visitTargetAndSrcProxies_debugOnly(const VisitSurfaceProxyFunc& fn) const {
         this->visitProxies_debugOnly(fn);
-        fn(fTarget.get(), GrMipMapped::kNo);
+        if (fTarget) {
+            fn(fTarget.get(), GrMipMapped::kNo);
+        }
     }
 #endif
 
@@ -87,7 +98,12 @@ protected:
         kTargetDirty,
     };
 
-    virtual ExpectedOutcome onMakeClosed(const GrCaps&) = 0;
+    // Performs any work to finalize this renderTask prior to execution. If returning
+    // ExpectedOutcome::kTargetDiry, the caller is also responsible to fill out the area it will
+    // modify in targetUpdateBounds.
+    //
+    // targetUpdateBounds must not extend beyond the proxy bounds.
+    virtual ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect* targetUpdateBounds) = 0;
 
     sk_sp<GrSurfaceProxy> fTarget;
 
@@ -169,7 +185,9 @@ private:
         }
     };
 
-    virtual void onPrepare(GrOpFlushState* flushState) = 0;
+    // Only the GrOpsTask currently overrides this virtual
+    virtual void onPrePrepare(GrRecordingContext*) {}
+    virtual void onPrepare(GrOpFlushState*) {} // Only the GrOpsTask overrides this virtual
     virtual bool onExecute(GrOpFlushState* flushState) = 0;
 
     const uint32_t         fUniqueID;
@@ -179,6 +197,11 @@ private:
     SkSTArray<1, GrRenderTask*, true> fDependencies;
     // 'this' GrRenderTask's output is relied on by the GrRenderTasks in 'fDependents'
     SkSTArray<1, GrRenderTask*, true> fDependents;
+
+    // For performance reasons, we should perform texture resolves back-to-back as much as possible.
+    // (http://skbug.com/9406). To accomplish this, we make and reuse one single resolve task for
+    // each render task, then add it as a dependency during makeClosed().
+    GrTextureResolveRenderTask* fTextureResolveTask = nullptr;
 };
 
 #endif

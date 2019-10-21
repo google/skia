@@ -10,6 +10,7 @@
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsRenderPass.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/ccpr/GrCCPerFlushResources.h"
 #include "src/gpu/ccpr/GrSampleMaskProcessor.h"
@@ -88,7 +89,19 @@ static constexpr GrUserStencilSettings kIncrDecrStencil(
         0xffff,                        0xffff>()
 );
 
-// Resolves stencil winding counts to A8 coverage and resets stencil values to zero.
+// Resolves stencil winding counts to A8 coverage. Leaves stencil values untouched.
+static constexpr GrUserStencilSettings kResolveStencilCoverage(
+    GrUserStencilSettings::StaticInitSeparate<
+        0x0000,                           0x0000,
+        GrUserStencilTest::kNotEqual,     GrUserStencilTest::kNotEqual,
+        0xffff,                           0x1,
+        GrUserStencilOp::kKeep,           GrUserStencilOp::kKeep,
+        GrUserStencilOp::kKeep,           GrUserStencilOp::kKeep,
+        0xffff,                           0xffff>()
+);
+
+// Same as above, but also resets stencil values to zero. This is better for non-tilers
+// where we prefer to not clear the stencil buffer at the beginning of every render pass.
 static constexpr GrUserStencilSettings kResolveStencilCoverageAndReset(
     GrUserStencilSettings::StaticInitSeparate<
         0x0000,                           0x0000,
@@ -104,7 +117,7 @@ void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chain
 
     GrPipeline pipeline(
             GrScissorTest::kEnabled, GrDisableColorXPFactory::MakeXferProcessor(),
-            flushState->drawOpArgs().fOutputSwizzle, GrPipeline::InputFlags::kHWAntialias,
+            flushState->drawOpArgs().outputSwizzle(), GrPipeline::InputFlags::kHWAntialias,
             &kIncrDecrStencil);
 
     GrSampleMaskProcessor sampleMaskProc;
@@ -119,17 +132,31 @@ void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chain
     // not necessary, and will even cause artifacts if using mixed samples.
     constexpr auto noHWAA = GrPipeline::InputFlags::kNone;
 
-    GrPipeline resolvePipeline(
-            GrScissorTest::kEnabled, SkBlendMode::kSrc, flushState->drawOpArgs().fOutputSwizzle,
-            noHWAA, &kResolveStencilCoverageAndReset);
+    const auto* stencilResolveSettings = (flushState->caps().discardStencilValuesAfterRenderPass())
+            // The next draw will be the final op in the renderTargetContext. So if Ganesh is
+            // planning to discard the stencil values anyway, we don't actually need to reset them
+            // back to zero.
+            ? &kResolveStencilCoverage
+            : &kResolveStencilCoverageAndReset;
+
+    GrPipeline resolvePipeline(GrScissorTest::kEnabled, SkBlendMode::kSrc,
+                               flushState->drawOpArgs().outputSwizzle(), noHWAA,
+                               stencilResolveSettings);
     GrPipeline::FixedDynamicState scissorRectState(drawBoundsRect);
 
     GrMesh mesh(GrPrimitiveType::kTriangleStrip);
-    mesh.setInstanced(
-            fResources->refStencilResolveBuffer(),
-            fEndStencilResolveInstance - fBaseStencilResolveInstance, fBaseStencilResolveInstance,
-            4);
-    flushState->opsRenderPass()->draw(
-            StencilResolveProcessor(), resolvePipeline, &scissorRectState, nullptr, &mesh, 1,
-            SkRect::Make(drawBoundsRect));
+    mesh.setInstanced(fResources->refStencilResolveBuffer(),
+                      fEndStencilResolveInstance - fBaseStencilResolveInstance,
+                      fBaseStencilResolveInstance, 4);
+
+    StencilResolveProcessor primProc;
+
+    GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
+                              flushState->drawOpArgs().origin(),
+                              resolvePipeline,
+                              primProc,
+                              &scissorRectState,
+                              nullptr, 0);
+
+    flushState->opsRenderPass()->draw(programInfo, &mesh, 1, SkRect::Make(drawBoundsRect));
 }

@@ -46,7 +46,8 @@ public:
     }
 
     // Mock caps doesn't support any compressed formats right now
-    bool isFormatCompressed(const GrBackendFormat&) const override {
+    bool isFormatCompressed(const GrBackendFormat&,
+                            SkImage::CompressionType* compressionType = nullptr) const override {
         return false;
     }
 
@@ -113,6 +114,10 @@ public:
         return this->maxRenderTargetSampleCount(format.asMockColorType());
     }
 
+    size_t bytesPerPixel(const GrBackendFormat& format) const override {
+        return GrColorTypeBytesPerPixel(format.asMockColorType());
+    }
+
     SupportedWrite supportedWritePixelsColorType(GrColorType surfaceColorType,
                                                  const GrBackendFormat& surfaceFormat,
                                                  GrColorType srcColorType) const override {
@@ -131,8 +136,6 @@ public:
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override {
         return {};
     }
-
-    bool canClearTextureOnCreation() const override { return true; }
 
     GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override {
         return GrSwizzle();

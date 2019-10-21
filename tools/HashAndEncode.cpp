@@ -22,23 +22,29 @@ HashAndEncode::HashAndEncode(const SkBitmap& bitmap) : fSize(bitmap.info().dimen
 
     skcms_PixelFormat srcFmt;
     switch (bitmap.colorType()) {
-        case kUnknown_SkColorType: return;
+        case kUnknown_SkColorType:            return;
 
-        case kAlpha_8_SkColorType:      srcFmt = skcms_PixelFormat_A_8;          break;
-        case kRGB_565_SkColorType:      srcFmt = skcms_PixelFormat_BGR_565;      break;
-        case kARGB_4444_SkColorType:    srcFmt = skcms_PixelFormat_ABGR_4444;    break;
-        case kRGBA_8888_SkColorType:    srcFmt = skcms_PixelFormat_RGBA_8888;    break;
-        case kBGRA_8888_SkColorType:    srcFmt = skcms_PixelFormat_BGRA_8888;    break;
-        case kRGBA_1010102_SkColorType: srcFmt = skcms_PixelFormat_RGBA_1010102; break;
-        case kGray_8_SkColorType:       srcFmt = skcms_PixelFormat_G_8;          break;
-        case kRGBA_F16Norm_SkColorType: srcFmt = skcms_PixelFormat_RGBA_hhhh;    break;
-        case kRGBA_F16_SkColorType:     srcFmt = skcms_PixelFormat_RGBA_hhhh;    break;
-        case kRGBA_F32_SkColorType:     srcFmt = skcms_PixelFormat_RGBA_ffff;    break;
+        case kAlpha_8_SkColorType:            srcFmt = skcms_PixelFormat_A_8;          break;
+        case kRGB_565_SkColorType:            srcFmt = skcms_PixelFormat_BGR_565;      break;
+        case kARGB_4444_SkColorType:          srcFmt = skcms_PixelFormat_ABGR_4444;    break;
+        case kRGBA_8888_SkColorType:          srcFmt = skcms_PixelFormat_RGBA_8888;    break;
+        case kBGRA_8888_SkColorType:          srcFmt = skcms_PixelFormat_BGRA_8888;    break;
+        case kRGBA_1010102_SkColorType:       srcFmt = skcms_PixelFormat_RGBA_1010102; break;
+        case kGray_8_SkColorType:             srcFmt = skcms_PixelFormat_G_8;          break;
+        case kRGBA_F16Norm_SkColorType:       srcFmt = skcms_PixelFormat_RGBA_hhhh;    break;
+        case kRGBA_F16_SkColorType:           srcFmt = skcms_PixelFormat_RGBA_hhhh;    break;
+        case kRGBA_F32_SkColorType:           srcFmt = skcms_PixelFormat_RGBA_ffff;    break;
 
-        case kRGB_888x_SkColorType:     srcFmt = skcms_PixelFormat_RGBA_8888;
-                                        srcAlpha = skcms_AlphaFormat_Opaque;       break;
-        case kRGB_101010x_SkColorType:  srcFmt = skcms_PixelFormat_RGBA_1010102;
-                                        srcAlpha = skcms_AlphaFormat_Opaque;       break;
+        case kRGB_888x_SkColorType:           srcFmt = skcms_PixelFormat_RGBA_8888;
+                                              srcAlpha = skcms_AlphaFormat_Opaque;     break;
+        case kRGB_101010x_SkColorType:        srcFmt = skcms_PixelFormat_RGBA_1010102;
+                                              srcAlpha = skcms_AlphaFormat_Opaque;     break;
+        case kR8G8_unorm_SkColorType:         return;
+        case kR16G16_unorm_SkColorType:       return;
+        case kR16G16_float_SkColorType:       return;
+        case kA16_unorm_SkColorType:          return;
+        case kA16_float_SkColorType:          return;
+        case kR16G16B16A16_unorm_SkColorType: return;
     }
 
     skcms_ICCProfile srcProfile = *skcms_sRGB_profile();

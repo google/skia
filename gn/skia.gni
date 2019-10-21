@@ -33,8 +33,6 @@ declare_args() {
   skia_generate_workarounds = false
   skia_include_multiframe_procs = false
   skia_lex = false
-  skia_llvm_lib = "LLVM"
-  skia_llvm_path = ""
   skia_pdf_subset_harfbuzz = false  # TODO: set skia_pdf_subset_harfbuzz to skia_use_harfbuzz.
   skia_qt_path = getenv("QT_PATH")
   skia_skqp_global_error_tolerance = 0

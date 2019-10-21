@@ -18,6 +18,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/effects/SkBlurImageFilter.h"
 #include "src/core/SkBlurMask.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -128,4 +129,12 @@ DEF_SIMPLE_GM(BlurDrawImage, canvas, 256, 256) {
         canvas->scale(0.25, 0.25);
         canvas->drawImage(image, 256, 256, &paint);
     }
+}
+
+DEF_SIMPLE_GM(BlurBigSigma, canvas, 1024, 1024) {
+    SkPaint layerPaint, p;
+
+    p.setImageFilter(SkBlurImageFilter::Make(500, 500, nullptr));
+
+    canvas->drawRect(SkRect::MakeWH(700, 800), p);
 }

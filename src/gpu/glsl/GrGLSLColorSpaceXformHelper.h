@@ -8,6 +8,7 @@
 #ifndef GrGLSLColorSpaceXformHelper_DEFINED
 #define GrGLSLColorSpaceXformHelper_DEFINED
 
+#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
@@ -31,6 +32,7 @@ public:
             if (this->applySrcTF()) {
                 fSrcTFVar = uniformHandler->addUniformArray(visibility, kHalf_GrSLType,
                                                             "SrcTF", kNumTransferFnCoeffs);
+                fSrcTFKind = classify_transfer_fn(colorSpaceXform->fSteps.srcTF);
             }
             if (this->applyGamutXform()) {
                 fGamutXformVar = uniformHandler->addUniform(visibility, kHalf3x3_GrSLType,
@@ -39,6 +41,7 @@ public:
             if (this->applyDstTF()) {
                 fDstTFVar = uniformHandler->addUniformArray(visibility, kHalf_GrSLType,
                                                             "DstTF", kNumTransferFnCoeffs);
+                fDstTFKind = classify_transfer_fn(colorSpaceXform->fSteps.dstTFInv);
             }
         }
     }
@@ -63,6 +66,9 @@ public:
     bool applyDstTF() const      { return fFlags.encode; }
     bool applyPremul() const     { return fFlags.premul; }
 
+    TFKind srcTFKind() const { return fSrcTFKind; }
+    TFKind dstTFKind() const { return fDstTFKind; }
+
     GrGLSLProgramDataManager::UniformHandle srcTFUniform() const { return fSrcTFVar; }
     GrGLSLProgramDataManager::UniformHandle gamutXformUniform() const { return fGamutXformVar; }
     GrGLSLProgramDataManager::UniformHandle dstTFUniform() const { return fDstTFVar; }
@@ -74,6 +80,8 @@ private:
     GrGLSLProgramDataManager::UniformHandle fGamutXformVar;
     GrGLSLProgramDataManager::UniformHandle fDstTFVar;
     SkColorSpaceXformSteps::Flags fFlags;
+    TFKind fSrcTFKind;
+    TFKind fDstTFKind;
 };
 
 #endif

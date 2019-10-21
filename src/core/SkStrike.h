@@ -17,7 +17,7 @@
 #include "src/core/SkGlyph.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkScalerContext.h"
-#include "src/core/SkStrikeInterface.h"
+#include "src/core/SkStrikeForGPU.h"
 #include <memory>
 
 /** \class SkGlyphCache
@@ -33,7 +33,7 @@
     The Find*Exclusive() method returns SkExclusiveStrikePtr, which releases exclusive ownership
     when they go out of scope.
 */
-class SkStrike final : public SkStrikeInterface {
+class SkStrike final : public SkStrikeForGPU {
 public:
     SkStrike(const SkDescriptor& desc,
              std::unique_ptr<SkScalerContext> scaler,
@@ -97,15 +97,8 @@ public:
         return fScalerContext->getMaskFormat();
     }
 
-    bool isSubpixel() const {
-        return fIsSubpixel;
-    }
-
-    SkVector rounding() const override;
-
-    SkIPoint subpixelMask() const override {
-        return SkIPoint::Make((!fIsSubpixel || fAxisAlignment == kY_SkAxisAlignment) ? 0 : ~0,
-                              (!fIsSubpixel || fAxisAlignment == kX_SkAxisAlignment) ? 0 : ~0);
+    const SkGlyphPositionRoundingSpec& roundingSpec() const override {
+        return fRoundingSpec;
     }
 
     const SkDescriptor& getDescriptor() const override;
@@ -119,6 +112,9 @@ public:
     SkSpan<const SkGlyph*> prepareImages(SkSpan<const SkPackedGlyphID> glyphIDs,
                                          const SkGlyph* results[]);
 
+    void prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* drawables);
+
+    void prepareForDrawingPathsCPU(SkDrawableGlyphBuffer* drawables);
     SkSpan<const SkGlyphPos> prepareForDrawingRemoveEmpty(const SkPackedGlyphID packedGlyphIDs[],
                                                           const SkPoint positions[],
                                                           size_t n,
@@ -203,8 +199,7 @@ private:
     // Tracks (approx) how much ram is tied-up in this strike.
     size_t                  fMemoryUsed;
 
-    const bool              fIsSubpixel;
-    const SkAxisAlignment   fAxisAlignment;
+    const SkGlyphPositionRoundingSpec fRoundingSpec;
 };
 
 #endif  // SkStrike_DEFINED

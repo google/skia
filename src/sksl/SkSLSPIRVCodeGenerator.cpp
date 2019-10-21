@@ -1923,25 +1923,25 @@ SpvId SPIRVCodeGenerator::writeSwizzle(const Swizzle& swizzle, OutputStream& out
         this->writeWord(this->getType(swizzle.fType), out);
         this->writeWord(result, out);
         this->writeWord(base, out);
-        SpvId other;
-        int last = swizzle.fComponents.back();
-        if (last < 0) {
-            if (!fConstantZeroOneVector) {
-                FloatLiteral zero(fContext, -1, 0);
-                SpvId zeroId = this->writeFloatLiteral(zero);
-                FloatLiteral one(fContext, -1, 1);
-                SpvId oneId = this->writeFloatLiteral(one);
-                SpvId type = this->getType(*fContext.fFloat2_Type);
-                fConstantZeroOneVector = this->nextId();
-                this->writeOpCode(SpvOpConstantComposite, 5, fConstantBuffer);
-                this->writeWord(type, fConstantBuffer);
-                this->writeWord(fConstantZeroOneVector, fConstantBuffer);
-                this->writeWord(zeroId, fConstantBuffer);
-                this->writeWord(oneId, fConstantBuffer);
+        SpvId other = base;
+        for (int c : swizzle.fComponents) {
+            if (c < 0) {
+                if (!fConstantZeroOneVector) {
+                    FloatLiteral zero(fContext, -1, 0);
+                    SpvId zeroId = this->writeFloatLiteral(zero);
+                    FloatLiteral one(fContext, -1, 1);
+                    SpvId oneId = this->writeFloatLiteral(one);
+                    SpvId type = this->getType(*fContext.fFloat2_Type);
+                    fConstantZeroOneVector = this->nextId();
+                    this->writeOpCode(SpvOpConstantComposite, 5, fConstantBuffer);
+                    this->writeWord(type, fConstantBuffer);
+                    this->writeWord(fConstantZeroOneVector, fConstantBuffer);
+                    this->writeWord(zeroId, fConstantBuffer);
+                    this->writeWord(oneId, fConstantBuffer);
+                }
+                other = fConstantZeroOneVector;
+                break;
             }
-            other = fConstantZeroOneVector;
-        } else {
-            other = base;
         }
         this->writeWord(other, out);
         for (int component : swizzle.fComponents) {
@@ -2478,10 +2478,12 @@ SpvId SPIRVCodeGenerator::writeIntLiteral(const IntLiteral& i) {
         type = ConstantType::kInt;
     } else if (i.fType == *fContext.fUInt_Type) {
         type = ConstantType::kUInt;
-    } else if (i.fType == *fContext.fShort_Type) {
+    } else if (i.fType == *fContext.fShort_Type || i.fType == *fContext.fByte_Type) {
         type = ConstantType::kShort;
-    } else if (i.fType == *fContext.fUShort_Type) {
+    } else if (i.fType == *fContext.fUShort_Type || i.fType == *fContext.fUByte_Type) {
         type = ConstantType::kUShort;
+    } else {
+        SkASSERT(false);
     }
     std::pair<ConstantValue, ConstantType> key(i.fValue, type);
     auto entry = fNumberConstants.find(key);

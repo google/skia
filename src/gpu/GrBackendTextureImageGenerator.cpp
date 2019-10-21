@@ -35,8 +35,8 @@ GrBackendTextureImageGenerator::RefHelper::~RefHelper() {
 
     // Generator has been freed, and no one is borrowing the texture. Notify the original cache
     // that it can free the last ref, so it happens on the correct thread.
-    GrGpuResourceFreedMessage msg { fOriginalTexture, fOwningContextID };
-    SkMessageBus<GrGpuResourceFreedMessage>::Post(msg);
+    GrTextureFreedMessage msg { fOriginalTexture, fOwningContextID };
+    SkMessageBus<GrTextureFreedMessage>::Post(msg);
 }
 
 std::unique_ptr<SkImageGenerator>
@@ -48,7 +48,7 @@ GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin o
     // Attach our texture to this context's resource cache. This ensures that deletion will happen
     // in the correct thread/context. This adds the only ref to the texture that will persist from
     // this point. That ref will be released when the generator's RefHelper is freed.
-    context->priv().getResourceCache()->insertDelayedResourceUnref(texture.get());
+    context->priv().getResourceCache()->insertDelayedTextureUnref(texture.get());
 
     GrBackendTexture backendTexture = texture->getBackendTexture();
 
@@ -218,7 +218,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         GrMipMapped mipMapped = willNeedMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
         SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, info.width(), info.height());
 
-        return GrSurfaceProxy::Copy(context, proxy.get(), mipMapped, subset, SkBackingFit::kExact,
-                                    SkBudgeted::kYes);
+        return GrSurfaceProxy::Copy(context, proxy.get(), grColorType, mipMapped, subset,
+                                    SkBackingFit::kExact, SkBudgeted::kYes);
     }
 }

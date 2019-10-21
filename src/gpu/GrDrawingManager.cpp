@@ -13,6 +13,7 @@
 #include "include/private/SkDeferredDisplayList.h"
 #include "src/core/SkTTopoSort.h"
 #include "src/gpu/GrAuditTrail.h"
+#include "src/gpu/GrClientMappedBufferManager.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrCopyRenderTask.h"
 #include "src/gpu/GrGpu.h"
@@ -33,6 +34,7 @@
 #include "src/gpu/GrTextureResolveRenderTask.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/GrTransferFromRenderTask.h"
+#include "src/gpu/GrWaitRenderTask.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/gpu/text/GrTextContext.h"
 #include "src/image/SkSurface_Gpu.h"
@@ -247,6 +249,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[], int num
         }
         return GrSemaphoresSubmitted::kNo; // Can't flush while DDL recording
     }
+    direct->priv().clientMappedBufferManager()->process();
 
     GrGpu* gpu = direct->priv().getGpu();
     if (!gpu) {
@@ -530,7 +533,8 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(GrSurfaceProxy* proxies[],
             SkASSERT(rtProxy);
             if (rtProxy->isMSAADirty()) {
                 SkASSERT(rtProxy->peekRenderTarget());
-                gpu->resolveRenderTarget(rtProxy->peekRenderTarget());
+                gpu->resolveRenderTarget(rtProxy->peekRenderTarget(), rtProxy->msaaDirtyRect(),
+                                         rtProxy->origin(), GrGpu::ForExternalIO::kYes);
                 rtProxy->markMSAAResolved();
             }
         }
@@ -572,6 +576,10 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
     fActiveOpsTask = nullptr;
 
     fDAG.swap(&ddl->fRenderTasks);
+
+    for (auto renderTask : ddl->fRenderTasks) {
+        renderTask->prePrepare(fContext);
+    }
 
     if (fPathRendererChain) {
         if (auto ccpr = fPathRendererChain->getCoverageCountingPathRenderer()) {
@@ -625,7 +633,11 @@ void GrDrawingManager::validate() const {
 
         for (int i = 0; i < fDAG.numRenderTasks(); ++i) {
             if (fActiveOpsTask != fDAG.renderTask(i)) {
-                SkASSERT(fDAG.renderTask(i)->isClosed());
+                // The resolveTask associated with the activeTask remains open for as long as the
+                // activeTask does.
+                bool isActiveResolveTask =
+                        fActiveOpsTask && fActiveOpsTask->fTextureResolveTask == fDAG.renderTask(i);
+                SkASSERT(isActiveResolveTask || fDAG.renderTask(i)->isClosed());
             }
         }
 
@@ -678,12 +690,9 @@ sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(sk_sp<GrRenderTargetProxy> rtp, bo
     return opsTask;
 }
 
-GrRenderTask* GrDrawingManager::newTextureResolveRenderTask(
-        sk_sp<GrSurfaceProxy> proxy, GrSurfaceProxy::ResolveFlags flags, const GrCaps& caps) {
-    SkDEBUGCODE(auto* previousTaskBeforeMipsResolve = proxy->getLastRenderTask();)
-
+GrTextureResolveRenderTask* GrDrawingManager::newTextureResolveRenderTask(const GrCaps& caps) {
     // Unlike in the "new opsTask" case, we do not want to close the active opsTask, nor (if we are
-    // in sorting and opsTask reduction mode) the render tasks that depend on the proxy's current
+    // in sorting and opsTask reduction mode) the render tasks that depend on any proxy's current
     // state. This is because those opsTasks can still receive new ops and because if they refer to
     // the mipmapped version of 'proxy', they will then come to depend on the render task being
     // created here.
@@ -691,15 +700,83 @@ GrRenderTask* GrDrawingManager::newTextureResolveRenderTask(
     // Add the new textureResolveTask before the fActiveOpsTask (if not in
     // sorting/opsTask-splitting-reduction mode) because it will depend upon this resolve task.
     // NOTE: Putting it here will also reduce the amount of work required by the topological sort.
-    auto* resolveTask = static_cast<GrTextureResolveRenderTask*>(fDAG.addBeforeLast(
-            sk_make_sp<GrTextureResolveRenderTask>(std::move(proxy), flags)));
-    resolveTask->init(caps);
+    return static_cast<GrTextureResolveRenderTask*>(fDAG.addBeforeLast(
+            sk_make_sp<GrTextureResolveRenderTask>()));
+}
 
-    // GrTextureResolveRenderTask::init should have closed the texture proxy's previous task.
-    SkASSERT(!previousTaskBeforeMipsResolve || previousTaskBeforeMipsResolve->isClosed());
-    SkASSERT(resolveTask->fTarget->getLastRenderTask() == resolveTask);
+void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
+                                         std::unique_ptr<sk_sp<GrSemaphore>[]> semaphores,
+                                         int numSemaphores) {
+    SkDEBUGCODE(this->validate());
+    SkASSERT(fContext);
 
-    return resolveTask;
+    const GrCaps& caps = *fContext->priv().caps();
+
+    sk_sp<GrWaitRenderTask> waitTask = sk_make_sp<GrWaitRenderTask>(proxy, std::move(semaphores),
+                                                                    numSemaphores);
+    if (fReduceOpsTaskSplitting) {
+        GrRenderTask* lastTask = proxy->getLastRenderTask();
+        if (lastTask && !lastTask->isClosed()) {
+            // We directly make the currently open renderTask depend on waitTask instead of using
+            // the proxy version of addDependency. The waitTask will never need to trigger any
+            // resolves or mip map generation which is the main advantage of going through the proxy
+            // version. Additionally we would've had to temporarily set the wait task as the
+            // lastRenderTask on the proxy, add the dependency, and then reset the lastRenderTask to
+            // lastTask. Additionally we add all dependencies of lastTask to waitTask so that the
+            // waitTask doesn't get reordered before them and unnecessarily block those tasks.
+            // Note: Any previous Ops already in lastTask will get blocked by the wait semaphore
+            // even though they don't need to be for correctness.
+
+            // Make sure we add the dependencies of lastTask to waitTask first or else we'll get a
+            // circular self dependency of waitTask on waitTask.
+            waitTask->addDependenciesFromOtherTask(lastTask);
+            lastTask->addDependency(waitTask.get());
+        } else {
+            // If there is a last task we set the waitTask to depend on it so that it doesn't get
+            // reordered in front of the lastTask causing the lastTask to be blocked by the
+            // semaphore. Again we directly just go through adding the dependency to the task and
+            // not the proxy since we don't need to worry about resolving anything.
+            if (lastTask) {
+                waitTask->addDependency(lastTask);
+            }
+            proxy->setLastRenderTask(waitTask.get());
+        }
+        fDAG.add(waitTask);
+    } else {
+        if (fActiveOpsTask && (fActiveOpsTask->fTarget == proxy)) {
+            SkASSERT(proxy->getLastRenderTask() == fActiveOpsTask);
+            fDAG.addBeforeLast(waitTask);
+            // In this case we keep the current renderTask open but just insert the new waitTask
+            // before it in the list. The waitTask will never need to trigger any resolves or mip
+            // map generation which is the main advantage of going through the proxy version.
+            // Additionally we would've had to temporarily set the wait task as the lastRenderTask
+            // on the proxy, add the dependency, and then reset the lastRenderTask to
+            // fActiveOpsTask. Additionally we make the waitTask depend on all of fActiveOpsTask
+            // dependencies so that we don't unnecessarily reorder the waitTask before them.
+            // Note: Any previous Ops already in fActiveOpsTask will get blocked by the wait
+            // semaphore even though they don't need to be for correctness.
+
+            // Make sure we add the dependencies of fActiveOpsTask to waitTask first or else we'll
+            // get a circular self dependency of waitTask on waitTask.
+            waitTask->addDependenciesFromOtherTask(fActiveOpsTask);
+            fActiveOpsTask->addDependency(waitTask.get());
+        } else {
+            // In this case we just close the previous RenderTask and start and append the waitTask
+            // to the DAG. Since it is the last task now we call setLastRenderTask on the proxy. If
+            // there is a lastTask on the proxy we make waitTask depend on that task. This
+            // dependency isn't strictly needed but it does keep the DAG from reordering the
+            // waitTask earlier and blocking more tasks.
+            if (GrRenderTask* lastTask = proxy->getLastRenderTask()) {
+                waitTask->addDependency(lastTask);
+            }
+            proxy->setLastRenderTask(waitTask.get());
+            this->closeRenderTasksForNewRenderTask(proxy.get());
+            fDAG.add(waitTask);
+        }
+    }
+    waitTask->makeClosed(caps);
+
+    SkDEBUGCODE(this->validate());
 }
 
 void GrDrawingManager::newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
@@ -735,14 +812,16 @@ bool GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
                                          const SkIPoint& dstPoint) {
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
-    this->closeRenderTasksForNewRenderTask(dstProxy.get());
 
-    GrRenderTask* task = fDAG.add(GrCopyRenderTask::Make(srcProxy, srcRect, dstProxy, dstPoint));
+    this->closeRenderTasksForNewRenderTask(dstProxy.get());
+    const GrCaps& caps = *fContext->priv().caps();
+
+    GrRenderTask* task =
+            fDAG.add(GrCopyRenderTask::Make(srcProxy, srcRect, dstProxy, dstPoint, &caps));
     if (!task) {
         return false;
     }
 
-    const GrCaps& caps = *fContext->priv().caps();
 
     // We always say GrMipMapped::kNo here since we are always just copying from the base layer to
     // another base layer. We don't need to make sure the whole mip map chain is valid.
@@ -830,13 +909,6 @@ std::unique_ptr<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext
         return nullptr;
     }
 
-    // SkSurface catches bad color space usage at creation. This check handles anything that slips
-    // by, including internal usage.
-    if (!SkSurface_Gpu::Valid(fContext->priv().caps(), sProxy->backendFormat())) {
-        SkDEBUGFAIL("Invalid config and colorspace combination");
-        return nullptr;
-    }
-
     sk_sp<GrRenderTargetProxy> renderTargetProxy(sk_ref_sp(sProxy->asRenderTargetProxy()));
 
     return std::unique_ptr<GrRenderTargetContext>(
@@ -854,13 +926,6 @@ std::unique_ptr<GrTextureContext> GrDrawingManager::makeTextureContext(
         SkAlphaType alphaType,
         sk_sp<SkColorSpace> colorSpace) {
     if (this->wasAbandoned() || !sProxy->asTextureProxy()) {
-        return nullptr;
-    }
-
-    // SkSurface catches bad color space usage at creation. This check handles anything that slips
-    // by, including internal usage.
-    if (!SkSurface_Gpu::Valid(fContext->priv().caps(), sProxy->backendFormat())) {
-        SkDEBUGFAIL("Invalid config and colorspace combination");
         return nullptr;
     }
 

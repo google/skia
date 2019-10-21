@@ -6,12 +6,16 @@
 from . import util
 
 
-# See mapping of Xcode version to Xcode build version here:
-# https://chromium.googlesource.com/chromium/tools/build/+/master/scripts/slave/recipe_modules/ios/api.py#37
+# XCode build is listed in parentheses after the version at
+# https://developer.apple.com/news/releases/, or on Wikipedia here:
+# https://en.wikipedia.org/wiki/Xcode#Version_comparison_table
+# Use lowercase letters.
 # When updating XCODE_BUILD_VERSION, you will also need to update
 # XCODE_CLANG_VERSION.
-XCODE_BUILD_VERSION = '9c40b'
-XCODE_CLANG_VERSION = '9.0.0'
+XCODE_BUILD_VERSION = '10g8'
+# Wikipedia lists the Clang version here:
+# https://en.wikipedia.org/wiki/Xcode#Toolchain_versions
+XCODE_CLANG_VERSION = '10.0.1'
 
 
 def build_command_buffer(api, chrome_dir, skia_dir, out):
@@ -91,10 +95,6 @@ def compile_fn(api, checkout_root, out_dir):
   if os == 'Mac':
     extra_cflags.append(
         '-DDUMMY_xcode_build_version=%s' % XCODE_BUILD_VERSION)
-    if XCODE_CLANG_VERSION.startswith('9.'):
-      # XCode 9 seems to handle try_acquire_capability wrong.
-      extra_cflags.append('-Wno-thread-safety-analysis')
-
     mac_toolchain_cmd = api.vars.slave_dir.join(
         'mac_toolchain', 'mac_toolchain')
     xcode_app_path = api.vars.cache_dir.join('Xcode.app')
@@ -115,6 +115,17 @@ def compile_fn(api, checkout_root, out_dir):
       api.step('install xcode', install_xcode_cmd)
       api.step('select xcode', [
           'sudo', 'xcode-select', '-switch', xcode_app_path])
+      if 'iOS' in extra_tokens:
+        if target_arch == 'arm':
+          # Can only compile for 32-bit up to iOS 10.
+          env['IPHONEOS_DEPLOYMENT_TARGET'] = '10.0'
+        else:
+          # Our iOS devices are on an older version.
+          # Can't compile for Metal before 11.0.
+          env['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
+      else:
+        # We have some bots on 10.13.
+        env['MACOSX_DEPLOYMENT_TARGET'] = '10.13'
 
   if compiler == 'Clang' and api.vars.is_linux:
     cc  = clang_linux + '/bin/clang'
@@ -133,25 +144,21 @@ def compile_fn(api, checkout_root, out_dir):
     if target_arch in ['mips64el', 'loongson3a']:
       mips64el_toolchain_linux = str(api.vars.slave_dir.join(
           'mips64el_toolchain_linux'))
-      cc  = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-gcc-7'
-      cxx = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-g++-7'
+      cc  = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-gcc-8'
+      cxx = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-g++-8'
       env['LD_LIBRARY_PATH'] = (
           mips64el_toolchain_linux + '/lib/x86_64-linux-gnu/')
       extra_ldflags.append('-L' + mips64el_toolchain_linux +
                            '/mips64el-linux-gnuabi64/lib')
       extra_cflags.extend([
-          '-Wno-format-truncation',
-          '-Wno-uninitialized',
           ('-DDUMMY_mips64el_toolchain_linux_version=%s' %
            api.run.asset_version('mips64el_toolchain_linux', skia_dir))
       ])
-      if configuration == 'Release':
-        # This warning is only triggered when fuzz_canvas is inlined.
-        extra_cflags.append('-Wno-strict-overflow')
       args.update({
         'skia_use_system_freetype2': 'false',
         'skia_use_fontconfig':       'false',
         'skia_enable_gpu':           'false',
+        'werror':                    'false',
       })
     else:
       cc, cxx = 'gcc', 'g++'
@@ -263,7 +270,10 @@ def compile_fn(api, checkout_root, out_dir):
   if 'iOS' in extra_tokens:
     # Bots use Chromium signing cert.
     args['skia_ios_identity'] = '".*GS9WA.*"'
-    args['skia_ios_profile'] = '"Upstream Testing Provisioning Profile"'
+    # Get mobileprovision via the CIPD package.
+    args['skia_ios_profile'] = '"%s"' % api.vars.slave_dir.join(
+        'provisioning_profile_ios',
+        'Upstream_Testing_Provisioning_Profile.mobileprovision')
   if 'CheckGeneratedFiles' in extra_tokens:
     args['skia_compile_processors'] = 'true'
     args['skia_generate_workarounds'] = 'true'
@@ -323,14 +333,16 @@ def compile_fn(api, checkout_root, out_dir):
       api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
 
 
-def copy_extra_build_products(api, src, dst):
+def copy_build_products(api, src, dst):
+  util.copy_listed_files(api, src, dst, util.DEFAULT_BUILD_PRODUCTS)
   extra_tokens  = api.vars.extra_tokens
   os            = api.vars.builder_cfg.get('os', '')
 
   if 'SwiftShader' in extra_tokens:
-    util.copy_whitelisted_build_products(api,
+    util.copy_listed_files(api,
         src.join('swiftshader_out'),
-        api.vars.swarming_out_dir.join('swiftshader_out'))
+        api.vars.swarming_out_dir.join('swiftshader_out'),
+        util.DEFAULT_BUILD_PRODUCTS)
 
   if os == 'Mac' and any('SAN' in t for t in extra_tokens):
     # Hardcoding this path because it should only change when we upgrade to a

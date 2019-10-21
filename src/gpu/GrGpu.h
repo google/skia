@@ -103,22 +103,35 @@ public:
      *                       If mipLevelCount > 1 and texels[i].fPixels != nullptr for any i > 0
      *                       then all levels must have non-null pixels. All levels must have
      *                       non-null pixels if GrCaps::createTextureMustSpecifyAllLevels() is true.
-     * @param mipLevelCount  the number of levels in 'texels'. May be 0, 1, or
+     * @param textureColorType The color type interpretation of the texture for the purpose of
+     *                       of uploading texel data.
+     * @param srcColorType   The color type of data in texels[].
+     * @param texelLevelCount the number of levels in 'texels'. May be 0, 1, or
      *                       floor(max((log2(desc.fWidth), log2(desc.fHeight)))). It must be the
      *                       latter if GrCaps::createTextureMustSpecifyAllLevels() is true.
      * @return  The texture object if successful, otherwise nullptr.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, const GrBackendFormat& format,
-                                   GrRenderable renderable, int renderTargetSampleCnt, SkBudgeted,
-                                   GrProtected isProtected, const GrMipLevel texels[],
-                                   int mipLevelCount);
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc,
+                                   const GrBackendFormat& format,
+                                   GrRenderable renderable,
+                                   int renderTargetSampleCnt,
+                                   SkBudgeted,
+                                   GrProtected isProtected,
+                                   GrColorType textureColorType,
+                                   GrColorType srcColorType,
+                                   const GrMipLevel texels[],
+                                   int texelLevelCount);
 
     /**
      * Simplified createTexture() interface for when there is no initial texel data to upload.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, const GrBackendFormat& format,
-                                   GrRenderable renderable, int renderTargetSampleCnt,
-                                   SkBudgeted budgeted, GrProtected isProtected);
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc,
+                                   const GrBackendFormat& format,
+                                   GrRenderable renderable,
+                                   int renderTargetSampleCnt,
+                                   GrMipMapped,
+                                   SkBudgeted budgeted,
+                                   GrProtected isProtected);
 
     sk_sp<GrTexture> createCompressedTexture(int width, int height, const GrBackendFormat&,
                                              SkImage::CompressionType, SkBudgeted, const void* data,
@@ -168,10 +181,16 @@ public:
     sk_sp<GrGpuBuffer> createBuffer(size_t size, GrGpuBufferType intendedType,
                                     GrAccessPattern accessPattern, const void* data = nullptr);
 
+    enum class ForExternalIO : bool {
+        kYes = true,
+        kNo = false
+    };
+
     /**
      * Resolves MSAA.
      */
-    void resolveRenderTarget(GrRenderTarget*);
+    void resolveRenderTarget(GrRenderTarget*, const SkIRect& resolveRect, GrSurfaceOrigin,
+                             ForExternalIO);
 
     /**
      * Uses the base of the texture to recompute the contents of the other levels.
@@ -320,7 +339,7 @@ public:
     // Returns a GrOpsRenderPass which GrOpsTasks send draw commands to instead of directly
     // to the Gpu object. The 'bounds' rect is the content rect of the renderTarget.
     virtual GrOpsRenderPass* getOpsRenderPass(
-            GrRenderTarget* renderTarget, GrSurfaceOrigin, const SkRect& bounds,
+            GrRenderTarget* renderTarget, GrSurfaceOrigin, const SkIRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo&,
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,
             const SkTArray<GrTextureProxy*, true>& sampledProxies) = 0;
@@ -438,21 +457,32 @@ public:
     /**
      * Creates a texture directly in the backend API without wrapping it in a GrTexture.
      * Must be matched with a call to deleteBackendTexture().
-     * Right now, the color is ignored if pixel data is provided.
-     * In the future, if neither a color nor pixels are provided then the backend texture
-     * will be uninitialized.
+     *
+     * If srcData is provided it will be used to initialize the texture. If srcData is
+     * not provided but a color is then it is used to initialize the texture. If neither
+     * srcData nor a color is provided then the texture is left uninitialized.
+     *
+     * If srcData is provided and mipMapped is kYes then data for all the miplevels must be
+     * provided (or the method will fail). If only a color is provided and mipMapped is kYes
+     * then all the mip levels will be allocated and initialized to the color. If neither
+     * srcData nor a color is provided but mipMapped is kYes then the mip levels will be allocated
+     * but left uninitialized.
+     *
+     * Note: if more than one pixmap is provided (i.e., for mipmap levels) they must all share
+     * the same SkColorType.
      */
-    virtual GrBackendTexture createBackendTexture(int w, int h, const GrBackendFormat&,
-                                                  GrMipMapped, GrRenderable,
-                                                  const void* pixels, size_t rowBytes,
-                                                  const SkColor4f* color,
-                                                  GrProtected isProtected) = 0;
+    GrBackendTexture createBackendTexture(int w, int h, const GrBackendFormat&,
+                                          GrMipMapped, GrRenderable,
+                                          const SkPixmap srcData[], int numMipLevels,
+                                          const SkColor4f* color, GrProtected isProtected);
 
     /**
      * Frees a texture created by createBackendTexture(). If ownership of the backend
      * texture has been transferred to a GrContext using adopt semantics this should not be called.
      */
     virtual void deleteBackendTexture(const GrBackendTexture&) = 0;
+
+    virtual bool precompileShader(const SkData& key, const SkData& data) { return false; }
 
 #if GR_TEST_UTILS
     /** Check a handle represents an actual texture in the backend API that has not been freed. */
@@ -474,6 +504,13 @@ public:
      * This is for testing purposes only.
      */
     virtual void testingOnly_flushGpuAndSync() = 0;
+
+    /**
+     * Inserted as a pair around a block of code to do a GPU frame capture.
+     * Currently only works with the Metal backend.
+     */
+    virtual void testingOnly_startCapture() {}
+    virtual void testingOnly_endCapture() {}
 #endif
 
     // width and height may be larger than rt (if underlying API allows it).
@@ -519,6 +556,9 @@ public:
     virtual void storeVkPipelineCacheData() {}
 
 protected:
+    static bool MipMapsAreCorrect(int baseWidth, int baseHeight, GrMipMapped,
+                                  const SkPixmap srcData[], int numMipLevels);
+
     // Handles cases where a surface will be updated without a call to flushRenderTarget.
     void didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const SkIRect* bounds,
                            uint32_t mipLevels = 1) const;
@@ -529,6 +569,11 @@ protected:
     sk_sp<const GrCaps>              fCaps;
 
 private:
+    virtual GrBackendTexture onCreateBackendTexture(int w, int h, const GrBackendFormat&,
+                                                    GrMipMapped, GrRenderable,
+                                                    const SkPixmap srcData[], int numMipLevels,
+                                                    const SkColor4f* color, GrProtected) = 0;
+
     // called when the 3D context state is unknown. Subclass should emit any
     // assumed 3D context state and dirty any state cache.
     virtual void onResetContext(uint32_t resetBits) = 0;
@@ -544,15 +589,17 @@ private:
     virtual void xferBarrier(GrRenderTarget*, GrXferBarrierType) = 0;
 
     // overridden by backend-specific derived class to create objects.
-    // Texture size and sample size will have already been validated in base class before
-    // onCreateTexture is called.
+    // Texture size, renderablility, format support, sample count will have already been validated
+    // in base class before onCreateTexture is called.
+    // If the ith bit is set in levelClearMask then the ith MIP level should be cleared.
     virtual sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&,
                                              const GrBackendFormat&,
                                              GrRenderable,
                                              int renderTargetSampleCnt,
-                                             SkBudgeted, GrProtected,
-                                             const GrMipLevel[],
-                                             int mipLevelCount) = 0;
+                                             SkBudgeted,
+                                             GrProtected,
+                                             int mipLevelCoont,
+                                             uint32_t levelClearMask) = 0;
     virtual sk_sp<GrTexture> onCreateCompressedTexture(int width, int height,
                                                        const GrBackendFormat&,
                                                        SkImage::CompressionType, SkBudgeted,
@@ -595,7 +642,8 @@ private:
                                       GrGpuBuffer* transferBuffer, size_t offset) = 0;
 
     // overridden by backend-specific derived class to perform the resolve
-    virtual void onResolveRenderTarget(GrRenderTarget* target) = 0;
+    virtual void onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
+                                       GrSurfaceOrigin resolveOrigin, ForExternalIO) = 0;
 
     // overridden by backend specific derived class to perform mip map level regeneration.
     virtual bool onRegenerateMipMapLevels(GrTexture*) = 0;
@@ -610,6 +658,15 @@ private:
 #ifdef SK_ENABLE_DUMP_GPU
     virtual void onDumpJSON(SkJSONWriter*) const {}
 #endif
+
+    sk_sp<GrTexture> createTextureCommon(const GrSurfaceDesc& desc,
+                                         const GrBackendFormat& format,
+                                         GrRenderable renderable,
+                                         int renderTargetSampleCnt,
+                                         SkBudgeted budgeted,
+                                         GrProtected isProtected,
+                                         int mipLevelCnt,
+                                         uint32_t levelClearMask);
 
     void resetContext() {
         this->onResetContext(fResetBits);

@@ -75,8 +75,10 @@ id<MTLTexture> create_msaa_texture(GrMtlGpu* gpu, const GrSurfaceDesc& desc, int
     texDesc.mipmapLevelCount = 1;
     texDesc.sampleCount = sampleCnt;
     texDesc.arrayLength = 1;
-    texDesc.storageMode = MTLStorageModePrivate;
-    texDesc.usage = MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        texDesc.storageMode = MTLStorageModePrivate;
+        texDesc.usage = MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
+    }
 
     return [gpu->device() newTextureWithDescriptor:texDesc];
 }
@@ -92,14 +94,18 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeNewTextureRenderTa
     if (!texture) {
         return nullptr;
     }
-    SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) & texture.usage);
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) & texture.usage);
+    }
 
     if (sampleCnt > 1) {
         id<MTLTexture> colorTexture = create_msaa_texture(gpu, desc, sampleCnt);
         if (!colorTexture) {
             return nullptr;
         }
-        SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) & colorTexture.usage);
+        if (@available(macOS 10.11, iOS 9.0, *)) {
+            SkASSERT((MTLTextureUsageShaderRead|MTLTextureUsageRenderTarget) & colorTexture.usage);
+        }
         return sk_sp<GrMtlTextureRenderTarget>(new GrMtlTextureRenderTarget(
                 gpu, budgeted, desc, sampleCnt, colorTexture, texture, mipMapsStatus));
     } else {
@@ -115,7 +121,9 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeWrappedTextureRend
         id<MTLTexture> texture,
         GrWrapCacheable cacheable) {
     SkASSERT(nil != texture);
-    SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) & texture.usage);
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) & texture.usage);
+    }
     GrMipMapsStatus mipMapsStatus = texture.mipmapLevelCount > 1
                                             ? GrMipMapsStatus::kDirty
                                             : GrMipMapsStatus::kNotAllocated;
@@ -124,7 +132,9 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeWrappedTextureRend
         if (!colorTexture) {
             return nullptr;
         }
-        SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) & colorTexture.usage);
+        if (@available(macOS 10.11, iOS 9.0, *)) {
+            SkASSERT((MTLTextureUsageShaderRead|MTLTextureUsageRenderTarget) & colorTexture.usage);
+        }
         return sk_sp<GrMtlTextureRenderTarget>(new GrMtlTextureRenderTarget(
                 gpu, desc, sampleCnt, colorTexture, texture, mipMapsStatus, cacheable));
     } else {

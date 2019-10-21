@@ -382,6 +382,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
                 this->setColorMode(ColorMode::kColorManagedF16);
                 break;
             case ColorMode::kColorManagedF16:
+                this->setColorMode(ColorMode::kColorManagedF16Norm);
+                break;
+            case ColorMode::kColorManagedF16Norm:
                 this->setColorMode(ColorMode::kLegacy);
                 break;
         }
@@ -882,6 +885,9 @@ void Viewer::updateTitle() {
         case ColorMode::kColorManagedF16:
             title.append(" ColorManaged F16");
             break;
+        case ColorMode::kColorManagedF16Norm:
+            title.append(" ColorManaged F16 Norm");
+            break;
     }
 
     if (ColorMode::kLegacy != fColorMode) {
@@ -1266,8 +1272,19 @@ void Viewer::drawSlide(SkSurface* surface) {
     }
 
     // Grab some things we'll need to make surfaces (for tiling or general offscreen rendering)
-    SkColorType colorType = (ColorMode::kColorManagedF16 == fColorMode) ? kRGBA_F16_SkColorType
-                                                                        : kN32_SkColorType;
+    SkColorType colorType;
+    switch (fColorMode) {
+        case ColorMode::kLegacy:
+        case ColorMode::kColorManaged8888:
+            colorType = kN32_SkColorType;
+            break;
+        case ColorMode::kColorManagedF16:
+            colorType = kRGBA_F16_SkColorType;
+            break;
+        case ColorMode::kColorManagedF16Norm:
+            colorType = kRGBA_F16Norm_SkColorType;
+            break;
+    }
 
     auto make_surface = [=](int w, int h) {
         SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
@@ -1444,6 +1461,11 @@ bool Viewer::onTouch(intptr_t owner, skui::InputState state, float x, float y) {
             fGesture.touchMoved(castedOwner, x, y);
             break;
         }
+        default: {
+            // kLeft and kRight are only for swipes
+            SkASSERT(false);
+            break;
+        }
     }
     fGestureDevice = fGesture.isBeingTouched() ? GestureDevice::kTouch : GestureDevice::kNone;
     fWindow->inval();
@@ -1474,6 +1496,10 @@ bool Viewer::onMouse(int x, int y, skui::InputState state, skui::ModifierKey mod
             fGesture.touchMoved(nullptr, x, y);
             break;
         }
+        default: {
+            SkASSERT(false); // shouldn't see kRight or kLeft here
+            break;
+        }
     }
     fGestureDevice = fGesture.isBeingTouched() ? GestureDevice::kMouse : GestureDevice::kNone;
 
@@ -1481,6 +1507,39 @@ bool Viewer::onMouse(int x, int y, skui::InputState state, skui::ModifierKey mod
         fWindow->inval();
     }
     return true;
+}
+
+bool Viewer::onFling(skui::InputState state) {
+    if (skui::InputState::kRight == state) {
+        this->setCurrentSlide(fCurrentSlide > 0 ? fCurrentSlide - 1 : fSlides.count() - 1);
+        return true;
+    } else if (skui::InputState::kLeft == state) {
+        this->setCurrentSlide(fCurrentSlide < fSlides.count() - 1 ? fCurrentSlide + 1 : 0);
+        return true;
+    }
+    return false;
+}
+
+bool Viewer::onPinch(skui::InputState state, float scale, float x, float y) {
+    switch (state) {
+        case skui::InputState::kDown:
+            fGesture.startZoom();
+            return true;
+            break;
+        case skui::InputState::kMove:
+            fGesture.updateZoom(scale, x, y, x, y);
+            return true;
+            break;
+        case skui::InputState::kUp:
+            fGesture.endZoom();
+            return true;
+            break;
+        default:
+            SkASSERT(false);
+            break;
+    }
+
+    return false;
 }
 
 static void ImGui_Primaries(SkColorSpacePrimaries* primaries, SkPaint* gamutPaint) {
@@ -1965,6 +2024,7 @@ void Viewer::drawImGui() {
                 cmButton(ColorMode::kLegacy, "Legacy 8888");
                 cmButton(ColorMode::kColorManaged8888, "Color Managed 8888");
                 cmButton(ColorMode::kColorManagedF16, "Color Managed F16");
+                cmButton(ColorMode::kColorManagedF16Norm, "Color Managed F16 Norm");
 
                 if (newMode != fColorMode) {
                     this->setColorMode(newMode);

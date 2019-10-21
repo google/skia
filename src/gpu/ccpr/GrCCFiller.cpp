@@ -110,8 +110,7 @@ void GrCCFiller::parseDeviceSpaceFill(const SkPath& path, const SkPoint* deviceS
 
     if (GrScissorTest::kEnabled == scissorTest) {
         fScissorSubBatches.push_back() = {fTotalPrimitiveCounts[(int)GrScissorTest::kEnabled],
-                                          clippedDevIBounds.makeOffset(devToAtlasOffset.fX,
-                                                                       devToAtlasOffset.fY)};
+                                          clippedDevIBounds.makeOffset(devToAtlasOffset)};
     }
 }
 
@@ -137,9 +136,10 @@ void GrCCFiller::PathInfo::tessellateFan(
         // count to the appropriate fill type later.
         fan.setFillType(SkPath::kWinding_FillType);
     } else {
-        // When counting winding numbers in the stencil buffer, it works to just tessellate the
-        // Redbook fan with the same fill type as the path.
-        fan.setFillType(originalPath.getFillType());
+        // When counting winding numbers in the stencil buffer, it works to use even/odd for the fan
+        // tessellation (where applicable). But we need to strip out inverse fill info because
+        // inverse-ness gets accounted for later on.
+        fan.setFillType(SkPath::ConvertToNonInverseFillType(originalPath.getFillType()));
     }
     SkASSERT(Verb::kBeginPath == verbs[verbsIdx]);
     for (int i = verbsIdx + 1; i < verbs.count(); ++i) {
@@ -175,9 +175,10 @@ void GrCCFiller::PathInfo::tessellateFan(
     }
 
     GrTessellator::WindingVertex* vertices = nullptr;
-    fFanTessellationCount =
-            GrTessellator::PathToVertices(fan, std::numeric_limits<float>::infinity(),
-                                          SkRect::Make(clippedDevIBounds), &vertices);
+    SkASSERT(!fan.isInverseFillType());
+    fFanTessellationCount = GrTessellator::PathToVertices(
+            fan, std::numeric_limits<float>::infinity(), SkRect::Make(clippedDevIBounds),
+            &vertices);
     if (fFanTessellationCount <= 0) {
         SkASSERT(0 == fFanTessellationCount);
         SkASSERT(nullptr == vertices);

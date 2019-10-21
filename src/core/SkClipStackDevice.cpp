@@ -56,7 +56,7 @@ void SkClipStackDevice::onSetDeviceClipRestriction(SkIRect* clipRestriction) {
         fClipStack.setDeviceClipRestriction(*clipRestriction);
     } else {
         SkIPoint origin = this->getOrigin();
-        SkIRect rect = clipRestriction->makeOffset(-origin.x(), -origin.y());
+        SkIRect rect = clipRestriction->makeOffset(-origin);
         fClipStack.setDeviceClipRestriction(rect);
         fClipStack.clipDevRect(rect, SkClipOp::kIntersect);
     }

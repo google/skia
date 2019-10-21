@@ -27,7 +27,6 @@ public:
             , fDstOffset(dstOffset) {}
 
 private:
-    void onPrepare(GrOpFlushState*) override {}
     bool onIsUsed(GrSurfaceProxy* proxy) const override {
         SkASSERT(!fTarget);
         return proxy == fSrcProxy.get();
@@ -36,7 +35,7 @@ private:
     void handleInternalAllocationFailure() override {}
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
-    ExpectedOutcome onMakeClosed(const GrCaps&) override {
+    ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect*) override {
         return ExpectedOutcome::kTargetUnchanged;
     }
 

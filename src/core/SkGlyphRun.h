@@ -17,6 +17,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkSpan.h"
+#include "src/core/SkZip.h"
 
 class SkBaseDevice;
 class SkGlyph;
@@ -33,20 +34,17 @@ public:
                SkSpan<const uint32_t> clusters);
     SkGlyphRun(const SkGlyphRun& glyphRun, const SkFont& font);
 
-    void filloutGlyphsAndPositions(SkGlyphID* glyphIDs, SkPoint* positions);
-
-    size_t runSize() const { return fGlyphIDs.size(); }
-    SkSpan<const SkPoint> positions() const { return fPositions; }
-    SkSpan<const SkGlyphID> glyphsIDs() const { return fGlyphIDs; }
+    size_t runSize() const { return fSource.size(); }
+    SkSpan<const SkPoint> positions() const { return fSource.get<1>(); }
+    SkSpan<const SkGlyphID> glyphsIDs() const { return fSource.get<0>(); }
+    SkZip<const SkGlyphID, const SkPoint> source() const { return fSource; }
     const SkFont& font() const { return fFont; }
     SkSpan<const uint32_t> clusters() const { return fClusters; }
     SkSpan<const char> text() const { return fText; }
 
 private:
-    // Positions of each glyph.
-    const SkSpan<const SkPoint> fPositions;
-    // This is temporary while converting from the old per glyph code to the bulk code.
-    const SkSpan<const SkGlyphID> fGlyphIDs;
+    // GlyphIDs and positions.
+    const SkZip<const SkGlyphID, const SkPoint> fSource;
     // Original text from SkTextBlob if present. Will be empty of not present.
     const SkSpan<const char> fText;
     // Original clusters from SkTextBlob if present. Will be empty if not present.
@@ -56,11 +54,6 @@ private:
 };
 
 class SkGlyphRunList {
-    const SkPaint* fOriginalPaint{nullptr};  // This should be deleted soon.
-    // The text blob is needed to hookup the call back that the SkTextBlob destructor calls. It
-    // should be used for nothing else
-    const SkTextBlob*  fOriginalTextBlob{nullptr};
-    SkPoint fOrigin = {0, 0};
     SkSpan<const SkGlyphRun> fGlyphRuns;
 
 public:
@@ -101,6 +94,13 @@ public:
     auto size()  const -> decltype(fGlyphRuns.size())          { return fGlyphRuns.size();   }
     auto empty() const -> decltype(fGlyphRuns.empty())         { return fGlyphRuns.empty();  }
     auto operator [] (size_t i) const -> decltype(fGlyphRuns[i]) { return fGlyphRuns[i];     }
+
+private:
+    const SkPaint* fOriginalPaint{nullptr};  // This should be deleted soon.
+    // The text blob is needed to hookup the call back that the SkTextBlob destructor calls. It
+    // should be used for nothing else
+    const SkTextBlob*  fOriginalTextBlob{nullptr};
+    SkPoint fOrigin = {0, 0};
 };
 
 class SkGlyphIDSet {
@@ -126,7 +126,7 @@ public:
 
     const SkGlyphRunList& useGlyphRunList();
 
-    bool empty() const { return fGlyphRunListStorage.size() == 0; }
+    bool empty() const { return fGlyphRunListStorage.empty(); }
 
 private:
     void initialize(size_t totalRunSize);
@@ -170,11 +170,6 @@ private:
     // Used as a temporary for preparing using utfN text. This implies that only one run of
     // glyph ids will ever be needed because blobs are already glyph based.
     std::vector<SkGlyphID> fScratchGlyphIDs;
-
-    // Used for collecting the set of unique glyphs.
-    SkGlyphIDSet fGlyphIDSet;
-    SkAutoTMalloc<SkGlyphID> fUniqueGlyphIDs;
-    SkAutoTMalloc<uint16_t> fUniqueGlyphIDIndices;
 };
 
 #endif  // SkGlyphRun_DEFINED

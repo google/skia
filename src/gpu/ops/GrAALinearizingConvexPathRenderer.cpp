@@ -154,13 +154,15 @@ public:
         SkScalar w = strokeWidth;
         if (w > 0) {
             w /= 2;
-            // If the half stroke width is < 1 then we effectively fallback to bevel joins.
-            if (SkPaint::kMiter_Join == join && w > 1.f) {
+            SkScalar maxScale = viewMatrix.getMaxScale();
+            // We should not have a perspective matrix, thus we should have a valid scale.
+            SkASSERT(maxScale != -1);
+            if (SkPaint::kMiter_Join == join && w * maxScale > 1.f) {
                 w *= miterLimit;
             }
             bounds.outset(w, w);
         }
-        this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
+        this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kYes, IsHairline::kNo);
     }
 
     const char* name() const override { return "AAFlatteningConvexPathOp"; }

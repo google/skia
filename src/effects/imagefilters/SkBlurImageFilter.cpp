@@ -605,7 +605,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(const Context& ctx,
     inputBounds.offset(-inputOffset);
     dstBounds.offset(-inputOffset);
 
-    const SkVector sigma = map_sigma(fSigma, ctx.ctm());
+    SkVector sigma = map_sigma(fSigma, ctx.ctm());
     if (sigma.x() < 0 || sigma.y() < 0) {
         return nullptr;
     }
@@ -621,6 +621,23 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(const Context& ctx,
     } else
 #endif
     {
+        // NB 135 is the largest sigma that will not cause a buffer full of 255 mask values to overflow
+        // using the Gauss filter. It also limits the size of buffers used hold intermediate values. The
+        // additional + 1 added to window represents adding one more leading element before subtracting the
+        // trailing element.
+        // Explanation of maximums:
+        //   sum0 = (window + 1) * 255
+        //   sum1 = (window + 1) * sum0 -> (window + 1) * (window + 1) * 255
+        //   sum2 = (window + 1) * sum1 -> (window + 1) * (window + 1) * (window + 1) * 255 -> window^3 * 255
+        //
+        //   The value (window + 1)^3 * 255 must fit in a uint32_t. So,
+        //      (window + 1)^3 * 255 < 2^32. window = 255.
+        //
+        //   window = floor(sigma * 3 * sqrt(2 * kPi) / 4)
+        //   For window <= 255, the largest value for sigma is 135.
+        sigma.fX = SkTPin(sigma.fX, 0.0f, 135.0f);
+        sigma.fY = SkTPin(sigma.fY, 0.0f, 135.0f);
+
         result = cpu_blur(ctx, sigma, input, inputBounds, dstBounds);
     }
 
@@ -652,14 +669,15 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
     auto renderTargetContext = SkGpuBlurUtils::GaussianBlur(
             context,
             std::move(inputTexture),
+            SkColorTypeToGrColorType(input->colorType()),
+            input->alphaType(),
             input->subset().topLeft(),
             ctx.colorSpace() ? sk_ref_sp(input->getColorSpace()) : nullptr,
             dstBounds,
             inputBounds,
             sigma.x(),
             sigma.y(),
-            to_texture_domain_mode(fTileMode),
-            input->alphaType());
+            to_texture_domain_mode(fTileMode));
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -669,6 +687,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
             SkIRect::MakeWH(dstBounds.width(), dstBounds.height()),
             kNeedNewImageUniqueID_SpecialImage,
             renderTargetContext->asTextureProxyRef(),
+            renderTargetContext->colorInfo().colorType(),
             sk_ref_sp(input->getColorSpace()),
             ctx.surfaceProps());
 }

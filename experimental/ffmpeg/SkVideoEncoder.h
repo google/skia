@@ -28,21 +28,15 @@ public:
     ~SkVideoEncoder();
 
     /**
-     *  Begina a new recording. Balance this (after adding all of your frames) with a call
+     *  Begins a new recording. Balance this (after adding all of your frames) with a call
      *  to endRecording().
      */
     bool beginRecording(SkISize, int fps);
 
     /**
-     *  Returns the preferred ImageInfo for this recording. Only valid if beginRecording() has
-     *  been called, and endRecording has not been called (yet).
-     */
-    SkImageInfo preferredInfo() const { return fInfo; }
-
-    /**
      *  If you have your own pixmap, call addFrame(). Note this may fail if it uses an unsupported
-     *  ColorType or AlphaType, or the dimensions don't match those set in beginRecording.
-     *  For best results, use the SkImageInfo returned by preferredInfo().
+     *  ColorType (requires kN32_SkColorType) or AlphaType, or the dimensions don't match those set
+     *  in beginRecording.
      */
     bool addFrame(const SkPixmap&);
 

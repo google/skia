@@ -34,7 +34,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.cache_dir = self.slave_dir.join('cache')
 
     self.swarming_out_dir = self.slave_dir.join(
-        self.m.properties['swarm_out_dir'])
+        self.m.properties.get('swarm_out_dir', 'tmp'))
 
     self.tmp_dir = self.m.path['start_dir'].join('tmp')
 
@@ -63,7 +63,9 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.patchset = None
     self.is_trybot = False
     if (self.m.properties.get('patch_issue', '') and
+        self.m.properties['patch_issue'] != '0' and
         self.m.properties.get('patch_set', '') and
+        self.m.properties['patch_set'] != '0' and
         self.m.properties.get('patch_ref', '')):
       self.is_trybot = True
       self.issue = self.m.properties['patch_issue']
@@ -84,21 +86,23 @@ class SkiaVarsApi(recipe_api.RecipeApi):
   @property
   def swarming_bot_id(self):
     if not self._swarming_bot_id:
-      self._swarming_bot_id = self.m.python.inline(
+      step_stdout = self.m.python.inline(
           name='get swarming bot id',
           program='''import os
 print os.environ.get('SWARMING_BOT_ID', '')
 ''',
-          stdout=self.m.raw_io.output()).stdout.rstrip()
+          stdout=self.m.raw_io.output()).stdout
+      self._swarming_bot_id = step_stdout.rstrip() if step_stdout else ''
     return self._swarming_bot_id
 
   @property
   def swarming_task_id(self):
     if not self._swarming_task_id:
-      self._swarming_task_id = self.m.python.inline(
+      step_stdout = self.m.python.inline(
           name='get swarming task id',
           program='''import os
 print os.environ.get('SWARMING_TASK_ID', '')
 ''',
-          stdout=self.m.raw_io.output()).stdout.rstrip()
+          stdout=self.m.raw_io.output()).stdout
+      self._swarming_task_id = step_stdout.rstrip() if step_stdout else ''
     return self._swarming_task_id

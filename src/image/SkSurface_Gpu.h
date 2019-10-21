@@ -40,10 +40,11 @@ public:
                                      ReadPixelsContext context) override;
     void onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
                                            sk_sp<SkColorSpace> dstColorSpace,
-                                           const SkIRect& srcRect, int dstW, int dstH,
+                                           const SkIRect& srcRect,
+                                           const SkISize& dstSize,
                                            RescaleGamma rescaleGamma,
                                            SkFilterQuality rescaleQuality,
-                                           ReadPixelsCallbackYUV420 callback,
+                                           ReadPixelsCallback callback,
                                            ReadPixelsContext context) override;
 
     void onCopyOnWrite(ContentChangeMode) override;
@@ -56,8 +57,6 @@ public:
     bool onDraw(const SkDeferredDisplayList*) override;
 
     SkGpuDevice* getDevice() { return fDevice.get(); }
-
-    static bool Valid(const GrCaps*, const GrBackendFormat&);
 
 private:
     sk_sp<SkGpuDevice> fDevice;

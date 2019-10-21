@@ -178,11 +178,11 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs, const SkPMCol
         mesh.fViewMatrix.preConcat(worldTransform);
     }
 
-    IsZeroArea zeroArea;
+    IsHairline zeroArea;
     if (GrIsPrimTypeLines(primitiveType) || GrPrimitiveType::kPoints == primitiveType) {
-        zeroArea = IsZeroArea::kYes;
+        zeroArea = IsHairline::kYes;
     } else {
-        zeroArea = IsZeroArea::kNo;
+        zeroArea = IsHairline::kNo;
     }
 
     this->setTransformedBounds(mesh.fVertices->bounds(),
@@ -605,8 +605,9 @@ static uint32_t seed_vertices(GrPrimitiveType type) {
         case GrPrimitiveType::kLines:
         case GrPrimitiveType::kLineStrip:
             return 2;
-        case GrPrimitiveType::kLinesAdjacency:
-            return 4;
+        case GrPrimitiveType::kPath:
+            SkASSERT(0);
+            return 0;
     }
     SK_ABORT("Incomplete switch\n");
 }
@@ -621,8 +622,9 @@ static uint32_t primitive_vertices(GrPrimitiveType type) {
         case GrPrimitiveType::kPoints:
         case GrPrimitiveType::kLineStrip:
             return 1;
-        case GrPrimitiveType::kLinesAdjacency:
-            return 4;
+        case GrPrimitiveType::kPath:
+            SkASSERT(0);
+            return 0;
     }
     SK_ABORT("Incomplete switch\n");
 }
@@ -658,8 +660,7 @@ GR_DRAW_OP_TEST_DEFINE(DrawVerticesOp) {
     GrPrimitiveType type;
     do {
        type = GrPrimitiveType(random->nextULessThan(kNumGrPrimitiveTypes));
-    } while (GrPrimTypeRequiresGeometryShaderSupport(type) &&
-             !context->priv().caps()->shaderCaps()->geometryShaderSupport());
+    } while (type == GrPrimitiveType::kPath);
 
     uint32_t primitiveCount = random->nextRangeU(1, 100);
 

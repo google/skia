@@ -198,7 +198,8 @@ protected:
 
         GrMipMapped mipMapped = willBeMipped ? GrMipMapped::kYes : GrMipMapped::kNo;
 
-        return GrSurfaceProxy::Copy(fCtx.get(), fProxy.get(), mipMapped,
+        return GrSurfaceProxy::Copy(fCtx.get(), fProxy.get(),
+                SkColorTypeToGrColorType(info.colorType()), mipMapped,
                 SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height()),
                 SkBackingFit::kExact, SkBudgeted::kYes);
     }

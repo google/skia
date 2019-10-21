@@ -42,6 +42,8 @@ public:
     void onUIStateChanged(const SkString& stateName, const SkString& stateValue) override;
     bool onKey(skui::Key key, skui::InputState state, skui::ModifierKey modifiers) override;
     bool onChar(SkUnichar c, skui::ModifierKey modifiers) override;
+    bool onPinch(skui::InputState state, float scale, float x, float y) override;
+    bool onFling(skui::InputState state) override;
 
     struct SkFontFields {
         bool fTypeface = false;
@@ -89,9 +91,10 @@ public:
     };
 private:
     enum class ColorMode {
-        kLegacy,            // 8888, no color management
-        kColorManaged8888,  // 8888 with color management
-        kColorManagedF16,   // F16 with color management
+        kLegacy,                // 8888, no color management
+        kColorManaged8888,      // 8888 with color management
+        kColorManagedF16,       // F16 with color management
+        kColorManagedF16Norm,   // Normalized F16 with color management
     };
 
     void initSlides();

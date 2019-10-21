@@ -126,18 +126,7 @@ void GrVkSampler::abandonGPUData() const {
 
 GrVkSampler::Key GrVkSampler::GenerateKey(const GrSamplerState& samplerState,
                                           const GrVkYcbcrConversionInfo& ycbcrInfo) {
-    const int kTileModeXShift = 2;
-    const int kTileModeYShift = 4;
-
-    SkASSERT(static_cast<int>(samplerState.filter()) <= 3);
-    uint8_t samplerKey = static_cast<uint16_t>(samplerState.filter());
-
-    SkASSERT(static_cast<int>(samplerState.wrapModeX()) <= 3);
-    samplerKey |= (static_cast<uint8_t>(samplerState.wrapModeX()) << kTileModeXShift);
-
-    SkASSERT(static_cast<int>(samplerState.wrapModeY()) <= 3);
-    samplerKey |= (static_cast<uint8_t>(samplerState.wrapModeY()) << kTileModeYShift);
-
-    return {samplerKey, GrVkSamplerYcbcrConversion::GenerateKey(ycbcrInfo)};
+    return { GrSamplerState::GenerateKey(samplerState),
+             GrVkSamplerYcbcrConversion::GenerateKey(ycbcrInfo) };
 }
 

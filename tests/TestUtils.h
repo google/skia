@@ -68,10 +68,16 @@ using ComparePixmapsErrorReporter = void(int x, int y, const float diffs[4]);
  * The function quits after a single error is reported and returns false if 'error' was called and
  * true otherwise.
  */
-bool compare_pixels(const GrPixelInfo& infoA, const char* a, size_t rowBytesA,
-                    const GrPixelInfo& infoB, const char* b, size_t rowBytesB,
+bool compare_pixels(const GrImageInfo& infoA, const char* a, size_t rowBytesA,
+                    const GrImageInfo& infoB, const char* b, size_t rowBytesB,
                     const float tolRGBA[4], std::function<ComparePixmapsErrorReporter>& error);
 
 /** Convenience version of above that takes SkPixmap inputs. */
 bool compare_pixels(const SkPixmap& a, const SkPixmap& b, const float tolRGBA[4],
                     std::function<ComparePixmapsErrorReporter>& error);
+
+/**
+ * Convenience version that checks that 'pixmap' is a solid field of 'col'
+ */
+bool check_solid_pixels(const SkColor4f& col, const SkPixmap& pixmap,
+                        const float tolRGBA[4], std::function<ComparePixmapsErrorReporter>& error);

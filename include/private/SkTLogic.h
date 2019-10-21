@@ -59,6 +59,12 @@ template <std::size_t N> struct make_index_sequence
 template<> struct make_index_sequence<0> : skstd::index_sequence< >{};
 template<> struct make_index_sequence<1> : skstd::index_sequence<0>{};
 
+struct monostate {};
+
+template<typename...> struct conjunction : std::true_type { };
+template<typename B0> struct conjunction<B0> : B0 { };
+template<typename B0, typename... Bs>
+struct conjunction<B0, Bs...> : std::conditional<bool(B0::value), conjunction<Bs...>, B0>::type { };
 }  // namespace skstd
 
 // The sknonstd namespace contains things we would like to be proposed and feel std-ish.

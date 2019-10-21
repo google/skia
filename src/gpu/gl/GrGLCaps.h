@@ -109,7 +109,8 @@ public:
              const GrGLInterface* glInterface);
 
     bool isFormatSRGB(const GrBackendFormat&) const override;
-    bool isFormatCompressed(const GrBackendFormat&) const override;
+    bool isFormatCompressed(const GrBackendFormat&,
+                            SkImage::CompressionType* compressionType = nullptr) const override;
 
     bool isFormatTexturableAndUploadable(GrColorType, const GrBackendFormat&) const override;
     bool isFormatTexturable(const GrBackendFormat&) const override;
@@ -133,6 +134,9 @@ public:
     }
     int maxRenderTargetSampleCount(GrGLFormat) const;
 
+    size_t bytesPerPixel(GrGLFormat) const;
+    size_t bytesPerPixel(const GrBackendFormat&) const override;
+
     bool isFormatCopyable(const GrBackendFormat&) const override;
 
     bool canFormatBeFBOColorAttachment(GrGLFormat) const;
@@ -142,13 +146,36 @@ public:
         return fColorTypeToFormatTable[idx];
     }
 
-    GrGLenum formatSizedInternalFormat(GrGLFormat format) const {
-        return this->getFormatInfo(format).fSizedInternalFormat;
+    /**
+     * Gets the internal format to use with glTexImage...() and glTexStorage...(). May be sized or
+     * base depending upon the GL. Not applicable to compressed textures.
+     */
+    GrGLenum getTexImageOrStorageInternalFormat(GrGLFormat format) const {
+        return this->getFormatInfo(format).fInternalFormatForTexImageOrStorage;
     }
 
-    void getTexImageFormats(GrGLFormat surfaceFormat, GrColorType surfaceColorType,
-                            GrColorType memoryColorType, GrGLenum* internalFormat,
-                            GrGLenum* externalFormat, GrGLenum* externalType) const;
+    /**
+     * Gets the external format and type to pass to glTexImage2D with nullptr to create an
+     * uninitialized texture. See getTexImageOrStorageInternalFormat() for the internal format.
+     */
+    void getTexImageExternalFormatAndType(GrGLFormat surfaceFormat, GrGLenum* externalFormat,
+                                          GrGLenum* externalType) const;
+
+    /**
+     * Given a src data color type and a color type interpretation for a texture of a given format
+     * this provides the external GL format and type to use with glTexSubImage2d. The color types
+     * should originate from supportedWritePixelsColorType().
+     */
+    void getTexSubImageExternalFormatAndType(GrGLFormat surfaceFormat, GrColorType surfaceColorType,
+                                             GrColorType memoryColorType, GrGLenum* externalFormat,
+                                             GrGLenum* externalType) const;
+
+    /**
+     * Gets the external format, type, and bytes per pixel to use when uploading zeros via
+     * glTexSubImage...() to clear the texture at creation.
+     */
+    void getTexSubImageZeroFormatTypeAndBpp(GrGLFormat format, GrGLenum* externalFormat,
+                                            GrGLenum* externalType, size_t* bpp) const;
 
     void getReadPixelsFormat(GrGLFormat surfaceFormat, GrColorType surfaceColorType,
                              GrColorType memoryColorType, GrGLenum* externalFormat,
@@ -166,27 +193,11 @@ public:
     bool formatSupportsTexStorage(GrGLFormat) const;
 
     /**
-     * Gets the internal format to use with glTexImage...() and glTexStorage...(). May be sized or
-     * base depending upon the GL. Not applicable to compressed textures.
-     */
-    GrGLenum getTexImageInternalFormat(GrGLFormat format) const {
-        return this->getFormatInfo(format).fInternalFormatForTexImage;
-    }
-
-    /**
      * Gets the internal format to use with glRenderbufferStorageMultisample...(). May be sized or
      * base depending upon the GL. Not applicable to compressed textures.
      */
     GrGLenum getRenderbufferInternalFormat(GrGLFormat format) const {
         return this->getFormatInfo(format).fInternalFormatForRenderbuffer;
-    }
-
-    GrGLenum getSizedInternalFormat(GrGLFormat format) const {
-        return this->getFormatInfo(format).fSizedInternalFormat;
-    }
-
-    GrGLenum getBaseInternalFormat(GrGLFormat format) const {
-        return this->getFormatInfo(format).fBaseInternalFormat;
     }
 
     /**
@@ -219,21 +230,6 @@ public:
      * the format. If < 0 it records that the format has no supported stencil format index.
      */
     void setStencilFormatIndexForFormat(GrGLFormat, int index);
-
-    /**
-     * Call to note that a GrGLFormat has been verified as a valid color attachment. This may save
-     * future calls to glCheckFramebufferStatus using isFormatVerifiedColorAttachment().
-     */
-    void markFormatAsValidColorAttachment(GrGLFormat format) {
-        this->getFormatInfo(format).fVerifiedColorAttachment = true;
-    }
-
-    /**
-     * Call to check whether a format has been verified as a valid color attachment.
-     */
-    bool isFormatVerifiedColorAttachment(GrGLFormat format) const {
-        return this->getFormatInfo(format).fVerifiedColorAttachment;
-    }
 
     /**
      * Reports the type of MSAA FBO support.
@@ -412,14 +408,17 @@ public:
 
     bool samplerObjectSupport() const { return fSamplerObjectSupport; }
 
+    bool tiledRenderingSupport() const { return fTiledRenderingSupport; }
+
     bool fbFetchRequiresEnablePerSample() const { return fFBFetchRequiresEnablePerSample; }
+
+    /* Is there support for enabling/disabling sRGB writes for sRGB-capable color buffers? */
+    bool srgbWriteControl() const { return fSRGBWriteControl; }
 
     GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&,
                                                   bool isAlphaChannel) const override;
 
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
-
-    bool canClearTextureOnCreation() const override;
 
     GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override;
     GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
@@ -444,14 +443,12 @@ private:
     bool hasPathRenderingSupport(const GrGLContextInfo&, const GrGLInterface*);
 
     struct FormatWorkarounds {
-        bool fDisableTextureRedForMesa = false;
         bool fDisableSRGBRenderWithMSAAForMacAMD = false;
-        bool fDisablePerFormatTextureStorageForCommandBufferES2 = false;
-        bool fDisableNonRedSingleChannelTexStorageForANGLEGL = false;
+        bool fDisableRGBA16FTexStorageForCrBug1008003 = false;
         bool fDisableBGRATextureStorageForIntelWindowsES = false;
         bool fDisableRGB8ForMali400 = false;
         bool fDisableLuminance16F = false;
-        bool fDisableAlpha8Renderable = false;
+        bool fDontDisableTexStorageOnAndroid = false;
     };
 
     void applyDriverCorrectnessWorkarounds(const GrGLContextInfo&, const GrContextOptions&,
@@ -514,7 +511,9 @@ private:
     bool fProgramBinarySupport : 1;
     bool fProgramParameterSupport : 1;
     bool fSamplerObjectSupport : 1;
+    bool fTiledRenderingSupport : 1;
     bool fFBFetchRequiresEnablePerSample : 1;
+    bool fSRGBWriteControl : 1;
 
     // Driver workarounds
     bool fDoManualMipmapping : 1;
@@ -633,34 +632,32 @@ private:
                 still attach it to a FBO for blitting or reading pixels. */
             kFBOColorAttachment_Flag         = 0x2,
             kFBOColorAttachmentWithMSAA_Flag = 0x4,
-            kCanUseTexStorage_Flag           = 0x8,
+            kUseTexStorage_Flag              = 0x8,
         };
         uint32_t fFlags = 0;
 
         FormatType fFormatType = FormatType::kUnknown;
 
-        // Both compressed and uncompressed formats have base internal formats.
-        GrGLenum fBaseInternalFormat = 0;
-
-        // Not defined for compressed formats.
-        GrGLenum fSizedInternalFormat = 0;
-
         // Not defined for uncompressed formats. Passed to glCompressedTexImage...
         GrGLenum fCompressedInternalFormat = 0;
 
-        // Value to uses as the "internalformat" argument to glTexImage and glCompressedTexImage...
-        // Usually one of fBaseInternalFormat or fSizedInternalFormat but may vary depending on the
-        // particular format, GL version, extensions.
-        GrGLenum fInternalFormatForTexImage = 0;
+        // Value to uses as the "internalformat" argument to glTexImage or glTexStorage. It is
+        // initialized in coordination with the presence/absence of the kUseTexStorage flag. In
+        // other words, it is only guaranteed to be compatible with glTexImage if the flag is not
+        // set and or with glTexStorage if the flag is set.
+        GrGLenum fInternalFormatForTexImageOrStorage = 0;
 
         // Value to uses as the "internalformat" argument to glRenderbufferStorageMultisample...
-        // Usually one of fBaseInternalFormat or fSizedInternalFormat but may vary depending on the
-        // particular format, GL version, extensions.
         GrGLenum fInternalFormatForRenderbuffer = 0;
 
-        // Default value to use along with fBaseInternalFormat for functions such as glTexImage2D
-        // when not input providing data (passing nullptr). Not defined for compressed formats.
+        // Default values to use along with fInternalFormatForTexImageOrStorage for function
+        // glTexImage2D when not input providing data (passing nullptr). Not defined for compressed
+        // formats. Also used to upload zeros to initially clear a texture.
+        GrGLenum fDefaultExternalFormat = 0;
         GrGLenum fDefaultExternalType = 0;
+
+        // This value is only valid for regular formats. Compressed formats will be 0.
+        GrGLenum fBytesPerPixel = 0;
 
         enum {
             // This indicates that a stencil format has not yet been determined for the config.
@@ -673,10 +670,6 @@ private:
         int fStencilFormatIndex = kUnknown_StencilIndex;
 
         SkTDArray<int> fColorSampleCounts;
-
-        // verification of color attachment validity is done while flushing. Although only ever
-        // used in the (sole) rendering thread it can cause races if it is glommed into fFlags.
-        bool fVerifiedColorAttachment = false;
 
         std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
         int fColorTypeInfoCount = 0;

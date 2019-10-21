@@ -32,14 +32,14 @@
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 GR_FP_SRC_STRING SKSL_ARITHMETIC_SRC = R"(
-in uniform float4 k;
-layout(key) const in bool enforcePMColor;
+uniform float4 k;
+in bool enforcePMColor;
 in fragmentProcessor child;
 
 void main(inout half4 color) {
     half4 dst = sample(child);
     color = saturate(half(k.x) * color * dst + half(k.y) * color + half(k.z) * dst + half(k.w));
-    if (enforcePMColor) {
+    @if (enforcePMColor) {
         color.rgb = min(color.rgb, color.a);
     }
 }
@@ -193,10 +193,10 @@ static bool intersect(SkPixmap* dst, SkPixmap* src, int srcDx, int srcDy) {
     if (!sect.intersect(dstR, srcR)) {
         return false;
     }
-    *dst = SkPixmap(dst->info().makeWH(sect.width(), sect.height()),
+    *dst = SkPixmap(dst->info().makeDimensions(sect.size()),
                     dst->addr(sect.fLeft, sect.fTop),
                     dst->rowBytes());
-    *src = SkPixmap(src->info().makeWH(sect.width(), sect.height()),
+    *src = SkPixmap(src->info().makeDimensions(sect.size()),
                     src->addr(SkTMax(0, -srcDx), SkTMax(0, -srcDy)),
                     src->rowBytes());
     return true;
@@ -353,8 +353,9 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
         SkMatrix backgroundMatrix = SkMatrix::MakeTrans(
                 SkIntToScalar(bgSubset.left() - backgroundOffset.fX),
                 SkIntToScalar(bgSubset.top()  - backgroundOffset.fY));
+        GrColorType bgColorType = SkColorTypeToGrColorType(background->colorType());
         bgFP = GrTextureDomainEffect::Make(
-                std::move(backgroundProxy), backgroundMatrix,
+                std::move(backgroundProxy), bgColorType, backgroundMatrix,
                 GrTextureDomain::MakeTexelDomain(bgSubset, GrTextureDomain::kDecal_Mode),
                 GrTextureDomain::kDecal_Mode, GrSamplerState::Filter::kNearest);
         bgFP = GrColorSpaceXformEffect::Make(std::move(bgFP), background->getColorSpace(),
@@ -370,8 +371,9 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
         SkMatrix foregroundMatrix = SkMatrix::MakeTrans(
                 SkIntToScalar(fgSubset.left() - foregroundOffset.fX),
                 SkIntToScalar(fgSubset.top()  - foregroundOffset.fY));
+        GrColorType fgColorType = SkColorTypeToGrColorType(foreground->colorType());
         auto foregroundFP = GrTextureDomainEffect::Make(
-                std::move(foregroundProxy), foregroundMatrix,
+                std::move(foregroundProxy), fgColorType, foregroundMatrix,
                 GrTextureDomain::MakeTexelDomain(fgSubset, GrTextureDomain::kDecal_Mode),
                 GrTextureDomain::kDecal_Mode, GrSamplerState::Filter::kNearest);
         foregroundFP = GrColorSpaceXformEffect::Make(std::move(foregroundFP),
@@ -422,12 +424,12 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
     renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, matrix,
                                   SkRect::Make(bounds));
 
-    return SkSpecialImage::MakeDeferredFromGpu(
-            context,
-            SkIRect::MakeWH(bounds.width(), bounds.height()),
-            kNeedNewImageUniqueID_SpecialImage,
-            renderTargetContext->asTextureProxyRef(),
-            renderTargetContext->colorSpaceInfo().refColorSpace());
+    return SkSpecialImage::MakeDeferredFromGpu(context,
+                                               SkIRect::MakeWH(bounds.width(), bounds.height()),
+                                               kNeedNewImageUniqueID_SpecialImage,
+                                               renderTargetContext->asTextureProxyRef(),
+                                               renderTargetContext->colorInfo().colorType(),
+                                               renderTargetContext->colorInfo().refColorSpace());
 }
 #endif
 

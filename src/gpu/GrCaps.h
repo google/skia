@@ -41,15 +41,6 @@ public:
         only for POT textures) */
     bool mipMapSupport() const { return fMipMapSupport; }
 
-    /**
-     * Skia convention is that a device only has sRGB support if it supports sRGB formats for both
-     * textures and framebuffers.
-     */
-    bool srgbSupport() const { return fSRGBSupport; }
-    /**
-     * Is there support for enabling/disabling sRGB writes for sRGB-capable color buffers?
-     */
-    bool srgbWriteControl() const { return fSRGBWriteControl; }
     bool gpuTracingSupport() const { return fGpuTracingSupport; }
     bool oversizedStencilSupport() const { return fOversizedStencilSupport; }
     bool textureBarrierSupport() const { return fTextureBarrierSupport; }
@@ -72,6 +63,14 @@ public:
     // On tilers, an initial fullscreen clear is an OPTIMIZATION. It allows the hardware to
     // initialize each tile with a constant value rather than loading each pixel from memory.
     bool preferFullscreenClears() const { return fPreferFullscreenClears; }
+
+    // Should we discard stencil values after a render pass? (Tilers get better performance if we
+    // always load stencil buffers with a "clear" op, and then discard the content when finished.)
+    bool discardStencilValuesAfterRenderPass() const {
+        // This method is actually just a duplicate of preferFullscreenClears(), with a descriptive
+        // name for the sake of readability.
+        return this->preferFullscreenClears();
+    }
 
     bool preferVRAMUseOverFlushes() const { return fPreferVRAMUseOverFlushes; }
 
@@ -160,7 +159,11 @@ public:
     }
 
     virtual bool isFormatSRGB(const GrBackendFormat&) const = 0;
-    virtual bool isFormatCompressed(const GrBackendFormat&) const = 0;
+
+    // Callers can optionally pass in an SkImage::CompressionType which will be filled in with the
+    // correct type if the GrBackendFormat is compressed.
+    virtual bool isFormatCompressed(const GrBackendFormat&,
+                                    SkImage::CompressionType* compressionType = nullptr) const = 0;
 
     // TODO: Once we use the supportWritePixels call for uploads, we can remove this function and
     // instead only have the version that takes a GrBackendFormat.
@@ -193,6 +196,10 @@ public:
     // sample count is 1 then 1 will be returned if non-MSAA rendering is supported, otherwise 0.
     // For historical reasons requestedCount==0 is handled identically to requestedCount==1.
     virtual int getRenderTargetSampleCount(int requestedCount, const GrBackendFormat&) const = 0;
+
+    // Returns the number of bytes per pixel for the given GrBackendFormat. This is only supported
+    // for "normal" formats. For compressed formats this will return 0.
+    virtual size_t bytesPerPixel(const GrBackendFormat&) const = 0;
 
     /**
      * Backends may have restrictions on what types of surfaces support GrGpu::writePixels().
@@ -288,17 +295,6 @@ public:
         performance hit to not doing it.
      */
     bool shouldInitializeTextures() const { return fShouldInitializeTextures; }
-
-    /**
-     * When this is true it is required that all textures are initially cleared. However, the
-     * clearing must be implemented by passing level data to GrGpu::createTexture() rather than
-     * be implemeted by GrGpu::createTexture().
-     *
-     * TODO: Make this take GrBacknedFormat when canClearTextureOnCreation() does as well.
-     */
-    bool createTextureMustSpecifyAllLevels() const {
-        return this->shouldInitializeTextures() && !this->canClearTextureOnCreation();
-    }
 
     /** Returns true if the given backend supports importing AHardwareBuffers via the
      * GrAHardwarebufferImageGenerator. This will only ever be supported on Android devices with API
@@ -404,17 +400,6 @@ public:
     virtual GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const = 0;
 
     /**
-     * Used by implementation of shouldInitializeTextures(). Indicates whether GrGpu implements the
-     * clear in GrGpu::createTexture() or if false then the caller must provide cleared MIP level
-     * data or GrGpu::createTexture() will fail.
-     *
-     * TODO: Make this take a GrBackendFormat so that GL can make this faster for cases
-     * when the format is renderable and glTexClearImage is not available. Doing this
-     * is overly complicated until the GrPixelConfig/format mess is straightened out..
-     */
-    virtual bool canClearTextureOnCreation() const = 0;
-
-    /**
      * The CLAMP_TO_BORDER wrap mode for texture coordinates was added to desktop GL in 1.3, and
      * GLES 3.2, but is also available in extensions. Vulkan and Metal always have support.
      */
@@ -471,8 +456,6 @@ protected:
 
     bool fNPOTTextureTileSupport                     : 1;
     bool fMipMapSupport                              : 1;
-    bool fSRGBSupport                                : 1;
-    bool fSRGBWriteControl                           : 1;
     bool fReuseScratchTextures                       : 1;
     bool fReuseScratchBuffers                        : 1;
     bool fGpuTracingSupport                          : 1;

@@ -284,8 +284,8 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
 
     SkBitmap coverage;
     if (trackCoverage) {
-        SkImageInfo ci = SkImageInfo::Make(info.width(), info.height(), kAlpha_8_SkColorType,
-                                           kPremul_SkAlphaType);
+        SkImageInfo ci =
+                SkImageInfo::Make(info.dimensions(), kAlpha_8_SkColorType, kPremul_SkAlphaType);
         if (!coverage.tryAllocPixelsFlags(ci, SkBitmap::kZeroPixels_AllocFlag)) {
             return nullptr;
         }
@@ -301,10 +301,19 @@ void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
     this->privateResize(fBitmap.info().width(), fBitmap.info().height());
 }
 
-SkBaseDevice* SkBitmapDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint*) {
+SkBaseDevice* SkBitmapDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint* layerPaint) {
     const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
-    return SkBitmapDevice::Create(cinfo.fInfo, surfaceProps, cinfo.fTrackCoverage,
-                                  cinfo.fAllocator);
+
+    // Need to force L32 for now if we have an image filter.
+    // If filters ever support other colortypes, e.g. F16, we can modify this check.
+    SkImageInfo info = cinfo.fInfo;
+    if (layerPaint && layerPaint->getImageFilter()) {
+        // TODO: can we query the imagefilter, to see if it can handle floats (so we don't always
+        //       use N32 when the layer itself was float)?
+        info = info.makeColorType(kN32_SkColorType);
+    }
+
+    return SkBitmapDevice::Create(info, surfaceProps, cinfo.fTrackCoverage, cinfo.fAllocator);
 }
 
 bool SkBitmapDevice::onAccessPixels(SkPixmap* pmap) {

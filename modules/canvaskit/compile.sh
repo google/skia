@@ -9,7 +9,11 @@ set -ex
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 # This expects the environment variable EMSDK to be set
 if [[ ! -d $EMSDK ]]; then
-  echo "Be sure to set the EMSDK environment variable."
+  cat >&2 << "EOF"
+Be sure to set the EMSDK environment variable to the location of Emscripten SDK:
+
+    https://emscripten.org/docs/getting_started/downloads.html
+EOF
   exit 1
 fi
 
@@ -44,12 +48,13 @@ mkdir -p $BUILD_DIR
 GN_GPU="skia_enable_gpu=true skia_gl_standard = \"webgl\""
 GN_GPU_FLAGS="\"-DSK_DISABLE_LEGACY_SHADERCONTEXT\","
 WASM_GPU="-lEGL -lGLESv2 -DSK_SUPPORT_GPU=1 \
-          -DSK_DISABLE_LEGACY_SHADERCONTEXT --pre-js $BASE_DIR/cpu.js --pre-js $BASE_DIR/gpu.js"
+          -DSK_DISABLE_LEGACY_SHADERCONTEXT --pre-js $BASE_DIR/cpu.js --pre-js $BASE_DIR/gpu.js\
+          -s USE_WEBGL2=1"
 if [[ $@ == *cpu* ]]; then
   echo "Using the CPU backend instead of the GPU backend"
   GN_GPU="skia_enable_gpu=false"
   GN_GPU_FLAGS=""
-  WASM_GPU="-DSK_SUPPORT_GPU=0 --pre-js $BASE_DIR/cpu.js"
+  WASM_GPU="-DSK_SUPPORT_GPU=0 --pre-js $BASE_DIR/cpu.js -s USE_WEBGL2=0"
 fi
 
 SKOTTIE_JS="--pre-js $BASE_DIR/skottie.js"
@@ -101,16 +106,18 @@ if [[ $@ == *no_canvas* ]]; then
   HTML_CANVAS_API=""
 fi
 
-GN_FONT="skia_enable_fontmgr_empty=false"
+GN_FONT="skia_enable_fontmgr_empty=false skia_enable_fontmgr_custom_empty=false"
+FONT_CFLAGS=""
 BUILTIN_FONT="$BASE_DIR/fonts/NotoMono-Regular.ttf.cpp"
 if [[ $@ == *no_font* ]]; then
-  echo "Omitting the built-in font(s) and font manager"
+  echo "Omitting the built-in font(s), font manager and all code dealing with fonts"
   BUILTIN_FONT=""
+  FONT_CFLAGS="-DSK_NO_FONTS"
   GN_FONT="skia_enable_fontmgr_empty=true"
 elif [[ $@ == *no_embedded_font* ]]; then
   echo "Omitting the built-in font(s)"
   BUILTIN_FONT=""
-  GN_FONT="skia_enable_fontmgr_custom_empty=true skia_enable_fontmgr_empty=false"
+  GN_FONT="skia_enable_fontmgr_empty=false skia_enable_fontmgr_custom_empty=true"
 else
   # Generate the font's binary file (which is covered by .gitignore)
   python tools/embed_resources.py \
@@ -130,6 +137,11 @@ if [[ $@ == *primitive_shaper* ]]; then
   SHAPER_LIB=""
   SHAPER_TARGETS=""
 fi
+
+PARAGRAPH_JS="--pre-js $BASE_DIR/paragraph.js"
+PARAGRAPH_LIB="$BUILD_DIR/libskparagraph.a"
+PARAGRAPH_BINDINGS="-DSK_INCLUDE_PARAGRAPH=1 \
+  $BASE_DIR/paragraph_bindings.cpp"
 
 # Turn off exiting while we check for ninja (which may not be on PATH)
 set +e
@@ -162,8 +174,9 @@ echo "Compiling bitcode"
   is_component_build=false \
   werror=true \
   target_cpu=\"wasm\" \
+  use_PIC=false \
   \
-  skia_use_angle = false \
+  skia_use_angle=false \
   skia_use_dng_sdk=false \
   skia_use_egl=true \
   skia_use_expat=false \
@@ -177,7 +190,7 @@ echo "Compiling bitcode"
   skia_use_piex=false \
   skia_use_system_libpng=true \
   skia_use_system_freetype2=true \
-  skia_use_system_libjpeg_turbo = false \
+  skia_use_system_libjpeg_turbo=false \
   skia_use_vulkan=false \
   skia_use_wuffs = true \
   skia_use_zlib=true \
@@ -190,10 +203,12 @@ echo "Compiling bitcode"
   skia_enable_skshaper=true \
   skia_enable_ccpr=false \
   skia_enable_nvpr=false \
+  skia_enable_skparagraph=true \
   skia_enable_pdf=false"
 
 # Build all the libs, we'll link the appropriate ones down below
-${NINJA} -C ${BUILD_DIR} libskia.a libskottie.a libsksg.a libskshaper.a libparticles.a $SHAPER_TARGETS
+${NINJA} -C ${BUILD_DIR} libskia.a libskottie.a libsksg.a \
+    libskparagraph.a libskshaper.a libparticles.a $SHAPER_TARGETS
 
 export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/externs.js "
 
@@ -207,28 +222,33 @@ ${EMCXX} \
     -I. \
     -Ithird_party/icu \
     -Ithird_party/skcms \
+    -Ithird_party/externals/icu/source/common/ \
     -DSK_DISABLE_READBUFFER \
     -DSK_DISABLE_AAA \
     $WASM_GPU \
+    $FONT_CFLAGS \
     -std=c++14 \
     --bind \
     --pre-js $BASE_DIR/preamble.js \
     --pre-js $BASE_DIR/helper.js \
     --pre-js $BASE_DIR/interface.js \
+    $PARAGRAPH_JS \
     $SKOTTIE_JS \
     $HTML_CANVAS_API \
     --pre-js $BASE_DIR/postamble.js \
     --post-js $BASE_DIR/ready.js \
-    $BUILTIN_FONT \
     $BASE_DIR/canvaskit_bindings.cpp \
     $PARTICLES_BINDINGS \
     $SKOTTIE_BINDINGS \
     $MANAGED_SKOTTIE_BINDINGS \
+    $PARAGRAPH_BINDINGS \
     $SKOTTIE_LIB \
     $PARTICLES_LIB \
+    $PARAGRAPH_LIB \
     $BUILD_DIR/libskshaper.a \
     $SHAPER_LIB \
     $BUILD_DIR/libskia.a \
+    $BUILTIN_FONT \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s EXPORT_NAME="CanvasKitInit" \
     -s FORCE_FILESYSTEM=0 \
@@ -239,6 +259,5 @@ ${EMCXX} \
     -s USE_FREETYPE=1 \
     -s USE_LIBPNG=1 \
     -s WARN_UNALIGNED=1 \
-    -s USE_WEBGL2=0 \
     -s WASM=1 \
     -o $BUILD_DIR/canvaskit.js

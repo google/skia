@@ -24,19 +24,16 @@ class GrMtlResourceProvider {
 public:
     GrMtlResourceProvider(GrMtlGpu* gpu);
 
-    GrMtlPipelineState* findOrCreateCompatiblePipelineState(
-        GrRenderTarget*, GrSurfaceOrigin,
-        const GrPipeline&,
-        const GrPrimitiveProcessor&,
-        const GrTextureProxy* const primProcProxies[],
-        GrPrimitiveType);
+    GrMtlPipelineState* findOrCreateCompatiblePipelineState(GrRenderTarget*,
+                                                            const GrProgramInfo&,
+                                                            GrPrimitiveType);
 
     // Finds or creates a compatible MTLDepthStencilState based on the GrStencilSettings.
     GrMtlDepthStencil* findOrCreateCompatibleDepthStencilState(const GrStencilSettings&,
                                                                GrSurfaceOrigin);
 
     // Finds or creates a compatible MTLSamplerState based on the GrSamplerState.
-    GrMtlSampler* findOrCreateCompatibleSampler(const GrSamplerState&, uint32_t maxMipLevel);
+    GrMtlSampler* findOrCreateCompatibleSampler(const GrSamplerState&);
 
     id<MTLBuffer> getDynamicBuffer(size_t size, size_t* offset);
     void addBufferCompletionHandler(GrMtlCommandBuffer* cmdBuffer);
@@ -55,19 +52,10 @@ private:
         ~PipelineStateCache();
 
         void release();
-        GrMtlPipelineState* refPipelineState(GrRenderTarget*, GrSurfaceOrigin,
-                                             const GrPrimitiveProcessor&,
-                                             const GrTextureProxy* const primProcProxies[],
-                                             const GrPipeline&,
+        GrMtlPipelineState* refPipelineState(GrRenderTarget*, const GrProgramInfo&,
                                              GrPrimitiveType);
 
     private:
-        enum {
-            // We may actually have kMaxEntries+1 PipelineStates in context because we create a new
-            // PipelineState before evicting from the cache.
-            kMaxEntries = 1024,
-        };
-
         struct Entry;
 
         struct DescHash {

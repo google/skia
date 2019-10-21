@@ -85,8 +85,8 @@ def nanobench_flags(api, bot):
         gl_prefix = 'gles'
       # iOS crashes with MSAA (skia:6399)
       # Nexus7 (Tegra3) does not support MSAA.
-      if ('iOS'         in bot or
-          'Nexus7'      in bot):
+      if ('iOS'     in bot or
+          'Nexus7'  in bot):
         sample_count = ''
     elif 'Intel' in bot:
       # MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
@@ -175,10 +175,6 @@ def nanobench_flags(api, bot):
     match.append('~keymobi')
     match.append('~path_hairline')
     match.append('~GLInstancedArraysBench') # skia:4714
-  if 'MoltenVK' in bot:
-    # skbug.com/7962
-    match.append('~^path_text_clipped_uncached$')
-    match.append('~^path_text_uncached$')
   if ('Intel' in bot and api.vars.is_linux and not 'Vulkan' in bot):
     # TODO(dogben): Track down what's causing bots to die.
     verbose = True
@@ -208,7 +204,7 @@ def nanobench_flags(api, bot):
     match.append('~top25desk_ebay_com.skp_1.1')
     match.append('~top25desk_ebay.skp_1.1')
     match.append('~top25desk_ebay.skp_1.1_mpd')
-  if 'Vulkan' in bot and ('Nexus5x' in bot or 'GTX660' in bot):
+  if 'Vulkan' in bot and 'GTX660' in bot:
     # skia:8523 skia:9271
     match.append('~compositing_images')
   if 'MacBook10.1' in bot and 'CommandBuffer' in bot:
@@ -219,6 +215,10 @@ def nanobench_flags(api, bot):
   if 'AcerChromebook13_CB5_311-GPU-TegraK1' in bot:
     # skia:7551
     match.append('~^shapes_rrect_inner_rrect_50_500x500$')
+  if ('Perf-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Release-All-Android' in bot):
+    # skia:9413
+    match.append('~^path_text$')
+    match.append('~^path_text_clipped_uncached$')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
@@ -370,9 +370,9 @@ TEST_BUILDERS = [
   'Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android',
   ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-'
    'Android_NoGPUThreads'),
-  'Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-Android_Vulkan',
   'Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-All-Android',
   'Perf-Android-Clang-P30-GPU-MaliG76-arm64-Release-All-Android_Vulkan',
+  'Perf-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Release-All-Android',
   'Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All',
   'Perf-ChromeOS-Clang-AcerChromebook13_CB5_311-GPU-TegraK1-arm-Release-All',
   'Perf-Chromecast-Clang-Chorizo-CPU-Cortex_A7-arm-Debug-All',
@@ -386,13 +386,12 @@ TEST_BUILDERS = [
    'CommandBuffer'),
   ('Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-'
    'Metal'),
-  ('Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-'
-   'MoltenVK_Vulkan'),
   ('Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-'
    'CommandBuffer'),
   ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
     'Valgrind_SK_CPU_LIMIT_SSE41'),
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE',
+  'Perf-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-Vulkan',
   'Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All',
   'Perf-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All-Metal',
 ]

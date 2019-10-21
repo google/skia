@@ -73,16 +73,6 @@ public:
         return fSecondaryCommandBuffer;
     }
 
-    // override of GrRenderTarget
-    ResolveType getResolveType() const override {
-        if (this->numSamples() > 1) {
-            SkASSERT(this->requiresManualMSAAResolve());
-            return kCanResolve_ResolveType;
-        }
-        SkASSERT(!this->requiresManualMSAAResolve());
-        return kAutoResolves_ResolveType;
-    }
-
     bool canAttemptStencilAttachment() const override {
         // We don't know the status of the stencil attachment for wrapped external secondary command
         // buffers so we just assume we don't have one.
@@ -127,7 +117,8 @@ protected:
             // Add one to account for the resolved VkImage.
             numColorSamples += 1;
         }
-        return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
+        const GrCaps& caps = *this->getGpu()->caps();
+        return GrSurface::ComputeSize(caps, this->backendFormat(), this->width(), this->height(),
                                       numColorSamples, GrMipMapped::kNo);
     }
 

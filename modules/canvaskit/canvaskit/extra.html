@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <title>CanvasKit Extra features (Skia via Web Assembly)</title>
 <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -25,6 +25,9 @@
 
 <h2> Particles </h2>
 <canvas id=particles width=500 height=500></canvas>
+
+<h2> Paragraph </h2>
+<canvas id=para1 width=600 height=600></canvas>
 
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
@@ -63,6 +66,8 @@
     });
 
     ParticlesAPI1(CanvasKit);
+
+    ParagraphAPI1(CanvasKit, robotoData);
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
@@ -127,6 +132,7 @@
       SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, {
         'Roboto-Regular': robotoData,
       });
+      ParagraphAPI1(CanvasKit, robotoData);
     });
   });
 
@@ -177,8 +183,9 @@
     }
     const context = CanvasKit.currentContext();
     const canvas = surface.getCanvas();
+    canvas.translate(250, 450);
 
-    const particles = CanvasKit.MakeParticles(JSON.stringify(snowfall));
+    const particles = CanvasKit.MakeParticles(JSON.stringify(curves));
     particles.start(Date.now() / 1000.0, true);
 
     function drawFrame(canvas) {
@@ -191,53 +198,35 @@
     surface.requestAnimationFrame(drawFrame);
   }
 
-const snowfall = {
-   "MaxCount": 4096,
-   "Duration": 1,
-   "Rate": 30,
+const curves = {
+   "MaxCount": 1000,
    "Drawable": {
       "Type": "SkCircleDrawable",
-      "Radius": 1
+      "Radius": 2
    },
-   "Code": [
-      "// float rand; Every read returns a random float [0 .. 1)",
-      "",
-      "void spawn(inout Particle p) {",
-      "  p.lifetime = 10;",
-      "  p.vel.y = 10 + rand * 20;",
-      "  p.vel.x = -5 + 10 * rand;",
-      "  p.pos.x = rand * 500;",
-      "}",
-      "",
-      "void update(inout Particle p) {",
-      "  p.scale = size(p.age);",
+   "EffectCode": [
+      "void effectSpawn(inout Effect effect) {",
+      "  effect.rate = 200;",
+      "  effect.color = float4(1, 0, 0, 1);",
       "}",
       ""
    ],
-   "Bindings": [
-      {
-         "Type": "SkCurveBinding",
-         "Name": "size",
-         "Curve": {
-            "XValues": [],
-            "Segments": [
-               {
-                  "Type": "Cubic",
-                  "Ranged": true,
-                  "Bidirectional": false,
-                  "A0": 10,
-                  "B0": 10,
-                  "C0": 10,
-                  "D0": 0,
-                  "A1": 10,
-                  "B1": 0,
-                  "C1": 0,
-                  "D1": 0
-               }
-            ]
-         }
-      }
-   ]
+   "Code": [
+      "void spawn(inout Particle p) {",
+      "  p.lifetime = 3 + rand;",
+      "  p.vel.y = -50;",
+      "}",
+      "",
+      "void update(inout Particle p) {",
+      "  float w = mix(15, 3, p.age);",
+      "  p.pos.x = sin(radians(p.age * 320)) * mix(25, 10, p.age) + mix(-w, w, rand);",
+      "  if (rand < 0.5) { p.pos.x = -p.pos.x; }",
+      "",
+      "  p.color.g = (mix(75, 220, p.age) + mix(-30, 30, rand)) / 255;",
+      "}",
+      ""
+   ],
+   "Bindings": []
 };
 
   function SurfaceAPI1(CanvasKit) {
@@ -306,5 +295,67 @@ const snowfall = {
     }
     window.requestAnimationFrame(drawFrame);
 
+  }
+
+  function ParagraphAPI1(CanvasKit, fontData) {
+    if (!CanvasKit || !fontData) {
+      return;
+    }
+
+    const surface = CanvasKit.MakeCanvasSurface('para1');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+
+    const canvas = surface.getCanvas();
+    const fontMgr = CanvasKit.SkFontMgr.FromData([fontData]);
+
+    const paraStyle = new CanvasKit.ParagraphStyle({
+        textStyle: {
+            color: CanvasKit.BLACK,
+            fontFamilies: ['Roboto'],
+            fontSize: 50,
+        },
+        textAlign: CanvasKit.TextAlign.Left,
+        maxLines: 5,
+    });
+
+    const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+    builder.addText('The quick brown fox ate a hamburgerfons and got sick.');
+    const paragraph = builder.build();
+
+    let wrapTo = 0;
+
+    let X = 100;
+    let Y = 100;
+
+    const font = new CanvasKit.SkFont(null, 18);
+    const fontPaint = new CanvasKit.SkPaint();
+    fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
+    fontPaint.setAntiAlias(true);
+
+    function drawFrame(canvas) {
+      canvas.clear(CanvasKit.WHITE);
+      wrapTo = 350 + 150 * Math.sin(Date.now() / 2000);
+      paragraph.layout(wrapTo);
+      canvas.drawParagraph(paragraph, 0, 0);
+
+      canvas.drawLine(wrapTo, 0, wrapTo, 400, fontPaint);
+
+      let posA = paragraph.getGlyphPositionAtCoordinate(X, Y);
+      canvas.drawText(`At (${X.toFixed(2)}, ${Y.toFixed(2)}) glyph is ${posA.pos}`, 5, 450, fontPaint, font);
+
+      surface.requestAnimationFrame(drawFrame);
+    }
+    surface.requestAnimationFrame(drawFrame);
+
+    let interact = (e) => {
+      X = e.offsetX*2; // multiply by 2 because the canvas is 300 css pixels wide,
+      Y = e.offsetY*2; // but the canvas itself is 600px wide
+    };
+
+    document.getElementById('para1').addEventListener('pointermove', interact);
+    return surface;
   }
 </script>

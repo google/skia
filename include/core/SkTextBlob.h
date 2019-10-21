@@ -26,6 +26,9 @@ struct SkDeserialProcs;
     fonts and text rendering are used by run.
 */
 class SK_API SkTextBlob final : public SkNVRefCnt<SkTextBlob> {
+private:
+    class RunRecord;
+
 public:
 
     /** Returns conservative bounding box. Uses SkPaint associated with each glyph to
@@ -186,9 +189,28 @@ public:
     static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size,
                                          const SkDeserialProcs& procs);
 
+    class SK_API Iter {
+    public:
+        struct Run {
+            SkTypeface*     fTypeface;
+            int             fGlyphCount;
+            const uint16_t* fGlyphIndices;
+        };
+
+        Iter(const SkTextBlob&);
+
+        /**
+         * Returns true for each "run" inside the textblob, setting the Run fields (if not null).
+         * If this returns false, there are no more runs, and the Run parameter will be ignored.
+         */
+        bool next(Run*);
+
+    private:
+        const RunRecord* fRunRecord;
+    };
+
 private:
     friend class SkNVRefCnt<SkTextBlob>;
-    class RunRecord;
 
     enum GlyphPositioning : uint8_t;
 

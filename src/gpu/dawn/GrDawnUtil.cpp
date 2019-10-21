@@ -7,18 +7,18 @@
 
 #include "src/gpu/dawn/GrDawnUtil.h"
 
-GrPixelConfig GrDawnFormatToPixelConfig(dawn::TextureFormat format) {
+size_t GrDawnBytesPerPixel(dawn::TextureFormat format) {
     switch (format) {
         case dawn::TextureFormat::RGBA8Unorm:
-            return kRGBA_8888_GrPixelConfig;
         case dawn::TextureFormat::BGRA8Unorm:
-            return kBGRA_8888_GrPixelConfig;
+            return 4;
         case dawn::TextureFormat::R8Unorm:
-            return kAlpha_8_GrPixelConfig;
+            return 1;
         case dawn::TextureFormat::Depth24PlusStencil8:
+            return 4;
         default:
             SkASSERT(false);
-            return kRGBA_8888_GrPixelConfig;
+            return 4;
     }
 }
 

@@ -150,6 +150,8 @@ public:
                : nullptr;
     }
 
+    bool isLastRun() const { return SkToBool(fFlags & kLast_Flag); }
+
     static size_t StorageSize(uint32_t glyphCount, uint32_t textSize,
                               SkTextBlob::GlyphPositioning positioning,
                               SkSafeMath* safe);

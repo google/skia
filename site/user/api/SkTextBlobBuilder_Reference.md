@@ -102,7 +102,7 @@ empty <a href='SkTextBlobBuilder_Reference#SkTextBlobBuilder'>SkTextBlobBuilder<
 
 ### Example
 
-<div><fiddle-embed name="d9dbabfe24aad92ee3c8144513e90d81">
+<div><fiddle-embed name="@TextBlobBuilder_empty_constructor">
 
 #### Example Output
 

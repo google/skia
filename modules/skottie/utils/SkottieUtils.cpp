@@ -77,13 +77,15 @@ sk_sp<SkImage> MultiFrameImageAsset::getFrame(float t) {
     return frame;
 }
 
-sk_sp<FileResourceProvider> FileResourceProvider::Make(SkString base_dir) {
+sk_sp<FileResourceProvider> FileResourceProvider::Make(SkString base_dir, bool predecode) {
     return sk_isdir(base_dir.c_str())
-        ? sk_sp<FileResourceProvider>(new FileResourceProvider(std::move(base_dir)))
+        ? sk_sp<FileResourceProvider>(new FileResourceProvider(std::move(base_dir), predecode))
         : nullptr;
 }
 
-FileResourceProvider::FileResourceProvider(SkString base_dir) : fDir(std::move(base_dir)) {}
+FileResourceProvider::FileResourceProvider(SkString base_dir, bool predecode)
+    : fDir(std::move(base_dir))
+    , fPredecode(predecode) {}
 
 sk_sp<SkData> FileResourceProvider::load(const char resource_path[],
                                          const char resource_name[]) const {
@@ -95,7 +97,26 @@ sk_sp<SkData> FileResourceProvider::load(const char resource_path[],
 sk_sp<skottie::ImageAsset> FileResourceProvider::loadImageAsset(const char resource_path[],
                                                                 const char resource_name[],
                                                                 const char[]) const {
-    return MultiFrameImageAsset::Make(this->load(resource_path, resource_name));
+    return MultiFrameImageAsset::Make(this->load(resource_path, resource_name), fPredecode);
+}
+
+CachingResourceProvider::CachingResourceProvider(sk_sp<ResourceProvider> rp)
+    : fProxy(std::move(rp)) {}
+
+sk_sp<skottie::ImageAsset> CachingResourceProvider::loadImageAsset(const char resource_path[],
+                                                                   const char resource_name[],
+                                                                   const char resource_id[]) const {
+    SkAutoMutexExclusive amx(fMutex);
+
+    const SkString key(resource_id);
+    if (const auto* asset = fImageCache.find(key)) {
+        return *asset;
+    }
+
+    auto asset = fProxy->loadImageAsset(resource_path, resource_name, resource_id);
+    fImageCache.set(key, asset);
+
+    return asset;
 }
 
 class CustomPropertyManager::PropertyInterceptor final : public skottie::PropertyObserver {

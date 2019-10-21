@@ -35,7 +35,7 @@ public:
 private:
     explicit GrDawnUniformHandler(GrGLSLProgramBuilder* program);
 
-    SamplerHandle addSampler(const GrTexture*, const GrSamplerState&, const GrSwizzle&,
+    SamplerHandle addSampler(const GrTextureProxy*, const GrSamplerState&, const GrSwizzle&,
                              const char* name, const GrShaderCaps*) override;
     const char* samplerVariable(SamplerHandle handle) const override;
     GrSwizzle samplerSwizzle(SamplerHandle handle) const override;
@@ -46,6 +46,8 @@ private:
                                           bool mangleName,
                                           int arrayCount,
                                           const char** outName) override;
+
+    void updateUniformVisibility(UniformHandle u, uint32_t visibility) override;
 
     UniformInfoArray     fUniforms;
     UniformInfoArray     fSamplers;

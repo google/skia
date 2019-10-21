@@ -33,8 +33,8 @@ bool SkColorFilter::onAsAColorMatrix(float matrix[20]) const {
 }
 
 #if SK_SUPPORT_GPU
-std::unique_ptr<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(
-        GrRecordingContext*, const GrColorSpaceInfo&) const {
+std::unique_ptr<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(GrRecordingContext*,
+                                                                        const GrColorInfo&) const {
     return nullptr;
 }
 #endif
@@ -44,30 +44,36 @@ bool SkColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) con
 }
 
 SkColor SkColorFilter::filterColor(SkColor c) const {
-    return this->filterColor4f(SkColor4f::FromColor(c), nullptr)
-        .toSkColor();
+    // This is mostly meaningless. We should phase-out this call entirely.
+    SkColorSpace* cs = nullptr;
+    return this->filterColor4f(SkColor4f::FromColor(c), cs, cs).toSkColor();
 }
 
-#include "src/core/SkRasterPipeline.h"
-SkColor4f SkColorFilter::filterColor4f(const SkColor4f& c, SkColorSpace* colorSpace) const {
-    SkPMColor4f dst, src = c.premul();
+SkColor4f SkColorFilter::filterColor4f(const SkColor4f& origSrcColor, SkColorSpace* srcCS,
+                                       SkColorSpace* dstCS) const {
+#ifdef SK_SUPPORT_LEGACY_COLORFILTER_NO_SHADER
+    SkPMColor4f src = origSrcColor.premul();
+    SkColor4f color = *(SkColor4f*)&src;
+#else
+    SkColor4f color = origSrcColor;
+    SkColorSpaceXformSteps(srcCS, kUnpremul_SkAlphaType,
+                           dstCS, kPremul_SkAlphaType).apply(color.vec());
+#endif
 
-    // determined experimentally, seems to cover compose+colormatrix
-    constexpr size_t kEnoughForCommonFilters = 512;
+    constexpr size_t kEnoughForCommonFilters = 512; // big enough for compose+colormatrix
     SkSTArenaAlloc<kEnoughForCommonFilters> alloc;
     SkRasterPipeline    pipeline(&alloc);
-
-    pipeline.append_constant_color(&alloc, src.vec());
-
+    pipeline.append_constant_color(&alloc, color.vec());
     SkPaint dummyPaint;
     SkStageRec rec = {
-        &pipeline, &alloc, kRGBA_F32_SkColorType, colorSpace, dummyPaint, nullptr, SkMatrix::I()
+        &pipeline, &alloc, kRGBA_F32_SkColorType, dstCS, dummyPaint, nullptr, SkMatrix::I()
     };
-    this->onAppendStages(rec, c.fA == 1);
+    this->onAppendStages(rec, color.fA == 1);
+
+    SkPMColor4f dst;
     SkRasterPipeline_MemoryCtx dstPtr = { &dst, 0 };
     pipeline.append(SkRasterPipeline::store_f32, &dstPtr);
     pipeline.run(0,0, 1,1);
-
     return dst.unpremul();
 }
 
@@ -101,9 +107,9 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext* context, const GrColorSpaceInfo& dstColorSpaceInfo) const override {
-        auto innerFP = fInner->asFragmentProcessor(context, dstColorSpaceInfo);
-        auto outerFP = fOuter->asFragmentProcessor(context, dstColorSpaceInfo);
+            GrRecordingContext* context, const GrColorInfo& dstColorInfo) const override {
+        auto innerFP = fInner->asFragmentProcessor(context, dstColorInfo);
+        auto outerFP = fOuter->asFragmentProcessor(context, dstColorInfo);
         if (!innerFP || !outerFP) {
             return nullptr;
         }
@@ -187,8 +193,8 @@ public:
     }()) {}
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext*, const GrColorSpaceInfo&) const override {
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
+                                                             const GrColorInfo&) const override {
         // wish our caller would let us know if our input was opaque...
         GrSRGBEffect::Alpha alpha = GrSRGBEffect::Alpha::kPremul;
         switch (fDir) {
@@ -301,10 +307,10 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext* context, const GrColorSpaceInfo& dstColorSpaceInfo) const override {
+            GrRecordingContext* context, const GrColorInfo& dstColorInfo) const override {
         return GrMixerEffect::Make(
-                fCF0->asFragmentProcessor(context, dstColorSpaceInfo),
-                fCF1 ? fCF1->asFragmentProcessor(context, dstColorSpaceInfo) : nullptr,
+                fCF0->asFragmentProcessor(context, dstColorInfo),
+                fCF1 ? fCF1->asFragmentProcessor(context, dstColorInfo) : nullptr,
                 fWeight);
     }
 #endif
@@ -379,8 +385,8 @@ public:
         , fCpuFunction(cpuFunction) {}
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext* context, const GrColorSpaceInfo&) const override {
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext* context,
+                                                             const GrColorInfo&) const override {
         return GrSkSLFP::Make(context, fIndex, "Runtime Color Filter", fSkSL,
                               fInputs ? fInputs->data() : nullptr,
                               fInputs ? fInputs->size() : 0);

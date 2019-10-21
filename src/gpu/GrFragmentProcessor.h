@@ -275,24 +275,24 @@ protected:
     /**
      * Can be used as a helper to decide which fragment processor OptimizationFlags should be set.
      * This assumes that the subclass output color will be a modulation of the input color with a
-     * value read from a texture of the passed config and that the texture contains premultiplied
-     * color or alpha values that are in range.
+     * value read from a texture of the passed color type and that the texture contains
+     * premultiplied color or alpha values that are in range.
      *
      * Since there are multiple ways in which a sampler may have its coordinates clamped or wrapped,
      * callers must determine on their own if the sampling uses a decal strategy in any way, in
-     * which case the texture may become transparent regardless of the pixel config.
+     * which case the texture may become transparent regardless of the color type.
      */
-    static OptimizationFlags ModulateForSamplerOptFlags(GrPixelConfig config, bool samplingDecal) {
+    static OptimizationFlags ModulateForSamplerOptFlags(GrColorType colorType, bool samplingDecal) {
         if (samplingDecal) {
             return kCompatibleWithCoverageAsAlpha_OptimizationFlag;
         } else {
-            return ModulateForClampedSamplerOptFlags(config);
+            return ModulateForClampedSamplerOptFlags(colorType);
         }
     }
 
     // As above, but callers should somehow ensure or assert their sampler still uses clamping
-    static OptimizationFlags ModulateForClampedSamplerOptFlags(GrPixelConfig config) {
-        if (GrPixelConfigIsOpaque(config)) {
+    static OptimizationFlags ModulateForClampedSamplerOptFlags(GrColorType colorType) {
+        if (!GrColorTypeHasAlpha(colorType)) {
             return kCompatibleWithCoverageAsAlpha_OptimizationFlag |
                    kPreservesOpaqueInput_OptimizationFlag;
         } else {
@@ -424,26 +424,17 @@ public:
     TextureSampler() = default;
 
     /**
-     * This copy constructor is used by GrFragmentProcessor::clone() implementations. The copy
-     * always takes a new ref on the texture proxy as the new fragment processor will not yet be
-     * in pending execution state.
+     * This copy constructor is used by GrFragmentProcessor::clone() implementations.
      */
     explicit TextureSampler(const TextureSampler& that)
             : fProxy(that.fProxy)
             , fSamplerState(that.fSamplerState) {}
 
-    TextureSampler(sk_sp<GrTextureProxy>, const GrSamplerState&);
-
-    explicit TextureSampler(sk_sp<GrTextureProxy>,
-                            GrSamplerState::Filter = GrSamplerState::Filter::kNearest,
-                            GrSamplerState::WrapMode wrapXAndY = GrSamplerState::WrapMode::kClamp);
+    TextureSampler(sk_sp<GrTextureProxy>, const GrSamplerState& = GrSamplerState::ClampNearest());
 
     TextureSampler& operator=(const TextureSampler&) = delete;
 
     void reset(sk_sp<GrTextureProxy>, const GrSamplerState&);
-    void reset(sk_sp<GrTextureProxy>,
-               GrSamplerState::Filter = GrSamplerState::Filter::kNearest,
-               GrSamplerState::WrapMode wrapXAndY = GrSamplerState::WrapMode::kClamp);
 
     bool operator==(const TextureSampler& that) const {
         return this->proxy()->underlyingUniqueID() == that.proxy()->underlyingUniqueID() &&

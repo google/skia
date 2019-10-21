@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-dawn_root = "../externals/dawn"
-import("$dawn_root/scripts/dawn_features.gni")
-import("$dawn_root/generator/dawn_generator.gni")
+import("../externals/dawn/generator/dawn_generator.gni")
+import("../externals/dawn/scripts/dawn_features.gni")
 
 ###############################################################################
 # Template to wrap the Dawn code generator
@@ -45,7 +44,8 @@ import("$dawn_root/generator/dawn_generator.gni")
 
 config("libdawn_public") {
   include_dirs = [
-    target_gen_dir,
+    "$dawn_gen_root/src/include",
+    "$dawn_gen_root/src",
     "$dawn_root/src/include",
     "$dawn_root/src",
   ]
@@ -120,8 +120,8 @@ static_library("dawn_common") {
 dawn_json_generator("dawn_headers_gen") {
   target = "dawn_headers"
   outputs = [
-    "dawn/dawncpp.h",
-    "dawn/dawn.h",
+    "src/include/dawn/dawn_proc_table.h",
+    "src/include/dawn/dawn.h",
   ]
 }
 
@@ -139,24 +139,59 @@ source_set("dawn_headers") {
   ]
 }
 
-dawn_json_generator("libdawn_gen") {
-  target = "libdawn"
+dawn_json_generator("dawncpp_gen") {
+  target = "dawncpp"
   outputs = [
-    "dawn/dawncpp.cpp",
-    "dawn/dawn.c",
+    "src/dawn/dawncpp.cpp",
+    "src/include/dawn/dawncpp.h",
   ]
 }
 
-static_library("libdawn") {
+source_set("dawncpp") {
+  deps = [
+    ":dawn_headers",
+    ":dawncpp_gen",
+  ]
+  sources = get_target_outputs(":dawncpp_gen")
+  sources += [ "${dawn_root}/src/include/dawn/EnumClassBitmasks.h" ]
+}
+
+dawn_json_generator("libdawn_proc_gen") {
+  target = "dawn_proc"
+  outputs = [
+    "src/dawn/dawn_proc.c",
+  ]
+}
+
+static_library("libdawn_proc") {
   public_deps = [
     ":dawn_headers",
   ]
 
   defines = [ "DAWN_IMPLEMENTATION" ]
   deps = [
-    ":libdawn_gen",
+    ":libdawn_proc_gen",
   ]
-  sources = get_target_outputs(":libdawn_gen")
+  sources = get_target_outputs(":libdawn_proc_gen")
+  sources += [ "${dawn_root}/src/include/dawn/dawn_proc.h" ]
+}
+
+###############################################################################
+# dawn_platform
+###############################################################################
+
+source_set("dawn_platform") {
+  configs += [ ":dawn_internal" ]
+
+  sources =
+      rebase_path([
+                    "${dawn_root}/src/include/dawn_platform/DawnPlatform.h",
+                    "src/dawn_platform/tracing/EventTracer.cpp",
+                    "src/dawn_platform/tracing/EventTracer.h",
+                    "src/dawn_platform/tracing/TraceEvent.h",
+                  ],
+                  ".",
+                  "$dawn_root")
 }
 
 ###############################################################################
@@ -176,11 +211,11 @@ config("libdawn_native_internal") {
 dawn_json_generator("libdawn_native_utils_gen") {
   target = "dawn_native_utils"
   outputs = [
-    "dawn_native/ProcTable.cpp",
-    "dawn_native/dawn_structs_autogen.h",
-    "dawn_native/dawn_structs_autogen.cpp",
-    "dawn_native/ValidationUtils_autogen.h",
-    "dawn_native/ValidationUtils_autogen.cpp",
+    "src/dawn_native/ProcTable.cpp",
+    "src/dawn_native/dawn_structs_autogen.h",
+    "src/dawn_native/dawn_structs_autogen.cpp",
+    "src/dawn_native/ValidationUtils_autogen.h",
+    "src/dawn_native/ValidationUtils_autogen.cpp",
   ]
 }
 
@@ -190,11 +225,14 @@ if (dawn_enable_opengl) {
     args = [
       "--gl-xml",
       rebase_path("../externals/opengl-registry/xml/gl.xml", root_build_dir),
+      "--supported-extensions",
+      rebase_path("$dawn_root/src/dawn_native/opengl/supported_extensions.json",
+                  root_build_dir),
     ]
     outputs = [
-      "dawn_native/opengl/OpenGLFunctionsBase_autogen.cpp",
-      "dawn_native/opengl/OpenGLFunctionsBase_autogen.h",
-      "dawn_native/opengl/opengl_platform_autogen.h",
+      "src/dawn_native/opengl/OpenGLFunctionsBase_autogen.cpp",
+      "src/dawn_native/opengl/OpenGLFunctionsBase_autogen.h",
+      "src/dawn_native/opengl/opengl_platform_autogen.h",
     ]
   }
 }
@@ -237,6 +275,7 @@ source_set("libdawn_native_sources") {
 
   # Set the headers as a public dependency so they are visible to unittests
   public_deps = [
+    ":dawn_platform",
     ":libdawn_native_headers",
   ]
 
@@ -248,6 +287,8 @@ source_set("libdawn_native_sources") {
   sources += rebase_path([
                            "src/dawn_native/Adapter.cpp",
                            "src/dawn_native/Adapter.h",
+                           "src/dawn_native/AttachmentState.cpp",
+                           "src/dawn_native/AttachmentState.h",
                            "src/dawn_native/BackendConnection.cpp",
                            "src/dawn_native/BackendConnection.h",
                            "src/dawn_native/BindGroup.cpp",
@@ -264,6 +305,8 @@ source_set("libdawn_native_sources") {
                            "src/dawn_native/CommandBufferStateTracker.h",
                            "src/dawn_native/CommandEncoder.cpp",
                            "src/dawn_native/CommandEncoder.h",
+                           "src/dawn_native/CommandValidation.cpp",
+                           "src/dawn_native/CommandValidation.h",
                            "src/dawn_native/Commands.cpp",
                            "src/dawn_native/Commands.h",
                            "src/dawn_native/ComputePassEncoder.cpp",
@@ -276,10 +319,18 @@ source_set("libdawn_native_sources") {
                            "src/dawn_native/DynamicUploader.cpp",
                            "src/dawn_native/DynamicUploader.h",
                            "src/dawn_native/Device.h",
+                           "src/dawn_native/EncodingContext.cpp",
+                           "src/dawn_native/EncodingContext.h",
                            "src/dawn_native/Error.cpp",
                            "src/dawn_native/Error.h",
                            "src/dawn_native/ErrorData.cpp",
                            "src/dawn_native/ErrorData.h",
+                           "src/dawn_native/ErrorScope.cpp",
+                           "src/dawn_native/ErrorScope.h",
+                           "src/dawn_native/ErrorScopeTracker.cpp",
+                           "src/dawn_native/ErrorScopeTracker.h",
+                           "src/dawn_native/Extensions.cpp",
+                           "src/dawn_native/Extensions.h",
                            "src/dawn_native/Fence.cpp",
                            "src/dawn_native/Fence.h",
                            "src/dawn_native/FenceSignalTracker.cpp",
@@ -292,6 +343,8 @@ source_set("libdawn_native_sources") {
                            "src/dawn_native/ObjectBase.h",
                            "src/dawn_native/ObjectBase.cpp",
                            "src/dawn_native/PassResourceUsage.h",
+                           "src/dawn_native/PassResourceUsageTracker.cpp",
+                           "src/dawn_native/PassResourceUsageTracker.h",
                            "src/dawn_native/PerStage.cpp",
                            "src/dawn_native/PerStage.h",
                            "src/dawn_native/Pipeline.cpp",
@@ -304,12 +357,20 @@ source_set("libdawn_native_sources") {
                            "src/dawn_native/Queue.h",
                            "src/dawn_native/RefCounted.cpp",
                            "src/dawn_native/RefCounted.h",
+                           "src/dawn_native/RenderBundle.cpp",
+                           "src/dawn_native/RenderBundle.h",
+                           "src/dawn_native/RenderBundleEncoder.cpp",
+                           "src/dawn_native/RenderBundleEncoder.h",
+                           "src/dawn_native/RenderEncoderBase.cpp",
+                           "src/dawn_native/RenderEncoderBase.h",
                            "src/dawn_native/RenderPassEncoder.cpp",
                            "src/dawn_native/RenderPassEncoder.h",
                            "src/dawn_native/RenderPipeline.cpp",
                            "src/dawn_native/RenderPipeline.h",
-                           "src/dawn_native/RingBuffer.cpp",
-                           "src/dawn_native/RingBuffer.h",
+                           "src/dawn_native/ResourceMemoryAllocation.cpp",
+                           "src/dawn_native/ResourceMemoryAllocation.h",
+                           "src/dawn_native/RingBufferAllocator.cpp",
+                           "src/dawn_native/RingBufferAllocator.h",
                            "src/dawn_native/Sampler.cpp",
                            "src/dawn_native/Sampler.h",
                            "src/dawn_native/ShaderModule.cpp",
@@ -320,6 +381,8 @@ source_set("libdawn_native_sources") {
                            "src/dawn_native/SwapChain.h",
                            "src/dawn_native/Texture.cpp",
                            "src/dawn_native/Texture.h",
+                           "src/dawn_native/Toggles.cpp",
+                           "src/dawn_native/Toggles.h",
                            "src/dawn_native/ToBackend.h",
                            "src/dawn_native/dawn_platform.h",
                          ],
@@ -328,62 +391,70 @@ source_set("libdawn_native_sources") {
 
   if (dawn_enable_d3d12) {
     libs += [ "dxguid.lib" ]
-    sources +=
-        rebase_path([
-                      "src/dawn_native/d3d12/AdapterD3D12.cpp",
-                      "src/dawn_native/d3d12/AdapterD3D12.h",
-                      "src/dawn_native/d3d12/BackendD3D12.cpp",
-                      "src/dawn_native/d3d12/BackendD3D12.h",
-                      "src/dawn_native/d3d12/BindGroupD3D12.cpp",
-                      "src/dawn_native/d3d12/BindGroupD3D12.h",
-                      "src/dawn_native/d3d12/BindGroupLayoutD3D12.cpp",
-                      "src/dawn_native/d3d12/BindGroupLayoutD3D12.h",
-                      "src/dawn_native/d3d12/BufferD3D12.cpp",
-                      "src/dawn_native/d3d12/BufferD3D12.h",
-                      "src/dawn_native/d3d12/CommandAllocatorManager.cpp",
-                      "src/dawn_native/d3d12/CommandAllocatorManager.h",
-                      "src/dawn_native/d3d12/CommandBufferD3D12.cpp",
-                      "src/dawn_native/d3d12/CommandBufferD3D12.h",
-                      "src/dawn_native/d3d12/ComputePipelineD3D12.cpp",
-                      "src/dawn_native/d3d12/ComputePipelineD3D12.h",
-                      "src/dawn_native/d3d12/D3D12Backend.cpp",
-                      "src/dawn_native/d3d12/D3D12Info.cpp",
-                      "src/dawn_native/d3d12/D3D12Info.h",
-                      "src/dawn_native/d3d12/DescriptorHeapAllocator.cpp",
-                      "src/dawn_native/d3d12/DescriptorHeapAllocator.h",
-                      "src/dawn_native/d3d12/DeviceD3D12.cpp",
-                      "src/dawn_native/d3d12/DeviceD3D12.h",
-                      "src/dawn_native/d3d12/Forward.h",
-                      "src/dawn_native/d3d12/NativeSwapChainImplD3D12.cpp",
-                      "src/dawn_native/d3d12/NativeSwapChainImplD3D12.h",
-                      "src/dawn_native/d3d12/PipelineLayoutD3D12.cpp",
-                      "src/dawn_native/d3d12/PipelineLayoutD3D12.h",
-                      "src/dawn_native/d3d12/PlatformFunctions.cpp",
-                      "src/dawn_native/d3d12/PlatformFunctions.h",
-                      "src/dawn_native/d3d12/QueueD3D12.cpp",
-                      "src/dawn_native/d3d12/QueueD3D12.h",
-                      "src/dawn_native/d3d12/RenderPipelineD3D12.cpp",
-                      "src/dawn_native/d3d12/RenderPipelineD3D12.h",
-                      "src/dawn_native/d3d12/ResourceAllocator.cpp",
-                      "src/dawn_native/d3d12/ResourceAllocator.h",
-                      "src/dawn_native/d3d12/SamplerD3D12.cpp",
-                      "src/dawn_native/d3d12/SamplerD3D12.h",
-                      "src/dawn_native/d3d12/ShaderModuleD3D12.cpp",
-                      "src/dawn_native/d3d12/ShaderModuleD3D12.h",
-                      "src/dawn_native/d3d12/StagingBufferD3D12.cpp",
-                      "src/dawn_native/d3d12/StagingBufferD3D12.h",
-                      "src/dawn_native/d3d12/SwapChainD3D12.cpp",
-                      "src/dawn_native/d3d12/SwapChainD3D12.h",
-                      "src/dawn_native/d3d12/TextureCopySplitter.cpp",
-                      "src/dawn_native/d3d12/TextureCopySplitter.h",
-                      "src/dawn_native/d3d12/TextureD3D12.cpp",
-                      "src/dawn_native/d3d12/TextureD3D12.h",
-                      "src/dawn_native/d3d12/UtilsD3D12.cpp",
-                      "src/dawn_native/d3d12/UtilsD3D12.h",
-                      "src/dawn_native/d3d12/d3d12_platform.h",
-                    ],
-                    ".",
-                    "$dawn_root")
+    sources += rebase_path(
+            [
+              "src/dawn_native/d3d12/AdapterD3D12.cpp",
+              "src/dawn_native/d3d12/AdapterD3D12.h",
+              "src/dawn_native/d3d12/BackendD3D12.cpp",
+              "src/dawn_native/d3d12/BackendD3D12.h",
+              "src/dawn_native/d3d12/BindGroupD3D12.cpp",
+              "src/dawn_native/d3d12/BindGroupD3D12.h",
+              "src/dawn_native/d3d12/BindGroupLayoutD3D12.cpp",
+              "src/dawn_native/d3d12/BindGroupLayoutD3D12.h",
+              "src/dawn_native/d3d12/BufferD3D12.cpp",
+              "src/dawn_native/d3d12/BufferD3D12.h",
+              "src/dawn_native/d3d12/CommandAllocatorManager.cpp",
+              "src/dawn_native/d3d12/CommandAllocatorManager.h",
+              "src/dawn_native/d3d12/CommandBufferD3D12.cpp",
+              "src/dawn_native/d3d12/CommandBufferD3D12.h",
+              "src/dawn_native/d3d12/CommandRecordingContext.cpp",
+              "src/dawn_native/d3d12/CommandRecordingContext.h",
+              "src/dawn_native/d3d12/CommittedResourceAllocatorD3D12.cpp",
+              "src/dawn_native/d3d12/CommittedResourceAllocatorD3D12.h",
+              "src/dawn_native/d3d12/ComputePipelineD3D12.cpp",
+              "src/dawn_native/d3d12/ComputePipelineD3D12.h",
+              "src/dawn_native/d3d12/D3D12Backend.cpp",
+              "src/dawn_native/d3d12/D3D12Info.cpp",
+              "src/dawn_native/d3d12/D3D12Info.h",
+              "src/dawn_native/d3d12/DescriptorHeapAllocator.cpp",
+              "src/dawn_native/d3d12/DescriptorHeapAllocator.h",
+              "src/dawn_native/d3d12/DeviceD3D12.cpp",
+              "src/dawn_native/d3d12/DeviceD3D12.h",
+              "src/dawn_native/d3d12/Forward.h",
+              "src/dawn_native/d3d12/NativeSwapChainImplD3D12.cpp",
+              "src/dawn_native/d3d12/NativeSwapChainImplD3D12.h",
+              "src/dawn_native/d3d12/PipelineLayoutD3D12.cpp",
+              "src/dawn_native/d3d12/PipelineLayoutD3D12.h",
+              "src/dawn_native/d3d12/PlatformFunctions.cpp",
+              "src/dawn_native/d3d12/PlatformFunctions.h",
+              "src/dawn_native/d3d12/QueueD3D12.cpp",
+              "src/dawn_native/d3d12/QueueD3D12.h",
+              "src/dawn_native/d3d12/RenderPipelineD3D12.cpp",
+              "src/dawn_native/d3d12/RenderPipelineD3D12.h",
+              "src/dawn_native/d3d12/ResourceAllocator.cpp",
+              "src/dawn_native/d3d12/ResourceAllocator.h",
+              "src/dawn_native/d3d12/ResourceAllocatorManagerD3D12.cpp",
+              "src/dawn_native/d3d12/ResourceAllocatorManagerD3D12.h",
+              "src/dawn_native/d3d12/ResourceHeapAllocationD3D12.cpp",
+              "src/dawn_native/d3d12/ResourceHeapAllocationD3D12.h",
+              "src/dawn_native/d3d12/SamplerD3D12.cpp",
+              "src/dawn_native/d3d12/SamplerD3D12.h",
+              "src/dawn_native/d3d12/ShaderModuleD3D12.cpp",
+              "src/dawn_native/d3d12/ShaderModuleD3D12.h",
+              "src/dawn_native/d3d12/StagingBufferD3D12.cpp",
+              "src/dawn_native/d3d12/StagingBufferD3D12.h",
+              "src/dawn_native/d3d12/SwapChainD3D12.cpp",
+              "src/dawn_native/d3d12/SwapChainD3D12.h",
+              "src/dawn_native/d3d12/TextureCopySplitter.cpp",
+              "src/dawn_native/d3d12/TextureCopySplitter.h",
+              "src/dawn_native/d3d12/TextureD3D12.cpp",
+              "src/dawn_native/d3d12/TextureD3D12.h",
+              "src/dawn_native/d3d12/UtilsD3D12.cpp",
+              "src/dawn_native/d3d12/UtilsD3D12.h",
+              "src/dawn_native/d3d12/d3d12_platform.h",
+            ],
+            ".",
+            "$dawn_root")
   }
 
   if (dawn_enable_metal) {
@@ -455,6 +526,8 @@ source_set("libdawn_native_sources") {
                       "src/dawn_native/opengl/DeviceGL.cpp",
                       "src/dawn_native/opengl/DeviceGL.h",
                       "src/dawn_native/opengl/Forward.h",
+                      "src/dawn_native/opengl/GLFormat.h",
+                      "src/dawn_native/opengl/GLFormat.cpp",
                       "src/dawn_native/opengl/NativeSwapChainImplGL.cpp",
                       "src/dawn_native/opengl/NativeSwapChainImplGL.h",
                       "src/dawn_native/opengl/OpenGLFunctions.cpp",
@@ -490,60 +563,85 @@ source_set("libdawn_native_sources") {
   if (dawn_enable_vulkan) {
     configs += [ "//:our_vulkan_headers" ]
     include_dirs = [ "../.." ]  # for "include/third_party/vulkan/vulkan/vk_platform.h" in vulkan.h
-    sources += rebase_path([
-                             "src/dawn_native/vulkan/AdapterVk.cpp",
-                             "src/dawn_native/vulkan/AdapterVk.h",
-                             "src/dawn_native/vulkan/BackendVk.cpp",
-                             "src/dawn_native/vulkan/BackendVk.h",
-                             "src/dawn_native/vulkan/BindGroupLayoutVk.cpp",
-                             "src/dawn_native/vulkan/BindGroupLayoutVk.h",
-                             "src/dawn_native/vulkan/BindGroupVk.cpp",
-                             "src/dawn_native/vulkan/BindGroupVk.h",
-                             "src/dawn_native/vulkan/BufferVk.cpp",
-                             "src/dawn_native/vulkan/BufferVk.h",
-                             "src/dawn_native/vulkan/CommandBufferVk.cpp",
-                             "src/dawn_native/vulkan/CommandBufferVk.h",
-                             "src/dawn_native/vulkan/ComputePipelineVk.cpp",
-                             "src/dawn_native/vulkan/ComputePipelineVk.h",
-                             "src/dawn_native/vulkan/DeviceVk.cpp",
-                             "src/dawn_native/vulkan/DeviceVk.h",
-                             "src/dawn_native/vulkan/FencedDeleter.cpp",
-                             "src/dawn_native/vulkan/FencedDeleter.h",
-                             "src/dawn_native/vulkan/Forward.h",
-                             "src/dawn_native/vulkan/MemoryAllocator.cpp",
-                             "src/dawn_native/vulkan/MemoryAllocator.h",
-                             "src/dawn_native/vulkan/NativeSwapChainImplVk.cpp",
-                             "src/dawn_native/vulkan/NativeSwapChainImplVk.h",
-                             "src/dawn_native/vulkan/PipelineLayoutVk.cpp",
-                             "src/dawn_native/vulkan/PipelineLayoutVk.h",
-                             "src/dawn_native/vulkan/QueueVk.cpp",
-                             "src/dawn_native/vulkan/QueueVk.h",
-                             "src/dawn_native/vulkan/RenderPassCache.cpp",
-                             "src/dawn_native/vulkan/RenderPassCache.h",
-                             "src/dawn_native/vulkan/RenderPipelineVk.cpp",
-                             "src/dawn_native/vulkan/RenderPipelineVk.h",
-                             "src/dawn_native/vulkan/SamplerVk.cpp",
-                             "src/dawn_native/vulkan/SamplerVk.h",
-                             "src/dawn_native/vulkan/ShaderModuleVk.cpp",
-                             "src/dawn_native/vulkan/ShaderModuleVk.h",
-                             "src/dawn_native/vulkan/StagingBufferVk.cpp",
-                             "src/dawn_native/vulkan/StagingBufferVk.h",
-                             "src/dawn_native/vulkan/SwapChainVk.cpp",
-                             "src/dawn_native/vulkan/SwapChainVk.h",
-                             "src/dawn_native/vulkan/TextureVk.cpp",
-                             "src/dawn_native/vulkan/TextureVk.h",
-                             "src/dawn_native/vulkan/UtilsVulkan.cpp",
-                             "src/dawn_native/vulkan/UtilsVulkan.h",
-                             "src/dawn_native/vulkan/VulkanBackend.cpp",
-                             "src/dawn_native/vulkan/VulkanError.cpp",
-                             "src/dawn_native/vulkan/VulkanError.h",
-                             "src/dawn_native/vulkan/VulkanFunctions.cpp",
-                             "src/dawn_native/vulkan/VulkanFunctions.h",
-                             "src/dawn_native/vulkan/VulkanInfo.cpp",
-                             "src/dawn_native/vulkan/VulkanInfo.h",
-                           ],
-                           ".",
-                           "$dawn_root")
+    sources += rebase_path(
+            [
+              "src/dawn_native/vulkan/AdapterVk.cpp",
+              "src/dawn_native/vulkan/AdapterVk.h",
+              "src/dawn_native/vulkan/BackendVk.cpp",
+              "src/dawn_native/vulkan/BackendVk.h",
+              "src/dawn_native/vulkan/BindGroupLayoutVk.cpp",
+              "src/dawn_native/vulkan/BindGroupLayoutVk.h",
+              "src/dawn_native/vulkan/BindGroupVk.cpp",
+              "src/dawn_native/vulkan/BindGroupVk.h",
+              "src/dawn_native/vulkan/BufferVk.cpp",
+              "src/dawn_native/vulkan/BufferVk.h",
+              "src/dawn_native/vulkan/CommandBufferVk.cpp",
+              "src/dawn_native/vulkan/CommandBufferVk.h",
+              "src/dawn_native/vulkan/ComputePipelineVk.cpp",
+              "src/dawn_native/vulkan/ComputePipelineVk.h",
+              "src/dawn_native/vulkan/DeviceVk.cpp",
+              "src/dawn_native/vulkan/DeviceVk.h",
+              "src/dawn_native/vulkan/ExternalHandle.h",
+              "src/dawn_native/vulkan/FencedDeleter.cpp",
+              "src/dawn_native/vulkan/FencedDeleter.h",
+              "src/dawn_native/vulkan/Forward.h",
+              "src/dawn_native/vulkan/MemoryAllocator.cpp",
+              "src/dawn_native/vulkan/MemoryAllocator.h",
+              "src/dawn_native/vulkan/MemoryResourceAllocatorVk.cpp",
+              "src/dawn_native/vulkan/MemoryResourceAllocatorVk.h",
+              "src/dawn_native/vulkan/NativeSwapChainImplVk.cpp",
+              "src/dawn_native/vulkan/NativeSwapChainImplVk.h",
+              "src/dawn_native/vulkan/PipelineLayoutVk.cpp",
+              "src/dawn_native/vulkan/PipelineLayoutVk.h",
+              "src/dawn_native/vulkan/QueueVk.cpp",
+              "src/dawn_native/vulkan/QueueVk.h",
+              "src/dawn_native/vulkan/RenderPassCache.cpp",
+              "src/dawn_native/vulkan/RenderPassCache.h",
+              "src/dawn_native/vulkan/RenderPipelineVk.cpp",
+              "src/dawn_native/vulkan/RenderPipelineVk.h",
+              "src/dawn_native/vulkan/ResourceMemoryVk.cpp",
+              "src/dawn_native/vulkan/ResourceMemoryVk.h",
+              "src/dawn_native/vulkan/SamplerVk.cpp",
+              "src/dawn_native/vulkan/SamplerVk.h",
+              "src/dawn_native/vulkan/ShaderModuleVk.cpp",
+              "src/dawn_native/vulkan/ShaderModuleVk.h",
+              "src/dawn_native/vulkan/StagingBufferVk.cpp",
+              "src/dawn_native/vulkan/StagingBufferVk.h",
+              "src/dawn_native/vulkan/SwapChainVk.cpp",
+              "src/dawn_native/vulkan/SwapChainVk.h",
+              "src/dawn_native/vulkan/TextureVk.cpp",
+              "src/dawn_native/vulkan/TextureVk.h",
+              "src/dawn_native/vulkan/UtilsVulkan.cpp",
+              "src/dawn_native/vulkan/UtilsVulkan.h",
+              "src/dawn_native/vulkan/VulkanBackend.cpp",
+              "src/dawn_native/vulkan/VulkanError.cpp",
+              "src/dawn_native/vulkan/VulkanError.h",
+              "src/dawn_native/vulkan/VulkanFunctions.cpp",
+              "src/dawn_native/vulkan/VulkanFunctions.h",
+              "src/dawn_native/vulkan/VulkanInfo.cpp",
+              "src/dawn_native/vulkan/VulkanInfo.h",
+              "src/dawn_native/vulkan/external_memory/MemoryService.h",
+              "src/dawn_native/vulkan/external_semaphore/SemaphoreService.h",
+            ],
+            ".",
+            "$dawn_root")
+    if (is_linux) {
+      sources += rebase_path(
+              [
+                "src/dawn_native/vulkan/external_memory/MemoryServiceOpaqueFD.cpp",
+                "src/dawn_native/vulkan/external_semaphore/SemaphoreServiceOpaqueFD.cpp",
+              ],
+              ".",
+              "$dawn_root")
+    } else {
+      sources += rebase_path(
+              [
+                "src/dawn_native/vulkan/external_memory/MemoryServiceNull.cpp",
+                "src/dawn_native/vulkan/external_semaphore/SemaphoreServiceNull.cpp",
+              ],
+              ".",
+              "$dawn_root")
+    }
   }
 }
 

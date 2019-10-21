@@ -20,8 +20,7 @@ std::unique_ptr<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTarg
         sk_sp<GrSurfaceProxy> proxy, GrColorType colorType, sk_sp<SkColorSpace> colorSpace,
         const SkSurfaceProps* props) {
     // Since this is at flush time and these won't be allocated for us by the GrResourceAllocator
-    // we have to manually ensure it is allocated here. The proxy had best have been created
-    // with the kNoPendingIO flag!
+    // we have to manually ensure it is allocated here.
     if (!this->instatiateProxy(proxy.get())) {
         return nullptr;
     }
@@ -50,8 +49,9 @@ void GrOnFlushResourceProvider::addTextureResolveTask(sk_sp<GrTextureProxy> text
         renderTask->makeClosed(*this->caps());
     }
     auto task = static_cast<GrTextureResolveRenderTask*>(fDrawingMgr->fOnFlushRenderTasks.push_back(
-            sk_make_sp<GrTextureResolveRenderTask>(std::move(textureProxy), resolveFlags)).get());
-    task->init(*this->caps());
+            sk_make_sp<GrTextureResolveRenderTask>()).get());
+    task->addProxy(textureProxy, resolveFlags, *this->caps());
+    task->makeClosed(*this->caps());
 }
 
 bool GrOnFlushResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key,
@@ -122,11 +122,7 @@ sk_sp<const GrGpuBuffer> GrOnFlushResourceProvider::findOrMakeStaticBuffer(
 
     auto resourceProvider = direct->priv().resourceProvider();
 
-    sk_sp<const GrGpuBuffer> buffer =
-            resourceProvider->findOrMakeStaticBuffer(intendedType, size, data, key);
-    // Static buffers should never have pending IO.
-    SkASSERT(!buffer || !buffer->resourcePriv().hasPendingIO_debugOnly());
-    return buffer;
+    return resourceProvider->findOrMakeStaticBuffer(intendedType, size, data, key);
 }
 
 uint32_t GrOnFlushResourceProvider::contextID() const {

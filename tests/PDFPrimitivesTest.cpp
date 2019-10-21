@@ -145,6 +145,13 @@ static void TestPDFUnion(skiatest::Reporter* reporter) {
     SkString highBitString("\xDE\xAD" "be\xEF");
     SkPDFUnion highBitName = SkPDFUnion::Name(highBitString);
     assert_emit_eq(reporter, highBitName, "/#DE#ADbe#EF");
+
+    // https://bugs.skia.org/9508
+    // https://crbug.com/494913
+    // Trailing '\0' characters must be removed.
+    const char nameInput4[] = "Test name with nil\0";
+    SkPDFUnion name4 = SkPDFUnion::Name(SkString(nameInput4, strlen(nameInput4) + 1));
+    assert_emit_eq(reporter, name4, "/Test#20name#20with#20nil");
 }
 
 static void TestPDFArray(skiatest::Reporter* reporter) {

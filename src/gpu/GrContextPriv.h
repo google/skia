@@ -126,7 +126,8 @@ public:
             GrMipMapped = GrMipMapped::kNo,
             GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
             const SkSurfaceProps* surfaceProps = nullptr,
-            SkBudgeted budgeted = SkBudgeted::kYes);
+            SkBudgeted budgeted = SkBudgeted::kYes,
+            GrProtected isProtected = GrProtected::kNo);
 
     GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
 
@@ -227,6 +228,10 @@ public:
         return fContext->fShaderErrorHandler;
     }
 
+    GrClientMappedBufferManager* clientMappedBufferManager() {
+        return fContext->fMappedBufferManager.get();
+    }
+
 #if GR_TEST_UTILS
     /** Reset GPU stats */
     void resetGpuStats() const ;
@@ -259,15 +264,6 @@ public:
 
     void testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCallbackObject*);
 #endif
-
-    // If possible, create a backend texture initialized with the provided pixmap data. The client
-    // should ensure that the returned backend texture is valid.
-    // If successful, the created backend texture will be compatible with the provided
-    // pixmap(s).
-    // If numLevels is 1 a non-mipMapped texture will result. If a mipMapped texture is desired
-    // the data for all the mipmap levels must be provided.
-    GrBackendTexture createBackendTexture(const SkPixmap srcData[], int numLevels,
-                                          GrRenderable, GrProtected);
 
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}

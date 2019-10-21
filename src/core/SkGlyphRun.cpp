@@ -25,23 +25,16 @@ SkGlyphRun::SkGlyphRun(const SkFont& font,
                        SkSpan<const SkGlyphID> glyphIDs,
                        SkSpan<const char> text,
                        SkSpan<const uint32_t> clusters)
-        : fPositions{positions}
-        , fGlyphIDs{glyphIDs}
+        : fSource{SkMakeZip(glyphIDs, positions)}
         , fText{text}
         , fClusters{clusters}
         , fFont{font} {}
 
 SkGlyphRun::SkGlyphRun(const SkGlyphRun& that, const SkFont& font)
-    : fPositions{that.fPositions}
-    , fGlyphIDs{that.fGlyphIDs}
+    : fSource{that.fSource}
     , fText{that.fText}
     , fClusters{that.fClusters}
     , fFont{font} {}
-
-void SkGlyphRun::filloutGlyphsAndPositions(SkGlyphID* glyphIDs, SkPoint* positions) {
-    memcpy(glyphIDs, fGlyphIDs.data(), fGlyphIDs.size_bytes());
-    memcpy(positions, fPositions.data(), fPositions.size_bytes());
-}
 
 // -- SkGlyphRunList -------------------------------------------------------------------------------
 SkGlyphRunList::SkGlyphRunList() = default;
@@ -50,16 +43,16 @@ SkGlyphRunList::SkGlyphRunList(
         const SkTextBlob* blob,
         SkPoint origin,
         SkSpan<const SkGlyphRun> glyphRunList)
-        : fOriginalPaint{&paint}
+        : fGlyphRuns{glyphRunList}
+        , fOriginalPaint{&paint}
         , fOriginalTextBlob{blob}
-        , fOrigin{origin}
-        , fGlyphRuns{glyphRunList} { }
+        , fOrigin{origin} { }
 
 SkGlyphRunList::SkGlyphRunList(const SkGlyphRun& glyphRun, const SkPaint& paint)
-        : fOriginalPaint{&paint}
+        : fGlyphRuns{SkSpan<const SkGlyphRun>{&glyphRun, 1}}
+        , fOriginalPaint{&paint}
         , fOriginalTextBlob{nullptr}
-        , fOrigin{SkPoint::Make(0, 0)}
-        , fGlyphRuns{SkSpan<const SkGlyphRun>{&glyphRun, 1}} {}
+        , fOrigin{SkPoint::Make(0, 0)} {}
 
 uint64_t SkGlyphRunList::uniqueID() const {
     return fOriginalTextBlob != nullptr ? fOriginalTextBlob->uniqueID()

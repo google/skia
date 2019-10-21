@@ -235,7 +235,7 @@ default initialized <a href='SkPaint_Reference#Paint'>Paint</a>
 
 ### Example
 
-<div><fiddle-embed name="c4b2186d85c142a481298f7144295ffd"></fiddle-embed></div>
+<div><fiddle-embed name="@Paint_empty_constructor"></fiddle-embed></div>
 
 <a name='SkPaint_copy_const_SkPaint'></a>
 
@@ -267,7 +267,7 @@ shallow copy of <a href='#SkPaint_copy_const_SkPaint_paint'>paint</a>
 
 ### Example
 
-<div><fiddle-embed name="b99971ad0ef243d617925289d963b62d">
+<div><fiddle-embed name="@Paint_copy_const_SkPaint">
 
 #### Example Output
 
@@ -304,7 +304,7 @@ content of <a href='#SkPaint_move_SkPaint_paint'>paint</a>
 
 ### Example
 
-<div><fiddle-embed name="8ed1488a503cd5282b86a51614aa90b1">
+<div><fiddle-embed name="@Paint_move_SkPaint">
 
 #### Example Output
 
@@ -327,7 +327,7 @@ Sets all <a href='SkPaint_Reference#SkPaint'>SkPaint</a> contents to their initi
 
 ### Example
 
-<div><fiddle-embed name="ef269937ade7e7353635121d9a64f9f7">
+<div><fiddle-embed name="@Paint_reset">
 
 #### Example Output
 
@@ -379,7 +379,7 @@ content of <a href='#SkPaint_copy_operator_paint'>paint</a>
 
 ### Example
 
-<div><fiddle-embed name="b476a9088f80dece176ed577807d3992">
+<div><fiddle-embed name="@Paint_copy_operator">
 
 #### Example Output
 
@@ -418,7 +418,7 @@ content of <a href='#SkPaint_move_operator_paint'>paint</a>
 
 ### Example
 
-<div><fiddle-embed name="9fb7459b097d713f5f1fe5675afe14f5">
+<div><fiddle-embed name="@Paint_move_operator">
 
 #### Example Output
 
@@ -456,7 +456,7 @@ true if <a href='SkPaint_Reference#SkPaint'>SkPaint</a> pair are equivalent
 
 ### Example
 
-<div><fiddle-embed name="7481a948e34672720337a631830586dd">
+<div><fiddle-embed name="@Paint_equal_operator">
 
 #### Example Output
 
@@ -499,7 +499,7 @@ true if <a href='SkPaint_Reference#SkPaint'>SkPaint</a> pair are not equivalent
 
 ### Example
 
-<div><fiddle-embed name="b6c8484b1187f555b435ad5369833be4">
+<div><fiddle-embed name="@Paint_notequal_operator">
 
 #### Example Output
 
@@ -538,7 +538,7 @@ a shallow hash
 
 ### Example
 
-<div><fiddle-embed name="7f7e1b701361912b344f90ae6b530393">
+<div><fiddle-embed name="@Paint_getHash">
 
 #### Example Output
 
@@ -759,7 +759,7 @@ at compile time.
 
 ### Example
 
-<div><fiddle-embed name="a6575a49467ce8d28bb01cc7638fa04d"><div>A red <a href='undocumented#Line'>line</a> is drawn with transparency on the edges to make it look smoother.
+<div><fiddle-embed name="@Anti_Alias"><div>A red <a href='undocumented#Line'>line</a> is drawn with transparency on the edges to make it look smoother.
 A blue <a href='undocumented#Line'>line</a> draws only where the <a href='undocumented#Pixel'>pixel</a> centers are contained.
 The <a href='undocumented#Line'>lines</a> are drawn into <a href='SkBitmap_Reference#Bitmap'>Bitmap</a>, then drawn magnified to make the
 <a href='undocumented#Alias'>Aliasing</a> easier to see.
@@ -850,13 +850,13 @@ Some platform implementations may ignore dithering. Set <code>SK_IGNORE_GPU_DITH
 
 ### Example
 
-<div><fiddle-embed name="8b26507690b71462f44642b911890bbf"><div>Dithering in the bottom half more closely approximates the requested <a href='SkColor_Reference#Color'>color</a> by
+<div><fiddle-embed name="@Dither_a"><div>Dithering in the bottom half more closely approximates the requested <a href='SkColor_Reference#Color'>color</a> by
 alternating nearby colors from <a href='undocumented#Pixel'>pixel</a> to <a href='undocumented#Pixel'>pixel</a>.
 </div></fiddle-embed></div>
 
 ### Example
 
-<div><fiddle-embed name="76d4d4a7931a48495e4d5f54e073be53"><div>Dithering introduces subtle adjustments to <a href='SkColor_Reference#Color'>color</a> to smooth gradients.
+<div><fiddle-embed name="@Dither_b"><div>Dithering introduces subtle adjustments to <a href='SkColor_Reference#Color'>color</a> to smooth gradients.
 Drawing the gradient repeatedly with <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kPlus'>kPlus</a> exaggerates the
 dither, making it easier to see.
 </div></fiddle-embed></div>
@@ -1447,7 +1447,7 @@ and when <a href='SkPaint_Reference#Paint'>Paint</a> has a <a href='undocumented
 
 ### Example
 
-<div><fiddle-embed name="69369cff2f5b145a6f616092513266a0"></fiddle-embed></div>
+<div><fiddle-embed name="@Filter_Quality_Methods"></fiddle-embed></div>
 
 <a name='SkPaint_getFilterQuality'></a>
 
@@ -1468,7 +1468,7 @@ one of: <a href='undocumented#kNone_SkFilterQuality'>kNone_SkFilterQuality</a>, 
 
 ### Example
 
-<div><fiddle-embed name="d4ca1f23809b6835c4ba46ea98a86900">
+<div><fiddle-embed name="@Paint_getFilterQuality">
 
 #### Example Output
 
@@ -1501,7 +1501,7 @@ Does not check to see if <a href='#SkPaint_setFilterQuality_quality'>quality</a>
 
 ### Example
 
-<div><fiddle-embed name="e4288fabf24ee60b645e8bb6ea0afadf">
+<div><fiddle-embed name="@Paint_setFilterQuality">
 
 #### Example Output
 
@@ -1542,7 +1542,7 @@ a different arrangement.
 
 ### Example
 
-<div><fiddle-embed name="214b559d75c65a7bef6ef4be1f860053"></fiddle-embed></div>
+<div><fiddle-embed name="@Color_Methods"></fiddle-embed></div>
 
 <a name='SkPaint_getColor'></a>
 
@@ -1562,7 +1562,7 @@ a <a href='SkColor_Reference#Color'>color</a> component.
 
 ### Example
 
-<div><fiddle-embed name="72d41f890203109a41f589a7403acae9">
+<div><fiddle-embed name="@Paint_getColor">
 
 #### Example Output
 
@@ -1593,7 +1593,7 @@ are extended sRGB values (sRGB gamut, and encoded with the sRGB transfer functio
 
 ### Example
 
-<div><fiddle-embed name="8512ea2176f36e8f1aeef311ff228790">
+<div><fiddle-embed name="@Paint_getColor4f">
 
 #### Example Output
 
@@ -1627,7 +1627,7 @@ Sets <a href='SkColor_Reference#Alpha'>alpha</a> and RGB used when stroking and 
 
 ### Example
 
-<div><fiddle-embed name="6e70f18300bd676a3c056ceb6b62f8df">
+<div><fiddle-embed name="@Paint_setColor">
 
 #### Example Output
 
@@ -1666,7 +1666,7 @@ sRGB  <a href='undocumented#Color_Space'>color space</a>.
 
 ### Example
 
-<div><fiddle-embed name="fa60859e3d03bdc117a05b32e093a8f1">
+<div><fiddle-embed name="@Paint_setColor4f">
 
 #### Example Output
 
@@ -1700,7 +1700,7 @@ Retrieves <a href='SkColor_Reference#Alpha'>alpha</a> from the <a href='SkColor_
 
 ### Example
 
-<div><fiddle-embed name="9a85bb62fe3d877b18fb7f952c4fa7f7">
+<div><fiddle-embed name="@Paint_getAlpha">
 
 #### Example Output
 
@@ -1733,7 +1733,7 @@ fully opaque.
 
 ### Example
 
-<div><fiddle-embed name="6ddc0360512dfb9947e75c17e6a8103d">
+<div><fiddle-embed name="@Paint_setAlpha">
 
 #### Example Output
 
@@ -1772,7 +1772,7 @@ The <a href='SkColor_Reference#Color'>color</a> is <a href='undocumented#Unpremu
 
 ### Example
 
-<div><fiddle-embed name="cb62e4755789ed32f7120dc55984959d">
+<div><fiddle-embed name="@Paint_setARGB">
 
 #### Example Output
 
@@ -1916,7 +1916,7 @@ one of:<a href='#SkPaint_kFill_Style'>kFill_Style</a>, <a href='#SkPaint_kStroke
 
 ### Example
 
-<div><fiddle-embed name="1c5e18c3c0102d2dac86a78ba8c8ce01">
+<div><fiddle-embed name="@Paint_getStyle">
 
 #### Example Output
 
@@ -1950,7 +1950,7 @@ Has no effect if <a href='#SkPaint_setStyle_style'>style</a> is not a legal <a h
 
 ### Example
 
-<div><fiddle-embed name="c7bb6248e4735b8d1a32d02fba40d344"></fiddle-embed></div>
+<div><fiddle-embed name="@Paint_setStyle"></fiddle-embed></div>
 
 ### See Also
 
@@ -1975,7 +1975,7 @@ The default width for the <a href='SkPaint_Reference#Paint'>paint</a> is zero.
 
 ### Example
 
-<div><fiddle-embed name="5112c7209a19e035c61cef33a624a652" gpu="true"><div>The pixels hit to represent thin <a href='undocumented#Line'>lines</a> vary with the angle of the
+<div><fiddle-embed name="@Stroke_Width" gpu="true"><div>The pixels hit to represent thin <a href='undocumented#Line'>lines</a> vary with the angle of the
 <a href='undocumented#Line'>line</a> and the platform implementation.
 </div></fiddle-embed></div>
 
@@ -1996,7 +1996,7 @@ zero for hairline, greater than zero for pen thickness
 
 ### Example
 
-<div><fiddle-embed name="99aa73f64df8bbf06e656cd891a81b9e">
+<div><fiddle-embed name="@Paint_getStrokeWidth">
 
 #### Example Output
 
@@ -2027,7 +2027,7 @@ Has no effect if <a href='#SkPaint_setStrokeWidth_width'>width</a> is less than 
 
 ### Example
 
-<div><fiddle-embed name="0c4446c0870b5c7b5a2efe77ff92afb8">
+<div><fiddle-embed name="@Paint_setStrokeWidth">
 
 #### Example Output
 
@@ -2075,7 +2075,7 @@ Here are some miter limits and the angles that triggers them.
 
 ### Example
 
-<div><fiddle-embed name="5de2de0f00354e59074a9bb1a42d5a63"><div>This example draws a stroked corner and the miter length beneath.
+<div><fiddle-embed name="@Miter_Limit"><div>This example draws a stroked corner and the miter length beneath.
 When the  <a href='#Miter_Limit'>miter limit</a> is decreased slightly, the miter join is replaced
 by a bevel join.
 </div></fiddle-embed></div>
@@ -2096,7 +2096,7 @@ zero and greater miter limit
 
 ### Example
 
-<div><fiddle-embed name="50da74a43b725f07a914df588c867d36">
+<div><fiddle-embed name="@Paint_getStrokeMiter">
 
 #### Example Output
 
@@ -2131,7 +2131,7 @@ Has no effect if <a href='#SkPaint_setStrokeMiter_miter'>miter</a> is less than 
 
 ### Example
 
-<div><fiddle-embed name="700b284dbc97785c6a9c9636088713ad">
+<div><fiddle-embed name="@Paint_setStrokeMiter">
 
 #### Example Output
 
@@ -2239,7 +2239,7 @@ at the <a href='SkPath_Overview#Contour'>contour</a> <a href='SkPoint_Reference#
 
 ### Example
 
-<div><fiddle-embed name="2bffb6384cc20077e632e7d01da045ca"></fiddle-embed></div>
+<div><fiddle-embed name="@Paint_053"></fiddle-embed></div>
 
 <a name='SkPaint_getStrokeCap'></a>
 
@@ -2257,7 +2257,7 @@ one of: <a href='#SkPaint_kButt_Cap'>kButt_Cap</a>, <a href='#SkPaint_kRound_Cap
 
 ### Example
 
-<div><fiddle-embed name="aabf9baee8e026fae36fca30e955512b">
+<div><fiddle-embed name="@Paint_getStrokeCap">
 
 #### Example Output
 
@@ -2292,7 +2292,7 @@ has no effect if <a href='#SkPaint_setStrokeCap_cap'>cap</a> is not valid
 
 ### Example
 
-<div><fiddle-embed name="de83fbd848a4625345b4b87a6e55d98a">
+<div><fiddle-embed name="@Paint_setStrokeCap_a">
 
 #### Example Output
 
@@ -2319,7 +2319,7 @@ the following <a href='undocumented#Curve'>curve</a>, the pair of <a href='undoc
 
 ### Example
 
-<div><fiddle-embed name="917c44b504d3f9308571fd3835d90a0d"></fiddle-embed></div>
+<div><fiddle-embed name="@Paint_setStrokeCap_b"></fiddle-embed></div>
 
 <a name='SkPaint_Join'></a>
 
@@ -2404,7 +2404,7 @@ May be used to verify that <a href='#Paint_Stroke_Join'>Stroke_Join</a> is a leg
 
 ### Example
 
-<div><fiddle-embed name="3b1aebacc21c1836a52876b9b0b3905e"></fiddle-embed></div>
+<div><fiddle-embed name="@Paint_057"></fiddle-embed></div>
 
 ### See Also
 
@@ -2426,7 +2426,7 @@ one of: <a href='#SkPaint_kMiter_Join'>kMiter_Join</a>, <a href='#SkPaint_kRound
 
 ### Example
 
-<div><fiddle-embed name="31bf751d0a8ddf176b871810820d8199">
+<div><fiddle-embed name="@Paint_getStrokeJoin">
 
 #### Example Output
 
@@ -2461,7 +2461,7 @@ otherwise, has no effect
 
 ### Example
 
-<div><fiddle-embed name="48d963ad4286eddf680f9c511eb6da91">
+<div><fiddle-embed name="@Paint_setStrokeJoin">
 
 #### Example Output
 
@@ -2539,7 +2539,7 @@ true if the <a href='SkPath_Reference#Path'>path</a> represents  <a href='#Style
 
 ### Example
 
-<div><fiddle-embed name="cedd6233848198e1fca4d1e14816baaf"><div>A very small <a href='SkPath_Reference#Quad'>Quad</a> stroke is turned into a filled <a href='SkPath_Reference#Path'>path</a> with increasing levels of precision.
+<div><fiddle-embed name="@Paint_getFillPath"><div>A very small <a href='SkPath_Reference#Quad'>Quad</a> stroke is turned into a filled <a href='SkPath_Reference#Path'>path</a> with increasing levels of precision.
 At the lowest precision, the <a href='SkPath_Reference#Quad'>Quad</a> stroke is approximated by a rectangle.
 At the highest precision, the filled <a href='SkPath_Reference#Path'>path</a> has high fidelity compared to the original stroke.
 </div></fiddle-embed></div>
@@ -2573,7 +2573,7 @@ true if the <a href='SkPath_Reference#Path'>path</a> represents  <a href='#Style
 
 ### Example
 
-<div><fiddle-embed name="e6d8ca0cc17e0b475bd54dd995825468"></fiddle-embed></div>
+<div><fiddle-embed name="@Paint_getFillPath_2"></fiddle-embed></div>
 
 <a name='Shader_Methods'></a>
 
@@ -2591,13 +2591,13 @@ The drawn transparency can be modified without altering <a href='undocumented#Sh
 
 ### Example
 
-<div><fiddle-embed name="c015dc2010c15e1c00b4f7330232b0f7"></fiddle-embed></div>
+<div><fiddle-embed name="@Shader_Methods_a"></fiddle-embed></div>
 
 If <a href='undocumented#Shader'>Shader</a> generates only <a href='#Color_Alpha'>Color_Alpha</a> then all components of <a href='SkColor_Reference#Color'>Color</a> modulate the output.
 
 ### Example
 
-<div><fiddle-embed name="fe80fd80b98a20823db7fb9a077243c7"></fiddle-embed></div>
+<div><fiddle-embed name="@Shader_Methods_b"></fiddle-embed></div>
 
 <a name='SkPaint_getShader'></a>
 
@@ -2617,7 +2617,7 @@ Does not alter <a href='undocumented#SkShader'>SkShader</a> <a href='undocumente
 
 ### Example
 
-<div><fiddle-embed name="09f15b9fd88882850da2d235eb86292f">
+<div><fiddle-embed name="@Paint_getShader">
 
 #### Example Output
 
@@ -2646,7 +2646,7 @@ Increases <a href='undocumented#SkShader'>SkShader</a> <a href='undocumented#SkR
 
 ### Example
 
-<div><fiddle-embed name="53da0295972a418cbc9607bbb17feaa8">
+<div><fiddle-embed name="@Paint_refShader">
 
 #### Example Output
 
@@ -2679,7 +2679,7 @@ Increments <a href='#SkPaint_setShader_shader'>shader</a> <a href='undocumented#
 
 ### Example
 
-<div><fiddle-embed name="77e64d5bae9b1ba037fd99252bb4aa58"></fiddle-embed></div>
+<div><fiddle-embed name="@Paint_setShader"></fiddle-embed></div>
 
 <a name='Color_Filter_Methods'></a>
 
@@ -2693,7 +2693,7 @@ The drawn transparency can be modified without altering <a href='#Color_Filter'>
 
 ### Example
 
-<div><fiddle-embed name="5abde56ca2f89a18b8e231abd1b57c56"></fiddle-embed></div>
+<div><fiddle-embed name="@Color_Filter_Methods"></fiddle-embed></div>
 
 <a name='SkPaint_getColorFilter'></a>
 
@@ -2712,7 +2712,7 @@ Does not alter <a href='undocumented#SkColorFilter'>SkColorFilter</a> <a href='u
 
 ### Example
 
-<div><fiddle-embed name="093bdc627d6b59002670fd290931f6c9">
+<div><fiddle-embed name="@Paint_getColorFilter">
 
 #### Example Output
 
@@ -2740,7 +2740,7 @@ Increases <a href='undocumented#SkColorFilter'>SkColorFilter</a> <a href='undocu
 
 ### Example
 
-<div><fiddle-embed name="b588c95fa4c86ddbc4b0546762f08297">
+<div><fiddle-embed name="@Paint_refColorFilter">
 
 #### Example Output
 
@@ -2773,7 +2773,7 @@ Increments filter <a href='undocumented#SkRefCnt'>SkRefCnt</a> by one.
 
 ### Example
 
-<div><fiddle-embed name="c7b786dc9b3501cd0eaba47494b6fa31"></fiddle-embed></div>
+<div><fiddle-embed name="@Paint_setColorFilter"></fiddle-embed></div>
 
 <a name='Blend_Mode_Methods'></a>
 
@@ -2785,7 +2785,7 @@ over the destination <a href='SkColor_Reference#Color'>color</a>.
 
 ### Example
 
-<div><fiddle-embed name="73092d4d06faecea3c204d852a4dd8a8"></fiddle-embed></div>
+<div><fiddle-embed name="@Blend_Mode_Methods"></fiddle-embed></div>
 
 ### See Also
 
@@ -2808,7 +2808,7 @@ mode used to combine source <a href='SkColor_Reference#Color'>color</a> with des
 
 ### Example
 
-<div><fiddle-embed name="a1e059c8f6740fa2044cc64152b39dda">
+<div><fiddle-embed name="@Paint_getBlendMode">
 
 #### Example Output
 
@@ -2835,7 +2835,7 @@ true if <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> is <a href='
 
 ### Example
 
-<div><fiddle-embed name="257c9473db7a2b3a0fb2b9e2431e59a6">
+<div><fiddle-embed name="@Paint_setBlendMode">
 
 #### Example Output
 
@@ -2866,7 +2866,7 @@ Does not check for valid input.
 
 ### Example
 
-<div><fiddle-embed name="257c9473db7a2b3a0fb2b9e2431e59a6">
+<div><fiddle-embed name="@Paint_setBlendMode">
 
 #### Example Output
 
@@ -2887,7 +2887,7 @@ If <a href='SkPaint_Reference#Paint'>Paint</a> has no <a href='#Path_Effect'>Pat
 
 ### Example
 
-<div><fiddle-embed name="8cf5684b187d60f09e11c4a48993ea39"></fiddle-embed></div>
+<div><fiddle-embed name="@Path_Effect_Methods"></fiddle-embed></div>
 
 ### See Also
 
@@ -2910,7 +2910,7 @@ Does not alter <a href='undocumented#SkPathEffect'>SkPathEffect</a> <a href='und
 
 ### Example
 
-<div><fiddle-embed name="211a1b14bfa6c4332082c8eab4fbc5fd">
+<div><fiddle-embed name="@Paint_getPathEffect">
 
 #### Example Output
 
@@ -2938,7 +2938,7 @@ Increases <a href='undocumented#SkPathEffect'>SkPathEffect</a> <a href='undocume
 
 ### Example
 
-<div><fiddle-embed name="f56039b94c702c2704c8c5100e623aca">
+<div><fiddle-embed name="@Paint_refPathEffect">
 
 #### Example Output
 
@@ -2971,7 +2971,7 @@ Increments <a href='#SkPaint_setPathEffect_pathEffect'>pathEffect</a> <a href='u
 
 ### Example
 
-<div><fiddle-embed name="52dd55074ca0b7d520d04e750ca2a0d7"></fiddle-embed></div>
+<div><fiddle-embed name="@Paint_setPathEffect"></fiddle-embed></div>
 
 <a name='Mask_Filter_Methods'></a>
 
@@ -2986,7 +2986,7 @@ modifying the draw.
 
 ### Example
 
-<div><fiddle-embed name="55d7b9d482ac8e17a6153f555a8adb8d"></fiddle-embed></div>
+<div><fiddle-embed name="@Mask_Filter_Methods"></fiddle-embed></div>
 
 <a name='SkPaint_getMaskFilter'></a>
 
@@ -3005,7 +3005,7 @@ Does not alter <a href='undocumented#SkMaskFilter'>SkMaskFilter</a> <a href='und
 
 ### Example
 
-<div><fiddle-embed name="5ac4b31371726da87bb7390b385e9fee">
+<div><fiddle-embed name="@Paint_getMaskFilter">
 
 #### Example Output
 
@@ -3034,7 +3034,7 @@ Increases <a href='undocumented#SkMaskFilter'>SkMaskFilter</a> <a href='undocume
 
 ### Example
 
-<div><fiddle-embed name="084b0dc3cebd78718c651d58f257f799">
+<div><fiddle-embed name="@Paint_refMaskFilter">
 
 #### Example Output
 
@@ -3068,7 +3068,7 @@ Increments <a href='#SkPaint_setMaskFilter_maskFilter'>maskFilter</a> <a href='u
 
 ### Example
 
-<div><fiddle-embed name="a993831c40f3e134f809134e3b74e4a6"></fiddle-embed></div>
+<div><fiddle-embed name="@Paint_setMaskFilter"></fiddle-embed></div>
 
 <a name='Typeface_Methods'></a>
 
@@ -3176,7 +3176,7 @@ can operate on all channels of <a href='SkColor_Reference#Color'>Color</a>, whil
 
 ### Example
 
-<div><fiddle-embed name="ece04ee3d3761e3425f37c8f06f054c1"></fiddle-embed></div>
+<div><fiddle-embed name="@Image_Filter_Methods"></fiddle-embed></div>
 
 <a name='SkPaint_getImageFilter'></a>
 
@@ -3195,7 +3195,7 @@ Does not alter <a href='undocumented#SkImageFilter'>SkImageFilter</a> <a href='u
 
 ### Example
 
-<div><fiddle-embed name="c11f8eaa1dd149bc18db21e23ce26904">
+<div><fiddle-embed name="@Paint_getImageFilter">
 
 #### Example Output
 
@@ -3223,7 +3223,7 @@ Increases <a href='undocumented#SkImageFilter'>SkImageFilter</a> <a href='undocu
 
 ### Example
 
-<div><fiddle-embed name="13f09088b569251547107d14ae989dc1">
+<div><fiddle-embed name="@Paint_refImageFilter">
 
 #### Example Output
 
@@ -3272,7 +3272,7 @@ Set <a href='#Draw_Looper'>Draw_Looper</a> to nullptr to prevent <a href='#Draw_
 
 ### Example
 
-<div><fiddle-embed name="84ec12a36e50df5ac565cc7a75ffbe9f"></fiddle-embed></div>
+<div><fiddle-embed name="@Draw_Looper_Methods"></fiddle-embed></div>
 
 <a name='SkPaint_getDrawLooper'></a>
 
@@ -3291,7 +3291,7 @@ Does not alter <a href='undocumented#SkDrawLooper'>SkDrawLooper</a> <a href='und
 
 ### Example
 
-<div><fiddle-embed name="af4c5acc7a91e7f23c2af48018903ad4">
+<div><fiddle-embed name="@Paint_getDrawLooper">
 
 #### Example Output
 
@@ -3319,7 +3319,7 @@ Increases <a href='undocumented#SkDrawLooper'>SkDrawLooper</a> <a href='undocume
 
 ### Example
 
-<div><fiddle-embed name="2a3782c33f04ed17a725d0e449c6f7c3">
+<div><fiddle-embed name="@Paint_refDrawLooper">
 
 #### Example Output
 
@@ -3353,7 +3353,7 @@ Increments <a href='#SkPaint_setDrawLooper_drawLooper'>drawLooper</a> <a href='u
 
 ### Example
 
-<div><fiddle-embed name="bf10f838b330f0a3a3266d42ea68a638"></fiddle-embed></div>
+<div><fiddle-embed name="@Paint_setDrawLooper"></fiddle-embed></div>
 
 <a name='Text_Size'></a>
 
@@ -4059,7 +4059,7 @@ true if <a href='SkPaint_Reference#SkPaint'>SkPaint</a> prevents all drawing
 
 ### Example
 
-<div><fiddle-embed name="2973b05bfbb6b4c29332c8ac4fcf3995">
+<div><fiddle-embed name="@Paint_nothingToDraw">
 
 #### Example Output
 

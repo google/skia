@@ -210,7 +210,7 @@ G8 over G8
 ↑ v1 = splat 3B808081 (0.0039215689)
   v2 = to_f32 v0
   v3 = mul_f32 v1 v2
-↑ v4 = splat 3F800000 (1)
+↟ v4 = splat 3F800000 (1)
   v5 = load8 arg(1)
   v6 = to_f32 v5
   v7 = mul_f32 v1 v6
@@ -730,8 +730,8 @@ r3 = add_i32 r2 r3
 store32 arg(1) r3
 
 6 values:
-↑ v0 = splat 1 (1.4012985e-45)
-↑ v1 = splat 2 (2.8025969e-45)
+↟ v0 = splat 1 (1.4012985e-45)
+↟ v1 = splat 2 (2.8025969e-45)
 ↑ v2 = add_i32 v0 v1
   v3 = load32 arg(0)
   v4 = mul_i32 v3 v2

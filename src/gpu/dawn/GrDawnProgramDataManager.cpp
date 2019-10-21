@@ -18,6 +18,8 @@ GrDawnProgramDataManager::GrDawnProgramDataManager(const UniformInfoArray& unifo
     , fFragmentUniformsDirty(false) {
     fGeometryUniformData.reset(geometryUniformSize);
     fFragmentUniformData.reset(fragmentUniformSize);
+    memset(fGeometryUniformData.get(), 0, fGeometryUniformSize);
+    memset(fFragmentUniformData.get(), 0, fFragmentUniformSize);
     int count = uniforms.count();
     fUniforms.push_back_n(count);
     // We must add uniforms in same order is the UniformInfoArray so that UniformHandles already
@@ -263,17 +265,26 @@ template<> struct set_uniform_matrix<4> {
     }
 };
 
-void GrDawnProgramDataManager::uploadUniformBuffers(GrDawnRingBuffer::Slice geometryBuffer,
+void GrDawnProgramDataManager::uploadUniformBuffers(GrDawnGpu* gpu,
+                                                    GrDawnRingBuffer::Slice geometryBuffer,
                                                     GrDawnRingBuffer::Slice fragmentBuffer) const {
-
     dawn::Buffer geom = geometryBuffer.fBuffer;
+    uint32_t geomOffset = geometryBuffer.fOffset;
     dawn::Buffer frag = fragmentBuffer.fBuffer;
+    uint32_t fragOffset = fragmentBuffer.fOffset;
+    auto copyEncoder = gpu->getCopyEncoder();
     if (geom && fGeometryUniformsDirty) {
-        geom.SetSubData(geometryBuffer.fOffset, fGeometryUniformSize,
-                        static_cast<const uint8_t*>(fGeometryUniformData.get()));
+        GrDawnStagingBuffer* stagingBuffer = gpu->getStagingBuffer(fGeometryUniformSize);
+        memcpy(stagingBuffer->fData, fGeometryUniformData.get(), fGeometryUniformSize);
+        stagingBuffer->fBuffer.Unmap();
+        copyEncoder
+            .CopyBufferToBuffer(stagingBuffer->fBuffer, 0, geom, geomOffset, fGeometryUniformSize);
     }
     if (frag && fFragmentUniformsDirty) {
-        frag.SetSubData(fragmentBuffer.fOffset, fFragmentUniformSize,
-                        static_cast<const uint8_t*>(fFragmentUniformData.get()));
+        GrDawnStagingBuffer* stagingBuffer = gpu->getStagingBuffer(fFragmentUniformSize);
+        memcpy(stagingBuffer->fData, fFragmentUniformData.get(), fFragmentUniformSize);
+        stagingBuffer->fBuffer.Unmap();
+        copyEncoder
+            .CopyBufferToBuffer(stagingBuffer->fBuffer, 0, frag, fragOffset, fFragmentUniformSize);
     }
 }

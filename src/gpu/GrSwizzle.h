@@ -24,9 +24,6 @@ public:
 
     static constexpr GrSwizzle Concat(const GrSwizzle& a, const GrSwizzle& b);
 
-    /** Recreates a GrSwizzle from the output of asKey() */
-    constexpr void setFromKey(uint16_t key);
-
     constexpr bool operator==(const GrSwizzle& that) const { return fKey == that.fKey; }
     constexpr bool operator!=(const GrSwizzle& that) const { return !(*this == that); }
 
@@ -98,16 +95,6 @@ constexpr SkRGBA4f<AlphaType> GrSwizzle::applyTo(const SkRGBA4f<AlphaType>& colo
     idx = (key & 15);
     float outA = ComponentIndexToFloat(color, idx);
     return { outR, outG, outB, outA };
-}
-
-/** Recreates a GrSwizzle from the output of asKey() */
-constexpr void GrSwizzle::setFromKey(uint16_t key) {
-    fKey = key;
-    for (int i = 0; i < 4; ++i) {
-        fSwiz[i] = IToC(key & 15);
-        key >>= 4;
-    }
-    SkASSERT(fSwiz[4] == '\0');
 }
 
 template <SkAlphaType AlphaType>

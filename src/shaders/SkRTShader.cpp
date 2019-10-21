@@ -18,7 +18,7 @@
 #if SK_SUPPORT_GPU
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrColorSpaceInfo.h"
+#include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/SkGr.h"
 
@@ -59,7 +59,7 @@ bool SkRTShader::onAppendStages(const SkStageRec& rec) const {
     SkAutoMutexExclusive ama(fByteCodeMutex);
     if (!fByteCode) {
         SkSL::Compiler c;
-        auto prog = c.convertProgram(SkSL::Program::kGeneric_Kind,
+        auto prog = c.convertProgram(SkSL::Program::kPipelineStage_Kind,
                                      SkSL::String(fSkSL.c_str()),
                                      SkSL::Program::Settings());
         if (c.errorCount()) {

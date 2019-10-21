@@ -13,6 +13,10 @@
 #include "include/core/SkSurfaceProps.h"
 #include "src/core/SkNextID.h"
 
+#if SK_SUPPORT_GPU
+#include "include/private/GrTypesPriv.h"
+#endif
+
 class GrRecordingContext;
 class GrTextureProxy;
 class SkBitmap;
@@ -53,6 +57,7 @@ public:
 
     uint32_t uniqueID() const { return fUniqueID; }
     virtual SkAlphaType alphaType() const = 0;
+    virtual SkColorType colorType() const = 0;
     virtual size_t getSize() const = 0;
 
     /**
@@ -82,6 +87,7 @@ public:
                                                      const SkIRect& subset,
                                                      uint32_t uniqueID,
                                                      sk_sp<GrTextureProxy>,
+                                                     GrColorType,
                                                      sk_sp<SkColorSpace>,
                                                      const SkSurfaceProps* = nullptr,
                                                      SkAlphaType at = kPremul_SkAlphaType);

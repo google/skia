@@ -50,6 +50,7 @@ public:
      */
     void endFlush() override;
 
+    void onPrePrepare(GrRecordingContext*) override;
     /**
      * Together these two functions flush all queued up draws to GrCommandBuffer. The return value
      * of executeOps() indicates whether any commands were actually issued to the GPU.
@@ -117,8 +118,30 @@ private:
 
     void deleteOps();
 
-    // Must only be called if native stencil buffer clearing is enabled
-    void setStencilLoadOp(GrLoadOp op) { fStencilLoadOp = op; }
+    enum class StencilContent {
+        kDontCare,
+        kUserBitsCleared,  // User bits: cleared
+                           // Clip bit: don't care (Ganesh always pre-clears the clip bit.)
+        kPreserved
+    };
+
+    // Lets the caller specify what the content of the stencil buffer should be at the beginning
+    // of the render pass.
+    //
+    // When requesting kClear: Tilers will load the stencil buffer with a "clear" op; non-tilers
+    // will clear the stencil on first load, and then preserve it on subsequent loads. (Preserving
+    // works because renderTargetContexts are required to leave the user bits in a cleared state
+    // once finished.)
+    //
+    // NOTE: initialContent must not be kClear if caps.performStencilClearsAsDraws() is true.
+    void setInitialStencilContent(StencilContent initialContent) {
+        fInitialStencilContent = initialContent;
+    }
+
+    // If a renderTargetContext splits its opsTask, it uses this method to guarantee stencil values
+    // get preserved across its split tasks.
+    void setMustPreserveStencil() { fMustPreserveStencil = true; }
+
     // Must only be called if native color buffer clearing is enabled.
     void setColorLoadOp(GrLoadOp op, const SkPMColor4f& color);
     // Sets the clear color to transparent black
@@ -229,10 +252,7 @@ private:
 
     void forwardCombine(const GrCaps&);
 
-    ExpectedOutcome onMakeClosed(const GrCaps& caps) override {
-        this->forwardCombine(caps);
-        return (this->isNoOp()) ? ExpectedOutcome::kTargetUnchanged : ExpectedOutcome::kTargetDirty;
-    }
+    ExpectedOutcome onMakeClosed(const GrCaps& caps, SkIRect* targetUpdateBounds) override;
 
     friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive
 
@@ -250,7 +270,8 @@ private:
 
     GrLoadOp fColorLoadOp = GrLoadOp::kLoad;
     SkPMColor4f fLoadClearColor = SK_PMColor4fTRANSPARENT;
-    GrLoadOp fStencilLoadOp = GrLoadOp::kLoad;
+    StencilContent fInitialStencilContent = StencilContent::kDontCare;
+    bool fMustPreserveStencil = false;
 
     uint32_t fLastClipStackGenID;
     SkIRect fLastDevClipBounds;
@@ -270,6 +291,9 @@ private:
     // TODO: We could look into this being a set if we find we're adding a lot of duplicates that is
     // causing slow downs.
     SkTArray<GrTextureProxy*, true> fSampledProxies;
+
+    SkRect fTotalBounds = SkRect::MakeEmpty();
+    SkIRect fClippedContentBounds = SkIRect::MakeEmpty();
 };
 
 #endif

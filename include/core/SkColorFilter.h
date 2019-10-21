@@ -13,7 +13,7 @@
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkRefCnt.h"
 
-class GrColorSpaceInfo;
+class GrColorInfo;
 class GrFragmentProcessor;
 class GrRecordingContext;
 class SkBitmap;
@@ -67,7 +67,13 @@ public:
     virtual uint32_t getFlags() const { return 0; }
 
     SkColor filterColor(SkColor) const;
-    SkColor4f filterColor4f(const SkColor4f&, SkColorSpace*) const;
+
+    /**
+     * Converts the src color (in src colorspace), into the dst colorspace,
+     * then applies this filter to it, returning the filtered color in the dst colorspace.
+     */
+    SkColor4f filterColor4f(const SkColor4f& srcColor, SkColorSpace* srcCS,
+                            SkColorSpace* dstCS) const;
 
     /** Construct a colorfilter whose effect is to first apply the inner filter and then apply
      *  this filter, applied to the output of the inner filter.
@@ -90,7 +96,7 @@ public:
      *  A null return indicates that the color filter isn't implemented for the GPU backend.
      */
     virtual std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            GrRecordingContext*, const GrColorSpaceInfo& dstColorSpaceInfo) const;
+            GrRecordingContext*, const GrColorInfo& dstColorInfo) const;
 #endif
 
     bool affectsTransparentBlack() const {

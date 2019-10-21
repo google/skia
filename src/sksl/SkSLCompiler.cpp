@@ -210,7 +210,6 @@ Compiler::Compiler(Flags flags)
     ADD_TYPE(GSampler2DArrayShadow);
     ADD_TYPE(GSamplerCubeArrayShadow);
     ADD_TYPE(FragmentProcessor);
-    ADD_TYPE(SkRasterPipeline);
     ADD_TYPE(Sampler);
     ADD_TYPE(Texture2D);
 
@@ -924,6 +923,50 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 default:
                     break;
             }
+            break;
+        }
+        case Expression::kSwizzle_Kind: {
+            Swizzle& s = (Swizzle&) *expr;
+            // detect identity swizzles like foo.rgba
+            if ((int) s.fComponents.size() == s.fBase->fType.columns()) {
+                bool identity = true;
+                for (int i = 0; i < (int) s.fComponents.size(); ++i) {
+                    if (s.fComponents[i] != i) {
+                        identity = false;
+                        break;
+                    }
+                }
+                if (identity) {
+                    *outUpdated = true;
+                    if (!try_replace_expression(&b, iter, &s.fBase)) {
+                        *outNeedsRescan = true;
+                        return;
+                    }
+                    SkASSERT((*iter)->fKind == BasicBlock::Node::kExpression_Kind);
+                    break;
+                }
+            }
+            // detect swizzles of swizzles, e.g. replace foo.argb.r000 with foo.a000
+            if (s.fBase->fKind == Expression::kSwizzle_Kind) {
+                Swizzle& base = (Swizzle&) *s.fBase;
+                std::vector<int> final;
+                for (int c : s.fComponents) {
+                    if (c == SKSL_SWIZZLE_0 || c == SKSL_SWIZZLE_1) {
+                        final.push_back(c);
+                    } else {
+                        final.push_back(base.fComponents[c]);
+                    }
+                }
+                *outUpdated = true;
+                std::unique_ptr<Expression> replacement(new Swizzle(*fContext, base.fBase->clone(),
+                                                                    std::move(final)));
+                if (!try_replace_expression(&b, iter, &replacement)) {
+                    *outNeedsRescan = true;
+                    return;
+                }
+                SkASSERT((*iter)->fKind == BasicBlock::Node::kExpression_Kind);
+                break;
+            }
         }
         default:
             break;
@@ -1487,12 +1530,17 @@ bool Compiler::toH(Program& program, String name, OutputStream& out) {
     return result;
 }
 
+#endif
+
+#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 bool Compiler::toPipelineStage(const Program& program, String* out,
-                               std::vector<FormatArg>* outFormatArgs) {
+                               std::vector<FormatArg>* outFormatArgs,
+                               std::vector<GLSLFunction>* outFunctions) {
     SkASSERT(program.fIsOptimized);
     fSource = program.fSource.get();
     StringStream buffer;
-    PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer, outFormatArgs);
+    PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer, outFormatArgs,
+                                  outFunctions);
     bool result = cg.generateCode();
     fSource = nullptr;
     if (result) {
@@ -1500,7 +1548,6 @@ bool Compiler::toPipelineStage(const Program& program, String* out,
     }
     return result;
 }
-
 #endif
 
 std::unique_ptr<ByteCode> Compiler::toByteCode(Program& program) {

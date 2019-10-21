@@ -1191,7 +1191,7 @@ public:
         radius += halfWidth;
         this->setBounds(
                 {center.fX - radius, center.fY - radius, center.fX + radius, center.fY + radius},
-                HasAABloat::kYes, IsZeroArea::kNo);
+                HasAABloat::kYes, IsHairline::kNo);
         fVertCount = circle_type_to_vert_count(stroked);
         fIndexCount = circle_type_to_index_count(stroked);
         fAllFill = !stroked;
@@ -1522,7 +1522,7 @@ public:
         radius += halfWidth;
         this->setBounds(
                 {center.fX - radius, center.fY - radius, center.fX + radius, center.fY + radius},
-                HasAABloat::kYes, IsZeroArea::kNo);
+                HasAABloat::kYes, IsHairline::kNo);
         fVertCount = circle_type_to_vert_count(true);
         fIndexCount = circle_type_to_index_count(true);
     }
@@ -1817,7 +1817,7 @@ public:
                                                         params.fCenter.fX + params.fXRadius,
                                                         params.fCenter.fY + params.fYRadius)});
 
-        this->setBounds(fEllipses.back().fDevBounds, HasAABloat::kYes, IsZeroArea::kNo);
+        this->setBounds(fEllipses.back().fDevBounds, HasAABloat::kYes, IsHairline::kNo);
 
         // Outset bounds to include half-pixel width antialiasing.
         fEllipses[0].fDevBounds.outset(SK_ScalarHalf, SK_ScalarHalf);
@@ -2066,7 +2066,7 @@ public:
                                          params.fCenter.fX + params.fXRadius + geoDx,
                                          params.fCenter.fY + params.fYRadius + geoDy)});
         this->setTransformedBounds(fEllipses[0].fBounds, viewMatrix, HasAABloat::kYes,
-                                   IsZeroArea::kNo);
+                                   IsHairline::kNo);
     }
 
     const char* name() const override { return "DIEllipseOp"; }
@@ -2380,7 +2380,7 @@ public:
         outerRadius += SK_ScalarHalf;
         innerRadius -= SK_ScalarHalf;
 
-        this->setBounds(bounds, HasAABloat::kYes, IsZeroArea::kNo);
+        this->setBounds(bounds, HasAABloat::kYes, IsHairline::kNo);
 
         // Expand the rect for aa to generate correct vertices.
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
@@ -2726,7 +2726,7 @@ public:
 
         fStroked = stroked;
         fViewMatrixIfUsingLocalCoords = viewMatrix;
-        this->setBounds(bounds, HasAABloat::kYes, IsZeroArea::kNo);
+        this->setBounds(bounds, HasAABloat::kYes, IsHairline::kNo);
         // Expand the rect for aa in order to generate the correct vertices.
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
         fRRects.emplace_back(

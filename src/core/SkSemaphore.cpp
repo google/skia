@@ -9,42 +9,16 @@
 #include "src/core/SkLeanWindows.h"
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-    #include <mach/mach.h>
-
-    // We've got to teach TSAN that there is a happens-before edge between
-    // semaphore_signal() and semaphore_wait().
-    #if __has_feature(thread_sanitizer)
-        extern "C" void AnnotateHappensBefore(const char*, int, void*);
-        extern "C" void AnnotateHappensAfter (const char*, int, void*);
-    #else
-        static void AnnotateHappensBefore(const char*, int, void*) {}
-        static void AnnotateHappensAfter (const char*, int, void*) {}
-    #endif
+    #include <dispatch/dispatch.h>
 
     struct SkSemaphore::OSSemaphore {
-        semaphore_t fSemaphore;
+        dispatch_semaphore_t fSemaphore;
 
-        OSSemaphore()  {
-            semaphore_create(mach_task_self(), &fSemaphore, SYNC_POLICY_LIFO, 0/*initial count*/);
-        }
-        ~OSSemaphore() { semaphore_destroy(mach_task_self(), fSemaphore); }
+        OSSemaphore()  { fSemaphore = dispatch_semaphore_create(0/*initial count*/); }
+        ~OSSemaphore() { dispatch_release(fSemaphore); }
 
-        void signal(int n) {
-            while (n --> 0) {
-                AnnotateHappensBefore(__FILE__, __LINE__, &fSemaphore);
-                semaphore_signal(fSemaphore);
-            }
-        }
-        void wait() {
-            while (true) {
-                kern_return_t result = semaphore_wait(fSemaphore);
-                if (result == KERN_SUCCESS) {
-                    AnnotateHappensAfter(__FILE__, __LINE__, &fSemaphore);
-                    return;
-                }
-                SkASSERT(result == KERN_ABORTED);
-            }
-        }
+        void signal(int n) { while (n --> 0) { dispatch_semaphore_signal(fSemaphore); } }
+        void wait() { dispatch_semaphore_wait(fSemaphore, DISPATCH_TIME_FOREVER); }
     };
 #elif defined(SK_BUILD_FOR_WIN)
     struct SkSemaphore::OSSemaphore {

@@ -31,8 +31,6 @@
 #include "include/gpu/GrTypes.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkTo.h"
-#include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrGpu.h"
 
 class GrRenderTargetContext;
 
@@ -128,9 +126,8 @@ protected:
     void createYUVTextures(GrContext* context, GrBackendTexture yuvTextures[3]) {
         for (int i = 0; i < 3; ++i) {
             SkASSERT(fYUVBmps[i].width() == SkToInt(fYUVBmps[i].rowBytes()));
-            yuvTextures[i] = context->priv().createBackendTexture(&fYUVBmps[i].pixmap(), 1,
-                                                                  GrRenderable::kNo,
-                                                                  GrProtected::kNo);
+            yuvTextures[i] = context->createBackendTexture(&fYUVBmps[i].pixmap(), 1,
+                                                           GrRenderable::kNo, GrProtected::kNo);
         }
     }
 

@@ -83,8 +83,10 @@ DEF_SIMPLE_GPU_GM_BG(fpcoordinateoverride, ctx, rtCtx, canvas, 512, 512,
     SkBitmap bmp;
     GetResourceAsBitmap("images/mandrill_512_q075.jpg", &bmp);
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
+    GrColorType srcColorType = SkColorTypeToGrColorType(bmp.colorType());
     sk_sp<GrTextureProxy> texture = proxyProvider->createProxyFromBitmap(bmp, GrMipMapped::kNo);
-    std::unique_ptr<GrFragmentProcessor> imgFP = GrSimpleTextureEffect::Make(texture, SkMatrix());
+    std::unique_ptr<GrFragmentProcessor> imgFP = GrSimpleTextureEffect::Make(texture, srcColorType,
+                                                                             SkMatrix());
     auto fp = std::unique_ptr<GrFragmentProcessor>(new SampleCoordEffect(std::move(imgFP)));
 
     GrPaint grPaint;

@@ -83,7 +83,7 @@ SkImage_Lazy::Validator::Validator(sk_sp<SharedGenerator> gen, const SkIRect* su
         subset = &bounds;
     }
 
-    fInfo   = info.makeWH(subset->width(), subset->height());
+    fInfo   = info.makeDimensions(subset->size());
     fOrigin = SkIPoint::Make(subset->x(), subset->y());
     if (colorType || colorSpace) {
         if (colorType) {
@@ -254,7 +254,7 @@ sk_sp<SkImage> SkImage_Lazy::onMakeSubset(GrRecordingContext* context,
     SkASSERT(this->bounds().contains(subset));
     SkASSERT(this->bounds() != subset);
 
-    const SkIRect generatorSubset = subset.makeOffset(fOrigin.x(), fOrigin.y());
+    const SkIRect generatorSubset = subset.makeOffset(fOrigin);
     const SkColorType colorType = this->colorType();
     Validator validator(fSharedGenerator, &generatorSubset, &colorType, this->refColorSpace());
     return validator ? sk_sp<SkImage>(new SkImage_Lazy(&validator)) : nullptr;
@@ -321,7 +321,7 @@ sk_sp<SkImage> SkImage::DecodeToRaster(const void* encoded, size_t length, const
         if (!SkIRect::MakeWH(info.width(), info.height()).contains(*subset)) {
             return nullptr;
         }
-        info = info.makeWH(subset->width(), subset->height());
+        info = info.makeDimensions(subset->size());
         origin = {subset->x(), subset->y()};
     }
 
@@ -537,7 +537,8 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
         SkASSERT(GrMipMapped::kNo == proxy->mipMapped());
         *fUniqueKeyInvalidatedMessages.append() =
                 new GrUniqueKeyInvalidatedMessage(key, ctx->priv().contextID());
-        if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(ctx, proxy.get())) {
+        GrColorType srcColorType = SkColorTypeToGrColorType(this->colorType());
+        if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(ctx, proxy.get(), srcColorType)) {
             set_key_on_proxy(proxyProvider, mippedProxy.get(), proxy.get(), key);
             return mippedProxy;
         }

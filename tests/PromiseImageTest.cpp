@@ -431,8 +431,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
         auto format = ctx->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                   GrRenderable::kNo);
         textures.emplace_back(ctx->priv().resourceProvider()->createTexture(
-                desc, format, GrRenderable::kNo, 1, SkBudgeted::kYes, GrProtected::kNo,
-                GrResourceProvider::Flags::kNoPendingIO));
+                desc, format, GrRenderable::kNo, 1, GrMipMapped::kNo, SkBudgeted::kYes,
+                GrProtected::kNo));
         REPORTER_ASSERT(reporter, textures[i]);
     }
 

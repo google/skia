@@ -20,16 +20,19 @@
 #include "src/core/SkScan.h"
 
 static void fill_rect(const SkMatrix& ctm, const SkRasterClip& rc,
-                      const SkRect& r, SkBlitter* blitter) {
+                      const SkRect& r, SkBlitter* blitter, SkPath* scratchPath) {
     if (ctm.rectStaysRect()) {
         SkRect dr;
         ctm.mapRect(&dr, r);
         SkScan::FillRect(dr, rc, blitter);
     } else {
-        SkPath path;
-        path.addRect(r);
-        path.transform(ctm);
-        SkScan::FillPath(path, rc, blitter);
+        SkPoint pts[4];
+        r.toQuad(pts);
+        ctm.mapPoints(pts, pts, 4);
+
+        scratchPath->rewind();
+        scratchPath->addPoly(pts, 4, true);
+        SkScan::FillPath(*scratchPath, rc, blitter);
     }
 }
 
@@ -97,6 +100,7 @@ void SkDraw::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRe
     }
 
     auto blitter = SkCreateRasterPipelineBlitter(fDst, p, pipeline, isOpaque, &alloc);
+    SkPath scratchPath;
 
     for (int i = 0; i < count; ++i) {
         if (colors) {
@@ -111,6 +115,6 @@ void SkDraw::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRe
         mx.postConcat(*fMatrix);
 
         updator->update(mx, nullptr);
-        fill_rect(mx, *fRC, textures[i], blitter);
+        fill_rect(mx, *fRC, textures[i], blitter, &scratchPath);
     }
 }

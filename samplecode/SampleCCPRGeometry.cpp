@@ -82,7 +82,7 @@ class CCPRGeometryView::DrawCoverageCountOp : public GrDrawOp {
 public:
     DrawCoverageCountOp(CCPRGeometryView* view) : INHERITED(ClassID()), fView(view) {
         this->setBounds(SkRect::MakeIWH(fView->width(), fView->height()), GrOp::HasAABloat::kNo,
-                        GrOp::IsZeroArea::kNo);
+                        GrOp::IsHairline::kNo);
     }
 
     const char* name() const override {
@@ -195,7 +195,8 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
         // Visualize coverage count in main canvas.
         GrPaint paint;
         paint.addColorFragmentProcessor(
-                GrSimpleTextureEffect::Make(sk_ref_sp(ccbuff->asTextureProxy()), SkMatrix::I()));
+                GrSimpleTextureEffect::Make(sk_ref_sp(ccbuff->asTextureProxy()),
+                                            ccbuff->colorInfo().colorType(), SkMatrix::I()));
         paint.addColorFragmentProcessor(
                 skstd::make_unique<VisualizeCoverageCountFP>());
         paint.setPorterDuffXPFactory(SkBlendMode::kSrcOver);
@@ -335,7 +336,7 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
     }
 
     GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kPlus,
-                        state->drawOpArgs().fOutputSwizzle);
+                        state->drawOpArgs().outputSwizzle());
 
     std::unique_ptr<GrCCCoverageProcessor> proc;
     if (state->caps().shaderCaps()->geometryShaderSupport()) {

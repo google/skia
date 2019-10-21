@@ -52,7 +52,7 @@ protected:
             : GrDrawOp(classID)
             , fResources(std::move(resources)) {
         this->setBounds(SkRect::MakeIWH(drawBounds.width(), drawBounds.height()),
-                        GrOp::HasAABloat::kNo, GrOp::IsZeroArea::kNo);
+                        GrOp::HasAABloat::kNo, GrOp::IsHairline::kNo);
     }
 
     const sk_sp<const GrCCPerFlushResources> fResources;
@@ -90,7 +90,7 @@ public:
                                    srcProxy->textureSwizzle(), srcProxy->origin());
 
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc,
-                            flushState->drawOpArgs().fOutputSwizzle);
+                            flushState->drawOpArgs().outputSwizzle());
         GrPipeline::FixedDynamicState dynamicState;
         dynamicState.fPrimitiveProcessorTextures = &srcProxy;
 
@@ -133,7 +133,7 @@ public:
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         ProcessorType proc;
         GrPipeline pipeline(GrScissorTest::kEnabled, SkBlendMode::kPlus,
-                            flushState->drawOpArgs().fOutputSwizzle);
+                            flushState->drawOpArgs().outputSwizzle());
         fResources->filler().drawFills(flushState, &proc, pipeline, fFillBatchID, fDrawBounds);
         fResources->stroker().drawStrokes(flushState, &proc, fStrokeBatchID, fDrawBounds);
     }
@@ -487,8 +487,7 @@ void GrCCPerFlushResources::recordStencilResolveInstance(
     SkASSERT(GrCCAtlas::CoverageType::kA8_Multisample == this->renderedPathCoverageType());
     SkASSERT(fNextStencilResolveInstanceIdx < fEndStencilResolveInstance);
 
-    SkIRect atlasIBounds = clippedPathIBounds.makeOffset(
-            devToAtlasOffset.x(), devToAtlasOffset.y());
+    SkIRect atlasIBounds = clippedPathIBounds.makeOffset(devToAtlasOffset);
     if (GrFillRule::kEvenOdd == fillRule) {
         // Make even/odd fills counterclockwise. The resolve draw uses two-sided stencil, with
         // "nonzero" settings in front and "even/odd" settings in back.

@@ -63,6 +63,8 @@ public:
                              const GrShape& shape) const override;
     sk_sp<GrTextureProxy> filterMaskGPU(GrRecordingContext*,
                                         sk_sp<GrTextureProxy> srcProxy,
+                                        GrColorType srcColorType,
+                                        SkAlphaType srcAlphaType,
                                         const SkMatrix& ctm,
                                         const SkIRect& maskRect) const override;
 #endif
@@ -868,6 +870,8 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const GrShape& shape,
 
 sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* context,
                                                           sk_sp<GrTextureProxy> srcProxy,
+                                                          GrColorType srcColorType,
+                                                          SkAlphaType srcAlphaType,
                                                           const SkMatrix& ctm,
                                                           const SkIRect& maskRect) const {
     // 'maskRect' isn't snapped to the UL corner but the mask in 'src' is.
@@ -881,14 +885,15 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* co
     bool isNormalBlur = (kNormal_SkBlurStyle == fBlurStyle);
     auto renderTargetContext = SkGpuBlurUtils::GaussianBlur(context,
                                                             srcProxy,
+                                                            srcColorType,
+                                                            srcAlphaType,
                                                             SkIPoint::Make(0, 0),
                                                             nullptr,
                                                             clipRect,
                                                             SkIRect::EmptyIRect(),
                                                             xformedSigma,
                                                             xformedSigma,
-                                                            GrTextureDomain::kIgnore_Mode,
-                                                            kPremul_SkAlphaType);
+                                                            GrTextureDomain::kIgnore_Mode);
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -897,6 +902,7 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* co
         GrPaint paint;
         // Blend pathTexture over blurTexture.
         paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(std::move(srcProxy),
+                                                                       srcColorType,
                                                                        SkMatrix::I()));
         if (kInner_SkBlurStyle == fBlurStyle) {
             // inner:  dst = dst * src

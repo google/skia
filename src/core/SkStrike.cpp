@@ -13,6 +13,7 @@
 #include "include/private/SkMutex.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkTemplates.h"
+#include "src/core/SkEnumerate.h"
 #include "src/core/SkMakeUnique.h"
 #include <cctype>
 
@@ -20,12 +21,11 @@ SkStrike::SkStrike(
     const SkDescriptor& desc,
     std::unique_ptr<SkScalerContext> scaler,
     const SkFontMetrics& fontMetrics)
-    : fDesc{desc}
-    , fScalerContext{std::move(scaler)}
-    , fFontMetrics{fontMetrics}
-    , fIsSubpixel{fScalerContext->isSubpixel()}
-    , fAxisAlignment{fScalerContext->computeAxisAlignmentForHText()}
-{
+        : fDesc{desc}
+        , fScalerContext{std::move(scaler)}
+        , fFontMetrics{fontMetrics}
+        , fRoundingSpec{fScalerContext->isSubpixel(),
+                        fScalerContext->computeAxisAlignmentForHText()} {
     SkASSERT(fScalerContext != nullptr);
     fMemoryUsed = sizeof(*this);
 }
@@ -59,10 +59,9 @@ SkGlyph* SkStrike::glyph(SkGlyphID glyphID) {
 }
 
 SkGlyph* SkStrike::glyph(SkGlyphID glyphID, SkPoint position) {
-    const SkFixed maskX = (!fIsSubpixel || fAxisAlignment == kY_SkAxisAlignment) ? 0 : ~0;
-    const SkFixed maskY = (!fIsSubpixel || fAxisAlignment == kX_SkAxisAlignment) ? 0 : ~0;
-    SkFixed subX = SkScalarToFixed(position.x()) & maskX,
-            subY = SkScalarToFixed(position.y()) & maskY;
+    SkIPoint mask = fRoundingSpec.ignorePositionMask;
+    SkFixed subX = SkScalarToFixed(position.x()) & mask.x(),
+            subY = SkScalarToFixed(position.y()) & mask.y();
     return this->glyph(SkPackedGlyphID{glyphID, subX, subY});
 }
 
@@ -160,10 +159,6 @@ const SkGlyph* SkStrike::getCachedGlyphAnySubPix(SkGlyphID glyphID,
     return nullptr;
 }
 
-SkVector SkStrike::rounding() const {
-    return SkStrikeCommon::PixelRounding(fIsSubpixel, fAxisAlignment);
-}
-
 SkSpan<const SkGlyph*> SkStrike::metrics(SkSpan<const SkGlyphID> glyphIDs,
                                          const SkGlyph* results[]) {
     return this->internalPrepare(glyphIDs, kMetricsOnly, results);
@@ -184,6 +179,36 @@ SkStrike::prepareImages(SkSpan<const SkPackedGlyphID> glyphIDs, const SkGlyph* r
     }
 
     return {results, glyphIDs.size()};
+}
+
+void SkStrike::prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* drawables) {
+    for (auto t : SkMakeEnumerate(drawables->input())) {
+        size_t i; SkGlyphVariant packedID;
+        std::forward_as_tuple(i, std::tie(packedID, std::ignore)) = t;
+        SkGlyph* glyph = this->glyph(packedID);
+        if (!glyph->isEmpty()) {
+            const void* image = this->prepareImage(glyph);
+            // If the glyph is too large, then no image is created.
+            if (image != nullptr) {
+                drawables->push_back(glyph, i);
+            }
+        }
+    }
+}
+
+void SkStrike::prepareForDrawingPathsCPU(SkDrawableGlyphBuffer* drawables) {
+    for (auto t : SkMakeEnumerate(drawables->input())) {
+        size_t i; SkGlyphVariant packedID;
+        std::forward_as_tuple(i, std::tie(packedID, std::ignore)) = t;
+        SkGlyph* glyph = this->glyph(packedID);
+        if (!glyph->isEmpty()) {
+            const SkPath* path = this->preparePath(glyph);
+            // The glyph my not have a path.
+            if (path != nullptr) {
+                drawables->push_back(path, i);
+            }
+        }
+    }
 }
 
 // N.B. This glyphMetrics call culls all the glyphs which will not display based on a non-finite

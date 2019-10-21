@@ -11,7 +11,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/private/GrResourceKey.h"
 #include "include/private/SkNoncopyable.h"
-#include "src/gpu/GrColorSpaceInfo.h"
+#include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrSamplerState.h"
 
 class GrFragmentProcessor;
@@ -104,10 +104,11 @@ public:
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
-    GrColorType colorType() const { return fColorSpaceInfo.colorType(); }
-    SkAlphaType alphaType() const { return fColorSpaceInfo.alphaType(); }
-    SkColorSpace* colorSpace() const { return fColorSpaceInfo.colorSpace(); }
-    bool isAlphaOnly() const { return GrColorTypeIsAlphaOnly(fColorSpaceInfo.colorType()); }
+    const GrColorInfo& colorInfo() const { return fColorInfo; }
+    GrColorType colorType() const { return fColorInfo.colorType(); }
+    SkAlphaType alphaType() const { return fColorInfo.alphaType(); }
+    SkColorSpace* colorSpace() const { return fColorInfo.colorSpace(); }
+    bool isAlphaOnly() const { return GrColorTypeIsAlphaOnly(fColorInfo.colorType()); }
     bool domainNeedsDecal() const { return fDomainNeedsDecal; }
     // If the "texture" samples multiple images that have different resolutions (e.g. YUV420)
     virtual bool hasMixedResolutions() const { return false; }
@@ -116,11 +117,11 @@ protected:
     friend class GrTextureProducer_TestAccess;
 
     GrTextureProducer(GrRecordingContext* context, int width, int height,
-                      const GrColorSpaceInfo& csInfo, bool domainNeedsDecal)
+                      const GrColorInfo& colorInfo, bool domainNeedsDecal)
             : fContext(context)
             , fWidth(width)
             , fHeight(height)
-            , fColorSpaceInfo(csInfo)
+            , fColorInfo(colorInfo)
             , fDomainNeedsDecal(domainNeedsDecal) {}
 
     /** Helper for creating a key for a copy from an original key. */
@@ -191,7 +192,7 @@ private:
     GrRecordingContext* fContext;
     const int fWidth;
     const int fHeight;
-    const GrColorSpaceInfo fColorSpaceInfo;
+    const GrColorInfo fColorInfo;
     // If true, any domain effect uses kDecal instead of kClamp, and sampler filter uses
     // kClampToBorder instead of kClamp.
     const bool  fDomainNeedsDecal;

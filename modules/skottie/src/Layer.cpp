@@ -523,8 +523,10 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
     if (layerCtx->fCurrentMatte) {
         // There is a pending matte. Apply and reset.
         static constexpr sksg::MaskEffect::Mode gMaskModes[] = {
-            sksg::MaskEffect::Mode::kNormal, // tt: 1
-            sksg::MaskEffect::Mode::kInvert, // tt: 2
+            sksg::MaskEffect::Mode::kAlphaNormal, // tt: 1
+            sksg::MaskEffect::Mode::kAlphaInvert, // tt: 2
+            sksg::MaskEffect::Mode::kLumaNormal,  // tt: 3
+            sksg::MaskEffect::Mode::kLumaInvert,  // tt: 4
         };
         const auto matteType = ParseDefault<size_t>((*jlayer)["tt"], 1) - 1;
 

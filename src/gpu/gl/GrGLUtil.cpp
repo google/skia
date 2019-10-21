@@ -472,9 +472,6 @@ GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
             }
         }
 
-        if (0 == strcmp("Mesa Offscreen", rendererString)) {
-            return kOSMesa_GrGLRenderer;
-        }
         if (strstr(rendererString, "llvmpipe")) {
             return kGalliumLLVM_GrGLRenderer;
         }
@@ -617,7 +614,6 @@ bool GrGLFormatIsCompressed(GrGLFormat format) {
         case GrGLFormat::kRG8:
         case GrGLFormat::kRGB10_A2:
         case GrGLFormat::kRGBA4:
-        case GrGLFormat::kRGBA32F:
         case GrGLFormat::kSRGB8_ALPHA8:
         case GrGLFormat::kR16:
         case GrGLFormat::kRG16:
@@ -649,7 +645,6 @@ bool GrGLFormatToCompressionType(GrGLFormat format, SkImage::CompressionType* co
         case GrGLFormat::kRG8:
         case GrGLFormat::kRGB10_A2:
         case GrGLFormat::kRGBA4:
-        case GrGLFormat::kRGBA32F:
         case GrGLFormat::kSRGB8_ALPHA8:
         case GrGLFormat::kR16:
         case GrGLFormat::kRG16:
@@ -661,43 +656,3 @@ bool GrGLFormatToCompressionType(GrGLFormat format, SkImage::CompressionType* co
     SkUNREACHABLE;
 }
 
-size_t GrGLBytesPerFormat(GrGLFormat glFormat) {
-    switch (glFormat) {
-        case GrGLFormat::kLUMINANCE8:
-        case GrGLFormat::kALPHA8:
-        case GrGLFormat::kR8:
-            return 1;
-
-        case GrGLFormat::kRGB565:
-        case GrGLFormat::kRGBA4:
-        case GrGLFormat::kRG8:
-        case GrGLFormat::kR16F:
-        case GrGLFormat::kLUMINANCE16F:
-        case GrGLFormat::kR16:
-            return 2;
-
-        case GrGLFormat::kRGB8:
-            return 3;
-
-        case GrGLFormat::kRGBA8:
-        case GrGLFormat::kSRGB8_ALPHA8:
-        case GrGLFormat::kBGRA8:
-        case GrGLFormat::kRGB10_A2:
-        case GrGLFormat::kRG16:
-        case GrGLFormat::kRG16F:
-            return 4;
-
-        case GrGLFormat::kRGBA16F:
-        case GrGLFormat::kRGBA16:
-            return 8;
-
-        case GrGLFormat::kRGBA32F:
-            return 16;
-
-        case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
-        case GrGLFormat::kCOMPRESSED_ETC1_RGB8:
-        case GrGLFormat::kUnknown:
-            return 0;
-    }
-    SkUNREACHABLE;
-}

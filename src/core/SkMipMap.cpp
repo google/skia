@@ -14,6 +14,7 @@
 #include "include/private/SkImageInfoPriv.h"
 #include "include/private/SkNx.h"
 #include "include/private/SkTo.h"
+#include "include/private/SkVx.h"
 #include "src/core/SkMathPriv.h"
 #include <new>
 
@@ -66,7 +67,20 @@ struct ColorTypeFilter_8 {
     }
 };
 
-struct ColorTypeFilter_F16 {
+struct ColorTypeFilter_Alpha_F16 {
+    typedef uint16_t Type;
+    static Sk4f Expand(uint16_t x) {
+        return SkHalfToFloat_finite_ftz((uint64_t) x); // expand out to four lanes
+
+    }
+    static uint16_t Compact(const Sk4f& x) {
+        uint64_t r;
+        SkFloatToHalf_finite_ftz(x).store(&r);
+        return r & 0xFFFF;  // but ignore the extra 3 here
+    }
+};
+
+struct ColorTypeFilter_RGBA_F16 {
     typedef uint64_t Type; // SkHalf x4
     static Sk4f Expand(uint64_t x) {
         return SkHalfToFloat_finite_ftz(x);
@@ -75,6 +89,76 @@ struct ColorTypeFilter_F16 {
         uint64_t r;
         SkFloatToHalf_finite_ftz(x).store(&r);
         return r;
+    }
+};
+
+struct ColorTypeFilter_88 {
+    typedef uint16_t Type;
+    static uint32_t Expand(uint16_t x) {
+        return (x & 0xFF) | ((x & ~0xFF) << 8);
+    }
+    static uint16_t Compact(uint32_t x) {
+        return (x & 0xFF) | ((x >> 8) & ~0xFF);
+    }
+};
+
+struct ColorTypeFilter_1616 {
+    typedef uint32_t Type;
+    static uint64_t Expand(uint32_t x) {
+        return (x & 0xFFFF) | ((x & ~0xFFFF) << 16);
+    }
+    static uint16_t Compact(uint64_t x) {
+        return (x & 0xFFFF) | ((x >> 16) & ~0xFFFF);
+    }
+};
+
+struct ColorTypeFilter_F16F16 {
+    typedef uint32_t Type;
+    static Sk4f Expand(uint32_t x) {
+        return SkHalfToFloat_finite_ftz((uint64_t) x); // expand out to four lanes
+    }
+    static uint32_t Compact(const Sk4f& x) {
+        uint64_t r;
+        SkFloatToHalf_finite_ftz(x).store(&r);
+        return (uint32_t) (r & 0xFFFFFFFF);  // but ignore the extra 2 here
+    }
+};
+
+struct ColorTypeFilter_16161616 {
+    typedef uint64_t Type;
+    static skvx::Vec<4, uint32_t> Expand(uint64_t x) {
+        return skvx::cast<uint32_t>(skvx::Vec<4, uint16_t>::Load(&x));
+    }
+    static uint64_t Compact(const skvx::Vec<4, uint32_t>& x) {
+        uint64_t r;
+        skvx::cast<uint16_t>(x).store(&r);
+        return r;
+    }
+};
+
+struct ColorTypeFilter_16 {
+    typedef uint16_t Type;
+    static uint32_t Expand(uint16_t x) {
+        return x;
+    }
+    static uint16_t Compact(uint32_t x) {
+        return (uint16_t) x;
+    }
+};
+
+struct ColorTypeFilter_1010102 {
+    typedef uint32_t Type;
+    static uint64_t Expand(uint64_t x) {
+        return (((x      ) & 0x3ff)      ) |
+               (((x >> 10) & 0x3ff) << 20) |
+               (((x >> 20) & 0x3ff) << 40) |
+               (((x >> 30) & 0x3  ) << 60);
+    }
+    static uint32_t Compact(uint64_t x) {
+        return (((x      ) & 0x3ff)      ) |
+               (((x >> 20) & 0x3ff) << 10) |
+               (((x >> 40) & 0x3ff) << 20) |
+               (((x >> 60) & 0x3  ) << 30);
     }
 };
 
@@ -371,14 +455,84 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
             break;
         case kRGBA_F16Norm_SkColorType:
         case kRGBA_F16_SkColorType:
-            proc_1_2 = downsample_1_2<ColorTypeFilter_F16>;
-            proc_1_3 = downsample_1_3<ColorTypeFilter_F16>;
-            proc_2_1 = downsample_2_1<ColorTypeFilter_F16>;
-            proc_2_2 = downsample_2_2<ColorTypeFilter_F16>;
-            proc_2_3 = downsample_2_3<ColorTypeFilter_F16>;
-            proc_3_1 = downsample_3_1<ColorTypeFilter_F16>;
-            proc_3_2 = downsample_3_2<ColorTypeFilter_F16>;
-            proc_3_3 = downsample_3_3<ColorTypeFilter_F16>;
+            proc_1_2 = downsample_1_2<ColorTypeFilter_RGBA_F16>;
+            proc_1_3 = downsample_1_3<ColorTypeFilter_RGBA_F16>;
+            proc_2_1 = downsample_2_1<ColorTypeFilter_RGBA_F16>;
+            proc_2_2 = downsample_2_2<ColorTypeFilter_RGBA_F16>;
+            proc_2_3 = downsample_2_3<ColorTypeFilter_RGBA_F16>;
+            proc_3_1 = downsample_3_1<ColorTypeFilter_RGBA_F16>;
+            proc_3_2 = downsample_3_2<ColorTypeFilter_RGBA_F16>;
+            proc_3_3 = downsample_3_3<ColorTypeFilter_RGBA_F16>;
+            break;
+        case kR8G8_unorm_SkColorType:
+            proc_1_2 = downsample_1_2<ColorTypeFilter_88>;
+            proc_1_3 = downsample_1_3<ColorTypeFilter_88>;
+            proc_2_1 = downsample_2_1<ColorTypeFilter_88>;
+            proc_2_2 = downsample_2_2<ColorTypeFilter_88>;
+            proc_2_3 = downsample_2_3<ColorTypeFilter_88>;
+            proc_3_1 = downsample_3_1<ColorTypeFilter_88>;
+            proc_3_2 = downsample_3_2<ColorTypeFilter_88>;
+            proc_3_3 = downsample_3_3<ColorTypeFilter_88>;
+            break;
+        case kR16G16_unorm_SkColorType:
+            proc_1_2 = downsample_1_2<ColorTypeFilter_1616>;
+            proc_1_3 = downsample_1_3<ColorTypeFilter_1616>;
+            proc_2_1 = downsample_2_1<ColorTypeFilter_1616>;
+            proc_2_2 = downsample_2_2<ColorTypeFilter_1616>;
+            proc_2_3 = downsample_2_3<ColorTypeFilter_1616>;
+            proc_3_1 = downsample_3_1<ColorTypeFilter_1616>;
+            proc_3_2 = downsample_3_2<ColorTypeFilter_1616>;
+            proc_3_3 = downsample_3_3<ColorTypeFilter_1616>;
+            break;
+        case kA16_unorm_SkColorType:
+            proc_1_2 = downsample_1_2<ColorTypeFilter_16>;
+            proc_1_3 = downsample_1_3<ColorTypeFilter_16>;
+            proc_2_1 = downsample_2_1<ColorTypeFilter_16>;
+            proc_2_2 = downsample_2_2<ColorTypeFilter_16>;
+            proc_2_3 = downsample_2_3<ColorTypeFilter_16>;
+            proc_3_1 = downsample_3_1<ColorTypeFilter_16>;
+            proc_3_2 = downsample_3_2<ColorTypeFilter_16>;
+            proc_3_3 = downsample_3_3<ColorTypeFilter_16>;
+            break;
+        case kRGBA_1010102_SkColorType:
+            proc_1_2 = downsample_1_2<ColorTypeFilter_1010102>;
+            proc_1_3 = downsample_1_3<ColorTypeFilter_1010102>;
+            proc_2_1 = downsample_2_1<ColorTypeFilter_1010102>;
+            proc_2_2 = downsample_2_2<ColorTypeFilter_1010102>;
+            proc_2_3 = downsample_2_3<ColorTypeFilter_1010102>;
+            proc_3_1 = downsample_3_1<ColorTypeFilter_1010102>;
+            proc_3_2 = downsample_3_2<ColorTypeFilter_1010102>;
+            proc_3_3 = downsample_3_3<ColorTypeFilter_1010102>;
+            break;
+        case kA16_float_SkColorType:
+            proc_1_2 = downsample_1_2<ColorTypeFilter_Alpha_F16>;
+            proc_1_3 = downsample_1_3<ColorTypeFilter_Alpha_F16>;
+            proc_2_1 = downsample_2_1<ColorTypeFilter_Alpha_F16>;
+            proc_2_2 = downsample_2_2<ColorTypeFilter_Alpha_F16>;
+            proc_2_3 = downsample_2_3<ColorTypeFilter_Alpha_F16>;
+            proc_3_1 = downsample_3_1<ColorTypeFilter_Alpha_F16>;
+            proc_3_2 = downsample_3_2<ColorTypeFilter_Alpha_F16>;
+            proc_3_3 = downsample_3_3<ColorTypeFilter_Alpha_F16>;
+            break;
+        case kR16G16_float_SkColorType:
+            proc_1_2 = downsample_1_2<ColorTypeFilter_F16F16>;
+            proc_1_3 = downsample_1_3<ColorTypeFilter_F16F16>;
+            proc_2_1 = downsample_2_1<ColorTypeFilter_F16F16>;
+            proc_2_2 = downsample_2_2<ColorTypeFilter_F16F16>;
+            proc_2_3 = downsample_2_3<ColorTypeFilter_F16F16>;
+            proc_3_1 = downsample_3_1<ColorTypeFilter_F16F16>;
+            proc_3_2 = downsample_3_2<ColorTypeFilter_F16F16>;
+            proc_3_3 = downsample_3_3<ColorTypeFilter_F16F16>;
+            break;
+        case kR16G16B16A16_unorm_SkColorType:
+            proc_1_2 = downsample_1_2<ColorTypeFilter_16161616>;
+            proc_1_3 = downsample_1_3<ColorTypeFilter_16161616>;
+            proc_2_1 = downsample_2_1<ColorTypeFilter_16161616>;
+            proc_2_2 = downsample_2_2<ColorTypeFilter_16161616>;
+            proc_2_3 = downsample_2_3<ColorTypeFilter_16161616>;
+            proc_3_1 = downsample_3_1<ColorTypeFilter_16161616>;
+            proc_3_2 = downsample_3_2<ColorTypeFilter_16161616>;
+            proc_3_3 = downsample_3_3<ColorTypeFilter_16161616>;
             break;
         default:
             return nullptr;

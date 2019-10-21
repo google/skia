@@ -17,6 +17,7 @@
 #include "src/core/SkUtils.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrSurfaceProxy.h"
@@ -103,9 +104,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                     }
                                 }
 
+                                GrColorType grColorType = SkColorTypeToGrColorType(ii.colorType());
                                 auto dstContext = context->priv().makeWrappedSurfaceContext(
                                         std::move(dst),
-                                        SkColorTypeToGrColorType(ii.colorType()),
+                                        grColorType,
                                         ii.alphaType());
 
                                 bool result = false;
@@ -114,7 +116,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                 } else if (dRenderable == GrRenderable::kYes) {
                                     SkASSERT(dstContext->asRenderTargetContext());
                                     result = dstContext->asRenderTargetContext()->blitTexture(
-                                            src.get(), srcRect, dstPoint);
+                                            src.get(), grColorType, srcRect, dstPoint);
                                 }
 
                                 bool expectedResult = true;

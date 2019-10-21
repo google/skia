@@ -29,7 +29,7 @@
 #error "SkWuffsCodec should not #define WUFFS_IMPLEMENTATION"
 #endif
 #include "wuffs-v0.2.c"
-#if WUFFS_VERSION_BUILD_METADATA_COMMIT_COUNT < 1776
+#if WUFFS_VERSION_BUILD_METADATA_COMMIT_COUNT < 1942
 #error "Wuffs version is too old. Upgrade to the latest version."
 #endif
 
@@ -267,7 +267,7 @@ SkWuffsCodec::SkWuffsCodec(SkEncodedInfo&&                                      
       fFirstFrameIOPosition(imgcfg.first_frame_io_position()),
       fFrameConfig(wuffs_base__null_frame_config()),
       fPixelBuffer(pixbuf),
-      fIOBuffer(wuffs_base__null_io_buffer()),
+      fIOBuffer(wuffs_base__empty_io_buffer()),
       fIncrDecDst(nullptr),
       fIncrDecRowBytes(0),
       fFirstCallToIncrementalDecode(false),
@@ -674,7 +674,7 @@ static SkCodec::Result reset_and_decode_image_config(wuffs_gif__decoder*       d
         return SkCodec::kInternalError;
     }
     while (true) {
-        status = decoder->decode_image_config(imgcfg, b->reader());
+        status = decoder->decode_image_config(imgcfg, b);
         if (status == nullptr) {
             break;
         } else if (status != wuffs_base__suspension__short_read) {
@@ -712,7 +712,7 @@ SkCodec::Result SkWuffsCodec::resetDecoder() {
     if (!fStream->rewind()) {
         return SkCodec::kInternalError;
     }
-    fIOBuffer.meta = wuffs_base__null_io_buffer_meta();
+    fIOBuffer.meta = wuffs_base__empty_io_buffer_meta();
 
     SkCodec::Result result =
         reset_and_decode_image_config(fDecoder.get(), nullptr, &fIOBuffer, fStream.get());
@@ -777,7 +777,7 @@ std::unique_ptr<SkCodec> SkWuffsCodec_MakeFromStream(std::unique_ptr<SkStream> s
     uint8_t               buffer[SK_WUFFS_CODEC_BUFFER_SIZE];
     wuffs_base__io_buffer iobuf =
         wuffs_base__make_io_buffer(wuffs_base__make_slice_u8(buffer, SK_WUFFS_CODEC_BUFFER_SIZE),
-                                   wuffs_base__null_io_buffer_meta());
+                                   wuffs_base__empty_io_buffer_meta());
     wuffs_base__image_config imgcfg = wuffs_base__null_image_config();
 
     // Wuffs is primarily a C library, not a C++ one. Furthermore, outside of

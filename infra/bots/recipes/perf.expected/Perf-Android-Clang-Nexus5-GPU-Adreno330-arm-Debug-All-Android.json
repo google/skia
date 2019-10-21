@@ -1,7 +1,7 @@
 [
   {
     "cmd": [
-      "python",
+      "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -45,41 +45,91 @@
     "name": "mkdir /sdcard/revenge_of_the_skiabot/resources"
   },
   {
+    "cmd": [],
+    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources"
+  },
+  {
     "cmd": [
-      "python",
+      "vpython",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "listdir",
       "[START_DIR]/skia/resources",
-      "/sdcard/revenge_of_the_skiabot/resources"
+      "--recursive"
     ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
     "infra_step": true,
-    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources",
+    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources.list [START_DIR]/skia/resources",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@host   = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@device = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@for d, _, fs in os.walk(host):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  p = os.path.relpath(d, host)@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if p != '.' and p.startswith('.'):@@@",
-      "@@@STEP_LOG_LINE@python.inline@    continue@@@",
-      "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',@@@",
-      "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
-      "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skia/resources/.file3@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skia/resources/.ignore/file4@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skia/resources/file1@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skia/resources/subdir/file2@@@",
+      "@@@STEP_LOG_END@listdir@@@"
     ]
   },
   {
     "cmd": [
-      "python",
+      "/usr/bin/adb.1.0.35",
+      "push",
+      "[START_DIR]/skia/resources/.file3",
+      "/sdcard/revenge_of_the_skiabot/resources/.file3"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources.push [START_DIR]/skia/resources/.file3",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "push",
+      "[START_DIR]/skia/resources/file1",
+      "/sdcard/revenge_of_the_skiabot/resources/file1"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources.push [START_DIR]/skia/resources/file1",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "push",
+      "[START_DIR]/skia/resources/subdir/file2",
+      "/sdcard/revenge_of_the_skiabot/resources/subdir/file2"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources.push [START_DIR]/skia/resources/subdir/file2",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -93,7 +143,7 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -177,36 +227,86 @@
     "name": "mkdir /sdcard/revenge_of_the_skiabot/skps"
   },
   {
+    "cmd": [],
+    "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps"
+  },
+  {
     "cmd": [
-      "python",
+      "vpython",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "listdir",
       "[START_DIR]/skp",
-      "/sdcard/revenge_of_the_skiabot/skps"
+      "--recursive"
     ],
+    "infra_step": true,
+    "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps.list [START_DIR]/skp",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skp/.file3@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skp/.ignore/file4@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skp/file1@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skp/subdir/file2@@@",
+      "@@@STEP_LOG_END@listdir@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "push",
+      "[START_DIR]/skp/.file3",
+      "/sdcard/revenge_of_the_skiabot/skps/.file3"
+    ],
+    "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps",
+    "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps.push [START_DIR]/skp/.file3",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@host   = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@device = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@for d, _, fs in os.walk(host):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  p = os.path.relpath(d, host)@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if p != '.' and p.startswith('.'):@@@",
-      "@@@STEP_LOG_LINE@python.inline@    continue@@@",
-      "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',@@@",
-      "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
-      "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "push",
+      "[START_DIR]/skp/file1",
+      "/sdcard/revenge_of_the_skiabot/skps/file1"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps.push [START_DIR]/skp/file1",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "push",
+      "[START_DIR]/skp/subdir/file2",
+      "/sdcard/revenge_of_the_skiabot/skps/subdir/file2"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps.push [START_DIR]/skp/subdir/file2",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
@@ -227,7 +327,7 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -241,7 +341,7 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -325,36 +425,86 @@
     "name": "mkdir /sdcard/revenge_of_the_skiabot/images"
   },
   {
+    "cmd": [],
+    "name": "push [START_DIR]/skimage/* /sdcard/revenge_of_the_skiabot/images"
+  },
+  {
     "cmd": [
-      "python",
+      "vpython",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "listdir",
       "[START_DIR]/skimage",
-      "/sdcard/revenge_of_the_skiabot/images"
+      "--recursive"
     ],
+    "infra_step": true,
+    "name": "push [START_DIR]/skimage/* /sdcard/revenge_of_the_skiabot/images.list [START_DIR]/skimage",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skimage/.file3@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skimage/.ignore/file4@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skimage/file1@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/skimage/subdir/file2@@@",
+      "@@@STEP_LOG_END@listdir@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "push",
+      "[START_DIR]/skimage/.file3",
+      "/sdcard/revenge_of_the_skiabot/images/.file3"
+    ],
+    "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/skimage/* /sdcard/revenge_of_the_skiabot/images",
+    "name": "push [START_DIR]/skimage/* /sdcard/revenge_of_the_skiabot/images.push [START_DIR]/skimage/.file3",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@host   = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@device = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@for d, _, fs in os.walk(host):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  p = os.path.relpath(d, host)@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if p != '.' and p.startswith('.'):@@@",
-      "@@@STEP_LOG_LINE@python.inline@    continue@@@",
-      "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',@@@",
-      "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
-      "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "push",
+      "[START_DIR]/skimage/file1",
+      "/sdcard/revenge_of_the_skiabot/images/file1"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/skimage/* /sdcard/revenge_of_the_skiabot/images.push [START_DIR]/skimage/file1",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "push",
+      "[START_DIR]/skimage/subdir/file2",
+      "/sdcard/revenge_of_the_skiabot/images/subdir/file2"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/skimage/* /sdcard/revenge_of_the_skiabot/images.push [START_DIR]/skimage/subdir/file2",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
@@ -375,7 +525,7 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -389,7 +539,7 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -473,36 +623,86 @@
     "name": "mkdir /sdcard/revenge_of_the_skiabot/svgs"
   },
   {
+    "cmd": [],
+    "name": "push [START_DIR]/svg/* /sdcard/revenge_of_the_skiabot/svgs"
+  },
+  {
     "cmd": [
-      "python",
+      "vpython",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "listdir",
       "[START_DIR]/svg",
-      "/sdcard/revenge_of_the_skiabot/svgs"
+      "--recursive"
     ],
+    "infra_step": true,
+    "name": "push [START_DIR]/svg/* /sdcard/revenge_of_the_skiabot/svgs.list [START_DIR]/svg",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/svg/.file3@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/svg/.ignore/file4@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/svg/file1@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/svg/subdir/file2@@@",
+      "@@@STEP_LOG_END@listdir@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "push",
+      "[START_DIR]/svg/.file3",
+      "/sdcard/revenge_of_the_skiabot/svgs/.file3"
+    ],
+    "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/svg/* /sdcard/revenge_of_the_skiabot/svgs",
+    "name": "push [START_DIR]/svg/* /sdcard/revenge_of_the_skiabot/svgs.push [START_DIR]/svg/.file3",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@host   = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@device = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@for d, _, fs in os.walk(host):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  p = os.path.relpath(d, host)@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if p != '.' and p.startswith('.'):@@@",
-      "@@@STEP_LOG_LINE@python.inline@    continue@@@",
-      "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',@@@",
-      "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
-      "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "push",
+      "[START_DIR]/svg/file1",
+      "/sdcard/revenge_of_the_skiabot/svgs/file1"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/svg/* /sdcard/revenge_of_the_skiabot/svgs.push [START_DIR]/svg/file1",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "push",
+      "[START_DIR]/svg/subdir/file2",
+      "/sdcard/revenge_of_the_skiabot/svgs/subdir/file2"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/svg/* /sdcard/revenge_of_the_skiabot/svgs.push [START_DIR]/svg/subdir/file2",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {
@@ -730,7 +930,7 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",

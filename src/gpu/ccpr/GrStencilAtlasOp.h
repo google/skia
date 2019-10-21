@@ -68,7 +68,7 @@ private:
             , fEndStencilResolveInstance(endStencilResolveInstance)
             , fDrawBounds(drawBounds) {
         this->setBounds(SkRect::MakeIWH(fDrawBounds.width(), fDrawBounds.height()),
-                        GrOp::HasAABloat::kNo, GrOp::IsZeroArea::kNo);
+                        GrOp::HasAABloat::kNo, GrOp::IsHairline::kNo);
     }
 
     const sk_sp<const GrCCPerFlushResources> fResources;

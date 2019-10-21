@@ -28,8 +28,7 @@ GrMtlPipelineState::SamplerBindings::SamplerBindings(const GrSamplerState& state
                                                      GrTexture* texture,
                                                      GrMtlGpu* gpu)
         : fTexture(static_cast<GrMtlTexture*>(texture)->mtlTexture()) {
-    uint32_t maxMipMapLevel = texture->texturePriv().maxMipMapLevel();
-    fSampler = gpu->resourceProvider().findOrCreateCompatibleSampler(state, maxMipMapLevel);
+    fSampler = gpu->resourceProvider().findOrCreateCompatibleSampler(state);
 }
 
 GrMtlPipelineState::GrMtlPipelineState(
@@ -58,23 +57,24 @@ GrMtlPipelineState::GrMtlPipelineState(
 }
 
 void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
-                                 GrSurfaceOrigin origin,
-                                 const GrPrimitiveProcessor& primProc,
-                                 const GrPipeline& pipeline,
-                                 const GrTextureProxy* const primProcTextures[]) {
-    SkASSERT(primProcTextures || !primProc.numTextureSamplers());
+                                 const GrProgramInfo& programInfo) {
 
-    this->setRenderTargetState(renderTarget, origin);
-    fGeometryProcessor->setData(fDataManager, primProc,
-                                GrFragmentProcessor::CoordTransformIter(pipeline));
+    // Note: the Metal backend currently only supports fixed primProc textures
+    SkASSERT(!programInfo.hasDynamicPrimProcTextures());
+    auto proxies = programInfo.hasFixedPrimProcTextures() ? programInfo.fixedPrimProcTextures()
+                                                          : nullptr;
+
+    this->setRenderTargetState(renderTarget, programInfo.origin());
+    fGeometryProcessor->setData(fDataManager, programInfo.primProc(),
+                                GrFragmentProcessor::CoordTransformIter(programInfo.pipeline()));
     fSamplerBindings.reset();
-    for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-        const auto& sampler = primProc.textureSampler(i);
-        auto texture = static_cast<GrMtlTexture*>(primProcTextures[i]->peekTexture());
+    for (int i = 0; i < programInfo.primProc().numTextureSamplers(); ++i) {
+        const auto& sampler = programInfo.primProc().textureSampler(i);
+        auto texture = static_cast<GrMtlTexture*>(proxies[i]->peekTexture());
         fSamplerBindings.emplace_back(sampler.samplerState(), texture, fGpu);
     }
 
-    GrFragmentProcessor::Iter iter(pipeline);
+    GrFragmentProcessor::Iter iter(programInfo.pipeline());
     GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
     const GrFragmentProcessor* fp = iter.next();
     GrGLSLFragmentProcessor* glslFP = glslIter.next();
@@ -91,12 +91,13 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
 
     {
         SkIPoint offset;
-        GrTexture* dstTexture = pipeline.peekDstTexture(&offset);
+        GrTexture* dstTexture = programInfo.pipeline().peekDstTexture(&offset);
 
-        fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
+        fXferProcessor->setData(fDataManager, programInfo.pipeline().getXferProcessor(),
+                                dstTexture, offset);
     }
 
-    if (GrTextureProxy* dstTextureProxy = pipeline.dstTextureProxy()) {
+    if (GrTextureProxy* dstTextureProxy = programInfo.pipeline().dstTextureProxy()) {
         fSamplerBindings.emplace_back(GrSamplerState::ClampNearest(),
                                       dstTextureProxy->peekTexture(),
                                       fGpu);
@@ -105,9 +106,10 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
     SkASSERT(fNumSamplers == fSamplerBindings.count());
     fDataManager.resetDirtyBits();
 
-    if (pipeline.isStencilEnabled()) {
+    if (programInfo.pipeline().isStencilEnabled()) {
         SkASSERT(renderTarget->renderTargetPriv().getStencilAttachment());
-        fStencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(),
+        fStencil.reset(*programInfo.pipeline().getUserStencil(),
+                       programInfo.pipeline().hasStencilClip(),
                        renderTarget->renderTargetPriv().numStencilBits());
     }
 }
@@ -195,10 +197,15 @@ void GrMtlPipelineState::setDepthStencilState(id<MTLRenderCommandEncoder> render
             fGpu->resourceProvider().findOrCreateCompatibleDepthStencilState(fStencil, origin);
     if (!fStencil.isDisabled()) {
         if (fStencil.isTwoSided()) {
-            [renderCmdEncoder setStencilFrontReferenceValue:fStencil.front(origin).fRef
-                              backReferenceValue:fStencil.back(origin).fRef];
-        }
-        else {
+            if (@available(macOS 10.11, iOS 9.0, *)) {
+                [renderCmdEncoder setStencilFrontReferenceValue:fStencil.front(origin).fRef
+                                             backReferenceValue:fStencil.back(origin).fRef];
+            } else {
+                // Two-sided stencil not supported on older versions of iOS
+                // TODO: Find a way to recover from this
+                SkASSERT(false);
+            }
+        } else {
             [renderCmdEncoder setStencilReferenceValue:fStencil.frontAndBack().fRef];
         }
     }

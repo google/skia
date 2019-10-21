@@ -42,6 +42,15 @@ bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
         return false;
     }
 
+    if (info.colorType() == kR8G8_unorm_SkColorType ||
+        info.colorType() == kR16G16_unorm_SkColorType ||
+        info.colorType() == kR16G16_float_SkColorType ||
+        info.colorType() == kA16_unorm_SkColorType ||
+        info.colorType() == kA16_float_SkColorType ||
+        info.colorType() == kR16G16B16A16_unorm_SkColorType) {
+        return false;
+    }
+
     if (kIgnoreRowBytesValue == rowBytes) {
         return true;
     }
@@ -102,7 +111,7 @@ sk_sp<SkImage> SkSurface_Raster::onNewImageSnapshot(const SkIRect* subset) {
     if (subset) {
         SkASSERT(SkIRect::MakeWH(fBitmap.width(), fBitmap.height()).contains(*subset));
         SkBitmap dst;
-        dst.allocPixels(fBitmap.info().makeWH(subset->width(), subset->height()));
+        dst.allocPixels(fBitmap.info().makeDimensions(subset->size()));
         SkAssertResult(fBitmap.readPixels(dst.pixmap(), subset->left(), subset->top()));
         dst.setImmutable(); // key, so MakeFromBitmap doesn't make a copy of the buffer
         return SkImage::MakeFromBitmap(dst);

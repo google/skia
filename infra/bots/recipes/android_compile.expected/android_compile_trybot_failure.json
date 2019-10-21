@@ -8,9 +8,9 @@
       "--mmma_targets",
       "frameworks/base/core/jni,frameworks/base/libs/hwui,external/skia",
       "--issue",
-      "1234",
+      "456789",
       "--patchset",
-      "1"
+      "12"
     ],
     "name": "Trigger and wait for task on android compile server",
     "~followup_annotations": [
@@ -21,7 +21,7 @@
     "cmd": [
       "gsutil",
       "cat",
-      "gs://android-compile-tasks/cf_x86_phone-eng-1234-1.json"
+      "gs://android-compile-tasks/cf_x86_phone-eng-456789-12.json"
     ],
     "name": "Get task log links",
     "~followup_annotations": [

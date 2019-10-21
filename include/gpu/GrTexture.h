@@ -42,12 +42,6 @@ public:
                                     GrBackendTexture*,
                                     SkImage::BackendTextureReleaseProc*);
 
-#ifdef SK_DEBUG
-    void validate() const {
-        this->INHERITED::validate();
-    }
-#endif
-
     /** See addIdleProc. */
     enum class IdleState {
         kFlushed,
@@ -86,13 +80,13 @@ protected:
 
     SkTArray<sk_sp<GrRefCntedCallback>> fIdleProcs;
 
-    void willRemoveLastRefOrPendingIO() override {
+    void willRemoveLastRef() override {
         // We're about to be idle in the resource cache. Do our part to trigger the idle callbacks.
         fIdleProcs.reset();
     }
+    void computeScratchKey(GrScratchKey*) const override;
 
 private:
-    void computeScratchKey(GrScratchKey*) const override;
     size_t onGpuMemorySize() const override;
     void markMipMapsDirty();
     void markMipMapsClean();

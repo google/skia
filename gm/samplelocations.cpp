@@ -208,7 +208,7 @@ public:
 
 private:
     SampleLocationsTestOp(GradType gradType) : GrDrawOp(ClassID()), fGradType(gradType) {
-        this->setBounds(SkRect::MakeIWH(200, 200), HasAABloat::kNo, IsZeroArea::kNo);
+        this->setBounds(SkRect::MakeIWH(200, 200), HasAABloat::kNo, IsHairline::kNo);
     }
 
     const char* name() const override { return "SampleLocationsTestOp"; }
@@ -232,14 +232,20 @@ private:
         );
 
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrcOver,
-                            flushState->drawOpArgs().fOutputSwizzle,
+                            flushState->drawOpArgs().outputSwizzle(),
                             GrPipeline::InputFlags::kHWAntialias, &kStencilWrite);
+
+        SampleLocationsTestProcessor primProc(fGradType);
+
+        GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
+                                  flushState->drawOpArgs().origin(),
+                                  pipeline,
+                                  primProc,
+                                  nullptr, nullptr, 0);
 
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setInstanced(nullptr, 200*200, 0, 4);
-        flushState->opsRenderPass()->draw(
-                SampleLocationsTestProcessor(fGradType), pipeline, nullptr, nullptr, &mesh, 1,
-                SkRect::MakeIWH(200, 200));
+        flushState->opsRenderPass()->draw(programInfo, &mesh, 1, SkRect::MakeIWH(200, 200));
     }
 
     const GradType fGradType;
@@ -266,7 +272,7 @@ DrawResult SampleLocationsGM::onDraw(
     }
 
     auto offscreenRTC = ctx->priv().makeDeferredRenderTargetContext(
-            SkBackingFit::kExact, 200, 200, rtc->colorSpaceInfo().colorType(), nullptr,
+            SkBackingFit::kExact, 200, 200, rtc->colorInfo().colorType(), nullptr,
             rtc->numSamples(), GrMipMapped::kNo, fOrigin);
     if (!offscreenRTC) {
         *errorMsg = "Failed to create offscreen render target.";
@@ -304,9 +310,10 @@ DrawResult SampleLocationsGM::onDraw(
     // Copy offscreen texture to canvas.
     rtc->drawTexture(
             GrNoClip(), sk_ref_sp(offscreenRTC->asTextureProxy()),
-            GrSamplerState::Filter::kNearest, SkBlendMode::kSrc, SK_PMColor4fWHITE,
-            {0,0,200,200}, {0,0,200,200}, GrAA::kNo, GrQuadAAFlags::kNone,
-            SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint, SkMatrix::I(), nullptr);
+            offscreenRTC->colorInfo().colorType(), GrSamplerState::Filter::kNearest,
+            SkBlendMode::kSrc, SK_PMColor4fWHITE, {0,0,200,200}, {0,0,200,200}, GrAA::kNo,
+            GrQuadAAFlags::kNone, SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint,
+            SkMatrix::I(), nullptr);
 
     return skiagm::DrawResult::kOk;
 }

@@ -40,13 +40,13 @@ struct SkIPoint {
 
         @return  fX
     */
-    int32_t x() const { return fX; }
+    constexpr int32_t x() const { return fX; }
 
     /** Returns y-axis value of SkIPoint.
 
         @return  fY
     */
-    int32_t y() const { return fY; }
+    constexpr int32_t y() const { return fY; }
 
     /** Returns true if fX and fY are both zero.
 

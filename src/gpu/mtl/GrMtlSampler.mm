@@ -23,21 +23,24 @@ static inline MTLSamplerAddressMode wrap_mode_to_mtl_sampler_address(
         case GrSamplerState::WrapMode::kMirrorRepeat:
             return MTLSamplerAddressModeMirrorRepeat;
         case GrSamplerState::WrapMode::kClampToBorder:
-            // Must guard the reference to the clamp to border address mode by macro since iOS
-            // builds will fail if it's referenced, even if other code makes sure it's never used.
-#ifdef SK_BUILD_FOR_IOS
-            SkASSERT(false);
-            return MTLSamplerAddressModeClampToEdge;
-#else
-            SkASSERT(caps.clampToBorderSupport());
-            return MTLSamplerAddressModeClampToBorderColor;
+            // Must guard the reference to the clamp to border address mode by macro since iOS or
+            // older MacOS builds will fail if it's referenced, even if other code makes sure it's
+            // never used.
+#ifdef SK_BUILD_FOR_MAC
+            if (@available(macOS 10.12, *)) {
+                SkASSERT(caps.clampToBorderSupport());
+                return MTLSamplerAddressModeClampToBorderColor;
+            } else
 #endif
+            {
+                SkASSERT(false);
+                return MTLSamplerAddressModeClampToEdge;
+            }
     }
     SK_ABORT("Unknown wrap mode.");
 }
 
-GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, const GrSamplerState& samplerState,
-                                   uint32_t maxMipLevel) {
+GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, const GrSamplerState& samplerState) {
     static MTLSamplerMinMagFilter mtlMinMagFilterModes[] = {
         MTLSamplerMinMagFilterNearest,
         MTLSamplerMinMagFilterLinear,
@@ -58,33 +61,18 @@ GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, const GrSamplerState& sa
     samplerDesc.minFilter = mtlMinMagFilterModes[static_cast<int>(samplerState.filter())];
     samplerDesc.mipFilter = MTLSamplerMipFilterLinear;
     samplerDesc.lodMinClamp = 0.0f;
-    bool useMipMaps = GrSamplerState::Filter::kMipMap == samplerState.filter() && maxMipLevel > 0;
-    samplerDesc.lodMaxClamp = !useMipMaps ? 0.0f : (float)(maxMipLevel);
+    bool useMipMaps = GrSamplerState::Filter::kMipMap == samplerState.filter();
+    samplerDesc.lodMaxClamp = !useMipMaps ? 0.0f : 10000.0f;
     samplerDesc.maxAnisotropy = 1.0f;
     samplerDesc.normalizedCoordinates = true;
-    samplerDesc.compareFunction = MTLCompareFunctionNever;
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        samplerDesc.compareFunction = MTLCompareFunctionNever;
+    }
 
     return new GrMtlSampler([gpu->device() newSamplerStateWithDescriptor: samplerDesc],
-                            GenerateKey(samplerState, maxMipLevel));
+                            GenerateKey(samplerState));
 }
 
-GrMtlSampler::Key GrMtlSampler::GenerateKey(const GrSamplerState& samplerState,
-                                           uint32_t maxMipLevel) {
-    const int kTileModeXShift = 2;
-    const int kTileModeYShift = 4;
-    const int kMipLevelShift = 6;
-
-    SkASSERT(static_cast<int>(samplerState.filter()) <= 3);
-    Key samplerKey = static_cast<uint16_t>(samplerState.filter());
-
-    SkASSERT(static_cast<int>(samplerState.wrapModeX()) <= 3);
-    samplerKey |= (static_cast<uint16_t>(samplerState.wrapModeX()) << kTileModeXShift);
-
-    SkASSERT(static_cast<int>(samplerState.wrapModeY()) <= 3);
-    samplerKey |= (static_cast<uint16_t>(samplerState.wrapModeY()) << kTileModeYShift);
-
-    bool useMipMaps = GrSamplerState::Filter::kMipMap == samplerState.filter() && maxMipLevel > 0;
-    samplerKey |= (!useMipMaps ? 0 : (uint16_t) maxMipLevel) << kMipLevelShift;
-
-    return samplerKey;
+GrMtlSampler::Key GrMtlSampler::GenerateKey(const GrSamplerState& samplerState) {
+    return GrSamplerState::GenerateKey(samplerState);
 }

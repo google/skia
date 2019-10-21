@@ -15,9 +15,8 @@
 #include "src/gpu/GrColor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 
+class GrProgramInfo;
 class GrShaderCaps;
-class GrPipeline;
-class GrPrimitiveProcessor;
 
 /** This class describes a program to generate. It also serves as a program cache key */
 class GrProgramDesc {
@@ -26,21 +25,28 @@ public:
     GrProgramDesc() {}
 
     /**
-    * Builds a program descriptor. Before the descriptor can be used, the client must call finalize
-    * on the returned GrProgramDesc.
-    *
-    * @param GrPrimitiveProcessor The geometry
-    * @param hasPointSize Controls whether the shader will output a point size.
-    * @param GrPipeline  The optimized drawstate.  The descriptor will represent a program
-    *                        which this optstate can use to draw with.  The optstate contains
-    *                        general draw information, as well as the specific color, geometry,
-    *                        and coverage stages which will be used to generate the GL Program for
-    *                        this optstate.
-    * @param GrGpu          Ptr to the GrGpu object the program will be used with.
-    * @param GrProgramDesc  The built and finalized descriptor
-    **/
-    static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrPrimitiveProcessor&,
-                      bool hasPointSize, const GrPipeline&, GrGpu*);
+     * Builds a program descriptor. Before the descriptor can be used, the client must call finalize
+     * on the filled in GrProgramDesc.
+     *
+     * @param desc          The built and finalized descriptor
+     * @param renderTarget  The target of the draw
+     * @param programInfo   Program information need to build the key
+     * @param primitiveType Controls whether the shader will output a point size.
+     * @param gpu           Pointer to the GrGpu object the program will be used with.
+     **/
+    static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrProgramInfo&,
+                      GrPrimitiveType, GrGpu*);
+
+    // This is strictly an OpenGL call since the other backends have additional data in their
+    // keys
+    static bool BuildFromData(GrProgramDesc* desc, const void* keyData, size_t keyLength) {
+        if (!SkTFitsIn<int>(keyLength)) {
+            return false;
+        }
+        desc->fKey.reset(SkToInt(keyLength));
+        memcpy(desc->fKey.begin(), keyData, keyLength);
+        return true;
+    }
 
     // Returns this as a uint32_t array to be used as a key in the program cache.
     const uint32_t* asKey() const {
@@ -81,20 +87,12 @@ public:
         return !(*this == other);
     }
 
-    void setSurfaceOriginKey(int key) {
-        KeyHeader* header = this->atOffset<KeyHeader, kHeaderOffset>();
-        header->fSurfaceOriginKey = key;
-    }
+    // TODO: remove this use of the header
+    bool hasPointSize() const { return this->header().fHasPointSize; }
 
+protected:
     struct KeyHeader {
-        bool hasSurfaceOriginKey() const {
-            return SkToBool(fSurfaceOriginKey);
-        }
-        GrProcessor::CustomFeatures processorFeatures() const {
-            return (GrProcessor::CustomFeatures)fProcessorFeatures;
-        }
-
-        // Set to uniquely idenitify any swizzling of the shader's output color(s).
+        // Set to uniquely identify any swizzling of the shader's output color(s).
         uint16_t fOutputSwizzle;
         uint8_t fColorFragmentProcessorCnt; // Can be packed into 4 bits if required.
         uint8_t fCoverageFragmentProcessorCnt;
@@ -103,15 +101,12 @@ public:
         uint8_t fProcessorFeatures : 1;
         bool fSnapVerticesToPixelCenters : 1;
         bool fHasPointSize : 1;
-        bool fClampBlendInput : 1;
-        uint8_t fPad : 2;
+        uint8_t fPad : 3;
     };
     GR_STATIC_ASSERT(sizeof(KeyHeader) == 6);
 
-    // This should really only be used internally, base classes should return their own headers
     const KeyHeader& header() const { return *this->atOffset<KeyHeader, kHeaderOffset>(); }
 
-protected:
     template<typename T, size_t OFFSET> T* atOffset() {
         return reinterpret_cast<T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
     }

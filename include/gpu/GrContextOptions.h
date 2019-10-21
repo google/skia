@@ -183,6 +183,11 @@ struct SK_API GrContextOptions {
     bool fDisableDriverCorrectnessWorkarounds = false;
 
     /**
+     * Maximum number of GPU programs or pipelines to keep active in the runtime cache.
+     */
+    int fRuntimeProgramCacheSize = 256;
+
+    /**
      * Cache in which to store compiled shader binaries between runs.
      */
     PersistentCache* fPersistentCache = nullptr;
@@ -194,9 +199,6 @@ struct SK_API GrContextOptions {
      * Caching GLSL strings still saves CPU work when a GL program is created.
      */
     ShaderCacheStrategy fShaderCacheStrategy = ShaderCacheStrategy::kBackendBinary;
-
-    // Legacy flag until clients are updated to use fShaderCacheStrategy
-    bool fDisallowGLSLBinaryCaching = false;
 
     /**
      * If present, use this object to report shader compilation failures. If not, report failures

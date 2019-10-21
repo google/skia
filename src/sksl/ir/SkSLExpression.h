@@ -25,7 +25,6 @@ typedef std::unordered_map<const Variable*, std::unique_ptr<Expression>*> Defini
  */
 struct Expression : public IRNode {
     enum Kind {
-        kAppendStage_Kind,
         kBinary_Kind,
         kBoolLiteral_Kind,
         kConstructor_Kind,

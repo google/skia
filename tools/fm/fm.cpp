@@ -143,8 +143,7 @@ static void init(Source* source, std::shared_ptr<SkCodec> codec) {
     source->draw = [codec](SkCanvas* canvas) {
         SkImageInfo info = codec->getInfo();
         if (FLAGS_decodeToDst) {
-            info = canvas->imageInfo().makeWH(info.width(),
-                                              info.height());
+            info = canvas->imageInfo().makeDimensions(info.dimensions());
         }
 
         SkBitmap bm;
@@ -500,8 +499,7 @@ int main(int argc, char** argv) {
         fprintf(stdout, "%50s", source.name.c_str());
         fflush(stdout);
 
-        const SkImageInfo info = unsized_info.makeWH(source.size.width(),
-                                                     source.size.height());
+        const SkImageInfo info = unsized_info.makeDimensions(source.size);
 
         auto draw = [&source](SkCanvas* canvas) {
             Result result = source.draw(canvas);

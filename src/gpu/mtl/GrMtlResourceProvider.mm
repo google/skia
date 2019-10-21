@@ -7,6 +7,8 @@
 
 #include "src/gpu/mtl/GrMtlResourceProvider.h"
 
+#include "include/gpu/GrContextOptions.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlPipelineState.h"
@@ -29,20 +31,17 @@ GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
 #else
     int64_t maxBufferLength = 256*1024*1024;
 #endif
-#if GR_METAL_SDK_VERSION >= 200
-    if ([gpu->device() respondsToSelector:@selector(maxBufferLength)]) {
+    if (@available(iOS 12, macOS 10.14, *)) {
        maxBufferLength = gpu->device().maxBufferLength;
     }
-#endif
     fBufferSuballocatorMaxSize = maxBufferLength/16;
 }
 
 GrMtlPipelineState* GrMtlResourceProvider::findOrCreateCompatiblePipelineState(
-        GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
-        const GrPipeline& pipeline, const GrPrimitiveProcessor& proc,
-        const GrTextureProxy* const primProcProxies[], GrPrimitiveType primType) {
-    return fPipelineStateCache->refPipelineState(renderTarget, origin, proc, primProcProxies,
-                                                 pipeline, primType);
+        GrRenderTarget* renderTarget,
+        const GrProgramInfo& programInfo,
+        GrPrimitiveType primitiveType) {
+    return fPipelineStateCache->refPipelineState(renderTarget, programInfo, primitiveType);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,12 +59,11 @@ GrMtlDepthStencil* GrMtlResourceProvider::findOrCreateCompatibleDepthStencilStat
     return depthStencilState;
 }
 
-GrMtlSampler* GrMtlResourceProvider::findOrCreateCompatibleSampler(const GrSamplerState& params,
-                                                                   uint32_t maxMipLevel) {
+GrMtlSampler* GrMtlResourceProvider::findOrCreateCompatibleSampler(const GrSamplerState& params) {
     GrMtlSampler* sampler;
-    sampler = fSamplers.find(GrMtlSampler::GenerateKey(params, maxMipLevel));
+    sampler = fSamplers.find(GrMtlSampler::GenerateKey(params));
     if (!sampler) {
-        sampler = GrMtlSampler::Create(fGpu, params, maxMipLevel);
+        sampler = GrMtlSampler::Create(fGpu, params);
         fSamplers.add(sampler);
     }
     SkASSERT(sampler);
@@ -107,7 +105,7 @@ struct GrMtlResourceProvider::PipelineStateCache::Entry {
 };
 
 GrMtlResourceProvider::PipelineStateCache::PipelineStateCache(GrMtlGpu* gpu)
-    : fMap(kMaxEntries)
+    : fMap(gpu->getContext()->priv().options().fRuntimeProgramCacheSize)
     , fGpu(gpu)
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     , fTotalRequests(0)
@@ -137,24 +135,19 @@ void GrMtlResourceProvider::PipelineStateCache::release() {
 
 GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
         GrRenderTarget* renderTarget,
-        GrSurfaceOrigin origin,
-        const GrPrimitiveProcessor& primProc,
-        const GrTextureProxy* const primProcProxies[],
-        const GrPipeline& pipeline,
+        const GrProgramInfo& programInfo,
         GrPrimitiveType primType) {
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     ++fTotalRequests;
 #endif
+
+    // TODO: unify GL, VK and Mtl
     // Get GrMtlProgramDesc
     GrMtlPipelineStateBuilder::Desc desc;
-    if (!GrMtlPipelineStateBuilder::Desc::Build(&desc, renderTarget, primProc, pipeline, primType,
-                                                fGpu)) {
+    if (!GrMtlPipelineStateBuilder::Desc::Build(&desc, renderTarget, programInfo, primType, fGpu)) {
         GrCapsDebugf(fGpu->caps(), "Failed to build mtl program descriptor!\n");
         return nullptr;
     }
-    // If we knew the shader won't depend on origin, we could skip this (and use the same program
-    // for both origins). Instrumenting all fragment processors would be difficult and error prone.
-    desc.setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(origin));
 
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (!entry) {
@@ -162,8 +155,8 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
         ++fCacheMisses;
 #endif
         GrMtlPipelineState* pipelineState(GrMtlPipelineStateBuilder::CreatePipelineState(
-                fGpu, renderTarget, origin, primProc, primProcProxies, pipeline, &desc));
-        if (nullptr == pipelineState) {
+            fGpu, renderTarget, programInfo, &desc));
+        if (!pipelineState) {
             return nullptr;
         }
         entry = fMap.insert(desc, std::unique_ptr<Entry>(new Entry(fGpu, pipelineState)));
@@ -175,12 +168,16 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 static id<MTLBuffer> alloc_dynamic_buffer(id<MTLDevice> device, size_t size) {
-    return [device newBufferWithLength: size
+    NSUInteger options = 0;
+    if (@available(macOS 10.11, iOS 9.0, *)) {
 #ifdef SK_BUILD_FOR_MAC
-                               options: MTLResourceStorageModeManaged];
+        options |= MTLResourceStorageModeManaged;
 #else
-                               options: MTLResourceStorageModeShared];
+        options |= MTLResourceStorageModeShared;
 #endif
+    }
+    return [device newBufferWithLength: size
+                               options: options];
 
 }
 

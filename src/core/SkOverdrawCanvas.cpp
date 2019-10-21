@@ -50,11 +50,13 @@ public:
               fOverdrawCanvas{overdrawCanvas},
               fPainter{props, kN32_SkColorType, nullptr, SkStrikeCache::GlobalStrikeCache()} {}
 
-    void paintPaths(SkSpan<const SkPathPos> pathsAndPositions, SkScalar scale,
-                    const SkPaint& paint) const override {}
+    void paintPaths(SkDrawableGlyphBuffer*, SkScalar scale, const SkPaint& paint) const override {}
 
-    void paintMasks(SkSpan<const SkMask> masks, const SkPaint& paint) const override {
-        for (auto& mask : masks) {
+    void paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) const override {
+        for (auto t : drawables->drawable()) {
+            SkGlyphVariant glyph; SkPoint pos;
+            std::tie(glyph, pos) = t;
+            SkMask mask = glyph.glyph()->mask(pos);
             fOverdrawCanvas->drawRect(SkRect::Make(mask.fBounds), SkPaint());
         }
     }

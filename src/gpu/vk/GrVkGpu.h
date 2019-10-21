@@ -79,11 +79,6 @@ public:
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
-    GrBackendTexture createBackendTexture(int w, int h, const GrBackendFormat&,
-                                          GrMipMapped, GrRenderable,
-                                          const void* pixels, size_t rowBytes,
-                                          const SkColor4f* color,
-                                          GrProtected isProtected) override;
     void deleteBackendTexture(const GrBackendTexture&) override;
 #if GR_TEST_UTILS
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
@@ -102,7 +97,7 @@ public:
             const GrRenderTarget*, int width, int height, int numStencilSamples) override;
 
     GrOpsRenderPass* getOpsRenderPass(
-            GrRenderTarget*, GrSurfaceOrigin, const SkRect&,
+            GrRenderTarget*, GrSurfaceOrigin, const SkIRect&,
             const GrOpsRenderPass::LoadAndStoreInfo&,
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,
             const SkTArray<GrTextureProxy*, true>& sampledProxies) override;
@@ -124,22 +119,10 @@ public:
 
     bool onRegenerateMipMapLevels(GrTexture* tex) override;
 
-    void resolveRenderTargetNoFlush(GrRenderTarget* target) {
-        this->internalResolveRenderTarget(target, false);
-    }
+    void onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect,
+                               GrSurfaceOrigin resolveOrigin, ForExternalIO) override;
 
-    void onResolveRenderTarget(GrRenderTarget* target) override {
-        // This resolve is called when we are preparing an msaa surface for external I/O. It is
-        // called after flushing, so we need to make sure we submit the command buffer after doing
-        // the resolve so that the resolve actually happens.
-        this->internalResolveRenderTarget(target, true);
-    }
-
-    void submitSecondaryCommandBuffer(std::unique_ptr<GrVkSecondaryCommandBuffer>,
-                                      const GrVkRenderPass*,
-                                      const VkClearValue* colorClear,
-                                      GrVkRenderTarget*, GrSurfaceOrigin,
-                                      const SkIRect& bounds);
+    void submitSecondaryCommandBuffer(std::unique_ptr<GrVkSecondaryCommandBuffer>);
 
     void submit(GrOpsRenderPass*) override;
 
@@ -180,6 +163,12 @@ public:
 
     void storeVkPipelineCacheData() override;
 
+    void beginRenderPass(const GrVkRenderPass*,
+                         const VkClearValue* colorClear,
+                         GrVkRenderTarget*, GrSurfaceOrigin,
+                         const SkIRect& bounds, bool forSecondaryCB);
+    void endRenderPass(GrRenderTarget* target, GrSurfaceOrigin origin, const SkIRect& bounds);
+
 private:
     GrVkGpu(GrContext*, const GrContextOptions&, const GrVkBackendContext&,
             sk_sp<const GrVkInterface>, uint32_t instanceVersion, uint32_t physicalDeviceVersion);
@@ -188,14 +177,18 @@ private:
 
     void destroyResources();
 
+    GrBackendTexture onCreateBackendTexture(int w, int h, const GrBackendFormat&,
+                                            GrMipMapped, GrRenderable,
+                                            const SkPixmap srcData[], int numMipLevels,
+                                            const SkColor4f* color, GrProtected) override;
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&,
                                      const GrBackendFormat& format,
                                      GrRenderable,
                                      int renderTargetSampleCnt,
                                      SkBudgeted,
                                      GrProtected,
-                                     const GrMipLevel[],
-                                     int mipLevelCount) override;
+                                     int mipLevelCount,
+                                     uint32_t levelClearMask) override;
     sk_sp<GrTexture> onCreateCompressedTexture(int width, int height, const GrBackendFormat&,
                                                SkImage::CompressionType, SkBudgeted,
                                                const void* data) override;
@@ -250,8 +243,6 @@ private:
     void submitCommandBuffer(SyncQueue sync, GrGpuFinishedProc finishedProc = nullptr,
                              GrGpuFinishedContext finishedContext = nullptr);
 
-    void internalResolveRenderTarget(GrRenderTarget*, bool requiresSubmit);
-
     void copySurfaceAsCopyImage(GrSurface* dst, GrSurface* src, GrVkImage* dstImage,
                                 GrVkImage* srcImage, const SkIRect& srcRect,
                                 const SkIPoint& dstPoint);
@@ -273,9 +264,10 @@ private:
                       const SkIPoint& dstPoint);
 
     bool createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bool texturable,
-                                        bool renderable, GrMipMapped mipMapped, const void* srcData,
-                                        size_t srcRowBytes, const SkColor4f* color,
-                                        GrVkImageInfo* info, GrProtected isProtected);
+                                        bool renderable, GrMipMapped mipMapped,
+                                        const SkPixmap srcData[], int numMipLevels,
+                                        const SkColor4f* color, GrVkImageInfo* info,
+                                        GrProtected isProtected);
 
     sk_sp<const GrVkInterface>                            fInterface;
     sk_sp<GrVkMemoryAllocator>                            fMemoryAllocator;

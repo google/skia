@@ -2281,7 +2281,9 @@ sk_sp<SkData> SkTypeface_Mac::onCopyTableData(SkFontTableTag tag) const {
     if (!srcData) {
         return nullptr;
     }
-    return SkData::MakeWithProc(CFDataGetBytePtr(srcData.get()), CFDataGetLength(srcData.get()),
+    const UInt8* data = CFDataGetBytePtr(srcData.get());
+    CFIndex length = CFDataGetLength(srcData.get());
+    return SkData::MakeWithProc(data, length,
                                 [](const void*, void* ctx) {
                                     CFRelease((CFDataRef)ctx);
                                 }, (void*)srcData.release());

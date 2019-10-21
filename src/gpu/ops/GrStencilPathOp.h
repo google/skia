@@ -10,6 +10,7 @@
 
 #include "src/gpu/GrPath.h"
 #include "src/gpu/GrPathRendering.h"
+#include "src/gpu/GrScissorState.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/ops/GrOp.h"
 
@@ -52,7 +53,7 @@ private:
             , fHasStencilClip(hasStencilClip)
             , fScissor(scissor)
             , fPath(std::move(path)) {
-        this->setBounds(fPath->getBounds(), HasAABloat::kNo, IsZeroArea::kNo);
+        this->setBounds(fPath->getBounds(), HasAABloat::kNo, IsHairline::kNo);
     }
 
     void onPrepare(GrOpFlushState*) override {}

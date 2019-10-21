@@ -35,7 +35,11 @@ void MetalWindowContext::initializeContext() {
     fQueue = [fDevice newCommandQueue];
 
     if (fDisplayParams.fMSAASampleCount > 1) {
-        if (![fDevice supportsTextureSampleCount:fDisplayParams.fMSAASampleCount]) {
+        if (@available(macOS 10.11, iOS 9.0, *)) {
+            if (![fDevice supportsTextureSampleCount:fDisplayParams.fMSAASampleCount]) {
+                return;
+            }
+        } else {
             return;
         }
     }
@@ -72,37 +76,16 @@ void MetalWindowContext::destroyContext() {
 sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
     sk_sp<SkSurface> surface;
     if (fContext) {
-        // TODO: Apple recommends grabbing the drawable (which we're implicitly doing here)
-        // for as little time as possible. I'm not sure it matters for our test apps, but
-        // you can get better throughput by doing any offscreen renders, texture uploads, or
-        // other non-dependant tasks first before grabbing the drawable.
-        fCurrentDrawable = [fMetalLayer nextDrawable];
-
-        GrMtlTextureInfo fbInfo;
-        fbInfo.fTexture.retain((__bridge const void*)(fCurrentDrawable.texture));
-
-        if (fSampleCount == 1) {
-            GrBackendRenderTarget backendRT(fWidth,
-                                            fHeight,
-                                            fSampleCount,
-                                            fbInfo);
-
-            surface = SkSurface::MakeFromBackendRenderTarget(fContext.get(), backendRT,
-                                                             kTopLeft_GrSurfaceOrigin,
-                                                             kBGRA_8888_SkColorType,
-                                                             fDisplayParams.fColorSpace,
-                                                             &fDisplayParams.fSurfaceProps);
-        } else {
-            GrBackendTexture backendTexture(fWidth,
-                                            fHeight,
-                                            GrMipMapped::kNo,
-                                            fbInfo);
-
-            surface = SkSurface::MakeFromBackendTexture(
-                    fContext.get(), backendTexture, kTopLeft_GrSurfaceOrigin, fSampleCount,
-                    kBGRA_8888_SkColorType, fDisplayParams.fColorSpace,
-                    &fDisplayParams.fSurfaceProps);
-        }
+        GrMTLHandle drawable;
+        surface = SkSurface::MakeFromCAMetalLayer(fContext.get(), (__bridge GrMTLHandle)fMetalLayer,
+                                                  kTopLeft_GrSurfaceOrigin, fSampleCount,
+                                                  kBGRA_8888_SkColorType,
+                                                  fDisplayParams.fColorSpace,
+                                                  &fDisplayParams.fSurfaceProps,
+                                                  &drawable);
+        // ARC is off in sk_app, so we need to release the CF ref manually
+        fCurrentDrawable = (id<CAMetalDrawable>)drawable;
+        CFRelease(drawable);
     }
 
     return surface;

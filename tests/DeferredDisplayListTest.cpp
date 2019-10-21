@@ -144,6 +144,10 @@ public:
     SkSurfaceCharacterization createCharacterization(GrContext* context) const {
         size_t maxResourceBytes = context->getResourceCacheLimit();
 
+        if (!context->colorTypeSupportedAsSurface(fColorType)) {
+            return SkSurfaceCharacterization();
+        }
+
         // Note that Ganesh doesn't make use of the SkImageInfo's alphaType
         SkImageInfo ii = SkImageInfo::Make(fWidth, fHeight, fColorType,
                                            kPremul_SkAlphaType, fColorSpace);
@@ -492,6 +496,51 @@ void DDLSurfaceCharacterizationTestImpl(GrContext* context, skiatest::Reporter* 
         REPORTER_ASSERT(reporter, char3.isValid());
         REPORTER_ASSERT(reporter, 32 == char3.width());
         REPORTER_ASSERT(reporter, 32 == char3.height());
+
+        s = nullptr;
+        params.cleanUpBackEnd(context, backend);
+    }
+
+    // Exercise the createColorSpace method
+    {
+        SurfaceParameters params(context);
+        GrBackendTexture backend;
+
+        sk_sp<SkSurface> s = params.make(context, &backend);
+        if (!s) {
+            return;
+        }
+
+        SkSurfaceCharacterization char0;
+        SkAssertResult(s->characterize(&char0));
+
+        // The default params create an sRGB color space
+        REPORTER_ASSERT(reporter, char0.colorSpace()->isSRGB());
+        REPORTER_ASSERT(reporter, !char0.colorSpace()->gammaIsLinear());
+
+        {
+            sk_sp<SkColorSpace> newCS = SkColorSpace::MakeSRGBLinear();
+
+            SkSurfaceCharacterization char1 = char0.createColorSpace(std::move(newCS));
+            REPORTER_ASSERT(reporter, char1.isValid());
+            REPORTER_ASSERT(reporter, !char1.colorSpace()->isSRGB());
+            REPORTER_ASSERT(reporter, char1.colorSpace()->gammaIsLinear());
+        }
+
+        {
+            SkSurfaceCharacterization char2 = char0.createColorSpace(nullptr);
+            REPORTER_ASSERT(reporter, char2.isValid());
+            REPORTER_ASSERT(reporter, !char2.colorSpace());
+        }
+
+        {
+            sk_sp<SkColorSpace> newCS = SkColorSpace::MakeSRGBLinear();
+
+            SkSurfaceCharacterization invalid;
+            REPORTER_ASSERT(reporter, !invalid.isValid());
+            SkSurfaceCharacterization stillInvalid = invalid.createColorSpace(std::move(newCS));
+            REPORTER_ASSERT(reporter, !stillInvalid.isValid());
+        }
 
         s = nullptr;
         params.cleanUpBackEnd(context, backend);

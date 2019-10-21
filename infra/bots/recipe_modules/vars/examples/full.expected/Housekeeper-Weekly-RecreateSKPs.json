@@ -26,6 +26,29 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "show",
+    "~followup_annotations": [
+      "@@@SET_BUILD_PROPERTY@build_dir@\"[START_DIR]/build\"@@@",
+      "@@@SET_BUILD_PROPERTY@builder_cfg@\"{'frequency': 'Weekly', 'role': 'Housekeeper', 'extra_config': 'RecreateSKPs'}\"@@@",
+      "@@@SET_BUILD_PROPERTY@builder_name@\"Housekeeper-Weekly-RecreateSKPs\"@@@",
+      "@@@SET_BUILD_PROPERTY@cache_dir@\"[START_DIR]/cache\"@@@",
+      "@@@SET_BUILD_PROPERTY@default_env@\"{'PATH': '%(PATH)s:RECIPE_REPO[depot_tools]', 'CHROME_HEADLESS': '1'}\"@@@",
+      "@@@SET_BUILD_PROPERTY@extra_tokens@\"['RecreateSKPs']\"@@@",
+      "@@@SET_BUILD_PROPERTY@internal_hardware_label@\"None\"@@@",
+      "@@@SET_BUILD_PROPERTY@is_internal_bot@\"False\"@@@",
+      "@@@SET_BUILD_PROPERTY@is_linux@\"False\"@@@",
+      "@@@SET_BUILD_PROPERTY@is_trybot@\"False\"@@@",
+      "@@@SET_BUILD_PROPERTY@issue@\"None\"@@@",
+      "@@@SET_BUILD_PROPERTY@patch_storage@\"gerrit\"@@@",
+      "@@@SET_BUILD_PROPERTY@patchset@\"None\"@@@",
+      "@@@SET_BUILD_PROPERTY@role@\"Housekeeper\"@@@",
+      "@@@SET_BUILD_PROPERTY@slave_dir@\"[START_DIR]\"@@@",
+      "@@@SET_BUILD_PROPERTY@swarming_out_dir@\"[START_DIR]/[SWARM_OUT_DIR]\"@@@",
+      "@@@SET_BUILD_PROPERTY@tmp_dir@\"[START_DIR]/tmp\"@@@"
+    ]
+  },
+  {
     "name": "$result"
   }
 ]

@@ -58,8 +58,7 @@ void SkRecorder::reset(SkRecord* record, const SkRect& bounds,
     this->forgetRecord();
     fDrawPictureMode = dpm;
     fRecord = record;
-    SkIRect rounded = bounds.roundOut();
-    this->resetCanvas(rounded.right(), rounded.bottom());
+    this->resetCanvas(bounds.roundOut());
     fMiniRecorder = mr;
 }
 
@@ -267,6 +266,14 @@ void SkRecorder::onDrawPicture(const SkPicture* pic, const SkMatrix* matrix, con
     if (fDrawPictureMode == Record_DrawPictureMode) {
         fApproxBytesUsedBySubPictures += pic->approximateBytesUsed();
         this->append<SkRecords::DrawPicture>(this->copy(paint), sk_ref_sp(pic), matrix ? *matrix : SkMatrix::I());
+    } else if (fDrawPictureMode == PlaybackTop_DrawPictureMode) {
+        // temporarily change the mode of this recorder to Record,
+        fDrawPictureMode = Record_DrawPictureMode;
+        // play back the top level picture
+        SkAutoCanvasMatrixPaint acmp(this, matrix, paint, pic->cullRect());
+        pic->playback(this);
+        // restore the mode
+        fDrawPictureMode = PlaybackTop_DrawPictureMode;
     } else {
         SkASSERT(fDrawPictureMode == Playback_DrawPictureMode);
         SkAutoCanvasMatrixPaint acmp(this, matrix, paint, pic->cullRect());

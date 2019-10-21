@@ -38,7 +38,7 @@ public:
     virtual bool canDelete() = 0;
 };
 
-class SkStrikeCache final : public SkStrikeCacheInterface {
+class SkStrikeCache final : public SkStrikeForGPUCacheInterface {
     class Node;
 
 public:
@@ -89,9 +89,9 @@ public:
                                    SkStrike* targetCache);
     bool desperationSearchForPath(const SkDescriptor& desc, SkGlyphID glyphID, SkPath* path);
 
-    SkScopedStrike findOrCreateScopedStrike(const SkDescriptor& desc,
-                                            const SkScalerContextEffects& effects,
-                                            const SkTypeface& typeface) override;
+    SkScopedStrikeForGPU findOrCreateScopedStrike(const SkDescriptor& desc,
+                                                  const SkScalerContextEffects& effects,
+                                                  const SkTypeface& typeface) override;
 
     static std::unique_ptr<SkScalerContext> CreateScalerContext(
             const SkDescriptor&, const SkScalerContextEffects&, const SkTypeface&);

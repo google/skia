@@ -38,21 +38,11 @@ public:
 private:
     GrGpu* gpu() override;
 
-    void setScissorState(const GrPipeline&,
-                         const GrPipeline::FixedDynamicState* fixedDynamicState,
-                         const GrPipeline::DynamicStateArrays* dynamicStateArrays);
-    void applyState(const GrPipeline& pipeline,
-                    const GrPrimitiveProcessor& primProc,
-                    const GrTextureProxy* const primProcProxies[],
-                    const GrPipeline::FixedDynamicState* fixedDynamicState,
-                    const GrPipeline::DynamicStateArrays* dynamicStateArrays,
-                    const GrPrimitiveType primitiveType,
-                    bool hasPoints);
+    void setScissorState(const GrProgramInfo&);
+    void applyState(const GrProgramInfo& programInfo,
+                    const GrPrimitiveType primitiveType);
 
-    void onDraw(const GrPrimitiveProcessor& primProc,
-                const GrPipeline& pipeline,
-                const GrPipeline::FixedDynamicState* fixedDynamicState,
-                const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+    void onDraw(const GrProgramInfo& programInfo,
                 const GrMesh mesh[],
                 int meshCount,
                 const SkRect& bounds) override;

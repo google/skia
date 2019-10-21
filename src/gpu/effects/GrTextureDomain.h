@@ -188,12 +188,14 @@ protected:
 class GrTextureDomainEffect : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy>,
+                                                     GrColorType srcColorType,
                                                      const SkMatrix&,
                                                      const SkRect& domain,
                                                      GrTextureDomain::Mode mode,
                                                      GrSamplerState::Filter filterMode);
 
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy>,
+                                                     GrColorType srcColorType,
                                                      const SkMatrix&,
                                                      const SkRect& domain,
                                                      GrTextureDomain::Mode modeX,
@@ -223,6 +225,7 @@ private:
     TextureSampler fTextureSampler;
 
     GrTextureDomainEffect(sk_sp<GrTextureProxy>,
+                          GrColorType srcColorType,
                           const SkMatrix&,
                           const SkRect& domain,
                           GrTextureDomain::Mode modeX,

@@ -9,6 +9,7 @@
 #define SkPath_DEFINED
 
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPathTypes.h"
 #include "include/private/SkPathRef.h"
 #include "include/private/SkTo.h"
 
@@ -54,8 +55,8 @@ public:
         travel counterclockwise.
     */
     enum Direction : int {
-        kCW_Direction,  //!< contour travels clockwise
-        kCCW_Direction, //!< contour travels counterclockwise
+        kCW_Direction  = static_cast<int>(SkPathDirection::kCW),
+        kCCW_Direction = static_cast<int>(SkPathDirection::kCCW)
     };
 
     /** Constructs an empty SkPath. By default, SkPath has no verbs, no SkPoint, and no weights.
@@ -160,10 +161,10 @@ public:
         kInverseEvenOdd_FillType fills where the number of contour edges is even.
     */
     enum FillType {
-        kWinding_FillType,        //!< is enclosed by a non-zero sum of contour directions
-        kEvenOdd_FillType,        //!< is enclosed by an odd number of contours
-        kInverseWinding_FillType, //!< is enclosed by a zero sum of contour directions
-        kInverseEvenOdd_FillType, //!< is enclosed by an even number of contours
+        kWinding_FillType        = static_cast<int>(SkPathFillType::kWinding),
+        kEvenOdd_FillType        = static_cast<int>(SkPathFillType::kEvenOdd),
+        kInverseWinding_FillType = static_cast<int>(SkPathFillType::kInverseWinding),
+        kInverseEvenOdd_FillType = static_cast<int>(SkPathFillType::kInverseEvenOdd)
     };
 
     /** Returns FillType, the rule used to fill SkPath. FillType of a new SkPath is
@@ -211,9 +212,9 @@ public:
         if needed by destination SkSurface.
     */
     enum Convexity : uint8_t {
-        kUnknown_Convexity, //!< indicates Convexity has not been determined
-        kConvex_Convexity,  //!< one contour made of a simple geometry without indentations
-        kConcave_Convexity, //!< more than one contour, or a geometry with indentations
+        kUnknown_Convexity = static_cast<int>(SkPathConvexityType::kUnknown),
+        kConvex_Convexity  = static_cast<int>(SkPathConvexityType::kConvex),
+        kConcave_Convexity = static_cast<int>(SkPathConvexityType::kConcave),
     };
 
     /** Computes SkPath::Convexity if required, and returns stored value.
@@ -1042,19 +1043,6 @@ public:
     */
     bool isRect(SkRect* rect, bool* isClosed = nullptr, Direction* direction = nullptr) const;
 
-    /** Returns true if SkPath is equivalent to nested SkRect pair when filled.
-        If false, rect and dirs are unchanged.
-        If true, rect and dirs are written to if not nullptr:
-        setting rect[0] to outer SkRect, and rect[1] to inner SkRect;
-        setting dirs[0] to SkPath::Direction of outer SkRect, and dirs[1] to SkPath::Direction of
-        inner SkRect.
-
-        @param rect  storage for SkRect pair; may be nullptr
-        @param dirs  storage for SkPath::Direction pair; may be nullptr
-        @return      true if SkPath contains nested SkRect pair
-    */
-    bool isNestedFillRects(SkRect rect[2], Direction dirs[2] = nullptr) const;
-
     /** Adds SkRect to SkPath, appending kMove_Verb, three kLine_Verb, and kClose_Verb,
         starting with top-left corner of SkRect; followed by top-right, bottom-right,
         and bottom-left if dir is kCW_Direction; or followed by bottom-left,
@@ -1365,10 +1353,10 @@ public:
         instance, if SkPath only contains lines, only the kLine_SegmentMask bit is set.
     */
     enum SegmentMask {
-        kLine_SegmentMask  = 1 << 0, //!< contains one or more lines
-        kQuad_SegmentMask  = 1 << 1, //!< contains one or more quads
-        kConic_SegmentMask = 1 << 2, //!< contains one or more conics
-        kCubic_SegmentMask = 1 << 3, //!< contains one or more cubics
+        kLine_SegmentMask  = kLine_SkPathSegmentMask,
+        kQuad_SegmentMask  = kQuad_SkPathSegmentMask,
+        kConic_SegmentMask = kConic_SkPathSegmentMask,
+        kCubic_SegmentMask = kCubic_SkPathSegmentMask,
     };
 
     /** Returns a mask, where each set bit corresponds to a SegmentMask constant
@@ -1386,13 +1374,13 @@ public:
         manage contour, and terminate SkPath.
     */
     enum Verb {
-        kMove_Verb,  //!< starts new contour at next SkPoint
-        kLine_Verb,  //!< adds line from last point to next SkPoint
-        kQuad_Verb,  //!< adds quad from last point
-        kConic_Verb, //!< adds conic from last point
-        kCubic_Verb, //!< adds cubic from last point
-        kClose_Verb, //!< closes contour
-        kDone_Verb,  //!< terminates SkPath
+        kMove_Verb  = static_cast<int>(SkPathVerb::kMove),
+        kLine_Verb  = static_cast<int>(SkPathVerb::kLine),
+        kQuad_Verb  = static_cast<int>(SkPathVerb::kQuad),
+        kConic_Verb = static_cast<int>(SkPathVerb::kConic),
+        kCubic_Verb = static_cast<int>(SkPathVerb::kCubic),
+        kClose_Verb = static_cast<int>(SkPathVerb::kClose),
+        kDone_Verb  = static_cast<int>(SkPathVerb::kDone),
     };
 
     /** \class SkPath::Iter
@@ -1685,8 +1673,7 @@ private:
 
     size_t writeToMemoryAsRRect(void* buffer) const;
     size_t readAsRRect(const void*, size_t);
-    size_t readFromMemory_LE3(const void*, size_t);
-    size_t readFromMemory_EQ4(const void*, size_t);
+    size_t readFromMemory_EQ4Or5(const void*, size_t);
 
     friend class Iter;
     friend class SkPathPriv;
@@ -1716,9 +1703,6 @@ private:
     SkDEBUGCODE(void validate() const { SkASSERT(this->isValidImpl()); } )
     bool isValidImpl() const;
     SkDEBUGCODE(void validateRef() const { fPathRef->validate(); } )
-
-    bool isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts,
-                       bool* isClosed, Direction* direction, SkRect* rect) const;
 
     // called by stroker to see if all points (in the last contour) are equal and worthy of a cap
     bool isZeroLengthSincePoint(int startPtIndex) const;

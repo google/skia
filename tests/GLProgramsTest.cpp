@@ -261,6 +261,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
     sk_sp<GrTextureProxy> proxies[2];
+    GrColorType proxyColorTypes[2];
 
     // setup dummy textures
     GrMipMapped mipMapped = GrMipMapped(context->priv().caps()->mipMapSupport());
@@ -276,6 +277,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
                                                 kBottomLeft_GrSurfaceOrigin, mipMapped,
                                                 SkBackingFit::kExact, SkBudgeted::kNo,
                                                 GrProtected::kNo, GrInternalSurfaceFlags::kNone);
+        proxyColorTypes[0] = GrColorType::kRGBA_8888;
     }
     {
         GrSurfaceDesc dummyDesc;
@@ -289,6 +291,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
                                                 kTopLeft_GrSurfaceOrigin, mipMapped,
                                                 SkBackingFit::kExact, SkBudgeted::kNo,
                                                 GrProtected::kNo, GrInternalSurfaceFlags::kNone);
+        proxyColorTypes[1] = GrColorType::kAlpha_8;
     }
 
     if (!proxies[0] || !proxies[1]) {
@@ -311,7 +314,8 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         }
 
         GrPaint paint;
-        GrProcessorTestData ptd(&random, context, renderTargetContext.get(), proxies);
+        GrProcessorTestData ptd(&random, context, renderTargetContext.get(), proxies,
+                                proxyColorTypes);
         set_random_color_coverage_stages(&paint, &ptd, maxStages, maxLevels);
         set_random_xpf(&paint, &ptd);
         GrDrawRandomOp(&random, renderTargetContext.get(), std::move(paint));
@@ -336,7 +340,8 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
     for (int i = 0; i < fpFactoryCnt; ++i) {
         // Since FP factories internally randomize, call each 10 times.
         for (int j = 0; j < 10; ++j) {
-            GrProcessorTestData ptd(&random, context, renderTargetContext.get(), proxies);
+            GrProcessorTestData ptd(&random, context, renderTargetContext.get(), proxies,
+                                    proxyColorTypes);
 
             GrPaint paint;
             paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));

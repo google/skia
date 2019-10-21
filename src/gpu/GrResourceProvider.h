@@ -33,26 +33,10 @@ class SkPath;
 class SkTypeface;
 
 /**
- * A factory for arbitrary resource types. This class is intended for use within the Gr code base.
- *
- * Some members force callers to make a flags (pendingIO) decision. This can be relaxed once
- * https://bug.skia.org/4156 is fixed.
+ * A factory for arbitrary resource types.
  */
 class GrResourceProvider {
 public:
-    /** These flags govern which scratch resources we are allowed to return */
-    enum class Flags {
-        kNone            = 0x0,
-
-        /** If the caller intends to do direct reads/writes to/from the CPU then this flag must be
-         *  set when accessing resources during a GrOpsTask flush. This includes the execution of
-         *  GrOp objects. The reason is that these memory operations are done immediately and
-         *  will occur out of order WRT the operations being flushed.
-         *  Make this automatic: https://bug.skia.org/4156
-         */
-        kNoPendingIO     = 0x1,
-    };
-
     GrResourceProvider(GrGpu*, GrResourceCache*, GrSingleOwner*);
 
     /**
@@ -79,20 +63,25 @@ public:
                                          const GrBackendFormat& format,
                                          GrRenderable renderable,
                                          int renderTargetSampleCnt,
-                                         GrProtected isProtected,
-                                         Flags flags);
+                                         GrProtected isProtected);
 
     /** Create an exact fit texture with no initial data to upload. */
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc,
                                    const GrBackendFormat& format,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
+                                   GrMipMapped mipMapped,
                                    SkBudgeted budgeted,
-                                   GrProtected isProtected,
-                                   Flags flags = Flags::kNone);
+                                   GrProtected isProtected);
 
+    /**
+     * Create an exact fit texture with initial data to upload. The color type must be valid
+     * for the format and also describe the texel data. This will ensure any conversions that
+     * need to get applied to the data before upload are applied.
+     */
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc,
                                    const GrBackendFormat& format,
+                                   GrColorType colorType,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
                                    SkBudgeted budgeted,
@@ -100,17 +89,20 @@ public:
                                    const GrMipLevel texels[],
                                    int mipLevelCount);
 
-    /** Create a potentially loose fit texture with the provided data */
+    /**
+     * Create a potentially loose fit texture with the provided data. The color type must be valid
+     * for the format and also describe the texel data. This will ensure any conversions that
+     * need to get applied to the data before upload are applied.
+     */
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc,
                                    const GrBackendFormat& format,
+                                   GrColorType srcColorType,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
                                    SkBudgeted budgeted,
                                    SkBackingFit fit,
                                    GrProtected isProtected,
-                                   GrColorType srcColorType,
-                                   const GrMipLevel& mipLevel,
-                                   Flags flags);
+                                   const GrMipLevel& mipLevel);
 
     /**
      * Creates a compressed texture. The GrGpu must support the SkImageImage::Compression type.
@@ -292,24 +284,47 @@ private:
 
     // Attempts to find a resource in the cache that exactly matches the GrSurfaceDesc. Failing that
     // it returns null. If non-null, the resulting texture is always budgeted.
-    sk_sp<GrTexture> refScratchTexture(const GrSurfaceDesc& desc,
-                                       const GrBackendFormat& format,
-                                       GrRenderable renderable,
+    sk_sp<GrTexture> refScratchTexture(const GrSurfaceDesc&,
+                                       const GrBackendFormat&,
+                                       GrRenderable,
                                        int renderTargetSampleCnt,
-                                       GrProtected isProtected,
-                                       Flags flags);
+                                       GrMipMapped,
+                                       GrProtected);
 
     /*
      * Try to find an existing scratch texture that exactly matches 'desc'. If successful
      * update the budgeting accordingly.
      */
-    sk_sp<GrTexture> getExactScratch(const GrSurfaceDesc& desc,
-                                     const GrBackendFormat& format,
-                                     GrRenderable renderable,
+    sk_sp<GrTexture> getExactScratch(const GrSurfaceDesc&,
+                                     const GrBackendFormat&,
+                                     GrRenderable,
                                      int renderTargetSampleCnt,
-                                     SkBudgeted budgeted,
-                                     GrProtected isProtected,
-                                     Flags flags);
+                                     SkBudgeted,
+                                     GrMipMapped,
+                                     GrProtected);
+
+    // Used to perform any conversions necessary to texel data before creating a texture with
+    // existing data or uploading to a scratch texture.
+    using TempLevels = SkAutoSTMalloc<14, GrMipLevel>;
+    using TempLevelDatas = SkAutoSTArray<14, std::unique_ptr<char[]>>;
+    GrColorType prepareLevels(const GrBackendFormat& format,
+                              GrColorType,
+                              const SkISize& baseSize,
+                              const GrMipLevel texels[],
+                              int mipLevelCount,
+                              TempLevels*,
+                              TempLevelDatas*) const;
+
+    // GrResourceProvider may be asked to "create" a new texture with initial pixel data to populate
+    // it. In implementation it may pull an existing texture from GrResourceCache and then write the
+    // pixel data to the texture. It takes a width/height for the base level because we may be
+    // using an approximate-sized scratch texture. On success the texture is returned and nullptr
+    // on failure.
+    sk_sp<GrTexture> writePixels(sk_sp<GrTexture> texture,
+                                 GrColorType colorType,
+                                 const SkISize& baseSize,
+                                 const GrMipLevel texels[],
+                                 int mipLevelCount) const;
 
     GrResourceCache* cache() { return fCache; }
     const GrResourceCache* cache() const { return fCache; }
@@ -341,7 +356,5 @@ private:
     // In debug builds we guard against improper thread handling
     SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)
 };
-
-GR_MAKE_BITFIELD_CLASS_OPS(GrResourceProvider::Flags);
 
 #endif

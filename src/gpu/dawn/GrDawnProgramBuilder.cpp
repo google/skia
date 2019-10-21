@@ -15,9 +15,11 @@
 #include "src/sksl/SkSLCompiler.h"
 
 static SkSL::String sksl_to_spirv(const GrDawnGpu* gpu, const char* shaderString,
-                                  SkSL::Program::Kind kind, SkSL::Program::Inputs* inputs) {
+                                  SkSL::Program::Kind kind, bool flipY,
+                                  SkSL::Program::Inputs* inputs) {
     SkSL::Program::Settings settings;
     settings.fCaps = gpu->caps()->shaderCaps();
+    settings.fFlipY = flipY;
     std::unique_ptr<SkSL::Program> program = gpu->shaderCompiler()->convertProgram(
         kind,
         shaderString,
@@ -151,35 +153,6 @@ static dawn::StencilOperation to_dawn_stencil_operation(GrStencilOp op) {
     }
 }
 
-static dawn::FilterMode to_dawn_filter_mode(GrSamplerState::Filter filter) {
-    switch (filter) {
-        case GrSamplerState::Filter::kNearest:
-            return dawn::FilterMode::Nearest;
-        case GrSamplerState::Filter::kBilerp:
-        case GrSamplerState::Filter::kMipMap:
-            return dawn::FilterMode::Linear;
-        default:
-            SkASSERT(!"unsupported filter mode");
-            return dawn::FilterMode::Nearest;
-    }
-}
-
-static dawn::AddressMode to_dawn_address_mode(GrSamplerState::WrapMode wrapMode) {
-    switch (wrapMode) {
-        case GrSamplerState::WrapMode::kClamp:
-            return dawn::AddressMode::ClampToEdge;
-        case GrSamplerState::WrapMode::kClampToBorder:
-            // TODO: unsupported
-            return dawn::AddressMode::ClampToEdge;
-        case GrSamplerState::WrapMode::kRepeat:
-            return dawn::AddressMode::Repeat;
-        case GrSamplerState::WrapMode::kMirrorRepeat:
-            return dawn::AddressMode::MirrorRepeat;
-    }
-    SkASSERT(!"unsupported address mode");
-    return dawn::AddressMode::ClampToEdge;
-}
-
 static dawn::PrimitiveTopology to_dawn_primitive_topology(GrPrimitiveType primitiveType) {
     switch (primitiveType) {
         case GrPrimitiveType::kTriangles:
@@ -192,7 +165,7 @@ static dawn::PrimitiveTopology to_dawn_primitive_topology(GrPrimitiveType primit
             return dawn::PrimitiveTopology::LineList;
         case GrPrimitiveType::kLineStrip:
             return dawn::PrimitiveTopology::LineStrip;
-        case GrPrimitiveType::kLinesAdjacency:
+        case GrPrimitiveType::kPath:
         default:
             SkASSERT(!"unsupported primitive topology");
             return dawn::PrimitiveTopology::TriangleList;
@@ -281,19 +254,6 @@ static dawn::DepthStencilStateDescriptor create_depth_stencil_state(
     return state;
 }
 
-static dawn::Sampler create_sampler(const GrDawnGpu* gpu, const GrSamplerState& samplerState) {
-    dawn::SamplerDescriptor desc;
-    desc.addressModeU = to_dawn_address_mode(samplerState.wrapModeX());
-    desc.addressModeV = to_dawn_address_mode(samplerState.wrapModeY());
-    desc.addressModeW = dawn::AddressMode::ClampToEdge;
-    desc.magFilter = desc.minFilter = to_dawn_filter_mode(samplerState.filter());
-    desc.mipmapFilter = dawn::FilterMode::Linear;
-    desc.lodMinClamp = 0.0f;
-    desc.lodMaxClamp = 1000.0f;
-    desc.compare = dawn::CompareFunction::Never;
-    return gpu->device().CreateSampler(&desc);
-}
-
 static dawn::BindGroupBinding make_bind_group_binding(uint32_t binding, const dawn::Buffer& buffer,
                                                       uint32_t offset, uint32_t size, const
                                                       dawn::Sampler& sampler,
@@ -325,17 +285,13 @@ static dawn::BindGroupBinding make_bind_group_binding(uint32_t binding,
 
 sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
                                                  GrRenderTarget* renderTarget,
-                                                 GrSurfaceOrigin origin,
-                                                 const GrPipeline& pipeline,
-                                                 const GrPrimitiveProcessor& primProc,
-                                                 const GrTextureProxy* const primProcProxies[],
+                                                 const GrProgramInfo& programInfo,
                                                  GrPrimitiveType primitiveType,
                                                  dawn::TextureFormat colorFormat,
                                                  bool hasDepthStencil,
                                                  dawn::TextureFormat depthStencilFormat,
                                                  GrProgramDesc* desc) {
-    GrDawnProgramBuilder builder(gpu, renderTarget, origin, primProc, primProcProxies, pipeline,
-                                 desc);
+    GrDawnProgramBuilder builder(gpu, renderTarget, programInfo, desc);
     if (!builder.emitAndInstallProcs()) {
         return nullptr;
     }
@@ -353,9 +309,10 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     uint32_t fragmentUniformSize = builder.fUniformHandler.fCurrentFragmentUBOOffset;
     sk_sp<GrDawnProgram> result(
         new GrDawnProgram(uniforms, geometryUniformSize, fragmentUniformSize));
-    auto vsModule = builder.createShaderModule(builder.fVS, SkSL::Program::kVertex_Kind,
+    bool flipY = programInfo.origin() != kTopLeft_GrSurfaceOrigin;
+    auto vsModule = builder.createShaderModule(builder.fVS, SkSL::Program::kVertex_Kind, flipY,
                                                &vertInputs);
-    auto fsModule = builder.createShaderModule(builder.fFS, SkSL::Program::kFragment_Kind,
+    auto fsModule = builder.createShaderModule(builder.fFS, SkSL::Program::kFragment_Kind, flipY,
                                                &fragInputs);
     result->fGeometryProcessor = std::move(builder.fGeometryProcessor);
     result->fXferProcessor = std::move(builder.fXferProcessor);
@@ -364,19 +321,19 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     std::vector<dawn::BindGroupLayoutBinding> layoutBindings;
     if (0 != geometryUniformSize) {
         layoutBindings.push_back({ GrDawnUniformHandler::kGeometryBinding,
-                                   dawn::ShaderStageBit::Vertex,
+                                   dawn::ShaderStage::Vertex,
                                    dawn::BindingType::UniformBuffer});
     }
     if (0 != fragmentUniformSize) {
         layoutBindings.push_back({ GrDawnUniformHandler::kFragBinding,
-                                   dawn::ShaderStageBit::Fragment,
+                                   dawn::ShaderStage::Fragment,
                                    dawn::BindingType::UniformBuffer});
     }
     uint32_t binding = GrDawnUniformHandler::kSamplerBindingBase;
     for (int i = 0; i < builder.fUniformHandler.fSamplers.count(); ++i) {
-        layoutBindings.push_back({ binding++, dawn::ShaderStageBit::Fragment,
+        layoutBindings.push_back({ binding++, dawn::ShaderStage::Fragment,
                                    dawn::BindingType::Sampler});
-        layoutBindings.push_back({ binding++, dawn::ShaderStageBit::Fragment,
+        layoutBindings.push_back({ binding++, dawn::ShaderStage::Fragment,
                                    dawn::BindingType::SampledTexture});
     }
     dawn::BindGroupLayoutDescriptor bindGroupLayoutDesc;
@@ -388,6 +345,7 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     pipelineLayoutDesc.bindGroupLayouts = &result->fBindGroupLayout;
     auto pipelineLayout = gpu->device().CreatePipelineLayout(&pipelineLayoutDesc);
     result->fBuiltinUniformHandles = builder.fUniformHandles;
+    const GrPipeline& pipeline = programInfo.pipeline();
     auto colorState = create_color_state(gpu, pipeline, colorFormat);
     dawn::DepthStencilStateDescriptor depthStencilState;
     GrStencilSettings stencil;
@@ -395,11 +353,13 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
         int numStencilBits = renderTarget->renderTargetPriv().numStencilBits();
         stencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(), numStencilBits);
     }
-    depthStencilState = create_depth_stencil_state(stencil, depthStencilFormat, origin);
+    depthStencilState = create_depth_stencil_state(stencil, depthStencilFormat,
+                                                   programInfo.origin());
 
     std::vector<dawn::VertexBufferDescriptor> inputs;
 
     std::vector<dawn::VertexAttributeDescriptor> vertexAttributes;
+    const GrPrimitiveProcessor& primProc = programInfo.primProc();
     if (primProc.numVertexAttributes() > 0) {
         size_t offset = 0;
         int i = 0;
@@ -444,17 +404,17 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     vertexInput.bufferCount = inputs.size();
     vertexInput.buffers = &inputs.front();
 
-    dawn::PipelineStageDescriptor vsDesc;
+    dawn::ProgrammableStageDescriptor vsDesc;
     vsDesc.module = vsModule;
     vsDesc.entryPoint = "main";
 
-    dawn::PipelineStageDescriptor fsDesc;
+    dawn::ProgrammableStageDescriptor fsDesc;
     fsDesc.module = fsModule;
     fsDesc.entryPoint = "main";
 
     dawn::RenderPipelineDescriptor rpDesc;
     rpDesc.layout = pipelineLayout;
-    rpDesc.vertexStage = &vsDesc;
+    rpDesc.vertexStage = vsDesc;
     rpDesc.fragmentStage = &fsDesc;
     rpDesc.vertexInput = &vertexInput;
     rpDesc.primitiveTopology = to_dawn_primitive_topology(primitiveType);
@@ -462,20 +422,16 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
         rpDesc.depthStencilState = &depthStencilState;
     }
     rpDesc.colorStateCount = 1;
-    dawn::ColorStateDescriptor* colorStatesPtr[] = { &colorState };
-    rpDesc.colorStates = colorStatesPtr;
+    rpDesc.colorStates = &colorState;
     result->fRenderPipeline = gpu->device().CreateRenderPipeline(&rpDesc);
     return result;
 }
 
 GrDawnProgramBuilder::GrDawnProgramBuilder(GrDawnGpu* gpu,
                                            GrRenderTarget* renderTarget,
-                                           GrSurfaceOrigin origin,
-                                           const GrPrimitiveProcessor& primProc,
-                                           const GrTextureProxy* const primProcProxies[],
-                                           const GrPipeline& pipeline,
+                                           const GrProgramInfo& programInfo,
                                            GrProgramDesc* desc)
-    : INHERITED(renderTarget, origin, primProc, primProcProxies, pipeline, desc)
+    : INHERITED(renderTarget, programInfo, desc)
     , fGpu(gpu)
     , fVaryingHandler(this)
     , fUniformHandler(this) {
@@ -483,6 +439,7 @@ GrDawnProgramBuilder::GrDawnProgramBuilder(GrDawnGpu* gpu,
 
 dawn::ShaderModule GrDawnProgramBuilder::createShaderModule(const GrGLSLShaderBuilder& builder,
                                                             SkSL::Program::Kind kind,
+                                                            bool flipY,
                                                             SkSL::Program::Inputs* inputs) {
     dawn::Device device = fGpu->device();
     SkString source(builder.fCompilerString.c_str());
@@ -492,7 +449,7 @@ dawn::ShaderModule GrDawnProgramBuilder::createShaderModule(const GrGLSLShaderBu
     printf("converting program:\n%s\n", sksl.c_str());
 #endif
 
-    SkSL::String spirvSource = sksl_to_spirv(fGpu, source.c_str(), kind, inputs);
+    SkSL::String spirvSource = sksl_to_spirv(fGpu, source.c_str(), kind, flipY, inputs);
 
     dawn::ShaderModuleDescriptor desc;
     desc.codeSize = spirvSource.size() / 4;
@@ -530,7 +487,7 @@ void GrDawnProgram::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrig
 static void setTexture(GrDawnGpu* gpu, const GrSamplerState& state, GrTexture* texture,
                        std::vector<dawn::BindGroupBinding> *bindings, int* binding) {
     // FIXME: could probably cache samplers in GrDawnProgram
-    dawn::Sampler sampler = create_sampler(gpu, state);
+    dawn::Sampler sampler = gpu->getOrCreateSampler(state);
     bindings->push_back(make_bind_group_binding((*binding)++, sampler));
     GrDawnTexture* tex = static_cast<GrDawnTexture*>(texture);
     dawn::TextureView textureView = tex->textureView();
@@ -538,10 +495,7 @@ static void setTexture(GrDawnGpu* gpu, const GrSamplerState& state, GrTexture* t
 }
 
 dawn::BindGroup GrDawnProgram::setData(GrDawnGpu* gpu, const GrRenderTarget* renderTarget,
-                                       GrSurfaceOrigin origin,
-                                       const GrPrimitiveProcessor& primProc,
-                                       const GrPipeline& pipeline,
-                                       const GrTextureProxy* const primProcTextures[]) {
+                                       const GrProgramInfo& programInfo) {
     std::vector<dawn::BindGroupBinding> bindings;
     GrDawnRingBuffer::Slice geom, frag;
     uint32_t geometryUniformSize = fDataManager.geometryUniformSize();
@@ -558,10 +512,15 @@ dawn::BindGroup GrDawnProgram::setData(GrDawnGpu* gpu, const GrRenderTarget* ren
                                                    frag.fBuffer, frag.fOffset,
                                                    fragmentUniformSize));
     }
-    this->setRenderTargetState(renderTarget, origin);
+    this->setRenderTargetState(renderTarget, programInfo.origin());
+    const GrPipeline& pipeline = programInfo.pipeline();
+    const GrPrimitiveProcessor& primProc = programInfo.primProc();
     fGeometryProcessor->setData(fDataManager, primProc,
                                 GrFragmentProcessor::CoordTransformIter(pipeline));
     int binding = GrDawnUniformHandler::kSamplerBindingBase;
+    auto primProcTextures = programInfo.hasFixedPrimProcTextures() ?
+                                programInfo.fixedPrimProcTextures() : nullptr;
+
     for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
         auto& sampler = primProc.textureSampler(i);
         setTexture(gpu, sampler.samplerState(), primProcTextures[i]->peekTexture(), &bindings,
@@ -587,7 +546,7 @@ dawn::BindGroup GrDawnProgram::setData(GrDawnGpu* gpu, const GrRenderTarget* ren
         GrFragmentProcessor::TextureSampler sampler(sk_ref_sp(proxy));
         setTexture(gpu, sampler.samplerState(), sampler.peekTexture(), &bindings, &binding);
     }
-    fDataManager.uploadUniformBuffers(geom, frag);
+    fDataManager.uploadUniformBuffers(gpu, geom, frag);
     dawn::BindGroupDescriptor descriptor;
     descriptor.layout = fBindGroupLayout;
     descriptor.bindingCount = bindings.size();

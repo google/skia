@@ -23,14 +23,19 @@ public:
 
     SG_ATTRIBUTE(T, float, fT)
 
-protected:
+private:
+    class AutoInvalBlocker;
+
     const RenderNode* onNodeAt(const SkPoint&) const override;
 
     SkRect onRevalidate(sksg::InvalidationController* ic, const SkMatrix& ctm) override;
 
     void onRender(SkCanvas* canvas, const RenderContext* ctx) const override;
 
-private:
+    void renderToRaster8888Pow2Samples(SkCanvas* canvas, const RenderContext* ctx) const;
+
+    SkRect seekToSample(size_t sample_idx, const SkMatrix& ctm) const;
+
     MotionBlurEffect(sk_sp<sksg::Animator> animator,
                      sk_sp<sksg::RenderNode> child,
                      size_t sample_count, float phase, float dt);
@@ -40,7 +45,8 @@ private:
     const float                 fPhase,
                                 fDT;
 
-    float fT = 0;
+    float  fT                  = 0;
+    size_t fVisibleSampleCount = 0;
 
     using INHERITED = sksg::CustomRenderNode;
 };

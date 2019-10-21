@@ -14,7 +14,8 @@
 sk_sp<GrRenderTask> GrCopyRenderTask::Make(sk_sp<GrSurfaceProxy> srcProxy,
                                            const SkIRect& srcRect,
                                            sk_sp<GrSurfaceProxy> dstProxy,
-                                           const SkIPoint& dstPoint) {
+                                           const SkIPoint& dstPoint,
+                                           const GrCaps* caps) {
     SkASSERT(dstProxy);
     SkASSERT(srcProxy);
     SkIRect clippedSrcRect;
@@ -24,7 +25,8 @@ sk_sp<GrRenderTask> GrCopyRenderTask::Make(sk_sp<GrSurfaceProxy> srcProxy,
                                   &clippedSrcRect, &clippedDstPoint)) {
         return nullptr;
     }
-    if (GrPixelConfigIsCompressed(dstProxy->config())) {
+
+    if (caps->isFormatCompressed(dstProxy->backendFormat())) {
         return nullptr;
     }
 

@@ -103,7 +103,7 @@ Sets <a href='#SkPoint_fX'>fX</a> to <a href='#SkPoint_Make_x'>x</a>, <a href='#
 
 ### Example
 
-<div><fiddle-embed name="d266e70977847001f7c42f8a2513bee7">
+<div><fiddle-embed name="@Point_Make">
 
 #### Example Output
 
@@ -135,7 +135,7 @@ Returns x-axis value of <a href='SkPoint_Reference#SkPoint'>SkPoint</a> or <a hr
 
 ### Example
 
-<div><fiddle-embed name="9f3fe446b800ae1d940785d438634941">
+<div><fiddle-embed name="@Point_x">
 
 #### Example Output
 
@@ -165,7 +165,7 @@ Returns y-axis value of <a href='SkPoint_Reference#SkPoint'>SkPoint</a> or <a hr
 
 ### Example
 
-<div><fiddle-embed name="4c962850c2dbea4d2325df469400680e">
+<div><fiddle-embed name="@Point_y">
 
 #### Example Output
 
@@ -195,7 +195,7 @@ true if <a href='#SkPoint_fX'>fX</a> is zero and <a href='#SkPoint_fY'>fY</a> is
 
 ### Example
 
-<div><fiddle-embed name="81b9665110b88ef6bcbc20464aed7da1">
+<div><fiddle-embed name="@Point_isZero">
 
 #### Example Output
 
@@ -234,7 +234,7 @@ Sets <a href='#SkPoint_fX'>fX</a> to <a href='#SkPoint_set_x'>x</a> and <a href=
 
 ### Example
 
-<div><fiddle-embed name="d08d1e7dafcad4342d1619fdbb2f5781">
+<div><fiddle-embed name="@Point_set">
 
 #### Example Output
 
@@ -274,7 +274,7 @@ casts <a href='#SkPoint_iset_x'>x</a> and <a href='#SkPoint_iset_y'>y</a> to avo
 
 ### Example
 
-<div><fiddle-embed name="0d9e8ed734981b5b113f22c7bfde5357"></fiddle-embed></div>
+<div><fiddle-embed name="@Point_iset"></fiddle-embed></div>
 
 ### See Also
 
@@ -303,7 +303,7 @@ This safely casts <a href='#SkPoint_iset_2_p'>p</a>.<a href='#SkIPoint_fX'>fX</a
 
 ### Example
 
-<div><fiddle-embed name="12b7164a769e232bb772f19c59600ee7">
+<div><fiddle-embed name="@Point_iset_2">
 
 #### Example Output
 
@@ -337,7 +337,7 @@ Sets <a href='#SkPoint_fX'>fX</a> to absolute value of <a href='#SkPoint_setAbs_
 
 ### Example
 
-<div><fiddle-embed name="7f70860e820b67a347cff03c00488426">
+<div><fiddle-embed name="@Point_setAbs">
 
 #### Example Output
 
@@ -381,7 +381,7 @@ Adds <a href='#SkPoint_Offset_offset'>offset</a> to each <a href='SkPoint_Refere
 
 ### Example
 
-<div><fiddle-embed name="f0f24726df78a5d797bcf311e694a0a3"></fiddle-embed></div>
+<div><fiddle-embed name="@Point_Offset"></fiddle-embed></div>
 
 ### See Also
 
@@ -415,7 +415,7 @@ Adds offset (<a href='#SkPoint_Offset_2_dx'>dx</a>, <a href='#SkPoint_Offset_2_d
 
 ### Example
 
-<div><fiddle-embed name="532849faa838de885b86d3ebffae3712"></fiddle-embed></div>
+<div><fiddle-embed name="@Point_Offset_2"></fiddle-embed></div>
 
 ### See Also
 
@@ -443,7 +443,7 @@ Adds offset (<a href='#SkPoint_offset_dx'>dx</a>, <a href='#SkPoint_offset_dy'>d
 
 ### Example
 
-<div><fiddle-embed name="02750ceaa874f956e6e6544ef6b858ee"></fiddle-embed></div>
+<div><fiddle-embed name="@Point_offset_3"></fiddle-embed></div>
 
 ### See Also
 
@@ -519,7 +519,7 @@ true if former length is not zero or nearly zero
 
 ### Example
 
-<div><fiddle-embed name="d84fce292d86c7d9ef37ae2d179c03c7"></fiddle-embed></div>
+<div><fiddle-embed name="@Point_normalize_2"></fiddle-embed></div>
 
 ### See Also
 
@@ -553,7 +553,7 @@ true if (<a href='#SkPoint_setNormalize_x'>x</a>, <a href='#SkPoint_setNormalize
 
 ### Example
 
-<div><fiddle-embed name="3e4f147d143a388802484bf0d26534c2"></fiddle-embed></div>
+<div><fiddle-embed name="@Point_setNormalize"></fiddle-embed></div>
 
 ### See Also
 
@@ -584,7 +584,7 @@ true if former <a href='#SkPoint_setLength_length'>length</a> is not zero or nea
 
 ### Example
 
-<div><fiddle-embed name="cbe7db206ece825aa3b9b7c3256aeaf0"></fiddle-embed></div>
+<div><fiddle-embed name="@Point_setLength"></fiddle-embed></div>
 
 ### See Also
 
@@ -621,7 +621,7 @@ true if (<a href='#SkPoint_setLength_2_x'>x</a>, <a href='#SkPoint_setLength_2_y
 
 ### Example
 
-<div><fiddle-embed name="3cc0662b6fbbee1fe3442a0acfece22c"></fiddle-embed></div>
+<div><fiddle-embed name="@Point_setLength_2"></fiddle-embed></div>
 
 ### See Also
 
@@ -649,7 +649,7 @@ Sets <a href='#SkPoint_scale_dst'>dst</a> to <a href='SkPoint_Reference#SkPoint'
 
 ### Example
 
-<div><fiddle-embed name="972e4e230806281adb928e068bcd8551"></fiddle-embed></div>
+<div><fiddle-embed name="@Point_scale"></fiddle-embed></div>
 
 ### See Also
 
@@ -674,7 +674,7 @@ Scales <a href='SkPoint_Reference#SkPoint'>SkPoint</a> in place by scale.
 
 ### Example
 
-<div><fiddle-embed name="1060a4f27d8ef29519e6ac006ce90f2b"></fiddle-embed></div>
+<div><fiddle-embed name="@Point_scale_2"></fiddle-embed></div>
 
 ### See Also
 
@@ -692,7 +692,7 @@ Changes the sign of <a href='#SkPoint_fX'>fX</a> and <a href='#SkPoint_fY'>fY</a
 
 ### Example
 
-<div><fiddle-embed name="312c0c8065ab5d0adfda80cccf2d11e6">
+<div><fiddle-embed name="@Point_negate">
 
 #### Example Output
 
@@ -725,7 +725,7 @@ Returns <a href='SkPoint_Reference#SkPoint'>SkPoint</a> changing the signs of <a
 
 ### Example
 
-<div><fiddle-embed name="9baf247cfcd8272c0ddf6ce93f676b37">
+<div><fiddle-embed name="@Point_minus_operator">
 
 #### Example Output
 
@@ -761,7 +761,7 @@ Adds <a href='SkPoint_Reference#Vector'>Vector</a> <a href='#SkPoint_addto_opera
 
 ### Example
 
-<div><fiddle-embed name="8b4e79109e2381345258cb744881b20c"></fiddle-embed></div>
+<div><fiddle-embed name="@Point_addto_operator"></fiddle-embed></div>
 
 ### See Also
 
@@ -786,7 +786,7 @@ Subtracts <a href='SkPoint_Reference#Vector'>Vector</a> <a href='#SkPoint_subtra
 
 ### Example
 
-<div><fiddle-embed name="86c0399704d8dff4091bf87b8d87d40b"></fiddle-embed></div>
+<div><fiddle-embed name="@Point_subtractfrom_operator"></fiddle-embed></div>
 
 ### See Also
 
@@ -815,7 +815,7 @@ Returns <a href='SkPoint_Reference#SkPoint'>SkPoint</a> multiplied by <a href='#
 
 ### Example
 
-<div><fiddle-embed name="35b3bc675779de043706ae4817ee950c"></fiddle-embed></div>
+<div><fiddle-embed name="@Point_multiply_operator"></fiddle-embed></div>
 
 ### See Also
 
@@ -844,7 +844,7 @@ reference to <a href='SkPoint_Reference#Point'>Point</a>
 
 ### Example
 
-<div><fiddle-embed name="3ce3db36235d80dbac4d39504cf756da"></fiddle-embed></div>
+<div><fiddle-embed name="@Point_multiplyby_operator"></fiddle-embed></div>
 
 ### See Also
 
@@ -866,7 +866,7 @@ true for values other than infinities and NaN
 
 ### Example
 
-<div><fiddle-embed name="937cc166cc0e220f33fb82501141d0b3">
+<div><fiddle-embed name="@Point_isFinite">
 
 #### Example Output
 
@@ -909,7 +909,7 @@ true if <a href='SkPoint_Reference#SkPoint'>SkPoint</a> equals (<a href='#SkPoin
 
 ### Example
 
-<div><fiddle-embed name="4cecb878c8b66beffda051f26c00f817">
+<div><fiddle-embed name="@Point_equals">
 
 #### Example Output
 
@@ -952,7 +952,7 @@ true if <a href='#SkPoint_equal_operator_a'>a</a>.<a href='#SkPoint_fX'>fX</a> =
 
 ### Example
 
-<div><fiddle-embed name="741f793334a48a35dadf4310d7ea52cb">
+<div><fiddle-embed name="@Point_equal_operator">
 
 #### Example Output
 
@@ -995,7 +995,7 @@ true if <a href='#SkPoint_notequal_operator_a'>a</a>.<a href='#SkPoint_fX'>fX</a
 
 ### Example
 
-<div><fiddle-embed name="8fe8572685eaa617f25a5a6767a874dc">
+<div><fiddle-embed name="@Point_notequal_operator">
 
 #### Example Output
 
@@ -1041,7 +1041,7 @@ Can also be used to subtract <a href='SkPoint_Reference#Vector'>Vector</a> from 
 
 ### Example
 
-<div><fiddle-embed name="b6c4943ecd0b2dccf9d220b8944009e0"></fiddle-embed></div>
+<div><fiddle-embed name="@Point_subtract_operator"></fiddle-embed></div>
 
 ### See Also
 
@@ -1077,7 +1077,7 @@ Can also be used to add <a href='SkPoint_Reference#Vector'>Vector</a> to <a href
 
 ### Example
 
-<div><fiddle-embed name="911a84253dfec4dabf94dbe3c71766f0"></fiddle-embed></div>
+<div><fiddle-embed name="@Point_add_operator"></fiddle-embed></div>
 
 ### See Also
 

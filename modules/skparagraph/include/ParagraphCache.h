@@ -18,6 +18,7 @@ struct Measurement {
     SkScalar fWidth;
     SkScalar fMaxIntrinsicWidth;
     SkScalar fMinIntrinsicWidth;
+    SkScalar fLongestLine;
 };
 
 enum InternalState {

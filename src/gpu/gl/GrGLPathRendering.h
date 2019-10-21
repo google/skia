@@ -65,11 +65,7 @@ public:
 
 protected:
     void onStencilPath(const StencilPathArgs&, const GrPath*) override;
-    void onDrawPath(GrRenderTarget*, GrSurfaceOrigin,
-                    const GrPrimitiveProcessor&,
-                    const GrPipeline&,
-                    const GrPipeline::FixedDynamicState&,
-                    const GrStencilSettings&,
+    void onDrawPath(GrRenderTarget*, const GrProgramInfo&, const GrStencilSettings&,
                     const GrPath*) override;
 
 private:

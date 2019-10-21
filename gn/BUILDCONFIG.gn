@@ -69,6 +69,10 @@ is_win = current_os == "win" || current_os == "winrt"
 is_winrt = current_os == "winrt"
 is_tizen = current_os == "tizen"
 
+# This is just to make the Dawn build files happy. Skia itself uses target_os = "linux"
+# for ChromeOS, so this variable will not affect Skia proper.
+is_chromeos = false
+
 if (target_cpu == "") {
   target_cpu = host_cpu
   if (is_android || is_ios) {

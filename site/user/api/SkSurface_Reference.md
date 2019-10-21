@@ -158,7 +158,7 @@ may be nullptr
 
 ### Example
 
-<div><fiddle-embed name="3f5aeb870104187643197354a7f1d27a">
+<div><fiddle-embed name="@Surface_MakeRasterDirect">
 
 #### Example Output
 
@@ -235,7 +235,7 @@ may be nullptr
 
 ### Example
 
-<div><fiddle-embed name="8e6530b26ab4096a9a91cfaadda1c568">
+<div><fiddle-embed name="@Surface_MakeRasterDirectReleaseProc">
 
 #### Example Output
 
@@ -302,7 +302,7 @@ may be nullptr
 
 ### Example
 
-<div><fiddle-embed name="a803910ada4f8733f0b62456afead55f">
+<div><fiddle-embed name="@Surface_MakeRaster">
 
 #### Example Output
 
@@ -361,7 +361,7 @@ may be nullptr
 
 ### Example
 
-<div><fiddle-embed name="c6197d204ef9e4ccfb583242651fb2a7"></fiddle-embed></div>
+<div><fiddle-embed name="@Surface_MakeRaster_2"></fiddle-embed></div>
 
 ### See Also
 
@@ -409,7 +409,7 @@ fonts; may be nullptr
 
 ### Example
 
-<div><fiddle-embed name="b932a2bd68455fb0af2e7a1ed19e36b3">
+<div><fiddle-embed name="@Surface_MakeRasterN32Premul">
 
 #### Example Output
 
@@ -913,7 +913,7 @@ has no effect. Calling <a href='#SkSurface_makeImageSnapshot'>makeImageSnapshot<
 
 ### Example
 
-<div><fiddle-embed name="99a54b814ccab7d2b1143c88581649ff">
+<div><fiddle-embed name="@Surface_MakeNull">
 
 #### Example Output
 
@@ -946,7 +946,7 @@ number of <a href='undocumented#Pixel'>pixel</a> columns
 
 ### Example
 
-<div><fiddle-embed name="df066b56dd97c7c589fd2bb6a2539de8">
+<div><fiddle-embed name="@Surface_width">
 
 #### Example Output
 
@@ -976,7 +976,7 @@ number of <a href='undocumented#Pixel'>pixel</a> rows
 
 ### Example
 
-<div><fiddle-embed name="20571cc23e3146deaa09046b64cc0aef">
+<div><fiddle-embed name="@Surface_height">
 
 #### Example Output
 
@@ -1008,7 +1008,7 @@ unique content identifier
 
 ### Example
 
-<div><fiddle-embed name="be9574c4a14f891e1abb4ec2b1e51d6c">
+<div><fiddle-embed name="@Surface_notifyContentWillChange">
 
 #### Example Output
 
@@ -1087,7 +1087,7 @@ Subsequent calls to <a href='#SkSurface_generationID'>generationID</a>() return 
 
 ### Example
 
-<div><fiddle-embed name="be9574c4a14f891e1abb4ec2b1e51d6c"></fiddle-embed></div>
+<div><fiddle-embed name="@Surface_notifyContentWillChange"></fiddle-embed></div>
 
 ### See Also
 
@@ -1264,7 +1264,7 @@ compatible <a href='SkSurface_Reference#SkSurface'>SkSurface</a> or nullptr
 
 ### Example
 
-<div><fiddle-embed name="a9889b519a26896b900da0444e423c61"></fiddle-embed></div>
+<div><fiddle-embed name="@Surface_makeSurface"></fiddle-embed></div>
 
 ### See Also
 
@@ -1288,7 +1288,7 @@ are not captured. <a href='SkImage_Reference#SkImage'>SkImage</a> allocation is 
 
 ### Example
 
-<div><fiddle-embed name="46f1fa0d95e590a64bed0140407ce5f7"></fiddle-embed></div>
+<div><fiddle-embed name="@Surface_makeImageSnapshot"></fiddle-embed></div>
 
 ### See Also
 
@@ -1312,7 +1312,7 @@ it and the <a href='SkSurface_Reference#Surface'>surface</a>.
 
 ### Example
 
-<div><fiddle-embed name="b18b8ab693b09eb70a1d22ab63790cc7"></fiddle-embed></div>
+<div><fiddle-embed name="@Surface_makeImageSnapshot_2"></fiddle-embed></div>
 
 ### See Also
 
@@ -1353,7 +1353,7 @@ and so on; or nullptr
 
 ### Example
 
-<div><fiddle-embed name="0de693f4d8dd898a60be8cfba23952be"></fiddle-embed></div>
+<div><fiddle-embed name="@Surface_draw"></fiddle-embed></div>
 
 ### See Also
 
@@ -1514,7 +1514,7 @@ true if pixels were copied
 
 ### Example
 
-<div><fiddle-embed name="484d60dab5d846bf28c7a4d48892324a"><div>A black <a href='undocumented#Oval'>oval</a> drawn on a red background provides an <a href='SkImage_Reference#Image'>image</a> to copy.
+<div><fiddle-embed name="@Surface_readPixels_2"><div>A black <a href='undocumented#Oval'>oval</a> drawn on a red background provides an <a href='SkImage_Reference#Image'>image</a> to copy.
 <a href='#SkSurface_readPixels'>readPixels</a> copies one quarter of the <a href='SkSurface_Reference#Surface'>Surface</a> into each of the four corners.
 The copied quarter <a href='undocumented#Oval'>ovals</a> overdraw the original <a href='undocumented#Oval'>oval</a>.
 </div></fiddle-embed></div>
@@ -1580,7 +1580,7 @@ true if pixels were copied
 
 ### Example
 
-<div><fiddle-embed name="2d991a231e49d1de13eeb2ba9b440e01"></fiddle-embed></div>
+<div><fiddle-embed name="@Surface_readPixels_3"></fiddle-embed></div>
 
 ### See Also
 
@@ -1656,7 +1656,7 @@ converting to <a href='SkSurface_Reference#Surface'>Surface</a> <a href='SkImage
 
 ### Example
 
-<div><fiddle-embed name="d77790dd3bc9f678fa4f582347fb8fba"></fiddle-embed></div>
+<div><fiddle-embed name="@Surface_writePixels_2"></fiddle-embed></div>
 
 ### See Also
 
@@ -1678,7 +1678,7 @@ LCD striping orientation and setting for <a href='undocumented#Device'>device</a
 
 ### Example
 
-<div><fiddle-embed name="13cf9e7b2894ae6e98c1fd719040bf01">
+<div><fiddle-embed name="@Surface_props">
 
 #### Example Output
 

@@ -33,7 +33,7 @@ static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* cont
                         GrSamplerState::Filter::kMipMap}) {
         rtContext->clear(nullptr, SkPMColor4f::FromBytes_RGBA(0xDDCCBBAA),
                          GrRenderTargetContext::CanClearFullscreen::kYes);
-        auto fp = GrSimpleTextureEffect::Make(rectProxy, SkMatrix::I(), filter);
+        auto fp = GrSimpleTextureEffect::Make(rectProxy, colorType, SkMatrix::I(), filter);
         GrPaint paint;
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         paint.addColorFragmentProcessor(std::move(fp));

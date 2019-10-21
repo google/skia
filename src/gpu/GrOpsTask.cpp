@@ -18,8 +18,11 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/GrResourceAllocator.h"
+#include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/geometry/GrRect.h"
 #include "src/gpu/ops/GrClearOp.h"
@@ -388,12 +391,39 @@ void GrOpsTask::endFlush() {
     fAuditTrail = nullptr;
 }
 
+void GrOpsTask::onPrePrepare(GrRecordingContext* context) {
+    SkASSERT(this->isClosed());
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+#endif
+    // TODO: remove the check for discard here once reduced op splitting is turned on. Currently we
+    // can end up with GrOpsTasks that only have a discard load op and no ops. For vulkan validation
+    // we need to keep that discard and not drop it. Once we have reduce op list splitting enabled
+    // we shouldn't end up with GrOpsTasks with only discard.
+    if (this->isNoOp() || (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
+        return;
+    }
+
+    for (const auto& chain : fOpChains) {
+        if (chain.shouldExecute()) {
+            chain.head()->prePrepare(context);
+        }
+    }
+}
+
 void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
     SkASSERT(fTarget->peekRenderTarget());
     SkASSERT(this->isClosed());
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 #endif
+    // TODO: remove the check for discard here once reduced op splitting is turned on. Currently we
+    // can end up with GrOpsTasks that only have a discard load op and no ops. For vulkan validation
+    // we need to keep that discard and not drop it. Once we have reduce op list splitting enabled
+    // we shouldn't end up with GrOpsTasks with only discard.
+    if (this->isNoOp() || (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
+        return;
+    }
 
     flushState->setSampledProxyArray(&fSampledProxies);
     // Loop over the ops that haven't yet been prepared.
@@ -402,14 +432,13 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
             TRACE_EVENT0("skia.gpu", chain.head()->name());
 #endif
-            GrOpFlushState::OpArgs opArgs = {
-                chain.head(),
-                fTarget->asRenderTargetProxy(),
-                chain.appliedClip(),
-                fTarget.get()->asRenderTargetProxy()->outputSwizzle(),
-                chain.dstProxy()
-            };
+            GrOpFlushState::OpArgs opArgs(chain.head(),
+                                          fTarget->asRenderTargetProxy(),
+                                          chain.appliedClip(),
+                                          chain.dstProxy());
+
             flushState->setOpArgs(&opArgs);
+            // GrOp::prePrepare may or may not have been called at this point
             chain.head()->prepare(flushState);
             flushState->setOpArgs(nullptr);
         }
@@ -417,10 +446,10 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
     flushState->setSampledProxyArray(nullptr);
 }
 
-static GrOpsRenderPass* create_command_buffer(
-        GrGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin, const SkRect& bounds,
+static GrOpsRenderPass* create_render_pass(
+        GrGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
         GrLoadOp colorLoadOp, const SkPMColor4f& loadClearColor, GrLoadOp stencilLoadOp,
-        const SkTArray<GrTextureProxy*, true>& sampledProxies) {
+        GrStoreOp stencilStoreOp, const SkTArray<GrTextureProxy*, true>& sampledProxies) {
     const GrOpsRenderPass::LoadAndStoreInfo kColorLoadStoreInfo {
         colorLoadOp,
         GrStoreOp::kStore,
@@ -434,7 +463,7 @@ static GrOpsRenderPass* create_command_buffer(
     // lower level (inside the VK command buffer).
     const GrOpsRenderPass::StencilLoadAndStoreInfo stencilLoadAndStoreInfo {
         stencilLoadOp,
-        GrStoreOp::kStore,
+        stencilStoreOp,
     };
 
     return gpu->getOpsRenderPass(rt, origin, bounds, kColorLoadStoreInfo, stencilLoadAndStoreInfo,
@@ -445,30 +474,71 @@ static GrOpsRenderPass* create_command_buffer(
 // is at flush time). However, we need to store the RenderTargetProxy in the
 // Ops and instantiate them here.
 bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
-    if (this->isNoOp()) {
+    // TODO: remove the check for discard here once reduced op splitting is turned on. Currently we
+    // can end up with GrOpsTasks that only have a discard load op and no ops. For vulkan validation
+    // we need to keep that discard and not drop it. Once we have reduce op list splitting enabled
+    // we shouldn't end up with GrOpsTasks with only discard.
+    if (this->isNoOp() || (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
         return false;
     }
 
     SkASSERT(fTarget->peekRenderTarget());
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
-    // TODO: at the very least, we want the stencil store op to always be discard (at this
-    // level). In Vulkan, sub-command buffers would still need to load & store the stencil buffer.
-
     // Make sure load ops are not kClear if the GPU needs to use draws for clears
     SkASSERT(fColorLoadOp != GrLoadOp::kClear ||
              !flushState->gpu()->caps()->performColorClearsAsDraws());
-    SkASSERT(fStencilLoadOp != GrLoadOp::kClear ||
-             !flushState->gpu()->caps()->performStencilClearsAsDraws());
-    GrOpsRenderPass* renderPass = create_command_buffer(
-                                                    flushState->gpu(),
-                                                    fTarget->peekRenderTarget(),
-                                                    fTarget->origin(),
-                                                    fTarget->getBoundsRect(),
-                                                    fColorLoadOp,
-                                                    fLoadClearColor,
-                                                    fStencilLoadOp,
-                                                    fSampledProxies);
+
+    const GrCaps& caps = *flushState->gpu()->caps();
+    GrRenderTarget* renderTarget = fTarget.get()->peekRenderTarget();
+    SkASSERT(renderTarget);
+    GrStencilAttachment* stencil = renderTarget->renderTargetPriv().getStencilAttachment();
+
+    GrLoadOp stencilLoadOp;
+    switch (fInitialStencilContent) {
+        case StencilContent::kDontCare:
+            stencilLoadOp = GrLoadOp::kDiscard;
+            break;
+        case StencilContent::kUserBitsCleared:
+            SkASSERT(!caps.performStencilClearsAsDraws());
+            SkASSERT(stencil);
+            if (caps.discardStencilValuesAfterRenderPass()) {
+                // Always clear the stencil if it is being discarded after render passes. This is
+                // also an optimization because we are on a tiler and it avoids loading the values
+                // from memory.
+                stencilLoadOp = GrLoadOp::kClear;
+                break;
+            }
+            if (!stencil->hasPerformedInitialClear()) {
+                stencilLoadOp = GrLoadOp::kClear;
+                stencil->markHasPerformedInitialClear();
+                break;
+            }
+            // renderTargetContexts are required to leave the user stencil bits in a cleared state
+            // once finished, meaning the stencil values will always remain cleared after the
+            // initial clear. Just fall through to reloading the existing (cleared) stencil values
+            // from memory.
+        case StencilContent::kPreserved:
+            SkASSERT(stencil);
+            stencilLoadOp = GrLoadOp::kLoad;
+            break;
+    }
+
+    // NOTE: If fMustPreserveStencil is set, then we are executing a renderTargetContext that split
+    // its opsTask.
+    //
+    // FIXME: We don't currently flag render passes that don't use stencil at all. In that case
+    // their store op might be "discard", and we currently make the assumption that a discard will
+    // not invalidate what's already in main memory. This is probably ok for now, but certainly
+    // something we want to address soon.
+    GrStoreOp stencilStoreOp = (caps.discardStencilValuesAfterRenderPass() && !fMustPreserveStencil)
+            ? GrStoreOp::kDiscard
+            : GrStoreOp::kStore;
+
+    GrOpsRenderPass* renderPass = create_render_pass(
+            flushState->gpu(), fTarget->peekRenderTarget(), fTarget->origin(),
+            fClippedContentBounds, fColorLoadOp, fLoadClearColor, stencilLoadOp, stencilStoreOp,
+            fSampledProxies);
     flushState->setOpsRenderPass(renderPass);
     renderPass->begin();
 
@@ -481,13 +551,10 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
         TRACE_EVENT0("skia.gpu", chain.head()->name());
 #endif
 
-        GrOpFlushState::OpArgs opArgs {
-            chain.head(),
-            fTarget->asRenderTargetProxy(),
-            chain.appliedClip(),
-            fTarget.get()->asRenderTargetProxy()->outputSwizzle(),
-            chain.dstProxy()
-        };
+        GrOpFlushState::OpArgs opArgs(chain.head(),
+                                      fTarget->asRenderTargetProxy(),
+                                      chain.appliedClip(),
+                                      chain.dstProxy());
 
         flushState->setOpArgs(&opArgs);
         chain.head()->execute(flushState, chain.bounds());
@@ -504,15 +571,12 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
 void GrOpsTask::setColorLoadOp(GrLoadOp op, const SkPMColor4f& color) {
     fColorLoadOp = op;
     fLoadClearColor = color;
+    if (GrLoadOp::kClear == fColorLoadOp) {
+        fTotalBounds.setWH(fTarget->width(), fTarget->height());
+    }
 }
 
 bool GrOpsTask::resetForFullscreenClear(CanDiscardPreviousOps canDiscardPreviousOps) {
-    // Mark the color load op as discard (this may be followed by a clearColorOnLoad call to make
-    // the load op kClear, or it may be followed by an explicit op). In the event of an absClear()
-    // after a regular clear(), we could end up with a clear load op and a real clear op in the task
-    // if the load op were not reset here.
-    fColorLoadOp = GrLoadOp::kDiscard;
-
     // If we previously recorded a wait op, we cannot delete the wait op. Until we track the wait
     // ops separately from normal ops, we have to avoid clearing out any ops in this case as well.
     if (fHasWaitOp) {
@@ -539,24 +603,42 @@ void GrOpsTask::discard() {
     // opsTasks' color & stencil load ops.
     if (this->isEmpty()) {
         fColorLoadOp = GrLoadOp::kDiscard;
-        fStencilLoadOp = GrLoadOp::kDiscard;
+        fInitialStencilContent = StencilContent::kDontCare;
+        fTotalBounds.setEmpty();
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG
-static const char* load_op_to_name(GrLoadOp op) {
-    return GrLoadOp::kLoad == op ? "load" : GrLoadOp::kClear == op ? "clear" : "discard";
-}
-
 void GrOpsTask::dump(bool printDependencies) const {
     GrRenderTask::dump(printDependencies);
 
-    SkDebugf("ColorLoadOp: %s %x StencilLoadOp: %s\n",
-             load_op_to_name(fColorLoadOp),
-             GrLoadOp::kClear == fColorLoadOp ? fLoadClearColor.toBytes_RGBA() : 0x0,
-             load_op_to_name(fStencilLoadOp));
+    SkDebugf("fColorLoadOp: ");
+    switch (fColorLoadOp) {
+        case GrLoadOp::kLoad:
+            SkDebugf("kLoad\n");
+            break;
+        case GrLoadOp::kClear:
+            SkDebugf("kClear (0x%x)\n", fLoadClearColor.toBytes_RGBA());
+            break;
+        case GrLoadOp::kDiscard:
+            SkDebugf("kDiscard\n");
+            break;
+    }
+
+    SkDebugf("fInitialStencilContent: ");
+    switch (fInitialStencilContent) {
+        case StencilContent::kDontCare:
+            SkDebugf("kDontCare\n");
+            break;
+        case StencilContent::kUserBitsCleared:
+            SkDebugf("kUserBitsCleared\n");
+            break;
+        case StencilContent::kPreserved:
+            SkDebugf("kPreserved\n");
+            break;
+    }
 
     SkDebugf("ops (%d):\n", fOpChains.count());
     for (int i = 0; i < fOpChains.count(); ++i) {
@@ -677,6 +759,10 @@ void GrOpsTask::recordOp(
         return;
     }
 
+    // Account for this op's bounds before we attempt to combine.
+    // NOTE: The caller should have already called "op->setClippedBounds()" by now, if applicable.
+    fTotalBounds.join(op->bounds());
+
     // Check if there is an op we can combine with by linearly searching back until we either
     // 1) check every op
     // 2) intersect with something
@@ -753,3 +839,18 @@ void GrOpsTask::forwardCombine(const GrCaps& caps) {
     }
 }
 
+GrRenderTask::ExpectedOutcome GrOpsTask::onMakeClosed(
+        const GrCaps& caps, SkIRect* targetUpdateBounds) {
+    this->forwardCombine(caps);
+    if (!this->isNoOp()) {
+        SkRect clippedContentBounds = SkRect::MakeIWH(fTarget->width(), fTarget->height());
+        // TODO: If we can fix up GLPrograms test to always intersect the fTarget bounds then we can
+        // simply assert here that the bounds intersect.
+        if (clippedContentBounds.intersect(fTotalBounds)) {
+            clippedContentBounds.roundOut(&fClippedContentBounds);
+            *targetUpdateBounds = fClippedContentBounds;
+            return ExpectedOutcome::kTargetDirty;
+        }
+    }
+    return ExpectedOutcome::kTargetUnchanged;
+}

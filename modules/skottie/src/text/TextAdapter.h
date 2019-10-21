@@ -30,7 +30,7 @@ public:
     const sk_sp<sksg::Group>& renderNode() const { return fRoot; }
 
     const TextValue& getText() const { return fText; }
-    void setText(const TextValue& t) { fText = t; }
+    void setText(const TextValue&);
 
 protected:
     void onSync() override;
@@ -46,6 +46,7 @@ private:
                                       fStrokeColorNode;
     };
 
+    void reshape();
     void addFragment(const Shaper::Fragment&);
     void buildDomainMaps(const Shaper::Result&);
 
@@ -64,6 +65,7 @@ private:
     TextAnimator::DomainMaps fMaps;
 
     TextValue                fText;
+    bool                     fTextDirty = true;
 };
 
 } // namespace internal

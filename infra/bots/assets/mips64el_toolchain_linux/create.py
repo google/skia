@@ -27,19 +27,20 @@ import utils
 # straightforward as it should be.
 PKGS = [
     'binutils-mips64el-linux-gnuabi64',
-    'cpp-7-mips64el-linux-gnuabi64',
-    'g++-7-mips64el-linux-gnuabi64',
-    'gcc-7-cross-base',
-    'gcc-7-mips64el-linux-gnuabi64',
-    'gcc-7-mips64el-linux-gnuabi64-base',
+    'cpp-8-mips64el-linux-gnuabi64',
+    'g++-8-mips64el-linux-gnuabi64',
+    'gcc-8-cross-base',
+    'gcc-8-mips64el-linux-gnuabi64',
+    'gcc-8-mips64el-linux-gnuabi64-base',
     'libatomic1-mips64el-cross',
     'libc6-dev-mips64el-cross',
     'libc6-mips64el-cross',
-    'libgcc-7-dev-mips64el-cross',
+    'libgcc-8-dev-mips64el-cross',
     'libgcc1-mips64el-cross',
     'libgomp1-mips64el-cross',
+    'libisl19',
     'libmpfr6',  # This is new in buster, so build machines don't have it yet.
-    'libstdc++-7-dev-mips64el-cross',
+    'libstdc++-8-dev-mips64el-cross',
     'libstdc++6-mips64el-cross',
     'linux-libc-dev-mips64el-cross',
 ]
@@ -58,7 +59,7 @@ def create_asset(target_dir):
   # Remove unnecessary files that cause problems with zipping (due to dangling
   # symlinks).
   os.remove(os.path.join(parent_dir,
-                         'lib/gcc-cross/mips64el-linux-gnuabi64/7/libcc1.so'))
+                         'lib/gcc-cross/mips64el-linux-gnuabi64/8/libcc1.so'))
   shutil.rmtree(os.path.join(parent_dir, 'share'))
   # Remove usr/ prefix.
   for d in os.listdir(parent_dir):

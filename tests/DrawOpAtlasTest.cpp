@@ -211,13 +211,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     TestingUploadTarget uploadTarget;
 
     GrOpFlushState flushState(gpu, resourceProvider, uploadTarget.writeableTokenTracker());
-    GrOpFlushState::OpArgs opArgs = {
-        op.get(),
-        rtc->asRenderTargetProxy(),
-        nullptr,
-        rtc->asRenderTargetProxy()->outputSwizzle(),
-        GrXferProcessor::DstProxy(nullptr, SkIPoint::Make(0, 0))
-    };
+    GrOpFlushState::OpArgs opArgs(op.get(),
+                                  rtc->asRenderTargetProxy(),
+                                  nullptr,
+                                  GrXferProcessor::DstProxy(nullptr, SkIPoint::Make(0, 0)));
 
     // Cripple the atlas manager so it can't allocate any pages. This will force a failure
     // in the preparation of the text op

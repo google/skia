@@ -8,6 +8,11 @@
 CanvasKit.onRuntimeInitialized = function() {
   // All calls to 'this' need to go in externs.js so closure doesn't minify them away.
 
+  // buffer is the underlying ArrayBuffer that is the WASM memory blob.
+  // It was removed from Emscripten proper in https://github.com/emscripten-core/emscripten/pull/8277
+  // but it is convenient to have a reference to, so we add it back in.
+  CanvasKit.buffer = CanvasKit.HEAPU8.buffer;
+
   // Add some helpers for matrices. This is ported from SkMatrix.cpp
   // to save complexity and overhead of going back and forth between
   // C++ and JS layers.
@@ -122,6 +127,94 @@ CanvasKit.onRuntimeInitialized = function() {
       0, 0,  1,
     ];
   };
+
+  // An SkColorMatrix is a 4x4 color matrix that transforms the 4 color channels
+  //  with a 1x4 matrix that post-translates those 4 channels.
+  // For example, the following is the layout with the scale (S) and post-transform
+  // (PT) items indicated.
+  // RS,  0,  0,  0 | RPT
+  //  0, GS,  0,  0 | GPT
+  //  0,  0, BS,  0 | BPT
+  //  0,  0,  0, AS | APT
+  //
+  // Much of this was hand-transcribed from SkColorMatrix.cpp, because it's easier to
+  // deal with a Float32Array of length 20 than to try to expose the SkColorMatrix object.
+
+  var rScale = 0;
+  var gScale = 6;
+  var bScale = 12;
+  var aScale = 18;
+
+  var rPostTrans = 4;
+  var gPostTrans = 9;
+  var bPostTrans = 14;
+  var aPostTrans = 19;
+
+  CanvasKit.SkColorMatrix = {};
+  CanvasKit.SkColorMatrix.identity = function() {
+    var m = new Float32Array(20);
+    m[rScale] = 1;
+    m[gScale] = 1;
+    m[bScale] = 1;
+    m[aScale] = 1;
+    return m;
+  }
+
+  CanvasKit.SkColorMatrix.scaled = function(rs, gs, bs, as) {
+    var m = new Float32Array(20);
+    m[rScale] = rs;
+    m[gScale] = gs;
+    m[bScale] = bs;
+    m[aScale] = as;
+    return m;
+  }
+
+  var rotateIndices = [
+    [6, 7, 11, 12],
+    [0, 10, 2, 12],
+    [0, 1,  5,  6],
+  ];
+  // axis should be 0, 1, 2 for r, g, b
+  CanvasKit.SkColorMatrix.rotated = function(axis, sine, cosine) {
+    var m = CanvasKit.SkColorMatrix.identity();
+    var indices = rotateIndices[axis];
+    m[indices[0]] = cosine;
+    m[indices[1]] = sine;
+    m[indices[2]] = -sine;
+    m[indices[3]] = cosine;
+    return m;
+  }
+
+  // m is a SkColorMatrix (i.e. a Float32Array), and this sets the 4 "special"
+  // params that will translate the colors after they are multiplied by the 4x4 matrix.
+  CanvasKit.SkColorMatrix.postTranslate = function(m, dr, dg, db, da) {
+    m[rPostTrans] += dr;
+    m[gPostTrans] += dg;
+    m[bPostTrans] += db;
+    m[aPostTrans] += da;
+    return m;
+  }
+
+  // concat returns a new SkColorMatrix that is the result of multiplying outer*inner;
+  CanvasKit.SkColorMatrix.concat = function(outer, inner) {
+    var m = new Float32Array(20);
+    var index = 0;
+    for (var j = 0; j < 20; j += 5) {
+        for (var i = 0; i < 4; i++) {
+            m[index++] =  outer[j + 0] * inner[i + 0] +
+                          outer[j + 1] * inner[i + 5] +
+                          outer[j + 2] * inner[i + 10] +
+                          outer[j + 3] * inner[i + 15];
+        }
+        m[index++] =  outer[j + 0] * inner[4] +
+                      outer[j + 1] * inner[9] +
+                      outer[j + 2] * inner[14] +
+                      outer[j + 3] * inner[19] +
+                      outer[j + 4];
+    }
+
+    return m;
+  }
 
   CanvasKit.SkPath.prototype.addArc = function(oval, startAngle, sweepAngle) {
     // see arc() for the HTMLCanvas version
@@ -507,11 +600,11 @@ CanvasKit.onRuntimeInitialized = function() {
     if (typeof str === 'string') {
       // lengthBytesUTF8 and stringToUTF8Array are defined in the emscripten
       // JS.  See https://kripken.github.io/emscripten-site/docs/api_reference/preamble.js.html#stringToUTF8
-      // Add 1 for null terminator
-      var strLen = lengthBytesUTF8(str) + 1;
-      var strPtr = CanvasKit._malloc(strLen);
-
-      stringToUTF8(str, strPtr, strLen);
+      var strLen = lengthBytesUTF8(str);
+      // Add 1 for null terminator, which we need when copying/converting, but can ignore
+      // when we call into Skia.
+      var strPtr = CanvasKit._malloc(strLen + 1);
+      stringToUTF8(str, strPtr, strLen + 1);
       this._drawSimpleText(strPtr, strLen, x, y, font, paint);
     } else {
       this._drawShapedText(str, x, y, paint);
@@ -541,7 +634,7 @@ CanvasKit.onRuntimeInitialized = function() {
 
     // The first typed array is just a view into memory. Because we will
     // be free-ing that, we call slice to make a persistent copy.
-    var pixels = new Uint8Array(CanvasKit.HEAPU8.buffer, pptr, len).slice();
+    var pixels = new Uint8Array(CanvasKit.buffer, pptr, len).slice();
     CanvasKit._free(pptr);
     return pixels;
   }
@@ -571,6 +664,19 @@ CanvasKit.onRuntimeInitialized = function() {
 
     CanvasKit._free(pptr);
     return ok;
+  }
+
+  // colorMatrix is an SkColorMatrix (e.g. Float32Array of length 20)
+  CanvasKit.SkColorFilter.MakeMatrix = function(colorMatrix) {
+    if (!colorMatrix || colorMatrix.length !== 20) {
+      SkDebug('ignoring invalid color matrix');
+      return;
+    }
+    var fptr = copy1dArray(colorMatrix, CanvasKit.HEAPF32);
+    // We know skia memcopies the floats, so we can free our memory after the call returns.
+    var m = CanvasKit.SkColorFilter._makeMatrix(fptr);
+    CanvasKit._free(fptr);
+    return m;
   }
 
   // Returns an array of the widths of the glyphs in this string.
@@ -603,12 +709,43 @@ CanvasKit.onRuntimeInitialized = function() {
     return retVal;
   }
 
+  // arguments should all be arrayBuffers or be an array of arrayBuffers.
+  CanvasKit.SkFontMgr.FromData = function() {
+    if (!arguments.length) {
+      SkDebug('Could not make SkFontMgr from no font sources');
+      return null;
+    }
+    var fonts = arguments;
+    if (fonts.length === 1 && Array.isArray(fonts[0])) {
+      fonts = arguments[0];
+    }
+    if (!fonts.length) {
+      SkDebug('Could not make SkFontMgr from no font sources');
+      return null;
+    }
+    var dPtrs = [];
+    var sizes = [];
+    for (var i = 0; i < fonts.length; i++) {
+      var data = new Uint8Array(fonts[i]);
+      var dptr = copy1dArray(data, CanvasKit.HEAPU8);
+      dPtrs.push(dptr);
+      sizes.push(data.byteLength);
+    }
+    // Pointers are 32 bit unsigned ints
+    var datasPtr = copy1dArray(dPtrs, CanvasKit.HEAPU32);
+    var sizesPtr = copy1dArray(sizes, CanvasKit.HEAPU32);
+    var fm = CanvasKit.SkFontMgr._fromData(datasPtr, sizesPtr, fonts.length);
+    // The SkFontMgr has taken ownership of the bytes we allocated in the for loop.
+    CanvasKit._free(datasPtr);
+    CanvasKit._free(sizesPtr);
+    return fm;
+  }
+
   // fontData should be an arrayBuffer
   CanvasKit.SkFontMgr.prototype.MakeTypefaceFromData = function(fontData) {
     var data = new Uint8Array(fontData);
 
-    var fptr = CanvasKit._malloc(data.byteLength);
-    CanvasKit.HEAPU8.set(data, fptr);
+    var fptr = copy1dArray(data, CanvasKit.HEAPU8);
     var font = this._makeTypefaceFromData(fptr, data.byteLength);
     if (!font) {
       SkDebug('Could not decode font data');
@@ -793,6 +930,22 @@ CanvasKit.XYWHRect = function(x, y, w, h) {
   };
 }
 
+// RRectXY returns an RRect with the given rect and a radiusX and radiusY for
+// all 4 corners.
+CanvasKit.RRectXY = function(rect, rx, ry) {
+  return {
+    rect: rect,
+    rx1: rx,
+    ry1: ry,
+    rx2: rx,
+    ry2: ry,
+    rx3: rx,
+    ry3: ry,
+    rx4: rx,
+    ry4: ry,
+  };
+}
+
 CanvasKit.MakePathFromCmds = function(cmds) {
   var ptrLen = loadCmdsTypedArray(cmds);
   var path = CanvasKit._MakePathFromCmds(ptrLen[0], ptrLen[1]);
@@ -811,6 +964,20 @@ CanvasKit.MakeSkDashPathEffect = function(intervals, phase) {
   var dpe = CanvasKit._MakeSkDashPathEffect(ptr, intervals.length, phase);
   CanvasKit._free(ptr);
   return dpe;
+}
+
+// data is a TypedArray or ArrayBuffer e.g. from fetch().then(resp.arrayBuffer())
+CanvasKit.MakeAnimatedImageFromEncoded = function(data) {
+  data = new Uint8Array(data);
+
+  var iptr = CanvasKit._malloc(data.byteLength);
+  CanvasKit.HEAPU8.set(data, iptr);
+  var img = CanvasKit._decodeAnimatedImage(iptr, data.byteLength);
+  if (!img) {
+    SkDebug('Could not decode animated image');
+    return null;
+  }
+  return img;
 }
 
 // data is a TypedArray or ArrayBuffer e.g. from fetch().then(resp.arrayBuffer())

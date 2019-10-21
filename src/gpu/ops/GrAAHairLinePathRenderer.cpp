@@ -817,7 +817,7 @@ public:
         fPaths.emplace_back(PathData{viewMatrix, path, devClipBounds, capLength});
 
         this->setTransformedBounds(path.getBounds(), viewMatrix, HasAABloat::kYes,
-                                   IsZeroArea::kYes);
+                                   IsHairline::kYes);
     }
 
     const char* name() const override { return "AAHairlineOp"; }

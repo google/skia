@@ -449,3 +449,64 @@ DEF_TEST(TextBlob_MakeAsDrawText, reporter) {
     REPORTER_ASSERT(reporter, runs == 1);
 
 }
+
+DEF_TEST(TextBlob_iter, reporter) {
+    sk_sp<SkTypeface> tf = SkTypeface::MakeFromName(nullptr, SkFontStyle::BoldItalic());
+
+    SkTextBlobBuilder builder;
+    add_run(&builder, "Hello", 10, 20, nullptr);
+    add_run(&builder, "World", 10, 40, tf);
+    auto blob = builder.make();
+
+    SkTextBlob::Iter::Run expected[] = {
+        { nullptr, 5, nullptr },
+        { tf.get(), 5, nullptr },
+    };
+
+    SkTextBlob::Iter iter(*blob);
+    SkTextBlob::Iter::Run run;
+    for (auto exp : expected) {
+        REPORTER_ASSERT(reporter, iter.next(&run));
+        REPORTER_ASSERT(reporter, run.fTypeface == exp.fTypeface);
+        REPORTER_ASSERT(reporter, run.fGlyphCount == exp.fGlyphCount);
+        for (int i = 0; i < run.fGlyphCount; ++i) {
+            REPORTER_ASSERT(reporter, run.fGlyphIndices[i] != 0);
+        }
+    }
+    REPORTER_ASSERT(reporter, !iter.next(&run));    // we're done
+
+    SkTextBlob::Iter iter2(*blob);
+    REPORTER_ASSERT(reporter, iter2.next(&run));
+    // Hello should have the same glyph repeated for the 'l'
+    REPORTER_ASSERT(reporter, run.fGlyphIndices[2] == run.fGlyphIndices[3]);
+}
+
+DEF_TEST(TextBlob_getIntercepts, reporter) {
+    SkFont font;
+    font.setSize(16);
+
+    SkPoint lowPos[1] = { SkPoint::Make(0, 5) };
+    SkPoint highPos[1] = { SkPoint::Make(0, -8) };
+    SkPoint zeroPos[1] = { SkPoint::Make(0, 0) };
+
+    // 'x' sitting on baseline
+    auto blobZeroX = SkTextBlob::MakeFromPosText("x", 1, zeroPos, font);
+    // 'x' lowered to intersect baseline
+    auto blobLowX = SkTextBlob::MakeFromPosText("x", 1, lowPos, font);
+    // 'y' sitting on baseline
+    auto blobZeroY = SkTextBlob::MakeFromPosText("y", 1, zeroPos, font);
+    // 'y' raised to not intersect baseline
+    auto blobHighY = SkTextBlob::MakeFromPosText("y", 1, highPos, font);
+
+    // bounds right below baseline
+    SkScalar bounds[2] = { 1, 2 };
+
+    // 'x' on baseline should not intersect
+    REPORTER_ASSERT(reporter, blobZeroX->getIntercepts(bounds, nullptr) == 0);
+    // lowered 'x' should intersect
+    REPORTER_ASSERT(reporter, blobLowX->getIntercepts(bounds, nullptr) == 2);
+    // 'y' on baseline should intersect
+    REPORTER_ASSERT(reporter, blobZeroY->getIntercepts(bounds, nullptr) == 2);
+    // raised 'y' should not intersect
+    REPORTER_ASSERT(reporter, blobHighY->getIntercepts(bounds, nullptr) == 0);
+}

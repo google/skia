@@ -33,8 +33,8 @@ public:
              const GrVkExtensions& extensions, GrProtected isProtected = GrProtected::kNo);
 
     bool isFormatSRGB(const GrBackendFormat&) const override;
-    bool isFormatCompressed(const GrBackendFormat&) const override;
-
+    bool isFormatCompressed(const GrBackendFormat&,
+                            SkImage::CompressionType* compressionType = nullptr) const override;
 
     bool isFormatTexturableAndUploadable(GrColorType, const GrBackendFormat&) const override;
     bool isFormatTexturable(const GrBackendFormat&) const override;
@@ -52,6 +52,9 @@ public:
 
     int maxRenderTargetSampleCount(const GrBackendFormat&) const override;
     int maxRenderTargetSampleCount(VkFormat format) const;
+
+    size_t bytesPerPixel(const GrBackendFormat&) const override;
+    size_t bytesPerPixel(VkFormat format) const;
 
     SupportedWrite supportedWritePixelsColorType(GrColorType surfaceColorType,
                                                  const GrBackendFormat& surfaceFormat,
@@ -141,6 +144,15 @@ public:
     // Returns true if the device supports protected memory.
     bool supportsProtectedMemory() const { return fSupportsProtectedMemory; }
 
+    // Returns whether we prefer to record draws directly into a primary command buffer.
+    bool preferPrimaryOverSecondaryCommandBuffers() const {
+        return fPreferPrimaryOverSecondaryCommandBuffers;
+    }
+
+    bool mustInvalidatePrimaryCmdBufferStateAfterClearAttachments() const {
+        return fMustInvalidatePrimaryCmdBufferStateAfterClearAttachments;
+    }
+
     /**
      * Helpers used by canCopySurface. In all cases if the SampleCnt parameter is zero that means
      * the surface is not a render target, otherwise it is the number of samples in the render
@@ -165,8 +177,6 @@ public:
         int idx = static_cast<int>(colorType);
         return fColorTypeToFormatTable[idx];
     }
-
-    bool canClearTextureOnCreation() const override;
 
     GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override;
     GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
@@ -260,11 +270,13 @@ private:
         uint16_t fLinearFlags = 0;
 
         SkTDArray<int> fColorSampleCounts;
+        // This value is only valid for regular formats. Compressed formats will be 0.
+        size_t fBytesPerPixel = 0;
 
         std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
         int fColorTypeInfoCount = 0;
     };
-    static const size_t kNumVkFormats = 20;
+    static const size_t kNumVkFormats = 19;
     FormatInfo fFormatTable[kNumVkFormats];
 
     FormatInfo& getFormatInfo(VkFormat);
@@ -299,6 +311,9 @@ private:
     bool fSupportsYcbcrConversion = false;
 
     bool fSupportsProtectedMemory = false;
+
+    bool fPreferPrimaryOverSecondaryCommandBuffers = true;
+    bool fMustInvalidatePrimaryCmdBufferStateAfterClearAttachments = false;
 
     typedef GrCaps INHERITED;
 };

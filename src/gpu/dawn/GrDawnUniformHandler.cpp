@@ -233,7 +233,11 @@ GrGLSLUniformHandler::UniformHandle GrDawnUniformHandler::internalAddUniformArra
     return GrGLSLUniformHandler::UniformHandle(fUniforms.count() - 1);
 }
 
-GrGLSLUniformHandler::SamplerHandle GrDawnUniformHandler::addSampler(const GrTexture* texture,
+void GrDawnUniformHandler::updateUniformVisibility(UniformHandle u, uint32_t visibility) {
+    fUniforms[u.toIndex()].fVisibility |= visibility;
+}
+
+GrGLSLUniformHandler::SamplerHandle GrDawnUniformHandler::addSampler(const GrTextureProxy*,
                                                                      const GrSamplerState&,
                                                                      const GrSwizzle& swizzle,
                                                                      const char* name,

@@ -7,9 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+ - `CanvasKit.MakeAnimatedImageFromEncoded`, `SkCanvas.drawAnimatedImage`.
+ - `CanvasKit.SkFontMgr.FromData` which takes several ArrayBuffers of font data, parses
+   them, reading the metadata (e.g. family names) and stores them into a SkFontMgr.
+ - SkParagraph as an optional set of APIs for dealing with text layout.
+
+### Changed
+ - The `no_font` compile option should strip out more dead code related to fonts.
+ - and `no_embedded_font` option now allows creating a `SkFontMgr.FromData` instead of
+   always having an empty one.
+ - Updated to emscripten 1.38.47
+ - Switch to WebGL 2.0, but fall back to 1.0 when unavailable - bug.skia.org/9052
+
+### Fixed
+ - Null terminator bug in draw text - skbug.com/9314
+
+## [0.7.0] - 2019-09-18
+
+### Added
  - `SkCanvas.drawCircle()`, `SkCanvas.getSaveCount()`
  - `SkPath.offset()`, `SkPath.drawOval`
- - `SkRRect` support (`SkCanvas.drawRRect`, `SkCanvas.drawDRRect`)
+ - `SkRRect` support (`SkCanvas.drawRRect`, `SkCanvas.drawDRRect`, `CanvasKit.RRectXY`).
+   Advanced users can specify the 8 individual radii, if needed.
+ - `CanvasKit.computeTonalColors()`, which  returns TonalColors, which has an
+   ambient SkColor and a spot SkColor.
+ - `CanvasKit.SkColorFilter` and a variety of factories. `SkPaint.setColorFilter` is the only
+   consumer of these at the moment.
+ - `CanvasKit.SkColorMatrix` with functions `.identity()`, `.scaled()`, `.concat()` and
+   others. Primarily for use with `CanvasKit.SkColorFilter.MakeMatrix`.
 
 ### Changed
  - `MakeSkVertices` uses a builder to save a copy.
