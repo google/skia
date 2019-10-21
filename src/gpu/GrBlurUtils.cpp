@@ -185,10 +185,10 @@ static std::unique_ptr<GrRenderTargetContext> create_mask_GPU(GrRecordingContext
     // event that MakeApprox does not change the size, reads outside the right and/or bottom will do
     // the same. We should offset our filter within the render target and expand the size as needed
     // to guarantee at least 1px of padding on all sides.
+    auto approxSize = GrResourceProvider::MakeApprox(maskRect.size());
     auto rtContext = context->priv().makeDeferredRenderTargetContextWithFallback(
-            SkBackingFit::kExact, GrResourceProvider::MakeApprox(maskRect.width()),
-            GrResourceProvider::MakeApprox(maskRect.height()), GrColorType::kAlpha_8, nullptr,
-            sampleCnt, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
+            SkBackingFit::kExact, approxSize.width(), approxSize.height(), GrColorType::kAlpha_8,
+            nullptr, sampleCnt, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
     if (!rtContext) {
         return nullptr;
     }

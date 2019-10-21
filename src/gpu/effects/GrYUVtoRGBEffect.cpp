@@ -44,7 +44,7 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextur
     int numPlanes;
     SkAssertResult(SkYUVAIndex::AreValidIndices(yuvaIndices, &numPlanes));
 
-    const SkISize YSize = proxies[yuvaIndices[SkYUVAIndex::kY_Index].fIndex]->isize();
+    const SkISize YSize = proxies[yuvaIndices[SkYUVAIndex::kY_Index].fIndex]->size();
 
     GrSamplerState::Filter minimizeFilterMode = GrSamplerState::Filter::kMipMap == filterMode ?
                                                 GrSamplerState::Filter::kMipMap :
@@ -53,7 +53,7 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextur
     GrSamplerState::Filter filterModes[4];
     SkSize scales[4];
     for (int i = 0; i < numPlanes; ++i) {
-        SkISize size = proxies[i]->isize();
+        SkISize size = proxies[i]->size();
         scales[i] = SkSize::Make(SkIntToScalar(size.width()) / SkIntToScalar(YSize.width()),
                                  SkIntToScalar(size.height()) / SkIntToScalar(YSize.height()));
         filterModes[i] = (size == YSize) ? filterMode : minimizeFilterMode;
