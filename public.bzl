@@ -613,6 +613,8 @@ def base_defines(os_conditions):
         "SK_HAS_JPEG_LIBRARY",
         # Needed for some tests in dm
         "SK_ENABLE_SKSL_INTERPRETER",
+        # SkPDF output will not include milestone.
+        "SK_MILESTONE=0"
     ] + skia_select(
         os_conditions,
         [
