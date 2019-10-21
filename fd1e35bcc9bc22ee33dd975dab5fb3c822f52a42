@@ -159,6 +159,24 @@
       "revId": "fd1e35bcc9bc22ee33dd975dab5fb3c822f52a42",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d3e85c98_f89f6065",
+        "filename": "src/pdf/SkPDFDocument.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-10-21T19:48:31Z",
+      "side": 1,
+      "message": "Not at all.  The content streams are compressed using deflate.  Images are encoded as deflated binary.  Jpeg images are embedded as is.\n\nIf you want mostly 7-bit safe PDFs, add \"-DSK_PDF_LESS_COMPRESSION\" and \"-DSK_PDF_BASE85_BINARY\" to extra_cflags.  No production clients should use these options.",
+      "parentUuid": "b0ce24db_975f73c3",
+      "revId": "fd1e35bcc9bc22ee33dd975dab5fb3c822f52a42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
