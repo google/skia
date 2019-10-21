@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4cc12079_555c8bc4",
+        "filename": "include/core/SkMilestone.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-10-21T15:52:55Z",
+      "side": 1,
+      "message": "You\u0027re right.  I\u0027ll revert this change.",
+      "parentUuid": "73cdc966_50288b2f",
+      "revId": "fd1e35bcc9bc22ee33dd975dab5fb3c822f52a42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3119bdff_5a0f0e3e",
         "filename": "src/pdf/SkPDFDocument.cpp",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2019-10-21T15:43:42Z",
       "side": 1,
       "message": "What\u0027s this change for?",
+      "revId": "fd1e35bcc9bc22ee33dd975dab5fb3c822f52a42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e31c1659_8c4f3dfb",
+        "filename": "src/pdf/SkPDFDocument.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-10-21T15:52:55Z",
+      "side": 1,
+      "message": "To replace ProductionLibrary, but I\u0027ll drop it.",
+      "parentUuid": "3119bdff_5a0f0e3e",
       "revId": "fd1e35bcc9bc22ee33dd975dab5fb3c822f52a42",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
