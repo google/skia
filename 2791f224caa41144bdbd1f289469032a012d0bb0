@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3c63197e_0da2772a",
+        "filename": "src/gpu/GrSurfaceProxyView.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-10-21T20:54:01Z",
+      "side": 1,
+      "message": "Kinda curious about why the constness of the view affects the constness of the returned proxy. Could we just have const versions of the getters that return non-const proxies? (for comparison a const sk_sp\u003cT\u003e still allows you to get a non-const T*)\n\n(Also kind of wondering why we\u0027d ever have const GrSurfaceProxies anyway, but that\u0027s beyond the scope of this change)",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 5
+      },
+      "revId": "2791f224caa41144bdbd1f289469032a012d0bb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
