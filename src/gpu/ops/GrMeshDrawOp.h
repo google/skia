@@ -146,6 +146,7 @@ public:
         return this->allocator()->make<GrMesh>(primitiveType);
     }
 
+
     GrMesh* allocMeshes(int n) { return this->allocator()->makeArray<GrMesh>(n); }
 
     static GrPipeline::DynamicStateArrays* AllocDynamicStateArrays(SkArenaAlloc*,
