@@ -33,57 +33,24 @@
 #include "src/utils/SkPatchUtils.h"
 
 SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfaceProps)
-        : fInfo(info)
-        , fSurfaceProps(surfaceProps) {
-    fDeviceToGlobal.reset();
-    fGlobalToDevice.reset();
+    : fInfo(info)
+    , fSurfaceProps(surfaceProps)
+{
+    fOrigin = {0, 0};
     fLocalToDevice.reset();
 }
 
-void SkBaseDevice::setDeviceCoordinateSystem(const SkMatrix& deviceToGlobal,
-                                             const SkMatrix& localToDevice,
-                                             int deviceOriginX,
-                                             int deviceOriginY) {
-    fDeviceToGlobal = deviceToGlobal;
-    SkAssertResult(deviceToGlobal.invert(&fGlobalToDevice));
-    fLocalToDevice = localToDevice;
-    if (deviceOriginX | deviceOriginY) {
-        fDeviceToGlobal.preTranslate(deviceOriginX, deviceOriginY);
-        fGlobalToDevice.postTranslate(-deviceOriginX, -deviceOriginY);
-        fLocalToDevice.postTranslate(-deviceOriginX, -deviceOriginY);
-    }
+void SkBaseDevice::setOrigin(const SkMatrix& globalCTM, int x, int y) {
+    fOrigin.set(x, y);
+    fLocalToDevice = globalCTM;
+    fLocalToDevice.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
 }
 
 void SkBaseDevice::setGlobalCTM(const SkMatrix& ctm) {
     fLocalToDevice = ctm;
-    if (!fGlobalToDevice.isIdentity()) {
-        // Map from the global CTM state to this device's coordinate system.
-        fLocalToDevice.postConcat(fGlobalToDevice);
+    if (fOrigin.fX | fOrigin.fY) {
+        fLocalToDevice.postTranslate(-SkIntToScalar(fOrigin.fX), -SkIntToScalar(fOrigin.fY));
     }
-}
-
-bool SkBaseDevice::isPixelAlignedToGlobal() const {
-    return fDeviceToGlobal.isTranslate() &&
-           SkScalarIsInt(fDeviceToGlobal.getTranslateX()) &&
-           SkScalarIsInt(fDeviceToGlobal.getTranslateY());
-}
-
-SkIPoint SkBaseDevice::getOrigin() const {
-    // getOrigin() is deprecated, the old origin has been moved into the fDeviceToGlobal matrix.
-    // This extracts the origin from the matrix, but asserts that a more complicated coordinate
-    // space hasn't been set of the device. This function can be removed once existing use cases
-    // have been updated to use the device-to-global matrix instead or have themselves been removed
-    // (e.g. Android's device-space clip regions are going away, and are not compatible with the
-    // generalized device coordinate system).
-    SkASSERT(this->isPixelAlignedToGlobal());
-    return SkIPoint::Make(SkScalarFloorToInt(fDeviceToGlobal.getTranslateX()),
-                          SkScalarFloorToInt(fDeviceToGlobal.getTranslateY()));
-}
-
-SkMatrix SkBaseDevice::getRelativeTransform(const SkBaseDevice& inputDevice) const {
-    // To get the transform from the input's space to this space, transform from the input space to
-    // the global space, and then from the global space back to this space.
-    return SkMatrix::Concat(fGlobalToDevice, inputDevice.fDeviceToGlobal);
 }
 
 bool SkBaseDevice::clipIsWideOpen() const {
