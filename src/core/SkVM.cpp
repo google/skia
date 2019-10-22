@@ -96,8 +96,7 @@ namespace skvm {
                  y = inst.y,
                  z = inst.z;
             int imm = inst.imm;
-            write(o,  inst.death == 0   ? "☠️ " :
-                     !inst.can_hoist    ? "  " :
+            write(o, !inst.can_hoist    ? "  " :
                       inst.used_in_loop ? "↑ " :
                                           "↟ ");
             switch (op) {
@@ -296,22 +295,69 @@ namespace skvm {
     // Builder -> Program, with liveness and loop hoisting analysis.
 
     Program Builder::done(const char* debug_name) {
-        // Basic liveness analysis:
-        // an instruction is live until all live instructions that need its input have retired.
-        for (Val id = fProgram.size(); id --> 0; ) {
+        // First rewrite the program by issuing instructions as late as possible:
+        //    - any side-effect-only (i.e. store) instruction in order as we see them;
+        //    - any other instruction only once it's shown to be needed.
+        // This elides all dead code and helps minimize value lifetime / register pressure.
+        std::vector<Instruction> rewritten;
+        rewritten.reserve(fProgram.size());
+        std::vector<Val> new_index(fProgram.size(), NA);  // Map old Val index to rewritten index.
+
+        auto rewrite = [&](Val id, auto& recurse) -> Val {
+            auto rewrite_input = [&](Val input) -> Val {
+                if (input == NA) {
+                    return NA;
+                }
+                if (new_index[input] == NA) {
+                    new_index[input] = recurse(input, recurse);
+                }
+                return new_index[input];
+            };
+
+            // The order we rewrite inputs is somewhat arbitrary; we could just go x,y,z.
+            // But we try to preserve the original program order as much as possible by
+            // rewriting inst's inputs in the order they were themselves originally issued.
+            // This makes debugging program dumps a little easier.
+            Instruction inst = fProgram[id];
+            Val *min = &inst.x,
+                *mid = &inst.y,
+                *max = &inst.z;
+            if (*min > *mid) { std::swap(min, mid); }
+            if (*mid > *max) { std::swap(mid, max); }
+            if (*min > *mid) { std::swap(min, mid); }
+            *min = rewrite_input(*min);
+            *mid = rewrite_input(*mid);
+            *max = rewrite_input(*max);
+            rewritten.push_back(inst);
+            return (Val)rewritten.size()-1;
+        };
+
+        // Here we go with the actual rewriting, starting with all the store instructions
+        // and letting rewrite() work back recursively through their inputs.
+        for (Val id = 0; id < (Val)fProgram.size(); id++) {
+            if (fProgram[id].op <= Op::store32) {
+                rewrite(id, rewrite);
+            }
+        }
+        // We're done with the original order now... everything below will analyze the new program.
+        fProgram = std::move(rewritten);
+
+
+        // We'll want to know when it's safe to recycle registers holding the values
+        // produced by each instruction, that is, when no future instruction needs it.
+        for (Val id = 0; id < (Val)fProgram.size(); id++) {
             Instruction& inst = fProgram[id];
-            // All side-effect-only instructions (stores) are live.
+            // Stores don't really produce values.  Just mark them as dying on issue.
             if (inst.op <= Op::store32) {
                 inst.death = id;
             }
-            // The arguments of a live instruction must live until at least that instruction.
-            if (inst.death != 0) {
-                // Notice how we're walking backward, storing the latest instruction in death.
-                if (inst.x != NA && fProgram[inst.x].death == 0) { fProgram[inst.x].death = id; }
-                if (inst.y != NA && fProgram[inst.y].death == 0) { fProgram[inst.y].death = id; }
-                if (inst.z != NA && fProgram[inst.z].death == 0) { fProgram[inst.z].death = id; }
-            }
+            // Extend the lifetime of this instruction's inputs to live until it issues.
+            // (We're walking in order, so this is the same as max()ing.)
+            if (inst.x != NA) { fProgram[inst.x].death = id; }
+            if (inst.y != NA) { fProgram[inst.y].death = id; }
+            if (inst.z != NA) { fProgram[inst.z].death = id; }
         }
+
 
         // Mark which values don't depend on the loop and can be hoisted.
         for (Val id = 0; id < (Val)fProgram.size(); id++) {
@@ -1421,7 +1467,7 @@ namespace skvm {
         std::vector<Reg> reg(instructions.size());
 
         // This next bit is a bit more complicated than strictly necessary;
-        // we could just assign every live instruction to its own register.
+        // we could just assign every instruction to its own register.
         //
         // But recycling registers is fairly cheap, and good practice for the
         // JITs where minimizing register pressure really is important.
@@ -1431,12 +1477,10 @@ namespace skvm {
         auto hoisted = [&](Val id) { return instructions[id].can_hoist; };
 
         fRegs = 0;
-        int live_instructions = 0;
         std::vector<Reg> avail;
 
         // Assign this value to a register, recycling them where we can.
         auto assign_register = [&](Val id) {
-            live_instructions++;
             const Builder::Instruction& inst = instructions[id];
 
             // If this is a real input and it's lifetime ends at this instruction,
@@ -1463,19 +1507,12 @@ namespace skvm {
             }
         };
 
-        // Assign a register to each live hoisted instruction.
+        // Assign a register to each hoisted instruction, then each non-hoisted loop instruction.
         for (Val id = 0; id < (Val)instructions.size(); id++) {
-            if (instructions[id].death != 0 && hoisted(id)) {
-                assign_register(id);
-            }
+            if ( hoisted(id)) { assign_register(id); }
         }
-
-        // Assign registers to each live loop instruction.
         for (Val id = 0; id < (Val)instructions.size(); id++) {
-            if (instructions[id].death != 0 && !hoisted(id)) {
-                assign_register(id);
-
-            }
+            if (!hoisted(id)) { assign_register(id); }
         }
 
         // Translate Builder::Instructions to Program::Instructions by mapping values to
@@ -1483,7 +1520,7 @@ namespace skvm {
 
         // The loop begins at the fLoop'th Instruction.
         fLoop = 0;
-        fInstructions.reserve(live_instructions);
+        fInstructions.reserve(instructions.size());
 
         // Add a dummy mapping for the N/A sentinel Val to any arbitrary register
         // so lookups don't have to know which arguments are used by which Ops.
@@ -1506,14 +1543,14 @@ namespace skvm {
 
         for (Val id = 0; id < (Val)instructions.size(); id++) {
             const Builder::Instruction& inst = instructions[id];
-            if (inst.death != 0 && hoisted(id)) {
+            if (hoisted(id)) {
                 push_instruction(id, inst);
                 fLoop++;
             }
         }
         for (Val id = 0; id < (Val)instructions.size(); id++) {
             const Builder::Instruction& inst = instructions[id];
-            if (inst.death != 0 && !hoisted(id)) {
+            if (!hoisted(id)) {
                 push_instruction(id, inst);
             }
         }
@@ -1607,9 +1644,6 @@ namespace skvm {
 
         auto warmup = [&](Val id) {
             const Builder::Instruction& inst = instructions[id];
-            if (inst.death == 0) {
-                return true;
-            }
 
             Op op = inst.op;
             int imm = inst.imm;
@@ -1644,11 +1678,6 @@ namespace skvm {
 
         auto emit = [&](Val id, bool scalar) {
             const Builder::Instruction& inst = instructions[id];
-
-            // No need to emit dead code instructions that produce values that are never used.
-            if (inst.death == 0) {
-                return true;
-            }
 
             Op op = inst.op;
             Val x = inst.x,
