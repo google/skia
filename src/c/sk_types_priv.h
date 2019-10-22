@@ -12,10 +12,6 @@
 
 #include "include/c/sk_types.h"
 
-#define STRINGIFY(x) #x
-#define TOSTRING(x) STRINGIFY(x)
-#define ASSERT_MSG(SK, C) "ABI changed, you must write a enumeration mapper for " TOSTRING(#SK) " to " TOSTRING(#C) "."
-
 // Define a mapping between a C++ type and the C type.
 //
 // Usual Values:
