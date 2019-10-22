@@ -46,6 +46,30 @@
       "revId": "3d565da0b138c81fab156f2e0276c2e1c6d7ae42",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc0d1515_94dd6988",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-10-22T14:02:18Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "5803b319_6154748c",
+      "range": {
+        "startLine": 112,
+        "startChar": 21,
+        "endLine": 112,
+        "endChar": 29
+      },
+      "revId": "3d565da0b138c81fab156f2e0276c2e1c6d7ae42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
