@@ -16,6 +16,24 @@
       "revId": "7b86d4e8a217d0a983a902aaad3c266f1696a660",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35772afa_33145614",
+        "filename": "tools/sk_app/DawnWindowContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-10-22T16:42:31Z",
+      "side": 1,
+      "message": "I was afraid of that...",
+      "parentUuid": "d1df77bd_71d14c0b",
+      "revId": "7b86d4e8a217d0a983a902aaad3c266f1696a660",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
