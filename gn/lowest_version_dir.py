@@ -11,11 +11,13 @@ import sys
 
 dirpath = sys.argv[1]
 regex = re.compile(sys.argv[2])
-childpath = sys.argv[3]
+minimum = sys.argv[3]
+childpath = sys.argv[4]
 
 matches = sorted(filter(regex.match, os.listdir(dirpath)))
 for match in matches:
-    path = os.path.join(dirpath, match, childpath)
-    if os.path.isdir(path):
-        print match
-        break
+    if (match >= minimum):
+        path = os.path.join(dirpath, match, childpath)
+        if os.path.isdir(path):
+            print match
+            break
