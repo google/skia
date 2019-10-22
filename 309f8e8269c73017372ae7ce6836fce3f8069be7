@@ -22,6 +22,30 @@
       "revId": "309f8e8269c73017372ae7ce6836fce3f8069be7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2647d562_8cef14a0",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-10-22T16:30:05Z",
+      "side": 1,
+      "message": "Whoops. I certainly intended for this to be in that function. I\u0027m not sure why I thought it was there.. Maybe the fDriverBugWorkaroungs immediately below?",
+      "parentUuid": "505fd751_78bd37a4",
+      "range": {
+        "startLine": 541,
+        "startChar": 3,
+        "endLine": 542,
+        "endChar": 56
+      },
+      "revId": "309f8e8269c73017372ae7ce6836fce3f8069be7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
