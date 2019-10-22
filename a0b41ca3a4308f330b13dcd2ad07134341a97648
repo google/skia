@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7fba11b_c7dcb251",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-22T20:45:33Z",
+      "side": 1,
+      "message": "nit: space",
+      "range": {
+        "startLine": 303,
+        "startChar": 22,
+        "endLine": 303,
+        "endChar": 23
+      },
+      "revId": "a0b41ca3a4308f330b13dcd2ad07134341a97648",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2ff7a32_4d8e1586",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-22T20:45:33Z",
+      "side": 1,
+      "message": "So in the \u0027draw as mask\u0027 case, this is a change from calculating the max dimension based on the requested size to calculating the max dimension based on size 64. (Something somewhat similar for the SDF case, though that would have been the base SDF size.)",
+      "range": {
+        "startLine": 347,
+        "startChar": 43,
+        "endLine": 347,
+        "endChar": 63
+      },
+      "revId": "a0b41ca3a4308f330b13dcd2ad07134341a97648",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b5837f2_229e6e18",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-22T20:45:33Z",
+      "side": 1,
+      "message": "So this means that paths never snap to boundaries (pixel or quarter pixel).",
+      "revId": "a0b41ca3a4308f330b13dcd2ad07134341a97648",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b9826c9_1efb192a",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 670,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-22T20:45:33Z",
+      "side": 0,
+      "message": "So here paths were generated at pixel or quarter pixel offsets and then drawn at pixels.",
+      "range": {
+        "startLine": 670,
+        "startChar": 16,
+        "endLine": 670,
+        "endChar": 18
+      },
+      "revId": "315224aec5db438a70e3a943730b018da000ebca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
