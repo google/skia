@@ -4,9 +4,13 @@ This file includes a list of high level updates for each milestone release.
 
 * * *
 
-Milestone 79
+Milestone 80
 
-  [Insert new notes here.]
+<Insert new notes here- top is most recent.>
+
+* * *
+
+Milestone 79
 
   * SkTextBlob::Iter to discover the glyph indices and typefaces in each run
     https://skia-review.googlesource.com/246296
@@ -71,9 +75,6 @@ Milestone 79
 * * *
 
 Milestone 78
-
-  * Added RELEASE_NOTES.txt file
-    https://review.skia.org/229760
 
   * SkDrawLooper is no longer supported in SkPaint or SkCanvas.
     https://review.skia.org/230579
@@ -152,3 +153,6 @@ Milestone 78
     https://review.skia.org/238856
 
   * Use GL_QCOM_TILED_RENDERING to explicitly discard stencil
+
+  * Added RELEASE_NOTES.txt file
+    https://review.skia.org/229760
