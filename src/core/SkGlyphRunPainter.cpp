@@ -226,68 +226,11 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
 
         bool useSDFT = GrTextContext::CanDrawAsDistanceFields(
                 runPaint, runFont, viewMatrix, props, contextSupportsDistanceFieldText, options);
-
-        bool usePaths =
-                useSDFT ? false : SkStrikeSpec::ShouldDrawAsPath(runPaint, runFont, viewMatrix);
-
         if (process) {
             process->startRun(glyphRun, useSDFT);
         }
 
-        // Glyphs are generated in different scales relative to the source space. Masks are drawn
-        // in device space, and SDFT and Paths are draw in a fixed constant space. This is the
-        // factor used to scale the generated glyphs back to source space.
-        SkScalar maxDimensionInSourceSpace = 0.0;
-        if (!useSDFT && !usePaths) {
-            // Mask case
-            SkStrikeSpec strikeSpec =
-                    SkStrikeSpec::MakeMask(runFont, runPaint,
-                                           fDeviceProps, fScalerContextFlags, viewMatrix);
-
-            SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
-
-            fDrawable.startDevice(fRejects.source(), origin, viewMatrix, strike->roundingSpec());
-
-            strike->prepareForDrawing(
-                    SkStrikeCommon::kSkSideTooBigForAtlas, &fDrawable);
-
-            // Sort glyphs into the three bins: mask (fGlyphPos), path (fPaths), and fallback.
-            fDrawable.flipDrawableToInput();
-            for (auto t : SkMakeEnumerate(fDrawable.input())) {
-                size_t i; SkGlyphVariant glyphVariant; SkPoint pos;
-                std::forward_as_tuple(i, std::tie(glyphVariant, pos)) = t;
-                SkGlyph* glyph = glyphVariant.glyph();
-                if (!glyph->isEmpty()) {
-                    // Does the glyph have work to do or is the code able to position the glyph?
-                    if (!SkScalarsAreFinite(pos.x(), pos.y())) {
-                        // Do nothing;
-                    } else if (SkStrikeForGPU::CanDrawAsMask(*glyph)) {
-                        fDrawable.push_back(i);
-                    } else if (SkStrikeForGPU::CanDrawAsPath(*glyph)) {
-                        fPaths.push_back(SkGlyphPos{i, glyph, pos});
-                    } else {
-                        fRejects.reject(i, glyph->maxDimension());
-                    }
-                }
-            }
-
-            fRejects.flipRejectsToSource();
-
-            if (!fRejects.source().empty()) {
-                maxDimensionInSourceSpace =
-                        fRejects.rejectedMaxDimension() / viewMatrix.getMaxScale();
-            }
-
-            if (process) {
-                // processDeviceMasks must be called even if there are no glyphs to make sure runs
-                // are set correctly.
-                process->processDeviceMasks(fDrawable.drawable(), strikeSpec);
-                if (!fPaths.empty()) {
-                    process->processDevicePaths(SkMakeSpan(fPaths));
-                }
-            }
-        } else if (useSDFT) {
-            // SDFT case
+        if (useSDFT) {
             SkScalar minScale, maxScale;
             SkStrikeSpec strikeSpec;
             std::tie(strikeSpec, minScale, maxScale) =
@@ -326,8 +269,6 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             }
 
             fRejects.flipRejectsToSource();
-            maxDimensionInSourceSpace =
-                    fRejects.rejectedMaxDimension() * strikeSpec.strikeToSourceRatio();
 
             if (process) {
                 bool hasWCoord =
@@ -347,10 +288,16 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                     process->processSourcePaths(SkMakeSpan(fPaths), strikeSpec);
                 }
             }
-        } else {
-            // Path case
+
+            // fGlyphPos will be reused here.
+            if (!fRejects.source().empty()) {
+                this->processARGBFallback(
+                        fRejects.rejectedMaxDimension() * strikeSpec.strikeToSourceRatio(),
+                        runPaint, runFont, origin, viewMatrix, process);
+            }
+        } else if (SkStrikeSpec::ShouldDrawAsPath(runPaint, runFont, viewMatrix)) {
             SkStrikeSpec strikeSpec = SkStrikeSpec::MakePath(
-                    runFont, runPaint, fDeviceProps, fScalerContextFlags);
+                            runFont, runPaint, fDeviceProps, fScalerContextFlags);
 
             SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
@@ -373,21 +320,69 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             }
 
             fRejects.flipRejectsToSource();
-            maxDimensionInSourceSpace =
-                    fRejects.rejectedMaxDimension() * strikeSpec.strikeToSourceRatio();
 
             if (process) {
                 // processSourcePaths must be called even if there are no glyphs to make sure runs
                 // are set correctly.
                 process->processSourcePaths(SkMakeSpan(fPaths), strikeSpec);
             }
-        }
 
-        // Handle fallback for all cases.
-        if (!fRejects.source().empty()) {
-            this->processARGBFallback(
-                    maxDimensionInSourceSpace, runPaint, runFont, origin, viewMatrix, process);
-        }
+            // fGlyphPos will be reused here.
+            if (!fRejects.source().empty()) {
+                this->processARGBFallback(
+                        fRejects.rejectedMaxDimension() * strikeSpec.strikeToSourceRatio(),
+                        runPaint, runFont, origin, viewMatrix, process);
+            }
+        } else {
+            SkStrikeSpec strikeSpec =
+                    SkStrikeSpec::MakeMask(runFont, runPaint,
+                            fDeviceProps, fScalerContextFlags, viewMatrix);
+
+            SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+
+            fDrawable.startDevice(fRejects.source(), origin, viewMatrix, strike->roundingSpec());
+
+            strike->prepareForDrawing(
+                    SkStrikeCommon::kSkSideTooBigForAtlas, &fDrawable);
+
+            // Sort glyphs into the three bins: mask (fGlyphPos), path (fPaths), and fallback.
+            fDrawable.flipDrawableToInput();
+            for (auto t : SkMakeEnumerate(fDrawable.input())) {
+                size_t i; SkGlyphVariant glyphVariant; SkPoint pos;
+                std::forward_as_tuple(i, std::tie(glyphVariant, pos)) = t;
+                SkGlyph* glyph = glyphVariant.glyph();
+                if (!glyph->isEmpty()) {
+                    // Does the glyph have work to do or is the code able to position the glyph?
+                    if (!SkScalarsAreFinite(pos.x(), pos.y())) {
+                        // Do nothing;
+                    } else if (SkStrikeForGPU::CanDrawAsMask(*glyph)) {
+                        fDrawable.push_back(i);
+                    } else if (SkStrikeForGPU::CanDrawAsPath(*glyph)) {
+                        fPaths.push_back(SkGlyphPos{i, glyph, pos});
+                    } else {
+                        fRejects.reject(i, glyph->maxDimension());
+                    }
+                }
+            }
+
+            fRejects.flipRejectsToSource();
+
+            if (process) {
+                // processDeviceMasks must be called even if there are no glyphs to make sure runs
+                // are set correctly.
+                process->processDeviceMasks(fDrawable.drawable(), strikeSpec);
+                if (!fPaths.empty()) {
+                    process->processDevicePaths(SkMakeSpan(fPaths));
+                }
+            }
+
+            // fGlyphPos will be reused here.
+            if (!fRejects.source().empty()) {
+                this->processARGBFallback(
+                        fRejects.rejectedMaxDimension() / viewMatrix.getMaxScale(),
+                        runPaint, runFont, origin, viewMatrix, process);
+            }
+        }  // Mask case
     }  // For all glyph runs
 }
 #endif  // SK_SUPPORT_GPU
