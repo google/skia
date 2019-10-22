@@ -125,7 +125,7 @@ public:
                                                   const SkTypeface& typeface) override;
 
     static void AddGlyphForTesting(
-            RemoteStrike* cache, SkPackedGlyphID glyphID, bool asPath);
+            RemoteStrike* strike, SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects);
 
     void setMaxEntriesInDescriptorMapForTesting(size_t count) {
         fMaxEntriesInDescriptorMap = count;

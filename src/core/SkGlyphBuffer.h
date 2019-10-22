@@ -8,6 +8,7 @@
 #ifndef SkGlyphBuffer_DEFINED
 #define SkGlyphBuffer_DEFINED
 
+#include "src/core/SkEnumerate.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkZip.h"
 
@@ -159,23 +160,6 @@ public:
         return SkZip<SkGlyphVariant, SkPoint>{fInputSize, fMultiBuffer, fPositions};
     }
 
-    // DO NOT USE. This is only used to work around how prepareForDrawing works.
-    void flipDrawableToInput() {
-        SkASSERT(fPhase == kProcess);
-        fInputSize = fDrawableSize;
-        fDrawableSize = 0;
-        SkDEBUGCODE(fPhase = kInput);
-    }
-
-    // DO NOT USE. This is only used to work around how prepareForDrawing works.
-    void push_back(size_t from) {
-        SkASSERT(fPhase == kProcess);
-        SkASSERT(fDrawableSize <= from);
-        fPositions[fDrawableSize] = fPositions[from];
-        fMultiBuffer[fDrawableSize] = fMultiBuffer[from];
-        fDrawableSize++;
-    }
-
     // Store the glyph in the next drawable slot, using the position information located at index
     // from.
     void push_back(SkGlyph* glyph, size_t from) {
@@ -204,6 +188,15 @@ public:
     }
 
     void reset();
+
+    template <typename Fn>
+    void forEachGlyphID(Fn&& fn) {
+        for (auto t : SkMakeEnumerate(this->input())) {
+            size_t i; SkGlyphVariant packedID; SkPoint pos;
+            std::forward_as_tuple(i, std::tie(packedID, pos)) = t;
+            fn(i, packedID.packedID(), pos);
+        }
+    }
 
 private:
     size_t fMaxSize{0};

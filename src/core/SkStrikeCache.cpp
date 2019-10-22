@@ -32,12 +32,23 @@ public:
         return fStrike.roundingSpec();
     }
 
-    void prepareForDrawing(int maxDimension, SkDrawableGlyphBuffer* drawbles) override {
-        fStrike.prepareForDrawing(maxDimension, drawbles);
-    }
-
     const SkDescriptor& getDescriptor() const override {
         return fStrike.getDescriptor();
+    }
+
+    void prepareForMaskDrawing(
+            SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
+        fStrike.prepareForMaskDrawing(drawbles, rejects);
+    }
+
+    void prepareForSDFTDrawing(
+            SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
+        fStrike.prepareForSDFTDrawing(drawbles, rejects);
+    }
+
+    void prepareForPathDrawing(
+            SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
+        fStrike.prepareForPathDrawing(drawbles, rejects);
     }
 
     void onAboutToExitScope() override {
