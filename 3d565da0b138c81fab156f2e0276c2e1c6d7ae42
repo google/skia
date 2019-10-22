@@ -22,6 +22,30 @@
       "revId": "3d565da0b138c81fab156f2e0276c2e1c6d7ae42",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5803b319_6154748c",
+        "filename": "modules/canvaskit/skottie_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-10-22T13:59:29Z",
+      "side": 1,
+      "message": "Internally, Skottie\u0027s timeline is still contiguous, so it\u0027s convenient to allow non-integral frame selectors - e.g. 1.5 is halfway between frame 1 and frame 2.\n\nWe can essentially re-write all the existing tools to use seekFrame() instead of seek() without losing contiguity.  The advantage is when the client does want exact control over framing, there are no precision issues - e.g. seekFrame(37) selects the exact frame, whereas seek(37 / duration / fps) selects something close to frame 37 :)",
+      "parentUuid": "fa5b5137_3dbb6d8b",
+      "range": {
+        "startLine": 112,
+        "startChar": 21,
+        "endLine": 112,
+        "endChar": 29
+      },
+      "revId": "3d565da0b138c81fab156f2e0276c2e1c6d7ae42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
