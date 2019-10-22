@@ -28,7 +28,7 @@
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/SkGr.h"
 
-const uint32_t GrResourceProvider::kMinScratchTextureSize = 16;
+const int GrResourceProvider::kMinScratchTextureSize = 16;
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
@@ -190,28 +190,31 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
 
 // Map 'value' to a larger multiple of 2. Values <= 'kMagicTol' will pop up to
 // the next power of 2. Those above 'kMagicTol' will only go up half the floor power of 2.
-uint32_t GrResourceProvider::MakeApprox(uint32_t value) {
-    static const int kMagicTol = 1024;
+SkISize GrResourceProvider::MakeApprox(SkISize dimensions) {
+    auto adjust = [](int value) {
+        static const int kMagicTol = 1024;
 
-    value = SkTMax(kMinScratchTextureSize, value);
+        value = SkTMax(kMinScratchTextureSize, value);
 
-    if (SkIsPow2(value)) {
+        if (SkIsPow2(value)) {
+            return value;
+        }
+
+        int ceilPow2 = SkNextPow2(value);
+        if (value <= kMagicTol) {
+            return ceilPow2;
+        }
+
+        int floorPow2 = ceilPow2 >> 1;
+        int mid = floorPow2 + (floorPow2 >> 1);
+
+        if (value <= mid) {
+            return mid;
+        }
         return value;
-    }
+    };
 
-    uint32_t ceilPow2 = GrNextPow2(value);
-    if (value <= kMagicTol) {
-        return ceilPow2;
-    }
-
-    uint32_t floorPow2 = ceilPow2 >> 1;
-    uint32_t mid = floorPow2 + (floorPow2 >> 1);
-
-    if (value <= mid) {
-        return mid;
-    }
-
-    return ceilPow2;
+    return {adjust(dimensions.width()), adjust(dimensions.height())};
 }
 
 sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& desc,
@@ -236,8 +239,9 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
 
     // bin by some multiple or power of 2 with a reasonable min
     GrSurfaceDesc copyDesc(desc);
-    copyDesc.fWidth = MakeApprox(desc.fWidth);
-    copyDesc.fHeight = MakeApprox(desc.fHeight);
+    auto size = MakeApprox({desc.fWidth, desc.fHeight});
+    copyDesc.fWidth = size.width();
+    copyDesc.fHeight = size.height();
 
     if (auto tex = this->refScratchTexture(copyDesc, format, renderable, renderTargetSampleCnt,
                                            GrMipMapped::kNo, isProtected)) {
@@ -264,7 +268,7 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc
     // to fall back to making a new texture.
     if (fGpu->caps()->reuseScratchTextures() || renderable == GrRenderable::kYes) {
         GrScratchKey key;
-        GrTexturePriv::ComputeScratchKey(desc.fConfig, desc.fWidth, desc.fHeight, renderable,
+        GrTexturePriv::ComputeScratchKey(desc.fConfig, {desc.fWidth, desc.fHeight}, renderable,
                                          renderTargetSampleCnt, mipMapped, isProtected, &key);
         GrGpuResource* resource = fCache->findAndRefScratchResource(key);
         if (resource) {
@@ -500,7 +504,7 @@ sk_sp<GrSemaphore> GrResourceProvider::wrapBackendSemaphore(const GrBackendSemap
 // Ensures the row bytes are populated (not 0) and makes a copy to a temporary
 // to make the row bytes tight if necessary. Returns false if the input row bytes are invalid.
 static bool prepare_level(const GrMipLevel& inLevel,
-                          const SkISize& size,
+                          const SkISize& dimensions,
                           bool rowBytesSupport,
                           GrColorType origColorType,
                           GrColorType allowedColorType,
@@ -511,7 +515,7 @@ static bool prepare_level(const GrMipLevel& inLevel,
         outLevel->fRowBytes = 0;
         return true;
     }
-    size_t minRB = size.fWidth * GrColorTypeBytesPerPixel(origColorType);
+    size_t minRB = dimensions.fWidth * GrColorTypeBytesPerPixel(origColorType);
     size_t actualRB = inLevel.fRowBytes ? inLevel.fRowBytes : minRB;
     if (actualRB < minRB) {
         return false;
@@ -521,12 +525,12 @@ static bool prepare_level(const GrMipLevel& inLevel,
         outLevel->fPixels = inLevel.fPixels;
         return true;
     }
-    auto tempRB = size.fWidth * GrColorTypeBytesPerPixel(allowedColorType);
-    data->reset(new char[tempRB * size.fHeight]);
+    auto tempRB = dimensions.fWidth * GrColorTypeBytesPerPixel(allowedColorType);
+    data->reset(new char[tempRB * dimensions.fHeight]);
     outLevel->fPixels = data->get();
     outLevel->fRowBytes = tempRB;
-    GrImageInfo srcInfo(origColorType,    kUnpremul_SkAlphaType, nullptr, size);
-    GrImageInfo dstInfo(allowedColorType, kUnpremul_SkAlphaType, nullptr, size);
+    GrImageInfo srcInfo(origColorType, kUnpremul_SkAlphaType, nullptr, dimensions);
+    GrImageInfo dstInfo(allowedColorType, kUnpremul_SkAlphaType, nullptr, dimensions);
     return GrConvertPixels(dstInfo, data->get(), tempRB, srcInfo, inLevel.fPixels, actualRB);
 }
 

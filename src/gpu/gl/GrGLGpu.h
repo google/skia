@@ -225,13 +225,13 @@ private:
     // returned. On failure, zero is returned.
     // The texture is populated with |texels|, if it is non-null.
     // The texture parameters are cached in |initialTexParams|.
-    GrGLuint createTexture2D(const SkISize& size,
+    GrGLuint createTexture2D(const SkISize& dimensions,
                              GrGLFormat format,
                              GrRenderable,
                              GrGLTextureParameters::SamplerOverriddenState* initialState,
                              int mipLevelCount);
 
-    GrGLuint createCompressedTexture2D(const SkISize& size, GrGLFormat format,
+    GrGLuint createCompressedTexture2D(const SkISize& dimensions, GrGLFormat format,
                                        SkImage::CompressionType compression,
                                        GrGLTextureParameters::SamplerOverriddenState* initialState,
                                        const void* data);
@@ -378,7 +378,7 @@ private:
     // to populate a new texture. Returns false if we failed to create and upload the texture.
     bool uploadCompressedTexData(GrGLFormat,
                                  SkImage::CompressionType,
-                                 const SkISize& size,
+                                 const SkISize& dimensions,
                                  GrGLenum target,
                                  const void* data);
 

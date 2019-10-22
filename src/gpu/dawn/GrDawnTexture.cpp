@@ -13,20 +13,20 @@
 #include "src/gpu/dawn/GrDawnUtil.h"
 
 GrDawnTexture::GrDawnTexture(GrDawnGpu* gpu,
-                             const SkISize& size,
+                             const SkISize& dimensions,
                              GrPixelConfig config,
                              dawn::TextureView textureView,
                              const GrDawnImageInfo& info,
                              GrMipMapsStatus mipMapsStatus)
-    : GrSurface(gpu, size, config, GrProtected::kNo)
-    , GrTexture(gpu, size, config, GrProtected::kNo, GrTextureType::k2D, mipMapsStatus)
-    , fInfo(info)
-    , fTextureView(textureView) {
-}
+        : GrSurface(gpu, dimensions, config, GrProtected::kNo)
+        , GrTexture(gpu, dimensions, config, GrProtected::kNo, GrTextureType::k2D, mipMapsStatus)
+        , fInfo(info)
+        , fTextureView(textureView) {}
 
-sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, const SkISize& size, GrPixelConfig config,
-                                         dawn::TextureFormat format, GrRenderable renderable,
-                                         int sampleCnt, SkBudgeted budgeted, int mipLevels,
+sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, const SkISize& dimensions,
+                                         GrPixelConfig config, dawn::TextureFormat format,
+                                         GrRenderable renderable, int sampleCnt,
+                                         SkBudgeted budgeted, int mipLevels,
                                          GrMipMapsStatus status) {
     bool renderTarget = renderable == GrRenderable::kYes;
     dawn::TextureDescriptor textureDesc;
@@ -40,8 +40,8 @@ sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, const SkISize& size, Gr
         textureDesc.usage |= dawn::TextureUsage::OutputAttachment;
     }
 
-    textureDesc.size.width = size.fWidth;
-    textureDesc.size.height = size.fHeight;
+    textureDesc.size.width = dimensions.fWidth;
+    textureDesc.size.height = dimensions.fHeight;
     textureDesc.size.depth = 1;
     textureDesc.format = format;
     textureDesc.mipLevelCount = std::max(mipLevels, 1);
@@ -66,15 +66,15 @@ sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, const SkISize& size, Gr
     sk_sp<GrDawnTexture> result;
     if (renderTarget) {
         result = sk_sp<GrDawnTextureRenderTarget>(new GrDawnTextureRenderTarget(gpu,
-                                                                                size,
+                                                                                dimensions,
                                                                                 config,
                                                                                 textureView,
                                                                                 sampleCnt,
                                                                                 info,
                                                                                 status));
     } else {
-        result = sk_sp<GrDawnTexture>(new GrDawnTexture(gpu, size, config, textureView, info,
-                                                        status));
+        result = sk_sp<GrDawnTexture>(
+                new GrDawnTexture(gpu, dimensions, config, textureView, info, status));
     }
     result->registerWithCache(budgeted);
     return result;
@@ -84,7 +84,7 @@ GrBackendFormat GrDawnTexture::backendFormat() const {
     return GrBackendFormat::MakeDawn(fInfo.fFormat);
 }
 
-sk_sp<GrDawnTexture> GrDawnTexture::MakeWrapped(GrDawnGpu* gpu, const SkISize& size,
+sk_sp<GrDawnTexture> GrDawnTexture::MakeWrapped(GrDawnGpu* gpu, const SkISize& dimensions,
                                                 GrPixelConfig config, GrRenderable renderable,
                                                 int sampleCnt, GrMipMapsStatus status,
                                                 GrWrapCacheable cacheable,
@@ -96,10 +96,11 @@ sk_sp<GrDawnTexture> GrDawnTexture::MakeWrapped(GrDawnGpu* gpu, const SkISize& s
 
     sk_sp<GrDawnTexture> tex;
     if (GrRenderable::kYes == renderable) {
-        tex = sk_sp<GrDawnTexture>(new GrDawnTextureRenderTarget(gpu, size, config, textureView,
-                                                                 sampleCnt, info, status));
+        tex = sk_sp<GrDawnTexture>(new GrDawnTextureRenderTarget(
+                gpu, dimensions, config, textureView, sampleCnt, info, status));
     } else {
-        tex = sk_sp<GrDawnTexture>(new GrDawnTexture(gpu, size, config, textureView, info, status));
+        tex = sk_sp<GrDawnTexture>(
+                new GrDawnTexture(gpu, dimensions, config, textureView, info, status));
     }
     tex->registerWithCacheWrapped(cacheable);
     return tex;

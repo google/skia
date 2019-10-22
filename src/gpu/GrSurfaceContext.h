@@ -163,7 +163,7 @@ private:
     bool copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint);
 
     bool copy(GrSurfaceProxy* src) {
-        return this->copy(src, SkIRect::MakeWH(src->width(), src->height()), SkIPoint::Make(0, 0));
+        return this->copy(src, SkIRect::MakeSize(src->dimensions()), SkIPoint::Make(0, 0));
     }
 
     GrColorInfo fColorInfo;

@@ -230,12 +230,12 @@ sk_sp<GrTexture> GrDawnGpu::onWrapBackendTexture(const GrBackendTexture& backend
         return nullptr;
     }
 
-    SkISize size = { backendTex.width(), backendTex.height() };
+    SkISize dimensions = { backendTex.width(), backendTex.height() };
     GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendTex.getBackendFormat(),
                                                                     colorType);
     GrMipMapsStatus status = GrMipMapsStatus::kNotAllocated;
-    return GrDawnTexture::MakeWrapped(this, size, config, GrRenderable::kNo, 1, status, cacheable,
-                                      info);
+    return GrDawnTexture::MakeWrapped(this, dimensions, config, GrRenderable::kNo, 1, status,
+                                      cacheable, info);
 }
 
 sk_sp<GrTexture> GrDawnGpu::onWrapRenderableBackendTexture(const GrBackendTexture& tex,
@@ -247,7 +247,7 @@ sk_sp<GrTexture> GrDawnGpu::onWrapRenderableBackendTexture(const GrBackendTextur
         return nullptr;
     }
 
-    SkISize size = { tex.width(), tex.height() };
+    SkISize dimensions = { tex.width(), tex.height() };
     GrPixelConfig config = this->caps()->getConfigFromBackendFormat(tex.getBackendFormat(),
                                                                     colorType);
     sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, tex.getBackendFormat());
@@ -256,8 +256,8 @@ sk_sp<GrTexture> GrDawnGpu::onWrapRenderableBackendTexture(const GrBackendTextur
     }
 
     GrMipMapsStatus status = GrMipMapsStatus::kNotAllocated;
-    return GrDawnTexture::MakeWrapped(this, size, config, GrRenderable::kYes, sampleCnt, status,
-                                      cacheable, info);
+    return GrDawnTexture::MakeWrapped(this, dimensions, config, GrRenderable::kYes, sampleCnt,
+                                      status, cacheable, info);
 }
 
 sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& rt,
@@ -267,11 +267,11 @@ sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendRenderTarget(const GrBackendRender
         return nullptr;
     }
 
-    SkISize size = { rt.width(), rt.height() };
+    SkISize dimensions = { rt.width(), rt.height() };
     GrPixelConfig config = this->caps()->getConfigFromBackendFormat(rt.getBackendFormat(),
                                                                     colorType);
     int sampleCnt = 1;
-    return GrDawnRenderTarget::MakeWrapped(this, size, config, sampleCnt, info);
+    return GrDawnRenderTarget::MakeWrapped(this, dimensions, config, sampleCnt, info);
 }
 
 sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
@@ -282,7 +282,7 @@ sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendTextureAsRenderTarget(const GrBack
         return nullptr;
     }
 
-    SkISize size = { tex.width(), tex.height() };
+    SkISize dimensions = { tex.width(), tex.height() };
     GrPixelConfig config = this->caps()->getConfigFromBackendFormat(tex.getBackendFormat(),
                                                                     colorType);
     sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, tex.getBackendFormat());
@@ -290,7 +290,7 @@ sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendTextureAsRenderTarget(const GrBack
         return nullptr;
     }
 
-    return GrDawnRenderTarget::MakeWrapped(this, size, config, sampleCnt, info);
+    return GrDawnRenderTarget::MakeWrapped(this, dimensions, config, sampleCnt, info);
 }
 
 GrStencilAttachment* GrDawnGpu::createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,

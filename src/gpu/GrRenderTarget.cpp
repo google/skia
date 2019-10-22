@@ -18,14 +18,13 @@
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrStencilSettings.h"
 
-GrRenderTarget::GrRenderTarget(GrGpu* gpu, const SkISize& size, GrPixelConfig config,
+GrRenderTarget::GrRenderTarget(GrGpu* gpu, const SkISize& dimensions, GrPixelConfig config,
                                int sampleCount, GrProtected isProtected,
                                GrStencilAttachment* stencil)
-        : INHERITED(gpu, size, config, isProtected)
+        : INHERITED(gpu, dimensions, config, isProtected)
         , fSampleCnt(sampleCount)
         , fSamplePatternKey(GrSamplePatternDictionary::kInvalidSamplePatternKey)
-        , fStencilAttachment(stencil) {
-}
+        , fStencilAttachment(stencil) {}
 
 GrRenderTarget::~GrRenderTarget() = default;
 

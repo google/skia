@@ -246,7 +246,7 @@ public:
      * Create a texture proxy that is backed by an instantiated GrSurface.
      * TODO: Remove GrColorType. Currently used to infer a GrPixelConfig.
      */
-    sk_sp<GrTextureProxy> testingOnly_createInstantiatedProxy(const SkISize& size,
+    sk_sp<GrTextureProxy> testingOnly_createInstantiatedProxy(const SkISize& dimensions,
                                                               GrColorType colorType,
                                                               const GrBackendFormat& format,
                                                               GrRenderable renderable,
@@ -257,7 +257,7 @@ public:
                                                               GrProtected isProtected);
 
     /** Version of above that picks the default format for the color type. */
-    sk_sp<GrTextureProxy> testingOnly_createInstantiatedProxy(const SkISize& size,
+    sk_sp<GrTextureProxy> testingOnly_createInstantiatedProxy(const SkISize& dimensions,
                                                               GrColorType colorType,
                                                               GrRenderable renderable,
                                                               int renderTargetSampleCnt,

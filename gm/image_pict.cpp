@@ -191,8 +191,7 @@ protected:
             return nullptr;
         }
 
-        if (origin.fX == 0 && origin.fY == 0 &&
-            info.width() == fProxy->width() && info.height() == fProxy->height()) {
+        if (origin.fX == 0 && origin.fY == 0 && info.dimensions() == fProxy->dimensions()) {
             return fProxy;
         }
 

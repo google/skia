@@ -32,7 +32,7 @@ class GrRRectBlurEffect : public GrFragmentProcessor {
 public:
     static sk_sp<GrTextureProxy> find_or_create_rrect_blur_mask(GrRecordingContext* context,
                                                                 const SkRRect& rrectToDraw,
-                                                                const SkISize& size,
+                                                                const SkISize& dimensions,
                                                                 float xformedSigma) {
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey key;
@@ -58,8 +58,8 @@ public:
             //   1) The texture coords would need to be updated.
             //   2) We would have to use GrTextureDomain::kClamp_Mode for the GaussianBlur.
             auto rtc = context->priv().makeDeferredRenderTargetContextWithFallback(
-                    SkBackingFit::kExact, size.fWidth, size.fHeight, GrColorType::kAlpha_8,
-                    nullptr);
+                    SkBackingFit::kExact, dimensions.fWidth, dimensions.fHeight,
+                    GrColorType::kAlpha_8, nullptr);
             if (!rtc) {
                 return nullptr;
             }
@@ -81,7 +81,7 @@ public:
                                                      rtc->colorInfo().alphaType(),
                                                      SkIPoint::Make(0, 0),
                                                      nullptr,
-                                                     SkIRect::MakeWH(size.fWidth, size.fHeight),
+                                                     SkIRect::MakeSize(dimensions),
                                                      SkIRect::EmptyIRect(),
                                                      xformedSigma,
                                                      xformedSigma,

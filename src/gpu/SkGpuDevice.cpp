@@ -670,7 +670,7 @@ static void determine_clipped_src_rect(int width, int height,
                                        const GrClip& clip,
                                        const SkMatrix& viewMatrix,
                                        const SkMatrix& srcToDstRect,
-                                       const SkISize& imageSize,
+                                       const SkISize& imageDimensions,
                                        const SkRect* srcRectPtr,
                                        SkIRect* clippedSrcIRect) {
     clip.getConservativeBounds(width, height, clippedSrcIRect, nullptr);
@@ -688,7 +688,7 @@ static void determine_clipped_src_rect(int width, int height,
         }
     }
     clippedSrcRect.roundOut(clippedSrcIRect);
-    SkIRect bmpBounds = SkIRect::MakeSize(imageSize);
+    SkIRect bmpBounds = SkIRect::MakeSize(imageDimensions);
     if (!clippedSrcIRect->intersect(bmpBounds)) {
         clippedSrcIRect->setEmpty();
     }
@@ -1200,7 +1200,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
         return nullptr;
     }
 
-    const SkIRect rect = SkIRect::MakeWH(proxy->width(), proxy->height());
+    const SkIRect rect = SkIRect::MakeSize(proxy->dimensions());
 
     // GrMakeCachedBitmapProxy creates a tight copy of 'bitmap' so we don't have to subset
     // the special image
@@ -1266,7 +1266,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial(const SkIRect& subset, bool force
 
         // Since this copied only the requested subset, the special image wrapping the proxy no
         // longer needs the original subset.
-        finalSubset = SkIRect::MakeSize(proxy->isize());
+        finalSubset = SkIRect::MakeSize(proxy->dimensions());
     }
 
     GrColorType ct = SkColorTypeToGrColorType(this->imageInfo().colorType());

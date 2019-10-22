@@ -49,9 +49,8 @@ private:
             : INHERITED(ClassID())
             , fClip(clip)
             , fInsideStencilMask(insideStencilMask) {
-        const SkRect& bounds = fClip.scissorEnabled()
-                                            ? SkRect::Make(fClip.scissorRect())
-                                            : SkRect::MakeIWH(proxy->width(), proxy->height());
+        const SkRect& bounds =
+                fClip.scissorEnabled() ? SkRect::Make(fClip.scissorRect()) : proxy->getBoundsRect();
         this->setBounds(bounds, HasAABloat::kNo, IsHairline::kNo);
     }
 

@@ -258,13 +258,11 @@ void test_draw_op(GrContext* context,
 // This assumes that the output buffer will be the same size as inputDataProxy
 void render_fp(GrContext* context, GrRenderTargetContext* rtc, GrFragmentProcessor* fp,
                sk_sp<GrTextureProxy> inputDataProxy, GrColorType inputColorType, GrColor* buffer) {
-    int width = inputDataProxy->width();
-    int height = inputDataProxy->height();
-
     // test_draw_op needs to take ownership of an FP, so give it a clone that it can own
     test_draw_op(context, rtc, fp->clone(), inputDataProxy, inputColorType);
-    memset(buffer, 0x0, sizeof(GrColor) * width * height);
-    rtc->readPixels(SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kPremul_SkAlphaType),
+    memset(buffer, 0x0, sizeof(GrColor) * inputDataProxy->width() * inputDataProxy->height());
+    rtc->readPixels(SkImageInfo::Make(inputDataProxy->dimensions(), kRGBA_8888_SkColorType,
+                                      kPremul_SkAlphaType),
                     buffer, 0, {0, 0});
 }
 
@@ -352,8 +350,7 @@ bool log_pixels(GrColor* pixels, int widthHeight, SkString* dst) {
 bool log_texture_proxy(GrContext* context, sk_sp<GrTextureProxy> src, SkString* dst) {
     auto sContext =
             context->priv().makeWrappedSurfaceContext(src, GrColorType::kRGBA_8888, kLogAlphaType);
-    SkImageInfo ii =
-            SkImageInfo::Make(src->width(), src->height(), kRGBA_8888_SkColorType, kLogAlphaType);
+    SkImageInfo ii = SkImageInfo::Make(src->dimensions(), kRGBA_8888_SkColorType, kLogAlphaType);
     SkBitmap bm;
     SkAssertResult(bm.tryAllocPixels(ii));
     SkAssertResult(sContext->readPixels(ii, bm.getPixels(), bm.rowBytes(), {0, 0}));

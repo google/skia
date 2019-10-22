@@ -432,8 +432,7 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
     if (stencilSettings) {
         // Must use worst case bounds so that stencil buffer updates on approximately sized render
         // targets don't get corrupted.
-        rtRect = SkRect::MakeWH(fRenderTargetProxy->worstCaseWidth(),
-                                fRenderTargetProxy->worstCaseHeight());
+        rtRect = SkRect::Make(fRenderTargetProxy->worstCaseDimensions());
     } else {
         // Use the logical size of the render target, which allows for "fullscreen" clears even if
         // the render target has an approximate backing fit
@@ -1641,7 +1640,7 @@ public:
     size_t rowBytes(int i) const override { return fPlanes[i].fRowBytes; }
 
     bool addTransferResult(const PixelTransferResult& result,
-                           SkISize size,
+                           SkISize dimensions,
                            size_t rowBytes,
                            GrClientMappedBufferManager* manager) {
         SkASSERT(!result.fTransferBuffer->isMapped());
@@ -1650,7 +1649,7 @@ public:
             return false;
         }
         if (result.fPixelConverter) {
-            std::unique_ptr<char[]> convertedData(new char[rowBytes * size.height()]);
+            std::unique_ptr<char[]> convertedData(new char[rowBytes * dimensions.height()]);
             result.fPixelConverter(convertedData.get(), mappedData);
             this->addCpuPlane(std::move(convertedData), rowBytes);
             result.fTransferBuffer->unmap();
@@ -2390,7 +2389,7 @@ bool GrRenderTargetContext::setupDstProxy(const GrClip& clip, const GrOp& op,
         }
     }
 
-    SkIRect copyRect = SkIRect::MakeWH(fRenderTargetProxy->width(), fRenderTargetProxy->height());
+    SkIRect copyRect = SkIRect::MakeSize(fRenderTargetProxy->dimensions());
 
     SkIRect clippedRect;
     clip.getConservativeBounds(
@@ -2404,8 +2403,7 @@ bool GrRenderTargetContext::setupDstProxy(const GrClip& clip, const GrOp& op,
         // performance we may ignore the clip when the draw is entirely inside the clip is float
         // space but will hit pixels just outside the clip when actually rasterizing.
         clippedRect.outset(1, 1);
-        clippedRect.intersect(SkIRect::MakeWH(
-                fRenderTargetProxy->width(), fRenderTargetProxy->height()));
+        clippedRect.intersect(SkIRect::MakeSize(fRenderTargetProxy->dimensions()));
     }
     SkIRect opIBounds;
     opBounds.roundOut(&opIBounds);
@@ -2448,8 +2446,8 @@ bool GrRenderTargetContext::blitTexture(GrTextureProxy* src, GrColorType srcColo
                                         const SkIRect& srcRect, const SkIPoint& dstPoint) {
     SkIRect clippedSrcRect;
     SkIPoint clippedDstPoint;
-    if (!GrClipSrcRectAndDstPoint(this->asSurfaceProxy()->isize(), src->isize(), srcRect, dstPoint,
-                                  &clippedSrcRect, &clippedDstPoint)) {
+    if (!GrClipSrcRectAndDstPoint(this->asSurfaceProxy()->dimensions(), src->dimensions(), srcRect,
+                                  dstPoint, &clippedSrcRect, &clippedDstPoint)) {
         return false;
     }
 

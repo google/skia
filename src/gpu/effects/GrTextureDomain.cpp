@@ -32,7 +32,7 @@ GrTextureDomain::GrTextureDomain(GrTextureProxy* proxy, const SkRect& domain, Mo
         return;
     }
 
-    const SkRect kFullRect = SkRect::MakeIWH(proxy->width(), proxy->height());
+    const SkRect kFullRect = proxy->getBoundsRect();
 
     // We don't currently handle domains that are empty or don't intersect the texture.
     // It is OK if the domain rect is a line or point, but it should not be inverted. We do not
