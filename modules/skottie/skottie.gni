@@ -39,6 +39,7 @@ skia_skottie_sources = [
   "$_src/effects/MotionBlurEffect.h",
   "$_src/effects/MotionTileEffect.cpp",
   "$_src/effects/RadialWipeEffect.cpp",
+  "$_src/effects/ShiftChannelsEffect.cpp",
   "$_src/effects/TintEffect.cpp",
   "$_src/effects/TransformEffect.cpp",
   "$_src/effects/TritoneEffect.cpp",
