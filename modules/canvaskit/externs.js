@@ -35,6 +35,7 @@ var CanvasKit = {
 	ImageData: function() {},
 
 	GetWebGLContext: function() {},
+	Free: function() {},
 	MakeBlurMaskFilter: function() {},
 	MakeCanvas: function() {},
 	MakeCanvasSurface: function() {},
@@ -59,6 +60,8 @@ var CanvasKit = {
 	/** @return {RadialCanvasGradient} */
 	MakeTwoPointConicalGradientShader: function() {},
 	MakeWebGLCanvasSurface: function() {},
+	/** @return {TypedArray} */
+	Malloc: function() {},
 	/** @return {TonalColors} */
 	computeTonalColors: function() {},
 	currentContext: function() {},
