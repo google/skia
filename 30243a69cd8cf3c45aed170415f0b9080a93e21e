@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21afe0ad_25110594",
+        "filename": "include/gpu/GrSurface.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-10-22T13:26:46Z",
+      "side": 1,
+      "message": "I went back and forth between size() and dimensions(). I went with dimensions() which matches some of the newer types (SkImageInfo, SkImage, GrImageInfo) and avoids confusion with other notions of size (such as number of bytes).\n\nThis might indicate that GrSurfaceProxy should have dimensions() and worstCaseDimensions() instead of size() and worstCaseSize(). I think that\u0027s right and am happy to make that change here or in a follow up.",
+      "range": {
+        "startLine": 26,
+        "startChar": 12,
+        "endLine": 26,
+        "endChar": 22
+      },
+      "revId": "30243a69cd8cf3c45aed170415f0b9080a93e21e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
