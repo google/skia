@@ -94,7 +94,7 @@ const char* GrGLSLFragmentShaderBuilder::sampleOffsets() {
 void GrGLSLFragmentShaderBuilder::maskOffMultisampleCoverage(
         const char* mask, ScopeFlags scopeFlags) {
     const GrShaderCaps& shaderCaps = *fProgramBuilder->shaderCaps();
-    if (!shaderCaps.sampleVariablesSupport() && !shaderCaps.sampleVariablesStencilSupport()) {
+    if (!shaderCaps.sampleMaskSupport() && !shaderCaps.sampleMaskStencilSupport()) {
         SkDEBUGFAIL("Attempted to mask sample coverage without support.");
         return;
     }

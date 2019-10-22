@@ -46,8 +46,8 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fFlatInterpolationSupport = false;
     fPreferFlatInterpolation = false;
     fNoPerspectiveInterpolationSupport = false;
-    fSampleVariablesSupport = false;
-    fSampleVariablesStencilSupport = false;
+    fSampleMaskSupport = false;
+    fSampleMaskStencilSupport = false;
     fExternalTextureSupport = false;
     fVertexIDSupport = false;
     fFPManipulationSupport = false;
@@ -123,9 +123,9 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Flat interpolation support", fFlatInterpolationSupport);
     writer->appendBool("Prefer flat interpolation", fPreferFlatInterpolation);
     writer->appendBool("No perspective interpolation support", fNoPerspectiveInterpolationSupport);
-    writer->appendBool("Sample variables support", fSampleVariablesSupport);
-    writer->appendBool("Sample variables stencil support [workaround]",
-                       fSampleVariablesStencilSupport);
+    writer->appendBool("Sample mask support", fSampleMaskSupport);
+    writer->appendBool("Sample mask stencil support [workaround]",
+                       fSampleMaskStencilSupport);
     writer->appendBool("External texture support", fExternalTextureSupport);
     writer->appendBool("sk_VertexID support", fVertexIDSupport);
     writer->appendBool("Floating point manipulation support", fFPManipulationSupport);
