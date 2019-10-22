@@ -803,9 +803,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_TypefaceWithNoPaths, repor
 
         std::vector<uint8_t> serverStrikeData;
         server.writeStrikeData(&serverStrikeData);
-
-        REPORTER_ASSERT(reporter,
-                        client.readStrikeData(serverStrikeData.data(), serverStrikeData.size()));
+        if (!serverStrikeData.empty()) {
+            REPORTER_ASSERT(reporter,
+                            client.readStrikeData(serverStrikeData.data(),
+                                                  serverStrikeData.size()));
+        }
         auto clientBlob = MakeEmojiBlob(serverTf, textSize, clientTf);
         REPORTER_ASSERT(reporter, clientBlob);
 
@@ -945,7 +947,9 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
     SkPaint paint;
     paint.setColor(SK_ColorRED);
 
-    auto lostGlyphID = SkPackedGlyphID(1, SK_FixedHalf, SK_FixedHalf);
+    SkPoint glyphPos = {0.5f, 0.5f};
+    SkIPoint glyphIPos = {SkScalarToFixed(glyphPos.x()), SkScalarToFixed(glyphPos.y())};
+    auto lostGlyphID = SkPackedGlyphID(1, glyphIPos.x(), glyphIPos.y());
     const uint8_t glyphImage[] = {0xFF, 0xFF};
     SkMask::Format realMask;
     SkMask::Format fakeMask;
@@ -996,10 +1000,17 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
         auto* cacheState = server.getOrCreateCache(
                 paint, font, SkSurfacePropsCopyOrDefault(nullptr),
                 SkMatrix::I(), flags, &effects);
-        SkStrikeServer::AddGlyphForTesting(cacheState, lostGlyphID, false);
-
+        SkGlyphID glyphID = lostGlyphID.glyphID();
+        SkZip<const SkGlyphID, const SkPoint> source{1, &glyphID, &glyphPos};
+        SkSourceGlyphBuffer rejects;
+        SkDrawableGlyphBuffer drawables;
+        drawables.ensureSize(source.size());
+        rejects.setSource(source);
+        drawables.startSource(rejects.source(), {0, 0});
+        SkStrikeServer::AddGlyphForTesting(cacheState, &drawables, &rejects);
         std::vector<uint8_t> serverStrikeData;
         server.writeStrikeData(&serverStrikeData);
+        REPORTER_ASSERT(reporter, !serverStrikeData.empty());
         REPORTER_ASSERT(reporter,
                         client.readStrikeData(
                                 serverStrikeData.data(),
