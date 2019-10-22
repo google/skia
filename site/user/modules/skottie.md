@@ -1,4 +1,4 @@
-Animation Player
+Skottie - Lottie Animation Player
 ================
 
 Skia now offers a performant, secure native player for JSON animations derived
@@ -40,6 +40,9 @@ Here are some test samples rendering with Skia's animation player:
 </a>
 <a href="https://skottie.skia.org/fc42db7c75741437b5cb0e90b3febc65">
   <skottie-inline-sk src="https://skottie.skia.org/_/j/fc42db7c75741437b5cb0e90b3febc65" width=200 height=200></skottie-inline-sk>
+</a>
+<a href="https://skottie.skia.org/c16eee287f2cea44102b6670c66e60ab">
+  <skottie-inline-sk src="https://skottie.skia.org/_/j/c16eee287f2cea44102b6670c66e60ab" width=200 height=200></skottie-inline-sk>
 </a>
 
 *Sample animations courtesy of the lottiefiles.com community
