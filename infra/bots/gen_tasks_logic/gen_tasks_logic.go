@@ -1462,7 +1462,7 @@ func (b *builder) presubmit(name string) string {
 	task.CipdPackages = append(task.CipdPackages, &specs.CipdPackage{
 		Name:    "infra/recipe_bundles/chromium.googlesource.com/chromium/tools/build",
 		Path:    "recipe_bundle",
-		Version: "git_revision:617e0fd3186eaae8bcb7521def0d6d3b4a5bcaf1",
+		Version: "git_revision:a8bcedad6768e206c4d2bd1718caa849f29cd42d",
 	})
 	task.Dependencies = []string{} // No bundled recipes for this one.
 	b.MustAddTask(name, task)
