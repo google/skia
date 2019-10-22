@@ -382,6 +382,11 @@ static int get_programs_max_stages(const sk_gpu_test::ContextInfo& ctxInfo) {
             // On Angle D3D we will hit a limit of out variables if we use too many stages.
             maxStages = 3;
         }
+    } else if (skiatest::IsVulkanContextType(ctxInfo.type())) {
+#ifdef SK_BUILD_FOR_ANDROID
+        // TODO: Test for vendor
+        maxStages = 1;
+#endif
     }
     return maxStages;
 }
