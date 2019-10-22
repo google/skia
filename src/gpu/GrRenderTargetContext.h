@@ -481,15 +481,11 @@ public:
     int height() const { return fRenderTargetProxy->height(); }
     int numSamples() const { return fRenderTargetProxy->numSamples(); }
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
-    GrSurfaceOrigin origin() const { return fOrigin; }
     bool wrapsVkSecondaryCB() const { return fRenderTargetProxy->wrapsVkSecondaryCB(); }
     GrMipMapped mipMapped() const;
 
     GrSurfaceProxyView outputSurfaceView() {
         return { fRenderTargetProxy, fOrigin, fOutputSwizzle };
-    }
-    GrSurfaceProxyView textureSurfaceView() {
-        return { fRenderTargetProxy, fOrigin, fTextureSwizzle };
     }
 
     // This entry point should only be called if the backing GPU object is known to be
@@ -648,8 +644,6 @@ private:
     std::unique_ptr<GrTextTarget> fTextTarget;
 
     sk_sp<GrRenderTargetProxy> fRenderTargetProxy;
-    GrSurfaceOrigin fOrigin;
-    GrSwizzle fTextureSwizzle;
     GrSwizzle fOutputSwizzle;
 
     // In MDB-mode the GrOpsTask can be closed by some other renderTargetContext that has picked

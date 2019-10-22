@@ -941,6 +941,10 @@ std::unique_ptr<GrTextureContext> GrDrawingManager::makeTextureContext(
 
     sk_sp<GrTextureProxy> textureProxy(sk_ref_sp(sProxy->asTextureProxy()));
 
+    GrSurfaceOrigin origin = textureProxy->origin();
+    GrSwizzle texSwizzle = textureProxy->textureSwizzle();
+
     return std::unique_ptr<GrTextureContext>(new GrTextureContext(
-            fContext, std::move(textureProxy), colorType, alphaType, std::move(colorSpace)));
+            fContext, std::move(textureProxy), colorType, alphaType, std::move(colorSpace), origin,
+            texSwizzle));
 }

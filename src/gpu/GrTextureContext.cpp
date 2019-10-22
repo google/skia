@@ -20,8 +20,10 @@ GrTextureContext::GrTextureContext(GrRecordingContext* context,
                                    sk_sp<GrTextureProxy> textureProxy,
                                    GrColorType colorType,
                                    SkAlphaType alphaType,
-                                   sk_sp<SkColorSpace> colorSpace)
-        : GrSurfaceContext(context, colorType, alphaType, std::move(colorSpace))
+                                   sk_sp<SkColorSpace> colorSpace,
+                                   GrSurfaceOrigin origin,
+                                   GrSwizzle texSwizzle)
+        : GrSurfaceContext(context, colorType, alphaType, std::move(colorSpace), origin, texSwizzle)
         , fTextureProxy(std::move(textureProxy)) {
     SkDEBUGCODE(this->validate();)
 }
