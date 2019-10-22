@@ -6,6 +6,7 @@
 */
 
 #include "include/gpu/GrContext.h"
+#include "src/gpu/GrAutoLocaleSetter.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrPersistentCacheUtils.h"
 #include "src/gpu/GrShaderCaps.h"
@@ -27,6 +28,9 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         GrPrimitiveType primitiveType,
         Desc* desc,
         VkRenderPass compatibleRenderPass) {
+    // ensure that we use "." as a decimal separator when creating SkSL code
+    GrAutoLocaleSetter als("C");
+
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
     GrVkPipelineStateBuilder builder(gpu, renderTarget, programInfo, desc);
