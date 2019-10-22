@@ -130,6 +130,37 @@ DEF_TEST(SkVM, r) {
         });
     }
 
+    {
+        // Demonstrate the value of program reordering.
+        skvm::Builder b;
+        skvm::Arg sp = b.varying<int>(),
+                  dp = b.varying<int>();
+
+        skvm::I32 byte = b.splat(0xff);
+
+        skvm::I32 src = b.load32(sp),
+                  sr  = b.extract(src,  0, byte),
+                  sg  = b.extract(src,  8, byte),
+                  sb  = b.extract(src, 16, byte),
+                  sa  = b.extract(src, 24, byte);
+
+        skvm::I32 dst = b.load32(dp),
+                  dr  = b.extract(dst,  0, byte),
+                  dg  = b.extract(dst,  8, byte),
+                  db  = b.extract(dst, 16, byte),
+                  da  = b.extract(dst, 24, byte);
+
+        skvm::I32 R = b.add(sr, dr),
+                  G = b.add(sg, dg),
+                  B = b.add(sb, db),
+                  A = b.add(sa, da);
+
+        b.store32(dp, b.pack(b.pack(R, G, 8),
+                             b.pack(B, A, 8), 16));
+
+        dump(b, &buf);
+    }
+
     sk_sp<SkData> blob = buf.detachAsData();
     {
 
