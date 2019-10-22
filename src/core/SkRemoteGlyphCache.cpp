@@ -199,7 +199,6 @@ public:
                  SkDiscardableHandleId discardableHandleId);
     ~RemoteStrike() override;
 
-    void addGlyph(SkPackedGlyphID, bool asPath);
     void writePendingGlyphs(Serializer* serializer);
     SkDiscardableHandleId discardableHandleId() const { return fDiscardableHandleId; }
 
@@ -213,7 +212,14 @@ public:
         return fRoundingSpec;
     }
 
-    void prepareForDrawing(int maxDimension, SkDrawableGlyphBuffer* drawables) override;
+    void prepareForMaskDrawing(
+            SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) override;
+
+    void prepareForSDFTDrawing(
+            SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) override;
+
+    void prepareForPathDrawing(
+            SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) override;
 
     void onAboutToExitScope() override {}
 
@@ -225,6 +231,8 @@ public:
 
 private:
     void writeGlyphPath(const SkPackedGlyphID& glyphID, Serializer* serializer) const;
+
+    SkGlyph* addGlyph(SkPackedGlyphID packedID);
 
     void ensureScalerContext();
 
@@ -285,24 +293,6 @@ SkStrikeServer::RemoteStrike::RemoteStrike(
 
 SkStrikeServer::RemoteStrike::~RemoteStrike() = default;
 
-void SkStrikeServer::RemoteStrike::addGlyph(SkPackedGlyphID glyph, bool asPath) {
-    auto* cache = asPath ? &fCachedGlyphPaths : &fCachedGlyphImages;
-    auto* pending = asPath ? &fPendingGlyphPaths : &fPendingGlyphImages;
-
-    // Already cached.
-    if (cache->contains(glyph)) {
-        return;
-    }
-
-    // A glyph is going to be sent. Make sure we have a scaler context to send it.
-    this->ensureScalerContext();
-
-    // Serialize and cache. Also create the scalar context to use when serializing
-    // this glyph.
-    cache->add(glyph);
-    pending->push_back(glyph);
-}
-
 size_t SkStrikeServer::MapOps::operator()(const SkDescriptor* key) const {
     return key->getChecksum();
 }
@@ -310,7 +300,6 @@ size_t SkStrikeServer::MapOps::operator()(const SkDescriptor* key) const {
 bool SkStrikeServer::MapOps::operator()(const SkDescriptor* lhs, const SkDescriptor* rhs) const {
     return *lhs == *rhs;
 }
-
 
 // -- TrackLayerDevice -----------------------------------------------------------------------------
 class SkTextBlobCacheDiffCanvas::TrackLayerDevice final : public SkNoPixelsDevice {
@@ -486,8 +475,10 @@ SkScopedStrikeForGPU SkStrikeServer::findOrCreateScopedStrike(const SkDescriptor
 }
 
 void SkStrikeServer::AddGlyphForTesting(
-        RemoteStrike* cache, SkPackedGlyphID glyphID, bool asPath) {
-    cache->addGlyph(glyphID, asPath);
+        RemoteStrike* strike, SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) {
+    strike->prepareForMaskDrawing(drawables, rejects);
+    rejects->flipRejectsToSource();
+    SkASSERT(rejects->source().empty());
 }
 
 void SkStrikeServer::checkForDeletedEntries() {
@@ -656,44 +647,69 @@ void SkStrikeServer::RemoteStrike::writeGlyphPath(const SkPackedGlyphID& glyphID
     path.writeToMemory(serializer->allocate(pathSize, kPathAlignment));
 }
 
+SkGlyph* SkStrikeServer::RemoteStrike::addGlyph(SkPackedGlyphID packedID) {
+    SkGlyph* glyphPtr = fAlloc.make<SkGlyph>(packedID);
+    fGlyphMap.set(glyphPtr);
+    this->ensureScalerContext();
+    fContext->getMetrics(glyphPtr);
+    fCachedGlyphImages.add(packedID);
+    fPendingGlyphImages.push_back(packedID);
+    return glyphPtr;
+}
 
-// Be sure to read and understand the comment for prepareForDrawing in
-// SkStrikeForGPU.h before working on this code.
-void SkStrikeServer::RemoteStrike::prepareForDrawing(
-        int maxDimension, SkDrawableGlyphBuffer* drawables) {
+void SkStrikeServer::RemoteStrike::prepareForMaskDrawing(SkDrawableGlyphBuffer* drawables,
+                                                         SkSourceGlyphBuffer* rejects) {
     for (auto t : SkMakeEnumerate(drawables->input())) {
         size_t i; SkGlyphVariant packedID; SkPoint pos;
         std::forward_as_tuple(i, std::tie(packedID, pos)) = t;
         SkGlyph* glyphPtr = fGlyphMap.findOrNull(packedID);
         // Has this glyph ever been seen before?
         if (glyphPtr == nullptr) {
-            // Never seen before. Make a new glyph.
-            glyphPtr = fAlloc.make<SkGlyph>(packedID);
-            fGlyphMap.set(glyphPtr);
-            this->ensureScalerContext();
-            fContext->getMetrics(glyphPtr);
-            if (glyphPtr->maxDimension() <= maxDimension) {
-                // do nothing
-            } else if (!glyphPtr->isColor()) {
-                // The glyph is too big for the atlas, but it is not color, so it is handled
-                // with a path.
-                if (glyphPtr->setPath(&fAlloc, fContext.get())) {
-                    // Always send the path data, even if its not available, to make sure empty
-                    // paths are not incorrectly assumed to be cache misses.
-                    fCachedGlyphPaths.add(glyphPtr->getPackedID());
-                    fPendingGlyphPaths.push_back(glyphPtr->getPackedID());
-                }
-            } else {
-                // This will be handled by the fallback strike.
-                SkASSERT(glyphPtr->maxDimension() > maxDimension && glyphPtr->isColor());
-            }
-            // Make sure to send the glyph to the GPU because we always send the image for a glyph.
-            fCachedGlyphImages.add(packedID);
-            fPendingGlyphImages.push_back(packedID);
+            glyphPtr = this->addGlyph(packedID);
         }
+        if (!CanDrawAsMask(*glyphPtr)) {
+            rejects->reject(i);
+        }
+    }
+}
 
-        // TODO(herb): Change the code to only send the glyphs for fallback?
-        drawables->push_back(glyphPtr, i);
+void SkStrikeServer::RemoteStrike::prepareForSDFTDrawing(SkDrawableGlyphBuffer* drawables,
+                                                         SkSourceGlyphBuffer* rejects) {
+    for (auto t : SkMakeEnumerate(drawables->input())) {
+        size_t i; SkGlyphVariant packedID; SkPoint pos;
+        std::forward_as_tuple(i, std::tie(packedID, pos)) = t;
+        SkGlyph* glyphPtr = fGlyphMap.findOrNull(packedID);
+        // Has this glyph ever been seen before?
+        if (glyphPtr == nullptr) {
+            glyphPtr = this->addGlyph(packedID);
+        }
+        if (!CanDrawAsSDFT(*glyphPtr)) {
+            rejects->reject(i);
+        }
+    }
+}
+
+void SkStrikeServer::RemoteStrike::prepareForPathDrawing(SkDrawableGlyphBuffer* drawables,
+                                                         SkSourceGlyphBuffer* rejects) {
+    for (auto t : SkMakeEnumerate(drawables->input())) {
+        size_t i; SkGlyphVariant packedID; SkPoint pos;
+        std::forward_as_tuple(i, std::tie(packedID, pos)) = t;
+        SkGlyph* glyphPtr = fGlyphMap.findOrNull(packedID);
+        // Has this glyph ever been seen before?
+        if (glyphPtr == nullptr) {
+            glyphPtr = this->addGlyph(packedID);
+            // Only try to get the path if the glyphs is not color.
+            if (!glyphPtr->isColor() && !glyphPtr->isEmpty()) {
+                glyphPtr->setPath(&fAlloc, fContext.get());
+                // Always send the path data, even if its not available, to make sure empty
+                // paths are not incorrectly assumed to be cache misses.
+                fCachedGlyphPaths.add(glyphPtr->getPackedID());
+                fPendingGlyphPaths.push_back(glyphPtr->getPackedID());
+            }
+        }
+        if (!glyphPtr->isEmpty() && !CanDrawAsPath(*glyphPtr)) {
+            rejects->reject(i, glyphPtr->maxDimension());
+        }
     }
 }
 
