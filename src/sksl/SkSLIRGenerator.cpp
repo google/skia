@@ -126,7 +126,7 @@ static void fill_caps(const SKSL_CAPS_CLASS& caps,
     CAP(fbFetchNeedsCustomOutput);
     CAP(flatInterpolationSupport);
     CAP(noperspectiveInterpolationSupport);
-    CAP(sampleVariablesSupport);
+    CAP(sampleMaskSupport);
     CAP(externalTextureSupport);
     CAP(mustEnableAdvBlendEqs);
     CAP(mustEnableSpecificAdvBlendEqs);

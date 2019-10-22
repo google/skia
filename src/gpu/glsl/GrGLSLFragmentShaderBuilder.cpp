@@ -94,7 +94,7 @@ const char* GrGLSLFragmentShaderBuilder::sampleOffsets() {
 void GrGLSLFragmentShaderBuilder::maskOffMultisampleCoverage(
         const char* mask, ScopeFlags scopeFlags) {
     const GrShaderCaps& shaderCaps = *fProgramBuilder->shaderCaps();
-    if (!shaderCaps.sampleVariablesSupport() && !shaderCaps.sampleVariablesStencilSupport()) {
+    if (!shaderCaps.sampleMaskSupport() && !shaderCaps.sampleMaskStencilSupport()) {
         SkDEBUGFAIL("Attempted to mask sample coverage without support.");
         return;
     }
@@ -105,15 +105,15 @@ void GrGLSLFragmentShaderBuilder::maskOffMultisampleCoverage(
     if (!fHasModifiedSampleMask) {
         fHasModifiedSampleMask = true;
         if (ScopeFlags::kTopLevel != scopeFlags) {
-            this->codePrependf("gl_SampleMask[0] = ~0;");
+            this->codePrependf("sk_SampleMask[0] = ~0;");
         }
         if (!(ScopeFlags::kInsideLoop & scopeFlags)) {
-            this->codeAppendf("gl_SampleMask[0] = (%s);", mask);
+            this->codeAppendf("sk_SampleMask[0] = (%s);", mask);
             return;
         }
     }
 
-    this->codeAppendf("gl_SampleMask[0] &= (%s);", mask);
+    this->codeAppendf("sk_SampleMask[0] &= (%s);", mask);
 }
 
 void GrGLSLFragmentShaderBuilder::applyFnToMultisampleMask(
