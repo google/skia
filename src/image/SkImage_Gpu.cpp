@@ -56,7 +56,7 @@ static SkColorType proxy_color_type(GrTextureProxy* proxy) {
 
 SkImage_Gpu::SkImage_Gpu(sk_sp<GrContext> context, uint32_t uniqueID, SkAlphaType at,
                          sk_sp<GrTextureProxy> proxy, sk_sp<SkColorSpace> colorSpace)
-        : INHERITED(std::move(context), proxy->worstCaseWidth(), proxy->worstCaseHeight(), uniqueID,
+        : INHERITED(std::move(context), proxy->worstCaseDimensions(), uniqueID,
                     proxy_color_type(proxy.get()), at, colorSpace)
         , fProxy(std::move(proxy)) {}
 

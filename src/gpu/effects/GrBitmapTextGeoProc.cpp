@@ -149,11 +149,11 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(const GrShaderCaps& caps,
     this->setVertexAttributes(&fInPosition, 3);
 
     if (numActiveProxies) {
-        fAtlasSize = proxies[0]->isize();
+        fAtlasSize = proxies[0]->dimensions();
     }
     for (int i = 0; i < numActiveProxies; ++i) {
         SkASSERT(proxies[i]);
-        SkASSERT(proxies[i]->isize() == fAtlasSize);
+        SkASSERT(proxies[i]->dimensions() == fAtlasSize);
         fTextureSamplers[i].reset(params, proxies[i]->backendFormat(),
                                   proxies[i]->textureSwizzle());
     }
@@ -166,12 +166,12 @@ void GrBitmapTextGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* proxies,
     SkASSERT(numActiveProxies <= kMaxTextures);
 
     if (!fTextureSamplers[0].isInitialized()) {
-        fAtlasSize = proxies[0]->isize();
+        fAtlasSize = proxies[0]->dimensions();
     }
 
     for (int i = 0; i < numActiveProxies; ++i) {
         SkASSERT(proxies[i]);
-        SkASSERT(proxies[i]->isize() == fAtlasSize);
+        SkASSERT(proxies[i]->dimensions() == fAtlasSize);
 
         if (!fTextureSamplers[i].isInitialized()) {
             fTextureSamplers[i].reset(params, proxies[i]->backendFormat(),

@@ -13,16 +13,15 @@
 #include "src/gpu/dawn/GrDawnGpu.h"
 
 GrDawnTextureRenderTarget::GrDawnTextureRenderTarget(GrDawnGpu* gpu,
-                                                     const SkISize& size,
+                                                     const SkISize& dimensions,
                                                      GrPixelConfig config,
                                                      dawn::TextureView textureView,
                                                      int sampleCnt,
                                                      const GrDawnImageInfo& info,
                                                      GrMipMapsStatus mipMapsStatus)
-        : GrSurface(gpu, size, config, GrProtected::kNo)
-        , GrDawnTexture(gpu, size, config, textureView, info, mipMapsStatus)
-        , GrDawnRenderTarget(gpu, size, config, sampleCnt, info) {
-}
+        : GrSurface(gpu, dimensions, config, GrProtected::kNo)
+        , GrDawnTexture(gpu, dimensions, config, textureView, info, mipMapsStatus)
+        , GrDawnRenderTarget(gpu, dimensions, config, sampleCnt, info) {}
 
 bool GrDawnTextureRenderTarget::canAttemptStencilAttachment() const {
     return true;
@@ -30,7 +29,7 @@ bool GrDawnTextureRenderTarget::canAttemptStencilAttachment() const {
 
 size_t GrDawnTextureRenderTarget::onGpuMemorySize() const {
     const GrCaps& caps = *this->getGpu()->caps();
-    return GrSurface::ComputeSize(caps, this->backendFormat(), this->width(), this->height(),
+    return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(),
                                   1, // FIXME: for MSAA
                                   this->texturePriv().mipMapped());
 }

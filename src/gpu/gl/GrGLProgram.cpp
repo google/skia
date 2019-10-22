@@ -147,12 +147,11 @@ void GrGLProgram::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrigin
     }
 
     // set RT adjustment
-    SkISize size;
-    size.set(rt->width(), rt->height());
+    SkISize dimensions = rt->dimensions();
     if (!primProc.isPathRendering()) {
         if (fRenderTargetState.fRenderTargetOrigin != origin ||
-            fRenderTargetState.fRenderTargetSize != size) {
-            fRenderTargetState.fRenderTargetSize = size;
+            fRenderTargetState.fRenderTargetSize != dimensions) {
+            fRenderTargetState.fRenderTargetSize = dimensions;
             fRenderTargetState.fRenderTargetOrigin = origin;
 
             float rtAdjustmentVec[4];
@@ -162,7 +161,6 @@ void GrGLProgram::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrigin
     } else {
         SkASSERT(fGpu->glCaps().shaderCaps()->pathRenderingSupport());
         const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
-        fGpu->glPathRendering()->setProjectionMatrix(pathProc.viewMatrix(),
-                                                     size, origin);
+        fGpu->glPathRendering()->setProjectionMatrix(pathProc.viewMatrix(), dimensions, origin);
     }
 }

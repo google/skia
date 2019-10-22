@@ -16,12 +16,12 @@ struct GrDawnImageInfo;
 
 class GrDawnTexture : public GrTexture {
 public:
-    static sk_sp<GrDawnTexture> Make(GrDawnGpu*, const SkISize& size, GrPixelConfig config,
+    static sk_sp<GrDawnTexture> Make(GrDawnGpu*, const SkISize& dimensions, GrPixelConfig config,
                                      dawn::TextureFormat format, GrRenderable, int sampleCnt,
                                      SkBudgeted, int mipLevels, GrMipMapsStatus);
 
-    static sk_sp<GrDawnTexture> MakeWrapped(GrDawnGpu*, const SkISize& size, GrPixelConfig config,
-                                            GrRenderable, int sampleCnt,
+    static sk_sp<GrDawnTexture> MakeWrapped(GrDawnGpu*, const SkISize& dimensions,
+                                            GrPixelConfig config, GrRenderable, int sampleCnt,
                                             GrMipMapsStatus, GrWrapCacheable,
                                             const GrDawnImageInfo&);
 
@@ -39,8 +39,8 @@ public:
     dawn::Texture texture() const { return fInfo.fTexture; }
     dawn::TextureView textureView() const { return fTextureView; }
 protected:
-    GrDawnTexture(GrDawnGpu*, const SkISize& size, GrPixelConfig config,
-                  dawn::TextureView, const GrDawnImageInfo&, GrMipMapsStatus);
+    GrDawnTexture(GrDawnGpu*, const SkISize& dimensions, GrPixelConfig config, dawn::TextureView,
+                  const GrDawnImageInfo&, GrMipMapsStatus);
 
     GrDawnGpu* getDawnGpu() const;
 

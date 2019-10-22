@@ -118,7 +118,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrRecordingContext* conte
         return nullptr;
     }
 
-    const SkIRect rect = SkIRect::MakeWH(proxy->width(), proxy->height());
+    const SkIRect rect = SkIRect::MakeSize(proxy->dimensions());
 
     // GrMakeCachedBitmapProxy has uploaded only the specified subset of 'bmp' so we need not
     // bother with SkBitmap::getSubset
@@ -492,9 +492,7 @@ public:
             // TODO: if this becomes a bottle neck we could base this logic on what the size
             // will be when it is finally instantiated - but that is more fraught.
             if (GrProxyProvider::IsFunctionallyExact(fTextureProxy.get()) &&
-                0 == subset->fLeft && 0 == subset->fTop &&
-                fTextureProxy->width() == subset->width() &&
-                fTextureProxy->height() == subset->height()) {
+                *subset == SkIRect::MakeSize(fTextureProxy->dimensions())) {
                 fTextureProxy->priv().exactify(false);
                 // The existing GrTexture is already tight so reuse it in the SkImage
                 return wrap_proxy_in_image(fContext, fTextureProxy, fAlphaType, fColorSpace);

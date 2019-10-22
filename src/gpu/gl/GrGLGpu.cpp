@@ -1020,7 +1020,7 @@ bool GrGLGpu::uploadTexData(GrGLFormat textureFormat, GrColorType textureColorTy
 
 bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
                                       SkImage::CompressionType compressionType,
-                                      const SkISize& size,
+                                      const SkISize& dimensions,
                                       GrGLenum target,
                                       const void* data) {
     SkASSERT(format != GrGLFormat::kUnknown);
@@ -1038,13 +1038,14 @@ bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
 
     // Make sure that the width and height that we pass to OpenGL
     // is a multiple of the block size.
-    size_t dataSize = GrCompressedDataSize(compressionType, size.width(), size.height());
+    size_t dataSize =
+            GrCompressedDataSize(compressionType, dimensions.width(), dimensions.height());
 
     if (useTexStorage) {
         // We never resize or change formats of textures.
-        GL_ALLOC_CALL(
-                this->glInterface(),
-                TexStorage2D(target, kMipLevelCount, internalFormat, size.width(), size.height()));
+        GL_ALLOC_CALL(this->glInterface(),
+                      TexStorage2D(target, kMipLevelCount, internalFormat, dimensions.width(),
+                                   dimensions.height()));
         GrGLenum error = CHECK_ALLOC_ERROR(this->glInterface());
         if (error != GR_GL_NO_ERROR) {
             return false;
@@ -1053,8 +1054,8 @@ bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
                                         0,  // level
                                         0,  // left
                                         0,  // top
-                                        size.width(),
-                                        size.height(),
+                                        dimensions.width(),
+                                        dimensions.height(),
                                         internalFormat,
                                         SkToInt(dataSize),
                                         data));
@@ -1062,8 +1063,8 @@ bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
         GL_ALLOC_CALL(this->glInterface(), CompressedTexImage2D(target,
                                                                 0,  // level
                                                                 internalFormat,
-                                                                size.width(),
-                                                                size.height(),
+                                                                dimensions.width(),
+                                                                dimensions.height(),
                                                                 0,  // border
                                                                 SkToInt(dataSize),
                                                                 data));
@@ -1451,7 +1452,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrGLFormat format) {
 }
 
 GrGLuint GrGLGpu::createCompressedTexture2D(
-        const SkISize& size,
+        const SkISize& dimensions,
         GrGLFormat format,
         SkImage::CompressionType compression,
         GrGLTextureParameters::SamplerOverriddenState* initialState,
@@ -1469,14 +1470,14 @@ GrGLuint GrGLGpu::createCompressedTexture2D(
 
     *initialState = set_initial_texture_params(this->glInterface(), GR_GL_TEXTURE_2D);
 
-    if (!this->uploadCompressedTexData(format, compression, size, GR_GL_TEXTURE_2D, data)) {
+    if (!this->uploadCompressedTexData(format, compression, dimensions, GR_GL_TEXTURE_2D, data)) {
         GL_CALL(DeleteTextures(1, &id));
         return 0;
     }
     return id;
 }
 
-GrGLuint GrGLGpu::createTexture2D(const SkISize& size,
+GrGLuint GrGLGpu::createTexture2D(const SkISize& dimensions,
                                   GrGLFormat format,
                                   GrRenderable renderable,
                                   GrGLTextureParameters::SamplerOverriddenState* initialState,
@@ -1512,7 +1513,7 @@ GrGLuint GrGLGpu::createTexture2D(const SkISize& size,
         if (this->glCaps().formatSupportsTexStorage(format)) {
             GL_ALLOC_CALL(this->glInterface(),
                           TexStorage2D(GR_GL_TEXTURE_2D, SkTMax(mipLevelCount, 1), internalFormat,
-                                       size.width(), size.height()));
+                                       dimensions.width(), dimensions.height()));
             success = (GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(this->glInterface()));
         } else {
             GrGLenum externalFormat, externalType;
@@ -1521,8 +1522,8 @@ GrGLuint GrGLGpu::createTexture2D(const SkISize& size,
             if (externalFormat && externalType) {
                 for (int level = 0; level < mipLevelCount && error == GR_GL_NO_ERROR; level++) {
                     const int twoToTheMipLevel = 1 << level;
-                    const int currentWidth = SkTMax(1, size.width() / twoToTheMipLevel);
-                    const int currentHeight = SkTMax(1, size.height() / twoToTheMipLevel);
+                    const int currentWidth = SkTMax(1, dimensions.width() / twoToTheMipLevel);
+                    const int currentHeight = SkTMax(1, dimensions.height() / twoToTheMipLevel);
                     GL_ALLOC_CALL(
                             this->glInterface(),
                             TexImage2D(GR_GL_TEXTURE_2D, level, internalFormat, currentWidth,

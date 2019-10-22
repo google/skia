@@ -54,8 +54,7 @@ public:
     }
 
     static void ComputeScratchKey(GrPixelConfig config,
-                                  int width,
-                                  int height,
+                                  SkISize dimensions,
                                   GrRenderable,
                                   int sampleCnt,
                                   GrMipMapped,

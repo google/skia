@@ -144,12 +144,11 @@ void GrMtlPipelineState::setRenderTargetState(const GrRenderTarget* rt, GrSurfac
     }
 
     // set RT adjustment
-    SkISize size;
-    size.set(rt->width(), rt->height());
+    SkISize dimensions = rt->dimensions();
     SkASSERT(fBuiltinUniformHandles.fRTAdjustmentUni.isValid());
     if (fRenderTargetState.fRenderTargetOrigin != origin ||
-        fRenderTargetState.fRenderTargetSize != size) {
-        fRenderTargetState.fRenderTargetSize = size;
+        fRenderTargetState.fRenderTargetSize != dimensions) {
+        fRenderTargetState.fRenderTargetSize = dimensions;
         fRenderTargetState.fRenderTargetOrigin = origin;
 
         float rtAdjustmentVec[4];
