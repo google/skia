@@ -176,8 +176,10 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
 
         fDrawable.startDevice(fRejects.source(), origin, viewMatrix, strike->roundingSpec());
 
-        strike->prepareForDrawing(
-                SkStrikeCommon::kSkSideTooBigForAtlas, &fDrawable);
+        strike->prepareForMaskDrawing(&fDrawable, &fRejects);
+        // There better not be any rejects.
+        fRejects.flipRejectsToSource();
+        SkASSERT(fRejects.source().empty());
 
         if (process) {
             process->processDeviceFallback(fDrawable.drawable(), strikeSpec);
@@ -194,8 +196,10 @@ void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension
 
         fDrawable.startSource(fRejects.source(), origin);
 
-        strike->prepareForDrawing(
-                SkStrikeCommon::kSkSideTooBigForAtlas, &fDrawable);
+        strike->prepareForMaskDrawing(&fDrawable, &fRejects);
+        // There better not be any rejects.
+        fRejects.flipRejectsToSource();
+        SkASSERT(fRejects.source().empty());
 
         if (process) {
             process->processSourceFallback(
@@ -234,36 +238,15 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
         }
 
         if (!useSDFT && !usePaths) {
-            // Mask case
-            SkStrikeSpec strikeSpec =
-                    SkStrikeSpec::MakeMask(runFont, runPaint,
-                                           fDeviceProps, fScalerContextFlags, viewMatrix);
+            // Process masks - this should be the 99.99% case.
+
+            SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
+                    runFont, runPaint, fDeviceProps, fScalerContextFlags, viewMatrix);
 
             SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
             fDrawable.startDevice(fRejects.source(), origin, viewMatrix, strike->roundingSpec());
-
-            strike->prepareForDrawing(
-                    SkStrikeCommon::kSkSideTooBigForAtlas, &fDrawable);
-
-            // Sort glyphs into the three bins: mask (fGlyphPos), path (fPaths), and fallback.
-            fDrawable.flipDrawableToInput();
-            for (auto t : SkMakeEnumerate(fDrawable.input())) {
-                size_t i; SkGlyphVariant glyphVariant; SkPoint pos;
-                std::forward_as_tuple(i, std::tie(glyphVariant, pos)) = t;
-                SkGlyph* glyph = glyphVariant.glyph();
-                if (!glyph->isEmpty()) {
-                    // Does the glyph have work to do or is the code able to position the glyph?
-                    if (!SkScalarsAreFinite(pos.x(), pos.y())) {
-                        // Do nothing;
-                    } else if (SkStrikeForGPU::CanDrawAsMask(*glyph)) {
-                        fDrawable.push_back(glyph, i);
-                    } else {
-                        fRejects.reject(i);
-                    }
-                }
-            }
-
+            strike->prepareForMaskDrawing(&fDrawable, &fRejects);
             fRejects.flipRejectsToSource();
 
             if (process) {
@@ -272,41 +255,16 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 process->processDeviceMasks(fDrawable.drawable(), strikeSpec);
             }
         } else if (useSDFT) {
-            // SDFT case
+            // Process SDFT - This should be the .009% case.
             SkScalar minScale, maxScale;
             SkStrikeSpec strikeSpec;
             std::tie(strikeSpec, minScale, maxScale) =
-                    SkStrikeSpec::MakeSDFT(
-                            runFont, runPaint,fDeviceProps, viewMatrix, options);
+                    SkStrikeSpec::MakeSDFT(runFont, runPaint, fDeviceProps, viewMatrix, options);
 
             SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
             fDrawable.startSource(fRejects.source(), origin);
-            strike->prepareForDrawing(SkStrikeCommon::kSkSideTooBigForAtlas, &fDrawable);
-
-            fDrawable.flipDrawableToInput();
-            for (auto t : SkMakeEnumerate(fDrawable.input())) {
-                size_t i; SkGlyphVariant glyphVariant; SkPoint pos;
-                std::forward_as_tuple(i, std::tie(glyphVariant, pos)) = t;
-                SkGlyph* glyph = glyphVariant.glyph();
-
-                // The SDF scaler context system ensures that a glyph is empty, kSDF_Format, or
-                // kARGB32_Format. The following if statements use this assumption.
-                SkASSERT(glyph->maskFormat() == SkMask::kSDF_Format
-                         || glyph->isColor()
-                         || glyph->isEmpty());
-
-                if (!glyph->isEmpty()) {
-                    if (SkStrikeForGPU::CanDrawAsSDFT(*glyph)) {
-                        // SDF mask will work.
-                        fDrawable.push_back(glyph, i);
-                    }  else {
-                        // If no path, or it is color, then fallback.
-                        fRejects.reject(i);
-                    }
-                }
-            }
-
+            strike->prepareForSDFTDrawing(&fDrawable, &fRejects);
             fRejects.flipRejectsToSource();
 
             if (process) {
@@ -332,23 +290,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
             fDrawable.startSource(fRejects.source(), origin);
-            strike->prepareForDrawing(0, &fDrawable);
-
-            fDrawable.flipDrawableToInput();
-            for (auto t : SkMakeEnumerate(fDrawable.input())) {
-                size_t i; SkGlyphVariant glyphVariant; SkPoint pos;
-                std::forward_as_tuple(i, std::tie(glyphVariant, pos)) = t;
-                const SkGlyph& glyph = *glyphVariant.glyph();
-                if (!glyph.isEmpty()) {
-                    if (SkStrikeForGPU::CanDrawAsPath(glyph)) {
-                        // Place paths in fGlyphPos
-                        fDrawable.push_back(glyph.path(), i);
-                    } else {
-                        fRejects.reject(i, glyph.maxDimension());
-                    }
-                }
-            }
-
+            strike->prepareForPathDrawing(&fDrawable, &fRejects);
             fRejects.flipRejectsToSource();
             maxDimensionInSourceSpace =
                     fRejects.rejectedMaxDimension() * strikeSpec.strikeToSourceRatio();
