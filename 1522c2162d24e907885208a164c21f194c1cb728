@@ -16,6 +16,24 @@
       "revId": "1522c2162d24e907885208a164c21f194c1cb728",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b006737c_c7b628d6",
+        "filename": "src/gpu/GrCopyRenderTask.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-22T18:26:21Z",
+      "side": 1,
+      "message": "Updated the functions to take the views as values. Also deleted copy ctors in GrSurfaceProxyView and defaulted the move ctor.",
+      "parentUuid": "2e742332_d0fffda0",
+      "revId": "1522c2162d24e907885208a164c21f194c1cb728",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
