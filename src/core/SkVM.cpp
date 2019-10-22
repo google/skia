@@ -296,6 +296,50 @@ namespace skvm {
     // Builder -> Program, with liveness and loop hoisting analysis.
 
     Program Builder::done(const char* debug_name) {
+        // Rewrite the program by issuing instructions as late as possible:
+        //    - any side-effect-only store instruction in order as we see them;
+        //    - any other instruction only once it's shown to be needed.
+        // This elides all dead code and helps minimize value lifetime / register pressure.
+        std::vector<Instruction> rewritten;
+        rewritten.reserve(fProgram.size());
+        std::vector<Val> new_index(fProgram.size(), NA);  // Map old Val index to rewritten index.
+
+        auto rewrite = [&](Val id, auto& recurse) -> Val {
+            auto rewrite_input = [&](Val input) -> Val {
+                if (input == NA) {
+                    return NA;
+                }
+                if (new_index[input] == NA) {
+                    new_index[input] = recurse(input, recurse);
+                }
+                return new_index[input];
+            };
+
+            Instruction inst = fProgram[id];
+            // The order we rewrite inputs is somewhat arbitrary.
+            // We try to preserve the original program order as much as possible
+            // by rewriting inputs in their original order.
+            Val *min = &inst.x,
+                *mid = &inst.y,
+                *max = &inst.z;
+            if (*min > *mid) { std::swap(min, mid); }
+            if (*mid > *max) { std::swap(mid, max); }
+            if (*min > *mid) { std::swap(min, mid); }
+            *min = rewrite_input(*min);
+            *mid = rewrite_input(*mid);
+            *max = rewrite_input(*max);
+            rewritten.push_back(inst);
+            return (Val)rewritten.size()-1;
+        };
+
+        for (Val id = 0; id < (Val)fProgram.size(); id++) {
+            if (fProgram[id].op <= Op::store32) {
+                rewrite(id, rewrite);
+            }
+        }
+        fProgram = std::move(rewritten);
+
+
         // Basic liveness analysis:
         // an instruction is live until all live instructions that need its input have retired.
         for (Val id = fProgram.size(); id --> 0; ) {
