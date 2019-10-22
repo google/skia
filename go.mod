@@ -49,17 +49,18 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.4.0 // indirect
 	github.com/ugorji/go v1.1.7 // indirect
-	go.chromium.org/luci v0.0.0-20191018230245-0b73213425c2 // indirect
+	go.chromium.org/luci v0.0.0-20191022033439-ac13248965e3 // indirect
 	go.etcd.io/bbolt v1.3.3 // indirect
-	go.skia.org/infra v0.0.0-20191019202855-3ee592e07fc4
+	go.skia.org/infra v0.0.0-20191021231233-1b79b8492ad2
 	go.uber.org/multierr v1.2.0 // indirect
+	go.uber.org/zap v1.11.0 // indirect
 	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550 // indirect
 	golang.org/x/exp v0.0.0-20191014171548-69215a2ee97e // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/mobile v0.0.0-20191002175909-6d0d39b2ca82 // indirect
-	golang.org/x/net v0.0.0-20191014212845-da9a3fd4c582 // indirect
+	golang.org/x/net v0.0.0-20191021144547-ec77196f6094 // indirect
 	golang.org/x/sys v0.0.0-20191020212454-3e7259c5e7c2 // indirect
-	golang.org/x/tools v0.0.0-20191018212557-ed542cd5b28a // indirect
+	golang.org/x/tools v0.0.0-20191021224128-7178990c2503 // indirect
 	golang.org/x/xerrors v0.0.0-20191011141410-1b5146add898 // indirect
 	google.golang.org/api v0.11.0
 	google.golang.org/appengine v1.6.5 // indirect
