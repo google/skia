@@ -46,6 +46,30 @@
       "revId": "2791f224caa41144bdbd1f289469032a012d0bb0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e296050_84c1ac04",
+        "filename": "src/gpu/GrSurfaceProxyView.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-22T13:26:36Z",
+      "side": 1,
+      "message": "Fixed getters to all be const and just return non-const pointer.",
+      "parentUuid": "672eae1c_6211f269",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 5
+      },
+      "revId": "2791f224caa41144bdbd1f289469032a012d0bb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
