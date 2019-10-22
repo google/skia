@@ -39,6 +39,16 @@ namespace GrQuadPerEdgeAA {
     // GPAttributes maintains. If hasLocalCoords is false, then the local quad type can be ignored.
     struct VertexSpec {
     public:
+        VertexSpec()
+                : fDeviceQuadType(0)     // kAxisAligned
+                , fLocalQuadType(0)      // kAxisAligned
+                , fHasLocalCoords(false)
+                , fColorType(0)          // kNone
+                , fHasDomain(false)
+                , fUsesCoverageAA(false)
+                , fCompatibleWithCoverageAsAlpha(false)
+                , fRequiresGeometryDomain(false) { }
+
         VertexSpec(GrQuad::Type deviceQuadType, ColorType colorType, GrQuad::Type localQuadType,
                    bool hasLocalCoords, Domain domain, GrAAType aa, bool coverageAsAlpha)
                 : fDeviceQuadType(static_cast<unsigned>(deviceQuadType))
