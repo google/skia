@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c9bee303_0f0a04cf",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-22T19:54:56Z",
+      "side": 1,
+      "message": "will be",
+      "range": {
+        "startLine": 271,
+        "startChar": 89,
+        "endLine": 271,
+        "endChar": 93
+      },
+      "revId": "8f7fcbe9fdd8b74b5bc92a2914494bb2f5fc03e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c4dd39a_7783474f",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-22T19:54:56Z",
+      "side": 1,
+      "message": "allocate?",
+      "range": {
+        "startLine": 272,
+        "startChar": 41,
+        "endLine": 272,
+        "endChar": 47
+      },
+      "revId": "8f7fcbe9fdd8b74b5bc92a2914494bb2f5fc03e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ebd208e_c1243f43",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 715,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-22T19:54:56Z",
+      "side": 1,
+      "message": "This is a nice comment!",
+      "range": {
+        "startLine": 713,
+        "startChar": 4,
+        "endLine": 715,
+        "endChar": 36
+      },
+      "revId": "8f7fcbe9fdd8b74b5bc92a2914494bb2f5fc03e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
