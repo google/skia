@@ -12,6 +12,7 @@
 #include "src/gpu/GrDrawOpTest.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/effects/GrShadowGeoProc.h"
 
@@ -619,6 +620,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace GrShadowRRectOp {
+sk_sp<GrTextureProxy> gGaussianFalloffTexture;
+
 std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                GrColor color,
                                const SkMatrix& viewMatrix,
@@ -627,6 +630,20 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                SkScalar insetWidth) {
     // Shadow rrect ops only handle simple circular rrects.
     SkASSERT(viewMatrix.isSimilarity() && SkRRectPriv::EqualRadii(rrect));
+
+    if (!gGaussianFalloffTexture) {
+        GrSurfaceDesc desc;
+        desc.fWidth = 128;
+        desc.fHeight = 1;
+        desc.fConfig = kAlpha_8_GrPixelConfig;
+        const GrBackendFormat format = context->priv().caps()->getDefaultBackendFormat(
+                GrColorType::kAlpha_8, GrRenderable::kNo);
+
+        gGaussianFalloffTexture = context->priv().proxyProvider()->createProxy(
+                format, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
+                SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo,
+                GrInternalSurfaceFlags::kNone, GrSurfaceProxy::UseAllocator::kNo);
+    }
 
     // Do any matrix crunching before we reset the draw state for device coords.
     const SkRect& rrectBounds = rrect.getBounds();
