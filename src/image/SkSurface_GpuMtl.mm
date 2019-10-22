@@ -48,8 +48,9 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
     }
 
     GrSurfaceDesc desc;
-    desc.fWidth = metalLayer.drawableSize.width * metalLayer.contentsScale;
-    desc.fHeight = metalLayer.drawableSize.height * metalLayer.contentsScale;
+
+    desc.fWidth = metalLayer.drawableSize.width;
+    desc.fHeight = metalLayer.drawableSize.height;
     desc.fConfig = config;
 
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
@@ -57,10 +58,9 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
                 CAMetalLayer* metalLayer = (__bridge CAMetalLayer*)layer;
                 id<CAMetalDrawable> currentDrawable = [metalLayer nextDrawable];
 
-                CGSize size = [metalLayer drawableSize];
                 GrSurfaceDesc desc;
-                desc.fWidth = size.width;
-                desc.fHeight = size.height;
+                desc.fWidth = metalLayer.drawableSize.width;
+                desc.fHeight = metalLayer.drawableSize.height;
                 desc.fConfig = config;
 
                 GrMtlGpu* mtlGpu = (GrMtlGpu*) resourceProvider->priv().gpu();
