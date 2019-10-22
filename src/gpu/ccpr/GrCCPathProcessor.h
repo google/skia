@@ -80,7 +80,7 @@ private:
 
     const CoverageMode fCoverageMode;
     const TextureSampler fAtlasAccess;
-    SkISize fAtlasSize;
+    SkISize fAtlasDimensions;
     GrSurfaceOrigin fAtlasOrigin;
 
     SkMatrix fLocalMatrix;

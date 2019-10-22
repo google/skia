@@ -115,7 +115,7 @@ public:
     void dump(GrContext* context) const;
 #endif
 
-    void setAtlasSizesToMinimum_ForTesting();
+    void setAtlasDimensionsToMinimum_ForTesting();
     void setMaxPages_TestingOnly(uint32_t maxPages);
 
 private:
