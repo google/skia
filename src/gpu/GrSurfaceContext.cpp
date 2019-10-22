@@ -35,8 +35,13 @@
 GrSurfaceContext::GrSurfaceContext(GrRecordingContext* context,
                                    GrColorType colorType,
                                    SkAlphaType alphaType,
-                                   sk_sp<SkColorSpace> colorSpace)
-        : fContext(context), fColorInfo(colorType, alphaType, std::move(colorSpace)) {}
+                                   sk_sp<SkColorSpace> colorSpace,
+                                   GrSurfaceOrigin origin,
+                                   GrSwizzle texSwizzle)
+        : fContext(context)
+        , fOrigin(origin)
+        , fColorInfo(colorType, alphaType, std::move(colorSpace))
+        , fTextureSwizzle(texSwizzle) {}
 
 const GrCaps* GrSurfaceContext::caps() const { return fContext->priv().caps(); }
 
