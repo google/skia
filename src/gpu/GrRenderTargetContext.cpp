@@ -427,8 +427,7 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
     if (stencilSettings) {
         // Must use worst case bounds so that stencil buffer updates on approximately sized render
         // targets don't get corrupted.
-        rtRect = SkRect::MakeWH(fRenderTargetProxy->worstCaseWidth(),
-                                fRenderTargetProxy->worstCaseHeight());
+        rtRect = SkRect::Make(fRenderTargetProxy->worstCaseSize());
     } else {
         // Use the logical size of the render target, which allows for "fullscreen" clears even if
         // the render target has an approximate backing fit
@@ -2385,7 +2384,7 @@ bool GrRenderTargetContext::setupDstProxy(const GrClip& clip, const GrOp& op,
         }
     }
 
-    SkIRect copyRect = SkIRect::MakeWH(fRenderTargetProxy->width(), fRenderTargetProxy->height());
+    SkIRect copyRect = SkIRect::MakeSize(fRenderTargetProxy->size());
 
     SkIRect clippedRect;
     clip.getConservativeBounds(
@@ -2399,8 +2398,7 @@ bool GrRenderTargetContext::setupDstProxy(const GrClip& clip, const GrOp& op,
         // performance we may ignore the clip when the draw is entirely inside the clip is float
         // space but will hit pixels just outside the clip when actually rasterizing.
         clippedRect.outset(1, 1);
-        clippedRect.intersect(SkIRect::MakeWH(
-                fRenderTargetProxy->width(), fRenderTargetProxy->height()));
+        clippedRect.intersect(SkIRect::MakeSize(fRenderTargetProxy->size()));
     }
     SkIRect opIBounds;
     opBounds.roundOut(&opIBounds);
@@ -2443,7 +2441,7 @@ bool GrRenderTargetContext::blitTexture(GrTextureProxy* src, GrColorType srcColo
                                         const SkIRect& srcRect, const SkIPoint& dstPoint) {
     SkIRect clippedSrcRect;
     SkIPoint clippedDstPoint;
-    if (!GrClipSrcRectAndDstPoint(this->asSurfaceProxy()->isize(), src->isize(), srcRect, dstPoint,
+    if (!GrClipSrcRectAndDstPoint(this->asSurfaceProxy()->size(), src->size(), srcRect, dstPoint,
                                   &clippedSrcRect, &clippedDstPoint)) {
         return false;
     }

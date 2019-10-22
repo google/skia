@@ -201,7 +201,7 @@ static void draw_texture(GrRenderTargetContext* rtc, const GrClip& clip, const S
         // 1/2 pixel for AA and 1/2 pixel for bilerp
         float buffer = 0.5f * (aa == GrAA::kYes) +
                        0.5f * (filter == GrSamplerState::Filter::kBilerp);
-        SkRect safeBounds = SkRect::MakeWH(proxy->width(), proxy->height());
+        SkRect safeBounds = proxy->getBoundsRect();
         safeBounds.inset(buffer, buffer);
         if (!safeBounds.contains(srcRect)) {
             constraint = SkCanvas::kStrict_SrcRectConstraint;

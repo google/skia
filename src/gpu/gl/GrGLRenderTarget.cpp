@@ -104,7 +104,7 @@ GrBackendFormat GrGLRenderTarget::backendFormat() const {
 
 size_t GrGLRenderTarget::onGpuMemorySize() const {
     const GrCaps& caps = *this->getGpu()->caps();
-    return GrSurface::ComputeSize(caps, this->backendFormat(), this->width(), this->height(),
+    return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(),
                                   fNumSamplesOwnedPerPixel, GrMipMapped::kNo);
 }
 
@@ -222,8 +222,8 @@ void GrGLRenderTarget::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) 
     // Log any renderbuffer's contribution to memory.
     if (fMSColorRenderbufferID) {
         const GrCaps& caps = *this->getGpu()->caps();
-        size_t size = GrSurface::ComputeSize(caps, this->backendFormat(), this->width(),
-                                             this->height(), this->msaaSamples(), GrMipMapped::kNo);
+        size_t size = GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(),
+                                             this->msaaSamples(), GrMipMapped::kNo);
 
         // Due to this resource having both a texture and a renderbuffer component, dump as
         // skia/gpu_resources/resource_#/renderbuffer

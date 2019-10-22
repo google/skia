@@ -572,7 +572,7 @@ void GrOpsTask::setColorLoadOp(GrLoadOp op, const SkPMColor4f& color) {
     fColorLoadOp = op;
     fLoadClearColor = color;
     if (GrLoadOp::kClear == fColorLoadOp) {
-        fTotalBounds.setWH(fTarget->width(), fTarget->height());
+        fTotalBounds = fTarget->getBoundsRect();
     }
 }
 
@@ -843,7 +843,7 @@ GrRenderTask::ExpectedOutcome GrOpsTask::onMakeClosed(
         const GrCaps& caps, SkIRect* targetUpdateBounds) {
     this->forwardCombine(caps);
     if (!this->isNoOp()) {
-        SkRect clippedContentBounds = SkRect::MakeIWH(fTarget->width(), fTarget->height());
+        SkRect clippedContentBounds = fTarget->getBoundsRect();
         // TODO: If we can fix up GLPrograms test to always intersect the fTarget bounds then we can
         // simply assert here that the bounds intersect.
         if (clippedContentBounds.intersect(fTotalBounds)) {
