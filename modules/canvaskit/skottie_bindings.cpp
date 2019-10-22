@@ -108,8 +108,9 @@ public:
         fAnimation->seek(t, &ic);
         return ic.bounds();
     }
-    SkScalar duration() const { return fAnimation->duration(); }
-    const SkSize&      size() const { return fAnimation->size(); }
+    double duration() const { return fAnimation->duration(); }
+    double fps() const { return fAnimation->fps(); }
+    const SkSize& size() const { return fAnimation->size(); }
     std::string version() const { return std::string(fAnimation->version().c_str()); }
 
     // CustomPropertyManager API
@@ -179,8 +180,9 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         .function("version", optional_override([](skottie::Animation& self)->std::string {
             return std::string(self.version().c_str());
         }))
-        .function("size", &skottie::Animation::size)
+        .function("size"    , &skottie::Animation::size)
         .function("duration", &skottie::Animation::duration)
+        .function("fps"     , &skottie::Animation::fps)
         .function("seek", optional_override([](skottie::Animation& self, SkScalar t)->void {
             self.seek(t);
         }))
@@ -203,6 +205,7 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         .function("version"   , &ManagedAnimation::version)
         .function("size"      , &ManagedAnimation::size)
         .function("duration"  , &ManagedAnimation::duration)
+        .function("fps"       , &ManagedAnimation::fps)
         .function("seek"      , &ManagedAnimation::seek)
         .function("render"    , select_overload<void(SkCanvas*) const>(&ManagedAnimation::render), allow_raw_pointers())
         .function("render"    , select_overload<void(SkCanvas*, const SkRect&) const>
