@@ -15,6 +15,7 @@
 #include "src/gpu/GrBufferAllocPool.h"
 #include "src/gpu/GrDeferredUpload.h"
 #include "src/gpu/GrRenderTargetProxy.h"
+#include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 
 class GrGpu;
@@ -57,21 +58,22 @@ public:
 
     /** Additional data required on a per-op basis when executing GrOps. */
     struct OpArgs {
-        explicit OpArgs(GrOp* op, GrRenderTargetProxy* proxy, GrAppliedClip* appliedClip,
+        explicit OpArgs(GrOp* op, GrSurfaceProxyView* surfaceView, GrAppliedClip* appliedClip,
                         const GrXferProcessor::DstProxy& dstProxy)
-            : fOp(op)
-            , fProxy(proxy)
-            , fAppliedClip(appliedClip)
-            , fDstProxy(dstProxy) {
+                : fOp(op)
+                , fSurfaceView(surfaceView)
+                , fAppliedClip(appliedClip)
+                , fDstProxy(dstProxy) {
+            SkASSERT(surfaceView->asRenderTargetProxy());
         }
 
-        int numSamples() const { return fProxy->numSamples(); }
-        GrSurfaceOrigin origin() const { return fProxy->origin(); }
-        GrSwizzle outputSwizzle() const { return fProxy->outputSwizzle(); }
+        int numSamples() const { return this->proxy()->numSamples(); }
+        GrSurfaceOrigin origin() const { return fSurfaceView->origin(); }
+        GrSwizzle outputSwizzle() const { return fSurfaceView->swizzle(); }
 
         GrOp* op() { return fOp; }
-        GrRenderTargetProxy* proxy() const { return fProxy; }
-        GrRenderTarget* renderTarget() const { return fProxy->peekRenderTarget(); }
+        GrRenderTargetProxy* proxy() const { return fSurfaceView->asRenderTargetProxy(); }
+        GrRenderTarget* renderTarget() const { return this->proxy()->peekRenderTarget(); }
         GrAppliedClip* appliedClip() { return fAppliedClip; }
         const GrAppliedClip* appliedClip() const { return fAppliedClip; }
         const GrXferProcessor::DstProxy& dstProxy() const { return fDstProxy; }
@@ -79,13 +81,13 @@ public:
 #ifdef SK_DEBUG
         void validate() const {
             SkASSERT(fOp);
-            SkASSERT(fProxy);
+            SkASSERT(fSurfaceView);
         }
 #endif
 
     private:
         GrOp*                     fOp;
-        GrRenderTargetProxy*      fProxy;
+        GrSurfaceProxyView*       fSurfaceView;
         GrAppliedClip*            fAppliedClip;
         GrXferProcessor::DstProxy fDstProxy;     // TODO: do we still need the dst proxy here?
     };
