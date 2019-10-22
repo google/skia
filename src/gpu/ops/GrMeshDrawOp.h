@@ -72,11 +72,13 @@ protected:
     };
 
 private:
-    void onPrePrepare(GrRecordingContext* context) final { this->onPrePrepareDraws(context); }
+    void onPrePrepare(GrRecordingContext* context, const GrAppliedClip* clip) final {
+        this->onPrePrepareDraws(context, clip);
+    }
     void onPrepare(GrOpFlushState* state) final;
 
     // Only the GrTextureOp currently overrides this virtual
-    virtual void onPrePrepareDraws(GrRecordingContext*) {}
+    virtual void onPrePrepareDraws(GrRecordingContext*, const GrAppliedClip*) {}
 
     virtual void onPrepareDraws(Target*) = 0;
     typedef GrDrawOp INHERITED;
@@ -146,11 +148,20 @@ public:
 
     GrMesh* allocMeshes(int n) { return this->allocator()->makeArray<GrMesh>(n); }
 
-    GrPipeline::DynamicStateArrays* allocDynamicStateArrays(int numMeshes,
-                                                            int numPrimitiveProcessorTextures,
-                                                            bool allocScissors);
+    static GrPipeline::DynamicStateArrays* AllocDynamicStateArrays(SkArenaAlloc*,
+                                                                   int numMeshes,
+                                                                   int numPrimitiveProcTextures,
+                                                                   bool allocScissors);
 
-    GrPipeline::FixedDynamicState* makeFixedDynamicState(int numPrimitiveProcessorTextures);
+    static GrPipeline::FixedDynamicState* MakeFixedDynamicState(SkArenaAlloc*,
+                                                                const GrAppliedClip* clip,
+                                                                int numPrimitiveProcessorTextures);
+
+
+    GrPipeline::FixedDynamicState* makeFixedDynamicState(int numPrimitiveProcessorTextures) {
+        return MakeFixedDynamicState(this->allocator(), this->appliedClip(),
+                                     numPrimitiveProcessorTextures);
+    }
 
     virtual GrRenderTargetProxy* proxy() const = 0;
 
@@ -174,7 +185,6 @@ public:
 
     virtual GrDeferredUploadTarget* deferredUploadTarget() = 0;
 
-private:
     virtual SkArenaAlloc* allocator() = 0;
 };
 

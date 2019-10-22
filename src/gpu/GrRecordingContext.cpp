@@ -8,6 +8,7 @@
 #include "include/private/GrRecordingContext.h"
 
 #include "include/gpu/GrContext.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDrawingManager.h"
@@ -115,6 +116,9 @@ GrDrawingManager* GrRecordingContext::drawingManager() {
     return fDrawingManager.get();
 }
 
+// This entry point exists bc the GrOpsTask (and SkAtlasTextTarget) take refs on the memory pool.
+// Ostensibly, this is to keep the op's data alive in DDL mode but the back pointer is also
+// used for deletion.
 sk_sp<GrOpMemoryPool> GrRecordingContext::refOpMemoryPool() {
     if (!fOpMemoryPool) {
         // DDL TODO: should the size of the memory pool be decreased in DDL mode? CPU-side memory
@@ -129,6 +133,22 @@ sk_sp<GrOpMemoryPool> GrRecordingContext::refOpMemoryPool() {
 
 GrOpMemoryPool* GrRecordingContext::opMemoryPool() {
     return this->refOpMemoryPool().get();
+}
+
+// Stored in this arena:
+//     GrTextureOp's DynamicStateArrays and FixedDynamicState
+SkArenaAlloc* GrRecordingContext::opPODAllocator() {
+    if (!fOpPODAllocator) {
+        // TODO: empirically determine a better number for SkArenaAlloc's firstHeapAllocation param
+        fOpPODAllocator = std::unique_ptr<SkArenaAlloc>(new SkArenaAlloc(sizeof(GrPipeline) * 100));
+    }
+
+    SkASSERT(fOpPODAllocator);
+    return fOpPODAllocator.get();
+}
+
+std::unique_ptr<SkArenaAlloc> GrRecordingContext::detachOpPOD() {
+    return std::move(fOpPODAllocator);
 }
 
 GrTextBlobCache* GrRecordingContext::getTextBlobCache() {
@@ -300,6 +320,10 @@ GrRecordingContext::makeDeferredRenderTargetContextWithFallback(SkBackingFit fit
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 sk_sp<const GrCaps> GrRecordingContextPriv::refCaps() const {
     return fContext->refCaps();
+}
+
+std::unique_ptr<SkArenaAlloc> GrRecordingContextPriv::detachOpPOD() {
+    return fContext->detachOpPOD();
 }
 
 sk_sp<GrSkSLFPFactoryCache> GrRecordingContextPriv::fpFactoryCache() {
