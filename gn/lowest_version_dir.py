@@ -11,5 +11,11 @@ import sys
 
 dirpath = sys.argv[1]
 regex = re.compile(sys.argv[2])
+childpath = sys.argv[3]
 
-print sorted(filter(regex.match, os.listdir(dirpath)))[0]
+matches = sorted(filter(regex.match, os.listdir(dirpath)))
+for match in matches:
+    path = os.path.join(dirpath, match, childpath)
+    if os.path.isdir(path):
+        print path
+        break

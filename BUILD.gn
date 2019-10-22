@@ -1009,6 +1009,55 @@ component("skia") {
   }
 }
 
+config("SkiaSharp_public") {
+  include_dirs = [
+    # "include/android",
+    # "include/atlastext",
+    "include/c",
+    "include/codec",
+    # "include/config",
+    "include/core",
+    # "include/docs",
+    # "include/effects",
+    # "include/encode",
+    # "include/gpu",
+    # "include/pathops",
+    # "include/ports",
+    # "include/svg",
+    # "include/utils",
+    # "include/utils/mac",
+    # "modules/sksg/include",
+    # "modules/skshaper/include",
+    # "modules/skottie/include",
+    "include/xamarin",
+    "src/c",
+  ]
+  defines = [ "SKIA_C_DLL" ]
+}
+
+shared_library("SkiaSharp") {
+  public_configs = [ ":skia_public", ":SkiaSharp_public" ]
+  configs += skia_library_configs + [ ":SkiaSharp_public" ]
+
+  deps = [
+    ":skia",
+  ]
+
+  # clear the sources and add explicitly
+  set_sources_assignment_filter([])
+  sources = [
+    "src/xamarin/sk_manageddrawable.cpp",
+    "src/xamarin/sk_managedstream.cpp",
+    "src/xamarin/sk_xamarin.cpp",
+    "src/xamarin/SkiaKeeper.c",
+    "src/xamarin/SkManagedDrawable.cpp",
+    "src/xamarin/SkManagedStream.cpp",
+    "src/xamarin/WinRTCompat.cpp",
+  ]
+
+  libs = []
+}
+
 # DebugCanvas used in experimental/wasm-skp-debugger
 if (target_cpu == "wasm") {
   static_library("debugcanvas") {
@@ -2440,39 +2489,5 @@ if (is_ios && skia_use_metal && !skia_enable_flutter_defines) {
     deps = [
       "experimental/skottie_ios",
     ]
-  }
-
-  config("SkiaSharp_public") {
-    include_dirs = skia_public_includes + [ "include/xamarin" ]
-    defines = [ "SKIA_C_DLL" ]
-    if (is_linux) {
-      defines += [ "SK_SAMPLES_FOR_X" ]
-    }
-    if (!skia_enable_gpu) {
-      defines += [ "SK_SUPPORT_GPU=0" ]
-    }
-  }
-
-  shared_library("SkiaSharp") {
-    public_configs = [ ":skia_public", ":SkiaSharp_public" ]
-    configs += skia_library_configs + [ ":SkiaSharp_public" ]
-
-    deps = [
-      ":skia",
-    ]
-
-    # clear the sources and add explicitly
-    set_sources_assignment_filter([])
-    sources = [
-      "src/xamarin/sk_manageddrawable.cpp",
-      "src/xamarin/sk_managedstream.cpp",
-      "src/xamarin/sk_xamarin.cpp",
-      "src/xamarin/SkiaKeeper.c",
-      "src/xamarin/SkManagedDrawable.cpp",
-      "src/xamarin/SkManagedStream.cpp",
-      "src/xamarin/WinRTCompat.cpp",
-    ]
-
-    libs = []
   }
 }
