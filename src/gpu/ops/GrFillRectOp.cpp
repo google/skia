@@ -227,7 +227,7 @@ private:
         }
 
         // Configure the mesh for the vertex data
-        GrMesh* mesh = target->allocMeshes(1);
+        GrMesh* mesh = Target::AllocMeshes(target->allocator(), 1);
         if (!GrQuadPerEdgeAA::ConfigureMeshIndices(target, mesh, vertexSpec, fQuads.count())) {
             SkDebugf("Could not allocate indices\n");
             return;

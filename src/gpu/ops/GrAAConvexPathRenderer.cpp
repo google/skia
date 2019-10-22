@@ -802,7 +802,7 @@ private:
             GrVertexColor color(args.fColor, fWideColor);
             create_vertices(segments, fanPt, color, &draws, verts, idxs, kVertexStride);
 
-            GrMesh* meshes = target->allocMeshes(draws.count());
+            GrMesh* meshes = Target::AllocMeshes(target->allocator(), draws.count());
             for (int j = 0; j < draws.count(); ++j) {
                 const Draw& draw = draws[j];
                 meshes[j].setPrimitiveType(GrPrimitiveType::kTriangles);
