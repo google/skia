@@ -18,6 +18,7 @@
 #include <atomic>
 #include <new>
 
+class GrAppliedClip;
 class GrCaps;
 class GrOpFlushState;
 class GrOpsRenderPass;
@@ -158,7 +159,9 @@ public:
      * onPrePrepare must be prepared to handle both cases (when onPrePrepare has been called
      * ahead of time and when it has not been called).
      */
-    void prePrepare(GrRecordingContext* context) { this->onPrePrepare(context); }
+    void prePrepare(GrRecordingContext* context, GrAppliedClip* clip) {
+        this->onPrePrepare(context, clip);
+    }
 
     /**
      * Called prior to executing. The op should perform any resource creation or data transfers
@@ -289,7 +292,7 @@ private:
     }
 
     // Only GrMeshDrawOp currently overrides this virtual
-    virtual void onPrePrepare(GrRecordingContext*) {}
+    virtual void onPrePrepare(GrRecordingContext*, const GrAppliedClip*) {}
     virtual void onPrepare(GrOpFlushState*) = 0;
     // If this op is chained then chainBounds is the union of the bounds of all ops in the chain.
     // Otherwise, this op's bounds.
