@@ -358,58 +358,54 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
 }
 #endif
 
-static int get_programs_max_stages(const sk_gpu_test::ContextInfo& ctxInfo) {
+static int get_glprograms_max_stages(const sk_gpu_test::ContextInfo& ctxInfo) {
     GrContext* context = ctxInfo.grContext();
+    GrGLGpu* gpu = static_cast<GrGLGpu*>(context->priv().getGpu());
     int maxStages = 6;
-    if (skiatest::IsGLContextType(ctxInfo.type())) {
-        GrGLGpu* gpu = static_cast<GrGLGpu*>(context->priv().getGpu());
-        if (kGLES_GrGLStandard == gpu->glStandard()) {
-        // We've had issues with driver crashes and HW limits being exceeded with many effects on
-        // Android devices. We have passes on ARM devices with the default number of stages.
-        // TODO When we run ES 3.00 GLSL in more places, test again
+    if (kGLES_GrGLStandard == gpu->glStandard()) {
+    // We've had issues with driver crashes and HW limits being exceeded with many effects on
+    // Android devices. We have passes on ARM devices with the default number of stages.
+    // TODO When we run ES 3.00 GLSL in more places, test again
 #ifdef SK_BUILD_FOR_ANDROID
-            if (kARM_GrGLVendor != gpu->ctxInfo().vendor()) {
-                maxStages = 1;
-            }
+        if (kARM_GrGLVendor != gpu->ctxInfo().vendor()) {
+            maxStages = 1;
+        }
 #endif
-        // On iOS we can exceed the maximum number of varyings. http://skbug.com/6627.
+    // On iOS we can exceed the maximum number of varyings. http://skbug.com/6627.
 #ifdef SK_BUILD_FOR_IOS
-            maxStages = 3;
+        maxStages = 3;
 #endif
-        }
-        if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D9_ES2_ContextType ||
-            ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D11_ES2_ContextType) {
-            // On Angle D3D we will hit a limit of out variables if we use too many stages.
-            maxStages = 3;
-        }
+    }
+    if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D9_ES2_ContextType ||
+        ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D11_ES2_ContextType) {
+        // On Angle D3D we will hit a limit of out variables if we use too many stages.
+        maxStages = 3;
     }
     return maxStages;
 }
 
-static int get_programs_max_levels(const sk_gpu_test::ContextInfo& ctxInfo) {
+static int get_glprograms_max_levels(const sk_gpu_test::ContextInfo& ctxInfo) {
     // A full tree with 5 levels (31 nodes) may cause a program that exceeds shader limits
     // (e.g. uniform or varying limits); maxTreeLevels should be a number from 1 to 4 inclusive.
     int maxTreeLevels = 4;
-    if (skiatest::IsGLContextType(ctxInfo.type())) {
-        // On iOS we can exceed the maximum number of varyings. http://skbug.com/6627.
+    // On iOS we can exceed the maximum number of varyings. http://skbug.com/6627.
 #ifdef SK_BUILD_FOR_IOS
-        maxTreeLevels = 2;
+    maxTreeLevels = 2;
 #endif
-        if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D9_ES2_ContextType ||
-            ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D11_ES2_ContextType) {
-            // On Angle D3D we will hit a limit of out variables if we use too many stages.
-            maxTreeLevels = 2;
-        }
+    if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D9_ES2_ContextType ||
+        ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D11_ES2_ContextType) {
+        // On Angle D3D we will hit a limit of out variables if we use too many stages.
+        maxTreeLevels = 2;
     }
     return maxTreeLevels;
 }
 
-static void test_programs(skiatest::Reporter* reporter, const sk_gpu_test::ContextInfo& ctxInfo) {
-    int maxStages = get_programs_max_stages(ctxInfo);
+static void test_glprograms(skiatest::Reporter* reporter, const sk_gpu_test::ContextInfo& ctxInfo) {
+    int maxStages = get_glprograms_max_stages(ctxInfo);
     if (maxStages == 0) {
         return;
     }
-    int maxLevels = get_programs_max_levels(ctxInfo);
+    int maxLevels = get_glprograms_max_levels(ctxInfo);
     if (maxLevels == 0) {
         return;
     }
@@ -418,7 +414,7 @@ static void test_programs(skiatest::Reporter* reporter, const sk_gpu_test::Conte
                                                                 maxLevels));
 }
 
-DEF_GPUTEST(Programs, reporter, options) {
+DEF_GPUTEST(GLPrograms, reporter, options) {
     // Set a locale that would cause shader compilation to fail because of , as decimal separator.
     // skbug 3330
 #ifdef SK_BUILD_FOR_WIN
@@ -431,7 +427,7 @@ DEF_GPUTEST(Programs, reporter, options) {
     GrContextOptions opts = options;
     opts.fSuppressPrints = true;
     sk_gpu_test::GrContextFactory debugFactory(opts);
-    skiatest::RunWithGPUTestContexts(test_programs,
-                                     &sk_gpu_test::GrContextFactory::IsRenderingContext,
-                                     reporter, opts);
+    skiatest::RunWithGPUTestContexts(test_glprograms, &skiatest::IsRenderingGLContextType, reporter,
+                                     opts);
 }
+
