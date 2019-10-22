@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59a841ee_0cce4737",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1843,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-10-22T19:02:25Z",
+      "side": 1,
+      "message": "I assume these numbers are fixed in the spec? Might be nice to have a comment indicating where they come from.",
+      "range": {
+        "startLine": 1830,
+        "startChar": 4,
+        "endLine": 1843,
+        "endChar": 76
+      },
+      "revId": "a78efb62e74d6c705a0c599abd7b7f8573c39cb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
