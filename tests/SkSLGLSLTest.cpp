@@ -1316,6 +1316,16 @@ DEF_TEST(SkSLClockwise, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLSampleMask, r) {
+    test(r,
+         "void main() { sk_SampleMask[0] |= 8; }",
+         *SkSL::ShaderCapsFactory::SampleMaskSupport(),
+         "#version 400\n"
+         "void main() {\n"
+         "    gl_SampleMask[0] |= 8;\n"
+         "}\n");
+}
+
 DEF_TEST(SkSLVertexID, r) {
     test(r,
          "out int id; void main() { id = sk_VertexID; }",
