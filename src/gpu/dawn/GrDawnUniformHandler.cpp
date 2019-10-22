@@ -210,11 +210,7 @@ GrGLSLUniformHandler::UniformHandle GrDawnUniformHandler::internalAddUniformArra
         const char** outName) {
     UniformInfo& info = fUniforms.push_back();
     info.fVisibility = visibility;
-    if (visibility == kFragment_GrShaderFlag) {
-        info.fUBOOffset = get_ubo_offset(&fCurrentFragmentUBOOffset, type, arrayCount);
-    } else {
-        info.fUBOOffset = get_ubo_offset(&fCurrentGeometryUBOOffset, type, arrayCount);
-    }
+    info.fUBOOffset = get_ubo_offset(&fCurrentUBOOffset, type, arrayCount);
     GrShaderVar& var = info.fVar;
     char prefix = 'u';
     if ('u' == name[0] || !strncmp(name, GR_NO_MANGLE_PREFIX, strlen(GR_NO_MANGLE_PREFIX))) {
@@ -306,21 +302,7 @@ void GrDawnUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString
         }
     }
     if (!uniformsString.isEmpty()) {
-        uint32_t uniformBinding;
-        const char* stage;
-        if (kVertex_GrShaderFlag == visibility) {
-            uniformBinding = kGeometryBinding;
-            stage = "vertex";
-        } else if (kGeometry_GrShaderFlag == visibility) {
-            uniformBinding = kGeometryBinding;
-            stage = "geometry";
-        } else {
-            SkASSERT(kFragment_GrShaderFlag == visibility);
-            uniformBinding = kFragBinding;
-            stage = "fragment";
-        }
-        out->appendf("layout (set = 0, binding = %d) uniform %sUniformBuffer\n{\n",
-                     uniformBinding, stage);
+        out->appendf("layout (set = 0, binding = %d) uniform UniformBuffer\n{\n", kUniformBinding);
         out->appendf("%s\n};\n", uniformsString.c_str());
     }
 }
