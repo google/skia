@@ -284,8 +284,6 @@ describe('CanvasKit\'s Canvas Behavior', function() {
                 return;
             }
             const canvas = surface.getCanvas();
-            const path = starPath(CanvasKit);
-
             const paint = new CanvasKit.SkPaint();
 
             const blue = CanvasKit.SkColorFilter.MakeBlend(
@@ -313,17 +311,13 @@ describe('CanvasKit\'s Canvas Behavior', function() {
             cm = CanvasKit.SkColorMatrix.concat(cm, b);
             CanvasKit.SkColorMatrix.postTranslate(cm, 20, 0, -10, 0);
 
-            console.log(cm);
-
             const mat = CanvasKit.SkColorFilter.MakeMatrix(cm);
-
             const final = CanvasKit.SkColorFilter.MakeCompose(mat, lerp);
 
             paint.setColorFilter(final)
             canvas.drawRect(CanvasKit.LTRBRect(10, 70, 140, 120), paint);
 
             surface.flush();
-            path.delete();
             paint.delete();
             blue.delete();
             red.delete();
@@ -343,8 +337,6 @@ describe('CanvasKit\'s Canvas Behavior', function() {
                 return;
             }
             const canvas = surface.getCanvas();
-            const path = starPath(CanvasKit);
-
             const paint = new CanvasKit.SkPaint();
 
             const src = [
@@ -362,12 +354,43 @@ describe('CanvasKit\'s Canvas Behavior', function() {
             paint.setColorFilter(final)
             canvas.drawRect(CanvasKit.LTRBRect(10, 70, 140, 120), paint);
 
-            surface.flush();
-            path.delete();
+            surface.flush()
             paint.delete();
             final.delete();
 
             reportSurface(surface, 'colorfilters_malloc_canvas', done);
+        }));
+    });
+
+    it('can clip using rrect and path', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const path = starPath(CanvasKit);
+            const paint = new CanvasKit.SkPaint();
+            paint.setColor(CanvasKit.BLUE);
+            const rrect = CanvasKit.RRectXY(CanvasKit.LTRBRect(300, 300, 500, 500), 40, 40);
+
+            canvas.save();
+            // draw magenta around the outside edge of an rrect.
+            canvas.clipRRect(rrect, CanvasKit.ClipOp.Difference, true);
+            canvas.drawColor(CanvasKit.Color(250, 30, 240, 0.9), CanvasKit.BlendMode.SrcOver);
+            canvas.restore();
+
+            // draw grey inside of a star pattern, then the blue star on top
+            canvas.clipPath(path, CanvasKit.ClipOp.Intersect, false);
+            canvas.drawColor(CanvasKit.Color(200, 200, 200, 1.0), CanvasKit.BlendMode.SrcOver);
+            canvas.drawPath(path, paint);
+
+            surface.flush();
+            path.delete();
+
+            reportSurface(surface, 'clips_canvas', done);
         }));
     });
 

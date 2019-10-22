@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Experimental `CanvasKit.Malloc`, which can be used to create a
    TypedArray backed by the C++ WASM memory. This can save a copy in some cases
    (e.g. SkColorFilter.MakeMatrix). This is an advanced feature, so use it with care.
+ - `SkCanvas.clipRRect`, `SkCanvas.drawColor`
 
 ## [0.8.0] - 2019-10-21
 
