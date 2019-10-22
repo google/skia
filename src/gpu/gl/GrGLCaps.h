@@ -459,7 +459,7 @@ private:
     bool onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget&) const override;
 
     void initFSAASupport(const GrContextOptions& contextOptions, const GrGLContextInfo&,
-                         const GrGLInterface*);
+                         bool allowMultisampledRenderToTexture);
     void initBlendEqationSupport(const GrGLContextInfo&);
     void initStencilSupport(const GrGLContextInfo&);
     // This must be called after initFSAASupport().
