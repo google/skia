@@ -268,8 +268,7 @@ protected:
         this->setBoundsFlags(aabloat, zeroArea);
     }
     void makeFullScreen(GrSurfaceProxy* proxy) {
-        this->setBounds(SkRect::MakeIWH(proxy->width(), proxy->height()),
-                        HasAABloat::kNo, IsHairline::kNo);
+        this->setBounds(proxy->getBoundsRect(), HasAABloat::kNo, IsHairline::kNo);
     }
 
     static uint32_t GenOpClassID() { return GenID(&gCurrOpClassID); }

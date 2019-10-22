@@ -256,7 +256,7 @@ size_t GrContext::ComputeImageSize(sk_sp<SkImage> image, GrMipMapped mipMapped, 
 
     const GrCaps& caps = *gpuImage->context()->priv().caps();
     int colorSamplesPerPixel = 1;
-    return GrSurface::ComputeSize(caps, proxy->backendFormat(), image->width(), image->height(),
+    return GrSurface::ComputeSize(caps, proxy->backendFormat(), image->dimensions(),
                                   colorSamplesPerPixel, mipMapped, useNextPow2);
 }
 

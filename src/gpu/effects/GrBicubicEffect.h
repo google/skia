@@ -86,8 +86,13 @@ public:
                                                      Direction direction,
                                                      SkAlphaType alphaType,
                                                      const SkRect* domain = nullptr) {
-        SkRect resolvedDomain = domain ? *domain : GrTextureDomain::MakeTexelDomain(
-                SkIRect::MakeWH(proxy->width(), proxy->height()), modeX, modeY);
+        SkRect resolvedDomain;
+        if (domain) {
+            resolvedDomain = *domain;
+        } else {
+            resolvedDomain = GrTextureDomain::MakeTexelDomain(
+                    SkIRect::MakeSize(proxy->dimensions()), modeX, modeY);
+        }
         return std::unique_ptr<GrFragmentProcessor>(
                 new GrBicubicEffect(std::move(proxy), srcColorType, matrix, resolvedDomain,
                                     wrapModes, modeX, modeY, direction, alphaType));
