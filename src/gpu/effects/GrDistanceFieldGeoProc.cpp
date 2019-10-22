@@ -236,11 +236,11 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(const GrShaderCaps& c
     this->setVertexAttributes(&fInPosition, 3);
 
     if (numProxies) {
-        fAtlasSize = proxies[0]->isize();
+        fAtlasSize = proxies[0]->dimensions();
     }
     for (int i = 0; i < numProxies; ++i) {
         SkASSERT(proxies[i]);
-        SkASSERT(proxies[i]->isize() == fAtlasSize);
+        SkASSERT(proxies[i]->dimensions() == fAtlasSize);
         fTextureSamplers[i].reset(params, proxies[i]->backendFormat(),
                                   proxies[i]->textureSwizzle());
     }
@@ -253,12 +253,12 @@ void GrDistanceFieldA8TextGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* pr
     SkASSERT(numProxies <= kMaxTextures);
 
     if (!fTextureSamplers[0].isInitialized()) {
-        fAtlasSize = proxies[0]->isize();
+        fAtlasSize = proxies[0]->dimensions();
     }
 
     for (int i = 0; i < numProxies; ++i) {
         SkASSERT(proxies[i]);
-        SkASSERT(proxies[i]->isize() == fAtlasSize);
+        SkASSERT(proxies[i]->dimensions() == fAtlasSize);
         if (!fTextureSamplers[i].isInitialized()) {
             fTextureSamplers[i].reset(params, proxies[i]->backendFormat(),
                                       proxies[i]->textureSwizzle());
@@ -531,12 +531,12 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(const GrShaderCaps& caps,
     this->setVertexAttributes(&fInPosition, 3);
 
     if (numProxies) {
-        fAtlasSize = proxies[0]->isize();
+        fAtlasSize = proxies[0]->dimensions();
     }
 
     for (int i = 0; i < numProxies; ++i) {
         SkASSERT(proxies[i]);
-        SkASSERT(proxies[i]->isize() == fAtlasSize);
+        SkASSERT(proxies[i]->dimensions() == fAtlasSize);
         fTextureSamplers[i].reset(params, proxies[i]->backendFormat(),
                                   proxies[i]->textureSwizzle());
     }
@@ -549,12 +549,12 @@ void GrDistanceFieldPathGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* prox
     SkASSERT(numProxies <= kMaxTextures);
 
     if (!fTextureSamplers[0].isInitialized()) {
-        fAtlasSize = proxies[0]->isize();
+        fAtlasSize = proxies[0]->dimensions();
     }
 
     for (int i = 0; i < numProxies; ++i) {
         SkASSERT(proxies[i]);
-        SkASSERT(proxies[i]->isize() == fAtlasSize);
+        SkASSERT(proxies[i]->dimensions() == fAtlasSize);
 
         if (!fTextureSamplers[i].isInitialized()) {
             fTextureSamplers[i].reset(params, proxies[i]->backendFormat(),
@@ -855,12 +855,12 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(const GrShaderCaps&
     this->setVertexAttributes(&fInPosition, 3);
 
     if (numProxies) {
-        fAtlasSize = proxies[0]->isize();
+        fAtlasSize = proxies[0]->dimensions();
     }
 
     for (int i = 0; i < numProxies; ++i) {
         SkASSERT(proxies[i]);
-        SkASSERT(proxies[i]->isize() == fAtlasSize);
+        SkASSERT(proxies[i]->dimensions() == fAtlasSize);
         fTextureSamplers[i].reset(params, proxies[i]->backendFormat(),
                                   proxies[i]->textureSwizzle());
     }
@@ -873,12 +873,12 @@ void GrDistanceFieldLCDTextGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* p
     SkASSERT(numProxies <= kMaxTextures);
 
     if (!fTextureSamplers[0].isInitialized()) {
-        fAtlasSize = proxies[0]->isize();
+        fAtlasSize = proxies[0]->dimensions();
     }
 
     for (int i = 0; i < numProxies; ++i) {
         SkASSERT(proxies[i]);
-        SkASSERT(proxies[i]->isize() == fAtlasSize);
+        SkASSERT(proxies[i]->dimensions() == fAtlasSize);
 
         if (!fTextureSamplers[i].isInitialized()) {
             fTextureSamplers[i].reset(params, proxies[i]->backendFormat(),

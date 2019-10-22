@@ -817,12 +817,12 @@ static constexpr GrPixelConfig GrCompressionTypePixelConfig(SkImage::Compression
  * Returns the data size for the given SkImage::CompressionType
  */
 static inline size_t GrCompressedFormatDataSize(SkImage::CompressionType compressionType,
-                                                int width, int height) {
+                                                SkISize dimensions) {
     switch (compressionType) {
         case SkImage::kETC1_CompressionType:
-            SkASSERT((width & 3) == 0);
-            SkASSERT((height & 3) == 0);
-            return (width >> 2) * (height >> 2) * 8;
+            SkASSERT((dimensions.width() & 3) == 0);
+            SkASSERT((dimensions.height() & 3) == 0);
+            return (dimensions.width() >> 2) * (dimensions.height() >> 2) * 8;
     }
 
     SK_ABORT("Invalid pixel config");

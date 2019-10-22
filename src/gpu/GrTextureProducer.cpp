@@ -30,7 +30,7 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrRecordingContext* context,
     const SkRect dstRect = SkRect::MakeIWH(copyParams.fWidth, copyParams.fHeight);
     GrMipMapped mipMapped = dstWillRequireMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
 
-    SkRect localRect = SkRect::MakeWH(inputProxy->width(), inputProxy->height());
+    SkRect localRect = inputProxy->getBoundsRect();
 
     bool needsDomain = false;
     bool resizing = false;
@@ -97,7 +97,7 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
         GrTextureProxy* proxy,
         const GrSamplerState::Filter* filterModeOrNullForBicubic,
         SkRect* domainRect) {
-    const SkIRect proxyBounds = SkIRect::MakeWH(proxy->width(), proxy->height());
+    const SkIRect proxyBounds = SkIRect::MakeSize(proxy->dimensions());
 
     SkASSERT(proxyBounds.contains(constraintRect));
 

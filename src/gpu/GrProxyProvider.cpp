@@ -115,7 +115,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::findProxyByUniqueKey(const GrUniqueKey& k
 
 #if GR_TEST_UTILS
 sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
-        const SkISize& size,
+        const SkISize& dimensions,
         GrColorType colorType,
         const GrBackendFormat& format,
         GrRenderable renderable,
@@ -139,8 +139,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
     GrSurfaceDesc desc;
     desc.fConfig = GrColorTypeToPixelConfig(colorType);
     desc.fConfig = this->caps()->makeConfigSpecific(desc.fConfig, format);
-    desc.fWidth = size.width();
-    desc.fHeight = size.height();
+    desc.fWidth = dimensions.width();
+    desc.fHeight = dimensions.height();
 
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
     sk_sp<GrTexture> tex;
@@ -160,7 +160,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
-        const SkISize& size,
+        const SkISize& dimensions,
         GrColorType colorType,
         GrRenderable renderable,
         int renderTargetSampleCnt,
@@ -169,7 +169,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
         SkBudgeted budgeted,
         GrProtected isProtected) {
     auto format = this->caps()->getDefaultBackendFormat(colorType, renderable);
-    return this->testingOnly_createInstantiatedProxy(size,
+    return this->testingOnly_createInstantiatedProxy(dimensions,
                                                      colorType,
                                                      format,
                                                      renderable,
@@ -881,8 +881,7 @@ bool GrProxyProvider::IsFunctionallyExact(GrSurfaceProxy* proxy) {
     //   it is already instantiated and the proxy covers the entire backing surface
     return proxy->priv().isExact() ||
            (!isInstantiated && SkIsPow2(proxy->width()) && SkIsPow2(proxy->height())) ||
-           (isInstantiated && proxy->worstCaseWidth() == proxy->width() &&
-                              proxy->worstCaseHeight() == proxy->height());
+           (isInstantiated && proxy->worstCaseDimensions() == proxy->dimensions());
 }
 
 void GrProxyProvider::processInvalidUniqueKey(const GrUniqueKey& key, GrTextureProxy* proxy,
