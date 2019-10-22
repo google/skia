@@ -88,7 +88,7 @@ public:
     float getDistanceAdjust() const { return fDistanceAdjust; }
 #endif
     uint32_t getFlags() const { return fFlags; }
-    const SkISize& atlasSize() const { return fAtlasSize; }
+    const SkISize& atlasDimensions() const { return fAtlasDimensions; }
 
     void addNewProxies(const sk_sp<GrTextureProxy>* proxies, int numProxies, const GrSamplerState&);
 
@@ -109,7 +109,7 @@ private:
     const TextureSampler& onTextureSampler(int i) const override { return fTextureSamplers[i]; }
 
     TextureSampler   fTextureSamplers[kMaxTextures];
-    SkISize          fAtlasSize;  // size for all textures used with fTextureSamplers[].
+    SkISize          fAtlasDimensions;  // dimensions for all textures used with fTextureSamplers[].
     SkMatrix         fLocalMatrix;
     Attribute        fInPosition;
     Attribute        fInColor;
@@ -155,7 +155,7 @@ public:
     const Attribute& inTextureCoords() const { return fInTextureCoords; }
     const SkMatrix& matrix() const { return fMatrix; }
     uint32_t getFlags() const { return fFlags; }
-    const SkISize& atlasSize() const { return fAtlasSize; }
+    const SkISize& atlasDimensions() const { return fAtlasDimensions; }
 
     void addNewProxies(const sk_sp<GrTextureProxy>*, int numActiveProxies, const GrSamplerState&);
 
@@ -175,7 +175,7 @@ private:
 
     SkMatrix         fMatrix;     // view matrix if perspective, local matrix otherwise
     TextureSampler   fTextureSamplers[kMaxTextures];
-    SkISize          fAtlasSize;  // size for all textures used with fTextureSamplers[].
+    SkISize          fAtlasDimensions;  // dimensions for all textures used with fTextureSamplers[].
     Attribute        fInPosition;
     Attribute        fInColor;
     Attribute        fInTextureCoords;
@@ -233,7 +233,7 @@ public:
     DistanceAdjust getDistanceAdjust() const { return fDistanceAdjust; }
     uint32_t getFlags() const { return fFlags; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
-    const SkISize& atlasSize() const { return fAtlasSize; }
+    const SkISize& atlasDimensions() const { return fAtlasDimensions; }
 
     void addNewProxies(const sk_sp<GrTextureProxy>*, int numActiveProxies, const GrSamplerState&);
 
@@ -249,7 +249,7 @@ private:
     const TextureSampler& onTextureSampler(int i) const override { return fTextureSamplers[i]; }
 
     TextureSampler   fTextureSamplers[kMaxTextures];
-    SkISize          fAtlasSize;  // size for all textures used with fTextureSamplers[].
+    SkISize          fAtlasDimensions;  // dimensions for all textures used with fTextureSamplers[].
     const SkMatrix   fLocalMatrix;
     DistanceAdjust   fDistanceAdjust;
     Attribute        fInPosition;

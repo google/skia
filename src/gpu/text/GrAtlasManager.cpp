@@ -149,7 +149,7 @@ void GrAtlasManager::dump(GrContext* context) const {
 }
 #endif
 
-void GrAtlasManager::setAtlasSizesToMinimum_ForTesting() {
+void GrAtlasManager::setAtlasDimensionsToMinimum_ForTesting() {
     // Delete any old atlases.
     // This should be safe to do as long as we are not in the middle of a flush.
     for (int i = 0; i < kMaskFormatCount; i++) {

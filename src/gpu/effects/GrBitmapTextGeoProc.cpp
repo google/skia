@@ -20,7 +20,7 @@
 
 class GrGLBitmapTextGeoProc : public GrGLSLGeometryProcessor {
 public:
-    GrGLBitmapTextGeoProc() : fColor(SK_PMColor4fILLEGAL), fAtlasSize({0,0}) {}
+    GrGLBitmapTextGeoProc() : fColor(SK_PMColor4fILLEGAL), fAtlasDimensions{0,0} {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const GrBitmapTextGeoProc& btgp = args.fGP.cast<GrBitmapTextGeoProc>();
@@ -32,16 +32,14 @@ public:
         // emit attributes
         varyingHandler->emitAttributes(btgp);
 
-        const char* atlasSizeInvName;
-        fAtlasSizeInvUniform = uniformHandler->addUniform(kVertex_GrShaderFlag,
-                                                          kFloat2_GrSLType,
-                                                          "AtlasSizeInv",
-                                                          &atlasSizeInvName);
+        const char* atlasDimensionsInvName;
+        fAtlasDimensionsInvUniform = uniformHandler->addUniform(
+                kVertex_GrShaderFlag, kFloat2_GrSLType, "AtlasSizeInv", &atlasDimensionsInvName);
 
         GrGLSLVarying uv(kFloat2_GrSLType);
         GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
         GrGLSLVarying texIdx(texIdxType);
-        append_index_uv_varyings(args, btgp.inTextureCoords().name(), atlasSizeInvName, &uv,
+        append_index_uv_varyings(args, btgp.inTextureCoords().name(), atlasDimensionsInvName, &uv,
                                  &texIdx, nullptr);
 
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -85,12 +83,14 @@ public:
             fColor = btgp.color();
         }
 
-        const SkISize& atlasSize = btgp.atlasSize();
-        SkASSERT(SkIsPow2(atlasSize.fWidth) && SkIsPow2(atlasSize.fHeight));
+        const SkISize& atlasDimensions = btgp.atlasDimensions();
+        SkASSERT(SkIsPow2(atlasDimensions.fWidth) && SkIsPow2(atlasDimensions.fHeight));
 
-        if (fAtlasSize != atlasSize) {
-            pdman.set2f(fAtlasSizeInvUniform, 1.0f / atlasSize.fWidth, 1.0f / atlasSize.fHeight);
-            fAtlasSize = atlasSize;
+        if (fAtlasDimensions != atlasDimensions) {
+            pdman.set2f(fAtlasDimensionsInvUniform,
+                        1.0f / atlasDimensions.fWidth,
+                        1.0f / atlasDimensions.fHeight);
+            fAtlasDimensions = atlasDimensions;
         }
         this->setTransformDataHelper(btgp.localMatrix(), pdman, &transformIter);
     }
@@ -110,8 +110,8 @@ private:
     SkPMColor4f   fColor;
     UniformHandle fColorUniform;
 
-    SkISize       fAtlasSize;
-    UniformHandle fAtlasSizeInvUniform;
+    SkISize       fAtlasDimensions;
+    UniformHandle fAtlasDimensionsInvUniform;
 
     typedef GrGLSLGeometryProcessor INHERITED;
 };
@@ -149,11 +149,11 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(const GrShaderCaps& caps,
     this->setVertexAttributes(&fInPosition, 3);
 
     if (numActiveProxies) {
-        fAtlasSize = proxies[0]->dimensions();
+        fAtlasDimensions = proxies[0]->dimensions();
     }
     for (int i = 0; i < numActiveProxies; ++i) {
         SkASSERT(proxies[i]);
-        SkASSERT(proxies[i]->dimensions() == fAtlasSize);
+        SkASSERT(proxies[i]->dimensions() == fAtlasDimensions);
         fTextureSamplers[i].reset(params, proxies[i]->backendFormat(),
                                   proxies[i]->textureSwizzle());
     }
@@ -166,12 +166,12 @@ void GrBitmapTextGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* proxies,
     SkASSERT(numActiveProxies <= kMaxTextures);
 
     if (!fTextureSamplers[0].isInitialized()) {
-        fAtlasSize = proxies[0]->dimensions();
+        fAtlasDimensions = proxies[0]->dimensions();
     }
 
     for (int i = 0; i < numActiveProxies; ++i) {
         SkASSERT(proxies[i]);
-        SkASSERT(proxies[i]->dimensions() == fAtlasSize);
+        SkASSERT(proxies[i]->dimensions() == fAtlasDimensions);
 
         if (!fTextureSamplers[i].isInitialized()) {
             fTextureSamplers[i].reset(params, proxies[i]->backendFormat(),
