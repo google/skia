@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e742332_d0fffda0",
+        "filename": "src/gpu/GrCopyRenderTask.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-10-22T16:19:15Z",
+      "side": 1,
+      "message": "Why GrSurfaceProxyView\u0026\u0026 and not GrSurfaceProxyView?  (e.g. old code took sk_sp\u003cGrSurfaceProxy\u003e not sk_sp\u003cGrSurfaceProxy\u003e\u0026\u0026)",
+      "revId": "1522c2162d24e907885208a164c21f194c1cb728",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
