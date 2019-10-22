@@ -132,7 +132,6 @@ protected:
     void onAsRgnClip(SkRegion*) const override;
     void validateDevBounds(const SkIRect& r) override;
     ClipType onGetClipType() const override;
-    SkIRect onDevClipBounds() const override;
 
     virtual void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
                             const SkPaint&);

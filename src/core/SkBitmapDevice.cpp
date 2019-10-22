@@ -820,7 +820,3 @@ SkBaseDevice::ClipType SkBitmapDevice::onGetClipType() const {
         return ClipType::kComplex;
     }
 }
-
-SkIRect SkBitmapDevice::onDevClipBounds() const {
-    return fRCStack.rc().getBounds();
-}

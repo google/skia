@@ -310,10 +310,8 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
     if (!value) {
         return;
     }
-    // Annotations are specified in absolute coordinates, so the page xform maps from device space
-    // to the global space, and applies the document transform.
-    SkMatrix pageXform = this->deviceToGlobal();
-    pageXform.postConcat(fDocument->currentPageTransform());
+    const SkMatrix& pageXform = fDocument->currentPageTransform();
+    SkPoint deviceOffset = {(float)this->getOrigin().x(), (float)this->getOrigin().y()};
     if (rect.isEmpty()) {
         if (!strcmp(key, SkPDFGetNodeIdKey())) {
             int nodeID;
@@ -323,7 +321,7 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
             return;
         }
         if (!strcmp(SkAnnotationKeys::Define_Named_Dest_Key(), key)) {
-            SkPoint p = this->localToDevice().mapXY(rect.x(), rect.y());
+            SkPoint p = deviceOffset + this->localToDevice().mapXY(rect.x(), rect.y());
             pageXform.mapPoints(&p, 1);
             auto pg = fDocument->currentPage();
             fDocument->fNamedDestinations.push_back(SkPDFNamedDestination{sk_ref_sp(value), p, pg});
@@ -337,7 +335,8 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
     (void)this->cs().asPath(&clip);
     Op(clip, path, kIntersect_SkPathOp, &path);
     // PDF wants a rectangle only.
-    SkRect transformedRect = pageXform.mapRect(path.getBounds());
+    SkRect transformedRect =
+        pageXform.mapRect(path.getBounds().makeOffset(deviceOffset.x(), deviceOffset.y()));
     if (transformedRect.isEmpty()) {
         return;
     }
