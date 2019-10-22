@@ -207,6 +207,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrSurfaceProxy.cpp",
   "$_src/gpu/GrSurfaceProxy.h",
   "$_src/gpu/GrSurfaceProxyPriv.h",
+  "$_src/gpu/GrSurfaceProxyView.h",
   "$_src/gpu/GrSurfacePriv.h",
   "$_src/gpu/GrSwizzle.cpp",
   "$_src/gpu/GrSwizzle.h",
