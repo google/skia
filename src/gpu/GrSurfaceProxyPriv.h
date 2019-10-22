@@ -34,7 +34,7 @@ public:
     // Don't. Just don't.
     void exactify(bool allocatedCaseOnly);
 
-    void setLazySize(int width, int height) { fProxy->setLazySize(width, height); }
+    void setLazySize(SkISize size) { fProxy->setLazySize(size); }
 
     bool doLazyInstantiation(GrResourceProvider*);
 

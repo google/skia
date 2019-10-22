@@ -17,22 +17,22 @@
 
 size_t GrSurface::ComputeSize(const GrCaps& caps,
                               const GrBackendFormat& format,
-                              int width,
-                              int height,
+                              SkISize size,
                               int colorSamplesPerPixel,
                               GrMipMapped mipMapped,
                               bool binSize) {
     size_t colorSize;
 
-    width  = binSize ? GrResourceProvider::MakeApprox(width)  : width;
-    height = binSize ? GrResourceProvider::MakeApprox(height) : height;
+    if (binSize) {
+        size = GrResourceProvider::MakeApprox(size);
+    }
 
     // Just setting a defualt value here to appease warnings on uninitialized object.
     SkImage::CompressionType compressionType = SkImage::kETC1_CompressionType;
     if (caps.isFormatCompressed(format, &compressionType)) {
-        colorSize = GrCompressedFormatDataSize(compressionType, width, height);
+        colorSize = GrCompressedFormatDataSize(compressionType, size);
     } else {
-        colorSize = (size_t)width * height * caps.bytesPerPixel(format);
+        colorSize = (size_t)size.width() * size.height() * caps.bytesPerPixel(format);
     }
     SkASSERT(colorSize > 0);
 
