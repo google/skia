@@ -403,14 +403,13 @@ static_assert ((int)GrPixelConfig::kRG_88_GrPixelConfig               == (int)RG
 static_assert ((int)GrPixelConfig::kBGRA_8888_GrPixelConfig           == (int)BGRA_8888_GR_PIXEL_CONFIG,           ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kSRGBA_8888_GrPixelConfig          == (int)SRGBA_8888_GR_PIXEL_CONFIG,          ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kRGBA_1010102_GrPixelConfig        == (int)RGBA_1010102_GR_PIXEL_CONFIG,        ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
-static_assert ((int)GrPixelConfig::kRGBA_float_GrPixelConfig          == (int)RGBA_FLOAT_GR_PIXEL_CONFIG,          ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kAlpha_half_GrPixelConfig          == (int)ALPHA_HALF_GR_PIXEL_CONFIG,          ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kAlpha_half_as_Lum_GrPixelConfig   == (int)ALPHA_HALF_AS_LUM_GR_PIXEL_CONFIG,   ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kAlpha_half_as_Red_GrPixelConfig   == (int)ALPHA_HALF_AS_RED_GR_PIXEL_CONFIG,   ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kRGBA_half_GrPixelConfig           == (int)RGBA_HALF_GR_PIXEL_CONFIG,           ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kRGBA_half_Clamped_GrPixelConfig   == (int)RGBA_HALF_CLAMPED_GR_PIXEL_CONFIG,   ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kRGB_ETC1_GrPixelConfig            == (int)RGB_ETC1_GR_PIXEL_CONFIG,            ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
-static_assert ((int)GrPixelConfig::kR_16_GrPixelConfig                == (int)R_16_GR_PIXEL_CONFIG,                ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kAlpha_16_GrPixelConfig            == (int)ALPHA_16_GR_PIXEL_CONFIG,            ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kRG_1616_GrPixelConfig             == (int)RG_1616_GR_PIXEL_CONFIG,             ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kRGBA_16161616_GrPixelConfig       == (int)RGBA_16161616_GR_PIXEL_CONFIG,       ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kRG_half_GrPixelConfig             == (int)RG_HALF_GR_PIXEL_CONFIG,             ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));

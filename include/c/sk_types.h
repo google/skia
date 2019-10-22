@@ -644,14 +644,13 @@ typedef enum {
     BGRA_8888_GR_PIXEL_CONFIG,
     SRGBA_8888_GR_PIXEL_CONFIG,
     RGBA_1010102_GR_PIXEL_CONFIG,
-    RGBA_FLOAT_GR_PIXEL_CONFIG,
     ALPHA_HALF_GR_PIXEL_CONFIG,
     ALPHA_HALF_AS_LUM_GR_PIXEL_CONFIG,
     ALPHA_HALF_AS_RED_GR_PIXEL_CONFIG,
     RGBA_HALF_GR_PIXEL_CONFIG,
     RGBA_HALF_CLAMPED_GR_PIXEL_CONFIG,
     RGB_ETC1_GR_PIXEL_CONFIG,
-    R_16_GR_PIXEL_CONFIG,
+    ALPHA_16_GR_PIXEL_CONFIG,
     RG_1616_GR_PIXEL_CONFIG,
 
     // Experimental (for Y416 and mutant P016/P010)
@@ -844,16 +843,6 @@ typedef enum {
     DCIP3_D65_SK_NAMED_GAMUT,
     REC2020_SK_NAMED_GAMUT,
 } sk_named_gamut_t;
-
-typedef struct {
-    float fG;
-    float fA;
-    float fB;
-    float fC;
-    float fD;
-    float fE;
-    float fF;
-} sk_colorspace_transfer_fn_t;
 
 typedef struct {
     float fRX;

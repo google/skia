@@ -6,7 +6,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkAtomics.h"
 #include "SkCanvas.h"
 #include "SkPicture.h"
 #include "SkManagedDrawable.h"
