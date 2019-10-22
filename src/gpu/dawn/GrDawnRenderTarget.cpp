@@ -16,7 +16,7 @@ GrDawnRenderTarget::GrDawnRenderTarget(GrDawnGpu* gpu,
                                        GrPixelConfig config,
                                        int sampleCnt,
                                        const GrDawnImageInfo& info)
-        : GrSurface(gpu, size, config, GrProtected::kNo)
+        : GrSurface(gpu, dimensions, config, GrProtected::kNo)
         , GrRenderTarget(gpu, dimensions, config, sampleCnt, GrProtected::kNo)
         , fInfo(info) {}
 
