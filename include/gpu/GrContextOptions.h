@@ -185,7 +185,7 @@ struct SK_API GrContextOptions {
     /**
      * Maximum number of GPU programs or pipelines to keep active in the runtime cache.
      */
-    int fRuntimeProgramCacheSize = 256;
+    int fRuntimeProgramCacheSize = 128;
 
     /**
      * Cache in which to store compiled shader binaries between runs.
