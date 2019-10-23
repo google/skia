@@ -1765,6 +1765,17 @@ if (skia_enable_tools) {
     }
   }
 
+  if (!is_win) {
+    test_app("blob_cache_sim") {
+      sources = [
+        "tools/blob_cache_sim.cpp",
+      ]
+      deps = [
+        ":skia",
+      ]
+    }
+  }
+
   test_app("nanobench") {
     sources = [
       "bench/nanobench.cpp",
