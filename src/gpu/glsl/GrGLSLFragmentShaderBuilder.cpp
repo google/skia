@@ -105,15 +105,15 @@ void GrGLSLFragmentShaderBuilder::maskOffMultisampleCoverage(
     if (!fHasModifiedSampleMask) {
         fHasModifiedSampleMask = true;
         if (ScopeFlags::kTopLevel != scopeFlags) {
-            this->codePrependf("sk_SampleMask[0] = ~0;");
+            this->codePrependf("gl_SampleMask[0] = ~0;");
         }
         if (!(ScopeFlags::kInsideLoop & scopeFlags)) {
-            this->codeAppendf("sk_SampleMask[0] = (%s);", mask);
+            this->codeAppendf("gl_SampleMask[0] = (%s);", mask);
             return;
         }
     }
 
-    this->codeAppendf("sk_SampleMask[0] &= (%s);", mask);
+    this->codeAppendf("gl_SampleMask[0] &= (%s);", mask);
 }
 
 void GrGLSLFragmentShaderBuilder::applyFnToMultisampleMask(
