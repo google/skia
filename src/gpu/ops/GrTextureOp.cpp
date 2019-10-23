@@ -314,7 +314,7 @@ private:
         fAAType = static_cast<unsigned>(aaType);
 
         // We expect our caller to have already caught this optimization.
-        SkASSERT(!domainRect || !domainRect->contains(proxy->getWorstCaseBoundsRect()));
+        SkASSERT(!domainRect || !domainRect->contains(proxy->backingStoreBoundsRect()));
 
         // We may have had a strict constraint with nearest filter solely due to possible AA bloat.
         // If we don't have (or determined we don't need) coverage AA then we can skip using a
@@ -397,7 +397,7 @@ private:
             const SkRect* domainForQuad = nullptr;
             if (constraint == SkCanvas::kStrict_SrcRectConstraint) {
                 // Check (briefly) if the strict constraint is needed for this set entry
-                if (!set[p].fSrcRect.contains(curProxy->getWorstCaseBoundsRect()) &&
+                if (!set[p].fSrcRect.contains(curProxy->backingStoreBoundsRect()) &&
                     (mustFilter || aaForQuad == GrAAType::kCoverage)) {
                     // Can't rely on hardware clamping and the draw will access outer texels
                     // for AA and/or bilerp
@@ -738,7 +738,7 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                const GrQuad& localQuad,
                                const SkRect* domain) {
     // Apply optimizations that are valid whether or not using GrTextureOp or GrFillRectOp
-    if (domain && domain->contains(proxy->getWorstCaseBoundsRect())) {
+    if (domain && domain->contains(proxy->backingStoreBoundsRect())) {
         // No need for a shader-based domain if hardware clamping achieves the same effect
         domain = nullptr;
     }
