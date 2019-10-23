@@ -125,6 +125,9 @@ def dm_flags(api, bot):
       # We want to test the OpenGL config not the GLES config on the Shield
       if 'NVIDIA_Shield' not in bot:
         gl_prefix = 'gles'
+      # MSAA is disabled on Pixel3a (https://b.corp.google.com/issues/143074513).
+      if ('Pixel3a' in bot):
+        sample_count = ''
     elif 'Intel' in bot:
       # MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
       sample_count = ''
@@ -1019,6 +1022,7 @@ TEST_BUILDERS = [
   'Test-Android-Clang-Pixel-GPU-Adreno530-arm-Debug-All-Android_ASAN',
   'Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All-Android',
   'Test-Android-Clang-Pixel3-GPU-Adreno630-arm64-Debug-All-Android_Vulkan',
+  'Test-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Debug-All-Android',
   ('Test-ChromeOS-Clang-AcerChromebookR13Convertible-GPU-PowerVRGX6250-'
    'arm-Debug-All'),
   'Test-Chromecast-Clang-Chorizo-CPU-Cortex_A7-arm-Release-All',

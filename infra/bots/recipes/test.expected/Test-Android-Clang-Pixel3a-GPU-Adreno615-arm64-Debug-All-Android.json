@@ -723,11 +723,39 @@
   },
   {
     "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "rmtree",
+      "[START_DIR]/test"
+    ],
+    "infra_step": true,
+    "name": "rmtree test"
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/test"
+    ],
+    "infra_step": true,
+    "name": "makedirs test"
+  },
+  {
+    "cmd": [
       "/usr/bin/adb.1.0.35",
       "shell",
       "rm",
       "-rf",
-      "/sdcard/revenge_of_the_skiabot/perf"
+      "/sdcard/revenge_of_the_skiabot/dm_out"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -736,7 +764,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "rm /sdcard/revenge_of_the_skiabot/perf"
+    "name": "rm /sdcard/revenge_of_the_skiabot/dm_out"
   },
   {
     "cmd": [
@@ -744,7 +772,7 @@
       "shell",
       "mkdir",
       "-p",
-      "/sdcard/revenge_of_the_skiabot/perf"
+      "/sdcard/revenge_of_the_skiabot/dm_out"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -753,7 +781,71 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "mkdir /sdcard/revenge_of_the_skiabot/perf"
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/dm_out"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport contextlib\nimport math\nimport socket\nimport sys\nimport time\nimport urllib2\n\nHASHES_URL = sys.argv[1]\nRETRIES = 5\nTIMEOUT = 60\nWAIT_BASE = 15\n\nsocket.setdefaulttimeout(TIMEOUT)\nfor retry in range(RETRIES):\n  try:\n    with contextlib.closing(\n        urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:\n      hashes = w.read()\n      with open(sys.argv[2], 'w') as f:\n        f.write(hashes)\n        break\n  except Exception as e:\n    print 'Failed to get uninteresting hashes from %s:' % HASHES_URL\n    print e\n    if retry == RETRIES:\n      raise\n    waittime = WAIT_BASE * math.pow(2, retry)\n    print 'Retry in %d seconds.' % waittime\n    time.sleep(waittime)\n",
+      "https://example.com/hashes.txt",
+      "[START_DIR]/tmp/uninteresting_hashes.txt"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "get uninteresting hashes",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import contextlib@@@",
+      "@@@STEP_LOG_LINE@python.inline@import math@@@",
+      "@@@STEP_LOG_LINE@python.inline@import socket@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@import time@@@",
+      "@@@STEP_LOG_LINE@python.inline@import urllib2@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@HASHES_URL = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@RETRIES = 5@@@",
+      "@@@STEP_LOG_LINE@python.inline@TIMEOUT = 60@@@",
+      "@@@STEP_LOG_LINE@python.inline@WAIT_BASE = 15@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@socket.setdefaulttimeout(TIMEOUT)@@@",
+      "@@@STEP_LOG_LINE@python.inline@for retry in range(RETRIES):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    with contextlib.closing(@@@",
+      "@@@STEP_LOG_LINE@python.inline@        urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      hashes = w.read()@@@",
+      "@@@STEP_LOG_LINE@python.inline@      with open(sys.argv[2], 'w') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@        f.write(hashes)@@@",
+      "@@@STEP_LOG_LINE@python.inline@        break@@@",
+      "@@@STEP_LOG_LINE@python.inline@  except Exception as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print 'Failed to get uninteresting hashes from %s:' % HASHES_URL@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print e@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if retry == RETRIES:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      raise@@@",
+      "@@@STEP_LOG_LINE@python.inline@    waittime = WAIT_BASE * math.pow(2, retry)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print 'Retry in %d seconds.' % waittime@@@",
+      "@@@STEP_LOG_LINE@python.inline@    time.sleep(waittime)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "push",
+      "[START_DIR]/tmp/uninteresting_hashes.txt",
+      "/sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/tmp/uninteresting_hashes.txt /sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt"
   },
   {
     "cmd": [
@@ -775,14 +867,14 @@
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo \"%s\" > '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])\nactual_gov = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()\nif actual_gov != gov:\n  raise Exception('(actual, expected) (%s, %s)'\n                  % (actual_gov, gov))\n",
       "/usr/bin/adb.1.0.35",
       "0",
-      "userspace"
+      "performance"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "Set CPU 0's governor to userspace",
+    "name": "Set CPU 0's governor to performance",
     "timeout": 30,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -812,83 +904,9 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ntarget_percent = float(sys.argv[2])\ncpu = int(sys.argv[3])\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nroot = '/sys/devices/system/cpu/cpu%d/cpufreq' %cpu\n\n# All devices we test on give a list of their available frequencies.\navailable_freqs = subprocess.check_output([ADB, 'shell',\n    'cat %s/scaling_available_frequencies' % root])\n\n# Check for message like '/system/bin/sh: file not found'\nif available_freqs and '/system/bin/sh' not in available_freqs:\n  available_freqs = sorted(\n      int(i) for i in available_freqs.strip().split())\nelse:\n  raise Exception('Could not get list of available frequencies: %s' %\n                  available_freqs)\n\nmaxfreq = available_freqs[-1]\ntarget = int(round(maxfreq * target_percent))\nfreq = maxfreq\nfor f in reversed(available_freqs):\n  if f <= target:\n    freq = f\n    break\n\nprint 'Setting frequency to %d' % freq\n\n# If scaling_max_freq is lower than our attempted setting, it won't take.\n# We must set min first, because if we try to set max to be less than min\n# (which sometimes happens after certain devices reboot) it returns a\n# perplexing permissions error.\nsubprocess.check_output([ADB, 'shell', 'echo 0 > '\n    '%s/scaling_min_freq' % root])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '%s/scaling_max_freq' % (freq, root)])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '%s/scaling_setspeed' % (freq, root)])\ntime.sleep(5)\nactual_freq = subprocess.check_output([ADB, 'shell', 'cat '\n    '%s/scaling_cur_freq' % root]).strip()\nif actual_freq != str(freq):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_freq, freq))\n",
-      "/usr/bin/adb.1.0.35",
-      "0.6",
-      "0"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "Scale CPU 0 to 0.600000",
-    "timeout": 30,
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@import time@@@",
-      "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@target_percent = float(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@cpu = int(sys.argv[3])@@@",
-      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root'])@@@",
-      "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
-      "@@@STEP_LOG_LINE@python.inline@print log@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@root = '/sys/devices/system/cpu/cpu%d/cpufreq' %cpu@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# All devices we test on give a list of their available frequencies.@@@",
-      "@@@STEP_LOG_LINE@python.inline@available_freqs = subprocess.check_output([ADB, 'shell',@@@",
-      "@@@STEP_LOG_LINE@python.inline@    'cat %s/scaling_available_frequencies' % root])@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Check for message like '/system/bin/sh: file not found'@@@",
-      "@@@STEP_LOG_LINE@python.inline@if available_freqs and '/system/bin/sh' not in available_freqs:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  available_freqs = sorted(@@@",
-      "@@@STEP_LOG_LINE@python.inline@      int(i) for i in available_freqs.strip().split())@@@",
-      "@@@STEP_LOG_LINE@python.inline@else:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('Could not get list of available frequencies: %s' %@@@",
-      "@@@STEP_LOG_LINE@python.inline@                  available_freqs)@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@maxfreq = available_freqs[-1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@target = int(round(maxfreq * target_percent))@@@",
-      "@@@STEP_LOG_LINE@python.inline@freq = maxfreq@@@",
-      "@@@STEP_LOG_LINE@python.inline@for f in reversed(available_freqs):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if f <= target:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    freq = f@@@",
-      "@@@STEP_LOG_LINE@python.inline@    break@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@print 'Setting frequency to %d' % freq@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# If scaling_max_freq is lower than our attempted setting, it won't take.@@@",
-      "@@@STEP_LOG_LINE@python.inline@# We must set min first, because if we try to set max to be less than min@@@",
-      "@@@STEP_LOG_LINE@python.inline@# (which sometimes happens after certain devices reboot) it returns a@@@",
-      "@@@STEP_LOG_LINE@python.inline@# perplexing permissions error.@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo 0 > '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '%s/scaling_min_freq' % root])@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo %d > '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '%s/scaling_max_freq' % (freq, root)])@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo %d > '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '%s/scaling_setspeed' % (freq, root)])@@@",
-      "@@@STEP_LOG_LINE@python.inline@time.sleep(5)@@@",
-      "@@@STEP_LOG_LINE@python.inline@actual_freq = subprocess.check_output([ADB, 'shell', 'cat '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '%s/scaling_cur_freq' % root]).strip()@@@",
-      "@@@STEP_LOG_LINE@python.inline@if actual_freq != str(freq):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %d)'@@@",
-      "@@@STEP_LOG_LINE@python.inline@                  % (actual_freq, freq))@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
       "/usr/bin/adb.1.0.35",
       "push",
-      "[START_DIR]/build/nanobench",
+      "[START_DIR]/build/dm",
       "/data/local/tmp/"
     ],
     "cwd": "[START_DIR]/skia",
@@ -898,7 +916,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push nanobench"
+    "name": "push dm"
   },
   {
     "cmd": [
@@ -908,25 +926,25 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; /data/local/tmp/nanobench -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --svgs /sdcard/revenge_of_the_skiabot/svgs --pre_log --images --gpuStatsDump true --scales 1.0 1.1 --nocpu --config gles glessrgb --match ~blurroundrect ~patch_grid ~desk_carsvg ~^path_text$ ~^path_text_clipped_uncached$ ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp --outResultsFile /sdcard/revenge_of_the_skiabot/perf/nanobench_abc123_1337000001.json --properties gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456 --key arch arm64 compiler Clang cpu_or_gpu GPU cpu_or_gpu_value Adreno615 extra_config Android model Pixel3a os Android; echo $? >/data/local/tmp/rc",
-      "[START_DIR]/tmp/nanobench.sh"
+      "set -x; /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/dm --colorImages /sdcard/revenge_of_the_skiabot/images/colorspace --nameByHash --properties gitHash abc123 builder Test-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Debug-All-Android buildbucket_build_id 123454321 task_id task_12345 swarming_bot_id skia-bot-123 swarming_task_id 123456 --svgs /sdcard/revenge_of_the_skiabot/svgs --key arch arm64 compiler Clang configuration Debug cpu_or_gpu GPU cpu_or_gpu_value Adreno615 extra_config Android model Pixel3a os Android style default --uninterestingHashesFile /sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt --writePath /sdcard/revenge_of_the_skiabot/dm_out --dont_write pdf --nocpu --config gles glesdft glessrgb --src tests gm image colorImage svg --blacklist _ svg _ svgparse_ glessrgb image _ _ _ image gen_platf error _ test _ GrShape _ image _ interlaced1.png _ image _ interlaced2.png _ image _ interlaced3.png _ image _ .arw _ image _ .cr2 _ image _ .dng _ image _ .nef _ image _ .nrw _ image _ .orf _ image _ .raf _ image _ .rw2 _ image _ .pef _ image _ .srw _ image _ .ARW _ image _ .CR2 _ image _ .DNG _ image _ .NEF _ image _ .NRW _ image _ .ORF _ image _ .RAF _ image _ .RW2 _ image _ .PEF _ image _ .SRW --nonativeFonts --verbose; echo $? >/data/local/tmp/rc",
+      "[START_DIR]/tmp/dm.sh"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "write nanobench.sh",
+    "name": "write dm.sh",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@nanobench.sh@set -x; /data/local/tmp/nanobench -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --svgs /sdcard/revenge_of_the_skiabot/svgs --pre_log --images --gpuStatsDump true --scales 1.0 1.1 --nocpu --config gles glessrgb --match ~blurroundrect ~patch_grid ~desk_carsvg ~^path_text$ ~^path_text_clipped_uncached$ ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp --outResultsFile /sdcard/revenge_of_the_skiabot/perf/nanobench_abc123_1337000001.json --properties gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456 --key arch arm64 compiler Clang cpu_or_gpu GPU cpu_or_gpu_value Adreno615 extra_config Android model Pixel3a os Android; echo $? >/data/local/tmp/rc@@@",
-      "@@@STEP_LOG_END@nanobench.sh@@@"
+      "@@@STEP_LOG_LINE@dm.sh@set -x; /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/dm --colorImages /sdcard/revenge_of_the_skiabot/images/colorspace --nameByHash --properties gitHash abc123 builder Test-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Debug-All-Android buildbucket_build_id 123454321 task_id task_12345 swarming_bot_id skia-bot-123 swarming_task_id 123456 --svgs /sdcard/revenge_of_the_skiabot/svgs --key arch arm64 compiler Clang configuration Debug cpu_or_gpu GPU cpu_or_gpu_value Adreno615 extra_config Android model Pixel3a os Android style default --uninterestingHashesFile /sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt --writePath /sdcard/revenge_of_the_skiabot/dm_out --dont_write pdf --nocpu --config gles glesdft glessrgb --src tests gm image colorImage svg --blacklist _ svg _ svgparse_ glessrgb image _ _ _ image gen_platf error _ test _ GrShape _ image _ interlaced1.png _ image _ interlaced2.png _ image _ interlaced3.png _ image _ .arw _ image _ .cr2 _ image _ .dng _ image _ .nef _ image _ .nrw _ image _ .orf _ image _ .raf _ image _ .rw2 _ image _ .pef _ image _ .srw _ image _ .ARW _ image _ .CR2 _ image _ .DNG _ image _ .NEF _ image _ .NRW _ image _ .ORF _ image _ .RAF _ image _ .RW2 _ image _ .PEF _ image _ .SRW --nonativeFonts --verbose; echo $? >/data/local/tmp/rc@@@",
+      "@@@STEP_LOG_END@dm.sh@@@"
     ]
   },
   {
     "cmd": [
       "/usr/bin/adb.1.0.35",
       "push",
-      "[START_DIR]/tmp/nanobench.sh",
+      "[START_DIR]/tmp/dm.sh",
       "/data/local/tmp/"
     ],
     "cwd": "[START_DIR]/skia",
@@ -936,7 +954,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push nanobench.sh"
+    "name": "push dm.sh"
   },
   {
     "cmd": [
@@ -959,13 +977,13 @@
       "-u",
       "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/usr/bin/adb.1.0.35', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
       "/data/local/tmp/",
-      "nanobench.sh"
+      "dm.sh"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "nanobench",
+    "name": "dm",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
@@ -983,21 +1001,6 @@
     ]
   },
   {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]"
-    ],
-    "infra_step": true,
-    "name": "makedirs perf_dir"
-  },
-  {
     "cmd": [],
     "name": "adb pull"
   },
@@ -1005,7 +1008,7 @@
     "cmd": [
       "/usr/bin/adb.1.0.35",
       "pull",
-      "/sdcard/revenge_of_the_skiabot/perf",
+      "/sdcard/revenge_of_the_skiabot/dm_out",
       "[CLEANUP]/adb_pull_tmp_1"
     ],
     "cwd": "[START_DIR]/skia",
@@ -1015,7 +1018,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "adb pull.pull /sdcard/revenge_of_the_skiabot/perf",
+    "name": "adb pull.pull /sdcard/revenge_of_the_skiabot/dm_out",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -1029,7 +1032,7 @@
       "/path/to/tmp/json",
       "glob",
       "[CLEANUP]/adb_pull_tmp_1",
-      "perf/*"
+      "dm_out/*"
     ],
     "infra_step": true,
     "name": "adb pull.list pulled files",
