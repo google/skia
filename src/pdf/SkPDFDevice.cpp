@@ -157,19 +157,11 @@ static SkTCopyOnFirstWrite<SkPaint> clean_paint(const SkPaint& srcPaint) {
     {
         paint.writable()->setBlendMode(SkBlendMode::kSrcOver);
     }
-    // If the paint has a color filter, apply the color filter to the shader or the
-    // paint color.  Remove the color filter.
-    if (SkColorFilter* cf = paint->getColorFilter()) {
-        SkPaint* p = paint.writable();
-        if (SkShader* shader = paint->getShader()) {
-            p->setShader(shader->makeWithColorFilter(paint->refColorFilter()));
-        } else {
-            SkColorSpace* dstCS = sk_srgb_singleton();  // don't know PDF's space, so use srgb
-            SkColor4f newColor = cf->filterColor4f(p->getColor4f(), sk_srgb_singleton(), dstCS);
-            p->setColor4f(newColor, dstCS);
-        }
-        p->setColorFilter(nullptr);
+    if (paint->getColorFilter()) {
+        // We assume here that PDFs all draw in sRGB.
+        SkPaintPriv::RemoveColorFilter(paint.writable(), sk_srgb_singleton());
     }
+    SkASSERT(!paint->getColorFilter());
     return paint;
 }
 
