@@ -70,6 +70,30 @@
       "revId": "c1062137917a823efc6fe9ad9430f28c4ad249cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b6f93bd_92b2f581",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 731,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-23T17:36:58Z",
+      "side": 1,
+      "message": "Yeah, I only see one other interesting call in Skia, and it\u0027s broken.  Will fix that here then look for public callers.",
+      "parentUuid": "c607a5e8_72d97ad6",
+      "range": {
+        "startLine": 731,
+        "startChar": 60,
+        "endLine": 731,
+        "endChar": 69
+      },
+      "revId": "c1062137917a823efc6fe9ad9430f28c4ad249cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
