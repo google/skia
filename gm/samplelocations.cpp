@@ -262,8 +262,8 @@ DrawResult SampleLocationsGM::onDraw(
         *errorMsg = "Requires support for sample locations.";
         return DrawResult::kSkip;
     }
-    if (!ctx->priv().caps()->shaderCaps()->sampleMaskSupport()) {
-        *errorMsg = "Requires support for sample mask.";
+    if (!ctx->priv().caps()->shaderCaps()->sampleVariablesSupport()) {
+        *errorMsg = "Requires support for sample variables.";
         return DrawResult::kSkip;
     }
     if (rtc->numSamples() <= 1 && !ctx->priv().caps()->mixedSamplesSupport()) {

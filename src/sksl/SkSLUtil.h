@@ -96,7 +96,7 @@ public:
         return true;
     }
 
-    bool sampleMaskSupport() const {
+    bool sampleVariablesSupport() const {
         return true;
     }
 
@@ -380,7 +380,7 @@ public:
 
     static sk_sp<GrShaderCaps> SampleMaskSupport() {
         sk_sp<GrShaderCaps> result = Default();
-        result->fSampleMaskSupport = true;
+        result->fSampleVariablesSupport = true;
         return result;
     }
 };

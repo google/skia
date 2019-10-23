@@ -797,7 +797,7 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
             this->write(fProgram.fSettings.fFlipY ? "(!gl_FrontFacing)" : "gl_FrontFacing");
             break;
         case SK_SAMPLEMASK_BUILTIN:
-            SkASSERT(fProgram.fSettings.fCaps->sampleMaskSupport());
+            SkASSERT(fProgram.fSettings.fCaps->sampleVariablesSupport());
             this->write("gl_SampleMask");
             break;
         case SK_VERTEXID_BUILTIN:

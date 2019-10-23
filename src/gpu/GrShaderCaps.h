@@ -71,11 +71,11 @@ public:
     bool noperspectiveInterpolationSupport() const { return fNoPerspectiveInterpolationSupport; }
 
     // Can we use sample variables everywhere?
-    bool sampleMaskSupport() const { return fSampleMaskSupport; }
+    bool sampleVariablesSupport() const { return fSampleVariablesSupport; }
 
     // Can we use sample variables when rendering to stencil? (This is a workaround for platforms
     // where sample variables are broken in general, but seem to work when rendering to stencil.)
-    bool sampleMaskStencilSupport() const { return fSampleMaskStencilSupport; }
+    bool sampleVariablesStencilSupport() const { return fSampleVariablesStencilSupport; }
 
     bool externalTextureSupport() const { return fExternalTextureSupport; }
 
@@ -222,7 +222,7 @@ public:
     }
 
     const char* sampleVariablesExtensionString() const {
-        SkASSERT(this->sampleMaskSupport() || this->sampleMaskStencilSupport());
+        SkASSERT(this->sampleVariablesSupport() || this->sampleVariablesStencilSupport());
         return fSampleVariablesExtensionString;
     }
 
@@ -250,8 +250,8 @@ private:
     bool fFlatInterpolationSupport          : 1;
     bool fPreferFlatInterpolation           : 1;
     bool fNoPerspectiveInterpolationSupport : 1;
-    bool fSampleMaskSupport                 : 1;
-    bool fSampleMaskStencilSupport          : 1;
+    bool fSampleVariablesSupport            : 1;
+    bool fSampleVariablesStencilSupport     : 1;
     bool fExternalTextureSupport            : 1;
     bool fVertexIDSupport                   : 1;
     bool fFPManipulationSupport             : 1;

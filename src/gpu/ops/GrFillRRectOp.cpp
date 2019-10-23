@@ -47,7 +47,7 @@ std::unique_ptr<GrFillRRectOp> GrFillRRectOp::Make(
         }
     } else {
         if (GrAAType::kMSAA == aaType) {
-            if (!caps.sampleLocationsSupport() || !caps.shaderCaps()->sampleMaskSupport()) {
+            if (!caps.sampleLocationsSupport() || !caps.shaderCaps()->sampleVariablesSupport()) {
                 return nullptr;
             }
         }
