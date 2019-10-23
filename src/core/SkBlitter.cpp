@@ -24,6 +24,7 @@
 #include "src/core/SkUtils.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/core/SkXfermodeInterpretation.h"
+#include "src/shaders/SkColorFilterShader.h"
 #include "src/shaders/SkShaderBase.h"
 
 SkBlitter::~SkBlitter() {}
@@ -720,12 +721,21 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     }
 
 #ifndef SK_SUPPORT_LEGACY_COLORFILTER_NO_SHADER
-    if (paint->getColorFilter() && !paint->getShader()) {
-        // apply the filter to the paint's color, and then remove the filter
-        auto dstCS = device.colorSpace();
+    if (SkColorFilter* filter = paint->getColorFilter()) {
+        // Blitters need never see color filters:
+        // we can fold them either into the shader or the paint color.
         SkPaint* p = paint.writable();
-        p->setColor(p->getColorFilter()->filterColor4f(p->getColor4f(), sk_srgb_singleton(), dstCS),
-                    dstCS);
+        if (SkShader* shader = paint->getShader()) {
+            // SkColorFilterShader will modulate the shader color by paint alpha
+            // before applying the filter, so we'll reset it to opaque.
+            p->setShader(sk_make_sp<SkColorFilterShader>(sk_ref_sp(shader),
+                                                         p->getAlphaf(),
+                                                         sk_ref_sp(filter)));
+            p->setAlphaf(1.0f);
+        } else {
+            SkColorSpace* dstCS = device.colorSpace();
+            p->setColor(filter->filterColor4f(p->getColor4f(), sk_srgb_singleton(), dstCS), dstCS);
+        }
         p->setColorFilter(nullptr);
     }
 #endif
