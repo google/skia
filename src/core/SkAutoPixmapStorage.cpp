@@ -14,6 +14,10 @@ SkAutoPixmapStorage::~SkAutoPixmapStorage() {
     this->freeStorage();
 }
 
+SkAutoPixmapStorage::SkAutoPixmapStorage(SkAutoPixmapStorage&& other) : fStorage(nullptr) {
+    *this = std::move(other);
+}
+
 SkAutoPixmapStorage& SkAutoPixmapStorage::operator=(SkAutoPixmapStorage&& other) {
     this->fStorage = other.fStorage;
     this->INHERITED::reset(other.info(), this->fStorage, other.rowBytes());

@@ -16,6 +16,8 @@ public:
     SkAutoPixmapStorage();
     ~SkAutoPixmapStorage();
 
+    SkAutoPixmapStorage(SkAutoPixmapStorage&& other);
+
     /**
     * Leave the moved-from object in a free-but-valid state.
     */
