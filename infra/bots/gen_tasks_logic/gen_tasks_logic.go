@@ -1154,6 +1154,7 @@ func (b *builder) housekeeper(name string) string {
 // should add as a dependency.
 func (b *builder) androidFrameworkCompile(name string) string {
 	task := b.kitchenTask(name, "android_compile", "compile_android_framework.isolate", b.cfg.ServiceAccountCompile, b.linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
+	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
 	timeout(task, 2*time.Hour)
 	b.MustAddTask(name, task)
 	return name
