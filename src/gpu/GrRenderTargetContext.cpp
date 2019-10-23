@@ -430,9 +430,9 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
 
     SkRect rtRect;
     if (stencilSettings) {
-        // Must use worst case bounds so that stencil buffer updates on approximately sized render
-        // targets don't get corrupted.
-        rtRect = SkRect::Make(fRenderTargetProxy->worstCaseDimensions());
+        // Must use size at which the rendertarget will ultimately be allocated so that stencil
+        // buffer updates on approximately sized render targets don't get corrupted.
+        rtRect = fRenderTargetProxy->backingStoreBoundsRect();
     } else {
         // Use the logical size of the render target, which allows for "fullscreen" clears even if
         // the render target has an approximate backing fit
