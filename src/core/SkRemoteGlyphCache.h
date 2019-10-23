@@ -8,6 +8,11 @@
 #ifndef SkRemoteGlyphCache_DEFINED
 #define SkRemoteGlyphCache_DEFINED
 
+// Use `extra_cflags=["-DSK_CAPTURE_DRAW_TEXT_BLOB"]` to capture traces to disc.
+
+// Or uncomment this line:
+//#define SK_CAPTURE_DRAW_TEXT_BLOB
+
 #include <memory>
 #include <tuple>
 #include <unordered_map>
@@ -24,6 +29,7 @@
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkStrikeForGPU.h"
 #include "src/core/SkTLazy.h"
+#include "src/core/SkTextBlobTrace.h"
 
 class Deserializer;
 class Serializer;
@@ -125,6 +131,11 @@ public:
         fMaxEntriesInDescriptorMap = count;
     }
     size_t remoteStrikeMapSizeForTesting() const { return fDescToRemoteStrike.size(); }
+
+    #ifdef SK_CAPTURE_DRAW_TEXT_BLOB
+    // DrawTextBlob trace capture.
+    std::unique_ptr<SkTextBlobTrace::Capture> fCapture;
+    #endif  //  SK_CAPTURE_DRAW_TEXT_BLOB
 
 private:
     static constexpr size_t kMaxEntriesInDescriptorMap = 2000u;

@@ -371,6 +371,8 @@ skia_core_sources = [
   "$_src/core/SkTDynamicHash.h",
   "$_src/core/SkTextBlob.cpp",
   "$_src/core/SkTextBlobPriv.h",
+  "$_src/core/SkTextBlobTrace.cpp",
+  "$_src/core/SkTextBlobTrace.h",
   "$_src/core/SkTextFormatParams.h",
   "$_src/core/SkTime.cpp",
   "$_src/core/SkTInternalLList.h",

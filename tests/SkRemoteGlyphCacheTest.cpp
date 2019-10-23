@@ -93,7 +93,7 @@ public:
         SkAutoMutexExclusive l(fMutex);
 
         for (uint32_t i = 0; i <= SkStrikeClient::CacheMissType::kLast; ++i) {
-            if (fCacheMissCount[i] > 0) return true;
+            if (fCacheMissCount[i] > 0) { return true; }
         }
         return false;
     }
@@ -211,7 +211,19 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_StrikeSerialization, repor
     auto props = FindSurfaceProps(ctxInfo.grContext());
     SkTextBlobCacheDiffCanvas cache_diff_canvas(10, 10, props, &server,
                                                 ctxInfo.grContext()->supportsDistanceFieldText());
+    #ifdef SK_CAPTURE_DRAW_TEXT_BLOB
+    {
+        SkDynamicMemoryWStream wStream;
+        server.fCapture.reset(new SkTextBlobTrace::Capture);
+        cache_diff_canvas.drawTextBlob(serverBlob.get(), 0, 0, paint);
+        server.fCapture->dump(&wStream);
+        std::unique_ptr<SkStreamAsset> stream = wStream.detachAsStream();
+        std::vector<SkTextBlobTrace::Record> trace = SkTextBlobTrace::CreateBlobTrace(stream.get());
+        REPORTER_ASSERT(reporter, trace.size() == 1);
+    }
+    #else
     cache_diff_canvas.drawTextBlob(serverBlob.get(), 0, 0, paint);
+    #endif
 
     std::vector<uint8_t> serverStrikeData;
     server.writeStrikeData(&serverStrikeData);
