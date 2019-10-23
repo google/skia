@@ -4401,6 +4401,21 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.17.1.chromium15"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:c9c8a52bfeaf8bc00ece22fdfd447822c8fcad77"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
         }
       ],
       "command": [
@@ -4461,6 +4476,21 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.17.1.chromium15"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:c9c8a52bfeaf8bc00ece22fdfd447822c8fcad77"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e"
         }
       ],
       "command": [

@@ -12,6 +12,11 @@
       "--patchset",
       "12"
     ],
+    "env_prefixes": {
+      "PATH": [
+        "[START_DIR]/recipe_bundle/depot_tools"
+      ]
+    },
     "name": "Trigger and wait for task on android compile server"
   },
   {
