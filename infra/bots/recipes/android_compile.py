@@ -49,6 +49,7 @@ def RunSteps(api):
   trigger_wait_ac_script = infrabots_dir.join('android_compile',
                                               'trigger_wait_ac_task.py')
 
+  # TODO(rmistry): Trigger from the checkout???
   # Trigger a compile task on the android compile server and wait for it to
   # complete.
   cmd = ['python', trigger_wait_ac_script,
