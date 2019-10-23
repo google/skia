@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68ff3b18_9de6e889",
+        "filename": "src/gpu/GrCoordTransform.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-23T15:36:03Z",
+      "side": 1,
+      "message": "Since we now know the dimensions that would be used to normalize the texture coordinates, does GrCoordTransform need to hold on to the proxy anymore? That would definitely be outside this CL, but would be nice.\n\nRight now, we could have two GrCoordTransforms that have the same effect, but point to different proxies. This is entirely fine if it\u0027s true the coord transforms don\u0027t actually depend on the specific proxy, but were just using that to get the late-bound dimensions.",
+      "range": {
+        "startLine": 87,
+        "startChar": 24,
+        "endLine": 87,
+        "endChar": 92
+      },
+      "revId": "f5861fb92005e0f4f6918d442bac96149604748b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bec25677_07bbdbad",
+        "filename": "src/gpu/GrSurfaceProxy.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-23T15:36:03Z",
+      "side": 1,
+      "message": "Somewhat awkward, could it be getBoundsRectWhenAllocated()? Or just getBoundsWhenAllocated()? That matches dimensionsWhenAllocated better.",
+      "range": {
+        "startLine": 130,
+        "startChar": 11,
+        "endLine": 130,
+        "endChar": 37
+      },
+      "revId": "f5861fb92005e0f4f6918d442bac96149604748b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
