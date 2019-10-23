@@ -309,10 +309,8 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
 
     SkSL::Program::Inputs vertInputs, fragInputs;
     GrDawnUniformHandler::UniformInfoArray& uniforms = builder.fUniformHandler.fUniforms;
-    uint32_t geometryUniformSize = builder.fUniformHandler.fCurrentGeometryUBOOffset;
-    uint32_t fragmentUniformSize = builder.fUniformHandler.fCurrentFragmentUBOOffset;
-    sk_sp<GrDawnProgram> result(
-        new GrDawnProgram(uniforms, geometryUniformSize, fragmentUniformSize));
+    uint32_t uniformBufferSize = builder.fUniformHandler.fCurrentUBOOffset;
+    sk_sp<GrDawnProgram> result(new GrDawnProgram(uniforms, uniformBufferSize));
     bool flipY = programInfo.origin() != kTopLeft_GrSurfaceOrigin;
     auto vsModule = builder.createShaderModule(builder.fVS, SkSL::Program::kVertex_Kind, flipY,
                                                &vertInputs);
@@ -323,14 +321,9 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     result->fFragmentProcessors = std::move(builder.fFragmentProcessors);
     result->fFragmentProcessorCnt = builder.fFragmentProcessorCnt;
     std::vector<dawn::BindGroupLayoutBinding> layoutBindings;
-    if (0 != geometryUniformSize) {
-        layoutBindings.push_back({ GrDawnUniformHandler::kGeometryBinding,
-                                   dawn::ShaderStage::Vertex,
-                                   dawn::BindingType::UniformBuffer});
-    }
-    if (0 != fragmentUniformSize) {
-        layoutBindings.push_back({ GrDawnUniformHandler::kFragBinding,
-                                   dawn::ShaderStage::Fragment,
+    if (0 != uniformBufferSize) {
+        layoutBindings.push_back({ GrDawnUniformHandler::kUniformBinding,
+                                   dawn::ShaderStage::Vertex | dawn::ShaderStage::Fragment,
                                    dawn::BindingType::UniformBuffer});
     }
     uint32_t binding = GrDawnUniformHandler::kSamplerBindingBase;
@@ -500,20 +493,13 @@ static void setTexture(GrDawnGpu* gpu, const GrSamplerState& state, GrTexture* t
 dawn::BindGroup GrDawnProgram::setData(GrDawnGpu* gpu, const GrRenderTarget* renderTarget,
                                        const GrProgramInfo& programInfo) {
     std::vector<dawn::BindGroupBinding> bindings;
-    GrDawnRingBuffer::Slice geom, frag;
-    uint32_t geometryUniformSize = fDataManager.geometryUniformSize();
-    uint32_t fragmentUniformSize = fDataManager.fragmentUniformSize();
-    if (0 != geometryUniformSize) {
-        geom = gpu->allocateUniformRingBufferSlice(geometryUniformSize);
-        bindings.push_back(make_bind_group_binding(GrDawnUniformHandler::kGeometryBinding,
-                                                   geom.fBuffer, geom.fOffset,
-                                                   geometryUniformSize));
-    }
-    if (0 != fragmentUniformSize) {
-        frag = gpu->allocateUniformRingBufferSlice(fragmentUniformSize);
-        bindings.push_back(make_bind_group_binding(GrDawnUniformHandler::kFragBinding,
-                                                   frag.fBuffer, frag.fOffset,
-                                                   fragmentUniformSize));
+    GrDawnRingBuffer::Slice slice;
+    uint32_t uniformBufferSize = fDataManager.uniformBufferSize();
+    if (0 != uniformBufferSize) {
+        slice = gpu->allocateUniformRingBufferSlice(uniformBufferSize);
+        bindings.push_back(make_bind_group_binding(GrDawnUniformHandler::kUniformBinding,
+                                                   slice.fBuffer, slice.fOffset,
+                                                   uniformBufferSize));
     }
     this->setRenderTargetState(renderTarget, programInfo.origin());
     const GrPipeline& pipeline = programInfo.pipeline();
@@ -549,7 +535,7 @@ dawn::BindGroup GrDawnProgram::setData(GrDawnGpu* gpu, const GrRenderTarget* ren
         GrFragmentProcessor::TextureSampler sampler(sk_ref_sp(proxy));
         setTexture(gpu, sampler.samplerState(), sampler.peekTexture(), &bindings, &binding);
     }
-    fDataManager.uploadUniformBuffers(gpu, geom, frag);
+    fDataManager.uploadUniformBuffers(gpu, slice);
     dawn::BindGroupDescriptor descriptor;
     descriptor.layout = fBindGroupLayout;
     descriptor.bindingCount = bindings.size();
