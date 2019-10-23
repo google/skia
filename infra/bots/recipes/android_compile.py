@@ -7,12 +7,14 @@ import math
 
 
 DEPS = [
+  # 'depot_tools/bot_update',
   'recipe_engine/context',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
   'recipe_engine/step',
+  'run',
   'vars',
 ]
 
@@ -49,6 +51,7 @@ def RunSteps(api):
   trigger_wait_ac_script = infrabots_dir.join('android_compile',
                                               'trigger_wait_ac_task.py')
 
+  # TODO(rmistry): Trigger from the checkout???
   # Trigger a compile task on the android compile server and wait for it to
   # complete.
   cmd = ['python', trigger_wait_ac_script,
@@ -58,7 +61,12 @@ def RunSteps(api):
          '--patchset', api.vars.patchset,
         ]
   try:
-    api.step('Trigger and wait for task on android compile server', cmd=cmd)
+    # with api.context(cwd=, env=api.infra.go_env):
+    # print 'depot_tools: '
+    # print api.depot_tools.root()
+    # env_prefixes = {'PATH': [api.path['start_dir'].join('recipe_bundle', 'depot_tools'), str(api.bot_update.repo_resource())]}
+    # with api.context(env_prefixes=env_prefixes):
+    api.run(api.step, 'Trigger and wait for task on android compile server', cmd=cmd)
   except api.step.StepFailure as e:
     # Add withpatch and nopatch logs as links (if they exist).
     gs_file = 'gs://android-compile-tasks/%s-%s-%s.json' % (
