@@ -22,6 +22,30 @@
       "revId": "9dc2bc1ff659af56d11401bec1780068f88ba862",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65589dc7_5cff27f1",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-10-23T19:00:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d93a7de_442ee5de",
+      "range": {
+        "startLine": 52,
+        "startChar": 100,
+        "endLine": 52,
+        "endChar": 101
+      },
+      "revId": "9dc2bc1ff659af56d11401bec1780068f88ba862",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
