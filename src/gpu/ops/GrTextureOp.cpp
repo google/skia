@@ -394,8 +394,9 @@ private:
         fDomain = static_cast<unsigned>(netDomain);
     }
 
-    void tess(void* v, const VertexSpec& spec, const GrTextureProxy* proxy,
-              GrQuadBuffer<ColorDomainAndAA>::Iter* iter, int cnt) const {
+    static void Tess(void* v, const VertexSpec& spec, const GrTextureProxy* proxy,
+                     GrQuadBuffer<ColorDomainAndAA>::Iter* iter, int cnt,
+                     GrSamplerState::Filter filter) {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
         auto origin = proxy->origin();
         const auto* texture = proxy->peekTexture();
@@ -419,7 +420,7 @@ private:
             // Must correct the texture coordinates and domain now that the real texture size
             // is known
             compute_src_quad(origin, iter->localQuad(), iw, ih, h, &srcQuad);
-            compute_domain(info.domain(), this->filter(), origin, info.fDomainRect, iw, ih, h,
+            compute_domain(info.domain(), filter, origin, info.fDomainRect, iw, ih, h,
                            &domain);
             v = GrQuadPerEdgeAA::Tessellate(v, spec, iter->deviceQuad(), info.fColor, srcQuad,
                                             domain, info.aaFlags());
@@ -452,7 +453,36 @@ private:
             fFixedDynamicState->fPrimitiveProcessorTextures[0] = fProxies[0].fProxy;
         }
 
-        // Pull forward the tessellation of the quads to here
+        {
+            size_t totSize = numTotalQuads * vertexSpec.verticesPerQuad() * vertexSpec.vertexSize();
+            int totSeen = 0;
+            void* dst = arena->makeArrayDefault(totSize);
+
+            int meshIndex = 0;
+            for (const auto& op : ChainRange<TextureOp>(this)) {
+                auto iter = op.fQuads.iterator();
+                for (unsigned p = 0; p < op.fProxyCnt; ++p) {
+                    int quadCnt = op.fProxies[p].fQuadCnt;
+                    auto* proxy = op.fProxies[p].fProxy;
+                    int meshVertexCnt = quadCnt * vertexSpec.verticesPerQuad();
+
+                    Tess(dst, vertexSpec, proxy, &iter, quadCnt, op.filter());
+
+                    meshes[meshIndex].setVertexData(vbuffer, vertexOffsetInBuffer);
+                    if (dynamicStateArrays) {
+                        dynamicStateArrays->fPrimitiveProcessorTextures[m] = proxy;
+                    }
+                    ++meshIndex;
+
+                    totSeen += meshVertexCnt;
+                    vertexOffsetInBuffer += meshVertexCnt;
+                    vdata = reinterpret_cast<char*>(vdata) + vertexSize * meshVertexCnt;
+                }
+                // If quad counts per proxy were calculated correctly, the entire iterator should have
+                // been consumed.
+                SkASSERT(!iter.next());
+            }
+        }
 
         fPrePrepared = true;
     }
@@ -576,7 +606,7 @@ private:
                 }
                 SkASSERT(numAllocatedVertices >= meshVertexCnt);
 
-                op.tess(vdata, vertexSpec, proxy, &iter, quadCnt);
+                Tess(vdata, vertexSpec, proxy, &iter, quadCnt, op.filter());
 
                 if (!GrQuadPerEdgeAA::ConfigureMeshIndices(target, &(meshes[m]), vertexSpec,
                                                            quadCnt)) {
