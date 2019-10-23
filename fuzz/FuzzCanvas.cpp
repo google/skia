@@ -214,9 +214,8 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
             FuzzNiceMatrix(fuzz, &matrix);
             return shader1 ? shader1->makeWithLocalMatrix(matrix) : nullptr;
         case 6:
-            shader1 = make_fuzz_shader(fuzz, depth - 1);  // limit recursion.
-            colorFilter = make_fuzz_colorfilter(fuzz, depth - 1);
-            return shader1 ? shader1->makeWithColorFilter(std::move(colorFilter)) : nullptr;
+            // removed SkShader::makeWithColorFilter()
+            return nullptr;
         case 7:
             shader1 = make_fuzz_shader(fuzz, depth - 1);  // limit recursion.
             shader2 = make_fuzz_shader(fuzz, depth - 1);

@@ -121,12 +121,6 @@ public:
      */
     sk_sp<SkShader> makeWithLocalMatrix(const SkMatrix&) const;
 
-    /**
-     *  Create a new shader that produces the same colors as invoking this shader and then applying
-     *  the colorfilter.
-     */
-    sk_sp<SkShader> makeWithColorFilter(sk_sp<SkColorFilter>) const;
-
 private:
     SkShader() = default;
     friend class SkShaderBase;

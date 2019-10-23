@@ -28,6 +28,21 @@ SkColorFilterShader::SkColorFilterShader(sk_sp<SkShader> shader,
     SkASSERT(fFilter);
 }
 
+bool SkColorFilterShader::onAppendStages(const SkStageRec& rec) const {
+    if (!as_SB(fShader)->appendStages(rec)) {
+        return false;
+    }
+    if (fAlpha != 1.0f) {
+        rec.fPipeline->append(SkRasterPipeline::scale_1_float, &fAlpha);
+    }
+    fFilter->appendStages(rec, fShader->isOpaque());
+    return true;
+}
+
+// TODO: this is no longer exposed as a public API, and only used by the
+// software and GPU backends except in a couple GMs, so perhaps everything
+// below this comment is now moot?
+
 sk_sp<SkFlattenable> SkColorFilterShader::CreateProc(SkReadBuffer& buffer) {
     auto shader = buffer.readShader();
     auto filter = buffer.readColorFilter();
@@ -39,20 +54,10 @@ sk_sp<SkFlattenable> SkColorFilterShader::CreateProc(SkReadBuffer& buffer) {
 
 void SkColorFilterShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fShader.get());
-    SkASSERT(fAlpha == 1.0f);  // Not exposed in public API SkShader::makeWithColorFilter().
+    SkASSERT(fAlpha == 1.0f);
     buffer.writeFlattenable(fFilter.get());
 }
 
-bool SkColorFilterShader::onAppendStages(const SkStageRec& rec) const {
-    if (!as_SB(fShader)->appendStages(rec)) {
-        return false;
-    }
-    if (fAlpha != 1.0f) {
-        rec.fPipeline->append(SkRasterPipeline::scale_1_float, &fAlpha);
-    }
-    fFilter->appendStages(rec, fShader->isOpaque());
-    return true;
-}
 
 #if SK_SUPPORT_GPU
 /////////////////////////////////////////////////////////////////////
@@ -78,13 +83,3 @@ std::unique_ptr<GrFragmentProcessor> SkColorFilterShader::asFragmentProcessor(
     return GrFragmentProcessor::RunInSeries(fpSeries, 2);
 }
 #endif
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkShader> SkShader::makeWithColorFilter(sk_sp<SkColorFilter> filter) const {
-    SkShader* base = const_cast<SkShader*>(this);
-    if (!filter) {
-        return sk_ref_sp(base);
-    }
-    return sk_make_sp<SkColorFilterShader>(sk_ref_sp(base), 1.0f, filter);
-}

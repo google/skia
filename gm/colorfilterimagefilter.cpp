@@ -24,6 +24,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
+#include "src/shaders/SkColorFilterShader.h"
 #include "tools/Resources.h"
 
 #include <string.h>
@@ -222,9 +223,15 @@ DEF_SIMPLE_GM(colorfiltershader, canvas, 610, 610) {
 
         canvas->save();
         for (int x = -1; x < filters.count(); ++x) {
-            sk_sp<SkColorFilter> filter = x >= 0 ? filters[x] : nullptr;
+            if (x >= 0) {
+                paint.setShader(sk_make_sp<SkColorFilterShader>(sk_ref_sp(shader),
+                                                                1.0f,
+                                                                filters[x]));
+            } else {
+                paint.setShader(sk_ref_sp(shader));
+            }
 
-            paint.setShader(shader->makeWithColorFilter(filter));
+            // TODO: test alpha < 1.0f
             canvas->drawRect(r, paint);
             canvas->translate(150, 0);
         }

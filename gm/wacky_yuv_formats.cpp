@@ -43,6 +43,7 @@
 #include "include/private/SkTDArray.h"
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkTextUtils.h"
+#include "src/shaders/SkColorFilterShader.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "tools/ToolUtils.h"
@@ -1521,7 +1522,8 @@ static void draw_diff(SkCanvas* canvas, SkScalar x, SkScalar y,
 
     SkColorMatrix cm;
     cm.setScale(64, 64, 64);
-    paint.setShader(sh->makeWithColorFilter(SkColorFilters::Matrix(cm)));
+
+    paint.setShader(sk_make_sp<SkColorFilterShader>(sh, 1.0f, SkColorFilters::Matrix(cm)));
     canvas->translate(0, a->height());
     canvas->drawRect(SkRect::MakeWH(a->width(), a->height()), paint);
 
