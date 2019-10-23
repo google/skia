@@ -331,11 +331,19 @@ public:
                                     cinfo.fInfo.refColorSpace(), fDFTSupport);
     }
 
+    SkStrikeServer* strikeServer() { return fStrikeServer; }
+
 protected:
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {
         #if SK_SUPPORT_GPU
         GrTextContext::Options options;
         GrTextContext::SanitizeOptions(&options);
+
+    #ifdef SK_CAPTURE_DRAW_TEXT_BLOB
+        if (SkTextBlobTrace::Capture* capture = fStrikeServer->fCapture.get()) {
+            capture->capture(glyphRunList);
+        }
+    #endif  // SK_CAPTURE_DRAW_TEXT_BLOB
 
         fPainter.processGlyphRunList(glyphRunList,
                                      this->localToDevice(),
@@ -364,13 +372,27 @@ SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
                                                      SkStrikeServer* strikeServer,
                                                      sk_sp<SkColorSpace> colorSpace,
                                                      bool DFTSupport)
-     : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkIRect::MakeWH(width, height),
-                                                   props,
-                                                   strikeServer,
-                                                   std::move(colorSpace),
-                                                   DFTSupport)} { }
+    : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkIRect::MakeWH(width, height),
+                                                  props,
+                                                  strikeServer,
+                                                  std::move(colorSpace),
+                                                  DFTSupport)} {
+    #ifdef SK_CAPTURE_DRAW_TEXT_BLOB
+        if (!strikeServer->fCapture) {
+            strikeServer->fCapture.reset(new SkTextBlobTrace::Capture);
+        }
+    #endif  // SK_CAPTURE_DRAW_TEXT_BLOB
+    }
 
-SkTextBlobCacheDiffCanvas::~SkTextBlobCacheDiffCanvas() = default;
+SkTextBlobCacheDiffCanvas::~SkTextBlobCacheDiffCanvas() {
+#ifdef SK_CAPTURE_DRAW_TEXT_BLOB
+    SkTextBlobTrace::Capture* capture =
+        ((TrackLayerDevice*)this->getTopDevice())->strikeServer()->fCapture.get();
+    if (capture) {
+        capture->dump();
+    }
+#endif  // SK_CAPTURE_DRAW_TEXT_BLOB
+}
 
 SkCanvas::SaveLayerStrategy SkTextBlobCacheDiffCanvas::getSaveLayerStrategy(
         const SaveLayerRec& rec) {
@@ -404,7 +426,13 @@ SkStrikeServer::SkStrikeServer(DiscardableHandleManager* discardableHandleManage
     SkASSERT(fDiscardableHandleManager);
 }
 
-SkStrikeServer::~SkStrikeServer() = default;
+SkStrikeServer::~SkStrikeServer() {
+#ifdef SK_CAPTURE_DRAW_TEXT_BLOB
+    if (fCapture) {
+        fCapture->dump();
+    }
+#endif  // SK_CAPTURE_DRAW_TEXT_BLOB
+}
 
 sk_sp<SkData> SkStrikeServer::serializeTypeface(SkTypeface* tf) {
     auto* data = fSerializedTypefaces.find(SkTypeface::UniqueID(tf));
