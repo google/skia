@@ -1918,6 +1918,33 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+static SkSurfaceCharacterization dummyCharacterization(GrContext* context) {
+    const SkColorType ct = kRGBA_8888_SkColorType;
+    size_t maxResourceBytes = context->getResourceCacheLimit();
+
+    if (!context->colorTypeSupportedAsSurface(ct)) {
+        return SkSurfaceCharacterization();
+    }
+
+    // Note that Ganesh doesn't make use of the SkImageInfo's alphaType
+    int dummy_width = 16,
+        dummy_height = 16;
+    SkImageInfo ii = SkImageInfo::Make(dummy_width, dummy_height, ct, kPremul_SkAlphaType, nullptr);
+
+    GrBackendFormat backendFormat = context->defaultBackendFormat(ct, GrRenderable::kYes);
+    if (!backendFormat.isValid()) {
+        return SkSurfaceCharacterization();
+    }
+
+    const int sampleCount = 1;
+    const auto origin = kBottomLeft_GrSurfaceOrigin;
+    const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+
+    return context->threadSafeProxy()->createCharacterization(
+                                        maxResourceBytes, ii, backendFormat, sampleCount,
+                                      origin, props, false, false, true, GrProtected::kNo);
+}
+
 ViaDDL::ViaDDL(int numReplays, int numDivisions, Sink* sink)
         : Via(sink), fNumReplays(numReplays), fNumDivisions(numDivisions) {}
 
@@ -1939,6 +1966,7 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
     if (!compressedPictureData) {
         return SkStringPrintf("ViaDDL: Couldn't deflate SkPicture");
     }
+
     auto draw = [&](SkCanvas* canvas) -> Error {
         GrContext* context = canvas->getGrContext();
         if (!context || !context->priv().getGpu()) {
@@ -1947,6 +1975,11 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
 
         // This is here bc this is the first point where we have access to the context
         promiseImageHelper.uploadAllToGPU(context);
+
+        SkDeferredDisplayListRecorder recorder(dummyCharacterization(context));
+        auto reconstitutedPicture = promiseImageHelper.reinflateSKP(&recorder,
+                                                                    compressedPictureData.get());
+
         // We draw N times, with a clear between.
         for (int replay = 0; replay < fNumReplays; ++replay) {
             if (replay > 0) {
@@ -1960,10 +1993,10 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
             // This recreates the promise SkImages on each replay iteration. We are currently
             // relying on this to test using a SkPromiseImageTexture to fulfill different
             // SkImages. On each replay the promise SkImages are recreated in createSKPPerTile.
-            tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
+//            tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
 
             // Third, create the DDLs in parallel
-            tiles.createDDLsInParallel();
+            tiles.createDDLsInParallel(reconstitutedPicture);
 
             if (replay == fNumReplays - 1) {
                 // This drops the promiseImageHelper's refs on all the promise images if we're in

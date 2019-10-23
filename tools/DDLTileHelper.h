@@ -29,14 +29,8 @@ public:
         TileData(sk_sp<SkSurface>, const SkIRect& clip);
 
         // This method can be invoked in parallel
-        // In each thread we will reconvert the compressedPictureData into an SkPicture
-        // replacing each image-index with a promise image.
-        void createTileSpecificSKP(SkData* compressedPictureData,
-                                   const DDLPromiseImageHelper& helper);
-
-        // This method can be invoked in parallel
         // Create the per-tile DDL from the per-tile SKP
-        void createDDL();
+        void createDDL(sk_sp<SkPicture> reconstitutedPicture);
 
         // This method operates serially and replays the recorded DDL into the tile surface.
         void draw();
@@ -51,17 +45,13 @@ public:
         sk_sp<SkSurface>                       fSurface;
         SkSurfaceCharacterization              fCharacterization;
         SkIRect                                fClip;    // in the device space of the dest canvas
-        sk_sp<SkPicture>                       fReconstitutedPicture;
-        SkTArray<sk_sp<SkImage>>               fPromiseImages; // All the promise images in the
-                                                               // reconstituted picture
+//        sk_sp<SkPicture>                       fReconstitutedPicture;
         std::unique_ptr<SkDeferredDisplayList> fDisplayList;
     };
 
     DDLTileHelper(SkCanvas* canvas, const SkIRect& viewport, int numDivisions);
 
-    void createSKPPerTile(SkData* compressedPictureData, const DDLPromiseImageHelper& helper);
-
-    void createDDLsInParallel();
+    void createDDLsInParallel(sk_sp<SkPicture> reconstitutedPicture);
 
     void drawAllTilesAndFlush(GrContext*, bool flush);
 

@@ -116,9 +116,8 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
 
 sk_sp<SkPicture> DDLPromiseImageHelper::reinflateSKP(
                                                    SkDeferredDisplayListRecorder* recorder,
-                                                   SkData* compressedPictureData,
-                                                   SkTArray<sk_sp<SkImage>>* promiseImages) const {
-    PerRecorderContext perRecorderContext { recorder, this, promiseImages };
+                                                   SkData* compressedPictureData) const {
+    PerRecorderContext perRecorderContext { recorder, this };
 
     SkDeserialProcs procs;
     procs.fImageCtx = (void*) &perRecorderContext;
@@ -222,7 +221,6 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
                 SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew);
         curImage.callbackContext(0)->wasAddedToImage();
     }
-    perRecorderContext->fPromiseImages->push_back(image);
     SkASSERT(image);
     return image;
 }

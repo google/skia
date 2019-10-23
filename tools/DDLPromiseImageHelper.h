@@ -57,8 +57,7 @@ public:
 
     // reinflate a deflated SKP, replacing all the indices with promise images.
     sk_sp<SkPicture> reinflateSKP(SkDeferredDisplayListRecorder*,
-                                  SkData* compressedPicture,
-                                  SkTArray<sk_sp<SkImage>>* promiseImages) const;
+                                  SkData* compressedPicture) const;
 
     // Remove this class' refs on the PromiseImageCallbackContexts
     void reset() { fImageInfo.reset(); }
@@ -213,7 +212,6 @@ private:
     struct PerRecorderContext {
         SkDeferredDisplayListRecorder* fRecorder;
         const DDLPromiseImageHelper*   fHelper;
-        SkTArray<sk_sp<SkImage>>*      fPromiseImages;
     };
 
     static sk_sp<SkPromiseImageTexture> PromiseImageFulfillProc(void* textureContext) {
