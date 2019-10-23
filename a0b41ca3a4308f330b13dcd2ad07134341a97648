@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f3ae5d1c_6fe9d9a8",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-23T20:59:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f7fba11b_c7dcb251",
+      "range": {
+        "startLine": 303,
+        "startChar": 22,
+        "endLine": 303,
+        "endChar": 23
+      },
+      "revId": "a0b41ca3a4308f330b13dcd2ad07134341a97648",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e2ff7a32_4d8e1586",
         "filename": "src/core/SkGlyphRunPainter.cpp",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "1c7f9f70_817a2f9e",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-23T20:59:54Z",
+      "side": 1,
+      "message": "Correct, but the mask case falling back to this should be very rare.",
+      "parentUuid": "e2ff7a32_4d8e1586",
+      "range": {
+        "startLine": 347,
+        "startChar": 43,
+        "endLine": 347,
+        "endChar": 63
+      },
+      "revId": "a0b41ca3a4308f330b13dcd2ad07134341a97648",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5b5837f2_229e6e18",
         "filename": "src/core/SkGlyphRunPainter.cpp",
         "patchSetId": 4
@@ -62,6 +110,24 @@
       "revId": "a0b41ca3a4308f330b13dcd2ad07134341a97648",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa6a8fe0_f6d7c104",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-23T20:59:54Z",
+      "side": 1,
+      "message": "Right",
+      "parentUuid": "5b5837f2_229e6e18",
+      "revId": "a0b41ca3a4308f330b13dcd2ad07134341a97648",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

@@ -22,6 +22,30 @@
       "revId": "315224aec5db438a70e3a943730b018da000ebca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "648bcbd6_e43eb0c0",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 670,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-23T20:59:54Z",
+      "side": 0,
+      "message": "This was only on the mask case, so it is very rare.",
+      "parentUuid": "2b9826c9_1efb192a",
+      "range": {
+        "startLine": 670,
+        "startChar": 16,
+        "endLine": 670,
+        "endChar": 18
+      },
+      "revId": "315224aec5db438a70e3a943730b018da000ebca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
