@@ -7,8 +7,10 @@
 
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkPaint.h"
+#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkXfermodePriv.h"
+#include "src/shaders/SkColorFilterShader.h"
 #include "src/shaders/SkShaderBase.h"
 
 static bool changes_alpha(const SkPaint& paint) {
@@ -83,4 +85,20 @@ SkColor SkPaintPriv::ComputeLuminanceColor(const SkPaint& paint) {
         c = SkColorSetRGB(0x7F, 0x80, 0x7F);
     }
     return c;
+}
+
+void SkPaintPriv::RemoveColorFilter(SkPaint* p, SkColorSpace* dstCS) {
+    if (SkColorFilter* filter = p->getColorFilter()) {
+        if (SkShader* shader = p->getShader()) {
+            // SkColorFilterShader will modulate the shader color by paint alpha
+            // before applying the filter, so we'll reset it to opaque.
+            p->setShader(sk_make_sp<SkColorFilterShader>(sk_ref_sp(shader),
+                                                         p->getAlphaf(),
+                                                         sk_ref_sp(filter)));
+            p->setAlphaf(1.0f);
+        } else {
+            p->setColor(filter->filterColor4f(p->getColor4f(), sk_srgb_singleton(), dstCS), dstCS);
+        }
+        p->setColorFilter(nullptr);
+    }
 }
