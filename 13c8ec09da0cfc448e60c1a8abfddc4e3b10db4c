@@ -45,6 +45,40 @@
       "revId": "13c8ec09da0cfc448e60c1a8abfddc4e3b10db4c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75a27520_a54c9aa9",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 789,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-23T17:17:05Z",
+      "side": 1,
+      "message": "Maybe add a make_reference_image helper ?",
+      "revId": "13c8ec09da0cfc448e60c1a8abfddc4e3b10db4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e3d3c9a_16016a38",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 790,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-23T17:17:05Z",
+      "side": 1,
+      "message": "\\n ?",
+      "revId": "13c8ec09da0cfc448e60c1a8abfddc4e3b10db4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
