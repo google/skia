@@ -62,11 +62,17 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrRRectShadowGeoProc::GrRRectShadowGeoProc() : INHERITED(kGrRRectShadowGeoProc_ClassID) {
+GrRRectShadowGeoProc::GrRRectShadowGeoProc(const sk_sp<GrTextureProxy> lut)
+        : INHERITED(kGrRRectShadowGeoProc_ClassID) {
     fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
     fInShadowParams = {"inShadowParams", kFloat3_GrVertexAttribType, kHalf3_GrSLType};
     this->setVertexAttributes(&fInPosition, 3);
+
+    SkASSERT(lut);
+    fLUTTextureSampler.reset(GrSamplerState::ClampBilerp(), lut->backendFormat(),
+                             lut->textureSwizzle());
+    this->setTextureSamplerCnt(1);
 }
 
 GrGLSLPrimitiveProcessor* GrRRectShadowGeoProc::createGLSLInstance(const GrShaderCaps&) const {
@@ -79,6 +85,6 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrRRectShadowGeoProc);
 
 #if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> GrRRectShadowGeoProc::TestCreate(GrProcessorTestData* d) {
-    return GrRRectShadowGeoProc::Make();
+    return GrRRectShadowGeoProc::Make(nullptr);
 }
 #endif
