@@ -878,10 +878,10 @@ bool GrProxyProvider::IsFunctionallyExact(GrSurfaceProxy* proxy) {
     // A proxy is functionally exact if:
     //   it is exact (obvs)
     //   when it is instantiated it will be exact (i.e., power of two dimensions)
-    //   it is already instantiated and the proxy covers the entire backing surface
+    //   when it is instantiated the content rect will cover the entire backing surface
     return proxy->priv().isExact() ||
            (!isInstantiated && SkIsPow2(proxy->width()) && SkIsPow2(proxy->height())) ||
-           (isInstantiated && proxy->worstCaseDimensions() == proxy->dimensions());
+           (proxy->backingStoreDimensions() == proxy->dimensions());
 }
 
 void GrProxyProvider::processInvalidUniqueKey(const GrUniqueKey& key, GrTextureProxy* proxy,
