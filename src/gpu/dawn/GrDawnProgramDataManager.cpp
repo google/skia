@@ -10,16 +10,11 @@
 #include "src/gpu/dawn/GrDawnGpu.h"
 
 GrDawnProgramDataManager::GrDawnProgramDataManager(const UniformInfoArray& uniforms,
-                                                   uint32_t geometryUniformSize,
-                                                   uint32_t fragmentUniformSize)
-    : fGeometryUniformSize(geometryUniformSize)
-    , fFragmentUniformSize(fragmentUniformSize)
-    , fGeometryUniformsDirty(false)
-    , fFragmentUniformsDirty(false) {
-    fGeometryUniformData.reset(geometryUniformSize);
-    fFragmentUniformData.reset(fragmentUniformSize);
-    memset(fGeometryUniformData.get(), 0, fGeometryUniformSize);
-    memset(fFragmentUniformData.get(), 0, fFragmentUniformSize);
+                                                   uint32_t uniformBufferSize)
+    : fUniformBufferSize(uniformBufferSize)
+    , fUniformsDirty(false) {
+    fUniformData.reset(uniformBufferSize);
+    memset(fUniformData.get(), 0, fUniformBufferSize);
     int count = uniforms.count();
     fUniforms.push_back_n(count);
     // We must add uniforms in same order is the UniformInfoArray so that UniformHandles already
@@ -31,29 +26,13 @@ GrDawnProgramDataManager::GrDawnProgramDataManager(const UniformInfoArray& unifo
             uniform.fArrayCount = uniformInfo.fVar.getArrayCount();
             uniform.fType = uniformInfo.fVar.getType();
         );
-
-        if (!(kFragment_GrShaderFlag & uniformInfo.fVisibility)) {
-            uniform.fBinding = GrDawnUniformHandler::kGeometryBinding;
-        } else {
-            SkASSERT(kFragment_GrShaderFlag == uniformInfo.fVisibility);
-            uniform.fBinding = GrDawnUniformHandler::kFragBinding;
-        }
         uniform.fOffset = uniformInfo.fUBOOffset;
     }
 }
 
 void* GrDawnProgramDataManager::getBufferPtrAndMarkDirty(const Uniform& uni) const {
-    void* buffer;
-    if (GrDawnUniformHandler::kGeometryBinding == uni.fBinding) {
-        buffer = fGeometryUniformData.get();
-        fGeometryUniformsDirty = true;
-    } else {
-        SkASSERT(GrDawnUniformHandler::kFragBinding == uni.fBinding);
-        buffer = fFragmentUniformData.get();
-        fFragmentUniformsDirty = true;
-    }
-    buffer = static_cast<char*>(buffer)+uni.fOffset;
-    return buffer;
+    fUniformsDirty = true;
+    return static_cast<char*>(fUniformData.get()) + uni.fOffset;
 }
 
 void GrDawnProgramDataManager::set1i(UniformHandle u, int32_t i) const {
@@ -230,17 +209,8 @@ template<int N> inline void GrDawnProgramDataManager::setMatrices(UniformHandle 
                                                                   int arrayCount,
                                                                   const float matrices[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    void* buffer;
-    if (GrDawnUniformHandler::kGeometryBinding == uni.fBinding) {
-        buffer = fGeometryUniformData.get();
-        fGeometryUniformsDirty = true;
-    } else {
-        SkASSERT(GrDawnUniformHandler::kFragBinding == uni.fBinding);
-        buffer = fFragmentUniformData.get();
-        fFragmentUniformsDirty = true;
-    }
-
-    set_uniform_matrix<N>::set(buffer, uni.fOffset, arrayCount, matrices);
+    fUniformsDirty = true;
+    set_uniform_matrix<N>::set(fUniformData.get(), uni.fOffset, arrayCount, matrices);
 }
 
 template<int N> struct set_uniform_matrix {
@@ -266,25 +236,13 @@ template<> struct set_uniform_matrix<4> {
 };
 
 void GrDawnProgramDataManager::uploadUniformBuffers(GrDawnGpu* gpu,
-                                                    GrDawnRingBuffer::Slice geometryBuffer,
-                                                    GrDawnRingBuffer::Slice fragmentBuffer) const {
-    dawn::Buffer geom = geometryBuffer.fBuffer;
-    uint32_t geomOffset = geometryBuffer.fOffset;
-    dawn::Buffer frag = fragmentBuffer.fBuffer;
-    uint32_t fragOffset = fragmentBuffer.fOffset;
+                                                    GrDawnRingBuffer::Slice slice) const {
     auto copyEncoder = gpu->getCopyEncoder();
-    if (geom && fGeometryUniformsDirty) {
-        GrDawnStagingBuffer* stagingBuffer = gpu->getStagingBuffer(fGeometryUniformSize);
-        memcpy(stagingBuffer->fData, fGeometryUniformData.get(), fGeometryUniformSize);
+    if (slice.fBuffer && fUniformsDirty) {
+        GrDawnStagingBuffer* stagingBuffer = gpu->getStagingBuffer(fUniformBufferSize);
+        memcpy(stagingBuffer->fData, fUniformData.get(), fUniformBufferSize);
         stagingBuffer->fBuffer.Unmap();
-        copyEncoder
-            .CopyBufferToBuffer(stagingBuffer->fBuffer, 0, geom, geomOffset, fGeometryUniformSize);
-    }
-    if (frag && fFragmentUniformsDirty) {
-        GrDawnStagingBuffer* stagingBuffer = gpu->getStagingBuffer(fFragmentUniformSize);
-        memcpy(stagingBuffer->fData, fFragmentUniformData.get(), fFragmentUniformSize);
-        stagingBuffer->fBuffer.Unmap();
-        copyEncoder
-            .CopyBufferToBuffer(stagingBuffer->fBuffer, 0, frag, fragOffset, fFragmentUniformSize);
+        copyEncoder.CopyBufferToBuffer(
+            stagingBuffer->fBuffer, 0, slice.fBuffer, slice.fOffset, fUniformBufferSize);
     }
 }
