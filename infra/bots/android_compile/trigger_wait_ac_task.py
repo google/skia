@@ -112,6 +112,16 @@ def _trigger_task(options):
 def trigger_and_wait(options):
   """Triggers a task on the compile server and waits for it to complete."""
   task = _trigger_task(options)
+
+  #### TESTING HERE
+  print 'Issue is:'
+  print task.issue
+  print 'Get CWD:'
+  print os.getcwd()
+  subprocess.check_call(['git', 'cl', 'comments', '-i', task.issue, '-p', '-a', '"test comment"'])
+  return 0
+  #### TESTING HERE
+
   print 'Android Compile Task for %d/%d has been successfully added to %s.' % (
       options.issue, options.patchset, ANDROID_COMPILE_BUCKET)
   print '%s will be polled every %d seconds.' % (ANDROID_COMPILE_BUCKET,
