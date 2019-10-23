@@ -33,6 +33,24 @@
       "revId": "8eae07f885ed6811c7cba1f89aa00a44d00d1612",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f80dafa_59653e58",
+        "filename": "gn/toolchain/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-23T21:05:39Z",
+      "side": 1,
+      "message": "The original reason for ar.py was to delete the existing .a file on windows. Do you remember the problems around this?",
+      "parentUuid": "544a203f_84533cc4",
+      "revId": "8eae07f885ed6811c7cba1f89aa00a44d00d1612",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
