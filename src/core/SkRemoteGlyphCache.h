@@ -24,6 +24,7 @@
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkStrikeForGPU.h"
 #include "src/core/SkTLazy.h"
+#include "src/core/SkTextBlobTrace.h"
 
 class Deserializer;
 class Serializer;
@@ -124,6 +125,11 @@ public:
         fMaxEntriesInDescriptorMap = count;
     }
     size_t remoteStrikeMapSizeForTesting() const { return fDescToRemoteStrike.size(); }
+
+    #ifdef SK_CAPTURE_DRAW_TEXT_BLOB
+    // DrawTextBlob trace capture.
+    std::unique_ptr<SkTextBlobTrace::Capture> fCapture;
+    #endif  //  SK_CAPTURE_DRAW_TEXT_BLOB
 
 private:
     static constexpr size_t kMaxEntriesInDescriptorMap = 2000u;
