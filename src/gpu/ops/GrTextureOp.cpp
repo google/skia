@@ -419,8 +419,9 @@ private:
         fDomain = static_cast<unsigned>(netDomain);
     }
 
-    void tess(void* v, const VertexSpec& spec, const GrTextureProxy* proxy,
-              GrQuadBuffer<ColorDomainAndAA>::Iter* iter, int cnt) const {
+    static void Tess(void* v, const VertexSpec& spec, const GrTextureProxy* proxy,
+                     GrQuadBuffer<ColorDomainAndAA>::Iter* iter, int cnt,
+                     GrSamplerState::Filter filter) {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
         auto origin = proxy->origin();
         const auto* texture = proxy->peekTexture();
@@ -444,7 +445,7 @@ private:
             // Must correct the texture coordinates and domain now that the real texture size
             // is known
             compute_src_quad(origin, iter->localQuad(), iw, ih, h, &srcQuad);
-            compute_domain(info.domain(), this->filter(), origin, info.fDomainRect, iw, ih, h,
+            compute_domain(info.domain(), filter, origin, info.fDomainRect, iw, ih, h,
                            &domain);
             v = GrQuadPerEdgeAA::Tessellate(v, spec, iter->deviceQuad(), info.fColor, srcQuad,
                                             domain, info.aaFlags());
@@ -466,7 +467,48 @@ private:
                                                            &fPrePreparedDesc->fNumTotalQuads);
         fPrePreparedDesc->allocate(arena, clip, fProxyCountPairs[0].fProxy);
 
-        // Pull forward the tessellation of the quads to here
+#if 0
+        {
+            size_t totSizeBytes = fPrePreparedDesc->fNumTotalQuads *
+                                  fPrePreparedDesc->fVertexSpec.verticesPerQuad() *
+                                  fPrePreparedDesc->fVertexSpec.vertexSize();
+            int* offsets = arena->makeArrayDefault<int>(fPrePreparedDesc->fNumProxies);
+            int vertexOffsetInBuffer = 0;
+            char* dst = arena->makeArrayDefault<char>(totSizeBytes);
+            SkDEBUGCODE(char* origDst = dst);
+            SkDEBUGCODE(int totVerticesSeen = 0;)
+
+            int meshIndex = 0;
+            for (const auto& op : ChainRange<TextureOp>(this)) {
+                auto iter = op.fQuads.iterator();
+                for (unsigned p = 0; p < op.fProxyCnt; ++p) {
+                    int quadCnt = op.fProxies[p].fQuadCnt;
+                    auto* proxy = op.fProxies[p].fProxy;
+                    int meshVertexCnt = quadCnt * vertexSpec.verticesPerQuad();
+
+                    Tess(dst, vertexSpec, proxy, &iter, quadCnt, op.filter());
+
+                    offsets[meshIndex] = vertexOffsetInBuffer;
+                    SkASSERT(vertexOffsetInBuffer == (dst - origDst));
+                    if (fDynamicStateArrays) {
+                        fDynamicStateArrays->fPrimitiveProcessorTextures[meshIndex] = proxy;
+                    }
+                    ++meshIndex;
+
+                    SkDEBUGCODE(totVerticesSeen += meshVertexCnt);
+                    vertexOffsetInBuffer += meshVertexCnt;
+                    dst += vertexSpec.vertexSize() * meshVertexCnt;
+                }
+                // If quad counts per proxy were calculated correctly, the entire iterator
+                // should have been consumed.
+                SkASSERT(!iter.next());
+            }
+
+            SkASSERT(totSizeBytes == dst - origDst);
+            SkASSERT(meshIndex == numProxies);
+            SkASSERT(totVerticesSeen == numTotalQuads * vertexSpec.verticesPerQuad());
+        }
+#endif
     }
 
 #ifdef SK_DEBUG
@@ -546,6 +588,8 @@ private:
         }
 
         size_t vertexSize = desc.fVertexSpec.vertexSize();
+        int* srcOffsets;
+        char* src;
 
         GrMesh* meshes = target->allocMeshes(desc.fNumProxies);
         sk_sp<const GrBuffer> vbuffer;
@@ -573,7 +617,15 @@ private:
                 }
                 SkASSERT(numAllocatedVertices >= meshVertexCnt);
 
-                op.tess(vdata, desc.fVertexSpec, proxy, &iter, quadCnt);
+                if (fPrePreparedDesc) {
+                    src;
+                    srcOffsets;
+                } else {
+                    Tess(vdata, desc.fVertexSpec, proxy, &iter, quadCnt, op.filter());
+                    if (desc.fDynamicStateArrays) {
+                        desc.fDynamicStateArrays->fPrimitiveProcessorTextures[meshIndex] = proxy;
+                    }
+                }
 
                 SkASSERT(meshIndex < desc.fNumProxies);
 
@@ -583,10 +635,8 @@ private:
                     return;
                 }
                 meshes[meshIndex].setVertexData(vbuffer, vertexOffsetInBuffer);
-                if (desc.fDynamicStateArrays) {
-                    desc.fDynamicStateArrays->fPrimitiveProcessorTextures[meshIndex] = proxy;
-                }
                 ++meshIndex;
+
                 numAllocatedVertices -= meshVertexCnt;
                 numQuadVerticesLeft -= meshVertexCnt;
                 vertexOffsetInBuffer += meshVertexCnt;
