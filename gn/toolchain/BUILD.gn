@@ -255,10 +255,15 @@ template("gcc_like_toolchain") {
     }
 
     tool("alink") {
-      rspfile = "{{output}}.rsp"
-      rspfile_content = "{{inputs}}"
-      ar_py = rebase_path("../ar.py")
-      command = "python $ar_py $ar {{output}} $rspfile"
+      if (is_mac || is_ios) {
+        command =
+            "$ar -static -o {{output}} -no_warning_for_no_symbols {{inputs}}"
+      } else {
+        rspfile = "{{output}}.rsp"
+        rspfile_content = "{{inputs}}"
+        command = "$ar rcs {{output}} @$rspfile"
+      }
+
       outputs = [
         "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
       ]

@@ -117,6 +117,10 @@ if (is_android) {
   }
 }
 
+if (is_mac || is_ios) {
+  ar = "libtool"
+}
+
 if (target_os == "win") {
   # By default we look for 2017 (Enterprise, Pro, and Community), then 2015. If MSVC is installed in a
   # non-default location, you can set win_vc to inform us where it is.
