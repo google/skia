@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ac9a071_52b671fd",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 731,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-10-23T17:28:29Z",
+      "side": 1,
+      "message": "Having the colorfiltershader apply the alpha, is that a correctness fix for this?",
+      "range": {
+        "startLine": 731,
+        "startChar": 60,
+        "endLine": 731,
+        "endChar": 69
+      },
+      "revId": "c1062137917a823efc6fe9ad9430f28c4ad249cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
