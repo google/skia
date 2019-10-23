@@ -81,16 +81,30 @@ bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec, bool shaderIsOp
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/effects/generated/GrColorMatrixFragmentProcessor.h"
+#include "src/gpu/effects/generated/GrHSLToRGBFilterEffect.h"
+#include "src/gpu/effects/generated/GrRGBToHSLFilterEffect.h"
 std::unique_ptr<GrFragmentProcessor> SkColorFilter_Matrix::asFragmentProcessor(
         GrRecordingContext*, const GrColorInfo&) const {
-    if (fDomain == Domain::kHSLA) {
-        // TODO
-        return nullptr;
+    switch (fDomain) {
+        case Domain::kRGBA:
+            return GrColorMatrixFragmentProcessor::Make(fMatrix,
+                                                        /* premulInput = */    true,
+                                                        /* clampRGBOutput = */ true,
+                                                        /* premulOutput = */   true);
+        case Domain::kHSLA: {
+            std::unique_ptr<GrFragmentProcessor> series[] = {
+                GrRGBToHSLFilterEffect::Make(),
+                GrColorMatrixFragmentProcessor::Make(fMatrix,
+                                                     /* premulInput = */    false,
+                                                     /* clampRGBOutput = */ false,
+                                                     /* premulOutput = */   false),
+                GrHSLToRGBFilterEffect::Make(),
+            };
+            return GrFragmentProcessor::RunInSeries(series, SK_ARRAY_COUNT(series));
+        }
     }
-    return GrColorMatrixFragmentProcessor::Make(fMatrix,
-                                                /* premulInput = */ true,
-                                                /* clampRGBOutput = */ true,
-                                                /* premulOutput = */ true);
+
+    SkUNREACHABLE;
 }
 
 #endif
