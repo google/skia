@@ -84,7 +84,7 @@ public:
         }
 
         if (fNormalize) {
-            if (fProxy->underlyingUniqueID() != that.fProxy->underlyingUniqueID()) {
+            if (fProxy->dimensionsWhenAllocated() != that.fProxy->dimensionsWhenAllocated()) {
                 return false;
             }
         }
