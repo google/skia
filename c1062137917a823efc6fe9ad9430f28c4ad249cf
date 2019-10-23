@@ -22,6 +22,30 @@
       "revId": "c1062137917a823efc6fe9ad9430f28c4ad249cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e403250_305c892c",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 731,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-23T17:34:47Z",
+      "side": 1,
+      "message": "Yes, we scale the shader\u0027s output by alpha before applying color filters, shader-\u003ealpha-\u003efilter.  Back in PS1 where I just called SkShader::makeWithColorFilter(), we got the effect of shader-\u003efilter-\u003ealpha instead, and that\u0027s not always the same.\n\nSkShader::makeWithColorFilter() still kind of technically does what it says on the tin, but you _can\u0027t_ replace a shader and color filter with it when the paint has transparency.  So it\u0027s possible and kind of likely that every other use of makeWithColorFilter() has this bug...",
+      "parentUuid": "3ac9a071_52b671fd",
+      "range": {
+        "startLine": 731,
+        "startChar": 60,
+        "endLine": 731,
+        "endChar": 69
+      },
+      "revId": "c1062137917a823efc6fe9ad9430f28c4ad249cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
