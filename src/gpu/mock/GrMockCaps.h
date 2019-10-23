@@ -34,8 +34,8 @@ public:
         fShaderCaps->fMaxFragmentSamplers = options.fMaxFragmentSamplers;
         fShaderCaps->fShaderDerivativeSupport = options.fShaderDerivativeSupport;
         fShaderCaps->fDualSourceBlendingSupport = options.fDualSourceBlendingSupport;
-        fShaderCaps->fSampleMaskSupport = true;
-        fShaderCaps->fSampleMaskStencilSupport = true;
+        fShaderCaps->fSampleVariablesSupport = true;
+        fShaderCaps->fSampleVariablesStencilSupport = true;
 
         this->applyOptionsOverrides(contextOptions);
     }
