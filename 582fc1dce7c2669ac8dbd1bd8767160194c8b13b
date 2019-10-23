@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "525c2247_55777ef3",
+        "filename": "src/gpu/GrSurfaceProxyView.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-10-23T14:58:44Z",
+      "side": 1,
+      "message": "this is unnecessary... the whole thing could be defaulted if \u003d kTopLeft_GrSurfaceOrigin is added to the decl of fOrigin.",
+      "range": {
+        "startLine": 18,
+        "startChar": 27,
+        "endLine": 18,
+        "endChar": 43
+      },
+      "revId": "582fc1dce7c2669ac8dbd1bd8767160194c8b13b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e428d2e_c1999bb0",
+        "filename": "src/gpu/GrSurfaceProxyView.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-10-23T14:58:44Z",
+      "side": 1,
+      "message": "I\u0027m wondering if this would be better as the more terse \"proxy()\". There\u0027s not really any conversion happening as the \"as\" implies and it also just seems a little easier on the eyes.",
+      "range": {
+        "startLine": 39,
+        "startChar": 20,
+        "endLine": 39,
+        "endChar": 37
+      },
+      "revId": "582fc1dce7c2669ac8dbd1bd8767160194c8b13b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0c77c36_b81b8299",
+        "filename": "src/gpu/GrSurfaceProxyView.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-10-23T14:58:44Z",
+      "side": 1,
+      "message": "implement as \"*this \u003d {};\" so everything is reset? or just \"myView \u003d {};\" where this is used?",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 5
+      },
+      "revId": "582fc1dce7c2669ac8dbd1bd8767160194c8b13b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
