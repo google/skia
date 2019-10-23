@@ -767,7 +767,7 @@ void GrOpsTask::recordOp(
     // 1) check every op
     // 2) intersect with something
     // 3) find a 'blocker'
-    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), fTarget->uniqueID());
+    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get());
     GrOP_INFO("opsTask: %d Recording (%s, opID: %u)\n"
               "\tBounds [L: %.2f, T: %.2f R: %.2f B: %.2f]\n",
                this->uniqueID(),

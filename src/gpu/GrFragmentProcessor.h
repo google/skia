@@ -437,8 +437,7 @@ public:
     void reset(sk_sp<GrTextureProxy>, const GrSamplerState&);
 
     bool operator==(const TextureSampler& that) const {
-        return this->proxy()->underlyingUniqueID() == that.proxy()->underlyingUniqueID() &&
-               fSamplerState == that.fSamplerState;
+        return this->proxy() == that.proxy() && fSamplerState == that.fSamplerState;
     }
 
     bool operator!=(const TextureSampler& other) const { return !(*this == other); }

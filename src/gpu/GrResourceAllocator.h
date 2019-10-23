@@ -16,6 +16,8 @@
 #include "src/core/SkTDynamicHash.h"
 #include "src/core/SkTMultiMap.h"
 
+#include "src/core/SkOpts.h"
+
 class GrResourceProvider;
 
 // Print out explicit allocation information
@@ -133,13 +135,13 @@ private:
     };
     typedef SkTMultiMap<GrSurface, GrScratchKey, FreePoolTraits> FreePoolMultiMap;
 
-    typedef SkTDynamicHash<Interval, unsigned int> IntvlHash;
+    typedef SkTDynamicHash<Interval, uint32_t> IntvlHash;
 
     class Interval {
     public:
         Interval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end)
             : fProxy(proxy)
-            , fProxyID(proxy->uniqueID().asUInt())
+//            , fProxyID(proxy->uniqueID().asUInt())
             , fStart(start)
             , fEnd(end)
             , fNext(nullptr) {
@@ -158,7 +160,7 @@ private:
 
             fUses = 0;
             fProxy = proxy;
-            fProxyID = proxy->uniqueID().asUInt();
+//            fProxyID = proxy->uniqueID().asUInt();
             fStart = start;
             fEnd = end;
             fNext = nullptr;
@@ -204,14 +206,17 @@ private:
 
         // for SkTDynamicHash
         static const uint32_t& GetKey(const Interval& intvl) {
-            return intvl.fProxyID;
+            return intvl.fKey;
         }
-        static uint32_t Hash(const uint32_t& key) { return key; }
+        static uint32_t Hash(const uint32_t& key) {
+            return key;
+        }
 
     private:
         sk_sp<GrSurface> fAssignedSurface;
         GrSurfaceProxy*  fProxy;
-        uint32_t         fProxyID; // This is here b.c. DynamicHash requires a ref to the key
+        uint32_t fKey;
+//        uint32_t         fProxyID; // This is here b.c. DynamicHash requires a ref to the key
         unsigned int     fStart;
         unsigned int     fEnd;
         Interval*        fNext;

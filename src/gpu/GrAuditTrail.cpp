@@ -11,7 +11,7 @@
 
 const int GrAuditTrail::kGrAuditTrailInvalidID = -1;
 
-void GrAuditTrail::addOp(const GrOp* op, GrRenderTargetProxy::UniqueID proxyID) {
+void GrAuditTrail::addOp(const GrOp* op) { //, GrRenderTargetProxy::UniqueID proxyID) {
     SkASSERT(fEnabled);
     Op* auditOp = new Op;
     fOpPool.emplace_back(auditOp);
@@ -45,7 +45,7 @@ void GrAuditTrail::addOp(const GrOp* op, GrRenderTargetProxy::UniqueID proxyID) 
 
     // We use the op pointer as a key to find the OpNode we are 'glomming' ops onto
     fIDLookup.set(op->uniqueID(), auditOp->fOpsTaskID);
-    OpNode* opNode = new OpNode(proxyID);
+    OpNode* opNode = new OpNode(); // proxyID);
     opNode->fBounds = op->bounds();
     opNode->fChildren.push_back(auditOp);
     fOpsTask.emplace_back(opNode);
@@ -90,7 +90,7 @@ void GrAuditTrail::copyOutFromOpsTask(OpInfo* outOpInfo, int opsTaskID) {
     const OpNode* bn = fOpsTask[opsTaskID].get();
     SkASSERT(bn);
     outOpInfo->fBounds = bn->fBounds;
-    outOpInfo->fProxyUniqueID    = bn->fProxyUniqueID;
+//    outOpInfo->fProxyUniqueID    = bn->fProxyUniqueID;
     for (int j = 0; j < bn->fChildren.count(); j++) {
         OpInfo::Op& outOp = outOpInfo->fOps.push_back();
         const Op* currentOp = bn->fChildren[j];
@@ -193,7 +193,7 @@ void GrAuditTrail::Op::toJson(SkJSONWriter& writer) const {
 
 void GrAuditTrail::OpNode::toJson(SkJSONWriter& writer) const {
     writer.beginObject();
-    writer.appendU32("ProxyID", fProxyUniqueID.asUInt());
+//    writer.appendU32("ProxyID", fProxyUniqueID.asUInt());
     skrect_to_json(writer, "Bounds", fBounds);
     JsonifyTArray(writer, "Ops", fChildren);
     writer.endObject();

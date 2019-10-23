@@ -82,7 +82,7 @@ public:
         fCurrentStackTrace.push_back(SkString(framename));
     }
 
-    void addOp(const GrOp*, GrRenderTargetProxy::UniqueID proxyID);
+    void addOp(const GrOp*); // , GrRenderTargetProxy::UniqueID proxyID);
 
     void opsCombined(const GrOp* consumer, const GrOp* consumed);
 
@@ -111,7 +111,7 @@ public:
         };
 
         SkRect                   fBounds;
-        GrSurfaceProxy::UniqueID fProxyUniqueID;
+        GrSurfaceProxy*          fProxy;
         SkTArray<Op>             fOps;
     };
 
@@ -138,12 +138,12 @@ private:
     typedef SkTArray<Op*> Ops;
 
     struct OpNode {
-        OpNode(const GrSurfaceProxy::UniqueID& proxyID) : fProxyUniqueID(proxyID) { }
+        OpNode() {} //const GrSurfaceProxy::UniqueID& proxyID) : fProxyUniqueID(proxyID) { }
         void toJson(SkJSONWriter& writer) const;
 
         SkRect                         fBounds;
         Ops                            fChildren;
-        const GrSurfaceProxy::UniqueID fProxyUniqueID;
+//        const GrSurfaceProxy::UniqueID fProxyUniqueID;
     };
     typedef SkTArray<std::unique_ptr<OpNode>, true> OpsTask;
 
@@ -172,8 +172,8 @@ private:
 #define GR_AUDIT_TRAIL_RESET(audit_trail) \
     //GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, fullReset);
 
-#define GR_AUDIT_TRAIL_ADD_OP(audit_trail, op, proxy_id) \
-    GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, addOp, op, proxy_id)
+#define GR_AUDIT_TRAIL_ADD_OP(audit_trail, op) \
+    GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, addOp, op)
 
 #define GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(audit_trail, combineWith, op) \
     GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, opsCombined, combineWith, op)

@@ -117,17 +117,19 @@ public:
     int width() const { return this->dimensions().width(); }
     int height() const { return this->dimensions().height(); }
 
-    SkISize worstCaseDimensions() const;
+    SkISize dimensionsWhenAllocated() const;
 
     /**
-     * Helper that gets the width and height of the surface as a bounding rectangle.
+     * Helper that gets the width and height of the proxy as a bounding rectangle.
      */
     SkRect getBoundsRect() const { return SkRect::Make(this->dimensions()); }
 
     /**
-     * Helper that gets the worst case width and height of the surface as a bounding rectangle.
+     * Helper that gets the dimensions the backing GrSurface will have as a bounding rectangle.
      */
-    SkRect getWorstCaseBoundsRect() const { return SkRect::Make(this->worstCaseDimensions()); }
+    SkRect getWhenAllocatedBoundsRect() const {
+        return SkRect::Make(this->dimensionsWhenAllocated());
+    }
 
     GrSurfaceOrigin origin() const {
         SkASSERT(kTopLeft_GrSurfaceOrigin == fOrigin || kBottomLeft_GrSurfaceOrigin == fOrigin);
@@ -138,6 +140,7 @@ public:
 
     const GrBackendFormat& backendFormat() const { return fFormat; }
 
+#if 0
     class UniqueID {
     public:
         static UniqueID InvalidID() {
@@ -191,6 +194,7 @@ public:
 
         return fUniqueID;
     }
+#endif
 
     virtual bool instantiate(GrResourceProvider*) = 0;
 
@@ -397,7 +401,7 @@ private:
                                       // Only meaningful if fLazyInstantiateCallback is non-null.
     UseAllocator           fUseAllocator;
 
-    const UniqueID         fUniqueID; // set from the backing resource for wrapped resources
+//    const UniqueID         fUniqueID; // set from the backing resource for wrapped resources
 
     LazyInstantiateCallback fLazyInstantiateCallback;
 
