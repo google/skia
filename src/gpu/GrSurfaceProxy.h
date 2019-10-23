@@ -117,17 +117,19 @@ public:
     int width() const { return this->dimensions().width(); }
     int height() const { return this->dimensions().height(); }
 
-    SkISize worstCaseDimensions() const;
+    SkISize backingStoreDimensions() const;
 
     /**
-     * Helper that gets the width and height of the surface as a bounding rectangle.
+     * Helper that gets the width and height of the proxy as a bounding rectangle.
      */
     SkRect getBoundsRect() const { return SkRect::Make(this->dimensions()); }
 
     /**
-     * Helper that gets the worst case width and height of the surface as a bounding rectangle.
+     * Helper that gets the dimensions the backing GrSurface will have as a bounding rectangle.
      */
-    SkRect getWorstCaseBoundsRect() const { return SkRect::Make(this->worstCaseDimensions()); }
+    SkRect backingStoreBoundsRect() const {
+        return SkRect::Make(this->backingStoreDimensions());
+    }
 
     GrSurfaceOrigin origin() const {
         SkASSERT(kTopLeft_GrSurfaceOrigin == fOrigin || kBottomLeft_GrSurfaceOrigin == fOrigin);
