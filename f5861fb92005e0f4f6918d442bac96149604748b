@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a326122_cac0b014",
+        "filename": "src/gpu/GrCoordTransform.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-23T16:47:42Z",
+      "side": 1,
+      "message": "This could probably work in the new world but - yeah - as a separate CL.",
+      "parentUuid": "68ff3b18_9de6e889",
+      "range": {
+        "startLine": 87,
+        "startChar": 24,
+        "endLine": 87,
+        "endChar": 92
+      },
+      "revId": "f5861fb92005e0f4f6918d442bac96149604748b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bec25677_07bbdbad",
         "filename": "src/gpu/GrSurfaceProxy.h",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2019-10-23T15:36:03Z",
       "side": 1,
       "message": "Somewhat awkward, could it be getBoundsRectWhenAllocated()? Or just getBoundsWhenAllocated()? That matches dimensionsWhenAllocated better.",
+      "range": {
+        "startLine": 130,
+        "startChar": 11,
+        "endLine": 130,
+        "endChar": 37
+      },
+      "revId": "f5861fb92005e0f4f6918d442bac96149604748b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b89d54df_1290fbf4",
+        "filename": "src/gpu/GrSurfaceProxy.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-23T16:47:42Z",
+      "side": 1,
+      "message": "Should now be backingStoreDimensions and backingStoreBoundsRect.",
+      "parentUuid": "bec25677_07bbdbad",
       "range": {
         "startLine": 130,
         "startChar": 11,
