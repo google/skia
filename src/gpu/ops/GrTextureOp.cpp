@@ -196,8 +196,8 @@ public:
         str.appendf("# draws: %d\n", fQuads.count());
         auto iter = fQuads.iterator();
         for (unsigned p = 0; p < fProxyCnt; ++p) {
-            str.appendf("Proxy ID: %d, Filter: %d\n",
-                        fProxyCountPairs[p].fProxy->uniqueID().asUInt(),
+            str.appendf("Proxy: %p, Filter: %d\n",
+                        fProxyCountPairs[p].fProxy,
                         static_cast<int>(fFilter));
             int i = 0;
             while(i < fProxyCountPairs[p].fQuadCnt && iter.next()) {
@@ -314,7 +314,7 @@ private:
         fAAType = static_cast<unsigned>(aaType);
 
         // We expect our caller to have already caught this optimization.
-        SkASSERT(!domainRect || !domainRect->contains(proxy->getWorstCaseBoundsRect()));
+        SkASSERT(!domainRect || !domainRect->contains(proxy->getWhenAllocatedBoundsRect()));
 
         // We may have had a strict constraint with nearest filter solely due to possible AA bloat.
         // If we don't have (or determined we don't need) coverage AA then we can skip using a
@@ -397,7 +397,7 @@ private:
             const SkRect* domainForQuad = nullptr;
             if (constraint == SkCanvas::kStrict_SrcRectConstraint) {
                 // Check (briefly) if the strict constraint is needed for this set entry
-                if (!set[p].fSrcRect.contains(curProxy->getWorstCaseBoundsRect()) &&
+                if (!set[p].fSrcRect.contains(curProxy->getWhenAllocatedBoundsRect()) &&
                     (mustFilter || aaForQuad == GrAAType::kCoverage)) {
                     // Can't rely on hardware clamping and the draw will access outer texels
                     // for AA and/or bilerp
@@ -670,8 +670,7 @@ private:
         }
         auto thisProxy = fProxyCountPairs[0].fProxy;
         auto thatProxy = that->fProxyCountPairs[0].fProxy;
-        if (fProxyCnt > 1 || that->fProxyCnt > 1 ||
-            thisProxy->uniqueID() != thatProxy->uniqueID()) {
+        if (fProxyCnt > 1 || that->fProxyCnt > 1 || thisProxy != thatProxy) {
             // We can't merge across different proxies. Check if 'this' can be chained with 'that'.
             if (GrTextureProxy::ProxiesAreCompatibleAsDynamicState(thisProxy, thatProxy) &&
                 caps.dynamicStateArrayGeometryProcessorTextureSupport()) {
@@ -738,7 +737,7 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                const GrQuad& localQuad,
                                const SkRect* domain) {
     // Apply optimizations that are valid whether or not using GrTextureOp or GrFillRectOp
-    if (domain && domain->contains(proxy->getWorstCaseBoundsRect())) {
+    if (domain && domain->contains(proxy->getWhenAllocatedBoundsRect())) {
         // No need for a shader-based domain if hardware clamping achieves the same effect
         domain = nullptr;
     }

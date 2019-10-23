@@ -117,7 +117,6 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface,
                             ? SkBudgeted::kYes
                             : SkBudgeted::kNo)
         , fUseAllocator(useAllocator)
-        , fUniqueID(fTarget->uniqueID())  // Note: converting from unique resource ID to a proxy ID!
         , fIsProtected(fTarget->isProtected() ? GrProtected::kYes : GrProtected::kNo)
         , fGpuMemorySize(kInvalidGpuMemorySize) {
     SkASSERT(fFormat.isValid());
@@ -266,7 +265,7 @@ void GrSurfaceProxy::computeScratchKey(GrScratchKey* key) const {
         mipMapped = tp->mipMapped();
     }
 
-    GrTexturePriv::ComputeScratchKey(this->config(), this->worstCaseDimensions(), renderable,
+    GrTexturePriv::ComputeScratchKey(this->config(), this->dimensionsWhenAllocated(), renderable,
                                      sampleCount, mipMapped, fIsProtected, key);
 }
 
@@ -285,7 +284,7 @@ GrOpsTask* GrSurfaceProxy::getLastOpsTask() {
     return fLastRenderTask ? fLastRenderTask->asOpsTask() : nullptr;
 }
 
-SkISize GrSurfaceProxy::worstCaseDimensions() const {
+SkISize GrSurfaceProxy::dimensionsWhenAllocated() const {
     SkASSERT(!this->isFullyLazy());
     if (fTarget) {
         return fTarget->dimensions();

@@ -83,6 +83,7 @@ public:
 
     int maxWindowRectangles() const;
 
+#if 0
     /*
      * This unique ID will not change for a given RenderTargetContext. However, it is _NOT_
      * guaranteed to match the uniqueID of the underlying GrRenderTarget - beware!
@@ -90,6 +91,7 @@ public:
     GrSurfaceProxy::UniqueID uniqueID() const {
         return fRenderTargetContext->fRenderTargetProxy->uniqueID();
     }
+#endif
 
     uint32_t testingOnly_getOpsTaskID();
 
