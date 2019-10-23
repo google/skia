@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "70b97c6d_754dbe02",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-10-23T15:46:56Z",
+      "side": 1,
+      "message": "Everything related to this type is totally orthogonal to the main thrust of the change. kRowBytesOdd has been disabled forever and there is no plan to make such a thing work. We require the row bytes to be a multiple of bpp more than ever.",
+      "range": {
+        "startLine": 258,
+        "startChar": 0,
+        "endLine": 258,
+        "endChar": 46
+      },
+      "revId": "13c8ec09da0cfc448e60c1a8abfddc4e3b10db4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d32e3f8_c6aaed19",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 648,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-10-23T15:46:56Z",
+      "side": 1,
+      "message": "This originated as the code from the left side in DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, ...) but is substantially different.",
+      "range": {
+        "startLine": 648,
+        "startChar": 12,
+        "endLine": 648,
+        "endChar": 39
+      },
+      "revId": "13c8ec09da0cfc448e60c1a8abfddc4e3b10db4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
