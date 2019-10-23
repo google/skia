@@ -66,7 +66,7 @@ toolchain("msvc") {
   if (is_winrt) {
     _target += " uwp 10.0.10240.0 -vcvars_ver=14.1"
   } else {
-    _target += " 8.1 -vcvars_ver=14.1"
+    _target += " 10.0.10240.0 -vcvars_ver=14.1"
   }
 
   _vcvarsall = "$win_vc/Auxiliary/Build/vcvarsall.bat"
