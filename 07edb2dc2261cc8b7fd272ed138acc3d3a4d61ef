@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da85682e_dbc6bcb5",
+        "filename": "src/core/SkTextBlobTrace.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-23T17:23:11Z",
+      "side": 1,
+      "message": "Add comment about:\nUse `extra_cflags\u003d[\"-DSK_CAPTURE_DRAW_TEXT_BLOB\"]` to enable.",
+      "revId": "07edb2dc2261cc8b7fd272ed138acc3d3a4d61ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "852a99a6_84609043",
+        "filename": "tests/SkRemoteGlyphCacheTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-23T17:23:11Z",
+      "side": 1,
+      "message": "Remove comment",
+      "range": {
+        "startLine": 97,
+        "startChar": 39,
+        "endLine": 97,
+        "endChar": 40
+      },
+      "revId": "07edb2dc2261cc8b7fd272ed138acc3d3a4d61ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
