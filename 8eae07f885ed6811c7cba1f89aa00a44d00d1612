@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "acaec048_0866c1e4",
+        "filename": "gn/ar.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-23T20:50:55Z",
+      "side": 1,
+      "message": "Is it possible to invoke libtool so that output is on the command line?  Otherwise kind of tricky to cross reference that `output` is indeed somehow communicated to it...\n\nAlternatively, can we jam output in the other rspfiles?",
+      "revId": "8eae07f885ed6811c7cba1f89aa00a44d00d1612",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "544a203f_84533cc4",
+        "filename": "gn/toolchain/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-23T20:50:55Z",
+      "side": 1,
+      "message": "Since we\u0027re no longer even strictly calling \"ar\" any more in both cases, might want to try what this looks like removing the .py script altogether, and instead just embedding the conditional logic of ar vs. libtool here?  I think I just had to fall back to a .py script to filter out those warnings.",
+      "revId": "8eae07f885ed6811c7cba1f89aa00a44d00d1612",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
