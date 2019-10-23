@@ -30,7 +30,7 @@ void FuzzSkDescriptorDeserialize(sk_sp<SkData> bytes) {
 #if defined(IS_FUZZING_WITH_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     auto bytes = SkData::MakeWithoutCopy(data, size);
-    FuzzSkDescriptorDeserialize(&fuzz);
+    FuzzSkDescriptorDeserialize(bytes);
     return 0;
 }
 #endif
