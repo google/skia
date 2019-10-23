@@ -85,8 +85,10 @@ def nanobench_flags(api, bot):
         gl_prefix = 'gles'
       # iOS crashes with MSAA (skia:6399)
       # Nexus7 (Tegra3) does not support MSAA.
+      # MSAA is disabled on Pixel3a (https://b.corp.google.com/issues/143074513).
       if ('iOS'     in bot or
-          'Nexus7'  in bot):
+          'Nexus7'  in bot or
+          'Pixel3a' in bot):
         sample_count = ''
     elif 'Intel' in bot:
       # MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926

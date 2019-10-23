@@ -3290,6 +3290,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fMipMapSupport = false;
     }
 
+    // https://b.corp.google.com/issues/143074513
+    if (kAdreno615_GrGLRenderer == ctxInfo.renderer()) {
+        fMSFBOType = kNone_MSFBOType;
+        fMSAAResolvesAutomatically = false;
+    }
+
 #ifndef SK_BUILD_FOR_IOS
     if (kPowerVR54x_GrGLRenderer == ctxInfo.renderer() ||
         kPowerVRRogue_GrGLRenderer == ctxInfo.renderer() ||
