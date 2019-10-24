@@ -209,10 +209,9 @@ private:
     int fCacheMissCount[SkStrikeClient::CacheMissType::kLast + 1u];
 };
 
-
-class SkDiffCanvasBench : public Benchmark {
-    std::string fBenchName;
-    std::string fTraceName;
+class DiffCanvasBench : public Benchmark {
+    SkString fBenchName;
+    std::function<std::unique_ptr<SkStreamAsset>()> fDataProvider;
     std::vector<SkTextBlobTrace::Record> fTrace;
     sk_sp<DiscardableManager> fDiscardableManager;
     SkTLazy<SkStrikeServer> fServer;
@@ -234,18 +233,23 @@ class SkDiffCanvasBench : public Benchmark {
     }
 
     void onDelayedSetup() override {
-        auto resource = std::string("diff_canvas_traces/") + fTraceName + ".trace";
-        auto stream = GetResourceAsStream(resource.c_str());
+        auto stream = fDataProvider();
         fDiscardableManager = sk_make_sp<DiscardableManager>();
         fServer.init(fDiscardableManager.get());
         fTrace = SkTextBlobTrace::CreateBlobTrace(stream.get());
     }
 
 public:
-    SkDiffCanvasBench(const std::string& trace)
-        : fBenchName(std::string("SkDiffBench-") + trace)
-        , fTraceName(trace) {}
+    DiffCanvasBench(SkString n, std::function<std::unique_ptr<SkStreamAsset>()> f)
+        : fBenchName(std::move(n)), fDataProvider(std::move(f)) {}
 };
 }  // namespace
 
-DEF_BENCH( return new SkDiffCanvasBench{"lorem_ipsum"});
+Benchmark* CreateDiffCanvasBench(
+        SkString name, std::function<std::unique_ptr<SkStreamAsset>()> dataSrc) {
+    return new DiffCanvasBench(std::move(name), std::move(dataSrc));
+}
+
+DEF_BENCH( return CreateDiffCanvasBench(
+        SkString("SkDiffBench-lorem_ipsum"),
+        [](){ return GetResourceAsStream("diff_canvas_traces/lorem_ipsum.trace"); }));
