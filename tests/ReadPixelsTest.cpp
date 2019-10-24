@@ -930,7 +930,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
                                                           const SkIVector& offset,
                                                           const SkPixmap& pixels) {
         AsyncContext context;
-        auto rect = SkIRect::MakeSize(pixels.dimensions()).makeOffset(offset);
+        auto rect = SkIRect::Make(pixels.dimensions()).makeOffset(offset);
 
         // Rescale quality and linearity don't matter since we're doing a non-scaling readback.
         surface->asyncRescaleAndReadPixels(pixels.info(), rect, SkSurface::RescaleGamma::kSrc,
@@ -989,7 +989,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LegacyAsyncReadPixels, reporter, ctxInfo) {
 
         Context context;
         context.fPixmap = &pixels;
-        auto rect = SkIRect::MakeSize(pixels.dimensions()).makeOffset(offset);
+        auto rect = SkIRect::Make(pixels.dimensions()).makeOffset(offset);
 
         // Rescale quality and linearity don't matter since we're doing a non-scaling readback.
         surface->asyncRescaleAndReadPixels(pixels.info(), rect, SkSurface::RescaleGamma::kSrc,

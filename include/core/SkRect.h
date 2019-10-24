@@ -58,8 +58,12 @@ struct SK_API SkIRect {
         @param size  values for SkIRect width and height
         @return      bounds (0, 0, size.width(), size.height())
     */
-    static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeSize(const SkISize& size) {
+    static constexpr SkIRect SK_WARN_UNUSED_RESULT Make(const SkISize& size) {
         return SkIRect{0, 0, size.fWidth, size.fHeight};
+    }
+    // deprecated alias to above Make. Will be removed.
+    static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeSize(const SkISize& size) {
+        return Make(size);
     }
 
     /** Returns constructed SkIRect set to (l, t, r, b). Does not sort input; SkIRect may

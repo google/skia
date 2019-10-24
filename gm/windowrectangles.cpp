@@ -180,7 +180,7 @@ private:
     bool apply(GrRecordingContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip* out,
                SkRect* bounds) const override {
         out->addCoverageFP(GrDeviceSpaceTextureDecalFragmentProcessor::Make(
-                fMask, SkIRect::MakeSize(fMask->dimensions()), {fX, fY}));
+                fMask, SkIRect::Make(fMask->dimensions()), {fX, fY}));
         return true;
     }
     sk_sp<GrTextureProxy> fMask;

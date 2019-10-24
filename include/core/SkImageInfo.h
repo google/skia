@@ -545,7 +545,7 @@ public:
 
         @return  integral rectangle from origin to width() and height()
     */
-    SkIRect bounds() const { return SkIRect::MakeSize(fDimensions); }
+    SkIRect bounds() const { return SkIRect::Make(fDimensions); }
 
     /** Returns true if associated SkColorSpace is not nullptr, and SkColorSpace gamma
         is approximately the same as sRGB.

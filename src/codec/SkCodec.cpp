@@ -225,7 +225,7 @@ static SkIRect frame_rect_on_screen(SkIRect frameRect,
 
 bool zero_rect(const SkImageInfo& dstInfo, void* pixels, size_t rowBytes,
                SkISize srcDimensions, SkIRect prevRect) {
-    prevRect = frame_rect_on_screen(prevRect, SkIRect::MakeSize(srcDimensions));
+    prevRect = frame_rect_on_screen(prevRect, SkIRect::Make(srcDimensions));
     if (prevRect.isEmpty()) {
         return true;
     }
@@ -436,7 +436,7 @@ SkCodec::Result SkCodec::startIncrementalDecode(const SkImageInfo& dstInfo, void
         options = &optsStorage;
     } else {
         if (options->fSubset) {
-            SkIRect size = SkIRect::MakeSize(info.dimensions());
+            SkIRect size = SkIRect::Make(info.dimensions());
             if (!size.contains(*options->fSubset)) {
                 return kInvalidParameters;
             }
@@ -498,7 +498,7 @@ SkCodec::Result SkCodec::startScanlineDecode(const SkImageInfo& dstInfo,
     if (nullptr == options) {
         options = &optsStorage;
     } else if (options->fSubset) {
-        SkIRect size = SkIRect::MakeSize(info.dimensions());
+        SkIRect size = SkIRect::Make(info.dimensions());
         if (!size.contains(*options->fSubset)) {
             return kInvalidInput;
         }

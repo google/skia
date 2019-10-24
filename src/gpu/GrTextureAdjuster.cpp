@@ -25,7 +25,7 @@ GrTextureAdjuster::GrTextureAdjuster(GrRecordingContext* context,
 void GrTextureAdjuster::makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) {
     // Destination color space is irrelevant - we already have a texture so we're just sub-setting
     GrUniqueKey baseKey;
-    GrMakeKeyFromImageID(&baseKey, fUniqueID, SkIRect::MakeSize(this->dimensions()));
+    GrMakeKeyFromImageID(&baseKey, fUniqueID, SkIRect::Make(this->dimensions()));
     MakeCopyKeyFromOrigKey(baseKey, params, copyKey);
 }
 

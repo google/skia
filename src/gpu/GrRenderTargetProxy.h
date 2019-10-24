@@ -64,7 +64,7 @@ public:
     bool wrapsVkSecondaryCB() const { return fWrapsVkSecondaryCB == WrapsVkSecondaryCB::kYes; }
 
     void markMSAADirty(const SkIRect& dirtyRect) {
-        SkASSERT(SkIRect::MakeSize(this->dimensions()).contains(dirtyRect));
+        SkASSERT(SkIRect::Make(this->dimensions()).contains(dirtyRect));
         SkASSERT(this->requiresManualMSAAResolve());
         fMSAADirtyRect.join(dirtyRect);
     }

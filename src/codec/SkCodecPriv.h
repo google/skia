@@ -31,7 +31,7 @@ static inline float get_scale_from_sample_size(int sampleSize) {
 }
 
 static inline bool is_valid_subset(const SkIRect& subset, const SkISize& imageDims) {
-    return SkIRect::MakeSize(imageDims).contains(subset);
+    return SkIRect::Make(imageDims).contains(subset);
 }
 
 /*

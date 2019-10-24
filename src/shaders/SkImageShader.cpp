@@ -246,7 +246,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
                                       domainY, kDir, fImage->alphaType());
     } else {
         if (domainX != GrTextureDomain::kIgnore_Mode || domainY != GrTextureDomain::kIgnore_Mode) {
-            SkRect domain = GrTextureDomain::MakeTexelDomain(SkIRect::MakeSize(proxy->dimensions()),
+            SkRect domain = GrTextureDomain::MakeTexelDomain(SkIRect::Make(proxy->dimensions()),
                                                              domainX, domainY);
             inner = GrTextureDomainEffect::Make(std::move(proxy), srcColorType, lmInverse, domain,
                                                 domainX, domainY, samplerState);

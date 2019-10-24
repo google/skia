@@ -90,8 +90,7 @@ public:
         if (domain) {
             resolvedDomain = *domain;
         } else {
-            resolvedDomain = GrTextureDomain::MakeTexelDomain(
-                    SkIRect::MakeSize(proxy->dimensions()), modeX, modeY);
+            resolvedDomain = GrTextureDomain::MakeTexelDomain(SkIRect::Make(proxy->dimensions()), modeX, modeY);
         }
         return std::unique_ptr<GrFragmentProcessor>(
                 new GrBicubicEffect(std::move(proxy), srcColorType, matrix, resolvedDomain,
