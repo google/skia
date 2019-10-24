@@ -283,10 +283,8 @@ private:
         GrPipeline::DynamicStateArrays* fDynamicStateArrays = nullptr;
         GrPipeline::FixedDynamicState*  fFixedDynamicState = nullptr;
 
-        // These two member variables are only used by 'onPrePrepareDraws'. The prior five are also
+        // This member variable is only used by 'onPrePrepareDraws'. The prior five are also
         // used by 'onPrepareDraws'
-        // TODO: we could just recompute 'fVertexOffsets' in onPrepareDraws
-        int*                            fVertexOffsets = nullptr;
         char*                           fVertices = nullptr;
 
         // How big should 'fVertices' be to hold all the vertex data?
@@ -294,11 +292,9 @@ private:
             return fNumTotalQuads * fVertexSpec.verticesPerQuad() * fVertexSpec.vertexSize();
         }
 
-#ifdef SK_DEBUG
         int totalNumVertices() const {
             return fNumTotalQuads * fVertexSpec.verticesPerQuad();
         }
-#endif
 
         // Helper to fill in the fFixedDynamicState and fDynamicStateArrays. If there is more
         // than one mesh/proxy they are stored in fDynamicStateArrays but if there is only one
@@ -351,7 +347,6 @@ private:
 
         // Allocate the fields only needed by onPrePrepareDraws
         void allocatePrePrepareOnly(SkArenaAlloc* arena) {
-            fVertexOffsets = arena->makeArrayDefault<int>(fNumProxies);
             fVertices = arena->makeArrayDefault<char>(this->totalSizeInBytes());
         }
 
@@ -556,16 +551,18 @@ private:
                     int meshVertexCnt = quadCnt * fPrePreparedDesc->fVertexSpec.verticesPerQuad();
                     SkDEBUGCODE(totVerticesSeen += meshVertexCnt);
 
-                    Tess(dst, fPrePreparedDesc->fVertexSpec, proxy, &iter, quadCnt, op.filter());
+                    SkASSERT(meshIndex < fPrePreparedDesc->fNumProxies);
 
-                    fPrePreparedDesc->fVertexOffsets[meshIndex] = vertexOffsetInBuffer;
+                    Tess(dst, fPrePreparedDesc->fVertexSpec, proxy, &iter, quadCnt, op.filter());
+                    fPrePreparedDesc->setMeshProxy(meshIndex, proxy);
+
                     SkASSERT(vertexOffsetInBuffer * vertexSize ==
                              (size_t)(dst - fPrePreparedDesc->fVertices));
-                    fPrePreparedDesc->setMeshProxy(meshIndex, proxy);
+                    dst += vertexSize * meshVertexCnt;
+
                     ++meshIndex;
 
                     vertexOffsetInBuffer += meshVertexCnt;
-                    dst += vertexSize * meshVertexCnt;
                 }
                 // If quad counts per proxy were calculated correctly, the entire iterator
                 // should have been consumed.
@@ -655,70 +652,62 @@ private:
             desc.fVertexSpec = this->characterize(&desc.fNumProxies, &desc.fNumTotalQuads);
             desc.allocateCommon(arena, target->appliedClip());
 
-            SkASSERT(!desc.fVertexOffsets && !desc.fVertices);
+            SkASSERT(!desc.fVertices);
         }
 
         size_t vertexSize = desc.fVertexSpec.vertexSize();
 
-        GrMesh* meshes = target->allocMeshes(desc.fNumProxies);
         sk_sp<const GrBuffer> vbuffer;
         int vertexOffsetInBuffer = 0;
-        int numQuadVerticesLeft = desc.fNumTotalQuads * desc.fVertexSpec.verticesPerQuad();
-        int numAllocatedVertices = 0;
-        void* vdata = nullptr;
+
+        void* vdata = target->makeVertexSpace(vertexSize, desc.totalNumVertices(),
+                                              &vbuffer, &vertexOffsetInBuffer);
+        if (!vdata) {
+            SkDebugf("Could not allocate vertices\n");
+            return;
+        }
+
+        if (fPrePreparedDesc) {
+            memcpy(vdata, desc.fVertices, desc.totalSizeInBytes());
+        }
+
+        GrMesh* meshes = target->allocMeshes(desc.fNumProxies);
 
         int meshIndex = 0;
         for (const auto& op : ChainRange<TextureOp>(this)) {
             auto iter = op.fQuads.iterator();
             for (unsigned p = 0; p < op.fProxyCnt; ++p) {
-                int quadCnt = op.fProxyCountPairs[p].fQuadCnt;
                 auto* proxy = op.fProxyCountPairs[p].fProxy;
+                int quadCnt = op.fProxyCountPairs[p].fQuadCnt;
                 int meshVertexCnt = quadCnt * desc.fVertexSpec.verticesPerQuad();
-                if (numAllocatedVertices < meshVertexCnt) {
-                    vdata = target->makeVertexSpaceAtLeast(
-                            vertexSize, meshVertexCnt, numQuadVerticesLeft, &vbuffer,
-                            &vertexOffsetInBuffer, &numAllocatedVertices);
-                    SkASSERT(numAllocatedVertices <= numQuadVerticesLeft);
-                    if (!vdata) {
-                        SkDebugf("Could not allocate vertices\n");
-                        return;
-                    }
-                }
-                SkASSERT(numAllocatedVertices >= meshVertexCnt);
+
+                SkASSERT(meshIndex < desc.fNumProxies);
 
                 if (fPrePreparedDesc) {
-                    // TODO: when we've prePrepared the vertex data should we just allocate
-                    // all the vertices together and just do one memcpy?
-                    size_t offset = desc.fVertexOffsets[meshIndex] * vertexSize;
-                    memcpy(vdata, &desc.fVertices[offset], meshVertexCnt * vertexSize);
                     SkASSERT(proxy == desc.getMeshProxy(meshIndex));
                 } else {
                     Tess(vdata, desc.fVertexSpec, proxy, &iter, quadCnt, op.filter());
                     desc.setMeshProxy(meshIndex, proxy);
+                    vdata = reinterpret_cast<char*>(vdata) + vertexSize * meshVertexCnt;
                 }
 
-                SkASSERT(meshIndex < desc.fNumProxies);
-
-                if (!GrQuadPerEdgeAA::ConfigureMeshIndices(target, &(meshes[meshIndex]),
-                                                           desc.fVertexSpec, quadCnt)) {
-                    SkDebugf("Could not allocate indices");
-                    return;
+                if (meshes) {
+                    if (!GrQuadPerEdgeAA::ConfigureMeshIndices(target, &(meshes[meshIndex]),
+                                                               desc.fVertexSpec, quadCnt)) {
+                        SkDebugf("Could not allocate indices");
+                        return;
+                    }
+                    meshes[meshIndex].setVertexData(vbuffer, vertexOffsetInBuffer);
                 }
-                meshes[meshIndex].setVertexData(vbuffer, vertexOffsetInBuffer);
                 ++meshIndex;
 
-                numAllocatedVertices -= meshVertexCnt;
-                numQuadVerticesLeft -= meshVertexCnt;
                 vertexOffsetInBuffer += meshVertexCnt;
-                vdata = reinterpret_cast<char*>(vdata) + vertexSize * meshVertexCnt;
             }
 
             // If quad counts per proxy were calculated correctly, the entire iterator should
             // have been consumed.
             SkASSERT(fPrePreparedDesc || !iter.next());
         }
-        SkASSERT(!numQuadVerticesLeft);
-        SkASSERT(!numAllocatedVertices);
 
         sk_sp<GrGeometryProcessor> gp;
 
