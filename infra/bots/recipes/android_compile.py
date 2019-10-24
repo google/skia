@@ -13,6 +13,7 @@ DEPS = [
   'recipe_engine/properties',
   'recipe_engine/raw_io',
   'recipe_engine/step',
+  'run',
   'vars',
 ]
 
@@ -58,7 +59,8 @@ def RunSteps(api):
          '--patchset', api.vars.patchset,
         ]
   try:
-    api.step('Trigger and wait for task on android compile server', cmd=cmd)
+    with api.context(cwd=api.path['start_dir'].join('skia')):
+      api.run(api.step, 'Trigger and wait for task on android compile server', cmd=cmd)
   except api.step.StepFailure as e:
     # Add withpatch and nopatch logs as links (if they exist).
     gs_file = 'gs://android-compile-tasks/%s-%s-%s.json' % (

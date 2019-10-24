@@ -17,6 +17,8 @@ import time
 import uuid
 
 
+SKIA_REPO = 'https://skia.googlesource.com/skia.git'
+
 GCLIENT = 'gclient.bat' if sys.platform == 'win32' else 'gclient'
 WHICH = 'where' if sys.platform == 'win32' else 'which'
 GIT = subprocess.check_output([WHICH, 'git']).splitlines()[0]
