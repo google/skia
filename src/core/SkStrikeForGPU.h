@@ -48,6 +48,7 @@ public:
     static bool CanDrawAsMask(const SkGlyph& glyph);
     static bool CanDrawAsSDFT(const SkGlyph& glyph);
     static bool CanDrawAsPath(const SkGlyph& glyph);
+    static bool FitsInAtlas(const SkGlyph& glyph);
 
 
     struct Deleter {
