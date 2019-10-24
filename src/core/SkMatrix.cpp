@@ -1627,7 +1627,7 @@ bool SkTreatAsSprite(const SkMatrix& mat, const SkISize& size, const SkPaint& pa
     }
 
     SkRect dst;
-    SkIRect isrc = SkIRect::MakeSize(size);
+    SkIRect isrc = SkIRect::Make(size);
 
     {
         SkRect src;

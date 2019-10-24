@@ -97,7 +97,7 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
         GrTextureProxy* proxy,
         const GrSamplerState::Filter* filterModeOrNullForBicubic,
         SkRect* domainRect) {
-    const SkIRect proxyBounds = SkIRect::MakeSize(proxy->dimensions());
+    const SkIRect proxyBounds = SkIRect::Make(proxy->dimensions());
 
     SkASSERT(proxyBounds.contains(constraintRect));
 

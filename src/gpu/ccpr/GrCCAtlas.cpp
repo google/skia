@@ -248,7 +248,7 @@ std::unique_ptr<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
         return nullptr;
     }
 
-    SkIRect clearRect = SkIRect::MakeSize(fDrawBounds);
+    SkIRect clearRect = SkIRect::Make(fDrawBounds);
     rtc->clear(&clearRect, SK_PMColor4fTRANSPARENT,
                GrRenderTargetContext::CanClearFullscreen::kYes);
     return rtc;

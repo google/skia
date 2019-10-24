@@ -7,6 +7,7 @@ This file includes a list of high level updates for each milestone release.
 Milestone 80
 
 <Insert new notes here- top is most recent.>
+  * Renamed SkIRect::MakeSize to SkIRect::Make
 
 * * *
 

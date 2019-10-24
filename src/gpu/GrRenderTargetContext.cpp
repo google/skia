@@ -2389,7 +2389,7 @@ bool GrRenderTargetContext::setupDstProxy(const GrClip& clip, const GrOp& op,
         }
     }
 
-    SkIRect copyRect = SkIRect::MakeSize(fRenderTargetProxy->dimensions());
+    SkIRect copyRect = SkIRect::Make(fRenderTargetProxy->dimensions());
 
     SkIRect clippedRect;
     clip.getConservativeBounds(
@@ -2403,7 +2403,7 @@ bool GrRenderTargetContext::setupDstProxy(const GrClip& clip, const GrOp& op,
         // performance we may ignore the clip when the draw is entirely inside the clip is float
         // space but will hit pixels just outside the clip when actually rasterizing.
         clippedRect.outset(1, 1);
-        clippedRect.intersect(SkIRect::MakeSize(fRenderTargetProxy->dimensions()));
+        clippedRect.intersect(SkIRect::Make(fRenderTargetProxy->dimensions()));
     }
     SkIRect opIBounds;
     opBounds.roundOut(&opIBounds);

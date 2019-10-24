@@ -81,7 +81,7 @@ public:
                                                      rtc->colorInfo().alphaType(),
                                                      SkIPoint::Make(0, 0),
                                                      nullptr,
-                                                     SkIRect::MakeSize(dimensions),
+                                                     SkIRect::Make(dimensions),
                                                      SkIRect::EmptyIRect(),
                                                      xformedSigma,
                                                      xformedSigma,

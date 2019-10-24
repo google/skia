@@ -565,7 +565,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
     GrColorType colorType = ctx.grColorType();
 
     // setup new clip
-    const GrFixedClip clip(SkIRect::MakeSize(srcTexture->dimensions()));
+    const GrFixedClip clip(SkIRect::Make(srcTexture->dimensions()));
 
     const SkIRect dstRect = SkIRect::MakeWH(rect.width(), rect.height());
     SkIRect srcRect = rect;
