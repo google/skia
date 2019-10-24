@@ -144,20 +144,6 @@ private:
 };
 }
 
-static void check_refs(skiatest::Reporter* reporter,
-                       GrTextureProxy* proxy,
-                       int32_t expectedProxyRefs,
-                       int32_t expectedBackingRefs) {
-    int32_t actualProxyRefs = proxy->refCnt();
-    int32_t actualBackingRefs = proxy->testingOnly_getBackingRefCnt();
-
-    SkASSERT(actualProxyRefs == expectedProxyRefs);
-    SkASSERT(actualBackingRefs == expectedBackingRefs);
-
-    REPORTER_ASSERT(reporter, actualProxyRefs == expectedProxyRefs);
-    REPORTER_ASSERT(reporter, actualBackingRefs == expectedBackingRefs);
-}
-
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
@@ -203,11 +189,12 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                 // If the fp is cloned the number of refs should increase by one (for the clone)
                 int expectedProxyRefs = makeClone ? 3 : 2;
 
-                check_refs(reporter, proxy.get(), expectedProxyRefs, -1);
+                check_single_threaded_proxy_refs(reporter, proxy.get(), expectedProxyRefs, -1);
 
                 context->flush();
 
-                check_refs(reporter, proxy.get(), 1, 1); // just one from the 'proxy' sk_sp
+                // just one from the 'proxy' sk_sp
+                check_single_threaded_proxy_refs(reporter, proxy.get(), 1, 1);
             }
         }
     }

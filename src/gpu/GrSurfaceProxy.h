@@ -28,7 +28,7 @@ class GrSurfaceContext;
 class GrSurfaceProxyPriv;
 class GrTextureProxy;
 
-class GrSurfaceProxy : public GrNonAtomicRef<GrSurfaceProxy> {
+class GrSurfaceProxy : public SkNVRefCnt<GrSurfaceProxy> {
 public:
     virtual ~GrSurfaceProxy();
 

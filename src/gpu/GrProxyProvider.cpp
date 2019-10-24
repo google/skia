@@ -104,7 +104,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::findProxyByUniqueKey(const GrUniqueKey& k
 
     GrTextureProxy* proxy = fUniquelyKeyedProxies.find(key);
     if (proxy) {
-        SkASSERT(proxy->refCnt() >= 1);
         SkASSERT(proxy->origin() == origin);
         return sk_ref_sp(proxy);
     }

@@ -16,22 +16,9 @@
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrTextureProxy.h"
+#include "tests/TestUtils.h"
 
 static const int kWidthHeight = 128;
-
-static void check_refs(skiatest::Reporter* reporter,
-                       GrTextureProxy* proxy,
-                       int32_t expectedProxyRefs,
-                       int32_t expectedBackingRefs) {
-    int32_t actualProxyRefs = proxy->refCnt();
-    int32_t actualBackingRefs = proxy->testingOnly_getBackingRefCnt();
-
-    SkASSERT(actualProxyRefs == expectedProxyRefs);
-    SkASSERT(actualBackingRefs == expectedBackingRefs);
-
-    REPORTER_ASSERT(reporter, actualProxyRefs == expectedProxyRefs);
-    REPORTER_ASSERT(reporter, actualBackingRefs == expectedBackingRefs);
-}
 
 static sk_sp<GrTextureProxy> make_deferred(GrContext* context) {
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
@@ -69,13 +56,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
                 int backingRefs = proxy->isInstantiated() ? 1 : -1;
 
-                check_refs(reporter, proxy.get(), 2, backingRefs);
+                check_single_threaded_proxy_refs(reporter, proxy.get(), 2, backingRefs);
 
                 proxy->instantiate(resourceProvider);
 
-                check_refs(reporter, proxy.get(), 2, 1);
+                check_single_threaded_proxy_refs(reporter, proxy.get(), 2, 1);
             }
-            check_refs(reporter, proxy.get(), 1, 1);
+            check_single_threaded_proxy_refs(reporter, proxy.get(), 1, 1);
         }
 
         // Multiple normal refs
@@ -87,16 +74,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
                 int backingRefs = proxy->isInstantiated() ? 1 : -1;
 
-                check_refs(reporter, proxy.get(), 3, backingRefs);
+                check_single_threaded_proxy_refs(reporter, proxy.get(), 3, backingRefs);
 
                 proxy->instantiate(resourceProvider);
 
-                check_refs(reporter, proxy.get(), 3, 1);
+                check_single_threaded_proxy_refs(reporter, proxy.get(), 3, 1);
 
                 proxy->unref();
                 proxy->unref();
             }
-            check_refs(reporter, proxy.get(), 1, 1);
+            check_single_threaded_proxy_refs(reporter, proxy.get(), 1, 1);
         }
 
         // Continue using (reffing) proxy after instantiation
@@ -107,16 +94,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
                 int backingRefs = proxy->isInstantiated() ? 1 : -1;
 
-                check_refs(reporter, proxy.get(), 2, backingRefs);
+                check_single_threaded_proxy_refs(reporter, proxy.get(), 2, backingRefs);
 
                 proxy->instantiate(resourceProvider);
 
-                check_refs(reporter, proxy.get(), 2, 1);
+                check_single_threaded_proxy_refs(reporter, proxy.get(), 2, 1);
 
                 sk_sp<GrTextureProxy> secondExtraRef(proxy);
-                check_refs(reporter, proxy.get(), 3, 1);
+                check_single_threaded_proxy_refs(reporter, proxy.get(), 3, 1);
             }
-            check_refs(reporter, proxy.get(), 1, 1);
+            check_single_threaded_proxy_refs(reporter, proxy.get(), 1, 1);
         }
     }
 }
