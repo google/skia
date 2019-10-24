@@ -461,18 +461,26 @@ GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
         }
 
         // The AMD string can have a somewhat arbitrary preamble (see skbug.com/7195)
-        if (const char* amdString = strstr(rendererString, "Radeon")) {
+        static constexpr char kRadeonStr[] = "Radeon ";
+        if (const char* amdString = strstr(rendererString, kRadeonStr)) {
+            amdString += strlen(kRadeonStr);
             char amdGeneration, amdTier, amdRevision;
-            n = sscanf(amdString, "Radeon (TM) R9 M%c%c%c",
-                                       &amdGeneration, &amdTier, &amdRevision);
+            // Sometimes there is a (TM) and sometimes not.
+            static constexpr char kTMStr[] = "(TM) ";
+            if (!strncmp(amdString, kTMStr, strlen(kTMStr))) {
+                amdString += strlen(kTMStr);
+            }
+            n = sscanf(amdString, "R9 M%c%c%c", &amdGeneration, &amdTier, &amdRevision);
             if (3 == n) {
-                if ('4' == amdGeneration) {
+                if ('3' == amdGeneration) {
+                    return kAMDRadeonR9M3xx_GrGLRenderer;
+                } else if ('4' == amdGeneration) {
                     return kAMDRadeonR9M4xx_GrGLRenderer;
                 }
             }
 
             char amd0, amd1, amd2;
-            n = sscanf(amdString, "Radeon HD 7%c%c%c Series", &amd0, &amd1, &amd2);
+            n = sscanf(amdString, "HD 7%c%c%c Series", &amd0, &amd1, &amd2);
             if (3 == n) {
                 return kAMDRadeonHD7xxx_GrGLRenderer;
             }
