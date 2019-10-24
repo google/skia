@@ -19,6 +19,7 @@ import time
 INFRA_BOTS_DIR = os.path.abspath(os.path.realpath(os.path.join(
     os.path.dirname(os.path.abspath(__file__)), os.pardir)))
 sys.path.insert(0, INFRA_BOTS_DIR)
+import git_utils
 import utils
 
 
@@ -112,6 +113,27 @@ def _trigger_task(options):
 def trigger_and_wait(options):
   """Triggers a task on the compile server and waits for it to complete."""
   task = _trigger_task(options)
+
+  #### TESTING HERE
+  print 'Issue is:'
+  print task['issue']
+  print 'Get CWD:'
+  print os.getcwd()
+  with git_utils.NewGitCheckout(repository=utils.SKIA_REPO) as checkout:
+    print 'Get CWD2 in NewGitCheckout:'
+    print os.getcwd()
+    # If cannot publish because of WIP try to put comment without publishing to
+    # see what happens.
+    try:
+      subprocess.check_call(['git', 'cl', 'comments', '-i', '%s' % task['issue'], '-p', '-a', '"test comment"'])
+    except subprocess.CalledProcessError, e:
+      print 'Could not put a comment, probably because change is WIP'
+      print e
+      print 'Try again without "-p"'
+      subprocess.check_call(['git', 'cl', 'comments', '-i', '%s' % task['issue'], '-a', '"test comment"'])
+  return 0
+  #### TESTING HERE
+
   print 'Android Compile Task for %d/%d has been successfully added to %s.' % (
       options.issue, options.patchset, ANDROID_COMPILE_BUCKET)
   print '%s will be polled every %d seconds.' % (ANDROID_COMPILE_BUCKET,
