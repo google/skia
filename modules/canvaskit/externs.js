@@ -229,6 +229,14 @@ var CanvasKit = {
 		_makeShader: function() {},
 	},
 
+	SkImageFilter: {
+		MakeBlur: function() {},
+		MakeCompose: function() {},
+		MakeImage: function() {},
+		MakeMatrixTransform: function() {},
+		MakePicture: function() {},
+	},
+
 	SkMatrix: {
 		identity: function() {},
 		invert: function() {},
@@ -238,6 +246,10 @@ var CanvasKit = {
 		scaled: function() {},
 		skewed: function() {},
 		translated: function() {},
+	},
+
+	SkMaskFilter: {
+		MakeBlur: function() {},
 	},
 
 	SkPaint: {
@@ -255,6 +267,7 @@ var CanvasKit = {
 		setBlendMode: function() {},
 		setColor: function() {},
 		setFilterQuality: function() {},
+		setImageFilter: function() {},
 		setMaskFilter: function() {},
 		setPathEffect: function() {},
 		setShader: function() {},
