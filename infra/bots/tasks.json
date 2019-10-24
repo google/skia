@@ -1165,7 +1165,8 @@
     "Perf-Debian9-EMCC-NUC7i5BNK-GPU-IntelIris640-wasm-Release-All-SkottieWASM": {
       "tasks": [
         "Upload-Perf-Debian9-EMCC-NUC7i5BNK-GPU-IntelIris640-wasm-Release-All-SkottieWASM"
-      ]
+      ],
+      "trigger": "on demand"
     },
     "Perf-Debian9-none-GCE-CPU-AVX2-x86_64-Release-All-LottieWeb": {
       "tasks": [
@@ -1180,12 +1181,14 @@
     "Perf-Debian9-none-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-LottieWeb": {
       "tasks": [
         "Upload-Perf-Debian9-none-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-LottieWeb"
-      ]
+      ],
+      "trigger": "on demand"
     },
     "Perf-Debian9-none-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-LottieWeb_Canvas": {
       "tasks": [
         "Upload-Perf-Debian9-none-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-LottieWeb_Canvas"
-      ]
+      ],
+      "trigger": "on demand"
     },
     "Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All": {
       "tasks": [
