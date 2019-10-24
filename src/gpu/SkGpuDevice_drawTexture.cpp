@@ -591,8 +591,8 @@ void SkGpuDevice::drawTextureProducer(GrTextureProducer* producer,
     SkRect src;
     SkRect dst;
     SkMatrix srcToDst;
-    ImageDrawMode mode = optimize_sample_area(SkISize::Make(producer->width(), producer->height()),
-                                              srcRect, dstRect, nullptr, &src, &dst, &srcToDst);
+    ImageDrawMode mode = optimize_sample_area(producer->dimensions(), srcRect, dstRect, nullptr,
+                                              &src, &dst, &srcToDst);
     if (mode == ImageDrawMode::kSkip) {
         return;
     }

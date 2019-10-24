@@ -27,7 +27,7 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrRecordingContext* context,
                                                    bool dstWillRequireMipMaps) {
     SkASSERT(context);
 
-    const SkRect dstRect = SkRect::MakeIWH(copyParams.fWidth, copyParams.fHeight);
+    const SkRect dstRect = SkRect::Make(copyParams.fDimensions);
     GrMipMapped mipMapped = dstWillRequireMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
 
     SkRect localRect = inputProxy->getBoundsRect();
@@ -278,8 +278,7 @@ sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxyForParams(
 
     // Check that the "no scaling expected" case always returns a proxy of the same size as the
     // producer.
-    SkASSERT(!result || !expectNoScale ||
-             (result->width() == this->width() && result->height() == this->height()));
+    SkASSERT(!result || !expectNoScale || result->dimensions() == this->dimensions());
     return result;
 }
 
@@ -301,6 +300,6 @@ sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxy(GrMipMapped willNeedMip
              !this->context()->priv().caps()->isFormatCopyable(result->backendFormat()));
 
     // Check that no scaling occured and we returned a proxy of the same size as the producer.
-    SkASSERT(!result || (result->width() == this->width() && result->height() == this->height()));
+    SkASSERT(!result || result->dimensions() == this->dimensions());
     return result;
 }

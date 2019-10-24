@@ -19,8 +19,7 @@
 
 GrBitmapTextureMaker::GrBitmapTextureMaker(GrRecordingContext* context, const SkBitmap& bitmap,
                                            bool useDecal)
-        : INHERITED(context, bitmap.width(), bitmap.height(), bitmap.info().colorInfo(), useDecal)
-        , fBitmap(bitmap) {
+        : INHERITED(context, bitmap.info(), useDecal), fBitmap(bitmap) {
     if (!bitmap.isVolatile()) {
         SkIPoint origin = bitmap.pixelRefOrigin();
         SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bitmap.width(),
