@@ -463,12 +463,19 @@ GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
         // The AMD string can have a somewhat arbitrary preamble (see skbug.com/7195)
         if (const char* amdString = strstr(rendererString, "Radeon")) {
             char amdGeneration, amdTier, amdRevision;
+            SkDebugf("renderer: %s\n", rendererString);
             n = sscanf(amdString, "Radeon (TM) R9 M%c%c%c",
                                        &amdGeneration, &amdTier, &amdRevision);
+            SkDebugf("n: %d, gen: %d, tier: %d, rev: %d\n", n, amdGeneration, amdTier, amdRevision);
             if (3 == n) {
-                if ('4' == amdGeneration) {
+                if ('3' == amdGeneration) {
+                    SkDebugf("R9M3xx\n");
+                    return kAMDRadeonR9M3xx_GrGLRenderer;
+                } else if ('4' == amdGeneration) {
+                    SkDebugf("R9M4xx\n");
                     return kAMDRadeonR9M4xx_GrGLRenderer;
                 }
+                SkDebugf("NOTA\n");
             }
 
             char amd0, amd1, amd2;
