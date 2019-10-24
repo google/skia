@@ -1200,7 +1200,7 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                     offset = (*cfg.fBlocks[i].fNodes[0].expression())->fOffset;
                     break;
             }
-            this->error(offset, String("unreachable"));
+//            this->error(offset, String("unreachable"));
         }
     }
     if (fErrorCount) {
@@ -1305,6 +1305,7 @@ Symbol* Compiler::takeOwnership(std::unique_ptr<Symbol> symbol) {
 
 std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String text,
                                                   const Program::Settings& settings) {
+    printf("%s\n", text.c_str());
     fErrorText = "";
     fErrorCount = 0;
     std::vector<std::unique_ptr<ProgramElement>>* inherited;

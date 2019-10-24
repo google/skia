@@ -55,7 +55,8 @@ protected:
                 fPixels.data() + 3 * fCount,
             };
 
-            SkAssertResult(fByteCode->runStriped(fMain, fCount, args, 4, nullptr, 0, nullptr, 0));
+//            SkAssertResult(fByteCode->runStriped(fMain, fCount, args, 4, nullptr, 0, nullptr, 0));
+            abort();
         }
     }
 
