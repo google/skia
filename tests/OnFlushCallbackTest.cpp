@@ -22,6 +22,7 @@
 #include "src/gpu/effects/generated/GrSimpleTextureEffect.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
+#include "tests/TestUtils.h"
 
 namespace {
 // This is a simplified mesh drawing op that can be used in the atlas generation test.
@@ -265,7 +266,7 @@ static const int kAtlasTileSize = 2;
  */
 class AtlasObject final : public GrOnFlushCallbackObject {
 public:
-    AtlasObject() : fDone(false) { }
+    AtlasObject(skiatest::Reporter* reporter) : fDone(false), fReporter(reporter) {}
 
     ~AtlasObject() override {
         SkASSERT(fDone);
@@ -356,9 +357,8 @@ public:
         // At this point 'fAtlasProxy' should be instantiated and have:
         //    1 ref from the 'fAtlasProxy' sk_sp
         //    9 refs from the 9 AtlasedRectOps
-        SkASSERT(10 == fAtlasProxy->refCnt());
         // The backing GrSurface should have only 1 though bc there is only one proxy
-        SkASSERT(1 == fAtlasProxy->testingOnly_getBackingRefCnt());
+        check_single_threaded_proxy_refs(fReporter, fAtlasProxy.get(), 10, 1);
         auto rtc = resourceProvider->makeRenderTargetContext(fAtlasProxy, GrColorType::kRGBA_8888,
                                                              nullptr, nullptr);
 
@@ -427,6 +427,8 @@ private:
 
     // Set to true when the testing harness expects this object to be no longer used
     bool                         fDone;
+
+    skiatest::Reporter*           fReporter;
 };
 
 // This creates an off-screen rendertarget whose ops which eventually pull from the atlas.
@@ -536,7 +538,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     auto proxyProvider = context->priv().proxyProvider();
 
-    AtlasObject object;
+    AtlasObject object(reporter);
 
     context->priv().addOnFlushCallbackObject(&object);
 
