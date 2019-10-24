@@ -254,10 +254,13 @@ template("gcc_like_toolchain") {
       description = "assemble {{source}}"
     }
 
+    if (is_mac || is_ios) {
+      not_needed([ "ar" ])  # We use libtool instead.
+    }
+
     tool("alink") {
       if (is_mac || is_ios) {
-        command =
-            "$ar -static -o {{output}} -no_warning_for_no_symbols {{inputs}}"
+        command = "libtool -static -o {{output}} -no_warning_for_no_symbols {{inputs}}"
       } else {
         rspfile = "{{output}}.rsp"
         rspfile_content = "{{inputs}}"
