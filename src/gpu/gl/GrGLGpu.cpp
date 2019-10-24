@@ -3626,13 +3626,6 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
         return GrBackendTexture();  // invalid
     }
 
-    auto textureColorType = GrPixelConfigToColorType(config);
-
-    // TODO: move the texturability check up to GrGpu::createBackendTexture and just assert here
-    if (!this->caps()->isFormatTexturableAndUploadable(textureColorType, format)) {
-        return GrBackendTexture();  // invalid
-    }
-
     GrGLTextureInfo info;
     GrGLTextureParameters::SamplerOverriddenState initialState;
 
@@ -3640,13 +3633,19 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
     SkAutoMalloc pixelStorage;
 
     int mipLevelCount = 1;
+    GrColorType textureAndDataColorType = GrColorType::kUnknown;
     if (srcData) {
         mipLevelCount = numMipLevels;
+        textureAndDataColorType = SkColorTypeToGrColorType(srcData[0].colorType());
         texels.append(mipLevelCount);
         for (int i = 0; i < mipLevelCount; ++i) {
             texels[i] = { srcData[i].addr(), srcData[i].rowBytes() };
         }
     } else if (color) {
+        // We don't currently communicate the intended color type in this case so reverse engineer
+        // it from the config. Note this is lossy.
+        textureAndDataColorType = GrPixelConfigToColorType(config);
+
         if (GrMipMapped::kYes == mipMapped) {
             mipLevelCount = SkMipMap::ComputeLevelCount(w, h) + 1;
         }
@@ -3661,7 +3660,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
 
         char* tmpPixels = (char*)pixelStorage.reset(totalSize);
 
-        GrFillInData(textureColorType, w, h, individualMipOffsets, tmpPixels, *color);
+        GrFillInData(textureAndDataColorType, w, h, individualMipOffsets, tmpPixels, *color);
         for (int i = 0; i < mipLevelCount; ++i) {
             size_t offset = individualMipOffsets[i];
 
@@ -3684,13 +3683,17 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
     if (!info.fID) {
         return GrBackendTexture();  // invalid
     }
-    auto srcColorType = GrPixelConfigToColorType(desc.fConfig);
-    if (!texels.empty() &&
-        !this->uploadTexData(glFormat, textureColorType, desc.fWidth, desc.fHeight,
-                             GR_GL_TEXTURE_2D, 0, 0, desc.fWidth, desc.fHeight, srcColorType,
-                             texels.begin(), texels.count())) {
-        GL_CALL(DeleteTextures(1, &info.fID));
-        return GrBackendTexture();
+    if (!texels.empty()) {
+        // TODO: move the texturability check up to GrGpu::createBackendTexture and just assert here
+        if (!this->caps()->isFormatTexturableAndUploadable(textureAndDataColorType, format)) {
+            return GrBackendTexture();  // invalid
+        }
+        if (!this->uploadTexData(glFormat, textureAndDataColorType, desc.fWidth, desc.fHeight,
+                                 GR_GL_TEXTURE_2D, 0, 0, desc.fWidth, desc.fHeight,
+                                 textureAndDataColorType, texels.begin(), texels.count())) {
+            GL_CALL(DeleteTextures(1, &info.fID));
+            return GrBackendTexture();
+        }
     }
 
     // unbind the texture from the texture unit to avoid asserts
