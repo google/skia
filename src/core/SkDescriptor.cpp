@@ -85,6 +85,7 @@ uint32_t SkDescriptor::ComputeChecksum(const SkDescriptor* desc) {
     return SkOpts::hash(ptr, len);
 }
 
+#if 0
 bool SkDescriptor::isValid() const {
     uint32_t count = 0;
     size_t offset = sizeof(SkDescriptor);
@@ -100,7 +101,36 @@ bool SkDescriptor::isValid() const {
     }
     return offset <= fLength && count == fCount;
 }
+#else
+bool SkDescriptor::isValid() const {
+    uint32_t count = fCount;
+    size_t lengthRemaining = this->fLength;
+    if (lengthRemaining < sizeof(SkDescriptor)) {
+        return false;
+    }
+    lengthRemaining -= sizeof(SkDescriptor);
+    size_t offset = sizeof(SkDescriptor);
 
+    while (lengthRemaining > 0 && count > 0) {
+        const Entry* entry = (const Entry*)(reinterpret_cast<const char*>(this) + offset);
+        // rec tags are always a known size.
+        if (entry->fTag == kRec_SkDescriptorTag && entry->fLen != sizeof(SkScalerContextRec)) {
+            return false;
+        }
+        if (lengthRemaining < sizeof(Entry)) {
+            return false;
+        }
+        lengthRemaining -= sizeof(Entry);
+        if (lengthRemaining < entry->fLen) {
+            return false;
+        }
+        lengthRemaining -= entry->fLen;
+        offset += sizeof(Entry) + entry->fLen;
+        count--;
+    }
+    return lengthRemaining == 0 && count == 0;
+}
+#endif
 SkAutoDescriptor::SkAutoDescriptor() = default;
 SkAutoDescriptor::SkAutoDescriptor(size_t size) { this->reset(size); }
 SkAutoDescriptor::SkAutoDescriptor(const SkDescriptor& desc) { this->reset(desc); }

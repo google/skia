@@ -15,6 +15,7 @@
 class SkDescriptorTestHelper {
 public:
     static void SetLength(SkDescriptor* desc, size_t length) { desc->fLength = length; }
+    static void SetCount(SkDescriptor* desc, uint32_t count) { desc->fCount = count; }
 };
 
 DEF_TEST(Descriptor_empty, r) {
@@ -94,7 +95,6 @@ DEF_TEST(Descriptor_invalid_length, r) {
 
     auto desc = SkDescriptor::Alloc(size);
     desc->init();
-    SkScalerContextRec rec;
     desc->addEntry(kEffects_SkDescriptorTag, effect_size, nullptr);
 
     SkDescriptorTestHelper::SetLength(desc.get(), size);
@@ -102,4 +102,23 @@ DEF_TEST(Descriptor_invalid_length, r) {
 
     SkDescriptorTestHelper::SetLength(desc.get(), size + effect_size);
     REPORTER_ASSERT(r, desc->isValid());
+}
+
+DEF_TEST(Descriptor_entry_too_big, r) {
+    const size_t size = sizeof(SkDescriptor) + sizeof(SkDescriptor::Entry) + 4;
+    // Must be less than fLength, but big enough to be bigger then fLength when added.
+    const size_t effect_size = sizeof(SkDescriptor) + sizeof(SkDescriptor::Entry);
+
+    auto desc = SkDescriptor::Alloc(size);
+    desc->init();
+
+    desc->addEntry(kEffects_SkDescriptorTag, effect_size, nullptr);
+
+    SkDescriptorTestHelper::SetLength(desc.get(), size);
+    SkDescriptorTestHelper::SetCount(desc.get(), 2);
+    REPORTER_ASSERT(r, !desc->isValid());
+
+    SkDescriptorTestHelper::SetLength(desc.get(), size);
+    SkDescriptorTestHelper::SetCount(desc.get(), 1);
+    REPORTER_ASSERT(r, !desc->isValid());
 }
