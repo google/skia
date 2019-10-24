@@ -22,6 +22,30 @@
       "revId": "20e3a10d24c778792a69c0144a0e4897bd82929c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c73059e_724e1652",
+        "filename": "gn/toolchain/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-24T15:26:39Z",
+      "side": 1,
+      "message": "Tried this. Either both need to be hard coded, or neither. if $ar is not used gn errors out.",
+      "parentUuid": "3e7b9311_12ce2ac9",
+      "range": {
+        "startLine": 260,
+        "startChar": 13,
+        "endLine": 260,
+        "endChar": 16
+      },
+      "revId": "20e3a10d24c778792a69c0144a0e4897bd82929c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
