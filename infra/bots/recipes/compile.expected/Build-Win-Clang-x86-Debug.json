@@ -11,7 +11,11 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get clang_win VERSION"
+    "name": "Get clang_win VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
   },
   {
     "cmd": [

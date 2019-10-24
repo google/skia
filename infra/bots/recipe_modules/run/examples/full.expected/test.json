@@ -59,7 +59,10 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "read myfile.txt"
+    "name": "read myfile.txt",
+    "~followup_annotations": [
+      "@@@STEP_LOG_END@myfile.txt@@@"
+    ]
   },
   {
     "cmd": [
@@ -104,7 +107,11 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get my_asset VERSION"
+    "name": "Get my_asset VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
   },
   {
     "cmd": [
