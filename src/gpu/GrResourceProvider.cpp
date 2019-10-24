@@ -211,7 +211,7 @@ SkISize GrResourceProvider::MakeApprox(SkISize dimensions) {
         if (value <= mid) {
             return mid;
         }
-        return value;
+        return ceilPow2;
     };
 
     return {adjust(dimensions.width()), adjust(dimensions.height())};
