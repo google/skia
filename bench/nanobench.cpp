@@ -19,6 +19,7 @@
 #include "bench/ResultsWriter.h"
 #include "bench/SKPAnimationBench.h"
 #include "bench/SKPBench.h"
+#include "bench/SkGlyphCacheBench.h"
 #include "include/android/SkBitmapRegionDecoder.h"
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
@@ -157,6 +158,7 @@ static DEFINE_bool2(verbose, v, false, "enable verbose output from the test driv
 
 static DEFINE_string(skps, "skps", "Directory to read skps from.");
 static DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
+static DEFINE_string(texttraces, "", "Directory to read TextBlobTrace files from.");
 
 static DEFINE_int_2(threads, j, -1,
                "Run threadsafe tests on a threadpool with this many extra threads, "
@@ -629,6 +631,7 @@ public:
                       , fGMs(skiagm::GMRegistry::Head()) {
         collect_files(FLAGS_skps, ".skp", &fSKPs);
         collect_files(FLAGS_svgs, ".svg", &fSVGs);
+        collect_files(FLAGS_texttraces, ".trace", &fTextBlobTraces);
 
         if (4 != sscanf(FLAGS_clip[0], "%d,%d,%d,%d",
                         &fClip.fLeft, &fClip.fTop, &fClip.fRight, &fClip.fBottom)) {
@@ -742,6 +745,20 @@ public:
                 fBenchType  = "micro";
                 return new GMBench(std::move(gm));
             }
+        }
+
+        while (fCurrentTextBlobTrace < fTextBlobTraces.count()) {
+            SkString path = fTextBlobTraces[fCurrentTextBlobTrace++];
+            SkString basename = SkOSPath::Basename(path.c_str());
+            static constexpr char kEnding[] = ".trace";
+            if (basename.endsWith(kEnding)) {
+                basename.remove(basename.size() - strlen(kEnding), strlen(kEnding));
+            }
+            fSourceType = "texttrace";
+            fBenchType  = "micro";
+            return CreateDiffCanvasBench(
+                    SkStringPrintf("SkDiffBench-%s", basename.c_str()),
+                    [path](){ return SkStream::MakeFromFile(path.c_str()); });
         }
 
         // First add all .skps as RecordingBenches.
@@ -1077,6 +1094,7 @@ private:
     SkTArray<SkScalar> fScales;
     SkTArray<SkString> fSKPs;
     SkTArray<SkString> fSVGs;
+    SkTArray<SkString> fTextBlobTraces;
     SkTArray<bool>     fUseMPDs;
     SkTArray<SkString> fImages;
     SkTArray<SkColorType, true> fColorTypes;
@@ -1092,6 +1110,7 @@ private:
     int fCurrentScale = 0;
     int fCurrentSKP = 0;
     int fCurrentSVG = 0;
+    int fCurrentTextBlobTrace = 0;
     int fCurrentUseMPD = 0;
     int fCurrentCodec = 0;
     int fCurrentAndroidCodec = 0;
