@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6504a84_028f9288",
+        "filename": "src/core/SkDescriptor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-24T16:09:55Z",
+      "side": 1,
+      "message": "You sure you want to keep this in?",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 5
+      },
+      "revId": "edd50b4b180e61a470a626ad58f2ec7ad010832e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
