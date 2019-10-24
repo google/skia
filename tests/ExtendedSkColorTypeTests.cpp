@@ -167,7 +167,7 @@ static void compare_pixmaps(skiatest::Reporter* reporter,
                    diffs[0], diffs[1], diffs[2], diffs[3]);
         });
 
-    compare_pixels(expected, actual, tols, error);
+    ComparePixels(expected, actual, tols, error);
 }
 
 static void gpu_tests(GrContext* context, skiatest::Reporter* reporter, const TestCase& test) {

@@ -14,37 +14,41 @@ class GrSurfaceProxy;
 typedef uint32_t GrColor;
 
 // Ensure that reading back from 'srcContext' as RGBA 8888 matches 'expectedPixelValues
-void test_read_pixels(skiatest::Reporter*, GrSurfaceContext* srcContext,
-                      uint32_t expectedPixelValues[], const char* testName);
+void TestReadPixels(skiatest::Reporter*, GrSurfaceContext* srcContext,
+                    uint32_t expectedPixelValues[], const char* testName);
 
 // See if trying to write RGBA 8888 pixels to 'dstContext' matches matches the
 // expectation ('expectedToWork')
-void test_write_pixels(skiatest::Reporter*, GrSurfaceContext* srcContext, bool expectedToWork,
-                       const char* testName);
+void TestWritePixels(skiatest::Reporter*, GrSurfaceContext* srcContext, bool expectedToWork,
+                     const char* testName);
 
 // Ensure that the pixels can be copied from 'proxy' viewed as colorType, to an RGBA 8888
 // destination (both texture-backed and rendertarget-backed).
-void test_copy_from_surface(skiatest::Reporter*, GrContext*, GrSurfaceProxy* proxy,
-                            GrColorType colorType, uint32_t expectedPixelValues[],
-                            const char* testName);
+void TestCopyFromSurface(skiatest::Reporter*, GrContext*, GrSurfaceProxy* proxy,
+                          GrColorType colorType, uint32_t expectedPixelValues[],
+                          const char* testName);
 
 // Fills data with a red-green gradient
-void fill_pixel_data(int width, int height, GrColor* data);
+void FillPixelData(int width, int height, GrColor* data);
 
 // Create a solid colored backend texture
-bool create_backend_texture(GrContext*, GrBackendTexture* backendTex,
-                            const SkImageInfo& ii, const SkColor4f& color,
-                            GrMipMapped, GrRenderable);
+bool CreateBackendTexture(GrContext*,
+                          GrBackendTexture* backendTex,
+                          const SkImageInfo& ii,
+                          const SkColor4f& color,
+                          GrMipMapped,
+                          GrRenderable);
 
-void delete_backend_texture(GrContext*, const GrBackendTexture& backendTex);
+void DeleteBackendTexture(GrContext*, const GrBackendTexture& backendTex);
 
 // Checks srcBuffer and dstBuffer contain the same colors
-bool does_full_buffer_contain_correct_color(const GrColor* srcBuffer, const GrColor* dstBuffer,
-                                            int width, int height);
+bool DoesFullBufferContainCorrectColor(const GrColor* srcBuffer,
+                                       const GrColor* dstBuffer,
+                                       int width, int height);
 
 // Encodes the bitmap into a data:/image/png;base64,... url suitable to view in a browser after
 // printing to a log. If false is returned, dst holds an error message instead of a URI.
-bool bitmap_to_base64_data_uri(const SkBitmap& bitmap, SkString* dst);
+bool BipmapToBase64DataURI(const SkBitmap& bitmap, SkString* dst);
 
 /** Used by compare_pixels. */
 using ComparePixmapsErrorReporter = void(int x, int y, const float diffs[4]);
@@ -68,25 +72,27 @@ using ComparePixmapsErrorReporter = void(int x, int y, const float diffs[4]);
  * The function quits after a single error is reported and returns false if 'error' was called and
  * true otherwise.
  */
-bool compare_pixels(const GrImageInfo& infoA, const char* a, size_t rowBytesA,
-                    const GrImageInfo& infoB, const char* b, size_t rowBytesB,
-                    const float tolRGBA[4], std::function<ComparePixmapsErrorReporter>& error);
+bool ComparePixels(const GrImageInfo& infoA, const char* a, size_t rowBytesA,
+                   const GrImageInfo& infoB, const char* b, size_t rowBytesB,
+                   const float tolRGBA[4], std::function<ComparePixmapsErrorReporter>& error);
 
 /** Convenience version of above that takes SkPixmap inputs. */
-bool compare_pixels(const SkPixmap& a, const SkPixmap& b, const float tolRGBA[4],
-                    std::function<ComparePixmapsErrorReporter>& error);
+bool ComparePixels(const SkPixmap& a, const SkPixmap& b, const float tolRGBA[4],
+                   std::function<ComparePixmapsErrorReporter>& error);
 
 /**
  * Convenience version that checks that 'pixmap' is a solid field of 'col'
  */
-bool check_solid_pixels(const SkColor4f& col, const SkPixmap& pixmap,
-                        const float tolRGBA[4], std::function<ComparePixmapsErrorReporter>& error);
+bool CheckSolidPixels(const SkColor4f& col,
+                      const SkPixmap& pixmap,
+                      const float tolRGBA[4],
+                      std::function<ComparePixmapsErrorReporter>& error);
 
 /**
  * Checks the ref cnt on a proxy and its backing store. This is only valid if the proxy and the
  * resource are both used on a single thread.
  */
-void check_single_threaded_proxy_refs(skiatest::Reporter* reporter,
-                                      GrTextureProxy* proxy,
-                                      int32_t expectedProxyRefs,
-                                      int32_t expectedBackingRefs);
+void CheckSingleThreadedProxyRefs(skiatest::Reporter* reporter,
+                                  GrTextureProxy* proxy,
+                                  int32_t expectedProxyRefs,
+                                  int32_t expectedBackingRefs);

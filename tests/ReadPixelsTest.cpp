@@ -746,7 +746,7 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
             // This is the part of dstPixels that should have been updated.
             SkPixmap actual;
             SkAssertResult(dstPixels.extractSubset(&actual, dstWriteRect));
-            compare_pixels(ref, actual, tols, error);
+            ComparePixels(ref, actual, tols, error);
 
             const auto* v = dstData.get();
             const auto* end = dstData.get() + dstSize;
