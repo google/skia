@@ -12,16 +12,19 @@
 #include "src/core/SkGlyphRunPainter.h"
 
 bool SkStrikeForGPU::CanDrawAsMask(const SkGlyph& glyph) {
-    return glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas;
+    return FitsInAtlas(glyph);
 }
 
 bool SkStrikeForGPU::CanDrawAsSDFT(const SkGlyph& glyph) {
-    return glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas
-           && glyph.maskFormat() == SkMask::kSDF_Format;
+    return FitsInAtlas(glyph) && glyph.maskFormat() == SkMask::kSDF_Format;
 }
 
 bool SkStrikeForGPU::CanDrawAsPath(const SkGlyph& glyph) {
     SkASSERT(glyph.isColor() || glyph.setPathHasBeenCalled());
     return !glyph.isColor() && glyph.path() != nullptr;
+}
+
+bool SkStrikeForGPU::FitsInAtlas(const SkGlyph& glyph) {
+    return glyph.maxDimension() <= SkStrikeCommon::kSkSideTooBigForAtlas;
 }
 
