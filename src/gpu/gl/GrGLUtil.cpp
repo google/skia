@@ -466,9 +466,7 @@ GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
             n = sscanf(amdString, "Radeon (TM) R9 M%c%c%c",
                                        &amdGeneration, &amdTier, &amdRevision);
             if (3 == n) {
-                if ('3' == amdGeneration) {
-                    return kAMDRadeonR9M3xx_GrGLRenderer;
-                } else if ('4' == amdGeneration) {
+                if ('4' == amdGeneration) {
                     return kAMDRadeonR9M4xx_GrGLRenderer;
                 }
             }
