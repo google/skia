@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b6469e92_5ef6c456",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3639,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-24T12:53:21Z",
+      "side": 1,
+      "message": "MipMapsAreCorrect checks this for us (and much more)",
+      "range": {
+        "startLine": 3639,
+        "startChar": 8,
+        "endLine": 3639,
+        "endChar": 32
+      },
+      "revId": "f2b867265a565aba801533cee4ec426180cb0d5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b9f2079_8953add2",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3644,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-24T12:53:21Z",
+      "side": 1,
+      "message": "MipMapsAreCorrect also checks that all the mipMap levels (if present) have the same colortype",
+      "range": {
+        "startLine": 3644,
+        "startChar": 12,
+        "endLine": 3644,
+        "endChar": 98
+      },
+      "revId": "f2b867265a565aba801533cee4ec426180cb0d5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09c81c61_cbb005e0",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3695,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-24T12:53:21Z",
+      "side": 1,
+      "message": "Should this be srcData[0].colorType() ?",
+      "range": {
+        "startLine": 3695,
+        "startChar": 33,
+        "endLine": 3695,
+        "endChar": 56
+      },
+      "revId": "f2b867265a565aba801533cee4ec426180cb0d5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
