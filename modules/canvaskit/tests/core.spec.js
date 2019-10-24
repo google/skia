@@ -188,4 +188,42 @@ describe('Core canvas behavior', function() {
         });
     });
 
+    it('can blur using ImageFilter or MaskFilter', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const pathUL = starPath(CanvasKit, 100, 100, 80);
+            const pathBR = starPath(CanvasKit, 400, 300, 80);
+            const paint = new CanvasKit.SkPaint();
+            const textFont = new CanvasKit.SkFont(null, 24);
+
+            canvas.drawText('Above: MaskFilter', 20, 220, paint, textFont);
+            canvas.drawText('Right: ImageFilter', 20, 260, paint, textFont);
+
+            paint.setColor(CanvasKit.BLUE);
+
+            const blurMask = CanvasKit.SkMaskFilter.MakeBlur(CanvasKit.BlurStyle.Normal, 5, true);
+            paint.setMaskFilter(blurMask);
+            canvas.drawPath(pathUL, paint);
+
+            const blurIF = CanvasKit.SkImageFilter.MakeBlur(8, 1, CanvasKit.TileMode.Decal, null);
+            paint.setImageFilter(blurIF);
+            canvas.drawPath(pathBR, paint);
+
+            surface.flush();
+
+            pathUL.delete();
+            pathBR.delete();
+            paint.delete();
+            blurMask.delete();
+
+            reportSurface(surface, 'blur_filters', done);
+        }));
+    });
+
 });
