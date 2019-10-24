@@ -31,6 +31,8 @@ class SkiaVarsApi(recipe_api.RecipeApi):
         self.default_env.get('PATH', '%(PATH)s'),
         str(self.m.bot_update.repo_resource()),
     ])
+    # print 'XXXXXXXXXXXX'
+    # print str(self.m.bot_update.repo_resource())
     self.cache_dir = self.slave_dir.join('cache')
 
     self.swarming_out_dir = self.slave_dir.join(
