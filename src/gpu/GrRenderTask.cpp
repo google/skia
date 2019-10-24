@@ -53,7 +53,7 @@ void GrRenderTask::makeClosed(const GrCaps& caps) {
 
     SkIRect targetUpdateBounds;
     if (ExpectedOutcome::kTargetDirty == this->onMakeClosed(caps, &targetUpdateBounds)) {
-        SkASSERT(SkIRect::MakeSize(fTarget->dimensions()).contains(targetUpdateBounds));
+        SkASSERT(SkIRect::Make(fTarget->dimensions()).contains(targetUpdateBounds));
         if (fTarget->requiresManualMSAAResolve()) {
             SkASSERT(fTarget->asRenderTargetProxy());
             fTarget->asRenderTargetProxy()->markMSAADirty(targetUpdateBounds);

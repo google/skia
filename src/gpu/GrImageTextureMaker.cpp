@@ -19,7 +19,7 @@ GrImageTextureMaker::GrImageTextureMaker(GrRecordingContext* context, const SkIm
         , fImage(static_cast<const SkImage_Lazy*>(client))
         , fCachingHint(chint) {
     SkASSERT(client->isLazyGenerated());
-    GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(), SkIRect::MakeSize(this->dimensions()));
+    GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(), SkIRect::Make(this->dimensions()));
 }
 
 sk_sp<GrTextureProxy> GrImageTextureMaker::refOriginalTextureProxy(bool willBeMipped,
@@ -44,7 +44,7 @@ GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrContext* context, const SkIma
         : INHERITED(context, client->imageInfo(), useDecal)
         , fImage(static_cast<const SkImage_GpuYUVA*>(client)) {
     SkASSERT(as_IB(client)->isYUVA());
-    GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(), SkIRect::MakeSize(this->dimensions()));
+    GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(), SkIRect::Make(this->dimensions()));
 }
 
 sk_sp<GrTextureProxy> GrYUVAImageTextureMaker::refOriginalTextureProxy(bool willBeMipped,

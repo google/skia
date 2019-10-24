@@ -403,7 +403,7 @@ static void test_write_pixels(skiatest::Reporter* reporter, SkSurface* surface,
                                                       bmp, rect.fLeft, rect.fTop));
 
                 // we should change the genID iff pixels were actually written.
-                SkIRect canvasRect = SkIRect::MakeSize(canvas->getBaseLayerSize());
+                SkIRect canvasRect = SkIRect::Make(canvas->getBaseLayerSize());
                 SkIRect writeRect = SkIRect::MakeXYWH(rect.fLeft, rect.fTop,
                                                       bmp.width(), bmp.height());
                 bool expectSuccess = SkIRect::Intersects(canvasRect, writeRect) &&

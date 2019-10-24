@@ -329,7 +329,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
         dstPoint = {0, 0};
     }
 
-    if (!srcRect.intersect(SkIRect::MakeSize(src->dimensions()))) {
+    if (!srcRect.intersect(SkIRect::Make(src->dimensions()))) {
         return nullptr;
     }
     auto colorType = GrPixelConfigToColorType(src->config());
@@ -362,7 +362,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context, GrSurfac
                                            GrColorType srcColorType, GrMipMapped mipMapped,
                                            SkBackingFit fit, SkBudgeted budgeted) {
     SkASSERT(!src->isFullyLazy());
-    return Copy(context, src, srcColorType, mipMapped, SkIRect::MakeSize(src->dimensions()), fit,
+    return Copy(context, src, srcColorType, mipMapped, SkIRect::Make(src->dimensions()), fit,
                 budgeted);
 }
 
