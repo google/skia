@@ -358,7 +358,7 @@ public:
         //    1 ref from the 'fAtlasProxy' sk_sp
         //    9 refs from the 9 AtlasedRectOps
         // The backing GrSurface should have only 1 though bc there is only one proxy
-        check_single_threaded_proxy_refs(fReporter, fAtlasProxy.get(), 10, 1);
+        CheckSingleThreadedProxyRefs(fReporter, fAtlasProxy.get(), 10, 1);
         auto rtc = resourceProvider->makeRenderTargetContext(fAtlasProxy, GrColorType::kRGBA_8888,
                                                              nullptr, nullptr);
 

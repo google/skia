@@ -56,13 +56,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
                 int backingRefs = proxy->isInstantiated() ? 1 : -1;
 
-                check_single_threaded_proxy_refs(reporter, proxy.get(), 2, backingRefs);
+                CheckSingleThreadedProxyRefs(reporter, proxy.get(), 2, backingRefs);
 
                 proxy->instantiate(resourceProvider);
 
-                check_single_threaded_proxy_refs(reporter, proxy.get(), 2, 1);
+                CheckSingleThreadedProxyRefs(reporter, proxy.get(), 2, 1);
             }
-            check_single_threaded_proxy_refs(reporter, proxy.get(), 1, 1);
+            CheckSingleThreadedProxyRefs(reporter, proxy.get(), 1, 1);
         }
 
         // Multiple normal refs
@@ -74,16 +74,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
                 int backingRefs = proxy->isInstantiated() ? 1 : -1;
 
-                check_single_threaded_proxy_refs(reporter, proxy.get(), 3, backingRefs);
+                CheckSingleThreadedProxyRefs(reporter, proxy.get(), 3, backingRefs);
 
                 proxy->instantiate(resourceProvider);
 
-                check_single_threaded_proxy_refs(reporter, proxy.get(), 3, 1);
+                CheckSingleThreadedProxyRefs(reporter, proxy.get(), 3, 1);
 
                 proxy->unref();
                 proxy->unref();
             }
-            check_single_threaded_proxy_refs(reporter, proxy.get(), 1, 1);
+            CheckSingleThreadedProxyRefs(reporter, proxy.get(), 1, 1);
         }
 
         // Continue using (reffing) proxy after instantiation
@@ -94,16 +94,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
                 int backingRefs = proxy->isInstantiated() ? 1 : -1;
 
-                check_single_threaded_proxy_refs(reporter, proxy.get(), 2, backingRefs);
+                CheckSingleThreadedProxyRefs(reporter, proxy.get(), 2, backingRefs);
 
                 proxy->instantiate(resourceProvider);
 
-                check_single_threaded_proxy_refs(reporter, proxy.get(), 2, 1);
+                CheckSingleThreadedProxyRefs(reporter, proxy.get(), 2, 1);
 
                 sk_sp<GrTextureProxy> secondExtraRef(proxy);
-                check_single_threaded_proxy_refs(reporter, proxy.get(), 3, 1);
+                CheckSingleThreadedProxyRefs(reporter, proxy.get(), 3, 1);
             }
-            check_single_threaded_proxy_refs(reporter, proxy.get(), 1, 1);
+            CheckSingleThreadedProxyRefs(reporter, proxy.get(), 1, 1);
         }
     }
 }
