@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "28f15038_5321a15c",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3639,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-10-24T12:59:58Z",
+      "side": 1,
+      "message": "removed",
+      "parentUuid": "b6469e92_5ef6c456",
+      "range": {
+        "startLine": 3639,
+        "startChar": 8,
+        "endLine": 3639,
+        "endChar": 32
+      },
+      "revId": "f2b867265a565aba801533cee4ec426180cb0d5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8b9f2079_8953add2",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "1fdd4976_cd212d0d",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3644,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-10-24T12:59:58Z",
+      "side": 1,
+      "message": "removed",
+      "parentUuid": "8b9f2079_8953add2",
+      "range": {
+        "startLine": 3644,
+        "startChar": 12,
+        "endLine": 3644,
+        "endChar": 98
+      },
+      "revId": "f2b867265a565aba801533cee4ec426180cb0d5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "09c81c61_cbb005e0",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 4
@@ -68,6 +116,30 @@
       "revId": "f2b867265a565aba801533cee4ec426180cb0d5f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ae20772_07ad5561",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3695,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-10-24T12:59:58Z",
+      "side": 1,
+      "message": "srcData might be null here. If srcData isn\u0027t null then we computed this value from srcData[0].colorType() above. If there is a single color we computed this from the config as previously. The third possibility is we didn\u0027t get here because there is no pixmaps or color to upload.\n\nAlso, this is a GrColorType.",
+      "parentUuid": "09c81c61_cbb005e0",
+      "range": {
+        "startLine": 3695,
+        "startChar": 33,
+        "endLine": 3695,
+        "endChar": 56
+      },
+      "revId": "f2b867265a565aba801533cee4ec426180cb0d5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
