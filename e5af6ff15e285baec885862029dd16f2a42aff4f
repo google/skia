@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c0d88d68_383eecdd",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-24T14:46:08Z",
+      "side": 1,
+      "message": "allocatePrePrepareOnly",
+      "range": {
+        "startLine": 273,
+        "startChar": 38,
+        "endLine": 273,
+        "endChar": 57
+      },
+      "revId": "e5af6ff15e285baec885862029dd16f2a42aff4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1b56dc0_496c193c",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 691,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-24T14:46:08Z",
+      "side": 1,
+      "message": "The outer loop structure used in onPrePrepare and onPrepare is very similar, but right now the inner details are distinct because onPrepare has to choose between tessellating and memcpy\u0027ing.\n\nI think once onPrepare\u0027s memcpy logic does a single copy, in which case there\u0027s no need for it to loop over the op chain a second time, then the onPrePrepare tessellation loop and the regular onPrepare tessellation loop will be similar enough they could be replaced with a single function.",
+      "range": {
+        "startLine": 690,
+        "startChar": 23,
+        "endLine": 691,
+        "endChar": 72
+      },
+      "revId": "e5af6ff15e285baec885862029dd16f2a42aff4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8d27fe2_cab4e87b",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 719,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-24T14:46:08Z",
+      "side": 1,
+      "message": "Maybe just SkASSERT(!iter.next() || fPrePreparedDesc) so that we\u0027re not relying on the compiler to remove an empty if block in non-debug mode?",
+      "range": {
+        "startLine": 719,
+        "startChar": 26,
+        "endLine": 719,
+        "endChar": 30
+      },
+      "revId": "e5af6ff15e285baec885862029dd16f2a42aff4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
