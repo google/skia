@@ -561,12 +561,12 @@ std::unique_ptr<GrFragmentProcessor> GrDisplacementMapEffect::TestCreate(GrProce
     SkISize colorDimensions;
     colorDimensions.fWidth = d->fRandom->nextRangeU(0, colorProxy->width());
     colorDimensions.fHeight = d->fRandom->nextRangeU(0, colorProxy->height());
-    SkIRect dispRect = SkIRect::MakeSize(dispProxy->dimensions());
+    SkIRect dispRect = SkIRect::Make(dispProxy->dimensions());
     return GrDisplacementMapEffect::Make(xChannelSelector, yChannelSelector, scale,
                                          std::move(dispProxy),
                                          dispRect,
                                          SkMatrix::I(),
-                                         std::move(colorProxy), SkIRect::MakeSize(colorDimensions));
+                                         std::move(colorProxy), SkIRect::Make(colorDimensions));
 }
 
 #endif

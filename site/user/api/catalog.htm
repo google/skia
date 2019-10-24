@@ -672,15 +672,15 @@
     "name": "SkIRect::MakeLTRB",
         "stdout": "rect: 5, 35, 15, 25  isEmpty: true\\nrect: 5, 25, 15, 35  isEmpty: false\\n"
     },
-        "SkIRect_MakeSize": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkSize size = {25.5f, 35.5f};\n    SkIRect rect = SkIRect::MakeSize(size.toRound());\n    SkDebugf(\"round width: %d  height: %d\\n\", rect.width(), rect.height());\n    rect = SkIRect::MakeSize(size.toFloor());\n    SkDebugf(\"floor width: %d  height: %d\\n\", rect.width(), rect.height());\n}",
+        "SkIRect_Make": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkSize size = {25.5f, 35.5f};\n    SkIRect rect = SkIRect::Make(size.toRound());\n    SkDebugf(\"round width: %d  height: %d\\n\", rect.width(), rect.height());\n    rect = SkIRect::Make(size.toFloor());\n    SkDebugf(\"floor width: %d  height: %d\\n\", rect.width(), rect.height());\n}",
     "hash": "c6586ff8d24869c780169b0d19c75df6",
     "file": "SkIRect_Reference",
-    "name": "SkIRect::MakeSize",
+    "name": "SkIRect::Make",
         "stdout": "round width: 26  height: 36\\nfloor width: 25  height: 35\\n"
     },
         "SkIRect_MakeWH": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkIRect rect1 = SkIRect::MakeWH(25, 35);\n    SkIRect rect2 = SkIRect::MakeSize({25, 35});\n    SkIRect rect3 = SkIRect::MakeXYWH(0, 0, 25, 35);\n    SkIRect rect4 = SkIRect::MakeLTRB(0, 0, 25, 35);\n    SkDebugf(\"all %s\" \"equal\\n\", rect1 == rect2 && rect2 == rect3 && rect3 == rect4 ?\n             \"\" : \"not \");\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkIRect rect1 = SkIRect::MakeWH(25, 35);\n    SkIRect rect2 = SkIRect::Make({25, 35});\n    SkIRect rect3 = SkIRect::MakeXYWH(0, 0, 25, 35);\n    SkIRect rect4 = SkIRect::MakeLTRB(0, 0, 25, 35);\n    SkDebugf(\"all %s\" \"equal\\n\", rect1 == rect2 && rect2 == rect3 && rect3 == rect4 ?\n             \"\" : \"not \");\n}",
     "hash": "e36827a1a6ae2b1c26e7a8a08f325a07",
     "file": "SkIRect_Reference",
     "name": "SkIRect::MakeWH",
@@ -1023,7 +1023,7 @@
         "stdout": "color type: kAlpha_8_SkColorType\\n"
     },
         "SkImageInfo_dimensions": {
-    "code": "void draw(SkCanvas* canvas) {\n    const int height = 2;\n    const int width = 2;\n    SkImageInfo imageInfo = SkImageInfo::Make(width, height, kN32_SkColorType, kPremul_SkAlphaType);\n    SkISize dimensions = imageInfo.dimensions();\n    SkIRect bounds = imageInfo.bounds();\n    SkIRect dimensionsAsBounds = SkIRect::MakeSize(dimensions);\n    SkDebugf(\"dimensionsAsBounds %c= bounds\\n\", dimensionsAsBounds == bounds ? '=' : '!');\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    const int height = 2;\n    const int width = 2;\n    SkImageInfo imageInfo = SkImageInfo::Make(width, height, kN32_SkColorType, kPremul_SkAlphaType);\n    SkISize dimensions = imageInfo.dimensions();\n    SkIRect bounds = imageInfo.bounds();\n    SkIRect dimensionsAsBounds = SkIRect::Make(dimensions);\n    SkDebugf(\"dimensionsAsBounds %c= bounds\\n\", dimensionsAsBounds == bounds ? '=' : '!');\n}",
     "hash": "d5547cd2b302822aa85b7b0ae3f48458",
     "file": "SkImageInfo_Reference",
     "name": "SkImageInfo::dimensions()",
@@ -1107,7 +1107,7 @@
         "stdout": "before reset: 0\\nafter reset: 1\\n"
     },
         "SkImage_dimensions": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkISize dimensions = image->dimensions();\n    SkIRect bounds = image->bounds();\n    SkIRect dimensionsAsBounds = SkIRect::MakeSize(dimensions);\n    SkDebugf(\"dimensionsAsBounds %c= bounds\\n\", dimensionsAsBounds == bounds ? '=' : '!');\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkISize dimensions = image->dimensions();\n    SkIRect bounds = image->bounds();\n    SkIRect dimensionsAsBounds = SkIRect::Make(dimensions);\n    SkDebugf(\"dimensionsAsBounds %c= bounds\\n\", dimensionsAsBounds == bounds ? '=' : '!');\n}",
     "hash": "96b4bc43b3667df9ba9e2dafb770d33c",
     "file": "SkImage_Reference",
     "name": "SkImage::dimensions()",
@@ -2745,7 +2745,7 @@
         "stdout": "intersection"
     },
         "SkRect_Make": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkRect rect1 = SkRect::MakeSize({2, 35});\n    SkRect rect2 = SkRect::MakeIWH(2, 35);\n    SkDebugf(\"rect1 %c= rect2\\n\", rect1 == rect2 ? '=' : '!');\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkRect rect1 = SkRect::Make({2, 35});\n    SkRect rect2 = SkRect::MakeIWH(2, 35);\n    SkDebugf(\"rect1 %c= rect2\\n\", rect1 == rect2 ? '=' : '!');\n}",
     "hash": "e866f5e4f6ac52e89acadf48e54ac8e0",
     "file": "SkRect_Reference",
     "name": "SkRect::Make",
@@ -2773,10 +2773,10 @@
         "stdout": "rect: 5, 35, 15, 25  isEmpty: true\\nrect: 5, 25, 15, 35  isEmpty: false\\n"
     },
         "SkRect_MakeSize": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkSize size = {25.5f, 35.5f};\n    SkRect rect = SkRect::MakeSize(size);\n    SkDebugf(\"rect width: %g  height: %g\\n\", rect.width(), rect.height());\n    SkISize floor = size.toFloor();\n    rect = SkRect::MakeSize(SkSize::Make(floor));\n    SkDebugf(\"floor width: %g  height: %g\\n\", rect.width(), rect.height());\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkSize size = {25.5f, 35.5f};\n    SkRect rect = SkRect::Make(size);\n    SkDebugf(\"rect width: %g  height: %g\\n\", rect.width(), rect.height());\n    SkISize floor = size.toFloor();\n    rect = SkRect::MakeSize(SkSize::Make(floor));\n    SkDebugf(\"floor width: %g  height: %g\\n\", rect.width(), rect.height());\n}",
     "hash": "ab2c1a55016c8de9172b77fdf69e00a2",
     "file": "SkRect_Reference",
-    "name": "SkRect::MakeSize",
+    "name": "SkRect::Make",
         "stdout": "rect width: 25.5  height: 35.5\\nfloor width: 25  height: 35\\n"
     },
         "SkRect_MakeWH": {

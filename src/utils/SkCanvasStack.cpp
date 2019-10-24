@@ -16,7 +16,7 @@ SkCanvasStack::~SkCanvasStack() {
 void SkCanvasStack::pushCanvas(std::unique_ptr<SkCanvas> canvas, const SkIPoint& origin) {
     if (canvas) {
         // compute the bounds of this canvas
-        const SkIRect canvasBounds = SkIRect::MakeSize(canvas->getBaseLayerSize());
+        const SkIRect canvasBounds = SkIRect::Make(canvas->getBaseLayerSize());
 
         // push the canvas onto the stack
         this->INHERITED::addCanvas(canvas.get());

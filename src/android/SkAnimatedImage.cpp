@@ -60,7 +60,7 @@ sk_sp<SkAnimatedImage> SkAnimatedImage::Make(std::unique_ptr<SkAndroidCodec> cod
 
     const auto decodeInfo = codec->getInfo();
     const auto scaledSize = decodeInfo.dimensions();
-    const auto cropRect   = SkIRect::MakeSize(scaledSize);
+    const auto cropRect   = SkIRect::Make(scaledSize);
     auto image = sk_sp<SkAnimatedImage>(new SkAnimatedImage(std::move(codec), scaledSize,
                 decodeInfo, cropRect, nullptr));
 

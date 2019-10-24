@@ -8,6 +8,8 @@ Milestone 80
 
 <Insert new notes here- top is most recent.>
 
+  * Renamed SkIRect::MakeSize to SkIRect::Make
+    https://review.skia.org/250757/
 * * *
 
 Milestone 79
