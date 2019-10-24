@@ -1646,6 +1646,9 @@ func (b *builder) process(name string) {
 		j.Trigger = specs.TRIGGER_MASTER_ONLY
 	} else if strings.Contains(name, "-OnDemand-") || strings.Contains(name, "Android_Framework") || strings.Contains(name, "G3_Framework") {
 		j.Trigger = specs.TRIGGER_ON_DEMAND
+	} else if strings.Contains(name, "-NUC7i5BNK-") && (strings.Contains(name, "SkottieWASM") || strings.Contains(name, "LottieWeb")) {
+		// Done temporarily for skbug.com/9566
+		j.Trigger = specs.TRIGGER_ON_DEMAND
 	}
 	b.MustAddJob(name, j)
 }
