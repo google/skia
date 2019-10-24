@@ -330,6 +330,7 @@ static bool is_renderer_angle(const char* rendererString) {
 
 GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
                                         const GrGLExtensions& extensions) {
+    SkDebugf("Renderer String: %s\n", rendererString);
     if (rendererString) {
         static const char kTegraStr[] = "NVIDIA Tegra";
         if (0 == strncmp(rendererString, kTegraStr, SK_ARRAY_COUNT(kTegraStr) - 1)) {
