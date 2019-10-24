@@ -43,10 +43,10 @@ public:
                              args.fFPCoordTransformHandler);
 
         fragBuilder->codeAppend("half d = length(shadowParams.xy);");
-        fragBuilder->codeAppend("half distance = shadowParams.z * (1.0 - d);");
-
-        fragBuilder->codeAppend("half factor = 1.0 - clamp(distance, 0.0, 1.0);");
-        fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
+        fragBuilder->codeAppend("float2 uv = float2(shadowParams.z * (1.0 - d), 0);");
+        fragBuilder->codeAppend("half factor = ");
+        fragBuilder->appendTextureLookup(args.fTexSamplers[0], "uv", kFloat2_GrSLType);
+        fragBuilder->codeAppend(".a;");
         fragBuilder->codeAppendf("%s = half4(factor);",
                                  args.fOutputCoverage);
     }
@@ -62,11 +62,17 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrRRectShadowGeoProc::GrRRectShadowGeoProc() : INHERITED(kGrRRectShadowGeoProc_ClassID) {
+GrRRectShadowGeoProc::GrRRectShadowGeoProc(const sk_sp<GrTextureProxy> lut)
+        : INHERITED(kGrRRectShadowGeoProc_ClassID) {
     fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
     fInShadowParams = {"inShadowParams", kFloat3_GrVertexAttribType, kHalf3_GrSLType};
     this->setVertexAttributes(&fInPosition, 3);
+
+    SkASSERT(lut);
+    fLUTTextureSampler.reset(GrSamplerState::ClampBilerp(), lut->backendFormat(),
+                             lut->textureSwizzle());
+    this->setTextureSamplerCnt(1);
 }
 
 GrGLSLPrimitiveProcessor* GrRRectShadowGeoProc::createGLSLInstance(const GrShaderCaps&) const {
@@ -79,6 +85,6 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrRRectShadowGeoProc);
 
 #if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> GrRRectShadowGeoProc::TestCreate(GrProcessorTestData* d) {
-    return GrRRectShadowGeoProc::Make();
+    return GrRRectShadowGeoProc::Make(nullptr);
 }
 #endif
