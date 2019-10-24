@@ -525,9 +525,9 @@ void append(SkShaper::RunHandler* handler, const SkShaper::RunHandler::RunInfo& 
         buffer.glyphs[i] = glyph.fID;
         if (buffer.offsets) {
             buffer.positions[i] = advance + buffer.point;
-            buffer.offsets[i] = glyph.fOffset; //TODO: invert glyph.fOffset.fY?
+            buffer.offsets[i] = glyph.fOffset;
         } else {
-            buffer.positions[i] = advance + buffer.point + glyph.fOffset; //TODO: invert glyph.fOffset.fY?
+            buffer.positions[i] = advance + buffer.point + glyph.fOffset;
         }
         if (buffer.clusters) {
             buffer.clusters[i] = glyph.fCluster;
@@ -1308,9 +1308,9 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
         glyph.fID = info[i].codepoint;
         glyph.fCluster = info[i].cluster;
         glyph.fOffset.fX = pos[i].x_offset * textSizeX;
-        glyph.fOffset.fY = pos[i].y_offset * textSizeY;
+        glyph.fOffset.fY = -(pos[i].y_offset * textSizeY); // HarfBuzz y-up, Skia y-down
         glyph.fAdvance.fX = pos[i].x_advance * textSizeX;
-        glyph.fAdvance.fY = pos[i].y_advance * textSizeY;
+        glyph.fAdvance.fY = -(pos[i].y_advance * textSizeY); // HarfBuzz y-up, Skia y-down
 
         SkRect bounds;
         SkScalar advance;
