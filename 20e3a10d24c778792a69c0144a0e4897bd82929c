@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e7b9311_12ce2ac9",
+        "filename": "gn/toolchain/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-24T15:07:14Z",
+      "side": 1,
+      "message": "Might even make more sense now to just hardcode libtool here?",
+      "range": {
+        "startLine": 260,
+        "startChar": 13,
+        "endLine": 260,
+        "endChar": 16
+      },
+      "revId": "20e3a10d24c778792a69c0144a0e4897bd82929c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
