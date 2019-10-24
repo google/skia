@@ -383,9 +383,8 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, GrMipMapped mipMapp
         if (GrMipMapped::kNo == mipMapped || proxy->mipMapped() == mipMapped) {
             return sk_ref_sp(const_cast<SkImage*>(this));
         }
-        GrTextureAdjuster adjuster(context, std::move(proxy),
-                                   SkColorTypeToGrColorType(this->colorType()), this->alphaType(),
-                                   this->uniqueID(), this->colorSpace());
+        GrTextureAdjuster adjuster(context, std::move(proxy), this->imageInfo().colorInfo(),
+                                   this->uniqueID());
         return create_image_from_producer(context, &adjuster, this->alphaType(),
                                           this->uniqueID(), mipMapped);
     }

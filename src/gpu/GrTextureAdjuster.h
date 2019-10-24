@@ -29,9 +29,6 @@ public:
             bool coordsLimitedToConstraintRect,
             const GrSamplerState::Filter* filterOrNullForBicubic) override;
 
-    GrTextureAdjuster(GrRecordingContext*, sk_sp<GrTextureProxy>, GrColorType, SkAlphaType,
-                      uint32_t uniqueID, SkColorSpace*, bool useDecal = false);
-
     GrTextureAdjuster(GrRecordingContext*, sk_sp<GrTextureProxy>, const GrColorInfo&,
                       uint32_t uniqueID, bool useDecal = false);
 

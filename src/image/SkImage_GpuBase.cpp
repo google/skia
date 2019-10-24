@@ -165,8 +165,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::asTextureProxyRef(GrRecordingContext* con
     }
 
     GrTextureAdjuster adjuster(fContext.get(), this->asTextureProxyRef(context),
-                               SkColorTypeToGrColorType(this->colorType()), this->alphaType(),
-                               this->uniqueID(), this->colorSpace());
+                               this->imageInfo().colorInfo(), this->uniqueID());
     return adjuster.refTextureProxyForParams(params, scaleAdjust);
 }
 

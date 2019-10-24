@@ -521,8 +521,9 @@ public:
 
     // Determines whether a texture will need to be rescaled in order to be used with the
     // GrSamplerState.
-    static bool IsACopyNeededForRepeatWrapMode(const GrCaps*, GrTextureProxy* texProxy,
-                                               int width, int height,
+    static bool IsACopyNeededForRepeatWrapMode(const GrCaps*,
+                                               GrTextureProxy* texProxy,
+                                               SkISize dimensions,
                                                GrSamplerState::Filter,
                                                GrTextureProducer::CopyParams*,
                                                SkScalar scaleAdjust[2]);
