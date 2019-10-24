@@ -182,6 +182,18 @@ public:
     }
     void  deref() const { this->unref(); }
 
+    // This must be used with caution. It is only valid to call this when 'threadIsolatedTestCnt'
+    // refs are known to be isolated to the current thread. That is, it is known that there are at
+    // least 'threadIsolatedTestCnt' refs for which no other thread may make a balancing unref()
+    // call. Assuming the contract is followed, if this returns false then no other thread has
+    // ownership of this. If it returns true then another thread *may* have ownership.
+    bool refCntGreaterThan(int32_t threadIsolatedTestCnt) const {
+        int cnt = fRefCnt.load(std::memory_order_acquire);
+        // If this fails then the above contract has been violated.
+        SkASSERT(cnt >= threadIsolatedTestCnt);
+        return cnt > threadIsolatedTestCnt;
+    }
+
 private:
     mutable std::atomic<int32_t> fRefCnt;
 
