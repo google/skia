@@ -12,6 +12,7 @@
 #include "src/gpu/GrDrawOpTest.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/effects/GrShadowGeoProc.h"
 
@@ -179,6 +180,8 @@ static const uint16_t* rrect_type_to_indices(RRectType type) {
     }
     SK_ABORT("Invalid type");
 }
+
+static sk_sp<GrTextureProxy> gGaussianFalloffTexture;
 
 ///////////////////////////////////////////////////////////////////////////////
 namespace {
@@ -536,7 +539,7 @@ private:
 
     void onPrepareDraws(Target* target) override {
         // Setup geometry processor
-        sk_sp<GrGeometryProcessor> gp = GrRRectShadowGeoProc::Make();
+        sk_sp<GrGeometryProcessor> gp = GrRRectShadowGeoProc::Make(gGaussianFalloffTexture);
 
         int instanceCount = fGeoData.count();
         SkASSERT(sizeof(CircleVertex) == gp->vertexStride());
@@ -587,11 +590,15 @@ private:
             }
         }
 
+        GrPipeline::FixedDynamicState* fixedDynamicState = target->makeFixedDynamicState(1);
+        // not sure this is right -- add to visitProxies?
+        fixedDynamicState->fPrimitiveProcessorTextures[0] = gGaussianFalloffTexture.get();
+
         GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
         mesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertCount - 1,
                          GrPrimitiveRestart::kNo);
         mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-        target->recordDraw(std::move(gp), mesh);
+        target->recordDraw(std::move(gp), mesh, 1, fixedDynamicState, nullptr);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
@@ -619,6 +626,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace GrShadowRRectOp {
+
 std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                GrColor color,
                                const SkMatrix& viewMatrix,
@@ -627,6 +635,29 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                SkScalar insetWidth) {
     // Shadow rrect ops only handle simple circular rrects.
     SkASSERT(viewMatrix.isSimilarity() && SkRRectPriv::EqualRadii(rrect));
+
+    if (!gGaussianFalloffTexture) {
+        SkImageInfo ii = SkImageInfo::MakeA8(128, 1);
+        size_t rowBytes = 128;
+
+        static sk_sp<SkData> data = SkData::MakeUninitialized(128);
+        if (!data) {
+            return nullptr;
+        }
+        unsigned char* values = (unsigned char*) data->writable_data();
+        for (int i = 0; i < 128; ++i) {
+            SkScalar d = SK_Scalar1 - i/127.f;
+            values[i] = (SkScalarExp(-4 * d * d) - 0.018f)*255.999f;;
+        }
+
+        sk_sp<SkImage> img = SkImage::MakeRasterData(ii, std::move(data), rowBytes);
+        if (!img) {
+            return nullptr;
+        }
+
+        gGaussianFalloffTexture = context->priv().proxyProvider()->createTextureProxy(
+                std::move(img), 1, SkBudgeted::kYes, SkBackingFit::kExact);
+    }
 
     // Do any matrix crunching before we reset the draw state for device coords.
     const SkRect& rrectBounds = rrect.getBounds();
