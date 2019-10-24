@@ -44,19 +44,19 @@ void GrGpu::disconnect(DisconnectType) {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrGpu::IsACopyNeededForRepeatWrapMode(const GrCaps* caps, GrTextureProxy* texProxy,
-                                           int width, int height,
+bool GrGpu::IsACopyNeededForRepeatWrapMode(const GrCaps* caps,
+                                           GrTextureProxy* texProxy,
+                                           SkISize dimensions,
                                            GrSamplerState::Filter filter,
                                            GrTextureProducer::CopyParams* copyParams,
                                            SkScalar scaleAdjust[2]) {
     if (!caps->npotTextureTileSupport() &&
-        (!SkIsPow2(width) || !SkIsPow2(height))) {
+        (!SkIsPow2(dimensions.width()) || !SkIsPow2(dimensions.height()))) {
         SkASSERT(scaleAdjust);
-        copyParams->fWidth = GrNextPow2(width);
-        copyParams->fHeight = GrNextPow2(height);
+        copyParams->fDimensions = {SkNextPow2(dimensions.width()), SkNextPow2(dimensions.height())};
         SkASSERT(scaleAdjust);
-        scaleAdjust[0] = ((SkScalar)copyParams->fWidth) / width;
-        scaleAdjust[1] = ((SkScalar)copyParams->fHeight) / height;
+        scaleAdjust[0] = ((SkScalar)copyParams->fDimensions.width()) / dimensions.width();
+        scaleAdjust[1] = ((SkScalar)copyParams->fDimensions.height()) / dimensions.height();
         switch (filter) {
         case GrSamplerState::Filter::kNearest:
             copyParams->fFilter = GrSamplerState::Filter::kNearest;
@@ -75,8 +75,7 @@ bool GrGpu::IsACopyNeededForRepeatWrapMode(const GrCaps* caps, GrTextureProxy* t
         // those capabilities are required) force a copy.
         if (texProxy->hasRestrictedSampling()) {
             copyParams->fFilter = GrSamplerState::Filter::kNearest;
-            copyParams->fWidth = texProxy->width();
-            copyParams->fHeight = texProxy->height();
+            copyParams->fDimensions = texProxy->dimensions();
             return true;
         }
     }
@@ -93,8 +92,7 @@ bool GrGpu::IsACopyNeededForMips(const GrCaps* caps, const GrTextureProxy* texPr
     // force a copy.
     if (willNeedMips && texProxy->mipMapped() == GrMipMapped::kNo) {
         copyParams->fFilter = GrSamplerState::Filter::kNearest;
-        copyParams->fWidth = texProxy->width();
-        copyParams->fHeight = texProxy->height();
+        copyParams->fDimensions = texProxy->dimensions();
         return true;
     }
 
