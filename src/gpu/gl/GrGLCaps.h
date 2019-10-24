@@ -449,6 +449,7 @@ private:
         bool fDisableRGB8ForMali400 = false;
         bool fDisableLuminance16F = false;
         bool fDontDisableTexStorageOnAndroid = false;
+        bool fDisallowDirectRG8ReadPixels = false;
     };
 
     void applyDriverCorrectnessWorkarounds(const GrGLContextInfo&, const GrContextOptions&,
