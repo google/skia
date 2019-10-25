@@ -21,10 +21,19 @@
 #include "tools/ToolUtils.h"
 
 namespace {
+
+enum class ReadMode {
+    kSurfaceColorType,
+    kYUV420,
+    // This could fold into kSurfaceColorType if the GPU backend supported rendering to kGray8
+    kGray8,
+};
+
 struct AsyncContext {
     bool fCalled = false;
     std::unique_ptr<const SkSurface::AsyncReadResult> fResult;
 };
+
 }  // anonymous namespace
 
 // Making this a lambda in the test functions caused:
@@ -111,9 +120,9 @@ static sk_sp<SkImage> do_read_and_scale_yuv(SkSurface* surface, SkYUVColorSpace 
 // Draws a grid of rescales. The columns are none, low, and high filter quality. The rows are
 // rescale in src gamma and rescale in linear gamma.
 static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas, SkSurface* surface,
-                                          const SkIRect& srcRect, SkISize newSize, bool doYUV420,
+                                          const SkIRect& srcRect, SkISize newSize, ReadMode mode,
                                           SkString* errorMsg, int pad = 0) {
-    if (doYUV420) {
+    if (mode == ReadMode::kYUV420) {
         if (!canvas->getGrContext() || !canvas->getGrContext()->priv().asDirectContext()) {
             errorMsg->printf("YUV420 only supported on direct GPU for now.");
             return skiagm::DrawResult::kSkip;
@@ -123,7 +132,10 @@ static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas, SkSurface* surface,
         *errorMsg = "Not supported on recording/vector backends.";
         return skiagm::DrawResult::kSkip;
     }
-    const auto ii = canvas->imageInfo().makeDimensions(newSize);
+    auto ii = canvas->imageInfo().makeDimensions(newSize);
+    if (mode == ReadMode::kGray8) {
+        ii = ii.makeColorType(kGray_8_SkColorType);
+    }
 
     SkYUVColorSpace yuvColorSpace = kRec601_SkYUVColorSpace;
     canvas->save();
@@ -132,7 +144,7 @@ static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas, SkSurface* surface,
         for (auto quality : {kNone_SkFilterQuality, kLow_SkFilterQuality, kHigh_SkFilterQuality}) {
             SkScopeExit cleanup;
             sk_sp<SkImage> result;
-            if (doYUV420) {
+            if (mode == ReadMode::kYUV420) {
                 result = do_read_and_scale_yuv(surface, yuvColorSpace, srcRect, newSize, gamma,
                                                quality, &cleanup);
                 if (!result) {
@@ -160,7 +172,7 @@ static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas, SkSurface* surface,
 
 static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas, const char* imageFile,
                                                 const SkIRect& srcRect, SkISize newSize,
-                                                bool doYUV420, SkString* errorMsg) {
+                                                ReadMode mode, SkString* errorMsg) {
     auto image = GetResourceAsImage(imageFile);
     if (!image) {
         errorMsg->printf("Could not load image file %s.", imageFile);
@@ -188,23 +200,35 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas, const char* im
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
     surface->getCanvas()->drawImage(image, 0, 0, &paint);
-    return do_rescale_grid(canvas, surface.get(), srcRect, newSize, doYUV420, errorMsg);
+    return do_rescale_grid(canvas, surface.get(), srcRect, newSize, mode, errorMsg);
 }
 
-#define DEF_RESCALE_AND_READ_GM(IMAGE_FILE, TAG, SRC_RECT, W, H)                              \
-    DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_##TAG, canvas, errorMsg, 3 * W, 2 * H) {    \
-        ToolUtils::draw_checkerboard(canvas, SK_ColorDKGRAY, SK_ColorLTGRAY, 25);             \
-        return do_rescale_image_grid(canvas, #IMAGE_FILE, SRC_RECT, {W, H}, false, errorMsg); \
+#define DEF_RESCALE_AND_READ_GM(IMAGE_FILE, TAG, SRC_RECT, W, H)                           \
+    DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_##TAG, canvas, errorMsg, 3 * W, 2 * H) { \
+        ToolUtils::draw_checkerboard(canvas, SK_ColorDKGRAY, SK_ColorLTGRAY, 25);          \
+        return do_rescale_image_grid(canvas, #IMAGE_FILE, SRC_RECT, {W, H},                \
+                                     ReadMode::kSurfaceColorType, errorMsg);               \
     }
 
 #define DEF_RESCALE_AND_READ_YUV_GM(IMAGE_FILE, TAG, SRC_RECT, W, H)                              \
     DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_yuv420_##TAG, canvas, errorMsg, 3 * W, 2 * H) { \
         ToolUtils::draw_checkerboard(canvas, SK_ColorDKGRAY, SK_ColorLTGRAY, 25);                 \
-        return do_rescale_image_grid(canvas, #IMAGE_FILE, SRC_RECT, {W, H}, true, errorMsg);      \
+        return do_rescale_image_grid(canvas, #IMAGE_FILE, SRC_RECT, {W, H}, ReadMode::kYUV420,    \
+                                     errorMsg);                                                   \
+    }
+
+#define DEF_RESCALE_AND_READ_GRAY_GM(IMAGE_FILE, TAG, SRC_RECT, W, H)                            \
+    DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_gray8_##TAG, canvas, errorMsg, 3 * W, 2 * H) { \
+        ToolUtils::draw_checkerboard(canvas, SK_ColorDKGRAY, SK_ColorLTGRAY, 25);                \
+        return do_rescale_image_grid(canvas, #IMAGE_FILE, SRC_RECT, {W, H}, ReadMode::kGray8,    \
+                                     errorMsg);                                                  \
     }
 
 DEF_RESCALE_AND_READ_YUV_GM(images/yellow_rose.webp, rose, SkIRect::MakeXYWH(50, 5, 200, 150),
                             410, 376)
+
+DEF_RESCALE_AND_READ_GRAY_GM(images/yellow_rose.webp, rose, SkIRect::MakeXYWH(50, 5, 200, 150),
+                             410, 376)
 
 DEF_RESCALE_AND_READ_GM(images/yellow_rose.webp, rose, SkIRect::MakeXYWH(100, 20, 100, 100),
                         410, 410)
@@ -249,13 +273,15 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_no_bleed, canvas, errorMsg, 60, 60
     canvas->translate(kPad, kPad);
     skiagm::DrawResult result;
     SkISize downSize = {static_cast<int>(kInner/2),  static_cast<int>(kInner / 2)};
-    result = do_rescale_grid(canvas, surface.get(), srcRect, downSize, false, errorMsg, kPad);
+    result = do_rescale_grid(canvas, surface.get(), srcRect, downSize, ReadMode::kSurfaceColorType,
+                             errorMsg, kPad);
     if (result != skiagm::DrawResult::kOk) {
         return result;
     }
     canvas->translate(0, 2 * downSize.height());
     SkISize upSize = {static_cast<int>(kInner * 3.5), static_cast<int>(kInner * 4.6)};
-    result = do_rescale_grid(canvas, surface.get(), srcRect, upSize, false, errorMsg, kPad);
+    result = do_rescale_grid(canvas, surface.get(), srcRect, upSize, ReadMode::kSurfaceColorType,
+                             errorMsg, kPad);
     if (result != skiagm::DrawResult::kOk) {
         return result;
     }
