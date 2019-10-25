@@ -19,6 +19,7 @@ import time
 INFRA_BOTS_DIR = os.path.abspath(os.path.realpath(os.path.join(
     os.path.dirname(os.path.abspath(__file__)), os.pardir)))
 sys.path.insert(0, INFRA_BOTS_DIR)
+import git_utils
 import utils
 
 
@@ -109,9 +110,29 @@ def _trigger_task(options):
   return task
 
 
+def _add_cl_comment(issue, comment):
+  # Depot tools needs a checkout to use "git cl" even though we are just adding
+  # a comment to a change unrelated to the checkout.
+  with git_utils.NewGitCheckout(repository=utils.SKIA_REPO) as checkout:
+    """
+    add_comment_cmd = ['git', 'cl', 'comments', '-i', str(issue), '-a', comment]
+    publish_flag = '-p'
+    try:
+      subprocess.check_call(add_comment_cmd + [publish_flag])
+    except subprocess.CalledProcessError, e:
+      print 'Could not add comment to %d, probably because WIP change: %s' % (
+          issue, e)
+      print 'Now trying to add comment without publish flag'
+      subprocess.check_call(add_comment_cmd)
+    """
+    add_comment_cmd = ['git', 'cl', 'comments', '-i', str(issue), '-a', comment]
+    subprocess.check_call(add_comment_cmd)
+
+
 def trigger_and_wait(options):
   """Triggers a task on the compile server and waits for it to complete."""
   task = _trigger_task(options)
+
   print 'Android Compile Task for %d/%d has been successfully added to %s.' % (
       options.issue, options.patchset, ANDROID_COMPILE_BUCKET)
   print '%s will be polled every %d seconds.' % (ANDROID_COMPILE_BUCKET,
@@ -173,11 +194,16 @@ def trigger_and_wait(options):
                    ret['withpatch_log'], ret['nopatch_log'],
                    'https://skia-android-compile.corp.goog/'))
       else:
-        print ('Both with patch and no patch builds failed. This means that the'
-               ' Android tree is currently broken. Marking this bot as '
-               'successful')
-        print 'With patch logs are here: %s' % ret['withpatch_log']
-        print 'No patch logs are here: %s' % ret['nopatch_log']
+        bot_name = '%s-Android_Framework' % task['lunch_target']
+        msg = ('FYI: Both with patch and no patch builds of the %s bot '
+               'failed.\nThis could mean that the Android tree is currently '
+               'broken and infra is investigating.\nMarking this bot as '
+               'successful to not block the CQ.\n\n'
+               'With patch logs are here: %s\n'
+               'No patch logs are here: %s\n\n') % (
+                   bot_name, ret['withpatch_log'], ret['nopatch_log'])
+        _add_cl_comment(task['issue'], msg)
+        print msg
         return 0
 
     # Print status of the task.
