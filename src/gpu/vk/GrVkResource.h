@@ -9,6 +9,7 @@
 #define GrVkResource_DEFINED
 
 
+#include "include/private/SkMutex.h"
 #include "include/private/SkTHash.h"
 #include "include/utils/SkRandom.h"
 #include <atomic>
@@ -49,6 +50,7 @@ public:
     class Trace {
     public:
         ~Trace() {
+            SkAutoMutexExclusive locked(fLock);
             fHashSet.foreach([](const GrVkResource* r) {
                 r->dumpInfo();
             });
@@ -56,14 +58,17 @@ public:
         }
 
         void add(const GrVkResource* r) {
+            SkAutoMutexExclusive locked(fLock);
             fHashSet.add(r);
         }
 
         void remove(const GrVkResource* r) {
+            SkAutoMutexExclusive locked(fLock);
             fHashSet.remove(r);
         }
 
     private:
+        SkMutex fLock;
         SkTHashSet<const GrVkResource*, GrVkResource::Hash> fHashSet;
     };
 
