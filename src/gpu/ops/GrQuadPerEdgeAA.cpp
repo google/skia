@@ -526,7 +526,7 @@ static sk_sp<const GrGpuBuffer> get_index_buffer(GrResourceProvider* resourcePro
     GR_DEFINE_STATIC_UNIQUE_KEY(gAAFillRectIndexBufferKey);
 
     // clang-format off
-    static const uint16_t gFillAARectIdx[] = {
+    static const uint16_t gFillAARectIdx[kIndicesPerAAFillRect] = {
         0, 1, 2, 1, 3, 2,
         0, 4, 1, 4, 5, 1,
         0, 6, 4, 0, 2, 6,

@@ -605,7 +605,8 @@ private:
     }
 #endif
 
-    VertexSpec characterize(int* numProxies, int* numTotalQuads) const {
+    VertexSpec characterize(int* numProxies, int* numTotalQuads,
+                            Quad::IndexBufferOption* foo) const {
         GrQuad::Type quadType = GrQuad::Type::kAxisAligned;
         ColorType colorType = ColorType::kNone;
         GrQuad::Type srcQuadType = GrQuad::Type::kAxisAligned;
@@ -614,6 +615,7 @@ private:
 
         *numProxies = 0;
         *numTotalQuads = 0;
+        bool someOpHasMultipleQuads = false
 
         for (const auto& op : ChainRange<TextureOp>(this)) {
             if (op.fQuads.deviceQuadType() > quadType) {
@@ -629,10 +631,21 @@ private:
             *numProxies += op.fProxyCnt;
             for (unsigned p = 0; p < op.fProxyCnt; ++p) {
                 *numTotalQuads += op.fProxyCountPairs[p].fQuadCnt;
+                if (op.fProxyCountPairs[p].fQuadCnt > 1) {
+                    someOpHasMultipleQuads = true;
+                }
             }
             if (op.aaType() == GrAAType::kCoverage) {
                 overallAAType = GrAAType::kCoverage;
             }
+        }
+
+        if (overallAAType == GrAAType::kCoverage) {
+            *foo = Quad::IndexBufferOption::kPictureFramed;
+        } else if (someOpHasMultipleQuads) {
+            *foo = Quad::IndexBufferOption::kIndexedRects;
+        } else {
+            *foo = Quad::IndexBufferOption::kTriStrips;
         }
 
         return VertexSpec(quadType, colorType, srcQuadType, /* hasLocal */ true, domain,
