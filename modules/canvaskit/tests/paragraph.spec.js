@@ -189,8 +189,7 @@ describe('CanvasKit\'s Path Behavior', function() {
         }));
     });
 
-    // Disabled until we can update CanvasKit's freetype.
-    xit('can draw emojis', function(done) {
+    fit('can draw emojis', function(done) {
         Promise.all([LoadCanvasKit, notoSerifFontLoaded, emojiFontLoaded]).then(catchException(done, () => {
             const surface = CanvasKit.MakeCanvasSurface('test');
             expect(surface).toBeTruthy('Could not make surface')
@@ -232,7 +231,7 @@ describe('CanvasKit\'s Path Behavior', function() {
 
             surface.flush();
             fontMgr.delete();
-            reportSurface(surface, 'paragraph_emoji', done);
+            reportSurface(surface, 'paragraph_emoji', null);
         }));
     });
 

@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    (e.g. SkColorFilter.MakeMatrix). This is an advanced feature, so use it with care.
  - `SkCanvas.clipRRect`, `SkCanvas.drawColor`
 
+### Changed
+ - Use newer version of Freetype2 (Tracking Skia's DEPS now).
+
+
 ## [0.8.0] - 2019-10-21
 
 ### Added
@@ -23,8 +27,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - The `no_font` compile option should strip out more dead code related to fonts.
  - and `no_embedded_font` option now allows creating a `SkFontMgr.FromData` instead of
    always having an empty one.
- - Updated to emscripten 1.38.47
- - Switch to WebGL 2.0, but fall back to 1.0 when unavailable - bug.skia.org/9052
 
 ### Fixed
  - Null terminator bug in draw text - skbug.com/9314
