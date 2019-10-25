@@ -5,11 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "modules/skottie/src/SkottiePriv.h"
+#include "modules/skottie/src/Composition.h"
 
 #include "include/core/SkCanvas.h"
 #include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/SkottieJson.h"
+#include "modules/skottie/src/SkottiePriv.h"
 #include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGTransform.h"
 
@@ -120,6 +121,8 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachAssetRef(
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachComposition(
         const skjson::ObjectValue& jcomp) const {
+    return CompositionBuilder(jcomp).build(*this);
+
     const skjson::ArrayValue* jlayers = jcomp["layers"];
     if (!jlayers) return nullptr;
 
@@ -193,6 +196,99 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachComposition(
     }
 
     return comp;
+}
+
+CompositionBuilder::CompositionBuilder(const skjson::ObjectValue& jcomp) {
+    // Optional motion blur params.
+    if (const skjson::ObjectValue* jmb = jcomp["mb"]) {
+        static constexpr size_t kMaxSamplesPerFrame = 64;
+        fMotionBlurSamples = std::min(ParseDefault<size_t>((*jmb)["spf"], 1ul),
+                                                           kMaxSamplesPerFrame);
+        fMotionBlurAngle = SkTPin(ParseDefault((*jmb)["sa"], 0.0f),    0.0f, 720.0f);
+        fMotionBlurPhase = SkTPin(ParseDefault((*jmb)["sp"], 0.0f), -360.0f, 360.0f);
+    }
+
+    // Prepare layer builders.
+    if (const skjson::ArrayValue* jlayers = jcomp["layers"]) {
+        fLayerBuilders.reserve(SkToInt(jlayers->size()));
+        for (const skjson::ObjectValue* jlayer : *jlayers) {
+            if (!jlayer) continue;
+
+            const auto  lbuilder_index = fLayerBuilders.size();
+            const auto& lbuilder       = fLayerBuilders.emplace_back(*jlayer);
+
+            fLayerIndexMap.set(lbuilder.index(), lbuilder_index);
+
+            // Keep track of the camera builder.
+            if (lbuilder.isCamera()) {
+                // We only support one (first) camera for now.
+                if (fCameraBuilderIndex < 0) {
+                    fCameraBuilderIndex = SkToInt(lbuilder_index);
+                }
+            }
+        }
+    }
+}
+
+CompositionBuilder::~CompositionBuilder() = default;
+
+void CompositionBuilder::setMatte(sk_sp<sksg::RenderNode> matte) {
+    fCurrentMatte = std::move(matte);
+}
+
+sk_sp<sksg::RenderNode> CompositionBuilder::releaseMatte() {
+    return std::move(fCurrentMatte);
+}
+
+const LayerBuilder* CompositionBuilder::findBuilder(int layer_index) const {
+    if (layer_index < 0) {
+        return nullptr;
+    }
+
+    if (const auto* idx = fLayerIndexMap.find(layer_index)) {
+        return &fLayerBuilders[SkToInt(*idx)];
+    }
+
+    return nullptr;
+}
+
+sk_sp<sksg::RenderNode> CompositionBuilder::build(const AnimationBuilder& abuilder) {
+    if (fCameraBuilderIndex >= 0) {
+        fCameraTransform = fLayerBuilders[fCameraBuilderIndex]
+                                .getTransform(abuilder, this, LayerBuilder::TransformType::k3D);
+    } else if (fHas3D) {
+        // Instantiate a default camera when 3D layers are present.
+        fCameraTransform = CameraAdapter::MakeDefault(abuilder.size())->refTransform();
+    }
+
+    // First pass - transitively attach layer transform chains.
+    for (auto& lbuilder : fLayerBuilders) {
+        lbuilder.buildTransform(abuilder, this);
+    }
+
+    // Second pass - attach layer contents.
+    std::vector<sk_sp<sksg::RenderNode>> layers;
+    layers.reserve(fLayerBuilders.size());
+
+    for (const auto& lbuilder : fLayerBuilders) {
+        if (auto layer = lbuilder.build(abuilder, this)) {
+            layers.push_back(std::move(layer));
+        }
+    }
+
+    if (layers.empty()) {
+        return nullptr;
+    }
+
+    if (layers.size() == 1) {
+        return std::move(layers[0]);
+    }
+
+    // Layers are painted in bottom->top order.
+    std::reverse(layers.begin(), layers.end());
+    layers.shrink_to_fit();
+
+    return sksg::Group::Make(std::move(layers));
 }
 
 } // namespace internal
