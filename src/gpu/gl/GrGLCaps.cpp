@@ -3317,7 +3317,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 
     // A lot of GPUs have trouble with full screen clears (skbug.com/7195)
     if (kAMDRadeonHD7xxx_GrGLRenderer == ctxInfo.renderer() ||
-        kAMDRadeonR9M4xx_GrGLRenderer == ctxInfo.renderer()) {
+        kAMDRadeonR9M4xx_GrGLRenderer == ctxInfo.renderer() ||
+        kAMDRadeonProVegaxx_GrGLRenderer == ctxInfo.renderer()) {
         fPerformColorClearsAsDraws = true;
     }
 
