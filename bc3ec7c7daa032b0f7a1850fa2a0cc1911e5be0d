@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "c82c0571_3d298ca0",
+        "filename": "bench/BulkRectBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-25T19:47:37Z",
+      "side": 1,
+      "message": "Would want a version where rects don\u0027t overlap ever to make sure max batching could happen?",
+      "range": {
+        "startLine": 43,
+        "startChar": 9,
+        "endLine": 45,
+        "endChar": 0
+      },
+      "revId": "bc3ec7c7daa032b0f7a1850fa2a0cc1911e5be0d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e96c7c03_c75c4dcc",
         "filename": "bench/BulkRectBench.cpp",
         "patchSetId": 2
