@@ -321,6 +321,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
 
         // Mip regen should not work with a read only texture.
         if (context->contextPriv().caps()->mipMapSupport()) {
+            if (backendTex.isValid()) {
+                context->contextPriv().getGpu()->deleteTestingOnlyBackendTexture(backendTex);
+            }
             backendTex = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
                     nullptr, kSize, kSize, kRGBA_8888_SkColorType, true, GrMipMapped::kYes);
             proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
@@ -331,6 +334,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
             auto regenResult =
                     context->contextPriv().getGpu()->regenerateMipMapLevels(proxy->peekTexture());
             REPORTER_ASSERT(reporter, regenResult == (ioType == kRW_GrIOType));
+        }
+        if (backendTex.isValid()) {
+            context->contextPriv().getGpu()->deleteTestingOnlyBackendTexture(backendTex);
         }
     }
 }
