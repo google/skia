@@ -14,7 +14,9 @@ skia_skottie_public = [
 
 skia_skottie_sources = [
   "$_src/Composition.cpp",
+  "$_src/Composition.h",
   "$_src/Layer.cpp",
+  "$_src/Layer.h",
   "$_src/Skottie.cpp",
   "$_src/SkottieAdapter.cpp",
   "$_src/SkottieAdapter.h",
