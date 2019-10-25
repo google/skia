@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98949605_fb647b77",
+        "filename": "src/gpu/effects/GrShadowGeoProc.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-25T13:43:03Z",
+      "side": 1,
+      "message": "fwiw we usually use 0.5 for 1D textures.",
+      "range": {
+        "startLine": 46,
+        "startChar": 80,
+        "endLine": 46,
+        "endChar": 81
+      },
+      "revId": "b1311ed05fa9d3bbbecd52465d1b682bc98910b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f576932_52d5628c",
+        "filename": "src/gpu/effects/GrShadowGeoProc.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-25T13:43:03Z",
+      "side": 1,
+      "message": "move up a line ?",
+      "revId": "b1311ed05fa9d3bbbecd52465d1b682bc98910b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "218f9317_7d17c49c",
+        "filename": "src/gpu/effects/GrShadowGeoProc.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-25T13:43:03Z",
+      "side": 1,
+      "message": "Isn\u0027t this going to hit the above assert ?",
+      "range": {
+        "startLine": 88,
+        "startChar": 38,
+        "endLine": 88,
+        "endChar": 45
+      },
+      "revId": "b1311ed05fa9d3bbbecd52465d1b682bc98910b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1c74342_44bd49c0",
+        "filename": "src/gpu/effects/GrShadowGeoProc.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-25T13:43:03Z",
+      "side": 1,
+      "message": "std::move ?",
+      "range": {
+        "startLine": 23,
+        "startChar": 67,
+        "endLine": 23,
+        "endChar": 70
+      },
+      "revId": "b1311ed05fa9d3bbbecd52465d1b682bc98910b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20d2d9e4_8457f051",
+        "filename": "src/gpu/ops/GrShadowRRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-25T13:43:03Z",
+      "side": 1,
+      "message": "Can\u0027t you just call ii.rowBytes() later - when necessary ?",
+      "revId": "b1311ed05fa9d3bbbecd52465d1b682bc98910b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b1d1a5e_1978f99f",
+        "filename": "src/gpu/ops/GrShadowRRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-25T13:43:03Z",
+      "side": 1,
+      "message": "SkScalarRoundToInt w/ 255 ?",
+      "revId": "b1311ed05fa9d3bbbecd52465d1b682bc98910b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
