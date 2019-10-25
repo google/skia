@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01bb4170_f4fe34a0",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 666,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-25T16:17:22Z",
+      "side": 1,
+      "message": "This does represent a more substantial change in the vertex buffer allocation. Now we only have one VBO, whereas previously, we could have meshes use different VBOs. Before we\u0027d only require a VBO to fill each proxy\u0027s quadCount (but prefer one with enough room to fit total quad count).\n\nIt is definitely a requirement that we keep to one VBO when we have a single memcpy. But should we update our batching rules to make sure the total quad count in the chain doesn\u0027t get too large? That would cause the entire chain to drop now.",
+      "range": {
+        "startLine": 665,
+        "startChar": 8,
+        "endLine": 666,
+        "endChar": 79
+      },
+      "revId": "72c08ae4dee83ff3b511f44cb6e2ca83ac8fe68e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cfaceddd_4e250646",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-25T16:17:22Z",
+      "side": 1,
+      "message": "// Fills in both vertex data and mesh data (?)",
+      "range": {
+        "startLine": 683,
+        "startChar": 12,
+        "endLine": 683,
+        "endChar": 89
+      },
+      "revId": "72c08ae4dee83ff3b511f44cb6e2ca83ac8fe68e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
