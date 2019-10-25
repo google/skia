@@ -94,9 +94,10 @@ enum GrGLRenderer {
     kMaliT_GrGLRenderer,
     kANGLE_GrGLRenderer,
 
-    kAMDRadeonHD7xxx_GrGLRenderer,  // AMD Radeon HD 7000 Series
-    kAMDRadeonR9M3xx_GrGLRenderer,  // AMD Radeon R9 M300 Series
-    kAMDRadeonR9M4xx_GrGLRenderer,  // AMD Radeon R9 M400 Series
+    kAMDRadeonHD7xxx_GrGLRenderer,    // AMD Radeon HD 7000 Series
+    kAMDRadeonR9M3xx_GrGLRenderer,    // AMD Radeon R9 M300 Series
+    kAMDRadeonR9M4xx_GrGLRenderer,    // AMD Radeon R9 M400 Series
+    kAMDRadeonProVegaxx_GrGLRenderer, // AMD Radeon Pro Vega
 
     kOther_GrGLRenderer
 };

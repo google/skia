@@ -484,6 +484,13 @@ GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
             if (3 == n) {
                 return kAMDRadeonHD7xxx_GrGLRenderer;
             }
+
+            int amdVegaModel=0;
+            n = sscanf(amdString, "Pro Vega %i", &amdVegaModel);
+            if (1 == n) {
+                return kAMDRadeonProVegaxx_GrGLRenderer;
+            }
+
         }
 
         if (strstr(rendererString, "llvmpipe")) {
