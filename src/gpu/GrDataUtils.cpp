@@ -408,10 +408,11 @@ static GrSwizzle get_load_and_get_swizzle(GrColorType ct, SkRasterPipeline::Stoc
 }
 
 static GrSwizzle get_dst_swizzle_and_store(GrColorType ct, SkRasterPipeline::StockStage* store,
-                                           bool* isNormalized, bool* isSRGB) {
+                                           bool* doLumToAlpha, bool* isNormalized, bool* isSRGB) {
     GrSwizzle swizzle("rgba");
     *isNormalized = true;
     *isSRGB = false;
+    *doLumToAlpha = false;
     switch (ct) {
         case GrColorType::kAlpha_8:          *store = SkRasterPipeline::store_a8;       break;
         case GrColorType::kAlpha_16:         *store = SkRasterPipeline::store_a16;      break;
@@ -452,8 +453,15 @@ static GrSwizzle get_dst_swizzle_and_store(GrColorType ct, SkRasterPipeline::Sto
                                              *store = SkRasterPipeline::store_8888;
                                              break;
 
-        case GrColorType::kGray_8:  // not currently supported as output
-        case GrColorType::kGray_8xxx:  // not currently supported as output
+        case GrColorType::kGray_8:          *doLumToAlpha = true;
+                                            *store = SkRasterPipeline::store_a8;
+                                            break;
+
+        case GrColorType::kGray_8xxx:       *doLumToAlpha = true;
+                                            *store = SkRasterPipeline::store_8888;
+                                            swizzle = GrSwizzle("a000");
+                                            break;
+
         case GrColorType::kUnknown:
             SK_ABORT("unexpected CT");
     }
@@ -478,10 +486,6 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
         return false;
     }
     if (dstInfo.width() != srcInfo.width() || srcInfo.height() != dstInfo.height()) {
-        return false;
-    }
-    if (GrColorTypeComponentFlags(dstInfo.colorType()) & kGray_SkColorTypeComponentFlag) {
-        // We don't currently support conversion to Gray.
         return false;
     }
     if (dstRB < dstInfo.minRowBytes() || srcRB < srcInfo.minRowBytes()) {
@@ -526,8 +530,9 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
     SkRasterPipeline::StockStage store;
     bool dstIsNormalized;
     bool dstIsSRGB;
-    auto storeSwizzle = get_dst_swizzle_and_store(dstInfo.colorType(), &store, &dstIsNormalized,
-                                                  &dstIsSRGB);
+    bool doLumToAlpha;
+    auto storeSwizzle = get_dst_swizzle_and_store(dstInfo.colorType(), &store, &doLumToAlpha,
+                                                  &dstIsNormalized, &dstIsSRGB);
 
     bool clampGamut;
     SkTLazy<SkColorSpaceXformSteps> steps;
@@ -558,7 +563,7 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
         std::swap(cnt, height);
     }
 
-    bool hasConversion = alphaOrCSConversion || clampGamut;
+    bool hasConversion = alphaOrCSConversion || clampGamut || doLumToAlpha;
 
     if (srcIsSRGB && dstIsSRGB && !hasConversion) {
         // No need to convert from srgb if we are just going to immediately convert it back.
@@ -581,10 +586,15 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
             if (clampGamut) {
                 append_clamp_gamut(&pipeline);
             }
-            // If we add support for storing to Gray we would add a luminance to alpha conversion
-            // here. We also wouldn't then need a to_srgb stage after since it would have not effect
-            // on the alpha channel. It would also mean we have an SRGB Gray color type which
-            // doesn't exist currently.
+            if (doLumToAlpha) {
+                pipeline.append(SkRasterPipeline::StockStage::bt709_luminance_or_luma_to_alpha);
+                // If we ever needed to convert from linear-encoded gray to sRGB-encoded
+                // gray we'd have a problem here because the subsequent to_srgb stage
+                // ignores the alpha channel (where we just stashed the gray). There are
+                // several ways that could be fixed but given our current set of color types
+                // this should never happen.
+                SkASSERT(!dstIsSRGB);
+            }
             if (dstIsSRGB) {
                 pipeline.append(SkRasterPipeline::to_srgb);
             }
