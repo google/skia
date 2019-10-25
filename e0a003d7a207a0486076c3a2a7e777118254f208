@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebdffe7d_d03edc4e",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-25T18:12:16Z",
+      "side": 1,
+      "message": "Just curious, doesn\u0027t this copy fn?\n\nMight be clearer that these are all just abstracted away loop syntax by closing with [\u0026] instead of explicitly listing out each closure and how they\u0027re closed, all through here and the other file?  When I start to see complex closure lists I always think the lambda\u0027s going to outlive the scope somehow.  Might just be me.",
+      "range": {
+        "startLine": 694,
+        "startChar": 19,
+        "endLine": 694,
+        "endChar": 41
+      },
+      "revId": "e0a003d7a207a0486076c3a2a7e777118254f208",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
