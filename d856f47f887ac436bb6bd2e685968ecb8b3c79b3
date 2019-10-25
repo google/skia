@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9778998b_084ec1c9",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-25T14:20:17Z",
+      "side": 1,
+      "message": "this is not sufficient. Before deleting you need to add either:\n\nGrFlushInfo flushInfo;\nflushInfo.fFlags \u003d kSyncCpu_GrFlushFlag;\ncontext-\u003eflush(flushInfo);\n\nor if they branch is only enough not to have that version of GrContext::flush\n\ncontext-\u003eflush();\ncontext-\u003econtextPriv().getGpu()-\u003etestingOnly_flushGpuAndSync();",
+      "range": {
+        "startLine": 325,
+        "startChar": 16,
+        "endLine": 325,
+        "endChar": 93
+      },
+      "revId": "d856f47f887ac436bb6bd2e685968ecb8b3c79b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c4b48a8_b9ebd57b",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-25T14:20:17Z",
+      "side": 1,
+      "message": "same as above.",
+      "range": {
+        "startLine": 339,
+        "startChar": 12,
+        "endLine": 339,
+        "endChar": 89
+      },
+      "revId": "d856f47f887ac436bb6bd2e685968ecb8b3c79b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
