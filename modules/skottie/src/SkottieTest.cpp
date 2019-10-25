@@ -253,7 +253,7 @@ DEF_TEST(Skottie_Properties, reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(opacities[1].handle->get(), 50));
 
     const auto& transforms = observer->transforms();
-    REPORTER_ASSERT(reporter, transforms.size() == 2);
+    REPORTER_ASSERT(reporter, transforms.size() == 3);
     REPORTER_ASSERT(reporter, transforms[0].node_name.equals("layer_0"));
     REPORTER_ASSERT(reporter, transforms[0].handle->get() == skottie::TransformPropertyValue({
         SkPoint::Make(0, 0),
@@ -263,8 +263,17 @@ DEF_TEST(Skottie_Properties, reporter) {
         0,
         0
     }));
-    REPORTER_ASSERT(reporter, transforms[1].node_name.equals("shape_transform_0"));
+    REPORTER_ASSERT(reporter, transforms[1].node_name.equals("layer_1"));
     REPORTER_ASSERT(reporter, transforms[1].handle->get() == skottie::TransformPropertyValue({
+        SkPoint::Make(0, 0),
+        SkPoint::Make(25, 25),
+        SkVector::Make(100, 100),
+        0,
+        0,
+        0
+    }));
+    REPORTER_ASSERT(reporter, transforms[2].node_name.equals("shape_transform_0"));
+    REPORTER_ASSERT(reporter, transforms[2].handle->get() == skottie::TransformPropertyValue({
         SkPoint::Make(0, 0),
         SkPoint::Make(0, 0),
         SkVector::Make(50, 50),
