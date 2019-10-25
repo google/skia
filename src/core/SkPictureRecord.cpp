@@ -36,7 +36,7 @@ SkPictureRecord::SkPictureRecord(const SkIRect& dimensions, uint32_t flags)
 }
 
 SkPictureRecord::SkPictureRecord(const SkISize& dimensions, uint32_t flags)
-    : SkPictureRecord(SkIRect::MakeSize(dimensions), flags) {}
+    : SkPictureRecord(SkIRect::Make(dimensions), flags) {}
 
 ///////////////////////////////////////////////////////////////////////////////
 

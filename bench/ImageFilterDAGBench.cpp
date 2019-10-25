@@ -67,7 +67,7 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        SkIRect subset = SkIRect::MakeSize(fImage->dimensions());
+        SkIRect subset = SkIRect::Make(fImage->dimensions());
         SkIPoint offset = SkIPoint::Make(0, 0);
         SkIRect discardSubset;
         // makeWithFilter will only use the GPU backend if the image is already a texture

@@ -432,7 +432,7 @@ rect1 == rect2
 
 ### See Also
 
-<a href='#SkRect_MakeWH'>MakeWH</a> <a href='#SkRect_MakeXYWH'>MakeXYWH</a> <a href='SkRect_Reference#SkRect'>SkRect</a>::<a href='#SkRect_MakeIWH'>MakeIWH</a> <a href='SkIRect_Reference#SkIRect'>SkIRect</a>::<a href='#SkIRect_MakeSize'>MakeSize</a>
+<a href='#SkRect_MakeWH'>MakeWH</a> <a href='#SkRect_MakeXYWH'>MakeXYWH</a> <a href='SkRect_Reference#SkRect'>SkRect</a>::<a href='#SkRect_MakeIWH'>MakeIWH</a> <a href='SkIRect_Reference#SkIRect'>SkIRect</a>::<a href='#SkIRect_Make'>Make</a>
 
 <a name='SkRect_Make_2'></a>
 

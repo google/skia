@@ -377,7 +377,7 @@ SkCodec::Result SkAndroidCodec::getAndroidPixels(const SkImageInfo& requestInfo,
             return SkCodec::kInvalidParameters;
         }
 
-        if (SkIRect::MakeSize(adjustedInfo.dimensions()) == *options->fSubset) {
+        if (SkIRect::Make(adjustedInfo.dimensions()) == *options->fSubset) {
             // The caller wants the whole thing, rather than a subset. Modify
             // the AndroidOptions passed to onGetAndroidPixels to not specify
             // a subset.
