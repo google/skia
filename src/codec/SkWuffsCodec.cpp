@@ -370,9 +370,9 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
 
     SkCodec::Result result = SkCodec::kSuccess;
     const char*     status = this->decodeFrame();
-    bool independent;
-    SkAlphaType alphaType;
-    const int index = options().fFrameIndex;
+    bool            independent;
+    SkAlphaType     alphaType;
+    const int       index = options().fFrameIndex;
     if (index == 0) {
         independent = true;
         alphaType = to_alpha_type(getEncodedInfo().opaque());
@@ -415,8 +415,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         // If the frame rect does not fill the output, ensure that those pixels are not
         // left uninitialized.
         if (independent && (bounds != this->bounds() || result != kSuccess)) {
-            SkSampler::Fill(dstInfo(), fIncrDecDst, fIncrDecRowBytes,
-                            options().fZeroInitialized);
+            SkSampler::Fill(dstInfo(), fIncrDecDst, fIncrDecRowBytes, options().fZeroInitialized);
         }
         fFirstCallToIncrementalDecode = false;
     } else {
@@ -446,16 +445,16 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         //
         // To get from the start (in the X-direction) of the image to the start
         // of the dirty_rect, we adjust s by (dirty_rect.min_incl_x * src_bytes_per_pixel).
-        uint8_t* s = pixels.ptr + (dirty_rect.min_incl_y * pixels.stride)
-                                + (dirty_rect.min_incl_x * src_bytes_per_pixel);
+        uint8_t* s = pixels.ptr + (dirty_rect.min_incl_y * pixels.stride) +
+                     (dirty_rect.min_incl_x * src_bytes_per_pixel);
 
         // Currently, this is only used for GIF, which will never have an ICC profile. When it is
         // used for other formats that might have one, we will need to transform from profiles that
         // do not have corresponding SkColorSpaces.
         SkASSERT(!getEncodedInfo().profile());
 
-        auto srcInfo = getInfo().makeWH(dirty_rect.width(), dirty_rect.height())
-                                .makeAlphaType(alphaType);
+        auto srcInfo =
+            getInfo().makeWH(dirty_rect.width(), dirty_rect.height()).makeAlphaType(alphaType);
         SkBitmap src;
         src.installPixels(srcInfo, s, pixels.stride);
         SkPaint paint;
