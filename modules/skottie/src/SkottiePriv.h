@@ -81,6 +81,8 @@ public:
 
     void log(Logger::Level, const skjson::Value*, const char fmt[], ...) const;
 
+    const SkSize& size() const { return fSize; }
+
     sk_sp<sksg::Color> attachColor(const skjson::ObjectValue&, const char prop_name[]) const;
     sk_sp<sksg::Transform> attachMatrix2D(const skjson::ObjectValue&, sk_sp<sksg::Transform>) const;
     sk_sp<sksg::Transform> attachMatrix3D(const skjson::ObjectValue&, sk_sp<sksg::Transform>,
@@ -91,6 +93,8 @@ public:
     sk_sp<sksg::Path> attachPath(const skjson::Value&) const;
 
     bool hasNontrivialBlending() const { return fHasNontrivialBlending; }
+
+    AnimatorScope* currentScope() const { return  fCurrentAnimatorScope; }
 
     class AutoScope final {
     public:
@@ -111,6 +115,8 @@ public:
         }
 
         ~AutoScope() { SkASSERT(!fBuilder); }
+
+        bool empty() const { return fCurrentScope.empty(); }
 
     private:
         const AnimationBuilder* fBuilder;
@@ -165,11 +171,16 @@ public:
     bool dispatchTextProperty(const sk_sp<TextAdapter>&) const;
     bool dispatchTransformProperty(const sk_sp<TransformAdapter2D>&) const;
 
+    struct LayerInfo {
+        SkSize      fSize;
+        const float fInPoint,
+                    fOutPoint;
+    };
+
 private:
     struct AttachLayerContext;
     struct AttachShapeContext;
     struct ImageAssetInfo;
-    struct LayerInfo;
 
     void parseAssets(const skjson::ArrayValue*);
     void parseFonts (const skjson::ObjectValue* jfonts,
@@ -181,8 +192,10 @@ private:
     sk_sp<sksg::RenderNode> attachLayer(const skjson::ObjectValue&, size_t type,
                                         AttachLayerContext*) const;
 
+public:
     sk_sp<sksg::RenderNode> attachBlendMode(const skjson::ObjectValue&,
                                             sk_sp<sksg::RenderNode>) const;
+private:
 
     sk_sp<sksg::RenderNode> attachShape(const skjson::ArrayValue*, AttachShapeContext*) const;
     sk_sp<sksg::RenderNode> attachAssetRef(const skjson::ObjectValue&,
@@ -192,13 +205,14 @@ private:
 
     sk_sp<sksg::RenderNode> attachNestedAnimation(const char* name) const;
 
+public:// temp
     sk_sp<sksg::RenderNode> attachImageLayer  (const skjson::ObjectValue&, LayerInfo*) const;
     sk_sp<sksg::RenderNode> attachNullLayer   (const skjson::ObjectValue&, LayerInfo*) const;
     sk_sp<sksg::RenderNode> attachPrecompLayer(const skjson::ObjectValue&, LayerInfo*) const;
     sk_sp<sksg::RenderNode> attachShapeLayer  (const skjson::ObjectValue&, LayerInfo*) const;
     sk_sp<sksg::RenderNode> attachSolidLayer  (const skjson::ObjectValue&, LayerInfo*) const;
     sk_sp<sksg::RenderNode> attachTextLayer   (const skjson::ObjectValue&, LayerInfo*) const;
-
+private:
     // Delay resolving the fontmgr until it is actually needed.
     struct LazyResolveFontMgr {
         LazyResolveFontMgr(sk_sp<SkFontMgr> fontMgr) : fFontMgr(std::move(fontMgr)) {}
@@ -229,12 +243,6 @@ private:
     mutable AnimatorScope*     fCurrentAnimatorScope;
     mutable const char*        fPropertyObserverContext;
     mutable bool               fHasNontrivialBlending : 1;
-
-    struct LayerInfo {
-        SkSize      fSize;
-        const float fInPoint,
-                    fOutPoint;
-    };
 
     struct AssetInfo {
         const skjson::ObjectValue* fAsset;
