@@ -27,4 +27,4 @@ function starPath(CanvasKit, X=128, Y=128, R=116) {
       p.lineTo(X + R * Math.cos(a), Y + R * Math.sin(a));
     }
     return p;
-  }
+}
