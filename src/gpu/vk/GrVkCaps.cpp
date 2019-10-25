@@ -1593,6 +1593,7 @@ static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool h
             }
             break;
         // These have no equivalent:
+        case GrColorType::kRGB_888:
         case GrColorType::kRGBA_F32:
         case GrColorType::kAlpha_8xxx:
         case GrColorType::kAlpha_F32xxx:

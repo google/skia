@@ -867,6 +867,10 @@ enum class GrColorType {
     kAlpha_F32xxx,
     kGray_8xxx,
 
+    // Required to put data in a GL_RGB8 texture on GLs that require internal/external formats
+    // to match.
+    kRGB_888,
+
     kLast = kGray_8xxx
 };
 
@@ -882,6 +886,7 @@ static constexpr SkColorType GrColorTypeToSkColorType(GrColorType ct) {
         // Once we add kRGBA_8888_SRGB_SkColorType we should return that here.
         case GrColorType::kRGBA_8888_SRGB:   return kRGBA_8888_SkColorType;
         case GrColorType::kRGB_888x:         return kRGB_888x_SkColorType;
+        case GrColorType::kRGB_888:          return kUnknown_SkColorType;
         case GrColorType::kRG_88:            return kR8G8_unorm_SkColorType;
         case GrColorType::kBGRA_8888:        return kBGRA_8888_SkColorType;
         case GrColorType::kRGBA_1010102:     return kRGBA_1010102_SkColorType;
@@ -941,6 +946,7 @@ static constexpr uint32_t GrColorTypeComponentFlags(GrColorType ct) {
         case GrColorType::kRGBA_8888:        return kRGBA_SkColorTypeComponentFlags;
         case GrColorType::kRGBA_8888_SRGB:   return kRGBA_SkColorTypeComponentFlags;
         case GrColorType::kRGB_888x:         return kRGB_SkColorTypeComponentFlags;
+        case GrColorType::kRGB_888:          return kRGB_SkColorTypeComponentFlags;
         case GrColorType::kRG_88:            return kRed_SkColorTypeComponentFlag |
                                                     kGreen_SkColorTypeComponentFlag;
         case GrColorType::kBGRA_8888:        return kRGBA_SkColorTypeComponentFlags;
@@ -1068,6 +1074,8 @@ static constexpr GrColorTypeDesc GrGetColorTypeDesc(GrColorType ct) {
             return GrColorTypeDesc::MakeRGBA(8, GrColorTypeEncoding::kSRGBUnorm);
         case GrColorType::kRGB_888x:
             return GrColorTypeDesc::MakeRGB(8, GrColorTypeEncoding::kUnorm);
+        case GrColorType::kRGB_888:
+            return GrColorTypeDesc::MakeRGB(8, GrColorTypeEncoding::kUnorm);
         case GrColorType::kRG_88:
             return GrColorTypeDesc::MakeRG(8, GrColorTypeEncoding::kUnorm);
         case GrColorType::kBGRA_8888:
@@ -1139,6 +1147,7 @@ static constexpr size_t GrColorTypeBytesPerPixel(GrColorType ct) {
         case GrColorType::kRGBA_8888:        return 4;
         case GrColorType::kRGBA_8888_SRGB:   return 4;
         case GrColorType::kRGB_888x:         return 4;
+        case GrColorType::kRGB_888:          return 3;
         case GrColorType::kRG_88:            return 2;
         case GrColorType::kBGRA_8888:        return 4;
         case GrColorType::kRGBA_1010102:     return 4;
@@ -1227,6 +1236,7 @@ static constexpr GrPixelConfig GrColorTypeToPixelConfig(GrColorType colorType) {
         case GrColorType::kRGBA_8888:        return kRGBA_8888_GrPixelConfig;
         case GrColorType::kRGBA_8888_SRGB:   return kSRGBA_8888_GrPixelConfig;
         case GrColorType::kRGB_888x:         return kRGB_888_GrPixelConfig;
+        case GrColorType::kRGB_888:          return kUnknown_GrPixelConfig;
         case GrColorType::kRG_88:            return kRG_88_GrPixelConfig;
         case GrColorType::kBGRA_8888:        return kBGRA_8888_GrPixelConfig;
         case GrColorType::kRGBA_1010102:     return kRGBA_1010102_GrPixelConfig;
@@ -1286,6 +1296,7 @@ static constexpr const char* GrColorTypeToStr(GrColorType ct) {
         case GrColorType::kRGBA_8888:        return "kRGBA_8888";
         case GrColorType::kRGBA_8888_SRGB:   return "kRGBA_8888_SRGB";
         case GrColorType::kRGB_888x:         return "kRGB_888x";
+        case GrColorType::kRGB_888:          return "kRGB_888";
         case GrColorType::kRG_88:            return "kRG_88";
         case GrColorType::kBGRA_8888:        return "kBGRA_8888";
         case GrColorType::kRGBA_1010102:     return "kRGBA_1010102";
