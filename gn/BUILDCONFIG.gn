@@ -125,7 +125,7 @@ if (is_android) {
   }
 }
 
-if (target_os == "win") {
+if (is_win) {
   # By default we look for 2017 (Enterprise, Pro, and Community), then 2015. If MSVC is installed in a
   # non-default location, you can set win_vc to inform us where it is.
 
@@ -135,7 +135,7 @@ if (target_os == "win") {
   assert(win_vc != "")  # Could not find VC installation. Set win_vc to your VC directory.
 }
 
-if (target_os == "win") {
+if (is_win) {
   if (win_toolchain_version == "") {
     win_toolchain_version = exec_script("//gn/highest_version_dir.py",
                                         [
