@@ -432,7 +432,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTest, reporter, ctxInfo) {
                      GrColorType::kRG_88,
                      GrColorType::kBGRA_8888,
                      GrColorType::kRGBA_1010102,
-                     //  GrColorType::kGray_8, Reading back to kGray is busted.
+                     GrColorType::kGray_8,
                      GrColorType::kAlpha_F16,
                      GrColorType::kRGBA_F16,
                      GrColorType::kRGBA_F16_Clamped,
@@ -464,7 +464,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTest, reporter, ctxInfo) {
                 GrColorType::kRG_88,
                 GrColorType::kBGRA_8888,
                 GrColorType::kRGBA_1010102,
-                //  GrColorType::kGray_8, Reading back to kGray is busted.
+                GrColorType::kGray_8,
                 GrColorType::kAlpha_F16,
                 GrColorType::kRGBA_F16,
                 GrColorType::kRGBA_F16_Clamped,
