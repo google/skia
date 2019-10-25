@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f26d196_5399f790",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-25T17:47:24Z",
+      "side": 1,
+      "message": "const SkRect\u0026, or is this related to the emscripten pointer issues?",
+      "range": {
+        "startLine": 572,
+        "startChar": 49,
+        "endLine": 572,
+        "endChar": 61
+      },
+      "revId": "c1a803ed534e2993a9f726e92aaee416fc27d039",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3926548_70641c0c",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-25T17:47:24Z",
+      "side": 1,
+      "message": "nit: alignment with (",
+      "range": {
+        "startLine": 572,
+        "startChar": 17,
+        "endLine": 572,
+        "endChar": 25
+      },
+      "revId": "c1a803ed534e2993a9f726e92aaee416fc27d039",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
