@@ -65,6 +65,23 @@
     },
     {
       "key": {
+        "uuid": "0dd0b298_481692ee",
+        "filename": "src/gpu/effects/GrShadowGeoProc.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-25T13:47:59Z",
+      "side": 1,
+      "message": "wdyt about just passing in a \"GrTextureProxy*\" here to indicate no transfer of ownership?",
+      "revId": "b1311ed05fa9d3bbbecd52465d1b682bc98910b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d1c74342_44bd49c0",
         "filename": "src/gpu/effects/GrShadowGeoProc.h",
         "patchSetId": 6
