@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "3d3c04fc_07d3a400",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3698,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-10-25T19:50:58Z",
+      "side": 1,
+      "message": "This is the workaround you need to enable.",
+      "range": {
+        "startLine": 3698,
+        "startChar": 23,
+        "endLine": 3698,
+        "endChar": 51
+      },
+      "revId": "72bb5a6f2a0fa1390da0eb8b9ccf42ce5f5e7376",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f2d3adec_1569679d",
         "filename": "src/gpu/gl/GrGLUtil.h",
         "patchSetId": 1
