@@ -479,6 +479,28 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
                      const GrImageInfo& srcInfo, const void* src, size_t srcRB,
                      bool flipY) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    if (srcInfo.colorType() == GrColorType::kRGB_888) {
+        // We don't expect to have to convert from this format.
+        return false;
+    }
+    if (dstInfo.colorType() == GrColorType::kRGB_888) {
+        auto tempDstInfo = dstInfo.makeColorType(GrColorType::kRGB_888x);
+        auto tempRB = tempDstInfo.minRowBytes();
+        std::unique_ptr<char[]> tempDst(new char[tempRB * tempDstInfo.height()]);
+        if (!GrConvertPixels(tempDstInfo, tempDst.get(), tempRB, srcInfo, src, srcRB, flipY)) {
+            return false;
+        }
+        auto* tRow = reinterpret_cast<const char*>(tempDst.get());
+        auto* dRow = reinterpret_cast<char*>(dst);
+        for (int y = 0; y < dstInfo.height(); ++y, tRow += tempRB, dRow += dstRB) {
+            for (int x = 0; x < dstInfo.width(); ++x) {
+                auto t = reinterpret_cast<const uint32_t*>(tRow + x * sizeof(uint32_t));
+                auto d = reinterpret_cast<uint32_t*>(dRow + x * 3);
+                memcpy(d, t, 3);
+            }
+        }
+        return true;
+    }
     if (!srcInfo.isValid() || !dstInfo.isValid()) {
         return false;
     }

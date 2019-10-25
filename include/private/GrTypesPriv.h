@@ -867,6 +867,10 @@ enum class GrColorType {
     kAlpha_F32xxx,
     kGray_8xxx,
 
+    // Required to put data in a GL_RGB8 texture on GLs that require internal/external formats
+    // to match.
+    kRGB_888,
+
     kLast = kGray_8xxx
 };
 
