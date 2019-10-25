@@ -250,6 +250,46 @@ DEF_GPUTEST(VkProtectedContext_ReadFromProtectedSurface, reporter, options) {
         surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
 }
 
+namespace {
+
+struct AsyncContext {
+    bool fCalled = false;
+    std::unique_ptr<const SkSurface::AsyncReadResult> fResult;
+};
+
+static void async_callback(void* c, std::unique_ptr<const SkSurface::AsyncReadResult> result) {
+    auto context = static_cast<AsyncContext*>(c);
+    context->fResult = std::move(result);
+    context->fCalled = true;
+};
+
+}  // anonymous namespace
+
+DEF_GPUTEST(VkProtectedContext_AsyncReadFromProtectedSurface, reporter, options) {
+    auto protectedTestHelper = std::make_unique<VulkanTestHelper>(true);
+    if (!protectedTestHelper->init(reporter)) {
+        return;
+    }
+    REPORTER_ASSERT(reporter, protectedTestHelper->grContext() != nullptr);
+
+    auto surface = protectedTestHelper->createSkSurface(reporter);
+    REPORTER_ASSERT(reporter, surface);
+    AsyncContext cbContext;
+    const auto image_info = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType,
+                                      SkColorSpace::MakeSRGB());
+    surface->asyncRescaleAndReadPixelsYUV420(kIdentity_SkYUVColorSpace, SkColorSpace::MakeSRGB(),
+                                             image_info.bounds(), image_info.dimensions(),
+                                             SkSurface::RescaleGamma::kSrc, kNone_SkFilterQuality,
+                                             &async_callback, &cbContext);
+    while (!cbContext.fCalled) {
+        surface->getCanvas()->getGrContext()->checkAsyncWorkCompletion();
+    }
+    REPORTER_ASSERT(reporter, !cbContext.fResult);
+
+    protectedTestHelper->grContext()->deleteBackendTexture(
+        surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
+}
+
 DEF_GPUTEST(VkProtectedContext_DrawRectangle, reporter, options) {
     auto protectedTestHelper = std::make_unique<VulkanTestHelper>(true);
     if (!protectedTestHelper->init(reporter)) {
