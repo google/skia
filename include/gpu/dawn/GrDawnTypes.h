@@ -10,6 +10,15 @@
 
 #ifdef Always
 #undef Always
+static constexpr int Always = 2;
+#endif
+#ifdef Success
+#undef Success
+static constexpr int Success = 0;
+#endif
+#ifdef None
+#undef None
+static constexpr int None = 0L;
 #endif
 #include "dawn/dawncpp.h"
 
