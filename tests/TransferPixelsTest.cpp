@@ -196,8 +196,8 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
     GrImageInfo srcInfo(allowedSrc.fColorType, kUnpremul_SkAlphaType, nullptr, tex->width(),
                         tex->height());
     GrImageInfo dstInfo(colorType, kUnpremul_SkAlphaType, nullptr, tex->width(), tex->height());
-    compare_pixels(srcInfo, srcData.get(), srcRowBytes, dstInfo, dstBuffer.get(), dstRowBytes,
-                   compareTolerances, error);
+    ComparePixels(srcInfo, srcData.get(), srcRowBytes, dstInfo, dstBuffer.get(), dstRowBytes,
+                  compareTolerances, error);
 
     //////////////////////////
     // transfer partial data
@@ -246,8 +246,8 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
                static_cast<int>(colorType));
         return;
     }
-    compare_pixels(srcInfo, srcData.get(), srcRowBytes, dstInfo, dstBuffer.get(), dstRowBytes,
-                   compareTolerances, error);
+    ComparePixels(srcInfo, srcData.get(), srcRowBytes, dstInfo, dstBuffer.get(), dstRowBytes,
+                  compareTolerances, error);
 }
 
 void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::ContextInfo& ctxInfo,
@@ -375,8 +375,8 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
             });
     GrImageInfo textureDataInfo(colorType, kUnpremul_SkAlphaType, nullptr, kTextureWidth,
                                 kTextureHeight);
-    compare_pixels(textureDataInfo, textureData.get(), textureDataRowBytes, transferInfo,
-                   transferData.get(), fullBufferRowBytes, tol, error);
+    ComparePixels(textureDataInfo, textureData.get(), textureDataRowBytes, transferInfo,
+                  transferData.get(), fullBufferRowBytes, tol, error);
 
     ///////////////////////
     // Now test a partial read at an offset into the buffer.
@@ -408,8 +408,8 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     const char* textureDataStart =
             textureData.get() + textureDataRowBytes * kPartialTop + textureDataBpp * kPartialLeft;
     textureDataInfo = textureDataInfo.makeWH(kPartialWidth, kPartialHeight);
-    compare_pixels(textureDataInfo, textureDataStart, textureDataRowBytes, transferInfo,
-                   transferData.get(), partialBufferRowBytes, tol, error);
+    ComparePixels(textureDataInfo, textureDataStart, textureDataRowBytes, transferInfo,
+                  transferData.get(), partialBufferRowBytes, tol, error);
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, gpu->stats()->transfersFromSurface() == expectedTransferCnt);
 #else

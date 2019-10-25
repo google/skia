@@ -171,7 +171,7 @@ static void check_solid_pixmap(skiatest::Reporter* reporter,
                    diffs[0], diffs[1], diffs[2], diffs[3]);
         });
 
-    check_solid_pixels(expected, actual, tols, error);
+    CheckSolidPixels(expected, actual, tols, error);
 }
 
 // What would raster do?

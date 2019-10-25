@@ -880,8 +880,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
 
     GrBackendTexture backendTexture;
 
-    if (!create_backend_texture(context, &backendTexture, ii, SkColors::kCyan,
-                                GrMipMapped::kNo, GrRenderable::kNo)) {
+    if (!CreateBackendTexture(context, &backendTexture, ii, SkColors::kCyan, GrMipMapped::kNo,
+                              GrRenderable::kNo)) {
         REPORTER_ASSERT(reporter, false);
         return;
     }
@@ -940,7 +940,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, fulfillInfo.fTex->unique());
     fulfillInfo.fTex.reset();
 
-    delete_backend_texture(context, backendTexture);
+    DeleteBackendTexture(context, backendTexture);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -447,7 +447,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
 
         // Mip regen should not work with a read only texture.
         if (context->priv().caps()->mipMapSupport()) {
-            delete_backend_texture(context, backendTex);
+            DeleteBackendTexture(context, backendTex);
             backendTex = context->createBackendTexture(
                     kSize, kSize, kRGBA_8888_SkColorType,
                     SkColors::kTransparent, GrMipMapped::kYes, GrRenderable::kYes,
@@ -462,7 +462,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
                     context->priv().getGpu()->regenerateMipMapLevels(proxy->peekTexture());
             REPORTER_ASSERT(reporter, regenResult == (ioType == kRW_GrIOType));
         }
-        delete_backend_texture(context, backendTex);
+        DeleteBackendTexture(context, backendTex);
     }
 }
 
@@ -764,8 +764,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcFlushTest, reporter, contextInfo) {
 
             GrBackendTexture backendTexture;
 
-            if (!create_backend_texture(context, &backendTexture, info, SkColors::kBlack,
-                                        GrMipMapped::kNo, GrRenderable::kNo)) {
+            if (!CreateBackendTexture(context, &backendTexture, info, SkColors::kBlack,
+                                      GrMipMapped::kNo, GrRenderable::kNo)) {
                 REPORTER_ASSERT(reporter, false);
                 continue;
             }
@@ -776,7 +776,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcFlushTest, reporter, contextInfo) {
             surf->getCanvas()->drawImage(std::move(img2), 1, 1);
             idleTexture.reset();
 
-            delete_backend_texture(context, backendTexture);
+            DeleteBackendTexture(context, backendTexture);
         }
     }
 }

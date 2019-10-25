@@ -27,7 +27,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColo
     SkAutoTMalloc<GrColor> srcBuffer(kWidth*kHeight);
     SkAutoTMalloc<GrColor> dstBuffer(kWidth*kHeight);
 
-    fill_pixel_data(kWidth, kHeight, srcBuffer.get());
+    FillPixelData(kWidth, kHeight, srcBuffer.get());
 
     auto grCT = SkColorTypeToGrColorType(ct);
     auto proxy = sk_gpu_test::MakeTextureProxyFromData(
@@ -42,10 +42,8 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColo
 
         bool result = sContext->readPixels(dstInfo, dstBuffer, 0, {0, 0});
         REPORTER_ASSERT(reporter, result);
-        REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_color(srcBuffer,
-                                                                         dstBuffer,
-                                                                         kWidth,
-                                                                         kHeight));
+        REPORTER_ASSERT(reporter,
+                        DoesFullBufferContainCorrectColor(srcBuffer, dstBuffer, kWidth, kHeight));
 
         dstInfo = SkImageInfo::Make(10, 2, ct, kPremul_SkAlphaType);
         result = sContext->writePixels(dstInfo, srcBuffer, 0, {2, 10});
@@ -56,10 +54,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColo
         result = sContext->readPixels(dstInfo, dstBuffer, 0, {2, 10});
         REPORTER_ASSERT(reporter, result);
 
-        REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_color(srcBuffer,
-                                                                         dstBuffer,
-                                                                         10,
-                                                                         2));
+        REPORTER_ASSERT(reporter, DoesFullBufferContainCorrectColor(srcBuffer, dstBuffer, 10, 2));
     }
 
     proxy = sk_gpu_test::MakeTextureProxyFromData(
@@ -74,10 +69,8 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColo
 
         bool result = sContext->readPixels(dstInfo, dstBuffer, 0, {0, 0});
         REPORTER_ASSERT(reporter, result);
-        REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_color(srcBuffer,
-                                                                         dstBuffer,
-                                                                         kWidth,
-                                                                         kHeight));
+        REPORTER_ASSERT(reporter,
+                        DoesFullBufferContainCorrectColor(srcBuffer, dstBuffer, kWidth, kHeight));
 
         dstInfo = SkImageInfo::Make(4, 5, ct, kPremul_SkAlphaType);
         result = sContext->writePixels(dstInfo, srcBuffer, 0, {5, 4});
@@ -88,10 +81,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColo
         result = sContext->readPixels(dstInfo, dstBuffer, 0, {5, 4});
         REPORTER_ASSERT(reporter, result);
 
-        REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_color(srcBuffer,
-                                                                         dstBuffer,
-                                                                         4,
-                                                                         5));
+        REPORTER_ASSERT(reporter, DoesFullBufferContainCorrectColor(srcBuffer, dstBuffer, 4, 5));
 
     }
 }
