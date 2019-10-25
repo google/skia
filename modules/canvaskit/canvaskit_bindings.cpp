@@ -559,8 +559,18 @@ private:
 };
 
 void drawShapedText(SkCanvas& canvas, ShapedText st, SkScalar x,
-                     SkScalar y, SkPaint paint) {
+                    SkScalar y, SkPaint paint) {
     canvas.drawTextBlob(st.blob(), x, y, paint);
+}
+
+int saveLayerRec(SkCanvas& canvas, const SkPaint* paint,
+                 const SkImageFilter* backdrop, SkCanvas::SaveLayerFlags flags) {
+    return canvas.saveLayer(SkCanvas::SaveLayerRec(nullptr, paint, backdrop, flags));
+}
+
+int saveLayerRecBounds(SkCanvas& canvas, const SkPaint* paint, const SkImageFilter* backdrop,
+                 SkCanvas::SaveLayerFlags flags, const SkRect bounds) {
+    return canvas.saveLayer(SkCanvas::SaveLayerRec(&bounds, paint, backdrop, flags));
 }
 
 // This is simpler than dealing with an SkPoint and SkVector
@@ -913,6 +923,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("restoreToCount", &SkCanvas::restoreToCount)
         .function("rotate", select_overload<void (SkScalar, SkScalar, SkScalar)>(&SkCanvas::rotate))
         .function("save", &SkCanvas::save)
+        .function("saveLayer", saveLayerRec, allow_raw_pointers())
+        .function("saveLayer", saveLayerRecBounds, allow_raw_pointers())
         .function("saveLayer", select_overload<int (const SkRect&, const SkPaint*)>(&SkCanvas::saveLayer),
                                allow_raw_pointers())
         .function("scale", &SkCanvas::scale)

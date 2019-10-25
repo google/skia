@@ -394,4 +394,37 @@ describe('CanvasKit\'s Canvas Behavior', function() {
         }));
     });
 
+    // Inspired by https://fiddle.skia.org/c/ee8c0b120234e27364f8c9a786cf8f89
+    it('can save layer with SaveLayerRec-like things', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const redPaint = new CanvasKit.SkPaint();
+            redPaint.setColor(CanvasKit.RED);
+            redPaint.setAntiAlias(true);
+            canvas.drawCircle(21, 21, 8, redPaint);
+
+            const bluePaint = new CanvasKit.SkPaint();
+            bluePaint.setColor(CanvasKit.BLUE);
+            canvas.drawCircle(31, 21, 8, bluePaint);
+
+            const m = CanvasKit.SkMatrix.scaled(4, 4);
+            const scalerIF = CanvasKit.SkImageFilter.MakeMatrixTransform(m, CanvasKit.FilterQuality.None, null);
+
+            const count = canvas.saveLayer(null, scalerIF, 0);
+            expect(count).toEqual(1);
+            canvas.drawCircle(125, 85, 8, redPaint);
+            canvas.restore();
+
+            surface.flush();
+
+            reportSurface(surface, 'savelayerrec_canvas', done);
+        }));
+    });
+
 });
