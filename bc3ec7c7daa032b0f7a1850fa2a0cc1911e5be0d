@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a4c411a6_ac04c75a",
+        "filename": "bench/BulkRectBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-25T19:36:10Z",
+      "side": 1,
+      "message": "Could/should this be protected ?",
+      "revId": "bc3ec7c7daa032b0f7a1850fa2a0cc1911e5be0d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e96c7c03_c75c4dcc",
+        "filename": "bench/BulkRectBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-25T19:36:10Z",
+      "side": 1,
+      "message": "SkASSERT(screenRect.contains(fRects[i])); ?\n\ndunno",
+      "revId": "bc3ec7c7daa032b0f7a1850fa2a0cc1911e5be0d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c36e4a8_ac72bf29",
+        "filename": "bench/BulkRectBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-25T19:36:10Z",
+      "side": 1,
+      "message": "protected ?",
+      "revId": "bc3ec7c7daa032b0f7a1850fa2a0cc1911e5be0d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9fe80471_cb47b04c",
+        "filename": "bench/BulkRectBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-25T19:36:10Z",
+      "side": 1,
+      "message": "\\n ?\nor - do this outside the loop ?",
+      "revId": "bc3ec7c7daa032b0f7a1850fa2a0cc1911e5be0d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58bac7ad_070b9106",
+        "filename": "bench/BulkRectBench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-25T19:36:10Z",
+      "side": 1,
+      "message": "Should we be varying the color per rect ?",
+      "revId": "bc3ec7c7daa032b0f7a1850fa2a0cc1911e5be0d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
