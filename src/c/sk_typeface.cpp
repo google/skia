@@ -177,7 +177,7 @@ sk_font_style_slant_t sk_fontstyle_get_slant(const sk_fontstyle_t* fs) {
 
 // font style set
 
-sk_fontstyleset_t* sk_fontstyleset_create_empty() {
+sk_fontstyleset_t* sk_fontstyleset_create_empty(void) {
     return ToFontStyleSet(SkFontStyleSet::CreateEmpty());
 }
 

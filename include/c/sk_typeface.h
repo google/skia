@@ -60,7 +60,7 @@ SK_C_API sk_font_style_slant_t sk_fontstyle_get_slant(const sk_fontstyle_t* fs);
 
 // font style set
 
-SK_C_API sk_fontstyleset_t* sk_fontstyleset_create_empty();
+SK_C_API sk_fontstyleset_t* sk_fontstyleset_create_empty(void);
 SK_C_API void sk_fontstyleset_unref(sk_fontstyleset_t* fss);
 SK_C_API int sk_fontstyleset_get_count(sk_fontstyleset_t* fss);
 SK_C_API void sk_fontstyleset_get_style(sk_fontstyleset_t* fss, int index, sk_fontstyle_t* fs, sk_string_t* style);

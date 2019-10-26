@@ -31,7 +31,7 @@ void sk_textblob_get_bounds(const sk_textblob_t* blob, sk_rect_t* bounds) {
 }
 
 
-sk_textblob_builder_t* sk_textblob_builder_new() {
+sk_textblob_builder_t* sk_textblob_builder_new(void) {
     return ToTextBlobBuilder(new SkTextBlobBuilder());
 }
 

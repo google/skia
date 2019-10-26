@@ -9,8 +9,8 @@
 #ifndef SkManagedDrawable_h
 #define SkManagedDrawable_h
 
-#include "SkTypes.h"
-#include "SkDrawable.h"
+#include "include/core/SkTypes.h"
+#include "include/core/SkDrawable.h"
 
 class SkCanvas;
 class SkPicture;

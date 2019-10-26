@@ -164,7 +164,7 @@ static inline skcms_Matrix3x3 AsNamedGamut(sk_named_gamut_t gamut) {
         case REC2020_SK_NAMED_GAMUT:
             return SkNamedGamut::kRec2020;
         default:
-            SkASSERTF(false, "An unknown sk_named_gamut_t was provided.");
+            SkDEBUGFAIL("An unknown sk_named_gamut_t was provided.");
             return SkNamedGamut::kXYZ;
     }
 }
@@ -181,7 +181,7 @@ static inline skcms_TransferFunction AsNamedTransferFn(sk_named_transfer_fn_t tr
         case REC2020_SK_NAMED_TRANSFER_FN:
             return SkNamedTransferFn::kRec2020;
         default:
-            SkASSERTF(false, "An unknown sk_named_transfer_fn_t was provided.");
+            SkDEBUGFAIL("An unknown sk_named_transfer_fn_t was provided.");
             return SkNamedTransferFn::kLinear;
     }
 }
@@ -265,8 +265,8 @@ static inline SkPDF::Metadata AsDocumentPDFMetadata(const sk_document_pdf_metada
     md.fKeywords = AsDocumentOptionalString(metadata->fKeywords);
     md.fCreator = AsDocumentOptionalString(metadata->fCreator);
     md.fProducer = AsDocumentOptionalString(metadata->fProducer);
-    md.fCreation =  AsDocumentOptionalTimestamp(metadata->fCreation),
-    md.fModified =  AsDocumentOptionalTimestamp(metadata->fModified),
+    md.fCreation = AsDocumentOptionalTimestamp(metadata->fCreation);
+    md.fModified = AsDocumentOptionalTimestamp(metadata->fModified);
     md.fRasterDPI = metadata->fRasterDPI;
     md.fPDFA = metadata->fPDFA;
     md.fEncodingQuality = metadata->fEncodingQuality;
