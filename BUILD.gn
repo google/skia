@@ -912,9 +912,6 @@ component("skia") {
       "src/ports/SkOSLibrary_win.cpp",
       "src/ports/SkTLS_win.cpp",
     ]
-    if (!is_winrt) {
-      sources += [ "src/ports/SkFontHost_win.cpp" ]
-    }
     libs += [
       "FontSub.lib",
       "Ole32.lib",
