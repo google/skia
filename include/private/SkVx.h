@@ -37,7 +37,7 @@
 #if !defined(__clang__) && defined(__GNUC__) && defined(__mips64)
     // GCC 7 hits an internal compiler error when targeting MIPS64.
     #define SKVX_ALIGNMENT
-#elif !defined(__clang__) && defined(_MSC_VER) && defined(_M_IX86)
+#elif !defined(__clang__) && defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_ARM))
     // Our SkVx unit tests fail when built by MSVC for 32-bit x86.
     #define SKVX_ALIGNMENT
 #else
