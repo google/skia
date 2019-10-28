@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "035c1af0_6cd0ec64",
+        "filename": "src/gpu/vk/GrVkTexture.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-10-28T19:28:00Z",
+      "side": 1,
+      "message": "As long as the array doesn\u0027t get too large this seems fine.",
+      "range": {
+        "startLine": 100,
+        "startChar": 4,
+        "endLine": 100,
+        "endChar": 13
+      },
+      "revId": "964b820ce28a12384f2334e1dbf33ee07675a98e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
