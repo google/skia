@@ -8,6 +8,9 @@ Milestone 80
 
 <Insert new notes here- top is most recent.>
 
+  * Remove old async read pixels APIs
+    https://review.skia.org/251198
+
 * * *
 
 Milestone 79

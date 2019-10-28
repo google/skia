@@ -967,60 +967,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AsyncReadPixels, reporter, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LegacyAsyncReadPixels, reporter, ctxInfo) {
-    using Surface = sk_sp<SkSurface>;
-    auto reader = std::function<GpuReadSrcFn<Surface>>([](const Surface& surface,
-                                                          const SkIVector& offset,
-                                                          const SkPixmap& pixels) {
-        struct Context {
-            const SkPixmap* fPixmap = nullptr;
-            bool fSuceeded = false;
-            bool fCalled = false;
-        };
-        auto callback = [](SkSurface::ReadPixelsContext c, const void* data, size_t rowBytes) {
-            auto* context = static_cast<Context*>(c);
-            context->fCalled = true;
-            if ((context->fSuceeded = SkToBool(data))) {
-                auto* pm = context->fPixmap;
-                SkRectMemcpy(pm->writable_addr(), pm->rowBytes(), data, rowBytes,
-                             pm->info().minRowBytes(), pm->height());
-            }
-        };
-
-        Context context;
-        context.fPixmap = &pixels;
-        auto rect = SkIRect::MakeSize(pixels.dimensions()).makeOffset(offset);
-
-        // Rescale quality and linearity don't matter since we're doing a non-scaling readback.
-        surface->asyncRescaleAndReadPixels(pixels.info(), rect, SkSurface::RescaleGamma::kSrc,
-                                           kNone_SkFilterQuality, callback, &context);
-        while (!context.fCalled) {
-            surface->getCanvas()->getGrContext()->checkAsyncWorkCompletion();
-        }
-        return context.fSuceeded;
-    });
-    GpuReadPixelTestRules rules;
-    rules.fAllowUnpremulSrc = false;
-    rules.fAllowUnpremulRead = false;
-    rules.fUncontainedRectSucceeds = false;
-
-    for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
-        auto factory = std::function<GpuSrcFactory<Surface>>(
-                [context = ctxInfo.grContext(), origin](const SkPixmap& src) {
-                    if (src.colorType() == kRGB_888x_SkColorType) {
-                        return Surface();
-                    }
-                    auto surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, src.info(),
-                                                            0, origin, nullptr);
-                    if (surf) {
-                        surf->writePixels(src, 0, 0);
-                    }
-                    return surf;
-                });
-        gpu_read_pixels_test_driver(reporter, rules, factory, reader);
-    }
-}
-
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, ctxInfo) {
     using Surface = sk_sp<SkSurface>;
     auto reader = std::function<GpuReadSrcFn<Surface>>(

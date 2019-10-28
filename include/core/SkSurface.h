@@ -849,17 +849,6 @@ public:
                                    RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
                                    ReadPixelsCallback callback, ReadPixelsContext context);
 
-    /** Legacy version of asyncRescaleAndReadPixels() that passes data directly to the callback
-        rather than using AsyncReadResult. The data is only valid during the lifetime of the
-        callback.
-
-        Deprecated.
-     */
-    using LegacyReadPixelsCallback = void(ReadPixelsContext, const void* data, size_t rowBytes);
-    void asyncRescaleAndReadPixels(const SkImageInfo& info, const SkIRect& srcRect,
-                                   RescaleGamma rescaleGamma, SkFilterQuality rescaleQuality,
-                                   LegacyReadPixelsCallback callback, ReadPixelsContext context);
-
     /**
         Similar to asyncRescaleAndReadPixels but performs an additional conversion to YUV. The
         RGB->YUV conversion is controlled by 'yuvColorSpace'. The YUV data is returned as three
@@ -894,23 +883,6 @@ public:
                                          RescaleGamma rescaleGamma,
                                          SkFilterQuality rescaleQuality,
                                          ReadPixelsCallback callback,
-                                         ReadPixelsContext);
-
-    /** Legacy version of asyncRescaleAndReadPixelsYUV420() that passes data directly to the
-        callback rather than using AsyncReadResult. The data is only valid during the lifetime of
-        the callback.
-
-        Deprecated.
-     */
-    using LegacyReadPixelsCallbackYUV420 = void(ReadPixelsContext, const void* data[3],
-                                                size_t rowBytes[3]);
-    void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
-                                         sk_sp<SkColorSpace> dstColorSpace,
-                                         const SkIRect& srcRect,
-                                         int dstW, int dstH,
-                                         RescaleGamma rescaleGamma,
-                                         SkFilterQuality rescaleQuality,
-                                         LegacyReadPixelsCallbackYUV420 callback,
                                          ReadPixelsContext);
 
     /** Copies SkRect of pixels from the src SkPixmap to the SkSurface.
