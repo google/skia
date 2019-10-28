@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ad9d2a3_c6042ced",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-10-28T16:21:47Z",
+      "side": 1,
+      "message": "Is this the correct directory name?  Do I need an absolute path?  The others seem to be in the form /sdcard/revenge_of_the_skiabot/resources ?",
+      "revId": "ec5e24c9a9f7e2c564127033cae3ab09923c766a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
