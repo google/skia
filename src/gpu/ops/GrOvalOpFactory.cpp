@@ -2791,7 +2791,7 @@ private:
         }
         PatternHelper helper(target, GrPrimitiveType::kTriangles, gp->vertexStride(),
                              std::move(indexBuffer), kVertsPerStandardRRect, indicesPerInstance,
-                             fRRects.count());
+                             fRRects.count(), kNumRRectsInIndexBuffer);
         GrVertexWriter verts{helper.vertices()};
         if (!verts.fPtr) {
             SkDebugf("Could not allocate vertices\n");
