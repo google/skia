@@ -69,9 +69,7 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextur
 SkString GrYUVtoRGBEffect::dumpInfo() const {
     SkString str;
     for (int i = 0; i < this->numTextureSamplers(); ++i) {
-        str.appendf("%d: %d %d ", i,
-                    this->textureSampler(i).proxy()->uniqueID().asUInt(),
-                    this->textureSampler(i).proxy()->underlyingUniqueID().asUInt());
+        str.appendf("%d: ", i);
     }
     str.appendf("\n");
 

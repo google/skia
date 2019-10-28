@@ -36,7 +36,6 @@ static void check_surface(skiatest::Reporter* reporter,
 #ifdef SK_DEBUG
     REPORTER_ASSERT(reporter, GrCaps::AreConfigsCompatible(config, proxy->config()));
 #endif
-    REPORTER_ASSERT(reporter, !proxy->uniqueID().isInvalid());
     REPORTER_ASSERT(reporter, proxy->isBudgeted() == budgeted);
 }
 
@@ -50,18 +49,8 @@ static void check_rendertarget(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, rtProxy->maxWindowRectangles(caps) == expectedMaxWindowRects);
     REPORTER_ASSERT(reporter, rtProxy->numSamples() == numSamples);
 
-    GrSurfaceProxy::UniqueID idBefore = rtProxy->uniqueID();
-    bool preinstantiated = rtProxy->isInstantiated();
     REPORTER_ASSERT(reporter, rtProxy->instantiate(provider));
     GrRenderTarget* rt = rtProxy->peekRenderTarget();
-
-    REPORTER_ASSERT(reporter, rtProxy->uniqueID() == idBefore);
-    // Deferred resources should always have a different ID from their instantiated rendertarget
-    if (preinstantiated) {
-        REPORTER_ASSERT(reporter, rtProxy->uniqueID().asUInt() == rt->uniqueID().asUInt());
-    } else {
-        REPORTER_ASSERT(reporter, rtProxy->uniqueID().asUInt() != rt->uniqueID().asUInt());
-    }
 
     if (SkBackingFit::kExact == fit) {
         REPORTER_ASSERT(reporter, rt->dimensions() == rtProxy->dimensions());
@@ -79,9 +68,7 @@ static void check_texture(skiatest::Reporter* reporter,
                           GrResourceProvider* provider,
                           GrTextureProxy* texProxy,
                           SkBackingFit fit) {
-    GrSurfaceProxy::UniqueID idBefore = texProxy->uniqueID();
 
-    bool preinstantiated = texProxy->isInstantiated();
     // The instantiated texture should have these dimensions. If the fit is kExact, then
     // 'backingStoreDimensions' reports the original WxH. If it is kApprox, make sure that
     // the texture is that size and didn't reuse one of the kExact surfaces in the provider.
@@ -95,14 +82,6 @@ static void check_texture(skiatest::Reporter* reporter,
 
     REPORTER_ASSERT(reporter, texProxy->instantiate(provider));
     GrTexture* tex = texProxy->peekTexture();
-
-    REPORTER_ASSERT(reporter, texProxy->uniqueID() == idBefore);
-    // Deferred resources should always have a different ID from their instantiated texture
-    if (preinstantiated) {
-        REPORTER_ASSERT(reporter, texProxy->uniqueID().asUInt() == tex->uniqueID().asUInt());
-    } else {
-        REPORTER_ASSERT(reporter, texProxy->uniqueID().asUInt() != tex->uniqueID().asUInt());
-    }
 
     REPORTER_ASSERT(reporter, tex->dimensions() == expectedSize);
 

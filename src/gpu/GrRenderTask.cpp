@@ -278,11 +278,8 @@ bool GrRenderTask::isInstantiated() const {
 #ifdef SK_DEBUG
 void GrRenderTask::dump(bool printDependencies) const {
     SkDebugf("--------------------------------------------------------------\n");
-    SkDebugf("renderTaskID: %d - proxyID: %d - surfaceID: %d\n", fUniqueID,
-             fTarget ? fTarget->uniqueID().asUInt() : -1,
-             fTarget && fTarget->peekSurface()
-                     ? fTarget->peekSurface()->uniqueID().asUInt()
-                     : -1);
+    SkDebugf("renderTaskID: %d - proxy: %p - surface: %p\n",
+             fUniqueID, fTarget, fTarget ? fTarget->peekSurface() : nullptr);
 
     if (printDependencies) {
         SkDebugf("I rely On (%d): ", fDependencies.count());

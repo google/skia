@@ -426,7 +426,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
                 GrSurfaceProxy* origProxy = as_IB(image)->peekProxy();
                 GrSurfaceProxy* copyProxy = as_IB(texImage)->peekProxy();
 
-                if (origProxy->underlyingUniqueID() != copyProxy->underlyingUniqueID()) {
+                if (origProxy != copyProxy) {
                     SkASSERT(origProxy->asTextureProxy());
                     if (GrMipMapped::kNo == mipMapped ||
                         GrMipMapped::kYes == origProxy->asTextureProxy()->mipMapped()) {

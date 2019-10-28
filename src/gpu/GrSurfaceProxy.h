@@ -140,6 +140,7 @@ public:
 
     const GrBackendFormat& backendFormat() const { return fFormat; }
 
+#if 0
     class UniqueID {
     public:
         static UniqueID InvalidID() {
@@ -193,6 +194,7 @@ public:
 
         return fUniqueID;
     }
+#endif
 
     virtual bool instantiate(GrResourceProvider*) = 0;
 
@@ -399,7 +401,7 @@ private:
                                       // Only meaningful if fLazyInstantiateCallback is non-null.
     UseAllocator           fUseAllocator;
 
-    const UniqueID         fUniqueID; // set from the backing resource for wrapped resources
+//    const UniqueID         fUniqueID; // set from the backing resource for wrapped resources
 
     LazyInstantiateCallback fLazyInstantiateCallback;
 

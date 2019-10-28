@@ -196,8 +196,8 @@ public:
         str.appendf("# draws: %d\n", fQuads.count());
         auto iter = fQuads.iterator();
         for (unsigned p = 0; p < fProxyCnt; ++p) {
-            str.appendf("Proxy ID: %d, Filter: %d\n",
-                        fProxyCountPairs[p].fProxy->uniqueID().asUInt(),
+            str.appendf("Proxy: %p, Filter: %d\n",
+                        fProxyCountPairs[p].fProxy,
                         static_cast<int>(fFilter));
             int i = 0;
             while(i < fProxyCountPairs[p].fQuadCnt && iter.next()) {
@@ -791,8 +791,7 @@ private:
         }
         auto thisProxy = fProxyCountPairs[0].fProxy;
         auto thatProxy = that->fProxyCountPairs[0].fProxy;
-        if (fProxyCnt > 1 || that->fProxyCnt > 1 ||
-            thisProxy->uniqueID() != thatProxy->uniqueID()) {
+        if (fProxyCnt > 1 || that->fProxyCnt > 1 || thisProxy != thatProxy) {
             // We can't merge across different proxies. Check if 'this' can be chained with 'that'.
             if (GrTextureProxy::ProxiesAreCompatibleAsDynamicState(thisProxy, thatProxy) &&
                 caps.dynamicStateArrayGeometryProcessorTextureSupport()) {

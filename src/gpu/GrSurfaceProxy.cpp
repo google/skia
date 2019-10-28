@@ -117,7 +117,6 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface,
                             ? SkBudgeted::kYes
                             : SkBudgeted::kNo)
         , fUseAllocator(useAllocator)
-        , fUniqueID(fTarget->uniqueID())  // Note: converting from unique resource ID to a proxy ID!
         , fIsProtected(fTarget->isProtected() ? GrProtected::kYes : GrProtected::kNo)
         , fGpuMemorySize(kInvalidGpuMemorySize) {
     SkASSERT(fFormat.isValid());

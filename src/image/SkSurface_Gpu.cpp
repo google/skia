@@ -175,7 +175,7 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     GrSurfaceProxy* imageProxy = ((SkImage_Base*) image.get())->peekProxy();
     SkASSERT(imageProxy);
 
-    if (rtc->asSurfaceProxy()->underlyingUniqueID() == imageProxy->underlyingUniqueID()) {
+    if (rtc->asSurfaceProxy() == imageProxy) {
         fDevice->replaceRenderTargetContext(SkSurface::kRetain_ContentChangeMode == mode);
     } else if (kDiscard_ContentChangeMode == mode) {
         this->SkSurface_Gpu::onDiscard();
