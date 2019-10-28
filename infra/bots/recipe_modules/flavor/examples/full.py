@@ -46,6 +46,8 @@ def RunSteps(api):
         api.flavor.install(lotties=True)
       elif 'Mskp' in api.properties['buildername']:
         api.flavor.install(mskps=True)
+      elif all(v in api.properties['buildername'] for v in ['Perf', 'Android', 'GPU']):
+        api.flavor.install(skps=True, images=True, svgs=True, resources=True, texttraces=True)
       else:
         api.flavor.install(skps=True, images=True, lotties=False, svgs=True,
                            resources=True)

@@ -141,6 +141,11 @@ def nanobench_flags(api, bot):
       # Just run GLES for now - maybe add gles_msaa4 in the future
       configs = ['gles']
 
+    assert 'GPU' in bot
+    if 'Android' in bot:
+      assert api.flavor.device_dirs.texttraces_dir
+      args.extend(['--texttraces', api.flavor.device_dirs.texttraces_dir])
+
   args.append('--config')
   args.extend(configs)
 
@@ -346,7 +351,6 @@ def perf_steps(api):
         api.flavor.device_dirs.perf_data_dir,
         api.flavor.host_dirs.perf_data_dir)
 
-
 def RunSteps(api):
   api.vars.setup()
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
@@ -360,6 +364,8 @@ def RunSteps(api):
     try:
       if 'Chromecast' in api.vars.builder_name:
         api.flavor.install(resources=True, skps=True)
+      elif all(v in api.vars.builder_name for v in ['Android', 'GPU']):
+        api.flavor.install(skps=True, images=True, svgs=True, resources=True, texttraces=True)
       else:
         api.flavor.install(skps=True, images=True, svgs=True, resources=True)
       perf_steps(api)
