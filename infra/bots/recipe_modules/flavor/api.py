@@ -34,6 +34,7 @@ VERSION_FILE_SK_IMAGE = 'SK_IMAGE_VERSION'
 VERSION_FILE_SKP = 'SKP_VERSION'
 VERSION_FILE_SVG = 'SVG_VERSION'
 VERSION_FILE_MSKP = 'MSKP_VERSION'
+VERSION_FILE_TEXTTRACES = 'TEXTTRACES_VERSION'
 
 VERSION_NONE = -1
 
@@ -116,9 +117,11 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
     return self._f.remove_file_on_device(path)
 
   def install(self, skps=False, images=False, lotties=False, svgs=False,
-              resources=False, mskps=False):
+              resources=False, mskps=False, texttraces=False):
     self._f.install()
 
+    if texttraces:
+      self._copy_texttraces()
     # TODO(borenet): Only copy files which have changed.
     if resources:
       self.copy_directory_contents_to_device(
@@ -228,4 +231,18 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
         self.m.vars.tmp_dir,
         self.host_dirs.mskp_dir,
         self.device_dirs.mskp_dir)
+    return version
+
+  def _copy_texttraces(self):
+    """Copy the text traces if needed."""
+    version = self.m.run.asset_version('text_blob_traces', self._skia_dir)
+    self.m.run.writefile(
+        self.m.path.join(self.m.vars.tmp_dir, VERSION_FILE_TEXTTRACES),
+        version)
+    self._copy_dir(
+        version,
+        VERSION_FILE_TEXTTRACES,
+        self.m.vars.tmp_dir,
+        self.host_dirs.texttraces_dir,
+        self.device_dirs.texttraces_dir)
     return version

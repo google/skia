@@ -72,6 +72,10 @@ def nanobench_flags(api, bot):
     if 'Nexus7' in bot:
       args.append('--purgeBetweenBenches')  # Debugging skia:8929
 
+    if 'Android' in bot:
+      assert api.flavor.device_dirs.texttraces_dir
+      args.extend(['--texttraces', api.flavor.device_dirs.texttraces_dir])
+
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
     args.append('--nocpu')
 
@@ -360,6 +364,8 @@ def RunSteps(api):
     try:
       if 'Chromecast' in api.vars.builder_name:
         api.flavor.install(resources=True, skps=True)
+      elif all(v in api.vars.builder_name for v in ['Android', 'CPU']):
+        api.flavor.install(skps=True, images=True, svgs=True, resources=True, texttraces=True)
       else:
         api.flavor.install(skps=True, images=True, svgs=True, resources=True)
       perf_steps(api)
