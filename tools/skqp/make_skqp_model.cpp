@@ -1,10 +1,17 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
+<<<<<<< HEAD   (bdf2c8 HarfBuzz reports y-up, convert to y-down.)
 #include "include/codec/SkCodec.h"
 #include "include/core/SkBitmap.h"
 #include "include/encode/SkPngEncoder.h"
 #include "src/core/SkOSFile.h"
+=======
+#include "SkBitmap.h"
+#include "SkCodec.h"
+#include "SkPngEncoder.h"
+#include "SkOSFile.h"
+>>>>>>> BRANCH (6ce2f3 [infra] Fix presubmit by pinning tools/build)
 
 static void update(SkBitmap* maxBitmap, SkBitmap* minBitmap, const SkBitmap& bm) {
     SkASSERT(!bm.drawsNothing());
