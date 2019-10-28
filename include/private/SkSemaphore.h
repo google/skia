@@ -10,6 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkOnce.h"
+#include "include/private/SkThreadAnnotations.h"
 #include <atomic>
 
 class SkSemaphore {
@@ -72,7 +73,9 @@ inline void SkSemaphore::wait() {
     // Since this fetches the value before the subtract, zero and below means that there are no
     // resources left, so the thread needs to wait.
     if (fCount.fetch_sub(1, std::memory_order_acquire) <= 0) {
+        SK_POTENTIALLY_BLOCKING_REGION_BEGIN;
         this->osWait();
+        SK_POTENTIALLY_BLOCKING_REGION_END;
     }
 }
 
