@@ -25,7 +25,8 @@ class iOSFlavor(default.DefaultFlavor):
         skp_dir='skps',
         svg_dir='svgs',
         mskp_dir='mskp',
-        tmp_dir='tmp')
+        tmp_dir='tmp',
+        texttraces_dir='')
 
   def install(self):
     # Set up the device

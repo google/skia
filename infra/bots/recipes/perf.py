@@ -159,6 +159,10 @@ def nanobench_flags(api, bot):
   if 'NVIDIA_Shield' in bot or 'Chorizo' in bot:
     args.extend(['--dontReduceOpsTaskSplitting'])
 
+  if 'Android' in bot and 'GPU' in bot:
+    assert api.flavor.device_dirs.texttraces_dir
+    args.extend(['--texttraces', api.flavor.device_dirs.texttraces_dir])
+
   # Some people don't like verbose output.
   verbose = False
 
@@ -346,7 +350,6 @@ def perf_steps(api):
         api.flavor.device_dirs.perf_data_dir,
         api.flavor.host_dirs.perf_data_dir)
 
-
 def RunSteps(api):
   api.vars.setup()
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
@@ -360,6 +363,8 @@ def RunSteps(api):
     try:
       if 'Chromecast' in api.vars.builder_name:
         api.flavor.install(resources=True, skps=True)
+      elif all(v in api.vars.builder_name for v in ['Android', 'GPU']):
+        api.flavor.install(skps=True, images=True, svgs=True, resources=True, texttraces=True)
       else:
         api.flavor.install(skps=True, images=True, svgs=True, resources=True)
       perf_steps(api)
