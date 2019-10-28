@@ -6,6 +6,7 @@
  */
 
 #include "include/private/SkSpinlock.h"
+#include "include/private/SkThreadAnnotations.h"
 
 #if 0
     #include "include/private/SkMutex.h"
@@ -41,7 +42,9 @@ void SkSpinlock::contendedAcquire() {
     debug_trace();
 
     // To act as a mutex, we need an acquire barrier when we acquire the lock.
+    SK_POTENTIALLY_BLOCKING_REGION_BEGIN;
     while (fLocked.exchange(true, std::memory_order_acquire)) {
         do_pause();
     }
+    SK_POTENTIALLY_BLOCKING_REGION_END;
 }

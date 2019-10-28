@@ -76,5 +76,16 @@
 #define SK_NO_THREAD_SAFETY_ANALYSIS \
   SK_THREAD_ANNOTATION_ATTRIBUTE(no_thread_safety_analysis)
 
+#if defined(SK_BUILD_FOR_GOOGLE3)
+    extern "C" {
+        void __google_potentially_blocking_region_begin(void);
+        void __google_potentially_blocking_region_end  (void);
+    }
+    #define SK_POTENTIALLY_BLOCKING_REGION_BEGIN __google_potentially_blocking_region_begin()
+    #define SK_POTENTIALLY_BLOCKING_REGION_END   __google_potentially_blocking_region_end()
+#else
+    #define SK_POTENTIALLY_BLOCKING_REGION_BEGIN
+    #define SK_POTENTIALLY_BLOCKING_REGION_END
+#endif
 
 #endif  // SkThreadAnnotations_DEFINED
