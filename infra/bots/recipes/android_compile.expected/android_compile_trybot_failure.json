@@ -12,6 +12,11 @@
       "--patchset",
       "12"
     ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
     "name": "Trigger and wait for task on android compile server",
     "~followup_annotations": [
       "@@@STEP_FAILURE@@@"
