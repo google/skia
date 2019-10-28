@@ -64,7 +64,7 @@ void GrMeshDrawOp::PatternHelper::recordDraw(
 //////////////////////////////////////////////////////////////////////////////
 
 GrMeshDrawOp::QuadHelper::QuadHelper(Target* target, size_t vertexStride, int quadsToDraw) {
-    sk_sp<const GrGpuBuffer> quadIndexBuffer = target->resourceProvider()->refQuadIndexBuffer();
+    sk_sp<const GrGpuBuffer> quadIndexBuffer = target->resourceProvider()->refNonAAQuadIndexBuffer();
     if (!quadIndexBuffer) {
         SkDebugf("Could not get quad index buffer.");
         return;

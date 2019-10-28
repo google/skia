@@ -382,7 +382,7 @@ private:
                                                         kVerticesPerQuad * instanceCount,
                                                         &flushInfo.fVertexBuffer,
                                                         &flushInfo.fVertexOffset)};
-        flushInfo.fIndexBuffer = target->resourceProvider()->refQuadIndexBuffer();
+        flushInfo.fIndexBuffer = target->resourceProvider()->refNonAAQuadIndexBuffer();
         if (!vertices.fPtr || !flushInfo.fIndexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
