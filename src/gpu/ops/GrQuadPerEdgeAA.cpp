@@ -517,30 +517,6 @@ static void write_quad(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& sp
     }
 }
 
-GR_DECLARE_STATIC_UNIQUE_KEY(gAAFillRectIndexBufferKey);
-
-static const int kVertsPerAAFillRect = 8;
-static const int kIndicesPerAAFillRect = 30;
-
-static sk_sp<const GrGpuBuffer> get_index_buffer(GrResourceProvider* resourceProvider) {
-    GR_DEFINE_STATIC_UNIQUE_KEY(gAAFillRectIndexBufferKey);
-
-    // clang-format off
-    static const uint16_t gFillAARectIdx[kIndicesPerAAFillRect] = {
-        0, 1, 2, 1, 3, 2,
-        0, 4, 1, 4, 5, 1,
-        0, 6, 4, 0, 2, 6,
-        2, 3, 6, 3, 7, 6,
-        1, 5, 3, 3, 5, 7,
-    };
-    // clang-format on
-
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gFillAARectIdx) == kIndicesPerAAFillRect);
-    return resourceProvider->findOrCreatePatternedIndexBuffer(
-            gFillAARectIdx, kIndicesPerAAFillRect, GrQuadPerEdgeAA::kNumAAQuadsInIndexBuffer,
-            kVertsPerAAFillRect, gAAFillRectIndexBufferKey);
-}
-
 } // anonymous namespace
 
 namespace GrQuadPerEdgeAA {
@@ -634,31 +610,39 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrQuad& deviceQua
 
 bool ConfigureMeshIndices(GrMeshDrawOp::Target* target, GrMesh* mesh, const VertexSpec& spec,
                           int quadCount) {
+    auto resourceProvider = target->resourceProvider();
+
     if (spec.usesCoverageAA()) {
         SkASSERT(spec.indexBufferOption() == IndexBufferOption::kPictureFramed);
 
         // AA quads use 8 vertices, basically nested rectangles
-        sk_sp<const GrGpuBuffer> ibuffer = get_index_buffer(target->resourceProvider());
+        sk_sp<const GrGpuBuffer> ibuffer = resourceProvider->refAAQuadIndexBuffer();
         if (!ibuffer) {
             return false;
         }
 
         mesh->setPrimitiveType(GrPrimitiveType::kTriangles);
-        mesh->setIndexedPatterned(std::move(ibuffer), kIndicesPerAAFillRect, kVertsPerAAFillRect,
-                                  quadCount, kNumAAQuadsInIndexBuffer);
+        mesh->setIndexedPatterned(std::move(ibuffer),
+                                  GrResourceProvider::NumIndicesPerAAQuad(),
+                                  GrResourceProvider::NumVertsPerAAQuad(),
+                                  quadCount,
+                                  GrResourceProvider::MaxNumAAQuads());
     } else {
         // Non-AA quads use 4 vertices, and regular triangle strip layout
         if (quadCount > 1) {
             SkASSERT(spec.indexBufferOption() == IndexBufferOption::kIndexedRects);
 
-            sk_sp<const GrGpuBuffer> ibuffer = target->resourceProvider()->refQuadIndexBuffer();
+            sk_sp<const GrGpuBuffer> ibuffer = resourceProvider->refNonAAQuadIndexBuffer();
             if (!ibuffer) {
                 return false;
             }
 
             mesh->setPrimitiveType(GrPrimitiveType::kTriangles);
-            mesh->setIndexedPatterned(std::move(ibuffer), 6, 4, quadCount,
-                                      GrResourceProvider::QuadCountOfQuadBuffer());
+            mesh->setIndexedPatterned(std::move(ibuffer),
+                                      GrResourceProvider::NumIndicesPerNonAAQuad(),
+                                      GrResourceProvider::NumVertsPerNonAAQuad(),
+                                      quadCount,
+                                      GrResourceProvider::MaxNumNonAAQuads());
         } else {
             SkASSERT(spec.indexBufferOption() != IndexBufferOption::kPictureFramed);
 
