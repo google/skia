@@ -16,6 +16,24 @@
       "revId": "ec5e24c9a9f7e2c564127033cae3ab09923c766a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9d32fac_7d5e2c00",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-10-28T16:26:40Z",
+      "side": 1,
+      "message": "Hmmm... Right, we are going to need to copy the cipd package from the host to the device. Then, we need to have something like \napi.flavor.device_path_join(api.flavor.api.flavor.device_dirs.resource_dir, \u0027text_blob_traces\u0027)",
+      "parentUuid": "6ad9d2a3_c6042ced",
+      "revId": "ec5e24c9a9f7e2c564127033cae3ab09923c766a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
