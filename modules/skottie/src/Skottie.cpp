@@ -17,6 +17,7 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
 #include "modules/skottie/include/SkottieProperty.h"
+#include "modules/skottie/src/Composition.h"
 #include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
@@ -289,7 +290,7 @@ std::unique_ptr<sksg::Scene> AnimationBuilder::parse(const skjson::ObjectValue& 
     this->parseFonts(jroot["fonts"], jroot["chars"]);
 
     AutoScope ascope(this);
-    auto root = this->attachComposition(jroot);
+    auto root = CompositionBuilder(*this, jroot).build(*this);
 
     auto animators = ascope.release();
     fStats->fAnimatorCount = animators.size();
