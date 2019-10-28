@@ -11,8 +11,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
   && groupadd -g 2000 skia \
   && useradd -u 2000 -g 2000 skia
 
-RUN cd /tmp \
-  && git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
+RUN git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git' /tmp/depot_tools
 
 ENV PATH=${PATH}:/tmp/depot_tools
 
