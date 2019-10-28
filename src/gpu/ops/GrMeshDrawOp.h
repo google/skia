@@ -55,9 +55,6 @@ protected:
         GrMesh* fMesh = nullptr;
     };
 
-    static const int kVerticesPerQuad = 4;
-    static const int kIndicesPerQuad = 6;
-
     /** A specialization of InstanceHelper for quad rendering. */
     class QuadHelper : private PatternHelper {
     public:
