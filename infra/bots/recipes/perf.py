@@ -314,6 +314,7 @@ def perf_steps(api):
       '~^path_text_clipped', # Bot times out; skia:7190
       '~shapes_rrect_inner_rrect_50_500x500', # skia:7551
       '~compositing_images',
+      '~bulkrect'
     ])
     if 'Debug' in api.vars.builder_name:
       args.extend(['--loops', '1'])
