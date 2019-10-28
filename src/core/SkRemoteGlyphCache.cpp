@@ -626,12 +626,10 @@ void SkStrikeServer::RemoteStrike::writePendingGlyphs(Serializer* serializer) {
 
         writeGlyph(&glyph, serializer);
         auto imageSize = glyph.imageSize();
-        if (imageSize == 0u) continue;
-
-        glyph.fImage = serializer->allocate(imageSize, glyph.formatAlignment());
-        fContext->getImage(glyph);
-        // TODO: Generating the image can change the mask format, do we need to update it in the
-        // serialized glyph?
+        if (imageSize > 0 && FitsInAtlas(glyph)) {
+            glyph.fImage = serializer->allocate(imageSize, glyph.formatAlignment());
+            fContext->getImage(glyph);
+        }
     }
     fPendingGlyphImages.clear();
 
@@ -868,7 +866,7 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
             SkTLazy<SkGlyph> glyph;
             if (!ReadGlyph(glyph, &deserializer)) READ_FAILURE
 
-            if (!glyph->isEmpty()) {
+            if (!glyph->isEmpty() && SkStrikeForGPU::FitsInAtlas(*glyph)) {
                 const volatile void* image =
                         deserializer.read(glyph->imageSize(), glyph->formatAlignment());
                 if (!image) READ_FAILURE
