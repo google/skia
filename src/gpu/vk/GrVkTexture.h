@@ -10,8 +10,10 @@
 
 #include "include/gpu/GrTexture.h"
 #include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/GrSamplerState.h"
 #include "src/gpu/vk/GrVkImage.h"
 
+class GrVkDescriptorSet;
 class GrVkGpu;
 class GrVkImageView;
 struct GrVkImageInfo;
@@ -40,6 +42,15 @@ public:
 
     void addIdleProc(sk_sp<GrRefCntedCallback>, IdleState) override;
     void callIdleProcsOnBehalfOfResource();
+
+    // For each GrVkTexture, there is a cache of GrVkDescriptorSets which only contain a single
+    // texture/sampler descriptor. If there is a cached descriptor set that matches the passed in
+    // GrSamplerState, then a pointer to it is returned. The ref count is not increased on the
+    // returned pointer, and the caller must call ref if they wish to keep ownership of the
+    // GrVkDescriptorSet.
+    const GrVkDescriptorSet* cachedSingleDescSet(const GrSamplerState&);
+
+    void addDescriptorSetToCache(const GrVkDescriptorSet*, const GrSamplerState&);
 
 protected:
     GrVkTexture(GrVkGpu*, const GrSurfaceDesc&, const GrVkImageInfo&, sk_sp<GrVkImageLayout>,
@@ -74,6 +85,18 @@ private:
     void removeFinishIdleProcs();
 
     const GrVkImageView* fTextureView;
+
+    struct SamplerDescSetPairs {
+        SamplerDescSetPairs(const GrVkDescriptorSet* descSet, const GrSamplerState& state)
+                : fDescriptorSet(descSet), fSamplerState(state) {}
+
+        const GrVkDescriptorSet* fDescriptorSet;
+        GrSamplerState fSamplerState;
+    };
+    // We pre-allocate at least on descriptor assuming that if we are make a GrVkTexture something
+    // is going to sample it at least once and it is rare for us to use multiple textures in a
+    // shader.
+    SkSTArray<1, SamplerDescSetPairs> fCachedSingleSamplerDSPairs;
 
     typedef GrTexture INHERITED;
 };
