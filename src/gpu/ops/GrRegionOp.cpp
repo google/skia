@@ -18,9 +18,6 @@
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
-static const int kVertsPerInstance = 4;
-static const int kIndicesPerInstance = 6;
-
 static sk_sp<GrGeometryProcessor> make_gp(const GrShaderCaps* shaderCaps,
                                           const SkMatrix& viewMatrix,
                                           bool wideColor) {
@@ -113,13 +110,15 @@ private:
         if (!numRects) {
             return;
         }
-        sk_sp<const GrGpuBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
+        sk_sp<const GrGpuBuffer> indexBuffer = target->resourceProvider()->refNonAAQuadIndexBuffer();
         if (!indexBuffer) {
             SkDebugf("Could not allocate indices\n");
             return;
         }
         PatternHelper helper(target, GrPrimitiveType::kTriangles, gp->vertexStride(),
-                             std::move(indexBuffer), kVertsPerInstance, kIndicesPerInstance,
+                             std::move(indexBuffer),
+                             GrResourceProvider::NumVertsPerNonAAQuad(),
+                             GrResourceProvider::NumIndicesPerNonAAQuad(),
                              numRects);
         GrVertexWriter vertices{helper.vertices()};
         if (!vertices.fPtr) {
