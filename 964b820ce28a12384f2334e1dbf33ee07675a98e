@@ -22,6 +22,30 @@
       "revId": "964b820ce28a12384f2334e1dbf33ee07675a98e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d34ea068_a65cb8f7",
+        "filename": "src/gpu/vk/GrVkTexture.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-28T21:40:04Z",
+      "side": 1,
+      "message": "To limit the size I switched the cache to an LRU. Let me know what you all think of this approach. It adds a little more complexity to the logic, but keeps the cache size limited \"smartly\". I\u0027m also happy to leave the original approach since I think it would be rare in practices for a texture to be used with tons of different samplers (especially different wrap modes).",
+      "parentUuid": "035c1af0_6cd0ec64",
+      "range": {
+        "startLine": 100,
+        "startChar": 4,
+        "endLine": 100,
+        "endChar": 13
+      },
+      "revId": "964b820ce28a12384f2334e1dbf33ee07675a98e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
