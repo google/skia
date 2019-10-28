@@ -748,9 +748,22 @@ def dm_flags(api, bot):
     # skbug.com/8047
     match.append('~FloatingPointTextureTest$')
 
+<<<<<<< HEAD   (bdf2c8 HarfBuzz reports y-up, convert to y-down.)
   if 'Metal' in bot and 'HD8870M' in bot and 'Mac' in bot:
     # skia:9255
     match.append('~WritePixelsNonTextureMSAA_Gpu')
+=======
+  if 'MoltenVK' in bot:
+    # skbug.com/7959
+    blacklist(['_', 'gm', '_', 'vertices_scaled_shader'])
+    blacklist(['_', 'gm', '_', 'vertices'])
+    match.append('~^InitialTextureClear$')
+    match.append('~^RGB565TextureTest$')
+    match.append('~^RGBA4444TextureTest$')
+    match.append('~^TextureIdleProcFlushTest$')
+    match.append('~^TextureStripAtlasManagerColorFilterTest$')
+    match.append('~^WritePixelsNonTextureMSAA_Gpu$')
+>>>>>>> BRANCH (6ce2f3 [infra] Fix presubmit by pinning tools/build)
 
   if 'ANGLE' in bot:
     # skia:7835
