@@ -391,16 +391,57 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::createPatternedIndexBuffer(const ui
     return buffer;
 }
 
-static constexpr int kMaxQuads = 1 << 12;  // max possible: (1 << 14) - 1;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+static constexpr int kMaxNumNonAAQuads = 1 << 12;  // max possible: (1 << 14) - 1;
+static const int kVertsPerNonAAQuad = 4;
+static const int kIndicesPerNonAAQuad = 6;
 
-sk_sp<const GrGpuBuffer> GrResourceProvider::createQuadIndexBuffer() {
-    GR_STATIC_ASSERT(4 * kMaxQuads <= 65535);
-    static const uint16_t kPattern[] = { 0, 1, 2, 2, 1, 3 };
-    return this->createPatternedIndexBuffer(kPattern, 6, kMaxQuads, 4, nullptr);
+sk_sp<const GrGpuBuffer> GrResourceProvider::createNonAAQuadIndexBuffer() {
+    GR_STATIC_ASSERT(kVertsPerNonAAQuad * kMaxNumNonAAQuads <= 65535); // indices fit in a uint16_t
+
+    static const uint16_t kNonAAQuadIndexPattern[] = {
+        0, 1, 2, 2, 1, 3
+    };
+
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kNonAAQuadIndexPattern) == kIndicesPerNonAAQuad);
+
+    return this->createPatternedIndexBuffer(kNonAAQuadIndexPattern, kIndicesPerNonAAQuad,
+                                            kMaxNumNonAAQuads, kVertsPerNonAAQuad, nullptr);
 }
 
-int GrResourceProvider::QuadCountOfQuadBuffer() { return kMaxQuads; }
+int GrResourceProvider::MaxNumNonAAQuads() { return kMaxNumNonAAQuads; }
+int GrResourceProvider::NumVertsPerNonAAQuad() { return kVertsPerNonAAQuad; }
+int GrResourceProvider::NumIndicesPerNonAAQuad() { return kIndicesPerNonAAQuad; }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+static constexpr int kMaxNumAAQuads = 1 << 12;  // max possible: (1 << 13) - 1;
+static const int kVertsPerAAQuad = 8;
+static const int kIndicesPerAAQuad = 30;
+
+sk_sp<const GrGpuBuffer> GrResourceProvider::createAAQuadIndexBuffer() {
+    GR_STATIC_ASSERT(kVertsPerAAQuad * kMaxNumAAQuads <= 65535); // indices fit in a uint16_t
+
+    // clang-format off
+    static const uint16_t kAAQuadIndexPattern[] = {
+        0, 1, 2, 1, 3, 2,
+        0, 4, 1, 4, 5, 1,
+        0, 6, 4, 0, 2, 6,
+        2, 3, 6, 3, 7, 6,
+        1, 5, 3, 3, 5, 7,
+    };
+    // clang-format on
+
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kAAQuadIndexPattern) == kIndicesPerAAQuad);
+
+    return this->createPatternedIndexBuffer(kAAQuadIndexPattern, kIndicesPerAAQuad,
+                                            kMaxNumAAQuads, kVertsPerAAQuad, nullptr);
+}
+
+int GrResourceProvider::MaxNumAAQuads() { return kMaxNumAAQuads; }
+int GrResourceProvider::NumVertsPerAAQuad() { return kVertsPerAAQuad; }
+int GrResourceProvider::NumIndicesPerAAQuad() { return kIndicesPerAAQuad; }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 sk_sp<GrPath> GrResourceProvider::createPath(const SkPath& path, const GrStyle& style) {
     if (this->isAbandoned()) {
         return nullptr;
