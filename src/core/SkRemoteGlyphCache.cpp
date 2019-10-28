@@ -17,11 +17,13 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkGlyphRun.h"
+#include "src/core/SkSpan.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkTLazy.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkTypeface_remote.h"
+#include "src/core/SkZip.h"
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrDrawOpAtlas.h"
@@ -224,32 +226,61 @@ public:
     void onAboutToExitScope() override {}
 
     bool hasPendingGlyphs() const {
-        return !fPendingGlyphImages.empty() || !fPendingGlyphPaths.empty();
+        return !fMasksToSend.empty() || !fPathsToSend.empty();
     }
 
     void resetScalerContext();
 
 private:
-    template <typename Fn>
-    void commonFilterLoop(SkDrawableGlyphBuffer* drawables, Fn&& fn);
+    template <typename Rejector>
+    void commonMaskLoop(
+            SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects, Rejector&& reject);
 
-    void writeGlyphPath(const SkPackedGlyphID& glyphID, Serializer* serializer) const;
+    // Keep track of if the glyph draw has been totally satisfied. It could be that this
+    // strike can not draw the glyph, and it must be rejected to be handled by fallback.
+    // For example, if a glyph has canDrawAsMask sent, then that data is on the GPU, and this
+    // strike totally satisfies this result. If canDrawAsMask is false, then this glyph must be
+    // rejected, and handled by a later stage using a latter strike.
+    struct MaskSummary {
+        static_assert(SkPackedGlyphID::kMaskAll < 1u<<20u, "SkPackedGlyphID is too big.");
+        uint32_t packedID:20;
+        bool canDrawAsMask:1;
+        bool canDrawAsSDFT:1;
+    };
 
-    SkGlyph* addGlyph(SkPackedGlyphID packedID);
+    struct MaskSummaryTraits {
+        static SkPackedGlyphID GetKey(MaskSummary summary) {
+            return SkPackedGlyphID{summary.packedID};
+        }
 
+        static uint32_t Hash(SkPackedGlyphID packedID) {
+            return packedID.hash();
+        }
+    };
+
+    // Same thing as MaskSummary, but for paths.
+    struct PathSummary {
+        constexpr static uint16_t kIsPath = 0;
+        SkGlyphID glyphID;
+        // If drawing glyphID can be done with a path, this is 0, otherwise it is the max
+        // dimension of the glyph.
+        uint16_t maxDimensionOrPath;
+    };
+
+    struct PathSummaryTraits {
+        static SkGlyphID GetKey(PathSummary summary) {
+            return summary.glyphID;
+        }
+
+        static uint32_t Hash(SkGlyphID packedID) {
+            return SkChecksum::CheapMix(packedID);
+        }
+    };
+
+    void writeGlyphPath(const SkGlyph& glyph, Serializer* serializer) const;
     void ensureScalerContext();
 
-    // The set of glyphs cached on the remote client.
-    SkTHashSet<SkPackedGlyphID> fCachedGlyphImages;
-    SkTHashSet<SkPackedGlyphID> fCachedGlyphPaths;
-
-    // The set of glyphs which has not yet been serialized and sent to the
-    // remote client.
-    std::vector<SkPackedGlyphID> fPendingGlyphImages;
-    std::vector<SkPackedGlyphID> fPendingGlyphPaths;
-
     const SkAutoDescriptor fDescriptor;
-
     const SkDiscardableHandleId fDiscardableHandleId;
 
     const SkGlyphPositionRoundingSpec fRoundingSpec;
@@ -262,23 +293,20 @@ private:
     const SkTypeface* fTypeface{nullptr};
     SkScalerContextEffects fEffects;
 
+    // Have the metrics been sent for this strike. Only send them once.
     bool fHaveSentFontMetrics{false};
 
-    class GlyphMapHashTraits {
-    public:
-        static SkPackedGlyphID GetKey(const SkGlyph* glyph) {
-            return glyph->getPackedID();
-        }
-        static uint32_t Hash(SkPackedGlyphID glyphId) {
-            return glyphId.hash();
-        }
-    };
+    // The masks and paths that currently reside in the GPU process.
+    SkTHashTable<MaskSummary, SkPackedGlyphID, MaskSummaryTraits> fSentGlyphs;
+    SkTHashTable<PathSummary, SkGlyphID, PathSummaryTraits> fSentPaths;
 
-    // FallbackTextHelper cases require glyph metrics when analyzing a glyph run, in which case
-    // we cache them here.
-    SkTHashTable<SkGlyph*, SkPackedGlyphID, GlyphMapHashTraits> fGlyphMap;
+    // The Masks, SDFT Mask, and Paths that need to be sent to the GPU task for the processed
+    // TextBlobs. Cleared after diffs are serialized.
+    std::vector<SkGlyph> fMasksToSend;
+    std::vector<SkGlyph> fPathsToSend;
 
-    SkArenaAlloc fAlloc{256};
+    // Alloc for storing bits and pieces of paths, Cleared after diffs are serialized.
+    SkArenaAlloc fPathAlloc{256};
 };
 
 SkStrikeServer::RemoteStrike::RemoteStrike(
@@ -617,11 +645,9 @@ void SkStrikeServer::RemoteStrike::writePendingGlyphs(Serializer* serializer) {
         fHaveSentFontMetrics = true;
     }
 
-    // Write glyphs images.
-    serializer->emplace<uint64_t>(fPendingGlyphImages.size());
-    for (const auto& glyphID : fPendingGlyphImages) {
-        SkGlyph glyph{glyphID};
-        fContext->getMetrics(&glyph);
+    // Write mask glyphs
+    serializer->emplace<uint64_t>(fMasksToSend.size());
+    for (SkGlyph& glyph : fMasksToSend) {
         SkASSERT(SkMask::IsValidFormat(glyph.fMaskFormat));
 
         writeGlyph(glyph, serializer);
@@ -631,19 +657,18 @@ void SkStrikeServer::RemoteStrike::writePendingGlyphs(Serializer* serializer) {
             fContext->getImage(glyph);
         }
     }
-    fPendingGlyphImages.clear();
+    fMasksToSend.clear();
 
     // Write glyphs paths.
-    serializer->emplace<uint64_t>(fPendingGlyphPaths.size());
-    for (const auto& glyphID : fPendingGlyphPaths) {
-        SkGlyph glyph{glyphID};
-        fContext->getMetrics(&glyph);
+    serializer->emplace<uint64_t>(fPathsToSend.size());
+    for (SkGlyph& glyph : fPathsToSend) {
         SkASSERT(SkMask::IsValidFormat(glyph.fMaskFormat));
 
         writeGlyph(glyph, serializer);
-        writeGlyphPath(glyphID, serializer);
+        writeGlyphPath(glyph, serializer);
     }
-    fPendingGlyphPaths.clear();
+    fPathsToSend.clear();
+    fPathAlloc.reset();
 }
 
 void SkStrikeServer::RemoteStrike::ensureScalerContext() {
@@ -663,80 +688,93 @@ void SkStrikeServer::RemoteStrike::setTypefaceAndEffects(
     fEffects = effects;
 }
 
-void SkStrikeServer::RemoteStrike::writeGlyphPath(const SkPackedGlyphID& glyphID,
-                                                  Serializer* serializer) const {
-    SkPath path;
-    if (!fContext->getPath(glyphID, &path)) {
+void SkStrikeServer::RemoteStrike::writeGlyphPath(
+        const SkGlyph& glyph, Serializer* serializer) const {
+    if (glyph.isColor() || glyph.isEmpty()) {
         serializer->write<uint64_t>(0u);
         return;
     }
 
-    size_t pathSize = path.writeToMemory(nullptr);
+    const SkPath* path = glyph.path();
+
+    if (path == nullptr) {
+        serializer->write<uint64_t>(0u);
+        return;
+    }
+
+    size_t pathSize = path->writeToMemory(nullptr);
     serializer->write<uint64_t>(pathSize);
-    path.writeToMemory(serializer->allocate(pathSize, kPathAlignment));
+    path->writeToMemory(serializer->allocate(pathSize, kPathAlignment));
 }
 
-SkGlyph* SkStrikeServer::RemoteStrike::addGlyph(SkPackedGlyphID packedID) {
-    SkGlyph* glyphPtr = fAlloc.make<SkGlyph>(packedID);
-    fGlyphMap.set(glyphPtr);
-    this->ensureScalerContext();
-    fContext->getMetrics(glyphPtr);
-    fCachedGlyphImages.add(packedID);
-    fPendingGlyphImages.push_back(packedID);
-    return glyphPtr;
-}
-
-template <typename Fn>
-void SkStrikeServer::RemoteStrike::commonFilterLoop(SkDrawableGlyphBuffer* drawables, Fn&& fn) {
+template <typename Rejector>
+void SkStrikeServer::RemoteStrike::commonMaskLoop(
+        SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects, Rejector&& reject) {
     drawables->forEachGlyphID(
-            [&](size_t i, SkPackedGlyphID packedID, SkPoint pos) {
-                if (SkScalarsAreFinite(pos.x(), pos.y())) {
-                    SkGlyph* glyph = this->fGlyphMap.findOrNull(packedID);
-                    bool newGlyph = glyph == nullptr;
-                    if (newGlyph) {
-                        glyph = this->addGlyph(packedID);
-                    }
-                    fn(i, glyph, pos, newGlyph);
+            [&](size_t i, SkPackedGlyphID packedID, SkPoint position) {
+                MaskSummary* summary = fSentGlyphs.find(packedID);
+                if (summary == nullptr) {
+                    // Put the new SkGlyph in the glyphs to send.
+                    fMasksToSend.emplace_back(packedID);
+                    SkGlyph* glyph = &fMasksToSend.back();
+
+                    // Build the glyph
+                    this->ensureScalerContext();
+                    fContext->getMetrics(glyph);
+                    MaskSummary newSummary =
+                            {packedID.value(), CanDrawAsMask(*glyph), CanDrawAsSDFT(*glyph)};
+                    summary = fSentGlyphs.set(newSummary);
+                }
+
+                // Reject things that are too big.
+                if (reject(*summary)) {
+                    rejects->reject(i);
                 }
             });
 }
 
-void SkStrikeServer::RemoteStrike::prepareForMaskDrawing(SkDrawableGlyphBuffer* drawables,
-                                                         SkSourceGlyphBuffer* rejects) {
-    this->commonFilterLoop(drawables,
-        [&](size_t i, SkGlyph* glyph, SkPoint pos, bool) {
-            if (!CanDrawAsMask(*glyph)) {
-                rejects->reject(i);
-            }
-        });
+void SkStrikeServer::RemoteStrike::prepareForMaskDrawing(
+        SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) {
+    this->commonMaskLoop(drawables, rejects,
+            [](MaskSummary summary){return !summary.canDrawAsMask;});
 }
 
-void SkStrikeServer::RemoteStrike::prepareForSDFTDrawing(SkDrawableGlyphBuffer* drawables,
-                                                         SkSourceGlyphBuffer* rejects) {
-    this->commonFilterLoop(drawables,
-        [&](size_t i, SkGlyph* glyph, SkPoint pos, bool) {
-            if (!CanDrawAsSDFT(*glyph)) {
-                rejects->reject(i);
-            }
-        });
+void SkStrikeServer::RemoteStrike::prepareForSDFTDrawing(
+        SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) {
+    this->commonMaskLoop(drawables, rejects,
+                         [](MaskSummary summary){return !summary.canDrawAsSDFT;});
 }
 
-void SkStrikeServer::RemoteStrike::prepareForPathDrawing(SkDrawableGlyphBuffer* drawables,
-                                                         SkSourceGlyphBuffer* rejects) {
-    this->commonFilterLoop(drawables,
-        [&](size_t i, SkGlyph* glyph, SkPoint pos, bool newGlyph) {
-            if (newGlyph) {
+void SkStrikeServer::RemoteStrike::prepareForPathDrawing(
+        SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) {
+    drawables->forEachGlyphID(
+        [&](size_t i, SkPackedGlyphID packedID, SkPoint position) {
+            SkGlyphID glyphID = packedID.glyphID();
+            PathSummary* summary = fSentPaths.find(glyphID);
+            if (summary == nullptr) {
+                // Put the new SkGlyph in the glyphs to send.
+                fPathsToSend.emplace_back(SkPackedGlyphID{glyphID});
+                SkGlyph* glyph = &fPathsToSend.back();
+
+                // Build the glyph
+                this->ensureScalerContext();
+                fContext->getMetrics(glyph);
+
+                uint16_t maxDimensionOrPath = glyph->maxDimension();
                 // Only try to get the path if the glyphs is not color.
                 if (!glyph->isColor() && !glyph->isEmpty()) {
-                    glyph->setPath(&fAlloc, fContext.get());
-                    // Always send the path data, even if its not available, to make sure empty
-                    // paths are not incorrectly assumed to be cache misses.
-                    fCachedGlyphPaths.add(glyph->getPackedID());
-                    fPendingGlyphPaths.push_back(glyph->getPackedID());
+                    glyph->setPath(&fPathAlloc, fContext.get());
+                    if (glyph->path() != nullptr) {
+                        maxDimensionOrPath = PathSummary::kIsPath;
+                    }
                 }
+
+                PathSummary newSummary = {glyph->getGlyphID(), maxDimensionOrPath};
+                summary = fSentPaths.set(newSummary);
             }
-            if (!glyph->isEmpty() && !CanDrawAsPath(*glyph)) {
-                rejects->reject(i, glyph->maxDimension());
+
+            if (summary->maxDimensionOrPath != PathSummary::kIsPath) {
+                rejects->reject(i, (int)summary->maxDimensionOrPath);
             }
         });
 }
