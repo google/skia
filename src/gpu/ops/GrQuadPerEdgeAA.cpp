@@ -526,7 +526,7 @@ static sk_sp<const GrGpuBuffer> get_index_buffer(GrResourceProvider* resourcePro
     GR_DEFINE_STATIC_UNIQUE_KEY(gAAFillRectIndexBufferKey);
 
     // clang-format off
-    static const uint16_t gFillAARectIdx[] = {
+    static const uint16_t gFillAARectIdx[kIndicesPerAAFillRect] = {
         0, 1, 2, 1, 3, 2,
         0, 4, 1, 4, 5, 1,
         0, 6, 4, 0, 2, 6,
@@ -544,6 +544,16 @@ static sk_sp<const GrGpuBuffer> get_index_buffer(GrResourceProvider* resourcePro
 } // anonymous namespace
 
 namespace GrQuadPerEdgeAA {
+
+IndexBufferOption CalcIndexBufferOption(GrAAType aa, int numQuads) {
+    if (aa == GrAAType::kCoverage) {
+        return IndexBufferOption::kPictureFramed;
+    } else if (numQuads > 1) {
+        return IndexBufferOption::kIndexedRects;
+    } else {
+        return IndexBufferOption::kTriStrips;
+    }
+}
 
 // This is a more elaborate version of SkPMColor4fNeedsWideColor that allows "no color" for white
 ColorType MinColorType(SkPMColor4f color, GrClampType clampType, const GrCaps& caps) {
@@ -625,6 +635,8 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrQuad& deviceQua
 bool ConfigureMeshIndices(GrMeshDrawOp::Target* target, GrMesh* mesh, const VertexSpec& spec,
                           int quadCount) {
     if (spec.usesCoverageAA()) {
+        SkASSERT(spec.indexBufferOption() == IndexBufferOption::kPictureFramed);
+
         // AA quads use 8 vertices, basically nested rectangles
         sk_sp<const GrGpuBuffer> ibuffer = get_index_buffer(target->resourceProvider());
         if (!ibuffer) {
@@ -637,6 +649,8 @@ bool ConfigureMeshIndices(GrMeshDrawOp::Target* target, GrMesh* mesh, const Vert
     } else {
         // Non-AA quads use 4 vertices, and regular triangle strip layout
         if (quadCount > 1) {
+            SkASSERT(spec.indexBufferOption() == IndexBufferOption::kIndexedRects);
+
             sk_sp<const GrGpuBuffer> ibuffer = target->resourceProvider()->refQuadIndexBuffer();
             if (!ibuffer) {
                 return false;
@@ -646,6 +660,8 @@ bool ConfigureMeshIndices(GrMeshDrawOp::Target* target, GrMesh* mesh, const Vert
             mesh->setIndexedPatterned(std::move(ibuffer), 6, 4, quadCount,
                                       GrResourceProvider::QuadCountOfQuadBuffer());
         } else {
+            SkASSERT(spec.indexBufferOption() != IndexBufferOption::kPictureFramed);
+
             mesh->setPrimitiveType(GrPrimitiveType::kTriangleStrip);
             mesh->setNonIndexedNonInstanced(4);
         }

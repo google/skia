@@ -531,8 +531,8 @@ private:
 
         fPrePreparedDesc = arena->make<PrePreparedDesc>();
 
-        fPrePreparedDesc->fVertexSpec = this->characterize(&fPrePreparedDesc->fNumProxies,
-                                                           &fPrePreparedDesc->fNumTotalQuads);
+        this->characterize(fPrePreparedDesc);
+
         fPrePreparedDesc->allocateCommon(arena, clip);
 
         fPrePreparedDesc->allocatePrePrepareOnly(arena);
@@ -605,15 +605,16 @@ private:
     }
 #endif
 
-    VertexSpec characterize(int* numProxies, int* numTotalQuads) const {
+    void characterize(PrePreparedDesc* desc) const {
         GrQuad::Type quadType = GrQuad::Type::kAxisAligned;
         ColorType colorType = ColorType::kNone;
         GrQuad::Type srcQuadType = GrQuad::Type::kAxisAligned;
         Domain domain = Domain::kNo;
         GrAAType overallAAType = this->aaType();
 
-        *numProxies = 0;
-        *numTotalQuads = 0;
+        desc->fNumProxies = 0;
+        desc->fNumTotalQuads = 0;
+        int maxQuadsPerMesh = 0;
 
         for (const auto& op : ChainRange<TextureOp>(this)) {
             if (op.fQuads.deviceQuadType() > quadType) {
@@ -626,17 +627,22 @@ private:
                 domain = Domain::kYes;
             }
             colorType = SkTMax(colorType, static_cast<ColorType>(op.fColorType));
-            *numProxies += op.fProxyCnt;
+            desc->fNumProxies += op.fProxyCnt;
             for (unsigned p = 0; p < op.fProxyCnt; ++p) {
-                *numTotalQuads += op.fProxyCountPairs[p].fQuadCnt;
+                desc->fNumTotalQuads += op.fProxyCountPairs[p].fQuadCnt;
+                maxQuadsPerMesh = SkTMax(op.fProxyCountPairs[p].fQuadCnt, maxQuadsPerMesh);
             }
             if (op.aaType() == GrAAType::kCoverage) {
                 overallAAType = GrAAType::kCoverage;
             }
         }
 
-        return VertexSpec(quadType, colorType, srcQuadType, /* hasLocal */ true, domain,
-                          overallAAType, /* alpha as coverage */ true);
+        auto indexBufferOption = GrQuadPerEdgeAA::CalcIndexBufferOption(overallAAType,
+                                                                        maxQuadsPerMesh);
+
+        desc->fVertexSpec = VertexSpec(quadType, colorType, srcQuadType, /* hasLocal */ true,
+                                       domain, overallAAType, /* alpha as coverage */ true,
+                                       indexBufferOption);
     }
 
     // onPrePrepareDraws may or may not have been called at this point
@@ -652,7 +658,7 @@ private:
         } else {
             SkArenaAlloc* arena = target->allocator();
 
-            desc.fVertexSpec = this->characterize(&desc.fNumProxies, &desc.fNumTotalQuads);
+            this->characterize(&desc);
             desc.allocateCommon(arena, target->appliedClip());
 
             SkASSERT(!desc.fVertexOffsets && !desc.fVertices);
