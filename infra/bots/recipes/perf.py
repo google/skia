@@ -221,6 +221,9 @@ def nanobench_flags(api, bot):
     # skia:9413
     match.append('~^path_text$')
     match.append('~^path_text_clipped_uncached$')
+  if ('Chorizo' in bot):
+    # These create many unique textures that put too much pressure on the bot
+    match.append('~^bulkrect')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
