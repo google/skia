@@ -143,72 +143,6 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 //   transformations from the view matrix. Calculate a text scale based on that reduction. This
 //   scale factor is used to increase the size of the destination rectangles. The destination
 //   rectangles are then scaled, rotated, etc. by the GPU using the view matrix.
-void SkGlyphRunListPainter::processARGBFallback(SkScalar maxSourceGlyphDimension,
-                                                const SkPaint& runPaint,
-                                                const SkFont& runFont,
-                                                SkPoint origin,
-                                                const SkMatrix& viewMatrix,
-                                                SkGlyphRunPainterInterface* process) {
-    // if maxSourceGlyphDimension then no pixels will change.
-    if (maxSourceGlyphDimension == 0) { return; }
-
-    SkScalar maxScale = viewMatrix.getMaxScale();
-
-    // This is a linear estimate of the longest dimension among all the glyph widths and heights.
-    SkScalar conservativeMaxGlyphDimension = maxSourceGlyphDimension * maxScale;
-
-    // If the situation that the matrix is simple, and all the glyphs are small enough. Go fast!
-    // N.B. If the matrix has scale, that will be reflected in the strike through the viewMatrix
-    // in the useFastPath case.
-    bool useDeviceCache =
-            viewMatrix.isScaleTranslate()
-            && conservativeMaxGlyphDimension <= SkStrikeCommon::kSkSideTooBigForAtlas;
-
-    // A scaled and translated transform is the common case, and is handled directly in fallback.
-    // Even if the transform is scale and translate, fallback must be careful to use glyphs that
-    // fit in the atlas. If a glyph will not fit in the atlas, then the general transform case is
-    // used to render the glyphs.
-    if (useDeviceCache) {
-        SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
-                runFont, runPaint, fDeviceProps, fScalerContextFlags, viewMatrix);
-
-        SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
-
-        fDrawable.startDevice(fRejects.source(), origin, viewMatrix, strike->roundingSpec());
-
-        strike->prepareForMaskDrawing(&fDrawable, &fRejects);
-        // There better not be any rejects.
-        fRejects.flipRejectsToSource();
-        SkASSERT(fRejects.source().empty());
-
-        if (process) {
-            process->processDeviceFallback(fDrawable.drawable(), strikeSpec);
-        }
-
-    } else {
-        // If the matrix is complicated or if scaling is used to fit the glyphs in the cache,
-        // then this case is used.
-
-        SkStrikeSpec strikeSpec = SkStrikeSpec::MakeSourceFallback(
-                runFont, runPaint, fDeviceProps, fScalerContextFlags, maxSourceGlyphDimension);
-
-        SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
-
-        fDrawable.startSource(fRejects.source(), origin);
-
-        strike->prepareForMaskDrawing(&fDrawable, &fRejects);
-        // There better not be any rejects.
-        fRejects.flipRejectsToSource();
-        SkASSERT(fRejects.source().empty());
-
-        if (process) {
-            process->processSourceFallback(
-                    fDrawable.drawable(),
-                    strikeSpec,
-                    viewMatrix.hasPerspective());
-        }
-    }
-}
 
 #if SK_SUPPORT_GPU
 void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunList,
@@ -302,10 +236,63 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             }
         }
 
-        // Handle fallback for all cases.
-        if (!fRejects.source().empty()) {
-            this->processARGBFallback(
-                    maxDimensionInSourceSpace, runPaint, runFont, origin, viewMatrix, process);
+
+        if (!fRejects.source().empty() && maxDimensionInSourceSpace != 0) {
+
+            SkScalar maxScale = viewMatrix.getMaxScale();
+
+            // This is a linear estimate of the longest dimension among all the glyph widths and heights.
+            SkScalar conservativeMaxGlyphDimension = maxDimensionInSourceSpace * maxScale;
+
+            // If the situation that the matrix is simple, and all the glyphs are small enough. Go fast!
+            // N.B. If the matrix has scale, that will be reflected in the strike through the viewMatrix
+            // in the useFastPath case.
+            bool useDeviceCache =
+                    viewMatrix.isScaleTranslate()
+                    && conservativeMaxGlyphDimension <= SkStrikeCommon::kSkSideTooBigForAtlas;
+
+            // A scaled and translated transform is the common case, and is handled directly in fallback.
+            // Even if the transform is scale and translate, fallback must be careful to use glyphs that
+            // fit in the atlas. If a glyph will not fit in the atlas, then the general transform case is
+            // used to render the glyphs.
+            if (useDeviceCache) {
+                SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
+                        runFont, runPaint, fDeviceProps, fScalerContextFlags, viewMatrix);
+
+                SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+
+                fDrawable.startDevice(
+                        fRejects.source(), origin, viewMatrix, strike->roundingSpec());
+
+                strike->prepareForMaskDrawing(&fDrawable, &fRejects);
+                fRejects.flipRejectsToSource();
+                SkASSERT(fRejects.source().empty());
+
+                if (process) {
+                    process->processDeviceFallback(fDrawable.drawable(), strikeSpec);
+                }
+            } else {
+                // If the matrix is complicated or if scaling is used to fit the glyphs in the atlas,
+                // then this case is used.
+
+                SkStrikeSpec strikeSpec = SkStrikeSpec::MakeSourceFallback(
+                        runFont, runPaint, fDeviceProps,
+                        fScalerContextFlags, maxDimensionInSourceSpace);
+
+                SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+
+                fDrawable.startSource(fRejects.source(), origin);
+                strike->prepareForMaskDrawing(&fDrawable, &fRejects);
+                fRejects.flipRejectsToSource();
+                SkASSERT(fRejects.source().empty());
+
+                if (process) {
+                    process->processSourceFallback(
+                            fDrawable.drawable(),
+                            strikeSpec,
+                            viewMatrix.hasPerspective());
+                }
+            }
         }
     }  // For all glyph runs
 }
