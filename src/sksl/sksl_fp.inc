@@ -4,7 +4,6 @@ STRINGIFY(
 
 layout(builtin=15) in float4 sk_FragCoord;
 layout(builtin=3) float sk_ClipDistance[1];
-layout(builtin=20) out int sk_SampleMask[1];
 
 // 9999 is a temporary value that causes us to ignore these declarations beyond
 // adding them to the symbol table. This works fine in GLSL (where they do not
@@ -13,6 +12,8 @@ layout(builtin=20) out int sk_SampleMask[1];
 layout(builtin=9999) float4 gl_LastFragData[1];
 layout(builtin=9999) half4 gl_LastFragColor;
 layout(builtin=9999) half4 gl_LastFragColorARM;
+layout(builtin=9999) int gl_SampleMaskIn[1];
+layout(builtin=9999) out int gl_SampleMask[1];
 layout(builtin=9999) half4 gl_SecondaryFragColorEXT;
 
 layout(builtin=10003) half4 sk_InColor;
