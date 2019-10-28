@@ -172,6 +172,14 @@ var (
 		},
 	}
 
+	CIPD_PKGS_TEXT_BLOB_TRACES = []*specs.CipdPackage{
+		&specs.CipdPackage{
+			Name:    "text_blob_traces",
+			Path:    "text_blob_traces",
+			Version: "version:0",
+		},
+	}
+
 	// These properties are required by some tasks, eg. for running
 	// bot_update, but they prevent de-duplication, so they should only be
 	// used where necessary.
@@ -1420,6 +1428,11 @@ func (b *builder) perf(name string, parts map[string]string, compileTaskName str
 	} else if strings.Contains(parts["extra_config"], "Skottie") {
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("lottie-samples"))
 	}
+
+	if strings.Contains(name, "Android") && strings.Contains(name, "GPU") {
+		task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_TEXT_BLOB_TRACES...)
+	}
+
 	iid := b.internalHardwareLabel(parts)
 	if iid != nil {
 		task.Command = append(task.Command, fmt.Sprintf("internal_hardware_label=%d", *iid))

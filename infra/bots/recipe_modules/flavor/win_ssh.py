@@ -23,16 +23,17 @@ class WinSSHFlavor(ssh.SSHFlavor):
     super(WinSSHFlavor, self).__init__(m)
     self.remote_homedir = 'C:\\Users\\chrome-bot\\botdata\\'
     self.device_dirs = default.DeviceDirs(
-      bin_dir       = self.device_path_join(self.remote_homedir, 'bin'),
-      dm_dir        = self.device_path_join(self.remote_homedir, 'dm_out'),
-      perf_data_dir = self.device_path_join(self.remote_homedir, 'perf'),
-      resource_dir  = self.device_path_join(self.remote_homedir, 'resources'),
-      images_dir    = self.device_path_join(self.remote_homedir, 'images'),
-      lotties_dir   = self.device_path_join(self.remote_homedir, 'lotties'),
-      skp_dir       = self.device_path_join(self.remote_homedir, 'skps'),
-      svg_dir       = self.device_path_join(self.remote_homedir, 'svgs'),
-      mskp_dir      = self.device_path_join(self.remote_homedir, 'mskp'),
-      tmp_dir       = self.remote_homedir)
+      bin_dir        = self.device_path_join(self.remote_homedir, 'bin'),
+      dm_dir         = self.device_path_join(self.remote_homedir, 'dm_out'),
+      perf_data_dir  = self.device_path_join(self.remote_homedir, 'perf'),
+      resource_dir   = self.device_path_join(self.remote_homedir, 'resources'),
+      images_dir     = self.device_path_join(self.remote_homedir, 'images'),
+      lotties_dir    = self.device_path_join(self.remote_homedir, 'lotties'),
+      skp_dir        = self.device_path_join(self.remote_homedir, 'skps'),
+      svg_dir        = self.device_path_join(self.remote_homedir, 'svgs'),
+      mskp_dir       = self.device_path_join(self.remote_homedir, 'mskp'),
+      tmp_dir        = self.remote_homedir,
+      texttraces_dir = '')
     self._empty_dir = self.device_path_join(self.remote_homedir, 'empty')
 
 
