@@ -16,6 +16,24 @@
       "revId": "40c39b7b2dc0cf476c9f244ed6dd7a47208c76ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "349ac7a6_40a70ab5",
+        "filename": "third_party/harfbuzz/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-10-28T16:04:15Z",
+      "side": 1,
+      "message": "Done. Must have been left over from an experiment or something.",
+      "parentUuid": "426988c4_0aa7bab0",
+      "revId": "40c39b7b2dc0cf476c9f244ed6dd7a47208c76ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
