@@ -30,6 +30,16 @@ namespace GrQuadPerEdgeAA {
     enum class ColorType { kNone, kByte, kHalf, kLast = kHalf };
     static const int kColorTypeCount = static_cast<int>(ColorType::kLast) + 1;
 
+    enum class IndexBufferOption {
+        kPictureFramed,    // geometrically AA'd   -> 8 verts/quad + an index buffer
+        kIndexedRects,     // non-AA'd but indexed -> 4 verts/quad + an index buffer
+        kTriStrips,        // non-AA'd             -> 4 verts/quad but no index buffer
+        kLast = kTriStrips
+    };
+    static const int kIndexBufferOptionCount = static_cast<int>(IndexBufferOption::kLast) + 1;
+
+    IndexBufferOption CalcIndexBufferOption(GrAAType aa, int numQuads);
+
     // Gets the minimum ColorType that can represent a color.
     ColorType MinColorType(SkPMColor4f, GrClampType, const GrCaps&);
 
@@ -42,17 +52,20 @@ namespace GrQuadPerEdgeAA {
         VertexSpec()
                 : fDeviceQuadType(0)     // kAxisAligned
                 , fLocalQuadType(0)      // kAxisAligned
+                , fIndexBufferOption(0)  // kPictureFramed
                 , fHasLocalCoords(false)
                 , fColorType(0)          // kNone
                 , fHasDomain(false)
                 , fUsesCoverageAA(false)
                 , fCompatibleWithCoverageAsAlpha(false)
-                , fRequiresGeometryDomain(false) { }
+                , fRequiresGeometryDomain(false) {}
 
         VertexSpec(GrQuad::Type deviceQuadType, ColorType colorType, GrQuad::Type localQuadType,
-                   bool hasLocalCoords, Domain domain, GrAAType aa, bool coverageAsAlpha)
+                   bool hasLocalCoords, Domain domain, GrAAType aa, bool coverageAsAlpha,
+                   IndexBufferOption indexBufferOption)
                 : fDeviceQuadType(static_cast<unsigned>(deviceQuadType))
                 , fLocalQuadType(static_cast<unsigned>(localQuadType))
+                , fIndexBufferOption(static_cast<unsigned>(indexBufferOption))
                 , fHasLocalCoords(hasLocalCoords)
                 , fColorType(static_cast<unsigned>(colorType))
                 , fHasDomain(static_cast<unsigned>(domain))
@@ -63,6 +76,9 @@ namespace GrQuadPerEdgeAA {
 
         GrQuad::Type deviceQuadType() const { return static_cast<GrQuad::Type>(fDeviceQuadType); }
         GrQuad::Type localQuadType() const { return static_cast<GrQuad::Type>(fLocalQuadType); }
+        IndexBufferOption indexBufferOption() const {
+            return static_cast<IndexBufferOption>(fIndexBufferOption);
+        }
         bool hasLocalCoords() const { return fHasLocalCoords; }
         ColorType colorType() const { return static_cast<ColorType>(fColorType); }
         bool hasVertexColors() const { return ColorType::kNone != this->colorType(); }
@@ -83,9 +99,11 @@ namespace GrQuadPerEdgeAA {
     private:
         static_assert(GrQuad::kTypeCount <= 4, "GrQuad::Type doesn't fit in 2 bits");
         static_assert(kColorTypeCount <= 4, "Color doesn't fit in 2 bits");
+        static_assert(kIndexBufferOptionCount <= 4, "IndexBufferOption doesn't fit in 2 bits");
 
         unsigned fDeviceQuadType: 2;
         unsigned fLocalQuadType: 2;
+        unsigned fIndexBufferOption: 2;
         unsigned fHasLocalCoords: 1;
         unsigned fColorType : 2;
         unsigned fHasDomain: 1;

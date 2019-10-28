@@ -409,7 +409,7 @@ private:
         static const GrQuadPerEdgeAA::VertexSpec kSpec =
             {GrQuad::Type::kGeneral, GrQuadPerEdgeAA::ColorType::kNone,
              GrQuad::Type::kAxisAligned, false, GrQuadPerEdgeAA::Domain::kNo,
-             GrAAType::kCoverage, false};
+             GrAAType::kCoverage, false, GrQuadPerEdgeAA::IndexBufferOption::kPictureFramed};
         static const GrQuad kIgnored(SkRect::MakeEmpty());
 
         GrQuadAAFlags flags = GrQuadAAFlags::kNone;
