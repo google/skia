@@ -249,8 +249,7 @@ private:
 
         if ((fHelper.aaType() == GrAAType::kCoverage ||
              that->fHelper.aaType() == GrAAType::kCoverage) &&
-            fQuads.count() + that->fQuads.count() > GrQuadPerEdgeAA::kNumAAQuadsInIndexBuffer) {
-            // This limit on batch size seems to help on Adreno devices
+            fQuads.count() + that->fQuads.count() > GrResourceProvider::MaxNumAAQuads()) {
             return CombineResult::kCannotCombine;
         }
 

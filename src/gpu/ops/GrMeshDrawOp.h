@@ -36,7 +36,7 @@ protected:
     public:
         PatternHelper(Target*, GrPrimitiveType, size_t vertexStride,
                       sk_sp<const GrBuffer> indexBuffer, int verticesPerRepetition,
-                      int indicesPerRepetition, int repeatCount);
+                      int indicesPerRepetition, int repeatCount, int maxRepetitions);
 
         /** Called to issue draws to the GrMeshDrawOp::Target.*/
         void recordDraw(Target*, sk_sp<const GrGeometryProcessor>) const;
@@ -48,15 +48,13 @@ protected:
     protected:
         PatternHelper() = default;
         void init(Target*, GrPrimitiveType, size_t vertexStride, sk_sp<const GrBuffer> indexBuffer,
-                  int verticesPerRepetition, int indicesPerRepetition, int repeatCount);
+                  int verticesPerRepetition, int indicesPerRepetition, int repeatCount,
+                  int maxRepetitions);
 
     private:
         void* fVertices = nullptr;
         GrMesh* fMesh = nullptr;
     };
-
-    static const int kVerticesPerQuad = 4;
-    static const int kIndicesPerQuad = 6;
 
     /** A specialization of InstanceHelper for quad rendering. */
     class QuadHelper : private PatternHelper {

@@ -375,14 +375,14 @@ private:
 
         // We need to make sure we don't overflow a 32 bit int when we request space in the
         // makeVertexSpace call below.
-        if (instanceCount > SK_MaxS32 / kVerticesPerQuad) {
+        if (instanceCount > SK_MaxS32 / GrResourceProvider::NumVertsPerNonAAQuad()) {
             return;
         }
-        GrVertexWriter vertices{target->makeVertexSpace(kVertexStride,
-                                                        kVerticesPerQuad * instanceCount,
-                                                        &flushInfo.fVertexBuffer,
-                                                        &flushInfo.fVertexOffset)};
-        flushInfo.fIndexBuffer = target->resourceProvider()->refQuadIndexBuffer();
+        GrVertexWriter vertices{ target->makeVertexSpace(
+            kVertexStride, GrResourceProvider::NumVertsPerNonAAQuad() * instanceCount,
+            &flushInfo.fVertexBuffer, &flushInfo.fVertexOffset)};
+
+        flushInfo.fIndexBuffer = target->resourceProvider()->refNonAAQuadIndexBuffer();
         if (!vertices.fPtr || !flushInfo.fIndexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -797,14 +797,16 @@ private:
 
         if (flushInfo->fInstancesToFlush) {
             GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
-            int maxInstancesPerDraw =
-                    static_cast<int>(flushInfo->fIndexBuffer->size() / sizeof(uint16_t) / 6);
-            mesh->setIndexedPatterned(flushInfo->fIndexBuffer, kIndicesPerQuad, kVerticesPerQuad,
-                                      flushInfo->fInstancesToFlush, maxInstancesPerDraw);
+            mesh->setIndexedPatterned(flushInfo->fIndexBuffer,
+                                      GrResourceProvider::NumIndicesPerNonAAQuad(),
+                                      GrResourceProvider::NumVertsPerNonAAQuad(),
+                                      flushInfo->fInstancesToFlush,
+                                      GrResourceProvider::MaxNumNonAAQuads());
             mesh->setVertexData(flushInfo->fVertexBuffer, flushInfo->fVertexOffset);
             target->recordDraw(
                     flushInfo->fGeometryProcessor, mesh, 1, flushInfo->fFixedDynamicState, nullptr);
-            flushInfo->fVertexOffset += kVerticesPerQuad * flushInfo->fInstancesToFlush;
+            flushInfo->fVertexOffset += GrResourceProvider::NumVertsPerNonAAQuad() *
+                                        flushInfo->fInstancesToFlush;
             flushInfo->fInstancesToFlush = 0;
         }
     }

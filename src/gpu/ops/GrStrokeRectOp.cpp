@@ -484,6 +484,7 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
     int verticesPerInstance = (outerVertexNum + innerVertexNum) * 2;
     int indicesPerInstance = this->miterStroke() ? kMiterIndexCnt : kBevelIndexCnt;
     int instanceCount = fRects.count();
+    int maxQuads = this->miterStroke() ? kNumMiterRectsInIndexBuffer : kNumBevelRectsInIndexBuffer;
 
     sk_sp<const GrGpuBuffer> indexBuffer =
             GetIndexBuffer(target->resourceProvider(), this->miterStroke());
@@ -493,7 +494,7 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
     }
     PatternHelper helper(target, GrPrimitiveType::kTriangles, gp->vertexStride(),
                          std::move(indexBuffer), verticesPerInstance, indicesPerInstance,
-                         instanceCount);
+                         instanceCount, maxQuads);
     GrVertexWriter vertices{ helper.vertices() };
     if (!vertices.fPtr) {
         SkDebugf("Could not allocate vertices\n");

@@ -20,15 +20,15 @@ void GrMeshDrawOp::onPrepare(GrOpFlushState* state) { this->onPrepareDraws(state
 GrMeshDrawOp::PatternHelper::PatternHelper(Target* target, GrPrimitiveType primitiveType,
                                            size_t vertexStride, sk_sp<const GrBuffer> indexBuffer,
                                            int verticesPerRepetition, int indicesPerRepetition,
-                                           int repeatCount) {
+                                           int repeatCount, int maxRepetitions) {
     this->init(target, primitiveType, vertexStride, std::move(indexBuffer), verticesPerRepetition,
-               indicesPerRepetition, repeatCount);
+               indicesPerRepetition, repeatCount, maxRepetitions);
 }
 
 void GrMeshDrawOp::PatternHelper::init(Target* target, GrPrimitiveType primitiveType,
                                        size_t vertexStride, sk_sp<const GrBuffer> indexBuffer,
                                        int verticesPerRepetition, int indicesPerRepetition,
-                                       int repeatCount) {
+                                       int repeatCount, int maxRepetitions) {
     SkASSERT(target);
     if (!indexBuffer) {
         return;
@@ -42,9 +42,10 @@ void GrMeshDrawOp::PatternHelper::init(Target* target, GrPrimitiveType primitive
         return;
     }
     SkASSERT(vertexBuffer);
-    size_t ibSize = indexBuffer->size();
-    int maxRepetitions = static_cast<int>(ibSize / (sizeof(uint16_t) * indicesPerRepetition));
     fMesh = target->allocMesh(primitiveType);
+
+    SkASSERT(maxRepetitions ==
+             static_cast<int>(indexBuffer->size() / (sizeof(uint16_t) * indicesPerRepetition)));
     fMesh->setIndexedPatterned(std::move(indexBuffer), indicesPerRepetition, verticesPerRepetition,
                                repeatCount, maxRepetitions);
     fMesh->setVertexData(std::move(vertexBuffer), firstVertex);
@@ -64,13 +65,15 @@ void GrMeshDrawOp::PatternHelper::recordDraw(
 //////////////////////////////////////////////////////////////////////////////
 
 GrMeshDrawOp::QuadHelper::QuadHelper(Target* target, size_t vertexStride, int quadsToDraw) {
-    sk_sp<const GrGpuBuffer> quadIndexBuffer = target->resourceProvider()->refQuadIndexBuffer();
-    if (!quadIndexBuffer) {
+    sk_sp<const GrGpuBuffer> indexBuffer = target->resourceProvider()->refNonAAQuadIndexBuffer();
+    if (!indexBuffer) {
         SkDebugf("Could not get quad index buffer.");
         return;
     }
-    this->init(target, GrPrimitiveType::kTriangles, vertexStride, std::move(quadIndexBuffer),
-               kVerticesPerQuad, kIndicesPerQuad, quadsToDraw);
+    this->init(target, GrPrimitiveType::kTriangles, vertexStride, std::move(indexBuffer),
+               GrResourceProvider::NumVertsPerNonAAQuad(),
+               GrResourceProvider::NumIndicesPerNonAAQuad(), quadsToDraw,
+               GrResourceProvider::MaxNumNonAAQuads());
 }
 
 //////////////////////////////////////////////////////////////////////////////

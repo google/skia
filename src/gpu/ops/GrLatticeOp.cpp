@@ -130,9 +130,6 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    static const int kVertsPerRect = 4;
-    static const int kIndicesPerRect = 6;
-
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrPaint&& paint,
                                           const SkMatrix& viewMatrix,
@@ -231,13 +228,16 @@ private:
         }
 
         const size_t kVertexStride = gp->vertexStride();
-        sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
+        sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refNonAAQuadIndexBuffer();
         if (!indexBuffer) {
             SkDebugf("Could not allocate indices\n");
             return;
         }
         PatternHelper helper(target, GrPrimitiveType::kTriangles, kVertexStride,
-                             std::move(indexBuffer), kVertsPerRect, kIndicesPerRect, numRects);
+                             std::move(indexBuffer),
+                             GrResourceProvider::NumVertsPerNonAAQuad(),
+                             GrResourceProvider::NumIndicesPerNonAAQuad(), numRects,
+                             GrResourceProvider::MaxNumNonAAQuads());
         GrVertexWriter vertices{helper.vertices()};
         if (!vertices.fPtr) {
             SkDebugf("Could not allocate vertices\n");
@@ -287,8 +287,9 @@ private:
 
             // If we didn't handle it above, apply the matrix here.
             if (!isScaleTranslate) {
-                SkMatrixPriv::MapPointsWithStride(patch.fViewMatrix, patchPositions, kVertexStride,
-                                                  kVertsPerRect * patch.fIter->numRectsToDraw());
+                SkMatrixPriv::MapPointsWithStride(
+                    patch.fViewMatrix, patchPositions, kVertexStride,
+                    GrResourceProvider::NumVertsPerNonAAQuad() * patch.fIter->numRectsToDraw());
             }
         }
         auto fixedDynamicState = target->makeFixedDynamicState(1);
