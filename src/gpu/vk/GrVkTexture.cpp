@@ -8,6 +8,7 @@
 #include "src/gpu/vk/GrVkTexture.h"
 
 #include "src/gpu/GrTexturePriv.h"
+#include "src/gpu/vk/GrVkDescriptorSet.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkImageView.h"
 #include "src/gpu/vk/GrVkTextureRenderTarget.h"
@@ -147,6 +148,11 @@ void GrVkTexture::onRelease() {
         fTextureView = nullptr;
     }
 
+    for (int i = 0; i < fCachedSingleSamplerDSPairs.count(); ++i) {
+        fCachedSingleSamplerDSPairs[i].fDescriptorSet->unref(this->getVkGpu());
+        fCachedSingleSamplerDSPairs[i].fDescriptorSet = nullptr;
+    }
+
     this->releaseImage(this->getVkGpu());
 
     INHERITED::onRelease();
@@ -164,6 +170,11 @@ void GrVkTexture::onAbandon() {
     if (fTextureView) {
         fTextureView->unrefAndAbandon();
         fTextureView = nullptr;
+    }
+
+    for (int i = 0; i < fCachedSingleSamplerDSPairs.count(); ++i) {
+        fCachedSingleSamplerDSPairs[i].fDescriptorSet->unrefAndAbandon();
+        fCachedSingleSamplerDSPairs[i].fDescriptorSet = nullptr;
     }
 
     this->abandonImage();
@@ -250,3 +261,26 @@ void GrVkTexture::removeFinishIdleProcs() {
     SkASSERT(resourceIdx == resource->idleProcCnt());
     fIdleProcs = procsToKeep;
 }
+
+const GrVkDescriptorSet* GrVkTexture::cachedSingleDescSet(const GrSamplerState& state) {
+    for (int i = 0; i < fCachedSingleSamplerDSPairs.count(); ++i) {
+        const auto& pair = fCachedSingleSamplerDSPairs[i];
+        if (pair.fSamplerState == state) {
+            return pair.fDescriptorSet;
+        }
+    }
+    return nullptr;
+}
+
+void GrVkTexture::addDescriptorSetToCache(const GrVkDescriptorSet* descSet,
+                                          const GrSamplerState& state) {
+#ifdef SK_DEBUG
+    for (int i = 0; i < fCachedSingleSamplerDSPairs.count(); ++i) {
+        const auto& pair = fCachedSingleSamplerDSPairs[i];
+        SkASSERT(pair.fSamplerState != state);
+    }
+#endif
+    descSet->ref();
+    fCachedSingleSamplerDSPairs.emplace_back(descSet, state);
+}
+
