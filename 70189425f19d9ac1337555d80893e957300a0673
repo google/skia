@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1984a572_df637e12",
+        "filename": "infra/bots/android_compile/trigger_wait_ac_task.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-10-28T13:33:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9ba5ef49_ed830f0a",
+      "range": {
+        "startLine": 196,
+        "startChar": 19,
+        "endLine": 196,
+        "endChar": 64
+      },
+      "revId": "70189425f19d9ac1337555d80893e957300a0673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "58c16781_b2c0eeaa",
         "filename": "infra/bots/upload_skps.py",
         "patchSetId": 7
