@@ -5,11 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "modules/skottie/src/SkottiePriv.h"
+#include "modules/skottie/src/Composition.h"
 
 #include "include/core/SkCanvas.h"
 #include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/SkottieJson.h"
+#include "modules/skottie/src/SkottiePriv.h"
 #include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGTransform.h"
 
@@ -118,62 +119,91 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachAssetRef(
     return asset;
 }
 
-sk_sp<sksg::RenderNode> AnimationBuilder::attachComposition(
-        const skjson::ObjectValue& jcomp) const {
-    const skjson::ArrayValue* jlayers = jcomp["layers"];
-    if (!jlayers) return nullptr;
-
-    std::vector<sk_sp<sksg::RenderNode>> layers;
-    AttachLayerContext                   layerCtx(*jlayers);
-
+CompositionBuilder::CompositionBuilder(const AnimationBuilder& abuilder,
+                                       const skjson::ObjectValue& jcomp) {
     // Optional motion blur params.
     if (const skjson::ObjectValue* jmb = jcomp["mb"]) {
         static constexpr size_t kMaxSamplesPerFrame = 64;
-        layerCtx.fMotionBlurSamples = std::min(ParseDefault<size_t>((*jmb)["spf"], 1ul),
-                                               kMaxSamplesPerFrame);
-        layerCtx.fMotionBlurAngle = SkTPin(ParseDefault((*jmb)["sa"], 0.0f),    0.0f, 720.0f);
-        layerCtx.fMotionBlurPhase = SkTPin(ParseDefault((*jmb)["sp"], 0.0f), -360.0f, 360.0f);
+        fMotionBlurSamples = std::min(ParseDefault<size_t>((*jmb)["spf"], 1ul),
+                                      kMaxSamplesPerFrame);
+        fMotionBlurAngle = SkTPin(ParseDefault((*jmb)["sa"], 0.0f),    0.0f, 720.0f);
+        fMotionBlurPhase = SkTPin(ParseDefault((*jmb)["sp"], 0.0f), -360.0f, 360.0f);
     }
 
+    // Prepare layer builders.
+    if (const skjson::ArrayValue* jlayers = jcomp["layers"]) {
+        fLayerBuilders.reserve(SkToInt(jlayers->size()));
+        for (const skjson::ObjectValue* jlayer : *jlayers) {
+            if (!jlayer) continue;
 
-    // First pass: parse layer types and attach camera layers.
-    struct LayerRec {
-        const skjson::ObjectValue& jlayer;
-        size_t                     layer_type;
-    };
-    SkSTArray<64, LayerRec, true> layer_recs(jlayers->size());
-    static constexpr int kCameraLayerType = 13;
-    for (const skjson::ObjectValue* jlayer : *jlayers) {
-        if (!jlayer) {
-            continue;
+            const auto  lbuilder_index = fLayerBuilders.size();
+            const auto& lbuilder       = fLayerBuilders.emplace_back(*jlayer);
+
+            fLayerIndexMap.set(lbuilder.index(), lbuilder_index);
+
+            // Keep track of the camera builder.
+            if (lbuilder.isCamera()) {
+                // We only support one (first) camera for now.
+                if (fCameraBuilderIndex < 0) {
+                    fCameraBuilderIndex = SkToInt(lbuilder_index);
+                } else {
+                    abuilder.log(Logger::Level::kWarning, jlayer,
+                                 "Ignoring duplicate camera layer.");
+                }
+            }
         }
+    }
+}
 
-        const auto type = ParseDefault<int>((*jlayer)["ty"], -1);
-        if (type < 0) {
-            continue;
-        }
+CompositionBuilder::~CompositionBuilder() = default;
 
-        if (type == kCameraLayerType) {
-            // Cameras must be attached upfront because layer transforms
-            // are rooted in the camera transform.
-            this->attachLayer(*jlayer, kCameraLayerType, &layerCtx);
-            continue;
-        }
+void CompositionBuilder::pushMatte(sk_sp<sksg::RenderNode> matte) {
+    fCurrentMatte = std::move(matte);
+}
 
-        layer_recs.push_back({*jlayer, SkToSizeT(type)});
+sk_sp<sksg::RenderNode> CompositionBuilder::popMatte() {
+    return std::move(fCurrentMatte);
+}
+
+bool CompositionBuilder::hasMotionBlur(const skjson::ObjectValue& jlayer) const {
+    return fMotionBlurSamples > 1
+        && fMotionBlurAngle   > 0
+        && ParseDefault(jlayer["mb"], false);
+}
+
+const LayerBuilder* CompositionBuilder::layerBuilder(int layer_index) const {
+    if (layer_index < 0) {
+        return nullptr;
     }
 
-    if (!layerCtx.fCameraTransform && ParseDefault<int>(jcomp["ddd"], 0)) {
-        // Instantiate a default camera when 3D layers are present.
-        layerCtx.fCameraTransform = CameraAdapter::MakeDefault(fSize)->refTransform();
+    if (const auto* idx = fLayerIndexMap.find(layer_index)) {
+        return &fLayerBuilders[SkToInt(*idx)];
     }
 
-    // Second pass: attach all other layers.
-    layers.reserve(layer_recs.size());
-    for (const auto& rec : layer_recs) {
-        SkASSERT(rec.layer_type != kCameraLayerType);
+    return nullptr;
+}
 
-        if (auto layer = this->attachLayer(rec.jlayer, rec.layer_type, &layerCtx)) {
+sk_sp<sksg::RenderNode> CompositionBuilder::build(const AnimationBuilder& abuilder) {
+    if (fCameraBuilderIndex >= 0) {
+        // Explicit camera.
+        fCameraTransform = fLayerBuilders[fCameraBuilderIndex]
+                                .getTransform(abuilder, this, LayerBuilder::TransformType::k3D);
+    } else if (fHas3D) {
+        // Default/implicit camera when 3D layers are present.
+        fCameraTransform = CameraAdapter::MakeDefault(abuilder.fSize)->refTransform();
+    }
+
+    // First pass - transitively attach layer transform chains.
+    for (auto& lbuilder : fLayerBuilders) {
+        lbuilder.buildTransform(abuilder, this);
+    }
+
+    // Second pass - attach actual layer contents and finalize the layer render tree.
+    std::vector<sk_sp<sksg::RenderNode>> layers;
+    layers.reserve(fLayerBuilders.size());
+
+    for (const auto& lbuilder : fLayerBuilders) {
+        if (auto layer = lbuilder.build(abuilder, this)) {
             layers.push_back(std::move(layer));
         }
     }
@@ -182,17 +212,15 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachComposition(
         return nullptr;
     }
 
-    sk_sp<sksg::RenderNode> comp;
     if (layers.size() == 1) {
-        comp = std::move(layers[0]);
-    } else {
-        // Layers are painted in bottom->top order.
-        std::reverse(layers.begin(), layers.end());
-        layers.shrink_to_fit();
-        comp = sksg::Group::Make(std::move(layers));
+        return std::move(layers[0]);
     }
 
-    return comp;
+    // Layers are painted in bottom->top order.
+    std::reverse(layers.begin(), layers.end());
+    layers.shrink_to_fit();
+
+    return sksg::Group::Make(std::move(layers));
 }
 
 } // namespace internal
