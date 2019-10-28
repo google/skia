@@ -590,15 +590,15 @@ SkStrikeServer::RemoteStrike* SkStrikeServer::getOrCreateCache(
 
 // No need to write fForceBW because it is a flag private to SkScalerContext_DW, which will never
 // be called on the GPU side.
-static void writeGlyph(SkGlyph* glyph, Serializer* serializer) {
-    serializer->write<SkPackedGlyphID>(glyph->getPackedID());
-    serializer->write<float>(glyph->advanceX());
-    serializer->write<float>(glyph->advanceY());
-    serializer->write<uint16_t>(glyph->width());
-    serializer->write<uint16_t>(glyph->height());
-    serializer->write<int16_t>(glyph->top());
-    serializer->write<int16_t>(glyph->left());
-    serializer->write<uint8_t>(glyph->maskFormat());
+static void writeGlyph(const SkGlyph& glyph, Serializer* serializer) {
+    serializer->write<SkPackedGlyphID>(glyph.getPackedID());
+    serializer->write<float>(glyph.advanceX());
+    serializer->write<float>(glyph.advanceY());
+    serializer->write<uint16_t>(glyph.width());
+    serializer->write<uint16_t>(glyph.height());
+    serializer->write<int16_t>(glyph.top());
+    serializer->write<int16_t>(glyph.left());
+    serializer->write<uint8_t>(glyph.maskFormat());
 }
 
 void SkStrikeServer::RemoteStrike::writePendingGlyphs(Serializer* serializer) {
@@ -624,7 +624,7 @@ void SkStrikeServer::RemoteStrike::writePendingGlyphs(Serializer* serializer) {
         fContext->getMetrics(&glyph);
         SkASSERT(SkMask::IsValidFormat(glyph.fMaskFormat));
 
-        writeGlyph(&glyph, serializer);
+        writeGlyph(glyph, serializer);
         auto imageSize = glyph.imageSize();
         if (imageSize > 0 && FitsInAtlas(glyph)) {
             glyph.fImage = serializer->allocate(imageSize, glyph.formatAlignment());
@@ -640,7 +640,7 @@ void SkStrikeServer::RemoteStrike::writePendingGlyphs(Serializer* serializer) {
         fContext->getMetrics(&glyph);
         SkASSERT(SkMask::IsValidFormat(glyph.fMaskFormat));
 
-        writeGlyph(&glyph, serializer);
+        writeGlyph(glyph, serializer);
         writeGlyphPath(glyphID, serializer);
     }
     fPendingGlyphPaths.clear();
@@ -797,13 +797,12 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
     SkASSERT(memorySize != 0u);
     Deserializer deserializer(static_cast<const volatile char*>(memory), memorySize);
 
-    uint64_t typefaceSize = 0u;
-    uint64_t strikeCount = 0u;
-    uint64_t glyphImagesCount = 0u;
-    uint64_t glyphPathsCount = 0u;
+    uint64_t typefaceSize = 0;
+    uint64_t strikeCount = 0;
+    uint64_t glyphImagesCount = 0;
+    uint64_t glyphPathsCount = 0;
 
     if (!deserializer.read<uint64_t>(&typefaceSize)) READ_FAILURE
-
     for (size_t i = 0; i < typefaceSize; ++i) {
         WireTypeface wire;
         if (!deserializer.read<WireTypeface>(&wire)) READ_FAILURE
