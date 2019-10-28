@@ -159,6 +159,9 @@ def nanobench_flags(api, bot):
   if 'NVIDIA_Shield' in bot or 'Chorizo' in bot:
     args.extend(['--dontReduceOpsTaskSplitting'])
 
+  if 'Android' in bot and 'GPU' in bot:
+    args.extend(['--texttraces', 'text_blob_traces'])
+
   # Some people don't like verbose output.
   verbose = False
 
