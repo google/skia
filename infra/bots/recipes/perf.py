@@ -214,6 +214,7 @@ def nanobench_flags(api, bot):
   if ('ASAN' in bot or 'UBSAN' in bot) and 'CPU' in bot:
     # floor2int_undef benches undefined behavior, so ASAN correctly complains.
     match.append('~^floor2int_undef$')
+<<<<<<< HEAD   (bdf2c8 HarfBuzz reports y-up, convert to y-down.)
   if 'AcerChromebook13_CB5_311-GPU-TegraK1' in bot:
     # skia:7551
     match.append('~^shapes_rrect_inner_rrect_50_500x500$')
@@ -221,6 +222,8 @@ def nanobench_flags(api, bot):
     # skia:9413
     match.append('~^path_text$')
     match.append('~^path_text_clipped_uncached$')
+=======
+>>>>>>> BRANCH (6ce2f3 [infra] Fix presubmit by pinning tools/build)
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
@@ -393,7 +396,10 @@ TEST_BUILDERS = [
   ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
     'Valgrind_SK_CPU_LIMIT_SSE41'),
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE',
+<<<<<<< HEAD   (bdf2c8 HarfBuzz reports y-up, convert to y-down.)
   'Perf-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-Vulkan',
+=======
+>>>>>>> BRANCH (6ce2f3 [infra] Fix presubmit by pinning tools/build)
   'Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All',
   'Perf-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All-Metal',
 ]
