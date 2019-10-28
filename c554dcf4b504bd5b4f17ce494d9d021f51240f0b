@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f3e09e67_5ee9b157",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-28T20:10:45Z",
+      "side": 0,
+      "message": "If we do see a perf regression w/ the larger limit I\u0027ll add an Adreno-specific cap.",
+      "revId": "c554dcf4b504bd5b4f17ce494d9d021f51240f0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
