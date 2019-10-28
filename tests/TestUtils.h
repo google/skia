@@ -81,3 +81,12 @@ bool compare_pixels(const SkPixmap& a, const SkPixmap& b, const float tolRGBA[4]
  */
 bool check_solid_pixels(const SkColor4f& col, const SkPixmap& pixmap,
                         const float tolRGBA[4], std::function<ComparePixmapsErrorReporter>& error);
+
+/**
+ * Checks the ref cnt on a proxy and its backing store. This is only valid if the proxy and the
+ * resource are both used on a single thread.
+ */
+void check_single_threaded_proxy_refs(skiatest::Reporter* reporter,
+                                      GrTextureProxy* proxy,
+                                      int32_t expectedProxyRefs,
+                                      int32_t expectedBackingRefs);
