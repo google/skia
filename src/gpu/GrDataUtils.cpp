@@ -154,7 +154,7 @@ static void fillin_ETC1_with_color(int width, int height, const SkColor4f& color
 }
 
 // Fill in the width x height 'dest' with the munged version of 'colorf' that matches 'config'
-static bool fill_buffer_with_color(GrColorType colorType, int width, int height,
+static bool fill_buffer_with_color(GrColorType colorType, SkISize dimensions,
                                    const SkColor4f& colorf, void* dest) {
     GrColor color = colorf.toBytes_RGBA();
 
@@ -165,19 +165,19 @@ static bool fill_buffer_with_color(GrColorType colorType, int width, int height,
 
     switch (colorType) {
         case GrColorType::kAlpha_8: {
-            memset(dest, a, width * height);
+            memset(dest, a, dimensions.area());
             break;
         }
         case GrColorType::kGray_8: {
             uint8_t gray8 = SkComputeLuminance(r, g, b);
 
-            memset(dest, gray8, width * height);
+            memset(dest, gray8, dimensions.area());
             break;
         }
         case GrColorType::kBGR_565: {
             uint16_t rgb565 = SkPack888ToRGB16(r, g, b);
 
-            sk_memset16((uint16_t*) dest, rgb565, width * height);
+            sk_memset16((uint16_t*) dest, rgb565, dimensions.area());
             break;
         }
         case GrColorType::kABGR_4444: {
@@ -189,33 +189,33 @@ static bool fill_buffer_with_color(GrColorType colorType, int width, int height,
             uint16_t rgba4444 = r4 << SK_R4444_SHIFT | g4 << SK_G4444_SHIFT |
                                 b4 << SK_B4444_SHIFT | a4 << SK_A4444_SHIFT;
 
-            sk_memset16((uint16_t*) dest, rgba4444, width * height);
+            sk_memset16((uint16_t*) dest, rgba4444, dimensions.area());
             break;
         }
         case GrColorType::kRGBA_8888: {
-            sk_memset32((uint32_t *) dest, color, width * height);
+            sk_memset32((uint32_t *) dest, color, dimensions.area());
             break;
         }
         case GrColorType::kRGB_888x: {
             GrColor opaque = GrColorPackRGBA(r, g, b, 0xFF);
 
-            sk_memset32((uint32_t *) dest, opaque, width * height);
+            sk_memset32((uint32_t *) dest, opaque, dimensions.area());
             break;
         }
         case GrColorType::kRG_88: {
             uint16_t rg88 = (g << 8) | r;
 
-            sk_memset16((uint16_t*) dest, rg88, width * height);
+            sk_memset16((uint16_t*) dest, rg88, dimensions.area());
             break;
         }
         case GrColorType::kBGRA_8888: {
             GrColor swizzled = GrColorPackRGBA(b, g, r, a);
 
-            sk_memset32((uint32_t *) dest, swizzled, width * height);
+            sk_memset32((uint32_t *) dest, swizzled, dimensions.area());
             break;
         }
         case GrColorType::kRGBA_8888_SRGB: {
-            sk_memset32((uint32_t *) dest, color, width * height);
+            sk_memset32((uint32_t *) dest, color, dimensions.area());
             break;
         }
         case GrColorType::kRGBA_1010102: {
@@ -226,13 +226,13 @@ static bool fill_buffer_with_color(GrColorType colorType, int width, int height,
 
             uint32_t rgba1010102 = a2 << 30 | b10 << 20 | g10 << 10 | r10;
 
-            sk_memset32((uint32_t *) dest, rgba1010102, width * height);
+            sk_memset32((uint32_t *) dest, rgba1010102, dimensions.area());
             break;
         }
         case GrColorType::kAlpha_F16: {
             SkHalf alphaHalf = SkFloatToHalf(colorf.fA);
 
-            sk_memset16((uint16_t *) dest, alphaHalf, width * height);
+            sk_memset16((uint16_t *) dest, alphaHalf, dimensions.area());
             break;
         }
         case GrColorType::kRGBA_F16_Clamped:                          // fall through
@@ -244,12 +244,12 @@ static bool fill_buffer_with_color(GrColorType colorType, int width, int height,
 
             uint64_t rgbaHalf = (aHalf << 48) | (bHalf << 32) | (gHalf << 16) | rHalf;
 
-            sk_memset64((uint64_t *) dest, rgbaHalf, width * height);
+            sk_memset64((uint64_t *) dest, rgbaHalf, dimensions.area());
             break;
         }
         case GrColorType::kAlpha_16: {
             uint16_t a16 = SkScalarRoundToInt(colorf.fA * 65535.0f);
-            sk_memset16((uint16_t*) dest, a16, width * height);
+            sk_memset16((uint16_t*) dest, a16, dimensions.area());
             break;
         }
         case GrColorType::kRG_1616: {
@@ -258,7 +258,7 @@ static bool fill_buffer_with_color(GrColorType colorType, int width, int height,
 
             uint32_t rg1616 = (g16 << 16) | r16;
 
-            sk_memset32((uint32_t*) dest, rg1616, width * height);
+            sk_memset32((uint32_t*) dest, rg1616, dimensions.area());
             break;
         }
         case GrColorType::kRGBA_16161616: {
@@ -268,7 +268,7 @@ static bool fill_buffer_with_color(GrColorType colorType, int width, int height,
             uint64_t a16 = SkScalarRoundToInt(colorf.fA * 65535.0f);
 
             uint64_t rgba16161616 = (a16 << 48) | (b16 << 32) | (g16 << 16) | r16;
-            sk_memset64((uint64_t*) dest, rgba16161616, width * height);
+            sk_memset64((uint64_t*) dest, rgba16161616, dimensions.area());
             break;
         }
         case GrColorType::kRG_F16: {
@@ -277,7 +277,7 @@ static bool fill_buffer_with_color(GrColorType colorType, int width, int height,
 
             uint32_t rgHalf = (gHalf << 16) | rHalf;
 
-            sk_memset32((uint32_t *) dest, rgHalf, width * height);
+            sk_memset32((uint32_t *) dest, rgHalf, dimensions.area());
             break;
         }
         default:
@@ -288,16 +288,15 @@ static bool fill_buffer_with_color(GrColorType colorType, int width, int height,
     return true;
 }
 
-size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, int baseWidth, int baseHeight,
+size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, SkISize baseDimensions,
                                         SkTArray<size_t>* individualMipOffsets, int mipLevelCount) {
     SkASSERT(individualMipOffsets && !individualMipOffsets->count());
     SkASSERT(mipLevelCount >= 1);
 
     individualMipOffsets->push_back(0);
 
-    size_t combinedBufferSize = baseWidth * bytesPerPixel * baseHeight;
-    int currentWidth = baseWidth;
-    int currentHeight = baseHeight;
+    size_t combinedBufferSize = baseDimensions.width() * bytesPerPixel * baseDimensions.height();
+    SkISize levelDimensions = baseDimensions;
 
     // The Vulkan spec for copying a buffer to an image requires that the alignment must be at
     // least 4 bytes and a multiple of the bytes per pixel of the image config.
@@ -306,10 +305,10 @@ size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, int baseWidth, int
     int desiredAlignment = (bytesPerPixel == 3) ? 12 : (bytesPerPixel > 4 ? bytesPerPixel : 4);
 
     for (int currentMipLevel = 1; currentMipLevel < mipLevelCount; ++currentMipLevel) {
-        currentWidth = SkTMax(1, currentWidth / 2);
-        currentHeight = SkTMax(1, currentHeight / 2);
+        levelDimensions = {SkTMax(1, levelDimensions.width()  >> 1),
+                           SkTMax(1, levelDimensions.height() >> 1)};
 
-        size_t trimmedSize = currentWidth * bytesPerPixel * currentHeight;
+        size_t trimmedSize = levelDimensions.area() * bytesPerPixel;
         const size_t alignmentDiff = combinedBufferSize % desiredAlignment;
         if (alignmentDiff != 0) {
             combinedBufferSize += desiredAlignment - alignmentDiff;
@@ -324,21 +323,18 @@ size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, int baseWidth, int
     return combinedBufferSize;
 }
 
-void GrFillInData(GrColorType colorType, int baseWidth, int baseHeight,
+void GrFillInData(GrColorType colorType, SkISize baseDimensions,
                   const SkTArray<size_t>& individualMipOffsets, char* dstPixels,
-                  const SkColor4f& colorf) {
+                  const SkColor4f& color) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     int mipLevels = individualMipOffsets.count();
 
-    int currentWidth = baseWidth;
-    int currentHeight = baseHeight;
-    for (int currentMipLevel = 0; currentMipLevel < mipLevels; ++currentMipLevel) {
-        size_t offset = individualMipOffsets[currentMipLevel];
-
-        fill_buffer_with_color(colorType, currentWidth, currentHeight, colorf,
-                               &(dstPixels[offset]));
-        currentWidth = SkTMax(1, currentWidth / 2);
-        currentHeight = SkTMax(1, currentHeight / 2);
+    SkISize levelDimensions = baseDimensions;
+    for (int i = 0; i < mipLevels; ++i) {
+        size_t offset = individualMipOffsets[i];
+        fill_buffer_with_color(colorType, levelDimensions, color, &(dstPixels[offset]));
+        levelDimensions = {SkTMax(1, levelDimensions.width() >> 1),
+                           SkTMax(1, levelDimensions.height() >> 1)};
     }
 }
 
@@ -477,7 +473,7 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
     if (!src || !dst) {
         return false;
     }
-    if (dstInfo.width() != srcInfo.width() || srcInfo.height() != dstInfo.height()) {
+    if (dstInfo.dimensions() != srcInfo.dimensions()) {
         return false;
     }
     if (GrColorTypeComponentFlags(dstInfo.colorType()) & kGray_SkColorTypeComponentFlag) {

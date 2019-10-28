@@ -3596,21 +3596,15 @@ static GrPixelConfig gl_format_to_pixel_config(GrGLFormat format) {
     SkUNREACHABLE;
 }
 
-GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
+GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
                                                  const GrBackendFormat& format,
-                                                 GrMipMapped mipMapped,
                                                  GrRenderable renderable,
-                                                 const SkPixmap srcData[], int numMipLevels,
-                                                 const SkColor4f* color,
+                                                 const BackendTextureData* data,
+                                                 int numMipLevels,
                                                  GrProtected isProtected) {
     this->handleDirtyContext();
 
     SkDEBUGCODE(const GrCaps* caps = this->caps();)
-
-    // GrGpu::createBackendTexture should've ensured these conditions
-    SkASSERT(w >= 1 && w <= caps->maxTextureSize() && h >= 1 && h <= caps->maxTextureSize());
-    SkASSERT(GrGpu::MipMapsAreCorrect(w, h, mipMapped, srcData, numMipLevels));
-    SkASSERT(mipMapped == GrMipMapped::kNo || caps->mipMapSupport());
 
     GrGLFormat glFormat = format.asGLFormat();
     if (glFormat == GrGLFormat::kUnknown) {
@@ -3632,26 +3626,18 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
     SkTDArray<GrMipLevel> texels;
     SkAutoMalloc pixelStorage;
 
-    int mipLevelCount = 1;
     GrColorType textureAndDataColorType = GrColorType::kUnknown;
-    if (srcData) {
-        mipLevelCount = numMipLevels;
-        textureAndDataColorType = SkColorTypeToGrColorType(srcData[0].colorType());
-        texels.append(mipLevelCount);
-        for (int i = 0; i < mipLevelCount; ++i) {
-            texels[i] = { srcData[i].addr(), srcData[i].rowBytes() };
+    if (data && data->type() == BackendTextureData::Type::kPixmaps) {
+        textureAndDataColorType = SkColorTypeToGrColorType(data->colorType());
+        texels.append(numMipLevels);
+        for (int i = 0; i < numMipLevels; ++i) {
+            texels[i] = { data->pixmap(i).addr(), data->pixmap(i).rowBytes() };
         }
-    } else if (color) {
-        // We don't currently communicate the intended color type in this case so reverse engineer
-        // it from the config. Note this is lossy.
-        textureAndDataColorType = GrPixelConfigToColorType(config);
+    } else if (data && data->type() == BackendTextureData::Type::kColor) {
+        textureAndDataColorType = SkColorTypeToGrColorType(data->colorType());
 
-        if (GrMipMapped::kYes == mipMapped) {
-            mipLevelCount = SkMipMap::ComputeLevelCount(w, h) + 1;
-        }
-
-        texels.append(mipLevelCount);
-        SkTArray<size_t> individualMipOffsets(mipLevelCount);
+        texels.append(numMipLevels);
+        SkTArray<size_t> individualMipOffsets(numMipLevels);
 
         size_t bytesPerPixel = this->glCaps().bytesPerPixel(glFormat);
 
@@ -3660,8 +3646,8 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
 
         char* tmpPixels = (char*)pixelStorage.reset(totalSize);
 
-        GrFillInData(textureAndDataColorType, w, h, individualMipOffsets, tmpPixels, *color);
-        for (int i = 0; i < mipLevelCount; ++i) {
+        GrFillInData(textureAndDataColorType, dimensions, individualMipOffsets, tmpPixels, data->color());
+        for (int i = 0; i < numMipLevels; ++i) {
             size_t offset = individualMipOffsets[i];
 
             int twoToTheMipLevel = 1 << i;

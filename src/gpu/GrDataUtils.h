@@ -23,10 +23,10 @@ size_t GrCompressedRowBytes(SkImage::CompressionType, int w);
 // Compute the size of the buffer required to hold all the mipLevels of the specified type
 // of data when all rowBytes are tight.
 // Note there may still be padding between the mipLevels to meet alignment requirements.
-size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, int baseWidth, int baseHeight,
+size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, SkISize baseDimensions,
                                         SkTArray<size_t>* individualMipOffsets, int mipLevelCount);
 
-void GrFillInData(GrColorType, int baseWidth, int baseHeight,
+void GrFillInData(GrColorType, SkISize baseDimensions,
                   const SkTArray<size_t>& individualMipOffsets, char* dest, const SkColor4f& color);
 
 void GrFillInCompressedData(SkImage::CompressionType, int width, int height, char* dest,
