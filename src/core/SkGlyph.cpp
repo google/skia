@@ -123,7 +123,9 @@ bool SkGlyph::setMetricsAndImage(SkArenaAlloc* alloc, const SkGlyph& from) {
         fLeft = from.fLeft;
         fForceBW = from.fForceBW;
         fMaskFormat = from.fMaskFormat;
-        return this->setImage(alloc, from.image());
+
+        // From glyph may not have an image because the glyph is too large.
+        return from.fImage != nullptr && this->setImage(alloc, from.image());
     }
     return false;
 }
