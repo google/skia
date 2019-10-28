@@ -35,6 +35,54 @@ fi
 TDIR="$(mktemp -d "${TMPDIR:-/tmp}/skqp_report.XXXXXXXXXX")"
 THIS="$(dirname "$0")"
 
+<<<<<<< HEAD   (9ef43f SkQP: mark several gms as unsuitable for skqp)
 sh "$THIS/run_apk.sh" "$APK" "$TDIR"
+=======
+adb uninstall org.skia.skqp
+adb install "$APK" || exit 2
+adb logcat -c
+>>>>>>> BRANCH (6ce2f3 [infra] Fix presubmit by pinning tools/build)
 
+<<<<<<< HEAD   (9ef43f SkQP: mark several gms as unsuitable for skqp)
 "$THIS/../../bin/sysopen" "$TDIR"/skqp_report_*/report.html
+=======
+adb logcat TestRunner org.skia.skqp skia DEBUG "*:S" | tee "${TDIR}/logcat.txt" &
+LOGCAT_PID=$!
+
+ADBSHELL_PID=''
+trap 'kill $LOGCAT_PID; kill $ADBSHELL_PID' INT
+
+printf '\n%s\n\n' "adb shell am instrument $ARGS -w org.skia.skqp"
+adb shell am instrument $ARGS -w org.skia.skqp \
+    >  "${TDIR}/stdout.txt" \
+    2> "${TDIR}/stderr.txt" &
+ADBSHELL_PID=$!
+
+wait $ADBSHELL_PID
+trap - INT
+kill $LOGCAT_PID
+
+printf '\nTEST OUTPUT IS IN: "%s"\n\n' "$TDIR"
+
+SED_CMD='s/^.* org.skia.skqp: output written to "\([^"]*\)".*$/\1/p'
+ODIR="$(sed -n "$SED_CMD" "${TDIR}/logcat.txt" | head -1)"
+
+if ! adb shell "test -d '$ODIR'" ; then
+    echo 'missing output :('
+    exit 3
+fi
+
+odir_basename="$(basename "$ODIR")"
+
+adb pull "${ODIR}" "${TDIR}/${odir_basename}"
+
+REPORT="${TDIR}/${odir_basename}/report.html"
+
+if [ -f "$REPORT" ]; then
+    grep 'f(.*;' "$REPORT"
+    echo "$REPORT"
+    "$(dirname "$0")"/../../bin/sysopen "$REPORT" > /dev/null 2>&1 &
+else
+    echo "$TDIR"
+fi
+>>>>>>> BRANCH (6ce2f3 [infra] Fix presubmit by pinning tools/build)
