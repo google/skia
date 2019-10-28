@@ -137,10 +137,10 @@ static TFKind classify(const skcms_TransferFunction& tf, TF_PQish*   pq = nullpt
                                                        , TF_HLGish* hlg = nullptr) {
     if (tf.g < 0 && (int)tf.g == tf.g) {
         // TODO: sanity checks for PQ/HLG like we do for sRGBish.
-        switch (-(int)tf.g) {
-            case PQish:     if (pq ) { memcpy(pq , &tf.a, sizeof(*pq )); } return PQish;
-            case HLGish:    if (hlg) { memcpy(hlg, &tf.a, sizeof(*hlg)); } return HLGish;
-            case HLGinvish: if (hlg) { memcpy(hlg, &tf.a, sizeof(*hlg)); } return HLGinvish;
+        switch ((int)tf.g) {
+            case -PQish:     if (pq ) { memcpy(pq , &tf.a, sizeof(*pq )); } return PQish;
+            case -HLGish:    if (hlg) { memcpy(hlg, &tf.a, sizeof(*hlg)); } return HLGish;
+            case -HLGinvish: if (hlg) { memcpy(hlg, &tf.a, sizeof(*hlg)); } return HLGinvish;
         }
         return Bad;
     }
