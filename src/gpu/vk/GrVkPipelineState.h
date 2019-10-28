@@ -116,19 +116,11 @@ private:
     // GrVkResources
     GrVkPipeline* fPipeline;
 
-    // The DescriptorSets need to survive until the gpu has finished all draws that use them.
-    // However, they will only be freed by the descriptor pool. Thus by simply keeping the
-    // descriptor pool alive through the draw, the descritor sets will also stay alive. Thus we do
-    // not need a GrVkResource versions of VkDescriptorSet. We hold on to these in the
-    // GrVkPipelineState since we update the descriptor sets and bind them at separate times;
-    VkDescriptorSet fDescriptorSets[3];
-
     const GrVkDescriptorSet* fUniformDescriptorSet;
-    const GrVkDescriptorSet* fSamplerDescriptorSet;
 
     const GrVkDescriptorSetManager::Handle fSamplerDSHandle;
 
-    SkSTArray<4, const GrVkSampler*>   fImmutableSamplers;
+    SkSTArray<4, const GrVkSampler*> fImmutableSamplers;
 
     std::unique_ptr<GrVkUniformBuffer> fUniformBuffer;
 
