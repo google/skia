@@ -10,6 +10,5 @@ florin was here
 more  whitespace
 all the things!!!
 Yet another line.
-
 BIOS update 20180917
 Gerrit 10k!!!
