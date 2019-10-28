@@ -189,8 +189,7 @@ describe('CanvasKit\'s Path Behavior', function() {
         }));
     });
 
-    // Disabled until we can update CanvasKit's freetype.
-    xit('can draw emojis', function(done) {
+    it('can draw emojis', function(done) {
         Promise.all([LoadCanvasKit, notoSerifFontLoaded, emojiFontLoaded]).then(catchException(done, () => {
             const surface = CanvasKit.MakeCanvasSurface('test');
             expect(surface).toBeTruthy('Could not make surface')
@@ -201,7 +200,9 @@ describe('CanvasKit\'s Path Behavior', function() {
             const canvas = surface.getCanvas();
 
             const fontMgr = CanvasKit.SkFontMgr.FromData([notoSerifFontBuffer, emojiFontBuffer]);
-            fontMgr.dumpFamilies();
+            if (fontMgr.dumpFamilies) {
+                fontMgr.dumpFamilies();
+            }
 
             const wrapTo = 450;
 
@@ -216,10 +217,18 @@ describe('CanvasKit\'s Path Behavior', function() {
                 textAlign: CanvasKit.TextAlign.Left,
                 maxLines: 10,
             });
+
+            const textStyle = new CanvasKit.TextStyle({
+                color: CanvasKit.BLACK,
+                    // The number 4 matches an emoji and looks strange w/o this additional style.
+                    fontFamilies: ['Noto Serif'],
+                    fontSize: 30,
+            });
+
             const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
-            // FIXME(kjlubick): We need one style that doesn't have emoji, otherwise the 4 will
-            // be "emoji 4".
+            builder.pushStyle(textStyle);
             builder.addText('4 flags on following line:\n');
+            builder.pop();
             builder.addText(`🏳️‍🌈 🇮🇹 🇱🇷 🇺🇸\n`);
             builder.addText('Rainbow Italy Liberia USA\n\n');
             builder.addText('Emoji below should wrap:\n');
@@ -230,8 +239,16 @@ describe('CanvasKit\'s Path Behavior', function() {
 
             canvas.drawParagraph(paragraph, 10, 10);
 
+            const paint = new CanvasKit.SkPaint();
+            paint.setColor(CanvasKit.RED);
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
+            canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
+
             surface.flush();
             fontMgr.delete();
+            paint.delete();
+            builder.delete();
+
             reportSurface(surface, 'paragraph_emoji', done);
         }));
     });

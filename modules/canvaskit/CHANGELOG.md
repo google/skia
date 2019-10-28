@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    (e.g. SkColorFilter.MakeMatrix). This is an advanced feature, so use it with care.
  - `SkCanvas.clipRRect`, `SkCanvas.drawColor`
 
+### Changed
+ - Use newer version of Freetype2 (Tracking Skia's DEPS now).
+
 ## [0.8.0] - 2019-10-21
 
 ### Added
