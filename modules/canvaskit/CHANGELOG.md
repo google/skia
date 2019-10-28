@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
  - Use newer version of Freetype2 (Tracking Skia's DEPS now).
+ - Use newer versions of libpng and zlib (Tracking Skia's DEPS now).
 
 ## [0.8.0] - 2019-10-21
 
