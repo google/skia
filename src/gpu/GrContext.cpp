@@ -7,6 +7,8 @@
 
 #include "include/gpu/GrContext.h"
 
+#include "src/core/SkMipMap.h"
+#include <atomic>
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/private/SkDeferredDisplayList.h"
@@ -34,7 +36,6 @@
 #include "src/gpu/text/GrTextContext.h"
 #include "src/image/SkImage_GpuBase.h"
 #include "src/image/SkSurface_Gpu.h"
-#include <atomic>
 
 #define ASSERT_OWNED_PROXY(P) \
     SkASSERT(!(P) || !((P)->peekTexture()) || (P)->peekTexture()->getContext() == this)
@@ -380,9 +381,13 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         return GrBackendTexture();
     }
 
-    return fGpu->createBackendTexture(width, height, backendFormat,
-                                      mipMapped, renderable,
-                                      nullptr, 0, nullptr, isProtected);
+    int levelCount = 1;
+    if (mipMapped == GrMipMapped::kYes) {
+        levelCount = SkMipMap::ComputeLevelCount(width, height) + 1;
+    }
+
+    return fGpu->createBackendTexture({width, height}, backendFormat,
+                                      renderable, nullptr, levelCount, isProtected);
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
@@ -481,9 +486,13 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         return GrBackendTexture();
     }
 
-    return fGpu->createBackendTexture(width, height, backendFormat,
-                                      mipMapped, renderable,
-                                      nullptr, 0, &color, isProtected);
+    int numMipLevels = 1;
+    if (mipMapped == GrMipMapped::kYes) {
+        numMipLevels = SkMipMap::ComputeLevelCount(width, height) + 1;
+    }
+    GrGpu::BackendTextureData data(color);
+    return fGpu->createBackendTexture({width, height}, backendFormat,
+                                      renderable, &data, numMipLevels, isProtected);
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
@@ -534,9 +543,9 @@ GrBackendTexture GrContext::createBackendTexture(const SkPixmap srcData[], int n
 
     GrBackendFormat backendFormat = this->defaultBackendFormat(colorType, renderable);
 
-    return fGpu->createBackendTexture(baseWidth, baseHeight, backendFormat,
-                                      numLevels > 1 ? GrMipMapped::kYes : GrMipMapped::kNo,
-                                      renderable, srcData, numLevels, nullptr, isProtected);
+    GrGpu::BackendTextureData data(srcData);
+    return fGpu->createBackendTexture({baseWidth, baseHeight}, backendFormat,
+                                      renderable, &data, numLevels, isProtected);
 }
 
 void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {

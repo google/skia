@@ -454,6 +454,34 @@ public:
     Stats* stats() { return &fStats; }
     void dumpJSON(SkJSONWriter*) const;
 
+    class BackendTextureData {
+    public:
+        enum class Type { kColor, kPixmaps };
+        BackendTextureData() = default;
+        BackendTextureData(const SkColor4f& color) : fType(Type::kColor), fColor(color) {}
+        BackendTextureData(const SkPixmap pixmaps[]) : fType(Type::kPixmaps), fPixmaps(pixmaps) {
+            SkASSERT(pixmaps);
+        }
+
+        Type type() const { return fType; }
+        SkColor4f color() const {
+            SkASSERT(this->type() == Type::kColor);
+            return fColor;
+        }
+
+        const SkPixmap& pixmap(int i) const {
+            return fPixmaps[i];
+        }
+        const SkPixmap* pixmaps() const { return fPixmaps; }
+
+    private:
+        Type fType = Type::kColor;
+        union {
+            SkColor4f fColor = {0, 0, 0, 0};
+            const SkPixmap* fPixmaps;
+        };
+    };
+
     /**
      * Creates a texture directly in the backend API without wrapping it in a GrTexture.
      * Must be matched with a call to deleteBackendTexture().
@@ -471,10 +499,12 @@ public:
      * Note: if more than one pixmap is provided (i.e., for mipmap levels) they must all share
      * the same SkColorType.
      */
-    GrBackendTexture createBackendTexture(int w, int h, const GrBackendFormat&,
-                                          GrMipMapped, GrRenderable,
-                                          const SkPixmap srcData[], int numMipLevels,
-                                          const SkColor4f* color, GrProtected isProtected);
+    GrBackendTexture createBackendTexture(SkISize dimensions,
+                                          const GrBackendFormat&,
+                                          GrRenderable,
+                                          const BackendTextureData* data,
+                                          int numMipLevels,
+                                          GrProtected isProtected);
 
     /**
      * Frees a texture created by createBackendTexture(). If ownership of the backend
@@ -557,8 +587,7 @@ public:
     virtual void storeVkPipelineCacheData() {}
 
 protected:
-    static bool MipMapsAreCorrect(int baseWidth, int baseHeight, GrMipMapped,
-                                  const SkPixmap srcData[], int numMipLevels);
+    static bool MipMapsAreCorrect(SkISize, const BackendTextureData*, int numMipLevels);
 
     // Handles cases where a surface will be updated without a call to flushRenderTarget.
     void didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const SkIRect* bounds,
@@ -570,10 +599,12 @@ protected:
     sk_sp<const GrCaps>              fCaps;
 
 private:
-    virtual GrBackendTexture onCreateBackendTexture(int w, int h, const GrBackendFormat&,
-                                                    GrMipMapped, GrRenderable,
-                                                    const SkPixmap srcData[], int numMipLevels,
-                                                    const SkColor4f* color, GrProtected) = 0;
+    virtual GrBackendTexture onCreateBackendTexture(SkISize dimensions,
+                                                    const GrBackendFormat&,
+                                                    GrRenderable,
+                                                    const BackendTextureData* data,
+                                                    int numMipLevels,
+                                                    GrProtected isProtected) = 0;
 
     // called when the 3D context state is unknown. Subclass should emit any
     // assumed 3D context state and dirty any state cache.
