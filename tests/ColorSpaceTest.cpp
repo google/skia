@@ -334,3 +334,17 @@ DEF_TEST(ColorSpace_skcms_sRGB_exact, r) {
 
     REPORTER_ASSERT(r, 0 == memcmp(&profile, skcms_sRGB_profile(), sizeof(skcms_ICCProfile)));
 }
+
+DEF_TEST(ColorSpace_classifyUnderflow, r) {
+    // crbug.com/1016183
+    skcms_TransferFunction fn;
+    fn.a = 1.0f;
+    fn.b = 0.0f;
+    fn.c = 0.0f;
+    fn.d = 0.0f;
+    fn.e = 0.0f;
+    fn.f = 0.0f;
+    fn.g = INT_MIN;
+    sk_sp<SkColorSpace> bad = SkColorSpace::MakeRGB(fn, SkNamedGamut::kSRGB);
+    REPORTER_ASSERT(r, bad == nullptr);
+}
