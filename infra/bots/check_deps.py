@@ -32,6 +32,7 @@ def main():
   # Obtain the DEPS mapping.
   output = subprocess.check_output(
       [python, gclient_py, 'revinfo'], cwd=SKIA_DIR)
+  print output
 
   # Check each entry.
   errs = []
