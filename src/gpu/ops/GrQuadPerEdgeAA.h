@@ -142,8 +142,6 @@ namespace GrQuadPerEdgeAA {
     bool ConfigureMeshIndices(GrMeshDrawOp::Target* target, GrMesh* mesh, const VertexSpec& spec,
                               int quadCount);
 
-    static constexpr int kNumAAQuadsInIndexBuffer = 512;
-
 } // namespace GrQuadPerEdgeAA
 
 #endif // GrQuadPerEdgeAA_DEFINED
