@@ -142,12 +142,17 @@ int main(int argc, char** argv) {
 
             AsyncRec asyncRec = { info, &encoder };
             if (context) {
+                auto read_pixels_cb = [](SkSurface::ReadPixelsContext ctx,
+                                         std::unique_ptr<const SkSurface::AsyncReadResult> result) {
+                    if (result && result->count() == 1) {
+                        AsyncRec* rec = reinterpret_cast<AsyncRec*>(ctx);
+                        rec->encoder->addFrame({rec->info, result->data(0), result->rowBytes(0)});
+                    }
+                };
                 surf->asyncRescaleAndReadPixels(info, {0, 0, info.width(), info.height()},
-                                                SkSurface::RescaleGamma::kSrc, kNone_SkFilterQuality,
-                                                [](void* ctx, const void* data, size_t rb) {
-                    AsyncRec* rec = (AsyncRec*)ctx;
-                    rec->encoder->addFrame({rec->info, data, rb});
-                }, &asyncRec);
+                                                SkSurface::RescaleGamma::kSrc,
+                                                kNone_SkFilterQuality,
+                                                read_pixels_cb, &asyncRec);
             } else {
                 SkPixmap pm;
                 SkAssertResult(surf->peekPixels(&pm));
