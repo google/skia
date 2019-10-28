@@ -332,6 +332,7 @@
       "~^path_text_clipped",
       "~shapes_rrect_inner_rrect_50_500x500",
       "~compositing_images",
+      "~bulkrect",
       "--loops",
       "1"
     ],
