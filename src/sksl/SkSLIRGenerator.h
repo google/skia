@@ -143,6 +143,7 @@ private:
     std::unique_ptr<Block> applyInvocationIDWorkaround(std::unique_ptr<Block> main);
     // returns a statement which converts sk_Position from device to normalized coordinates
     std::unique_ptr<Statement> getNormalizeSkPositionCode();
+    void removeSampleMask(std::vector<std::unique_ptr<ProgramElement>>* out);
 
     void checkValid(const Expression& expr);
     void setRefKind(const Expression& expr, VariableReference::RefKind kind);
@@ -168,6 +169,7 @@ private:
     Variable* fRTAdjustInterfaceBlock;
     int fRTAdjustFieldIndex;
     bool fStarted = false;
+    bool fUsesSampleMask = false;
 
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;
