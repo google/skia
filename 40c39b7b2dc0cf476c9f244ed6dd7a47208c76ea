@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "426988c4_0aa7bab0",
+        "filename": "third_party/harfbuzz/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-10-28T15:37:46Z",
+      "side": 1,
+      "message": "This is weird, as far as I know HarfBuzz doesn\u0027t directly use zlib? Is it actually something else that needs zlib (I think FreeType does, though it can be made to use its own).",
+      "revId": "40c39b7b2dc0cf476c9f244ed6dd7a47208c76ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
