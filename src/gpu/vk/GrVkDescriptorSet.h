@@ -24,6 +24,7 @@ public:
     ~GrVkDescriptorSet() override {}
 
     VkDescriptorSet descriptorSet() const { return fDescSet; }
+    const VkDescriptorSet* descriptorSetPtr() const { return &fDescSet; }
 
 #ifdef SK_TRACE_VK_RESOURCES
     void dumpInfo() const override {
