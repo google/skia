@@ -109,7 +109,6 @@ var CanvasKit = {
 	},
 
 	ParagraphStyle: function() {},
-
 	RSXFormBuilder: function() {},
 	SkColorBuilder: function() {},
 	SkRectBuilder: function() {},
@@ -432,6 +431,9 @@ var CanvasKit = {
 	UnderlineDecoration: {},
 	OverlineDecoration: {},
 	LineThroughDecoration: {},
+
+	SaveLayerInitWithPrevious: {},
+	SaveLayerF16ColorType: {},
 
 	Affinity: {
 		Upstream: {},

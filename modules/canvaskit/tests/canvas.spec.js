@@ -394,4 +394,44 @@ describe('CanvasKit\'s Canvas Behavior', function() {
         }));
     });
 
+    it('can save layer with SaveLayerRec-like things', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            // Note: fiddle.skia.org quietly draws a white background before doing
+            // other things, which is noticed in cases like this where we use saveLayer
+            // with the rec struct.
+            canvas.clear(CanvasKit.WHITE);
+            canvas.scale(8, 8);
+            const redPaint = new CanvasKit.SkPaint();
+            redPaint.setColor(CanvasKit.RED);
+            redPaint.setAntiAlias(true);
+            canvas.drawCircle(21, 21, 8, redPaint);
+
+            const bluePaint = new CanvasKit.SkPaint();
+            bluePaint.setColor(CanvasKit.BLUE);
+            canvas.drawCircle(31, 21, 8, bluePaint);
+
+            const blurIF = CanvasKit.SkImageFilter.MakeBlur(8, 0.2, CanvasKit.TileMode.Decal, null);
+
+            const count = canvas.saveLayer(null, blurIF, 0);
+            expect(count).toEqual(1);
+            canvas.scale(1/4, 1/4);
+            canvas.drawCircle(125, 85, 8, redPaint);
+            canvas.restore();
+
+            surface.flush();
+            blurIF.delete();
+            redPaint.delete();
+            bluePaint.delete();
+
+            reportSurface(surface, 'savelayerrec_canvas', done);
+        }));
+    });
+
 });
