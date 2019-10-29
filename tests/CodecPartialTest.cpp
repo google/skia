@@ -170,7 +170,6 @@ DEF_TEST(Codec_partialWuffs, r) {
     }
 }
 
-#ifndef SK_HAS_WUFFS_LIBRARY
 DEF_TEST(Codec_frameCountUpdatesInIncrementalDecode, r) {
     sk_sp<SkData> file = GetResourceAsData("images/colorTables.gif");
     size_t fileSize = file->size();
@@ -198,7 +197,6 @@ DEF_TEST(Codec_frameCountUpdatesInIncrementalDecode, r) {
     stream->addNewData(fileSize - n);
     REPORTER_ASSERT(r, partialCodec->getFrameCount() == 2);
 }
-#endif
 
 // Verify that when decoding an animated gif byte by byte we report the correct
 // fRequiredFrame as soon as getFrameInfo reports the frame.
