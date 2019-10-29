@@ -1052,56 +1052,6 @@ DEF_GPUTEST(SkImage_CrossContextGrayAlphaConfigs, reporter, options) {
     }
 }
 
-DEF_GPUTEST(SkImage_CrossContextLarge, reporter, options) {
-    SkAutoPixmapStorage srcPixmap;
-    srcPixmap.alloc(SkImageInfo::Make(5400, 3915, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
-    srcPixmap.erase(0xdeadbeef);
-
-    // We need to draw into a rendertarget smaller than the original image to trigger the bug.
-    // Hence this will be the expected result.
-    SkAutoPixmapStorage clippedPixmap;
-    clippedPixmap.alloc(SkImageInfo::Make(2048, 2048, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
-    srcPixmap.readPixels(clippedPixmap, 0, 0);
-
-    for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
-        GrContextFactory testFactory(options);
-        GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
-        ContextInfo ctxInfo = testFactory.getContextInfo(ctxType);
-        GrContext* ctx = ctxInfo.grContext();
-        if (!ctx || !ctx->priv().caps()->crossContextTextureSupport()) {
-            continue;
-        }
-
-        sk_sp<SkImage> image = SkImage::MakeCrossContextFromPixmap(ctx, srcPixmap, false);
-        REPORTER_ASSERT(reporter, image);
-
-        auto surf = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kYes, clippedPixmap.info(),
-                                                0, kTopLeft_GrSurfaceOrigin, nullptr);
-        if (surf) {
-            auto canvas = surf->getCanvas();
-            canvas->drawImage(image, 0, 0);
-
-            SkAutoPixmapStorage readPixmap;
-            readPixmap.alloc(clippedPixmap.info());
-            bool result = canvas->readPixels(readPixmap, 0, 0);
-            if (!result) {
-                continue;
-            }
-
-            const float tols[4] = {0, 0, 0, 0};
-            auto error = std::function<ComparePixmapsErrorReporter>([&](int x, int y,
-                                                                        const float diffs[4]) {
-                SkASSERT(x >= 0 && y >= 0);
-                ERRORF(reporter,
-                       "Error at %d, %d. Diff in floats: (%f, %f, %f %f)",
-                       x, y,
-                       diffs[0], diffs[1], diffs[2], diffs[3]);
-            });
-            ComparePixels(clippedPixmap, readPixmap, tols, error);
-        }
-    }
-}
-
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(makeBackendTexture, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     sk_gpu_test::TestContext* testContext = ctxInfo.testContext();

@@ -42,17 +42,11 @@ public:
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY,
                       CachingHint) const override;
 #if SK_SUPPORT_GPU
-    sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*) const override;
     sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*,
                                             const GrSamplerState&,
                                             SkScalar scaleAdjust[2]) const override;
     sk_sp<SkCachedData> getPlanes(SkYUVASizeInfo*, SkYUVAIndex[4],
                                   SkYUVColorSpace*, const void* planes[4]) override;
-    sk_sp<GrTextureProxy> refPinnedTextureProxy(GrRecordingContext* context,
-                                                uint32_t* uniqueID) const final {
-        *uniqueID = fUniqueID;
-        return this->asTextureProxyRef(context);
-    }
 #endif
     sk_sp<SkData> onRefEncoded() const override;
     sk_sp<SkImage> onMakeSubset(GrRecordingContext*, const SkIRect&) const override;
