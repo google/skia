@@ -27,7 +27,6 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps,
                                          int sampleCount,
                                          GrSurfaceOrigin origin,
                                          const GrSwizzle& textureSwizzle,
-                                         const GrSwizzle& outputSwizzle,
                                          SkBackingFit fit,
                                          SkBudgeted budgeted,
                                          GrProtected isProtected,
@@ -36,8 +35,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps,
         : INHERITED(format, desc, GrRenderable::kYes, origin, textureSwizzle, fit, budgeted,
                     isProtected, surfaceFlags, useAllocator)
         , fSampleCnt(sampleCount)
-        , fWrapsVkSecondaryCB(WrapsVkSecondaryCB::kNo)
-        , fOutputSwizzle(outputSwizzle) {}
+        , fWrapsVkSecondaryCB(WrapsVkSecondaryCB::kNo) {}
 
 // Lazy-callback version
 GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
@@ -46,7 +44,6 @@ GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
                                          int sampleCount,
                                          GrSurfaceOrigin origin,
                                          const GrSwizzle& textureSwizzle,
-                                         const GrSwizzle& outputSwizzle,
                                          SkBackingFit fit,
                                          SkBudgeted budgeted,
                                          GrProtected isProtected,
@@ -56,20 +53,17 @@ GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
         : INHERITED(std::move(callback), format, desc, GrRenderable::kYes, origin, textureSwizzle,
                     fit, budgeted, isProtected, surfaceFlags, useAllocator)
         , fSampleCnt(sampleCount)
-        , fWrapsVkSecondaryCB(wrapsVkSecondaryCB)
-        , fOutputSwizzle(outputSwizzle) {}
+        , fWrapsVkSecondaryCB(wrapsVkSecondaryCB) {}
 
 // Wrapped version
 GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf,
                                          GrSurfaceOrigin origin,
                                          const GrSwizzle& textureSwizzle,
-                                         const GrSwizzle& outputSwizzle,
                                          UseAllocator useAllocator,
                                          WrapsVkSecondaryCB wrapsVkSecondaryCB)
         : INHERITED(std::move(surf), origin, textureSwizzle, SkBackingFit::kExact, useAllocator)
         , fSampleCnt(fTarget->asRenderTarget()->numSamples())
-        , fWrapsVkSecondaryCB(wrapsVkSecondaryCB)
-        , fOutputSwizzle(outputSwizzle) {
+        , fWrapsVkSecondaryCB(wrapsVkSecondaryCB) {
     // The kRequiresManualMSAAResolve flag better not be set if we are not multisampled or if
     // MSAA resolve should happen automatically.
     //

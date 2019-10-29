@@ -919,8 +919,10 @@ std::unique_ptr<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext
     sk_sp<GrRenderTargetProxy> renderTargetProxy(sk_ref_sp(sProxy->asRenderTargetProxy()));
 
     GrSurfaceOrigin origin = renderTargetProxy->origin();
-    GrSwizzle texSwizzle = renderTargetProxy->textureSwizzle();
-    GrSwizzle outSwizzle = renderTargetProxy->outputSwizzle();
+    GrSwizzle texSwizzle = fContext->priv().caps()->getTextureSwizzle(sProxy->backendFormat(),
+                                                                      colorType);
+    GrSwizzle outSwizzle = fContext->priv().caps()->getOutputSwizzle(sProxy->backendFormat(),
+                                                                     colorType);
 
     return std::unique_ptr<GrRenderTargetContext>(
             new GrRenderTargetContext(fContext,
