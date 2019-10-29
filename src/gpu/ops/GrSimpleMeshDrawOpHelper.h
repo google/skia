@@ -28,11 +28,6 @@ class GrSimpleMeshDrawOpHelper {
 public:
     struct MakeArgs;
 
-    static bool CanUpgradeAAOnMerge(GrAAType aa1, GrAAType aa2) {
-        return (aa1 == GrAAType::kNone && aa2 == GrAAType::kCoverage) ||
-               (aa1 == GrAAType::kCoverage && aa2 == GrAAType::kNone);
-    }
-
     /**
      * This can be used by a Op class to perform allocation and initialization such that a
      * GrProcessorSet (if required) is allocated as part of the the same allocation that as
