@@ -13,6 +13,7 @@
 #include <string>
 #include <tuple>
 
+#include "include/private/SkChecksum.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkEnumerate.h"
@@ -192,6 +193,33 @@ struct StrikeSpec {
     /* n X (glyphs ids) */
 };
 
+class LowerRangeBitVector {
+public:
+    constexpr LowerRangeBitVector() : fBits{0} {
+        for (int i = 0; i < kArrayEntryCount; i++) {
+            SkASSERT(fBits[i] == 0);
+        }
+    }
+    constexpr bool inRange(uint32_t index) const {
+        return index < kMaxIndex;
+    }
+    constexpr bool test(uint16_t bit) const {
+        size_t entry = bit / 64;
+        size_t bitInEntry = 1ull << (bit & (64 - 1));
+        return (fBits[entry] & bitInEntry) != 0;
+    }
+    constexpr void set(uint16_t bit) {
+        size_t entry = bit / 64;
+        size_t bitInEntry = 1ull << (bit & (64 - 1));
+        fBits[entry] |= bitInEntry;
+    }
+private:
+    static constexpr int kMaxGlyphID = 128;
+    static constexpr int kMaxIndex = kMaxGlyphID * (1u << SkPackedGlyphID::kSubPixelPosLen);
+    static constexpr int kArrayEntryCount = kMaxIndex / 64;
+    uint64_t fBits[kArrayEntryCount];
+};
+
 // -- RemoteStrike ----------------------------------------------------------------------------
 class SkStrikeServer::RemoteStrike final : public SkStrikeForGPU {
 public:
@@ -280,6 +308,7 @@ private:
     void writeGlyphPath(const SkGlyph& glyph, Serializer* serializer) const;
     void ensureScalerContext();
 
+    const int fNumberOfGlyphs;
     const SkAutoDescriptor fDescriptor;
     const SkDiscardableHandleId fDiscardableHandleId;
 
@@ -295,6 +324,8 @@ private:
 
     // Have the metrics been sent for this strike. Only send them once.
     bool fHaveSentFontMetrics{false};
+
+    LowerRangeBitVector fSentLowGlyphIDs;
 
     // The masks and paths that currently reside in the GPU process.
     SkTHashTable<MaskSummary, SkPackedGlyphID, MaskSummaryTraits> fSentGlyphs;
@@ -313,11 +344,13 @@ SkStrikeServer::RemoteStrike::RemoteStrike(
         const SkDescriptor& descriptor,
         std::unique_ptr<SkScalerContext> context,
         uint32_t discardableHandleId)
-        : fDescriptor{descriptor}
+        : fNumberOfGlyphs(context->getGlyphCount())
+        , fDescriptor{descriptor}
         , fDiscardableHandleId(discardableHandleId)
         , fRoundingSpec{context->isSubpixel(), context->computeAxisAlignmentForHText()}
         // N.B. context must come last because it is used above.
-        , fContext{std::move(context)} {
+        , fContext{std::move(context)}
+        , fSentLowGlyphIDs{} {
     SkASSERT(fDescriptor.getDesc() != nullptr);
     SkASSERT(fContext != nullptr);
 }
@@ -735,8 +768,38 @@ void SkStrikeServer::RemoteStrike::commonMaskLoop(
 
 void SkStrikeServer::RemoteStrike::prepareForMaskDrawing(
         SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) {
-    this->commonMaskLoop(drawables, rejects,
-            [](MaskSummary summary){return !summary.canDrawAsMask;});
+    for (auto t : SkMakeEnumerate(drawables->input())) {
+        size_t i; SkGlyphVariant bag; SkPoint pos;
+        std::forward_as_tuple(i, std::tie(bag, pos)) = t;
+        SkPackedGlyphID packedID = bag;
+
+        size_t index = packedID.index();
+        if (fSentLowGlyphIDs.inRange(index) && fSentLowGlyphIDs.test(index)) { continue; }
+
+        MaskSummary* summary = fSentGlyphs.find(packedID);
+        if (summary == nullptr) {
+            // Put the new SkGlyph in the glyphs to send.
+            fMasksToSend.emplace_back(packedID);
+            SkGlyph* glyph = &fMasksToSend.back();
+
+            // Build the glyph
+            this->ensureScalerContext();
+            fContext->getMetrics(glyph);
+
+            if (fSentLowGlyphIDs.inRange(index)) {
+                fSentLowGlyphIDs.set(index);
+            }
+
+            MaskSummary newSummary =
+                    {packedID.value(), CanDrawAsMask(*glyph), CanDrawAsSDFT(*glyph)};
+            summary = fSentGlyphs.set(newSummary);
+        }
+
+        // Reject things that are too big.
+        if (!summary->canDrawAsMask) {
+            rejects->reject(i);
+        }
+    }
 }
 
 void SkStrikeServer::RemoteStrike::prepareForSDFTDrawing(
