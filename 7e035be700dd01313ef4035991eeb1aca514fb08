@@ -22,6 +22,30 @@
       "revId": "7e035be700dd01313ef4035991eeb1aca514fb08",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34049a25_4cd2e003",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 922,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-29T18:40:18Z",
+      "side": 0,
+      "message": "Yeah I\u0027m removing GrSwizzle and origin from proxies. I figured while I was here I might as well update the one texture call.",
+      "parentUuid": "17e0ebe7_8f3aa49f",
+      "range": {
+        "startLine": 922,
+        "startChar": 4,
+        "endLine": 922,
+        "endChar": 63
+      },
+      "revId": "7e035be700dd01313ef4035991eeb1aca514fb08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
