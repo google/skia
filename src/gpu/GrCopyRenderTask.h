@@ -12,21 +12,22 @@
 
 class GrCopyRenderTask final : public GrRenderTask {
 public:
-    static sk_sp<GrRenderTask> Make(sk_sp<GrSurfaceProxy> srcProxy,
+    static sk_sp<GrRenderTask> Make(GrSurfaceProxyView srcView,
                                     const SkIRect& srcRect,
-                                    sk_sp<GrSurfaceProxy> dstProxy,
+                                    GrSurfaceProxyView dstView,
                                     const SkIPoint& dstPoint,
                                     const GrCaps*);
 
 private:
-    GrCopyRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
+    GrCopyRenderTask(GrSurfaceProxyView srcView,
                      const SkIRect& srcRect,
-                     sk_sp<GrSurfaceProxy> dstProxy,
+                     GrSurfaceProxyView dstView,
                      const SkIPoint& dstPoint);
 
     bool onIsUsed(GrSurfaceProxy* proxy) const override {
-        SkASSERT(proxy != fTarget.get());  // This case should be handled by GrRenderTask.
-        return proxy == fSrcProxy.get();
+        // This case should be handled by GrRenderTask.
+        SkASSERT(proxy != fTargetView.proxy());
+        return proxy == fSrcView.proxy();
     }
     // If instantiation failed, at flush time we simply will skip doing the copy.
     void handleInternalAllocationFailure() override {}
@@ -40,11 +41,11 @@ private:
 
 #ifdef SK_DEBUG
     void visitProxies_debugOnly(const VisitSurfaceProxyFunc& fn) const override {
-        fn(fSrcProxy.get(), GrMipMapped::kNo);
+        fn(fSrcView.proxy(), GrMipMapped::kNo);
     }
 #endif
 
-    sk_sp<GrSurfaceProxy> fSrcProxy;
+    GrSurfaceProxyView fSrcView;
     SkIRect fSrcRect;
     SkIPoint fDstPoint;
 };

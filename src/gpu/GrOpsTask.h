@@ -38,7 +38,7 @@ private:
     using DstProxy = GrXferProcessor::DstProxy;
 
 public:
-    GrOpsTask(sk_sp<GrOpMemoryPool>, sk_sp<GrRenderTargetProxy>, GrAuditTrail*);
+    GrOpsTask(sk_sp<GrOpMemoryPool>, GrSurfaceProxyView, GrAuditTrail*);
     ~GrOpsTask() override;
 
     GrOpsTask* asOpsTask() override { return this; }
