@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81d77345_7361e45a",
+        "filename": "src/shaders/SkColorShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-10-29T17:33:24Z",
+      "side": 1,
+      "message": "Is this (and the change in Color4Shader::onAppendStages) tied to this CL, or could it land separately?",
+      "range": {
+        "startLine": 80,
+        "startChar": 50,
+        "endLine": 80,
+        "endChar": 69
+      },
+      "revId": "5f16598c99552a245bf26939404be52fc602bc39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
