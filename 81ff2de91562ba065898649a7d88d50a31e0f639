@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2410e36e_e4a89341",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-29T15:13:03Z",
+      "side": 1,
+      "message": "We could constrain this to upgradeToCoverageAAOnMerge \u003d (fHelper.aaType() !\u003d GrAAType::kCoverage), but that doesn\u0027t buy us anything from a performance stand point since it only changes one assignment later, and I think a blanket \u0027true\u0027 is cleaner to read. I\u0027m just thinking out loud here, so nothing to change.",
+      "range": {
+        "startLine": 256,
+        "startChar": 41,
+        "endLine": 256,
+        "endChar": 45
+      },
+      "revId": "81ff2de91562ba065898649a7d88d50a31e0f639",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5fd31090_2807d83c",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-29T15:13:03Z",
+      "side": 1,
+      "message": "What about:\nint limit \u003d (coverage || upgrade) ? MaxNumAAQuads : MaxNumNonAAQuads;\nif (this count + that count \u003e limit) return cannotcombine;",
+      "range": {
+        "startLine": 259,
+        "startChar": 11,
+        "endLine": 266,
+        "endChar": 13
+      },
+      "revId": "81ff2de91562ba065898649a7d88d50a31e0f639",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ad9318c_df78f4f1",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-29T15:13:03Z",
+      "side": 1,
+      "message": "I think this is clearer than before, but I think it\u0027s functionally the same thing. Before, if we got to this check and the aa types differed, we passed the CanUpgradeCheck so either this or that was coverage. We\u0027d set this op to coverage only if it was the non-aa op, avoiding the redundant re-assignment if it was already coverage.",
+      "range": {
+        "startLine": 286,
+        "startChar": 12,
+        "endLine": 286,
+        "endChar": 38
+      },
+      "revId": "81ff2de91562ba065898649a7d88d50a31e0f639",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3c65eddf_4c2ac5d0",
+        "filename": "src/gpu/ops/GrSimpleMeshDrawOpHelper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-29T15:13:03Z",
+      "side": 1,
+      "message": "Maybe now that CanUpgradeAAOnMerge() is called explicitly by the ops, we change the meaning of this parameter to just be ignore aatype compatibility?\n\nInstead of (aaType \u003d\u003d that.aaType || (noneAsCoverageAA \u0026\u0026 CanUpgrade(...)) we\u0027d switch to:\n(ignoreAAType || aaType \u003d\u003d that.aaType)\n\nThe default value of false that most ops use still does the expected thing, and fillrectop passes true to claim that it already checked compatibility. Then the CanUpgradeAAMerge() call in this function can move into an assert.",
+      "range": {
+        "startLine": 42,
+        "startChar": 75,
+        "endLine": 42,
+        "endChar": 91
+      },
+      "revId": "81ff2de91562ba065898649a7d88d50a31e0f639",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
