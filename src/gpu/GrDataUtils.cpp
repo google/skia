@@ -153,141 +153,6 @@ static void fillin_ETC1_with_color(int width, int height, const SkColor4f& color
     }
 }
 
-// Fill in the width x height 'dest' with the munged version of 'colorf' that matches 'config'
-static bool fill_buffer_with_color(GrColorType colorType, int width, int height,
-                                   const SkColor4f& colorf, void* dest) {
-    GrColor color = colorf.toBytes_RGBA();
-
-    uint8_t r = GrColorUnpackR(color);
-    uint8_t g = GrColorUnpackG(color);
-    uint8_t b = GrColorUnpackB(color);
-    uint8_t a = GrColorUnpackA(color);
-
-    switch (colorType) {
-        case GrColorType::kAlpha_8: {
-            memset(dest, a, width * height);
-            break;
-        }
-        case GrColorType::kGray_8: {
-            uint8_t gray8 = SkComputeLuminance(r, g, b);
-
-            memset(dest, gray8, width * height);
-            break;
-        }
-        case GrColorType::kBGR_565: {
-            uint16_t rgb565 = SkPack888ToRGB16(r, g, b);
-
-            sk_memset16((uint16_t*) dest, rgb565, width * height);
-            break;
-        }
-        case GrColorType::kABGR_4444: {
-            uint8_t r4 = (r >> 4) & 0xF;
-            uint8_t g4 = (g >> 4) & 0xF;
-            uint8_t b4 = (b >> 4) & 0xF;
-            uint8_t a4 = (a >> 4) & 0xF;
-
-            uint16_t rgba4444 = r4 << SK_R4444_SHIFT | g4 << SK_G4444_SHIFT |
-                                b4 << SK_B4444_SHIFT | a4 << SK_A4444_SHIFT;
-
-            sk_memset16((uint16_t*) dest, rgba4444, width * height);
-            break;
-        }
-        case GrColorType::kRGBA_8888: {
-            sk_memset32((uint32_t *) dest, color, width * height);
-            break;
-        }
-        case GrColorType::kRGB_888x: {
-            GrColor opaque = GrColorPackRGBA(r, g, b, 0xFF);
-
-            sk_memset32((uint32_t *) dest, opaque, width * height);
-            break;
-        }
-        case GrColorType::kRG_88: {
-            uint16_t rg88 = (g << 8) | r;
-
-            sk_memset16((uint16_t*) dest, rg88, width * height);
-            break;
-        }
-        case GrColorType::kBGRA_8888: {
-            GrColor swizzled = GrColorPackRGBA(b, g, r, a);
-
-            sk_memset32((uint32_t *) dest, swizzled, width * height);
-            break;
-        }
-        case GrColorType::kRGBA_8888_SRGB: {
-            sk_memset32((uint32_t *) dest, color, width * height);
-            break;
-        }
-        case GrColorType::kRGBA_1010102: {
-            uint32_t r10 = SkScalarRoundToInt(colorf.fR * 1023.0f);
-            uint32_t g10 = SkScalarRoundToInt(colorf.fG * 1023.0f);
-            uint32_t b10 = SkScalarRoundToInt(colorf.fB * 1023.0f);
-            uint8_t  a2  = SkScalarRoundToInt(colorf.fA * 3.0f);
-
-            uint32_t rgba1010102 = a2 << 30 | b10 << 20 | g10 << 10 | r10;
-
-            sk_memset32((uint32_t *) dest, rgba1010102, width * height);
-            break;
-        }
-        case GrColorType::kAlpha_F16: {
-            SkHalf alphaHalf = SkFloatToHalf(colorf.fA);
-
-            sk_memset16((uint16_t *) dest, alphaHalf, width * height);
-            break;
-        }
-        case GrColorType::kRGBA_F16_Clamped:                          // fall through
-        case GrColorType::kRGBA_F16: {
-            uint64_t rHalf = SkFloatToHalf(colorf.fR);
-            uint64_t gHalf = SkFloatToHalf(colorf.fG);
-            uint64_t bHalf = SkFloatToHalf(colorf.fB);
-            uint64_t aHalf = SkFloatToHalf(colorf.fA);
-
-            uint64_t rgbaHalf = (aHalf << 48) | (bHalf << 32) | (gHalf << 16) | rHalf;
-
-            sk_memset64((uint64_t *) dest, rgbaHalf, width * height);
-            break;
-        }
-        case GrColorType::kAlpha_16: {
-            uint16_t a16 = SkScalarRoundToInt(colorf.fA * 65535.0f);
-            sk_memset16((uint16_t*) dest, a16, width * height);
-            break;
-        }
-        case GrColorType::kRG_1616: {
-            uint32_t r16 = SkScalarRoundToInt(colorf.fR * 65535.0f);
-            uint32_t g16 = SkScalarRoundToInt(colorf.fG * 65535.0f);
-
-            uint32_t rg1616 = (g16 << 16) | r16;
-
-            sk_memset32((uint32_t*) dest, rg1616, width * height);
-            break;
-        }
-        case GrColorType::kRGBA_16161616: {
-            uint64_t r16 = SkScalarRoundToInt(colorf.fR * 65535.0f);
-            uint64_t g16 = SkScalarRoundToInt(colorf.fG * 65535.0f);
-            uint64_t b16 = SkScalarRoundToInt(colorf.fB * 65535.0f);
-            uint64_t a16 = SkScalarRoundToInt(colorf.fA * 65535.0f);
-
-            uint64_t rgba16161616 = (a16 << 48) | (b16 << 32) | (g16 << 16) | r16;
-            sk_memset64((uint64_t*) dest, rgba16161616, width * height);
-            break;
-        }
-        case GrColorType::kRG_F16: {
-            uint32_t rHalf = SkFloatToHalf(colorf.fR);
-            uint32_t gHalf = SkFloatToHalf(colorf.fG);
-
-            uint32_t rgHalf = (gHalf << 16) | rHalf;
-
-            sk_memset32((uint32_t *) dest, rgHalf, width * height);
-            break;
-        }
-        default:
-            return false;
-            break;
-    }
-
-    return true;
-}
-
 size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, int baseWidth, int baseHeight,
                                         SkTArray<size_t>* individualMipOffsets, int mipLevelCount) {
     SkASSERT(individualMipOffsets && !individualMipOffsets->count());
@@ -322,24 +187,6 @@ size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, int baseWidth, int
 
     SkASSERT(individualMipOffsets->count() == mipLevelCount);
     return combinedBufferSize;
-}
-
-void GrFillInData(GrColorType colorType, int baseWidth, int baseHeight,
-                  const SkTArray<size_t>& individualMipOffsets, char* dstPixels,
-                  const SkColor4f& colorf) {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-    int mipLevels = individualMipOffsets.count();
-
-    int currentWidth = baseWidth;
-    int currentHeight = baseHeight;
-    for (int currentMipLevel = 0; currentMipLevel < mipLevels; ++currentMipLevel) {
-        size_t offset = individualMipOffsets[currentMipLevel];
-
-        fill_buffer_with_color(colorType, currentWidth, currentHeight, colorf,
-                               &(dstPixels[offset]));
-        currentWidth = SkTMax(1, currentWidth / 2);
-        currentHeight = SkTMax(1, currentHeight / 2);
-    }
 }
 
 void GrFillInCompressedData(SkImage::CompressionType type, int baseWidth, int baseHeight,
@@ -408,10 +255,11 @@ static GrSwizzle get_load_and_get_swizzle(GrColorType ct, SkRasterPipeline::Stoc
 }
 
 static GrSwizzle get_dst_swizzle_and_store(GrColorType ct, SkRasterPipeline::StockStage* store,
-                                           bool* isNormalized, bool* isSRGB) {
+                                            bool* doLumToAlpha, bool* isNormalized, bool* isSRGB) {
     GrSwizzle swizzle("rgba");
     *isNormalized = true;
     *isSRGB = false;
+    *doLumToAlpha = false;
     switch (ct) {
         case GrColorType::kAlpha_8:          *store = SkRasterPipeline::store_a8;       break;
         case GrColorType::kAlpha_16:         *store = SkRasterPipeline::store_a16;      break;
@@ -451,9 +299,14 @@ static GrSwizzle get_dst_swizzle_and_store(GrColorType ct, SkRasterPipeline::Sto
         case GrColorType::kRGB_888x:         swizzle = GrSwizzle("rgb1");
                                              *store = SkRasterPipeline::store_8888;
                                              break;
+        case GrColorType::kGray_8:           *doLumToAlpha = true;
+                                             *store = SkRasterPipeline::store_a8;
+                                             break;
+        case GrColorType::kGray_8xxx:        *doLumToAlpha = true;
+                                             *store = SkRasterPipeline::store_8888;
+                                             swizzle = GrSwizzle("a000");
+                                             break;
 
-        case GrColorType::kGray_8:  // not currently supported as output
-        case GrColorType::kGray_8xxx:  // not currently supported as output
         case GrColorType::kUnknown:
             SK_ABORT("unexpected CT");
     }
@@ -524,10 +377,11 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
                                                 &srcIsSRGB);
 
     SkRasterPipeline::StockStage store;
+    bool doLumToAlpha;
     bool dstIsNormalized;
     bool dstIsSRGB;
-    auto storeSwizzle = get_dst_swizzle_and_store(dstInfo.colorType(), &store, &dstIsNormalized,
-                                                  &dstIsSRGB);
+    auto storeSwizzle = get_dst_swizzle_and_store(dstInfo.colorType(), &store, &doLumToAlpha,
+                                                  &dstIsNormalized, &dstIsSRGB);
 
     bool clampGamut;
     SkTLazy<SkColorSpaceXformSteps> steps;
@@ -581,10 +435,15 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
             if (clampGamut) {
                 append_clamp_gamut(&pipeline);
             }
-            // If we add support for storing to Gray we would add a luminance to alpha conversion
-            // here. We also wouldn't then need a to_srgb stage after since it would have not effect
-            // on the alpha channel. It would also mean we have an SRGB Gray color type which
-            // doesn't exist currently.
+            if (doLumToAlpha) {
+                pipeline.append(SkRasterPipeline::StockStage::bt709_luminance_or_luma_to_alpha);
+                // If we ever needed to convert from linear-encoded gray to sRGB-encoded
+                // gray we'd have a problem here because the subsequent to_srgb stage
+                // ignores the alpha channel (where we just stashed the gray). There are
+                // several ways that could be fixed but given our current set of color types
+                // this should never happen.
+                SkASSERT(!dstIsSRGB);
+            }
             if (dstIsSRGB) {
                 pipeline.append(SkRasterPipeline::to_srgb);
             }
@@ -598,6 +457,48 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
         dstCtx.pixels = static_cast<char*>(dstCtx.pixels) + dstRB;
     }
     return true;
+}
+
+void GrFillInData(GrColorType colorType, int baseWidth, int baseHeight,
+                  const SkTArray<size_t>& individualMipOffsets, char* dstPixels,
+                  const SkColor4f& color) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    int mipLevels = individualMipOffsets.count();
+
+    int currentWidth = baseWidth;
+    int currentHeight = baseHeight;
+    for (int currentMipLevel = 0; currentMipLevel < mipLevels; ++currentMipLevel) {
+        bool doLumToAlpha;
+        bool isNormalized;
+        bool dstIsSRGB;
+        SkRasterPipeline::StockStage store;
+        GrSwizzle storeSwizzle = get_dst_swizzle_and_store(colorType, &store, &doLumToAlpha,
+                &isNormalized, &dstIsSRGB);
+        char block[64];
+        SkArenaAlloc alloc(block, sizeof(block), 1024);
+        SkRasterPipeline_<256> pipeline;
+        pipeline.append_constant_color(&alloc, color);
+        if (doLumToAlpha) {
+            pipeline.append(SkRasterPipeline::StockStage::bt709_luminance_or_luma_to_alpha);
+            // If we ever needed to convert from linear-encoded gray to sRGB-encoded
+            // gray we'd have a problem here because the subsequent to_srgb stage
+            // ignores the alpha channel (where we just stashed the gray). There are
+            // several ways that could be fixed but given our current set of color types
+            // this should never happen.
+            SkASSERT(!dstIsSRGB);
+        }
+        if (dstIsSRGB) {
+            pipeline.append(SkRasterPipeline::to_srgb);
+        }
+        storeSwizzle.apply(&pipeline);
+        size_t offset = individualMipOffsets[currentMipLevel];
+        SkRasterPipeline_MemoryCtx  dstCtx{dstPixels + offset, currentWidth};
+        pipeline.append(store, &dstCtx);
+        pipeline.run(0, 0, currentWidth, currentHeight);
+
+        currentWidth = SkTMax(1, currentWidth / 2);
+        currentHeight = SkTMax(1, currentHeight / 2);
+    }
 }
 
 GrColorType SkColorTypeAndFormatToGrColorType(const GrCaps* caps,
