@@ -1187,6 +1187,8 @@ namespace skvm {
                 case 2: return ((void(*)(int,void*,void*            ))b)(n,a[0],a[1]          );
                 case 3: return ((void(*)(int,void*,void*,void*      ))b)(n,a[0],a[1],a[2]     );
                 case 4: return ((void(*)(int,void*,void*,void*,void*))b)(n,a[0],a[1],a[2],a[3]);
+                case 5: return ((void(*)(int,void*,void*,void*,void*,void*))b)
+                                (n,a[0],a[1],a[2],a[3],a[4]);
                 default: SkUNREACHABLE;  // TODO
             }
         }
