@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fbb8d858_bc68a6ee",
+        "filename": "src/gpu/vk/GrVkResource.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-29T20:21:35Z",
+      "side": 1,
+      "message": "I don\u0027t think you need this one. If you are trying to call the destructor while another thread is doing something, then there are much bigger problems.",
+      "range": {
+        "startLine": 53,
+        "startChar": 12,
+        "endLine": 53,
+        "endChar": 47
+      },
+      "revId": "8fe5aa66855c25e0313b2f4dd5aabee7867918fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef54d0ec_bb9fc049",
+        "filename": "src/gpu/vk/GrVkResource.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-29T20:21:35Z",
+      "side": 1,
+      "message": "annotate this with SK_GUARDED_BY(fLock) so,\n\n\"SkTHashSet\u003cconst GrVkResource*, GrVkResource::Hash\u003e fHashSet SK_GUARDED_BY(fLock);\"",
+      "range": {
+        "startLine": 72,
+        "startChar": 8,
+        "endLine": 72,
+        "endChar": 69
+      },
+      "revId": "8fe5aa66855c25e0313b2f4dd5aabee7867918fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
