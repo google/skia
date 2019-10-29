@@ -22,6 +22,30 @@
       "revId": "b703b7d3696c7f52cbcc874e1a85e71f38f4d089",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55e9c813_98eb8d8f",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-29T18:25:38Z",
+      "side": 1,
+      "message": "Yep, exactly the approach I plan to take.\n\nFor now I\u0027m seeing things draw wrong if I do this scaling _at all_, which I\u0027m not sure I understand.  I\u0027ve got the whole thing if (false)\u0027d out for now while I refresh myself what\u0027s going on.",
+      "parentUuid": "41ae2a37_021d0732",
+      "range": {
+        "startLine": 199,
+        "startChar": 25,
+        "endLine": 199,
+        "endChar": 29
+      },
+      "revId": "b703b7d3696c7f52cbcc874e1a85e71f38f4d089",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
