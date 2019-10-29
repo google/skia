@@ -232,10 +232,11 @@ void SkParticleEffect::runEffectScript(double now, const char* entry) {
                 value->setRandom(&fRandom);
                 value->setEffect(this);
             }
-            SkAssertResult(byteCode->run(fun, &fState.fAge, sizeof(EffectState) / sizeof(float),
+/*            SkAssertResult(byteCode->run(fun, &fState.fAge, sizeof(EffectState) / sizeof(float),
                                          nullptr, 0,
                                          fEffectUniforms.data(), fEffectUniforms.count()));
-            this->processEffectSpawnRequests(now);
+            this->processEffectSpawnRequests(now);*/
+            abort();
         }
     }
 }
@@ -279,11 +280,12 @@ void SkParticleEffect::runParticleScript(double now, const char* entry, int star
                 value->setEffect(this);
             }
             memcpy(&fParticleUniforms[1], &fState.fAge, sizeof(EffectState));
-            SkAssertResult(byteCode->runStriped(fun, count, args, SkParticles::kNumChannels,
+/*            SkAssertResult(byteCode->runStriped(fun, count, args, SkParticles::kNumChannels,
                                                 nullptr, 0,
                                                 fParticleUniforms.data(),
                                                 fParticleUniforms.count()));
-            this->processParticleSpawnRequests(now, start);
+            this->processParticleSpawnRequests(now, start);*/
+            abort();
         }
     }
 }
@@ -305,21 +307,23 @@ void SkParticleEffect::advanceTime(double now) {
     // Ensure our storage block for uniforms are large enough
     auto resizeWithZero = [](SkTArray<float, true>* uniforms, const SkSL::ByteCode* byteCode) {
         if (byteCode) {
-            int newCount = byteCode->getUniformSlotCount();
+/*            int newCount = byteCode->getUniformSlotCount();
             if (newCount > uniforms->count()) {
                 uniforms->push_back_n(newCount - uniforms->count(), 0.0f);
             } else {
                 uniforms->resize(newCount);
-            }
+            }*/
+            abort();
         }
     };
     resizeWithZero(&fEffectUniforms, this->effectCode());
     resizeWithZero(&fParticleUniforms, this->particleCode());
 
     // Copy known values into the uniform blocks
-    SkASSERT(!this->effectCode() || this->effectCode()->getUniformLocation("dt") == 0);
+/*    SkASSERT(!this->effectCode() || this->effectCode()->getUniformLocation("dt") == 0);
     SkASSERT(!this->particleCode() || this->particleCode()->getUniformLocation("dt") == 0);
-    SkASSERT(!this->particleCode() || this->particleCode()->getUniformLocation("effect.age") == 1);
+    SkASSERT(!this->particleCode() || this->particleCode()->getUniformLocation("effect.age") == 1);*/
+    abort();
     fEffectUniforms[0] = deltaTime;
     fParticleUniforms[0] = deltaTime;
 
