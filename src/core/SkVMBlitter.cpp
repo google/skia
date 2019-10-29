@@ -24,6 +24,7 @@ namespace {
         SkAlphaType    alphaType;
         Coverage       coverage;
         SkBlendMode    blendMode;
+        SkColorSpace*  colorSpace;
         SkShader*      shader;
         SkColorFilter* colorFilter;
 
@@ -40,16 +41,18 @@ namespace {
             && x.alphaType   == y.alphaType
             && x.coverage    == y.coverage
             && x.blendMode   == y.blendMode
+            && x.colorSpace  == y.colorSpace   // SkColorSpace::Equals() would make hashing unsound.
             && x.shader      == y.shader
             && x.colorFilter == y.colorFilter;
     }
 
     static SkString debug_name(const Key& key) {
-        return SkStringPrintf("CT%d-AT%d-Cov%d-Blend%d-Shader%d-CF%d",
+        return SkStringPrintf("CT%d-AT%d-Cov%d-Blend%d-CS%d-Shader%d-CF%d",
                               key.colorType,
                               key.alphaType,
                               key.coverage,
                               key.blendMode,
+                              SkToBool(key.colorSpace),
                               SkToBool(key.shader),
                               SkToBool(key.colorFilter));
     }
@@ -64,7 +67,7 @@ namespace {
     }
 
     static SkLRUCache<Key, skvm::Program>* try_acquire_program_cache() {
-    #if defined(SK_BUILD_FOR_IOS)
+    #if 1 || defined(SK_BUILD_FOR_IOS)
         // iOS doesn't support thread_local on versions less than 9.0. pthread
         // based fallbacks must be used there. We could also use an SkSpinlock
         // and tryAcquire()/release(), or...
@@ -148,7 +151,15 @@ namespace {
 
         static bool CanBuild(const Key& key) {
             // These checks parallel the TODOs in Builder::Builder().
-            if (key.shader)      { return false; }
+            if (key.shader) {
+                // TODO: maybe passing the whole Key is going to be what we'll want here?
+                if (!as_SB(key.shader)->program(nullptr,
+                                                key.colorSpace,
+                                                skvm::Arg{0}, 0,
+                                                nullptr,nullptr,nullptr,nullptr)) {
+                    return false;
+                }
+            }
             if (key.colorFilter) { return false; }
 
             switch (key.colorType) {
@@ -177,11 +188,21 @@ namespace {
             // When coverage is MaskA8 or MaskLCD16 there will be one more mask varying,
             // and when coverage is Mask3D there will be three more mask varyings.
 
-
-            // When there's no shader and no color filter, the source color is the paint color.
-            if (key.shader)      { TODO; }
-            if (key.colorFilter) { TODO; }
             Color src = unpack_8888(uniform32(uniforms, offsetof(Uniforms, paint_color)));
+            if (key.shader) {
+                skvm::I32 paint_alpha = src.a;
+                SkAssertResult(as_SB(key.shader)->program(this,
+                                                          key.colorSpace,
+                                                          uniforms, sizeof(Uniforms),
+                                                          &src.r, &src.g, &src.b, &src.a));
+
+                // TODO: skip when paint is opaque.
+                src.r = div255(mul(src.r, paint_alpha));
+                src.g = div255(mul(src.g, paint_alpha));
+                src.b = div255(mul(src.b, paint_alpha));
+                src.a = div255(mul(src.a, paint_alpha));
+            }
+            if (key.colorFilter) { TODO; }
 
             // There are several orderings here of when we load dst and coverage
             // and how coverage is applied, and to complicate things, LCD coverage
@@ -300,16 +321,18 @@ namespace {
                 device.alphaType(),
                 Coverage::Full,
                 paint.getBlendMode(),
+                device.colorSpace(),
                 paint.getShader(),
                 paint.getColorFilter(),
             }
         {
             SkColor4f color = paint.getColor4f();
             SkColorSpaceXformSteps{sk_srgb_singleton(), kUnpremul_SkAlphaType,
-                                   device.colorSpace(), kUnpremul_SkAlphaType}.apply(color.vec());
+                                   device.colorSpace(),   kPremul_SkAlphaType}.apply(color.vec());
 
             if (color.fitsInBytes() && Builder::CanBuild(fKey)) {
-                fUniforms.paint_color = color.premul().toBytes_RGBA();
+                uint32_t rgba = color.toBytes_RGBA();
+                memcpy(fUniforms.data() + offsetof(Uniforms, paint_color), &rgba, sizeof(rgba));
                 ok = true;
             }
         }
@@ -336,9 +359,9 @@ namespace {
         }
 
     private:
-        SkPixmap      fDevice;  // TODO: can this be const&?
-        const Key     fKey;
-        Uniforms      fUniforms;
+        SkPixmap             fDevice;  // TODO: can this be const&?
+        const Key            fKey;
+        std::vector<uint8_t> fUniforms{sizeof(Uniforms)};
         skvm::Program fBlitH,
                       fBlitAntiH,
                       fBlitMaskA8,
@@ -364,6 +387,7 @@ namespace {
                 atexit([]{ SkDebugf("%d calls to done\n", done.load()); });
             }
         #endif
+
             Builder builder{key};
             skvm::Program program = builder.done(debug_name(key).c_str());
             if (!program.hasJIT() && debug_dump(key)) {
@@ -374,20 +398,30 @@ namespace {
             return program;
         }
 
+        void updateUniforms() {
+            if (SkShaderBase* shader = as_SB(fKey.shader)) {
+                size_t extra = shader->uniforms(fKey.colorSpace, nullptr);
+                fUniforms.resize(sizeof(Uniforms) + extra);
+                shader->uniforms(fKey.colorSpace, fUniforms.data() + sizeof(Uniforms));
+            }
+        }
+
         void blitH(int x, int y, int w) override {
             if (fBlitH.empty()) {
                 fBlitH = this->buildProgram(Coverage::Full);
             }
-            fBlitH.eval(w, &fUniforms, fDevice.addr(x,y));
+            this->updateUniforms();
+            fBlitH.eval(w, fUniforms.data(), fDevice.addr(x,y));
         }
 
         void blitAntiH(int x, int y, const SkAlpha cov[], const int16_t runs[]) override {
             if (fBlitAntiH.empty()) {
                 fBlitAntiH = this->buildProgram(Coverage::UniformA8);
             }
+            this->updateUniforms();
             for (int16_t run = *runs; run > 0; run = *runs) {
-                fUniforms.coverage = *cov;
-                fBlitAntiH.eval(run, &fUniforms, fDevice.addr(x,y));
+                memcpy(fUniforms.data() + offsetof(Uniforms, coverage), cov, sizeof(*cov));
+                fBlitAntiH.eval(run, fUniforms.data(), fDevice.addr(x,y));
 
                 x    += run;
                 runs += run;
@@ -423,9 +457,10 @@ namespace {
 
             SkASSERT(program);
             if (program) {
+                this->updateUniforms();
                 for (int y = clip.top(); y < clip.bottom(); y++) {
                     program->eval(clip.width(),
-                                  &fUniforms,
+                                  fUniforms.data(),
                                   fDevice.addr(clip.left(), y),
                                   mask.getAddr(clip.left(), y));
                 }
