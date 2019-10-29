@@ -86,9 +86,9 @@ namespace skvm {
         void vpblendvb(Ymm dst, Ymm x, Ymm y, Ymm z);
 
         struct Label {
-            int                                 offset = 0;
-            enum { None, ARMDisp19, X86Disp32 } kind = None;
-            std::vector<int>                    references;
+            int                                      offset = 0;
+            enum { NotYetSet, ARMDisp19, X86Disp32 } kind = NotYetSet;
+            std::vector<int>                         references;
         };
 
         Label here();
