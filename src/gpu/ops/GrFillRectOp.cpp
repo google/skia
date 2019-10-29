@@ -249,21 +249,15 @@ private:
 
         bool upgradeToCoverageAAOnMerge = false;
         if (fHelper.aaType() != that->fHelper.aaType()) {
-            if (!GrSimpleMeshDrawOpHelper::CanUpgradeAAOnMerge(fHelper.aaType(),
-                                                               that->fHelper.aaType())) {
+            if (!CanUpgradeAAOnMerge(fHelper.aaType(), that->fHelper.aaType())) {
                 return CombineResult::kCannotCombine;
             }
             upgradeToCoverageAAOnMerge = true;
         }
 
-        if (fHelper.aaType() == GrAAType::kCoverage || upgradeToCoverageAAOnMerge) {
-            if (fQuads.count() + that->fQuads.count() > GrResourceProvider::MaxNumAAQuads()) {
-                return CombineResult::kCannotCombine;
-            }
-        } else {
-            if (fQuads.count() + that->fQuads.count() > GrResourceProvider::MaxNumNonAAQuads()) {
-                return CombineResult::kCannotCombine;
-            }
+        if (CombinedQuadCountWillOverflow(fHelper.aaType(), upgradeToCoverageAAOnMerge,
+                                          fQuads.count() + that->fQuads.count())) {
+            return CombineResult::kCannotCombine;
         }
 
         // Unlike most users of the draw op helper, this op can merge none-aa and coverage-aa draw
