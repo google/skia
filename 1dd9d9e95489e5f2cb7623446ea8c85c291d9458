@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e523080_c0d03b6f",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-29T19:09:21Z",
+      "side": 1,
+      "message": "Could this be fTotNumQuads \u003d fProxyCnt outside of the loop?",
+      "range": {
+        "startLine": 405,
+        "startChar": 12,
+        "endLine": 405,
+        "endChar": 29
+      },
+      "revId": "1dd9d9e95489e5f2cb7623446ea8c85c291d9458",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
