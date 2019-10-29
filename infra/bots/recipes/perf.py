@@ -72,10 +72,6 @@ def nanobench_flags(api, bot):
     if 'Nexus7' in bot:
       args.append('--purgeBetweenBenches')  # Debugging skia:8929
 
-    if 'Android' in bot:
-      assert api.flavor.device_dirs.texttraces_dir
-      args.extend(['--texttraces', api.flavor.device_dirs.texttraces_dir])
-
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
     args.append('--nocpu')
 
@@ -144,6 +140,10 @@ def nanobench_flags(api, bot):
     if 'ChromeOS' in bot:
       # Just run GLES for now - maybe add gles_msaa4 in the future
       configs = ['gles']
+
+  if 'Android' in bot:
+    assert api.flavor.device_dirs.texttraces_dir
+    args.extend(['--texttraces', api.flavor.device_dirs.texttraces_dir])
 
   args.append('--config')
   args.extend(configs)
@@ -364,7 +364,7 @@ def RunSteps(api):
     try:
       if 'Chromecast' in api.vars.builder_name:
         api.flavor.install(resources=True, skps=True)
-      elif all(v in api.vars.builder_name for v in ['Android', 'CPU']):
+      elif 'Android' in api.vars.builder_name:
         api.flavor.install(skps=True, images=True, svgs=True, resources=True, texttraces=True)
       else:
         api.flavor.install(skps=True, images=True, svgs=True, resources=True)
