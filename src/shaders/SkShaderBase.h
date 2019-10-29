@@ -15,6 +15,7 @@
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkTLazy.h"
+#include "src/core/SkVM.h"
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrFPArgs.h"
@@ -205,6 +206,16 @@ public:
     SkStageUpdater* appendUpdatableStages(const SkStageRec& rec) const {
         return this->onAppendUpdatableStages(rec);
     }
+
+
+    virtual bool program(skvm::Builder*,
+                         SkColorSpace* dstCS,
+                         skvm::Arg uniforms, int offset,
+                         skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const {
+        return false;
+    }
+
+    virtual size_t uniforms(SkColorSpace* dstCS, uint8_t* uniform_buffer) const { return 0; }
 
 protected:
     SkShaderBase(const SkMatrix* localMatrix = nullptr);
