@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "17e0ebe7_8f3aa49f",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 922,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-10-29T18:35:55Z",
+      "side": 0,
+      "message": "This would still be valid, right? Are you also planning to remove texture swizzle from proxy?",
+      "range": {
+        "startLine": 922,
+        "startChar": 4,
+        "endLine": 922,
+        "endChar": 63
+      },
+      "revId": "7e035be700dd01313ef4035991eeb1aca514fb08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
