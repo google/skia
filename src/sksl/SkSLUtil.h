@@ -100,6 +100,10 @@ public:
         return true;
     }
 
+    bool sampleVariablesStencilSupport() const {
+        return true;
+    }
+
     bool externalTextureSupport() const {
         return true;
     }
