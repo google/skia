@@ -215,20 +215,29 @@ class DiffCanvasBench : public Benchmark {
     std::vector<SkTextBlobTrace::Record> fTrace;
     sk_sp<DiscardableManager> fDiscardableManager;
     SkTLazy<SkStrikeServer> fServer;
+    Benchmark::Backend fBackend = Benchmark::kNonRendering_Backend;
 
     const char* onGetName() override { return fBenchName.c_str(); }
 
-    bool isSuitableFor(Backend b) override { return b == kNonRendering_Backend; }
+    bool isSuitableFor(Backend b) override { return b == fBackend; }
 
-    void onDraw(int loops, SkCanvas*) override {
-        const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
-        SkTextBlobCacheDiffCanvas canvas{1024, 1024, props, fServer.get()};
+    void drawImpl(int loops, SkCanvas* canvas) {
+        SkASSERT(canvas);
         loops *= 100;
         while (loops --> 0) {
             for (const auto& record : fTrace) {
-                canvas.drawTextBlob(
+                canvas->drawTextBlob(
                         record.blob.get(), record.offset.x(), record.offset.y(),record.paint);
             }
+        }
+    }
+    void onDraw(int loops, SkCanvas* canvas) override {
+        if (b == kNonRendering_Backend) {
+            const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+            SkTextBlobCacheDiffCanvas diffCanvas{1024, 1024, props, fServer.get()};
+            this->drawImpl(loops, &diffCanvas);
+        } else {
+            this->drawImpl(loops, canvas);
         }
     }
 
@@ -240,16 +249,29 @@ class DiffCanvasBench : public Benchmark {
     }
 
 public:
-    DiffCanvasBench(SkString n, std::function<std::unique_ptr<SkStreamAsset>()> f)
-        : fBenchName(std::move(n)), fDataProvider(std::move(f)) {}
+    DiffCanvasBench(SkString n, std::function<std::unique_ptr<SkStreamAsset>()> f,
+                    Benchmark::Backend b)
+        : fBenchName(std::move(n)), fDataProvider(std::move(f)), fBackend(b) {}
 };
 }  // namespace
 
-Benchmark* CreateDiffCanvasBench(
-        SkString name, std::function<std::unique_ptr<SkStreamAsset>()> dataSrc) {
-    return new DiffCanvasBench(std::move(name), std::move(dataSrc));
+Benchmark* CreateDiffCanvasBench(SkString name,
+                                 std::function<std::unique_ptr<SkStreamAsset>()> dataSrc,
+                                 Benchmark::Backend backend) {
+    return new DiffCanvasBench(std::move(name), std::move(dataSrc). backend);
 }
 
 DEF_BENCH( return CreateDiffCanvasBench(
         SkString("SkDiffBench-lorem_ipsum"),
-        [](){ return GetResourceAsStream("diff_canvas_traces/lorem_ipsum.trace"); }));
+        [](){ return GetResourceAsStream("diff_canvas_traces/lorem_ipsum.trace"); },
+        Benchmark::kNonRendering_Backend));
+
+DEF_BENCH( return CreateDiffCanvasBench(
+        SkString("gpu_textblob_rendering-lorem_ipsum"),
+        [](){ return GetResourceAsStream("diff_canvas_traces/lorem_ipsum.trace"); },
+        Benchmark::kGPU_Backend));
+
+DEF_BENCH( return CreateDiffCanvasBench(
+        SkString("cpu_textblob_rendering-lorem_ipsum"),
+        [](){ return GetResourceAsStream("diff_canvas_traces/lorem_ipsum.trace"); },
+        Benchmark::kRaster_Backend));
