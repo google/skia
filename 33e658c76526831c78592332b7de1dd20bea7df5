@@ -46,6 +46,53 @@
       "revId": "33e658c76526831c78592332b7de1dd20bea7df5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e58522f_da82d62d",
+        "filename": "src/shaders/SkColorShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-10-29T19:02:02Z",
+      "side": 1,
+      "message": "Got it:\n\nprogram() runs the steps to see that we \"can\" fit in bytes, but doesn\u0027t do anything with the values.\n\nuniforms() runs each time we \"refresh\" the uniforms for a given (re)use of the program, and shoves the (premuled in dst colorspace) value into the uniform slot.",
+      "parentUuid": "2e7bc5b9_8cce5c7e",
+      "range": {
+        "startLine": 100,
+        "startChar": 48,
+        "endLine": 100,
+        "endChar": 69
+      },
+      "revId": "33e658c76526831c78592332b7de1dd20bea7df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00adc4a3_1c02ea03",
+        "filename": "src/shaders/SkColorShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-10-29T19:02:02Z",
+      "side": 1,
+      "message": "seems not possible, since dstCS must be the same as when we built our program (since CS is part of the key)...",
+      "range": {
+        "startLine": 120,
+        "startChar": 63,
+        "endLine": 120,
+        "endChar": 75
+      },
+      "revId": "33e658c76526831c78592332b7de1dd20bea7df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
