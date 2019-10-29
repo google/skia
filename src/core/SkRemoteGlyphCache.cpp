@@ -13,6 +13,7 @@
 #include <string>
 #include <tuple>
 
+#include "include/private/SkChecksum.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkEnumerate.h"
@@ -280,6 +281,7 @@ private:
     void writeGlyphPath(const SkGlyph& glyph, Serializer* serializer) const;
     void ensureScalerContext();
 
+    const int fNumberOfGlyphs;
     const SkAutoDescriptor fDescriptor;
     const SkDiscardableHandleId fDiscardableHandleId;
 
@@ -295,6 +297,8 @@ private:
 
     // Have the metrics been sent for this strike. Only send them once.
     bool fHaveSentFontMetrics{false};
+
+    std::vector<bool> fAlreadySentMask;
 
     // The masks and paths that currently reside in the GPU process.
     SkTHashTable<MaskSummary, SkPackedGlyphID, MaskSummaryTraits> fSentGlyphs;
@@ -313,13 +317,15 @@ SkStrikeServer::RemoteStrike::RemoteStrike(
         const SkDescriptor& descriptor,
         std::unique_ptr<SkScalerContext> context,
         uint32_t discardableHandleId)
-        : fDescriptor{descriptor}
+        : fNumberOfGlyphs(context->getGlyphCount())
+        , fDescriptor{descriptor}
         , fDiscardableHandleId(discardableHandleId)
         , fRoundingSpec{context->isSubpixel(), context->computeAxisAlignmentForHText()}
         // N.B. context must come last because it is used above.
         , fContext{std::move(context)} {
     SkASSERT(fDescriptor.getDesc() != nullptr);
     SkASSERT(fContext != nullptr);
+    fAlreadySentMask.resize(fContext->getGlyphCount() * 4);
 }
 
 SkStrikeServer::RemoteStrike::~RemoteStrike() = default;
@@ -735,8 +741,40 @@ void SkStrikeServer::RemoteStrike::commonMaskLoop(
 
 void SkStrikeServer::RemoteStrike::prepareForMaskDrawing(
         SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) {
-    this->commonMaskLoop(drawables, rejects,
-            [](MaskSummary summary){return !summary.canDrawAsMask;});
+    for (auto t : SkMakeEnumerate(drawables->input())) {
+        size_t i; SkGlyphVariant bag; SkPoint pos;
+        std::forward_as_tuple(i, std::tie(bag, pos)) = t;
+        SkPackedGlyphID packedID = bag;
+
+        size_t index = packedID.index();
+        if (packedID.glyphID() < fNumberOfGlyphs) {
+            if (index < fAlreadySentMask.size() && fAlreadySentMask[index]) { continue; }
+        }
+
+        MaskSummary* summary = fSentGlyphs.find(packedID);
+        if (summary == nullptr) {
+            // Put the new SkGlyph in the glyphs to send.
+            fMasksToSend.emplace_back(packedID);
+            SkGlyph* glyph = &fMasksToSend.back();
+
+            // Build the glyph
+            this->ensureScalerContext();
+            fContext->getMetrics(glyph);
+
+            if(index < fAlreadySentMask.size()) {
+                fAlreadySentMask[index] = CanDrawAsMask(*glyph);
+            }
+
+            MaskSummary newSummary =
+                    {packedID.value(), CanDrawAsMask(*glyph), CanDrawAsSDFT(*glyph)};
+            summary = fSentGlyphs.set(newSummary);
+        }
+
+        // Reject things that are too big.
+        if (!summary->canDrawAsMask) {
+            rejects->reject(i);
+        }
+    }
 }
 
 void SkStrikeServer::RemoteStrike::prepareForSDFTDrawing(
