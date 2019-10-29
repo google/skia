@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkColorFilter.h"
 #include "include/private/SkMacros.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBlendModePriv.h"
@@ -20,13 +21,13 @@ namespace {
 
     SK_BEGIN_REQUIRE_DENSE;
     struct Key {
-        SkColorType    colorType;
-        SkAlphaType    alphaType;
-        Coverage       coverage;
-        SkBlendMode    blendMode;
-        SkColorSpace*  colorSpace;
-        SkShader*      shader;
-        SkColorFilter* colorFilter;
+        SkColorType          colorType;
+        SkAlphaType          alphaType;
+        Coverage             coverage;
+        SkBlendMode          blendMode;
+        sk_sp<SkColorSpace>  colorSpace;
+        sk_sp<SkShader>      shader;
+        sk_sp<SkColorFilter> colorFilter;
 
         Key withCoverage(Coverage c) const {
             Key k = *this;
@@ -154,7 +155,7 @@ namespace {
             if (key.shader) {
                 // TODO: maybe passing the whole Key is going to be what we'll want here?
                 if (!as_SB(key.shader)->program(nullptr,
-                                                key.colorSpace,
+                                                key.colorSpace.get(),
                                                 skvm::Arg{0}, 0,
                                                 nullptr,nullptr,nullptr,nullptr)) {
                     return false;
@@ -192,7 +193,7 @@ namespace {
             if (key.shader) {
                 skvm::I32 paint_alpha = src.a;
                 SkAssertResult(as_SB(key.shader)->program(this,
-                                                          key.colorSpace,
+                                                          key.colorSpace.get(),
                                                           uniforms, sizeof(Uniforms),
                                                           &src.r, &src.g, &src.b, &src.a));
 
@@ -332,9 +333,9 @@ namespace {
                 device.alphaType(),
                 Coverage::Full,
                 paint.getBlendMode(),
-                device.colorSpace(),
-                paint.getShader(),
-                paint.getColorFilter(),
+                device.refColorSpace(),
+                paint.refShader(),
+                paint.refColorFilter(),
             }
         {
             SkColor4f color = paint.getColor4f();
@@ -411,10 +412,10 @@ namespace {
         }
 
         void updateUniforms() {
-            if (SkShaderBase* shader = as_SB(fKey.shader)) {
-                size_t extra = shader->uniforms(fKey.colorSpace, nullptr);
+            if (const SkShaderBase* shader = as_SB(fKey.shader)) {
+                size_t extra = shader->uniforms(fKey.colorSpace.get(), nullptr);
                 fUniforms.resize(sizeof(Uniforms) + extra);
-                shader->uniforms(fKey.colorSpace, fUniforms.data() + sizeof(Uniforms));
+                shader->uniforms(fKey.colorSpace.get(), fUniforms.data() + sizeof(Uniforms));
             }
         }
 
