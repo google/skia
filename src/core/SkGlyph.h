@@ -96,6 +96,8 @@ struct SkPackedGlyphID {
         return SkChecksum::CheapMix(fID);
     }
 
+    int index() const {return fID;}
+
     SkString dump() const {
         SkString str;
         str.appendf("glyphID: %d, x: %d, y:%d", glyphID(), getSubXFixed(), getSubYFixed());
