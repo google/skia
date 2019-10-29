@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "06ddf8d3_062a2696",
+        "filename": "src/gpu/vk/GrVkTexture.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-29T14:07:49Z",
+      "side": 1,
+      "message": "Yes if someone calls abandon first. Which I had forgotten to set to nullptr :)",
+      "parentUuid": "6608c433_dd247740",
+      "range": {
+        "startLine": 165,
+        "startChar": 12,
+        "endLine": 165,
+        "endChar": 26
+      },
+      "revId": "4316bf7f0c650bdd0e4ff79a6651f4fabe514bf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c2bc7303_486467d1",
         "filename": "src/gpu/vk/GrVkTexture.h",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "4316bf7f0c650bdd0e4ff79a6651f4fabe514bf2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb19ebe3_98744d04",
+        "filename": "src/gpu/vk/GrVkTexture.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-10-29T14:07:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c2bc7303_486467d1",
+      "range": {
+        "startLine": 95,
+        "startChar": 11,
+        "endLine": 95,
+        "endChar": 21
+      },
+      "revId": "4316bf7f0c650bdd0e4ff79a6651f4fabe514bf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
