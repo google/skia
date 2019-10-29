@@ -44,6 +44,12 @@ private:
 
     bool onAppendStages(const SkStageRec&) const override;
 
+    bool program(skvm::Builder*,
+                 SkColorSpace* dstCS,
+                 skvm::Arg uniforms, int offset,
+                 skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override;
+    size_t uniforms(SkColorSpace* dstCS, uint8_t* uniform_buffer) const override;
+
     SkColor fColor;
 };
 
