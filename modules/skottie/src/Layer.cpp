@@ -449,9 +449,6 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
         layer = abuilder.attachOpacity(*jtransform, std::move(layer));
     }
 
-    // Optional blend mode.
-    layer = abuilder.attachBlendMode(fJlayer, std::move(layer));
-
     const auto has_animators = !abuilder.fCurrentAnimatorScope->empty();
 
     sk_sp<sksg::Animator> controller = sk_make_sp<LayerController>(ascope.release(),
@@ -477,14 +474,8 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
         return nullptr;
     }
 
-    if (ParseDefault<bool>(fJlayer["td"], false)) {
-        // This layer is a matte.  We apply it as a mask to the next layer.
-        cbuilder->pushMatte(std::move(layer));
-        return nullptr;
-    }
-
     if (auto matte = cbuilder->popMatte()) {
-        // There is a pending matte. Apply and reset.
+        // There is a pending matte (|layer| is a matte target).
         static constexpr sksg::MaskEffect::Mode gMaskModes[] = {
             sksg::MaskEffect::Mode::kAlphaNormal, // tt: 1
             sksg::MaskEffect::Mode::kAlphaInvert, // tt: 2
@@ -494,10 +485,22 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
         const auto matteType = ParseDefault<size_t>(fJlayer["tt"], 1) - 1;
 
         if (matteType < SK_ARRAY_COUNT(gMaskModes)) {
-            return sksg::MaskEffect::Make(std::move(layer),
-                                          std::move(matte),
-                                          gMaskModes[matteType]);
+            layer = sksg::MaskEffect::Make(std::move(layer),
+                                           std::move(matte),
+                                           gMaskModes[matteType]);
         }
+    }
+
+    // Optional blend mode.  The attachment point is important for matte interactions:
+    //   - for mattes (mask layers), the blend mode is applied to the layer content
+    //   - for matte targets (masked layers), the blend mode is applied post-masking
+    //     (wrapping the MaskEffect above)
+    layer = abuilder.attachBlendMode(fJlayer, std::move(layer));
+
+    if (ParseDefault<bool>(fJlayer["td"], false)) {
+        // |layer| is a matte.  We apply it as a mask to the next layer.
+        cbuilder->pushMatte(std::move(layer));
+        return nullptr;
     }
 
     return layer;
