@@ -1429,7 +1429,7 @@ func (b *builder) perf(name string, parts map[string]string, compileTaskName str
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("lottie-samples"))
 	}
 
-	if strings.Contains(name, "Android") && strings.Contains(name, "CPU") {
+	if strings.Contains(name, "Android") {
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("text_blob_traces"))
 	}
 
