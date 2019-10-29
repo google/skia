@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "5be91a86_e454b2e0",
+        "filename": "src/shaders/SkColorShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-29T19:13:42Z",
+      "side": 1,
+      "message": "Right.  The idea is that if we reuse a paint and end up generating the same program key, program() and its expensive implications can be cached, while updating uniforms() is always cheap.  When we get a cache hit no uniforms from the shaders should change, so it\u0027s possible that we could do this all at once, but I\u0027d like to get to the point where we can share equivalent programs across equivalent shaders that only vary based on uniforms, say two different colors.\n\nEven though we\u0027re not reusing programs across similar shaders today, it\u0027s still kind of structurally easier to split apart the program building and uniform updates even if caching only works with exact matches. I\u0027m finding it easier to just regenerate the uniforms than cache them.",
+      "parentUuid": "1e58522f_da82d62d",
+      "range": {
+        "startLine": 100,
+        "startChar": 48,
+        "endLine": 100,
+        "endChar": 69
+      },
+      "revId": "33e658c76526831c78592332b7de1dd20bea7df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "00adc4a3_1c02ea03",
         "filename": "src/shaders/SkColorShader.cpp",
         "patchSetId": 6
@@ -84,6 +108,30 @@
       "writtenOn": "2019-10-29T19:02:02Z",
       "side": 1,
       "message": "seems not possible, since dstCS must be the same as when we built our program (since CS is part of the key)...",
+      "range": {
+        "startLine": 120,
+        "startChar": 63,
+        "endLine": 120,
+        "endChar": 75
+      },
+      "revId": "33e658c76526831c78592332b7de1dd20bea7df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "685f6aeb_6007ba1d",
+        "filename": "src/shaders/SkColorShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-29T19:13:42Z",
+      "side": 1,
+      "message": "Oh, yeah, I think we\u0027re okay here for now.\n\nI was thinking that dstCS could be the same but fColor could be different, but obviously we also make the SkShader* part of the key, so fColor will always match.  I may end up pushing up against this again later as I try to reuse programs between, say, two SkColorShaders, but for now we\u0027re good.\n\nThough I guess to actually be safe here the cache should hold a ref on the pointery parts of the key while they\u0027re in the cache, or we could accidentally think a living shader is the same as a dead one.",
+      "parentUuid": "00adc4a3_1c02ea03",
       "range": {
         "startLine": 120,
         "startChar": 63,
