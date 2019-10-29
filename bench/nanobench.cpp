@@ -747,8 +747,18 @@ public:
             }
         }
 
-        while (fCurrentTextBlobTrace < fTextBlobTraces.count()) {
-            SkString path = fTextBlobTraces[fCurrentTextBlobTrace++];
+        static constexpr Benchmark::Backend kBackendsForTextTraces[3] = {
+            Benchmark::kNonRendering_Backend,
+            Benchmark::kGPU_Backend,
+            Benchmark::kRaster_Backend,
+        };
+        static constexpr int kTextTraceBackendCount = (int)SK_ARRAY_COUNT(kBackendsForTextTraces);
+
+        while (fCurrentTextBlobTrace < kTextTraceBackendCount * fTextBlobTraces.count()) {
+            int current = fCurrentTextBlobTrace++;
+            Benchmark::Backend backend = kBackendsForTextTraces[current % kTextTraceBackendCount];
+            SkString path = fTextBlobTraces[current / kTextTraceBackendCount];
+
             SkString basename = SkOSPath::Basename(path.c_str());
             static constexpr char kEnding[] = ".trace";
             if (basename.endsWith(kEnding)) {
@@ -756,9 +766,17 @@ public:
             }
             fSourceType = "texttrace";
             fBenchType  = "micro";
+            const char* benchname = "";
+            switch (backend) {
+                case Benchmark::kNonRendering_Backend: benchname = "SkDiffBench";            break;
+                case Benchmark::kGPU_Backend:          benchname = "cpu_textblob_rendering"; break;
+                case Benchmark::kRaster_Backend:       benchname = "gpu_textblob_rendering"; break;
+                default: break;
+            }
             return CreateDiffCanvasBench(
-                    SkStringPrintf("SkDiffBench-%s", basename.c_str()),
-                    [path](){ return SkStream::MakeFromFile(path.c_str()); });
+                    SkStringPrintf("%s-%s", benchname, basename.c_str()),
+                    [path](){ return SkStream::MakeFromFile(path.c_str()); },
+                    backend);
         }
 
         // First add all .skps as RecordingBenches.
