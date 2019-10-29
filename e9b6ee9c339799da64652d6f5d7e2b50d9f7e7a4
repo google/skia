@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55bd3682_91d947a7",
+        "filename": "src/effects/imagefilters/SkMorphologyImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-29T15:54:11Z",
+      "side": 1,
+      "message": "// Crazy large radii are uninteresting and unwanted (crbug.com/1018190)\n\n?",
+      "revId": "e9b6ee9c339799da64652d6f5d7e2b50d9f7e7a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
