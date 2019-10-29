@@ -24,6 +24,7 @@ namespace {
         SkAlphaType    alphaType;
         Coverage       coverage;
         SkBlendMode    blendMode;
+        SkColorSpace*  colorSpace;
         SkShader*      shader;
         SkColorFilter* colorFilter;
 
@@ -40,16 +41,18 @@ namespace {
             && x.alphaType   == y.alphaType
             && x.coverage    == y.coverage
             && x.blendMode   == y.blendMode
+            && x.colorSpace  == y.colorSpace   // SkColorSpace::Equals() would make hashing unsound.
             && x.shader      == y.shader
             && x.colorFilter == y.colorFilter;
     }
 
     static SkString debug_name(const Key& key) {
-        return SkStringPrintf("CT%d-AT%d-Cov%d-Blend%d-Shader%d-CF%d",
+        return SkStringPrintf("CT%d-AT%d-Cov%d-Blend%d-CS%d-Shader%d-CF%d",
                               key.colorType,
                               key.alphaType,
                               key.coverage,
                               key.blendMode,
+                              SkToBool(key.colorSpace),
                               SkToBool(key.shader),
                               SkToBool(key.colorFilter));
     }
@@ -64,7 +67,7 @@ namespace {
     }
 
     static SkLRUCache<Key, skvm::Program>* try_acquire_program_cache() {
-    #if defined(SK_BUILD_FOR_IOS)
+    #if 0 || defined(SK_BUILD_FOR_IOS)
         // iOS doesn't support thread_local on versions less than 9.0. pthread
         // based fallbacks must be used there. We could also use an SkSpinlock
         // and tryAcquire()/release(), or...
@@ -148,7 +151,15 @@ namespace {
 
         static bool CanBuild(const Key& key) {
             // These checks parallel the TODOs in Builder::Builder().
-            if (key.shader)      { return false; }
+            if (key.shader) {
+                // TODO: maybe passing the whole Key is going to be what we'll want here?
+                if (!as_SB(key.shader)->program(nullptr,
+                                                key.colorSpace,
+                                                skvm::Arg{0}, 0,
+                                                nullptr,nullptr,nullptr,nullptr)) {
+                    return false;
+                }
+            }
             if (key.colorFilter) { return false; }
 
             switch (key.colorType) {
@@ -174,14 +185,36 @@ namespace {
             SkASSERT(CanBuild(key));
             skvm::Arg uniforms = uniform(),
                       dst_ptr  = arg(SkColorTypeBytesPerPixel(key.colorType));
-            // When coverage is MaskA8 or MaskLCD16 there will be one more mask varying,
-            // and when coverage is Mask3D there will be three more mask varyings.
+            // If coverage is Mask3D there'll next come two varyings for mul and add planes,
+            // and then finally if coverage is any Mask?? format, a varying for the mask.
 
-
-            // When there's no shader and no color filter, the source color is the paint color.
-            if (key.shader)      { TODO; }
-            if (key.colorFilter) { TODO; }
             Color src = unpack_8888(uniform32(uniforms, offsetof(Uniforms, paint_color)));
+            if (key.shader) {
+                skvm::I32 paint_alpha = src.a;
+                SkAssertResult(as_SB(key.shader)->program(this,
+                                                          key.colorSpace,
+                                                          uniforms, sizeof(Uniforms),
+                                                          &src.r, &src.g, &src.b, &src.a));
+
+                // TODO: skip when paint is opaque.
+                if (false) {
+                    // I thought I had to do this, but it seems to screw things up?
+                    src.r = div255(mul(src.r, paint_alpha));
+                    src.g = div255(mul(src.g, paint_alpha));
+                    src.b = div255(mul(src.b, paint_alpha));
+                    src.a = div255(mul(src.a, paint_alpha));
+                }
+            }
+            if (key.colorFilter) { TODO; }
+
+            if (key.coverage == Coverage::Mask3D) {
+                skvm::I32 M = load8(varying<uint8_t>()),
+                          A = load8(varying<uint8_t>());
+
+                src.r = min(add(div255(mul(src.r, M)), A), src.a);
+                src.g = min(add(div255(mul(src.g, M)), A), src.a);
+                src.b = min(add(div255(mul(src.b, M)), A), src.a);
+            }
 
             // There are several orderings here of when we load dst and coverage
             // and how coverage is applied, and to complicate things, LCD coverage
@@ -198,6 +231,7 @@ namespace {
                                               uniform8(uniforms, offsetof(Uniforms, coverage));
                                               return true;
 
+                    case Coverage::Mask3D:
                     case Coverage::MaskA8: cov->r = cov->g = cov->b = cov->a =
                                            load8(varying<uint8_t>());
                                            return true;
@@ -208,8 +242,6 @@ namespace {
                         cov->a = select(lt(src.a, dst.a), min(cov->r, min(cov->g,cov->b))
                                                         , max(cov->r, max(cov->g,cov->b)));
                         return true;
-
-                    case Coverage::Mask3D: TODO;
                 }
                 // GCC insists...
                 return false;
@@ -300,6 +332,7 @@ namespace {
                 device.alphaType(),
                 Coverage::Full,
                 paint.getBlendMode(),
+                device.colorSpace(),
                 paint.getShader(),
                 paint.getColorFilter(),
             }
@@ -309,7 +342,8 @@ namespace {
                                    device.colorSpace(), kUnpremul_SkAlphaType}.apply(color.vec());
 
             if (color.fitsInBytes() && Builder::CanBuild(fKey)) {
-                fUniforms.paint_color = color.premul().toBytes_RGBA();
+                uint32_t rgba = color.premul().toBytes_RGBA();
+                memcpy(fUniforms.data() + offsetof(Uniforms, paint_color), &rgba, sizeof(rgba));
                 ok = true;
             }
         }
@@ -329,6 +363,7 @@ namespace {
                 cache_program(std::move(fBlitH),         Coverage::Full);
                 cache_program(std::move(fBlitAntiH),     Coverage::UniformA8);
                 cache_program(std::move(fBlitMaskA8),    Coverage::MaskA8);
+                cache_program(std::move(fBlitMask3D),    Coverage::Mask3D);
                 cache_program(std::move(fBlitMaskLCD16), Coverage::MaskLCD16);
 
                 release_program_cache();
@@ -336,12 +371,13 @@ namespace {
         }
 
     private:
-        SkPixmap      fDevice;  // TODO: can this be const&?
-        const Key     fKey;
-        Uniforms      fUniforms;
+        SkPixmap             fDevice;  // TODO: can this be const&?
+        const Key            fKey;
+        std::vector<uint8_t> fUniforms{sizeof(Uniforms)};
         skvm::Program fBlitH,
                       fBlitAntiH,
                       fBlitMaskA8,
+                      fBlitMask3D,
                       fBlitMaskLCD16;
 
         skvm::Program buildProgram(Coverage coverage) {
@@ -374,20 +410,30 @@ namespace {
             return program;
         }
 
+        void updateUniforms() {
+            if (SkShaderBase* shader = as_SB(fKey.shader)) {
+                size_t extra = shader->uniforms(fKey.colorSpace, nullptr);
+                fUniforms.resize(sizeof(Uniforms) + extra);
+                shader->uniforms(fKey.colorSpace, fUniforms.data() + sizeof(Uniforms));
+            }
+        }
+
         void blitH(int x, int y, int w) override {
             if (fBlitH.empty()) {
                 fBlitH = this->buildProgram(Coverage::Full);
             }
-            fBlitH.eval(w, &fUniforms, fDevice.addr(x,y));
+            this->updateUniforms();
+            fBlitH.eval(w, fUniforms.data(), fDevice.addr(x,y));
         }
 
         void blitAntiH(int x, int y, const SkAlpha cov[], const int16_t runs[]) override {
             if (fBlitAntiH.empty()) {
                 fBlitAntiH = this->buildProgram(Coverage::UniformA8);
             }
+            this->updateUniforms();
             for (int16_t run = *runs; run > 0; run = *runs) {
-                fUniforms.coverage = *cov;
-                fBlitAntiH.eval(run, &fUniforms, fDevice.addr(x,y));
+                memcpy(fUniforms.data() + offsetof(Uniforms, coverage), cov, sizeof(*cov));
+                fBlitAntiH.eval(run, fUniforms.data(), fDevice.addr(x,y));
 
                 x    += run;
                 runs += run;
@@ -405,7 +451,13 @@ namespace {
             switch (mask.fFormat) {
                 default: SkUNREACHABLE;     // ARGB and SDF masks shouldn't make it here.
 
-                case SkMask::k3D_Format:    // TODO: the mul and add 3D mask planes too
+                case SkMask::k3D_Format:
+                    if (fBlitMask3D.empty()) {
+                        fBlitMask3D = this->buildProgram(Coverage::Mask3D);
+                    }
+                    program = &fBlitMask3D;
+                    break;
+
                 case SkMask::kA8_Format:
                     if (fBlitMaskA8.empty()) {
                         fBlitMaskA8 = this->buildProgram(Coverage::MaskA8);
@@ -423,11 +475,22 @@ namespace {
 
             SkASSERT(program);
             if (program) {
+                this->updateUniforms();
                 for (int y = clip.top(); y < clip.bottom(); y++) {
-                    program->eval(clip.width(),
-                                  &fUniforms,
-                                  fDevice.addr(clip.left(), y),
-                                  mask.getAddr(clip.left(), y));
+                    void* dptr =        fDevice.writable_addr(clip.left(), y);
+                    auto  mptr = (const uint8_t*)mask.getAddr(clip.left(), y);
+
+                    if (mask.fFormat == SkMask::k3D_Format) {
+                        size_t plane = mask.computeImageSize();
+                        program->eval(clip.width(), fUniforms.data(),
+                                      dptr,
+                                      mptr + 1*plane,
+                                      mptr + 2*plane,
+                                      mptr + 0*plane);
+                    } else {
+                        program->eval(clip.width(), fUniforms.data(),
+                                      dptr, mptr);
+                    }
                 }
             }
         }
