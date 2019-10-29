@@ -16,6 +16,24 @@
       "revId": "74cf3484ba39ba18776e296ac99db6419a6ac0a7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fecf57fa_557dc1a4",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1065,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-10-29T14:05:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "160a8b54_c57c7f86",
+      "revId": "74cf3484ba39ba18776e296ac99db6419a6ac0a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
