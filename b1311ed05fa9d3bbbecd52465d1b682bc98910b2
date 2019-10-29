@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1f67e8a6_8cfccdf0",
+        "filename": "src/gpu/effects/GrShadowGeoProc.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-10-29T17:51:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98949605_fb647b77",
+      "range": {
+        "startLine": 46,
+        "startChar": 80,
+        "endLine": 46,
+        "endChar": 81
+      },
+      "revId": "b1311ed05fa9d3bbbecd52465d1b682bc98910b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8f576932_52d5628c",
         "filename": "src/gpu/effects/GrShadowGeoProc.cpp",
         "patchSetId": 6
@@ -39,6 +63,24 @@
       "revId": "b1311ed05fa9d3bbbecd52465d1b682bc98910b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4befa15c_e6211141",
+        "filename": "src/gpu/effects/GrShadowGeoProc.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-10-29T17:51:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f576932_52d5628c",
+      "revId": "b1311ed05fa9d3bbbecd52465d1b682bc98910b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "b48380d9_6f5d588b",
+        "filename": "src/gpu/effects/GrShadowGeoProc.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-10-29T17:51:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "218f9317_7d17c49c",
+      "range": {
+        "startLine": 88,
+        "startChar": 38,
+        "endLine": 88,
+        "endChar": 45
+      },
+      "revId": "b1311ed05fa9d3bbbecd52465d1b682bc98910b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0dd0b298_481692ee",
         "filename": "src/gpu/effects/GrShadowGeoProc.h",
         "patchSetId": 6
@@ -79,6 +145,24 @@
       "revId": "b1311ed05fa9d3bbbecd52465d1b682bc98910b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74aa253a_2a40e16b",
+        "filename": "src/gpu/effects/GrShadowGeoProc.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-10-29T17:51:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0dd0b298_481692ee",
+      "revId": "b1311ed05fa9d3bbbecd52465d1b682bc98910b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "94d41c18_8a017764",
+        "filename": "src/gpu/effects/GrShadowGeoProc.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-10-29T17:51:02Z",
+      "side": 1,
+      "message": "Handled by using GrTextureProxy*",
+      "parentUuid": "d1c74342_44bd49c0",
+      "range": {
+        "startLine": 23,
+        "startChar": 67,
+        "endLine": 23,
+        "endChar": 70
+      },
+      "revId": "b1311ed05fa9d3bbbecd52465d1b682bc98910b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "20d2d9e4_8457f051",
         "filename": "src/gpu/ops/GrShadowRRectOp.cpp",
         "patchSetId": 6
@@ -122,6 +230,24 @@
     },
     {
       "key": {
+        "uuid": "84a57597_a28a2fd9",
+        "filename": "src/gpu/ops/GrShadowRRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-10-29T17:51:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "20d2d9e4_8457f051",
+      "revId": "b1311ed05fa9d3bbbecd52465d1b682bc98910b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3b1d1a5e_1978f99f",
         "filename": "src/gpu/ops/GrShadowRRectOp.cpp",
         "patchSetId": 6
@@ -136,6 +262,24 @@
       "revId": "b1311ed05fa9d3bbbecd52465d1b682bc98910b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "adc1db1b_d46a138a",
+        "filename": "src/gpu/ops/GrShadowRRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-10-29T17:51:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b1d1a5e_1978f99f",
+      "revId": "b1311ed05fa9d3bbbecd52465d1b682bc98910b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
