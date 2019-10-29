@@ -24,7 +24,7 @@ public:
     // certain types of matrices:
     enum class Type {
         // The 4 points remain an axis-aligned rectangle; their logical indices may not respect
-        // TL, BL, TR, BR ordering if the transform was a 90 degre rotation or mirror.
+        // TL, BL, TR, BR ordering if the transform was a 90 degree rotation or mirror.
         kAxisAligned,
         // The 4 points represent a rectangle subjected to a rotation, its corners are right angles.
         kRectilinear,
@@ -144,7 +144,13 @@ public:
     const float* ws() const { return fW; }
     float* ws() { return fW; }
 
-    void setQuadType(Type newType) { fType = newType; }
+    // Automatically sets ws to 1 if new type is not perspective.
+    void setQuadType(Type newType) {
+        if (newType != Type::kPerspective) {
+            fW[0] = fW[1] = fW[2] = fW[3] = 1.f;
+        }
+        fType = newType;
+    }
 private:
     template<typename T>
     friend class GrQuadListBase; // for access to fX, fY, fW
