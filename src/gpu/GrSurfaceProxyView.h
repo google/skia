@@ -15,22 +15,41 @@
 
 class GrSurfaceProxyView {
 public:
+    GrSurfaceProxyView() = default;
+
     GrSurfaceProxyView(sk_sp<GrSurfaceProxy> proxy, GrSurfaceOrigin origin, GrSwizzle swizzle)
             : fProxy(proxy), fOrigin(origin), fSwizzle(swizzle) {}
 
-    GrSurfaceProxyView(GrSurfaceProxyView&& view)
-            : fProxy(std::move(view.fProxy)), fOrigin(view.fOrigin), fSwizzle(view.fSwizzle) {}
+    // This entry point is used when we don't care about the origin or the swizzle.
+    GrSurfaceProxyView(sk_sp<GrSurfaceProxy> proxy)
+            : fProxy(proxy), fOrigin(kTopLeft_GrSurfaceOrigin) {}
 
-    GrSurfaceProxy* asSurfaceProxy() const { return fProxy.get(); }
+    GrSurfaceProxyView(GrSurfaceProxyView&& view) = default;
+    GrSurfaceProxyView(const GrSurfaceProxyView&) = delete;
+
+    GrSurfaceProxyView& operator=(const GrSurfaceProxyView& that) = default;
+
+    bool operator==(const GrSurfaceProxyView& view) {
+        return fProxy.get() == view.fProxy.get() &&
+               fOrigin == view.fOrigin &&
+               fSwizzle == view.fSwizzle;
+    }
+    bool operator!=(const GrSurfaceProxyView& other) { return !(*this == other); }
+
+    GrSurfaceProxy* proxy() const { return fProxy.get(); }
     GrTextureProxy* asTextureProxy() const { return fProxy->asTextureProxy(); }
     GrRenderTargetProxy* asRenderTargetProxy() const { return fProxy->asRenderTargetProxy(); }
 
     GrSurfaceOrigin origin() const { return fOrigin; }
     const GrSwizzle& swizzle() const { return fSwizzle; }
 
+    void reset() {
+        *this = {};
+    }
+
 private:
     sk_sp<GrSurfaceProxy> fProxy;
-    GrSurfaceOrigin fOrigin;
+    GrSurfaceOrigin fOrigin = kTopLeft_GrSurfaceOrigin;
     GrSwizzle fSwizzle;
 };
 

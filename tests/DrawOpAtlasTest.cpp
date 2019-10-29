@@ -211,8 +211,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     TestingUploadTarget uploadTarget;
 
     GrOpFlushState flushState(gpu, resourceProvider, uploadTarget.writeableTokenTracker());
+
+    GrSurfaceProxyView surfaceView = rtc->outputSurfaceView();
     GrOpFlushState::OpArgs opArgs(op.get(),
-                                  rtc->asRenderTargetProxy(),
+                                  &surfaceView,
                                   nullptr,
                                   GrXferProcessor::DstProxy(nullptr, SkIPoint::Make(0, 0)));
 
