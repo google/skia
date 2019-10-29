@@ -54,8 +54,8 @@ dawn_json_generator("libdawn_native_utils_gen") {
   target = "dawn_native_utils"
   outputs = [
     "src/dawn_native/ProcTable.cpp",
-    "src/dawn_native/dawn_structs_autogen.h",
-    "src/dawn_native/dawn_structs_autogen.cpp",
+    "src/dawn_native/wgpu_structs_autogen.h",
+    "src/dawn_native/wgpu_structs_autogen.cpp",
     "src/dawn_native/ValidationUtils_autogen.h",
     "src/dawn_native/ValidationUtils_autogen.cpp",
   ]
@@ -567,6 +567,7 @@ dawn_json_generator("dawn_headers_gen") {
   outputs = [
     "src/include/dawn/dawn.h",
     "src/include/dawn/dawn_proc_table.h",
+    "src/include/dawn/webgpu.h",
   ]
 }
 
@@ -591,6 +592,7 @@ dawn_json_generator("dawncpp_headers_gen") {
   target = "dawncpp_headers"
   outputs = [
     "src/include/dawn/dawncpp.h",
+    "src/include/dawn/webgpu_cpp.h",
   ]
 }
 
@@ -611,7 +613,7 @@ source_set("dawncpp_headers") {
 dawn_json_generator("dawncpp_gen") {
   target = "dawncpp"
   outputs = [
-    "src/dawn/dawncpp.cpp",
+    "src/dawn/webgpu_cpp.cpp",
   ]
 }
 
