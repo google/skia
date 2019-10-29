@@ -188,8 +188,26 @@ void GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
     // Get new descriptor set
     SkASSERT(fNumSamplers == currTextureBinding);
     if (fNumSamplers) {
+        static const int kSamplerDSIdx = GrVkUniformHandler::kSamplerDescSet;
+
+        if (fNumSamplers == 1) {
+            auto texture = samplerBindings[0].fTexture;
+            const auto& samplerState = samplerBindings[0].fState;
+            const GrVkDescriptorSet* descriptorSet = texture->cachedSingleDescSet(samplerState);
+            if (descriptorSet) {
+                commandBuffer->addResource(texture->textureView());
+                commandBuffer->addResource(texture->resource());
+                commandBuffer->addRecycledResource(descriptorSet);
+                commandBuffer->bindDescriptorSets(gpu, this, fPipeline->layout(), kSamplerDSIdx, 1,
+                                                  descriptorSet->descriptorSet(), 0, nullptr);
+                return;
+            }
+        }
+
         const GrVkDescriptorSet* descriptorSet =
                 gpu->resourceProvider().getSamplerDescriptorSet(fSamplerDSHandle);
+        SkASSERT(descriptorSet);
+
         for (int i = 0; i < fNumSamplers; ++i) {
             const GrSamplerState& state = samplerBindings[i].fState;
             GrVkTexture* texture = samplerBindings[i].fTexture;
@@ -232,8 +250,12 @@ void GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
             commandBuffer->addResource(samplerBindings[i].fTexture->textureView());
             commandBuffer->addResource(samplerBindings[i].fTexture->resource());
         }
+        if (fNumSamplers == 1) {
+            const GrSamplerState& state = samplerBindings[0].fState;
+            GrVkTexture* texture = samplerBindings[0].fTexture;
+            texture->addDescriptorSetToCache(descriptorSet, state);
+        }
 
-        static const int kSamplerDSIdx = GrVkUniformHandler::kSamplerDescSet;
         commandBuffer->bindDescriptorSets(gpu, this, fPipeline->layout(), kSamplerDSIdx, 1,
                                           descriptorSet->descriptorSet(), 0, nullptr);
         commandBuffer->addRecycledResource(descriptorSet);
