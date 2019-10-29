@@ -194,7 +194,7 @@ struct StrikeSpec {
 };
 
 // -- RemoteStrike ----------------------------------------------------------------------------
-class SkStrikeServer::RemoteStrike : public SkStrikeForGPU {
+class SkStrikeServer::RemoteStrike final : public SkStrikeForGPU {
 public:
     // N.B. RemoteStrike is not valid until ensureScalerContext is called.
     RemoteStrike(const SkDescriptor& descriptor,
@@ -290,6 +290,8 @@ private:
 
     bool fHaveSentFontMetrics{false};
 
+    std::vector<bool> fAlreadySentMask;
+
     SkTHashTable<MaskSummary, SkPackedGlyphID, MaskSummaryTraits> fSentGlyphs;
     SkTHashTable<PathSummary, SkGlyphID, PathSummaryTraits> fSentPaths;
 
@@ -311,6 +313,7 @@ SkStrikeServer::RemoteStrike::RemoteStrike(
         , fContext{std::move(context)} {
     SkASSERT(fDescriptor.getDesc() != nullptr);
     SkASSERT(fContext != nullptr);
+    fAlreadySentMask.resize(fContext->getGlyphCount() * 4);
 }
 
 SkStrikeServer::RemoteStrike::~RemoteStrike() = default;
@@ -721,6 +724,9 @@ void SkStrikeServer::RemoteStrike::prepareForMaskDrawing(
         std::forward_as_tuple(i, std::tie(bag, pos)) = t;
         SkPackedGlyphID packedID = bag;
 
+        int index = packedID.index();
+        if (index < fAlreadySentMask.size() && fAlreadySentMask[index]) { continue; }
+
         MaskSummary* summary = fSentGlyphs.find(packedID);
         if (summary == nullptr) {
             // Put the new SkGlyph in the glyphs to send.
@@ -730,6 +736,10 @@ void SkStrikeServer::RemoteStrike::prepareForMaskDrawing(
             // Build the glyph
             this->ensureScalerContext();
             fContext->getMetrics(glyph);
+            if (index < fAlreadySentMask.size()) {
+                fAlreadySentMask[index] = CanDrawAsMask(*glyph);
+            }
+
 
             MaskSummary newSummary =
                     {packedID.value(), CanDrawAsMask(*glyph), CanDrawAsSDFT(*glyph)};
