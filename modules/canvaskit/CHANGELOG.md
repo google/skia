@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    TypedArray backed by the C++ WASM memory. This can save a copy in some cases
    (e.g. SkColorFilter.MakeMatrix). This is an advanced feature, so use it with care.
  - `SkCanvas.clipRRect`, `SkCanvas.drawColor`
+ - Blur, ColorFilter, Compose SkImageFilters. Can be used with `SkPaint.setImageFilter`.
+
+### Deprecated
+ - `CanvasKit.MakeBlurMaskFilter` will be renamed/moved soon to `CanvasKit.SkMaskFilter.MakeBlur`.
 
 ### Changed
  - Use newer version of Freetype2 (Tracking Skia's DEPS now).
