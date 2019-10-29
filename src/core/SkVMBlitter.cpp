@@ -64,7 +64,7 @@ namespace {
     }
 
     static SkLRUCache<Key, skvm::Program>* try_acquire_program_cache() {
-    #if defined(SK_BUILD_FOR_IOS)
+    #if 0 || defined(SK_BUILD_FOR_IOS)
         // iOS doesn't support thread_local on versions less than 9.0. pthread
         // based fallbacks must be used there. We could also use an SkSpinlock
         // and tryAcquire()/release(), or...
@@ -174,14 +174,22 @@ namespace {
             SkASSERT(CanBuild(key));
             skvm::Arg uniforms = uniform(),
                       dst_ptr  = arg(SkColorTypeBytesPerPixel(key.colorType));
-            // When coverage is MaskA8 or MaskLCD16 there will be one more mask varying,
-            // and when coverage is Mask3D there will be three more mask varyings.
-
+            // If coverage is Mask3D there'll next come two varyings for mul and add planes,
+            // and then finally if coverage is any Mask?? format, a varying for the mask.
 
             // When there's no shader and no color filter, the source color is the paint color.
             if (key.shader)      { TODO; }
             if (key.colorFilter) { TODO; }
             Color src = unpack_8888(uniform32(uniforms, offsetof(Uniforms, paint_color)));
+
+            if (key.coverage == Coverage::Mask3D) {
+                skvm::I32 M = load8(varying<uint8_t>()),
+                          A = load8(varying<uint8_t>());
+
+                src.r = min(add(div255(mul(src.r, M)), A), src.a);
+                src.g = min(add(div255(mul(src.g, M)), A), src.a);
+                src.b = min(add(div255(mul(src.b, M)), A), src.a);
+            }
 
             // There are several orderings here of when we load dst and coverage
             // and how coverage is applied, and to complicate things, LCD coverage
@@ -198,6 +206,7 @@ namespace {
                                               uniform8(uniforms, offsetof(Uniforms, coverage));
                                               return true;
 
+                    case Coverage::Mask3D:
                     case Coverage::MaskA8: cov->r = cov->g = cov->b = cov->a =
                                            load8(varying<uint8_t>());
                                            return true;
@@ -208,8 +217,6 @@ namespace {
                         cov->a = select(lt(src.a, dst.a), min(cov->r, min(cov->g,cov->b))
                                                         , max(cov->r, max(cov->g,cov->b)));
                         return true;
-
-                    case Coverage::Mask3D: TODO;
                 }
                 // GCC insists...
                 return false;
@@ -329,6 +336,7 @@ namespace {
                 cache_program(std::move(fBlitH),         Coverage::Full);
                 cache_program(std::move(fBlitAntiH),     Coverage::UniformA8);
                 cache_program(std::move(fBlitMaskA8),    Coverage::MaskA8);
+                cache_program(std::move(fBlitMask3D),    Coverage::Mask3D);
                 cache_program(std::move(fBlitMaskLCD16), Coverage::MaskLCD16);
 
                 release_program_cache();
@@ -342,6 +350,7 @@ namespace {
         skvm::Program fBlitH,
                       fBlitAntiH,
                       fBlitMaskA8,
+                      fBlitMask3D,
                       fBlitMaskLCD16;
 
         skvm::Program buildProgram(Coverage coverage) {
@@ -405,7 +414,13 @@ namespace {
             switch (mask.fFormat) {
                 default: SkUNREACHABLE;     // ARGB and SDF masks shouldn't make it here.
 
-                case SkMask::k3D_Format:    // TODO: the mul and add 3D mask planes too
+                case SkMask::k3D_Format:
+                    if (fBlitMask3D.empty()) {
+                        fBlitMask3D = this->buildProgram(Coverage::Mask3D);
+                    }
+                    program = &fBlitMask3D;
+                    break;
+
                 case SkMask::kA8_Format:
                     if (fBlitMaskA8.empty()) {
                         fBlitMaskA8 = this->buildProgram(Coverage::MaskA8);
@@ -424,10 +439,20 @@ namespace {
             SkASSERT(program);
             if (program) {
                 for (int y = clip.top(); y < clip.bottom(); y++) {
-                    program->eval(clip.width(),
-                                  &fUniforms,
-                                  fDevice.addr(clip.left(), y),
-                                  mask.getAddr(clip.left(), y));
+                    void* dptr =        fDevice.writable_addr(clip.left(), y);
+                    auto  mptr = (const uint8_t*)mask.getAddr(clip.left(), y);
+
+                    if (program == &fBlitMask3D) {
+                        size_t plane = mask.computeImageSize();
+                        program->eval(clip.width(), &fUniforms,
+                                      dptr,
+                                      mptr + 1*plane,
+                                      mptr + 2*plane,
+                                      mptr + 0*plane);
+                    } else {
+                        program->eval(clip.width(), &fUniforms,
+                                      dptr, mptr);
+                    }
                 }
             }
         }
