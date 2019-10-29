@@ -1015,7 +1015,7 @@ function CanvasRenderingContext2D(skcanvas) {
     }
     var shadowPaint = basePaint.copy();
     shadowPaint.setColor(alphaColor);
-    var blurEffect = CanvasKit.MakeBlurMaskFilter(CanvasKit.BlurStyle.Normal,
+    var blurEffect = CanvasKit.SkMaskFilter.MakeBlur(CanvasKit.BlurStyle.Normal,
       SkBlurRadiusToSigma(this._shadowBlur),
       false);
     shadowPaint.setMaskFilter(blurEffect);

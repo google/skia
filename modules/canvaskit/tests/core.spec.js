@@ -188,4 +188,89 @@ describe('Core canvas behavior', function() {
         });
     });
 
+    it('can blur using ImageFilter or MaskFilter', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const pathUL = starPath(CanvasKit, 100, 100, 80);
+            const pathBR = starPath(CanvasKit, 400, 300, 80);
+            const paint = new CanvasKit.SkPaint();
+            const textFont = new CanvasKit.SkFont(null, 24);
+
+            canvas.drawText('Above: MaskFilter', 20, 220, paint, textFont);
+            canvas.drawText('Right: ImageFilter', 20, 260, paint, textFont);
+
+            paint.setColor(CanvasKit.BLUE);
+
+            const blurMask = CanvasKit.SkMaskFilter.MakeBlur(CanvasKit.BlurStyle.Normal, 5, true);
+            paint.setMaskFilter(blurMask);
+            canvas.drawPath(pathUL, paint);
+
+            const blurIF = CanvasKit.SkImageFilter.MakeBlur(8, 1, CanvasKit.TileMode.Decal, null);
+            paint.setImageFilter(blurIF);
+            canvas.drawPath(pathBR, paint);
+
+            surface.flush();
+
+            pathUL.delete();
+            pathBR.delete();
+            paint.delete();
+            blurMask.delete();
+            blurIF.delete();
+            textFont.delete();
+
+            reportSurface(surface, 'blur_filters', done);
+        }));
+    });
+
+    it('can use various image filters', function(done) {
+        const imgPromise = fetch('/assets/mandrill_512.png')
+            .then((response) => response.arrayBuffer());
+        Promise.all([imgPromise, LoadCanvasKit]).then((values) => {
+            const pngData = values[0];
+            expect(pngData).toBeTruthy();
+            catchException(done, () => {
+                let img = CanvasKit.MakeImageFromEncoded(pngData);
+                expect(img).toBeTruthy();
+                const surface = CanvasKit.MakeCanvasSurface('test');
+                expect(surface).toBeTruthy('Could not make surface')
+                if (!surface) {
+                    done();
+                    return;
+                }
+                const canvas = surface.getCanvas();
+                canvas.clear(CanvasKit.WHITE);
+                const paint = new CanvasKit.SkPaint();
+                paint.setAntiAlias(true);
+                paint.setColor(CanvasKit.Color(0, 255, 0, 1.0));
+                const redCF =  CanvasKit.SkColorFilter.MakeBlend(
+                        CanvasKit.Color(255, 0, 0, 0.1), CanvasKit.BlendMode.SrcOver);
+                const redIF = CanvasKit.SkImageFilter.MakeColorFilter(redCF, null);
+                const blurIF = CanvasKit.SkImageFilter.MakeBlur(8, 0.2, CanvasKit.TileMode.Decal, null);
+                const combined = CanvasKit.SkImageFilter.MakeCompose(redIF, blurIF);
+
+                paint.setImageFilter(combined);
+
+                canvas.rotate(10, 200, 200);
+                canvas.drawImage(img, 0, 0, paint);
+                canvas.drawRect(CanvasKit.LTRBRect(5, 35, 45, 80), paint);
+
+                surface.flush();
+
+                paint.delete();
+                redIF.delete();
+                redCF.delete();
+                blurIF.delete();
+                combined.delete();
+
+                reportSurface(surface, 'combined_filters', done);
+            })();
+        });
+    });
+
 });
