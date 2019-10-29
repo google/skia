@@ -657,14 +657,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                 }
 
                 {
-                    // GL has difficulties reading back from these combinations. In particular,
-                    // reading back kGray_8 is a mess.
-                    if (GrBackendApi::kOpenGL == context->backend()) {
-                        if (kAlpha_8_SkColorType == combo.fColorType ||
-                            kGray_8_SkColorType == combo.fColorType) {
-                            continue;
-                        }
-                    }
 
                     auto createWithColorMtd = [colorType](GrContext* context,
                                                           const SkColor4f& color,
@@ -693,36 +685,26 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                                     combo.fColor, mipMapped, renderable);
                 }
 
-                // Gray_8 is problematic. In the colorInit tests there is ambiguity when
-                // mapping from format to colorType (since R8 or A8 could be either Alpha_8
-                // or Gray_8). To compensate for this ambiguity we feed in colors with
-                // R==G==B==A. If we actually do know the colorType (as is the case
-                // in the SkPixmap case, there is no ambiguity but the two test expectations
-                // now collide.
-                // For now, skip the SkPixmap tests. The real answer is to plumb the
-                // SkColorType down further in the color-init case.
-                if (colorType != kGray_8_SkColorType) {
-                    auto createWithSrcDataMtd = [](GrContext* context,
-                                                   const SkPixmap srcData[],
-                                                   int numLevels,
-                                                   GrRenderable renderable) {
-                        SkASSERT(srcData && numLevels);
-                        auto result = context->createBackendTexture(srcData, numLevels,
-                                                                    renderable, GrProtected::kNo);
-                        check_vk_layout(result, VkLayout::kReadOnlyOptimal);
+                auto createWithSrcDataMtd = [](GrContext* context,
+                                               const SkPixmap srcData[],
+                                               int numLevels,
+                                               GrRenderable renderable) {
+                    SkASSERT(srcData && numLevels);
+                    auto result = context->createBackendTexture(srcData, numLevels, renderable,
+                                                                GrProtected::kNo);
+                    check_vk_layout(result, VkLayout::kReadOnlyOptimal);
 #ifdef SK_DEBUG
-                        {
-                            auto format = context->defaultBackendFormat(srcData[0].colorType(),
-                                                                        renderable);
-                            SkASSERT(format == result.getBackendFormat());
-                        }
+                    {
+                        auto format =
+                                context->defaultBackendFormat(srcData[0].colorType(), renderable);
+                        SkASSERT(format == result.getBackendFormat());
+                    }
 #endif
-                        return result;
-                    };
+                    return result;
+                };
 
-                    test_pixmap_init(context, reporter, createWithSrcDataMtd, colorType,
-                                     mipMapped, renderable);
-                }
+                test_pixmap_init(context, reporter, createWithSrcDataMtd, colorType, mipMapped,
+                                 renderable);
             }
         }
     }
@@ -792,10 +774,8 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
         }
 
         if (GrColorType::kBGRA_8888 == combo.fColorType) {
+            // BLABHLABH
             if (GR_GL_RGBA8 == combo.fFormat && kGL_GrGLStandard != standard) {
-                continue;
-            }
-            if (GR_GL_BGRA8 == combo.fFormat && kGL_GrGLStandard == standard) {
                 continue;
             }
         }
@@ -827,19 +807,35 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
                 }
 
                 {
-                    // GL has difficulties reading back from these combinations
-                    if (GrColorType::kAlpha_8 == combo.fColorType) {
-                        continue;
-                    }
-                    if (GrRenderable::kYes != renderable) {
-                        continue;
+                    // We're creating backend textures without specifying a color type "view" of
+                    // them at the public API level. Therefore, Ganesh will not apply any swizzles
+                    // before writing the color to the texture. However, our validation code does
+                    // rely on interpreting the texture contents via a SkColorType and therefore
+                    // swizzles may be applied during the read step.
+                    // Ideally we'd update our validation code to use a "raw" read that doesn't
+                    // impose a color type but for now we just munge the data we upload to match the
+                    // expectation.
+                    GrSwizzle swizzle;
+                    switch (combo.fColorType) {
+                        case GrColorType::kAlpha_8:
+                            swizzle = GrSwizzle("aaaa");
+                            break;
+                        case GrColorType::kAlpha_16:
+                            swizzle = GrSwizzle("aaaa");
+                            break;
+                        case GrColorType::kAlpha_F16:
+                            swizzle = GrSwizzle("aaaa");
+                            break;
+                        default:
+                            break;
                     }
 
-                    auto createWithColorMtd = [format](GrContext* context,
-                                                       const SkColor4f& color,
-                                                       GrMipMapped mipMapped,
-                                                       GrRenderable renderable) {
-                        return context->createBackendTexture(32, 32, format, color,
+                    auto createWithColorMtd = [format, swizzle](GrContext* context,
+                                                                const SkColor4f& color,
+                                                                GrMipMapped mipMapped,
+                                                                GrRenderable renderable) {
+                        auto swizzledColor = swizzle.applyTo(color);
+                        return context->createBackendTexture(32, 32, format, swizzledColor,
                                                              mipMapped, renderable,
                                                              GrProtected::kNo);
                     };

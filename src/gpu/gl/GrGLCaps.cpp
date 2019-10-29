@@ -1194,7 +1194,7 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
         writer->appendHexU32("i_for_renderbuffer", fFormatTable[i].fInternalFormatForRenderbuffer);
         writer->appendHexU32("default_ex_format", fFormatTable[i].fDefaultExternalFormat);
         writer->appendHexU32("default_ex_type", fFormatTable[i].fDefaultExternalType);
-        writer->appendHexU64("bpp", fFormatTable[i].fBytesPerPixel);
+        writer->appendHexU32("default_color_type", (uint32_t)fFormatTable[i].fDefaultColorType);
 
         writer->beginArray("surface color types");
         for (int j = 0; j < fFormatTable[i].fColorTypeInfoCount; ++j) {
@@ -1234,12 +1234,14 @@ void GrGLCaps::getTexImageExternalFormatAndType(GrGLFormat surfaceFormat, GrGLen
     *externalFormat = info.fDefaultExternalFormat;
 }
 
-void GrGLCaps::getTexSubImageZeroFormatTypeAndBpp(GrGLFormat format, GrGLenum* externalFormat,
-                                                  GrGLenum* externalType, size_t* bpp) const {
+void GrGLCaps::getTexSubImageDefaultFormatTypeAndColorType(GrGLFormat format,
+                                                           GrGLenum* externalFormat,
+                                                           GrGLenum* externalType,
+                                                           GrColorType* colorType) const {
     const auto& info = this->getFormatInfo(format);
     *externalType = info.fDefaultExternalType;
     *externalFormat = info.fDefaultExternalFormat;
-    *bpp = info.fBytesPerPixel;
+    *colorType = info.fDefaultColorType;
 }
 
 void GrGLCaps::getTexSubImageExternalFormatAndType(GrGLFormat surfaceFormat,
@@ -1343,6 +1345,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fInternalFormatForRenderbuffer = GR_GL_RGBA8;
         info.fDefaultExternalFormat = GR_GL_RGBA;
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
+        info.fDefaultColorType = GrColorType::kRGBA_8888;
         info.fBytesPerPixel = 4;
         info.fFlags = FormatInfo::kTexturable_Flag;
         if (GR_IS_GR_GL(standard)) {
@@ -1460,6 +1463,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fInternalFormatForRenderbuffer = GR_GL_R8;
         info.fDefaultExternalFormat = GR_GL_RED;
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
+        info.fDefaultColorType = GrColorType::kR_8;
         info.fBytesPerPixel = 1;
         bool r8Support = false;
         if (GR_IS_GR_GL(standard)) {
@@ -1580,6 +1584,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fInternalFormatForRenderbuffer = GR_GL_ALPHA8;
         info.fDefaultExternalFormat = GR_GL_ALPHA;
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
+        info.fDefaultColorType = GrColorType::kAlpha_8;
         info.fBytesPerPixel = 1;
         if (alpha8IsValidForGL || alpha8IsValidForGLES || alpha8IsValidForWebGL) {
             info.fFlags = FormatInfo::kTexturable_Flag;
@@ -1654,6 +1659,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fInternalFormatForRenderbuffer = GR_GL_LUMINANCE8;
         info.fDefaultExternalFormat = GR_GL_LUMINANCE;
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
+        info.fDefaultColorType = GrColorType::kGray_8;
         info.fBytesPerPixel = 1;
         bool lum8Supported = false;
         bool lum8SizedFormatSupported = false;
@@ -1755,6 +1761,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
 
         info.fDefaultExternalFormat = GR_GL_BGRA;
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
+        info.fDefaultColorType = GrColorType::kBGRA_8888;
         info.fBytesPerPixel = 4;
 
         GrGLenum bgraTexImageFormat;
@@ -1859,6 +1866,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fInternalFormatForRenderbuffer = GR_GL_RGB565;
         info.fDefaultExternalFormat = GR_GL_RGB;
         info.fDefaultExternalType = GR_GL_UNSIGNED_SHORT_5_6_5;
+        info.fDefaultColorType = GrColorType::kBGR_565;
         info.fBytesPerPixel = 2;
         if (GR_IS_GR_GL(standard)) {
             if (version >= GR_GL_VER(4, 2) || ctxInfo.hasExtension("GL_ARB_ES2_compatibility")) {
@@ -1928,6 +1936,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fInternalFormatForRenderbuffer = GR_GL_RGBA16F;
         info.fDefaultExternalFormat = GR_GL_RGBA;
         info.fDefaultExternalType = halfFloatType;
+        info.fDefaultColorType = GrColorType::kRGBA_F16;
         info.fBytesPerPixel = 8;
         bool rgba16FTextureSupport = false;
         bool rgba16FRenderTargetSupport = false;
@@ -2062,6 +2071,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fInternalFormatForRenderbuffer = GR_GL_R16F;
         info.fDefaultExternalFormat = GR_GL_RED;
         info.fDefaultExternalType = halfFloatType;
+        info.fDefaultColorType = GrColorType::kR_F16;
         info.fBytesPerPixel = 2;
         bool r16FTextureSupport = false;
         bool r16FRenderTargetSupport = false;
@@ -2173,6 +2183,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fInternalFormatForRenderbuffer = GR_GL_LUMINANCE16F;
         info.fDefaultExternalFormat = GR_GL_LUMINANCE;
         info.fDefaultExternalType = halfFloatType;
+        info.fDefaultColorType = GrColorType::kGray_F16;
         info.fBytesPerPixel = 2;
 
         if (lum16FSupported) {
@@ -2236,6 +2247,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fInternalFormatForRenderbuffer = GR_GL_RGB8;
         info.fDefaultExternalFormat = GR_GL_RGB;
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
+        info.fDefaultColorType = GrColorType::kRGB_888;
         info.fBytesPerPixel = 4; // We assume the GPU stores this format 4 byte aligned
         info.fFlags = FormatInfo::kTexturable_Flag;
         if (GR_IS_GR_GL(standard)) {
@@ -2315,6 +2327,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fInternalFormatForRenderbuffer = GR_GL_RG8;
         info.fDefaultExternalFormat = GR_GL_RG;
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
+        info.fDefaultColorType = GrColorType::kRG_88;
         info.fBytesPerPixel = 2;
         bool rg8Support = false;
         if (GR_IS_GR_GL(standard)) {
@@ -2382,6 +2395,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fInternalFormatForRenderbuffer = GR_GL_RGB10_A2;
         info.fDefaultExternalFormat = GR_GL_RGBA;
         info.fDefaultExternalType = GR_GL_UNSIGNED_INT_2_10_10_10_REV;
+        info.fDefaultColorType = GrColorType::kRGBA_1010102;
         info.fBytesPerPixel = 4;
         if (GR_IS_GR_GL(standard) ||
            (GR_IS_GR_GL_ES(standard) && version >= GR_GL_VER(3, 0))) {
@@ -2442,6 +2456,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fInternalFormatForRenderbuffer = GR_GL_RGBA4;
         info.fDefaultExternalFormat = GR_GL_RGBA;
         info.fDefaultExternalType = GR_GL_UNSIGNED_SHORT_4_4_4_4;
+        info.fDefaultColorType = GrColorType::kABGR_4444;
         info.fBytesPerPixel = 2;
         info.fFlags = FormatInfo::kTexturable_Flag;
         if (GR_IS_GR_GL(standard)) {
@@ -2502,6 +2517,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fFormatType = FormatType::kNormalizedFixedPoint;
         info.fInternalFormatForRenderbuffer = GR_GL_SRGB8_ALPHA8;
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
+        info.fDefaultColorType = GrColorType::kRGBA_8888_SRGB;
         info.fBytesPerPixel = 4;
 
         // We may modify the default external format below.
@@ -2645,7 +2661,9 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fInternalFormatForRenderbuffer = GR_GL_R16;
         info.fDefaultExternalFormat = GR_GL_RED;
         info.fDefaultExternalType = GR_GL_UNSIGNED_SHORT;
+        info.fDefaultColorType = GrColorType::kR_16;
         info.fBytesPerPixel = 2;
+
         bool r16Supported = false;
         if (GR_IS_GR_GL(standard)) {
             r16Supported = version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_ARB_texture_rg");
@@ -2713,6 +2731,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fInternalFormatForRenderbuffer = GR_GL_RG16;
         info.fDefaultExternalFormat = GR_GL_RG;
         info.fDefaultExternalType = GR_GL_UNSIGNED_SHORT;
+        info.fDefaultColorType = GrColorType::kRG_1616;
         info.fBytesPerPixel = 4;
         bool rg16Supported = false;
         if (GR_IS_GR_GL(standard)) {
@@ -2785,6 +2804,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fInternalFormatForRenderbuffer = GR_GL_RGBA16;
         info.fDefaultExternalFormat = GR_GL_RGBA;
         info.fDefaultExternalType = GR_GL_UNSIGNED_SHORT;
+        info.fDefaultColorType = GrColorType::kRGBA_16161616;
         info.fBytesPerPixel = 8;
         if (rgba16Support) {
             info.fFlags = FormatInfo::kTexturable_Flag | msaaRenderFlags;
@@ -2871,6 +2891,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fInternalFormatForRenderbuffer = GR_GL_RG16F;
         info.fDefaultExternalFormat = GR_GL_RG;
         info.fDefaultExternalType = halfFloatType;
+        info.fDefaultColorType = GrColorType::kRG_F16;
         info.fBytesPerPixel = 4;
         if (rg16FTextureSupport) {
             info.fFlags |= FormatInfo::kTexturable_Flag;
@@ -4113,6 +4134,11 @@ static GrPixelConfig validate_sized_format(GrGLFormat format,
         case GrColorType::kAlpha_8xxx:
         case GrColorType::kAlpha_F32xxx:
         case GrColorType::kGray_8xxx:
+        case GrColorType::kRGB_888:
+        case GrColorType::kR_8:
+        case GrColorType::kR_16:
+        case GrColorType::kR_F16:
+        case GrColorType::kGray_F16:
             break;
     }
 
