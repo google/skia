@@ -22,6 +22,30 @@
       "revId": "33e658c76526831c78592332b7de1dd20bea7df5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e7bc5b9_8cce5c7e",
+        "filename": "src/shaders/SkColorShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-29T18:57:11Z",
+      "side": 1,
+      "message": "No, we\u0027re returning premul.  This is a little subtle.  We only use `color` in this function to get to color.fitsInBytes(), to know we\u0027ll be able to shade the color at all.\n\nThe actual color we use is produced in uniforms(), which carries on from color.fitsInBytes() to color.premul().toBytes_RGBA(), which are the actual bytes we push into the uniform buffer.\n\nprogram() may run once and end up cached, possibly forever, but we\u0027ll update uniforms by calling uniforms() each time they may change (in this CL, each time we enter a blit??() call, which is safe overkill).",
+      "parentUuid": "2899c043_0b47d229",
+      "range": {
+        "startLine": 100,
+        "startChar": 48,
+        "endLine": 100,
+        "endChar": 69
+      },
+      "revId": "33e658c76526831c78592332b7de1dd20bea7df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
