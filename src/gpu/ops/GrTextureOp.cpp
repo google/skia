@@ -39,6 +39,7 @@
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrQuadPerEdgeAA.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/ops/GrTextureOp.h"
 
 namespace {
@@ -781,14 +782,25 @@ private:
                                        that->fTextureColorSpaceXform.get())) {
             return CombineResult::kCannotCombine;
         }
+
         bool upgradeToCoverageAAOnMerge = false;
         if (this->aaType() != that->aaType()) {
-            if (!((this->aaType() == GrAAType::kCoverage && that->aaType() == GrAAType::kNone) ||
-                  (that->aaType() == GrAAType::kCoverage && this->aaType() == GrAAType::kNone))) {
+            if (!GrSimpleMeshDrawOpHelper::CanUpgradeAAOnMerge(this->aaType(), that->aaType())) {
                 return CombineResult::kCannotCombine;
             }
             upgradeToCoverageAAOnMerge = true;
         }
+
+        if (this->aaType() == GrAAType::kCoverage || upgradeToCoverageAAOnMerge) {
+            if (fQuads.count() + that->fQuads.count() > GrResourceProvider::MaxNumAAQuads()) {
+                return CombineResult::kCannotCombine;
+            }
+        } else {
+            if (fQuads.count() + that->fQuads.count() > GrResourceProvider::MaxNumNonAAQuads()) {
+                return CombineResult::kCannotCombine;
+            }
+        }
+
         if (fSaturate != that->fSaturate) {
             return CombineResult::kCannotCombine;
         }

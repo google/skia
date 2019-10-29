@@ -37,11 +37,6 @@ GrDrawOp::FixedFunctionFlags GrSimpleMeshDrawOpHelper::fixedFunctionFlags() cons
                                           : GrDrawOp::FixedFunctionFlags::kNone;
 }
 
-static bool none_as_coverage_aa_compatible(GrAAType aa1, GrAAType aa2) {
-    return (aa1 == GrAAType::kNone && aa2 == GrAAType::kCoverage) ||
-           (aa1 == GrAAType::kCoverage && aa2 == GrAAType::kNone);
-}
-
 bool GrSimpleMeshDrawOpHelper::isCompatible(const GrSimpleMeshDrawOpHelper& that,
                                             const GrCaps& caps, const SkRect& thisBounds,
                                             const SkRect& thatBounds, bool noneAsCoverageAA) const {
@@ -54,7 +49,7 @@ bool GrSimpleMeshDrawOpHelper::isCompatible(const GrSimpleMeshDrawOpHelper& that
         }
     }
     bool result = fPipelineFlags == that.fPipelineFlags && (fAAType == that.fAAType ||
-            (noneAsCoverageAA && none_as_coverage_aa_compatible(this->aaType(), that.aaType())));
+            (noneAsCoverageAA && CanUpgradeAAOnMerge(this->aaType(), that.aaType())));
     SkASSERT(!result || fCompatibleWithCoverageAsAlpha == that.fCompatibleWithCoverageAsAlpha);
     SkASSERT(!result || fUsesLocalCoords == that.fUsesLocalCoords);
     return result;
