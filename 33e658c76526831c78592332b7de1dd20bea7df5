@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2899c043_0b47d229",
+        "filename": "src/shaders/SkColorShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-10-29T18:51:55Z",
+      "side": 1,
+      "message": "so, we\u0027re a shader, and we\u0027re returning unpremul? Do we declare that somewhere (so the caller knows they may need to premul our output?",
+      "range": {
+        "startLine": 100,
+        "startChar": 48,
+        "endLine": 100,
+        "endChar": 69
+      },
+      "revId": "33e658c76526831c78592332b7de1dd20bea7df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
