@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    (e.g. SkColorFilter.MakeMatrix). This is an advanced feature, so use it with care.
  - `SkCanvas.clipRRect`, `SkCanvas.drawColor`
  - Blur, ColorFilter, Compose SkImageFilters. Can be used with `SkPaint.setImageFilter`.
+ - `SkCanvas.saveLayer` now takes 3 or 4 params to include up to bounds, paint, SkImageFilter, flags.
 
 ### Deprecated
  - `CanvasKit.MakeBlurMaskFilter` will be renamed/moved soon to `CanvasKit.SkMaskFilter.MakeBlur`.
