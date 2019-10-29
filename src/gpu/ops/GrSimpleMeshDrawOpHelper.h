@@ -28,6 +28,11 @@ class GrSimpleMeshDrawOpHelper {
 public:
     struct MakeArgs;
 
+    static bool CanUpgradeAAOnMerge(GrAAType aa1, GrAAType aa2) {
+        return (aa1 == GrAAType::kNone && aa2 == GrAAType::kCoverage) ||
+               (aa1 == GrAAType::kCoverage && aa2 == GrAAType::kNone);
+    }
+
     /**
      * This can be used by a Op class to perform allocation and initialization such that a
      * GrProcessorSet (if required) is allocated as part of the the same allocation that as
@@ -54,10 +59,9 @@ public:
 
     GrDrawOp::FixedFunctionFlags fixedFunctionFlags() const;
 
-    // noneAACompatibleWithCoverage should be set to true if the op can properly render a non-AA
-    // primitive merged into a coverage-based op.
+    // ignoreAAType should be set to true if the op already knows the AA settings are acceptible
     bool isCompatible(const GrSimpleMeshDrawOpHelper& that, const GrCaps&, const SkRect& thisBounds,
-                      const SkRect& thatBounds, bool noneAACompatibleWithCoverage = false) const;
+                      const SkRect& thatBounds, bool ignoreAAType = false) const;
 
     /**
      * Finalizes the processor set and determines whether the destination must be provided
@@ -189,7 +193,7 @@ public:
 
     bool isCompatible(const GrSimpleMeshDrawOpHelperWithStencil& that, const GrCaps&,
                       const SkRect& thisBounds, const SkRect& thatBounds,
-                      bool noneAACompatibleWithCoverage = false) const;
+                      bool ignoreAAType = false) const;
 
     void executeDrawsAndUploads(const GrOp*, GrOpFlushState*, const SkRect& chainBounds);
 

@@ -37,14 +37,9 @@ GrDrawOp::FixedFunctionFlags GrSimpleMeshDrawOpHelper::fixedFunctionFlags() cons
                                           : GrDrawOp::FixedFunctionFlags::kNone;
 }
 
-static bool none_as_coverage_aa_compatible(GrAAType aa1, GrAAType aa2) {
-    return (aa1 == GrAAType::kNone && aa2 == GrAAType::kCoverage) ||
-           (aa1 == GrAAType::kCoverage && aa2 == GrAAType::kNone);
-}
-
 bool GrSimpleMeshDrawOpHelper::isCompatible(const GrSimpleMeshDrawOpHelper& that,
                                             const GrCaps& caps, const SkRect& thisBounds,
-                                            const SkRect& thatBounds, bool noneAsCoverageAA) const {
+                                            const SkRect& thatBounds, bool ignoreAAType) const {
     if (SkToBool(fProcessors) != SkToBool(that.fProcessors)) {
         return false;
     }
@@ -53,8 +48,17 @@ bool GrSimpleMeshDrawOpHelper::isCompatible(const GrSimpleMeshDrawOpHelper& that
             return false;
         }
     }
-    bool result = fPipelineFlags == that.fPipelineFlags && (fAAType == that.fAAType ||
-            (noneAsCoverageAA && none_as_coverage_aa_compatible(this->aaType(), that.aaType())));
+
+#ifdef SK_DEBUG
+    if (ignoreAAType) {
+        // If we're ignoring AA it should be bc we already know they are the same or that
+        // the are different but are compatible (i.e., one is AA and the other is None)
+        SkASSERT(fAAType == that.fAAType || CanUpgradeAAOnMerge(this->aaType(), that.aaType()));
+    }
+#endif
+
+    bool result = fPipelineFlags == that.fPipelineFlags &&
+                  (ignoreAAType || fAAType == that.fAAType);
     SkASSERT(!result || fCompatibleWithCoverageAsAlpha == that.fCompatibleWithCoverageAsAlpha);
     SkASSERT(!result || fUsesLocalCoords == that.fUsesLocalCoords);
     return result;
@@ -176,8 +180,8 @@ GrProcessorSet::Analysis GrSimpleMeshDrawOpHelperWithStencil::finalizeProcessors
 
 bool GrSimpleMeshDrawOpHelperWithStencil::isCompatible(
         const GrSimpleMeshDrawOpHelperWithStencil& that, const GrCaps& caps,
-        const SkRect& thisBounds, const SkRect& thatBounds, bool noneAsCoverageAA) const {
-    return INHERITED::isCompatible(that, caps, thisBounds, thatBounds, noneAsCoverageAA) &&
+        const SkRect& thisBounds, const SkRect& thatBounds, bool ignoreAAType) const {
+    return INHERITED::isCompatible(that, caps, thisBounds, thatBounds, ignoreAAType) &&
            fStencilSettings == that.fStencilSettings;
 }
 
