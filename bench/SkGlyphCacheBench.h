@@ -11,6 +11,7 @@
 #include <memory>
 
 Benchmark* CreateDiffCanvasBench(SkString name,
-                                 std::function<std::unique_ptr<SkStreamAsset>()> dataSrc);
+                                 std::function<std::unique_ptr<SkStreamAsset>()> dataSrc,
+                                 Benchmark::Backend backend = Benchmark::kNonRendering_Backend);
 
 #endif  // SkGlyphCacheBench_DEFINED

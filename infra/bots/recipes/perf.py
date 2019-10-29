@@ -72,10 +72,6 @@ def nanobench_flags(api, bot):
     if 'Nexus7' in bot:
       args.append('--purgeBetweenBenches')  # Debugging skia:8929
 
-    if 'Android' in bot:
-      assert api.flavor.device_dirs.texttraces_dir
-      args.extend(['--texttraces', api.flavor.device_dirs.texttraces_dir])
-
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
     args.append('--nocpu')
 
@@ -144,6 +140,10 @@ def nanobench_flags(api, bot):
     if 'ChromeOS' in bot:
       # Just run GLES for now - maybe add gles_msaa4 in the future
       configs = ['gles']
+
+  if 'Android' in bot:
+    assert api.flavor.device_dirs.texttraces_dir
+    args.extend(['--texttraces', api.flavor.device_dirs.texttraces_dir])
 
   args.append('--config')
   args.extend(configs)
