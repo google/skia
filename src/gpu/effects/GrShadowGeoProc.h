@@ -19,8 +19,8 @@ class GrGLRRectShadowGeoProc;
  */
 class GrRRectShadowGeoProc : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make() {
-        return sk_sp<GrGeometryProcessor>(new GrRRectShadowGeoProc());
+    static sk_sp<GrGeometryProcessor> Make(const GrTextureProxy* lut) {
+        return sk_sp<GrGeometryProcessor>(new GrRRectShadowGeoProc(lut));
     }
 
     const char* name() const override { return "RRectShadow"; }
@@ -35,9 +35,12 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    GrRRectShadowGeoProc();
+    GrRRectShadowGeoProc(const GrTextureProxy* lut);
+
+    const TextureSampler& onTextureSampler(int i) const override { return fLUTTextureSampler; }
 
     GrColor          fColor;
+    TextureSampler   fLUTTextureSampler;
 
     Attribute fInPosition;
     Attribute fInColor;
