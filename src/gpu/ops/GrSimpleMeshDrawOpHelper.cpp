@@ -53,7 +53,8 @@ bool GrSimpleMeshDrawOpHelper::isCompatible(const GrSimpleMeshDrawOpHelper& that
     if (ignoreAAType) {
         // If we're ignoring AA it should be bc we already know they are the same or that
         // the are different but are compatible (i.e., one is AA and the other is None)
-        SkASSERT(fAAType == that.fAAType || CanUpgradeAAOnMerge(this->aaType(), that.aaType()));
+        SkASSERT(fAAType == that.fAAType ||
+                 GrMeshDrawOp::CanUpgradeAAOnMerge(this->aaType(), that.aaType()));
     }
 #endif
 
