@@ -16,6 +16,29 @@
       "revId": "c554dcf4b504bd5b4f17ce494d9d021f51240f0b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33a6ff23_9ea762d9",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-29T13:39:37Z",
+      "side": 0,
+      "message": "Will be curious to see if the performance hit was due to the size of the draw call itself (which can now increase), or if it was due to GrMesh\u0027s weird pattern simulation when the draw is larger than the index buffer (which now won\u0027t be the case).",
+      "range": {
+        "startLine": 253,
+        "startChar": 57,
+        "endLine": 253,
+        "endChar": 71
+      },
+      "revId": "c554dcf4b504bd5b4f17ce494d9d021f51240f0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
