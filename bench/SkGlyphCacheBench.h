@@ -10,7 +10,8 @@
 #include <functional>
 #include <memory>
 
-Benchmark* CreateDiffCanvasBench(SkString name,
-                                 std::function<std::unique_ptr<SkStreamAsset>()> dataSrc);
+Benchmark* CreateTextBlobTraceBench(SkString name,
+                                    std::function<std::unique_ptr<SkStreamAsset>()> dataSrc,
+                                    Benchmark::Backend backend);
 
 #endif  // SkGlyphCacheBench_DEFINED

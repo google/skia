@@ -14759,6 +14759,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -14830,6 +14835,11 @@
           "name": "skia/bots/lottie-samples",
           "path": "lottie-samples",
           "version": "version:1"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -14896,6 +14906,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -14962,6 +14977,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -15028,6 +15048,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -15094,6 +15119,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -15160,6 +15190,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -15226,6 +15261,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -15292,6 +15332,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -15500,6 +15545,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -15566,6 +15616,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -15632,6 +15687,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -15698,6 +15758,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -15764,6 +15829,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -15901,6 +15971,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -15967,6 +16042,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -16033,6 +16113,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -16104,6 +16189,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -16175,6 +16265,11 @@
           "name": "infra/python/cpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -16241,6 +16336,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -16307,6 +16407,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -16372,6 +16477,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -16437,6 +16547,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -16502,6 +16617,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -16568,6 +16688,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -16633,6 +16758,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -16699,6 +16829,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -16764,6 +16899,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -16829,6 +16969,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -16895,6 +17040,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -16960,6 +17110,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -17026,6 +17181,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -17091,6 +17251,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -17156,6 +17321,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -17222,6 +17392,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -17287,6 +17462,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -17353,6 +17533,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -17418,6 +17603,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -17483,6 +17673,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -17549,6 +17744,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -17614,6 +17814,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -17680,6 +17885,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -17745,6 +17955,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -17810,6 +18025,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -17876,6 +18096,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -17941,6 +18166,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "skia/bots/text_blob_traces",
+          "path": "text_blob_traces",
+          "version": "version:0"
         }
       ],
       "command": [
