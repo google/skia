@@ -22,6 +22,30 @@
       "revId": "a2a224175703354e5e51d81d842c057fd3d186e8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b46033cb_85ce3d17",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-29T13:44:37Z",
+      "side": 1,
+      "message": "The very next CL does this. It also straightens out the logic in here re when AA promotion occurs.",
+      "parentUuid": "b18585d3_2afd4180",
+      "range": {
+        "startLine": 252,
+        "startChar": 12,
+        "endLine": 252,
+        "endChar": 87
+      },
+      "revId": "a2a224175703354e5e51d81d842c057fd3d186e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
