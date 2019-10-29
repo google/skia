@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c45bd362_0a3366cb",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-29T16:18:01Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2410e36e_e4a89341",
+      "range": {
+        "startLine": 256,
+        "startChar": 41,
+        "endLine": 256,
+        "endChar": 45
+      },
+      "revId": "81ff2de91562ba065898649a7d88d50a31e0f639",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5fd31090_2807d83c",
         "filename": "src/gpu/ops/GrFillRectOp.cpp",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "795de5b4_9601db00",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-29T16:18:01Z",
+      "side": 1,
+      "message": "As discussed offline, this will be come a helper function in a follow on.",
+      "parentUuid": "5fd31090_2807d83c",
+      "range": {
+        "startLine": 259,
+        "startChar": 11,
+        "endLine": 266,
+        "endChar": 13
+      },
+      "revId": "81ff2de91562ba065898649a7d88d50a31e0f639",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7ad9318c_df78f4f1",
         "filename": "src/gpu/ops/GrFillRectOp.cpp",
         "patchSetId": 3
@@ -59,6 +107,30 @@
       "writtenOn": "2019-10-29T15:13:03Z",
       "side": 1,
       "message": "I think this is clearer than before, but I think it\u0027s functionally the same thing. Before, if we got to this check and the aa types differed, we passed the CanUpgradeCheck so either this or that was coverage. We\u0027d set this op to coverage only if it was the non-aa op, avoiding the redundant re-assignment if it was already coverage.",
+      "range": {
+        "startLine": 286,
+        "startChar": 12,
+        "endLine": 286,
+        "endChar": 38
+      },
+      "revId": "81ff2de91562ba065898649a7d88d50a31e0f639",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb198d91_3844a47d",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-29T16:18:01Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7ad9318c_df78f4f1",
       "range": {
         "startLine": 286,
         "startChar": 12,
@@ -91,6 +163,30 @@
       "revId": "81ff2de91562ba065898649a7d88d50a31e0f639",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b03b7a94_b8350fe3",
+        "filename": "src/gpu/ops/GrSimpleMeshDrawOpHelper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-29T16:18:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3c65eddf_4c2ac5d0",
+      "range": {
+        "startLine": 42,
+        "startChar": 75,
+        "endLine": 42,
+        "endChar": 91
+      },
+      "revId": "81ff2de91562ba065898649a7d88d50a31e0f639",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
