@@ -377,6 +377,12 @@ public:
         result->fRemovePowWithConstantExponent = true;
         return result;
     }
+
+    static sk_sp<GrShaderCaps> SampleMaskSupport() {
+        sk_sp<GrShaderCaps> result = Default();
+        result->fSampleVariablesSupport = true;
+        return result;
+    }
 };
 #endif
 

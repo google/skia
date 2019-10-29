@@ -2725,10 +2725,10 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
         // These haven't been implemented in our SPIR-V generator yet and we only currently use them
         // in the OpenGL backend.
         SkASSERT(!(var->fModifiers.fFlags & (Modifiers::kReadOnly_Flag |
-                                           Modifiers::kWriteOnly_Flag |
-                                           Modifiers::kCoherent_Flag |
-                                           Modifiers::kVolatile_Flag |
-                                           Modifiers::kRestrict_Flag)));
+                                             Modifiers::kWriteOnly_Flag |
+                                             Modifiers::kCoherent_Flag |
+                                             Modifiers::kVolatile_Flag |
+                                             Modifiers::kRestrict_Flag)));
         if (var->fModifiers.fLayout.fBuiltin == BUILTIN_IGNORE) {
             continue;
         }
