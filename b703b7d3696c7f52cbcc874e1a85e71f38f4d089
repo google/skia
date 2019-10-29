@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "41ae2a37_021d0732",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-10-29T17:45:21Z",
+      "side": 1,
+      "message": "I guess one way is to add to the key: paint_alpha_is_opaque. Then if that is false, we just treat paint_alpha as a uniform (to be changed next time we reused the cached program). If its true, we just didn\u0027t emit this code.",
+      "range": {
+        "startLine": 199,
+        "startChar": 25,
+        "endLine": 199,
+        "endChar": 29
+      },
+      "revId": "b703b7d3696c7f52cbcc874e1a85e71f38f4d089",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
