@@ -7,12 +7,14 @@
 
 #include "src/core/SkRemoteGlyphCache.h"
 
+#include <bitset>
 #include <iterator>
 #include <memory>
 #include <new>
 #include <string>
 #include <tuple>
 
+#include "include/private/SkChecksum.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkEnumerate.h"
@@ -192,6 +194,36 @@ struct StrikeSpec {
     /* n X (glyphs ids) */
 };
 
+// Represent a set of x sub-pixel-position glyphs with a glyph id < kMaxGlyphID and
+// y sub-pxiel-position must be 0. Most sub-pixel-positioned glyphs have been x-axis aligned
+// forcing the y sub-pixel position to be zero. We can organize the SkPackedGlyphID to check that
+// the glyph id and the y position == 0 with a single compare in the following way:
+//    <y-sub-pixel-position>:2 | <glyphid:16> | <x-sub-pixel-position>:2
+// This organization allows a single check of a packed-id to be:
+//    packed-id < kMaxGlyphID * possible-x-sub-pixel-positions
+// where possible-x-sub-pixel-positions == 4.
+class LowerRangeBitVector {
+public:
+    bool test(SkPackedGlyphID packedID) const {
+        uint32_t bit = packedID.value();
+        return bit < kMaxIndex && fBits.test(bit);
+    }
+    void setIfLower(SkPackedGlyphID packedID) {
+        uint32_t bit = packedID.value();
+        if (bit < kMaxIndex) {
+            fBits.set(bit);
+        }
+    }
+
+private:
+    using GID = SkPackedGlyphID;
+    static_assert(GID::kSubPixelX < GID::kGlyphID && GID::kGlyphID < GID::kSubPixelY,
+            "SkPackedGlyphID must be organized: sub-y | glyph id | sub-x");
+    static constexpr int kMaxGlyphID = 128;
+    static constexpr int kMaxIndex = kMaxGlyphID * (1u << GID::kSubPixelPosLen);
+    std::bitset<kMaxIndex> fBits;
+};
+
 // -- RemoteStrike ----------------------------------------------------------------------------
 class SkStrikeServer::RemoteStrike final : public SkStrikeForGPU {
 public:
@@ -280,6 +312,7 @@ private:
     void writeGlyphPath(const SkGlyph& glyph, Serializer* serializer) const;
     void ensureScalerContext();
 
+    const int fNumberOfGlyphs;
     const SkAutoDescriptor fDescriptor;
     const SkDiscardableHandleId fDiscardableHandleId;
 
@@ -295,6 +328,8 @@ private:
 
     // Have the metrics been sent for this strike. Only send them once.
     bool fHaveSentFontMetrics{false};
+
+    LowerRangeBitVector fSentLowGlyphIDs;
 
     // The masks and paths that currently reside in the GPU process.
     SkTHashTable<MaskSummary, SkPackedGlyphID, MaskSummaryTraits> fSentGlyphs;
@@ -313,11 +348,13 @@ SkStrikeServer::RemoteStrike::RemoteStrike(
         const SkDescriptor& descriptor,
         std::unique_ptr<SkScalerContext> context,
         uint32_t discardableHandleId)
-        : fDescriptor{descriptor}
+        : fNumberOfGlyphs(context->getGlyphCount())
+        , fDescriptor{descriptor}
         , fDiscardableHandleId(discardableHandleId)
         , fRoundingSpec{context->isSubpixel(), context->computeAxisAlignmentForHText()}
         // N.B. context must come last because it is used above.
-        , fContext{std::move(context)} {
+        , fContext{std::move(context)}
+        , fSentLowGlyphIDs{} {
     SkASSERT(fDescriptor.getDesc() != nullptr);
     SkASSERT(fContext != nullptr);
 }
@@ -735,8 +772,37 @@ void SkStrikeServer::RemoteStrike::commonMaskLoop(
 
 void SkStrikeServer::RemoteStrike::prepareForMaskDrawing(
         SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) {
-    this->commonMaskLoop(drawables, rejects,
-            [](MaskSummary summary){return !summary.canDrawAsMask;});
+    for (auto t : SkMakeEnumerate(drawables->input())) {
+        size_t i; SkPackedGlyphID packedID;
+        std::forward_as_tuple(i, std::tie(packedID, std::ignore)) = t;
+
+        if (fSentLowGlyphIDs.test(packedID)) {
+            SkASSERT(fSentGlyphs.find(packedID) != nullptr);
+            continue;
+        }
+
+        MaskSummary* summary = fSentGlyphs.find(packedID);
+        if (summary == nullptr) {
+            // Put the new SkGlyph in the glyphs to send.
+            fMasksToSend.emplace_back(packedID);
+            SkGlyph* glyph = &fMasksToSend.back();
+
+            // Build the glyph
+            this->ensureScalerContext();
+            fContext->getMetrics(glyph);
+
+            fSentLowGlyphIDs.setIfLower(packedID);
+
+            MaskSummary newSummary =
+                    {packedID.value(), CanDrawAsMask(*glyph), CanDrawAsSDFT(*glyph)};
+            summary = fSentGlyphs.set(newSummary);
+        }
+
+        // Reject things that are too big.
+        if (!summary->canDrawAsMask) {
+            rejects->reject(i);
+        }
+    }
 }
 
 void SkStrikeServer::RemoteStrike::prepareForSDFTDrawing(
