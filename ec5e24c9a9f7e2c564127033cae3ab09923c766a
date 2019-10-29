@@ -34,6 +34,24 @@
       "revId": "ec5e24c9a9f7e2c564127033cae3ab09923c766a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ccee1b7a_b545c6c2",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-10-29T14:32:04Z",
+      "side": 1,
+      "message": "where do I copy the package from the host to the device?",
+      "parentUuid": "a9d32fac_7d5e2c00",
+      "revId": "ec5e24c9a9f7e2c564127033cae3ab09923c766a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
