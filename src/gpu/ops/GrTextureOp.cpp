@@ -702,12 +702,16 @@ private:
         sk_sp<const GrBuffer> vbuffer;
         int vertexOffsetInBuffer = 0;
 
-        void* vdata = target->makeVertexSpace(vertexSize, desc.totalNumVertices(),
-                                              &vbuffer, &vertexOffsetInBuffer);
+        int numAllocatedVertices;
+        void* vdata = target->makeVertexSpaceAtLeast(vertexSize, desc.totalNumVertices(),
+                                                     desc.totalNumVertices(),
+                                                     &vbuffer, &vertexOffsetInBuffer,
+                                                     &numAllocatedVertices);
         if (!vdata) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
+        SkASSERT(numAllocatedVertices >= desc.totalNumVertices());
 
         // Note: this allocation is always in the flush-time arena (i.e., the flushState)
         GrMesh* meshes = target->allocMeshes(desc.fNumProxies);
