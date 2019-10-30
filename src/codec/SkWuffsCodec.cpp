@@ -187,7 +187,6 @@ private:
     bool                 onGetFrameInfo(int, FrameInfo*) const override;
     int                  onGetRepetitionCount() override;
 
-    void   readFrames();
     Result seekFrame(WhichDecoder which, int frameIndex);
 
     void   onGetFrameCountInternal();
@@ -574,34 +573,7 @@ void SkWuffsCodec::onGetFrameCountInternal() {
     }
     reset_and_decode_image_config(fDecoders[WhichDecoder::kFrameCount].get(), nullptr, &fIOBuffer,
                                   fStream.get());
-    this->readFrames();
-}
 
-bool SkWuffsCodec::onGetFrameInfo(int i, SkCodec::FrameInfo* frameInfo) const {
-    const SkWuffsFrame* f = this->frame(i);
-    if (!f) {
-        return false;
-    }
-    if (frameInfo) {
-        *frameInfo = f->frameInfo(static_cast<uint64_t>(i) < this->fNumFullyReceivedFrames);
-    }
-    return true;
-}
-
-int SkWuffsCodec::onGetRepetitionCount() {
-    // Convert from Wuffs's loop count to Skia's repeat count. Wuffs' uint32_t
-    // number is how many times to play the loop. Skia's int number is how many
-    // times to play the loop *after the first play*. Wuffs and Skia use 0 and
-    // kRepetitionCountInfinite respectively to mean loop forever.
-    uint32_t n = fDecoders[WhichDecoder::kIncrDecode]->num_animation_loops();
-    if (n == 0) {
-        return SkCodec::kRepetitionCountInfinite;
-    }
-    n--;
-    return n < INT_MAX ? n : INT_MAX;
-}
-
-void SkWuffsCodec::readFrames() {
     size_t n = fFrames.size();
     int    i = n ? n - 1 : 0;
     if (this->seekFrame(WhichDecoder::kFrameCount, i) != SkCodec::kSuccess) {
@@ -629,6 +601,30 @@ void SkWuffsCodec::readFrames() {
     }
 
     fFramesComplete = true;
+}
+
+bool SkWuffsCodec::onGetFrameInfo(int i, SkCodec::FrameInfo* frameInfo) const {
+    const SkWuffsFrame* f = this->frame(i);
+    if (!f) {
+        return false;
+    }
+    if (frameInfo) {
+        *frameInfo = f->frameInfo(static_cast<uint64_t>(i) < this->fNumFullyReceivedFrames);
+    }
+    return true;
+}
+
+int SkWuffsCodec::onGetRepetitionCount() {
+    // Convert from Wuffs's loop count to Skia's repeat count. Wuffs' uint32_t
+    // number is how many times to play the loop. Skia's int number is how many
+    // times to play the loop *after the first play*. Wuffs and Skia use 0 and
+    // kRepetitionCountInfinite respectively to mean loop forever.
+    uint32_t n = fDecoders[WhichDecoder::kIncrDecode]->num_animation_loops();
+    if (n == 0) {
+        return SkCodec::kRepetitionCountInfinite;
+    }
+    n--;
+    return n < INT_MAX ? n : INT_MAX;
 }
 
 SkCodec::Result SkWuffsCodec::seekFrame(WhichDecoder which, int frameIndex) {
