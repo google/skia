@@ -32,9 +32,9 @@ struct SkPackedGlyphID {
         kSubPixelPosLen = 2u,
 
         // Bit positions
-        kGlyphID   = 0u,
-        kSubPixelY = kGlyphIDLen,
-        kSubPixelX = kGlyphIDLen + kSubPixelPosLen,
+        kSubPixelX = 0u,
+        kGlyphID   = kSubPixelPosLen,
+        kSubPixelY = kGlyphIDLen + kSubPixelPosLen,
         kEndData   = kGlyphIDLen + 2 * kSubPixelPosLen,
 
         // Masks
@@ -51,9 +51,7 @@ struct SkPackedGlyphID {
             : fID{(uint32_t)glyphID << kGlyphID} { }
 
     constexpr SkPackedGlyphID(SkGlyphID glyphID, SkFixed x, SkFixed y)
-            : fID {PackIDXY(glyphID, x, y)} {
-        SkASSERT(fID != kImpossibleID);
-    }
+            : fID {PackIDXY(glyphID, x, y)} { }
 
     constexpr SkPackedGlyphID(SkGlyphID glyphID, SkIPoint pt)
         : SkPackedGlyphID(glyphID, pt.fX, pt.fY) { }
