@@ -525,8 +525,9 @@ private:
 
     static bool FillInData(TextureOp* texOp, PrePreparedDesc* desc,
                            char* pVertexData, GrMesh* meshes, int absBufferOffset,
-                           sk_sp<const GrBuffer> vertexBuffer, Target* target) {
-        SkDEBUGCODE(int totQuadsSeen = 0;)
+                           sk_sp<const GrBuffer> vertexBuffer,
+                           sk_sp<const GrBuffer> indexBuffer) {
+        int totQuadsSeen = 0;
         SkDEBUGCODE(int totVerticesSeen = 0;)
         int localVertexOffsetInBuffer = 0;
         char* dst = pVertexData;
@@ -539,10 +540,8 @@ private:
                 GrTextureProxy* proxy = op.fProxyCountPairs[p].fProxy;
 
                 int quadCnt = op.fProxyCountPairs[p].fQuadCnt;
-                SkDEBUGCODE(totQuadsSeen += quadCnt;)
 
-                int meshVertexCnt = quadCnt * desc->fVertexSpec.verticesPerQuad();
-                SkDEBUGCODE(totVerticesSeen += meshVertexCnt);
+                const int meshVertexCnt = quadCnt * desc->fVertexSpec.verticesPerQuad();
 
                 SkASSERT(meshIndex < desc->fNumProxies);
 
@@ -555,18 +554,20 @@ private:
                 }
 
                 if (meshes) {
-                    if (!GrQuadPerEdgeAA::ConfigureMeshIndices(target, &(meshes[meshIndex]),
-                                                               desc->fVertexSpec, quadCnt)) {
-                        SkDebugf("Could not allocate indices");
-                        return false;
-                    }
-                    meshes[meshIndex].setVertexData(vertexBuffer,
-                                                    localVertexOffsetInBuffer + absBufferOffset);
+                    GrQuadPerEdgeAA::ConfigureMeshIndices(&(meshes[meshIndex]),
+                                                          desc->fVertexSpec.indexBufferOption(),
+                                                          totQuadsSeen, quadCnt,
+                                                          desc->totalNumVertices(), indexBuffer);
+                    meshes[meshIndex].setVertexData(vertexBuffer, absBufferOffset);
                 }
 
                 ++meshIndex;
 
+                totQuadsSeen += quadCnt;
                 localVertexOffsetInBuffer += meshVertexCnt;
+                SkDEBUGCODE(totVerticesSeen += meshVertexCnt);
+                SkASSERT(totQuadsSeen * desc->fVertexSpec.verticesPerQuad() == localVertexOffsetInBuffer);
+                SkASSERT(totQuadsSeen * desc->fVertexSpec.verticesPerQuad() == totVerticesSeen);
             }
 
             // If quad counts per proxy were calculated correctly, the entire iterator
@@ -709,6 +710,13 @@ private:
             return;
         }
 
+        sk_sp<const GrBuffer> indexBuffer = GrQuadPerEdgeAA::Gimme(target,
+                                                                   desc.fVertexSpec.indexBufferOption());
+        if (desc.fVertexSpec.needsIndexBuffer() && !indexBuffer) {
+            SkDebugf("Could not allocate indices\n");
+            return;
+        }
+
         // Note: this allocation is always in the flush-time arena (i.e., the flushState)
         GrMesh* meshes = target->allocMeshes(desc.fNumProxies);
 
@@ -718,11 +726,11 @@ private:
             // The above memcpy filled in the vertex data - just call FillInData to fill in the
             // mesh data
             result = FillInData(this, &desc, nullptr, meshes, vertexOffsetInBuffer,
-                                std::move(vbuffer), target);
+                                std::move(vbuffer), std::move(indexBuffer));
         } else {
             // Fills in both vertex data and mesh data
             result = FillInData(this, &desc, (char*) vdata, meshes, vertexOffsetInBuffer,
-                                std::move(vbuffer), target);
+                                std::move(vbuffer), std::move(indexBuffer));
         }
 
         if (!result) {
