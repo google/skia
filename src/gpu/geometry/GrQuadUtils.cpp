@@ -644,7 +644,8 @@ V4f TessellationHelper::getDegenerateCoverage(const V4f& px, const V4f& py,
 }
 
 V4f TessellationHelper::computeDegenerateQuad(const V4f& signedEdgeDistances,
-                                              const EdgeEquations& edges, Vertices* quad) {
+                                              const EdgeEquations& edges,
+                                              V4f* x2d, V4f* y2d) {
     // Move the edge by the signed edge adjustment.
     V4f oc = edges.fC + signedEdgeDistances;
 
@@ -686,8 +687,8 @@ V4f TessellationHelper::computeDegenerateQuad(const V4f& signedEdgeDistances,
         // A point failed against two edges, so reduce the shape to a single point, which we take as
         // the center of the original quad to ensure it is contained in the intended geometry. Since
         // it has collapsed, we know the shape cannot cover a pixel so update the coverage.
-        SkPoint center = {0.25f * (quad->fX[0] + quad->fX[1] + quad->fX[2] + quad->fX[3]),
-                          0.25f * (quad->fY[0] + quad->fY[1] + quad->fY[2] + quad->fY[3])};
+        SkPoint center = {0.25f * ((*x2d)[0] + (*x2d)[1] + (*x2d)[2] + (*x2d)[3]),
+                          0.25f * ((*y2d)[0] + (*y2d)[1] + (*y2d)[2] + (*y2d)[3])};
         px = center.fX;
         py = center.fY;
         coverage = getDegenerateCoverage(px, py, edges);
@@ -727,7 +728,8 @@ V4f TessellationHelper::computeDegenerateQuad(const V4f& signedEdgeDistances,
         coverage = 1.f;
     }
 
-    quad->moveTo(px, py, signedEdgeDistances != 0.f);
+    *x2d = px;
+    *y2d = py;
     return coverage;
 }
 
@@ -749,7 +751,8 @@ V4f TessellationHelper::adjustVertices(const OutsetRequest& outsetRequest,
             if (inset) {
                 signedEdgeDistances *= -1.f;
             }
-            coverage = computeDegenerateQuad(signedEdgeDistances, *edgeEquations, &projected);
+            coverage = computeDegenerateQuad(signedEdgeDistances, *edgeEquations,
+                                             &projected.fX, &projected.fY);
         } else {
             // Move the projected quad with the fast path, even though we will reconstruct the
             // perspective corners afterwards.
