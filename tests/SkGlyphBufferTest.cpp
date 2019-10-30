@@ -91,7 +91,7 @@ DEF_TEST(SkDrawableGlyphBufferBasic, reporter) {
         for (auto t : SkMakeEnumerate(drawable.input())) {
             size_t i; SkGlyphVariant packedID; SkPoint pos;
             std::forward_as_tuple(i, std::tie(packedID, pos)) = t;
-            REPORTER_ASSERT(reporter, packedID.packedID().value() == glyphIDs[i]);
+            REPORTER_ASSERT(reporter, packedID.packedID().glyphID() == glyphIDs[i]);
             REPORTER_ASSERT(reporter, pos == positions[i] + SkPoint::Make(100, 100));
         }
     }
