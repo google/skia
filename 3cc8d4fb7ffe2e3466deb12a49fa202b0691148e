@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6eb3836e_069b7dd1",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 595,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-30T18:35:57Z",
+      "side": 0,
+      "message": "So, we don\u0027t want something like:\n\nfProxyCountPairs[i].fProxyView.swizzle() \u003d\u003d fProxyCountPairs[0].fProxyView.swizzle()\n\n?",
+      "revId": "3cc8d4fb7ffe2e3466deb12a49fa202b0691148e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
