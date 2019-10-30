@@ -48,7 +48,7 @@ struct SkPackedGlyphID {
     };
 
     constexpr explicit SkPackedGlyphID(SkGlyphID glyphID)
-            : fID{glyphID} { }
+            : fID{(uint32_t)glyphID << kGlyphID} { }
 
     constexpr SkPackedGlyphID(SkGlyphID glyphID, SkFixed x, SkFixed y)
             : fID {PackIDXY(glyphID, x, y)} {
@@ -71,7 +71,7 @@ struct SkPackedGlyphID {
     }
 
     SkGlyphID glyphID() const {
-        return fID & kGlyphIDMask;
+        return (fID >> kGlyphID) & kGlyphIDMask;
     }
 
     uint32_t value() const {
@@ -97,10 +97,15 @@ struct SkPackedGlyphID {
     }
 
 private:
+    static constexpr uint32_t PackIDSubXSubY(SkGlyphID glyphID, uint32_t x, uint32_t y) {
+        SkASSERT(x < 4);
+        SkASSERT(y < 4);
+
+        return (x << kSubPixelX) | (y << kSubPixelY) | (glyphID << kGlyphID);
+    }
+
     static constexpr uint32_t PackIDXY(SkGlyphID glyphID, SkFixed x, SkFixed y) {
-        return (FixedToSub(x) << kSubPixelX)
-             | (FixedToSub(y) << kSubPixelY)
-             | glyphID;
+        return PackIDSubXSubY(glyphID, FixedToSub(x), FixedToSub(y));
     }
 
     static constexpr uint32_t FixedToSub(SkFixed n) {
