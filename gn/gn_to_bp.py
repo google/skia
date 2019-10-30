@@ -329,6 +329,7 @@ def generate_args(target_os, enable_gpu):
 
   if enable_gpu:
     d['skia_use_vulkan']   = 'true'
+    d['skia_use_gl']       = 'true'
   else:
     d['skia_use_vulkan']   = 'false'
     d['skia_enable_gpu']   = 'false'

@@ -94,6 +94,7 @@ declare_args() {
   skia_enable_spirv_validation = is_skia_dev_build && is_debug && !skia_use_dawn
   skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
   skia_use_sfntly = skia_use_icu
+  skia_use_gl = skia_enable_gpu  # gl includes opengl and openglES
 }
 
 # Our tools require static linking (they use non-exported symbols), and the GPU backend.
