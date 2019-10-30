@@ -49,7 +49,7 @@ If you need to run code on a specific machine/device to debug an issue, the simp
 run tryjobs (after adding debugging output to the relevant code). In some cases you may also need to
 [create or modify tryjobs](automated_testing#adding-new-jobs).
 
-For Googlers: If you need more control (e.g. to run GDB) and need run to directly on a swarming bot then you can use [leasing.skia.org](https://leasing.skia.org).<br/>
+For Googlers: If you need more control (e.g. to run GDB) and need to run directly on a swarming bot then you can use [leasing.skia.org](https://leasing.skia.org).<br/>
 If that does not work then the [current trooper][current trooper] can help you bring the device back to your desk and connect
 it to GoogleGuest Wifi or the [Google Test Network](http://go/gtn-criteria).
 
@@ -59,9 +59,12 @@ flashed/imaged back to a clean state, but others can not.
 If a permanent change needs to be made on the machine (such as an OS or driver update), please [file
 a bug][infra bug] and assign to jcgregorio for reassignment.
 
+For your convenience, the machine skolo-builder is available for checking out and compiling code within the Skolo. See
+more info in the [Skolo maintenance doc][remote access] remote access section.
+
 [current trooper]: http://skia-tree-status.appspot.com/trooper
 [remote access]:
-    https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit#heading=h.2nq3yd1axg0n
+    https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit#heading=h.v77cmwbwc5la
 [infra bug]: https://bugs.chromium.org/p/skia/issues/entry?template=Infrastructure+Bug
 [remotely debug android]: https://docs.google.com/document/d/1nxn7TobfaLNNfhSTiwstOnjV0jCxYUI1uwW0T_V7BYg/
 [vnc to skolo windows]:
