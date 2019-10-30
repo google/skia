@@ -10,25 +10,6 @@
 #include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
 #include "include/private/SkMalloc.h"
-#include "src/core/SkSafeMath.h"
-
-void* sk_calloc_throw(size_t count, size_t elemSize) {
-    return sk_calloc_throw(SkSafeMath::Mul(count, elemSize));
-}
-
-void* sk_malloc_throw(size_t count, size_t elemSize) {
-    return sk_malloc_throw(SkSafeMath::Mul(count, elemSize));
-}
-
-void* sk_realloc_throw(void* buffer, size_t count, size_t elemSize) {
-    return sk_realloc_throw(buffer, SkSafeMath::Mul(count, elemSize));
-}
-
-void* sk_malloc_canfail(size_t count, size_t elemSize) {
-    return sk_malloc_canfail(SkSafeMath::Mul(count, elemSize));
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static bool is_valid(const SkImageInfo& info) {
     if (info.width() < 0 || info.height() < 0 ||
