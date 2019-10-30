@@ -127,7 +127,6 @@ static void scale3(float m[], float s) {
 namespace {
 struct YUVCoeff {
     float   Kr, Kb;
-    float   Cr, Cb;
     float   scaleY, addY;
     float   scaleUV;
 };
@@ -135,19 +134,22 @@ struct YUVCoeff {
 
 const YUVCoeff gCoeff[] = {
     // kJPEG_SkYUVColorSpace
-    { 0.299f,  0.114f,  1/1.772f,  1/1.402f,          1,        0,         1, },
+    { 0.299f,  0.114f,          1,        0,         1, },
 
     // kRec601_SkYUVColorSpace
-    { 0.299f,  0.114f,  1/1.772f,  1/1.402f,  219/255.f, 16/255.f, 224/255.f, },
+    { 0.299f,  0.114f,  219/255.f, 16/255.f, 224/255.f, },
 
     // kRec709_SkYUVColorSpace
-    { 0.2126f, 0.0722f, 1/1.8556f, 1/1.5748f, 219/255.f, 16/255.f, 224/255.f, },
+    { 0.2126f, 0.0722f, 219/255.f, 16/255.f, 224/255.f, },
+
 };
 
 static void make_rgb_to_yuv_matrix(float mx[20], const YUVCoeff& c) {
     const float Kr = c.Kr;
     const float Kb = c.Kb;
     const float Kg = 1.0f - Kr - Kb;
+    const float Cr = 0.5f / (1.0f - Kb);
+    const float Cb = 0.5f / (1.0f - Kr);
 
     float m[20] = {
           Kr,  Kg,   Kb,  0,    c.addY,
@@ -157,8 +159,8 @@ static void make_rgb_to_yuv_matrix(float mx[20], const YUVCoeff& c) {
     };
     memcpy(mx, m, sizeof(m));
     scale3(mx +  0, c.scaleY);
-    scale3(mx +  5, c.Cr * c.scaleUV);
-    scale3(mx + 10, c.Cb * c.scaleUV);
+    scale3(mx +  5, Cr * c.scaleUV);
+    scale3(mx + 10, Cb * c.scaleUV);
 }
 
 static void dump(const float m[20], SkYUVColorSpace cs, bool rgb2yuv) {
