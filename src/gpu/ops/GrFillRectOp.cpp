@@ -208,10 +208,11 @@ private:
         sk_sp<const GrBuffer> vbuffer;
         int vertexOffsetInBuffer = 0;
 
+        const int totalNumVertices = fQuads.count() * vertexSpec.verticesPerQuad();
+
         // Fill the allocated vertex data
-        void* vdata = target->makeVertexSpace(
-                vertexSize, fQuads.count() * vertexSpec.verticesPerQuad(),
-                &vbuffer, &vertexOffsetInBuffer);
+        void* vdata = target->makeVertexSpace(vertexSize, totalNumVertices,
+                                              &vbuffer, &vertexOffsetInBuffer);
         if (!vdata) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -229,12 +230,17 @@ private:
                     info.fColor, iter.localQuad(), kEmptyDomain, info.fAAFlags);
         }
 
-        // Configure the mesh for the vertex data
-        GrMesh* mesh = target->allocMeshes(1);
-        if (!GrQuadPerEdgeAA::ConfigureMeshIndices(target, mesh, vertexSpec, fQuads.count())) {
+        auto indexBuffer = GrQuadPerEdgeAA::GetIndexBuffer(target, vertexSpec.indexBufferOption());
+        if (vertexSpec.needsIndexBuffer() && !indexBuffer) {
             SkDebugf("Could not allocate indices\n");
             return;
         }
+
+        // Configure the mesh for the vertex data
+        GrMesh* mesh = target->allocMeshes(1);
+        GrQuadPerEdgeAA::ConfigureMeshIndices(mesh, vertexSpec.indexBufferOption(),
+                                              0, fQuads.count(), totalNumVertices,
+                                              std::move(indexBuffer));
         mesh->setVertexData(std::move(vbuffer), vertexOffsetInBuffer);
         target->recordDraw(std::move(gp), mesh);
     }
