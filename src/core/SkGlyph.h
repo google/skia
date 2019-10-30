@@ -55,8 +55,8 @@ struct SkPackedGlyphID {
         SkASSERT(fID != kImpossibleID);
     }
 
-    constexpr SkPackedGlyphID(SkGlyphID code, SkIPoint pt)
-        : SkPackedGlyphID(code, pt.fX, pt.fY) { }
+    constexpr SkPackedGlyphID(SkGlyphID glyphID, SkIPoint pt)
+        : SkPackedGlyphID(glyphID, pt.fX, pt.fY) { }
 
     constexpr SkPackedGlyphID() : fID{kImpossibleID} {}
 
@@ -92,7 +92,7 @@ struct SkPackedGlyphID {
 
     SkString dump() const {
         SkString str;
-        str.appendf("code: %d, x: %d, y:%d", glyphID(), getSubXFixed(), getSubYFixed());
+        str.appendf("glyphID: %d, x: %d, y:%d", glyphID(), getSubXFixed(), getSubYFixed());
         return str;
     }
 
