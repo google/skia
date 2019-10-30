@@ -82,6 +82,10 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
         const BitmapDevicePainter* bitmapDevice) {
     ScopedBuffers _ = this->ensureBuffers(glyphRunList);
 
+    // TODO: fStrikeCache is only used for GPU, and some compilers complain about it during the no
+    //  gpu build. Remove when SkGlyphRunListPainter is split into GPU and CPU version.
+    (void)fStrikeCache;
+
     const SkPaint& runPaint = glyphRunList.paint();
     // The bitmap blitters can only draw lcd text to a N32 bitmap in srcOver. Otherwise,
     // convert the lcd text into A8 text. The props communicates this to the scaler.
