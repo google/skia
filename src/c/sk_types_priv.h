@@ -217,12 +217,6 @@ static inline sk_imageinfo_t ToImageInfo(const SkImageInfo info) {
         (sk_alphatype_t)info.alphaType(),
     };
 }
-static inline const SkImageInfo* ToImageInfo(const sk_imageinfo_t* cinfo) {
-    return reinterpret_cast<const SkImageInfo*>(cinfo);
-}
-static inline sk_imageinfo_t* AsImageInfo(SkImageInfo* info) {
-    return reinterpret_cast<sk_imageinfo_t*>(info);
-}
 
 #include "include/core/SkTextBlob.h"
 static inline SkTextBlobBuilder::RunBuffer AsTextBlobBuilderRunBuffer(const sk_textblob_builder_runbuffer_t* runbuffer) {

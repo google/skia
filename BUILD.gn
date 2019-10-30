@@ -542,10 +542,7 @@ optional("gpu") {
     sources += [ "src/gpu/gl/iOS/GrGLMakeNativeInterface_iOS.cpp" ]
   } else if (is_win && !is_winrt) {
     sources += [ "src/gpu/gl/win/GrGLMakeNativeInterface_win.cpp" ]
-    if (target_cpu != "arm64") {
-      # GPU is not linked in, but loaded at runtime
-      # libs += [ "OpenGL32.lib" ]
-    }
+    # GPU is not linked in, but loaded at runtime
   } else {
     sources += [ "src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ]
   }
@@ -928,13 +925,6 @@ component("skia") {
     libs += [ "dl" ]
   }
 
-  if (is_winrt) {
-    sources -= [
-      get_path_info("src/utils/win/SkWGL.h", "abspath"),
-      get_path_info("src/utils/win/SkWGL_win.cpp", "abspath"),
-    ]
-  }
-
   if (is_android) {
     deps += [ "//third_party/expat" ]
     if (defined(ndk) && ndk != "") {
@@ -1007,28 +997,7 @@ component("skia") {
 }
 
 config("SkiaSharp_public") {
-  include_dirs = [
-    # "include/android",
-    # "include/atlastext",
-    "include/c",
-    "include/codec",
-    # "include/config",
-    "include/core",
-    # "include/docs",
-    # "include/effects",
-    # "include/encode",
-    # "include/gpu",
-    # "include/pathops",
-    # "include/ports",
-    # "include/svg",
-    # "include/utils",
-    # "include/utils/mac",
-    # "modules/sksg/include",
-    # "modules/skshaper/include",
-    # "modules/skottie/include",
-    "include/xamarin",
-    "src/c",
-  ]
+  include_dirs = [ ]
   defines = [ "SKIA_C_DLL" ]
 }
 
