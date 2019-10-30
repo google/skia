@@ -40,7 +40,7 @@ enum class Saturate : bool { kNo = false, kYes = true };
  * src over, this will return a GrFillRectOp with a paint that samples the proxy.
  */
 std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
-                               sk_sp<GrTextureProxy>,
+                               GrSurfaceProxyView,
                                GrColorType srcColorType,
                                sk_sp<GrColorSpaceXform>,
                                GrSamplerState::Filter,

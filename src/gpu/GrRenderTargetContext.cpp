@@ -610,7 +610,7 @@ void GrRenderTargetContext::drawFilledQuad(const GrClip& clip,
 }
 
 void GrRenderTargetContext::drawTexturedQuad(const GrClip& clip,
-                                             sk_sp<GrTextureProxy> proxy,
+                                             GrSurfaceProxyView proxyView,
                                              GrColorType srcColorType,
                                              sk_sp<GrColorSpaceXform> textureXform,
                                              GrSamplerState::Filter filter,
@@ -624,7 +624,7 @@ void GrRenderTargetContext::drawTexturedQuad(const GrClip& clip,
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    SkASSERT(proxy);
+    SkASSERT(proxyView.asTextureProxy());
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTexturedQuad", fContext);
 
     AutoCheckFlush acf(this->drawingManager());
@@ -648,7 +648,7 @@ void GrRenderTargetContext::drawTexturedQuad(const GrClip& clip,
         // Use the provided domain, although hypothetically we could detect that the cropped local
         // quad is sufficiently inside the domain and the constraint could be dropped.
         this->addDrawOp(finalClip,
-                        GrTextureOp::Make(fContext, std::move(proxy), srcColorType,
+                        GrTextureOp::Make(fContext, std::move(proxyView), srcColorType,
                                           std::move(textureXform), filter, color, saturate,
                                           blendMode, aaType, edgeFlags, croppedDeviceQuad,
                                           croppedLocalQuad, domain));
@@ -898,9 +898,9 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetE
 
             const SkRect* domain = constraint == SkCanvas::kStrict_SrcRectConstraint
                     ? &set[i].fSrcRect : nullptr;
-            this->drawTexturedQuad(clip, set[i].fProxy, set[i].fSrcColorType, texXform, filter,
-                                   {alpha, alpha, alpha, alpha}, mode, aa, set[i].fAAFlags,
-                                   quad, srcQuad, domain);
+            this->drawTexturedQuad(clip, set[i].fProxyView, set[i].fSrcColorType, texXform, filter,
+                                   {alpha, alpha, alpha, alpha}, mode, aa, set[i].fAAFlags, quad,
+                                   srcQuad, domain);
         }
     } else {
         // Can use a single op, avoiding GrPaint creation, and can batch across proxies

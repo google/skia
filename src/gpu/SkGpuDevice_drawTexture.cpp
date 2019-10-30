@@ -551,7 +551,10 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
             continue;
         }
 
-        textures[i].fProxy = std::move(proxy);
+        // TODO: have refPinnedTextureProxy and asTextureProxyRef return GrSurfaceProxyViews.
+        GrSurfaceOrigin origin = proxy->origin();
+        const GrSwizzle& swizzle = proxy->textureSwizzle();
+        textures[i].fProxyView = {std::move(proxy), origin, swizzle};
         textures[i].fSrcColorType = SkColorTypeToGrColorType(image->colorType());
         textures[i].fSrcRect = set[i].fSrcRect;
         textures[i].fDstRect = set[i].fDstRect;
@@ -562,8 +565,9 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
         textures[i].fAAFlags = SkToGrQuadAAFlags(set[i].fAAFlags);
 
         if (n > 0 &&
-            (!GrTextureProxy::ProxiesAreCompatibleAsDynamicState(textures[i].fProxy.get(),
-                                                                 textures[base].fProxy.get()) ||
+            (!GrTextureProxy::ProxiesAreCompatibleAsDynamicState(
+                    textures[i].fProxyView.asTextureProxy(),
+                    textures[base].fProxyView.asTextureProxy()) ||
              set[i].fImage->alphaType() != set[base].fImage->alphaType() ||
              !SkColorSpace::Equals(set[i].fImage->colorSpace(), set[base].fImage->colorSpace()))) {
             draw();
