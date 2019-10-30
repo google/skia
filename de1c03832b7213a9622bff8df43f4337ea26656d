@@ -33,6 +33,41 @@
       "revId": "de1c03832b7213a9622bff8df43f4337ea26656d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9339886e_ce53c284",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1857,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-10-30T18:11:13Z",
+      "side": 1,
+      "message": "We want one of Y, U, V always in the output A.",
+      "parentUuid": "64fec4c8_acd8a043",
+      "revId": "de1c03832b7213a9622bff8df43f4337ea26656d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5a85b6b_a6af2415",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1869,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-10-30T18:11:13Z",
+      "side": 1,
+      "message": "Your preference but lately I\u0027ve been enjoying std::copy_n()",
+      "revId": "de1c03832b7213a9622bff8df43f4337ea26656d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
