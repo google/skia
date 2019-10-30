@@ -196,14 +196,11 @@ namespace {
                                                           key.colorSpace.get(),
                                                           uniforms, sizeof(Uniforms),
                                                           &src.r, &src.g, &src.b, &src.a));
-
                 // TODO: skip when paint is opaque.
-                if (false) {
-                    src.r = scale_unorm8(src.r, paint_alpha);
-                    src.g = scale_unorm8(src.g, paint_alpha);
-                    src.b = scale_unorm8(src.b, paint_alpha);
-                    src.a = scale_unorm8(src.a, paint_alpha);
-                }
+                src.r = scale_unorm8(src.r, paint_alpha);
+                src.g = scale_unorm8(src.g, paint_alpha);
+                src.b = scale_unorm8(src.b, paint_alpha);
+                src.a = scale_unorm8(src.a, paint_alpha);
             }
             if (key.colorFilter) { TODO; }
 
@@ -337,6 +334,7 @@ namespace {
                 paint.refShader(),
                 paint.refColorFilter(),
             }
+            , fUniforms(sizeof(Uniforms))
         {
             SkColor4f color = paint.getColor4f();
             SkColorSpaceXformSteps{sk_srgb_singleton(), kUnpremul_SkAlphaType,
@@ -374,7 +372,7 @@ namespace {
     private:
         SkPixmap             fDevice;  // TODO: can this be const&?
         const Key            fKey;
-        std::vector<uint8_t> fUniforms{sizeof(Uniforms)};
+        std::vector<uint8_t> fUniforms;
         skvm::Program fBlitH,
                       fBlitAntiH,
                       fBlitMaskA8,
