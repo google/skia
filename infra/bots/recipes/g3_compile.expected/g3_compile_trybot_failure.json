@@ -29,6 +29,8 @@
     "infra_step": true,
     "name": "Read task json",
     "~followup_annotations": [
+      "@@@STEP_LOG_LINE@output_file@{\"cl\": 12345}@@@",
+      "@@@STEP_LOG_END@output_file@@@",
       "@@@STEP_LINK@CL link@http://cl/12345@@@"
     ]
   },

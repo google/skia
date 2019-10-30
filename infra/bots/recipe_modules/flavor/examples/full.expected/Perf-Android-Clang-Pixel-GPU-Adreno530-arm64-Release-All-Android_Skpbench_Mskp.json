@@ -152,7 +152,11 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "Get mskp VERSION"
+    "name": "Get mskp VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
   },
   {
     "cmd": [
