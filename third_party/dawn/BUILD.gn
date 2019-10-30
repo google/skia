@@ -141,6 +141,7 @@ static_library("libdawn_native") {
                            "src/dawn_native/BuddyMemoryAllocator.h",
                            "src/dawn_native/Buffer.cpp",
                            "src/dawn_native/Buffer.h",
+                           "src/dawn_native/CachedObject.cpp",
                            "src/dawn_native/CommandAllocator.cpp",
                            "src/dawn_native/CommandAllocator.h",
                            "src/dawn_native/CommandBuffer.cpp",
