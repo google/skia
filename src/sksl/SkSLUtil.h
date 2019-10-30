@@ -96,11 +96,7 @@ public:
         return true;
     }
 
-    bool sampleVariablesSupport() const {
-        return true;
-    }
-
-    bool sampleVariablesStencilSupport() const {
+    bool sampleMaskSupport() const {
         return true;
     }
 
@@ -384,7 +380,7 @@ public:
 
     static sk_sp<GrShaderCaps> SampleMaskSupport() {
         sk_sp<GrShaderCaps> result = Default();
-        result->fSampleVariablesSupport = true;
+        result->fSampleMaskSupport = true;
         return result;
     }
 };

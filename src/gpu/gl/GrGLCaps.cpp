@@ -839,23 +839,14 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     }  // Not sure for WebGL
 
     if (GR_IS_GR_GL(standard)) {
-        shaderCaps->fSampleVariablesSupport = ctxInfo.glslGeneration() >= k400_GrGLSLGeneration;
+        shaderCaps->fSampleMaskSupport = ctxInfo.glslGeneration() >= k400_GrGLSLGeneration;
     } else if (GR_IS_GR_GL_ES(standard)) {
         if (ctxInfo.glslGeneration() >= k320es_GrGLSLGeneration) {
-            shaderCaps->fSampleVariablesSupport = true;
+            shaderCaps->fSampleMaskSupport = true;
         } else if (ctxInfo.hasExtension("GL_OES_sample_variables")) {
-            shaderCaps->fSampleVariablesSupport = true;
+            shaderCaps->fSampleMaskSupport = true;
             shaderCaps->fSampleVariablesExtensionString = "GL_OES_sample_variables";
         }
-    }
-    shaderCaps->fSampleVariablesStencilSupport = shaderCaps->fSampleVariablesSupport;
-
-    if (kQualcomm_GrGLVendor == ctxInfo.vendor() || kATI_GrGLVendor == ctxInfo.vendor()) {
-        // FIXME: The sample mask round rect op draws nothing on several Adreno and Radeon bots.
-        // Other ops that use sample mask while rendering to stencil seem to work fine. Temporarily
-        // disable sample mask on color buffers while we investigate.
-        // http://skbug.com/8921
-        shaderCaps->fSampleVariablesSupport = false;
     }
 
     shaderCaps->fVersionDeclString = get_glsl_version_decl_string(standard,
@@ -3722,6 +3713,13 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (kAdreno3xx_GrGLRenderer == ctxInfo.renderer()) {
         fTiledRenderingSupport = false;
     }
+
+    if (kQualcomm_GrGLVendor == ctxInfo.vendor() || kATI_GrGLVendor == ctxInfo.vendor()) {
+        // The sample mask round rect op draws nothing on several Adreno and Radeon bots. Other ops
+        // that use sample mask while rendering to stencil seem to work fine.
+        // http://skbug.com/8921
+        shaderCaps->fCanOnlyUseSampleMaskWithStencil = true;
+    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
@@ -3736,6 +3734,7 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fDetachStencilFromMSAABuffersBeforeReadPixels);
         SkASSERT(!fDontSetBaseOrMaxLevelForExternalTextures);
         SkASSERT(!fNeverDisableColorWrites);
+        SkASSERT(!fShaderCaps->fCanOnlyUseSampleMaskWithStencil);
     }
     if (options.fDoManualMipmapping) {
         fDoManualMipmapping = true;
