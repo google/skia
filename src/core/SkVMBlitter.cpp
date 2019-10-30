@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkColorFilter.h"
 #include "include/private/SkMacros.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBlendModePriv.h"
@@ -27,7 +26,6 @@ namespace {
         SkBlendMode          blendMode;
         sk_sp<SkColorSpace>  colorSpace;
         sk_sp<SkShader>      shader;
-        sk_sp<SkColorFilter> colorFilter;
 
         Key withCoverage(Coverage c) const {
             Key k = *this;
@@ -43,19 +41,17 @@ namespace {
             && x.coverage    == y.coverage
             && x.blendMode   == y.blendMode
             && x.colorSpace  == y.colorSpace   // SkColorSpace::Equals() would make hashing unsound.
-            && x.shader      == y.shader
-            && x.colorFilter == y.colorFilter;
+            && x.shader      == y.shader;
     }
 
     static SkString debug_name(const Key& key) {
-        return SkStringPrintf("CT%d-AT%d-Cov%d-Blend%d-CS%d-Shader%d-CF%d",
+        return SkStringPrintf("CT%d-AT%d-Cov%d-Blend%d-CS%d-Shader%d",
                               key.colorType,
                               key.alphaType,
                               key.coverage,
                               key.blendMode,
                               SkToBool(key.colorSpace),
-                              SkToBool(key.shader),
-                              SkToBool(key.colorFilter));
+                              SkToBool(key.shader));
     }
 
     static bool debug_dump(const Key& key) {
@@ -161,7 +157,6 @@ namespace {
                     return false;
                 }
             }
-            if (key.colorFilter) { return false; }
 
             switch (key.colorType) {
                 default: return false;
@@ -205,7 +200,6 @@ namespace {
                     src.a = scale_unorm8(src.a, paint_alpha);
                 }
             }
-            if (key.colorFilter) { TODO; }
 
             if (key.coverage == Coverage::Mask3D) {
                 skvm::I32 M = load8(varying<uint8_t>()),
@@ -335,9 +329,11 @@ namespace {
                 paint.getBlendMode(),
                 device.refColorSpace(),
                 paint.refShader(),
-                paint.refColorFilter(),
             }
         {
+            // Color filters have been folded back into shader and/or paint color by now.
+            SkASSERT(!paint.getColorFilter());
+
             SkColor4f color = paint.getColor4f();
             SkColorSpaceXformSteps{sk_srgb_singleton(), kUnpremul_SkAlphaType,
                                    device.colorSpace(), kUnpremul_SkAlphaType}.apply(color.vec());
