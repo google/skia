@@ -24,9 +24,8 @@ INNER_KARMA_SCRIPT = '/SRC/skia/infra/pathkit/test_pathkit.sh'
 
 def RunSteps(api):
   api.vars.setup()
-  checkout_root = api.checkout.default_checkout_root
+  checkout_root = api.path['start_dir']
   out_dir = api.vars.swarming_out_dir
-  api.checkout.bot_update(checkout_root=checkout_root)
 
   # Make sure this exists, otherwise Docker will make it with root permissions.
   api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0777)
