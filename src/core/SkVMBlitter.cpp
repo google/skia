@@ -93,10 +93,6 @@ namespace {
         struct Color { skvm::I32 r,g,b,a; };
 
 
-        skvm::I32 inv(skvm::I32 x) {
-            return sub(splat(255), x);
-        }
-
         // TODO: provide this in skvm::Builder, with a custom NEON impl.
         skvm::I32 div255(skvm::I32 v) {
             // This should be a bit-perfect version of (v+127)/255,
@@ -105,9 +101,13 @@ namespace {
             return shr(add(v128, shr(v128, 8)), 8);
         }
 
-        skvm::I32 mix(skvm::I32 x, skvm::I32 y, skvm::I32 t) {
-            return div255(add(mul(x, inv(t)),
-                              mul(y,     t )));
+        skvm::I32 scale_unorm8(skvm::I32 x, skvm::I32 y) {
+            return div255(mul(x,y));
+        }
+
+        skvm::I32 lerp_unorm8(skvm::I32 x, skvm::I32 y, skvm::I32 t) {
+            return div255(add(mul(x, sub(splat(255), t)),
+                              mul(y,                 t )));
         }
 
         Color unpack_8888(skvm::I32 rgba) {
@@ -140,9 +140,9 @@ namespace {
         }
 
         skvm::I32 pack_565(Color c) {
-            skvm::I32 r = div255(mul(c.r, splat(31))),
-                      g = div255(mul(c.g, splat(63))),
-                      b = div255(mul(c.b, splat(31)));
+            skvm::I32 r = scale_unorm8(c.r, splat(31)),
+                      g = scale_unorm8(c.g, splat(63)),
+                      b = scale_unorm8(c.b, splat(31));
             return pack(pack(b, g,5), r,11);
         }
 
@@ -199,11 +199,10 @@ namespace {
 
                 // TODO: skip when paint is opaque.
                 if (false) {
-                    // I thought I had to do this, but it seems to screw things up?
-                    src.r = div255(mul(src.r, paint_alpha));
-                    src.g = div255(mul(src.g, paint_alpha));
-                    src.b = div255(mul(src.b, paint_alpha));
-                    src.a = div255(mul(src.a, paint_alpha));
+                    src.r = scale_unorm8(src.r, paint_alpha);
+                    src.g = scale_unorm8(src.g, paint_alpha);
+                    src.b = scale_unorm8(src.b, paint_alpha);
+                    src.a = scale_unorm8(src.a, paint_alpha);
                 }
             }
             if (key.colorFilter) { TODO; }
@@ -212,9 +211,9 @@ namespace {
                 skvm::I32 M = load8(varying<uint8_t>()),
                           A = load8(varying<uint8_t>());
 
-                src.r = min(add(div255(mul(src.r, M)), A), src.a);
-                src.g = min(add(div255(mul(src.g, M)), A), src.a);
-                src.b = min(add(div255(mul(src.b, M)), A), src.a);
+                src.r = min(add(scale_unorm8(src.r, M), A), src.a);
+                src.g = min(add(scale_unorm8(src.g, M), A), src.a);
+                src.b = min(add(scale_unorm8(src.b, M), A), src.a);
             }
 
             // There are several orderings here of when we load dst and coverage
@@ -256,10 +255,10 @@ namespace {
                                                    key.coverage == Coverage::MaskLCD16)) {
                 Color cov;
                 if (load_coverage(&cov)) {
-                    src.r = div255(mul(src.r, cov.r));
-                    src.g = div255(mul(src.g, cov.g));
-                    src.b = div255(mul(src.b, cov.b));
-                    src.a = div255(mul(src.a, cov.a));
+                    src.r = scale_unorm8(src.r, cov.r);
+                    src.g = scale_unorm8(src.g, cov.g);
+                    src.b = scale_unorm8(src.b, cov.b);
+                    src.a = scale_unorm8(src.a, cov.a);
                 }
                 lerp_coverage_post_blend = false;
             }
@@ -291,20 +290,21 @@ namespace {
                 case SkBlendMode::kSrc: break;
 
                 case SkBlendMode::kSrcOver: {
-                    src.r = add(src.r, div255(mul(dst.r, inv(src.a))));
-                    src.g = add(src.g, div255(mul(dst.g, inv(src.a))));
-                    src.b = add(src.b, div255(mul(dst.b, inv(src.a))));
-                    src.a = add(src.a, div255(mul(dst.a, inv(src.a))));
+                    auto invA = sub(splat(255), src.a);
+                    src.r = add(src.r, scale_unorm8(dst.r, invA));
+                    src.g = add(src.g, scale_unorm8(dst.g, invA));
+                    src.b = add(src.b, scale_unorm8(dst.b, invA));
+                    src.a = add(src.a, scale_unorm8(dst.a, invA));
                 } break;
             }
 
             // Lerp with coverage post-blend if needed.
             Color cov;
             if (lerp_coverage_post_blend && load_coverage(&cov)) {
-                src.r = mix(dst.r, src.r, cov.r);
-                src.g = mix(dst.g, src.g, cov.g);
-                src.b = mix(dst.b, src.b, cov.b);
-                src.a = mix(dst.a, src.a, cov.a);
+                src.r = lerp_unorm8(dst.r, src.r, cov.r);
+                src.g = lerp_unorm8(dst.g, src.g, cov.g);
+                src.b = lerp_unorm8(dst.b, src.b, cov.b);
+                src.a = lerp_unorm8(dst.a, src.a, cov.a);
             }
 
             if (force_opaque) { src.a = splat(0xff); }
