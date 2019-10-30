@@ -26,6 +26,8 @@ namespace {
         SkBlendMode          blendMode;
         sk_sp<SkColorSpace>  colorSpace;
         sk_sp<SkShader>      shader;
+        bool                 paintIsOpaque;
+        uint8_t              unusedBytes[7];
 
         Key withCoverage(Coverage c) const {
             Key k = *this;
@@ -36,13 +38,25 @@ namespace {
     SK_END_REQUIRE_DENSE;
 
     static bool operator==(const Key& x, const Key& y) {
-        return x.colorType   == y.colorType
-            && x.alphaType   == y.alphaType
-            && x.coverage    == y.coverage
-            && x.blendMode   == y.blendMode
-            && x.colorSpace  == y.colorSpace   // SkColorSpace::Equals() would make hashing unsound.
-            && x.shader      == y.shader;
+        // N.B. using SkColorSpace::Equals() would make hashing unsound:
+        //      Keys that compare as == could have non-equal hashes.
+        return x.colorType     == y.colorType
+            && x.alphaType     == y.alphaType
+            && x.coverage      == y.coverage
+            && x.blendMode     == y.blendMode
+            && x.colorSpace    == y.colorSpace
+            && x.shader        == y.shader
+            && x.paintIsOpaque == y.paintIsOpaque;
     }
+
+    // TODO: we could do with better hashing and equality here in general,
+    // though I'm not sure how strictly important any of these ideas are:
+    //    - use SkColorSpace::hash() and SkColorSpace::Equals() to coalesce equivalent
+    //      color spaces by value
+    //    - come up with a mechanism to have SkShader identify itself except for its
+    //      uniforms, so that we can reuse programs with the same kind of shader but
+    //      different uniforms
+    //    - pack bits of Key more carefully
 
     static SkString debug_name(const Key& key) {
         return SkStringPrintf("CT%d-AT%d-Cov%d-Blend%d-CS%d-Shader%d",
@@ -191,11 +205,12 @@ namespace {
                                                           key.colorSpace.get(),
                                                           uniforms, sizeof(Uniforms),
                                                           &src.r, &src.g, &src.b, &src.a));
-                // TODO: skip when paint is opaque.
-                src.r = scale_unorm8(src.r, paint_alpha);
-                src.g = scale_unorm8(src.g, paint_alpha);
-                src.b = scale_unorm8(src.b, paint_alpha);
-                src.a = scale_unorm8(src.a, paint_alpha);
+                if (!key.paintIsOpaque) {
+                    src.r = scale_unorm8(src.r, paint_alpha);
+                    src.g = scale_unorm8(src.g, paint_alpha);
+                    src.b = scale_unorm8(src.b, paint_alpha);
+                    src.a = scale_unorm8(src.a, paint_alpha);
+                }
             }
 
             if (key.coverage == Coverage::Mask3D) {
@@ -326,6 +341,9 @@ namespace {
                 paint.getBlendMode(),
                 device.refColorSpace(),
                 paint.refShader(),
+                paint.getShader() ? paint.getAlphaf() == 1.0f
+                                  : false /*value is moot, only relevant when we have a shader*/,
+                {0,0,0,0,0,0,0},
             }
             , fUniforms(sizeof(Uniforms))
         {
