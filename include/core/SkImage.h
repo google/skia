@@ -384,9 +384,7 @@ public:
         image.
 
         @param context         GPU context
-        @param yuvColorSpace   How the YUV values are converted to RGB. One of:
-                                           kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
-                                           kRec709_SkYUVColorSpace, kIdentity_SkYUVColorSpace
+        @param yuvColorSpace   How the YUV values are converted to RGB
         @param yuvaTextures    array of (up to four) YUVA textures on GPU which contain the,
                                possibly interleaved, YUVA planes
         @param yuvaIndices     array indicating which texture in yuvaTextures, and channel
@@ -409,9 +407,7 @@ public:
         image. 'backendTexture' is used to store the result of the flattening.
 
         @param context            GPU context
-        @param yuvColorSpace      How the YUV values are converted to RGB. One of:
-                                           kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
-                                           kRec709_SkYUVColorSpace, kIdentity_SkYUVColorSpace
+        @param yuvColorSpace      How the YUV values are converted to RGB
         @param yuvaTextures       array of (up to four) YUVA textures on GPU which contain the,
                                   possibly interleaved, YUVA planes
         @param yuvaIndices        array indicating which texture in yuvaTextures, and channel
@@ -442,9 +438,7 @@ public:
         via multitexturing.
 
         @param context         GPU context
-        @param yuvColorSpace   How the YUV values are converted to RGB. One of:
-                                           kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
-                                           kRec709_SkYUVColorSpace, kIdentity_SkYUVColorSpace
+        @param yuvColorSpace   How the YUV values are converted to RGB
         @param yuvaTextures    array of (up to four) YUVA textures on GPU which contain the,
                                possibly interleaved, YUVA planes
         @param yuvaIndices     array indicating which texture in yuvaTextures, and channel
@@ -474,9 +468,7 @@ public:
         Recognized GPU formats vary by platform and GPU back-end.
 
         @param context                GPU context
-        @param yuvColorSpace          How the YUV values are converted to RGB. One of:
-                                            kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
-                                            kRec709_SkYUVColorSpace, kIdentity_SkYUVColorSpace
+        @param yuvColorSpace          How the YUV values are converted to RGB
         @param yuvaPixmaps            array of (up to four) SkPixmap which contain the,
                                       possibly interleaved, YUVA planes
         @param yuvaIndices            array indicating which pixmap in yuvaPixmaps, and channel
@@ -520,8 +512,7 @@ public:
         yuvColorSpace describes how YUV colors convert to RGB colors.
 
         @param context         GPU context
-        @param yuvColorSpace   one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
-                               kRec709_SkYUVColorSpace, kIdentity_SkYUVColorSpace
+        @param yuvColorSpace   How the YUV values are converted to RGB
         @param nv12Textures    array of YUV textures on GPU
         @param imageOrigin     one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param imageColorSpace range of colors; may be nullptr
@@ -541,8 +532,7 @@ public:
         yuvColorSpace describes how YUV colors convert to RGB colors.
 
         @param context            GPU context
-        @param yuvColorSpace      one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
-                                  kRec709_SkYUVColorSpace, kIdentity_SkYUVColorSpace
+        @param yuvColorSpace   How the YUV values are converted to RGB
         @param nv12Textures       array of YUV textures on GPU
         @param imageOrigin        one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
         @param backendTexture     the resource that stores the final pixels
