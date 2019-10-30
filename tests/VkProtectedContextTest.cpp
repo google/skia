@@ -215,7 +215,7 @@ DEF_GPUTEST(VkProtectedContext_CreateNonprotectedTextureInProtectedContext, repo
         protectedTestHelper->grContext()->createBackendTexture(
             kW, kH, kRGBA_8888_SkColorType, GrMipMapped::kNo, GrRenderable::kNo,
             GrProtected::kNo);
-    REPORTER_ASSERT(reporter, !backendTex.isValid());
+    REPORTER_ASSERT(reporter, backendTex.isValid());
 }
 
 DEF_GPUTEST(VkProtectedContext_CreateProtectedTextureInNonprotectedContext, reporter, options) {

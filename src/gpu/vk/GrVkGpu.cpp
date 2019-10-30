@@ -1523,7 +1523,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
     // Compressed formats go through onCreateCompressedBackendTexture
     SkASSERT(!GrVkFormatIsCompressed(vkFormat));
 
-    if (fProtectedContext != isProtected) {
+    if (isProtected == GrProtected::kYes && fProtectedContext == GrProtected::kNo) {
         return false;
     }
 
@@ -1564,7 +1564,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
     imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
     imageDesc.fUsageFlags = usageFlags;
     imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-    imageDesc.fIsProtected = fProtectedContext;
+    imageDesc.fIsProtected = isProtected;
 
     if (!GrVkImage::InitImageInfo(this, imageDesc, info)) {
         SkDebugf("Failed to init image info\n");
@@ -1623,7 +1623,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bo
         VkBufferCreateInfo bufInfo;
         memset(&bufInfo, 0, sizeof(VkBufferCreateInfo));
         bufInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-        bufInfo.flags = fProtectedContext == GrProtected::kYes ? VK_BUFFER_CREATE_PROTECTED_BIT : 0;
+        bufInfo.flags = isProtected == GrProtected::kYes ? VK_BUFFER_CREATE_PROTECTED_BIT : 0;
         bufInfo.size = combinedBufferSize;
         bufInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
         bufInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -1792,7 +1792,7 @@ GrBackendTexture GrVkGpu::onCreateBackendTexture(int w, int h,
     SkASSERT(GrGpu::MipMapsAreCorrect(w, h, mipMapped, srcData, numMipLevels));
     SkASSERT(mipMapped == GrMipMapped::kNo || caps.mipMapSupport());
 
-    if (fProtectedContext != isProtected) {
+    if (isProtected == GrProtected::kYes && fProtectedContext == GrProtected::kNo) {
         return GrBackendTexture();
     }
 
