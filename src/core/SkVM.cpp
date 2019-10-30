@@ -1458,7 +1458,7 @@ namespace skvm {
         , fOriginalProgram(instructions)
     {
         this->setupInterpreter(instructions);
-    #if defined(SKVM_JIT)
+    #if 1 && defined(SKVM_JIT)
         this->setupJIT(instructions, debug_name);
     #endif
     }
