@@ -11,6 +11,60 @@
 #include "src/core/SkScalerContext.h"
 #include "tests/Test.h"
 
+DEF_TEST(SkPackedGlyphIDCtor, reporter) {
+    // x and y are in 1/16.
+    const float step = 1.f / 16.f;
+    {
+        // Normal sub-pixel with y-axis snapping.
+        auto roundingSpec = SkGlyphPositionRoundingSpec(true, kX_SkAxisAlignment);
+        SkIPoint mask = roundingSpec.ignorePositionFieldMask;
+        for (int y = -32; y < 33; y++) {
+            for (int x = -32; x < 33; x++) {
+                float fx = x * step, fy = y * step;
+                SkPoint roundedPos = SkPoint{fx, fy} + roundingSpec.halfAxisSampleFreq;
+                SkPackedGlyphID packedID{3, roundedPos, mask};
+                uint32_t subX = ((x + 2) & 0b1100u) >> 2;
+                uint32_t subY = ((y + 8) & 0b1100u) >> 4;
+                SkPackedGlyphID correctID(3, subX, subY);
+                REPORTER_ASSERT(reporter, packedID == correctID);
+            }
+        }
+    }
+
+    {
+        // Subpixel with no axis snapping.
+        auto roundingSpec = SkGlyphPositionRoundingSpec(true, kNone_SkAxisAlignment);
+        SkIPoint mask = roundingSpec.ignorePositionFieldMask;
+        for (int y = -32; y < 33; y++) {
+            for (int x = -32; x < 33; x++) {
+                float fx = x * step, fy = y * step;
+                SkPoint roundedPos = SkPoint{fx, fy} + roundingSpec.halfAxisSampleFreq;
+                SkPackedGlyphID packedID{3, roundedPos, mask};
+                uint32_t subX = ((x + 2) & 0b1100u) >> 2;
+                uint32_t subY = ((y + 2) & 0b1100u) >> 2;
+                SkPackedGlyphID correctID(3, subX, subY);
+                REPORTER_ASSERT(reporter, packedID == correctID);
+            }
+        }
+    }
+
+    {
+        // No subpixel positioning.
+        auto roundingSpec = SkGlyphPositionRoundingSpec(false, kNone_SkAxisAlignment);
+        SkIPoint mask = roundingSpec.ignorePositionFieldMask;
+        for (int y = -32; y < 33; y++) {
+            for (int x = -32; x < 33; x++) {
+                float fx = x * step, fy = y * step;
+                SkPoint roundedPos = SkPoint{fx, fy} + roundingSpec.halfAxisSampleFreq;
+                SkPackedGlyphID packedID{3, roundedPos, mask};
+                uint32_t subX = ((x + 8) & 0b1100u) >> 4;
+                uint32_t subY = ((y + 8) & 0b1100u) >> 4;
+                SkPackedGlyphID correctID(3, subX, subY);
+                REPORTER_ASSERT(reporter, packedID == correctID);
+            }
+        }
+    }
+}
 
 DEF_TEST(SkSourceGlyphBufferBasic, reporter) {
     SkSourceGlyphBuffer rejects;

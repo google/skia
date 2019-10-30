@@ -13,6 +13,8 @@
 #include "src/pathops/SkPathOpsCubic.h"
 #include "src/pathops/SkPathOpsQuad.h"
 
+constexpr SkIPoint SkPackedGlyphID::kXYFieldMask;
+
 SkMask SkGlyph::mask() const {
     // getMetrics had to be called.
     SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);

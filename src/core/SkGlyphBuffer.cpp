@@ -59,7 +59,7 @@ void SkDrawableGlyphBuffer::startDevice(
     matrix.mapPoints(fPositions, positions.data(), positions.size());
 
     // Mask for controlling axis alignment.
-    SkIPoint mask = roundingSpec.ignorePositionMask;
+    SkIPoint mask = roundingSpec.ignorePositionFieldMask;
 
     // Convert glyph ids and positions to packed glyph ids.
     SkZip<const SkGlyphID, const SkPoint> withMappedPos =
@@ -68,9 +68,7 @@ void SkDrawableGlyphBuffer::startDevice(
     for (auto t : withMappedPos) {
         SkGlyphID glyphID; SkPoint pos;
         std::tie(glyphID, pos) = t;
-        SkFixed subX = SkScalarToFixed(pos.x()) & mask.x(),
-                subY = SkScalarToFixed(pos.y()) & mask.y();
-        *packedIDCursor++ = SkPackedGlyphID{glyphID, subX, subY};
+        *packedIDCursor++ = SkPackedGlyphID{glyphID, pos, mask};
     }
     SkDEBUGCODE(fPhase = kInput);
 }

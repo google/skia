@@ -35,10 +35,12 @@ struct SkGlyphPositionRoundingSpec {
     SkGlyphPositionRoundingSpec(bool isSubpixel, SkAxisAlignment axisAlignment);
     const SkVector halfAxisSampleFreq;
     const SkIPoint ignorePositionMask;
+    const SkIPoint ignorePositionFieldMask;
 
 private:
     static SkVector HalfAxisSampleFreq(bool isSubpixel, SkAxisAlignment axisAlignment);
     static SkIPoint IgnorePositionMask(bool isSubpixel, SkAxisAlignment axisAlignment);
+    static SkIPoint IgnorePositionFieldMask(bool isSubpixel, SkAxisAlignment axisAlignment);
 };
 
 class SkStrikeCommon {
