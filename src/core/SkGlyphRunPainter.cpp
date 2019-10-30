@@ -720,8 +720,16 @@ SkIPoint SkGlyphPositionRoundingSpec::IgnorePositionMask(
                           (!isSubpixel || axisAlignment == kX_SkAxisAlignment) ? 0 : ~0);
 }
 
-SkGlyphPositionRoundingSpec::SkGlyphPositionRoundingSpec(bool isSubpixel,
-                                                         SkAxisAlignment axisAlignment)
-        : halfAxisSampleFreq{HalfAxisSampleFreq(isSubpixel, axisAlignment)}
-        , ignorePositionMask{IgnorePositionMask(isSubpixel, axisAlignment)} {
+SkIPoint SkGlyphPositionRoundingSpec::IgnorePositionFieldMask(bool isSubpixel,
+                                                              SkAxisAlignment axisAlignment) {
+    SkIPoint ignoreMask = IgnorePositionMask(isSubpixel, axisAlignment);
+    SkIPoint answer{ignoreMask.x() & SkPackedGlyphID::kXYFieldMask.x(),
+                    ignoreMask.y() & SkPackedGlyphID::kXYFieldMask.y()};
+    return answer;
 }
+
+SkGlyphPositionRoundingSpec::SkGlyphPositionRoundingSpec(
+        bool isSubpixel,SkAxisAlignment axisAlignment)
+    : halfAxisSampleFreq{HalfAxisSampleFreq(isSubpixel, axisAlignment)}
+    , ignorePositionMask{IgnorePositionMask(isSubpixel, axisAlignment)}
+    , ignorePositionFieldMask {IgnorePositionFieldMask(isSubpixel, axisAlignment)}{ }
