@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+from . import util
 
 def compile_fn(api, checkout_root, out_dir):
   skia_dir      = checkout_root.join('skia')
@@ -34,6 +35,7 @@ def compile_fn(api, checkout_root, out_dir):
       '-I%s' % sysroot_dir.join('include', 'c++', '4.8.4',
                                 'arm-linux-gnueabihf'),
       '-DMESA_EGL_NO_X11_HEADERS',
+      '-U_GLIBCXX_DEBUG',
     ]
 
     extra_ldflags = [
@@ -72,6 +74,7 @@ def compile_fn(api, checkout_root, out_dir):
     'skia_use_fontconfig': 'false',
     'skia_use_system_freetype2': 'false',
     'skia_use_egl': 'true',
+    'werror': 'true',
   }
   extra_cflags.append('-DDUMMY_clang_linux_version=%s' %
                       api.run.asset_version('clang_linux', skia_dir))
@@ -91,8 +94,8 @@ def compile_fn(api, checkout_root, out_dir):
             infra_step=True)
     api.run(api.step, 'gn gen', cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
     api.run(api.step, 'ninja',
-            cmd=['ninja', '-k', '0', '-C', out_dir, 'nanobench', 'dm'])
+            cmd=['ninja', '-C', out_dir, 'nanobench', 'dm'])
 
 
-def copy_extra_build_products(api, src, dst):
-  pass
+def copy_build_products(api, src, dst):
+  util.copy_listed_files(api, src, dst, util.DEFAULT_BUILD_PRODUCTS)

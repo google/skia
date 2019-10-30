@@ -7,9 +7,9 @@
 #ifndef SkPathOps_DEFINED
 #define SkPathOps_DEFINED
 
-#include "../private/SkTArray.h"
-#include "../private/SkTDArray.h"
-#include "SkPreConfig.h"
+#include "include/core/SkPreConfig.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
 
 class SkPath;
 struct SkRect;
@@ -66,6 +66,20 @@ bool SK_API Simplify(const SkPath& path, SkPath* result);
     @return True if the bounds could be computed.
   */
 bool SK_API TightBounds(const SkPath& path, SkRect* result);
+
+/** Set the result with fill type winding to area equivalent to path.
+    Returns true if successful. Does not detect if path contains contours which
+    contain self-crossings or cross other contours; in these cases, may return
+    true even though result does not fill same area as path.
+
+    Returns true if operation was able to produce a result;
+    otherwise, result is unmodified. The result may be the input.
+
+    @param path The path typically with fill type set to even odd.
+    @param result The equivalent path with fill type set to winding.
+    @return True if winding path was set.
+  */
+bool SK_API AsWinding(const SkPath& path, SkPath* result);
 
 /** Perform a series of path operations, optimized for unioning many paths together.
   */

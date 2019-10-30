@@ -8,7 +8,7 @@
 #ifndef SkVertState_DEFINED
 #define SkVertState_DEFINED
 
-#include "SkVertices.h"
+#include "include/core/SkVertices.h"
 
 /** \struct VertState
     This is a helper for drawVertices(). It is used to iterate over the triangles

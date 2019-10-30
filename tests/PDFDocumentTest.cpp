@@ -4,21 +4,22 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Test.h"
+#include "tests/Test.h"
 
-#include "Resources.h"
-#include "SkCanvas.h"
-#include "SkDocument.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkStream.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkExecutor.h"
+#include "include/core/SkStream.h"
+#include "include/docs/SkPDFDocument.h"
+#include "src/core/SkOSFile.h"
+#include "src/utils/SkOSPath.h"
+#include "tools/Resources.h"
 
-#include "sk_tool_utils.h"
+#include "tools/ToolUtils.h"
 
 static void test_empty(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream stream;
 
-    sk_sp<SkDocument> doc(SkDocument::MakePDF(&stream));
+    auto doc = SkPDF::MakeDocument(&stream);
 
     doc->close();
 
@@ -27,7 +28,7 @@ static void test_empty(skiatest::Reporter* reporter) {
 
 static void test_abort(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream stream;
-    sk_sp<SkDocument> doc(SkDocument::MakePDF(&stream));
+    auto doc = SkPDF::MakeDocument(&stream);
 
     SkCanvas* canvas = doc->beginPage(100, 100);
     canvas->drawColor(SK_ColorRED);
@@ -56,7 +57,7 @@ static void test_abortWithFile(skiatest::Reporter* reporter) {
     // Make sure doc's destructor is called to flush.
     {
         SkFILEWStream stream(path.c_str());
-        sk_sp<SkDocument> doc = SkDocument::MakePDF(&stream);
+        auto doc = SkPDF::MakeDocument(&stream);
 
         SkCanvas* canvas = doc->beginPage(100, 100);
         canvas->drawColor(SK_ColorRED);
@@ -87,7 +88,7 @@ static void test_file(skiatest::Reporter* reporter) {
 
     {
         SkFILEWStream stream(path.c_str());
-        sk_sp<SkDocument> doc = SkDocument::MakePDF(&stream);
+        auto doc = SkPDF::MakeDocument(&stream);
         SkCanvas* canvas = doc->beginPage(100, 100);
 
         canvas->drawColor(SK_ColorRED);
@@ -105,7 +106,7 @@ static void test_file(skiatest::Reporter* reporter) {
 
 static void test_close(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream stream;
-    sk_sp<SkDocument> doc(SkDocument::MakePDF(&stream));
+    auto doc = SkPDF::MakeDocument(&stream);
 
     SkCanvas* canvas = doc->beginPage(100, 100);
     canvas->drawColor(SK_ColorRED);
@@ -128,13 +129,13 @@ DEF_TEST(SkPDF_document_tests, reporter) {
 DEF_TEST(SkPDF_document_skbug_4734, r) {
     REQUIRE_PDF_DOCUMENT(SkPDF_document_skbug_4734, r);
     SkDynamicMemoryWStream stream;
-    sk_sp<SkDocument> doc(SkDocument::MakePDF(&stream));
+    auto doc = SkPDF::MakeDocument(&stream);
     SkCanvas* canvas = doc->beginPage(64, 64);
     canvas->scale(10000.0f, 10000.0f);
     canvas->translate(20.0f, 10.0f);
     canvas->rotate(30.0f);
     const char text[] = "HELLO";
-    canvas->drawString(text, 0, 0, SkPaint());
+    canvas->drawString(text, 0, 0, SkFont(), SkPaint());
 }
 
 static bool contains(const uint8_t* result, size_t size, const char expectation[]) {
@@ -152,14 +153,13 @@ static bool contains(const uint8_t* result, size_t size, const char expectation[
 DEF_TEST(SkPDF_pdfa_document, r) {
     REQUIRE_PDF_DOCUMENT(SkPDF_pdfa_document, r);
 
-    SkDocument::PDFMetadata pdfMetadata;
+    SkPDF::Metadata pdfMetadata;
     pdfMetadata.fTitle = "test document";
-    pdfMetadata.fCreation.fEnabled = true;
-    pdfMetadata.fCreation.fDateTime = {0, 1999, 12, 5, 31, 23, 59, 59};
+    pdfMetadata.fCreation = {0, 1999, 12, 5, 31, 23, 59, 59};
     pdfMetadata.fPDFA = true;
 
     SkDynamicMemoryWStream buffer;
-    auto doc = SkDocument::MakePDF(&buffer, pdfMetadata);
+    auto doc = SkPDF::MakeDocument(&buffer, pdfMetadata);
     doc->beginPage(64, 64)->drawColor(SK_ColorRED);
     doc->close();
     sk_sp<SkData> data(buffer.detachAsData());
@@ -178,7 +178,7 @@ DEF_TEST(SkPDF_pdfa_document, r) {
     }
     pdfMetadata.fProducer = "phoney library";
     pdfMetadata.fPDFA = true;
-    doc = SkDocument::MakePDF(&buffer, pdfMetadata);
+    doc = SkPDF::MakeDocument(&buffer, pdfMetadata);
     doc->beginPage(64, 64)->drawColor(SK_ColorRED);
     doc->close();
     data = buffer.detachAsData();
@@ -199,14 +199,14 @@ DEF_TEST(SkPDF_pdfa_document, r) {
 
 DEF_TEST(SkPDF_unicode_metadata, r) {
     REQUIRE_PDF_DOCUMENT(SkPDF_unicode_metadata, r);
-    SkDocument::PDFMetadata pdfMetadata;
+    SkPDF::Metadata pdfMetadata;
     pdfMetadata.fTitle   = "𝓐𝓑𝓒𝓓𝓔 𝓕𝓖𝓗𝓘𝓙"; // Out of basic multilingual plane
     pdfMetadata.fAuthor  = "ABCDE FGHIJ"; // ASCII
     pdfMetadata.fSubject = "αβγδε ζηθικ"; // inside  basic multilingual plane
     pdfMetadata.fPDFA = true;
     SkDynamicMemoryWStream wStream;
     {
-        auto doc = SkDocument::MakePDF(&wStream, pdfMetadata);
+        auto doc = SkPDF::MakeDocument(&wStream, pdfMetadata);
         doc->beginPage(612, 792)->drawColor(SK_ColorCYAN);
     }
     sk_sp<SkData> data(wStream.detachAsData());
@@ -222,3 +222,38 @@ DEF_TEST(SkPDF_unicode_metadata, r) {
         }
     }
 }
+
+// Make sure we excercise the multi-page functionality without problems.
+// Add this to args.gn to output the PDF to a file:
+//   extra_cflags = [ "-DSK_PDF_TEST_MULTIPAGE=\"/tmp/skpdf_test_multipage.pdf\"" ]
+DEF_TEST(SkPDF_multiple_pages, r) {
+    REQUIRE_PDF_DOCUMENT(SkPDF_multiple_pages, r);
+    int n = 100;
+#ifdef SK_PDF_TEST_MULTIPAGE
+    SkFILEWStream wStream(SK_PDF_TEST_MULTIPAGE);
+#else
+    SkDynamicMemoryWStream wStream;
+#endif
+    auto doc = SkPDF::MakeDocument(&wStream);
+    for (int i = 0; i < n; ++i) {
+        doc->beginPage(612, 792)->drawColor(
+                SkColorSetARGB(0xFF, 0x00, (uint8_t)(255.0f * i / (n - 1)), 0x00));
+    }
+}
+
+// Test to make sure that jobs launched by PDF backend don't cause a segfault
+// after calling abort().
+DEF_TEST(SkPDF_abort_jobs, rep) {
+    REQUIRE_PDF_DOCUMENT(SkPDF_abort_jobs, rep);
+    SkBitmap b;
+    b.allocN32Pixels(612, 792);
+    b.eraseColor(0x4F9643A0);
+    SkPDF::Metadata metadata;
+    std::unique_ptr<SkExecutor> executor = SkExecutor::MakeFIFOThreadPool();
+    metadata.fExecutor = executor.get();
+    SkNullWStream dst;
+    auto doc = SkPDF::MakeDocument(&dst, metadata);
+    doc->beginPage(612, 792)->drawBitmap(b, 0, 0);
+    doc->abort();
+}
+

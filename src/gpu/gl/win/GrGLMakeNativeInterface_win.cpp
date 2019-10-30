@@ -4,14 +4,20 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)
 
-#include "SkLeanWindows.h"
+#include "src/core/SkLeanWindows.h"
 
-#include "gl/GrGLInterface.h"
-#include "gl/GrGLAssembleInterface.h"
-#include "gl/GrGLUtil.h"
+#include "include/gpu/gl/GrGLAssembleInterface.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "src/gpu/gl/GrGLUtil.h"
+
+#if defined(_M_ARM64)
+
+sk_sp<const GrGLInterface> GrGLMakeNativeInterface() { return nullptr; }
+
+#else
 
 typedef HGLRC (WINAPI *WGLGetCurrentContextProc)(VOID);
 typedef PROC (WINAPI *WGLGetProcAddressProc)(LPCSTR name);
@@ -95,13 +101,15 @@ sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
     const char* verStr = reinterpret_cast<const char*>(getString(GR_GL_VERSION));
     GrGLStandard standard = GrGLGetStandardInUseFromString(verStr);
 
-    if (kGLES_GrGLStandard == standard) {
+    if (GR_IS_GR_GL_ES(standard)) {
         return GrGLMakeAssembledGLESInterface(&getter, win_get_gl_proc);
-    } else if (kGL_GrGLStandard == standard) {
+    } else if (GR_IS_GR_GL(standard)) {
         return GrGLMakeAssembledGLInterface(&getter, win_get_gl_proc);
     }
     return nullptr;
 }
+
+#endif // ARM64
 
 const GrGLInterface* GrGLCreateNativeInterface() { return GrGLMakeNativeInterface().release(); }
 

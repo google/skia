@@ -5,11 +5,11 @@
 * found in the LICENSE file.
 */
 
-#include "GrVkFramebuffer.h"
+#include "src/gpu/vk/GrVkFramebuffer.h"
 
-#include "GrVkGpu.h"
-#include "GrVkImageView.h"
-#include "GrVkRenderPass.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkImageView.h"
+#include "src/gpu/vk/GrVkRenderPass.h"
 
 GrVkFramebuffer* GrVkFramebuffer::Create(GrVkGpu* gpu,
                                          int width, int height,
@@ -51,7 +51,7 @@ GrVkFramebuffer* GrVkFramebuffer::Create(GrVkGpu* gpu,
     return new GrVkFramebuffer(framebuffer);
 }
 
-void GrVkFramebuffer::freeGPUData(const GrVkGpu* gpu) const {
+void GrVkFramebuffer::freeGPUData(GrVkGpu* gpu) const {
     SkASSERT(fFramebuffer);
     GR_VK_CALL(gpu->vkInterface(), DestroyFramebuffer(gpu->device(), fFramebuffer, nullptr));
 }

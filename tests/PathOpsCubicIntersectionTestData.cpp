@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "PathOpsCubicIntersectionTestData.h"
+#include "tests/PathOpsCubicIntersectionTestData.h"
 
 #include <limits>
 

@@ -8,19 +8,18 @@
 #ifndef Sk1DPathEffect_DEFINED
 #define Sk1DPathEffect_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkPathEffect.h"
-#include "SkPath.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
 
 class SkPathMeasure;
 
 // This class is not exported to java.
 class SK_API Sk1DPathEffect : public SkPathEffect {
 public:
-    virtual bool filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec*, const SkRect*) const override;
-
 protected:
+    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
+
     /** Called at the start of each contour, returns the initial offset
         into that contour.
     */
@@ -31,10 +30,6 @@ protected:
         contour is done.
     */
     virtual SkScalar next(SkPath* dst, SkScalar dist, SkPathMeasure&) const = 0;
-
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    bool exposedInAndroidJavaAPI() const override { return true; }
-#endif
 
 private:
     typedef SkPathEffect INHERITED;
@@ -59,24 +54,17 @@ public:
     */
     static sk_sp<SkPathEffect> Make(const SkPath& path, SkScalar advance, SkScalar phase, Style);
 
-    virtual bool filterPath(SkPath*, const SkPath&,
-                            SkStrokeRec*, const SkRect*) const override;
-
-    void toString(SkString* str) const override;
-
-    Factory getFactory() const override { return CreateProc; }
-
 protected:
     SkPath1DPathEffect(const SkPath& path, SkScalar advance, SkScalar phase, Style);
     void flatten(SkWriteBuffer&) const override;
+    bool onFilterPath(SkPath*, const SkPath&, SkStrokeRec*, const SkRect*) const override;
 
     // overrides from Sk1DPathEffect
     SkScalar begin(SkScalar contourLength) const override;
     SkScalar next(SkPath*, SkScalar, SkPathMeasure&) const override;
 
 private:
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
+    SK_FLATTENABLE_HOOKS(SkPath1DPathEffect)
 
     SkPath      fPath;          // copied from constructor
     SkScalar    fAdvance;       // copied from constructor

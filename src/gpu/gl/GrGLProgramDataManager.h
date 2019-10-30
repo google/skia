@@ -8,12 +8,12 @@
 #ifndef GrGLProgramDataManager_DEFINED
 #define GrGLProgramDataManager_DEFINED
 
-#include "GrAllocator.h"
-#include "GrShaderVar.h"
-#include "gl/GrGLTypes.h"
-#include "glsl/GrGLSLProgramDataManager.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "src/gpu/GrAllocator.h"
+#include "src/gpu/GrShaderVar.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 
-#include "SkTArray.h"
+#include "include/private/SkTArray.h"
 
 class GrGLGpu;
 class SkMatrix;
@@ -51,13 +51,19 @@ public:
     *  array of uniforms. arrayCount must be <= the array count of the uniform.
     */
     void set1i(UniformHandle, int32_t) const override;
-    void set1iv(UniformHandle, int arrayCount, const int v[]) const override;
+    void set1iv(UniformHandle, int arrayCount, const int32_t v[]) const override;
     void set1f(UniformHandle, float v0) const override;
     void set1fv(UniformHandle, int arrayCount, const float v[]) const override;
+    void set2i(UniformHandle, int32_t, int32_t) const override;
+    void set2iv(UniformHandle, int arrayCount, const int32_t v[]) const override;
     void set2f(UniformHandle, float, float) const override;
     void set2fv(UniformHandle, int arrayCount, const float v[]) const override;
+    void set3i(UniformHandle, int32_t, int32_t, int32_t) const override;
+    void set3iv(UniformHandle, int arrayCount, const int32_t v[]) const override;
     void set3f(UniformHandle, float, float, float) const override;
     void set3fv(UniformHandle, int arrayCount, const float v[]) const override;
+    void set4i(UniformHandle, int32_t, int32_t, int32_t, int32_t) const override;
+    void set4iv(UniformHandle, int arrayCount, const int32_t v[]) const override;
     void set4f(UniformHandle, float, float, float, float) const override;
     void set4fv(UniformHandle, int arrayCount, const float v[]) const override;
     // matrices are column-major, the first three upload a single matrix, the latter three upload

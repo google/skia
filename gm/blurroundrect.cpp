@@ -5,87 +5,28 @@
 * found in the LICENSE file.
 */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkBlurMask.h"
-#include "SkCanvas.h"
-#include "SkColorFilter.h"
-#include "SkLayerDrawLooper.h"
-#include "SkMaskFilter.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkRRect.h"
-#include "SkString.h"
+#include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
+#include "src/core/SkBlurMask.h"
 
-// This GM mimics a blurred RR seen in the wild.
-class BlurRoundRectGM : public skiagm::GM {
-public:
-    BlurRoundRectGM(int width, int height)
-        : fName("blurroundrect"), fWidth(width), fHeight(height) {
-        fName.appendf("-WH-%ix%i-unevenCorners", width,  height);
-    }
-
-    SkString onShortName() override {
-        return fName;
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(fWidth, fHeight);
-    }
-
-    void onOnceBeforeDraw() override {
-        SkVector radii[4];
-        radii[0].set(SkIntToScalar(30), SkIntToScalar(30));
-        radii[1].set(SkIntToScalar(10), SkIntToScalar(10));
-        radii[2].set(SkIntToScalar(30), SkIntToScalar(30));
-        radii[3].set(SkIntToScalar(10), SkIntToScalar(10));
-        SkRect r = SkRect::MakeWH(SkIntToScalar(fWidth), SkIntToScalar(fHeight));
-        fRRect.setRectRadii(r, radii);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
-        SkLayerDrawLooper::Builder looperBuilder;
-        {
-            SkLayerDrawLooper::LayerInfo info;
-            info.fPaintBits = SkLayerDrawLooper::kMaskFilter_Bit
-                              | SkLayerDrawLooper::kColorFilter_Bit;
-            info.fColorMode = SkBlendMode::kSrc;
-            info.fOffset = SkPoint::Make(SkIntToScalar(-1), SkIntToScalar(0));
-            info.fPostTranslate = false;
-            SkPaint* paint = looperBuilder.addLayerOnTop(info);
-            paint->setMaskFilter(SkMaskFilter::MakeBlur(
-                    kNormal_SkBlurStyle,
-                    SkBlurMask::ConvertRadiusToSigma(SK_ScalarHalf)));
-            paint->setColorFilter(SkColorFilter::MakeModeFilter(
-                    sk_tool_utils::color_to_565(SK_ColorLTGRAY),
-                    SkBlendMode::kSrcIn));
-            paint->setColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
-        }
-        {
-            SkLayerDrawLooper::LayerInfo info;
-            looperBuilder.addLayerOnTop(info);
-        }
-        SkPaint paint;
-        canvas->drawRect(fRRect.rect(), paint);
-
-        paint.setLooper(looperBuilder.detach());
-        paint.setColor(SK_ColorCYAN);
-        paint.setAntiAlias(true);
-
-        canvas->drawRRect(fRRect, paint);
-    }
-
-private:
-    SkString        fName;
-    SkRRect         fRRect;
-    int             fWidth, fHeight;
-
-    typedef skiagm::GM INHERITED;
-};
-
-#include "SkGradientShader.h"
 /*
  * Spits out a dummy gradient to test blur with shader on paint
  */
@@ -94,7 +35,7 @@ static sk_sp<SkShader> MakeRadial() {
         { 0, 0 },
         { SkIntToScalar(100), SkIntToScalar(100) }
     };
-    SkShader::TileMode tm = SkShader::kClamp_TileMode;
+    SkTileMode tm = SkTileMode::kClamp;
     const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, };
     const SkScalar pos[] = { SK_Scalar1/4, SK_Scalar1*3/4 };
     SkMatrix scale;
@@ -113,20 +54,9 @@ static sk_sp<SkShader> MakeRadial() {
 
 // Simpler blurred RR test cases where all the radii are the same.
 class SimpleBlurRoundRectGM : public skiagm::GM {
-public:
-    SimpleBlurRoundRectGM()
-        : fName("simpleblurroundrect") {
-    }
+    SkString onShortName() override { return SkString("simpleblurroundrect"); }
 
-protected:
-
-    SkString onShortName() override {
-        return fName;
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(1000, 500);
-    }
+    SkISize onISize() override { return {1000, 500}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->scale(1.5f, 1.5f);
@@ -159,10 +89,6 @@ protected:
             }
         }
     }
-private:
-    const SkString  fName;
-
-    typedef         skiagm::GM INHERITED;
 };
 
 // Create one with dimensions/rounded corners based on the skp
@@ -171,9 +97,5 @@ private:
 // https://code.google.com/p/skia/issues/detail?id=1801 ('Win7 Test bots all failing GenerateGMs:
 // ran wrong number of tests')
 //DEF_GM(return new BlurRoundRectGM(600, 5514, 6);)
-
-// Rounded rect with two opposite corners with large radii, the other two
-// small.
-DEF_GM(return new BlurRoundRectGM(100, 100);)
 
 DEF_GM(return new SimpleBlurRoundRectGM();)

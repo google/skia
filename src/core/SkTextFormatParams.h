@@ -9,8 +9,8 @@
 #ifndef SkTextFormatParams_DEFINES
 #define SkTextFormatParams_DEFINES
 
-#include "SkScalar.h"
-#include "SkTypes.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 
 // Fraction of the text size to lower a strike through line below the baseline.
 #define kStdStrikeThru_Offset       (-SK_Scalar1 * 6 / 21)

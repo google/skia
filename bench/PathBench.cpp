@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkShader.h"
-#include "SkString.h"
-#include "SkTArray.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/private/SkTArray.h"
+#include "include/utils/SkRandom.h"
 
 enum Flags {
     kStroke_Flag = 1 << 0,
@@ -736,7 +736,7 @@ protected:
         SkScalar ry = SkMinScalar(rect.height(), yIn);
 
         SkRect arcRect;
-        arcRect.set(-rx, -ry, rx, ry);
+        arcRect.setLTRB(-rx, -ry, rx, ry);
         switch (startAngle) {
         case 0:
             arcRect.offset(rect.fRight - arcRect.fRight, rect.fBottom - arcRect.fBottom);
@@ -885,7 +885,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkGeometry.h"
+#include "src/core/SkGeometry.h"
 
 class ConicBench_Chop : public Benchmark {
 protected:
@@ -1175,8 +1175,9 @@ DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::k
 DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::kRoundRect_Type); )
 DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::kOval_Type); )
 
-#include "SkPathOps.h"
-#include "SkPathPriv.h"
+#include "include/pathops/SkPathOps.h"
+#include "src/core/SkPathPriv.h"
+
 DEF_BENCH( return new TightBoundsBench([](const SkPath& path){ return path.computeTightBounds();},
                                        "priv"); )
 DEF_BENCH( return new TightBoundsBench([](const SkPath& path) {
@@ -1190,3 +1191,54 @@ DEF_BENCH( return new ConicBench_ComputeError() )
 DEF_BENCH( return new ConicBench_asQuadTol() )
 DEF_BENCH( return new ConicBench_quadPow2() )
 */
+
+class CommonConvexBench : public Benchmark {
+protected:
+    SkString    fName;
+    SkPath      fPath;
+    const bool  fAA;
+
+public:
+    CommonConvexBench(int w, int h, bool forceConcave, bool aa) : fAA(aa) {
+        fName.printf("convex_path_%d_%d_%d_%d", w, h, forceConcave, aa);
+
+        SkRect r = SkRect::MakeXYWH(10, 10, w*1.0f, h*1.0f);
+        fPath.addRRect(SkRRect::MakeRectXY(r, w/8.0f, h/8.0f));
+
+        if (forceConcave) {
+            fPath.setConvexity(SkPath::kConcave_Convexity);
+            SkASSERT(!fPath.isConvex());
+        } else {
+            SkASSERT(fPath.isConvex());
+        }
+    }
+
+protected:
+    const char* onGetName() override {
+        return fName.c_str();
+    }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setAntiAlias(fAA);
+
+        for (int i = 0; i < loops; ++i) {
+            for (int inner = 0; inner < 100; ++inner) {
+                canvas->drawPath(fPath, paint);
+            }
+        }
+    }
+
+private:
+    typedef Benchmark INHERITED;
+};
+
+DEF_BENCH( return new CommonConvexBench( 16, 16, false, false); )
+DEF_BENCH( return new CommonConvexBench( 16, 16, true,  false); )
+DEF_BENCH( return new CommonConvexBench( 16, 16, false, true); )
+DEF_BENCH( return new CommonConvexBench( 16, 16, true,  true); )
+
+DEF_BENCH( return new CommonConvexBench(200, 16, false, false); )
+DEF_BENCH( return new CommonConvexBench(200, 16, true,  false); )
+DEF_BENCH( return new CommonConvexBench(200, 16, false, true); )
+DEF_BENCH( return new CommonConvexBench(200, 16, true,  true); )

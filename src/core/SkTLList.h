@@ -8,10 +8,11 @@
 #ifndef SkTLList_DEFINED
 #define SkTLList_DEFINED
 
-#include "SkTInternalLList.h"
-
-#include "SkMalloc.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkTInternalLList.h"
+#include <new>
 #include <utility>
 
 /** Doubly-linked list of objects. The objects' lifetimes are controlled by the list. I.e. the
@@ -27,11 +28,11 @@
     allocCnt is the number of objects to allocate as a group. In the worst case fragmentation
     each object is using the space required for allocCnt unfragmented objects.
 */
-template <typename T, unsigned int N> class SkTLList : SkNoncopyable {
+template <typename T, unsigned int N> class SkTLList {
 private:
     struct Block;
     struct Node {
-        char fObj[sizeof(T)];
+        SkAlignedSTStorage<1, T> fObj;
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Node);
         Block* fBlock; // owning block.
     };
@@ -50,7 +51,7 @@ public:
         typename NodeList::Iter iter;
         Node* node = iter.init(fList, Iter::kHead_IterStart);
         while (node) {
-            SkTCast<T*>(node->fObj)->~T();
+            reinterpret_cast<T*>(node->fObj.get())->~T();
             Block* block = node->fBlock;
             node = iter.next();
             if (0 == --block->fNodesInUse) {
@@ -70,7 +71,7 @@ public:
         Node* node = this->createNode();
         fList.addToHead(node);
         this->validate();
-        return new (node->fObj)  T(std::forward<Args>(args)...);
+        return new (node->fObj.get())  T(std::forward<Args>(args)...);
     }
 
     /** Adds a new element to the list at the tail. */
@@ -79,7 +80,7 @@ public:
         Node* node = this->createNode();
         fList.addToTail(node);
         this->validate();
-        return new (node->fObj) T(std::forward<Args>(args)...);
+        return new (node->fObj.get()) T(std::forward<Args>(args)...);
     }
 
     /** Adds a new element to the list before the location indicated by the iterator. If the
@@ -89,7 +90,7 @@ public:
         Node* node = this->createNode();
         fList.addBefore(node, location.getNode());
         this->validate();
-        return new (node->fObj) T(std::forward<Args>(args)...);
+        return new (node->fObj.get()) T(std::forward<Args>(args)...);
     }
 
     /** Adds a new element to the list after the location indicated by the iterator. If the
@@ -99,7 +100,7 @@ public:
         Node* node = this->createNode();
         fList.addAfter(node, location.getNode());
         this->validate();
-        return new (node->fObj) T(std::forward<Args>(args)...);
+        return new (node->fObj.get()) T(std::forward<Args>(args)...);
     }
 
     /** Convenience methods for getting an iterator initialized to the head/tail of the list. */
@@ -132,7 +133,7 @@ public:
     void remove(T* t) {
         this->validate();
         Node* node = reinterpret_cast<Node*>(t);
-        SkASSERT(reinterpret_cast<T*>(node->fObj) == t);
+        SkASSERT(reinterpret_cast<T*>(node->fObj.get()) == t);
         this->removeNode(node);
         this->validate();
     }
@@ -209,7 +210,7 @@ public:
 
         T* nodeToObj(Node* node) {
             if (node) {
-                return reinterpret_cast<T*>(node->fObj);
+                return reinterpret_cast<T*>(node->fObj.get());
             } else {
                 return nullptr;
             }
@@ -263,7 +264,7 @@ private:
     void removeNode(Node* node) {
         SkASSERT(node);
         fList.remove(node);
-        SkTCast<T*>(node->fObj)->~T();
+        reinterpret_cast<T*>(node->fObj.get())->~T();
         Block* block = node->fBlock;
         // Don't ever elease the first block, just add its nodes to the free list
         if (0 == --block->fNodesInUse && block != &fFirstBlock) {
@@ -345,6 +346,9 @@ private:
     NodeList fFreeList;
     Block    fFirstBlock;
     int fCount;
+
+    SkTLList(const SkTLList&) = delete;
+    SkTLList& operator=(const SkTLList&) = delete;
 };
 
 #endif

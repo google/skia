@@ -8,9 +8,9 @@
 #ifndef GrPorterDuffXferProcessor_DEFINED
 #define GrPorterDuffXferProcessor_DEFINED
 
-#include "GrTypes.h"
-#include "GrXferProcessor.h"
-#include "SkBlendMode.h"
+#include "include/core/SkBlendMode.h"
+#include "include/gpu/GrTypes.h"
+#include "src/gpu/GrXferProcessor.h"
 
 // See the comment above GrXPFactory's definition about this warning suppression.
 #if defined(__GNUC__)
@@ -42,7 +42,7 @@ public:
     static AnalysisProperties SrcOverAnalysisProperties(const GrProcessorAnalysisColor&,
                                                         const GrProcessorAnalysisCoverage&,
                                                         const GrCaps&,
-                                                        GrPixelConfigIsClamped);
+                                                        GrClampType);
 
 private:
     constexpr GrPorterDuffXPFactory(SkBlendMode);
@@ -51,12 +51,12 @@ private:
                                                    GrProcessorAnalysisCoverage,
                                                    bool hasMixedSamples,
                                                    const GrCaps&,
-                                                   GrPixelConfigIsClamped) const override;
+                                                   GrClampType) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,
                                           const GrCaps&,
-                                          GrPixelConfigIsClamped) const override;
+                                          GrClampType) const override;
 
     GR_DECLARE_XP_FACTORY_TEST
     static void TestGetXPOutputTypes(const GrXferProcessor*, int* outPrimary, int* outSecondary);

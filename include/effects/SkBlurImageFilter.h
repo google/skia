@@ -8,11 +8,15 @@
 #ifndef SkBlurImageFilter_DEFINED
 #define SkBlurImageFilter_DEFINED
 
-#include "SkImageFilter.h"
+#include "include/core/SkImageFilter.h"
 
+enum class SkTileMode;
+
+// DEPRECATED: Use include/effects/SkImageFilters::Blur
 class SK_API SkBlurImageFilter {
 public:
-    /*! \enum TileMode */
+    /*! \enum TileMode
+     * DEPRECATED: Use SkTileMode instead. */
     enum TileMode {
       kClamp_TileMode = 0,    /*!< Clamp to the image's edge pixels. */
                               /*!< This re-weights the filter so samples outside have no effect */
@@ -28,6 +32,15 @@ public:
                                      sk_sp<SkImageFilter> input,
                                      const SkImageFilter::CropRect* cropRect = nullptr,
                                      TileMode tileMode = TileMode::kClampToBlack_TileMode);
+    // EXPERIMENTAL: kMirror is not yet supported
+    static sk_sp<SkImageFilter> Make(SkScalar sigmaX, SkScalar sigmaY, SkTileMode tileMode,
+                                     sk_sp<SkImageFilter> input,
+                                     const SkImageFilter::CropRect* cropRect = nullptr);
+
+    static void RegisterFlattenables();
+
+private:
+    SkBlurImageFilter() = delete;
 };
 
 #endif

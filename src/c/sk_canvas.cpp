@@ -7,15 +7,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkAnnotation.h"
-#include "SkNoDrawCanvas.h"
-#include "SkNWayCanvas.h"
-#include "SkOverdrawCanvas.h"
+#include "include/core/SkAnnotation.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkOverdrawCanvas.h"
+#include "include/utils/SkNoDrawCanvas.h"
+#include "include/utils/SkNWayCanvas.h"
 
-#include "sk_canvas.h"
+#include "include/c/sk_canvas.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
 void sk_canvas_destroy(sk_canvas_t* ccanvas) {
     delete AsCanvas(ccanvas);
@@ -51,18 +51,6 @@ void sk_canvas_draw_point(sk_canvas_t* ccanvas, float x, float y, const sk_paint
 
 void sk_canvas_draw_line(sk_canvas_t* ccanvas, float x0, float y0, float x1, float y1, sk_paint_t* cpaint) {
     AsCanvas(ccanvas)->drawLine(x0, y0, x1, y1, *AsPaint(cpaint));
-}
-
-void sk_canvas_draw_text (sk_canvas_t* ccanvas, const char *text, size_t byteLength, float x, float y, const sk_paint_t* cpaint) {
-    AsCanvas(ccanvas)->drawText(text, byteLength, x, y, *AsPaint(cpaint));
-}
-
-void sk_canvas_draw_pos_text (sk_canvas_t* ccanvas, const char *text, size_t byteLength, const sk_point_t pos[], const sk_paint_t* cpaint) {
-    AsCanvas(ccanvas)->drawPosText(text, byteLength, AsPoint(pos), *AsPaint(cpaint));
-}
-
-void sk_canvas_draw_text_on_path (sk_canvas_t* ccanvas, const char *text, size_t byteLength, const sk_path_t* path, float hOffset, float vOffset, const sk_paint_t* cpaint) {
-    AsCanvas(ccanvas)->drawTextOnPathHV(text, byteLength, *AsPath(path), hOffset, vOffset, *AsPaint(cpaint));
 }
 
 void sk_canvas_draw_text_blob (sk_canvas_t* ccanvas, sk_textblob_t* text, float x, float y, const sk_paint_t* cpaint) {

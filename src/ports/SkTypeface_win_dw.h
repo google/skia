@@ -8,17 +8,18 @@
 #ifndef SkTypeface_win_dw_DEFINED
 #define SkTypeface_win_dw_DEFINED
 
-#include "SkAdvancedTypefaceMetrics.h"
-#include "SkDWrite.h"
-#include "SkHRESULT.h"
-#include "SkLeanWindows.h"
-#include "SkTScopedComPtr.h"
-#include "SkTypeface.h"
-#include "SkTypefaceCache.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkAdvancedTypefaceMetrics.h"
+#include "src/core/SkLeanWindows.h"
+#include "src/core/SkTypefaceCache.h"
+#include "src/utils/win/SkDWrite.h"
+#include "src/utils/win/SkHRESULT.h"
+#include "src/utils/win/SkTScopedComPtr.h"
 
 #include <dwrite.h>
 #include <dwrite_1.h>
 #include <dwrite_2.h>
+#include <dwrite_3.h>
 
 class SkFontDescriptor;
 struct SkScalerContextRec;
@@ -61,6 +62,9 @@ private:
         if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace2))) {
             SkASSERT_RELEASE(nullptr == fDWriteFontFace2.get());
         }
+        if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace4))) {
+            SkASSERT_RELEASE(nullptr == fDWriteFontFace4.get());
+        }
         if (!SUCCEEDED(fFactory->QueryInterface(&fFactory2))) {
             SkASSERT_RELEASE(nullptr == fFactory2.get());
         }
@@ -76,15 +80,19 @@ public:
     SkTScopedComPtr<IDWriteFontFace> fDWriteFontFace;
     SkTScopedComPtr<IDWriteFontFace1> fDWriteFontFace1;
     SkTScopedComPtr<IDWriteFontFace2> fDWriteFontFace2;
+    SkTScopedComPtr<IDWriteFontFace4> fDWriteFontFace4;
 
-    static DWriteFontTypeface* Create(IDWriteFactory* factory,
-                                      IDWriteFontFace* fontFace,
-                                      IDWriteFont* font,
-                                      IDWriteFontFamily* fontFamily,
-                                      IDWriteFontFileLoader* fontFileLoader = nullptr,
-                                      IDWriteFontCollectionLoader* fontCollectionLoader = nullptr) {
-        return new DWriteFontTypeface(get_style(font), factory, fontFace, font, fontFamily,
-                                      fontFileLoader, fontCollectionLoader);
+    static sk_sp<DWriteFontTypeface> Make(
+        IDWriteFactory* factory,
+        IDWriteFontFace* fontFace,
+        IDWriteFont* font,
+        IDWriteFontFamily* fontFamily,
+        IDWriteFontFileLoader* fontFileLoader = nullptr,
+        IDWriteFontCollectionLoader* fontCollectionLoader = nullptr)
+    {
+        return sk_sp<DWriteFontTypeface>(
+            new DWriteFontTypeface(get_style(font), factory, fontFace, font, fontFamily,
+                                   fontFileLoader, fontCollectionLoader));
     }
 
 protected:
@@ -100,26 +108,27 @@ protected:
         INHERITED::weak_dispose();
     }
 
-    SkStreamAsset* onOpenStream(int* ttcIndex) const override;
+    sk_sp<SkTypeface> onMakeClone(const SkFontArguments&) const override;
+    std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override;
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                            const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
     void getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const override;
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
-    int onCharsToGlyphs(const void* chars, Encoding encoding,
-                        uint16_t glyphs[], int glyphCount) const override;
+    void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override;
     int onCountGlyphs() const override;
+    void getPostScriptGlyphNames(SkString*) const override;
     int onGetUPEM() const override;
     void onGetFamilyName(SkString* familyName) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
-                                     int coordinateCount) const override
-    {
-        return -1;
-    }
+                                     int coordinateCount) const override;
+    int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
+                                       int parameterCount) const override;
     int onGetTableTags(SkFontTableTag tags[]) const override;
     size_t onGetTableData(SkFontTableTag, size_t offset, size_t length, void* data) const override;
+    sk_sp<SkData> onCopyTableData(SkFontTableTag) const override;
 
 private:
     typedef SkTypeface INHERITED;

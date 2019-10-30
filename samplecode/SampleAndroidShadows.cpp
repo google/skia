@@ -5,24 +5,23 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
-#include "SkAnimTimer.h"
-#include "SkBlurMask.h"
-#include "SkBlurMaskFilter.h"
-#include "SkColorFilter.h"
-#include "SkCamera.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkPoint3.h"
-#include "SkShadowUtils.h"
-#include "SkUtils.h"
-#include "SkView.h"
-#include "sk_tool_utils.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint3.h"
+#include "include/effects/SkBlurMaskFilter.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/utils/SkCamera.h"
+#include "include/utils/SkShadowUtils.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkBlurMask.h"
+#include "src/utils/SkUTF.h"
+#include "tools/ToolUtils.h"
+#include "tools/timer/TimeUtils.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
-class ShadowsView : public SampleView {
+class ShadowsView : public Sample {
     SkPath    fRectPath;
     SkPath    fRRPath;
     SkPath    fCirclePath;
@@ -36,32 +35,18 @@ class ShadowsView : public SampleView {
     SkPath    fTabPath;
 
     SkPoint3  fLightPos;
-    SkScalar  fZDelta;
-    SkScalar  fAnimTranslate;
-    SkScalar  fAnimAngle;
-    SkScalar  fAnimAlpha;
+    SkScalar  fZDelta = 0;
+    SkScalar  fAnimTranslate = 0;
+    SkScalar  fAnimAngle = 0;
+    SkScalar  fAnimAlpha = 1;
 
-    bool      fShowAmbient;
-    bool      fShowSpot;
-    bool      fUseAlt;
-    bool      fShowObject;
-    bool      fIgnoreShadowAlpha;
-    bool      fDoAlphaAnimation;
+    bool      fShowAmbient = true;
+    bool      fShowSpot = true;
+    bool      fUseAlt = false;
+    bool      fShowObject = true;
+    bool      fIgnoreShadowAlpha = false;
+    bool      fDoAlphaAnimation = false;
 
-public:
-    ShadowsView()
-        : fZDelta(0)
-        , fAnimTranslate(0)
-        , fAnimAngle(0)
-        , fAnimAlpha(1)
-        , fShowAmbient(true)
-        , fShowSpot(true)
-        , fUseAlt(false)
-        , fShowObject(true)
-        , fIgnoreShadowAlpha(false)
-        , fDoAlphaAnimation(false) {}
-
-protected:
     void onOnceBeforeDraw() override {
         fCirclePath.addCircle(0, 0, 50);
         fRectPath.addRect(SkRect::MakeXYWH(-100, -50, 200, 100));
@@ -107,15 +92,9 @@ protected:
         fLightPos = SkPoint3::Make(350, 0, 600);
     }
 
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "AndroidShadows");
-            return true;
-        }
+    SkString name() override { return SkString("AndroidShadows"); }
 
-        SkUnichar uni;
-        if (SampleCode::CharQ(*evt, &uni)) {
+    bool onChar(SkUnichar uni) override {
             bool handled = false;
             switch (uni) {
                 case 'W':
@@ -159,12 +138,7 @@ protected:
             if (handled) {
                 return true;
             }
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
+            return false;
     }
 
     void drawShadowedPath(SkCanvas* canvas, const SkPath& path,
@@ -204,7 +178,8 @@ protected:
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        this->drawBG(canvas);
+        canvas->drawColor(0xFFDDDDDD);
+
         const SkScalar kLightWidth = 800;
         const SkScalar kAmbientAlpha = 0.039f;
         const SkScalar kSpotAlpha = 0.19f;
@@ -306,8 +281,8 @@ protected:
         canvas->setMatrix(persp);
         SkScalar radians = SkDegreesToRadians(fAnimAngle);
         zPlaneParams = SkPoint3::Make(0,
-                                      SkScalarSin(-radians),
-                                      SkTMax(1.0f, 16 + fZDelta) - SkScalarSin(-radians)*pivot.fY);
+                                      SkScalarSin(radians),
+                                      SkTMax(1.0f, 16 + fZDelta) - SkScalarSin(radians)*pivot.fY);
         this->drawShadowedPath(canvas, fWideRectPath, zPlaneParams, paint, .1f,
                                lightPos, kLightWidth, .5f);
 
@@ -315,6 +290,7 @@ protected:
                               fWideOvalPath.getBounds().height() / 2);
         translate = SkPoint::Make(100, 600);
         view.restore();
+        view.save();
         view.rotateY(fAnimAngle);
         view.getMatrix(&persp);
         persp.preTranslate(-pivot.fX, -pivot.fY);
@@ -325,22 +301,36 @@ protected:
                                       SkTMax(1.0f, 32 + fZDelta) + SkScalarSin(radians)*pivot.fX);
         this->drawShadowedPath(canvas, fWideOvalPath, zPlaneParams, paint, .1f,
                                lightPos, kLightWidth, .5f);
+
+        pivot = SkPoint::Make(fStarPath.getBounds().width() / 2,
+                              fStarPath.getBounds().height() / 2);
+        translate = SkPoint::Make(700, 250);
+        view.restore();
+        view.rotateY(fAnimAngle);
+        view.getMatrix(&persp);
+        persp.preTranslate(-pivot.fX, -pivot.fY);
+        persp.postTranslate(pivot.fX + translate.fX, pivot.fY + translate.fY);
+        canvas->setMatrix(persp);
+        zPlaneParams = SkPoint3::Make(-SkScalarSin(radians),
+                                      0,
+                                      SkTMax(1.0f, 8 + fZDelta) + SkScalarSin(radians)*pivot.fX);
+        this->drawShadowedPath(canvas, fStarPath, zPlaneParams, paint, .1f,
+                               lightPos, kLightWidth, .5f);
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
-        fAnimTranslate = timer.pingPong(30, 0, 125, -125);
-        fAnimAngle = timer.pingPong(15, 0, 0, 20);
+    bool onAnimate(double nanos) override {
+        fAnimTranslate = TimeUtils::PingPong(1e-9 * nanos, 30, 0, 125, -125);
+        fAnimAngle = TimeUtils::PingPong(1e-9 * nanos, 15, 0, 0, 20);
         if (fDoAlphaAnimation) {
-            fAnimAlpha = timer.pingPong(5, 0, 1, 0);
+            fAnimAlpha = TimeUtils::PingPong(1e-9 * nanos, 5, 0, 1, 0);
         }
         return true;
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new ShadowsView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new ShadowsView(); )

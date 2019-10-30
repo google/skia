@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkOSFile.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkOSFile.h"
 
 #include <errno.h>
 #include <stdio.h>
@@ -20,11 +20,11 @@
 #include <direct.h>
 #include <io.h>
 #include <vector>
-#include "SkUtils.h"
+#include "src/utils/SkUTF.h"
 #endif
 
 #ifdef SK_BUILD_FOR_IOS
-#include "SkOSFile_ios.h"
+#include "src/ports/SkOSFile_ios.h"
 #endif
 
 #ifdef _WIN32
@@ -46,16 +46,16 @@ static FILE* fopen_win(const char* utf8path, const char* perm) {
     const char* end = utf8path + strlen(utf8path);
     size_t n = 0;
     while (ptr < end) {
-        SkUnichar u = SkUTF8_NextUnicharWithError(&ptr, end);
+        SkUnichar u = SkUTF::NextUTF8(&ptr, end);
         if (u < 0) {
             return nullptr;  // malformed UTF-8
         }
-        n += SkUTF16_FromUnichar(u);
+        n += SkUTF::ToUTF16(u);
     }
     std::vector<uint16_t> wchars(n + 1);
     uint16_t* out = wchars.data();
     for (const char* ptr = utf8path; ptr < end;) {
-        out += SkUTF16_FromUnichar(SkUTF8_NextUnicharWithError(&ptr, end), out);
+        out += SkUTF::ToUTF16(SkUTF::NextUTF8(&ptr, end), out);
     }
     SkASSERT(out == &wchars[n]);
     *out = 0; // final null
@@ -93,8 +93,8 @@ FILE* sk_fopen(const char path[], SkFILE_Flags flags) {
 #endif
 
     if (nullptr == file && (flags & kWrite_SkFILE_Flag)) {
-        SkDEBUGF(("sk_fopen: fopen(\"%s\", \"%s\") returned nullptr (errno:%d): %s\n",
-                  path, perm, errno, strerror(errno)));
+        SkDEBUGF("sk_fopen: fopen(\"%s\", \"%s\") returned nullptr (errno:%d): %s\n",
+                 path, perm, errno, strerror(errno));
     }
     return file;
 }

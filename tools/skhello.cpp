@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkCommandLineFlags.h"
-#include "SkData.h"
-#include "SkDocument.h"
-#include "SkGraphics.h"
-#include "SkSurface.h"
-#include "SkImage.h"
-#include "SkStream.h"
-#include "SkString.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkDocument.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "tools/flags/CommandLineFlags.h"
 
-DEFINE_string2(outFile, o, "skhello", "The filename to write the image.");
-DEFINE_string2(text, t, "Hello", "The string to write.");
+static DEFINE_string2(outFile, o, "skhello", "The filename to write the image.");
+static DEFINE_string2(text, t, "Hello", "The string to write.");
 
 static void doDraw(SkCanvas* canvas, const SkPaint& paint, const char text[]) {
     SkRect bounds = canvas->getLocalClipBounds();
@@ -44,7 +44,7 @@ static bool do_surface(int w, int h, const char path[], const char text[],
 
 static bool do_document(int w, int h, const char path[], const char text[],
                         const SkPaint& paint) {
-    sk_sp<SkDocument> doc(SkDocument::MakePDF(path));
+    auto doc = SkPDF::MakeDocument(path);
     if (doc.get()) {
         SkScalar width = SkIntToScalar(w);
         SkScalar height = SkIntToScalar(h);
@@ -55,8 +55,8 @@ static bool do_document(int w, int h, const char path[], const char text[],
 }
 
 int main(int argc, char** argv) {
-    SkCommandLineFlags::SetUsage("");
-    SkCommandLineFlags::Parse(argc, argv);
+    CommandLineFlags::SetUsage("");
+    CommandLineFlags::Parse(argc, argv);
 
     SkAutoGraphics ag;
     SkString path("skhello");

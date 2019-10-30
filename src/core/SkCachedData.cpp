@@ -5,28 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkCachedData.h"
-#include "SkDiscardableMemory.h"
-#include "SkMalloc.h"
-
-//#define TRACK_CACHEDDATA_LIFETIME
-
-#ifdef TRACK_CACHEDDATA_LIFETIME
-static int32_t gCachedDataCounter;
-
-static void inc() {
-    int32_t oldCount = sk_atomic_inc(&gCachedDataCounter);
-    SkDebugf("SkCachedData inc %d\n", oldCount + 1);
-}
-
-static void dec() {
-    int32_t oldCount = sk_atomic_dec(&gCachedDataCounter);
-    SkDebugf("SkCachedData dec %d\n", oldCount - 1);
-}
-#else
-static void inc() {}
-static void dec() {}
-#endif
+#include "include/private/SkMalloc.h"
+#include "src/core/SkCachedData.h"
+#include "src/core/SkDiscardableMemory.h"
 
 SkCachedData::SkCachedData(void* data, size_t size)
     : fData(data)
@@ -37,7 +18,6 @@ SkCachedData::SkCachedData(void* data, size_t size)
     , fIsLocked(true)
 {
     fStorage.fMalloc = data;
-    inc();
 }
 
 SkCachedData::SkCachedData(size_t size, SkDiscardableMemory* dm)
@@ -49,7 +29,6 @@ SkCachedData::SkCachedData(size_t size, SkDiscardableMemory* dm)
     , fIsLocked(true)
 {
     fStorage.fDM = dm;
-    inc();
 }
 
 SkCachedData::~SkCachedData() {
@@ -61,7 +40,6 @@ SkCachedData::~SkCachedData() {
             delete fStorage.fDM;
             break;
     }
-    dec();
 }
 
 class SkCachedData::AutoMutexWritable {

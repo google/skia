@@ -1,0 +1,8 @@
+#! /bin/sh
+# Copyright 2019 Google LLC
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+SRC='https://gerrit-review.googlesource.com/tools/hooks/commit-msg'
+cd "$(dirname "$0")/.."
+HOOK="$(git rev-parse --git-dir)/hooks/commit-msg"
+curl -L -o "$HOOK" "$SRC" && chmod +x "$HOOK"

@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkRasterClip.h"
-#include "SkPath.h"
+#include "include/core/SkPath.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkRegionPriv.h"
 
 enum MutateResult {
     kDoNothing_MutateResult,
@@ -459,7 +460,7 @@ void SkRasterClip::validate() const {
         SkASSERT(fAA.isEmpty());
     }
 
-    fBW.validate();
+    SkRegionPriv::Validate(fBW);
     fAA.validate();
 
     SkASSERT(this->computeIsEmpty() == fIsEmpty);

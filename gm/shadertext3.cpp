@@ -5,10 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
+#include "tools/ToolUtils.h"
+
+#include <string.h>
 
 namespace skiagm {
 
@@ -28,10 +45,10 @@ static void makebm(SkBitmap* bm, int w, int h) {
     SkPaint     paint;
 
     paint.setShader(SkGradientShader::MakeLinear(kPts0, kColors0, kPos,
-                    SK_ARRAY_COUNT(kColors0), SkShader::kClamp_TileMode));
+                    SK_ARRAY_COUNT(kColors0), SkTileMode::kClamp));
     canvas.drawPaint(paint);
     paint.setShader(SkGradientShader::MakeLinear(kPts1, kColors1, kPos,
-                    SK_ARRAY_COUNT(kColors1), SkShader::kClamp_TileMode));
+                    SK_ARRAY_COUNT(kColors1), SkTileMode::kClamp));
     canvas.drawPaint(paint);
 }
 
@@ -42,14 +59,12 @@ struct LabeledMatrix {
     const char* fLabel;
 };
 
-constexpr char kText[] = "B";
-constexpr int kTextLen = SK_ARRAY_COUNT(kText) - 1;
 constexpr int kPointSize = 300;
 
 class ShaderText3GM : public GM {
 public:
     ShaderText3GM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
@@ -58,7 +73,7 @@ protected:
         return SkString("shadertext3");
     }
 
-    SkISize onISize() override{ return SkISize::Make(820, 930); }
+    SkISize onISize() override { return SkISize::Make(820, 930); }
 
     void onOnceBeforeDraw() override {
         makebm(&fBmp, kPointSize / 4, kPointSize / 4);
@@ -69,13 +84,11 @@ protected:
         SkPaint bmpPaint;
         bmpPaint.setAntiAlias(true);
         bmpPaint.setFilterQuality(kLow_SkFilterQuality);
-        bmpPaint.setAlpha(0x80);
+        bmpPaint.setAlphaf(0.5f);
         canvas->drawBitmap(fBmp, 5.f, 5.f, &bmpPaint);
 
+        SkFont  font(ToolUtils::create_portable_typeface(), SkIntToScalar(kPointSize));
         SkPaint outlinePaint;
-        outlinePaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&outlinePaint);
-        outlinePaint.setTextSize(SkIntToScalar(kPointSize));
         outlinePaint.setStyle(SkPaint::kStroke_Style);
         outlinePaint.setStrokeWidth(0.f);
 
@@ -84,9 +97,9 @@ protected:
         // draw glyphs scaled up
         canvas->scale(2.f, 2.f);
 
-        constexpr SkShader::TileMode kTileModes[] = {
-            SkShader::kRepeat_TileMode,
-            SkShader::kMirror_TileMode,
+        constexpr SkTileMode kTileModes[] = {
+            SkTileMode::kRepeat,
+            SkTileMode::kMirror,
         };
 
         // position the baseline of the first run
@@ -103,15 +116,13 @@ protected:
 
                 SkPaint fillPaint;
                 fillPaint.setAntiAlias(true);
-                sk_tool_utils::set_portable_typeface(&fillPaint);
-                fillPaint.setTextSize(SkIntToScalar(kPointSize));
                 fillPaint.setFilterQuality(kLow_SkFilterQuality);
-                fillPaint.setShader(SkShader::MakeBitmapShader(fBmp, kTileModes[tm0],
-                                                               kTileModes[tm1], &localM));
+                fillPaint.setShader(fBmp.makeShader(kTileModes[tm0], kTileModes[tm1], &localM));
 
-                canvas->drawText(kText, kTextLen, 0, 0, fillPaint);
-                canvas->drawText(kText, kTextLen, 0, 0, outlinePaint);
-                SkScalar w = fillPaint.measureText(kText, kTextLen);
+                constexpr char kText[] = "B";
+                canvas->drawString(kText, 0, 0, font, fillPaint);
+                canvas->drawString(kText, 0, 0, font, outlinePaint);
+                SkScalar w = font.measureText(kText, strlen(kText), SkTextEncoding::kUTF8);
                 canvas->translate(w + 10.f, 0.f);
                 ++i;
                 if (!(i % 2)) {
@@ -131,6 +142,5 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new ShaderText3GM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new ShaderText3GM; )
 }

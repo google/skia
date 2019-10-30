@@ -8,8 +8,10 @@
 #ifndef GrShaderCaps_DEFINED
 #define GrShaderCaps_DEFINED
 
-#include "../private/GrGLSL.h"
-#include "../private/GrSwizzle.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrSwizzle.h"
+#include "src/gpu/glsl/GrGLSL.h"
 
 namespace SkSL {
 class ShaderCapsFactory;
@@ -46,8 +48,6 @@ public:
     bool dstReadInShaderSupport() const { return fDstReadInShaderSupport; }
     bool dualSourceBlendingSupport() const { return fDualSourceBlendingSupport; }
     bool integerSupport() const { return fIntegerSupport; }
-    bool texelBufferSupport() const { return fTexelBufferSupport; }
-    int imageLoadStoreSupport() const { return fImageLoadStoreSupport; }
 
     /**
      * Some helper functions for encapsulating various extensions to read FB Buffer on openglES
@@ -64,17 +64,20 @@ public:
 
     const char* fbFetchExtensionString() const { return fFBFetchExtensionString; }
 
-    bool dropsTileOnZeroDivide() const { return fDropsTileOnZeroDivide; }
-
     bool flatInterpolationSupport() const { return fFlatInterpolationSupport; }
 
     bool preferFlatInterpolation() const { return fPreferFlatInterpolation; }
 
     bool noperspectiveInterpolationSupport() const { return fNoPerspectiveInterpolationSupport; }
 
-    bool externalTextureSupport() const { return fExternalTextureSupport; }
+    // Can we use sample variables everywhere?
+    bool sampleVariablesSupport() const { return fSampleVariablesSupport; }
 
-    bool texelFetchSupport() const { return fTexelFetchSupport; }
+    // Can we use sample variables when rendering to stencil? (This is a workaround for platforms
+    // where sample variables are broken in general, but seem to work when rendering to stencil.)
+    bool sampleVariablesStencilSupport() const { return fSampleVariablesStencilSupport; }
+
+    bool externalTextureSupport() const { return fExternalTextureSupport; }
 
     bool vertexIDSupport() const { return fVertexIDSupport; }
 
@@ -84,6 +87,11 @@ public:
     bool floatIs32Bits() const { return fFloatIs32Bits; }
 
     bool halfIs32Bits() const { return fHalfIs32Bits; }
+
+    bool hasLowFragmentPrecision() const { return fHasLowFragmentPrecision; }
+
+    // SkSL only.
+    bool builtinFMASupport() const { return fBuiltinFMASupport; }
 
     AdvBlendEqInteraction advBlendEqInteraction() const { return fAdvBlendEqInteraction; }
 
@@ -119,12 +127,22 @@ public:
     // If false, SkSL uses a workaround so that sk_FragCoord doesn't actually query gl_FragCoord
     bool canUseFragCoord() const { return fCanUseFragCoord; }
 
-    // If true interpolated vertex shader outputs are inaccurate.
-    bool interpolantsAreInaccurate() const { return fInterpolantsAreInaccurate; }
-
     // If true, short ints can't represent every integer in the 16-bit two's complement range as
     // required by the spec. SKSL will always emit full ints.
     bool incompleteShortIntPrecision() const { return fIncompleteShortIntPrecision; }
+
+    // If true, then conditions in for loops need "&& true" to work around driver bugs.
+    bool addAndTrueToLoopCondition() const { return fAddAndTrueToLoopCondition; }
+
+    // If true, then expressions such as "x && y" or "x || y" are rewritten as
+    // ternary to work around driver bugs.
+    bool unfoldShortCircuitAsTernary() const { return fUnfoldShortCircuitAsTernary; }
+
+    bool emulateAbsIntFunction() const { return fEmulateAbsIntFunction; }
+
+    bool rewriteDoWhileLoops() const { return fRewriteDoWhileLoops; }
+
+    bool removePowWithConstantExponent() const { return fRemovePowWithConstantExponent; }
 
     bool requiresLocalOutputColorForFBFetch() const { return fRequiresLocalOutputColorForFBFetch; }
 
@@ -134,6 +152,16 @@ public:
     // constructs. See detailed comments in GrGLCaps.cpp.
     bool mustGuardDivisionEvenAfterExplicitZeroCheck() const {
         return fMustGuardDivisionEvenAfterExplicitZeroCheck;
+    }
+
+    // On Nexus 6, the GL context can get lost if a shader does not write a value to gl_FragColor.
+    // https://bugs.chromium.org/p/chromium/issues/detail?id=445377
+    bool mustWriteToFragColor() const { return fMustWriteToFragColor; }
+
+    // The Android emulator claims samplerExternalOES is an unknown type if a default precision
+    // statement is made for the type.
+    bool noDefaultPrecisionForExternalSamplers() const {
+        return fNoDefaultPrecisionForExternalSamplers;
     }
 
     // Returns the string of an extension that must be enabled in the shader to support
@@ -188,51 +216,19 @@ public:
         return fSecondExternalTextureExtensionString;
     }
 
-    const char* texelBufferExtensionString() const {
-        SkASSERT(this->texelBufferSupport());
-        return fTexelBufferExtensionString;
-    }
-
     const char* noperspectiveInterpolationExtensionString() const {
         SkASSERT(this->noperspectiveInterpolationSupport());
         return fNoPerspectiveInterpolationExtensionString;
     }
 
-    const char* imageLoadStoreExtensionString() const {
-        SkASSERT(this->imageLoadStoreSupport());
-        return fImageLoadStoreExtensionString;
+    const char* sampleVariablesExtensionString() const {
+        SkASSERT(this->sampleVariablesSupport() || this->sampleVariablesStencilSupport());
+        return fSampleVariablesExtensionString;
     }
-
-    int maxVertexSamplers() const { return fMaxVertexSamplers; }
-
-    int maxGeometrySamplers() const { return fMaxGeometrySamplers; }
 
     int maxFragmentSamplers() const { return fMaxFragmentSamplers; }
 
-    int maxCombinedSamplers() const { return fMaxCombinedSamplers; }
-
-    /**
-     * In general using multiple texture units for image rendering seems to be a win at smaller
-     * sizes of dst rects and a loss at larger sizes. Dst rects above this pixel area threshold will
-     * not use multitexturing.
-     */
-    size_t disableImageMultitexturingDstRectAreaThreshold() const {
-        return fDisableImageMultitexturingDstRectAreaThreshold;
-    }
-
-    /**
-     * Given a texture's config, this determines what swizzle must be appended to accesses to the
-     * texture in generated shader code. Swizzling may be implemented in texture parameters or a
-     * sampler rather than in the shader. In this case the returned swizzle will always be "rgba".
-     */
-    const GrSwizzle& configTextureSwizzle(GrPixelConfig config) const {
-        return fConfigTextureSwizzle[config];
-    }
-
-    /** Swizzle that should occur on the fragment shader outputs for a given config. */
-    const GrSwizzle& configOutputSwizzle(GrPixelConfig config) const {
-        return fConfigOutputSwizzle[config];
-    }
+    bool textureSwizzleAppliedInShader() const { return fTextureSwizzleAppliedInShader; }
 
     GrGLSLGeneration generation() const { return fGLSLGeneration; }
 
@@ -248,21 +244,24 @@ private:
     bool fDstReadInShaderSupport            : 1;
     bool fDualSourceBlendingSupport         : 1;
     bool fIntegerSupport                    : 1;
-    bool fTexelBufferSupport                : 1;
-    bool fImageLoadStoreSupport             : 1;
-    bool fDropsTileOnZeroDivide             : 1;
     bool fFBFetchSupport                    : 1;
     bool fFBFetchNeedsCustomOutput          : 1;
     bool fUsesPrecisionModifiers            : 1;
     bool fFlatInterpolationSupport          : 1;
     bool fPreferFlatInterpolation           : 1;
     bool fNoPerspectiveInterpolationSupport : 1;
+    bool fSampleVariablesSupport            : 1;
+    bool fSampleVariablesStencilSupport     : 1;
     bool fExternalTextureSupport            : 1;
-    bool fTexelFetchSupport                 : 1;
     bool fVertexIDSupport                   : 1;
     bool fFPManipulationSupport             : 1;
     bool fFloatIs32Bits                     : 1;
     bool fHalfIs32Bits                      : 1;
+    bool fHasLowFragmentPrecision           : 1;
+    bool fTextureSwizzleAppliedInShader     : 1;
+
+    // Used by SkSL to know when to generate polyfills.
+    bool fBuiltinFMASupport : 1;
 
     // Used for specific driver bug work arounds
     bool fCanUseAnyFunctionInShader                   : 1;
@@ -275,8 +274,14 @@ private:
     bool fMustObfuscateUniformColor                   : 1;
     bool fMustGuardDivisionEvenAfterExplicitZeroCheck : 1;
     bool fCanUseFragCoord                             : 1;
-    bool fInterpolantsAreInaccurate                   : 1;
     bool fIncompleteShortIntPrecision                 : 1;
+    bool fAddAndTrueToLoopCondition                   : 1;
+    bool fUnfoldShortCircuitAsTernary                 : 1;
+    bool fEmulateAbsIntFunction                       : 1;
+    bool fRewriteDoWhileLoops                         : 1;
+    bool fRemovePowWithConstantExponent               : 1;
+    bool fMustWriteToFragColor                        : 1;
+    bool fNoDefaultPrecisionForExternalSamplers       : 1;
 
     const char* fVersionDeclString;
 
@@ -287,26 +292,18 @@ private:
     const char* fSecondaryOutputExtensionString;
     const char* fExternalTextureExtensionString;
     const char* fSecondExternalTextureExtensionString;
-    const char* fTexelBufferExtensionString;
     const char* fNoPerspectiveInterpolationExtensionString;
-    const char* fImageLoadStoreExtensionString;
+    const char* fSampleVariablesExtensionString;
 
     const char* fFBFetchColorName;
     const char* fFBFetchExtensionString;
 
-    int fMaxVertexSamplers;
-    int fMaxGeometrySamplers;
     int fMaxFragmentSamplers;
-    int fMaxCombinedSamplers;
-
-    size_t fDisableImageMultitexturingDstRectAreaThreshold;
 
     AdvBlendEqInteraction fAdvBlendEqInteraction;
 
-    GrSwizzle fConfigTextureSwizzle[kGrPixelConfigCnt];
-    GrSwizzle fConfigOutputSwizzle[kGrPixelConfigCnt];
-
     friend class GrCaps;  // For initialization.
+    friend class GrDawnCaps;
     friend class GrGLCaps;
     friend class GrMockCaps;
     friend class GrMtlCaps;

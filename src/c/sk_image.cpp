@@ -7,12 +7,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkImage.h"
-#include "SkImageEncoder.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkPicture.h"
 
-#include "sk_image.h"
+#include "include/c/sk_image.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
 void sk_image_ref(const sk_image_t* cimage) {
     AsImage(cimage)->ref();
@@ -95,7 +96,7 @@ sk_shader_t* sk_image_make_shader(const sk_image_t* image, sk_shader_tilemode_t 
     if (cmatrix) {
         m = AsMatrix(cmatrix);
     }
-    return ToShader(AsImage(image)->makeShader((SkShader::TileMode)tileX, (SkShader::TileMode)tileY, cmatrix ? &m : nullptr).release());
+    return ToShader(AsImage(image)->makeShader((SkTileMode)tileX, (SkTileMode)tileY, cmatrix ? &m : nullptr).release());
 }
 
 bool sk_image_peek_pixels(const sk_image_t* image, sk_pixmap_t* pixmap) {

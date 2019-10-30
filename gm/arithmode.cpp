@@ -5,16 +5,30 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkArithmeticImageFilter.h"
-#include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
-#include "SkImageSource.h"
-#include "SkShader.h"
-#include "SkSurface.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkImageFilters.h"
+#include "tools/ToolUtils.h"
+
+#include <utility>
 
 #define WW  100
 #define HH  32
@@ -30,7 +44,7 @@ static sk_sp<SkImage> make_src() {
         SK_ColorRED, SK_ColorMAGENTA, SK_ColorWHITE,
     };
     paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                                 SkShader::kClamp_TileMode));
+                                                 SkTileMode::kClamp));
     canvas->drawPaint(paint);
     return surface->makeImageSnapshot();
 }
@@ -43,45 +57,38 @@ static sk_sp<SkImage> make_dst() {
     SkPoint pts[] = { {0, SkIntToScalar(HH)}, {SkIntToScalar(WW), 0} };
     SkColor colors[] = {
         SK_ColorBLUE, SK_ColorYELLOW, SK_ColorBLACK, SK_ColorGREEN,
-        sk_tool_utils::color_to_565(SK_ColorGRAY)
+        SK_ColorGRAY,
     };
     paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                                 SkShader::kClamp_TileMode));
+                                                 SkTileMode::kClamp));
     canvas->drawPaint(paint);
     return surface->makeImageSnapshot();
 }
 
 static void show_k_text(SkCanvas* canvas, SkScalar x, SkScalar y, const SkScalar k[]) {
+    SkFont font(ToolUtils::create_portable_typeface(), 24);
+    font.setEdging(SkFont::Edging::kAntiAlias);
     SkPaint paint;
-    paint.setTextSize(SkIntToScalar(24));
     paint.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface(&paint);
     for (int i = 0; i < 4; ++i) {
         SkString str;
         str.appendScalar(k[i]);
-        SkScalar width = paint.measureText(str.c_str(), str.size());
-        canvas->drawString(str, x, y + paint.getTextSize(), paint);
+        SkScalar width = font.measureText(str.c_str(), str.size(), SkTextEncoding::kUTF8);
+        canvas->drawString(str, x, y + font.getSize(), font, paint);
         x += width + SkIntToScalar(10);
     }
 }
 
 class ArithmodeGM : public skiagm::GM {
-public:
-    ArithmodeGM () {}
+    SkString onShortName() override { return SkString("arithmode"); }
 
-protected:
+    SkISize onISize() override { return {640, 572}; }
 
-    virtual SkString onShortName() {
-        return SkString("arithmode");
-    }
-
-    virtual SkISize onISize() { return SkISize::Make(640, 572); }
-
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         sk_sp<SkImage> src = make_src();
         sk_sp<SkImage> dst = make_dst();
-        sk_sp<SkImageFilter> srcFilter = SkImageSource::Make(src);
-        sk_sp<SkImageFilter> dstFilter = SkImageSource::Make(dst);
+        sk_sp<SkImageFilter> srcFilter = SkImageFilters::Image(src);
+        sk_sp<SkImageFilter> dstFilter = SkImageFilters::Image(dst);
 
         constexpr SkScalar one = SK_Scalar1;
         constexpr SkScalar K[] = {
@@ -110,8 +117,8 @@ protected:
                 canvas->drawImage(dst, 0, 0);
                 canvas->translate(gap, 0);
                 SkPaint paint;
-                paint.setImageFilter(SkArithmeticImageFilter::Make(k[0], k[1], k[2], k[3], true,
-                                                                   dstFilter, srcFilter, nullptr));
+                paint.setImageFilter(SkImageFilters::Arithmetic(k[0], k[1], k[2], k[3], true,
+                                                                dstFilter, srcFilter, nullptr));
                 canvas->saveLayer(&rect, &paint);
                 canvas->restore();
 
@@ -138,22 +145,19 @@ protected:
                 canvas->translate(gap, 0);
 
                 sk_sp<SkImageFilter> bg =
-                        SkArithmeticImageFilter::Make(0, 0, -one / 2, 1, enforcePMColor, dstFilter,
-                                                      nullptr, nullptr);
+                        SkImageFilters::Arithmetic(0, 0, -one / 2, 1, enforcePMColor, dstFilter,
+                                                   nullptr, nullptr);
                 SkPaint p;
-                p.setImageFilter(SkArithmeticImageFilter::Make(0, one / 2, -one, 1, true,
-                                                               std::move(bg), dstFilter, nullptr));
+                p.setImageFilter(SkImageFilters::Arithmetic(0, one / 2, -one, 1, true,
+                                                            std::move(bg), dstFilter, nullptr));
                 canvas->saveLayer(&rect, &p);
                 canvas->restore();
                 canvas->translate(gap, 0);
 
                 // Label
-                SkPaint paint;
-                paint.setTextSize(SkIntToScalar(24));
-                paint.setAntiAlias(true);
-                sk_tool_utils::set_portable_typeface(&paint);
+                SkFont   font(ToolUtils::create_portable_typeface(), 24);
                 SkString str(enforcePMColor ? "enforcePM" : "no enforcePM");
-                canvas->drawString(str, 0, paint.getTextSize(), paint);
+                canvas->drawString(str, 0, font.getSize(), font, SkPaint());
             }
             canvas->translate(0, HH + 12);
         }

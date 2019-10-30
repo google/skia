@@ -7,7 +7,7 @@
 
 #include <QtWidgets>
 
-#include "mainwindow.h"
+#include "tools/mdbviz/mainwindow.h"
 
 int main(int argc, char *argv[])
 {

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "PathOpsExtendedTest.h"
-#include "PathOpsTestCommon.h"
-#include "SkBitmap.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "tests/PathOpsExtendedTest.h"
+#include "tests/PathOpsTestCommon.h"
+#include "tests/Test.h"
 
 DEF_TEST(PathOpsBuilder, reporter) {
     SkOpBuilder builder;
@@ -61,7 +61,7 @@ DEF_TEST(PathOpsBuilder, reporter) {
     REPORTER_ASSERT(reporter, result.isRect(nullptr, &closed, &dir));
     REPORTER_ASSERT(reporter, closed);
     SkRect expected;
-    expected.set(0, 1, 5, 3);
+    expected.setLTRB(0, 1, 5, 3);
     REPORTER_ASSERT(reporter, result.getBounds() == expected);
 
     SkPath circle1, circle2, circle3;

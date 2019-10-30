@@ -8,8 +8,8 @@
 #ifndef SKSL_CFGGENERATOR
 #define SKSL_CFGGENERATOR
 
-#include "ir/SkSLExpression.h"
-#include "ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLFunctionDefinition.h"
 
 #include <set>
 #include <stack>
@@ -34,22 +34,22 @@ struct BasicBlock {
         , fStatement(statement) {}
 
         std::unique_ptr<Expression>* expression() const {
-            ASSERT(fKind == kExpression_Kind);
+            SkASSERT(fKind == kExpression_Kind);
             return fExpression;
         }
 
         void setExpression(std::unique_ptr<Expression> expr) {
-            ASSERT(fKind == kExpression_Kind);
+            SkASSERT(fKind == kExpression_Kind);
             *fExpression = std::move(expr);
         }
 
         std::unique_ptr<Statement>* statement() const {
-            ASSERT(fKind == kStatement_Kind);
+            SkASSERT(fKind == kStatement_Kind);
             return fStatement;
         }
 
         void setStatement(std::unique_ptr<Statement> stmt) {
-            ASSERT(fKind == kStatement_Kind);
+            SkASSERT(fKind == kStatement_Kind);
             *fStatement = std::move(stmt);
         }
 
@@ -57,7 +57,7 @@ struct BasicBlock {
             if (fKind == kStatement_Kind) {
                 return (*fStatement)->description();
             } else {
-                ASSERT(fKind == kExpression_Kind);
+                SkASSERT(fKind == kExpression_Kind);
                 return (*fExpression)->description();
             }
         }

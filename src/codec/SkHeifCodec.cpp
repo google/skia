@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #ifdef SK_HAS_HEIF_LIBRARY
-#include "SkCodec.h"
-#include "SkCodecPriv.h"
-#include "SkColorData.h"
-#include "SkEndian.h"
-#include "SkStream.h"
-#include "SkHeifCodec.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkColorData.h"
+#include "src/codec/SkCodecPriv.h"
+#include "src/codec/SkHeifCodec.h"
+#include "src/core/SkEndian.h"
 
 #define FOURCC(c1, c2, c3, c4) \
     ((c1) << 24 | (c2) << 16 | (c3) << 8 | (c4))
@@ -118,55 +118,69 @@ private:
     std::unique_ptr<SkStream> fStream;
 };
 
-std::unique_ptr<SkCodec> SkHeifCodec::MakeFromStream(
-        std::unique_ptr<SkStream> stream, Result* result) {
+static void releaseProc(const void* ptr, void* context) {
+    delete reinterpret_cast<std::vector<uint8_t>*>(context);
+}
+
+std::unique_ptr<SkCodec> SkHeifCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
+        SkCodec::SelectionPolicy selectionPolicy, Result* result) {
     std::unique_ptr<HeifDecoder> heifDecoder(createHeifDecoder());
     if (heifDecoder.get() == nullptr) {
         *result = kInternalError;
         return nullptr;
     }
 
-    HeifFrameInfo frameInfo;
-    if (!heifDecoder->init(new SkHeifStreamWrapper(stream.release()),
-                           &frameInfo)) {
+    HeifFrameInfo heifInfo;
+    if (!heifDecoder->init(new SkHeifStreamWrapper(stream.release()), &heifInfo)) {
         *result = kInvalidInput;
         return nullptr;
     }
 
-    SkEncodedInfo info = SkEncodedInfo::Make(
-            SkEncodedInfo::kYUV_Color, SkEncodedInfo::kOpaque_Alpha, 8);
-
-    SkEncodedOrigin orientation = get_orientation(frameInfo);
-
-    sk_sp<SkColorSpace> colorSpace = nullptr;
-    if ((frameInfo.mIccSize > 0) && (frameInfo.mIccData != nullptr)) {
-        colorSpace = SkColorSpace::MakeICC(frameInfo.mIccData.get(),
-                                           frameInfo.mIccSize);
+    size_t frameCount = 1;
+    if (selectionPolicy == SkCodec::SelectionPolicy::kPreferAnimation) {
+        HeifFrameInfo sequenceInfo;
+        if (heifDecoder->getSequenceInfo(&sequenceInfo, &frameCount) &&
+                frameCount > 1) {
+            heifInfo = std::move(sequenceInfo);
+        }
     }
-    if (!colorSpace || colorSpace->type() != SkColorSpace::kRGB_Type) {
-        colorSpace = SkColorSpace::MakeSRGB();
+
+    std::unique_ptr<SkEncodedInfo::ICCProfile> profile = nullptr;
+    if (heifInfo.mIccData.size() > 0) {
+        auto iccData = new std::vector<uint8_t>(std::move(heifInfo.mIccData));
+        auto icc = SkData::MakeWithProc(iccData->data(), iccData->size(), releaseProc, iccData);
+        profile = SkEncodedInfo::ICCProfile::Make(std::move(icc));
     }
+    if (profile && profile->profile()->data_color_space != skcms_Signature_RGB) {
+        // This will result in sRGB.
+        profile = nullptr;
+    }
+
+    SkEncodedInfo info = SkEncodedInfo::Make(heifInfo.mWidth, heifInfo.mHeight,
+            SkEncodedInfo::kYUV_Color, SkEncodedInfo::kOpaque_Alpha, 8, std::move(profile));
+    SkEncodedOrigin orientation = get_orientation(heifInfo);
 
     *result = kSuccess;
-    return std::unique_ptr<SkCodec>(new SkHeifCodec(frameInfo.mWidth, frameInfo.mHeight,
-            info, heifDecoder.release(), std::move(colorSpace), orientation));
+    return std::unique_ptr<SkCodec>(new SkHeifCodec(
+            std::move(info), heifDecoder.release(), orientation, frameCount > 1));
 }
 
-SkHeifCodec::SkHeifCodec(int width, int height, const SkEncodedInfo& info,
-        HeifDecoder* heifDecoder, sk_sp<SkColorSpace> colorSpace, SkEncodedOrigin origin)
-    : INHERITED(width, height, info, SkColorSpaceXform::kRGBA_8888_ColorFormat,
-            nullptr, std::move(colorSpace), origin)
+SkHeifCodec::SkHeifCodec(
+        SkEncodedInfo&& info,
+        HeifDecoder* heifDecoder,
+        SkEncodedOrigin origin,
+        bool useAnimation)
+    : INHERITED(std::move(info), skcms_PixelFormat_RGBA_8888, nullptr, origin)
     , fHeifDecoder(heifDecoder)
     , fSwizzleSrcRow(nullptr)
     , fColorXformSrcRow(nullptr)
+    , fUseAnimation(useAnimation)
 {}
 
-/*
- * Checks if the conversion between the input image and the requested output
- * image has been implemented
- * Sets the output color format
- */
-bool SkHeifCodec::setOutputColorFormat(const SkImageInfo& dstInfo) {
+bool SkHeifCodec::conversionSupported(const SkImageInfo& dstInfo, bool srcIsOpaque,
+                                      bool needsColorXform) {
+    SkASSERT(srcIsOpaque);
+
     if (kUnknown_SkAlphaType == dstInfo.alphaType()) {
         return false;
     }
@@ -184,14 +198,14 @@ bool SkHeifCodec::setOutputColorFormat(const SkImageInfo& dstInfo) {
             return fHeifDecoder->setOutputColor(kHeifColorFormat_BGRA_8888);
 
         case kRGB_565_SkColorType:
-            if (this->colorXform()) {
+            if (needsColorXform) {
                 return fHeifDecoder->setOutputColor(kHeifColorFormat_RGBA_8888);
             } else {
                 return fHeifDecoder->setOutputColor(kHeifColorFormat_RGB565);
             }
 
         case kRGBA_F16_SkColorType:
-            SkASSERT(this->colorXform());
+            SkASSERT(needsColorXform);
             return fHeifDecoder->setOutputColor(kHeifColorFormat_RGBA_8888);
 
         default:
@@ -240,7 +254,7 @@ int SkHeifCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
         }
 
         if (this->colorXform()) {
-            this->applyColorXform(dst, swizzleDst, dstWidth, kOpaque_SkAlphaType);
+            this->applyColorXform(dst, swizzleDst, dstWidth);
             dst = SkTAddOffset<void>(dst, rowBytes);
         }
 
@@ -249,6 +263,81 @@ int SkHeifCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
     }
 
     return count;
+}
+
+int SkHeifCodec::onGetFrameCount() {
+    if (!fUseAnimation) {
+        return 1;
+    }
+
+    if (fFrameHolder.size() == 0) {
+        size_t frameCount;
+        HeifFrameInfo frameInfo;
+        if (!fHeifDecoder->getSequenceInfo(&frameInfo, &frameCount)
+                || frameCount <= 1) {
+            fUseAnimation = false;
+            return 1;
+        }
+        fFrameHolder.reserve(frameCount);
+        for (size_t i = 0; i < frameCount; i++) {
+            Frame* frame = fFrameHolder.appendNewFrame();
+            frame->setXYWH(0, 0, frameInfo.mWidth, frameInfo.mHeight);
+            frame->setDisposalMethod(SkCodecAnimation::DisposalMethod::kKeep);
+            // Currently we don't know the duration until the frame is actually
+            // decoded (onGetFrameInfo is also called before frame is decoded).
+            // For now, fill it base on the value reported for the sequence.
+            frame->setDuration(frameInfo.mDurationUs / 1000);
+            frame->setRequiredFrame(SkCodec::kNoFrame);
+            frame->setHasAlpha(false);
+        }
+    }
+
+    return fFrameHolder.size();
+}
+
+const SkFrame* SkHeifCodec::FrameHolder::onGetFrame(int i) const {
+    return static_cast<const SkFrame*>(this->frame(i));
+}
+
+SkHeifCodec::Frame* SkHeifCodec::FrameHolder::appendNewFrame() {
+    const int i = this->size();
+    fFrames.emplace_back(i); // TODO: need to handle frame duration here
+    return &fFrames[i];
+}
+
+const SkHeifCodec::Frame* SkHeifCodec::FrameHolder::frame(int i) const {
+    SkASSERT(i >= 0 && i < this->size());
+    return &fFrames[i];
+}
+
+SkHeifCodec::Frame* SkHeifCodec::FrameHolder::editFrameAt(int i) {
+    SkASSERT(i >= 0 && i < this->size());
+    return &fFrames[i];
+}
+
+bool SkHeifCodec::onGetFrameInfo(int i, FrameInfo* frameInfo) const {
+    if (i >= fFrameHolder.size()) {
+        return false;
+    }
+
+    const Frame* frame = fFrameHolder.frame(i);
+    if (!frame) {
+        return false;
+    }
+
+    if (frameInfo) {
+        frameInfo->fRequiredFrame = SkCodec::kNoFrame;
+        frameInfo->fDuration = frame->getDuration();
+        frameInfo->fFullyReceived = true;
+        frameInfo->fAlphaType = kOpaque_SkAlphaType;
+        frameInfo->fDisposalMethod = SkCodecAnimation::DisposalMethod::kKeep;
+    }
+
+    return true;
+}
+
+int SkHeifCodec::onGetRepetitionCount() {
+    return kRepetitionCountInfinite;
 }
 
 /*
@@ -265,12 +354,16 @@ SkCodec::Result SkHeifCodec::onGetPixels(const SkImageInfo& dstInfo,
         return kUnimplemented;
     }
 
-    // Check if we can decode to the requested destination and set the output color space
-    if (!this->setOutputColorFormat(dstInfo)) {
-        return kInvalidConversion;
+    bool success;
+    if (fUseAnimation) {
+        success = fHeifDecoder->decodeSequence(options.fFrameIndex, &fFrameInfo);
+        fFrameHolder.editFrameAt(options.fFrameIndex)->setDuration(
+                fFrameInfo.mDurationUs / 1000);
+    } else {
+        success = fHeifDecoder->decode(&fFrameInfo);
     }
 
-    if (!fHeifDecoder->decode(&fFrameInfo)) {
+    if (!success) {
         return kInvalidInput;
     }
 
@@ -313,16 +406,18 @@ void SkHeifCodec::allocateStorage(const SkImageInfo& dstInfo) {
 
 void SkHeifCodec::initializeSwizzler(
         const SkImageInfo& dstInfo, const Options& options) {
-    SkEncodedInfo swizzlerInfo = this->getEncodedInfo();
-
     SkImageInfo swizzlerDstInfo = dstInfo;
     if (this->colorXform()) {
         // The color xform will be expecting RGBA 8888 input.
         swizzlerDstInfo = swizzlerDstInfo.makeColorType(kRGBA_8888_SkColorType);
     }
 
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(swizzlerInfo, nullptr,
-            swizzlerDstInfo, options, nullptr, true));
+    int srcBPP = 4;
+    if (dstInfo.colorType() == kRGB_565_SkColorType && !this->colorXform()) {
+        srcBPP = 2;
+    }
+
+    fSwizzler = SkSwizzler::MakeSimple(srcBPP, swizzlerDstInfo, options);
     SkASSERT(fSwizzler);
 }
 
@@ -337,13 +432,17 @@ SkSampler* SkHeifCodec::getSampler(bool createIfNecessary) {
     return fSwizzler.get();
 }
 
+bool SkHeifCodec::onRewind() {
+    fSwizzler.reset(nullptr);
+    fSwizzleSrcRow = nullptr;
+    fColorXformSrcRow = nullptr;
+    fStorage.reset();
+
+    return true;
+}
+
 SkCodec::Result SkHeifCodec::onStartScanlineDecode(
         const SkImageInfo& dstInfo, const Options& options) {
-    // Check if we can decode to the requested destination and set the output color space
-    if (!this->setOutputColorFormat(dstInfo)) {
-        return kInvalidConversion;
-    }
-
     // TODO: For now, just decode the whole thing even when there is a subset.
     // If the heif image has tiles, we could potentially do this much faster,
     // but the tile configuration needs to be retrieved from the metadata.

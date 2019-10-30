@@ -1,0 +1,4103 @@
+
+This file contains a mapping from where these documumentation examples
+should be inserted into the headers.
+
+###########################################################################
+
+[AutoCanvasRestore_SkCanvas_star]
+SkAutoCanvasRestore
+SkAutoCanvasRestore(SkCanvas* canvas, bool doSave);
+
+[AutoCanvasRestore_restore]
+SkAutoCanvasRestore
+void restore();
+
+[Bitmap_ComputeIsOpaque]
+SkBitmap
+static bool ComputeIsOpaque(const SkBitmap& bm);
+
+[Bitmap_empty_constructor]
+SkBitmap
+SkBitmap();
+
+[Bitmap_move_SkBitmap]
+SkBitmap
+SkBitmap(SkBitmap&& src);
+
+[Bitmap_copy_const_SkBitmap]
+SkBitmap
+SkBitmap(const SkBitmap& src);
+
+[Bitmap_allocN32Pixels]
+SkBitmap
+void allocN32Pixels(int width, int height, bool isOpaque = false);
+
+[Bitmap_HeapAllocator_allocPixelRef]
+SkBitmap
+bool allocPixelRef(SkBitmap* bitmap) override;
+
+[Bitmap_allocPixels_3]
+SkBitmap
+void allocPixels();
+
+[Bitmap_allocPixels_4]
+SkBitmap
+void allocPixels(Allocator* allocator);
+
+[Bitmap_allocPixels_2]
+SkBitmap
+void allocPixels(const SkImageInfo& info);
+
+[Bitmap_allocPixels]
+SkBitmap
+void allocPixels(const SkImageInfo& info, size_t rowBytes);
+
+[Bitmap_allocPixelsFlags]
+SkBitmap
+void allocPixelsFlags(const SkImageInfo& info, uint32_t flags);
+
+[Pixmap_alphaType]
+SkBitmap
+SkAlphaType alphaType() const;
+
+[Bitmap_bounds]
+SkBitmap
+SkIRect bounds() const;
+
+[Bitmap_bytesPerPixel]
+SkBitmap
+int bytesPerPixel() const;
+
+[Bitmap_colorSpace]
+SkBitmap
+SkColorSpace* colorSpace() const;
+
+[Bitmap_colorType]
+SkBitmap
+SkColorType colorType() const;
+
+[Bitmap_computeByteSize]
+SkBitmap
+size_t computeByteSize() const;
+
+[Bitmap_dimensions]
+SkBitmap
+SkISize dimensions() const;
+
+[Bitmap_drawsNothing]
+SkBitmap
+bool drawsNothing() const;
+
+[Bitmap_empty]
+SkBitmap
+bool empty() const;
+
+[Bitmap_erase]
+SkBitmap
+void erase(SkColor c, const SkIRect& area) const;
+
+[Bitmap_eraseARGB]
+SkBitmap
+void eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const;
+
+[Bitmap_eraseColor]
+SkBitmap
+void eraseColor(SkColor c) const;
+
+[Bitmap_extractAlpha]
+SkBitmap
+bool extractAlpha(SkBitmap* dst) const;
+
+[Bitmap_extractAlpha_3]
+SkBitmap
+bool extractAlpha(SkBitmap* dst, const SkPaint* paint, Allocator* allocator, SkIPoint* offset) const;
+
+[Bitmap_extractAlpha_2]
+SkBitmap
+bool extractAlpha(SkBitmap* dst, const SkPaint* paint, SkIPoint* offset) const;
+
+[Bitmap_extractSubset]
+SkBitmap
+bool extractSubset(SkBitmap* dst, const SkIRect& subset) const;
+
+[Bitmap_getAddr]
+SkBitmap
+void* getAddr(int x, int y) const;
+
+[Bitmap_getAddr16]
+SkBitmap
+uint16_t* getAddr16(int x, int y) const;
+
+[Bitmap_getAddr32]
+SkBitmap
+uint32_t* getAddr32(int x, int y) const;
+
+[Bitmap_getAddr8]
+SkBitmap
+uint8_t* getAddr8(int x, int y) const;
+
+[Bitmap_getBounds_2]
+SkBitmap
+void getBounds(SkIRect* bounds) const;
+
+[Bitmap_getBounds]
+SkBitmap
+void getBounds(SkRect* bounds) const;
+
+[Bitmap_getColor]
+SkBitmap
+SkColor getColor(int x, int y) const;
+
+[Bitmap_getGenerationID]
+SkBitmap
+uint32_t getGenerationID() const;
+
+[Bitmap_getPixels]
+SkBitmap
+void* getPixels() const;
+
+[Bitmap_getSubset]
+SkBitmap
+SkIRect getSubset() const;
+
+[Bitmap_height]
+SkBitmap
+int height() const;
+
+[Bitmap_info]
+SkBitmap
+const SkImageInfo& info() const;
+
+[Bitmap_installPixels_2]
+SkBitmap
+bool installPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
+
+[Bitmap_installPixels]
+SkBitmap
+bool installPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, void (*releaseProc) (void* addr, void* context) , void* context);
+
+[Bitmap_installPixels_3]
+SkBitmap
+bool installPixels(const SkPixmap& pixmap);
+
+[Bitmap_isImmutable]
+SkBitmap
+bool isImmutable() const;
+
+[Bitmap_isNull]
+SkBitmap
+bool isNull() const;
+
+[Bitmap_isOpaque]
+SkBitmap
+bool isOpaque() const;
+
+[Bitmap_isVolatile]
+SkBitmap
+bool isVolatile() const;
+
+[Bitmap_notifyPixelsChanged]
+SkBitmap
+void notifyPixelsChanged() const;
+
+[Bitmap_move_operator]
+SkBitmap
+SkBitmap& operator=(SkBitmap&& src);
+
+[Bitmap_copy_operator]
+SkBitmap
+SkBitmap& operator=(const SkBitmap& src);
+
+[Bitmap_peekPixels]
+SkBitmap
+bool peekPixels(SkPixmap* pixmap) const;
+
+[Bitmap_pixelRef]
+SkBitmap
+SkPixelRef* pixelRef() const;
+
+[Bitmap_pixelRefOrigin]
+SkBitmap
+SkIPoint pixelRefOrigin() const;
+
+[Bitmap_pixmap]
+SkBitmap
+const SkPixmap& pixmap() const;
+
+[Bitmap_readPixels]
+SkBitmap
+bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY) const;
+
+[Bitmap_readPixels_3]
+SkBitmap
+bool readPixels(const SkPixmap& dst) const;
+
+[Bitmap_readPixels_2]
+SkBitmap
+bool readPixels(const SkPixmap& dst, int srcX, int srcY) const;
+
+[Bitmap_readyToDraw]
+SkBitmap
+bool readyToDraw() const;
+
+[Bitmap_refColorSpace]
+SkBitmap
+sk_sp<SkColorSpace> refColorSpace() const;
+
+[Bitmap_reset]
+SkBitmap
+void reset();
+
+[Bitmap_rowBytes]
+SkBitmap
+size_t rowBytes() const;
+
+[Bitmap_rowBytesAsPixels]
+SkBitmap
+int rowBytesAsPixels() const;
+
+[Bitmap_setAlphaType]
+SkBitmap
+bool setAlphaType(SkAlphaType alphaType);
+
+[Bitmap_setImmutable]
+SkBitmap
+void setImmutable();
+
+[Bitmap_setInfo]
+SkBitmap
+bool setInfo(const SkImageInfo& imageInfo, size_t rowBytes = 0);
+
+[Bitmap_setIsVolatile]
+SkBitmap
+void setIsVolatile(bool isVolatile);
+
+[Bitmap_setPixelRef]
+SkBitmap
+void setPixelRef(sk_sp<SkPixelRef> pixelRef, int dx, int dy);
+
+[Bitmap_setPixels]
+SkBitmap
+void setPixels(void* pixels);
+
+[Bitmap_shiftPerPixel]
+SkBitmap
+int shiftPerPixel() const;
+
+[Bitmap_swap]
+SkBitmap
+void swap(SkBitmap& other);
+
+[Bitmap_tryAllocN32Pixels]
+SkBitmap
+bool tryAllocN32Pixels(int width, int height, bool isOpaque = false);
+
+[Bitmap_tryAllocPixels_3]
+SkBitmap
+bool tryAllocPixels();
+
+[Bitmap_tryAllocPixels_4]
+SkBitmap
+bool tryAllocPixels(Allocator* allocator);
+
+[Bitmap_tryAllocPixels_2]
+SkBitmap
+bool tryAllocPixels(const SkImageInfo& info);
+
+[Bitmap_tryAllocPixels]
+SkBitmap
+bool tryAllocPixels(const SkImageInfo& info, size_t rowBytes);
+
+[Bitmap_tryAllocPixelsFlags]
+SkBitmap
+bool tryAllocPixelsFlags(const SkImageInfo& info, uint32_t flags);
+
+[Bitmap_width]
+SkBitmap
+int width() const;
+
+[Bitmap_writePixels_2]
+SkBitmap
+bool writePixels(const SkPixmap& src);
+
+[Bitmap_writePixels]
+SkBitmap
+bool writePixels(const SkPixmap& src, int dstX, int dstY);
+
+[BlendMode_Name]
+SkBlendMode
+const char* SkBlendMode_Name(SkBlendMode blendMode);
+
+[Clear]
+[Color]
+[Color_Burn]
+[Color_Dodge]
+[Darken]
+[Difference]
+[Dst]
+[Dst_Atop]
+[Dst_In]
+[Dst_Out]
+[Dst_Over]
+[Exclusion]
+[Hard_Light]
+[Hue]
+[Lighten]
+[Luminosity]
+[Modulate]
+[Multiply]
+[Overlay]
+[Plus]
+[Saturation]
+[Screen]
+[Soft_Light]
+[Src]
+[Src_Atop]
+[Src_In]
+[Src_Out]
+[Src_Over]
+[Xor]
+SkBlendMode
+enum class SkBlendMode { kClear, kSrc, kDst, kSrcOver, kDstOver, kSrcIn, kDstIn, kSrcOut, kDstOut, kSrcATop, kDstATop, kXor, kPlus, kModulate, kScreen, kLastCoeffMode = kScreen, kOverlay, kDarken, kLighten, kColorDodge, kColorBurn, kHardLight, kSoftLight, kDifference, kExclusion, kMultiply, kLastSeparableMode = kMultiply, kHue, kSaturation, kColor, kLuminosity, kLastMode = kLuminosity, }; const char* SkBlendMode_Name(SkBlendMode blendMode);
+
+[Canvas_MakeRasterDirect]
+SkCanvas
+static std::unique_ptr<SkCanvas> MakeRasterDirect(const SkImageInfo& info, void* pixels, size_t rowBytes, const SkSurfaceProps* props = nullptr);
+
+[Canvas_MakeRasterDirectN32]
+SkCanvas
+static std::unique_ptr<SkCanvas> MakeRasterDirectN32(int width, int height, SkPMColor* pixels, size_t rowBytes);
+
+[Canvas_SaveLayerRec]
+SkCanvas
+struct SaveLayerRec { SaveLayerRec(); SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0); SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop, SaveLayerFlags saveLayerFlags); const SkRect* fBounds = nullptr; const SkPaint* fPaint = nullptr; const SkImageFilter* fBackdrop = nullptr; const SkImage* fClipMask = nullptr; const SkMatrix* fClipMatrix = nullptr; SaveLayerFlags fSaveLayerFlags = 0; };
+
+[Canvas_SaveLayerRec_SaveLayerRec]
+SkCanvas
+SaveLayerRec();
+
+[Canvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star]
+SkCanvas
+SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0);
+
+[Canvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star_const_SkImageFilter_star]
+SkCanvas
+SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop, SaveLayerFlags saveLayerFlags);
+
+[Canvas_copy_const_SkBitmap]
+SkCanvas
+explicit SkCanvas(const SkBitmap& bitmap);
+
+[Canvas_empty_constructor]
+SkCanvas
+SkCanvas();
+
+[Canvas_const_SkBitmap_const_SkSurfaceProps]
+SkCanvas
+SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props);
+
+[Canvas_int_int_const_SkSurfaceProps_star]
+SkCanvas
+SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr);
+
+[Canvas_accessTopLayerPixels_a]
+[Canvas_accessTopLayerPixels_b]
+SkCanvas
+void* accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoint* origin = nullptr);
+
+[Canvas_accessTopRasterHandle]
+SkCanvas
+SkRasterHandleAllocator::Handle accessTopRasterHandle() const;
+
+[Canvas_clear]
+SkCanvas
+void clear(SkColor color);
+
+[Canvas_clipPath_2]
+SkCanvas
+void clipPath(const SkPath& path, SkClipOp op);
+
+[Canvas_clipPath]
+SkCanvas
+void clipPath(const SkPath& path, SkClipOp op, bool doAntiAlias);
+
+[Canvas_clipPath_3]
+SkCanvas
+void clipPath(const SkPath& path, bool doAntiAlias = false);
+
+[Canvas_clipRRect_2]
+SkCanvas
+void clipRRect(const SkRRect& rrect, SkClipOp op);
+
+[Canvas_clipRRect]
+SkCanvas
+void clipRRect(const SkRRect& rrect, SkClipOp op, bool doAntiAlias);
+
+[Canvas_clipRRect_3]
+SkCanvas
+void clipRRect(const SkRRect& rrect, bool doAntiAlias = false);
+
+[Canvas_clipRect_2]
+SkCanvas
+void clipRect(const SkRect& rect, SkClipOp op);
+
+[Canvas_clipRect]
+SkCanvas
+void clipRect(const SkRect& rect, SkClipOp op, bool doAntiAlias);
+
+[Canvas_clipRect_3]
+SkCanvas
+void clipRect(const SkRect& rect, bool doAntiAlias = false);
+
+[Canvas_clipRegion]
+SkCanvas
+void clipRegion(const SkRegion& deviceRgn, SkClipOp op = SkClipOp::kIntersect);
+
+[Canvas_concat]
+SkCanvas
+void concat(const SkMatrix& matrix);
+
+[Canvas_drawAnnotation_2]
+SkCanvas
+void drawAnnotation(const SkRect& rect, const char key[], SkData* value);
+
+[Canvas_drawAnnotation_2]
+SkCanvas
+void drawAnnotation(const SkRect& rect, const char key[], const sk_sp<SkData>& value);
+
+[Canvas_drawArc_a]
+[Canvas_drawArc_b]
+SkCanvas
+void drawArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool useCenter, const SkPaint& paint);
+
+[Canvas_drawAtlas]
+SkCanvas
+void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[], const SkColor colors[], int count, SkBlendMode mode, const SkRect* cullRect, const SkPaint* paint);
+
+[Canvas_drawAtlas_3]
+SkCanvas
+void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[], int count, const SkRect* cullRect, const SkPaint* paint);
+
+[Canvas_drawAtlas_2]
+SkCanvas
+void drawAtlas(const sk_sp<SkImage>& atlas, const SkRSXform xform[], const SkRect tex[], const SkColor colors[], int count, SkBlendMode mode, const SkRect* cullRect, const SkPaint* paint);
+
+[Canvas_drawAtlas_4]
+SkCanvas
+void drawAtlas(const sk_sp<SkImage>& atlas, const SkRSXform xform[], const SkRect tex[], int count, const SkRect* cullRect, const SkPaint* paint);
+
+[Canvas_drawBitmap]
+SkCanvas
+void drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top, const SkPaint* paint = nullptr);
+
+[Canvas_drawBitmapLattice]
+SkCanvas
+void drawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice, const SkRect& dst, const SkPaint* paint = nullptr);
+
+[Canvas_drawBitmapNine]
+SkCanvas
+void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst, const SkPaint* paint = nullptr);
+
+[Canvas_drawBitmapRect_2]
+SkCanvas
+void drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& dst, const SkPaint* paint, SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+
+[Canvas_drawBitmapRect_3]
+SkCanvas
+void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint, SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+
+[Canvas_drawBitmapRect]
+SkCanvas
+void drawBitmapRect(const SkBitmap& bitmap, const SkRect& src, const SkRect& dst, const SkPaint* paint, SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+
+[Canvas_drawCircle_2]
+SkCanvas
+void drawCircle(SkPoint center, SkScalar radius, const SkPaint& paint);
+
+[Canvas_drawCircle]
+SkCanvas
+void drawCircle(SkScalar cx, SkScalar cy, SkScalar radius, const SkPaint& paint);
+
+[Canvas_drawColor]
+SkCanvas
+void drawColor(SkColor color, SkBlendMode mode = SkBlendMode::kSrcOver);
+
+[Canvas_drawDRRect_a]
+[Canvas_drawDRRect_b]
+SkCanvas
+void drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint);
+
+[Canvas_drawDrawable_2]
+SkCanvas
+void drawDrawable(SkDrawable* drawable, SkScalar x, SkScalar y);
+
+[Canvas_drawDrawable]
+SkCanvas
+void drawDrawable(SkDrawable* drawable, const SkMatrix* matrix = nullptr);
+
+[Canvas_drawIRect]
+SkCanvas
+void drawIRect(const SkIRect& rect, const SkPaint& paint);
+
+[Canvas_drawImage]
+SkCanvas
+void drawImage(const SkImage* image, SkScalar left, SkScalar top, const SkPaint* paint = nullptr);
+
+[Canvas_drawImage_2]
+SkCanvas
+void drawImage(const sk_sp<SkImage>& image, SkScalar left, SkScalar top, const SkPaint* paint = nullptr);
+
+[Canvas_drawImageNine]
+SkCanvas
+void drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst, const SkPaint* paint = nullptr);
+
+[Canvas_drawImageNine]
+SkCanvas
+void drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst, const SkPaint* paint = nullptr);
+
+[Canvas_drawImageNine_2]
+SkCanvas
+void drawImageNine(const sk_sp<SkImage>& image, const SkIRect& center, const SkRect& dst, const SkPaint* paint = nullptr);
+
+[Canvas_drawImageRect_2]
+SkCanvas
+void drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst, const SkPaint* paint, SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+
+[Canvas_drawImageRect_3]
+SkCanvas
+void drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint);
+
+[Canvas_drawImageRect]
+SkCanvas
+void drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst, const SkPaint* paint, SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+
+[Canvas_drawImageRect_5]
+SkCanvas
+void drawImageRect(const sk_sp<SkImage>& image, const SkIRect& isrc, const SkRect& dst, const SkPaint* paint, SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+
+[Canvas_drawImageRect_6]
+SkCanvas
+void drawImageRect(const sk_sp<SkImage>& image, const SkRect& dst, const SkPaint* paint);
+
+[Canvas_drawImageRect_4]
+SkCanvas
+void drawImageRect(const sk_sp<SkImage>& image, const SkRect& src, const SkRect& dst, const SkPaint* paint, SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+
+[Canvas_drawLine_2]
+SkCanvas
+void drawLine(SkPoint p0, SkPoint p1, const SkPaint& paint);
+
+[Canvas_drawLine]
+SkCanvas
+void drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1, const SkPaint& paint);
+
+[Canvas_drawOval]
+SkCanvas
+void drawOval(const SkRect& oval, const SkPaint& paint);
+
+[Canvas_drawPaint]
+SkCanvas
+void drawPaint(const SkPaint& paint);
+
+[Canvas_drawPatch]
+SkCanvas
+void drawPatch(const SkPoint cubics[12], const SkColor colors[4], const SkPoint texCoords[4], SkBlendMode mode, const SkPaint& paint);
+
+[Canvas_drawPatch_2_a]
+[Canvas_drawPatch_2_b]
+SkCanvas
+void drawPatch(const SkPoint cubics[12], const SkColor colors[4], const SkPoint texCoords[4], const SkPaint& paint);
+
+[Canvas_drawPath]
+SkCanvas
+void drawPath(const SkPath& path, const SkPaint& paint);
+
+[Canvas_drawPicture_2]
+SkCanvas
+void drawPicture(const SkPicture* picture);
+
+[Canvas_drawPicture_3]
+SkCanvas
+void drawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint);
+
+[Canvas_drawPicture_2]
+SkCanvas
+void drawPicture(const sk_sp<SkPicture>& picture);
+
+[Canvas_drawPicture_4]
+SkCanvas
+void drawPicture(const sk_sp<SkPicture>& picture, const SkMatrix* matrix, const SkPaint* paint);
+
+[Canvas_drawPoint_2]
+SkCanvas
+void drawPoint(SkPoint p, const SkPaint& paint);
+
+[Canvas_drawPoint]
+SkCanvas
+void drawPoint(SkScalar x, SkScalar y, const SkPaint& paint);
+
+[Canvas_drawPoints]
+SkCanvas
+void drawPoints(PointMode mode, size_t count, const SkPoint pts[], const SkPaint& paint);
+
+[Canvas_drawPosText]
+SkCanvas
+void drawPosText(const void* text, size_t byteLength, const SkPoint pos[], const SkPaint& paint);
+
+[Canvas_drawPosTextH]
+SkCanvas
+void drawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[], SkScalar constY, const SkPaint& paint);
+
+[Canvas_drawRRect]
+SkCanvas
+void drawRRect(const SkRRect& rrect, const SkPaint& paint);
+
+[Canvas_drawRect]
+SkCanvas
+void drawRect(const SkRect& rect, const SkPaint& paint);
+
+[Canvas_drawRegion]
+SkCanvas
+void drawRegion(const SkRegion& region, const SkPaint& paint);
+
+[Canvas_drawRoundRect]
+SkCanvas
+void drawRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry, const SkPaint& paint);
+
+[Canvas_drawString_2]
+SkCanvas
+void drawString(const SkString& string, SkScalar x, SkScalar y, const SkPaint& paint);
+
+[Canvas_drawString]
+SkCanvas
+void drawString(const char* string, SkScalar x, SkScalar y, const SkPaint& paint);
+
+[Canvas_drawText]
+SkCanvas
+void drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y, const SkPaint& paint);
+
+[Canvas_drawTextBlob]
+SkCanvas
+void drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint);
+
+[Canvas_drawTextBlob_2]
+SkCanvas
+void drawTextBlob(const sk_sp<SkTextBlob>& blob, SkScalar x, SkScalar y, const SkPaint& paint);
+
+[Canvas_drawTextRSXform]
+SkCanvas
+void drawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[], const SkRect* cullRect, const SkPaint& paint);
+
+[Canvas_drawVertices]
+SkCanvas
+void drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint);
+
+[Canvas_drawVertices_2]
+SkCanvas
+void drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode, const SkPaint& paint);
+
+[Canvas_PointMode]
+SkCanvas
+enum PointMode { kPoints_PointMode, kLines_PointMode, kPolygon_PointMode, };
+
+[Canvas_kInitWithPrevious_SaveLayerFlag]
+SkCanvas
+enum SaveLayerFlagsSet { kPreserveLCDText_SaveLayerFlag = 1 << 1, kInitWithPrevious_SaveLayerFlag = 1 << 2, };
+
+[Canvas_SrcRectConstraint]
+SkCanvas
+enum SrcRectConstraint { kStrict_SrcRectConstraint, kFast_SrcRectConstraint, };
+
+[Canvas_getBaseLayerSize]
+SkCanvas
+virtual SkISize getBaseLayerSize() const;
+
+[Canvas_getDeviceClipBounds]
+SkCanvas
+SkIRect getDeviceClipBounds() const;
+
+[Canvas_getDeviceClipBounds_2]
+SkCanvas
+bool getDeviceClipBounds(SkIRect* bounds) const;
+
+[Canvas_getGrContext]
+SkCanvas
+virtual GrContext* getGrContext();
+
+[Canvas_getLocalClipBounds]
+SkCanvas
+SkRect getLocalClipBounds() const;
+
+[Canvas_getLocalClipBounds_2]
+SkCanvas
+bool getLocalClipBounds(SkRect* bounds) const;
+
+[Canvas_getProps]
+SkCanvas
+bool getProps(SkSurfaceProps* props) const;
+
+[Canvas_getSaveCount]
+SkCanvas
+int getSaveCount() const;
+
+[Canvas_getTotalMatrix]
+[Clip]
+SkCanvas
+const SkMatrix& getTotalMatrix() const;
+
+[Canvas_imageInfo]
+SkCanvas
+SkImageInfo imageInfo() const;
+
+[Canvas_isClipEmpty]
+SkCanvas
+virtual bool isClipEmpty() const;
+
+[Canvas_isClipRect]
+SkCanvas
+virtual bool isClipRect() const;
+
+[Canvas_makeSurface]
+SkCanvas
+sk_sp<SkSurface> makeSurface(const SkImageInfo& info, const SkSurfaceProps* props = nullptr);
+
+[Canvas_peekPixels]
+SkCanvas
+bool peekPixels(SkPixmap* pixmap);
+
+[Canvas_quickReject_2]
+SkCanvas
+bool quickReject(const SkPath& path) const;
+
+[Canvas_quickReject]
+SkCanvas
+bool quickReject(const SkRect& rect) const;
+
+[Canvas_readPixels_3]
+SkCanvas
+bool readPixels(const SkBitmap& bitmap, int srcX, int srcY);
+
+[Canvas_readPixels_a]
+[Canvas_readPixels_b]
+SkCanvas
+bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY);
+
+[Canvas_readPixels_2]
+SkCanvas
+bool readPixels(const SkPixmap& pixmap, int srcX, int srcY);
+
+[Canvas_resetMatrix]
+SkCanvas
+void resetMatrix();
+
+[Canvas_restore]
+SkCanvas
+void restore();
+
+[Canvas_restoreToCount]
+SkCanvas
+void restoreToCount(int saveCount);
+
+[Canvas_rotate]
+SkCanvas
+void rotate(SkScalar degrees);
+
+[Canvas_rotate_2]
+SkCanvas
+void rotate(SkScalar degrees, SkScalar px, SkScalar py);
+
+[Canvas_save]
+SkCanvas
+int save();
+
+[Canvas_saveLayer_3]
+SkCanvas
+int saveLayer(const SaveLayerRec& layerRec);
+
+[Canvas_saveLayer_2]
+SkCanvas
+int saveLayer(const SkRect& bounds, const SkPaint* paint);
+
+[Canvas_saveLayer]
+SkCanvas
+int saveLayer(const SkRect* bounds, const SkPaint* paint);
+
+[Canvas_saveLayerAlpha]
+SkCanvas
+int saveLayerAlpha(const SkRect* bounds, U8CPU alpha);
+
+[Canvas_saveLayerPreserveLCDTextRequests]
+SkCanvas
+int saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint);
+
+[Canvas_scale]
+SkCanvas
+void scale(SkScalar sx, SkScalar sy);
+
+[Canvas_setMatrix]
+SkCanvas
+void setMatrix(const SkMatrix& matrix);
+
+[Canvas_skew]
+SkCanvas
+void skew(SkScalar sx, SkScalar sy);
+
+[Canvas_translate]
+SkCanvas
+void translate(SkScalar dx, SkScalar dy);
+
+[Canvas_writePixels_2]
+[State_Stack_a]
+[State_Stack_b]
+SkCanvas
+bool writePixels(const SkBitmap& bitmap, int x, int y);
+
+[Canvas_writePixels]
+SkCanvas
+bool writePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes, int x, int y);
+
+[Canvas_destructor]
+SkCanvas
+virtual ~SkCanvas();
+
+[ColorGetA]
+SkColor
+#define SkColorGetA(color) (((color) >> 24) & 0xFF) color;
+
+[ColorGetB]
+SkColor
+#define SkColorGetB(color) (((color) >> 0) & 0xFF) color;
+
+[ColorGetG]
+SkColor
+#define SkColorGetG(color) (((color) >> 8) & 0xFF) color;
+
+[ColorGetR]
+SkColor
+#define SkColorGetR(color) (((color) >> 16) & 0xFF) color;
+
+[ColorSetA]
+SkColor
+static constexpr inline SkColor SkColorSetA(SkColor c, U8CPU a);
+
+[ColorSetRGB]
+SkColor
+#define SkColorSetRGB(r, g, b) SkColorSetARGB(0xFF, r, g, b) r g b;
+
+[ColorSetARGB]
+SkColor
+static constexpr inline SkColor SkColorSetARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
+
+[ColorToHSV]
+SkColor
+static void SkColorToHSV(SkColor color, SkScalar hsv[3]);
+
+[HSVToColor]
+SkColor
+SkColor SkHSVToColor(U8CPU alpha, const SkScalar hsv[3]);
+
+[HSVToColor_2]
+SkColor
+static SkColor SkHSVToColor(const SkScalar hsv[3]);
+
+[PreMultiplyARGB]
+SkColor
+SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
+
+[PreMultiplyColor]
+SkColor
+SkPMColor SkPreMultiplyColor(SkColor c);
+
+[RGBToHSV]
+SkColor
+void SkRGBToHSV(U8CPU red, U8CPU green, U8CPU blue, SkScalar hsv[3]);
+
+[Alpha_Constants_a]
+[Alpha_Constants_b]
+SkColor
+constexpr SkAlpha SK_AlphaTRANSPARENT = 0x00; constexpr SkAlpha SK_AlphaOPAQUE = 0xFF;
+
+[Color_Constants_a]
+[Color_Constants_b]
+[Color_Constants_c]
+[Color_Constants_d]
+SkColor
+constexpr SkColor SK_ColorTRANSPARENT; constexpr SkColor SK_ColorBLACK; constexpr SkColor SK_ColorDKGRAY; constexpr SkColor SK_ColorGRAY; constexpr SkColor SK_ColorLTGRAY; constexpr SkColor SK_ColorWHITE; constexpr SkColor SK_ColorRED; constexpr SkColor SK_ColorGREEN; constexpr SkColor SK_ColorBLUE; constexpr SkColor SK_ColorYELLOW; constexpr SkColor SK_ColorCYAN; constexpr SkColor SK_ColorMAGENTA;
+
+[RGBA4f_FromColor]
+SkColor4f
+static SkRGBA4f FromColor(SkColor color);
+
+[RGBA4f_notequal1_operator]
+SkColor4f
+bool operator!=(const SkRGBA4f& other) const;
+
+[RGBA4f_equal1_operator]
+SkColor4f
+bool operator==(const SkRGBA4f& other) const;
+
+[RGBA4f_toSkColor]
+SkColor4f
+SkColor toSkColor() const;
+
+[RGBA4f_vec]
+SkColor4f
+const float* vec() const;
+
+[RGBA4f_vec_2]
+SkColor4f
+float* vec();
+
+[Font_breakText]
+SkFont
+size_t breakText(const void* text, size_t length, SkTextEncoding encoding, SkScalar maxWidth, SkScalar* measuredWidth = nullptr) const;
+
+[IPoint_Make]
+SkIPoint
+static constexpr SkIPoint Make(int32_t x, int32_t y);
+
+[IPoint_equals]
+SkIPoint
+bool equals(int32_t x, int32_t y) const;
+
+[IPoint_isZero]
+SkIPoint
+bool isZero() const;
+
+[IPoint_notequal_operator]
+SkIPoint
+bool operator!=(const SkIPoint& a, const SkIPoint& b);
+
+[IPoint_add_operator]
+SkIPoint
+SkIPoint operator+(const SkIPoint& a, const SkIVector& b);
+
+[IPoint_addto_operator]
+SkIPoint
+void operator+=(const SkIVector& v);
+
+[IPoint_minus_operator]
+SkIPoint
+SkIPoint operator-() const;
+
+[IPoint_subtract_operator]
+SkIPoint
+SkIVector operator-(const SkIPoint& a, const SkIPoint& b);
+
+[IPoint_subtractfrom_operator]
+SkIPoint
+void operator-=(const SkIVector& v);
+
+[IPoint_equal_operator]
+SkIPoint
+bool operator==(const SkIPoint& a, const SkIPoint& b);
+
+[IPoint_set]
+SkIPoint
+void set(int32_t x, int32_t y);
+
+[IPoint_x]
+SkIPoint
+int32_t x() const;
+
+[IPoint_y]
+SkIPoint
+int32_t y() const;
+
+[IRect_EmptyIRect]
+SkIRect
+static const SkIRect& EmptyIRect();
+
+[IRect_Intersects]
+SkIRect
+static bool Intersects(const SkIRect& a, const SkIRect& b);
+
+[IRect_IntersectsNoEmptyCheck]
+SkIRect
+static bool IntersectsNoEmptyCheck(const SkIRect& a, const SkIRect& b);
+
+[IRect_MakeEmpty]
+SkIRect
+static constexpr SkIRect MakeEmpty();
+
+[IRect_MakeLTRB]
+SkIRect
+static constexpr SkIRect MakeLTRB(int32_t l, int32_t t, int32_t r, int32_t b);
+
+[IRect_MakeSize]
+SkIRect
+static constexpr SkIRect MakeSize(const SkISize& size);
+
+[IRect_MakeWH]
+SkIRect
+static constexpr SkIRect MakeWH(int32_t w, int32_t h);
+
+[IRect_MakeXYWH]
+SkIRect
+static constexpr SkIRect MakeXYWH(int32_t x, int32_t y, int32_t w, int32_t h);
+
+[IRect_adjust]
+SkIRect
+void adjust(int32_t dL, int32_t dT, int32_t dR, int32_t dB);
+
+[IRect_bottom]
+SkIRect
+int32_t bottom() const;
+
+[IRect_contains_3]
+SkIRect
+bool contains(const SkIRect& r) const;
+
+[IRect_contains_4]
+SkIRect
+bool contains(const SkRect& r) const;
+
+[IRect_contains_2]
+SkIRect
+bool contains(int32_t left, int32_t top, int32_t right, int32_t bottom) const;
+
+[IRect_contains]
+SkIRect
+bool contains(int32_t x, int32_t y) const;
+
+[IRect_containsNoEmptyCheck_2]
+SkIRect
+bool containsNoEmptyCheck(const SkIRect& r) const;
+
+[IRect_containsNoEmptyCheck]
+SkIRect
+bool containsNoEmptyCheck(int32_t left, int32_t top, int32_t right, int32_t bottom) const;
+
+[IRect_height]
+SkIRect
+int32_t height() const;
+
+[IRect_height64]
+SkIRect
+int64_t height64() const;
+
+[IRect_inset]
+SkIRect
+void inset(int32_t dx, int32_t dy);
+
+[IRect_intersect_2]
+SkIRect
+bool intersect(const SkIRect& a, const SkIRect& b);
+
+[IRect_intersect]
+SkIRect
+bool intersect(const SkIRect& r);
+
+[IRect_intersect_3]
+SkIRect
+bool intersect(int32_t left, int32_t top, int32_t right, int32_t bottom);
+
+[IRect_intersectNoEmptyCheck]
+SkIRect
+bool intersectNoEmptyCheck(const SkIRect& a, const SkIRect& b);
+
+[IRect_isEmpty]
+SkIRect
+bool isEmpty() const;
+
+[IRect_isEmpty64]
+SkIRect
+bool isEmpty64() const;
+
+[IRect_join_2]
+SkIRect
+void join(const SkIRect& r);
+
+[IRect_join]
+SkIRect
+void join(int32_t left, int32_t top, int32_t right, int32_t bottom);
+
+[IRect_left]
+SkIRect
+int32_t left() const;
+
+[IRect_makeInset]
+SkIRect
+SkIRect makeInset(int32_t dx, int32_t dy) const;
+
+[IRect_makeOffset]
+SkIRect
+SkIRect makeOffset(int32_t dx, int32_t dy) const;
+
+[IRect_makeOutset]
+SkIRect
+SkIRect makeOutset(int32_t dx, int32_t dy) const;
+
+[IRect_makeSorted]
+SkIRect
+SkIRect makeSorted() const;
+
+[IRect_offset_2]
+SkIRect
+void offset(const SkIPoint& delta);
+
+[IRect_offset]
+SkIRect
+void offset(int32_t dx, int32_t dy);
+
+[IRect_offsetTo]
+SkIRect
+void offsetTo(int32_t newX, int32_t newY);
+
+[IRect_notequal_operator]
+SkIRect
+bool operator!=(const SkIRect& a, const SkIRect& b);
+
+[IRect_equal_operator]
+SkIRect
+bool operator==(const SkIRect& a, const SkIRect& b);
+
+[IRect_outset]
+SkIRect
+void outset(int32_t dx, int32_t dy);
+
+[IRect_right]
+SkIRect
+int32_t right() const;
+
+[IRect_set]
+SkIRect
+void set(int32_t left, int32_t top, int32_t right, int32_t bottom);
+
+[IRect_setEmpty]
+SkIRect
+void setEmpty();
+
+[IRect_setLTRB]
+SkIRect
+void setLTRB(int32_t left, int32_t top, int32_t right, int32_t bottom);
+
+[IRect_setXYWH]
+SkIRect
+void setXYWH(int32_t x, int32_t y, int32_t width, int32_t height);
+
+[IRect_size]
+SkIRect
+SkISize size() const;
+
+[IRect_sort]
+SkIRect
+void sort();
+
+[IRect_top]
+SkIRect
+int32_t top() const;
+
+[IRect_width]
+SkIRect
+int32_t width() const;
+
+[IRect_width64]
+SkIRect
+int64_t width64() const;
+
+[IRect_x]
+SkIRect
+int32_t x() const;
+
+[IRect_y]
+SkIRect
+int32_t y() const;
+
+[Image_MakeBackendTextureFromSkImage]
+SkImage
+static bool MakeBackendTextureFromSkImage(GrContext* context, sk_sp<SkImage> image, GrBackendTexture* backendTexture, BackendTextureReleaseProc* backendTextureReleaseProc);
+
+[Image_MakeCrossContextFromPixmap]
+SkImage
+static sk_sp<SkImage> MakeCrossContextFromPixmap(GrContext* context, const SkPixmap& pixmap, bool buildMips, bool limitToMaxTextureSize = false);
+
+[Image_MakeFromAdoptedTexture]
+SkImage
+static sk_sp<SkImage> MakeFromAdoptedTexture(GrContext* context, const GrBackendTexture& backendTexture, GrSurfaceOrigin surfaceOrigin, SkColorType colorType, SkAlphaType alphaType = kPremul_SkAlphaType, sk_sp<SkColorSpace> colorSpace = nullptr);
+
+[Image_MakeFromBitmap]
+SkImage
+static sk_sp<SkImage> MakeFromBitmap(const SkBitmap& bitmap);
+
+[Image_MakeFromEncoded]
+SkImage
+static sk_sp<SkImage> MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* subset = nullptr);
+
+[Image_MakeFromGenerator]
+SkImage
+static sk_sp<SkImage> MakeFromGenerator(std::unique_ptr<SkImageGenerator> imageGenerator, const SkIRect* subset = nullptr);
+
+[Image_MakeFromPicture]
+SkImage
+static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture> picture, const SkISize& dimensions, const SkMatrix* matrix, const SkPaint* paint, BitDepth bitDepth, sk_sp<SkColorSpace> colorSpace);
+
+[Image_MakeFromRaster]
+SkImage
+static sk_sp<SkImage> MakeFromRaster(const SkPixmap& pixmap, RasterReleaseProc rasterReleaseProc, ReleaseContext releaseContext);
+
+[Image_MakeFromTexture]
+SkImage
+static sk_sp<SkImage> MakeFromTexture(GrContext* context, const GrBackendTexture& backendTexture, GrSurfaceOrigin origin, SkColorType colorType, SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace);
+
+[Image_MakeFromTexture_2]
+SkImage
+static sk_sp<SkImage> MakeFromTexture(GrContext* context, const GrBackendTexture& backendTexture, GrSurfaceOrigin origin, SkColorType colorType, SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace, TextureReleaseProc textureReleaseProc, ReleaseContext releaseContext);
+
+[Image_MakeRasterCopy]
+SkImage
+static sk_sp<SkImage> MakeRasterCopy(const SkPixmap& pixmap);
+
+[Image_MakeRasterData]
+SkImage
+static sk_sp<SkImage> MakeRasterData(const SkImageInfo& info, sk_sp<SkData> pixels, size_t rowBytes);
+
+[Image_alphaType]
+SkImage
+SkAlphaType alphaType() const;
+
+[Image_bounds]
+SkImage
+SkIRect bounds() const;
+
+[Image_colorSpace]
+SkImage
+SkColorSpace* colorSpace() const;
+
+[Image_colorType]
+SkImage
+SkColorType colorType() const;
+
+[Image_dimensions]
+SkImage
+SkISize dimensions() const;
+
+[Image_encodeToData_2]
+SkImage
+sk_sp<SkData> encodeToData() const;
+
+[Image_encodeToData]
+SkImage
+sk_sp<SkData> encodeToData(SkEncodedImageFormat encodedImageFormat, int quality) const;
+
+[Image_getBackendTexture]
+SkImage
+GrBackendTexture getBackendTexture(bool flushPendingGrContextIO, GrSurfaceOrigin* origin = nullptr) const;
+
+[Image_height]
+SkImage
+int height() const;
+
+[Image_isAlphaOnly]
+SkImage
+bool isAlphaOnly() const;
+
+[Image_isLazyGenerated_a]
+[Image_isLazyGenerated_b]
+SkImage
+bool isLazyGenerated() const;
+
+[Image_isOpaque]
+SkImage
+bool isOpaque() const;
+
+[Image_isTextureBacked]
+SkImage
+bool isTextureBacked() const;
+
+[Image_isValid]
+SkImage
+bool isValid(GrContext* context) const;
+
+[Image_makeColorSpace]
+SkImage
+sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target) const;
+
+[Image_makeNonTextureImage]
+SkImage
+sk_sp<SkImage> makeNonTextureImage() const;
+
+[Image_makeRasterImage]
+SkImage
+sk_sp<SkImage> makeRasterImage() const;
+
+[Image_makeShader]
+SkImage
+sk_sp<SkShader> makeShader(SkShader::TileMode tileMode1, SkShader::TileMode tileMode2, const SkMatrix* localMatrix = nullptr) const;
+
+[Image_makeShader_2]
+SkImage
+sk_sp<SkShader> makeShader(const SkMatrix* localMatrix = nullptr) const;
+
+[Image_makeSubset]
+SkImage
+sk_sp<SkImage> makeSubset(const SkIRect& subset) const;
+
+[Image_makeTextureImage]
+SkImage
+sk_sp<SkImage> makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace, GrMipMapped mipMapped = GrMipMapped::kNo) const;
+
+[Image_makeWithFilter]
+SkImage
+sk_sp<SkImage> makeWithFilter(const SkImageFilter* filter, const SkIRect& subset, const SkIRect& clipBounds, SkIRect* outSubset, SkIPoint* offset) const;
+
+[Image_peekPixels]
+SkImage
+bool peekPixels(SkPixmap* pixmap) const;
+
+[Image_readPixels]
+SkImage
+bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY, CachingHint cachingHint = kAllow_CachingHint) const;
+
+[Image_readPixels_2]
+SkImage
+bool readPixels(const SkPixmap& dst, int srcX, int srcY, CachingHint cachingHint = kAllow_CachingHint) const;
+
+[Image_refColorSpace]
+SkImage
+sk_sp<SkColorSpace> refColorSpace() const;
+
+[Image_refEncodedData]
+SkImage
+sk_sp<SkData> refEncodedData() const;
+
+[Image_scalePixels]
+SkImage
+bool scalePixels(const SkPixmap& dst, SkFilterQuality filterQuality, CachingHint cachingHint = kAllow_CachingHint) const;
+
+[Image_uniqueID]
+SkImage
+uint32_t uniqueID() const;
+
+[Image_width]
+SkImage
+int width() const;
+
+[ImageInfo_ByteSizeOverflowed]
+SkImageInfo
+static bool ByteSizeOverflowed(size_t byteSize);
+
+[ImageInfo_Make]
+SkImageInfo
+static SkImageInfo Make(int width, int height, SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs = nullptr);
+
+[ImageInfo_MakeA8]
+SkImageInfo
+static SkImageInfo MakeA8(int width, int height);
+
+[ImageInfo_MakeN32]
+SkImageInfo
+static SkImageInfo MakeN32(int width, int height, SkAlphaType at, sk_sp<SkColorSpace> cs = nullptr);
+
+[ImageInfo_MakeN32Premul_2]
+SkImageInfo
+static SkImageInfo MakeN32Premul(const SkISize& size);
+
+[ImageInfo_MakeN32Premul]
+SkImageInfo
+static SkImageInfo MakeN32Premul(int width, int height, sk_sp<SkColorSpace> cs = nullptr);
+
+[ImageInfo_MakeS32]
+SkImageInfo
+static SkImageInfo MakeS32(int width, int height, SkAlphaType at);
+
+[ImageInfo_MakeUnknown_2]
+SkImageInfo
+static SkImageInfo MakeUnknown();
+
+[ImageInfo_MakeUnknown]
+SkImageInfo
+static SkImageInfo MakeUnknown(int width, int height);
+
+[ColorTypeBytesPerPixel]
+SkImageInfo
+int SkColorTypeBytesPerPixel(SkColorType ct);
+
+[ColorTypeIsAlwaysOpaque]
+SkImageInfo
+bool SkColorTypeIsAlwaysOpaque(SkColorType ct);
+
+[ColorTypeValidateAlphaType]
+SkImageInfo
+bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType, SkAlphaType* canonical = nullptr);
+
+[ImageInfo_empty_constructor]
+SkImageInfo
+SkImageInfo();
+
+[ImageInfo_alphaType]
+SkImageInfo
+SkAlphaType alphaType() const;
+
+[ImageInfo_bounds]
+SkImageInfo
+SkIRect bounds() const;
+
+[ImageInfo_bytesPerPixel]
+SkImageInfo
+int bytesPerPixel() const;
+
+[ImageInfo_colorSpace]
+SkImageInfo
+SkColorSpace* colorSpace() const;
+
+[ImageInfo_colorType]
+SkImageInfo
+SkColorType colorType() const;
+
+[ImageInfo_computeByteSize]
+SkImageInfo
+size_t computeByteSize(size_t rowBytes) const;
+
+[ImageInfo_computeMinByteSize]
+SkImageInfo
+size_t computeMinByteSize() const;
+
+[ImageInfo_computeOffset]
+SkImageInfo
+size_t computeOffset(int x, int y, size_t rowBytes) const;
+
+[ImageInfo_dimensions]
+SkImageInfo
+SkISize dimensions() const;
+
+[Alpha_Type_Opaque]
+SkImageInfo
+enum SkAlphaType { kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType, kUnpremul_SkAlphaType, kLastEnum_SkAlphaType = kUnpremul_SkAlphaType, };
+
+[Color_Type_ARGB_4444]
+[Color_Type_Alpha_8]
+[Color_Type_BGRA_8888]
+[Color_Type_Gray_8]
+[Color_Type_RGBA_1010102]
+[Color_Type_RGBA_8888]
+[Color_Type_RGBA_F16]
+[Color_Type_RGB_101010]
+[Color_Type_RGB_565]
+[Color_Type_RGB_888]
+SkImageInfo
+enum SkColorType { kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType, kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType, kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType, kGray_8_SkColorType, kRGBA_F16_SkColorType, kRGBA_F32_SkColorType, kLastEnum_SkColorType = kRGBA_F32_SkColorType, kN32_SkColorType = kBGRA_8888_SkColorType, kN32_SkColorType = kRGBA_8888_SkColorType, };
+
+[ImageInfo_gammaCloseToSRGB]
+SkImageInfo
+bool gammaCloseToSRGB() const;
+
+[ImageInfo_height]
+SkImageInfo
+int height() const;
+
+[ImageInfo_isEmpty]
+SkImageInfo
+bool isEmpty() const;
+
+[ImageInfo_isOpaque]
+SkImageInfo
+bool isOpaque() const;
+
+[ImageInfo_makeAlphaType]
+SkImageInfo
+SkImageInfo makeAlphaType(SkAlphaType newAlphaType) const;
+
+[ImageInfo_makeColorSpace]
+SkImageInfo
+SkImageInfo makeColorSpace(sk_sp<SkColorSpace> cs) const;
+
+[ImageInfo_makeColorType]
+SkImageInfo
+SkImageInfo makeColorType(SkColorType newColorType) const;
+
+[ImageInfo_makeWH]
+SkImageInfo
+SkImageInfo makeWH(int newWidth, int newHeight) const;
+
+[ImageInfo_minRowBytes]
+SkImageInfo
+size_t minRowBytes() const;
+
+[ImageInfo_minRowBytes64]
+SkImageInfo
+uint64_t minRowBytes64() const;
+
+[ImageInfo_notequal1_operator]
+SkImageInfo
+bool operator!=(const SkImageInfo& other) const;
+
+[ImageInfo_equal1_operator]
+SkImageInfo
+bool operator==(const SkImageInfo& other) const;
+
+[ImageInfo_refColorSpace]
+SkImageInfo
+sk_sp<SkColorSpace> refColorSpace() const;
+
+[ImageInfo_reset]
+SkImageInfo
+void reset();
+
+[ImageInfo_shiftPerPixel]
+SkImageInfo
+int shiftPerPixel() const;
+
+[Alpha_Type_Premul]
+SkImageInfo
+stored color = original color * alpha / max alpha;
+
+[Alpha_Type_Unpremul]
+SkImageInfo
+stored color = original color * alpha / max alpha;
+
+[ImageInfo_validRowBytes]
+SkImageInfo
+bool validRowBytes(size_t rowBytes) const;
+
+[ImageInfo_width]
+SkImageInfo
+int width() const;
+
+[Matrix_Concat]
+SkMatrix
+static SkMatrix Concat(const SkMatrix& a, const SkMatrix& b);
+
+[Matrix_I]
+SkMatrix
+static const SkMatrix& I();
+
+[Matrix_063]
+SkMatrix
+| sx 0 0 | | J K L | | sx*J sx*K sx*L | I(divx, divy) * Matrix = | 0 sy 0 | | M N O | = | sy*M sy*N sy*O | | 0 0 1 | | P Q R | | P Q R |;
+
+[Matrix_InvalidMatrix]
+SkMatrix
+static const SkMatrix& InvalidMatrix();
+
+[Matrix_MakeAll]
+SkMatrix
+static SkMatrix MakeAll(SkScalar scaleX, SkScalar skewX, SkScalar transX, SkScalar skewY, SkScalar scaleY, SkScalar transY, SkScalar pers0, SkScalar pers1, SkScalar pers2);
+
+[Matrix_MakeRectToRect]
+SkMatrix
+static SkMatrix MakeRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf);
+
+[Matrix_MakeScale_2]
+SkMatrix
+static SkMatrix MakeScale(SkScalar scale);
+
+[Matrix_MakeScale]
+SkMatrix
+static SkMatrix MakeScale(SkScalar sx, SkScalar sy);
+
+[Matrix_MakeTrans]
+SkMatrix
+static SkMatrix MakeTrans(SkScalar dx, SkScalar dy);
+
+[Matrix_SetAffineIdentity]
+SkMatrix
+static void SetAffineIdentity(SkScalar affine[6]);
+
+[Matrix_asAffine]
+SkMatrix
+bool asAffine(SkScalar affine[6]) const;
+
+[Matrix_cheapEqualTo]
+SkMatrix
+bool cheapEqualTo(const SkMatrix& m) const;
+
+[Matrix_decomposeScale]
+SkMatrix
+bool decomposeScale(SkSize* scale, SkMatrix* remaining = nullptr) const;
+
+[Matrix_dirtyMatrixTypeCache]
+SkMatrix
+void dirtyMatrixTypeCache();
+
+[Matrix_dump]
+SkMatrix
+void dump() const;
+
+[Matrix_ScaleToFit]
+SkMatrix
+enum ScaleToFit { kFill_ScaleToFit, kStart_ScaleToFit, kCenter_ScaleToFit, kEnd_ScaleToFit, };
+
+[Matrix_TypeMask]
+SkMatrix
+enum TypeMask { kIdentity_Mask = 0, kTranslate_Mask = 0x01, kScale_Mask = 0x02, kAffine_Mask = 0x04, kPerspective_Mask = 0x08, };
+
+[Matrix_fixedStepInX]
+SkMatrix
+SkVector fixedStepInX(SkScalar y) const;
+
+[Matrix_get]
+SkMatrix
+SkScalar get(int index) const;
+
+[Matrix_get9]
+SkMatrix
+void get9(SkScalar buffer[9]) const;
+
+[Matrix_getMaxScale]
+SkMatrix
+SkScalar getMaxScale() const;
+
+[Matrix_getMinMaxScales]
+SkMatrix
+bool getMinMaxScales(SkScalar scaleFactors[2]) const;
+
+[Matrix_getMinScale]
+SkMatrix
+SkScalar getMinScale() const;
+
+[Matrix_getPerspX]
+SkMatrix
+SkScalar getPerspX() const;
+
+[Matrix_getPerspY]
+SkMatrix
+SkScalar getPerspY() const;
+
+[Matrix_getScaleX]
+SkMatrix
+SkScalar getScaleX() const;
+
+[Matrix_getScaleY]
+SkMatrix
+SkScalar getScaleY() const;
+
+[Matrix_getSkewX]
+SkMatrix
+SkScalar getSkewX() const;
+
+[Matrix_getSkewY]
+SkMatrix
+SkScalar getSkewY() const;
+
+[Matrix_getTranslateX]
+SkMatrix
+SkScalar getTranslateX() const;
+
+[Matrix_getTranslateY]
+SkMatrix
+SkScalar getTranslateY() const;
+
+[Matrix_getType]
+SkMatrix
+TypeMask getType() const;
+
+[Matrix_hasPerspective]
+SkMatrix
+bool hasPerspective() const;
+
+[Matrix_invert]
+SkMatrix
+bool invert(SkMatrix* inverse) const;
+
+[Matrix_isFinite]
+SkMatrix
+bool isFinite() const;
+
+[Matrix_isFixedStepInX]
+SkMatrix
+bool isFixedStepInX() const;
+
+[Matrix_isIdentity]
+SkMatrix
+bool isIdentity() const;
+
+[Matrix_isScaleTranslate]
+SkMatrix
+bool isScaleTranslate() const;
+
+[Matrix_isSimilarity]
+SkMatrix
+bool isSimilarity(SkScalar tol = SK_ScalarNearlyZero) const;
+
+[Matrix_isTranslate]
+SkMatrix
+bool isTranslate() const;
+
+[Matrix_mapHomogeneousPoints]
+SkMatrix
+void mapHomogeneousPoints(SkPoint3 dst[], const SkPoint3 src[], int count) const;
+
+[Matrix_mapPoints]
+SkMatrix
+void mapPoints(SkPoint dst[], const SkPoint src[], int count) const;
+
+[Matrix_mapPoints_2]
+SkMatrix
+void mapPoints(SkPoint pts[], int count) const;
+
+[Matrix_mapRadius]
+SkMatrix
+SkScalar mapRadius(SkScalar radius) const;
+
+[Matrix_mapRect_3]
+SkMatrix
+SkRect mapRect(const SkRect& src) const;
+
+[Matrix_mapRect]
+SkMatrix
+bool mapRect(SkRect* dst, const SkRect& src) const;
+
+[Matrix_mapRect_2]
+SkMatrix
+bool mapRect(SkRect* rect) const;
+
+[Matrix_mapRectScaleTranslate]
+SkMatrix
+void mapRectScaleTranslate(SkRect* dst, const SkRect& src) const;
+
+[Matrix_mapRectToQuad]
+SkMatrix
+void mapRectToQuad(SkPoint dst[4], const SkRect& rect) const;
+
+[Matrix_mapVector_2]
+SkMatrix
+SkVector mapVector(SkScalar dx, SkScalar dy) const;
+
+[Matrix_mapVector]
+SkMatrix
+void mapVector(SkScalar dx, SkScalar dy, SkVector* result) const;
+
+[Matrix_mapVectors]
+SkMatrix
+void mapVectors(SkVector dst[], const SkVector src[], int count) const;
+
+[Matrix_mapVectors_2]
+SkMatrix
+void mapVectors(SkVector vecs[], int count) const;
+
+[Matrix_mapXY_2]
+SkMatrix
+SkPoint mapXY(SkScalar x, SkScalar y) const;
+
+[Matrix_mapXY]
+SkMatrix
+void mapXY(SkScalar x, SkScalar y, SkPoint* result) const;
+
+[Matrix_notequal_operator]
+SkMatrix
+bool operator!=(const SkMatrix& a, const SkMatrix& b);
+
+[Matrix_equal_operator]
+SkMatrix
+bool operator==(const SkMatrix& a, const SkMatrix& b);
+
+[Matrix_array_operator]
+SkMatrix
+SkScalar operator[](int index) const;
+
+[Matrix_dirtyMatrixTypeCache]
+SkMatrix
+SkScalar& operator[](int index);
+
+[Matrix_postConcat]
+SkMatrix
+void postConcat(const SkMatrix& other);
+
+[Matrix_postRotate_2]
+SkMatrix
+void postRotate(SkScalar degrees);
+
+[Matrix_postRotate]
+SkMatrix
+void postRotate(SkScalar degrees, SkScalar px, SkScalar py);
+
+[Matrix_postScale_2]
+SkMatrix
+void postScale(SkScalar sx, SkScalar sy);
+
+[Matrix_postScale]
+SkMatrix
+void postScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py);
+
+[Matrix_postSkew_2]
+SkMatrix
+void postSkew(SkScalar kx, SkScalar ky);
+
+[Matrix_postSkew]
+SkMatrix
+void postSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py);
+
+[Matrix_postTranslate]
+SkMatrix
+void postTranslate(SkScalar dx, SkScalar dy);
+
+[Matrix_preConcat]
+SkMatrix
+void preConcat(const SkMatrix& other);
+
+[Matrix_preRotate_2]
+SkMatrix
+void preRotate(SkScalar degrees);
+
+[Matrix_preRotate]
+SkMatrix
+void preRotate(SkScalar degrees, SkScalar px, SkScalar py);
+
+[Matrix_preScale_2]
+SkMatrix
+void preScale(SkScalar sx, SkScalar sy);
+
+[Matrix_preScale]
+SkMatrix
+void preScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py);
+
+[Matrix_preSkew_2]
+SkMatrix
+void preSkew(SkScalar kx, SkScalar ky);
+
+[Matrix_preSkew]
+SkMatrix
+void preSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py);
+
+[Matrix_preTranslate]
+SkMatrix
+void preTranslate(SkScalar dx, SkScalar dy);
+
+[Matrix_preservesAxisAlignment]
+SkMatrix
+bool preservesAxisAlignment() const;
+
+[Matrix_preservesRightAngles]
+SkMatrix
+bool preservesRightAngles(SkScalar tol = SK_ScalarNearlyZero) const;
+
+[Matrix_rectStaysRect]
+SkMatrix
+bool rectStaysRect() const;
+
+[Matrix_reset]
+SkMatrix
+void reset();
+
+[Matrix_set]
+SkMatrix
+void set(int index, SkScalar value);
+
+[Matrix_set9]
+SkMatrix
+void set9(const SkScalar buffer[9]);
+
+[Matrix_setAffine]
+SkMatrix
+void setAffine(const SkScalar affine[6]);
+
+[Matrix_setAll]
+SkMatrix
+void setAll(SkScalar scaleX, SkScalar skewX, SkScalar transX, SkScalar skewY, SkScalar scaleY, SkScalar transY, SkScalar persp0, SkScalar persp1, SkScalar persp2);
+
+[Matrix_setConcat]
+SkMatrix
+void setConcat(const SkMatrix& a, const SkMatrix& b);
+
+[Matrix_setIdentity]
+SkMatrix
+void setIdentity();
+
+[Matrix_setPerspX]
+SkMatrix
+void setPerspX(SkScalar v);
+
+[Matrix_setPerspY]
+SkMatrix
+void setPerspY(SkScalar v);
+
+[Matrix_setPolyToPoly]
+SkMatrix
+bool setPolyToPoly(const SkPoint src[], const SkPoint dst[], int count);
+
+[Matrix_setRSXform]
+SkMatrix
+SkMatrix& setRSXform(const SkRSXform& rsxForm);
+
+[Matrix_setRectToRect]
+SkMatrix
+bool setRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf);
+
+[Matrix_setRotate_2]
+SkMatrix
+void setRotate(SkScalar degrees);
+
+[Matrix_setRotate]
+SkMatrix
+void setRotate(SkScalar degrees, SkScalar px, SkScalar py);
+
+[Matrix_setScale_2]
+SkMatrix
+void setScale(SkScalar sx, SkScalar sy);
+
+[Matrix_setScale]
+SkMatrix
+void setScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py);
+
+[Matrix_setScaleTranslate]
+SkMatrix
+void setScaleTranslate(SkScalar sx, SkScalar sy, SkScalar tx, SkScalar ty);
+
+[Matrix_setScaleX]
+SkMatrix
+void setScaleX(SkScalar v);
+
+[Matrix_setScaleY]
+SkMatrix
+void setScaleY(SkScalar v);
+
+[Matrix_setSinCos_2]
+SkMatrix
+void setSinCos(SkScalar sinValue, SkScalar cosValue);
+
+[Matrix_setSinCos]
+SkMatrix
+void setSinCos(SkScalar sinValue, SkScalar cosValue, SkScalar px, SkScalar py);
+
+[Matrix_setSkew_2]
+SkMatrix
+void setSkew(SkScalar kx, SkScalar ky);
+
+[Matrix_setSkew]
+SkMatrix
+void setSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py);
+
+[Matrix_setSkewX]
+SkMatrix
+void setSkewX(SkScalar v);
+
+[Matrix_setSkewY]
+SkMatrix
+void setSkewY(SkScalar v);
+
+[Matrix_setTranslate]
+SkMatrix
+void setTranslate(SkScalar dx, SkScalar dy);
+
+[Matrix_setTranslate_2]
+SkMatrix
+void setTranslate(const SkVector& v);
+
+[Matrix_setTranslateX]
+SkMatrix
+void setTranslateX(SkScalar v);
+
+[Matrix_setTranslateY]
+SkMatrix
+void setTranslateY(SkScalar v);
+
+[MemberIndex]
+SkMatrix
+static constexpr int kMScaleX = 0; static constexpr int kMSkewX = 1; static constexpr int kMTransX = 2; static constexpr int kMSkewY = 3; static constexpr int kMScaleY = 4; static constexpr int kMTransY = 5; static constexpr int kMPersp0 = 6; static constexpr int kMPersp1 = 7; static constexpr int kMPersp2 = 8;
+
+[Paint_empty_constructor]
+SkPaint
+SkPaint();
+
+[Paint_move_SkPaint]
+SkPaint
+SkPaint(SkPaint&& paint);
+
+[Paint_copy_const_SkPaint]
+SkPaint
+SkPaint(const SkPaint& paint);
+
+[Paint_containsText]
+SkPaint
+bool containsText(const void* text, size_t byteLength) const;
+
+[Paint_countText]
+SkPaint
+int countText(const void* text, size_t byteLength) const;
+
+[Paint_getAlpha]
+SkPaint
+uint8_t getAlpha() const;
+
+[Paint_getBlendMode]
+SkPaint
+SkBlendMode getBlendMode() const;
+
+[Paint_getColor]
+SkPaint
+SkColor getColor() const;
+
+[Paint_getColor4f]
+SkPaint
+SkColor4f getColor4f() const;
+
+[Paint_getColorFilter]
+SkPaint
+SkColorFilter* getColorFilter() const;
+
+[Paint_getDrawLooper]
+SkPaint
+SkDrawLooper* getDrawLooper() const;
+
+[Paint_getFillPath_2]
+[Shader_Methods_a]
+[Shader_Methods_b]
+SkPaint
+bool getFillPath(const SkPath& src, SkPath* dst) const;
+
+[Paint_getFillPath]
+SkPaint
+bool getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect, SkScalar resScale = 1) const;
+
+[Paint_getFilterQuality]
+SkPaint
+SkFilterQuality getFilterQuality() const;
+
+[Paint_getFlags]
+SkPaint
+uint32_t getFlags() const;
+
+[Paint_getFontMetrics]
+SkPaint
+SkScalar getFontMetrics(SkFontMetrics* metrics) const;
+
+[Paint_getFontSpacing]
+SkPaint
+SkScalar getFontSpacing() const;
+
+[Paint_getHash]
+SkPaint
+uint32_t getHash() const;
+
+[Paint_getHinting]
+SkPaint
+SkFontHinting getHinting() const;
+
+[Paint_getImageFilter]
+SkPaint
+SkImageFilter* getImageFilter() const;
+
+[Paint_getMaskFilter]
+SkPaint
+SkMaskFilter* getMaskFilter() const;
+
+[Paint_getPathEffect]
+SkPaint
+SkPathEffect* getPathEffect() const;
+
+[Paint_getPosTextPath]
+SkPaint
+void getPosTextPath(const void* text, size_t length, const SkPoint pos[], SkPath* path) const;
+
+[Paint_getShader]
+SkPaint
+SkShader* getShader() const;
+
+[Paint_getStrokeCap]
+SkPaint
+Cap getStrokeCap() const;
+
+[Paint_getStrokeJoin]
+SkPaint
+Join getStrokeJoin() const;
+
+[Paint_getStrokeMiter]
+SkPaint
+SkScalar getStrokeMiter() const;
+
+[Paint_getStrokeWidth]
+SkPaint
+SkScalar getStrokeWidth() const;
+
+[Paint_getStyle]
+SkPaint
+Style getStyle() const;
+
+[Paint_getTextEncoding]
+SkPaint
+SkTextEncoding getTextEncoding() const;
+
+[Paint_getTextPath]
+SkPaint
+void getTextPath(const void* text, size_t length, SkScalar x, SkScalar y, SkPath* path) const;
+
+[Paint_getTextScaleX]
+SkPaint
+SkScalar getTextScaleX() const;
+
+[Paint_getTextSize]
+SkPaint
+SkScalar getTextSize() const;
+
+[Paint_getTextSkewX]
+SkPaint
+SkScalar getTextSkewX() const;
+
+[Paint_getTextWidths]
+SkPaint
+int getTextWidths(const void* text, size_t byteLength, SkScalar widths[], SkRect bounds[] = nullptr) const;
+
+[Paint_getTypeface]
+SkPaint
+SkTypeface* getTypeface() const;
+
+[Paint_isAntiAlias]
+SkPaint
+bool isAntiAlias() const;
+
+[Paint_isAutohinted]
+SkPaint
+bool isAutohinted() const;
+
+[Paint_isDither]
+SkPaint
+bool isDither() const;
+
+[Paint_isEmbeddedBitmapText]
+SkPaint
+bool isEmbeddedBitmapText() const;
+
+[Paint_isFakeBoldText]
+SkPaint
+bool isFakeBoldText() const;
+
+[Paint_isLCDRenderText]
+SkPaint
+bool isLCDRenderText() const;
+
+[Paint_isLinearText]
+SkPaint
+bool isLinearText() const;
+
+[Paint_setBlendMode]
+SkPaint
+bool isSrcOver() const;
+
+[Paint_isSubpixelText]
+SkPaint
+bool isSubpixelText() const;
+
+[Paint_measureText_2]
+SkPaint
+SkScalar measureText(const void* text, size_t length) const;
+
+[Paint_measureText]
+SkPaint
+SkScalar measureText(const void* text, size_t length, SkRect* bounds) const;
+
+[Paint_nothingToDraw]
+SkPaint
+bool nothingToDraw() const;
+
+[Paint_notequal_operator]
+SkPaint
+bool operator!=(const SkPaint& a, const SkPaint& b);
+
+[Paint_move_operator]
+SkPaint
+SkPaint& operator=(SkPaint&& paint);
+
+[Paint_copy_operator]
+SkPaint
+SkPaint& operator=(const SkPaint& paint);
+
+[Paint_equal_operator]
+SkPaint
+bool operator==(const SkPaint& a, const SkPaint& b);
+
+[Paint_refColorFilter]
+SkPaint
+sk_sp<SkColorFilter> refColorFilter() const;
+
+[Paint_refDrawLooper]
+SkPaint
+sk_sp<SkDrawLooper> refDrawLooper() const;
+
+[Paint_refImageFilter]
+SkPaint
+sk_sp<SkImageFilter> refImageFilter() const;
+
+[Paint_refMaskFilter]
+SkPaint
+sk_sp<SkMaskFilter> refMaskFilter() const;
+
+[Paint_refPathEffect]
+SkPaint
+sk_sp<SkPathEffect> refPathEffect() const;
+
+[Paint_refShader]
+SkPaint
+sk_sp<SkShader> refShader() const;
+
+[Paint_refTypeface]
+SkPaint
+sk_sp<SkTypeface> refTypeface() const;
+
+[Paint_reset]
+SkPaint
+void reset();
+
+[Paint_setARGB]
+SkPaint
+void setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
+
+[Paint_setAlpha]
+SkPaint
+void setAlpha(U8CPU a);
+
+[Dither_a]
+[Dither_b]
+[Paint_setAntiAlias]
+SkPaint
+void setAntiAlias(bool aa);
+
+[Fake_Bold]
+[Paint_setAutohinted]
+SkPaint
+void setAutohinted(bool useAutohinter);
+
+[Paint_setBlendMode]
+[Path_Effect_Methods]
+SkPaint
+void setBlendMode(SkBlendMode mode);
+
+[Paint_setColor]
+SkPaint
+void setColor(SkColor color);
+
+[Paint_setColor4f]
+SkPaint
+void setColor4f(const SkColor4f& color, SkColorSpace* colorSpace);
+
+[Blend_Mode_Methods]
+[Paint_setColorFilter]
+SkPaint
+void setColorFilter(sk_sp<SkColorFilter> colorFilter);
+
+[Device_Text]
+[Paint_setDither]
+SkPaint
+void setDither(bool dither);
+
+[Paint_setDrawLooper]
+[Text_Size]
+SkPaint
+void setDrawLooper(sk_sp<SkDrawLooper> drawLooper);
+
+[Paint_setEmbeddedBitmapText]
+SkPaint
+void setEmbeddedBitmapText(bool useEmbeddedBitmapText);
+
+[Filter_Quality_Methods]
+[Paint_setFakeBoldText]
+SkPaint
+void setFakeBoldText(bool fakeBoldText);
+
+[Color_Methods]
+[Paint_setFilterQuality]
+SkPaint
+void setFilterQuality(SkFilterQuality quality);
+
+[Anti_Alias]
+[Paint_setFlags]
+SkPaint
+void setFlags(uint32_t flags);
+
+[Paint_setHinting]
+SkPaint
+void setHinting(SkFontHinting hintingLevel);
+
+[Draw_Looper_Methods]
+[Paint_setImageFilter]
+SkPaint
+void setImageFilter(sk_sp<SkImageFilter> imageFilter);
+
+[Paint_setLCDRenderText]
+SkPaint
+void setLCDRenderText(bool lcdText);
+
+[Paint_setLinearText]
+SkPaint
+void setLinearText(bool linearText);
+
+[Paint_setMaskFilter]
+[Typeface_Methods]
+SkPaint
+void setMaskFilter(sk_sp<SkMaskFilter> maskFilter);
+
+[Mask_Filter_Methods]
+[Paint_setPathEffect]
+SkPaint
+void setPathEffect(sk_sp<SkPathEffect> pathEffect);
+
+[Color_Filter_Methods]
+[Paint_setShader]
+SkPaint
+void setShader(sk_sp<SkShader> shader);
+
+[Paint_setStrokeCap_a]
+[Paint_setStrokeCap_b]
+SkPaint
+void setStrokeCap(Cap cap);
+
+[Paint_setStrokeJoin]
+SkPaint
+void setStrokeJoin(Join join);
+
+[Paint_setStrokeMiter]
+SkPaint
+void setStrokeMiter(SkScalar miter);
+
+[Miter_Limit]
+[Paint_setStrokeWidth]
+SkPaint
+void setStrokeWidth(SkScalar width);
+
+[Paint_setStyle]
+[Stroke_Width]
+SkPaint
+void setStyle(Style style);
+
+[Paint_setSubpixelText]
+SkPaint
+void setSubpixelText(bool subpixelText);
+
+[Paint_setTextEncoding]
+SkPaint
+void setTextEncoding(SkTextEncoding encoding);
+
+[Paint_setTextScaleX]
+[Text_Skew_X]
+SkPaint
+void setTextScaleX(SkScalar scaleX);
+
+[Paint_setTextSize]
+[Text_Scale_X]
+SkPaint
+void setTextSize(SkScalar textSize);
+
+[Paint_setTextSkewX]
+[Text_Encoding]
+SkPaint
+void setTextSkewX(SkScalar skewX);
+
+[Image_Filter_Methods]
+[Paint_setTypeface]
+SkPaint
+void setTypeface(sk_sp<SkTypeface> typeface);
+
+[Paint_053]
+SkPaint
+static constexpr int kCapCount = kLast_Cap + 1;
+
+[Paint_057]
+SkPaint
+static constexpr int kJoinCount = kLast_Join + 1;
+
+[Paint_textToGlyphs]
+SkPaint
+int textToGlyphs(const void* text, size_t byteLength, SkGlyphID glyphs[]) const;
+
+[Path_ConvertConicToQuads]
+SkPath
+static int ConvertConicToQuads(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2, SkScalar w, SkPoint pts[], int pow2);
+
+[Path_ConvertToNonInverseFillType]
+SkPath
+static FillType ConvertToNonInverseFillType(FillType fill);
+
+[Path_IsCubicDegenerate]
+SkPath
+static bool IsCubicDegenerate(const SkPoint& p1, const SkPoint& p2, const SkPoint& p3, const SkPoint& p4, bool exact);
+
+[Path_IsInverseFillType]
+SkPath
+static bool IsInverseFillType(FillType fill);
+
+[Path_IsLineDegenerate]
+SkPath
+static bool IsLineDegenerate(const SkPoint& p1, const SkPoint& p2, bool exact);
+
+[Path_IsQuadDegenerate]
+SkPath
+static bool IsQuadDegenerate(const SkPoint& p1, const SkPoint& p2, const SkPoint& p3, bool exact);
+
+[Path_Iter_Iter]
+SkPath
+Iter();
+
+[Path_Iter_const_SkPath]
+SkPath
+Iter(const SkPath& path, bool forceClose);
+
+[Path_empty_constructor]
+SkPath
+SkPath();
+
+[Path_copy_const_SkPath]
+SkPath
+SkPath(const SkPath& path);
+
+[Path_addArc]
+SkPath
+SkPath& addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle);
+
+[Path_addCircle]
+SkPath
+SkPath& addCircle(SkScalar x, SkScalar y, SkScalar radius, Direction dir = kCW_Direction);
+
+[Path_addOval]
+SkPath
+SkPath& addOval(const SkRect& oval, Direction dir = kCW_Direction);
+
+[Path_addOval_2]
+SkPath
+SkPath& addOval(const SkRect& oval, Direction dir, unsigned start);
+
+[Path_addPath_2]
+SkPath
+SkPath& addPath(const SkPath& src, AddPathMode mode = kAppend_AddPathMode);
+
+[Path_addPath]
+SkPath
+SkPath& addPath(const SkPath& src, SkScalar dx, SkScalar dy, AddPathMode mode = kAppend_AddPathMode);
+
+[Path_addPath_3]
+SkPath
+SkPath& addPath(const SkPath& src, const SkMatrix& matrix, AddPathMode mode = kAppend_AddPathMode);
+
+[Path_addPoly]
+SkPath
+SkPath& addPoly(const SkPoint pts[], int count, bool close);
+
+[Path_addPoly_2]
+SkPath
+SkPath& addPoly(const std::initializer_list<SkPoint>& list, bool close);
+
+[Path_addRRect]
+SkPath
+SkPath& addRRect(const SkRRect& rrect, Direction dir = kCW_Direction);
+
+[Path_addRRect_2]
+SkPath
+SkPath& addRRect(const SkRRect& rrect, Direction dir, unsigned start);
+
+[Path_addRect_3]
+SkPath
+SkPath& addRect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom, Direction dir = kCW_Direction);
+
+[Path_addRect]
+SkPath
+SkPath& addRect(const SkRect& rect, Direction dir = kCW_Direction);
+
+[Path_addRect_2]
+SkPath
+SkPath& addRect(const SkRect& rect, Direction dir, unsigned start);
+
+[Path_addRoundRect]
+SkPath
+SkPath& addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry, Direction dir = kCW_Direction);
+
+[Path_addRoundRect_2]
+SkPath
+SkPath& addRoundRect(const SkRect& rect, const SkScalar radii[], Direction dir = kCW_Direction);
+
+[Path_arcTo_4]
+SkPath
+SkPath& arcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc, Direction sweep, SkScalar x, SkScalar y);
+
+[Path_arcTo_2_a]
+[Path_arcTo_2_b]
+[Path_arcTo_2_c]
+SkPath
+SkPath& arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar radius);
+
+[Path_arcTo_3]
+SkPath
+SkPath& arcTo(const SkPoint p1, const SkPoint p2, SkScalar radius);
+
+[Path_rArcTo]
+SkPath
+SkPath& arcTo(const SkPoint r, SkScalar xAxisRotate, ArcSize largeArc, Direction sweep, const SkPoint xy);
+
+[Path_arcTo]
+SkPath
+SkPath& arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo);
+
+[Path_close]
+SkPath
+SkPath& close();
+
+[Path_computeTightBounds]
+SkPath
+SkRect computeTightBounds() const;
+
+[Path_conicTo]
+SkPath
+SkPath& conicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar w);
+
+[Path_conicTo_2]
+SkPath
+SkPath& conicTo(const SkPoint& p1, const SkPoint& p2, SkScalar w);
+
+[Path_Iter_conicWeight]
+[Path_RawIter_conicWeight]
+SkPath
+SkScalar conicWeight() const;
+
+[Path_conservativelyContainsRect]
+SkPath
+bool conservativelyContainsRect(const SkRect& rect) const;
+
+[Path_contains]
+SkPath
+bool contains(SkScalar x, SkScalar y) const;
+
+[Path_countPoints]
+SkPath
+int countPoints() const;
+
+[Path_countVerbs]
+SkPath
+int countVerbs() const;
+
+[Path_cubicTo]
+SkPath
+SkPath& cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar x3, SkScalar y3);
+
+[Path_cubicTo_2]
+SkPath
+SkPath& cubicTo(const SkPoint& p1, const SkPoint& p2, const SkPoint& p3);
+
+[Path_dump_2]
+SkPath
+void dump() const;
+
+[Path_dump]
+SkPath
+void dump(SkWStream* stream, bool forceClose, bool dumpAsHex) const;
+
+[Path_dumpHex]
+SkPath
+void dumpHex() const;
+
+[Path_AddPathMode]
+SkPath
+enum AddPathMode { kAppend_AddPathMode, kExtend_AddPathMode, };
+
+[Path_ArcSize]
+SkPath
+enum ArcSize { kSmall_ArcSize, kLarge_ArcSize, };
+
+[Path_Convexity]
+SkPath
+enum Convexity : uint8_t { kUnknown_Convexity, kConvex_Convexity, kConcave_Convexity, };
+
+[Path_Direction]
+SkPath
+enum Direction : int { kCW_Direction, kCCW_Direction, };
+
+[Path_FillType_a]
+[Path_FillType_b]
+SkPath
+enum FillType { kWinding_FillType, kEvenOdd_FillType, kInverseWinding_FillType, kInverseEvenOdd_FillType, };
+
+[Path_SegmentMask]
+SkPath
+enum SegmentMask { kLine_SegmentMask = 1 << 0, kQuad_SegmentMask = 1 << 1, kConic_SegmentMask = 1 << 2, kCubic_SegmentMask = 1 << 3, };
+
+[Path_Verb]
+SkPath
+enum Verb { kMove_Verb, kLine_Verb, kQuad_Verb, kConic_Verb, kCubic_Verb, kClose_Verb, kDone_Verb, };
+
+[Path_getBounds]
+SkPath
+const SkRect& getBounds() const;
+
+[Path_getConvexity]
+SkPath
+Convexity getConvexity() const;
+
+[Path_getConvexityOrUnknown]
+SkPath
+Convexity getConvexityOrUnknown() const;
+
+[Path_getFillType]
+SkPath
+FillType getFillType() const;
+
+[Path_getGenerationID]
+SkPath
+uint32_t getGenerationID() const;
+
+[Path_getLastPt]
+SkPath
+bool getLastPt(SkPoint* lastPt) const;
+
+[Path_getPoint]
+SkPath
+SkPoint getPoint(int index) const;
+
+[Path_getPoints]
+SkPath
+int getPoints(SkPoint points[], int max) const;
+
+[Path_getSegmentMasks]
+SkPath
+uint32_t getSegmentMasks() const;
+
+[Path_getVerbs]
+SkPath
+int getVerbs(uint8_t verbs[], int max) const;
+
+[Path_incReserve]
+SkPath
+void incReserve(int extraPtCount);
+
+[Path_interpolate]
+SkPath
+bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const;
+
+[Path_Iter_isCloseLine]
+SkPath
+bool isCloseLine() const;
+
+[Path_Iter_isClosedContour]
+SkPath
+bool isClosedContour() const;
+
+[Path_Iter]
+SkPath
+class Iter { Iter(); Iter(const SkPath& path, bool forceClose); void setPath(const SkPath& path, bool forceClose); Verb next(SkPoint pts[4], bool doConsumeDegenerates = true, bool exact = false); SkScalar conicWeight() const; bool isCloseLine() const; bool isClosedContour() const; };
+
+[Path_isConvex]
+SkPath
+bool isConvex() const;
+
+[Path_isEmpty]
+SkPath
+bool isEmpty() const;
+
+[Path_isFinite]
+SkPath
+bool isFinite() const;
+
+[Path_isInterpolatable]
+SkPath
+bool isInterpolatable(const SkPath& compare) const;
+
+[Path_isInverseFillType_2]
+SkPath
+bool isInverseFillType() const;
+
+[Path_isLastContourClosed]
+SkPath
+bool isLastContourClosed() const;
+
+[Path_isLine]
+SkPath
+bool isLine(SkPoint line[2]) const;
+
+[Path_isNestedFillRects]
+SkPath
+bool isNestedFillRects(SkRect rect[2], Direction dirs[2] = nullptr) const;
+
+[Path_isOval]
+SkPath
+bool isOval(SkRect* bounds) const;
+
+[Path_isRRect]
+SkPath
+bool isRRect(SkRRect* rrect) const;
+
+[Path_isRect]
+SkPath
+bool isRect(SkRect* rect, bool* isClosed = nullptr, Direction* direction = nullptr) const;
+
+[Path_isVolatile]
+SkPath
+bool isVolatile() const;
+
+[Path_lineTo]
+SkPath
+SkPath& lineTo(SkScalar x, SkScalar y);
+
+[Path_lineTo_2]
+SkPath
+SkPath& lineTo(const SkPoint& p);
+
+[Path_moveTo]
+SkPath
+SkPath& moveTo(SkScalar x, SkScalar y);
+
+[Path_moveTo_2]
+SkPath
+SkPath& moveTo(const SkPoint& p);
+
+[Path_RawIter_next]
+SkPath
+Verb next(SkPoint pts[4]);
+
+[Path_Iter_next]
+SkPath
+Verb next(SkPoint pts[4], bool doConsumeDegenerates = true, bool exact = false);
+
+[Path_offset_2]
+SkPath
+void offset(SkScalar dx, SkScalar dy);
+
+[Path_offset]
+SkPath
+void offset(SkScalar dx, SkScalar dy, SkPath* dst) const;
+
+[Path_notequal_operator]
+SkPath
+bool operator!=(const SkPath& a, const SkPath& b);
+
+[Path_copy_operator]
+SkPath
+SkPath& operator=(const SkPath& path);
+
+[Path_equal_operator]
+SkPath
+bool operator==(const SkPath& a, const SkPath& b);
+
+[Path_RawIter_peek]
+SkPath
+Verb peek() const;
+
+[Path_quadTo]
+SkPath
+SkPath& quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2);
+
+[Path_quadTo_2]
+SkPath
+SkPath& quadTo(const SkPoint& p1, const SkPoint& p2);
+
+[Path_rArcTo]
+SkPath
+SkPath& rArcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc, Direction sweep, SkScalar dx, SkScalar dy);
+
+[Cubic]
+[Path_rConicTo]
+SkPath
+SkPath& rConicTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2, SkScalar w);
+
+[Arc]
+[Path_rCubicTo]
+SkPath
+SkPath& rCubicTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2, SkScalar dx3, SkScalar dy3);
+
+[Path_rLineTo]
+[Quad_a]
+[Quad_b]
+SkPath
+SkPath& rLineTo(SkScalar dx, SkScalar dy);
+
+[Path_rMoveTo]
+SkPath
+SkPath& rMoveTo(SkScalar dx, SkScalar dy);
+
+[Conic_Weight_a]
+[Conic_Weight_b]
+[Conic_Weight_c]
+[Path_rQuadTo]
+SkPath
+SkPath& rQuadTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2);
+
+[Path_readFromMemory]
+SkPath
+size_t readFromMemory(const void* buffer, size_t length);
+
+[Path_reset]
+SkPath
+SkPath& reset();
+
+[Path_reverseAddPath]
+SkPath
+SkPath& reverseAddPath(const SkPath& src);
+
+[Path_rewind]
+SkPath
+SkPath& rewind();
+
+[Path_serialize]
+SkPath
+sk_sp<SkData> serialize() const;
+
+[Path_setConvexity]
+SkPath
+void setConvexity(Convexity convexity);
+
+[Path_setFillType]
+SkPath
+void setFillType(FillType ft);
+
+[Path_setIsVolatile]
+SkPath
+void setIsVolatile(bool isVolatile);
+
+[Path_setLastPt]
+SkPath
+void setLastPt(SkScalar x, SkScalar y);
+
+[Path_setLastPt_2]
+SkPath
+void setLastPt(const SkPoint& p);
+
+[Path_Iter_setPath]
+SkPath
+void setPath(const SkPath& path, bool forceClose);
+
+[Path_swap]
+SkPath
+void swap(SkPath& other);
+
+[Path_toggleInverseFillType]
+SkPath
+void toggleInverseFillType();
+
+[Path_transform_2]
+SkPath
+void transform(const SkMatrix& matrix);
+
+[Path_transform]
+SkPath
+void transform(const SkMatrix& matrix, SkPath* dst) const;
+
+[Path_updateBoundsCache]
+SkPath
+void updateBoundsCache() const;
+
+[Path_writeToMemory]
+SkPath
+size_t writeToMemory(void* buffer) const;
+
+[Path_destructor]
+SkPath
+~SkPath();
+
+[Picture_MakeFromData]
+SkPicture
+static sk_sp<SkPicture> MakeFromData(const SkData* data, const SkDeserialProcs* procs = nullptr);
+
+[Picture_serialize_2]
+SkPicture
+static sk_sp<SkPicture> MakeFromData(const void* data, size_t size, const SkDeserialProcs* procs = nullptr);
+
+[Picture_MakeFromStream]
+SkPicture
+static sk_sp<SkPicture> MakeFromStream(SkStream* stream, const SkDeserialProcs* procs = nullptr);
+
+[Picture_MakePlaceholder]
+SkPicture
+static sk_sp<SkPicture> MakePlaceholder(SkRect cull);
+
+[Picture_AbortCallback_abort]
+SkPicture
+virtual bool abort() = 0;
+
+[Picture_approximateBytesUsed]
+SkPicture
+virtual size_t approximateBytesUsed() const = 0;
+
+[Picture_approximateOpCount]
+SkPicture
+virtual int approximateOpCount() const = 0;
+
+[Picture_cullRect]
+SkPicture
+virtual SkRect cullRect() const = 0;
+
+[Picture_playback]
+SkPicture
+virtual void playback(SkCanvas* canvas, AbortCallback* callback = nullptr) const = 0;
+
+[Picture_serialize]
+SkPicture
+sk_sp<SkData> serialize(const SkSerialProcs* procs = nullptr) const;
+
+[Picture_serialize_2]
+SkPicture
+void serialize(SkWStream* stream, const SkSerialProcs* procs = nullptr) const;
+
+[Picture_uniqueID]
+SkPicture
+uint32_t uniqueID() const;
+
+[Pixmap_empty_constructor]
+SkPixmap
+SkPixmap();
+
+[Pixmap_const_SkImageInfo_const_star]
+SkPixmap
+SkPixmap(const SkImageInfo& info, const void* addr, size_t rowBytes);
+
+[Pixmap_addr]
+SkPixmap
+const void* addr() const;
+
+[Pixmap_addr_2]
+SkPixmap
+const void* addr(int x, int y) const;
+
+[Pixmap_addr16]
+SkPixmap
+const uint16_t* addr16() const;
+
+[Pixmap_addr16_2]
+SkPixmap
+const uint16_t* addr16(int x, int y) const;
+
+[Pixmap_addr32]
+SkPixmap
+const uint32_t* addr32() const;
+
+[Pixmap_addr32_2]
+SkPixmap
+const uint32_t* addr32(int x, int y) const;
+
+[Pixmap_addr64]
+SkPixmap
+const uint64_t* addr64() const;
+
+[Pixmap_addr64_2]
+SkPixmap
+const uint64_t* addr64(int x, int y) const;
+
+[Pixmap_addr8]
+SkPixmap
+const uint8_t* addr8() const;
+
+[Pixmap_addr8_2]
+SkPixmap
+const uint8_t* addr8(int x, int y) const;
+
+[Pixmap_addrF16]
+SkPixmap
+const uint16_t* addrF16() const;
+
+[Pixmap_addrF16_2]
+SkPixmap
+const uint16_t* addrF16(int x, int y) const;
+
+[Pixmap_alphaType]
+SkPixmap
+SkAlphaType alphaType() const;
+
+[Pixmap_bounds]
+SkPixmap
+SkIRect bounds() const;
+
+[Pixmap_colorSpace]
+SkPixmap
+SkColorSpace* colorSpace() const;
+
+[Pixmap_colorType]
+SkPixmap
+SkColorType colorType() const;
+
+[Pixmap_computeByteSize]
+SkPixmap
+size_t computeByteSize() const;
+
+[Pixmap_computeIsOpaque]
+SkPixmap
+bool computeIsOpaque() const;
+
+[Pixmap_erase_2]
+SkPixmap
+bool erase(SkColor color) const;
+
+[Pixmap_erase]
+SkPixmap
+bool erase(SkColor color, const SkIRect& subset) const;
+
+[Pixmap_erase_3]
+SkPixmap
+bool erase(const SkColor4f& color, const SkIRect* subset = nullptr) const;
+
+[Pixmap_extractSubset]
+SkPixmap
+bool extractSubset(SkPixmap* subset, const SkIRect& area) const;
+
+[Pixmap_getColor]
+SkPixmap
+SkColor getColor(int x, int y) const;
+
+[Pixmap_height]
+SkPixmap
+int height() const;
+
+[Pixmap_info]
+SkPixmap
+const SkImageInfo& info() const;
+
+[Pixmap_isOpaque]
+SkPixmap
+bool isOpaque() const;
+
+[Pixmap_readPixels]
+SkPixmap
+bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes) const;
+
+[Pixmap_readPixels_2]
+SkPixmap
+bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY) const;
+
+[Pixmap_readPixels_4]
+SkPixmap
+bool readPixels(const SkPixmap& dst) const;
+
+[Pixmap_readPixels_3]
+SkPixmap
+bool readPixels(const SkPixmap& dst, int srcX, int srcY) const;
+
+[Pixmap_reset]
+SkPixmap
+void reset();
+
+[Pixmap_reset_2]
+SkPixmap
+void reset(const SkImageInfo& info, const void* addr, size_t rowBytes);
+
+[Pixmap_rowBytes]
+SkPixmap
+size_t rowBytes() const;
+
+[Pixmap_rowBytesAsPixels]
+SkPixmap
+int rowBytesAsPixels() const;
+
+[Pixmap_scalePixels]
+SkPixmap
+bool scalePixels(const SkPixmap& dst, SkFilterQuality filterQuality) const;
+
+[Pixmap_setColorSpace]
+SkPixmap
+void setColorSpace(sk_sp<SkColorSpace> colorSpace);
+
+[Pixmap_shiftPerPixel]
+SkPixmap
+int shiftPerPixel() const;
+
+[Pixmap_width]
+SkPixmap
+int width() const;
+
+[Pixmap_writable_addr]
+SkPixmap
+void* writable_addr() const;
+
+[Pixmap_writable_addr_2]
+SkPixmap
+void* writable_addr(int x, int y) const;
+
+[Pixmap_writable_addr16]
+SkPixmap
+uint16_t* writable_addr16(int x, int y) const;
+
+[Pixmap_writable_addr32]
+SkPixmap
+uint32_t* writable_addr32(int x, int y) const;
+
+[Pixmap_writable_addr64]
+SkPixmap
+uint64_t* writable_addr64(int x, int y) const;
+
+[Pixmap_writable_addr8]
+SkPixmap
+uint8_t* writable_addr8(int x, int y) const;
+
+[Pixmap_writable_addrF16]
+SkPixmap
+uint16_t* writable_addrF16(int x, int y) const;
+
+[Point_CrossProduct]
+SkPoint
+static SkScalar CrossProduct(const SkVector& a, const SkVector& b);
+
+[Point_Distance]
+SkPoint
+static SkScalar Distance(const SkPoint& a, const SkPoint& b);
+
+[Point_DotProduct]
+SkPoint
+static SkScalar DotProduct(const SkVector& a, const SkVector& b);
+
+[Point_Length]
+SkPoint
+static SkScalar Length(SkScalar x, SkScalar y);
+
+[Point_Make]
+SkPoint
+static constexpr SkPoint Make(SkScalar x, SkScalar y);
+
+[Point_Normalize]
+SkPoint
+static SkScalar Normalize(SkVector* vec);
+
+[Point_Offset_2]
+SkPoint
+static void Offset(SkPoint points[], int count, SkScalar dx, SkScalar dy);
+
+[Point_Offset]
+SkPoint
+static void Offset(SkPoint points[], int count, const SkVector& offset);
+
+[Point_cross]
+SkPoint
+SkScalar cross(const SkVector& vec) const;
+
+[Point_distanceToOrigin]
+SkPoint
+SkScalar distanceToOrigin() const;
+
+[Point_dot]
+SkPoint
+SkScalar dot(const SkVector& vec) const;
+
+[Point_equals]
+SkPoint
+bool equals(SkScalar x, SkScalar y) const;
+
+[Point_isFinite]
+SkPoint
+bool isFinite() const;
+
+[Point_isZero]
+SkPoint
+bool isZero() const;
+
+[Point_iset_2]
+SkPoint
+void iset(const SkIPoint& p);
+
+[Point_iset]
+SkPoint
+void iset(int32_t x, int32_t y);
+
+[Point_length_2]
+SkPoint
+SkScalar length() const;
+
+[Point_negate]
+SkPoint
+void negate();
+
+[Point_normalize_2]
+SkPoint
+bool normalize();
+
+[Point_offset_3]
+SkPoint
+void offset(SkScalar dx, SkScalar dy);
+
+[Point_notequal_operator]
+SkPoint
+bool operator!=(const SkPoint& a, const SkPoint& b);
+
+[Point_multiply_operator]
+SkPoint
+SkPoint operator*(SkScalar scale) const;
+
+[Point_multiplyby_operator]
+SkPoint
+SkPoint& operator*=(SkScalar scale);
+
+[Point_add_operator]
+SkPoint
+SkPoint operator+(const SkPoint& a, const SkVector& b);
+
+[Point_addto_operator]
+SkPoint
+void operator+=(const SkVector& v);
+
+[Point_minus_operator]
+SkPoint
+SkPoint operator-() const;
+
+[Point_subtract_operator]
+SkPoint
+SkVector operator-(const SkPoint& a, const SkPoint& b);
+
+[Point_subtractfrom_operator]
+SkPoint
+void operator-=(const SkVector& v);
+
+[Point_equal_operator]
+SkPoint
+bool operator==(const SkPoint& a, const SkPoint& b);
+
+[Point_scale]
+SkPoint
+void scale(SkScalar scale, SkPoint* dst) const;
+
+[Point_scale_2]
+SkPoint
+void scale(SkScalar value);
+
+[Point_set]
+SkPoint
+void set(SkScalar x, SkScalar y);
+
+[Point_setAbs]
+SkPoint
+void setAbs(const SkPoint& pt);
+
+[Point_setLength]
+SkPoint
+bool setLength(SkScalar length);
+
+[Point_setLength_2]
+SkPoint
+bool setLength(SkScalar x, SkScalar y, SkScalar length);
+
+[Point_setNormalize]
+SkPoint
+bool setNormalize(SkScalar x, SkScalar y);
+
+[Point_x]
+SkPoint
+SkScalar x() const;
+
+[Point_y]
+SkPoint
+SkScalar y() const;
+
+[RRect_MakeEmpty]
+SkRRect
+static SkRRect MakeEmpty();
+
+[RRect_MakeOval]
+SkRRect
+static SkRRect MakeOval(const SkRect& oval);
+
+[RRect_MakeRect]
+SkRRect
+static SkRRect MakeRect(const SkRect& r);
+
+[RRect_MakeRectXY]
+SkRRect
+static SkRRect MakeRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad);
+
+[RRect_empty_constructor]
+SkRRect
+SkRRect();
+
+[RRect_copy_const_SkRRect]
+SkRRect
+SkRRect(const SkRRect& rrect);
+
+[RRect_contains]
+SkRRect
+bool contains(const SkRect& rect) const;
+
+[RRect_dump_2]
+SkRRect
+void dump() const;
+
+[RRect_dump]
+SkRRect
+void dump(bool asHex) const;
+
+[RRect_dumpHex]
+SkRRect
+void dumpHex() const;
+
+[RRect_Corner]
+SkRRect
+enum Corner { kUpperLeft_Corner, kUpperRight_Corner, kLowerRight_Corner, kLowerLeft_Corner, };
+
+[RRect_Type]
+SkRRect
+enum Type { kEmpty_Type, kRect_Type, kOval_Type, kSimple_Type, kNinePatch_Type, kComplex_Type, kLastType = kComplex_Type, };
+
+[RRect_getBounds]
+SkRRect
+const SkRect& getBounds() const;
+
+[RRect_getSimpleRadii]
+SkRRect
+SkVector getSimpleRadii() const;
+
+[RRect_getType]
+SkRRect
+Type getType() const;
+
+[RRect_height]
+SkRRect
+SkScalar height() const;
+
+[RRect_inset_2]
+SkRRect
+void inset(SkScalar dx, SkScalar dy);
+
+[RRect_inset]
+SkRRect
+void inset(SkScalar dx, SkScalar dy, SkRRect* dst) const;
+
+[RRect_isComplex]
+SkRRect
+bool isComplex() const;
+
+[RRect_isEmpty]
+SkRRect
+bool isEmpty() const;
+
+[RRect_isNinePatch]
+SkRRect
+bool isNinePatch() const;
+
+[RRect_isOval]
+SkRRect
+bool isOval() const;
+
+[RRect_isRect]
+SkRRect
+bool isRect() const;
+
+[RRect_isSimple]
+SkRRect
+bool isSimple() const;
+
+[RRect_isValid]
+SkRRect
+bool isValid() const;
+
+[RRect_makeOffset]
+SkRRect
+SkRRect makeOffset(SkScalar dx, SkScalar dy) const;
+
+[RRect_offset]
+SkRRect
+void offset(SkScalar dx, SkScalar dy);
+
+[RRect_notequal_operator]
+SkRRect
+bool operator!=(const SkRRect& a, const SkRRect& b);
+
+[RRect_copy_operator]
+SkRRect
+SkRRect& operator=(const SkRRect& rrect);
+
+[RRect_equal_operator]
+SkRRect
+bool operator==(const SkRRect& a, const SkRRect& b);
+
+[RRect_outset_2]
+SkRRect
+void outset(SkScalar dx, SkScalar dy);
+
+[RRect_outset]
+SkRRect
+void outset(SkScalar dx, SkScalar dy, SkRRect* dst) const;
+
+[RRect_radii]
+SkRRect
+SkVector radii(Corner corner) const;
+
+[RRect_readFromMemory]
+SkRRect
+size_t readFromMemory(const void* buffer, size_t length);
+
+[RRect_rect]
+SkRRect
+const SkRect& rect() const;
+
+[RRect_setEmpty]
+SkRRect
+void setEmpty();
+
+[RRect_setNinePatch]
+SkRRect
+void setNinePatch(const SkRect& rect, SkScalar leftRad, SkScalar topRad, SkScalar rightRad, SkScalar bottomRad);
+
+[RRect_setOval]
+SkRRect
+void setOval(const SkRect& oval);
+
+[RRect_setRect]
+SkRRect
+void setRect(const SkRect& rect);
+
+[RRect_setRectRadii]
+SkRRect
+void setRectRadii(const SkRect& rect, const SkVector radii[4]);
+
+[RRect_setRectXY]
+SkRRect
+void setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad);
+
+[RRect_transform]
+SkRRect
+bool transform(const SkMatrix& matrix, SkRRect* dst) const;
+
+[RRect_type_2]
+SkRRect
+Type type() const;
+
+[RRect_width]
+SkRRect
+SkScalar width() const;
+
+[RRect_writeToMemory]
+SkRRect
+size_t writeToMemory(void* buffer) const;
+
+[Rect_Intersects]
+SkRect
+static bool Intersects(const SkRect& a, const SkRect& b);
+
+[Rect_Make_2]
+SkRect
+static SkRect Make(const SkIRect& irect);
+
+[Rect_Make]
+SkRect
+static SkRect Make(const SkISize& size);
+
+[Rect_MakeEmpty]
+SkRect
+static constexpr SkRect MakeEmpty();
+
+[Rect_MakeIWH]
+SkRect
+static SkRect MakeIWH(int w, int h);
+
+[Rect_MakeLTRB]
+SkRect
+static constexpr SkRect MakeLTRB(SkScalar l, SkScalar t, SkScalar r, SkScalar b);
+
+[Rect_MakeSize]
+SkRect
+static constexpr SkRect MakeSize(const SkSize& size);
+
+[Rect_MakeWH]
+SkRect
+static constexpr SkRect MakeWH(SkScalar w, SkScalar h);
+
+[Rect_MakeXYWH]
+SkRect
+static constexpr SkRect MakeXYWH(SkScalar x, SkScalar y, SkScalar w, SkScalar h);
+
+[Rect_asScalars]
+SkRect
+const SkScalar* asScalars() const;
+
+[Rect_bottom]
+SkRect
+SkScalar    bottom() const;
+
+[Rect_centerX]
+SkRect
+SkScalar    centerX() const;
+
+[Rect_centerY]
+SkRect
+SkScalar    centerY() const;
+
+[Rect_contains]
+SkRect
+bool contains(SkScalar x, SkScalar y) const;
+
+[Rect_contains_3]
+SkRect
+bool contains(const SkIRect& r) const;
+
+[Rect_contains_2]
+SkRect
+bool contains(const SkRect& r) const;
+
+[Rect_dump_2]
+SkRect
+void dump() const;
+
+[Rect_dump]
+SkRect
+void dump(bool asHex) const;
+
+[Rect_dumpHex]
+SkRect
+void dumpHex() const;
+
+[Rect_height]
+SkRect
+SkScalar    height() const;
+
+[Rect_inset]
+SkRect
+void inset(SkScalar dx, SkScalar dy);
+
+[Rect_intersect_2]
+SkRect
+bool intersect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom);
+
+[Rect_intersect_3]
+SkRect
+bool intersect(const SkRect& a, const SkRect& b);
+
+[Rect_intersect]
+SkRect
+bool intersect(const SkRect& r);
+
+[Rect_intersects_3]
+SkRect
+bool intersects(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) const;
+
+[Rect_intersects_2]
+SkRect
+bool intersects(const SkRect& r) const;
+
+[Rect_isEmpty]
+SkRect
+bool isEmpty() const;
+
+[Rect_isFinite]
+SkRect
+bool isFinite() const;
+
+[Rect_isSorted]
+SkRect
+bool isSorted() const;
+
+[Rect_iset]
+SkRect
+void iset(int left, int top, int right, int bottom);
+
+[Rect_isetWH]
+SkRect
+void isetWH(int width, int height);
+
+[Rect_join]
+SkRect
+void join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom);
+
+[Rect_join_2]
+SkRect
+void join(const SkRect& r);
+
+[Rect_joinNonEmptyArg]
+SkRect
+void joinNonEmptyArg(const SkRect& r);
+
+[Rect_joinPossiblyEmptyRect]
+SkRect
+void joinPossiblyEmptyRect(const SkRect& r);
+
+[Rect_left]
+SkRect
+SkScalar    left() const;
+
+[Rect_makeInset]
+SkRect
+SkRect makeInset(SkScalar dx, SkScalar dy) const;
+
+[Rect_makeOffset]
+SkRect
+SkRect makeOffset(SkScalar dx, SkScalar dy) const;
+
+[Rect_makeOutset]
+SkRect
+SkRect makeOutset(SkScalar dx, SkScalar dy) const;
+
+[Rect_makeSorted]
+SkRect
+SkRect makeSorted() const;
+
+[Rect_offset]
+SkRect
+void offset(SkScalar dx, SkScalar dy);
+
+[Rect_offset_2]
+SkRect
+void offset(const SkPoint& delta);
+
+[Rect_offsetTo]
+SkRect
+void offsetTo(SkScalar newX, SkScalar newY);
+
+[Rect_notequal_operator]
+SkRect
+bool operator!=(const SkRect& a, const SkRect& b);
+
+[Rect_equal_operator]
+SkRect
+bool operator==(const SkRect& a, const SkRect& b);
+
+[Rect_outset]
+SkRect
+void outset(SkScalar dx, SkScalar dy);
+
+[Rect_right]
+SkRect
+SkScalar    right() const;
+
+[Rect_round_2]
+SkRect
+SkIRect round() const;
+
+[Rect_round]
+SkRect
+void round(SkIRect* dst) const;
+
+[Rect_roundIn]
+SkRect
+void roundIn(SkIRect* dst) const;
+
+[Rect_roundOut_3]
+SkRect
+SkIRect roundOut() const;
+
+[Rect_roundOut]
+SkRect
+void roundOut(SkIRect* dst) const;
+
+[Rect_roundOut_2]
+SkRect
+void roundOut(SkRect* dst) const;
+
+[Rect_set_2]
+SkRect
+void set(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom);
+
+[Rect_set]
+SkRect
+void set(const SkIRect& src);
+
+[Rect_set_3]
+SkRect
+void set(const SkPoint pts[], int count);
+
+[Rect_set_4]
+SkRect
+void set(const SkPoint& p0, const SkPoint& p1);
+
+[Rect_setBounds]
+SkRect
+void setBounds(const SkPoint pts[], int count);
+
+[Rect_setBoundsCheck]
+SkRect
+bool setBoundsCheck(const SkPoint pts[], int count);
+
+[Rect_setBoundsNoCheck]
+SkRect
+void setBoundsNoCheck(const SkPoint pts[], int count);
+
+[Rect_setEmpty]
+SkRect
+void setEmpty();
+
+[Rect_setLTRB]
+SkRect
+void setLTRB(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom);
+
+[Rect_setWH]
+SkRect
+void setWH(SkScalar width, SkScalar height);
+
+[Rect_setXYWH]
+SkRect
+void setXYWH(SkScalar x, SkScalar y, SkScalar width, SkScalar height);
+
+[Rect_sort]
+SkRect
+void sort();
+
+[Rect_toQuad]
+SkRect
+void toQuad(SkPoint quad[4]) const;
+
+[Rect_top]
+SkRect
+SkScalar    top() const;
+
+[Rect_width]
+SkRect
+SkScalar    width() const;
+
+[Rect_x]
+SkRect
+SkScalar    x() const;
+
+[Rect_y]
+SkRect
+SkScalar    y() const;
+
+[Region_Cliperator_const_SkRegion_const_SkIRect]
+SkRegion
+Cliperator(const SkRegion& region, const SkIRect& clip);
+
+[Region_Iterator_Iterator]
+SkRegion
+Iterator();
+
+[Region_Iterator_copy_const_SkRegion]
+SkRegion
+Iterator(const SkRegion& region);
+
+[Region_copy_const_SkIRect]
+SkRegion
+explicit SkRegion(const SkIRect& rect);
+
+[Region_empty_constructor]
+SkRegion
+SkRegion();
+
+[Region_copy_const_SkRegion]
+SkRegion
+SkRegion(const SkRegion& region);
+
+[Region_Spanerator_const_SkRegion_int_int_int]
+SkRegion
+Spanerator(const SkRegion& region, int y, int left, int right);
+
+[Region_computeRegionComplexity]
+SkRegion
+int computeRegionComplexity() const;
+
+[Region_contains_2]
+SkRegion
+bool contains(const SkIRect& other) const;
+
+[Region_contains_3]
+SkRegion
+bool contains(const SkRegion& other) const;
+
+[Region_contains]
+SkRegion
+bool contains(int32_t x, int32_t y) const;
+
+[Region_Iterator_done]
+SkRegion
+bool done() const;
+
+[Region_Cliperator_done]
+SkRegion
+bool done();
+
+[Region_Op]
+SkRegion
+enum Op { kDifference_Op, kIntersect_Op, kUnion_Op, kXOR_Op, kReverseDifference_Op, kReplace_Op, kLastOp = kReplace_Op, };
+
+[Region_getBoundaryPath]
+SkRegion
+bool getBoundaryPath(SkPath* path) const;
+
+[Region_getBounds]
+SkRegion
+const SkIRect& getBounds() const;
+
+[Region_intersects]
+SkRegion
+bool intersects(const SkIRect& rect) const;
+
+[Region_intersects_2]
+SkRegion
+bool intersects(const SkRegion& other) const;
+
+[Region_isComplex]
+SkRegion
+bool isComplex() const;
+
+[Region_isEmpty]
+SkRegion
+bool isEmpty() const;
+
+[Region_isRect]
+SkRegion
+bool isRect() const;
+
+[Region_Spanerator_next]
+SkRegion
+bool next(int* left, int* right);
+
+[Region_Cliperator_next]
+SkRegion
+void  next();
+
+[Region_Iterator_next]
+SkRegion
+void next();
+
+[Region_op_1]
+SkRegion
+bool op(const SkIRect& rect, Op op);
+
+[Region_op_4]
+SkRegion
+bool op(const SkIRect& rect, const SkRegion& rgn, Op op);
+
+[Region_op_3]
+SkRegion
+bool op(const SkRegion& rgn, Op op);
+
+[Region_op_5]
+SkRegion
+bool op(const SkRegion& rgn, const SkIRect& rect, Op op);
+
+[Region_op_6]
+SkRegion
+bool op(const SkRegion& rgna, const SkRegion& rgnb, Op op);
+
+[Region_op_2]
+SkRegion
+bool op(int left, int top, int right, int bottom, Op op);
+
+[Region_notequal1_operator]
+SkRegion
+bool operator!=(const SkRegion& other) const;
+
+[Region_copy_operator]
+SkRegion
+SkRegion& operator=(const SkRegion& region);
+
+[Region_equal1_operator]
+SkRegion
+bool operator==(const SkRegion& other) const;
+
+[Region_quickContains]
+SkRegion
+bool quickContains(const SkIRect& r) const;
+
+[Region_quickContains_2]
+SkRegion
+bool quickContains(int32_t left, int32_t top, int32_t right, int32_t bottom) const;
+
+[Region_quickReject]
+SkRegion
+bool quickReject(const SkIRect& rect) const;
+
+[Region_quickReject_2]
+SkRegion
+bool quickReject(const SkRegion& rgn) const;
+
+[Region_readFromMemory]
+SkRegion
+size_t readFromMemory(const void* buffer, size_t length);
+
+[Region_Cliperator_rect]
+[Region_Iterator_rect]
+SkRegion
+const SkIRect& rect() const;
+
+[Region_Iterator_reset]
+SkRegion
+void reset(const SkRegion& region);
+
+[Region_Iterator_rewind]
+SkRegion
+bool rewind();
+
+[Region_Iterator_rgn]
+SkRegion
+const SkRegion* rgn() const;
+
+[Region_set]
+SkRegion
+bool set(const SkRegion& src);
+
+[Region_setEmpty]
+SkRegion
+bool setEmpty();
+
+[Region_setPath]
+SkRegion
+bool setPath(const SkPath& path, const SkRegion& clip);
+
+[Region_setRect]
+SkRegion
+bool setRect(const SkIRect& rect);
+
+[Region_setRect_2]
+SkRegion
+bool setRect(int32_t left, int32_t top, int32_t right, int32_t bottom);
+
+[Region_setRects]
+SkRegion
+bool setRects(const SkIRect rects[], int count);
+
+[Region_setRegion]
+SkRegion
+bool setRegion(const SkRegion& region);
+
+[Region_swap]
+SkRegion
+void swap(SkRegion& other);
+
+[Region_translate]
+SkRegion
+void translate(int dx, int dy);
+
+[Region_translate_2]
+SkRegion
+void translate(int dx, int dy, SkRegion* dst) const;
+
+[Region_writeToMemory]
+SkRegion
+size_t writeToMemory(void* buffer) const;
+
+[Region_destructor]
+SkRegion
+~SkRegion();
+
+[Surface_MakeFromBackendTexture]
+SkSurface
+static sk_sp<SkSurface> MakeFromBackendTexture(GrContext* context, const GrBackendTexture& backendTexture, GrSurfaceOrigin origin, int sampleCnt, SkColorType colorType, sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps* surfaceProps);
+
+[Surface_MakeFromBackendTextureAsRenderTarget]
+SkSurface
+static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext* context, const GrBackendTexture& backendTexture, GrSurfaceOrigin origin, int sampleCnt, SkColorType colorType, sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps* surfaceProps);
+
+[Surface_MakeNull]
+SkSurface
+static sk_sp<SkSurface> MakeNull(int width, int height);
+
+[Surface_MakeRaster_2]
+SkSurface
+static sk_sp<SkSurface> MakeRaster(const SkImageInfo& imageInfo, const SkSurfaceProps* props = nullptr);
+
+[Surface_MakeRaster]
+SkSurface
+static sk_sp<SkSurface> MakeRaster(const SkImageInfo& imageInfo, size_t rowBytes, const SkSurfaceProps* surfaceProps);
+
+[Surface_MakeRasterDirect]
+SkSurface
+static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo& imageInfo, void* pixels, size_t rowBytes, const SkSurfaceProps* surfaceProps = nullptr);
+
+[Surface_MakeRasterDirectReleaseProc]
+SkSurface
+static sk_sp<SkSurface> MakeRasterDirectReleaseProc(const SkImageInfo& imageInfo, void* pixels, size_t rowBytes, void (*releaseProc) (void* pixels, void* context) , void* context, const SkSurfaceProps* surfaceProps = nullptr);
+
+[Surface_MakeRasterN32Premul]
+SkSurface
+static sk_sp<SkSurface> MakeRasterN32Premul(int width, int height, const SkSurfaceProps* surfaceProps = nullptr);
+
+[Surface_MakeRenderTarget_3]
+SkSurface
+static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted, const SkImageInfo& imageInfo);
+
+[Surface_MakeRenderTarget]
+SkSurface
+static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted, const SkImageInfo& imageInfo, int sampleCount, GrSurfaceOrigin surfaceOrigin, const SkSurfaceProps* surfaceProps, bool shouldCreateWithMips = false);
+
+[Surface_MakeRenderTarget_2]
+SkSurface
+static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted, const SkImageInfo& imageInfo, int sampleCount, const SkSurfaceProps* props);
+
+[Surface_characterize]
+SkSurface
+bool characterize(SkSurfaceCharacterization* characterization) const;
+
+[Surface_draw_2]
+SkSurface
+bool draw(SkDeferredDisplayList* deferredDisplayList);
+
+[Surface_draw]
+SkSurface
+void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint);
+
+[Surface_notifyContentWillChange]
+SkSurface
+uint32_t generationID();
+
+[Surface_getCanvas]
+SkSurface
+SkCanvas* getCanvas();
+
+[Surface_height]
+SkSurface
+int height() const;
+
+[Surface_makeImageSnapshot]
+SkSurface
+sk_sp<SkImage> makeImageSnapshot();
+
+[Surface_makeImageSnapshot_2]
+SkSurface
+sk_sp<SkImage> makeImageSnapshot(const SkIRect& bounds);
+
+[Surface_makeSurface]
+SkSurface
+sk_sp<SkSurface> makeSurface(const SkImageInfo& imageInfo);
+
+[Surface_notifyContentWillChange]
+SkSurface
+void notifyContentWillChange(ContentChangeMode mode);
+
+[Surface_peekPixels]
+SkSurface
+bool peekPixels(SkPixmap* pixmap);
+
+[Surface_props]
+SkSurface
+const SkSurfaceProps& props() const;
+
+[Surface_readPixels_3]
+SkSurface
+bool readPixels(const SkBitmap& dst, int srcX, int srcY);
+
+[Surface_readPixels_2]
+SkSurface
+bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY);
+
+[Surface_readPixels]
+SkSurface
+bool readPixels(const SkPixmap& dst, int srcX, int srcY);
+
+[Surface_width]
+SkSurface
+int width() const;
+
+[Surface_writePixels_2]
+SkSurface
+void writePixels(const SkBitmap& src, int dstX, int dstY);
+
+[Surface_writePixels]
+SkSurface
+void writePixels(const SkPixmap& src, int dstX, int dstY);
+
+[TextBlob_Deserialize]
+SkTextBlob
+static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size, const SkDeserialProcs& procs);
+
+[TextBlob_MakeFromString]
+SkTextBlob
+static sk_sp<SkTextBlob> MakeFromString(const char* string, const SkFont& font, SkTextEncoding encoding = SkTextEncoding::kUTF8);
+
+[TextBlob_MakeFromText]
+SkTextBlob
+static sk_sp<SkTextBlob> MakeFromText(const void* text, size_t byteLength, const SkFont& font, SkTextEncoding encoding = SkTextEncoding::kUTF8);
+
+[TextBlob_bounds]
+SkTextBlob
+const SkRect& bounds() const;
+
+[TextBlob_getIntercepts]
+SkTextBlob
+int getIntercepts(const SkScalar bounds[2], SkScalar intervals[], const SkPaint* paint = nullptr) const;
+
+[TextBlob_serialize]
+SkTextBlob
+size_t serialize(const SkSerialProcs& procs, void* memory, size_t memory_size) const;
+
+[TextBlob_serialize_2]
+SkTextBlob
+sk_sp<SkData> serialize(const SkSerialProcs& procs) const;
+
+[TextBlob_uniqueID]
+SkTextBlob
+uint32_t uniqueID() const;
+
+[TextBlobBuilder_empty_constructor]
+SkTextBlobBuilder
+SkTextBlobBuilder();
+
+[TextBlobBuilder_allocRun]
+SkTextBlobBuilder
+const RunBuffer& allocRun(const SkFont& font, int count, SkScalar x, SkScalar y, const SkRect* bounds = nullptr);
+
+[TextBlobBuilder_allocRunPos]
+SkTextBlobBuilder
+const RunBuffer& allocRunPos(const SkFont& font, int count, const SkRect* bounds = nullptr);
+
+[TextBlobBuilder_allocRunPosH]
+SkTextBlobBuilder
+const RunBuffer& allocRunPosH(const SkFont& font, int count, SkScalar y, const SkRect* bounds = nullptr);
+
+[TextBlobBuilder_make]
+SkTextBlobBuilder
+sk_sp<SkTextBlob> make();
+

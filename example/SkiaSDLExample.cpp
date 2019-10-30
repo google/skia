@@ -6,15 +6,16 @@
  *
  */
 
-#include "GrBackendSurface.h"
-#include "GrContext.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
 #include "SDL.h"
-#include "SkCanvas.h"
-#include "SkRandom.h"
-#include "SkSurface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkSurface.h"
+#include "include/utils/SkRandom.h"
 
-#include "gl/GrGLInterface.h"
-#include "gl/GrGLUtil.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "src/gpu/gl/GrGLUtil.h"
 
 #if defined(SK_BUILD_FOR_ANDROID)
 #include <GLES/gl.h>
@@ -256,14 +257,14 @@ int main(int argc, char** argv) {
     sk_sp<SkImage> image = cpuSurface->makeImageSnapshot();
 
     int rotation = 0;
+    SkFont font;
     while (!state.fQuit) { // Our application loop
         SkRandom rand;
         canvas->clear(SK_ColorWHITE);
         handle_events(&state, canvas);
 
         paint.setColor(SK_ColorBLACK);
-        canvas->drawText(helpMessage, strlen(helpMessage), SkIntToScalar(100),
-                         SkIntToScalar(100), paint);
+        canvas->drawString(helpMessage, 100.0f, 100.0f, font, paint);
         for (int i = 0; i < state.fRects.count(); i++) {
             paint.setColor(rand.nextU() | 0x44808080);
             canvas->drawRect(state.fRects[i], paint);

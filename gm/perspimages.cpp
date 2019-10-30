@@ -5,13 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "Resources.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
-#include "SkPath.h"
-#include "SkSurface.h"
-#include "sk_tool_utils.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
+#include "tools/Resources.h"
+
+#include <initializer_list>
 
 static sk_sp<SkImage> make_image1() { return GetResourceAsImage("images/mandrill_128.png"); }
 
@@ -28,7 +36,7 @@ public:
 protected:
     SkString onShortName() override { return SkString("persp_images"); }
 
-    SkISize onISize() override { return SkISize::Make(1150, 880); }
+    SkISize onISize() override { return SkISize::Make(1150, 1280); }
 
     void onOnceBeforeDraw() override {
         fImages.push_back(make_image1());
@@ -60,7 +68,13 @@ protected:
         }
         canvas->translate(-bounds.fLeft + 10.f, -bounds.fTop + 10.f);
         canvas->save();
-        for (auto subrect : {false, true}) {
+        enum class DrawType {
+            kDrawImage,
+            kDrawImageRectStrict,
+            kDrawImageRectFast,
+        };
+        for (auto type :
+             {DrawType::kDrawImage, DrawType::kDrawImageRectStrict, DrawType::kDrawImageRectFast}) {
             for (const auto& m : matrices) {
                 for (auto aa : {false, true}) {
                     paint.setAntiAlias(aa);
@@ -70,14 +84,22 @@ protected:
                             paint.setFilterQuality(filter);
                             canvas->save();
                             canvas->concat(m);
-                            if (subrect) {
-                                SkRect src = {img->width() / 4.f, img->height() / 4.f,
-                                              3.f * img->width() / 4.f, 3.f * img->height() / 4};
-                                SkRect dst = {0, 0,
-                                              3.f / 4.f * img->width(), 3.f / 4.f * img->height()};
-                                canvas->drawImageRect(img, src, dst, &paint);
-                            } else {
-                                canvas->drawImage(img, 0, 0, &paint);
+                            SkRect src = {img->width() / 4.f, img->height() / 4.f,
+                                          3.f * img->width() / 4.f, 3.f * img->height() / 4};
+                            SkRect dst = {0, 0,
+                                          3.f / 4.f * img->width(), 3.f / 4.f * img->height()};
+                            switch (type) {
+                                case DrawType::kDrawImage:
+                                    canvas->drawImage(img, 0, 0, &paint);
+                                    break;
+                                case DrawType::kDrawImageRectStrict:
+                                    canvas->drawImageRect(img, src, dst, &paint,
+                                                          SkCanvas::kStrict_SrcRectConstraint);
+                                    break;
+                                case DrawType::kDrawImageRectFast:
+                                    canvas->drawImageRect(img, src, dst, &paint,
+                                                          SkCanvas::kFast_SrcRectConstraint);
+                                    break;
                             }
                             canvas->restore();
                             ++n;

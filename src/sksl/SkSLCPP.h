@@ -11,7 +11,8 @@
 // functions used by CPP programs created by skslc
 
 #include <cmath>
-#include "SkPoint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 
 using std::abs;
 
@@ -24,10 +25,6 @@ struct Float4 {
 
     operator SkRect() const {
         return SkRect::MakeLTRB(fX, fY, fZ, fW);
-    }
-
-    operator GrColor4f() const {
-        return GrColor4f(fX, fY, fZ, fW);
     }
 
 private:

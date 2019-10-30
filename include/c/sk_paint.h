@@ -10,7 +10,7 @@
 #ifndef sk_paint_DEFINED
 #define sk_paint_DEFINED
 
-#include "sk_types.h"
+#include "include/c/sk_types.h"
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
@@ -37,8 +37,6 @@ SK_C_API void sk_paint_set_maskfilter(sk_paint_t*, sk_maskfilter_t*);
 SK_C_API void sk_paint_set_blendmode(sk_paint_t*, sk_blendmode_t);
 SK_C_API bool sk_paint_is_dither(const sk_paint_t*);
 SK_C_API void sk_paint_set_dither(sk_paint_t*, bool);
-SK_C_API bool sk_paint_is_verticaltext(const sk_paint_t*);
-SK_C_API void sk_paint_set_verticaltext(sk_paint_t*, bool);
 SK_C_API sk_shader_t* sk_paint_get_shader(sk_paint_t*);
 SK_C_API sk_maskfilter_t* sk_paint_get_maskfilter(sk_paint_t*);
 SK_C_API void sk_paint_set_colorfilter(sk_paint_t*, sk_colorfilter_t*);
@@ -48,50 +46,36 @@ SK_C_API sk_imagefilter_t* sk_paint_get_imagefilter(sk_paint_t*);
 SK_C_API sk_blendmode_t sk_paint_get_blendmode(sk_paint_t*);
 SK_C_API void sk_paint_set_filter_quality(sk_paint_t*, sk_filter_quality_t);
 SK_C_API sk_filter_quality_t sk_paint_get_filter_quality(sk_paint_t *);
-SK_C_API sk_typeface_t* sk_paint_get_typeface(sk_paint_t*);
-SK_C_API void sk_paint_set_typeface(sk_paint_t*, sk_typeface_t*);
-SK_C_API float sk_paint_get_textsize(sk_paint_t*);
-SK_C_API void sk_paint_set_textsize(sk_paint_t*, float);
-SK_C_API sk_text_align_t sk_paint_get_text_align(const sk_paint_t*);
-SK_C_API void sk_paint_set_text_align(sk_paint_t*, sk_text_align_t);
-SK_C_API sk_text_encoding_t sk_paint_get_text_encoding(const sk_paint_t*);
-SK_C_API void sk_paint_set_text_encoding(sk_paint_t*, sk_text_encoding_t);
-SK_C_API float sk_paint_get_text_scale_x(const sk_paint_t* cpaint);
-SK_C_API void sk_paint_set_text_scale_x(sk_paint_t* cpaint, float scale);
-SK_C_API float sk_paint_get_text_skew_x(const sk_paint_t* cpaint);
-SK_C_API void sk_paint_set_text_skew_x(sk_paint_t* cpaint, float skew);
-SK_C_API size_t sk_paint_break_text(const sk_paint_t* cpaint, const void* text, size_t length, float maxWidth, float* measuredWidth);
-SK_C_API float sk_paint_measure_text(const sk_paint_t* cpaint, const void* text, size_t length, sk_rect_t* cbounds);
-SK_C_API sk_path_t* sk_paint_get_text_path(sk_paint_t* cpaint, const void* text, size_t length, float x, float y);
-SK_C_API sk_path_t* sk_paint_get_pos_text_path(sk_paint_t* cpaint, const void* text, size_t length, const sk_point_t pos[]);
-SK_C_API float sk_paint_get_fontmetrics(sk_paint_t* cpaint, sk_fontmetrics_t* cfontmetrics, float scale);
 SK_C_API sk_path_effect_t* sk_paint_get_path_effect(sk_paint_t* cpaint);
 SK_C_API void sk_paint_set_path_effect(sk_paint_t* cpaint, sk_path_effect_t* effect);  
-SK_C_API bool sk_paint_is_linear_text(const sk_paint_t*);
-SK_C_API void sk_paint_set_linear_text(sk_paint_t*, bool);
-SK_C_API bool sk_paint_is_subpixel_text(const sk_paint_t*);
-SK_C_API void sk_paint_set_subpixel_text(sk_paint_t*, bool);
-SK_C_API bool sk_paint_is_lcd_render_text(const sk_paint_t*);
-SK_C_API void sk_paint_set_lcd_render_text(sk_paint_t*, bool);
-SK_C_API bool sk_paint_is_embedded_bitmap_text(const sk_paint_t*);
-SK_C_API void sk_paint_set_embedded_bitmap_text(sk_paint_t*, bool);
-SK_C_API sk_paint_hinting_t sk_paint_get_hinting(const sk_paint_t*);
-SK_C_API void sk_paint_set_hinting(sk_paint_t*, sk_paint_hinting_t);
-SK_C_API bool sk_paint_is_autohinted(const sk_paint_t*);
-SK_C_API void sk_paint_set_autohinted(sk_paint_t*, bool);
-SK_C_API bool sk_paint_is_fake_bold_text(const sk_paint_t*);
-SK_C_API void sk_paint_set_fake_bold_text(sk_paint_t*, bool);
-SK_C_API bool sk_paint_is_dev_kern_text(const sk_paint_t*);
-SK_C_API void sk_paint_set_dev_kern_text(sk_paint_t*, bool);
 SK_C_API bool sk_paint_get_fill_path(const sk_paint_t*, const sk_path_t* src, sk_path_t* dst, const sk_rect_t* cullRect, float resScale);
-SK_C_API int sk_paint_text_to_glyphs(const sk_paint_t* cpaint, const void* text, size_t byteLength, uint16_t* glyphs);
-SK_C_API bool sk_paint_contains_text(const sk_paint_t* cpaint, const void* text, size_t byteLength);
-SK_C_API int sk_paint_count_text(const sk_paint_t* cpaint, const void* text, size_t byteLength);
-SK_C_API int sk_paint_get_text_widths(const sk_paint_t* cpaint, const void* text, size_t byteLength, float* widths, sk_rect_t* bounds);
-SK_C_API int sk_paint_get_text_intercepts(const sk_paint_t* cpaint, const void* text, size_t byteLength, float x, float y, const float bounds[2], float* intervals);
-SK_C_API int sk_paint_get_pos_text_intercepts(const sk_paint_t* cpaint, const void* text, size_t byteLength, sk_point_t* pos, const float bounds[2], float* intervals);
-SK_C_API int sk_paint_get_pos_text_h_intercepts(const sk_paint_t* cpaint, const void* text, size_t byteLength, float* xpos, float y, const float bounds[2], float* intervals);
-SK_C_API int sk_paint_get_pos_text_blob_intercepts(const sk_paint_t* cpaint, sk_textblob_t* blob, const float bounds[2], float* intervals);
+
+// SK_C_API sk_font_t* sk_font_new();
+// SK_C_API sk_font_t* sk_font_with_size(const sk_font_t* font, float size);
+// SK_C_API bool sk_font_is_force_auto_hinting(const sk_font_t* font);
+// SK_C_API void sk_font_set_force_auto_hinting(sk_font_t* font, bool value);
+// SK_C_API bool sk_font_is_embedded_bitmaps(const sk_font_t* font);
+// SK_C_API void sk_font_set_embedded_bitmaps(sk_font_t* font, bool value);
+// SK_C_API bool sk_font_is_subpixel(const sk_font_t* font);
+// SK_C_API void sk_font_set_subpixel(sk_font_t* font, bool value);
+// SK_C_API bool sk_font_is_linear_metrics(const sk_font_t* font);
+// SK_C_API void sk_font_set_linear_metrics(sk_font_t* font, bool value);
+// SK_C_API bool sk_font_is_embolden(const sk_font_t* font);
+// SK_C_API void sk_font_set_embolden(sk_font_t* font, bool value);
+// SK_C_API bool sk_font_is_baseline_snap(const sk_font_t* font);
+// SK_C_API void sk_font_set_baseline_snap(sk_font_t* font, bool value);
+// SK_C_API sk_font_edging_t sk_font_get_edging(const sk_font_t* font);
+// SK_C_API void sk_font_set_edging(sk_font_t* font, sk_font_edging_t value);
+// SK_C_API sk_font_hinting_t sk_font_get_hinting(const sk_font_t* font);
+// SK_C_API void sk_font_set_hinting(sk_font_t* font, sk_font_hinting_t value);
+// SK_C_API sk_typeface_t* sk_font_get_typeface(const sk_font_t* font);
+// SK_C_API void sk_font_set_typeface(sk_font_t* font, sk_typeface_t* value);
+// SK_C_API float sk_font_get_size(const sk_font_t* font);
+// SK_C_API void sk_font_set_size(sk_font_t* font, float value);
+// SK_C_API float sk_font_get_scale_x(const sk_font_t* font);
+// SK_C_API void sk_font_set_scale_x(sk_font_t* font, float value);
+// SK_C_API float sk_font_get_skew_x(const sk_font_t* font);
+// SK_C_API void sk_font_set_skew_x(sk_font_t* font, float value);
 
 SK_C_PLUS_PLUS_END_GUARD
 

@@ -5,9 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkColorPriv.h"
-#include "SkImageShader.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
 
 static const sk_sp<SkImage> make_image(int firstBlackRow, int lastBlackRow) {
     static const int kWidth = 25;
@@ -56,9 +69,7 @@ protected:
             p1.setFilterQuality(kFilterQuality);
             SkMatrix localMat;
             localMat.setScaleTranslate(2.0f, 2.0f, 50.0f, 0.0f);
-            p1.setShader(SkImageShader::Make(fTop,
-                                             SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode,
-                                             &localMat));
+            p1.setShader(fTop->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &localMat));
 
             canvas->drawRect(r1, p1);
         }
@@ -82,9 +93,7 @@ protected:
             p3.setFilterQuality(kFilterQuality);
             SkMatrix localMat;
             localMat.setScaleTranslate(2.0f, 2.0f, 50.0f, 86.0f);
-            p3.setShader(SkImageShader::Make(fBot,
-                                             SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode,
-                                             &localMat));
+            p3.setShader(fBot->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &localMat));
 
             canvas->drawRect(r3, p3);
         }

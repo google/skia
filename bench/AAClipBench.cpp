@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkAAClip.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkRegion.h"
-#include "SkString.h"
-#include "SkClipOpPriv.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkString.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkAAClip.h"
+#include "src/core/SkClipOpPriv.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // This bench tests out AA/BW clipping via canvas' clipPath and clipRect calls
@@ -33,11 +33,9 @@ public:
                      doPath ? "path" : "rect",
                      doAA ? "AA" : "BW");
 
-        fClipRect.set(10.5f, 10.5f,
-                      50.5f, 50.5f);
+        fClipRect.setLTRB(10.5f, 10.5f, 50.5f, 50.5f);
         fClipPath.addRoundRect(fClipRect, SkIntToScalar(10), SkIntToScalar(10));
-        fDrawRect.set(SkIntToScalar(0), SkIntToScalar(0),
-                      SkIntToScalar(100), SkIntToScalar(100));
+        fDrawRect.setWH(100, 100);
 
         SkASSERT(fClipPath.isConvex());
     }
@@ -187,7 +185,7 @@ public:
         fName.printf("aaclip_build_%s_%s", doPath ? "path" : "rect",
                      doAA ? "AA" : "BW");
 
-        fRegion.setRect(0, 0, 640, 480);
+        fRegion.setRect({0, 0, 640, 480});
         fRect.set(fRegion.getBounds());
         fRect.inset(SK_Scalar1/4, SK_Scalar1/4);
         fPath.addRoundRect(fRect, SkIntToScalar(20), SkIntToScalar(20));

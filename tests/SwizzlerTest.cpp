@@ -5,24 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageInfoPriv.h"
-#include "SkSwizzle.h"
-#include "SkSwizzler.h"
-#include "Test.h"
-#include "SkOpts.h"
-
-// These are the values that we will look for to indicate that the fill was successful
-static const uint8_t kFillGray = 0x22;
-static const uint16_t kFill565 = 0x3344;
-static const uint32_t kFillColor = 0x55667788;
+#include "include/core/SkSwizzle.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "src/codec/SkSwizzler.h"
+#include "src/core/SkOpts.h"
+#include "tests/Test.h"
 
 static void check_fill(skiatest::Reporter* r,
                        const SkImageInfo& imageInfo,
                        uint32_t startRow,
                        uint32_t endRow,
                        size_t rowBytes,
-                       uint32_t offset,
-                       uint32_t colorOrIndex) {
+                       uint32_t offset) {
 
     // Calculate the total size of the image in bytes.  Use the smallest possible size.
     // The offset value tells us to adjust the pointer from the memory we allocate in order
@@ -38,7 +32,7 @@ static void check_fill(skiatest::Reporter* r,
     uint8_t* imageData = storage.get() + offset;
     uint8_t* imageStart = imageData + rowBytes * startRow;
     const SkImageInfo fillInfo = imageInfo.makeWH(imageInfo.width(), endRow - startRow + 1);
-    SkSampler::Fill(fillInfo, imageStart, rowBytes, colorOrIndex, SkCodec::kNo_ZeroInitialized);
+    SkSampler::Fill(fillInfo, imageStart, rowBytes, SkCodec::kNo_ZeroInitialized);
 
     // Ensure that the pixels are filled properly
     // The bots should catch any memory corruption
@@ -50,13 +44,13 @@ static void check_fill(skiatest::Reporter* r,
         for (int32_t x = 0; x < imageInfo.width(); x++) {
             switch (imageInfo.colorType()) {
                 case kN32_SkColorType:
-                    REPORTER_ASSERT(r, kFillColor == colorPtr[x]);
+                    REPORTER_ASSERT(r, 0 == colorPtr[x]);
                     break;
                 case kGray_8_SkColorType:
-                    REPORTER_ASSERT(r, kFillGray == grayPtr[x]);
+                    REPORTER_ASSERT(r, 0 == grayPtr[x]);
                     break;
                 case kRGB_565_SkColorType:
-                    REPORTER_ASSERT(r, kFill565 == color565Ptr[x]);
+                    REPORTER_ASSERT(r, 0 == color565Ptr[x]);
                     break;
                 default:
                     REPORTER_ASSERT(r, false);
@@ -107,12 +101,9 @@ DEF_TEST(SwizzlerFill, r) {
                         for (uint32_t endRow = startRow; endRow < height; endRow++) {
 
                             // Test fill with each color type
-                            check_fill(r, colorInfo, startRow, endRow, colorRowBytes, offset,
-                                    kFillColor);
-                            check_fill(r, grayInfo, startRow, endRow, grayRowBytes, offset,
-                                    kFillGray);
-                            check_fill(r, color565Info, startRow, endRow, color565RowBytes, offset,
-                                    kFill565);
+                            check_fill(r, colorInfo, startRow, endRow, colorRowBytes, offset);
+                            check_fill(r, grayInfo, startRow, endRow, grayRowBytes, offset);
+                            check_fill(r, color565Info, startRow, endRow, color565RowBytes, offset);
                         }
                     }
                 }

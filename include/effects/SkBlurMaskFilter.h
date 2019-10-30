@@ -9,10 +9,10 @@
 #define SkBlurMaskFilter_DEFINED
 
 // we include this since our callers will need to at least be able to ref/unref
-#include "SkMaskFilter.h"
-#include "SkRect.h"
-#include "SkScalar.h"
-#include "SkBlurTypes.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
 
 class SkRRect;
 

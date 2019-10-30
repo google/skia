@@ -5,27 +5,28 @@
  * found in the LICENSE file.
  */
 
-#include "CodecPriv.h"
-#include "Resources.h"
-#include "SkAndroidCodec.h"
-#include "SkAnimatedImage.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkCodec.h"
-#include "SkColor.h"
-#include "SkData.h"
-#include "SkImageInfo.h"
-#include "SkPicture.h"
-#include "SkRefCnt.h"
-#include "SkSize.h"
-#include "SkString.h"
-#include "SkTypes.h"
-#include "SkUnPreMultiply.h"
-#include "Test.h"
-#include "sk_tool_utils.h"
+#include "include/android/SkAnimatedImage.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/core/SkUnPreMultiply.h"
+#include "tests/CodecPriv.h"
+#include "tests/Test.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
-#include <algorithm>
+#include <initializer_list>
 #include <memory>
+#include <utility>
 #include <vector>
 
 DEF_TEST(AnimatedImage_scaled, r) {
@@ -47,10 +48,10 @@ DEF_TEST(AnimatedImage_scaled, r) {
     }
 
     // Force the drawable follow its special case that requires scaling.
-    auto size = codec->getInfo().dimensions();
-    size.set(size.width() - 5, size.height() - 5);
-    auto rect = SkIRect::MakeSize(size);
-    auto image = SkAnimatedImage::Make(std::move(codec), size, rect, nullptr);
+    auto info = codec->getInfo();
+    info = info.makeWH(info.width() - 5, info.height() - 5);
+    auto rect = info.bounds();
+    auto image = SkAnimatedImage::Make(std::move(codec), info, rect, nullptr);
     if (!image) {
         ERRORF(r, "Failed to create animated image for %s", file);
         return;
@@ -59,12 +60,12 @@ DEF_TEST(AnimatedImage_scaled, r) {
     // Clear a bitmap to non-transparent and draw to it. pixels that are transparent
     // in the image should not replace the original non-transparent color.
     SkBitmap bm;
-    bm.allocPixels(SkImageInfo::MakeN32Premul(size.width(), size.height()));
+    bm.allocPixels(SkImageInfo::MakeN32Premul(info.width(), info.height()));
     bm.eraseColor(SK_ColorBLUE);
     SkCanvas canvas(bm);
     image->draw(&canvas);
-    for (int i = 0; i < size.width();  ++i)
-    for (int j = 0; j < size.height(); ++j) {
+    for (int i = 0; i < info.width();  ++i)
+    for (int j = 0; j < info.height(); ++j) {
         if (*bm.getAddr32(i, j) == SK_ColorTRANSPARENT) {
             ERRORF(r, "Erased color underneath!");
             return;
@@ -202,14 +203,14 @@ DEF_TEST(AnimatedImage, r) {
             SkCodec::Options options;
             options.fFrameIndex = (int) i;
             options.fPriorFrame = frameInfos[i].fRequiredFrame;
-            if (options.fPriorFrame == SkCodec::kNone) {
+            if (options.fPriorFrame == SkCodec::kNoFrame) {
                 bm.allocPixels(info);
                 bm.eraseColor(0);
             } else {
                 const SkBitmap& priorFrame = frames[options.fPriorFrame];
-                if (!sk_tool_utils::copy_to(&bm, priorFrame.colorType(), priorFrame)) {
+                if (!ToolUtils::copy_to(&bm, priorFrame.colorType(), priorFrame)) {
                     ERRORF(r, "Failed to copy %s frame %i", file, options.fPriorFrame);
-                    options.fPriorFrame = SkCodec::kNone;
+                    options.fPriorFrame = SkCodec::kNoFrame;
                 }
                 REPORTER_ASSERT(r, bm.setAlphaType(frameInfos[i].fAlphaType));
             }

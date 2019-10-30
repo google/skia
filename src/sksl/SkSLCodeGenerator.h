@@ -8,8 +8,8 @@
 #ifndef SKSL_CODEGENERATOR
 #define SKSL_CODEGENERATOR
 
-#include "ir/SkSLProgram.h"
-#include "SkSLOutputStream.h"
+#include "src/sksl/SkSLOutputStream.h"
+#include "src/sksl/ir/SkSLProgram.h"
 
 namespace SkSL {
 
@@ -22,7 +22,9 @@ public:
     CodeGenerator(const Program* program, ErrorReporter* errors, OutputStream* out)
     : fProgram(*program)
     , fErrors(*errors)
-    , fOut(out) {}
+    , fOut(out) {
+        SkASSERT(program->fIsOptimized);
+    }
 
     virtual ~CodeGenerator() {}
 

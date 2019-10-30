@@ -8,8 +8,8 @@
 #ifndef Resources_DEFINED
 #define Resources_DEFINED
 
-#include "SkImage.h"
-#include "SkString.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkString.h"
 
 class SkBitmap;
 class SkData;
@@ -34,6 +34,6 @@ inline sk_sp<SkImage> GetResourceAsImage(const char* resource) {
 
 std::unique_ptr<SkStreamAsset> GetResourceAsStream(const char* resource);
 
-sk_sp<SkTypeface> MakeResourceAsTypeface(const char* resource);
+sk_sp<SkTypeface> MakeResourceAsTypeface(const char* resource, int ttcIndex = 0);
 
 #endif  // Resources_DEFINED

@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"go.skia.org/infra/go/gcs"
+	"go.skia.org/infra/go/httputils"
 
 	"cloud.google.com/go/storage"
 	"google.golang.org/api/option"
@@ -42,14 +43,13 @@ const (
 
 // Command line flags.
 var (
-	devicesFile        = flag.String("devices", "", "JSON file that maps device ids to versions to run on. Same format as produced by the dump_devices flag.")
-	dryRun             = flag.Bool("dryrun", false, "Print out the command and quit without triggering tests.")
-	dumpDevFile        = flag.String("dump_devices", "", "Creates a JSON file with all physical devices that are not deprecated.")
-	minAPIVersion      = flag.Int("min_api", 0, "Minimum API version required by device.")
-	maxAPIVersion      = flag.Int("max_api", 99, "Maximum API version required by device.")
-	properties         = flag.String("properties", "", "Custom meta data to be added to the uploaded APK. Comma separated list of key=value pairs, i.e. 'k1=v1,k2=v2,k3=v3.")
-	serviceAccountFile = flag.String("service_account_file", "", "Credentials file for service account.")
-	uploadGCSPath      = flag.String("upload_path", "", "GCS path (bucket/path) to where the APK should be uploaded to. It's assume to a full path (not a directory).")
+	devicesFile   = flag.String("devices", "", "JSON file that maps device ids to versions to run on. Same format as produced by the dump_devices flag.")
+	dryRun        = flag.Bool("dryrun", false, "Print out the command and quit without triggering tests.")
+	dumpDevFile   = flag.String("dump_devices", "", "Creates a JSON file with all physical devices that are not deprecated.")
+	minAPIVersion = flag.Int("min_api", 0, "Minimum API version required by device.")
+	maxAPIVersion = flag.Int("max_api", 99, "Maximum API version required by device.")
+	properties    = flag.String("properties", "", "Custom meta data to be added to the uploaded APK. Comma separated list of key=value pairs, i.e. 'k1=v1,k2=v2,k3=v3.")
+	uploadGCSPath = flag.String("upload_path", "", "GCS path (bucket/path) to where the APK should be uploaded to. It's assume to a full path (not a directory).")
 )
 
 const (
@@ -103,10 +103,11 @@ func main() {
 	}
 
 	// Make sure we can authenticate locally and in the cloud.
-	client, err := auth.NewJWTServiceAccountClient("", *serviceAccountFile, nil, gstorage.CloudPlatformScope, "https://www.googleapis.com/auth/userinfo.email")
+	ts, err := auth.NewDefaultTokenSource(true, gstorage.CloudPlatformScope, "https://www.googleapis.com/auth/userinfo.email")
 	if err != nil {
-		sklog.Fatalf("Failed to authenticate service account: %s. Run 'get_service_account' to obtain a service account file.", err)
+		sklog.Fatal(err)
 	}
+	client := httputils.DefaultClientConfig().WithTokenSource(ts).With2xxOnly().Client()
 
 	// Filter the devices according the white list and other parameters.
 	devices, ignoredDevices := filterDevices(fbDevices, whiteList, *minAPIVersion, *maxAPIVersion)

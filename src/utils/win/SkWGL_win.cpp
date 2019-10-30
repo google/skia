@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
-#if defined(SK_BUILD_FOR_WIN)
+#include "include/core/SkTypes.h"
+#if defined(SK_BUILD_FOR_WIN) && !defined(_M_ARM64)
 
-#include "SkWGL.h"
+#include "src/utils/win/SkWGL.h"
 
-#include "SkOnce.h"
-#include "SkTDArray.h"
-#include "SkTSearch.h"
-#include "SkTSort.h"
+#include "include/private/SkOnce.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkTSearch.h"
+#include "src/core/SkTSort.h"
 
 bool SkWGLExtensions::hasExtension(HDC dc, const char* ext) const {
     if (nullptr == this->fGetExtensionsString) {
@@ -304,8 +304,8 @@ static void get_pixel_formats_to_try(HDC dc, const SkWGLExtensions& extensions,
                                      bool doubleBuffered, int msaaSampleCount, bool deepColor,
                                      int formatsToTry[2]) {
     auto appendAttr = [](SkTDArray<int>& attrs, int attr, int value) {
-        attrs.push(attr);
-        attrs.push(value);
+        attrs.push_back(attr);
+        attrs.push_back(value);
     };
 
     SkTDArray<int> iAttrs;
@@ -410,10 +410,6 @@ static HGLRC create_gl_context(HDC dc, const SkWGLExtensions& extensions,
 
     wglMakeCurrent(prevDC, prevGLRC);
 
-    // This might help make the context non-vsynced.
-    if (extensions.hasExtension(dc, "WGL_EXT_swap_control")) {
-        extensions.swapInterval(-1);
-    }
     return glrc;
 }
 
@@ -443,8 +439,9 @@ HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, bool deepColor,
     return create_gl_context(dc, extensions, contextType, shareContext);
 }
 
-SkWGLPbufferContext* SkWGLPbufferContext::Create(HDC parentDC, SkWGLContextRequest contextType,
-                                                 HGLRC shareContext) {
+sk_sp<SkWGLPbufferContext> SkWGLPbufferContext::Create(HDC parentDC,
+                                                       SkWGLContextRequest contextType,
+                                                       HGLRC shareContext) {
     SkWGLExtensions extensions;
     if (!extensions.hasExtension(parentDC, "WGL_ARB_pixel_format") ||
         !extensions.hasExtension(parentDC, "WGL_ARB_pbuffer")) {
@@ -485,7 +482,7 @@ SkWGLPbufferContext* SkWGLPbufferContext::Create(HDC parentDC, SkWGLContextReque
             if (dc) {
                 HGLRC glrc = create_gl_context(dc, extensions, contextType, shareContext);
                 if (glrc) {
-                    return new SkWGLPbufferContext(pbuf, dc, glrc);
+                    return sk_sp<SkWGLPbufferContext>(new SkWGLPbufferContext(pbuf, dc, glrc));
                 }
                 extensions.releasePbufferDC(pbuf, dc);
             }

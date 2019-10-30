@@ -6,72 +6,76 @@
 declare_args() {
 }
 
+import("../../gn/skia.gni")
 import("../third_party.gni")
 
-third_party("sfntly") {
-  public_include_dirs = [ "../externals/sfntly/cpp/src" ]
-  defines = [ "SFNTLY_NO_EXCEPTION" ]
-  deps = [
-    "//third_party/icu",
-  ]
-  sources = [
-    "../externals/sfntly/cpp/src/sample/chromium/font_subsetter.cc",
-    "../externals/sfntly/cpp/src/sample/chromium/subsetter_impl.cc",
-    "../externals/sfntly/cpp/src/sfntly/data/byte_array.cc",
-    "../externals/sfntly/cpp/src/sfntly/data/font_data.cc",
-    "../externals/sfntly/cpp/src/sfntly/data/font_input_stream.cc",
-    "../externals/sfntly/cpp/src/sfntly/data/font_output_stream.cc",
-    "../externals/sfntly/cpp/src/sfntly/data/growable_memory_byte_array.cc",
-    "../externals/sfntly/cpp/src/sfntly/data/memory_byte_array.cc",
-    "../externals/sfntly/cpp/src/sfntly/data/readable_font_data.cc",
-    "../externals/sfntly/cpp/src/sfntly/data/writable_font_data.cc",
-    "../externals/sfntly/cpp/src/sfntly/font.cc",
-    "../externals/sfntly/cpp/src/sfntly/font_factory.cc",
-    "../externals/sfntly/cpp/src/sfntly/port/file_input_stream.cc",
-    "../externals/sfntly/cpp/src/sfntly/port/lock.cc",
-    "../externals/sfntly/cpp/src/sfntly/port/memory_input_stream.cc",
-    "../externals/sfntly/cpp/src/sfntly/port/memory_output_stream.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/bitmap/big_glyph_metrics.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/bitmap/bitmap_glyph.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/bitmap/bitmap_glyph_info.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/bitmap/bitmap_size_table.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/bitmap/composite_bitmap_glyph.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/bitmap/ebdt_table.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/bitmap/eblc_table.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/bitmap/ebsc_table.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/bitmap/glyph_metrics.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/bitmap/index_sub_table.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/bitmap/index_sub_table_format1.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/bitmap/index_sub_table_format2.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/bitmap/index_sub_table_format3.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/bitmap/index_sub_table_format4.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/bitmap/index_sub_table_format5.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/bitmap/simple_bitmap_glyph.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/bitmap/small_glyph_metrics.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/byte_array_table_builder.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/core/cmap_table.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/core/font_header_table.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/core/horizontal_device_metrics_table.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/core/horizontal_header_table.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/core/horizontal_metrics_table.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/core/maximum_profile_table.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/core/name_table.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/core/os2_table.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/font_data_table.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/generic_table_builder.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/header.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/subtable.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/table.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/table_based_table_builder.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/truetype/glyph_table.cc",
-    "../externals/sfntly/cpp/src/sfntly/table/truetype/loca_table.cc",
-    "../externals/sfntly/cpp/src/sfntly/tag.cc",
-    "../externals/sfntly/cpp/src/sfntly/tools/subsetter/glyph_table_subsetter.cc",
-    "../externals/sfntly/cpp/src/sfntly/tools/subsetter/subsetter.cc",
-    "../externals/sfntly/cpp/src/sfntly/tools/subsetter/table_subsetter_impl.cc",
-  ]
-
-  if (is_win) {
-    defines += [ "WIN32", ]
+if (skia_use_icu) {
+  third_party("sfntly") {
+    _src = "../externals/sfntly/cpp/src"
+    public_include_dirs = [ _src ]
+    defines = [ "SFNTLY_NO_EXCEPTION" ]
+    public_deps = [
+      "//third_party/icu",
+    ]
+    deps = []
+    if (is_win) {
+      defines += [ "WIN32" ]
+    }
+    sources = [
+      "$_src/sample/chromium/font_subsetter.cc",
+      "$_src/sample/chromium/subsetter_impl.cc",
+      "$_src/sfntly/data/byte_array.cc",
+      "$_src/sfntly/data/font_data.cc",
+      "$_src/sfntly/data/font_input_stream.cc",
+      "$_src/sfntly/data/font_output_stream.cc",
+      "$_src/sfntly/data/growable_memory_byte_array.cc",
+      "$_src/sfntly/data/memory_byte_array.cc",
+      "$_src/sfntly/data/readable_font_data.cc",
+      "$_src/sfntly/data/writable_font_data.cc",
+      "$_src/sfntly/font.cc",
+      "$_src/sfntly/font_factory.cc",
+      "$_src/sfntly/port/file_input_stream.cc",
+      "$_src/sfntly/port/lock.cc",
+      "$_src/sfntly/port/memory_input_stream.cc",
+      "$_src/sfntly/port/memory_output_stream.cc",
+      "$_src/sfntly/table/bitmap/big_glyph_metrics.cc",
+      "$_src/sfntly/table/bitmap/bitmap_glyph.cc",
+      "$_src/sfntly/table/bitmap/bitmap_glyph_info.cc",
+      "$_src/sfntly/table/bitmap/bitmap_size_table.cc",
+      "$_src/sfntly/table/bitmap/composite_bitmap_glyph.cc",
+      "$_src/sfntly/table/bitmap/ebdt_table.cc",
+      "$_src/sfntly/table/bitmap/eblc_table.cc",
+      "$_src/sfntly/table/bitmap/ebsc_table.cc",
+      "$_src/sfntly/table/bitmap/glyph_metrics.cc",
+      "$_src/sfntly/table/bitmap/index_sub_table.cc",
+      "$_src/sfntly/table/bitmap/index_sub_table_format1.cc",
+      "$_src/sfntly/table/bitmap/index_sub_table_format2.cc",
+      "$_src/sfntly/table/bitmap/index_sub_table_format3.cc",
+      "$_src/sfntly/table/bitmap/index_sub_table_format4.cc",
+      "$_src/sfntly/table/bitmap/index_sub_table_format5.cc",
+      "$_src/sfntly/table/bitmap/simple_bitmap_glyph.cc",
+      "$_src/sfntly/table/bitmap/small_glyph_metrics.cc",
+      "$_src/sfntly/table/byte_array_table_builder.cc",
+      "$_src/sfntly/table/core/cmap_table.cc",
+      "$_src/sfntly/table/core/font_header_table.cc",
+      "$_src/sfntly/table/core/horizontal_device_metrics_table.cc",
+      "$_src/sfntly/table/core/horizontal_header_table.cc",
+      "$_src/sfntly/table/core/horizontal_metrics_table.cc",
+      "$_src/sfntly/table/core/maximum_profile_table.cc",
+      "$_src/sfntly/table/core/name_table.cc",
+      "$_src/sfntly/table/core/os2_table.cc",
+      "$_src/sfntly/table/font_data_table.cc",
+      "$_src/sfntly/table/generic_table_builder.cc",
+      "$_src/sfntly/table/header.cc",
+      "$_src/sfntly/table/subtable.cc",
+      "$_src/sfntly/table/table.cc",
+      "$_src/sfntly/table/table_based_table_builder.cc",
+      "$_src/sfntly/table/truetype/glyph_table.cc",
+      "$_src/sfntly/table/truetype/loca_table.cc",
+      "$_src/sfntly/tag.cc",
+      "$_src/sfntly/tools/subsetter/glyph_table_subsetter.cc",
+      "$_src/sfntly/tools/subsetter/subsetter.cc",
+      "$_src/sfntly/tools/subsetter/table_subsetter_impl.cc",
+    ]
   }
 }

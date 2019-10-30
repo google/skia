@@ -4,13 +4,21 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkCanvas.h"
-#include "SkColorPriv.h"
-#include "SkData.h"
-#include "SkImage.h"
-#include "SkImageEncoder.h"
+
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkData.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+
+#include <utility>
 
 namespace skiagm {
 
@@ -46,8 +54,8 @@ protected:
                 bY += 64;
             }
         }
-        auto jpegData(sk_tool_utils::EncodeImageToData(bmp, SkEncodedImageFormat::kJPEG, 100));
-        fImage = SkImage::MakeFromEncoded(jpegData);
+        auto jpegData = SkEncodeBitmap(bmp, SkEncodedImageFormat::kJPEG, 100);
+        fImage = SkImage::MakeFromEncoded(std::move(jpegData));
     }
 
     void onDraw(SkCanvas* canvas) override {

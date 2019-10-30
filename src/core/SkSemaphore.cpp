@@ -5,43 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "../private/SkLeanWindows.h"
-#include "../private/SkSemaphore.h"
+#include "include/private/SkSemaphore.h"
+#include "src/core/SkLeanWindows.h"
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-    #include <mach/mach.h>
+    #include <dispatch/dispatch.h>
 
-    // We've got to teach TSAN that there is a happens-before edge beteween
-    // semaphore_signal() and semaphore_wait().
-    #if __has_feature(thread_sanitizer)
-        extern "C" void AnnotateHappensBefore(const char*, int, void*);
-        extern "C" void AnnotateHappensAfter (const char*, int, void*);
-    #else
-        static void AnnotateHappensBefore(const char*, int, void*) {}
-        static void AnnotateHappensAfter (const char*, int, void*) {}
-    #endif
+    struct SkSemaphore::OSSemaphore {
+        dispatch_semaphore_t fSemaphore;
 
-    struct SkBaseSemaphore::OSSemaphore {
-        semaphore_t fSemaphore;
+        OSSemaphore()  { fSemaphore = dispatch_semaphore_create(0/*initial count*/); }
+        ~OSSemaphore() { dispatch_release(fSemaphore); }
 
-        OSSemaphore()  {
-            semaphore_create(mach_task_self(), &fSemaphore, SYNC_POLICY_LIFO, 0/*initial count*/);
-        }
-        ~OSSemaphore() { semaphore_destroy(mach_task_self(), fSemaphore); }
-
-        void signal(int n) {
-            while (n --> 0) {
-                AnnotateHappensBefore(__FILE__, __LINE__, &fSemaphore);
-                semaphore_signal(fSemaphore);
-            }
-        }
-        void wait() {
-            semaphore_wait(fSemaphore);
-            AnnotateHappensAfter(__FILE__, __LINE__, &fSemaphore);
-        }
+        void signal(int n) { while (n --> 0) { dispatch_semaphore_signal(fSemaphore); } }
+        void wait() { dispatch_semaphore_wait(fSemaphore, DISPATCH_TIME_FOREVER); }
     };
 #elif defined(SK_BUILD_FOR_WIN)
-    struct SkBaseSemaphore::OSSemaphore {
+    struct SkSemaphore::OSSemaphore {
         HANDLE fSemaphore;
 
         OSSemaphore()  {
@@ -61,7 +41,7 @@
     // It's important we test for Mach before this.  This code will compile but not work there.
     #include <errno.h>
     #include <semaphore.h>
-    struct SkBaseSemaphore::OSSemaphore {
+    struct SkSemaphore::OSSemaphore {
         sem_t fSemaphore;
 
         OSSemaphore()  { sem_init(&fSemaphore, 0/*cross process?*/, 0/*initial count*/); }
@@ -77,21 +57,21 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkBaseSemaphore::osSignal(int n) {
+SkSemaphore::~SkSemaphore() {
+    delete fOSSemaphore;
+}
+
+void SkSemaphore::osSignal(int n) {
     fOSSemaphoreOnce([this] { fOSSemaphore = new OSSemaphore; });
     fOSSemaphore->signal(n);
 }
 
-void SkBaseSemaphore::osWait() {
+void SkSemaphore::osWait() {
     fOSSemaphoreOnce([this] { fOSSemaphore = new OSSemaphore; });
     fOSSemaphore->wait();
 }
 
-void SkBaseSemaphore::cleanup() {
-    delete fOSSemaphore;
-}
-
-bool SkBaseSemaphore::try_wait() {
+bool SkSemaphore::try_wait() {
     int count = fCount.load(std::memory_order_relaxed);
     if (count > 0) {
         return fCount.compare_exchange_weak(count, count-1, std::memory_order_acquire);

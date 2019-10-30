@@ -8,10 +8,12 @@
 #ifndef GrAllocator_DEFINED
 #define GrAllocator_DEFINED
 
-#include "GrConfig.h"
-#include "GrTypes.h"
-#include "SkTArray.h"
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrConfig.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkTArray.h"
+#include <new>
 
 class GrAllocator : SkNoncopyable {
 public:
@@ -108,6 +110,24 @@ public:
      * Is the count 0?
      */
     bool empty() const { return 0 == fCount; }
+
+    /**
+     * Access first item, only call if count() != 0
+     */
+    void* front() {
+        SkASSERT(fCount);
+        SkASSERT(fInsertionIndexInBlock > 0);
+        return (char*)(fBlocks.front());
+    }
+
+    /**
+     * Access first item, only call if count() != 0
+     */
+    const void* front() const {
+        SkASSERT(fCount);
+        SkASSERT(fInsertionIndexInBlock > 0);
+        return (const char*)(fBlocks.front());
+    }
 
     /**
      * Access last item, only call if count() != 0
@@ -295,6 +315,20 @@ public:
      * Is the count 0?
      */
     bool empty() const { return fAllocator.empty(); }
+
+    /**
+     * Access first item, only call if count() != 0
+     */
+    T& front() {
+        return *(T*)fAllocator.front();
+    }
+
+    /**
+     * Access first item, only call if count() != 0
+     */
+    const T& front() const {
+        return *(T*)fAllocator.front();
+    }
 
     /**
      * Access last item, only call if count() != 0

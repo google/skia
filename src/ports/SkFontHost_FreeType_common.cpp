@@ -6,17 +6,23 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkColorData.h"
-#include "SkFDot6.h"
-#include "SkFontHost_FreeType_common.h"
-#include "SkPath.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPath.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkFDot6.h"
+#include "src/ports/SkFontHost_FreeType_common.h"
+
+#include <utility>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_BITMAP_H
+#ifdef FT_COLOR_H
+#   include FT_COLOR_H
+#endif
 #include FT_IMAGE_H
 #include FT_OUTLINE_H
 // In the past, FT_GlyphSlot_Own_Bitmap was defined in this header file.
@@ -29,8 +35,6 @@
 #    define FT_LOAD_COLOR ( 1L << 20 )
 #    define FT_PIXEL_MODE_BGRA 7
 #endif
-
-//#define SK_SHOW_TEXT_BLIT_COVERAGE
 
 #ifdef SK_DEBUG
 const char* SkTraceFtrGetError(int e) {
@@ -160,7 +164,8 @@ void copyFT2LCD16(const FT_Bitmap& bitmap, const SkMask& mask, int lcdIsBGR,
                 const uint8_t* srcG = srcR + bitmap.pitch;
                 const uint8_t* srcB = srcG + bitmap.pitch;
                 if (lcdIsBGR) {
-                    SkTSwap(srcR, srcB);
+                    using std::swap;
+                    swap(srcR, srcB);
                 }
                 for (int x = 0; x < width; x++) {
                     dst[x] = packTriple(sk_apply_lut_if<APPLY_PREBLEND>(*srcR++, tableR),
@@ -172,7 +177,7 @@ void copyFT2LCD16(const FT_Bitmap& bitmap, const SkMask& mask, int lcdIsBGR,
             }
             break;
         default:
-            SkDEBUGF(("FT_Pixel_Mode %d", bitmap.pixel_mode));
+            SkDEBUGF("FT_Pixel_Mode %d", bitmap.pixel_mode);
             SkDEBUGFAIL("unsupported FT_Pixel_Mode for LCD16");
             break;
     }
@@ -272,7 +277,7 @@ void copyFTBitmap(const FT_Bitmap& srcFTBitmap, SkMask& dstMask) {
             dst += dstRowBytes;
         }
     } else {
-        SkDEBUGF(("FT_Pixel_Mode %d, SkMask::Format %d\n", srcFormat, dstFormat));
+        SkDEBUGF("FT_Pixel_Mode %d, SkMask::Format %d\n", srcFormat, dstFormat);
         SkDEBUGFAIL("unsupported combination of FT_Pixel_Mode and SkMask::Format");
     }
 }
@@ -377,7 +382,7 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
             FT_Outline* outline = &face->glyph->outline;
 
             int dx = 0, dy = 0;
-            if (fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag) {
+            if (this->isSubpixel()) {
                 dx = SkFixedToFDot6(glyph.getSubXFixed());
                 dy = SkFixedToFDot6(glyph.getSubYFixed());
                 // negate dy since freetype-y-goes-up and skia-y-goes-down
@@ -386,6 +391,70 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
 
             memset(glyph.fImage, 0, glyph.rowBytes() * glyph.fHeight);
 
+#ifdef FT_COLOR_H
+            if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
+                SkBitmap dstBitmap;
+                // TODO: mark this as sRGB when the blits will be sRGB.
+                dstBitmap.setInfo(SkImageInfo::Make(glyph.fWidth, glyph.fHeight,
+                                                    kN32_SkColorType,
+                                                    kPremul_SkAlphaType),
+                                                    glyph.rowBytes());
+                dstBitmap.setPixels(glyph.fImage);
+
+                // Scale unscaledBitmap into dstBitmap.
+                SkCanvas canvas(dstBitmap);
+#ifdef SK_SHOW_TEXT_BLIT_COVERAGE
+                canvas.clear(0x33FF0000);
+#else
+                canvas.clear(SK_ColorTRANSPARENT);
+#endif
+                canvas.translate(-glyph.fLeft, -glyph.fTop);
+
+                if (this->isSubpixel()) {
+                    canvas.translate(SkFixedToScalar(glyph.getSubXFixed()),
+                                     SkFixedToScalar(glyph.getSubYFixed()));
+                }
+
+                SkPaint paint;
+                paint.setAntiAlias(true);
+
+                FT_Color *palette;
+                FT_Error err = FT_Palette_Select(face, 0, &palette);
+                if (err) {
+                    SK_TRACEFTR(err, "Could not get palette from %s fontFace.", face->family_name);
+                    return;
+                }
+                FT_LayerIterator layerIterator;
+                layerIterator.p  = NULL;
+                FT_Bool haveLayers = false;
+                FT_UInt layerGlyphIndex;
+                FT_UInt layerColorIndex;
+
+                while (FT_Get_Color_Glyph_Layer(face, glyph.getGlyphID(), &layerGlyphIndex,
+                                                &layerColorIndex,
+                                                &layerIterator)) {
+                    haveLayers = true;
+                    if (layerColorIndex == 0xFFFF) {
+                        paint.setColor(SK_ColorBLACK);
+                    } else {
+                        SkColor color = SkColorSetARGB(palette[layerColorIndex].alpha,
+                                                       palette[layerColorIndex].red,
+                                                       palette[layerColorIndex].green,
+                                                       palette[layerColorIndex].blue);
+                        paint.setColor(color);
+                    }
+                    SkPath path;
+                    if (this->generateFacePath(face, layerGlyphIndex, &path)) {
+                        canvas.drawPath(path, paint);
+                    }
+                }
+
+                if (!haveLayers) {
+                    SK_TRACEFTR(err, "Could not get layers from %s fontFace.", face->family_name);
+                    return;
+                }
+            } else
+#endif
             if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
                 FT_Outline_Translate(outline, dx, dy);
                 FT_Error err = FT_Render_Glyph(face->glyph, doVert ? FT_RENDER_MODE_LCD_V :
@@ -395,8 +464,7 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
                     return;
                 }
 
-                SkMask mask;
-                glyph.toMask(&mask);
+                SkMask mask = glyph.mask();
 #ifdef SK_SHOW_TEXT_BLIT_COVERAGE
                 memset(mask.fImage, 0x80, mask.fBounds.height() * mask.fRowBytes);
 #endif
@@ -478,7 +546,7 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
                 target.rows = glyph.fHeight;
                 target.pitch = glyph.rowBytes();
                 target.buffer = reinterpret_cast<uint8_t*>(glyph.fImage);
-                target.pixel_mode = compute_pixel_mode( (SkMask::Format)fRec.fMaskFormat);
+                target.pixel_mode = compute_pixel_mode( (SkMask::Format)glyph.fMaskFormat);
                 target.num_grays = 256;
 
                 FT_Outline_Get_Bitmap(face->glyph->library, outline, &target);
@@ -510,8 +578,7 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
 
             // If no scaling needed, directly copy glyph bitmap.
             if (bitmapTransform.isIdentity()) {
-                SkMask dstMask;
-                glyph.toMask(&dstMask);
+                SkMask dstMask = glyph.mask();
                 copyFTBitmap(face->glyph->bitmap, dstMask);
                 break;
             }
@@ -528,7 +595,7 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
 
             SkMask unscaledBitmapAlias;
             unscaledBitmapAlias.fImage = reinterpret_cast<uint8_t*>(unscaledBitmap.getPixels());
-            unscaledBitmapAlias.fBounds.set(0, 0, unscaledBitmap.width(), unscaledBitmap.height());
+            unscaledBitmapAlias.fBounds.setWH(unscaledBitmap.width(), unscaledBitmap.height());
             unscaledBitmapAlias.fRowBytes = unscaledBitmap.rowBytes();
             unscaledBitmapAlias.fFormat = SkMaskFormat_for_SkColorType(unscaledBitmap.colorType());
             copyFTBitmap(face->glyph->bitmap, unscaledBitmapAlias);
@@ -579,8 +646,7 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
             // If the destination is BW or LCD, convert from A8.
             if (SkMask::kBW_Format == maskFormat) {
                 // Copy the A8 dstBitmap into the A1 glyph.fImage.
-                SkMask dstMask;
-                glyph.toMask(&dstMask);
+                SkMask dstMask = glyph.mask();
                 packA8ToA1(dstMask, dstBitmap.getAddr8(0, 0), dstBitmap.rowBytes());
             } else if (SkMask::kLCD16_Format == maskFormat) {
                 // Copy the A8 dstBitmap into the LCD16 glyph.fImage.
@@ -672,5 +738,23 @@ bool SkScalerContext_FreeType_Base::generateGlyphPath(FT_Face face, SkPath* path
     }
 
     path->close();
+    return true;
+}
+
+bool SkScalerContext_FreeType_Base::generateFacePath(FT_Face face, SkGlyphID glyphID, SkPath* path) {
+    uint32_t flags = 0; //fLoadGlyphFlags;
+    flags |= FT_LOAD_NO_BITMAP; // ignore embedded bitmaps so we're sure to get the outline
+    flags &= ~FT_LOAD_RENDER;   // don't scan convert (we just want the outline)
+
+    FT_Error err = FT_Load_Glyph(face, glyphID, flags);
+    if (err != 0) {
+        path->reset();
+        return false;
+    }
+
+    if (!generateGlyphPath(face, path)) {
+        path->reset();
+        return false;
+    }
     return true;
 }

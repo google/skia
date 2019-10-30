@@ -7,13 +7,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
-#include "SkDrawable.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
 
-#include "sk_picture.h"
+#include "include/c/sk_picture.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
 sk_picture_recorder_t* sk_picture_recorder_new() {
     return ToPictureRecorder(new SkPictureRecorder);

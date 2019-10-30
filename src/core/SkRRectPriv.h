@@ -8,7 +8,10 @@
 #ifndef SkRRectPriv_DEFINED
 #define SkRRectPriv_DEFINED
 
-#include "SkRRect.h"
+#include "include/core/SkRRect.h"
+
+class SkRBuffer;
+class SkWBuffer;
 
 class SkRRectPriv {
 public:
@@ -29,7 +32,13 @@ public:
         return rr.isRect() || SkRRectPriv::IsCircle(rr)  || SkRRectPriv::IsSimpleCircular(rr);
     }
 
+    static const SkVector* GetRadiiArray(const SkRRect& rr) { return rr.fRadii; }
+
     static bool AllCornersCircular(const SkRRect& rr, SkScalar tolerance = SK_ScalarNearlyZero);
+
+    static bool ReadFromBuffer(SkRBuffer* buffer, SkRRect* rr);
+
+    static void WriteToBuffer(const SkRRect& rr, SkWBuffer* buffer);
 };
 
 #endif

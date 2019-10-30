@@ -7,7 +7,7 @@
 #ifndef ResourceFactory_DEFINED
 #define ResourceFactory_DEFINED
 
-#include <SkData.h>
+#include "include/core/SkData.h"
 
 extern sk_sp<SkData> (*gResourceFactory)(const char*);
 

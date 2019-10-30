@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkDiscardableMemory.h"
-#include "SkDiscardableMemoryPool.h"
-#include "SkRefCnt.h"
-#include "Test.h"
+#include "include/core/SkRefCnt.h"
+#include "src/core/SkDiscardableMemory.h"
+#include "src/lazy/SkDiscardableMemoryPool.h"
+#include "tests/Test.h"
 
 #include <cstring>
 #include <memory>

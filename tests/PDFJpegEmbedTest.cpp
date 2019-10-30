@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkData.h"
-#include "SkDocument.h"
-#include "SkImageGenerator.h"
-#include "SkStream.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageGenerator.h"
+#include "include/core/SkStream.h"
+#include "include/docs/SkPDFDocument.h"
 
-#include "Resources.h"
-#include "Test.h"
+#include "tests/Test.h"
+#include "tools/Resources.h"
 
 static bool is_subset_of(SkData* smaller, SkData* larger) {
     SkASSERT(smaller && larger);
@@ -55,7 +55,7 @@ DEF_TEST(SkPDF_JpegEmbedTest, r) {
     }
     ////////////////////////////////////////////////////////////////////////////
     SkDynamicMemoryWStream pdf;
-    sk_sp<SkDocument> document(SkDocument::MakePDF(&pdf));
+    auto document = SkPDF::MakeDocument(&pdf);
     SkCanvas* canvas = document->beginPage(642, 1028);
 
     canvas->clear(SK_ColorLTGRAY);
@@ -65,13 +65,14 @@ DEF_TEST(SkPDF_JpegEmbedTest, r) {
     sk_sp<SkImage> im2(SkImage::MakeFromEncoded(cmykData));
     canvas->drawImage(im2.get(), 0.0, 512.0, nullptr);
 
-    canvas->flush();
     document->endPage();
     document->close();
     sk_sp<SkData> pdfData = pdf.detachAsData();
     SkASSERT(pdfData);
 
+    #ifndef SK_PDF_BASE85_BINARY
     REPORTER_ASSERT(r, is_subset_of(mandrillData.get(), pdfData.get()));
+    #endif
 
     // This JPEG uses a nonstandard colorspace - it can not be
     // embedded into the PDF directly.
@@ -80,7 +81,7 @@ DEF_TEST(SkPDF_JpegEmbedTest, r) {
 
 #ifdef SK_SUPPORT_PDF
 
-#include "SkJpegInfo.h"
+#include "src/pdf/SkJpegInfo.h"
 
 struct SkJFIFInfo {
     SkISize fSize;

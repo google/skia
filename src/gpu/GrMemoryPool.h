@@ -8,9 +8,12 @@
 #ifndef GrMemoryPool_DEFINED
 #define GrMemoryPool_DEFINED
 
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
+
+#include "include/core/SkRefCnt.h"
+
 #ifdef SK_DEBUG
-#include "SkTHash.h"
+#include "include/private/SkTHash.h"
 #endif
 
 /**
@@ -116,74 +119,37 @@ protected:
     enum {
         // We assume this alignment is good enough for everybody.
         kAlignment    = 8,
-        kHeaderSize   = GR_CT_ALIGN_UP(sizeof(BlockHeader), kAlignment),
-        kPerAllocPad  = GR_CT_ALIGN_UP(sizeof(AllocHeader), kAlignment),
+        kHeaderSize   = GrSizeAlignUp(sizeof(BlockHeader), kAlignment),
+        kPerAllocPad  = GrSizeAlignUp(sizeof(AllocHeader), kAlignment),
     };
 };
 
-/**
- * Variant of GrMemoryPool that can only allocate objects of a single type. It is
- * not as flexible as GrMemoryPool, but it has more convenient allocate() method,
- * and more importantly, it guarantees number of objects that are preallocated at
- * construction or when adding a new memory block. I.e.
- *
- * GrMemoryPool pool(3 * sizeof(T), 1000 * sizeof(T));
- * pool.allocate(sizeof(T));
- * pool.allocate(sizeof(T));
- * pool.allocate(sizeof(T));
- *
- * will preallocate 3 * sizeof(T) bytes and use some of those bytes for internal
- * structures. Because of that, last allocate() call will end up allocating a new
- * block of 1000 * sizeof(T) bytes. In contrast,
- *
- * GrObjectMemoryPool<T> pool(3, 1000);
- * pool.allocate();
- * pool.allocate();
- * pool.allocate();
- *
- * guarantees to preallocate enough memory for 3 objects of sizeof(T), so last
- * allocate() will use preallocated memory and won't cause allocation of a new block.
- *
- * Same thing is true for the second (minAlloc) ctor argument: this class guarantees
- * that a newly added block will have enough space for 1000 objects of sizeof(T), while
- * GrMemoryPool does not.
- */
-template <class T>
-class GrObjectMemoryPool: public GrMemoryPool {
+class GrOp;
+
+// DDL TODO: for the DLL use case this could probably be the non-intrinsic-based style of
+// ref counting
+class GrOpMemoryPool : public SkRefCnt {
 public:
-    /**
-     * Preallocates memory for preallocCount objects, and sets new block size to be
-     * enough to hold minAllocCount objects.
-     */
-    GrObjectMemoryPool(size_t preallocCount, size_t minAllocCount)
-        : GrMemoryPool(CountToSize(preallocCount),
-                       CountToSize(SkTMax(minAllocCount, kSmallestMinAllocCount))) {
+    GrOpMemoryPool(size_t preallocSize, size_t minAllocSize)
+            : fMemoryPool(preallocSize, minAllocSize) {
     }
 
-    /**
-     * Allocates memory for an object, but doesn't construct or otherwise initialize it.
-     * The memory must be freed with release().
-     */
-    T* allocate() { return static_cast<T*>(GrMemoryPool::allocate(sizeof(T))); }
+    template <typename Op, typename... OpArgs>
+    std::unique_ptr<Op> allocate(OpArgs&&... opArgs) {
+        char* mem = (char*) fMemoryPool.allocate(sizeof(Op));
+        return std::unique_ptr<Op>(new (mem) Op(std::forward<OpArgs>(opArgs)...));
+    }
+
+    void* allocate(size_t size) {
+        return fMemoryPool.allocate(size);
+    }
+
+    void release(std::unique_ptr<GrOp> op);
+
+    bool isEmpty() const { return fMemoryPool.isEmpty(); }
 
 private:
-    constexpr static size_t kTotalObjectSize =
-        kPerAllocPad + GR_CT_ALIGN_UP(sizeof(T), kAlignment);
-
-    constexpr static size_t CountToSize(size_t count) {
-        return kHeaderSize + count * kTotalObjectSize;
-    }
-
-public:
-    /**
-     * Minimum value of minAllocCount constructor argument.
-     */
-    constexpr static size_t kSmallestMinAllocCount =
-        (GrMemoryPool::kSmallestMinAllocSize - kHeaderSize + kTotalObjectSize - 1) /
-            kTotalObjectSize;
+    GrMemoryPool fMemoryPool;
 };
-
-template <class T>
-constexpr size_t GrObjectMemoryPool<T>::kSmallestMinAllocCount;
 
 #endif

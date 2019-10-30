@@ -5,7 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkString.h"
+#ifndef SkOSFile_ios_DEFINED
+#define SkOSFile_ios_DEFINED
+
+#include "include/core/SkString.h"
 
 #ifdef SK_BUILD_FOR_IOS
 #import <CoreFoundation/CoreFoundation.h>
@@ -36,6 +39,9 @@ static bool ios_get_path_in_bundle(const char path[], SkString* result) {
 
     // Convert the string reference into an SkString
     result->set(CFStringGetCStringPtr(imagePath, encodingMethod));
+    CFRelease(imagePath);
     return true;
 }
 #endif
+
+#endif  // SkOSFile_ios_DEFINED

@@ -9,7 +9,7 @@
 #ifndef SkEmbossMask_DEFINED
 #define SkEmbossMask_DEFINED
 
-#include "SkEmbossMaskFilter.h"
+#include "src/effects/SkEmbossMaskFilter.h"
 
 class SkEmbossMask {
 public:

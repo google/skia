@@ -4,9 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkGeometry.h"
-#include "SkOpEdgeBuilder.h"
-#include "SkReduceOrder.h"
+#include "src/core/SkGeometry.h"
+#include "src/pathops/SkOpEdgeBuilder.h"
+#include "src/pathops/SkReduceOrder.h"
 
 void SkOpEdgeBuilder::init() {
     fOperand = false;
@@ -175,10 +175,11 @@ bool SkOpEdgeBuilder::close() {
 bool SkOpEdgeBuilder::walk() {
     uint8_t* verbPtr = fPathVerbs.begin();
     uint8_t* endOfFirstHalf = &verbPtr[fSecondHalf];
-    SkPoint* pointsPtr = fPathPts.begin() - 1;
+    SkPoint* pointsPtr = fPathPts.begin();
     SkScalar* weightPtr = fWeights.begin();
     SkPath::Verb verb;
     SkOpContour* contour = fContourBuilder.contour();
+    int moveToPtrBump = 0;
     while ((verb = (SkPath::Verb) *verbPtr) != SkPath::kDone_Verb) {
         if (verbPtr == endOfFirstHalf) {
             fOperand = true;
@@ -198,7 +199,8 @@ bool SkOpEdgeBuilder::walk() {
                 }
                 contour->init(fGlobalState, fOperand,
                     fXorMask[fOperand] == kEvenOdd_PathOpsMask);
-                pointsPtr += 1;
+                pointsPtr += moveToPtrBump;
+                moveToPtrBump = 1;
                 continue;
             case SkPath::kLine_Verb:
                 fContourBuilder.addLine(pointsPtr);
@@ -240,7 +242,7 @@ bool SkOpEdgeBuilder::walk() {
                 if (v1.dot(v2) < 0) {
                     // FIXME: max curvature for conics hasn't been implemented; use placeholder
                     SkScalar maxCurvature = SkFindQuadMaxCurvature(pointsPtr);
-                    if (maxCurvature > 0) {
+                    if (0 < maxCurvature && maxCurvature < 1) {
                         SkConic conic(pointsPtr, weight);
                         SkConic pair[2];
                         if (!conic.chopAt(maxCurvature, pair)) {

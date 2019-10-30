@@ -8,9 +8,11 @@
 #ifndef SkPatchUtils_DEFINED
 #define SkPatchUtils_DEFINED
 
-#include "SkColorData.h"
-#include "SkMatrix.h"
-#include "SkVertices.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkVertices.h"
+#include "include/private/SkColorData.h"
+
+class SkColorSpace;
 
 class SK_API SkPatchUtils {
 
@@ -49,7 +51,7 @@ public:
 
     static sk_sp<SkVertices> MakeVertices(const SkPoint cubics[12], const SkColor colors[4],
                                           const SkPoint texCoords[4], int lodX, int lodY,
-                                          bool interpColorsLinearly = false);
+                                          SkColorSpace* colorSpace = nullptr);
 };
 
 #endif

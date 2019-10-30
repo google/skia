@@ -5,11 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPoint.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/utils/SkRandom.h"
+#include "tools/ToolUtils.h"
+
 #include <array>
 #include <vector>
 
@@ -23,9 +33,7 @@ static constexpr SkPoint kJitters[] = {{0, 0}, {.5f, .5f}, {2/3.f, 1/3.f}};
 // analytic AA is working properly.
 class SharedCornersGM : public GM {
 public:
-    SharedCornersGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFF1A65D7));
-    }
+    SharedCornersGM() { this->setBGColor(ToolUtils::color_to_565(0xFF1A65D7)); }
 
 protected:
     SkString onShortName() override {

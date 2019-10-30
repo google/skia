@@ -4,32 +4,21 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
+#include "samplecode/Sample.h"
 
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkRRect.h"
-#include "SkTime.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkTime.h"
+#include "include/utils/SkRandom.h"
 
 // Implementation in C++ of Mozilla Canvas2D benchmark Canvas Clock Test
 // See https://code.google.com/p/skia/issues/detail?id=1626
 
 #define USE_PATH 1
 
-class ClockView : public SampleView {
-public:
-    ClockView() {}
-
-protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Clock");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+class ClockView : public Sample {
+    SkString name() override { return SkString("Clock"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         SkPaint paintFill;
@@ -217,16 +206,7 @@ protected:
         canvas->restore();
     }
 
-    bool onAnimate(const SkAnimTimer&) override {
-        return true;
-    }
-
-private:
-
-    typedef SampleView INHERITED;
+    bool onAnimate(double /*nanos*/) override { return true; }
 };
 
-//////////////////////////////////////////////////////////////////////////////
-
-static SkView* MyFactory() { return new ClockView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new ClockView(); )

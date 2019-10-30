@@ -5,12 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkAnimTimer.h"
-#include "SkColorPriv.h"
-#include "SkCanvas.h"
-#include "SkMaskFilter.h"
-#include "SkRandom.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/utils/SkRandom.h"
+#include "samplecode/Sample.h"
 
 SkScalar get_anim_sin(double secs, SkScalar amplitude, SkScalar periodInSec, SkScalar phaseInSec) {
     if (!periodInSec) {
@@ -22,19 +21,11 @@ SkScalar get_anim_sin(double secs, SkScalar amplitude, SkScalar periodInSec, SkS
     return amplitude * SkDoubleToScalar(sin(t)) + amplitude;
 }
 
-class AnimBlurView : public SampleView {
-public:
-    AnimBlurView() : fBlurSigma(0), fCircleRadius(100) {}
+class AnimBlurView : public Sample {
+    SkScalar fBlurSigma = 0;
+    SkScalar fCircleRadius = 100;
 
-protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "AnimBlur");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("AnimBlur"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         static const SkBlurStyle gStyles[] = {
@@ -56,19 +47,10 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
-        fBlurSigma = get_anim_sin(timer.secs(), 100, 4, 5);
-        fCircleRadius = 3 + get_anim_sin(timer.secs(), 150, 25, 3);
+    bool onAnimate(double nanos) override {
+        fBlurSigma = get_anim_sin(1e-9 * nanos, 100, 4, 5);
+        fCircleRadius = 3 + get_anim_sin(1e-9 * nanos, 150, 25, 3);
         return true;
     }
-
-private:
-    SkScalar fBlurSigma, fCircleRadius;
-
-    typedef SampleView INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
-
-static SkView* MyFactory() { return new AnimBlurView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new AnimBlurView(); )

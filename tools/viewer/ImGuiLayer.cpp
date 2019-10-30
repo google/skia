@@ -5,13 +5,15 @@
 * found in the LICENSE file.
 */
 
-#include "ImGuiLayer.h"
+#include "tools/viewer/ImGuiLayer.h"
 
-#include "SkCanvas.h"
-#include "SkImage.h"
-#include "SkPixmap.h"
-#include "SkSwizzle.h"
-#include "SkVertices.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkSwizzle.h"
+#include "include/core/SkTime.h"
+#include "include/core/SkVertices.h"
 
 #include "imgui.h"
 
@@ -22,28 +24,29 @@ using namespace sk_app;
 
 ImGuiLayer::ImGuiLayer() {
     // ImGui initialization:
+    ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
 
     // Keymap...
-    io.KeyMap[ImGuiKey_Tab] = (int)Window::Key::kTab;
-    io.KeyMap[ImGuiKey_LeftArrow] = (int)Window::Key::kLeft;
-    io.KeyMap[ImGuiKey_RightArrow] = (int)Window::Key::kRight;
-    io.KeyMap[ImGuiKey_UpArrow] = (int)Window::Key::kUp;
-    io.KeyMap[ImGuiKey_DownArrow] = (int)Window::Key::kDown;
-    io.KeyMap[ImGuiKey_PageUp] = (int)Window::Key::kPageUp;
-    io.KeyMap[ImGuiKey_PageDown] = (int)Window::Key::kPageDown;
-    io.KeyMap[ImGuiKey_Home] = (int)Window::Key::kHome;
-    io.KeyMap[ImGuiKey_End] = (int)Window::Key::kEnd;
-    io.KeyMap[ImGuiKey_Delete] = (int)Window::Key::kDelete;
-    io.KeyMap[ImGuiKey_Backspace] = (int)Window::Key::kBack;
-    io.KeyMap[ImGuiKey_Enter] = (int)Window::Key::kOK;
-    io.KeyMap[ImGuiKey_Escape] = (int)Window::Key::kEscape;
-    io.KeyMap[ImGuiKey_A] = (int)Window::Key::kA;
-    io.KeyMap[ImGuiKey_C] = (int)Window::Key::kC;
-    io.KeyMap[ImGuiKey_V] = (int)Window::Key::kV;
-    io.KeyMap[ImGuiKey_X] = (int)Window::Key::kX;
-    io.KeyMap[ImGuiKey_Y] = (int)Window::Key::kY;
-    io.KeyMap[ImGuiKey_Z] = (int)Window::Key::kZ;
+    io.KeyMap[ImGuiKey_Tab]        = (int)skui::Key::kTab;
+    io.KeyMap[ImGuiKey_LeftArrow]  = (int)skui::Key::kLeft;
+    io.KeyMap[ImGuiKey_RightArrow] = (int)skui::Key::kRight;
+    io.KeyMap[ImGuiKey_UpArrow]    = (int)skui::Key::kUp;
+    io.KeyMap[ImGuiKey_DownArrow]  = (int)skui::Key::kDown;
+    io.KeyMap[ImGuiKey_PageUp]     = (int)skui::Key::kPageUp;
+    io.KeyMap[ImGuiKey_PageDown]   = (int)skui::Key::kPageDown;
+    io.KeyMap[ImGuiKey_Home]       = (int)skui::Key::kHome;
+    io.KeyMap[ImGuiKey_End]        = (int)skui::Key::kEnd;
+    io.KeyMap[ImGuiKey_Delete]     = (int)skui::Key::kDelete;
+    io.KeyMap[ImGuiKey_Backspace]  = (int)skui::Key::kBack;
+    io.KeyMap[ImGuiKey_Enter]      = (int)skui::Key::kOK;
+    io.KeyMap[ImGuiKey_Escape]     = (int)skui::Key::kEscape;
+    io.KeyMap[ImGuiKey_A]          = (int)skui::Key::kA;
+    io.KeyMap[ImGuiKey_C]          = (int)skui::Key::kC;
+    io.KeyMap[ImGuiKey_V]          = (int)skui::Key::kV;
+    io.KeyMap[ImGuiKey_X]          = (int)skui::Key::kX;
+    io.KeyMap[ImGuiKey_Y]          = (int)skui::Key::kY;
+    io.KeyMap[ImGuiKey_Z]          = (int)skui::Key::kZ;
 
     int w, h;
     unsigned char* pixels;
@@ -59,23 +62,27 @@ ImGuiLayer::ImGuiLayer() {
     io.Fonts->TexID = &fFontPaint;
 }
 
+ImGuiLayer::~ImGuiLayer() {
+    ImGui::DestroyContext();
+}
+
 void ImGuiLayer::onAttach(Window* window) {
     fWindow = window;
 }
 
-bool ImGuiLayer::onMouse(int x, int y, Window::InputState state, uint32_t modifiers) {
+bool ImGuiLayer::onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers) {
     ImGuiIO& io = ImGui::GetIO();
     io.MousePos.x = static_cast<float>(x);
     io.MousePos.y = static_cast<float>(y);
-    if (Window::kDown_InputState == state) {
+    if (skui::InputState::kDown == state) {
         io.MouseDown[0] = true;
-    } else if (Window::kUp_InputState == state) {
+    } else if (skui::InputState::kUp == state) {
         io.MouseDown[0] = false;
     }
     return io.WantCaptureMouse;
 }
 
-bool ImGuiLayer::onMouseWheel(float delta, uint32_t modifiers) {
+bool ImGuiLayer::onMouseWheel(float delta, skui::ModifierKey modifiers) {
     ImGuiIO& io = ImGui::GetIO();
     io.MouseWheel += delta;
     return true;
@@ -90,18 +97,23 @@ void ImGuiLayer::skiaWidget(const ImVec2& size, SkiaWidgetFunc func) {
 void ImGuiLayer::onPrePaint() {
     // Update ImGui input
     ImGuiIO& io = ImGui::GetIO();
-    io.DeltaTime = 1.0f / 60.0f;
+
+    static double previousTime = 0.0;
+    double currentTime = SkTime::GetSecs();
+    io.DeltaTime = static_cast<float>(currentTime - previousTime);
+    previousTime = currentTime;
+
     io.DisplaySize.x = static_cast<float>(fWindow->width());
     io.DisplaySize.y = static_cast<float>(fWindow->height());
 
-    io.KeyAlt = io.KeysDown[static_cast<int>(Window::Key::kOption)];
-    io.KeyCtrl = io.KeysDown[static_cast<int>(Window::Key::kCtrl)];
-    io.KeyShift = io.KeysDown[static_cast<int>(Window::Key::kShift)];
+    io.KeyAlt = io.KeysDown[static_cast<int>(skui::Key::kOption)];
+    io.KeyCtrl = io.KeysDown[static_cast<int>(skui::Key::kCtrl)];
+    io.KeyShift = io.KeysDown[static_cast<int>(skui::Key::kShift)];
 
     ImGui::NewFrame();
 }
 
-void ImGuiLayer::onPaint(SkCanvas* canvas) {
+void ImGuiLayer::onPaint(SkSurface* surface) {
     // This causes ImGui to rebuild vertex/index data based on all immediate-mode commands
     // (widgets, etc...) that have been issued
     ImGui::Render();
@@ -112,16 +124,18 @@ void ImGuiLayer::onPaint(SkCanvas* canvas) {
     SkTDArray<SkPoint> uv;
     SkTDArray<SkColor> color;
 
+    auto canvas = surface->getCanvas();
+
     for (int i = 0; i < drawData->CmdListsCount; ++i) {
         const ImDrawList* drawList = drawData->CmdLists[i];
 
         // De-interleave all vertex data (sigh), convert to Skia types
         pos.rewind(); uv.rewind(); color.rewind();
-        for (int i = 0; i < drawList->VtxBuffer.size(); ++i) {
-            const ImDrawVert& vert = drawList->VtxBuffer[i];
-            pos.push(SkPoint::Make(vert.pos.x, vert.pos.y));
-            uv.push(SkPoint::Make(vert.uv.x, vert.uv.y));
-            color.push(vert.col);
+        for (int j = 0; j < drawList->VtxBuffer.size(); ++j) {
+            const ImDrawVert& vert = drawList->VtxBuffer[j];
+            pos.push_back(SkPoint::Make(vert.pos.x, vert.pos.y));
+            uv.push_back(SkPoint::Make(vert.uv.x, vert.uv.y));
+            color.push_back(vert.col);
         }
         // ImGui colors are RGBA
         SkSwapRB(color.begin(), color.begin(), color.count());
@@ -161,8 +175,8 @@ void ImGuiLayer::onPaint(SkCanvas* canvas) {
                                                          drawCmd->ElemCount,
                                                          drawList->IdxBuffer.begin() + indexOffset);
                     canvas->drawVertices(vertices, SkBlendMode::kModulate, *paint);
-                    indexOffset += drawCmd->ElemCount;
                 }
+                indexOffset += drawCmd->ElemCount;
             }
         }
     }
@@ -170,13 +184,13 @@ void ImGuiLayer::onPaint(SkCanvas* canvas) {
     fSkiaWidgetFuncs.reset();
 }
 
-bool ImGuiLayer::onKey(sk_app::Window::Key key, sk_app::Window::InputState state, uint32_t modifiers) {
+bool ImGuiLayer::onKey(skui::Key key, skui::InputState state, skui::ModifierKey modifiers) {
     ImGuiIO& io = ImGui::GetIO();
-    io.KeysDown[static_cast<int>(key)] = (Window::kDown_InputState == state);
+    io.KeysDown[static_cast<int>(key)] = (skui::InputState::kDown == state);
     return io.WantCaptureKeyboard;
 }
 
-bool ImGuiLayer::onChar(SkUnichar c, uint32_t modifiers) {
+bool ImGuiLayer::onChar(SkUnichar c, skui::ModifierKey modifiers) {
     ImGuiIO& io = ImGui::GetIO();
     if (io.WantTextInput) {
         if (c > 0 && c < 0x10000) {

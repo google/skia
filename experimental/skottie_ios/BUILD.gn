@@ -1,0 +1,45 @@
+# Copyright 2019 Google LLC.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../../gn/ios.gni")
+
+if (is_ios && skia_use_metal) {
+  ios_app_bundle("skottie_ios") {
+    sources = [
+      "SkMetalViewBridge.h",
+      "SkMetalViewBridge.mm",
+      "SkottieMtkView.h",
+      "SkottieMtkView.mm",
+      "main.mm",
+    ]
+    data_sources = [
+      "../../resources/skottie/skottie-3d-rotation-order.json",
+      "../../resources/skottie/skottie-camera-parent-3.json",
+      "../../resources/skottie/skottie-gradient-ramp.json",
+      "../../resources/skottie/skottie-linear-wipe-effect.json",
+      "../../resources/skottie/skottie-text-animator-1.json",
+      "../../resources/skottie/skottie-text-animator-2.json",
+      "../../resources/skottie/skottie-text-animator-3.json",
+      "../../resources/skottie/skottie-text-animator-4.json",
+      "../../resources/skottie/skottie-text-animator-5.json",
+      "../../resources/skottie/skottie-text-animator-8.json",
+      "../../resources/skottie/skottie-transform-effect.json",
+      "../../resources/skottie/skottie_sample_2.json",
+    ]
+    deps = [
+      "../..:skia",
+      "../../modules/skottie",
+    ]
+    cflags_objcc = [
+      "-std=c++14",
+      "-w",
+    ]
+    libs = [
+      "Metal.framework",
+      "MetalKit.framework",
+      "UIKit.framework",
+    ]
+    launchscreen = "../../platform_tools/ios/app/LaunchScreen.storyboard"
+  }
+}

@@ -5,8 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkBlurImageFilter.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/effects/SkImageFilters.h"
+
+#include <initializer_list>
 
 // For all sigma, the black box should be centered in the red outline. For small sigma,
 // the rectangle is not blurred, but still must be centered properly.
@@ -28,7 +36,7 @@ DEF_SIMPLE_GM(check_small_sigma_offset, canvas, 200, 1200) {
 
         p.reset();
         p.setColor(SK_ColorBLACK);
-        p.setImageFilter(SkBlurImageFilter::Make(sigma, sigma, nullptr));
+        p.setImageFilter(SkImageFilters::Blur(sigma, sigma, nullptr));
         canvas->drawRect(r, p);
 
         canvas->translate(0, 100);

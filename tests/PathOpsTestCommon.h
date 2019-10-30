@@ -7,8 +7,8 @@
 #ifndef PathOpsTestCommon_DEFINED
 #define PathOpsTestCommon_DEFINED
 
-#include "SkPathOpsQuad.h"
-#include "SkTArray.h"
+#include "include/private/SkTArray.h"
+#include "src/pathops/SkPathOpsQuad.h"
 
 struct SkPathOpsBounds;
 

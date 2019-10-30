@@ -5,28 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkPath.h"
-#include "SkScan.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkScalar.h"
+#include "include/private/SkFloatBits.h"
 
 #define W   800
 #define H   800
 
-class AnalyticAntiAliasConvexGM : public skiagm::GM {
-public:
-    AnalyticAntiAliasConvexGM() {}
-
-protected:
-
-    SkString onShortName() override {
-        return SkString("analytic_antialias_convex");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(W, H);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(analytic_antialias_convex, canvas, W, H) {
         SkPaint p;
         p.setColor(SK_ColorRED);
         p.setAntiAlias(true);
@@ -98,27 +88,9 @@ protected:
         path.lineTo(710, 534);
         path.lineTo(700, 534);
         canvas->drawPath(path, p);
-    }
+}
 
-private:
-    typedef skiagm::GM INHERITED;
-};
-
-class AnalyticAntiAliasGeneralGM : public skiagm::GM {
-public:
-    AnalyticAntiAliasGeneralGM() {}
-
-protected:
-
-    SkString onShortName() override {
-        return SkString("analytic_antialias_general");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(W, H);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(analytic_antialias_general, canvas, W, H) {
         SkPaint p;
         p.setColor(SK_ColorRED);
         p.setAntiAlias(true);
@@ -132,9 +104,7 @@ protected:
         path.moveTo(C + R, C);
         for (int i = 1; i < 8; ++i) {
             SkScalar a = 2.6927937f * i;
-            SkScalar cosine;
-            SkScalar sine = SkScalarSinCos(a, &cosine);
-            path.lineTo(C + R * cosine, C + R * sine);
+            path.lineTo(C + R * SkScalarCos(a), C + R * SkScalarSin(a));
         }
         canvas->drawPath(path, p);
         canvas->restore();
@@ -162,27 +132,9 @@ protected:
         path.addRect({20, 20, 100.1f, 100});
         path.addRect({100.9f, 20, 200, 100});
         canvas->drawPath(path, p);
-    }
+}
 
-private:
-    typedef skiagm::GM INHERITED;
-};
-
-class AnalyticAntiAliasInverseGM : public skiagm::GM {
-public:
-    AnalyticAntiAliasInverseGM() {}
-
-protected:
-
-    SkString onShortName() override {
-        return SkString("analytic_antialias_inverse");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(W, H);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(analytic_antialias_inverse, canvas, W, H) {
         SkPaint p;
         p.setColor(SK_ColorRED);
         p.setAntiAlias(true);
@@ -194,12 +146,4 @@ protected:
         path.setFillType(SkPath::kInverseWinding_FillType);
         canvas->drawPath(path, p);
         canvas->restore();
-    }
-
-private:
-    typedef skiagm::GM INHERITED;
-};
-
-DEF_GM( return new AnalyticAntiAliasConvexGM; )
-DEF_GM( return new AnalyticAntiAliasGeneralGM; )
-DEF_GM( return new AnalyticAntiAliasInverseGM; )
+}

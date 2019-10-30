@@ -7,11 +7,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorTable.h"
+#include "src/codec/SkColorTable.h"
 
-#include "sk_colortable.h"
+#include "include/c/sk_colortable.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
 void sk_colortable_unref(sk_colortable_t* ctable) {
     SkSafeUnref(AsColorTable(ctable));

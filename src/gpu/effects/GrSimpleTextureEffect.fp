@@ -9,6 +9,7 @@ in uniform sampler2D image;
 in half4x4 matrix;
 
 @constructorParams {
+    GrColorType srcColorType,
     GrSamplerState samplerParams
 }
 
@@ -22,37 +23,40 @@ in half4x4 matrix;
 
 @make {
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+                                                     GrColorType srcColorType,
                                                      const SkMatrix& matrix) {
         return std::unique_ptr<GrFragmentProcessor>(
-            new GrSimpleTextureEffect(std::move(proxy), matrix,
+            new GrSimpleTextureEffect(std::move(proxy), matrix, srcColorType,
                     GrSamplerState(GrSamplerState::WrapMode::kClamp, GrSamplerState::Filter::kNearest)));
     }
 
     /* clamp mode */
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+                                                     GrColorType srcColorType,
                                                      const SkMatrix& matrix,
                                                      GrSamplerState::Filter filter) {
         return std::unique_ptr<GrFragmentProcessor>(
-            new GrSimpleTextureEffect(std::move(proxy), matrix,
+            new GrSimpleTextureEffect(std::move(proxy), matrix, srcColorType,
                                       GrSamplerState(GrSamplerState::WrapMode::kClamp, filter)));
      }
 
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+                                                     GrColorType srcColorType,
                                                      const SkMatrix& matrix,
                                                      const GrSamplerState& p) {
         return std::unique_ptr<GrFragmentProcessor>(
-            new GrSimpleTextureEffect(std::move(proxy), matrix, p));
+            new GrSimpleTextureEffect(std::move(proxy), matrix, srcColorType, p));
     }
 }
 
 @optimizationFlags {
-    kCompatibleWithCoverageAsAlpha_OptimizationFlag |
-    (GrPixelConfigIsOpaque(image->config()) ? kPreservesOpaqueInput_OptimizationFlag :
-                                              kNone_OptimizationFlags)
+    ModulateForSamplerOptFlags(srcColorType,
+            samplerParams.wrapModeX() == GrSamplerState::WrapMode::kClampToBorder ||
+            samplerParams.wrapModeY() == GrSamplerState::WrapMode::kClampToBorder)
 }
 
 void main() {
-    sk_OutColor = sk_InColor * texture(image, sk_TransformedCoords2D[0]);
+    sk_OutColor = sk_InColor * sample(image, sk_TransformedCoords2D[0]);
 }
 
 @test(testData) {
@@ -72,5 +76,6 @@ void main() {
                                                                : GrSamplerState::Filter::kNearest);
 
     const SkMatrix& matrix = GrTest::TestMatrix(testData->fRandom);
-    return GrSimpleTextureEffect::Make(testData->textureProxy(texIdx), matrix, params);
+    return GrSimpleTextureEffect::Make(testData->textureProxy(texIdx),
+                                       testData->textureProxyColorType(texIdx), matrix, params);
 }

@@ -8,10 +8,10 @@
 #ifndef GrClip_DEFINED
 #define GrClip_DEFINED
 
-#include "GrAppliedClip.h"
-#include "GrRenderTargetContext.h"
-#include "SkRRect.h"
-#include "SkRect.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrRenderTargetContext.h"
 
 class GrContext;
 
@@ -35,7 +35,7 @@ public:
      * conservative bounds of the clip. A return value of false indicates that the draw can be
      * skipped as it is fully clipped out.
      */
-    virtual bool apply(GrContext*, GrRenderTargetContext*, bool useHWAA,
+    virtual bool apply(GrRecordingContext*, GrRenderTargetContext*, bool useHWAA,
                        bool hasUserStencilSettings, GrAppliedClip*, SkRect* bounds) const = 0;
 
     virtual ~GrClip() {}
@@ -147,8 +147,8 @@ public:
     virtual bool apply(int rtWidth, int rtHeight, GrAppliedHardClip* out, SkRect* bounds) const = 0;
 
 private:
-    bool apply(GrContext*, GrRenderTargetContext* rtc, bool useHWAA, bool hasUserStencilSettings,
-               GrAppliedClip* out, SkRect* bounds) const final {
+    bool apply(GrRecordingContext*, GrRenderTargetContext* rtc, bool useHWAA,
+               bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const final {
         return this->apply(rtc->width(), rtc->height(), &out->hardClip(), bounds);
     }
 };

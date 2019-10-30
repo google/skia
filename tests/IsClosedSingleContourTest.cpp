@@ -4,8 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Test.h"
-#include "SkPathPriv.h"
+#include "src/core/SkPathPriv.h"
+#include "tests/Test.h"
 
 DEF_TEST(IsClosedSingleContourTest, reporter) {
     SkPath p;

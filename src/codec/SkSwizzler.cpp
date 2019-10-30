@@ -5,12 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkCodecPriv.h"
-#include "SkColorData.h"
-#include "SkHalf.h"
-#include "SkOpts.h"
-#include "SkSwizzler.h"
-#include "SkTemplates.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkHalf.h"
+#include "include/private/SkTemplates.h"
+#include "src/codec/SkCodecPriv.h"
+#include "src/codec/SkSwizzler.h"
+#include "src/core/SkOpts.h"
+
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    #include "include/android/SkAndroidFrameworkUtils.h"
+#endif
 
 static void copy(void* dst, const uint8_t* src, int width, int bpp, int deltaSrc, int offset,
         const SkPMColor ctable[]) {
@@ -475,7 +479,7 @@ static void fast_swizzle_rgba_to_rgba_premul(
     // sampling, deltaSrc should equal bpp.
     SkASSERT(deltaSrc == bpp);
 
-    SkOpts::RGBA_to_rgbA((uint32_t*) dst, src + offset, width);
+    SkOpts::RGBA_to_rgbA((uint32_t*) dst, (const uint32_t*)(src + offset), width);
 }
 
 static void fast_swizzle_rgba_to_bgra_premul(
@@ -486,7 +490,7 @@ static void fast_swizzle_rgba_to_bgra_premul(
     // sampling, deltaSrc should equal bpp.
     SkASSERT(deltaSrc == bpp);
 
-    SkOpts::RGBA_to_bgrA((uint32_t*) dst, src + offset, width);
+    SkOpts::RGBA_to_bgrA((uint32_t*) dst, (const uint32_t*)(src + offset), width);
 }
 
 static void swizzle_rgba_to_bgra_unpremul(
@@ -510,7 +514,7 @@ static void fast_swizzle_rgba_to_bgra_unpremul(
     // sampling, deltaSrc should equal bpp.
     SkASSERT(deltaSrc == bpp);
 
-    SkOpts::RGBA_to_BGRA((uint32_t*) dst, src + offset, width);
+    SkOpts::RGBA_to_BGRA((uint32_t*) dst, (const uint32_t*)(src + offset), width);
 }
 
 // 16-bits per component kRGB and kRGBA
@@ -705,7 +709,7 @@ static void fast_swizzle_cmyk_to_rgba(
     // sampling, deltaSrc should equal bpp.
     SkASSERT(deltaSrc == bpp);
 
-    SkOpts::inverted_CMYK_to_RGB1((uint32_t*) dst, src + offset, width);
+    SkOpts::inverted_CMYK_to_RGB1((uint32_t*) dst, (const uint32_t*)(src + offset), width);
 }
 
 static void fast_swizzle_cmyk_to_bgra(
@@ -716,7 +720,7 @@ static void fast_swizzle_cmyk_to_bgra(
     // sampling, deltaSrc should equal bpp.
     SkASSERT(deltaSrc == bpp);
 
-    SkOpts::inverted_CMYK_to_BGR1((uint32_t*) dst, src + offset, width);
+    SkOpts::inverted_CMYK_to_BGR1((uint32_t*) dst, (const uint32_t*)(src + offset), width);
 }
 
 static void swizzle_cmyk_to_565(
@@ -773,396 +777,376 @@ void SkSwizzler::SkipLeading8888ZerosThen(
     proc(dst32, (const uint8_t*)src32, dstWidth, bpp, deltaSrc, 0, ctable);
 }
 
-SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
-                                       const SkPMColor* ctable,
-                                       const SkImageInfo& dstInfo,
-                                       const SkCodec::Options& options,
-                                       const SkIRect* frame,
-                                       bool skipFormatConversion) {
+std::unique_ptr<SkSwizzler> SkSwizzler::MakeSimple(int srcBPP, const SkImageInfo& dstInfo,
+                                                   const SkCodec::Options& options) {
+    RowProc proc = nullptr;
+    switch (srcBPP) {
+        case 1:     // kGray_8_SkColorType
+            proc = &sample1;
+            break;
+        case 2:     // kRGB_565_SkColorType
+            proc = &sample2;
+            break;
+        case 4:     // kRGBA_8888_SkColorType
+                    // kBGRA_8888_SkColorType
+            proc = &sample4;
+            break;
+        case 6:     // 16 bit PNG no alpha
+            proc = &sample6;
+            break;
+        case 8:     // 16 bit PNG with alpha
+            proc = &sample8;
+            break;
+        default:
+            return nullptr;
+    }
+
+    return Make(dstInfo, &copy, proc, nullptr /*ctable*/, srcBPP,
+                dstInfo.bytesPerPixel(), options, nullptr /*frame*/);
+}
+
+std::unique_ptr<SkSwizzler> SkSwizzler::Make(const SkEncodedInfo& encodedInfo,
+                                             const SkPMColor* ctable,
+                                             const SkImageInfo& dstInfo,
+                                             const SkCodec::Options& options,
+                                             const SkIRect* frame) {
     if (SkEncodedInfo::kPalette_Color == encodedInfo.color() && nullptr == ctable) {
         return nullptr;
     }
 
     RowProc fastProc = nullptr;
     RowProc proc = nullptr;
-    int srcBPP;
-    const int dstBPP = dstInfo.bytesPerPixel();
-    if (skipFormatConversion) {
-        switch (encodedInfo.color()) {
-            case SkEncodedInfo::kGray_Color:
-            case SkEncodedInfo::kYUV_Color:
-                // We have a jpeg that has already been converted to the dstColorType.
-                srcBPP = dstBPP;
-                switch (dstInfo.colorType()) {
-                    case kGray_8_SkColorType:
-                        proc = &sample1;
-                        fastProc = &copy;
-                        break;
-                    case kRGB_565_SkColorType:
-                        proc = &sample2;
-                        fastProc = &copy;
-                        break;
-                    case kRGBA_8888_SkColorType:
-                    case kBGRA_8888_SkColorType:
-                        proc = &sample4;
-                        fastProc = &copy;
-                        break;
-                    default:
-                        return nullptr;
-                }
-                break;
-            case SkEncodedInfo::kInvertedCMYK_Color:
-            case SkEncodedInfo::kYCCK_Color:
-                // We have a jpeg that remains in its original format.
-                srcBPP = 4;
-                proc = &sample4;
-                fastProc = &copy;
-                break;
-            case SkEncodedInfo::kRGBA_Color:
-                // We have a png that should remain in its original format.
-                SkASSERT(16 == encodedInfo.bitsPerComponent() ||
-                          8 == encodedInfo.bitsPerComponent());
-                if (8 == encodedInfo.bitsPerComponent()) {
-                    srcBPP = 4;
-                    proc = &sample4;
-                } else {
-                    srcBPP = 8;
-                    proc = &sample8;
-                }
-                fastProc = &copy;
-                break;
-            case SkEncodedInfo::kRGB_Color:
-                // We have a png that remains in its original format.
-                SkASSERT(16 == encodedInfo.bitsPerComponent());
-                srcBPP = 6;
-                proc = &sample6;
-                fastProc = &copy;
-                break;
-            default:
-                return nullptr;
-        }
-    } else {
-        SkCodec::ZeroInitialized zeroInit = options.fZeroInitialized;
-        const bool premultiply = (SkEncodedInfo::kOpaque_Alpha != encodedInfo.alpha()) &&
-                (kPremul_SkAlphaType == dstInfo.alphaType());
+    SkCodec::ZeroInitialized zeroInit = options.fZeroInitialized;
+    const bool premultiply = (SkEncodedInfo::kOpaque_Alpha != encodedInfo.alpha()) &&
+            (kPremul_SkAlphaType == dstInfo.alphaType());
 
-        switch (encodedInfo.color()) {
-            case SkEncodedInfo::kGray_Color:
-                switch (encodedInfo.bitsPerComponent()) {
-                    case 1:
-                        switch (dstInfo.colorType()) {
-                            case kRGBA_8888_SkColorType:
-                            case kBGRA_8888_SkColorType:
-                                proc = &swizzle_bit_to_n32;
-                                break;
-                            case kRGB_565_SkColorType:
-                                proc = &swizzle_bit_to_565;
-                                break;
-                            case kGray_8_SkColorType:
-                                proc = &swizzle_bit_to_grayscale;
-                                break;
-                            case kRGBA_F16_SkColorType:
-                                proc = &swizzle_bit_to_f16;
-                                break;
-                            default:
-                                return nullptr;
-                        }
-                        break;
-                    case 8:
-                        switch (dstInfo.colorType()) {
-                            case kRGBA_8888_SkColorType:
-                            case kBGRA_8888_SkColorType:
-                                proc = &swizzle_gray_to_n32;
-                                fastProc = &fast_swizzle_gray_to_n32;
-                                break;
-                            case kGray_8_SkColorType:
-                                proc = &sample1;
-                                fastProc = &copy;
-                                break;
-                            case kRGB_565_SkColorType:
-                                proc = &swizzle_gray_to_565;
-                                break;
-                            default:
-                                return nullptr;
-                        }
-                        break;
-                    default:
-                        return nullptr;
-                }
-                break;
-            case SkEncodedInfo::kGrayAlpha_Color:
-                switch (dstInfo.colorType()) {
-                    case kRGBA_8888_SkColorType:
-                    case kBGRA_8888_SkColorType:
-                        if (premultiply) {
-                            if (SkCodec::kYes_ZeroInitialized == zeroInit) {
-                                proc = &SkipLeadingGrayAlphaZerosThen
-                                        <swizzle_grayalpha_to_n32_premul>;
-                                fastProc = &SkipLeadingGrayAlphaZerosThen
-                                        <fast_swizzle_grayalpha_to_n32_premul>;
-                            } else {
-                                proc = &swizzle_grayalpha_to_n32_premul;
-                                fastProc = &fast_swizzle_grayalpha_to_n32_premul;
-                            }
-                        } else {
-                            if (SkCodec::kYes_ZeroInitialized == zeroInit) {
-                                proc = &SkipLeadingGrayAlphaZerosThen
-                                        <swizzle_grayalpha_to_n32_unpremul>;
-                                fastProc = &SkipLeadingGrayAlphaZerosThen
-                                        <fast_swizzle_grayalpha_to_n32_unpremul>;
-                            } else {
-                                proc = &swizzle_grayalpha_to_n32_unpremul;
-                                fastProc = &fast_swizzle_grayalpha_to_n32_unpremul;
-                            }
-                        }
-                        break;
-                    case kAlpha_8_SkColorType:
-                        proc = &swizzle_grayalpha_to_a8;
-                        break;
-                    default:
-                        return nullptr;
-                }
-                break;
-            case SkEncodedInfo::kPalette_Color:
-                // We assume that the color table is premultiplied and swizzled
-                // as desired.
-                switch (encodedInfo.bitsPerComponent()) {
-                    case 1:
-                    case 2:
-                    case 4:
-                        switch (dstInfo.colorType()) {
-                            case kRGBA_8888_SkColorType:
-                            case kBGRA_8888_SkColorType:
-                                proc = &swizzle_small_index_to_n32;
-                                break;
-                            case kRGB_565_SkColorType:
-                                proc = &swizzle_small_index_to_565;
-                                break;
-                            default:
-                                return nullptr;
-                        }
-                        break;
-                    case 8:
-                        switch (dstInfo.colorType()) {
-                            case kRGBA_8888_SkColorType:
-                            case kBGRA_8888_SkColorType:
-                                if (SkCodec::kYes_ZeroInitialized == zeroInit) {
-                                    proc = &swizzle_index_to_n32_skipZ;
-                                } else {
-                                    proc = &swizzle_index_to_n32;
-                                }
-                                break;
-                            case kRGB_565_SkColorType:
-                                proc = &swizzle_index_to_565;
-                                break;
-                            default:
-                                return nullptr;
-                        }
-                        break;
-                    default:
-                        return nullptr;
-                }
-                break;
-            case SkEncodedInfo::kRGB_Color:
-                switch (dstInfo.colorType()) {
-                    case kRGBA_8888_SkColorType:
-                        if (16 == encodedInfo.bitsPerComponent()) {
-                            proc = &swizzle_rgb16_to_rgba;
+    switch (encodedInfo.color()) {
+        case SkEncodedInfo::kGray_Color:
+            switch (encodedInfo.bitsPerComponent()) {
+                case 1:
+                    switch (dstInfo.colorType()) {
+                        case kRGBA_8888_SkColorType:
+                        case kBGRA_8888_SkColorType:
+                            proc = &swizzle_bit_to_n32;
                             break;
-                        }
-
-                        SkASSERT(8 == encodedInfo.bitsPerComponent());
-                        proc = &swizzle_rgb_to_rgba;
-                        fastProc = &fast_swizzle_rgb_to_rgba;
-                        break;
-                    case kBGRA_8888_SkColorType:
-                        if (16 == encodedInfo.bitsPerComponent()) {
-                            proc = &swizzle_rgb16_to_bgra;
+                        case kRGB_565_SkColorType:
+                            proc = &swizzle_bit_to_565;
                             break;
-                        }
-
-                        SkASSERT(8 == encodedInfo.bitsPerComponent());
-                        proc = &swizzle_rgb_to_bgra;
-                        fastProc = &fast_swizzle_rgb_to_bgra;
-                        break;
-                    case kRGB_565_SkColorType:
-                        if (16 == encodedInfo.bitsPerComponent()) {
-                            proc = &swizzle_rgb16_to_565;
+                        case kGray_8_SkColorType:
+                            proc = &swizzle_bit_to_grayscale;
                             break;
-                        }
-
-                        proc = &swizzle_rgb_to_565;
-                        break;
-                    default:
-                        return nullptr;
-                }
-                break;
-            case SkEncodedInfo::kRGBA_Color:
-                switch (dstInfo.colorType()) {
-                    case kRGBA_8888_SkColorType:
-                        if (16 == encodedInfo.bitsPerComponent()) {
-                            proc = premultiply ? &swizzle_rgba16_to_rgba_premul :
-                                                 &swizzle_rgba16_to_rgba_unpremul;
+                        case kRGBA_F16_SkColorType:
+                            proc = &swizzle_bit_to_f16;
                             break;
-                        }
-
-                        SkASSERT(8 == encodedInfo.bitsPerComponent());
-                        if (premultiply) {
-                            if (SkCodec::kYes_ZeroInitialized == zeroInit) {
-                                proc = &SkipLeading8888ZerosThen<swizzle_rgba_to_rgba_premul>;
-                                fastProc = &SkipLeading8888ZerosThen
-                                        <fast_swizzle_rgba_to_rgba_premul>;
-                            } else {
-                                proc = &swizzle_rgba_to_rgba_premul;
-                                fastProc = &fast_swizzle_rgba_to_rgba_premul;
-                            }
-                        } else {
-                            if (SkCodec::kYes_ZeroInitialized == zeroInit) {
-                                proc = &SkipLeading8888ZerosThen<sample4>;
-                                fastProc = &SkipLeading8888ZerosThen<copy>;
-                            } else {
-                                proc = &sample4;
-                                fastProc = &copy;
-                            }
-                        }
-                        break;
-                    case kBGRA_8888_SkColorType:
-                        if (16 == encodedInfo.bitsPerComponent()) {
-                            proc = premultiply ? &swizzle_rgba16_to_bgra_premul :
-                                                 &swizzle_rgba16_to_bgra_unpremul;
+                        default:
+                            return nullptr;
+                    }
+                    break;
+                case 8:
+                    switch (dstInfo.colorType()) {
+                        case kRGBA_8888_SkColorType:
+                        case kBGRA_8888_SkColorType:
+                            proc = &swizzle_gray_to_n32;
+                            fastProc = &fast_swizzle_gray_to_n32;
                             break;
+                        case kGray_8_SkColorType:
+                            proc = &sample1;
+                            fastProc = &copy;
+                            break;
+                        case kRGB_565_SkColorType:
+                            proc = &swizzle_gray_to_565;
+                            break;
+                        default:
+                            return nullptr;
+                    }
+                    break;
+                default:
+                    return nullptr;
+            }
+            break;
+        case SkEncodedInfo::kXAlpha_Color:
+        case SkEncodedInfo::kGrayAlpha_Color:
+            switch (dstInfo.colorType()) {
+                case kRGBA_8888_SkColorType:
+                case kBGRA_8888_SkColorType:
+                    if (premultiply) {
+                        if (SkCodec::kYes_ZeroInitialized == zeroInit) {
+                            proc = &SkipLeadingGrayAlphaZerosThen
+                                    <swizzle_grayalpha_to_n32_premul>;
+                            fastProc = &SkipLeadingGrayAlphaZerosThen
+                                    <fast_swizzle_grayalpha_to_n32_premul>;
+                        } else {
+                            proc = &swizzle_grayalpha_to_n32_premul;
+                            fastProc = &fast_swizzle_grayalpha_to_n32_premul;
                         }
+                    } else {
+                        if (SkCodec::kYes_ZeroInitialized == zeroInit) {
+                            proc = &SkipLeadingGrayAlphaZerosThen
+                                    <swizzle_grayalpha_to_n32_unpremul>;
+                            fastProc = &SkipLeadingGrayAlphaZerosThen
+                                    <fast_swizzle_grayalpha_to_n32_unpremul>;
+                        } else {
+                            proc = &swizzle_grayalpha_to_n32_unpremul;
+                            fastProc = &fast_swizzle_grayalpha_to_n32_unpremul;
+                        }
+                    }
+                    break;
+                case kAlpha_8_SkColorType:
+                    proc = &swizzle_grayalpha_to_a8;
+                    break;
+                default:
+                    return nullptr;
+            }
+            break;
+        case SkEncodedInfo::kPalette_Color:
+            // We assume that the color table is premultiplied and swizzled
+            // as desired.
+            switch (encodedInfo.bitsPerComponent()) {
+                case 1:
+                case 2:
+                case 4:
+                    switch (dstInfo.colorType()) {
+                        case kRGBA_8888_SkColorType:
+                        case kBGRA_8888_SkColorType:
+                            proc = &swizzle_small_index_to_n32;
+                            break;
+                        case kRGB_565_SkColorType:
+                            proc = &swizzle_small_index_to_565;
+                            break;
+                        default:
+                            return nullptr;
+                    }
+                    break;
+                case 8:
+                    switch (dstInfo.colorType()) {
+                        case kRGBA_8888_SkColorType:
+                        case kBGRA_8888_SkColorType:
+                            if (SkCodec::kYes_ZeroInitialized == zeroInit) {
+                                proc = &swizzle_index_to_n32_skipZ;
+                            } else {
+                                proc = &swizzle_index_to_n32;
+                            }
+                            break;
+                        case kRGB_565_SkColorType:
+                            proc = &swizzle_index_to_565;
+                            break;
+                        default:
+                            return nullptr;
+                    }
+                    break;
+                default:
+                    return nullptr;
+            }
+            break;
+        case SkEncodedInfo::k565_Color:
+            // Treat 565 exactly like RGB (since it's still encoded as 8 bits per component).
+            // We just mark as 565 when we have a hint that there are only 5/6/5 "significant"
+            // bits in each channel.
+        case SkEncodedInfo::kRGB_Color:
+            switch (dstInfo.colorType()) {
+                case kRGBA_8888_SkColorType:
+                    if (16 == encodedInfo.bitsPerComponent()) {
+                        proc = &swizzle_rgb16_to_rgba;
+                        break;
+                    }
 
-                        SkASSERT(8 == encodedInfo.bitsPerComponent());
-                        if (premultiply) {
-                            if (SkCodec::kYes_ZeroInitialized == zeroInit) {
-                                proc = &SkipLeading8888ZerosThen<swizzle_rgba_to_bgra_premul>;
-                                fastProc = &SkipLeading8888ZerosThen
-                                        <fast_swizzle_rgba_to_bgra_premul>;
-                            } else {
-                                proc = &swizzle_rgba_to_bgra_premul;
-                                fastProc = &fast_swizzle_rgba_to_bgra_premul;
-                            }
-                        } else {
-                            if (SkCodec::kYes_ZeroInitialized == zeroInit) {
-                                proc = &SkipLeading8888ZerosThen<swizzle_rgba_to_bgra_unpremul>;
-                                fastProc = &SkipLeading8888ZerosThen
-                                        <fast_swizzle_rgba_to_bgra_unpremul>;
-                            } else {
-                                proc = &swizzle_rgba_to_bgra_unpremul;
-                                fastProc = &fast_swizzle_rgba_to_bgra_unpremul;
-                            }
-                        }
+                    SkASSERT(8 == encodedInfo.bitsPerComponent());
+                    proc = &swizzle_rgb_to_rgba;
+                    fastProc = &fast_swizzle_rgb_to_rgba;
+                    break;
+                case kBGRA_8888_SkColorType:
+                    if (16 == encodedInfo.bitsPerComponent()) {
+                        proc = &swizzle_rgb16_to_bgra;
                         break;
-                    default:
-                        return nullptr;
-                }
-                break;
-            case SkEncodedInfo::kBGR_Color:
-                switch (dstInfo.colorType()) {
-                    case kBGRA_8888_SkColorType:
-                        proc = &swizzle_rgb_to_rgba;
-                        fastProc = &fast_swizzle_rgb_to_rgba;
-                        break;
-                    case kRGBA_8888_SkColorType:
-                        proc = &swizzle_rgb_to_bgra;
-                        fastProc = &fast_swizzle_rgb_to_bgra;
-                        break;
-                    case kRGB_565_SkColorType:
-                        proc = &swizzle_bgr_to_565;
-                        break;
-                    default:
-                        return nullptr;
-                }
-                break;
-            case SkEncodedInfo::kBGRX_Color:
-                switch (dstInfo.colorType()) {
-                    case kBGRA_8888_SkColorType:
-                        proc = &swizzle_rgb_to_rgba;
-                        break;
-                    case kRGBA_8888_SkColorType:
-                        proc = &swizzle_rgb_to_bgra;
-                        break;
-                    case kRGB_565_SkColorType:
-                        proc = &swizzle_bgr_to_565;
-                        break;
-                    default:
-                        return nullptr;
-                }
-                break;
-            case SkEncodedInfo::kBGRA_Color:
-                switch (dstInfo.colorType()) {
-                    case kBGRA_8888_SkColorType:
-                        if (premultiply) {
-                            if (SkCodec::kYes_ZeroInitialized == zeroInit) {
-                                proc = &SkipLeading8888ZerosThen<swizzle_rgba_to_rgba_premul>;
-                                fastProc = &SkipLeading8888ZerosThen
-                                        <fast_swizzle_rgba_to_rgba_premul>;
-                            } else {
-                                proc = &swizzle_rgba_to_rgba_premul;
-                                fastProc = &fast_swizzle_rgba_to_rgba_premul;
-                            }
-                        } else {
-                            if (SkCodec::kYes_ZeroInitialized == zeroInit) {
-                                proc = &SkipLeading8888ZerosThen<sample4>;
-                                fastProc = &SkipLeading8888ZerosThen<copy>;
-                            } else {
-                                proc = &sample4;
-                                fastProc = &copy;
-                            }
-                        }
-                        break;
-                    case kRGBA_8888_SkColorType:
-                        if (premultiply) {
-                            if (SkCodec::kYes_ZeroInitialized == zeroInit) {
-                                proc = &SkipLeading8888ZerosThen<swizzle_rgba_to_bgra_premul>;
-                                fastProc = &SkipLeading8888ZerosThen
-                                        <fast_swizzle_rgba_to_bgra_premul>;
-                            } else {
-                                proc = &swizzle_rgba_to_bgra_premul;
-                                fastProc = &fast_swizzle_rgba_to_bgra_premul;
-                            }
-                        } else {
-                            if (SkCodec::kYes_ZeroInitialized == zeroInit) {
-                                proc = &SkipLeading8888ZerosThen<swizzle_rgba_to_bgra_unpremul>;
-                                fastProc = &SkipLeading8888ZerosThen
-                                        <fast_swizzle_rgba_to_bgra_unpremul>;
-                            } else {
-                                proc = &swizzle_rgba_to_bgra_unpremul;
-                                fastProc = &fast_swizzle_rgba_to_bgra_unpremul;
-                            }
-                        }
-                        break;
-                    default:
-                        return nullptr;
-                }
-                break;
-            case SkEncodedInfo::kInvertedCMYK_Color:
-                switch (dstInfo.colorType()) {
-                    case kRGBA_8888_SkColorType:
-                        proc = &swizzle_cmyk_to_rgba;
-                        fastProc = &fast_swizzle_cmyk_to_rgba;
-                        break;
-                    case kBGRA_8888_SkColorType:
-                        proc = &swizzle_cmyk_to_bgra;
-                        fastProc = &fast_swizzle_cmyk_to_bgra;
-                        break;
-                    case kRGB_565_SkColorType:
-                        proc = &swizzle_cmyk_to_565;
-                        break;
-                    default:
-                        return nullptr;
-                }
-                break;
-            default:
-                return nullptr;
-        }
+                    }
 
-        // Store bpp in bytes if it is an even multiple, otherwise use bits
-        uint8_t bitsPerPixel = encodedInfo.bitsPerPixel();
-        srcBPP = SkIsAlign8(bitsPerPixel) ? bitsPerPixel / 8 : bitsPerPixel;
+                    SkASSERT(8 == encodedInfo.bitsPerComponent());
+                    proc = &swizzle_rgb_to_bgra;
+                    fastProc = &fast_swizzle_rgb_to_bgra;
+                    break;
+                case kRGB_565_SkColorType:
+                    if (16 == encodedInfo.bitsPerComponent()) {
+                        proc = &swizzle_rgb16_to_565;
+                        break;
+                    }
+
+                    proc = &swizzle_rgb_to_565;
+                    break;
+                default:
+                    return nullptr;
+            }
+            break;
+        case SkEncodedInfo::kRGBA_Color:
+            switch (dstInfo.colorType()) {
+                case kRGBA_8888_SkColorType:
+                    if (16 == encodedInfo.bitsPerComponent()) {
+                        proc = premultiply ? &swizzle_rgba16_to_rgba_premul :
+                                             &swizzle_rgba16_to_rgba_unpremul;
+                        break;
+                    }
+
+                    SkASSERT(8 == encodedInfo.bitsPerComponent());
+                    if (premultiply) {
+                        if (SkCodec::kYes_ZeroInitialized == zeroInit) {
+                            proc = &SkipLeading8888ZerosThen<swizzle_rgba_to_rgba_premul>;
+                            fastProc = &SkipLeading8888ZerosThen
+                                    <fast_swizzle_rgba_to_rgba_premul>;
+                        } else {
+                            proc = &swizzle_rgba_to_rgba_premul;
+                            fastProc = &fast_swizzle_rgba_to_rgba_premul;
+                        }
+                    } else {
+                        if (SkCodec::kYes_ZeroInitialized == zeroInit) {
+                            proc = &SkipLeading8888ZerosThen<sample4>;
+                            fastProc = &SkipLeading8888ZerosThen<copy>;
+                        } else {
+                            proc = &sample4;
+                            fastProc = &copy;
+                        }
+                    }
+                    break;
+                case kBGRA_8888_SkColorType:
+                    if (16 == encodedInfo.bitsPerComponent()) {
+                        proc = premultiply ? &swizzle_rgba16_to_bgra_premul :
+                                             &swizzle_rgba16_to_bgra_unpremul;
+                        break;
+                    }
+
+                    SkASSERT(8 == encodedInfo.bitsPerComponent());
+                    if (premultiply) {
+                        if (SkCodec::kYes_ZeroInitialized == zeroInit) {
+                            proc = &SkipLeading8888ZerosThen<swizzle_rgba_to_bgra_premul>;
+                            fastProc = &SkipLeading8888ZerosThen
+                                    <fast_swizzle_rgba_to_bgra_premul>;
+                        } else {
+                            proc = &swizzle_rgba_to_bgra_premul;
+                            fastProc = &fast_swizzle_rgba_to_bgra_premul;
+                        }
+                    } else {
+                        if (SkCodec::kYes_ZeroInitialized == zeroInit) {
+                            proc = &SkipLeading8888ZerosThen<swizzle_rgba_to_bgra_unpremul>;
+                            fastProc = &SkipLeading8888ZerosThen
+                                    <fast_swizzle_rgba_to_bgra_unpremul>;
+                        } else {
+                            proc = &swizzle_rgba_to_bgra_unpremul;
+                            fastProc = &fast_swizzle_rgba_to_bgra_unpremul;
+                        }
+                    }
+                    break;
+                default:
+                    return nullptr;
+            }
+            break;
+        case SkEncodedInfo::kBGR_Color:
+            switch (dstInfo.colorType()) {
+                case kBGRA_8888_SkColorType:
+                    proc = &swizzle_rgb_to_rgba;
+                    fastProc = &fast_swizzle_rgb_to_rgba;
+                    break;
+                case kRGBA_8888_SkColorType:
+                    proc = &swizzle_rgb_to_bgra;
+                    fastProc = &fast_swizzle_rgb_to_bgra;
+                    break;
+                case kRGB_565_SkColorType:
+                    proc = &swizzle_bgr_to_565;
+                    break;
+                default:
+                    return nullptr;
+            }
+            break;
+        case SkEncodedInfo::kBGRX_Color:
+            switch (dstInfo.colorType()) {
+                case kBGRA_8888_SkColorType:
+                    proc = &swizzle_rgb_to_rgba;
+                    break;
+                case kRGBA_8888_SkColorType:
+                    proc = &swizzle_rgb_to_bgra;
+                    break;
+                case kRGB_565_SkColorType:
+                    proc = &swizzle_bgr_to_565;
+                    break;
+                default:
+                    return nullptr;
+            }
+            break;
+        case SkEncodedInfo::kBGRA_Color:
+            switch (dstInfo.colorType()) {
+                case kBGRA_8888_SkColorType:
+                    if (premultiply) {
+                        if (SkCodec::kYes_ZeroInitialized == zeroInit) {
+                            proc = &SkipLeading8888ZerosThen<swizzle_rgba_to_rgba_premul>;
+                            fastProc = &SkipLeading8888ZerosThen
+                                    <fast_swizzle_rgba_to_rgba_premul>;
+                        } else {
+                            proc = &swizzle_rgba_to_rgba_premul;
+                            fastProc = &fast_swizzle_rgba_to_rgba_premul;
+                        }
+                    } else {
+                        if (SkCodec::kYes_ZeroInitialized == zeroInit) {
+                            proc = &SkipLeading8888ZerosThen<sample4>;
+                            fastProc = &SkipLeading8888ZerosThen<copy>;
+                        } else {
+                            proc = &sample4;
+                            fastProc = &copy;
+                        }
+                    }
+                    break;
+                case kRGBA_8888_SkColorType:
+                    if (premultiply) {
+                        if (SkCodec::kYes_ZeroInitialized == zeroInit) {
+                            proc = &SkipLeading8888ZerosThen<swizzle_rgba_to_bgra_premul>;
+                            fastProc = &SkipLeading8888ZerosThen
+                                    <fast_swizzle_rgba_to_bgra_premul>;
+                        } else {
+                            proc = &swizzle_rgba_to_bgra_premul;
+                            fastProc = &fast_swizzle_rgba_to_bgra_premul;
+                        }
+                    } else {
+                        if (SkCodec::kYes_ZeroInitialized == zeroInit) {
+                            proc = &SkipLeading8888ZerosThen<swizzle_rgba_to_bgra_unpremul>;
+                            fastProc = &SkipLeading8888ZerosThen
+                                    <fast_swizzle_rgba_to_bgra_unpremul>;
+                        } else {
+                            proc = &swizzle_rgba_to_bgra_unpremul;
+                            fastProc = &fast_swizzle_rgba_to_bgra_unpremul;
+                        }
+                    }
+                    break;
+                default:
+                    return nullptr;
+            }
+            break;
+        case SkEncodedInfo::kInvertedCMYK_Color:
+            switch (dstInfo.colorType()) {
+                case kRGBA_8888_SkColorType:
+                    proc = &swizzle_cmyk_to_rgba;
+                    fastProc = &fast_swizzle_cmyk_to_rgba;
+                    break;
+                case kBGRA_8888_SkColorType:
+                    proc = &swizzle_cmyk_to_bgra;
+                    fastProc = &fast_swizzle_cmyk_to_bgra;
+                    break;
+                case kRGB_565_SkColorType:
+                    proc = &swizzle_cmyk_to_565;
+                    break;
+                default:
+                    return nullptr;
+            }
+            break;
+        default:
+            return nullptr;
     }
 
+    // Store bpp in bytes if it is an even multiple, otherwise use bits
+    uint8_t bitsPerPixel = encodedInfo.bitsPerPixel();
+    int srcBPP = SkIsAlign8(bitsPerPixel) ? bitsPerPixel / 8 : bitsPerPixel;
+    int dstBPP = dstInfo.bytesPerPixel();
+    return Make(dstInfo, fastProc, proc, ctable, srcBPP, dstBPP, options, frame);
+}
+
+std::unique_ptr<SkSwizzler> SkSwizzler::Make(const SkImageInfo& dstInfo,
+        RowProc fastProc, RowProc proc, const SkPMColor* ctable, int srcBPP,
+        int dstBPP, const SkCodec::Options& options, const SkIRect* frame) {
     int srcOffset = 0;
     int srcWidth = dstInfo.width();
     int dstOffset = 0;
@@ -1179,8 +1163,8 @@ SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
         srcWidth = frame->width();
     }
 
-    return new SkSwizzler(fastProc, proc, ctable, srcOffset, srcWidth, dstOffset, dstWidth,
-            srcBPP, dstBPP);
+    return std::unique_ptr<SkSwizzler>(new SkSwizzler(fastProc, proc, ctable, srcOffset, srcWidth,
+                                                      dstOffset, dstWidth, srcBPP, dstBPP));
 }
 
 SkSwizzler::SkSwizzler(RowProc fastProc, RowProc proc, const SkPMColor* ctable, int srcOffset,
@@ -1206,10 +1190,33 @@ int SkSwizzler::onSetSampleX(int sampleX) {
     SkASSERT(sampleX > 0);
 
     fSampleX = sampleX;
-    fSrcOffsetUnits = (get_start_coord(sampleX) + fSrcOffset) * fSrcBPP;
     fDstOffsetBytes = (fDstOffset / sampleX) * fDstBPP;
     fSwizzleWidth = get_scaled_dimension(fSrcWidth, sampleX);
     fAllocatedWidth = get_scaled_dimension(fDstWidth, sampleX);
+
+    int frameSampleX = sampleX;
+    if (fSrcWidth < fDstWidth) {
+        // Although SkSampledCodec adjusted sampleX so that it will never be
+        // larger than the width of the image (or subset, if applicable), it
+        // doesn't account for the width of a subset frame (i.e. gif). As a
+        // result, get_start_coord(sampleX) could result in fSrcOffsetUnits
+        // being wider than fSrcWidth. Compute a sampling rate based on the
+        // frame width to ensure that fSrcOffsetUnits is sensible.
+        frameSampleX = fSrcWidth / fSwizzleWidth;
+    }
+    fSrcOffsetUnits = (get_start_coord(frameSampleX) + fSrcOffset) * fSrcBPP;
+
+    if (fDstOffsetBytes > 0) {
+        const size_t dstSwizzleBytes   = fSwizzleWidth   * fDstBPP;
+        const size_t dstAllocatedBytes = fAllocatedWidth * fDstBPP;
+        if (fDstOffsetBytes + dstSwizzleBytes > dstAllocatedBytes) {
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+            SkAndroidFrameworkUtils::SafetyNetLog("118143775");
+#endif
+            SkASSERT(dstSwizzleBytes <= dstAllocatedBytes);
+            fDstOffsetBytes = dstAllocatedBytes - dstSwizzleBytes;
+        }
+    }
 
     // The optimized swizzler functions do not support sampling.  Sampled swizzles
     // are already fast because they skip pixels.  We haven't seen a situation

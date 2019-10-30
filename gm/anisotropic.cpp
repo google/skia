@@ -5,8 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
 
 namespace skiagm {
 
@@ -14,7 +23,7 @@ namespace skiagm {
 class AnisotropicGM : public GM {
 public:
     AnisotropicGM() : fFilterQuality(kHigh_SkFilterQuality) {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
+        this->setBGColor(0xFFCCCCCC);
     }
 
 protected:
@@ -45,7 +54,8 @@ protected:
 
         canvas.translate(kImageSize/2.0f, kImageSize/2.0f);
         for (int i = 0; i < kNumLines; ++i, angle += kAngleStep) {
-            sin = SkScalarSinCos(angle, &cos);
+            sin = SkScalarSin(angle);
+            cos = SkScalarCos(angle);
             canvas.drawLine(cos * kInnerOffset, sin * kInnerOffset,
                             cos * kImageSize/2, sin * kImageSize/2, p);
         }

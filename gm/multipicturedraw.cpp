@@ -5,14 +5,29 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-
-#include "SkColorFilter.h"
-#include "SkMultiPictureDraw.h"
-#include "SkPath.h"
-#include "SkPictureRecorder.h"
-#include "SkSurface.h"
+#include "gm/gm.h"
+#include "include/core/SkBBHFactory.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkMultiPictureDraw.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTArray.h"
+#include "tools/ToolUtils.h"
 
 constexpr SkScalar kRoot3Over2 = 0.86602545f;  // sin(60)
 constexpr SkScalar kRoot3      = 1.73205081f;
@@ -99,7 +114,7 @@ static sk_sp<SkPicture> make_single_layer_hex_plane_picture() {
 
     SkPaint greyFill;
     greyFill.setStyle(SkPaint::kFill_Style);
-    greyFill.setColor(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
+    greyFill.setColor(SK_ColorLTGRAY);
 
     SkPaint stroke;
     stroke.setStyle(SkPaint::kStroke_Style);
@@ -154,7 +169,7 @@ static sk_sp<SkPicture> make_tri_picture() {
 
     SkPaint fill;
     fill.setStyle(SkPaint::kFill_Style);
-    fill.setColor(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
+    fill.setColor(SK_ColorLTGRAY);
 
     SkPaint stroke;
     stroke.setStyle(SkPaint::kStroke_Style);
@@ -241,7 +256,7 @@ static sk_sp<SkPicture> make_sierpinski_picture() {
 static sk_sp<SkSurface> create_compat_surface(SkCanvas* canvas, int width, int height) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
 
-    return sk_tool_utils::makeSurface(canvas, info);
+    return ToolUtils::makeSurface(canvas, info);
 }
 
 // This class stores the information required to compose all the result
@@ -409,7 +424,7 @@ static void tiled(SkCanvas* finalCanvas, SkMultiPictureDraw* mpd,
             step.fY = SkIntToScalar(y*kTileHeight);
             step.fPaint = new SkPaint;
             step.fPaint->setColorFilter(
-                SkColorFilter::MakeModeFilter(colors[x][y], SkBlendMode::kModulate));
+                SkColorFilters::Blend(colors[x][y], SkBlendMode::kModulate));
 
             step.fSurf = create_compat_surface(finalCanvas, kTileWidth, kTileHeight);
 
@@ -480,7 +495,7 @@ namespace skiagm {
 
         void onOnceBeforeDraw() override {
             fPictures[0] = make_hex_plane_picture(SK_ColorWHITE).release();
-            fPictures[1] = make_hex_plane_picture(sk_tool_utils::color_to_565(SK_ColorGRAY)).release();
+            fPictures[1] = make_hex_plane_picture(SK_ColorGRAY).release();
             fPictures[2] = make_sierpinski_picture().release();
             fPictures[3] = make_single_layer_hex_plane_picture().release();
         }

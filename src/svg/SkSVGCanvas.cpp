@@ -5,20 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "SkSVGCanvas.h"
-#include "SkSVGDevice.h"
-#include "SkMakeUnique.h"
-#include "SkXMLWriter.h"
+#include "include/svg/SkSVGCanvas.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/svg/SkSVGDevice.h"
+#include "src/xml/SkXMLWriter.h"
 
-std::unique_ptr<SkCanvas> SkSVGCanvas::Make(const SkRect& bounds, SkXMLWriter* writer) {
+std::unique_ptr<SkCanvas> SkSVGCanvas::Make(const SkRect& bounds, SkWStream* writer,
+                                            uint32_t flags) {
     // TODO: pass full bounds to the device
-    SkISize size = bounds.roundOut().size();
-    sk_sp<SkBaseDevice> device(SkSVGDevice::Create(size, writer));
+    const auto size = bounds.roundOut().size();
+    const auto xml_flags = (flags & kNoPrettyXML_Flag) ? SkToU32(SkXMLStreamWriter::kNoPretty_Flag)
+                                                       : 0;
 
-    return skstd::make_unique<SkCanvas>(device);
-}
+    auto svgDevice = SkSVGDevice::Make(size,
+                                       skstd::make_unique<SkXMLStreamWriter>(writer, xml_flags),
+                                       flags);
 
-std::unique_ptr<SkCanvas> SkSVGCanvas::Make(const SkRect& bounds, SkWStream* writer) {
-    SkXMLStreamWriter xmlWriter(writer);
-    return Make(bounds, &xmlWriter);
+    return svgDevice ? skstd::make_unique<SkCanvas>(std::move(svgDevice))
+                     : nullptr;
 }

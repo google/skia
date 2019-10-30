@@ -8,9 +8,9 @@
 #ifndef SkSVGGradient_DEFINED
 #define SkSVGGradient_DEFINED
 
-#include "SkShader.h"
-#include "SkSVGHiddenContainer.h"
-#include "SkSVGTypes.h"
+#include "experimental/svg/model/SkSVGHiddenContainer.h"
+#include "experimental/svg/model/SkSVGTypes.h"
+#include "include/core/SkShader.h"
 
 class SkMatrix;
 class SkSVGRenderContext;
@@ -32,7 +32,7 @@ protected:
 
     virtual sk_sp<SkShader> onMakeShader(const SkSVGRenderContext&,
                                          const SkColor*, const SkScalar*, int count,
-                                         SkShader::TileMode, const SkMatrix& localMatrix) const = 0;
+                                         SkTileMode, const SkMatrix& localMatrix) const = 0;
 
 private:
     using StopPositionArray = SkSTArray<2, SkScalar, true>;

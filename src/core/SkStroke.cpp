@@ -5,10 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkStrokerPriv.h"
-#include "SkGeometry.h"
-#include "SkPathPriv.h"
-#include "SkPointPriv.h"
+#include "src/core/SkStrokerPriv.h"
+
+#include "include/private/SkMacros.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkPathPriv.h"
+#include "src/core/SkPointPriv.h"
+
+#include <utility>
 
 enum {
     kTangent_RecursiveLimit,
@@ -165,7 +170,7 @@ private:
     SkStrokerPriv::CapProc  fCapper;
     SkStrokerPriv::JoinProc fJoiner;
 
-    SkPath  fInner, fOuter; // outer is our working answer, inner is temp
+    SkPath  fInner, fOuter, fCusper; // outer is our working answer, inner is temp
 
     enum StrokeType {
         kOuter_StrokeType = 1,      // use sign-opposite values later to flip perpendicular axis
@@ -321,6 +326,10 @@ void SkPathStroker::finishContour(bool close, bool currIsLine) {
             fCapper(&fOuter, fFirstPt, -fFirstNormal, fFirstOuterPt,
                     fPrevIsLine ? &fInner : nullptr);
             fOuter.close();
+        }
+        if (!fCusper.isEmpty()) {
+            fOuter.addPath(fCusper);
+            fCusper.rewind();
         }
     }
     // since we may re-use fInner, we rewind instead of reset, to save on
@@ -490,17 +499,18 @@ void SkPathStroker::init(StrokeType strokeType, SkQuadConstruct* quadPts, SkScal
 // returns the distance squared from the point to the line
 static SkScalar pt_to_line(const SkPoint& pt, const SkPoint& lineStart, const SkPoint& lineEnd) {
     SkVector dxy = lineEnd - lineStart;
-    if (degenerate_vector(dxy)) {
-        return SkPointPriv::DistanceToSqd(pt, lineStart);
-    }
     SkVector ab0 = pt - lineStart;
     SkScalar numer = dxy.dot(ab0);
     SkScalar denom = dxy.dot(dxy);
-    SkScalar t = numer / denom;
-    SkPoint hit;
-    hit.fX = lineStart.fX * (1 - t) + lineEnd.fX * t;
-    hit.fY = lineStart.fY * (1 - t) + lineEnd.fY * t;
-    return SkPointPriv::DistanceToSqd(hit, pt);
+    SkScalar t = sk_ieee_float_divide(numer, denom);
+    if (t >= 0 && t <= 1) {
+        SkPoint hit;
+        hit.fX = lineStart.fX * (1 - t) + lineEnd.fX * t;
+        hit.fY = lineStart.fY * (1 - t) + lineEnd.fY * t;
+        return SkPointPriv::DistanceToSqd(hit, pt);
+    } else {
+        return SkPointPriv::DistanceToSqd(pt, lineStart);
+    }
 }
 
 /*  Given a cubic, determine if all four points are in a line.
@@ -582,7 +592,8 @@ static bool quad_in_line(const SkPoint quad[3]) {
     SkASSERT(outer2 >= 1 && outer2 <= 2);
     SkASSERT(outer1 < outer2);
     int mid = outer1 ^ outer2 ^ 3;
-    SkScalar lineSlop =  ptMax * ptMax * 0.00001f;  // this multiplier is pulled out of the air
+    const float kCurvatureSlop = 0.000005f;  // this multiplier is pulled out of the air
+    SkScalar lineSlop =  ptMax * ptMax * kCurvatureSlop;
     return pt_to_line(quad[mid], quad[outer1], quad[outer2]) <= lineSlop;
 }
 
@@ -607,13 +618,13 @@ SkPathStroker::ReductionType SkPathStroker::CheckCubicLinear(const SkPoint cubic
     }
     SkScalar tValues[3];
     int count = SkFindCubicMaxCurvature(cubic, tValues);
-    if (count == 0) {
-        return kLine_ReductionType;
-    }
     int rCount = 0;
     // Now loop over the t-values, and reject any that evaluate to either end-point
     for (int index = 0; index < count; ++index) {
         SkScalar t = tValues[index];
+        if (0 >= t || t >= 1) {
+            continue;
+        }
         SkEvalCubicAt(cubic, t, &reduction[rCount], nullptr, nullptr);
         if (reduction[rCount] != cubic[0] && reduction[rCount] != cubic[3]) {
             ++rCount;
@@ -642,20 +653,12 @@ SkPathStroker::ReductionType SkPathStroker::CheckConicLinear(const SkConic& coni
     if (!conic_in_line(conic)) {
         return kQuad_ReductionType;
     }
-#if 0   // once findMaxCurvature is implemented, this will be a better solution
-    SkScalar t;
-    if (!conic.findMaxCurvature(&t) || 0 == t) {
-        return kLine_ReductionType;
-    }
-#else  // but for now, use extrema instead
-    SkScalar xT = 0, yT = 0;
-    (void) conic.findXExtrema(&xT);
-    (void) conic.findYExtrema(&yT);
-    SkScalar t = SkTMax(xT, yT);
+    // SkFindConicMaxCurvature would be a better solution, once we know how to
+    // implement it. Quad curvature is a reasonable substitute
+    SkScalar t = SkFindQuadMaxCurvature(conic.fPts);
     if (0 == t) {
         return kLine_ReductionType;
     }
-#endif
     conic.evalAt(t, reduction, nullptr);
     return kDegenerate_ReductionType;
 }
@@ -674,7 +677,7 @@ SkPathStroker::ReductionType SkPathStroker::CheckQuadLinear(const SkPoint quad[3
         return kQuad_ReductionType;
     }
     SkScalar t = SkFindQuadMaxCurvature(quad);
-    if (0 == t) {
+    if (0 == t || 1 == t) {
         return kLine_ReductionType;
     }
     *reduction = SkEvalQuadAt(quad, t);
@@ -762,13 +765,8 @@ void SkPathStroker::quadTo(const SkPoint& pt1, const SkPoint& pt2) {
 // compute the perpendicular point and its tangent.
 void SkPathStroker::setRayPts(const SkPoint& tPt, SkVector* dxy, SkPoint* onPt,
         SkPoint* tangent) const {
-    SkPoint oldDxy = *dxy;
-    if (!dxy->setLength(fRadius)) {  // consider moving double logic into SkPoint::setLength
-        double xx = oldDxy.fX;
-        double yy = oldDxy.fY;
-        double dscale = fRadius / sqrt(xx * xx + yy * yy);
-        dxy->fX = SkDoubleToScalar(xx * dscale);
-        dxy->fY = SkDoubleToScalar(yy * dscale);
+    if (!dxy->setLength(fRadius)) {
+        dxy->set(fRadius, 0);
     }
     SkScalar axisFlip = SkIntToScalar(fStrokeType);  // go opposite ways for outer, inner
     onPt->fX = tPt.fX + axisFlip * dxy->fY;
@@ -980,7 +978,8 @@ static bool sharp_angle(const SkPoint quad[3]) {
     SkScalar smallerLen = SkPointPriv::LengthSqd(smaller);
     SkScalar largerLen = SkPointPriv::LengthSqd(larger);
     if (smallerLen > largerLen) {
-        SkTSwap(smaller, larger);
+        using std::swap;
+        swap(smaller, larger);
         largerLen = smallerLen;
     }
     if (!smaller.setLength(largerLen)) {
@@ -1153,6 +1152,7 @@ bool SkPathStroker::cubicStroke(const SkPoint cubic[4], SkQuadConstruct* quadPts
     SkQuadConstruct half;
     if (!half.initWithStart(quadPts)) {
         addDegenerateLine(quadPts);
+        --fRecursionDepth;
         return true;
     }
     if (!this->cubicStroke(cubic, &half)) {
@@ -1160,6 +1160,7 @@ bool SkPathStroker::cubicStroke(const SkPoint cubic[4], SkQuadConstruct* quadPts
     }
     if (!half.initWithEnd(quadPts)) {
         addDegenerateLine(quadPts);
+        --fRecursionDepth;
         return true;
     }
     if (!this->cubicStroke(cubic, &half)) {
@@ -1282,6 +1283,12 @@ void SkPathStroker::cubicTo(const SkPoint& pt1, const SkPoint& pt2,
         (void) this->cubicStroke(cubic, &quadPts);
         lastT = nextT;
     }
+    SkScalar cusp = SkFindCubicCusp(cubic);
+    if (cusp > 0) {
+        SkPoint cuspLoc;
+        SkEvalCubicAt(cubic, cusp, &cuspLoc, nullptr, nullptr);
+        fCusper.addCircle(cuspLoc.fX, cuspLoc.fY, fRadius);
+    }
     // emit the join even if one stroke succeeded but the last one failed
     // this avoids reversing an inner stroke with a partial path followed by another moveto
     this->setCubicEndNormal(cubic, normalAB, unitAB, &normalCD, &unitCD);
@@ -1292,7 +1299,7 @@ void SkPathStroker::cubicTo(const SkPoint& pt1, const SkPoint& pt2,
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkPaintDefaults.h"
+#include "src/core/SkPaintDefaults.h"
 
 SkStroke::SkStroke() {
     fWidth      = SK_Scalar1;
@@ -1408,7 +1415,7 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
 
     for (;;) {
         SkPoint  pts[4];
-        switch (iter.next(pts, false)) {
+        switch (iter.next(pts)) {
             case SkPath::kMove_Verb:
                 stroker.moveTo(pts[0]);
                 break;

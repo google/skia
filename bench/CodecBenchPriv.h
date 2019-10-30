@@ -8,7 +8,7 @@
 #ifndef CodecBenchPriv_DEFINED
 #define CodecBenchPriv_DEFINED
 
-#include "SkImageInfo.h"
+#include "include/core/SkImageInfo.h"
 
 inline const char* color_type_to_str(SkColorType colorType) {
     switch (colorType) {

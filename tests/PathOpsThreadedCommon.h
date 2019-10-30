@@ -7,11 +7,11 @@
 #ifndef PathOpsThreadedCommon_DEFINED
 #define PathOpsThreadedCommon_DEFINED
 
-#include "SkBitmap.h"
-#include "SkGraphics.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkTDArray.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkPath.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/private/SkTDArray.h"
 
 #include <string>
 
@@ -55,10 +55,10 @@ class PathOpsThreadedRunnable {
 public:
     PathOpsThreadedRunnable(void (*testFun)(PathOpsThreadState*), int a, int b, int c, int d,
             PathOpsThreadedTestRunner* runner) {
-        fState.fA = a;
-        fState.fB = b;
-        fState.fC = c;
-        fState.fD = d;
+        fState.fA = (a & 0xFF);
+        fState.fB = (b & 0xFF);
+        fState.fC = (c & 0xFF);
+        fState.fD = (d & 0xFF);
         fState.fReporter = runner->fReporter;
         fTestFun = testFun;
     }

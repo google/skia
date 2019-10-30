@@ -5,14 +5,28 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkSurface.h"
-#include "SkBlurImageFilter.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkImageFilters.h"
+#include "tools/ToolUtils.h"
+
+#include <initializer_list>
+#include <utility>
 
 static sk_sp<SkImage> make_image(SkCanvas* canvas, int direction) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(250, 200);
-    auto surface = sk_tool_utils::makeSurface(canvas, info);
+    auto        surface = ToolUtils::makeSurface(canvas, info);
     SkCanvas* c = surface->getCanvas();
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -28,7 +42,7 @@ static sk_sp<SkImage> make_image(SkCanvas* canvas, int direction) {
         for (int x = 0; x < info.width(); x += width) {
             paint.setColor(colors[x/width % 5]);
             if (yDirection) {
-                paint.setAlpha(127);
+                paint.setAlphaf(0.5f);
             }
             c->drawRect(SkRect::MakeXYWH(x, 0, width, info.height()), paint);
         }
@@ -38,7 +52,7 @@ static sk_sp<SkImage> make_image(SkCanvas* canvas, int direction) {
         for (int y = 0; y < info.height(); y += width) {
             paint.setColor(colors[y/width % 5]);
             if (xDirection) {
-                paint.setAlpha(127);
+                paint.setAlphaf(0.5f);
             }
             c->drawRect(SkRect::MakeXYWH(0, y, info.width(), width), paint);
         }
@@ -62,7 +76,7 @@ namespace skiagm {
 class ImageBlurRepeatModeGM : public GM {
 public:
     ImageBlurRepeatModeGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
+        this->setBGColor(0xFFCCCCCC);
     }
 
 protected:
@@ -87,18 +101,15 @@ protected:
         for (auto sigma: { 0.6f, 3.0f, 8.0f, 20.0f }) {
             canvas->save();
             sk_sp<SkImageFilter> filter(
-                  SkBlurImageFilter::Make(sigma, 0.0f, nullptr, nullptr,
-                                          SkBlurImageFilter::kRepeat_TileMode));
+                  SkImageFilters::Blur(sigma, 0.0f, SkTileMode::kRepeat, nullptr));
             draw_image(canvas, image[0], std::move(filter));
             canvas->translate(image[0]->width() + 20, 0);
 
-            filter = SkBlurImageFilter::Make(0.0f, sigma, nullptr, nullptr,
-                                             SkBlurImageFilter::kRepeat_TileMode);
+            filter = SkImageFilters::Blur(0.0f, sigma, SkTileMode::kRepeat, nullptr);
             draw_image(canvas, image[1], std::move(filter));
             canvas->translate(image[1]->width() + 20, 0);
 
-            filter = SkBlurImageFilter::Make(sigma, sigma, nullptr, nullptr,
-                                             SkBlurImageFilter::kRepeat_TileMode);
+            filter = SkImageFilters::Blur(sigma, sigma, SkTileMode::kRepeat, nullptr);
             draw_image(canvas, image[2], std::move(filter));
             canvas->translate(image[2]->width() + 20, 0);
 

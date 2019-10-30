@@ -66,7 +66,9 @@ typedef enum {
     RGBA_1010102_SK_COLORTYPE,
     RGB_101010X_SK_COLORTYPE,
     GRAY_8_SK_COLORTYPE,
+    RGBA_F16_NORM_SK_COLORTYPE,
     RGBA_F16_SK_COLORTYPE,
+    RGBA_F32_SK_COLORTYPE,
 } sk_colortype_t;
 
 typedef enum {
@@ -217,6 +219,7 @@ typedef struct sk_maskfilter_t sk_maskfilter_t;
     draw geometries, text and bitmaps.
 */
 typedef struct sk_paint_t sk_paint_t;
+typedef struct sk_font_t sk_font_t;
 /**
     A sk_path_t encapsulates compound (multiple contour) geometric
     paths consisting of straight line segments, quadratic curves, and
@@ -379,12 +382,6 @@ typedef struct sk_wstream_dynamicmemorystream_t sk_wstream_dynamicmemorystream_t
 typedef struct sk_document_t sk_document_t;
 
 typedef enum {
-    UTF8_ENCODING,
-    UTF16_ENCODING,
-    UTF32_ENCODING
-} sk_encoding_t;
-
-typedef enum {
     POINTS_SK_POINT_MODE,
     LINES_SK_POINT_MODE,
     POLYGON_SK_POINT_MODE
@@ -515,17 +512,11 @@ typedef enum {
     NO_SK_CODEC_ZERO_INITIALIZED,
 } sk_codec_zero_initialized_t;
 
-typedef enum {
-    RESPECT_SK_TRANSFER_FUNCTION_BEHAVIOR,
-    IGNORE_SK_TRANSFER_FUNCTION_BEHAVIOR,
-} sk_transfer_function_behavior_t;
-
 typedef struct {
     sk_codec_zero_initialized_t fZeroInitialized;
     sk_irect_t* fSubset;
     int fFrameIndex;
     int fPriorFrame;
-    sk_transfer_function_behavior_t fPremulBehavior;
 } sk_codec_options_t;
 
 typedef enum {
@@ -588,6 +579,7 @@ typedef enum {
     CLAMP_SK_SHADER_TILEMODE,
     REPEAT_SK_SHADER_TILEMODE,
     MIRROR_SK_SHADER_TILEMODE,
+    DECAL_SK_SHADER_TILEMODE,
 } sk_shader_tilemode_t;
 
 typedef enum {
@@ -614,11 +606,17 @@ typedef enum {
 } sk_paint_style_t;
 
 typedef enum {
-    NO_HINTING_SK_PAINT_HINTING,
-    SLIGHT_HINTING_SK_PAINT_HINTING,
-    NORMAL_HINTING_SK_PAINT_HINTING,
-    FULL_HINTING_SK_PAINT_HINTING,
-} sk_paint_hinting_t;
+    NONE_SK_FONT_HINTING,
+    SLIGHT_SK_FONT_HINTING,
+    NORMAL_SK_FONT_HINTING,
+    FULL_SK_FONT_HINTING,
+} sk_font_hinting_t;
+
+typedef enum {
+    ALIAS_SK_FONT_EDGING,
+    ANTIALIAS_SK_FONT_EDGING,
+    SUBPIXEL_ANTIALIAS_SK_FONT_EDGING,
+} sk_font_edging_t;
 
 typedef struct sk_colortable_t sk_colortable_t;
 
@@ -632,19 +630,32 @@ typedef enum {
 typedef enum {
     UNKNOWN_GR_PIXEL_CONFIG,
     ALPHA_8_GR_PIXEL_CONFIG,
+    ALPHA_8_AS_ALPHA_GR_PIXEL_CONFIG,
+    ALPHA_8_AS_RED_GR_PIXEL_CONFIG,
     GRAY_8_GR_PIXEL_CONFIG,
+    GRAY_8_AS_LUM_GR_PIXEL_CONFIG,
+    GRAY_8_AS_RED_GR_PIXEL_CONFIG,
     RGB_565_GR_PIXEL_CONFIG,
     RGBA_4444_GR_PIXEL_CONFIG,
     RGBA_8888_GR_PIXEL_CONFIG,
     RGB_888_GR_PIXEL_CONFIG,
+    RGB_888X_GR_PIXEL_CONFIG,
+    RG_88_GR_PIXEL_CONFIG,
     BGRA_8888_GR_PIXEL_CONFIG,
     SRGBA_8888_GR_PIXEL_CONFIG,
-    SBGRA_8888_GR_PIXEL_CONFIG,
     RGBA_1010102_GR_PIXEL_CONFIG,
-    RGBA_FLOAT_GR_PIXEL_CONFIG,
-    RG_FLOAT_GR_PIXEL_CONFIG,
     ALPHA_HALF_GR_PIXEL_CONFIG,
+    ALPHA_HALF_AS_LUM_GR_PIXEL_CONFIG,
+    ALPHA_HALF_AS_RED_GR_PIXEL_CONFIG,
     RGBA_HALF_GR_PIXEL_CONFIG,
+    RGBA_HALF_CLAMPED_GR_PIXEL_CONFIG,
+    RGB_ETC1_GR_PIXEL_CONFIG,
+    ALPHA_16_GR_PIXEL_CONFIG,
+    RG_1616_GR_PIXEL_CONFIG,
+
+    // Experimental (for Y416 and mutant P016/P010)
+    RGBA_16161616_GR_PIXEL_CONFIG,
+    RG_HALF_GR_PIXEL_CONFIG,
 } gr_pixelconfig_t;
 
 typedef enum {
@@ -676,6 +687,7 @@ typedef struct gr_context_t gr_context_t;
 
 typedef enum {
     METAL_GR_BACKEND,
+    DAWN_GR_BACKEND,
     OPENGL_GR_BACKEND,
     VULKAN_GR_BACKEND,
 } gr_backend_t;
@@ -781,12 +793,6 @@ typedef struct {
     int                 fEncodingQuality;
 } sk_document_pdf_metadata_t;
 
-typedef enum {
-    SRGB_SK_COLORSPACE_NAMED,
-    ADOBE_RGB_SK_COLORSPACE_NAMED,
-    SRGB_LINEAR_SK_COLORSPACE_NAMED,
-} sk_colorspace_named_t;
-
 typedef struct {
     sk_colorspace_t* colorspace;
     int32_t          width;
@@ -825,39 +831,18 @@ typedef enum {
 typedef struct sk_vertices_t sk_vertices_t;
 
 typedef enum {
-    LINEAR_SK_GAMMA_NAMED,
-    SRGB_SK_GAMMA_NAMED,
-    TWO_DOT_TWO_CURVE_SK_GAMMA_NAMED,
-    NON_STANDARD_SK_GAMMA_NAMED,
-} sk_gamma_named_t;
+    SRGB_SK_NAMED_TRANSFER_FN,
+    TWO_DOT_TWO_SK_NAMED_TRANSFER_FN,
+    LINEAR_SK_NAMED_TRANSFER_FN,
+    REC2020_SK_NAMED_TRANSFER_FN,
+} sk_named_transfer_fn_t;
 
 typedef enum {
-    RGB_SK_COLORSPACE_TYPE,
-    CMYK_SK_COLORSPACE_TYPE,
-    GRAY_SK_COLORSPACE_TYPE,
-} sk_colorspace_type_t;
-
-typedef enum {
-    LINEAR_SK_COLORSPACE_RENDER_TARGET_GAMMA,
-    SRGB_SK_COLORSPACE_RENDER_TARGET_GAMMA,
-} sk_colorspace_render_target_gamma_t;
-
-typedef enum {
-    SRGB_SK_COLORSPACE_GAMUT,
-    ADOBE_RGB_SK_COLORSPACE_GAMUT,
-    DCIP3_D65_SK_COLORSPACE_GAMUT,
-    REC2020_SK_COLORSPACE_GAMUT,
-} sk_colorspace_gamut_t;
-
-typedef struct {
-    float fG;
-    float fA;
-    float fB;
-    float fC;
-    float fD;
-    float fE;
-    float fF;
-} sk_colorspace_transfer_fn_t;
+    SRGB_SK_NAMED_GAMUT,
+    ADOBE_RGB_SK_NAMED_GAMUT,
+    DCIP3_D65_SK_NAMED_GAMUT,
+    REC2020_SK_NAMED_GAMUT,
+} sk_named_gamut_t;
 
 typedef struct {
     float fRX;
@@ -868,7 +853,7 @@ typedef struct {
     float fBY;
     float fWX;
     float fWY;
-} sk_colorspaceprimaries_t;
+} sk_colorspace_primaries_t;
 
 typedef enum {
     NO_INVERT_SK_HIGH_CONTRAST_CONFIG_INVERT_STYLE,
@@ -899,7 +884,6 @@ typedef enum {
 typedef struct {
     sk_pngencoder_filterflags_t fFilterFlags;
     int fZLibLevel;
-    sk_transfer_function_behavior_t fUnpremulBehavior;
     void* fComments;
 } sk_pngencoder_options_t;
 
@@ -918,7 +902,6 @@ typedef struct {
     int fQuality;
     sk_jpegencoder_downsample_t fDownsample;
     sk_jpegencoder_alphaoption_t fAlphaOption;
-    sk_transfer_function_behavior_t fBlendBehavior;
 } sk_jpegencoder_options_t;
 
 typedef enum {
@@ -929,8 +912,8 @@ typedef enum {
 typedef struct {
     sk_webpencoder_compression_t fCompression;
     float fQuality;
-    sk_transfer_function_behavior_t fUnpremulBehavior;
 } sk_webpencoder_options_t;
+
 typedef struct sk_rrect_t sk_rrect_t;
 
 typedef enum {

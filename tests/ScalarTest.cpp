@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkFloatingPoint.h"
-#include "SkMath.h"
-#include "SkPoint.h"
-#include "SkRandom.h"
-#include "SkRect.h"
-#include "Test.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/utils/SkRandom.h"
+#include "tests/Test.h"
 
 static void test_roundtoint(skiatest::Reporter* reporter) {
     SkScalar x = 0.49999997f;
@@ -68,7 +68,7 @@ static void test_isRectFinite(skiatest::Reporter* reporter) {
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gSets); ++i) {
         SkRect r;
-        r.set(gSets[i].fPts, gSets[i].fCount);
+        r.setBounds(gSets[i].fPts, gSets[i].fCount);
         bool rectIsFinite = !r.isEmpty();
         REPORTER_ASSERT(reporter, gSets[i].fIsFinite == rectIsFinite);
     }

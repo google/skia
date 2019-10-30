@@ -7,8 +7,8 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    compile 'com.android.support:support-v13:23.3.0'
-    compile 'com.android.support:appcompat-v7:23.3.0'
+    implementation 'com.android.support:support-v13:23.3.0'
+    implementation 'com.android.support:appcompat-v7:23.3.0'
 }
 
 android {
@@ -22,6 +22,7 @@ android {
         versionName "1.0"
         signingConfig signingConfigs.debug
     }
+    flavorDimensions "base"
     sourceSets.main.jni.srcDirs = [] //disable automatic ndk-build call
     sourceSets.main.jniLibs.srcDir "src/main/libs"
     productFlavors { universal{}; arm {}; arm64 {}; x86 {}; x64 {}; arm64vulkan{}; }

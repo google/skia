@@ -6,12 +6,14 @@
  * found in the LICENSE file.
  */
 
+#define EGL_EGL_PROTOTYPES 1
+
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
-#include "../GLWindowContext.h"
-#include "WindowContextFactory_win.h"
-#include "gl/GrGLAssembleInterface.h"
-#include "gl/GrGLDefines.h"
+#include "include/gpu/gl/GrGLAssembleInterface.h"
+#include "src/gpu/gl/GrGLDefines.h"
+#include "tools/sk_app/GLWindowContext.h"
+#include "tools/sk_app/win/WindowContextFactory_win.h"
 
 using sk_app::GLWindowContext;
 using sk_app::DisplayParams;
@@ -165,10 +167,9 @@ void ANGLEGLWindowContext_win::onSwapBuffers() {
 namespace sk_app {
 namespace window_context_factory {
 
-WindowContext* NewANGLEForWin(HWND wnd, const DisplayParams& params) {
-    ANGLEGLWindowContext_win* ctx = new ANGLEGLWindowContext_win(wnd, params);
+std::unique_ptr<WindowContext> MakeANGLEForWin(HWND wnd, const DisplayParams& params) {
+    std::unique_ptr<WindowContext> ctx(new ANGLEGLWindowContext_win(wnd, params));
     if (!ctx->isValid()) {
-        delete ctx;
         return nullptr;
     }
     return ctx;

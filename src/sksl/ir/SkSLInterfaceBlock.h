@@ -8,9 +8,9 @@
 #ifndef SKSL_INTERFACEBLOCK
 #define SKSL_INTERFACEBLOCK
 
-#include "SkSLProgramElement.h"
-#include "SkSLSymbolTable.h"
-#include "SkSLVarDeclarations.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLVarDeclarations.h"
 
 namespace SkSL {
 
@@ -34,6 +34,17 @@ struct InterfaceBlock : public ProgramElement {
     , fInstanceName(std::move(instanceName))
     , fSizes(std::move(sizes))
     , fTypeOwner(typeOwner) {}
+
+    std::unique_ptr<ProgramElement> clone() const override {
+        std::vector<std::unique_ptr<Expression>> sizesClone;
+        for (const auto& s : fSizes) {
+            sizesClone.push_back(s->clone());
+        }
+        return std::unique_ptr<ProgramElement>(new InterfaceBlock(fOffset, &fVariable, fTypeName,
+                                                                  fInstanceName,
+                                                                  std::move(sizesClone),
+                                                                  fTypeOwner));
+    }
 
     String description() const override {
         String result = fVariable.fModifiers.description() + fTypeName + " {\n";

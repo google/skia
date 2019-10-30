@@ -4,11 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "PathOpsExtendedTest.h"
-#include "PathOpsThreadedCommon.h"
-#include "SkString.h"
+#include "include/core/SkString.h"
+#include "tests/PathOpsDebug.h"
+#include "tests/PathOpsExtendedTest.h"
+#include "tests/PathOpsThreadedCommon.h"
+
+#include <atomic>
 
 static int loopNo = 158;
+static std::atomic<int> gCubicsTestNo{0};
 
 static void testOpCubicsMain(PathOpsThreadState* data) {
 #if DEBUG_SHOW_TEST_NAME
@@ -58,12 +62,15 @@ static void testOpCubicsMain(PathOpsThreadState* data) {
                 pathStr.appendf("}\n");
                 state.outputProgress(pathStr.c_str(), (SkPathOp) op);
             }
-            if (!testPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, "cubics")) {
+            SkString testName;
+            testName.printf("thread_cubics%d", ++gCubicsTestNo);
+            if (!testPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, testName.c_str())) {
                 if (state.fReporter->verbose()) {
                     ++loopNo;
                     goto skipToNext;
                 }
             }
+            if (PathOpsDebug::gCheckForDuplicateNames) return;
         }
     }
                     }

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkTLazy.h"
-#include "SkSVGRenderContext.h"
-#include "SkSVGPoly.h"
-#include "SkSVGValue.h"
+#include "experimental/svg/model/SkSVGPoly.h"
+#include "experimental/svg/model/SkSVGRenderContext.h"
+#include "experimental/svg/model/SkSVGValue.h"
+#include "include/core/SkCanvas.h"
+#include "src/core/SkTLazy.h"
 
 SkSVGPoly::SkSVGPoly(SkSVGTag t) : INHERITED(t) {}
 

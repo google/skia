@@ -7,14 +7,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkPath.h"
-#include "SkPathMeasure.h"
-#include "SkPathOps.h"
-#include "SkParsePath.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/utils/SkParsePath.h"
 
-#include "sk_path.h"
+#include "include/c/sk_path.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
 void sk_path_rmove_to(sk_path_t* cpath, float dx, float dy) {
     AsPath(cpath)->rMoveTo(dx, dy);

@@ -8,11 +8,12 @@
 #ifndef GrVkImageView_DEFINED
 #define GrVkImageView_DEFINED
 
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
+#include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/vk/GrVkResource.h"
 
-#include "GrVkResource.h"
-
-#include "vk/GrVkDefines.h"
+class GrVkSamplerYcbcrConversion;
+struct GrVkYcbcrConversionInfo;
 
 class GrVkImageView : public GrVkResource {
 public:
@@ -21,8 +22,9 @@ public:
         kStencil_Type
     };
 
-    static const GrVkImageView* Create(const GrVkGpu* gpu, VkImage image, VkFormat format,
-                                       Type viewType, uint32_t miplevels);
+    static const GrVkImageView* Create(GrVkGpu* gpu, VkImage image, VkFormat format,
+                                       Type viewType, uint32_t miplevels,
+                                       const GrVkYcbcrConversionInfo& ycbcrInfo);
 
     VkImageView imageView() const { return fImageView; }
 
@@ -33,14 +35,17 @@ public:
 #endif
 
 private:
-    GrVkImageView(VkImageView imageView) : INHERITED(), fImageView(imageView) {}
+    GrVkImageView(VkImageView imageView, GrVkSamplerYcbcrConversion* ycbcrConversion)
+            : INHERITED(), fImageView(imageView), fYcbcrConversion(ycbcrConversion) {}
 
     GrVkImageView(const GrVkImageView&);
     GrVkImageView& operator=(const GrVkImageView&);
 
-    void freeGPUData(const GrVkGpu* gpu) const override;
+    void freeGPUData(GrVkGpu* gpu) const override;
+    void abandonGPUData() const override;
 
     VkImageView  fImageView;
+    GrVkSamplerYcbcrConversion* fYcbcrConversion;
 
     typedef GrVkResource INHERITED;
 };

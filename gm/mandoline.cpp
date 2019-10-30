@@ -5,12 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPoint.h"
-#include "SkGeometry.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkGeometry.h"
+
 #include <math.h>
 
 namespace skiagm {
@@ -42,8 +49,6 @@ public:
         }
         float T = this->chooseChopT(numSubdivisions);
         if (0 == T) {
-            fPath.lineTo(fLastPt);
-            this->sliceLine(pt, numSubdivisions - 1);
             return;
         }
         SkPoint midpt = fLastPt * (1 - T) + pt * T;
@@ -62,8 +67,6 @@ public:
         }
         float T = this->chooseChopT(numSubdivisions);
         if (0 == T) {
-            fPath.quadTo(fLastPt, fLastPt);
-            this->sliceQuadratic(p1, p2, numSubdivisions - 1);
             return;
         }
         SkPoint P[3] = {fLastPt, p1, p2}, PP[5];
@@ -84,8 +87,6 @@ public:
         }
         float T = this->chooseChopT(numSubdivisions);
         if (0 == T) {
-            fPath.cubicTo(fLastPt, fLastPt, fLastPt);
-            this->sliceCubic(p1, p2, p3, numSubdivisions - 1);
             return;
         }
         SkPoint P[4] = {fLastPt, p1, p2, p3}, PP[7];
@@ -105,8 +106,6 @@ public:
         }
         float T = this->chooseChopT(numSubdivisions);
         if (0 == T) {
-            fPath.conicTo(fLastPt, fLastPt, w);
-            this->sliceConic(p1, p2, w, numSubdivisions - 1);
             return;
         }
         SkConic conic(fLastPt, p1, p2, w), halves[2];
@@ -139,7 +138,7 @@ private:
 class SliverPathsGM : public GM {
 public:
     SliverPathsGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(SK_ColorBLACK));
+        this->setBGColor(SK_ColorBLACK);
     }
 
 protected:

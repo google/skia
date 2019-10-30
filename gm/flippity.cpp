@@ -5,16 +5,36 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkTArray.h"
+#include "src/image/SkImage_Base.h"
+#include "src/image/SkImage_Gpu.h"
+#include "tools/ToolUtils.h"
+#include "tools/gpu/ProxyUtils.h"
 
-#include "SkSurface.h"
+#include <string.h>
+#include <utility>
 
-#if SK_SUPPORT_GPU
-
-#include "GrContextPriv.h"
-#include "ProxyUtils.h"
-#include "SkImage_Gpu.h"
+class GrRenderTargetContext;
 
 static const int kNumMatrices = 6;
 static const int kImageSize = 128;
@@ -61,13 +81,16 @@ static const SkMatrix kUVMatrices[kNumMatrices] = {
 // Create a fixed size text label like "LL" or "LR".
 static sk_sp<SkImage> make_text_image(GrContext* context, const char* text, SkColor color) {
     SkPaint paint;
-    sk_tool_utils::set_portable_typeface(&paint);
     paint.setAntiAlias(true);
-    paint.setTextSize(32);
     paint.setColor(color);
 
+    SkFont font;
+    font.setEdging(SkFont::Edging::kAntiAlias);
+    font.setTypeface(ToolUtils::create_portable_typeface());
+    font.setSize(32);
+
     SkRect bounds;
-    paint.measureText(text, strlen(text), &bounds);
+    font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
     const SkMatrix mat = SkMatrix::MakeRectToRect(bounds, SkRect::MakeWH(kLabelSize, kLabelSize),
                                                   SkMatrix::kFill_ScaleToFit);
 
@@ -78,11 +101,11 @@ static sk_sp<SkImage> make_text_image(GrContext* context, const char* text, SkCo
 
     canvas->clear(SK_ColorWHITE);
     canvas->concat(mat);
-    canvas->drawText(text, strlen(text), 0, 0, paint);
+    canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8, 0, 0, font, paint);
 
     sk_sp<SkImage> image = surf->makeImageSnapshot();
 
-    return image->makeTextureImage(context, nullptr);
+    return image->makeTextureImage(context);
 }
 
 // Create an image with each corner marked w/ "LL", "LR", etc., with the origin either bottom-left
@@ -107,15 +130,15 @@ static sk_sp<SkImage> make_reference_image(GrContext* context,
 
     auto origin = bottomLeftOrigin ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
 
-    auto proxy = sk_gpu_test::MakeTextureProxyFromData(context, false, kImageSize, kImageSize,
-                                                       bm.colorType(), origin, bm.getPixels(),
-                                                       bm.rowBytes());
+    auto proxy = sk_gpu_test::MakeTextureProxyFromData(context, GrRenderable::kNo, kImageSize,
+                                                       kImageSize, bm.colorType(), bm.alphaType(),
+                                                       origin, bm.getPixels(), bm.rowBytes());
     if (!proxy) {
         return nullptr;
     }
 
-    return sk_make_sp<SkImage_Gpu>(context, kNeedNewImageUniqueID, kOpaque_SkAlphaType,
-                                   std::move(proxy), nullptr, SkBudgeted::kYes);
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, kOpaque_SkAlphaType,
+                                   std::move(proxy), nullptr);
 }
 
 // Here we're converting from a matrix that is intended for UVs to a matrix that is intended
@@ -138,14 +161,13 @@ static bool UVMatToGeomMatForImage(SkMatrix* geomMat, const SkMatrix& uvMat) {
 
 // This GM exercises drawImage with a set of matrices that use an unusual amount of flips and
 // rotates.
-class FlippityGM : public skiagm::GM {
+class FlippityGM : public skiagm::GpuGM {
 public:
     FlippityGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
+        this->setBGColor(0xFFCCCCCC);
     }
 
-protected:
-
+private:
     SkString onShortName() override {
         return SkString("flippity");
     }
@@ -208,6 +230,10 @@ protected:
     }
 
     void makeLabels(GrContext* context) {
+        if (fLabels.count()) {
+            return;
+        }
+
         static const char* kLabelText[kNumLabels] = { "LL", "LR", "UL", "UR" };
 
         static const SkColor kLabelColors[kNumLabels] = {
@@ -217,20 +243,13 @@ protected:
             SK_ColorCYAN
         };
 
-        SkASSERT(!fLabels.count());
         for (int i = 0; i < kNumLabels; ++i) {
             fLabels.push_back(make_text_image(context, kLabelText[i], kLabelColors[i]));
         }
         SkASSERT(kNumLabels == fLabels.count());
     }
 
-    void onDraw(SkCanvas* canvas) override {
-        GrContext* context = canvas->getGrContext();
-        if (!context) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
-        }
-
+    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
         this->makeLabels(context);
 
         canvas->save();
@@ -271,5 +290,3 @@ private:
 };
 
 DEF_GM(return new FlippityGM;)
-
-#endif

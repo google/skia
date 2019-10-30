@@ -1,0 +1,64 @@
+# Copyright 2018 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Things are easiest for everyone if these source paths are absolute.
+_src = get_path_info("src", "abspath")
+_include = get_path_info("include", "abspath")
+
+skia_skottie_public = [
+  "$_include/Skottie.h",
+  "$_include/SkottieProperty.h",
+]
+
+skia_skottie_sources = [
+  "$_src/Composition.cpp",
+  "$_src/Layer.cpp",
+  "$_src/Skottie.cpp",
+  "$_src/SkottieAdapter.cpp",
+  "$_src/SkottieAdapter.h",
+  "$_src/SkottieAnimator.cpp",
+  "$_src/SkottieJson.cpp",
+  "$_src/SkottieJson.h",
+  "$_src/SkottiePriv.h",
+  "$_src/SkottieProperty.cpp",
+  "$_src/SkottieValue.cpp",
+  "$_src/SkottieValue.h",
+
+  "$_src/effects/DropShadowEffect.cpp",
+  "$_src/effects/Effects.cpp",
+  "$_src/effects/Effects.h",
+  "$_src/effects/FillEffect.cpp",
+  "$_src/effects/GaussianBlurEffect.cpp",
+  "$_src/effects/GradientEffect.cpp",
+  "$_src/effects/HueSaturationEffect.cpp",
+  "$_src/effects/LevelsEffect.cpp",
+  "$_src/effects/LinearWipeEffect.cpp",
+  "$_src/effects/MotionBlurEffect.cpp",
+  "$_src/effects/MotionBlurEffect.h",
+  "$_src/effects/MotionTileEffect.cpp",
+  "$_src/effects/RadialWipeEffect.cpp",
+  "$_src/effects/TintEffect.cpp",
+  "$_src/effects/TransformEffect.cpp",
+  "$_src/effects/TritoneEffect.cpp",
+  "$_src/effects/VenetianBlindsEffect.cpp",
+
+  "$_src/layers/ImageLayer.cpp",
+  "$_src/layers/NullLayer.cpp",
+  "$_src/layers/PrecompLayer.cpp",
+  "$_src/layers/ShapeLayer.cpp",
+  "$_src/layers/SolidLayer.cpp",
+  "$_src/layers/TextLayer.cpp",
+
+  "$_src/text/RangeSelector.cpp",
+  "$_src/text/RangeSelector.h",
+  "$_src/text/SkottieShaper.cpp",
+  "$_src/text/SkottieShaper.h",
+  "$_src/text/TextAdapter.cpp",
+  "$_src/text/TextAdapter.h",
+  "$_src/text/TextAnimator.cpp",
+  "$_src/text/TextAnimator.h",
+  "$_src/text/TextValue.cpp",
+  "$_src/text/TextValue.h",
+]

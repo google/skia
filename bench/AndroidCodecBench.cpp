@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "AndroidCodecBench.h"
-#include "CodecBenchPriv.h"
-#include "SkBitmap.h"
-#include "SkAndroidCodec.h"
-#include "SkCommandLineFlags.h"
-#include "SkOSFile.h"
+#include "bench/AndroidCodecBench.h"
+#include "bench/CodecBenchPriv.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "include/core/SkBitmap.h"
+#include "src/core/SkOSFile.h"
+#include "tools/flags/CommandLineFlags.h"
 
 AndroidCodecBench::AndroidCodecBench(SkString baseName, SkData* encoded, int sampleSize)
     : fData(SkRef(encoded))
@@ -32,8 +32,7 @@ void AndroidCodecBench::onDelayedSetup() {
     std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::MakeFromData(fData));
     SkISize scaledSize = codec->getSampledDimensions(fSampleSize);
 
-    fInfo = codec->getInfo().makeWH(scaledSize.width(), scaledSize.height())
-            .makeColorType(kN32_SkColorType);
+    fInfo = codec->getInfo().makeDimensions(scaledSize).makeColorType(kN32_SkColorType);
     if (kUnpremul_SkAlphaType == fInfo.alphaType()) {
         fInfo = fInfo.makeAlphaType(kPremul_SkAlphaType);
     }

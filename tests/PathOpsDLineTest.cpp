@@ -4,9 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "PathOpsTestCommon.h"
-#include "SkPathOpsLine.h"
-#include "Test.h"
+#include "src/pathops/SkPathOpsLine.h"
+#include "tests/PathOpsTestCommon.h"
+#include "tests/Test.h"
 
 static const SkDLine tests[] = {
     {{{2, 1}, {2, 1}}},

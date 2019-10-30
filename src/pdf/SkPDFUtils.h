@@ -7,13 +7,14 @@
 #ifndef SkPDFUtils_DEFINED
 #define SkPDFUtils_DEFINED
 
-#include "SkFloatToDecimal.h"
-#include "SkPDFTypes.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkShader.h"
-#include "SkStream.h"
-#include "SkUtils.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkStream.h"
+#include "src/core/SkUtils.h"
+#include "src/pdf/SkPDFTypes.h"
+#include "src/shaders/SkShaderBase.h"
+#include "src/utils/SkFloatToDecimal.h"
 
 class SkMatrix;
 class SkPDFArray;
@@ -42,17 +43,13 @@ bool SkPackedArrayEqual(T* u, T* v, size_t n) {
 
 namespace SkPDFUtils {
 
-constexpr float kDpiForRasterScaleOne = 72.0f;
+const char* BlendModeName(SkBlendMode);
 
-sk_sp<SkPDFArray> RectToArray(const SkRect& rect);
-sk_sp<SkPDFArray> MatrixToArray(const SkMatrix& matrix);
-void AppendTransform(const SkMatrix& matrix, SkWStream* content);
+std::unique_ptr<SkPDFArray> RectToArray(const SkRect& rect);
+std::unique_ptr<SkPDFArray> MatrixToArray(const SkMatrix& matrix);
 
 void MoveTo(SkScalar x, SkScalar y, SkWStream* content);
 void AppendLine(SkScalar x, SkScalar y, SkWStream* content);
-void AppendCubic(SkScalar ctl1X, SkScalar ctl1Y,
-                 SkScalar ctl2X, SkScalar ctl2Y,
-                 SkScalar dstX, SkScalar dstY, SkWStream* content);
 void AppendRectangle(const SkRect& rect, SkWStream* content);
 void EmitPath(const SkPath& path, SkPaint::Style paintStyle,
               bool doConsumeDegerates, SkWStream* content, SkScalar tolerance = 0.25f);
@@ -64,16 +61,23 @@ void ClosePath(SkWStream* content);
 void PaintPath(SkPaint::Style style, SkPath::FillType fill,
                       SkWStream* content);
 void StrokePath(SkWStream* content);
-void DrawFormXObject(int objectIndex, SkWStream* content);
 void ApplyGraphicState(int objectIndex, SkWStream* content);
 void ApplyPattern(int objectIndex, SkWStream* content);
 
 // Converts (value / 255.0) with three significant digits of accuracy.
 // Writes value as string into result.  Returns strlen() of result.
 size_t ColorToDecimal(uint8_t value, char result[5]);
+
+static constexpr unsigned kFloatColorDecimalCount = 4;
+size_t ColorToDecimalF(float value, char result[kFloatColorDecimalCount + 2]);
 inline void AppendColorComponent(uint8_t value, SkWStream* wStream) {
     char buffer[5];
     size_t len = SkPDFUtils::ColorToDecimal(value, buffer);
+    wStream->write(buffer, len);
+}
+inline void AppendColorComponentF(float value, SkWStream* wStream) {
+    char buffer[kFloatColorDecimalCount + 2];
+    size_t len = SkPDFUtils::ColorToDecimalF(value, buffer);
     wStream->write(buffer, len);
 }
 
@@ -84,14 +88,11 @@ inline void AppendScalar(SkScalar value, SkWStream* stream) {
     stream->write(result, len);
 }
 
-void WriteString(SkWStream* wStream, const char* input, size_t len);
-
 inline void WriteUInt16BE(SkDynamicMemoryWStream* wStream, uint16_t value) {
-    char result[4];
-    result[0] = SkHexadecimalDigits::gUpper[       value >> 12 ];
-    result[1] = SkHexadecimalDigits::gUpper[0xF & (value >> 8 )];
-    result[2] = SkHexadecimalDigits::gUpper[0xF & (value >> 4 )];
-    result[3] = SkHexadecimalDigits::gUpper[0xF & (value      )];
+    char result[4] = { SkHexadecimalDigits::gUpper[       value >> 12 ],
+                       SkHexadecimalDigits::gUpper[0xF & (value >> 8 )],
+                       SkHexadecimalDigits::gUpper[0xF & (value >> 4 )],
+                       SkHexadecimalDigits::gUpper[0xF & (value      )] };
     wStream->write(result, 4);
 }
 
@@ -103,7 +104,7 @@ inline void WriteUInt8(SkDynamicMemoryWStream* wStream, uint8_t value) {
 
 inline void WriteUTF16beHex(SkDynamicMemoryWStream* wStream, SkUnichar utf32) {
     uint16_t utf16[2] = {0, 0};
-    size_t len = SkUTF16_FromUnichar(utf32, utf16);
+    size_t len = SkUTF::ToUTF16(utf32, utf16);
     SkASSERT(len == 1 || len == 2);
     SkPDFUtils::WriteUInt16BE(wStream, utf16[0]);
     if (len == 2) {
@@ -113,18 +114,24 @@ inline void WriteUTF16beHex(SkDynamicMemoryWStream* wStream, SkUnichar utf32) {
 
 inline SkMatrix GetShaderLocalMatrix(const SkShader* shader) {
     SkMatrix localMatrix;
-    if (sk_sp<SkShader> s = shader->makeAsALocalMatrixShader(&localMatrix)) {
-        return SkMatrix::Concat(s->getLocalMatrix(), localMatrix);
+    if (sk_sp<SkShader> s = as_SB(shader)->makeAsALocalMatrixShader(&localMatrix)) {
+        return SkMatrix::Concat(as_SB(s)->getLocalMatrix(), localMatrix);
     }
-    return shader->getLocalMatrix();
+    return as_SB(shader)->getLocalMatrix();
 }
 bool InverseTransformBBox(const SkMatrix& matrix, SkRect* bbox);
 void PopulateTilingPatternDict(SkPDFDict* pattern,
                                SkRect& bbox,
-                               sk_sp<SkPDFDict> resources,
+                               std::unique_ptr<SkPDFDict> resources,
                                const SkMatrix& matrix);
 
 bool ToBitmap(const SkImage* img, SkBitmap* dst);
+
+#ifdef SK_PDF_BASE85_BINARY
+void Base85Encode(std::unique_ptr<SkStreamAsset> src, SkDynamicMemoryWStream* dst);
+#endif //  SK_PDF_BASE85_BINARY
+
+void AppendTransform(const SkMatrix&, SkWStream*);
 }  // namespace SkPDFUtils
 
 #endif

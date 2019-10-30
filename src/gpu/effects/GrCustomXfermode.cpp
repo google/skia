@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "effects/GrCustomXfermode.h"
+#include "src/gpu/effects/GrCustomXfermode.h"
 
-#include "GrCaps.h"
-#include "GrCoordTransform.h"
-#include "GrFragmentProcessor.h"
-#include "GrPipeline.h"
-#include "GrProcessor.h"
-#include "GrShaderCaps.h"
-#include "glsl/GrGLSLBlend.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
-#include "glsl/GrGLSLXferProcessor.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrCoordTransform.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrPipeline.h"
+#include "src/gpu/GrProcessor.h"
+#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/glsl/GrGLSLBlend.h"
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
+#include "src/gpu/glsl/GrGLSLXferProcessor.h"
 
 bool GrCustomXfermode::IsSupportedMode(SkBlendMode mode) {
     return (int)mode  > (int)SkBlendMode::kLastCoeffMode &&
@@ -46,7 +46,10 @@ static constexpr GrBlendEquation hw_blend_equation(SkBlendMode mode) {
     GR_STATIC_ASSERT(kHSLSaturation_GrBlendEquation == (int)SkBlendMode::kSaturation + EQ_OFFSET);
     GR_STATIC_ASSERT(kHSLColor_GrBlendEquation == (int)SkBlendMode::kColor + EQ_OFFSET);
     GR_STATIC_ASSERT(kHSLLuminosity_GrBlendEquation == (int)SkBlendMode::kLuminosity + EQ_OFFSET);
-    GR_STATIC_ASSERT(kGrBlendEquationCnt == (int)SkBlendMode::kLastMode + 1 + EQ_OFFSET);
+
+    // There's an illegal GrBlendEquation that corresponds to no SkBlendMode, hence the extra +1.
+    GR_STATIC_ASSERT(kGrBlendEquationCnt == (int)SkBlendMode::kLastMode + 1 + 1 + EQ_OFFSET);
+
     return static_cast<GrBlendEquation>((int)mode + EQ_OFFSET);
 #undef EQ_OFFSET
 }
@@ -59,7 +62,7 @@ static bool can_use_hw_blend_equation(GrBlendEquation equation,
     if (GrProcessorAnalysisCoverage::kLCD == coverage) {
         return false; // LCD coverage must be applied after the blend equation.
     }
-    if (caps.canUseAdvancedBlendEquation(equation)) {
+    if (caps.isAdvancedBlendEquationBlacklisted(equation)) {
         return false;
     }
     return true;
@@ -79,7 +82,7 @@ public:
     CustomXP(bool hasMixedSamples, SkBlendMode mode, GrProcessorAnalysisCoverage coverage)
             : INHERITED(kCustomXP_ClassID, true, hasMixedSamples, coverage)
             , fMode(mode)
-            , fHWBlendEquation(static_cast<GrBlendEquation>(-1)) {
+            , fHWBlendEquation(kIllegal_GrBlendEquation) {
     }
 
     const char* name() const override { return "Custom Xfermode"; }
@@ -87,7 +90,7 @@ public:
     GrGLSLXferProcessor* createGLSLInstance() const override;
 
     SkBlendMode mode() const { return fMode; }
-    bool hasHWBlendEquation() const { return -1 != static_cast<int>(fHWBlendEquation); }
+    bool hasHWBlendEquation() const { return kIllegal_GrBlendEquation != fHWBlendEquation; }
 
     GrBlendEquation hwBlendEquation() const {
         SkASSERT(this->hasHWBlendEquation());
@@ -218,12 +221,12 @@ private:
                                                    GrProcessorAnalysisCoverage,
                                                    bool hasMixedSamples,
                                                    const GrCaps&,
-                                                   GrPixelConfigIsClamped) const override;
+                                                   GrClampType) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,
                                           const GrCaps&,
-                                          GrPixelConfigIsClamped) const override;
+                                          GrClampType) const override;
 
     GR_DECLARE_XP_FACTORY_TEST
 
@@ -244,7 +247,7 @@ sk_sp<const GrXferProcessor> CustomXPFactory::makeXferProcessor(
         GrProcessorAnalysisCoverage coverage,
         bool hasMixedSamples,
         const GrCaps& caps,
-        GrPixelConfigIsClamped dstIsClamped) const {
+        GrClampType clampType) const {
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
     if (can_use_hw_blend_equation(fHWBlendEquation, coverage, caps)) {
         return sk_sp<GrXferProcessor>(new CustomXP(fMode, fHWBlendEquation));
@@ -254,7 +257,7 @@ sk_sp<const GrXferProcessor> CustomXPFactory::makeXferProcessor(
 
 GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
         const GrProcessorAnalysisColor&, const GrProcessorAnalysisCoverage& coverage,
-        const GrCaps& caps, GrPixelConfigIsClamped dstIsClamped) const {
+        const GrCaps& caps, GrClampType clampType) const {
     /*
       The general SVG blend equation is defined in the spec as follows:
 
@@ -352,13 +355,13 @@ GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
     */
     if (can_use_hw_blend_equation(fHWBlendEquation, coverage, caps)) {
         if (caps.blendEquationSupport() == GrCaps::kAdvancedCoherent_BlendEquationSupport) {
-            return AnalysisProperties::kCompatibleWithAlphaAsCoverage;
+            return AnalysisProperties::kCompatibleWithCoverageAsAlpha;
         } else {
-            return AnalysisProperties::kCompatibleWithAlphaAsCoverage |
-                   AnalysisProperties::kRequiresBarrierBetweenOverlappingDraws;
+            return AnalysisProperties::kCompatibleWithCoverageAsAlpha |
+                   AnalysisProperties::kRequiresNonOverlappingDraws;
         }
     }
-    return AnalysisProperties::kCompatibleWithAlphaAsCoverage |
+    return AnalysisProperties::kCompatibleWithCoverageAsAlpha |
            AnalysisProperties::kReadsDstInShader;
 }
 

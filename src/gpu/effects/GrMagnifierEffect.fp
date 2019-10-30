@@ -22,15 +22,15 @@ uniform half2 offset;
 
 void main() {
     float2 coord = sk_TransformedCoords2D[0];
-    float2 zoom_coord = offset + coord * half2(xInvZoom, yInvZoom);
+    float2 zoom_coord = offset + coord * float2(xInvZoom, yInvZoom);
     float2 delta = (coord - boundsUniform.xy) * boundsUniform.zw;
     delta = min(delta, half2(1.0, 1.0) - delta);
-    delta *= half2(xInvInset, yInvInset);
+    delta *= float2(xInvInset, yInvInset);
 
-    half weight = 0.0;
+    float weight = 0.0;
     if (delta.s < 2.0 && delta.t < 2.0) {
         delta = half2(2.0, 2.0) - delta;
-        half dist = length(delta);
+        float dist = length(delta);
         dist = max(2.0 - dist, 0.0);
         weight = min(dist * dist, 1.0);
     } else {
@@ -38,7 +38,7 @@ void main() {
         weight = min(min(delta_squared.x, delta_squared.y), 1.0);
     }
 
-    sk_OutColor = texture(src, mix(coord, zoom_coord, weight));
+    sk_OutColor = sample(src, mix(coord, zoom_coord, weight));
 }
 
 @setData(pdman) {
@@ -56,15 +56,17 @@ void main() {
 
     {
         SkScalar y = bounds.y() * invH;
+        SkScalar hSign = 1.f;
         if (srcProxy.origin() != kTopLeft_GrSurfaceOrigin) {
-            y = 1.0f - bounds.height() * invH;
+            y = 1.0f - bounds.y() * invH;
+            hSign = -1.f;
         }
 
         pdman.set4f(boundsUniform,
                     bounds.x() * invW,
                     y,
                     SkIntToScalar(src.width()) / bounds.width(),
-                    SkIntToScalar(src.height()) / bounds.height());
+                    hSign * SkIntToScalar(src.height()) / bounds.height());
     }
 }
 

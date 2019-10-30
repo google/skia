@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrContext.h"
 
-#if SK_SUPPORT_GPU
-#include "GrContext.h"
+class GrRenderTargetContext;
 
 // This test exercises Ganesh's drawing of tiled bitmaps. In particular, that the offsets and the
 // extents of the tiles don't causes gaps between tiles.
-static void draw_tile_bitmap_with_fractional_offset(SkCanvas* canvas, bool vertical) {
-    GrContext* context = canvas->getGrContext();
-    if (!context) {
-        skiagm::GM::DrawGpuOnlyMessage(canvas);
-        return;
-    }
-
+static void draw_tile_bitmap_with_fractional_offset(GrContext* context, SkCanvas* canvas,
+                                                    bool vertical) {
     // This should match kBmpSmallTileSize in SkGpuDevice.cpp. Note that our canvas size is tuned
     // to this constant as well.
     const int kTileSize = 1 << 10;
@@ -33,12 +33,10 @@ static void draw_tile_bitmap_with_fractional_offset(SkCanvas* canvas, bool verti
     const int kBitmapArea = kBitmapLongEdge * kBitmapShortEdge;
     const size_t kBitmapBytes = kBitmapArea * sizeof(SkPMColor);
 
-    int oldMaxResources;
-    size_t oldMaxResourceBytes;
-    context->getResourceCacheLimits(&oldMaxResources, &oldMaxResourceBytes);
+    size_t oldMaxResourceBytes = context->getResourceCacheLimit();
 
     const size_t newMaxResourceBytes = kBitmapBytes + (kBitmapBytes / 2);
-    context->setResourceCacheLimits(oldMaxResources, newMaxResourceBytes);
+    context->setResourceCacheLimit(newMaxResourceBytes);
 
     // Construct our bitmap as either very wide or very tall
     SkBitmap bmp;
@@ -61,15 +59,15 @@ static void draw_tile_bitmap_with_fractional_offset(SkCanvas* canvas, bool verti
     }
 
     // Restore the cache
-    context->setResourceCacheLimits(oldMaxResources, oldMaxResourceBytes);
+    context->setResourceCacheLimit(oldMaxResourceBytes);
 }
 
-DEF_SIMPLE_GM_BG(bitmaptiled_fractional_horizontal, canvas, 1124, 365, SK_ColorBLACK) {
-    draw_tile_bitmap_with_fractional_offset(canvas, false);
+DEF_SIMPLE_GPU_GM_BG(
+        bitmaptiled_fractional_horizontal, context, rtc, canvas, 1124, 365, SK_ColorBLACK) {
+    draw_tile_bitmap_with_fractional_offset(context, canvas, false);
 }
 
-DEF_SIMPLE_GM_BG(bitmaptiled_fractional_vertical, canvas, 365, 1124, SK_ColorBLACK) {
-    draw_tile_bitmap_with_fractional_offset(canvas, true);
+DEF_SIMPLE_GPU_GM_BG(
+        bitmaptiled_fractional_vertical, context, rtc, canvas, 365, 1124, SK_ColorBLACK) {
+    draw_tile_bitmap_with_fractional_offset(context, canvas, true);
 }
-
-#endif

@@ -5,11 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkColor.h"
-#include "SkImageSource.h"
-#include "SkRefCnt.h"
-#include "SkSurface.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkImageFilters.h"
+
+#include <utility>
 
 namespace skiagm {
 
@@ -39,7 +51,7 @@ protected:
         canvas->translate(-rect.x(), -rect.y());
         SkMatrix matrix;
         matrix.setScale(SkScalarInvert(deviceScaleX), SkScalarInvert(deviceScaleY));
-        sk_sp<SkImageFilter> filter(SkImageFilter::MakeMatrixFilter(matrix,
+        sk_sp<SkImageFilter> filter(SkImageFilters::MatrixTransform(matrix,
                                                                     filterQuality,
                                                                     std::move(input)));
         SkPaint filteredPaint;
@@ -90,7 +102,7 @@ protected:
             SkRect inRect = SkRect::MakeXYWH(-4, -4, 20, 20);
             SkRect outRect = SkRect::MakeXYWH(-24, -24, 120, 120);
             sk_sp<SkImageFilter> source(
-                SkImageSource::Make(std::move(image), inRect, outRect, kHigh_SkFilterQuality));
+                SkImageFilters::Image(std::move(image), inRect, outRect, kHigh_SkFilterQuality));
             canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
             this->draw(canvas, srcRect, deviceSize, kHigh_SkFilterQuality, std::move(source));
         }

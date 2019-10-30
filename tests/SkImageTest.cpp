@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkImagePriv.h"
-#include "Test.h"
+#include "include/core/SkCanvas.h"
+#include "src/core/SkImagePriv.h"
+#include "tests/Test.h"
 
 static const int gWidth = 20;
 static const int gHeight = 20;

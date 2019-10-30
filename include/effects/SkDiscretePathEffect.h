@@ -8,8 +8,8 @@
 #ifndef SkDiscretePathEffect_DEFINED
 #define SkDiscretePathEffect_DEFINED
 
-#include "SkFlattenable.h"
-#include "SkPathEffect.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkPathEffect.h"
 
 /** \class SkDiscretePathEffect
 
@@ -32,26 +32,15 @@ public:
     */
     static sk_sp<SkPathEffect> Make(SkScalar segLength, SkScalar dev, uint32_t seedAssist = 0);
 
-    virtual bool filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec*, const SkRect*) const override;
-
-    void toString(SkString* str) const override;
-
-    Factory getFactory() const override { return CreateProc; }
-
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    bool exposedInAndroidJavaAPI() const override { return true; }
-#endif
-
 protected:
     SkDiscretePathEffect(SkScalar segLength,
                          SkScalar deviation,
                          uint32_t seedAssist);
     void flatten(SkWriteBuffer&) const override;
+    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
 
 private:
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
-    friend class SkFlattenable::PrivateInitializer;
+    SK_FLATTENABLE_HOOKS(SkDiscretePathEffect)
 
     SkScalar fSegLength, fPerterb;
 

@@ -5,37 +5,35 @@
  * found in the LICENSE file.
  */
 
-#include "SkAndroidCodec.h"
-#include "SkAnimatedImage.h"
-#include "SkPaint.h"
-#include "SkCanvas.h"
-#include "SkData.h"
-#include "SkSurface.h"
+#include "include/android/SkAnimatedImage.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkSurface.h"
 
-void FuzzAnimatedImage(sk_sp<SkData> bytes) {
+bool FuzzAnimatedImage(sk_sp<SkData> bytes) {
     auto codec = SkAndroidCodec::MakeFromData(bytes);
     if (nullptr == codec) {
-        return;
+        return false;
     }
     auto aImg = SkAnimatedImage::Make(std::move(codec));
     if (nullptr == aImg) {
-        return;
+        return false;
     }
 
     auto s = SkSurface::MakeRasterN32Premul(128, 128);
     if (!s) {
         // May return nullptr in memory-constrained fuzzing environments
-        return;
+        return false;
     }
 
-    SkPaint p;
     int escape = 0;
     while (!aImg->isFinished() && escape < 100) {
         aImg->draw(s->getCanvas());
         escape++;
         aImg->decodeNextFrame();
     }
-
+    return true;
 }
 
 #if defined(IS_FUZZING_WITH_LIBFUZZER)

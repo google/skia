@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkSLSymbolTable.h"
-#include "SkSLUnresolvedFunction.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLUnresolvedFunction.h"
 
 namespace SkSL {
 
@@ -50,8 +50,9 @@ const Symbol* SymbolTable::operator[](StringFragment name) {
                     }
                 }
                 if (modified) {
-                    ASSERT(functions.size() > 1);
-                    return this->takeOwnership(new UnresolvedFunction(functions));
+                    SkASSERT(functions.size() > 1);
+                    return this->takeOwnership(std::unique_ptr<Symbol>(
+                                                                new UnresolvedFunction(functions)));
                 }
             }
         }
@@ -59,19 +60,21 @@ const Symbol* SymbolTable::operator[](StringFragment name) {
     return entry->second;
 }
 
-Symbol* SymbolTable::takeOwnership(Symbol* s) {
-    fOwnedSymbols.emplace_back(s);
-    return s;
+Symbol* SymbolTable::takeOwnership(std::unique_ptr<Symbol> s) {
+    Symbol* result = s.get();
+    fOwnedSymbols.push_back(std::move(s));
+    return result;
 }
 
-IRNode* SymbolTable::takeOwnership(IRNode* n) {
-    fOwnedNodes.emplace_back(n);
-    return n;
+IRNode* SymbolTable::takeOwnership(std::unique_ptr<IRNode> n) {
+    IRNode* result = n.get();
+    fOwnedNodes.push_back(std::move(n));
+    return result;
 }
 
 void SymbolTable::add(StringFragment name, std::unique_ptr<Symbol> symbol) {
     this->addWithoutOwnership(name, symbol.get());
-    this->takeOwnership(symbol.release());
+    this->takeOwnership(std::move(symbol));
 }
 
 void SymbolTable::addWithoutOwnership(StringFragment name, const Symbol* symbol) {
@@ -84,18 +87,18 @@ void SymbolTable::addWithoutOwnership(StringFragment name, const Symbol* symbol)
             std::vector<const FunctionDeclaration*> functions;
             functions.push_back((const FunctionDeclaration*) oldSymbol);
             functions.push_back((const FunctionDeclaration*) symbol);
-            UnresolvedFunction* u = new UnresolvedFunction(std::move(functions));
-            fSymbols[name] = u;
-            this->takeOwnership(u);
+            std::unique_ptr<Symbol> u = std::unique_ptr<Symbol>(new UnresolvedFunction(std::move(
+                                                                                       functions)));
+            fSymbols[name] = this->takeOwnership(std::move(u));
         } else if (oldSymbol->fKind == Symbol::kUnresolvedFunction_Kind) {
             std::vector<const FunctionDeclaration*> functions;
             for (const auto* f : ((UnresolvedFunction&) *oldSymbol).fFunctions) {
                 functions.push_back(f);
             }
             functions.push_back((const FunctionDeclaration*) symbol);
-            UnresolvedFunction* u = new UnresolvedFunction(std::move(functions));
-            fSymbols[name] = u;
-            this->takeOwnership(u);
+            std::unique_ptr<Symbol> u = std::unique_ptr<Symbol>(new UnresolvedFunction(std::move(
+                                                                                       functions)));
+            fSymbols[name] = this->takeOwnership(std::move(u));
         }
     } else {
         fErrorReporter.error(symbol->fOffset, "symbol '" + name + "' was already defined");
@@ -107,11 +110,15 @@ void SymbolTable::markAllFunctionsBuiltin() {
     for (const auto& pair : fSymbols) {
         switch (pair.second->fKind) {
             case Symbol::kFunctionDeclaration_Kind:
-                ((FunctionDeclaration&) *pair.second).fBuiltin = true;
+                if (!((FunctionDeclaration&)*pair.second).fDefined) {
+                    ((FunctionDeclaration&)*pair.second).fBuiltin = true;
+                }
                 break;
             case Symbol::kUnresolvedFunction_Kind:
                 for (auto& f : ((UnresolvedFunction&) *pair.second).fFunctions) {
-                    ((FunctionDeclaration*) f)->fBuiltin = true;
+                    if (!((FunctionDeclaration*)f)->fDefined) {
+                        ((FunctionDeclaration*)f)->fBuiltin = true;
+                    }
                 }
                 break;
             default:
@@ -120,11 +127,11 @@ void SymbolTable::markAllFunctionsBuiltin() {
     }
 }
 
-std::map<StringFragment, const Symbol*>::iterator SymbolTable::begin() {
+std::unordered_map<StringFragment, const Symbol*>::iterator SymbolTable::begin() {
     return fSymbols.begin();
 }
 
-std::map<StringFragment, const Symbol*>::iterator SymbolTable::end() {
+std::unordered_map<StringFragment, const Symbol*>::iterator SymbolTable::end() {
     return fSymbols.end();
 }
 

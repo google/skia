@@ -5,9 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkPerlinNoiseShader.h"
-#include "SkShader.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/effects/SkPerlinNoiseShader.h"
+
+#include <utility>
 
 namespace {
 
@@ -16,23 +27,14 @@ enum class Type {
     kTurbulence,
 };
 
-} // anonymous ns
-
 class PerlinNoiseGM : public skiagm::GM {
-public:
-    PerlinNoiseGM() {
-        this->setBGColor(0xFF000000);
-        fSize = SkISize::Make(80, 80);
-    }
+    SkISize fSize = {80, 80};
 
-protected:
-    virtual SkString onShortName() {
-        return SkString("perlinnoise");
-    }
+    void onOnceBeforeDraw() override { this->setBGColor(0xFF000000); }
 
-    virtual SkISize onISize() {
-        return SkISize::Make(200, 500);
-    }
+    SkString onShortName() override { return SkString("perlinnoise"); }
+
+    SkISize onISize() override { return {200, 500}; }
 
     void drawRect(SkCanvas* canvas, int x, int y, const SkPaint& paint, const SkISize& size) {
         canvas->save();
@@ -67,7 +69,7 @@ protected:
         }
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
         test(canvas,   0,   0, Type::kFractalNoise,
              0.1f, 0.1f, 0, 0, false);
@@ -99,23 +101,14 @@ protected:
 
 private:
     typedef GM INHERITED;
-    SkISize fSize;
 };
 
 class PerlinNoiseGM2 : public skiagm::GM {
-public:
-    PerlinNoiseGM2() {
-        fSize = SkISize::Make(80, 80);
-    }
+    SkISize fSize = {80, 80};
 
-protected:
-    virtual SkString onShortName() {
-        return SkString("perlinnoise_localmatrix");
-    }
+    SkString onShortName() override { return SkString("perlinnoise_localmatrix"); }
 
-    virtual SkISize onISize() {
-        return SkISize::Make(640, 480);
-    }
+    SkISize onISize() override { return {640, 480}; }
 
     void install(SkPaint* paint, Type type,
               float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed,
@@ -128,7 +121,7 @@ protected:
         paint->setShader(std::move(shader));
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         canvas->translate(10, 10);
 
         SkPaint paint;
@@ -178,13 +171,9 @@ protected:
         canvas->drawRect(r, paint);
         canvas->restore();
     }
-
-private:
-    typedef GM INHERITED;
-    SkISize fSize;
 };
 
-//////////////////////////////////////////////////////////////////////////////
+} // namespace
 
 DEF_GM( return new PerlinNoiseGM; )
 DEF_GM( return new PerlinNoiseGM2; )

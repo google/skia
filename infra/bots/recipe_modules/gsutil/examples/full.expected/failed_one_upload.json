@@ -10,7 +10,6 @@
     ],
     "name": "upload test file",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
   },
@@ -26,8 +25,6 @@
     "name": "upload test file (attempt 2)"
   },
   {
-    "name": "$result",
-    "recipe_result": null,
-    "status_code": 0
+    "name": "$result"
   }
 ]

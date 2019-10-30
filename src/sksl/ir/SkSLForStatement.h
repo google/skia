@@ -8,9 +8,9 @@
 #ifndef SKSL_FORSTATEMENT
 #define SKSL_FORSTATEMENT
 
-#include "SkSLExpression.h"
-#include "SkSLStatement.h"
-#include "SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLStatement.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 
 namespace SkSL {
 
@@ -27,6 +27,12 @@ struct ForStatement : public Statement {
     , fTest(std::move(test))
     , fNext(std::move(next))
     , fStatement(std::move(statement)) {}
+
+    std::unique_ptr<Statement> clone() const override {
+        return std::unique_ptr<Statement>(new ForStatement(fOffset, fInitializer->clone(),
+                                                           fTest->clone(), fNext->clone(),
+                                                           fStatement->clone(), fSymbols));
+    }
 
     String description() const override {
         String result("for (");

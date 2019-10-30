@@ -8,7 +8,7 @@
 #ifndef GLTestContext_angle_DEFINED
 #define GLTestContext_angle_DEFINED
 
-#include "gl/GLTestContext.h"
+#include "tools/gpu/gl/GLTestContext.h"
 
 namespace sk_gpu_test {
 

@@ -4,21 +4,19 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
-#include "SkView.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
+#include "include/core/SkCanvas.h"
+#include "include/effects/SkGradientShader.h"
+#include "samplecode/Sample.h"
 
 static sk_sp<SkShader> setgrad(const SkRect& r, SkColor c0, SkColor c1) {
     SkColor colors[] = { c0, c1 };
     SkPoint pts[] = { { r.fLeft, r.fTop }, { r.fRight, r.fTop } };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
 }
 
 static void test_alphagradients(SkCanvas* canvas) {
     SkRect r;
-    r.set(SkIntToScalar(10), SkIntToScalar(10),
-          SkIntToScalar(410), SkIntToScalar(30));
+    r.setLTRB(10, 10, 410, 30);
     SkPaint p, p2;
     p2.setStyle(SkPaint::kStroke_Style);
 
@@ -62,11 +60,11 @@ static const GradData gGradData[] = {
     { 5, gColors, gPos2 }
 };
 
-static sk_sp<SkShader> MakeLinear(const SkPoint pts[2], const GradData& data, SkShader::TileMode tm) {
+static sk_sp<SkShader> MakeLinear(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
     return SkGradientShader::MakeLinear(pts, data.fColors, data.fPos, data.fCount, tm);
 }
 
-static sk_sp<SkShader> MakeRadial(const SkPoint pts[2], const GradData& data, SkShader::TileMode tm) {
+static sk_sp<SkShader> MakeRadial(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
     SkPoint center;
     center.set(SkScalarAve(pts[0].fX, pts[1].fX),
                SkScalarAve(pts[0].fY, pts[1].fY));
@@ -74,14 +72,14 @@ static sk_sp<SkShader> MakeRadial(const SkPoint pts[2], const GradData& data, Sk
                                         data.fPos, data.fCount, tm);
 }
 
-static sk_sp<SkShader> MakeSweep(const SkPoint pts[2], const GradData& data, SkShader::TileMode tm) {
+static sk_sp<SkShader> MakeSweep(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
     SkPoint center;
     center.set(SkScalarAve(pts[0].fX, pts[1].fX),
                SkScalarAve(pts[0].fY, pts[1].fY));
     return SkGradientShader::MakeSweep(center.fX, center.fY, data.fColors, data.fPos, data.fCount);
 }
 
-static sk_sp<SkShader> Make2Conical(const SkPoint pts[2], const GradData& data, SkShader::TileMode tm) {
+static sk_sp<SkShader> Make2Conical(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
     SkPoint center0, center1;
     center0.set(SkScalarAve(pts[0].fX, pts[1].fX),
                 SkScalarAve(pts[0].fY, pts[1].fY));
@@ -94,7 +92,7 @@ static sk_sp<SkShader> Make2Conical(const SkPoint pts[2], const GradData& data, 
 }
 
 static sk_sp<SkShader> Make2ConicalConcentric(const SkPoint pts[2], const GradData& data,
-                                       SkShader::TileMode tm) {
+                                       SkTileMode tm) {
     SkPoint center;
     center.set(SkScalarAve(pts[0].fX, pts[1].fX),
                SkScalarAve(pts[0].fY, pts[1].fY));
@@ -104,7 +102,7 @@ static sk_sp<SkShader> Make2ConicalConcentric(const SkPoint pts[2], const GradDa
                             data.fColors, data.fPos, data.fCount, tm);
 }
 
-typedef sk_sp<SkShader> (*GradMaker)(const SkPoint pts[2], const GradData& data, SkShader::TileMode tm);
+typedef sk_sp<SkShader> (*GradMaker)(const SkPoint pts[2], const GradData& data, SkTileMode tm);
 
 static const GradMaker gGradMakers[] = {
     MakeLinear, MakeRadial, MakeSweep, Make2Conical, Make2ConicalConcentric
@@ -112,20 +110,14 @@ static const GradMaker gGradMakers[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GradientsView : public SampleView {
+class GradientsView : public Sample {
 public:
     GradientsView() {
         this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Gradients");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Gradients"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         SkPoint pts[2] = {
@@ -139,12 +131,12 @@ protected:
         canvas->save();
         canvas->translate(SkIntToScalar(20), SkIntToScalar(10));
 
-        for (int tm = 0; tm < SkShader::kTileModeCount; ++tm) {
+        for (int tm = 0; tm < kSkTileModeCount; ++tm) {
             canvas->save();
             for (size_t i = 0; i < SK_ARRAY_COUNT(gGradData); i++) {
                 canvas->save();
                 for (size_t j = 0; j < SK_ARRAY_COUNT(gGradMakers); j++) {
-                    paint.setShader(gGradMakers[j](pts, gGradData[i], (SkShader::TileMode)tm));
+                    paint.setShader(gGradMakers[j](pts, gGradData[i], (SkTileMode)tm));
                     canvas->drawRect(r, paint);
                     canvas->translate(0, SkIntToScalar(120));
                 }
@@ -163,10 +155,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new GradientsView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new GradientsView(); )

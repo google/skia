@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<title>CanvasKit (Skia via Web Assembly)</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  canvas, img {
+    border: 1px dashed #AAA;
+    width: 300px;
+    height: 300px;
+  }
+
+</style>
+
+<h2>Drop in replacement for HTML Canvas (e.g. node.js)</h2>
+<img id=api1 width=300 height=300>
+<canvas id=api1_c width=300 height=300></canvas>
+<img id=api2 width=300 height=300>
+<canvas id=api2_c width=300 height=300></canvas>
+<img id=api3 width=300 height=300>
+<canvas id=api3_c width=300 height=300></canvas>
+<img id=api4 width=300 height=300>
+<canvas id=api4_c width=300 height=300></canvas>
+<img id=api5 width=300 height=300>
+<canvas id=api5_c width=300 height=300></canvas>
+<img id=api6 width=300 height=300>
+<canvas id=api6_c width=300 height=300></canvas>
+<img id=api7 width=300 height=300>
+<canvas id=api7_c width=300 height=300></canvas>
+<img id=api8 width=300 height=300>
+<canvas id=api8_c width=300 height=300></canvas>
+
+<h2> CanvasKit expands the functionality of a stock HTML canvas</h2>
+<canvas id=vertex1 width=300 height=300></canvas>
+<canvas id=vertex2 width=300 height=300></canvas>
+<canvas id=gradient1 width=300 height=300></canvas>
+<canvas id=patheffect width=300 height=300></canvas>
+<canvas id=paths width=200 height=200></canvas>
+<canvas id=ink width=300 height=300></canvas>
+<canvas id=surfaces width=300 height=300></canvas>
+<canvas id=atlas width=300 height=300></canvas>
+
+<h2> CanvasKit can allow for text shaping (e.g. breaking, kerning)</h2>
+<canvas id=shape1 width=600 height=600></canvas>
+<canvas id=shape2 width=600 height=600></canvas>
+<canvas id=textonpath width=300 height=300></canvas>
+
+<script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+  var CanvasKit = null;
+
+  var robotoData = null;
+  var notoserifData = null;
+
+  var bonesImageData = null;
+  var mandrillData = null;
+  CanvasKitInit({
+    locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
+  }).ready().then((CK) => {
+    CanvasKit = CK;
+    DrawingExample(CanvasKit, robotoData);
+    PathExample(CanvasKit);
+    InkExample(CanvasKit);
+
+    CanvasAPI1(CanvasKit);
+    CanvasAPI2(CanvasKit);
+    CanvasAPI3(CanvasKit);
+    CanvasAPI4(CanvasKit);
+    CanvasAPI5(CanvasKit);
+    CanvasAPI6(CanvasKit);
+    CanvasAPI7(CanvasKit);
+    CanvasAPI8(CanvasKit);
+
+    VertexAPI1(CanvasKit);
+    VertexAPI2(CanvasKit, bonesImageData);
+
+    GradiantAPI1(CanvasKit);
+
+    TextShapingAPI1(CanvasKit, notoserifData);
+    TextShapingAPI2(CanvasKit, notoserifData);
+    TextOnPathAPI1(CanvasKit);
+
+    SurfaceAPI1(CanvasKit);
+
+    AtlasAPI1(CanvasKit, mandrillData);
+  });
+
+  fetch('https://storage.googleapis.com/skia-cdn/misc/bones.jpg').then((resp) => {
+    resp.arrayBuffer().then((buffer) => {
+      bonesImageData = buffer;
+      VertexAPI2(CanvasKit, bonesImageData);
+    });
+  });
+
+  fetch('./Roboto-Regular.woff').then((resp) => {
+    resp.arrayBuffer().then((buffer) => {
+      robotoData = buffer;
+      DrawingExample(CanvasKit, robotoData);
+    });
+  });
+
+  fetch('./NotoSerif-Regular.ttf').then((resp) => {
+    resp.arrayBuffer().then((buffer) => {
+      notoserifData = buffer;
+      TextShapingAPI1(CanvasKit, notoserifData);
+      TextShapingAPI2(CanvasKit, notoserifData);
+    });
+  });
+
+  // Mandrill test image
+  fetch('./test.png').then((response) => response.arrayBuffer()).then((buffer) => {
+    mandrillData = buffer;
+    AtlasAPI1(CanvasKit, mandrillData);
+  });
+
+  function DrawingExample(CanvasKit, robotoData) {
+    if (!robotoData || !CanvasKit) {
+      return;
+    }
+    const surface = CanvasKit.MakeCanvasSurface('patheffect');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+
+    const paint = new CanvasKit.SkPaint();
+
+    const fontMgr = CanvasKit.SkFontMgr.RefDefault();
+    const roboto = fontMgr.MakeTypefaceFromData(robotoData);
+
+    const textPaint = new CanvasKit.SkPaint();
+    textPaint.setColor(CanvasKit.RED);
+    textPaint.setAntiAlias(true);
+
+    const textFont = new CanvasKit.SkFont(roboto, 30);
+
+    let i = 0;
+
+    let X = 128;
+    let Y = 128;
+
+    function drawFrame(canvas) {
+      const path = starPath(CanvasKit, X, Y);
+      // Some animations see performance improvements by marking their
+      // paths as volatile.
+      path.setIsVolatile(true);
+      const dpe = CanvasKit.MakeSkDashPathEffect([15, 5, 5, 10], i/5);
+      i++;
+
+      paint.setPathEffect(dpe);
+      paint.setStyle(CanvasKit.PaintStyle.Stroke);
+      paint.setStrokeWidth(5.0 + -3 * Math.cos(i/30));
+      paint.setAntiAlias(true);
+      paint.setColor(CanvasKit.Color(66, 129, 164, 1.0));
+
+      canvas.clear(CanvasKit.TRANSPARENT);
+
+      canvas.drawPath(path, paint);
+      canvas.drawText('Try Clicking!', 10, 280, textPaint, textFont);
+
+      dpe.delete();
+      path.delete();
+      surface.requestAnimationFrame(drawFrame);
+    }
+    surface.requestAnimationFrame(drawFrame);
+
+    // Make animation interactive
+    let interact = (e) => {
+      if (!e.pressure) {
+        return;
+      }
+      X = e.offsetX;
+      Y = e.offsetY;
+    };
+    document.getElementById('patheffect').addEventListener('pointermove', interact);
+    document.getElementById('patheffect').addEventListener('pointerdown', interact);
+    preventScrolling(document.getElementById('patheffect'));
+    // A client would need to delete this if it didn't go on for ever.
+    // paint.delete();
+    // textPaint.delete();
+    // textFont.delete();
+  }
+
+  function PathExample(CanvasKit) {
+    const surface = CanvasKit.MakeSWCanvasSurface('paths');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+
+    function drawFrame(canvas) {
+      const paint = new CanvasKit.SkPaint();
+      paint.setStrokeWidth(1.0);
+      paint.setAntiAlias(true);
+      paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
+      paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+      const path = new CanvasKit.SkPath();
+      path.moveTo(20, 5);
+      path.lineTo(30, 20);
+      path.lineTo(40, 10);
+      path.lineTo(50, 20);
+      path.lineTo(60, 0);
+      path.lineTo(20, 5);
+
+      path.moveTo(20, 80);
+      path.cubicTo(90, 10, 160, 150, 190, 10);
+
+      path.moveTo(36, 148);
+      path.quadTo(66, 188, 120, 136);
+      path.lineTo(36, 148);
+
+      path.moveTo(150, 180);
+      path.arcTo(150, 100, 50, 200, 20);
+      path.lineTo(160, 160);
+
+      path.moveTo(20, 120);
+      path.lineTo(20, 120);
+
+      canvas.drawPath(path, paint);
+
+      let rrect = new CanvasKit.SkPath()
+                               .addRoundRect(100, 10, 140, 62,
+                                             10, 4, true);
+
+      canvas.drawPath(rrect, paint);
+
+      path.delete();
+      rrect.delete();
+      paint.delete();
+      // Intentionally just draw frame once
+    }
+    surface.requestAnimationFrame(drawFrame);
+  }
+
+  function preventScrolling(canvas) {
+    canvas.addEventListener('touchmove', (e) => {
+      // Prevents touch events in the canvas from scrolling the canvas.
+      e.preventDefault();
+      e.stopPropagation();
+    });
+  }
+
+  function InkExample(CanvasKit) {
+    const surface = CanvasKit.MakeCanvasSurface('ink');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+
+    let paint = new CanvasKit.SkPaint();
+    paint.setAntiAlias(true);
+    paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
+    paint.setStyle(CanvasKit.PaintStyle.Stroke);
+    paint.setStrokeWidth(4.0);
+    paint.setPathEffect(CanvasKit.MakeSkCornerPathEffect(50));
+
+    // Draw I N K
+    let path = new CanvasKit.SkPath();
+    path.moveTo(80, 30);
+    path.lineTo(80, 80);
+
+    path.moveTo(100, 80);
+    path.lineTo(100, 15);
+    path.lineTo(130, 95);
+    path.lineTo(130, 30);
+
+    path.moveTo(150, 30);
+    path.lineTo(150, 80);
+    path.moveTo(170, 30);
+    path.lineTo(150, 55);
+    path.lineTo(170, 80);
+
+    let paths = [path];
+    let paints = [paint];
+
+    function drawFrame(canvas) {
+      canvas.clear(CanvasKit.Color(255, 255, 255, 1.0));
+
+      for (let i = 0; i < paints.length && i < paths.length; i++) {
+        canvas.drawPath(paths[i], paints[i]);
+      }
+
+      surface.requestAnimationFrame(drawFrame);
+    }
+
+    let hold = false;
+    let interact = (e) => {
+      let type = e.type;
+      if (type === 'lostpointercapture' || type === 'pointerup' || !e.pressure ) {
+        hold = false;
+        return;
+      }
+      if (hold) {
+        path.lineTo(e.offsetX, e.offsetY);
+      } else {
+        paint = paint.copy();
+        paint.setColor(CanvasKit.Color(Math.random() * 255, Math.random() * 255, Math.random() * 255, Math.random() + .2));
+        paints.push(paint);
+        path = new CanvasKit.SkPath();
+        paths.push(path);
+        path.moveTo(e.offsetX, e.offsetY);
+      }
+      hold = true;
+    };
+    document.getElementById('ink').addEventListener('pointermove', interact);
+    document.getElementById('ink').addEventListener('pointerdown', interact);
+    document.getElementById('ink').addEventListener('lostpointercapture', interact);
+    document.getElementById('ink').addEventListener('pointerup', interact);
+    preventScrolling(document.getElementById('ink'));
+    surface.requestAnimationFrame(drawFrame);
+  }
+
+  function starPath(CanvasKit, X=128, Y=128, R=116) {
+    let p = new CanvasKit.SkPath();
+    p.moveTo(X + R, Y);
+    for (let i = 1; i < 8; i++) {
+      let a = 2.6927937 * i;
+      p.lineTo(X + R * Math.cos(a), Y + R * Math.sin(a));
+    }
+    return p;
+  }
+
+  function CanvasAPI1(CanvasKit) {
+    let skcanvas = CanvasKit.MakeCanvas(300, 300);
+    let realCanvas = document.getElementById('api1_c');
+
+    let skPromise   = fetch('./test.png')
+                        // if clients want to use a Blob, they are responsible
+                        // for reading it themselves.
+                        .then((response) => response.arrayBuffer())
+                        .then((buffer) => {
+                          skcanvas._img = skcanvas.decodeImage(buffer);
+                        });
+    let realPromise = fetch('./test.png')
+                        .then((response) => response.blob())
+                        .then((blob) => createImageBitmap(blob))
+                        .then((bitmap) => {
+                          realCanvas._img = bitmap;
+                        });
+
+    let realFontLoaded = new FontFace('Bungee', 'url(/tests/assets/Bungee-Regular.ttf)', {
+      'family': 'Bungee',
+      'style': 'normal',
+      'weight': '400',
+    }).load().then((font) => {
+      document.fonts.add(font);
+    });
+
+    let skFontLoaded = fetch('/tests/assets/Bungee-Regular.ttf').then(
+                             (response) => response.arrayBuffer()).then(
+                             (buffer) => {
+                                // loadFont is synchronous
+                                skcanvas.loadFont(buffer, {
+                                  'family': 'Bungee',
+                                  'style': 'normal',
+                                  'weight': '400',
+                                });
+                              });
+
+    Promise.all([realPromise, skPromise, realFontLoaded, skFontLoaded]).then(() => {
+      for (let canvas of [skcanvas, realCanvas]) {
+        let ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#EEE';
+        ctx.fillRect(0, 0, 300, 300);
+        ctx.fillStyle = 'black';
+        ctx.font = '26px Bungee';
+        ctx.rotate(.1);
+        let text = ctx.measureText('Awesome');
+        ctx.fillText('Awesome ', 25, 100);
+        ctx.strokeText('Groovy!', 35+text.width, 100);
+
+        // Draw line under Awesome
+        ctx.strokeStyle = 'rgba(125,0,0,0.5)';
+        ctx.beginPath();
+        ctx.lineWidth = 6;
+        ctx.moveTo(25, 105);
+        ctx.lineTo(25 + text.width, 105);
+        ctx.stroke();
+
+        // squished vertically
+        ctx.globalAlpha = 0.7
+        ctx.imageSmoothingQuality = 'medium';
+        ctx.drawImage(canvas._img, 150, 150, 150, 100);
+        ctx.rotate(-.2);
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(canvas._img, 100, 150, 400, 350, 10, 200, 150, 100);
+
+        let idata = ctx.getImageData(80, 220, 40, 45);
+        ctx.putImageData(idata, 250, 10);
+        ctx.putImageData(idata, 200, 10, 20, 10, 20, 30);
+        ctx.resetTransform();
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(200, 10, 40, 45);
+
+        idata = ctx.createImageData(10, 20);
+        ctx.putImageData(idata, 10, 10);
+      }
+
+      document.getElementById('api1').src = skcanvas.toDataURL();
+      skcanvas.dispose();
+    });
+
+  }
+
+  function CanvasAPI2(CanvasKit) {
+    let skcanvas = CanvasKit.MakeCanvas(300, 300);
+    let realCanvas = document.getElementById('api2_c');
+    realCanvas.width = 300;
+    realCanvas.height = 300;
+
+    // svg data for a clock
+    skcanvas._path = skcanvas.makePath2D('M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z');
+    realCanvas._path = new Path2D('M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z');
+
+    for (let canvas of [skcanvas, realCanvas]) {
+      let ctx = canvas.getContext('2d');
+      ctx.scale(1.5, 1.5);
+      ctx.moveTo(20, 5);
+      ctx.lineTo(30, 20);
+      ctx.lineTo(40, 10);
+      ctx.lineTo(50, 20);
+      ctx.lineTo(60, 0);
+      ctx.lineTo(20, 5);
+
+      ctx.moveTo(20, 80);
+      ctx.bezierCurveTo(90, 10, 160, 150, 190, 10);
+
+      ctx.moveTo(36, 148);
+      ctx.quadraticCurveTo(66, 188, 120, 136);
+      ctx.lineTo(36, 148);
+
+      ctx.rect(5, 170, 20, 25);
+
+      ctx.moveTo(150, 180);
+      ctx.arcTo(150, 100, 50, 200, 20);
+      ctx.lineTo(160, 160);
+
+      ctx.moveTo(20, 120);
+      ctx.arc(20, 120, 18, 0, 1.75 * Math.PI);
+      ctx.lineTo(20, 120);
+
+      ctx.moveTo(150, 5);
+      ctx.ellipse(130, 25, 30, 10, -1*Math.PI/8, Math.PI/6, 1.5*Math.PI);
+
+      ctx.lineWidth = 4/3;
+      ctx.stroke();
+
+      // make a clock
+      ctx.stroke(canvas._path);
+
+      // Test edgecases and draw direction
+      ctx.beginPath();
+      ctx.arc(50, 100, 10, Math.PI, -Math.PI/2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(75, 100, 10, Math.PI, -Math.PI/2, true);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(100, 100, 10, Math.PI, 100.1 * Math.PI, true);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(125, 100, 10, Math.PI, 100.1 * Math.PI, false);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(155, 100, 10, 15, Math.PI/8, 100.1 * Math.PI, Math.PI, true);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(180, 100, 10, 15, Math.PI/8, Math.PI, 100.1 * Math.PI, true);
+      ctx.stroke();
+    }
+    document.getElementById('api2').src = skcanvas.toDataURL();
+    skcanvas.dispose();
+  }
+
+  function CanvasAPI3(CanvasKit) {
+    let skcanvas = CanvasKit.MakeCanvas(300, 300);
+    let realCanvas = document.getElementById('api3_c');
+    realCanvas.width = 300;
+    realCanvas.height = 300;
+
+    for (let canvas of [skcanvas, realCanvas]) {
+      let ctx = canvas.getContext('2d');
+      ctx.rect(10, 10, 20, 20);
+
+      ctx.scale(2.0, 4.0);
+      ctx.rect(30, 10, 20, 20);
+      ctx.resetTransform();
+
+      ctx.rotate(Math.PI / 3);
+      ctx.rect(50, 10, 20, 20);
+      ctx.resetTransform();
+
+      ctx.translate(30, -2);
+      ctx.rect(70, 10, 20, 20);
+      ctx.resetTransform();
+
+      ctx.translate(60, 0);
+      ctx.rotate(Math.PI / 6);
+      ctx.transform(1.5, 0, 0, 0.5, 0, 0, 0); // effectively scale
+      ctx.rect(90, 10, 20, 20);
+      ctx.resetTransform();
+
+      ctx.save();
+      ctx.setTransform(2, 0, -.5, 2.5, -40, 120);
+      ctx.rect(110, 10, 20, 20);
+      ctx.lineTo(110, 0);
+      ctx.restore();
+      ctx.lineTo(220, 120);
+
+      ctx.scale(3.0, 3.0);
+      ctx.font = '6pt Noto Mono';
+      ctx.fillText('This text should be huge', 10, 80);
+      ctx.resetTransform();
+
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(250, 30);
+      ctx.lineTo(250, 80);
+      ctx.scale(3.0, 3.0);
+      ctx.lineTo(280/3, 90/3);
+      ctx.closePath();
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+
+    }
+    document.getElementById('api3').src = skcanvas.toDataURL();
+    skcanvas.dispose();
+  }
+
+  function CanvasAPI4(CanvasKit) {
+    let skcanvas = CanvasKit.MakeCanvas(300, 300);
+    let realCanvas = document.getElementById('api4_c');
+    realCanvas.width = 300;
+    realCanvas.height = 300;
+
+    for (let canvas of [skcanvas, realCanvas]) {
+      let ctx = canvas.getContext('2d');
+
+      ctx.strokeStyle = '#000';
+      ctx.fillStyle = '#CCC';
+      ctx.shadowColor = 'rebeccapurple';
+      ctx.shadowBlur = 1;
+      ctx.shadowOffsetX = 3;
+      ctx.shadowOffsetY = -8;
+      ctx.rect(10, 10, 30, 30);
+
+      ctx.save();
+      ctx.strokeStyle = '#C00';
+      ctx.fillStyle = '#00C';
+      ctx.shadowBlur = 0;
+      ctx.shadowColor = 'transparent';
+
+      ctx.stroke();
+
+      ctx.restore();
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(36, 148);
+      ctx.quadraticCurveTo(66, 188, 120, 136);
+      ctx.closePath();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.shadowColor = '#993366AA';
+      ctx.shadowOffsetX = 8;
+      ctx.shadowBlur = 5;
+      ctx.setTransform(2, 0, -.5, 2.5, -40, 120);
+      ctx.rect(110, 10, 20, 20);
+      ctx.lineTo(110, 0);
+      ctx.resetTransform();
+      ctx.lineTo(220, 120);
+      ctx.stroke();
+
+      ctx.fillStyle = 'green';
+      ctx.font = '16pt Noto Mono';
+      ctx.fillText('This should be shadowed', 20, 80);
+
+      ctx.beginPath();
+      ctx.lineWidth = 6;
+      ctx.ellipse(10, 290, 30, 30, 0, 0, Math.PI * 2);
+      ctx.scale(2, 1);
+      ctx.moveTo(10, 290)
+      ctx.ellipse(10, 290, 30, 60, 0, 0, Math.PI * 2);
+      ctx.resetTransform();
+      ctx.scale(3, 1);
+      ctx.moveTo(10, 290)
+      ctx.ellipse(10, 290, 30, 90, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    document.getElementById('api4').src = skcanvas.toDataURL();
+    skcanvas.dispose();
+  }
+
+  function CanvasAPI5(CanvasKit) {
+    let skcanvas = CanvasKit.MakeCanvas(600, 600);
+    let realCanvas = document.getElementById('api5_c');
+    realCanvas.width = 600;
+    realCanvas.height = 600;
+
+    for (let canvas of [skcanvas, realCanvas]) {
+      let ctx = canvas.getContext('2d');
+      ctx.scale(1.1, 1.1);
+      ctx.translate(10, 10);
+      // Shouldn't impact the fillRect calls
+      ctx.setLineDash([5, 3]);
+
+      ctx.fillStyle = 'rgba(200, 0, 100, 0.81)';
+      ctx.fillRect(20, 30, 100, 100);
+
+      ctx.globalAlpha = 0.81;
+      ctx.fillStyle = 'rgba(200, 0, 100, 1.0)';
+      ctx.fillRect(120, 30, 100, 100);
+      // This shouldn't do anything
+      ctx.globalAlpha = 0.1;
+
+      ctx.fillStyle = 'rgba(200, 0, 100, 0.9)';
+      ctx.globalAlpha = 0.9;
+      // Intentional no-op to check ordering
+      ctx.clearRect(220, 30, 100, 100);
+      ctx.fillRect(220, 30, 100, 100);
+
+      ctx.fillRect(320, 30, 100, 100);
+      ctx.clearRect(330, 40, 80, 80);
+
+      ctx.strokeStyle = 'blue';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([5, 3]);
+      ctx.strokeRect(20, 150, 100, 100);
+      ctx.setLineDash([50, 30]);
+      ctx.strokeRect(125, 150, 100, 100);
+      ctx.lineDashOffset = 25;
+      ctx.strokeRect(230, 150, 100, 100);
+      ctx.setLineDash([2, 5, 9]);
+      ctx.strokeRect(335, 150, 100, 100);
+
+      ctx.setLineDash([5, 2]);
+      ctx.moveTo(336, 400);
+      ctx.quadraticCurveTo(366, 488, 120, 450);
+      ctx.lineTo(300, 400);
+      ctx.stroke();
+
+      ctx.font = '36pt Noto Mono';
+      ctx.strokeText('Dashed', 20, 350);
+      ctx.fillText('Not Dashed', 20, 400);
+
+    }
+    document.getElementById('api5').src = skcanvas.toDataURL();
+    skcanvas.dispose();
+  }
+
+  function CanvasAPI6(CanvasKit) {
+    let skcanvas = CanvasKit.MakeCanvas(600, 600);
+    let realCanvas = document.getElementById('api6_c');
+    realCanvas.width = 600;
+    realCanvas.height = 600;
+
+    for (let canvas of [skcanvas, realCanvas]) {
+      let ctx = canvas.getContext('2d');
+
+      let rgradient = ctx.createRadialGradient(200, 300, 10, 100, 100, 300);
+
+      // Add three color stops
+      rgradient.addColorStop(0, 'red');
+      rgradient.addColorStop(0.7, 'white');
+      rgradient.addColorStop(1, 'blue');
+
+      ctx.fillStyle = rgradient;
+      ctx.globalAlpha = 0.7;
+      ctx.fillRect(0, 0, 600, 600);
+      ctx.globalAlpha = 0.95;
+
+      ctx.beginPath();
+      ctx.arc(300, 100, 90, 0, Math.PI*1.66);
+      ctx.closePath();
+      ctx.strokeStyle = 'yellow';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+      ctx.save();
+      ctx.clip();
+
+      let lgradient = ctx.createLinearGradient(200, 20, 420, 40);
+
+      // Add three color stops
+      lgradient.addColorStop(0, 'green');
+      lgradient.addColorStop(0.5, 'cyan');
+      lgradient.addColorStop(1, 'orange');
+
+      ctx.fillStyle = lgradient;
+
+      ctx.fillRect(200, 30, 200, 300);
+
+      ctx.restore();
+      ctx.fillRect(550, 550, 40, 40);
+
+    }
+    document.getElementById('api6').src = skcanvas.toDataURL();
+    skcanvas.dispose();
+  }
+
+  function CanvasAPI7(CanvasKit) {
+    let skcanvas = CanvasKit.MakeCanvas(300, 300);
+    let realCanvas = document.getElementById('api7_c');
+
+    let skPromise   = fetch('./test.png')
+                        // if clients want to use a Blob, they are responsible
+                        // for reading it themselves.
+                        .then((response) => response.arrayBuffer())
+                        .then((buffer) => {
+                          skcanvas._img = skcanvas.decodeImage(buffer);
+                        });
+    let realPromise = fetch('./test.png')
+                        .then((response) => response.blob())
+                        .then((blob) => createImageBitmap(blob))
+                        .then((bitmap) => {
+                          realCanvas._img = bitmap;
+                        });
+
+
+    Promise.all([realPromise, skPromise]).then(() => {
+      for (let canvas of [skcanvas, realCanvas]) {
+        let ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#EEE';
+        ctx.fillRect(0, 0, 300, 300);
+        ctx.lineWidth = 20;
+        ctx.scale(0.1, 0.2);
+
+        let pattern = ctx.createPattern(canvas._img, 'repeat');
+        ctx.fillStyle = pattern;
+        ctx.fillRect(0, 0, 1500, 750);
+
+        pattern = ctx.createPattern(canvas._img, 'repeat-x');
+        ctx.fillStyle = pattern;
+        ctx.fillRect(1500, 0, 3000, 750);
+
+        ctx.globalAlpha = 0.7
+        pattern = ctx.createPattern(canvas._img, 'repeat-y');
+        ctx.fillStyle = pattern;
+        ctx.fillRect(0, 750, 1500, 1500);
+        ctx.strokeRect(0, 750, 1500, 1500);
+
+        pattern = ctx.createPattern(canvas._img, 'no-repeat');
+        ctx.fillStyle = pattern;
+        pattern.setTransform({a: 1, b: -.1, c:.1, d: 0.5, e: 1800, f:800});
+        ctx.fillRect(0, 0, 3000, 1500);
+      }
+
+      document.getElementById('api7').src = skcanvas.toDataURL();
+      skcanvas.dispose();
+    });
+  }
+
+  function CanvasAPI8(CanvasKit) {
+    let skcanvas = CanvasKit.MakeCanvas(300, 300);
+    let realCanvas = document.getElementById('api8_c');
+
+    function drawPoint(ctx, x, y, color) {
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, 1, 1);
+    }
+    const IN = 'purple';
+    const OUT = 'orange';
+    const SCALE = 4;
+
+    const pts = [[3, 3], [4, 4], [5, 5], [10, 10], [8, 10], [6, 10],
+                 [6.5, 9], [15, 10], [17, 10], [17, 11], [24, 24],
+                 [25, 25], [26, 26], [27, 27]];
+
+    const tests = [
+      {
+        xOffset: 0,
+        yOffset: 0,
+        fillType: 'nonzero',
+        strokeWidth: 0,
+        testFn: (ctx, x, y) => ctx.isPointInPath(x * SCALE, y * SCALE, 'nonzero'),
+      },
+      {
+        xOffset: 30,
+        yOffset: 0,
+        fillType: 'evenodd',
+        strokeWidth: 0,
+        testFn: (ctx, x, y) => ctx.isPointInPath(x * SCALE, y * SCALE, 'evenodd'),
+      },
+      {
+        xOffset: 0,
+        yOffset: 30,
+        fillType: null,
+        strokeWidth: 1,
+        testFn: (ctx, x, y) => ctx.isPointInStroke(x * SCALE, y * SCALE),
+      },
+      {
+        xOffset: 30,
+        yOffset: 30,
+        fillType: null,
+        strokeWidth: 2,
+        testFn: (ctx, x, y) => ctx.isPointInStroke(x * SCALE, y * SCALE),
+      },
+    ];
+
+    for (let canvas of [skcanvas, realCanvas]) {
+      let ctx = canvas.getContext('2d');
+      ctx.font = '11px Noto Mono';
+      // Draw some visual aids
+      ctx.fillText('path-nonzero', 30, 15);
+      ctx.fillText('path-evenodd', 150, 15);
+      ctx.fillText('stroke-1px-wide', 30, 130);
+      ctx.fillText('stroke-2px-wide', 150, 130);
+      ctx.fillText('purple is IN, orange is OUT', 10, 280);
+
+      // Scale up to make single pixels easier to see
+      ctx.scale(SCALE, SCALE);
+      for (let test of tests) {
+        ctx.beginPath();
+        let xOffset = test.xOffset;
+        let yOffset = test.yOffset;
+
+        ctx.fillStyle = '#AAA';
+        ctx.lineWidth = test.strokeWidth;
+        ctx.rect(5+xOffset, 5+yOffset, 20, 20);
+        ctx.arc(15+xOffset, 15+yOffset, 8, 0, Math.PI*2, false);
+        if (test.fillType) {
+          ctx.fill(test.fillType);
+        } else {
+          ctx.stroke();
+        }
+
+        for (let pt of pts) {
+          let [x, y] = pt;
+          x += xOffset;
+          y += yOffset;
+          // naively apply transform when querying because the points queried
+          // ignore the CTM.
+          if (test.testFn(ctx, x, y)) {
+            drawPoint(ctx, x, y, IN);
+          } else {
+            drawPoint(ctx, x, y, OUT);
+          }
+        }
+      }
+    }
+
+    document.getElementById('api8').src = skcanvas.toDataURL();
+    skcanvas.dispose();
+  }
+
+  function VertexAPI1(CanvasKit) {
+    const surface = CanvasKit.MakeCanvasSurface('vertex1');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const canvas = surface.getCanvas();
+    let paint = new CanvasKit.SkPaint();
+
+    // See https://fiddle.skia.org/c/f48b22eaad1bb7adcc3faaa321754af6
+    // for original c++ version.
+    let points = [[ 0, 0 ], [ 250, 0 ], [ 100, 100 ], [ 0, 250 ]];
+    let colors = [CanvasKit.RED, CanvasKit.BLUE,
+                  CanvasKit.YELLOW, CanvasKit.CYAN];
+    let vertices = CanvasKit.MakeSkVertices(CanvasKit.VertexMode.TriangleFan,
+                                            points, null, colors,
+                                            false /*isVolatile*/);
+
+    canvas.drawVertices(vertices, CanvasKit.BlendMode.Src, paint);
+
+    vertices.delete();
+
+    // See https://fiddle.skia.org/c/e8bdae9bea3227758989028424fcac3d
+    // for original c++ version.
+    points   = [[ 300, 300 ], [ 50, 300 ], [ 200, 200 ], [ 300, 50 ]];
+    let texs = [[   0,   0 ], [  0, 250 ], [ 250, 250 ], [ 250,  0 ]];
+    vertices = CanvasKit.MakeSkVertices(CanvasKit.VertexMode.TriangleFan,
+                                            points, texs, colors);
+
+    let shader = CanvasKit.MakeLinearGradientShader([0, 0], [250, 0],
+            colors, null, CanvasKit.TileMode.Clamp);
+    paint.setShader(shader);
+
+    canvas.drawVertices(vertices, CanvasKit.BlendMode.Darken, paint);
+    surface.flush();
+
+    shader.delete();
+    paint.delete();
+    surface.delete();
+  }
+
+  // bonesImageData is passed in as raw, encoded bytes.
+  function VertexAPI2(CanvasKit, bonesImageData) {
+    if (!CanvasKit || !bonesImageData) {
+      return;
+    }
+    const surface = CanvasKit.MakeCanvasSurface('vertex2');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    let paint = new CanvasKit.SkPaint();
+    let bonesImage = CanvasKit.MakeImageFromEncoded(bonesImageData);
+
+    let shader = bonesImage.makeShader(CanvasKit.TileMode.Clamp,
+                                       CanvasKit.TileMode.Clamp);
+
+    // comment this out to see just the triangles move.
+    paint.setShader(shader);
+
+    // points is the destination location on the canvas  We want the output
+    // to be a 280x280 box (to start).
+    let points   = [[ 0, 0 ],  [ 280, 0 ], [ 280, 280 ], [ 0, 280 ]];
+    // texs is the coordinates of the source in the texture
+    // (provided by the image shader). The image is 334x226 px big.
+    let texs     = [[ 0, 0 ],  [ 334, 0 ], [ 334, 226 ], [ 0, 226 ]];
+    let boneidxs = [[1,0,0,0], [2,0,0,0],  [3,0,0,0],    [2,3,0,0]];
+    let bonewts  = [[1,0,0,0], [1,0,0,0],  [1,0,0,0],    [.5,.5,0,0]];
+    let vertices = CanvasKit.MakeSkVertices(CanvasKit.VertexMode.TriangleFan,
+                                            points, texs, null, boneidxs, bonewts);
+
+    function drawFrame(canvas) {
+      let now = Date.now();
+      let bones = [
+        [[1,0, // world bone (move 10px down and to the right to center)
+          0,1,
+          10,10]],
+        [[1,0, // identity bone (bone for vertices that are static)
+          0,1,
+          0,0]],
+        [[1,0, // ossilate in x bone
+          0,1,
+          10*Math.sin(now/500),0]],
+        [[1,0, // ossilate in y bone
+          0,1,
+          0,30*Math.cos(now/500)]],
+      ];
+      let tVerts = vertices.applyBones(bones);
+      canvas.clear(CanvasKit.TRANSPARENT);
+      canvas.drawVertices(tVerts, CanvasKit.BlendMode.Src, paint);
+
+      tVerts.delete();
+      surface.requestAnimationFrame(drawFrame);
+    }
+    surface.requestAnimationFrame(drawFrame);
+    //tVerts.delete();
+    //vertices.delete();
+
+    // bonesImage && bonesImage.delete();
+    //shader && shader.delete();
+    //paint.delete();
+    //surface.delete();
+
+  }
+
+  function GradiantAPI1(CanvasKit) {
+    const surface = CanvasKit.MakeSWCanvasSurface('gradient1');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const canvas = surface.getCanvas();
+    let paint = new CanvasKit.SkPaint();
+
+    // See https://fiddle.skia.org/c/f48b22eaad1bb7adcc3faaa321754af6
+    // for original c++ version.
+    let points = [[ 0, 0 ], [ 250, 0 ], [ 100, 100 ], [ 0, 250 ]];
+    let colors = [CanvasKit.BLUE, CanvasKit.YELLOW, CanvasKit.RED];
+    let pos =    [0, .7, 1.0];
+    let transform = [2, 0, 0,
+                     0, 2, 0,
+                     0, 0, 1]
+    let shader = CanvasKit.MakeRadialGradientShader([150,150], 130, colors,
+                              pos, CanvasKit.TileMode.Mirror, transform);
+
+    paint.setShader(shader);
+    const textFont = new CanvasKit.SkFont(null, 75);
+    const textBlob = CanvasKit.SkTextBlob.MakeFromText('Radial', textFont);
+
+    canvas.drawTextBlob(textBlob, 10, 200, paint);
+    paint.delete()
+    textFont.delete();
+    textBlob.delete();
+    surface.flush();
+  }
+
+  function TextShapingAPI1(CanvasKit, notoserifData) {
+    if (!notoserifData || !CanvasKit) {
+      return;
+    }
+    const surface = CanvasKit.MakeSWCanvasSurface('shape1');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const canvas = surface.getCanvas();
+    const paint = new CanvasKit.SkPaint();
+    paint.setColor(CanvasKit.BLUE);
+    paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+    const fontMgr = CanvasKit.SkFontMgr.RefDefault();
+    const notoSerif = fontMgr.MakeTypefaceFromData(notoserifData);
+
+    const textPaint = new CanvasKit.SkPaint();
+    const textFont = new CanvasKit.SkFont(notoSerif, 20);
+
+    canvas.drawRect(CanvasKit.LTRBRect(30, 30, 200, 200), paint);
+    canvas.drawText('This text is not shaped, and overflows the boundry',
+                    35, 50, textPaint, textFont);
+
+    const shapedText = new CanvasKit.ShapedText({
+      font: textFont,
+      leftToRight: true,
+      text: 'This text *is* shaped, and wraps to the right width.',
+      width: 160,
+    });
+    const textBoxX = 35;
+    const textBoxY = 55;
+    canvas.drawText(shapedText, textBoxX, textBoxY, textPaint);
+    const bounds = shapedText.getBounds();
+
+    bounds.fLeft += textBoxX;
+    bounds.fRight += textBoxX;
+    bounds.fTop += textBoxY;
+    bounds.fBottom += textBoxY
+
+    canvas.drawRect(bounds, paint);
+    const SHAPE_TEST_TEXT = 'VAVAVAVAVAFIfi';
+    const textFont2 = new CanvasKit.SkFont(notoSerif, 60);
+    const shapedText2 = new CanvasKit.ShapedText({
+      font: textFont2,
+      leftToRight: true,
+      text: SHAPE_TEST_TEXT,
+      width: 600,
+    });
+
+    canvas.drawText('no kerning ↓', 10, 240, textPaint, textFont);
+    canvas.drawText(SHAPE_TEST_TEXT, 10, 300, textPaint, textFont2);
+    canvas.drawText(shapedText2, 10, 300, textPaint);
+    canvas.drawText('kerning ↑', 10, 390, textPaint, textFont);
+
+    surface.flush();
+
+    paint.delete();
+    notoSerif.delete();
+    textPaint.delete();
+    textFont.delete();
+    shapedText.delete();
+    textFont2.delete();
+    shapedText2.delete();
+
+    surface.delete();
+  }
+
+  function TextShapingAPI2(CanvasKit, notoserifData) {
+    if (!notoserifData || !CanvasKit) {
+      return;
+    }
+    const surface = CanvasKit.MakeSWCanvasSurface('shape2');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const paint = new CanvasKit.SkPaint();
+    paint.setColor(CanvasKit.BLUE);
+    paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+    const fontMgr = CanvasKit.SkFontMgr.RefDefault();
+    const notoSerif = fontMgr.MakeTypefaceFromData(notoserifData);
+
+    const textPaint = new CanvasKit.SkPaint();
+    const bigFont = new CanvasKit.SkFont(notoSerif, 40);
+    const smallFont = new CanvasKit.SkFont(notoSerif, 25);
+
+    const TEXT = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ac leo vitae ipsum hendrerit euismod quis rutrum nibh. Quisque non suscipit urna. Donec enim urna, facilisis vitae volutpat in, mattis at elit. Sed quis augue et dolor dignissim fringilla. Sed non massa eu neque tristique malesuada. ';
+
+    let X = 240;
+    let Y = 190;
+
+    function drawFrame(canvas) {
+      canvas.clear(CanvasKit.TRANSPARENT);
+
+      const shapedText = new CanvasKit.ShapedText({
+        font: smallFont,
+        leftToRight: true,
+        text: TEXT,
+        width: (X * 2) - 10,
+      });
+
+      canvas.drawRect(CanvasKit.LTRBRect(10, 10, X*2, Y*2), paint);
+      canvas.drawText(shapedText, 10, 40, textPaint, smallFont);
+      canvas.drawText('Try Clicking!', 10, 480, textPaint, bigFont);
+
+      shapedText.delete();
+
+      surface.requestAnimationFrame(drawFrame);
+    }
+    surface.requestAnimationFrame(drawFrame);
+
+    // Make animation interactive
+    let interact = (e) => {
+      if (!e.pressure) {
+        return;
+      }
+      X = e.offsetX;
+      Y = e.offsetY;
+    };
+    document.getElementById('shape2').addEventListener('pointermove', interact);
+    document.getElementById('shape2').addEventListener('pointerdown', interact);
+    preventScrolling(document.getElementById('shape2'));
+  }
+
+  function TextOnPathAPI1(CanvasKit) {
+    const surface = CanvasKit.MakeSWCanvasSurface('textonpath');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const canvas = surface.getCanvas();
+    const paint = new CanvasKit.SkPaint();
+    paint.setStyle(CanvasKit.PaintStyle.Stroke);
+    paint.setAntiAlias(true);
+
+    const font = new CanvasKit.SkFont(null, 24);
+    const fontPaint = new CanvasKit.SkPaint();
+    fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
+    fontPaint.setAntiAlias(true);
+
+    const arc = new CanvasKit.SkPath();
+    arc.arcTo(CanvasKit.LTRBRect(20, 40, 280, 300), -160, 140, true);
+    arc.lineTo(210, 140);
+    arc.arcTo(CanvasKit.LTRBRect(20, 0, 280, 260), 160, -140, true);
+
+    const str = 'This téxt should follow the curve across contours...';
+    const textBlob = CanvasKit.SkTextBlob.MakeOnPath(str, arc, font);
+
+    canvas.drawPath(arc, paint);
+    canvas.drawTextBlob(textBlob, 0, 0, fontPaint);
+
+    surface.flush();
+
+    textBlob.delete();
+    arc.delete();
+    paint.delete();
+    font.delete();
+    fontPaint.delete();
+  }
+
+  function SurfaceAPI1(CanvasKit) {
+    const surface = CanvasKit.MakeCanvasSurface('surfaces');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const grContext = surface.grContext;
+
+    // create a subsurface as a temporary workspace.
+    const subSurface = surface.makeSurface({
+      width: 50,
+      height: 50,
+      alphaType: CanvasKit.AlphaType.Premul,
+      colorType: CanvasKit.ColorType.RGBA_8888,
+    });
+
+    if (!subSurface) {
+      console.error('Could not make subsurface');
+      return;
+    }
+
+    // draw a small "scene"
+    const paint = new CanvasKit.SkPaint();
+    paint.setColor(CanvasKit.Color(139, 228, 135, 0.95)); // greenish
+    paint.setStyle(CanvasKit.PaintStyle.Fill);
+    paint.setAntiAlias(true);
+
+    const subCanvas = subSurface.getCanvas();
+    subCanvas.clear(CanvasKit.BLACK);
+    subCanvas.drawRect(CanvasKit.LTRBRect(5, 15, 45, 40), paint);
+
+    paint.setColor(CanvasKit.Color(214, 93, 244)); // purplish
+    for (let i = 0; i < 10; i++) {
+      const x = Math.random() * 50;
+      const y = Math.random() * 50;
+
+      subCanvas.drawOval(CanvasKit.XYWHRect(x, y, 6, 6), paint);
+    }
+
+    // Snap it off as an SkImage - this image will be in the form the
+    // parent surface prefers (e.g. Texture for GPU / Raster for CPU).
+    const img = subSurface.makeImageSnapshot();
+
+    // clean up the temporary surface (which also cleans up subCanvas)
+    subSurface.delete();
+    paint.delete();
+
+    // Make it repeat a bunch with a shader
+    const pattern = img.makeShader(CanvasKit.TileMode.Repeat, CanvasKit.TileMode.Mirror);
+    const patternPaint = new CanvasKit.SkPaint();
+    patternPaint.setShader(pattern);
+
+    let i = 0;
+
+    function drawFrame(canvas) {
+      i++;
+      canvas.clear(CanvasKit.WHITE);
+
+      canvas.drawOval(CanvasKit.LTRBRect(i % 60, i % 60, 300 - (i% 60), 300 - (i % 60)), patternPaint);
+      surface.requestAnimationFrame(drawFrame);
+      // if (grContext) {
+      //   console.log(grContext.getResourceCacheUsageBytes() + ' bytes used in the GPU');
+      // }
+    }
+    surface.requestAnimationFrame(drawFrame);
+  }
+
+  function AtlasAPI1(CanvasKit, imgData) {
+    if (!CanvasKit || !imgData) {
+      return;
+    }
+    const surface = CanvasKit.MakeCanvasSurface('atlas');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const img = CanvasKit.MakeImageFromEncoded(imgData);
+
+    const paint = new CanvasKit.SkPaint();
+    paint.setColor(CanvasKit.Color(0, 0, 0, 0.8));
+
+    const srcs = new CanvasKit.SkRectBuilder();
+    srcs.push(0, 0, 250, 250 ); // LTRB
+    srcs.push(250, 0, 500, 250 );
+
+    const dsts = new CanvasKit.RSXFormBuilder();
+    dsts.push(.5, 0, 0, 0); // scos, ssin, tx, ty
+    dsts.push(0, .8, 200, 100);
+
+    const colors = new CanvasKit.SkColorBuilder();
+    colors.push(CanvasKit.Color(85, 170, 10, 0.5)); // light green
+    colors.push(CanvasKit.Color(51, 51, 191, 0.5)); // light blue
+
+    let i = 0;
+
+    function drawFrame(canvas) {
+      canvas.clear(CanvasKit.WHITE);
+      i++;
+      let scale = 0.5 + Math.sin(i/40)/4;
+
+      // update the coordinates of existing sprites - note that this
+      // does not require a full re-copy of the full array; they are
+      // updated in-place.
+      dsts.set(0, 0.5, 0, (2*i)%200, (5*Math.round(i/200)) % 200);
+      dsts.set(1, scale*Math.sin(i/20), scale*Math.cos(i/20), 200, 100);
+
+      canvas.drawAtlas(img, srcs, dsts, paint, CanvasKit.BlendMode.Plus, colors);
+
+      // Skip drawing the 17th frame to the screen, and instead draw it to
+      // an SkPicture - a format which can be useful for debugging.
+      // The C++ version of Skia can open a SKP created by the WASM version,
+      // which can aid performance diagnosis.
+      //if (i === 17) {
+      //   const pic = surface.captureFrameAsSkPicture(drawFrame, "frame17.skp");
+      //   pic.DEBUGONLY_saveAsFile("frame17.skp");
+      //   pic.delete();
+      // } else {
+        surface.requestAnimationFrame(drawFrame);
+       // }
+    }
+    surface.requestAnimationFrame(drawFrame);
+
+  }
+</script>

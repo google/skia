@@ -5,115 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
-#include "SkBlurMask.h"
-#include "SkLayerDrawLooper.h"
-#include "SkMaskFilter.h"
-#include "SkPaintPriv.h"
-#include "SkPath.h"
-#include "SkRandom.h"
-#include "SkReadBuffer.h"
-#include "SkTypeface.h"
-#include "SkUtils.h"
-#include "SkWriteBuffer.h"
-#include "Test.h"
-
-static size_t uni_to_utf8(const SkUnichar src[], void* dst, int count) {
-    char* u8 = (char*)dst;
-    for (int i = 0; i < count; ++i) {
-        int n = SkToInt(SkUTF8_FromUnichar(src[i], u8));
-        u8 += n;
-    }
-    return u8 - (char*)dst;
-}
-
-static size_t uni_to_utf16(const SkUnichar src[], void* dst, int count) {
-    uint16_t* u16 = (uint16_t*)dst;
-    for (int i = 0; i < count; ++i) {
-        int n = SkToInt(SkUTF16_FromUnichar(src[i], u16));
-        u16 += n;
-    }
-    return (char*)u16 - (char*)dst;
-}
-
-static size_t uni_to_utf32(const SkUnichar src[], void* dst, int count) {
-    SkUnichar* u32 = (SkUnichar*)dst;
-    if (src != u32) {
-        memcpy(u32, src, count * sizeof(SkUnichar));
-    }
-    return count * sizeof(SkUnichar);
-}
-
-static SkTypeface::Encoding paint2encoding(const SkPaint& paint) {
-    SkPaint::TextEncoding enc = paint.getTextEncoding();
-    SkASSERT(SkPaint::kGlyphID_TextEncoding != enc);
-    return (SkTypeface::Encoding)enc;
-}
-
-static int find_first_zero(const uint16_t glyphs[], int count) {
-    for (int i = 0; i < count; ++i) {
-        if (0 == glyphs[i]) {
-            return i;
-        }
-    }
-    return count;
-}
-
-DEF_TEST(Paint_cmap, reporter) {
-    // need to implement charsToGlyphs on other backends (e.g. linux, win)
-    // before we can run this tests everywhere
-    return;
-
-    static const int NGLYPHS = 64;
-
-    SkUnichar src[NGLYPHS];
-    SkUnichar dst[NGLYPHS]; // used for utf8, utf16, utf32 storage
-
-    static const struct {
-        size_t (*fSeedTextProc)(const SkUnichar[], void* dst, int count);
-        SkPaint::TextEncoding   fEncoding;
-    } gRec[] = {
-        { uni_to_utf8,  SkPaint::kUTF8_TextEncoding },
-        { uni_to_utf16, SkPaint::kUTF16_TextEncoding },
-        { uni_to_utf32, SkPaint::kUTF32_TextEncoding },
-    };
-
-    SkRandom rand;
-    SkPaint paint;
-    paint.setTypeface(SkTypeface::MakeDefault());
-    SkTypeface* face = paint.getTypeface();
-
-    for (int i = 0; i < 1000; ++i) {
-        // generate some random text
-        for (int j = 0; j < NGLYPHS; ++j) {
-            src[j] = ' ' + j;
-        }
-        // inject some random chars, to sometimes abort early
-        src[rand.nextU() & 63] = rand.nextU() & 0xFFF;
-
-        for (size_t k = 0; k < SK_ARRAY_COUNT(gRec); ++k) {
-            paint.setTextEncoding(gRec[k].fEncoding);
-
-            size_t len = gRec[k].fSeedTextProc(src, dst, NGLYPHS);
-
-            uint16_t    glyphs0[NGLYPHS], glyphs1[NGLYPHS];
-
-            bool contains = paint.containsText(dst, len);
-            int nglyphs = paint.textToGlyphs(dst, len, glyphs0);
-            int first = face->charsToGlyphs(dst, paint2encoding(paint), glyphs1, NGLYPHS);
-            int index = find_first_zero(glyphs1, NGLYPHS);
-
-            REPORTER_ASSERT(reporter, NGLYPHS == nglyphs);
-            REPORTER_ASSERT(reporter, index == first);
-            REPORTER_ASSERT(reporter, 0 == memcmp(glyphs0, glyphs1, NGLYPHS * sizeof(uint16_t)));
-            if (contains) {
-                REPORTER_ASSERT(reporter, NGLYPHS == first);
-            } else {
-                REPORTER_ASSERT(reporter, NGLYPHS > first);
-            }
-        }
-    }
-}
+#include "include/core/SkFont.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkTo.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkBlurMask.h"
+#include "src/core/SkPaintPriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/utils/SkUTF.h"
+#include "tests/Test.h"
+#undef ASSERT
 
 // temparary api for bicubic, just be sure we can set/clear it
 DEF_TEST(Paint_filterQuality, reporter) {
@@ -142,16 +47,14 @@ DEF_TEST(Paint_copy, reporter) {
     SkPaint paint;
     // set a few member variables
     paint.setStyle(SkPaint::kStrokeAndFill_Style);
-    paint.setTextAlign(SkPaint::kLeft_Align);
     paint.setStrokeWidth(SkIntToScalar(2));
     // set a few pointers
-    SkLayerDrawLooper::Builder looperBuilder;
-    paint.setLooper(looperBuilder.detach());
     paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle,
                                                SkBlurMask::ConvertRadiusToSigma(1)));
 
     // copy the paint using the copy constructor and check they are the same
     SkPaint copiedPaint = paint;
+    REPORTER_ASSERT(reporter, paint.getHash() == copiedPaint.getHash());
     REPORTER_ASSERT(reporter, paint == copiedPaint);
 
     // copy the paint using the equal operator and check they are the same
@@ -207,17 +110,6 @@ DEF_TEST(Paint_flattening, reporter) {
         kMedium_SkFilterQuality,
         kHigh_SkFilterQuality,
     };
-    const SkPaint::Hinting hinting[] = {
-        SkPaint::kNo_Hinting,
-        SkPaint::kSlight_Hinting,
-        SkPaint::kNormal_Hinting,
-        SkPaint::kFull_Hinting,
-    };
-    const SkPaint::Align align[] = {
-        SkPaint::kLeft_Align,
-        SkPaint::kCenter_Align,
-        SkPaint::kRight_Align
-    };
     const SkPaint::Cap caps[] = {
         SkPaint::kButt_Cap,
         SkPaint::kRound_Cap,
@@ -228,12 +120,6 @@ DEF_TEST(Paint_flattening, reporter) {
         SkPaint::kRound_Join,
         SkPaint::kBevel_Join,
     };
-    const SkPaint::TextEncoding encodings[] = {
-        SkPaint::kUTF8_TextEncoding,
-        SkPaint::kUTF16_TextEncoding,
-        SkPaint::kUTF32_TextEncoding,
-        SkPaint::kGlyphID_TextEncoding,
-    };
     const SkPaint::Style styles[] = {
         SkPaint::kFill_Style,
         SkPaint::kStroke_Style,
@@ -242,17 +128,16 @@ DEF_TEST(Paint_flattening, reporter) {
 
 #define FOR_SETUP(index, array, setter)                                 \
     for (size_t index = 0; index < SK_ARRAY_COUNT(array); ++index) {    \
-        paint.setter(array[index]);                                     \
+        paint.setter(array[index]);
 
     SkPaint paint;
-    paint.setFlags(0x1234);
+    paint.setAntiAlias(true);
+
+    // we don't serialize hinting or encoding -- soon to be removed from paint
 
     FOR_SETUP(i, levels, setFilterQuality)
-    FOR_SETUP(j, hinting, setHinting)
-    FOR_SETUP(k, align, setTextAlign)
     FOR_SETUP(l, caps, setStrokeCap)
     FOR_SETUP(m, joins, setStrokeJoin)
-    FOR_SETUP(n, encodings, setTextEncoding)
     FOR_SETUP(p, styles, setStyle)
 
     SkBinaryWriteBuffer writer;
@@ -263,10 +148,10 @@ DEF_TEST(Paint_flattening, reporter) {
     SkReadBuffer reader(buf.get(), writer.bytesWritten());
 
     SkPaint paint2;
-    SkPaintPriv::Unflatten(&paint2, reader);
+    SkPaintPriv::Unflatten(&paint2, reader, nullptr);
     REPORTER_ASSERT(reporter, paint2 == paint);
 
-    }}}}}}}
+    }}}}
 #undef FOR_SETUP
 
 }
@@ -274,14 +159,14 @@ DEF_TEST(Paint_flattening, reporter) {
 // found and fixed for android: not initializing rect for string's of length 0
 DEF_TEST(Paint_regression_measureText, reporter) {
 
-    SkPaint paint;
-    paint.setTextSize(12.0f);
+    SkFont font;
+    font.setSize(12.0f);
 
     SkRect r;
     r.setLTRB(SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN);
 
     // test that the rect was reset
-    paint.measureText("", 0, &r);
+    font.measureText("", 0, SkTextEncoding::kUTF8, &r);
     REPORTER_ASSERT(reporter, r.isEmpty());
 }
 
@@ -290,10 +175,7 @@ DEF_TEST(Paint_regression_measureText, reporter) {
 DEF_TEST(Paint_MoreFlattening, r) {
     SkPaint paint;
     paint.setColor(0x00AABBCC);
-    paint.setTextScaleX(1.0f);  // Default value, ignored.
-    paint.setTextSize(19);
     paint.setBlendMode(SkBlendMode::kModulate);
-    paint.setLooper(nullptr);  // Default value, ignored.
 
     SkBinaryWriteBuffer writer;
     SkPaintPriv::Flatten(paint, writer);
@@ -303,14 +185,11 @@ DEF_TEST(Paint_MoreFlattening, r) {
     SkReadBuffer reader(buf.get(), writer.bytesWritten());
 
     SkPaint other;
-    SkPaintPriv::Unflatten(&other, reader);
+    SkPaintPriv::Unflatten(&other, reader, nullptr);
     ASSERT(reader.offset() == writer.bytesWritten());
 
     // No matter the encoding, these must always hold.
     ASSERT(other.getColor()      == paint.getColor());
-    ASSERT(other.getTextScaleX() == paint.getTextScaleX());
-    ASSERT(other.getTextSize()   == paint.getTextSize());
-    ASSERT(other.getLooper()     == paint.getLooper());
     ASSERT(other.getBlendMode()  == paint.getBlendMode());
 }
 
@@ -327,20 +206,14 @@ DEF_TEST(Paint_getHash, r) {
     paint.setColor(SK_ColorBLACK);  // Reset to default value.
     REPORTER_ASSERT(r, paint.getHash() == defaultHash);
 
-    // SkTypeface is the first field we hash, so test it specially.
-    paint.setTypeface(SkTypeface::MakeDefault());
-    REPORTER_ASSERT(r, paint.getHash() != defaultHash);
-    paint.setTypeface(nullptr);
-    REPORTER_ASSERT(r, paint.getHash() == defaultHash);
-
     // This is part of fBitfields, the last field we hash.
-    paint.setHinting(SkPaint::kSlight_Hinting);
+    paint.setBlendMode(SkBlendMode::kSrc);
     REPORTER_ASSERT(r, paint.getHash() != defaultHash);
-    paint.setHinting(SkPaint::kNormal_Hinting);
+    paint.setBlendMode(SkBlendMode::kSrcOver);
     REPORTER_ASSERT(r, paint.getHash() == defaultHash);
 }
 
-#include "SkColorMatrixFilter.h"
+#include "include/effects/SkColorMatrixFilter.h"
 
 DEF_TEST(Paint_nothingToDraw, r) {
     SkPaint paint;
@@ -358,10 +231,53 @@ DEF_TEST(Paint_nothingToDraw, r) {
 
     SkColorMatrix cm;
     cm.setIdentity();   // does not change alpha
-    paint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
+    paint.setColorFilter(SkColorFilters::Matrix(cm));
     REPORTER_ASSERT(r, paint.nothingToDraw());
 
-    cm.postTranslate(0, 0, 0, 1);    // wacks alpha
-    paint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
+    cm.postTranslate(0, 0, 0, 1.0f/255);    // wacks alpha
+    paint.setColorFilter(SkColorFilters::Matrix(cm));
     REPORTER_ASSERT(r, !paint.nothingToDraw());
+}
+
+DEF_TEST(Font_getpos, r) {
+    SkFont font;
+    const char text[] = "Hamburgefons!@#!#23425,./;'[]";
+    int count = font.countText(text, strlen(text), SkTextEncoding::kUTF8);
+    SkAutoTArray<uint16_t> glyphStorage(count);
+    uint16_t* glyphs = glyphStorage.get();
+    (void)font.textToGlyphs(text, strlen(text), SkTextEncoding::kUTF8, glyphs, count);
+
+    SkAutoTArray<SkScalar> widthStorage(count);
+    SkAutoTArray<SkScalar> xposStorage(count);
+    SkAutoTArray<SkPoint> posStorage(count);
+
+    SkScalar* widths = widthStorage.get();
+    SkScalar* xpos = xposStorage.get();
+    SkPoint* pos = posStorage.get();
+
+    for (bool subpix : { false, true }) {
+        font.setSubpixel(subpix);
+        for (auto hint : { SkFontHinting::kNone, SkFontHinting::kSlight, SkFontHinting::kNormal, SkFontHinting::kFull}) {
+            font.setHinting(hint);
+            for (auto size : { 1.0f, 12.0f, 100.0f }) {
+                font.setSize(size);
+
+                font.getWidths(glyphs, count, widths);
+                font.getXPos(glyphs, count, xpos, 10);
+                font.getPos(glyphs, count, pos, {10, 20});
+
+                auto nearly_eq = [](SkScalar a, SkScalar b) {
+                    return SkScalarAbs(a - b) < 0.000001f;
+                };
+
+                SkScalar x = 10;
+                for (int i = 0; i < count; ++i) {
+                    REPORTER_ASSERT(r, nearly_eq(x,  xpos[i]));
+                    REPORTER_ASSERT(r, nearly_eq(x,   pos[i].fX));
+                    REPORTER_ASSERT(r, nearly_eq(20,  pos[i].fY));
+                    x += widths[i];
+                }
+            }
+        }
+    }
 }

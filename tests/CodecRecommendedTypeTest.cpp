@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "SkAndroidCodec.h"
-#include "SkBitmap.h"
-#include "SkColor.h"
-#include "SkColorSpace.h"
-#include "SkData.h"
-#include "SkEncodedImageFormat.h"
-#include "SkImageEncoder.h"
-#include "SkImageInfo.h"
-#include "SkStream.h"
-#include "Test.h"
+#include "include/codec/SkAndroidCodec.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkData.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkStream.h"
+#include "tests/Test.h"
 
 #include <memory>
 #include <utility>
@@ -25,7 +25,7 @@ DEF_TEST(Codec_recommendedF16, r) {
     // such a PNG.
     SkBitmap bm;
     bm.allocPixels(SkImageInfo::Make(10, 10, kRGBA_F16_SkColorType,
-            kPremul_SkAlphaType, SkColorSpace::MakeSRGBLinear()));
+            kPremul_SkAlphaType, SkColorSpace::MakeSRGB()));
     // What is drawn is not important.
     bm.eraseColor(SK_ColorBLUE);
 

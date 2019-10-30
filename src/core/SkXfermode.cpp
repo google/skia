@@ -5,24 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "SkBlendModePriv.h"
-#include "SkColorData.h"
-#include "SkMathPriv.h"
-#include "SkOnce.h"
-#include "SkOpts.h"
-#include "SkPM4f.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
-#include "SkString.h"
-#include "SkWriteBuffer.h"
-#include "SkXfermodePriv.h"
-#include "../jumper/SkJumper.h"
+#include "include/core/SkString.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkOnce.h"
+#include "src/core/SkBlendModePriv.h"
+#include "src/core/SkMathPriv.h"
+#include "src/core/SkOpts.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/core/SkXfermodePriv.h"
 
 #if SK_SUPPORT_GPU
-#include "GrFragmentProcessor.h"
-#include "effects/GrCustomXfermode.h"
-#include "effects/GrPorterDuffXferProcessor.h"
-#include "effects/GrXfermodeFragmentProcessor.h"
+#include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/effects/GrCustomXfermode.h"
+#include "src/gpu/effects/GrPorterDuffXferProcessor.h"
+#include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,17 +35,12 @@ public:
 
         SkRasterPipeline_<256> p;
 
-        SkJumper_MemoryCtx dst_ctx = { (void*)dst, 0 },
-                           src_ctx = { (void*)src, 0 },
-                            aa_ctx = { (void*)aa,  0 };
+        SkRasterPipeline_MemoryCtx dst_ctx = { (void*)dst, 0 },
+                                   src_ctx = { (void*)src, 0 },
+                                    aa_ctx = { (void*)aa,  0 };
 
-        if (kN32_SkColorType == kBGRA_8888_SkColorType) {
-            p.append(SkRasterPipeline::load_bgra_dst, &dst_ctx);
-            p.append(SkRasterPipeline::load_bgra    , &src_ctx);
-        } else {
-            p.append(SkRasterPipeline::load_8888_dst, &dst_ctx);
-            p.append(SkRasterPipeline::load_8888,     &src_ctx);
-        }
+        p.append_load    (kN32_SkColorType, &src_ctx);
+        p.append_load_dst(kN32_SkColorType, &dst_ctx);
 
         if (SkBlendMode_ShouldPreScaleCoverage(fMode, /*rgb_coverage=*/false)) {
             if (aa) {
@@ -61,11 +54,7 @@ public:
             }
         }
 
-        if (kN32_SkColorType == kBGRA_8888_SkColorType) {
-            p.append(SkRasterPipeline::store_bgra, &dst_ctx);
-        } else {
-            p.append(SkRasterPipeline::store_8888, &dst_ctx);
-        }
+        p.append_store(kN32_SkColorType, &dst_ctx);
         p.run(0, 0, count,1);
     }
 

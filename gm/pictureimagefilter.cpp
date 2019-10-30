@@ -5,14 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-
-#include "SkPictureImageFilter.h"
-#include "SkPictureRecorder.h"
-
-#include "SkImage.h"
-#include "SkImageSource.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkFilterQuality.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/effects/SkImageFilters.h"
+#include "tools/ToolUtils.h"
 
 // This GM exercises the SkPictureImageFilter ImageFilter class.
 
@@ -31,12 +42,9 @@ static sk_sp<SkPicture> make_picture() {
     SkPictureRecorder recorder;
     SkCanvas* canvas = recorder.beginRecording(100, 100, nullptr, 0);
     SkPaint paint;
-    paint.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface(&paint);
     paint.setColor(0xFFFFFFFF);
-    paint.setTextSize(SkIntToScalar(96));
-    const char* str = "e";
-    canvas->drawString(str, SkIntToScalar(20), SkIntToScalar(70), paint);
+    SkFont font(ToolUtils::create_portable_typeface(), 96.0f);
+    canvas->drawString("e", 20.0f, 70.0f, font, paint);
     return recorder.finishRecordingAsPicture();
 }
 
@@ -46,14 +54,11 @@ static sk_sp<SkPicture> make_LCD_picture() {
     SkCanvas* canvas = recorder.beginRecording(100, 100, nullptr, 0);
     canvas->clear(SK_ColorTRANSPARENT);
     SkPaint paint;
-    paint.setLCDRenderText(true);   // want LCD
-    paint.setAntiAlias(true);       // need AA for LCD
-    sk_tool_utils::set_portable_typeface(&paint);
     paint.setColor(0xFFFFFFFF);
     // this has to be small enough that it doesn't become a path
-    paint.setTextSize(SkIntToScalar(36));
-    const char* str = "e";
-    canvas->drawString(str, SkIntToScalar(20), SkIntToScalar(70), paint);
+    SkFont font(ToolUtils::create_portable_typeface(), 36.0f);
+    font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+    canvas->drawString("e", 20.0f, 70.0f, font, paint);
     return recorder.finishRecordingAsPicture();
 }
 
@@ -77,7 +82,7 @@ protected:
         SkISize dim = { SkScalarRoundToInt(r.width()), SkScalarRoundToInt(r.height()) };
         auto img = SkImage::MakeFromPicture(pic, dim, nullptr, nullptr,
                                             SkImage::BitDepth::kU8, SkColorSpace::MakeSRGB());
-        return SkImageSource::Make(img, r, r, fq);
+        return SkImageFilters::Image(img, r, r, fq);
     }
     sk_sp<SkImageFilter> make(SkFilterQuality fq) {
         return make(fPicture, fPicture->cullRect(), fq);
@@ -89,11 +94,10 @@ protected:
             SkRect srcRect = SkRect::MakeXYWH(20, 20, 30, 30);
             SkRect emptyRect = SkRect::MakeXYWH(20, 20, 0, 0);
             SkRect bounds = SkRect::MakeXYWH(0, 0, 100, 100);
-            sk_sp<SkImageFilter> pictureSource(SkPictureImageFilter::Make(fPicture));
-            sk_sp<SkImageFilter> pictureSourceSrcRect(SkPictureImageFilter::Make(fPicture,
-                                                                                 srcRect));
-            sk_sp<SkImageFilter> pictureSourceEmptyRect(SkPictureImageFilter::Make(fPicture,
-                                                                                   emptyRect));
+            sk_sp<SkImageFilter> pictureSource(SkImageFilters::Picture(fPicture));
+            sk_sp<SkImageFilter> pictureSourceSrcRect(SkImageFilters::Picture(fPicture, srcRect));
+            sk_sp<SkImageFilter> pictureSourceEmptyRect(SkImageFilters::Picture(fPicture,
+                                                                                emptyRect));
             sk_sp<SkImageFilter> pictureSourceResampled = make(kLow_SkFilterQuality);
             sk_sp<SkImageFilter> pictureSourcePixelated = make(kNone_SkFilterQuality);
 
@@ -123,7 +127,7 @@ protected:
                 canvas->scale(4, 4);
                 canvas->translate(-0.9f*srcRect.fLeft, -2.45f*srcRect.fTop);
 
-                canvas->saveLayerPreserveLCDTextRequests(&bounds, &paint);
+                canvas->saveLayer(&bounds, &paint);
                 canvas->restore();
             }
 

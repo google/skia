@@ -8,10 +8,10 @@
 #ifndef SkBmpMaskCodec_DEFINED
 #define SkBmpMaskCodec_DEFINED
 
-#include "SkBmpBaseCodec.h"
-#include "SkImageInfo.h"
-#include "SkMaskSwizzler.h"
-#include "SkTypes.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkTypes.h"
+#include "src/codec/SkBmpBaseCodec.h"
+#include "src/codec/SkMaskSwizzler.h"
 
 /*
  * This class implements the decoding for bmp images using bit masks
@@ -31,7 +31,7 @@ public:
      * @param masks color masks for certain bmp formats
      * @param rowOrder indicates whether rows are ordered top-down or bottom-up
      */
-    SkBmpMaskCodec(int width, int height, const SkEncodedInfo& info, std::unique_ptr<SkStream>,
+    SkBmpMaskCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream>,
             uint16_t bitsPerPixel, SkMasks* masks,
             SkCodec::SkScanlineOrder rowOrder);
 

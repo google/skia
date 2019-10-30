@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-# Copyright 2018 Google Inc.
-#
-# Use of this source code is governed by a BSD-style license that can be
-# found in the LICENSE file.
-
-base_dir=$(dirname "$0")
-go run "$base_dir/bisect_roll.go" "$@"

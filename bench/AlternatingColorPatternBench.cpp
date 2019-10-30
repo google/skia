@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkString.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkString.h"
+#include "include/effects/SkGradientShader.h"
 
 enum ColorPattern {
     kWhite_ColorPattern,
@@ -53,10 +53,10 @@ static void makebm(SkBitmap* bm, int w, int h) {
     SkPaint     paint;
 
     paint.setShader(SkGradientShader::MakeLinear(kPts0, kColors0, kPos, SK_ARRAY_COUNT(kColors0),
-                                                 SkShader::kClamp_TileMode));
+                                                 SkTileMode::kClamp));
     canvas.drawPaint(paint);
     paint.setShader(SkGradientShader::MakeLinear(kPts1, kColors1, kPos, SK_ARRAY_COUNT(kColors1),
-                                                 SkShader::kClamp_TileMode));
+                                                 SkTileMode::kClamp));
     canvas.drawPaint(paint);
 }
 
@@ -113,9 +113,7 @@ protected:
         int w = 40;
         int h = 40;
         makebm(&fBmp, w, h);
-        fBmShader = SkShader::MakeBitmapShader(fBmp,
-                                                 SkShader::kRepeat_TileMode,
-                                                 SkShader::kRepeat_TileMode);
+        fBmShader = fBmp.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat);
         int offset = 2;
         int count = 0;
         for (int j = 0; j < NY; ++j) {
@@ -123,8 +121,8 @@ protected:
                 int x = (w + offset) * i;
                 int y = (h * offset) * j;
                 if (kRect_DrawType == fDrawType) {
-                    fRects[count].set(SkIntToScalar(x), SkIntToScalar(y),
-                                      SkIntToScalar(x + w), SkIntToScalar(y + h));
+                    fRects[count].setXYWH(SkIntToScalar(x), SkIntToScalar(y),
+                                          SkIntToScalar(w), SkIntToScalar(h));
                 } else {
                     fPaths[count].moveTo(SkIntToScalar(x), SkIntToScalar(y));
                     fPaths[count].rLineTo(SkIntToScalar(w), 0);

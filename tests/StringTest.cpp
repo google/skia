@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "tests/Test.h"
+
+#include "include/core/SkString.h"
+#include "src/core/SkStringUtils.h"
 
 #include <stdarg.h>
 #include <stdio.h>
 #include <thread>
-
-#include "SkString.h"
-#include "SkStringUtils.h"
 
 static const char* gThirtyWideDecimal = "%30d";
 
@@ -300,7 +300,7 @@ DEF_TEST(String_Threaded, r) {
 // let us create a string with a requested length longer than we can manage.
 DEF_TEST(String_huge, r) {
     // start testing slightly below max 32
-    size_t size = SK_MaxU32 - 16;
+    size_t size = UINT32_MAX - 16;
     // See where we crash, and manually check that its at the right point.
     //
     //  To test, change the false to true

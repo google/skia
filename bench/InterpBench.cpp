@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkColorData.h"
-#include "SkFixed.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkRandom.h"
-#include "SkString.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkString.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkFixed.h"
+#include "include/utils/SkRandom.h"
 
 #define TILE(x, width)  (((x) & 0xFFFF) * width >> 16)
 

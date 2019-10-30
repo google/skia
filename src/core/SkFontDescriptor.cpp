@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontDescriptor.h"
-#include "SkMakeUnique.h"
-#include "SkStream.h"
-#include "SkData.h"
+#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
+#include "src/core/SkFontDescriptor.h"
+#include "src/core/SkMakeUnique.h"
 
 enum {
     kInvalid        = 0x00,
@@ -116,7 +116,7 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
     return true;
 }
 
-void SkFontDescriptor::serialize(SkWStream* stream) {
+void SkFontDescriptor::serialize(SkWStream* stream) const {
     uint32_t styleBits = (fStyle.weight() << 16) | (fStyle.width() << 8) | (fStyle.slant());
     stream->writePackedUInt(styleBits);
 

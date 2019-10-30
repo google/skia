@@ -5,57 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-#include "SkAutoPixmapStorage.h"
-#include "SkColor.h"
-#include "SkHalf.h"
-#include "SkOpts.h"
-#include "SkPixmap.h"
-#include "SkPM4f.h"
-#include "SkRandom.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPixmap.h"
+#include "include/private/SkHalf.h"
+#include "include/private/SkTo.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkOpts.h"
+#include "tests/Test.h"
 
 #include <cmath>
-
-static bool eq_within_half_float(float a, float b) {
-    const float kTolerance = 1.0f / (1 << (8 + 10));
-
-    SkHalf ha = SkFloatToHalf(a);
-    SkHalf hb = SkFloatToHalf(b);
-    float a2 = SkHalfToFloat(ha);
-    float b2 = SkHalfToFloat(hb);
-    return fabsf(a2 - b2) <= kTolerance;
-}
-
-static bool eq_within_half_float(const SkPM4f& a, const SkPM4f& b) {
-    for (int i = 0; i < 4; ++i) {
-        if (!eq_within_half_float(a.fVec[i], b.fVec[i])) {
-            return false;
-        }
-    }
-    return true;
-}
-
-DEF_TEST(color_half_float, reporter) {
-    const int w = 100;
-    const int h = 100;
-
-    SkImageInfo info = SkImageInfo::Make(w, h, kRGBA_F16_SkColorType, kPremul_SkAlphaType);
-
-    SkAutoPixmapStorage pm;
-    pm.alloc(info);
-    REPORTER_ASSERT(reporter, pm.computeByteSize() == SkToSizeT(w * h * sizeof(uint64_t)));
-
-    SkColor4f c4 { 1, 0.5f, 0.25f, 0.5f };
-    pm.erase(c4);
-
-    SkPM4f origpm4 = c4.premul();
-    for (int y = 0; y < pm.height(); ++y) {
-        for (int x = 0; x < pm.width(); ++x) {
-            SkPM4f pm4 = SkPM4f::FromF16(pm.addrF16(x, y));
-            REPORTER_ASSERT(reporter, eq_within_half_float(origpm4, pm4));
-        }
-    }
-}
 
 static bool is_denorm(uint16_t h) {
     return (h & 0x7fff) < 0x0400;

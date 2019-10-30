@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontDescriptor.h"
-#include "SkOpts.h"
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkTypeface.h"
-#include "SkUtils.h"
-#include "../sfnt/SkOTUtils.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkFontDescriptor.h"
+#include "src/core/SkOpts.h"
+#include "src/sfnt/SkOTUtils.h"
+#include "src/utils/SkUTF.h"
 
 #include "SkWhitelistChecksums.inc"
 
@@ -40,8 +40,8 @@ static bool font_name_is_local(const char* fontName, SkFontStyle style) {
 static int whitelist_name_index(const SkTypeface* tf) {
 
     SkString fontNameStr;
-    sk_sp<SkTypeface::LocalizedStrings> nameIter(
-        SkOTUtils::LocalizedStrings_NameTable::CreateForFamilyNames(*tf));
+    sk_sp<SkTypeface::LocalizedStrings> nameIter =
+        SkOTUtils::LocalizedStrings_NameTable::MakeForFamilyNames(*tf);
     SkTypeface::LocalizedString familyNameLocalized;
     while (nameIter->next(&familyNameLocalized)) {
         fontNameStr = familyNameLocalized.fString;
@@ -53,8 +53,8 @@ static int whitelist_name_index(const SkTypeface* tf) {
         }
     }
 #if WHITELIST_DEBUG
-    sk_sp<SkTypeface::LocalizedStrings> debugIter(
-        SkOTUtils::LocalizedStrings_NameTable::CreateForFamilyNames(*tf));
+    sk_sp<SkTypeface::LocalizedStrings> debugIter =
+        SkOTUtils::LocalizedStrings_NameTable::MakeForFamilyNames(*tf);
     while (debugIter->next(&familyNameLocalized)) {
         SkDebugf("no match fontName=\"%s\"\n", familyNameLocalized.fString.c_str());
     }
@@ -249,7 +249,7 @@ const char checksumTrailer[] =
 "static const int whitelistCount = (int) SK_ARRAY_COUNT(whitelist);"        "\n";
 
 
-#include "SkOSFile.h"
+#include "src/core/SkOSFile.h"
 
 bool GenerateChecksums() {
     FILE* file = sk_fopen(checksumFileName, kWrite_SkFILE_Flag);

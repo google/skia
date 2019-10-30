@@ -5,16 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkStream.h"
-#include "SkStreamPriv.h"
-#include "SkData.h"
-#include "SkFixed.h"
-#include "SkMakeUnique.h"
-#include "SkSafeMath.h"
-#include "SkString.h"
-#include "SkOSFile.h"
-#include "SkTypes.h"
-#include "SkTFitsIn.h"
+#include "include/core/SkStream.h"
+
+#include "include/core/SkData.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkFixed.h"
+#include "include/private/SkTFitsIn.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkMakeUnique.h"
+#include "src/core/SkOSFile.h"
+#include "src/core/SkSafeMath.h"
+#include "src/core/SkStreamPriv.h"
 
 #include <limits>
 
@@ -474,9 +476,23 @@ struct SkDynamicMemoryWStream::Block {
     }
 };
 
-SkDynamicMemoryWStream::SkDynamicMemoryWStream()
-    : fHead(nullptr), fTail(nullptr), fBytesWrittenBeforeTail(0)
-{}
+SkDynamicMemoryWStream::SkDynamicMemoryWStream(SkDynamicMemoryWStream&& other)
+    : fHead(other.fHead)
+    , fTail(other.fTail)
+    , fBytesWrittenBeforeTail(other.fBytesWrittenBeforeTail)
+{
+    other.fHead = nullptr;
+    other.fTail = nullptr;
+    other.fBytesWrittenBeforeTail = 0;
+}
+
+SkDynamicMemoryWStream& SkDynamicMemoryWStream::operator=(SkDynamicMemoryWStream&& other) {
+    if (this != &other) {
+        this->~SkDynamicMemoryWStream();
+        new (this) SkDynamicMemoryWStream(std::move(other));
+    }
+    return *this;
+}
 
 SkDynamicMemoryWStream::~SkDynamicMemoryWStream() {
     this->reset();
@@ -538,6 +554,43 @@ bool SkDynamicMemoryWStream::write(const void* buffer, size_t count) {
     }
     return true;
 }
+
+bool SkDynamicMemoryWStream::writeToAndReset(SkDynamicMemoryWStream* dst) {
+    SkASSERT(dst);
+    SkASSERT(dst != this);
+    if (0 == this->bytesWritten()) {
+        return true;
+    }
+    if (0 == dst->bytesWritten()) {
+        *dst = std::move(*this);
+        return true;
+    }
+    dst->fTail->fNext = fHead;
+    dst->fBytesWrittenBeforeTail += fBytesWrittenBeforeTail + dst->fTail->written();
+    dst->fTail = fTail;
+    fHead = fTail = nullptr;
+    fBytesWrittenBeforeTail = 0;
+    return true;
+}
+
+void SkDynamicMemoryWStream::prependToAndReset(SkDynamicMemoryWStream* dst) {
+    SkASSERT(dst);
+    SkASSERT(dst != this);
+    if (0 == this->bytesWritten()) {
+        return;
+    }
+    if (0 == dst->bytesWritten()) {
+        *dst = std::move(*this);
+        return;
+    }
+    fTail->fNext = dst->fHead;
+    dst->fHead = fHead;
+    dst->fBytesWrittenBeforeTail += fBytesWrittenBeforeTail + fTail->written();
+    fHead = fTail = nullptr;
+    fBytesWrittenBeforeTail = 0;
+    return;
+}
+
 
 bool SkDynamicMemoryWStream::read(void* buffer, size_t offset, size_t count) {
     if (offset + count > this->bytesWritten()) {
@@ -660,9 +713,7 @@ void SkDynamicMemoryWStream::validate() const {
     const Block* block = fHead;
     while (block) {
         if (block->fNext) {
-            SkASSERT(block->avail() == 0);
             bytes += block->written();
-            SkASSERT(bytes == SkAlign4(bytes)); // see padToAlign4()
         }
         block = block->fNext;
     }
@@ -809,6 +860,17 @@ private:
 };
 
 std::unique_ptr<SkStreamAsset> SkDynamicMemoryWStream::detachAsStream() {
+    if (nullptr == fHead) {
+        // no need to reset.
+        return SkMemoryStream::Make(nullptr);
+    }
+    if (fHead == fTail) {  // one block, may be worth shrinking.
+        ptrdiff_t used = fTail->fCurr - (char*)fTail;
+        fHead = fTail = (SkDynamicMemoryWStream::Block*)sk_realloc_throw(fTail, SkToSizeT(used));
+        fTail->fStop = fTail->fCurr = (char*)fTail + used;  // Update pointers.
+        SkASSERT(nullptr == fTail->fNext);
+        SkASSERT(0 == fBytesWrittenBeforeTail);
+    }
     std::unique_ptr<SkStreamAsset> stream
             = skstd::make_unique<SkBlockMemoryStream>(sk_make_sp<SkBlockMemoryRefCnt>(fHead),
                                                       this->bytesWritten());
@@ -842,7 +904,7 @@ std::unique_ptr<SkStreamAsset> SkStream::MakeFromFile(const char path[]) {
     if (!stream->isValid()) {
         return nullptr;
     }
-    return std::move(stream);
+    return stream;
 }
 
 // Declared in SkStreamPriv.h:

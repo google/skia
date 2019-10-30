@@ -1,0 +1,15 @@
+import("../third_party.gni")
+
+third_party("opencl") {
+  # OpenCL C++ wrapper API, cl.hpp.
+  # (Some platforms only ship the C APIs, which cl.hpp builds on.)
+  public_include_dirs = [ "../externals/opencl-registry/api/2.1" ]
+
+  if (is_linux) {
+    libs = [ "OpenCL" ]
+  } else if (is_mac) {
+    libs = [ "OpenCL.framework" ]
+  } else if (is_win) {
+    libs = [ "OpenCL.lib" ]
+  }
+}

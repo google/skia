@@ -1,0 +1,40 @@
+# Copyright 2019 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+# pylint: disable=W0401,W0614
+
+
+from telemetry import story
+from telemetry.page import page as page_module
+from telemetry.page import shared_page_state
+
+
+class Skia{{ user_agent|capitalize }}Page(page_module.Page):
+
+  def __init__(self, url, page_set):
+    super(Skia{{ user_agent|capitalize }}Page, self).__init__(
+        url=url,
+        name=url,
+        page_set=page_set,
+        shared_page_state_class=shared_page_state.Shared{{ user_agent|capitalize }}PageState)
+    self.archive_data_file = 'data/skia_{{url_name}}_{{user_agent}}.json'
+
+  def RunNavigateSteps(self, action_runner):
+    action_runner.Navigate(self.url)
+    action_runner.Wait(15)
+
+
+class Skia{{ url_name|capitalize }}{{ user_agent|capitalize }}PageSet(story.StorySet):
+  """ Pages designed to represent the median, not highly optimized web """
+
+  def __init__(self):
+    super(Skia{{ url_name|capitalize }}{{ user_agent|capitalize }}PageSet, self).__init__(
+      archive_data_file='data/skia_{{url_name}}_{{user_agent}}.json')
+
+    urls_list = [
+      # {{comment}}
+      '{{url}}',
+    ]
+
+    for url in urls_list:
+      self.AddStory(Skia{{ user_agent|capitalize }}Page(url, self))

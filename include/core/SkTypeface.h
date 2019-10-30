@@ -8,13 +8,16 @@
 #ifndef SkTypeface_DEFINED
 #define SkTypeface_DEFINED
 
-#include "../private/SkOnce.h"
-#include "../private/SkWeakRefCnt.h"
-#include "SkFontArguments.h"
-#include "SkFontStyle.h"
-#include "SkRect.h"
-#include "SkString.h"
+#include "include/core/SkFontArguments.h"
+#include "include/core/SkFontParameters.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkString.h"
+#include "include/private/SkOnce.h"
+#include "include/private/SkWeakRefCnt.h"
 
+class SkData;
 class SkDescriptor;
 class SkFontData;
 class SkFontDescriptor;
@@ -71,6 +74,20 @@ public:
     int getVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                    int coordinateCount) const;
 
+    /** Copy into 'parameters' (allocated by the caller) the design variation parameters.
+     *
+     *  @param parameters the buffer into which to write the design variation parameters.
+     *  @param coordinateCount the number of entries available through 'parameters'.
+     *
+     *  @return The number of axes, or -1 if there is an error.
+     *  If 'parameters != nullptr' and 'parameterCount >= numAxes' then 'parameters' will be
+     *  filled with the variation parameters describing the position of this typeface in design
+     *  variation space. It is possible the number of axes can be retrieved but actual parameters
+     *  cannot.
+     */
+    int getVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
+                                     int parameterCount) const;
+
     /** Return a 32bit value for this typeface, unique for the underlying font
         data. Will never return 0.
      */
@@ -112,17 +129,47 @@ public:
         not a valid font file, returns nullptr. Ownership of the stream is
         transferred, so the caller must not reference it again.
     */
-    static sk_sp<SkTypeface> MakeFromStream(SkStreamAsset* stream, int index = 0);
+    static sk_sp<SkTypeface> MakeFromStream(std::unique_ptr<SkStreamAsset> stream, int index = 0);
+
+    /** Return a new typeface given a SkData. If the data is null, or is not a valid font file,
+     *  returns nullptr.
+     */
+    static sk_sp<SkTypeface> MakeFromData(sk_sp<SkData>, int index = 0);
 
     /** Return a new typeface given font data and configuration. If the data
         is not valid font data, returns nullptr.
     */
     static sk_sp<SkTypeface> MakeFromFontData(std::unique_ptr<SkFontData>);
 
+    /** Return a new typeface based on this typeface but parameterized as specified in the
+        SkFontArguments. If the SkFontArguments does not supply an argument for a parameter
+        in the font then the value from this typeface will be used as the value for that
+        argument. If the cloned typeface would be exaclty the same as this typeface then
+        this typeface may be ref'ed and returned. May return nullptr on failure.
+    */
+    sk_sp<SkTypeface> makeClone(const SkFontArguments&) const;
+
+    /**
+     *  A typeface can serialize just a descriptor (names, etc.), or it can also include the
+     *  actual font data (which can be large). This enum controls how serialize() decides what
+     *  to serialize.
+     */
+    enum class SerializeBehavior {
+        kDoIncludeData,
+        kDontIncludeData,
+        kIncludeDataIfLocal,
+    };
+
     /** Write a unique signature to a stream, sufficient to reconstruct a
         typeface referencing the same font when Deserialize is called.
      */
-    void serialize(SkWStream*) const;
+    void serialize(SkWStream*, SerializeBehavior = SerializeBehavior::kIncludeDataIfLocal) const;
+
+    /**
+     *  Same as serialize(SkWStream*, ...) but returns the serialized data in SkData, instead of
+     *  writing it to a stream.
+     */
+    sk_sp<SkData> serialize(SerializeBehavior = SerializeBehavior::kIncludeDataIfLocal) const;
 
     /** Given the data previously written by serialize(), return a new instance
         of a typeface referring to the same font. If that font is not available,
@@ -131,30 +178,22 @@ public:
      */
     static sk_sp<SkTypeface> MakeDeserialize(SkStream*);
 
-    enum Encoding {
-        kUTF8_Encoding,
-        kUTF16_Encoding,
-        kUTF32_Encoding
-    };
+    /**
+     *  Given an array of UTF32 character codes, return their corresponding glyph IDs.
+     *
+     *  @param chars pointer to the array of UTF32 chars
+     *  @param number of chars and glyphs
+     *  @param glyphs returns the corresponding glyph IDs for each character.
+     */
+    void unicharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const;
 
     /**
-     *  Given an array of character codes, of the specified encoding,
-     *  optionally return their corresponding glyph IDs (if glyphs is not NULL).
+     *  Return the glyphID that corresponds to the specified unicode code-point
+     *  (in UTF32 encoding). If the unichar is not supported, returns 0.
      *
-     *  @param chars pointer to the array of character codes
-     *  @param encoding how the characters are encoded
-     *  @param glyphs (optional) returns the corresponding glyph IDs for each
-     *          character code, up to glyphCount values. If a character code is
-     *          not found in the typeface, the corresponding glyph ID will be 0.
-     *  @param glyphCount number of code points in 'chars' to process. If glyphs
-     *          is not NULL, then it must point sufficient memory to write
-     *          glyphCount values into it.
-     *  @return the number of number of continuous non-zero glyph IDs computed
-     *          from the beginning of chars. This value is valid, even if the
-     *          glyphs parameter is NULL.
+     *  This is a short-cut for calling unicharsToGlyphs().
      */
-    int charsToGlyphs(const void* chars, Encoding encoding, SkGlyphID glyphs[],
-                      int glyphCount) const;
+    SkGlyphID unicharToGlyph(SkUnichar unichar) const;
 
     /**
      *  Return the number of glyphs in the typeface.
@@ -185,7 +224,6 @@ public:
      *  If this happens, it is possible that some or all of the memory pointed
      *  to by data may have been written to, even though an error has occured.
      *
-     *  @param fontID the font to copy the table from
      *  @param tag  The table tag whose contents are to be copied
      *  @param offset The offset in bytes into the table's contents where the
      *  copy should start from.
@@ -200,6 +238,16 @@ public:
      */
     size_t getTableData(SkFontTableTag tag, size_t offset, size_t length,
                         void* data) const;
+
+    /**
+     *  Return an immutable copy of the requested font table, or nullptr if that table was
+     *  not found. This can sometimes be faster than calling getTableData() twice: once to find
+     *  the length, and then again to copy the data.
+     *
+     *  @param tag  The table tag whose contents are to be copied
+     *  @return an immutable copy of the table's data, or nullptr.
+     */
+    sk_sp<SkData> copyTableData(SkFontTableTag tag) const;
 
     /**
      *  Return the units-per-em value for this typeface, or zero if there is an
@@ -234,11 +282,16 @@ public:
         SkString fString;
         SkString fLanguage;
     };
-    class LocalizedStrings : ::SkNoncopyable {
+    class LocalizedStrings {
     public:
+        LocalizedStrings() = default;
         virtual ~LocalizedStrings() { }
         virtual bool next(LocalizedString* localizedString) = 0;
         void unref() { delete this; }
+
+    private:
+        LocalizedStrings(const LocalizedStrings&) = delete;
+        LocalizedStrings& operator=(const LocalizedStrings&) = delete;
     };
     /**
      *  Returns an iterator which will attempt to enumerate all of the
@@ -261,7 +314,7 @@ public:
      *  collection.
      *  The caller is responsible for deleting the stream.
      */
-    SkStreamAsset* openStream(int* ttcIndex) const;
+    std::unique_ptr<SkStreamAsset> openStream(int* ttcIndex) const;
 
     /**
      *  Return the font data, or nullptr on failure.
@@ -303,6 +356,8 @@ protected:
     SkTypeface(const SkFontStyle& style, bool isFixedPitch = false);
     virtual ~SkTypeface();
 
+    virtual sk_sp<SkTypeface> onMakeClone(const SkFontArguments&) const = 0;
+
     /** Sets the fixedPitch bit. If used, must be called in the constructor. */
     void setIsFixedPitch(bool isFixedPitch) { fIsFixedPitch = isFixedPitch; }
     /** Sets the font style. If used, must be called in the constructor. */
@@ -314,18 +369,18 @@ protected:
     friend class SkScalerContext;  // onFilterRec
 
     //  Subclasses *must* override this method to work with the PDF backend.
-    virtual std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const;
+    virtual std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const = 0;
     // For type1 postscript fonts only, set the glyph names for each glyph.
     // destination array is non-null, and points to an array of size this->countGlyphs().
     // Backends that do not suport type1 fonts should not override.
-    virtual void getPostScriptGlyphNames(SkString*) const {}
+    virtual void getPostScriptGlyphNames(SkString*) const = 0;
 
     // The mapping from glyph to Unicode; array indices are glyph ids.
     // For each glyph, give the default Unicode value, if it exists.
     // dstArray is non-null, and points to an array of size this->countGlyphs().
-    virtual void getGlyphToUnicodeMap(SkUnichar* dstArray) const;
+    virtual void getGlyphToUnicodeMap(SkUnichar* dstArray) const = 0;
 
-    virtual SkStreamAsset* onOpenStream(int* ttcIndex) const = 0;
+    virtual std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const = 0;
     // TODO: make pure virtual.
     virtual std::unique_ptr<SkFontData> onMakeFontData() const;
 
@@ -333,10 +388,12 @@ protected:
         SkFontArguments::VariationPosition::Coordinate coordinates[],
         int coordinateCount) const = 0;
 
+    virtual int onGetVariationDesignParameters(
+        SkFontParameters::Variation::Axis parameters[], int parameterCount) const = 0;
+
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const = 0;
 
-    virtual int onCharsToGlyphs(const void* chars, Encoding, SkGlyphID glyphs[],
-                                int glyphCount) const = 0;
+    virtual void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const = 0;
     virtual int onCountGlyphs() const = 0;
 
     virtual int onGetUPEM() const = 0;
@@ -354,6 +411,7 @@ protected:
     virtual int onGetTableTags(SkFontTableTag tags[]) const = 0;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const = 0;
+    virtual sk_sp<SkData> onCopyTableData(SkFontTableTag) const;
 
     virtual bool onComputeBounds(SkRect*) const;
 
@@ -376,7 +434,10 @@ private:
     };
     static SkFontStyle FromOldStyle(Style oldStyle);
     static SkTypeface* GetDefaultTypeface(Style style = SkTypeface::kNormal);
+
+    friend class SkFontPriv;       // GetDefaultTypeface
     friend class SkPaintPriv;      // GetDefaultTypeface
+    friend class SkFont;           // getGlyphToUnicodeMap
 
 private:
     SkFontID            fUniqueID;

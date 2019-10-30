@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "RegexParser.h"
+#include "src/sksl/lex/RegexParser.h"
 
-#include "LexUtil.h"
+#include "src/sksl/lex/LexUtil.h"
 
 RegexNode RegexParser::parse(std::string source) {
     fSource = source;
     fIndex = 0;
-    ASSERT(fStack.size() == 0);
+    SkASSERT(fStack.size() == 0);
     this->regex();
-    ASSERT(fStack.size() == 1);
-    ASSERT(fIndex == source.size());
+    SkASSERT(fStack.size() == 1);
+    SkASSERT(fIndex == source.size());
     return this->pop();
 }
 
@@ -119,9 +119,9 @@ void RegexParser::setItem() {
         else {
             literal();
             RegexNode end = this->pop();
-            ASSERT(end.fKind == RegexNode::kChar_Kind);
+            SkASSERT(end.fKind == RegexNode::kChar_Kind);
             RegexNode start = this->pop();
-            ASSERT(start.fKind == RegexNode::kChar_Kind);
+            SkASSERT(start.fKind == RegexNode::kChar_Kind);
             fStack.push(RegexNode(RegexNode::kRange_Kind, std::move(start), std::move(end)));
         }
     }
@@ -171,6 +171,6 @@ void RegexParser::regex() {
         case ')':
             return;
         default:
-            ASSERT(false);
+            SkASSERT(false);
     }
 }

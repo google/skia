@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkWriter32.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "src/core/SkWriter32.h"
 
 class WriterBench : public Benchmark {
 public:

@@ -6,10 +6,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkManagedStream.h"
+#include "include/xamarin/SkManagedStream.h"
 
-#include "sk_managedstream.h"
-#include "sk_types_priv.h"
+#include "include/xamarin/sk_managedstream.h"
+#include "src/c/sk_types_priv.h"
 
 // WRITEABLE MANAGED STREAM
 

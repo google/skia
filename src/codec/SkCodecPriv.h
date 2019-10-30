@@ -8,20 +8,22 @@
 #ifndef SkCodecPriv_DEFINED
 #define SkCodecPriv_DEFINED
 
-#include "SkColorData.h"
-#include "SkColorSpaceXform.h"
-#include "SkColorSpaceXformPriv.h"
-#include "SkColorTable.h"
-#include "SkEncodedInfo.h"
-#include "SkEncodedOrigin.h"
-#include "SkImageInfo.h"
-#include "SkTypes.h"
+#include "include/codec/SkEncodedOrigin.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkEncodedInfo.h"
+#include "src/codec/SkColorTable.h"
 
 #ifdef SK_PRINT_CODEC_MESSAGES
     #define SkCodecPrintf SkDebugf
 #else
     #define SkCodecPrintf(...)
 #endif
+
+// Defined in SkCodec.cpp
+bool sk_select_xform_format(SkColorType colorType, bool forColorTable,
+                            skcms_PixelFormat* outFormat);
 
 // FIXME: Consider sharing with dm, nanbench, and tools.
 static inline float get_scale_from_sample_size(int sampleSize) {
@@ -104,35 +106,6 @@ static inline bool valid_alpha(SkAlphaType dstAlpha, bool srcIsOpaque) {
  */
 static inline const SkPMColor* get_color_ptr(SkColorTable* colorTable) {
      return nullptr != colorTable ? colorTable->readColors() : nullptr;
-}
-
-/*
- * Given that the encoded image uses a color table, return the fill value
- */
-static inline uint64_t get_color_table_fill_value(SkColorType dstColorType, SkAlphaType alphaType,
-        const SkPMColor* colorPtr, uint8_t fillIndex, SkColorSpaceXform* colorXform, bool isRGBA) {
-    SkASSERT(nullptr != colorPtr);
-    switch (dstColorType) {
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-            return colorPtr[fillIndex];
-        case kRGB_565_SkColorType:
-            return SkPixel32ToPixel16(colorPtr[fillIndex]);
-        case kRGBA_F16_SkColorType: {
-            SkASSERT(colorXform);
-            uint64_t dstColor;
-            uint32_t srcColor = colorPtr[fillIndex];
-            SkColorSpaceXform::ColorFormat srcFormat =
-                    isRGBA ? SkColorSpaceXform::kRGBA_8888_ColorFormat
-                           : SkColorSpaceXform::kBGRA_8888_ColorFormat;
-            SkAssertResult(colorXform->apply(select_xform_format(dstColorType), &dstColor,
-                                             srcFormat, &srcColor, 1, alphaType));
-            return dstColor;
-        }
-        default:
-            SkASSERT(false);
-            return 0;
-    }
 }
 
 /*
@@ -270,30 +243,6 @@ static inline PackColorProc choose_pack_color_proc(bool isPremul, SkColorType co
             return &SkPackARGB_as_BGRA;
         }
     }
-}
-
-static inline bool needs_premul(SkAlphaType dstAT, SkEncodedInfo::Alpha encodedAlpha) {
-    return kPremul_SkAlphaType == dstAT && SkEncodedInfo::kUnpremul_Alpha == encodedAlpha;
-}
-
-static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkColorSpace* srcCS,
-                                     bool needsColorCorrectPremul) {
-    // We never perform a color xform in legacy mode.
-    if (!dstInfo.colorSpace()) {
-        return false;
-    }
-
-    // F16 is by definition a linear space, so we always must perform a color xform.
-    bool isF16 = kRGBA_F16_SkColorType == dstInfo.colorType();
-
-    // Need a color xform when dst space does not match the src.
-    bool srcDstNotEqual = !SkColorSpace::Equals(srcCS, dstInfo.colorSpace());
-
-    return needsColorCorrectPremul || isF16 || srcDstNotEqual;
-}
-
-static inline SkAlphaType select_xform_alpha(SkAlphaType dstAlphaType, SkAlphaType srcAlphaType) {
-    return (kOpaque_SkAlphaType == srcAlphaType) ? kOpaque_SkAlphaType : dstAlphaType;
 }
 
 bool is_orientation_marker(const uint8_t* data, size_t data_length, SkEncodedOrigin* orientation);

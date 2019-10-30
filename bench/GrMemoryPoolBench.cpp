@@ -5,16 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
-// This tests a Gr class
-#if SK_SUPPORT_GPU
+#include "bench/Benchmark.h"
+#include "include/private/SkTDArray.h"
+#include "include/private/SkTemplates.h"
+#include "include/utils/SkRandom.h"
+#include "src/gpu/GrMemoryPool.h"
 
-#include "Benchmark.h"
-#include "GrMemoryPool.h"
-#include "SkRandom.h"
-#include "SkTDArray.h"
-#include "SkTemplates.h"
+#include <new>
 
 // change this to 0 to compare GrMemoryPool to default new / delete
 #define OVERRIDE_NEW    1
@@ -176,5 +175,3 @@ private:
 DEF_BENCH( return new GrMemoryPoolBenchStack(); )
 DEF_BENCH( return new GrMemoryPoolBenchRandom(); )
 DEF_BENCH( return new GrMemoryPoolBenchQueue(); )
-
-#endif

@@ -8,12 +8,12 @@
 #ifndef SkWebpCodec_DEFINED
 #define SkWebpCodec_DEFINED
 
-#include "SkCodec.h"
-#include "SkColorSpace.h"
-#include "SkEncodedImageFormat.h"
-#include "SkFrameHolder.h"
-#include "SkImageInfo.h"
-#include "SkTypes.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkTypes.h"
+#include "src/codec/SkFrameHolder.h"
+#include "src/codec/SkScalingCodec.h"
 
 #include <vector>
 
@@ -23,7 +23,7 @@ extern "C" {
     void WebPDemuxDelete(WebPDemuxer* dmux);
 }
 
-class SkWebpCodec final : public SkCodec {
+class SkWebpCodec final : public SkScalingCodec {
 public:
     // Assumes IsWebp was called and returned true.
     static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
@@ -31,10 +31,6 @@ public:
 protected:
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, int*) override;
     SkEncodedImageFormat onGetEncodedFormat() const override { return SkEncodedImageFormat::kWEBP; }
-
-    SkISize onGetScaledDimensions(float desiredScale) const override;
-
-    bool onDimensionsSupported(const SkISize&) override;
 
     bool onGetValidSubset(SkIRect* /* desiredSubset */) const override;
 
@@ -47,8 +43,8 @@ protected:
     }
 
 private:
-    SkWebpCodec(int width, int height, const SkEncodedInfo&, sk_sp<SkColorSpace>,
-                std::unique_ptr<SkStream>, WebPDemuxer*, sk_sp<SkData>, SkEncodedOrigin);
+    SkWebpCodec(SkEncodedInfo&&, std::unique_ptr<SkStream>, WebPDemuxer*, sk_sp<SkData>,
+                SkEncodedOrigin);
 
     SkAutoTCallVProc<WebPDemuxer, WebPDemuxDelete> fDemux;
 
@@ -61,10 +57,6 @@ private:
         Frame(int i, SkEncodedInfo::Alpha alpha)
             : INHERITED(i)
             , fReportedAlpha(alpha)
-        {}
-        Frame(Frame&& other)
-            : INHERITED(other.frameId())
-            , fReportedAlpha(other.fReportedAlpha)
         {}
 
     protected:
@@ -107,6 +99,6 @@ private:
     // succeed.
     bool        fFailed;
 
-    typedef SkCodec INHERITED;
+    typedef SkScalingCodec INHERITED;
 };
 #endif // SkWebpCodec_DEFINED

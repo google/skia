@@ -5,12 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "src/xml/SkXMLParser.h"
+
 #include "expat.h"
 
-#include "SkStream.h"
-#include "SkString.h"
-#include "SkTypes.h"
-#include "SkXMLParser.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTo.h"
 
 static char const* const gErrorStrings[] = {
     "empty or missing file ",
@@ -84,7 +86,7 @@ private:
     SkString fBufferedText;
 };
 
-#define HANDLER_CONTEXT(arg, name) ParsingContext* name = static_cast<ParsingContext*>(arg);
+#define HANDLER_CONTEXT(arg, name) ParsingContext* name = static_cast<ParsingContext*>(arg)
 
 void XMLCALL start_element_handler(void *data, const char* tag, const char** attributes) {
     HANDLER_CONTEXT(data, ctx);

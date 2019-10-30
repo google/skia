@@ -8,8 +8,9 @@
 #ifndef SKPAnimationBench_DEFINED
 #define SKPAnimationBench_DEFINED
 
-#include "SKPBench.h"
-#include "Timer.h"
+#include "bench/SKPBench.h"
+#include "include/utils/SkRandom.h"
+#include "tools/timer/Timer.h"
 
 /**
  * Runs an SkPicture as a benchmark by repeatedly drawing it, first centering the picture and
@@ -25,10 +26,10 @@ public:
         virtual ~Animation() {}
     };
 
-    SKPAnimationBench(const char* name, const SkPicture*, const SkIRect& devClip, Animation*,
+    SKPAnimationBench(const char* name, const SkPicture*, const SkIRect& devClip, sk_sp<Animation>,
                       bool doLooping);
 
-    static Animation* CreateZoomAnimation(SkScalar zoomMax, double zoomPeriodMs);
+    static sk_sp<Animation> MakeZoomAnimation(SkScalar zoomMax, double zoomPeriodMs);
 
 protected:
     const char* onGetUniqueName() override;
@@ -41,7 +42,7 @@ protected:
 
 private:
     sk_sp<Animation> fAnimation;
-    WallTimer        fAnimationTimer;
+    SkRandom         fAnimationTime;
     SkString         fUniqueName;
     SkIRect          fDevBounds;
 

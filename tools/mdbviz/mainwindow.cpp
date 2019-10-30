@@ -27,8 +27,8 @@ void MainWindow::openFile() {
     }
 }
 
-void MainWindow::setupOpListWidget() {
-    fOpListWidget->clear();
+void MainWindow::setupOpsTaskWidget() {
+    fOpsTaskWidget->clear();
 
     QTreeWidgetItem* item = nullptr;
     SkTDArray<QTreeWidgetItem*> parents;
@@ -45,7 +45,7 @@ void MainWindow::setupOpListWidget() {
         }
 
         if (parents.isEmpty()) {
-            fOpListWidget->addTopLevelItem(item);
+            fOpsTaskWidget->addTopLevelItem(item);
         } else {
             parents.top()->addChild(item);
         }
@@ -55,8 +55,8 @@ void MainWindow::setupOpListWidget() {
         }
     }
 
-    fOpListWidget->setCurrentItem(item);
-    fOpListWidget->expandToDepth(100);
+    fOpsTaskWidget->setCurrentItem(item);
+    fOpsTaskWidget->expandToDepth(100);
 }
 
 void MainWindow::presentCurrentRenderState() {
@@ -87,7 +87,7 @@ void MainWindow::loadFile(const QString &fileName) {
         return;
     }
 
-    this->setupOpListWidget();
+    this->setupOpsTaskWidget();
     this->presentCurrentRenderState();
 
 #ifndef QT_NO_CURSOR
@@ -147,25 +147,25 @@ void MainWindow::createDockWindows() {
 
     // Op List Window
     {
-        QDockWidget* opListDock = new QDockWidget("Ops", this);
-        opListDock->setAllowedAreas(Qt::LeftDockWidgetArea);
+        QDockWidget* opsTaskDock = new QDockWidget("Ops", this);
+        opsTaskDock->setAllowedAreas(Qt::LeftDockWidgetArea);
 
-        fOpListWidget = new QTreeWidget(opListDock);
+        fOpsTaskWidget = new QTreeWidget(opsTaskDock);
 
         QTreeWidgetItem* headerItem = new QTreeWidgetItem;
         headerItem->setText(0, "Index");
         headerItem->setText(1, "Op Name");
-        fOpListWidget->setHeaderItem(headerItem);
+        fOpsTaskWidget->setHeaderItem(headerItem);
 
-        fOpListWidget->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-        fOpListWidget->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+        fOpsTaskWidget->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+        fOpsTaskWidget->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 
-        opListDock->setWidget(fOpListWidget);
-        this->addDockWidget(Qt::LeftDockWidgetArea, opListDock);
+        opsTaskDock->setWidget(fOpsTaskWidget);
+        this->addDockWidget(Qt::LeftDockWidgetArea, opsTaskDock);
 
-        fViewMenu->addAction(opListDock->toggleViewAction());
+        fViewMenu->addAction(opsTaskDock->toggleViewAction());
 
-        connect(fOpListWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
+        connect(fOpsTaskWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
                 this, SLOT(onCurrentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
     }
 

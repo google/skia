@@ -6,15 +6,28 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/gl/GrGLInterface.h"
+#include "src/utils/win/SkWGL.h"
+#include "tools/sk_app/GLWindowContext.h"
+#include "tools/sk_app/win/WindowContextFactory_win.h"
+
 #include <Windows.h>
 #include <GL/gl.h>
-#include "../GLWindowContext.h"
-#include "gl/GrGLInterface.h"
-#include "WindowContextFactory_win.h"
-#include "win/SkWGL.h"
 
 using sk_app::GLWindowContext;
 using sk_app::DisplayParams;
+
+#if defined(_M_ARM64)
+
+namespace sk_app {
+namespace window_context_factory {
+
+std::unique_ptr<WindowContext> MakeGLForWin(HWND, const DisplayParams&) { return nullptr; }
+
+}  // namespace window_context_factory
+}  // namespace sk_app
+
+#else
 
 namespace {
 
@@ -59,6 +72,11 @@ sk_sp<const GrGLInterface> GLWindowContext_win::onInitializeContext() {
         return nullptr;
     }
 
+    SkWGLExtensions extensions;
+    if (extensions.hasExtension(dc, "WGL_EXT_swap_control")) {
+        extensions.swapInterval(fDisplayParams.fDisableVsync ? 0 : 1);
+    }
+
     // Look to see if RenderDoc is attached. If so, re-create the context with a core profile
     if (wglMakeCurrent(dc, fHGLRC)) {
         auto interface = GrGLMakeNativeInterface();
@@ -87,7 +105,6 @@ sk_sp<const GrGLInterface> GLWindowContext_win::onInitializeContext() {
         fStencilBits = pfd.cStencilBits;
 
         // Get sample count if the MSAA WGL extension is present
-        SkWGLExtensions extensions;
         if (extensions.hasExtension(dc, "WGL_ARB_multisample")) {
             static const int kSampleCountAttr = SK_WGL_SAMPLES;
             extensions.getPixelFormatAttribiv(dc,
@@ -129,10 +146,9 @@ void GLWindowContext_win::onSwapBuffers() {
 namespace sk_app {
 namespace window_context_factory {
 
-WindowContext* NewGLForWin(HWND wnd, const DisplayParams& params) {
-    GLWindowContext_win* ctx = new GLWindowContext_win(wnd, params);
+std::unique_ptr<WindowContext> MakeGLForWin(HWND wnd, const DisplayParams& params) {
+    std::unique_ptr<WindowContext> ctx(new GLWindowContext_win(wnd, params));
     if (!ctx->isValid()) {
-        delete ctx;
         return nullptr;
     }
     return ctx;
@@ -140,3 +156,5 @@ WindowContext* NewGLForWin(HWND wnd, const DisplayParams& params) {
 
 }  // namespace window_context_factory
 }  // namespace sk_app
+
+#endif

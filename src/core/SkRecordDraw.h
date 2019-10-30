@@ -8,11 +8,11 @@
 #ifndef SkRecordDraw_DEFINED
 #define SkRecordDraw_DEFINED
 
-#include "SkBBoxHierarchy.h"
-#include "SkBigPicture.h"
-#include "SkCanvas.h"
-#include "SkMatrix.h"
-#include "SkRecord.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkMatrix.h"
+#include "src/core/SkBBoxHierarchy.h"
+#include "src/core/SkBigPicture.h"
+#include "src/core/SkRecord.h"
 
 class SkDrawable;
 class SkLayerInfo;

@@ -8,82 +8,36 @@
 #ifndef SkReadBuffer_DEFINED
 #define SkReadBuffer_DEFINED
 
-#include "SkColorFilter.h"
-#include "SkSerialProcs.h"
-#include "SkDrawLooper.h"
-#include "SkImageFilter.h"
-#include "SkMaskFilterBase.h"
-#include "SkPaintPriv.h"
-#include "SkPath.h"
-#include "SkPathEffect.h"
-#include "SkPicture.h"
-#include "SkReader32.h"
-#include "SkRefCnt.h"
-#include "SkShaderBase.h"
-#include "SkTHash.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkDrawLooper.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSerialProcs.h"
+#include "src/core/SkMaskFilterBase.h"
+#include "src/core/SkPaintPriv.h"
+#include "src/core/SkPicturePriv.h"
+#include "src/core/SkReader32.h"
+#include "src/core/SkWriteBuffer.h"
+#include "src/shaders/SkShaderBase.h"
 
 class SkData;
 class SkImage;
-class SkInflator;
 
-#if defined(SK_DEBUG) && defined(SK_BUILD_FOR_MAC)
-    #define DEBUG_NON_DETERMINISTIC_ASSERT
-#endif
+#ifndef SK_DISABLE_READBUFFER
 
 class SkReadBuffer {
 public:
     SkReadBuffer();
     SkReadBuffer(const void* data, size_t size);
-    virtual ~SkReadBuffer();
-
-    virtual SkReadBuffer* clone(const void* data, size_t size) const {
-        return new SkReadBuffer(data, size);
-    }
-
-    enum Version {
-        /*
-        kFilterLevelIsEnum_Version         = 23,
-        kGradientFlippedFlag_Version       = 24,
-        kDashWritesPhaseIntervals_Version  = 25,
-        kColorShaderNoBool_Version         = 26,
-        kNoUnitMappers_Version             = 27,
-        kNoMoreBitmapFlatten_Version       = 28,
-        kSimplifyLocalMatrix_Version       = 30,
-        kImageFilterUniqueID_Version       = 31,
-        kRemoveAndroidPaintOpts_Version    = 32,
-        kFlattenCreateProc_Version         = 33,
-        kRemoveColorTableAlpha_Version     = 36,
-        kDropShadowMode_Version            = 37,
-        kPictureImageFilterResolution_Version = 38,
-        kPictureImageFilterLevel_Version   = 39,
-        kImageFilterNoUniqueID_Version     = 40,
-        kBitmapSourceFilterQuality_Version = 41,
-        kPictureShaderHasPictureBool_Version = 42,
-        kHasDrawImageOpCodes_Version       = 43,
-        kAnnotationsMovedToCanvas_Version  = 44,
-        kLightingShaderWritesInvNormRotation = 45,
-        kBlurMaskFilterWritesOccluder      = 47,
-        kGradientShaderFloatColor_Version  = 49,
-        kXfermodeToBlendMode_Version       = 50,
-        kXfermodeToBlendMode2_Version      = 51,
-        kTextBlobImplicitRunCount_Version  = 52,
-        kComposeShaderCanLerp_Version      = 54,
-        kNoModesInMergeImageFilter_Verison = 55,
-         */
-        kTileModeInBlurImageFilter_Version = 56,
-        kTileInfoInSweepGradient_Version   = 57,
-        k2PtConicalNoFlip_Version          = 58,
-        kRemovePictureImageFilterLocalSpace = 59,
-        kRemoveHeaderFlags_Version         = 60,
-        kTwoColorDrawShadow_Version        = 61,
-        kDontNegateImageSize_Version       = 62,
-    };
 
     /**
      *  Returns true IFF the version is older than the specified version.
      */
-    bool isVersionLT(Version targetVersion) const {
+    bool isVersionLT(SkPicturePriv::Version targetVersion) const {
         SkASSERT(targetVersion > 0);
         return fVersion > 0 && fVersion < targetVersion;
     }
@@ -129,7 +83,6 @@ public:
     // peek
     uint8_t peekByte();
 
-    // strings -- the caller is responsible for freeing the string contents
     void readString(SkString* string);
 
     // common data structures
@@ -144,7 +97,10 @@ public:
     void readRegion(SkRegion* region);
 
     void readPath(SkPath* path);
-    virtual bool readPaint(SkPaint* paint) { return SkPaintPriv::Unflatten(paint, *this); }
+
+    SkReadPaintResult readPaint(SkPaint* paint, SkFont* font) {
+        return SkPaintPriv::Unflatten(paint, *this, font);
+    }
 
     SkFlattenable* readFlattenable(SkFlattenable::Type);
     template <typename T> sk_sp<T> readFlattenable() {
@@ -179,7 +135,7 @@ public:
     sk_sp<SkImage> readImage();
     sk_sp<SkTypeface> readTypeface();
 
-    void setTypefaceArray(SkTypeface* array[], int count) {
+    void setTypefaceArray(sk_sp<SkTypeface> array[], int count) {
         fTFArray = array;
         fTFCount = count;
     }
@@ -193,21 +149,8 @@ public:
         fFactoryCount = count;
     }
 
-    /**
-     *  For an input flattenable (specified by name), set a custom factory proc
-     *  to use when unflattening.  Will make a copy of |name|.
-     *
-     *  If the global registry already has a default factory for the flattenable,
-     *  this will override that factory.  If a custom factory has already been
-     *  set for the flattenable, this will override that factory.
-     *
-     *  Custom factories can be removed by calling setCustomFactory("...", nullptr).
-     */
-    void setCustomFactory(const SkString& name, SkFlattenable::Factory factory) {
-        fCustomFactory.set(name, factory);
-    }
-
     void setDeserialProcs(const SkDeserialProcs& procs);
+    const SkDeserialProcs& getDeserialProcs() const { return fProcs; }
 
     /**
      *  If isValid is false, sets the buffer to be "invalid". Returns true if the buffer
@@ -235,9 +178,6 @@ public:
         return this->validate(index >= 0 && index < count);
     }
 
-    SkInflator* getInflator() const { return fInflator; }
-    void setInflator(SkInflator* inf) { fInflator = inf; }
-
     // Utilities that mark the buffer invalid if the requested value is out-of-range
 
     // If the read value is outside of the range, validate(false) is called, and min
@@ -251,55 +191,27 @@ public:
 
     SkFilterQuality checkFilterQuality();
 
-protected:
-    /**
-     *  Allows subclass to check if we are using factories for expansion
-     *  of flattenables.
-     */
-    int factoryCount() { return fFactoryCount; }
-
-    /**
-     *  Checks if a custom factory has been set for a given flattenable.
-     *  Returns the custom factory if it exists, or nullptr otherwise.
-     */
-    SkFlattenable::Factory getCustomFactory(const SkString& name) {
-        SkFlattenable::Factory* factoryPtr = fCustomFactory.find(name);
-        return factoryPtr ? *factoryPtr : nullptr;
-    }
-
-    SkReader32 fReader;
-
-    // Only used if we do not have an fFactoryArray.
-    SkTHashMap<uint32_t, SkString> fFlattenableDict;
-
 private:
+    const char* readString(size_t* length);
+
     void setInvalid();
     bool readArray(void* value, size_t size, size_t elementSize);
     void setMemory(const void*, size_t);
 
+    SkReader32 fReader;
+
+    // Only used if we do not have an fFactoryArray.
+    SkTHashMap<uint32_t, SkFlattenable::Factory> fFlattenableDict;
+
     int fVersion;
 
-    void* fMemoryPtr;
-
-    SkTypeface** fTFArray;
-    int        fTFCount;
+    sk_sp<SkTypeface>* fTFArray;
+    int                fTFCount;
 
     SkFlattenable::Factory* fFactoryArray;
     int                     fFactoryCount;
 
-    // Only used if we do not have an fFactoryArray.
-    SkTHashMap<SkString, SkFlattenable::Factory> fCustomFactory;
-
     SkDeserialProcs fProcs;
-    friend class SkPicture;
-
-#ifdef DEBUG_NON_DETERMINISTIC_ASSERT
-    // Debugging counter to keep track of how many bitmaps we
-    // have decoded.
-    int fDecodedBitmapIndex;
-#endif // DEBUG_NON_DETERMINISTIC_ASSERT
-
-    SkInflator* fInflator = nullptr;
 
     static bool IsPtrAlign4(const void* ptr) {
         return SkIsAlign4((uintptr_t)ptr);
@@ -307,5 +219,103 @@ private:
 
     bool fError = false;
 };
+
+#else // #ifndef SK_DISABLE_READBUFFER
+
+class SkReadBuffer {
+public:
+    SkReadBuffer() {}
+    SkReadBuffer(const void*, size_t) {}
+
+    bool isVersionLT(SkPicturePriv::Version) const { return false; }
+    uint32_t getVersion() const { return 0xffffffff; }
+    void     setVersion(int) {}
+
+    size_t size() const { return 0; }
+    size_t offset() const { return 0; }
+    bool eof() { return true; }
+    size_t available() const { return 0; }
+
+    const void* skip(size_t)         { return nullptr; }
+    const void* skip(size_t, size_t) { return nullptr; }
+    template <typename T> const T* skipT()       { return nullptr; }
+    template <typename T> const T* skipT(size_t) { return nullptr; }
+
+    bool     readBool()   { return 0; }
+    SkColor  readColor()  { return 0; }
+    int32_t  readInt()    { return 0; }
+    SkScalar readScalar() { return 0; }
+    uint32_t readUInt()   { return 0; }
+    int32_t  read32()     { return 0; }
+
+    template <typename T> T read32LE(T max) { return max; }
+
+    uint8_t  peekByte()   { return 0; }
+
+    void readColor4f(SkColor4f* out) { *out = SkColor4f{0,0,0,0}; }
+    void readPoint  (SkPoint*   out) { *out = SkPoint{0,0};       }
+    void readPoint3 (SkPoint3*  out) { *out = SkPoint3{0,0,0};    }
+    void readMatrix (SkMatrix*  out) { *out = SkMatrix::I();      }
+    void readIRect  (SkIRect*   out) { *out = SkIRect{0,0,0,0};   }
+    void readRect   (SkRect*    out) { *out = SkRect{0,0,0,0};    }
+    void readRRect  (SkRRect*   out) { *out = SkRRect();          }
+    void readRegion (SkRegion*  out) { *out = SkRegion();         }
+    void readString (SkString*  out) { *out = SkString();         }
+    void readPath   (SkPath*    out) { *out = SkPath();           }
+    SkReadPaintResult readPaint  (SkPaint*   out, SkFont* font) {
+        *out = SkPaint();
+        if (font) {
+            *font = SkFont();
+        }
+        return kFailed_ReadPaint;
+    }
+
+    SkPoint readPoint() { return {0,0}; }
+
+    SkFlattenable* readFlattenable(SkFlattenable::Type) { return nullptr; }
+
+    template <typename T> sk_sp<T> readFlattenable() { return nullptr; }
+    sk_sp<SkColorFilter> readColorFilter() { return nullptr; }
+    sk_sp<SkDrawLooper>  readDrawLooper()  { return nullptr; }
+    sk_sp<SkImageFilter> readImageFilter() { return nullptr; }
+    sk_sp<SkMaskFilter>  readMaskFilter()  { return nullptr; }
+    sk_sp<SkPathEffect>  readPathEffect()  { return nullptr; }
+    sk_sp<SkShader>      readShader()      { return nullptr; }
+
+    bool readPad32       (void*,      size_t) { return false; }
+    bool readByteArray   (void*,      size_t) { return false; }
+    bool readColorArray  (SkColor*,   size_t) { return false; }
+    bool readColor4fArray(SkColor4f*, size_t) { return false; }
+    bool readIntArray    (int32_t*,   size_t) { return false; }
+    bool readPointArray  (SkPoint*,   size_t) { return false; }
+    bool readScalarArray (SkScalar*,  size_t) { return false; }
+
+    sk_sp<SkData> readByteArrayAsData() { return nullptr; }
+    uint32_t getArrayCount() { return 0; }
+
+    sk_sp<SkImage>    readImage()    { return nullptr; }
+    sk_sp<SkTypeface> readTypeface() { return nullptr; }
+
+    bool validate(bool)                                 { return false; }
+    template <typename T> bool validateCanReadN(size_t) { return false; }
+    bool isValid() const                                { return false; }
+    bool validateIndex(int, int)                        { return false; }
+
+    int32_t checkInt(int min, int)               { return min; }
+    template <typename T> T checkRange(T min, T) { return min; }
+
+    SkFilterQuality checkFilterQuality() { return SkFilterQuality::kNone_SkFilterQuality; }
+
+    void setTypefaceArray(sk_sp<SkTypeface>[], int)        {}
+    void setFactoryPlayback(SkFlattenable::Factory[], int) {}
+    void setDeserialProcs(const SkDeserialProcs&)          {}
+
+    const SkDeserialProcs& getDeserialProcs() const {
+        static const SkDeserialProcs procs;
+        return procs;
+    }
+};
+
+#endif // #ifndef SK_DISABLE_READBUFFER
 
 #endif // SkReadBuffer_DEFINED

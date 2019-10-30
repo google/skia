@@ -8,8 +8,8 @@
 #ifndef GrShadowGeoProc_DEFINED
 #define GrShadowGeoProc_DEFINED
 
-#include "GrProcessor.h"
-#include "GrGeometryProcessor.h"
+#include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrProcessor.h"
 
 class GrGLRRectShadowGeoProc;
 
@@ -25,9 +25,9 @@ public:
 
     const char* name() const override { return "RRectShadow"; }
 
-    const Attribute* inPosition() const { return fInPosition; }
-    const Attribute* inColor() const { return fInColor; }
-    const Attribute* inShadowParams() const { return fInShadowParams; }
+    const Attribute& inPosition() const { return fInPosition; }
+    const Attribute& inColor() const { return fInColor; }
+    const Attribute& inShadowParams() const { return fInShadowParams; }
     GrColor color() const { return fColor; }
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {}
@@ -38,9 +38,10 @@ private:
     GrRRectShadowGeoProc();
 
     GrColor          fColor;
-    const Attribute* fInPosition;
-    const Attribute* fInColor;
-    const Attribute* fInShadowParams;
+
+    Attribute fInPosition;
+    Attribute fInColor;
+    Attribute fInShadowParams;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 

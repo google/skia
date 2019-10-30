@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontConfigInterface.h"
-#include "SkFontMgr.h"
-#include "SkFontMgr_FontConfigInterface.h"
+#include "include/core/SkFontMgr.h"
+#include "include/ports/SkFontConfigInterface.h"
+#include "include/ports/SkFontMgr_FontConfigInterface.h"
 
 sk_sp<SkFontMgr> SkFontMgr::Factory() {
     sk_sp<SkFontConfigInterface> fci(SkFontConfigInterface::RefGlobal());

@@ -5,24 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkAnimTimer.h"
-#include "SkView.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkGraphics.h"
-#include "SkPath.h"
-#include "SkRegion.h"
-#include "SkShader.h"
-#include "SkUtils.h"
-#include "SkColorPriv.h"
-#include "SkColorFilter.h"
-#include "SkParsePath.h"
-#include "SkTime.h"
-#include "SkTypeface.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkTime.h"
+#include "include/core/SkTypeface.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/utils/SkParsePath.h"
+#include "samplecode/Sample.h"
+#include "src/utils/SkUTF.h"
+#include "tools/timer/TimeUtils.h"
 
-#include "SkGeometry.h"
+#include "src/core/SkGeometry.h"
 
 #include <stdlib.h>
 
@@ -71,7 +71,7 @@ static void test_cubic2() {
     canvas.drawPath(path, paint);
 }
 
-class PathView : public SampleView {
+class PathView : public Sample {
     SkScalar fPrevSecs;
 public:
     SkScalar fDStroke, fStroke, fMinStroke, fMaxStroke;
@@ -130,14 +130,7 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Paths");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Paths"); }
 
     void drawPath(SkCanvas* canvas, const SkPath& path, SkPaint::Join j) {
         SkPaint paint;
@@ -184,8 +177,8 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
-        SkScalar currSecs = timer.scaled(100);
+    bool onAnimate(double nanos) override {
+        SkScalar currSecs = TimeUtils::Scaled(1e-9 * nanos, 100);
         SkScalar delta = currSecs - fPrevSecs;
         fPrevSecs = currSecs;
 
@@ -196,22 +189,22 @@ protected:
         return true;
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         fShowHairline = !fShowHairline;
-        return this->INHERITED::onFindClickHandler(x, y, modi);
+        return nullptr;
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 DEF_SAMPLE( return new PathView; )
 
 //////////////////////////////////////////////////////////////////////////////
 
-#include "SkCornerPathEffect.h"
-#include "SkRandom.h"
+#include "include/effects/SkCornerPathEffect.h"
+#include "include/utils/SkRandom.h"
 
-class ArcToView : public SampleView {
+class ArcToView : public Sample {
     bool fDoFrame, fDoCorner, fDoConic;
     SkPaint fPtsPaint, fSkeletonPaint, fCornerPaint;
 public:
@@ -251,22 +244,16 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "ArcTo");
-            return true;
-        }
-        SkUnichar uni;
-        if (SampleCode::CharQ(*evt, &uni)) {
+    SkString name() override { return SkString("ArcTo"); }
+
+    bool onChar(SkUnichar uni) override {
             switch (uni) {
                 case '1': this->toggle(fDoFrame); return true;
                 case '2': this->toggle(fDoCorner); return true;
                 case '3': this->toggle(fDoConic); return true;
                 default: break;
             }
-        }
-        return this->INHERITED::onQuery(evt);
+            return false;
     }
 
     void makePath(SkPath* path) {
@@ -302,27 +289,27 @@ protected:
         return false;
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         const SkScalar tol = 4;
         const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
         for (int i = 0; i < N; ++i) {
             if (r.intersects(SkRect::MakeXYWH(fPts[i].fX, fPts[i].fY, 1, 1))) {
-                Click* click = new Click(this);
+                Click* click = new Click();
                 click->fMeta.setS32("index", i);
                 return click;
             }
         }
-        return this->INHERITED::onFindClickHandler(x, y, modi);
+        return nullptr;
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 DEF_SAMPLE( return new ArcToView; )
 
 /////////////
 
-class FatStroke : public SampleView {
+class FatStroke : public Sample {
     bool fClosed, fShowStroke, fShowHidden, fShowSkeleton;
     int  fJoinType, fCapType;
     float fWidth = 30;
@@ -369,14 +356,9 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "FatStroke");
-            return true;
-        }
-        SkUnichar uni;
-        if (SampleCode::CharQ(*evt, &uni)) {
+    SkString name() override { return SkString("FatStroke"); }
+
+    bool onChar(SkUnichar uni) override {
             switch (uni) {
                 case '1': this->toggle(fShowSkeleton); return true;
                 case '2': this->toggle(fShowStroke); return true;
@@ -388,8 +370,7 @@ protected:
                 case '=': fWidth += 5; return true;
                 default: break;
             }
-        }
-        return this->INHERITED::onQuery(evt);
+            return false;
     }
 
     void makePath(SkPath* path) {
@@ -436,21 +417,21 @@ protected:
         return false;
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         const SkScalar tol = 4;
         const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
         for (int i = 0; i < N; ++i) {
             if (r.intersects(SkRect::MakeXYWH(fPts[i].fX, fPts[i].fY, 1, 1))) {
-                Click* click = new Click(this);
+                Click* click = new Click();
                 click->fMeta.setS32("index", i);
                 return click;
             }
         }
-        return this->INHERITED::onFindClickHandler(x, y, modi);
+        return nullptr;
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 DEF_SAMPLE( return new FatStroke; )
 
@@ -475,7 +456,7 @@ static int compute_parallel_to_base(const SkPoint pts[4], SkScalar t[2]) {
     return n;
 }
 
-class CubicCurve : public SampleView {
+class CubicCurve : public Sample {
 public:
     enum {
         N = 4
@@ -491,13 +472,7 @@ public:
     }
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "CubicCurve");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("CubicCurve"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
@@ -559,12 +534,12 @@ protected:
         return false;
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         const SkScalar tol = 8;
         const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
         for (int i = 0; i < N; ++i) {
             if (r.intersects(SkRect::MakeXYWH(fPts[i].fX, fPts[i].fY, 1, 1))) {
-                Click* click = new Click(this);
+                Click* click = new Click();
                 click->fMeta.setS32("index", i);
                 return click;
             }
@@ -573,7 +548,7 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 DEF_SAMPLE( return new CubicCurve; )
 
@@ -596,7 +571,7 @@ static int find_max_deviation_cubic(const SkPoint src[4], SkScalar ts[2]) {
     return SkFindUnitQuadRoots(3 * A.cross(Z), 2 * B.cross(Z), C.cross(Z), ts);
 }
 
-class CubicCurve2 : public SampleView {
+class CubicCurve2 : public Sample {
 public:
     enum {
         N = 7
@@ -620,25 +595,18 @@ public:
     }
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "CubicCurve2");
-            return true;
-        }
-        SkUnichar uni;
-        if (SampleCode::CharQ(*evt, &uni)) {
+    SkString name() override { return SkString("CubicCurve2"); }
+
+    bool onChar(SkUnichar uni) override {
             switch (uni) {
                 case 's': fShowSub = !fShowSub; break;
                 case 'f': fShowFlatness = !fShowFlatness; break;
                 case '-': fT -= 1.0f / 32; break;
                 case '=': fT += 1.0f / 32; break;
-                default: goto DONE;
+                default: return false;
             }
             fT = std::min(1.0f, std::max(0.0f, fT));
             return true;
-        }
-        DONE:
-        return this->INHERITED::onQuery(evt);
     }
 
     void showFrame(SkCanvas* canvas, const SkPoint pts[], int count, const SkPaint& p) {
@@ -663,7 +631,7 @@ protected:
             canvas->drawCircle(storage[i].fX, storage[i].fY, 4, paint);
         }
     }
-    
+
     void showFlattness(SkCanvas* canvas) {
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
@@ -724,12 +692,10 @@ protected:
             this->showFrame(canvas, fPts, 3, paint);
             this->showFrame(canvas, fQuad, 2, paint);
 
-            SkString str;
-            str.printf("t = %g", fT);
             paint.setColor(SK_ColorBLACK);
             paint.setStyle(SkPaint::kFill_Style);
-            paint.setTextSize(20);
-            canvas->drawText(str.c_str(), str.size(), 20, 20, paint);
+            SkFont font(nullptr, 20);
+            canvas->drawString(SkStringPrintf("t = %g", fT), 20, 20, font, paint);
         }
 
         if (fShowFlatness) {
@@ -741,6 +707,17 @@ protected:
         for (SkPoint p : fPts) {
             canvas->drawCircle(p.fX, p.fY, 7, paint);
         }
+
+        {
+            SkScalar ts[2];
+            int n = SkFindCubicInflections(fPts, ts);
+            for (int i = 0; i < n; ++i) {
+                SkPoint p;
+                SkEvalCubicAt(fPts, ts[i], &p, nullptr, nullptr);
+                canvas->drawCircle(p.fX, p.fY, 3, paint);
+            }
+        }
+
     }
 
     bool onClick(Click* click) override {
@@ -753,12 +730,12 @@ protected:
         return false;
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         const SkScalar tol = 8;
         const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
         for (int i = 0; i < N; ++i) {
             if (r.intersects(SkRect::MakeXYWH(fPts[i].fX, fPts[i].fY, 1, 1))) {
-                Click* click = new Click(this);
+                Click* click = new Click();
                 click->fMeta.setS32("index", i);
                 return click;
             }
@@ -767,7 +744,7 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 DEF_SAMPLE( return new CubicCurve2; )
 

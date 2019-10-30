@@ -9,8 +9,8 @@
 #ifndef GrStencilSettings_DEFINED
 #define GrStencilSettings_DEFINED
 
-#include "GrUserStencilSettings.h"
-#include "SkRegion.h"
+#include "include/core/SkRegion.h"
+#include "src/gpu/GrUserStencilSettings.h"
 
 class GrProcessorKeyBuilder;
 
@@ -78,8 +78,19 @@ public:
         void setDisabled();
     };
 
-    const Face& front() const { SkASSERT(!this->isDisabled()); return fFront; }
-    const Face& back() const { SkASSERT(this->isTwoSided()); return fBack; }
+    const Face& frontAndBack() const {
+        SkASSERT(!this->isDisabled());
+        SkASSERT(!this->isTwoSided());
+        return fFront;
+    }
+    const Face& front(GrSurfaceOrigin origin) const {
+        SkASSERT(this->isTwoSided());
+        return (kTopLeft_GrSurfaceOrigin == origin) ? fFront : fBack;
+    }
+    const Face& back(GrSurfaceOrigin origin) const {
+        SkASSERT(this->isTwoSided());
+        return (kTopLeft_GrSurfaceOrigin == origin) ? fBack : fFront;
+    }
 
     /**
      * Given a thing to draw into the stencil clip, a fill type, and a set op

@@ -8,18 +8,20 @@
 #ifndef SkClipStack_DEFINED
 #define SkClipStack_DEFINED
 
-#include "../private/SkMessageBus.h"
-#include "SkCanvas.h"
-#include "SkClipOpPriv.h"
-#include "SkDeque.h"
-#include "SkPath.h"
-#include "SkRRect.h"
-#include "SkRect.h"
-#include "SkRegion.h"
-#include "SkTLazy.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkDeque.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRegion.h"
+#include "src/core/SkClipOpPriv.h"
+#include "src/core/SkMessageBus.h"
+#include "src/core/SkTLazy.h"
 
 #if SK_SUPPORT_GPU
-#include "GrResourceKey.h"
+class GrProxyProvider;
+
+#include "include/private/GrResourceKey.h"
 #endif
 
 // Because a single save/restore state can have multiple clips, this class
@@ -81,13 +83,7 @@ public:
             this->initPath(0, path, m, op, doAA);
         }
 
-        ~Element() {
-#if SK_SUPPORT_GPU
-            for (int i = 0; i < fMessages.count(); ++i) {
-                SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(*fMessages[i]);
-            }
-#endif
-        }
+        ~Element();
 
         bool operator== (const Element& element) const;
         bool operator!= (const Element& element) const { return !(*this == element); }
@@ -181,9 +177,16 @@ public:
          * This is used to purge any GPU resource cache items that become unreachable when
          * the element is destroyed because their key is based on this element's gen ID.
          */
-        void addResourceInvalidationMessage(
-                std::unique_ptr<GrUniqueKeyInvalidatedMessage> msg) const {
-            fMessages.emplace_back(std::move(msg));
+        void addResourceInvalidationMessage(GrProxyProvider* proxyProvider,
+                                            const GrUniqueKey& key) const {
+            SkASSERT(proxyProvider);
+
+            if (!fProxyProvider) {
+                fProxyProvider = proxyProvider;
+            }
+            SkASSERT(fProxyProvider == proxyProvider);
+
+            fKeysToInvalidate.push_back(key);
         }
 #endif
 
@@ -216,7 +219,8 @@ public:
 
         uint32_t fGenID;
 #if SK_SUPPORT_GPU
-        mutable SkTArray<std::unique_ptr<GrUniqueKeyInvalidatedMessage>> fMessages;
+        mutable GrProxyProvider*      fProxyProvider = nullptr;
+        mutable SkTArray<GrUniqueKey> fKeysToInvalidate;
 #endif
         Element(int saveCount) {
             this->initCommon(saveCount, kReplace_SkClipOp, false);
@@ -489,10 +493,6 @@ private:
     SkDeque fDeque;
     int     fSaveCount;
 
-    // Generation ID for the clip stack. This is incremented for each
-    // clipDevRect and clipDevPath call. 0 is reserved to indicate an
-    // invalid ID.
-    static int32_t     gGenID;
     SkRect fClipRestrictionRect = SkRect::MakeEmpty();
 
     bool internalQuickContains(const SkRect& devRect) const;
@@ -519,3 +519,4 @@ private:
 };
 
 #endif
+

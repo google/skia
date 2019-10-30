@@ -8,12 +8,14 @@
 #ifndef GrBufferAllocPool_DEFINED
 #define GrBufferAllocPool_DEFINED
 
-#include "SkTArray.h"
-#include "SkTDArray.h"
-#include "SkTypes.h"
-#include "GrTypesPriv.h"
+#include "include/core/SkTypes.h"
+#include "include/private/GrTypesPriv.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
+#include "src/gpu/GrCpuBuffer.h"
+#include "src/gpu/GrNonAtomicRef.h"
 
-class GrBuffer;
 class GrGpu;
 
 /**
@@ -30,6 +32,30 @@ class GrGpu;
  */
 class GrBufferAllocPool : SkNoncopyable {
 public:
+    static constexpr size_t kDefaultBufferSize = 1 << 15;
+
+    /**
+     * A cache object that can be shared by multiple GrBufferAllocPool instances. It caches
+     * cpu buffer allocations to avoid reallocating them.
+     */
+    class CpuBufferCache : public GrNonAtomicRef<CpuBufferCache> {
+    public:
+        static sk_sp<CpuBufferCache> Make(int maxBuffersToCache);
+
+        sk_sp<GrCpuBuffer> makeBuffer(size_t size, bool mustBeInitialized);
+        void releaseAll();
+
+    private:
+        CpuBufferCache(int maxBuffersToCache);
+
+        struct Buffer {
+            sk_sp<GrCpuBuffer> fBuffer;
+            bool fCleared = false;
+        };
+        std::unique_ptr<Buffer[]> fBuffers;
+        int fMaxBuffersToCache = 0;
+    };
+
     /**
      * Ensures all buffers are unmapped and have all data written to them.
      * Call before drawing using buffers from the pool.
@@ -52,15 +78,13 @@ protected:
      *
      * @param gpu                   The GrGpu used to create the buffers.
      * @param bufferType            The type of buffers to create.
-     * @param bufferSize            The minimum size of created buffers.
-     *                              This value will be clamped to some
-     *                              reasonable minimum.
+     * @param cpuBufferCache        If non-null a cache for client side array buffers
+     *                              or staging buffers used before data is uploaded to
+     *                              GPU buffer objects.
      */
-     GrBufferAllocPool(GrGpu* gpu,
-                       GrBufferType bufferType,
-                       size_t   bufferSize = 0);
+    GrBufferAllocPool(GrGpu* gpu, GrGpuBufferType bufferType, sk_sp<CpuBufferCache> cpuBufferCache);
 
-     virtual ~GrBufferAllocPool();
+    virtual ~GrBufferAllocPool();
 
     /**
      * Returns a block of memory to hold data. A buffer designated to hold the
@@ -81,10 +105,7 @@ protected:
      * @param offset       returns the offset into buffer of the data.
      * @return pointer to where the client should write the data.
      */
-    void* makeSpace(size_t size,
-                    size_t alignment,
-                    const GrBuffer** buffer,
-                    size_t* offset);
+    void* makeSpace(size_t size, size_t alignment, sk_sp<const GrBuffer>* buffer, size_t* offset);
 
     /**
      * Returns a block of memory to hold data. A buffer designated to hold the
@@ -114,36 +135,34 @@ protected:
     void* makeSpaceAtLeast(size_t minSize,
                            size_t fallbackSize,
                            size_t alignment,
-                           const GrBuffer** buffer,
+                           sk_sp<const GrBuffer>* buffer,
                            size_t* offset,
                            size_t* actualSize);
 
-    GrBuffer* getBuffer(size_t size);
+    sk_sp<GrBuffer> getBuffer(size_t size);
 
 private:
     struct BufferBlock {
-        size_t      fBytesFree;
-        GrBuffer*   fBuffer;
+        size_t fBytesFree;
+        sk_sp<GrBuffer> fBuffer;
     };
 
     bool createBlock(size_t requestSize);
     void destroyBlock();
     void deleteBlocks();
     void flushCpuData(const BufferBlock& block, size_t flushSize);
-    void* resetCpuData(size_t newSize);
+    void resetCpuData(size_t newSize);
 #ifdef SK_DEBUG
     void validate(bool unusedBlockAllowed = false) const;
 #endif
-    size_t                          fBytesInUse;
+    size_t fBytesInUse = 0;
 
-    GrGpu*                          fGpu;
-    size_t                          fMinBlockSize;
-    GrBufferType                    fBufferType;
-
-    SkTArray<BufferBlock>           fBlocks;
-    void*                           fCpuData;
-    void*                           fBufferPtr;
-    size_t                          fBufferMapThreshold;
+    SkTArray<BufferBlock> fBlocks;
+    sk_sp<CpuBufferCache> fCpuBufferCache;
+    sk_sp<GrCpuBuffer> fCpuStagingBuffer;
+    GrGpu* fGpu;
+    GrGpuBufferType fBufferType;
+    void* fBufferPtr = nullptr;
 };
 
 /**
@@ -155,8 +174,11 @@ public:
      * Constructor
      *
      * @param gpu                   The GrGpu used to create the vertex buffers.
+     * @param cpuBufferCache        If non-null a cache for client side array buffers
+     *                              or staging buffers used before data is uploaded to
+     *                              GPU buffer objects.
      */
-    GrVertexBufferAllocPool(GrGpu* gpu);
+    GrVertexBufferAllocPool(GrGpu* gpu, sk_sp<CpuBufferCache> cpuBufferCache);
 
     /**
      * Returns a block of memory to hold vertices. A buffer designated to hold
@@ -181,7 +203,7 @@ public:
      */
     void* makeSpace(size_t vertexSize,
                     int vertexCount,
-                    const GrBuffer** buffer,
+                    sk_sp<const GrBuffer>* buffer,
                     int* startVertex);
 
     /**
@@ -214,7 +236,7 @@ public:
     void* makeSpaceAtLeast(size_t vertexSize,
                            int minVertexCount,
                            int fallbackVertexCount,
-                           const GrBuffer** buffer,
+                           sk_sp<const GrBuffer>* buffer,
                            int* startVertex,
                            int* actualVertexCount);
 
@@ -231,8 +253,11 @@ public:
      * Constructor
      *
      * @param gpu                   The GrGpu used to create the index buffers.
+     * @param cpuBufferCache        If non-null a cache for client side array buffers
+     *                              or staging buffers used before data is uploaded to
+     *                              GPU buffer objects.
      */
-    GrIndexBufferAllocPool(GrGpu* gpu);
+    GrIndexBufferAllocPool(GrGpu* gpu, sk_sp<CpuBufferCache> cpuBufferCache);
 
     /**
      * Returns a block of memory to hold indices. A buffer designated to hold
@@ -252,9 +277,7 @@ public:
      * @param startIndex   returns the offset into buffer of the first index.
      * @return pointer to first index.
      */
-    void* makeSpace(int indexCount,
-                    const GrBuffer** buffer,
-                    int* startIndex);
+    void* makeSpace(int indexCount, sk_sp<const GrBuffer>* buffer, int* startIndex);
 
     /**
      * Returns a block of memory to hold indices. A buffer designated to hold
@@ -283,7 +306,7 @@ public:
      */
     void* makeSpaceAtLeast(int minIndexCount,
                            int fallbackIndexCount,
-                           const GrBuffer** buffer,
+                           sk_sp<const GrBuffer>* buffer,
                            int* startIndex,
                            int* actualIndexCount);
 

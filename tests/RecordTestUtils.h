@@ -8,9 +8,9 @@
 #ifndef RecordTestUtils_DEFINED
 #define RecordTestUtils_DEFINED
 
-#include "SkRecord.h"
-#include "SkRecords.h"
-#include "Test.h"
+#include "src/core/SkRecord.h"
+#include "src/core/SkRecords.h"
+#include "tests/Test.h"
 
 // If the command we're reading is a U, set ptr to it, otherwise set it to nullptr.
 template <typename U>

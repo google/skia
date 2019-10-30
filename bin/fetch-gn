@@ -16,9 +16,9 @@ os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
 
 dst = 'bin/gn.exe' if 'win32' in sys.platform else 'bin/gn'
 
-sha1 = '2f27ff0b6118e5886df976da5effa6003d19d1ce' if 'linux'  in sys.platform else \
-       '9be792dd9010ce303a9c3a497a67bcc5ac8c7666' if 'darwin' in sys.platform else \
-       'eb69be2d984b4df60a8c21f598135991f0ad1742'  # Windows
+sha1 = '3523d50538357829725d4ed74b777a572ce0ac74' if 'linux'  in sys.platform else \
+       'd43122f6140d0711518aa909980cb009c4fbce3d' if 'darwin' in sys.platform else \
+       'e20768d93a6b4400de0d03bb8ceb46facdbe3883'  # Windows
 
 def sha1_of_file(path):
   h = hashlib.sha1()

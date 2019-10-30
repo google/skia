@@ -5,10 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkAnimTimer.h"
-#include "SkPath.h"
-#include "SkDashPathEffect.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "tools/timer/TimeUtils.h"
 
 int dash1[] = { 1, 1 };
 int dash2[] = { 1, 3 };
@@ -94,10 +105,10 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
+    bool onAnimate(double nanos) override {
         constexpr SkScalar kDesiredDurationSecs = 100.0f;
 
-        fRotation = timer.scaled(360.0f/kDesiredDurationSecs, 360.0f);
+        fRotation = TimeUtils::Scaled(1e-9 * nanos, 360.0f/kDesiredDurationSecs, 360.0f);
         return true;
     }
 
@@ -215,8 +226,8 @@ protected:
     }
 
 protected:
-    bool onAnimate(const SkAnimTimer& timer) override {
-        fPhaseDegrees = timer.secs();
+    bool onAnimate(double nanos) override {
+        fPhaseDegrees = 1e-9 * nanos;
         return true;
     }
 
@@ -225,3 +236,39 @@ protected:
 };
 
 DEF_GM(return new DashCircle2GM;)
+
+DEF_SIMPLE_GM(maddash, canvas, 1600, 1600) {
+    canvas->drawRect({0, 0, 1600, 1600}, SkPaint());
+    SkPaint p;
+    p.setColor(SK_ColorRED);
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(380);
+
+    SkScalar intvls[] = { 2.5, 10 /* 1200 */ };
+    p.setPathEffect(SkDashPathEffect::Make(intvls, 2, 0));
+
+    canvas->drawCircle(400, 400, 200, p);
+
+    SkPath path;
+    path.moveTo(800, 400);
+    path.quadTo(1000, 400, 1000, 600);
+    path.quadTo(1000, 800, 800, 800);
+    path.quadTo(600, 800, 600, 600);
+    path.quadTo(600, 400, 800, 400);
+    path.close();
+    canvas->translate(350, 150);
+    p.setStrokeWidth(320);
+    canvas->drawPath(path, p);
+
+    path.reset();
+    path.moveTo(800, 400);
+    path.cubicTo(900, 400, 1000, 500, 1000, 600);
+    path.cubicTo(1000, 700, 900, 800, 800, 800);
+    path.cubicTo(700, 800, 600, 700, 600, 600);
+    path.cubicTo(600, 500, 700, 400, 800, 400);
+    path.close();
+    canvas->translate(-550, 500);
+    p.setStrokeWidth(300);
+    canvas->drawPath(path, p);
+}

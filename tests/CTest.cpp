@@ -5,26 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-#include "sk_canvas.h"
-#include "sk_paint.h"
-#include "sk_shader.h"
-#include "sk_surface.h"
-#include "sk_types.h"
+#include "include/c/sk_canvas.h"
+#include "include/c/sk_imageinfo.h"
+#include "include/c/sk_paint.h"
+#include "include/c/sk_shader.h"
+#include "include/c/sk_surface.h"
+#include "include/c/sk_types.h"
+#include "tests/Test.h"
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include "../../src/c/sk_types_priv.h"
 
 static void shader_test(skiatest::Reporter* reporter) {
-    sk_imageinfo_t info = {
-        nullptr,
-        64, 64,
-        sk_colortype_get_default_8888(),
-        PREMUL_SK_ALPHATYPE
-    };
-
-    sk_surface_t* surface  = sk_surface_new_raster(&info, 0, nullptr);
+    sk_imageinfo_t* info = sk_imageinfo_new(64, 64, RGBA_8888_SK_COLORTYPE, PREMUL_SK_ALPHATYPE,
+                                            NULL);
+    sk_surface_t* surface  = sk_surface_new_raster(info, nullptr);
     sk_canvas_t* canvas = sk_surface_get_canvas(surface);
     sk_paint_t* paint = sk_paint_new();
 
@@ -59,25 +56,18 @@ static void shader_test(skiatest::Reporter* reporter) {
 
     sk_paint_delete(paint);
     sk_surface_unref(surface);
-}
-
-void* black_hole(void* t) {
-    return t;
+    sk_imageinfo_delete(info);
 }
 
 static void test_c(skiatest::Reporter* reporter) {
-    sk_imageinfo_t info = {
-        nullptr,
-        1, 1,
-        sk_colortype_get_default_8888(),
-        PREMUL_SK_ALPHATYPE
-    };
+    sk_imageinfo_t* info = sk_imageinfo_new(1, 1, RGBA_8888_SK_COLORTYPE, PREMUL_SK_ALPHATYPE,
+                                            NULL);
     uint32_t pixel[1] = { 0 };
     sk_surfaceprops_t* props = sk_surfaceprops_new((sk_surfaceprops_flags_t)0, UNKNOWN_SK_PIXELGEOMETRY);
 
-    sk_surface_t* surface = sk_surface_new_raster_direct(
-        &info, pixel, sizeof(uint32_t), nullptr, nullptr, props);
-    REPORTER_ASSERT(reporter, surface != nullptr);
+    sk_surface_t* surface = sk_surface_new_raster_direct(info, pixel, sizeof(uint32_t),
+                                                         &surfaceProps);
+    sk_paint_t* paint = sk_paint_new();
 
     sk_canvas_t* canvas = sk_surface_get_canvas(surface);
     REPORTER_ASSERT(reporter, canvas != nullptr);
@@ -99,6 +89,7 @@ static void test_c(skiatest::Reporter* reporter) {
 
     sk_paint_delete(paint);
     sk_surface_unref(surface);
+    sk_imageinfo_delete(info);
 }
 
 static void null_imageinfo_test(skiatest::Reporter* reporter) {

@@ -10,7 +10,6 @@
 
 #include <atomic>
 #include <utility>
-#include "SkTypes.h"
 
 // SkOnce provides call-once guarantees for Skia, much like std::once_flag/std::call_once().
 //

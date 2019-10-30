@@ -4,6 +4,9 @@
 #ifndef SkTraceEventCommon_DEFINED
 #define SkTraceEventCommon_DEFINED
 
+#include "include/core/SkTypes.h"
+#include "include/utils/SkTraceEventPhase.h"
+
 // Trace events are for tracking application performance and resource usage.
 // Macros are provided to track:
 //    Duration of scoped regions
@@ -59,13 +62,17 @@
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 
 #include <cutils/trace.h>
-struct SkAndroidFrameworkTraceUtil {
+#include <stdarg.h>
 
+class SkAndroidFrameworkTraceUtil {
+public:
     SkAndroidFrameworkTraceUtil(const char* name) {
-        ATRACE_BEGIN(name);
+        if (CC_UNLIKELY(gEnableAndroidTracing)) {
+            ATRACE_BEGIN(name);
+        }
     }
     SkAndroidFrameworkTraceUtil(bool, const char* fmt, ...) {
-        if (CC_LIKELY(!ATRACE_ENABLED())) return;
+        if (CC_LIKELY((!gEnableAndroidTracing) || (!ATRACE_ENABLED()))) return;
 
         const int BUFFER_SIZE = 256;
         va_list ap;
@@ -77,18 +84,25 @@ struct SkAndroidFrameworkTraceUtil {
 
         ATRACE_BEGIN(buf);
     }
-    ~SkAndroidFrameworkTraceUtil() { ATRACE_END(); }
+    ~SkAndroidFrameworkTraceUtil() {
+        if (CC_UNLIKELY(gEnableAndroidTracing)) {
+            ATRACE_END();
+        }
+    }
+
+    static void setEnableTracing(bool enableAndroidTracing) {
+        gEnableAndroidTracing = enableAndroidTracing;
+    }
+
+    static bool getEnableTracing() {
+        return gEnableAndroidTracing;
+    }
+
+private:
+    static bool gEnableAndroidTracing;
 };
 
 #define ATRACE_ANDROID_FRAMEWORK(fmt, ...) SkAndroidFrameworkTraceUtil __trace(true, fmt, ##__VA_ARGS__)
-
-// If profiling Skia within the Android framework, setting this to 1 will route all Skia
-// tracing events to ATrace.
-#ifndef SK_TRACE_EVENTS_IN_FRAMEWORK
-#define SK_TRACE_EVENTS_IN_FRAMEWORK 0
-#endif
-
-#if SK_TRACE_EVENTS_IN_FRAMEWORK
 
 // Records a pair of begin and end events called "name" for the current scope, with 0, 1 or 2
 // associated arguments. In the framework, the arguments are ignored.
@@ -113,31 +127,21 @@ struct SkAndroidFrameworkTraceUtil {
 
 // Records the value of a counter called "name" immediately. Value
 // must be representable as a 32 bit integer.
-#define TRACE_COUNTER1(category_group, name, value) ATRACE_INT(name, value)
+#define TRACE_COUNTER1(category_group, name, value) \
+    if (CC_UNLIKELY(SkAndroidFrameworkTraceUtil::getEnableTracing())) { \
+        ATRACE_INT(name, value); \
+    }
 
 // Records the values of a multi-parted counter called "name" immediately.
 // In Chrome, this macro produces a stacked bar chart. ATrace doesn't support
 // that, so this just produces two separate counters.
 #define TRACE_COUNTER2(category_group, name, value1_name, value1_val, value2_name, value2_val) \
     do { \
-        ATRACE_INT(name "-" value1_name, value1_val); \
-        ATRACE_INT(name "-" value2_name, value2_val); \
+        if (CC_UNLIKELY(SkAndroidFrameworkTraceUtil::getEnableTracing())) { \
+            ATRACE_INT(name "-" value1_name, value1_val); \
+            ATRACE_INT(name "-" value2_name, value2_val); \
+        } \
     } while (0)
-
-#else
-
-#define TRACE_EVENT0(category_group, name) TRACE_EMPTY
-#define TRACE_EVENT1(category_group, name, arg1_name, arg1_val) TRACE_EMPTY
-#define TRACE_EVENT2(category_group, name, arg1_name, arg1_val, arg2_name, arg2_val) TRACE_EMPTY
-
-#define TRACE_EVENT_INSTANT0(category_group, name, scope) TRACE_EMPTY
-#define TRACE_EVENT_INSTANT1(category_group, name, scope, arg1_name, arg1_val) TRACE_EMPTY
-#define TRACE_EVENT_INSTANT2(category_group, name, scope, arg1_name, arg1_val, arg2_name, arg2_val) TRACE_EMPTY
-
-#define TRACE_COUNTER1(category_group, name, value) TRACE_EMPTY
-#define TRACE_COUNTER2(category_group, name, value1_name, value1_val, value2_name, value2_val) TRACE_EMPTY
-
-#endif
 
 // ATrace has no object tracking
 #define TRACE_EVENT_OBJECT_CREATED_WITH_ID(category_group, name, id) TRACE_EMPTY
@@ -246,18 +250,6 @@ struct SkAndroidFrameworkTraceUtil {
   } while (0)
 
 #endif
-
-// Phase indicates the nature of an event entry. E.g. part of a begin/end pair.
-#define TRACE_EVENT_PHASE_BEGIN ('B')
-#define TRACE_EVENT_PHASE_END ('E')
-#define TRACE_EVENT_PHASE_COMPLETE ('X')
-#define TRACE_EVENT_PHASE_INSTANT ('I')
-#define TRACE_EVENT_PHASE_ASYNC_BEGIN ('S')
-#define TRACE_EVENT_PHASE_ASYNC_END ('F')
-#define TRACE_EVENT_PHASE_COUNTER ('C')
-#define TRACE_EVENT_PHASE_CREATE_OBJECT ('N')
-#define TRACE_EVENT_PHASE_SNAPSHOT_OBJECT ('O')
-#define TRACE_EVENT_PHASE_DELETE_OBJECT ('D')
 
 // Flags for changing the behavior of TRACE_EVENT_API_ADD_TRACE_EVENT.
 #define TRACE_EVENT_FLAG_NONE (static_cast<unsigned int>(0))

@@ -6,10 +6,10 @@
  * found in the LICENSE file.
  */
 
-#include "WindowContextFactory_android.h"
-#include "../RasterWindowContext.h"
-#include "SkSurface.h"
-#include "SkTypes.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "tools/sk_app/RasterWindowContext.h"
+#include "tools/sk_app/android/WindowContextFactory_android.h"
 
 using sk_app::RasterWindowContext;
 using sk_app::DisplayParams;
@@ -95,10 +95,10 @@ void RasterWindowContext_android::swapBuffers() {
 namespace sk_app {
 namespace window_context_factory {
 
-WindowContext* NewRasterForAndroid(ANativeWindow* window, const DisplayParams& params) {
-    WindowContext* ctx = new RasterWindowContext_android(window, params);
+std::unique_ptr<WindowContext> MakeRasterForAndroid(ANativeWindow* window,
+                                                    const DisplayParams& params) {
+    std::unique_ptr<WindowContext> ctx(new RasterWindowContext_android(window, params));
     if (!ctx->isValid()) {
-        delete ctx;
         return nullptr;
     }
     return ctx;

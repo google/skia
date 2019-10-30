@@ -6,13 +6,13 @@
  */
 
 
-#include "SkDiscretePathEffect.h"
-#include "SkFixed.h"
-#include "SkPathMeasure.h"
-#include "SkPointPriv.h"
-#include "SkReadBuffer.h"
-#include "SkStrokeRec.h"
-#include "SkWriteBuffer.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/effects/SkDiscretePathEffect.h"
+#include "include/private/SkFixed.h"
+#include "src/core/SkPointPriv.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 sk_sp<SkPathEffect> SkDiscretePathEffect::Make(SkScalar segLength, SkScalar deviation,
                                                uint32_t seedAssist) {
@@ -81,8 +81,8 @@ private:
     uint32_t fSeed;
 };
 
-bool SkDiscretePathEffect::filterPath(SkPath* dst, const SkPath& src,
-                                      SkStrokeRec* rec, const SkRect*) const {
+bool SkDiscretePathEffect::onFilterPath(SkPath* dst, const SkPath& src,
+                                        SkStrokeRec* rec, const SkRect*) const {
     bool doFill = rec->isFillStyle();
 
     SkPathMeasure   meas(src, doFill);
@@ -142,10 +142,4 @@ void SkDiscretePathEffect::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fSegLength);
     buffer.writeScalar(fPerterb);
     buffer.writeUInt(fSeedAssist);
-}
-
-void SkDiscretePathEffect::toString(SkString* str) const {
-    str->appendf("SkDiscretePathEffect: (");
-    str->appendf("segLength: %.2f deviation: %.2f seed %d", fSegLength, fPerterb, fSeedAssist);
-    str->append(")");
 }

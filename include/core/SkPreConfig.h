@@ -18,7 +18,8 @@
 
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_IOS) && !defined(SK_BUILD_FOR_WIN) && !defined(SK_BUILD_FOR_UNIX) && !defined(SK_BUILD_FOR_MAC)
+#if !defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_IOS) && !defined(SK_BUILD_FOR_WIN) && \
+    !defined(SK_BUILD_FOR_UNIX) && !defined(SK_BUILD_FOR_MAC)
 
     #ifdef __APPLE__
         #include "TargetConditionals.h"
@@ -41,18 +42,9 @@
 
 #endif
 
-/* Even if the user only defined the framework variant we still need to build
- * the default (NDK-compliant) Android code. Therefore, when attempting to
- * include/exclude something from the framework variant check first that we are
- * building for Android then check the status of the framework define.
- */
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && !defined(SK_BUILD_FOR_ANDROID)
-    #define SK_BUILD_FOR_ANDROID
-#endif
-
 //////////////////////////////////////////////////////////////////////
 
-#ifdef SK_BUILD_FOR_WIN
+#if defined(SK_BUILD_FOR_WIN) && !defined(__clang__)
     #if !defined(SK_RESTRICT)
         #define SK_RESTRICT __restrict
     #endif
@@ -111,6 +103,7 @@
 #define SK_CPU_SSE_LEVEL_SSE42    42
 #define SK_CPU_SSE_LEVEL_AVX      51
 #define SK_CPU_SSE_LEVEL_AVX2     52
+#define SK_CPU_SSE_LEVEL_AVX512   60
 
 // When targetting iOS and using gyp to generate the build files, it is not
 // possible to select files to build depending on the architecture (i.e. it
@@ -120,11 +113,13 @@
     #define SK_CPU_SSE_LEVEL 0
 #endif
 
-// Are we in GCC?
+// Are we in GCC/Clang?
 #ifndef SK_CPU_SSE_LEVEL
     // These checks must be done in descending order to ensure we set the highest
     // available SSE level.
-    #if defined(__AVX2__)
+    #if defined(__AVX512F__)
+        #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_AVX512
+    #elif defined(__AVX2__)
         #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_AVX2
     #elif defined(__AVX__)
         #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_AVX
@@ -165,35 +160,12 @@
 
 #if defined(__arm__) && (!defined(__APPLE__) || !TARGET_IPHONE_SIMULATOR)
     #define SK_CPU_ARM32
-
-    #if defined(__GNUC__)
-        #if defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) \
-                || defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) \
-                || defined(__ARM_ARCH_7EM__) || defined(_ARM_ARCH_7)
-            #define SK_ARM_ARCH 7
-        #elif defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_6J__) \
-                || defined(__ARM_ARCH_6K__) || defined(__ARM_ARCH_6Z__) \
-                || defined(__ARM_ARCH_6ZK__) || defined(__ARM_ARCH_6T2__) \
-                || defined(__ARM_ARCH_6M__) || defined(_ARM_ARCH_6)
-            #define SK_ARM_ARCH 6
-        #elif defined(__ARM_ARCH_5__) || defined(__ARM_ARCH_5T__) \
-                || defined(__ARM_ARCH_5E__) || defined(__ARM_ARCH_5TE__) \
-                || defined(__ARM_ARCH_5TEJ__) || defined(_ARM_ARCH_5)
-            #define SK_ARM_ARCH 5
-        #elif defined(__ARM_ARCH_4__) || defined(__ARM_ARCH_4T__) || defined(_ARM_ARCH_4)
-            #define SK_ARM_ARCH 4
-        #else
-            #define SK_ARM_ARCH 3
-        #endif
-    #endif
-#endif
-
-#if defined(__aarch64__) && !defined(SK_BUILD_NO_OPTS)
+#elif defined(__aarch64__) && !defined(SK_BUILD_NO_OPTS)
     #define SK_CPU_ARM64
 #endif
 
 // All 64-bit ARM chips have NEON.  Many 32-bit ARM chips do too.
-#if !defined(SK_ARM_HAS_NEON) && !defined(SK_BUILD_NO_OPTS) && (defined(__ARM_NEON__) || defined(__ARM_NEON))
+#if !defined(SK_ARM_HAS_NEON) && !defined(SK_BUILD_NO_OPTS) && defined(__ARM_NEON)
     #define SK_ARM_HAS_NEON
 #endif
 
@@ -223,50 +195,6 @@
     #else
         #define SK_API
     #endif
-#endif
-
-//////////////////////////////////////////////////////////////////////
-
-/**
- * Use SK_PURE_FUNC as an attribute to indicate that a function's
- * return value only depends on the value of its parameters. This
- * can help the compiler optimize out successive calls.
- *
- * Usage:
- *      void  function(int params)  SK_PURE_FUNC;
- */
-#if defined(__GNUC__)
-#  define  SK_PURE_FUNC  __attribute__((pure))
-#else
-#  define  SK_PURE_FUNC  /* nothing */
-#endif
-
-//////////////////////////////////////////////////////////////////////
-
-/**
- * SK_HAS_ATTRIBUTE(<name>) should return true iff the compiler
- * supports __attribute__((<name>)). Mostly important because
- * Clang doesn't support all of GCC attributes.
- */
-#if defined(__has_attribute)
-#   define SK_HAS_ATTRIBUTE(x) __has_attribute(x)
-#elif defined(__GNUC__)
-#   define SK_HAS_ATTRIBUTE(x) 1
-#else
-#   define SK_HAS_ATTRIBUTE(x) 0
-#endif
-
-/**
- * SK_ATTRIBUTE_OPTIMIZE_O1 can be used as a function attribute
- * to specify individual optimization level of -O1, if the compiler
- * supports it.
- *
- * NOTE: Clang/ARM (r161757) does not support the 'optimize' attribute.
- */
-#if SK_HAS_ATTRIBUTE(optimize)
-#   define SK_ATTRIBUTE_OPTIMIZE_O1 __attribute__((optimize("O1")))
-#else
-#   define SK_ATTRIBUTE_OPTIMIZE_O1 /* nothing */
 #endif
 
 #endif

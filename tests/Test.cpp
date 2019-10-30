@@ -5,21 +5,37 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "tests/Test.h"
 
 #include <stdlib.h>
 
-#include "SkCommandLineFlags.h"
-#include "SkString.h"
-#include "SkTime.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTime.h"
+#include "tools/flags/CommandLineFlags.h"
 
-DEFINE_string2(tmpDir, t, nullptr, "Temp directory to use.");
+static DEFINE_string2(tmpDir, t, nullptr, "Temp directory to use.");
 
 void skiatest::Reporter::bumpTestCount() {}
 
 bool skiatest::Reporter::allowExtendedTest() const { return false; }
 
 bool skiatest::Reporter::verbose() const { return false; }
+
+
+void skiatest::Reporter::reportFailedWithContext(const skiatest::Failure& f) {
+    SkString fullMessage = f.message;
+    if (!fContextStack.empty()) {
+        fullMessage.append(" [");
+        for (int i = 0; i < fContextStack.count(); ++i) {
+            if (i > 0) {
+                fullMessage.append(", ");
+            }
+            fullMessage.append(fContextStack[i]);
+        }
+        fullMessage.append("]");
+    }
+    this->reportFailed(skiatest::Failure(f.fileName, f.lineNo, f.condition, fullMessage));
+}
 
 SkString skiatest::Failure::toString() const {
     SkString result = SkStringPrintf("%s:%d\t", this->fileName, this->lineNo);

@@ -5,106 +5,78 @@
  * found in the LICENSE file.
  */
 
-#include "DecodeFile.h"
-#include "SampleCode.h"
-#include "SkView.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkGraphics.h"
-#include "SkPath.h"
-#include "SkRegion.h"
-#include "SkShader.h"
-#include "SkUtils.h"
-#include "SkColorPriv.h"
-#include "SkColorFilter.h"
-#include "SkTime.h"
-#include "SkTypeface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkShader.h"
+#include "include/effects/SkGradientShader.h"
+#include "samplecode/DecodeFile.h"
+#include "samplecode/Sample.h"
+#include "tools/Resources.h"
 
+namespace {
 static sk_sp<SkShader> make_bitmapfade(const SkBitmap& bm) {
+    SkPoint pts[2] = {
+        {0, 0},
+        {0, (float)bm.height()},
+    };
+    SkColor colors[2] = {
+        SkColorSetARGB(255, 0, 0, 0),
+        SkColorSetARGB(0,   0, 0, 0),
+    };
+    return SkShaders::Blend(SkBlendMode::kDstIn,
+                            bm.makeShader(),
+                            SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
+                                                         SkTileMode::kClamp));
+}
+
+static sk_sp<SkShader> make_blend_shader() {
     SkPoint pts[2];
     SkColor colors[2];
 
     pts[0].set(0, 0);
-    pts[1].set(0, SkIntToScalar(bm.height()));
+    pts[1].set(SkIntToScalar(100), 0);
+    colors[0] = SK_ColorRED;
+    colors[1] = SK_ColorBLUE;
+    auto shaderA = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
+
+    pts[0].set(0, 0);
+    pts[1].set(0, SkIntToScalar(100));
     colors[0] = SK_ColorBLACK;
-    colors[1] = SkColorSetARGB(0, 0, 0, 0);
-    auto shaderA = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    colors[1] = SkColorSetARGB(0x80, 0, 0, 0);
+    auto shaderB = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
 
-    auto shaderB = SkShader::MakeBitmapShader(bm,
-                                              SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
-
-    return SkShader::MakeComposeShader(std::move(shaderB), std::move(shaderA), SkBlendMode::kDstIn);
+    return SkShaders::Blend(SkBlendMode::kDstIn, std::move(shaderA), std::move(shaderB));
 }
 
-class ShaderView : public SampleView {
-public:
+struct ShaderView : public Sample {
     sk_sp<SkShader> fShader;
+    sk_sp<SkShader> fShaderFade;
     SkBitmap        fBitmap;
 
-    ShaderView() {
-        decode_file("/skimages/logo.gif", &fBitmap);
-
-        SkPoint pts[2];
-        SkColor colors[2];
-
-        pts[0].set(0, 0);
-        pts[1].set(SkIntToScalar(100), 0);
-        colors[0] = SK_ColorRED;
-        colors[1] = SK_ColorBLUE;
-        auto shaderA = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
-
-        pts[0].set(0, 0);
-        pts[1].set(0, SkIntToScalar(100));
-        colors[0] = SK_ColorBLACK;
-        colors[1] = SkColorSetARGB(0x80, 0, 0, 0);
-        auto shaderB = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
-
-        fShader = SkShader::MakeComposeShader(std::move(shaderA), std::move(shaderB),
-                                              SkBlendMode::kDstIn);
+    void onOnceBeforeDraw() override {
+        decode_file(GetResourceAsData("images/dog.jpg"), &fBitmap);
+        fShader = make_blend_shader();
+        fShaderFade = make_bitmapfade(fBitmap);
     }
 
-protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Shaders");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("Shaders"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawBitmap(fBitmap, 0, 0);
-
         canvas->translate(20, 120);
 
         SkPaint paint;
-        SkRect  r;
-
         paint.setColor(SK_ColorGREEN);
-        canvas->drawRect(SkRect::MakeWH(100, 100), paint);
+        canvas->drawRect(SkRect{0, 0, 100, 100}, paint);
         paint.setShader(fShader);
-        canvas->drawRect(SkRect::MakeWH(100, 100), paint);
+        canvas->drawRect(SkRect{0, 0, 100, 100}, paint);
 
         canvas->translate(SkIntToScalar(110), 0);
 
-        int w = fBitmap.width();
-        int h = fBitmap.height();
-        w = 120;
-        h = 80;
-        r.set(0, 0, SkIntToScalar(w), SkIntToScalar(h));
-
         paint.setShader(nullptr);
-        canvas->drawRect(r, paint);
-        paint.setShader(make_bitmapfade(fBitmap));
-        canvas->drawRect(r, paint);
+        canvas->drawRect(SkRect{0, 0, 120, 80}, paint);
+        paint.setShader(fShaderFade);
+        canvas->drawRect(SkRect{0, 0, 120, 80}, paint);
     }
-
-private:
-    typedef SampleView INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
-
-static SkView* MyFactory() { return new ShaderView; }
-static SkViewRegister reg(MyFactory);
+}  // namespace
+DEF_SAMPLE( return new ShaderView(); )

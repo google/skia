@@ -8,7 +8,7 @@
 #ifndef GrTextureProxyPriv_DEFINED
 #define GrTextureProxyPriv_DEFINED
 
-#include "GrTextureProxy.h"
+#include "src/gpu/GrTextureProxy.h"
 
 class GrDeferredProxyUploader;
 class GrOpFlushState;
@@ -27,23 +27,6 @@ public:
     // Clears any deferred uploader object on the proxy. Used to free the CPU data after the
     // contents have been uploaded.
     void resetDeferredUploader();
-    // Returns the GrMipMapped value of the proxy from creation time regardless of whether it has
-    // been instantiated or not.
-    GrMipMapped proxyMipMapped() const { return fTextureProxy->fMipMapped; }
-
-    bool doesNotSupportMipMaps() const { return fTextureProxy->doesNotSupportMipMaps(); }
-    bool isGLTextureRectangleOrExternal() const {
-        return fTextureProxy->isGLTextureRectangleOrExternal();
-    }
-    // We assume that if a texture is not a GL_TEXTURE_RECTANGLE or GL_TEXTURE_EXTERNAL then it is a
-    // GL_TEXTURE_2D
-    bool isGLTexture2D() const { return !fTextureProxy->isGLTextureRectangleOrExternal(); }
-    // We only support the clamp wrap mode with gl rectangle or external textures.
-    bool isClampOnly() const { return fTextureProxy->isGLTextureRectangleOrExternal(); }
-
-    void setDoesNotSupportMipMaps() {
-        fTextureProxy->setDoesNotSupportMipMaps();
-    }
 
 private:
     explicit GrTextureProxyPriv(GrTextureProxy* textureProxy) : fTextureProxy(textureProxy) {}

@@ -5,17 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageEncoderPriv.h"
+#include "src/images/SkImageEncoderPriv.h"
 
 #ifdef SK_HAS_JPEG_LIBRARY
 
-#include "SkColorData.h"
-#include "SkImageEncoderFns.h"
-#include "SkImageInfoPriv.h"
-#include "SkJpegEncoder.h"
-#include "SkJPEGWriteUtility.h"
-#include "SkStream.h"
-#include "SkTemplates.h"
+#include "include/core/SkStream.h"
+#include "include/encode/SkJpegEncoder.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkImageInfoPriv.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkMSAN.h"
+#include "src/images/SkImageEncoderFns.h"
+#include "src/images/SkJPEGWriteUtility.h"
 
 #include <stdio.h>
 
@@ -68,21 +69,11 @@ private:
 bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo, const SkJpegEncoder::Options& options)
 {
     auto chooseProc8888 = [&]() {
-        if (kUnpremul_SkAlphaType != srcInfo.alphaType() ||
-            SkJpegEncoder::AlphaOption::kIgnore == options.fAlphaOption)
-        {
-            return (transform_scanline_proc) nullptr;
-        }
-
-        // Note that kRespect mode is only supported with sRGB or linear transfer functions.
-        // The legacy code path is incidentally correct when the transfer function is linear.
-        const bool isSRGBTransferFn = srcInfo.gammaCloseToSRGB() &&
-                (SkTransferFunctionBehavior::kRespect == options.fBlendBehavior);
-        if (isSRGBTransferFn) {
-            return transform_scanline_to_premul_linear;
-        } else {
+        if (kUnpremul_SkAlphaType == srcInfo.alphaType() &&
+                options.fAlphaOption == SkJpegEncoder::AlphaOption::kBlendOnBlack) {
             return transform_scanline_to_premul_legacy;
         }
+        return (transform_scanline_proc) nullptr;
     };
 
     J_COLOR_SPACE jpegColorType = JCS_EXT_RGBA;
@@ -118,17 +109,11 @@ bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo, const SkJpegEncoder
             numComponents = 1;
             break;
         case kRGBA_F16_SkColorType:
-            if (!srcInfo.colorSpace() ||
-                    SkTransferFunctionBehavior::kRespect != options.fBlendBehavior) {
-                return false;
-            }
-
-            if (kUnpremul_SkAlphaType != srcInfo.alphaType() ||
-                SkJpegEncoder::AlphaOption::kIgnore == options.fAlphaOption)
-            {
-                fProc = transform_scanline_F16_to_8888;
-            } else {
+            if (kUnpremul_SkAlphaType == srcInfo.alphaType() &&
+                    options.fAlphaOption == SkJpegEncoder::AlphaOption::kBlendOnBlack) {
                 fProc = transform_scanline_F16_to_premul_8888;
+            } else {
+                fProc = transform_scanline_F16_to_8888;
             }
             jpegColorType = JCS_EXT_RGBA;
             numComponents = 4;
@@ -181,7 +166,7 @@ bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo, const SkJpegEncoder
 
 std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream* dst, const SkPixmap& src,
                                                const Options& options) {
-    if (!SkPixmapIsValid(src, options.fBlendBehavior)) {
+    if (!SkPixmapIsValid(src)) {
         return nullptr;
     }
 
@@ -230,13 +215,26 @@ bool SkJpegEncoder::onEncodeRows(int numRows) {
         return false;
     }
 
+    const size_t srcBytes = SkColorTypeBytesPerPixel(fSrc.colorType()) * fSrc.width();
+    const size_t jpegSrcBytes = fEncoderMgr->cinfo()->input_components * fSrc.width();
+
     const void* srcRow = fSrc.addr(0, fCurrRow);
     for (int i = 0; i < numRows; i++) {
         JSAMPLE* jpegSrcRow = (JSAMPLE*) srcRow;
         if (fEncoderMgr->proc()) {
-            fEncoderMgr->proc()((char*)fStorage.get(), (const char*)srcRow, fSrc.width(),
-                                fEncoderMgr->cinfo()->input_components, nullptr);
+            sk_msan_assert_initialized(srcRow, SkTAddOffset<const void>(srcRow, srcBytes));
+            fEncoderMgr->proc()((char*)fStorage.get(),
+                                (const char*)srcRow,
+                                fSrc.width(),
+                                fEncoderMgr->cinfo()->input_components);
             jpegSrcRow = fStorage.get();
+            sk_msan_assert_initialized(jpegSrcRow,
+                                       SkTAddOffset<const void>(jpegSrcRow, jpegSrcBytes));
+        } else {
+            // Same as above, but this repetition allows determining whether a
+            // proc was used when msan asserts.
+            sk_msan_assert_initialized(jpegSrcRow,
+                                       SkTAddOffset<const void>(jpegSrcRow, jpegSrcBytes));
         }
 
         jpeg_write_scanlines(fEncoderMgr->cinfo(), &jpegSrcRow, 1);

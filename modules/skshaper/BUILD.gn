@@ -1,0 +1,42 @@
+# Copyright 2018 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../../gn/skia.gni")
+
+declare_args() {
+  skia_enable_skshaper = !(is_win && is_component_build)
+}
+
+if (skia_enable_skshaper) {
+  config("public_config") {
+    include_dirs = [ "include" ]
+    defines = []
+    if (skia_use_icu) {
+      defines += [ "SK_SHAPER_HARFBUZZ_AVAILABLE" ]
+    }
+  }
+
+  component("skshaper") {
+    check_includes = false
+    import("skshaper.gni")
+    public_configs = [ ":public_config" ]
+    public = skia_shaper_public
+    deps = [
+      "../..:skia",
+    ]
+    sources = skia_shaper_primitive_sources
+    if (skia_use_icu && skia_use_harfbuzz) {
+      sources += skia_shaper_harfbuzz_sources
+      deps += [
+        "//third_party/harfbuzz",
+        "//third_party/icu",
+      ]
+    }
+    configs += [ "../../:skia_private" ]
+  }
+} else {
+  group("skshaper") {
+  }
+}

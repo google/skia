@@ -8,7 +8,7 @@
 #ifndef SkTrimPathEffect_DEFINED
 #define SkTrimPathEffect_DEFINED
 
-#include "SkPathEffect.h"
+#include "include/core/SkPathEffect.h"
 
 class SK_API SkTrimPathEffect {
 public:

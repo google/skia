@@ -7,14 +7,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h" // required to make sure SK_SUPPORT_GPU is defined
+#include "include/core/SkTypes.h" // required to make sure SK_SUPPORT_GPU is defined
 
 #if SK_SUPPORT_GPU
 
-#include "GrContext.h"
-#include "GrBackendSurface.h"
-#include "gl/GrGLInterface.h"
-#include "gl/GrGLAssembleInterface.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/gl/GrGLAssembleInterface.h"
 
 #define SK_ONLY_GPU(expr) expr
 #define SK_ONLY_GPU_RETURN(expr, def) expr
@@ -26,9 +26,9 @@
 
 #endif // SK_SUPPORT_GPU
 
-#include "gr_context.h"
+#include "include/c/gr_context.h"
 
-#include "sk_types_priv.h"
+#include "src/c/sk_types_priv.h"
 
 
 // GrContext

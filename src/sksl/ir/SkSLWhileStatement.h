@@ -8,8 +8,8 @@
 #ifndef SKSL_WHILESTATEMENT
 #define SKSL_WHILESTATEMENT
 
-#include "SkSLExpression.h"
-#include "SkSLStatement.h"
+#include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLStatement.h"
 
 namespace SkSL {
 
@@ -22,6 +22,11 @@ struct WhileStatement : public Statement {
     : INHERITED(offset, kWhile_Kind)
     , fTest(std::move(test))
     , fStatement(std::move(statement)) {}
+
+    std::unique_ptr<Statement> clone() const override {
+        return std::unique_ptr<Statement>(new WhileStatement(fOffset, fTest->clone(),
+                                                             fStatement->clone()));
+    }
 
     String description() const override {
         return "while (" + fTest->description() + ") " + fStatement->description();

@@ -12,6 +12,32 @@ the Android framework, Skia's tracing is integrated into
 For standalone builds, Skia's tools (DM, nanobench, and Viewer) are capable of tracing execution
 in three ways, controlled by the `--trace` command line argument.
 
+Standalone Tracing
+------------------
+
+Most arguments to `--trace` will be interpreted as a filename (the two exceptions are described
+below), and trace events will be written to that file in JSON format, suitable for viewing with
+[chrome://tracing](chrome://tracing).
+
+<!--?prettify lang=sh?-->
+
+    # Run DM on several GMs to get tracing data
+    out/Release/dm --config gl --match bleed --trace gl_bleed_gms.json
+
+This creates a file `gl_bleed_gms.json` in the current directory. There are limitations in Chrome's
+tracing tool that prevent loading a file larger than 256 MB. To stay under that limit (and avoid
+clutter and slowdown in the interface), it's best to run a small number of tests/benchmarks when
+tracing. Once you have generated a file in this way, go to
+[chrome://tracing](chrome://tracing), click Load:
+
+![Load Button](tracing_load.png)
+
+... then select the JSON file. The data will be loaded and can be navigated/inspected using the
+tracing tools. Tip: press '?' for a help screen explaining the available keyboard and mouse
+controls.
+
+![Tracing interface](tracing.png)
+
 Android ATrace
 --------------
 
@@ -56,24 +82,28 @@ For simple situations, all tracing events can be directed to the console with `-
 ...
 ~~~
 
-Chrome Tracing
---------------
+Adding More Trace Events
+------------------------
 
-Any other argument to `--trace` will be interpreted as a filename, and trace events will be written
-to that file in JSON format, suitable for viewing with [chrome://tracing](chrome://tracing).
+Adding more trace events involves using a set of `TRACE_` macros. The simplest example, to record
+the time spent in a function or other scope, is:
 
-<!--?prettify lang=sh?-->
+~~~
+#include "SkTraceEvent.h"
+...
+void doSomething() {
+  // Add an event for the duration of the current function (or other scope)
+  // "skia" is a category name, for filtering events while recording
+  // TRACE_FUNC is the event name, and expands to the name of the current function
+  TRACE_EVENT0("skia", TRACE_FUNC);
 
-    # Run DM on several GMs to get tracing data
-    out/Release/dm --config gl --match bleed --trace gl_bleed_gms.json
+  if (doExtraWork) {
+    TRACE_EVENT0("skia", "ExtraWorkBeingDone");
+    ...
+  }
+}
+~~~
 
-This creates a file `gl_bleed_gms.json` in the current directory. Go to
-[chrome://tracing](chrome://tracing), click Load:
-
-![Load Button](tracing_load.png)
-
-... then select the JSON file. The data will be loaded and can be navigated/inspected using the
-tracing tools. Tip: press '?' for a help screen explaining the available keyboard and mouse
-controls.
-
-![Tracing interface](tracing.png)
+For more examples, including other kinds of trace events and attaching parameters to events, see
+the comments in
+[SkTraceEventCommon.h](https://cs.chromium.org/chromium/src/third_party/skia/src/core/SkTraceEventCommon.h).

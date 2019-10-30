@@ -9,8 +9,8 @@
 #ifndef SkManagedStream_h
 #define SkManagedStream_h
 
-#include "SkTypes.h"
-#include "SkStream.h"
+#include "include/core/SkTypes.h"
+#include "include/core/SkStream.h"
 
 class SkManagedWStream;
 class SkManagedStream;

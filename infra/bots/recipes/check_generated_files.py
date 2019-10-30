@@ -7,6 +7,7 @@
 
 DEPS = [
   'build',
+  'infra',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/path',
@@ -14,7 +15,7 @@ DEPS = [
   'recipe_engine/python',
   'recipe_engine/raw_io',
   'recipe_engine/step',
-  'core',
+  'checkout',
   'flavor',
   'run',
   'vars',
@@ -24,8 +25,8 @@ DEPS = [
 def RunSteps(api):
   # Checkout, compile, etc.
   api.vars.setup()
-  checkout_root = api.core.default_checkout_root
-  api.core.checkout_bot_update(checkout_root=checkout_root)
+  checkout_root = api.checkout.default_checkout_root
+  api.checkout.bot_update(checkout_root=checkout_root)
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
   api.flavor.setup()
 
@@ -39,6 +40,26 @@ def RunSteps(api):
         'git diff #1',
         cmd=['git', 'diff', '--no-ext-diff'],
         stdout=api.m.raw_io.output()).stdout
+
+    with api.context(env=api.infra.go_env):
+      api.step('generate gl interfaces',
+               cmd=['make', '-C', 'tools/gpu/gl/interface', 'generate'])
+
+    # Reformat all tracked .gn files.
+    api.run(api.python, 'fetch-gn',
+            script='bin/fetch-gn',
+            infra_step=True)
+    files = api.run(api.step, 'list .gn files',
+                    cmd=['git', 'ls-files', '*.gn'],
+                    stdout=api.m.raw_io.output(),
+                    infra_step=True).stdout
+    for f in files.split():
+      api.run(api.step, 'format ' + f,
+              cmd=['bin/gn', 'format', f])
+
+    # Rewrite #includes.
+    api.run(api.python, 'rewrite #includes',
+            script='tools/rewrite_includes.py')
 
     # Touch all .fp files so that the generated files are rebuilt.
     api.run(
@@ -55,7 +76,7 @@ for r, d, files in os.walk('%s'):
       subprocess.check_call(['touch', path])
 """ % cwd)
 
-    # Regenerate the SKSL files.
+    # Run GN, regenerate the SKSL files, and make sure rewritten #includes work.
     api.build(checkout_root=checkout_root,
               out_dir=api.vars.build_dir.join('out', 'Release'))
 
@@ -89,5 +110,7 @@ def GenTests(api):
                      revision='abc123',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.path.exists(api.path['start_dir'])
+      api.path.exists(api.path['start_dir']) +
+      api.step_data('list .gn files',
+                    stdout=api.raw_io.output('BUILD.gn\ngn/foo.gn\n'))
   )

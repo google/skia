@@ -8,8 +8,7 @@
 #ifndef SkTwoPointConicalGradient_DEFINED
 #define SkTwoPointConicalGradient_DEFINED
 
-#include "SkColorSpaceXformer.h"
-#include "SkGradientShaderPriv.h"
+#include "src/shaders/gradients/SkGradientShaderPriv.h"
 
 class SkTwoPointConicalGradient final : public SkGradientShaderBase {
 public:
@@ -62,20 +61,17 @@ public:
     SkScalar getEndRadius() const { return fRadius2; }
 
     Type getType() const { return fType; }
-    const SkMatrix& getGradientMatrix() const { return fPtsToUnit; }
     const FocalData& getFocalData() const { return fFocalData; }
-
-    void toString(SkString* str) const override;
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTwoPointConicalGradient)
 
 protected:
     void flatten(SkWriteBuffer& buffer) const override;
-    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
     void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                               SkRasterPipeline* postPipeline) const override;
 
 private:
+    SK_FLATTENABLE_HOOKS(SkTwoPointConicalGradient)
+
     SkTwoPointConicalGradient(const SkPoint& c0, SkScalar r0,
                               const SkPoint& c1, SkScalar r1,
                               const Descriptor&, Type, const SkMatrix&, const FocalData&);

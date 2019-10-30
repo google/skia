@@ -8,96 +8,96 @@
 #ifndef GrGlyph_DEFINED
 #define GrGlyph_DEFINED
 
-#include "GrDrawOpAtlas.h"
-#include "GrRect.h"
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
+#include "src/gpu/GrDrawOpAtlas.h"
+#include "src/gpu/geometry/GrRect.h"
 
-#include "SkChecksum.h"
-#include "SkFixed.h"
-#include "SkPath.h"
+#include "include/core/SkPath.h"
+#include "include/private/SkChecksum.h"
+#include "include/private/SkFixed.h"
 
-/*  Need this to be quad-state:
-    - complete w/ image
-    - just metrics
-    - failed to get image, but has metrics
-    - failed to get metrics
- */
 struct GrGlyph {
     enum MaskStyle {
         kCoverage_MaskStyle,
         kDistance_MaskStyle
     };
 
-    typedef uint32_t PackedID;
-
-    GrDrawOpAtlas::AtlasID fID;
-    SkPath*               fPath;
-    PackedID              fPackedID;
-    GrMaskFormat          fMaskFormat;
-    GrIRect16             fBounds;
-    SkIPoint16            fAtlasLocation;
-    bool                  fTooLargeForAtlas;
-
-    void init(GrGlyph::PackedID packed, const SkIRect& bounds, GrMaskFormat format) {
-        fID = GrDrawOpAtlas::kInvalidAtlasID;
-        fPath = nullptr;
-        fPackedID = packed;
-        fBounds.set(bounds);
-        fMaskFormat = format;
-        fAtlasLocation.set(0, 0);
-        fTooLargeForAtlas = GrDrawOpAtlas::GlyphTooLargeForAtlas(bounds.width(), bounds.height());
+    static GrMaskFormat FormatFromSkGlyph(SkMask::Format format) {
+        switch (format) {
+            case SkMask::kBW_Format:
+            case SkMask::kSDF_Format:
+                // fall through to kA8 -- we store BW and SDF glyphs in our 8-bit cache
+            case SkMask::kA8_Format:
+                return kA8_GrMaskFormat;
+            case SkMask::k3D_Format:
+                return kA8_GrMaskFormat; // ignore the mul and add planes, just use the mask
+            case SkMask::kLCD16_Format:
+                return kA565_GrMaskFormat;
+            case SkMask::kARGB32_Format:
+                return kARGB_GrMaskFormat;
+            default:
+                SkDEBUGFAIL("unsupported SkMask::Format");
+                return kA8_GrMaskFormat;
+        }
     }
 
-    void reset() {
-        if (fPath) {
-            delete fPath;
-            fPath = nullptr;
+    static MaskStyle MaskStyleFromSkGlyph(const SkGlyph& skGlyph) {
+        return skGlyph.maskFormat() == SkMask::kSDF_Format
+           ? GrGlyph::MaskStyle::kDistance_MaskStyle
+           : GrGlyph::MaskStyle::kCoverage_MaskStyle;
+    }
+
+    GrGlyph(const SkGlyph& skGlyph)
+        : fPackedID{skGlyph.getPackedID()}
+        , fMaskFormat{FormatFromSkGlyph(skGlyph.maskFormat())}
+        , fMaskStyle{MaskStyleFromSkGlyph(skGlyph)}
+        , fBounds{GrIRect16::Make(skGlyph.iRect())} {}
+
+
+    SkRect destRect(SkPoint origin) {
+        return SkRect::MakeXYWH(
+                SkIntToScalar(fBounds.fLeft) + origin.x(),
+                SkIntToScalar(fBounds.fTop)  + origin.y(),
+                SkIntToScalar(fBounds.width()),
+                SkIntToScalar(fBounds.height()));
+    }
+
+    SkRect destRect(SkPoint origin, SkScalar textScale) {
+        if (fMaskStyle == kCoverage_MaskStyle) {
+            return SkRect::MakeXYWH(
+                    SkIntToScalar(fBounds.fLeft)    * textScale + origin.x(),
+                    SkIntToScalar(fBounds.fTop)     * textScale + origin.y(),
+                    SkIntToScalar(fBounds.width())  * textScale,
+                    SkIntToScalar(fBounds.height()) * textScale);
+        } else {
+            return SkRect::MakeXYWH(
+                    (SkIntToScalar(fBounds.fLeft) + SK_DistanceFieldInset) * textScale + origin.x(),
+                    (SkIntToScalar(fBounds.fTop)  + SK_DistanceFieldInset) * textScale + origin.y(),
+                    (SkIntToScalar(fBounds.width())  - 2 * SK_DistanceFieldInset) * textScale,
+                    (SkIntToScalar(fBounds.height()) - 2 * SK_DistanceFieldInset) * textScale);
         }
     }
 
     int width() const { return fBounds.width(); }
     int height() const { return fBounds.height(); }
-    bool isEmpty() const { return fBounds.isEmpty(); }
-    uint16_t glyphID() const { return UnpackID(fPackedID); }
     uint32_t pageIndex() const { return GrDrawOpAtlas::GetPageIndexFromID(fID); }
+    MaskStyle maskStyle() const { return fMaskStyle; }
 
-    ///////////////////////////////////////////////////////////////////////////
-
-    static inline unsigned ExtractSubPixelBitsFromFixed(SkFixed pos) {
-        // two most significant fraction bits from fixed-point
-        return (pos >> 14) & 3;
-    }
-
-    static inline PackedID Pack(uint16_t glyphID, SkFixed x, SkFixed y, MaskStyle ms) {
-        x = ExtractSubPixelBitsFromFixed(x);
-        y = ExtractSubPixelBitsFromFixed(y);
-        int dfFlag = (ms == kDistance_MaskStyle) ? 0x1 : 0x0;
-        return (dfFlag << 20) | (x << 18) | (y << 16) | glyphID;
-    }
-
-    static inline SkFixed UnpackFixedX(PackedID packed) {
-        return ((packed >> 18) & 3) << 14;
-    }
-
-    static inline SkFixed UnpackFixedY(PackedID packed) {
-        return ((packed >> 16) & 3) << 14;
-    }
-
-    static inline MaskStyle UnpackMaskStyle(PackedID packed) {
-        return ((packed >> 20) & 1) ? kDistance_MaskStyle : kCoverage_MaskStyle;
-    }
-
-    static inline uint16_t UnpackID(PackedID packed) {
-        return (uint16_t)packed;
-    }
-
-    static inline const GrGlyph::PackedID& GetKey(const GrGlyph& glyph) {
+    // GetKey and Hash for the the hash table.
+    static const SkPackedGlyphID& GetKey(const GrGlyph& glyph) {
         return glyph.fPackedID;
     }
 
-    static inline uint32_t Hash(GrGlyph::PackedID key) {
-        return SkChecksum::Mix(key);
+    static uint32_t Hash(SkPackedGlyphID key) {
+        return SkChecksum::Mix(key.hash());
     }
+
+    const SkPackedGlyphID  fPackedID;
+    const GrMaskFormat     fMaskFormat;
+    const MaskStyle        fMaskStyle;
+    const GrIRect16        fBounds;
+    SkIPoint16             fAtlasLocation{0, 0};
+    GrDrawOpAtlas::AtlasID fID{GrDrawOpAtlas::kInvalidAtlasID};
 };
 
 #endif

@@ -1,0 +1,67 @@
+Milestone Release Notes
+=======================
+
+This page includes a list of high level updates for each milestone release.
+
+Milestone 78
+------------
+  * Added RELEASE_NOTES.txt file
+    https://review.skia.org/229760
+  * SkDrawLooper is no longer supported in SkPaint or SkCanvas.
+    https://review.skia.org/230579
+    https://review.skia.org/231736
+  * SkPath::Iter::next() now ignores its consumDegenerates bools. Those will so
+    go away entirely
+    https://review.skia.org/235104
+  * SkImage: new factories: DecodeToRaster, DecodeToTexture
+    https://review.skia.org/234476
+  * SkImageFilter API refactor started:
+    - Provide new factory API in include/effects/SkImageFilters
+    - Consolidated enum types to use SkTileMode and SkColorChannel
+    - Hide filter implementation classes
+    - Hide previously public functions on SkImageFilter that were intended for
+      internal use only
+    https://review.skia.org/230198
+    https://review.skia.org/230876
+    https://review.skia.org/231256
+  * SkColorFilters::HSLAMatrix - new matrix color filter operating in HSLA
+    space.
+    https://review.skia.org/231736
+  * Modify GrBackendFormat getters to not return internal pointers. Use an enum
+    class for GL formats.
+    https://review.skia.org/233160
+  * Expose GrContext::dump() when SK_ENABLE_DUMP_GPU is defined.
+    https://review.skia.org/233557
+  * Vulkan backend now supports YCbCr sampler for I420 Vulkan images that are
+    not backed by external images.
+    https://review.skia.org/233776
+  * Add SkCodec::SelectionPolicy for distinguishing between decoding a still
+    image or an image sequence for a container format that has both (e.g. HEIF).
+    https://review.skia.org/232839
+  * SkImage::makeTextureImage and SkImage::MakeCrossContextFromPixmap no longer
+    take an SkColorSpace parameter. It was unused.
+    https://review.skia.org/234579
+    https://review.skia.org/234912
+  * SkImage::reinterpretColorSpace - to reinterpret image contents in a new
+    color space.
+    https://review.skia.org/234328
+  * Removed SkImage::MakeCrossContextFromEncoded.
+    https://review.skia.org/234912
+  * Add Metal support for GrFence, GrSemaphore, and GrBackendSemaphore
+    https://review.skia.org/233416
+  * SkMallocPixelRef: remove MakeDirect and MakeWithProc from API.
+    https://review.skia.org/234660
+  * Remove 4-parameter variant of SkRect::join() and intersect(), and
+    noemptycheck variants of intersect().
+    https://review.skia.org/235832
+    https://review.skia.org/237142
+  * Remove unused sk_sp comparison operators.
+    https://review.skia.org/236942
+  * Add SkColor4f variant to experimental_DrawEdgeAAQuad for SkiaRenderer.
+    https://review.skia.org/237492
+  * Deprecated maxCount resource cache limit for Ganesh.
+    This hasn't been relevant for a long time.
+  * Changed GrContextOptions' fDisallowGLSLBinaryCaching to fShaderCacheStrategy,
+    and allow caching SkSL.
+    https://review.skia.org/238856
+

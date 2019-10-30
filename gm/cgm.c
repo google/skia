@@ -8,12 +8,17 @@
 // EXPERIMENTAL EXPERIMENTAL EXPERIMENTAL EXPERIMENTAL
 // DO NOT USE -- FOR INTERNAL TESTING ONLY
 
-#include "sk_canvas.h"
-#include "sk_data.h"
-#include "sk_image.h"
-#include "sk_paint.h"
-#include "sk_shader.h"
-#include "sk_surface.h"
+#include "include/c/sk_canvas.h"
+#include "include/c/sk_data.h"
+#include "include/c/sk_image.h"
+#include "include/c/sk_imageinfo.h"
+#include "include/c/sk_paint.h"
+#include "include/c/sk_shader.h"
+#include "include/c/sk_surface.h"
+#include "include/c/sk_types.h"
+
+#include <stdbool.h>
+#include <stddef.h>
 
 extern void sk_test_c_api(sk_canvas_t*);
 
@@ -50,14 +55,11 @@ static void do_draw(sk_canvas_t* canvas) {
 void sk_test_c_api(sk_canvas_t* canvas) {
     do_draw(canvas);
 
-    sk_imageinfo_t info;
-    info.width = W;
-    info.height = H;
-    info.colorType = sk_colortype_get_default_8888();
-    info.alphaType = OPAQUE_SK_ALPHATYPE;
-
-    sk_surfaceprops_t* surfaceProps = sk_surfaceprops_new((sk_surfaceprops_flags_t)0, UNKNOWN_SK_PIXELGEOMETRY);
-    sk_surface_t* surf = sk_surface_new_raster(&info, 0, surfaceProps);
+    sk_imageinfo_t* info = sk_imageinfo_new(W, H, RGBA_8888_SK_COLORTYPE, OPAQUE_SK_ALPHATYPE,
+                                            NULL);
+    sk_surfaceprops_t surfaceProps = { UNKNOWN_SK_PIXELGEOMETRY };
+    sk_surface_t* surf = sk_surface_new_raster(info, &surfaceProps);
+    sk_imageinfo_delete(info);
     do_draw(sk_surface_get_canvas(surf));
 
     sk_image_t* img0 = sk_surface_new_image_snapshot(surf);

@@ -8,10 +8,10 @@
 #ifndef SkBlurMask_DEFINED
 #define SkBlurMask_DEFINED
 
-#include "SkBlurTypes.h"
-#include "SkShader.h"
-#include "SkMask.h"
-#include "SkRRect.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkShader.h"
+#include "src/core/SkMask.h"
 
 class SkBlurMask {
 public:

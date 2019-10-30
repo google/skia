@@ -8,7 +8,7 @@
 #ifndef SkTypeface_mac_DEFINED
 #define SkTypeface_mac_DEFINED
 
-#include "SkTypeface.h"
+#include "include/core/SkTypeface.h"
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 

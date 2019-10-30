@@ -5,13 +5,26 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
+#include "include/third_party/skcms/skcms.h"
 
-#include "SkPaint.h"
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
-#include "SkShader.h"
-#include "SkSurface.h"
+#include <utility>
 
 class PictureShaderCacheGM : public skiagm::GM {
 public:
@@ -54,15 +67,16 @@ public:
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
-        paint.setShader(SkShader::MakePictureShader(fPicture, SkShader::kRepeat_TileMode,
-                                                    SkShader::kRepeat_TileMode, nullptr,
-                                                    nullptr));
+        paint.setShader(fPicture->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat));
 
         {
             // Render in a funny color space that converts green to yellow.
-            SkMatrix44 greenToYellow(SkMatrix44::kIdentity_Constructor);
-            greenToYellow.setFloat(0, 1, 1.0f);
-            sk_sp<SkColorSpace> gty = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+            skcms_Matrix3x3 greenToYellow = {{
+                { 1, 1, 0 },
+                { 0, 1, 0 },
+                { 0, 0, 1 },
+            }};
+            sk_sp<SkColorSpace> gty = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB,
                                                             greenToYellow);
             SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100, std::move(gty));
             sk_sp<SkSurface> surface(SkSurface::MakeRaster(info));

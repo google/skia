@@ -5,9 +5,9 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import fnmatch
 import multiprocessing
 import os
+import re
 import subprocess
 import sys
 
@@ -18,117 +18,55 @@ self-sufficient and idempotent.
 Otherwise, test all checked-in headers except for those in the ignore list.
 '''
 
-public_header_args = [
-    '-Iinclude/core',
-    '-Iinclude/config',
-    '-Iinclude/android',
-    '-Iinclude/codec',
-    '-Iinclude/effects',
-    '-Iinclude/gpu',
-    '-Iinclude/gpu/gl',
-    '-Iinclude/pathops',
-    '-Iinclude/ports',
-    '-Iinclude/private',
-    '-Iinclude/svg',
-    '-Iinclude/utils',
-    '-Iinclude/utils/mac',
-    '-Iinclude/views',
-    '-Ithird_party/vulkan',
-]
+ignore = re.compile('|'.join([
+    r'debugger/QT/.*',
+    r'example/.*',
+    r'experimental/.*',
+    r'include/config/.*',
+    r'include/core/SkPostConfig\.h',
+    r'include/gpu/mtl/.*',
+    r'include/gpu/vk/.*',
+    r'include/ports/SkFontMgr_android\.h',
+    r'include/ports/SkFontMgr_fontconfig\.h',
+    r'include/ports/SkFontMgr_fuchsia\.h',
+    r'include/ports/SkTypeface_win\.h',
+    r'include/private/.*_impl\.h',
+    r'include/private/.*_neon\.h',
+    r'include/private/.*_sse\.h',
+    r'include/third_party/vulkan/.*',
+    r'include/utils/mac/SkCGUtils\.h',
+    r'include/views/SkOSWindow_.*\.h',
+    r'modules/.*',
+    r'platform_tools/.*',
+    r'src/c/sk_c_from_to\.h',
+    r'src/core/.*Template\.h',
+    r'src/core/SkBitmapProcState_.*\.h',
+    r'src/core/SkLinearBitmapPipeline\.h',
+    r'src/core/SkLinearBitmapPipeline_.*\.h',
+    r'src/gpu/mtl/.*',
+    r'src/gpu/vk/.*',
+    r'src/opts/.*_SSE2\.h',
+    r'src/opts/.*_SSSE3\.h',
+    r'src/opts/.*_neon\.h',
+    r'src/opts/.*_sse\.h',
+    r'src/opts/Sk4px_.*\.h',
+    r'src/ports/.*',
+    r'src/utils/.*_win\.h',
+    r'src/utils/win/.*',
+    r'src/views/.*',
+    r'third_party/.*',
+    r'tools/fiddle/.*',
+    r'tools/gpu/vk/.*',
+    r'tools/mdbviz/.*',
+    r'tools/sk_app/.*',
+    r'tools/viewer/.*',
+    ]))
 
-all_header_args = [
-    '-Iinclude/core',
-    '-Iinclude/config',
-    '-Iinclude/android',
-    '-Iinclude/c',
-    '-Iinclude/codec',
-    '-Iinclude/effects',
-    '-Iinclude/gpu',
-    '-Iinclude/gpu/gl',
-    '-Iinclude/pathops',
-    '-Iinclude/ports',
-    '-Iinclude/private',
-    '-Iinclude/svg',
-    '-Iinclude/utils',
-    '-Iinclude/utils/mac',
-    '-Iinclude/views',
-    '-Isrc/codec',
-    '-Isrc/core',
-    '-Isrc/effects',
-    '-Isrc/effects/gradients',
-    '-Isrc/fonts',
-    '-Isrc/gpu',
-    '-Isrc/image',
-    '-Isrc/images',
-    '-Isrc/lazy',
-    '-Isrc/opts',
-    '-Isrc/pathops',
-    '-Isrc/ports',
-    '-Isrc/sfnt',
-    '-Isrc/shaders',
-    '-Isrc/sksl',
-    '-Isrc/utils',
-    '-Isrc/utils/win',
-    '-Isrc/xml',
-    '-Igm',
-    '-Itests',
-    '-Itools',
-    '-Itools/debugger',
-    '-Itools/flags',
-    '-Itools/gpu',
-    '-Itools/timer',
-    '-Ithird_party/externals/jsoncpp/include',
-    '-Ithird_party/externals/libjpeg-turbo',
-    '-Ithird_party/externals/sfntly/cpp/src',
-    '-Ithird_party/externals/zlib',
-    '-Ithird_party/gif',
-    '-Ithird_party/vulkan',
-]
-
-ignore = [
-    '*/lex.*.h',
-    '*/osmesa_wrapper.h',
-    'debugger/QT/*',
-    'example/*',
-    'experimental/*',
-    'include/config/*',
-    'include/core/SkPostConfig.h',
-    'include/gpu/vk/*',
-    'include/ports/SkFontMgr_android.h',
-    'include/ports/SkFontMgr_fontconfig.h',
-    'include/ports/SkTypeface_win.h',
-    'include/private/*_impl.h',
-    'include/utils/mac/SkCGUtils.h',
-    'include/views/SkOSWindow_*.h',
-    'src/c/sk_c_from_to.h',
-    'src/core/*Template.h',
-    'src/core/SkBitmapProcState_*.h',
-    'src/core/SkFDot6Constants.h',
-    'src/core/SkLinearBitmapPipeline.h',
-    'src/core/SkLinearBitmapPipeline_*.h',
-    'src/core/SkUnPreMultiplyPriv.h',
-    'src/gpu/vk/*',
-    'src/opts/*_SSE2.h',
-    'src/opts/*_SSSE3.h',
-    'src/opts/*_neon.h',
-    'src/opts/*_sse.h',
-    'src/opts/Sk4px_*.h',
-    'src/ports/*',
-    'src/utils/*_win.h',
-    'src/utils/win/*',
-    'src/views/*',
-    'third_party/*',
-    'tools/fiddle/*',
-    'tools/viewer/*',
-]
 
 # test header for self-sufficiency and idempotency.
 # Returns a string containing errors, or None iff there are no errors.
 def compile_header(header):
-    args = ([]                 if fnmatch.fnmatch(header, 'include/c/*') else
-            public_header_args if fnmatch.fnmatch(header, 'include/*')   else
-            all_header_args)
-    cmd = ['c++', '--std=c++11'] + args + [ '-o', '/dev/null', '-c', '-x', 'c++', '-']
+    cmd = ['c++', '--std=c++14', '-I.', '-o', '/dev/null', '-c', '-x', 'c++', '-']
     proc = subprocess.Popen(cmd, stdin=subprocess.PIPE,
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     proc.stdin.write('#include "%s"\n#include "%s"\n' % (header, header))
@@ -137,6 +75,7 @@ def compile_header(header):
     if proc.wait() != 0 or len(errors) > 0:
         return '\n\033[7m ERROR: %s \033[0m\n%s\n\n' % (header, errors)
     return None
+
 
 #     for h in headers:
 #         compile_header(h)
@@ -170,8 +109,7 @@ def main(argv):
     else:
         os.chdir(skia_dir)
         paths = [path for path in subprocess.check_output(['git', 'ls-files']).splitlines()
-                 if path.endswith('.h')
-                 and not any(fnmatch.fnmatch(path, pattern) for pattern in ignore)]
+                 if path.endswith('.h') and not ignore.match(path)]
     compile_headers(paths)
 
 

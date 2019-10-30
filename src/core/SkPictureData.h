@@ -8,11 +8,11 @@
 #ifndef SkPictureData_DEFINED
 #define SkPictureData_DEFINED
 
-#include "SkBitmap.h"
-#include "SkDrawable.h"
-#include "SkPicture.h"
-#include "SkPictureFlat.h"
-#include "SkTArray.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkPicture.h"
+#include "include/private/SkTArray.h"
+#include "src/core/SkPictureFlat.h"
 
 #include <memory>
 
@@ -84,7 +84,7 @@ public:
                                            SkTypefacePlayback*);
     static SkPictureData* CreateFromBuffer(SkReadBuffer&, const SkPictInfo&);
 
-    void serialize(SkWStream*, const SkSerialProcs&, SkRefCntSet*) const;
+    void serialize(SkWStream*, const SkSerialProcs&, SkRefCntSet*, bool textBlobsOnly=false) const;
     void flatten(SkWriteBuffer&) const;
 
     const sk_sp<SkData>& opData() const { return fOpData; }
@@ -140,7 +140,7 @@ private:
     bool parseStreamTag(SkStream*, uint32_t tag, uint32_t size,
                         const SkDeserialProcs&, SkTypefacePlayback*);
     void parseBufferTag(SkReadBuffer&, uint32_t tag, uint32_t size);
-    void flattenToBuffer(SkWriteBuffer&) const;
+    void flattenToBuffer(SkWriteBuffer&, bool textBlobsOnly) const;
 
     SkTArray<SkPaint>  fPaints;
     SkTArray<SkPath>   fPaths;
@@ -162,7 +162,7 @@ private:
     const SkPictInfo fInfo;
 
     static void WriteFactories(SkWStream* stream, const SkFactorySet& rec);
-    static void WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec);
+    static void WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec, const SkSerialProcs&);
 
     void initForPlayback() const;
 };

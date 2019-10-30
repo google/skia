@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
-#include "SkEdgeClipper.h"
-#include "SkLineClipper.h"
-#include "SkPaint.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkScalar.h"
-#include "SkTypes.h"
-#include "Test.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkEdgeClipper.h"
+#include "src/core/SkLineClipper.h"
+#include "tests/Test.h"
 
 #include <cstring>
 
@@ -156,3 +156,12 @@ DEF_TEST(Clipper, reporter) {
     test_edgeclipper();
     test_hairclipping(reporter);
 }
+
+DEF_TEST(LineClipper_skbug_7981, r) {
+    SkPoint src[] = {{ -5.77698802E+17f, -1.81758057E+23f}, {38127, 2}};
+    SkPoint dst[2];
+    SkRect clip = { -32767, -32767, 32767, 32767 };
+
+    SkLineClipper::IntersectLine(src, clip, dst);
+}
+

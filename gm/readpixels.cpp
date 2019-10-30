@@ -5,47 +5,31 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "Resources.h"
-#include "SkCodec.h"
-#include "SkColorSpace.h"
-#include "SkColorSpaceXform.h"
-#include "SkColorSpaceXformPriv.h"
-#include "SkHalf.h"
-#include "SkImage.h"
-#include "SkImageInfoPriv.h"
-#include "SkPictureRecorder.h"
+#include "gm/gm.h"
+#include "include/codec/SkCodec.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/third_party/skcms/skcms.h"
+#include "tools/Resources.h"
 
-static void clamp_if_necessary(const SkImageInfo& info, void* pixels) {
-    if (kRGBA_F16_SkColorType != info.colorType()) {
-        return;
-    }
+#include <string.h>
+#include <memory>
+#include <utility>
 
-    for (int y = 0; y < info.height(); y++) {
-        for (int x = 0; x < info.width(); x++) {
-            uint64_t pixel = ((uint64_t*) pixels)[y * info.width() + x];
-
-            Sk4f rgba = SkHalfToFloat_finite_ftz(pixel);
-            if (kUnpremul_SkAlphaType == info.alphaType()) {
-                rgba = Sk4f::Max(0.0f, Sk4f::Min(rgba, 1.0f));
-            } else {
-                SkASSERT(kPremul_SkAlphaType == info.alphaType());
-                rgba = Sk4f::Max(0.0f, Sk4f::Min(rgba, rgba[3]));
-            }
-            SkFloatToHalf_finite_ftz(rgba).store(&pixel);
-
-            ((uint64_t*) pixels)[y * info.width() + x] = pixel;
-        }
-    }
-}
-
-sk_sp<SkColorSpace> fix_for_colortype(SkColorSpace* colorSpace, SkColorType colorType) {
-    if (kRGBA_F16_SkColorType == colorType) {
-        return colorSpace->makeLinearGamma();
-    }
-
-    return sk_ref_sp(colorSpace);
-}
+class GrContext;
 
 static const int kWidth = 64;
 static const int kHeight = 64;
@@ -53,12 +37,14 @@ static const int kHeight = 64;
 static sk_sp<SkImage> make_raster_image(SkColorType colorType) {
     std::unique_ptr<SkStream> stream(GetResourceAsStream("images/google_chrome.ico"));
     std::unique_ptr<SkCodec> codec = SkCodec::MakeFromStream(std::move(stream));
+    if (!codec) {
+        return nullptr;
+    }
 
     SkBitmap bitmap;
     SkImageInfo info = codec->getInfo().makeWH(kWidth, kHeight)
                                        .makeColorType(colorType)
-                                       .makeAlphaType(kPremul_SkAlphaType)
-            .makeColorSpace(fix_for_colortype(codec->getInfo().colorSpace(), colorType));
+                                       .makeAlphaType(kPremul_SkAlphaType);
     bitmap.allocPixels(info);
     codec->getPixels(info, bitmap.getPixels(), bitmap.rowBytes());
     bitmap.setImmutable();
@@ -92,10 +78,9 @@ static sk_sp<SkImage> make_picture_image() {
 }
 
 static sk_sp<SkColorSpace> make_parametric_transfer_fn(const SkColorSpacePrimaries& primaries) {
-    SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
+    skcms_Matrix3x3 toXYZD50;
     SkAssertResult(primaries.toXYZD50(&toXYZD50));
-    SkColorSpaceTransferFn fn;
-    fn.fA = 1.f; fn.fB = 0.f; fn.fC = 0.f; fn.fD = 0.f; fn.fE = 0.f; fn.fF = 0.f; fn.fG = 1.8f;
+    skcms_TransferFunction fn = { 1.8f, 1.f, 0.f, 0.f, 0.f, 0.f, 0.f };
     return SkColorSpace::MakeRGB(fn, toXYZD50);
 }
 
@@ -131,30 +116,14 @@ static void draw_image(SkCanvas* canvas, SkImage* image, SkColorType dstColorTyp
                        SkImage::CachingHint hint) {
     size_t rowBytes = image->width() * SkColorTypeBytesPerPixel(dstColorType);
     sk_sp<SkData> data = SkData::MakeUninitialized(rowBytes * image->height());
-    dstColorSpace = fix_for_colortype(dstColorSpace.get(), dstColorType);
     SkImageInfo dstInfo = SkImageInfo::Make(image->width(), image->height(), dstColorType,
                                             dstAlphaType, dstColorSpace);
     if (!image->readPixels(dstInfo, data->writable_data(), rowBytes, 0, 0, hint)) {
         memset(data->writable_data(), 0, rowBytes * image->height());
     }
 
-    // SkImage must be premul, so manually premul the data if we unpremul'd during readPixels
-    if (kUnpremul_SkAlphaType == dstAlphaType) {
-        auto xform = SkColorSpaceXform::New(dstColorSpace.get(), dstColorSpace.get());
-        if (!xform->apply(select_xform_format(dstColorType), data->writable_data(),
-                          select_xform_format(dstColorType), data->data(),
-                          image->width() * image->height(), kPremul_SkAlphaType)) {
-            memset(data->writable_data(), 0, rowBytes * image->height());
-        }
-        dstInfo = dstInfo.makeAlphaType(kPremul_SkAlphaType);
-    }
-
-    // readPixels() does not always clamp F16.  The drawing code expects pixels in the 0-1 range.
-    clamp_if_necessary(dstInfo, data->writable_data());
-
     // Now that we have called readPixels(), dump the raw pixels into an srgb image.
-    sk_sp<SkColorSpace> srgb = fix_for_colortype(
-            SkColorSpace::MakeSRGB().get(), dstColorType);
+    sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
     sk_sp<SkImage> raw = SkImage::MakeRasterData(dstInfo.makeColorSpace(srgb), data, rowBytes);
     canvas->drawImage(raw.get(), 0.0f, 0.0f, nullptr);
 }
@@ -173,11 +142,6 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        if (!canvas->imageInfo().colorSpace()) {
-            // This gm is only interesting in color correct modes.
-            return;
-        }
-
         const SkAlphaType alphaTypes[] = {
                 kUnpremul_SkAlphaType,
                 kPremul_SkAlphaType,
@@ -197,8 +161,11 @@ protected:
             for (SkColorType srcColorType : colorTypes) {
                 canvas->save();
                 sk_sp<SkImage> image = make_raster_image(srcColorType);
+                if (!image) {
+                    continue;
+                }
                 if (GrContext* context = canvas->getGrContext()) {
-                    image = image->makeTextureImage(context, canvas->imageInfo().colorSpace());
+                    image = image->makeTextureImage(context);
                 }
                 if (image) {
                     for (SkColorType dstColorType : colorTypes) {
@@ -233,10 +200,10 @@ protected:
         return SkISize::Make(3 * (kEncodedWidth + 1), 12 * (kEncodedHeight + 1));
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         if (!canvas->imageInfo().colorSpace()) {
-            // This gm is only interesting in color correct modes.
-            return;
+            *errorMsg = "This gm is only interesting in color correct modes.";
+            return DrawResult::kSkip;
         }
 
         const SkAlphaType alphaTypes[] = {
@@ -273,6 +240,7 @@ protected:
             canvas->restore();
             canvas->translate((float) kEncodedWidth + 1, 0.0f);
         }
+        return DrawResult::kOk;
     }
 
 private:
@@ -296,10 +264,10 @@ protected:
         return SkISize::Make(3 * kWidth, 12 * kHeight);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         if (!canvas->imageInfo().colorSpace()) {
-            // This gm is only interesting in color correct modes.
-            return;
+            *errorMsg = "This gm is only interesting in color correct modes.";
+            return DrawResult::kSkip;
         }
 
         const sk_sp<SkImage> images[] = {
@@ -340,6 +308,7 @@ protected:
                 canvas->translate((float) kWidth, 0.0f);
             }
         }
+        return DrawResult::kOk;
     }
 
 private:

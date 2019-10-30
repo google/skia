@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "SkCanvas.h"
+#include "include/core/SkCanvas.h"
 #include "SkFlattenableSerialization.h"
-#include "SkImageFilter.h"
-#include "SkOSFile.h"
-#include "SkString.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkString.h"
+#include "src/core/SkOSFile.h"
 
 #include <stdio.h>
 

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkStreamBuffer.h"
+#include "src/codec/SkStreamBuffer.h"
 
 SkStreamBuffer::SkStreamBuffer(std::unique_ptr<SkStream> stream)
     : fStream(std::move(stream))
@@ -72,7 +72,8 @@ sk_sp<SkData> SkStreamBuffer::getDataAtPosition(size_t position, size_t length) 
         return sk_ref_sp<SkData>(*data);
     }
 
-    SkASSERT(position + length <= fStream->getLength());
+    SkASSERT(length <= fStream->getLength() &&
+             position <= fStream->getLength() - length);
 
     const size_t oldPosition = fStream->getPosition();
     if (!fStream->seek(position)) {

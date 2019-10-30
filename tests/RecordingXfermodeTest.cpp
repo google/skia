@@ -5,15 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "tests/Test.h"
 
-#include "../include/core/SkBitmap.h"
-#include "../include/core/SkCanvas.h"
-#include "../include/core/SkPicture.h"
-#include "../include/core/SkStream.h"
-#include "../include/core/SkString.h"
-#include "../include/core/SkPictureRecorder.h"
-#include "../src/core/SkBlendModePriv.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "src/core/SkBlendModePriv.h"
+
 #include <cstring>
 
 // Verify that replay of a recording into a clipped canvas

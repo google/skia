@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "BenchLogger.h"
+#include "bench/BenchLogger.h"
 
-#include "SkStream.h"
+#include "include/core/SkStream.h"
 
 BenchLogger::BenchLogger()
 : fFileStream(nullptr) {}

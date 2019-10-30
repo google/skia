@@ -8,7 +8,7 @@
 #ifndef GrSRGBEffect_DEFINED
 #define GrSRGBEffect_DEFINED
 
-#include "GrFragmentProcessor.h"
+#include "src/gpu/GrFragmentProcessor.h"
 
 class GrSRGBEffect : public GrFragmentProcessor {
 public:
@@ -43,7 +43,7 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    GrColor4f constantOutputForConstantInput(GrColor4f input) const override;
+    SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override;
 
     Mode fMode;
     Alpha fAlpha;

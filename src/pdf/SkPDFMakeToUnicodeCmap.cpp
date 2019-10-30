@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkPDFMakeToUnicodeCmap.h"
-#include "SkPDFUtils.h"
-#include "SkUtils.h"
+#include "src/pdf/SkPDFMakeToUnicodeCmap.h"
+
+#include "include/private/SkTo.h"
+#include "src/pdf/SkPDFUtils.h"
+#include "src/utils/SkUTF.h"
 
 static void append_tounicode_header(SkDynamicMemoryWStream* cmap,
                                     bool multibyte) {
@@ -79,12 +81,12 @@ static void write_glyph(SkDynamicMemoryWStream* cmap,
     }
 }
 
-static void append_bfchar_section(const SkTDArray<BFChar>& bfchar,
+static void append_bfchar_section(const std::vector<BFChar>& bfchar,
                                   bool multiByte,
                                   SkDynamicMemoryWStream* cmap) {
     // PDF spec defines that every bf* list can have at most 100 entries.
-    for (int i = 0; i < bfchar.count(); i += 100) {
-        int count = bfchar.count() - i;
+    for (size_t i = 0; i < bfchar.size(); i += 100) {
+        int count = SkToInt(bfchar.size() - i);
         count = SkMin32(count, 100);
         cmap->writeDecAsText(count);
         cmap->writeText(" beginbfchar\n");
@@ -99,12 +101,12 @@ static void append_bfchar_section(const SkTDArray<BFChar>& bfchar,
     }
 }
 
-static void append_bfrange_section(const SkTDArray<BFRange>& bfrange,
+static void append_bfrange_section(const std::vector<BFRange>& bfrange,
                                    bool multiByte,
                                    SkDynamicMemoryWStream* cmap) {
     // PDF spec defines that every bf* list can have at most 100 entries.
-    for (int i = 0; i < bfrange.count(); i += 100) {
-        int count = bfrange.count() - i;
+    for (size_t i = 0; i < bfrange.size(); i += 100) {
+        int count = SkToInt(bfrange.size() - i);
         count = SkMin32(count, 100);
         cmap->writeDecAsText(count);
         cmap->writeText(" beginbfrange\n");
@@ -127,7 +129,7 @@ static void append_bfrange_section(const SkTDArray<BFRange>& bfrange,
 //
 // Current implementation guarantees bfchar and bfrange entries do not overlap.
 //
-// Current implementation does not attempt aggresive optimizations against
+// Current implementation does not attempt aggressive optimizations against
 // following case because the specification is not clear.
 //
 // 4 beginbfchar          1 beginbfchar
@@ -148,7 +150,7 @@ static void append_bfrange_section(const SkTDArray<BFRange>& bfrange,
 // one of them), the possible savings by aggressive optimization is 416KB
 // pre-compressed and does not provide enough motivation for implementation.
 void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
-                             const SkBitSet* subset,
+                             const SkPDFGlyphUse* subset,
                              SkDynamicMemoryWStream* cmap,
                              bool multiByteGlyphs,
                              SkGlyphID firstGlyphID,
@@ -158,16 +160,16 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
         glyphOffset = firstGlyphID - 1;
     }
 
-    SkTDArray<BFChar> bfcharEntries;
-    SkTDArray<BFRange> bfrangeEntries;
+    std::vector<BFChar> bfcharEntries;
+    std::vector<BFRange> bfrangeEntries;
 
     BFRange currentRangeEntry = {0, 0, 0};
     bool rangeEmpty = true;
     const int limit = (int)lastGlyphID + 1 - glyphOffset;
 
     for (int i = firstGlyphID - glyphOffset; i < limit + 1; ++i) {
-        bool inSubset = i < limit &&
-                        (subset == nullptr || subset->has(i + glyphOffset));
+        SkGlyphID gid = i + glyphOffset;
+        bool inSubset = i < limit && (subset == nullptr || subset->has(gid));
         if (!rangeEmpty) {
             // PDF spec requires bfrange not changing the higher byte,
             // e.g. <1035> <10FF> <2222> is ok, but
@@ -176,15 +178,13 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
                 i == currentRangeEntry.fEnd + 1 &&
                 i >> 8 == currentRangeEntry.fStart >> 8 &&
                 i < limit &&
-                glyphToUnicode[i + glyphOffset] ==
+                glyphToUnicode[gid] ==
                     currentRangeEntry.fUnicode + i - currentRangeEntry.fStart;
             if (!inSubset || !inRange) {
                 if (currentRangeEntry.fEnd > currentRangeEntry.fStart) {
-                    bfrangeEntries.push(currentRangeEntry);
+                    bfrangeEntries.push_back(currentRangeEntry);
                 } else {
-                    BFChar* entry = bfcharEntries.append();
-                    entry->fGlyphId = currentRangeEntry.fStart;
-                    entry->fUnicode = currentRangeEntry.fUnicode;
+                    bfcharEntries.push_back({currentRangeEntry.fStart, currentRangeEntry.fUnicode});
                 }
                 rangeEmpty = true;
             }
@@ -193,7 +193,7 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
             currentRangeEntry.fEnd = i;
             if (rangeEmpty) {
               currentRangeEntry.fStart = i;
-              currentRangeEntry.fUnicode = glyphToUnicode[i + glyphOffset];
+              currentRangeEntry.fUnicode = glyphToUnicode[gid];
               rangeEmpty = false;
             }
         }
@@ -205,9 +205,9 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
     append_bfrange_section(bfrangeEntries, multiByteGlyphs, cmap);
 }
 
-sk_sp<SkPDFStream> SkPDFMakeToUnicodeCmap(
+std::unique_ptr<SkStreamAsset> SkPDFMakeToUnicodeCmap(
         const SkUnichar* glyphToUnicode,
-        const SkBitSet* subset,
+        const SkPDFGlyphUse* subset,
         bool multiByteGlyphs,
         SkGlyphID firstGlyphID,
         SkGlyphID lastGlyphID) {
@@ -216,6 +216,5 @@ sk_sp<SkPDFStream> SkPDFMakeToUnicodeCmap(
     SkPDFAppendCmapSections(glyphToUnicode, subset, &cmap, multiByteGlyphs,
                             firstGlyphID, lastGlyphID);
     append_cmap_footer(&cmap);
-    return sk_make_sp<SkPDFStream>(
-            std::unique_ptr<SkStreamAsset>(cmap.detachAsStream()));
+    return cmap.detachAsStream();
 }

@@ -8,7 +8,7 @@
 #ifndef SvgSlide_DEFINED
 #define SvgSlide_DEFINED
 
-#include "Slide.h"
+#include "tools/viewer/Slide.h"
 
 class SkSVGDOM;
 

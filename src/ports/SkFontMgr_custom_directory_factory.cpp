@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkFontMgr.h"
-#include "SkFontMgr_directory.h"
+#include "include/core/SkFontMgr.h"
+#include "include/ports/SkFontMgr_directory.h"
 
 #ifndef SK_FONT_FILE_PREFIX
 #    define SK_FONT_FILE_PREFIX "/usr/share/fonts/"

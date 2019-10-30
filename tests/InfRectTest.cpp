@@ -5,26 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "SkRandom.h"
-#include "SkRect.h"
-#include "Test.h"
-
-static float make_zero() {
-    return sk_float_sin(0);
-}
+#include "include/core/SkRect.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/utils/SkRandom.h"
+#include "tests/Test.h"
 
 static void check_invalid(skiatest::Reporter* reporter,
                           SkScalar l, SkScalar t, SkScalar r, SkScalar b) {
     SkRect rect;
-    rect.set(l, t, r, b);
+    rect.setLTRB(l, t, r, b);
     REPORTER_ASSERT(reporter, !rect.isFinite());
 }
 
 // Tests that isFinite() will reject any rect with +/-inf values
 // as one of its coordinates.
 DEF_TEST(InfRect, reporter) {
-    float inf = 1 / make_zero();    // infinity
-    float nan = inf * 0;
+    float inf = SK_FloatInfinity;
+    float nan = SK_FloatNaN;
     SkASSERT(!(nan == nan));
     SkScalar small = SkIntToScalar(10);
     SkScalar big = SkIntToScalar(100);

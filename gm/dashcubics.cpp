@@ -5,14 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkAnimTimer.h"
-#include "SkCanvas.h"
-#include "SkDashPathEffect.h"
-#include "SkPath.h"
-#include "SkParsePath.h"
-#include "SkTArray.h"
-#include "SkTrimPathEffect.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/effects/SkTrimPathEffect.h"
+#include "include/private/SkTArray.h"
+#include "include/utils/SkParsePath.h"
+#include "tools/timer/TimeUtils.h"
+
+#include <math.h>
+#include <utility>
 
 /*
  *  Inspired by http://code.google.com/p/chromium/issues/detail?id=112145
@@ -128,8 +138,9 @@ protected:
                 start -= SkScalarFloorToScalar(start);
                 stop  -= SkScalarFloorToScalar(stop);
                 if (start > stop) {
-                    SkTSwap(start, stop);
-                    SkTSwap(normalMode, invertedMode);
+                    using std::swap;
+                    swap(start, stop);
+                    swap(normalMode, invertedMode);
                 }
             }
 
@@ -150,8 +161,8 @@ protected:
         }
     }
 
-    bool onAnimate(const SkAnimTimer& t) override {
-        fOffset = t.msec() / 2000.0f;
+    bool onAnimate(double nanos) override {
+        fOffset = TimeUtils::NanosToMSec(nanos) / 2000.0f;
         fOffset -= floorf(fOffset);
         return true;
     }

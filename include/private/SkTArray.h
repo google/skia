@@ -8,11 +8,15 @@
 #ifndef SkTArray_DEFINED
 #define SkTArray_DEFINED
 
-#include "../private/SkSafe32.h"
-#include "../private/SkTLogic.h"
-#include "../private/SkTemplates.h"
-#include "SkTypes.h"
+#include "include/core/SkMath.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkSafe32.h"
+#include "include/private/SkTLogic.h"
+#include "include/private/SkTemplates.h"
 
+#include <string.h>
+#include <memory>
 #include <new>
 #include <utility>
 
@@ -37,12 +41,12 @@ public:
     /**
      * Copies one array to another. The new array will be heap allocated.
      */
-    explicit SkTArray(const SkTArray& that) {
+    SkTArray(const SkTArray& that) {
         this->init(that.fCount);
         this->copy(that.fItemArray);
     }
 
-    explicit SkTArray(SkTArray&& that) {
+    SkTArray(SkTArray&& that) {
         // TODO: If 'that' owns its memory why don't we just steal the pointer?
         this->init(that.fCount);
         that.move(fMemArray);
@@ -298,18 +302,19 @@ public:
 
     /** Swaps the contents of this array with that array. Does a pointer swap if possible,
         otherwise copies the T values. */
-    void swap(SkTArray* that) {
-        if (this == that) {
+    void swap(SkTArray& that) {
+        using std::swap;
+        if (this == &that) {
             return;
         }
-        if (fOwnMemory && that->fOwnMemory) {
-            SkTSwap(fItemArray, that->fItemArray);
-            SkTSwap(fCount, that->fCount);
-            SkTSwap(fAllocCount, that->fAllocCount);
+        if (fOwnMemory && that.fOwnMemory) {
+            swap(fItemArray, that.fItemArray);
+            swap(fCount, that.fCount);
+            swap(fAllocCount, that.fAllocCount);
         } else {
             // This could be more optimal...
-            SkTArray copy(std::move(*that));
-            *that = std::move(*this);
+            SkTArray copy(std::move(that));
+            that = std::move(*this);
             *this = std::move(copy);
         }
     }
@@ -326,6 +331,10 @@ public:
     const T* end() const {
         return fItemArray ? fItemArray + fCount : nullptr;
     }
+    T* data() { return fItemArray; }
+    const T* data() const { return fItemArray; }
+    size_t size() const { return (size_t)fCount; }
+    void resize(size_t count) { this->resize_back((int)count); }
 
    /**
      * Get the i^th element.
@@ -562,6 +571,10 @@ private:
     bool fOwnMemory : 1;
     bool fReserved : 1;
 };
+
+template <typename T, bool M> static inline void swap(SkTArray<T, M>& a, SkTArray<T, M>& b) {
+    a.swap(b);
+}
 
 template<typename T, bool MEM_MOVE> constexpr int SkTArray<T, MEM_MOVE>::kMinHeapAllocCount;
 

@@ -30,14 +30,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "SkCodecAnimation.h"
-#include "SkCodecPriv.h"
-#include "SkColorData.h"
-#include "SkColorTable.h"
-#include "SkGifCodec.h"
-#include "SkMakeUnique.h"
-#include "SkStream.h"
-#include "SkSwizzler.h"
+#include "include/codec/SkCodecAnimation.h"
+#include "include/core/SkStream.h"
+#include "include/private/SkColorData.h"
+#include "src/codec/SkCodecPriv.h"
+#include "src/codec/SkColorTable.h"
+#include "src/codec/SkGifCodec.h"
+#include "src/codec/SkSwizzler.h"
+#include "src/core/SkMakeUnique.h"
 
 #include <algorithm>
 
@@ -91,18 +91,9 @@ std::unique_ptr<SkCodec> SkGifCodec::MakeFromStream(std::unique_ptr<SkStream> st
     // Use kPalette since Gifs are encoded with a color table.
     // FIXME: Gifs can actually be encoded with 4-bits per pixel. Using 8 works, but we could skip
     //        expanding to 8 bits and take advantage of the SkSwizzler to work from 4.
-    const auto encodedInfo = SkEncodedInfo::Make(SkEncodedInfo::kPalette_Color, alpha, 8);
-
-    // The choice of unpremul versus premul is arbitrary, since all colors are either fully
-    // opaque or fully transparent (i.e. kBinary), but we stored the transparent colors as all
-    // zeroes, which is arguably premultiplied.
-    const auto alphaType = reader->firstFrameHasAlpha() ? kUnpremul_SkAlphaType
-                                                        : kOpaque_SkAlphaType;
-
-    const auto imageInfo = SkImageInfo::Make(reader->screenWidth(), reader->screenHeight(),
-                                             kN32_SkColorType, alphaType,
-                                             SkColorSpace::MakeSRGB());
-    return std::unique_ptr<SkCodec>(new SkGifCodec(encodedInfo, imageInfo, reader.release()));
+    auto encodedInfo = SkEncodedInfo::Make(reader->screenWidth(), reader->screenHeight(),
+                                           SkEncodedInfo::kPalette_Color, alpha, 8);
+    return std::unique_ptr<SkCodec>(new SkGifCodec(std::move(encodedInfo), reader.release()));
 }
 
 bool SkGifCodec::onRewind() {
@@ -110,9 +101,8 @@ bool SkGifCodec::onRewind() {
     return true;
 }
 
-SkGifCodec::SkGifCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imageInfo,
-                       SkGifImageReader* reader)
-    : INHERITED(encodedInfo, imageInfo, SkColorSpaceXform::kRGBA_8888_ColorFormat, nullptr)
+SkGifCodec::SkGifCodec(SkEncodedInfo&& encodedInfo, SkGifImageReader* reader)
+    : INHERITED(std::move(encodedInfo), skcms_PixelFormat_RGBA_8888, nullptr)
     , fReader(reader)
     , fTmpBuffer(nullptr)
     , fSwizzler(nullptr)
@@ -157,7 +147,6 @@ int SkGifCodec::onGetRepetitionCount() {
 }
 
 static constexpr SkColorType kXformSrcColorType = kRGBA_8888_SkColorType;
-static constexpr SkAlphaType kXformAlphaType    = kUnpremul_SkAlphaType;
 
 void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, int frameIndex) {
     SkColorType colorTableColorType = dstInfo.colorType();
@@ -173,8 +162,8 @@ void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, int frameIndex
         fCurrColorTable.reset(new SkColorTable(&color, 1));
     } else if (this->colorXform() && !this->xformOnDecode()) {
         SkPMColor dstColors[256];
-        this->applyColorXform(dstColors, currColorTable->readColors(), currColorTable->count(),
-                              kXformAlphaType);
+        this->applyColorXform(dstColors, currColorTable->readColors(),
+                              currColorTable->count());
         fCurrColorTable.reset(new SkColorTable(dstColors, currColorTable->count()));
     } else {
         fCurrColorTable = std::move(currColorTable);
@@ -265,8 +254,8 @@ void SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo, int frameIndex) 
     // - the swizzler does not need to know about the frame.
     // We may not be able to use the real Options anyway, since getPixels does not store it (due to
     // a bug).
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(this->getEncodedInfo(),
-                    fCurrColorTable->readColors(), swizzlerInfo, Options(), &swizzleRect));
+    fSwizzler = SkSwizzler::Make(this->getEncodedInfo(), fCurrColorTable->readColors(),
+                                 swizzlerInfo, Options(), &swizzleRect);
     SkASSERT(fSwizzler.get());
 }
 
@@ -293,7 +282,7 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
             return result;
     }
 
-    if (dstInfo.dimensions() != this->getInfo().dimensions()) {
+    if (dstInfo.dimensions() != this->dimensions()) {
         return gif_error("Scaling not supported.\n", kInvalidScale);
     }
 
@@ -343,7 +332,7 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
         // (or it is already filled for us), so we report rowsDecoded to be the full
         // height.
         bool filledBackground = false;
-        if (frameContext->getRequiredFrame() == kNone) {
+        if (frameContext->getRequiredFrame() == kNoFrame) {
             // We may need to clear to transparent for one of the following reasons:
             // - The frameRect does not cover the full bounds. haveDecodedRow will
             //   only draw inside the frameRect, so we need to clear the rest.
@@ -352,13 +341,10 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
             //   cover all rows? If so, we do not have to fill here.)
             // - There is no color table for this frame. In that case will not
             //   draw anything, so we need to fill.
-            if (frameContext->frameRect() != this->getInfo().bounds()
+            if (frameContext->frameRect() != this->bounds()
                     || frameContext->interlaced() || !fCurrColorTableIsReal) {
-                // fill ignores the width (replaces it with the actual, scaled width).
-                // But we need to scale in Y.
-                auto fillInfo = dstInfo.makeWH(0, scaledHeight);
-                fSwizzler->fill(fillInfo, fDst, fDstRowBytes, this->getFillValue(dstInfo),
-                                opts.fZeroInitialized);
+                auto fillInfo = dstInfo.makeWH(fSwizzler->fillWidth(), scaledHeight);
+                SkSampler::Fill(fillInfo, fDst, fDstRowBytes, opts.fZeroInitialized);
                 filledBackground = true;
             }
         } else {
@@ -397,19 +383,13 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
     return kSuccess;
 }
 
-uint64_t SkGifCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
-    // Using transparent as the fill value matches the behavior in Chromium,
-    // which ignores the background color.
-    return SK_ColorTRANSPARENT;
-}
-
 void SkGifCodec::applyXformRow(const SkImageInfo& dstInfo, void* dst, const uint8_t* src) const {
     if (this->xformOnDecode()) {
         SkASSERT(this->colorXform());
         fSwizzler->swizzle(fXformBuffer.get(), src);
 
         const int xformWidth = get_scaled_dimension(dstInfo.width(), fSwizzler->sampleX());
-        this->applyColorXform(dst, fXformBuffer.get(), xformWidth, kXformAlphaType);
+        this->applyColorXform(dst, fXformBuffer.get(), xformWidth);
     } else {
         fSwizzler->swizzle(dst, src);
     }
@@ -441,8 +421,8 @@ void SkGifCodec::haveDecodedRow(int frameIndex, const unsigned char* rowBegin,
     const int width = frameContext->width();
     const int xBegin = frameContext->xOffset();
     const int yBegin = frameContext->yOffset() + rowNumber;
-    const int xEnd = std::min(xBegin + width, this->getInfo().width());
-    const int yEnd = std::min(yBegin + rowNumber + repeatCount, this->getInfo().height());
+    const int xEnd = std::min(xBegin + width, this->dimensions().width());
+    const int yEnd = std::min(yBegin + rowNumber + repeatCount, this->dimensions().height());
     // FIXME: No need to make the checks on width/xBegin/xEnd for every row. We could instead do
     // this once in prepareToDecode.
     if (!width || (xBegin < 0) || (yBegin < 0) || (xEnd <= xBegin) || (yEnd <= yBegin))

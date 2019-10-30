@@ -9,7 +9,7 @@
 #ifndef SkPackBits_DEFINED
 #define SkPackBits_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 class SkPackBits {
 public:

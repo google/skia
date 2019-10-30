@@ -9,23 +9,18 @@
 #ifndef GrVkTypes_DEFINED
 #define GrVkTypes_DEFINED
 
-#include "GrTypes.h"
-#include "vk/GrVkDefines.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/vk/GrVkVulkan.h"
 
-/**
- * KHR_debug
- */
-/*typedef void (GR_GL_FUNCTION_TYPE* GrVkDEBUGPROC)(GrVkenum source,
-                                                  GrVkenum type,
-                                                  GrVkuint id,
-                                                  GrVkenum severity,
-                                                  GrVksizei length,
-                                                  const GrVkchar* message,
-                                                  const void* userParam);*/
+#ifndef VK_VERSION_1_1
+#error Skia requires the use of Vulkan 1.1 headers
+#endif
 
+#include <functional>
+#include "include/gpu/GrTypes.h"
 
+typedef intptr_t GrVkBackendMemory;
 
-///////////////////////////////////////////////////////////////////////////////
 /**
  * Types for interacting with Vulkan resources created externally to Skia. GrBackendObjects for
  * Vulkan textures are really const GrVkImageInfo*
@@ -36,6 +31,7 @@ struct GrVkAlloc {
             , fOffset(0)
             , fSize(0)
             , fFlags(0)
+            , fBackendMemory(0)
             , fUsesSystemHeap(false) {}
 
     GrVkAlloc(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, uint32_t flags)
@@ -43,15 +39,18 @@ struct GrVkAlloc {
             , fOffset(offset)
             , fSize(size)
             , fFlags(flags)
+            , fBackendMemory(0)
             , fUsesSystemHeap(false) {}
 
-    VkDeviceMemory fMemory;  // can be VK_NULL_HANDLE iff is an RT and is borrowed
-    VkDeviceSize   fOffset;
-    VkDeviceSize   fSize;    // this can be indeterminate iff Tex uses borrow semantics
-    uint32_t       fFlags;
+    VkDeviceMemory    fMemory;  // can be VK_NULL_HANDLE iff is an RT and is borrowed
+    VkDeviceSize      fOffset;
+    VkDeviceSize      fSize;    // this can be indeterminate iff Tex uses borrow semantics
+    uint32_t          fFlags;
+    GrVkBackendMemory fBackendMemory; // handle to memory allocated via GrVkMemoryAllocator.
 
     enum Flag {
         kNoncoherent_Flag = 0x1,   // memory must be flushed to device after mapping
+        kMappable_Flag    = 0x2,   // memory is able to be mapped.
     };
 
     bool operator==(const GrVkAlloc& that) const {
@@ -63,17 +62,103 @@ private:
     friend class GrVkHeap; // For access to usesSystemHeap
     bool fUsesSystemHeap;
 };
+
+// This struct is used to pass in the necessary information to create a VkSamplerYcbcrConversion
+// object for an VkExternalFormatANDROID.
+struct GrVkYcbcrConversionInfo {
+    GrVkYcbcrConversionInfo()
+            : fFormat(VK_FORMAT_UNDEFINED)
+            , fExternalFormat(0)
+            , fYcbcrModel(VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY)
+            , fYcbcrRange(VK_SAMPLER_YCBCR_RANGE_ITU_FULL)
+            , fXChromaOffset(VK_CHROMA_LOCATION_COSITED_EVEN)
+            , fYChromaOffset(VK_CHROMA_LOCATION_COSITED_EVEN)
+            , fChromaFilter(VK_FILTER_NEAREST)
+            , fForceExplicitReconstruction(false) {}
+
+    GrVkYcbcrConversionInfo(VkFormat format,
+                            int64_t externalFormat,
+                            VkSamplerYcbcrModelConversion ycbcrModel,
+                            VkSamplerYcbcrRange ycbcrRange,
+                            VkChromaLocation xChromaOffset,
+                            VkChromaLocation yChromaOffset,
+                            VkFilter chromaFilter,
+                            VkBool32 forceExplicitReconstruction,
+                            VkFormatFeatureFlags formatFeatures)
+            : fFormat(format)
+            , fExternalFormat(externalFormat)
+            , fYcbcrModel(ycbcrModel)
+            , fYcbcrRange(ycbcrRange)
+            , fXChromaOffset(xChromaOffset)
+            , fYChromaOffset(yChromaOffset)
+            , fChromaFilter(chromaFilter)
+            , fForceExplicitReconstruction(forceExplicitReconstruction)
+            , fFormatFeatures(formatFeatures) {
+        SkASSERT(fYcbcrModel != VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY);
+        // Either format or externalFormat must be specified.
+        SkASSERT((fFormat != VK_FORMAT_UNDEFINED) ^ (externalFormat != 0));
+    }
+
+    GrVkYcbcrConversionInfo(VkSamplerYcbcrModelConversion ycbcrModel,
+                            VkSamplerYcbcrRange ycbcrRange,
+                            VkChromaLocation xChromaOffset,
+                            VkChromaLocation yChromaOffset,
+                            VkFilter chromaFilter,
+                            VkBool32 forceExplicitReconstruction,
+                            uint64_t externalFormat,
+                            VkFormatFeatureFlags externalFormatFeatures)
+            : GrVkYcbcrConversionInfo(VK_FORMAT_UNDEFINED, externalFormat, ycbcrModel, ycbcrRange,
+                                      xChromaOffset, yChromaOffset, chromaFilter,
+                                      forceExplicitReconstruction, externalFormatFeatures) {}
+
+    bool operator==(const GrVkYcbcrConversionInfo& that) const {
+        // Invalid objects are not required to have all other fields initialized or matching.
+        if (!this->isValid() && !that.isValid()) {
+            return true;
+        }
+        return this->fFormat == that.fFormat &&
+               this->fExternalFormat == that.fExternalFormat &&
+               this->fYcbcrModel == that.fYcbcrModel &&
+               this->fYcbcrRange == that.fYcbcrRange &&
+               this->fXChromaOffset == that.fXChromaOffset &&
+               this->fYChromaOffset == that.fYChromaOffset &&
+               this->fChromaFilter == that.fChromaFilter &&
+               this->fForceExplicitReconstruction == that.fForceExplicitReconstruction;
+    }
+    bool operator!=(const GrVkYcbcrConversionInfo& that) const { return !(*this == that); }
+
+    bool isValid() const { return fYcbcrModel != VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY; }
+
+    // Format of the source image. Must be set to VK_FORMAT_UNDEFINED for external images or
+    // a valid image format otherwise.
+    VkFormat                         fFormat;
+
+    // The external format. Must be non-zero for external images, zero otherwise.
+    // Should be compatible to be used in a VkExternalFormatANDROID struct.
+    uint64_t                         fExternalFormat;
+
+    VkSamplerYcbcrModelConversion    fYcbcrModel;
+    VkSamplerYcbcrRange              fYcbcrRange;
+    VkChromaLocation                 fXChromaOffset;
+    VkChromaLocation                 fYChromaOffset;
+    VkFilter                         fChromaFilter;
+    VkBool32                         fForceExplicitReconstruction;
+
+    // For external images format features here should be those returned by a call to
+    // vkAndroidHardwareBufferFormatPropertiesANDROID
+    VkFormatFeatureFlags             fFormatFeatures;
+};
+
 struct GrVkImageInfo {
-    /**
-     * If the image's format is sRGB (GrVkFormatIsSRGB returns true), then the image must have
-     * been created with VkImageCreateFlags containing VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT.
-     */
-    VkImage        fImage;
-    GrVkAlloc      fAlloc;
-    VkImageTiling  fImageTiling;
-    VkImageLayout  fImageLayout;
-    VkFormat       fFormat;
-    uint32_t       fLevelCount;
+    VkImage                  fImage;
+    GrVkAlloc                fAlloc;
+    VkImageTiling            fImageTiling;
+    VkImageLayout            fImageLayout;
+    VkFormat                 fFormat;
+    uint32_t                 fLevelCount;
+    uint32_t                 fCurrentQueueFamily;
+    GrProtected              fProtected;
+    GrVkYcbcrConversionInfo  fYcbcrConversionInfo;
 
     GrVkImageInfo()
             : fImage(VK_NULL_HANDLE)
@@ -81,16 +166,29 @@ struct GrVkImageInfo {
             , fImageTiling(VK_IMAGE_TILING_OPTIMAL)
             , fImageLayout(VK_IMAGE_LAYOUT_UNDEFINED)
             , fFormat(VK_FORMAT_UNDEFINED)
-            , fLevelCount(0) {}
+            , fLevelCount(0)
+            , fCurrentQueueFamily(VK_QUEUE_FAMILY_IGNORED)
+            , fProtected(GrProtected::kNo)
+            , fYcbcrConversionInfo() {}
 
-    GrVkImageInfo(VkImage image, GrVkAlloc alloc, VkImageTiling imageTiling, VkImageLayout layout,
-                  VkFormat format, uint32_t levelCount)
+    GrVkImageInfo(VkImage image,
+                  GrVkAlloc alloc,
+                  VkImageTiling imageTiling,
+                  VkImageLayout layout,
+                  VkFormat format,
+                  uint32_t levelCount,
+                  uint32_t currentQueueFamily = VK_QUEUE_FAMILY_IGNORED,
+                  GrProtected isProtected = GrProtected::kNo,
+                  GrVkYcbcrConversionInfo ycbcrConversionInfo = GrVkYcbcrConversionInfo())
             : fImage(image)
             , fAlloc(alloc)
             , fImageTiling(imageTiling)
             , fImageLayout(layout)
             , fFormat(format)
-            , fLevelCount(levelCount) {}
+            , fLevelCount(levelCount)
+            , fCurrentQueueFamily(currentQueueFamily)
+            , fProtected(isProtected)
+            , fYcbcrConversionInfo(ycbcrConversionInfo) {}
 
     GrVkImageInfo(const GrVkImageInfo& info, VkImageLayout layout)
             : fImage(info.fImage)
@@ -98,7 +196,10 @@ struct GrVkImageInfo {
             , fImageTiling(info.fImageTiling)
             , fImageLayout(layout)
             , fFormat(info.fFormat)
-            , fLevelCount(info.fLevelCount) {}
+            , fLevelCount(info.fLevelCount)
+            , fCurrentQueueFamily(info.fCurrentQueueFamily)
+            , fProtected(info.fProtected)
+            , fYcbcrConversionInfo(info.fYcbcrConversionInfo) {}
 
     // This gives a way for a client to update the layout of the Image if they change the layout
     // while we're still holding onto the wrapped texture. They will first need to get a handle
@@ -108,8 +209,48 @@ struct GrVkImageInfo {
     bool operator==(const GrVkImageInfo& that) const {
         return fImage == that.fImage && fAlloc == that.fAlloc &&
                fImageTiling == that.fImageTiling && fImageLayout == that.fImageLayout &&
-               fFormat == that.fFormat && fLevelCount == that.fLevelCount;
+               fFormat == that.fFormat && fLevelCount == that.fLevelCount &&
+               fCurrentQueueFamily == that.fCurrentQueueFamily && fProtected == that.fProtected &&
+               fYcbcrConversionInfo == that.fYcbcrConversionInfo;
     }
+};
+
+using GrVkGetProc = std::function<PFN_vkVoidFunction(
+        const char*, // function name
+        VkInstance,  // instance or VK_NULL_HANDLE
+        VkDevice     // device or VK_NULL_HANDLE
+        )>;
+
+/**
+ * This object is wrapped in a GrBackendDrawableInfo and passed in as an argument to
+ * drawBackendGpu() calls on an SkDrawable. The drawable will use this info to inject direct
+ * Vulkan calls into our stream of GPU draws.
+ *
+ * The SkDrawable is given a secondary VkCommandBuffer in which to record draws. The GPU backend
+ * will then execute that command buffer within a render pass it is using for its own draws. The
+ * drawable is also given the attachment of the color index, a compatible VkRenderPass, and the
+ * VkFormat of the color attachment so that it can make VkPipeline objects for the draws. The
+ * SkDrawable must not alter the state of the VkRenderpass or sub pass.
+ *
+ * Additionally, the SkDrawable may fill in the passed in fDrawBounds with the bounds of the draws
+ * that it submits to the command buffer. This will be used by the GPU backend for setting the
+ * bounds in vkCmdBeginRenderPass. If fDrawBounds is not updated, we will assume that the entire
+ * attachment may have been written to.
+ *
+ * The SkDrawable is always allowed to create its own command buffers and submit them to the queue
+ * to render offscreen textures which will be sampled in draws added to the passed in
+ * VkCommandBuffer. If this is done the SkDrawable is in charge of adding the required memory
+ * barriers to the queue for the sampled images since the Skia backend will not do this.
+ *
+ * The VkImage is informational only and should not be used or modified in any ways.
+ */
+struct GrVkDrawableInfo {
+    VkCommandBuffer fSecondaryCommandBuffer;
+    uint32_t        fColorAttachmentIndex;
+    VkRenderPass    fCompatibleRenderPass;
+    VkFormat        fFormat;
+    VkRect2D*       fDrawBounds;
+    VkImage         fImage;
 };
 
 #endif

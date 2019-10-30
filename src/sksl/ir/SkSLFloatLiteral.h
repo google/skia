@@ -8,8 +8,8 @@
 #ifndef SKSL_FLOATLITERAL
 #define SKSL_FLOATLITERAL
 
-#include "SkSLContext.h"
-#include "SkSLExpression.h"
+#include "src/sksl/SkSLContext.h"
+#include "src/sksl/ir/SkSLExpression.h"
 
 namespace SkSL {
 
@@ -17,9 +17,12 @@ namespace SkSL {
  * A literal floating point number.
  */
 struct FloatLiteral : public Expression {
-    FloatLiteral(const Context& context, int offset, double value,
-                 const Type* type = nullptr)
-    : INHERITED(offset, kFloatLiteral_Kind, type ? *type : *context.fFloat_Type)
+    FloatLiteral(const Context& context, int offset, double value)
+    : INHERITED(offset, kFloatLiteral_Kind, *context.fFloatLiteral_Type)
+    , fValue(value) {}
+
+    FloatLiteral(int offset, double value, const Type* type)
+    : INHERITED(offset, kFloatLiteral_Kind, *type)
     , fValue(value) {}
 
     String description() const override {
@@ -34,6 +37,13 @@ struct FloatLiteral : public Expression {
         return true;
     }
 
+    int coercionCost(const Type& target) const override {
+        if (target.isFloat()) {
+            return 0;
+        }
+        return INHERITED::coercionCost(target);
+    }
+
     bool compareConstant(const Context& context, const Expression& other) const override {
         FloatLiteral& f = (FloatLiteral&) other;
         return fValue == f.fValue;
@@ -41,6 +51,10 @@ struct FloatLiteral : public Expression {
 
     double getConstantFloat() const override {
         return fValue;
+    }
+
+    std::unique_ptr<Expression> clone() const override {
+        return std::unique_ptr<Expression>(new FloatLiteral(fOffset, fValue, &fType));
     }
 
     const double fValue;

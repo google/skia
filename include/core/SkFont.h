@@ -8,157 +8,531 @@
 #ifndef SkFont_DEFINED
 #define SkFont_DEFINED
 
-#include "SkRefCnt.h"
-#include "SkScalar.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypeface.h"
 
+class SkMatrix;
 class SkPaint;
-class SkTypeface;
+class SkPath;
+struct SkFontMetrics;
 
-enum SkTextEncoding {
-    kUTF8_SkTextEncoding,
-    kUTF16_SkTextEncoding,
-    kUTF32_SkTextEncoding,
-    kGlyphID_SkTextEncoding,
-};
-
-/*
- 1. The Hinting enum in SkPaint is gone entirely, absorbed into SkFont's flags.
-
- 2. SkPaint Flags look like this today
-
- enum Flags {
-     kAntiAlias_Flag       = 0x01,   //!< mask to enable antialiasing
-     kDither_Flag          = 0x04,   //!< mask to enable dithering
-     kFakeBoldText_Flag    = 0x20,   //!< mask to enable fake-bold text
-     kLinearText_Flag      = 0x40,   //!< mask to enable linear-text
-     kSubpixelText_Flag    = 0x80,   //!< mask to enable subpixel text positioning
-     kLCDRenderText_Flag   = 0x200,  //!< mask to enable subpixel glyph renderering
-     kEmbeddedBitmapText_Flag = 0x400, //!< mask to enable embedded bitmap strikes
-     kAutoHinting_Flag     = 0x800,  //!< mask to force Freetype's autohinter
-     kVerticalText_Flag    = 0x1000,
- };
-
- SkFont would absorb these:
-
-     kFakeBoldText_Flag    = 0x20,   //!< mask to enable fake-bold text
-     kLinearText_Flag      = 0x40,   //!< mask to enable linear-text
-     kSubpixelText_Flag    = 0x80,   //!< mask to enable subpixel text positioning
-     kLCDRenderText_Flag   = 0x200,  //!< mask to enable subpixel glyph renderering
-     kEmbeddedBitmapText_Flag = 0x400, //!< mask to enable embedded bitmap strikes
-     kAutoHinting_Flag     = 0x800,  //!< mask to force Freetype's autohinter
-     kVerticalText_Flag    = 0x1000,
-
- leaving these still in paint
-
-     kAntiAlias_Flag       = 0x01,   //!< mask to enable antialiasing
-     kDither_Flag          = 0x04,   //!< mask to enable dithering
-
- 3. Antialiasing
-
-    SkFont has a mask-type: BW, AA, LCD
-    SkPaint has antialias boolean
-
-    What to do if the font's mask-type disagrees with the paint?
-
- */
-
-class SkFont : public SkRefCnt {
+/** \class SkFont
+    SkFont controls options applied when drawing and measuring text.
+*/
+class SK_API SkFont {
 public:
-    enum Flags {
-        /**
-         *  Use the system's automatic hinting mechanism to hint the typeface.
-         *  This is a last resort hinting method applied only if other hinting methods do not apply.
-         *  TODO: where to put auto-normal vs auto-light?
-         */
-        kEnableAutoHints_Flag       = 1 << 0,
-
-        /**
-         *  If the typeface contains explicit bytecodes for hinting, use them.
-         *  If both bytecode and auto hints are specified, attempt to use the bytecodes first;
-         *  if that fails (e.g. there are no codes), then attempt to autohint.
-         */
-        kEnableByteCodeHints_Flag   = 1 << 1,
-
-        /**
-         *  If the typeface contains explicit bitmaps for hinting, use them.
-         *  If both bytecode and auto hints are also specified, attempt to use the bitmaps first;
-         *  if that fails (e.g. there are no bitmaps), then attempt to bytecode or autohint.
-         */
-        kEmbeddedBitmaps_Flag       = 1 << 2,
-
-        /**
-         *  Use rounded metric values (e.g. advance).
-         *  If either auto or bytecode hinting was used, apply those results to the metrics of the
-         *  glyphs as well. If no hinting was applied, the metrics will just be rounded to the
-         *  nearest integer.
-         *
-         *  This applies to calls that return metrics (e.g. measureText) and to drawing the glyphs
-         *  (see SkCanvas drawText and drawPosText).
-         */
-        kUseNonlinearMetrics_Flag   = 1 << 3,
-
-        kVertical_Flag              = 1 << 4,
-
-        kEmbolden_Flag              = 1 << 6,
+    /** Whether edge pixels draw opaque or with partial transparency.
+    */
+    enum class Edging {
+        kAlias,              //!< no transparent pixels on glyph edges
+        kAntiAlias,          //!< may have transparent pixels on glyph edges
+        kSubpixelAntiAlias,  //!< glyph positioned in pixel using transparency
     };
 
-    enum MaskType {
-        kBW_MaskType,
-        kA8_MaskType,
-        kLCD_MaskType,
-    };
+    /** Constructs SkFont with default values.
 
-    static sk_sp<SkFont> Make(sk_sp<SkTypeface>, SkScalar size, MaskType, uint32_t flags);
-    static sk_sp<SkFont> Make(sk_sp<SkTypeface>, SkScalar size, SkScalar scaleX, SkScalar skewX,
-                              MaskType, uint32_t flags);
+        @return  default initialized SkFont
+    */
+    SkFont();
 
-    /**
-     *  Return a font with the same attributes of this font, but with the specified size.
-     *  If size is not supported (e.g. <= 0 or non-finite) NULL will be returned.
+    /** Constructs SkFont with default values with SkTypeface and size in points.
+
+        @param typeface  font and style used to draw and measure text
+        @param size      typographic height of text
+        @return          initialized SkFont
+    */
+    SkFont(sk_sp<SkTypeface> typeface, SkScalar size);
+
+    /** Constructs SkFont with default values with SkTypeface.
+
+        @param typeface  font and style used to draw and measure text
+        @return          initialized SkFont
+    */
+    explicit SkFont(sk_sp<SkTypeface> typeface);
+
+
+    /** Constructs SkFont with default values with SkTypeface and size in points,
+        horizontal scale, and horizontal skew. Horizontal scale emulates condensed
+        and expanded fonts. Horizontal skew emulates oblique fonts.
+
+        @param typeface  font and style used to draw and measure text
+        @param size      typographic height of text
+        @param scaleX    text horizontal scale
+        @param skewX     additional shear on x-axis relative to y-axis
+        @return          initialized SkFont
+    */
+    SkFont(sk_sp<SkTypeface> typeface, SkScalar size, SkScalar scaleX, SkScalar skewX);
+
+
+    /** Compares SkFont and font, and returns true if they are equivalent.
+        May return false if SkTypeface has identical contents but different pointers.
+
+        @param font  font to compare
+        @return      true if SkFont pair are equivalent
+    */
+    bool operator==(const SkFont& font) const;
+
+    /** Compares SkFont and font, and returns true if they are not equivalent.
+        May return true if SkTypeface has identical contents but different pointers.
+
+        @param font  font to compare
+        @return      true if SkFont pair are not equivalent
+    */
+    bool operator!=(const SkFont& font) const { return !(*this == font); }
+
+    /** If true, instructs the font manager to always hint glyphs.
+        Returned value is only meaningful if platform uses FreeType as the font manager.
+
+        @return  true if all glyphs are hinted
+    */
+    bool isForceAutoHinting() const { return SkToBool(fFlags & kForceAutoHinting_PrivFlag); }
+
+    /** Returns true if font engine may return glyphs from font bitmaps instead of from outlines.
+
+        @return  true if glyphs may be font bitmaps
+    */
+    bool isEmbeddedBitmaps() const { return SkToBool(fFlags & kEmbeddedBitmaps_PrivFlag); }
+
+    /** Returns true if glyphs may be drawn at sub-pixel offsets.
+
+        @return  true if glyphs may be drawn at sub-pixel offsets.
+    */
+    bool isSubpixel() const { return SkToBool(fFlags & kSubpixel_PrivFlag); }
+
+    /** Returns true if font and glyph metrics are requested to be linearly scalable.
+
+        @return  true if font and glyph metrics are requested to be linearly scalable.
+    */
+    bool isLinearMetrics() const { return SkToBool(fFlags & kLinearMetrics_PrivFlag); }
+
+    /** Returns true if bold is approximated by increasing the stroke width when creating glyph
+        bitmaps from outlines.
+
+        @return  bold is approximated through stroke width
+    */
+    bool isEmbolden() const { return SkToBool(fFlags & kEmbolden_PrivFlag); }
+
+    /** Returns true if baselines will be snapped to pixel positions when the current transformation
+        matrix is axis aligned.
+
+        @return  baselines may be snapped to pixels
      */
-    sk_sp<SkFont> makeWithSize(SkScalar size) const;
-    /**
-     *  Return a font with the same attributes of this font, but with the flags.
-     */
-    sk_sp<SkFont> makeWithFlags(uint32_t newFlags) const;
+    bool isBaselineSnap() const { return SkToBool(fFlags & kBaselineSnap_PrivFlag); }
 
-    SkTypeface* getTypeface() const { return fTypeface.get(); }
+    /** Sets whether to always hint glyphs.
+        If forceAutoHinting is set, instructs the font manager to always hint glyphs.
+
+        Only affects platforms that use FreeType as the font manager.
+
+        @param forceAutoHinting  setting to always hint glyphs
+    */
+    void setForceAutoHinting(bool forceAutoHinting);
+
+    /** Requests, but does not require, to use bitmaps in fonts instead of outlines.
+
+        @param embeddedBitmaps  setting to use bitmaps in fonts
+    */
+    void setEmbeddedBitmaps(bool embeddedBitmaps);
+
+    /** Requests, but does not require, that glyphs respect sub-pixel positioning.
+
+        @param subpixel  setting for sub-pixel positioning
+    */
+    void setSubpixel(bool subpixel);
+
+    /** Requests, but does not require, linearly scalable font and glyph metrics.
+
+        For outline fonts 'true' means font and glyph metrics should ignore hinting and rounding.
+        Note that some bitmap formats may not be able to scale linearly and will ignore this flag.
+
+        @param linearMetrics  setting for linearly scalable font and glyph metrics.
+    */
+    void setLinearMetrics(bool linearMetrics);
+
+    /** Increases stroke width when creating glyph bitmaps to approximate a bold typeface.
+
+        @param embolden  setting for bold approximation
+    */
+    void setEmbolden(bool embolden);
+
+    /** Requests that baselines be snapped to pixels when the current transformation matrix is axis
+        aligned.
+
+        @param baselineSnap  setting for baseline snapping to pixels
+    */
+    void setBaselineSnap(bool baselineSnap);
+
+    /** Whether edge pixels draw opaque or with partial transparency.
+
+        @return  one of: Edging::kAlias, Edging::kAntiAlias, Edging::kSubpixelAntiAlias
+    */
+    Edging getEdging() const { return (Edging)fEdging; }
+
+    /** Requests, but does not require, that edge pixels draw opaque or with
+        partial transparency.
+
+        @param edging  one of: Edging::kAlias, Edging::kAntiAlias, Edging::kSubpixelAntiAlias
+    */
+    void setEdging(Edging edging);
+
+    /** Sets level of glyph outline adjustment.
+        Does not check for valid values of hintingLevel.
+
+        @param hintingLevel  one of: SkFontHinting::kNone, SkFontHinting::kSlight,
+                                     SkFontHinting::kNormal, SkFontHinting::kFull
+    */
+    void setHinting(SkFontHinting hintingLevel);
+
+    /** Returns level of glyph outline adjustment.
+
+        @return  one of: SkFontHinting::kNone, SkFontHinting::kSlight, SkFontHinting::kNormal,
+                         SkFontHinting::kFull
+     */
+    SkFontHinting getHinting() const { return (SkFontHinting)fHinting; }
+
+    /** Returns a font with the same attributes of this font, but with the specified size.
+        Returns nullptr if size is less than zero, infinite, or NaN.
+
+        @param size  typographic height of text
+        @return      initialized SkFont
+     */
+    SkFont makeWithSize(SkScalar size) const;
+
+    /** Returns SkTypeface if set, or nullptr.
+        Does not alter SkTypeface SkRefCnt.
+
+        @return  SkTypeface if previously set, nullptr otherwise
+    */
+    SkTypeface* getTypeface() const {return fTypeface.get(); }
+
+    /** Returns SkTypeface if set, or the default typeface.
+        Does not alter SkTypeface SkRefCnt.
+
+        @return  SkTypeface if previously set or, a pointer to the default typeface if not
+        previously set.
+    */
+    SkTypeface* getTypefaceOrDefault() const;
+
+    /** Returns text size in points.
+
+        @return  typographic height of text
+    */
     SkScalar    getSize() const { return fSize; }
+
+    /** Returns text scale on x-axis.
+        Default value is 1.
+
+        @return  text horizontal scale
+    */
     SkScalar    getScaleX() const { return fScaleX; }
+
+    /** Returns text skew on x-axis.
+        Default value is zero.
+
+        @return  additional shear on x-axis relative to y-axis
+    */
     SkScalar    getSkewX() const { return fSkewX; }
-    uint32_t    getFlags() const { return fFlags; }
-    MaskType    getMaskType() const { return (MaskType)fMaskType; }
 
-    bool isVertical() const { return SkToBool(fFlags & kVertical_Flag); }
-    bool isEmbolden() const { return SkToBool(fFlags & kEmbolden_Flag); }
-    bool isEnableAutoHints() const { return SkToBool(fFlags & kEnableAutoHints_Flag); }
-    bool isEnableByteCodeHints() const { return SkToBool(fFlags & kEnableByteCodeHints_Flag); }
-    bool isUseNonLinearMetrics() const { return SkToBool(fFlags & kUseNonlinearMetrics_Flag); }
+    /** Increases SkTypeface SkRefCnt by one.
 
-    int textToGlyphs(const void* text, size_t byteLength, SkTextEncoding,
+        @return  SkTypeface if previously set, nullptr otherwise
+    */
+    sk_sp<SkTypeface> refTypeface() const { return fTypeface; }
+
+    /** Increases SkTypeface SkRefCnt by one.
+
+        @return  SkTypeface if previously set or, a pointer to the default typeface if not
+        previously set.
+    */
+    sk_sp<SkTypeface> refTypefaceOrDefault() const;
+
+    /** Sets SkTypeface to typeface, decreasing SkRefCnt of the previous SkTypeface.
+        Pass nullptr to clear SkTypeface and use the default typeface. Increments
+        tf SkRefCnt by one.
+
+        @param tf  font and style used to draw text
+    */
+    void setTypeface(sk_sp<SkTypeface> tf) { fTypeface = tf; }
+
+    /** Sets text size in points.
+        Has no effect if textSize is not greater than or equal to zero.
+
+        @param textSize  typographic height of text
+    */
+    void setSize(SkScalar textSize);
+
+    /** Sets text scale on x-axis.
+        Default value is 1.
+
+        @param scaleX  text horizontal scale
+    */
+    void setScaleX(SkScalar scaleX);
+
+    /** Sets text skew on x-axis.
+        Default value is zero.
+
+        @param skewX  additional shear on x-axis relative to y-axis
+    */
+    void setSkewX(SkScalar skewX);
+
+    /** Converts text into glyph indices.
+        Returns the number of glyph indices represented by text.
+        SkTextEncoding specifies how text represents characters or glyphs.
+        glyphs may be nullptr, to compute the glyph count.
+
+        Does not check text for valid character codes or valid glyph indices.
+
+        If byteLength equals zero, returns zero.
+        If byteLength includes a partial character, the partial character is ignored.
+
+        If encoding is SkTextEncoding::kUTF8 and text contains an invalid UTF-8 sequence,
+        zero is returned.
+
+        When encoding is SkTextEncoding::kUTF8, SkTextEncoding::kUTF16, or
+        SkTextEncoding::kUTF32; then each Unicode codepoint is mapped to a
+        single glyph.  This function uses the default character-to-glyph
+        mapping from the SkTypeface and maps characters not found in the
+        SkTypeface to zero.
+
+        If maxGlyphCount is not sufficient to store all the glyphs, no glyphs are copied.
+        The total glyph count is returned for subsequent buffer reallocation.
+
+        @param text          character storage encoded with SkTextEncoding
+        @param byteLength    length of character storage in bytes
+        @param encoding      one of: SkTextEncoding::kUTF8, SkTextEncoding::kUTF16,
+                             SkTextEncoding::kUTF32, SkTextEncoding::kGlyphID
+        @param glyphs        storage for glyph indices; may be nullptr
+        @param maxGlyphCount storage capacity
+        @return              number of glyphs represented by text of length byteLength
+    */
+    int textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
                      SkGlyphID glyphs[], int maxGlyphCount) const;
 
-    int countText(const void* text, size_t byteLength, SkTextEncoding encoding) {
+    /** Returns glyph index for Unicode character.
+
+        If the character is not supported by the SkTypeface, returns 0.
+
+        @param uni  Unicode character
+        @return     glyph index
+    */
+    SkGlyphID unicharToGlyph(SkUnichar uni) const;
+
+    void unicharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const;
+
+    /** Returns number of glyphs represented by text.
+
+        If encoding is SkTextEncoding::kUTF8, SkTextEncoding::kUTF16, or
+        SkTextEncoding::kUTF32; then each Unicode codepoint is mapped to a
+        single glyph.
+
+        @param text          character storage encoded with SkTextEncoding
+        @param byteLength    length of character storage in bytes
+        @param encoding      one of: SkTextEncoding::kUTF8, SkTextEncoding::kUTF16,
+                             SkTextEncoding::kUTF32, SkTextEncoding::kGlyphID
+        @return              number of glyphs represented by text of length byteLength
+    */
+    int countText(const void* text, size_t byteLength, SkTextEncoding encoding) const {
         return this->textToGlyphs(text, byteLength, encoding, nullptr, 0);
     }
 
-    SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding) const;
+    /** Returns the advance width of text.
+        The advance is the normal distance to move before drawing additional text.
+        Returns the bounding box of text if bounds is not nullptr.
 
-    static sk_sp<SkFont> Testing_CreateFromPaint(const SkPaint&);
+        @param text        character storage encoded with SkTextEncoding
+        @param byteLength  length of character storage in bytes
+        @param encoding    one of: SkTextEncoding::kUTF8, SkTextEncoding::kUTF16,
+                           SkTextEncoding::kUTF32, SkTextEncoding::kGlyphID
+        @param bounds      returns bounding box relative to (0, 0) if not nullptr
+        @return            number of glyphs represented by text of length byteLength
+    */
+    SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding encoding,
+                         SkRect* bounds = nullptr) const {
+        return this->measureText(text, byteLength, encoding, bounds, nullptr);
+    }
+
+    /** Returns the advance width of text.
+        The advance is the normal distance to move before drawing additional text.
+        Returns the bounding box of text if bounds is not nullptr. paint
+        stroke width or SkPathEffect may modify the advance with.
+
+        @param text        character storage encoded with SkTextEncoding
+        @param byteLength  length of character storage in bytes
+        @param encoding    one of: SkTextEncoding::kUTF8, SkTextEncoding::kUTF16,
+                           SkTextEncoding::kUTF32, SkTextEncoding::kGlyphID
+        @param bounds      returns bounding box relative to (0, 0) if not nullptr
+        @param paint       optional; may be nullptr
+        @return            number of glyphs represented by text of length byteLength
+    */
+    SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding encoding,
+                         SkRect* bounds, const SkPaint* paint) const;
+
+    /** DEPRECATED
+        Retrieves the advance and bounds for each glyph in glyphs.
+        Both widths and bounds may be nullptr.
+        If widths is not nullptr, widths must be an array of count entries.
+        if bounds is not nullptr, bounds must be an array of count entries.
+
+        @param glyphs      array of glyph indices to be measured
+        @param count       number of glyphs
+        @param widths      returns text advances for each glyph; may be nullptr
+        @param bounds      returns bounds for each glyph relative to (0, 0); may be nullptr
+    */
+    void getWidths(const SkGlyphID glyphs[], int count, SkScalar widths[], SkRect bounds[]) const {
+        this->getWidthsBounds(glyphs, count, widths, bounds, nullptr);
+    }
+
+    // DEPRECATED
+    void getWidths(const SkGlyphID glyphs[], int count, SkScalar widths[], std::nullptr_t) const {
+        this->getWidths(glyphs, count, widths);
+    }
+
+    /** Retrieves the advance and bounds for each glyph in glyphs.
+        Both widths and bounds may be nullptr.
+        If widths is not nullptr, widths must be an array of count entries.
+        if bounds is not nullptr, bounds must be an array of count entries.
+
+        @param glyphs      array of glyph indices to be measured
+        @param count       number of glyphs
+        @param widths      returns text advances for each glyph
+     */
+    void getWidths(const SkGlyphID glyphs[], int count, SkScalar widths[]) const {
+        this->getWidthsBounds(glyphs, count, widths, nullptr, nullptr);
+    }
+
+    /** Retrieves the advance and bounds for each glyph in glyphs.
+        Both widths and bounds may be nullptr.
+        If widths is not nullptr, widths must be an array of count entries.
+        if bounds is not nullptr, bounds must be an array of count entries.
+
+        @param glyphs      array of glyph indices to be measured
+        @param count       number of glyphs
+        @param widths      returns text advances for each glyph; may be nullptr
+        @param bounds      returns bounds for each glyph relative to (0, 0); may be nullptr
+        @param paint       optional, specifies stroking, SkPathEffect and SkMaskFilter
+     */
+    void getWidthsBounds(const SkGlyphID glyphs[], int count, SkScalar widths[], SkRect bounds[],
+                         const SkPaint* paint) const;
+
+
+    /** Retrieves the bounds for each glyph in glyphs.
+        bounds must be an array of count entries.
+        If paint is not nullptr, its stroking, SkPathEffect, and SkMaskFilter fields are respected.
+
+        @param glyphs      array of glyph indices to be measured
+        @param count       number of glyphs
+        @param bounds      returns bounds for each glyph relative to (0, 0); may be nullptr
+        @param paint       optional, specifies stroking, SkPathEffect, and SkMaskFilter
+     */
+    void getBounds(const SkGlyphID glyphs[], int count, SkRect bounds[],
+                   const SkPaint* paint) const {
+        this->getWidthsBounds(glyphs, count, nullptr, bounds, paint);
+    }
+
+    /** Retrieves the positions for each glyph, beginning at the specified origin. The caller
+        must allocated at least count number of elements in the pos[] array.
+
+        @param glyphs   array of glyph indices to be positioned
+        @param count    number of glyphs
+        @param pos      returns glyphs positions
+        @param origin   location of the first glyph. Defaults to {0, 0}.
+     */
+    void getPos(const SkGlyphID glyphs[], int count, SkPoint pos[], SkPoint origin = {0, 0}) const;
+
+    /** Retrieves the x-positions for each glyph, beginning at the specified origin. The caller
+        must allocated at least count number of elements in the xpos[] array.
+
+        @param glyphs   array of glyph indices to be positioned
+        @param count    number of glyphs
+        @param xpos     returns glyphs x-positions
+        @param origin   x-position of the first glyph. Defaults to 0.
+     */
+    void getXPos(const SkGlyphID glyphs[], int count, SkScalar xpos[], SkScalar origin = 0) const;
+
+    /** Returns path corresponding to glyph outline.
+        If glyph has an outline, copies outline to path and returns true.
+        path returned may be empty.
+        If glyph is described by a bitmap, returns false and ignores path parameter.
+
+        @param glyphID  index of glyph
+        @param path     pointer to existing SkPath
+        @return         true if glyphID is described by path
+     */
+    bool getPath(SkGlyphID glyphID, SkPath* path) const;
+
+    /** Returns path corresponding to glyph array.
+
+        @param glyphIDs      array of glyph indices
+        @param count         number of glyphs
+        @param glyphPathProc function returning one glyph description as path
+        @param ctx           function context
+   */
+    void getPaths(const SkGlyphID glyphIDs[], int count,
+                  void (*glyphPathProc)(const SkPath* pathOrNull, const SkMatrix& mx, void* ctx),
+                  void* ctx) const;
+
+    /** Returns SkFontMetrics associated with SkTypeface.
+        The return value is the recommended spacing between lines: the sum of metrics
+        descent, ascent, and leading.
+        If metrics is not nullptr, SkFontMetrics is copied to metrics.
+        Results are scaled by text size but does not take into account
+        dimensions required by text scale, text skew, fake bold,
+        style stroke, and SkPathEffect.
+
+        @param metrics  storage for SkFontMetrics; may be nullptr
+        @return         recommended spacing between lines
+    */
+    SkScalar getMetrics(SkFontMetrics* metrics) const;
+
+    /** Returns the recommended spacing between lines: the sum of metrics
+        descent, ascent, and leading.
+        Result is scaled by text size but does not take into account
+        dimensions required by stroking and SkPathEffect.
+        Returns the same result as getMetrics().
+
+        @return  recommended spacing between lines
+    */
+    SkScalar getSpacing() const { return this->getMetrics(nullptr); }
+
+    /** Dumps fields of the font to SkDebugf. May change its output over time, so clients should
+     *  not rely on this for anything specific. Used to aid in debugging.
+     */
+    void dump() const;
 
 private:
-    static constexpr int kAllFlags = 0xFF;
+    enum PrivFlags {
+        kForceAutoHinting_PrivFlag      = 1 << 0,
+        kEmbeddedBitmaps_PrivFlag       = 1 << 1,
+        kSubpixel_PrivFlag              = 1 << 2,
+        kLinearMetrics_PrivFlag         = 1 << 3,
+        kEmbolden_PrivFlag              = 1 << 4,
+        kBaselineSnap_PrivFlag          = 1 << 5,
+    };
 
-    SkFont(sk_sp<SkTypeface>, SkScalar size, SkScalar scaleX, SkScalar skewX, MaskType,
-           uint32_t flags);
+    static constexpr unsigned kAllFlags = kForceAutoHinting_PrivFlag
+                                        | kEmbeddedBitmaps_PrivFlag
+                                        | kSubpixel_PrivFlag
+                                        | kLinearMetrics_PrivFlag
+                                        | kEmbolden_PrivFlag
+                                        | kBaselineSnap_PrivFlag;
 
     sk_sp<SkTypeface> fTypeface;
     SkScalar    fSize;
     SkScalar    fScaleX;
     SkScalar    fSkewX;
-    uint16_t    fFlags;
-    uint8_t     fMaskType;
-//  uint8_t     fPad;
+    uint8_t     fFlags;
+    uint8_t     fEdging;
+    uint8_t     fHinting;
+
+    SkScalar setupForAsPaths(SkPaint*);
+    bool hasSomeAntiAliasing() const;
+
+    friend class GrTextBlob;
+    friend class SkFontPriv;
+    friend class SkGlyphRunListPainter;
+    friend class SkTextBlobCacheDiffCanvas;
+    friend class SkStrikeSpec;
 };
 
 #endif

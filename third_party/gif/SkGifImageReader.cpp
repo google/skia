@@ -72,9 +72,9 @@ or revised. This service is offered free of charge; please provide us with your
 mailing address.
 */
 
-#include "SkGifImageReader.h"
-#include "SkColorPriv.h"
-#include "SkGifCodec.h"
+#include "include/core/SkColorPriv.h"
+#include "src/codec/SkGifCodec.h"
+#include "third_party/gif/SkGifImageReader.h"
 
 #include <algorithm>
 #include <string.h>
@@ -157,7 +157,8 @@ void SkGIFLZWContext::outputRow(const unsigned char* rowBegin)
         return;
 
     // CALLBACK: Let the client know we have decoded a row.
-    const bool writeTransparentPixels = (SkCodec::kNone == m_frameContext->getRequiredFrame());
+    const bool writeTransparentPixels =
+            SkCodec::kNoFrame == m_frameContext->getRequiredFrame();
     m_client->haveDecodedRow(m_frameContext->frameId(), rowBegin,
             drowStart, drowEnd - drowStart + 1, writeTransparentPixels);
 
@@ -210,10 +211,9 @@ void SkGIFLZWContext::outputRow(const unsigned char* rowBegin)
 // Otherwise, decoding failed; returns false in this case, which will always cause the SkGifImageReader to set the "decode failed" flag.
 bool SkGIFLZWContext::doLZW(const unsigned char* block, size_t bytesInBlock)
 {
-    const int width = m_frameContext->width();
-
     if (rowIter == rowBuffer.end())
         return true;
+    const int width = m_frameContext->width();
 
     for (const unsigned char* ch = block; bytesInBlock-- > 0; ch++) {
         // Feed the next byte into the decoder's 32-bit input buffer.
@@ -245,40 +245,71 @@ bool SkGIFLZWContext::doLZW(const unsigned char* block, size_t bytesInBlock)
             }
 
             const int tempCode = code;
-            unsigned short codeLength = 0;
-            if (code < avail) {
-                // This is a pre-existing code, so we already know what it
-                // encodes.
-                codeLength = suffixLength[code];
-                rowIter += codeLength;
-            } else if (code == avail && oldcode != -1) {
-                // This is a new code just being added to the dictionary.
-                // It must encode the contents of the previous code, plus
-                // the first character of the previous code again.
-                codeLength = suffixLength[oldcode] + 1;
-                rowIter += codeLength;
-                *--rowIter = firstchar;
-                code = oldcode;
-            } else {
+            if (code > avail) {
                 // This is an invalid code. The dictionary is just initialized
                 // and the code is incomplete. We don't know how to handle
                 // this case.
                 return false;
             }
 
-            while (code >= clearCode) {
-                *--rowIter = suffix[code];
-                code = prefix[code];
+            if (code == avail) {
+                if (oldcode != -1) {
+                    // This is a new code just being added to the dictionary.
+                    // It must encode the contents of the previous code, plus
+                    // the first character of the previous code again.
+                    // Now we know avail is the new code we can use oldcode
+                    // value to get the code related to that.
+                    code = oldcode;
+                } else {
+                    // This is an invalid code. The dictionary is just initialized
+                    // and the code is incomplete. We don't know how to handle
+                    // this case.
+                    return false;
+                }
             }
 
-            *--rowIter = firstchar = suffix[code];
+            // code length of the oldcode for new code which is
+            // avail = oldcode + firstchar of the oldcode
+            int remaining = suffixLength[code];
+
+            // Round remaining up to multiple of SK_DICTIONARY_WORD_SIZE, because that's
+            // the granularity of the chunks we copy.  The last chunk may contain
+            // some garbage but it'll be overwritten by the next code or left unused.
+            // The working buffer is padded to account for this.
+            remaining += -remaining & (SK_DICTIONARY_WORD_SIZE - 1) ;
+            unsigned char* p = rowIter + remaining;
+
+            // Place rowIter so that after writing pixels rowIter can be set to firstchar, thereby
+            // completing the code.
+            rowIter += suffixLength[code];
+
+            while (remaining > 0) {
+                p -= SK_DICTIONARY_WORD_SIZE;
+                std::copy_n(suffix[code].begin(), SK_DICTIONARY_WORD_SIZE, p);
+                code = prefix[code];
+                remaining -= SK_DICTIONARY_WORD_SIZE;
+            }
+            const int firstchar = static_cast<unsigned char>(code);  // (strictly `suffix[code][0]`)
+
+            // This completes the new code avail and writing the corresponding
+            // pixels on target.
+            if (tempCode == avail) {
+                *rowIter++ = firstchar;
+            }
 
             // Define a new codeword in the dictionary as long as we've read
             // more than one value from the stream.
             if (avail < SK_MAX_DICTIONARY_ENTRIES && oldcode != -1) {
-                prefix[avail] = oldcode;
-                suffix[avail] = firstchar;
-                suffixLength[avail] = suffixLength[oldcode] + 1;
+                // now add avail to the dictionary for future reference
+                unsigned short codeLength = suffixLength[oldcode] + 1;
+                int l = (codeLength - 1) & (SK_DICTIONARY_WORD_SIZE - 1);
+                // If the suffix buffer is full (l == 0) then oldcode becomes the new
+                // prefix, otherwise copy and extend oldcode's buffer and use the same
+                // prefix as oldcode used.
+                prefix[avail] = (l == 0) ? oldcode : prefix[oldcode];
+                suffix[avail] = suffix[oldcode];
+                suffix[avail][l] = firstchar;
+                suffixLength[avail] = codeLength;
                 ++avail;
 
                 // If we've used up all the codewords of a given length
@@ -290,7 +321,6 @@ bool SkGIFLZWContext::doLZW(const unsigned char* block, size_t bytesInBlock)
                 }
             }
             oldcode = tempCode;
-            rowIter += codeLength;
 
             // Output as many rows as possible.
             unsigned char* rowBegin = rowBuffer.begin();
@@ -862,112 +892,12 @@ void SkGifImageReader::addFrameIfNecessary()
     }
 }
 
-static SkIRect frame_rect_on_screen(SkIRect frameRect,
-                                    const SkIRect& screenRect) {
-    if (!frameRect.intersect(screenRect)) {
-        return SkIRect::MakeEmpty();
-    }
-
-    return frameRect;
-}
-
-static bool independent(const SkFrame& frame) {
-    return frame.getRequiredFrame() == SkCodec::kNone;
-}
-
-static bool restore_bg(const SkFrame& frame) {
-    return frame.getDisposalMethod() == SkCodecAnimation::DisposalMethod::kRestoreBGColor;
-}
-
 SkEncodedInfo::Alpha SkGIFFrameContext::onReportedAlpha() const {
     // Note: We could correct these after decoding - i.e. some frames may turn out to be
     // independent and opaque if they do not use the transparent pixel, but that would require
     // checking whether each pixel used the transparent index.
     return is_palette_index_valid(this->transparentPixel()) ? SkEncodedInfo::kBinary_Alpha
                                                             : SkEncodedInfo::kOpaque_Alpha;
-}
-
-void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
-    const bool reportsAlpha = frame->reportedAlpha() != SkEncodedInfo::kOpaque_Alpha;
-    const auto screenRect = SkIRect::MakeWH(fScreenWidth, fScreenHeight);
-    const auto frameRect = frame_rect_on_screen(frame->frameRect(), screenRect);
-
-    const int i = frame->frameId();
-    if (0 == i) {
-        frame->setHasAlpha(reportsAlpha || frameRect != screenRect);
-        frame->setRequiredFrame(SkCodec::kNone);
-        return;
-    }
-
-
-    const bool blendWithPrevFrame = frame->getBlend() == SkCodecAnimation::Blend::kPriorFrame;
-    if ((!reportsAlpha || !blendWithPrevFrame) && frameRect == screenRect) {
-        frame->setHasAlpha(reportsAlpha);
-        frame->setRequiredFrame(SkCodec::kNone);
-        return;
-    }
-
-    const SkFrame* prevFrame = this->getFrame(i-1);
-    while (prevFrame->getDisposalMethod() == SkCodecAnimation::DisposalMethod::kRestorePrevious) {
-        const int prevId = prevFrame->frameId();
-        if (0 == prevId) {
-            frame->setHasAlpha(true);
-            frame->setRequiredFrame(SkCodec::kNone);
-            return;
-        }
-
-        prevFrame = this->getFrame(prevId - 1);
-    }
-
-    const bool clearPrevFrame = restore_bg(*prevFrame);
-    auto prevFrameRect = frame_rect_on_screen(prevFrame->frameRect(), screenRect);
-
-    if (clearPrevFrame) {
-        if (prevFrameRect == screenRect || independent(*prevFrame)) {
-            frame->setHasAlpha(true);
-            frame->setRequiredFrame(SkCodec::kNone);
-            return;
-        }
-    }
-
-    if (reportsAlpha && blendWithPrevFrame) {
-        // Note: We could be more aggressive here. If prevFrame clears
-        // to background color and covers its required frame (and that
-        // frame is independent), prevFrame could be marked independent.
-        // Would this extra complexity be worth it?
-        frame->setRequiredFrame(prevFrame->frameId());
-        frame->setHasAlpha(prevFrame->hasAlpha() || clearPrevFrame);
-        return;
-    }
-
-    while (frameRect.contains(prevFrameRect)) {
-        const int prevRequiredFrame = prevFrame->getRequiredFrame();
-        if (prevRequiredFrame == SkCodec::kNone) {
-            frame->setRequiredFrame(SkCodec::kNone);
-            frame->setHasAlpha(true);
-            return;
-        }
-
-        prevFrame = this->getFrame(prevRequiredFrame);
-        prevFrameRect = frame_rect_on_screen(prevFrame->frameRect(), screenRect);
-    }
-
-    if (restore_bg(*prevFrame)) {
-        frame->setHasAlpha(true);
-        if (prevFrameRect == screenRect || independent(*prevFrame)) {
-            frame->setRequiredFrame(SkCodec::kNone);
-        } else {
-            // Note: As above, frame could still be independent, e.g. if
-            // prevFrame covers its required frame and that frame is
-            // independent.
-            frame->setRequiredFrame(prevFrame->frameId());
-        }
-        return;
-    }
-
-    SkASSERT(prevFrame->getDisposalMethod() == SkCodecAnimation::DisposalMethod::kKeep);
-    frame->setRequiredFrame(prevFrame->frameId());
-    frame->setHasAlpha(prevFrame->hasAlpha() || (reportsAlpha && !blendWithPrevFrame));
 }
 
 // FIXME: Move this method to close to doLZW().
@@ -1004,20 +934,24 @@ bool SkGIFLZWContext::prepareToDecode()
     // the longest sequence (SK_MAX_DICTIONARY_ENTIRES + 1) - 2 values long. Since
     // each value is a byte, this is also the number of bytes in the longest
     // encodable sequence.
-    const size_t maxBytes = SK_MAX_DICTIONARY_ENTRIES - 1;
+    constexpr size_t kMaxSequence = SK_MAX_DICTIONARY_ENTRIES - 1;
+    constexpr size_t kMaxBytes = (kMaxSequence + SK_DICTIONARY_WORD_SIZE - 1)
+                         & ~(SK_DICTIONARY_WORD_SIZE - 1);
 
     // Now allocate the output buffer. We decode directly into this buffer
     // until we have at least one row worth of data, then call outputRow().
     // This means worst case we may have (row width - 1) bytes in the buffer
-    // and then decode a sequence |maxBytes| long to append.
-    rowBuffer.reset(m_frameContext->width() - 1 + maxBytes);
+    // and then decode a sequence |kMaxBytes| long to append.
+    rowBuffer.reset(m_frameContext->width() - 1 + kMaxBytes);
     rowIter = rowBuffer.begin();
     rowsRemaining = m_frameContext->height();
 
     // Clearing the whole suffix table lets us be more tolerant of bad data.
     for (int i = 0; i < clearCode; ++i) {
-        suffix[i] = i;
+        std::fill_n(suffix[i].begin(), SK_DICTIONARY_WORD_SIZE, 0);
+        suffix[i][0] = i;
         suffixLength[i] = 1;
+        prefix[i] = i;  // ensure that we have a place to find firstchar
     }
     return true;
 }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,17 +5,19 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkTemplates_DEFINED
 #define SkTemplates_DEFINED
 
-#include "SkMath.h"
-#include "SkMalloc.h"
-#include "SkTLogic.h"
-#include "SkTypes.h"
-#include <limits.h>
+#include "include/core/SkTypes.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTLogic.h"
+
+#include <string.h>
+#include <array>
+#include <cstddef>
 #include <memory>
 #include <new>
+#include <utility>
 
 /** \file SkTemplates.h
 
@@ -46,8 +47,12 @@ template <typename D, typename S> static D* SkTAddOffset(S* ptr, size_t byteOffs
     return reinterpret_cast<D*>(reinterpret_cast<sknonstd::same_cv_t<char, D>*>(ptr) + byteOffset);
 }
 
-template <typename R, typename T, R (*P)(T*)> struct SkFunctionWrapper {
-    R operator()(T* t) { return P(t); }
+// TODO: when C++17 the language is available, use template <auto P>
+template <typename T, T* P> struct SkFunctionWrapper {
+    template <typename... Args>
+    auto operator()(Args&&... args) const -> decltype(P(std::forward<Args>(args)...)) {
+        return P(std::forward<Args>(args)...);
+    }
 };
 
 /** \class SkAutoTCallVProc
@@ -59,25 +64,10 @@ template <typename R, typename T, R (*P)(T*)> struct SkFunctionWrapper {
     function.
 */
 template <typename T, void (*P)(T*)> class SkAutoTCallVProc
-    : public std::unique_ptr<T, SkFunctionWrapper<void, T, P>> {
+    : public std::unique_ptr<T, SkFunctionWrapper<skstd::remove_pointer_t<decltype(P)>, P>> {
 public:
-    SkAutoTCallVProc(T* obj): std::unique_ptr<T, SkFunctionWrapper<void, T, P>>(obj) {}
-
-    operator T*() const { return this->get(); }
-};
-
-/** \class SkAutoTCallIProc
-
-Call a function when this goes out of scope. The template uses two
-parameters, the object, and a function that is to be called in the destructor.
-If release() is called, the object reference is set to null. If the object
-reference is null when the destructor is called, we do not call the
-function.
-*/
-template <typename T, int (*P)(T*)> class SkAutoTCallIProc
-    : public std::unique_ptr<T, SkFunctionWrapper<int, T, P>> {
-public:
-    SkAutoTCallIProc(T* obj): std::unique_ptr<T, SkFunctionWrapper<int, T, P>>(obj) {}
+    SkAutoTCallVProc(T* obj)
+        : std::unique_ptr<T, SkFunctionWrapper<skstd::remove_pointer_t<decltype(P)>, P>>(obj) {}
 
     operator T*() const { return this->get(); }
 };
@@ -130,8 +120,13 @@ private:
 
 /** Wraps SkAutoTArray, with room for kCountRequested elements preallocated.
  */
-template <int kCountRequested, typename T> class SkAutoSTArray : SkNoncopyable {
+template <int kCountRequested, typename T> class SkAutoSTArray {
 public:
+    SkAutoSTArray(SkAutoSTArray&&) = delete;
+    SkAutoSTArray(const SkAutoSTArray&) = delete;
+    SkAutoSTArray& operator=(SkAutoSTArray&&) = delete;
+    SkAutoSTArray& operator=(const SkAutoSTArray&) = delete;
+
     /** Initialize with no objects */
     SkAutoSTArray() {
         fArray = nullptr;
@@ -269,10 +264,10 @@ public:
     T* release() { return fPtr.release(); }
 
 private:
-    std::unique_ptr<T, SkFunctionWrapper<void, void, sk_free>> fPtr;
+    std::unique_ptr<T, SkFunctionWrapper<void(void*), sk_free>> fPtr;
 };
 
-template <size_t kCountRequested, typename T> class SkAutoSTMalloc : SkNoncopyable {
+template <size_t kCountRequested, typename T> class SkAutoSTMalloc {
 public:
     SkAutoSTMalloc() : fPtr(fTStorage) {}
 
@@ -285,6 +280,11 @@ public:
             fPtr = nullptr;
         }
     }
+
+    SkAutoSTMalloc(SkAutoSTMalloc&&) = delete;
+    SkAutoSTMalloc(const SkAutoSTMalloc&) = delete;
+    SkAutoSTMalloc& operator=(SkAutoSTMalloc&&) = delete;
+    SkAutoSTMalloc& operator=(const SkAutoSTMalloc&) = delete;
 
     ~SkAutoSTMalloc() {
         if (fPtr != fTStorage) {
@@ -395,8 +395,14 @@ T* SkInPlaceNewCheck(void* storage, size_t size, Args&&... args) {
  * Reserves memory that is aligned on double and pointer boundaries.
  * Hopefully this is sufficient for all practical purposes.
  */
-template <size_t N> class SkAlignedSStorage : SkNoncopyable {
+template <size_t N> class SkAlignedSStorage {
 public:
+    SkAlignedSStorage() {}
+    SkAlignedSStorage(SkAlignedSStorage&&) = delete;
+    SkAlignedSStorage(const SkAlignedSStorage&) = delete;
+    SkAlignedSStorage& operator=(SkAlignedSStorage&&) = delete;
+    SkAlignedSStorage& operator=(const SkAlignedSStorage&) = delete;
+
     size_t size() const { return N; }
     void* get() { return fData; }
     const void* get() const { return fData; }
@@ -415,8 +421,14 @@ private:
  * we have to do some arcane trickery to determine alignment of non-POD
  * types. Lifetime of the memory is the lifetime of the object.
  */
-template <int N, typename T> class SkAlignedSTStorage : SkNoncopyable {
+template <int N, typename T> class SkAlignedSTStorage {
 public:
+    SkAlignedSTStorage() {}
+    SkAlignedSTStorage(SkAlignedSTStorage&&) = delete;
+    SkAlignedSTStorage(const SkAlignedSTStorage&) = delete;
+    SkAlignedSTStorage& operator=(SkAlignedSTStorage&&) = delete;
+    SkAlignedSTStorage& operator=(const SkAlignedSTStorage&) = delete;
+
     /**
      * Returns void* because this object does not initialize the
      * memory. Use placement new for types that require a cons.
@@ -427,7 +439,7 @@ private:
     SkAlignedSStorage<sizeof(T)*N> fStorage;
 };
 
-using SkAutoFree = std::unique_ptr<void, SkFunctionWrapper<void, void, sk_free>>;
+using SkAutoFree = std::unique_ptr<void, SkFunctionWrapper<void(void*), sk_free>>;
 
 template<typename C, std::size_t... Is>
 constexpr auto SkMakeArrayFromIndexSequence(C c, skstd::index_sequence<Is...>)

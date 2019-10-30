@@ -8,8 +8,8 @@
 #ifndef SkSVGShape_DEFINED
 #define SkSVGShape_DEFINED
 
-#include "SkPath.h"
-#include "SkSVGTransformableNode.h"
+#include "experimental/svg/model/SkSVGTransformableNode.h"
+#include "include/core/SkPath.h"
 
 class SkSVGLengthContext;
 class SkPaint;

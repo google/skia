@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkSVGPattern.h"
+#include "experimental/svg/model/SkSVGPattern.h"
 
-#include "SkPictureRecorder.h"
-#include "SkShader.h"
-#include "SkSVGRenderContext.h"
-#include "SkSVGValue.h"
+#include "experimental/svg/model/SkSVGRenderContext.h"
+#include "experimental/svg/model/SkSVGValue.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkShader.h"
 
 SkSVGPattern::SkSVGPattern() : INHERITED(SkSVGTag::kPattern) {}
 
@@ -161,9 +161,9 @@ bool SkSVGPattern::onAsPaint(const SkSVGRenderContext& ctx, SkPaint* paint) cons
     // Cannot call into INHERITED:: because SkSVGHiddenContainer skips rendering.
     contentNode->SkSVGContainer::onRender(recordingContext);
 
-    paint->setShader(SkShader::MakePictureShader(recorder.finishRecordingAsPicture(),
-                                                 SkShader::kRepeat_TileMode,
-                                                 SkShader::kRepeat_TileMode,
+    paint->setShader(recorder.finishRecordingAsPicture()->makeShader(
+                                                 SkTileMode::kRepeat,
+                                                 SkTileMode::kRepeat,
                                                  patternTransform,
                                                  &tile));
     return true;

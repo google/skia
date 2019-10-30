@@ -8,7 +8,7 @@
 #ifndef GrAALinearizingConvexPathRenderer_DEFINED
 #define GrAALinearizingConvexPathRenderer_DEFINED
 
-#include "GrPathRenderer.h"
+#include "src/gpu/GrPathRenderer.h"
 
 class GrAALinearizingConvexPathRenderer : public GrPathRenderer {
 public:

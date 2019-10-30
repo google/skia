@@ -6,33 +6,34 @@
  */
 
 
-#include "SkGlyphCache.h"
+#include "src/core/SkStrike.h"
 
-#include "Benchmark.h"
-#include "SkCanvas.h"
-#include "SkStrikeCache.h"
-#include "SkGraphics.h"
-#include "SkTaskGroup.h"
-#include "SkTypeface.h"
-#include "sk_tool_utils.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkStrikeCache.h"
+#include "src/core/SkStrikeSpec.h"
+#include "src/core/SkTaskGroup.h"
+#include "tools/ToolUtils.h"
 
-
-static void do_font_stuff(SkPaint* paint) {
+static void do_font_stuff(SkFont* font) {
+    SkPaint defaultPaint;
     for (SkScalar i = 8; i < 64; i++) {
-        paint->setTextSize(i);
-        auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                *paint, nullptr, SkScalerContextFlags::kNone, nullptr);
-        uint16_t glyphs['z'];
+        font->setSize(i);
+        auto strikeSpec = SkStrikeSpec::MakeMask(
+                *font,  defaultPaint, SkSurfaceProps(0, kUnknown_SkPixelGeometry),
+                SkScalerContextFlags::kNone, SkMatrix::I());
+        SkPackedGlyphID glyphs['z'];
         for (int c = ' '; c < 'z'; c++) {
-            glyphs[c] = cache->unicharToGlyph(c);
+            glyphs[c] = SkPackedGlyphID{font->unicharToGlyph(c)};
         }
+        constexpr size_t glyphCount = 'z' - ' ';
+        SkSpan<const SkPackedGlyphID> glyphIDs{&glyphs[SkTo<int>(' ')], glyphCount};
+        SkBulkGlyphMetricsAndImages images{strikeSpec};
         for (int lookups = 0; lookups < 10; lookups++) {
-            for (int c = ' '; c < 'z'; c++) {
-                const SkGlyph& g = cache->getGlyphIDMetrics(glyphs[c]);
-                cache->findImage(g);
-            }
+            (void)images.glyphs(glyphIDs);
         }
-
     }
 }
 
@@ -53,13 +54,13 @@ protected:
     void onDraw(int loops, SkCanvas*) override {
         size_t oldCacheLimitSize = SkGraphics::GetFontCacheLimit();
         SkGraphics::SetFontCacheLimit(fCacheSize);
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setSubpixelText(true);
-        paint.setTypeface(sk_tool_utils::create_portable_typeface("serif", SkFontStyle::Italic()));
+        SkFont font;
+        font.setEdging(SkFont::Edging::kAntiAlias);
+        font.setSubpixel(true);
+        font.setTypeface(ToolUtils::create_portable_typeface("serif", SkFontStyle::Italic()));
 
         for (int work = 0; work < loops; work++) {
-            do_font_stuff(&paint);
+            do_font_stuff(&font);
         }
         SkGraphics::SetFontCacheLimit(oldCacheLimitSize);
     }
@@ -87,17 +88,17 @@ protected:
     void onDraw(int loops, SkCanvas*) override {
         size_t oldCacheLimitSize = SkGraphics::GetFontCacheLimit();
         SkGraphics::SetFontCacheLimit(fCacheSize);
-        sk_sp<SkTypeface> typefaces[] =
-            {sk_tool_utils::create_portable_typeface("serif", SkFontStyle::Italic()),
-             sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle::Italic())};
+        sk_sp<SkTypeface> typefaces[] = {
+                ToolUtils::create_portable_typeface("serif", SkFontStyle::Italic()),
+                ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Italic())};
 
         for (int work = 0; work < loops; work++) {
             SkTaskGroup().batch(16, [&](int threadIndex) {
-                SkPaint paint;
-                paint.setAntiAlias(true);
-                paint.setSubpixelText(true);
-                paint.setTypeface(typefaces[threadIndex % 2]);
-                do_font_stuff(&paint);
+                SkFont font;
+                font.setEdging(SkFont::Edging::kAntiAlias);
+                font.setSubpixel(true);
+                font.setTypeface(typefaces[threadIndex % 2]);
+                do_font_stuff(&font);
             });
         }
         SkGraphics::SetFontCacheLimit(oldCacheLimitSize);

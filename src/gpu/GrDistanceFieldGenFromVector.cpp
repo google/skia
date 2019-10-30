@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkDistanceFieldGen.h"
-#include "GrDistanceFieldGenFromVector.h"
+#include "src/core/SkDistanceFieldGen.h"
+#include "src/gpu/GrDistanceFieldGenFromVector.h"
 
-#include "GrConfig.h"
-#include "GrPathUtils.h"
-#include "SkAutoMalloc.h"
-#include "SkGeometry.h"
-#include "SkMatrix.h"
-#include "SkPathOps.h"
-#include "SkPointPriv.h"
-#include "SkRectPriv.h"
+#include "include/core/SkMatrix.h"
+#include "include/gpu/GrConfig.h"
+#include "include/pathops/SkPathOps.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkPointPriv.h"
+#include "src/core/SkRectPriv.h"
+#include "src/gpu/geometry/GrPathUtils.h"
 
 /**
  * If a scanline (a row of texel) cross from the kRight_SegSide
@@ -475,7 +475,7 @@ void precomputation_for_row(
     }
 
     const DPoint& xFormPtLeft = segment.fXformMatrix.mapPoint(pointLeft);
-    const DPoint& xFormPtRight = segment.fXformMatrix.mapPoint(pointRight);;
+    const DPoint& xFormPtRight = segment.fXformMatrix.mapPoint(pointRight);
 
     rowData->fQuadXDirection = (int)sign_of(segment.fP2T.x() - segment.fP0T.x());
     rowData->fScanlineXDirection = (int)sign_of(xFormPtRight.x() - xFormPtLeft.x());
@@ -742,11 +742,14 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
                                      int width, int height, size_t rowBytes) {
     SkASSERT(distanceField);
 
-    SkDEBUGCODE(SkPath xformPath;);
-    SkDEBUGCODE(path.transform(drawMatrix, &xformPath));
-    SkDEBUGCODE(SkIRect pathBounds = xformPath.getBounds().roundOut());
-    SkDEBUGCODE(SkIRect expectPathBounds = SkIRect::MakeWH(width - 2 * SK_DistanceFieldPad,
-                                                           height - 2 * SK_DistanceFieldPad));
+#ifdef SK_DEBUG
+    SkPath xformPath;
+    path.transform(drawMatrix, &xformPath);
+    SkIRect pathBounds = xformPath.getBounds().roundOut();
+    SkIRect expectPathBounds =
+            SkIRect::MakeWH(width - 2 * SK_DistanceFieldPad, height - 2 * SK_DistanceFieldPad);
+#endif
+
     SkASSERT(expectPathBounds.isEmpty() ||
              expectPathBounds.contains(pathBounds.x(), pathBounds.y()));
     SkASSERT(expectPathBounds.isEmpty() || pathBounds.isEmpty() ||
@@ -785,40 +788,31 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
     // create initial distance data
     init_distances(dataPtr, width * height);
 
-    SkPath::Iter iter(workingPath, true);
+    SkPathEdgeIter iter(workingPath);
     SkSTArray<15, PathSegment, true> segments;
 
-    for (;;) {
-        SkPoint pts[4];
-        SkPath::Verb verb = iter.next(pts);
-        switch (verb) {
-            case SkPath::kMove_Verb:
-                break;
-            case SkPath::kLine_Verb: {
-                add_line_to_segment(pts, &segments);
+    while (auto e = iter.next()) {
+        switch (e.fEdge) {
+            case SkPathEdgeIter::Edge::kLine: {
+                add_line_to_segment(e.fPts, &segments);
                 break;
             }
-            case SkPath::kQuad_Verb:
-                add_quad_segment(pts, &segments);
+            case SkPathEdgeIter::Edge::kQuad:
+                add_quad_segment(e.fPts, &segments);
                 break;
-            case SkPath::kConic_Verb: {
+            case SkPathEdgeIter::Edge::kConic: {
                 SkScalar weight = iter.conicWeight();
                 SkAutoConicToQuads converter;
-                const SkPoint* quadPts = converter.computeQuads(pts, weight, kConicTolerance);
+                const SkPoint* quadPts = converter.computeQuads(e.fPts, weight, kConicTolerance);
                 for (int i = 0; i < converter.countQuads(); ++i) {
                     add_quad_segment(quadPts + 2*i, &segments);
                 }
                 break;
             }
-            case SkPath::kCubic_Verb: {
-                add_cubic_segments(pts, &segments);
+            case SkPathEdgeIter::Edge::kCubic: {
+                add_cubic_segments(e.fPts, &segments);
                 break;
-            };
-            default:
-                break;
-        }
-        if (verb == SkPath::kDone_Verb) {
-            break;
+            }
         }
     }
 

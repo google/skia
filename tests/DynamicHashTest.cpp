@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkTDynamicHash.h"
-#include "SkTypes.h"
-#include "Test.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkTDynamicHash.h"
+#include "tests/Test.h"
 
 #include <cstring>
 

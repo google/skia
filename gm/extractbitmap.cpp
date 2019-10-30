@@ -5,11 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkString.h"
-#include "SkSurface.h"
+#include "gm/gm.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 
 namespace skiagm {
 
@@ -30,7 +34,6 @@ public:
     ExtractBitmapGM() {}
 
 protected:
-    // overrides from SkEventSink
     SkString onShortName() override {
         return SkString("extractbitmap");
     }
@@ -79,7 +82,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new ExtractBitmapGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new ExtractBitmapGM; )
 
 }

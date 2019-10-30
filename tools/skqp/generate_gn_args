@@ -8,24 +8,7 @@ import argparse
 import os
 import sys
 
-fmt = '''
-target_cpu = "{arch}"
-is_debug = {debug}
-ndk = "{android_ndk_dir}"
-ndk_api = {api_level}
-skia_enable_fontmgr_empty = true
-skia_enable_pdf = false
-skia_skqp_global_error_tolerance = 4
-skia_use_dng_sdk = false
-skia_use_expat = false
-skia_use_icu = false
-skia_use_libheif = false
-skia_use_lua = false
-skia_use_piex = false
-skia_use_skcms = false
-skia_skqp_enable_driver_correctness_workarounds = {enable_workarounds}
-skia_tools_require_resources = true
-'''
+import skqp_gn_args
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Generate args.gn file.')
@@ -35,25 +18,29 @@ def parse_args():
         help='defaults to "arm", valid values: "arm" "arm64" "x86" "x64"')
     parser.add_argument('--api_level', type=int, metavar='api_level',
         default=26, help='android API level, defaults to 26')
-    parser.add_argument('--enable_workarounds', default=False,
-        action='store_true', help="enable GPU work-arounds, defaults to false")
     parser.add_argument('--debug', default=False, action='store_true',
         help='compile native code in debug mode, defaults to false')
-
-    # parse the args and convert bools to strings.
     args = parser.parse_args()
-    gn_bool = lambda b : 'true' if b else 'false'
-    args.enable_workarounds = gn_bool(args.enable_workarounds)
-    args.debug = gn_bool(args.debug)
-    args.android_ndk_dir = os.path.abspath(args.android_ndk_dir)
-    return args
+    result = skqp_gn_args.GetGNArgs(args.arch,
+                                    os.path.abspath(args.android_ndk_dir),
+                                    args.debug,
+                                    args.api_level)
+    return args.target_build_dir, result)
+
+def write_gn(o, args):
+    l = max(len(k) for k in args)
+    for k, v in sorted(args.items()):
+        o.write('%-*s = %s\n' % (l, k, v))
 
 def make_args_gn(out_dir, args):
+    if out_dir == '-':
+        write_gn(sys.stdout, args)
+        return
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     with open(os.path.join(out_dir, 'args.gn'), 'w') as o:
-        o.write(fmt.format(**args))
+        write_gn(o, args)
 
 if __name__ == '__main__':
-    args = parse_args()
-    make_args_gn(args.target_build_dir, vars(args))
+    build_dir, args = parse_args()
+    make_args_gn(build_dir, args)

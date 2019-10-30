@@ -5,27 +5,60 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkCanvasPriv.h"
+#include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkImageFilters.h"
+#include "include/effects/SkShaderMaskFilter.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkCanvasPriv.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
+#include <string.h>
+#include <initializer_list>
 
 // This GM tests out the deprecated Android-specific unclipped saveLayer "feature".
 // In particular, it attempts to compare the performance of unclipped saveLayers with alternatives.
 
 static void save_layer_unclipped(SkCanvas* canvas,
                                  SkScalar l, SkScalar t, SkScalar r, SkScalar b) {
+    SkPaint paint;
+    paint.setAlphaf(0.25f);
     SkRect rect = SkRect::MakeLTRB(l, t, r, b);
-    canvas->saveLayer({ &rect, nullptr, nullptr, nullptr, nullptr,
+    canvas->saveLayer({ &rect, &paint, nullptr, nullptr, nullptr,
                         (SkCanvas::SaveLayerFlags) SkCanvasPriv::kDontClipToLayer_SaveLayerFlag });
 }
 
 static void do_draw(SkCanvas* canvas) {
     SkPaint paint;
-    SkRandom rand;
+    paint.setColor(0xFFFF0000);
 
     for (int i = 0; i < 20; ++i) {
-        paint.setColor(sk_tool_utils::color_to_565(rand.nextU() | (0xFF << 24)));
         canvas->drawRect({ 15, 15, 290, 40 }, paint);
         canvas->translate(0, 30);
     }
@@ -33,23 +66,13 @@ static void do_draw(SkCanvas* canvas) {
 
 class UnclippedSaveLayerGM : public skiagm::GM {
 public:
-    enum class Mode {
-        kClipped,
-        kUnclipped
-    };
-
-    UnclippedSaveLayerGM(Mode mode) : fMode(mode) { this->setBGColor(SK_ColorWHITE); }
+    UnclippedSaveLayerGM() { this->setBGColor(SK_ColorWHITE); }
 
 protected:
     bool runAsBench() const override { return true; }
 
     SkString onShortName() override {
-        if (Mode::kClipped == fMode) {
-            return SkString("savelayer_unclipped");
-        } else {
-            SkASSERT(Mode::kUnclipped == fMode);
-            return SkString("savelayer_clipped");
-        }
+        return SkString("savelayer_unclipped");
     }
 
     SkISize onISize() override { return SkISize::Make(320, 640); }
@@ -62,32 +85,22 @@ protected:
 
         canvas->clipRect({ L, T, R, B });
 
-        for (int i = 0; i < 100; ++i) {
-            SkAutoCanvasRestore acr(canvas, true);
-            if (Mode::kClipped == fMode) {
-                save_layer_unclipped(canvas, L, T, R, T + 20);
-                save_layer_unclipped(canvas, L, B - 20, R, B);
-            } else {
-                SkASSERT(Mode::kUnclipped == fMode);
-                canvas->saveLayer({ L, T, R, B }, nullptr);
-            }
+        SkAutoCanvasRestore acr(canvas, true);
+        save_layer_unclipped(canvas, L, T, R, T + 100);
+        save_layer_unclipped(canvas, L, B - 100, R, B);
 
-            do_draw(canvas);
-        }
+        do_draw(canvas);
     }
 
 private:
-    Mode fMode;
-
     typedef skiagm::GM INHERITED;
 };
-DEF_GM(return new UnclippedSaveLayerGM(UnclippedSaveLayerGM::Mode::kClipped);)
-DEF_GM(return new UnclippedSaveLayerGM(UnclippedSaveLayerGM::Mode::kUnclipped);)
+DEF_GM(return new UnclippedSaveLayerGM;)
 
 DEF_SIMPLE_GM(picture_savelayer, canvas, 320, 640) {
     SkPaint paint1, paint2, paint3;
-    paint1.setAlpha(0x7f);
-    paint2.setAlpha(0x3f);
+    paint1.setAlphaf(0.5f);
+    paint2.setAlphaf(0.25f);
     paint3.setColor(0xFFFF0000);
     SkRect rect1{40, 5, 80, 70}, rect2{5, 40, 70, 80}, rect3{10, 10, 70, 70};
     // In the future, we might also test the clipped case by allowing i = 0
@@ -102,8 +115,6 @@ DEF_SIMPLE_GM(picture_savelayer, canvas, 320, 640) {
         canvas->restore();
     }
 };
-
-#include "Resources.h"
 
 // Test kInitWithPrevious_SaveLayerFlag by drawing an image, save a layer with the flag, which
 // should seed the layer with the image (from below). Then we punch a hole in the layer and
@@ -123,12 +134,6 @@ DEF_SIMPLE_GM(savelayer_initfromprev, canvas, 256, 256) {
     canvas->restore();
 };
 
-#include "SkBlurImageFilter.h"
-#include "SkGradientShader.h"
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
-#include "SkSurface.h"
-
 static void draw_mask(SkCanvas* canvas, int size) {
     const SkScalar cx = size * SK_ScalarHalf,
                    cy = cx;
@@ -141,7 +146,7 @@ static void draw_mask(SkCanvas* canvas, int size) {
     canvas->drawPaint(paint);
 
     paint.setShader(SkGradientShader::MakeRadial({cx, cy}, size / 4, colors, nullptr, 2,
-                                                 SkShader::kClamp_TileMode));
+                                                 SkTileMode::kClamp));
     canvas->drawCircle(cx, cy, size / 4, paint);
 }
 
@@ -195,7 +200,7 @@ DEF_SIMPLE_GM(savelayer_clipmask, canvas, 1200, 1200) {
     static const PaintMakerFunc kPaintMakers[] = {
         []() -> SkPaint { return SkPaint(); },
         []() -> SkPaint {
-            SkPaint p; p.setImageFilter(SkBlurImageFilter::Make(2, 2, nullptr)); return p;
+            SkPaint p; p.setImageFilter(SkImageFilters::Blur(2, 2, nullptr)); return p;
         },
         []() -> SkPaint { SkPaint p; p.setBlendMode(SkBlendMode::kSrcOut); return p; },
     };
@@ -277,3 +282,171 @@ DEF_SIMPLE_GM(savelayer_coverage, canvas, 500, 500) {
     canvas->restore();
 }
 
+DEF_SIMPLE_GM(savelayer_clipmask_maskfilter, canvas, 500, 500) {
+    // Offscreen surface for making the clip mask and mask filter images
+    auto surf = SkSurface::MakeRaster(SkImageInfo::MakeA8(100, 100));
+    SkPaint maskPaint;
+    maskPaint.setColor(SK_ColorWHITE);
+    maskPaint.setAntiAlias(true);
+
+    // Draw a centered circle for the mask filter
+    surf->getCanvas()->clear(SK_ColorTRANSPARENT);
+    surf->getCanvas()->drawCircle(50.f, 50.f, 50.f, maskPaint);
+    auto maskFilterImage = surf->makeImageSnapshot();
+    sk_sp<SkMaskFilter> maskFilter = SkShaderMaskFilter::Make(maskFilterImage->makeShader());
+
+    // Cut out a cross for the clip mask
+    surf->getCanvas()->clear(SK_ColorTRANSPARENT);
+    surf->getCanvas()->drawRect(SkRect::MakeLTRB(0.f, 0.f, 40.f, 40.f), maskPaint);
+    surf->getCanvas()->drawRect(SkRect::MakeLTRB(60.f, 0.f, 100.f, 40.f), maskPaint);
+    surf->getCanvas()->drawRect(SkRect::MakeLTRB(0.f, 60.f, 40.f, 100.f), maskPaint);
+    surf->getCanvas()->drawRect(SkRect::MakeLTRB(60.f, 60.f, 100.f, 100.f), maskPaint);
+    auto clipMaskImage = surf->makeImageSnapshot();
+    SkMatrix clipMatrix = SkMatrix::I();
+    SkRect clipBounds = SkRect::MakeWH(100, 100);
+
+    // On the main canvas, save a 100x100 layer three times, applying clip mask, mask filter, or
+    // both, translating across the GM for each configuration.
+    canvas->clear(SK_ColorGRAY);
+
+    canvas->translate(25.f, 0.f);
+
+    // Clip mask only
+    SkCanvas::SaveLayerRec rec;
+    rec.fBounds = &clipBounds;
+    rec.fClipMask = clipMaskImage.get();
+    rec.fClipMatrix = &clipMatrix;
+    canvas->saveLayer(rec);
+    canvas->clear(SK_ColorWHITE);
+    canvas->restore();
+
+    canvas->translate(125.f, 0.f);
+
+    // Mask filter only
+    maskPaint.setMaskFilter(maskFilter);
+    rec.fClipMask = nullptr;
+    rec.fPaint = &maskPaint;
+    canvas->saveLayer(rec);
+    canvas->clear(SK_ColorWHITE);
+    canvas->restore();
+
+    canvas->translate(125.f, 0.f);
+
+    // Both
+    rec.fClipMask = clipMaskImage.get();
+    canvas->saveLayer(rec);
+    canvas->clear(SK_ColorWHITE);
+    canvas->restore();
+}
+
+static void draw_cell(SkCanvas* canvas, sk_sp<SkTextBlob> blob, SkColor c, SkScalar w, SkScalar h,
+                      bool useDrawBehind) {
+    SkRect r = SkRect::MakeWH(w, h);
+    SkPaint p;
+    p.setColor(c);
+    p.setBlendMode(SkBlendMode::kSrc);
+    canvas->drawRect(r, p);
+    p.setBlendMode(SkBlendMode::kSrcOver);
+
+    const SkScalar margin = 80;
+    r.fLeft = w - margin;
+
+    // save the behind image
+    SkDEBUGCODE(int sc0 =) canvas->getSaveCount();
+    SkDEBUGCODE(int sc1 =) SkCanvasPriv::SaveBehind(canvas, &r);
+    SkDEBUGCODE(int sc2 =) canvas->getSaveCount();
+    SkASSERT(sc0 == sc1);
+    SkASSERT(sc0 + 1 == sc2);
+
+    // draw the foreground (including over the 'behind' section)
+    p.setColor(SK_ColorBLACK);
+    canvas->drawTextBlob(blob, 10, 30, p);
+
+    // draw the treatment
+    const SkPoint pts[] = { {r.fLeft,0}, {r.fRight, 0} };
+    const SkColor colors[] = { 0x88000000, 0x0 };
+    auto sh = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
+    p.setShader(sh);
+    p.setBlendMode(SkBlendMode::kDstIn);
+
+    if (useDrawBehind) {
+        SkCanvasPriv::DrawBehind(canvas, p);
+    } else {
+        canvas->drawRect(r, p);
+    }
+
+    // this should restore the behind image
+    canvas->restore();
+    SkDEBUGCODE(int sc3 =) canvas->getSaveCount();
+    SkASSERT(sc3 == sc0);
+
+    // just outline where we expect the treatment to appear
+    p.reset();
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setAlphaf(0.25f);
+}
+
+static void draw_list(SkCanvas* canvas, sk_sp<SkTextBlob> blob, bool useDrawBehind) {
+    SkAutoCanvasRestore acr(canvas, true);
+
+    SkRandom rand;
+    SkScalar w = 400;
+    SkScalar h = 40;
+    for (int i = 0; i < 8; ++i) {
+        SkColor c = rand.nextU();   // ensure we're opaque
+        c = (c & 0xFFFFFF) | 0x80000000;
+        draw_cell(canvas, blob, c, w, h, useDrawBehind);
+        canvas->translate(0, h);
+    }
+}
+
+DEF_SIMPLE_GM(save_behind, canvas, 830, 670) {
+    SkFont font;
+    font.setTypeface(ToolUtils::create_portable_typeface());
+    font.setSize(30);
+
+    const char text[] = "This is a very long line of text";
+    auto blob = SkTextBlob::MakeFromText(text, strlen(text), font);
+
+    for (bool useDrawBehind : {false, true}) {
+        canvas->save();
+
+        draw_list(canvas, blob, useDrawBehind);
+        canvas->translate(0, 350);
+        canvas->saveLayer({0, 0, 400, 320}, nullptr);
+        draw_list(canvas, blob, useDrawBehind);
+        canvas->restore();
+
+        canvas->restore();
+        canvas->translate(430, 0);
+    }
+}
+
+#include "include/effects/SkGradientShader.h"
+
+DEF_SIMPLE_GM(savelayer_f16, canvas, 900, 300) {
+    int n = 15;
+    SkRect r{0, 0, 300, 300};
+    SkPaint paint;
+
+    const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED };
+    paint.setShader(SkGradientShader::MakeSweep(r.centerX(), r.centerY(),
+                                                colors, nullptr, SK_ARRAY_COUNT(colors)));
+
+    canvas->drawOval(r, paint);
+
+    paint.setAlphaf(1.0f/n);
+    paint.setBlendMode(SkBlendMode::kPlus);
+
+    for (auto flags : {0, (int)SkCanvas::kF16ColorType}) {
+        canvas->translate(r.width(), 0);
+
+        SkCanvas::SaveLayerRec rec;
+        rec.fSaveLayerFlags = flags;
+        canvas->saveLayer(rec);
+        for (int i = 0; i < n; ++i) {
+            canvas->drawOval(r, paint);
+        }
+        canvas->restore();
+    }
+}

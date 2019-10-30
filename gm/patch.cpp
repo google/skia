@@ -5,11 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkGradientShader.h"
-#include "SkImage.h"
-#include "SkPatchUtils.h"
-#include "SkPath.h"
+#include "gm/gm.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
+#include "src/utils/SkPatchUtils.h"
+#include "tools/Resources.h"
 
 static sk_sp<SkShader> make_shader() {
     const SkColor colors[] = {
@@ -19,7 +30,7 @@ static sk_sp<SkShader> make_shader() {
     const SkPoint pts[] = { { 100.f / 4.f, 0.f }, { 3.f * 100.f / 4.f, 100.f } };
 
     return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
-                                        SkShader::kMirror_TileMode);
+                                        SkTileMode::kMirror);
 }
 
 static void draw_control_points(SkCanvas* canvas, const SkPoint cubics[12]) {
@@ -98,7 +109,7 @@ static void dopatch(SkCanvas* canvas, const SkColor colors[], sk_sp<SkImage> img
     if (img) {
         SkScalar w = img->width();
         SkScalar h = img->height();
-        shader = img->makeShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
+        shader = img->makeShader();
         texStorage[0].set(0, 0);
         texStorage[1].set(w, 0);
         texStorage[2].set(w, h);
@@ -147,7 +158,6 @@ DEF_SIMPLE_GM(patch_primitive, canvas, 1500, 1100) {
     };
     dopatch(canvas, colors);
 }
-#include "Resources.h"
 DEF_SIMPLE_GM(patch_image, canvas, 1500, 1100) {
     const SkColor colors[SkPatchUtils::kNumCorners] = {
         SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorCYAN

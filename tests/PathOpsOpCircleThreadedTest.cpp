@@ -4,11 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "PathOpsExtendedTest.h"
-#include "PathOpsThreadedCommon.h"
-#include "SkString.h"
+#include "include/core/SkString.h"
+#include "tests/PathOpsDebug.h"
+#include "tests/PathOpsExtendedTest.h"
+#include "tests/PathOpsThreadedCommon.h"
+
+#include <atomic>
 
 static int loopNo = 4;
+static std::atomic<int> gCirclesTestNo{0};
 
 static void testOpCirclesMain(PathOpsThreadState* data) {
         SkASSERT(data);
@@ -47,12 +51,15 @@ static void testOpCirclesMain(PathOpsThreadState* data) {
                 pathStr.appendf("}\n");
                 state.outputProgress(pathStr.c_str(), (SkPathOp) op);
             }
-            if (!testPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, "circles")) {
+            SkString testName;
+            testName.printf("thread_circles%d", ++gCirclesTestNo);
+            if (!testPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, testName.c_str())) {
                 if (state.fReporter->verbose()) {
                     ++loopNo;
                     goto skipToNext;
                 }
             }
+            if (PathOpsDebug::gCheckForDuplicateNames) return;
         }
     }
                     }

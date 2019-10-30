@@ -5,12 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkPaint.h"
-#include "SkRandom.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/utils/SkRandom.h"
+#include "tools/ToolUtils.h"
 
 static void drawPath(SkPath& path,SkCanvas* canvas,SkColor color,
                      const SkRect& clip,SkPaint::Cap cap, SkPaint::Join join,
@@ -76,17 +82,15 @@ static void draw(SkCanvas* canvas, bool doClose) {
         SkPaint titlePaint;
         titlePaint.setColor(SK_ColorBLACK);
         titlePaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&titlePaint);
-        titlePaint.setTextSize(15 * SK_Scalar1);
+
+        SkFont font(ToolUtils::create_portable_typeface(), 15.0f);
+
         const char titleNoClose[] = "Line Drawn Into Rectangle Clips With "
             "Indicated Style, Fill and Linecaps, with stroke width 10";
         const char titleClose[] = "Line Closed Drawn Into Rectangle Clips With "
             "Indicated Style, Fill and Linecaps, with stroke width 10";
         const char* title = doClose ? titleClose : titleNoClose;
-        canvas->drawString(title,
-                           20 * SK_Scalar1,
-                           20 * SK_Scalar1,
-                           titlePaint);
+        canvas->drawString(title, 20.0f, 20.0f, font, titlePaint);
 
         SkRandom rand;
         SkRect rect = SkRect::MakeWH(100*SK_Scalar1, 30*SK_Scalar1);
@@ -108,7 +112,7 @@ static void draw(SkCanvas* canvas, bool doClose) {
                         canvas->translate(rect.width() + 40 * SK_Scalar1, 0);
                     }
 
-                    SkColor color = sk_tool_utils::color_to_565(0xff007000);
+                    SkColor color = ToolUtils::color_to_565(0xff007000);
                     drawPath(path.fPath, canvas, color, rect,
                                     gCaps[cap].fCap, gCaps[cap].fJoin, gStyles[style].fStyle,
                                     gFills[fill].fFill, SK_Scalar1*10);
@@ -122,18 +126,13 @@ static void draw(SkCanvas* canvas, bool doClose) {
 
                     SkPaint labelPaint;
                     labelPaint.setColor(color);
-                    labelPaint.setAntiAlias(true);
-                    sk_tool_utils::set_portable_typeface(&labelPaint);
-                    labelPaint.setTextSize(10 * SK_Scalar1);
-                    canvas->drawString(gStyles[style].fName,
-                                       0, rect.height() + 12 * SK_Scalar1,
-                                       labelPaint);
-                    canvas->drawString(gFills[fill].fName,
-                                       0, rect.height() + 24 * SK_Scalar1,
-                                       labelPaint);
-                    canvas->drawString(gCaps[cap].fName,
-                                       0, rect.height() + 36 * SK_Scalar1,
-                                       labelPaint);
+                    font.setSize(10);
+                    canvas->drawString(gStyles[style].fName, 0, rect.height() + 12.0f,
+                                       font, labelPaint);
+                    canvas->drawString(gFills[fill].fName, 0, rect.height() + 24.0f,
+                                       font, labelPaint);
+                    canvas->drawString(gCaps[cap].fName, 0, rect.height() + 36.0f,
+                                       font, labelPaint);
                 }
                 canvas->restore();
             }

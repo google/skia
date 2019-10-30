@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "Benchmark.h"
-#include "SkGeometry.h"
-#include "SkRandom.h"
-#include "SkRect.h"
+#include "bench/Benchmark.h"
+#include "include/core/SkRect.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkGeometry.h"
 
 class GeometryBench : public Benchmark {
 public:
@@ -243,3 +243,52 @@ protected:
     }
 };
 DEF_BENCH( return new ChopCubicAt; )
+
+#include "include/core/SkPath.h"
+
+class ConvexityBench : public Benchmark {
+    SkPath fPath;
+
+public:
+    ConvexityBench(const char suffix[]) {
+        fName.printf("convexity_%s", suffix);
+    }
+
+    const char* onGetName() override {
+        return fName.c_str();
+    }
+
+    bool isSuitableFor(Backend backend) override {
+        return kNonRendering_Backend == backend;
+    }
+
+    virtual void preparePath(SkPath*) = 0;
+
+protected:
+    void onPreDraw(SkCanvas*) override {
+        this->preparePath(&fPath);
+    }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        for (int i = 0; i < loops; ++i) {
+            fPath.setConvexity(SkPath::kUnknown_Convexity);
+            (void)fPath.isConvex();
+        }
+    }
+
+private:
+    SkString fName;
+};
+
+class RRectConvexityBench : public ConvexityBench {
+public:
+    RRectConvexityBench() : ConvexityBench("rrect") {}
+
+    void preparePath(SkPath* path) override {
+        SkRRect rr;
+        rr.setRectXY({0, 0, 100, 100}, 20, 30);
+        path->addRRect(rr);
+    }
+};
+DEF_BENCH( return new RRectConvexityBench; )
+

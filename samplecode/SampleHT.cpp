@@ -5,15 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkAnimTimer.h"
-#include "SkView.h"
-#include "SkCanvas.h"
-#include "SkDrawable.h"
-#include "SkInterpolator.h"
-#include "SkPictureRecorder.h"
-#include "SkPointPriv.h"
-#include "SkRandom.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/utils/SkInterpolator.h"
+#include "include/utils/SkRandom.h"
+#include "samplecode/Sample.h"
+#include "src/core/SkPointPriv.h"
+#include "tools/timer/TimeUtils.h"
 
 const SkRect gUnitSquare = { -1, -1, 1, 1 };
 
@@ -114,7 +113,7 @@ public:
     SkRect onGetBounds() override { return fR; }
 };
 
-class HTView : public SampleView {
+class HTView : public Sample {
 public:
     enum {
         N = 50,
@@ -143,27 +142,21 @@ public:
     }
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "HT");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
+    SkString name() override { return SkString("HT"); }
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawDrawable(fRoot.get());
     }
 
-    bool onAnimate(const SkAnimTimer& timer) override {
-        fTime = timer.msec();
+    bool onAnimate(double nanos) override {
+        fTime = TimeUtils::NanosToMSec(nanos);
         for (int i = 0; i < N; ++i) {
             fArray[i].fDrawable->setTime(fTime);
         }
         return true;
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         // search backwards to find the top-most
         for (int i = N - 1; i >= 0; --i) {
             if (fArray[i].fDrawable->hitTest(x, y)) {
@@ -175,10 +168,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new HTView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new HTView(); )

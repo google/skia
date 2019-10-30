@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkMD5.h"
-#include "Test.h"
+#include "src/core/SkMD5.h"
+#include "tests/Test.h"
 
 static bool digests_equal(const SkMD5::Digest& expectedDigest, const SkMD5::Digest& computedDigest) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(expectedDigest.data); ++i) {
@@ -24,8 +24,7 @@ static void md5_test(const char* string, const SkMD5::Digest& expectedDigest, sk
     {
         SkMD5 context;
         context.write(string, len);
-        SkMD5::Digest digest;
-        context.finish(digest);
+        SkMD5::Digest digest = context.finish();
 
         REPORTER_ASSERT(reporter, digests_equal(expectedDigest, digest));
     }
@@ -38,8 +37,7 @@ static void md5_test(const char* string, const SkMD5::Digest& expectedDigest, sk
         for (; data < end; ++data) {
             context.write(data, 1);
         }
-        SkMD5::Digest digest;
-        context.finish(digest);
+        SkMD5::Digest digest = context.finish();
 
         REPORTER_ASSERT(reporter, digests_equal(expectedDigest, digest));
     }

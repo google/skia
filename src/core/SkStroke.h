@@ -8,10 +8,11 @@
 #ifndef SkStroke_DEFINED
 #define SkStroke_DEFINED
 
-#include "SkPath.h"
-#include "SkPoint.h"
-#include "SkPaint.h"
-#include "SkStrokerPriv.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkStrokerPriv.h"
 
 #ifdef SK_DEBUG
 extern bool gDebugStrokerErrorSet;
@@ -70,7 +71,7 @@ private:
     SkScalar    fWidth, fMiterLimit;
     SkScalar    fResScale;
     uint8_t     fCap, fJoin;
-    SkBool8     fDoFill;
+    bool        fDoFill;
 
     friend class SkPaint;
 };

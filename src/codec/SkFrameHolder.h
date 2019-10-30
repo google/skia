@@ -8,10 +8,12 @@
 #ifndef SkFrameHolder_DEFINED
 #define SkFrameHolder_DEFINED
 
-#include "SkTypes.h"
-#include "SkCodecAnimation.h"
-#include "SkCodecAnimationPriv.h"
-#include "SkRect.h"
+#include "include/codec/SkCodecAnimation.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkEncodedInfo.h"
+#include "include/private/SkNoncopyable.h"
+#include "src/codec/SkCodecAnimationPriv.h"
 
 /**
  *  Base class for a single frame of an animated image.
@@ -33,6 +35,17 @@ public:
     }
 
     virtual ~SkFrame() {}
+
+    /**
+     * An explicit move constructor, as
+     * https://en.cppreference.com/w/cpp/language/move_constructor says that
+     * there is no implicit move constructor if there are user-declared
+     * destructors, and we have one, immediately above.
+     *
+     * Without a move constructor, it is harder to use an SkFrame, or an
+     * SkFrame subclass, inside a std::vector.
+     */
+    SkFrame(SkFrame&&) = default;
 
     /**
      *  0-based index of the frame in the image sequence.

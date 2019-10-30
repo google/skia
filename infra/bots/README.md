@@ -26,13 +26,7 @@ for correct syntax and detecting cycles and orphaned tasks. Always edit
 gen_tasks.go or one of the following input JSON files, rather than tasks.json
 itself:
 
-  * android_map.json - Maps human-friendly names of Android devices to their
-      device codename and desired OS version. Edit this file when adding a new
-      type of Android device or updating the desired OS version.
   * cfg.json - Basic configuration information for gen_tasks.go.
-  * gpu_map.json - Maps human-friendly names of GPUs to an appropriate Swarming
-      dimension, typically the PCI ID of the GPU. Edit this file when adding a
-      new GPU.
   * jobs.json - The master list of all jobs to run. Edit this to add or remove
       bots.
 

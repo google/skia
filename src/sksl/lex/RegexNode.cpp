@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "RegexNode.h"
+#include "src/sksl/lex/RegexNode.h"
 
-#include "NFA.h"
+#include "src/sksl/lex/NFA.h"
 
 std::vector<int> RegexNode::createStates(NFA* nfa, const std::vector<int>& accept) const {
     std::vector<int> result;
@@ -24,7 +24,7 @@ std::vector<int> RegexNode::createStates(NFA* nfa, const std::vector<int>& accep
                     }
                     chars[child.fPayload.fChar] = true;
                 } else {
-                    ASSERT(child.fKind == kRange_Kind);
+                    SkASSERT(child.fKind == kRange_Kind);
                     while (chars.size() <= (size_t) child.fChildren[1].fPayload.fChar) {
                         chars.push_back(false);
                     }

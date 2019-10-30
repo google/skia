@@ -5,20 +5,16 @@
 * found in the LICENSE file.
 */
 
-#include "GrVkPipelineStateDataManager.h"
+#include "src/gpu/vk/GrVkPipelineStateDataManager.h"
 
-#include "GrVkGpu.h"
-#include "GrVkUniformBuffer.h"
+#include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkUniformBuffer.h"
 
 GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(const UniformInfoArray& uniforms,
-                                                           uint32_t geometryUniformSize,
-                                                           uint32_t fragmentUniformSize)
-    : fGeometryUniformSize(geometryUniformSize)
-    , fFragmentUniformSize(fragmentUniformSize)
-    , fGeometryUniformsDirty(false)
-    , fFragmentUniformsDirty(false) {
-    fGeometryUniformData.reset(geometryUniformSize);
-    fFragmentUniformData.reset(fragmentUniformSize);
+                                                           uint32_t uniformSize)
+    : fUniformSize(uniformSize)
+    , fUniformsDirty(false) {
+    fUniformData.reset(uniformSize);
     int count = uniforms.count();
     fUniforms.push_back_n(count);
     // We must add uniforms in same order is the UniformInfoArray so that UniformHandles already
@@ -31,30 +27,15 @@ GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(const UniformInfoArra
         SkDEBUGCODE(
             uniform.fArrayCount = uniformInfo.fVariable.getArrayCount();
             uniform.fType = uniformInfo.fVariable.getType();
-        );
+        )
 
-        if (!(kFragment_GrShaderFlag & uniformInfo.fVisibility)) {
-            uniform.fBinding = GrVkUniformHandler::kGeometryBinding;
-        } else {
-            SkASSERT(kFragment_GrShaderFlag == uniformInfo.fVisibility);
-            uniform.fBinding = GrVkUniformHandler::kFragBinding;
-        }
         uniform.fOffset = uniformInfo.fUBOffset;
     }
 }
 
 void* GrVkPipelineStateDataManager::getBufferPtrAndMarkDirty(const Uniform& uni) const {
-    void* buffer;
-    if (GrVkUniformHandler::kGeometryBinding == uni.fBinding) {
-        buffer = fGeometryUniformData.get();
-        fGeometryUniformsDirty = true;
-    } else {
-        SkASSERT(GrVkUniformHandler::kFragBinding == uni.fBinding);
-        buffer = fFragmentUniformData.get();
-        fFragmentUniformsDirty = true;
-    }
-    buffer = static_cast<char*>(buffer)+uni.fOffset;
-    return buffer;
+    fUniformsDirty = true;
+    return static_cast<char*>(fUniformData.get())+uni.fOffset;
 }
 
 void GrVkPipelineStateDataManager::set1i(UniformHandle u, int32_t i) const {
@@ -110,6 +91,33 @@ void GrVkPipelineStateDataManager::set1fv(UniformHandle u,
     }
 }
 
+void GrVkPipelineStateDataManager::set2i(UniformHandle u, int32_t i0, int32_t i1) const {
+    const Uniform& uni = fUniforms[u.toIndex()];
+    SkASSERT(uni.fType == kInt2_GrSLType || uni.fType == kShort2_GrSLType);
+    SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
+    void* buffer = this->getBufferPtrAndMarkDirty(uni);
+    int32_t v[2] = { i0, i1 };
+    memcpy(buffer, v, 2 * sizeof(int32_t));
+}
+
+void GrVkPipelineStateDataManager::set2iv(UniformHandle u,
+                                          int arrayCount,
+                                          const int32_t v[]) const {
+    const Uniform& uni = fUniforms[u.toIndex()];
+    SkASSERT(uni.fType == kInt2_GrSLType || uni.fType == kShort2_GrSLType);
+    SkASSERT(arrayCount > 0);
+    SkASSERT(arrayCount <= uni.fArrayCount ||
+             (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
+
+    void* buffer = this->getBufferPtrAndMarkDirty(uni);
+    SkASSERT(sizeof(int32_t) == 4);
+    for (int i = 0; i < arrayCount; ++i) {
+        const int32_t* curVec = &v[2 * i];
+        memcpy(buffer, curVec, 2 * sizeof(int32_t));
+        buffer = static_cast<char*>(buffer) + 4*sizeof(int32_t);
+    }
+}
+
 void GrVkPipelineStateDataManager::set2f(UniformHandle u, float v0, float v1) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kFloat2_GrSLType || uni.fType == kHalf2_GrSLType);
@@ -138,6 +146,36 @@ void GrVkPipelineStateDataManager::set2fv(UniformHandle u,
     }
 }
 
+void GrVkPipelineStateDataManager::set3i(UniformHandle u,
+                                         int32_t i0,
+                                         int32_t i1,
+                                         int32_t i2) const {
+    const Uniform& uni = fUniforms[u.toIndex()];
+    SkASSERT(uni.fType == kInt3_GrSLType || uni.fType == kShort3_GrSLType);
+    SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
+    void* buffer = this->getBufferPtrAndMarkDirty(uni);
+    int32_t v[3] = { i0, i1, i2 };
+    memcpy(buffer, v, 3 * sizeof(int32_t));
+}
+
+void GrVkPipelineStateDataManager::set3iv(UniformHandle u,
+                                          int arrayCount,
+                                          const int32_t v[]) const {
+    const Uniform& uni = fUniforms[u.toIndex()];
+    SkASSERT(uni.fType == kInt3_GrSLType || uni.fType == kShort3_GrSLType);
+    SkASSERT(arrayCount > 0);
+    SkASSERT(arrayCount <= uni.fArrayCount ||
+             (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
+
+    void* buffer = this->getBufferPtrAndMarkDirty(uni);
+    SkASSERT(sizeof(int32_t) == 4);
+    for (int i = 0; i < arrayCount; ++i) {
+        const int32_t* curVec = &v[3 * i];
+        memcpy(buffer, curVec, 3 * sizeof(int32_t));
+        buffer = static_cast<char*>(buffer) + 4*sizeof(int32_t);
+    }
+}
+
 void GrVkPipelineStateDataManager::set3f(UniformHandle u, float v0, float v1, float v2) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kFloat3_GrSLType || uni.fType == kHalf3_GrSLType);
@@ -163,6 +201,37 @@ void GrVkPipelineStateDataManager::set3fv(UniformHandle u,
         const float* curVec = &v[3 * i];
         memcpy(buffer, curVec, 3 * sizeof(float));
         buffer = static_cast<char*>(buffer) + 4*sizeof(float);
+    }
+}
+
+void GrVkPipelineStateDataManager::set4i(UniformHandle u,
+                                         int32_t i0,
+                                         int32_t i1,
+                                         int32_t i2,
+                                         int32_t i3) const {
+    const Uniform& uni = fUniforms[u.toIndex()];
+    SkASSERT(uni.fType == kInt4_GrSLType || uni.fType == kShort4_GrSLType);
+    SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
+    void* buffer = this->getBufferPtrAndMarkDirty(uni);
+    int32_t v[4] = { i0, i1, i2, i3 };
+    memcpy(buffer, v, 4 * sizeof(int32_t));
+}
+
+void GrVkPipelineStateDataManager::set4iv(UniformHandle u,
+                                          int arrayCount,
+                                          const int32_t v[]) const {
+    const Uniform& uni = fUniforms[u.toIndex()];
+    SkASSERT(uni.fType == kInt4_GrSLType || uni.fType == kShort4_GrSLType);
+    SkASSERT(arrayCount > 0);
+    SkASSERT(arrayCount <= uni.fArrayCount ||
+             (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
+
+    void* buffer = this->getBufferPtrAndMarkDirty(uni);
+    SkASSERT(sizeof(int32_t) == 4);
+    for (int i = 0; i < arrayCount; ++i) {
+        const int32_t* curVec = &v[4 * i];
+        memcpy(buffer, curVec, 4 * sizeof(int32_t));
+        buffer = static_cast<char*>(buffer) + 4*sizeof(int32_t);
     }
 }
 
@@ -236,15 +305,8 @@ template<int N> inline void GrVkPipelineStateDataManager::setMatrices(UniformHan
     SkASSERT(arrayCount <= uni.fArrayCount ||
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
 
-    void* buffer;
-    if (GrVkUniformHandler::kGeometryBinding == uni.fBinding) {
-        buffer = fGeometryUniformData.get();
-        fGeometryUniformsDirty = true;
-    } else {
-        SkASSERT(GrVkUniformHandler::kFragBinding == uni.fBinding);
-        buffer = fFragmentUniformData.get();
-        fFragmentUniformsDirty = true;
-    }
+    void* buffer = fUniformData.get();
+    fUniformsDirty = true;
 
     set_uniform_matrix<N>::set(buffer, uni.fOffset, arrayCount, matrices);
 }
@@ -272,18 +334,12 @@ template<> struct set_uniform_matrix<4> {
 };
 
 bool GrVkPipelineStateDataManager::uploadUniformBuffers(GrVkGpu* gpu,
-                                                        GrVkUniformBuffer* geometryBuffer,
-                                                        GrVkUniformBuffer* fragmentBuffer) const {
+                                                        GrVkUniformBuffer* buffer) const {
     bool updatedBuffer = false;
-    if (geometryBuffer && fGeometryUniformsDirty) {
-        SkAssertResult(geometryBuffer->updateData(gpu, fGeometryUniformData.get(),
-                                                  fGeometryUniformSize, &updatedBuffer));
-        fGeometryUniformsDirty = false;
-    }
-    if (fragmentBuffer && fFragmentUniformsDirty) {
-        SkAssertResult(fragmentBuffer->updateData(gpu, fFragmentUniformData.get(),
-                                                  fFragmentUniformSize, &updatedBuffer));
-        fFragmentUniformsDirty = false;
+    if (buffer && fUniformsDirty) {
+        SkAssertResult(buffer->updateData(gpu, fUniformData.get(),
+                                          fUniformSize, &updatedBuffer));
+        fUniformsDirty = false;
     }
 
     return updatedBuffer;

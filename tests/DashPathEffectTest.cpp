@@ -5,21 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "SkCanvas.h"
-#include "SkDashPathEffect.h"
-#include "SkImageInfo.h"
-#include "SkMatrix.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPathEffect.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
-#include "SkStrokeRec.h"
-#include "SkSurface.h"
-#include "SkTypes.h"
-#include "Test.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "tests/Test.h"
 
 // crbug.com/348821 was rooted in SkDashPathEffect refusing to flatten and unflatten itself when
 // the effect is nonsense.  Here we test that it fails when passed nonsense parameters.
@@ -122,4 +122,21 @@ DEF_TEST(DashPathEffectTest_asPoints_limit, r) {
     const SkScalar intervals[] = { 1, 1 };
     p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
     canvas->drawLine(1, 1, 1, 5.0e10f, p);
+}
+
+// This used to cause SkDashImpl to walk off the end of the intervals array, due to underflow
+// trying to substract a smal value from a large one in floats.
+DEF_TEST(DashCrazy_crbug_875494, r) {
+    SkScalar vals[] = { 98, 94, 2888458849.f, 227, 0, 197 };
+    const int N = SK_ARRAY_COUNT(vals);
+
+    SkRect cull = SkRect::MakeXYWH(43,236,57,149);
+    SkPath path;
+    path.addRect(cull);
+
+    SkPath path2;
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setPathEffect(SkDashPathEffect::Make(vals, N, 222));
+    paint.getFillPath(path, &path2, &cull);
 }

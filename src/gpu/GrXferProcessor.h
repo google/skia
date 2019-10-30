@@ -8,12 +8,11 @@
 #ifndef GrXferProcessor_DEFINED
 #define GrXferProcessor_DEFINED
 
-#include "GrBlend.h"
-#include "GrColor.h"
-#include "GrNonAtomicRef.h"
-#include "GrProcessor.h"
-#include "GrProcessorAnalysis.h"
-#include "GrTypes.h"
+#include "include/gpu/GrTypes.h"
+#include "src/gpu/GrBlend.h"
+#include "src/gpu/GrNonAtomicRef.h"
+#include "src/gpu/GrProcessor.h"
+#include "src/gpu/GrProcessorAnalysis.h"
 
 class GrGLSLXferProcessor;
 class GrProcessorSet;
@@ -88,16 +87,13 @@ public:
         void setOffset(int ox, int oy) { fOffset.set(ox, oy); }
 
         GrTextureProxy* proxy() const { return fProxy.get(); }
+        sk_sp<GrTextureProxy> refProxy() const { return fProxy; }
 
         void setProxy(sk_sp<GrTextureProxy> proxy) {
             fProxy = std::move(proxy);
             if (!fProxy) {
                 fOffset = {0, 0};
             }
-        }
-
-        bool instantiate(GrResourceProvider* resourceProvider) {
-            return SkToBool(fProxy->instantiate(resourceProvider));
         }
 
     private:
@@ -128,24 +124,24 @@ public:
     }
 
     struct BlendInfo {
-        void reset() {
-            fEquation = kAdd_GrBlendEquation;
-            fSrcBlend = kOne_GrBlendCoeff;
-            fDstBlend = kZero_GrBlendCoeff;
-            fBlendConstant = 0;
-            fWriteColor = true;
-        }
-
         SkDEBUGCODE(SkString dump() const;)
 
-        GrBlendEquation fEquation;
-        GrBlendCoeff    fSrcBlend;
-        GrBlendCoeff    fDstBlend;
-        GrColor         fBlendConstant;
-        bool            fWriteColor;
+        GrBlendEquation fEquation = kAdd_GrBlendEquation;
+        GrBlendCoeff    fSrcBlend = kOne_GrBlendCoeff;
+        GrBlendCoeff    fDstBlend = kZero_GrBlendCoeff;
+        SkPMColor4f     fBlendConstant = SK_PMColor4fTRANSPARENT;
+        bool            fWriteColor = true;
     };
 
-    void getBlendInfo(BlendInfo* blendInfo) const;
+    inline BlendInfo getBlendInfo() const {
+        BlendInfo blendInfo;
+        if (!this->willReadDstColor()) {
+            this->onGetBlendInfo(&blendInfo);
+        } else if (this->dstReadUsesMixedSamples()) {
+            blendInfo.fDstBlend = kIS2A_GrBlendCoeff;
+        }
+        return blendInfo;
+    }
 
     bool willReadDstColor() const { return fWillReadDstColor; }
 
@@ -265,26 +261,21 @@ public:
         /**
          * The op may apply coverage as alpha and still blend correctly.
          */
-        kCompatibleWithAlphaAsCoverage = 0x2,
+        kCompatibleWithCoverageAsAlpha = 0x2,
         /**
          * The color input to the GrXferProcessor will be ignored.
          */
         kIgnoresInputColor = 0x4,
-        /**
-         * If set overlapping stencil and cover operations can be replaced by a combined stencil
-         * followed by a combined cover.
-         */
-        kCanCombineOverlappedStencilAndCover = 0x8,
         /**
          * The destination color will be provided to the fragment processor using a texture. This is
          * additional information about the implementation of kReadsDstInShader.
          */
         kRequiresDstTexture = 0x10,
         /**
-         * If set overlapping draws may not be combined because a barrier must be inserted between
-         * them.
+         * If set, each pixel can only be touched once during a draw (e.g., because we have a dst
+         * texture or because we need an xfer barrier).
          */
-        kRequiresBarrierBetweenOverlappingDraws = 0x20,
+        kRequiresNonOverlappingDraws = 0x20,
     };
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(AnalysisProperties);
 
@@ -293,13 +284,13 @@ public:
                                                           GrProcessorAnalysisCoverage,
                                                           bool hasMixedSamples,
                                                           const GrCaps& caps,
-                                                          GrPixelConfigIsClamped dstIsClamped);
+                                                          GrClampType);
 
     static AnalysisProperties GetAnalysisProperties(const GrXPFactory*,
                                                     const GrProcessorAnalysisColor&,
                                                     const GrProcessorAnalysisCoverage&,
                                                     const GrCaps&,
-                                                    GrPixelConfigIsClamped);
+                                                    GrClampType);
 
 protected:
     constexpr GrXPFactory() {}
@@ -309,7 +300,7 @@ private:
                                                            GrProcessorAnalysisCoverage,
                                                            bool hasMixedSamples,
                                                            const GrCaps&,
-                                                           GrPixelConfigIsClamped) const = 0;
+                                                           GrClampType) const = 0;
 
     /**
      * Subclass analysis implementation. This should not return kNeedsDstInTexture as that will be
@@ -318,7 +309,7 @@ private:
     virtual AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                                   const GrProcessorAnalysisCoverage&,
                                                   const GrCaps&,
-                                                  GrPixelConfigIsClamped) const = 0;
+                                                  GrClampType) const = 0;
 };
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop

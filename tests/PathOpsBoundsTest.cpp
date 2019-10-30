@@ -4,10 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "PathOpsTestCommon.h"
-#include "SkPathOpsBounds.h"
-#include "SkPathOpsCurve.h"
-#include "Test.h"
+#include "src/pathops/SkPathOpsBounds.h"
+#include "src/pathops/SkPathOpsCurve.h"
+#include "tests/PathOpsTestCommon.h"
+#include "tests/Test.h"
 
 static const SkRect sectTests[][2] = {
     {{2, 0, 4, 1}, {4, 0, 6, 1}},
@@ -50,11 +50,11 @@ DEF_TEST(PathOpsBounds, reporter) {
     bounds.setEmpty();
     bounds.add(1, 2, 3, 4);
     SkPathOpsBounds expected;
-    expected.set(0, 0, 3, 4);
+    expected.setLTRB(0, 0, 3, 4);
     REPORTER_ASSERT(reporter, bounds == expected);
     bounds.setEmpty();
     SkPathOpsBounds ordinal;
-    ordinal.set(1, 2, 3, 4);
+    ordinal.setLTRB(1, 2, 3, 4);
     bounds.add(ordinal);
     REPORTER_ASSERT(reporter, bounds == expected);
     bounds.setEmpty();
@@ -65,10 +65,10 @@ DEF_TEST(PathOpsBounds, reporter) {
     SkDCurve curve;
     curve.fQuad.set(curvePts);
     curve.setQuadBounds(curvePts, 1, 0, 1, &bounds);
-    expected.set(0, 0, 3, 4);
+    expected.setLTRB(0, 0, 3, 4);
     REPORTER_ASSERT(reporter, bounds == expected);
     curve.fCubic.set(curvePts);
     curve.setCubicBounds(curvePts, 1, 0, 1, &bounds);
-    expected.set(0, 0, 5, 6);
+    expected.setLTRB(0, 0, 5, 6);
     REPORTER_ASSERT(reporter, bounds == expected);
 }

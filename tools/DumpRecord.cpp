@@ -7,11 +7,12 @@
 
 #include <stdio.h>
 
-#include "SkRecord.h"
-#include "SkRecordDraw.h"
+#include "src/core/SkPicturePriv.h"
+#include "src/core/SkRecord.h"
+#include "src/core/SkRecordDraw.h"
 
-#include "DumpRecord.h"
-#include "SkTime.h"
+#include "include/core/SkTime.h"
+#include "tools/DumpRecord.h"
 
 namespace {
 
@@ -63,7 +64,7 @@ public:
     void print(const SkRecords::DrawPicture& command, double ns) {
         this->printNameAndTime(command, ns);
 
-        if (auto bp = command.picture->asSkBigPicture()) {
+        if (auto bp = SkPicturePriv::AsSkBigPicture(command.picture)) {
             ++fIndent;
 
             const SkRecord& record = *bp->record();
@@ -114,8 +115,8 @@ private:
     template <typename T>
     static const char* NameOf(const T&) {
     #define CASE(U) case SkRecords::U##_Type: return #U;
-        switch(T::kType) { SK_RECORD_TYPES(CASE); }
-    #undef CASE
+        switch (T::kType) { SK_RECORD_TYPES(CASE) }
+#undef CASE
         SkDEBUGFAIL("Unknown T");
         return "Unknown T";
     }

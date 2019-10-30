@@ -4,11 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "PathOpsExtendedTest.h"
-#include "SkPath.h"
-#include "SkPathOps.h"
-#include "SkPoint.h"
-#include "Test.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/pathops/SkPathOps.h"
+#include "tests/PathOpsExtendedTest.h"
+#include "tests/Test.h"
 
 static const SkPoint nonFinitePts[] = {
     { SK_ScalarInfinity, 0 },
@@ -155,7 +155,7 @@ path.quadTo(SkBits2Float(0xb6b6b6e9), SkBits2Float(0xb6b6b6b6), SkBits2Float(0xe
     testSimplifyFuzz(reporter, path, filename);
 }
 
-static void fuzz763_2(skiatest::Reporter* reporter, const char* filename) {
+static void fuzz763_2s(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType((SkPath::FillType) 0);
 path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000));  // 0, 0
@@ -269,7 +269,7 @@ path.quadTo(SkBits2Float(0x7b9c7b79), SkBits2Float(0xf4f2d886), SkBits2Float(0xf
 DEF_TEST(PathOpsSimplifyFail, reporter) {
     TEST(fuzz_k1);
     TEST(fuzz_x3);
-    TEST(fuzz763_2);
+    TEST(fuzz763_2s);
     TEST(fuzz763_1);
     TEST(fuzz_x2);
     TEST(fuzz_x1);

@@ -8,27 +8,29 @@
 #ifndef SkXPSDevice_DEFINED
 #define SkXPSDevice_DEFINED
 
-#include "SkTypes.h"
+#include "include/core/SkTypes.h"
 
 #ifdef SK_BUILD_FOR_WIN
 
 #include <ObjBase.h>
 #include <XpsObjectModel.h>
 
-#include "SkAutoCoInitialize.h"
-#include "SkBitSet.h"
-#include "SkBitmapDevice.h"
-#include "SkCanvas.h"
-#include "SkClipStackDevice.h"
-#include "SkColor.h"
-#include "SkPaint.h"
-#include "SkPath.h"
-#include "SkPoint.h"
-#include "SkShader.h"
-#include "SkSize.h"
-#include "SkTArray.h"
-#include "SkTScopedComPtr.h"
-#include "SkTypeface.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/SkTArray.h"
+#include "src/core/SkBitmapDevice.h"
+#include "src/core/SkClipStackDevice.h"
+#include "src/utils/SkBitSet.h"
+#include "src/utils/win/SkAutoCoInitialize.h"
+#include "src/utils/win/SkTScopedComPtr.h"
+
+class SkGlyphRunList;
 
 //#define SK_XPS_USE_DETERMINISTIC_IDS
 
@@ -85,40 +87,33 @@ protected:
                    const SkPaint& paint) override;
     void drawPath(const SkPath& path,
                   const SkPaint& paint,
-                  const SkMatrix* prePathMatrix = NULL,
                   bool pathIsMutable = false) override;
-    void drawBitmap(const SkBitmap& bitmap,
-                    SkScalar x,
-                    SkScalar y,
-                    const SkPaint& paint) override;
     void drawSprite(const SkBitmap& bitmap,
                     int x, int y, const SkPaint& paint) override;
     void drawBitmapRect(const SkBitmap&,
                         const SkRect* srcOrNull, const SkRect& dst,
                         const SkPaint& paint,
                         SkCanvas::SrcRectConstraint) override;
-    void drawText(const void* text, size_t len,
-                  SkScalar x, SkScalar y, const SkPaint& paint) override;
-    void drawPosText(const void* text, size_t len,
-                     const SkScalar pos[], int scalarsPerPos,
-                     const SkPoint& offset, const SkPaint& paint) override;
-    void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
+    void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
+    void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
+                      const SkPaint&) override;
     void drawDevice(SkBaseDevice*, int x, int y,
                     const SkPaint&) override;
 
 private:
-    class TypefaceUse : ::SkNoncopyable {
+    class TypefaceUse {
     public:
-        SkFontID typefaceId;
-        int ttcIndex;
-        SkStream* fontData;
-        IXpsOMFontResource* xpsFont;
-        SkBitSet* glyphsUsed;
-
-        explicit TypefaceUse();
-        ~TypefaceUse();
+        TypefaceUse(SkFontID id, int index, std::unique_ptr<SkStream> data,
+                    SkTScopedComPtr<IXpsOMFontResource> xps, size_t numGlyphs)
+            : typefaceId(id), ttcIndex(index), fontData(std::move(data))
+            , xpsFont(std::move(xps)), glyphsUsed(numGlyphs) {}
+        const SkFontID typefaceId;
+        const int ttcIndex;
+        const std::unique_ptr<SkStream> fontData;
+        const SkTScopedComPtr<IXpsOMFontResource> xpsFont;
+        SkBitSet glyphsUsed;
     };
-    friend HRESULT subset_typeface(TypefaceUse* current);
+    friend HRESULT subset_typeface(const TypefaceUse& current);
 
     bool createCanvasForLayer();
 
@@ -173,7 +168,7 @@ private:
     HRESULT createXpsImageBrush(
         const SkBitmap& bitmap,
         const SkMatrix& localMatrix,
-        const SkShader::TileMode (&xy)[2],
+        const SkTileMode (&xy)[2],
         const SkAlpha alpha,
         IXpsOMTileBrush** xpsBrush);
 
@@ -211,13 +206,13 @@ private:
         IXpsOMGeometryFigure** xpsQuad);
 
     HRESULT CreateTypefaceUse(
-        const SkPaint& paint,
+        const SkFont& font,
         TypefaceUse** fontResource);
 
     HRESULT AddGlyphs(
         IXpsOMObjectFactory* xpsFactory,
         IXpsOMCanvas* canvas,
-        TypefaceUse* font,
+        const TypefaceUse* font,
         LPCWSTR text,
         XPS_GLYPH_INDEX* xpsGlyphs,
         UINT32 xpsGlyphsLen,

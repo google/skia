@@ -5,19 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "ResourceFactory.h"
-#include "Resources.h"
-#include "SkBitmap.h"
-#include "SkCommandLineFlags.h"
-#include "SkData.h"
-#include "SkImage.h"
-#include "SkImageGenerator.h"
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-#include "SkStream.h"
-#include "SkTypeface.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageGenerator.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkOSFile.h"
+#include "src/utils/SkOSPath.h"
+#include "tools/ResourceFactory.h"
+#include "tools/Resources.h"
+#include "tools/flags/CommandLineFlags.h"
 
-DEFINE_string2(resourcePath, i, "resources", "Directory with test resources: images, fonts, etc.");
+static DEFINE_string2(resourcePath, i, "resources",
+                      "Directory with test resources: images, fonts, etc.");
 
 sk_sp<SkData> (*gResourceFactory)(const char*) = nullptr;
 
@@ -32,8 +33,7 @@ void SetResourcePath(const char* resource) {
 bool DecodeDataToBitmap(sk_sp<SkData> data, SkBitmap* dst) {
     std::unique_ptr<SkImageGenerator> gen(SkImageGenerator::MakeFromEncoded(std::move(data)));
     return gen && dst->tryAllocPixels(gen->getInfo()) &&
-        gen->getPixels(gen->getInfo().makeColorSpace(nullptr), dst->getPixels(), dst->rowBytes(),
-                       nullptr);
+        gen->getPixels(gen->getInfo().makeColorSpace(nullptr), dst->getPixels(), dst->rowBytes());
 }
 
 std::unique_ptr<SkStreamAsset> GetResourceAsStream(const char* resource) {
@@ -48,17 +48,13 @@ sk_sp<SkData> GetResourceAsData(const char* resource) {
                            : SkData::MakeFromFileName(GetResourcePath(resource).c_str())) {
         return data;
     }
-    SkDebugf("Resource \"%s\" not found.\n", resource);
+    SkDebugf("Resource \"%s\" not found.\n", GetResourcePath(resource).c_str());
     #ifdef SK_TOOLS_REQUIRE_RESOURCES
     SK_ABORT("missing resource");
     #endif
     return nullptr;
 }
 
-sk_sp<SkTypeface> MakeResourceAsTypeface(const char* resource) {
-    std::unique_ptr<SkStreamAsset> stream(GetResourceAsStream(resource));
-    if (!stream) {
-        return nullptr;
-    }
-    return SkTypeface::MakeFromStream(stream.release());
+sk_sp<SkTypeface> MakeResourceAsTypeface(const char* resource, int ttcIndex) {
+    return SkTypeface::MakeFromStream(GetResourceAsStream(resource), ttcIndex);
 }

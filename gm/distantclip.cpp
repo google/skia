@@ -6,27 +6,26 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-#include "SkCanvas.h"
-#include "SkPath.h"
-#include "SkPicture.h"
-#include "SkPictureRecorder.h"
+#include "gm/gm.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 
 namespace skiagm {
 
 class DistantClipGM : public GM {
-public:
-    DistantClipGM() { }
+    SkString onShortName() override { return SkString("distantclip"); }
 
-protected:
+    SkISize onISize() override { return {100, 100}; }
 
-    SkString onShortName() {
-        return SkString("distantclip");
-    }
-
-    SkISize onISize() { return SkISize::Make(100, 100); }
-
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         constexpr SkScalar kOffset = 35000.0f;
         constexpr SkScalar kExtents = 1000.0f;
 
@@ -60,14 +59,10 @@ protected:
         // If the image is red, we erroneously decided the clipPath was empty and didn't record
         // the green drawColor, if it's green we're all good.
     }
-
-private:
-    typedef GM INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new DistantClipGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new DistantClipGM; )
 
 }

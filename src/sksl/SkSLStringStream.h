@@ -8,7 +8,8 @@
 #ifndef SKSL_STRINGSTREAM
 #define SKSL_STRINGSTREAM
 
-#include "SkSLOutputStream.h"
+#include "src/sksl/SkSLOutputStream.h"
+#include "src/sksl/SkSLString.h"
 
 #ifdef SKSL_STANDALONE
 
@@ -42,8 +43,8 @@ private:
 
 #else
 
-#include "SkData.h"
-#include "SkStream.h"
+#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
 
 namespace SkSL {
 

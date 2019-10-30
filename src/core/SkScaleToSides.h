@@ -8,9 +8,11 @@
 #ifndef SkScaleToSides_DEFINED
 #define SkScaleToSides_DEFINED
 
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+
 #include <cmath>
-#include "SkScalar.h"
-#include "SkTypes.h"
+#include <utility>
 
 class SkScaleToSides {
 public:
@@ -30,7 +32,8 @@ public:
 
             // Force minRadius to be the smaller of the two.
             if (*minRadius > *maxRadius) {
-                SkTSwap(minRadius, maxRadius);
+                using std::swap;
+                swap(minRadius, maxRadius);
             }
 
             // newMinRadius must be float in order to give the actual value of the radius.

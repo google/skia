@@ -4,11 +4,14 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "PathOpsExtendedTest.h"
-#include "PathOpsThreadedCommon.h"
-#include "SkRandom.h"
+#include "include/utils/SkRandom.h"
+#include "tests/PathOpsExtendedTest.h"
+#include "tests/PathOpsThreadedCommon.h"
+#include <atomic>
 
 #define TEST(name) { name, #name }
+
+static std::atomic<int> gTestNo{0};
 
 static void chalkboard(skiatest::Reporter* reporter, uint64_t testlines) {
     SkPath path;
@@ -81,8 +84,9 @@ if (testlines & (1LL << i++)) path.cubicTo(SkBits2Float(0x4470f5e4), SkBits2Floa
 if (testlines & (1LL << i++)) path.cubicTo(SkBits2Float(0x4470e8f6), SkBits2Float(0x439c4e35), SkBits2Float(0x4470ee98), SkBits2Float(0x439c5333), SkBits2Float(0x4470eed9), SkBits2Float(0x439c1ac1));  // 963.64f, 312.611f, 963.728f, 312.65f, 963.732f, 312.209f
 SkASSERT(64 == i);
 path.close();
-
-testSimplify(reporter, path, "chalkboard");
+SkString testName;
+testName.printf("chalkboard%d", ++gTestNo);
+testSimplify(reporter, path, testName.c_str());
 }
 
 static void testChalkboard(PathOpsThreadState* data) {

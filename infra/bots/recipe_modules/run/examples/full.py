@@ -6,6 +6,7 @@
 DEPS = [
   'recipe_engine/context',
   'recipe_engine/path',
+  'recipe_engine/platform',
   'recipe_engine/properties',
   'recipe_engine/step',
   'run',
@@ -70,6 +71,7 @@ def GenTests(api):
                      revision='abc123',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.platform('win', 64) +
       api.step_data('fail', retcode=1) +
       api.step_data('fail again', retcode=1) +
       api.step_data('retry fail', retcode=1) +

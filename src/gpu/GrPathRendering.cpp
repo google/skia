@@ -5,13 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "GrGpu.h"
-#include "GrPathRendering.h"
-#include "SkDescriptor.h"
-#include "SkScalerContext.h"
-#include "SkGlyph.h"
-#include "SkMatrix.h"
-#include "SkTypeface.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkTypeface.h"
+#include "src/core/SkDescriptor.h"
+#include "src/core/SkGlyph.h"
+#include "src/core/SkScalerContext.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrPathRendering.h"
+#include "src/gpu/GrProgramInfo.h"
+#include "src/gpu/GrRenderTarget.h"
 
 const GrUserStencilSettings& GrPathRendering::GetStencilPassSettings(FillType fill) {
     switch (fill) {
@@ -49,14 +51,15 @@ void GrPathRendering::stencilPath(const StencilPathArgs& args, const GrPath* pat
     this->onStencilPath(args, path);
 }
 
-void GrPathRendering::drawPath(const GrPipeline& pipeline,
-                               const GrPrimitiveProcessor& primProc,
+void GrPathRendering::drawPath(GrRenderTarget* renderTarget,
+                               const GrProgramInfo& programInfo,
                                // Cover pass settings in pipeline.
                                const GrStencilSettings& stencilPassSettings,
                                const GrPath* path) {
     fGpu->handleDirtyContext();
-    if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps())) {
-        fGpu->xferBarrier(pipeline.renderTarget(), barrierType);
+    if (auto barrierType = programInfo.pipeline().xferBarrierType(renderTarget->asTexture(),
+                                                                  *fGpu->caps())) {
+        fGpu->xferBarrier(renderTarget, barrierType);
     }
-    this->onDrawPath(pipeline, primProc, stencilPassSettings, path);
+    this->onDrawPath(renderTarget, programInfo, stencilPassSettings, path);
 }
