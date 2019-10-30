@@ -273,7 +273,7 @@ private:
             if (!this->isIndexed()) {
                 mesh->setNonIndexedNonInstanced(vertexCount);
             } else {
-                mesh->setIndexed(std::move(fIndexBuffer), indexCount, fFirstIndex, 0,
+                mesh->setIndexed1(std::move(fIndexBuffer), indexCount, fFirstIndex, 0,
                                  vertexCount - 1, GrPrimitiveRestart::kNo);
             }
             mesh->setVertexData(std::move(fVertexBuffer), fFirstVertex);

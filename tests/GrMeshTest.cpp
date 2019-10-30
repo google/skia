@@ -183,7 +183,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                     int repetitionCount = SkTMin(3 - baseRepetition, kBoxCount - i);
 
                     GrMesh mesh(GrPrimitiveType::kTriangles);
-                    mesh.setIndexed(helper->fIndexBuffer, repetitionCount * 6, baseRepetition * 6,
+                    mesh.setIndexed1(helper->fIndexBuffer, repetitionCount * 6, baseRepetition * 6,
                                     baseRepetition * 4, (baseRepetition + repetitionCount) * 4 - 1,
                                     GrPrimitiveRestart::kNo);
                     mesh.setVertexData(helper->fVertBuffer, (i - baseRepetition) * 4);

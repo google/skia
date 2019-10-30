@@ -229,12 +229,17 @@ private:
                     info.fColor, iter.localQuad(), kEmptyDomain, info.fAAFlags);
         }
 
-        // Configure the mesh for the vertex data
-        GrMesh* mesh = target->allocMeshes(1);
-        if (!GrQuadPerEdgeAA::ConfigureMeshIndices(target, mesh, vertexSpec, fQuads.count())) {
+        sk_sp<const GrBuffer> indexBuffer = GrQuadPerEdgeAA::Gimme(target,
+                                                                   vertexSpec.indexBufferOption());
+        if (vertexSpec.needsIndexBuffer() && !indexBuffer) {
             SkDebugf("Could not allocate indices\n");
             return;
         }
+
+        // Configure the mesh for the vertex data
+        GrMesh* mesh = target->allocMeshes(1);
+        GrQuadPerEdgeAA::ConfigureMeshIndices(mesh, vertexSpec.indexBufferOption(), fQuads.count(),
+                                              std::move(indexBuffer));
         mesh->setVertexData(std::move(vbuffer), vertexOffsetInBuffer);
         target->recordDraw(std::move(gp), mesh);
     }

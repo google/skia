@@ -500,7 +500,7 @@ void DrawVerticesOp::drawVertices(Target* target,
                                   int firstIndex) {
     GrMesh* mesh = target->allocMesh(this->primitiveType());
     if (this->isIndexed()) {
-        mesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertexCount - 1,
+        mesh->setIndexed1(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertexCount - 1,
                          GrPrimitiveRestart::kNo);
     } else {
         mesh->setNonIndexedNonInstanced(fVertexCount);

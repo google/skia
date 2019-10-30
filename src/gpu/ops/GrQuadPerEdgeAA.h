@@ -96,6 +96,9 @@ namespace GrQuadPerEdgeAA {
         CoverageMode coverageMode() const;
         size_t vertexSize() const;
 
+        bool needsIndexBuffer() const { return this->indexBufferOption() !=
+                                               IndexBufferOption::kTriStrips; }
+
     private:
         static_assert(GrQuad::kTypeCount <= 4, "GrQuad::Type doesn't fit in 2 bits");
         static_assert(kColorTypeCount <= 4, "Color doesn't fit in 2 bits");
@@ -134,13 +137,12 @@ namespace GrQuadPerEdgeAA {
                      const SkPMColor4f& color, const GrQuad& localQuad, const SkRect& domain,
                      GrQuadAAFlags aa);
 
+    sk_sp<const GrBuffer> Gimme(GrMeshDrawOp::Target*, IndexBufferOption);
+
     // The mesh will have its index data configured to meet the expectations of the Tessellate()
     // function, but it the calling code must handle filling a vertex buffer via Tessellate() and
     // then assigning it to the returned mesh.
-    //
-    // Returns false if the index data could not be allocated.
-    bool ConfigureMeshIndices(GrMeshDrawOp::Target* target, GrMesh* mesh, const VertexSpec& spec,
-                              int quadCount);
+    void ConfigureMeshIndices(GrMesh*, IndexBufferOption, int quadCount, sk_sp<const GrBuffer>);
 
 } // namespace GrQuadPerEdgeAA
 

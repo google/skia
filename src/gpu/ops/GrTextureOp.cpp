@@ -525,7 +525,8 @@ private:
 
     static bool FillInData(TextureOp* texOp, PrePreparedDesc* desc,
                            char* pVertexData, GrMesh* meshes, int absBufferOffset,
-                           sk_sp<const GrBuffer> vertexBuffer, Target* target) {
+                           sk_sp<const GrBuffer> vertexBuffer,
+                           sk_sp<const GrBuffer> indexBuffer) {
         SkDEBUGCODE(int totQuadsSeen = 0;)
         SkDEBUGCODE(int totVerticesSeen = 0;)
         int localVertexOffsetInBuffer = 0;
@@ -555,11 +556,9 @@ private:
                 }
 
                 if (meshes) {
-                    if (!GrQuadPerEdgeAA::ConfigureMeshIndices(target, &(meshes[meshIndex]),
-                                                               desc->fVertexSpec, quadCnt)) {
-                        SkDebugf("Could not allocate indices");
-                        return false;
-                    }
+                    GrQuadPerEdgeAA::ConfigureMeshIndices(&(meshes[meshIndex]),
+                                                          desc->fVertexSpec.indexBufferOption(),
+                                                          quadCnt, indexBuffer);
                     meshes[meshIndex].setVertexData(vertexBuffer,
                                                     localVertexOffsetInBuffer + absBufferOffset);
                 }
@@ -709,6 +708,13 @@ private:
             return;
         }
 
+        sk_sp<const GrBuffer> indexBuffer = GrQuadPerEdgeAA::Gimme(target,
+                                                                   desc.fVertexSpec.indexBufferOption());
+        if (desc.fVertexSpec.needsIndexBuffer() && !indexBuffer) {
+            SkDebugf("Could not allocate indices\n");
+            return;
+        }
+
         // Note: this allocation is always in the flush-time arena (i.e., the flushState)
         GrMesh* meshes = target->allocMeshes(desc.fNumProxies);
 
@@ -718,11 +724,11 @@ private:
             // The above memcpy filled in the vertex data - just call FillInData to fill in the
             // mesh data
             result = FillInData(this, &desc, nullptr, meshes, vertexOffsetInBuffer,
-                                std::move(vbuffer), target);
+                                std::move(vbuffer), std::move(indexBuffer));
         } else {
             // Fills in both vertex data and mesh data
             result = FillInData(this, &desc, (char*) vdata, meshes, vertexOffsetInBuffer,
-                                std::move(vbuffer), target);
+                                std::move(vbuffer), std::move(indexBuffer));
         }
 
         if (!result) {

@@ -222,7 +222,7 @@ private:
         }
         memcpy(idxs, indices, indexCount * sizeof(uint16_t));
         GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
-        mesh->setIndexed(std::move(indexBuffer), indexCount, firstIndex, 0, vertexCount - 1,
+        mesh->setIndexed1(std::move(indexBuffer), indexCount, firstIndex, 0, vertexCount - 1,
                          GrPrimitiveRestart::kNo);
         mesh->setVertexData(std::move(vertexBuffer), firstVertex);
         target->recordDraw(std::move(gp), mesh);

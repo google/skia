@@ -39,7 +39,7 @@ public:
 
     void setNonIndexedNonInstanced(int vertexCount);
 
-    void setIndexed(sk_sp<const GrBuffer> indexBuffer, int indexCount, int baseIndex,
+    void setIndexed1(sk_sp<const GrBuffer> indexBuffer, int indexCount, int baseIndex,
                     uint16_t minIndexValue, uint16_t maxIndexValue, GrPrimitiveRestart);
     void setIndexedPatterned(sk_sp<const GrBuffer> indexBuffer, int indexCount, int vertexCount,
                              int patternRepeatCount, int maxPatternRepetitionsInIndexBuffer);
@@ -150,7 +150,7 @@ inline void GrMesh::setNonIndexedNonInstanced(int vertexCount) {
     fFlags = Flags::kNone;
 }
 
-inline void GrMesh::setIndexed(sk_sp<const GrBuffer> indexBuffer, int indexCount, int baseIndex,
+inline void GrMesh::setIndexed1(sk_sp<const GrBuffer> indexBuffer, int indexCount, int baseIndex,
                                uint16_t minIndexValue, uint16_t maxIndexValue,
                                GrPrimitiveRestart primitiveRestart) {
     SkASSERT(indexBuffer);
