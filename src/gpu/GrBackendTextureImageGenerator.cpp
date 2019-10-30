@@ -111,6 +111,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     if (SK_InvalidGenID != fRefHelper->fBorrowingContextID) {
         if (fRefHelper->fBorrowingContextID != context->priv().contextID()) {
             fBorrowingMutex.release();
+            SkDebugf("GrBackendTextureImageGenerator: Trying to use texture on two GrContexts!\n");
             return nullptr;
         } else {
             SkASSERT(fRefHelper->fBorrowingContextReleaseProc);
