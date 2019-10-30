@@ -222,12 +222,12 @@ sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContext
 #endif
 
 #ifdef SK_DAWN
-sk_sp<GrContext> GrContext::MakeDawn(const dawn::Device& device) {
+sk_sp<GrContext> GrContext::MakeDawn(const wgpu::Device& device) {
     GrContextOptions defaultOptions;
     return MakeDawn(device, defaultOptions);
 }
 
-sk_sp<GrContext> GrContext::MakeDawn(const dawn::Device& device, const GrContextOptions& options) {
+sk_sp<GrContext> GrContext::MakeDawn(const wgpu::Device& device, const GrContextOptions& options) {
     sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kDawn, options));
 
     context->fGpu = GrDawnGpu::Make(device, options, context.get());

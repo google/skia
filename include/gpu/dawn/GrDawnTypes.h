@@ -23,8 +23,8 @@ static constexpr int None = 0L;
 #include "dawn/dawncpp.h"
 
 struct GrDawnImageInfo {
-    dawn::Texture       fTexture;
-    dawn::TextureFormat fFormat;
+    wgpu::Texture       fTexture;
+    wgpu::TextureFormat fFormat;
     uint32_t            fLevelCount;
     GrDawnImageInfo() : fTexture(nullptr), fFormat(), fLevelCount(0) {
     }

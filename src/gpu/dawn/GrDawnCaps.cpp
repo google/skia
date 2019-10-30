@@ -39,13 +39,13 @@ bool GrDawnCaps::isFormatCompressed(const GrBackendFormat& format,
 
 bool GrDawnCaps::isFormatTexturable(const GrBackendFormat& format) const {
     // Currently, all the formats in GrDawnFormatToPixelConfig are texturable.
-    dawn::TextureFormat dawnFormat;
+    wgpu::TextureFormat dawnFormat;
     return format.asDawnFormat(&dawnFormat);
 }
 
 GrPixelConfig GrDawnCaps::onGetConfigFromBackendFormat(const GrBackendFormat& format,
                                                        GrColorType colorType) const {
-    dawn::TextureFormat dawnFormat;
+    wgpu::TextureFormat dawnFormat;
     if (!format.asDawnFormat(&dawnFormat)) {
         return kUnknown_GrPixelConfig;
     }
@@ -53,14 +53,14 @@ GrPixelConfig GrDawnCaps::onGetConfigFromBackendFormat(const GrBackendFormat& fo
         case GrColorType::kUnknown:
             return kUnknown_GrPixelConfig;
         case GrColorType::kAlpha_8:
-            if (dawn::TextureFormat::R8Unorm == dawnFormat) {
+            if (wgpu::TextureFormat::R8Unorm == dawnFormat) {
                 return kAlpha_8_as_Red_GrPixelConfig;
             }
             break;
         case GrColorType::kRGBA_8888:
-            if (dawn::TextureFormat::RGBA8Unorm == dawnFormat) {
+            if (wgpu::TextureFormat::RGBA8Unorm == dawnFormat) {
                 return kRGBA_8888_GrPixelConfig;
-            } else if (dawn::TextureFormat::BGRA8Unorm == dawnFormat) {
+            } else if (wgpu::TextureFormat::BGRA8Unorm == dawnFormat) {
                 // FIXME: This shouldn't be necessary, but on some platforms (Mac)
                 // Skia byte order is RGBA, while preferred swap format is BGRA.
                 return kBGRA_8888_GrPixelConfig;
@@ -69,9 +69,9 @@ GrPixelConfig GrDawnCaps::onGetConfigFromBackendFormat(const GrBackendFormat& fo
         case GrColorType::kRGB_888x:
             break;
         case GrColorType::kBGRA_8888:
-            if (dawn::TextureFormat::BGRA8Unorm == dawnFormat) {
+            if (wgpu::TextureFormat::BGRA8Unorm == dawnFormat) {
                 return kBGRA_8888_GrPixelConfig;
-            } else if (dawn::TextureFormat::RGBA8Unorm == dawnFormat) {
+            } else if (wgpu::TextureFormat::RGBA8Unorm == dawnFormat) {
                 return kRGBA_8888_GrPixelConfig;
             }
             break;
@@ -108,18 +108,18 @@ static GrSwizzle get_swizzle(const GrBackendFormat& format, GrColorType colorTyp
 
 bool GrDawnCaps::isFormatTexturableAndUploadable(GrColorType ct,
                                                  const GrBackendFormat& format) const {
-    dawn::TextureFormat dawnFormat;
+    wgpu::TextureFormat dawnFormat;
     if (!format.asDawnFormat(&dawnFormat)) {
         return false;
     }
     switch (ct) {
         case GrColorType::kAlpha_8:
-            return dawn::TextureFormat::R8Unorm == dawnFormat;
+            return wgpu::TextureFormat::R8Unorm == dawnFormat;
         case GrColorType::kRGBA_8888:
         case GrColorType::kRGB_888x:
         case GrColorType::kBGRA_8888:
-            return dawn::TextureFormat::RGBA8Unorm == dawnFormat ||
-                   dawn::TextureFormat::BGRA8Unorm == dawnFormat;
+            return wgpu::TextureFormat::RGBA8Unorm == dawnFormat ||
+                   wgpu::TextureFormat::BGRA8Unorm == dawnFormat;
         default:
             return false;
     }
@@ -127,7 +127,7 @@ bool GrDawnCaps::isFormatTexturableAndUploadable(GrColorType ct,
 
 bool GrDawnCaps::isFormatRenderable(const GrBackendFormat& format,
                                     int sampleCount) const {
-    dawn::TextureFormat dawnFormat;
+    wgpu::TextureFormat dawnFormat;
     if (!format.isValid() || sampleCount > 1 || !format.asDawnFormat(&dawnFormat)) {
         return false;
     }
@@ -141,7 +141,7 @@ bool GrDawnCaps::isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFo
 }
 
 size_t GrDawnCaps::bytesPerPixel(const GrBackendFormat& backendFormat) const {
-    dawn::TextureFormat dawnFormat;
+    wgpu::TextureFormat dawnFormat;
     if (!backendFormat.asDawnFormat(&dawnFormat)) {
         return 0;
     }
@@ -150,7 +150,7 @@ size_t GrDawnCaps::bytesPerPixel(const GrBackendFormat& backendFormat) const {
 
 int GrDawnCaps::getRenderTargetSampleCount(int requestedCount,
                                            const GrBackendFormat& backendFormat) const {
-    dawn::TextureFormat dawnFormat;
+    wgpu::TextureFormat dawnFormat;
     if (!backendFormat.asDawnFormat(&dawnFormat)) {
         return 0;
     }
@@ -167,7 +167,7 @@ GrBackendFormat GrDawnCaps::onGetDefaultBackendFormat(GrColorType ct,
     if (config == kUnknown_GrPixelConfig) {
         return GrBackendFormat();
     }
-    dawn::TextureFormat format;
+    wgpu::TextureFormat format;
     if (!GrPixelConfigToDawnFormat(config, &format)) {
         return GrBackendFormat();
     }
@@ -196,15 +196,15 @@ bool GrDawnCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
 
 GrColorType GrDawnCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& backendFormat,
                                                           bool isAlphaChannel) const {
-    dawn::TextureFormat textureFormat;
+    wgpu::TextureFormat textureFormat;
     if (!backendFormat.asDawnFormat(&textureFormat)) {
         return GrColorType::kUnknown;
     }
     switch (textureFormat) {
-        case dawn::TextureFormat::R8Unorm:     return isAlphaChannel ? GrColorType::kAlpha_8
+        case wgpu::TextureFormat::R8Unorm:     return isAlphaChannel ? GrColorType::kAlpha_8
                                                                      : GrColorType::kGray_8;
-        case dawn::TextureFormat::RGBA8Unorm:  return GrColorType::kRGBA_8888;
-        case dawn::TextureFormat::BGRA8Unorm:  return GrColorType::kBGRA_8888;
+        case wgpu::TextureFormat::RGBA8Unorm:  return GrColorType::kRGBA_8888;
+        case wgpu::TextureFormat::BGRA8Unorm:  return GrColorType::kBGRA_8888;
         default:                               return GrColorType::kUnknown;
     }
 }
@@ -212,13 +212,13 @@ GrColorType GrDawnCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat&
 #if GR_TEST_UTILS
 std::vector<GrCaps::TestFormatColorTypeCombination> GrDawnCaps::getTestingCombinations() const {
     std::vector<GrCaps::TestFormatColorTypeCombination> combos = {
-        { GrColorType::kAlpha_8,   GrBackendFormat::MakeDawn(dawn::TextureFormat::R8Unorm)    },
-        { GrColorType::kRGBA_8888, GrBackendFormat::MakeDawn(dawn::TextureFormat::RGBA8Unorm) },
-        { GrColorType::kRGBA_8888, GrBackendFormat::MakeDawn(dawn::TextureFormat::BGRA8Unorm) },
-        { GrColorType::kRGB_888x,  GrBackendFormat::MakeDawn(dawn::TextureFormat::RGBA8Unorm) },
-        { GrColorType::kRGB_888x,  GrBackendFormat::MakeDawn(dawn::TextureFormat::BGRA8Unorm) },
-        { GrColorType::kBGRA_8888, GrBackendFormat::MakeDawn(dawn::TextureFormat::BGRA8Unorm) },
-        { GrColorType::kBGRA_8888, GrBackendFormat::MakeDawn(dawn::TextureFormat::RGBA8Unorm) },
+        { GrColorType::kAlpha_8,   GrBackendFormat::MakeDawn(wgpu::TextureFormat::R8Unorm)    },
+        { GrColorType::kRGBA_8888, GrBackendFormat::MakeDawn(wgpu::TextureFormat::RGBA8Unorm) },
+        { GrColorType::kRGBA_8888, GrBackendFormat::MakeDawn(wgpu::TextureFormat::BGRA8Unorm) },
+        { GrColorType::kRGB_888x,  GrBackendFormat::MakeDawn(wgpu::TextureFormat::RGBA8Unorm) },
+        { GrColorType::kRGB_888x,  GrBackendFormat::MakeDawn(wgpu::TextureFormat::BGRA8Unorm) },
+        { GrColorType::kBGRA_8888, GrBackendFormat::MakeDawn(wgpu::TextureFormat::BGRA8Unorm) },
+        { GrColorType::kBGRA_8888, GrBackendFormat::MakeDawn(wgpu::TextureFormat::RGBA8Unorm) },
     };
 
 #ifdef SK_DEBUG

@@ -13,8 +13,8 @@
 
 #include "dawn/dawn_proc.h"
 
-static dawn::TextureUsage kUsage = dawn::TextureUsage::OutputAttachment |
-                                   dawn::TextureUsage::CopySrc;
+static wgpu::TextureUsage kUsage = wgpu::TextureUsage::OutputAttachment |
+                                   wgpu::TextureUsage::CopySrc;
 
 static void PrintDeviceError(DawnErrorType, const char* message, void*) {
     printf("Device error: %s\n", message);
@@ -24,7 +24,7 @@ static void PrintDeviceError(DawnErrorType, const char* message, void*) {
 namespace sk_app {
 
 DawnWindowContext::DawnWindowContext(const DisplayParams& params,
-                                     dawn::TextureFormat swapChainFormat)
+                                     wgpu::TextureFormat swapChainFormat)
     : WindowContext(params)
     , fSwapChainFormat(swapChainFormat)
     , fInstance(std::make_unique<dawn_native::Instance>()) {
@@ -40,7 +40,7 @@ void DawnWindowContext::initializeContext(int width, int height) {
         return;
     }
     fSwapChainImplementation = this->createSwapChainImplementation(-1, -1, fDisplayParams);
-    dawn::SwapChainDescriptor swapChainDesc;
+    wgpu::SwapChainDescriptor swapChainDesc;
     swapChainDesc.implementation = reinterpret_cast<int64_t>(&fSwapChainImplementation);
     fSwapChain = fDevice.CreateSwapChain(&swapChainDesc);
     if (!fSwapChain) {
@@ -95,7 +95,7 @@ void DawnWindowContext::resize(int w, int h) {
     fWidth = w;
     fHeight = h;
     fSwapChainImplementation = this->createSwapChainImplementation(w, h, fDisplayParams);
-    dawn::SwapChainDescriptor swapChainDesc;
+    wgpu::SwapChainDescriptor swapChainDesc;
     swapChainDesc.implementation = reinterpret_cast<int64_t>(&fSwapChainImplementation);
     fSwapChain = fDevice.CreateSwapChain(&swapChainDesc);
     if (!fSwapChain) {
@@ -109,7 +109,7 @@ void DawnWindowContext::setDisplayParams(const DisplayParams& params) {
     fDisplayParams = params;
 }
 
-dawn::Device DawnWindowContext::createDevice(dawn_native::BackendType type) {
+wgpu::Device DawnWindowContext::createDevice(dawn_native::BackendType type) {
     fInstance->DiscoverDefaultAdapters();
     DawnProcTable backendProcs = dawn_native::GetProcs();
     dawnProcSetProcs(&backendProcs);

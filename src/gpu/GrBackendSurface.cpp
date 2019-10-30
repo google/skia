@@ -128,14 +128,14 @@ const GrVkYcbcrConversionInfo* GrBackendFormat::getVkYcbcrConversionInfo() const
 }
 
 #ifdef SK_DAWN
-GrBackendFormat::GrBackendFormat(dawn::TextureFormat format)
+GrBackendFormat::GrBackendFormat(wgpu::TextureFormat format)
         : fBackend(GrBackendApi::kDawn)
         , fValid(true)
         , fDawnFormat(format)
         , fTextureType(GrTextureType::k2D) {
 }
 
-bool GrBackendFormat::asDawnFormat(dawn::TextureFormat* format) const {
+bool GrBackendFormat::asDawnFormat(wgpu::TextureFormat* format) const {
     SkASSERT(format);
     if (this->isValid() && GrBackendApi::kDawn == fBackend) {
         *format = fDawnFormat;

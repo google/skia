@@ -28,7 +28,7 @@ public:
     void begin() override { }
     void end() override;
 
-    dawn::RenderPassEncoder beginRenderPass(dawn::LoadOp colorOp, dawn::LoadOp stencilOp);
+    wgpu::RenderPassEncoder beginRenderPass(wgpu::LoadOp colorOp, wgpu::LoadOp stencilOp);
     void insertEventMarker(const char*) override;
 
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;
@@ -86,8 +86,8 @@ private:
     };
 
     GrDawnGpu*                  fGpu;
-    dawn::CommandEncoder        fEncoder;
-    dawn::RenderPassEncoder     fPassEncoder;
+    wgpu::CommandEncoder        fEncoder;
+    wgpu::RenderPassEncoder     fPassEncoder;
     LoadAndStoreInfo            fColorInfo;
 
     typedef GrOpsRenderPass     INHERITED;

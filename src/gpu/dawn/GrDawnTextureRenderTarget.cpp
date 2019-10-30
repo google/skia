@@ -15,7 +15,7 @@
 GrDawnTextureRenderTarget::GrDawnTextureRenderTarget(GrDawnGpu* gpu,
                                                      const SkISize& dimensions,
                                                      GrPixelConfig config,
-                                                     dawn::TextureView textureView,
+                                                     wgpu::TextureView textureView,
                                                      int sampleCnt,
                                                      const GrDawnImageInfo& info,
                                                      GrMipMapsStatus mipMapsStatus)
