@@ -15,7 +15,7 @@
 GrDawnTexture::GrDawnTexture(GrDawnGpu* gpu,
                              const SkISize& dimensions,
                              GrPixelConfig config,
-                             dawn::TextureView textureView,
+                             wgpu::TextureView textureView,
                              const GrDawnImageInfo& info,
                              GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, dimensions, config, GrProtected::kNo)
@@ -24,20 +24,20 @@ GrDawnTexture::GrDawnTexture(GrDawnGpu* gpu,
         , fTextureView(textureView) {}
 
 sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, const SkISize& dimensions,
-                                         GrPixelConfig config, dawn::TextureFormat format,
+                                         GrPixelConfig config, wgpu::TextureFormat format,
                                          GrRenderable renderable, int sampleCnt,
                                          SkBudgeted budgeted, int mipLevels,
                                          GrMipMapsStatus status) {
     bool renderTarget = renderable == GrRenderable::kYes;
-    dawn::TextureDescriptor textureDesc;
+    wgpu::TextureDescriptor textureDesc;
 
     textureDesc.usage =
-        dawn::TextureUsage::Sampled |
-        dawn::TextureUsage::CopySrc |
-        dawn::TextureUsage::CopyDst;
+        wgpu::TextureUsage::Sampled |
+        wgpu::TextureUsage::CopySrc |
+        wgpu::TextureUsage::CopyDst;
 
     if (renderTarget) {
-        textureDesc.usage |= dawn::TextureUsage::OutputAttachment;
+        textureDesc.usage |= wgpu::TextureUsage::OutputAttachment;
     }
 
     textureDesc.size.width = dimensions.fWidth;
@@ -47,13 +47,13 @@ sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, const SkISize& dimensio
     textureDesc.mipLevelCount = std::max(mipLevels, 1);
     textureDesc.sampleCount = sampleCnt;
 
-    dawn::Texture tex = gpu->device().CreateTexture(&textureDesc);
+    wgpu::Texture tex = gpu->device().CreateTexture(&textureDesc);
 
     if (!tex) {
         return nullptr;
     }
 
-    dawn::TextureView textureView = tex.CreateView();
+    wgpu::TextureView textureView = tex.CreateView();
 
     if (!textureView) {
         return nullptr;
@@ -89,7 +89,7 @@ sk_sp<GrDawnTexture> GrDawnTexture::MakeWrapped(GrDawnGpu* gpu, const SkISize& d
                                                 int sampleCnt, GrMipMapsStatus status,
                                                 GrWrapCacheable cacheable,
                                                 const GrDawnImageInfo& info) {
-    dawn::TextureView textureView = info.fTexture.CreateView();
+    wgpu::TextureView textureView = info.fTexture.CreateView();
     if (!textureView) {
         return nullptr;
     }
@@ -127,13 +127,13 @@ GrBackendTexture GrDawnTexture::getBackendTexture() const {
 }
 
 void GrDawnTexture::upload(const GrMipLevel texels[], int mipLevels,
-                           dawn::CommandEncoder copyEncoder) {
+                           wgpu::CommandEncoder copyEncoder) {
     this->upload(texels, mipLevels, SkIRect::MakeWH(width(), height()), copyEncoder);
 }
 
 void GrDawnTexture::upload(const GrMipLevel texels[], int mipLevels, const SkIRect& rect,
-                           dawn::CommandEncoder copyEncoder) {
-    dawn::Device device = this->getDawnGpu()->device();
+                           wgpu::CommandEncoder copyEncoder) {
+    wgpu::Device device = this->getDawnGpu()->device();
 
     uint32_t x = rect.x();
     uint32_t y = rect.y();
@@ -149,22 +149,22 @@ void GrDawnTexture::upload(const GrMipLevel texels[], int mipLevels, const SkIRe
         size_t size = dstRowBytes * height;
         GrDawnStagingBuffer* stagingBuffer = getDawnGpu()->getStagingBuffer(size);
         SkRectMemcpy(stagingBuffer->fData, dstRowBytes, src, srcRowBytes, trimRowBytes, height);
-        dawn::Buffer buffer = stagingBuffer->fBuffer;
+        wgpu::Buffer buffer = stagingBuffer->fBuffer;
         buffer.Unmap();
         stagingBuffer->fData = nullptr;
 
-        dawn::BufferCopyView srcBuffer;
+        wgpu::BufferCopyView srcBuffer;
         srcBuffer.buffer = buffer;
         srcBuffer.offset = 0;
         srcBuffer.rowPitch = dstRowBytes;
         srcBuffer.imageHeight = height;
 
-        dawn::TextureCopyView dstTexture;
+        wgpu::TextureCopyView dstTexture;
         dstTexture.texture = fInfo.fTexture;
         dstTexture.mipLevel = i;
         dstTexture.origin = {x, y, 0};
 
-        dawn::Extent3D copySize = {width, height, 1};
+        wgpu::Extent3D copySize = {width, height, 1};
         copyEncoder.CopyBufferToTexture(&srcBuffer, &dstTexture, &copySize);
         x /= 2;
         y /= 2;

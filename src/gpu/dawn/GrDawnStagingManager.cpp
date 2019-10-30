@@ -9,7 +9,7 @@
 
 #include "src/core/SkMathPriv.h"
 
-GrDawnStagingManager::GrDawnStagingManager(dawn::Device device) : fDevice(device) {
+GrDawnStagingManager::GrDawnStagingManager(wgpu::Device device) : fDevice(device) {
 }
 
 GrDawnStagingManager::~GrDawnStagingManager() {
@@ -27,10 +27,10 @@ GrDawnStagingBuffer* GrDawnStagingManager::findOrCreateStagingBuffer(size_t size
         stagingBuffer = i->second;
         fReadyPool.erase(i);
     } else {
-        dawn::BufferDescriptor desc;
-        desc.usage = dawn::BufferUsage::MapWrite | dawn::BufferUsage::CopySrc;
+        wgpu::BufferDescriptor desc;
+        desc.usage = wgpu::BufferUsage::MapWrite | wgpu::BufferUsage::CopySrc;
         desc.size = sizePow2;
-        dawn::CreateBufferMappedResult result = fDevice.CreateBufferMapped(&desc);
+        wgpu::CreateBufferMappedResult result = fDevice.CreateBufferMapped(&desc);
         std::unique_ptr<GrDawnStagingBuffer> b(new GrDawnStagingBuffer(
             this, result.buffer, sizePow2, result.data));
         stagingBuffer = b.get();

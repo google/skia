@@ -57,14 +57,14 @@ struct GrDawnProgram : public SkRefCnt {
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
     std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fFragmentProcessors;
     int fFragmentProcessorCnt;
-    dawn::BindGroupLayout fBindGroupLayout;
-    dawn::RenderPipeline fRenderPipeline;
+    wgpu::BindGroupLayout fBindGroupLayout;
+    wgpu::RenderPipeline fRenderPipeline;
     GrDawnProgramDataManager fDataManager;
     RenderTargetState fRenderTargetState;
     BuiltinUniformHandles fBuiltinUniformHandles;
 
     void setRenderTargetState(const GrRenderTarget*, GrSurfaceOrigin);
-    dawn::BindGroup setData(GrDawnGpu* gpu, const GrRenderTarget*, const GrProgramInfo&);
+    wgpu::BindGroup setData(GrDawnGpu* gpu, const GrRenderTarget*, const GrProgramInfo&);
 };
 
 class GrDawnProgramBuilder : public GrGLSLProgramBuilder {
@@ -73,9 +73,9 @@ public:
                                       GrRenderTarget* rt,
                                       const GrProgramInfo& programInfo,
                                       GrPrimitiveType primitiveType,
-                                      dawn::TextureFormat colorFormat,
+                                      wgpu::TextureFormat colorFormat,
                                       bool hasDepthStencil,
-                                      dawn::TextureFormat depthStencilFormat,
+                                      wgpu::TextureFormat depthStencilFormat,
                                       GrProgramDesc* desc);
     const GrCaps* caps() const override;
     GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }
@@ -89,7 +89,7 @@ private:
                          GrRenderTarget*,
                          const GrProgramInfo&,
                          GrProgramDesc*);
-    dawn::ShaderModule createShaderModule(const GrGLSLShaderBuilder&, SkSL::Program::Kind,
+    wgpu::ShaderModule createShaderModule(const GrGLSLShaderBuilder&, SkSL::Program::Kind,
                                           bool flipY, SkSL::Program::Inputs* inputs);
     GrDawnGpu*             fGpu;
     GrDawnVaryingHandler   fVaryingHandler;

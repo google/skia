@@ -10,19 +10,19 @@
 #include "src/gpu/dawn/GrDawnGpu.h"
 
 namespace {
-    dawn::BufferUsage GrGpuBufferTypeToDawnUsageBit(GrGpuBufferType type) {
+    wgpu::BufferUsage GrGpuBufferTypeToDawnUsageBit(GrGpuBufferType type) {
         switch (type) {
             case GrGpuBufferType::kVertex:
-                return dawn::BufferUsage::Vertex;
+                return wgpu::BufferUsage::Vertex;
             case GrGpuBufferType::kIndex:
-                return dawn::BufferUsage::Index;
+                return wgpu::BufferUsage::Index;
             case GrGpuBufferType::kXferCpuToGpu:
-                return dawn::BufferUsage::CopySrc;
+                return wgpu::BufferUsage::CopySrc;
             case GrGpuBufferType::kXferGpuToCpu:
-                return dawn::BufferUsage::CopyDst;
+                return wgpu::BufferUsage::CopyDst;
             default:
                 SkASSERT(!"buffer type not supported by Dawn");
-                return dawn::BufferUsage::Vertex;
+                return wgpu::BufferUsage::Vertex;
         }
     }
 }
@@ -31,9 +31,9 @@ GrDawnBuffer::GrDawnBuffer(GrDawnGpu* gpu, size_t sizeInBytes, GrGpuBufferType t
                            GrAccessPattern pattern)
     : INHERITED(gpu, sizeInBytes, type, pattern)
     , fStagingBuffer(nullptr) {
-    dawn::BufferDescriptor bufferDesc;
+    wgpu::BufferDescriptor bufferDesc;
     bufferDesc.size = sizeInBytes;
-    bufferDesc.usage = GrGpuBufferTypeToDawnUsageBit(type) | dawn::BufferUsage::CopyDst;
+    bufferDesc.usage = GrGpuBufferTypeToDawnUsageBit(type) | wgpu::BufferUsage::CopyDst;
     fBuffer = this->getDawnGpu()->device().CreateBuffer(&bufferDesc);
     this->registerWithCache(SkBudgeted::kYes);
 }
