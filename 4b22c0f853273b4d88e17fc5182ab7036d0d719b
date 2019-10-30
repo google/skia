@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "78d3e45b_8d1bee20",
+        "filename": "bench/SkGlyphCacheBench.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-30T20:44:22Z",
+      "side": 1,
+      "message": "This is no longer the DiffCanvasBench. Maybe TextBlobTraceBench?",
+      "range": {
+        "startLine": 212,
+        "startChar": 6,
+        "endLine": 212,
+        "endChar": 21
+      },
+      "revId": "4b22c0f853273b4d88e17fc5182ab7036d0d719b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5201a1d1_025166d9",
+        "filename": "bench/SkGlyphCacheBench.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-30T20:44:22Z",
+      "side": 1,
+      "message": "Does this need a default parameter?",
+      "range": {
+        "startLine": 15,
+        "startChar": 33,
+        "endLine": 15,
+        "endChar": 60
+      },
+      "revId": "4b22c0f853273b4d88e17fc5182ab7036d0d719b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
