@@ -8,12 +8,14 @@
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
 
 #include "include/gpu/GrTexture.h"
+#include "src/core/SkYUVMath.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/sksl/SkSLCPP.h"
 #include "src/sksl/SkSLUtil.h"
 
+#ifdef SK_LEGACY_YUV_MATRICES
 static const float kJPEGConversionMatrix[16] = {
     1.0f,  0.0f,       1.402f,    -0.703749f,
     1.0f, -0.344136f, -0.714136f,  0.531211f,
@@ -34,6 +36,7 @@ static const float kRec709ConversionMatrix[16] = {
     1.164f,  2.112f,  0.0f,   -1.12875f,
     0.0f,    0.0f,    0.0f,    1.0f
 };
+#endif
 
 std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextureProxy> proxies[],
                                                             const SkYUVAIndex yuvaIndices[4],
@@ -142,6 +145,7 @@ GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
                        const GrFragmentProcessor& _proc) override {
             const GrYUVtoRGBEffect& _outer = _proc.cast<GrYUVtoRGBEffect>();
 
+#ifdef SK_LEGACY_YUV_MATRICES
             switch (_outer.yuvColorSpace()) {
                 case kJPEG_SkYUVColorSpace:
                     SkASSERT(fColorSpaceMatrixVar.isValid());
@@ -158,6 +162,21 @@ GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
                 case kIdentity_SkYUVColorSpace:
                     break;
             }
+#else
+            if (_outer.yuvColorSpace() != kIdentity_SkYUVColorSpace) {
+                SkASSERT(fColorSpaceMatrixVar.isValid());
+                float yuvM[20];
+                SkColorMatrix_YUV2RGB(_outer.yuvColorSpace(), yuvM);
+                // Need to drop the fourth column to go to 4x4
+                float mtx[16] = {
+                    yuvM[ 0], yuvM[ 1], yuvM[ 2], yuvM[ 4],
+                    yuvM[ 5], yuvM[ 6], yuvM[ 7], yuvM[ 9],
+                    yuvM[10], yuvM[11], yuvM[12], yuvM[14],
+                    yuvM[15], yuvM[16], yuvM[17], yuvM[19],
+                };
+                pdman.setMatrix4f(fColorSpaceMatrixVar, mtx);
+            }
+#endif
 
             int numSamplers = _outer.numTextureSamplers();
             for (int i = 0; i < numSamplers; ++i) {
