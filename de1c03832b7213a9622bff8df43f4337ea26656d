@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "bdc39d79_273ced02",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1856,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-10-30T18:20:22Z",
+      "side": 1,
+      "message": "SkColorMatrix is the best fit",
+      "parentUuid": "76adaa47_d017efde",
+      "revId": "de1c03832b7213a9622bff8df43f4337ea26656d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "64fec4c8_acd8a043",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 1
@@ -90,6 +108,24 @@
     },
     {
       "key": {
+        "uuid": "8d5f88c6_e988d2a7",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1857,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-10-30T18:20:22Z",
+      "side": 1,
+      "message": "Yeah, I\u0027d like to fix that API in a follow-up CL.",
+      "parentUuid": "db50c379_1328e5f8",
+      "revId": "de1c03832b7213a9622bff8df43f4337ea26656d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f5a85b6b_a6af2415",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 1
@@ -104,6 +140,24 @@
       "revId": "de1c03832b7213a9622bff8df43f4337ea26656d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4eebcaaa_a9268279",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1869,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-10-30T18:20:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f5a85b6b_a6af2415",
+      "revId": "de1c03832b7213a9622bff8df43f4337ea26656d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
