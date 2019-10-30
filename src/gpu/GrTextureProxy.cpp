@@ -187,10 +187,10 @@ void GrTextureProxy::onValidateSurface(const GrSurface* surface) {
 
     SkASSERT(surface->asTexture()->texturePriv().textureType() == this->textureType());
 
-    GrInternalSurfaceFlags proxyFlags = fSurfaceFlags;
-    GrInternalSurfaceFlags surfaceFlags = surface->surfacePriv().flags();
-    SkASSERT(((int)proxyFlags & kGrInternalTextureFlagsMask) ==
-             ((int)surfaceFlags & kGrInternalTextureFlagsMask));
+    // GrInternalSurfaceFlags proxyFlags = fSurfaceFlags;
+    // GrInternalSurfaceFlags surfaceFlags = surface->surfacePriv().flags();
+    // SkASSERT(((int)proxyFlags & kGrInternalTextureFlagsMask) ==
+    //          ((int)surfaceFlags & kGrInternalTextureFlagsMask));
 }
 
 #endif
