@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62d3ad85_2c529147",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-31T18:46:57Z",
+      "side": 1,
+      "message": "floats ?",
+      "range": {
+        "startLine": 72,
+        "startChar": 46,
+        "endLine": 72,
+        "endChar": 51
+      },
+      "revId": "531822fae9eb1b7b14a43a52bc8e4ed6b63c44d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eeaf2b41_1f4cb704",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-31T18:46:57Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 103,
+        "startChar": 82,
+        "endLine": 103,
+        "endChar": 90
+      },
+      "revId": "531822fae9eb1b7b14a43a52bc8e4ed6b63c44d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c918920_a3d51299",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-31T18:46:57Z",
+      "side": 1,
+      "message": "floats ?",
+      "range": {
+        "startLine": 108,
+        "startChar": 25,
+        "endLine": 108,
+        "endChar": 30
+      },
+      "revId": "531822fae9eb1b7b14a43a52bc8e4ed6b63c44d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4607a736_fa37e793",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-10-31T18:46:57Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 110,
+        "startChar": 30,
+        "endLine": 110,
+        "endChar": 38
+      },
+      "revId": "531822fae9eb1b7b14a43a52bc8e4ed6b63c44d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
