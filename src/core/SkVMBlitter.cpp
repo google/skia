@@ -223,17 +223,10 @@ namespace {
 
             Color src = unpack_8888(uniform32(uniforms, offsetof(Uniforms, paint_color)));
             if (params.shader) {
-                skvm::I32 paint_alpha = src.a;
                 SkAssertResult(as_SB(params.shader)->program(this,
                                                              params.colorSpace.get(),
                                                              uniforms, sizeof(Uniforms),
                                                              &src.r, &src.g, &src.b, &src.a));
-                if (true/*TODO: make this conditional again with a wrapper shader*/) {
-                    src.r = scale_unorm8(src.r, paint_alpha);
-                    src.g = scale_unorm8(src.g, paint_alpha);
-                    src.b = scale_unorm8(src.b, paint_alpha);
-                    src.a = scale_unorm8(src.a, paint_alpha);
-                }
             }
 
             if (params.coverage == Coverage::Mask3D) {
@@ -351,6 +344,59 @@ namespace {
         }
     };
 
+    // Scale the output of another shader by an 8-bit alpha.
+    struct AlphaShader : public SkShaderBase {
+        AlphaShader(sk_sp<SkShader> shader, uint8_t alpha)
+            : fShader(std::move(shader))
+            , fAlpha(alpha) {}
+
+        sk_sp<SkShader> fShader;
+        uint32_t        fAlpha;  // [0,255], 4 bytes to keep nice alignment in uniform buffer.
+
+        bool program(skvm::Builder* p,
+                     SkColorSpace* dstCS,
+                     skvm::Arg uniforms, int offset,
+                     skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override {
+            if (as_SB(fShader)->program(p, dstCS, uniforms, offset + sizeof(fAlpha), r,g,b,a)) {
+                if (p) {
+                    // TODO: move the helpers onto skvm::Builder so I don't have to duplicate?
+                    auto div255 = [&](skvm::I32 v) {
+                        skvm::I32 v128 = p->add(v, p->splat(128));
+                        return p->shr(p->add(v128, p->shr(v128, 8)), 8);
+                    };
+                    auto scale_unorm8 = [&](skvm::I32 x, skvm::I32 y) {
+                        return div255(p->mul(x,y));
+                    };
+
+                    skvm::I32 A = p->uniform32(uniforms, offset);
+                    *r = scale_unorm8(*r, A);
+                    *g = scale_unorm8(*g, A);
+                    *b = scale_unorm8(*b, A);
+                    *a = scale_unorm8(*a, A);
+                }
+                return true;
+            }
+            return false;
+        }
+
+        size_t uniforms(SkColorSpace* dstCS, uint8_t* buf) const override {
+            if (buf) {
+                memcpy(buf, &fAlpha, sizeof(fAlpha));
+                return sizeof(fAlpha) + as_SB(fShader)->uniforms(dstCS, buf + sizeof(fAlpha));
+            }
+            return sizeof(fAlpha) + as_SB(fShader)->uniforms(dstCS, nullptr);
+        }
+
+        // Only created here, should never be flattened / unflattened.
+        Factory getFactory() const override { return nullptr; }
+        const char* getTypeName() const override { return "AlphaShader"; }
+    };
+
+    static sk_sp<SkShader> alpha_shader(sk_sp<SkShader> shader, uint8_t alpha) {
+        return (shader && alpha < 0xff) ? sk_make_sp<AlphaShader>(std::move(shader), alpha)
+                                        : std::move(shader);
+    }
+
     class Blitter final : public SkBlitter {
     public:
         bool ok = false;
@@ -359,7 +405,7 @@ namespace {
             : fDevice(device)
             , fParams {
                 device.refColorSpace(),
-                paint.refShader(),
+                alpha_shader(paint.refShader(), paint.getAlpha()),
                 device.colorType(),
                 device.alphaType(),
                 paint.getBlendMode(),
@@ -450,6 +496,10 @@ namespace {
                 size_t extra = shader->uniforms(fParams.colorSpace.get(), nullptr);
                 fUniforms.resize(sizeof(Uniforms) + extra);
                 shader->uniforms(fParams.colorSpace.get(), fUniforms.data() + sizeof(Uniforms));
+
+                for (size_t i = 0; false && i < fUniforms.size(); i++) {
+                    SkDebugf("fUniforms[%d] = %02x\n", i, fUniforms[i]);
+                }
             }
         }
 
