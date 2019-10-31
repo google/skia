@@ -22,8 +22,12 @@
 #include "src/utils/SkOSPath.h"
 #include "tests/Test.h"
 #include "tools/fonts/TestFontMgr.h"
+#ifdef SK_GL
 #include "tools/gpu/gl/GLTestContext.h"
+#endif
+#ifdef SK_VULKAN
 #include "tools/gpu/vk/VkTestContext.h"
+#endif
 
 #include <limits.h>
 #include <algorithm>
