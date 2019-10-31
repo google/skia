@@ -7,6 +7,66 @@
 _src = get_path_info("../src", "abspath")
 _include = get_path_info("../include", "abspath")
 
+skia_gl_sources = [
+  "$_include/gpu/gl/GrGLAssembleInterface.h",
+  "$_include/gpu/gl/GrGLConfig.h",
+  "$_include/gpu/gl/GrGLExtensions.h",
+  "$_include/gpu/gl/GrGLFunctions.h",
+  "$_include/gpu/gl/GrGLInterface.h",
+  "$_include/gpu/gl/GrGLTypes.h",
+
+  "$_src/gpu/gl/GrGLAssembleGLESInterfaceAutogen.cpp",
+  "$_src/gpu/gl/GrGLAssembleGLInterfaceAutogen.cpp",
+  "$_src/gpu/gl/GrGLAssembleHelpers.cpp",
+  "$_src/gpu/gl/GrGLAssembleInterface.cpp",
+  "$_src/gpu/gl/GrGLAssembleWebGLInterfaceAutogen.cpp",
+  "$_src/gpu/gl/GrGLBuffer.cpp",
+  "$_src/gpu/gl/GrGLBuffer.h",
+  "$_src/gpu/gl/GrGLCaps.cpp",
+  "$_src/gpu/gl/GrGLCaps.h",
+  "$_src/gpu/gl/GrGLContext.cpp",
+  "$_src/gpu/gl/GrGLContext.h",
+  "$_src/gpu/gl/GrGLDefines.h",
+  "$_src/gpu/gl/GrGLGLSL.cpp",
+  "$_src/gpu/gl/GrGLGLSL.h",
+  "$_src/gpu/gl/GrGLGpu.cpp",
+  "$_src/gpu/gl/GrGLGpu.h",
+  "$_src/gpu/gl/GrGLGpuProgramCache.cpp",
+  "$_src/gpu/gl/GrGLExtensions.cpp",
+  "$_src/gpu/gl/GrGLInterfaceAutogen.cpp",
+  "$_src/gpu/gl/GrGLOpsRenderPass.cpp",
+  "$_src/gpu/gl/GrGLOpsRenderPass.h",
+  "$_src/gpu/gl/GrGLProgram.cpp",
+  "$_src/gpu/gl/GrGLProgram.h",
+  "$_src/gpu/gl/GrGLProgramDataManager.cpp",
+  "$_src/gpu/gl/GrGLProgramDataManager.h",
+  "$_src/gpu/gl/GrGLRenderTarget.cpp",
+  "$_src/gpu/gl/GrGLRenderTarget.h",
+  "$_src/gpu/gl/GrGLSemaphore.cpp",
+  "$_src/gpu/gl/GrGLSemaphore.h",
+  "$_src/gpu/gl/GrGLStencilAttachment.cpp",
+  "$_src/gpu/gl/GrGLStencilAttachment.h",
+  "$_src/gpu/gl/GrGLTexture.cpp",
+  "$_src/gpu/gl/GrGLTexture.h",
+  "$_src/gpu/gl/GrGLTextureRenderTarget.cpp",
+  "$_src/gpu/gl/GrGLTextureRenderTarget.h",
+  "$_src/gpu/gl/GrGLTypesPriv.cpp",
+  "$_src/gpu/gl/GrGLUtil.cpp",
+  "$_src/gpu/gl/GrGLUtil.h",
+  "$_src/gpu/gl/GrGLUniformHandler.cpp",
+  "$_src/gpu/gl/GrGLUniformHandler.h",
+  "$_src/gpu/gl/GrGLVaryingHandler.cpp",
+  "$_src/gpu/gl/GrGLVaryingHandler.h",
+  "$_src/gpu/gl/GrGLVertexArray.cpp",
+  "$_src/gpu/gl/GrGLVertexArray.h",
+
+  # Files for building GLSL shaders
+  "$_src/gpu/gl/builders/GrGLProgramBuilder.cpp",
+  "$_src/gpu/gl/builders/GrGLProgramBuilder.h",
+  "$_src/gpu/gl/builders/GrGLShaderStringBuilder.cpp",
+  "$_src/gpu/gl/builders/GrGLShaderStringBuilder.h",
+]
+
 skia_gpu_sources = [
   "$_include/gpu/GrBackendDrawableInfo.h",
   "$_include/gpu/GrBackendSemaphore.h",
@@ -20,13 +80,6 @@ skia_gpu_sources = [
   "$_include/gpu/GrSurface.h",
   "$_include/gpu/GrTexture.h",
   "$_include/gpu/GrTypes.h",
-
-  "$_include/gpu/gl/GrGLAssembleInterface.h",
-  "$_include/gpu/gl/GrGLConfig.h",
-  "$_include/gpu/gl/GrGLExtensions.h",
-  "$_include/gpu/gl/GrGLFunctions.h",
-  "$_include/gpu/gl/GrGLInterface.h",
-  "$_include/gpu/gl/GrGLTypes.h",
 
   # Private includes
   "$_include/private/GrContext_Base.h",
@@ -130,10 +183,10 @@ skia_gpu_sources = [
   "$_src/gpu/GrOpsTask.h",
   "$_src/gpu/GrPaint.cpp",
   "$_src/gpu/GrPaint.h",
-  "$_src/gpu/GrPathRendererChain.cpp",
-  "$_src/gpu/GrPathRendererChain.h",
   "$_src/gpu/GrPathRenderer.cpp",
   "$_src/gpu/GrPathRenderer.h",
+  "$_src/gpu/GrPathRendererChain.cpp",
+  "$_src/gpu/GrPathRendererChain.h",
   "$_src/gpu/GrPipeline.cpp",
   "$_src/gpu/GrPipeline.h",
   "$_src/gpu/GrPrimitiveProcessor.cpp",
@@ -449,58 +502,6 @@ skia_gpu_sources = [
   "$_src/gpu/text/GrTextBlobVertexRegenerator.cpp",
   "$_src/gpu/text/GrTextTarget.h",
 
-  "$_src/gpu/gl/GrGLAssembleGLESInterfaceAutogen.cpp",
-  "$_src/gpu/gl/GrGLAssembleGLInterfaceAutogen.cpp",
-  "$_src/gpu/gl/GrGLAssembleHelpers.cpp",
-  "$_src/gpu/gl/GrGLAssembleInterface.cpp",
-  "$_src/gpu/gl/GrGLAssembleWebGLInterfaceAutogen.cpp",
-  "$_src/gpu/gl/GrGLBuffer.cpp",
-  "$_src/gpu/gl/GrGLBuffer.h",
-  "$_src/gpu/gl/GrGLCaps.cpp",
-  "$_src/gpu/gl/GrGLCaps.h",
-  "$_src/gpu/gl/GrGLContext.cpp",
-  "$_src/gpu/gl/GrGLContext.h",
-  "$_src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
-  "$_src/gpu/gl/GrGLDefines.h",
-  "$_src/gpu/gl/GrGLGLSL.cpp",
-  "$_src/gpu/gl/GrGLGLSL.h",
-  "$_src/gpu/gl/GrGLGpu.cpp",
-  "$_src/gpu/gl/GrGLGpu.h",
-  "$_src/gpu/gl/GrGLGpuProgramCache.cpp",
-  "$_src/gpu/gl/GrGLExtensions.cpp",
-  "$_src/gpu/gl/GrGLInterfaceAutogen.cpp",
-  "$_src/gpu/gl/GrGLOpsRenderPass.cpp",
-  "$_src/gpu/gl/GrGLOpsRenderPass.h",
-  "$_src/gpu/gl/GrGLProgram.cpp",
-  "$_src/gpu/gl/GrGLProgram.h",
-  "$_src/gpu/gl/GrGLProgramDataManager.cpp",
-  "$_src/gpu/gl/GrGLProgramDataManager.h",
-  "$_src/gpu/gl/GrGLRenderTarget.cpp",
-  "$_src/gpu/gl/GrGLRenderTarget.h",
-  "$_src/gpu/gl/GrGLSemaphore.cpp",
-  "$_src/gpu/gl/GrGLSemaphore.h",
-  "$_src/gpu/gl/GrGLStencilAttachment.cpp",
-  "$_src/gpu/gl/GrGLStencilAttachment.h",
-  "$_src/gpu/gl/GrGLTexture.cpp",
-  "$_src/gpu/gl/GrGLTexture.h",
-  "$_src/gpu/gl/GrGLTextureRenderTarget.cpp",
-  "$_src/gpu/gl/GrGLTextureRenderTarget.h",
-  "$_src/gpu/gl/GrGLTypesPriv.cpp",
-  "$_src/gpu/gl/GrGLUtil.cpp",
-  "$_src/gpu/gl/GrGLUtil.h",
-  "$_src/gpu/gl/GrGLUniformHandler.cpp",
-  "$_src/gpu/gl/GrGLUniformHandler.h",
-  "$_src/gpu/gl/GrGLVaryingHandler.cpp",
-  "$_src/gpu/gl/GrGLVaryingHandler.h",
-  "$_src/gpu/gl/GrGLVertexArray.cpp",
-  "$_src/gpu/gl/GrGLVertexArray.h",
-
-  # Files for building GLSL shaders
-  "$_src/gpu/gl/builders/GrGLProgramBuilder.cpp",
-  "$_src/gpu/gl/builders/GrGLProgramBuilder.h",
-  "$_src/gpu/gl/builders/GrGLShaderStringBuilder.cpp",
-  "$_src/gpu/gl/builders/GrGLShaderStringBuilder.h",
-
   # GLSL
   "$_src/gpu/glsl/GrGLSL.cpp",
   "$_src/gpu/glsl/GrGLSL.h",
@@ -607,16 +608,16 @@ skia_ccpr_sources = [
 ]
 
 skia_nvpr_sources = [
+  "$_src/gpu/gl/GrGLPath.cpp",
+  "$_src/gpu/gl/GrGLPath.h",
+  "$_src/gpu/gl/GrGLPathRendering.cpp",
+  "$_src/gpu/gl/GrGLPathRendering.h",
   "$_src/gpu/GrPath.cpp",
   "$_src/gpu/GrPath.h",
   "$_src/gpu/GrPathProcessor.cpp",
   "$_src/gpu/GrPathProcessor.h",
   "$_src/gpu/GrPathRendering.cpp",
   "$_src/gpu/GrPathRendering.h",
-  "$_src/gpu/gl/GrGLPath.cpp",
-  "$_src/gpu/gl/GrGLPath.h",
-  "$_src/gpu/gl/GrGLPathRendering.cpp",
-  "$_src/gpu/gl/GrGLPathRendering.h",
   "$_src/gpu/ops/GrDrawPathOp.cpp",
   "$_src/gpu/ops/GrDrawPathOp.h",
   "$_src/gpu/ops/GrStencilAndCoverPathRenderer.cpp",
@@ -625,10 +626,16 @@ skia_nvpr_sources = [
   "$_src/gpu/ops/GrStencilPathOp.h",
 ]
 
+if (!is_fuchsia) {
+  skia_gpu_sources += skia_gl_sources
+}
+
 skia_gpu_sources += skia_ccpr_sources
 skia_gpu_sources += skia_nvpr_sources
 
-skia_null_gpu_sources = []
+skia_null_gpu_sources = [
+  "$_src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
+]
 
 skia_vk_sources = [
   "$_include/gpu/vk/GrVkBackendContext.h",

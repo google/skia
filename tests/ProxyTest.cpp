@@ -20,8 +20,10 @@
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
+#ifdef SK_GL
 #include "src/gpu/gl/GrGLDefines.h"
 #include "src/gpu/gl/GrGLUtil.h"
+#endif
 
 // Check that the surface proxy's member vars are set as expected
 static void check_surface(skiatest::Reporter* reporter,
@@ -258,6 +260,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     continue;
                 }
 
+#ifdef SK_GL
                 // Test wrapping FBO 0 (with made up properties). This tests sample count and the
                 // special case where FBO 0 doesn't support window rectangles.
                 if (GrBackendApi::kOpenGL == ctxInfo.backend()) {
@@ -278,6 +281,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                                        sProxy->asRenderTargetProxy(),
                                        supportedNumSamples, SkBackingFit::kExact, 0);
                 }
+#endif
 
                 // Tests wrapBackendRenderTarget with a GrBackendTexture
                 {

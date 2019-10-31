@@ -21,6 +21,8 @@
 #include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/gl/GLTestContext.h"
 
+#ifdef SK_GL
+
 using sk_gpu_test::GLTestContext;
 
 static void cleanup(GLTestContext* glctx0, GrGLuint texID0, GLTestContext* glctx1,
@@ -197,3 +199,5 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
 
     cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, &backendTexture1, image);
 }
+
+#endif  // SK_GL
