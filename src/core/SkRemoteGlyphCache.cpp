@@ -193,7 +193,7 @@ struct StrikeSpec {
 };
 
 // -- RemoteStrike ----------------------------------------------------------------------------
-class SkStrikeServer::RemoteStrike : public SkStrikeForGPU {
+class SkStrikeServer::RemoteStrike final : public SkStrikeForGPU {
 public:
     // N.B. RemoteStrike is not valid until ensureScalerContext is called.
     RemoteStrike(const SkDescriptor& descriptor,
