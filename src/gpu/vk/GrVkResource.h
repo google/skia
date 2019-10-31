@@ -9,6 +9,7 @@
 #define GrVkResource_DEFINED
 
 
+#include "include/private/SkMutex.h"
 #include "include/private/SkTHash.h"
 #include "include/utils/SkRandom.h"
 #include <atomic>
@@ -56,15 +57,18 @@ public:
         }
 
         void add(const GrVkResource* r) {
+            SkAutoMutexExclusive locked(fLock);
             fHashSet.add(r);
         }
 
         void remove(const GrVkResource* r) {
+            SkAutoMutexExclusive locked(fLock);
             fHashSet.remove(r);
         }
 
     private:
-        SkTHashSet<const GrVkResource*, GrVkResource::Hash> fHashSet;
+        SkMutex fLock;
+        SkTHashSet<const GrVkResource*, GrVkResource::Hash> fHashSet SK_GUARDED_BY(fLock);
     };
 
     static std::atomic<uint32_t> fKeyCounter;
