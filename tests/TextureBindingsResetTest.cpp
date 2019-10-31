@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#ifdef SK_GL
+
 #include "include/core/SkSurface.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/gl/GrGLDefines.h"
@@ -164,3 +166,5 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
 
 #undef GL
 }
+
+#endif  // SK_GL
