@@ -22,6 +22,30 @@
       "revId": "ffe26ed6c778b84966a2fb66746e39ae4df2a065",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "103014e0_01959562",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-10-31T17:19:25Z",
+      "side": 1,
+      "message": "No. They seem to be almost identical to Pixel3a, although I don\u0027t know if Skpbench has been updated for the Pixel3a either.",
+      "parentUuid": "f37ac982_3b87b3d9",
+      "range": {
+        "startLine": 207,
+        "startChar": 61,
+        "endLine": 207,
+        "endChar": 84
+      },
+      "revId": "ffe26ed6c778b84966a2fb66746e39ae4df2a065",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
