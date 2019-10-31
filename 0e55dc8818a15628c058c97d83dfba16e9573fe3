@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "af51c4ce_db71a50b",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-10-31T19:28:38Z",
+      "side": 1,
+      "message": "Comment for \u0027runningQuadCount\u0027 and \u0027quadCount\u0027:\nrunningQuadCount is the number of quads already stored in \u0027vertexBuffer\u0027 and \u0027indexBuffer\u0027, e.g. same buffer but different GrMesh to allow dynamic state changes.\nquadCount is the number of quads that will be drawn by the configured mesh.\nA subsequent ConfigureMesh call would use runningQuadCount+quadCount for its new running count.",
+      "range": {
+        "startLine": 147,
+        "startChar": 55,
+        "endLine": 147,
+        "endChar": 86
+      },
+      "revId": "0e55dc8818a15628c058c97d83dfba16e9573fe3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
