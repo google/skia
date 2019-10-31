@@ -16,8 +16,10 @@
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrBackendSurface.h"
 
+#ifdef SK_GL
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLUtil.h"
+#endif
 
 #ifdef SK_VULKAN
 #include "include/gpu/vk/GrVkTypes.h"
@@ -183,6 +185,7 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
     draw_child(reporter, childInfo2, backendTexture, semaphores[1]);
 }
 
+#ifdef SK_GL
 DEF_GPUTEST(SurfaceSemaphores, reporter, options) {
 #if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
     static constexpr auto kNativeGLType = sk_gpu_test::GrContextFactory::kGL_ContextType;
@@ -223,6 +226,7 @@ DEF_GPUTEST(SurfaceSemaphores, reporter, options) {
         }
     }
 }
+#endif
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo) {
     GrContext* ctx = ctxInfo.grContext();
@@ -244,6 +248,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo)
     GrSemaphoresSubmitted submitted = mainSurface->flushAndSignalSemaphores(1, &semaphore);
     REPORTER_ASSERT(reporter, GrSemaphoresSubmitted::kYes == submitted);
 
+#ifdef SK_GL
     if (GrBackendApi::kOpenGL == ctxInfo.backend()) {
         GrGLGpu* gpu = static_cast<GrGLGpu*>(ctx->priv().getGpu());
         const GrGLInterface* interface = gpu->glInterface();
@@ -253,6 +258,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo)
         GR_GL_CALL_RET(interface, result, IsSync(sync));
         REPORTER_ASSERT(reporter, result);
     }
+#endif
 
 #ifdef SK_VULKAN
     if (GrBackendApi::kVulkan == ctxInfo.backend()) {
