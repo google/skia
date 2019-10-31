@@ -580,11 +580,10 @@ void GrVkPrimaryCommandBuffer::submitToQueue(
     if (GrVkGpu::kForce_SyncQueue == sync) {
         err = GR_VK_CALL(gpu->vkInterface(),
                          WaitForFences(gpu->device(), 1, &fSubmitFence, true, UINT64_MAX));
-        if (VK_TIMEOUT == err) {
-            SkDebugf("Fence failed to signal: %d\n", err);
+        if (VK_SUCCESS != err) {
+            SkDebugf("Fence failed: %d\n", err);
             SK_ABORT("failing");
         }
-        SkASSERT(!err);
 
         fFinishedProcs.reset();
 
