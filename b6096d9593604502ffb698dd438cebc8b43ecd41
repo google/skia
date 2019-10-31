@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "afc305c4_73236067",
+        "filename": "src/core/SkGlyph.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-31T19:14:09Z",
+      "side": 1,
+      "message": "Needs to be here for ODR. Does not link without it.",
+      "parentUuid": "161413a5_55393b43",
+      "revId": "b6096d9593604502ffb698dd438cebc8b43ecd41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4df9f33e_722e2afc",
         "filename": "src/core/SkGlyph.h",
         "patchSetId": 7
@@ -39,6 +57,30 @@
       "revId": "b6096d9593604502ffb698dd438cebc8b43ecd41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbe1f11f_c657579e",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-10-31T19:14:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4df9f33e_722e2afc",
+      "range": {
+        "startLine": 120,
+        "startChar": 47,
+        "endLine": 120,
+        "endChar": 53
+      },
+      "revId": "b6096d9593604502ffb698dd438cebc8b43ecd41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
