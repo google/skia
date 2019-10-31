@@ -17,27 +17,29 @@
 DEF_SIMPLE_GM(SkVMBlitter, canvas, 100, 100) {
     SkPaint p;
 
-    // These two draws are supported by SkVMBlitter,
-    // and the green draw will reuse the program cached by the blue draw.
+    // These three draws are supported by SkVMBlitter,
+    // and the later draws will reuse the program cached by earlier draws.
     //
     // We don't have any API to detect this, but you can flip on the #if guard
     // around "calls to done" in SkVMBlitter.cpp and run this GM in isolation.
-    // You should see 2 calls to done, one for the blitter that clears to white,
-    // and one for the program used by both shader draws.
+    // You should see 1 call to done.
     //
     //    $ ninja -C out fm && out/fm -b cpu -s SkVMBlitter
     //    ...
-    //    2 calls to done
+    //    1 calls to done
     //
-    // Clever readers might realize this could actually be one single blitter:
-    // only the fact that some colors come via shader and the white clear via
-    // the paint makes the two programs cache differently, despite basically
-    // doing the same thing.  (TODO: unify these two paths also so they'd hit
-    // the cache.)
+    // The program is actually first created when the GM framework first
+    // clears the buffer white by setting a paint color to SK_ColorWHITE like
+    // we do with SK_ColorRED.  SkVMBlitter is clever enough now to build the
+    // same program for paint colors or color shaders.
 
     p.setShader(SkShaders::Color(SK_ColorBLUE));
-    canvas->drawRect({0,0,50,50}, p);
+    canvas->drawRect({0,0, 50,50}, p);
 
     p.setShader(SkShaders::Color(SK_ColorGREEN));
-    canvas->drawRect({50,50,100,100}, p);
+    canvas->drawRect({50,50, 100,100}, p);
+
+    p.setShader(nullptr);
+    p.setColor(SK_ColorRED);
+    canvas->drawRect({0,50, 50,100}, p);
 }
