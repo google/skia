@@ -19,14 +19,13 @@ DEPS = [
 
 
 DOCKER_IMAGE = 'gcr.io/skia-public/perf-karma-chrome-tests:77.0.3865.120_v1'
-INNER_KARMA_SCRIPT = '/SRC/skia/infra/canvaskit/perf_canvaskit.sh'
+INNER_KARMA_SCRIPT = 'skia/infra/canvaskit/perf_canvaskit.sh'
 
 
 def RunSteps(api):
   api.vars.setup()
-  checkout_root = api.checkout.default_checkout_root
+  checkout_root = api.path['start_dir']
   out_dir = api.vars.swarming_out_dir
-  api.checkout.bot_update(checkout_root=checkout_root)
 
   # Make sure this exists, otherwise Docker will make it with root permissions.
   api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0777)
@@ -44,12 +43,15 @@ def RunSteps(api):
       program='''import errno
 import os
 import shutil
+import subprocess
 import sys
 
 copy_dest = sys.argv[1]
 base_dir = sys.argv[2]
 bundle_name = sys.argv[3]
 out_dir = sys.argv[4]
+checkout_root = sys.argv[5]
+script = sys.argv[6]
 
 # Clean out old binaries (if any)
 try:
@@ -79,8 +81,12 @@ if bundle_name:
 # Prepare output folder, api.file.ensure_directory doesn't touch
 # the permissions of the out directory if it already exists.
 os.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't write.
+
+os.chmod(checkout_root, 0o755)
+os.chmod(script, 0o755)
+subprocess.check_call(['chmod', '-R', 'a+r', os.path.join(checkout_root, 'skia')])
 ''',
-      args=[copy_dest, base_dir, bundle_name, out_dir],
+      args=[copy_dest, base_dir, bundle_name, out_dir, checkout_root, checkout_root.join(INNER_KARMA_SCRIPT)],
       infra_step=True)
 
 
@@ -89,7 +95,7 @@ os.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't writ
          '--volume', '%s:/OUT' % out_dir]
 
   cmd.extend([
-    DOCKER_IMAGE,             INNER_KARMA_SCRIPT,
+    DOCKER_IMAGE,             '/SRC/' + INNER_KARMA_SCRIPT,
     '--builder',              api.vars.builder_name,
     '--git_hash',             api.properties['revision'],
     '--buildbucket_build_id', api.properties.get('buildbucket_build_id',
