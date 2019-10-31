@@ -6,7 +6,6 @@
 import("gn/flutter_defines.gni")
 import("gn/fuchsia_defines.gni")
 import("gn/shared_sources.gni")
-
 import("gn/skia.gni")
 
 if (skia_use_dawn) {
@@ -316,8 +315,8 @@ optional("fontmgr_fuchsia") {
 
   deps = []
 
-  if (is_fuchsia && using_fuchsia_sdk) {
-    deps += [ "$fuchsia_sdk_root/fidl:fuchsia.fonts" ]
+  if (is_fuchsia && skia_use_fuchsia_sdk) {
+    deps += [ "$skia_fuchsia_sdk_path/fidl:fuchsia.fonts" ]
   } else {
     deps += [ "//sdk/fidl/fuchsia.fonts" ]
   }
@@ -515,9 +514,6 @@ optional("gpu") {
     sources += [ "src/gpu/GrPathRendering_none.cpp" ]
   }
 
-  # These paths need to be absolute to match the ones produced by shared_sources.gni.
-  sources -= get_path_info([ "src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ],
-                           "abspath")
   libs = []
   if (is_android) {
     sources += [ "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp" ]
@@ -542,7 +538,12 @@ optional("gpu") {
       libs += [ "OpenGL32.lib" ]
     }
   } else {
+    assert(skia_use_gl)
     sources += [ "src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ]
+  }
+
+  if (skia_use_gl) {
+    sources += skia_gl_sources
   }
 
   if (skia_use_vulkan) {
@@ -553,8 +554,8 @@ optional("gpu") {
       public_defines += [ "SK_ENABLE_VK_LAYERS" ]
     }
     if (is_fuchsia) {
-      if (using_fuchsia_sdk) {
-        public_deps += [ "$fuchsia_sdk_root/pkg:vulkan" ]
+      if (skia_using_fuchsia_sdk) {
+        public_deps += [ "$skia_fuchsia_sdk_path/pkg:vulkan" ]
       } else {
         public_deps += [ "//src/graphics/lib/vulkan" ]
       }
@@ -1293,11 +1294,17 @@ if (skia_enable_tools) {
       "tools/gpu/TestContext.cpp",
       "tools/gpu/YUVUtils.cpp",
       "tools/gpu/YUVUtils.h",
-      "tools/gpu/atlastext/GLTestAtlasTextRenderer.cpp",
-      "tools/gpu/gl/GLTestContext.cpp",
-      "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp",
       "tools/gpu/mock/MockTestContext.cpp",
     ]
+
+    if (skia_use_gl) {
+      sources += [
+        "tools/gpu/atlastext/GLTestAtlasTextRenderer.cpp",
+        "tools/gpu/gl/GLTestContext.cpp",
+        "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp"
+      ]
+    }
+
     libs = []
 
     if (is_android || skia_use_egl) {
