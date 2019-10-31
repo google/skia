@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9894af4_e44253ac",
+        "filename": "src/gpu/ops/GrAAConvexTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-10-31T19:29:07Z",
+      "side": 1,
+      "message": "I suppose we could do this check before normalizing if we think normalizing is so bad. Though, I think the common case is not removing and so we wind up doing all the work for most points either way.",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 54
+      },
+      "revId": "1be44ee4bc5975fd6303a16157d6dcf506f864fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
