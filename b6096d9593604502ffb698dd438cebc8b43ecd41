@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "161413a5_55393b43",
+        "filename": "src/core/SkGlyph.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-31T18:55:54Z",
+      "side": 1,
+      "message": "What\u0027s this for?",
+      "revId": "b6096d9593604502ffb698dd438cebc8b43ecd41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4df9f33e_722e2afc",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-31T18:55:54Z",
+      "side": 1,
+      "message": "Might be clearer without the masker name?\n\n    Vec\u003c2,int\u003e sub \u003d cast\u003cint\u003e(shifted) \u0026 Vec\u003c2,int\u003e{mask.x(), mask.y()};",
+      "range": {
+        "startLine": 120,
+        "startChar": 47,
+        "endLine": 120,
+        "endChar": 53
+      },
+      "revId": "b6096d9593604502ffb698dd438cebc8b43ecd41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
