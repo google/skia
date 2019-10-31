@@ -2331,9 +2331,9 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
     GrProcessorSet::Analysis analysis = op->finalize(
             *this->caps(), &appliedClip, hasMixedSampledCoverage, clampType);
 
-    GrXferProcessor::DstProxy dstProxy;
+    GrXferProcessor::DstProxyView dstProxyView;
     if (analysis.requiresDstTexture()) {
-        if (!this->setupDstProxy(clip, *op, &dstProxy)) {
+        if (!this->setupDstProxyView(clip, *op, &dstProxyView)) {
             fContext->priv().opMemoryPool()->release(std::move(op));
             return;
         }
@@ -2344,12 +2344,12 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
     if (willAddFn) {
         willAddFn(op.get(), opsTask->uniqueID());
     }
-    opsTask->addDrawOp(std::move(op), analysis, std::move(appliedClip), dstProxy,
+    opsTask->addDrawOp(std::move(op), analysis, std::move(appliedClip), dstProxyView,
                        GrTextureResolveManager(this->drawingManager()), *this->caps());
 }
 
-bool GrRenderTargetContext::setupDstProxy(const GrClip& clip, const GrOp& op,
-                                          GrXferProcessor::DstProxy* dstProxy) {
+bool GrRenderTargetContext::setupDstProxyView(const GrClip& clip, const GrOp& op,
+                                              GrXferProcessor::DstProxyView* dstProxyView) {
     // If we are wrapping a vulkan secondary command buffer, we can't make a dst copy because we
     // don't actually have a VkImage to make a copy of. Additionally we don't have the power to
     // start and stop the render pass in order to make the copy.
@@ -2358,11 +2358,11 @@ bool GrRenderTargetContext::setupDstProxy(const GrClip& clip, const GrOp& op,
     }
 
     if (this->caps()->textureBarrierSupport() && !fRenderTargetProxy->requiresManualMSAAResolve()) {
-        if (GrTextureProxy* texProxy = fRenderTargetProxy->asTextureProxy()) {
+        if (fRenderTargetProxy->asTextureProxy()) {
             // The render target is a texture, so we can read from it directly in the shader. The XP
             // will be responsible to detect this situation and request a texture barrier.
-            dstProxy->setProxy(sk_ref_sp(texProxy));
-            dstProxy->setOffset(0, 0);
+            dstProxyView->setProxyView(this->textureSurfaceView());
+            dstProxyView->setOffset(0, 0);
             return true;
         }
     }
@@ -2415,8 +2415,8 @@ bool GrRenderTargetContext::setupDstProxy(const GrClip& clip, const GrOp& op,
             copyRect, fit, SkBudgeted::kYes, restrictions.fRectsMustMatch);
     SkASSERT(newProxy);
 
-    dstProxy->setProxy(std::move(newProxy));
-    dstProxy->setOffset(dstOffset);
+    dstProxyView->setProxyView({std::move(newProxy), this->origin(), this->textureSwizzle()});
+    dstProxyView->setOffset(dstOffset);
     return true;
 }
 

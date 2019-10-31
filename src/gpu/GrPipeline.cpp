@@ -38,11 +38,11 @@ GrPipeline::GrPipeline(const InitArgs& args,
 
     fXferProcessor = processors.refXferProcessor();
 
-    if (args.fDstProxy.proxy()) {
-        SkASSERT(args.fDstProxy.proxy()->isInstantiated());
+    if (args.fDstProxyView.proxy()) {
+        SkASSERT(args.fDstProxyView.proxy()->isInstantiated());
 
-        fDstTextureProxy = args.fDstProxy.refProxy();
-        fDstTextureOffset = args.fDstProxy.offset();
+        fDstProxyView = args.fDstProxyView.proxyView();
+        fDstTextureOffset = args.fDstProxyView.offset();
     }
 
     // Copy GrFragmentProcessors from GrProcessorSet to Pipeline
@@ -74,7 +74,8 @@ GrPipeline::GrPipeline(const InitArgs& args,
 }
 
 GrXferBarrierType GrPipeline::xferBarrierType(GrTexture* texture, const GrCaps& caps) const {
-    if (fDstTextureProxy && fDstTextureProxy->peekTexture() == texture) {
+    auto proxy = fDstProxyView.proxy();
+    if (proxy && proxy->peekTexture() == texture) {
         return kTexture_GrXferBarrierType;
     }
     return this->getXferProcessor().xferBarrierType(caps);

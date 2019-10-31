@@ -248,12 +248,13 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
     SamplerHandle dstTextureSamplerHandle;
     GrSurfaceOrigin dstTextureOrigin = kTopLeft_GrSurfaceOrigin;
 
-    if (GrTextureProxy* dstTextureProxy = this->pipeline().dstTextureProxy()) {
+    const GrSurfaceProxyView& dstView = this->pipeline().dstProxyView();
+    if (GrTextureProxy* dstTextureProxy = dstView.asTextureProxy()) {
         // GrProcessor::TextureSampler sampler(dstTexture);
-        const GrSwizzle& swizzle = dstTextureProxy->textureSwizzle();
+        const GrSwizzle& swizzle = dstView.swizzle();
         dstTextureSamplerHandle = this->emitSampler(dstTextureProxy, GrSamplerState(),
                                                     swizzle, "DstTextureSampler");
-        dstTextureOrigin = dstTextureProxy->origin();
+        dstTextureOrigin = dstView.origin();
         SkASSERT(dstTextureProxy->textureType() != GrTextureType::kExternal);
     }
 
