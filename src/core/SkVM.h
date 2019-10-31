@@ -10,7 +10,6 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkTHash.h"
-#include <functional>  // std::hash
 #include <vector>      // std::vector
 
 class SkWStream;
@@ -431,12 +430,10 @@ namespace skvm {
 
         void dump(SkWStream* = nullptr) const;
 
+        uint32_t hash() const;
+
     private:
         struct InstructionHash {
-            template <typename T>
-            static size_t Hash(T val) {
-                return std::hash<T>{}(val);
-            }
             size_t operator()(const Instruction& inst) const;
         };
 
@@ -446,6 +443,7 @@ namespace skvm {
         SkTHashMap<Instruction, Val, InstructionHash> fIndex;
         std::vector<Instruction>                      fProgram;
         std::vector<int>                              fStrides;
+        uint32_t                                      fHash{0};
     };
 
     using Reg = int;
