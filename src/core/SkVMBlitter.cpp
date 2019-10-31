@@ -116,8 +116,8 @@ namespace {
 
 
     struct Uniforms {
-        uint32_t paint_color;
         uint8_t  coverage;   // Used when Coverage::UniformA8.
+        uint8_t  padding[3]; // Keep 32-bit aligned.
     };
 
     struct Builder : public skvm::Builder {
@@ -185,14 +185,16 @@ namespace {
 
         static bool CanBuild(const Params& params) {
             // These checks parallel the TODOs in Builder::Builder().
-            if (params.shader) {
-                // TODO: probably want to pass all of the device's SkColorInfo?
-                if (!as_SB(params.shader)->program(nullptr,
-                                                   params.colorSpace.get(),
-                                                   skvm::Arg{0}, 0,
-                                                   nullptr,nullptr,nullptr,nullptr)) {
-                    return false;
+            SkASSERT(params.shader);
+            // TODO: probably want to pass all of the device's SkColorInfo?
+            if (!as_SB(params.shader)->program(nullptr,
+                                               params.colorSpace.get(),
+                                               skvm::Arg{0}, 0,
+                                               nullptr,nullptr,nullptr,nullptr)) {
+                if (debug_dump(key(params))) {
+                    SkDebugf("%s not yet supported\n", params.shader->getTypeName());
                 }
+                return false;
             }
 
             switch (params.colorType) {
@@ -221,13 +223,12 @@ namespace {
             // If coverage is Mask3D there'll next come two varyings for mul and add planes,
             // and then finally if coverage is any Mask?? format, a varying for the mask.
 
-            Color src = unpack_8888(uniform32(uniforms, offsetof(Uniforms, paint_color)));
-            if (params.shader) {
-                SkAssertResult(as_SB(params.shader)->program(this,
-                                                             params.colorSpace.get(),
-                                                             uniforms, sizeof(Uniforms),
-                                                             &src.r, &src.g, &src.b, &src.a));
-            }
+            Color src;
+            SkASSERT(params.shader);
+            SkAssertResult(as_SB(params.shader)->program(this,
+                                                         params.colorSpace.get(),
+                                                         uniforms, sizeof(Uniforms),
+                                                         &src.r, &src.g, &src.b, &src.a));
 
             if (params.coverage == Coverage::Mask3D) {
                 skvm::I32 M = load8(varying<uint8_t>()),
@@ -392,9 +393,16 @@ namespace {
         const char* getTypeName() const override { return "AlphaShader"; }
     };
 
-    static sk_sp<SkShader> alpha_shader(sk_sp<SkShader> shader, uint8_t alpha) {
-        return (shader && alpha < 0xff) ? sk_make_sp<AlphaShader>(std::move(shader), alpha)
-                                        : std::move(shader);
+    static sk_sp<SkShader> effective_shader(sk_sp<SkShader> shader, SkColor4f paintColor) {
+        // When there's no shader, the paint color becomes the shader.
+        if (!shader) {
+            return SkShaders::Color(paintColor, nullptr);
+        }
+
+        // When there is a shader, we modulate it by the paint's alpha.
+        uint8_t alpha = paintColor.toBytes_RGBA() >> 24;
+        return alpha < 0xff ? sk_make_sp<AlphaShader>(std::move(shader), alpha)
+                            : std::move(shader);
     }
 
     class Blitter final : public SkBlitter {
@@ -405,7 +413,7 @@ namespace {
             : fDevice(device)
             , fParams {
                 device.refColorSpace(),
-                alpha_shader(paint.refShader(), paint.getAlpha()),
+                effective_shader(paint.refShader(), paint.getColor4f()),
                 device.colorType(),
                 device.alphaType(),
                 paint.getBlendMode(),
@@ -416,16 +424,7 @@ namespace {
         {
             // Color filters have been folded back into shader and/or paint color by now.
             SkASSERT(!paint.getColorFilter());
-
-            SkColor4f color = paint.getColor4f();
-            SkColorSpaceXformSteps{sk_srgb_singleton(), kUnpremul_SkAlphaType,
-                                   device.colorSpace(), kUnpremul_SkAlphaType}.apply(color.vec());
-
-            if (color.fitsInBytes() && Builder::CanBuild(fParams)) {
-                uint32_t rgba = color.premul().toBytes_RGBA();
-                memcpy(fUniforms.data() + offsetof(Uniforms, paint_color), &rgba, sizeof(rgba));
-                ok = true;
-            }
+            ok = Builder::CanBuild(fParams);
         }
 
         ~Blitter() override {
