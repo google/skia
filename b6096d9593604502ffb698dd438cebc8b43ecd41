@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "050c0c8a_26f14e1e",
+        "filename": "src/core/SkGlyph.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-10-31T19:19:14Z",
+      "side": 1,
+      "message": "Weird, even though it\u0027s constexpr?",
+      "parentUuid": "afc305c4_73236067",
+      "revId": "b6096d9593604502ffb698dd438cebc8b43ecd41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4df9f33e_722e2afc",
         "filename": "src/core/SkGlyph.h",
         "patchSetId": 7
