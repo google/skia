@@ -1028,15 +1028,15 @@ void GrMtlGpu::copySurfaceAsResolve(GrSurface* dst, GrSurface* src) {
 
 void GrMtlGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                                  const SkIPoint& dstPoint) {
-    id<MTLTexture> dstTex = GrGetMTLTextureFromSurface(dst);
-    id<MTLTexture> srcTex = GrGetMTLTextureFromSurface(src);
-
 #ifdef SK_DEBUG
     int dstSampleCnt = get_surface_sample_cnt(dst);
     int srcSampleCnt = get_surface_sample_cnt(src);
-    SkASSERT(this->mtlCaps().canCopyAsBlit(dstTex.pixelFormat, dstSampleCnt, srcTex.pixelFormat,
-                                           srcSampleCnt, srcRect, dstPoint, dst == src));
+    SkASSERT(this->mtlCaps().canCopyAsBlit(dst, dstSampleCnt, src, srcSampleCnt,
+                                           srcRect, dstPoint, dst == src));
 #endif
+    id<MTLTexture> dstTex = GrGetMTLTextureFromSurface(dst);
+    id<MTLTexture> srcTex = GrGetMTLTextureFromSurface(src);
+
     id<MTLBlitCommandEncoder> blitCmdEncoder = this->commandBuffer()->getBlitCommandEncoder();
     [blitCmdEncoder copyFromTexture: srcTex
                         sourceSlice: 0
@@ -1049,12 +1049,87 @@ void GrMtlGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src, const SkIRect& 
                   destinationOrigin: MTLOriginMake(dstPoint.fX, dstPoint.fY, 0)];
 }
 
+bool GrMtlGpu::copySurfaceAsDraw(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+                                 const SkIPoint& dstPoint) {
+    const char libraryString[] =
+        "typedef struct {\n" \
+        "    vector_float2 position;\n" \
+        "    vector_float2 textureCoordinate;\n" \
+        "} Vertex;\n" \
+        "\n" \
+        "typedef struct {\n" \
+        "    float4 position [[position]];\n" \
+        "    float2 textureCoordinate;\n" \
+        "} RasterizerData;\n" \
+        "\n" \
+        "vertex RasterizerData" \
+        "vertexShader(uint vertexID [[ vertex_id ]]," \
+        "             constant Vertex *vertexArray [[buffer(0)]]) {\n" \
+        "    RasterizerData out;\n" \
+        "    float2 pixelSpacePosition = vertexArray[vertexID].position.xy;\n" \
+        "    out.position = vector_float4(0.0, 0.0, 0.0, 1.0);\n" \
+        "    out.position.xy = pixelSpacePosition;\n" \
+        "    out.textureCoordinate = vertexArray[vertexID].textureCoordinate;\n" \
+        "    return out;\n" \
+        "}\n" \
+        "\n" \
+        "fragment float4\n"
+        "samplingShader(RasterizerData in [[stage_in]],\n" \
+        "               texture2d<half> colorTexture [[ texture(0) ]]) {\n" \
+        "    constexpr sampler textureSampler (mag_filter::linear,\n" \
+        "                                      min_filter::linear);\n" \
+        "    const half4 colorSample = colorTexture.sample(textureSampler, in.textureCoordinate);\n" \
+        "    return float4(colorSample);\n" \
+        "}";
+
+
+#ifdef SK_DEBUG
+//    int dstSampleCnt = get_surface_sample_cnt(dst);
+//    int srcSampleCnt = get_surface_sample_cnt(src);
+//    SkASSERT(this->mtlCaps().canCopyAsBlit(dst, dstSampleCnt, src, srcSampleCnt,
+//                                           srcRect, dstPoint, dst == src));
+#endif
+    id<MTLTexture> dstTex = GrGetMTLTextureFromSurface(dst);
+    id<MTLTexture> srcTex = GrGetMTLTextureFromSurface(src);
+    id<MTLTexture> drawTex = dstTex;
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        // the dest isn't a renderTarget, we need to draw to one first
+        if (!SkToBool(drawTex.usage & MTLTextureUsageRenderTarget)) {
+            MTLTextureDescriptor* desc =
+                    [MTLTextureDescriptor texture2DDescriptorWithPixelFormat: dstTex.pixelFormat
+                                                                       width: dstTex.width
+                                                                      height: dstTex.height
+                                                                   mipmapped: NO];
+            desc.usage = MTLTextureUsageRenderTarget;
+            drawTex = [fDevice newTextureWithDescriptor: desc];
+        }
+    }
+
+    auto renderPassDesc = [MTLRenderPassDescriptor renderPassDescriptor];
+    renderPassDesc.colorAttachments[0].texture = drawTex;
+    renderPassDesc.colorAttachments[0].slice = 0;
+    renderPassDesc.colorAttachments[0].level = 0;
+    renderPassDesc.colorAttachments[0].resolveTexture = nil;
+    renderPassDesc.colorAttachments[0].slice = 0;
+    renderPassDesc.colorAttachments[0].level = 0;
+    renderPassDesc.colorAttachments[0].loadAction = MTLLoadActionLoad;
+    renderPassDesc.colorAttachments[0].storeAction = MTLStoreActionStore;
+
+    id<MTLRenderCommandEncoder> cmdEncoder =
+            this->commandBuffer()->getRenderCommandEncoder(renderPassDesc, nullptr, nullptr);
+    SkASSERT(nil != cmdEncoder);
+    cmdEncoder.label = @"copySurfaceAsDraw";
+
+    [cmdEncoder setFragmentTexture:srcTex
+                           atIndex:0];
+
+
+    return false;
+}
+
 bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                              const SkIPoint& dstPoint) {
     SkASSERT(!src->isProtected() && !dst->isProtected());
-
-    MTLPixelFormat dstFormat = GrBackendFormatAsMTLPixelFormat(dst->backendFormat());
-    MTLPixelFormat srcFormat = GrBackendFormatAsMTLPixelFormat(src->backendFormat());
 
     int dstSampleCnt = get_surface_sample_cnt(dst);
     int srcSampleCnt = get_surface_sample_cnt(src);
@@ -1063,10 +1138,12 @@ bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcR
     if (this->mtlCaps().canCopyAsResolve(dst, dstSampleCnt, src, srcSampleCnt, srcRect, dstPoint)) {
         this->copySurfaceAsResolve(dst, src);
         success = true;
-    } else if (this->mtlCaps().canCopyAsBlit(dstFormat, dstSampleCnt, srcFormat, srcSampleCnt,
-                                             srcRect, dstPoint, dst == src)) {
+    } else if (this->mtlCaps().canCopyAsBlit(dst, dstSampleCnt, src, srcSampleCnt, srcRect,
+                                             dstPoint, dst == src)) {
         this->copySurfaceAsBlit(dst, src, srcRect, dstPoint);
         success = true;
+    } else {
+        success = this->copySurfaceAsDraw(dst, src, srcRect, dstPoint);
     }
     if (success) {
         SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.x(), dstPoint.y(),
