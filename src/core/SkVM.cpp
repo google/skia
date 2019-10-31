@@ -6,12 +6,14 @@
  */
 
 #include "include/core/SkStream.h"
+#include "include/private/SkChecksum.h"
 #include "include/private/SkSpinlock.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkThreadID.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkVM.h"
+#include <functional>  // std::hash
 #include <string.h>
 #if defined(SKVM_JIT)
     #include <sys/mman.h>
@@ -404,21 +406,30 @@ namespace skvm {
 
     // TODO: replace with SkOpts::hash()?
     size_t Builder::InstructionHash::operator()(const Instruction& inst) const {
-        return Hash((uint8_t)inst.op)
-            ^ Hash(inst.x)
-            ^ Hash(inst.y)
-            ^ Hash(inst.z)
-            ^ Hash(inst.imm)
-            ^ Hash(inst.death)
-            ^ Hash(inst.can_hoist)
-            ^ Hash(inst.used_in_loop);
+        auto hash = [](auto v) {
+            return std::hash<decltype(v)>{}(v);
+        };
+        return hash((uint8_t)inst.op)
+             ^ hash(inst.x)
+             ^ hash(inst.y)
+             ^ hash(inst.z)
+             ^ hash(inst.imm)
+             ^ hash(inst.death)
+             ^ hash(inst.can_hoist)
+             ^ hash(inst.used_in_loop);
     }
+
+    uint32_t Builder::hash() const { return fHash; }
 
     // Most instructions produce a value and return it by ID,
     // the value-producing instruction's own index in the program vector.
     Val Builder::push(Op op, Val x, Val y, Val z, int imm) {
         Instruction inst{op, x, y, z, imm,
                          /*death=*/0, /*can_hoist=*/true, /*used_in_loop=*/false};
+
+        // This InstructionHash{}() call should be free given we're about to use fIndex below.
+        fHash ^= InstructionHash{}(inst);
+        fHash = SkChecksum::CheapMix(fHash);  // Make sure instruction order matters.
 
         // Basic common subexpression elimination:
         // if we've already seen this exact Instruction, use it instead of creating a new one.

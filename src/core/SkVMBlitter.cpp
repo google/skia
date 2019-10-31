@@ -18,54 +18,77 @@ namespace {
 
     enum class Coverage { Full, UniformA8, MaskA8, MaskLCD16, Mask3D };
 
+    struct Params {
+        sk_sp<SkColorSpace> colorSpace;
+        sk_sp<SkShader>     shader;
+        SkColorType         colorType;
+        SkAlphaType         alphaType;
+        SkBlendMode         blendMode;
+        Coverage            coverage;
+
+        Params withCoverage(Coverage c) const {
+            Params p = *this;
+            p.coverage = c;
+            return p;
+        }
+    };
+
     SK_BEGIN_REQUIRE_DENSE;
     struct Key {
-        SkColorType          colorType;
-        SkAlphaType          alphaType;
-        Coverage             coverage;
-        SkBlendMode          blendMode;
-        sk_sp<SkColorSpace>  colorSpace;
-        sk_sp<SkShader>      shader;
-        bool                 applyPaintAlphaToShader;
-        uint8_t              unusedBytes[7];
+        uint64_t colorSpace;
+        uint32_t shader;
+        uint8_t  colorType,
+                 alphaType,
+                 blendMode,
+                 coverage;
+
+        bool operator==(const Key& that) const {
+            return this->colorSpace == that.colorSpace
+                && this->shader     == that.shader
+                && this->colorType  == that.colorType
+                && this->alphaType  == that.alphaType
+                && this->blendMode  == that.blendMode
+                && this->coverage   == that.coverage;
+        }
 
         Key withCoverage(Coverage c) const {
             Key k = *this;
-            k.coverage = c;
+            k.coverage = SkToU8(c);
             return k;
         }
     };
     SK_END_REQUIRE_DENSE;
 
-    static bool operator==(const Key& x, const Key& y) {
-        // N.B. using SkColorSpace::Equals() would make hashing unsound:
-        //      Keys that compare as == could have non-equal hashes.
-        return x.colorType               == y.colorType
-            && x.alphaType               == y.alphaType
-            && x.coverage                == y.coverage
-            && x.blendMode               == y.blendMode
-            && x.colorSpace              == y.colorSpace
-            && x.shader                  == y.shader
-            && x.applyPaintAlphaToShader == y.applyPaintAlphaToShader;
+    static Key key(const Params& params) {
+        uint32_t shaderHash = 0;
+        if (const SkShaderBase* shader = as_SB(params.shader)) {
+            skvm::Builder p;
+            skvm::I32 r,g,b,a;
+            if (shader->program(&p,
+                                params.colorSpace.get(),
+                                skvm::Arg{0}, 0,
+                                &r,&g,&b,&a)) {
+                shaderHash = p.hash();
+            }
+        }
+        return {
+            params.colorSpace ? params.colorSpace->hash() : 0,
+            shaderHash,
+            SkToU8(params.colorType),
+            SkToU8(params.alphaType),
+            SkToU8(params.blendMode),
+            SkToU8(params.coverage),
+        };
     }
 
-    // TODO: we could do with better hashing and equality here in general,
-    // though I'm not sure how strictly important any of these ideas are:
-    //    - use SkColorSpace::hash() and SkColorSpace::Equals() to coalesce equivalent
-    //      color spaces by value
-    //    - come up with a mechanism to have SkShader identify itself except for its
-    //      uniforms, so that we can reuse programs with the same kind of shader but
-    //      different uniforms
-    //    - pack bits of Key more carefully
-
     static SkString debug_name(const Key& key) {
-        return SkStringPrintf("CT%d-AT%d-Cov%d-Blend%d-CS%d-Shader%d",
+        return SkStringPrintf("CT%d-AT%d-Cov%d-Blend%d-CS%llx-Shader%x",
                               key.colorType,
                               key.alphaType,
                               key.coverage,
                               key.blendMode,
-                              SkToBool(key.colorSpace),
-                              SkToBool(key.shader));
+                              key.colorSpace,
+                              key.shader);
     }
 
     static bool debug_dump(const Key& key) {
@@ -160,28 +183,28 @@ namespace {
         skvm::I32 min(skvm::I32 x, skvm::I32 y) { return select(lt(x,y), x,y); }
         skvm::I32 max(skvm::I32 x, skvm::I32 y) { return select(gt(x,y), x,y); }
 
-        static bool CanBuild(const Key& key) {
+        static bool CanBuild(const Params& params) {
             // These checks parallel the TODOs in Builder::Builder().
-            if (key.shader) {
-                // TODO: maybe passing the whole Key is going to be what we'll want here?
-                if (!as_SB(key.shader)->program(nullptr,
-                                                key.colorSpace.get(),
-                                                skvm::Arg{0}, 0,
-                                                nullptr,nullptr,nullptr,nullptr)) {
+            if (params.shader) {
+                // TODO: probably want to pass all of the device's SkColorInfo?
+                if (!as_SB(params.shader)->program(nullptr,
+                                                   params.colorSpace.get(),
+                                                   skvm::Arg{0}, 0,
+                                                   nullptr,nullptr,nullptr,nullptr)) {
                     return false;
                 }
             }
 
-            switch (key.colorType) {
+            switch (params.colorType) {
                 default: return false;
                 case kRGB_565_SkColorType:   break;
                 case kRGBA_8888_SkColorType: break;
                 case kBGRA_8888_SkColorType: break;
             }
 
-            if (key.alphaType == kUnpremul_SkAlphaType) { return false; }
+            if (params.alphaType == kUnpremul_SkAlphaType) { return false; }
 
-            switch (key.blendMode) {
+            switch (params.blendMode) {
                 default: return false;
                 case SkBlendMode::kSrc:     break;
                 case SkBlendMode::kSrcOver: break;
@@ -190,22 +213,22 @@ namespace {
             return true;
         }
 
-        explicit Builder(const Key& key) {
+        explicit Builder(const Params& params) {
         #define TODO SkUNREACHABLE
-            SkASSERT(CanBuild(key));
+            SkASSERT(CanBuild(params));
             skvm::Arg uniforms = uniform(),
-                      dst_ptr  = arg(SkColorTypeBytesPerPixel(key.colorType));
+                      dst_ptr  = arg(SkColorTypeBytesPerPixel(params.colorType));
             // If coverage is Mask3D there'll next come two varyings for mul and add planes,
             // and then finally if coverage is any Mask?? format, a varying for the mask.
 
             Color src = unpack_8888(uniform32(uniforms, offsetof(Uniforms, paint_color)));
-            if (key.shader) {
+            if (params.shader) {
                 skvm::I32 paint_alpha = src.a;
-                SkAssertResult(as_SB(key.shader)->program(this,
-                                                          key.colorSpace.get(),
-                                                          uniforms, sizeof(Uniforms),
-                                                          &src.r, &src.g, &src.b, &src.a));
-                if (key.applyPaintAlphaToShader) {
+                SkAssertResult(as_SB(params.shader)->program(this,
+                                                             params.colorSpace.get(),
+                                                             uniforms, sizeof(Uniforms),
+                                                             &src.r, &src.g, &src.b, &src.a));
+                if (true/*TODO: make this conditional again with a wrapper shader*/) {
                     src.r = scale_unorm8(src.r, paint_alpha);
                     src.g = scale_unorm8(src.g, paint_alpha);
                     src.b = scale_unorm8(src.b, paint_alpha);
@@ -213,7 +236,7 @@ namespace {
                 }
             }
 
-            if (key.coverage == Coverage::Mask3D) {
+            if (params.coverage == Coverage::Mask3D) {
                 skvm::I32 M = load8(varying<uint8_t>()),
                           A = load8(varying<uint8_t>());
 
@@ -230,7 +253,7 @@ namespace {
 
             // load_coverage() returns false when there's no need to apply coverage.
             auto load_coverage = [&](Color* cov) {
-                switch (key.coverage) {
+                switch (params.coverage) {
                     case Coverage::Full: return false;
 
                     case Coverage::UniformA8: cov->r = cov->g = cov->b = cov->a =
@@ -257,8 +280,8 @@ namespace {
             // obviating the need for the lerp afterwards. This early-coverage strategy tends
             // to be both faster and require fewer registers.
             bool lerp_coverage_post_blend = true;
-            if (SkBlendMode_ShouldPreScaleCoverage(key.blendMode,
-                                                   key.coverage == Coverage::MaskLCD16)) {
+            if (SkBlendMode_ShouldPreScaleCoverage(params.blendMode,
+                                                   params.coverage == Coverage::MaskLCD16)) {
                 Color cov;
                 if (load_coverage(&cov)) {
                     src.r = scale_unorm8(src.r, cov.r);
@@ -271,7 +294,7 @@ namespace {
 
             // Load up the destination color.
             SkDEBUGCODE(dst_loaded = true;)
-            switch (key.colorType) {
+            switch (params.colorType) {
                 default: TODO;
                 case kRGB_565_SkColorType:   dst = unpack_565 (load16(dst_ptr)); break;
                 case kRGBA_8888_SkColorType: dst = unpack_8888(load32(dst_ptr)); break;
@@ -283,14 +306,14 @@ namespace {
             // When a destination is tagged opaque, we may assume it both starts and stays fully
             // opaque, ignoring any math that disagrees.  So anything involving force_opaque is
             // optional, and sometimes helps cut a small amount of work in these programs.
-            const bool force_opaque = true && key.alphaType == kOpaque_SkAlphaType;
+            const bool force_opaque = true && params.alphaType == kOpaque_SkAlphaType;
             if (force_opaque) { dst.a = splat(0xff); }
 
             // We'd need to premul dst after loading and unpremul before storing.
-            if (key.alphaType == kUnpremul_SkAlphaType) { TODO; }
+            if (params.alphaType == kUnpremul_SkAlphaType) { TODO; }
 
             // Blend src and dst.
-            switch (key.blendMode) {
+            switch (params.blendMode) {
                 default: TODO;
 
                 case SkBlendMode::kSrc: break;
@@ -316,7 +339,7 @@ namespace {
             if (force_opaque) { src.a = splat(0xff); }
 
             // Store back to the destination.
-            switch (key.colorType) {
+            switch (params.colorType) {
                 default: SkUNREACHABLE;
 
                 case kRGB_565_SkColorType:   store16(dst_ptr, pack_565(src)); break;
@@ -334,16 +357,15 @@ namespace {
 
         Blitter(const SkPixmap& device, const SkPaint& paint)
             : fDevice(device)
-            , fKey {
-                device.colorType(),
-                device.alphaType(),
-                Coverage::Full,
-                paint.getBlendMode(),
+            , fParams {
                 device.refColorSpace(),
                 paint.refShader(),
-                paint.getShader() && paint.getAlphaf() < 1.0f,
-                {0,0,0,0,0,0,0},
+                device.colorType(),
+                device.alphaType(),
+                paint.getBlendMode(),
+                Coverage::Full,
             }
+            , fKey(key(fParams))
             , fUniforms(sizeof(Uniforms))
         {
             // Color filters have been folded back into shader and/or paint color by now.
@@ -353,7 +375,7 @@ namespace {
             SkColorSpaceXformSteps{sk_srgb_singleton(), kUnpremul_SkAlphaType,
                                    device.colorSpace(), kUnpremul_SkAlphaType}.apply(color.vec());
 
-            if (color.fitsInBytes() && Builder::CanBuild(fKey)) {
+            if (color.fitsInBytes() && Builder::CanBuild(fParams)) {
                 uint32_t rgba = color.premul().toBytes_RGBA();
                 memcpy(fUniforms.data() + offsetof(Uniforms, paint_color), &rgba, sizeof(rgba));
                 ok = true;
@@ -384,6 +406,7 @@ namespace {
 
     private:
         SkPixmap             fDevice;  // TODO: can this be const&?
+        const Params         fParams;
         const Key            fKey;
         std::vector<uint8_t> fUniforms;
         skvm::Program fBlitH,
@@ -412,7 +435,7 @@ namespace {
                 atexit([]{ SkDebugf("%d calls to done\n", done.load()); });
             }
         #endif
-            Builder builder{key};
+            Builder builder{fParams.withCoverage(coverage)};
             skvm::Program program = builder.done(debug_name(key).c_str());
             if (!program.hasJIT() && debug_dump(key)) {
                 SkDebugf("\nfalling back to interpreter for blitter with this key.\n");
@@ -423,10 +446,10 @@ namespace {
         }
 
         void updateUniforms() {
-            if (const SkShaderBase* shader = as_SB(fKey.shader)) {
-                size_t extra = shader->uniforms(fKey.colorSpace.get(), nullptr);
+            if (const SkShaderBase* shader = as_SB(fParams.shader)) {
+                size_t extra = shader->uniforms(fParams.colorSpace.get(), nullptr);
                 fUniforms.resize(sizeof(Uniforms) + extra);
-                shader->uniforms(fKey.colorSpace.get(), fUniforms.data() + sizeof(Uniforms));
+                shader->uniforms(fParams.colorSpace.get(), fUniforms.data() + sizeof(Uniforms));
             }
         }
 
