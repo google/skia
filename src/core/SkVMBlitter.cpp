@@ -115,11 +115,6 @@ namespace {
     static void release_program_cache() { }
 
 
-    struct Uniforms {
-        uint8_t  coverage;   // Used when Coverage::UniformA8.
-        uint8_t  padding[3]; // Keep 32-bit aligned.
-    };
-
     struct Builder : public skvm::Builder {
         //using namespace skvm;
 
@@ -227,7 +222,7 @@ namespace {
             SkASSERT(params.shader);
             SkAssertResult(as_SB(params.shader)->program(this,
                                                          params.colorSpace.get(),
-                                                         uniforms, sizeof(Uniforms),
+                                                         uniforms, 0,
                                                          &src.r, &src.g, &src.b, &src.a));
 
             if (params.coverage == Coverage::Mask3D) {
@@ -251,7 +246,7 @@ namespace {
                     case Coverage::Full: return false;
 
                     case Coverage::UniformA8: cov->r = cov->g = cov->b = cov->a =
-                                              uniform8(uniforms, offsetof(Uniforms, coverage));
+                                              uniform8(uniform());
                                               return true;
 
                     case Coverage::Mask3D:
@@ -420,7 +415,6 @@ namespace {
                 Coverage::Full,
             }
             , fKey(key(fParams))
-            , fUniforms(sizeof(Uniforms))
         {
             // Color filters have been folded back into shader and/or paint color by now.
             SkASSERT(!paint.getColorFilter());
@@ -492,9 +486,8 @@ namespace {
 
         void updateUniforms() {
             if (const SkShaderBase* shader = as_SB(fParams.shader)) {
-                size_t extra = shader->uniforms(fParams.colorSpace.get(), nullptr);
-                fUniforms.resize(sizeof(Uniforms) + extra);
-                shader->uniforms(fParams.colorSpace.get(), fUniforms.data() + sizeof(Uniforms));
+                fUniforms.resize(shader->uniforms(fParams.colorSpace.get(), nullptr));
+                shader->uniforms(fParams.colorSpace.get(), fUniforms.data());
 
                 for (size_t i = 0; false && i < fUniforms.size(); i++) {
                     SkDebugf("fUniforms[%d] = %02x\n", i, fUniforms[i]);
@@ -516,8 +509,7 @@ namespace {
             }
             this->updateUniforms();
             for (int16_t run = *runs; run > 0; run = *runs) {
-                memcpy(fUniforms.data() + offsetof(Uniforms, coverage), cov, sizeof(*cov));
-                fBlitAntiH.eval(run, fUniforms.data(), fDevice.addr(x,y));
+                fBlitAntiH.eval(run, fUniforms.data(), fDevice.addr(x,y), cov);
 
                 x    += run;
                 runs += run;
