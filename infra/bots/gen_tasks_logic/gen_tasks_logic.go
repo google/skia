@@ -600,6 +600,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 			"Mac":        DEFAULT_OS_MAC,
 			"Mac10.13":   DEFAULT_OS_MAC,
 			"Mac10.14":   "Mac-10.14.3",
+			"Mac10.15":   "Mac-10.15.1",
 			"Ubuntu18":   "Ubuntu-18.04",
 			"Win":        DEFAULT_OS_WIN,
 			"Win10":      "Windows-10-18362",
