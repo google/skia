@@ -45,6 +45,30 @@
       "revId": "c0b20b5dcd5d2e56b5f52ff456b961c94d3ab1b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "526ed7f6_a5d777c1",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-10-31T14:44:43Z",
+      "side": 1,
+      "message": "The code that invokes this looks odd. It allocates pixels in SkBitmap fFlattened of an arbitrary SkImageInfo and then starts writing the results of this function into the bitmap\u0027s pixels. I\u0027m guessing the SkImageInfo it is invoked with at runtime is compensating for this swizzle.",
+      "parentUuid": "515b9324_c18a207b",
+      "range": {
+        "startLine": 428,
+        "startChar": 24,
+        "endLine": 428,
+        "endChar": 45
+      },
+      "revId": "c0b20b5dcd5d2e56b5f52ff456b961c94d3ab1b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
