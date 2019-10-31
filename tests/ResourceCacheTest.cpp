@@ -186,6 +186,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
     }
 }
 
+#ifdef SK_GL
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrResourceProvider* resourceProvider = context->priv().resourceProvider();
@@ -248,6 +249,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
 
     context->resetContext();
 }
+#endif
 
 class TestResource : public GrGpuResource {
     enum ScratchConstructor { kScratchConstructor };

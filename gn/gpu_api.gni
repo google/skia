@@ -1,0 +1,24 @@
+# Copyright 2019 Google LLC.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+  skia_use_egl = false
+  skia_use_gl = !is_fuchsia
+
+  if (is_android) {
+    skia_use_vulkan = defined(ndk_api) && ndk_api >= 24
+  } else if (is_fuchsia) {
+    skia_use_vulkan = true
+  } else {
+    skia_use_vulkan = defined(skia_moltenvk_path) && skia_moltenvk_path != ""
+  }
+
+  if (is_mac) {
+    skia_gl_standard = "gl"
+  } else if (is_ios) {
+    skia_gl_standard = "gles"
+  } else {
+    skia_gl_standard = ""
+  }
+}

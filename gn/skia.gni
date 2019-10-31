@@ -5,12 +5,8 @@
 if (!defined(is_skia_standalone)) {
   is_skia_standalone = false
 }
-is_skia_dev_build = is_skia_standalone && !is_official_build
 
-if (is_fuchsia) {
-  import("//build/fuchsia/sdk.gni")
-  import("//build/vulkan/config.gni")
-}
+is_skia_dev_build = is_skia_standalone && !is_official_build
 
 declare_args() {
   skia_android_serial = ""
@@ -30,6 +26,7 @@ declare_args() {
                             (target_cpu == "arm64" && is_android))
   skia_enable_tools = is_skia_dev_build
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
+  skia_fuchsia_sdk_path = "//sdk"  # From Fuchsia's build root.
   skia_generate_workarounds = false
   skia_include_multiframe_procs = false
   skia_lex = false
@@ -37,9 +34,10 @@ declare_args() {
   skia_qt_path = getenv("QT_PATH")
   skia_skqp_global_error_tolerance = 0
   skia_tools_require_resources = false
+  skia_update_fuchsia_sdk = false
+  skia_using_fuchsia_sdk = false
   skia_use_angle = false
   skia_use_dawn = false
-  skia_use_egl = false
   skia_use_expat = true
   skia_use_experimental_xform = false
   skia_use_ffmpeg = false
@@ -47,12 +45,13 @@ declare_args() {
   skia_use_fontconfig = is_linux
   skia_use_fonthost_mac = is_mac
   skia_use_freetype = is_android || is_fuchsia || is_linux
+  skia_use_fuchsia_sdk = is_fuchsia
   skia_use_harfbuzz = true
   skia_use_icu = !is_fuchsia && !is_ios
   skia_use_libheif = is_skia_dev_build
   skia_use_libjpeg_turbo = true
   skia_use_libpng = true
-  skia_use_libwebp = !is_fuchsia
+  skia_use_libwebp = true
   skia_use_lua = is_skia_dev_build && !is_ios
   skia_use_metal = false
   skia_use_opencl = false
@@ -65,22 +64,6 @@ declare_args() {
   if (is_ios) {
     skia_ios_identity = ".*Google.*"
     skia_ios_profile = "Google Development"
-  }
-
-  if (is_mac) {
-    skia_gl_standard = "gl"
-  } else if (is_ios) {
-    skia_gl_standard = "gles"
-  } else {
-    skia_gl_standard = ""
-  }
-
-  if (is_android) {
-    skia_use_vulkan = defined(ndk_api) && ndk_api >= 24
-  } else if (is_fuchsia) {
-    skia_use_vulkan = fuchsia_use_vulkan
-  } else {
-    skia_use_vulkan = defined(skia_moltenvk_path) && skia_moltenvk_path != ""
   }
 }
 

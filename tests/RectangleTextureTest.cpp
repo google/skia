@@ -17,10 +17,14 @@
 #include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/SkGr.h"
+#ifdef SK_GL
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLUtil.h"
+#endif
 #include "tools/gpu/ProxyUtils.h"
+#ifdef SK_GL
 #include "tools/gpu/gl/GLTestContext.h"
+#endif
 
 // skbug.com/5932
 static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* context,
@@ -117,6 +121,7 @@ static void test_copy_to_surface(skiatest::Reporter* reporter,
     }
 }
 
+#ifdef SK_GL
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
@@ -201,3 +206,4 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
         GR_GL_CALL(glContext->gl(), DeleteTextures(1, &rectTexID));
     }
 }
+#endif

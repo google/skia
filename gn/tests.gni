@@ -3,8 +3,16 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import("gpu_api.gni")
+
 # Things are easiest for everyone if these source paths are absolute.
 _tests = get_path_info("../tests", "abspath")
+
+gl_tests_sources = [
+  "$_tests/EGLImageTest.cpp",
+  "$_tests/GrGLExtensionsTest.cpp",
+  "$_tests/TextureBindingsResetTest.cpp",
+]
 
 tests_sources = [
   "$_tests/AAClipTest.cpp",
@@ -65,7 +73,6 @@ tests_sources = [
   "$_tests/DrawPathTest.cpp",
   "$_tests/DrawTextTest.cpp",
   "$_tests/DynamicHashTest.cpp",
-  "$_tests/EGLImageTest.cpp",
   "$_tests/EmptyPathTest.cpp",
   "$_tests/EncodeTest.cpp",
   "$_tests/EncodedInfoTest.cpp",
@@ -99,7 +106,6 @@ tests_sources = [
   "$_tests/GrContextAbandonTest.cpp",
   "$_tests/GrContextFactoryTest.cpp",
   "$_tests/GrFinishedFlushTest.cpp",
-  "$_tests/GrGLExtensionsTest.cpp",
   "$_tests/GrMemoryPoolTest.cpp",
   "$_tests/GrMeshTest.cpp",
   "$_tests/GrMipMappedTest.cpp",
@@ -286,7 +292,6 @@ tests_sources = [
   "$_tests/TestUtils.h",
   "$_tests/TextBlobCacheTest.cpp",
   "$_tests/TextBlobTest.cpp",
-  "$_tests/TextureBindingsResetTest.cpp",
   "$_tests/TextureProxyTest.cpp",
   "$_tests/TextureStripAtlasManagerTest.cpp",
   "$_tests/Time.cpp",
@@ -312,6 +317,10 @@ tests_sources = [
   "$_tests/YUVCacheTest.cpp",
   "$_tests/YUVTest.cpp",
 ]
+
+if (skia_use_gl) {
+  tests_sources += gl_tests_sources
+}
 
 metal_tests_sources = [ "$_tests/MtlBackendAllocationTest.mm" ]
 
