@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "515b9324_c18a207b",
+        "filename": "gm/wacky_yuv_formats.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-10-31T14:26:16Z",
+      "side": 1,
+      "message": "The old code was like this, and appears to work. I didn\u0027t want to mess that up, but something strange is happening here.",
+      "range": {
+        "startLine": 428,
+        "startChar": 24,
+        "endLine": 428,
+        "endChar": 45
+      },
+      "revId": "c0b20b5dcd5d2e56b5f52ff456b961c94d3ab1b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
