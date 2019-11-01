@@ -223,6 +223,6 @@ protected:
     CustomFeatures fRequestedFeatures = CustomFeatures::kNone;
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrProcessor::CustomFeatures);
+GR_MAKE_BITFIELD_CLASS_OPS(GrProcessor::CustomFeatures)
 
 #endif
