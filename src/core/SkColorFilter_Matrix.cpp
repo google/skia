@@ -123,7 +123,7 @@ sk_sp<SkColorFilter> SkColorFilters::Matrix(const float array[20]) {
 }
 
 sk_sp<SkColorFilter> SkColorFilters::Matrix(const SkColorMatrix& cm) {
-    return MakeMatrix(cm.fMat, SkColorFilter_Matrix::Domain::kRGBA);
+    return MakeMatrix(cm.fMat.data(), SkColorFilter_Matrix::Domain::kRGBA);
 }
 
 sk_sp<SkColorFilter> SkColorFilters::HSLAMatrix(const float array[20]) {
