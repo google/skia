@@ -156,24 +156,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
         bool usePaths =
                 useSDFT ? false : SkStrikeSpec::ShouldDrawAsPath(runPaint, runFont, viewMatrix);
 
-        if (!useSDFT && !usePaths) {
-            // Process masks - this should be the 99.99% case.
-
-            SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
-                    runFont, runPaint, fDeviceProps, fScalerContextFlags, viewMatrix);
-
-            SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
-
-            fDrawable.startDevice(fRejects.source(), origin, viewMatrix, strike->roundingSpec());
-            strike->prepareForMaskDrawing(&fDrawable, &fRejects);
-            fRejects.flipRejectsToSource();
-
-            if (process) {
-                // processDeviceMasks must be called even if there are no glyphs to make sure runs
-                // are set correctly.
-                process->processDeviceMasks(fDrawable.drawable(), strikeSpec);
-            }
-        } else if (useSDFT) {
+        if (useSDFT) {
             // Process SDFT - This should be the .009% case.
             SkScalar minScale, maxScale;
             SkStrikeSpec strikeSpec;
@@ -196,12 +179,32 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             }
         }
 
+        if (!usePaths && !fRejects.source().empty()) {
+            // Process masks including ARGB - this should be the 99.99% case.
+
+            SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
+                    runFont, runPaint, fDeviceProps, fScalerContextFlags, viewMatrix);
+
+            SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+
+            fDrawable.startDevice(fRejects.source(), origin, viewMatrix, strike->roundingSpec());
+            strike->prepareForMaskDrawing(&fDrawable, &fRejects);
+            fRejects.flipRejectsToSource();
+
+            if (process) {
+                // processDeviceMasks must be called even if there are no glyphs to make sure runs
+                // are set correctly.
+                process->processDeviceMasks(fDrawable.drawable(), strikeSpec);
+            }
+        }
+
         // Glyphs are generated in different scales relative to the source space. Masks are drawn
-        // in device space, and SDFT and Paths are draw in a fixed constant space. This is the
-        // factor used to scale the generated glyphs back to source space.
+        // in device space, and SDFT and Paths are draw in a fixed constant space. The
+        // maxDimensionInSourceSpace is used to calculate the factor from strike space to source
+        // space.
         SkScalar maxDimensionInSourceSpace = 0.0;
         if (!fRejects.source().empty()) {
-            // Path case
+            // Path case - handle big things without color and that have a path.
             SkStrikeSpec strikeSpec = SkStrikeSpec::MakePath(
                     runFont, runPaint, fDeviceProps, fScalerContextFlags);
 
@@ -222,85 +225,22 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             }
         }
 
-        // Getting glyphs to the screen in a fallback situation can be complex. Here is the set of
-        // transformations that have to happen. Normally, they would all be accommodated by the font
-        // scaler, but the atlas has an upper limit to the glyphs it can handle. So the GPU is used
-        // to make up the difference from the smaller atlas size to the larger size needed by the
-        // final transform. Here are the transformations that are applied.
-        //
-        // final transform = [view matrix] * [text scale] * [text size]
-        //
-        // There are three cases:
-        // * Go Fast - view matrix is scale and translate, and all the glyphs are small enough
-        //   Just scale the positions, and have the glyph cache handle the view matrix
-        //   transformation.
-        //   The text scale is 1.
-        // * It's complicated - view matrix is not scale and translate, and the glyphs are small
-        //   enough The glyph cache does not handle the view matrix, but stores the glyphs at the
-        //   text size specified by the run paint. The GPU handles the rotation, etc. specified
-        //   by the view matrix.
-        //   The text scale is 1.
-        // * Too big - The glyphs are too big to fit in the atlas
-        //   Reduce the text size so the glyphs will fit in the atlas, but don't apply any
-        //   transformations from the view matrix. Calculate a text scale based on that reduction.
-        //   This scale factor is used to increase the size of the destination rectangles. The
-        //   destination rectangles are then scaled, rotated, etc. by the GPU using the view matrix.
-
         if (!fRejects.source().empty() && maxDimensionInSourceSpace != 0) {
+            // Draw of last resort. Scale the bitmap to the screen.
+            SkStrikeSpec strikeSpec = SkStrikeSpec::MakeSourceFallback(
+                    runFont, runPaint, fDeviceProps,
+                    fScalerContextFlags, maxDimensionInSourceSpace);
 
-            SkScalar maxScale = viewMatrix.getMaxScale();
-
-            // This is a linear estimate of the longest dimension among all the glyph widths and
-            // heights.
-            SkScalar conservativeMaxGlyphDimension = maxDimensionInSourceSpace * maxScale;
-
-            // If the situation that the matrix is simple, and all the glyphs are small enough.
-            // Go fast!
-            // N.B. If the matrix has scale, that will be reflected in the strike through the
-            // viewMatrix in the useFastPath case.
-            bool useDeviceCache =
-                    viewMatrix.isScaleTranslate()
-                    && conservativeMaxGlyphDimension <= SkStrikeCommon::kSkSideTooBigForAtlas;
-
-            // A scaled and translated transform is the common case, and is handled directly in
-            // fallback. Even if the transform is scale and translate, fallback must be careful
-            // to use glyphs that fit in the atlas. If a glyph will not fit in the atlas, then
-            // the general transform case is used to render the glyphs.
-            if (useDeviceCache) {
-                SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
-                        runFont, runPaint, fDeviceProps, fScalerContextFlags, viewMatrix);
-
+            if (!strikeSpec.isEmpty()) {
                 SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-                fDrawable.startDevice(
-                        fRejects.source(), origin, viewMatrix, strike->roundingSpec());
-
+                fDrawable.startSource(fRejects.source(), origin);
                 strike->prepareForMaskDrawing(&fDrawable, &fRejects);
                 fRejects.flipRejectsToSource();
                 SkASSERT(fRejects.source().empty());
 
                 if (process) {
-                    process->processDeviceMasks(fDrawable.drawable(), strikeSpec);
-                }
-            } else {
-                // If the matrix is complicated or if scaling is used to fit the glyphs in the
-                // atlas, then this case is used.
-
-                SkStrikeSpec strikeSpec = SkStrikeSpec::MakeSourceFallback(
-                        runFont, runPaint, fDeviceProps,
-                        fScalerContextFlags, maxDimensionInSourceSpace);
-
-                if (!strikeSpec.isEmpty()) {
-                    SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
-
-                    fDrawable.startSource(fRejects.source(), origin);
-                    strike->prepareForMaskDrawing(&fDrawable, &fRejects);
-                    fRejects.flipRejectsToSource();
-                    SkASSERT(fRejects.source().empty());
-
-                    if (process) {
-                        process->processSourceMasks(fDrawable.drawable(), strikeSpec);
-                    }
+                    process->processSourceMasks(fDrawable.drawable(), strikeSpec);
                 }
             }
         }
