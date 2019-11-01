@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42f39330_9dd174c3",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1019,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-01T15:51:23Z",
+      "side": 1,
+      "message": "In some ways, updating this call is more important overall, though of course this doesn\u0027t directly affect the reported variations (since that\u0027s on the typeface).",
+      "range": {
+        "startLine": 1019,
+        "startChar": 12,
+        "endLine": 1019,
+        "endChar": 40
+      },
+      "revId": "f5c010a8bb22813b586d17ab04d24acdb36e1ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88e0bf15_c7ec5e7b",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2774,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-01T15:51:23Z",
+      "side": 1,
+      "message": "It\u0027s easier to just fold this into copy_axes.",
+      "range": {
+        "startLine": 2774,
+        "startChar": 46,
+        "endLine": 2774,
+        "endChar": 77
+      },
+      "revId": "f5c010a8bb22813b586d17ab04d24acdb36e1ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a55a3dc_d4e14dd3",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2811,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-01T15:51:23Z",
+      "side": 1,
+      "message": "We might be able to get away with passing in a descriptor which doesn\u0027t specify axes on 10.10, I\u0027ll need to check (fortunately, I have a 10.10 with a dev environment still set up...)",
+      "range": {
+        "startLine": 2811,
+        "startChar": 13,
+        "endLine": 2811,
+        "endChar": 31
+      },
+      "revId": "f5c010a8bb22813b586d17ab04d24acdb36e1ca4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
