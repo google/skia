@@ -168,7 +168,7 @@ void GrDawnTexture::upload(const GrMipLevel texels[], int mipLevels, const SkIRe
         copyEncoder.CopyBufferToTexture(&srcBuffer, &dstTexture, &copySize);
         x /= 2;
         y /= 2;
-        width /= 2;
-        height /= 2;
+        width = SkTMax(1u, width / 2);
+        height = SkTMax(1u, height / 2);
     }
 }
