@@ -30,6 +30,7 @@ public:
         kUniformBinding = 0,
         kSamplerBindingBase = 1,
     };
+    uint32_t getRTHeightOffset() const;
 
 private:
     explicit GrDawnUniformHandler(GrGLSLProgramBuilder* program);
@@ -55,6 +56,7 @@ private:
     SkTArray<SkString>   fSamplerReferences;
 
     uint32_t fCurrentUBOOffset = 0;
+    uint32_t fRTHeightOffset = 0;
 
     friend class GrDawnProgramBuilder;
     typedef GrGLSLUniformHandler INHERITED;
