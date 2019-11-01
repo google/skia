@@ -178,10 +178,11 @@ SK_API bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alph
     It can be used to visualize the YUV planes or to explicitly post process the YUV channels.
 */
 enum SkYUVColorSpace {
-    kJPEG_SkYUVColorSpace,                               //!< describes full range
-    kRec601_SkYUVColorSpace,                             //!< describes SDTV range
-    kRec709_SkYUVColorSpace,                             //!< describes HDTV range
-    kIdentity_SkYUVColorSpace,                           //!< maps Y->R, U->G, V->B
+    kJPEG_SkYUVColorSpace,                      //!< describes full range
+    kRec601_SkYUVColorSpace,                    //!< describes SDTV range
+    kRec709_SkYUVColorSpace,                    //!< describes HDTV range
+    kBT2020_SkYUVColorSpace,                    //!< describes UHDTV range, non-constant-luminance
+    kIdentity_SkYUVColorSpace,                  //!< maps Y->R, U->G, V->B
 
     kLastEnum_SkYUVColorSpace = kIdentity_SkYUVColorSpace, //!< last valid value
 };
