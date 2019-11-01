@@ -177,10 +177,12 @@ private:
 
     void destroyResources();
 
-    GrBackendTexture onCreateBackendTexture(int w, int h, const GrBackendFormat&,
-                                            GrMipMapped, GrRenderable,
-                                            const SkPixmap srcData[], int numMipLevels,
-                                            const SkColor4f* color, GrProtected) override;
+    GrBackendTexture onCreateBackendTexture(SkISize,
+                                            const GrBackendFormat&,
+                                            GrRenderable,
+                                            const BackendTextureData*,
+                                            int numMipLevels,
+                                            GrProtected) override;
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&,
                                      const GrBackendFormat& format,
                                      GrRenderable,
@@ -263,11 +265,14 @@ private:
     void resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect& srcRect,
                       const SkIPoint& dstPoint);
 
-    bool createVkImageForBackendSurface(VkFormat vkFormat, int w, int h, bool texturable,
-                                        bool renderable, GrMipMapped mipMapped,
-                                        const SkPixmap srcData[], int numMipLevels,
-                                        const SkColor4f* color, GrVkImageInfo* info,
-                                        GrProtected isProtected);
+    bool createVkImageForBackendSurface(VkFormat,
+                                        SkISize,
+                                        bool texturable,
+                                        bool renderable,
+                                        const BackendTextureData*,
+                                        int numMipLevels,
+                                        GrVkImageInfo*,
+                                        GrProtected);
 
     sk_sp<const GrVkInterface>                            fInterface;
     sk_sp<GrVkMemoryAllocator>                            fMemoryAllocator;
