@@ -536,9 +536,8 @@ wgpu::BindGroup GrDawnProgram::setData(GrDawnGpu* gpu, const GrRenderTarget* ren
     SkIPoint offset;
     GrTexture* dstTexture = pipeline.peekDstTexture(&offset);
     fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
-    if (GrTextureProxy* proxy = pipeline.dstTextureProxy()) {
-        GrFragmentProcessor::TextureSampler sampler(sk_ref_sp(proxy));
-        setTexture(gpu, sampler.samplerState(), sampler.peekTexture(), &bindings, &binding);
+    if (dstTexture) {
+        setTexture(gpu, GrSamplerState::ClampNearest(), dstTexture, &bindings, &binding);
     }
     fDataManager.uploadUniformBuffers(gpu, slice);
     wgpu::BindGroupDescriptor descriptor;
