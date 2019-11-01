@@ -9,30 +9,29 @@
 #define SkColorMatrix_DEFINED
 
 #include "include/core/SkTypes.h"
-#include <memory.h>
+
+#include <algorithm>
+#include <array>
 
 class SK_API SkColorMatrix {
 public:
+    constexpr SkColorMatrix() : SkColorMatrix(1, 0, 0, 0, 0,
+                                              0, 1, 0, 0, 0,
+                                              0, 0, 1, 0, 0,
+                                              0, 0, 0, 1, 0) {}
+
+    constexpr SkColorMatrix(float m00, float m01, float m02, float m03, float m04,
+                            float m10, float m11, float m12, float m13, float m14,
+                            float m20, float m21, float m22, float m23, float m24,
+                            float m30, float m31, float m32, float m33, float m34)
+        : fMat { m00, m01, m02, m03, m04,
+                 m10, m11, m12, m13, m14,
+                 m20, m21, m22, m23, m24,
+                 m30, m31, m32, m33, m34 } {}
+
     void setIdentity();
     void setScale(float rScale, float gScale, float bScale, float aScale = 1.0f);
 
-    void setRowMajor(const float src[20]) {
-        memcpy(fMat, src, sizeof(fMat));
-    }
-
-    void getRowMajor(float dst[20]) const {
-        memcpy(dst, fMat, sizeof(fMat));
-    }
-
-    enum Axis {
-        kR_Axis = 0,
-        kG_Axis = 1,
-        kB_Axis = 2
-    };
-    void setRotate(Axis, float degrees);
-    void setSinCos(Axis, float sine, float cosine);
-    void preRotate(Axis, float degrees);
-    void postRotate(Axis, float degrees);
     void postTranslate(float dr, float dg, float db, float da);
 
     void setConcat(const SkColorMatrix& a, const SkColorMatrix& b);
@@ -40,25 +39,12 @@ public:
     void postConcat(const SkColorMatrix& mat) { this->setConcat(mat, *this); }
 
     void setSaturation(float sat);
-    void setRGB2YUV();
-    void setYUV2RGB();
 
-    bool operator==(const SkColorMatrix& other) const {
-        return 0 == memcmp(fMat, other.fMat, sizeof(fMat));
-    }
-
-    bool operator!=(const SkColorMatrix& other) const { return !((*this) == other); }
-
-    float* get20(float m[20]) const {
-        memcpy(m, fMat, sizeof(fMat));
-        return m;
-    }
-    void set20(const float m[20]) {
-        memcpy(fMat, m, sizeof(fMat));
-    }
+    void setRowMajor(const float src[20]) { std::copy_n(src, 20, fMat.begin()); }
+    void getRowMajor(float dst[20]) const { std::copy_n(fMat.begin(), 20, dst); }
 
 private:
-    float fMat[20];
+    std::array<float, 20> fMat;
 
     friend class SkColorFilters;
 };
