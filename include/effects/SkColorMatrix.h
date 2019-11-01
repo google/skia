@@ -24,15 +24,6 @@ public:
         memcpy(dst, fMat, sizeof(fMat));
     }
 
-    enum Axis {
-        kR_Axis = 0,
-        kG_Axis = 1,
-        kB_Axis = 2
-    };
-    void setRotate(Axis, float degrees);
-    void setSinCos(Axis, float sine, float cosine);
-    void preRotate(Axis, float degrees);
-    void postRotate(Axis, float degrees);
     void postTranslate(float dr, float dg, float db, float da);
 
     void setConcat(const SkColorMatrix& a, const SkColorMatrix& b);
@@ -40,22 +31,12 @@ public:
     void postConcat(const SkColorMatrix& mat) { this->setConcat(mat, *this); }
 
     void setSaturation(float sat);
-    void setRGB2YUV();
-    void setYUV2RGB();
 
     bool operator==(const SkColorMatrix& other) const {
         return 0 == memcmp(fMat, other.fMat, sizeof(fMat));
     }
 
     bool operator!=(const SkColorMatrix& other) const { return !((*this) == other); }
-
-    float* get20(float m[20]) const {
-        memcpy(m, fMat, sizeof(fMat));
-        return m;
-    }
-    void set20(const float m[20]) {
-        memcpy(fMat, m, sizeof(fMat));
-    }
 
 private:
     float fMat[20];
