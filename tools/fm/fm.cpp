@@ -66,6 +66,7 @@ static DEFINE_bool(PDFA, false, "Create PDF/A with --backend pdf?");
 
 static DEFINE_bool   (cpuDetect, true, "Detect CPU features for runtime optimizations?");
 static DEFINE_string2(writePath, w, "", "Write .pngs to this directory if set.");
+static DEFINE_bool   (quick, false, "Skip image hashing and encoding?");
 
 static DEFINE_string(writeShaders, "", "Write GLSL shaders to this directory if set.");
 
@@ -541,39 +542,44 @@ int main(int argc, char** argv) {
             continue;
         }
 
+        // We read back a bitmap even when --quick is set and we won't use it,
+        // to keep us honest about deferred work, flushing pipelines, etc.
         SkBitmap bitmap;
         if (image && !image->asLegacyBitmap(&bitmap)) {
             SK_ABORT("SkImage::asLegacyBitmap() failed.");
         }
 
-        HashAndEncode hashAndEncode{bitmap};
         SkString md5;
-        {
-            SkMD5 hash;
-            if (image) {
-                hashAndEncode.write(&hash);
-            } else {
-                hash.write(blob->data(), blob->size());
-            }
-
-            SkMD5::Digest digest = hash.finish();
-            for (int i = 0; i < 16; i++) {
-                md5.appendf("%02x", digest.data[i]);
-            }
-        }
-
-        if (!FLAGS_writePath.isEmpty()) {
-            sk_mkdir(FLAGS_writePath[0]);
-            SkString path = SkStringPrintf("%s/%s%s", FLAGS_writePath[0], source.name.c_str(), ext);
-
-            if (image) {
-                if (!hashAndEncode.writePngTo(path.c_str(), md5.c_str(),
-                                              FLAGS_key, FLAGS_properties)) {
-                    SK_ABORT("Could not write .png.");
+        if (!FLAGS_quick) {
+            HashAndEncode hashAndEncode{bitmap};
+            {
+                SkMD5 hash;
+                if (image) {
+                    hashAndEncode.write(&hash);
+                } else {
+                    hash.write(blob->data(), blob->size());
                 }
-            } else {
-                SkFILEWStream file(path.c_str());
-                file.write(blob->data(), blob->size());
+
+                SkMD5::Digest digest = hash.finish();
+                for (int i = 0; i < 16; i++) {
+                    md5.appendf("%02x", digest.data[i]);
+                }
+            }
+
+            if (!FLAGS_writePath.isEmpty()) {
+                sk_mkdir(FLAGS_writePath[0]);
+                SkString path = SkStringPrintf("%s/%s%s",
+                                               FLAGS_writePath[0], source.name.c_str(), ext);
+
+                if (image) {
+                    if (!hashAndEncode.writePngTo(path.c_str(), md5.c_str(),
+                                                  FLAGS_key, FLAGS_properties)) {
+                        SK_ABORT("Could not write .png.");
+                    }
+                } else {
+                    SkFILEWStream file(path.c_str());
+                    file.write(blob->data(), blob->size());
+                }
             }
         }
 
