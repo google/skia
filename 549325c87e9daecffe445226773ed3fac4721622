@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "064079dc_bc699ca2",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 895,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-01T18:15:45Z",
+      "side": 1,
+      "message": "This and all the sk_ref_sp()s below makes me wish we had proxyView.refTextureProxy(). Seems like an unnecessary detour out of smart pointer land.",
+      "range": {
+        "startLine": 895,
+        "startChar": 4,
+        "endLine": 895,
+        "endChar": 55
+      },
+      "revId": "549325c87e9daecffe445226773ed3fac4721622",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
