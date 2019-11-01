@@ -18,6 +18,7 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrTexturePriv.h"
 
 void GrOpsRenderPass::clear(const GrFixedClip& clip, const SkPMColor4f& color) {
@@ -44,6 +45,8 @@ bool GrOpsRenderPass::draw(const GrProgramInfo& programInfo,
 #ifdef SK_DEBUG
     SkASSERT(!programInfo.primProc().hasInstanceAttributes() ||
              this->gpu()->caps()->instanceAttribSupport());
+    SkASSERT(!programInfo.pipeline().usesConservativeRaster() ||
+             this->gpu()->caps()->conservativeRasterSupport());
 
     programInfo.compatibleWithMeshes(meshes, meshCount);
     programInfo.checkAllInstantiated();
