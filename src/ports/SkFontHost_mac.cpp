@@ -362,6 +362,12 @@ static constexpr const uint8_t kSpiderSymbol_ttf[] = {
     0x00, 0x02, 0x00, 0x00
 };
 
+// In order to be able to compile against the 10.10 SDK or before, define the
+// version number locally. Used for detection whether optical size can be passed
+// into CTFontCopyGraphicsFont.
+static constexpr uint32_t kSkiaCTVersionNumber10_11 = 0x00080000;
+extern const CFStringRef kCTFontOpticalSizeAttribute;
+
 enum class SmoothBehavior {
     none, // SmoothFonts produces no effect.
     some, // SmoothFonts produces some effect, but not subpixel coverage.
@@ -2560,6 +2566,7 @@ private:
 class SkFontMgr_Mac : public SkFontMgr {
     SkUniqueCFRef<CFArrayRef> fNames;
     int fCount;
+    bool fAvoidOpszOnCTFont;
 
     CFStringRef getFamilyNameAt(int index) const {
         SkASSERT((unsigned)index < (unsigned)fCount);
@@ -2593,7 +2600,8 @@ class SkFontMgr_Mac : public SkFontMgr {
 public:
     SkFontMgr_Mac()
         : fNames(CopyAvailableFontFamilyNames())
-        , fCount(fNames ? SkToInt(CFArrayGetCount(fNames.get())) : 0) {}
+        , fCount(fNames ? SkToInt(CFArrayGetCount(fNames.get())) : 0)
+        , fAvoidOpszOnCTFont(&CTGetCoreTextVersion == nullptr || CTGetCoreTextVersion() < kSkiaCTVersionNumber10_11) {}
 
 protected:
     int onCountFamilies() const override {
@@ -2763,6 +2771,26 @@ protected:
         }
         return dict;
     }
+    static SkUniqueCFRef<CTFontDescriptorRef> makeOpszDescriptorFromArguments(const SkFontArguments& args) {
+            SkFourByteTag opszTag = SkSetFourByteTag('o', 'p', 's', 'z');
+        SkFontArguments::VariationPosition var_position = args.getVariationDesignPosition();
+        CGFloat opszValue = 0;
+        for (int i = 0; i < var_position.coordinateCount; ++i) {
+          if (var_position.coordinates[i].axis == opszTag)
+            opszValue = var_position.coordinates[i].value;
+        }
+        SkUniqueCFRef<CFMutableDictionaryRef> cfOpszAttribute(
+            CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
+                                      &kCFTypeDictionaryKeyCallBacks,
+                                      &kCFTypeDictionaryValueCallBacks));
+
+        SkUniqueCFRef<CFNumberRef> cfOpticalSize(
+            CFNumberCreate(kCFAllocatorDefault, kCFNumberCGFloatType, &opszValue));
+        if (cfOpticalSize) {
+          CFDictionaryAddValue(cfOpszAttribute.get(), kCTFontOpticalSizeAttribute, cfOpticalSize.get());
+        }
+        return SkUniqueCFRef<CTFontDescriptorRef>(CTFontDescriptorCreateWithAttributes(cfOpszAttribute.get()));
+    }
     sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset> s,
                                            const SkFontArguments& args) const override {
         if (args.getCollectionIndex() != 0) {
@@ -2777,6 +2805,13 @@ protected:
             return nullptr;
         }
 
+
+        SkUniqueCFRef<CTFontDescriptorRef> opszDescriptor;
+        // Do not create and pass in an explicit opsz axis values on Mac OS < 10.11 where this would crash.
+        if (!fAvoidOpszOnCTFont) {
+          opszDescriptor = makeOpszDescriptorFromArguments(args);
+        }
+
         SkUniqueCFRef<CFDictionaryRef> cgVariations = copy_axes(cg.get(), args);
         // The CGFontRef returned by CGFontCreateCopyWithVariations when the passed CGFontRef was
         // created from a data provider does not appear to have any ownership of the underlying
@@ -2788,8 +2823,9 @@ protected:
             cgVariant.reset(cg.release());
         }
 
+
         SkUniqueCFRef<CTFontRef> ct(
-                CTFontCreateWithGraphicsFont(cgVariant.get(), 0, nullptr, nullptr));
+             CTFontCreateWithGraphicsFont(cgVariant.get(), 0, nullptr, opszDescriptor.get()));
         if (!ct) {
             return nullptr;
         }
