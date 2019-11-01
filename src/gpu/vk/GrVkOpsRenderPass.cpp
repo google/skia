@@ -527,7 +527,7 @@ void GrVkOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
     }
 
     // Both the 'programInfo' and this renderPass have an origin. Since they come from the
-    // same place (i.e., the target renderTargetProxy) that had best agree.
+    // same place (i.e., the target renderTargetProxy) they had best agree.
     SkASSERT(programInfo.origin() == fOrigin);
 #endif
 
@@ -549,6 +549,9 @@ void GrVkOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
 
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
+
+        SkASSERT(programInfo.primitiveType1() == mesh.primitiveType());
+
         if (mesh.primitiveType() != primitiveType) {
             SkDEBUGCODE(pipelineState = nullptr);
             primitiveType = mesh.primitiveType();

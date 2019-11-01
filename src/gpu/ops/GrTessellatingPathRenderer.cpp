@@ -372,18 +372,20 @@ private:
 
     void drawVertices(Target* target, sk_sp<const GrGeometryProcessor> gp, sk_sp<const GrBuffer> vb,
                       int firstVertex, int count) {
-        GrMesh* mesh = target->allocMesh(TESSELLATOR_WIREFRAME ? GrPrimitiveType::kLines
-                                                               : GrPrimitiveType::kTriangles);
+        GrPrimitiveType primitiveType = TESSELLATOR_WIREFRAME ? GrPrimitiveType::kLines
+                                                              : GrPrimitiveType::kTriangles;
+
+        GrMesh* mesh = target->allocMesh(primitiveType);
         mesh->setNonIndexedNonInstanced(count);
         mesh->setVertexData(std::move(vb), firstVertex);
-        target->recordDraw(std::move(gp), mesh);
+        target->recordDraw(std::move(gp), mesh, 1, primitiveType);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
     }
 
-    Helper fHelper;
+    Helper                  fHelper;
     SkPMColor4f             fColor;
     GrShape                 fShape;
     SkMatrix                fViewMatrix;
