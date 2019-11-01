@@ -53,6 +53,7 @@ namespace GrQuadUtils {
 
     private:
         struct EdgeVectors;
+        struct OutsetRequest;
 
         struct Vertices {
             // X, Y, and W coordinates in device space. If not perspective, w should be set to 1.f
@@ -62,14 +63,12 @@ namespace GrQuadUtils {
             skvx::Vec<4, float> fU, fV, fR;
             int fUVRCount;
 
-            // Update the device and optional local coordinates by moving 'signedOutsets' distance
-            // along the edge vectors at each corner. If an outset distance is positive, the corner
-            // will move away from the interior, and if it is negative, the corner is effectively
-            // inset by that distance instead. 'mask' should be 1 or 0 to prevent 'signedOutsets'
-            // from actually affecting that edge.
+            // Update the device and optional local coordinates by adding outsets * (dx, dy) and
+            // outsetsCW * next_cw(dx, dy) to each corner. This creates valid inset or outset
+            // geometry when the outset request is not degenerate.
             void moveAlong(const EdgeVectors& edgeVectors,
-                           const skvx::Vec<4, float>& signedOutsets,
-                           const skvx::Vec<4, float>& mask);
+                           const OutsetRequest& outsetRequest,
+                           bool inset);
             // Update the device coordinates by deriving (x,y,w) that project to (x2d, y2d), with
             // optional local coordinates updated to match the new vertices. It is assumed that
             // 'mask' was respected when determing (x2d, y2d), but it is used to ensure that only
@@ -99,16 +98,19 @@ namespace GrQuadUtils {
         };
 
         struct OutsetRequest {
+            // Positive edge distances to move each edge of the quad. These distances represent the
+            // shortest (perpendicular) distance between the original edge and the inset or outset
+            // edge. If the distance is 0, then the edge will not move.
+            skvx::Vec<4, float> fEdgeDistances;
             // Amount to move along each edge vector for an outset (or an inset if mul. by -1). (the
             // signed distance is determined by the actual function call, storing positive values
-            // allows calculations to be shared between insets and outsets).
+            // allows calculations to be shared between insets and outsets). When moving a corner,
+            // it is moved along two independent vectors (its edge and its cw-rotated edge), scaled
+            // by the appropriate lengths stored below.
             skvx::Vec<4, float> fOutsets;
-            // Edge mask (set to all 1s if aa flags is kAll), otherwise 1.f if edge was AA,
-            // 0.f if non-AA.
-            skvx::Vec<4, float> fMask;
+            skvx::Vec<4, float> fOutsetsCW;
             // True if the new corners cannot be calculated by simply adding scaled edge vectors.
-            // If degenerate, fOutsets may have stale values or produce incorrect outsets when
-            // scaling the edge vectors.
+            // If degenerate, fOutsets[CW] should be ignored.
             bool fDegenerate;
         };
 
@@ -136,7 +138,6 @@ namespace GrQuadUtils {
         // Outsets or insets 'vertices' in place. To be used when the interior is very small, edges
         // are near parallel, or edges are very short/zero-length. Returns coverage for each vertex.
         skvx::Vec<4, float> computeDegenerateQuad(const skvx::Vec<4, float>& signedEdgeDistances,
-                                                  const skvx::Vec<4, float>& mask,
                                                   const EdgeEquations& edges,
                                                   Vertices* vertices);
         // Outsets or insets 'vertices' based on the outset request described by 'outsetRequest'
