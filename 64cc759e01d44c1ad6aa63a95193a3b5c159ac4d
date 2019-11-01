@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85e143d5_02d2dcd0",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-01T16:27:16Z",
+      "side": 1,
+      "message": "I\u0027m not sure we need this assert anymore",
+      "revId": "64cc759e01d44c1ad6aa63a95193a3b5c159ac4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
