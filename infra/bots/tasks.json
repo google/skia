@@ -19136,7 +19136,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "perf_skia_bundled.isolate",
+      "isolate": "pathkit.isolate",
       "max_attempts": 2,
       "outputs": [
         "perf"
@@ -19218,7 +19218,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "perf_skia_bundled.isolate",
+      "isolate": "canvaskit.isolate",
       "max_attempts": 2,
       "outputs": [
         "perf"
@@ -19305,7 +19305,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "perf_skia_bundled.isolate",
+      "isolate": "pathkit.isolate",
       "max_attempts": 2,
       "outputs": [
         "perf"
@@ -19474,7 +19474,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "perf_skia_bundled.isolate",
+      "isolate": "canvaskit.isolate",
       "max_attempts": 2,
       "outputs": [
         "perf"
@@ -35329,7 +35329,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "swarm_recipe.isolate",
+      "isolate": "pathkit.isolate",
       "max_attempts": 2,
       "outputs": [
         "test"
@@ -35419,7 +35419,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "swarm_recipe.isolate",
+      "isolate": "canvaskit.isolate",
       "max_attempts": 2,
       "outputs": [
         "test"
@@ -35509,7 +35509,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "swarm_recipe.isolate",
+      "isolate": "pathkit.isolate",
       "max_attempts": 2,
       "outputs": [
         "test"
@@ -35601,7 +35601,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "swarm_recipe.isolate",
+      "isolate": "canvaskit.isolate",
       "max_attempts": 2,
       "outputs": [
         "test"
