@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12e77927_3a94ccf9",
+        "filename": "modules/canvaskit/tests/path.spec.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-11-01T17:17:54Z",
+      "side": 1,
+      "message": "demonstrate chaining?",
+      "revId": "b61c6a5209fbdafcad13ad70cbeb9bd4d3adba87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
