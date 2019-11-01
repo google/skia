@@ -414,7 +414,7 @@ int GrResourceProvider::NumVertsPerNonAAQuad() { return kVertsPerNonAAQuad; }
 int GrResourceProvider::NumIndicesPerNonAAQuad() { return kIndicesPerNonAAQuad; }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-static constexpr int kMaxNumAAQuads = 1 << 12;  // max possible: (1 << 13) - 1;
+static constexpr int kMaxNumAAQuads = 1 << 9;  // max possible: (1 << 13) - 1;
 static const int kVertsPerAAQuad = 8;
 static const int kIndicesPerAAQuad = 30;
 
