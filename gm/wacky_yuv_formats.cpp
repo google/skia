@@ -918,7 +918,7 @@ static sk_sp<SkImage> make_yuv_gen_image(const SkImageInfo& ii,
 }
 
 static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaque) {
-    static const char* kYUVColorSpaceNames[] = { "JPEG", "601", "709", "Identity" };
+    static const char* kYUVColorSpaceNames[] = { "JPEG", "601", "709", "2020", "Identity" };
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kYUVColorSpaceNames) == kLastEnum_SkYUVColorSpace+1);
 
     SkPaint paint;
@@ -1464,7 +1464,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(1024, 768);
+        return SkISize::Make(1280, 768);
     }
 
     void onOnceBeforeDraw() override {
@@ -1493,7 +1493,8 @@ protected:
 
         canvas->translate(fOrig->width(), 0);
         canvas->save();
-        for (auto cs : {kRec709_SkYUVColorSpace, kRec601_SkYUVColorSpace, kJPEG_SkYUVColorSpace}) {
+        for (auto cs : {kRec709_SkYUVColorSpace, kRec601_SkYUVColorSpace, kJPEG_SkYUVColorSpace,
+                        kBT2020_SkYUVColorSpace}) {
             split_into_yuv(fOrig.get(), cs, fPM);
             auto img = SkImage::MakeFromYUVAPixmaps(canvas->getGrContext(), cs, fPM, indices,
                                                     fPM[0].info().dimensions(),
