@@ -225,8 +225,8 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
     const GrXferProcessor& xp = programInfo.pipeline().getXferProcessor();
     const GrSurfaceOrigin* originIfDstTexture = nullptr;
     GrSurfaceOrigin origin;
-    if (programInfo.pipeline().dstTextureProxy()) {
-        origin = programInfo.pipeline().dstTextureProxy()->origin();
+    if (programInfo.pipeline().dstProxyView().proxy()) {
+        origin = programInfo.pipeline().dstProxyView().origin();
         originIfDstTexture = &origin;
     }
     xp.getGLSLProcessorKey(shaderCaps, &b, originIfDstTexture);

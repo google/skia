@@ -35,7 +35,7 @@ class GrRenderTargetProxy;
 
 class GrOpsTask : public GrRenderTask {
 private:
-    using DstProxy = GrXferProcessor::DstProxy;
+    using DstProxyView = GrXferProcessor::DstProxyView;
 
 public:
     GrOpsTask(sk_sp<GrOpMemoryPool>, GrSurfaceProxyView, GrAuditTrail*);
@@ -81,7 +81,7 @@ public:
     }
 
     void addDrawOp(std::unique_ptr<GrDrawOp> op, const GrProcessorSet::Analysis& processorAnalysis,
-                   GrAppliedClip&& clip, const DstProxy& dstProxy,
+                   GrAppliedClip&& clip, const DstProxyView& dstProxyView,
                    GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
         auto addDependency = [ textureResolveManager, &caps, this ] (
                 GrTextureProxy* p, GrMipMapped mipmapped) {
@@ -91,13 +91,13 @@ public:
 
         op->visitProxies(addDependency);
         clip.visitProxies(addDependency);
-        if (dstProxy.proxy()) {
-            this->addSampledTexture(dstProxy.proxy());
-            addDependency(dstProxy.proxy(), GrMipMapped::kNo);
+        if (dstProxyView.proxy()) {
+            this->addSampledTexture(dstProxyView.proxy());
+            addDependency(dstProxyView.proxy(), GrMipMapped::kNo);
         }
 
         this->recordOp(std::move(op), processorAnalysis, clip.doesClip() ? &clip : nullptr,
-                       &dstProxy, caps);
+                       &dstProxyView, caps);
     }
 
     void discard();
@@ -164,7 +164,8 @@ private:
     public:
         OpChain(const OpChain&) = delete;
         OpChain& operator=(const OpChain&) = delete;
-        OpChain(std::unique_ptr<GrOp>, GrProcessorSet::Analysis, GrAppliedClip*, const DstProxy*);
+        OpChain(std::unique_ptr<GrOp>, GrProcessorSet::Analysis, GrAppliedClip*,
+                const DstProxyView*);
 
         ~OpChain() {
             // The ops are stored in a GrMemoryPool and must be explicitly deleted via the pool.
@@ -176,7 +177,7 @@ private:
         GrOp* head() const { return fList.head(); }
 
         GrAppliedClip* appliedClip() const { return fAppliedClip; }
-        const DstProxy& dstProxy() const { return fDstProxy; }
+        const DstProxyView& dstProxyView() const { return fDstProxyView; }
         const SkRect& bounds() const { return fBounds; }
 
         // Deletes all the ops in the chain via the pool.
@@ -191,7 +192,7 @@ private:
         // 'op' to the caller upon failure, otherwise null. Fails when the op and chain aren't of
         // the same op type, have different clips or dst proxies.
         std::unique_ptr<GrOp> appendOp(std::unique_ptr<GrOp> op, GrProcessorSet::Analysis,
-                                       const DstProxy*, const GrAppliedClip*, const GrCaps&,
+                                       const DstProxyView*, const GrAppliedClip*, const GrCaps&,
                                        GrOpMemoryPool*, GrAuditTrail*);
 
         void setSkipExecuteFlag() { fSkipExecute = true; }
@@ -225,13 +226,13 @@ private:
 
         void validate() const;
 
-        bool tryConcat(List*, GrProcessorSet::Analysis, const DstProxy&, const GrAppliedClip*,
+        bool tryConcat(List*, GrProcessorSet::Analysis, const DstProxyView&, const GrAppliedClip*,
                        const SkRect& bounds, const GrCaps&, GrOpMemoryPool*, GrAuditTrail*);
         static List DoConcat(List, List, const GrCaps&, GrOpMemoryPool*, GrAuditTrail*);
 
         List fList;
         GrProcessorSet::Analysis fProcessorAnalysis;
-        DstProxy fDstProxy;
+        DstProxyView fDstProxyView;
         GrAppliedClip* fAppliedClip;
         SkRect fBounds;
 
@@ -247,8 +248,8 @@ private:
 
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
-    void recordOp(std::unique_ptr<GrOp>, GrProcessorSet::Analysis, GrAppliedClip*, const DstProxy*,
-                  const GrCaps& caps);
+    void recordOp(std::unique_ptr<GrOp>, GrProcessorSet::Analysis, GrAppliedClip*,
+                  const DstProxyView*, const GrCaps& caps);
 
     void forwardCombine(const GrCaps&);
 

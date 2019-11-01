@@ -16,6 +16,7 @@
 #include "src/gpu/GrProcessorSet.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrScissorState.h"
+#include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrUserStencilSettings.h"
 #include "src/gpu/GrWindowRectsState.h"
 #include "src/gpu/effects/GrCoverageSetOpXP.h"
@@ -58,7 +59,7 @@ public:
         InputFlags fInputFlags = InputFlags::kNone;
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         const GrCaps* fCaps = nullptr;
-        GrXferProcessor::DstProxy fDstProxy;
+        GrXferProcessor::DstProxyView fDstProxyView;
         GrSwizzle fOutputSwizzle;
     };
 
@@ -133,19 +134,24 @@ public:
     }
 
     /**
+     * This returns the GrSurfaceProxyView for the texture used to access the dst color. If the
+     * GrXferProcessor does not use the dst color then the proxy on the GrSurfaceProxyView will be
+     * nullptr.
+     */
+    const GrSurfaceProxyView& dstProxyView() const {
+        return fDstProxyView;
+    }
+
+    /**
      * If the GrXferProcessor uses a texture to access the dst color, then this returns that
      * texture and the offset to the dst contents within that texture.
      */
-    GrTextureProxy* dstTextureProxy(SkIPoint* offset = nullptr) const {
+    GrTexture* peekDstTexture(SkIPoint* offset = nullptr) const {
         if (offset) {
             *offset = fDstTextureOffset;
         }
 
-        return fDstTextureProxy.get();
-    }
-
-    GrTexture* peekDstTexture(SkIPoint* offset = nullptr) const {
-        if (GrTextureProxy* dstProxy = this->dstTextureProxy(offset)) {
+        if (GrTextureProxy* dstProxy = fDstProxyView.asTextureProxy()) {
             return dstProxy->peekTexture();
         }
 
@@ -217,7 +223,7 @@ private:
 
     using FragmentProcessorArray = SkAutoSTArray<8, std::unique_ptr<const GrFragmentProcessor>>;
 
-    sk_sp<GrTextureProxy> fDstTextureProxy;
+    GrSurfaceProxyView fDstProxyView;
     SkIPoint fDstTextureOffset;
     GrWindowRectsState fWindowRectsState;
     const GrUserStencilSettings* fUserStencilSettings;

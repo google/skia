@@ -40,6 +40,7 @@ public:
 
     const GrColorInfo& colorInfo() const { return fColorInfo; }
     GrSurfaceOrigin origin() const { return fOrigin; }
+    const GrSwizzle& textureSwizzle() const { return fTextureSwizzle; }
     GrSurfaceProxyView textureSurfaceView() {
         return { this->asSurfaceProxyRef(), fOrigin, fTextureSwizzle };
     }

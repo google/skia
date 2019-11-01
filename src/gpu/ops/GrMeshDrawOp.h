@@ -180,7 +180,7 @@ public:
     virtual const GrAppliedClip* appliedClip() = 0;
     virtual GrAppliedClip detachAppliedClip() = 0;
 
-    virtual const GrXferProcessor::DstProxy& dstProxy() const = 0;
+    virtual const GrXferProcessor::DstProxyView& dstProxyView() const = 0;
 
     virtual GrResourceProvider* resourceProvider() const = 0;
     uint32_t contextUniqueID() const { return this->resourceProvider()->contextUniqueID(); }

@@ -216,7 +216,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     GrOpFlushState::OpArgs opArgs(op.get(),
                                   &surfaceView,
                                   nullptr,
-                                  GrXferProcessor::DstProxy(nullptr, SkIPoint::Make(0, 0)));
+                                  GrXferProcessor::DstProxyView(GrSurfaceProxyView(),
+                                                                SkIPoint::Make(0, 0)));
 
     // Cripple the atlas manager so it can't allocate any pages. This will force a failure
     // in the preparation of the text op

@@ -179,10 +179,9 @@ void GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
     }
     SkASSERT(!fp && !glslFP);
 
-    if (GrTextureProxy* dstTextureProxy = pipeline.dstTextureProxy()) {
+    if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
         samplerBindings[currTextureBinding++] = {
-                GrSamplerState::ClampNearest(),
-                static_cast<GrVkTexture*>(dstTextureProxy->peekTexture())};
+                GrSamplerState::ClampNearest(), static_cast<GrVkTexture*>(dstTexture)};
     }
 
     // Get new descriptor set

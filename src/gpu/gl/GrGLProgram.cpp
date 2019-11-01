@@ -101,7 +101,7 @@ void GrGLProgram::updateUniformsAndTextureBindings(const GrRenderTarget* renderT
     fXferProcessor->setData(fProgramDataManager, xp, dstTexture, offset);
     if (dstTexture) {
         fGpu->bindTexture(nextTexSamplerIdx++, GrSamplerState::ClampNearest(),
-                          programInfo.pipeline().dstTextureProxy()->textureSwizzle(),
+                          programInfo.pipeline().dstProxyView().swizzle(),
                           static_cast<GrGLTexture*>(dstTexture));
     }
     SkASSERT(nextTexSamplerIdx == fNumTextureSamplers);

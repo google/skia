@@ -97,7 +97,7 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
                                 dstTexture, offset);
     }
 
-    if (GrTextureProxy* dstTextureProxy = programInfo.pipeline().dstTextureProxy()) {
+    if (GrTextureProxy* dstTextureProxy = programInfo.pipeline().dstProxyView().asTextureProxy()) {
         fSamplerBindings.emplace_back(GrSamplerState::ClampNearest(),
                                       dstTextureProxy->peekTexture(),
                                       fGpu);
