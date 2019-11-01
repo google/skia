@@ -410,6 +410,38 @@ CanvasKit.onRuntimeInitialized = function() {
     return this;
   };
 
+ CanvasKit.SkPath.prototype.rArcTo = function(rx, ry, xAxisRotate, useSmallArc, isCCW, dx, dy) {
+    this._rArcTo(rx, ry, xAxisRotate, useSmallArc, isCCW, dx, dy);
+    return this;
+  };
+
+  CanvasKit.SkPath.prototype.rConicTo = function(dx1, dy1, dx2, dy2, w) {
+    this._rConicTo(dx1, dy1, dx2, dy2, w);
+    return this;
+  };
+
+  // These params are all relative
+  CanvasKit.SkPath.prototype.rCubicTo = function(cp1x, cp1y, cp2x, cp2y, x, y) {
+    this._rCubicTo(cp1x, cp1y, cp2x, cp2y, x, y);
+    return this;
+  };
+
+  CanvasKit.SkPath.prototype.rLineTo = function(dx, dy) {
+    this._rLineTo(dx, dy);
+    return this;
+  };
+
+  CanvasKit.SkPath.prototype.rMoveTo = function(dx, dy) {
+    this._rMoveTo(dx, dy);
+    return this;
+  };
+
+  // These params are all relative
+  CanvasKit.SkPath.prototype.rQuadTo = function(cpx, cpy, x, y) {
+    this._rQuadTo(cpx, cpy, x, y);
+    return this;
+  };
+
   CanvasKit.SkPath.prototype.simplify = function() {
     if (this._simplify()) {
       return this;

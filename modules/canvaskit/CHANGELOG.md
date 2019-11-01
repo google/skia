@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `SkCanvas.clipRRect`, `SkCanvas.drawColor`
  - Blur, ColorFilter, Compose SkImageFilters. Can be used with `SkPaint.setImageFilter`.
  - `SkCanvas.saveLayer` now takes 3 or 4 params to include up to bounds, paint, SkImageFilter, flags.
+ - `SkPath.rArcTo`, `SkPath.rConicTo`, `SkPath.rCubicTo`, `SkPath.rLineTo`, `SkPath.rMoveTo`,
+   `SkPath.rQuadTo`. Like their non-relative siblings, these are chainable.
 
 ### Deprecated
  - `CanvasKit.MakeBlurMaskFilter` will be renamed/moved soon to `CanvasKit.SkMaskFilter.MakeBlur`.
