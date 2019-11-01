@@ -114,8 +114,8 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrQuad& deviceQua
 
         // Write inner vertices first
         GrQuad aaDeviceQuad, aaLocalQuad;
-        helper.inset(aaFlags, &aaDeviceQuad, &aaLocalQuad);
-        write_quad(&vb, spec, mode, helper.pixelCoverage(), color4f, geomDomain, domain,
+        skvx::Vec<4, float> coverage = helper.inset(aaFlags, &aaDeviceQuad, &aaLocalQuad);
+        write_quad(&vb, spec, mode, coverage, color4f, geomDomain, domain,
                    aaDeviceQuad, aaLocalQuad);
 
         // Then outer vertices, which use 0.f for their coverage
