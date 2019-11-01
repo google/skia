@@ -318,6 +318,6 @@ private:
 #pragma clang diagnostic pop
 #endif
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrXPFactory::AnalysisProperties);
+GR_MAKE_BITFIELD_CLASS_OPS(GrXPFactory::AnalysisProperties)
 
 #endif

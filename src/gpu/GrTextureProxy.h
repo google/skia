@@ -170,7 +170,7 @@ private:
     //
     // NOTE: fMipMapsStatus may no longer be equal to fInitialMipMapsStatus by the time the texture
     // is instantiated, since it tracks mipmaps in the time frame in which the DAG is being built.
-    SkDEBUGCODE(const GrMipMapsStatus fInitialMipMapsStatus);
+    SkDEBUGCODE(const GrMipMapsStatus fInitialMipMapsStatus;)
 
     bool             fSyncTargetKey = true;  // Should target's unique key be sync'ed with ours.
 
