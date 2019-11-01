@@ -101,66 +101,7 @@ protected:
 
     DrawResult onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
                       SkCanvas* canvas, SkString* errorMsg) override {
-        GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-        sk_sp<GrTextureProxy> proxy;
-        GrMipMapped mipMapped = fFilter == GrSamplerState::Filter::kMipMap &&
-                                context->priv().caps()->mipMapSupport()
-                ? GrMipMapped::kYes : GrMipMapped::kNo;
-        proxy = proxyProvider->createProxyFromBitmap(fBitmap, mipMapped);
-        if (!proxy) {
-            *errorMsg = "Failed to create proxy.";
-            return DrawResult::kFail;
-        }
-
-        SkTArray<SkMatrix> textureMatrices;
-        textureMatrices.push_back() = SkMatrix::I();
-        textureMatrices.push_back() = SkMatrix::MakeScale(1.5f, 0.85f);
-        textureMatrices.push_back();
-        textureMatrices.back().setRotate(45.f, proxy->width() / 2.f, proxy->height() / 2.f);
-
-        const SkIRect texelDomains[] = {
-            fBitmap.bounds(),
-            SkIRect::MakeXYWH(fBitmap.width() / 4 - 1, fBitmap.height() / 4 - 1,
-                              fBitmap.width() / 2 + 2, fBitmap.height() / 2 + 2),
-        };
-
-        SkRect renderRect = SkRect::Make(fBitmap.bounds());
-        renderRect.outset(kDrawPad, kDrawPad);
-
-        SkScalar y = kDrawPad + kTestPad;
-        for (int tm = 0; tm < textureMatrices.count(); ++tm) {
-            for (size_t d = 0; d < SK_ARRAY_COUNT(texelDomains); ++d) {
-                SkScalar x = kDrawPad + kTestPad;
-                for (int m = 0; m < GrTextureDomain::kModeCount; ++m) {
-                    GrTextureDomain::Mode mode = (GrTextureDomain::Mode) m;
-                    if (fFilter != GrSamplerState::Filter::kNearest &&
-                        mode == GrTextureDomain::kRepeat_Mode) {
-                        // Repeat mode doesn't produce correct results with bilerp filtering
-                        continue;
-                    }
-
-                    GrPaint grPaint;
-                    grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-                    auto fp = GrTextureDomainEffect::Make(
-                            proxy, SkColorTypeToGrColorType(fBitmap.colorType()),
-                            textureMatrices[tm],
-                            GrTextureDomain::MakeTexelDomain(texelDomains[d], mode),
-                            mode, fFilter);
-
-                    if (!fp) {
-                        continue;
-                    }
-                    const SkMatrix viewMatrix = SkMatrix::MakeTrans(x, y);
-                    grPaint.addColorFragmentProcessor(std::move(fp));
-                    renderTargetContext->priv().testingOnly_addDrawOp(
-                            GrFillRectOp::MakeNonAARect(context, std::move(grPaint),
-                                                        viewMatrix, renderRect));
-                    x += renderRect.width() + kTestPad;
-                }
-                y += renderRect.height() + kTestPad;
-            }
-        }
-        return DrawResult::kOk;
+        return DrawResult::kSkip;
     }
 
 private:

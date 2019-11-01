@@ -958,8 +958,9 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
             fp = GrBicubicEffect::Make(std::move(proxy), srcColorType, texMatrix, domain, kDir,
                                        bitmap.alphaType());
         } else {
-            fp = GrTextureDomainEffect::Make(std::move(proxy), srcColorType, texMatrix, domain,
-                                             GrTextureDomain::kClamp_Mode, samplerState.filter());
+            fp = GrSimpleTextureEffect::Make(std::move(proxy), srcColorType, SkMatrix::I(), samplerState);
+            fp = GrDomainEffect::Make(std::move(fp), texMatrix, domain,
+                                      GrTextureDomain::kClamp_Mode);
         }
     } else if (bicubic) {
         SkASSERT(GrSamplerState::Filter::kNearest == samplerState.filter());

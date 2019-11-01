@@ -354,10 +354,9 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
                 SkIntToScalar(bgSubset.left() - backgroundOffset.fX),
                 SkIntToScalar(bgSubset.top()  - backgroundOffset.fY));
         GrColorType bgColorType = SkColorTypeToGrColorType(background->colorType());
-        bgFP = GrTextureDomainEffect::Make(
-                std::move(backgroundProxy), bgColorType, backgroundMatrix,
-                GrTextureDomain::MakeTexelDomain(bgSubset, GrTextureDomain::kDecal_Mode),
-                GrTextureDomain::kDecal_Mode, GrSamplerState::Filter::kNearest);
+        bgFP = GrSimpleTextureEffect::Make(std::move(backgroundProxy), bgColorType, SkMatrix::I(),
+                                              GrSamplerState::Filter::kNearest);
+        bgFP = GrDomainEffect::Make(std::move(bgFP), backgroundMatrix, GrTextureDomain::MakeTexelDomain(bgSubset, GrTextureDomain::kDecal_Mode), GrTextureDomain::kDecal_Mode);
         bgFP = GrColorSpaceXformEffect::Make(std::move(bgFP), background->getColorSpace(),
                                              background->alphaType(),
                                              ctx.colorSpace());
@@ -372,10 +371,9 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
                 SkIntToScalar(fgSubset.left() - foregroundOffset.fX),
                 SkIntToScalar(fgSubset.top()  - foregroundOffset.fY));
         GrColorType fgColorType = SkColorTypeToGrColorType(foreground->colorType());
-        auto foregroundFP = GrTextureDomainEffect::Make(
-                std::move(foregroundProxy), fgColorType, foregroundMatrix,
-                GrTextureDomain::MakeTexelDomain(fgSubset, GrTextureDomain::kDecal_Mode),
-                GrTextureDomain::kDecal_Mode, GrSamplerState::Filter::kNearest);
+        auto foregroundFP = GrSimpleTextureEffect::Make(std::move(foregroundProxy), fgColorType, SkMatrix::I(),
+                                           GrSamplerState::Filter::kNearest);
+        foregroundFP = GrDomainEffect::Make(std::move(foregroundFP), foregroundMatrix, GrTextureDomain::MakeTexelDomain(fgSubset, GrTextureDomain::kDecal_Mode), GrTextureDomain::kDecal_Mode);
         foregroundFP = GrColorSpaceXformEffect::Make(std::move(foregroundFP),
                                                      foreground->getColorSpace(),
                                                      foreground->alphaType(),
