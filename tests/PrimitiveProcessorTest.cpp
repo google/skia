@@ -112,7 +112,7 @@ private:
         QuadHelper helper(target, vertexStride, 1);
         SkPoint* vertices = reinterpret_cast<SkPoint*>(helper.vertices());
         SkPointPriv::SetRectTriStrip(vertices, 0.f, 0.f, 1.f, 1.f, vertexStride);
-        helper.recordDraw(target, std::move(gp));
+        helper.recordDraw(target, std::move(gp), GrPrimitiveType::kTriangles);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {

@@ -147,7 +147,7 @@ private:
             fKLM.mapHomogeneousPoints((SkPoint3* ) verts[v].fKLM, &pt3, 1);
         }
 
-        helper.recordDraw(target, this->gp());
+        helper.recordDraw(target, this->gp(), GrPrimitiveType::kTriangles);
     }
 
     SkMatrix fKLM;
@@ -353,7 +353,7 @@ private:
         SkRect rect = this->rect();
         SkPointPriv::SetRectTriStrip(&verts[0].fPosition, rect, sizeof(Vertex));
         fDevToUV.apply(verts, 4, sizeof(Vertex), sizeof(SkPoint));
-        helper.recordDraw(target, this->gp());
+        helper.recordDraw(target, this->gp(), GrPrimitiveType::kTriangles);
     }
 
     GrPathUtils::QuadUVMatrix fDevToUV;

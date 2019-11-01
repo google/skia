@@ -224,7 +224,7 @@ private:
         GrMesh* mesh = target->allocMesh(primType);
         mesh->setNonIndexedNonInstanced(vertexCount);
         mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-        target->recordDraw(std::move(gp), mesh);
+        target->recordDraw(std::move(gp), mesh, 1, primType);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
@@ -513,7 +513,7 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
                                            info.fDegenerate,
                                            fHelper.compatibleWithCoverageAsAlpha());
     }
-    helper.recordDraw(target, std::move(gp));
+    helper.recordDraw(target, std::move(gp), GrPrimitiveType::kTriangles);
 }
 
 void AAStrokeRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {

@@ -277,7 +277,7 @@ private:
                                  vertexCount - 1, GrPrimitiveRestart::kNo);
             }
             mesh->setVertexData(std::move(fVertexBuffer), fFirstVertex);
-            fTarget->recordDraw(fGeometryProcessor, mesh);
+            fTarget->recordDraw(fGeometryProcessor, mesh, 1, fPrimitiveType);
         }
 
         fTarget->putBackIndices((size_t)(fIndicesInChunk - indexCount));
