@@ -136,7 +136,7 @@ private:
                 iter.next();
             }
         }
-        helper.recordDraw(target, std::move(gp));
+        helper.recordDraw(target, std::move(gp), GrPrimitiveType::kTriangles);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
