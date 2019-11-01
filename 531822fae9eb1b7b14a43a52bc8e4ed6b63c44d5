@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6ddb1cda_58a3f0c6",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-01T17:32:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a82cde5_1a88f627",
+      "range": {
+        "startLine": 431,
+        "startChar": 16,
+        "endLine": 431,
+        "endChar": 62
+      },
+      "revId": "531822fae9eb1b7b14a43a52bc8e4ed6b63c44d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "78674251_7377c217",
         "filename": "src/gpu/geometry/GrQuadUtils.cpp",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "b0c86358_7598144d",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 724,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-01T17:32:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "78674251_7377c217",
+      "range": {
+        "startLine": 724,
+        "startChar": 63,
+        "endLine": 724,
+        "endChar": 71
+      },
+      "revId": "531822fae9eb1b7b14a43a52bc8e4ed6b63c44d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "62d3ad85_2c529147",
         "filename": "src/gpu/geometry/GrQuadUtils.h",
         "patchSetId": 2
@@ -68,6 +116,30 @@
       "revId": "531822fae9eb1b7b14a43a52bc8e4ed6b63c44d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eeadb5d2_5acc1211",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-01T17:32:17Z",
+      "side": 1,
+      "message": "float mask is weird, but is legacy; later CLs will combine the outsets and mask into a single V4f.",
+      "parentUuid": "62d3ad85_2c529147",
+      "range": {
+        "startLine": 72,
+        "startChar": 46,
+        "endLine": 72,
+        "endChar": 51
+      },
+      "revId": "531822fae9eb1b7b14a43a52bc8e4ed6b63c44d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -118,6 +190,30 @@
     },
     {
       "key": {
+        "uuid": "4c6101ed_59d18428",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-01T17:32:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bef804b6_108137e1",
+      "range": {
+        "startLine": 103,
+        "startChar": 82,
+        "endLine": 103,
+        "endChar": 90
+      },
+      "revId": "531822fae9eb1b7b14a43a52bc8e4ed6b63c44d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6c918920_a3d51299",
         "filename": "src/gpu/geometry/GrQuadUtils.h",
         "patchSetId": 2
@@ -141,6 +237,30 @@
     },
     {
       "key": {
+        "uuid": "6cccdfe0_dd3d84e0",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-01T17:32:17Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6c918920_a3d51299",
+      "range": {
+        "startLine": 108,
+        "startChar": 25,
+        "endLine": 108,
+        "endChar": 30
+      },
+      "revId": "531822fae9eb1b7b14a43a52bc8e4ed6b63c44d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4607a736_fa37e793",
         "filename": "src/gpu/geometry/GrQuadUtils.h",
         "patchSetId": 2
@@ -161,6 +281,30 @@
       "revId": "531822fae9eb1b7b14a43a52bc8e4ed6b63c44d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b128b677_88e9c11d",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-01T17:32:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4607a736_fa37e793",
+      "range": {
+        "startLine": 110,
+        "startChar": 30,
+        "endLine": 110,
+        "endChar": 38
+      },
+      "revId": "531822fae9eb1b7b14a43a52bc8e4ed6b63c44d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
