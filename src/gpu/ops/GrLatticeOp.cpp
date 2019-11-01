@@ -294,7 +294,7 @@ private:
         }
         auto fixedDynamicState = target->makeFixedDynamicState(1);
         fixedDynamicState->fPrimitiveProcessorTextures[0] = fProxy.get();
-        helper.recordDraw(target, std::move(gp), fixedDynamicState);
+        helper.recordDraw(target, std::move(gp), fixedDynamicState, GrPrimitiveType::kTriangles);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {

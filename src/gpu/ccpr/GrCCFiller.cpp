@@ -478,7 +478,7 @@ bool GrCCFiller::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
     SkASSERT(instanceIndices[0].fConics == fBaseInstances[1].fConics);
     SkASSERT(instanceIndices[1].fConics == quadEndIdx);
 
-    fMeshesScratchBuffer.reserve(fMaxMeshesPerDraw);
+    fMeshesScratchBuffer1.reserve(fMaxMeshesPerDraw);
     fScissorRectScratchBuffer.reserve(fMaxMeshesPerDraw);
 
     return true;
@@ -533,7 +533,7 @@ void GrCCFiller::drawPrimitives(
     SkASSERT(pipeline.isScissorEnabled());
 
     // Don't call reset(), as that also resets the reserve count.
-    fMeshesScratchBuffer.pop_back_n(fMeshesScratchBuffer.count());
+    fMeshesScratchBuffer1.pop_back_n(fMeshesScratchBuffer1.count());
     fScissorRectScratchBuffer.pop_back_n(fScissorRectScratchBuffer.count());
 
     SkASSERT(batchID > 0);
@@ -542,12 +542,23 @@ void GrCCFiller::drawPrimitives(
     const Batch& batch = fBatches[batchID];
     SkDEBUGCODE(int totalInstanceCount = 0);
 
+    GrPrimitiveType master = GrPrimitiveType::kTriangleStrip;
+    bool inited = false;
+
     if (int instanceCount = batch.fEndNonScissorIndices.*instanceType -
                             previousBatch.fEndNonScissorIndices.*instanceType) {
         SkASSERT(instanceCount > 0);
         int baseInstance = fBaseInstances[(int)GrScissorTest::kDisabled].*instanceType +
                            previousBatch.fEndNonScissorIndices.*instanceType;
-        proc.appendMesh(fInstanceBuffer, instanceCount, baseInstance, &fMeshesScratchBuffer);
+        GrPrimitiveType tmp;
+        proc.appendMesh(fInstanceBuffer, instanceCount, baseInstance, &fMeshesScratchBuffer1, &tmp);
+        if (!inited) {
+            inited = true;
+            master = tmp;
+        } else {
+            SkASSERT(master == tmp);
+        }
+
         fScissorRectScratchBuffer.push_back().setXYWH(0, 0, drawBounds.width(),
                                                       drawBounds.height());
         SkDEBUGCODE(totalInstanceCount += instanceCount);
@@ -565,19 +576,28 @@ void GrCCFiller::drawPrimitives(
             continue;
         }
         SkASSERT(instanceCount > 0);
+
+        GrPrimitiveType tmp;
         proc.appendMesh(fInstanceBuffer, instanceCount, baseScissorInstance + startIndex,
-                        &fMeshesScratchBuffer);
+                        &fMeshesScratchBuffer1, &tmp);
+        if (!inited) {
+            inited = true;
+            master = tmp;
+        } else {
+            SkASSERT(master == tmp);
+        }
+
         fScissorRectScratchBuffer.push_back() = scissorSubBatch.fScissor;
         SkDEBUGCODE(totalInstanceCount += instanceCount);
     }
 
-    SkASSERT(fMeshesScratchBuffer.count() == fScissorRectScratchBuffer.count());
-    SkASSERT(fMeshesScratchBuffer.count() <= fMaxMeshesPerDraw);
+    SkASSERT(fMeshesScratchBuffer1.count() == fScissorRectScratchBuffer.count());
+    SkASSERT(fMeshesScratchBuffer1.count() <= fMaxMeshesPerDraw);
     SkASSERT(totalInstanceCount == batch.fTotalPrimitiveCounts.*instanceType);
 
-    if (!fMeshesScratchBuffer.empty()) {
-        proc.draw(flushState, pipeline, fScissorRectScratchBuffer.begin(),
-                  fMeshesScratchBuffer.begin(), fMeshesScratchBuffer.count(),
-                  SkRect::Make(drawBounds));
+    if (!fMeshesScratchBuffer1.empty()) {
+        proc.draw1(flushState, pipeline, fScissorRectScratchBuffer.begin(),
+                  fMeshesScratchBuffer1.begin(), fMeshesScratchBuffer1.count(),
+                  SkRect::Make(drawBounds), master);
     }
 }

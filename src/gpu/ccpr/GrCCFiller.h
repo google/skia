@@ -120,7 +120,7 @@ private:
 
     sk_sp<GrGpuBuffer> fInstanceBuffer;
     PrimitiveTallies fBaseInstances[kNumScissorModes];
-    mutable SkSTArray<32, GrMesh> fMeshesScratchBuffer;
+    mutable SkSTArray<32, GrMesh> fMeshesScratchBuffer1;
     mutable SkSTArray<32, SkIRect> fScissorRectScratchBuffer;
 };
 
