@@ -457,6 +457,8 @@ bool GrMtlPipelineStateBuilder::Desc::Build(Desc* desc,
 
     GrProcessorKeyBuilder b(&desc->key());
 
+    programInfo.pipeline().genKey(&b);
+
     int keyLength = desc->key().count();
     SkASSERT(0 == (keyLength % 4));
     desc->fShaderKeyLength = SkToU32(keyLength);
@@ -468,8 +470,6 @@ bool GrMtlPipelineStateBuilder::Desc::Build(Desc* desc,
                                  : MTLPixelFormatInvalid);
     b.add32((uint32_t)programInfo.pipeline().isStencilEnabled());
     // Stencil samples don't seem to be tracked in the MTLRenderPipeline
-
-    b.add32(programInfo.pipeline().getBlendInfoKey());
 
     b.add32((uint32_t)primitiveType);
 
