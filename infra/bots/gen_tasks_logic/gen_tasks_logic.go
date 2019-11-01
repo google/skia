@@ -138,17 +138,17 @@ var (
 		&specs.CipdPackage{
 			Name:    "infra/git/${platform}",
 			Path:    "cipd_bin_packages",
-			Version: "version:2.17.1.chromium15",
+			Version: "version:2.23.0.chromium16",
 		},
 		&specs.CipdPackage{
 			Name:    "infra/tools/git/${platform}",
 			Path:    "cipd_bin_packages",
-			Version: "git_revision:c9c8a52bfeaf8bc00ece22fdfd447822c8fcad77",
+			Version: "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd",
 		},
 		&specs.CipdPackage{
 			Name:    "infra/tools/luci/git-credential-luci/${platform}",
 			Path:    "cipd_bin_packages",
-			Version: "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e",
+			Version: "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd",
 		},
 	}
 
@@ -1288,6 +1288,7 @@ func (b *builder) test(name string, parts map[string]string, compileTaskName str
 		recipe = "skqp_test"
 		if strings.Contains(name, "Emulator") {
 			recipe = "test_skqp_emulator"
+			pkgs = append(pkgs, CIPD_PKGS_GIT...)
 		}
 	} else if strings.Contains(name, "OpenCL") {
 		// TODO(dogben): Longer term we may not want this to be called a "Test" task, but until we start
@@ -1295,10 +1296,13 @@ func (b *builder) test(name string, parts map[string]string, compileTaskName str
 		recipe = "compute_test"
 	} else if strings.Contains(name, "PathKit") {
 		recipe = "test_pathkit"
+		pkgs = append(pkgs, CIPD_PKGS_GIT...)
 	} else if strings.Contains(name, "CanvasKit") {
 		recipe = "test_canvaskit"
+		pkgs = append(pkgs, CIPD_PKGS_GIT...)
 	} else if strings.Contains(name, "LottieWeb") {
 		recipe = "test_lottie_web"
+		pkgs = append(pkgs, CIPD_PKGS_GIT...)
 	}
 	extraProps := map[string]string{
 		"gold_hashes_url": b.cfg.GoldHashesURL,
@@ -1383,12 +1387,15 @@ func (b *builder) perf(name string, parts map[string]string, compileTaskName str
 		isolate = b.relpath("skpbench_skia_bundled.isolate")
 	} else if strings.Contains(name, "PathKit") {
 		recipe = "perf_pathkit"
+		pkgs = append(pkgs, CIPD_PKGS_GIT...)
 	} else if strings.Contains(name, "CanvasKit") {
 		recipe = "perf_canvaskit"
+		pkgs = append(pkgs, CIPD_PKGS_GIT...)
 	} else if strings.Contains(name, "SkottieTracing") {
 		recipe = "perf_skottietrace"
 	} else if strings.Contains(name, "SkottieWASM") || strings.Contains(name, "LottieWeb") {
 		recipe = "perf_skottiewasm_lottieweb"
+		pkgs = append(pkgs, CIPD_PKGS_GIT...)
 	}
 	task := b.kitchenTask(name, recipe, isolate, "", b.swarmDimensions(parts), EXTRA_PROPS, OUTPUT_PERF)
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
