@@ -15,29 +15,6 @@
 #include "src/sksl/SkSLCPP.h"
 #include "src/sksl/SkSLUtil.h"
 
-#ifdef SK_LEGACY_YUV_MATRICES
-static const float kJPEGConversionMatrix[16] = {
-    1.0f,  0.0f,       1.402f,    -0.703749f,
-    1.0f, -0.344136f, -0.714136f,  0.531211f,
-    1.0f,  1.772f,     0.0f,      -0.889475f,
-    0.0f,  0.0f,       0.0f,       1.0
-};
-
-static const float kRec601ConversionMatrix[16] = {
-    1.164f,  0.0f,    1.596f, -0.87075f,
-    1.164f, -0.391f, -0.813f,  0.52925f,
-    1.164f,  2.018f,  0.0f,   -1.08175f,
-    0.0f,    0.0f,    0.0f,    1.0
-};
-
-static const float kRec709ConversionMatrix[16] = {
-    1.164f,  0.0f,    1.793f, -0.96925f,
-    1.164f, -0.213f, -0.533f,  0.30025f,
-    1.164f,  2.112f,  0.0f,   -1.12875f,
-    0.0f,    0.0f,    0.0f,    1.0f
-};
-#endif
-
 std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextureProxy> proxies[],
                                                             const SkYUVAIndex yuvaIndices[4],
                                                             SkYUVColorSpace yuvColorSpace,
@@ -145,24 +122,6 @@ GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
                        const GrFragmentProcessor& _proc) override {
             const GrYUVtoRGBEffect& _outer = _proc.cast<GrYUVtoRGBEffect>();
 
-#ifdef SK_LEGACY_YUV_MATRICES
-            switch (_outer.yuvColorSpace()) {
-                case kJPEG_SkYUVColorSpace:
-                    SkASSERT(fColorSpaceMatrixVar.isValid());
-                    pdman.setMatrix4f(fColorSpaceMatrixVar, kJPEGConversionMatrix);
-                    break;
-                case kRec601_SkYUVColorSpace:
-                    SkASSERT(fColorSpaceMatrixVar.isValid());
-                    pdman.setMatrix4f(fColorSpaceMatrixVar, kRec601ConversionMatrix);
-                    break;
-                case kRec709_SkYUVColorSpace:
-                    SkASSERT(fColorSpaceMatrixVar.isValid());
-                    pdman.setMatrix4f(fColorSpaceMatrixVar, kRec709ConversionMatrix);
-                    break;
-                case kIdentity_SkYUVColorSpace:
-                    break;
-            }
-#else
             if (_outer.yuvColorSpace() != kIdentity_SkYUVColorSpace) {
                 SkASSERT(fColorSpaceMatrixVar.isValid());
                 float yuvM[20];
@@ -176,7 +135,6 @@ GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
                 };
                 pdman.setMatrix4f(fColorSpaceMatrixVar, mtx);
             }
-#endif
 
             int numSamplers = _outer.numTextureSamplers();
             for (int i = 0; i < numSamplers; ++i) {
