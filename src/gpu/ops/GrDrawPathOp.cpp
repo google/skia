@@ -50,7 +50,7 @@ GrPipeline::InitArgs GrDrawPathOpBase::pipelineInitArgs(const GrOpFlushState& st
     }
     args.fUserStencil = &kCoverPass;
     args.fCaps = &state.caps();
-    args.fDstProxy = state.drawOpArgs().dstProxy();
+    args.fDstProxyView = state.drawOpArgs().dstProxyView();
     args.fOutputSwizzle = state.drawOpArgs().outputSwizzle();
     return args;
 }

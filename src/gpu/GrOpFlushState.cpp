@@ -38,7 +38,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
 
     GrPipeline::InitArgs pipelineArgs;
     pipelineArgs.fInputFlags = pipelineFlags;
-    pipelineArgs.fDstProxy = this->dstProxy();
+    pipelineArgs.fDstProxyView = this->dstProxyView();
     pipelineArgs.fCaps = &this->caps();
     pipelineArgs.fUserStencil = stencilSettings;
     pipelineArgs.fOutputSwizzle = this->drawOpArgs().outputSwizzle();
