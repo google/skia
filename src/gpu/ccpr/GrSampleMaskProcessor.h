@@ -21,7 +21,7 @@ private:
     void reset(PrimitiveType, GrResourceProvider*) override;
 
     void appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount, int baseInstance,
-                    SkTArray<GrMesh>* out) const override;
+                    SkTArray<GrMesh>* out, GrPrimitiveType*) const override;
 
     GrGLSLPrimitiveProcessor* onCreateGLSLInstance(std::unique_ptr<Shader>) const override;
 
