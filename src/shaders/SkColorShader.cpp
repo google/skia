@@ -124,17 +124,17 @@ static size_t common_uniforms(SkColor4f color, SkColorSpace* cs,
     return sizeof(rgba);
 }
 
-bool SkColorShader::program(skvm::Builder* p,
-                            SkColorSpace* dstCS,
-                            skvm::Arg uniforms, int offset,
-                            skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const {
-    return common_program(SkColor4f::FromColor(fColor), sk_srgb_singleton(),
-                          p, dstCS, uniforms, offset, r,g,b,a);
-}
-bool SkColor4Shader::program(skvm::Builder* p,
+bool SkColorShader::onProgram(skvm::Builder* p,
                               SkColorSpace* dstCS,
                               skvm::Arg uniforms, int offset,
                               skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const {
+    return common_program(SkColor4f::FromColor(fColor), sk_srgb_singleton(),
+                          p, dstCS, uniforms, offset, r,g,b,a);
+}
+bool SkColor4Shader::onProgram(skvm::Builder* p,
+                               SkColorSpace* dstCS,
+                               skvm::Arg uniforms, int offset,
+                               skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const {
     return common_program(fColor, fColorSpace.get(),
                           p, dstCS, uniforms, offset, r,g,b,a);
 }
