@@ -138,17 +138,17 @@ var (
 		&specs.CipdPackage{
 			Name:    "infra/git/${platform}",
 			Path:    "cipd_bin_packages",
-			Version: "version:2.17.1.chromium15",
+			Version: "version:2.23.0.chromium16",
 		},
 		&specs.CipdPackage{
 			Name:    "infra/tools/git/${platform}",
 			Path:    "cipd_bin_packages",
-			Version: "git_revision:c9c8a52bfeaf8bc00ece22fdfd447822c8fcad77",
+			Version: "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd",
 		},
 		&specs.CipdPackage{
 			Name:    "infra/tools/luci/git-credential-luci/${platform}",
 			Path:    "cipd_bin_packages",
-			Version: "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e",
+			Version: "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd",
 		},
 	}
 
@@ -1126,7 +1126,7 @@ func (b *builder) recreateSKPs(name string) string {
 		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
 	}
 	task := b.kitchenTask(name, "recreate_skps", "swarm_recipe.isolate", b.cfg.ServiceAccountRecreateSKPs, dims, EXTRA_PROPS, OUTPUT_NONE)
-	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
+	b.usesGit(task, name)
 	b.usesGo(task, name)
 	timeout(task, 4*time.Hour)
 	b.MustAddTask(name, task)
@@ -1157,8 +1157,8 @@ func (b *builder) housekeeper(name string) string {
 // should add as a dependency.
 func (b *builder) androidFrameworkCompile(name string) string {
 	task := b.kitchenTask(name, "android_compile", "compile_android_framework.isolate", b.cfg.ServiceAccountAndroidFrameworkCompile, b.linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
-	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
 	timeout(task, 2*time.Hour)
+	b.usesGit(task, name)
 	b.MustAddTask(name, task)
 	return name
 }
@@ -1208,6 +1208,7 @@ func (b *builder) buildstats(name string, parts map[string]string, compileTaskNa
 	task := b.kitchenTask(name, "compute_buildstats", "swarm_recipe.isolate", "", b.swarmDimensions(parts), EXTRA_PROPS, OUTPUT_PERF)
 	task.Dependencies = append(task.Dependencies, compileTaskName)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("bloaty"))
+	b.usesGit(task, name)
 	b.MustAddTask(name, task)
 
 	// Upload release results (for tracking in perf)
@@ -1317,6 +1318,9 @@ func (b *builder) test(name string, parts map[string]string, compileTaskName str
 	}
 	task := b.kitchenTask(name, recipe, isolate, "", b.swarmDimensions(parts), extraProps, OUTPUT_TEST)
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
+	if strings.Contains(name, "CanvasKit") || strings.Contains(name, "Emulator") || strings.Contains(name, "LottieWeb") || strings.Contains(name, "PathKit") {
+		b.usesGit(task, name)
+	}
 	if strings.Contains(name, "Lottie") {
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("lottie-samples"))
 	}
@@ -1393,6 +1397,9 @@ func (b *builder) perf(name string, parts map[string]string, compileTaskName str
 	}
 	task := b.kitchenTask(name, recipe, isolate, "", b.swarmDimensions(parts), EXTRA_PROPS, OUTPUT_PERF)
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
+	if strings.Contains(name, "CanvasKit") || strings.Contains(name, "SkottieWasm") || strings.Contains(name, "PathKit") {
+		b.usesGit(task, name)
+	}
 	if !strings.Contains(name, "LottieWeb") {
 		// Perf.+LottieWeb doesn't require anything in Skia to be compiled.
 		task.Dependencies = append(task.Dependencies, compileTaskName)
@@ -1418,7 +1425,6 @@ func (b *builder) perf(name string, parts map[string]string, compileTaskName str
 	} else if strings.Contains(parts["extra_config"], "SkottieWASM") || strings.Contains(parts["extra_config"], "LottieWeb") {
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("node"))
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("lottie-samples"))
-		task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
 	} else if strings.Contains(parts["extra_config"], "Skottie") {
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("lottie-samples"))
 	}
