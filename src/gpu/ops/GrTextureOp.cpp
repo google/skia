@@ -583,6 +583,14 @@ private:
             SkASSERT(!dst || !iter.next());
         }
 
+        if (desc->fVertexSpec.indexBufferOption() == GrQuadPerEdgeAA::IndexBufferOption::kPictureFramed) {
+            SkDebugf("%d, %d, %d\n", desc->fNumTotalQuads, 0, 0);
+        } else if (desc->fVertexSpec.indexBufferOption() == GrQuadPerEdgeAA::IndexBufferOption::kIndexedRects) {
+            SkDebugf("%d, %d, %d\n", 0, desc->fNumTotalQuads, 0);
+        } else {
+            SkDebugf("%d, %d, %d\n", 0, 0, desc->fNumTotalQuads);
+        }
+
         SkASSERT(!dst || (desc->totalSizeInBytes() == (size_t)(dst - pVertexData)));
         SkASSERT(meshIndex == desc->fNumProxies);
         SkASSERT(totQuadsSeen == desc->fNumTotalQuads);
