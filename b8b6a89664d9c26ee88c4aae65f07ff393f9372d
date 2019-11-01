@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "871fdf79_f4feadd2",
+        "filename": "src/gpu/effects/GrTextureDomain.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-01T19:50:57Z",
+      "side": 1,
+      "message": "I really dislike this bool. I tried an alternative approach of having two Decal enum values. However, there are effects that use the Mode enum but don\u0027t use GrTextureDomain at all and thus they\u0027d have an unimplemented enum value.\n\nI think separate enum values for filtered and not is better but punting on doing that until further consolidation of domains into this effect is done.",
+      "range": {
+        "startLine": 242,
+        "startChar": 58,
+        "endLine": 242,
+        "endChar": 73
+      },
+      "revId": "b8b6a89664d9c26ee88c4aae65f07ff393f9372d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91578e2e_fc5c9b54",
+        "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-01T19:50:57Z",
+      "side": 1,
+      "message": "This fixes a pre-existing bug in how CTs are applied when sample() is passed coords.",
+      "range": {
+        "startLine": 170,
+        "startChar": 31,
+        "endLine": 170,
+        "endChar": 74
+      },
+      "revId": "b8b6a89664d9c26ee88c4aae65f07ff393f9372d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
