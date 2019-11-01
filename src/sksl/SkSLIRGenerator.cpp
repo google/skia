@@ -1166,9 +1166,6 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
                 case SK_HEIGHT_BUILTIN:
                     fInputs.fRTHeight = true;
                     break;
-                case SK_SAMPLEMASK_BUILTIN:
-                    fUsesSampleMask = true;
-                    break;
 #ifndef SKSL_STANDALONE
                 case SK_FRAGCOORD_BUILTIN:
                     fInputs.fFlipY = true;
@@ -2425,25 +2422,6 @@ void IRGenerator::setRefKind(const Expression& expr, VariableReference::RefKind 
     }
 }
 
-void IRGenerator::removeSampleMask(std::vector<std::unique_ptr<ProgramElement>>* out) {
-    for (const auto& e : *out) {
-        switch (e->fKind) {
-            case ProgramElement::kVar_Kind: {
-                VarDeclarations& vd = (VarDeclarations&) *e;
-                for (auto iter = vd.fVars.begin(); iter != vd.fVars.end(); ++iter) {
-                    SkASSERT((*iter)->fKind == Statement::kVarDeclaration_Kind);
-                    const auto& v = (VarDeclaration&) **iter;
-                    if (v.fVar->fName == "sk_SampleMask") {
-                        vd.fVars.erase(iter);
-                        return;
-                    }
-                }
-            }
-            default: break;
-        }
-    }
-}
-
 void IRGenerator::convertProgram(Program::Kind kind,
                                  const char* text,
                                  size_t length,
@@ -2508,9 +2486,6 @@ void IRGenerator::convertProgram(Program::Kind kind,
             default:
                 ABORT("unsupported declaration: %s\n", decl.description().c_str());
         }
-    }
-    if (!fUsesSampleMask) {
-        this->removeSampleMask(out);
     }
 }
 
