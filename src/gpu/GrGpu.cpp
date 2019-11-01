@@ -701,49 +701,40 @@ void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>*
 #endif // GR_GPU_STATS
 #endif // GR_TEST_UTILS
 
+bool GrGpu::MipMapsAreCorrect(SkISize dimensions, const BackendTextureData* data, int numLevels) {
+    if (numLevels != 1 &&
+        numLevels != SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1) {
+        return false;
+    }
 
-bool GrGpu::MipMapsAreCorrect(int baseWidth, int baseHeight, GrMipMapped mipMapped,
-                              const SkPixmap srcData[], int numMipLevels) {
-    if (!srcData) {
+    if (!data || data->type() != BackendTextureData::Type::kPixmaps) {
         return true;
     }
 
-    if (baseWidth != srcData[0].width() || baseHeight != srcData[0].height()) {
+    if (data->pixmap(0).dimensions() != dimensions) {
         return false;
     }
 
-    if (mipMapped == GrMipMapped::kYes) {
-        if (numMipLevels != SkMipMap::ComputeLevelCount(baseWidth, baseHeight) + 1) {
+    SkColorType colorType = data->pixmap(0).colorType();
+    for (int i = 1; i < numLevels; ++i) {
+        dimensions = {SkTMax(1, dimensions.width() /2),
+                      SkTMax(1, dimensions.height()/2)};
+        if (dimensions != data->pixmap(i).dimensions()) {
             return false;
         }
-
-        SkColorType colorType = srcData[0].colorType();
-
-        int currentWidth = baseWidth;
-        int currentHeight = baseHeight;
-        for (int i = 1; i < numMipLevels; ++i) {
-            currentWidth = SkTMax(1, currentWidth / 2);
-            currentHeight = SkTMax(1, currentHeight / 2);
-
-            if (srcData[i].colorType() != colorType) { // all levels must have same colorType
-                return false;
-            }
-
-            if (srcData[i].width() != currentWidth || srcData[i].height() != currentHeight) {
-                return false;
-            }
+        if (colorType != data->pixmap(i).colorType()) {
+            return false;
         }
-    } else if (numMipLevels != 1) {
-        return false;
     }
-
     return true;
 }
 
-GrBackendTexture GrGpu::createBackendTexture(int w, int h, const GrBackendFormat& format,
-                                             GrMipMapped mipMapped, GrRenderable renderable,
-                                             const SkPixmap srcData[], int numMipLevels,
-                                             const SkColor4f* color, GrProtected isProtected) {
+GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
+                                             const GrBackendFormat& format,
+                                             GrRenderable renderable,
+                                             const BackendTextureData* data,
+                                             int numMipLevels,
+                                             GrProtected isProtected) {
     const GrCaps* caps = this->caps();
 
     if (!format.isValid()) {
@@ -755,19 +746,26 @@ GrBackendTexture GrGpu::createBackendTexture(int w, int h, const GrBackendFormat
         return {};
     }
 
-    if (w < 1 || w > caps->maxTextureSize() || h < 1 || h > caps->maxTextureSize()) {
+    if (data && data->type() == BackendTextureData::Type::kPixmaps) {
+        auto ct = SkColorTypeToGrColorType(data->pixmap(0).colorType());
+        if (!caps->areColorTypeAndFormatCompatible(ct, format)) {
+            return {};
+        }
+    }
+
+    if (dimensions.isEmpty() || dimensions.width()  > caps->maxTextureSize() ||
+                                dimensions.height() > caps->maxTextureSize()) {
         return {};
     }
 
-    // TODO: maybe just ignore the mipMapped parameter in this case
-    if (mipMapped == GrMipMapped::kYes && !this->caps()->mipMapSupport()) {
+    if (numMipLevels > 1 && !this->caps()->mipMapSupport()) {
         return {};
     }
 
-    if (!MipMapsAreCorrect(w, h, mipMapped, srcData, numMipLevels)) {
+    if (!MipMapsAreCorrect(dimensions, data, numMipLevels)) {
         return {};
     }
 
-    return this->onCreateBackendTexture(w, h, format, mipMapped, renderable,
-                                        srcData, numMipLevels, color, isProtected);
+    return this->onCreateBackendTexture(dimensions, format, renderable, data, numMipLevels,
+                                        isProtected);
 }

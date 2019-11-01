@@ -123,10 +123,12 @@ private:
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
-    GrBackendTexture onCreateBackendTexture(int w, int h, const GrBackendFormat&,
-                                            GrMipMapped, GrRenderable,
-                                            const SkPixmap srcData[], int numMipLevels,
-                                            const SkColor4f* color, GrProtected) override;
+    GrBackendTexture onCreateBackendTexture(SkISize,
+                                            const GrBackendFormat&,
+                                            GrRenderable,
+                                            const BackendTextureData*,
+                                            int numMipLevels,
+                                            GrProtected) override;
 
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc,
                                      const GrBackendFormat& format,
@@ -196,10 +198,12 @@ private:
             const GrRenderTarget*, int width, int height, int numStencilSamples) override;
 
     bool createMtlTextureForBackendSurface(MTLPixelFormat,
-                                           int w, int h, bool texturable,
-                                           bool renderable, GrMipMapped,
-                                           const SkPixmap srcData[], int numMipLevels,
-                                           const SkColor4f* color, GrMtlTextureInfo*);
+                                           SkISize,
+                                           bool texturable,
+                                           bool renderable,
+                                           const BackendTextureData*,
+                                           int numMipLevels,
+                                           GrMtlTextureInfo*);
 
 #if GR_TEST_UTILS
     void testingOnly_startCapture() override;
