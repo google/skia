@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "6439303e_beee10cf",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2686,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2019-11-01T15:38:21Z",
+      "side": 1,
+      "message": "Removed this part.",
+      "parentUuid": "e009a048_17de3502",
+      "revId": "318a2d0d12f6db42a7209d8a177a965b115138ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4115208e_aea2de76",
         "filename": "src/ports/SkFontHost_mac.cpp",
         "patchSetId": 1
@@ -53,6 +71,24 @@
       "writtenOn": "2019-10-18T16:03:38Z",
       "side": 1,
       "message": "I went and stepped through the code and can confirm that as the CTFont is created it first gets all the right variations from the CGFont passed in but then, as a very last step, it overwrites the \u0027opsz\u0027 axis value with the size passed here. I took a look and every CTFontCreate* function takes a size parameter which is used this way. As a result, I don\u0027t think there is currently any way to properly specify the \u0027opsz\u0027 axis value on a CTFont differently from the \u0027size\u0027 of the CTFont. Even CTFontCreateCopyWithAttributes (which promises to preserve the \u0027size\u0027 if the size parameter is 0) will apply a change to the \u0027opsz\u0027 axis and the overwrite it with the \u0027size\u0027.",
+      "revId": "318a2d0d12f6db42a7209d8a177a965b115138ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09db870b_397bd6e8",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2802,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2019-11-01T15:38:21Z",
+      "side": 1,
+      "message": "Okay, with your recent excellent findings about how opsz is treated or where it is sourced from on CTFontCreateWithGraphicsFont, I updated this to pass a CTFontDescriptor with the kCTFontOpticalSizeAttribute when we\u0027re not \u003c CoreText version 10.11.\n\nWhat do you think - is this the kind of direction we can go here?",
+      "parentUuid": "4115208e_aea2de76",
       "revId": "318a2d0d12f6db42a7209d8a177a965b115138ec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
