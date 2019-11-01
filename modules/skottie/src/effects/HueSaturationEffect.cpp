@@ -7,7 +7,6 @@
 
 #include "modules/skottie/src/effects/Effects.h"
 
-#include "include/effects/SkColorMatrix.h"
 #include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottieValue.h"

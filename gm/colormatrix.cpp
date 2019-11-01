@@ -24,6 +24,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkGradientShader.h"
+#include "src/core/SkYUVMath.h"
 
 #define WIDTH 500
 #define HEIGHT 500
@@ -128,12 +129,15 @@ protected:
             set_color_matrix(&paint, matrix);
             canvas->drawImage(bmps[i], 240, 80, &paint);
             ///////////////////////////////////////////////
-            matrix.setRGB2YUV();
-            set_color_matrix(&paint, matrix);
+
+            float RGBtoYUV[20];
+            SkColorMatrix_RGB2YUV(kJPEG_SkYUVColorSpace, RGBtoYUV);
+            set_array(&paint, RGBtoYUV);
             canvas->drawImage(bmps[i], 0, 160, &paint);
 
-            matrix.setYUV2RGB();
-            set_color_matrix(&paint, matrix);
+            float YUVtoRGB[20];
+            SkColorMatrix_YUV2RGB(kJPEG_SkYUVColorSpace, YUVtoRGB);
+            set_array(&paint, RGBtoYUV);
             canvas->drawImage(bmps[i], 80, 160, &paint);
 
             // Move red into alpha, set color to white

@@ -40,22 +40,12 @@ public:
     void postConcat(const SkColorMatrix& mat) { this->setConcat(mat, *this); }
 
     void setSaturation(float sat);
-    void setRGB2YUV();
-    void setYUV2RGB();
 
     bool operator==(const SkColorMatrix& other) const {
         return 0 == memcmp(fMat, other.fMat, sizeof(fMat));
     }
 
     bool operator!=(const SkColorMatrix& other) const { return !((*this) == other); }
-
-    float* get20(float m[20]) const {
-        memcpy(m, fMat, sizeof(fMat));
-        return m;
-    }
-    void set20(const float m[20]) {
-        memcpy(fMat, m, sizeof(fMat));
-    }
 
 private:
     float fMat[20];

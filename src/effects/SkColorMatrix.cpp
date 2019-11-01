@@ -134,38 +134,3 @@ void SkColorMatrix::setSaturation(float sat) {
     setrow(fMat + 10, R, G, B + sat);
     fMat[kA_Scale] = 1;
 }
-
-static const float kR2Y = 0.299f;
-static const float kG2Y = 0.587f;
-static const float kB2Y = 0.114f;
-
-static const float kR2U = -0.16874f;
-static const float kG2U = -0.33126f;
-static const float kB2U = 0.5f;
-
-static const float kR2V = 0.5f;
-static const float kG2V = -0.41869f;
-static const float kB2V = -0.08131f;
-
-void SkColorMatrix::setRGB2YUV() {
-    memset(fMat, 0, sizeof(fMat));
-
-    setrow(fMat +  0, kR2Y, kG2Y, kB2Y);
-    setrow(fMat +  5, kR2U, kG2U, kB2U);
-    setrow(fMat + 10, kR2V, kG2V, kB2V);
-    fMat[kA_Scale] = 1;
-}
-
-static const float kV2R = 1.402f;
-static const float kU2G = -0.34414f;
-static const float kV2G = -0.71414f;
-static const float kU2B = 1.772f;
-
-void SkColorMatrix::setYUV2RGB() {
-    memset(fMat, 0, sizeof(fMat));
-
-    setrow(fMat +  0, 1, 0, kV2R);
-    setrow(fMat +  5, 1, kU2G, kV2G);
-    setrow(fMat + 10, 1, kU2B, 0);
-    fMat[kA_Scale] = 1;
-}
