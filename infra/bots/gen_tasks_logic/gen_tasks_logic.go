@@ -1137,7 +1137,7 @@ func (b *builder) recreateSKPs(name string) string {
 // by hand.
 func (b *builder) checkGeneratedFiles(name string) string {
 	task := b.kitchenTask(name, "check_generated_files", "swarm_recipe.isolate", b.cfg.ServiceAccountCompile, b.linuxGceDimensions(MACHINE_TYPE_LARGE), EXTRA_PROPS, OUTPUT_NONE)
-	task.Caches = append(task.Caches, CACHES_WORKDIR...)
+	b.usesGit(task, name)
 	b.usesGo(task, name)
 	b.MustAddTask(name, task)
 	return name

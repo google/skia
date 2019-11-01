@@ -14209,6 +14209,14 @@
           "path": "cache/vpython"
         },
         {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
           "name": "work",
           "path": "cache/work"
         },
@@ -14236,6 +14244,21 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
+        },
+        {
+          "name": "infra/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.23.0.chromium16"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
         },
         {
           "name": "skia/bots/go",
