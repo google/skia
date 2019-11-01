@@ -2730,8 +2730,9 @@ STAGE(interpreter, SkRasterPipeline_InterpreterCtx* c) {
         sk_unaligned_store(aa, a);
     }
 
-    SkAssertResult(c->byteCode->runStriped(c->fn, tail ? tail : N, in_args, in_count,
-                                           nullptr, 0, (const float*)c->inputs, c->ninputs));
+//    SkAssertResult(c->byteCode->runStriped(c->fn, tail ? tail : N, in_args, in_count,
+//                                           nullptr, 0, (const float*)c->inputs, c->ninputs));
+    abort();
 
     r = sk_unaligned_load<F>(rr);
     g = sk_unaligned_load<F>(gg);
