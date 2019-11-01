@@ -175,9 +175,7 @@ static inline uint32_t grsltype_to_size(GrSLType type) {
     SK_ABORT("Unexpected type");
 }
 
-uint32_t get_ubo_offset(uint32_t* currentOffset,
-                        GrSLType type,
-                        int arrayCount) {
+uint32_t get_ubo_offset(uint32_t* currentOffset, GrSLType type, int arrayCount) {
     uint32_t alignmentMask = grsltype_to_alignment_mask(type);
     // We want to use the std140 layout here, so we must make arrays align to 16 bytes.
     if (arrayCount || type == kFloat2x2_GrSLType) {
@@ -305,4 +303,9 @@ void GrDawnUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString
         out->appendf("layout (set = 0, binding = %d) uniform UniformBuffer\n{\n", kUniformBinding);
         out->appendf("%s\n};\n", uniformsString.c_str());
     }
+}
+
+uint32_t GrDawnUniformHandler::getRTHeightOffset() const {
+    uint32_t dummy = fCurrentUBOOffset;
+    return get_ubo_offset(&dummy, kFloat_GrSLType, 0);
 }

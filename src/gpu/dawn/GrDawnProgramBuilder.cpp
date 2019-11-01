@@ -15,11 +15,12 @@
 #include "src/sksl/SkSLCompiler.h"
 
 static SkSL::String sksl_to_spirv(const GrDawnGpu* gpu, const char* shaderString,
-                                  SkSL::Program::Kind kind, bool flipY,
+                                  SkSL::Program::Kind kind, bool flipY, uint32_t rtHeightOffset,
                                   SkSL::Program::Inputs* inputs) {
     SkSL::Program::Settings settings;
     settings.fCaps = gpu->caps()->shaderCaps();
     settings.fFlipY = flipY;
+    settings.fRTHeightOffset = rtHeightOffset;
     std::unique_ptr<SkSL::Program> program = gpu->shaderCompiler()->convertProgram(
         kind,
         shaderString,
@@ -308,14 +309,14 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     builder.finalizeShaders();
 
     SkSL::Program::Inputs vertInputs, fragInputs;
-    GrDawnUniformHandler::UniformInfoArray& uniforms = builder.fUniformHandler.fUniforms;
-    uint32_t uniformBufferSize = builder.fUniformHandler.fCurrentUBOOffset;
-    sk_sp<GrDawnProgram> result(new GrDawnProgram(uniforms, uniformBufferSize));
     bool flipY = programInfo.origin() != kTopLeft_GrSurfaceOrigin;
     auto vsModule = builder.createShaderModule(builder.fVS, SkSL::Program::kVertex_Kind, flipY,
                                                &vertInputs);
     auto fsModule = builder.createShaderModule(builder.fFS, SkSL::Program::kFragment_Kind, flipY,
                                                &fragInputs);
+    GrDawnUniformHandler::UniformInfoArray& uniforms = builder.fUniformHandler.fUniforms;
+    uint32_t uniformBufferSize = builder.fUniformHandler.fCurrentUBOOffset;
+    sk_sp<GrDawnProgram> result(new GrDawnProgram(uniforms, uniformBufferSize));
     result->fGeometryProcessor = std::move(builder.fGeometryProcessor);
     result->fXferProcessor = std::move(builder.fXferProcessor);
     result->fFragmentProcessors = std::move(builder.fFragmentProcessors);
@@ -446,7 +447,11 @@ wgpu::ShaderModule GrDawnProgramBuilder::createShaderModule(const GrGLSLShaderBu
     printf("converting program:\n%s\n", sksl.c_str());
 #endif
 
-    SkSL::String spirvSource = sksl_to_spirv(fGpu, source.c_str(), kind, flipY, inputs);
+    SkSL::String spirvSource = sksl_to_spirv(fGpu, source.c_str(), kind, flipY,
+                                             fUniformHandler.getRTHeightOffset(), inputs);
+    if (inputs->fRTHeight) {
+        this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
+    }
 
     wgpu::ShaderModuleDescriptor desc;
     desc.codeSize = spirvSource.size() / 4;
