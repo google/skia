@@ -52,34 +52,64 @@ namespace GrQuadUtils {
         void outset(GrQuadAAFlags aaFlags, GrQuad* deviceOutset, GrQuad* localOutset);
 
     private:
-        using V4f = skvx::Vec<4, float>;
+        struct EdgeVectors;
 
         struct Vertices {
             // X, Y, and W coordinates in device space. If not perspective, w should be set to 1.f
-            V4f fX, fY, fW;
+            skvx::Vec<4, float> fX, fY, fW;
             // U, V, and R coordinates representing local quad.
             // Ignored depending on uvrCount (0, 1, 2).
-            V4f fU, fV, fR;
+            skvx::Vec<4, float> fU, fV, fR;
             int fUVRCount;
+
+            // Update the device and optional local coordinates by moving 'signedOutsets' distance
+            // along the edge vectors at each corner. If an outset distance is positive, the corner
+            // will move away from the interior, and if it is negative, the corner is effectively
+            // inset by that distance instead. 'mask' should be 1 or 0 to prevent 'signedOutsets'
+            // from actually affecting that edge.
+            void moveAlong(const EdgeVectors& edgeVectors,
+                           const skvx::Vec<4, float>& signedOutsets,
+                           const skvx::Vec<4, float>& mask);
+            // Update the device coordinates by deriving (x,y,w) that project to (x2d, y2d), with
+            // optional local coordinates updated to match the new vertices. It is assumed that
+            // 'mask' was respected when determing (x2d, y2d), but it is used to ensure that only
+            // unmasked unprojected edge vectors are used when computing device and local coords.
+            void moveTo(const skvx::Vec<4, float>& x2d,
+                        const skvx::Vec<4, float>& y2d,
+                        const skvx::Vec<4, int32_t>& mask);
         };
 
-        struct QuadMetadata {
+        struct EdgeVectors {
+            // Projected corners (x/w and y/w); these are the 2D coordinates that determine the
+            // actual edge direction vectors, dx, dy, and invLengths
+            skvx::Vec<4, float> fX2D, fY2D;
             // Normalized edge vectors of the device space quad, ordered L, B, T, R
-            // (i.e. nextCCW(x) - x).
-            V4f fDX, fDY;
-            // 1 / edge length of the device space quad
-            V4f fInvLengths;
-            // Edge mask (set to all 1s if aa flags is kAll), otherwise 1.f if edge was AA,
-            // 0.f if non-AA.
-            V4f fMask;
+            // (i.e. next_ccw(x) - x).
+            skvx::Vec<4, float> fDX, fDY;
+            // Reciprocal of edge length of the device space quad, i.e. 1 / sqrt(dx*dx + dy*dy)
+            skvx::Vec<4, float> fInvLengths;
         };
 
-        struct Edges {
+        struct EdgeEquations {
             // a * x + b * y + c = 0; positive distance is inside the quad; ordered LBTR.
-            V4f fA, fB, fC;
+            skvx::Vec<4, float> fA, fB, fC;
             // Whether or not the edge normals had to be flipped to preserve positive distance on
             // the inside
             bool fFlipped;
+        };
+
+        struct OutsetRequest {
+            // Amount to move along each edge vector for an outset (or an inset if mul. by -1). (the
+            // signed distance is determined by the actual function call, storing positive values
+            // allows calculations to be shared between insets and outsets).
+            skvx::Vec<4, float> fOutsets;
+            // Edge mask (set to all 1s if aa flags is kAll), otherwise 1.f if edge was AA,
+            // 0.f if non-AA.
+            skvx::Vec<4, float> fMask;
+            // True if the new corners cannot be calculated by simply adding scaled edge vectors.
+            // If degenerate, fOutsets may have stale values or produce incorrect outsets when
+            // scaling the edge vectors.
+            bool fDegenerate;
         };
 
         // Repeated calls to inset/outset with the same mask skip calculations
@@ -96,49 +126,27 @@ namespace GrQuadUtils {
         void recomputeInsetAndOutset();
         void setQuads(const Vertices& vertices, GrQuad* deviceOut, GrQuad* localOut) const;
 
-        static QuadMetadata getMetadata(const Vertices& vertices, GrQuadAAFlags aaFlags);
-        static Edges getEdgeEquations(const QuadMetadata& metadata, const Vertices& vertices);
-        // Sets 'outset' to the magnitude of outset/inset to adjust each corner of a quad given the
-        // edge angles and lengths. If the quad is too small, has empty edges, or too sharp of
-        // angles, false is returned and the degenerate slow-path should be used.
-        static bool getOptimizedOutset(const QuadMetadata& metadata,
-                                       bool rectilinear,
-                                       skvx::Vec<4, float>* outset);
-        // Ignores the quad's fW, use outsetProjectedVertices if it's known to need 3D.
-        static void outsetVertices(const skvx::Vec<4, float>& outset,
-                                   const QuadMetadata& metadata,
-                                   Vertices* quad);
-        // Updates (x,y,w) to be at (x2d,y2d) once projected. Updates (u,v,r) to match if provided.
-        // Gracefully handles 2D content if *w holds all 1s.
-        static void outsetProjectedVertices(const skvx::Vec<4, float>& x2d,
-                                            const skvx::Vec<4, float>& y2d,
-                                            GrQuadAAFlags aaFlags,
-                                            Vertices* quad);
+        EdgeVectors getEdgeVectors() const;
+        OutsetRequest getOutsetRequest(const EdgeVectors& edgeVectors) const;
+        EdgeEquations getEdgeEquations(const EdgeVectors& edgeVectors) const;
+
         static skvx::Vec<4, float> getDegenerateCoverage(const skvx::Vec<4, float>& px,
                                                          const skvx::Vec<4, float>& py,
-                                                         const Edges& edges);
-        // Outsets or insets xs/ys in place. To be used when the interior is very small, edges are
-        // near parallel, or edges are very short/zero-length. Returns coverage for each vertex.
-        // Requires (dx, dy) to already be fixed for empty edges.
-        static skvx::Vec<4, float> computeDegenerateQuad(GrQuadAAFlags aaFlags,
-                                                         const skvx::Vec<4, float>& mask,
-                                                         const Edges& edges,
-                                                         bool outset,
-                                                         Vertices* quad);
-        // Computes the vertices for the two nested quads used to create AA edges. The original
-        // single quad should be duplicated as input in 'inner' and 'outer', and the resulting quad
-        // frame will be stored in-place on return. Returns per-vertex coverage for the inner
-        // vertices.
-        static skvx::Vec<4, float> computeNestedQuadVertices(GrQuadAAFlags aaFlags,
-                                                             bool rectilinear,
-                                                             Vertices* inner,
-                                                             Vertices* outer);
-        // Generalizes computeNestedQuadVertices to extrapolate local coords such that after
-        // perspective division of the device coordinates, the original local coordinate value is at
-        // the original un-outset device position.
-        static skvx::Vec<4, float> computeNestedPerspQuadVertices(GrQuadAAFlags aaFlags,
-                                                                  Vertices* inner,
-                                                                  Vertices* outer);
+                                                         const EdgeEquations& edges);
+        // Outsets or insets 'vertices' in place. To be used when the interior is very small, edges
+        // are near parallel, or edges are very short/zero-length. Returns coverage for each vertex.
+        skvx::Vec<4, float> computeDegenerateQuad(const skvx::Vec<4, float>& signedEdgeDistances,
+                                                  const skvx::Vec<4, float>& mask,
+                                                  const EdgeEquations& edges,
+                                                  Vertices* vertices);
+        // Outsets or insets 'vertices' based on the outset request described by 'outsetRequest'
+        // and 'inset' (true for insetting instead). If the outset is not degenerate,
+        // 'edgeEquations' can be null. Returns coverage for each vertex.
+        skvx::Vec<4, float> adjustVertices(const OutsetRequest& outsetRequest,
+                                           bool inset,
+                                           const EdgeVectors& edgeVectors,
+                                           const EdgeEquations* edgeEquations,
+                                           Vertices* vertices);
     };
 
 }; // namespace GrQuadUtils
