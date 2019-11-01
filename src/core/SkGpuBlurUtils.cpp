@@ -335,12 +335,9 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
                 domain.fTop = domain.fBottom = SkScalarAve(domain.fTop, domain.fBottom);
             }
             domain.offset(proxyOffset.x(), proxyOffset.y());
-            auto fp = GrTextureDomainEffect::Make(std::move(srcProxy),
-                                                  srcColorType,
-                                                  SkMatrix::I(),
-                                                  domain,
-                                                  modeForScaling,
+            auto fp = GrSimpleTextureEffect::Make(std::move(srcProxy), srcColorType, SkMatrix::I(),
                                                   GrSamplerState::Filter::kBilerp);
+            fp = GrDomainEffect::Make(std::move(fp), SkMatrix::I(), domain, modeForScaling, true);
             paint.addColorFragmentProcessor(std::move(fp));
             srcRect.offset(-(*srcOffset));
             // TODO: consume the srcOffset in both first draws and always set it to zero
@@ -404,9 +401,10 @@ static std::unique_ptr<GrRenderTargetContext> reexpand(
     GrPaint paint;
     SkRect domain = GrTextureDomain::MakeTexelDomain(localSrcBounds, GrTextureDomain::kClamp_Mode,
                                                      GrTextureDomain::kClamp_Mode);
-    auto fp = GrTextureDomainEffect::Make(std::move(srcProxy), srcColorType, SkMatrix::I(), domain,
-                                          GrTextureDomain::kClamp_Mode,
+    auto fp = GrSimpleTextureEffect::Make(std::move(srcProxy), srcColorType, SkMatrix::I(),
                                           GrSamplerState::Filter::kBilerp);
+    fp = GrDomainEffect::Make(std::move(fp), SkMatrix::I(), domain, GrTextureDomain::kClamp_Mode,
+                              true);
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     GrFixedClip clip(SkIRect::MakeWH(finalW, finalH));
