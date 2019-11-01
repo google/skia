@@ -118,10 +118,11 @@ public:
     // of either TriPointInstance or QuadPointInstance, depending on this processor's RendererPass,
     // with coordinates in the desired shape's final atlas-space position.
     virtual void appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount,
-                            int baseInstance, SkTArray<GrMesh>* out) const = 0;
+                            int baseInstance, SkTArray<GrMesh>* out, GrPrimitiveType*) const = 0;
 
-    virtual void draw(GrOpFlushState*, const GrPipeline&, const SkIRect scissorRects[],
-                      const GrMesh[], int meshCount, const SkRect& drawBounds) const;
+    virtual void draw1(GrOpFlushState*, const GrPipeline&, const SkIRect scissorRects[],
+                      const GrMesh[], int meshCount, const SkRect& drawBounds,
+                      GrPrimitiveType) const;
 
     // The Shader provides code to calculate each pixel's coverage in a RenderPass. It also
     // provides details about shape-specific geometry.
