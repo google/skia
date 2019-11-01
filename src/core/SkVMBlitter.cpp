@@ -121,23 +121,6 @@ namespace {
         struct Color { skvm::I32 r,g,b,a; };
 
 
-        // TODO: provide this in skvm::Builder, with a custom NEON impl.
-        skvm::I32 div255(skvm::I32 v) {
-            // This should be a bit-perfect version of (v+127)/255,
-            // implemented as (v + ((v+128)>>8) + 128)>>8.
-            skvm::I32 v128 = add(v, splat(128));
-            return shr(add(v128, shr(v128, 8)), 8);
-        }
-
-        skvm::I32 scale_unorm8(skvm::I32 x, skvm::I32 y) {
-            return div255(mul(x,y));
-        }
-
-        skvm::I32 lerp_unorm8(skvm::I32 x, skvm::I32 y, skvm::I32 t) {
-            return div255(add(mul(x, sub(splat(255), t)),
-                              mul(y,                 t )));
-        }
-
         Color unpack_8888(skvm::I32 rgba) {
             return {
                 extract(rgba,  0, splat(0xff)),
@@ -355,20 +338,11 @@ namespace {
                        skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override {
             if (as_SB(fShader)->program(p, dstCS, uniforms, offset + sizeof(fAlpha), r,g,b,a)) {
                 if (p) {
-                    // TODO: move the helpers onto skvm::Builder so I don't have to duplicate?
-                    auto div255 = [&](skvm::I32 v) {
-                        skvm::I32 v128 = p->add(v, p->splat(128));
-                        return p->shr(p->add(v128, p->shr(v128, 8)), 8);
-                    };
-                    auto scale_unorm8 = [&](skvm::I32 x, skvm::I32 y) {
-                        return div255(p->mul(x,y));
-                    };
-
                     skvm::I32 A = p->uniform32(uniforms, offset);
-                    *r = scale_unorm8(*r, A);
-                    *g = scale_unorm8(*g, A);
-                    *b = scale_unorm8(*b, A);
-                    *a = scale_unorm8(*a, A);
+                    *r = p->scale_unorm8(*r, A);
+                    *g = p->scale_unorm8(*g, A);
+                    *b = p->scale_unorm8(*b, A);
+                    *a = p->scale_unorm8(*a, A);
                 }
                 return true;
             }

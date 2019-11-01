@@ -432,6 +432,22 @@ namespace skvm {
 
         uint32_t hash() const;
 
+        // Approximates (xy+127)/255 for x and y in [0,255],
+        // accurate to 1 bit and exact when x or y is 0 or 255.
+        I32 scale_unorm8(I32 x, I32 y) {
+            // (xy+255)/256
+            return shr(add(mul(x,y),
+                           splat(255)), 8);
+        }
+
+        // Approximates (x*(255-t) + y*t)/255 for x, y and t in [0,255],
+        // accurate to 1 bit and exact when x, y, or t is 0 or 255.
+        I32 lerp_unorm8(skvm::I32 x, skvm::I32 y, skvm::I32 t) {
+            // x + (((y-x)*t)>>8), with a notably arithmetic right shift.
+            return add(x, sra(mul(sub(y,x), t), 8));
+        }
+
+
     private:
         struct InstructionHash {
             size_t operator()(const Instruction& inst) const;
