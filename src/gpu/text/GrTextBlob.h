@@ -376,6 +376,15 @@ private:
         const SkStrikeSpec& fStrikeSpec;
     };  // SubRunInfo
 
+    class SameStrike {
+    public:
+        SameStrike(const SkStrikeSpec& spec)
+            : fSpec{spec} { }
+
+    private:
+        SkStrikeSpec fSpec;
+    };
+
     /*
      * Each Run inside of the blob can have its texture coordinates regenerated if required.
      * To determine if regeneration is necessary, fAtlasGeneration is used.  If there have been
