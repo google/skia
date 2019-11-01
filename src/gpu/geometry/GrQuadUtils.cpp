@@ -623,13 +623,12 @@ void TessellationHelper::Vertices::moveTo(const V4f& x2d, const V4f& y2d, const 
     }
 }
 
-V4f TessellationHelper::getDegenerateCoverage(const V4f& px, const V4f& py,
-                                              const EdgeEquations& edges) {
+V4f TessellationHelper::EdgeEquations::estimateCoverage(const V4f& x2d, const V4f& y2d) const {
     // Calculate distance of the 4 inset points (px, py) to the 4 edges
-    V4f d0 = mad(edges.fA[0], px, mad(edges.fB[0], py, edges.fC[0]));
-    V4f d1 = mad(edges.fA[1], px, mad(edges.fB[1], py, edges.fC[1]));
-    V4f d2 = mad(edges.fA[2], px, mad(edges.fB[2], py, edges.fC[2]));
-    V4f d3 = mad(edges.fA[3], px, mad(edges.fB[3], py, edges.fC[3]));
+    V4f d0 = mad(fA[0], x2d, mad(fB[0], y2d, fC[0]));
+    V4f d1 = mad(fA[1], x2d, mad(fB[1], y2d, fC[1]));
+    V4f d2 = mad(fA[2], x2d, mad(fB[2], y2d, fC[2]));
+    V4f d3 = mad(fA[3], x2d, mad(fB[3], y2d, fC[3]));
 
     // For each point, pretend that there's a rectangle that touches e0 and e3 on the horizontal
     // axis, so its width is "approximately" d0 + d3, and it touches e1 and e2 on the vertical axis
@@ -643,8 +642,9 @@ V4f TessellationHelper::getDegenerateCoverage(const V4f& px, const V4f& py,
     return w * h;
 }
 
-V4f TessellationHelper::computeDegenerateQuad(const V4f& signedEdgeDistances,
-                                              const EdgeEquations& edges, Vertices* quad) {
+int TessellationHelper::computeDegenerateQuad(const V4f& signedEdgeDistances,
+                                              const EdgeEquations& edges,
+                                              V4f* x2d, V4f* y2d) {
     // Move the edge by the signed edge adjustment.
     V4f oc = edges.fC + signedEdgeDistances;
 
@@ -677,33 +677,34 @@ V4f TessellationHelper::computeDegenerateQuad(const V4f& signedEdgeDistances,
     M4f d1And2 = d1v0 & d2v0;
     M4f d1Or2 = d1v0 | d2v0;
 
-    V4f coverage;
     if (!any(d1Or2)) {
         // Every dists1 and dists2 >= kTolerance so it's not degenerate, use all 4 corners as-is
         // and use full coverage
-        coverage = 1.f;
+        *x2d = px;
+        *y2d = py;
+        return 4;
     } else if (any(d1And2)) {
         // A point failed against two edges, so reduce the shape to a single point, which we take as
         // the center of the original quad to ensure it is contained in the intended geometry. Since
         // it has collapsed, we know the shape cannot cover a pixel so update the coverage.
-        SkPoint center = {0.25f * (quad->fX[0] + quad->fX[1] + quad->fX[2] + quad->fX[3]),
-                          0.25f * (quad->fY[0] + quad->fY[1] + quad->fY[2] + quad->fY[3])};
-        px = center.fX;
-        py = center.fY;
-        coverage = getDegenerateCoverage(px, py, edges);
+        SkPoint center = {0.25f * ((*x2d)[0] + (*x2d)[1] + (*x2d)[2] + (*x2d)[3]),
+                          0.25f * ((*y2d)[0] + (*y2d)[1] + (*y2d)[2] + (*y2d)[3])};
+        *x2d = center.fX;
+        *y2d = center.fY;
+        return 1;
     } else if (all(d1Or2)) {
         // Degenerates to a line. Compare p[2] and p[3] to edge 0. If they are on the wrong side,
         // that means edge 0 and 3 crossed, and otherwise edge 1 and 2 crossed.
         if (dists1[2] < kTolerance && dists1[3] < kTolerance) {
             // Edges 0 and 3 have crossed over, so make the line from average of (p0,p2) and (p1,p3)
-            px = 0.5f * (skvx::shuffle<0, 1, 0, 1>(px) + skvx::shuffle<2, 3, 2, 3>(px));
-            py = 0.5f * (skvx::shuffle<0, 1, 0, 1>(py) + skvx::shuffle<2, 3, 2, 3>(py));
+            *x2d = 0.5f * (skvx::shuffle<0, 1, 0, 1>(px) + skvx::shuffle<2, 3, 2, 3>(px));
+            *y2d = 0.5f * (skvx::shuffle<0, 1, 0, 1>(py) + skvx::shuffle<2, 3, 2, 3>(py));
         } else {
             // Edges 1 and 2 have crossed over, so make the line from average of (p0,p1) and (p2,p3)
-            px = 0.5f * (skvx::shuffle<0, 0, 2, 2>(px) + skvx::shuffle<1, 1, 3, 3>(px));
-            py = 0.5f * (skvx::shuffle<0, 0, 2, 2>(py) + skvx::shuffle<1, 1, 3, 3>(py));
+            *x2d = 0.5f * (skvx::shuffle<0, 0, 2, 2>(px) + skvx::shuffle<1, 1, 3, 3>(px));
+            *y2d = 0.5f * (skvx::shuffle<0, 0, 2, 2>(py) + skvx::shuffle<1, 1, 3, 3>(py));
         }
-        coverage = getDegenerateCoverage(px, py, edges);
+        return 2;
     } else {
         // This turns into a triangle. Replace corners as needed with the intersections between
         // (e0,e3) and (e1,e2), which must now be calculated
@@ -724,14 +725,13 @@ V4f TessellationHelper::computeDegenerateQuad(const V4f& signedEdgeDistances,
             py = if_then_else(d2v0, V4f(ey[1]), py);
         }
 
-        coverage = 1.f;
+        *x2d = px;
+        *y2d = py;
+        return 3;
     }
-
-    quad->moveTo(px, py, signedEdgeDistances != 0.f);
-    return coverage;
 }
 
-V4f TessellationHelper::adjustVertices(const OutsetRequest& outsetRequest,
+int TessellationHelper::adjustVertices(const OutsetRequest& outsetRequest,
                                        bool inset,
                                        const EdgeVectors& edgeVectors,
                                        const EdgeEquations* edgeEquations,
@@ -741,7 +741,7 @@ V4f TessellationHelper::adjustVertices(const OutsetRequest& outsetRequest,
 
     if (fDeviceType == GrQuad::Type::kPerspective || outsetRequest.fDegenerate) {
         Vertices projected = { edgeVectors.fX2D, edgeVectors.fY2D, /*w*/ 1.f, 0.f, 0.f, 0.f, 0};
-        V4f coverage = 1.f;
+        int vertexCount;
         if (outsetRequest.fDegenerate) {
             // Must use the slow path to handle numerical issues and self intersecting geometry
             SkASSERT(edgeEquations);
@@ -749,19 +749,21 @@ V4f TessellationHelper::adjustVertices(const OutsetRequest& outsetRequest,
             if (inset) {
                 signedEdgeDistances *= -1.f;
             }
-            coverage = computeDegenerateQuad(signedEdgeDistances, *edgeEquations, &projected);
+            vertexCount = computeDegenerateQuad(signedEdgeDistances, *edgeEquations,
+                                                &projected.fX, &projected.fY);
         } else {
             // Move the projected quad with the fast path, even though we will reconstruct the
             // perspective corners afterwards.
             projected.moveAlong(edgeVectors, outsetRequest, inset);
+            vertexCount = 4;
         }
         vertices->moveTo(projected.fX, projected.fY, outsetRequest.fEdgeDistances != 0.f);
-        return coverage;
+        return vertexCount;
     } else {
         // Quad is 2D and the inset/outset request does not cause the geometry to self intersect, so
         // we can directly move the corners along the already calculated edge vectors.
         vertices->moveAlong(edgeVectors, outsetRequest, inset);
-        return 1.f;
+        return 4;
     }
 }
 
@@ -784,13 +786,7 @@ TessellationHelper::TessellationHelper(const GrQuad& deviceQuad, const GrQuad* l
     }
 }
 
-V4f TessellationHelper::pixelCoverage() {
-    // When there are no AA edges, insetting and outsetting is skipped since the original geometry
-    // can just be reported directly (in which case fCoverage may be stale).
-    return fAAFlags == GrQuadAAFlags::kNone ? 1.f : fCoverage;
-}
-
-void TessellationHelper::inset(GrQuadAAFlags aaFlags, GrQuad* deviceInset, GrQuad* localInset) {
+V4f TessellationHelper::inset(GrQuadAAFlags aaFlags, GrQuad* deviceInset, GrQuad* localInset) {
     if (aaFlags != fAAFlags) {
         fAAFlags = aaFlags;
         if (aaFlags != GrQuadAAFlags::kNone) {
@@ -799,8 +795,10 @@ void TessellationHelper::inset(GrQuadAAFlags aaFlags, GrQuad* deviceInset, GrQua
     }
     if (fAAFlags == GrQuadAAFlags::kNone) {
         this->setQuads(fOriginal, deviceInset, localInset);
+        return 1.f;
     } else {
         this->setQuads(fInset, deviceInset, localInset);
+        return fCoverage;
     }
 }
 
@@ -832,11 +830,24 @@ void TessellationHelper::recomputeInsetAndOutset() {
         // adjustVertices requires edge equations too
         EdgeEquations edgeEquations = this->getEdgeEquations(edgeVectors);
         this->adjustVertices(outsetRequest, false, edgeVectors, &edgeEquations, &fOutset);
-        fCoverage = this->adjustVertices(outsetRequest, true, edgeVectors, &edgeEquations, &fInset);
+        int innerVertexCount = this->adjustVertices(outsetRequest, true, edgeVectors,
+                                                    &edgeEquations, &fInset);
+        if (innerVertexCount < 3) {
+            // The interior has less than a full pixel's area so estimate reduced coverage using
+            // the distance of the inset's projected corners to the original edges.
+            fCoverage = edgeEquations.estimateCoverage(fInset.fX / fInset.fW,
+                                                       fInset.fY / fInset.fW);
+        } else {
+            fCoverage = 1.f;
+        }
     } else {
         // skip calculating edge equations
         this->adjustVertices(outsetRequest, false, edgeVectors, nullptr, &fOutset);
-        fCoverage = this->adjustVertices(outsetRequest, true, edgeVectors, nullptr, &fInset);
+        int innerVertexCount = this->adjustVertices(outsetRequest, true, edgeVectors,
+                                                    nullptr, &fInset);
+        (void) innerVertexCount; // silence clang
+        SkASSERT(innerVertexCount == 4);
+        fCoverage = 1.f;
     }
 }
 
