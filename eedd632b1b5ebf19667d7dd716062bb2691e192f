@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ac05a0b_043fb70e",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-11-01T01:25:15Z",
+      "side": 1,
+      "message": "I like the clarity of formulating it this way. Too bad it means we have to \"malloc\" the alphashader (and not just place it on the stack.",
+      "range": {
+        "startLine": 408,
+        "startChar": 16,
+        "endLine": 408,
+        "endChar": 28
+      },
+      "revId": "eedd632b1b5ebf19667d7dd716062bb2691e192f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
