@@ -135,6 +135,7 @@ DEF_TEST(YUVMath, reporter) {
         kJPEG_SkYUVColorSpace,
         kRec601_SkYUVColorSpace,
         kRec709_SkYUVColorSpace,
+        kBT2020_SkYUVColorSpace,
         kIdentity_SkYUVColorSpace,
     };
 
