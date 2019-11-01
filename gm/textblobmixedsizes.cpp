@@ -59,35 +59,35 @@ protected:
         SkScalar yOffset = bounds.height();
         font.setSize(162);
 
-        ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset);
+        //ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset);
 
         // Medium
         font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
         yOffset += bounds.height();
         font.setSize(72);
 
-        ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset);
+        //ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset);
 
         // Small
         font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
         yOffset += bounds.height();
         font.setSize(32);
 
-        ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset);
+        //ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset);
 
         // micro (will fall out of distance field text even if distance field text is enabled)
         font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
         yOffset += bounds.height();
         font.setSize(14);
 
-        ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset);
+        //ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset);
 
         // Zero size.
         font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
         yOffset += bounds.height();
         font.setSize(0);
 
-        ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset);
+        //ToolUtils::add_to_text_blob(&builder, text, font, 0, yOffset);
 
         // build
         fBlob = builder.make();
