@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "627d35a1_24b541e3",
+        "filename": "BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 1052,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-01T20:54:12Z",
+      "side": 0,
+      "message": "It\u0027s this I bet.  Bad rebase?",
+      "revId": "283ec65f632a2f8afa93f1e92ba60449c3956569",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
