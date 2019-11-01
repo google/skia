@@ -22,6 +22,30 @@
       "revId": "eedd632b1b5ebf19667d7dd716062bb2691e192f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b50fb8d2_d8ccdb96",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-01T14:04:43Z",
+      "side": 1,
+      "message": "Oh, yeah, I wouldn\u0027t worry about that, very fixable problem.  We\u0027ve got an SkArenaAlloc to toss things on if we need.  It\u0027s just less friction to do it this way while code keeps evolving quickly.",
+      "parentUuid": "1ac05a0b_043fb70e",
+      "range": {
+        "startLine": 408,
+        "startChar": 16,
+        "endLine": 408,
+        "endChar": 28
+      },
+      "revId": "eedd632b1b5ebf19667d7dd716062bb2691e192f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
