@@ -18,9 +18,6 @@ using M4f = skvx::Vec<4, int32_t>;
 #define AI SK_ALWAYS_INLINE
 
 static constexpr float kTolerance = 1e-2f;
-// True/false bit masks for initializing an M4f
-static constexpr int32_t kTrue    = ~0;
-static constexpr int32_t kFalse   = 0;
 
 // These rotate the points/edge values either clockwise or counterclockwise assuming tri strip
 // order.
@@ -388,30 +385,37 @@ bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, G
 // TessellationHelper implementation
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-TessellationHelper::QuadMetadata TessellationHelper::getMetadata(const Vertices& vertices,
-                                                                 GrQuadAAFlags aaFlags) {
-    V4f dx = next_ccw(vertices.fX) - vertices.fX;
-    V4f dy = next_ccw(vertices.fY) - vertices.fY;
-    V4f invLengths = rsqrt(mad(dx, dx, dy * dy));
+TessellationHelper::EdgeVectors TessellationHelper::getEdgeVectors() const {
+    EdgeVectors v;
+    if (fDeviceType == GrQuad::Type::kPerspective) {
+        V4f iw = 1.0 / fOriginal.fW;
+        v.fX2D = fOriginal.fX * iw;
+        v.fY2D = fOriginal.fY * iw;
+    } else {
+        v.fX2D = fOriginal.fX;
+        v.fY2D = fOriginal.fY;
+    }
 
-    V4f mask = aaFlags == GrQuadAAFlags::kAll ? V4f(1.f) :
-            V4f{(GrQuadAAFlags::kLeft & aaFlags) ? 1.f : 0.f,
-                 (GrQuadAAFlags::kBottom & aaFlags) ? 1.f : 0.f,
-                 (GrQuadAAFlags::kTop & aaFlags) ? 1.f : 0.f,
-                 (GrQuadAAFlags::kRight & aaFlags) ? 1.f : 0.f};
-    return { dx * invLengths, dy * invLengths, invLengths, mask };
+    v.fDX = next_ccw(v.fX2D) - v.fX2D;
+    v.fDY = next_ccw(v.fY2D) - v.fY2D;
+    v.fInvLengths = rsqrt(mad(v.fDX, v.fDX, v.fDY * v.fDY));
+
+    // Normalize edge vectors
+    v.fDX *= v.fInvLengths;
+    v.fDY *= v.fInvLengths;
+    return v;
 }
 
-TessellationHelper::Edges TessellationHelper::getEdgeEquations(const QuadMetadata& metadata,
-                                                               const Vertices& vertices) {
-    V4f dx = metadata.fDX;
-    V4f dy = metadata.fDY;
+TessellationHelper::EdgeEquations TessellationHelper::getEdgeEquations(
+        const EdgeVectors& edgeVectors) const {
+    V4f dx = edgeVectors.fDX;
+    V4f dy = edgeVectors.fDY;
     // Correct for bad edges by copying adjacent edge information into the bad component
-    correct_bad_edges(metadata.fInvLengths >= 1.f / kTolerance, &dx, &dy, nullptr);
+    correct_bad_edges(edgeVectors.fInvLengths >= 1.f / kTolerance, &dx, &dy, nullptr);
 
-    V4f c = mad(dx, vertices.fY, -dy * vertices.fX);
+    V4f c = mad(dx, edgeVectors.fY2D, -dy * edgeVectors.fX2D);
     // Make sure normals point into the shape
-    V4f test = mad(dy, next_cw(vertices.fX), mad(-dx, next_cw(vertices.fY), c));
+    V4f test = mad(dy, next_cw(edgeVectors.fX2D), mad(-dx, next_cw(edgeVectors.fY2D), c));
     if (any(test < -kTolerance)) {
         return {-dy, dx, -c, true};
     } else {
@@ -419,80 +423,94 @@ TessellationHelper::Edges TessellationHelper::getEdgeEquations(const QuadMetadat
     }
 }
 
-bool TessellationHelper::getOptimizedOutset(const QuadMetadata& metadata,
-                                            bool rectilinear,
-                                            V4f* outset) {
-    if (rectilinear) {
-        *outset = 0.5f;
-        // Stay in the fast path as long as all edges are at least a pixel long (so 1/len <= 1)
-        return all(metadata.fInvLengths <= 1.f);
+TessellationHelper::OutsetRequest TessellationHelper::getOutsetRequest(
+        const EdgeVectors& edgeVectors) const {
+    OutsetRequest r;
+    r.fOutsets = 0.5f; // Half a pixel for AA
+    r.fMask = fAAFlags == GrQuadAAFlags::kAll ? V4f(1.f) :
+            V4f{(GrQuadAAFlags::kLeft & fAAFlags) ? 1.f : 0.f,
+                (GrQuadAAFlags::kBottom & fAAFlags) ? 1.f : 0.f,
+                (GrQuadAAFlags::kTop & fAAFlags) ? 1.f : 0.f,
+                (GrQuadAAFlags::kRight & fAAFlags) ? 1.f : 0.f};
+
+    if (fDeviceType <= GrQuad::Type::kRectilinear) {
+        // While it's still rectangular, must use the degenerate path when the quad is less
+        // than a pixel along a side since the coverage must be updated. (len < 1 implies 1/len > 1)
+        r.fDegenerate = any(edgeVectors.fInvLengths > 1.f);
+        return r;
+    } else if (any(edgeVectors.fInvLengths >= 1.f / kTolerance)) {
+        // Have an edge that is effectively length 0, so we're dealing with a triangle. Skip
+        // computing corner outsets, since degenerate path won't use them.
+        r.fDegenerate = true;
+        return r;
     }
 
-    if (any(metadata.fInvLengths >= 1.f / kTolerance)) {
-        // Have an empty edge from a degenerate quad, so there's no hope
-        return false;
-    }
+    // Must scale corner distance by 1/2sin(theta), where theta is the angle between the two
+    // edges at that corner. cos(theta) is equal to dot(dXY, next_cw(dXY)),
+    // and sin(theta) = sqrt(1 - cos(theta)^2)
+    V4f cosTheta = mad(edgeVectors.fDX, next_cw(edgeVectors.fDX),
+                       edgeVectors.fDY * next_cw(edgeVectors.fDY));
 
-    // The distance the point needs to move is 1/2sin(theta), where theta is the angle between the
-    // two edges at that point. cos(theta) is equal to dot(dxy, next_cw(dxy))
-    V4f cosTheta = mad(metadata.fDX, next_cw(metadata.fDX), metadata.fDY * next_cw(metadata.fDY));
-    // If the angle is too shallow between edges, go through the degenerate path, otherwise adding
-    // and subtracting very large vectors in almost opposite directions leads to float errors
+    // If the angle is too shallow between edges, go through the degenerate path, otherwise
+    // adding and subtracting very large vectors in almost opposite directions leads to float
+    // errors (and skip updating the outsets since degenerate code path doesn't rely on that).
     if (any(abs(cosTheta) >= 0.9f)) {
-        return false;
+        r.fDegenerate = true;
+        return r;
     }
-    *outset = 0.5f * rsqrt(1.f - cosTheta * cosTheta); // 1/2sin(theta)
+
+    r.fOutsets *= rsqrt(1.f - cosTheta * cosTheta); // 1/2sin(theta)
 
     // When outsetting or insetting, the current edge's AA adds to the length:
     //   cos(pi - theta)/2sin(theta) + cos(pi-ccw(theta))/2sin(ccw(theta))
     // Moving an adjacent edge updates the length by 1/2sin(theta|ccw(theta))
-    V4f halfTanTheta = -cosTheta * (*outset); // cos(pi - theta) = -cos(theta)
-    V4f edgeAdjust = metadata.fMask * (halfTanTheta + next_ccw(halfTanTheta)) +
-                      next_ccw(metadata.fMask) * next_ccw(*outset) +
-                      next_cw(metadata.fMask) * (*outset);
-    // If either outsetting (plus edgeAdjust) or insetting (minus edgeAdjust) make edgeLen negative
-    // then use the slow path
-    V4f threshold = 0.1f - (1.f / metadata.fInvLengths);
-    return all(edgeAdjust > threshold) && all(edgeAdjust < -threshold);
+    V4f halfTanTheta = -cosTheta * r.fOutsets; // cos(pi - theta) = -cos(theta)
+    V4f edgeAdjust = r.fMask * (halfTanTheta + next_ccw(halfTanTheta)) +
+                      next_ccw(r.fMask) * next_ccw(r.fOutsets) +
+                      next_cw(r.fMask) * r.fOutsets;
+    // If either outsetting (plus edgeAdjust) or insetting (minus edgeAdjust) make edgeLen
+    // negative then it's degenerate
+    V4f threshold = 0.1f - (1.f / edgeVectors.fInvLengths);
+    r.fDegenerate = any(edgeAdjust < threshold) || any(edgeAdjust > -threshold);
+    return r;
 }
 
-void TessellationHelper::outsetVertices(const V4f& outset,
-                                        const QuadMetadata& metadata,
-                                        Vertices* quad) {
+void TessellationHelper::Vertices::moveAlong(const EdgeVectors& edgeVectors,
+                                             const V4f& signedOutsets,
+                                             const V4f& mask) {
     // The mask is rotated compared to the outsets and edge vectors, since if the edge is "on"
     // both its points need to be moved along their other edge vectors.
-    auto maskedOutset = -outset * next_cw(metadata.fMask);
-    auto maskedOutsetCW = outset * metadata.fMask;
+    auto maskedOutset = -signedOutsets * next_cw(mask);
+    auto maskedOutsetCW = signedOutsets * mask;
     // x = x + outset * mask * next_cw(xdiff) - outset * next_cw(mask) * xdiff
-    quad->fX += mad(maskedOutsetCW, next_cw(metadata.fDX), maskedOutset * metadata.fDX);
-    quad->fY += mad(maskedOutsetCW, next_cw(metadata.fDY), maskedOutset * metadata.fDY);
-    if (quad->fUVRCount > 0) {
+    fX += mad(maskedOutsetCW, next_cw(edgeVectors.fDX), maskedOutset * edgeVectors.fDX);
+    fY += mad(maskedOutsetCW, next_cw(edgeVectors.fDY), maskedOutset * edgeVectors.fDY);
+    if (fUVRCount > 0) {
         // We want to extend the texture coords by the same proportion as the positions.
-        maskedOutset *= metadata.fInvLengths;
-        maskedOutsetCW *= next_cw(metadata.fInvLengths);
-        V4f du = next_ccw(quad->fU) - quad->fU;
-        V4f dv = next_ccw(quad->fV) - quad->fV;
-        quad->fU += mad(maskedOutsetCW, next_cw(du), maskedOutset * du);
-        quad->fV += mad(maskedOutsetCW, next_cw(dv), maskedOutset * dv);
-        if (quad->fUVRCount == 3) {
-            V4f dr = next_ccw(quad->fR) - quad->fR;
-            quad->fR += mad(maskedOutsetCW, next_cw(dr), maskedOutset * dr);
+        maskedOutset *= edgeVectors.fInvLengths;
+        maskedOutsetCW *= next_cw(edgeVectors.fInvLengths);
+        V4f du = next_ccw(fU) - fU;
+        V4f dv = next_ccw(fV) - fV;
+        fU += mad(maskedOutsetCW, next_cw(du), maskedOutset * du);
+        fV += mad(maskedOutsetCW, next_cw(dv), maskedOutset * dv);
+        if (fUVRCount == 3) {
+            V4f dr = next_ccw(fR) - fR;
+            fR += mad(maskedOutsetCW, next_cw(dr), maskedOutset * dr);
         }
     }
 }
 
-void TessellationHelper::outsetProjectedVertices(const V4f& x2d, const V4f& y2d,
-                                                 GrQuadAAFlags aaFlags, Vertices* quad) {
+void TessellationHelper::Vertices::moveTo(const V4f& x2d, const V4f& y2d, const M4f& mask) {
     // Left to right, in device space, for each point
-    V4f e1x = skvx::shuffle<2, 3, 2, 3>(quad->fX) - skvx::shuffle<0, 1, 0, 1>(quad->fX);
-    V4f e1y = skvx::shuffle<2, 3, 2, 3>(quad->fY) - skvx::shuffle<0, 1, 0, 1>(quad->fY);
-    V4f e1w = skvx::shuffle<2, 3, 2, 3>(quad->fW) - skvx::shuffle<0, 1, 0, 1>(quad->fW);
+    V4f e1x = skvx::shuffle<2, 3, 2, 3>(fX) - skvx::shuffle<0, 1, 0, 1>(fX);
+    V4f e1y = skvx::shuffle<2, 3, 2, 3>(fY) - skvx::shuffle<0, 1, 0, 1>(fY);
+    V4f e1w = skvx::shuffle<2, 3, 2, 3>(fW) - skvx::shuffle<0, 1, 0, 1>(fW);
     correct_bad_edges(mad(e1x, e1x, e1y * e1y) < kTolerance * kTolerance, &e1x, &e1y, &e1w);
 
     // // Top to bottom, in device space, for each point
-    V4f e2x = skvx::shuffle<1, 1, 3, 3>(quad->fX) - skvx::shuffle<0, 0, 2, 2>(quad->fX);
-    V4f e2y = skvx::shuffle<1, 1, 3, 3>(quad->fY) - skvx::shuffle<0, 0, 2, 2>(quad->fY);
-    V4f e2w = skvx::shuffle<1, 1, 3, 3>(quad->fW) - skvx::shuffle<0, 0, 2, 2>(quad->fW);
+    V4f e2x = skvx::shuffle<1, 1, 3, 3>(fX) - skvx::shuffle<0, 0, 2, 2>(fX);
+    V4f e2y = skvx::shuffle<1, 1, 3, 3>(fY) - skvx::shuffle<0, 0, 2, 2>(fY);
+    V4f e2w = skvx::shuffle<1, 1, 3, 3>(fW) - skvx::shuffle<0, 0, 2, 2>(fW);
     correct_bad_edges(mad(e2x, e2x, e2y * e2y) < kTolerance * kTolerance, &e2x, &e2y, &e2w);
 
     // Can only move along e1 and e2 to reach the new 2D point, so we have
@@ -504,26 +522,20 @@ void TessellationHelper::outsetProjectedVertices(const V4f& x2d, const V4f& y2d,
     V4f c1y = e1w * y2d - e1y;
     V4f c2x = e2w * x2d - e2x;
     V4f c2y = e2w * y2d - e2y;
-    V4f c3x = quad->fW * x2d - quad->fX;
-    V4f c3y = quad->fW * y2d - quad->fY;
+    V4f c3x = fW * x2d - fX;
+    V4f c3y = fW * y2d - fY;
 
     // Solve for a and b
     V4f a, b, denom;
-    if (aaFlags == GrQuadAAFlags::kAll) {
+    if (all(mask)) {
         // When every edge is outset/inset, each corner can use both edge vectors
         denom = c1x * c2y - c2x * c1y;
         a = (c2x * c3y - c3x * c2y) / denom;
         b = (c3x * c1y - c1x * c3y) / denom;
     } else {
         // Force a or b to be 0 if that edge cannot be used due to non-AA
-        M4f aMask = M4f{(aaFlags & GrQuadAAFlags::kLeft)   ? kTrue : kFalse,
-                        (aaFlags & GrQuadAAFlags::kLeft)   ? kTrue : kFalse,
-                        (aaFlags & GrQuadAAFlags::kRight)  ? kTrue : kFalse,
-                        (aaFlags & GrQuadAAFlags::kRight)  ? kTrue : kFalse};
-        M4f bMask = M4f{(aaFlags & GrQuadAAFlags::kTop)    ? kTrue : kFalse,
-                        (aaFlags & GrQuadAAFlags::kBottom) ? kTrue : kFalse,
-                        (aaFlags & GrQuadAAFlags::kTop)    ? kTrue : kFalse,
-                        (aaFlags & GrQuadAAFlags::kBottom) ? kTrue : kFalse};
+        M4f aMask = skvx::shuffle<0, 0, 3, 3>(mask);
+        M4f bMask = skvx::shuffle<2, 1, 2, 1>(mask);
 
         // When aMask[i]&bMask[i], then a[i], b[i], denom[i] match the kAll case.
         // When aMask[i]&!bMask[i], then b[i] = 0, a[i] = -c3x/c1x or -c3y/c1y, using better denom
@@ -552,7 +564,7 @@ void TessellationHelper::outsetProjectedVertices(const V4f& x2d, const V4f& y2d,
                     V4f(0.f)) / denom;                            /* !B      */
     }
 
-    V4f newW = quad->fW + a * e1w + b * e2w;
+    V4f newW = fW + a * e1w + b * e2w;
     // If newW < 0, scale a and b such that the point reaches the infinity plane instead of crossing
     // This breaks orthogonality of inset/outsets, but GPUs don't handle negative Ws well so this
     // is far less visually disturbing (likely not noticeable since it's at extreme perspective).
@@ -560,40 +572,41 @@ void TessellationHelper::outsetProjectedVertices(const V4f& x2d, const V4f& y2d,
     // coordinates would be interpolated.
     static const float kMinW = 1e-6f;
     if (any(newW < 0.f)) {
-        V4f scale = if_then_else(newW < kMinW, (kMinW - quad->fW) / (newW - quad->fW), V4f(1.f));
+        V4f scale = if_then_else(newW < kMinW, (kMinW - fW) / (newW - fW), V4f(1.f));
         a *= scale;
         b *= scale;
     }
 
-    quad->fX += a * e1x + b * e2x;
-    quad->fY += a * e1y + b * e2y;
-    quad->fW += a * e1w + b * e2w;
-    correct_bad_coords(abs(denom) < kTolerance, &quad->fX, &quad->fY, &quad->fW);
+    fX += a * e1x + b * e2x;
+    fY += a * e1y + b * e2y;
+    fW += a * e1w + b * e2w;
+    correct_bad_coords(abs(denom) < kTolerance, &fX, &fY, &fW);
 
-    if (quad->fUVRCount > 0) {
+    if (fUVRCount > 0) {
         // Calculate R here so it can be corrected with U and V in case it's needed later
-        V4f e1u = skvx::shuffle<2, 3, 2, 3>(quad->fU) - skvx::shuffle<0, 1, 0, 1>(quad->fU);
-        V4f e1v = skvx::shuffle<2, 3, 2, 3>(quad->fV) - skvx::shuffle<0, 1, 0, 1>(quad->fV);
-        V4f e1r = skvx::shuffle<2, 3, 2, 3>(quad->fR) - skvx::shuffle<0, 1, 0, 1>(quad->fR);
+        V4f e1u = skvx::shuffle<2, 3, 2, 3>(fU) - skvx::shuffle<0, 1, 0, 1>(fU);
+        V4f e1v = skvx::shuffle<2, 3, 2, 3>(fV) - skvx::shuffle<0, 1, 0, 1>(fV);
+        V4f e1r = skvx::shuffle<2, 3, 2, 3>(fR) - skvx::shuffle<0, 1, 0, 1>(fR);
         correct_bad_edges(mad(e1u, e1u, e1v * e1v) < kTolerance * kTolerance, &e1u, &e1v, &e1r);
 
-        V4f e2u = skvx::shuffle<1, 1, 3, 3>(quad->fU) - skvx::shuffle<0, 0, 2, 2>(quad->fU);
-        V4f e2v = skvx::shuffle<1, 1, 3, 3>(quad->fV) - skvx::shuffle<0, 0, 2, 2>(quad->fV);
-        V4f e2r = skvx::shuffle<1, 1, 3, 3>(quad->fR) - skvx::shuffle<0, 0, 2, 2>(quad->fR);
+        V4f e2u = skvx::shuffle<1, 1, 3, 3>(fU) - skvx::shuffle<0, 0, 2, 2>(fU);
+        V4f e2v = skvx::shuffle<1, 1, 3, 3>(fV) - skvx::shuffle<0, 0, 2, 2>(fV);
+        V4f e2r = skvx::shuffle<1, 1, 3, 3>(fR) - skvx::shuffle<0, 0, 2, 2>(fR);
         correct_bad_edges(mad(e2u, e2u, e2v * e2v) < kTolerance * kTolerance, &e2u, &e2v, &e2r);
 
-        quad->fU += a * e1u + b * e2u;
-        quad->fV += a * e1v + b * e2v;
-        if (quad->fUVRCount == 3) {
-            quad->fR += a * e1r + b * e2r;
-            correct_bad_coords(abs(denom) < kTolerance, &quad->fU, &quad->fV, &quad->fR);
+        fU += a * e1u + b * e2u;
+        fV += a * e1v + b * e2v;
+        if (fUVRCount == 3) {
+            fR += a * e1r + b * e2r;
+            correct_bad_coords(abs(denom) < kTolerance, &fU, &fV, &fR);
         } else {
-            correct_bad_coords(abs(denom) < kTolerance, &quad->fU, &quad->fV, nullptr);
+            correct_bad_coords(abs(denom) < kTolerance, &fU, &fV, nullptr);
         }
     }
 }
 
-V4f TessellationHelper::getDegenerateCoverage(const V4f& px, const V4f& py, const Edges& edges) {
+V4f TessellationHelper::getDegenerateCoverage(const V4f& px, const V4f& py,
+                                              const EdgeEquations& edges) {
     // Calculate distance of the 4 inset points (px, py) to the 4 edges
     V4f d0 = mad(edges.fA[0], px, mad(edges.fB[0], py, edges.fC[0]));
     V4f d1 = mad(edges.fA[1], px, mad(edges.fB[1], py, edges.fC[1]));
@@ -612,10 +625,10 @@ V4f TessellationHelper::getDegenerateCoverage(const V4f& px, const V4f& py, cons
     return w * h;
 }
 
-V4f TessellationHelper::computeDegenerateQuad(GrQuadAAFlags aaFlags, const V4f& mask,
-                                              const Edges& edges, bool outset, Vertices* quad) {
-    // Move the edge 1/2 pixel in or out depending on 'outset'.
-    V4f oc = edges.fC + mask * (outset ? 0.5f : -0.5f);
+V4f TessellationHelper::computeDegenerateQuad(const V4f& signedEdgeDistances, const V4f& mask,
+                                              const EdgeEquations& edges, Vertices* quad) {
+    // Move the edge by the signed edge adjustment, respecting mask.
+    V4f oc = edges.fC + mask * signedEdgeDistances;
 
     // There are 6 points that we care about to determine the final shape of the polygon, which
     // are the intersections between (e0,e2), (e1,e0), (e2,e3), (e3,e1) (corresponding to the
@@ -696,58 +709,49 @@ V4f TessellationHelper::computeDegenerateQuad(GrQuadAAFlags aaFlags, const V4f& 
         coverage = 1.f;
     }
 
-    outsetProjectedVertices(px, py, aaFlags, quad);
+    quad->moveTo(px, py, mask != 0.f);
     return coverage;
 }
 
-V4f TessellationHelper::computeNestedQuadVertices(GrQuadAAFlags aaFlags, bool rectilinear,
-                                                  Vertices* inner, Vertices* outer) {
-    SkASSERT(inner->fUVRCount == 0 || inner->fUVRCount == 2 || inner->fUVRCount == 3);
-    SkASSERT(outer->fUVRCount == inner->fUVRCount);
+V4f TessellationHelper::adjustVertices(const OutsetRequest& outsetRequest,
+                                       bool inset,
+                                       const EdgeVectors& edgeVectors,
+                                       const EdgeEquations* edgeEquations,
+                                       Vertices* vertices) {
+    SkASSERT(vertices);
+    SkASSERT(vertices->fUVRCount == 0 || vertices->fUVRCount == 2 || vertices->fUVRCount == 3);
 
-    QuadMetadata metadata = getMetadata(*inner, aaFlags);
-
-    // When outsetting, we want the new edge to be .5px away from the old line, which means the
-    // corners may need to be adjusted by more than .5px if the matrix had sheer. This adjustment
-    // is only computed if there are no empty edges, and it may signal going through the slow path.
-    V4f outset = 0.5f;
-    if (getOptimizedOutset(metadata, rectilinear, &outset)) {
-       // Since it's not subpixel, outsetting and insetting are trivial vector additions.
-        outsetVertices(outset, metadata, outer);
-        outsetVertices(-outset, metadata, inner);
-        return 1.f;
+    // Get signed outsets from cached outset request (which are positive values)
+    V4f signedOutsets = outsetRequest.fOutsets;
+    if (inset) {
+        signedOutsets *= -1.f;
     }
 
-    // Only compute edge equations once since they are the same for inner and outer quads
-    Edges edges = getEdgeEquations(metadata, *inner);
-
-    // Calculate both outset and inset, returning the coverage reported for the inset, since the
-    // outset will always have 0.0f.
-    computeDegenerateQuad(aaFlags, metadata.fMask, edges, true, outer);
-    return computeDegenerateQuad(aaFlags, metadata.fMask, edges, false, inner);
-}
-
-V4f TessellationHelper::computeNestedPerspQuadVertices(const GrQuadAAFlags aaFlags,
-                                                       Vertices* inner,
-                                                       Vertices* outer) {
-    SkASSERT(inner->fUVRCount == 0 || inner->fUVRCount == 2 || inner->fUVRCount == 3);
-    SkASSERT(outer->fUVRCount == inner->fUVRCount);
-
-    // Calculate the projected 2D quad and use it to form projeccted inner/outer quads
-    V4f iw = 1.0f / inner->fW;
-    V4f x2d = inner->fX * iw;
-    V4f y2d = inner->fY * iw;
-
-    Vertices inner2D = { x2d, y2d, /*w*/ 1.f, 0.f, 0.f, 0.f, 0 }; // No uvr outsetting in 2D
-    Vertices outer2D = inner2D;
-
-    V4f coverage = computeNestedQuadVertices(aaFlags, /* rect */ false, &inner2D, &outer2D);
-
-    // Now map from the 2D inset/outset back to 3D and update the local coordinates as well
-    outsetProjectedVertices(inner2D.fX, inner2D.fY, aaFlags, inner);
-    outsetProjectedVertices(outer2D.fX, outer2D.fY, aaFlags, outer);
-
-    return coverage;
+    if (fDeviceType == GrQuad::Type::kPerspective || outsetRequest.fDegenerate) {
+        Vertices projected = { edgeVectors.fX2D, edgeVectors.fY2D, /*w*/ 1.f, 0.f, 0.f, 0.f, 0};
+        V4f coverage = 1.f;
+        if (outsetRequest.fDegenerate) {
+            // Must use the slow path to handle numerical issues and self intersecting geometry
+            SkASSERT(edgeEquations);
+            V4f signedEdgeDistances = 0.5f; // Half a pixel for AA
+            if (inset) {
+                signedEdgeDistances *= -1.f;
+            }
+            coverage = computeDegenerateQuad(signedEdgeDistances, outsetRequest.fMask,
+                                             *edgeEquations, &projected);
+        } else {
+            // Move the projected quad with the fast path, even though we will reconstruct the
+            // perspective corners afterwards.
+            projected.moveAlong(edgeVectors, signedOutsets, outsetRequest.fMask);
+        }
+        vertices->moveTo(projected.fX, projected.fY, outsetRequest.fMask != 0.f);
+        return coverage;
+    } else {
+        // Quad is 2D and the inset/outset request does not cause the geometry to self intersect, so
+        // we can directly move the corners along the already calculated edge vectors.
+        vertices->moveAlong(edgeVectors, signedOutsets, outsetRequest.fMask);
+        return 1.f;
+    }
 }
 
 TessellationHelper::TessellationHelper(const GrQuad& deviceQuad, const GrQuad* localQuad)
@@ -808,11 +812,20 @@ void TessellationHelper::recomputeInsetAndOutset() {
     fInset = fOriginal;
     fOutset = fOriginal;
 
-    if (fDeviceType == GrQuad::Type::kPerspective) {
-        fCoverage = computeNestedPerspQuadVertices(fAAFlags, &fInset, &fOutset);
+    // Calculate state that can be shared between both inset and outset quads
+    EdgeVectors edgeVectors = this->getEdgeVectors();
+    OutsetRequest outsetRequest = this->getOutsetRequest(edgeVectors);
+
+    // Adjust inset and outset vertices to match the request
+    if (outsetRequest.fDegenerate) {
+        // adjustVertices requires edge equations too
+        EdgeEquations edgeEquations = this->getEdgeEquations(edgeVectors);
+        this->adjustVertices(outsetRequest, false, edgeVectors, &edgeEquations, &fOutset);
+        fCoverage = this->adjustVertices(outsetRequest, true, edgeVectors, &edgeEquations, &fInset);
     } else {
-        fCoverage = computeNestedQuadVertices(fAAFlags, fDeviceType <= GrQuad::Type::kRectilinear,
-                                              &fInset, &fOutset);
+        // skip calculating edge equations
+        this->adjustVertices(outsetRequest, false, edgeVectors, nullptr, &fOutset);
+        fCoverage = this->adjustVertices(outsetRequest, true, edgeVectors, nullptr, &fInset);
     }
 }
 

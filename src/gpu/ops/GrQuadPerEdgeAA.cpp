@@ -110,7 +110,7 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrQuad& deviceQua
         // TODO(michaelludwig) - Update TessellateHelper to select processing functions based on the
         // vertexspec once per op, and then burn through all quads with the selected function ptr.
         GrQuadUtils::TessellationHelper helper(deviceQuad,
-                                            spec.hasLocalCoords() ? &localQuad : nullptr);
+                                               spec.hasLocalCoords() ? &localQuad : nullptr);
 
         // Write inner vertices first
         GrQuad aaDeviceQuad, aaLocalQuad;
