@@ -192,6 +192,31 @@ bool SkShaderBase::onAppendStages(const SkStageRec& rec) const {
     return false;
 }
 
+bool SkShaderBase::program(skvm::Builder* p,
+                           SkColorSpace* dstCS,
+                           skvm::Arg uniforms, int offset,
+                           skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const {
+    // Force opaque alpha for all opaque shaders.
+    //
+    // This is primarily nice in that we usually have a 0xff constant splat
+    // somewhere in the program anyway, and this will let us drop the work the
+    // shader notionally does to produce alpha, p->extract(...), etc. in favor
+    // of that simple hoistable splat.
+    //
+    // More subtly, it makes isOpaque() a parameter to all shader program
+    // generation, guaranteeing that is-opaque bit is mixed into the overall
+    // shader program hash and blitter Key.  This makes it safe for us to use
+    // that bit to make decisions when constructing an SkVMBlitter, like doing
+    // SrcOver -> Src strength reduction.
+    if (this->onProgram(p, dstCS, uniforms,offset, r,g,b,a)) {
+        if (p && this->isOpaque()) {
+            *a = p->splat(0xff);
+        }
+        return true;
+    }
+    return false;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkFlattenable> SkEmptyShader::CreateProc(SkReadBuffer&) {

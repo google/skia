@@ -349,10 +349,10 @@ namespace {
         sk_sp<SkShader> fShader;
         uint32_t        fAlpha;  // [0,255], 4 bytes to keep nice alignment in uniform buffer.
 
-        bool program(skvm::Builder* p,
-                     SkColorSpace* dstCS,
-                     skvm::Arg uniforms, int offset,
-                     skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override {
+        bool onProgram(skvm::Builder* p,
+                       SkColorSpace* dstCS,
+                       skvm::Arg uniforms, int offset,
+                       skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override {
             if (as_SB(fShader)->program(p, dstCS, uniforms, offset + sizeof(fAlpha), r,g,b,a)) {
                 if (p) {
                     // TODO: move the helpers onto skvm::Builder so I don't have to duplicate?
@@ -388,16 +388,45 @@ namespace {
         const char* getTypeName() const override { return "AlphaShader"; }
     };
 
-    static sk_sp<SkShader> effective_shader(sk_sp<SkShader> shader, SkColor4f paintColor) {
-        // When there's no shader, the paint color becomes the shader.
+    static Params effective_params(const SkPixmap& device, const SkPaint& paint) {
+        // Color filters have been handled for us by SkBlitter::Choose().
+        SkASSERT(!paint.getColorFilter());
+
+        // If there's no explicit shader, the paint color is the shader,
+        // but if there is a shader, it's modulated by the paint alpha.
+        sk_sp<SkShader> shader = paint.refShader();
         if (!shader) {
-            return SkShaders::Color(paintColor, nullptr);
+            shader = SkShaders::Color(paint.getColor4f(), nullptr);
+        } else if (paint.getAlpha() < 0xff) {
+            shader = sk_make_sp<AlphaShader>(std::move(shader), paint.getAlpha());
         }
 
-        // When there is a shader, we modulate it by the paint's alpha.
-        uint8_t alpha = paintColor.toBytes_RGBA() >> 24;
-        return alpha < 0xff ? sk_make_sp<AlphaShader>(std::move(shader), alpha)
-                            : std::move(shader);
+        // The most common blend mode is SrcOver, and it can be strength-reduced
+        // _greatly_ to Src mode when the shader is opaque.
+        SkBlendMode blendMode = paint.getBlendMode();
+        if (blendMode == SkBlendMode::kSrcOver && shader->isOpaque()) {
+            blendMode =  SkBlendMode::kSrc;
+        }
+
+        // In general all the information we use to make decisions here need to
+        // be reflected in Params and Key to make program caching sound, and it
+        // might appear that shader->isOpaque() is a property of the shader's
+        // uniforms than its fundamental program structure and so unsafe to use.
+        //
+        // Opacity is such a powerful property that SkShaderBase::program()
+        // forces opacity for any shader subclass that claims isOpaque(), so
+        // the opaque bit is strongly guaranteed to be part of the program and
+        // not just a property of the uniforms.  The shader program hash includes
+        // this information, making it safe to use anywhere in the blitter codegen.
+
+        return {
+            device.refColorSpace(),
+            std::move(shader),
+            device.colorType(),
+            device.alphaType(),
+            blendMode,
+            Coverage::Full,  // Placeholder... withCoverage() will change as needed.
+        };
     }
 
     class Blitter final : public SkBlitter {
@@ -406,18 +435,9 @@ namespace {
 
         Blitter(const SkPixmap& device, const SkPaint& paint)
             : fDevice(device)
-            , fParams {
-                device.refColorSpace(),
-                effective_shader(paint.refShader(), paint.getColor4f()),
-                device.colorType(),
-                device.alphaType(),
-                paint.getBlendMode(),
-                Coverage::Full,
-            }
+            , fParams(effective_params(device, paint))
             , fKey(key(fParams))
         {
-            // Color filters have been folded back into shader and/or paint color by now.
-            SkASSERT(!paint.getColorFilter());
             ok = Builder::CanBuild(fParams);
         }
 
