@@ -166,21 +166,26 @@ void ConfigureMesh(GrMesh* mesh, const VertexSpec& spec,
     SkASSERT(indexBuffer);
 
     int baseIndex, numIndicesToDraw;
+    int minVertex, maxVertex;
 
     if (spec.indexBufferOption() == IndexBufferOption::kPictureFramed) {
         SkASSERT(runningQuadCount + quadsInDraw <= GrResourceProvider::MaxNumAAQuads());
         // AA uses 8 vertices and 30 indices per quad, basically nested rectangles
         baseIndex = runningQuadCount * GrResourceProvider::NumIndicesPerAAQuad();
         numIndicesToDraw = quadsInDraw * GrResourceProvider::NumIndicesPerAAQuad();
+        minVertex = runningQuadCount * GrResourceProvider::NumVertsPerAAQuad();
+        maxVertex = (runningQuadCount + quadsInDraw) * GrResourceProvider::NumVertsPerAAQuad();
     } else {
         SkASSERT(runningQuadCount + quadsInDraw <= GrResourceProvider::MaxNumNonAAQuads());
         // Non-AA uses 4 vertices and 6 indices per quad
         baseIndex = runningQuadCount * GrResourceProvider::NumIndicesPerNonAAQuad();
         numIndicesToDraw = quadsInDraw * GrResourceProvider::NumIndicesPerNonAAQuad();
+        minVertex = runningQuadCount * GrResourceProvider::NumVertsPerNonAAQuad();
+        maxVertex = (runningQuadCount + quadsInDraw) * GrResourceProvider::NumVertsPerNonAAQuad();
     }
 
     mesh->setPrimitiveType(GrPrimitiveType::kTriangles);
-    mesh->setIndexed(std::move(indexBuffer), numIndicesToDraw, baseIndex, 0, maxVerts-1,
+    mesh->setIndexed(std::move(indexBuffer), numIndicesToDraw, baseIndex, minVertex, maxVertex,
                      GrPrimitiveRestart::kNo);
     mesh->setVertexData(std::move(vertexBuffer), absVertBufferOffset);
 }
