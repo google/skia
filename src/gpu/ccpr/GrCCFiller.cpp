@@ -495,33 +495,33 @@ void GrCCFiller::drawFills(
     const PrimitiveTallies& batchTotalCounts = fBatches[batchID].fTotalPrimitiveCounts;
 
     if (batchTotalCounts.fTriangles) {
-        proc->reset(PrimitiveType::kTriangles, rp);
+        proc->reset1(PrimitiveType::kTriangles, rp);
         this->drawPrimitives(
                 flushState, *proc, pipeline, batchID, &PrimitiveTallies::fTriangles, drawBounds);
     }
 
     if (batchTotalCounts.fWeightedTriangles) {
         SkASSERT(Algorithm::kStencilWindingCount != fAlgorithm);
-        proc->reset(PrimitiveType::kWeightedTriangles, rp);
+        proc->reset1(PrimitiveType::kWeightedTriangles, rp);
         this->drawPrimitives(
                 flushState, *proc, pipeline, batchID, &PrimitiveTallies::fWeightedTriangles,
                 drawBounds);
     }
 
     if (batchTotalCounts.fQuadratics) {
-        proc->reset(PrimitiveType::kQuadratics, rp);
+        proc->reset1(PrimitiveType::kQuadratics, rp);
         this->drawPrimitives(
                 flushState, *proc, pipeline, batchID, &PrimitiveTallies::fQuadratics, drawBounds);
     }
 
     if (batchTotalCounts.fCubics) {
-        proc->reset(PrimitiveType::kCubics, rp);
+        proc->reset1(PrimitiveType::kCubics, rp);
         this->drawPrimitives(
                 flushState, *proc, pipeline, batchID, &PrimitiveTallies::fCubics, drawBounds);
     }
 
     if (batchTotalCounts.fConics) {
-        proc->reset(PrimitiveType::kConics, rp);
+        proc->reset1(PrimitiveType::kConics, rp);
         this->drawPrimitives(
                 flushState, *proc, pipeline, batchID, &PrimitiveTallies::fConics, drawBounds);
     }
@@ -542,12 +542,23 @@ void GrCCFiller::drawPrimitives(
     const Batch& batch = fBatches[batchID];
     SkDEBUGCODE(int totalInstanceCount = 0);
 
+    GrPrimitiveType master = GrPrimitiveType::kTriangleStrip;
+    bool inited = false;
+
     if (int instanceCount = batch.fEndNonScissorIndices.*instanceType -
                             previousBatch.fEndNonScissorIndices.*instanceType) {
         SkASSERT(instanceCount > 0);
         int baseInstance = fBaseInstances[(int)GrScissorTest::kDisabled].*instanceType +
                            previousBatch.fEndNonScissorIndices.*instanceType;
-        proc.appendMesh(fInstanceBuffer, instanceCount, baseInstance, &fMeshesScratchBuffer);
+        GrPrimitiveType tmp;
+        proc.appendMesh(fInstanceBuffer, instanceCount, baseInstance, &fMeshesScratchBuffer, &tmp);
+        if (!inited) {
+            inited = true;
+            master = tmp;
+        } else {
+            SkASSERT(master == tmp);
+        }
+
         fScissorRectScratchBuffer.push_back().setXYWH(0, 0, drawBounds.width(),
                                                       drawBounds.height());
         SkDEBUGCODE(totalInstanceCount += instanceCount);
@@ -565,8 +576,17 @@ void GrCCFiller::drawPrimitives(
             continue;
         }
         SkASSERT(instanceCount > 0);
+
+        GrPrimitiveType tmp;
         proc.appendMesh(fInstanceBuffer, instanceCount, baseScissorInstance + startIndex,
-                        &fMeshesScratchBuffer);
+                        &fMeshesScratchBuffer, &tmp);
+        if (!inited) {
+            inited = true;
+            master = tmp;
+        } else {
+            SkASSERT(master == tmp);
+        }
+
         fScissorRectScratchBuffer.push_back() = scissorSubBatch.fScissor;
         SkDEBUGCODE(totalInstanceCount += instanceCount);
     }
@@ -576,8 +596,8 @@ void GrCCFiller::drawPrimitives(
     SkASSERT(totalInstanceCount == batch.fTotalPrimitiveCounts.*instanceType);
 
     if (!fMeshesScratchBuffer.empty()) {
-        proc.draw(flushState, pipeline, fScissorRectScratchBuffer.begin(),
+        proc.draw1(flushState, pipeline, fScissorRectScratchBuffer.begin(),
                   fMeshesScratchBuffer.begin(), fMeshesScratchBuffer.count(),
-                  SkRect::Make(drawBounds));
+                  SkRect::Make(drawBounds), master);
     }
 }
