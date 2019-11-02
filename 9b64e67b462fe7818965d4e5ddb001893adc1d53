@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9743a50c_8e3ed242",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 7831
+      },
+      "writtenOn": "2019-11-02T22:02:40Z",
+      "side": 1,
+      "message": "nit: Why do these methods need to be constexpr?",
+      "range": {
+        "startLine": 198,
+        "startChar": 4,
+        "endLine": 198,
+        "endChar": 13
+      },
+      "revId": "9b64e67b462fe7818965d4e5ddb001893adc1d53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba78094b_a0d674d2",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 7831
+      },
+      "writtenOn": "2019-11-02T22:02:40Z",
+      "side": 1,
+      "message": "The calling code is passing fID here, the first 16 bits of which is the glyph id. How is this accounting for the sub-pixel positions?",
+      "range": {
+        "startLine": 211,
+        "startChar": 4,
+        "endLine": 211,
+        "endChar": 36
+      },
+      "revId": "9b64e67b462fe7818965d4e5ddb001893adc1d53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3dc1ea3_177bb8a1",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 7831
+      },
+      "writtenOn": "2019-11-02T22:02:40Z",
+      "side": 1,
+      "message": "Maybe I\u0027m not understanding this correctly. If we want to track all sub-pixel positions for a glyph, and each of the x and y values use 2 bits so can have 4 values, then this should 4*4 \u003d 16 possible sub-pixel positions and 16 bits for each glyph, right? While this logic would make it only 4 bits per glyph.",
+      "range": {
+        "startLine": 218,
+        "startChar": 4,
+        "endLine": 218,
+        "endChar": 92
+      },
+      "revId": "9b64e67b462fe7818965d4e5ddb001893adc1d53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b1c709e_a98ad544",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 7831
+      },
+      "writtenOn": "2019-11-02T22:02:40Z",
+      "side": 1,
+      "message": "Could we use an std::bitset instead? Avoids having to do the math for figuring out the location in the array.",
+      "range": {
+        "startLine": 220,
+        "startChar": 4,
+        "endLine": 220,
+        "endChar": 37
+      },
+      "revId": "9b64e67b462fe7818965d4e5ddb001893adc1d53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b107873_d64b72d1",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 773,
+      "author": {
+        "id": 7831
+      },
+      "writtenOn": "2019-11-02T22:02:40Z",
+      "side": 1,
+      "message": "nit: i and pos are unused.",
+      "range": {
+        "startLine": 772,
+        "startChar": 8,
+        "endLine": 773,
+        "endChar": 57
+      },
+      "revId": "9b64e67b462fe7818965d4e5ddb001893adc1d53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2ee6b10_af3d158c",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 777,
+      "author": {
+        "id": 7831
+      },
+      "writtenOn": "2019-11-02T22:02:40Z",
+      "side": 1,
+      "message": "nit: Add a debug assert that the glyph exists in |fSentGlyphs|.",
+      "range": {
+        "startLine": 777,
+        "startChar": 79,
+        "endLine": 777,
+        "endChar": 87
+      },
+      "revId": "9b64e67b462fe7818965d4e5ddb001893adc1d53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84d4a568_6a660ded",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 777,
+      "author": {
+        "id": 7831
+      },
+      "writtenOn": "2019-11-02T22:02:40Z",
+      "side": 1,
+      "message": "Could we have LowerRangeBitVector methods take an SkPackedGlyphID instead? Makes the usage of glyph index and sub-pixel positions in the key more explicit.",
+      "range": {
+        "startLine": 776,
+        "startChar": 8,
+        "endLine": 777,
+        "endChar": 90
+      },
+      "revId": "9b64e67b462fe7818965d4e5ddb001893adc1d53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
