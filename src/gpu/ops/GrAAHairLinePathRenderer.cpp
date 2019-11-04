@@ -977,15 +977,14 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
 
         sk_sp<const GrBuffer> linesIndexBuffer = get_lines_index_buffer(target->resourceProvider());
 
-        sk_sp<const GrBuffer> vertexBuffer;
-        int firstVertex;
-
         SkASSERT(sizeof(LineVertex) == lineGP->vertexStride());
-        int vertexCount = kLineSegNumVertices * lineCount;
-        LineVertex* verts = reinterpret_cast<LineVertex*>(target->makeVertexSpace(
-                sizeof(LineVertex), vertexCount, &vertexBuffer, &firstVertex));
 
-        if (!verts|| !linesIndexBuffer) {
+        GrMeshDrawOp::PatternHelper helper(target, GrPrimitiveType::kTriangles, sizeof(LineVertex),
+                                           std::move(linesIndexBuffer), kLineSegNumVertices,
+                                           kIdxsPerLineSeg, lineCount, kLineSegsNumInIdxBuffer);
+
+        LineVertex* verts = reinterpret_cast<LineVertex*>(helper.vertices());
+        if (!verts) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
@@ -994,11 +993,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
             add_line(&lines[2*i], toSrc, this->coverage(), &verts);
         }
 
-        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
-        mesh->setIndexedPatterned(std::move(linesIndexBuffer), kIdxsPerLineSeg, kLineSegNumVertices,
-                                  lineCount, kLineSegsNumInIdxBuffer);
-        mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-        target->recordDraw(std::move(lineGP), mesh);
+        helper.recordDraw(target, std::move(lineGP));
     }
 
     if (quadCount || conicCount) {
@@ -1053,7 +1048,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
             mesh->setIndexedPatterned(quadsIndexBuffer, kIdxsPerQuad, kQuadNumVertices, quadCount,
                                       kQuadsNumInIdxBuffer);
             mesh->setVertexData(vertexBuffer, firstVertex);
-            target->recordDraw(std::move(quadGP), mesh);
+            target->recordDraw(std::move(quadGP), mesh, 1, GrPrimitiveType::kTriangles);
             firstVertex += quadCount * kQuadNumVertices;
         }
 
@@ -1062,7 +1057,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
             mesh->setIndexedPatterned(std::move(quadsIndexBuffer), kIdxsPerQuad, kQuadNumVertices,
                                       conicCount, kQuadsNumInIdxBuffer);
             mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-            target->recordDraw(std::move(conicGP), mesh);
+            target->recordDraw(std::move(conicGP), mesh, 1, GrPrimitiveType::kTriangles);
         }
     }
 }

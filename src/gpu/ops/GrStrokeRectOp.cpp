@@ -224,7 +224,7 @@ private:
         GrMesh* mesh = target->allocMesh(primType);
         mesh->setNonIndexedNonInstanced(vertexCount);
         mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-        target->recordDraw(std::move(gp), mesh);
+        target->recordDraw(std::move(gp), mesh, 1, primType);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
