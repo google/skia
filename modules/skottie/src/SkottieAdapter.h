@@ -221,16 +221,16 @@ class GradientAdapter : public SkRefCnt {
 public:
     ADAPTER_PROPERTY(StartPoint, SkPoint        , SkPoint::Make(0, 0)   )
     ADAPTER_PROPERTY(EndPoint  , SkPoint        , SkPoint::Make(0, 0)   )
-    ADAPTER_PROPERTY(ColorStops, VectorValue    , VectorValue()         )
+    ADAPTER_PROPERTY(Stops     , VectorValue    , VectorValue()         )
 
 protected:
-    GradientAdapter(sk_sp<sksg::Gradient>, size_t stopCount);
+    GradientAdapter(sk_sp<sksg::Gradient>, size_t colorStopCount);
 
     const SkPoint& startPoint() const { return fStartPoint; }
     const SkPoint& endPoint()   const { return fEndPoint;   }
 
     sk_sp<sksg::Gradient> fGradient;
-    size_t                fStopCount;
+    size_t                fColorStopCount;
 
     virtual void onApply() = 0;
 
