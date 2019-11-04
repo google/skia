@@ -1397,7 +1397,7 @@ func (b *builder) perf(name string, parts map[string]string, compileTaskName str
 	}
 	task := b.kitchenTask(name, recipe, isolate, "", b.swarmDimensions(parts), EXTRA_PROPS, OUTPUT_PERF)
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
-	if strings.Contains(name, "CanvasKit") || strings.Contains(name, "SkottieWasm") || strings.Contains(name, "PathKit") {
+	if strings.Contains(name, "CanvasKit") || strings.Contains(name, "SkottieWasm") || strings.Contains(name, "PathKit") || strings.Contains(name, "LottieWeb") || strings.Contains(name, "SkottieWASM") {
 		b.usesGit(task, name)
 	}
 	if !strings.Contains(name, "LottieWeb") {

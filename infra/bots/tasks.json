@@ -20029,6 +20029,18 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
+          "name": "work",
+          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -20061,6 +20073,21 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "infra/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.23.0.chromium16"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
         },
         {
           "name": "skia/bots/node",
@@ -20209,6 +20236,18 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
+          "name": "work",
+          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -20241,6 +20280,21 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "infra/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.23.0.chromium16"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
         },
         {
           "name": "skia/bots/node",
@@ -21386,6 +21440,18 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
+          "name": "work",
+          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -21418,6 +21484,21 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "infra/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.23.0.chromium16"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
         },
         {
           "name": "skia/bots/node",
@@ -21556,6 +21637,18 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
+          "name": "work",
+          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -21588,6 +21681,21 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "infra/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.23.0.chromium16"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
         },
         {
           "name": "skia/bots/node",
