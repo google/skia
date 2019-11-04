@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45a1347c_a9f2b459",
+        "filename": "resources/fonts/abc/abc.ttx",
+        "patchSetId": 33
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-04T15:22:05Z",
+      "side": 1,
+      "message": "don\u0027t think you need VDMX table for anything interesting here.",
+      "range": {
+        "startLine": 127,
+        "startChar": 2,
+        "endLine": 127,
+        "endChar": 8
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42d22c4a_e26f2912",
+        "filename": "resources/fonts/abc/abc.ttx",
+        "patchSetId": 33
+      },
+      "lineNbr": 891,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-04T15:22:05Z",
+      "side": 1,
+      "message": "hdmx is just an accelerator, shouldn\u0027t be needed for tests",
+      "range": {
+        "startLine": 891,
+        "startChar": 2,
+        "endLine": 891,
+        "endChar": 8
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95d177ea_820834f7",
+        "filename": "resources/fonts/abc/abc.ttx",
+        "patchSetId": 33
+      },
+      "lineNbr": 921,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-04T15:22:05Z",
+      "side": 1,
+      "message": "All instructions should be removed... this isn\u0027t our code and we shouldn\u0027t check it in (unless this was auto generated, but it doesn\u0027t look like it?).",
+      "range": {
+        "startLine": 921,
+        "startChar": 2,
+        "endLine": 921,
+        "endChar": 8
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83e7ada5_1a1af383",
+        "filename": "resources/fonts/abc/abc.ttx",
+        "patchSetId": 33
+      },
+      "lineNbr": 2263,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-04T15:22:05Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 2263,
+        "startChar": 2,
+        "endLine": 2263,
+        "endChar": 8
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eed4525e_551915f0",
+        "filename": "resources/fonts/abc/abc.ttx",
+        "patchSetId": 33
+      },
+      "lineNbr": 3587,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-04T15:22:05Z",
+      "side": 1,
+      "message": "also a hinting table... should be removed",
+      "range": {
+        "startLine": 3587,
+        "startChar": 2,
+        "endLine": 3587,
+        "endChar": 7
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdc12fca_5d89cf6f",
+        "filename": "resources/fonts/abc/abc.ttx",
+        "patchSetId": 33
+      },
+      "lineNbr": 4404,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-04T15:22:05Z",
+      "side": 1,
+      "message": "should remove all instructions",
+      "range": {
+        "startLine": 4404,
+        "startChar": 6,
+        "endLine": 4404,
+        "endChar": 20
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39b7cbc3_cd086a22",
+        "filename": "resources/fonts/abc/abc.ttx",
+        "patchSetId": 33
+      },
+      "lineNbr": 4775,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-04T15:22:05Z",
+      "side": 1,
+      "message": "I don\u0027t think the kern table is of interest for the tests, and also has many entries for glyphs not in this font.",
+      "range": {
+        "startLine": 4775,
+        "startChar": 2,
+        "endLine": 4775,
+        "endChar": 8
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3dd263e_e2f0d1c6",
+        "filename": "resources/fonts/abc/abc.ttx",
+        "patchSetId": 33
+      },
+      "lineNbr": 5730,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-04T15:22:05Z",
+      "side": 1,
+      "message": "Really can\u0027t check this in... we can create a font like it, but let\u0027s not check in things we don\u0027t have a license for",
+      "range": {
+        "startLine": 5730,
+        "startChar": 4,
+        "endLine": 5730,
+        "endChar": 27
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aeeef277_b93a5d7b",
+        "filename": "resources/fonts/abc/abc.ttx",
+        "patchSetId": 33
+      },
+      "lineNbr": 5948,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-04T15:22:05Z",
+      "side": 1,
+      "message": "no real tests of gasp here, can remove",
+      "range": {
+        "startLine": 5948,
+        "startChar": 2,
+        "endLine": 5948,
+        "endChar": 8
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
