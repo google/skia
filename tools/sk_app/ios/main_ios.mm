@@ -48,6 +48,9 @@ using sk_app::Application;
         ++i;
     }
     argv[i] = NULL;
+    [arguments release];
+
+    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 
     Application* app = Application::Create(argc, argv, nullptr);
 
@@ -72,6 +75,9 @@ using sk_app::Application;
         do {
             result = CFRunLoopRunInMode(kCFRunLoopDefaultMode, kSeconds, TRUE);
         } while (result == kCFRunLoopRunHandledSource);
+
+        [pool drain];
+        pool = [[NSAutoreleasePool alloc] init];
 
         // TODO: is this the right approach for iOS?
         // Rather than depending on an iOS event to drive this, we treat our window
