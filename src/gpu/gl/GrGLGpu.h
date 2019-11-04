@@ -177,10 +177,12 @@ private:
     GrGLGpu(std::unique_ptr<GrGLContext>, GrContext*);
 
     // GrGpu overrides
-    GrBackendTexture onCreateBackendTexture(int w, int h, const GrBackendFormat&,
-                                            GrMipMapped, GrRenderable,
-                                            const SkPixmap srcData[], int numMipLevels,
-                                            const SkColor4f* color, GrProtected) override;
+    GrBackendTexture onCreateBackendTexture(SkISize,
+                                            const GrBackendFormat&,
+                                            GrRenderable,
+                                            const BackendTextureData*,
+                                            int numMipLevels,
+                                            GrProtected) override;
 
     void onResetContext(uint32_t resetBits) override;
 

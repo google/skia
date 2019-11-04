@@ -305,23 +305,19 @@ GrStencilAttachment* GrDawnGpu::createStencilAttachmentForRenderTarget(const GrR
     return stencil;
 }
 
-GrBackendTexture GrDawnGpu::onCreateBackendTexture(int width, int height,
+GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
                                                    const GrBackendFormat& backendFormat,
-                                                   GrMipMapped mipMapped,
                                                    GrRenderable renderable,
-                                                   const SkPixmap srcData[],
+                                                   const BackendTextureData* data,
                                                    int numMipLevels,
-                                                   const SkColor4f* color,
                                                    GrProtected isProtected) {
     wgpu::TextureFormat format;
     if (!backendFormat.asDawnFormat(&format)) {
         return GrBackendTexture();
     }
 
-    SkASSERT(width <= this->caps()->maxTextureSize() && height <= this->caps()->maxTextureSize());
-
     // FIXME: Dawn doesn't support mipmapped render targets (yet).
-    if (GrMipMapped::kYes == mipMapped && GrRenderable::kYes == renderable) {
+    if (numMipLevels > 1 && GrRenderable::kYes == renderable) {
         return GrBackendTexture();
     }
 
@@ -335,33 +331,27 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(int width, int height,
         desc.usage |= wgpu::TextureUsage::OutputAttachment;
     }
 
-    desc.size.width = width;
-    desc.size.height = height;
+    desc.size.width = dimensions.width();
+    desc.size.height = dimensions.height();
     desc.size.depth = 1;
     desc.format = format;
-
-    // Figure out the number of mip levels.
-    if (srcData) {
-        desc.mipLevelCount = numMipLevels;
-    } else if (GrMipMapped::kYes == mipMapped) {
-        desc.mipLevelCount = SkMipMap::ComputeLevelCount(width, height) + 1;
-    }
+    desc.mipLevelCount = numMipLevels;
 
     wgpu::Texture tex = this->device().CreateTexture(&desc);
 
     size_t bpp = GrDawnBytesPerPixel(format);
-    size_t baseLayerSize = bpp * width * height;
+    size_t baseLayerSize = bpp * dimensions.width() * dimensions.height();
     const void* pixels;
     SkAutoMalloc defaultStorage(baseLayerSize);
-    if (srcData) {
-        pixels = srcData->addr();
+    if (data && data->type() == BackendTextureData::Type::kPixmaps) {
+        pixels = data->pixmap(0).addr();
     } else {
         pixels = defaultStorage.get();
         memset(defaultStorage.get(), 0, baseLayerSize);
     }
     wgpu::Device device = this->device();
     wgpu::CommandEncoder copyEncoder = fDevice.CreateCommandEncoder();
-    int w = width, h = height;
+    int w = dimensions.width(), h = dimensions.height();
     for (uint32_t i = 0; i < desc.mipLevelCount; i++) {
         size_t origRowBytes = bpp * w;
         size_t rowBytes = GrDawnRoundRowBytes(origRowBytes);
@@ -401,7 +391,7 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(int width, int height,
     info.fTexture = tex;
     info.fFormat = desc.format;
     info.fLevelCount = desc.mipLevelCount;
-    return GrBackendTexture(width, height, info);
+    return GrBackendTexture(dimensions.width(), dimensions.height(), info);
 }
 
 void GrDawnGpu::deleteBackendTexture(const GrBackendTexture& tex) {

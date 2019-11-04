@@ -1597,6 +1597,11 @@ static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool h
         case GrColorType::kAlpha_8xxx:
         case GrColorType::kAlpha_F32xxx:
         case GrColorType::kGray_8xxx:
+        case GrColorType::kRGB_888:
+        case GrColorType::kR_8:
+        case GrColorType::kR_16:
+        case GrColorType::kR_F16:
+        case GrColorType::kGray_F16:
             break;
     }
 

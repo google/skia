@@ -33,6 +33,8 @@ struct SkISize {
     int32_t width() const { return fWidth; }
     int32_t height() const { return fHeight; }
 
+    int64_t area() const { return fWidth * fHeight; }
+
     bool equals(int32_t w, int32_t h) const { return fWidth == w && fHeight == h; }
 };
 

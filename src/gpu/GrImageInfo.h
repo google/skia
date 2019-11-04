@@ -36,15 +36,15 @@ public:
     GrImageInfo& operator=(const GrImageInfo&) = default;
     GrImageInfo& operator=(GrImageInfo&&) = default;
 
-    GrImageInfo makeColorType(GrColorType ct) {
+    GrImageInfo makeColorType(GrColorType ct) const {
         return {ct, this->alphaType(), this->refColorSpace(), this->width(), this->height()};
     }
 
-    GrImageInfo makeAlphaType(SkAlphaType at) {
+    GrImageInfo makeAlphaType(SkAlphaType at) const {
         return {this->colorType(), at, this->refColorSpace(), this->width(), this->height()};
     }
 
-    GrImageInfo makeWH(int width, int height) {
+    GrImageInfo makeWH(int width, int height) const {
         return {this->colorType(), this->alphaType(), this->refColorSpace(), width, height};
     }
 

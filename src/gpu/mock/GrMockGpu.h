@@ -130,10 +130,12 @@ private:
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(
             const GrRenderTarget*, int width, int height, int numStencilSamples) override;
-    GrBackendTexture onCreateBackendTexture(int w, int h, const GrBackendFormat&,
-                                            GrMipMapped, GrRenderable,
-                                            const SkPixmap srcData[], int numMipLevels,
-                                            const SkColor4f* color, GrProtected) override;
+    GrBackendTexture onCreateBackendTexture(SkISize,
+                                            const GrBackendFormat&,
+                                            GrRenderable,
+                                            const BackendTextureData* data,
+                                            int numMipLevels,
+                                            GrProtected) override;
     void deleteBackendTexture(const GrBackendTexture&) override;
 
 #if GR_TEST_UTILS
