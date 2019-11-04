@@ -17,8 +17,23 @@ class CheckoutApi(recipe_api.RecipeApi):
     """The default location for cached persistent checkouts."""
     return self.m.vars.cache_dir.join('work')
 
+  def assert_git_is_from_cipd(self):
+    """Fail if git is not obtained from CIPD."""
+    self.m.run(self.m.python.inline, 'Assert that Git is from CIPD', program='''
+import subprocess
+import sys
+
+which = 'where' if sys.platform == 'win32' else 'which'
+git = subprocess.check_output([which, 'git'])
+print 'git was found at %s' % git
+if 'cipd_bin_packages' not in git:
+  print >> sys.stderr, 'Git must be obtained through CIPD.'
+  sys.exit(1)
+''')
+
   def git(self, checkout_root):
     """Run the steps to perform a pure-git checkout without DEPS."""
+    self.assert_git_is_from_cipd()
     skia_dir = checkout_root.join('skia')
     self.m.git.checkout(
         self.m.properties['repository'], dir_path=skia_dir,
@@ -49,6 +64,7 @@ class CheckoutApi(recipe_api.RecipeApi):
           (no patch) for try jobs.
       flutter_android: Indicates that we're checking out flutter for Android.
     """
+    self.assert_git_is_from_cipd()
     if not gclient_cache:
       gclient_cache = self.m.vars.cache_dir.join('git')
     if not extra_gclient_env:
