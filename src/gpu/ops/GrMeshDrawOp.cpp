@@ -43,6 +43,7 @@ void GrMeshDrawOp::PatternHelper::init(Target* target, GrPrimitiveType primitive
     }
     SkASSERT(vertexBuffer);
     fMesh = target->allocMesh(primitiveType);
+    fPrimitiveType = primitiveType;
 
     SkASSERT(maxRepetitions ==
              static_cast<int>(indexBuffer->size() / (sizeof(uint16_t) * indicesPerRepetition)));
@@ -53,13 +54,13 @@ void GrMeshDrawOp::PatternHelper::init(Target* target, GrPrimitiveType primitive
 
 void GrMeshDrawOp::PatternHelper::recordDraw(
         Target* target, sk_sp<const GrGeometryProcessor> gp) const {
-    target->recordDraw(std::move(gp), fMesh);
+    target->recordDraw(std::move(gp), fMesh, 1, fPrimitiveType);
 }
 
 void GrMeshDrawOp::PatternHelper::recordDraw(
         Target* target, sk_sp<const GrGeometryProcessor> gp,
         const GrPipeline::FixedDynamicState* fixedDynamicState) const {
-    target->recordDraw(std::move(gp), fMesh, 1, fixedDynamicState, nullptr);
+    target->recordDraw(std::move(gp), fMesh, 1, fixedDynamicState, nullptr, fPrimitiveType);
 }
 
 //////////////////////////////////////////////////////////////////////////////

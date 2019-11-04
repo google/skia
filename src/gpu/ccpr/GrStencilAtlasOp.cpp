@@ -156,7 +156,7 @@ void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chain
                               resolvePipeline,
                               primProc,
                               &scissorRectState,
-                              nullptr, 0);
+                              nullptr, 0, GrPrimitiveType::kTriangleStrip);
 
     flushState->opsRenderPass()->draw(programInfo, &mesh, 1, SkRect::Make(drawBoundsRect));
 }
