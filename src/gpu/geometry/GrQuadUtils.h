@@ -135,11 +135,13 @@ namespace GrQuadUtils {
         static skvx::Vec<4, float> getDegenerateCoverage(const skvx::Vec<4, float>& px,
                                                          const skvx::Vec<4, float>& py,
                                                          const EdgeEquations& edges);
-        // Outsets or insets 'vertices' in place. To be used when the interior is very small, edges
-        // are near parallel, or edges are very short/zero-length. Returns coverage for each vertex.
+        // Outsets or insets 'x2d' and 'y2d' in place. To be used when the interior is very small,
+        // edges are near parallel, or edges are very short/zero-length. Returns coverage for each
+        // vertex.
         skvx::Vec<4, float> computeDegenerateQuad(const skvx::Vec<4, float>& signedEdgeDistances,
                                                   const EdgeEquations& edges,
-                                                  Vertices* vertices);
+                                                  skvx::Vec<4, float>* x2d,
+                                                  skvx::Vec<4, float>* y2d);
         // Outsets or insets 'vertices' based on the outset request described by 'outsetRequest'
         // and 'inset' (true for insetting instead). If the outset is not degenerate,
         // 'edgeEquations' can be null. Returns coverage for each vertex.
