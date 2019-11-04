@@ -121,7 +121,7 @@ clip_region,0
 clip_strokerect,-1
 clipcubic,-1
 clipdrawdraw,0
-cliperror,0
+cliperror,3600
 clipped-bitmap-shaders-clamp,0
 clipped-bitmap-shaders-clamp-hq,0
 clipped-bitmap-shaders-mirror,0
@@ -410,7 +410,7 @@ internal_links,-1
 inverse_paths,-1
 jpg-color-cube,0
 largecircle,-1
-largeglyphblur,1
+largeglyphblur,3000
 lattice,-1
 lattice2,0
 lattice_alpha,0
@@ -422,8 +422,8 @@ lighting,-1
 lightingcolorfilter,0
 lightingshader,0
 lightingshader2,-1
-linear_gradient,0
-linear_gradient_nodither,0
+linear_gradient,110000
+linear_gradient_nodither,120000
 linear_gradient_tiny,0
 lineclosepath,-1
 linepath,-1
