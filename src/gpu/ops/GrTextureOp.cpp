@@ -159,6 +159,8 @@ public:
                                          color, saturate, aaType, aaFlags, deviceQuad, localQuad,
                                          domain);
     }
+
+#if 0
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           const GrRenderTargetContext::TextureSetEntry set[],
                                           int cnt,
@@ -175,6 +177,7 @@ public:
                                                              constraint, viewMatrix,
                                                              std::move(textureColorSpaceXform)));
     }
+#endif
 
     ~TextureOp() override {
         for (unsigned p = 1; p < fProxyCnt; ++p) {
@@ -942,6 +945,7 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
     }
 }
 
+#if 0
 std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext* context,
                                   const GrRenderTargetContext::TextureSetEntry set[],
                                   int cnt,
@@ -951,9 +955,17 @@ std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext* context,
                                   SkCanvas::SrcRectConstraint constraint,
                                   const SkMatrix& viewMatrix,
                                   sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
+
+
     return TextureOp::Make(context, set, cnt, filter, saturate, aaType, constraint, viewMatrix,
                            std::move(textureColorSpaceXform));
 }
+#else
+void DoTheThing(GrRenderTargetContext* rtc) {
+
+}
+
+#endif
 
 }  // namespace GrTextureOp
 
