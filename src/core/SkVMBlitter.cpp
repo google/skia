@@ -16,6 +16,13 @@
 
 namespace {
 
+    // Uniforms set by the Blitter itself,
+    // rather than by the Shader, which follow this struct in the buffer.
+    struct Uniforms {
+        int right;  // First device x + blit run length n, used to get device x coordiate.
+        int y;      // Device y coordiate.
+    };
+
     enum class Coverage { Full, UniformA8, MaskA8, MaskLCD16, Mask3D };
 
     struct Params {
@@ -63,11 +70,15 @@ namespace {
         uint32_t shaderHash = 0;
         if (const SkShaderBase* shader = as_SB(params.shader)) {
             skvm::Builder p;
+            skvm::Arg uniforms = skvm::Arg{0};
+            skvm::F32 x = p.to_f32(p.sub(p.uniform32(uniforms, offsetof(Uniforms, right)),
+                                         p.index())),
+                      y = p.to_f32(p.uniform32(uniforms, offsetof(Uniforms, y)));
             skvm::I32 r,g,b,a;
             if (shader->program(&p,
                                 params.colorSpace.get(),
-                                skvm::Arg{0}, 0,
-                                &r,&g,&b,&a)) {
+                                uniforms, sizeof(Uniforms),
+                                x,y, &r,&g,&b,&a)) {
                 shaderHash = p.hash();
             }
         }
@@ -185,6 +196,7 @@ namespace {
             if (!as_SB(params.shader)->program(nullptr,
                                                params.colorSpace.get(),
                                                skvm::Arg{0}, 0,
+                                               skvm::F32{0}, skvm::F32{0},
                                                nullptr,nullptr,nullptr,nullptr)) {
                 if (debug_dump(key(params))) {
                     SkDebugf("%s not yet supported\n", params.shader->getTypeName());
@@ -220,10 +232,13 @@ namespace {
 
             Color src;
             SkASSERT(params.shader);
+            skvm::F32 x = to_f32(sub(uniform32(uniforms, offsetof(Uniforms, right)),
+                                     index())),
+                      y = to_f32(uniform32(uniforms, offsetof(Uniforms, y)));
             SkAssertResult(as_SB(params.shader)->program(this,
                                                          params.colorSpace.get(),
-                                                         uniforms, 0,
-                                                         &src.r, &src.g, &src.b, &src.a));
+                                                         uniforms, sizeof(Uniforms),
+                                                         x,y, &src.r, &src.g, &src.b, &src.a));
 
             if (params.coverage == Coverage::Mask3D) {
                 skvm::I32 M = load8(varying<uint8_t>()),
@@ -352,8 +367,11 @@ namespace {
         bool onProgram(skvm::Builder* p,
                        SkColorSpace* dstCS,
                        skvm::Arg uniforms, int offset,
+                       skvm::F32 x, skvm::F32 y,
                        skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override {
-            if (as_SB(fShader)->program(p, dstCS, uniforms, offset + sizeof(fAlpha), r,g,b,a)) {
+            if (as_SB(fShader)->program(p, dstCS,
+                                        uniforms, offset + sizeof(fAlpha),
+                                        x,y, r,g,b,a)) {
                 if (p) {
                     // TODO: move the helpers onto skvm::Builder so I don't have to duplicate?
                     auto div255 = [&](skvm::I32 v) {
@@ -437,12 +455,14 @@ namespace {
             : fDevice(device)
             , fParams(effective_params(device, paint))
             , fKey(key(fParams))
+            , fUniforms(sizeof(Uniforms))
         {
             if (Builder::CanBuild(fParams)) {
                 ok = true;
                 if (const SkShaderBase* shader = as_SB(fParams.shader)) {
-                    fUniforms.resize(shader->uniforms(fParams.colorSpace.get(), nullptr));
-                    shader->uniforms(fParams.colorSpace.get(), fUniforms.data());
+                    size_t extra = shader->uniforms(fParams.colorSpace.get(), nullptr);
+                    fUniforms.resize(sizeof(Uniforms) + extra);
+                    shader->uniforms(fParams.colorSpace.get(), fUniforms.data() + sizeof(Uniforms));
                 }
             }
         }
@@ -510,10 +530,16 @@ namespace {
             return program;
         }
 
+        void updateUniforms(int right, int y) {
+            Uniforms uniforms{right, y};
+            memcpy(fUniforms.data(), &uniforms, sizeof(Uniforms));
+        }
+
         void blitH(int x, int y, int w) override {
             if (fBlitH.empty()) {
                 fBlitH = this->buildProgram(Coverage::Full);
             }
+            this->updateUniforms(x+w, y);
             fBlitH.eval(w, fUniforms.data(), fDevice.addr(x,y));
         }
 
@@ -522,6 +548,7 @@ namespace {
                 fBlitAntiH = this->buildProgram(Coverage::UniformA8);
             }
             for (int16_t run = *runs; run > 0; run = *runs) {
+                this->updateUniforms(x+run, y);
                 fBlitAntiH.eval(run, fUniforms.data(), fDevice.addr(x,y), cov);
 
                 x    += run;
@@ -565,19 +592,19 @@ namespace {
             SkASSERT(program);
             if (program) {
                 for (int y = clip.top(); y < clip.bottom(); y++) {
-                    void* dptr =        fDevice.writable_addr(clip.left(), y);
-                    auto  mptr = (const uint8_t*)mask.getAddr(clip.left(), y);
+                    int x = clip.left(),
+                        w = clip.width();
+                    void* dptr =        fDevice.writable_addr(x,y);
+                    auto  mptr = (const uint8_t*)mask.getAddr(x,y);
+                    this->updateUniforms(x+w,y);
 
                     if (program == &fBlitMask3D) {
                         size_t plane = mask.computeImageSize();
-                        program->eval(clip.width(), fUniforms.data(),
-                                      dptr,
-                                      mptr + 1*plane,
-                                      mptr + 2*plane,
-                                      mptr + 0*plane);
+                        program->eval(w, fUniforms.data(), dptr, mptr + 1*plane
+                                                               , mptr + 2*plane
+                                                               , mptr + 0*plane);
                     } else {
-                        program->eval(clip.width(), fUniforms.data(),
-                                      dptr, mptr);
+                        program->eval(w, fUniforms.data(), dptr, mptr);
                     }
                 }
             }
