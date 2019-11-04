@@ -438,7 +438,13 @@ namespace {
             , fParams(effective_params(device, paint))
             , fKey(key(fParams))
         {
-            ok = Builder::CanBuild(fParams);
+            if (Builder::CanBuild(fParams)) {
+                ok = true;
+                if (const SkShaderBase* shader = as_SB(fParams.shader)) {
+                    fUniforms.resize(shader->uniforms(fParams.colorSpace.get(), nullptr));
+                    shader->uniforms(fParams.colorSpace.get(), fUniforms.data());
+                }
+            }
         }
 
         ~Blitter() override {
@@ -504,22 +510,10 @@ namespace {
             return program;
         }
 
-        void updateUniforms() {
-            if (const SkShaderBase* shader = as_SB(fParams.shader)) {
-                fUniforms.resize(shader->uniforms(fParams.colorSpace.get(), nullptr));
-                shader->uniforms(fParams.colorSpace.get(), fUniforms.data());
-
-                for (size_t i = 0; false && i < fUniforms.size(); i++) {
-                    SkDebugf("fUniforms[%d] = %02x\n", i, fUniforms[i]);
-                }
-            }
-        }
-
         void blitH(int x, int y, int w) override {
             if (fBlitH.empty()) {
                 fBlitH = this->buildProgram(Coverage::Full);
             }
-            this->updateUniforms();
             fBlitH.eval(w, fUniforms.data(), fDevice.addr(x,y));
         }
 
@@ -527,7 +521,6 @@ namespace {
             if (fBlitAntiH.empty()) {
                 fBlitAntiH = this->buildProgram(Coverage::UniformA8);
             }
-            this->updateUniforms();
             for (int16_t run = *runs; run > 0; run = *runs) {
                 fBlitAntiH.eval(run, fUniforms.data(), fDevice.addr(x,y), cov);
 
@@ -571,7 +564,6 @@ namespace {
 
             SkASSERT(program);
             if (program) {
-                this->updateUniforms();
                 for (int y = clip.top(); y < clip.bottom(); y++) {
                     void* dptr =        fDevice.writable_addr(clip.left(), y);
                     auto  mptr = (const uint8_t*)mask.getAddr(clip.left(), y);
