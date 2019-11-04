@@ -1276,9 +1276,9 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
                            fResetTimestampForTextureParameters);
     if (levelClearMask) {
         GrGLenum externalFormat, externalType;
-        size_t bpp;
-        this->glCaps().getTexSubImageZeroFormatTypeAndBpp(texDesc.fFormat, &externalFormat,
-                                                          &externalType, &bpp);
+        GrColorType colorType;
+        this->glCaps().getTexSubImageDefaultFormatTypeAndColorType(texDesc.fFormat, &externalFormat,
+                                                                   &externalType, &colorType);
         if (this->glCaps().clearTextureSupport()) {
             for (int i = 0; i < mipLevelCount; ++i) {
                 if (levelClearMask & (1U << i)) {
@@ -1311,6 +1311,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
                     // Levels only get smaller as we proceed. Once we create a zeros use it for all
                     // smaller levels that need clearing.
                     if (!zeros) {
+                        size_t bpp = GrColorTypeBytesPerPixel(colorType);
                         size_t size = levelWidth * levelHeight * bpp;
                         zeros.reset(new char[size]());
                     }
@@ -3596,21 +3597,13 @@ static GrPixelConfig gl_format_to_pixel_config(GrGLFormat format) {
     SkUNREACHABLE;
 }
 
-GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
+GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
                                                  const GrBackendFormat& format,
-                                                 GrMipMapped mipMapped,
                                                  GrRenderable renderable,
-                                                 const SkPixmap srcData[], int numMipLevels,
-                                                 const SkColor4f* color,
+                                                 const BackendTextureData* data,
+                                                 int numMipLevels,
                                                  GrProtected isProtected) {
     this->handleDirtyContext();
-
-    SkDEBUGCODE(const GrCaps* caps = this->caps();)
-
-    // GrGpu::createBackendTexture should've ensured these conditions
-    SkASSERT(w >= 1 && w <= caps->maxTextureSize() && h >= 1 && h <= caps->maxTextureSize());
-    SkASSERT(GrGpu::MipMapsAreCorrect(w, h, mipMapped, srcData, numMipLevels));
-    SkASSERT(mipMapped == GrMipMapped::kNo || caps->mipMapSupport());
 
     GrGLFormat glFormat = format.asGLFormat();
     if (glFormat == GrGLFormat::kUnknown) {
@@ -3620,90 +3613,80 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(int w, int h,
     // Compressed formats go through onCreateCompressedBackendTexture
     SkASSERT(!GrGLFormatIsCompressed(glFormat));
 
-    GrPixelConfig config = gl_format_to_pixel_config(glFormat);
-
-    if (config == kUnknown_GrPixelConfig) {
-        return GrBackendTexture();  // invalid
-    }
-
     GrGLTextureInfo info;
     GrGLTextureParameters::SamplerOverriddenState initialState;
 
-    SkTDArray<GrMipLevel> texels;
-    SkAutoMalloc pixelStorage;
-
-    int mipLevelCount = 1;
-    GrColorType textureAndDataColorType = GrColorType::kUnknown;
-    if (srcData) {
-        mipLevelCount = numMipLevels;
-        textureAndDataColorType = SkColorTypeToGrColorType(srcData[0].colorType());
-        texels.append(mipLevelCount);
-        for (int i = 0; i < mipLevelCount; ++i) {
-            texels[i] = { srcData[i].addr(), srcData[i].rowBytes() };
-        }
-    } else if (color) {
-        // We don't currently communicate the intended color type in this case so reverse engineer
-        // it from the config. Note this is lossy.
-        textureAndDataColorType = GrPixelConfigToColorType(config);
-
-        if (GrMipMapped::kYes == mipMapped) {
-            mipLevelCount = SkMipMap::ComputeLevelCount(w, h) + 1;
-        }
-
-        texels.append(mipLevelCount);
-        SkTArray<size_t> individualMipOffsets(mipLevelCount);
-
-        size_t bytesPerPixel = this->glCaps().bytesPerPixel(glFormat);
-
-        size_t totalSize = GrComputeTightCombinedBufferSize(
-                bytesPerPixel, w, h, &individualMipOffsets, mipLevelCount);
-
-        char* tmpPixels = (char*)pixelStorage.reset(totalSize);
-
-        GrFillInData(textureAndDataColorType, w, h, individualMipOffsets, tmpPixels, *color);
-        for (int i = 0; i < mipLevelCount; ++i) {
-            size_t offset = individualMipOffsets[i];
-
-            int twoToTheMipLevel = 1 << i;
-            int currentWidth = SkTMax(1, w / twoToTheMipLevel);
-
-            texels[i] = {&(tmpPixels[offset]), currentWidth * bytesPerPixel};
-        }
-    }
-
     GrSurfaceDesc desc;
-    desc.fWidth = w;
-    desc.fHeight = h;
-    desc.fConfig = config;
+    desc.fWidth = dimensions.width();
+    desc.fHeight = dimensions.height();
+    desc.fConfig = gl_format_to_pixel_config(glFormat);
+    if (desc.fConfig == kUnknown_GrPixelConfig) {
+        return GrBackendTexture();  // invalid
+    }
 
     info.fTarget = GR_GL_TEXTURE_2D;
     info.fFormat = GrGLFormatToEnum(glFormat);
-    info.fID = this->createTexture2D({desc.fWidth, desc.fHeight}, glFormat, renderable,
-                                     &initialState, SkTMax(1, texels.count()));
+    info.fID = this->createTexture2D(dimensions, glFormat, renderable, &initialState, numMipLevels);
     if (!info.fID) {
-        return GrBackendTexture();  // invalid
-    }
-    if (!texels.empty()) {
-        // TODO: move the texturability check up to GrGpu::createBackendTexture and just assert here
-        if (!this->caps()->isFormatTexturableAndUploadable(textureAndDataColorType, format)) {
-            return GrBackendTexture();  // invalid
-        }
-        if (!this->uploadTexData(glFormat, textureAndDataColorType, desc.fWidth, desc.fHeight,
-                                 GR_GL_TEXTURE_2D, 0, 0, desc.fWidth, desc.fHeight,
-                                 textureAndDataColorType, texels.begin(), texels.count())) {
-            GL_CALL(DeleteTextures(1, &info.fID));
-            return GrBackendTexture();
-        }
+        return {};
     }
 
-    // unbind the texture from the texture unit to avoid asserts
-    GL_CALL(BindTexture(info.fTarget, 0));
+    if (data && data->type() == BackendTextureData::Type::kPixmaps) {
+        SkTDArray<GrMipLevel> texels;
+        GrColorType colorType = SkColorTypeToGrColorType(data->pixmap(0).colorType());
+        // Incorporate the color type into the config to make it "specific" if applicable.
+        desc.fConfig = this->caps()->getConfigFromBackendFormat(format, colorType);
+        SkASSERT(desc.fConfig != kUnknown_GrPixelConfig);
+        texels.append(numMipLevels);
+        for (int i = 0; i < numMipLevels; ++i) {
+            texels[i] = {data->pixmap(i).addr(), data->pixmap(i).rowBytes()};
+        }
+        if (!this->uploadTexData(glFormat, colorType, desc.fWidth, desc.fHeight, GR_GL_TEXTURE_2D,
+                                 0, 0, desc.fWidth, desc.fHeight, colorType, texels.begin(),
+                                 texels.count())) {
+            GL_CALL(DeleteTextures(1, &info.fID));
+            return {};
+        }
+    } else if (data && data->type() == BackendTextureData::Type::kColor) {
+        // TODO: Unify this with the clear texture code in onCreateTexture().
+        GrColorType colorType;
+        GrGLenum externalFormat, externalType;
+        this->glCaps().getTexSubImageDefaultFormatTypeAndColorType(glFormat, &externalFormat,
+                                                                   &externalType, &colorType);
+        if (colorType == GrColorType::kUnknown) {
+            GL_CALL(DeleteTextures(1, &info.fID));
+            return {};
+        }
+
+        // Make one tight image at the base size and reuse it for smaller levels.
+        GrImageInfo ii(colorType, kUnpremul_SkAlphaType, nullptr, dimensions);
+        auto rb = ii.minRowBytes();
+        std::unique_ptr<char[]> pixelStorage(new char[rb * dimensions.height()]);
+        if (!GrClearImage(ii, pixelStorage.get(), rb, data->color())) {
+            GL_CALL(DeleteTextures(1, &info.fID));
+            return {};
+        }
+
+        GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
+        SkISize levelDimensions = dimensions;
+        for (int i = 0; i < numMipLevels; ++i) {
+            GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, i, 0, 0, levelDimensions.width(),
+                                  levelDimensions.height(), externalFormat, externalType,
+                                  pixelStorage.get()));
+            levelDimensions = {SkTMax(1, levelDimensions.width() /2),
+                               SkTMax(1, levelDimensions.height()/2)};
+        }
+    }
+    // Unbind this texture from the scratch texture unit.
+    this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, 0);
 
     auto parameters = sk_make_sp<GrGLTextureParameters>();
     parameters->set(&initialState, GrGLTextureParameters::NonsamplerState(),
                     fResetTimestampForTextureParameters);
 
-    return GrBackendTexture(w, h, mipMapped, info, std::move(parameters));
+    auto mipMapped = numMipLevels > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
+    return GrBackendTexture(dimensions.width(), dimensions.height(), mipMapped, info,
+                            std::move(parameters));
 }
 
 void GrGLGpu::deleteBackendTexture(const GrBackendTexture& tex) {
