@@ -18,15 +18,10 @@
 // At the moment it's really only interesting if you #define SK_USE_SKVM_BLITTER.
 
 // Just a tiny example that the (x,y) coordinate parameters are vaguely working.
-// In this case we'll fade the red channel over its span vertically using `y`.
-// `x` is not useful yet, since it's (incorrectly) uniform and will always be constant.
+// In this case we'll fade the red channel over its span vertically using `y`,
+// and green horizontally using `x`.
 struct Fade : public SkShaderBase {
-    explicit Fade(sk_sp<SkShader> shader) : fShader(std::move(shader)) {
-        static SkOnce once;
-        once([&]{
-            SkFlattenable::Register(this->getTypeName(), this->getFactory());
-        });
-    }
+    explicit Fade(sk_sp<SkShader> shader) : fShader(std::move(shader)) {}
 
     sk_sp<SkShader> fShader;
 
@@ -41,8 +36,9 @@ struct Fade : public SkShaderBase {
                                     uniforms, offset,
                                     x,y, r,g,b,a)) {
             if (p) {
-                // In this GM `y` will range over 0-50.
-                *r = p->to_i32(p->mul(y, p->splat(255/50.0f)));
+                // In this GM `y` will range over 0-50 and `x` over 50-100.
+                *r = p->to_i32(p->mul(y, p->splat(255/ 50.0f)));
+                *g = p->to_i32(p->mul(x, p->splat(255/100.0f)));
             }
             return true;
         }
@@ -53,17 +49,18 @@ struct Fade : public SkShaderBase {
         return as_SB(fShader)->uniforms(dstCS, buf);
     }
 
-    // Not really necessary, just nice to make serialize-8888 etc. not crash.
+    // Flattening is not really necessary, just nice to make serialize-8888 etc. not crash.
     void flatten(SkWriteBuffer& b) const override {
         b.writeFlattenable(fShader.get());
     }
-    Factory getFactory() const override {
-        return [](SkReadBuffer& b) -> sk_sp<SkFlattenable> {
-            return sk_make_sp<Fade>(b.readShader());
-        };
-    }
-    const char* getTypeName() const override { return "Fade"; }
+    SK_FLATTENABLE_HOOKS(Fade)
 };
+sk_sp<SkFlattenable> Fade::CreateProc(SkReadBuffer& b) {
+    return sk_make_sp<Fade>(b.readShader());
+}
+static struct RegisterFade {
+    RegisterFade() { SkFlattenable::Register("Fade", Fade::CreateProc); }
+} now;
 
 DEF_SIMPLE_GM(SkVMBlitter, canvas, 100, 100) {
     SkPaint p;
