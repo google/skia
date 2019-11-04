@@ -236,7 +236,7 @@ namespace skvm {
     enum class Op : uint8_t {
           store8,   store16,   store32,
     // ↑ side effects / no side effects ↓
-
+           iota_f32,
            load8,    load16,    load32,
          gather8,  gather16,  gather32,
     // ↑ always varying / uniforms, constants, Just Math ↓
@@ -317,6 +317,9 @@ namespace skvm {
         void store8 (Arg ptr, I32 val);
         void store16(Arg ptr, I32 val);
         void store32(Arg ptr, I32 val);
+
+        // Returns varying 0.0f, 1.0f, 2.0f, 3.0f, ...
+        F32 iota_f32();
 
         // Load u8,u16,i32 varying.
         I32 load8 (Arg ptr);

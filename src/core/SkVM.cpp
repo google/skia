@@ -106,6 +106,8 @@ namespace skvm {
                 case Op::store16: write(o, "store16", Arg{imm}, V{x}); break;
                 case Op::store32: write(o, "store32", Arg{imm}, V{x}); break;
 
+                case Op::iota_f32: write(o, V{id}, "= iota_f32"); break;
+
                 case Op::load8:  write(o, V{id}, "= load8" , Arg{imm}); break;
                 case Op::load16: write(o, V{id}, "= load16", Arg{imm}); break;
                 case Op::load32: write(o, V{id}, "= load32", Arg{imm}); break;
@@ -215,6 +217,8 @@ namespace skvm {
                 case Op::store8:  write(o, "store8" , Arg{imm}, R{x}); break;
                 case Op::store16: write(o, "store16", Arg{imm}, R{x}); break;
                 case Op::store32: write(o, "store32", Arg{imm}, R{x}); break;
+
+                case Op::iota_f32: write(o, R{d}, "= iota_f32"); break;
 
                 case Op::load8:  write(o, R{d}, "= load8" , Arg{imm}); break;
                 case Op::load16: write(o, R{d}, "= load16", Arg{imm}); break;
@@ -456,6 +460,8 @@ namespace skvm {
     void Builder::store8 (Arg ptr, I32 val) { (void)this->push(Op::store8 , val.id,NA,NA, ptr.ix); }
     void Builder::store16(Arg ptr, I32 val) { (void)this->push(Op::store16, val.id,NA,NA, ptr.ix); }
     void Builder::store32(Arg ptr, I32 val) { (void)this->push(Op::store32, val.id,NA,NA, ptr.ix); }
+
+    F32 Builder::iota_f32() { return {this->push(Op::iota_f32 , NA,NA,NA,0) }; }
 
     I32 Builder::load8 (Arg ptr) { return {this->push(Op::load8 , NA,NA,NA, ptr.ix) }; }
     I32 Builder::load16(Arg ptr) { return {this->push(Op::load16, NA,NA,NA, ptr.ix) }; }
@@ -1260,7 +1266,8 @@ namespace skvm {
 
         int start = 0,
             stride;
-        for ( ; n > 0; start = fLoop, n -= stride, step_args(stride)) {
+        int iota = 0;
+        for ( ; n > 0; start = fLoop, n -= stride, iota += stride, step_args(stride)) {
             stride = n >= K ? K : 1;
 
             for (int i = start; i < (int)fInstructions.size(); i++) {
@@ -1287,6 +1294,12 @@ namespace skvm {
                     STRIDE_K(Op::store8 ): skvx::cast<uint8_t> (r(x).i32).store(arg(imm)); break;
                     STRIDE_K(Op::store16): skvx::cast<uint16_t>(r(x).i32).store(arg(imm)); break;
                     STRIDE_K(Op::store32):                     (r(x).i32).store(arg(imm)); break;
+
+                    STRIDE_1(Op::iota_f32): r(d).f32 = (float)iota; break;
+                    STRIDE_K(Op::iota_f32): r(d).f32 = (float)iota
+                                                     + F32{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+                                                     static_assert(K == 16, "");
+                                                     break;
 
                     STRIDE_1(Op::load8 ): r(d).i32 = 0; memcpy(&r(d).i32, arg(imm), 1); break;
                     STRIDE_1(Op::load16): r(d).i32 = 0; memcpy(&r(d).i32, arg(imm), 2); break;

@@ -72,7 +72,8 @@ namespace {
         if (const SkShaderBase* shader = as_SB(params.shader)) {
             skvm::Builder p;
             skvm::Arg uniforms = skvm::Arg{0};
-            skvm::F32 x = p.bit_cast(p.uniform32(uniforms, offsetof(Uniforms, x))),
+            skvm::F32 x = p.add(p.bit_cast(p.uniform32(uniforms, offsetof(Uniforms, x))),
+                                p.iota_f32()),
                       y = p.bit_cast(p.uniform32(uniforms, offsetof(Uniforms, y)));
             skvm::I32 r,g,b,a;
             if (shader->program(&p,
@@ -232,7 +233,8 @@ namespace {
 
             Color src;
             SkASSERT(params.shader);
-            skvm::F32 x = bit_cast(uniform32(uniforms, offsetof(Uniforms, x))),
+            skvm::F32 x = add(bit_cast(uniform32(uniforms, offsetof(Uniforms, x))),
+                              iota_f32()),
                       y = bit_cast(uniform32(uniforms, offsetof(Uniforms, y)));
             SkAssertResult(as_SB(params.shader)->program(this,
                                                          params.colorSpace.get(),
