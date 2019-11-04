@@ -169,7 +169,7 @@ sk_sp<sksg::ShaderPaint> AttachGradient(const skjson::ObjectValue& jgrad,
 
     abuilder->bindProperty<VectorValue>((*stops)["k"],
         [adapter](const VectorValue& stops) {
-            adapter->setColorStops(stops);
+            adapter->setStops(stops);
         });
     abuilder->bindProperty<VectorValue>(jgrad["s"],
         [adapter](const VectorValue& s) {
