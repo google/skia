@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "333a2dc5_aeaee5e4",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 911,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-04T19:32:44Z",
+      "side": 1,
+      "message": "It seems like, down the road, this could be an SkColorType.",
+      "range": {
+        "startLine": 911,
+        "startChar": 26,
+        "endLine": 911,
+        "endChar": 35
+      },
+      "revId": "7d7a174cbd95ff1e41e813df0ffe74e205114473",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10e3a860_4ada61c6",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 657,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-04T19:32:44Z",
+      "side": 1,
+      "message": "reverse order ?",
+      "range": {
+        "startLine": 657,
+        "startChar": 40,
+        "endLine": 657,
+        "endChar": 55
+      },
+      "revId": "7d7a174cbd95ff1e41e813df0ffe74e205114473",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
