@@ -53,7 +53,7 @@ void GrMeshDrawOp::PatternHelper::init(Target* target, GrPrimitiveType primitive
 
 void GrMeshDrawOp::PatternHelper::recordDraw(
         Target* target, sk_sp<const GrGeometryProcessor> gp) const {
-    target->recordDraw(std::move(gp), fMesh);
+    target->recordDraw(std::move(gp), fMesh, 1);
 }
 
 void GrMeshDrawOp::PatternHelper::recordDraw(

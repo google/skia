@@ -62,7 +62,7 @@ public:
     sk_sp<const GrBuffer> fIndexBuffer;
     sk_sp<const GrBuffer> fInstBuffer;
 
-    void drawMesh(const GrMesh& mesh);
+    void drawMesh(const GrMesh& mesh, GrPrimitiveType);
 
 private:
     GrOpFlushState* fState;
@@ -162,7 +162,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                      GrMesh mesh(GrPrimitiveType::kTriangles);
                      mesh.setNonIndexedNonInstanced(kBoxCountX * 6);
                      mesh.setVertexData(helper->fVertBuffer, y * kBoxCountX * 6);
-                     helper->drawMesh(mesh);
+                     helper->drawMesh(mesh, GrPrimitiveType::kTriangles);
                  }
              });
 
@@ -187,7 +187,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                                     baseRepetition * 4, (baseRepetition + repetitionCount) * 4 - 1,
                                     GrPrimitiveRestart::kNo);
                     mesh.setVertexData(helper->fVertBuffer, (i - baseRepetition) * 4);
-                    helper->drawMesh(mesh);
+                    helper->drawMesh(mesh, GrPrimitiveType::kTriangles);
 
                     baseRepetition = (baseRepetition + 1) % 3;
                     i += repetitionCount;
@@ -209,7 +209,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                     mesh.setIndexedPatterned(helper->fIndexBuffer, 6, 4, kBoxCountX,
                                              kIndexPatternRepeatCount);
                     mesh.setVertexData(helper->fVertBuffer, y * kBoxCountX * 4);
-                    helper->drawMesh(mesh);
+                    helper->drawMesh(mesh, GrPrimitiveType::kTriangles);
                 }
              });
 
@@ -236,8 +236,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                      // null vertex buffer. setIndexedInstanced intentionally does not support a
                      // base index.
                      for (int y = 0; y < kBoxCountY; ++y) {
-                         GrMesh mesh(indexed ? GrPrimitiveType::kTriangles
-                                     : GrPrimitiveType::kTriangleStrip);
+
+                         GrPrimitiveType primitiveType = indexed ? GrPrimitiveType::kTriangles
+                                                                 : GrPrimitiveType::kTriangleStrip;
+                         GrMesh mesh(primitiveType);
                          if (indexed) {
                              VALIDATE(helper->fIndexBuffer);
                              mesh.setIndexedInstanced(helper->fIndexBuffer, 6, helper->fInstBuffer,
@@ -264,7 +266,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                                  mesh.setVertexData(helper->fVertBuffer2, 2);
                                  break;
                          }
-                         helper->drawMesh(mesh);
+                         helper->drawMesh(mesh, primitiveType);
                      }
                  });
     }
@@ -408,7 +410,7 @@ sk_sp<const GrBuffer> DrawMeshHelper::getIndexBuffer() {
             kIndexPattern, 6, kIndexPatternRepeatCount, 4, gIndexBufferKey);
 }
 
-void DrawMeshHelper::drawMesh(const GrMesh& mesh) {
+void DrawMeshHelper::drawMesh(const GrMesh& mesh, GrPrimitiveType primitiveType) {
     GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc, GrSwizzle::RGBA());
     GrMeshTestProcessor mtp(mesh.isInstanced(), mesh.hasVertexData());
 

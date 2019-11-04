@@ -223,7 +223,7 @@ private:
         GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangleStrip);
         mesh->setNonIndexedNonInstanced(kVertexCount);
         mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-        target->recordDraw(gp, mesh);
+        target->recordDraw(gp, mesh, 1);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
