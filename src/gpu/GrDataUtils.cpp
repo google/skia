@@ -260,7 +260,7 @@ static GrSwizzle get_load_and_src_swizzle(GrColorType ct, SkRasterPipeline::Stoc
 }
 
 static GrSwizzle get_dst_swizzle_and_store(GrColorType ct, SkRasterPipeline::StockStage* store,
-                                            bool* doLumToAlpha, bool* isNormalized, bool* isSRGB) {
+                                           bool* doLumToAlpha, bool* isNormalized, bool* isSRGB) {
     GrSwizzle swizzle("rgba");
     *isNormalized = true;
     *isSRGB = false;
