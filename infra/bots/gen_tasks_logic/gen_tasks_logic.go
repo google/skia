@@ -1285,10 +1285,12 @@ func (b *builder) doUpload(name string) bool {
 // test generates a Test task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func (b *builder) test(name string, parts map[string]string, compileTaskName string, pkgs []*specs.CipdPackage) string {
+	isolate := "test_skia_bundled.isolate"
 	recipe := "test"
 	if strings.Contains(name, "SKQP") {
 		recipe = "skqp_test"
 		if strings.Contains(name, "Emulator") {
+			isolate = "swarm_recipe.isolate"
 			recipe = "test_skqp_emulator"
 		}
 	} else if strings.Contains(name, "OpenCL") {
@@ -1296,10 +1298,13 @@ func (b *builder) test(name string, parts map[string]string, compileTaskName str
 		// running hs_bench or kx, it will be easier to fit into the current job name schema.
 		recipe = "compute_test"
 	} else if strings.Contains(name, "PathKit") {
+		isolate = "pathkit.isolate"
 		recipe = "test_pathkit"
 	} else if strings.Contains(name, "CanvasKit") {
+		isolate = "canvaskit.isolate"
 		recipe = "test_canvaskit"
 	} else if strings.Contains(name, "LottieWeb") {
+		isolate = "lottie_web.isolate"
 		recipe = "test_lottie_web"
 	}
 	extraProps := map[string]string{
@@ -1312,15 +1317,8 @@ func (b *builder) test(name string, parts map[string]string, compileTaskName str
 	if iid != nil {
 		extraProps["internal_hardware_label"] = strconv.Itoa(*iid)
 	}
-	isolate := "test_skia_bundled.isolate"
-	if strings.Contains(name, "CanvasKit") || strings.Contains(name, "Emulator") || strings.Contains(name, "LottieWeb") || strings.Contains(name, "PathKit") {
-		isolate = "swarm_recipe.isolate"
-	}
 	task := b.kitchenTask(name, recipe, isolate, "", b.swarmDimensions(parts), extraProps, OUTPUT_TEST)
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
-	if strings.Contains(name, "CanvasKit") || strings.Contains(name, "Emulator") || strings.Contains(name, "LottieWeb") || strings.Contains(name, "PathKit") {
-		b.usesGit(task, name)
-	}
 	if strings.Contains(name, "Lottie") {
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("lottie-samples"))
 	}
@@ -1387,8 +1385,10 @@ func (b *builder) perf(name string, parts map[string]string, compileTaskName str
 		recipe = "skpbench"
 		isolate = b.relpath("skpbench_skia_bundled.isolate")
 	} else if strings.Contains(name, "PathKit") {
+		isolate = "pathkit.isolate"
 		recipe = "perf_pathkit"
 	} else if strings.Contains(name, "CanvasKit") {
+		isolate = "canvaskit.isolate"
 		recipe = "perf_canvaskit"
 	} else if strings.Contains(name, "SkottieTracing") {
 		recipe = "perf_skottietrace"
@@ -1397,9 +1397,6 @@ func (b *builder) perf(name string, parts map[string]string, compileTaskName str
 	}
 	task := b.kitchenTask(name, recipe, isolate, "", b.swarmDimensions(parts), EXTRA_PROPS, OUTPUT_PERF)
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
-	if strings.Contains(name, "CanvasKit") || strings.Contains(name, "SkottieWasm") || strings.Contains(name, "PathKit") || strings.Contains(name, "LottieWeb") || strings.Contains(name, "SkottieWASM") {
-		b.usesGit(task, name)
-	}
 	if !strings.Contains(name, "LottieWeb") {
 		// Perf.+LottieWeb doesn't require anything in Skia to be compiled.
 		task.Dependencies = append(task.Dependencies, compileTaskName)
