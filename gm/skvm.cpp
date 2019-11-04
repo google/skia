@@ -9,10 +9,45 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
+#include "src/shaders/SkShaderBase.h"
 
 // This GM exercises interesting cases in SkVMBlitter,
 // and mostly draws uninteresting simple shapes and colors.
 // At the moment it's really only interesting if you #define SK_USE_SKVM_BLITTER.
+
+// Just a tiny example that the (x,y) coordinate parameters are vaguely working.
+// In this case we'll fade the red channel over its span vertically using `y`.
+// `x` is not useful yet, since it's (incorrectly) uniform and will always be constant.
+struct Fade : public SkShaderBase {
+    explicit Fade(sk_sp<SkShader> shader) : fShader(std::move(shader)) {}
+
+    sk_sp<SkShader> fShader;
+
+    bool onProgram(skvm::Builder* p,
+                   SkColorSpace* dstCS,
+                   skvm::Arg uniforms, int offset,
+                   skvm::F32 x, skvm::F32 y,
+                   skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override {
+        if (as_SB(fShader)->program(p, dstCS,
+                                    uniforms, offset,
+                                    x,y, r,g,b,a)) {
+            if (p) {
+                // In this GM `y` will range over 0-50.
+                *r = p->to_i32(p->mul(y, p->splat(255/50.0f)));
+            }
+            return true;
+        }
+        return false;
+    }
+
+    size_t uniforms(SkColorSpace* dstCS, uint8_t* buf) const override {
+        return as_SB(fShader)->uniforms(dstCS, buf);
+    }
+
+    // Only created here, should never be flattened / unflattened.
+    Factory getFactory() const override { return nullptr; }
+    const char* getTypeName() const override { return "Fade"; }
+};
 
 DEF_SIMPLE_GM(SkVMBlitter, canvas, 100, 100) {
     SkPaint p;
@@ -42,4 +77,7 @@ DEF_SIMPLE_GM(SkVMBlitter, canvas, 100, 100) {
     p.setShader(nullptr);
     p.setColor(SK_ColorRED);
     canvas->drawRect({0,50, 50,100}, p);
+
+    p.setShader(sk_make_sp<Fade>(SkShaders::Color(SK_ColorYELLOW)));
+    canvas->drawRect({50,0, 100,50}, p);
 }
