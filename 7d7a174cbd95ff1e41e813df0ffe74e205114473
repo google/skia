@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "6f13de0b_fa37f6e3",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 657,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-04T20:16:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10e3a860_4ada61c6",
+      "range": {
+        "startLine": 657,
+        "startChar": 40,
+        "endLine": 657,
+        "endChar": 55
+      },
+      "revId": "7d7a174cbd95ff1e41e813df0ffe74e205114473",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "65785b0d_5fcaf19b",
         "filename": "src/gpu/mtl/GrMtlGpu.mm",
         "patchSetId": 12
@@ -92,6 +116,30 @@
       "revId": "7d7a174cbd95ff1e41e813df0ffe74e205114473",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c56e29cf_66c27e8d",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 12
+      },
+      "lineNbr": 843,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-04T20:16:11Z",
+      "side": 1,
+      "message": "Done (\"data.\")",
+      "parentUuid": "65785b0d_5fcaf19b",
+      "range": {
+        "startLine": 843,
+        "startChar": 46,
+        "endLine": 843,
+        "endChar": 51
+      },
+      "revId": "7d7a174cbd95ff1e41e813df0ffe74e205114473",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
