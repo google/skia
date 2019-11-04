@@ -18,8 +18,8 @@
 // At the moment it's really only interesting if you #define SK_USE_SKVM_BLITTER.
 
 // Just a tiny example that the (x,y) coordinate parameters are vaguely working.
-// In this case we'll fade the red channel over its span vertically using `y`.
-// `x` is not useful yet, since it's (incorrectly) uniform and will always be constant.
+// In this case we'll fade the red channel over its span vertically using `y`,
+// and green horizontally using `x`.
 struct Fade : public SkShaderBase {
     explicit Fade(sk_sp<SkShader> shader) : fShader(std::move(shader)) {
         static SkOnce once;
@@ -41,8 +41,9 @@ struct Fade : public SkShaderBase {
                                     uniforms, offset,
                                     x,y, r,g,b,a)) {
             if (p) {
-                // In this GM `y` will range over 0-50.
-                *r = p->to_i32(p->mul(y, p->splat(255/50.0f)));
+                // In this GM `y` will range over 0-50 and `x` over 50-100.
+                *r = p->to_i32(p->mul(y, p->splat(255/ 50.0f)));
+                *g = p->to_i32(p->mul(x, p->splat(255/100.0f)));
             }
             return true;
         }
