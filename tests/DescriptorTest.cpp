@@ -122,3 +122,17 @@ DEF_TEST(Descriptor_entry_too_big, r) {
     SkDescriptorTestHelper::SetCount(desc.get(), 1);
     REPORTER_ASSERT(r, !desc->isValid());
 }
+
+DEF_TEST(Descriptor_entry_over_end, r) {
+    auto desc = SkDescriptor::Alloc(36);
+    desc->init();
+
+    // Make the start of the Entry be in the SkDescriptor, but the second half falls out side the
+    // SkDescriptor. So: 12 (for descriptor) + 8 (for entry) + 12 (for entry length) = 32. An
+    // An Entry is 8 bytes, so 4 bytes are < 36 and 4 bytes > 36.
+    desc->addEntry(kEffects_SkDescriptorTag, 12, nullptr);
+
+    SkDescriptorTestHelper::SetLength(desc.get(), 36);
+    SkDescriptorTestHelper::SetCount(desc.get(), 2);
+    REPORTER_ASSERT(r, !desc->isValid());
+}
