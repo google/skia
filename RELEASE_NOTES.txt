@@ -17,6 +17,9 @@ Milestone 80
   * Remove old async read pixels APIs
     https://review.skia.org/251198
 
+  * Expose SkBlendModeCoeff and SkBlendMode_AsCoeff for Porter-Duff blend modes.
+    https://review.skia.org/252600
+
 * * *
 
 Milestone 79
