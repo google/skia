@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "cd272ac2_aa9ac87a",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-11-04T15:24:30Z",
+      "side": 1,
+      "message": "Because they can.",
+      "parentUuid": "9743a50c_8e3ed242",
+      "range": {
+        "startLine": 198,
+        "startChar": 4,
+        "endLine": 198,
+        "endChar": 13
+      },
+      "revId": "9b64e67b462fe7818965d4e5ddb001893adc1d53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba78094b_a0d674d2",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 6
@@ -45,6 +69,30 @@
       "revId": "9b64e67b462fe7818965d4e5ddb001893adc1d53",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ed7e264_aff07b75",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-11-04T15:24:30Z",
+      "side": 1,
+      "message": "I added a comment to the class that should explain this now.",
+      "parentUuid": "ba78094b_a0d674d2",
+      "range": {
+        "startLine": 211,
+        "startChar": 4,
+        "endLine": 211,
+        "endChar": 36
+      },
+      "revId": "9b64e67b462fe7818965d4e5ddb001893adc1d53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "2f5dbbb0_02103680",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-11-04T15:24:30Z",
+      "side": 1,
+      "message": "See if the comment explains this well enough.",
+      "parentUuid": "f3dc1ea3_177bb8a1",
+      "range": {
+        "startLine": 218,
+        "startChar": 4,
+        "endLine": 218,
+        "endChar": 92
+      },
+      "revId": "9b64e67b462fe7818965d4e5ddb001893adc1d53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b1c709e_a98ad544",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 6
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "6f3abcb6_9376f0e3",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-11-04T15:24:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b1c709e_a98ad544",
+      "range": {
+        "startLine": 220,
+        "startChar": 4,
+        "endLine": 220,
+        "endChar": 37
+      },
+      "revId": "9b64e67b462fe7818965d4e5ddb001893adc1d53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8b107873_d64b72d1",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 6
@@ -114,6 +210,30 @@
       "revId": "9b64e67b462fe7818965d4e5ddb001893adc1d53",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c7cedb7_a7ea0362",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 773,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-11-04T15:24:30Z",
+      "side": 1,
+      "message": "i is used below in the reject. Added an ignore for pos.",
+      "parentUuid": "8b107873_d64b72d1",
+      "range": {
+        "startLine": 772,
+        "startChar": 8,
+        "endLine": 773,
+        "endChar": 57
+      },
+      "revId": "9b64e67b462fe7818965d4e5ddb001893adc1d53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -160,6 +280,54 @@
       "revId": "9b64e67b462fe7818965d4e5ddb001893adc1d53",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20a8abbf_60d2a72e",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 777,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-11-04T15:24:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b2ee6b10_af3d158c",
+      "range": {
+        "startLine": 777,
+        "startChar": 79,
+        "endLine": 777,
+        "endChar": 87
+      },
+      "revId": "9b64e67b462fe7818965d4e5ddb001893adc1d53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "365fbe7b_c23ef99d",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 777,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-11-04T15:24:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "84d4a568_6a660ded",
+      "range": {
+        "startLine": 776,
+        "startChar": 8,
+        "endLine": 777,
+        "endChar": 90
+      },
+      "revId": "9b64e67b462fe7818965d4e5ddb001893adc1d53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
