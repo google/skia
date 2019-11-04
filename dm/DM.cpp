@@ -943,6 +943,7 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         return new SVGSink(pageIndex);
     }
 
+
 #define SINK(t, sink, ...) if (config->getBackend().equals(t)) return new sink(__VA_ARGS__)
 
     if (FLAGS_cpu) {
