@@ -106,6 +106,8 @@ namespace skvm {
                 case Op::store16: write(o, "store16", Arg{imm}, V{x}); break;
                 case Op::store32: write(o, "store32", Arg{imm}, V{x}); break;
 
+                case Op::index: write(o, V{id}, "= index"); break;
+
                 case Op::load8:  write(o, V{id}, "= load8" , Arg{imm}); break;
                 case Op::load16: write(o, V{id}, "= load16", Arg{imm}); break;
                 case Op::load32: write(o, V{id}, "= load32", Arg{imm}); break;
@@ -215,6 +217,8 @@ namespace skvm {
                 case Op::store8:  write(o, "store8" , Arg{imm}, R{x}); break;
                 case Op::store16: write(o, "store16", Arg{imm}, R{x}); break;
                 case Op::store32: write(o, "store32", Arg{imm}, R{x}); break;
+
+                case Op::index: write(o, R{d}, "= index"); break;
 
                 case Op::load8:  write(o, R{d}, "= load8" , Arg{imm}); break;
                 case Op::load16: write(o, R{d}, "= load16", Arg{imm}); break;
@@ -456,6 +460,8 @@ namespace skvm {
     void Builder::store8 (Arg ptr, I32 val) { (void)this->push(Op::store8 , val.id,NA,NA, ptr.ix); }
     void Builder::store16(Arg ptr, I32 val) { (void)this->push(Op::store16, val.id,NA,NA, ptr.ix); }
     void Builder::store32(Arg ptr, I32 val) { (void)this->push(Op::store32, val.id,NA,NA, ptr.ix); }
+
+    I32 Builder::index() { return {this->push(Op::index , NA,NA,NA,0) }; }
 
     I32 Builder::load8 (Arg ptr) { return {this->push(Op::load8 , NA,NA,NA, ptr.ix) }; }
     I32 Builder::load16(Arg ptr) { return {this->push(Op::load16, NA,NA,NA, ptr.ix) }; }
@@ -1327,6 +1333,10 @@ namespace skvm {
 
                     // Ops that don't interact with memory should never care about the stride.
                 #define CASE(op) case 2*(int)op: /*fallthrough*/ case 2*(int)op+1
+
+                    CASE(Op::index): static_assert(K == 16, "");
+                                     r(d).i32 = n - I32{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+                                     break;
 
                     CASE(Op::uniform8):
                         r(d).i32 = *(const uint8_t* )( (const char*)arg(imm&0xffff) + (imm>>16) );
