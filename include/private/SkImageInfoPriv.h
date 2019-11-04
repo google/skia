@@ -58,13 +58,6 @@ static inline bool SkAlphaTypeIsValid(unsigned value) {
     return value <= kLastEnum_SkAlphaType;
 }
 
-static inline bool SkColorTypeIsGray(SkColorType ct) {
-    auto flags = SkColorTypeComponentFlags(ct);
-    // Currently assuming that a color type has only gray or does not have gray.
-    SkASSERT(!(kGray_SkColorTypeComponentFlag & flags) || kGray_SkColorTypeComponentFlag == flags);
-    return kGray_SkColorTypeComponentFlag == flags;
-}
-
 static int SkColorTypeShiftPerPixel(SkColorType ct) {
     switch (ct) {
         case kUnknown_SkColorType:            return 0;
