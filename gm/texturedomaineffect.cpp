@@ -39,13 +39,15 @@
 #include "src/gpu/effects/GrTextureDomain.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/ops/GrFillRectOp.h"
+#include "include/effects/SkPerlinNoiseShader.h"
+#include "src/shaders/SkShaderBase.h"
 
 #include <memory>
 #include <utility>
 
 namespace skiagm {
 /**
- * This GM directly exercises GrTextureDomainEffect.
+ * This GM directly exercises GrDomainEffect.
  */
 class TextureDomainEffect : public GpuGM {
 public:
@@ -104,29 +106,26 @@ protected:
         GrProxyProvider* proxyProvider = context->priv().proxyProvider();
         sk_sp<GrTextureProxy> proxy;
         GrMipMapped mipMapped = fFilter == GrSamplerState::Filter::kMipMap &&
-                                context->priv().caps()->mipMapSupport()
-                ? GrMipMapped::kYes : GrMipMapped::kNo;
+                                                context->priv().caps()->mipMapSupport()
+                                        ? GrMipMapped::kYes
+                                        : GrMipMapped::kNo;
         proxy = proxyProvider->createProxyFromBitmap(fBitmap, mipMapped);
         if (!proxy) {
             *errorMsg = "Failed to create proxy.";
             return DrawResult::kFail;
         }
-
         SkTArray<SkMatrix> textureMatrices;
         textureMatrices.push_back() = SkMatrix::I();
         textureMatrices.push_back() = SkMatrix::MakeScale(1.5f, 0.85f);
         textureMatrices.push_back();
         textureMatrices.back().setRotate(45.f, proxy->width() / 2.f, proxy->height() / 2.f);
-
         const SkIRect texelDomains[] = {
-            fBitmap.bounds(),
-            SkIRect::MakeXYWH(fBitmap.width() / 4 - 1, fBitmap.height() / 4 - 1,
-                              fBitmap.width() / 2 + 2, fBitmap.height() / 2 + 2),
+                fBitmap.bounds(),
+                SkIRect::MakeXYWH(fBitmap.width() / 4 - 1, fBitmap.height() / 4 - 1,
+                                  fBitmap.width() / 2 + 2, fBitmap.height() / 2 + 2),
         };
-
         SkRect renderRect = SkRect::Make(fBitmap.bounds());
         renderRect.outset(kDrawPad, kDrawPad);
-
         SkScalar y = kDrawPad + kTestPad;
         for (int tm = 0; tm < textureMatrices.count(); ++tm) {
             for (size_t d = 0; d < SK_ARRAY_COUNT(texelDomains); ++d) {
@@ -138,15 +137,30 @@ protected:
                         // Repeat mode doesn't produce correct results with bilerp filtering
                         continue;
                     }
-
                     GrPaint grPaint;
-                    grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-                    auto fp = GrTextureDomainEffect::Make(
-                            proxy, SkColorTypeToGrColorType(fBitmap.colorType()),
-                            textureMatrices[tm],
-                            GrTextureDomain::MakeTexelDomain(texelDomains[d], mode),
-                            mode, fFilter);
+                    auto noise = SkPerlinNoiseShader::MakeImprovedNoise(1.f, 1.f, 2, 0.5f);
+                    auto sb = static_cast<SkShaderBase*>(noise.get());
+                    SkMatrix vm = SkMatrix::I();
+                    GrFPArgs args(context, &vm, kLow_SkFilterQuality, nullptr);
 
+
+                    grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
+                    auto fp0 = sb->asFragmentProcessor(args);
+                    SkASSERT(fp0);
+//                    grPaint.addColorFragmentProcessor(std::move(fp0));
+
+#if 0
+                    auto fp = GrSimpleTextureEffect::Make(
+                            proxy, SkColorTypeToGrColorType(fBitmap.colorType()), SkMatrix::I(),
+                            fFilter);
+#else
+                    auto fp = sb->asFragmentProcessor(args);
+#endif
+                    bool filterIfDecal = GrDomainEffect::DecalFilterFromSamplerFilter(fFilter);
+                    fp = GrDomainEffect::Make(
+                            std::move(fp), textureMatrices[tm],
+                            GrTextureDomain::MakeTexelDomain(texelDomains[d], mode), mode,
+                            filterIfDecal);
                     if (!fp) {
                         continue;
                     }
@@ -155,6 +169,7 @@ protected:
                     renderTargetContext->priv().testingOnly_addDrawOp(
                             GrFillRectOp::MakeNonAARect(context, std::move(grPaint),
                                                         viewMatrix, renderRect));
+                    return DrawResult::kOk;
                     x += renderRect.width() + kTestPad;
                 }
                 y += renderRect.height() + kTestPad;
