@@ -12,9 +12,6 @@ Milestone 80
     transferFn, invTrasnferFn, and gamutTransformTo functions.
     https://review.skia.org/252596
 
-  * Removed rotation and YUV support from SkColorMatrix
-    https://review.skia.org/252188
-
   * Added kBT2020_SkYUVColorSpace. This is BT.2020's YCbCr conversion (non-constant-luminance).
     https://review.skia.org/252160
 
