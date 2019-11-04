@@ -5,6 +5,7 @@ bigbitmaprect_s
 blurcircles2
 bug339297_as_clip
 bug6083
+cliperror
 colorfiltershader
 colormatrix
 composeshader_grid
@@ -16,6 +17,8 @@ imageblur2
 imageblurclampmode
 imagefiltersgraph
 largeglyphblur
+linear_gradient
+linear_gradient_nodither
 megalooper_0x0
 megalooper_1x4
 megalooper_4x1
