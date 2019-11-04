@@ -1997,10 +1997,12 @@ void GrVkGpu::onFinishFlush(GrSurfaceProxy* proxies[], int n,
         }
     }
 
+    if (!SkToBool(info.fFlags & kSkipSubmit_GrFlushFlag)) {
     if (info.fFlags & kSyncCpu_GrFlushFlag) {
         this->submitCommandBuffer(kForce_SyncQueue, info.fFinishedProc, info.fFinishedContext);
     } else {
         this->submitCommandBuffer(kSkip_SyncQueue, info.fFinishedProc, info.fFinishedContext);
+    }
     }
 }
 
