@@ -110,17 +110,9 @@ private:
         if (!numRects) {
             return;
         }
-        auto indexBuffer = target->resourceProvider()->refNonAAQuadIndexBuffer();
-        if (!indexBuffer) {
-            SkDebugf("Could not allocate indices\n");
-            return;
-        }
-        PatternHelper helper(target, GrPrimitiveType::kTriangles, gp->vertexStride(),
-                             std::move(indexBuffer),
-                             GrResourceProvider::NumVertsPerNonAAQuad(),
-                             GrResourceProvider::NumIndicesPerNonAAQuad(),
-                             numRects,
-                             GrResourceProvider::MaxNumNonAAQuads());
+
+        QuadHelper helper(target, gp->vertexStride(), numRects);
+
         GrVertexWriter vertices{helper.vertices()};
         if (!vertices.fPtr) {
             SkDebugf("Could not allocate vertices\n");
