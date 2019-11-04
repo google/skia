@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "cc1677ec_d0ec1714",
+        "filename": "gn/gm.gni",
+        "patchSetId": 6
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-11-04T19:43:35Z",
+      "side": 1,
+      "message": "Just wrap the inside of those files with \"#ifdef SK_GL\"?\n\nI do a similar thing with tests/PDF*.cpp and \"#ifdef SK_SUPPORT_PDF\"",
+      "revId": "cc688f0e3145574fe464ee329cf7e6e07e0c00ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aef5d992_cbb5f371",
+        "filename": "gn/gpu.gni",
+        "patchSetId": 6
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-11-04T19:43:35Z",
+      "side": 1,
+      "message": "Why can\u0027t these lines be in the BUILD.gn file?",
+      "revId": "cc688f0e3145574fe464ee329cf7e6e07e0c00ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5138dac6_5fd9e0af",
+        "filename": "gn/gpu_api.gni",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-11-04T19:43:35Z",
+      "side": 1,
+      "message": "I would prefer to keep all of the declaration of the skia_* args in a single file (skia.gni).",
+      "revId": "cc688f0e3145574fe464ee329cf7e6e07e0c00ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "94cb7043_1350e8de",
         "filename": "gn/tests.gni",
         "patchSetId": 6
