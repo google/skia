@@ -47,6 +47,7 @@ private:
     bool onProgram(skvm::Builder*,
                    SkColorSpace* dstCS,
                    skvm::Arg uniforms, int offset,
+                   skvm::F32 x, skvm::F32 y,
                    skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override;
     size_t uniforms(SkColorSpace* dstCS, uint8_t* uniform_buffer) const override;
 
@@ -73,6 +74,7 @@ private:
     bool onProgram(skvm::Builder*,
                    SkColorSpace* dstCS,
                    skvm::Arg uniforms, int offset,
+                   skvm::F32 x, skvm::F32 y,
                    skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override;
     size_t uniforms(SkColorSpace* dstCS, uint8_t* uniform_buffer) const override;
 

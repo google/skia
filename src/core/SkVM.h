@@ -236,7 +236,7 @@ namespace skvm {
     enum class Op : uint8_t {
           store8,   store16,   store32,
     // ↑ side effects / no side effects ↓
-
+           index,
            load8,    load16,    load32,
          gather8,  gather16,  gather32,
     // ↑ always varying / uniforms, constants, Just Math ↓
@@ -317,6 +317,9 @@ namespace skvm {
         void store8 (Arg ptr, I32 val);
         void store16(Arg ptr, I32 val);
         void store32(Arg ptr, I32 val);
+
+        // Returns varying {n, n-1, n-2, ..., 1}, where n is the argument to Program::eval().
+        I32 index();
 
         // Load u8,u16,i32 varying.
         I32 load8 (Arg ptr);
