@@ -141,10 +141,9 @@ public:
     bool gammaIsLinear() const;
 
     /**
-     *  If the transfer function can be represented as coefficients to the standard
-     *  equation, returns true and sets |fn| to the proper values.
-     *
-     *  If not, returns false.
+     *  Sets |fn| to the transfer function from this color space. Returns true if the transfer
+     *  function can be represented as coefficients to the standard ICC 7-parameter equation.
+     *  Returns false otherwise (eg, PQ, HLG).
      */
     bool isNumericalTransferFn(skcms_TransferFunction* fn) const;
 
