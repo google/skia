@@ -690,8 +690,8 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
         } else if (!rules.fAllowUnpremulRead && readAT == kUnpremul_SkAlphaType) {
             REPORTER_ASSERT(reporter, !success);
         } else if (!success) {
-            // TODO: Support reading to kGray, support kRGB_101010x at all in GPU.
-            if (readCT != kGray_8_SkColorType && readCT != kRGB_101010x_SkColorType) {
+            // TODO: Support kRGB_101010x at all in GPU.
+            if (readCT != kRGB_101010x_SkColorType) {
                 ERRORF(reporter,
                        "Read failed. Src CT: %s, Src AT: %s Read CT: %s, Read AT: %s, "
                        "Rect [%d, %d, %d, %d], CS conversion: %d\n",

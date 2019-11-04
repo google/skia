@@ -432,7 +432,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTest, reporter, ctxInfo) {
                      GrColorType::kRG_88,
                      GrColorType::kBGRA_8888,
                      GrColorType::kRGBA_1010102,
-                     //  GrColorType::kGray_8, Reading back to kGray is busted.
+                     GrColorType::kGray_8,
                      GrColorType::kAlpha_F16,
                      GrColorType::kRGBA_F16,
                      GrColorType::kRGBA_F16_Clamped,
@@ -454,25 +454,25 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTest, reporter, ctxInfo) {
     }
     for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
         for (auto colorType : {
-                GrColorType::kAlpha_8,
-                GrColorType::kAlpha_16,
-                GrColorType::kBGR_565,
-                GrColorType::kABGR_4444,
-                GrColorType::kRGBA_8888,
-                GrColorType::kRGBA_8888_SRGB,
-                //  GrColorType::kRGB_888x, Broken in GL until we have kRGB_888
-                GrColorType::kRG_88,
-                GrColorType::kBGRA_8888,
-                GrColorType::kRGBA_1010102,
-                //  GrColorType::kGray_8, Reading back to kGray is busted.
-                GrColorType::kAlpha_F16,
-                GrColorType::kRGBA_F16,
-                GrColorType::kRGBA_F16_Clamped,
-                GrColorType::kRGBA_F32,
-                GrColorType::kRG_1616,
-                GrColorType::kRGBA_16161616,
-                GrColorType::kRG_F16,
-        }) {
+                     GrColorType::kAlpha_8,
+                     GrColorType::kAlpha_16,
+                     GrColorType::kBGR_565,
+                     GrColorType::kABGR_4444,
+                     GrColorType::kRGBA_8888,
+                     GrColorType::kRGBA_8888_SRGB,
+                     //  GrColorType::kRGB_888x, Broken in GL until we have kRGB_888
+                     GrColorType::kRG_88,
+                     GrColorType::kBGRA_8888,
+                     GrColorType::kRGBA_1010102,
+                     GrColorType::kGray_8,
+                     GrColorType::kAlpha_F16,
+                     GrColorType::kRGBA_F16,
+                     GrColorType::kRGBA_F16_Clamped,
+                     GrColorType::kRGBA_F32,
+                     GrColorType::kRG_1616,
+                     GrColorType::kRGBA_16161616,
+                     GrColorType::kRG_F16,
+             }) {
             basic_transfer_from_test(reporter, ctxInfo, colorType, renderable);
         }
     }
