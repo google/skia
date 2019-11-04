@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "94cb7043_1350e8de",
+        "filename": "gn/tests.gni",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-04T14:00:21Z",
+      "side": 1,
+      "message": "Don\u0027t some of these files contain tests for multiple APIs? E.g. has API neutral tests, a GL-specific test, and a Vulkan-specific test.",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 1
+      },
+      "revId": "cc688f0e3145574fe464ee329cf7e6e07e0c00ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
