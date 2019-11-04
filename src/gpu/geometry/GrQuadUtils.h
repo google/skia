@@ -90,9 +90,8 @@ namespace GrQuadUtils {
         struct EdgeEquations {
             // a * x + b * y + c = 0; positive distance is inside the quad; ordered LBTR.
             skvx::Vec<4, float> fA, fB, fC;
-            // Whether or not the edge normals had to be flipped to preserve positive distance on
-            // the inside
-            bool fFlipped;
+            // True if the field is up to date with the state of fOriginal+fAAFlags
+            bool fValid = false;
 
             skvx::Vec<4, float> estimateCoverage(const skvx::Vec<4, float>& x2d,
                                                  const skvx::Vec<4, float>& y2d) const;
@@ -113,39 +112,38 @@ namespace GrQuadUtils {
             // True if the new corners cannot be calculated by simply adding scaled edge vectors.
             // If degenerate, fOutsets[CW] should be ignored.
             bool fDegenerate;
+            // True if the field is up to date with the state of fOriginal+fAAFlags
+            bool fValid = false;
         };
 
         // Repeated calls to inset/outset with the same mask skip calculations
         GrQuadAAFlags       fAAFlags;
 
+        // Always valid
         Vertices            fOriginal;
-        Vertices            fInset;
-        Vertices            fOutset;
-        skvx::Vec<4, float> fCoverage;
-
+        EdgeVectors         fEdgeVectors;
         GrQuad::Type        fDeviceType;
         GrQuad::Type        fLocalType;
 
-        void recomputeInsetAndOutset();
+        // Lazily computed as needed; use accessor functions instead of direct access.
+        OutsetRequest       fOutsetRequest;
+        EdgeEquations       fEdgeEquations;
+
+        void reset();
         void setQuads(const Vertices& vertices, GrQuad* deviceOut, GrQuad* localOut) const;
 
-        EdgeVectors getEdgeVectors() const;
-        OutsetRequest getOutsetRequest(const EdgeVectors& edgeVectors) const;
-        EdgeEquations getEdgeEquations(const EdgeVectors& edgeVectors) const;
+        const OutsetRequest& getOutsetRequest();
+        const EdgeEquations& getEdgeEquations();
 
         // Outsets or insets 'x2d' and 'y2d' in place. To be used when the interior is very small,
         // edges are near parallel, or edges are very short/zero-length. Returns number of effective
         // vertices in the degenerate quad.
         int computeDegenerateQuad(const skvx::Vec<4, float>& signedEdgeDistances,
-                                  const EdgeEquations& edges,
-                                  skvx::Vec<4, float>* x2d,
-                                  skvx::Vec<4, float>* y2d);
+                                  skvx::Vec<4, float>* x2d, skvx::Vec<4, float>* y2d);
         // Outsets or insets 'vertices' based on the outset request described by 'outsetRequest'
         // and 'inset' (true for insetting instead). If the outset is not degenerate,
         // 'edgeEquations' can be null. Returns number of effective vertices in the adjusted quad.
-        int adjustVertices(const OutsetRequest& outsetRequest, bool inset,
-                           const EdgeVectors& edgeVectors, const EdgeEquations* edgeEquations,
-                           Vertices* vertices);
+        int adjustVertices(bool inset, Vertices* vertices);
     };
 
 }; // namespace GrQuadUtils
