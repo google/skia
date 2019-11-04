@@ -45,6 +45,34 @@ enum class SkBlendMode {
     kLastMode          = kLuminosity, //!< last valid value
 };
 
+/**
+ * For Porter-Duff SkBlendModes (those <= kLastCoeffMode), these coefficients describe the blend
+ * equation used. Coefficient-based blend modes specify an equation:
+ * ('dstCoeff' * dst + 'srcCoeff' * src), where the coefficient values are constants, functions of
+ * the src or dst alpha, or functions of the src or dst color.
+ */
+enum class SkBlendModeCoeff {
+    kZero, /** 0 */
+    kOne,  /** 1 */
+    kSC,   /** src color */
+    kISC,  /** inverse src color (i.e. 1 - sc) */
+    kDC,   /** dst color */
+    kIDC,  /** inverse dst color (i.e. 1 - dc) */
+    kSA,   /** src alpha */
+    kISA,  /** inverse src alpha (i.e. 1 - sa) */
+    kDA,   /** dst alpha */
+    kIDA,  /** inverse dst alpha (i.e. 1 - da) */
+
+    kCoeffCount
+};
+
+/**
+ * Returns true if 'mode' is a coefficient-based blend mode (<= kLastCoeffMode). If true is
+ * returned, the mode's src and dst coefficient functions are set in 'src' and 'dst'.
+ */
+SK_API bool SkBlendMode_AsCoeff(SkBlendMode mode, SkBlendModeCoeff* src, SkBlendModeCoeff* dst);
+
+
 /** Returns name of blendMode as null-terminated C string.
 
     @param blendMode  one of:
