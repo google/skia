@@ -1200,7 +1200,7 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                     offset = (*cfg.fBlocks[i].fNodes[0].expression())->fOffset;
                     break;
             }
-            this->error(offset, String("unreachable"));
+//            this->error(offset, String("unreachable"));
         }
     }
     if (fErrorCount) {
