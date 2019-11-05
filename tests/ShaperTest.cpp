@@ -59,17 +59,24 @@ struct RunHandler final : public SkShaper::RunHandler {
     }
     void commitLine() override {}
 };
+}  // namespace
 
-void shaper_test(skiatest::Reporter* reporter, const char* name, SkData* data) {
+static void cluster_test(skiatest::Reporter* reporter, const char* resource) {
     auto shaper = SkShaper::Make();
     if (!shaper) {
         ERRORF(reporter, "Could not create shaper.");
         return;
     }
 
+    auto data = GetResourceAsData(resource);
+    if (!data) {
+        ERRORF(reporter, "Could not get resource %s.", resource);
+        return;
+    }
+
     constexpr float kWidth = 400;
     SkFont font(SkTypeface::MakeDefault());
-    RunHandler rh(name, reporter);
+    RunHandler rh(resource, reporter);
     shaper->shape((const char*)data->data(), data->size(), font, true, kWidth, &rh);
 
     constexpr SkFourByteTag latn = SkSetFourByteTag('l','a','t','n');
@@ -80,20 +87,6 @@ void shaper_test(skiatest::Reporter* reporter, const char* name, SkData* data) {
     shaper->shape((const char*)data->data(), data->size(),
                   fontIterator, bidiIterator, scriptIterator, languageIterator, kWidth, &rh);
 }
-
-void cluster_test(skiatest::Reporter* reporter, const char* resource) {
-    auto data = GetResourceAsData(resource);
-    if (!data) {
-        ERRORF(reporter, "Could not get resource %s.", resource);
-        return;
-    }
-
-    shaper_test(reporter, resource, data.get());
-}
-
-}  // namespace
-
-DEF_TEST(Shaper_cluster_empty, r) { shaper_test(r, "empty", SkData::MakeEmpty().get()); }
 
 #define SHAPER_TEST(X) DEF_TEST(Shaper_cluster_ ## X, r) { cluster_test(r, "text/" #X ".txt"); }
 SHAPER_TEST(arabic)
