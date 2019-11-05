@@ -337,8 +337,6 @@ bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
 
     GrProcessorKeyBuilder b(&desc->key());
 
-    programInfo.pipeline().genKey(&b);
-
     b.add32(GrVkGpu::kShader_PersistentCacheKeyType);
     int keyLength = desc->key().count();
     SkASSERT(0 == (keyLength % 4));
@@ -348,6 +346,8 @@ bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
     vkRT->simpleRenderPass()->genKey(&b);
 
     stencil.genKey(&b);
+
+    b.add32(programInfo.pipeline().getBlendInfoKey());
 
     b.add32((uint32_t)primitiveType);
 
