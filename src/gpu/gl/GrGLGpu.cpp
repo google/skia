@@ -2214,8 +2214,6 @@ void GrGLGpu::draw(GrRenderTarget* renderTarget,
     }
 #endif
 
-    // Passing 'primitiveType' here is a bit misleading. In GL's case it works out, since
-    // GL only cares if it is kPoints or not.
     if (!this->flushGLState(renderTarget, programInfo, primitiveType)) {
         return;
     }
@@ -2224,6 +2222,8 @@ void GrGLGpu::draw(GrRenderTarget* renderTarget,
     bool hasDynamicPrimProcTextures = programInfo.hasDynamicPrimProcTextures();
 
     for (int m = 0; m < meshCount; ++m) {
+        SkASSERT(meshes[m].primitiveType() == primitiveType);
+
         if (auto barrierType = programInfo.pipeline().xferBarrierType(renderTarget->asTexture(),
                                                                       *this->caps())) {
             this->xferBarrier(renderTarget, barrierType);
