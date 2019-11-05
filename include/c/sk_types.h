@@ -85,6 +85,7 @@ typedef enum {
 } sk_pixelgeometry_t;
 
 typedef enum {
+    NONE_SK_SURFACE_PROPS_FLAGS = 0,
     USE_DEVICE_INDEPENDENT_FONTS_SK_SURFACE_PROPS_FLAGS = 1 << 0,
 } sk_surfaceprops_flags_t;
 
@@ -165,7 +166,9 @@ typedef struct {
         }
 */
 typedef struct {
-    float   mat[9];
+    float scaleX, skewX, transX;
+    float skewY, scaleY, transY;
+    float persp0, persp1, persp2;
 } sk_matrix_t;
 
 typedef struct sk_matrix44_t sk_matrix44_t;
@@ -379,9 +382,9 @@ typedef struct sk_wstream_dynamicmemorystream_t sk_wstream_dynamicmemorystream_t
 typedef struct sk_document_t sk_document_t;
 
 typedef enum {
-    UTF8_ENCODING,
-    UTF16_ENCODING,
-    UTF32_ENCODING
+    UTF8_SK_ENCODING,
+    UTF16_SK_ENCODING,
+    UTF32_SK_ENCODING
 } sk_encoding_t;
 
 typedef enum {
@@ -424,6 +427,7 @@ typedef enum {
 } sk_filter_quality_t;
 
 typedef enum {
+    HAS_NONE_SK_CROP_RECT_FLAG   = 0x00,
     HAS_LEFT_SK_CROP_RECT_FLAG   = 0x01,
     HAS_TOP_SK_CROP_RECT_FLAG    = 0x02,
     HAS_WIDTH_SK_CROP_RECT_FLAG  = 0x04,
@@ -662,11 +666,6 @@ typedef struct {
     sk_mask_format_t  fFormat;
 } sk_mask_t;
 
-typedef enum {
-    NONE_GR_CONTEXT_FLUSHBITS = 0,
-    DISCARD_GR_CONTEXT_FLUSHBITS = 0x2,
-} gr_context_flushbits_t;
-
 typedef intptr_t gr_backendobject_t;
 
 typedef struct gr_backendrendertarget_t gr_backendrendertarget_t;
@@ -753,6 +752,7 @@ typedef enum {
 } sk_image_caching_hint_t;
 
 typedef enum {
+    NONE_SK_BITMAP_ALLOC_FLAGS = 0,
     ZERO_PIXELS_SK_BITMAP_ALLOC_FLAGS = 1 << 0,
 } sk_bitmap_allocflags_t;
 
@@ -780,12 +780,6 @@ typedef struct {
     bool                fPDFA;
     int                 fEncodingQuality;
 } sk_document_pdf_metadata_t;
-
-typedef enum {
-    SRGB_SK_COLORSPACE_NAMED,
-    ADOBE_RGB_SK_COLORSPACE_NAMED,
-    SRGB_LINEAR_SK_COLORSPACE_NAMED,
-} sk_colorspace_named_t;
 
 typedef struct {
     sk_colorspace_t* colorspace;

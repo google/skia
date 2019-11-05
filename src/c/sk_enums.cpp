@@ -42,9 +42,9 @@
 #define ASSERT_MSG(SK, C) "ABI changed, you must write a enumeration mapper for " TOSTRING(#SK) " to " TOSTRING(#C) "."
 
 // sk_encoding_t
-static_assert ((int)SkTypeface::Encoding::kUTF8_Encoding    == (int)UTF8_ENCODING,    ASSERT_MSG(SkTypeface::Encoding, sk_encoding_t));
-static_assert ((int)SkTypeface::Encoding::kUTF16_Encoding   == (int)UTF16_ENCODING,   ASSERT_MSG(SkTypeface::Encoding, sk_encoding_t));
-static_assert ((int)SkTypeface::Encoding::kUTF32_Encoding   == (int)UTF32_ENCODING,   ASSERT_MSG(SkTypeface::Encoding, sk_encoding_t));
+static_assert ((int)SkTypeface::Encoding::kUTF8_Encoding    == (int)UTF8_SK_ENCODING,    ASSERT_MSG(SkTypeface::Encoding, sk_encoding_t));
+static_assert ((int)SkTypeface::Encoding::kUTF16_Encoding   == (int)UTF16_SK_ENCODING,   ASSERT_MSG(SkTypeface::Encoding, sk_encoding_t));
+static_assert ((int)SkTypeface::Encoding::kUTF32_Encoding   == (int)UTF32_SK_ENCODING,   ASSERT_MSG(SkTypeface::Encoding, sk_encoding_t));
 
 // sk_font_style_slant_t
 static_assert ((int)SkFontStyle::Slant::kUpright_Slant   == (int)UPRIGHT_SK_FONT_STYLE_SLANT,   ASSERT_MSG(SkFontStyle::Slant, sk_font_style_slant_t));
