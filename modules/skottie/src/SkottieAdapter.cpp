@@ -269,6 +269,16 @@ GradientAdapter::GradientAdapter(sk_sp<sksg::Gradient> grad, size_t colorStopCou
     : fGradient(std::move(grad))
     , fColorStopCount(colorStopCount) {}
 
+template <typename T>
+static inline const T* next_rec(const T* rec, const T* end_rec) {
+    if (!rec) return nullptr;
+
+    SkASSERT(rec < end_rec);
+    rec++;
+
+    return rec < end_rec ? rec : nullptr;
+};
+
 void GradientAdapter::apply() {
     this->onApply();
 
@@ -298,100 +308,69 @@ void GradientAdapter::apply() {
         return;
     }
 
-    const auto* current_c = reinterpret_cast<const ColorRec*>(fStops.data());
-    const auto*     end_c = current_c + c_count;
-    const auto* current_o = reinterpret_cast<const OpacityRec*>(end_c);
-    const auto*     end_o = current_o + o_count;
+    const auto* c_rec = c_count > 0 ? reinterpret_cast<const ColorRec*>(fStops.data())
+                                    : nullptr;
+    const auto* o_rec = o_count > 0 ? reinterpret_cast<const OpacityRec*>(fStops.data() + c_size)
+                                    : nullptr;
+    const auto* c_end = c_rec + c_count;
+    const auto* o_end = o_rec + o_count;
 
-    sksg::Gradient::ColorStop prev_stop = { 0.0f, SkColors::kBlack };
-    if (current_c < end_c) {
-        prev_stop.fColor = SkColor4f{ current_c->r, current_c->g, current_c->b, 1.0 };
-    }
-    if (current_o < end_o) {
-        prev_stop.fColor.fA = current_o->a;
-    }
-
-    auto lerp = [](float a, float b, float t) { return a + t * (b - a); };
-
-    auto next_stop = [&]() -> sksg::Gradient::ColorStop {
-        const uint8_t has_color_stop   = SkToU8(current_c < end_c),
-                      has_opacity_stop = SkToU8(current_o < end_o);
-
-        switch (has_color_stop | (has_opacity_stop << 1)) {
-            case 0x01: {
-                // Color-only stop.
-                sksg::Gradient::ColorStop cs{
-                    current_c->t,
-                    SkColor4f{ current_c->r, current_c->g, current_c->b, prev_stop.fColor.fA }
-                };
-
-                current_c++;
-                return cs;
-            }
-            case 0x02: {
-                // Opacity-only stop.
-                sksg::Gradient::ColorStop cs{
-                    current_o->t,
-                    SkColor4f{ prev_stop.fColor.fR,
-                               prev_stop.fColor.fG,
-                               prev_stop.fColor.fB,
-                               current_o->a }
-                };
-
-               current_o++;
-               return cs;
-            }
-            case 0x03: {
-                // Separate color and opacity stops.
-                // Merge-sort the two arrays, LERP-ing intermediate channel values as needed.
-
-                auto c     = SkColor4f{ current_c->r, current_c->g, current_c->b, current_o->a };
-                auto t_rgb = current_c->t,
-                     t_a   = current_o->t;
-
-                if (SkScalarNearlyEqual(t_rgb, t_a)) {
-                    // Coincident color and opacity stops: no LERP needed, consume both.
-                    current_c++;
-                    current_o++;
-
-                    return { t_rgb, c };
-                }
-
-                if (t_rgb < t_a) {
-                    // Color stop followed by opacity stop: LERP alpha, consume the color stop.
-                    const auto rel_t = SkTPin(sk_ieee_float_divide(t_rgb - prev_stop.fPosition,
-                                                                   t_a - prev_stop.fPosition),
-                                              0.0f, 1.0f);
-                    c.fA = lerp(prev_stop.fColor.fA, c.fA, rel_t);
-
-                    current_c++;
-
-                    return { t_rgb, c };
-                } else {
-                    // Opacity stop followed by color stop: LERP r/g/b, consume the opacity stop.
-                    const auto rel_t = SkTPin(sk_ieee_float_divide(t_a - prev_stop.fPosition,
-                                                                   t_rgb - prev_stop.fPosition),
-                                              0.0f, 1.0f);
-                    c.fR = lerp(prev_stop.fColor.fR, c.fR, rel_t);
-                    c.fG = lerp(prev_stop.fColor.fG, c.fG, rel_t);
-                    c.fB = lerp(prev_stop.fColor.fB, c.fB, rel_t);
-
-                    current_o++;
-
-                    return { t_a, c };
-                }
-            }
-
-            default: SkUNREACHABLE;
-        }
-    };
+    sksg::Gradient::ColorStop current_stop = {
+        0.0f, {
+            c_rec ? c_rec->r : 0,
+            c_rec ? c_rec->g : 0,
+            c_rec ? c_rec->b : 0,
+            o_rec ? o_rec->a : 1,
+    }};
 
     std::vector<sksg::Gradient::ColorStop> stops;
     stops.reserve(c_count);
 
-    while (current_c < end_c || current_o < end_o) {
-        prev_stop = next_stop();
-        stops.push_back(prev_stop);
+    // Merge-sort the color and opacity stops, LERP-ing intermediate channel values as needed.
+    while (c_rec || o_rec) {
+        // After exhausting one of color recs / opacity recs, continue propagating the last
+        // computed values (as if they were specified at the current position).
+        const auto& cs = c_rec
+                ? *c_rec
+                : ColorRec{ o_rec->t,
+                            current_stop.fColor.fR,
+                            current_stop.fColor.fG,
+                            current_stop.fColor.fB };
+        const auto& os = o_rec
+                ? *o_rec
+                : OpacityRec{ c_rec->t, current_stop.fColor.fA };
+
+        // Compute component lerp coefficients based on the relative position of the stops
+        // being considered. The idea is to select the smaller-pos stop, use its own properties
+        // as specified (lerp with t == 1), and lerp (with t < 1) the properties from the
+        // larger-pos stop against the previously computed gradient stop values.
+        const auto     c_pos = std::max(cs.t, current_stop.fPosition),
+                       o_pos = std::max(os.t, current_stop.fPosition),
+                   c_pos_rel = c_pos - current_stop.fPosition,
+                   o_pos_rel = o_pos - current_stop.fPosition,
+                         t_c = SkTPin(sk_ieee_float_divide(o_pos_rel, c_pos_rel), 0.0f, 1.0f),
+                         t_o = SkTPin(sk_ieee_float_divide(c_pos_rel, o_pos_rel), 0.0f, 1.0f);
+
+        auto lerp = [](float a, float b, float t) { return a + t * (b - a); };
+
+        current_stop = {
+                std::min(c_pos, o_pos),
+                {
+                    lerp(current_stop.fColor.fR, cs.r, t_c ),
+                    lerp(current_stop.fColor.fG, cs.g, t_c ),
+                    lerp(current_stop.fColor.fB, cs.b, t_c ),
+                    lerp(current_stop.fColor.fA, os.a, t_o)
+                }
+        };
+        stops.push_back(current_stop);
+
+        // Consume one of, or both (for coincident positions) color/opacity stops.
+        if (c_pos <= o_pos) {
+            c_rec = next_rec<ColorRec>(c_rec, c_end);
+        }
+        if (o_pos <= c_pos) {
+            o_rec = next_rec<OpacityRec>(o_rec, o_end);
+        }
     }
 
     stops.shrink_to_fit();
