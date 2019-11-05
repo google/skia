@@ -11,7 +11,7 @@
 #include "src/gpu/vk/GrVkGpu.h"
 
 
-GrVkDescriptorPool::GrVkDescriptorPool(const GrVkGpu* gpu, VkDescriptorType type, uint32_t count)
+GrVkDescriptorPool::GrVkDescriptorPool(GrVkGpu* gpu, VkDescriptorType type, uint32_t count)
     : INHERITED()
     , fType (type)
     , fCount(count) {
@@ -30,18 +30,15 @@ GrVkDescriptorPool::GrVkDescriptorPool(const GrVkGpu* gpu, VkDescriptorType type
     createInfo.poolSizeCount = 1;
     createInfo.pPoolSizes = &poolSize;
 
-    GR_VK_CALL_ERRCHECK(gpu->vkInterface(), CreateDescriptorPool(gpu->device(),
-                                                                 &createInfo,
-                                                                 nullptr,
-                                                                 &fDescPool));
+    GR_VK_CALL_ERRCHECK(gpu, CreateDescriptorPool(gpu->device(), &createInfo, nullptr, &fDescPool));
 }
 
 bool GrVkDescriptorPool::isCompatible(VkDescriptorType type, uint32_t count) const {
     return fType == type && count <= fCount;
 }
 
-void GrVkDescriptorPool::reset(const GrVkGpu* gpu) {
-    GR_VK_CALL_ERRCHECK(gpu->vkInterface(), ResetDescriptorPool(gpu->device(), fDescPool, 0));
+void GrVkDescriptorPool::reset(GrVkGpu* gpu) {
+    GR_VK_CALL_ERRCHECK(gpu, ResetDescriptorPool(gpu->device(), fDescPool, 0));
 }
 
 void GrVkDescriptorPool::freeGPUData(GrVkGpu* gpu) const {

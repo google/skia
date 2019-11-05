@@ -42,14 +42,14 @@ void setup_vk_attachment_description(VkAttachmentDescription* attachment,
     attachment->finalLayout = layout;
 }
 
-void GrVkRenderPass::initSimple(const GrVkGpu* gpu, const GrVkRenderTarget& target) {
+void GrVkRenderPass::initSimple(GrVkGpu* gpu, const GrVkRenderTarget& target) {
     static const GrVkRenderPass::LoadStoreOps kBasicLoadStoreOps(VK_ATTACHMENT_LOAD_OP_LOAD,
                                                                  VK_ATTACHMENT_STORE_OP_STORE);
 
     this->init(gpu, target, kBasicLoadStoreOps, kBasicLoadStoreOps);
 }
 
-void GrVkRenderPass::init(const GrVkGpu* gpu,
+void GrVkRenderPass::init(GrVkGpu* gpu,
                           const LoadStoreOps& colorOp,
                           const LoadStoreOps& stencilOp) {
     uint32_t numAttachments = fAttachmentsDescriptor.fAttachmentCount;
@@ -133,10 +133,7 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
     createInfo.dependencyCount = 0;
     createInfo.pDependencies = nullptr;
 
-    GR_VK_CALL_ERRCHECK(gpu->vkInterface(), CreateRenderPass(gpu->device(),
-                                                             &createInfo,
-                                                             nullptr,
-                                                             &fRenderPass));
+    GR_VK_CALL_ERRCHECK(gpu, CreateRenderPass(gpu->device(), &createInfo, nullptr, &fRenderPass));
 
     // Get granularity for this render pass
     GR_VK_CALL(gpu->vkInterface(), GetRenderAreaGranularity(gpu->device(),
@@ -144,7 +141,7 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
                                                             &fGranularity));
 }
 
-void GrVkRenderPass::init(const GrVkGpu* gpu,
+void GrVkRenderPass::init(GrVkGpu* gpu,
                           const GrVkRenderPass& compatibleRenderPass,
                           const LoadStoreOps& colorOp,
                           const LoadStoreOps& stencilOp) {
@@ -153,7 +150,7 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
     this->init(gpu, colorOp, stencilOp);
 }
 
-void GrVkRenderPass::init(const GrVkGpu* gpu,
+void GrVkRenderPass::init(GrVkGpu* gpu,
                           const GrVkRenderTarget& target,
                           const LoadStoreOps& colorOp,
                           const LoadStoreOps& stencilOp) {

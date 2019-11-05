@@ -48,6 +48,9 @@ public:
     const GrVkInterface* vkInterface() const { return fInterface.get(); }
     const GrVkCaps& vkCaps() const { return *fVkCaps; }
 
+    bool isDeviceLost() const { return fDeviceIsLost; }
+    void setDeviceLost() { fDeviceIsLost = true; }
+
     GrVkMemoryAllocator* memoryAllocator() const { return fMemoryAllocator.get(); }
 
     VkPhysicalDevice physicalDevice() const { return fPhysicalDevice; }
@@ -274,6 +277,7 @@ private:
     sk_sp<const GrVkInterface>                            fInterface;
     sk_sp<GrVkMemoryAllocator>                            fMemoryAllocator;
     sk_sp<GrVkCaps>                                       fVkCaps;
+    bool                                                  fDeviceIsLost = false;
 
     VkInstance                                            fInstance;
     VkPhysicalDevice                                      fPhysicalDevice;

@@ -11,7 +11,7 @@
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkGpu.h"
 
-GrVkCommandPool* GrVkCommandPool::Create(const GrVkGpu* gpu) {
+GrVkCommandPool* GrVkCommandPool::Create(GrVkGpu* gpu) {
     VkCommandPoolCreateFlags cmdPoolCreateFlags =
             VK_COMMAND_POOL_CREATE_TRANSIENT_BIT |
             VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
@@ -26,9 +26,7 @@ GrVkCommandPool* GrVkCommandPool::Create(const GrVkGpu* gpu) {
         gpu->queueIndex(),                           // queueFamilyIndex
     };
     VkCommandPool pool;
-    GR_VK_CALL_ERRCHECK(
-            gpu->vkInterface(),
-            CreateCommandPool(gpu->device(), &cmdPoolInfo, nullptr, &pool));
+    GR_VK_CALL_ERRCHECK(gpu, CreateCommandPool(gpu->device(), &cmdPoolInfo, nullptr, &pool));
     return new GrVkCommandPool(gpu, pool);
 }
 
@@ -63,7 +61,7 @@ void GrVkCommandPool::reset(GrVkGpu* gpu) {
     SkASSERT(!fOpen);
     fOpen = true;
     fPrimaryCommandBuffer->recycleSecondaryCommandBuffers(gpu);
-    GR_VK_CALL_ERRCHECK(gpu->vkInterface(), ResetCommandPool(gpu->device(), fCommandPool, 0));
+    GR_VK_CALL_ERRCHECK(gpu, ResetCommandPool(gpu->device(), fCommandPool, 0));
 }
 
 void GrVkCommandPool::releaseResources(GrVkGpu* gpu) {

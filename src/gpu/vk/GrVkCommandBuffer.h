@@ -200,7 +200,7 @@ public:
 
     static GrVkPrimaryCommandBuffer* Create(const GrVkGpu* gpu, GrVkCommandPool* cmdPool);
 
-    void begin(const GrVkGpu* gpu);
+    void begin(GrVkGpu* gpu);
     void end(GrVkGpu* gpu);
 
     // Begins render pass on this command buffer. The framebuffer from GrVkRenderTarget will be used
@@ -290,7 +290,7 @@ public:
                       uint32_t regionCount,
                       const VkImageResolve* regions);
 
-    void submitToQueue(const GrVkGpu* gpu, VkQueue queue, GrVkGpu::SyncQueue sync,
+    void submitToQueue(GrVkGpu* gpu, VkQueue queue, GrVkGpu::SyncQueue sync,
                        SkTArray<GrVkSemaphore::Resource*>& signalSemaphores,
                        SkTArray<GrVkSemaphore::Resource*>& waitSemaphores);
     bool finished(const GrVkGpu* gpu);
@@ -323,7 +323,7 @@ public:
     // Used for wrapping an external secondary command buffer.
     static GrVkSecondaryCommandBuffer* Create(VkCommandBuffer externalSecondaryCB);
 
-    void begin(const GrVkGpu* gpu, const GrVkFramebuffer* framebuffer,
+    void begin(GrVkGpu* gpu, const GrVkFramebuffer* framebuffer,
                const GrVkRenderPass* compatibleRenderPass);
     void end(GrVkGpu* gpu);
 

@@ -23,8 +23,7 @@ sk_sp<GrVkSemaphore> GrVkSemaphore::Make(GrVkGpu* gpu, bool isOwned) {
     createInfo.pNext = nullptr;
     createInfo.flags = 0;
     VkSemaphore semaphore = VK_NULL_HANDLE;
-    GR_VK_CALL_ERRCHECK(gpu->vkInterface(),
-                        CreateSemaphore(gpu->device(), &createInfo, nullptr, &semaphore));
+    GR_VK_CALL_ERRCHECK(gpu, CreateSemaphore(gpu->device(), &createInfo, nullptr, &semaphore));
 
     return sk_sp<GrVkSemaphore>(new GrVkSemaphore(gpu, semaphore, false, false, isOwned));
 }

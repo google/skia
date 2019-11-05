@@ -179,10 +179,8 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
     layoutCreateInfo.pushConstantRangeCount = 0;
     layoutCreateInfo.pPushConstantRanges = nullptr;
 
-    GR_VK_CALL_ERRCHECK(fGpu->vkInterface(), CreatePipelineLayout(fGpu->device(),
-                                                                  &layoutCreateInfo,
-                                                                  nullptr,
-                                                                  &pipelineLayout));
+    GR_VK_CALL_ERRCHECK(fGpu, CreatePipelineLayout(fGpu->device(), &layoutCreateInfo, nullptr,
+                                                   &pipelineLayout));
 
     // We need to enable the following extensions so that the compiler can correctly make spir-v
     // from our glsl shaders.
