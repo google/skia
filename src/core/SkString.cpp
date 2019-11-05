@@ -262,22 +262,13 @@ const SkString& SkString::validate() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkString::SkString() : fRec(const_cast<Rec*>(&gEmptyRec)) {
-}
+SkString::SkString() : fRec(const_cast<Rec*>(&gEmptyRec)) {}
 
-SkString::SkString(size_t len) {
-    fRec = Rec::Make(nullptr, len);
-}
+SkString::SkString(size_t len) : SkString(nullptr, len) {}
 
-SkString::SkString(const char text[]) {
-    size_t  len = text ? strlen(text) : 0;
+SkString::SkString(const char text[]) : SkString(text, text ? strlen(text) : 0) {}
 
-    fRec = Rec::Make(text, len);
-}
-
-SkString::SkString(const char text[], size_t len) {
-    fRec = Rec::Make(text, len);
-}
+SkString::SkString(const char text[], size_t len) : fRec(Rec::Make(text, len)) {}
 
 SkString::SkString(const SkString& src) : fRec(src.validate().fRec) {}
 
