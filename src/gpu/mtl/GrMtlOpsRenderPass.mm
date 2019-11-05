@@ -110,19 +110,7 @@ void GrMtlOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
         SkASSERT(nil != fActiveRenderCmdEncoder);
-        if (mesh.primitiveType() != primitiveType) {
-            SkDEBUGCODE(pipelineState = nullptr);
-            primitiveType = mesh.primitiveType();
-            pipelineState = this->prepareDrawState(programInfo, primitiveType);
-            if (!pipelineState) {
-                return;
-            }
-
-            [fActiveRenderCmdEncoder setRenderPipelineState:pipelineState->mtlPipelineState()];
-            pipelineState->setDrawState(fActiveRenderCmdEncoder,
-                                        programInfo.pipeline().outputSwizzle(),
-                                        programInfo.pipeline().getXferProcessor());
-        }
+        SkASSERT(mesh.primitiveType() == primitiveType);
 
         if (hasDynamicScissors) {
             GrMtlPipelineState::SetDynamicScissorRectState(fActiveRenderCmdEncoder, fRenderTarget,
