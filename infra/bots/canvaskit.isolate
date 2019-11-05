@@ -1,0 +1,13 @@
+{
+  'includes': [
+    'swarm_recipe.isolate',
+  ],
+  'variables': {
+    'files': [
+      '../../modules/canvaskit',
+      '../../modules/pathkit/perf/perfReporter.js',
+      '../../modules/pathkit/tests/testReporter.js',
+      '../canvaskit',
+    ],
+  },
+}
