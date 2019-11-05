@@ -12,6 +12,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkRefCnt.h"
+#include <vector>
 
 class GrColorInfo;
 class GrFragmentProcessor;
@@ -21,6 +22,13 @@ class SkColorMatrix;
 class SkColorSpace;
 struct SkStageRec;
 class SkString;
+
+namespace skvm {
+    class Builder;
+    struct Arg;
+    struct I32;
+    struct F32;
+}
 
 /**
  *  ColorFilters are optional objects in the drawing pipeline. When present in
@@ -55,6 +63,12 @@ public:
     }
 
     bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const;
+
+    virtual bool program(skvm::Builder*,
+                         SkColorSpace* dstCS,
+                         skvm::Arg uniforms, size_t offset,
+                         skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const;
+    virtual void uniforms(SkColorSpace* /*dstCS*/, std::vector<uint32_t>*) const {}
 
     enum Flags {
         /** If set the filter methods will not change the alpha channel of the colors.

@@ -79,6 +79,65 @@ bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec, bool shaderIsOp
     return true;
 }
 
+bool SkColorFilter_Matrix::program(skvm::Builder* p,
+                                   SkColorSpace* /*dstCS*/,
+                                   skvm::Arg uniforms, size_t offset,
+                                   skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const {
+    // TODO: specialize generated code on the 0/1 values of fMatrix?
+    if (fDomain == Domain::kRGBA) {
+        // Convert to [0,1] floats.
+        skvm::F32 R = p->mul(p->to_f32(*r), p->splat(1/255.0f)),
+                  G = p->mul(p->to_f32(*g), p->splat(1/255.0f)),
+                  B = p->mul(p->to_f32(*b), p->splat(1/255.0f)),
+                  A = p->mul(p->to_f32(*a), p->splat(1/255.0f));
+
+        // Unpremul.
+        skvm::F32 invA = p->select(p->eq(A, p->splat(0.0f)), p->splat(0.0f)
+                                                           , p->div(p->splat(1.0f), A));
+        R = p->mul(R, invA);
+        G = p->mul(G, invA);
+        B = p->mul(B, invA);
+
+        // Apply matrix.
+        auto m = [&](int i) { return p->bit_cast(p->uniform32(uniforms, offset + 4*i)); };
+
+        skvm::F32 rgba[4];
+        for (int j = 0; j < 4; j++) {
+            rgba[j] = p->mad(m(0+j*5), R,
+                      p->mad(m(1+j*5), G,
+                      p->mad(m(2+j*5), B,
+                      p->mad(m(3+j*5), A,
+                             m(4+j*5)))));
+        }
+
+        // Clamp back to bytes.
+        R = p->mad(rgba[0], p->splat(255.0f), p->splat(0.5f));
+        G = p->mad(rgba[1], p->splat(255.0f), p->splat(0.5f));
+        B = p->mad(rgba[2], p->splat(255.0f), p->splat(0.5f));
+        A = p->mad(rgba[3], p->splat(255.0f), p->splat(0.5f));
+
+        *r = p->max(p->splat(0), p->min(p->to_i32(R), p->splat(255)));
+        *g = p->max(p->splat(0), p->min(p->to_i32(G), p->splat(255)));
+        *b = p->max(p->splat(0), p->min(p->to_i32(B), p->splat(255)));
+        *a = p->max(p->splat(0), p->min(p->to_i32(A), p->splat(255)));
+
+        // Premul.
+        *r = p->scale_unorm8(*r, *a);
+        *g = p->scale_unorm8(*g, *a);
+        *b = p->scale_unorm8(*b, *a);
+        return true;
+    }
+    return false;
+}
+
+void SkColorFilter_Matrix::uniforms(SkColorSpace* /*dstCS*/, std::vector<uint32_t>* buf) const {
+    for (float f : fMatrix) {
+        uint32_t bits;
+        memcpy(&bits, &f, 4);
+        buf->push_back(bits);
+    }
+}
+
 #if SK_SUPPORT_GPU
 #include "src/gpu/effects/generated/GrColorMatrixFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrHSLToRGBFilterEffect.h"
