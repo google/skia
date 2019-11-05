@@ -18919,18 +18919,6 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
-        },
-        {
-          "name": "git",
-          "path": "cache/git"
-        },
-        {
-          "name": "git_cache",
-          "path": "cache/git_cache"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -18948,21 +18936,6 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
-        },
-        {
-          "name": "infra/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.23.0.chromium16"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
         }
       ],
       "command": [
@@ -18998,7 +18971,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "perf_skia_bundled.isolate",
+      "isolate": "pathkit.isolate",
       "max_attempts": 2,
       "outputs": [
         "perf"
@@ -19009,18 +18982,6 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
-        },
-        {
-          "name": "git",
-          "path": "cache/git"
-        },
-        {
-          "name": "git_cache",
-          "path": "cache/git_cache"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -19038,21 +18999,6 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
-        },
-        {
-          "name": "infra/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.23.0.chromium16"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
         }
       ],
       "command": [
@@ -19088,7 +19034,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "perf_skia_bundled.isolate",
+      "isolate": "canvaskit.isolate",
       "max_attempts": 2,
       "outputs": [
         "perf"
@@ -19099,18 +19045,6 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
-        },
-        {
-          "name": "git",
-          "path": "cache/git"
-        },
-        {
-          "name": "git_cache",
-          "path": "cache/git_cache"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -19128,21 +19062,6 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
-        },
-        {
-          "name": "infra/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.23.0.chromium16"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
         }
       ],
       "command": [
@@ -19178,7 +19097,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "perf_skia_bundled.isolate",
+      "isolate": "pathkit.isolate",
       "max_attempts": 2,
       "outputs": [
         "perf"
@@ -19189,18 +19108,6 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
-        },
-        {
-          "name": "git",
-          "path": "cache/git"
-        },
-        {
-          "name": "git_cache",
-          "path": "cache/git_cache"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -19233,21 +19140,6 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
-        },
-        {
-          "name": "infra/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.23.0.chromium16"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
         },
         {
           "name": "skia/bots/node",
@@ -19293,7 +19185,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "perf_skia_bundled.isolate",
+      "isolate": "skottie_wasm.isolate",
       "max_attempts": 2,
       "outputs": [
         "perf"
@@ -19304,18 +19196,6 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
-        },
-        {
-          "name": "git",
-          "path": "cache/git"
-        },
-        {
-          "name": "git_cache",
-          "path": "cache/git_cache"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -19333,21 +19213,6 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
-        },
-        {
-          "name": "infra/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.23.0.chromium16"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
         }
       ],
       "command": [
@@ -19385,7 +19250,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "perf_skia_bundled.isolate",
+      "isolate": "canvaskit.isolate",
       "max_attempts": 2,
       "outputs": [
         "perf"
@@ -19396,18 +19261,6 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
-        },
-        {
-          "name": "git",
-          "path": "cache/git"
-        },
-        {
-          "name": "git_cache",
-          "path": "cache/git_cache"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -19440,21 +19293,6 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
-        },
-        {
-          "name": "infra/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.23.0.chromium16"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
         },
         {
           "name": "skia/bots/node",
@@ -19499,7 +19337,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "perf_skia_bundled.isolate",
+      "isolate": "lottie_web.isolate",
       "max_attempts": 2,
       "outputs": [
         "perf"
@@ -20600,18 +20438,6 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
-        },
-        {
-          "name": "git",
-          "path": "cache/git"
-        },
-        {
-          "name": "git_cache",
-          "path": "cache/git_cache"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -20644,21 +20470,6 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
-        },
-        {
-          "name": "infra/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.23.0.chromium16"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
         },
         {
           "name": "skia/bots/node",
@@ -20703,7 +20514,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "perf_skia_bundled.isolate",
+      "isolate": "skottie_wasm.isolate",
       "max_attempts": 2,
       "outputs": [
         "perf"
@@ -20797,18 +20608,6 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
-        },
-        {
-          "name": "git",
-          "path": "cache/git"
-        },
-        {
-          "name": "git_cache",
-          "path": "cache/git_cache"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -20841,21 +20640,6 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
-        },
-        {
-          "name": "infra/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.23.0.chromium16"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
         },
         {
           "name": "skia/bots/node",
@@ -20899,7 +20683,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "perf_skia_bundled.isolate",
+      "isolate": "lottie_web.isolate",
       "max_attempts": 2,
       "outputs": [
         "perf"
@@ -32715,18 +32499,6 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
-        },
-        {
-          "name": "git",
-          "path": "cache/git"
-        },
-        {
-          "name": "git_cache",
-          "path": "cache/git_cache"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -32759,21 +32531,6 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
-        },
-        {
-          "name": "infra/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.23.0.chromium16"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
         }
       ],
       "command": [
@@ -32810,7 +32567,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "swarm_recipe.isolate",
+      "isolate": "skqp.isolate",
       "max_attempts": 2,
       "outputs": [
         "test"
@@ -34541,18 +34298,6 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
-        },
-        {
-          "name": "git",
-          "path": "cache/git"
-        },
-        {
-          "name": "git_cache",
-          "path": "cache/git_cache"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -34570,21 +34315,6 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
-        },
-        {
-          "name": "infra/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.23.0.chromium16"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
         }
       ],
       "command": [
@@ -34620,7 +34350,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "swarm_recipe.isolate",
+      "isolate": "pathkit.isolate",
       "max_attempts": 2,
       "outputs": [
         "test"
@@ -34631,18 +34361,6 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
-        },
-        {
-          "name": "git",
-          "path": "cache/git"
-        },
-        {
-          "name": "git_cache",
-          "path": "cache/git_cache"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -34660,21 +34378,6 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
-        },
-        {
-          "name": "infra/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.23.0.chromium16"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
         }
       ],
       "command": [
@@ -34710,7 +34413,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "swarm_recipe.isolate",
+      "isolate": "canvaskit.isolate",
       "max_attempts": 2,
       "outputs": [
         "test"
@@ -34721,18 +34424,6 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
-        },
-        {
-          "name": "git",
-          "path": "cache/git"
-        },
-        {
-          "name": "git_cache",
-          "path": "cache/git_cache"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -34750,21 +34441,6 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
-        },
-        {
-          "name": "infra/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.23.0.chromium16"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
         }
       ],
       "command": [
@@ -34800,7 +34476,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "swarm_recipe.isolate",
+      "isolate": "pathkit.isolate",
       "max_attempts": 2,
       "outputs": [
         "test"
@@ -34811,18 +34487,6 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
-        },
-        {
-          "name": "git",
-          "path": "cache/git"
-        },
-        {
-          "name": "git_cache",
-          "path": "cache/git_cache"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -34840,21 +34504,6 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
-        },
-        {
-          "name": "infra/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "version:2.23.0.chromium16"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:fd2f240a784d792a8690bb05abe7d40de50c84cd"
         }
       ],
       "command": [
@@ -34892,7 +34541,7 @@
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
       "io_timeout_ns": 14400000000000,
-      "isolate": "swarm_recipe.isolate",
+      "isolate": "canvaskit.isolate",
       "max_attempts": 2,
       "outputs": [
         "test"

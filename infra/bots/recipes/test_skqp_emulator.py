@@ -24,8 +24,7 @@ INNER_TEST_SCRIPT = '/SRC/skia/infra/skqp/run_skqp.sh'
 
 def RunSteps(api):
   api.vars.setup()
-  checkout_root = api.checkout.default_checkout_root
-  api.checkout.bot_update(checkout_root=checkout_root)
+  checkout_root = api.path['start_dir']
 
   # This is where the APK should be, that is, where Swarming puts the inputs.
   apk_location = api.vars.build_dir
