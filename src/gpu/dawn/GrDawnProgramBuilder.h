@@ -8,12 +8,16 @@
 #ifndef GrDawnProgramBuilder_DEFINED
 #define GrDawnProgramBuilder_DEFINED
 
+#include "src/core/SkLRUCache.h"
 #include "src/gpu/dawn/GrDawnProgramDataManager.h"
 #include "src/gpu/dawn/GrDawnUniformHandler.h"
 #include "src/gpu/dawn/GrDawnVaryingHandler.h"
-#include "src/sksl/SkSLCompiler.h"
-#include "dawn/dawncpp.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/sksl/SkSLCompiler.h"
+
+#include "dawn/dawncpp.h"
+
+#include <vector>
 
 class GrPipeline;
 
@@ -50,9 +54,7 @@ struct GrDawnProgram : public SkRefCnt {
     };
     typedef GrGLSLBuiltinUniformHandles BuiltinUniformHandles;
     GrDawnProgram(const GrDawnUniformHandler::UniformInfoArray& uniforms,
-                  uint32_t uniformBufferSize)
-      : fDataManager(uniforms, uniformBufferSize) {
-    }
+                  uint32_t uniformBufferSize);
     std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
     std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fFragmentProcessors;
@@ -62,8 +64,37 @@ struct GrDawnProgram : public SkRefCnt {
     GrDawnProgramDataManager fDataManager;
     RenderTargetState fRenderTargetState;
     BuiltinUniformHandles fBuiltinUniformHandles;
+    struct BindGroupKey {
+        static const int kPreAllocSize = 128;
+        BindGroupKey() { }
+        bool operator==(const BindGroupKey& other) const {
+            SkASSERT(other.fData.count() == fData.count());
+            return !memcmp(other.fData.begin(), fData.begin(), fData.count());
+        }
+        struct Hash {
+            uint32_t operator()(const BindGroupKey& key) {
+                return SkOpts::hash_fn(key.fData.begin(), key.fData.count(), 0);
+            }
+        };
+        void append(size_t size, void* data) {
+            fData.push_back_n(size, static_cast<uint8_t*>(data));
+        }
+        SkSTArray<kPreAllocSize, uint8_t, true> fData;
+    };
+    struct BindGroupValue {
+        BindGroupValue() {}
+        BindGroupValue(const BindGroupValue& other)
+            : fBindGroup(other.fBindGroup)
+            , fUniformBuffer(other.fUniformBuffer) {
+        }
+        wgpu::BindGroup fBindGroup;
+        wgpu::Buffer    fUniformBuffer;
+    };
+    SkLRUCache<BindGroupKey, BindGroupValue, BindGroupKey::Hash> fBindGroupCache;
 
     void setRenderTargetState(const GrRenderTarget*, GrSurfaceOrigin);
+    void buildKey(BindGroupKey* key, const GrPrimitiveProcessor&, const GrPipeline&,
+                  const GrTextureProxy* const primProcTextures[]);
     wgpu::BindGroup setData(GrDawnGpu* gpu, const GrRenderTarget*, const GrProgramInfo&);
 };
 

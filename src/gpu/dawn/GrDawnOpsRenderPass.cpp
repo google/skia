@@ -84,8 +84,6 @@ wgpu::RenderPassEncoder GrDawnOpsRenderPass::beginRenderPass(wgpu::LoadOp colorO
         depthStencilAttachment.depthStoreOp = wgpu::StoreOp::Store;
         depthStencilAttachment.stencilStoreOp = wgpu::StoreOp::Store;
         renderPassDescriptor.depthStencilAttachment = &depthStencilAttachment;
-    } else {
-        renderPassDescriptor.depthStencilAttachment = nullptr;
     }
     return fEncoder.BeginRenderPass(&renderPassDescriptor);
 }

@@ -59,6 +59,7 @@ public:
     void uploadUniformBuffers(GrDawnGpu* gpu, GrDawnRingBuffer::Slice uniformBuffer) const;
 
     uint32_t uniformBufferSize() const { return fUniformBufferSize; }
+    void* uniformData() const { return fUniformData.get(); }
 private:
     struct Uniform {
         uint32_t fOffset;
