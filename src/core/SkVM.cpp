@@ -841,6 +841,8 @@ namespace skvm {
     }
 
     void Assembler::vpshufb(Ymm dst, Ymm x, Label* l) { this->op(0x66,0x380f,0x00, dst,x,l); }
+    void Assembler::vpaddd (Ymm dst, Ymm x, Label* l) { this->op(0x66,  0x0f,0xfe, dst,x,l); }
+    void Assembler::vpsubd (Ymm dst, Ymm x, Label* l) { this->op(0x66,  0x0f,0xfa, dst,x,l); }
 
     void Assembler::vbroadcastss(Ymm dst, Label* l) { this->op(0x66,0x380f,0x18, dst, (Ymm)0, l); }
     void Assembler::vbroadcastss(Ymm dst, Xmm src)  { this->op(0x66,0x380f,0x18, dst, (Ymm)src); }
@@ -1663,6 +1665,7 @@ namespace skvm {
         };
         SkTHashMap<int, LabelAndReg> splats,
                                      bytes_masks;
+        LabelAndReg                  iota;
 
         auto warmup = [&](Val id) {
             const Builder::Instruction& inst = instructions[id];
@@ -1846,6 +1849,11 @@ namespace skvm {
 
                 case Op::uniform32: a->vbroadcastss(dst(), arg[imm&0xffff], imm>>16);
                                     break;
+
+                case Op::index: a->vmovd_direct((A::Xmm)tmp(), N);
+                                a->vbroadcastss(tmp(), (A::Xmm)tmp());
+                                a->vpsubd(dst(), tmp(), &iota.label);
+                                break;
 
                 case Op::splat: a->vbroadcastss(dst(), &splats.find(imm)->label);
                                 break;
@@ -2093,6 +2101,13 @@ namespace skvm {
             a->bytes(mask, sizeof(mask));
         #endif
         });
+
+        if (!iota.label.references.empty()) {
+            a->label(&iota.label);
+            for (int i = 0; i < K; i++) {
+                a->word(i);
+            }
+        }
 
         splats.foreach([&](int imm, LabelAndReg* entry) {
             // vbroadcastss 4 bytes on x86-64, or simply load 16-bytes on aarch64.
