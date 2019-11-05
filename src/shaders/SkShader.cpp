@@ -194,7 +194,7 @@ bool SkShaderBase::onAppendStages(const SkStageRec& rec) const {
 
 bool SkShaderBase::program(skvm::Builder* p,
                            SkColorSpace* dstCS,
-                           skvm::Arg uniforms, size_t offset,
+                           skvm::Arg uniforms, SkTDArray<uint32_t>* buf,
                            skvm::F32 x, skvm::F32 y,
                            skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const {
     // Force opaque alpha for all opaque shaders.
@@ -209,7 +209,7 @@ bool SkShaderBase::program(skvm::Builder* p,
     // shader program hash and blitter Key.  This makes it safe for us to use
     // that bit to make decisions when constructing an SkVMBlitter, like doing
     // SrcOver -> Src strength reduction.
-    if (this->onProgram(p, dstCS, uniforms,offset, x,y, r,g,b,a)) {
+    if (this->onProgram(p, dstCS, uniforms,buf, x,y, r,g,b,a)) {
         if (this->isOpaque()) {
             *a = p->splat(0xff);
         }
