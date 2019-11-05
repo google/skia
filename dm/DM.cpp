@@ -1237,7 +1237,7 @@ struct Task {
         };
 
         skcms_TransferFunction tf;
-        cs->transferFn(&tf.g);
+        cs->transferFn(&tf);
         switch (classify_transfer_fn(tf)) {
             case sRGBish_TF:
                 if (tf.a == 1 && tf.b == 0 && tf.c == 0 && tf.d == 0 && tf.e == 0 && tf.f == 0) {
