@@ -57,8 +57,7 @@ public:
                 "- delta;\n    float dist = length(delta);\n    dist = max(2.0 - dist, 0.0);\n    "
                 "weight = min(dist * dist, 1.0);\n} else {\n    float2 delta_squared = delta * "
                 "delta;\n    weight = min(min(delta_squared.x, delta_square",
-                _outer.computeLocalCoordsInVertexShader() ? sk_TransformedCoords2D_0.c_str()
-                                                          : "_coords",
+                sk_TransformedCoords2D_0.c_str(),
                 args.fUniformHandler->getUniformCStr(offsetVar),
                 args.fUniformHandler->getUniformCStr(xInvZoomVar),
                 args.fUniformHandler->getUniformCStr(yInvZoomVar),

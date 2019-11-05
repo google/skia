@@ -28,10 +28,7 @@ public:
         SkString sk_TransformedCoords2D_0 =
                 fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
         fragBuilder->codeAppendf("half t = half(length(%s));\n%s = half4(t, 1.0, 0.0, 0.0);\n",
-                                 _outer.computeLocalCoordsInVertexShader()
-                                         ? sk_TransformedCoords2D_0.c_str()
-                                         : "_coords",
-                                 args.fOutputColor);
+                                 sk_TransformedCoords2D_0.c_str(), args.fOutputColor);
     }
 
 private:
