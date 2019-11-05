@@ -27,10 +27,9 @@ private:
 
     bool onProgram(skvm::Builder*,
                    SkColorSpace* dstCS,
-                   skvm::Arg uniforms, size_t offset,
+                   skvm::Arg uniforms, SkTDArray<uint32_t>*,
                    skvm::F32 x, skvm::F32 y,
                    skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override;
-    void uniforms(SkColorSpace* dstCS, std::vector<uint32_t>*) const override;
 
     SK_FLATTENABLE_HOOKS(SkColorFilterShader)
 

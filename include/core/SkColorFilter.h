@@ -12,7 +12,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkRefCnt.h"
-#include <vector>
+#include "include/private/SkTDArray.h"
 
 class GrColorInfo;
 class GrFragmentProcessor;
@@ -66,9 +66,8 @@ public:
 
     virtual bool program(skvm::Builder*,
                          SkColorSpace* dstCS,
-                         skvm::Arg uniforms, size_t offset,
+                         skvm::Arg uniforms, SkTDArray<uint32_t>*,
                          skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const;
-    virtual void uniforms(SkColorSpace* /*dstCS*/, std::vector<uint32_t>*) const {}
 
     enum Flags {
         /** If set the filter methods will not change the alpha channel of the colors.

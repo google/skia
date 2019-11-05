@@ -81,7 +81,7 @@ bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec, bool shaderIsOp
 
 bool SkColorFilter_Matrix::program(skvm::Builder* p,
                                    SkColorSpace* /*dstCS*/,
-                                   skvm::Arg uniforms, size_t offset,
+                                   skvm::Arg uniforms, SkTDArray<uint32_t>* buf,
                                    skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const {
     // TODO: specialize generated code on the 0/1 values of fMatrix?
     if (fDomain == Domain::kRGBA) {
@@ -99,6 +99,8 @@ bool SkColorFilter_Matrix::program(skvm::Builder* p,
         B = p->mul(B, invA);
 
         // Apply matrix.
+        const size_t offset = buf->bytes();
+        memcpy(buf->append(20), &fMatrix, sizeof(fMatrix));
         auto m = [&](int i) { return p->bit_cast(p->uniform32(uniforms, offset + 4*i)); };
 
         skvm::F32 rgba[4];
@@ -128,14 +130,6 @@ bool SkColorFilter_Matrix::program(skvm::Builder* p,
         return true;
     }
     return false;
-}
-
-void SkColorFilter_Matrix::uniforms(SkColorSpace* /*dstCS*/, std::vector<uint32_t>* buf) const {
-    for (float f : fMatrix) {
-        uint32_t bits;
-        memcpy(&bits, &f, 4);
-        buf->push_back(bits);
-    }
 }
 
 #if SK_SUPPORT_GPU
