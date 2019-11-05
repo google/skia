@@ -99,6 +99,16 @@ namespace GrQuadPerEdgeAA {
         bool needsIndexBuffer() const { return this->indexBufferOption() !=
                                                IndexBufferOption::kTriStrips; }
 
+        GrPrimitiveType primitiveType() const {
+            switch (this->indexBufferOption()) {
+                case IndexBufferOption::kPictureFramed: return GrPrimitiveType::kTriangles;
+                case IndexBufferOption::kIndexedRects:  return GrPrimitiveType::kTriangles;
+                case IndexBufferOption::kTriStrips:     return GrPrimitiveType::kTriangleStrip;
+            }
+
+            SkUNREACHABLE;
+        }
+
     private:
         static_assert(GrQuad::kTypeCount <= 4, "GrQuad::Type doesn't fit in 2 bits");
         static_assert(kColorTypeCount <= 4, "Color doesn't fit in 2 bits");

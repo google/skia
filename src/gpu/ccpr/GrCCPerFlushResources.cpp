@@ -10,6 +10,7 @@
 #include "include/private/GrRecordingContext.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/gpu/GrClip.h"
+#include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -131,7 +132,9 @@ public:
     const char* name() const override { return "RenderAtlasOp (CCPR)"; }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        ProcessorType proc;
+        const GrCaps& caps = *flushState->gpu()->caps();
+
+        ProcessorType proc(caps);
         GrPipeline pipeline(GrScissorTest::kEnabled, SkBlendMode::kPlus,
                             flushState->drawOpArgs().outputSwizzle());
         fResources->filler().drawFills(flushState, &proc, pipeline, fFillBatchID, fDrawBounds);
