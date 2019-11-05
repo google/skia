@@ -26,14 +26,18 @@ public:
 
     static void RegisterFlattenables();
 
-protected:
+private:
     void flatten(SkWriteBuffer&) const override;
     bool onAsAColorMatrix(float matrix[20]) const override;
 
-private:
     SK_FLATTENABLE_HOOKS(SkColorFilter_Matrix)
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
+    bool program(skvm::Builder*,
+                 SkColorSpace* dstCS,
+                 skvm::Arg uniforms, size_t offset,
+                 skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override;
+    void uniforms(SkColorSpace* dstCS, std::vector<uint32_t>*) const override;
 
     float       fMatrix[20];
     uint16_t    fFlags;

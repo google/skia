@@ -54,6 +54,46 @@ bool SkColorFilterShader::onAppendStages(const SkStageRec& rec) const {
     return true;
 }
 
+bool SkColorFilterShader::onProgram(skvm::Builder* p,
+                                    SkColorSpace* dstCS,
+                                    skvm::Arg uniforms, size_t offset,
+                                    skvm::F32 x, skvm::F32 y,
+                                    skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const {
+    // Run the shader.
+    if (!as_SB(fShader)->program(p, dstCS, uniforms,offset, x,y, r,g,b,a)) {
+        return false;
+    }
+    std::vector<uint32_t> tmp;              // TODO: this is not a very elegant way
+    as_SB(fShader)->uniforms(dstCS, &tmp);  // to get the size of the shader's uniforms.
+    offset += tmp.size() * sizeof(tmp[0]);
+
+    // Scale that by alpha.
+    if (fAlpha != 1.0f) {
+        skvm::I32 A = p->uniform32(uniforms, offset);
+        *r = p->scale_unorm8(*r, A);
+        *g = p->scale_unorm8(*g, A);
+        *b = p->scale_unorm8(*b, A);
+        *a = p->scale_unorm8(*a, A);
+        offset += sizeof(uint32_t);
+    }
+
+    // Finally run that through the color filter.
+    if (!fFilter->program(p, dstCS, uniforms,offset, r,g,b,a)) {
+        return false;
+    }
+
+    return true;
+}
+
+void SkColorFilterShader::uniforms(SkColorSpace* dstCS, std::vector<uint32_t>* buf) const {
+    // Shader, alpha, color filter.
+    as_SB(fShader)->uniforms(dstCS, buf);
+    if (fAlpha != 1.0f) {
+        buf->push_back(fAlpha*255 + 0.5f);
+    }
+    fFilter->uniforms(dstCS, buf);
+}
+
 #if SK_SUPPORT_GPU
 /////////////////////////////////////////////////////////////////////
 

@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
+#include "include/effects/SkColorMatrix.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkShaderBase.h"
@@ -60,7 +61,7 @@ static struct RegisterFade {
     RegisterFade() { SkFlattenable::Register("Fade", Fade::CreateProc); }
 } now;
 
-DEF_SIMPLE_GM(SkVMBlitter, canvas, 100, 100) {
+DEF_SIMPLE_GM(SkVMBlitter, canvas, 100, 150) {
     SkPaint p;
 
     // These draws are all supported by SkVMBlitter,
@@ -129,4 +130,17 @@ DEF_SIMPLE_GM(SkVMBlitter, canvas, 100, 100) {
     */
     p.setShader(sk_make_sp<Fade>(SkShaders::Color(SK_ColorYELLOW)));
     canvas->drawRect({50,0, 100,50}, p);
+
+    // Draw with color filter, w/ and w/o alpha modulation.
+    SkColorMatrix m;
+    m.setSaturation(0.3f);
+
+    p.setShader(SkShaders::Color(SK_ColorMAGENTA));
+    p.setColorFilter(SkColorFilters::Matrix(m));
+    canvas->drawRect({0,100, 50,150}, p);
+
+    p.setShader(SkShaders::Color(0xffffaa00));  // tan
+    p.setColorFilter(SkColorFilters::Matrix(m));
+    p.setAlphaf(0.5f);
+    canvas->drawRect({25,100, 75,150}, p); // overlap a bit with purple and white
 }
