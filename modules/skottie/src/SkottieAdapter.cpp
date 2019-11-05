@@ -303,20 +303,17 @@ void GradientAdapter::apply() {
     const auto* current_o = reinterpret_cast<const OpacityRec*>(end_c);
     const auto*     end_o = current_o + o_count;
 
-    // TODO: Gradient/ColorStop should use 4f.
-    sksg::Gradient::ColorStop prev_stop = { 0.0f, SK_ColorBLACK };
+    sksg::Gradient::ColorStop prev_stop = { 0.0f, SkColors::kBlack };
     if (current_c < end_c) {
-        prev_stop.fColor = SkColor4f{ current_c->r, current_c->g, current_c->b, 1.0 }.toSkColor();
+        prev_stop.fColor = SkColor4f{ current_c->r, current_c->g, current_c->b, 1.0 };
     }
     if (current_o < end_o) {
-        prev_stop.fColor = SkColorSetA(prev_stop.fColor, SkScalarRoundToInt(current_o->a * 255));
+        prev_stop.fColor.fA = current_o->a;
     }
 
     auto lerp = [](float a, float b, float t) { return a + t * (b - a); };
 
     auto next_stop = [&]() -> sksg::Gradient::ColorStop {
-        const auto prev_c = SkColor4f::FromColor(prev_stop.fColor);
-
         const uint8_t has_color_stop   = SkToU8(current_c < end_c),
                       has_opacity_stop = SkToU8(current_o < end_o);
 
@@ -325,7 +322,7 @@ void GradientAdapter::apply() {
                 // Color-only stop.
                 sksg::Gradient::ColorStop cs{
                     current_c->t,
-                    SkColor4f{ current_c->r, current_c->g, current_c->b, prev_c.fA }.toSkColor()
+                    SkColor4f{ current_c->r, current_c->g, current_c->b, prev_stop.fColor.fA }
                 };
 
                 current_c++;
@@ -335,7 +332,10 @@ void GradientAdapter::apply() {
                 // Opacity-only stop.
                 sksg::Gradient::ColorStop cs{
                     current_o->t,
-                    SkColor4f{ prev_c.fR, prev_c.fG, prev_c.fB, current_o->a }.toSkColor()
+                    SkColor4f{ prev_stop.fColor.fR,
+                               prev_stop.fColor.fG,
+                               prev_stop.fColor.fB,
+                               current_o->a }
                 };
 
                current_o++;
@@ -354,7 +354,7 @@ void GradientAdapter::apply() {
                     current_c++;
                     current_o++;
 
-                    return { t_rgb, c.toSkColor() };
+                    return { t_rgb, c };
                 }
 
                 if (t_rgb < t_a) {
@@ -362,23 +362,23 @@ void GradientAdapter::apply() {
                     const auto rel_t = SkTPin(sk_ieee_float_divide(t_rgb - prev_stop.fPosition,
                                                                    t_a - prev_stop.fPosition),
                                               0.0f, 1.0f);
-                    c.fA = lerp(prev_c.fA, c.fA, rel_t);
+                    c.fA = lerp(prev_stop.fColor.fA, c.fA, rel_t);
 
                     current_c++;
 
-                    return { t_rgb, c.toSkColor() };
+                    return { t_rgb, c };
                 } else {
                     // Opacity stop followed by color stop: LERP r/g/b, consume the opacity stop.
                     const auto rel_t = SkTPin(sk_ieee_float_divide(t_a - prev_stop.fPosition,
                                                                    t_rgb - prev_stop.fPosition),
                                               0.0f, 1.0f);
-                    c.fR = lerp(prev_c.fR, c.fR, rel_t);
-                    c.fG = lerp(prev_c.fG, c.fG, rel_t);
-                    c.fB = lerp(prev_c.fB, c.fB, rel_t);
+                    c.fR = lerp(prev_stop.fColor.fR, c.fR, rel_t);
+                    c.fG = lerp(prev_stop.fColor.fG, c.fG, rel_t);
+                    c.fB = lerp(prev_stop.fColor.fB, c.fB, rel_t);
 
                     current_o++;
 
-                    return { t_a, c.toSkColor() };
+                    return { t_a, c };
                 }
             }
 
