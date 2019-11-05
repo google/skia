@@ -102,27 +102,7 @@ namespace {
 
 
     struct Builder : public skvm::Builder {
-        //using namespace skvm;
-
         struct Color { skvm::I32 r,g,b,a; };
-
-
-        // TODO: provide this in skvm::Builder, with a custom NEON impl.
-        skvm::I32 div255(skvm::I32 v) {
-            // This should be a bit-perfect version of (v+127)/255,
-            // implemented as (v + ((v+128)>>8) + 128)>>8.
-            skvm::I32 v128 = add(v, splat(128));
-            return shr(add(v128, shr(v128, 8)), 8);
-        }
-
-        skvm::I32 scale_unorm8(skvm::I32 x, skvm::I32 y) {
-            return div255(mul(x,y));
-        }
-
-        skvm::I32 lerp_unorm8(skvm::I32 x, skvm::I32 y, skvm::I32 t) {
-            return div255(add(mul(x, sub(splat(255), t)),
-                              mul(y,                 t )));
-        }
 
         Color unpack_8888(skvm::I32 rgba) {
             return {
@@ -159,10 +139,6 @@ namespace {
                       b = scale_unorm8(c.b, splat(31));
             return pack(pack(b, g,5), r,11);
         }
-
-        // TODO: add native min/max ops to skvm::Builder
-        skvm::I32 min(skvm::I32 x, skvm::I32 y) { return select(lt(x,y), x,y); }
-        skvm::I32 max(skvm::I32 x, skvm::I32 y) { return select(gt(x,y), x,y); }
 
         // If Builder can't build this program, CacheKey() sets *ok to false.
         static Key CacheKey(const Params& params, bool* ok) {
@@ -361,20 +337,11 @@ namespace {
             if (as_SB(fShader)->program(p, dstCS,
                                         uniforms, offset + sizeof(fAlpha),
                                         x,y, r,g,b,a)) {
-                // TODO: move the helpers onto skvm::Builder so I don't have to duplicate?
-                auto div255 = [&](skvm::I32 v) {
-                    skvm::I32 v128 = p->add(v, p->splat(128));
-                    return p->shr(p->add(v128, p->shr(v128, 8)), 8);
-                };
-                auto scale_unorm8 = [&](skvm::I32 x, skvm::I32 y) {
-                    return div255(p->mul(x,y));
-                };
-
                 skvm::I32 A = p->uniform32(uniforms, offset);
-                *r = scale_unorm8(*r, A);
-                *g = scale_unorm8(*g, A);
-                *b = scale_unorm8(*b, A);
-                *a = scale_unorm8(*a, A);
+                *r = p->scale_unorm8(*r, A);
+                *g = p->scale_unorm8(*g, A);
+                *b = p->scale_unorm8(*b, A);
+                *a = p->scale_unorm8(*a, A);
                 return true;
             }
             return false;
