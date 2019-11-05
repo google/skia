@@ -22,6 +22,7 @@ public:
 #endif
 
 private:
+    bool isOpaque() const override;
     void flatten(SkWriteBuffer&) const override;
     bool onAppendStages(const SkStageRec&) const override;
 
