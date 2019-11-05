@@ -428,6 +428,8 @@ static_library("libdawn_native") {
               "src/dawn_native/vulkan/CommandBufferVk.h",
               "src/dawn_native/vulkan/ComputePipelineVk.cpp",
               "src/dawn_native/vulkan/ComputePipelineVk.h",
+              "src/dawn_native/vulkan/DescriptorSetService.cpp",
+              "src/dawn_native/vulkan/DescriptorSetService.h",
               "src/dawn_native/vulkan/DeviceVk.cpp",
               "src/dawn_native/vulkan/DeviceVk.h",
               "src/dawn_native/vulkan/ExternalHandle.h",
