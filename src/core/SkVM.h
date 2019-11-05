@@ -338,6 +338,14 @@ namespace skvm {
         I32 uniform16(Arg ptr, int offset=0);
         I32 uniform32(Arg ptr, int offset=0);
 
+        struct Uniform {
+            Arg ptr;
+            int offset;
+        };
+        I32 uniform8 (Uniform u) { return this->uniform8 (u.ptr, u.offset); }
+        I32 uniform16(Uniform u) { return this->uniform16(u.ptr, u.offset); }
+        I32 uniform32(Uniform u) { return this->uniform32(u.ptr, u.offset); }
+
         // Load an immediate constant.
         I32 splat(int      n);
         I32 splat(unsigned u) { return this->splat((int)u); }
@@ -472,6 +480,27 @@ namespace skvm {
         std::vector<int>                              fStrides;
         uint32_t                                      fHash{0};
     };
+
+    // Helper to streamline allocating and working with uniforms.
+    struct Uniforms {
+        Arg              ptr;
+        std::vector<int> buf;
+
+        explicit Uniforms(int init) : ptr(Arg{0}), buf(init) {}
+
+        Builder::Uniform push(const int* vals, int n) {
+            int offset = sizeof(int)*buf.size();
+            buf.insert(buf.end(), vals, vals+n);
+            return {ptr, offset};
+        }
+        Builder::Uniform pushF(const float* vals, int n) {
+            return this->push((const int*)vals, n);
+        }
+
+        Builder::Uniform push (int   val) { return this->push (&val, 1); }
+        Builder::Uniform pushF(float val) { return this->pushF(&val, 1); }
+    };
+
 
     using Reg = int;
 

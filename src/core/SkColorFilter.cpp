@@ -46,7 +46,7 @@ bool SkColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) con
 
 bool SkColorFilter::program(skvm::Builder*,
                             SkColorSpace* dstCS,
-                            skvm::Arg uniforms, SkTDArray<uint32_t>* buf,
+                            skvm::Uniforms* uniforms,
                             skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const {
     return false;
 }

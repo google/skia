@@ -12,7 +12,6 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkShader.h"
 #include "include/private/SkNoncopyable.h"
-#include "include/private/SkTDArray.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkTLazy.h"
@@ -210,13 +209,13 @@ public:
 
     bool program(skvm::Builder*,
                  SkColorSpace* dstCS,
-                 skvm::Arg uniforms, SkTDArray<uint32_t>*,
+                 skvm::Uniforms* uniforms,
                  skvm::F32 x, skvm::F32 y,
                  skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const;
 
     virtual bool onProgram(skvm::Builder*,
                            SkColorSpace* dstCS,
-                           skvm::Arg uniforms, SkTDArray<uint32_t>*,
+                           skvm::Uniforms* uniforms,
                            skvm::F32 x, skvm::F32 y,
                            skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const {
         return false;

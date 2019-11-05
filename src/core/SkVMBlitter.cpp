@@ -17,14 +17,13 @@
 namespace {
 
     // Uniforms set by the Blitter itself,
-    // rather than by the Shader, which follow this struct in the buffer.
-    struct Uniforms {
+    // rather than by the Shader, which follow this struct in the skvm::Uniforms buffer.
+    struct BlitterUniforms {
         int right;  // First device x + blit run length n, used to get device x coordiate.
         int y;      // Device y coordiate.
     };
-    static_assert(SkIsAlign4(sizeof(Uniforms)), "");
-    static constexpr int kUniformsCount = sizeof(Uniforms) / sizeof(uint32_t);
-    static SkTDArray<uint32_t> uniforms_init() { return {0,0}; }
+    static_assert(SkIsAlign4(sizeof(BlitterUniforms)), "");
+    static constexpr int kBlitterUniformsCount = sizeof(BlitterUniforms) / 4;
 
     enum class Coverage { Full, UniformA8, MaskA8, MaskLCD16, Mask3D };
 
@@ -143,20 +142,21 @@ namespace {
         }
 
         // If Builder can't build this program, CacheKey() sets *ok to false.
-        static Key CacheKey(const Params& params, SkTDArray<uint32_t>* buf, bool* ok) {
+        static Key CacheKey(const Params& params, skvm::Uniforms* uniforms, bool* ok) {
             SkASSERT(params.shader);
             uint32_t shaderHash = 0;
             {
                 const SkShaderBase* shader = as_SB(params.shader);
                 skvm::Builder p;
-                skvm::Arg uniforms = skvm::Arg{0};
-                skvm::F32 x = p.to_f32(p.sub(p.uniform32(uniforms, offsetof(Uniforms, right)),
+                skvm::F32 x = p.to_f32(p.sub(p.uniform32(uniforms->ptr,
+                                                         offsetof(BlitterUniforms, right)),
                                              p.index())),
-                          y = p.to_f32(p.uniform32(uniforms, offsetof(Uniforms, y)));
+                          y = p.to_f32(p.uniform32(uniforms->ptr,
+                                                   offsetof(BlitterUniforms, y)));
                 skvm::I32 r,g,b,a;
                 if (shader->program(&p,
                                     params.colorSpace.get(),
-                                    uniforms, buf,
+                                    uniforms,
                                     x,y, &r,&g,&b,&a)) {
                     shaderHash = p.hash();
                 } else {
@@ -189,29 +189,29 @@ namespace {
             };
         }
 
-        Builder(const Params& params, SkTDArray<uint32_t>* buf) {
+        Builder(const Params& params, skvm::Uniforms* uniforms) {
         #define TODO SkUNREACHABLE
-            SkDEBUGCODE(
-                bool ok = true;
-                SkTDArray<uint32_t> dummy = uniforms_init();
-                (void)CacheKey(params, &dummy, &ok);
-                SkASSERT(ok);
-            )
-            skvm::Arg uniforms = uniform(),
-                      dst_ptr  = arg(SkColorTypeBytesPerPixel(params.colorType));
-            // If coverage is Mask3D there'll next come two varyings for mul and add planes,
-            // and then finally if coverage is any Mask?? format, a varying for the mask.
+            // First two arguments are always uniforms and the destination buffer.
+            uniforms->ptr     = uniform();
+            skvm::Arg dst_ptr = arg(SkColorTypeBytesPerPixel(params.colorType));
+            // Other arguments depend on params.coverage:
+            //    - Full:      (no more arguments)
+            //    - Mask3D:    mul varying, add varying, 8-bit coverage varying
+            //    - MaskA8:    8-bit coverage varying
+            //    - MaskLCD16: 565 coverage varying
+            //    - UniformA8: 8-bit coverage uniform
 
             Color src;
             SkASSERT(params.shader);
-            skvm::F32 x = to_f32(sub(uniform32(uniforms, offsetof(Uniforms, right)),
+            skvm::F32 x = to_f32(sub(uniform32(uniforms->ptr,
+                                               offsetof(BlitterUniforms, right)),
                                      index())),
-                      y = to_f32(uniform32(uniforms, offsetof(Uniforms, y)));
+                      y = to_f32(uniform32(uniforms->ptr,
+                                           offsetof(BlitterUniforms, y)));
             SkAssertResult(as_SB(params.shader)->program(this,
                                                          params.colorSpace.get(),
-                                                         uniforms, buf,
+                                                         uniforms,
                                                          x,y, &src.r, &src.g, &src.b, &src.a));
-            SkASSERT(buf->size() == dummy.size());
 
             if (params.coverage == Coverage::Mask3D) {
                 skvm::I32 M = load8(varying<uint8_t>()),
@@ -339,14 +339,13 @@ namespace {
 
         bool onProgram(skvm::Builder* p,
                        SkColorSpace* dstCS,
-                       skvm::Arg uniforms, SkTDArray<uint32_t>* buf,
+                       skvm::Uniforms* uniforms,
                        skvm::F32 x, skvm::F32 y,
                        skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override {
             if (as_SB(fShader)->program(p, dstCS,
-                                        uniforms, buf,
+                                        uniforms,
                                         x,y, r,g,b,a)) {
-                skvm::I32 A = p->uniform32(uniforms, buf->bytes());
-                buf->push_back(fAlpha);
+                skvm::I32 A = p->uniform32(uniforms->push(fAlpha));
                 *r = p->scale_unorm8(*r, A);
                 *g = p->scale_unorm8(*g, A);
                 *b = p->scale_unorm8(*b, A);
@@ -406,7 +405,7 @@ namespace {
     public:
         Blitter(const SkPixmap& device, const SkPaint& paint, bool* ok)
             : fDevice(device)
-            , fUniforms(uniforms_init())
+            , fUniforms(kBlitterUniformsCount)
             , fParams(effective_params(device, paint))
             , fKey(Builder::CacheKey(fParams, &fUniforms, ok))
         {}
@@ -434,15 +433,15 @@ namespace {
         }
 
     private:
-        SkPixmap            fDevice;  // TODO: can this be const&?
-        SkTDArray<uint32_t> fUniforms;
-        const Params        fParams;
-        const Key           fKey;
-        skvm::Program fBlitH,
-                      fBlitAntiH,
-                      fBlitMaskA8,
-                      fBlitMask3D,
-                      fBlitMaskLCD16;
+        SkPixmap       fDevice;  // TODO: can this be const&?
+        skvm::Uniforms fUniforms;
+        const Params   fParams;
+        const Key      fKey;
+        skvm::Program  fBlitH,
+                       fBlitAntiH,
+                       fBlitMaskA8,
+                       fBlitMask3D,
+                       fBlitMaskLCD16;
 
         skvm::Program buildProgram(Coverage coverage) {
             Key key = fKey.withCoverage(coverage);
@@ -468,10 +467,10 @@ namespace {
             // It's just more natural to have effects unconditionally emit them,
             // and more natural to rebuild fUniforms than to emit them into a dummy buffer.
             // fUniforms should reuse the exact same memory, so this is very cheap.
-            SkDEBUGCODE(size_t prev = fUniforms.size();)
-            fUniforms.setCount(kUniformsCount);
+            SkDEBUGCODE(size_t prev = fUniforms.buf.size();)
+            fUniforms.buf.resize(kBlitterUniformsCount);
             Builder builder{fParams.withCoverage(coverage), &fUniforms};
-            SkASSERT(fUniforms.size() == prev);
+            SkASSERT(fUniforms.buf.size() == prev);
 
             skvm::Program program = builder.done(debug_name(key).c_str());
             if (!program.hasJIT() && debug_dump(key)) {
@@ -483,8 +482,8 @@ namespace {
         }
 
         void updateUniforms(int right, int y) {
-            Uniforms uniforms{right, y};
-            memcpy(fUniforms.begin(), &uniforms, sizeof(Uniforms));
+            BlitterUniforms uniforms{right, y};
+            memcpy(fUniforms.buf.data(), &uniforms, sizeof(BlitterUniforms));
         }
 
         void blitH(int x, int y, int w) override {
@@ -492,7 +491,7 @@ namespace {
                 fBlitH = this->buildProgram(Coverage::Full);
             }
             this->updateUniforms(x+w, y);
-            fBlitH.eval(w, fUniforms.begin(), fDevice.addr(x,y));
+            fBlitH.eval(w, fUniforms.buf.data(), fDevice.addr(x,y));
         }
 
         void blitAntiH(int x, int y, const SkAlpha cov[], const int16_t runs[]) override {
@@ -501,7 +500,7 @@ namespace {
             }
             for (int16_t run = *runs; run > 0; run = *runs) {
                 this->updateUniforms(x+run, y);
-                fBlitAntiH.eval(run, fUniforms.begin(), fDevice.addr(x,y), cov);
+                fBlitAntiH.eval(run, fUniforms.buf.data(), fDevice.addr(x,y), cov);
 
                 x    += run;
                 runs += run;
@@ -552,11 +551,11 @@ namespace {
 
                     if (program == &fBlitMask3D) {
                         size_t plane = mask.computeImageSize();
-                        program->eval(w, fUniforms.begin(), dptr, mptr + 1*plane
-                                                                , mptr + 2*plane
-                                                                , mptr + 0*plane);
+                        program->eval(w, fUniforms.buf.data(), dptr, mptr + 1*plane
+                                                                   , mptr + 2*plane
+                                                                   , mptr + 0*plane);
                     } else {
-                        program->eval(w, fUniforms.begin(), dptr, mptr);
+                        program->eval(w, fUniforms.buf.data(), dptr, mptr);
                     }
                 }
             }
