@@ -447,7 +447,7 @@ GrVkPipelineState* GrVkOpsRenderPass::prepareDrawState(
     pipelineState->bindPipeline(fGpu, currentCB);
 
     // Both the 'programInfo' and this renderPass have an origin. Since they come from the
-    // same place (i.e., the target renderTargetProxy) that had best agree.
+    // same place (i.e., the target renderTargetProxy) they had best agree.
     SkASSERT(programInfo.origin() == fOrigin);
 
     pipelineState->setAndBindUniforms(fGpu, fRenderTarget, programInfo, currentCB);
@@ -549,15 +549,8 @@ void GrVkOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
 
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
-        if (mesh.primitiveType() != primitiveType) {
-            SkDEBUGCODE(pipelineState = nullptr);
-            primitiveType = mesh.primitiveType();
-            pipelineState = this->prepareDrawState(programInfo, primitiveType,
-                                                   renderPassScissorRect);
-            if (!pipelineState) {
-                return;
-            }
-        }
+
+        SkASSERT(mesh.primitiveType() == primitiveType);
 
         if (hasDynamicScissors) {
             SkIRect combinedScissorRect;
