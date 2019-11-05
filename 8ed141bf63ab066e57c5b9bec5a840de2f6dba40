@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2d307e1f_c34efb0b",
+        "filename": "infra/bots/recipes/perf_canvaskit.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-11-05T15:35:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5edf85e4_60cd9912",
+      "range": {
+        "startLine": 36,
+        "startChar": 2,
+        "endLine": 36,
+        "endChar": 13
+      },
+      "revId": "8ed141bf63ab066e57c5b9bec5a840de2f6dba40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fda02ad1_0293cfeb",
         "filename": "infra/bots/recipes/perf_pathkit.py",
         "patchSetId": 8
@@ -36,6 +60,30 @@
       "writtenOn": "2019-11-04T22:18:24Z",
       "side": 1,
       "message": "nit: inline this \n\nAlso, gerrit appears to have added support for emoji 🐨",
+      "range": {
+        "startLine": 45,
+        "startChar": 4,
+        "endLine": 45,
+        "endChar": 15
+      },
+      "revId": "8ed141bf63ab066e57c5b9bec5a840de2f6dba40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c37c2af9_64445ffa",
+        "filename": "infra/bots/recipes/perf_pathkit.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-11-05T15:35:59Z",
+      "side": 1,
+      "message": "It seems cleaner to me not to inline this (we\u0027d have to modify the copies dict), but I\u0027ll do it if you feel strongly about it.",
+      "parentUuid": "fda02ad1_0293cfeb",
       "range": {
         "startLine": 45,
         "startChar": 4,
@@ -68,6 +116,30 @@
       "revId": "8ed141bf63ab066e57c5b9bec5a840de2f6dba40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61768e69_f884c7de",
+        "filename": "infra/bots/recipes/test_canvaskit.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-11-05T15:35:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4824a381_dae0f69d",
+      "range": {
+        "startLine": 37,
+        "startChar": 2,
+        "endLine": 37,
+        "endChar": 13
+      },
+      "revId": "8ed141bf63ab066e57c5b9bec5a840de2f6dba40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
