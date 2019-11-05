@@ -63,6 +63,5 @@ std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext*,
                                   SkCanvas::SrcRectConstraint,
                                   const SkMatrix& viewMatrix,
                                   sk_sp<GrColorSpaceXform> textureXform);
-
 }
 #endif  // GrTextureOp_DEFINED

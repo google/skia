@@ -159,7 +159,9 @@ public:
                                          color, saturate, aaType, aaFlags, deviceQuad, localQuad,
                                          domain);
     }
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
+
+#if 1
+    static std::unique_ptr<GrDrawOp> Make1(GrRecordingContext* context,
                                           const GrRenderTargetContext::TextureSetEntry set[],
                                           int cnt,
                                           GrSamplerState::Filter filter,
@@ -175,6 +177,7 @@ public:
                                                              constraint, viewMatrix,
                                                              std::move(textureColorSpaceXform)));
     }
+#endif
 
     ~TextureOp() override {
         for (unsigned p = 1; p < fProxyCnt; ++p) {
@@ -942,6 +945,7 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
     }
 }
 
+// Greedily clump quad draws together until the index buffer limit is exceeded.
 std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext* context,
                                   const GrRenderTargetContext::TextureSetEntry set[],
                                   int cnt,
@@ -951,8 +955,47 @@ std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext* context,
                                   SkCanvas::SrcRectConstraint constraint,
                                   const SkMatrix& viewMatrix,
                                   sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
-    return TextureOp::Make(context, set, cnt, filter, saturate, aaType, constraint, viewMatrix,
-                           std::move(textureColorSpaceXform));
+    // kNone and kMSAA never get altered
+    if (aaType == GrAAType::kNone || aaType == GrAAType::kMSAA) {
+        // Clump these into MaxNumNonAAQuads-sized GrTextureOps
+        int baseIndex = 0;
+        while (cnt > 0) {
+            int setSize = SkTMin(cnt, GrResourceProvider::MaxNumNonAAQuads());
+            auto op = TextureOp::Make1(context, &set[baseIndex], setSize, filter, saturate, aaType,
+                                       constraint, viewMatrix, textureColorSpaceXform);
+
+            cnt -= setSize;
+            baseIndex += setSize;
+        }
+
+        return nullptr;
+    }
+
+    // kCoverage can be downgraded to kNone
+    SkASSERT(aaType == GrAAType::kCoverage);
+
+    int baseIndex = 0;
+    while (cnt > 0) {
+        GrAAType runningAA = GrAAType::kNone;
+        for (int i = 0; i < cnt; ++i) {
+            int absIndex = baseIndex + i;
+            if (set[absIndex].fAAFlags != GrQuadAAFlags::kNone) {
+
+                if (i > GrResourceProvider::MaxNumAAQuads()) {
+                    auto op = TextureOp::Make1(context, &set[baseIndex], i, filter, saturate, aaType,
+                                               constraint, viewMatrix, textureColorSpaceXform);
+
+                    cnt -= i;
+                    baseIndex += i;
+                    break;
+                }
+
+                runningAA = GrAAType::kCoverage;
+            }
+        }
+    }
+
+    return nullptr;
 }
 
 }  // namespace GrTextureOp
