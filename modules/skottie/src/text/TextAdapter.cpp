@@ -308,8 +308,8 @@ void TextAdapter::pushPropsToFragment(const TextAnimator::AnimatedProps& props,
     t.preScale(props.scale, props.scale);
     rec.fMatrixNode->setMatrix(t);
 
-    const auto scale_alpha = [](SkColor c, float o) {
-        return SkColorSetA(c, SkScalarRoundToInt(o * SkColorGetA(c)));
+    const auto scale_alpha = [](SkColor4f c, float o) -> SkColor4f {
+        return { c.fR, c.fG, c.fB, c.fA * o };
     };
 
     if (rec.fFillColorNode) {

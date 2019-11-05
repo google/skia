@@ -90,7 +90,7 @@ bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
 
     const auto& parse_color = [] (const skjson::ArrayValue* jcolor,
                                   const internal::AnimationBuilder* abuilder,
-                                  SkColor* c) {
+                                  SkColor4f* c) {
         if (!jcolor) {
             return false;
         }
@@ -100,7 +100,7 @@ bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
             return false;
         }
 
-        *c = ValueTraits<VectorValue>::As<SkColor>(color_vec);
+        *c = ValueTraits<VectorValue>::As<SkColor4f>(color_vec);
         return true;
     };
 

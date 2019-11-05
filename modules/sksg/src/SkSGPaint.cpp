@@ -36,10 +36,14 @@ SkPaint PaintNode::makePaint() const {
 }
 
 sk_sp<Color> Color::Make(SkColor c) {
+    return Color::Make(SkColor4f::FromColor(c));
+}
+
+sk_sp<Color> Color::Make(SkColor4f c) {
     return sk_sp<Color>(new Color(c));
 }
 
-Color::Color(SkColor c) : fColor(c) {}
+Color::Color(SkColor4f c) : fColor(c) {}
 
 SkRect Color::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());

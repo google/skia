@@ -71,7 +71,7 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachDropShadowEffect(const skjson::Arra
 
     fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kShadowColor_Index),
         [shadow_adapter](const VectorValue& c) {
-            shadow_adapter->setColor(ValueTraits<VectorValue>::As<SkColor>(c));
+            shadow_adapter->setColor(ValueTraits<VectorValue>::As<SkColor4f>(c).toSkColor());
         });
     fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kOpacity_Index),
         [shadow_adapter](const ScalarValue& o) {

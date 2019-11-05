@@ -27,13 +27,13 @@ public:
                                     const AnimationBuilder*);
 
     struct AnimatedProps {
-        SkPoint   position = { 0, 0 };
-        float      opacity = 1,
-                     scale = 1,
-                  rotation = 0,
-                  tracking = 0;
-        SkColor fill_color = SK_ColorTRANSPARENT,
-              stroke_color = SK_ColorTRANSPARENT;
+        SkPoint     position = { 0, 0 };
+        float        opacity = 1,
+                       scale = 1,
+                    rotation = 0,
+                    tracking = 0;
+        SkColor4f fill_color = SkColors::kTransparent,
+                stroke_color = SkColors::kTransparent;
     };
 
     struct AnimatedPropsModulator {

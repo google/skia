@@ -119,13 +119,13 @@ TextAnimator::AnimatedProps TextAnimator::modulateProps(const AnimatedProps& pro
     modulated_props.tracking += fTextProps.tracking * amount;
     modulated_props.scale    *= 1 + (fTextProps.scale - 1) * amount;
 
-    const auto lerp_color = [](SkColor c0, SkColor c1, float t) {
-        const auto c0_4f = SkNx_cast<float>(Sk4b::Load(&c0)),
-                   c1_4f = SkNx_cast<float>(Sk4b::Load(&c1)),
+    const auto lerp_color = [](SkColor4f c0, SkColor4f c1, float t) {
+        const auto c0_4f = Sk4f::Load(&c0),
+                   c1_4f = Sk4f::Load(&c1),
                     c_4f = c0_4f + (c1_4f - c0_4f) * t;
 
-        SkColor c;
-        SkNx_cast<uint8_t>(Sk4f_round(c_4f)).store(&c);
+        SkColor4f c;
+        c_4f.store(&c);
         return c;
     };
 
@@ -167,11 +167,11 @@ TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
         });
     fHasFillColor   = abuilder->bindProperty<VectorValue>(jprops["fc"],
         [animator](const VectorValue& fc) {
-            animator->fTextProps.fill_color = ValueTraits<VectorValue>::As<SkColor>(fc);
+            animator->fTextProps.fill_color = ValueTraits<VectorValue>::As<SkColor4f>(fc);
         });
     fHasStrokeColor = abuilder->bindProperty<VectorValue>(jprops["sc"],
         [animator](const VectorValue& sc) {
-            animator->fTextProps.stroke_color = ValueTraits<VectorValue>::As<SkColor>(sc);
+            animator->fTextProps.stroke_color = ValueTraits<VectorValue>::As<SkColor4f>(sc);
         });
     abuilder->bindProperty<ScalarValue>(jprops["o"],
         [animator](const ScalarValue& o) {

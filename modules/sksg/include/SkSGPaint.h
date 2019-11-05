@@ -59,9 +59,10 @@ private:
  */
 class Color : public PaintNode {
 public:
-    static sk_sp<Color> Make(SkColor c);
+    static sk_sp<Color> Make(SkColor);
+    static sk_sp<Color> Make(SkColor4f);
 
-    SG_ATTRIBUTE(Color, SkColor, fColor)
+    SG_ATTRIBUTE(Color, SkColor4f, fColor)
 
 protected:
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
@@ -69,9 +70,9 @@ protected:
     void onApplyToPaint(SkPaint*) const override;
 
 private:
-    explicit Color(SkColor);
+    explicit Color(SkColor4f);
 
-    SkColor fColor;
+    SkColor4f fColor;
 };
 
 /**

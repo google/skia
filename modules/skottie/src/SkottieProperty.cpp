@@ -50,12 +50,14 @@ PropertyHandle<ColorPropertyValue, sksg::Color>::~PropertyHandle() {}
 
 template <>
 ColorPropertyValue PropertyHandle<ColorPropertyValue, sksg::Color>::get() const {
-    return fNode->getColor();
+    // TODO: convert ColorPropertyValue to 4f?
+    return fNode->getColor().toSkColor();
 }
 
 template <>
 void PropertyHandle<ColorPropertyValue, sksg::Color>::set(const ColorPropertyValue& c) {
-    fNode->setColor(c);
+    // TODO: convert ColorPropertyValue to 4f?
+    fNode->setColor(SkColor4f::FromColor(c));
 }
 
 template <>

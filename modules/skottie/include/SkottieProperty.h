@@ -41,8 +41,8 @@ struct TextPropertyValue {
     SkTextUtils::Align fHAlign      = SkTextUtils::kLeft_Align;
     Shaper::VAlign     fVAlign      = Shaper::VAlign::kTop;
     SkRect             fBox         = SkRect::MakeEmpty();
-    SkColor            fFillColor   = SK_ColorTRANSPARENT,
-                       fStrokeColor = SK_ColorTRANSPARENT;
+    SkColor4f          fFillColor   = SkColors::kTransparent,
+                       fStrokeColor = SkColors::kTransparent;
     bool               fHasFill     = false,
                        fHasStroke   = false;
 

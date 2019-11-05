@@ -33,7 +33,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachSolidLayer(const skjson::ObjectV
 
     const SkColor color = 0xff000000 | c;
 
-    auto solid_paint = sksg::Color::Make(color);
+    auto solid_paint = sksg::Color::Make(SkColor4f::FromColor(color));
     solid_paint->setAntiAlias(true);
 
     return sksg::Draw::Make(sksg::Rect::Make(SkRect::MakeSize(layer_info->fSize)),

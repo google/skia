@@ -110,7 +110,7 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
         mask_path->setFillType(inverted ? SkPath::kInverseWinding_FillType
                                         : SkPath::kWinding_FillType);
 
-        auto mask_paint = sksg::Color::Make(SK_ColorBLACK);
+        auto mask_paint = sksg::Color::Make(SkColors::kBlack);
         mask_paint->setAntiAlias(true);
         // First mask in the stack initializes the mask buffer.
         mask_paint->setBlendMode(mask_stack.empty() ? SkBlendMode::kSrc

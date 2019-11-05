@@ -131,7 +131,7 @@ static void inval_test1(skiatest::Reporter* reporter) {
 
     {
         // Update the common color.
-        color->setColor(0xffff0000);
+        color->setColor(SkColors::kRed);
         std::vector<SkRect> damage = { {0, 0, 100, 100}, { 200, 100, 300, 200} };
         check_inval(reporter, root,
                     SkRect::MakeWH(300, 200),
@@ -240,7 +240,7 @@ static void inval_test2(skiatest::Reporter* reporter) {
 
     {
         // Update the shared color.
-        color->setColor(0xffff0000);
+        color->setColor(SkColors::kRed);
         std::vector<SkRect> damage = { {0, 0, 100, 100}, { 0, 0, 100, 100} };
         check_inval(reporter, root,
                     SkRect::MakeWH(100, 100),
@@ -318,7 +318,7 @@ static void inval_test3(skiatest::Reporter* reporter) {
 
     {
         // Content change -> single/full filter bounds inval.
-        color1->setColor(0xffff0000);
+        color1->setColor(SkColors::kRed);
         std::vector<SkRect> damage = { { 50, 75, 350, 175} };
         check_inval(reporter, root,
                     SkRect::MakeLTRB(50, 75, 350, 175),

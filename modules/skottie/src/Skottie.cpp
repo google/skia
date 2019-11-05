@@ -256,11 +256,11 @@ sk_sp<sksg::Path> AnimationBuilder::attachPath(const skjson::Value& jpath) const
 
 sk_sp<sksg::Color> AnimationBuilder::attachColor(const skjson::ObjectValue& jcolor,
                                                  const char prop_name[]) const {
-    auto color_node = sksg::Color::Make(SK_ColorBLACK);
+    auto color_node = sksg::Color::Make(SkColors::kBlack);
 
     this->bindProperty<VectorValue>(jcolor[prop_name],
         [color_node](const VectorValue& c) {
-            color_node->setColor(ValueTraits<VectorValue>::As<SkColor>(c));
+            color_node->setColor(ValueTraits<VectorValue>::As<SkColor4f>(c));
         });
     this->dispatchColorProperty(color_node);
 

@@ -73,7 +73,7 @@ ModeColorFilter::~ModeColorFilter() {
 
 sk_sp<SkColorFilter> ModeColorFilter::onRevalidateFilter() {
     fColor->revalidate(nullptr, SkMatrix::I());
-    return SkColorFilters::Blend(fColor->getColor(), fMode);
+    return SkColorFilters::Blend(fColor->getColor().toSkColor(), fMode);
 }
 
 sk_sp<GradientColorFilter> GradientColorFilter::Make(sk_sp<RenderNode> child,
@@ -105,8 +105,8 @@ GradientColorFilter::~GradientColorFilter() {
 namespace  {
 
 sk_sp<SkColorFilter> Make2ColorGradient(const sk_sp<Color>& color0, const sk_sp<Color>& color1) {
-    const auto c0 = SkColor4f::FromColor(color0->getColor()),
-               c1 = SkColor4f::FromColor(color1->getColor());
+    const auto& c0 = color0->getColor();
+    const auto& c1 = color1->getColor();
 
     const auto dR = c1.fR - c0.fR,
                dG = c1.fG - c0.fG,
@@ -168,8 +168,8 @@ sk_sp<SkColorFilter> MakeNColorGradient(const std::vector<sk_sp<Color>>& colors)
         SkASSERT(span_stop <= 255);
 
         // Fill the gradient in [span_start,span_stop] -> [c0,c1]
-        const SkColor c0 = colors[i    ]->getColor(),
-                      c1 = colors[i + 1]->getColor();
+        const SkColor c0 = colors[i    ]->getColor().toSkColor(),
+                      c1 = colors[i + 1]->getColor().toSkColor();
         float r = SkColorGetR(c0),
               g = SkColorGetG(c0),
               b = SkColorGetB(c0);
