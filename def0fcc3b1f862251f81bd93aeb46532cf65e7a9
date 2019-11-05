@@ -22,6 +22,30 @@
       "revId": "def0fcc3b1f862251f81bd93aeb46532cf65e7a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22b72447_69474ae9",
+        "filename": "src/gpu/vk/GrVkGpu.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-05T18:46:58Z",
+      "side": 1,
+      "message": "I considered that, but to be honest there really wasn\u0027t a benefit in our code to claiming the GrVkGpu was const. There is no reason any of the calls we\u0027re making on it wouldn\u0027t want to cache some state or similar things on the GrVkGpu.\n\nPlus we were already inconsistent with half the calls have a const gpu and half non-const.",
+      "parentUuid": "83444ea8_48b87e3c",
+      "range": {
+        "startLine": 278,
+        "startChar": 8,
+        "endLine": 278,
+        "endChar": 58
+      },
+      "revId": "def0fcc3b1f862251f81bd93aeb46532cf65e7a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
