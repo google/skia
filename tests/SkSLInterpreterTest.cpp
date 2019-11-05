@@ -571,6 +571,27 @@ DEF_TEST(SkSLInterpreterGeneric, r) {
     test(r, "float2 main(float x, float y) { return float2(x * x, y * y); }", value2, expected2);
 }
 
+DEF_TEST(SkSLInterpreterParticleRand, r) {
+    // LCG from Numerical Recipes
+    const char* src = "float main(inout uint x) { x = x * 1664525 + 1013904223; return float(x >> 4) / 0xFFFFFFF; }";
+    uint32_t u = 0;
+    float f = 0;
+
+    SkSL::Compiler compiler;
+    SkSL::Program::Settings settings;
+    auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind, src, settings);
+    REPORTER_ASSERT(r, program);
+
+    std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
+    REPORTER_ASSERT(r, !compiler.errorCount());
+
+    auto main = byteCode->getFunction("main");
+    for (int i = 0; i < 1024; ++i) {
+        SkAssertResult(byteCode->run(main, (float*)&u, 1, &f, 1, nullptr, 0));
+        SkDebugf("%08X  %10u  %f  %f\n", u, u, f, float(u) / 0xFFFFFFFF);
+    }
+}
+
 DEF_TEST(SkSLInterpreterCompound, r) {
     struct RectAndColor { SkIRect fRect; SkColor4f fColor; };
     struct ManyRects { int fNumRects; RectAndColor fRects[4]; };
