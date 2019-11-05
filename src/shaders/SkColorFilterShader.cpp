@@ -62,18 +62,18 @@ bool SkColorFilterShader::onAppendStages(const SkStageRec& rec) const {
 
 bool SkColorFilterShader::onProgram(skvm::Builder* p,
                                     SkColorSpace* dstCS,
-                                    skvm::Arg uniforms, SkTDArray<uint32_t>* buf,
+                                    skvm::Uniforms* uniforms,
                                     skvm::F32 x, skvm::F32 y,
                                     skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const {
     // Run the shader.
-    if (!as_SB(fShader)->program(p, dstCS, uniforms,buf, x,y, r,g,b,a)) {
+    if (!as_SB(fShader)->program(p, dstCS, uniforms, x,y, r,g,b,a)) {
         return false;
     }
 
     // Scale that by alpha.
     if (fAlpha != 1.0f) {
-        skvm::I32 A = p->uniform32(uniforms, buf->bytes());
-        buf->push_back(fAlpha*255 + 0.5f);
+        int alpha = fAlpha*255 + 0.5f;
+        skvm::I32 A = p->uniform32(uniforms->push(alpha));
         *r = p->scale_unorm8(*r, A);
         *g = p->scale_unorm8(*g, A);
         *b = p->scale_unorm8(*b, A);
@@ -81,7 +81,7 @@ bool SkColorFilterShader::onProgram(skvm::Builder* p,
     }
 
     // Finally run that through the color filter.
-    if (!fFilter->program(p, dstCS, uniforms,buf, r,g,b,a)) {
+    if (!fFilter->program(p, dstCS, uniforms, r,g,b,a)) {
         return false;
     }
 

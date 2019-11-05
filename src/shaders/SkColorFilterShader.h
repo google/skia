@@ -28,7 +28,7 @@ private:
 
     bool onProgram(skvm::Builder*,
                    SkColorSpace* dstCS,
-                   skvm::Arg uniforms, SkTDArray<uint32_t>*,
+                   skvm::Uniforms* uniforms,
                    skvm::F32 x, skvm::F32 y,
                    skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override;
 

@@ -35,7 +35,7 @@ private:
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
     bool program(skvm::Builder*,
                  SkColorSpace* dstCS,
-                 skvm::Arg uniforms, SkTDArray<uint32_t>*,
+                 skvm::Uniforms* uniforms,
                  skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override;
 
     float       fMatrix[20];

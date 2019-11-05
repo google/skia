@@ -12,7 +12,6 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkTDArray.h"
 
 class GrColorInfo;
 class GrFragmentProcessor;
@@ -28,6 +27,7 @@ namespace skvm {
     struct Arg;
     struct I32;
     struct F32;
+    struct Uniforms;
 }
 
 /**
@@ -66,7 +66,7 @@ public:
 
     virtual bool program(skvm::Builder*,
                          SkColorSpace* dstCS,
-                         skvm::Arg uniforms, SkTDArray<uint32_t>*,
+                         skvm::Uniforms* uniforms,
                          skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const;
 
     enum Flags {
