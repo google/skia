@@ -45,9 +45,28 @@ namespace GrQuadUtils {
         // Provide nullptr if there are no local coordinates to track
         TessellationHelper(const GrQuad& deviceQuad, const GrQuad* localQuad);
 
-        skvx::Vec<4, float> inset(GrQuadAAFlags aaFlags, GrQuad* deviceInset, GrQuad* localInset);
+        // Calculates a new quadrilateral with edges parallel to the original except that they
+        // have been moved inwards by edgeDistances (which should be positive). Distances are
+        // ordered L, B, T, R to match CCW tristrip ordering of GrQuad vertices. Edges that are
+        // not moved (i.e. distance == 0) will not be used in calculations and the corners will
+        // remain on that edge.
+        //
+        // The per-vertex coverage will be returned. When the inset geometry does not collapse to
+        // a point or line, this will be 1.0 for every vertex. When it does collapse, the per-vertex
+        // coverages represent estimated pixel coverage to simulate drawing the subpixel-sized
+        // original quad.
+        //
+        // Note: the edge distances are in device pixel units, so after rendering the new quad
+        // edge's shortest distance to the original quad's edge would be equal to provided edge dist
+        skvx::Vec<4, float> inset(const skvx::Vec<4, float>& edgeDistances,
+                                  GrQuad* deviceInset, GrQuad* localInset);
 
-        void outset(GrQuadAAFlags aaFlags, GrQuad* deviceOutset, GrQuad* localOutset);
+        // Calculates a new quadrilateral that outsets the original edges by the given distances.
+        // Other than moving edges outwards, this function is equivalent to inset(). If the exact
+        // same edge distances are provided, certain internal computations can be reused across
+        // consecutive calls to inset() and outset() (in any order).
+        void outset(const skvx::Vec<4, float>& edgeDistances,
+                    GrQuad* deviceOutset, GrQuad* localOutset);
 
     private:
         struct EdgeVectors;
@@ -61,12 +80,13 @@ namespace GrQuadUtils {
             skvx::Vec<4, float> fU, fV, fR;
             int fUVRCount;
 
-            // Update the device and optional local coordinates by adding outsets * (dx, dy) and
-            // outsetsCW * next_cw(dx, dy) to each corner. This creates valid inset or outset
-            // geometry when the outset request is not degenerate.
+            // Update the device and optional local coordinates by moving the corners along their
+            // edge vectors such that the new edges have moved 'signedEdgeDistances' from their
+            // original lines. This should only be called if the 'edgeVectors' fInvSinTheta data is
+            // numerically sound.
             void moveAlong(const EdgeVectors& edgeVectors,
-                           const OutsetRequest& outsetRequest,
-                           bool inset);
+                           const skvx::Vec<4, float>& signedEdgeDistances);
+
             // Update the device coordinates by deriving (x,y,w) that project to (x2d, y2d), with
             // optional local coordinates updated to match the new vertices. It is assumed that
             // 'mask' was respected when determing (x2d, y2d), but it is used to ensure that only
@@ -76,6 +96,10 @@ namespace GrQuadUtils {
                         const skvx::Vec<4, int32_t>& mask);
         };
 
+        // NOTE: This struct is named 'EdgeVectors' because it holds a lot of cached calculations
+        // pertaining to the edge vectors of the input quad, projected into 2D device coordinates.
+        // While they are not direction vectors, this struct represents a convenient storage space
+        // for the projected corners of the quad.
         struct EdgeVectors {
             // Projected corners (x/w and y/w); these are the 2D coordinates that determine the
             // actual edge direction vectors, dx, dy, and invLengths
@@ -85,6 +109,9 @@ namespace GrQuadUtils {
             skvx::Vec<4, float> fDX, fDY;
             // Reciprocal of edge length of the device space quad, i.e. 1 / sqrt(dx*dx + dy*dy)
             skvx::Vec<4, float> fInvLengths;
+            // Theta represents the angle formed by the two edges connected at each corner.
+            skvx::Vec<4, float> fCosTheta;
+            skvx::Vec<4, float> fInvSinTheta; // 1 / sin(theta)
         };
 
         struct EdgeEquations {
@@ -102,22 +129,14 @@ namespace GrQuadUtils {
             // shortest (perpendicular) distance between the original edge and the inset or outset
             // edge. If the distance is 0, then the edge will not move.
             skvx::Vec<4, float> fEdgeDistances;
-            // Amount to move along each edge vector for an outset (or an inset if mul. by -1). (the
-            // signed distance is determined by the actual function call, storing positive values
-            // allows calculations to be shared between insets and outsets). When moving a corner,
-            // it is moved along two independent vectors (its edge and its cw-rotated edge), scaled
-            // by the appropriate lengths stored below.
-            skvx::Vec<4, float> fOutsets;
-            skvx::Vec<4, float> fOutsetsCW;
             // True if the new corners cannot be calculated by simply adding scaled edge vectors.
-            // If degenerate, fOutsets[CW] should be ignored.
-            bool fDegenerate;
+            // The quad may be degenerate because of the original geometry (near colinear edges), or
+            // be because of the requested edge distances (collapse of inset, etc.)
+            bool fInsetDegenerate;
+            bool fOutsetDegenerate;
             // True if the field is up to date with the state of fOriginal+fAAFlags
             bool fValid = false;
         };
-
-        // Repeated calls to inset/outset with the same mask skip calculations
-        GrQuadAAFlags       fAAFlags;
 
         // Always valid
         Vertices            fOriginal;
@@ -129,10 +148,11 @@ namespace GrQuadUtils {
         OutsetRequest       fOutsetRequest;
         EdgeEquations       fEdgeEquations;
 
-        void reset();
         void setQuads(const Vertices& vertices, GrQuad* deviceOut, GrQuad* localOut) const;
 
-        const OutsetRequest& getOutsetRequest();
+        // The requested edge distances must be positive so that they can be reused between inset
+        // and outset calls.
+        const OutsetRequest& getOutsetRequest(const skvx::Vec<4, float>& edgeDistances);
         const EdgeEquations& getEdgeEquations();
 
         // Outsets or insets 'x2d' and 'y2d' in place. To be used when the interior is very small,
@@ -140,10 +160,11 @@ namespace GrQuadUtils {
         // vertices in the degenerate quad.
         int computeDegenerateQuad(const skvx::Vec<4, float>& signedEdgeDistances,
                                   skvx::Vec<4, float>* x2d, skvx::Vec<4, float>* y2d);
-        // Outsets or insets 'vertices' based on the outset request described by 'outsetRequest'
-        // and 'inset' (true for insetting instead). If the outset is not degenerate,
-        // 'edgeEquations' can be null. Returns number of effective vertices in the adjusted quad.
-        int adjustVertices(bool inset, Vertices* vertices);
+        // Outsets or insets 'vertices' by the given perpendicular 'edgeDistances'. If 'inset' is
+        // true the distances move the edges inwards; if it is false, the distances move outwards.
+        // Returns number of effective vertices in the adjusted quad.
+        int adjustVertices(const skvx::Vec<4, float>& edgeDistances, bool inset,
+                           Vertices* vertices);
     };
 
 }; // namespace GrQuadUtils
