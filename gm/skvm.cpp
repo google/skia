@@ -94,7 +94,7 @@ DEF_SIMPLE_GM(SkVMBlitter, canvas, 100, 100) {
     r1 = pack r0 r1 8
     r1 = pack r3 r1 16
     loop:
-    store32 arg(1) r1
+        store32 arg(1) r1
     */
     p.setShader(SkShaders::Color(SK_ColorBLUE));
     canvas->drawRect({0,0, 50,50}, p);
@@ -120,14 +120,14 @@ DEF_SIMPLE_GM(SkVMBlitter, canvas, 100, 100) {
     r4 = extract r4 16 r3                      // extract blue
     r3 = pack r4 r3 8                          // r3 = blue and alpha from color shader
     loop:
-    r4 = index
-    r4 = sub_i32 r0 r4                         // r4 = x
-    r4 = to_f32 r4
-    r4 = mul_f32 r4 r2
-    r4 = to_i32 r4                             // r4 = green channel, depends on x, is varying
-    r4 = pack r1 r4 8
-    r4 = pack r4 r3 16
-    store32 arg(1) r4
+        r4 = index
+        r4 = sub_i32 r0 r4                     // r4 = x
+        r4 = to_f32 r4
+        r4 = mul_f32 r4 r2
+        r4 = to_i32 r4                         // r4 = green channel, depends on x, is varying
+        r4 = pack r1 r4 8
+        r4 = pack r4 r3 16
+        store32 arg(1) r4
     */
     p.setShader(sk_make_sp<Fade>(SkShaders::Color(SK_ColorYELLOW)));
     canvas->drawRect({50,0, 100,50}, p);
