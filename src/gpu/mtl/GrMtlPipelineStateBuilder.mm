@@ -344,7 +344,7 @@ uint32_t buffer_size(uint32_t offset, uint32_t maxAlignment) {
 GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTarget,
                                                         const GrProgramInfo& programInfo,
                                                         Desc* desc) {
-    auto pipelineDescriptor = [MTLRenderPipelineDescriptor new];
+    auto pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
 
     fVS.extensions().appendf("#extension GL_ARB_separate_shader_objects : enable\n");
     fFS.extensions().appendf("#extension GL_ARB_separate_shader_objects : enable\n");
