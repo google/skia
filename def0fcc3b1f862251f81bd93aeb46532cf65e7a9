@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83444ea8_48b87e3c",
+        "filename": "src/gpu/vk/GrVkGpu.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-11-05T18:18:42Z",
+      "side": 1,
+      "message": "WDYT about making this mutable, rather than removing all the consts from GrVkGpu*?",
+      "range": {
+        "startLine": 278,
+        "startChar": 8,
+        "endLine": 278,
+        "endChar": 58
+      },
+      "revId": "def0fcc3b1f862251f81bd93aeb46532cf65e7a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
