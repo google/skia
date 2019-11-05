@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c7a59b62_de77818c",
+        "filename": "src/shaders/SkColorFilterShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-05T17:50:52Z",
+      "side": 1,
+      "message": "Yeah, I think I\u0027ve got this all fixed in an in-progress CL by unifying program() and uniforms() so they all happen at once.",
+      "parentUuid": "048dc174_76474062",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 88
+      },
+      "revId": "0c5ca65244da5efe0b81f99d9a9d709747ade7cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f2b54b81_48501289",
         "filename": "src/shaders/SkColorFilterShader.cpp",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2019-11-05T17:45:44Z",
       "side": 1,
       "message": "Does the actual value of this offset matter to building the program? i.e. do we build different code if this is a different value?",
+      "range": {
+        "startLine": 81,
+        "startChar": 45,
+        "endLine": 81,
+        "endChar": 51
+      },
+      "revId": "0c5ca65244da5efe0b81f99d9a9d709747ade7cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "acd2d4cb_c58b36de",
+        "filename": "src/shaders/SkColorFilterShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-05T17:50:52Z",
+      "side": 1,
+      "message": "Yes, in a call like p-\u003euniform32(uniforms, offset), offset gets baked into the load instruction.",
+      "parentUuid": "f2b54b81_48501289",
       "range": {
         "startLine": 81,
         "startChar": 45,
