@@ -2224,6 +2224,8 @@ void GrGLGpu::draw(GrRenderTarget* renderTarget,
     bool hasDynamicPrimProcTextures = programInfo.hasDynamicPrimProcTextures();
 
     for (int m = 0; m < meshCount; ++m) {
+        SkASSERT(meshes[m].primitiveType() == primitiveType);
+
         if (auto barrierType = programInfo.pipeline().xferBarrierType(renderTarget->asTexture(),
                                                                       *this->caps())) {
             this->xferBarrier(renderTarget, barrierType);
