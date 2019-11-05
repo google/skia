@@ -20,7 +20,7 @@ class GrVkGpu;
  */
 class GrVkDescriptorPool : public GrVkResource {
 public:
-    GrVkDescriptorPool(GrVkGpu* gpu, VkDescriptorType type, uint32_t count);
+    static GrVkDescriptorPool* Create(GrVkGpu* gpu, VkDescriptorType type, uint32_t count);
 
     VkDescriptorPool descPool() const { return fDescPool; }
 
@@ -38,6 +38,8 @@ public:
 #endif
 
 private:
+    GrVkDescriptorPool(VkDescriptorPool pool, VkDescriptorType type, uint32_t count);
+
     void freeGPUData(GrVkGpu* gpu) const override;
 
     VkDescriptorType     fType;
