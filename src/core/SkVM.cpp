@@ -203,9 +203,8 @@ namespace skvm {
         o->writeDecAsText(fInstructions.size());
         o->writeText(" instructions:\n");
         for (int i = 0; i < (int)fInstructions.size(); i++) {
-            if (i == fLoop) {
-                write(o, "loop:\n");
-            }
+            if (i == fLoop) { write(o, "loop:\n"); }
+            if (i >= fLoop) { write(o, "    "); }
             const Program::Instruction& inst = fInstructions[i];
             Op   op = inst.op;
             Reg   d = inst.d,
