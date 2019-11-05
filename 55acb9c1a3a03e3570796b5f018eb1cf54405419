@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca96fd6a_a509b698",
+        "filename": "src/shaders/SkColorFilterShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-11-05T18:07:21Z",
+      "side": 1,
+      "message": "Does this pair occur enough to merge together?\n\ne.g.\n\np-\u003eadd_uniform32(uniforms, buf, value);",
+      "range": {
+        "startLine": 75,
+        "startChar": 25,
+        "endLine": 75,
+        "endChar": 34
+      },
+      "revId": "55acb9c1a3a03e3570796b5f018eb1cf54405419",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
