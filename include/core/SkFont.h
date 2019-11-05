@@ -30,6 +30,15 @@ public:
         kSubpixelAntiAlias,  //!< glyph positioned in pixel using transparency
     };
 
+    /**
+     *  Controls how we position glyphs (relative to the pixel-grid).
+     */
+    enum class Positioning {
+        kIntegral,      // best for caching, not so good for inter-glyph spacing
+        kSubpixel,      // good for inter-glyph spacing and caching
+        kContinuous,    // best for animations, worst for caching
+    };
+
     /** Constructs SkFont with default values.
 
         @return  default initialized SkFont
@@ -94,11 +103,14 @@ public:
     */
     bool isEmbeddedBitmaps() const { return SkToBool(fFlags & kEmbeddedBitmaps_PrivFlag); }
 
-    /** Returns true if glyphs may be drawn at sub-pixel offsets.
-
-        @return  true if glyphs may be drawn at sub-pixel offsets.
-    */
-    bool isSubpixel() const { return SkToBool(fFlags & kSubpixel_PrivFlag); }
+    /** DEPRECATED: use getPositioning()
+     *  Returns true if glyphs may be drawn at sub-pixel offsets.
+     *
+     *  @return  true if glyphs may be drawn at sub-pixel offsets.
+     */
+    bool isSubpixel() const {
+        return this->getPositioning() == Positioning::kSubpixel;
+    }
 
     /** Returns true if font and glyph metrics are requested to be linearly scalable.
 
@@ -135,11 +147,14 @@ public:
     */
     void setEmbeddedBitmaps(bool embeddedBitmaps);
 
-    /** Requests, but does not require, that glyphs respect sub-pixel positioning.
-
-        @param subpixel  setting for sub-pixel positioning
-    */
-    void setSubpixel(bool subpixel);
+    /** DEPRECATED: use setPositioning()
+     *  Requests, but does not require, that glyphs respect sub-pixel positioning.
+     *
+     *  @param subpixel  setting for sub-pixel positioning
+     */
+    void setSubpixel(bool subpixel) {
+        this->setPositioning(subpixel ? Positioning::kSubpixel : Positioning::kIntegral);
+    }
 
     /** Requests, but does not require, linearly scalable font and glyph metrics.
 
@@ -175,6 +190,18 @@ public:
         @param edging  one of: Edging::kAlias, Edging::kAntiAlias, Edging::kSubpixelAntiAlias
     */
     void setEdging(Edging edging);
+
+    /** How will glyphs be positioned relative to the pixel-grid.
+     *
+     *  @return  Current setting for Positioning.
+     */
+    Positioning getPositioning() const { return (Positioning)fPositioning; }
+
+    /** Requests how glyphs are positioned relative to the pixel-grid.
+     *
+     *  @param Positioning
+     */
+    void setPositioning(Positioning pos);
 
     /** Sets level of glyph outline adjustment.
         Does not check for valid values of hintingLevel.
@@ -504,7 +531,7 @@ private:
     enum PrivFlags {
         kForceAutoHinting_PrivFlag      = 1 << 0,
         kEmbeddedBitmaps_PrivFlag       = 1 << 1,
-        kSubpixel_PrivFlag              = 1 << 2,
+        // kSubpixel_PrivFlag was 1 << 2,
         kLinearMetrics_PrivFlag         = 1 << 3,
         kEmbolden_PrivFlag              = 1 << 4,
         kBaselineSnap_PrivFlag          = 1 << 5,
@@ -512,7 +539,6 @@ private:
 
     static constexpr unsigned kAllFlags = kForceAutoHinting_PrivFlag
                                         | kEmbeddedBitmaps_PrivFlag
-                                        | kSubpixel_PrivFlag
                                         | kLinearMetrics_PrivFlag
                                         | kEmbolden_PrivFlag
                                         | kBaselineSnap_PrivFlag;
@@ -524,6 +550,7 @@ private:
     uint8_t     fFlags;
     uint8_t     fEdging;
     uint8_t     fHinting;
+    uint8_t     fPositioning;
 
     SkScalar setupForAsPaths(SkPaint*);
     bool hasSomeAntiAliasing() const;

@@ -64,6 +64,7 @@ void SkFont::dump() const {
     SkDebugf("flags 0x%X\n", fFlags);
     SkDebugf("edging %d\n", (unsigned)fEdging);
     SkDebugf("hinting %d\n", (unsigned)fHinting);
+    SkDebugf("positioning %d\n", (unsigned)fPositioning);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,9 +79,6 @@ void SkFont::setForceAutoHinting(bool predicate) {
 void SkFont::setEmbeddedBitmaps(bool predicate) {
     fFlags = set_clear_mask(fFlags, predicate, kEmbeddedBitmaps_PrivFlag);
 }
-void SkFont::setSubpixel(bool predicate) {
-    fFlags = set_clear_mask(fFlags, predicate, kSubpixel_PrivFlag);
-}
 void SkFont::setLinearMetrics(bool predicate) {
     fFlags = set_clear_mask(fFlags, predicate, kLinearMetrics_PrivFlag);
 }
@@ -92,6 +90,9 @@ void SkFont::setBaselineSnap(bool predicate) {
 }
 void SkFont::setEdging(Edging e) {
     fEdging = SkToU8(e);
+}
+void SkFont::setPositioning(Positioning p) {
+    fPositioning = SkToU8(p);
 }
 
 void SkFont::setHinting(SkFontHinting h) {
@@ -120,7 +121,8 @@ SkScalar SkFont::setupForAsPaths(SkPaint* paint) {
     constexpr uint32_t flagsToIgnore = kEmbeddedBitmaps_PrivFlag |
                                        kForceAutoHinting_PrivFlag;
 
-    fFlags = (fFlags & ~flagsToIgnore) | kSubpixel_PrivFlag;
+    fFlags &= ~flagsToIgnore;
+    this->setPositioning(Positioning::kContinuous); // this was subpixel. should it still be?
     this->setHinting(SkFontHinting::kNone);
 
     if (this->getEdging() == Edging::kSubpixelAntiAlias) {
