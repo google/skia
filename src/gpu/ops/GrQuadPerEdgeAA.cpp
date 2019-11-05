@@ -107,20 +107,43 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrQuad& deviceQua
             geomDomain.outset(0.5f, 0.5f); // account for AA expansion
         }
 
-        // TODO(michaelludwig) - Update TessellateHelper to select processing functions based on the
-        // vertexspec once per op, and then burn through all quads with the selected function ptr.
-        GrQuadUtils::TessellationHelper helper(deviceQuad,
-                                               spec.hasLocalCoords() ? &localQuad : nullptr);
+        if (aaFlags == GrQuadAAFlags::kNone) {
+            // Have to write the coverage AA vertex structure, but there's no math to be done for a
+            // non-aa quad batched into a coverage AA op.
+            write_quad(&vb, spec, mode, 1.f, color4f, geomDomain, domain, deviceQuad, localQuad);
+            // Since we pass the same corners in, the outer vertex structure will have 0 area and
+            // the coverage interpolation from 1 to 0 will not be visible.
+            write_quad(&vb, spec, mode, 0.f, color4f, geomDomain, domain, deviceQuad, localQuad);
+        } else {
+            // TODO(michaelludwig) - Update TessellateHelper to select processing functions based on
+            // the vertexspec once per op, and then burn through all quads with the selected
+            // function ptr.
+            GrQuadUtils::TessellationHelper helper(deviceQuad,
+                                                   spec.hasLocalCoords() ? &localQuad : nullptr);
 
-        // Write inner vertices first
-        GrQuad aaDeviceQuad, aaLocalQuad;
-        skvx::Vec<4, float> coverage = helper.inset(aaFlags, &aaDeviceQuad, &aaLocalQuad);
-        write_quad(&vb, spec, mode, coverage, color4f, geomDomain, domain,
-                   aaDeviceQuad, aaLocalQuad);
+            // Edge inset/outset distance ordered LBTR, set to 0.5 for a half pixel if the AA flag
+            // is turned on, or 0.0 if the edge is not anti-aliased.
+            skvx::Vec<4, float> edgeDistances;
+            if (aaFlags == GrQuadAAFlags::kAll) {
+                edgeDistances = 0.5f;
+            } else {
+                edgeDistances = { (aaFlags & GrQuadAAFlags::kLeft)   ? 0.5f : 0.f,
+                                  (aaFlags & GrQuadAAFlags::kBottom) ? 0.5f : 0.f,
+                                  (aaFlags & GrQuadAAFlags::kTop)    ? 0.5f : 0.f,
+                                  (aaFlags & GrQuadAAFlags::kRight)  ? 0.5f : 0.f };
+            }
 
-        // Then outer vertices, which use 0.f for their coverage
-        helper.outset(aaFlags, &aaDeviceQuad, &aaLocalQuad);
-        write_quad(&vb, spec, mode, 0.f, color4f, geomDomain, domain, aaDeviceQuad, aaLocalQuad);
+            // Write inner vertices first
+            GrQuad aaDeviceQuad, aaLocalQuad;
+            skvx::Vec<4, float> coverage = helper.inset(edgeDistances, &aaDeviceQuad, &aaLocalQuad);
+            write_quad(&vb, spec, mode, coverage, color4f, geomDomain, domain,
+                       aaDeviceQuad, aaLocalQuad);
+
+            // Then outer vertices, which use 0.f for their coverage
+            helper.outset(edgeDistances, &aaDeviceQuad, &aaLocalQuad);
+            write_quad(&vb, spec, mode, 0.f, color4f, geomDomain, domain,
+                       aaDeviceQuad, aaLocalQuad);
+        }
     } else {
         // No outsetting needed, just write a single quad with full coverage
         SkASSERT(mode == CoverageMode::kNone && !spec.requiresGeometryDomain());
