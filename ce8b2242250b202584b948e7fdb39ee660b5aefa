@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f520bcab_bb9e4c73",
+        "filename": "gn/core.gni",
+        "patchSetId": 1
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-05T19:21:58Z",
+      "side": 1,
+      "message": "We can probably put this stuff in SkBlendMode.cpp?",
+      "revId": "ce8b2242250b202584b948e7fdb39ee660b5aefa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
