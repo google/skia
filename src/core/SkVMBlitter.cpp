@@ -13,6 +13,7 @@
 #include "src/core/SkCoreBlitters.h"
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkVM.h"
+#include "src/core/SkVMBlitter.h"
 
 namespace {
 
@@ -103,9 +104,7 @@ namespace {
 
 
     struct Builder : public skvm::Builder {
-        struct Color { skvm::I32 r,g,b,a; };
-
-        Color unpack_8888(skvm::I32 rgba) {
+        skvm::Color unpack_8888(skvm::I32 rgba) {
             return {
                 extract(rgba,  0, splat(0xff)),
                 extract(rgba,  8, splat(0xff)),
@@ -114,12 +113,12 @@ namespace {
             };
         }
 
-        skvm::I32 pack_8888(Color c) {
+        skvm::I32 pack_8888(skvm::Color c) {
             return pack(pack(c.r, c.g, 8),
                         pack(c.b, c.a, 8), 16);
         }
 
-        Color unpack_565(skvm::I32 bgr) {
+        skvm::Color unpack_565(skvm::I32 bgr) {
             // N.B. kRGB_565_SkColorType is named confusingly;
             //      blue is in the low bits and red the high.
             skvm::I32 r = extract(bgr, 11, splat(0b011'111)),
@@ -134,7 +133,7 @@ namespace {
             };
         }
 
-        skvm::I32 pack_565(Color c) {
+        skvm::I32 pack_565(skvm::Color c) {
             skvm::I32 r = scale_unorm8(c.r, splat(31)),
                       g = scale_unorm8(c.g, splat(63)),
                       b = scale_unorm8(c.b, splat(31));
@@ -173,10 +172,8 @@ namespace {
 
             if (params.alphaType == kUnpremul_SkAlphaType) { *ok = false; }
 
-            switch (params.blendMode) {
-                default: *ok = false;       break;
-                case SkBlendMode::kSrc:     break;
-                case SkBlendMode::kSrcOver: break;
+            if (!skvm::BlendModeSupported(params.blendMode)) {
+                *ok = false;
             }
 
             return {
@@ -201,7 +198,7 @@ namespace {
             //    - MaskLCD16: 565 coverage varying
             //    - UniformA8: 8-bit coverage uniform
 
-            Color src;
+            skvm::Color src;
             SkASSERT(params.shader);
             skvm::F32 x = to_f32(sub(uniform32(uniforms->ptr,
                                                offsetof(BlitterUniforms, right)),
@@ -225,11 +222,11 @@ namespace {
             // There are several orderings here of when we load dst and coverage
             // and how coverage is applied, and to complicate things, LCD coverage
             // needs to know dst.a.  We're careful to assert it's loaded in time.
-            Color dst;
+            skvm::Color dst;
             SkDEBUGCODE(bool dst_loaded = false;)
 
             // load_coverage() returns false when there's no need to apply coverage.
-            auto load_coverage = [&](Color* cov) {
+            auto load_coverage = [&](skvm::Color* cov) {
                 switch (params.coverage) {
                     case Coverage::Full: return false;
 
@@ -259,7 +256,7 @@ namespace {
             bool lerp_coverage_post_blend = true;
             if (SkBlendMode_ShouldPreScaleCoverage(params.blendMode,
                                                    params.coverage == Coverage::MaskLCD16)) {
-                Color cov;
+                skvm::Color cov;
                 if (load_coverage(&cov)) {
                     src.r = scale_unorm8(src.r, cov.r);
                     src.g = scale_unorm8(src.g, cov.g);
@@ -289,23 +286,10 @@ namespace {
             // We'd need to premul dst after loading and unpremul before storing.
             if (params.alphaType == kUnpremul_SkAlphaType) { TODO; }
 
-            // Blend src and dst.
-            switch (params.blendMode) {
-                default: TODO;
-
-                case SkBlendMode::kSrc: break;
-
-                case SkBlendMode::kSrcOver: {
-                    auto invA = sub(splat(255), src.a);
-                    src.r = add(src.r, scale_unorm8(dst.r, invA));
-                    src.g = add(src.g, scale_unorm8(dst.g, invA));
-                    src.b = add(src.b, scale_unorm8(dst.b, invA));
-                    src.a = add(src.a, scale_unorm8(dst.a, invA));
-                } break;
-            }
+            src = skvm::BlendModeProgram(this, params.blendMode, src, dst);
 
             // Lerp with coverage post-blend if needed.
-            Color cov;
+            skvm::Color cov;
             if (lerp_coverage_post_blend && load_coverage(&cov)) {
                 src.r = lerp_unorm8(dst.r, src.r, cov.r);
                 src.g = lerp_unorm8(dst.g, src.g, cov.g);
@@ -564,6 +548,33 @@ namespace {
 
 }  // namespace
 
+bool skvm::BlendModeSupported(SkBlendMode mode) {
+    switch (mode) {
+        default: break;
+        case SkBlendMode::kSrc:
+        case SkBlendMode::kSrcOver: return true;
+    }
+    return false;
+}
+
+skvm::Color skvm::BlendModeProgram(skvm::Builder* p, SkBlendMode mode, const skvm::Color& src,
+                                   const skvm::Color& dst) {
+    skvm::Color res;
+    switch (mode) {
+        default: SkASSERT(false);
+
+        case SkBlendMode::kSrc: res = src; break;
+
+        case SkBlendMode::kSrcOver: {
+            auto invA = p->sub(p->splat(255), src.a);
+            res.r = p->add(src.r, p->scale_unorm8(dst.r, invA));
+            res.g = p->add(src.g, p->scale_unorm8(dst.g, invA));
+            res.b = p->add(src.b, p->scale_unorm8(dst.b, invA));
+            res.a = p->add(src.a, p->scale_unorm8(dst.a, invA));
+        } break;
+    }
+    return res;
+}
 
 SkBlitter* SkCreateSkVMBlitter(const SkPixmap& device,
                                const SkPaint& paint,
