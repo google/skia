@@ -22,6 +22,30 @@
       "revId": "55acb9c1a3a03e3570796b5f018eb1cf54405419",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d66ab27f_853dba67",
+        "filename": "src/shaders/SkColorFilterShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-05T18:14:06Z",
+      "side": 1,
+      "message": "Yeah, there\u0027s definitely some sort of pattern here growing, but we do want to be careful: `p` and skvm::Builder should never see the values of uniforms.  If skvm::Builder knows them, they\u0027re no longer uniforms... they\u0027re baked in the code.  So I don\u0027t think we want that interface on svkm::Builder directly.  Somewhere between confusing and error prone?\n\nBut I do think we may want some sort of smart uniforms buffer manager type, kind of like\n\n    skvm::I32 A \u003d p-\u003euniform32(uniforms-\u003earg, uniforms-\u003epush(fAlpha*255 + 0.5f));",
+      "parentUuid": "ca96fd6a_a509b698",
+      "range": {
+        "startLine": 75,
+        "startChar": 25,
+        "endLine": 75,
+        "endChar": 34
+      },
+      "revId": "55acb9c1a3a03e3570796b5f018eb1cf54405419",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
