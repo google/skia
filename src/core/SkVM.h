@@ -104,6 +104,8 @@ namespace skvm {
         void vbroadcastss(Ymm dst, GP64 ptr, int off);  // dst = *(ptr+off)
 
         void vpshufb(Ymm dst, Ymm x, Label*);
+        void vpaddd (Ymm dst, Ymm x, Label*);
+        void vpsubd (Ymm dst, Ymm x, Label*);
 
         void vmovups  (Ymm dst, GP64 ptr);   // dst = *ptr, 256-bit
         void vpmovzxwd(Ymm dst, GP64 ptr);   // dst = *ptr, 128-bit, each uint16_t expanded to int
