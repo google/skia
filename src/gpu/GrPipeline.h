@@ -50,16 +50,9 @@ public:
          */
         kHWAntialias = (1 << 0),
         /**
-         * Cause every pixel to be rasterized that is touched by the triangle anywhere (not just at
-         * pixel center). Additionally, if using MSAA, the sample mask will always have 100%
-         * coverage.
-         * NOTE: The primitive type must be a triangle type.
-         */
-        kConservativeRaster = (1 << 1),
-        /**
          * Modifies the vertex shader so that vertices will be positioned at pixel centers.
          */
-        kSnapVerticesToPixelCenters = (1 << 2),  // This value must be last. (See kLastInputFlag.)
+        kSnapVerticesToPixelCenters = (1 << 1),  // This value must be last. (See kLastInputFlag.)
     };
 
     struct InitArgs {
@@ -189,10 +182,9 @@ public:
 
     const GrWindowRectsState& getWindowRectsState() const { return fWindowRectsState; }
 
-    bool isHWAntialiasState() const { return fFlags & InputFlags::kHWAntialias; }
-    bool usesConservativeRaster() const { return fFlags & InputFlags::kConservativeRaster; }
+    bool isHWAntialiasState() const { return SkToBool(fFlags & InputFlags::kHWAntialias); }
     bool snapVerticesToPixelCenters() const {
-        return fFlags & InputFlags::kSnapVerticesToPixelCenters;
+        return SkToBool(fFlags & InputFlags::kSnapVerticesToPixelCenters);
     }
     bool hasStencilClip() const {
         return SkToBool(fFlags & Flags::kHasStencilClip);
@@ -205,7 +197,7 @@ public:
     GrXferBarrierType xferBarrierType(GrTexture*, const GrCaps&) const;
 
     // Used by Vulkan and Metal to cache their respective pipeline objects
-    void genKey(GrProcessorKeyBuilder*) const;
+    uint32_t getBlendInfoKey() const;
 
     const GrSwizzle& outputSwizzle() const { return fOutputSwizzle; }
 

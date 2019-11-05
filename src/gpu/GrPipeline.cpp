@@ -99,15 +99,7 @@ GrPipeline::GrPipeline(GrScissorTest scissorTest, sk_sp<const GrXferProcessor> x
     }
 }
 
-void GrPipeline::genKey(GrProcessorKeyBuilder* b) const {
-    // Currently kHWAntialias and kSnapVerticesToPixelCenters don't affect the pipeline key:
-    // You can't disable msaa on vulkan or metal, and kSnapVerticesToPixelCenters is implemented
-    // in a shader. Ideally, the client would not set kHWAntialias without
-    // multisampleDisableSupport, but this is not currently the case.
-    constexpr static uint32_t kFlagsMask = ~(uint32_t)(
-            InputFlags::kHWAntialias | InputFlags::kSnapVerticesToPixelCenters);
-    b->add32((uint32_t)fFlags & kFlagsMask);
-
+uint32_t GrPipeline::getBlendInfoKey() const {
     const GrXferProcessor::BlendInfo& blendInfo = this->getXferProcessor().getBlendInfo();
 
     static const uint32_t kBlendWriteShift = 1;
@@ -115,10 +107,10 @@ void GrPipeline::genKey(GrProcessorKeyBuilder* b) const {
     GR_STATIC_ASSERT(kLast_GrBlendCoeff < (1 << kBlendCoeffShift));
     GR_STATIC_ASSERT(kFirstAdvancedGrBlendEquation - 1 < 4);
 
-    uint32_t blendKey = blendInfo.fWriteColor;
-    blendKey |= (blendInfo.fSrcBlend << kBlendWriteShift);
-    blendKey |= (blendInfo.fDstBlend << (kBlendWriteShift + kBlendCoeffShift));
-    blendKey |= (blendInfo.fEquation << (kBlendWriteShift + 2 * kBlendCoeffShift));
+    uint32_t key = blendInfo.fWriteColor;
+    key |= (blendInfo.fSrcBlend << kBlendWriteShift);
+    key |= (blendInfo.fDstBlend << (kBlendWriteShift + kBlendCoeffShift));
+    key |= (blendInfo.fEquation << (kBlendWriteShift + 2 * kBlendCoeffShift));
 
-    b->add32(blendKey);
+    return key;
 }
