@@ -46,10 +46,10 @@ private:
 
     bool onProgram(skvm::Builder*,
                    SkColorSpace* dstCS,
-                   skvm::Arg uniforms, int offset,
+                   skvm::Arg uniforms, size_t offset,
                    skvm::F32 x, skvm::F32 y,
                    skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override;
-    size_t uniforms(SkColorSpace* dstCS, uint8_t* uniform_buffer) const override;
+    void uniforms(SkColorSpace* dstCS, std::vector<uint32_t>*) const override;
 
     SkColor fColor;
 };
@@ -73,10 +73,10 @@ private:
 
     bool onProgram(skvm::Builder*,
                    SkColorSpace* dstCS,
-                   skvm::Arg uniforms, int offset,
+                   skvm::Arg uniforms, size_t offset,
                    skvm::F32 x, skvm::F32 y,
                    skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override;
-    size_t uniforms(SkColorSpace* dstCS, uint8_t* uniform_buffer) const override;
+    void uniforms(SkColorSpace* dstCS, std::vector<uint32_t>*) const override;
 
     sk_sp<SkColorSpace> fColorSpace;
     const SkColor4f     fColor;

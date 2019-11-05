@@ -194,7 +194,7 @@ bool SkShaderBase::onAppendStages(const SkStageRec& rec) const {
 
 bool SkShaderBase::program(skvm::Builder* p,
                            SkColorSpace* dstCS,
-                           skvm::Arg uniforms, int offset,
+                           skvm::Arg uniforms, size_t offset,
                            skvm::F32 x, skvm::F32 y,
                            skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const {
     // Force opaque alpha for all opaque shaders.

@@ -209,19 +209,19 @@ public:
 
     bool program(skvm::Builder*,
                  SkColorSpace* dstCS,
-                 skvm::Arg uniforms, int offset,
+                 skvm::Arg uniforms, size_t offset,
                  skvm::F32 x, skvm::F32 y,
                  skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const;
 
     virtual bool onProgram(skvm::Builder*,
                            SkColorSpace* dstCS,
-                           skvm::Arg uniforms, int offset,
+                           skvm::Arg uniforms, size_t offset/* in bytes */,
                            skvm::F32 x, skvm::F32 y,
                            skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const {
         return false;
     }
 
-    virtual size_t uniforms(SkColorSpace* dstCS, uint8_t* uniform_buffer) const { return 0; }
+    virtual void uniforms(SkColorSpace* dstCS, std::vector<uint32_t>*) const {}
 
 protected:
     SkShaderBase(const SkMatrix* localMatrix = nullptr);

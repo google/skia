@@ -22,6 +22,7 @@ namespace {
         int right;  // First device x + blit run length n, used to get device x coordiate.
         int y;      // Device y coordiate.
     };
+    static_assert(SkIsAlign4(sizeof(Uniforms)), "");
 
     enum class Coverage { Full, UniformA8, MaskA8, MaskLCD16, Mask3D };
 
@@ -354,7 +355,7 @@ namespace {
 
         bool onProgram(skvm::Builder* p,
                        SkColorSpace* dstCS,
-                       skvm::Arg uniforms, int offset,
+                       skvm::Arg uniforms, size_t offset,
                        skvm::F32 x, skvm::F32 y,
                        skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override {
             if (as_SB(fShader)->program(p, dstCS,
@@ -379,12 +380,9 @@ namespace {
             return false;
         }
 
-        size_t uniforms(SkColorSpace* dstCS, uint8_t* buf) const override {
-            if (buf) {
-                memcpy(buf, &fAlpha, sizeof(fAlpha));
-                return sizeof(fAlpha) + as_SB(fShader)->uniforms(dstCS, buf + sizeof(fAlpha));
-            }
-            return sizeof(fAlpha) + as_SB(fShader)->uniforms(dstCS, nullptr);
+        void uniforms(SkColorSpace* dstCS, std::vector<uint32_t>* buf) const override {
+            buf->push_back(fAlpha);
+            as_SB(fShader)->uniforms(dstCS, buf);
         }
 
         // Only created here, should never be flattened / unflattened.
@@ -439,13 +437,10 @@ namespace {
             : fDevice(device)
             , fParams(effective_params(device, paint))
             , fKey(Builder::CacheKey(fParams, ok))
-            , fUniforms(sizeof(Uniforms))
+            , fUniforms(sizeof(Uniforms) / sizeof(fUniforms[0]))
         {
             if (*ok) {
-                const SkShaderBase* shader = as_SB(fParams.shader);
-                size_t extra = shader->uniforms(fParams.colorSpace.get(), nullptr);
-                fUniforms.resize(sizeof(Uniforms) + extra);
-                shader->uniforms(fParams.colorSpace.get(), fUniforms.data() + sizeof(Uniforms));
+                as_SB(fParams.shader)->uniforms(fParams.colorSpace.get(), &fUniforms);
             }
         }
 
@@ -472,10 +467,10 @@ namespace {
         }
 
     private:
-        SkPixmap             fDevice;  // TODO: can this be const&?
-        const Params         fParams;
-        const Key            fKey;
-        std::vector<uint8_t> fUniforms;
+        SkPixmap              fDevice;  // TODO: can this be const&?
+        const Params          fParams;
+        const Key             fKey;
+        std::vector<uint32_t> fUniforms;
         skvm::Program fBlitH,
                       fBlitAntiH,
                       fBlitMaskA8,
