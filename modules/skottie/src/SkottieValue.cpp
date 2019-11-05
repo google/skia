@@ -62,6 +62,7 @@ void ValueTraits<VectorValue>::Lerp(const VectorValue& v0, const VectorValue& v1
     }
 }
 
+// DEPRECATED: remove after converting everything to SkColor4f
 template <>
 template <>
 SkColor ValueTraits<VectorValue>::As<SkColor>(const VectorValue& v) {
@@ -75,6 +76,18 @@ SkColor ValueTraits<VectorValue>::As<SkColor>(const VectorValue& v) {
                           SkScalarRoundToInt(SkTPin(r, 0.0f, 1.0f) * 255),
                           SkScalarRoundToInt(SkTPin(g, 0.0f, 1.0f) * 255),
                           SkScalarRoundToInt(SkTPin(b, 0.0f, 1.0f) * 255));
+}
+
+template <>
+template <>
+SkColor4f ValueTraits<VectorValue>::As<SkColor4f>(const VectorValue& v) {
+    // best effort to turn a vector into a color
+    const auto r = v.size() > 0 ? SkTPin(v[0], 0.0f, 1.0f) : 0,
+               g = v.size() > 1 ? SkTPin(v[1], 0.0f, 1.0f) : 0,
+               b = v.size() > 2 ? SkTPin(v[2], 0.0f, 1.0f) : 0,
+               a = v.size() > 3 ? SkTPin(v[3], 0.0f, 1.0f) : 1;
+
+    return { r, g, b, a };
 }
 
 template <>
