@@ -46,13 +46,13 @@ public:
         }
     };
 
-    void initSimple(const GrVkGpu* gpu, const GrVkRenderTarget& target);
-    void init(const GrVkGpu* gpu,
+    void initSimple(GrVkGpu* gpu, const GrVkRenderTarget& target);
+    void init(GrVkGpu* gpu,
               const GrVkRenderTarget& target,
               const LoadStoreOps& colorOp,
               const LoadStoreOps& stencilOp);
 
-    void init(const GrVkGpu* gpu,
+    void init(GrVkGpu* gpu,
               const GrVkRenderPass& compatibleRenderPass,
               const LoadStoreOps& colorOp,
               const LoadStoreOps& stencilOp);
@@ -134,7 +134,7 @@ public:
 private:
     GrVkRenderPass(const GrVkRenderPass&);
 
-    void init(const GrVkGpu* gpu,
+    void init(GrVkGpu* gpu,
               const LoadStoreOps& colorOps,
               const LoadStoreOps& stencilOps);
 

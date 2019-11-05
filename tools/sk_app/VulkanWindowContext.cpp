@@ -372,9 +372,10 @@ void VulkanWindowContext::createBuffers(VkFormat format, SkColorType colorType) 
     fBackbuffers = new BackbufferInfo[fImageCount + 1];
     for (uint32_t i = 0; i < fImageCount + 1; ++i) {
         fBackbuffers[i].fImageIndex = -1;
-        GR_VK_CALL_ERRCHECK(fInterface,
-                            CreateSemaphore(fDevice, &semaphoreInfo,
-                                            nullptr, &fBackbuffers[i].fRenderSemaphore));
+        SkDEBUGCODE(VkResult result = )GR_VK_CALL(fInterface,
+                CreateSemaphore(fDevice, &semaphoreInfo, nullptr,
+                                &fBackbuffers[i].fRenderSemaphore));
+        SkASSERT(result == VK_SUCCESS);
     }
     fCurrentBackbufferIndex = fImageCount;
 }
@@ -470,8 +471,9 @@ sk_sp<SkSurface> VulkanWindowContext::getBackbufferSurface() {
     semaphoreInfo.pNext = nullptr;
     semaphoreInfo.flags = 0;
     VkSemaphore semaphore;
-    GR_VK_CALL_ERRCHECK(fInterface, CreateSemaphore(fDevice, &semaphoreInfo,
-                                                    nullptr, &semaphore));
+    SkDEBUGCODE(VkResult result = )GR_VK_CALL(fInterface, CreateSemaphore(fDevice, &semaphoreInfo,
+                                                                          nullptr, &semaphore));
+    SkASSERT(result == VK_SUCCESS);
 
     // acquire the image
     VkResult res = fAcquireNextImageKHR(fDevice, fSwapchain, UINT64_MAX,

@@ -134,7 +134,6 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
     if (GrBackendApi::kVulkan == mainInfo.backend()) {
         // Initialize the secondary semaphore instead of having Ganesh create one internally
         GrVkGpu* gpu = static_cast<GrVkGpu*>(mainCtx->priv().getGpu());
-        const GrVkInterface* interface = gpu->vkInterface();
         VkDevice device = gpu->device();
 
         VkSemaphore vkSem;
@@ -143,7 +142,7 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
         createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
         createInfo.pNext = nullptr;
         createInfo.flags = 0;
-        GR_VK_CALL_ERRCHECK(interface, CreateSemaphore(device, &createInfo, nullptr, &vkSem));
+        GR_VK_CALL_ERRCHECK(gpu, CreateSemaphore(device, &createInfo, nullptr, &vkSem));
 
         semaphores[1].initVulkan(vkSem);
     }
@@ -284,8 +283,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo)
         cmdBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
         cmdBufferBeginInfo.pInheritanceInfo = nullptr;
 
-        GR_VK_CALL_ERRCHECK(interface, BeginCommandBuffer(cmdBuffer, &cmdBufferBeginInfo));
-        GR_VK_CALL_ERRCHECK(interface, EndCommandBuffer(cmdBuffer));
+        GR_VK_CALL_ERRCHECK(gpu, BeginCommandBuffer(cmdBuffer, &cmdBufferBeginInfo));
+        GR_VK_CALL_ERRCHECK(gpu, EndCommandBuffer(cmdBuffer));
 
         VkFenceCreateInfo fenceInfo;
         VkFence fence;
@@ -308,7 +307,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo)
         submitInfo.pCommandBuffers = &cmdBuffer;
         submitInfo.signalSemaphoreCount = 0;
         submitInfo.pSignalSemaphores = nullptr;
-        GR_VK_CALL_ERRCHECK(interface, QueueSubmit(queue, 1, &submitInfo, fence));
+        GR_VK_CALL_ERRCHECK(gpu, QueueSubmit(queue, 1, &submitInfo, fence));
 
         err = GR_VK_CALL(interface, WaitForFences(device, 1, &fence, true, 3000000000));
 

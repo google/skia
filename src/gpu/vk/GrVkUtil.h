@@ -20,14 +20,22 @@ class GrVkGpu;
 
 // makes a Vk call on the interface
 #define GR_VK_CALL(IFACE, X) (IFACE)->fFunctions.f##X
+
+#define GR_VK_CALL_RESULT(GPU, RESULT, X)                             \
+    do {                                                              \
+    (RESULT) = GR_VK_CALL(GPU->vkInterface(), X);                     \
+    SkASSERT(VK_SUCCESS == RESULT || VK_ERROR_DEVICE_LOST == RESULT); \
+    if (VK_ERROR_DEVICE_LOST == RESULT) {                             \
+        GPU->setDeviceLost();                                         \
+    }                                                                 \
+    } while(false)
+
+
 // same as GR_VK_CALL but checks for success
-#ifdef SK_DEBUG
-#define GR_VK_CALL_ERRCHECK(IFACE, X)                          \
-    VkResult SK_MACRO_APPEND_LINE(ret) = GR_VK_CALL(IFACE, X); \
-    SkASSERT(VK_SUCCESS == SK_MACRO_APPEND_LINE(ret))
-#else
-#define GR_VK_CALL_ERRCHECK(IFACE, X)  (void) GR_VK_CALL(IFACE, X)
-#endif
+#define GR_VK_CALL_ERRCHECK(GPU, X)                                  \
+    VkResult SK_MACRO_APPEND_LINE(ret);                              \
+    GR_VK_CALL_RESULT(GPU, SK_MACRO_APPEND_LINE(ret), X)             \
+
 
 bool GrVkFormatIsSupported(VkFormat);
 
