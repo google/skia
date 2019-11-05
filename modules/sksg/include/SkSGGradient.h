@@ -25,8 +25,8 @@ namespace sksg {
 class Gradient : public Shader {
 public:
     struct ColorStop {
-        SkScalar fPosition;
-        SkColor  fColor;
+        SkScalar  fPosition;
+        SkColor4f fColor;
 
         bool operator==(const ColorStop& other) const {
             return fPosition == other.fPosition && fColor == other.fColor;
@@ -39,8 +39,8 @@ public:
 protected:
     sk_sp<SkShader> onRevalidateShader() final;
 
-    virtual sk_sp<SkShader> onMakeShader(const std::vector<SkColor>& colors,
-                                         const std::vector<SkScalar>& positions) const = 0;
+    virtual sk_sp<SkShader> onMakeShader(const std::vector<SkColor4f>& colors,
+                                         const std::vector<SkScalar >& positions) const = 0;
 
 protected:
     Gradient() = default;
@@ -62,8 +62,8 @@ public:
     SG_ATTRIBUTE(EndPoint  , SkPoint, fEndPoint  )
 
 protected:
-    sk_sp<SkShader> onMakeShader(const std::vector<SkColor>& colors,
-                                 const std::vector<SkScalar>& positions) const override;
+    sk_sp<SkShader> onMakeShader(const std::vector<SkColor4f>&,
+                                 const std::vector<SkScalar >&) const override;
 
 private:
     LinearGradient() = default;
@@ -86,8 +86,8 @@ public:
     SG_ATTRIBUTE(EndRadius  , SkScalar, fEndRadius  )
 
 protected:
-    sk_sp<SkShader> onMakeShader(const std::vector<SkColor>& colors,
-                                 const std::vector<SkScalar>& positions) const override;
+    sk_sp<SkShader> onMakeShader(const std::vector<SkColor4f>&,
+                                 const std::vector<SkScalar >&) const override;
 
 private:
     RadialGradient() = default;
