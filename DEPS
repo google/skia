@@ -7,7 +7,7 @@ vars = {
 deps = {
   "buildtools"                            : "https://chromium.googlesource.com/chromium/buildtools.git@505de88083136eefd056e5ee4ca0f01fe9b33de8",
   "common"                                : "https://skia.googlesource.com/common.git@9737551d7a52c3db3262db5856e6bcd62c462b92",
-  "third_party/externals/angle2"          : "https://chromium.googlesource.com/angle/angle.git@6c7208f93d6ecda3ad2515ea02e3dd5985a9dafe",
+  "third_party/externals/angle2"          : "https://chromium.googlesource.com/angle/angle.git@67527cb4529351b719ad346cb825e47838d51f11",
   "third_party/externals/dawn"            : "https://dawn.googlesource.com/dawn.git@672707f76e2dfb7c12c1870adbe2e889ae217fe9",
   "third_party/externals/dng_sdk"         : "https://android.googlesource.com/platform/external/dng_sdk.git@c8d0c9b1d16bfda56f15165d39e0ffa360a11123",
   "third_party/externals/egl-registry"    : "https://skia.googlesource.com/external/github.com/KhronosGroup/EGL-Registry@a0bca08de07c7d7651047bedc0b653cfaaa4f2ae",
