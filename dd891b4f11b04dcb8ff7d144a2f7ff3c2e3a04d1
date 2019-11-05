@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6dd457e4_ca7f87c3",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1068,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-05T15:24:33Z",
+      "side": 1,
+      "message": "I don\u0027t think this test needs to be in the #ifdef",
+      "range": {
+        "startLine": 1048,
+        "startChar": 0,
+        "endLine": 1068,
+        "endChar": 2
+      },
+      "revId": "dd891b4f11b04dcb8ff7d144a2f7ff3c2e3a04d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a5e9dba_c3b1b08b",
+        "filename": "tests/ResourceCacheTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-05T15:24:33Z",
+      "side": 1,
+      "message": "Does this test not compile when SK_GL is not defined?",
+      "range": {
+        "startLine": 188,
+        "startChar": 0,
+        "endLine": 252,
+        "endChar": 4
+      },
+      "revId": "dd891b4f11b04dcb8ff7d144a2f7ff3c2e3a04d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
