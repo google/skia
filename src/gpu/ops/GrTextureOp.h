@@ -53,7 +53,22 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
                                const GrQuad& localQuad,
                                const SkRect* domain = nullptr);
 
+// Add potentially several GrTextureOps to the provided renderTargetContext - all using the
+// same clip.
 // Unlike the single-proxy factory, this only supports src-over blending.
+void BulkAddTextureOps(GrRenderTargetContext* rtc,
+                       const GrClip&,
+                       GrRecordingContext* context,
+                       const GrRenderTargetContext::TextureSetEntry[],
+                       int cnt,
+                       GrSamplerState::Filter,
+                       Saturate,
+                       GrAAType,
+                       SkCanvas::SrcRectConstraint,
+                       const SkMatrix& viewMatrix,
+                       sk_sp<GrColorSpaceXform> textureXform);
+
+#if 0
 std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext*,
                                   const GrRenderTargetContext::TextureSetEntry[],
                                   int cnt,
@@ -63,6 +78,6 @@ std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext*,
                                   SkCanvas::SrcRectConstraint,
                                   const SkMatrix& viewMatrix,
                                   sk_sp<GrColorSpaceXform> textureXform);
-
+#endif
 }
 #endif  // GrTextureOp_DEFINED
