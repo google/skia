@@ -75,8 +75,8 @@ private:
     class TrivialRunIterator : public RunIteratorSubclass {
     public:
         static_assert(std::is_base_of<RunIterator, RunIteratorSubclass>::value, "");
-        TrivialRunIterator(size_t utf8Bytes) : fEnd(utf8Bytes), fAtEnd(false) {}
-        void consume() override { fAtEnd = true; }
+        TrivialRunIterator(size_t utf8Bytes) : fEnd(utf8Bytes), fAtEnd(fEnd == 0) {}
+        void consume() override { SkASSERT(!fAtEnd); fAtEnd = true; }
         size_t endOfCurrentRun() const override { return fAtEnd ? fEnd : 0; }
         bool atEnd() const override { return fAtEnd; }
     private:
