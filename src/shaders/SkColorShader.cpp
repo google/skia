@@ -99,13 +99,11 @@ static bool common_program(SkColor4f color, SkColorSpace* cs,
                            dstCS, kUnpremul_SkAlphaType).apply(color.vec());
 
     if (color.fitsInBytes()) {
-        if (p) {
-            skvm::I32 rgba = p->uniform32(uniforms, offset);
-            *r = p->extract(rgba,  0, p->splat(0xff));
-            *g = p->extract(rgba,  8, p->splat(0xff));
-            *b = p->extract(rgba, 16, p->splat(0xff));
-            *a = p->extract(rgba, 24, p->splat(0xff));
-        }
+        skvm::I32 rgba = p->uniform32(uniforms, offset);
+        *r = p->extract(rgba,  0, p->splat(0xff));
+        *g = p->extract(rgba,  8, p->splat(0xff));
+        *b = p->extract(rgba, 16, p->splat(0xff));
+        *a = p->extract(rgba, 24, p->splat(0xff));
         return true;
     }
     return false;
