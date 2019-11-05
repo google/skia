@@ -29,7 +29,7 @@ struct Fade : public SkShaderBase {
 
     bool onProgram(skvm::Builder* p,
                    SkColorSpace* dstCS,
-                   skvm::Arg uniforms, int offset,
+                   skvm::Arg uniforms, size_t offset,
                    skvm::F32 x, skvm::F32 y,
                    skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override {
         if (as_SB(fShader)->program(p, dstCS,
@@ -43,8 +43,8 @@ struct Fade : public SkShaderBase {
         return false;
     }
 
-    size_t uniforms(SkColorSpace* dstCS, uint8_t* buf) const override {
-        return as_SB(fShader)->uniforms(dstCS, buf);
+    void uniforms(SkColorSpace* dstCS, std::vector<uint32_t>* buf) const override {
+        as_SB(fShader)->uniforms(dstCS, buf);
     }
 
     // Flattening is not really necessary, just nice to make serialize-8888 etc. not crash.
