@@ -231,11 +231,10 @@ GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
         // skia:8713
         __lsan::ScopedDisabler lsanDisabler;
 #endif
-        GR_VK_CALL_ERRCHECK(gpu->vkInterface(),
-                            CreateDescriptorSetLayout(gpu->device(),
-                                                      &dsSamplerLayoutCreateInfo,
-                                                      nullptr,
-                                                      &fDescLayout));
+        GR_VK_CALL_ERRCHECK(gpu, CreateDescriptorSetLayout(gpu->device(),
+                                                           &dsSamplerLayoutCreateInfo,
+                                                           nullptr,
+                                                           &fDescLayout));
         fDescCountPerSet = visibilities.count();
     } else {
         SkASSERT(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER == type);
@@ -262,10 +261,10 @@ GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
         // skia:8713
         __lsan::ScopedDisabler lsanDisabler;
 #endif
-        GR_VK_CALL_ERRCHECK(gpu->vkInterface(), CreateDescriptorSetLayout(gpu->device(),
-                                                                          &uniformLayoutCreateInfo,
-                                                                          nullptr,
-                                                                          &fDescLayout));
+        GR_VK_CALL_ERRCHECK(gpu, CreateDescriptorSetLayout(gpu->device(),
+                                                           &uniformLayoutCreateInfo,
+                                                           nullptr,
+                                                           &fDescLayout));
         fDescCountPerSet = kUniformDescPerSet;
     }
 
@@ -309,9 +308,7 @@ void GrVkDescriptorSetManager::DescriptorPoolManager::getNewDescriptorSet(GrVkGp
     dsAllocateInfo.descriptorPool = fPool->descPool();
     dsAllocateInfo.descriptorSetCount = 1;
     dsAllocateInfo.pSetLayouts = &fDescLayout;
-    GR_VK_CALL_ERRCHECK(gpu->vkInterface(), AllocateDescriptorSets(gpu->device(),
-                                                                   &dsAllocateInfo,
-                                                                   ds));
+    GR_VK_CALL_ERRCHECK(gpu, AllocateDescriptorSets(gpu->device(), &dsAllocateInfo, ds));
 }
 
 void GrVkDescriptorSetManager::DescriptorPoolManager::freeGPUResources(GrVkGpu* gpu) {

@@ -534,15 +534,13 @@ void GrVkResourceProvider::storePipelineCacheData() {
 ////////////////////////////////////////////////////////////////////////////////
 
 GrVkResourceProvider::CompatibleRenderPassSet::CompatibleRenderPassSet(
-                                                                     const GrVkGpu* gpu,
-                                                                     const GrVkRenderTarget& target)
-    : fLastReturnedIndex(0) {
+        GrVkGpu* gpu, const GrVkRenderTarget& target) : fLastReturnedIndex(0) {
     fRenderPasses.emplace_back(new GrVkRenderPass());
     fRenderPasses[0]->initSimple(gpu, target);
 }
 
 bool GrVkResourceProvider::CompatibleRenderPassSet::isCompatible(
-                                                             const GrVkRenderTarget& target) const {
+        const GrVkRenderTarget& target) const {
     // The first GrVkRenderpass should always exists since we create the basic load store
     // render pass on create
     SkASSERT(fRenderPasses[0]);
@@ -550,9 +548,9 @@ bool GrVkResourceProvider::CompatibleRenderPassSet::isCompatible(
 }
 
 GrVkRenderPass* GrVkResourceProvider::CompatibleRenderPassSet::getRenderPass(
-                                                   const GrVkGpu* gpu,
-                                                   const GrVkRenderPass::LoadStoreOps& colorOps,
-                                                   const GrVkRenderPass::LoadStoreOps& stencilOps) {
+        GrVkGpu* gpu,
+        const GrVkRenderPass::LoadStoreOps& colorOps,
+        const GrVkRenderPass::LoadStoreOps& stencilOps) {
     for (int i = 0; i < fRenderPasses.count(); ++i) {
         int idx = (i + fLastReturnedIndex) % fRenderPasses.count();
         if (fRenderPasses[idx]->equalLoadStoreOps(colorOps, stencilOps)) {

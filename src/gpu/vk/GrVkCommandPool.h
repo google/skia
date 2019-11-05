@@ -18,7 +18,7 @@ class GrVkGpu;
 
 class GrVkCommandPool : public GrVkResource {
 public:
-    static GrVkCommandPool* Create(const GrVkGpu* gpu);
+    static GrVkCommandPool* Create(GrVkGpu* gpu);
 
     VkCommandPool vkCommandPool() const {
         return fCommandPool;
