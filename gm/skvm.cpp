@@ -35,11 +35,9 @@ struct Fade : public SkShaderBase {
         if (as_SB(fShader)->program(p, dstCS,
                                     uniforms, offset,
                                     x,y, r,g,b,a)) {
-            if (p) {
-                // In this GM `y` will range over 0-50 and `x` over 50-100.
-                *r = p->to_i32(p->mul(y, p->splat(255/ 50.0f)));
-                *g = p->to_i32(p->mul(x, p->splat(255/100.0f)));
-            }
+            // In this GM `y` will range over 0-50 and `x` over 50-100.
+            *r = p->to_i32(p->mul(y, p->splat(255/ 50.0f)));
+            *g = p->to_i32(p->mul(x, p->splat(255/100.0f)));
             return true;
         }
         return false;

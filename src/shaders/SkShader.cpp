@@ -210,7 +210,7 @@ bool SkShaderBase::program(skvm::Builder* p,
     // that bit to make decisions when constructing an SkVMBlitter, like doing
     // SrcOver -> Src strength reduction.
     if (this->onProgram(p, dstCS, uniforms,offset, x,y, r,g,b,a)) {
-        if (p && this->isOpaque()) {
+        if (this->isOpaque()) {
             *a = p->splat(0xff);
         }
         return true;
