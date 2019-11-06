@@ -1059,6 +1059,7 @@ namespace skvm {
     void Assembler::eor16b(V d, V n, V m) { this->op(0b0'1'1'01110'00'1, m, 0b00011'1, n, d); }
     void Assembler::bic16b(V d, V n, V m) { this->op(0b0'1'0'01110'01'1, m, 0b00011'1, n, d); }
     void Assembler::bsl16b(V d, V n, V m) { this->op(0b0'1'1'01110'01'1, m, 0b00011'1, n, d); }
+    void Assembler::not16b(V d, V n)      { this->op(0b0'1'1'01110'00'10000'00101'10,  n, d); }
 
     void Assembler::add4s(V d, V n, V m) { this->op(0b0'1'0'01110'10'1, m, 0b10000'1, n, d); }
     void Assembler::sub4s(V d, V n, V m) { this->op(0b0'1'1'01110'10'1, m, 0b10000'1, n, d); }
@@ -1074,6 +1075,10 @@ namespace skvm {
     void Assembler::fsub4s(V d, V n, V m) { this->op(0b0'1'0'01110'1'0'1, m, 0b11010'1, n, d); }
     void Assembler::fmul4s(V d, V n, V m) { this->op(0b0'1'1'01110'0'0'1, m, 0b11011'1, n, d); }
     void Assembler::fdiv4s(V d, V n, V m) { this->op(0b0'1'1'01110'0'0'1, m, 0b11111'1, n, d); }
+
+    void Assembler::fcmeq4s(V d, V n, V m) { this->op(0b0'1'0'01110'0'0'1, m, 0b1110'0'1, n, d); }
+    void Assembler::fcmgt4s(V d, V n, V m) { this->op(0b0'1'1'01110'1'0'1, m, 0b1110'0'1, n, d); }
+    void Assembler::fcmge4s(V d, V n, V m) { this->op(0b0'1'1'01110'0'0'1, m, 0b1110'0'1, n, d); }
 
     void Assembler::fmla4s(V d, V n, V m) { this->op(0b0'1'0'01110'0'0'1, m, 0b11001'1, n, d); }
 
@@ -1917,6 +1922,13 @@ namespace skvm {
                 case Op::lt_i32: a->vpcmpgtd(dst(), r[y], r[x]); break;
                 case Op::gt_i32: a->vpcmpgtd(dst(), r[x], r[y]); break;
 
+                case Op:: eq_f32: a->vcmpeqps (dst(), r[x], r[y]); break;
+                case Op::neq_f32: a->vcmpneqps(dst(), r[x], r[y]); break;
+                case Op:: lt_f32: a->vcmpltps (dst(), r[x], r[y]); break;
+                case Op::lte_f32: a->vcmpleps (dst(), r[x], r[y]); break;
+                case Op:: gt_f32: a->vcmpltps (dst(), r[y], r[x]); break;
+                case Op::gte_f32: a->vcmpleps (dst(), r[y], r[x]); break;
+
                 case Op::extract: if (imm == 0) { a->vpand (dst(),  r[x], r[y]); }
                                   else          { a->vpsrld(tmp(),  r[x], imm);
                                                   a->vpand (dst(), tmp(), r[y]); }
@@ -1972,6 +1984,14 @@ namespace skvm {
                                                             a->fmla4s(tmp(),  r[x],  r[y]);
                                        if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); } }
                                                             break;
+
+                case Op:: lt_f32: a->fcmgt4s (dst(), r[y], r[x]); break;
+                case Op::lte_f32: a->fcmge4s (dst(), r[y], r[x]); break;
+                case Op:: gt_f32: a->fcmgt4s (dst(), r[x], r[y]); break;
+                case Op::gte_f32: a->fcmge4s (dst(), r[x], r[y]); break;
+                case Op:: eq_f32: a->fcmeq4s (dst(), r[x], r[y]); break;
+                case Op::neq_f32: a->fcmeq4s (tmp(), r[x], r[y]);
+                                  a->not16b  (dst(), tmp());      break;
 
 
                 case Op::add_i32: a->add4s(dst(), r[x], r[y]); break;
