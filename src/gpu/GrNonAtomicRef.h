@@ -45,7 +45,7 @@ public:
         SkASSERT(fRefCnt > 0);
         --fRefCnt;
         if (0 == fRefCnt) {
-            GrTDeleteNonAtomicRef(static_cast<const TSubclass*>(this));
+            delete (const TSubclass*)this;
             return;
         }
     }
@@ -55,9 +55,5 @@ private:
 
     typedef SkNoncopyable INHERITED;
 };
-
-template<typename T> inline void GrTDeleteNonAtomicRef(const T* ref) {
-    delete ref;
-}
 
 #endif
