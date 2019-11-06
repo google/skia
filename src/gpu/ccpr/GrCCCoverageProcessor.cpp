@@ -203,12 +203,7 @@ void GrCCCoverageProcessor::draw(
     dynamicStateArrays.fScissorRects = scissorRects;
     GrOpsRenderPass* renderPass = flushState->opsRenderPass();
 
-    GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
-                              flushState->drawOpArgs().origin(),
-                              pipeline,
-                              *this,
-                              nullptr,
-                              &dynamicStateArrays, 0);
+    GrProgramInfo programInfo(flushState, pipeline, *this, nullptr, &dynamicStateArrays, 0);
 
 
     renderPass->draw(programInfo, meshes, meshCount, drawBounds);

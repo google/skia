@@ -777,12 +777,7 @@ void GrCCStroker::flushBufferedMeshesAsStrokes(const GrPrimitiveProcessor& proce
     GrPipeline::DynamicStateArrays dynamicStateArrays;
     dynamicStateArrays.fScissorRects = fScissorsBuffer.begin();
 
-    GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
-                              flushState->drawOpArgs().origin(),
-                              pipeline,
-                              processor,
-                              nullptr,
-                              &dynamicStateArrays, 0);
+    GrProgramInfo programInfo(flushState, pipeline, processor, nullptr, &dynamicStateArrays, 0);
 
     flushState->opsRenderPass()->draw(programInfo,
                                       fMeshesBuffer.begin(), fMeshesBuffer.count(),

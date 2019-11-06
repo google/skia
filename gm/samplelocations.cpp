@@ -237,11 +237,7 @@ private:
 
         SampleLocationsTestProcessor primProc(fGradType);
 
-        GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
-                                  flushState->drawOpArgs().origin(),
-                                  pipeline,
-                                  primProc,
-                                  nullptr, nullptr, 0);
+        GrProgramInfo programInfo(flushState, pipeline, primProc, nullptr, nullptr, 0);
 
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setInstanced(nullptr, 200*200, 0, 4);

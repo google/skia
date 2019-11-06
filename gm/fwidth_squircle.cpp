@@ -176,11 +176,7 @@ private:
 
         FwidthSquircleTestProcessor primProc(fViewMatrix);
 
-        GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
-                                  flushState->drawOpArgs().origin(),
-                                  pipeline,
-                                  primProc,
-                                  nullptr, nullptr, 0);
+        GrProgramInfo programInfo(flushState, pipeline, primProc, nullptr, nullptr, 0);
 
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setNonIndexedNonInstanced(4);

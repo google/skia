@@ -7,6 +7,43 @@
 
 #include "src/gpu/GrProgramInfo.h"
 
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrRenderTarget.h"
+#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrStencilAttachment.h"
+
+static int calc_num_raster_samples(const GrOpFlushState* flushState, const GrPipeline& pipeline) {
+    if (flushState->caps().mixedSamplesSupport() && pipeline.isStencilEnabled()) {
+        auto* stencilAttachment =
+                flushState->proxy()->peekRenderTarget()->renderTargetPriv().getStencilAttachment();
+        SkASSERT(stencilAttachment);
+        return stencilAttachment->numSamples();
+    }
+    return flushState->proxy()->numSamples();
+}
+
+GrProgramInfo::GrProgramInfo(const GrOpFlushState* flushState, const GrPipeline& pipeline,
+                             const GrPrimitiveProcessor& primProc,
+                             const GrPipeline::FixedDynamicState* fixedDynamicState,
+                             const GrPipeline::DynamicStateArrays* dynamicStateArrays,
+                             int numDynamicStateArrays)
+        : fNumRasterSamples(calc_num_raster_samples(flushState, pipeline))
+        , fIsMixedSampled(fNumRasterSamples > flushState->proxy()->numSamples())
+        , fOrigin(flushState->proxy()->origin())
+        , fPipeline(pipeline)
+        , fPrimProc(primProc)
+        , fFixedDynamicState(fixedDynamicState)
+        , fDynamicStateArrays(dynamicStateArrays)
+        , fNumDynamicStateArrays(numDynamicStateArrays) {
+    fRequestedFeatures = fPrimProc.requestedFeatures();
+    for (int i = 0; i < fPipeline.numFragmentProcessors(); ++i) {
+        fRequestedFeatures |= fPipeline.getFragmentProcessor(i).requestedFeatures();
+    }
+    fRequestedFeatures |= fPipeline.getXferProcessor().requestedFeatures();
+
+    SkDEBUGCODE(this->validate();)
+    (void) fNumDynamicStateArrays;  // touch this to quiet unused member warnings
+}
 
 #ifdef SK_DEBUG
 #include "src/gpu/GrMesh.h"
@@ -117,7 +154,7 @@ void GrProgramInfo::compatibleWithMeshes(const GrMesh meshes[], int meshCount) c
         SkASSERT(fPrimProc.hasInstanceAttributes() == meshes[i].hasInstanceData());
         if (fPipeline.usesConservativeRaster()) {
             // Conservative raster, by default, only supports triangles. Implementations can
-            // optionally indicate that they also support points and lines, but we don't currently
+            // optionally indicate that they also supports points and lines, but we don't currently
             // query or track that info.
             SkASSERT(GrIsPrimTypeTris(meshes[i].primitiveType()));
         }
