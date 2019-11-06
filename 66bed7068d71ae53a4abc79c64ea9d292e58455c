@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "53a8ed91_2eaddd8a",
+        "filename": "modules/skparagraph/src/Iterators.h",
+        "patchSetId": 33
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-11-06T21:11:43Z",
+      "side": 1,
+      "message": "Not \"as is\" - it\u0027s too trivial. It assumes everything starts from 0, and in my case it\u0027s not true.",
+      "parentUuid": "c38c682b_615f5753",
+      "range": {
+        "startLine": 18,
+        "startChar": 6,
+        "endLine": 18,
+        "endChar": 24
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9e191f0d_2fab246c",
         "filename": "modules/skparagraph/src/OneLineShaper.cpp",
         "patchSetId": 33
@@ -45,6 +69,30 @@
       "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2bd08990_e5c616ad",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-11-06T21:11:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e191f0d_2fab246c",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 34
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "0d795444_a6a2141a",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-11-06T21:11:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "049de62c_e4984b54",
+      "range": {
+        "startLine": 170,
+        "startChar": 12,
+        "endLine": 170,
+        "endChar": 20
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5e2739e3_1f72d1d2",
         "filename": "modules/skparagraph/src/OneLineShaper.cpp",
         "patchSetId": 33
@@ -82,6 +154,30 @@
       "writtenOn": "2019-11-04T15:32:29Z",
       "side": 1,
       "message": "SkASSERTS only happen in debug, in release the code will just keep going. If this can happen, should this return here?",
+      "range": {
+        "startLine": 171,
+        "startChar": 12,
+        "endLine": 171,
+        "endChar": 28
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8fbf6df_856bed54",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-11-06T21:11:43Z",
+      "side": 1,
+      "message": "Not sure about that. I think it\u0027s OK but I would like to know about cases like this in debug more right away.",
+      "parentUuid": "5e2739e3_1f72d1d2",
       "range": {
         "startLine": 171,
         "startChar": 12,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "c903c24c_63bce166",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-11-06T21:11:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1404b760_ad2b2817",
+      "range": {
+        "startLine": 219,
+        "startChar": 8,
+        "endLine": 219,
+        "endChar": 16
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c8d77d89_8c341c70",
         "filename": "modules/skparagraph/src/OneLineShaper.cpp",
         "patchSetId": 33
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "b78ead2d_fc389e67",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-11-06T21:11:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c8d77d89_8c341c70",
+      "range": {
+        "startLine": 240,
+        "startChar": 0,
+        "endLine": 247,
+        "endChar": 11
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0e8509e7_0c135266",
         "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
         "patchSetId": 33
@@ -151,6 +295,30 @@
       "writtenOn": "2019-11-04T15:32:29Z",
       "side": 1,
       "message": "Probably the source of the current merge conflict, already fixed.",
+      "range": {
+        "startLine": 1311,
+        "startChar": 27,
+        "endLine": 1311,
+        "endChar": 29
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa531f86_585ba29f",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 1311,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-11-06T21:11:43Z",
+      "side": 1,
+      "message": "Already resolved, yes.",
+      "parentUuid": "0e8509e7_0c135266",
       "range": {
         "startLine": 1311,
         "startChar": 27,
@@ -186,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "292e0e31_96c253ed",
+        "filename": "resources/fonts/abc/abc.ttx",
+        "patchSetId": 33
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-11-06T21:11:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "45a1347c_a9f2b459",
+      "range": {
+        "startLine": 127,
+        "startChar": 2,
+        "endLine": 127,
+        "endChar": 8
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "42d22c4a_e26f2912",
         "filename": "resources/fonts/abc/abc.ttx",
         "patchSetId": 33
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "8f9fab53_e5c35164",
+        "filename": "resources/fonts/abc/abc.ttx",
+        "patchSetId": 33
+      },
+      "lineNbr": 891,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-11-06T21:11:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42d22c4a_e26f2912",
+      "range": {
+        "startLine": 891,
+        "startChar": 2,
+        "endLine": 891,
+        "endChar": 8
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "95d177ea_820834f7",
         "filename": "resources/fonts/abc/abc.ttx",
         "patchSetId": 33
@@ -229,6 +445,30 @@
       "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25982389_f683609b",
+        "filename": "resources/fonts/abc/abc.ttx",
+        "patchSetId": 33
+      },
+      "lineNbr": 921,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-11-06T21:11:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "95d177ea_820834f7",
+      "range": {
+        "startLine": 921,
+        "startChar": 2,
+        "endLine": 921,
+        "endChar": 8
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -278,6 +518,30 @@
     },
     {
       "key": {
+        "uuid": "225446dd_1cc0a61f",
+        "filename": "resources/fonts/abc/abc.ttx",
+        "patchSetId": 33
+      },
+      "lineNbr": 3587,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-11-06T21:11:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eed4525e_551915f0",
+      "range": {
+        "startLine": 3587,
+        "startChar": 2,
+        "endLine": 3587,
+        "endChar": 7
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fdc12fca_5d89cf6f",
         "filename": "resources/fonts/abc/abc.ttx",
         "patchSetId": 33
@@ -298,6 +562,30 @@
       "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09841bb9_8e9790d3",
+        "filename": "resources/fonts/abc/abc.ttx",
+        "patchSetId": 33
+      },
+      "lineNbr": 4404,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-11-06T21:11:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fdc12fca_5d89cf6f",
+      "range": {
+        "startLine": 4404,
+        "startChar": 6,
+        "endLine": 4404,
+        "endChar": 20
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -324,6 +612,30 @@
     },
     {
       "key": {
+        "uuid": "fe80401c_e9a50ffa",
+        "filename": "resources/fonts/abc/abc.ttx",
+        "patchSetId": 33
+      },
+      "lineNbr": 4775,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-11-06T21:11:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "39b7cbc3_cd086a22",
+      "range": {
+        "startLine": 4775,
+        "startChar": 2,
+        "endLine": 4775,
+        "endChar": 8
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d3dd263e_e2f0d1c6",
         "filename": "resources/fonts/abc/abc.ttx",
         "patchSetId": 33
@@ -347,6 +659,30 @@
     },
     {
       "key": {
+        "uuid": "1eda0e72_89e37d8e",
+        "filename": "resources/fonts/abc/abc.ttx",
+        "patchSetId": 33
+      },
+      "lineNbr": 5730,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-11-06T21:11:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3dd263e_e2f0d1c6",
+      "range": {
+        "startLine": 5730,
+        "startChar": 4,
+        "endLine": 5730,
+        "endChar": 27
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aeeef277_b93a5d7b",
         "filename": "resources/fonts/abc/abc.ttx",
         "patchSetId": 33
@@ -367,6 +703,30 @@
       "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4cc4b739_21b12f02",
+        "filename": "resources/fonts/abc/abc.ttx",
+        "patchSetId": 33
+      },
+      "lineNbr": 5948,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-11-06T21:11:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aeeef277_b93a5d7b",
+      "range": {
+        "startLine": 5948,
+        "startChar": 2,
+        "endLine": 5948,
+        "endChar": 8
+      },
+      "revId": "66bed7068d71ae53a4abc79c64ea9d292e58455c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
