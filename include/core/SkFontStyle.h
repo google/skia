@@ -74,7 +74,20 @@ public:
     }
 
 private:
+#ifdef SK_DEBUG
+    union Value {
+        uint32_t raw;
+        struct {
+            uint32_t weight : 16;
+            uint32_t width : 8;
+            uint32_t slant : 8;
+        } structured;
+        constexpr Value(uint32_t value) : raw(value) {}
+        constexpr operator uint32_t() const { return raw; }
+    } fValue;
+#else
     uint32_t fValue;
+#endif
 };
 
 #endif

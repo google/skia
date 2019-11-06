@@ -118,7 +118,33 @@ private:
     uint8_t     fStrokeCap : 4;
 
 public:
+#ifdef SK_DEBUG
+    union Flags {
+        uint16_t raw;
+        struct {
+            uint16_t kFrameAndFill : 1;
+            uint16_t kUnused0x0002 : 1;
+            uint16_t kEmbeddedBitmapText : 1;
+            uint16_t kEmbolden : 1;
+            uint16_t kSubpixelPositioning : 1;
+            uint16_t kForceAutohinting : 1;
+            uint16_t kUnused0x0040 : 1;
+            uint16_t kHinting : 2;
+            uint16_t kLCD_Vertical : 1;
+            uint16_t kLCD_BGROrder : 1;
+            uint16_t kGenA8FromLCD : 1;
+            uint16_t kLinearMetrics : 1;
+            uint16_t kBaselineSnap : 1;
+            uint16_t kUnused0x4000 : 1;
+            uint16_t kUnused0x8000 : 1;
+        } structured;
+        constexpr operator uint16_t() const { return raw; }
+        constexpr Flags& operator=(uint16_t that) { raw = that; return *this; }
+        constexpr Flags& operator|=(uint16_t that) { raw |= that; return *this; }
+    } fFlags;
+#else
     uint16_t    fFlags;
+#endif
 
     // Warning: when adding members note that the size of this structure
     // must be a multiple of 4. SkDescriptor requires that its arguments be
@@ -132,7 +158,7 @@ public:
                    fTextSize, fPreScaleX, fPreSkewX, fPost2x2[0][0],
                    fPost2x2[0][1], fPost2x2[1][0], fPost2x2[1][1]);
         msg.appendf("  frame %g miter %g format %d join %d cap %d flags %#hx\n",
-                   fFrameWidth, fMiterLimit, fMaskFormat, fStrokeJoin, fStrokeCap, fFlags);
+                   fFrameWidth, fMiterLimit, fMaskFormat, fStrokeJoin, fStrokeCap, (uint16_t)fFlags);
         msg.appendf("  lum bits %x, device gamma %d, paint gamma %d contrast %d\n", fLumBits,
                     fDeviceGamma, fPaintGamma, fContrast);
         return msg;
