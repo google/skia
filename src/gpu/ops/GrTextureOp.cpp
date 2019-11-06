@@ -773,7 +773,8 @@ private:
         }
 
         target->recordDraw(std::move(gp), meshes, desc.fNumProxies,
-                           desc.fFixedDynamicState, desc.fDynamicStateArrays);
+                           desc.fFixedDynamicState, desc.fDynamicStateArrays,
+                           desc.fVertexSpec.primitiveType());
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
