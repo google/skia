@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2dcb22d8_5003d4d9",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-06T21:59:16Z",
+      "side": 1,
+      "message": "just \n\n  return mode \u003c\u003d SkBlendMode::kScreen;\n\n?",
+      "revId": "e52e7572ac83be621250182653d83bdfc0f6dd4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b0a08fd_6a6831dc",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-06T21:59:16Z",
+      "side": 1,
+      "message": "This doesn\u0027t seem right... isn\u0027t it\n\n   skvm::I32 zero \u003d p-\u003esplat(0);\n   ...\n   case SkBlendMode::kClear: res \u003d {zero,zero,zero,zero};\n\n?  As is, this is more like leaving the color channels uninitialized, or perhaps pointing to whatever value skvm::I32{0} happens to be in p.",
+      "range": {
+        "startLine": 570,
+        "startChar": 34,
+        "endLine": 570,
+        "endChar": 42
+      },
+      "revId": "e52e7572ac83be621250182653d83bdfc0f6dd4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23ce86bf_2c6ac2a2",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 634,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-06T21:59:16Z",
+      "side": 1,
+      "message": "Might want to scooch add_sub() down here for now while it\u0027s the only place used?",
+      "revId": "e52e7572ac83be621250182653d83bdfc0f6dd4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
