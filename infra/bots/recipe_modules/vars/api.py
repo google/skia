@@ -41,8 +41,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.builder_cfg = self.m.builder_name_schema.DictForBuilderName(
         self.builder_name)
     self.role = self.builder_cfg['role']
-    if self.role in [self.m.builder_name_schema.BUILDER_ROLE_HOUSEKEEPER,
-                     self.m.builder_name_schema.BUILDER_ROLE_CALMBENCH]:
+    if self.role == self.m.builder_name_schema.BUILDER_ROLE_HOUSEKEEPER:
       self.configuration = CONFIG_RELEASE
     else:
       self.configuration = self.builder_cfg.get('configuration', CONFIG_DEBUG)
