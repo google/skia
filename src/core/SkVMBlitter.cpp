@@ -441,12 +441,6 @@ namespace {
                     return p;
                 }
             }
-        #if 0
-            static std::atomic<int> done{0};
-            if (0 == done++) {
-                atexit([]{ SkDebugf("%d calls to done\n", done.load()); });
-            }
-        #endif
             // We don't really _need_ to rebuild fUniforms here.
             // It's just more natural to have effects unconditionally emit them,
             // and more natural to rebuild fUniforms than to emit them into a dummy buffer.
@@ -457,10 +451,17 @@ namespace {
             SkASSERT(fUniforms.buf.size() == prev);
 
             skvm::Program program = builder.done(debug_name(key).c_str());
-            if (!program.hasJIT() && debug_dump(key)) {
-                SkDebugf("\nfalling back to interpreter for blitter with this key.\n");
-                builder.dump();
-                program.dump();
+            if (debug_dump(key)) {
+                static std::atomic<int> done{0};
+                if (0 == done++) {
+                    atexit([]{ SkDebugf("%d calls to done\n", done.load()); });
+                }
+
+                if (!program.hasJIT()) {
+                    SkDebugf("\nfalling back to interpreter for blitter with this key.\n");
+                    builder.dump();
+                    program.dump();
+                }
             }
             return program;
         }
