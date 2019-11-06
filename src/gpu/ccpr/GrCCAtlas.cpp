@@ -67,7 +67,12 @@ sk_sp<GrTextureProxy> GrCCAtlas::MakeLazyAtlasProxy(const LazyInstantiateAtlasCa
         case CoverageType::kA8_Multisample:
             SkASSERT(caps.internalMultisampleCount(format) > 1);
             pixelConfig = kAlpha_8_GrPixelConfig;
-            sampleCount = (caps.mixedSamplesSupport()) ? 1 : caps.internalMultisampleCount(format);
+            if (caps.mixedSamplesSupport() &&
+                (caps.multisampleDisableSupport() || caps.conservativeRasterSupport())) {
+                sampleCount = 1;
+            } else {
+                sampleCount = caps.internalMultisampleCount(format);
+            }
             break;
         case CoverageType::kA8_LiteralCoverage:
             pixelConfig = kAlpha_8_GrPixelConfig;

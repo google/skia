@@ -278,20 +278,33 @@ static void setup_viewport_scissor_state(VkPipelineViewportStateCreateInfo* view
     SkASSERT(viewportInfo->viewportCount == viewportInfo->scissorCount);
 }
 
-static void setup_multisample_state(const GrProgramInfo& programInfo,
-                                    const GrCaps* caps,
+static void setup_multisample_state(const GrProgramInfo& programInfo, const GrCaps* caps,
+                                    int numStencilSamples,
                                     VkPipelineMultisampleStateCreateInfo* multisampleInfo) {
     memset(multisampleInfo, 0, sizeof(VkPipelineMultisampleStateCreateInfo));
     multisampleInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampleInfo->pNext = nullptr;
     multisampleInfo->flags = 0;
-    SkAssertResult(GrSampleCountToVkSampleCount(programInfo.numSamples(),
+    SkAssertResult(GrSampleCountToVkSampleCount(programInfo.numRasterSamples(),
                                                 &multisampleInfo->rasterizationSamples));
     multisampleInfo->sampleShadingEnable = VK_FALSE;
     multisampleInfo->minSampleShading = 0.0f;
     multisampleInfo->pSampleMask = nullptr;
     multisampleInfo->alphaToCoverageEnable = VK_FALSE;
     multisampleInfo->alphaToOneEnable = VK_FALSE;
+}
+
+static void setup_coverage_modulation_state(
+        VkPipelineCoverageModulationStateCreateInfoNV* coverageModulationInfo) {
+    memset(coverageModulationInfo, 0, sizeof(VkPipelineCoverageModulationStateCreateInfoNV));
+    coverageModulationInfo->sType =
+            VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_MODULATION_STATE_CREATE_INFO_NV;
+    coverageModulationInfo->pNext = nullptr;
+    coverageModulationInfo->flags = 0;
+    coverageModulationInfo->coverageModulationMode = VK_COVERAGE_MODULATION_MODE_RGBA_NV;
+    coverageModulationInfo->coverageModulationTableEnable = false;
+    coverageModulationInfo->coverageModulationTableCount = 0;
+    coverageModulationInfo->pCoverageModulationTable = nullptr;
 }
 
 static VkBlendFactor blend_coeff_to_vk_blend(GrBlendCoeff coeff) {
@@ -509,12 +522,10 @@ static void setup_dynamic_state(VkPipelineDynamicStateCreateInfo* dynamicInfo,
 }
 
 GrVkPipeline* GrVkPipeline::Create(
-        GrVkGpu* gpu,
-        const GrProgramInfo& programInfo,
-        const GrStencilSettings& stencil,
-        VkPipelineShaderStageCreateInfo* shaderStageInfo, int shaderStageCount,
-        GrPrimitiveType primitiveType, VkRenderPass compatibleRenderPass, VkPipelineLayout layout,
-        VkPipelineCache cache) {
+        GrVkGpu* gpu, const GrProgramInfo& programInfo, const GrStencilSettings& stencil,
+        int numStencilSamples, VkPipelineShaderStageCreateInfo* shaderStageInfo,
+        int shaderStageCount, GrPrimitiveType primitiveType, VkRenderPass compatibleRenderPass,
+        VkPipelineLayout layout, VkPipelineCache cache) {
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
     SkSTArray<2, VkVertexInputBindingDescription, true> bindingDescs;
     SkSTArray<16, VkVertexInputAttributeDescription> attributeDesc;
@@ -534,7 +545,15 @@ GrVkPipeline* GrVkPipeline::Create(
     setup_viewport_scissor_state(&viewportInfo);
 
     VkPipelineMultisampleStateCreateInfo multisampleInfo;
-    setup_multisample_state(programInfo, gpu->caps(), &multisampleInfo);
+    setup_multisample_state(programInfo, gpu->caps(), numStencilSamples, &multisampleInfo);
+
+    VkPipelineCoverageModulationStateCreateInfoNV coverageModulationInfo;
+    if (programInfo.isMixedSampled()) {
+        SkASSERT(gpu->caps()->mixedSamplesSupport());
+        setup_coverage_modulation_state(&coverageModulationInfo);
+        coverageModulationInfo.pNext = multisampleInfo.pNext;
+        multisampleInfo.pNext = &coverageModulationInfo;
+    }
 
     // We will only have one color attachment per pipeline.
     VkPipelineColorBlendAttachmentState attachmentStates[1];

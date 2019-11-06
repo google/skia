@@ -169,7 +169,6 @@ private:
     Variable* fRTAdjustInterfaceBlock;
     int fRTAdjustFieldIndex;
     bool fStarted = false;
-    bool fUsesSampleMask = false;
 
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;

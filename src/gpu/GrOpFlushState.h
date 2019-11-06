@@ -67,8 +67,6 @@ public:
             SkASSERT(surfaceView->asRenderTargetProxy());
         }
 
-        int numSamples() const { return this->proxy()->numSamples(); }
-        GrSurfaceOrigin origin() const { return fSurfaceView->origin(); }
         GrSwizzle outputSwizzle() const { return fSurfaceView->swizzle(); }
 
         GrOp* op() { return fOp; }

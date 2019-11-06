@@ -12,6 +12,7 @@
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/ccpr/GrCCPerFlushResources.h"
 #include "src/gpu/ccpr/GrSampleMaskProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -102,7 +103,7 @@ static constexpr GrUserStencilSettings kResolveStencilCoverage(
 
 // Same as above, but also resets stencil values to zero. This is better for non-tilers
 // where we prefer to not clear the stencil buffer at the beginning of every render pass.
-static constexpr GrUserStencilSettings kResolveStencilCoverageAndReset(
+static constexpr GrUserStencilSettings kResolveStencilCoverageAndClearStencil(
     GrUserStencilSettings::StaticInitSeparate<
         0x0000,                           0x0000,
         GrUserStencilTest::kNotEqual,     GrUserStencilTest::kNotEqual,
@@ -128,19 +129,35 @@ void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chain
     fResources->stroker().drawStrokes(
             flushState, &sampleMaskProc, fStrokeBatchID, drawBoundsRect);
 
-    // We resolve the stencil coverage to alpha by drawing pixel-aligned boxes. Fine raster is
-    // not necessary, and will even cause artifacts if using mixed samples.
-    constexpr auto noHWAA = GrPipeline::InputFlags::kNone;
+    auto pipelineFlags = GrPipeline::InputFlags::kNone;
 
-    const auto* stencilResolveSettings = (flushState->caps().discardStencilValuesAfterRenderPass())
-            // The next draw will be the final op in the renderTargetContext. So if Ganesh is
-            // planning to discard the stencil values anyway, we don't actually need to reset them
-            // back to zero.
-            ? &kResolveStencilCoverage
-            : &kResolveStencilCoverageAndReset;
+    // The next draw will be the final op in the renderTargetContext, so we might be able to get
+    // away with not resetting the stencil values back to zero on some platforms.
+    const GrUserStencilSettings* stencilResolveSettings = &kResolveStencilCoverage;
+
+    if (!flushState->caps().discardStencilValuesAfterRenderPass()) {
+        // We aren't going to discard stencil, so Ganesh expects us to leave the stencil buffer in a
+        // cleared state.
+        stencilResolveSettings = &kResolveStencilCoverageAndClearStencil;
+    }
+
+    if (!flushState->caps().multisampleDisableSupport()) {
+        pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
+        if (1 == flushState->drawOpArgs().renderTarget()->numSamples()) {
+            // We are using mixed samples but cannot disable multisample. In order to avoid a double
+            // blend along the shared edge of our "resolve box" geometry, we must:
+            //   1) Enable conservative raster to ensure every pixel is either fully covered or not
+            //      touched at all (since MSAA will be enabled).
+            //   2) Use a stencil test that blocks subsequent hits to a pixel afer the first one
+            //      (since pixels on the shared edge will be rasterized by both triangles in the box
+            //      geometry).
+            pipelineFlags |= GrPipeline::InputFlags::kConservativeRaster;
+            stencilResolveSettings = &kResolveStencilCoverageAndClearStencil;
+        }
+    }
 
     GrPipeline resolvePipeline(GrScissorTest::kEnabled, SkBlendMode::kSrc,
-                               flushState->drawOpArgs().outputSwizzle(), noHWAA,
+                               flushState->drawOpArgs().outputSwizzle(), pipelineFlags,
                                stencilResolveSettings);
     GrPipeline::FixedDynamicState scissorRectState(drawBoundsRect);
 
@@ -151,12 +168,7 @@ void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chain
 
     StencilResolveProcessor primProc;
 
-    GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
-                              flushState->drawOpArgs().origin(),
-                              resolvePipeline,
-                              primProc,
-                              &scissorRectState,
-                              nullptr, 0);
+    GrProgramInfo programInfo(flushState, resolvePipeline, primProc, &scissorRectState, nullptr, 0);
 
     flushState->opsRenderPass()->draw(programInfo, &mesh, 1, SkRect::Make(drawBoundsRect));
 }

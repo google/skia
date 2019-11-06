@@ -27,6 +27,7 @@ public:
     static GrVkPipeline* Create(GrVkGpu*,
                                 const GrProgramInfo&,
                                 const GrStencilSettings&,
+                                int numStencilSamples,
                                 VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                 int shaderStageCount,
                                 GrPrimitiveType primitiveType,

@@ -276,8 +276,6 @@ void GrVkRenderTarget::getAttachmentsDescriptor(
         const GrVkStencilAttachment* vkStencil = static_cast<const GrVkStencilAttachment*>(stencil);
         desc->fStencil.fFormat = vkStencil->vkFormat();
         desc->fStencil.fSamples = vkStencil->numSamples();
-        // Currently in vulkan stencil and color attachments must all have same number of samples
-        SkASSERT(desc->fColor.fSamples == desc->fStencil.fSamples);
         *attachmentFlags |= GrVkRenderPass::kStencil_AttachmentFlag;
         ++attachmentCount;
     }

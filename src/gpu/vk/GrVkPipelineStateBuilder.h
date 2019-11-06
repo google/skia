@@ -80,6 +80,7 @@ private:
     GrVkPipelineStateBuilder(GrVkGpu*, GrRenderTarget*, const GrProgramInfo&, GrProgramDesc*);
 
     GrVkPipelineState* finalize(const GrStencilSettings&,
+                                int numStencilSamples,
                                 GrPrimitiveType primitiveType,
                                 VkRenderPass compatibleRenderPass,
                                 Desc*);

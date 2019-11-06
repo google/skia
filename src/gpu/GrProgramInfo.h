@@ -16,33 +16,18 @@ class GrMesh;
 
 class GrProgramInfo {
 public:
-    GrProgramInfo(int numSamples,
-                  GrSurfaceOrigin origin,
-                  const GrPipeline& pipeline,
-                  const GrPrimitiveProcessor& primProc,
-                  const GrPipeline::FixedDynamicState* fixedDynamicState,
-                  const GrPipeline::DynamicStateArrays* dynamicStateArrays,
-                  int numDynamicStateArrays)
-            : fNumSamples(numSamples)
-            , fOrigin(origin)
-            , fPipeline(pipeline)
-            , fPrimProc(primProc)
-            , fFixedDynamicState(fixedDynamicState)
-            , fDynamicStateArrays(dynamicStateArrays)
-            , fNumDynamicStateArrays(numDynamicStateArrays) {
-        fRequestedFeatures = fPrimProc.requestedFeatures();
-        for (int i = 0; i < fPipeline.numFragmentProcessors(); ++i) {
-            fRequestedFeatures |= fPipeline.getFragmentProcessor(i).requestedFeatures();
-        }
-        fRequestedFeatures |= fPipeline.getXferProcessor().requestedFeatures();
-
-        SkDEBUGCODE(this->validate();)
-        (void) fNumDynamicStateArrays;  // touch this to quiet unused member warnings
-    }
+    GrProgramInfo(const GrOpFlushState*, const GrPipeline&, const GrPrimitiveProcessor&,
+                  const GrPipeline::FixedDynamicState*, const GrPipeline::DynamicStateArrays*,
+                  int numDynamicStateArrays);
 
     GrProcessor::CustomFeatures requestedFeatures() const { return fRequestedFeatures; }
 
-    int numSamples() const { return fNumSamples;  }
+    // Returns the number of samples the rasterizer will compute. Because we support mixed samples,
+    // this won't necssarily match the number of samples in the render target.
+    // NOTE: If HWAA is disabled, we still return the number of samples found in the stencil and/or
+    // color buffer.
+    int numRasterSamples() const { return fNumRasterSamples;  }
+    bool isMixedSampled() const { return fIsMixedSampled;  }
     GrSurfaceOrigin origin() const { return fOrigin;  }
     const GrPipeline& pipeline() const { return fPipeline; }
     const GrPrimitiveProcessor& primProc() const { return fPrimProc; }
@@ -102,7 +87,8 @@ public:
 #endif
 
 private:
-    const int                             fNumSamples;
+    const int                             fNumRasterSamples;
+    const bool                            fIsMixedSampled;
     const GrSurfaceOrigin                 fOrigin;
     const GrPipeline&                     fPipeline;
     const GrPrimitiveProcessor&           fPrimProc;

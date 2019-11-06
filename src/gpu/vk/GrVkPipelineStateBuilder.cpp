@@ -39,7 +39,11 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         return nullptr;
     }
 
-    return builder.finalize(stencil, primitiveType, compatibleRenderPass, desc);
+    int numStencilSamples = 0;
+    if (auto* stencilAttachment = renderTarget->renderTargetPriv().getStencilAttachment()) {
+        numStencilSamples = stencilAttachment->numSamples();
+    }
+    return builder.finalize(stencil, numStencilSamples, primitiveType, compatibleRenderPass, desc);
 }
 
 GrVkPipelineStateBuilder::GrVkPipelineStateBuilder(GrVkGpu* gpu,
@@ -149,6 +153,7 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
 }
 
 GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& stencil,
+                                                      int numStencilSamples,
                                                       GrPrimitiveType primitiveType,
                                                       VkRenderPass compatibleRenderPass,
                                                       Desc* desc) {
@@ -293,8 +298,9 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
             this->storeShadersInCache(shaders, inputs, isSkSL);
         }
     }
-        GrVkPipeline* pipeline = resourceProvider.createPipeline(fProgramInfo, stencil,
-            shaderStageInfo, numShaderStages, primitiveType, compatibleRenderPass, pipelineLayout);
+        GrVkPipeline* pipeline = resourceProvider.createPipeline(
+                fProgramInfo, stencil, numStencilSamples, shaderStageInfo, numShaderStages,
+                primitiveType, compatibleRenderPass, pipelineLayout);
     for (int i = 0; i < kGrShaderTypeCount; ++i) {
         // This if check should not be needed since calling destroy on a VK_NULL_HANDLE is allowed.
         // However this is causing a crash in certain drivers (e.g. NVidia).
@@ -350,6 +356,11 @@ bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
     stencil.genKey(&b);
 
     b.add32((uint32_t)primitiveType);
+
+    if (gpu->caps()->mixedSamplesSupport()) {
+        // ??? Move to vkRT genkey???
+        b.add32(programInfo.numRasterSamples());
+    }
 
     return true;
 }

@@ -93,14 +93,15 @@ void GrVkResourceProvider::init() {
 
 GrVkPipeline* GrVkResourceProvider::createPipeline(const GrProgramInfo& programInfo,
                                                    const GrStencilSettings& stencil,
+                                                   int numStencilSamples,
                                                    VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                                    int shaderStageCount,
                                                    GrPrimitiveType primitiveType,
                                                    VkRenderPass compatibleRenderPass,
                                                    VkPipelineLayout layout) {
-    return GrVkPipeline::Create(fGpu, programInfo, stencil, shaderStageInfo,
-                                shaderStageCount, primitiveType, compatibleRenderPass,
-                                layout, this->pipelineCache());
+    return GrVkPipeline::Create(fGpu, programInfo, stencil, numStencilSamples, shaderStageInfo,
+                                shaderStageCount, primitiveType, compatibleRenderPass, layout,
+                                this->pipelineCache());
 }
 
 // To create framebuffers, we first need to create a simple RenderPass that is
