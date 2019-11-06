@@ -115,7 +115,7 @@ public:
     GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&&) final;
 
     /** Overrides of GrMeshDrawOp::Target. */
-    void recordDraw(sk_sp<const GrGeometryProcessor>, const GrMesh[], int meshCnt,
+    void recordDraw(std::unique_ptr<const GrGeometryProcessor>, const GrMesh[], int meshCnt,
                     const GrPipeline::FixedDynamicState*,
                     const GrPipeline::DynamicStateArrays*) final;
     void* makeVertexSpace(size_t vertexSize, int vertexCount, sk_sp<const GrBuffer>*,
@@ -146,7 +146,7 @@ public:
     GrAtlasManager* atlasManager() const final;
 
     /** GrMeshDrawOp::Target override. */
-    SkArenaAlloc* allocator() override { return &fArena; }
+    SkArenaAlloc* allocator1() override { return &fArena; }
 
 private:
     struct InlineUpload {
@@ -162,7 +162,7 @@ private:
     // the shared state once and then issue draws for each mesh.
     struct Draw {
         ~Draw();
-        sk_sp<const GrGeometryProcessor> fGeometryProcessor;
+        std::unique_ptr<const GrGeometryProcessor> fGeometryProcessor;
         const GrPipeline::FixedDynamicState* fFixedDynamicState;
         const GrPipeline::DynamicStateArrays* fDynamicStateArrays;
         const GrMesh* fMeshes = nullptr;

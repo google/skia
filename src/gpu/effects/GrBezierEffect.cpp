@@ -248,13 +248,13 @@ GrConicEffect::GrConicEffect(const SkPMColor4f& color, const SkMatrix& viewMatri
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrConicEffect);
 
 #if GR_TEST_UTILS
-sk_sp<GrGeometryProcessor> GrConicEffect::TestCreate(GrProcessorTestData* d) {
-    sk_sp<GrGeometryProcessor> gp;
+std::unique_ptr<GrGeometryProcessor> GrConicEffect::TestCreate(GrProcessorTestData* d) {
+    std::unique_ptr<GrGeometryProcessor> gp;
     do {
         GrClipEdgeType edgeType =
                 static_cast<GrClipEdgeType>(
                         d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
-        gp = GrConicEffect::Make(SkPMColor4f::FromBytes_RGBA(GrRandomColor(d->fRandom)),
+        gp = GrConicEffect::Make1(SkPMColor4f::FromBytes_RGBA(GrRandomColor(d->fRandom)),
                                  GrTest::TestMatrix(d->fRandom), edgeType, *d->caps(),
                                  GrTest::TestMatrix(d->fRandom), d->fRandom->nextBool());
     } while (nullptr == gp);
@@ -448,12 +448,12 @@ GrQuadEffect::GrQuadEffect(const SkPMColor4f& color, const SkMatrix& viewMatrix,
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrQuadEffect);
 
 #if GR_TEST_UTILS
-sk_sp<GrGeometryProcessor> GrQuadEffect::TestCreate(GrProcessorTestData* d) {
-    sk_sp<GrGeometryProcessor> gp;
+std::unique_ptr<GrGeometryProcessor> GrQuadEffect::TestCreate(GrProcessorTestData* d) {
+    std::unique_ptr<GrGeometryProcessor> gp;
     do {
         GrClipEdgeType edgeType = static_cast<GrClipEdgeType>(
                 d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
-        gp = GrQuadEffect::Make(SkPMColor4f::FromBytes_RGBA(GrRandomColor(d->fRandom)),
+        gp = GrQuadEffect::Make1(SkPMColor4f::FromBytes_RGBA(GrRandomColor(d->fRandom)),
                                 GrTest::TestMatrix(d->fRandom), edgeType, *d->caps(),
                                 GrTest::TestMatrix(d->fRandom), d->fRandom->nextBool());
     } while (nullptr == gp);

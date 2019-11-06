@@ -42,7 +42,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
     pipelineArgs.fCaps = &this->caps();
     pipelineArgs.fUserStencil = stencilSettings;
     pipelineArgs.fOutputSwizzle = this->drawOpArgs().outputSwizzle();
-    GrPipeline* pipeline = this->allocator()->make<GrPipeline>(pipelineArgs,
+    GrPipeline* pipeline = this->allocator1()->make<GrPipeline>(pipelineArgs,
                                                                std::move(processorSet),
                                                                this->detachAppliedClip());
 
@@ -138,7 +138,7 @@ GrDeferredUploadToken GrOpFlushState::addASAPUpload(GrDeferredTextureUploadFn&& 
 }
 
 void GrOpFlushState::recordDraw(
-        sk_sp<const GrGeometryProcessor> gp, const GrMesh meshes[], int meshCnt,
+        std::unique_ptr<const GrGeometryProcessor> gp, const GrMesh meshes[], int meshCnt,
         const GrPipeline::FixedDynamicState* fixedDynamicState,
         const GrPipeline::DynamicStateArrays* dynamicStateArrays) {
     SkASSERT(fOpArgs);

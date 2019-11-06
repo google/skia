@@ -76,22 +76,22 @@ namespace GrDefaultGeoProcFactory {
         const SkMatrix* fMatrix;
     };
 
-    sk_sp<GrGeometryProcessor> Make(const GrShaderCaps*,
-                                    const Color&,
-                                    const Coverage&,
-                                    const LocalCoords&,
-                                    const SkMatrix& viewMatrix);
+    std::unique_ptr<GrGeometryProcessor> Make(const GrShaderCaps*,
+                                              const Color&,
+                                              const Coverage&,
+                                              const LocalCoords&,
+                                              const SkMatrix& viewMatrix);
 
     /*
      * Use this factory to create a GrGeometryProcessor that expects a device space vertex position
      * attribute. The view matrix must still be provided to compute correctly transformed
      * coordinates for GrFragmentProcessors. It may fail if the view matrix is not invertible.
      */
-    sk_sp<GrGeometryProcessor> MakeForDeviceSpace(const GrShaderCaps*,
-                                                  const Color&,
-                                                  const Coverage&,
-                                                  const LocalCoords&,
-                                                  const SkMatrix& viewMatrix);
+    std::unique_ptr<GrGeometryProcessor> MakeForDeviceSpace(const GrShaderCaps*,
+                                                            const Color&,
+                                                            const Coverage&,
+                                                            const LocalCoords&,
+                                                            const SkMatrix& viewMatrix);
 };
 
 #endif

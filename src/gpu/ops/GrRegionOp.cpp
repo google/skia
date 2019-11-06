@@ -18,9 +18,9 @@
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
-static sk_sp<GrGeometryProcessor> make_gp(const GrShaderCaps* shaderCaps,
-                                          const SkMatrix& viewMatrix,
-                                          bool wideColor) {
+static std::unique_ptr<GrGeometryProcessor> make_gp(const GrShaderCaps* shaderCaps,
+                                                    const SkMatrix& viewMatrix,
+                                                    bool wideColor) {
     using namespace GrDefaultGeoProcFactory;
     Color::Type colorType =
         wideColor ? Color::kPremulWideColorAttribute_Type : Color::kPremulGrColorAttribute_Type;
@@ -94,8 +94,8 @@ public:
 
 private:
     void onPrepareDraws(Target* target) override {
-        sk_sp<GrGeometryProcessor> gp = make_gp(target->caps().shaderCaps(), fViewMatrix,
-                                                fWideColor);
+        std::unique_ptr<GrGeometryProcessor> gp = make_gp(target->caps().shaderCaps(), fViewMatrix,
+                                                          fWideColor);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;

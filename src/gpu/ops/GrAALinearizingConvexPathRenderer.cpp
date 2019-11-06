@@ -96,11 +96,11 @@ static void extract_verts(const GrAAConvexTessellator& tess,
     }
 }
 
-static sk_sp<GrGeometryProcessor> create_lines_only_gp(const GrShaderCaps* shaderCaps,
-                                                       bool tweakAlphaForCoverage,
-                                                       const SkMatrix& viewMatrix,
-                                                       bool usesLocalCoords,
-                                                       bool wideColor) {
+static std::unique_ptr<GrGeometryProcessor> create_lines_only_gp(const GrShaderCaps* shaderCaps,
+                                                                 bool tweakAlphaForCoverage,
+                                                                 const SkMatrix& viewMatrix,
+                                                                 bool usesLocalCoords,
+                                                                 bool wideColor) {
     using namespace GrDefaultGeoProcFactory;
 
     Coverage::Type coverageType =
@@ -198,7 +198,7 @@ public:
     }
 
 private:
-    void recordDraw(Target* target, sk_sp<const GrGeometryProcessor> gp, int vertexCount,
+    void recordDraw(Target* target, std::unique_ptr<const GrGeometryProcessor> gp, int vertexCount,
                     size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) const {
         if (vertexCount == 0 || indexCount == 0) {
             return;
@@ -230,11 +230,11 @@ private:
 
     void onPrepareDraws(Target* target) override {
         // Setup GrGeometryProcessor
-        sk_sp<GrGeometryProcessor> gp(create_lines_only_gp(target->caps().shaderCaps(),
-                                                           fHelper.compatibleWithCoverageAsAlpha(),
-                                                           this->viewMatrix(),
-                                                           fHelper.usesLocalCoords(),
-                                                           fWideColor));
+        std::unique_ptr<GrGeometryProcessor> gp(create_lines_only_gp(target->caps().shaderCaps(),
+                                                                     fHelper.compatibleWithCoverageAsAlpha(),
+                                                                     this->viewMatrix(),
+                                                                     fHelper.usesLocalCoords(),
+                                                                     fWideColor));
         if (!gp) {
             SkDebugf("Couldn't create a GrGeometryProcessor\n");
             return;
@@ -262,8 +262,8 @@ private:
             if (vertexCount + currentVertices > static_cast<int>(UINT16_MAX)) {
                 // if we added the current instance, we would overflow the indices we can store in a
                 // uint16_t. Draw what we've got so far and reset.
-                this->recordDraw(
-                        target, gp, vertexCount, vertexStride, vertices, indexCount, indices);
+//                this->recordDraw(
+//                        target, gp, vertexCount, vertexStride, vertices, indexCount, indices);
                 vertexCount = 0;
                 indexCount = 0;
             }

@@ -19,8 +19,8 @@ class GrGLRRectShadowGeoProc;
  */
 class GrRRectShadowGeoProc : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make(const GrTextureProxy* lut) {
-        return sk_sp<GrGeometryProcessor>(new GrRRectShadowGeoProc(lut));
+    static std::unique_ptr<GrGeometryProcessor> Make(const GrTextureProxy* lut) {
+        return std::unique_ptr<GrGeometryProcessor>(new GrRRectShadowGeoProc(lut));
     }
 
     const char* name() const override { return "RRectShadow"; }

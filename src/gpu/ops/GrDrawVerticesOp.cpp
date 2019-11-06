@@ -60,15 +60,15 @@ private:
                      uint16_t* indices) const;
 
     void drawVertices(Target*,
-                      sk_sp<const GrGeometryProcessor>,
+                      std::unique_ptr<const GrGeometryProcessor>,
                       sk_sp<const GrBuffer> vertexBuffer,
                       int firstVertex,
                       sk_sp<const GrBuffer> indexBuffer,
                       int firstIndex);
 
-    sk_sp<GrGeometryProcessor> makeGP(const GrShaderCaps* shaderCaps,
-                                      bool* hasColorAttribute,
-                                      bool* hasLocalCoordAttribute) const;
+    std::unique_ptr<GrGeometryProcessor> makeGP(const GrShaderCaps* shaderCaps,
+                                                bool* hasColorAttribute,
+                                                bool* hasLocalCoordAttribute) const;
 
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
     bool combinablePrimitive() const {
@@ -229,9 +229,9 @@ GrProcessorSet::Analysis DrawVerticesOp::finalize(
     return result;
 }
 
-sk_sp<GrGeometryProcessor> DrawVerticesOp::makeGP(const GrShaderCaps* shaderCaps,
-                                                  bool* hasColorAttribute,
-                                                  bool* hasLocalCoordAttribute) const {
+std::unique_ptr<GrGeometryProcessor> DrawVerticesOp::makeGP(const GrShaderCaps* shaderCaps,
+                                                            bool* hasColorAttribute,
+                                                            bool* hasLocalCoordAttribute) const {
     using namespace GrDefaultGeoProcFactory;
     LocalCoords::Type localCoordsType;
     if (fHelper.usesLocalCoords()) {
@@ -265,10 +265,10 @@ sk_sp<GrGeometryProcessor> DrawVerticesOp::makeGP(const GrShaderCaps* shaderCaps
     const SkMatrix& vm = this->hasMultipleViewMatrices() ? SkMatrix::I() : fMeshes[0].fViewMatrix;
 
     return GrDefaultGeoProcFactory::Make(shaderCaps,
-                                            color,
-                                            Coverage::kSolid_Type,
-                                            localCoordsType,
-                                            vm);
+                                         color,
+                                         Coverage::kSolid_Type,
+                                         localCoordsType,
+                                         vm);
 }
 
 void DrawVerticesOp::onPrepareDraws(Target* target) {
@@ -283,9 +283,9 @@ void DrawVerticesOp::onPrepareDraws(Target* target) {
 void DrawVerticesOp::drawVolatile(Target* target) {
     bool hasColorAttribute;
     bool hasLocalCoordsAttribute;
-    sk_sp<GrGeometryProcessor> gp = this->makeGP(target->caps().shaderCaps(),
-                                                 &hasColorAttribute,
-                                                 &hasLocalCoordsAttribute);
+    std::unique_ptr<GrGeometryProcessor> gp = this->makeGP(target->caps().shaderCaps(),
+                                                           &hasColorAttribute,
+                                                           &hasLocalCoordsAttribute);
 
     // Allocate buffers.
     size_t vertexStride = gp->vertexStride();
@@ -325,9 +325,9 @@ void DrawVerticesOp::drawNonVolatile(Target* target) {
 
     bool hasColorAttribute;
     bool hasLocalCoordsAttribute;
-    sk_sp<GrGeometryProcessor> gp = this->makeGP(target->caps().shaderCaps(),
-                                                 &hasColorAttribute,
-                                                 &hasLocalCoordsAttribute);
+    std::unique_ptr<GrGeometryProcessor> gp = this->makeGP(target->caps().shaderCaps(),
+                                                           &hasColorAttribute,
+                                                           &hasLocalCoordsAttribute);
 
     SkASSERT(fMeshes.count() == 1); // Non-volatile meshes should never combine.
 
@@ -493,7 +493,7 @@ void DrawVerticesOp::fillBuffers(bool hasColorAttribute,
 }
 
 void DrawVerticesOp::drawVertices(Target* target,
-                                  sk_sp<const GrGeometryProcessor> gp,
+                                  std::unique_ptr<const GrGeometryProcessor> gp,
                                   sk_sp<const GrBuffer> vertexBuffer,
                                   int firstVertex,
                                   sk_sp<const GrBuffer> indexBuffer,

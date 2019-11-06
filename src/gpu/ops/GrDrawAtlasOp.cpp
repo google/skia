@@ -73,10 +73,10 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-static sk_sp<GrGeometryProcessor> make_gp(const GrShaderCaps* shaderCaps,
-                                          bool hasColors,
-                                          const SkPMColor4f& color,
-                                          const SkMatrix& viewMatrix) {
+static std::unique_ptr<GrGeometryProcessor> make_gp(const GrShaderCaps* shaderCaps,
+                                                    bool hasColors,
+                                                    const SkPMColor4f& color,
+                                                    const SkMatrix& viewMatrix) {
     using namespace GrDefaultGeoProcFactory;
     Color gpColor(color);
     if (hasColors) {
@@ -184,10 +184,10 @@ SkString DrawAtlasOp::dumpInfo() const {
 
 void DrawAtlasOp::onPrepareDraws(Target* target) {
     // Setup geometry processor
-    sk_sp<GrGeometryProcessor> gp(make_gp(target->caps().shaderCaps(),
-                                          this->hasColors(),
-                                          this->color(),
-                                          this->viewMatrix()));
+    std::unique_ptr<GrGeometryProcessor> gp(make_gp(target->caps().shaderCaps(),
+                                            this->hasColors(),
+                                            this->color(),
+                                            this->viewMatrix()));
 
     int instanceCount = fGeoData.count();
     size_t vertexStride = gp->vertexStride();

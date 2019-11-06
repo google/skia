@@ -99,7 +99,7 @@ private:
         static const int kColorOffset = sizeof(SkPoint);
         static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
 
-        sk_sp<GrGeometryProcessor> gp =
+        std::unique_ptr<GrGeometryProcessor> gp =
                 GrDefaultGeoProcFactory::Make(target->caps().shaderCaps(),
                                               Color::kPremulGrColorAttribute_Type,
                                               Coverage::kSolid_Type,

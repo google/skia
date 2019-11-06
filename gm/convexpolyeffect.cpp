@@ -109,7 +109,7 @@ private:
         using namespace GrDefaultGeoProcFactory;
 
         Color color(fColor);
-        sk_sp<GrGeometryProcessor> gp(GrDefaultGeoProcFactory::Make(
+        std::unique_ptr<GrGeometryProcessor> gp(GrDefaultGeoProcFactory::Make(
                 target->caps().shaderCaps(),
                 color,
                 Coverage::kSolid_Type,

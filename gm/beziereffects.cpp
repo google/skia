@@ -71,8 +71,8 @@ public:
     }
 
 protected:
-    BezierTestOp(sk_sp<const GrGeometryProcessor> gp, const SkRect& rect, const SkPMColor4f& color,
-                 int32_t classID)
+    BezierTestOp(std::unique_ptr<const GrGeometryProcessor> gp, const SkRect& rect,
+                 const SkPMColor4f& color, int32_t classID)
             : INHERITED(classID)
             , fRect(rect)
             , fColor(color)
@@ -86,7 +86,7 @@ protected:
                 this, chainBounds, std::move(fProcessorSet));
     }
 
-    sk_sp<const GrGeometryProcessor> gp() const { return fGeometryProcessor; }
+    std::unique_ptr<GrGeometryProcessor> gp() const { return nullptr; } // fGeometryProcessor.get(); }
 
     const SkRect& rect() const { return fRect; }
     const SkPMColor4f& color() const { return fColor; }
@@ -94,7 +94,7 @@ protected:
 private:
     SkRect fRect;
     SkPMColor4f fColor;
-    sk_sp<const GrGeometryProcessor> fGeometryProcessor;
+    std::unique_ptr<const GrGeometryProcessor> fGeometryProcessor;
     GrProcessorSet fProcessorSet;
 
     typedef GrMeshDrawOp INHERITED;
@@ -111,7 +111,7 @@ public:
     const char* name() const override { return "BezierConicTestOp"; }
 
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                                          sk_sp<const GrGeometryProcessor> gp,
+                                          std::unique_ptr<const GrGeometryProcessor> gp,
                                           const SkRect& rect,
                                           const SkPMColor4f& color,
                                           const SkMatrix& klm) {
@@ -123,7 +123,7 @@ public:
 private:
     friend class ::GrOpMemoryPool; // for ctor
 
-    BezierConicTestOp(sk_sp<const GrGeometryProcessor> gp, const SkRect& rect,
+    BezierConicTestOp(std::unique_ptr<const GrGeometryProcessor> gp, const SkRect& rect,
                       const SkPMColor4f& color, const SkMatrix& klm)
             : INHERITED(std::move(gp), rect, color, ClassID()), fKLM(klm) {}
 
@@ -205,9 +205,9 @@ protected:
             };
             SkScalar weight = rand.nextRangeF(0.f, 2.f);
             for(int edgeType = 0; edgeType < kGrClipEdgeTypeCnt; ++edgeType) {
-                sk_sp<GrGeometryProcessor> gp;
+                std::unique_ptr<GrGeometryProcessor> gp;
                 GrClipEdgeType et = (GrClipEdgeType)edgeType;
-                gp = GrConicEffect::Make(color, SkMatrix::I(), et, *context->priv().caps(),
+                gp = GrConicEffect::Make1(color, SkMatrix::I(), et, *context->priv().caps(),
                                          SkMatrix::I(), false);
                 if (!gp) {
                     continue;
@@ -257,8 +257,9 @@ protected:
                     boundsPaint.setStyle(SkPaint::kStroke_Style);
                     canvas->drawRect(bounds, boundsPaint);
 
-                    std::unique_ptr<GrDrawOp> op = BezierConicTestOp::Make(context, gp, bounds,
-                                                                           color, klm);
+                    std::unique_ptr<GrDrawOp> op;
+//                    std::unique_ptr<GrDrawOp> op = BezierConicTestOp::Make(context, gp, bounds,
+//                                                                           color, klm);
                     renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
                 }
                 ++col;
@@ -322,7 +323,7 @@ public:
     const char* name() const override { return "BezierQuadTestOp"; }
 
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
-                                          sk_sp<const GrGeometryProcessor> gp,
+                                          std::unique_ptr<const GrGeometryProcessor> gp,
                                           const SkRect& rect,
                                           const SkPMColor4f& color,
                                           const GrPathUtils::QuadUVMatrix& devToUV) {
@@ -334,7 +335,7 @@ public:
 private:
     friend class ::GrOpMemoryPool; // for ctor
 
-    BezierQuadTestOp(sk_sp<const GrGeometryProcessor> gp, const SkRect& rect,
+    BezierQuadTestOp(std::unique_ptr<const GrGeometryProcessor> gp, const SkRect& rect,
                      const SkPMColor4f& color, const GrPathUtils::QuadUVMatrix& devToUV)
             : INHERITED(std::move(gp), rect, color, ClassID()), fDevToUV(devToUV) {}
 
@@ -408,9 +409,9 @@ protected:
                 {rand.nextRangeF(0.f, w), rand.nextRangeF(0.f, h)}
             };
             for(int edgeType = 0; edgeType < kGrClipEdgeTypeCnt; ++edgeType) {
-                sk_sp<GrGeometryProcessor> gp;
+                std::unique_ptr<GrGeometryProcessor> gp;
                 GrClipEdgeType et = (GrClipEdgeType)edgeType;
-                gp = GrQuadEffect::Make(color, SkMatrix::I(), et, *context->priv().caps(),
+                gp = GrQuadEffect::Make1(color, SkMatrix::I(), et, *context->priv().caps(),
                                         SkMatrix::I(), false);
                 if (!gp) {
                     continue;
@@ -462,7 +463,7 @@ protected:
 
                     GrPathUtils::QuadUVMatrix DevToUV(pts);
 
-                    std::unique_ptr<GrDrawOp> op = BezierQuadTestOp::Make(context, gp,
+                    std::unique_ptr<GrDrawOp> op = BezierQuadTestOp::Make(context, std::move(gp),
                                                                           bounds, color, DevToUV);
                     renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
                 }

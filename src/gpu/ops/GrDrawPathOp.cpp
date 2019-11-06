@@ -91,7 +91,8 @@ void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     GrPipeline::FixedDynamicState fixedDynamicState(appliedClip.scissorState().rect());
     GrPipeline pipeline(this->pipelineInitArgs(*state), this->detachProcessors(),
                         std::move(appliedClip));
-    sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(), this->viewMatrix()));
+    std::unique_ptr<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
+                                                                      this->viewMatrix()));
 
     GrProgramInfo programInfo(state->drawOpArgs().numSamples(),
                               state->drawOpArgs().origin(),

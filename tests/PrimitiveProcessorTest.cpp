@@ -107,7 +107,7 @@ private:
 
             typedef GrGeometryProcessor INHERITED;
         };
-        sk_sp<GrGeometryProcessor> gp(new GP(fNumAttribs));
+        std::unique_ptr<GrGeometryProcessor> gp(new GP(fNumAttribs));
         size_t vertexStride = gp->vertexStride();
         QuadHelper helper(target, vertexStride, 1);
         SkPoint* vertices = reinterpret_cast<SkPoint*>(helper.vertices());
