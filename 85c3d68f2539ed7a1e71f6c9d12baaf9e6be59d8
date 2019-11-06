@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0dbf7e80_4ea33e40",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 722,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2019-11-06T15:08:00Z",
+      "side": 1,
+      "message": "Did we intend to change this last value from 2.f to 3.f?  Reading the comment, it seems like the value should remain 2.f.  But I don\u0027t know the context of everything going on here.  If the change to the value was correct, it seems like we should just replace all of these lines with:\n\n  const float numer \u003d 3.f;",
+      "revId": "85c3d68f2539ed7a1e71f6c9d12baaf9e6be59d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
