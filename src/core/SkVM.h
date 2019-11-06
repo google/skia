@@ -145,7 +145,11 @@ namespace skvm {
               cmeq4s, cmgt4s,
                        sub8h,  mul8h,
               fadd4s, fsub4s, fmul4s, fdiv4s,
+              fcmeq4s, fcmgt4s, fcmge4s,
               tbl;
+
+        // TODO: there are also float ==,<,<=,>,>= instructions with an immediate 0.0f,
+        // and the register comparison > and >= can also compare absolute values.  Interesting.
 
         // d += n*m
         void fmla4s(V d, V n, V m);
@@ -158,7 +162,8 @@ namespace skvm {
 
         // d = op(n)
         using DOpN = void(V d, V n);
-        DOpN scvtf4s,   // int -> float
+        DOpN not16b,    // d = ~n
+             scvtf4s,   // int -> float
              fcvtzs4s,  // truncate float -> int
              xtns2h,    // u32 -> u16
              xtnh2b,    // u16 -> u8
