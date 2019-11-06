@@ -16,6 +16,24 @@
       "revId": "85c3d68f2539ed7a1e71f6c9d12baaf9e6be59d8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa54a9c8_31b47a96",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 722,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-06T15:55:14Z",
+      "side": 1,
+      "message": "Ah good catch. It should have remained 2 for non cs/lum converting reads. Putting up a change to fix it.",
+      "parentUuid": "0dbf7e80_4ea33e40",
+      "revId": "85c3d68f2539ed7a1e71f6c9d12baaf9e6be59d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
