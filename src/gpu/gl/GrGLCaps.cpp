@@ -2281,7 +2281,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             this->setColorTypeFormat(GrColorType::kRGB_888x, GrGLFormat::kRGB8);
 
             // External IO ColorTypes:
-            ctInfo.fExternalIOFormatCount = 2;
+            ctInfo.fExternalIOFormatCount = 3;
             ctInfo.fExternalIOFormats.reset(
                     new ColorTypeInfo::ExternalIOFormats[ctInfo.fExternalIOFormatCount]());
             int ioIdx = 0;
@@ -2290,12 +2290,15 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                 auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
                 ioFormat.fColorType = GrColorType::kRGB_888x;
                 ioFormat.fExternalType = GR_GL_UNSIGNED_BYTE;
-                // This is technically the wrong format to use for this color type since the color
-                // type is 4 bytes but the format is 3. However, we don't currently upload data of
-                // this type so the format is only used when creating an empty texture. If we want
-                // to support uploading data we should add in RGB_888 GrColorType. Additionally, on
-                // the FormatInfo we should have a default format to use when we want to create an
-                // empty texture.
+                ioFormat.fExternalTexImageFormat = 0;
+                ioFormat.fExternalReadFormat = 0;
+            }
+
+            // Format: RGB8, Surface: kRGB_888x, Data: kRGB_888
+            {
+                auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
+                ioFormat.fColorType = GrColorType::kRGB_888;
+                ioFormat.fExternalType = GR_GL_UNSIGNED_BYTE;
                 ioFormat.fExternalTexImageFormat = GR_GL_RGB;
                 ioFormat.fExternalReadFormat = 0;
             }

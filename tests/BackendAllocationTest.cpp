@@ -129,33 +129,6 @@ static bool isBGRA(const GrBackendFormat& format) {
     SkUNREACHABLE;
 }
 
-static bool isRGB(const GrBackendFormat& format) {
-    switch (format.backend()) {
-        case GrBackendApi::kMetal:
-            return false;  // Metal doesn't even pretend to support this
-        case GrBackendApi::kDawn:
-            return false;
-        case GrBackendApi::kOpenGL:
-#ifdef SK_GL
-            return format.asGLFormat() == GrGLFormat::kRGB8;
-#else
-            return false;
-#endif
-        case GrBackendApi::kVulkan: {
-#ifdef SK_VULKAN
-            VkFormat vkFormat;
-            format.asVkFormat(&vkFormat);
-            return vkFormat == VK_FORMAT_R8G8B8_UNORM;
-#else
-            return false;
-#endif
-        }
-        case GrBackendApi::kMock:
-            return false;  // No GrColorType::kRGB_888
-    }
-    SkUNREACHABLE;
-}
-
 static void check_solid_pixmap(skiatest::Reporter* reporter,
                                const SkColor4f& expected, const SkPixmap& actual,
                                SkColorType ct, const char* label1, const char* label2) {
@@ -195,12 +168,6 @@ static void check_base_readbacks(GrContext* context, const GrBackendTexture& bac
                                  SkColorType skColorType, GrRenderable renderable,
                                  const SkColor4f& color, skiatest::Reporter* reporter,
                                  const char* label) {
-    if (isRGB(backendTex.getBackendFormat())) {
-        // readPixels is busted for the RGB backend format (skbug.com/8862)
-        // TODO: add a GrColorType::kRGB_888 to fix the situation
-        return;
-    }
-
     SkAlphaType at = SkColorTypeIsAlwaysOpaque(skColorType) ? kOpaque_SkAlphaType
                                                             : kPremul_SkAlphaType;
 
@@ -311,12 +278,6 @@ static void check_mipmaps(GrContext* context, const GrBackendTexture& backendTex
         }
     }
 #endif
-
-    if (isRGB(backendTex.getBackendFormat())) {
-        // readPixels is busted for the RGB backend format (skbug.com/8862)
-        // TODO: add a GrColorType::kRGB_888 to fix the situation
-        return;
-    }
 
     SkAlphaType at = SkColorTypeIsAlwaysOpaque(skColorType) ? kOpaque_SkAlphaType
                                                             : kPremul_SkAlphaType;
