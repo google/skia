@@ -59,7 +59,7 @@ void GrSampleMaskProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     fShader->emitSampleMaskCode(args.fFragBuilder);
 }
 
-void GrSampleMaskProcessor::reset(PrimitiveType primitiveType, GrResourceProvider* rp) {
+void GrSampleMaskProcessor::reset1(PrimitiveType primitiveType, GrResourceProvider* rp) {
     fPrimitiveType = primitiveType;  // This will affect the return values for numInputPoints, etc.
     SkASSERT(PrimitiveType::kWeightedTriangles != fPrimitiveType);
 
@@ -91,7 +91,8 @@ void GrSampleMaskProcessor::reset(PrimitiveType primitiveType, GrResourceProvide
 }
 
 void GrSampleMaskProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount,
-                                       int baseInstance, SkTArray<GrMesh>* out) const {
+                                       int baseInstance, SkTArray<GrMesh>* out, GrPrimitiveType* primType) const {
+    // This one is variable!!!!
     SkASSERT(PrimitiveType::kWeightedTriangles != fPrimitiveType);
 
     switch (fPrimitiveType) {
@@ -100,6 +101,7 @@ void GrSampleMaskProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, 
             GrMesh& mesh = out->emplace_back(GrPrimitiveType::kTriangles);
             mesh.setNonIndexedNonInstanced(instanceCount * 3);
             mesh.setVertexData(std::move(instanceBuffer), baseInstance * 3);
+            *primType = GrPrimitiveType::kTriangles;
             break;
         }
         case PrimitiveType::kQuadratics:
@@ -107,8 +109,25 @@ void GrSampleMaskProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, 
         case PrimitiveType::kConics: {
             GrMesh& mesh = out->emplace_back(GrPrimitiveType::kTriangleStrip);
             mesh.setInstanced(std::move(instanceBuffer), instanceCount, baseInstance, 4);
+            *primType = GrPrimitiveType::kTriangleStrip;
             break;
         }
+    }
+}
+
+GrPrimitiveType GrSampleMaskProcessor::primType() const {
+    SkASSERT(PrimitiveType::kWeightedTriangles != fPrimitiveType);
+
+    switch (fPrimitiveType) {
+    case PrimitiveType::kTriangles:
+    case PrimitiveType::kWeightedTriangles:
+        return GrPrimitiveType::kTriangles;
+    case PrimitiveType::kQuadratics:
+    case PrimitiveType::kCubics:
+    case PrimitiveType::kConics:
+        return GrPrimitiveType::kTriangleStrip;
+    default:
+        return GrPrimitiveType::kTriangleStrip;
     }
 }
 

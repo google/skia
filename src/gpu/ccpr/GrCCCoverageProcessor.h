@@ -72,7 +72,7 @@ public:
         void setW(const Sk2f& P0, const Sk2f& P1, const Sk2f& P2, const Sk2f& trans, float w);
     };
 
-    virtual void reset(PrimitiveType, GrResourceProvider*) = 0;
+    virtual void reset1(PrimitiveType, GrResourceProvider*) = 0;
 
     PrimitiveType primitiveType() const { return fPrimitiveType; }
 
@@ -118,10 +118,12 @@ public:
     // of either TriPointInstance or QuadPointInstance, depending on this processor's RendererPass,
     // with coordinates in the desired shape's final atlas-space position.
     virtual void appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount,
-                            int baseInstance, SkTArray<GrMesh>* out) const = 0;
+                            int baseInstance, SkTArray<GrMesh>* out, GrPrimitiveType*) const = 0;
 
     virtual void draw(GrOpFlushState*, const GrPipeline&, const SkIRect scissorRects[],
                       const GrMesh[], int meshCount, const SkRect& drawBounds) const;
+
+    virtual GrPrimitiveType primType() const = 0;
 
     // The Shader provides code to calculate each pixel's coverage in a RenderPass. It also
     // provides details about shape-specific geometry.

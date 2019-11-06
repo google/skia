@@ -18,10 +18,13 @@ public:
     GrVSCoverageProcessor() : GrCCCoverageProcessor(kGrVSCoverageProcessor_ClassID) {}
 
 private:
-    void reset(PrimitiveType, GrResourceProvider*) override;
+    void reset1(PrimitiveType, GrResourceProvider*) override;
 
+    // Always either kTriangleStrip or kTriangles - consistent
     void appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount, int baseInstance,
-                    SkTArray<GrMesh>* out) const override;
+                    SkTArray<GrMesh>* out, GrPrimitiveType*) const override;
+
+    GrPrimitiveType primType() const final { return fTriangleType; }
 
     GrGLSLPrimitiveProcessor* onCreateGLSLInstance(std::unique_ptr<Shader>) const override;
 
@@ -30,7 +33,7 @@ private:
     sk_sp<const GrGpuBuffer> fVertexBuffer;
     sk_sp<const GrGpuBuffer> fIndexBuffer;
     int fNumIndicesPerInstance;
-    GrPrimitiveType fTriangleType;
+    GrPrimitiveType fTriangleType = GrPrimitiveType::kPoints;
 
     class Impl;
 };
