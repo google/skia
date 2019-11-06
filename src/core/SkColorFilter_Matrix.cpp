@@ -104,11 +104,11 @@ bool SkColorFilter_Matrix::program(skvm::Builder* p,
 
         skvm::F32 rgba[4];
         for (int j = 0; j < 4; j++) {
-            rgba[j] = p->mad(m(0+j*5), R,
-                      p->mad(m(1+j*5), G,
-                      p->mad(m(2+j*5), B,
-                      p->mad(m(3+j*5), A,
-                             m(4+j*5)))));
+            rgba[j] =        m(4+j*5);
+            rgba[j] = p->mad(m(3+j*5), A, rgba[j]);
+            rgba[j] = p->mad(m(2+j*5), B, rgba[j]);
+            rgba[j] = p->mad(m(1+j*5), G, rgba[j]);
+            rgba[j] = p->mad(m(0+j*5), R, rgba[j]);
         }
 
         // Clamp back to bytes.
