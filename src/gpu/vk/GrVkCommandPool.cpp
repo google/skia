@@ -25,8 +25,12 @@ GrVkCommandPool* GrVkCommandPool::Create(GrVkGpu* gpu) {
         cmdPoolCreateFlags,                          // CmdPoolCreateFlags
         gpu->queueIndex(),                           // queueFamilyIndex
     };
+    VkResult result;
     VkCommandPool pool;
-    GR_VK_CALL_ERRCHECK(gpu, CreateCommandPool(gpu->device(), &cmdPoolInfo, nullptr, &pool));
+    GR_VK_CALL_RESULT(gpu, result, CreateCommandPool(gpu->device(), &cmdPoolInfo, nullptr, &pool));
+    if (result != VK_SUCCESS) {
+        return nullptr;
+    }
     return new GrVkCommandPool(gpu, pool);
 }
 

@@ -11,10 +11,8 @@
 #include "src/gpu/vk/GrVkGpu.h"
 
 
-GrVkDescriptorPool::GrVkDescriptorPool(GrVkGpu* gpu, VkDescriptorType type, uint32_t count)
-    : INHERITED()
-    , fType (type)
-    , fCount(count) {
+GrVkDescriptorPool* GrVkDescriptorPool::Create(GrVkGpu* gpu, VkDescriptorType type,
+                                               uint32_t count) {
     VkDescriptorPoolSize poolSize;
     memset(&poolSize, 0, sizeof(VkDescriptorPoolSize));
     poolSize.descriptorCount = count;
@@ -30,8 +28,18 @@ GrVkDescriptorPool::GrVkDescriptorPool(GrVkGpu* gpu, VkDescriptorType type, uint
     createInfo.poolSizeCount = 1;
     createInfo.pPoolSizes = &poolSize;
 
-    GR_VK_CALL_ERRCHECK(gpu, CreateDescriptorPool(gpu->device(), &createInfo, nullptr, &fDescPool));
+    VkDescriptorPool pool;
+    VkResult result;
+    GR_VK_CALL_RESULT(gpu, result, CreateDescriptorPool(gpu->device(), &createInfo, nullptr,
+                                                        &pool));
+    if (result != VK_SUCCESS) {
+        return nullptr;
+    }
+    return new GrVkDescriptorPool(pool, type, count);
 }
+
+GrVkDescriptorPool::GrVkDescriptorPool(VkDescriptorPool pool, VkDescriptorType type, uint32_t count)
+        : INHERITED(), fType(type), fCount(count), fDescPool(pool) {}
 
 bool GrVkDescriptorPool::isCompatible(VkDescriptorType type, uint32_t count) const {
     return fType == type && count <= fCount;
