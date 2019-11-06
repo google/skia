@@ -38,6 +38,7 @@ public:
 
     wgpu::Texture texture() const { return fInfo.fTexture; }
     wgpu::TextureView textureView() const { return fTextureView; }
+    uint32_t levelCount() const { return fInfo.fLevelCount; }
 protected:
     GrDawnTexture(GrDawnGpu*, const SkISize& dimensions, GrPixelConfig config, wgpu::TextureView,
                   const GrDawnImageInfo&, GrMipMapsStatus);

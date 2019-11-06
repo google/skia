@@ -563,9 +563,89 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, i
     return true;
 }
 
-bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture*) {
-    SkASSERT(!"unimplemented");
-    return false;
+bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture* tex) {
+    auto* dawnTex = static_cast<GrDawnTexture*>(tex);
+
+    SkASSERT(tex->texturePriv().textureType() == GrTextureType::k2D);
+
+    // SkMipMap doesn't include the base level in the level count so we have to add 1
+    uint32_t levelCount = SkMipMap::ComputeLevelCount(tex->width(), tex->height()) + 1;
+    SkASSERT(levelCount == dawnTex->levelCount());
+
+    // // change layout of the layers so we can write to them.
+    // vkTex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_ACCESS_TRANSFER_WRITE_BIT,
+    //                       VK_PIPELINE_STAGE_TRANSFER_BIT, false);
+
+    // // setup memory barrier
+    // SkASSERT(GrVkFormatIsSupported(vkTex->imageFormat()));
+    // VkImageMemoryBarrier imageMemoryBarrier = {
+    //         VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,  // sType
+    //         nullptr,                                 // pNext
+    //         VK_ACCESS_TRANSFER_WRITE_BIT,            // srcAccessMask
+    //         VK_ACCESS_TRANSFER_READ_BIT,             // dstAccessMask
+    //         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,    // oldLayout
+    //         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,    // newLayout
+    //         VK_QUEUE_FAMILY_IGNORED,                 // srcQueueFamilyIndex
+    //         VK_QUEUE_FAMILY_IGNORED,                 // dstQueueFamilyIndex
+    //         vkTex->image(),                          // image
+    //         {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1}  // subresourceRange
+    // };
+
+    int width = tex->width();
+    int height = tex->height();
+    uint32_t mipLevel = 1;
+    wgpu::CommandEncoder copyEncoder = fDevice.CreateCommandEncoder();
+
+    // Blit the miplevels
+    while (mipLevel < levelCount) {
+        // int prevWidth = width;
+        // int prevHeight = height;
+        width = SkTMax(1, width / 2);
+        height = SkTMax(1, height / 2);
+
+        /*
+
+    struct TextureCopyView {
+        const void* nextInChain = nullptr;
+        Texture texture;
+        uint32_t mipLevel = 0;
+        uint32_t arrayLayer = 0;
+        Origin3D origin;
+    };*/
+
+        wgpu::TextureCopyView srcTexture, dstTexture;
+        srcTexture.texture = dawnTex->texture();
+        srcTexture.mipLevel = mipLevel - 1;
+        srcTexture.origin = {0, 0, 0};
+        dstTexture.texture = dawnTex->texture();
+        dstTexture.mipLevel = mipLevel;
+        dstTexture.origin = {0, 0, 0};
+        wgpu::Extent3D copySize = {(uint32_t) width, (uint32_t) height, 1};
+        copyEncoder.CopyTextureToTexture(&srcTexture, &dstTexture, &copySize);
+
+        // imageMemoryBarrier.subresourceRange.baseMipLevel = mipLevel - 1;
+        // this->addImageMemoryBarrier(vkTex->resource(), VK_PIPELINE_STAGE_TRANSFER_BIT,
+        //                             VK_PIPELINE_STAGE_TRANSFER_BIT, false, &imageMemoryBarrier);
+
+        // blitRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mipLevel - 1, 0, 1 };
+        // blitRegion.srcOffsets[0] = { 0, 0, 0 };
+        // blitRegion.srcOffsets[1] = { prevWidth, prevHeight, 1 };
+        // blitRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, mipLevel, 0, 1 };
+        // blitRegion.dstOffsets[0] = { 0, 0, 0 };
+        // blitRegion.dstOffsets[1] = { width, height, 1 };
+        // fCurrentCmdBuffer->blitImage(this,
+        //                              vkTex->resource(),
+        //                              vkTex->image(),
+        //                              VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        //                              vkTex->resource(),
+        //                              vkTex->image(),
+        //                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        //                              1,
+        //                              &blitRegion,
+        //                              VK_FILTER_LINEAR);
+        ++mipLevel;
+    }
+    return true;
 }
 
 void GrDawnGpu::submit(GrOpsRenderPass* renderPass) {
